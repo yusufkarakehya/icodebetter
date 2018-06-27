@@ -297,7 +297,15 @@ class	XModal extends React.Component {
 		iwb.closeModal=this.close;
 	}
 	open(cfg){
-		this.setState({modal:!0, title:cfg.title||'Form', color:cfg.color||'primary',size:cfg.size||'lg',body:cfg.body, footer:cfg.footer!==false, modalBodyProps:cfg.modalBodyProps||{},props:cfg.props||{}});
+		this.setState({
+			modal:!0, 
+			title:cfg.title||'Form', 
+			color:cfg.color||'primary',
+			size:cfg.size||'lg',
+			body:cfg.body,
+			style:cfg.style,
+			footer:cfg.footer!==false,
+			modalBodyProps:cfg.modalBodyProps||{},props:cfg.props||{}});
 		return false;
 		
 	}
@@ -308,7 +316,7 @@ class	XModal extends React.Component {
 		this.setState({modal:false});
 	}
     render() {
-    	return this.state.modal && _(Modal, {keyboard:true, backdrop:this.state.footer!==false ? 'static':true, toggle: this.toggle, isOpen: this.state.modal, className: 'modal-'+this.state.size+' primary'}
+    	return this.state.modal && _(Modal, {keyboard:true, backdrop:this.state.footer!==false ? 'static':true, toggle: this.toggle, isOpen: this.state.modal, className: 'modal-'+this.state.size+' primary', style:this.state.style}
 			,_(ModalHeader, {toggle:this.toggle, className:'bg-'+this.state.color}, this.state.title)
 			,_(ModalBody,this.state.modalBodyProps, this.state.body)
             ,this.state.footer!==false && _(ModalFooter, null,_(Button, { className:'btn-form',color: 'teal', onClick: this.toggle }, "KAYDET"),
@@ -1320,6 +1328,13 @@ class XEditGrid extends React.PureComponent {
 			editor.onChange=function(o){
 				xprops.row._new[xprops.column.name] = o.id;
 				xprops.onValueChange(o.id);
+			};
+			break;
+		case 5:
+			editor.checked=+xprops.row._new[xprops.column.name];
+			editor.onChange=function(o){
+				xprops.row._new[xprops.column.name] = o.target.checked;
+				xprops.onValueChange(o.target.checked);
 			};
 			break;
 		default:

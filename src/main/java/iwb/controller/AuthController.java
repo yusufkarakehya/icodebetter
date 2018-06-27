@@ -5,6 +5,7 @@ import iwb.exception.PromisException;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -121,11 +122,13 @@ public class AuthController {
             Map scd = engine.generateScdFromAuth(socialCon, email); 
             if(scd == null){
             	Map m = checkVcsTenant(socialCon, email,nickname,socialNet);
-            	int customizationId = (int)m.get("customizationId");
-            	String projectId = m.get("projectId").toString();
-            	int userId = (int)m.get("userId");
-            	int userTip = (int)m.get("userTip");
-            	engine.saveCredentials(customizationId,projectId , userId,userTip, fullName, pictureUrl, socialCon, email, nickname);
+            	int customizationId = GenericUtil.uInt(m.get("customizationId"));
+            	int userId = GenericUtil.uInt(m.get("userId"));
+
+            	List<Map> projectList = (List<Map>)m.get("projects");
+            	List<Map> userTips = (List<Map>)m.get("userTips");
+            	//List<Map> userList = (List<Map>)m.get("userList");	
+            	engine.saveCredentials(customizationId,userId,fullName, pictureUrl, socialCon, email, nickname, projectList, userTips);
             } else {
             	session.setAttribute("iwb-scd", scd);
             }
@@ -153,21 +156,22 @@ public class AuthController {
 				JSONObject json;
 				try {
 					json = new JSONObject(s);
-					
 					if(json.get("success").toString().equals("true")){
-						Map map = new HashMap();
+						Map map = GenericUtil.fromJSONObjectToMap(json);
+						/*Map map = new HashMap();
 					    map.put("customizationId", json.get("customizationId"));
 					    map.put("projectId", json.get("projectId").toString());
 					    map.put("userId", json.get("userId"));
 					    map.put("userTip", json.get("userTip"));
-					    return map;
+					    */
+						return map;
 					}
 				} catch (JSONException e){
 					//throw new PromisException("vcs","vcsClientObjectPush:JSON Exception", t.getTableId(), s, e.getMessage(), e.getCause());
 				}
 			}
-		} catch (JSONException e){
-			throw new RuntimeException(e);
+		}catch (JSONException e){
+			throw new RuntimeException();
 		}
 		return null;
 	}
@@ -175,7 +179,7 @@ public class AuthController {
 	@RequestMapping("/login")
     @ResponseBody
     protected void login(final HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String redirectUri = req.getScheme() + "://localhost:8080/iwb-lcp/auth/callback";
+        String redirectUri = req.getScheme() +"://localhost:8080/iwb-lcp/auth/callback";// "promiscrm.com:8888" + "/iwb/auth/callback"; //req.getScheme() + "://localhost:9999/iwb-lcp/auth/callback";
         String authorizeUrl = buildAuthorizeUrl(req, redirectUri);
     	res.getWriter().write(authorizeUrl);
 		res.getWriter().close();

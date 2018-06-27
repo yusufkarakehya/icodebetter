@@ -8032,32 +8032,37 @@ public class FrameworkEngine{
 		}
 	}
 	
-	public void saveCredentials(int cusId, String projectId,int userId, int userTip, String fullName, String picUrl, int socialNet, String email, String nickname) {
-		//int cusId = GenericUtil.getGlobalNextval("seq_customization");
-		dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickname);
-		
-		//String projectId = UUID.randomUUID().toString();
-		String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
-		//int userId = GenericUtil.getGlobalNextval("seq_user");
-		dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users, set_search_path_flag, rdbms_schema) values (?,?,?, ?, 1, ?)", projectId, cusId, "New Project 1", ""+userId,schema);
-		dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
-
-		//int userTip = GenericUtil.getGlobalNextval("seq_user_tip");
-		dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", cusId, projectId);
-		
-//		int roleId = GenericUtil.getGlobalNextval("seq_role");
-		dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
-		
-		dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,?,?,?,?,?,?,?)", 
-				userId, cusId, nickname, email, "password", 1, nickname, 1 , socialNet, email,projectId);
-		int userRoleId = GenericUtil.getGlobalNextval("seq_user_role");
-		dao.executeUpdateSQLQuery("insert into iwb.w5_user_role(user_role_id, user_id, role_id, customization_id,unit_id, project_uuid) values(?, ?, 0, ?,?, ?)",userRoleId, userId, cusId,0,projectId);
-
+	public void saveCredentials(int cusId,int userId,String fullName, String picUrl, int socialNet, String email, String nickName, List<Map> projects, List<Map> userTips) {	
+		dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName);
 		FrameworkSetting.customizationSystemStatus.put(cusId, 0);
-		FrameworkCache.wProjects.put(projectId, (W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, projectId).get(0));
-	}
-	
-	public void loadCredentials(){
+		dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)", 
+				userId, cusId, nickName, email, nickName+1, 1, nickName, 1 , socialNet, email,projects.get(0).get("project_uuid"));
+		int userRoleId = GenericUtil.getGlobalNextval("seq_user_role");
+		dao.executeUpdateSQLQuery("insert into iwb.w5_user_role(user_role_id, user_id, role_id, customization_id,unit_id, project_uuid) values(?, ?, 0, ?,?, ?)",userRoleId, userId, cusId,0,projects.get(0).get("project_uuid"));
+		
+		for(Map p: projects){
+			String projectId = (String)p.get("project_uuid");
+			String vcsUrl = (String)p.get("vcs_url");
+
+			List<Object[]> list = dao.executeSQLQuery("select p.* from iwb.w5_project p where p.project_uuid=?",projectId);
+			if(GenericUtil.isEmpty(list)){
+				String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
+				dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users, set_search_path_flag, rdbms_schema, vcs_flag, vcs_url, vcs_user_name, vcs_password)"
+						+ " values (?,?,?, ?, 1, ?,1,?,?,?)", projectId, cusId, "New Project 1", ""+userId,schema,vcsUrl,nickName, "1");
+				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
+			}
+
+			FrameworkCache.wProjects.put(projectId, (W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, projectId).get(0));
+		}
+		
+		
+		for(Map t: userTips){
+			String projectId = (String)t.get("project_uuid");
+			int userTip = GenericUtil.uInt(t.get("user_tip"));
+			dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id)"
+					+ " values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", cusId, projectId);
+			dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
+		}	
 		
 	}
 
