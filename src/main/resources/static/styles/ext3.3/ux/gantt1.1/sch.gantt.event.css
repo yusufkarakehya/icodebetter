@@ -1,0 +1,237 @@
+/*
+ * Ext Gantt 1.1
+ * Copyright(c) 2009-2010 Mats Bryntse Consulting
+ * mats@ext-scheduler.com
+ * http://www.ext-scheduler.com/license.html
+ *
+ */
+
+ 
+.sch-gantt-item
+{
+	position:static;
+}
+
+.sch-event-wrap
+{
+    z-index:1000;
+    min-width:1px;			/* To make sure a event is never completely invisible */ 
+    position : absolute;
+    overflow:visible;
+}
+
+.sch-gantt-item
+{
+    cursor:pointer;
+}
+
+.sch-gantt-task .sch-event-selected
+{
+	border-color:red !important;
+}
+
+.sch-event-endsoutside .sch-gantt-task
+{
+	border-right:0 none;
+}
+
+/* Hide left border for events starting outside the view */
+.sch-event-startsoutside .sch-gantt-task
+{
+	border-left:0 none;
+}
+
+/* Parent task styling */
+.sch-gantt-parenttask-bar
+{
+	cursor:pointer;
+    height:9px;
+	border:1px solid #3172D7;
+	background: #E5ECF5 url(../images/progressbg.gif) repeat-x 0 0;
+}
+
+
+.ext-strict .ext-ie .sch-gantt-parenttask-bar .sch-gantt-progress-bar,
+.sch-gantt-parenttask-bar .sch-gantt-progress-bar {
+	height:9px;
+	margin:0;
+}
+
+/* For IE */
+.ext-ie .sch-gantt-parenttask-bar .sch-gantt-progress-bar {
+	height:7px;
+	margin:0;
+	left:0; 
+	top:0;
+}
+
+.sch-gantt-parenttask-leftarrow
+{
+	border:0;
+	width:12px;
+	height:6px;
+	bottom:-6px;
+	left:0;
+	position:absolute;
+	background:url(../images/parentdownarrow.png) no-repeat 0 0;
+	overflow:hidden;
+}
+
+.sch-gantt-parenttask-rightarrow
+{
+	border:0;
+	width:12px;
+	height:6px;
+	bottom:-6px;
+	right:-2px;
+	position:absolute;
+	background:url(../images/parentdownarrow.png) no-repeat 0 0;
+	overflow:hidden;
+}
+
+.ext-ie .sch-gantt-parenttask-rightarrow
+{
+	right:0;
+}
+
+/* Leaf task styling */
+.ext-strict .ext-ie .sch-gantt-task-bar,
+.sch-gantt-task-bar
+{
+	border:1px solid #3172D7;
+    height:13px;
+    border-radius:2px;
+    -moz-border-radius:2px;
+    -webkit-border-radius: 2px;
+	overflow:hidden;
+	cursor:move;
+	background: #E5ECF5 url(../images/progressbg.gif) repeat-x 0 0;
+}
+
+.ext-ie .sch-gantt-task-bar
+{
+	overflow:visible;
+    height:15px;
+}
+
+.sch-gantt-progress-bar {
+	height:11px;
+	margin:1px;
+	background: #9CBFEE url(../images/progress.gif) repeat-x 0 -4px;
+	overflow:hidden;
+}
+
+.ext-strict .ext-ie .sch-gantt-progress-bar {
+	height:11px;
+}
+
+.ext-ie .sch-gantt-progress-bar {
+	margin:0;
+	position:relative;
+	left:1px;
+	top:1px;
+}
+
+.sch-gantt-label
+{
+    color: #888;
+    white-space:nowrap;
+}
+
+.sch-gantt-labelct-left
+{
+	position: absolute;
+    left: -600px;
+    width: 570px;
+    text-align: right;
+    top: 0;
+    margin-right:30px;
+}
+
+.sch-gantt-labelct-right
+{
+	position: absolute;
+    top: 0;
+    margin-left: 20px;
+}
+
+/* Milestone styling */ 
+.sch-gantt-milestone .sch-gantt-label-right
+{
+	position: absolute;
+    left: 40px;
+}
+
+.sch-gantt-milestone-diamond
+{
+	background-image:url(../images/milestone.png);
+	background-color:transparent !important;	
+	border:0 none !important;
+	height:16px;
+	width:16px;
+	cursor:move;
+}
+
+.sch-gantt-milestone-diamond.sch-event-selected,
+.sch-gantt-milestone-diamond.sch-event-hover
+{
+	background-position: 0 -16px;	
+}
+
+/* Make sure the task labels are hidden during DnD*/
+.x-dd-drag-proxy .sch-gantt-label-left,
+.x-dd-drag-proxy .sch-gantt-label-right
+{
+    display:none;
+}
+
+
+/* Low priority styling */
+.sch-gantt-prio-low .sch-gantt-progress-bar
+{
+	background-position:0 -44px;
+}
+
+.sch-gantt-parent-task .sch-gantt-prio-low,
+.sch-gantt-task .sch-gantt-prio-low
+{
+	border-color:#888;
+	background-position:0 -156px;
+}
+
+.sch-gantt-milestone .sch-gantt-prio-low
+{
+	background-position:0 -48px;
+}
+
+.sch-gantt-prio-low .sch-gantt-parenttask-leftarrow,
+.sch-gantt-prio-low .sch-gantt-parenttask-rightarrow
+{
+	background-position:0 -12px;
+}
+
+
+/* High priority styling */
+.sch-gantt-prio-high .sch-gantt-progress-bar
+{
+	background-position:0 -24px;
+}
+
+.sch-gantt-parent-task .sch-gantt-prio-high,
+.sch-gantt-task .sch-gantt-prio-high
+{
+	border-color:red;
+	background-position:0 -78px;
+}
+
+.sch-gantt-milestone .sch-gantt-prio-high
+{
+	background-position:0 -32px;
+}
+
+.sch-gantt-prio-high .sch-gantt-parenttask-leftarrow,
+.sch-gantt-prio-high .sch-gantt-parenttask-rightarrow
+{
+	background-position:0 -6px;
+}
+

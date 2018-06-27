@@ -1,0 +1,129 @@
+.x-grid-commit {
+    background: url(../../../../images/custom/commit2.png) no-repeat left center !important;
+}
+
+.x-grid3-row {
+	border-bottom:0;
+	border-top:0;
+}
+
+.icon-prev
+{
+    background: url(../../../../images/ext3.3/ux/gantt1.1/arrow_left.png) no-repeat left center !important;
+}
+
+.icon-next
+{
+    background: url(../../../../images/ext3.3/ux/gantt1.1/arrow_right.png) no-repeat center center !important;
+}
+
+.icon-zoomtofit
+{
+    background: url(images/magnifier-zoom-fit.png) no-repeat center center !important;
+}
+
+.icon-add
+{
+    background: url(images/add.png) no-repeat left center !important;
+}
+
+.zoomfit
+{
+	background:url("images/zoom-fit.png") no-repeat left center !important;
+}
+
+.icon-collapseall
+{
+    background: url(images/up.png) no-repeat left center !important;
+}
+
+.icon-expandall
+{
+    background: url(images/down.png) no-repeat left center !important;
+}
+
+.icon-print
+{
+	background: url(images/printer.png) no-repeat left center !important;
+}
+
+.taskTip
+{
+	font-size:11px;
+}
+
+.taskTip td
+{
+	width:70px;
+}
+
+.sch-gantt-parenttask-bar  {
+	background:none repeat scroll 0 0 #FFBC00;
+	border:1px solid red;
+}
+
+.sch-gantt-parenttask-bar .sch-gantt-progress-bar {
+	background:none repeat scroll 0 0 #FFF3A5;
+}
+
+.sch-gantt-parenttask-rightarrow,  
+.sch-gantt-parenttask-leftarrow  
+{
+	background-position:0 -6px;
+}
+
+.parent .x-grid3-cell-inner
+{
+	font-weight:bold;
+	padding-left:21px;
+	background: url(images/puzzle.png) no-repeat 1px 1px;
+}
+
+.task .x-grid3-cell-inner
+{
+	padding-left:21px;
+	background: url(images/cog.png) no-repeat 1px 1px;
+}
+
+@-webkit-keyframes glow {
+	0% {
+		-webkit-box-shadow: 0 0 8px rgba(255, 0, 0, 1);
+	}
+	100% {
+		-webkit-box-shadow: 0;
+		border-color: red; 
+	}
+}
+
+.show-critical-chain .sch-event-selected,
+.sch-dependency-selected
+{
+	-webkit-animation-name: glow;
+    -webkit-animation-iteration-count : infinite;
+    -webkit-animation-duration: 0.8s;
+	-webkit-animation-direction: alternate;
+	-webkit-animation-timing-function: ease-in-out;	
+	-moz-box-shadow: 0 0 8px rgba(255, 0, 0, 1);
+}
+
+
+.togglebutton
+{
+	background: url(images/checkbox.gif) no-repeat 0 0 !important;
+}
+
+
+.x-btn-pressed .togglebutton
+{
+	background-position:0 -16px !important;
+}
+
+.action
+{
+	background: url(images/play.png) no-repeat 0 0 !important;
+}
+
+.sch-ganttpanel .x-table-layout-cell
+{
+	text-align:left;
+}

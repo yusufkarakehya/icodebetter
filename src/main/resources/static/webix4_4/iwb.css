@@ -1,0 +1,89 @@
+a:visited {
+    color: #3B5998;
+    text-decoration: none;
+}
+a:link {
+    color: #3B5998;
+    text-decoration: none;
+}
+a:hover {
+text-decoration: underline;
+/*  border-bottom: 1px #3B5998 dotted; */
+	color: #3B5998;
+}
+
+.menu.webix_view{
+	background: #f1f1f1 !important;
+}
+.menu .webix_tree_item.webix_selected , .menu .webix_tree_item.webix_selected span{
+	background-color: #27ae60;
+	padding-right:0;
+}
+.menu .webix_tree_branch_1 .webix_tree_item{
+	/*padding-left:10px;*/
+	padding-left:24px;
+	padding-right:1px;
+}
+.menu .webix_tree_branch_1>.webix_tree_item{
+	/*padding: 5px 12px;*/
+	padding: 1px 0 1px 0;
+	line-height:40px;
+	/*font-size: 12px;
+	text-transform: uppercase;*/
+}
+.menu .webix_tree_branch_1{
+	border-bottom:1px solid #e5e5e5;
+}
+.menu .webix_tree_item.webix_selected span, .menu .webix_tree_item span{
+	margin:0;
+	padding:1px;
+}
+
+.menu .webix_tree_item.webix_selected .webix_icon{
+	color: #fff;
+}
+.menu .webix_icon{
+	width: 20px;
+	padding-left: 7px !important;
+	text-align: center;
+}
+.menu .dashboard .webix_icon{
+	font-size: 18px;
+}
+
+.menu .webix_tree_leaves .webix_tree_leaves {
+	margin-left: 0px;
+}
+
+.header_person span{
+	margin-top: 4px;
+}
+
+.top_menu_margin span{
+	margin-top: 12px;
+}
+.webix_badge {
+	background-color: #e74c3c;
+	top:-10px;
+}
+
+.wizard-start button{
+	padding: 2px;
+	background-color: #49cd81;
+}
+
+.wizard-start button:hover{
+	padding: 2px;
+	background-color: #27ae60;
+}
+.wizard-start button:focus{
+	padding: 2px;
+	background-color: #27ae60;
+}
+.wizard-start span{
+	color:white !important;
+}
+
+.formselected{
+	background: #FFA;
+}

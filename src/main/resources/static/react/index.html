@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="CoreUI - Open Source Bootstrap Admin Template">
+    <meta name="author" content="Łukasz Holeczek">
+    <meta name="keyword" content="Bootstrap,Admin,Template,Open,Source,AngularJS,Angular,Angular2,Angular 2,Angular4,Angular 4,jQuery,CSS,HTML,RWD,Dashboard,React,React.js,Vue,Vue.js">
+    <link rel="shortcut icon" href="img/favicon.png">
+    <title>CoreUI - Open Source Bootstrap Admin Template</title>
+  </head>
+
+  <!-- BODY options, add following classes to body to change options
+
+    // Header options
+    1. '.header-fixed'					- Fixed Header
+
+    // Sidebar options
+    1. '.sidebar-fixed'					- Fixed Sidebar
+    2. '.sidebar-hidden'				- Hidden Sidebar
+    3. '.sidebar-off-canvas'		- Off Canvas Sidebar
+    4. '.sidebar-minimized'			- Minimized Sidebar (Only icons)
+    5. '.sidebar-compact'			  - Compact Sidebar
+
+    // Aside options
+    1. '.aside-menu-fixed'			- Fixed Aside Menu
+    2. '.aside-menu-hidden'			- Hidden Aside Menu
+    3. '.aside-menu-off-canvas'	- Off Canvas Aside Menu
+
+    // Breadcrumb options
+    1. '.breadcrumb-fixed'			- Fixed Breadcrumb
+
+    // Footer options
+    1. 'footer-fixed'						- Fixed footer
+
+  -->
+
+  <body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start`.
+      To create a production bundle, use `npm run build`.
+    -->
+    <script src="js/react16/react.development.js"></script>
+    <script src="js/react16/react-dom.development.js"></script>
+    <script src="js/react-router-dom4/react-router-dom.js"></script>
+    <script src="js/react-others/classnames.js"></script>
+    <script src="js/react-others/react-transition-group.min.js"></script>
+    <script src="js/react-others/prop-types.min.js"></script>
+    <script src="js/react-others/reactstrap.min.js"></script>
+    <script src="js/react-others/react-input-autosize.min.js"></script>
+    <script src="js/react-others/react-select.min.js"></script>
+    <script src="js/react-others/react-number-format.min.js"></script>
+    <script src="js/react-others/react-bootstrap-table2.min.js"></script>
+<!-- <script src="js/react-others/react-bootstrap-table2-paginator.min.js"></script>          
+    <script src="js/react-others/axios.min.js"></script> -->
+    <script src="js/jquery3/jquery-3.3.1.js"></script>
+    <script src="js/toastr/toastr.min.js"></script>
+
+    <link rel="stylesheet" href="js/toastr/toastr.css"/>
+    <link rel="stylesheet" href="css/bootstrap4/bootstrap.css"/>
+    <link rel="stylesheet" href="css/fontawesome/fontawesome-all.css"/>
+    <link rel="stylesheet" href="css/simpleline/simple-line-icons.css"/>
+    <link rel="stylesheet" href="css/react/react-select.css">
+    <link rel="stylesheet" href="css/react/react-bootstrap-table2.css">
+    <link rel="stylesheet" href="css/react/react-bootstrap-table2-paginator.css">
+    
+	<link rel="stylesheet" href="css/styles.css"/>
+	<link rel="stylesheet" href="css/iwb.css"/>
+	
+	
+<!--     <script src="js/popper/popper.js"></script> -->
+    <script src="js/bootstrap4/bootstrap.js"></script>
+    <script src="js/iwb.js"></script>
+<script>
+
+var qry_user_menu4webix=[{"id":"mnu_2371","value":"Mali İşler","href":"","details":"","icon":"","tab_order":"100","menu_id":"2371","parent_id":"mnu_0","data":[{"id":"mnu_2414","value":"yazarlar","href":"showPage?_tid=2293","details":"","icon":"star","tab_order":"1","menu_id":"2414","parent_id":"mnu_2371"},{"id":"mnu_2374","value":"Kuruluşlar","href":"showPage?_tid=2258","details":"","icon":"home","tab_order":"1","menu_id":"2374","parent_id":"mnu_2371"},{"id":"mnu_2382","value":"Aboneler","href":"showPage?_tid=2265","details":"","icon":"cube","tab_order":"1","menu_id":"2382","parent_id":"mnu_2371"},{"id":"mnu_2380","value":"Starbucks","href":"showPage?_tid=2263","details":"","icon":"star","tab_order":"22","menu_id":"2380","parent_id":"mnu_2371"},{"id":"mnu_2375","value":"Mali Bilgiler","href":"showPage?_tid=2262","details":"","icon":"cube","tab_order":"120","menu_id":"2375","parent_id":"mnu_2371"}]},{"id":"mnu_2372","value":"Denetimler","href":"","details":"","icon":"","tab_order":"200","menu_id":"2372","parent_id":"mnu_0","data":[{"id":"mnu_2378","value":"Sözleşmeler","href":"showPage?_tid=2259","details":"","icon":"cube","tab_order":"1","menu_id":"2378","parent_id":"mnu_2372"},{"id":"mnu_2376","value":"Denetim Listesi","href":"","details":"","icon":"table","tab_order":"210","menu_id":"2376","parent_id":"mnu_2372"}]},{"id":"mnu_2373","value":"Vatandaş","href":"","details":"","icon":"","tab_order":"300","menu_id":"2373","parent_id":"mnu_0","data":[{"id":"mnu_2377","value":"Bilgiler","href":"Bilgileri","details":"","icon":"info","tab_order":"310","menu_id":"2377","parent_id":"mnu_2373"}]}];
+
+</script>
+    <script type="text/javascript" src="js/components/Aside/Aside.js"></script>
+    <script type="text/javascript" src="js/components/Breadcrumb/Breadcrumb.js"></script>  
+    <script type="text/javascript" src="js/components/Footer/Footer.js"></script>
+    <script type="text/javascript" src="js/components/Header/Header.js"></script>
+    <script type="text/javascript" src="js/components/Sidebar/Sidebar.js"></script>
+    <script type="text/javascript" src="js/components/ShowForm/ShowForm.js"></script>
+    <script type="text/javascript" src="js/containers/Full/Full.js"></script>
+   
+    <script type="text/javascript" src="js/index.js"></script>
+  </body>
+</html>

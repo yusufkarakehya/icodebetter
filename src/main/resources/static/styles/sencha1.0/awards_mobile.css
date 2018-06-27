@@ -1,0 +1,536 @@
+body {
+    -webkit-backface-visibility: none;
+}
+
+.placeholder {
+    background: #212121 url(http://a.vimeocdn.com/images/awards/vfa_icon_pattern_bg_mobile.png) repeat;
+    text-align: center;
+}
+
+.placeholder_inner {
+    padding: 25px 10px;
+}
+
+.placeholder_inner p {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.placeholder_inner p img {
+    background-color: #1d1d1d;
+    padding: 10px;
+}
+
+.video_panel {
+    height: 75px;
+}
+
+.video_panel img {
+    float: left;
+    margin-right: 10px;
+}
+
+/* GUI */
+.x-toolbar-light .x-button,
+.x-toolbar-light .x-button.x-button-back::after,
+.x-toolbar-light .x-button.x-button-forward::after,
+.x-toolbar .x-toolbar-light .x-button,
+.x-toolbar .x-toolbar-light .x-button.x-button-back::after,
+.x-toolbar .x-toolbar-light .x-button.x-button-forward::after,
+.x-toolbar-light .x-field-select .x-input-text,
+.x-toolbar-light .x-field-select .x-input-text.x-button-back::after,
+.x-toolbar-light .x-field-select .x-input-text.x-button-forward::after,
+.x-toolbar .x-toolbar-light .x-field-select .x-input-text,
+.x-toolbar .x-toolbar-light .x-field-select .x-input-text.x-button-back::after,
+.x-toolbar .x-toolbar-light .x-field-select .x-input-text.x-button-forward::after {
+    background-image: -webkit-gradient(linear, 0% 0, 0% 100%, from(#444), color-stop(0.02, #444), to(#000));
+    border-top: 0.1em solid #000;
+    border-bottom: 0.1 solid #212121;
+    border-color: #000;
+}
+
+.x-toolbar-light .x-button.x-button-pressed,
+.x-toolbar-light .x-button.x-button-pressed::after,
+.x-toolbar-light .x-button.x-button-active,
+.x-toolbar-light .x-button.x-button-active::after,
+.x-toolbar .x-toolbar-light .x-button.x-button-pressed,
+.x-toolbar .x-toolbar-light .x-button.x-button-pressed::after,
+.x-toolbar .x-toolbar-light .x-button.x-button-active,
+.x-toolbar .x-toolbar-light .x-button.x-button-active::after,
+.x-toolbar-light .x-field-select .x-input-text.x-button-pressed,
+.x-toolbar-light .x-field-select .x-input-text.x-button-pressed::after,
+.x-toolbar-light .x-field-select .x-input-text.x-button-active,
+.x-toolbar-light .x-field-select .x-input-text.x-button-active::after,
+.x-toolbar .x-toolbar-light .x-field-select .x-input-text.x-button-pressed,
+.x-toolbar .x-toolbar-light .x-field-select .x-input-text.x-button-pressed::after,
+.x-toolbar .x-toolbar-light .x-field-select .x-input-text.x-button-active,
+.x-toolbar .x-toolbar-light .x-field-select .x-input-text.x-button-active::after {
+    background-image: -webkit-gradient(linear, 0% 0, 0% 100%, from(#000), color-stop(0.1, #212121), color-stop(0.65, #212121), to(#212121));
+}
+
+.x-toolbar-light .x-button.x-button-back::before,
+.x-toolbar-light .x-button.x-button-forward::before,
+.x-toolbar .x-toolbar-light .x-button.x-button-back::before,
+.x-toolbar .x-toolbar-light .x-button.x-button-forward::before,
+.x-toolbar-light .x-field-select .x-input-text.x-button-back::before,
+.x-toolbar-light .x-field-select .x-input-text.x-button-forward::before,
+.x-toolbar .x-toolbar-light .x-field-select .x-input-text.x-button-back::before,
+.x-toolbar .x-toolbar-light .x-field-select .x-input-text.x-button-forward::before {
+    background: #000;
+}
+
+.x-form,
+.x-form .x-panel-body {
+    background-color: #212121;
+    color: #fff;
+    font-weight: bold;
+}
+
+.x-form-fieldset-instructions {
+    color: #ccc;
+    text-shadow: black 0px -1px 1px;
+}
+
+/* SCHEDULE PAGE */
+
+.x-tabbar-dark, .x-toolbar-dark, .x-toolbar-light {
+    background: #000;
+}
+
+.x-list-header {
+    background: #333;
+    border: 0;
+    text-shadow: none;
+    color: #fff;
+}
+
+/*#8CC63F 658f3d*/
+.x-tabbar-dark.x-docked-bottom .x-tab-active {
+    background-image: -webkit-gradient(linear, 0% 0, 0% 100%, from(#212121), color-stop(0.02, #212121), to(#000));
+}
+
+.x-tabbar-dark.x-docked-top .x-tab-active {
+    background: #8CC63F;
+    color: #fff;
+    /*background-image: -webkit-gradient(linear, 0% 0, 0% 100%, from(#212121), color-stop(0.02, #212121), to(#000));*/
+}
+
+.x-tabbar-dark .x-tab {
+    color: #bbb;
+}
+
+.x-list  {
+    background-color: #1b1b1b;
+}
+
+.x-list .x-list-group-items > *,
+.x-list.x-list-flat .x-list-parent > * {
+    color: #fff;
+}
+
+.x-list .x-list-group-items .event {
+    padding: 0.6em 2.5em 0.6em 0.8em;
+    height: auto;
+    position: relative;
+    border: 0 solid #000;
+    border-top: 0.4em solid #000;
+/*    -webkit-transition: -webkit-transform 150ms ease-out;*/
+/*  -webkit-transition: left 150ms ease-out;
+    -webkit-transition-property: left, right;*/
+    background-color: #1b1b1b;
+}
+
+.x-list .x-list-group-items .swipe.left .event { -webkit-transform: translateX(-110%); /*right: 100%;*/}
+.x-list .x-list-group-items .swipe.right .event { -webkit-transform: translateX(110%); /*left: 100%;*/}
+
+.x-list .x-list-group-items > .x-item-selected,
+.x-list.x-list-flat .x-list-parent > .x-item-selected {
+    background: #1b1b1b;
+}
+
+.x-list .x-list-group-items .event .details strong {
+    font-weight: bold;
+}
+
+.x-list .x-list-group-items .event h1,
+.x-list .x-list-group-items .event .info_target {
+    display: inline-block;
+}
+
+.x-list .x-list-group-items .event span,
+.x-list .x-list-group-items .event .speakers {
+    display: block;
+    font-size: 0.7em;
+    color: #bbb;
+}
+
+.x-list .x-list-group-items .event .length {
+    position: absolute;
+    top: 0em;
+    height: 2px;
+}
+
+.x-list .x-list-group-items .event .icon {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 0.5em;
+    top: 1.8em;
+}
+
+.x-list .x-list-group-items .event.ended {
+    opacity: 0.5;
+}
+
+.event.talks .icon                                                  { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_talks.png); }
+.event.workshops .icon                                              { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_workshops.png); }
+.event.conversations .icon                                          { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_conversations.png); }
+.event.screenings .icon                                             { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_screenings.png); }
+.event.after-party .icon                                            { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_after-party.png); }
+.event.special-event .icon                                          { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_special.png); }
+
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+    .event.talks .icon                                              { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_talks_2x.png); }
+    .event.workshops .icon                                          { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_workshops_2x.png); }
+    .event.conversations .icon                                      { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_conversations_2x.png); }
+    .event.screenings .icon                                         { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_screenings_2x.png); }
+    .event.special-event .icon                                      { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_special_2x.png); }
+    .event.after-party .icon                                        { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_after-party_2x.png); }
+}
+
+.event.vimeo-iac-hq .length, .event.vimeo-iac-hq .icon              { background-color: #3871D6; }
+.event.drive-in-studios .length, .event.drive-in-studios .icon      { background-color: #D33941; }
+.event.sva-theatre .length, .event.sva-theatre .icon                { background-color: #D38D39; }
+.event.special-event .length, .event.special-event .icon            { background-color: #8CC63F; }
+.event.after-party .length, .event.after-party .icon                { background-color: #E04CBA; }
+
+.event.vimeo-iac-hq .details strong                                 { color: #3871D6; }
+.event.drive-in-studios .details strong                             { color: #D33941; }
+.event.sva-theatre .details strong                                  { color: #D38D39; }
+.event.vimeo-iac-hq.special-event .details strong                   { color: #8CC63F; }
+.event.vimeo-iac-hq.after-party .details strong                     { color: #E04CBA; }
+
+.x-list .x-list-group-items .x-disclosure {
+    z-index: 2;
+    right: 0.5em;
+    -webkit-mask-box-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpGRTdGMTE3NDA3MjA2ODExOTJDQUMyNUQwRUE4NjdEQiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo4NTZGOTEwMjlGNTAxMURGOUQ1MkE3Q0FFMzc4OERGQSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo4NTZGOTEwMTlGNTAxMURGOUQ1MkE3Q0FFMzc4OERGQSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkFDQzJEMjQxRjIyMDY4MTE4QTZEQzUxMDg5Q0Y0RTRFIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkZFN0YxMTc0MDcyMDY4MTE5MkNBQzI1RDBFQTg2N0RCIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+fkG7kgAAAuNJREFUeNrsW1FkW1EYvreJEMrIUyillDJCCK0SUiWEkKfRpz2NMcoIfag9lVJKaZUSQil929OUPcxibFphY/o0xujsYS+tUsqqdfv/nFuR3ntzzp9zz7nnZD+fhCTn3u+e7z/n+/+b63qe54xSjDkjFmn/jeu6VhLsV3Ba8fGzgCp7/QC40HIFFOVxBnCMh2T4A8ir4vfAUyHhlz1kfWzaTPgogPCZrYRRztcBhBEFlYRVbUuzbKEKirqN+3AUqYqNq/RpiJw9JvWsTTmcjyDro25TDi9yfKdmUw7zzF7FlhxOAc45JI2YtEHSRUBOohISL+mqwHcrNkj6M6ecPSb9lMnbEkr5VoAwomxyDpcJM1YzOYcpJx97Hru+nANaPNOAJ8RxZwBtomVcZd0QanwH3IW1eIJy+DXgSjD3koY9VpIOXLQqhhPtxTLPolV07IkCz6LV6dW/4dHhNR5LgH+Gy3lN1HigHL4aSPSsfzsUcVpoGt4YNNstwLgMa4l7ajfBRH9FGRaql8bZbka0WnVhO2hWZRYPONufEkD0B68NlVUtNTW5May+tkQsq8zycErxbOOsziahHn5FqHtFsUvtXcfVAPgYM2Fyoz6uBsC0Dl+sqwFQiKvF2md3E0NYRXv1mawGnymEUUHzSSA8IetEVMl6WMKNOHrJccp6zAA5+5GX0dUchjDujYvE395ok/UQxqNOLNAL7GIdEH4vfDtGptNqC55s13n8R7QVgi2t6SAsct8X8T6ibkUClwJj7esgXBY0/oNkiNb0p4CslZeHG5y167LAmONMCTykG6oJnw44oSuHfieQ52IeqiQ8ybkSD+uqovpn3P/tkkH4ueBKTI0Su3hhxyrprIcx3gIWAH8ljfcNMAf4EvJ5jjQqYYZzAdvIeoyWEm97tgLSJkOZ4agb4lHxFPCCWcR3gBMFXrrKVmc85g7gNy/h3qASNiZCH/IYleeXRu65pf+EbY97AQYAZrQOWglnerEAAAAASUVORK5CYII=);
+    background: #555;
+    width: 20px;
+    height: 20px;
+    top: 0.4em;
+}
+
+.x-list .x-list-group-items .x-disclosure.active {
+    background: #ffff99;
+}
+
+.message_header .x-panel-body {
+    padding: 20px 0;
+}
+
+
+/* EVENT DETAILS */
+.scheduleDetail .x-panel-body {
+    background: #1b1b1b !important;
+    color: #fff;
+}
+
+.scheduleDetail .event_desc {
+    overflow: hidden;
+    font-size: 0.8em;
+    line-height: 1.6em;
+}
+
+ .scheduleDetail .event_desc ul li {
+     line-height: 1.6em;
+     color: #aaa;
+     list-style: disc;
+     list-style-position: outside;
+     margin-left: 1.3em;
+ }
+
+.scheduleDetail .event_desc h1 {
+    font-size: 1.2em;
+    line-height: 0.8em;
+    border-bottom: 0.5px solid #666;
+    padding-bottom: 0.4em;
+}
+
+.scheduleDetail .event_desc .utils {
+    margin-bottom: 1em;
+}
+
+.scheduleDetail .event_desc .utils li {
+    list-style: none;
+    list-style-position: inside;
+    margin-left: 0;
+}
+
+.scheduleDetail .event_desc .utils .myschedule .icon {
+    display: inline-block;
+    -webkit-mask-box-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpGRTdGMTE3NDA3MjA2ODExOTJDQUMyNUQwRUE4NjdEQiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo4NTZGOTEwMjlGNTAxMURGOUQ1MkE3Q0FFMzc4OERGQSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo4NTZGOTEwMTlGNTAxMURGOUQ1MkE3Q0FFMzc4OERGQSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkFDQzJEMjQxRjIyMDY4MTE4QTZEQzUxMDg5Q0Y0RTRFIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkZFN0YxMTc0MDcyMDY4MTE5MkNBQzI1RDBFQTg2N0RCIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+fkG7kgAAAuNJREFUeNrsW1FkW1EYvreJEMrIUyillDJCCK0SUiWEkKfRpz2NMcoIfag9lVJKaZUSQil929OUPcxibFphY/o0xujsYS+tUsqqdfv/nFuR3ntzzp9zz7nnZD+fhCTn3u+e7z/n+/+b63qe54xSjDkjFmn/jeu6VhLsV3Ba8fGzgCp7/QC40HIFFOVxBnCMh2T4A8ir4vfAUyHhlz1kfWzaTPgogPCZrYRRztcBhBEFlYRVbUuzbKEKirqN+3AUqYqNq/RpiJw9JvWsTTmcjyDro25TDi9yfKdmUw7zzF7FlhxOAc45JI2YtEHSRUBOohISL+mqwHcrNkj6M6ecPSb9lMnbEkr5VoAwomxyDpcJM1YzOYcpJx97Hru+nANaPNOAJ8RxZwBtomVcZd0QanwH3IW1eIJy+DXgSjD3koY9VpIOXLQqhhPtxTLPolV07IkCz6LV6dW/4dHhNR5LgH+Gy3lN1HigHL4aSPSsfzsUcVpoGt4YNNstwLgMa4l7ajfBRH9FGRaql8bZbka0WnVhO2hWZRYPONufEkD0B68NlVUtNTW5May+tkQsq8zycErxbOOsziahHn5FqHtFsUvtXcfVAPgYM2Fyoz6uBsC0Dl+sqwFQiKvF2md3E0NYRXv1mawGnymEUUHzSSA8IetEVMl6WMKNOHrJccp6zAA5+5GX0dUchjDujYvE395ok/UQxqNOLNAL7GIdEH4vfDtGptNqC55s13n8R7QVgi2t6SAsct8X8T6ibkUClwJj7esgXBY0/oNkiNb0p4CslZeHG5y167LAmONMCTykG6oJnw44oSuHfieQ52IeqiQ8ybkSD+uqovpn3P/tkkH4ueBKTI0Su3hhxyrprIcx3gIWAH8ljfcNMAf4EvJ5jjQqYYZzAdvIeoyWEm97tgLSJkOZ4agb4lHxFPCCWcR3gBMFXrrKVmc85g7gNy/h3qASNiZCH/IYleeXRu65pf+EbY97AQYAZrQOWglnerEAAAAASUVORK5CYII=); */
+    background: #555;
+    width: 0px;
+    height: 0px;
+    position: relative;
+    top: 0.05em;
+    margin-right: 0.2em;
+}
+
+.scheduleDetail .event_desc p {
+    margin-top: 1em;
+}
+
+.scheduleDetail .event_desc p:first-child {
+    margin: 0;
+}
+
+.scheduleDetail .event_desc a:link, .scheduleDetail .event_desc a:visited {
+    color: #8CC63E;
+}
+
+.scheduleDetail .event_desc strong {
+    font-weight: bold;
+}
+
+.scheduleDetail .event_desc img {
+    margin-left: 1em;
+}
+
+.scheduleDetail .event_desc img:first-child {
+    margin: 0;
+}
+
+.scheduleDetail .event_desc .info {
+    margin-bottom: 0.1em;
+}
+
+.scheduleDetail .event_desc .info .host {
+    margin-bottom: 0.5em;
+}
+
+.scheduleDetail .event_desc .info .host span {
+    display: block;
+    line-height: 1em;
+}
+
+.scheduleDetail .event_desc .info .loctime {
+    color: #fff;
+    font-size: 0.8em;
+    -webkit-border-radius: 0.5em;
+    padding: 0.5em 0.8em;
+}
+
+.scheduleDetail .x-toolbar {
+    background-image: -webkit-gradient(linear, 0% 0, 0% 100%, from(rgba(0,0,0,0)), to(rgba(0,0,0,0.5)));
+}
+
+.scheduleDetail .x-toolbar .x-toolbar-title span {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    background-color: #fff;
+    position: relative;
+    top: 0.4em;
+    left: -0.4em;
+    margin-left: -1em;
+}
+
+.talks .x-toolbar .x-toolbar-title span                                                     { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_talks.png); }
+.workshops .x-toolbar .x-toolbar-title span                                                 { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_workshops.png); }
+.conversations .x-toolbar .x-toolbar-title span                                             { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_conversations.png); }
+.screenings .x-toolbar .x-toolbar-title span                                                { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_screenings.png); }
+.after-party .x-toolbar .x-toolbar-title span                                               { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_after-party.png); }
+.special-event .x-toolbar .x-toolbar-title span                                             { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_special.png); }
+
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+    .talks .x-toolbar .x-toolbar-title span                                                 { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_talks_2x.png); }
+    .workshops .x-toolbar .x-toolbar-title span                                             { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_workshops_2x.png); }
+    .conversations .x-toolbar .x-toolbar-title span                                         { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_conversations_2x.png); }
+    .screenings .x-toolbar .x-toolbar-title span                                            { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_screenings_2x.png); }
+    .after-party .x-toolbar .x-toolbar-title span                                           { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_after-party_2x.png); }
+    .special-event .x-toolbar .x-toolbar-title span                                         { -webkit-mask-box-image: url(http://a.vimeocdn.com/images/awards/icon_special_2x.png); }
+}
+
+.vimeo-iac-hq .x-toolbar, .scheduleDetail.vimeo-iac-hq .event_desc .info .loctime           { background-color: #3871d6; }
+.special-event .x-toolbar, .scheduleDetail.special-event .event_desc .info .loctime         { background-color: #8CC63F; }
+.drive-in-studios .x-toolbar, .scheduleDetail.drive-in-studios .event_desc .info .loctime   { background-color: #D33941; }
+.sva-theatre .x-toolbar, .scheduleDetail.sva-theatre .event_desc .info .loctime             { background-color: #D38D39; }
+.after-party .x-toolbar, .scheduleDetail.after-party .event_desc .info .loctime             { background-color: #E04CBA; }
+
+.x-list-parent .empty {
+    color: #fff;
+    padding: 1em;
+    text-align: center;
+    line-height: 1.2em;
+}
+
+.x-list-parent .empty h1 .icon{
+    -webkit-mask-box-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpGRTdGMTE3NDA3MjA2ODExOTJDQUMyNUQwRUE4NjdEQiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo4NTZGOTEwMjlGNTAxMURGOUQ1MkE3Q0FFMzc4OERGQSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo4NTZGOTEwMTlGNTAxMURGOUQ1MkE3Q0FFMzc4OERGQSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkFDQzJEMjQxRjIyMDY4MTE4QTZEQzUxMDg5Q0Y0RTRFIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkZFN0YxMTc0MDcyMDY4MTE5MkNBQzI1RDBFQTg2N0RCIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+fkG7kgAAAuNJREFUeNrsW1FkW1EYvreJEMrIUyillDJCCK0SUiWEkKfRpz2NMcoIfag9lVJKaZUSQil929OUPcxibFphY/o0xujsYS+tUsqqdfv/nFuR3ntzzp9zz7nnZD+fhCTn3u+e7z/n+/+b63qe54xSjDkjFmn/jeu6VhLsV3Ba8fGzgCp7/QC40HIFFOVxBnCMh2T4A8ir4vfAUyHhlz1kfWzaTPgogPCZrYRRztcBhBEFlYRVbUuzbKEKirqN+3AUqYqNq/RpiJw9JvWsTTmcjyDro25TDi9yfKdmUw7zzF7FlhxOAc45JI2YtEHSRUBOohISL+mqwHcrNkj6M6ecPSb9lMnbEkr5VoAwomxyDpcJM1YzOYcpJx97Hru+nANaPNOAJ8RxZwBtomVcZd0QanwH3IW1eIJy+DXgSjD3koY9VpIOXLQqhhPtxTLPolV07IkCz6LV6dW/4dHhNR5LgH+Gy3lN1HigHL4aSPSsfzsUcVpoGt4YNNstwLgMa4l7ajfBRH9FGRaql8bZbka0WnVhO2hWZRYPONufEkD0B68NlVUtNTW5May+tkQsq8zycErxbOOsziahHn5FqHtFsUvtXcfVAPgYM2Fyoz6uBsC0Dl+sqwFQiKvF2md3E0NYRXv1mawGnymEUUHzSSA8IetEVMl6WMKNOHrJccp6zAA5+5GX0dUchjDujYvE395ok/UQxqNOLNAL7GIdEH4vfDtGptNqC55s13n8R7QVgi2t6SAsct8X8T6ibkUClwJj7esgXBY0/oNkiNb0p4CslZeHG5y167LAmONMCTykG6oJnw44oSuHfieQ52IeqiQ8ybkSD+uqovpn3P/tkkH4ueBKTI0Su3hhxyrprIcx3gIWAH8ljfcNMAf4EvJ5jjQqYYZzAdvIeoyWEm97tgLSJkOZ4agb4lHxFPCCWcR3gBMFXrrKVmc85g7gNy/h3qASNiZCH/IYleeXRu65pf+EbY97AQYAZrQOWglnerEAAAAASUVORK5CYII=);
+    background: #999;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    right: 0.2em;
+    top: 0.15em;
+    display: inline-block;
+}
+
+.x-list-parent .empty h1 {
+    border-bottom: 1px solid #666;
+    font-size: 1.5em;
+    margin-bottom: 0.8em;
+    padding-bottom: 0.8em;
+}
+
+.x-list-parent .empty p {
+    color: #AAA;
+    font-size: 0.8em;
+}
+
+
+/* VENUES PAGE */
+
+.x-map .loc_info {
+    overflow: hidden;
+    color: #000;
+}
+
+.x-map .loc_info h1 {
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 0.3em;
+}
+
+.x-map .loc_info .address {
+    font-size: 0.7em;
+}
+
+.x-map .loc_info .loc_img {
+    float: right;
+}
+
+
+/* CATEGORIES */
+.categories {
+    text-shadow: none;
+}
+
+.categories .x-toolbar-title {
+    margin-right: -0.5em;
+}
+
+.categories .x-list .x-list-group-items > *, .categories  .x-list.x-list-flat .x-list-parent > * {
+    padding: 0;
+    height: auto;
+}
+
+.categories .x-list-item, .categories .x-item-pressed {
+    border: 0 !important;
+    background: #1b1b1b !important;
+}
+
+.categories .x-list-item div {
+    padding: 0.6em 2.5em 0.6em 0.8em;
+    min-height: 2.5em;
+    border-bottom: 0.4em solid #000;
+    font-weight: bold;
+}
+
+.categories .x-list-item div img,
+.categories .finalistDetail img.portrait {
+    float: left;
+    margin: 0 1em 0 0;
+}
+
+.categories .x-list-item div img {
+    margin-bottom: 1em;
+}
+
+.categories .finalistDetail .hgroup {
+    overflow: hidden;
+    border-bottom: 1px solid #666;
+    padding-bottom: 0.8em;
+    margin-bottom: 1em;
+}
+
+.categories h2 {
+    font-size: 0.8em;
+}
+
+.categories h2 strong {
+    font-weight: bold;
+    color: #8CC63F;
+}
+
+.categories .finalistDetail p {
+    font-size: 0.75em;
+    line-height: 1.5em;
+    color: #aaa;
+    margin-top: 1em;
+}
+
+.categories .x-list-item div.list_item_arrow {
+    /*background: transparent url(http://a.vimeocdn.com/images/awards/lit_item_arrow.png) no-repeat top left;*/
+    position: absolute;
+    display: inline-block;
+    background: transparent url(http://a.vimeocdn.com/images/awards/list_item_arrow.png) no-repeat top left;
+    top: 50%;
+    right: 0em;
+    margin: -0.7em 0 0;
+    width: 2em;
+    height: 2em;
+    border-bottom: none;
+    padding: 0;
+}
+
+.categories .x-panel-body {
+    background: #1b1b1b;
+    color: #fff;
+}
+
+/* FINALISTS */
+.finalistDetail .x-panel-body {
+    padding: 25px;
+}
+
+.finalistDetail h2 {
+    display: block;
+    font-size: 0.7em;
+    color: #bbb;
+}
+
+.finalistDetail img {
+    margin-top: 10px;
+}
+
+
+
+
+
+.addApp .x-panel-body {
+    background: #1b1b1b !important;
+    color: #fff;
+    padding: 1em;
+    font-size: 0.8em;
+}
+
+
+.loading {
+  display: block;
+  width: 10em;
+  height: 10em;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -5em;
+  margin-top: -5em;
+  -webkit-border-radius: .5em;
+  color: #fff;
+  text-shadow: #000 0 1px 1px;
+  text-align: center;
+  padding-top: 8em;
+  font-weight: bold;
+>>>>>>> .r41864
+}

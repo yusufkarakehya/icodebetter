@@ -1,0 +1,131 @@
+/*
+ * Ext Gantt 1.1
+ * Copyright(c) 2009-2010 Mats Bryntse Consulting
+ * mats@ext-scheduler.com
+ * http://www.ext-scheduler.com/license.html
+ *
+ */
+
+.sch-dependency-line.sch-dependency-selected
+{
+	border-color:red !important;
+	z-index:2;
+}
+
+.sch-dependency-line
+ {
+	position:absolute;
+	border:1px solid blue;
+	overflow:hidden;
+	width:0;
+	height:0;
+ }
+ 
+.sch-dependency-arrow
+{
+	position:absolute;
+	height:9px;
+	width:10px;
+	overflow:hidden;
+}
+
+.sch-dependency-arrow.sch-dependency-selected
+{
+	background-position: 0 -9px;
+} 
+
+.sch-dependency-arrow-left
+ {
+	background: url(../images/dependencyarrowleft.png) no-repeat left top;
+ }
+ 
+ .sch-dependency-arrow-right
+ {
+	background: url(../images/dependencyarrowright.png) no-repeat left top;
+ }
+  
+.sch-dependency-arrow-down
+{
+	height:8px !important;
+	background: url(../images/dependencyarrowdown.png) no-repeat left top;
+}
+ 
+.x-dd-drag-proxy .sch-dependency-arrow-left,
+.x-dd-drag-proxy .sch-dependency-arrow-down,
+.x-dd-drag-proxy .sch-dependency-arrow-right
+{
+    position:static !important;
+    padding-top:5px;
+}
+ 
+.sch-gantt-terminal
+{
+	display:none;
+	background: url(../images/dependencyterminal.png) no-repeat;
+	height:16px;
+	width:16px;
+	position:absolute;
+	top: 0;
+	z-index:10000;
+	background-position: -6px 0;
+}
+
+.sch-gantt-terminal-start
+{
+	left: -15px;
+}
+
+.sch-gantt-terminal-end
+{
+	right: -15px;
+}
+
+.sch-gantt-terminal-end
+{
+	right: -15px;
+}
+
+.sch-event-hover .sch-gantt-terminal
+{
+	cursor:pointer !important;
+	display:block;
+}
+
+div.sch-gantt-terminal:hover
+{
+	background-position: -6px -16px;
+}
+
+.sch-event-wrap .sch-event-hover
+{
+	z-index:2000;
+}
+
+.x-dd-drag-proxy .sch-gantt-terminal
+{
+	display:none;
+}
+
+.x-dd-drag-proxy .sch-dependency
+{
+	display:none;
+}
+
+.sch-gantt-terminal-start-drophover
+{
+	background-position: 0 -48px !important;
+	width: 28px;
+	left:-21px;
+}
+ 
+.sch-gantt-terminal-end-drophover
+{
+	background-position: 0 -32px !important;
+	width: 28px;
+	right:-21px;
+}
+
+.sch-gantt-terminal-showall .sch-gantt-terminal
+{
+	display:block !important;
+}

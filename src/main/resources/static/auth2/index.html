@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Sign In with Auth0</title>
+  <script type="text/javascript" src="../scripts/ext3.3/adapter/ext/ext-base.js"></script>
+  <script type="text/javascript" src="../scripts/ext3.3/ext-all.js"></script>
+  <script type="text/javascript" src="../scripts/ext3.3/virtualkeyboard/Ext.ux.VirtualKeyboard.js"></script>
+  <script type="text/javascript">
+  	//../app/redirectAuth
+  	function redirectAuth() {
+  		Ext.Ajax.request({
+  	        url: '../auth/login',
+  	        params: {
+  	          
+  	        },
+  	        method: 'GET',
+  	        success: function(result, request) {
+  	        	
+  	        	window.location.href = result.responseText;
+  	        },
+  	        failure: function(result, request) {
+  	        }
+  	        });
+  	}
+  
+  </script>
+</head>
+<body>
+<button id="btnLogin" onclick="redirectAuth()">login</button>
+</body>
+</html>

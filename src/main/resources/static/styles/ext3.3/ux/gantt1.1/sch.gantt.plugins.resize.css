@@ -1,0 +1,43 @@
+﻿/*
+ * Ext Gantt 1.1
+ * Copyright(c) 2009-2010 Mats Bryntse Consulting
+ * mats@ext-scheduler.com
+ * http://www.ext-scheduler.com/license.html
+ *
+ */
+
+.sch-gantt-item .x-resizable-handle
+{
+	opacity:0;
+	display:none;
+}
+
+.sch-gantt-item .x-resizable-handle-east
+{
+	right:-2px;
+}
+
+.ext-ie .sch-gantt-item .x-resizable-handle-east
+{
+	right:0;
+}
+
+.ext-ie .sch-gantt-item .x-resizable-handle-east,
+.ext-ie .sch-gantt-item .x-resizable-handle-west
+{
+	height:13px;
+}
+
+.sch-event-wrap .sch-event-hover .x-resizable-handle
+{
+	display:block;
+	opacity:1 !important;
+	filter: alpha(opacity=100);
+	background-position: left;
+	background-image: url(http://extjs.cachefly.net/ext-3.1.1/resources/images/default/sizer/e-handle.gif);
+}
+
+.x-resizable-over .sch-dependency
+{
+	display:none;
+}

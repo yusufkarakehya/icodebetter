@@ -1,0 +1,4 @@
+download - print - open file buttonlarý "viewer.css" ve "viewer.html" dosyalarýndan kaldýrýldý.
+css için yorum satýrý, html için "style="display:none;" yapýlarak kapatýldý.
+
+pdf dosyasý deðiþtirilmek için viewer.js 26.satýr, DEFAULT_URL deðiþkeninin adresi deðiþtirilmelidir.
