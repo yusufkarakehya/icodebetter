@@ -8035,7 +8035,7 @@ public class FrameworkEngine{
 	public void saveCredentials(int cusId,int userId,String fullName, String picUrl, int socialNet, String email, String nickName, List<Map> projects, List<Map> userTips) {	
 		dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName);
 		FrameworkSetting.customizationSystemStatus.put(cusId, 0);
-		String pro = (String)projects.get(0).get("project_uuid");
+		//String pro = (String)projects.get(0).get("project_uuid");
 		dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)", 
 				userId, cusId, nickName, email, nickName+1, 1, nickName, 1 , socialNet, email,projects.get(0).get("project_uuid"));
 		int userRoleId = GenericUtil.getGlobalNextval("seq_user_role");

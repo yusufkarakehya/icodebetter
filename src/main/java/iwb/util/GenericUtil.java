@@ -2264,10 +2264,11 @@ public class GenericUtil {
 	}
 	
 	public static List fromJSONArrayToList(JSONArray o) throws JSONException {
-		return null;
-		/*if(o==null)return null;
+		//return null;
+		if(o==null)return null;
 		List no = new ArrayList();
-		for(Object val:o){
+		for(int qi=0;qi<o.length();qi++){
+			Object val = o.get(qi);
 			if(val==null){
 				no.add(val);
 			} else if(val instanceof JSONObject){
@@ -2277,7 +2278,7 @@ public class GenericUtil {
 			} else
 				no.add(val.toString());
 		}
-		return no;*/
+		return no;
 	}
 	
 	public static NativeObject fromJSONObjectToNativeObject(JSONObject o) throws JSONException {

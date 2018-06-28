@@ -54,7 +54,7 @@ public class AuthController {
     private final String userInfoAudience = String.format("https://%s/userinfo", domain);
     
     private final String redirectOnFail = "../auth/login";
-    private final String redirectOnSuccess = "app/main.htm";
+    private final String redirectOnSuccess = "/app/main.htm";
 
    
 
@@ -144,7 +144,7 @@ public class AuthController {
     }
     
     private Map checkVcsTenant(int socialCon, String email, String nickname, String socialNet) {
-		String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url");
+		String vcsUrl = "http://81.214.24.77:8084/iwb-lcp/app/"; //FrameworkCache.getAppSettingStringValue(0, "vcs_url");
 		try {
 			JSONObject params = new JSONObject(); 
 			params.put("email", email);
