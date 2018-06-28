@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import iwb.adapter.soap.SoapAdapter;
+import iwb.adapter.soap.impl.AxisSoap1_4;
 //import iwb.adapter.soap.SoapAdapter;
 //import iwb.adapter.soap.impl.AxisSoap1_4;
 import iwb.adapter.ui.ViewAdapter;
@@ -55,7 +57,7 @@ public class WsServlet implements InitializingBean {
 	private static Logger logger = Logger.getLogger(AppServlet.class);
 
 	private ViewAdapter ext3_4 = new ExtJs3_3();
-	//private SoapAdapter soap = new AxisSoap1_4();
+	private SoapAdapter soap = new AxisSoap1_4();
 	
 	@Autowired
 	private FrameworkEngine engine;
@@ -65,7 +67,7 @@ public class WsServlet implements InitializingBean {
 		
 	}
 
-	/*
+	
 	@RequestMapping("/soap/*")
 	public void hndSOAP(
 			HttpServletRequest request,
@@ -126,7 +128,7 @@ public class WsServlet implements InitializingBean {
 					dfr.setDbFunc(new W5DbFunc());dfr.getDbFunc().set_dbFuncParamList(arl);
 					arl.add(new W5DbFuncParam("tokenKey"));arl.add(new W5DbFuncParam("errorMsg"));
 					W5WsServerMethod wsm = wss.get_methods().get(0);
-					/* 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount * /
+					/* 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount */
 					boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 					boolean expireFlag = GenericUtil.uInt(result.getResultMap().get("expireFlag")) != 0;
 					if (!success || expireFlag){
@@ -225,7 +227,6 @@ public class WsServlet implements InitializingBean {
 		}
 		response.getWriter().close();		
 	}
-	*/
 	
 	@RequestMapping("/rest/*")
 	public void hndRESTWadl(
