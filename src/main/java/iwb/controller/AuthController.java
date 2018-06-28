@@ -54,7 +54,7 @@ public class AuthController {
     private final String userInfoAudience = String.format("https://%s/userinfo", domain);
     
     private final String redirectOnFail = "../auth/login";
-    private final String redirectOnSuccess = "/iwb-lcp/app/main.htm";
+    private final String redirectOnSuccess = "app/main.htm";
 
    
 
@@ -179,7 +179,7 @@ public class AuthController {
 	@RequestMapping("/login")
     @ResponseBody
     protected void login(final HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String redirectUri = req.getScheme() +"://localhost:8080/iwb-lcp/auth/callback";// "promiscrm.com:8888" + "/iwb/auth/callback"; //req.getScheme() + "://localhost:9999/iwb-lcp/auth/callback";
+        String redirectUri = req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/auth/callback";//"http://promiscrm:8585/auth/callback"; 
         String authorizeUrl = buildAuthorizeUrl(req, redirectUri);
     	res.getWriter().write(authorizeUrl);
 		res.getWriter().close();
