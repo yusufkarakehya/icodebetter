@@ -33,9 +33,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 	private short doUpdateLogFlag;
 	private short doDeleteLogFlag;
 
-	private String crudActions;
-	private int crudDbFuncId;
-
 	private String accessTips;
 	private short vcsFlag;
 
@@ -134,24 +131,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 
 	public void setDoDeleteLogFlag(short doDeleteLogFlag) {
 		this.doDeleteLogFlag = doDeleteLogFlag;
-	}
-
-	@Column(name="crud_actions")
-	public String getCrudActions() {
-		return crudActions;
-	}
-
-	public void setCrudActions(String crudActions) {
-		this.crudActions = crudActions;
-	}
-
-	@Column(name="crud_db_func_id")
-	public int getCrudDbFuncId() {
-		return crudDbFuncId;
-	}
-
-	public void setCrudDbFuncId(int crudDbFuncId) {
-		this.crudDbFuncId = crudDbFuncId;
 	}
 
 	@Transient
@@ -527,8 +506,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 			this.doUpdateLogFlag==t.getDoUpdateLogFlag() &&
 			this.doDeleteLogFlag==t.getDoDeleteLogFlag() &&
 	
-			GenericUtil.safeEquals(this.crudActions,t.getCrudActions()) &&
-			this.crudDbFuncId==t.getCrudDbFuncId() &&
 	
 	
 			GenericUtil.safeEquals(this.accessTips,t.getAccessTips()) &&

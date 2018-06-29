@@ -63,7 +63,7 @@ import iwb.domain.db.W5TableParam;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.enums.FrameworkDataTypes;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 
 //import iwb.dao.RdbmsDao;
 
@@ -1527,7 +1527,7 @@ public class GenericUtil {
 				params.add(o==null || o.length()==0 ? null : new BigDecimal(o));
 				sql.replace(bas, bit+1, "?");
 			} catch (Exception e){
-				throw new PromisException("sql","filterExt4SQL", 0, sql.toString(), "String2BigDecimal("+o+")", null);
+				throw new IWBException("sql","filterExt4SQL", 0, sql.toString(), "String2BigDecimal("+o+")", null);
 			}
 		}
 		return res;
@@ -2196,7 +2196,7 @@ public class GenericUtil {
 		String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url");
 		String vcsClientKey = FrameworkCache.getAppSettingStringValue(0, "vcs_client_key");
 		if(GenericUtil.isEmpty(vcsUrl))
-			throw new PromisException("framework","vcs_url OR vcs_client_key not defined for versioning", 0, "vcs_url not defined for versioning", null, null);
+			throw new IWBException("framework","vcs_url OR vcs_client_key not defined for versioning", 0, "vcs_url not defined for versioning", null, null);
 		String s = HttpUtil.send(vcsUrl+"/ajaxGlobalNextVal", "id="+seq+"&key="+vcsClientKey);
 		JSONObject json;
 		try {
@@ -2204,16 +2204,16 @@ public class GenericUtil {
 			boolean b = json.getBoolean("success");
 			if(b)return json.getInt("val");
 		} catch (JSONException e) {
-			throw new PromisException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
+			throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
 		}
 		if(json.has("errorType") && json.has("error"))
 			try {
-				throw new PromisException(json.getString("errorType"),"Global Nextval: remote Error", 0, null, json.getString("error"), null);
+				throw new IWBException(json.getString("errorType"),"Global Nextval: remote Error", 0, null, json.getString("error"), null);
 			} catch (JSONException e) {
-				throw new PromisException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
+				throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
 			}
 		else 
-			throw new PromisException("framework","Global Nextval: remote Error", 0, null, "Uknown Error", null);
+			throw new IWBException("framework","Global Nextval: remote Error", 0, null, "Uknown Error", null);
 
 	}
 	

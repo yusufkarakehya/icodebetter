@@ -15,13 +15,13 @@ import iwb.util.GenericUtil;
 import iwb.util.LocaleMsgCache;
 
 
-public class PromisException extends RuntimeException {
+public class IWBException extends RuntimeException {
 	private	String errorType;
 	private	String objectType;
 	private	int objectId;
 	private	String sql;
 	private List<W5TempLogRecord> logRecords;
-	public PromisException(String errorType, String objectType, int objectId, String sql, String message, Throwable cause) {
+	public IWBException(String errorType, String objectType, int objectId, String sql, String message, Throwable cause) {
 		super(message, cause);
 		this.errorType=errorType;//security, validation, framework, definition
 		this.objectType=objectType;
@@ -29,7 +29,7 @@ public class PromisException extends RuntimeException {
 		this.sql=sql;
 	}
 
-	public PromisException(String errorType, String objectType, int objectId, String sql, String message, List<W5TempLogRecord> logRecords, Throwable cause) {
+	public IWBException(String errorType, String objectType, int objectId, String sql, String message, List<W5TempLogRecord> logRecords, Throwable cause) {
 		super(message, cause);
 		this.errorType=errorType;//security, validation, framework, definition
 		this.objectType=objectType;

@@ -1,7 +1,7 @@
 package iwb.controller;
 
 import iwb.engine.FrameworkEngine;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 
 import java.io.IOException;
 import java.util.HashMap;

@@ -17,7 +17,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.NestedServletException;
 
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 
@@ -62,15 +62,15 @@ public class AppFilter implements Filter {
 						z = true;
 					}
 					
-					if(e.getCause() instanceof  PromisException)
-						b.append(((PromisException)e.getCause()).toJsonString((Map<String, Object>)((HttpServletRequest)request).getSession().getAttribute("scd")));
+					if(e.getCause() instanceof  IWBException)
+						b.append(((IWBException)e.getCause()).toJsonString((Map<String, Object>)((HttpServletRequest)request).getSession().getAttribute("scd")));
 					else {
 						b.append("{\"success\":false,\n\"errorType\":\"framework\",\n\"error\":\"Unhandled1 -->").append(GenericUtil.stringToJS2(e.getMessage())).append(FrameworkSetting.debug && e.getCause()!=null ? ("\",\n\"stack\":\""+GenericUtil.stringToJS2(ExceptionUtils.getFullStackTrace(e.getCause()))) : "" ).append("\"}");
 					}
 					if(z)b.append(")");
 				} else { //
 					if(!uri.contains("ajaxXmlQueryData"))
-					b.append(e.getCause() instanceof  PromisException ? ((PromisException)e.getCause()).toHtmlString("tr") : e.getMessage());
+					b.append(e.getCause() instanceof  IWBException ? ((IWBException)e.getCause()).toHtmlString("tr") : e.getMessage());
 				}
 				try{ response.getWriter().write(b.toString());
 				} catch (Exception e2) {}

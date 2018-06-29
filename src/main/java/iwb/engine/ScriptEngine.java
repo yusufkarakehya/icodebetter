@@ -19,7 +19,7 @@ import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Table;
 import iwb.domain.result.W5DbFuncResult;
 import iwb.domain.result.W5FormResult;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -73,7 +73,7 @@ public class ScriptEngine {
 //		if(date1==null)return -1;if(date2==null)return 1;
 		Date d1 = GenericUtil.uDate(date1), d2 = GenericUtil.uDate(date2);
 		if(d1==null || d2==null)
-			throw new PromisException("rhino","Invalid Date Format", 0,null, "compareDates("+date1+","+date2+")", null);
+			throw new IWBException("rhino","Invalid Date Format", 0,null, "compareDates("+date1+","+date2+")", null);
 		return d1.equals(d2) ? 0 : (d1.after(d2) ? 1: -1);
 		
 	}
@@ -195,7 +195,7 @@ public class ScriptEngine {
 	public Object execDbFunc(int dbFuncId, NativeObject jsRequestParams, short execRestrictTip, boolean throwOnError, String throwMessage){
 		W5DbFuncResult result = engine.executeDbFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), execRestrictTip); 
 		if(throwOnError && !result.getErrorMap().isEmpty()){
-			throw new PromisException("rhino","DbFuncId", dbFuncId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
+			throw new IWBException("rhino","DbFuncId", dbFuncId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
 		}
 		return result;
 	}
@@ -223,7 +223,7 @@ public class ScriptEngine {
 
 		W5FormResult result = engine.postForm4Table(scd, formId, action, fromNativeObject2Map(jsRequestParams), prefix);
 		if(throwOnError && !result.getErrorMap().isEmpty()){
-			throw new PromisException("rhino","FormId", formId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
+			throw new IWBException("rhino","FormId", formId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
 		}
 		return result; 
 	}
@@ -231,7 +231,7 @@ public class ScriptEngine {
 	public Map getTableJSON(String tableDsc, String tablePk){
 		List<Integer> l = dao.find("select t.tableId from W5Table t where t.dsc=? AND t.customizationId=?", tableDsc, scd.get("customizationId"));
 		if(l.isEmpty())
-			throw new PromisException("rhino","getTableJSON", 0, tableDsc, "table_not_found", null);
+			throw new IWBException("rhino","getTableJSON", 0, tableDsc, "table_not_found", null);
 
 		return getTableJSON(l.get(0), tablePk, 0);
 	}
@@ -245,21 +245,21 @@ public class ScriptEngine {
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		if(GenericUtil.isEmpty(tablePk) || t==null){
 			if(throwOnError)
-				throw new PromisException("rhino","getTableJSON", tableId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "table_or_key_not_valid", null);
+				throw new IWBException("rhino","getTableJSON", tableId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "table_or_key_not_valid", null);
 			return null;
 		}
 		if(forAction!=-1){ // -1:kontrol yok, 0: view, 1: edit, 3:delete
 			if(t.getAccessViewTip()==0 && (!FrameworkCache.roleAccessControl(scd,  0) || !FrameworkCache.roleAccessControl(scd,  forAction))){
-				throw new PromisException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
+				throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 			}
 			if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
-				throw new PromisException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+				throw new IWBException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 			}
 			if(forAction==1 && t.getAccessUpdateUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessUpdateTip(), t.getAccessUpdateRoles(), t.getAccessUpdateUsers())){
-				throw new PromisException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"), null);
+				throw new IWBException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"), null);
 			}
 			if(forAction==3 && t.getAccessDeleteUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers())){
-				throw new PromisException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
+				throw new IWBException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
 			}
 		}
 
@@ -270,7 +270,7 @@ public class ScriptEngine {
 		List l =dao.executeSQLQuery2Map(s.toString(), p);
 		if(GenericUtil.isEmpty(l)){
 			if(throwOnError)
-				throw new PromisException("rhino","getTableJSON", tableId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "record_not_found", null);
+				throw new IWBException("rhino","getTableJSON", tableId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "record_not_found", null);
 			return null;
 		}		
 		Map mo =(Map)l.get(0);
@@ -289,10 +289,10 @@ public class ScriptEngine {
 			Map m = engine.callWs(scd, serviceName, fromNativeObject2Map(jsRequestParams));
 			if(m!=null){
 				if(m.containsKey("errorMsg")){
-					if(throwFlag)throw new PromisException("ws", "Error:CallWs", 0, serviceName, m.get("errorMsg").toString(), null);else result.put("success", false); 
+					if(throwFlag)throw new IWBException("ws", "Error:CallWs", 0, serviceName, m.get("errorMsg").toString(), null);else result.put("success", false); 
 				}
 				if(m.containsKey("faultcode") && m.containsKey("faultstring")){
-					if(throwFlag)throw new PromisException("ws", m.get("faultcode").toString(), 0, serviceName, m.get("faultstring").toString(), null);
+					if(throwFlag)throw new IWBException("ws", m.get("faultcode").toString(), 0, serviceName, m.get("faultstring").toString(), null);
 					else {
 						result.put("success", false);
 						result.put("errorMsg", m.get("faultstring"));
@@ -300,12 +300,12 @@ public class ScriptEngine {
 				}
 				result.putAll(m);
 			}
-		} catch (PromisException e) {
+		} catch (IWBException e) {
 			throw e;
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
-			if(e.getCause()!=null && e.getCause() instanceof PromisException)throw (PromisException)e.getCause();
-			throw new PromisException("ws", "CallWs", 0, serviceName, "Unhandled Exception: "+e.getMessage(), e.getCause());
+			if(e.getCause()!=null && e.getCause() instanceof IWBException)throw (IWBException)e.getCause();
+			throw new IWBException("ws", "CallWs", 0, serviceName, "Unhandled Exception: "+e.getMessage(), e.getCause());
 		}
 		return result;
 	}

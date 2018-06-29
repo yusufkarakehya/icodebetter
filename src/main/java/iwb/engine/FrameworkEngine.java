@@ -118,7 +118,7 @@ import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -261,19 +261,19 @@ public class FrameworkEngine{
 			switch(t.getAccessViewTip()){
 			case	0:
 				if(!FrameworkCache.roleAccessControl(scd, 0)){
-					throw new PromisException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
+					throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 				}
 				break;
 			case	1:
 				if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
-					throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 				}
 			}
 			
 			if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
 				W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
 				if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-					throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme")+ " (userTip)", null);
+					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme")+ " (userTip)", null);
 				}
 			}
 			
@@ -414,19 +414,19 @@ public class FrameworkEngine{
 					if(conversionId!=0 && conversionTablePk!=0){
 						W5Conversion c = (W5Conversion)dao.getCustomizedObject("from W5Conversion t where t.conversionId=? AND t.customizationId=?", conversionId, (Integer)scd.get("customizationId"),"ConversionID");
 						if(c==null || c.getDstFormId()!=formResult.getFormId()){
-							throw new PromisException("framework","Conversion", conversionId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"wrong_conversion"), null);
+							throw new IWBException("framework","Conversion", conversionId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"wrong_conversion"), null);
 						}
 						if(c.getMaxNumofConversion()>0){
 							List l = dao.find("select 1 from W5ConvertedObject c where c.conversionId=? AND c.customizationId=? AND c.srcTablePk=?", conversionId, scd.get("customizationId"), conversionTablePk);
 							if(l.size()>=c.getMaxNumofConversion()) {
-								throw new PromisException("framework","Conversion", conversionId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"max_number_of_conversion_reached")+ " ("+l.size()+")", null);
+								throw new IWBException("framework","Conversion", conversionId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"max_number_of_conversion_reached")+ " ("+l.size()+")", null);
 							}
 						}
 						W5Table srcTable = FrameworkCache.getTable(scd, c.getSrcTableId());
 						if(!GenericUtil.isEmpty(srcTable.get_approvalMap())){//burda bir approval olabilir, kontrol etmek lazim
 							List l = dao.find("select 1 from W5ApprovalRecord c where c.customizationId=? AND c.finishedFlag=0 AND c.tableId=? AND c.tablePk=?", scd.get("customizationId"), c.getSrcTableId(), conversionTablePk);
 							if(!l.isEmpty()){
-								throw new PromisException("framework","Conversion", conversionId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"record_must_be_approved_before_conversion"), null);
+								throw new IWBException("framework","Conversion", conversionId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"record_must_be_approved_before_conversion"), null);
 							}
 							
 						}
@@ -510,7 +510,7 @@ public class FrameworkEngine{
 		
 	        break;
 		default:
-			throw new PromisException("framework","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"wrong_use_of_action") + " ("+action+")", null);
+			throw new IWBException("framework","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"wrong_use_of_action") + " ("+action+")", null);
 		}
 				
 		//form cell lookup load
@@ -697,7 +697,7 @@ public class FrameworkEngine{
 		}
 		if((action==1 || action==3) && (t.getAccessDeleteTip()!=0 && t.getAccessViewUserFields()!=null && t.getAccessViewUserFields().length()>0)){ // bu field'da
 			if(dao.accessUserFieldControl(t, t.getAccessViewUserFields(), scd, requestParams2, prefix)){
-				throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(scd, "fw_guvenlik_onay_kontrol_goruntuleme"), null);	
+				throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(scd, "fw_guvenlik_onay_kontrol_goruntuleme"), null);	
 			}
 		}
 		boolean updatableUserFieldFlag = false;
@@ -721,7 +721,7 @@ public class FrameworkEngine{
 					Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams2, null);
 					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(m!=null){
-						if(m.get("dont_throw")==null)throw new PromisException("security","Form", formId, null, (String)m.get("error_msg"), null);
+						if(m.get("dont_throw")==null)throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
 						if(formResult!=null)formResult.getOutputMessages().add((String)m.get("error_msg"));
 						if(formResult!=null)formResult.setViewMode(true);
 					}
@@ -766,7 +766,7 @@ public class FrameworkEngine{
 				
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){ // kayit bazli kontrol var
 					if(checkAccessRecordControlViolation(scd, 0, tableId, ""+tablePk)){
-						throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
+						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
 					}
 				}
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("1")>-1){ // kayit bazli kontrol var
@@ -782,52 +782,52 @@ public class FrameworkEngine{
 			break;
 		case	2://insert
 			if(!GenericUtil.accessControl(scd, t.getAccessInsertTip(), t.getAccessInsertRoles(), t.getAccessInsertUsers())){
-				throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_kayit_ekleme"), null);
+				throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_kayit_ekleme"), null);
 			}
 			break;
 		case	3://delete
 			if(t.getAccessDeleteTip()!=0 && t.getAccessDeleteUserFields()!=null && t.getAccessDeleteUserFields().length()>0){ // bu field'da
 				if(dao.accessUserFieldControl(t, t.getAccessDeleteUserFields(), scd, requestParams2, prefix))
-					throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_alan_kisit"), null);
+					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_alan_kisit"), null);
 			}
 			if(tableUserTip!=null && tableUserTip.getAccessDeleteSql()!=null){//update ile ilgili control var
 				if(tableUserTip.getAccessDeleteSql().equals("!")){
-					throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
+					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
 				} else {
 					String ads = prefix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessDeleteSql(), prefix).toString() : tableUserTip.getAccessDeleteSql();
 					Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams2, null);
 					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(m!=null){//TODO: error_msg diye birsey olursa onu bas
-						throw new PromisException("security","Form", formId, null, (String)m.get("error_msg"), null);
+						throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
 					}
 				}
 			} 
 			if(appRecord!=null){//eger bir approval sureci icindeyse
 				if(!GenericUtil.accessControl(scd, appRecord.getAccessViewTip(), appRecord.getAccessViewRoles(), appRecord.getAccessViewUsers())
 						|| !GenericUtil.accessControl(scd, approvalStep.getAccessDeleteTip(), approvalStep.getAccessDeleteRoles(), approvalStep.getAccessDeleteUsers())){
-					throw new PromisException("security","Approval", appRecord.getApprovalId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_sureci_icerisindeki_kaydi_silemezsiniz"), null);
+					throw new IWBException("security","Approval", appRecord.getApprovalId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_sureci_icerisindeki_kaydi_silemezsiniz"), null);
 				}
 			} else {
 				//bu table'a delete hakki var mi?
 				if(!GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers())){
-					throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
+					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
 				} 
 				
 				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessDeleteTip(), tableUserTip.getAccessDeleteRoles(), tableUserTip.getAccessDeleteUsers())){
 					if(tableUserTip.getAccessDeleteUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessDeleteUserFields(), scd, requestParams2, prefix)){
-						throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
+						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
 					}
 				}
 				
 				// kayit bazli kontrol var
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){//show
 					if(checkAccessRecordControlViolation(scd, 0, tableId, ""+tablePk)){
-						throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
+						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
 					}
 				}
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("3")>-1){//delete
 					if(checkAccessRecordControlViolation(scd, 3, tableId, ""+tablePk)){
-						throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_silme"), null);
+						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_silme"), null);
 					}
 				}
 			}
@@ -865,7 +865,7 @@ public class FrameworkEngine{
 		if((action==1 || action==3)
 				&& (t.getAccessViewTip()!=0 && t.getAccessViewUserFields()!=null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())
 					&& (t.getAccessViewUserFields()!=null && t.getAccessViewUserFields().length()>0 && dao.accessUserFieldControl(t, t.getAccessViewUserFields(), scd, requestParams, paramSuffix)))){ // bu field'da
-			throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_onay_kontrol_goruntuleme"), null);	
+			throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_onay_kontrol_goruntuleme"), null);	
 		}
 		boolean updatableUserFieldFlag = false;
 		boolean deletableUserFieldFlag = false;
@@ -889,7 +889,7 @@ public class FrameworkEngine{
 					Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams, null);
 					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(!GenericUtil.isEmpty(m)){
-						if(m.get("dont_throw")==null)throw new PromisException("security","Form", formId, null, (String)m.get("error_msg"), null);
+						if(m.get("dont_throw")==null)throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
 						formResult.getOutputMessages().add((String)m.get("error_msg"));
 						formResult.setViewMode(true);
 					}
@@ -924,7 +924,7 @@ public class FrameworkEngine{
 				}
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){ // kayit bazli kontrol var
 					if(checkAccessRecordControlViolation(scd, 0, t.getTableId(), requestParams.get(t.get_tableParamList().get(0).getDsc()))){
-						throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
+						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
 					}
 				}
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("1")>-1){ // kayit bazli kontrol var
@@ -940,7 +940,7 @@ public class FrameworkEngine{
 			break;
 		case	2://insert
 			if(!GenericUtil.accessControl(scd, t.getAccessInsertTip(), t.getAccessInsertRoles(), t.getAccessInsertUsers())){ // Table access insert control
-				throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_kayit_ekleme"), null);
+				throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_kayit_ekleme"), null);
 			}
 			
 			if(tableUserTip!=null && tableUserTip.getAccessInsertSql()!=null){ // Table user tip access control, prefixi sor
@@ -948,7 +948,7 @@ public class FrameworkEngine{
 				Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams, null);
 				Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 				if(m != null && m.size() > 0){
-					throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),(String)m.get("error_msg")), null);
+					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),(String)m.get("error_msg")), null);
 				}
 			}
 			
@@ -968,13 +968,13 @@ public class FrameworkEngine{
 			}*/
 			if(tableUserTip!=null && tableUserTip.getAccessDeleteSql()!=null){//update ile ilgili control var
 				if(tableUserTip.getAccessDeleteSql().equals("!")){
-					throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
+					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
 				} else {
 					String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessDeleteSql(), paramSuffix).toString() : tableUserTip.getAccessDeleteSql();
 					Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams, null);
 					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(m!=null){//TODO: error_msg diye birsey olursa onu bas
-						throw new PromisException("security","Form", formId, null, (String)m.get("error_msg"), null);
+						throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
 					}
 				}
 			} 
@@ -982,12 +982,12 @@ public class FrameworkEngine{
 				if(!GenericUtil.accessControl(scd, appRecord.getAccessViewTip(), appRecord.getAccessViewRoles(), appRecord.getAccessViewUsers())
 						|| (approvalStep!=null && !GenericUtil.accessControl(scd, approvalStep.getAccessDeleteTip(), approvalStep.getAccessDeleteRoles(), approvalStep.getAccessDeleteUsers()))
 				){
-					throw new PromisException("security","Approval", appRecord.getApprovalId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_sureci_icerisindeki_kaydi_silemezsiniz"), null);
+					throw new IWBException("security","Approval", appRecord.getApprovalId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_sureci_icerisindeki_kaydi_silemezsiniz"), null);
 				}
 			} else {
 				//bu table'a delete hakki var mi?
 				if(!deletableUserFieldFlag && !GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers())){
-					throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
+					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
 				}/*
 				if(!PromisUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers())){
 					throw new PromisException("security","Form", formId, null, PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
@@ -995,19 +995,19 @@ public class FrameworkEngine{
 				
 				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessDeleteTip(), tableUserTip.getAccessDeleteRoles(), tableUserTip.getAccessDeleteUsers())){
 					if(tableUserTip.getAccessDeleteUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessDeleteUserFields(), scd, requestParams, "")){
-						throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
+						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
 					}
 				}
 				
 				// kayit bazli kontrol var
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){//show
 					if(checkAccessRecordControlViolation(scd, 0, t.getTableId(), requestParams.get(t.get_tableParamList().get(0).getDsc()))){
-						throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
+						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
 					}
 				}
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("3")>-1){//delete
 					if(checkAccessRecordControlViolation(scd, 3, t.getTableId(), requestParams.get(t.get_tableParamList().get(0).getDsc()))){
-						throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_silme"), null);
+						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_silme"), null);
 					}
 				}
 			}
@@ -1039,7 +1039,7 @@ public class FrameworkEngine{
 			int outCnt = formResult.getOutputMessages().size();
 			accessControl4FormTable(formResult, prefix);
 			if(formResult.isViewMode()){
-				throw new PromisException("security","Form", formId, null, formResult.getOutputMessages().size()>outCnt ? formResult.getOutputMessages().get(outCnt) : LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"), null);			
+				throw new IWBException("security","Form", formId, null, formResult.getOutputMessages().size()>outCnt ? formResult.getOutputMessages().get(outCnt) : LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"), null);			
 			}
 			if(FrameworkSetting.approval){
 				appRecord = formResult.getApprovalRecord();
@@ -1048,7 +1048,7 @@ public class FrameworkEngine{
 					boolean canCancel=GenericUtil.hasPartInside2(approval.getAfterFinUpdateUserIds(),scd.get("userId")) && appRecord.getApprovalActionTip()==5 && appRecord.getApprovalStepId()==998 ? true : false;
 					approvalStep = approval.get_approvalStepMap().get(appRecord.getApprovalStepId()).getNewInstance();
 					if(approvalStep!=null && approvalStep.getApprovalStepId()!=901 && approvalStep.getUpdatableFields()==null && !canCancel ){
-						throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_sureci_icerisinde_bu_kaydin_alanlarini_guncelleyemezsiniz"), null);			
+						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_sureci_icerisinde_bu_kaydin_alanlarini_guncelleyemezsiniz"), null);			
 					}
 				}
 			}
@@ -1122,7 +1122,7 @@ public class FrameworkEngine{
 								if(appRecord.getAccessViewTip()!=0 && !GenericUtil.hasPartInside2(appRecord.getAccessViewUsers(),scd.get("userId")))//goruntuleme kisiti var ve kendisi goremiyorsa, kendisini de ekle
 									appRecord.setAccessViewUsers(appRecord.getAccessViewUsers()!=null ? appRecord.getAccessViewUsers()+","+scd.get("userId") : scd.get("userId").toString());
 							} else {
-								throw new PromisException("framework","Approval", approval.getApprovalId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_hatali_onay_tanimi"), null);
+								throw new IWBException("framework","Approval", approval.getApprovalId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_hatali_onay_tanimi"), null);
 							}
 						}
 					}
@@ -1147,7 +1147,7 @@ public class FrameworkEngine{
 									approvalStep.setApprovalStepId(901);
 								}
 								if(advancedStepSqlResult.get("error_msg")!=null)
-									throw new PromisException("security","Approval", approval.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
+									throw new IWBException("security","Approval", approval.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
 							}
 						} else {
 							approvalStep = new W5ApprovalStep();
@@ -1173,7 +1173,7 @@ public class FrameworkEngine{
 							appRecord.setDealerId((Integer)scd.get("dealerId"));
 							if(requestParams.get("_arel_dealer_id")!=null)appRecord.setRelDealerId(new Integer(requestParams.get("_arel_dealer_id")));
 						} else {
-							throw new PromisException("framework", "Approval", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_hatali_onay_tanimi"), null);
+							throw new IWBException("framework", "Approval", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_hatali_onay_tanimi"), null);
 						}	
 				
 					}
@@ -1318,7 +1318,7 @@ public class FrameworkEngine{
 								if(advancedStepSqlResult.get("active_flag")!=null && GenericUtil.uInt(advancedStepSqlResult.get("active_flag"))==0)//girmeyecek
 									approval = null; //approval olmayacak
 								if(advancedStepSqlResult.get("error_msg")!=null)//girmeyecek
-									throw new PromisException("security","Approval", approval.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
+									throw new IWBException("security","Approval", approval.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
 							}
 						}							
 						approvalStep = null;
@@ -1373,7 +1373,7 @@ public class FrameworkEngine{
 										approvalStep.setSendSmsOnEnterStepFlag(approval.getSendSmsFlag());
 									}
 									if(advancedStepSqlResult.get("error_msg")!=null)//girmeyecek
-										throw new PromisException("security","Approval", approval.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
+										throw new IWBException("security","Approval", approval.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
 								}
 							} else {					
 								approvalStep = new W5ApprovalStep();
@@ -1417,7 +1417,7 @@ public class FrameworkEngine{
 							appRecord.setRelDealerId(requestParams.get("_arel_dealer_id") != null ? new Integer(requestParams.get("_arel_dealer_id")) : null);
 							appRecord.setHierarchicalLevel(0);
 						} else {
-							throw new PromisException("framework", "Approval", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_hatali_onay_tanimi"), null);
+							throw new IWBException("framework", "Approval", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_hatali_onay_tanimi"), null);
 						}
 					}
 				}
@@ -1660,7 +1660,7 @@ public class FrameworkEngine{
 									if(advancedStepSqlResult.get("active_flag")!=null && GenericUtil.uInt(advancedStepSqlResult.get("active_flag"))==0)//girmeyecek
 										approval = null; //approval olmayacak
 									if(advancedStepSqlResult.get("error_msg")!=null)//girmeyecek
-										throw new PromisException("security","Approval", approval.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
+										throw new IWBException("security","Approval", approval.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
 								}
 							}							
 							approvalStep = null;
@@ -1712,7 +1712,7 @@ public class FrameworkEngine{
 							appRecord.setVersionUserId((Integer)scd.get("userId"));
 							appRecord.setCustomizationId((Integer)scd.get("customizationId"));
 						} else {
-							throw new PromisException("framework","Approval", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_hatali_onay_tanimi"), null);
+							throw new IWBException("framework","Approval", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_hatali_onay_tanimi"), null);
 						}
 					}
 					
@@ -1855,7 +1855,7 @@ public class FrameworkEngine{
 
 			break;
 		default://sorun var
-			throw new PromisException("validation","Action", action, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_wrong_form_action"), null);
+			throw new IWBException("validation","Action", action, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_wrong_form_action"), null);
 		}
 		
 		if(formResult.getErrorMap().isEmpty()){ //sorun yok
@@ -1912,7 +1912,7 @@ public class FrameworkEngine{
 				}
 				
 			}
-			if(t.getCrudDbFuncId()!=0 && ((action==2 && GenericUtil.hasPartInside(t.getCrudActions(),"xi") || (action==1 && GenericUtil.hasPartInside(t.getCrudActions(),"xu"))))){
+/*			if(t.getCrudDbFuncId()!=0 && ((action==2 && GenericUtil.hasPartInside(t.getCrudActions(),"xi") || (action==1 && GenericUtil.hasPartInside(t.getCrudActions(),"xu"))))){
 				W5DbFuncResult dbFuncResult = dao.getDbFuncResult(formResult.getScd(), t.getCrudDbFuncId());
 				dbFuncResult.setErrorMap(new HashMap());
 				Map m = new HashMap();
@@ -1922,7 +1922,7 @@ public class FrameworkEngine{
 				dbFuncResult.setRequestParams(m);
 				dao.executeDbFunc(dbFuncResult,"");
 				if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-	    	}
+	    	} */
 			//approval
 			if(FrameworkSetting.approval && GenericUtil.uInt(requestParams.get("_arid"+prefix))!=0){//kaydet ve approve et???
 				approveRecord(scd, GenericUtil.uInt(requestParams.get("_arid"+prefix)), GenericUtil.uInt(requestParams.get("_aa"+prefix)),requestParams);
@@ -2320,10 +2320,10 @@ public class FrameworkEngine{
 							break;
 						case	2://confirm & continue
 							if(!requestParams.containsKey("_confirmId_"+ta.getTableTriggerId()))
-								throw new PromisException("confirm","ConfirmId", ta.getTableTriggerId(), null, msg, null);
+								throw new IWBException("confirm","ConfirmId", ta.getTableTriggerId(), null, msg, null);
 							break;
 						case	3://stop with message
-							throw new PromisException("security","TableTrigger", ta.getTableTriggerId(), null, msg, null);
+							throw new IWBException("security","TableTrigger", ta.getTableTriggerId(), null, msg, null);
 						}
 					}
 	 
@@ -2345,10 +2345,10 @@ public class FrameworkEngine{
 					break;
 				case	2://confirm & continue
 					if(!requestParams.containsKey("_confirmId_"+ta.getTableTriggerId()))
-						throw new PromisException("confirm","ConfirmId", ta.getTableTriggerId(), null, msg, null);
+						throw new IWBException("confirm","ConfirmId", ta.getTableTriggerId(), null, msg, null);
 					break;
 				case	3://stop with message
-					throw new PromisException("security","TableTrigger", ta.getTableTriggerId(), null, msg, null);
+					throw new IWBException("security","TableTrigger", ta.getTableTriggerId(), null, msg, null);
 				}
 			}
 		}
@@ -2620,7 +2620,7 @@ public class FrameworkEngine{
 							} else {
 								if(FrameworkSetting.debug)System.out.println(newFormResult.getErrorMap());
 								if(c.getRowErrorStrategyTip()==1)
-									throw new PromisException("security","Form", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_conversion_auto_error")+  "  2- ["+LocaleMsgCache.get2(scd,c.getDsc())+"]", null);
+									throw new IWBException("security","Form", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_conversion_auto_error")+  "  2- ["+LocaleMsgCache.get2(scd,c.getDsc())+"]", null);
 								else {
 									formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_conversion_auto_error")+  "  3- ["+LocaleMsgCache.get2(scd,c.getDsc())+"]");
 									/*if(previewConversionMapList==null){ //TODO aslinda hata durumunda preivew acsin mi denilebilir. bir dusun
@@ -2656,7 +2656,7 @@ public class FrameworkEngine{
 						Map result = callWs(scd, wsm.get_ws().getDsc()+"."+wsm.getDsc(), mq); // TODO: result ne yapayim
 						if(result!=null){
 							if(result.containsKey("faultcode"))
-								throw new PromisException("rhino","Conversion", c.getConversionId(), wsm.get_ws().getDsc()+"."+wsm.getDsc(), result.get("faulcode") + ": " + result.get("faultstring"), null);
+								throw new IWBException("rhino","Conversion", c.getConversionId(), wsm.get_ws().getDsc()+"."+wsm.getDsc(), result.get("faulcode") + ": " + result.get("faultstring"), null);
 							else {
 								if(formResult.getOutputFields()==null)formResult.setOutputFields(new HashMap());
 								formResult.getOutputFields().putAll(result);
@@ -2668,13 +2668,13 @@ public class FrameworkEngine{
 						dao.executeRhinoScript(scd, requestParams, c.getRhinoCode(), mq, "result");
 					}
 				}
-			} catch (PromisException e) {
+			} catch (IWBException e) {
 				if(c.getRowErrorStrategyTip()==1 && cleanConversion) throw e;
 				if(FrameworkSetting.debug)e.printStackTrace();
 				formResult.getOutputMessages().add("CONVERSION("+conversionId+") EXCEPTION: " + e.getMessage());
 			} catch (Exception e) {
 				if(c.getRowErrorStrategyTip()==1 && cleanConversion) 
-					throw new PromisException("framework","Conversion", conversionId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_conversion_auto_error")+  "  3- ["+e.getMessage()+"]", null);
+					throw new IWBException("framework","Conversion", conversionId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_conversion_auto_error")+  "  3- ["+e.getMessage()+"]", null);
 				if(FrameworkSetting.debug)e.printStackTrace();
 				formResult.getOutputMessages().add("CONVERSION("+conversionId+") EXCEPTION: " + e.getMessage());
 			}
@@ -2703,7 +2703,7 @@ public class FrameworkEngine{
 					String val = qmz.values().toArray()[0].toString();
 					res+= fccd.getCodeLength()>0 ? GenericUtil.lPad(val,fccd.getCodeLength(),fccd.getFillCharacter()) : val;
 				} else
-					throw new PromisException("validation","FormCell", formCellId, null, "FormCellCode: wrong automatic definition", null);
+					throw new IWBException("validation","FormCell", formCellId, null, "FormCellCode: wrong automatic definition", null);
 				
 				break;
 			case	4://Formul/Advanced/SQL
@@ -2718,7 +2718,7 @@ public class FrameworkEngine{
 						String val = qm.values().toArray()[0].toString();   
 						res+=fccd.getCodeLength()>0 ? GenericUtil.lPad(val,fccd.getCodeLength(),fccd.getFillCharacter()) : val;
 					} else
-						throw new PromisException("validation","FormCell", formCellId, null, "FormCellCode: wrong SQL code 4 (Formul/Advanced)", null);
+						throw new IWBException("validation","FormCell", formCellId, null, "FormCellCode: wrong SQL code 4 (Formul/Advanced)", null);
 					}
 				break;
 			case	6://formdan(combo)
@@ -2755,7 +2755,7 @@ public class FrameworkEngine{
 								if(rTabOrder!=-1)break;
 							}
 							if(rTabOrder == -1 || iTabOrder ==-1){
-								throw new PromisException("validation","FormCell", formCellId, null, "FormCellCode: wrong SourceFormCell definition(Formdan/Combo) init (rTabOrder="+rTabOrder+",iTabOrder="+iTabOrder+")", null);
+								throw new IWBException("validation","FormCell", formCellId, null, "FormCellCode: wrong SourceFormCell definition(Formdan/Combo) init (rTabOrder="+rTabOrder+",iTabOrder="+iTabOrder+")", null);
 							}
 							boolean found = false;
 							for(Object[] o2:l3)if(o2[iTabOrder-1].toString().equals(sfcv)){
@@ -2764,13 +2764,13 @@ public class FrameworkEngine{
 								break;
 							}
 							if(!found){
-								throw new PromisException("validation","FormCell", formCellId, null, "FormCellCode: (Formdan/Combo) value note found (rTabOrder="+rTabOrder+",iTabOrder="+iTabOrder+")", null);
+								throw new IWBException("validation","FormCell", formCellId, null, "FormCellCode: (Formdan/Combo) value note found (rTabOrder="+rTabOrder+",iTabOrder="+iTabOrder+")", null);
 							}
 						} else
 							return m;
 						break;
 					case	9:
-						throw new PromisException("validation","FormCell", formCellId, null, "FormCellCode: wrong SourceFormCell definiton (Formdan/Combo) is remote", null);
+						throw new IWBException("validation","FormCell", formCellId, null, "FormCellCode: wrong SourceFormCell definiton (Formdan/Combo) is remote", null);
 					default:
 						res+=fccd.getCodeLength()>0 ? GenericUtil.lPad(sfcv,fccd.getCodeLength(),fccd.getFillCharacter()) : sfcv;
 					}
@@ -2778,14 +2778,14 @@ public class FrameworkEngine{
 					break;
 				}
 				if(notFound)
-					throw new PromisException("validation","FormCell", formCellId, null, "FormCellCode: wrong SourceFormCell (Formdan/Combo)", null);
+					throw new IWBException("validation","FormCell", formCellId, null, "FormCellCode: wrong SourceFormCell (Formdan/Combo)", null);
 				break;
 			
 			}
 			m.put("result", res);
 			return m;
 		}
-		throw new PromisException("validation","FormCell", formCellId, null, "FormCellCode: wrong FormCellId", null);
+		throw new IWBException("validation","FormCell", formCellId, null, "FormCellCode: wrong FormCellId", null);
 		
 	}
 
@@ -2802,10 +2802,10 @@ public class FrameworkEngine{
 		int customizationId = dev ? 0 : (Integer)scd.get("customizationId");
 		W5Table t = FrameworkCache.getTable(customizationId, mainFormResult.getForm().getObjectId());//mainFormResult.getForm().get_sourceTable();
 		if(t.getAccessViewTip()==0 && (!FrameworkCache.roleAccessControl(scd, 0) || !FrameworkCache.roleAccessControl(scd, action))){
-			throw new PromisException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
+			throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 		}
 		if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
-			throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+			throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 		}
 		Set<String> checkedParentRecords = new HashSet<String>();
 		mainFormResult.setQueuedDbFuncList(postForm4Table(mainFormResult, prefix,checkedParentRecords));
@@ -2824,7 +2824,7 @@ public class FrameworkEngine{
 					}else {
 						postForm4Table(subFormResult, prefix,checkedParentRecords);
 						if(!subFormResult.getErrorMap().isEmpty()){
-							throw new PromisException("validation","Form", m.getObjectId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_validation_error_detail_form")+ ": "+GenericUtil.fromMapToJsonString(subFormResult.getErrorMap()), null);
+							throw new IWBException("validation","Form", m.getObjectId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_validation_error_detail_form")+ ": "+GenericUtil.fromMapToJsonString(subFormResult.getErrorMap()), null);
 						}
 						if(!GenericUtil.isEmpty(subFormResult.getOutputFields()) && !GenericUtil.isEmpty(mainFormResult.getOutputFields()))
 							mainFormResult.getOutputFields().putAll(subFormResult.getOutputFields());
@@ -3021,16 +3021,16 @@ public class FrameworkEngine{
 			case	0: case 15:case 8://rhino, rdb table, group of query
 				W5Table t = queryResult.getMainTable();
 				if(t.getAccessViewTip()==0 && !FrameworkCache.roleAccessControl(scd, 0)){
-					throw new PromisException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
+					throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 				}
 				if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
-					throw new PromisException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+					throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 				}
 				
 				if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
 					W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
 					if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-						throw new PromisException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme") + " (userTip)", null);
+						throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme") + " (userTip)", null);
 					}
 				}
 				break;
@@ -3047,7 +3047,7 @@ public class FrameworkEngine{
 		case	2709://TSDB (Influx)
 			W5TsMeasurement tsm = getTsMeasurement(scd, queryResult.getQuery().getMainTableId());
 			if(tsm!=null && !GenericUtil.accessControl(scd, tsm.getAccessViewTip(), tsm.getAccessViewRoles(), tsm.getAccessViewUsers())){
-				throw new PromisException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_access_control_ts_measurement"), null);
+				throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_access_control_ts_measurement"), null);
 			}
 			queryResult.setMainTsMeasurement(tsm);
 	        queryResult.setFetchRowCount(GenericUtil.uIntNvl(requestParams, "limit", GenericUtil.uInt(requestParams,"firstLimit")));
@@ -3238,7 +3238,7 @@ public class FrameworkEngine{
 				if(t.getAccessPermissionTip() == 1 && 
 						!GenericUtil.accessControl(scd, t.getAccessPermissionTip(), t.getAccessPermissionRoles(), t.getAccessPermissionUsers())
 						&& (t.getAccessPermissionUserFields()==null || dao.accessUserFieldControl(t, t.getAccessPermissionUserFields(), scd, requestParams, null))){
-					throw new PromisException("security","Table", GenericUtil.uInt(requestParams.get("crud_table_id")), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_yetkilendirme_yetkisi"), null);
+					throw new IWBException("security","Table", GenericUtil.uInt(requestParams.get("crud_table_id")), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_yetkilendirme_yetkisi"), null);
 				}
 			}
 		}
@@ -3421,7 +3421,7 @@ public class FrameworkEngine{
 				}
 				if(templateId!=358 && objectCount==0){ // daha ilk objede sorun varsa exception ver
 					if(obz instanceof String)
-						throw new PromisException("security","Module", o.getObjectId(), null, "Role Access Control(Template Object)", null);
+						throw new IWBException("security","Module", o.getObjectId(), null, "Role Access Control(Template Object)", null);
 					else 
 						masterTable = mainTable;
 				}
@@ -3519,10 +3519,10 @@ public class FrameworkEngine{
 		default:
 			dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
 			if(!FrameworkCache.roleAccessControl(scd, 0)){
-				throw new PromisException("security","Module", dbFuncId, null, "Role Access DbFunc Control", null);
+				throw new IWBException("security","Module", dbFuncId, null, "Role Access DbFunc Control", null);
 			}
 			if(execRestrictTip!=dbFuncResult.getDbFunc().getExecRestrictTip())
-				throw new PromisException("security","DbProc", dbFuncId, null, "Access Restrict Type Control", null);
+				throw new IWBException("security","DbProc", dbFuncId, null, "Access Restrict Type Control", null);
 			/*if(execRestrictTip!=4 && checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
 				throw new PromisException("security","DbProc Execute2", dbFuncId, null, "Access Execute Control", null);*/
 			
@@ -3532,7 +3532,7 @@ public class FrameworkEngine{
 
 			if(dbFuncId==-1){
 				if((Integer)scd.get("roleId")!=0)
-					throw new PromisException("security","System DbProc", dbFuncId, null, "Only for developers", null);
+					throw new IWBException("security","System DbProc", dbFuncId, null, "Only for developers", null);
 				dao.organizeQueryFields(scd, GenericUtil.uInt(parameterMap.get("queryId")), (short)GenericUtil.uInt(parameterMap.get("insertFlag")));
 				dbFuncResult.setSuccess(true);
 				dbFuncResult.setRequestParams(new HashMap());
@@ -3834,9 +3834,9 @@ public class FrameworkEngine{
 		}
 		if(fa!=null){ //bununla ilgili islemler			
 			if(checkAccessRecordControlViolation(scd, 0, fa.getTableId(), fa.getTablePk())){
-				throw new PromisException("security","FileAttachment", fa.getFileAttachmentId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_dosya_yetki"), null);
+				throw new IWBException("security","FileAttachment", fa.getFileAttachmentId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_dosya_yetki"), null);
 			} else if (fa.getCustomizationId()!=GenericUtil.uInt(scd.get("customizationId"))){
-				throw new PromisException("security","File Attachment",fa.getFileAttachmentId(),null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_dosya_yetki"), null);
+				throw new IWBException("security","File Attachment",fa.getFileAttachmentId(),null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_dosya_yetki"), null);
 	    	}
 		}
 		return fa;
@@ -3847,7 +3847,7 @@ public class FrameworkEngine{
 		int customizationId = (Integer)scd.get("customizationId");
 		if(customizationId>0 && scd!=null && (Integer)scd.get("roleId")==0 && FrameworkCache.wDevEntityKeys.contains("707."+conversionId))customizationId=0;
 		W5Conversion cnv = (W5Conversion)dao.getCustomizedObject("from W5Conversion t where t.customizationId=? AND t.conversionId=?", customizationId, conversionId, null);
-		if(cnv==null || GenericUtil.isEmpty(cnv.getActionTips()) || cnv.getActiveFlag()==0)throw new PromisException("validation","Conversion", conversionId, null, "Conversion Control Error ("+conversionId+")", null);
+		if(cnv==null || GenericUtil.isEmpty(cnv.getActionTips()) || cnv.getActiveFlag()==0)throw new IWBException("validation","Conversion", conversionId, null, "Conversion Control Error ("+conversionId+")", null);
 		Set<String> checkedParentRecords = new HashSet();
 		
 		if(GenericUtil.hasPartInside2(cnv.getActionTips(),0)){ //manual conversion
@@ -3871,7 +3871,7 @@ public class FrameworkEngine{
 						if(!GenericUtil.isEmpty(formResult.getOutputMessages()))for(String s:formResult.getOutputMessages()){
 							msg+="<br> - "+s;
 						}
-						throw new PromisException("security","Form", 0, null, msg, null);
+						throw new IWBException("security","Form", 0, null, msg, null);
 					} else{
 //						formResult.getOutputMessages().add(PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_conversion_auto_error")+  "  3- ["+PromisLocaleMsg.get2(scd,cnv.getDsc())+"]");
 						errorConversionCount++;
@@ -3892,10 +3892,10 @@ public class FrameworkEngine{
 			if(preDbFuncId!=0){
 				W5DbFuncResult dbResult = executeDbFunc(scd, preDbFuncId, requestParams,(short)1);
 				if(!dbResult.getErrorMap().isEmpty()){
-					throw new PromisException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
+					throw new IWBException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
 				}
 				if(!dbResult.isSuccess()){
-					throw new PromisException("framework","PreDbFunc", preDbFuncId, null, "PreDbFunc Success Error ", null);
+					throw new IWBException("framework","PreDbFunc", preDbFuncId, null, "PreDbFunc Success Error ", null);
 				}
 				if(!dbResult.getResultMap().isEmpty())requestParams.putAll(dbResult.getResultMap());
 			}
@@ -3904,10 +3904,10 @@ public class FrameworkEngine{
 			W5FormResult	formResult = dao.getFormResult(scd, dstFormId, 2, requestParams);
 			W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId());//formResult.getForm().get_sourceTable();
 			if(t.getAccessViewTip()==0 && !FrameworkCache.roleAccessControl(scd, 0)){
-				throw new PromisException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
+				throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 			}
 			if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
-				throw new PromisException("security","Form", dstFormId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+				throw new IWBException("security","Form", dstFormId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 			}
 			Map originalRequestParams = formResult.getRequestParams();
 			for(int id=1;id<=dirtyCount;id++){
@@ -3921,21 +3921,21 @@ public class FrameworkEngine{
 					queuedDbFuncList.addAll(postForm4Table(formResult,prefix,checkedParentRecords));
 					formResult.setRequestParams(originalRequestParams);
 					if(!formResult.getErrorMap().isEmpty()){
-						throw new PromisException("validation","Form", dstFormId, null, "Detay Conversion Veri Geçerliliği("+LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"), formResult.getForm().getLocaleMsgKey())+"): "+GenericUtil.fromMapToJsonString(formResult.getErrorMap()), null);
+						throw new IWBException("validation","Form", dstFormId, null, "Detay Conversion Veri Geçerliliği("+LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"), formResult.getForm().getLocaleMsgKey())+"): "+GenericUtil.fromMapToJsonString(formResult.getErrorMap()), null);
 					}
 					
 				} else
-					throw new PromisException("validation","Conversion", conversionId, null, "Detay Conversion Hatası", null);
+					throw new IWBException("validation","Conversion", conversionId, null, "Detay Conversion Hatası", null);
 				
 			}
 			int postDbFuncId = GenericUtil.uInt(requestParams.get("_postdid"));
 			if(postDbFuncId!=0){
 				W5DbFuncResult dbResult = executeDbFunc(scd, postDbFuncId, requestParams,(short)1);
 				if(!dbResult.getErrorMap().isEmpty()){
-					throw new PromisException("validation","PostDbFunc", preDbFuncId, null, "PostDbFunc Validation Error", null);
+					throw new IWBException("validation","PostDbFunc", preDbFuncId, null, "PostDbFunc Validation Error", null);
 				}
 				if(!dbResult.isSuccess()){
-					throw new PromisException("framework","PostDbFunc", preDbFuncId, null, "PostDbFunc Success Error", null);
+					throw new IWBException("framework","PostDbFunc", preDbFuncId, null, "PostDbFunc Success Error", null);
 				}
 			}
 			formResult.setQueuedDbFuncList(queuedDbFuncList);
@@ -3943,7 +3943,7 @@ public class FrameworkEngine{
 				formResult.getOutputMessages().add("Toplam " + dirtyCount + " adet işlem gerçekleşti.");
 			return formResult;	
 		} else 
-			throw new PromisException("validation","Conversion", conversionId, null, "Conversion Control Error2 ("+conversionId+")", null);
+			throw new IWBException("validation","Conversion", conversionId, null, "Conversion Control Error2 ("+conversionId+")", null);
 			
 	}
 	
@@ -3956,10 +3956,10 @@ public class FrameworkEngine{
 		if(preDbFuncId!=0){
 			W5DbFuncResult dbResult = executeDbFunc(scd, preDbFuncId, requestParams,(short)1);
 			if(!dbResult.getErrorMap().isEmpty()){
-				throw new PromisException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
+				throw new IWBException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
 			}
 			if(!dbResult.isSuccess()){
-				throw new PromisException("framework","PreDbFunc", preDbFuncId, null, "PreDbFunc Success Error ", null);
+				throw new IWBException("framework","PreDbFunc", preDbFuncId, null, "PreDbFunc Success Error ", null);
 			}
 			if(!dbResult.getResultMap().isEmpty())requestParams.putAll(dbResult.getResultMap());
 		}
@@ -3967,10 +3967,10 @@ public class FrameworkEngine{
 		W5FormResult	formResult = dao.getFormResult(scd, formId, 2, requestParams);
 		W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId());//formResult.getForm().get_sourceTable();
 		if(t.getAccessViewTip()==0 && !FrameworkCache.roleAccessControl(scd,0)){
-			throw new PromisException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
+			throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 		}
 		if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
-			throw new PromisException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+			throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 		}
 		Map<String, Object> tmpOutputFields = new HashMap<String, Object>();
 		for(int id=1;id<=dirtyCount;id++){
@@ -3978,7 +3978,7 @@ public class FrameworkEngine{
 			queuedDbFuncList.addAll(postForm4Table(formResult,prefix+id,checkedParentRecords));
 
 			if(!formResult.getErrorMap().isEmpty()){
-				throw new PromisException("validation","Form", formId, null, "Detay Mazgal Veri Geçerliliği("+LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"), formResult.getForm().getLocaleMsgKey())+"): "+GenericUtil.fromMapToJsonString(formResult.getErrorMap()), null);
+				throw new IWBException("validation","Form", formId, null, "Detay Mazgal Veri Geçerliliği("+LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"), formResult.getForm().getLocaleMsgKey())+"): "+GenericUtil.fromMapToJsonString(formResult.getErrorMap()), null);
 			} else if(!GenericUtil.isEmpty(formResult.getOutputFields()))for(String key:formResult.getOutputFields().keySet()){
 				tmpOutputFields.put(key+prefix+id, formResult.getOutputFields().get(key));
 				// Burada değişiklik var 29.06.2016
@@ -4002,13 +4002,13 @@ public class FrameworkEngine{
                     }
                     W5FormResult fr = postEditGrid4Table(scd,fid,1,requestParams,subPrefix,new HashSet<String>());
                     if(!fr.getErrorMap().isEmpty()){
-                    	throw new PromisException("validation","Form", fid, null, "Detay Mazgal Veri Geçerliliği("+LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"), fr.getForm().getLocaleMsgKey())+"): "+GenericUtil.fromMapToJsonString(fr.getErrorMap()), null);
+                    	throw new IWBException("validation","Form", fid, null, "Detay Mazgal Veri Geçerliliği("+LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"), fr.getForm().getLocaleMsgKey())+"): "+GenericUtil.fromMapToJsonString(fr.getErrorMap()), null);
                     }
                 }
 			}
 		}
 		if(!GenericUtil.isEmpty(tmpOutputFields))formResult.setOutputFields(tmpOutputFields);
-		if(t.getCrudDbFuncId()!=0 && GenericUtil.hasPartInside(t.getCrudActions(),"ap")){
+/*		if(t.getCrudDbFuncId()!=0 && GenericUtil.hasPartInside(t.getCrudActions(),"ap")){
 			W5DbFuncResult dbFuncResult = dao.getDbFuncResult(formResult.getScd(), t.getCrudDbFuncId());
 			dbFuncResult.setErrorMap(new HashMap());
 			Map m = new HashMap();
@@ -4018,7 +4018,7 @@ public class FrameworkEngine{
 			dbFuncResult.setRequestParams(m);
 			dao.executeDbFunc(dbFuncResult,"");
 			if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-    	}
+    	}*/
 		formResult.setQueuedDbFuncList(queuedDbFuncList);
 		if(formResult.getOutputMessages()!=null && formResult.getOutputMessages().isEmpty())
 			formResult.getOutputMessages().add("Toplam " + dirtyCount + " adet işlem gerçekleşti.");
@@ -4030,10 +4030,10 @@ public class FrameworkEngine{
 		if(preDbFuncId!=0){
 			W5DbFuncResult dbResult = executeDbFunc(scd, preDbFuncId, requestParams,(short)1);
 			if(!dbResult.getErrorMap().isEmpty()){
-				throw new PromisException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
+				throw new IWBException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
 			}
 			if(!dbResult.isSuccess()){
-				throw new PromisException("framework","PreDbFunc", preDbFuncId, null, "PreDbFunc Success Error ", null);
+				throw new IWBException("framework","PreDbFunc", preDbFuncId, null, "PreDbFunc Success Error ", null);
 			}
 			if(!dbResult.getResultMap().isEmpty())requestParams.putAll(dbResult.getResultMap());
 		}
@@ -4041,9 +4041,9 @@ public class FrameworkEngine{
 		W5DbFuncResult	dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
 		
 		if((short)1!=dbFuncResult.getDbFunc().getExecRestrictTip())
-			throw new PromisException("security","DbProc", dbFuncId, null, "Access Restrict Type Control", null);
+			throw new IWBException("security","DbProc", dbFuncId, null, "Access Restrict Type Control", null);
 		if(checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
-			throw new PromisException("security","DbProc Execute3", dbFuncId, null, "Access Execute Control", null);
+			throw new IWBException("security","DbProc Execute3", dbFuncId, null, "Access Execute Control", null);
 		
 
 		dbFuncResult.setErrorMap(new HashMap());
@@ -4055,7 +4055,7 @@ public class FrameworkEngine{
 			DbFuncTrigger.afterExecDbFunc(dbFuncResult);
 			
 			if(!dbFuncResult.getErrorMap().isEmpty()  || !dbFuncResult.isSuccess()){
-					throw new PromisException("validation","DbFunc", -dbFuncId, null, "Detail Grid Validation", null);
+					throw new IWBException("validation","DbFunc", -dbFuncId, null, "Detail Grid Validation", null);
 			}
 			/*if(PromisCache.getAppSettingIntValue(scd, "bpm_flag")!=0 && id==1){
 				//bpm:start action
@@ -4585,14 +4585,14 @@ public class FrameworkEngine{
 		
 		W5Approval a = FrameworkCache.wApprovals.get(ar.getApprovalId());
 		if(a.getActiveFlag()==0){
-			throw new PromisException("validation","Approval", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_not_active"), null);
+			throw new IWBException("validation","Approval", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_not_active"), null);
 		}
 		if(approvalAction!=901){
 			if(versionNo!=ar.getVersionNo()){
-				throw new PromisException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_kaydi_degismis"), null);
+				throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_kaydi_degismis"), null);
 			}
 			if(!GenericUtil.accessControl(scd, (short)1, ar.getApprovalRoles(), ar.getApprovalUsers())){
-				throw new PromisException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_kaydina_hakkiniz_yok"), null);
+				throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_kaydina_hakkiniz_yok"), null);
 			}
 		}
 		boolean isFinished = false;
@@ -4606,11 +4606,11 @@ public class FrameworkEngine{
 		case	901://start approval
 			mesaj = " '"+scd.get("completeName")+ "' "+ LocaleMsgCache.get2(0,xlocale,"approval_presented_for_your_approval");
 			if(a.getApprovalRequestTip()!=2)
-				throw new PromisException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_talebi_yapilamaz"), null);
+				throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_talebi_yapilamaz"), null);
 			if(!GenericUtil.accessControl(scd, ar.getAccessViewTip(), ar.getApprovalRoles(), ar.getApprovalUsers()))
-				throw new PromisException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_talebi_hakkiniz_yok"), null);
+				throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_talebi_hakkiniz_yok"), null);
 			if(ar.getApprovalStepId()!=901)
-				throw new PromisException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_talebi_onceden_yapilmis"), null);
+				throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_talebi_onceden_yapilmis"), null);
 			Map<String, Object> advancedStepSqlResult = null;	
 			if(a.getAdvancedBeginSql()!=null && a.getAdvancedBeginSql().length()>10){//calisacak
 				Object[] oz = GenericUtil.filterExt4SQL(a.getAdvancedBeginSql(), scd, parameterMap, null);
@@ -4621,7 +4621,7 @@ public class FrameworkEngine{
 					/*if(advancedStepSqlResult.get("active_flag")!=null && PromisUtil.uInt(advancedStepSqlResult.get("active_flag"))==0)//girmeyecek
 						a = null; //approval olmayacak*/
 					if(advancedStepSqlResult.get("error_msg")!=null)//girmeyecek
-						throw new PromisException("security","Approval", a.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
+						throw new IWBException("security","Approval", a.getApprovalId(), null, (String)advancedStepSqlResult.get("error_msg"), null);
 				}
 			}							
 			nextStep = null;
@@ -4661,11 +4661,11 @@ public class FrameworkEngine{
 				nextStep = new W5ApprovalStep();
 				String appUserIds = parameterMap.get("_appUserIds");
 				if(appUserIds==null)
-					throw new PromisException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onaylayacak_kisi_seciniz"), null);
+					throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onaylayacak_kisi_seciniz"), null);
 				if(appUserIds.split(",").length<a.getDynamicStepMinUserCount())
-					throw new PromisException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_min_onaylayacak_kisi")+ " = "+a.getDynamicStepMinUserCount(), null);
+					throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_min_onaylayacak_kisi")+ " = "+a.getDynamicStepMinUserCount(), null);
 				if(a.getDynamicStepMaxUserCount()>0 && appUserIds.split(",").length>a.getDynamicStepMaxUserCount())
-					throw new PromisException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_max_onaylayacak_kisi")+ " = "+a.getDynamicStepMaxUserCount(), null);
+					throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_max_onaylayacak_kisi")+ " = "+a.getDynamicStepMaxUserCount(), null);
 				//TODO: appUserIds , approval'in icindeki userlardan olmali
 				if (appUserIds.compareTo("") == 0){
 					nextStep = null;	
@@ -4745,7 +4745,7 @@ public class FrameworkEngine{
 			} catch (Exception e) {
 				if(FrameworkSetting.debug)e.printStackTrace();
 //				dao.logException(e.getMessage(),PromisUtil.uInt(scd.get("customizationId")),PromisUtil.uInt(scd.get("userRoleId")));
-				throw new PromisException("framework","JasperReport", a.geteSignReportId(), null, LocaleMsgCache.get2(0,xlocale,"approval_could_not_attach_report"), null);
+				throw new IWBException("framework","JasperReport", a.geteSignReportId(), null, LocaleMsgCache.get2(0,xlocale,"approval_could_not_attach_report"), null);
 			}
 			break;		
 		case	1: //onay
@@ -4810,7 +4810,7 @@ public class FrameworkEngine{
 							}							
 						} 
 						else
-							throw new PromisException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_dynamic_not_approve"), null);					
+							throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_dynamic_not_approve"), null);					
 						eSignFlag=a.geteSignFlag()!=0;
 						break;
 					}
@@ -4858,14 +4858,14 @@ public class FrameworkEngine{
 				if(currentStep.getFinalStepFlag()==0){
 					int nextStepId = currentStep.getOnApproveStepId();
 					if(nextStepId == 0 && currentStep.getApprovalStepId() == 901){
-						throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_hatali_islem"), null);
+						throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_hatali_islem"), null);
 					}
 					if(currentStep.getOnApproveStepSql()!=null){
 						parameterMap.put("_tb_pk", ""+ar.getTablePk());
 						Object[] oz = GenericUtil.filterExt4SQL(currentStep.getOnApproveStepSql(), scd, parameterMap, null);
 						advancedNextStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 						if(advancedNextStepSqlResult.get("error_msg")!=null)
-							throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, (String)advancedNextStepSqlResult.get("error_msg"), null);
+							throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, (String)advancedNextStepSqlResult.get("error_msg"), null);
 						if(advancedNextStepSqlResult.get("next_step_id")!=null)nextStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("next_step_id"));
 					}
 					nextStep = a.get_approvalStepMap().get(nextStepId).getNewInstance();
@@ -4902,14 +4902,14 @@ public class FrameworkEngine{
 			break;
 		case	2://iade: TODO . baska?
 			if(currentStep.getApprovalStepId() == 901){
-				throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_hatali_islem"), null);
+				throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_hatali_islem"), null);
 			}			
 			mesaj = " '"+scd.get("completeName")+ "' "+ LocaleMsgCache.get2(0,xlocale,"approval_were_returned_by");
 			if(ar.getReturnFlag()==0){//yapilamaz
-				throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_not_return"), null);
+				throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_not_return"), null);
 			}
 			if(currentStep.getOnReturnStepId()==0){//yapilamaz
-				throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_not_return_not_setting"), null);
+				throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_not_return_not_setting"), null);
 			}
 			switch(a.getApprovalFlowTip()){
 			case	0://basit onay ise bir kisi geriye git
@@ -4919,7 +4919,7 @@ public class FrameworkEngine{
 					nextStep.setApprovalUsers(""+ar.getInsertUserId());
 					nextStep.setApprovalStepId(901);
 				} else
-					throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_not_return_simple_approval"), null);
+					throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_not_return_simple_approval"), null);
 				break;
 			case	1://complex onay
 				int returnStepId = currentStep.getOnReturnStepId();
@@ -4928,12 +4928,12 @@ public class FrameworkEngine{
 					Object[] oz = GenericUtil.filterExt4SQL(currentStep.getOnReturnStepSql(), scd, parameterMap, null);
 					advancedNextStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(advancedNextStepSqlResult.get("error_msg")!=null)
-						throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, (String)advancedNextStepSqlResult.get("error_msg"), null);
+						throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, (String)advancedNextStepSqlResult.get("error_msg"), null);
 					if(advancedNextStepSqlResult.get("return_step_id")!=null)returnStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("return_step_id"));
 				}
 				nextStep = a.get_approvalStepMap().get(returnStepId).getNewInstance();
 				if(nextStep==null){
-					throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, (String)advancedNextStepSqlResult.get("error_msg"), null);
+					throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, (String)advancedNextStepSqlResult.get("error_msg"), null);
 				}
 				break;
 			case	2://hierarchical onay
@@ -4944,7 +4944,7 @@ public class FrameworkEngine{
 			break;
 		case	3://red
 			if(currentStep.getApprovalStepId() == 901){
-				throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_hatali_islem"), null);
+				throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_hatali_islem"), null);
 			}
 			mesaj = " '"+scd.get("completeName")+ "' "+ LocaleMsgCache.get2(0,xlocale,"approval_rejected_by");
 			if(a.getOnRejectTip()==2){//red olunca kaydi sil				
@@ -4956,7 +4956,7 @@ public class FrameworkEngine{
 				String tablePkDsc = (l.get(0)[1]).toString();
 				int recordCound = dao.executeUpdateSQLQuery("delete from " + tableDsc + " x where x.customization_id=? and x."+tablePkDsc+"=?", customizationId,ar.getTablePk());
 				if(recordCound!=1){
-					throw new PromisException("validation","Approval Delete record", approvalRecordId, null, "Wrong number of delete record = "+recordCound, null);
+					throw new IWBException("validation","Approval Delete record", approvalRecordId, null, "Wrong number of delete record = "+recordCound, null);
 				}
 			} else {//"rejected" olarak isaretle. approve_record kaydi duracak. approve_step_id:999 olacak. finished olacak
 				ar.setApprovalStepId(999);
@@ -4972,7 +4972,7 @@ public class FrameworkEngine{
 			break;
 		case	0://red	
 			if(currentStep.getApprovalStepId() == 901){
-				throw new PromisException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_hatali_islem"), null);
+				throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_hatali_islem"), null);
 			}
 		}	
 		Log5ApprovalRecord logRecord = new Log5ApprovalRecord();
@@ -5376,7 +5376,7 @@ public class FrameworkEngine{
 		
 //		accessControl4FormTable(formResult);
 		if(formResult.isViewMode()){
-			throw new PromisException("security","Form", ui.getFormId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"), null);			
+			throw new IWBException("security","Form", ui.getFormId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"), null);			
 		}
 		List<Object[]> uicl = dao.find("select x.mappingType,x.importColumn,x.formCellId,x.defaultValue,y.dsc from W5UploadedImportCol x,W5FormCell y where y.customizationId=x.customizationId and y.customizationId=? AND y.formCellId=x.formCellId AND x.uploadedImportId=? order by y.tabOrder", 
 				scd.get("customizationId"),uploadedImportId);
@@ -5734,7 +5734,7 @@ public class FrameworkEngine{
 		int tableId = f.getObjectId();
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		if(!FrameworkCache.roleAccessControl(scd, 104)){
-    		throw new PromisException("security","Module",0,null, "No Authorization for Bulk SMS/Email. Please contact Administrator", null);
+    		throw new IWBException("security","Module",0,null, "No Authorization for Bulk SMS/Email. Please contact Administrator", null);
 		}
 		requestParams.remove("firstLimit");requestParams.remove("limit");requestParams.remove("start");
 		W5QueryResult qr = executeQuery4BulkUpdate(scd, tableId, requestParams, true);
@@ -5780,7 +5780,7 @@ public class FrameworkEngine{
 			Map<String, String> requestParams) {
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		if(!FrameworkCache.roleAccessControl(scd, 11)){
-    		throw new PromisException("security","Module",0,null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_no_authorization4bulk_update"), null);
+    		throw new IWBException("security","Module",0,null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_no_authorization4bulk_update"), null);
 		}
 		requestParams.remove("firstLimit");requestParams.remove("limit");requestParams.remove("start");
 		W5QueryResult qr = executeQuery4BulkUpdate(scd, tableId, requestParams, true);
@@ -5908,7 +5908,7 @@ public class FrameworkEngine{
     	catch (Exception e) {
     		if (FrameworkSetting.debug)
 				e.printStackTrace();
-    		throw new PromisException("Error","Jasper",0,"", e.getMessage(), e.getCause());
+    		throw new IWBException("Error","Jasper",0,"", e.getMessage(), e.getCause());
 		}
     	return jasperPrint;
     }
@@ -5935,20 +5935,20 @@ public class FrameworkEngine{
 			int relId) {
 		W5Table mt = FrameworkCache.getTable(scd, tableId); //master table
 		if(!GenericUtil.accessControlTable(scd, mt))
-			throw new PromisException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
+			throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 		if(relId==0 || GenericUtil.isEmpty(mt.get_tableChildList()))
-			throw new PromisException("security","Table", tableId, null, "wrong relationId or no children data", null);
+			throw new IWBException("security","Table", tableId, null, "wrong relationId or no children data", null);
 		W5TableChild tc = null;
 		for(W5TableChild qi:mt.get_tableChildList())if(qi.getTableChildId()==relId){
 			tc = qi;
 			break;
 		}
 		if(tc==null)
-			throw new PromisException("security","Table", tableId, null, "relation not found", null);
+			throw new IWBException("security","Table", tableId, null, "relation not found", null);
 		
 		W5Table t = FrameworkCache.getTable(scd, tc.getRelatedTableId()); //detail table
 		if(GenericUtil.isEmpty(t.getSummaryRecordSql()))
-			throw new PromisException("framework","Table", tableId, null, "ERROR: summarySql not defined", null);
+			throw new IWBException("framework","Table", tableId, null, "ERROR: summarySql not defined", null);
 		W5Query q = new W5Query(t.getTableId());
 		q.setSqlSelect("("+t.getSummaryRecordSql()+") dsc, x."+t.get_tableFieldList().get(0).getDsc()+" id");
 		q.setSqlFrom(t.getDsc()+" x");
@@ -6002,7 +6002,7 @@ public class FrameworkEngine{
 				String val = qm.values().toArray()[0].toString();   
 				return fccd.getCodeLength()>0 ? GenericUtil.lPad(val,fccd.getCodeLength(),fccd.getFillCharacter()) : val;
 			} else
-				throw new PromisException("validation","FormCell", fccd.getFormCellId(), null, "FormCellCode: wrong SQL code 4 (Formul/Advanced)", null);
+				throw new IWBException("validation","FormCell", fccd.getFormCellId(), null, "FormCellCode: wrong SQL code 4 (Formul/Advanced)", null);
 		}
 	}
 
@@ -6085,7 +6085,7 @@ public class FrameworkEngine{
 				}
 			}
 		} else
-			throw new PromisException("security","Administrator", 0, null, "Administrator Privilege Required", null);	
+			throw new IWBException("security","Administrator", 0, null, "Administrator Privilege Required", null);	
 	}
 
 
@@ -6649,7 +6649,7 @@ public class FrameworkEngine{
 		int tableId = f.getObjectId();
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		if(!FrameworkCache.roleAccessControl(scd, 0)){
-    		throw new PromisException("security","Module",0,null, "No Authorization for SMS/Email. Please contact Administrator", null);
+    		throw new IWBException("security","Module",0,null, "No Authorization for SMS/Email. Please contact Administrator", null);
 		}
 		
 		W5DbFuncResult r = null;
@@ -6671,7 +6671,7 @@ public class FrameworkEngine{
 		
 		W5Tutorial tutorial = (W5Tutorial)dao.loadObject(W5Tutorial.class, tutorialId);
 		if(!FrameworkCache.roleAccessControl(scd, 0))
-			throw new PromisException("security","Module", tutorial.getModuleId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
+			throw new IWBException("security","Module", tutorial.getModuleId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 				
 			
 		W5TutorialResult tr = new W5TutorialResult();
@@ -6996,13 +6996,13 @@ public class FrameworkEngine{
 	
 	public int getGlobalNextval(String id, String key, String remoteAddr) {
 		if(!FrameworkSetting.vcsServer)
-			throw new PromisException("vcs","getGlobalNextval",0,null, "Not VCS Server to getGlobalNextval", null);
+			throw new IWBException("vcs","getGlobalNextval",0,null, "Not VCS Server to getGlobalNextval", null);
 		List l = dao.executeSQLQuery("select u.user_id from w5_vcs_user u where u.vcs_key=? AND u.active_flag=1", key);
 		if(false && GenericUtil.isEmpty(l))//TODO. hepsi tanimlaninca daha iyi olacak
-			throw new PromisException("framework","Wrong/Inactive ApiKey for GlobalNextval", 0, key, key, null);
+			throw new IWBException("framework","Wrong/Inactive ApiKey for GlobalNextval", 0, key, key, null);
 		l = dao.executeSQLQuery("select 1 from w5_vcs_global_nextval u where u.seq_dsc=? AND u.active_flag=1", id);
 		if(false && GenericUtil.isEmpty(l))//TODO. hepsi tanimlaninca daha iyi olacak
-			throw new PromisException("framework","Wrong/Inactive Sequence Name for GlobalNextval", 0, id, id, null);
+			throw new IWBException("framework","Wrong/Inactive Sequence Name for GlobalNextval", 0, id, id, null);
 		
 		l = dao.executeSQLQuery("select nextval('"+id+"')");
 		
@@ -7092,18 +7092,18 @@ public class FrameworkEngine{
 				if(GenericUtil.uInt(d.get("look_up_id"))>0){
 					int lookUpId=GenericUtil.uInt(d.get("look_up_id"));
 					if(FrameworkCache.getLookUp(scd, lookUpId)==null)
-						throw new PromisException("framework","Form+ Builder", lookUpId, null, "Wrong Static LookupID: " + lookUpId, null);
+						throw new IWBException("framework","Form+ Builder", lookUpId, null, "Wrong Static LookupID: " + lookUpId, null);
 				} else 
-						throw new PromisException("framework","Form+ Builder", 0, null, "LookupID not defined", null);
+						throw new IWBException("framework","Form+ Builder", 0, null, "LookupID not defined", null);
 				s.append(controlTip==6 || controlTip==7 || controlTip==10 || controlTip==51 ? " integer":" character varying(256)");
 				break;
 			case	7: case 10:case 15:case 59:
 				if(GenericUtil.uInt(d.get("look_up_id"))>0) {
 					int queryId=GenericUtil.uInt(d.get("look_up_id"));
 					if(dao.executeSQLQuery("select 1 from iwb.w5_query x where x.query_id=? AND x.query_tip=3", queryId)==null)
-						throw new PromisException("framework","Form+ Builder", queryId, null, "Wrong QueryID: " + queryId, null);
+						throw new IWBException("framework","Form+ Builder", queryId, null, "Wrong QueryID: " + queryId, null);
 				} else 
-					throw new PromisException("framework","Form+ Builder", 0, null, "QueryID not defined", null);
+					throw new IWBException("framework","Form+ Builder", 0, null, "QueryID not defined", null);
 				s.append(controlTip==6 || controlTip==7 || controlTip==10 || controlTip==51 ? " integer":" character varying(256)");
 				break;
 		
@@ -7155,12 +7155,12 @@ public class FrameworkEngine{
 			
 			s.setLength(0);
 		} catch (Exception e2) {
-			throw new PromisException("framework","Create Table&Seq", 0, createTableSql, e2.getMessage(), e2);
+			throw new IWBException("framework","Create Table&Seq", 0, createTableSql, e2.getMessage(), e2);
 		}
 
 		boolean b = dao.organizeTable(scd, fullTableName);
 		if(!b)
-			throw new PromisException("framework","Define Table", 0, parameter, "Define Table", null);
+			throw new IWBException("framework","Define Table", 0, parameter, "Define Table", null);
 		
 		int tableId = GenericUtil.uInt(dao.executeSQLQuery("select t.table_id from iwb.w5_table t where t.customization_id=? AND t.dsc=? AND t.project_uuid=?", customizationId, po.getSetSearchPathFlag()!=0 ? tablePrefix+tableName : fullTableName, projectUuid).get(0));
 		
@@ -7172,7 +7172,7 @@ public class FrameworkEngine{
 		
 		W5FormResult fr = postFormAsJson(scd, 181, 2, main, 182, detail);
 		if(!fr.getErrorMap().isEmpty())
-			throw new PromisException("framework","Save FormBuilder Data", 0, parameter, GenericUtil.fromMapToJsonString(fr.getErrorMap()), null);
+			throw new IWBException("framework","Save FormBuilder Data", 0, parameter, GenericUtil.fromMapToJsonString(fr.getErrorMap()), null);
 		
 		int xformBuilderId = GenericUtil.uInt(fr.getOutputFields().get("xform_builder_id").toString()); 
 		int parentTemplateId =  parentTableId==0 || !main.has("template_id") ? 0 : main.getInt("template_id");
@@ -7264,7 +7264,7 @@ public class FrameworkEngine{
 			dao.executeUpdateSQLQuery("set search_path=iwb");
 		}
 
-		dao.find("from W5QueryField t where queryFieldId<500");
+		List llo = dao.find("from W5QueryFieldCreation t where queryFieldId<?", 500);
 //		dao.getHibernateTemplate().flush();
 		//				XGRID_ID := nextval('seq_grid');
 //		List lw = dao.executeSQLQuery("select min(qf.query_field_id) from w5_query_field qf where qf.query_id=? AND qf.customization_id=? AND qf.project_uuid=?", queryId, customizationId, projectUuid);
@@ -7463,7 +7463,7 @@ public class FrameworkEngine{
 			String k= ik.next();
 			if(!GenericUtil.isEmpty(mainFormData.get(k)))requestParams.put(k, mainFormData.get(k).toString());
 		} catch (Exception e) {
-			throw new PromisException("framework","Json2FormPost(FormId)", mainFormId, null, e.getMessage(), null);
+			throw new IWBException("framework","Json2FormPost(FormId)", mainFormId, null, e.getMessage(), null);
 		}
 		requestParams.put("_fid1", ""+detailFormId);
 		requestParams.put("_cnt1", ""+detailFormData.length());
@@ -7475,10 +7475,10 @@ public class FrameworkEngine{
 				String k= ik.next();
 				if(!GenericUtil.isEmpty(d.get(k)))requestParams.put(k+"1."+(i+1), d.get(k).toString());
 			} catch (Exception e) {
-				throw new PromisException("framework","Json2FormPost(FormId)", mainFormId, null, e.getMessage(), null);
+				throw new IWBException("framework","Json2FormPost(FormId)", mainFormId, null, e.getMessage(), null);
 			}
 		}catch (Exception e) {
-			throw new PromisException("framework","Json2FormPostDetail(FormId)", detailFormId, null, e.getMessage(), null);
+			throw new IWBException("framework","Json2FormPostDetail(FormId)", detailFormId, null, e.getMessage(), null);
 		}
 		return postForm4Table(scd, mainFormId, action, requestParams, "");
 	}
@@ -7796,19 +7796,19 @@ public class FrameworkEngine{
 */
 	public Map callWs(Map<String, Object> scd, String name, Map requestParams) throws IOException{
 		String[] u = name.replace('.', ',').split(",");
-		if(u.length<2)throw new PromisException("ws", "Wrong ServiceName", 0, null, "Call should be [serviceName].[methodName]", null);
+		if(u.length<2)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Call should be [serviceName].[methodName]", null);
 		W5Ws ws = FrameworkCache.getWsClient(u[0]);
-		if(ws==null)throw new PromisException("ws", "Wrong ServiceName", 0, null, "Could find ["+u[0]+"]", null);
+		if(ws==null)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Could find ["+u[0]+"]", null);
 		W5WsMethod wsm = null;
 		for(W5WsMethod twm:ws.get_methods())if(twm.getDsc().equals(u[1])){
 			wsm = twm;
 			break;
 		}
-		if(wsm==null)throw new PromisException("ws", "Wrong MethodName", 0, null, "Could find ["+u[1]+"]", null);
+		if(wsm==null)throw new IWBException("ws", "Wrong MethodName", 0, null, "Could find ["+u[1]+"]", null);
 		
 		if(!GenericUtil.accessControl(scd, ws.getAccessExecuteTip(), ws.getAccessExecuteRoles(), ws.getAccessExecuteUsers()) 
 				|| !GenericUtil.accessControl(scd, wsm.getAccessExecuteTip(), wsm.getAccessExecuteRoles(), wsm.getAccessExecuteUsers())){
-			throw new PromisException("security","WS Method Call", wsm.getWsMethodId(), null, "Access Forbidden", null);
+			throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "Access Forbidden", null);
 			
 		}
 		if(wsm.get_params()==null){
@@ -7822,7 +7822,7 @@ public class FrameworkEngine{
 		Map errorMap = new HashMap();
 		if(ws.getWssTip()==2){//token ise ve token yok ise
 			if(ws.getWssLoginMethodId()==null || ws.getWssLoginMethodParamId()==null || ws.getWssLoginTimeout()==null)
-				throw new PromisException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Token Properties Not Defined", null);
+				throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Token Properties Not Defined", null);
 			if(ws.getWssLoginMethodId()!=wsm.getWsMethodId() && ws.getWssLoginMethodParamId()!=null && (ws.getWssLogoutMethodId()==null || ws.getWssLogoutMethodId()==wsm.getWsMethodId())){
 				tokenKey = (String)ws.loadValue("tokenKey");
 				Long tokenTimeout =  (Long)ws.loadValue("tokenKey.timeOut");
@@ -7839,7 +7839,7 @@ public class FrameworkEngine{
 						Map tokenResult = callWs(scd, ws.getDsc()+"." + loginMethod.getDsc(), new HashMap());
 						Object o = tokenResult.get(tokenParam.getDsc());
 						if(o==null) 
-							throw new PromisException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Auto-Login Failed", null);
+							throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Auto-Login Failed", null);
 						tokenKey = o.toString();
 						ws.storeValue("tokenKey", tokenKey);
 						ws.storeValue("tokenKey.timeOut", System.currentTimeMillis()+ws.getWssLoginTimeout().longValue());
@@ -7893,7 +7893,7 @@ public class FrameworkEngine{
 						}
 					}
 					if(!errorMap.isEmpty()){
-						throw new PromisException("validation","WS Method Call",wsm.getWsId(), null, "Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
+						throw new IWBException("validation","WS Method Call",wsm.getWsId(), null, "Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
 					}
 					switch(wsm.getParamSendTip()){
 					case	1://form
@@ -7995,10 +7995,10 @@ public class FrameworkEngine{
 	public boolean copyTable2Tsdb(Map<String, Object> scd, int tableId, int measurementId) {
 		W5TsMeasurement tsm = getTsMeasurement(scd, measurementId); 
 		if(!GenericUtil.accessControl(scd, tsm.getAccessViewTip(), tsm.getAccessViewRoles(), tsm.getAccessViewUsers())){
-			throw new PromisException("security","W5TsMeasurement", measurementId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_access_control_ts_measurement"), null);
+			throw new IWBException("security","W5TsMeasurement", measurementId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_access_control_ts_measurement"), null);
 		}
 		if(tsm.getMeasurementObjectId()!=2 || tsm.getMeasurementObjectId()==0)
-			throw new PromisException("framework","W5TsMeasurement", measurementId, null, "Source Not RDB Table or X", null);
+			throw new IWBException("framework","W5TsMeasurement", measurementId, null, "Source Not RDB Table or X", null);
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		W5TableField timeField = t.get_tableFieldMap().get(tsm.getMeasurementObjectId());
 		StringBuilder s = new StringBuilder();

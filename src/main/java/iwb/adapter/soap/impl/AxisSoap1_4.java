@@ -20,7 +20,7 @@ import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.result.W5DbFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkCache;
 import iwb.util.GenericUtil;
 // xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://bar.foo" xmlns:intf="http://bar.foo" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -229,7 +229,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 	}*/
 	public	StringBuilder serializeGetFormSimple(W5WsServerMethod wsm, W5FormResult fr){
 		if(!fr.getErrorMap().isEmpty()){
-			return serializeException(new PromisException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(fr.getErrorMap()), null));
+			return serializeException(new IWBException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(fr.getErrorMap()), null));
 		}
 		StringBuilder buf = new StringBuilder();
 		buf.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
@@ -252,7 +252,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 	}
 	public	StringBuilder serializePostForm(W5WsServerMethod wsm, W5FormResult fr){
 		if(!fr.getErrorMap().isEmpty()){
-			return serializeException(new PromisException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(fr.getErrorMap()), null));
+			return serializeException(new IWBException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(fr.getErrorMap()), null));
 		}
 		StringBuilder buf = new StringBuilder();
 		buf.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
@@ -276,7 +276,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 	}
 	public	StringBuilder serializeQueryData(W5WsServerMethod wsm, W5QueryResult qr){
 		if(!qr.getErrorMap().isEmpty()){
-			return serializeException(new PromisException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(qr.getErrorMap()), null));
+			return serializeException(new IWBException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(qr.getErrorMap()), null));
 		}
 		StringBuilder buf = new StringBuilder();
 		buf.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
@@ -322,7 +322,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 	}
 	public 	StringBuilder serializeDbFunc(W5WsServerMethod wsm, W5DbFuncResult dfr){
 		if(!dfr.getErrorMap().isEmpty()){
-			return serializeException(new PromisException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(dfr.getErrorMap()), null));
+			return serializeException(new IWBException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(dfr.getErrorMap()), null));
 		}
 		StringBuilder buf = new StringBuilder();
 		buf.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
@@ -341,7 +341,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 		return buf;
 	}
 
-	public	StringBuilder serializeException(PromisException e){
+	public	StringBuilder serializeException(IWBException e){
 		StringBuilder buf = new StringBuilder();
 		buf.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
 		.append("<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">")

@@ -71,7 +71,7 @@ import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -5719,7 +5719,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						break;
 					}
 				if (leafField == -1)
-					throw new PromisException("sql", "Query(TreeRemote)",
+					throw new IWBException("sql", "Query(TreeRemote)",
 							queryResult.getQueryId(), GenericUtil.replaceSql(
 									queryResult.getExecutedSql(),
 									queryResult.getSqlParams()),
@@ -5943,7 +5943,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					}
 				}
 				if (idField == -1 || parentField==-1)
-					throw new PromisException("sql", "Query(Tree)",
+					throw new IWBException("sql", "Query(Tree)",
 							queryResult.getQueryId(), GenericUtil.replaceSql(
 									queryResult.getExecutedSql(),
 									queryResult.getSqlParams()),
@@ -7196,7 +7196,7 @@ public class ExtJs3_3 implements ViewAdapter {
 	}
 
 	public StringBuilder serializeException(Map<String, Object> scd,
-			PromisException ex) {
+			IWBException ex) {
 		String locale = (scd == null) ? FrameworkCache.getAppSettingStringValue(0,
 				"locale") : (String) scd.get("locale");
 		int customizationId = (scd == null) ? FrameworkCache
@@ -7386,7 +7386,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					}
 				}
 				if (idField == -1 || parentField==-1)
-					throw new PromisException("sql", "Query(Tree)",
+					throw new IWBException("sql", "Query(Tree)",
 							queryResult.getQueryId(), GenericUtil.replaceSql(
 									queryResult.getExecutedSql(),
 									queryResult.getSqlParams()),

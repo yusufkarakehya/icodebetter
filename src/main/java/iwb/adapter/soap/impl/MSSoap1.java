@@ -9,7 +9,7 @@ import iwb.domain.db.W5WsServerMethodParam;
 import iwb.domain.result.W5DbFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkCache;
 import iwb.util.GenericUtil;
 
@@ -177,7 +177,7 @@ public class MSSoap1 implements SoapAdapter{
 	public	StringBuilder serializePostForm(W5WsServerMethod wsm, W5FormResult fr){
 		StringBuilder buf = new StringBuilder();
 		if(!fr.getErrorMap().isEmpty()){
-			return serializeException(new PromisException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(fr.getErrorMap()), null));
+			return serializeException(new IWBException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(fr.getErrorMap()), null));
 		}
 		buf.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
 		.append("<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">")
@@ -191,7 +191,7 @@ public class MSSoap1 implements SoapAdapter{
 	}
 	public	StringBuilder serializeQueryData(W5WsServerMethod wsm, W5QueryResult qr){
 		if(!qr.getErrorMap().isEmpty()){
-			return serializeException(new PromisException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(qr.getErrorMap()), null));
+			return serializeException(new IWBException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(qr.getErrorMap()), null));
 		}
 		return new StringBuilder();
 	}
@@ -199,7 +199,7 @@ public class MSSoap1 implements SoapAdapter{
 		return new StringBuilder();
 	}
 
-	public	StringBuilder serializeException(PromisException e){
+	public	StringBuilder serializeException(IWBException e){
 		StringBuilder buf = new StringBuilder();
 		buf.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
 		.append("<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">")

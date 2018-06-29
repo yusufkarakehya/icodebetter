@@ -69,7 +69,7 @@ import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.engine.FrameworkEngine;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
 import iwb.util.FrameworkCache;
@@ -833,7 +833,7 @@ public class PreviewServlet implements InitializingBean {
 			}
 			session.removeAttribute("scd-dev");
 		}
-		if(GenericUtil.uInt(request, "d")!=0)throw new PromisException("session","No Session",0,null, "No valid session", null);
+		if(GenericUtil.uInt(request, "d")!=0)throw new IWBException("session","No Session",0,null, "No valid session", null);
 		else response.getWriter().write("{\"success\":true}");
 	}
 
@@ -1036,7 +1036,7 @@ public class PreviewServlet implements InitializingBean {
 		} else {
 			W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
 			if (fa == null) {
-				throw new PromisException("validation", "File Attachment", fileAttachmentId, null,
+				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
 						"Invalid Id: " + fileAttachmentId, null);
 			}
 			ServletOutputStream out = response.getOutputStream();
@@ -1077,7 +1077,7 @@ public class PreviewServlet implements InitializingBean {
 			if (FrameworkSetting.debug)
 				e.printStackTrace();
 			// bus.logException(e.getMessage(),GenericUtil.uInt(scd.get("customizationId")),GenericUtil.uInt(scd.get("userRoleId")));
-			throw new PromisException("generic", "File Attacment", fileAttachmentId, "Unknown Exception",
+			throw new IWBException("generic", "File Attacment", fileAttachmentId, "Unknown Exception",
 					e.getMessage(), e.getCause());
 		} finally {
 			if (out != null)
@@ -1112,7 +1112,7 @@ public class PreviewServlet implements InitializingBean {
 		} else {
 			W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
 			if (fa == null) { // bulunamamis TODO
-				throw new PromisException("validation", "File Attachment", fileAttachmentId, null,
+				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
 						"Wrong Id: " + fileAttachmentId, null);
 			}
 
@@ -1158,7 +1158,7 @@ public class PreviewServlet implements InitializingBean {
 			if (FrameworkSetting.debug)
 				e.printStackTrace();
 			// bus.logException(e.getMessage(),GenericUtil.uInt(scd.get("customizationId")),GenericUtil.uInt(scd.get("userRoleId")));
-			throw new PromisException("generic", "File Attacment", fileAttachmentId, "Unknown Exception",
+			throw new IWBException("generic", "File Attacment", fileAttachmentId, "Unknown Exception",
 					e.getMessage(), e.getCause());
 		} finally {
 			out.close();
@@ -1336,7 +1336,7 @@ public class PreviewServlet implements InitializingBean {
 			//response.getOutputStream().print("Jasper Error: " + e.getMessage());
 			//response.getOutputStream().close();
 //			bus.logException(e.getMessage(),PromisUtil.uInt(scd.get("customizationId")),PromisUtil.uInt(scd.get("userRoleId")));
-			throw new PromisException("Error", "Jasper", jasperId, null, e.getMessage(), e.getCause());
+			throw new IWBException("Error", "Jasper", jasperId, null, e.getMessage(), e.getCause());
 		}finally{
 			// Temp klasör içerisi de silinmeli
 			virtualizer.cleanup();
@@ -1782,7 +1782,7 @@ public class PreviewServlet implements InitializingBean {
     	Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		int roleId =(Integer)scd.get("roleId");
 		if(roleId!=0){
-			throw new PromisException("security","Developer",0,null, "You Have to Be Developer TO Run this", null);
+			throw new IWBException("security","Developer",0,null, "You Have to Be Developer TO Run this", null);
 		}
 
 		int queryId= GenericUtil.uInt(request, "_qid");

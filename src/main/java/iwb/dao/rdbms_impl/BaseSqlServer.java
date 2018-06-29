@@ -19,7 +19,7 @@ import org.hibernate.jdbc.ReturningWork;
 import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 /**
@@ -361,7 +361,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 			});	
 		} catch(Exception e){
 			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new PromisException("sql","Manuel Query Execute2List",0,sql, e.getMessage(), e.getCause());
+			throw new IWBException("sql","Manuel Query Execute2List",0,sql, e.getMessage(), e.getCause());
 		}
 	}
 	public List executeSQLQuery2(final String sql,final List params) {
@@ -400,7 +400,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 	    	);
 		} catch(Exception e){
 			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new PromisException("sql","Manuel Query Execute2List",0,sql, e.getMessage(), e.getCause());
+			throw new IWBException("sql","Manuel Query Execute2List",0,sql, e.getMessage(), e.getCause());
 		}
 	}
 	public List executeSQLQuery2Map(final String sql,final List params) {
@@ -457,7 +457,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 	    	);
 		} catch(Exception e){
 			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new PromisException("sql","Manuel Query Execute2ListOfMap",0,GenericUtil.replaceSql(sql,params), e.getMessage(), e.getCause());
+			throw new IWBException("sql","Manuel Query Execute2ListOfMap",0,GenericUtil.replaceSql(sql,params), e.getMessage(), e.getCause());
 		}
 	}
 	/*
@@ -510,7 +510,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 	        			}
 	        			catch (Exception e) {
 	        				if(FrameworkSetting.debug)e.printStackTrace();
-	        				throw new PromisException("sql","Manuel Query Execute Update",0,sql, e.getMessage(), e.getCause());
+	        				throw new IWBException("sql","Manuel Query Execute Update",0,sql, e.getMessage(), e.getCause());
 						}
 	        			
 	        			return 1;
@@ -519,7 +519,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 	    	);
 		} catch(Exception e){
 				if(FrameworkSetting.debug)e.printStackTrace();
-				throw new PromisException("sql","Manuel Query Execute Update",0,sql, e.getMessage(), e.getCause());
+				throw new IWBException("sql","Manuel Query Execute Update",0,sql, e.getMessage(), e.getCause());
 		}
 	}
 	/*

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import iwb.controller.AppServlet;
 import iwb.domain.helper.W5DeferredResult;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
@@ -33,7 +33,7 @@ public class AsyncServlet {
 		Map<String, Object> scd = null;
 		try {
 			scd = UserUtil.getScd(request, "scd-dev", false);
-		} catch(PromisException e){
+		} catch(IWBException e){
 			try {
 				response.getWriter().write(e.toJsonString(null));
 				response.getWriter().close();
@@ -47,7 +47,7 @@ public class AsyncServlet {
 		final String webPageId = request.getParameter(".w");
 		final String webPageId2 = GenericUtil.uInt(scd.get("mobile"))!=0 ? (String)scd.get("mobileDeviceId") : request.getParameter(".w");
 		if(!webPageId.equals(webPageId2)){
-			throw new PromisException("bu ne lan", "oho", 0, null, null, null);
+			throw new IWBException("bu ne lan", "oho", 0, null, null, null);
 		}
 		
 		final String activeTabId = request.getParameter(".at");

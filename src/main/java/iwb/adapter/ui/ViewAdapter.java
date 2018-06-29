@@ -12,7 +12,7 @@ import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 
 public interface ViewAdapter {
 	public	StringBuilder serializeShowForm(W5FormResult formResult);
@@ -24,7 +24,7 @@ public interface ViewAdapter {
 	public	StringBuilder serializeListView(W5ListViewResult	listViewResult);
 	public 	StringBuilder serializeDbFunc(W5DbFuncResult dbFuncResult);
 	public	StringBuilder serializeFeeds(Map<String, Object> scd, int platestFeedIndex, int pfeedTip, int proleId, int puserId, int pmoduleId);
-	public 	StringBuilder serializeException(Map<String, Object> scd, PromisException ex);
+	public 	StringBuilder serializeException(Map<String, Object> scd, IWBException ex);
 	public StringBuilder serializeTableRecordInfo(W5TableRecordInfoResult tableRecordInfoResult);
 	public	StringBuilder serializeGetFormSimple(W5FormResult formResult);
 	public StringBuilder serializeFormCellStore(W5FormCellHelper rc, int customizationId, String locale);

@@ -21,7 +21,7 @@ import iwb.domain.db.W5Project;
 import iwb.domain.helper.W5DeferredResult;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5SynchAfterPostHelper;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 
 class	SyncGridMapHelper3{
 	private	Set<Integer> keys;
@@ -1129,7 +1129,7 @@ public class UserUtil {
 
 		if(deviceType!=0){
 			if(GenericUtil.isEmpty(mobileDeviceId))
-				throw new PromisException("token","Invalid MobileDeviceId",0,null, "Invalid MobileDeviceId", null);
+				throw new IWBException("token","Invalid MobileDeviceId",0,null, "Invalid MobileDeviceId", null);
 			DeviceSyncHelper3	deviceSync = deviceMap3.get(mobileDeviceId);
 	//		SyncSessionMapHelper3 syncSes = null;
 			if(deviceSync!=null){
@@ -1236,7 +1236,7 @@ public class UserUtil {
 	public static List<Object []> listOnlineUsers(Map<String, Object> scd){
 		boolean chat = FrameworkSetting.chat && GenericUtil.uInt(scd.get("chat"))!=0;
 		if(!chat)
-			throw new PromisException("framework","Chat Not Enabled",0,null, "Chat Not Enabled. Please contact Administrator", null);
+			throw new IWBException("framework","Chat Not Enabled",0,null, "Chat Not Enabled. Please contact Administrator", null);
 		long curTime = System.currentTimeMillis();
 		long awayTime = curTime-FrameworkSetting.onlineUsersAwayMinute;			
 		long limitTime = curTime-FrameworkSetting.onlineUsersLimitMinute;
@@ -1522,7 +1522,7 @@ public class UserUtil {
 		HttpSession session = null;
 		session = request.getSession(false);
 		if(session==null || session.getAttribute(scdKey)==null || ((HashMap<String,Object>)session.getAttribute(scdKey)).isEmpty()){
-			throw new PromisException("session","No Session",0,null, "No valid session", null);
+			throw new IWBException("session","No Session",0,null, "No valid session", null);
 		}
 		scd =(Map<String, Object>)session.getAttribute(scdKey);
 		boolean mobile = scd.containsKey("mobile");
@@ -1533,7 +1533,7 @@ public class UserUtil {
 		if(scd.containsKey("customizationId")){
 			int cusId = (Integer)scd.get("customizationId");
 			if(FrameworkSetting.customizationSystemStatus.get(cusId)!=0){
-				throw new PromisException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
+				throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 			}
 		}
 		return scd;
@@ -1544,11 +1544,11 @@ public class UserUtil {
 		HttpSession session = null;
 		session = request.getSession(false);
 		if(session==null || session.getAttribute(scdKey)==null || ((HashMap<String,Object>)session.getAttribute(scdKey)).isEmpty()){
-			throw new PromisException("session","No Session",0,null, "No valid session", null);
+			throw new IWBException("session","No Session",0,null, "No valid session", null);
 		}
 		scd =(Map<String, Object>)session.getAttribute(scdKey);
 		if((Integer)scd.get("roleId")!=0){
-			throw new PromisException("security","Only for Developers",0,null, "Only for Developers", null);
+			throw new IWBException("security","Only for Developers",0,null, "Only for Developers", null);
 		}
 		String uri = request.getRequestURI();
 		String s = "preview/";
@@ -1560,7 +1560,7 @@ public class UserUtil {
 				W5Project po = FrameworkCache.wProjects.get(pid);
 				if(po!=null && po.getCustomizationId()==customizationId){
 					if(FrameworkSetting.customizationSystemStatus.get(customizationId)!=0){
-						throw new PromisException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
+						throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 					}
 					Map newScd =(Map<String, Object>)session.getAttribute("iwb-"+pid); 
 					if(newScd==null){
@@ -1578,7 +1578,7 @@ public class UserUtil {
 			}
 		
 		}
-		throw new PromisException("security","Temporary SCD Not Defined",0,null, "Temporary SCD Not Defined", null);
+		throw new IWBException("security","Temporary SCD Not Defined",0,null, "Temporary SCD Not Defined", null);
 	}
 	
 	public static String generateTokenFromScd(Map<String, Object> scd, int integrationObjectId, String ip, int validTimeMillis) {

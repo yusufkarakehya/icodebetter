@@ -44,7 +44,7 @@ import iwb.domain.result.W5DbFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.engine.FrameworkEngine;
-import iwb.exception.PromisException;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -84,12 +84,12 @@ public class WsServlet implements InitializingBean {
 			if(requestParams.containsKey("wsdl") || requestParams.containsKey("WSDL") || method.endsWith(".wsdl") || method.endsWith(".WSDL")){
 				if(method.endsWith(".wsdl") || method.endsWith(".WSDL"))method=method.substring(0, method.length()-5);
 			    W5WsServer wss = FrameworkCache.getWsServer(method);
-				if(wss==null)throw new PromisException("soap","WS Not Found",0,method, "WS Not Found", null);
+				if(wss==null)throw new IWBException("soap","WS Not Found",0,method, "WS Not Found", null);
 				Map<String, Object> wsmoMap = engine.getWsServerMethodObjects(wss);
 				response.getWriter().write(soap.serializeSoapWSDL(wss, wsmoMap).toString());
 			} else { //exec
 			    W5WsServer wss = FrameworkCache.getWsServer(method);
-				if(wss==null)throw new PromisException("soap","WS Not Found",0,method, "WS Not Found", null);
+				if(wss==null)throw new IWBException("soap","WS Not Found",0,method, "WS Not Found", null);
 				requestParams.clear();
 				StringBuilder jb = new StringBuilder();
 				String line = null;
@@ -117,7 +117,7 @@ public class WsServlet implements InitializingBean {
 					}
 					
 				}
-				if(methodName==null)throw new PromisException("soap","Method not Defined",0,method, "Method not Defined", null);
+				if(methodName==null)throw new IWBException("soap","Method not Defined",0,method, "Method not Defined", null);
 				if(methodName.equals("login")){
 					requestParams.put("_remote_ip", request.getRemoteAddr());
 					requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
@@ -175,7 +175,7 @@ public class WsServlet implements InitializingBean {
 					W5FormResult fr=null; 
 					Map<String, Object> scd = GenericUtil.isEmpty(requestParams.get("tokenKey")) ? null : UserUtil.getScdFromToken(requestParams.get("tokenKey"), "");
 					if(GenericUtil.isEmpty(scd)){
-						throw new PromisException("session","No Session",0,null, "No valid token", null);
+						throw new IWBException("session","No Session",0,null, "No valid token", null);
 					}
 
 					for(W5WsServerMethod wsm:wss.get_methods())if(wsm.getDsc().equals(methodName)){
@@ -208,22 +208,22 @@ public class WsServlet implements InitializingBean {
 							response.getWriter().close();
 							break;
 						case	31:case	32:case	33:
-							throw new PromisException("soap","TODO",0,null, "Methods Not Implemented", null);
+							throw new IWBException("soap","TODO",0,null, "Methods Not Implemented", null);
 						}
 						return;
 					}
-					throw new PromisException("soap","Method not Found",0,u[1], "Method not Found", null);
+					throw new IWBException("soap","Method not Found",0,u[1], "Method not Found", null);
 				}
 //				W5SOAPResult  sr = engine.executeSOAPMethod(0, u[u.length-1], methodName, requestParams);
 //				response.getWriter().write(soap.serializeSOAPResult(sr).toString());
 				
 			}
-		} catch (PromisException e) {
+		} catch (IWBException e) {
 			response.getWriter().write(soap.serializeException(e).toString());
 		} catch (Exception e) {
-			if(e.getCause()!=null && e.getCause() instanceof PromisException){
-				response.getWriter().write(soap.serializeException((PromisException)e.getCause()).toString());
-			} else response.getWriter().write(soap.serializeException(new PromisException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause())).toString());
+			if(e.getCause()!=null && e.getCause() instanceof IWBException){
+				response.getWriter().write(soap.serializeException((IWBException)e.getCause()).toString());
+			} else response.getWriter().write(soap.serializeException(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause())).toString());
 		}
 		response.getWriter().close();		
 	}
@@ -244,20 +244,20 @@ public class WsServlet implements InitializingBean {
 			if(method.endsWith(".wadl") || method.endsWith(".WADL")){
 				if(method.endsWith(".wadl") || method.endsWith(".WADL"))method=method.substring(0, method.length()-5);
 			    W5WsServer wss = FrameworkCache.getWsServer(method);
-				if(wss==null)throw new PromisException("soap","WS Not Found",0,method, "WS Not Found", null);
+				if(wss==null)throw new IWBException("soap","WS Not Found",0,method, "WS Not Found", null);
 				Map<String, Object> wsmoMap = engine.getWsServerMethodObjects(wss);
 				response.getWriter().write(serializeRestWADL(wss, wsmoMap).toString());
 			} else
-				throw new PromisException("framework","Undefined Method",0,null, "User [methodName].wadl", null);
-		} catch (PromisException e) {
+				throw new IWBException("framework","Undefined Method",0,null, "User [methodName].wadl", null);
+		} catch (IWBException e) {
 			Map scd = new HashMap();scd.put("locale",FrameworkCache.getAppSettingStringValue(0, "locale"));scd.put("customizationId",0);
 			response.getWriter().write(e.toJsonString(scd));
 		} catch (Exception e) {
 			Map scd = new HashMap();scd.put("locale",FrameworkCache.getAppSettingStringValue(0, "locale"));scd.put("customizationId",0);
-			if(e.getCause()!=null && e.getCause() instanceof PromisException){
-				response.getWriter().write(((PromisException)e.getCause()).toJsonString(scd));
+			if(e.getCause()!=null && e.getCause() instanceof IWBException){
+				response.getWriter().write(((IWBException)e.getCause()).toJsonString(scd));
 			} else 
-				response.getWriter().write(new PromisException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString(scd));
+				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString(scd));
 		}
 	}
 
@@ -334,7 +334,7 @@ public class WsServlet implements InitializingBean {
 			} else {
 				Map<String, Object> scd = GenericUtil.isEmpty(token) ? null : UserUtil.getScdFromToken(token, "");
 				if(GenericUtil.isEmpty(scd)){
-					throw new PromisException("session","No Session",0,null, "No valid token", null);
+					throw new IWBException("session","No Session",0,null, "No valid token", null);
 				}
 				int customizationId = (Integer)scd.get("customizationId");
 				Map<String, W5WsServer> wssMap = FrameworkCache.wWsServers.get(customizationId);
@@ -344,7 +344,7 @@ public class WsServlet implements InitializingBean {
 					wssMap = FrameworkCache.wWsServers.get(0);
 					wss = wssMap.get(u[u.length-2]);
 				}
-				if(wss==null)throw new PromisException("ws","WS Not Found",0,u[u.length-2], "WS Not Found", null);
+				if(wss==null)throw new IWBException("ws","WS Not Found",0,u[u.length-2], "WS Not Found", null);
 				
 				W5FormResult fr=null; 
 				for(W5WsServerMethod wsm:wss.get_methods())if(wsm.getDsc().equals(method)){
@@ -387,21 +387,21 @@ public class WsServlet implements InitializingBean {
 						response.getWriter().close();
 						break;
 					case	31:case	32:case	33:
-						throw new PromisException("ws","TODO",0,null, "Methods Not Implemented", null);
+						throw new IWBException("ws","TODO",0,null, "Methods Not Implemented", null);
 					}
 					return;
 				}
-				throw new PromisException("ws","Method not Found",0,method, "Method not Found", null);
+				throw new IWBException("ws","Method not Found",0,method, "Method not Found", null);
 			}
-		} catch (PromisException e) {
+		} catch (IWBException e) {
 			Map scd = new HashMap();scd.put("locale",FrameworkCache.getAppSettingStringValue(0, "locale"));scd.put("customizationId",0);
 			response.getWriter().write(e.toJsonString(scd));
 		} catch (Exception e) {
 			Map scd = new HashMap();scd.put("locale",FrameworkCache.getAppSettingStringValue(0, "locale"));scd.put("customizationId",0);
-			if(e.getCause()!=null && e.getCause() instanceof PromisException){
-				response.getWriter().write(((PromisException)e.getCause()).toJsonString(scd));
+			if(e.getCause()!=null && e.getCause() instanceof IWBException){
+				response.getWriter().write(((IWBException)e.getCause()).toJsonString(scd));
 			} else 
-				response.getWriter().write(new PromisException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString(scd));
+				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString(scd));
 		}
 	}
 
