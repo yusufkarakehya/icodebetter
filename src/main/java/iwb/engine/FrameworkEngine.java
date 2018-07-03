@@ -4255,7 +4255,7 @@ public class FrameworkEngine{
 	}
 	
 	public W5QueryResult getJasperMultipleData(Map<String, Object> scd,Map<String, String> requestParams ,int jasperId){
-		W5Jasper jasper=(W5Jasper) dao.loadObject(W5Jasper.class, jasperId);
+		W5Jasper jasper=(W5Jasper) dao.getObject(W5Jasper.class, jasperId);
 		W5QueryResult queryResult =  executeQuery(scd, jasper.getMultiJasperQueryId(), requestParams);
 		return queryResult;	
 	}
@@ -6669,7 +6669,7 @@ public class FrameworkEngine{
 	public W5TutorialResult getTutorialResult(Map<String, Object> scd,
 			int tutorialId, Map<String, String> requestParams) {
 		
-		W5Tutorial tutorial = (W5Tutorial)dao.loadObject(W5Tutorial.class, tutorialId);
+		W5Tutorial tutorial = (W5Tutorial)dao.getObject(W5Tutorial.class, tutorialId);
 		if(!FrameworkCache.roleAccessControl(scd, 0))
 			throw new IWBException("security","Module", tutorial.getModuleId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 				
@@ -8069,6 +8069,4 @@ public class FrameworkEngine{
 		}	
 		
 	}
-
-	
 }

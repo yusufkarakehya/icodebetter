@@ -40,7 +40,7 @@ public interface RdbmsDao{
 
 	void updateObject(Object o);
 
-	<T> T loadObject(Class<T> clazz, Serializable id);
+	<T> T getObject(Class<T> clazz, Serializable id);
 
 	void removeObject(Class clazz, Serializable id);
 
@@ -288,8 +288,6 @@ public interface RdbmsDao{
 	void executeQueryAsRhino(W5QueryResult qr, String code);
 
 	Map executeQueryAsRhino4Debug(W5QueryResult qr, String script);
-	
-	HibernateTemplate getHibernateTemplate();
 
 	Map executeQuery4Stat(Map<String, Object> scd, int gridId, Map<String, String> requestParams);
 	Map executeQuery4StatTree(Map<String, Object> scd, int gridId, Map<String, String> requestParams);

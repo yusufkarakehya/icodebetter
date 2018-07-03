@@ -123,17 +123,12 @@ import iwb.util.GenericUtil;
 //import iwb.util.InfluxUtil;
 import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
+import org.springframework.stereotype.Repository;
 
 @SuppressWarnings({"unchecked","unused"})
-@Service
+@Repository
 @Transactional
-public class PostgreSQL extends BaseDAO implements RdbmsDao{
-
-	@Autowired
-	public PostgreSQL(SessionFactory sessionFactory) {
-		super(sessionFactory);
-		// TODO Auto-generated constructor stub
-	}
+public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 	private static Logger logger = Logger.getLogger(PostgreSQL.class);
 	@Autowired
@@ -473,7 +468,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 		if(logTable.contains(".")){
 			logTable = logTable.substring(logTable.lastIndexOf('.')+1);
 		}
-		Session session = getSessionFactory().getCurrentSession();
+		Session session = getCurrentSession();
 
 		sql.append("select count(*)  from information_schema.tables qx where lower(qx.table_name) = '").append(logTable.toLowerCase()).append("' and lower(qx.table_schema) = '").append(FrameworkSetting.crudLogSchema).append("'");
 		int count = GenericUtil.uInt(session.createSQLQuery(sql.toString()).uniqueResult());
@@ -509,7 +504,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 		
 		
 		final String flogTable = logTable;
-		getSessionFactory().getCurrentSession().doWork(new Work() {
+		getCurrentSession().doWork(new Work() {
 			@Override
 			public void execute(Connection conn) throws SQLException {
 				try {
@@ -682,7 +677,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 
 		try {
 			
-			getSessionFactory().getCurrentSession().doWork(new Work() {
+			getCurrentSession().doWork(new Work() {
 				
 				@Override
 				public void execute(Connection conn) throws SQLException {
@@ -1033,7 +1028,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 	@Override
 	public Map<String, Object> runSQLQuery2Map(String sql,List params, List<W5QueryField> queryFields, boolean closeConnectionAfterRun) {
 		try {
-			return getSessionFactory().getCurrentSession().doReturningWork(new ReturningWork<Map<String, Object>>() {
+			return getCurrentSession().doReturningWork(new ReturningWork<Map<String, Object>>() {
 				@Override
 				public Map<String, Object> execute(Connection conn) throws SQLException {
 					PreparedStatement s = conn.prepareStatement("select x.* from (" + sql + ")  x  limit 1");
@@ -1339,7 +1334,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
     	if(!errorMap.isEmpty())return null;
     
     	try {
-    		return getSessionFactory().getCurrentSession().doReturningWork(new ReturningWork<Map<String, Object>>() {
+    		return getCurrentSession().doReturningWork(new ReturningWork<Map<String, Object>>() {
 				@Override
 				public Map<String, Object> execute(Connection conn) throws SQLException {
 					PreparedStatement s = conn.prepareStatement(sql.toString());
@@ -1452,7 +1447,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 
     	final Object pkField2 = pkField;
     	try {
-    		getSessionFactory().getCurrentSession().doWork(new Work() {
+    		getCurrentSession().doWork(new Work() {
 				
 				@Override
 				public void execute(Connection conn) throws SQLException {
@@ -2369,7 +2364,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 	    	}*/
     		final boolean extendedFlag2 = extendedFlag;
     		final Map<Integer, W5FormModule> moduleMap2 = moduleMap;
-    		return getSessionFactory().getCurrentSession().doReturningWork(new ReturningWork<Boolean>() {
+    		return getCurrentSession().doReturningWork(new ReturningWork<Boolean>() {
 				@Override
 				public Boolean execute(Connection conn) throws SQLException {
 					PreparedStatement s = conn.prepareStatement(sql.toString());
@@ -2594,7 +2589,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 				if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
 	    	}
 */	    	
-	    	return getSessionFactory().getCurrentSession().doReturningWork(new ReturningWork<Integer>() {
+	    	return getCurrentSession().doReturningWork(new ReturningWork<Integer>() {
 				@Override
 				public Integer execute(Connection conn) throws SQLException {
 					PreparedStatement s = null;
@@ -2924,7 +2919,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 	    	
 	    	final 		Map<Integer, W5FormModule> moduleMap2 = moduleMap;
 
-	    	return getSessionFactory().getCurrentSession().doReturningWork(new ReturningWork<Integer>() {
+	    	return getCurrentSession().doReturningWork(new ReturningWork<Integer>() {
 				@Override
 				public Integer execute(Connection conn) throws SQLException {
 					PreparedStatement s = null;
@@ -3092,7 +3087,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
     	}*/
     	
     	if(t.getDoDeleteLogFlag()!=0)logTableRecord(formResult);
-    	Session session = getSessionFactory().getCurrentSession();
+    	Session session = getCurrentSession();
     	try {
     		b = applyParameters(session.createSQLQuery(sql.toString()),realParams).executeUpdate()>0;
     		
@@ -3174,11 +3169,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
     	}
 		boolean vcs = FrameworkSetting.vcs;
 		if(insertFlag!=0 && insertList!=null)for(W5QueryFieldCreation field:insertList){
-			getHibernateTemplate().save(field);
+			saveObject(field);
 			if(vcs)saveObject(new W5VcsObject(scd, 9, field.getQueryFieldId()));
 		}
 		for(W5QueryFieldCreation field:updateList){
-			getHibernateTemplate().update(field);
+			updateObject(field);
 			if(vcs)makeDirtyVcsObject(scd, 9, field.getQueryFieldId());
 		}
 	}
@@ -3229,7 +3224,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 	    	for(int qi=0;qi<sqlStr.length();qi++)if(sqlStr.charAt(qi)=='?')sqlParams.add(null);
 	    	
 	    	try{
-	    		getSessionFactory().getCurrentSession().doWork(new Work() {
+	    		getCurrentSession().doWork(new Work() {
 	    			@Override
 					public void execute(Connection conn) throws SQLException {
 	    				PreparedStatement stmt = null;
@@ -3298,11 +3293,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 		}
 		boolean vcs = FrameworkSetting.vcs;
 		if(insertFlag!=0 && insertList!=null)for(W5QueryFieldCreation field:insertList){
-			getHibernateTemplate().save(field);
+			saveObject(field);
 			if(vcs)saveObject(new W5VcsObject(scd, 9, field.getQueryFieldId()));
 		}
 		for(W5QueryFieldCreation field:updateList){
-			getHibernateTemplate().update(field);
+			updateObject(field);
 			if(vcs)makeDirtyVcsObject(scd, 9, field.getQueryFieldId());
 		}
 	}
@@ -3637,7 +3632,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 				}
 				ta.get_approvalStepMap().put(step.getApprovalStepId(), step);
 			}
-			getHibernateTemplate().flush();
+			getCurrentSession().flush();
 		}		
 	}
 
@@ -3893,7 +3888,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 	}
 
 	private void reloadFeed(int customizationId) {
-		Query q = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery("from W5Feed t where t.customizationId=? order by t.feedId desc");
+		Query q = getCurrentSession().createQuery("from W5Feed t where t.customizationId=? order by t.feedId desc");
 		q.setInteger(0, customizationId);
 		List<W5Feed> l = q.setFirstResult(0).setMaxResults(FrameworkSetting.feedLoadAtStartupDepth).list(); 
 		FrameworkCache.wFeeds.remove(customizationId);
@@ -4085,7 +4080,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
     	}
     	final boolean hasOutParam2 = hasOutParam;
     	try {
-    		getSessionFactory().getCurrentSession().doWork(new Work() {
+    		getCurrentSession().doWork(new Work() {
 				
 				@Override
 				public void execute(Connection conn) throws SQLException {
@@ -4250,7 +4245,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 		StringBuilder b = new StringBuilder();
 		b.append("insert into ").append(dstSchema).append(".").append(t.getDsc()).append(" select * from ").append(srcSchema).append(".").append(t.getDsc()).append(" where ").append(tp.getExpressionDsc()).append("=?");
 		
-		Session session = getSessionFactory().getCurrentSession();
+		Session session = getCurrentSession();
 		
 		try {
 			SQLQuery query = session.createSQLQuery(b.toString());
@@ -6289,7 +6284,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao{
 	@Override
 	public Map executeSQLQuery2Map4Debug(final Map<String, Object> scd, final W5Table t, final String sql,final List params, final int limit, final int startOffset) {
 		try {
-    			return (Map)getSessionFactory().getCurrentSession().doReturningWork(new ReturningWork<Map>() {
+    			return (Map)getCurrentSession().doReturningWork(new ReturningWork<Map>() {
     				@Override
     				public Map execute(Connection conn) throws SQLException {
 	                	Map m = new HashMap();

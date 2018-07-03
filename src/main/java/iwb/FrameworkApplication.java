@@ -12,12 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @SpringBootApplication
 @ServletComponentScan
 public class FrameworkApplication {
-	
-	@Bean
-	public SessionFactory sessionFactory(EntityManagerFactory entityManagerFactory) {  
-	   return entityManagerFactory.unwrap(SessionFactory.class);
-	}
-	
+
 	@Bean
 	public ThreadPoolTaskExecutor taskExecutor() {
 		ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
