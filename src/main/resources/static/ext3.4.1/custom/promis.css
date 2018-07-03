@@ -1213,7 +1213,26 @@ pre.code{
 }
 .x-panel-tc {
     background: #3f4757;
+    padding-left: 5px;
+    padding-right: 5px;
 }
+.x-panel-tl, .x-panel-tr, .x-panel-bl, .x-panel-br {
+    background-image: none;
+}
+.x-panel-tl {
+    padding-left: 2px;
+}
+
+.x-panel-tr {
+    padding-right: 2px;
+}
+
+.xform-hint {
+    padding: 0px;
+    border: none !important;
+    background: #1f2730;
+}
+
 .nfeed {color:white}
 .dfeed {width:96%;padding:4px;
 border-radius: 4px 4px 4px 4px;
@@ -1285,15 +1304,15 @@ background-image:url(images/vcsw-16.png);
 
 
 .icon-vcs-push{
-	background-image: url(../images/custom/vcsa2.png) !important;
+	background-image: url(images/vcsa2.png) !important;
 }
 
 .icon-vcs-pull{
-	background-image: url(../images/custom/vcsa1.png) !important;
+	background-image: url(images/vcsa1.png) !important;
 }
 
 .icon-vcs-conflict{
-	background-image: url(../images/custom/vcsa3.png) !important;
+	background-image: url(images/vcsa3.png) !important;
 }
 
 
