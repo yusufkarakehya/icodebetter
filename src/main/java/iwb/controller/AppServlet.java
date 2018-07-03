@@ -123,8 +123,7 @@ public class AppServlet implements InitializingBean {
 		
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
 	}
-
-
+        
 	private ViewAdapter getViewAdapter(Map<String, Object> scd, HttpServletRequest request, ViewAdapter defaultRenderer){
 		if(GenericUtil.uInt(scd.get("mobile"))!=0)return ext3_4;
 		if(request!=null){
