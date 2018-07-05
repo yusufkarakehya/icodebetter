@@ -135,6 +135,7 @@ a:hover {
 }
 
 .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close {
+	margin-top: 4px;
     background-image: url(../custom/images/x-mark-11.png);
     background-size: contain;
 }

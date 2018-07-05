@@ -51,7 +51,7 @@ public class Log5QueryAction implements java.io.Serializable {
 		if(queryResult.getScd().get("customizationId")!=null)
 			this.customizationId = (Integer)queryResult.getScd().get("customizationId");
 	}
-    @SequenceGenerator(name="sex_log_query_action",sequenceName="seq_log_query_action",allocationSize=1)
+    @SequenceGenerator(name="sex_log_query_action",sequenceName="iwb.seq_log_query_action",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_log_query_action")
 	@Column(name="log_id")

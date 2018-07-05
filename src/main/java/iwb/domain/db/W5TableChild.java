@@ -19,6 +19,7 @@ import org.hibernate.annotations.Immutable;
 public class W5TableChild implements java.io.Serializable {
 
 	private int tableChildId;
+	private int customizationId;
 	private short relationTip;
 	private int tableId;
 	private int tableFieldId;
@@ -38,6 +39,15 @@ public class W5TableChild implements java.io.Serializable {
 	}
 	public void setTableChildId(int tableChildId) {
 		this.tableChildId = tableChildId;
+	}
+
+	@Id
+	@Column(name="customization_id")
+	public int getCustomizationId() {
+		return customizationId;
+	}
+	public void setCustomizationId(int customizationId) {
+		this.customizationId = customizationId;
 	}
 	@Column(name="relation_tip")
 	public short getRelationTip() {

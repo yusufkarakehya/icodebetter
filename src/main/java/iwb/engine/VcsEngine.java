@@ -895,7 +895,7 @@ public class VcsEngine {
 				}
 
 			}
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
 		}
 		

@@ -53,7 +53,7 @@ public class W5Feed implements java.io.Serializable {
 		insertUserTip=((Integer)scd.get("userTip"));
 		_insertTime = System.currentTimeMillis();
 	}
-	@SequenceGenerator(name="seqx_feed",sequenceName="seq_feed",allocationSize=1)
+	@SequenceGenerator(name="seqx_feed",sequenceName="iwb.seq_feed",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seqx_feed")
 	@Column(name="feed_id")

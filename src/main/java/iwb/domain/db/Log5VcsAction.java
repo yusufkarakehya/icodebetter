@@ -31,7 +31,7 @@ public class Log5VcsAction implements Serializable{
 		this.userIp = userIp;
 	}
 
-	@SequenceGenerator(name="sex_log5_vcs_action",sequenceName="seq_log5_vcs_action",allocationSize=1)
+	@SequenceGenerator(name="sex_log5_vcs_action",sequenceName="iwb.seq_log5_vcs_action",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_log5_vcs_action")
 	@Column(name="log_id")  

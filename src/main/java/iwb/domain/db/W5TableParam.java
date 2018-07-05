@@ -21,7 +21,7 @@ public class W5TableParam  implements java.io.Serializable, W5Param {
 
 	
 	private int tableParamId;
-
+	private int customizationId;
 	private int tableId;
 
 	private String dsc;
@@ -48,11 +48,30 @@ public class W5TableParam  implements java.io.Serializable, W5Param {
 	private	Short	minLength;
 	private	Short	maxLength;
 	
-	private W5TableField _tableField;
 	
 	public W5TableParam() {
 	}
+	
 
+	@Id
+	@Column(name="table_param_id")
+	public int getTableParamId() {
+		return tableParamId;
+	}
+
+
+	public void setTableParamId(int tableParamId) {
+		this.tableParamId = tableParamId;
+	}
+
+	@Id
+	@Column(name="customization_id")
+	public int getCustomizationId() {
+		return customizationId;
+	}
+	public void setCustomizationId(int customizationId) {
+		this.customizationId = customizationId;
+	}
 	@Column(name="dsc")
 	public String getDsc() {
 		return dsc;
@@ -153,17 +172,6 @@ public class W5TableParam  implements java.io.Serializable, W5Param {
 		this.tabOrder = tabOrder;
 	}
 
-
-	@Id
-	@Column(name="table_param_id")
-	public int getTableParamId() {
-		return tableParamId;
-	}
-
-
-	public void setTableParamId(int tableParamId) {
-		this.tableParamId = tableParamId;
-	}
 
 
 	@Column(name="table_id")

@@ -25,7 +25,7 @@ public class Log5CheckMail implements java.io.Serializable {
 	
 	public Log5CheckMail() {}
 	
-    @SequenceGenerator(name="sex_check_mail",sequenceName="seq_check_mail",allocationSize=1)
+    @SequenceGenerator(name="sex_check_mail",sequenceName="iwb.seq_check_mail",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_check_mail")
 	@Column(name="check_mail_id")

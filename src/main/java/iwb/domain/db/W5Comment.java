@@ -25,7 +25,7 @@ public class W5Comment  implements java.io.Serializable {
 	private	Timestamp commentDttm;
 	private int customizationId;
 	
-    @SequenceGenerator(name="seqx_comment",sequenceName="seq_comment",allocationSize=1)
+    @SequenceGenerator(name="seqx_comment",sequenceName="iwb.seq_comment",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seqx_comment")
 	@Column(name="comment_id")
