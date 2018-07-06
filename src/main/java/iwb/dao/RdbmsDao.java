@@ -160,7 +160,7 @@ public interface RdbmsDao{
 
 	void reloadUsersCache(int cid);
 
-	void reloadTableParamListChildListParentListCache();
+	void reloadTableParamListChildListParentListCache(int cid);
 
 	void reloadTableFieldListCache(int customizationId);
 

@@ -48,7 +48,7 @@ public class W5FileAttachment implements java.io.Serializable {
 	public W5FileAttachment() {
 	}
 	
-    @SequenceGenerator(name="sex_file_attachment",sequenceName="seq_file_attachment",allocationSize=1)
+    @SequenceGenerator(name="sex_file_attachment",sequenceName="iwb.seq_file_attachment",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_file_attachment")
 	@Column(name="file_attachment_id")

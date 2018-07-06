@@ -3649,38 +3649,41 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	}
 	
 	@Override
-	public void reloadTableParamListChildListParentListCache(){	
-		FrameworkCache.tableParamListMap.clear();
-		FrameworkCache.tableChildListMap.clear();
-		FrameworkCache.tableParentListMap.clear();
+	public void reloadTableParamListChildListParentListCache(int cusId){	
 		
-		List<W5TableParam> tplAll = (List<W5TableParam>)find("from W5TableParam t order by t.tableId, t.tabOrder");
+		
+		List<W5TableParam> tplAll = (List<W5TableParam>)find("from W5TableParam t where t.customizationId=? order by t.tableId, t.tabOrder", cusId);
 		//Map<Integer, List<W5TableParam>> tplMap = new HashMap<Integer, List<W5TableParam>>();
+		int lastTableId = -1;
+		List<W5TableParam> x = null;
 		for(W5TableParam tp:tplAll){
-			List<W5TableParam> tpl = FrameworkCache.tableParamListMap.get(tp.getTableId());
-			if(tpl==null){
-				tpl = new ArrayList<W5TableParam>();
-				FrameworkCache.tableParamListMap.put(tp.getTableId(), tpl);
+			if(lastTableId != tp.getTableId()) {
+				if(x!=null)FrameworkCache.tableParamListMap.put(lastTableId, x);
+				x=new ArrayList();
+				lastTableId = tp.getTableId();
 			}
-			tpl.add(tp);
+			x.add(tp);
 		}
-		List<W5TableChild> tcAll = (List<W5TableChild>)find("from W5TableChild t order by t.tableId");
+		if(x!=null)FrameworkCache.tableParamListMap.put(lastTableId, x);
+		List<W5TableChild> tcAll = (List<W5TableChild>)find("from W5TableChild t where t.customizationId=?  order by t.tableId", cusId);
 		//Map<Integer, List<W5TableChild>> tcMap = new HashMap<Integer, List<W5TableChild>>();//copy
 		//Map<Integer, List<W5TableChild>> tpMap = new HashMap<Integer, List<W5TableChild>>();//watch,feed
+		lastTableId = -1;
 		for(W5TableChild tp:tcAll){
-			List<W5TableChild> tc = FrameworkCache.tableChildListMap.get(tp.getTableId());
+			List<W5TableChild> tc = (lastTableId != tp.getTableId()) ? null : FrameworkCache.tableChildListMap.get(tp.getTableId());
 			if(tc==null){
 				tc = new ArrayList<W5TableChild>();
 				FrameworkCache.tableChildListMap.put(tp.getTableId(), tc);
 			}
 			tc.add(tp);
 
-			List<W5TableChild> tpx = FrameworkCache.tableParentListMap.get(tp.getRelatedTableId());
+			List<W5TableChild> tpx = (lastTableId != tp.getTableId()) ? null : FrameworkCache.tableParentListMap.get(tp.getRelatedTableId());
 			if(tpx==null){
 				tpx = new ArrayList<W5TableChild>();
 				FrameworkCache.tableParentListMap.put(tp.getRelatedTableId(), tpx);
 			}
 			tpx.add(tp);
+			lastTableId = tp.getTableId();
 		}		
 	}
 	
@@ -3776,7 +3779,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		//reloadConversionsCache(cid);
 		
 		//Table Params
-		if(cid==-1 || cid==0)reloadTableParamListChildListParentListCache();
+//		if(cid==-1 || cid==0)reloadTableParamListChildListParentListCache();
 		List<W5Customization> customizationList;
 		if(cid==-1){
 			FrameworkCache.wLookUps.clear();
@@ -3815,7 +3818,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			
 			reloadLookUpCache(customizationId);	
 			reloadRolesCache(customizationId);
-			
+			reloadTableParamListChildListParentListCache(customizationId);
 			reloadTablesCache(customizationId);
 			reloadTableActionsCache(customizationId);
 			reloadWsServersCache(customizationId);

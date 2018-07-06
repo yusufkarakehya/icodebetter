@@ -1778,9 +1778,9 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = null;
 		if (fileAttachmentId == 0) {
 			scd = UserUtil.getScd(request, "scd-dev", true);
-			String spi = request.getPathInfo();
-			if (spi.startsWith("/sf/pic") && spi.contains(".")) {
-				spi = spi.substring(7);
+			String spi = request.getRequestURI();
+			if (spi.indexOf("/sf/pic")==4 && spi.contains(".")) {
+				spi = spi.substring(4+7);
 				spi = spi.substring(0, spi.indexOf("."));
 				fileAttachmentId = -GenericUtil.uInt(spi);
 			}
@@ -1789,32 +1789,22 @@ public class AppServlet implements InitializingBean {
 		}
 		InputStream stream = null;
 		String filePath = null;
-		if (fileAttachmentId == -1000) { // default company logo
-			filePath = FrameworkCache.getAppSettingStringValue(scd, "file_local_path") + "/0/jasper/iworkbetter.png";
-			response.setContentType("image/png");
-		} else {
-			W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
-			if (fa == null) { // bulunamamis TODO
-				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
-						"Wrong Id: " + fileAttachmentId, null);
-			}
-
-			if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // bayan
-																					// veya
-																					// erkek
-																					// resmi
-				filePath = request.getRealPath("/images/custom/ppicture/default_"
-						+ (fa.getFileAttachmentId() == 2 ? "wo" : "") + "man_mini.png");
-			} else {
-				if (scd == null)scd = UserUtil.getScd(request, "scd-dev", true);
-				String customizationId = String
-						.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-				String file_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
-				filePath = file_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
-			}
-			if (request.getParameter("_ct") == null)
-				response.setContentType("image/jpeg");
+		W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
+		if (fa == null) { // bulunamamis TODO
+			throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
+					"Wrong Id: " + fileAttachmentId, null);
 		}
+
+		if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // man / woman default picture
+			filePath = request.getRealPath("/images/custom/ppicture/default_" + (fa.getFileAttachmentId() == 2 ? "wo" : "") + "man_mini.png");
+		} else {
+			if (scd == null)scd = UserUtil.getScd(request, "scd-dev", true);
+			String customizationId = String
+					.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
+			String file_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
+			filePath = file_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
+		}
+
 		ServletOutputStream out = response.getOutputStream();
 		try {
 			/*
@@ -1844,8 +1834,8 @@ public class AppServlet implements InitializingBean {
 			throw new IWBException("generic", "File Attacment", fileAttachmentId, "Unknown Exception",
 					e.getMessage(), e.getCause());
 		} finally {
-			out.close();
-			stream.close();
+			if(out!=null)out.close();
+			if(stream!=null)stream.close();
 		}
 	}
 

@@ -31,7 +31,7 @@ public class Log5UserAction implements Serializable{
 		this.userId = (Integer)scd.get("userId");
 	}
 
-	@SequenceGenerator(name="sex_log5_user_action",sequenceName="seq_log5_user_action",allocationSize=1)
+	@SequenceGenerator(name="sex_log5_user_action",sequenceName="iwb.seq_log5_user_action",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_log5_user_action")
 	@Column(name="log_id")  

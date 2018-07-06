@@ -5566,7 +5566,7 @@ public class FrameworkEngine{
 							dao.reloadBpmCache(customizationId);
 							break;*/
 						case 6://table
-							dao.reloadTableParamListChildListParentListCache();
+							dao.reloadTableParamListChildListParentListCache(customizationId);
 							dao.reloadTablesCache(customizationId);
 							dao.reloadTableUserTipCache(customizationId);
 							dao.reloadTableFilterCache(customizationId);

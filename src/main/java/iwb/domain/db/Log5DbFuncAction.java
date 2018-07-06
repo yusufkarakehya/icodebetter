@@ -52,7 +52,7 @@ public class Log5DbFuncAction implements java.io.Serializable {
 		this.processTime = -1;
 	}
 
-    @SequenceGenerator(name="sex_log_db_func_action",sequenceName="seq_log_db_func_action",allocationSize=1)
+    @SequenceGenerator(name="sex_log_db_func_action",sequenceName="iwb.seq_log_db_func_action",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_log_db_func_action")
 	@Column(name="log_id")

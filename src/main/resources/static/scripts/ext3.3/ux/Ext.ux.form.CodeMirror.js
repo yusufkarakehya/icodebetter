@@ -121,6 +121,7 @@ Ext.ux.form.CodeMirror = Ext.extend(Ext.form.TextArea, {
                 Ext.applyIf(self.codeMirrorConfig, config);
 
                 self.codeEditor = CodeMirror.fromTextArea(self.el.dom, self.codeMirrorConfig);
+                self.codeEditor.setOption("theme", "blackboard");
                 self.codeEditor.on("change", function(/*cm, change*/) {
                     self.fireEvent("change", self, self.codeEditor.getValue());
                 });

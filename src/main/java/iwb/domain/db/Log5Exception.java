@@ -19,7 +19,7 @@ public class Log5Exception implements Serializable{
 	private int userRoleId;
 	private int customizationId;  
 	
-	@SequenceGenerator(name="sex_log5_exception",sequenceName="seq_log5_exception",allocationSize=1)
+	@SequenceGenerator(name="sex_log5_exception",sequenceName="iwb.seq_log5_exception",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_log5_exception")
 	@Column(name="log_id")  

@@ -255,17 +255,6 @@ function commentHtml(x){
 	return	x ? '<img src="../images/custom/bullet_comment.png" border=0>':'';
 }
 
-function pictureHtml(x){
-	return	x ? '<img src="../images/custom/bullet_picture.png" border=0>':'';
-}
-
-function keywordHtml(x){
-	return	x ? '<img src="../images/custom/bullet_keyword.png" border=0>':'';
-}
-
-function revisionHtml(x){
-	return	x==1 ? '<img src="../images/custom/revision1.png" border=0>':'';
-}
 
 function approvalHtml(x,y,z){
 	if(!x)return '';
@@ -778,11 +767,6 @@ function fnTblRecComment(tid,tpk){
 	return false;
 }
 
-function fnTblRecPicture(tid,tpk){
-	alert('fnTblRecPicture');
-	//mainPanel.loadTab({attributes:{modalWindow:true, href:'showPage?_tid=238&_gid1=457',_pk:{tcomment_id:'comment_id'},baseParams:{xtable_id:tid, xtable_pk:tpk}}});
-	return false;
-}
 function fnRowBulkEdit(a,b){
 	mainPanel.loadTab({attributes:{id:'gu-'+a._grid.id,href:'showForm?_fid=1617&xtable_id='+a._grid.crudTableId, _grid:a._grid}});
 }
@@ -1321,77 +1305,6 @@ function fnRecordComments(a){//TODO: daha duzgun bir chat interface'i yap
 	mainPanel.loadTab(cfg);
 }
 
-function fnRecordPictures(a){	
-	var sel = a._grid.sm.getSelected();
-    if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
-    	return
-    }
-  	var table_pk='',table_id;
-   	for(var key in a._grid._pk)table_pk+="|"+sel.data[a._grid._pk[key]];
-   	table_pk=table_pk.substring(1);
-   	table_id=a._grid.crudTableId;
-  	var cfg={attributes:{modalWindow:true, href:'showPage?_tid=714&table_id='+table_id+'&table_pk='+table_pk,_pk:{tfile_attachment_id:'file_attachment_id'},baseParams:{xtable_id:table_id, xtable_pk:table_pk}}};
-	cfg.attributes._title_=(sel.data.dsc ? a._grid.name+': '+sel.data.dsc : a._grid.name);
-	mainPanel.loadTab(cfg);
-}
-
-function fnRecordConvertionLog(a){
-  	var sel = a._grid.sm.getSelected();
-    if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
-    	return
-    }
-  	var table_pk='';
-  	for(var key in a._grid._pk)table_pk+="|"+sel.data[a._grid._pk[key]]; 	
-	var cfg={attributes:{modalWindow:true, href:'showPage?_tid=178&_gid1=1731', baseParams:{xsrc_table_id:a._grid.crudTableId, xsrc_table_pk:table_pk.substring(1)}}};
-	cfg.attributes._title_=(sel.data.dsc ? a._grid.name+': '+sel.data.dsc : a._grid.name);
-	mainPanel.loadTab(cfg);
-}
-
-function fnRecordKeywords(a){
-  	var sel = a._grid.sm.getSelected();
-    if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
-    	return
-    }
-  	var table_pk='';
-   	for(var key in a._grid._pk)table_pk+="|"+sel.data[a._grid._pk[key]];
-  	var cfg={attributes:{modalWindow:true, href:'showPage?_tid=238&_gid1=54',_pk:{tkeyword_id:'keyword_id',ttable_id:'table_id',ttable_pk:'table_pk'},baseParams:{xtable_id:a._grid.crudTableId, xtable_pk:table_pk.substring(1)}}};
-	cfg.attributes._title_=sel.data.dsc ? a._grid.name+': '+sel.data.dsc : a._grid.name;
-	mainPanel.loadTab(cfg);
-}
-
-function fnSendMail(a){
-	var sel=null,xtable_ids = null;
-	
-    if(a._grid.multiSelect){
-    	xtable_ids = selections2string(a._grid.sm.getSelections(),',');
-    	sel = a._grid.sm.getSelections()[0];
-    	table_relation = '&_tableId='+a._grid.crudTableId+'&_tablePk='+a._grid.sm.getSelections()[0].data.id;// çoklu seçimde ilk kayıtla ilişkilendirilsin.
-    } else {
-    	sel = a._grid.sm.getSelected();
-    	xtable_ids = sel.id;
-    }
-
-    var cfg={attributes:{modalWindow:true, href:'showForm?_fid=650&_tableId='+a._grid.crudTableId+'&_tablePk='+sel.id+'&xtable_ids='+xtable_ids}};
-	
-	if(sel.data.dsc)cfg.attributes._title_=sel.data.dsc;
-	mainPanel.loadTab(cfg);
-}
-
-function fnSendSms(a){
-	var sel=a._grid.sm.getSelected();
-  	var table_pk='', url='';
-  	for(var key in a._grid._pk){
-  		table_pk+='|'+sel.data[a._grid._pk[key]];
-  		url+="&"+a._grid._pk[key]+"="+sel.data[a._grid._pk[key]];
-  	}
-	var cfg={attributes:{modalWindow:true, href:'showForm?_fid=631&_tableId='+a._grid.crudTableId+'&_tablePk='+table_pk.substring(1)+url}};
-	if(sel.data.dsc)cfg.attributes._title_=sel.data.dsc;
-	mainPanel.loadTab(cfg);
-}
-
 function fnRecordPrivileges(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
@@ -1404,17 +1317,6 @@ function fnRecordPrivileges(a){
 	mainPanel.loadTab(cfg);
 }
 
-function fnRecordDealerPrivilege(a){
-  	var sel = a._grid.sm.getSelected();
-    if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
-    	return
-    }
-	var sel=a._grid.sm.getSelected();
-	var cfg={attributes:{modalWindow:true, href:'showPage?_tid=656&xtable_id='+a._grid.crudTableId+'&xtable_pk='+sel.id,_pk:{pview_flag:'view_flag',pupdate_flag:'update_flag',pdealer_id:'dealer_id',ptable_id:'!'+a._grid.crudTableId,ptable_pk:'!'+sel.id},baseParams:{xtable_id:a._grid.crudTableId, xtable_pk:sel.id}}};
-	cfg.attributes._title_=sel.data.dsc ? a._grid.name+': '+sel.data.dsc : a._grid.name;
-	mainPanel.loadTab(cfg);
-}
 
 function buildHelpWindow(cfg){
     win = new Ext.Window({
@@ -4425,11 +4327,11 @@ function fmtChatList(j){
 function fmtOnlineUser(j){
 	var str='<table border=0 width=100% padding=0 style="margin-left:-1px;"';
 	if(j.instance_count>0)str+=" class='veliSelLightBlue'";
-	str+='><tr><td width=24>'+getPPicImgTag(j.user_id,true)+'</td><td width="1"> </td><td width=99%> <b>&nbsp; ';
+	str+='><tr><td width=24>'+getPPicImgTag(j.user_id,true)+'</td><td width="1"> </td><td width=99%> <span>&nbsp; ';
 	if(j.adi_soyadi.length>20)j.adi_soyadi=j.adi_soyadi.substring(0,18)+'...';
-	str+=j.adi_soyadi+'</b>';
-	if(j.instance_count>0)str+='&nbsp; <b id="idChatNotRead_'+j.user_id+'" style="color:red;">('+(j.instance_count>9 ? '+9':j.instance_count)+')</b>';
-	str+='<br>&nbsp; &nbsp; <span class="cfeed"> ';
+	str+=j.adi_soyadi+'</span>';
+	if(j.instance_count>0)str+='&nbsp; <span id="idChatNotRead_'+j.user_id+'" style="color:red;">('+(j.instance_count>9 ? '+9':j.instance_count)+')</span>';
+	str+='<br>&nbsp; &nbsp; <span class="cfeed" style="font-size:.95em;"> ';
 	var s=j.user_role;
 	if(s.length>3 && s.substring(0,2)=='!{' && s.substring(s.length-1,s.length)=='}' && s.indexOf('-')>-1){
 		s='Link :'+s.substring(s.indexOf('-')+1,s.length-1)
@@ -4762,7 +4664,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    }
 	    extraItems.splice(1, 0, {
 	        xtype: 'fieldset',
-	        title: '${convertion}',
+	        title: 'Conversion',
 	        id: 'cnv_' + getForm.id,
 	        labelWidth: 100,
 	        items: itx
@@ -5004,93 +4906,6 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	        };
 
 	        btn.push(saveBtn);
-	        //form-sms-mail menu if(_app.form_sms_mail_view_tip && 1*_app.form_sms_mail_view_tip==1
-	        if (_app.form_sms_mail_view_tip && 1 * _app.form_sms_mail_view_tip == 2 && getForm.smsMailTemplates && getForm.smsMailTemplates.length > 0) {
-	            btn.push({
-	                text: '${eposta_sms}',
-	                iconAlign: 'top',
-	                scale: 'medium',
-	                id: 'smt_' + getForm.id,
-	                style: {
-	                    margin: '0px 5px 0px 5px'
-	                },
-	                iconCls: 'isms_mail',
-	                menu: getForm.smsMailTemplates
-	            });
-	            btn.push('-');
-	        }
-	        //form-conversion menu        
-	        if (_app.conversion_view_tip && 1 * _app.conversion_view_tip == 2 && getForm.conversionForms && getForm.conversionForms.length > 0) {
-	            btn.push({
-	                text: 'Conversion',
-	                iconAlign: 'top',
-	                scale: 'medium',
-	                id: 'cnv_' + getForm.id,
-	                style: {
-	                    margin: '0px 5px 0px 5px'
-	                },
-	                iconCls: 'iconvert_form',
-	                menu: getForm.conversionForms
-	            });
-	            btn.push('-');
-	        }
-	        //form-alarm menu        
-	        if (_app.alarm_view_tip && 1 * _app.alarm_view_tip == 2 && getForm.alarmTemplates && getForm.alarmTemplates.length > 0) {
-	            var gals = getForm.alarmTemplates;
-	            for (var aq = 0; aq < gals.length; aq++) {
-	                if (gals[aq].disabled2) {
-	                    gals[aq].text += " ... [" + gals[aq].value + "]";
-	                } else {
-	                    var dtj = gals[aq].relatedFieldName ? {
-	                        width: 200,
-	                        relatedFieldName: gals[aq].relatedFieldName,
-	                        timeTip: gals[aq].timeTip,
-	                        timeDif: gals[aq].timeDif
-	                    } : {
-	                        width: 200
-	                    }
-	                    if (gals[aq].value) dtj.value = gals[aq].value;
-	                    var dttm = new Ext.ux.form.DateTime(dtj);
-	                    if (!gals[aq].value) dttm.on("render", function(ax, bx, cx) {
-	                        if (!this.value) {
-	                            var cd = new Date();
-	                            var relDt = extDef["_" + this.relatedFieldName];
-	                            if (relDt) {
-	                                if (relDt.value) {
-	                                    cd = relDt.getValue();
-	                                    if (!relDt._alarms) relDt._alarms = [];
-	                                    relDt._alarms.push(this);
-	                                    relDt.on('change', function(aq, bq, cq) {
-	                                        var al = this._alarms;
-	                                        if (al)
-	                                            for (var qs = 0; qs < al.length; qs++) {
-	                                                al[qs].setValue(timeDifDt(this.getValue(), al[qs].timeTip, al[qs].timeDif));
-	                                            }
-	                                    });
-	                                } else {
-	                                    Ext.infoMsg.msg('UYARI', 'Once [' + this.relatedFieldName + '] alanina deger girilmeli');
-	                                    return;
-	                                }
-	                            }
-	                            this.setValue(timeDifDt(cd, this.timeTip, this.timeDif));
-	                        }
-	                    })
-	                    gals[aq].menu = [dttm]
-	                }
-	            }
-	            btn.push({
-	                text: '${alarm}',
-	                iconAlign: 'top',
-	                scale: 'medium',
-	                id: 'alm_' + getForm.id,
-	                style: {
-	                    margin: '0px 5px 0px 5px'
-	                },
-	                iconCls: 'ibig_alarm',
-	                menu: getForm.alarmTemplates
-	            });
-	            btn.push('-');
-	        }
 	    }
 	    //post & continue    
 	    if (getForm.contFlag && 1 * getForm.contFlag == 1 && realAction == 2) {
@@ -5841,9 +5656,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	        var lbl = new Ext.form.Label({ hideLabel: true, html: hints[qs].text, cls: icn });
 	        extDef.items.unshift({
 	            xtype: 'fieldset',
-	            title: '',
+	            title: '', cls:'xform-hint',
 	            labelWidth: 0,
-	            bodyStyle: 'background-color:' + hints[qs].color + ';',
+	            bodyStyle: 'padding:none !important;background-color:' + hints[qs].color + ';',
 	            items: [lbl]
 	        });
 	    }
@@ -5856,10 +5671,10 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	        cls: 'information'
 	    });
 	    extDef.items.unshift({
-	        xtype: 'fieldset',
+	        xtype: 'fieldset', cls:'xform-hint',
 	        title: '',
 	        labelWidth: 0,
-	        bodyStyle: 'background-color:#FFF8C6;',
+//	        bodyStyle: 'background-color:#FFF8C6;',
 	        items: [lbl]
 	    });
 	}

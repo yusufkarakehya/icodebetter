@@ -44,7 +44,7 @@ public class Log5ApprovalRecord implements java.io.Serializable {
 	public Log5ApprovalRecord() {
 	}
 
-    @SequenceGenerator(name="sex_log_approval_record",sequenceName="seq_log_approval_record",allocationSize=1)
+    @SequenceGenerator(name="sex_log_approval_record",sequenceName="iwb.seq_log_approval_record",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_log_approval_record")
 	@Column(name="log_id")
