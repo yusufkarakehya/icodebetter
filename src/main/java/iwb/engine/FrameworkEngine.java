@@ -3712,7 +3712,7 @@ public class FrameworkEngine{
 			DbFuncTrigger.afterExecDbFunc(dbFuncResult);
 			switch(dbFuncId){
 			case	-478://reload locale msg cache
-				for(Object[] m : (List<Object[]>)dao.executeSQLQuery("select locale, locale_msg_key, dsc from w5_locale_msg where locale_msg_key=? AND customization_id=?",parameterMap.get("plocale_msg_key"), scd.get("customizationId"))){
+				for(Object[] m : (List<Object[]>)dao.executeSQLQuery("select locale, locale_msg_key, dsc from iwb.w5_locale_msg where locale_msg_key=? AND customization_id=?",parameterMap.get("plocale_msg_key"), scd.get("customizationId"))){
 					LocaleMsgCache.set2((Integer)scd.get("customizationId"),(String)m[0], (String)m[1], (String)m[2]);
 				}
 			}
@@ -6319,7 +6319,7 @@ public class FrameworkEngine{
 	}
 
 	public int notifyChatMsgRead(Map<String, Object> scd, int userId, int chatId) {
-		int cnt1 = dao.executeUpdateSQLQuery("update w5_chat set DELIVER_STATUS_TIP=2, DELIVER_DTTM=fnc_current_timestamp(?) where customization_id=? AND RECEIVER_USER_ID=? AND SENDER_USER_ID=? AND DELIVER_STATUS_TIP in (0,1)", 
+		int cnt1 = dao.executeUpdateSQLQuery("update iwb.w5_chat set DELIVER_STATUS_TIP=2, DELIVER_DTTM=iwb.fnc_sysdate(?) where customization_id=? AND RECEIVER_USER_ID=? AND SENDER_USER_ID=? AND DELIVER_STATUS_TIP in (0,1)", 
 				scd.get("customizationId"), scd.get("customizationId"), scd.get("userId"), userId);
 		return 0;
 	}

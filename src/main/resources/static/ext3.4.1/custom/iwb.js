@@ -2513,7 +2513,7 @@ function formSubmit(submitConfig){
             	var jsonQueueCounter = 0;
             	var autoOpenForms = new Ext.util.DelayedTask(function(){
             		mainPanel.loadTab(jsonQueue[jsonQueueCounter]);
-            		if(jsonQueue[jsonQueueCounter]._cnvDsc)Ext.infoMsg.msg('Form Donusum',jsonQueue[jsonQueueCounter]._cnvDsc);
+            		if(jsonQueue[jsonQueueCounter]._cnvDsc)Ext.infoMsg.msg('Form Conversion',jsonQueue[jsonQueueCounter]._cnvDsc);
             		jsonQueueCounter++;
             		if(jsonQueue.length>jsonQueueCounter)autoOpenForms.delay(1000);
             	});
@@ -2559,7 +2559,7 @@ function formSubmit(submitConfig){
             } /*else if(1*_app.mail_send_background_flag!=0 && myJson.outs && myJson.outs.thread_id){ //DEPRECATED
             	Ext.infoMsg.msg(getLocMsg('js_tamam,getLocMsg('js_eposta_gonderiliyor+'...');
             }*/
-            else if(_app.show_info_msg && 1*_app.show_info_msg!=0)Ext.infoMsg.msg(getLocMsg('js_tamam'),getLocMsg('js_islem_basariyla_tamamlandi'));
+            else if(_app.show_info_msg && 1*_app.show_info_msg!=0)Ext.infoMsg.msg('success',getLocMsg('js_islem_basariyla_tamamlandi'));
             if(submitConfig.callback){
             	if(submitConfig.callback(myJson,submitConfig)===false)return;
             }
@@ -2663,7 +2663,7 @@ function promisRequest(rcfg){
 						}
 					}
 					if(rcfg.successCallback)rcfg.successCallback(json,rcfg);
-					else if(_app.show_info_msg && 1*_app.show_info_msg!=0) {Ext.infoMsg.msg(getLocMsg('js_tamam'),getLocMsg('js_islem_basariyla_tamamlandi'));}					
+					else if(_app.show_info_msg && 1*_app.show_info_msg!=0) {Ext.infoMsg.msg('success',getLocMsg('js_islem_basariyla_tamamlandi'));}					
 				} else {
 			    	if(rcfg.noSuccessCallback)rcfg.noSuccessCallback(json,rcfg);
 			    	else ajaxErrorHandler(json);
@@ -3145,7 +3145,7 @@ function approveTableRecords(aa, a){
 					if(json.success){
 						win.close();
 						a._grid.ds.reload();
-						Ext.infoMsg.msg(getLocMsg('js_tamam'),getLocMsg('js_islem_basariyla_tamamlandi'));			
+						Ext.infoMsg.msg('success',getLocMsg('js_islem_basariyla_tamamlandi'));			
 					} else ajaxErrorHandler(json);
 					
 				}},
@@ -4222,7 +4222,7 @@ function showNotifications(t){
 						var msg=json.msgs[qi];
 						msg.timeDif=json.time-msg.time;
 						var msg=syncMaptoStr(json.tabId, msg, true);
-						if(msg)Ext.infoMsg.msg(getLocMsg('js_warning'), msg, 10);
+						if(msg)Ext.infoMsg.msg('warning', msg, 10);
 					}
 				}
 			}
@@ -4382,7 +4382,7 @@ function vcsPush(xgrid, tid, tpk){
 						xparams.f=1;
 						var xxgrd=xgrd;
 						promisRequest({url:'ajaxVCSObjectPush',params:xparams, successCallback:function(j){
-							Ext.infoMsg.msg('VCS','Record Pushed');
+							Ext.infoMsg.msg('success','VCS Objects Pushed');
 							xxgrd.ds.reload();
 						}});
 					}
@@ -4391,7 +4391,7 @@ function vcsPush(xgrid, tid, tpk){
 			}
 			return;
 		}
-		Ext.infoMsg.msg('VCS','Record Pushed');
+		Ext.infoMsg.msg('success','VCS Objects Pushed');
 		xgrd.ds.reload();
 		} 
 	}); 
@@ -4408,7 +4408,7 @@ function vcsPushMulti(xgrid, tid, tpk){
 						xparams.f=1;
 						var xxgrd=xgrd;
 						promisRequest({url:'ajaxVCSObjectPushMulti',params:xparams, successCallback:function(j){
-							Ext.infoMsg.msg('VCS','Records Pushed');
+							Ext.infoMsg.msg('success','VCS Objects Pushed');
 							xxgrd.ds.reload();
 						}});
 					}
@@ -4417,7 +4417,7 @@ function vcsPushMulti(xgrid, tid, tpk){
 			}
 			return;
 		}
-		Ext.infoMsg.msg('VCS','Records Pushed');
+		Ext.infoMsg.msg('success','VCS Objects Pushed');
 		xgrd.ds.reload();
 		} 
 	}); 
@@ -4433,7 +4433,7 @@ function vcsPushAll(xgrid, keyz){
 						xparams.f=1;
 						var xxgrd=xgrd;
 						promisRequest({url:'ajaxVCSObjectPushAll',params:xparams, successCallback:function(j){
-							Ext.infoMsg.msg('VCS','Records Pushed');
+							Ext.infoMsg.msg('success','VCS Objects Pushed');
 							xxgrd.ds.reload();
 						}});
 					}
@@ -4442,7 +4442,7 @@ function vcsPushAll(xgrid, keyz){
 			}
 			return;
 		}
-		Ext.infoMsg.msg('VCS','Records Pushed');
+		Ext.infoMsg.msg('success','VCS Objects Pushed');
 		xgrd.ds.reload();
 		} 
 	}); 
@@ -4458,14 +4458,14 @@ function vcsPull(xgrid, tid, tpk){
 						xparams.f=1;
 						var xxgrd=xgrd;
 						promisRequest({url:'ajaxVCSObjectPull',params:xparams, successCallback:function(j){
-							Ext.infoMsg.msg('VCS','Record Pulled');
+							Ext.infoMsg.msg('success','VCS Objects Pulled');
 							xxgrd.ds.reload();
 						}});					}
 					break;
 			}
 			return;
 		}
-		Ext.infoMsg.msg('VCS','Record Pulled');
+		Ext.infoMsg.msg('success','VCS Objects Pulled');
 		xgrd.ds.reload();
 	}
 	
@@ -4502,7 +4502,7 @@ function fncMnuVcs(xgrid){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
 			if(sel && sel.length>0 && !sel[0].data.pkpkpk_vcsf){
 				promisRequest({url:'ajaxVCSObjectAction',params:{t:aq._grid.crudTableId, k:sel[0].id, a:2}, successCallback:function(j){
-					Ext.infoMsg.msg('VCS','Added to VCS');
+					Ext.infoMsg.msg('info','Added to VCS');
 					aq._grid.ds.reload();
 				}});
 			}
@@ -4510,7 +4510,7 @@ function fncMnuVcs(xgrid){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
 			if(sel && sel.length>0 && sel[0].data.pkpkpk_vcsf && confirm('VCS ten cikarmak istediginizden gercekten emin misiniz? Çünkü daha sorna eklemek conflict lere sebep olacaktır')){
 				promisRequest({url:'ajaxVCSObjectAction',params:{t:aq._grid.crudTableId, k:sel[0].id, a:3}, successCallback:function(j){
-					Ext.infoMsg.msg('VCS','Deleted from VCS');
+					Ext.infoMsg.msg('warning','Deleted from VCS');
 					aq._grid.ds.reload();
 				}});
 			}
@@ -4752,7 +4752,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                        var dt1 = Ext.getCmp('_alarm_dttm' + getForm.id + gals[qs].xid);
 	                        if (dt1 && dt1.dateValue) almStr2 += '-' + fmtDateTime(dt1.dateValue);
 	                        else {
-	                            Ext.infoMsg.msg('UYARI', 'Alarm tarihi alanina deger girilmeli');
+	                            Ext.infoMsg.msg('warning', 'Alarm tarihi alanina deger girilmeli');
 	                            return false;
 	                        }
 	                    }
@@ -5682,13 +5682,14 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    hidden: !getForm.liveSyncBy,
 	    xtype: 'fieldset',
 	    id: 'live_sync_' + getForm.id,
-	    title: '',
+	    title: '', cls:'xform-live-sync',
 	    labelWidth: 0,
-	    bodyStyle: 'background-color:#FFF8C6',
+        bodyStyle: 'padding:none !important;',
+//	    bodyStyle: 'background-color:#FFF8C6',
 	    items: [new Ext.form.Label({
 	        hideLabel: true,
 	        id: 'live_sync_lbl_' + getForm.id,
-	        html: getForm.liveSyncBy ? "Bu Kayit su anda " + getUsers4Chat(getForm.liveSyncBy) + " tarafindan inceleniyor!" : "!",
+	        html: getForm.liveSyncBy ? "This record is open for edit by:  " + getUsers4Chat(getForm.liveSyncBy) + "!" : "!",
 	        cls: 'information'
 	    })]
 	});
@@ -5698,7 +5699,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	getForm._cfg.formPanel = p;
 	getForm._cfg._callAttributes = callAttributes;
 
-	if (_app.form_msgs_visible_on_form * 1 != 1 && getForm.msgs) Ext.infoMsg.msg('${info}', getForm.msgs.join('<br>'), 3);
+	if (_app.form_msgs_visible_on_form * 1 != 1 && getForm.msgs) Ext.infoMsg.msg('info', getForm.msgs.join('<br>'), 3);
 
 	if (_app.live_sync_record && 1 * _app.live_sync_record != 0 && extDef.baseParams[".t"]) {
 	    p._l = {

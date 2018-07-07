@@ -57,7 +57,7 @@ public class FrameworkSetting {
 	public static String crudLogSchema="promis_log";
 	public static String crudLogTablePrefix="";
 	public static String revisionLogTablePrefix="rev_";
-	final public static String[] postQueryGridImgMap = new String[]{"checked.gif","record_security.png","bullet_file_attach.png","bullet_comment.png","bullet_keyword.png","bullet_approval.gif","bullet_mail.gif","bullet_picture.png","revision1.png","vcs.png"};
+	final public static String[] postQueryGridImgMap = new String[]{"checked.png","record_security.png","paperclip-16.png","comments-16.png","keyword.png","approval-16.png","mail.gif","picture.png","revision.png","vcsw-16.png"};
 	final public static String[] postQueryGridImgMap4Webix = new String[]{"check","key","cloud-download","comment-o","key","puzzle-piece","mail-forward","file-picture-o","history","git"};
 	public static final String bulkOperatorPostfix = "_opr_Zz_qw_";
 	public static final boolean logGeoPos = true;

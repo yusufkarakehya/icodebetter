@@ -3989,7 +3989,7 @@ public class ExtJs3_3 implements ViewAdapter {
 
 
 		if (controlTip == 41 && fc.getLookupQueryId()>0 && fc.getLookupQueryId()<5)
-			buf.append(",mode:'").append(new String[]{"javascript","htmlmixed","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
+			buf.append(",value:'',listeners:{blur:function(aq){if(!aq || !aq.el)return;aq._newValue=aq.getValue();aq._newValue2=aq.el.dom.value;}},mode:'").append(new String[]{"javascript","htmlmixed","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
 
 		if (fc.get_sourceObjectDetail() != null)
 			buf.append(",allowBlank:").append(!notNull);
@@ -5340,7 +5340,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					c.set_queryField(f);
 					c.setWidth(f.getTabOrder());
 					c.setAlignTip((short) 0);
-					c.setLocaleMsgKey("<img src=\"../images/custom/"
+					c.setLocaleMsgKey("<img src=\"../ext3.4.1/custom/images/"
 							+ FrameworkSetting.postQueryGridImgMap[f.getFieldTip()]
 							+ "\" border=0>");
 					c.setVisibleFlag((short) 1);
