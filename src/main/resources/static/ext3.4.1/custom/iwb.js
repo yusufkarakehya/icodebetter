@@ -1576,73 +1576,6 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport){
 	xbuttons.push({id:'btn_reports_' + xgrid.id, tooltip:getLocMsg('reports'),cls:'x-btn-icon x-grid-pdf', _activeOnSelection:false, _grid:xgrid, menu: xxmenu});
 }
 
-function addGridUserCustomizationsMenu(xgrid){
-	var a= Ext.getCmp('grd_pers_buttons'+xgrid.gridId);
-	if(!a._loaded){
-		a._loaded=true;
-		promisRequest({url:'ajaxQueryData?_qid=1052',params:{tgrid_id:a._grid.gridId},
-		    successCallback:function(j){
-				if(j.success && j.data.length>0){
-				    while(a.menu.items.items.length>2)a.menu.remove(2);
-				    a.menu.add('-')
-				    for(var q=0;q<j.data.length;q++){
-						var mitem={text:j.data[q].dsc,_id:j.data[q].user_grid_id,handler:function(ay,by,cy){
-							promisRequest({requestWaitMsg:true,url:'ajaxExecDbFunc?_did=649',params:{puser_grid_id:ay._id}, successCallback:function(j2){
-								if(j2.success && j2.result){
-									var sort=j2.result.pout_sort_dsc;
-									if(sort){
-										var oo=sort.split(' ');
-										if(oo.length>0 && oo[0])a._grid.ds.sortInfo={field:oo[0]};
-										if(oo.length>1 && oo[1])a._grid.ds.sortInfo.direction=oo[1];
-									}
-									var cols=j2.result.pout_columns;
-									if(cols && cols.length){
-										var gp=a._grid._gp.getColumnModel();
-										var oo=cols.split(';')
-										for(var qi=0;qi<oo.length;qi++){
-											var ooo=oo[qi].split(',');
-											var ix=gp.findColumnIndex(ooo[0]);
-											if(ix==-1){
-											}else{
-												if(ix!=qi){gp.moveColumn(ix,qi);}
-												if(1*ooo[1]!=gp.getColumnWidth(qi)){/*gp.setColumnWidth(qi,j2.data[qi].column_width,true);*/}
-												var h=1*ooo[2]==0
-												if(!gp.config[qi].hidden ? h : !h)gp.setHidden(qi,h);
-											}
-										}
-									}
-									a._loaded=false;
-									
-									if(a._grid.searchForm){
-										var cells=j2.result.pout_sfrm_cells;
-										var fp=a._grid.ds._formPanel;
-										if(cells && cells.length && fp){
-											var oo=cells.split(';');
-											var vals={}
-											for(var qi=0;qi<oo.length;qi++){
-												var ooo=oo[qi].split(',');
-												vals[ooo[0]]=ooo[1].replace('~',',');
-											}
-											fp.getForm().setValues(vals);
-										}
-										if(j2.result.pout_grid_height && 1*j2.result.pout_grid_height>50){
-											a._grid._gp.setSize(undefined,1*j2.result.pout_grid_height);
-										}
-										var c=1*j2.result.pout_sfrm_visible_flag==0;
-										if(!fp.collapsed ? c:!c){if(c)fp.collapse(true);else fp.expand(true);}
-										a._grid.ds.reload();
-									}
-								}
-							}});
-						}};
-						if(1*j.data[q].default_flag!=0)mitem.checked=true;
-						a.menu.add(mitem);
-				    }
-				}
-		    }
-		});
-	}	
-}
 
 function addDefaultGridPersonalizationButtons(xbuttons, xgrid){
 	xbuttons.push({id:'grd_pers_buttons'+xgrid.gridId, text:getLocMsg('js_kisisellestir'), _grid:xgrid,
@@ -1695,7 +1628,7 @@ function addDefaultPrivilegeButtons(xbuttons, xgrid){
 			if(bx)xxmenu.push('-');else bx=true;
 			addDefaultGridPersonalizationButtons(xxmenu,xgrid);
 		}
-		xbuttons.push({tooltip:getLocMsg('js_ayarlar'),cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:function(x){addGridUserCustomizationsMenu(x._grid);},menu: xxmenu});
+		xbuttons.push({tooltip:getLocMsg('js_ayarlar'),cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid,menu: xxmenu});
 	}
 }
 

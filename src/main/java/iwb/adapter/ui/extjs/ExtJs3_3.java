@@ -1368,15 +1368,6 @@ public class ExtJs3_3 implements ViewAdapter {
 		
 		
 		for(W5FormCell fc:formResult.getForm().get_formCells())if(fc.getControlTip()==99 && fc.get_sourceObjectDetail()!=null){//grid is
-/*			W5Grid g = (W5Grid)fc.get_sourceObjectDetail();
-			W5GridResult gr = new W5GridResult(g.getGridId());
-			gr.setRequestParams(formResult.getRequestParams());gr.setScd(formResult.getScd());gr.setFormCellResultMap(new HashMap());
-			
-			for(W5GridColumn column:g.get_gridColumnList())if(column.get_formCell()!=null){
-				gr.getFormCellResultMap().put(column.get_formCell().getFormCellId(), new W5FormCellHelper(column.get_formCell()));
-			}
-			
-			gr.setGrid(g);*/
 			W5GridResult gr = formResult.getModuleGridMap().get(fc.getLookupQueryId());
 			s.append(serializeGrid(gr)).append("\n");
 		}
@@ -1410,8 +1401,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(formResult.getAction()).append("\n");
 
 		// 24 nolu form form edit form olduğu için onu çevirmesin.
-		String postCode = (formResult.getForm().get_renderTemplate() != null
-				&& formResult.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && formResult
+		String postCode = (formResult.getForm().get_renderTemplate() != null && formResult.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && formResult
 				.getFormId() != 24) ? GenericUtil.filterExt(
 				formResult.getForm().getJsCode(), scd,
 				formResult.getRequestParams(), null).toString() : formResult
@@ -1426,7 +1416,11 @@ public class ExtJs3_3 implements ViewAdapter {
 		} else
 			postCode = "";
 		if (!GenericUtil.isEmpty(postCode)) {
-			s.append("try{").append(postCode).append("\n}catch(e){");
+			s.append("try{");
+			if(FrameworkSetting.debug)s.append("\n/*iwb:start:form:").append(formResult.getFormId()).append(":Code*/\n");
+			s.append(postCode);
+			if(FrameworkSetting.debug)s.append("\n/*iwb:end:form:").append(formResult.getFormId()).append(":Code*/\n");
+			s.append("\n}catch(e){");
 			s.append(FrameworkSetting.debug ? "if(confirm('ERROR form.JS!!! Throw?'))throw e;"
 					: "alert('System/Customization ERROR')");
 			s.append("}\n");
@@ -4968,10 +4962,11 @@ public class ExtJs3_3 implements ViewAdapter {
 		}
 
 		if (!GenericUtil.isEmpty(g.getJsCode())) {
-			buf.append("\ntry{")
-					.append(GenericUtil.filterExt(g.getJsCode(), scd,
-							gridResult.getRequestParams(), null))
-					.append("\n}catch(e){")
+			buf.append("\ntry{");
+			if(FrameworkSetting.debug)buf.append("\n/*iwb:start:grid:").append(gridResult.getGridId()).append(":Code*/\n");
+			buf.append(GenericUtil.filterExt(g.getJsCode(), scd,gridResult.getRequestParams(), null));
+			if(FrameworkSetting.debug)buf.append("\n/*iwb:end:grid:").append(gridResult.getGridId()).append(":Code*/\n");
+			buf.append("\n}catch(e){")
 					.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw?'))throw e;"
 							: "alert('System/Customization ERROR')");
 			buf.append("}\n");
