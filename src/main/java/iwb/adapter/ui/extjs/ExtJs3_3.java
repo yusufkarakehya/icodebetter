@@ -2875,9 +2875,9 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append("new Ext.ux.NumericField");
 			break;
 		case 41:// edit js - codemirror
-			if (formResult != null && formResult.getForm() != null
+			if (true || (formResult != null && formResult.getForm() != null
 					&& formResult.getForm().getObjectTip() == 2
-					&& formResult.getAction() == 1) {
+					&& formResult.getAction() == 1)) {
 				buf.setLength(0);
 				buf.append("new Ext.ux.form.CodeMirror");
 				break;

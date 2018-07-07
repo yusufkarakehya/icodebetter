@@ -33,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -107,6 +108,9 @@ public class AppServlet implements InitializingBean {
 	private	ViewAdapter	react16;
 	private	ViewAdapter	vue2;
 	private ViewMobileAdapter2 f7;
+	private static String manPicPath = null;
+	private static String womanPicPath = null;
+	private static String brokenPicPath = null;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -120,7 +124,10 @@ public class AppServlet implements InitializingBean {
 		// if(PromisSetting.checkLicenseFlag)engine.checkLicences();
 		// dao.organizeAudit();
 		engine.setJVMProperties(0);
-		
+		manPicPath = new ClassPathResource("static/ext3.4.1/custom/images/man-64.png").getFile().getPath();
+		brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
+		womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
+
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
 	}
         
@@ -1796,7 +1803,10 @@ public class AppServlet implements InitializingBean {
 		}
 
 		if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // man / woman default picture
-			filePath = request.getRealPath("/images/custom/ppicture/default_" + (fa.getFileAttachmentId() == 2 ? "wo" : "") + "man_mini.png");
+//			this.getClass().getClassLoader().getResource("static/ext3.4.1/ext-all.js"); 
+//			File folder = new ClassPathResource("static/ext3.4.1/ext-all.js").getFile().getPath();
+//			filePath = request.getSession().getServletContext().getRealPath("static/images/custom/ppicture/default_" + (fa.getFileAttachmentId() == 2 ? "wo" : "") + "man_mini.png");
+			filePath = fa.getFileAttachmentId() == 2 ? womanPicPath : manPicPath;
 		} else {
 			if (scd == null)scd = UserUtil.getScd(request, "scd-dev", true);
 			String customizationId = String
@@ -1818,7 +1828,7 @@ public class AppServlet implements InitializingBean {
 				try {
 					stream = new FileInputStream(filePath);
 				} catch (Exception e0) {
-					stream = new FileInputStream(request.getRealPath("/images/custom/wv.png"));
+					stream = new FileInputStream(brokenPicPath);
 				}
 
 			// write the file to the file specified

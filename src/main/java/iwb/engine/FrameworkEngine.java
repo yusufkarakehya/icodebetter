@@ -8063,7 +8063,7 @@ public class FrameworkEngine{
 			List<Object[]> list = dao.executeSQLQuery("select p.* from iwb.w5_user_tip p where p.user_tip=?",userTip);
 			if(GenericUtil.isEmpty(list)){
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id)"
-						+ " values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", cusId, projectId);
+						+ " values (?,?,?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId);
 				dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
 			}
 		}	

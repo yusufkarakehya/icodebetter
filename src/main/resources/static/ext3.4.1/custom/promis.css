@@ -45,44 +45,6 @@ a:hover {
 	height:18px;
 }
 
-#doc-body .loading-indicator {
-    position:absolute;
-    top:35%;
-    left:43%;
-    color:#444;
-    background-image:url(../../images/ext3.3/default/shared/large-loading.gif);
-    background-repeat: no-repeat;
-    background-position:left 5px;
-    padding:10px 10px 10px 38px;
-	text-align:left;
-}
-#loading-mask{
-	position:absolute;
-	left:0;
-	top:0;
-    width:100%;
-    height:100%;
-    z-index:20000;
-}
-#loading{
-	position:absolute;
-	left:45%;
-	top:40%;
-	padding:2px;
-	z-index:20001;
-    height:auto;
-}
-#loading img {
-    margin-bottom:5px;
-}
-#loading .loading-indicator{
-	color:#555;
-	font:bold 13px tahoma,arial,helvetica;
-	padding:10px;
-	margin:0;
-    text-align:center;
-    height:auto;
-}
 
 .padding0{
 	padding:0px 0px 0px 0px;
@@ -240,13 +202,26 @@ label.error{font:11px tahoma,arial,helvetica,sans-serif;background-image: url(im
     background-image: url(../images/famfam/magnifier.png) !important;
 }
 
-.icon-purchaseadd {
-	background-image: url(../images/famfam/cart_put.png) !important;
-}
-
 .icon-new {
     background-image: url(images/plus-16.png) !important;
+	background-position-y: center !important;
 }
+.icon-vcs {
+   background-image: url(images/vcs1.png) !important;
+   background-repeat: no-repeat;
+}
+.icon-db {
+    background-image: url(images/database-16.png) !important;
+}
+
+.icon-error {
+    background-image: url(images/error-16.png) !important;
+}
+
+.icon-locale {
+    background-image: url(images/emoticon-16.png) !important;
+}
+
 
 .icon-calendar-menu {
     background-image: url(../images/custom/icons/calendar.png) !important;
@@ -254,6 +229,7 @@ label.error{font:11px tahoma,arial,helvetica,sans-serif;background-image: url(im
 
 .icon-edit {
 	background-image: url(images/edit-16.png) !important;
+	background-position-y: center !important;
 }
 
 .icon-email {
@@ -710,9 +686,11 @@ background-image:url(../images/custom/crm/pdf.gif) !important;
 .imail_trash{background-image:url(../images/custom/trash1.png) !important;}
 .imail_open{background-image:url(../images/custom/email_open.png) !important;}
 
-.iportal {
-background-image:url(../images/custom/portal.png) !important;	
+.icon-home{
+	background-image:url(images/home-16.png) !important;
+	background-position-y: center !important;
 }
+
 .ifile_attach{
 background-image:url(images/paperclip-24.png) !important;
 }
@@ -1097,7 +1075,7 @@ background-image:url(../images/custom/go_down.gif);
 }
 
 .x-addcomment-button{
-	background-image:url(../images/famfam/comment_add.png) !important;
+	background-image:url(images/plus-16.png) !important;
 }
 
 .x-deletecomment-button{
@@ -1238,16 +1216,18 @@ pre.code{
 .dfeed {width:96%;padding:4px;
 border-radius: 4px 4px 4px 4px;
 }
-.dcomment {width:90%;background-color:#F6F8FC;padding:3px;padding-left:7px;margin-top:2px;margin-left:15px;}
-.cfeed {color:#ccc}
+.dcomment {width: 90%; zoom:.9;
+    background-color: rgba(0,0,0,.1);
+    padding: 3px;padding-left: 20px;margin-top: 2px;border-radius: 100px;}
+.cfeed {color:#ccc; font-size:.85em}
 
 .status-item{margin-left:-12px;padding-right:16px;padding-top:0px;border-width:0;border-style:solid}
 .status-item2{margin-left:0px;padding-right:16px;padding-top:0px;border-width:0;border-style:solid}
-.status-0{ background-image: url(../images/custom/status-offline.png) !important;}
-.status-1{ background-image: url(../images/custom/status-online.png) !important;}
-.status-2{ background-image: url(../images/custom/status-busy.png) !important;}
-.status-3{ background-image: url(../images/custom/status-away.png) !important;}
-.mobile-1{ background-image: url(../images/custom/mobile-small.png) !important;}
+.status-0{ background-image: url(images/status-offline.png) !important;}
+.status-1{ background-image: url(images/status-online.png) !important;}
+.status-2{ background-image: url(images/status-busy.png) !important;}
+.status-3{ background-image: url(images/status-away.png) !important;}
+.mobile-1{ background-image: url(images/mobile-small.png) !important;}
 
 
 .promis-folder-icon{
@@ -1293,7 +1273,7 @@ border-radius: 4px 4px 4px 4px;
 .typing-icon{ background: url(../images/custom/image_add.png) no-repeat 0 0 !important;}
 
 .ppic-mini {
-	margin:3px 2px 2px 2px;border: 1px solid #AAA;border-radius: 12px; width:24px;height:24px;
+	margin:3px 2px 2px 2px;border: 1px solid #616366;border-radius: 12px; width:24px;height:24px;
 }
 .ppic-middle {
 	margin:3px 2px 2px 2px; width:24px;height:24px;border-radius: 12px; 
