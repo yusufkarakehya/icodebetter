@@ -5,7 +5,6 @@ import java.util.Map;
 
 import iwb.domain.db.W5DbFunc;
 import iwb.domain.db.W5Table;
-import iwb.domain.db.W5TempLogRecord;
 import iwb.domain.helper.W5QueuedDbFuncHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 
@@ -26,7 +25,6 @@ public class W5DbFuncResult implements W5MetaResult{
 	private	boolean success;
 	private List<W5ReportCellHelper> reportList;
 	private List<W5QueuedDbFuncHelper> queuedDbFuncList;
-	private List<W5TempLogRecord> logRecordList;
 	private int processTime;
 	
 	
@@ -95,12 +93,7 @@ public class W5DbFuncResult implements W5MetaResult{
 	public void setReportList(List<W5ReportCellHelper> reportList) {
 		this.reportList = reportList;
 	}
-	public W5Table getApprovalTable() {
-		return approvalTable;
-	}
-	public void setApprovalTable(W5Table approvalTable) {
-		this.approvalTable = approvalTable;
-	}
+
 
 	public List<W5QueuedDbFuncHelper> getQueuedDbFuncList() {
 		return queuedDbFuncList;
@@ -109,12 +102,6 @@ public class W5DbFuncResult implements W5MetaResult{
 		this.queuedDbFuncList = queuedDbFuncList;
 	}
 
-	public List<W5TempLogRecord> getLogRecordList() {
-		return logRecordList;
-	}
-	public void setLogRecordList(List<W5TempLogRecord> logRecordList) {
-		this.logRecordList = logRecordList;
-	}
 	public int getProcessTime() {
 		return processTime;
 	}

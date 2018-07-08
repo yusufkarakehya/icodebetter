@@ -5,16 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
-import org.springframework.orm.hibernate5.HibernateTemplate;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5FormCell;
-import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5JasperReport;
-import iwb.domain.db.W5Notification;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
@@ -32,7 +28,6 @@ import iwb.domain.result.W5ListViewResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TemplateResult;
-import iwb.engine.FrameworkEngine;
 
 public interface RdbmsDao{
 

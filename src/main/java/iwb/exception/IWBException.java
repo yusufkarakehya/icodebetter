@@ -6,9 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import iwb.domain.db.W5Table;
-import iwb.domain.db.W5TempLogRecord;
 import iwb.domain.helper.W5TableRecordHelper;
-import iwb.enums.FieldDefinitions;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -20,7 +18,6 @@ public class IWBException extends RuntimeException {
 	private	String objectType;
 	private	int objectId;
 	private	String sql;
-	private List<W5TempLogRecord> logRecords;
 	public IWBException(String errorType, String objectType, int objectId, String sql, String message, Throwable cause) {
 		super(message, cause);
 		this.errorType=errorType;//security, validation, framework, definition
@@ -29,14 +26,7 @@ public class IWBException extends RuntimeException {
 		this.sql=sql;
 	}
 
-	public IWBException(String errorType, String objectType, int objectId, String sql, String message, List<W5TempLogRecord> logRecords, Throwable cause) {
-		super(message, cause);
-		this.errorType=errorType;//security, validation, framework, definition
-		this.objectType=objectType;
-		this.objectId=objectId;
-		this.sql=sql;
-		this.logRecords=logRecords;
-	}
+
 	public String toHtmlString(String locale){
 		StringBuilder b = new StringBuilder();
 		if(!GenericUtil.isEmpty(errorType) && errorType.equals("license")){
@@ -134,22 +124,7 @@ public class IWBException extends RuntimeException {
 			if(sql!=null)b.append(",\n\"sql\":\"").append(GenericUtil.stringToJS2(sql)).append("\"");
 		}
 		
-		if(logRecords!=null && !logRecords.isEmpty()){
-			short logLevel = (short)FrameworkCache.getAppSettingIntValue(customizationId, "db_proc_log_level");
-			b.append(",\n\"logErrors\":[");
-			boolean bx = false;
-			for(W5TempLogRecord tlr:logRecords)if(tlr.getLogLevel()>=logLevel){
-				if(bx)b.append(",\n");else bx=true;
-				b.append("{\"table_id\":").append(tlr.getTableId()).append(",\"table_pk\":").append(tlr.getTablePk()).append(",\"log_level\":").append(tlr.getLogLevel()).append(",\"dsc\":\"").append(GenericUtil.stringToJS2(tlr.getDsc())).append("\"");
-				if(!GenericUtil.isEmpty(tlr.get_parentRecords())){
-					b.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":").append(serializeTableHelperList(customizationId,locale,tlr.get_parentRecords()));
-				}
-				b.append("}");
-			}
-
-			b.append("]");
-			
-		}
+	
 
 		return b.append("}").toString();
 	}
@@ -187,9 +162,6 @@ public class IWBException extends RuntimeException {
 	}
 
 
-	public List<W5TempLogRecord> getLogRecords() {
-		return logRecords;
-	}
 	
 	
 }

@@ -71,7 +71,6 @@ public class AxisSoap1_4 implements SoapAdapter{
 					lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
 					break;
 				}
-				if(dfr.getDbFunc().getRelatedTableId()!=0)t = FrameworkCache.getTable(ws.getCustomizationId(), dfr.getDbFunc().getRelatedTableId());
 				for(W5DbFuncParam dfp:dfr.getDbFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1){
 					lwsmp.add(new W5WsServerMethodParam(dfp, dfp.getOutFlag(), dfp.getOutFlag()==0 ? 0:-999));
 				}

@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.jdbc.ReturningWork;
 import org.hibernate.jdbc.Work;
 //import org.influxdb.InfluxDBFactory;
@@ -35,7 +34,7 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import iwb.custom.trigger.QueryTrigger;
@@ -80,15 +79,13 @@ import iwb.domain.db.W5QueryFieldCreation;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableAccessConditionSql;
-import iwb.domain.db.W5TableTrigger;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFieldCalculated;
 import iwb.domain.db.W5TableFilter;
 import iwb.domain.db.W5TableParam;
+import iwb.domain.db.W5TableTrigger;
 import iwb.domain.db.W5TableUserTip;
-import iwb.domain.db.W5TempActionRecord;
-import iwb.domain.db.W5TempLogRecord;
 import iwb.domain.db.W5Template;
 import iwb.domain.db.W5TemplateObject;
 import iwb.domain.db.W5VcsObject;
@@ -123,7 +120,6 @@ import iwb.util.GenericUtil;
 //import iwb.util.InfluxUtil;
 import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
-import org.springframework.stereotype.Repository;
 
 @SuppressWarnings({"unchecked","unused"})
 @Repository
@@ -310,9 +306,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				fc.set_sourceObjectDetail(fieldMap3.get(fc.getObjectDetailId()));
 			}
 			W5DbFunc dbf= (W5DbFunc)find("from W5DbFunc t where t.dbFuncId=?",f.getForm().getObjectId()).get(0);
-			if(dbf.getRelatedTableId()!=0)mt = FrameworkCache.getTable(customizationId, dbf.getRelatedTableId()); //f.getForm().set_sourceTable(
-			if(mt!=null && dbf.getIncludeApprovalFieldsFlag()!=0)mam=mt.get_approvalMap();
-			
 
 		}
 
@@ -373,7 +366,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		formResult.setPkFields(new HashMap());
 		formResult.setOutputMessages(new ArrayList());
 		formResult.setExtraFormCells(new ArrayList());
-		formResult.setCrudLogRecordList(new ArrayList());
 		int customizationId = formResult.isDev() ? 0 : (Integer)scd.get("customizationId");
 		W5Form f = null;
 		if(FrameworkSetting.preloadWEngine!=0 && (f=FrameworkCache.getForm(customizationId,formId))!=null){
@@ -3949,10 +3941,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		}
 
 		
-		if(r.getDbFunc().getIncludeApprovalFieldsFlag()!=0 && r.getDbFunc().getRelatedTableId()!=0){
-			r.setApprovalTable(FrameworkCache.getTable(scd, r.getDbFunc().getRelatedTableId()));
-		}
-	
 		r.setScd(scd);
 
     	return r;
@@ -4161,27 +4149,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			throw new IWBException("sql","DbProc Execute1",r.getDbFuncId(),exceptionText, e.getMessage(), e.getCause());
 		} finally {
 	    	logDbFuncAction(action, r, error);
-		}
-		if(r.getDbFunc().getInsideActions()!=null){
-			if(GenericUtil.hasPartInside(r.getDbFunc().getInsideActions(), "1")){//tempLogRecord
-				List<W5TempLogRecord> ltlr = (List<W5TempLogRecord>)find("from W5TempLogRecord t order by t.logRecordId");
-				if(!ltlr.isEmpty()){
-					short logLevel = (short)FrameworkCache.getAppSettingIntValue(r.getScd(), "db_proc_log_level");
-					short logLevelException = (short)FrameworkCache.getAppSettingIntValue(r.getScd(), "db_proc_log_level_exception");
-					for(W5TempLogRecord tlr:ltlr)if(tlr.getTableId()!=0 && tlr.getTablePk()!=0 && tlr.getLogLevel()>=logLevel)
-						tlr.set_parentRecords(findRecordParentRecords(r.getScd(), tlr.getTableId(), tlr.getTablePk(), 10, true));
-					for(W5TempLogRecord tlr:ltlr)if(tlr.getLogLevel()>=logLevelException){
-						throw new IWBException("sql","DbFunc", r.getDbFuncId(), GenericUtil.replaceSql(r.getExecutedSql(), r.getSqlParams()), "Log Error(s)", ltlr, null);
-					}
-					r.setLogRecordList(ltlr);
-				}
-			}
-			if(GenericUtil.hasPartInside(r.getDbFunc().getInsideActions(), "2")){//tempActionRecord
-				List<W5TempActionRecord> ltar = (List<W5TempActionRecord>)find("from W5TempActionRecord t order by t.actionRecordId");
-				if(!ltar.isEmpty()){//TODO
-					
-				}
-			}
 		}
 		/*if(PromisCache.getAppSettingIntValue(r.getScd(), "bpm_flag")!=0){
 			int nextBpmActionId = bpmControl(r.getScd(), r.getRequestParams(), r.getDbFunc().get_listBpmStartAction(), r.getDbFunc().get_listBpmEndAction(), 11, 0, 0);
@@ -6112,8 +6079,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		List p = new ArrayList();p.add(tableId);p.add(customizationId);p.add(projectUuid);p.add(tableName);p.add(schema);
 		l = executeSQLQuery2Map("select x.*"
 				+ ", coalesce((select tf.table_field_id from iwb.w5_table_field tf where tf.table_id = ? and lower(tf.dsc) = x.column_name and tf.customization_id= ? AND tf.project_uuid=?),0) as table_field_id"
-				+ ", coalesce((SELECT w.system_type_id FROM sys_postgre_types w where w.dsc = x.DATA_TYPE),0) xlen"
-				+ ", coalesce((SELECT w.framework_type from sys_postgre_types w where w.dsc = x.DATA_TYPE),0) xtyp"
+				+ ", coalesce((SELECT w.system_type_id FROM iwb.sys_postgre_types w where w.dsc = x.DATA_TYPE),0) xlen"
+				+ ", coalesce((SELECT w.framework_type from iwb.sys_postgre_types w where w.dsc = x.DATA_TYPE),0) xtyp"
 				+ " from information_schema.columns x where x.table_name = ? and x.table_schema = ?", p);
 		for(Map m:(List<Map>)l){
 			int tfId = GenericUtil.uInt(m.get("table_field_id"));

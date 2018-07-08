@@ -1,7 +1,6 @@
 package iwb.custom.trigger;
 
 import iwb.dao.RdbmsDao;
-import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5Notification;
 import iwb.domain.result.W5FormResult;
 import iwb.util.FrameworkCache;

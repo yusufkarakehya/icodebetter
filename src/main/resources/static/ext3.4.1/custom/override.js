@@ -1307,7 +1307,7 @@ Ext.infoMsg = {
         },
         log : function(type, msg){
         	var pos=Ext.infoMsg.msgTypes[type];
-        	if(!pos){msg='<b>'+type+'</b><br/>'+msg;type='info';}
+        	if(!pos){msg='<b>'+type+'</b><br/>'+msg;type=false;}
         	new Noty({
         	    text: msg,theme:'metroui', type: type,
         	    layout: 'bottomCenter',//timeout:1000*(timeout||3),

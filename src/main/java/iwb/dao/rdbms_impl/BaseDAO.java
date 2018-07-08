@@ -13,19 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
-import org.hibernate.SessionFactory;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import iwb.exception.IWBException;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Base dao class based on hibernate session
