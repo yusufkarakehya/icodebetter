@@ -5798,7 +5798,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 		if(FrameworkCache.getAppSettingIntValue(scd, "form_conversion_flag")!=0){
 			if(extraSql.length()>0)extraSql.append(",");
-			extraSql.append("(select count(1) cnt from iwb.w5_converted_object y, w5_conversion x where x.active_flag=1 AND x.customization_id=? AND x.customization_id=y.customization_id AND x.conversion_id=y.conversion_id AND x.src_table_id=? AND y.src_table_pk=?) conversion_count");
+			extraSql.append("(select count(1) cnt from iwb.w5_converted_object y, iwb.w5_conversion x where x.active_flag=1 AND x.customization_id=? AND x.customization_id=y.customization_id AND x.conversion_id=y.conversion_id AND x.src_table_id=? AND y.src_table_pk=?) conversion_count");
 			params.add(scd.get("customizationId"));
 			params.add(tableId);
 			params.add(tablePk);

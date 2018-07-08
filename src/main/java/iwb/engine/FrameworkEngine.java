@@ -1779,7 +1779,7 @@ public class FrameworkEngine{
 						}
 
 						
-						for(Object[] liste : (List<Object[]>)dao.executeSQLQuery("select distinct gu.user_id from W5_User gu where gu.user_Id != ? and (gu.user_Id in (select ur.user_Id from W5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("userId"),approval.getManualAppRoleIds(),approval.getManualAppUserIds())){
+						for(Object[] liste : (List<Object[]>)dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.user_Id != ? and (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("userId"),approval.getManualAppRoleIds(),approval.getManualAppUserIds())){
 							if(liste[0]!=null) dao.saveObject(new W5Notification(scd,PromisUtil.uInt(liste[0]), (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
 						}					
 	*/					
@@ -1788,7 +1788,7 @@ public class FrameworkEngine{
 
 						appRecordUserList = appRecord.getApprovalUsers();
 						appRecordRoleList = appRecord.getApprovalRoles();
-					  	List<String> emailList = dao.executeSQLQuery("select gu.email from w5_user gu where gu.customization_id=? and gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and gu.user_id <> ? union select (select gu.email from w5_user gu where gu.customization_id=? and gu.user_id = ur.user_id and gu.user_status=1) from w5_user_role ur where ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and ur.user_id <> ?",scd.get("customizationId"),appRecordUserList,scd.get("userId"),scd.get("customizationId"),appRecordRoleList,scd.get("userId"));
+					  	List<String> emailList = dao.executeSQLQuery("select gu.email from iwb.w5_user gu where gu.customization_id=? and gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and gu.user_id <> ? union select (select gu.email from iwb.w5_user gu where gu.customization_id=? and gu.user_id = ur.user_id and gu.user_status=1) from iwb.w5_user_role ur where ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and ur.user_id <> ?",scd.get("customizationId"),appRecordUserList,scd.get("userId"),scd.get("customizationId"),appRecordRoleList,scd.get("userId"));
 
 						
 					  	if (emailList.size() > 0){						  		
@@ -1826,7 +1826,7 @@ public class FrameworkEngine{
 							appRecordUserList = appRecord.getApprovalUsers();
 							appRecordRoleList = appRecord.getApprovalRoles();	
 
-							List<Object[]> gsmList = dao.executeSQLQuery("select gu.gsm from w5_user gu where gu.customization_id=? and gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and gu.user_id <> ? union select (select gu.gsm from w5_user gu where gu.customization_id=? and gu.user_id = ur.user_id and gu.user_status=1) from w5_user_role ur where ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and ur.user_id <> ?",scd.get("customizationId"),appRecordUserList,scd.get("userId"),scd.get("customizationId"),appRecordRoleList,scd.get("userId"));
+							List<Object[]> gsmList = dao.executeSQLQuery("select gu.gsm from iwb.w5_user gu where gu.customization_id=? and gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and gu.user_id <> ? union select (select gu.gsm from iwb.w5_user gu where gu.customization_id=? and gu.user_id = ur.user_id and gu.user_status=1) from iwb.w5_user_role ur where ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and ur.user_id <> ?",scd.get("customizationId"),appRecordUserList,scd.get("userId"),scd.get("customizationId"),appRecordRoleList,scd.get("userId"));
 							if (gsmList!=null){
 							    Object[] m = gsmList.toArray();
 								for(int i=0;i<m.length;i++){
@@ -1840,7 +1840,7 @@ public class FrameworkEngine{
 					else formResult.getOutputMessages().add(t.get_approvalMap().get((short)2).getDsc() +", "+ LocaleMsgCache.get2(0,(String)scd.get("locale"),"islemlerinizi_tamamlayip_manuel_olarak_onay_surecini_baslatabilirsiniz") +" ("+summaryText+")");
 				}
 				
-//TODO				dao.executeUpdateSQLQuery("delete from w5_converted_object co where co.customization_id=? AND co.DST_TABLE_PK=? AND exists(select 1 from w5_conversion c where c.customization_id=co.customization_id AND c.DST_TABLE_ID=? AND co.conversion_id=c.conversion_id)", scd.get("customizationId"), ptablePk, t.getTableId());
+//TODO				dao.executeUpdateSQLQuery("delete from iwb.w5_converted_object co where co.customization_id=? AND co.DST_TABLE_PK=? AND exists(select 1 from iwb.w5_conversion c where c.customization_id=co.customization_id AND c.DST_TABLE_ID=? AND co.conversion_id=c.conversion_id)", scd.get("customizationId"), ptablePk, t.getTableId());
 			}
 
 			break;
@@ -3084,7 +3084,7 @@ public class FrameworkEngine{
 	//		queryResult.setOrderBy(PromisUtil.uStrNvl(requestParams.get(PromisUtil.uStrNvl(PromisSetting.appSettings.get("sql_sort"),"sort")), queryResult.getQuery().getSqlOrderby()));
 			if(!GenericUtil.isEmpty(requestParams.get("sort"))){
 				if (requestParams.get("sort").equals(FieldDefinitions.queryFieldName_Comment)){
-				//	queryResult.setOrderBy("coalesce((select qz.last_comment_id from w5_comment_summary qz where qz.table_id= AND qz.table_pk= AND qz.customization_id=),0) DESC");
+				//	queryResult.setOrderBy("coalesce((select qz.last_comment_id from iwb.w5_comment_summary qz where qz.table_id= AND qz.table_pk= AND qz.customization_id=),0) DESC");
 					queryResult.setOrderBy(FieldDefinitions.queryFieldName_Comment);//+ " " + requestParams.get("dir")
 				} else if (!requestParams.get("sort").contains("_qw_")){
 					queryResult.setOrderBy(requestParams.get("sort"));						
@@ -3499,7 +3499,7 @@ public class FrameworkEngine{
 				feed.setTableId(GenericUtil.uInt(parameterMap.get("_tableId")));feed.setTablePk(GenericUtil.uInt(parameterMap.get("_tablePk")));
 				if(dbFuncId!=-631){
 					List lx = new ArrayList(); lx.add(scd.get("customizationId"));lx.add(GenericUtil.uInt((Object)parameterMap.get("pmail_setting_id")));
-					Map mx = dao.runSQLQuery2Map("select cx.ACCESS_ROLES, cx.ACCESS_USERS from w5_access_control cx where cx.ACCESS_TIP=0 AND cx.customization_id=? AND cx.table_id=48 AND cx.table_pk=?", lx,null);
+					Map mx = dao.runSQLQuery2Map("select cx.ACCESS_ROLES, cx.ACCESS_USERS from iwb.w5_access_control cx where cx.ACCESS_TIP=0 AND cx.customization_id=? AND cx.table_id=48 AND cx.table_pk=?", lx,null);
 					if(mx!=null && !mx.isEmpty())feed.set_viewAccessControl(new W5AccessControlHelper((String)mx.get("access_roles"),(String)mx.get("access_users")));
 				}
 				feed.set_tableRecordList(dao.findRecordParentRecords(scd,feed.getTableId(),feed.getTablePk(), 0, true));
@@ -3800,7 +3800,7 @@ public class FrameworkEngine{
 		}
 		UserUtil.setUserProfilePicture(fa.getCustomizationId(), userId,fa.getFileAttachmentId());
 		
-		return dao.executeUpdateSQLQuery("update w5_user set profile_picture_id=? where user_id=?", fa.getFileAttachmentId(), userId)==1;
+		return dao.executeUpdateSQLQuery("update iwb.w5_user set profile_picture_id=? where user_id=?", fa.getFileAttachmentId(), userId)==1;
 	}
 
 	public void updateObject(Object o) {
@@ -3812,7 +3812,7 @@ public class FrameworkEngine{
 	public W5FileAttachment loadFile(Map<String, Object> scd,int fileAttachmentId) { //+:fileId, -:userId : Map<String, Object> scd,
 		if(fileAttachmentId<0){
 			fileAttachmentId = UserUtil.getUserProfilePicture((Integer)scd.get("customizationId"),-fileAttachmentId);
-			List l = dao.executeSQLQuery("select t.profile_picture_id from w5_user t where t.customization_id=? AND t.user_id=?", scd.get("customizationId"),-fileAttachmentId);
+			List l = dao.executeSQLQuery("select t.profile_picture_id from iwb.w5_user t where t.customization_id=? AND t.user_id=?", scd.get("customizationId"),-fileAttachmentId);
 			if(fileAttachmentId==1 || fileAttachmentId==2){
 				W5FileAttachment fa2 = new W5FileAttachment();
 				fa2.setFileAttachmentId(fileAttachmentId);
@@ -4387,7 +4387,7 @@ public class FrameworkEngine{
 			if(m2==null)m.putAll(m2);
 		}
 		/*
-		List<Object[]> userSettings = dao.executeSQLQuery("select s.dsc, s.val from w5_user_setting s where s.user_id=?", userId);
+		List<Object[]> userSettings = dao.executeSQLQuery("select s.dsc, s.val from iwb.w5_user_setting s where s.user_id=?", userId);
 		if(userSettings!=null && userSettings.size()>0){
 			Map<String, String> userSettingsMap = new HashMap<String, String>();
 			for(Object[] o:userSettings){
@@ -4756,7 +4756,7 @@ public class FrameworkEngine{
 					Map<String, String> mz = new HashMap();
 					mz.put("ptable_id", ""+ar.getTableId());
 					mz.put("ptable_pk", ""+ar.getTablePk());
-					executeDbFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
+					executeDbFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
 					W5FormResult fr = new W5FormResult(-1);
 					fr.setForm(new W5Form());
 //					fr.getForm().set_sourceTable(PromisCache.getTable(scd, ar.getTableId()));
@@ -5122,9 +5122,9 @@ public class FrameworkEngine{
 			else mesaj=" ";// Böyle bir durum olmaz aslında, bu kısma ya onaylanınca ya da reddedilince girer diye biliyorum
 						
 			//Onay işlemleri bittikten sonra kaydedene, onay sürecini başlatana ve son adımdaki rol ve userlara ve session da olmayan kişilere
-			List<Object[]> approvalUsers = dao.executeSQLQuery("select gu.gsm,gu.email,gu.user_id from w5_user gu where gu.customization_id=?::integer and gu.user_id <> ?::integer and " +
+			List<Object[]> approvalUsers = dao.executeSQLQuery("select gu.gsm,gu.email,gu.user_id from iwb.w5_user gu where gu.customization_id=?::integer and gu.user_id <> ?::integer and " +
 					"(gu.user_id in (select lar.user_id from log5_approval_record lar where (lar.approval_action_tip = 0 or lar.approval_action_tip = 901) and lar.approval_record_id = ?::integer) or " +
-					"gu.user_id in (select ur.user_id from w5_user_role ur where ur.customization_id = ?::integer and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and ((select u.user_tip from w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3)) or " +
+					"gu.user_id in (select ur.user_id from iwb.w5_user_role ur where ur.customization_id = ?::integer and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and ((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3)) or " +
 					"gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))",scd.get("customizationId"),scd.get("userId"),ar.getApprovalRecordId(),scd.get("customizationId"),ar.getApprovalRoles(),ar.getApprovalUsers());
 			
 			if(approvalUsers != null){ // Bu kullanıcı listesi mevcutsa
@@ -5173,22 +5173,22 @@ public class FrameworkEngine{
 			//Bir sonraki adım için ilgili kişilere mail gönderme işlemi
 			if(nextStep!=null || a.getApprovalFlowTip()==2 || a.getApprovalFlowTip() == 3){//mail gondermece, burada hiyerarşiler aradında da mail gitsin mantığı var
 				List<Object[]> nextStepUsers= dao.executeSQLQuery(
-						"select gu.gsm,gu.email,gu.user_id from w5_user gu where gu.customization_id = ? and gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and gu.user_status = 1 union " +
-						"select gu.gsm,gu.email,gu.user_id from w5_user_role ur, w5_user gu where gu.user_id = ur.user_id and gu.user_status = 1 and gu.customization_id = ? and " +
+						"select gu.gsm,gu.email,gu.user_id from iwb.w5_user gu where gu.customization_id = ? and gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and gu.user_status = 1 union " +
+						"select gu.gsm,gu.email,gu.user_id from iwb.w5_user_role ur, iwb.w5_user gu where gu.user_id = ur.user_id and gu.user_status = 1 and gu.customization_id = ? and " +
 						"ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and " +
-		                "((select u.user_tip from w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3 or "+ 
-		                "((select u.user_tip from w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) = 3))",
+		                "((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3 or "+ 
+		                "((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) = 3))",
 		                ar.getCustomizationId(), ar.getApprovalUsers(), ar.getCustomizationId(), ar.getApprovalRoles());
 							
 					if(nextStepUsers == null && nextStep.getApprovalStepId() == 901){ // Manuel Onay'da kimlere mail gideceği
 						String userIds = ar.getInsertUserId()+(a.getManualAppUserIds() != null ? ","+a.getManualAppUserIds() : "")+(currentStep.getApprovalUsers() != null ? ","+currentStep.getApprovalUsers() : "");
 						String userRoles = (a.getManualAppRoleIds() != null ? a.getManualAppRoleIds() : "")+(currentStep.getApprovalRoles() != null ? (a.getManualAppRoleIds() != null ? ","+currentStep.getApprovalRoles() : currentStep.getApprovalRoles()) : "");					
 						nextStepUsers = dao.executeSQLQuery(
-							"select gu.gsm,gu.email,gu.user_id from w5_user gu where gu.customization_id = ? and gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and gu.user_status = 1 union " +
-							"select gu.gsm,gu.email,gu.user_id from w5_user_role ur, w5_user gu where gu.user_id = ur.user_id and gu.user_status = 1 and gu.customization_id = ? and " +
+							"select gu.gsm,gu.email,gu.user_id from iwb.w5_user gu where gu.customization_id = ? and gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and gu.user_status = 1 union " +
+							"select gu.gsm,gu.email,gu.user_id from iwb.w5_user_role ur, iwb.w5_user gu where gu.user_id = ur.user_id and gu.user_status = 1 and gu.customization_id = ? and " +
 							"ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and " +
-			                "((select u.user_tip from w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3 or "+ 
-			                "((select u.user_tip from w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) = 3 )",
+			                "((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3 or "+ 
+			                "((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) = 3 )",
 			                ar.getCustomizationId(), userIds, ar.getCustomizationId(), userRoles);									
 
 				}
@@ -5222,9 +5222,9 @@ public class FrameworkEngine{
 
 		
 		if(extraInformData.get(1) != null){// eğer ekstra bilgilendirilecek birileri varsa
-			List<Object> usersToInform = dao.executeSQLQuery("select gu.email from w5_user gu where gu.customization_id=? and gu.email is not null and gu.user_id in " +
+			List<Object> usersToInform = dao.executeSQLQuery("select gu.email from iwb.w5_user gu where gu.customization_id=? and gu.email is not null and gu.user_id in " +
 					"(select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) or gu.user_id in " +
-					"(select ur.user_id from w5_user_role ur where ur.customization_id = ? and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))", 
+					"(select ur.user_id from iwb.w5_user_role ur where ur.customization_id = ? and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))", 
 					scd.get("customizationId"),extraInformData.get(1).get("users"), scd.get("customizationId"), extraInformData.get(1).get("roles"));
 			if(usersToInform != null && usersToInform.size() > 0){
 				for(Object address:usersToInform){
@@ -5253,9 +5253,9 @@ public class FrameworkEngine{
 		
 		if(extraInformData.get(0) != null){// eğer ekstra sms gönderilecek birileri varsa
 			if (gsmList == null)gsmList = new ArrayList<String>();
-			List<Object> usersToInform = dao.executeSQLQuery("select gu.gsm from w5_user gu where gu.customization_id=? and gu.gsm is not null and gu.user_id in " +
+			List<Object> usersToInform = dao.executeSQLQuery("select gu.gsm from iwb.w5_user gu where gu.customization_id=? and gu.gsm is not null and gu.user_id in " +
 					"(select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) or gu.user_id in " +
-					"(select ur.user_id from w5_user_role ur where ur.customization_id = gu.customization_id and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))", 
+					"(select ur.user_id from iwb.w5_user_role ur where ur.customization_id = gu.customization_id and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))", 
 					scd.get("customizationId"),extraInformData.get(0).get("users"),extraInformData.get(0).get("roles"));
 			if(usersToInform != null && usersToInform.size() > 0){
 				for(Object gsm:usersToInform){
@@ -5275,9 +5275,9 @@ public class FrameworkEngine{
 		// Notification		
 		if(extraInformData.get(2) != null){// eğer ekstra notification gönderilecek birileri varsa
 			if (gsmList == null)gsmList = new ArrayList<String>();
-			List<Object> usersToInform = dao.executeSQLQuery("select gu.user_id from w5_user gu where gu.customization_id=? and gu.user_status = 1 and gu.user_id in " +
+			List<Object> usersToInform = dao.executeSQLQuery("select gu.user_id from iwb.w5_user gu where gu.customization_id=? and gu.user_status = 1 and gu.user_id in " +
 					"(select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) or gu.user_id in " +
-					"(select ur.user_id from w5_user_role ur where ur.customization_id =gu.customization_id  and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))", 
+					"(select ur.user_id from iwb.w5_user_role ur where ur.customization_id =gu.customization_id  and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))", 
 					scd.get("customizationId"),extraInformData.get(2).get("users"),extraInformData.get(2).get("roles"));
 			if(usersToInform != null && usersToInform.size() > 0){
 				for(Object uId:usersToInform){
@@ -5404,7 +5404,7 @@ public class FrameworkEngine{
 					}
 				}
 				if (cellControlTip==6){ //static lookup
-					detailSql+=", (select ld.val from w5_look_up_detay ld where ld.customization_id=x.customization_id and ld.look_up_id="+cellLookupQueryId+" and lower(fnc_locale_msg(ld.customization_id,ld.dsc,'"+locale+"'))=lower(x."+importColumn+"))" + dsc;
+					detailSql+=", (select ld.val from iwb.w5_look_up_detay ld where ld.customization_id=x.customization_id and ld.look_up_id="+cellLookupQueryId+" and lower(fnc_locale_msg(ld.customization_id,ld.dsc,'"+locale+"'))=lower(x."+importColumn+"))" + dsc;
 				}else if (cellControlTip==7 || cellControlTip==9){ //lookup query
 					W5QueryResult queryResult = dao.getQueryResult(scd, cellLookupQueryId); 
 					if (queryResult.getMainTable()!=null){
@@ -5425,10 +5425,10 @@ public class FrameworkEngine{
 					/*sqlParams.add(ui.getFileAttachmentId());
 					sqlParams.add(formCellId);
 					if(o[3]!=null){
-						detailSql+=", coalesce((select q.import_lookup_val from w5_uploaded_import_col_map q where q.customization_id=x.customization_id and q.file_attachment_id=? AND q.form_cell_id=? AND q.import_val=x."+importColumn+"),?)" + dsc;
+						detailSql+=", coalesce((select q.import_lookup_val from iwb.w5_uploaded_import_col_map q where q.customization_id=x.customization_id and q.file_attachment_id=? AND q.form_cell_id=? AND q.import_val=x."+importColumn+"),?)" + dsc;
 						sqlParams.add(o[3]);
 					} else
-						detailSql+=", (select q.import_lookup_val from w5_uploaded_import_col_map q where q.customization_id=x.customization_id and q.file_attachment_id=? AND q.form_cell_id=? AND q.import_val=x."+importColumn+")" + dsc;
+						detailSql+=", (select q.import_lookup_val from iwb.w5_uploaded_import_col_map q where q.customization_id=x.customization_id and q.file_attachment_id=? AND q.form_cell_id=? AND q.import_val=x."+importColumn+")" + dsc;
 						*/
 					if(o[3]!=null){
 						detailSql+=", x."+importColumn+" "+ dsc;
@@ -5441,7 +5441,7 @@ public class FrameworkEngine{
 			}
 			
 		}
-		detailSql+=" from w5_uploaded_data x where x.customization_id=? and x.file_attachment_id=? and x.row_no>="+(ui.getStartRowNo()-1);
+		detailSql+=" from iwb.w5_uploaded_data x where x.customization_id=? and x.file_attachment_id=? and x.row_no>="+(ui.getStartRowNo()-1);
 		if(ui.getEndRowNo()!=null){
 			detailSql+=" and x.row_no<"+ui.getEndRowNo();
 		}
@@ -5490,7 +5490,7 @@ public class FrameworkEngine{
 	public boolean mailGonder(String mailToUserList, String mailSubject, String mailBody,int customizationId){
 		try{
 			//user listesinden, mail listesi bulunuyor
-			List<Object[]> emailList = dao.executeSQLQuery("select gu.email from w5_user gu where gu.customization_Id=? and gu.user_id in(" + mailToUserList + ")",customizationId);
+			List<Object[]> emailList = dao.executeSQLQuery("select gu.email from iwb.w5_user gu where gu.customization_Id=? and gu.user_id in(" + mailToUserList + ")",customizationId);
 			String pemailList = "";								
 		    Object[] m = emailList.toArray();
 			for(int i=0; i<m.length; i++){ 
@@ -6003,7 +6003,7 @@ public class FrameworkEngine{
 
 	
 	public void setJVMProperties(int customizationId){		
-	  List<Object[]> list=	dao.executeSQLQuery("select dsc,val from w5_app_Setting x where x.setting_tip=19 and x.customization_id=?",customizationId);
+	  List<Object[]> list=	dao.executeSQLQuery("select dsc,val from iwb.w5_app_Setting x where x.setting_tip=19 and x.customization_id=?",customizationId);
 	  if(list!=null && !list.isEmpty()){
 	     for (Object[] t : list)System.setProperty(t[0].toString(), t[1].toString());
 	  }
@@ -6054,11 +6054,11 @@ public class FrameworkEngine{
 
 	public void cnvMailPassEncDec(Map<String, Object> scd, boolean encrypt) {
 		if(GenericUtil.uInt(scd.get("administratorFlag"))!=0){
-			List l = dao.executeSQLQuery("select x.mail_setting_id,x.pass_word,x.outbox_server_pass_word,x.customization_id from w5_object_mail_setting x");
+			List l = dao.executeSQLQuery("select x.mail_setting_id,x.pass_word,x.outbox_server_pass_word,x.customization_id from iwb.w5_object_mail_setting x");
 			if(!GenericUtil.isEmpty(l))for(Object o:l){
 				Object[] oo=(Object[])o;
 				StringBuilder sql = new StringBuilder();
-				sql.append("update w5_object_mail_setting x set ");
+				sql.append("update iwb.w5_object_mail_setting x set ");
 				List p = new ArrayList();
 				boolean b = false;
 				if(!GenericUtil.isEmpty(oo[1])){
@@ -6089,7 +6089,7 @@ public class FrameworkEngine{
 	public int getSubDomain2CustomizationId(String subDomain){
 		int res = 0;
 		try{
-			List l = dao.executeSQLQuery("select c.customization_id from w5_customization c where c.sub_domain=?",subDomain);
+			List l = dao.executeSQLQuery("select c.customization_id from iwb.w5_customization c where c.sub_domain=?",subDomain);
 			if(!GenericUtil.isEmpty(l))for(Object o:l){
 				res = GenericUtil.uInt(o);
 				break;
@@ -6102,7 +6102,7 @@ public class FrameworkEngine{
 	
 	public HashMap<String,Object> getUser(int customizationId, int userId){
 		HashMap<String,Object> user = new HashMap<String,Object>();
-		List<Object[]> userObject = dao.executeSQLQuery("select x.dsc,x.user_id,x.gsm,x.email from w5_user x where x.customization_id=? and x.user_id = ?",customizationId,userId);
+		List<Object[]> userObject = dao.executeSQLQuery("select x.dsc,x.user_id,x.gsm,x.email from iwb.w5_user x where x.customization_id=? and x.user_id = ?",customizationId,userId);
 		if(userObject != null && userObject.size() > 0){
 			user.put("dsc", userObject.get(0)[0]);
 			user.put("id", userObject.get(0)[1]);
@@ -6158,7 +6158,7 @@ public class FrameworkEngine{
 			String pcustomization_id = requestParams.get("pcustomization_id");
 			
 			if (!GenericUtil.isEmpty(email)){
-				List<Object[]> userList = dao.executeSQLQuery("select u.user_id, u.user_name, u.customization_id from w5_user u where u.email=? and (? is null or u.customization_id=?)", email, pcustomization_id, pcustomization_id);
+				List<Object[]> userList = dao.executeSQLQuery("select u.user_id, u.user_name, u.customization_id from iwb.w5_user u where u.email=? and (? is null or u.customization_id=?)", email, pcustomization_id, pcustomization_id);
 				if (userList!=null && !userList.isEmpty()){
 					requestParams.put("pcustomization_id", userList.get(0)[2].toString());
 					requestParams.put("puser_id", userList.get(0)[0].toString());
@@ -6672,12 +6672,12 @@ public class FrameworkEngine{
 		tr.setTutorial(tutorial);
 		tr.setScd(scd);
 		tr.setRequestParams(requestParams);
-		List<Object> listOfDoneTutorials = dao.executeSQLQuery("select u.tutorial_id from w5_tutorial_user u where u.user_id=? AND u.customization_id=? AND u.FINISHED_FLAG=1", scd.get("userId"),scd.get("customizationId"));
+		List<Object> listOfDoneTutorials = dao.executeSQLQuery("select u.tutorial_id from iwb.w5_tutorial_user u where u.user_id=? AND u.customization_id=? AND u.FINISHED_FLAG=1", scd.get("userId"),scd.get("customizationId"));
 		tr.setDoneTutorials(new HashSet<Integer>());
 		if(listOfDoneTutorials!=null)for(Object o:listOfDoneTutorials){
 			tr.getDoneTutorials().add(GenericUtil.uInt(o));
 		}
-		List<Object> listOfTutorial = dao.executeSQLQuery("select u.FINISHED_FLAG from w5_tutorial_user u where u.user_id=? AND u.tutorial_id=? AND u.customization_id=?", scd.get("userId"),tutorialId, scd.get("customizationId"));
+		List<Object> listOfTutorial = dao.executeSQLQuery("select u.FINISHED_FLAG from iwb.w5_tutorial_user u where u.user_id=? AND u.tutorial_id=? AND u.customization_id=?", scd.get("userId"),tutorialId, scd.get("customizationId"));
 		if(GenericUtil.isEmpty(listOfTutorial)){//0:daha kayit yok, 1. var ve bitmemmis, 2. var ve bitmis
 			tr.setTutorialUserStatus((short)0);
 		} else tr.setTutorialUserStatus((short)(1 + GenericUtil.uInt(listOfTutorial.get(0))));
@@ -6691,7 +6691,7 @@ public class FrameworkEngine{
 	}
 	
 	public int jasperFileAttachmentControl(int table_id,String table_pk,String file_name,Integer file_type_id){
-    	int x=dao.executeUpdateSQLQuery("update w5_file_attachment x  set x.active_flag=0  where x.table_id=? and x.table_pk=? and x.original_file_name=? and x.file_type_id=?",table_id,table_pk, file_name, file_type_id);	
+    	int x=dao.executeUpdateSQLQuery("update iwb.w5_file_attachment x  set x.active_flag=0  where x.table_id=? and x.table_pk=? and x.original_file_name=? and x.file_type_id=?",table_id,table_pk, file_name, file_type_id);	
     	
     	return x;
     }
@@ -6991,10 +6991,10 @@ public class FrameworkEngine{
 	public int getGlobalNextval(String id, String key, String remoteAddr) {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","getGlobalNextval",0,null, "Not VCS Server to getGlobalNextval", null);
-		List l = dao.executeSQLQuery("select u.user_id from w5_vcs_user u where u.vcs_key=? AND u.active_flag=1", key);
+		List l = dao.executeSQLQuery("select u.user_id from iwb.w5_vcs_user u where u.vcs_key=? AND u.active_flag=1", key);
 		if(false && GenericUtil.isEmpty(l))//TODO. hepsi tanimlaninca daha iyi olacak
 			throw new IWBException("framework","Wrong/Inactive ApiKey for GlobalNextval", 0, key, key, null);
-		l = dao.executeSQLQuery("select 1 from w5_vcs_global_nextval u where u.seq_dsc=? AND u.active_flag=1", id);
+		l = dao.executeSQLQuery("select 1 from iwb.w5_vcs_global_nextval u where u.seq_dsc=? AND u.active_flag=1", id);
 		if(false && GenericUtil.isEmpty(l))//TODO. hepsi tanimlaninca daha iyi olacak
 			throw new IWBException("framework","Wrong/Inactive Sequence Name for GlobalNextval", 0, id, id, null);
 		
@@ -7161,7 +7161,7 @@ public class FrameworkEngine{
 		try {
 			main.put("table_id", tableId);
 		} catch (JSONException e) {}
-//		dao.executeUpdateSQLQuery("supdate w5_table t set  where t.customization_id=? AND t.table_id=?", customizationId, tableId);
+//		dao.executeUpdateSQLQuery("supdate iwb.w5_table t set  where t.customization_id=? AND t.table_id=?", customizationId, tableId);
 		main.put("form_name", tableName);
 		
 		W5FormResult fr = postFormAsJson(scd, 181, 2, main, 182, detail);
@@ -7261,7 +7261,7 @@ public class FrameworkEngine{
 		List llo = dao.find("from W5QueryFieldCreation t where queryFieldId<?", 500);
 //		dao.getHibernateTemplate().flush();
 		//				XGRID_ID := nextval('seq_grid');
-//		List lw = dao.executeSQLQuery("select min(qf.query_field_id) from w5_query_field qf where qf.query_id=? AND qf.customization_id=? AND qf.project_uuid=?", queryId, customizationId, projectUuid);
+//		List lw = dao.executeSQLQuery("select min(qf.query_field_id) from iwb.w5_query_field qf where qf.query_id=? AND qf.customization_id=? AND qf.project_uuid=?", queryId, customizationId, projectUuid);
 		int gridId = GenericUtil.getGlobalNextval("seq_grid");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid')").get(0));
 		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_grid("
 				+ "grid_id, customization_id, dsc, query_id, locale_msg_key, grid_tip,"
@@ -7304,7 +7304,7 @@ public class FrameworkEngine{
 		}
 
 
-//					if(pmaster_flag=1 AND XFORM_BUILDER.grid_search=1 AND (select count(1) from w5_xform_builder_detail x where x.xform_builder_id=pxform_builder_id  AND x.customization_id=XUSER_ROLE.customization_id AND x.project_uuid=pproject_uuid AND x.grd_search_flag=1)>0) then
+//					if(pmaster_flag=1 AND XFORM_BUILDER.grid_search=1 AND (select count(1) from iwb.w5_xform_builder_detail x where x.xform_builder_id=pxform_builder_id  AND x.customization_id=XUSER_ROLE.customization_id AND x.project_uuid=pproject_uuid AND x.grd_search_flag=1)>0) then
 		if(parentTableId==0){
 			tabOrder = 1;
 			for(Map m:lm)if(GenericUtil.uInt(m.get("grd_search_flag"))!=0){
@@ -7493,8 +7493,8 @@ public class FrameworkEngine{
 	}
 
 	public Map getUserNotReadChatMap(Map<String, Object> scd) {
-		String s = "select k.sender_user_id user_id , count(1) cnt from w5_chat k where k.receiver_user_id=${scd.userId}::integer AND k.deliver_status_tip in (0,1) AND k.customization_id=${scd.customizationId}::integer "
-				+ "AND k.sender_user_id in (select u.user_id from w5_user u where u.customization_id=${scd.customizationId}::integer AND (u.global_flag=1 OR u.project_uuid='${scd.projectId}') AND u.user_status=1)"
+		String s = "select k.sender_user_id user_id , count(1) cnt from iwb.w5_chat k where k.receiver_user_id=${scd.userId}::integer AND k.deliver_status_tip in (0,1) AND k.customization_id=${scd.customizationId}::integer "
+				+ "AND k.sender_user_id in (select u.user_id from iwb.w5_user u where u.customization_id=${scd.customizationId}::integer AND (u.global_flag=1 OR u.project_uuid='${scd.projectId}') AND u.user_status=1)"
 				+ " group by k.sender_user_id";
 		Object[] oz = GenericUtil.filterExt4SQL(s, scd, null, null);
 		List<Object[]> l = dao.executeSQLQuery2(oz[0].toString(),(List)oz[1]);
@@ -7512,7 +7512,7 @@ public class FrameworkEngine{
 	}
 
 	public List<W5BIGraphDashboard> getGraphDashboards(Map<String, Object> scd) {
-		String dashIds = (String)dao.executeSQLQuery("select r.mobile_portlet_ids from w5_user_role r where r.customization_id=? AND r.user_role_id=?", (Integer)scd.get("customizationId"), (Integer)scd.get("userRoleId")).get(0);
+		String dashIds = (String)dao.executeSQLQuery("select r.mobile_portlet_ids from iwb.w5_user_role r where r.customization_id=? AND r.user_role_id=?", (Integer)scd.get("customizationId"), (Integer)scd.get("userRoleId")).get(0);
 		if(GenericUtil.isEmpty(dashIds))return null;
 		String[] ds= dashIds.split(",");
 		List<W5BIGraphDashboard> l = new ArrayList();
@@ -7551,7 +7551,7 @@ public class FrameworkEngine{
 
 /*
 	public String projectAccessUrl(String instanceUuid, String remoteAddr) {
-		List l = dao.executeSQLQuery("select p.val from w5_app_setting p where p.customization_id=0 AND p.dsc=?", "iwb_active_projects4"+remoteAddr);
+		List l = dao.executeSQLQuery("select p.val from iwb.w5_app_setting p where p.customization_id=0 AND p.dsc=?", "iwb_active_projects4"+remoteAddr);
 		if(GenericUtil.isEmpty(l))return null;
 		return l.get(0).toString();
 	} */

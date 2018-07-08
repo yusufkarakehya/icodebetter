@@ -227,7 +227,7 @@ public class ScriptEngine {
 	}
 	
 	public Map getTableJSON(String tableDsc, String tablePk){
-		List<Integer> l = dao.find("select t.tableId from W5Table t where t.dsc=? AND t.customizationId=?", tableDsc, scd.get("customizationId"));
+		List<Integer> l = dao.find("select t.tableId from W5Table t where t.dsc=? AND t.customizationId in (0,?) order by t.customizationId desc", tableDsc, scd.get("customizationId"));
 		if(l.isEmpty())
 			throw new IWBException("rhino","getTableJSON", 0, tableDsc, "table_not_found", null);
 
