@@ -2819,8 +2819,6 @@ public class Webix3_3 implements ViewAdapter {
 		if (FrameworkSetting.liveSyncRecord && g.get_viewTable() != null
 				&& g.get_viewTable().getLiveSyncFlag() != 0)
 			buf.append(",\n liveSync:true");
-		if (g.getMaximizeFlag() != 0)
-			buf.append(",\n maximizeFlag:true");
 		if (g.getDefaultWidth() != 0)
 			buf.append(",\n defaultWidth:").append(g.getDefaultWidth());
 		if (gridResult.isViewLogMode())
@@ -2840,17 +2838,6 @@ public class Webix3_3 implements ViewAdapter {
 
 			buf.append(",\n gridReport:").append(FrameworkCache.roleAccessControl(scd,  105));
 
-			if (g.getMoveUpDownFlag() != 0) {
-				boolean tabOrderExists = false;
-				for (W5TableField f : g.get_viewTable().get_tableFieldList()) {
-					if (f.getDsc().equals("tab_order")) {
-						tabOrderExists = true;
-						break;
-					}
-				}
-				buf.append(",\n moveUpDown:").append(tabOrderExists);
-			}
-		
 		}
 		buf.append(",\n loadMask:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
 		

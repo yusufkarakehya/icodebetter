@@ -52,9 +52,6 @@ public class W5Grid implements java.io.Serializable, W5Base {
 	private int groupingFieldId;
 	private int treeMasterFieldId;
 	private short insertEditModeFlag;
-	private short moveUpDownFlag;
-	private short maximizeFlag;
-	private short summaryTip;
 
 	
 	private int _searchFormId;
@@ -314,13 +311,7 @@ public class W5Grid implements java.io.Serializable, W5Base {
 	public void setInsertEditModeFlag(short insertEditModeFlag) {
 		this.insertEditModeFlag = insertEditModeFlag;
 	}
-	@Column(name="move_up_down_flag")
-	public short getMoveUpDownFlag() {
-		return moveUpDownFlag;
-	}
-	public void setMoveUpDownFlag(short moveUpDownFlag) {
-		this.moveUpDownFlag = moveUpDownFlag;
-	}
+
 	@Transient	
 	public W5Table get_viewTable() {
 		return _viewTable;
@@ -344,26 +335,12 @@ public class W5Grid implements java.io.Serializable, W5Base {
 	public void set_searchFormId(int searchFormId) {
 		_searchFormId = searchFormId;
 	}
-	@Column(name="maximize_flag")
-	public short getMaximizeFlag() {
-		return maximizeFlag;
-	}
-	public void setMaximizeFlag(short maximizeFlag) {
-		this.maximizeFlag = maximizeFlag;
-	}
 	@Column(name="tree_master_field_id")
 	public int getTreeMasterFieldId() {
 		return treeMasterFieldId;
 	}
 	public void setTreeMasterFieldId(int treeMasterFieldId) {
 		this.treeMasterFieldId = treeMasterFieldId;
-	}
-	@Column(name="summary_tip")	
-	public short getSummaryTip() {
-		return summaryTip;
-	}
-	public void setSummaryTip(short summaryTip) {
-		this.summaryTip = summaryTip;
 	}
 	
 	@Transient
@@ -464,9 +441,6 @@ public class W5Grid implements java.io.Serializable, W5Base {
 		this.groupingFieldId == g.getGroupingFieldId() &&
 		this.treeMasterFieldId == g.getTreeMasterFieldId() &&
 		this.insertEditModeFlag == g.getInsertEditModeFlag() &&
-		this.moveUpDownFlag == g.getMoveUpDownFlag() &&
-		this.maximizeFlag == g.getMaximizeFlag() &&
-		this.summaryTip == g.getSummaryTip() &&
 
 		GenericUtil.safeEquals(jsCode, g.getJsCode());	
 		

@@ -281,9 +281,9 @@ public class W5QueryResult implements W5MetaResult{
 				if(mainTable!=null && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && ((Integer)scd.get("administratorFlag")==0 || FrameworkCache.getAppSettingIntValue(scd.get("customizationId"), "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
 					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 					String pkField = query.get_queryFields().get(0).getDsc();
-					sqlWhere.append(" (not exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+					sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-						.append(") OR exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+						.append(") OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 						.append(" AND (position(','||?||',' in ','||coalesce(cx.access_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
 					
@@ -474,9 +474,9 @@ public class W5QueryResult implements W5MetaResult{
 				if(mainTable!=null && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && ((Integer)scd.get("administratorFlag")==0 || FrameworkCache.getAppSettingIntValue(scd.get("customizationId"), "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
 					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 					String pkField = query.get_queryFields().get(0).getDsc();
-					sqlWhere.append(" (not exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+					sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-						.append(") OR exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+						.append(") OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 						.append(" AND (position(','||?||',' in ','||coalesce(cx.access_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
 					
@@ -811,7 +811,7 @@ public class W5QueryResult implements W5MetaResult{
 				if(tf!=null){
 					if(bq)sqlWhere.append(" OR ");else bq=true;					
 					if(hrc){
-						sqlWhere.append("exists(select 1 from w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
+						sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
 						sqlParams.add(scd.get("customizationId"));
 					} else {
 						sqlWhere.append("x.").append(tf.getDsc()).append("=?");
@@ -911,7 +911,7 @@ public class W5QueryResult implements W5MetaResult{
 						if(tf!=null){
 							if(bq)sqlWhere.append(" OR ");else bq=true;
 							if(hrc){
-								sqlWhere.append("exists(select 1 from w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
+								sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
 								sqlParams.add(scd.get("customizationId"));
 							} else {
 								sqlWhere.append("x.").append(tf.getDsc()).append("=?");
@@ -947,11 +947,11 @@ public class W5QueryResult implements W5MetaResult{
 				}
 				
 
-				sqlWhere.append(" (not exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+				sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(")");
 				if(ufFlag)sqlWhere.append(")");
-				sqlWhere.append(" OR exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+				sqlWhere.append(" OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(" AND (position(','||?||',' in ','||coalesce(cx.access_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
 				
@@ -964,9 +964,9 @@ public class W5QueryResult implements W5MetaResult{
 			//approval icinde herhangi birinde varsa onu
 			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "approval_flag")!=0 && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
-				sqlWhere.append(" (not exists(select 1 from w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
+				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-					.append(") OR exists(select 1 from w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
+					.append(") OR exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(" AND (cx.access_view_tip=0 OR (position(','||?||',' in ','||coalesce(cx.access_view_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_view_users,'-')||',')>0 )))) ");
 				
@@ -983,7 +983,7 @@ public class W5QueryResult implements W5MetaResult{
 				if((approvalStepIds==null || approvalStepIds.length()==0) && mainTable.get_approvalMap().get((short)3)!=null)approvalStepIds = requestParams2.get("_approval_step_ids3");//delete icin
 				if(approvalStepIds!=null && approvalStepIds.length()>0){
 					if(sqlWhere.length()>0)sqlWhere.append(" AND");
-					sqlWhere.append(" exists(select 1 from w5_approval_record rz, (select * from tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir=rz.approval_step_id) ");
+					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
 					sqlParams.add(scd.get("customizationId"));
 					sqlParams.add(query.getMainTableId());
@@ -1061,7 +1061,7 @@ public class W5QueryResult implements W5MetaResult{
 								if(tf!=null){
 									if(bq)sqlWhere.append(" OR ");else bq=true;					
 									if(hrc){
-										sqlWhere.append("exists(select 1 from w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
+										sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
 										sqlParams.add(scd.get("customizationId"));
 									} else {
 										sqlWhere.append("x.").append(tf.getDsc()).append("=?");
@@ -1185,7 +1185,7 @@ public class W5QueryResult implements W5MetaResult{
 							if(tf2!=null){
 								if(bq)sql2.append(" OR ");else bq=true;
 								if(hrc){
-									sql2.append("exists(select 1 from w5_user_hrc_map hq where hq.customization_id=${scd.customizationId} AND hq.user_id=${scd.userId} AND hq.parent_user_id=x.").append(tf2.getDsc()).append(")");
+									sql2.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=${scd.customizationId} AND hq.user_id=${scd.userId} AND hq.parent_user_id=x.").append(tf2.getDsc()).append(")");
 								} else {
 									sql2.append("x.").append(tf2.getDsc()).append("=${scd.userId}");
 								}
@@ -1277,7 +1277,7 @@ public class W5QueryResult implements W5MetaResult{
 	   			s.append(" order by ");
 	   			String strOrder = null;
 	   			if(mainTable!=null && getOrderBy().equals(FieldDefinitions.queryFieldName_Comment) && FrameworkCache.getAppSettingIntValue(scd, "make_comment_summary_flag")!=0){
-	   				strOrder = "coalesce((select qz.last_comment_id from w5_comment_summary qz where qz.table_pk=x."+mainTable.get_tableFieldList().get(0).getDsc()+" AND qz.table_id="+mainTable.getTableId()+" AND qz.customization_id=${scd.customizationId}),0) DESC";
+	   				strOrder = "coalesce((select qz.last_comment_id from iwb.w5_comment_summary qz where qz.table_pk=x."+mainTable.get_tableFieldList().get(0).getDsc()+" AND qz.table_id="+mainTable.getTableId()+" AND qz.customization_id=${scd.customizationId}),0) DESC";
 	   			} else {
 	   				strOrder = getOrderBy();
 	   			}
@@ -1483,7 +1483,7 @@ public class W5QueryResult implements W5MetaResult{
 				if(tf!=null){
 					if(bq)sqlWhere.append(" OR ");else bq=true;					
 					if(hrc){
-						sqlWhere.append("exists(select 1 from w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
+						sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
 						sqlParams.add(scd.get("customizationId"));
 					} else {
 						sqlWhere.append("x.").append(tf.getDsc()).append("=?");
@@ -1583,7 +1583,7 @@ public class W5QueryResult implements W5MetaResult{
 						if(tf!=null){
 							if(bq)sqlWhere.append(" OR ");else bq=true;
 							if(hrc){
-								sqlWhere.append("exists(select 1 from w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
+								sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
 								sqlParams.add(scd.get("customizationId"));
 							} else {
 								sqlWhere.append("x.").append(tf.getDsc()).append("=?");
@@ -1619,11 +1619,11 @@ public class W5QueryResult implements W5MetaResult{
 				}
 				
 
-				sqlWhere.append(" (not exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+				sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(")");
 				if(ufFlag)sqlWhere.append(")");
-				sqlWhere.append(" OR exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+				sqlWhere.append(" OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(" AND (charindex(','||str(?)||',' , ','||coalesce(cx.access_roles,'-')||',')>0 OR charindex(','||str(?)||',' , ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
 				
@@ -1636,9 +1636,9 @@ public class W5QueryResult implements W5MetaResult{
 			//approval icinde herhangi birinde varsa onu
 			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "approval_flag")!=0 && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
-				sqlWhere.append(" (not exists(select 1 from w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
+				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-					.append(") OR exists(select 1 from w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
+					.append(") OR exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(" AND (cx.access_view_tip=0 OR (charindex(','||str(?)||',' , ','||coalesce(cx.access_view_roles,'-')||',')>0 OR charindex(','||str(?)||',' , ','||coalesce(cx.access_view_users,'-')||',')>0 )))) ");
 				
@@ -1655,7 +1655,7 @@ public class W5QueryResult implements W5MetaResult{
 				if((approvalStepIds==null || approvalStepIds.length()==0) && mainTable.get_approvalMap().get((short)3)!=null)approvalStepIds = requestParams2.get("_approval_step_ids3");//delete icin
 				if(approvalStepIds!=null && approvalStepIds.length()>0){
 					if(sqlWhere.length()>0)sqlWhere.append(" AND");
-					sqlWhere.append(" exists(select 1 from w5_approval_record rz, (select * from dbo.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir=rz.approval_step_id) ");
+					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from dbo.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
 					sqlParams.add(scd.get("customizationId"));
 					sqlParams.add(query.getMainTableId());
@@ -1733,7 +1733,7 @@ public class W5QueryResult implements W5MetaResult{
 								if(tf!=null){
 									if(bq)sqlWhere.append(" OR ");else bq=true;					
 									if(hrc){
-										sqlWhere.append("exists(select 1 from w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
+										sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
 										sqlParams.add(scd.get("customizationId"));
 									} else {
 										sqlWhere.append("x.").append(tf.getDsc()).append("=?");
@@ -1857,7 +1857,7 @@ public class W5QueryResult implements W5MetaResult{
 							if(tf2!=null){
 								if(bq)sql2.append(" OR ");else bq=true;
 								if(hrc){
-									sql2.append("exists(select 1 from w5_user_hrc_map hq where hq.customization_id=${scd.customizationId} AND hq.user_id=${scd.userId} AND hq.parent_user_id=x.").append(tf2.getDsc()).append(")");
+									sql2.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=${scd.customizationId} AND hq.user_id=${scd.userId} AND hq.parent_user_id=x.").append(tf2.getDsc()).append(")");
 								} else {
 									sql2.append("x.").append(tf2.getDsc()).append("=${scd.userId}");
 								}
@@ -2236,11 +2236,11 @@ public class W5QueryResult implements W5MetaResult{
 					sqlParams.add(scd.get("roleId"));
 					sqlParams.add(scd.get("userId"));
 				} else {
-					sqlWhere.append(" (not exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+					sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 						.append(")");
 					if(ufFlag)sqlWhere.append(")");
-					sqlWhere.append(" OR exists(select 1 from w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
+					sqlWhere.append(" OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 						.append(" AND (position(','||?||',' in ','||coalesce(cx.access_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
 					
@@ -2254,9 +2254,9 @@ public class W5QueryResult implements W5MetaResult{
 			//approval icinde herhangi birinde varsa onu
 			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "approval_flag")!=0 && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
-				sqlWhere.append(" (not exists(select 1 from w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
+				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-					.append(") OR exists(select 1 from w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
+					.append(") OR exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(" AND (cx.access_view_tip=0 OR (position(','||?||',' in ','||coalesce(cx.access_view_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_view_users,'-')||',')>0 )))) ");
 				
@@ -2273,7 +2273,7 @@ public class W5QueryResult implements W5MetaResult{
 				if((approvalStepIds==null || approvalStepIds.length()==0) && mainTable.get_approvalMap().get((short)3)!=null)approvalStepIds = requestParams2.get("_approval_step_ids3");//delete icin
 				if(approvalStepIds!=null && approvalStepIds.length()>0){
 					if(sqlWhere.length()>0)sqlWhere.append(" AND");
-					sqlWhere.append(" exists(select 1 from w5_approval_record rz, (select * from tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir=rz.approval_step_id) ");
+					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
 					sqlParams.add(scd.get("customizationId"));
 					sqlParams.add(query.getMainTableId());

@@ -638,7 +638,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
    	    		} else
    	    			sql2.append("string_agg(").append(tqf.getSummaryRecordSql()).append(",',')");
 
-   				sql2.append(" from ").append(tqf.getDsc()).append(" x where x.").append(tqf.get_tableParamList().get(0).getExpressionDsc()).append(" in (select q.satir::int from tool_parse_numbers(z.").append(qf.getDsc()).append(",',') q)");
+   				sql2.append(" from ").append(tqf.getDsc()).append(" x where x.").append(tqf.get_tableParamList().get(0).getExpressionDsc()).append(" in (select q.satir::int from iwb.tool_parse_numbers(z.").append(qf.getDsc()).append(",',') q)");
 
    				if(tqf.get_tableParamList().size()==2 && tqf.get_tableParamList().get(1).getDsc().equals("customizationId")){
 	   				sql2.append(" AND x.customization_id=").append(queryResult.getScd().get("customizationId"));

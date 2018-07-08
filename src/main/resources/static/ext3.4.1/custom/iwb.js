@@ -2382,12 +2382,12 @@ function showLoginDialog(xobj){
 		buttons: [
 		{
 			text: getLocMsg('js_giris'),
-			iconCls: 'button-enter',
+//			iconCls: 'button-enter',
 			handler: ajaxAuthenticateUser
 		},
 		{
            text: getLocMsg('js_cikis'),
-           iconCls: 'button-exit',
+//           iconCls: 'button-exit',
            handler: function(){document.location='login.htm?r='+new Date().getTime();
         }
 		}],                       
@@ -4106,11 +4106,11 @@ function fileNameRenderWithParent(a,b,c){
 	}
 }
 
-
-function getUsers4Chat(users){
+var usersBorderChat=['#37cc00','#5fcbff','pink']
+function getUsers4Chat(users, pix){
 	if(!users || users.length==0)return '';
 	var	str='';
-	for(var qi=0;qi<users.length;qi++)str+=', <a href=# onclick="return openChatWindow('+users[qi].userId+',\''+users[qi].userDsc+'\',true)"><b>'+users[qi].userDsc+'</b></a>';
+	for(var qi=0;qi<users.length;qi++)str+=', &nbsp;'+(pix ? '<img src="sf/pic'+users[qi].userId+'.png" class="ppic-mini" style="margin-top: -2px;border:3px solid '+(usersBorderChat[qi % usersBorderChat.length])+';"> ':'')+'<a href=# onclick="return openChatWindow('+users[qi].userId+',\''+users[qi].userDsc+'\',true)"><b>'+users[qi].userDsc+'</b></a>';
 	return str.substring(2);
 }
 
@@ -4265,7 +4265,7 @@ function fmtChatList(j){
 function fmtOnlineUser(j){
 	var str='<table border=0 width=100% padding=0 style="margin-left:-1px;"';
 	if(j.instance_count>0)str+=" class='veliSelLightBlue'";
-	str+='><tr><td width=24>'+getPPicImgTag(j.user_id,true)+'</td><td width="1"> </td><td width=99%> <span>&nbsp; ';
+	str+='><tr><td width=24>'+getPPicImgTag(j.user_id)+'</td><td width=99%> <span>&nbsp; ';
 	if(j.adi_soyadi.length>20)j.adi_soyadi=j.adi_soyadi.substring(0,18)+'...';
 	str+=j.adi_soyadi+'</span>';
 	if(j.instance_count>0)str+='&nbsp; <span id="idChatNotRead_'+j.user_id+'" style="color:red;">('+(j.instance_count>9 ? '+9':j.instance_count)+')</span>';
@@ -5627,8 +5627,8 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    items: [new Ext.form.Label({
 	        hideLabel: true,
 	        id: 'live_sync_lbl_' + getForm.id,
-	        html: getForm.liveSyncBy ? "This record is open for edit by:  " + getUsers4Chat(getForm.liveSyncBy) + "!" : "!",
-	        cls: 'information'
+	        html: getForm.liveSyncBy ? "Live collaboration with:  " + getUsers4Chat(getForm.liveSyncBy, true) + "!" : "!",
+	        cls: 'collaboration'
 	    })]
 	});
 
