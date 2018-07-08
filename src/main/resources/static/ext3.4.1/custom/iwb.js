@@ -5627,7 +5627,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    items: [new Ext.form.Label({
 	        hideLabel: true,
 	        id: 'live_sync_lbl_' + getForm.id,
-	        html: getForm.liveSyncBy ? "Live collaboration with:  " + getUsers4Chat(getForm.liveSyncBy, true) + "!" : "!",
+	        html: getForm.liveSyncBy ? "Live collaboration with:  " + getUsers4Chat(getForm.liveSyncBy, true) : "!",
 	        cls: 'collaboration'
 	    })]
 	});

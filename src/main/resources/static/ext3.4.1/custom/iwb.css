@@ -252,9 +252,15 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
     background-image: url(images/emoticon-16.png) !important;
 }
 
+.icon-mobile {
+   background-image: url(images/mobile-16.png) !important;
+   background-repeat: no-repeat;
+   background-position-y: center !important;
+}
 
-.icon-calendar-menu {
-    background-image: url(../images/custom/icons/calendar.png) !important;
+.icon-proc {
+   background-image: url(images/bolt-16.png) !important;
+   background-position-y: center !important;
 }
 
 .icon-edit {
@@ -262,240 +268,6 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 	background-position-y: center !important;
 }
 
-.icon-email {
-	background-image: url(../images/famfam/email.png) !important;
-}
-
-.icon-mini-reply {
-	background-image: url(../images/custom/email-reply.png) !important;
-}
-
-.icon-mini-forward {
-	background-image: url(../images/custom/email-forward.png) !important;
-}
-
-.icon-agenda {
-	background-image: url(../images/custom/icons/agenda.png) !important;
-}
-
-.icon-agenda_add {
-	background-image: url(../images/custom/icons/agenda_add.png) !important;
-}
-
-.icon-agenda_other {
-	background-image: url(../images/custom/icons/agenda_other.png) !important;
-}
-
-.icon-operation {
-	background-image: url(../images/famfam/cog.png) !important;
-}
-
-.icon-calculator {
-	background-image: url(../images/famfam/calculator.png) !important;
-}
-
-.icon-proc {
-    background-image: url(../images/custom/crm/yeni_kayit.png) !important;
-}
-
-.icon-ekle {
-    background-image: url(../images/custom/crm/yeni_kayit.png) !important;
-}
-
-.icon-attachment {
-    background-image: url(../images/custom/crm/attachment.gif) !important;
-}
-
-.icon-matrix {
-	background-image: url(../images/custom/matrix.png) !important;
-}
-
-.icon-list-number {
-	background-image: url(../images/famfam/text_list_numbers.png) !important;
-}
-
-.icon-extra_ozellik {
-	background-image: url(../images/custom/extra_ozellik.png) !important;
-}
-
-.icon-adress-book {
-	background-image: url(../images/custom/adress_book.png) !important;
-}
-
-.icon-zoom {
-	background-image: url(../images/custom/search.png) !important;
-}
-
-.icon-group-adres-book{
-	background-image: url(../images/famfam/group.png) !important;
-}
-
-.x-grid-bulk-edit .x-btn-text {
-    background-image: url(../images/famfam/page_white_stack.png);
-}
-
-.icon-invoice {
-    background-image: url(../images/custom/invoice.png) !important;
-}
-
-.icon-list {
-	background-image: url(../images/famfam/application_view_list.png) !important;
-}
-
-.button-enter {
-	background-image: url(../images/custom/icons/enter.png) !important;
-}
-
-.button-exit {
-	background-image: url(../images/custom/icons/exit_small.png) !important;
-}
-
-.button-help {
-	background-image: url(../images/custom/icons/help.png) !important;
-}
-
-
-.icon-notification2 .x-btn-text{
-	background-image: url(../images/custom/notification.png);
-}
-
-.icon-folder-explorer{
-	background-image: url(../images/famfam/folder_table.png) !important;
-}
-
-.icon-notification{
-	background-image: url(../images/custom/notification.png) !important;
-}
-
-.icon-feed{
-	background-image: url(../images/custom/crm/27_sync.png) !important;
-}
-
-.icon-gas_pump{
-	background-image: url(../images/custom/gas_pump.png) !important;
-}
-
-.x-grid-toplu .x-btn-text {
-	background-image: url(../images/custom/lookup.gif);
-}
-
-.x-grid-list-number .x-btn-text{
-	background-image: url(../images/famfam/text_list_numbers.png);
-}
-
-.x-grid-pdf-tek {
-background-image:url(../images/custom/crm/pdf.gif) !important;
-}
-
-.x-grid-tpl .x-btn-text {
-	background-image: url(../images/famfam/page_add.png);
-}
-
-.x-grid-reserve .x-btn-text {
-	background-image: url(../images/famfam/basket_put.png);
-}
-
-.x-grid-date_new .x-btn-text {
-	background-image: url(../images/custom/icons/date_new.png) !important;
-}
-
-.x-grid-mazgal .x-btn-text {
-	background-image: url(../images/custom/icons/grid.png);
-}
-
-.x-grid-check .x-btn-text{
-	background-image: url(../images/famfam/tick.png);	
-}
-
-.x-grid-zoom .x-btn-text{
-	background-image: url(../images/famfam/zoom.png);	
-}
-
-.x-grid-map .x-btn-text {
-	background-image: url(../images/famfam/map.png);
-}
-
-.x-grid-team .x-btn-text{
-	background-image: url(../images/custom/crm/teams.gif);	
-}
-
-.x-grid-toadd .x-btn-text{
-	background-image: url(../images/famfam/door_in.png);
-}
-
-.x-grid-comment_add .x-btn-text{
-	background-image: url(../images/famfam/comment_add);
-}
-.x-grid-comment_delete .x-btn-text{
-	background-image: url(../images/famfam/comment_delete);
-}
-
-.x-grid-fromadd .x-btn-text{
-	background-image: url(../images/famfam/door_out.png);
-}
-.x-grid-timesheet .x-btn-text{
-	background-image: url(../images/custom/crm/02_zaman.png);
-}
-.x-grid-money .x-btn-text{
-	background-image: url(../images/famfam/money.png);
-}
-.x-grid-talimat .x-btn-text{
-	background-image: url(../images/famfam/talimat.png);
-}
-.x-grid-lorry .x-btn-text{
-	background-image: url(../images/famfam/lorry.png);
-}
-.x-grid-barcode .x-btn-text{
-	background-image: url(../images/custom/barcode.png) !important;
-}
-.x-grid-barcode2 .x-btn-text{
-	background-image: url(../images/custom/barcode2.png) !important;
-}
-.x-grid-car .x-btn-text{
-	background-image: url(../images/famfam/car.png);
-}
-.x-grid-holiday .x-btn-text{
-	background-image: url(../images/famfam/holiday.png);
-}
-.x-grid-datedelay .x-btn-text{
-	background-image: url(../images/famfam/date_go.png);
-}
-.x-grid-datestretch .x-btn-text{
-	background-image: url(../images/famfam/date_magnify.png);
-}
-.x-grid-switch .x-btn-text {
-	background-image: url(../images/custom/icons/switch.png);
-}
-
-.x-grid-keywords .x-btn-text {
-    background-image: url(../images/custom/keyword.png);
-}
-
-.x-grid-talimat .x-btn-text {
-	background-image: url(../images/famfam/page_go.png) !important;
-}
-
-.x-grid-resize .x-btn-text {
-    background-image: url(../images/custom/resize.png);
-}
-
-.x-grid-alldata .x-btn-text {
-	background-image: url(../images/famfam/table_refresh.png);
-}
-
-.x-grid-box-plus .x-btn-text {
-	background-image: url(../images/custom/icons/box-plus.png);
-}
-.x-grid-set-as-read .x-btn-text{
-	background-image: url(../images/famfam/emoticon_smile.png);
-}
-.x-grid-box-minus .x-btn-text {
-	background-image: url(../images/custom/icons/box-minus.png);
-}
-
-.x-grid-refresh .x-btn-text {
-	background-image: url(../images/custom/icons/refresh.png);
-}
 
 .x-grid-funnel .x-btn-text {
 	background-image: url(images/empty-filter-16.png);
@@ -511,78 +283,6 @@ background-image:url(../images/custom/crm/pdf.gif) !important;
 .x-grid-report .x-btn-text {
 	background-image: url(images/report-16.png);
 }
-.grid-gchart  {
-	background-image: url(../images/custom/icons/gantt.png) !important;
-}
-
-.x-grid-sort_asc .x-btn-text {
-	background-image: url(../images/custom/sort_ascending.png);
-}
-
-.x-grid-sort_desc .x-btn-text {
-	background-image: url(../images/custom/sort_descending.png);
-}
-
-.x-grid-window_add .x-btn-text {
-	background-image: url(../images/custom/icons/window_add.png);
-}
-
-.x-grid-window_add2 .x-btn-text {
-	background-image: url(../images/famfam/application_form_add.png);
-}
-
-.x-grid-new_lead .x-btn-text {
-	background-image: url(../images/custom/crm/01_crm.png);
-}
-
-.x-grid-import_folder .x-btn-text {
-	background-image: url(../images/famfam/folder_table.png);
-}
-
-.x-grid-test_add .x-btn-text {
-	background-image: url(../images/custom/icons/test_add.png);
-}
-
-.x-grid-licence_add .x-btn-text {
-	background-image: url(../images/custom/icons/add_licence.png);
-}
-
-.x-grid-reserv .x-btn-text {
-	background-image: url(../images/custom/reserv.png);
-}
-
-.x-grid-add_reserv .x-btn-text {
-	background-image: url(../images/custom/reserv_add.png);
-}
-
-.x-grid-edit_reserv .x-btn-text {
-	background-image: url(../images/custom/reserv_edit.png);
-}
-
-.x-menu-reserv .x-menu-item-icon {
-	background-image: url(../images/custom/reserv.png);
-}
-
-.x-menu-add_reserv .x-menu-item-icon {
-	background-image: url(../images/custom/reserv_add.png);
-}
-
-.x-menu-edit_reserv .x-menu-item-icon {
-	background-image: url(../images/custom/reserv_edit.png);
-}
-
-
-.x-grid-select_all .x-btn-text {
-	background-image: url(../images/custom/select-all.gif);
-}
-
-.x-grid-save .x-btn-text {
-	background-image: url(../images/custom/save.png);
-}
-
-.x-grid-tree .x-btn-text {
-	background-image: url(../images/custom/icons/tree.gif);
-}
 
 .x-grid-attachment .x-btn-text {
 	background-image: url(images/paperclip-16.png);
@@ -596,19 +296,9 @@ background-image:url(../images/custom/crm/pdf.gif) !important;
     background-image: url(images/comments.png);
 }
 
-.x-grid-sms .x-btn-text {
-    background-image: url(../images/famfam/phone.png);
-}
-.x-grid-tab-priv .x-btn-text {
-    background-image: url(../images/custom/stock_new-tab.png);
-}
 
 .x-grid-new .x-btn-text {
     background-image: url(images/plus-16.png);
-}
-
-.x-grid-change .x-btn-text {
-    background-image: url(../images/famfam/arrow_refresh.png);
 }
 
 .x-grid-edit .x-btn-text {
@@ -621,14 +311,6 @@ background-image:url(../images/custom/crm/pdf.gif) !important;
 
 .x-grid-percent .x-btn-text {
     background-image: url(../images/custom/percent.png);
-}
-
-.x-grid-lock .x-btn-text {
-    background-image: url(../images/famfam/lock.png);
-}
-
-.x-grid-lock-open .x-btn-text {
-    background-image: url(../images/famfam/lock_open.png);
 }
 
 .menu-del .x-menu-item-icon,.x-grid-delete .x-btn-text {
