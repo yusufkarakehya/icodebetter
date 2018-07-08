@@ -1304,6 +1304,18 @@ Ext.infoMsg = {
         	        close: 'animated bounceOutRight' // Animate.css class names
         	    }
         	}).show();
+        },
+        log : function(type, msg){
+        	var pos=Ext.infoMsg.msgTypes[type];
+        	if(!pos){msg='<b>'+type+'</b><br/>'+msg;type='info';}
+        	new Noty({
+        	    text: msg,theme:'metroui', type: type,
+        	    layout: 'bottomCenter',//timeout:1000*(timeout||3),
+        	    animation: {
+        	        open: 'animated bounceInUp', // Animate.css class names
+        	        close: 'animated bounceOutDown' // Animate.css class names
+        	    }
+        	}).show();
         }
 };
 

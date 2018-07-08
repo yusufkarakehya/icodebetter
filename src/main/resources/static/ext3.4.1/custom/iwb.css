@@ -1279,6 +1279,12 @@ border-radius: 4px 4px 4px 4px;
     left: 0;
 }
 
+.ux-lovcombo-icon-checked {
+    background: transparent url(../images/default/menu/checked.gif) !important;
+}
+.ux-lovcombo-icon-unchecked {
+    background: transparent url(../images/default/menu/unchecked.gif) !important;
+}
 .typing-icon{ background: url(../images/custom/image_add.png) no-repeat 0 0 !important;}
 
 .ppic-mini {
@@ -1295,14 +1301,17 @@ background-image:url(images/vcsw-16.png);
 
 .icon-vcs-push{
 	background-image: url(images/vcsa2.png) !important;
+	background-repeat: no-repeat;
 }
 
 .icon-vcs-pull{
 	background-image: url(images/vcsa1.png) !important;
+	background-repeat: no-repeat;
 }
 
 .icon-vcs-conflict{
 	background-image: url(images/vcsa3.png) !important;
+	background-repeat: no-repeat;
 }
 
 

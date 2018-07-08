@@ -965,7 +965,7 @@ public class VcsEngine {
 		StringBuilder sql = new StringBuilder();List<Object> params = new ArrayList();
 
 		//master check
-		sql.append("select v.vcs_object_status_tip from w5_vcs_object v where v.customization_id=? AND v.table_id=? AND v.table_pk=? AND exists(select 1 from ").append(mt.getDsc())
+		sql.append("select v.vcs_object_status_tip from iwb.w5_vcs_object v where v.customization_id=? AND v.table_id=? AND v.table_pk=? AND exists(select 1 from ").append(mt.getDsc())
 		.append(" m where m.project_uuid=? AND m.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk");
 		params.add(customizationId);params.add(tableId);params.add(tablePk);params.add(projectUuid);
 		if(mt.get_tableParamList().size()>1){
@@ -980,7 +980,7 @@ public class VcsEngine {
 	
 		if(masterInsert){
 			sql.setLength(0);params.clear();
-			sql.append("update ").append(mt.getDsc()).append(" m set project_uuid=? where exists(select 1 from w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
+			sql.append("update ").append(mt.getDsc()).append(" m set project_uuid=? where exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
 			.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(") AND m.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 			params.add(newProjectUiid);params.add(customizationId);params.add(tableId);params.add(tablePk);
 			if(mt.get_tableParamList().size()>1){
@@ -990,7 +990,7 @@ public class VcsEngine {
 			dao.executeUpdateSQLQuery(sql.toString(), params);
 			
 			sql.setLength(0);params.clear();
-			sql.append("update w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.table_id=? AND v.table_pk=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(mt.getDsc())
+			sql.append("update iwb.w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.table_id=? AND v.table_pk=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(mt.getDsc())
 				.append(" m where m.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk");
 			params.add(newProjectUiid);params.add(customizationId);params.add(tableId);params.add(tablePk);
 			if(mt.get_tableParamList().size()>1){
@@ -1006,7 +1006,7 @@ public class VcsEngine {
 			if(dt.getTableTip()==0)continue;
 			sql.setLength(0);params.clear();
 			
-			sql.append("update ").append(dt.getDsc()).append(" d set project_uuid=? where exists(select 1 from w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
+			sql.append("update ").append(dt.getDsc()).append(" d set project_uuid=? where exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
 				.append(dt.get_tableParamList().get(0).getExpressionDsc()).append(") AND exists(select 1 from ").append(mt.getDsc())
 				.append(" m where m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc())
 				.append(" AND m.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=?");
@@ -1029,7 +1029,7 @@ public class VcsEngine {
 			dao.executeUpdateSQLQuery(sql.toString(), params);
 
 			sql.setLength(0);params.clear();
-			sql.append("update w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(dt.getDsc())
+			sql.append("update iwb.w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(dt.getDsc())
 				.append(" d, ").append(mt.getDsc()).append(" m where d.").append(dt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc())
 				.append(" AND m.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 			if(tc.getRelatedStaticTableFieldId()!=0){
@@ -1050,7 +1050,7 @@ public class VcsEngine {
 
 		if(!masterInsert){
 			sql.setLength(0);params.clear();
-			sql.append("update ").append(mt.getDsc()).append(" m set project_uuid=? where m.project_uuid=? AND exists(select 1 from w5_vcs_object v where v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
+			sql.append("update ").append(mt.getDsc()).append(" m set project_uuid=? where m.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
 			.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(") AND m.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 			params.add(newProjectUiid);params.add(projectUuid);params.add(customizationId);params.add(tableId);params.add(tablePk);
 			if(mt.get_tableParamList().size()>1){
@@ -1058,7 +1058,7 @@ public class VcsEngine {
 				params.add(customizationId);
 			}
 	//		dao.executeUpdateSQLQuery(sql.toString(), params);
-			sql.append(";\nupdate w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.table_id=? AND v.table_pk=? AND v.vcs_object_status_tip in (1,9) AND exists(select 1 from ").append(mt.getDsc())
+			sql.append(";\nupdate iwb.w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.table_id=? AND v.table_pk=? AND v.vcs_object_status_tip in (1,9) AND exists(select 1 from ").append(mt.getDsc())
 				.append(" m where m.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk");
 			params.add(newProjectUiid);params.add(customizationId);params.add(tableId);params.add(tablePk);
 			if(mt.get_tableParamList().size()>1){
@@ -1071,7 +1071,7 @@ public class VcsEngine {
 				W5Table dt = FrameworkCache.getTable(customizationId, tc.getRelatedTableId());
 				if(dt.getTableTip()==0)continue;
 				
-				sql.append("\n update ").append(dt.getDsc()).append(" d set project_uuid=? where exists(select 1 from w5_vcs_object v where v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
+				sql.append("\n update ").append(dt.getDsc()).append(" d set project_uuid=? where exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
 					.append(dt.get_tableParamList().get(0).getExpressionDsc()).append(") AND exists(select 1 from ").append(mt.getDsc())
 					.append(" m where m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc())
 					.append(" AND m.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=?");
@@ -1091,7 +1091,7 @@ public class VcsEngine {
 				}
 				
 		//		List rl = dao.executeSQLQuery2("select "+tc.getRelatedTableId()+" tid, "+dt.get_tableParamList().get(0).getExpressionDsc()+" tpk from "+dt.getDsc()+" d " + sql.toString(), params);
-				sql.append(";\n update w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,9) AND exists(select 1 from ").append(dt.getDsc())
+				sql.append(";\n update iwb.w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,9) AND exists(select 1 from ").append(dt.getDsc())
 					.append(" d, ").append(mt.getDsc()).append(" m where d.").append(dt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc())
 					.append(" AND m.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 				if(tc.getRelatedStaticTableFieldId()!=0){
@@ -1129,13 +1129,13 @@ public class VcsEngine {
 		qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 		List<Object[]> data = new ArrayList();qr.setData(data);
 		int id = 0;
-		List<Integer> ps = dao.executeSQLQuery("select q.table_id from w5_table q where q.customization_id=? AND q.vcs_flag=1 AND q.project_uuid in ('067e6162-3b6f-4ae2-a221-2470b63dff00',?) order by q.table_id", customizationId, projectUuid); //sadece master tablolar
+		List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where q.customization_id=? AND q.vcs_flag=1 AND q.project_uuid in ('067e6162-3b6f-4ae2-a221-2470b63dff00',?) order by q.table_id", customizationId, projectUuid); //sadece master tablolar
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(customizationId, tid);
 			if(mt!=null){
 				List params = new ArrayList();
 				StringBuilder sql = new StringBuilder();
-				sql.append("select count(1) from w5_vcs_object v where v.project_uuid=? AND v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,2,9) AND not exists(select 1 from  ").append(mt.getDsc()).append(" m where m.project_uuid=? AND m.customization_id=? AND v.table_pk=m.")
+				sql.append("select count(1) from iwb.w5_vcs_object v where v.project_uuid=? AND v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,2,9) AND not exists(select 1 from  ").append(mt.getDsc()).append(" m where m.project_uuid=? AND m.customization_id=? AND v.table_pk=m.")
 					.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(")");
 				params.add(projectUuid);params.add(customizationId);params.add(tid);params.add(projectUuid);params.add(customizationId);
 				int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
@@ -1158,7 +1158,7 @@ public class VcsEngine {
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
 			sql.append("select count(1) from ").append(mt.getDsc())
-				.append(" m where m.project_uuid=? AND exists(select 1 from w5_vcs_object v where v.project_uuid!=? AND v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
+				.append(" m where m.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.project_uuid!=? AND v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
 				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(")");
 			params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(tid);
 		
@@ -1181,7 +1181,7 @@ public class VcsEngine {
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
 			sql.append("select count(1) from ").append(mt.getDsc())
-				.append(" m where m.project_uuid=? AND exists(select 1 from w5_vcs_object v where v.project_uuid!=? AND v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
+				.append(" m where m.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.project_uuid!=? AND v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
 				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(")");
 			params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(tid);
 		
@@ -1208,7 +1208,7 @@ public class VcsEngine {
 	
 				List params = new ArrayList();
 				StringBuilder sql = new StringBuilder();
-				sql.append("where d.project_uuid!=? AND exists(select 1 from w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
+				sql.append("where d.project_uuid!=? AND exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
 					.append(dt.get_tableParamList().get(0).getExpressionDsc()).append(") AND exists(select 1 from ").append(mt.getDsc())
 					.append(" m where m.project_uuid=? AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
 				params.add(projectUuid);params.add(customizationId);params.add(tc.getRelatedTableId());params.add(projectUuid);
@@ -1250,7 +1250,7 @@ public class VcsEngine {
 	
 				List params = new ArrayList();
 				StringBuilder sql = new StringBuilder();
-				sql.append("where d.project_uuid!=? AND exists(select 1 from w5_vcs_object v where v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
+				sql.append("where d.project_uuid!=? AND exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
 					.append(dt.get_tableParamList().get(0).getExpressionDsc()).append(") AND exists(select 1 from ").append(mt.getDsc())
 					.append(" m where m.project_uuid=? AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
 				params.add(projectUuid);params.add(customizationId);params.add(tc.getRelatedTableId());params.add(projectUuid);
@@ -1622,7 +1622,7 @@ public class VcsEngine {
 	}
 
 	private	Map vcsServerAuthenticate(String userName, String passWord, int customizationId, String projectUuid){//TODO:
-		List<Object[]> l = dao.executeSQLQuery("select x.user_id,(select r.user_role_id from w5_user_role r where r.customization_id=x.customization_id AND r.user_id=x.user_id AND r.role_id=0) user_role_id from w5_user x where x.customization_id=?::integer AND x.user_name=?::text AND x.pass_word=md5hash(x.user_name||?::text)", customizationId, userName, passWord);
+		List<Object[]> l = dao.executeSQLQuery("select x.user_id,(select r.user_role_id from iwb.w5_user_role r where r.customization_id=x.customization_id AND r.user_id=x.user_id AND r.role_id=0) user_role_id from iwb.w5_user x where x.customization_id=?::integer AND x.user_name=?::text AND x.pass_word=md5hash(x.user_name||?::text)", customizationId, userName, passWord);
 		if(GenericUtil.isEmpty(l))
 			throw new IWBException("vcs","vcsServerAuthenticate", 0, null, "NoUser or Wrong Password", null);
 		Map scd = new HashMap();
@@ -1646,7 +1646,7 @@ public class VcsEngine {
 		params.put("u", po.getVcsUserName());params.put("p", po.getVcsPassword());params.put("c", customizationId);
 
 		List lp = new ArrayList();lp.add(projectUuid);lp.add(customizationId);
-		Map mo = (Map)dao.executeSQLQuery2Map("select * from w5_project t where t.project_uuid=? AND t.customization_id=?", lp).get(0);
+		Map mo = (Map)dao.executeSQLQuery2Map("select * from iwb.w5_project t where t.project_uuid=? AND t.customization_id=?", lp).get(0);
 		params.put("object", GenericUtil.fromMapToJSONObject(mo));
 		
 		String url=po.getVcsUrl();
@@ -1675,7 +1675,7 @@ public class VcsEngine {
 		String projectUuid = project.getString("project_uuid");
 		List lp =dao.find("from W5Project t where t.projectUuid=? AND t.customizationId=?", projectUuid, customizationId);
 		if(lp.isEmpty()){
-			return dao.executeUpdateSQLQuery("INSERT INTO w5_project(project_uuid, customization_id, dsc, project_status_tip, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, access_users, "
+			return dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, access_users, "
 					+ "rdbms_flag, rdbms_tip, project_code, vcs_flag, vcs_url, vcs_user_name,"
 					+ "vcs_password, ui_web_frontend_tip, ui_mobile_flag, ui_mobile_frontend_tip, kanban_flag, rdbms_schema) VALUES "
 					+ "(?, ?, ?, 1, 1, ?, current_timestamp, ?, current_timestamp, '10',"
@@ -1989,7 +1989,7 @@ public class VcsEngine {
 		}
 		int count =0;
 		if(tableId==-1){
-			List<Integer> ps = dao.executeSQLQuery("select q.table_id from w5_table q where q.vcs_flag=1 AND q.project_uuid=?", projectUuid);
+			List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where q.vcs_flag=1 AND q.project_uuid=?", projectUuid);
 			if(ps!=null)for(Integer tid:ps){
 				W5Table t = FrameworkCache.getTable(customizationId, tid);
 				String sql ="from iwb.w5_vcs_object where vcs_object_status_tip in (1,2,9) "
@@ -2436,7 +2436,7 @@ public class VcsEngine {
 			try {
 				json = new JSONObject(s);
 				if(json.get("success").toString().equals("true")){
-					dao.executeUpdateSQLQuery("update w5_vcs_commit set vcs_commit_id=?, commit_user_id=?, commit_dttm=current_timestamp where vcs_commit_id=?", json.getInt("cnt"), (Integer)scd.get("userId"), commitId);
+					dao.executeUpdateSQLQuery("update iwb.w5_vcs_commit set vcs_commit_id=?, commit_user_id=?, commit_dttm=current_timestamp where vcs_commit_id=?", json.getInt("cnt"), (Integer)scd.get("userId"), commitId);
 					return json.getInt("cnt");
 				} else
 					throw new IWBException("vcs","vcsClientPushSql:server Error Response", 0, s, json.getString("error"), null);
@@ -2490,7 +2490,7 @@ public class VcsEngine {
 			try {
 				json = new JSONObject(s);
 				if(json.get("success").toString().equals("true")){
-					dao.executeUpdateSQLQuery("INSERT INTO w5_vcs_commit(vcs_commit_id, project_uuid, comment, commit_user_id, commit_ip, extra_sql, commit_tip) "
+					dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_vcs_commit(vcs_commit_id, project_uuid, comment, commit_user_id, commit_ip, extra_sql, commit_tip) "
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?)", json.getInt("cnt"), projectUuid, comment, (Integer)scd.get("userId"), "localhost", sql, 2);
 					return json.getInt("cnt");
 				} else
@@ -2522,7 +2522,7 @@ public class VcsEngine {
 		}
 		switch(action){
 		case	3://delete
-			return dao.executeUpdateSQLQuery("delete from w5_vcs_object where table_id=? AND table_pk=? AND customization_id=? AND project_uuid=?", tableId, tablePk, customizationId, projectUuid);
+			return dao.executeUpdateSQLQuery("delete from iwb.w5_vcs_object where table_id=? AND table_pk=? AND customization_id=? AND project_uuid=?", tableId, tablePk, customizationId, projectUuid);
 		case	2://insert
 			dao.saveObject(new W5VcsObject(scd, tableId, tablePk));
 			return 1;		
@@ -2653,7 +2653,7 @@ public class VcsEngine {
 		StringBuilder sql = new StringBuilder();
 		switch(action){
 		case	2://REC.projectUiid!=VCS_OBJECT .projectUiid for INSERT
-			sql.append("update w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(mt.getDsc())
+			sql.append("update iwb.w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(mt.getDsc())
 				.append(" d where d.project_uuid=? AND d.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk");
 			params.add(projectUuid);params.add(customizationId);params.add(projectUuid);params.add(tid);params.add(projectUuid);
 			if(mt.get_tableParamList().size()>1){
@@ -2664,7 +2664,7 @@ public class VcsEngine {
 			dao.executeUpdateSQLQuery(sql.toString(), params);
 			return true;
 		case	3://REC.projectUiid!=VCS_OBJECT .projectUiid for SYNC
-			sql.append("select count(1) from w5_vcs_object v where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip in (1,9) AND exists(select 1 from ").append(mt.getDsc())
+			sql.append("select count(1) from iwb.w5_vcs_object v where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip in (1,9) AND exists(select 1 from ").append(mt.getDsc())
 				.append(" d where d.project_uuid=? AND d.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk");
 			params.add(customizationId);params.add(projectUuid);params.add(tid);params.add(projectUuid);
 			if(mt.get_tableParamList().size()>1){
@@ -2676,7 +2676,7 @@ public class VcsEngine {
 			int newCount = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
 			if(newCount>0){
 				sql.setLength(0);params.clear();
-				sql.append("update w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip in (1,9) AND exists(select 1 from ").append(mt.getDsc())
+				sql.append("update iwb.w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip in (1,9) AND exists(select 1 from ").append(mt.getDsc())
 				.append(" d where d.project_uuid=? AND d.").append(mt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk");
 				params.add(projectUuid);params.add(customizationId);params.add(projectUuid);params.add(tid);params.add(projectUuid);
 				if(mt.get_tableParamList().size()>1){
@@ -2695,7 +2695,7 @@ public class VcsEngine {
 				if(dt.getTableTip()==0)continue;
 				
 				sql.setLength(0);params.clear();
-				sql.append("update ").append(dt.getDsc()).append(" d set project_uuid=? where d.project_uuid!=? AND exists(select 1 from w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
+				sql.append("update ").append(dt.getDsc()).append(" d set project_uuid=? where d.project_uuid!=? AND exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
 					.append(dt.get_tableParamList().get(0).getExpressionDsc()).append(") AND exists(select 1 from ").append(mt.getDsc())
 					.append(" m where m.project_uuid=? AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
 				params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(tc.getRelatedTableId());params.add(projectUuid);
@@ -2717,7 +2717,7 @@ public class VcsEngine {
 				dao.executeUpdateSQLQuery(sql.toString(), params);
 
 				sql.setLength(0);params.clear();
-				sql.append("update w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(dt.getDsc())
+				sql.append("update iwb.w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(dt.getDsc())
 					.append(" d where d.project_uuid=? AND d.").append(dt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk");
 				params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(tc.getRelatedTableId());params.add(projectUuid);
 				if(dt.get_tableParamList().size()>1){
@@ -2735,7 +2735,7 @@ public class VcsEngine {
 					W5Table dt = FrameworkCache.getTable(customizationId, tc.getRelatedTableId());
 					if(dt.getTableTip()==0)continue;
 					
-					sql.append("\n update ").append(dt.getDsc()).append(" d set project_uuid=? where d.project_uuid!=? AND exists(select 1 from w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
+					sql.append("\n update ").append(dt.getDsc()).append(" d set project_uuid=? where d.project_uuid!=? AND exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
 						.append(dt.get_tableParamList().get(0).getExpressionDsc()).append(") AND exists(select 1 from ").append(mt.getDsc())
 						.append(" m where m.project_uuid=? AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
 					params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(tc.getRelatedTableId());params.add(projectUuid);
@@ -2757,7 +2757,7 @@ public class VcsEngine {
 	//				dao.executeUpdateSQLQuery(sql.toString(), params);
 	
 					//params = new ArrayList(); sql = new StringBuilder();
-					sql.append(";\n update w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(dt.getDsc())
+					sql.append(";\n update iwb.w5_vcs_object v set project_uuid=? where v.customization_id=? AND v.project_uuid!=? AND v.table_id=? AND v.vcs_object_status_tip=2 AND exists(select 1 from ").append(dt.getDsc())
 						.append(" d where d.project_uuid=? AND d.").append(dt.get_tableParamList().get(0).getExpressionDsc()).append("=v.table_pk");
 					params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(tc.getRelatedTableId());params.add(projectUuid);
 					if(dt.get_tableParamList().size()>1){
@@ -2948,13 +2948,13 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientLocaleMsgSynch", 0, projectUuid, "No VCS for this Project2", null);
 		}
 
-		List lvlmd = dao.executeSQLQuery("select x.val from w5_app_setting x where x.customization_id=? AND x.dsc='vcs_locale_msg_dttm'", customizationId);
+		List lvlmd = dao.executeSQLQuery("select x.val from iwb.w5_app_setting x where x.customization_id=? AND x.dsc='vcs_locale_msg_dttm'", customizationId);
 		String vlmd = "20170101";
 		if(!GenericUtil.isEmpty(lvlmd)){
 			vlmd = (String)lvlmd.get(0);
-			dao.executeUpdateSQLQuery("update w5_app_setting set val=to_char(current_date,'yyyymmdd'), version_no=version_no+1, version_dttm=current_timestamp, version_user_id=? where customization_id=? AND dsc='vcs_locale_msg_dttm'", scd.get("userId"), customizationId);
+			dao.executeUpdateSQLQuery("update iwb.w5_app_setting set val=to_char(current_date,'yyyymmdd'), version_no=version_no+1, version_dttm=current_timestamp, version_user_id=? where customization_id=? AND dsc='vcs_locale_msg_dttm'", scd.get("userId"), customizationId);
 		} else {
-			dao.executeUpdateSQLQuery("INSERT INTO w5_app_setting(dsc, customization_id, setting_tip, locale_msg_key, val, control_tip, not_null_flag, tab_order, control_width) "
+			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_app_setting(dsc, customization_id, setting_tip, locale_msg_key, val, control_tip, not_null_flag, tab_order, control_width) "
 					+ "VALUES ('vcs_locale_msg_dttm', ?, 2, 'vcs_locale_msg_dttm', to_char(current_date,'yyyymmdd'), 1, 1, 55, 150)", customizationId);
 		}
 		
@@ -2986,14 +2986,14 @@ public class VcsEngine {
 						String lmk = o.getString("k");
 						Object[] lo = lclMap.get(lmk);
 						List<String> vx = null;
-						if(lo!=null || (vx=dao.executeSQLQuery("select x.dsc from w5_locale_msg x where x.customization_id=? AND x.locale=? AND x.locale_msg_key=?", customizationId, lmk.substring(0,2), lmk.substring(2)))!=null){ //demek iki yerde de var
+						if(lo!=null || (vx=dao.executeSQLQuery("select x.dsc from iwb.w5_locale_msg x where x.customization_id=? AND x.locale=? AND x.locale_msg_key=?", customizationId, lmk.substring(0,2), lmk.substring(2)))!=null){ //demek iki yerde de var
 							String lmv = o.getString("v");
 							if(!lmv.equals(vx==null ? (String)lo[1] : vx.get(0))){ //farkli ise
 								String lmt = o.getString("t");
 								if(vx!=null || lmt.compareTo((String)lo[2])>0){
 									String lcl = lmk.substring(0,2);
 									String key = lmk.substring(2);
-									dao.executeUpdateSQLQuery("update w5_locale_msg set dsc=?, version_no=version_no+1, version_dttm=to_timestamp(?,'yymmddhh24miss'), version_user_id=? where customization_id=? AND locale=? AND locale_msg_key=?", lmv, lmt, o.getInt("u"), customizationId, lcl, key);
+									dao.executeUpdateSQLQuery("update iwb.w5_locale_msg set dsc=?, version_no=version_no+1, version_dttm=to_timestamp(?,'yymmddhh24miss'), version_user_id=? where customization_id=? AND locale=? AND locale_msg_key=?", lmv, lmt, o.getInt("u"), customizationId, lcl, key);
 								} else {
 									lo[3]=1;
 									toPush.add(lo);
@@ -3003,7 +3003,7 @@ public class VcsEngine {
 						} else { //insert edilecek local
 							String lcl = lmk.substring(0,2);
 							String key = lmk.substring(2);
-							dao.executeUpdateSQLQuery("INSERT INTO w5_locale_msg(locale, locale_msg_key, dsc, version_no, version_user_id, version_dttm, insert_user_id, insert_dttm, publish_flag, customizabled_flag, customization_id, project_uuid) "
+							dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_locale_msg(locale, locale_msg_key, dsc, version_no, version_user_id, version_dttm, insert_user_id, insert_dttm, publish_flag, customizabled_flag, customization_id, project_uuid) "
 									+ " VALUES (?, ?, ?, 1, ?, current_timestamp, ?, to_timestamp(?,'yymmddhh24miss'), 0, 1, ?, ?)", lcl, key, o.get("v"), o.getInt("u"), o.getInt("u"), o.getString("t"), customizationId, projectUuid);
 						}
 						
@@ -3085,52 +3085,23 @@ public class VcsEngine {
 			String key = o.getString("k");
 			String val = o.getString("v");
 			String tm = o.getString("t");
-			if(GenericUtil.uInt(dao.executeSQLQuery("select count(1) from w5_locale_msg where locale=? AND locale_msg_key=?", lcl, key).get(0))==0)
-				dao.executeUpdateSQLQuery("INSERT INTO w5_locale_msg(locale, locale_msg_key, dsc, version_no, version_user_id, version_dttm, insert_user_id, insert_dttm, publish_flag, customizabled_flag, customization_id, project_uuid) "
+			if(GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_locale_msg where locale=? AND locale_msg_key=?", lcl, key).get(0))==0)
+				dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_locale_msg(locale, locale_msg_key, dsc, version_no, version_user_id, version_dttm, insert_user_id, insert_dttm, publish_flag, customizabled_flag, customization_id, project_uuid) "
 						+ " VALUES (?, ?, ?, 1, ?, current_timestamp, ?, to_timestamp(?,'yymmddhh24miss'), 0, 1, ?, ?)", lcl, key, val, userId, userId, tm, customizationId, projectId);
 			else
-				dao.executeUpdateSQLQuery("update w5_locale_msg set dsc=?, version_no=version_no+1, version_dttm=to_timestamp(?,'yymmddhh24miss'), version_user_id=? where customization_id=? AND locale=? AND locale_msg_key=?", val, tm, userId, customizationId, lcl, key);
+				dao.executeUpdateSQLQuery("update iwb.w5_locale_msg set dsc=?, version_no=version_no+1, version_dttm=to_timestamp(?,'yymmddhh24miss'), version_user_id=? where customization_id=? AND locale=? AND locale_msg_key=?", val, tm, userId, customizationId, lcl, key);
 			
 
 		}
 
 		return ja.length();
 	}
-	public Map executeSynchMartSql(Map<String, Object> scd) {
-		Map m=new HashMap();
-		List<Object[]> l = dao.executeSQLQuery("select x.fail_strategy_tip, x.extra_sql from w5_synch_smart_sql x order by x.tab_order");
-		for(Object[] o:l)switch(GenericUtil.uInt(o[0])){
-		case	0://hata varsa rollback
-			dao.executeUpdateSQLQuery((String)o[1]);
-			break;
-		case	1://hata varsa commit ve bitir
-			try{
-				dao.executeUpdateSQLQuery((String)o[1]);
-			}catch(Exception e){
-				if(FrameworkSetting.debug)e.printStackTrace();
-				m.put("success", false);
-				m.put("errorType", "sql");
-				m.put("errorMsg", e.getMessage());
-				m.put("sql", o[1]);
-				return m;
-			}
-			break;
-		case	2://hata varsa atla ve devam et
-			try{
-				dao.executeUpdateSQLQuery((String)o[1]);
-			}catch(Exception e){
-				if(FrameworkSetting.debug)e.printStackTrace();
-			}
-			break;
-		}
-		m.put("success", true);
-		return m;
-	}
+
 
 	public Map vcsServerTenantCheck(int socialCon, String email, String nickName, String socialNet) {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsServerObjectPull",0,null, "Not a VCS Server to vcsServerObjectPull", null);
-		List<Object[]> list = dao.executeSQLQuery("select u.customization_id, u.user_id from w5_user u  where u.email=? AND u.lkp_auth_external_source=?",email,socialCon);
+		List<Object[]> list = dao.executeSQLQuery("select u.customization_id, u.user_id from iwb.w5_user u  where u.email=? AND u.lkp_auth_external_source=?",email,socialCon);
 		Map map = new HashMap();
 		if(!GenericUtil.isEmpty(list)){
 			Object[] obj = list.get(0);
@@ -3139,12 +3110,12 @@ public class VcsEngine {
 			map.put("customizationId", cusId);
 			map.put("userId", obj[1]);
 			//List eparams = new ArrayList(); eparams.add(email);
-			//List<Map> userList = dao.executeSQLQuery2Map("select t.* from w5_user t where t.email=?", eparams);
+			//List<Map> userList = dao.executeSQLQuery2Map("select t.* from iwb.w5_user t where t.email=?", eparams);
 			//map.put("userList",userList);
 			List params = new ArrayList(); params.add(cusId);
-			List<Map> projectList = dao.executeSQLQuery2Map("select p.* from w5_project p where p.customization_id=?", params);
+			List<Map> projectList = dao.executeSQLQuery2Map("select p.* from iwb.w5_project p where p.customization_id=?", params);
 			map.put("projects", projectList);
-			List<Map> tList = dao.executeSQLQuery2Map("select t.* from w5_user_tip t where t.customization_id=?", params);
+			List<Map> tList = dao.executeSQLQuery2Map("select t.* from iwb.w5_user_tip t where t.customization_id=?", params);
 			map.put("userTips", tList);
 		} else {
 			int cusId = GenericUtil.getGlobalNextval("seq_customization");
@@ -3174,9 +3145,9 @@ public class VcsEngine {
 			map.put("customizationId", cusId);
 			map.put("userId", userId);
 			List params = new ArrayList(); params.add(cusId);
-			List<Map> projectList = dao.executeSQLQuery2Map("select p.* from w5_project p where p.customization_id=?", params);
+			List<Map> projectList = dao.executeSQLQuery2Map("select p.* from iwb.w5_project p where p.customization_id=?", params);
 			map.put("projects", projectList);
-			List<Map> tList = dao.executeSQLQuery2Map("select t.* from w5_user_tip t where t.customization_id=?", params);
+			List<Map> tList = dao.executeSQLQuery2Map("select t.* from iwb.w5_user_tip t where t.customization_id=?", params);
 			map.put("userTips", tList);
 			
 			FrameworkSetting.customizationSystemStatus.put(cusId, 0);

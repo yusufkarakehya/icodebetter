@@ -5947,7 +5947,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	public String getObjectVcsHash(Map<String, Object> scd, int tableId, int tablePk) {
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		StringBuilder s = new StringBuilder();
-		s.append("select md5hash(").append(getTableFields4VCS(t,"x")).append(") xhash from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
+		s.append("select iwb.md5hash(").append(getTableFields4VCS(t,"x")).append(") xhash from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 		List p = new ArrayList();
 		p.add(tablePk);
 		if(t.get_tableParamList().size()>1){

@@ -2197,7 +2197,7 @@ function ajaxErrorHandler(obj){
 	            modal:true,
 	            title:'DB.SQL/Rhino Error',
 	            width: 800,
-	            height:187,
+	            height:207,
 	            items:[{    
 	                xtype:'propertygrid',
 	                autoHeight: true,
@@ -2599,7 +2599,12 @@ function promisRequest(rcfg){
 					else if(_app.show_info_msg && 1*_app.show_info_msg!=0) {Ext.infoMsg.msg('success',getLocMsg('js_islem_basariyla_tamamlandi'));}					
 				} else {
 			    	if(rcfg.noSuccessCallback)rcfg.noSuccessCallback(json,rcfg);
-			    	else ajaxErrorHandler(json);
+			    	else if(json.errorType && json.errorType=='confirm' && json.error){
+			    		if(confirm(json.error)){
+			    			rcfg.params['_confirmId_'+json.objectId]=1;
+			    			promisRequest(rcfg);
+			    		}
+			    	} else ajaxErrorHandler(json);
 				}
 			}catch(e){
 				if(1*_app.debug != 0){
@@ -4406,7 +4411,7 @@ function vcsPull(xgrid, tid, tpk){
 }
 
 function fncMnuVcs(xgrid){
-	return [{text:'Push',iconCls:'icon-approval', _grid:xgrid, handler:function(aq){
+	return [{text:'Push',iconCls:'icon-vcs-push', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
 			if(sel && sel.length>0){
 				var d=sel[0].data.pkpkpk_vcsf;
@@ -4414,7 +4419,7 @@ function fncMnuVcs(xgrid){
 					vcsPush(aq._grid, aq._grid.crudTableId, sel[0].id);
 				} else Ext.Msg.alert(getLocMsg('js_error'),'Not VCS Object');
 			} else Ext.Msg.alert(getLocMsg('js_error'),'Not selection');
-		}},{text:'Pull',iconCls:'icon-approval', _grid:xgrid, handler:function(aq){
+		}},{text:'Pull',iconCls:'icon-vcs-pull', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
 			if(sel && sel.length>0){
 				var d=sel[0].data.pkpkpk_vcsf;

@@ -8045,7 +8045,7 @@ public class FrameworkEngine{
 			String projectId = (String)p.get("project_uuid");
 			String vcsUrl = (String)p.get("vcs_url");
 
-			List<Object[]> list = dao.executeSQLQuery("select p.* from iwb.w5_project p where p.project_uuid=?",projectId);
+			List list = dao.executeSQLQuery("select 1 from iwb.w5_project p where p.project_uuid=?",projectId);
 			if(GenericUtil.isEmpty(list)){
 				String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
 				dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users, set_search_path_flag, rdbms_schema, vcs_flag, vcs_url, vcs_user_name, vcs_password)"
@@ -8060,7 +8060,7 @@ public class FrameworkEngine{
 		for(Map t: userTips){
 			String projectId = (String)t.get("project_uuid");
 			int userTip = GenericUtil.uInt(t.get("user_tip"));
-			List<Object[]> list = dao.executeSQLQuery("select p.* from iwb.w5_user_tip p where p.user_tip=?",userTip);
+			List list = dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=?",userTip);
 			if(GenericUtil.isEmpty(list)){
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id)"
 						+ " values (?,?,?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId);
