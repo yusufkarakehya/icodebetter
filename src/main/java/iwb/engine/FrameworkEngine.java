@@ -3276,7 +3276,7 @@ public class FrameworkEngine{
 			List<Object> params= new ArrayList<Object>();
 			params.add(scd.get("customizationId"));
 			params.add(scd.get("userRoleId"));
-			Map mp =dao.runSQLQuery2Map("select ur.my_page_column_count,coalesce(ur.portlet_grids,r.portlet_grids) portlet_grids, r.portlet_grids pg from w5_user_role ur, w5_role r where ur.customization_id=? AND ur.customization_id=r.customization_id AND ur.role_id=r.role_id AND ur.user_role_id=?", params, null);
+			Map mp =dao.runSQLQuery2Map("select ur.my_page_column_count,coalesce(ur.portlet_grids,r.portlet_grids) portlet_grids, r.portlet_grids pg from iwb.w5_user_role ur, iwb.w5_role r where ur.customization_id=? AND ur.customization_id=r.customization_id AND ur.role_id=r.role_id AND ur.user_role_id=?", params, null);
 			String portletGrids = (mp != null) ? (String)mp.get("portlet_grids"): null;
 			String rolePortletGrids= (mp != null) ? (String)mp.get("portlet_grids"): null;
 			
@@ -7189,7 +7189,7 @@ public class FrameworkEngine{
 				+ "400, 300, 1, 1, null, XFORM_BUILDER.label_width,"
 				+ "XFORM_BUILDER.label_align, 0,"
 				+ "1, ?, current_timestamp, ?,"
-				+ "current_timestamp, 26, XFORM_BUILDER.project_uuid from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=? AND XFORM_BUILDER.customization_id=?", formId, formName, userId, userId, xformBuilderId, customizationId);
+				+ "current_timestamp, 0, XFORM_BUILDER.project_uuid from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=? AND XFORM_BUILDER.customization_id=?", formId, formName, userId, userId, xformBuilderId, customizationId);
 		if(vcs)dao.saveObject(new W5VcsObject(scd, 40, formId));
 
 		List lp= new ArrayList();lp.add(xformBuilderId);
@@ -7340,7 +7340,7 @@ public class FrameworkEngine{
 				+ "\nselect ?, XFORM_BUILDER.customization_id, 1, ?, 'sfrm_'||XFORM_BUILDER.form_name, 'search_criteria',"
 				+ "400, 300, 1, 1, null, XFORM_BUILDER.label_width,"
 				+ "XFORM_BUILDER.label_align, 0,"
-				+ "1, ?, current_timestamp, ?, current_timestamp, 26, XFORM_BUILDER.project_uuid from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=? AND XFORM_BUILDER.customization_id=?", formId, gridId, userId, userId, xformBuilderId, customizationId);
+				+ "1, ?, current_timestamp, ?, current_timestamp, 0, XFORM_BUILDER.project_uuid from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=? AND XFORM_BUILDER.customization_id=?", formId, gridId, userId, userId, xformBuilderId, customizationId);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 40, formId));
 
 			for(Map m:lm)if(GenericUtil.uInt(m.get("grd_search_flag"))!=0){
@@ -7376,7 +7376,7 @@ public class FrameworkEngine{
 
 		
 //				   if(pmaster_flag=1)then
-		int templateId = 0;
+		int templateId = 0, menuId = 0;
 		if(parentTableId==0){
 					 //  XTEMPLATE_ID := nextval('seq_template');
 			templateId = GenericUtil.getGlobalNextval("seq_template");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template')").get(0));
@@ -7401,6 +7401,16 @@ public class FrameworkEngine{
 					+ "null, null, 0, null,"
 					+ "0, null, null,null, null, 1, ?)",templateObjectId, templateId, customizationId, gridId, userId, userId, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 64, templateObjectId));
+			
+			menuId = GenericUtil.getGlobalNextval("seq_menu");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
+			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_menu(" + 
+					"menu_id, parent_menu_id, user_tip, node_tip, locale_msg_key," + 
+					"tab_order, img_icon, url, version_no, insert_user_id, insert_dttm," + 
+					"version_user_id, version_dttm, customization_id, access_view_tip, project_uuid)" + 
+					"VALUES (?, 0, ?, 4, ?, " +
+		            "coalesce((select max(q.tab_order) from iwb.w5_menu q where q.customization_id=? AND q.user_tip=?),0)+10, null, 'showPage?_tid='||?::text, 1, ?, current_timestamp, " +
+		            "?, current_timestamp, ?, 0, ?)", menuId, scd.get("userTip"), gridName, customizationId, scd.get("userTip"), templateId, userId, userId, customizationId, projectUuid);
+			if(vcs)dao.saveObject(new W5VcsObject(scd, 65, menuId));
 		} else {    
 			Object[] loo = (Object[])dao.executeSQLQuery("select f.dsc, f.table_field_id "
 					+ "from iwb.w5_table_field f where f.customization_id=? AND f.table_id=? AND f.tab_order=2", customizationId, tableId).get(0);
@@ -7451,7 +7461,7 @@ public class FrameworkEngine{
 		}
 
 		if(parentTableId==0){ //main Template
-			return templateId;
+			return menuId;
 		} else {
 			return gridId;
 		}

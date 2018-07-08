@@ -19,7 +19,7 @@ import iwb.domain.helper.W5TableRecordHelper;
 
 
 @Entity
-@Table(name="w5_feed")
+@Table(name="w5_feed",schema="iwb")
 public class W5Feed implements java.io.Serializable {
 
 	private int feedId;
