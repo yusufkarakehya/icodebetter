@@ -1307,15 +1307,16 @@ Ext.infoMsg = {
         },
         log : function(type, msg){
         	var pos=Ext.infoMsg.msgTypes[type];
-        	if(!pos){msg='<b>'+type+'</b><br/>'+msg;type=false;}
-        	new Noty({
-        	    text: msg,theme:'metroui', type: type,
-        	    layout: 'bottomCenter',//timeout:1000*(timeout||3),
-        	    animation: {
-        	        open: 'animated bounceInUp', // Animate.css class names
-        	        close: 'animated bounceOutDown' // Animate.css class names
-        	    }
-        	}).show();
+        	if(!pos){msg='<b style="color: #ff5025;">'+type+'</b><br/>'+msg;type=false;}
+        	else msg='<b>'+type.toUpperCase()+'</b><br/>'+msg;
+        	msg = {text: msg,theme:'metroui',layout: 'bottomCenter',
+            	    animation: {
+            	        open: 'animated bounceInUp', // Animate.css class names
+            	        close: 'animated bounceOutDown' // Animate.css class names
+            	    }
+            	};
+        	if(type)msg.type=type;
+        	new Noty(msg).show();
         }
 };
 
