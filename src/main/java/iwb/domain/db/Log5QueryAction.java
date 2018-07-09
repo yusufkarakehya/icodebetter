@@ -14,7 +14,7 @@ import javax.persistence.Transient;
 import iwb.domain.result.W5QueryResult;
 
 @Entity
-@Table(name="log5_query_action")
+@Table(name="log5_query_action",schema="iwb")
 public class Log5QueryAction implements java.io.Serializable {
 
 	private int logId;

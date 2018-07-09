@@ -2325,32 +2325,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		}
 		// f.get_formCellHelp().get(xlocale).get(fc.getFormCellId()) TODO:eralp
 
-		HashMap<String, String> h = null;
 		W5Form form = formResult == null ? null : formResult.getForm();
-		if (form != null && form.get_formCellHelps() != null) {
-			h = (HashMap<String, String>) form.get_formCellHelps().get(xlocale+"-"+fc.getFormCellId());
-		}
-
-		if (h != null) {
-			h.put("htitle", fieldLabel);
-			h.put("hid", cellResult.getDsc() + fc.getFormCellId());
-			StringBuilder cfg = new StringBuilder();
-			cfg.append("{");
-			for (Object q : h.keySet()) {
-				Object o = h.get(q);
-				cfg.append(q)
-						.append(":\\\'")
-						.append(o != null ? GenericUtil
-								.stringToHtml2(o.toString())
-								.replaceAll("\"", "").replaceAll("'", "") : "")
-						.append("\\\',");
-			}
-			cfg.deleteCharAt(cfg.length() - 1);
-			cfg.append("}");
-			// System.out.println(cfg.toString());
-			fieldLabel += " <img src=\"../images/custom/icons/help_mini.png\" onmouseover=\"this.style.cursor=\\\'pointer\\\'\" onclick=\"buildHelpWindow("
-					+ cfg.toString() + ");\" border=\"0\" />";
-		}
 
 		boolean notNull = fc.getNotNullFlag() != 0;
 		// if(notNull)fieldLabel+=" <span style=\"color:red;\">*</span>";

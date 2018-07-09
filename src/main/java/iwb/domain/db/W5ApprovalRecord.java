@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name="w5_approval_record")
+@Table(name="w5_approval_record",schema="iwb")
 public class W5ApprovalRecord implements java.io.Serializable {
 
 	private int approvalRecordId;

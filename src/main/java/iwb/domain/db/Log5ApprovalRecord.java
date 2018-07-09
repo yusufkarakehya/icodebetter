@@ -11,7 +11,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="log5_approval_record")
+@Table(name="log5_approval_record",schema="iwb")
 public class Log5ApprovalRecord implements java.io.Serializable {
 
 	private int logId;

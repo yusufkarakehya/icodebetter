@@ -9,7 +9,7 @@ import org.hibernate.annotations.Immutable;
 
 @Entity
 @Immutable
-@Table(name="w5_jasper_report")
+@Table(name="w5_jasper_report",schema="iwb")
 public class W5JasperReport  implements java.io.Serializable {
 
 	private int jasperReportId ;

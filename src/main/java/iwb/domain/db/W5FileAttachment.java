@@ -18,7 +18,7 @@ import org.hibernate.annotations.Immutable;
 
 @Entity
 @Immutable
-@Table(name="w5_file_attachment")
+@Table(name="w5_file_attachment",schema="iwb")
 public class W5FileAttachment implements java.io.Serializable {
 
 	private int tableId;

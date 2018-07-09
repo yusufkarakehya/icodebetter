@@ -12,7 +12,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="log5_user_action")
+@Table(name="log5_user_action",schema="iwb")
 public class Log5UserAction implements Serializable{
 	
 	private int logId;

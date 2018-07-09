@@ -406,7 +406,7 @@ public class FrameworkEngine{
 					int conversionId = GenericUtil.uInt(requestParams,"_cnvId");
 					int conversionTablePk = GenericUtil.uInt(requestParams,"_cnvTblPk");
 					if(conversionId!=0 && conversionTablePk!=0){
-						W5Conversion c = (W5Conversion)dao.getCustomizedObject("from W5Conversion t where t.conversionId=? AND t.customizationId=?", conversionId, (Integer)scd.get("customizationId"),"ConversionID");
+						W5Conversion c = (W5Conversion)dao.getCustomizedObject("from W5Conversion t where t.conversionId=? AND t.customizationId in (0,?) order by t.customizationId desc", conversionId, (Integer)scd.get("customizationId"),"ConversionID");
 						if(c==null || c.getDstFormId()!=formResult.getFormId()){
 							throw new IWBException("framework","Conversion", conversionId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"wrong_conversion"), null);
 						}

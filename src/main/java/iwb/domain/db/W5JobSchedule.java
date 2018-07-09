@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name = "W5_JOB_SCHEDULE")
+@Table(name = "W5_JOB_SCHEDULE",schema="iwb")
 public class W5JobSchedule implements java.io.Serializable {
 	private int jobScheduleId;
 	private String dsc;

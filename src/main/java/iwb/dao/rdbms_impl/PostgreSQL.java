@@ -61,7 +61,6 @@ import iwb.domain.db.W5FormValue;
 import iwb.domain.db.W5FormValueCell;
 import iwb.domain.db.W5Grid;
 import iwb.domain.db.W5GridColumn;
-import iwb.domain.db.W5Help;
 import iwb.domain.db.W5Jasper;
 import iwb.domain.db.W5JasperReport;
 import iwb.domain.db.W5JobSchedule;
@@ -201,23 +200,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				fc.set_formCellCodeDetailList(find("from W5FormCellCodeDetail t where t.formCellId=? AND t.customizationId=? order by t.tabOrder", fc.getFormCellId(), customizationId));
 			break;
 		}
-		List<W5Help> l = (find("from W5Help x where x.formCellId in (select c.formCellId from W5FormCell c where c.formId=? AND c.customizationId=?)", f.getFormId(), customizationId));
 		if(form.getRenderTip()!=0){ // eger baska turlu render edilecekse
 			form.set_moduleList(find("from W5FormModule t where t.formId=? AND t.customizationId=? order by t.tabOrder", form.getFormId(), customizationId));
 		}
 		
 		HashMap hlps = new HashMap();
-		
-		for(W5Help h:l){
-			HashMap<String, String> item = new HashMap();
-			item.put("hdsc", h.getDsc());
-			item.put("hwidth", h.getDefaultWidth()+"");
-			item.put("hheight", h.getDefaultHeight()+"");
-			hlps.put(h.getLocale()+"-"+ h.getFormCellId(),item);
-		}
-		
-		f.getForm().set_formCellHelps(hlps);
-
 		
 		f.getForm().set_toolbarItemList(find("from W5ObjectToolbarItem t where t.objectTip=? AND t.objectId=? AND t.customizationId=? order by t.tabOrder",(short)15,f.getFormId(),customizationId));
 		f.getForm().set_formHintList(find("from W5FormHint h where h.activeFlag=1 AND h.formId=? AND h.customizationId=? order by h.tabOrder",f.getFormId(),customizationId));

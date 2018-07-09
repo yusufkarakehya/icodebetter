@@ -56,7 +56,6 @@ public class W5Form implements java.io.Serializable, W5Base {
 	private List<W5FormModule> _moduleList;
 	private W5Template _renderTemplate;
 	private	List<W5ObjectToolbarItem>	_toolbarItemList;
-	private	Map	_formCellHelps;
 	private List<W5FormSmsMail> _formSmsMailList;
 	private Map<Integer,W5FormSmsMail> _formSmsMailMap;
 	private List<W5Conversion> _conversionList;
@@ -69,14 +68,6 @@ public class W5Form implements java.io.Serializable, W5Base {
 	}
 	public void set_formCells(List<W5FormCell> formCells) {
 		_formCells = formCells;
-	}
-	
-	@Transient
-	public Map get_formCellHelps() {
-		return _formCellHelps;
-	}
-	public void set_formCellHelps(Map formCellHelps) {
-		_formCellHelps = formCellHelps;
 	}
 	
 	@Id
