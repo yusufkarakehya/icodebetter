@@ -200,7 +200,7 @@ public class ScriptEngine {
 	
 	
 	public int sqlExecute(String sql){
-		if((Integer)scd.get("customizationId")>0) {
+		if(scd!=null && scd.get("customizationId")!=null && (Integer)scd.get("customizationId")>0) {
 			String sql2=sql.toLowerCase(FrameworkSetting.appLocale);
 			if(sql2.contains("iwb.") || sql2.contains("drop") || sql2.contains("delete") || sql2.contains("truncate") || sql2.contains("search_path") || sql2.contains("grant") || sql2.contains("vacuum") || sql2.contains("lock") || sql2.contains("execute")) {
 				throw new IWBException("security","SQL", 0, null, "Forbidden Command2. Please contact iCodeBetter team ;)", null);
