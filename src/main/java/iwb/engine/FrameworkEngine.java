@@ -8038,6 +8038,8 @@ public class FrameworkEngine{
 	
 	public void saveCredentials(int cusId,int userId,String fullName, String picUrl, int socialNet, String email, String nickName, List<Map> projects, List<Map> userTips) {	
 		dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName);
+		FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
+
 		FrameworkSetting.customizationSystemStatus.put(cusId, 0);
 		//String pro = (String)projects.get(0).get("project_uuid");
 		dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)", 
@@ -8070,7 +8072,8 @@ public class FrameworkEngine{
 						+ " values (?,?,?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId);
 				dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
 			}
-		}	
+		}
+		dao.reloadPromisCaches(cusId);
 		
 	}
 }
