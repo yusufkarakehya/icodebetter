@@ -3,6 +3,7 @@ package iwb.custom.trigger;
 import iwb.dao.RdbmsDao;
 import iwb.domain.db.W5Notification;
 import iwb.domain.result.W5FormResult;
+import iwb.exception.IWBException;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -21,8 +22,16 @@ public class PostFormTrigger {
 		String msg;
 		switch(formResult.getFormId()){
 		case	2491://SQL Script
-			if(GenericUtil.uCheckBox(formResult.getRequestParams().get("run_local_flag"))!=0){
-				dao.executeUpdateSQLQuery(formResult.getRequestParams().get("extra_sql"));
+			String sql = formResult.getRequestParams().get("extra_sql");
+			if((Integer)formResult.getScd().get("customizationId")>0) {
+				String sql2=sql.toLowerCase(FrameworkSetting.appLocale);
+				if(sql2.contains("iwb.") || sql2.contains("drop") || sql2.contains("delete") || sql2.contains("truncate") || sql2.contains("search_path") || sql2.contains("grant") || sql2.contains("vacuum") || sql2.contains("lock") || sql2.contains("execute")) {
+					throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
+				}
+			}
+			if(GenericUtil.uCheckBox(formResult.getRequestParams().get("run_local_flag"))!=0){// simple security check. TODO
+
+				dao.executeUpdateSQLQuery(sql);
 			}
 			break;
 		
