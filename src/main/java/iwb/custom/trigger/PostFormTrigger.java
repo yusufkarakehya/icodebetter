@@ -23,7 +23,7 @@ public class PostFormTrigger {
 		switch(formResult.getFormId()){
 		case	2491://SQL Script
 			String sql = formResult.getRequestParams().get("extra_sql");
-			if((Integer)formResult.getScd().get("customizationId")>0) {
+			if(!GenericUtil.isEmpty(sql) && (Integer)formResult.getScd().get("customizationId")>0) {
 				String sql2=sql.toLowerCase(FrameworkSetting.appLocale);
 				if(sql2.contains("iwb.") || sql2.contains("drop") || sql2.contains("delete") || sql2.contains("truncate") || sql2.contains("search_path") || sql2.contains("grant") || sql2.contains("vacuum") || sql2.contains("lock") || sql2.contains("execute")) {
 					throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
