@@ -1,8 +1,14 @@
 package iwb.engine;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -19,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8074,6 +8081,57 @@ public class FrameworkEngine{
 			}
 		}
 		dao.reloadPromisCaches(cusId);
-		
+		saveImage(picUrl,userId, cusId);
 	}
+	
+	
+	public void saveImage(String imageUrl, int userId, int cusId){
+    	try{
+    		URL url = new URL(imageUrl);
+    		int length;
+    		int totalBytesRead = 0;
+    		InputStream is = url.openStream();
+    		long fileId = new Date().getTime();
+    		W5FileAttachment fa = new W5FileAttachment();
+    		
+    		fa.setSystemFileName(fileId + "." + GenericUtil.strUTF2En(FilenameUtils.getBaseName(url.getPath())));
+    		String testPath = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
+    				+ File.separator + cusId;
+    		File f = new File(testPath);
+    		
+    		if (!f.exists()/* && f.isDirectory()*/) {
+    			boolean cDir = new File(testPath).mkdirs();
+    			boolean aDir = new File(testPath + File.separator + "attachment").mkdirs();
+    		}
+
+    		String filePath = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
+    				+ File.separator + cusId + File.separator + "attachment"+ File.separator + fa.getSystemFileName();
+    		
+    		OutputStream os = new FileOutputStream(filePath);
+    		byte[] b = new byte[2048];
+    		
+    		while ((length = is.read(b)) != -1) {
+    			totalBytesRead += length;
+    			os.write(b, 0, length);
+    		}
+    		is.close();
+    		os.close();
+    		
+    		fa.setCustomizationId(cusId);   		
+    		fa.setOrijinalFileName(FilenameUtils.getBaseName(url.getPath()));
+    		fa.setUploadUserId(userId);
+    		fa.setFileSize(totalBytesRead);
+    		fa.setFileTypeId(-999);
+    		fa.setTabOrder((short) 1);
+    		fa.setActiveFlag((short) 1);
+    		fa.setTableId(336);
+			fa.setTablePk(""+userId);
+			saveObject(fa);
+    		
+    	}catch(IOException io){
+    		io.printStackTrace();
+    	}
+    }
+	
+	
 }

@@ -124,6 +124,13 @@ public class AuthController {
             	//List<Map> userList = (List<Map>)m.get("userList");	
             	engine.saveCredentials(customizationId,userId,fullName, pictureUrl, socialCon, email, nickname, projectList, userTips);
             } else {
+            	int profilePictureId = GenericUtil.uInt(scd.get("ppictureId"));
+            	int cusId = GenericUtil.uInt(scd.get("customizationId"));
+            	int userId = GenericUtil.uInt(scd.get("userId"));
+            	
+            	if(profilePictureId<3){
+            		engine.saveImage(pictureUrl, userId, cusId);
+            	}
             	session.setAttribute("iwb-scd", scd);
             }
             res.sendRedirect(redirectOnSuccess);
