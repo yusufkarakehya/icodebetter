@@ -121,7 +121,7 @@ public class AuthController {
 
             	List<Map> projectList = (List<Map>)m.get("projects");
             	List<Map> userTips = (List<Map>)m.get("userTips");
-            	//List<Map> userList = (List<Map>)m.get("userList");	
+	
             	engine.saveCredentials(customizationId,userId,fullName, pictureUrl, socialCon, email, nickname, projectList, userTips);
             } else {
             	int profilePictureId = GenericUtil.uInt(scd.get("ppictureId"));
@@ -159,16 +159,10 @@ public class AuthController {
 					json = new JSONObject(s);
 					if(json.get("success").toString().equals("true")){
 						Map map = GenericUtil.fromJSONObjectToMap(json);
-						/*Map map = new HashMap();
-					    map.put("customizationId", json.get("customizationId"));
-					    map.put("projectId", json.get("projectId").toString());
-					    map.put("userId", json.get("userId"));
-					    map.put("userTip", json.get("userTip"));
-					    */
 						return map;
 					}
 				} catch (JSONException e){
-					//throw new PromisException("vcs","vcsClientObjectPush:JSON Exception", t.getTableId(), s, e.getMessage(), e.getCause());
+					e.printStackTrace();
 				}
 			}
 		}catch (JSONException e){
@@ -180,11 +174,11 @@ public class AuthController {
 	@RequestMapping("/login")
     @ResponseBody
     protected void login(final HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String redirectUri = req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/auth/callback";//"http://promiscrm:8585/auth/callback"; 
+        String redirectUri = req.getScheme() + "://" + req.getServerName() + (req.getServerPort()!=80 ? ":" + req.getServerPort(): "") + "/auth/callback";
+        //"http://promiscrm:8585/auth/callback"; 
         String authorizeUrl = buildAuthorizeUrl(req, redirectUri);
     	res.getWriter().write(authorizeUrl);
 		res.getWriter().close();
-        //return "redirect:" + authorizeUrl;
     }
     
     @RequestMapping(value = "/logout", method = RequestMethod.GET)

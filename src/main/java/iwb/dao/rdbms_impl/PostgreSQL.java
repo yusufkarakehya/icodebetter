@@ -3291,7 +3291,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				String userId = Integer.toString(data.getExecuteUserId());
 				String roleId = Integer.toString(data.getExecuteRoleId());
 				int customization_id = data.getCustomizationId();
-				List<Map<String, Object>> res = executeSQLQuery2Map("select r.user_role_id, u.customization_id from iwb.w5_user u, w5_user_role r where u.customization_id=r.customization_id and u.user_id=r.user_id and u.user_id=" + userId + " and r.role_id=" + roleId + " and r.customization_id=" + customization_id, null);			
+				List<Map<String, Object>> res = executeSQLQuery2Map("select r.user_role_id, u.customization_id from iwb.w5_user u, iwb.w5_user_role r where u.customization_id=r.customization_id and u.user_id=r.user_id and u.user_id=" + userId + " and r.role_id=" + roleId + " and r.customization_id=" + customization_id, null);			
 				if(res!=null)for (Map<String, Object> usr : res){			
 					data.set_userRoleId(GenericUtil.uInteger((String) usr.get("user_role_id")));
 				}			
@@ -3474,7 +3474,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(FrameworkCache.wRoles.get(customizationId)!=null)FrameworkCache.wRoles.get(customizationId).clear();
 		Map<Integer, String> subRoleMap = new HashMap<Integer, String>();
 		FrameworkCache.wRoles.put(customizationId, subRoleMap);
-		for(Object[] o:(List<Object[]>)executeSQLQuery("select r.role_id, r.dsc from iwb.w5_role r where customization_id=?", customizationId)){
+		List l = executeSQLQuery("select r.role_id, r.dsc from iwb.w5_role r where customization_id=?", customizationId);
+		if(l!=null)for(Object[] o:(List<Object[]>)l){
 			int roleId = GenericUtil.uInt(o[0]);
 			subRoleMap.put(roleId, (String)o[1]);
 		}
@@ -4424,7 +4425,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				if(t.getAccessTips()!=null && GenericUtil.hasPartInside2(t.getAccessTips(), "0"))accessControlFlag=true;
 				if(accessControlFlag)sql.append(", ac.access_roles, ac.access_users");
 				sql.append(" from ").append(t.getDsc()).append(" x");
-				if(accessControlFlag)sql.append(" left outer join w5_access_control ac on ac.ACCESS_TIP=0 AND ac.table_id=").append(t.getTableId()).append(" AND ac.customization_id=${scd.customizationId} AND cast(ac.table_pk as int8)=x.").append(t.get_tableParamList().get(0).getExpressionDsc());
+				if(accessControlFlag)sql.append(" left outer join iwb.w5_access_control ac on ac.ACCESS_TIP=0 AND ac.table_id=").append(t.getTableId()).append(" AND ac.customization_id=${scd.customizationId} AND cast(ac.table_pk as int8)=x.").append(t.get_tableParamList().get(0).getExpressionDsc());
 				sql.append(" where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=${req.").append(t.get_tableParamList().get(0).getDsc()).append("}");
 				if(t.get_tableParamList().size()==2){
 					if(t.get_tableParamList().get(1).getDsc().equals("customizationId"))sql.append(" AND x.customization_id=${scd.customizationId}");
@@ -5495,7 +5496,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			W5QueryField field = new W5QueryField();
 			field.setDsc(FieldDefinitions.queryFieldName_Comment);
 			if(FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "make_comment_summary_flag")!=0){
-				sql2.append(",(select cx.comment_count||';'||cxx.comment_user_id||';'||to_char(cxx.comment_dttm,'dd/mm/yyyy hh24:mi:ss')||';'||cx.view_user_ids||'-'||cxx.dsc from iwb.w5_comment_summary cx, w5_comment cxx where cx.table_id=").append(query.getMainTableId()).append(" AND cx.customization_id=").append(customizationId)
+				sql2.append(",(select cx.comment_count||';'||cxx.comment_user_id||';'||to_char(cxx.comment_dttm,'dd/mm/yyyy hh24:mi:ss')||';'||cx.view_user_ids||'-'||cxx.dsc from iwb.w5_comment_summary cx, iwb.w5_comment cxx where cx.table_id=").append(query.getMainTableId()).append(" AND cx.customization_id=").append(customizationId)
 				.append("  AND cx.table_pk::int=z.").append(pkFieldName).append(" AND cxx.customization_id=cx.customization_id AND cxx.comment_id=cx.last_comment_id) pkpkpk_cf ");
 				field.setPostProcessTip((short)48);//extra code : commentCount-commentUserId-lastCommentDttm-viewUserIds-msg
 			} else {
@@ -5700,9 +5701,9 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			}
 			if(FrameworkSetting.tableChildrenMaxRecordNumber>0)
 				sql.append(" limit ").append(FrameworkSetting.tableChildrenMaxRecordNumber);
-			/* //TODO. burda bir de w5_access_control ve approval yapilacak
+			/* //TODO. burda bir de iwb.w5_access_control ve approval yapilacak
 			if(ct.getAccessTips()!=null && PromisUtil.hasPartInside2(ct.getAccessTips(), "0")){
-				sql.append(" left outer join w5_access_control ac on ac.ACCESS_TIP=0 AND ac.table_id=").append(t.getTableId()).append(" AND ac.customization_id=${scd.customizationId} AND ac.table_pk=x.").append(t.get_tableParamList().get(0).getExpressionDsc());
+				sql.append(" left outer join iwb.w5_access_control ac on ac.ACCESS_TIP=0 AND ac.table_id=").append(t.getTableId()).append(" AND ac.customization_id=${scd.customizationId} AND ac.table_pk=x.").append(t.get_tableParamList().get(0).getExpressionDsc());
 			}
 */
 			List<Map> l = executeSQLQuery2Map(sql.toString(), null);
