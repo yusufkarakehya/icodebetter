@@ -180,7 +180,7 @@ public class AuthController {
 	@RequestMapping("/login")
     @ResponseBody
     protected void login(final HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String redirectUri = req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/auth/callback";//"http://promiscrm:8585/auth/callback"; 
+        String redirectUri = req.getScheme() + "://" + req.getServerName() + (req.getServerPort()!=80 ? ":" + req.getServerPort(): "") + "/auth/callback";//"http://promiscrm:8585/auth/callback"; 
         String authorizeUrl = buildAuthorizeUrl(req, redirectUri);
     	res.getWriter().write(authorizeUrl);
 		res.getWriter().close();

@@ -3474,7 +3474,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(FrameworkCache.wRoles.get(customizationId)!=null)FrameworkCache.wRoles.get(customizationId).clear();
 		Map<Integer, String> subRoleMap = new HashMap<Integer, String>();
 		FrameworkCache.wRoles.put(customizationId, subRoleMap);
-		for(Object[] o:(List<Object[]>)executeSQLQuery("select r.role_id, r.dsc from iwb.w5_role r where customization_id=?", customizationId)){
+		List l = executeSQLQuery("select r.role_id, r.dsc from iwb.w5_role r where customization_id=?", customizationId);
+		if(l!=null)for(Object[] o:(List<Object[]>)l){
 			int roleId = GenericUtil.uInt(o[0]);
 			subRoleMap.put(roleId, (String)o[1]);
 		}
