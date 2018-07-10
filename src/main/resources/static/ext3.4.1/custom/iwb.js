@@ -731,7 +731,7 @@ function fnTblRecEdit(tid,tpk,b){
 		if(recordInfoWindow && recordInfoWindow.isVisible()){recordInfoWindow.destroy();recordInfoWindow=null;}
 		mainPanel.loadTab({attributes:{id:'g-'+tid+'-'+tpk,href:'showForm?_tb_id='+tid+'&_tb_pk='+tpk}});
 	} else {
-		promisRequest({url:'getTableRecordInfo',params:{_tb_id:tid, _tb_pk:tpk}, successCallback:function(j){
+		promisRequest({url:'getTableRecordInfo',requestWaitMsg:true, params:{_tb_id:tid, _tb_pk:tpk}, successCallback:function(j){
 				if(j.dsc){
 					if(j.dsc.length>100)j.dsc=j.dsc.substring(0,97)+'...';
 					if(recordInfoWindow && recordInfoWindow.isVisible()){
@@ -928,7 +928,7 @@ function fnRowDelete(a,b){
 		      	}
 		    	if(href)promisRequest({
 					url: href,
-					params:params,
+					params:params,requestWaitMsg:true, 
 					successDs: a._grid.ds,
 					successCallback:function(j2){
 		    			if(j2.logErrors || j2.msgs){
@@ -968,7 +968,7 @@ function fnRowDelete(a,b){
 		      	}
 		    	if(href)promisRequest({
 					url: href,
-					successDs: a._grid.ds,
+					successDs: a._grid.ds,requestWaitMsg:true, 
 					successCallback:function(j2){
 						if(!j2.logErrors){a._grid.ds.remove(sel);}
 		    			if(j2.logErrors || j2.msgs){
@@ -1202,7 +1202,7 @@ function fnCommit(a){
 	        if(btn == 'yes'){
 	      		promisRequest({
 	    			url:'ajaxPostEditGrid?_fid='+a._grid.crudFormId,
-	    			params:params,
+	    			params:params,requestWaitMsg:true, 
 	    			successDs: a._grid.ds,
 	    			successCallback:function(j2){
 		      			if(a._grid._deletedItems)a._grid._deletedItems=[];
@@ -1435,7 +1435,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid){
 					} else {
 						var pr={_cnvId:aq.xid, _cnt:sels.length, form_id:aq._fid};
 						for(var qi=0;qi<sels.length;qi++)pr["srcTablePk"+(qi+1)]=sels[qi].id; 
-						promisRequest({url:'ajaxPostEditGrid',params:pr, successCallback:function(j){Ext.Msg.alert(getLocMsg('js_bilgi'),j.msgs.join('<br>'));}}); 
+						promisRequest({url:'ajaxPostEditGrid',params:pr, requestWaitMsg:true, successCallback:function(j){Ext.Msg.alert(getLocMsg('js_bilgi'),j.msgs.join('<br>'));}}); 
 					}
 				}
         	}
@@ -2608,8 +2608,8 @@ function promisRequest(rcfg){
 				}
 			}catch(e){
 				if(1*_app.debug != 0){
-	                if(confirm('ERROR promisRequest!!! Throw?'))throw e;
-				} else alert('Framework Error(promisRequest)'); //???
+	                if(confirm('ERROR Response from Ajax.Request!!! Throw?'))throw e;
+				} else alert('Framework Error(Ajax.Request)'); //???
 			}
 		},
 	    failure: function(a,b,c){
@@ -4363,7 +4363,7 @@ function vcsPushMulti(xgrid, tid, tpk){
 function vcsPushAll(xgrid, keyz){
 	var xparams={k:keyz};
 	var xgrd = xgrid;
-	promisRequest({url:'ajaxVCSObjectPushAll',params:xparams, successCallback:function(j){
+	promisRequest({url:'ajaxVCSObjectPushAll',requestWaitMsg:true, params:xparams, successCallback:function(j){
 		if(j.error){
 			switch(j.error){
 				case	'force':
@@ -4388,14 +4388,14 @@ function vcsPushAll(xgrid, keyz){
 function vcsPull(xgrid, tid, tpk){
 	var xparams={t:tid,k:tpk};
 	var xgrd = xgrid;
-	promisRequest({url:'ajaxVCSObjectPull',params:xparams, successCallback:function(j){
+	promisRequest({url:'ajaxVCSObjectPull',requestWaitMsg:true, params:xparams, successCallback:function(j){
 		if(j.error){
 			switch(j.error){
 				case	'force':
 					if(confirm((j.error_msg || 'There is conflicts.') +' Do you STILL want to Overwrite?')){
 						xparams.f=1;
 						var xxgrd=xgrd;
-						promisRequest({url:'ajaxVCSObjectPull',params:xparams, successCallback:function(j){
+						promisRequest({url:'ajaxVCSObjectPull',requestWaitMsg:false, params:xparams, successCallback:function(j){
 							Ext.infoMsg.msg('success','VCS Objects Pulled');
 							xxgrd.ds.reload();
 						}});					}
@@ -4446,7 +4446,7 @@ function fncMnuVcs(xgrid){
 			}
 		}},{text:'Ignore', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
-			if(sel && sel.length>0 && sel[0].data.pkpkpk_vcsf && confirm('VCS ten cikarmak istediginizden gercekten emin misiniz? Çünkü daha sorna eklemek conflict lere sebep olacaktır')){
+			if(sel && sel.length>0 && sel[0].data.pkpkpk_vcsf && confirm('Are you sure?')){
 				promisRequest({url:'ajaxVCSObjectAction',params:{t:aq._grid.crudTableId, k:sel[0].id, a:3}, successCallback:function(j){
 					Ext.infoMsg.msg('warning','Deleted from VCS');
 					aq._grid.ds.reload();
