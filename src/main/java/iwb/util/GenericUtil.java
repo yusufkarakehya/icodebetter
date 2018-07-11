@@ -1649,18 +1649,18 @@ public class GenericUtil {
 	}
 
 	public static String strUTF2En(String txt) {
-		txt=txt.replace("ï¿½", "i");
-		txt=txt.replace("ï¿½", "I");
-		txt=txt.replace("ï¿½", "o");
-		txt=txt.replace("ï¿½", "O");
-		txt=txt.replace("ï¿½", "g");
-		txt=txt.replace("ï¿½", "G");
-		txt=txt.replace("ï¿½", "u");	
-		txt=txt.replace("ï¿½", "U");
-		txt=txt.replace("ï¿½", "s");
-		txt=txt.replace("ï¿½", "S");
-		txt=txt.replace("ï¿½", "c");
-		txt=txt.replace("ï¿½", "C");		
+		txt=txt.replace("ı", "i");
+		txt=txt.replace("İ", "I");
+		txt=txt.replace("ö", "o");
+		txt=txt.replace("Ö", "O");
+		txt=txt.replace("ğ", "g");
+		txt=txt.replace("Ğ", "G");
+		txt=txt.replace("ü", "u");	
+		txt=txt.replace("Ü", "U");
+		txt=txt.replace("ş", "s");
+		txt=txt.replace("Ş", "S");
+		txt=txt.replace("ç", "c");
+		txt=txt.replace("Ç", "C");		
 		return txt;
 	}
 		

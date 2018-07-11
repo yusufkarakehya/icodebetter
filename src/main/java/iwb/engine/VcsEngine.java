@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import iwb.custom.trigger.QueryTrigger;
 import iwb.dao.RdbmsDao;
 import iwb.domain.db.Log5VcsAction;
+import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
@@ -2349,6 +2350,10 @@ public class VcsEngine {
 						if(o.has("extra_sql")){
 							String extraSql = o.getString("extra_sql");
 							if(!GenericUtil.isEmpty(extraSql)){
+								if(po.getSetSearchPathFlag()!=0){
+									dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
+								} else 
+									dao.executeUpdateSQLQuery("set search_path=iwb");
 								result+=dao.executeUpdateSQLQuery(extraSql);
 							}
 						}
@@ -2374,6 +2379,10 @@ public class VcsEngine {
 		if(po.getVcsFlag()==0){
 			throw new IWBException("vcs","vcsServerAddSQL", 0, projectId, "No VCS for this Project2", null);
 		}
+		if(po.getSetSearchPathFlag()!=0){
+			dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
+		} 
+		
 		int result = dao.executeUpdateSQLQuery(sql);
 		
 		W5VcsCommit commit = new W5VcsCommit();
@@ -3151,6 +3160,7 @@ public class VcsEngine {
 			map.put("userTips", tList);
 			
 			FrameworkSetting.customizationSystemStatus.put(cusId, 0);
+			FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
 			FrameworkCache.wProjects.put(projectId, (W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, projectId).get(0));
 			//Map cache = FrameworkCache.reloadCacheQueue();
 		}
