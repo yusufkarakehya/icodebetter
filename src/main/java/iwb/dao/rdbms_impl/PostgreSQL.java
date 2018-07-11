@@ -6015,6 +6015,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		String projectUuid = (String)scd.get("projectId");
 		W5Project prj = FrameworkCache.wProjects.get(projectUuid);
 		String schema="iwb";
+		if(prj.getSetSearchPathFlag()!=0) {
+			schema = prj.getRdbmsSchema();
+			executeUpdateSQLQuery("set search_path="+schema);
+		}
+		
 		fullTableName = fullTableName.toLowerCase(FrameworkSetting.appLocale);
 		String tableName= fullTableName;
 		if(tableName.contains(".")){
