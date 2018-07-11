@@ -53,7 +53,7 @@ import iwb.util.UserUtil;
 @Controller
 @RequestMapping("/ws")
 public class WsServlet implements InitializingBean {
-	private static Logger logger = Logger.getLogger(AppServlet.class);
+	private static Logger logger = Logger.getLogger(WsServlet.class);
 
 	private ViewAdapter ext3_4 = new ExtJs3_3();
 	private SoapAdapter soap = new AxisSoap1_4();

@@ -1,8 +1,12 @@
 package iwb.engine;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -19,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8022,8 +8027,6 @@ public class FrameworkEngine{
 	}
 
 	public Map generateScdFromAuth(int socialCon, String token) {
-		//select u.user_id, u.customization_id, (select min(r.user_role_id) from iwb.w5_user_role r where r.customization_id=u.customization_id 
-		//AND r.active_flag=1 AND r.user_id=u.user_id) user_role_id from iwb.w5_user u where u.lkp_auth_external_source>0 AND u.user_status=1 AND u.email=?
 		List<Object[]> list = dao.executeSQLQuery("select u.user_id, u.customization_id, (select min(r.user_role_id)"
 				+ " from iwb.w5_user_role r where r.customization_id=u.customization_id AND r.user_id=u.user_id) user_role_id from iwb.w5_user u"
 				+ " where u.lkp_auth_external_source=? AND u.user_status=1 AND u.auth_external_id=?", socialCon, token);
@@ -8036,10 +8039,9 @@ public class FrameworkEngine{
 		}
 	}
 	
-	public void saveCredentials(int cusId,int userId,String fullName, String picUrl, int socialNet, String email, String nickName, List<Map> projects, List<Map> userTips) {	
+	public void saveCredentials(int cusId,int userId, String picUrl ,String fullName,int socialNet, String email, String nickName, List<Map> projects, List<Map> userTips) {	
 		dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName);
 		FrameworkSetting.customizationSystemStatus.put(cusId, 0);
-		//String pro = (String)projects.get(0).get("project_uuid");
 		dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)", 
 				userId, cusId, nickName, email, nickName+1, 1, nickName, 1 , socialNet, email,projects.get(0).get("project_uuid"));
 		int userRoleId = GenericUtil.getGlobalNextval("seq_user_role");
@@ -8071,6 +8073,48 @@ public class FrameworkEngine{
 				dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
 			}
 		}	
-		
+		saveImage(picUrl,userId, cusId);
 	}
+	
+	public void saveImage(String imageUrl, int userId, int cusId){
+    	try{
+    		URL url = new URL(imageUrl);
+    		int length;
+    		int totalBytesRead = 0;
+    		InputStream is = url.openStream();
+    		long fileId = new Date().getTime();
+    		W5FileAttachment fa = new W5FileAttachment();
+    		
+    		fa.setSystemFileName(fileId + "." + GenericUtil.strUTF2En(FilenameUtils.getBaseName(url.getPath())));
+    		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
+    				+ File.separator + cusId + File.separator + "attachment"+ File.separator + fa.getSystemFileName();
+    		
+    		OutputStream os = new FileOutputStream(path);
+    		byte[] b = new byte[2048];
+    		
+    		while ((length = is.read(b)) != -1) {
+    			totalBytesRead += length;
+    			os.write(b, 0, length);
+    		}
+    		is.close();
+    		os.close();
+    		
+    		fa.setCustomizationId(cusId);   		
+    		fa.setOrijinalFileName(FilenameUtils.getBaseName(url.getPath()));
+    		fa.setUploadUserId(userId);
+    		fa.setFileSize(totalBytesRead);
+    		fa.setFileTypeId(-999);
+    		fa.setTabOrder((short) 1);
+    		fa.setActiveFlag((short) 1);
+    		fa.setTableId(336);
+			fa.setTablePk(""+userId);
+			saveObject(fa);
+    		
+    	}catch(IOException io){
+    		io.printStackTrace();
+    	}
+    }
+	
+	
+	
 }

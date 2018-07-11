@@ -1,5 +1,6 @@
 package iwb.controller;
 
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import iwb.engine.FrameworkEngine;
+import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
@@ -118,12 +120,19 @@ public class AuthController {
             	Map m = checkVcsTenant(socialCon, email,nickname,socialNet);
             	int customizationId = GenericUtil.uInt(m.get("customizationId"));
             	int userId = GenericUtil.uInt(m.get("userId"));
-
+             	
             	List<Map> projectList = (List<Map>)m.get("projects");
-            	List<Map> userTips = (List<Map>)m.get("userTips");
-            	//List<Map> userList = (List<Map>)m.get("userList");	
-            	engine.saveCredentials(customizationId,userId,fullName, pictureUrl, socialCon, email, nickname, projectList, userTips);
+            	List<Map> userTips = (List<Map>)m.get("userTips");	
+            	engine.saveCredentials(customizationId,userId,pictureUrl,fullName, socialCon, email, nickname, projectList, userTips);
+            	
             } else {
+            	int profilePictureId = GenericUtil.uInt(scd.get("ppictureId"));
+            	int cusId = GenericUtil.uInt(scd.get("customizationId"));
+            	int userId = GenericUtil.uInt(scd.get("userId"));
+            	
+            	if(profilePictureId<3){
+            		engine.saveImage(pictureUrl, userId, cusId);
+            	}
             	session.setAttribute("iwb-scd", scd);
             }
             res.sendRedirect(redirectOnSuccess);
@@ -138,7 +147,7 @@ public class AuthController {
     }
     
     private Map checkVcsTenant(int socialCon, String email, String nickname, String socialNet) {
-		String vcsUrl = "http://81.214.24.77:8084/iwb-lcp/app/"; //FrameworkCache.getAppSettingStringValue(0, "vcs_url");
+		String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url"); //"http://81.214.24.77:8084/app"; //
 		try {
 			JSONObject params = new JSONObject(); 
 			params.put("email", email);
@@ -152,16 +161,10 @@ public class AuthController {
 					json = new JSONObject(s);
 					if(json.get("success").toString().equals("true")){
 						Map map = GenericUtil.fromJSONObjectToMap(json);
-						/*Map map = new HashMap();
-					    map.put("customizationId", json.get("customizationId"));
-					    map.put("projectId", json.get("projectId").toString());
-					    map.put("userId", json.get("userId"));
-					    map.put("userTip", json.get("userTip"));
-					    */
 						return map;
 					}
 				} catch (JSONException e){
-					//throw new PromisException("vcs","vcsClientObjectPush:JSON Exception", t.getTableId(), s, e.getMessage(), e.getCause());
+					e.printStackTrace();
 				}
 			}
 		}catch (JSONException e){
@@ -177,7 +180,6 @@ public class AuthController {
         String authorizeUrl = buildAuthorizeUrl(req, redirectUri);
     	res.getWriter().write(authorizeUrl);
 		res.getWriter().close();
-        //return "redirect:" + authorizeUrl;
     }
     
     @RequestMapping(value = "/logout", method = RequestMethod.GET)

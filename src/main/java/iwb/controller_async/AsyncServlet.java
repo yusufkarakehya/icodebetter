@@ -22,7 +22,7 @@ import iwb.util.UserUtil;
 @Controller
 @RequestMapping("/async")
 public class AsyncServlet {
-	private static Logger logger = Logger.getLogger(AppServlet.class);
+	private static Logger logger = Logger.getLogger(AsyncServlet.class);
 
 
 	@RequestMapping("/ajaxNotifications")
