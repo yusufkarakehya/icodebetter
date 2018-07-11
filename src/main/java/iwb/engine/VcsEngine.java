@@ -1623,7 +1623,7 @@ public class VcsEngine {
 	}
 
 	private	Map vcsServerAuthenticate(String userName, String passWord, int customizationId, String projectUuid){//TODO:
-		List<Object[]> l = dao.executeSQLQuery("select x.user_id,(select r.user_role_id from iwb.w5_user_role r where r.customization_id=x.customization_id AND r.user_id=x.user_id AND r.role_id=0) user_role_id from iwb.w5_user x where x.customization_id=?::integer AND x.user_name=?::text AND x.pass_word=md5hash(x.user_name||?::text)", customizationId, userName, passWord);
+		List<Object[]> l = dao.executeSQLQuery("select x.user_id,(select r.user_role_id from iwb.w5_user_role r where r.customization_id=x.customization_id AND r.user_id=x.user_id AND r.role_id=0) user_role_id from iwb.w5_user x where x.customization_id=?::integer AND x.user_name=?::text AND x.pass_word=iwb.md5hash(x.user_name||?::text)", customizationId, userName, passWord);
 		if(GenericUtil.isEmpty(l))
 			throw new IWBException("vcs","vcsServerAuthenticate", 0, null, "NoUser or Wrong Password", null);
 		Map scd = new HashMap();
@@ -2139,13 +2139,13 @@ public class VcsEngine {
 					JSONArray ar =json.getJSONArray("list");
 					
 					List ps=new ArrayList();ps.add(po.getRdbmsSchema());
-					List<Map> ltables = dao.executeSQLQuery2Map("select x.table_name dsc, md5hash((select string_agg(y.column_name||'.'||y.is_nullable||'.'||y.data_type||'.'||coalesce(y.character_maximum_length,0)::text,',' order by ordinal_position) src_md5hash from information_schema.columns y "
+					List<Map> ltables = dao.executeSQLQuery2Map("select x.table_name dsc, iwb.md5hash((select string_agg(y.column_name||'.'||y.is_nullable||'.'||y.data_type||'.'||coalesce(y.character_maximum_length,0)::text,',' order by ordinal_position) src_md5hash from information_schema.columns y "
 					+ " where y.table_schema=x.table_schema "
 					+ " AND y.table_name=x.table_name "
 					+ ")) src_md5hash from information_schema.tables x "
 					+ " where x.table_schema=? order by table_name", ps);
 			
-					List<Map> ldb_funcs = dao.executeSQLQuery2Map("select x.proname||replace(replace(coalesce(x.proargnames::text,''),'{','('),'}',')') dsc, md5hash(coalesce(x.proargnames::text,'')||coalesce(x.proargtypes::text,'') ||x.prosrc) src_md5hash from pg_proc x where x.pronamespace=(select q.oid from pg_namespace q where q.nspname=?) order by dsc"
+					List<Map> ldb_funcs = dao.executeSQLQuery2Map("select x.proname||replace(replace(coalesce(x.proargnames::text,''),'{','('),'}',')') dsc, iwb.md5hash(coalesce(x.proargnames::text,'')||coalesce(x.proargtypes::text,'') ||x.prosrc) src_md5hash from pg_proc x where x.pronamespace=(select q.oid from pg_namespace q where q.nspname=?) order by dsc"
 					, ps);
 					
 					Map<String, String> mlc = new HashMap();
@@ -2211,12 +2211,12 @@ public class VcsEngine {
 		Map m = new HashMap();
 
 		List ps=new ArrayList();ps.add(po.getRdbmsSchema());
-		List<Map> ltables = dao.executeSQLQuery2Map("select 1 tip, x.table_name dsc, md5hash((select string_agg(y.column_name||'.'||y.is_nullable||'.'||y.data_type||'.'||coalesce(y.character_maximum_length,0)::text,',' order by ordinal_position) src_md5hash from information_schema.columns y "
+		List<Map> ltables = dao.executeSQLQuery2Map("select 1 tip, x.table_name dsc, iwb.md5hash((select string_agg(y.column_name||'.'||y.is_nullable||'.'||y.data_type||'.'||coalesce(y.character_maximum_length,0)::text,',' order by ordinal_position) src_md5hash from information_schema.columns y "
 			+ " where y.table_schema=x.table_schema "
 			+ " AND y.table_name=x.table_name "
 			+ ")) src_md5hash from information_schema.tables x "
 			+ " where x.table_schema=? order by table_name", ps);
-		List<Map> ldb_funcs = dao.executeSQLQuery2Map("select 2 tip, x.proname||replace(replace(coalesce(x.proargnames::text,''),'{','('),'}',')') dsc, md5hash(coalesce(x.proargnames::text,'')||coalesce(x.proargtypes::text,'') ||x.prosrc) src_md5hash from pg_proc x where x.pronamespace=(select q.oid from pg_namespace q where q.nspname=?) order by dsc"
+		List<Map> ldb_funcs = dao.executeSQLQuery2Map("select 2 tip, x.proname||replace(replace(coalesce(x.proargnames::text,''),'{','('),'}',')') dsc, iwb.md5hash(coalesce(x.proargnames::text,'')||coalesce(x.proargtypes::text,'') ||x.prosrc) src_md5hash from pg_proc x where x.pronamespace=(select q.oid from pg_namespace q where q.nspname=?) order by dsc"
 				, ps);
 		
 		

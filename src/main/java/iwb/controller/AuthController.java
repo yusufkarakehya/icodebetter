@@ -38,21 +38,21 @@ import iwb.util.HttpUtil;
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
-	
+
 	@Autowired
 	private FrameworkEngine engine;
-	
+
 	private final String domain = FrameworkSetting.domain;
 	private final String clientId = FrameworkSetting.clientId;
 	private final String clientSecret = FrameworkSetting.clientSecret;
-	
+
 	private final AuthenticationController originController = AuthenticationController.newBuilder(domain, clientId, clientSecret).build();
     private final String userInfoAudience = String.format("https://%s/userinfo", domain);
-    
+
     private final String redirectOnFail = "../auth/login";
     private final String redirectOnSuccess = "/app/main.htm";
 
-   
+
 
     public Tokens handleRequest(HttpServletRequest request) throws IdentityVerificationException {
         return originController.handle(request);
@@ -64,13 +64,13 @@ public class AuthController {
                 .withAudience(userInfoAudience).withScope("openid profile email")
                 .build();
     }
-    
+
     @CrossOrigin(origins = "*")
     @RequestMapping(value = "/callback", method = RequestMethod.GET)
     protected void getCallback(final HttpServletRequest req, final HttpServletResponse res) throws ServletException, IOException {
         handle(req, res);
     }
-    
+
     @CrossOrigin(origins = "*")
     @RequestMapping(value = "/callback", method = RequestMethod.POST)
     protected void postCallback(final HttpServletRequest req, final HttpServletResponse res) throws ServletException, IOException {
@@ -82,18 +82,18 @@ public class AuthController {
             Tokens tokens = handleRequest(req);
             String idToken = tokens.getIdToken();
             String issuer = "https://iwb.auth0.com/";
-               
+
             Algorithm algorithm = Algorithm.HMAC256(clientSecret);
-            JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuer).build(); 
+            JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuer).build();
             DecodedJWT jwt = verifier.verify(idToken);
-            
+
             Map<String, Claim> claims = jwt.getClaims();
             Claim fullNameClaim = claims.get("name");
             Claim nickClaim = claims.get("nickname");
             Claim eClaim = claims.get("email");
             Claim subClaim = claims.get("sub");
             Claim picClaim = claims.get("picture");
-            
+
             String subject = subClaim.asString();
             int index = subject.indexOf("|");
             String fullName = fullNameClaim.asString();
@@ -101,7 +101,7 @@ public class AuthController {
             String email = eClaim.asString();
             String pictureUrl = picClaim.asString();
             String nickname = nickClaim.asString();
-            
+
             int socialCon = 0;
             if(socialNet.equals("linkedin")){
             	socialCon = 1;
@@ -112,24 +112,24 @@ public class AuthController {
             if(socialNet.equals("google-oauth2")){
             	socialCon = 3;
             }
-            
+
             HttpSession session = req.getSession(true);
             session.setAttribute("authToken", email);
-            Map scd = engine.generateScdFromAuth(socialCon, email); 
+            Map scd = engine.generateScdFromAuth(socialCon, email);
             if(scd == null){
             	Map m = checkVcsTenant(socialCon, email,nickname,socialNet);
             	int customizationId = GenericUtil.uInt(m.get("customizationId"));
             	int userId = GenericUtil.uInt(m.get("userId"));
-             	
+
             	List<Map> projectList = (List<Map>)m.get("projects");
-            	List<Map> userTips = (List<Map>)m.get("userTips");	
+            	List<Map> userTips = (List<Map>)m.get("userTips");
             	engine.saveCredentials(customizationId,userId,pictureUrl,fullName, socialCon, email, nickname, projectList, userTips);
-            	
+
             } else {
             	int profilePictureId = GenericUtil.uInt(scd.get("ppictureId"));
             	int cusId = GenericUtil.uInt(scd.get("customizationId"));
             	int userId = GenericUtil.uInt(scd.get("userId"));
-            	
+
             	if(profilePictureId<3){
             		engine.saveImage(pictureUrl, userId, cusId);
             	}
@@ -143,13 +143,13 @@ public class AuthController {
         	exception.printStackTrace();
         	res.sendRedirect(redirectOnFail);
         }
-        
+
     }
-    
+
     private Map checkVcsTenant(int socialCon, String email, String nickname, String socialNet) {
 		String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url"); //"http://81.214.24.77:8084/app"; //
 		try {
-			JSONObject params = new JSONObject(); 
+			JSONObject params = new JSONObject();
 			params.put("email", email);
 			params.put("socialCon", socialCon);
 			params.put("nickname", nickname);
@@ -176,15 +176,16 @@ public class AuthController {
 	@RequestMapping("/login")
     @ResponseBody
     protected void login(final HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String redirectUri = req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + "/auth/callback";//"http://promiscrm:8585/auth/callback"; 
+        String redirectUri = req.getScheme() + "://" + req.getServerName() + (req.getServerPort()!=80 ? ":" + req.getServerPort(): "") + "/auth/callback";
+        //"http://promiscrm:8585/auth/callback";
         String authorizeUrl = buildAuthorizeUrl(req, redirectUri);
     	res.getWriter().write(authorizeUrl);
 		res.getWriter().close();
     }
-    
+
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
     protected String logout(final HttpServletRequest req) {
-        
+
         invalidateSession(req);
         String returnTo = req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort();
         String logoutUrl = String.format("https://%s/v2/logout?client_id=%s&returnTo=%s", domain, clientId, returnTo);
@@ -196,11 +197,11 @@ public class AuthController {
             request.getSession().invalidate();
         }
     }
-    
+
     @RequestMapping("/redirectAuth")
     private void authRedirect(HttpServletRequest req, HttpServletResponse res) throws IOException {
     	res.sendRedirect(redirectOnFail);
     }
-    
+
 
 }

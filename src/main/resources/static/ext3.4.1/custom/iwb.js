@@ -2367,6 +2367,7 @@ function getSecurityWord(){
 	});			
 }
 function showLoginDialog(xobj){
+	if(1*_scd.customizationId>0){document.location='/app/index.html';return;}
 	if(lw && lw.isVisible())return;
 	if(typeof onlineUsersGridPanel!='undefined' && onlineUsersGridPanel)onlineUsersGridPanel.store.removeAll();
 	var fs = new Ext.form.FormPanel({
