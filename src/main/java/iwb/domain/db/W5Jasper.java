@@ -11,7 +11,7 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
-@Table(name="w5_jasper")
+@Table(name="w5_jasper",schema="iwb")
 public class W5Jasper implements java.io.Serializable{
 
 	private int jasperId;

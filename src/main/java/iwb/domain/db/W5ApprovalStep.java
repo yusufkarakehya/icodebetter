@@ -57,7 +57,6 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	private short sendMailOnEnterStepFlag;
 	private short sendSmsOnEnterStepFlag;
 	private short eSignFlag;
-	private short sendInfoMailToDealerFlag;  
 	
 	
 	@Column(name="approval_id")
@@ -307,13 +306,7 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	public void seteSignFlag(short eSignFlag) {
 		this.eSignFlag = eSignFlag;
 	}	
-	@Column(name="send_info_mail_to_dealer_flag")
-	public short getSendInfoMailToDealerFlag() {
-		return sendInfoMailToDealerFlag;
-	}
-	public void setSendInfoMailToDealerFlag(short sendInfoMailToDealerFlag) {
-		this.sendInfoMailToDealerFlag = sendInfoMailToDealerFlag;
-	}
+
 	@Column(name="access_view_user_fields")
 	public String getAccessViewUserFields() {
 		return accessViewUserFields;
@@ -374,7 +367,6 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 		a.sendMailOnEnterStepFlag=this.sendMailOnEnterStepFlag;
 		a.sendSmsOnEnterStepFlag=this.sendSmsOnEnterStepFlag;
 		a.eSignFlag=this.eSignFlag;
-		a.sendInfoMailToDealerFlag=this.sendInfoMailToDealerFlag; 		
 		return a;
 	}
 
@@ -419,8 +411,7 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 			
 			this.sendMailOnEnterStepFlag== a.sendMailOnEnterStepFlag  &&
 			this.sendSmsOnEnterStepFlag== a.sendSmsOnEnterStepFlag  &&
-			this.eSignFlag== a.eSignFlag  &&
-			this.sendInfoMailToDealerFlag== a.sendInfoMailToDealerFlag;  
+			this.eSignFlag== a.eSignFlag;  
 	}
 	
 }

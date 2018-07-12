@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="w5_import_excel_csv_data")
+@Table(name="w5_import_excel_csv_data",schema="iwb")
 public class W5ImportExcelCsvData implements java.io.Serializable {
 
 	private int rowNo;

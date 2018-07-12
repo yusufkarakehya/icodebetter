@@ -13,7 +13,6 @@ import iwb.domain.db.W5Customization;
 import iwb.engine.FrameworkEngine;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
-import iwb.util.UserUtil;
 
 public class GenericTimer extends TimerTask {
 	@Autowired

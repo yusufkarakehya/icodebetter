@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -28,9 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
@@ -50,13 +46,10 @@ import iwb.adapter.ui.react.React16;
 import iwb.adapter.ui.vue.Vue2;
 import iwb.adapter.ui.webix.Webix3_3;
 import iwb.domain.db.Log5UserAction;
-import iwb.domain.db.W5Customization;
-import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5BIGraphDashboard;
-import iwb.domain.db.W5LookUpDetay;
+import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Notification;
 import iwb.domain.db.W5Query;
-import iwb.domain.db.W5SmsValidCode;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5QueuedDbFuncHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
@@ -75,7 +68,6 @@ import iwb.report.RptPdfRenderer;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import iwb.util.HttpUtil;
 import iwb.util.JasperUtil;
 import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
@@ -115,13 +107,6 @@ public class PreviewServlet implements InitializingBean {
 		f7 = new F7();
 		react16 = new React16();
 		vue2 = new Vue2();
-	//	FrameworkCache.activeProjectsStr = "067e6162-3b6f-4ae2-a221-2470b63dff00,29a3d378-3c59-4b5c-8f60-5334e3729959";
-		engine.reloadCache(-1);
-		// if(PromisSetting.checkLicenseFlag)engine.checkLicences();
-		// dao.organizeAudit();
-		engine.setJVMProperties(0);
-		
-		//if(FrameworkSetting.mq)UserUtil.activateMQs();
 	}
 
 

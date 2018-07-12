@@ -11,7 +11,6 @@ import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormSmsMailAlarm;
-import iwb.domain.db.W5TempLogRecord;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5QueuedDbFuncHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
@@ -57,7 +56,6 @@ public class W5FormResult implements W5MetaResult{
 	private List<Map<String, String>> previewMapList;
 	private List<Map<String, String>> previewConversionMapList;
 	private Map<Integer, List<W5ConvertedObject>> mapConvertedObject;
-	private List<W5TempLogRecord> crudLogRecordList;
 	private Map<Integer,Map<Integer, Integer>> mapWidgetCount; //userId, widgetId, count
 	private List<W5FormSmsMailAlarm> formAlarmList;
 
@@ -269,12 +267,6 @@ public class W5FormResult implements W5MetaResult{
 	public void setMapConvertedObject(
 			Map<Integer, List<W5ConvertedObject>> mapConvertedObject) {
 		this.mapConvertedObject = mapConvertedObject;
-	}
-	public List<W5TempLogRecord> getCrudLogRecordList() {
-		return crudLogRecordList;
-	}
-	public void setCrudLogRecordList(List<W5TempLogRecord> crudLogRecordList) {
-		this.crudLogRecordList = crudLogRecordList;
 	}
 	public Map<Integer, Map<Integer, Integer>> getMapWidgetCount() {
 		return mapWidgetCount;

@@ -14,7 +14,7 @@ import org.hibernate.annotations.Immutable;
 
 @Entity
 @Immutable
-@Table(name="w5_comment")
+@Table(name="w5_comment",schema="iwb")
 public class W5Comment  implements java.io.Serializable {
 
 	private int commentId;

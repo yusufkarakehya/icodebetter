@@ -135,7 +135,7 @@ Ext.ux.form.CodeMirror = Ext.extend(Ext.form.TextArea, {
                 }).defer(201); // magic number of 200 is defined in CodeMirror.requireMode...
 
                 self.initialized = true;
-                self.codeEditor.getWrapperElement().style.backgroundColor = "#fff";
+                self.codeEditor.getWrapperElement().style.backgroundColor = "#1e2532";
                 self.codeEditor.getWrapperElement().style.border = "1px solid #B5B8C8";
                 (function() {
                     self.codeEditor.refresh();

@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name="w5_approval_record")
+@Table(name="w5_approval_record",schema="iwb")
 public class W5ApprovalRecord implements java.io.Serializable {
 
 	private int approvalRecordId;
@@ -38,8 +38,6 @@ public class W5ApprovalRecord implements java.io.Serializable {
 	private short accessViewTip;
 	private String accessViewRoles;
 	private String accessViewUsers;
-	private Integer dealerId;
-	private Integer relDealerId;
 	private Integer hierarchicalLevel;
   	
 	@SequenceGenerator(name="seqx_approval_record",sequenceName="iwb.seq_approval_record",allocationSize=1)
@@ -197,20 +195,6 @@ public class W5ApprovalRecord implements java.io.Serializable {
 	public void setVersionNo(int versionNo) {
 		this.versionNo = versionNo;
 	}	
-	@Column(name="dealer_id")
-	public Integer getDealerId() {
-		return dealerId;
-	}
-	public void setDealerId(Integer dealerId) {
-		this.dealerId = dealerId;
-	}
-	@Column(name="rel_dealer_id")
-	public Integer getRelDealerId() {
-		return relDealerId;
-	}
-	public void setRelDealerId(Integer relDealerId) {
-		this.relDealerId = relDealerId;
-	}
 	@Column(name="hierarchical_level")
 	public Integer getHierarchicalLevel() {
 		return hierarchicalLevel;

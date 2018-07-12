@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mozilla.javascript.NativeObject;
 
 import iwb.dao.RdbmsDao;
@@ -202,6 +200,13 @@ public class ScriptEngine {
 	
 	
 	public int sqlExecute(String sql){
+		if(scd!=null && scd.get("customizationId")!=null && (Integer)scd.get("customizationId")>0) {
+			String sql2=sql.toLowerCase(FrameworkSetting.appLocale);
+			if(sql2.contains("iwb.") || sql2.contains("drop") || sql2.contains("delete") || sql2.contains("truncate") || sql2.contains("search_path") || sql2.contains("grant") || sql2.contains("vacuum") || sql2.contains("lock") || sql2.contains("execute")) {
+				throw new IWBException("security","SQL", 0, null, "Forbidden Command2. Please contact iCodeBetter team ;)", null);
+			}
+		}
+
 		return dao.executeUpdateSQLQuery(sql, null); 
 	}
 	
@@ -229,7 +234,7 @@ public class ScriptEngine {
 	}
 	
 	public Map getTableJSON(String tableDsc, String tablePk){
-		List<Integer> l = dao.find("select t.tableId from W5Table t where t.dsc=? AND t.customizationId=?", tableDsc, scd.get("customizationId"));
+		List<Integer> l = dao.find("select t.tableId from W5Table t where t.dsc=? AND t.customizationId in (0,?) order by t.customizationId desc", tableDsc, scd.get("customizationId"));
 		if(l.isEmpty())
 			throw new IWBException("rhino","getTableJSON", 0, tableDsc, "table_not_found", null);
 

@@ -39,7 +39,6 @@ import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.db.W5WsServerMethodParam;
-import iwb.domain.helper.W5QueuedDbFuncHelper;
 import iwb.domain.result.W5DbFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
@@ -54,7 +53,7 @@ import iwb.util.UserUtil;
 @Controller
 @RequestMapping("/ws")
 public class WsServlet implements InitializingBean {
-	private static Logger logger = Logger.getLogger(AppServlet.class);
+	private static Logger logger = Logger.getLogger(WsServlet.class);
 
 	private ViewAdapter ext3_4 = new ExtJs3_3();
 	private SoapAdapter soap = new AxisSoap1_4();
@@ -453,7 +452,6 @@ public class WsServlet implements InitializingBean {
 					lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
 					break;
 				}
-				if(dfr.getDbFunc().getRelatedTableId()!=0)t = FrameworkCache.getTable(ws.getCustomizationId(), dfr.getDbFunc().getRelatedTableId());
 				for(W5DbFuncParam dfp:dfr.getDbFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1){
 					lwsmp.add(new W5WsServerMethodParam(dfp, dfp.getOutFlag(), dfp.getOutFlag()==0 ? 0:-999));
 				}

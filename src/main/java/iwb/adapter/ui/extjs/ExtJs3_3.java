@@ -1,6 +1,5 @@
 package iwb.adapter.ui.extjs;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,19 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import iwb.adapter.ui.ViewAdapter;
 import iwb.domain.db.W5Approval;
+import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5CustomGridColumnCondition;
@@ -36,7 +25,6 @@ import iwb.domain.db.W5FormHint;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5FormSmsMailAlarm;
-import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Grid;
 import iwb.domain.db.W5GridColumn;
 import iwb.domain.db.W5GridModule;
@@ -51,7 +39,6 @@ import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5TempLogRecord;
 import iwb.domain.db.W5Template;
 import iwb.domain.db.W5TemplateObject;
 import iwb.domain.db.W5Tutorial;
@@ -252,34 +239,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			}
 			buf.append("]");
 		}
-		if (!GenericUtil.isEmpty(formResult.getCrudLogRecordList())) {
-			short logLevel = (short) FrameworkCache.getAppSettingIntValue(
-					formResult.getScd(), "db_proc_log_level");
-			buf.append(",\n\"logErrors\":[");
-			boolean bx = false;
-			for (W5TempLogRecord tlr : formResult.getCrudLogRecordList())
-				if (tlr.getLogLevel() >= logLevel) {
-					if (bx)
-						buf.append(",\n");
-					else
-						bx = true;
-					buf.append("{\"table_id\":").append(tlr.getTableId())
-							.append(",\"table_pk\":").append(tlr.getTablePk())
-							.append(",\"log_level\":")
-							.append(tlr.getLogLevel()).append(",\"dsc\":\"")
-							.append(GenericUtil.stringToJS2(tlr.getDsc()))
-							.append("\"");
-					if (!GenericUtil.isEmpty(tlr.get_parentRecords())) {
-						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":").append(
-								serializeTableHelperList((Integer) formResult
-										.getScd().get("customizationId"),
-										xlocale, tlr.get_parentRecords()));
-					}
-					buf.append("}");
-				}
-
-			buf.append("]");
-		}
+		
 		buf.append("\n}");
 		return buf;
 	}
@@ -1368,15 +1328,6 @@ public class ExtJs3_3 implements ViewAdapter {
 		
 		
 		for(W5FormCell fc:formResult.getForm().get_formCells())if(fc.getControlTip()==99 && fc.get_sourceObjectDetail()!=null){//grid is
-/*			W5Grid g = (W5Grid)fc.get_sourceObjectDetail();
-			W5GridResult gr = new W5GridResult(g.getGridId());
-			gr.setRequestParams(formResult.getRequestParams());gr.setScd(formResult.getScd());gr.setFormCellResultMap(new HashMap());
-			
-			for(W5GridColumn column:g.get_gridColumnList())if(column.get_formCell()!=null){
-				gr.getFormCellResultMap().put(column.get_formCell().getFormCellId(), new W5FormCellHelper(column.get_formCell()));
-			}
-			
-			gr.setGrid(g);*/
 			W5GridResult gr = formResult.getModuleGridMap().get(fc.getLookupQueryId());
 			s.append(serializeGrid(gr)).append("\n");
 		}
@@ -1410,8 +1361,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(formResult.getAction()).append("\n");
 
 		// 24 nolu form form edit form olduğu için onu çevirmesin.
-		String postCode = (formResult.getForm().get_renderTemplate() != null
-				&& formResult.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && formResult
+		String postCode = (formResult.getForm().get_renderTemplate() != null && formResult.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && formResult
 				.getFormId() != 24) ? GenericUtil.filterExt(
 				formResult.getForm().getJsCode(), scd,
 				formResult.getRequestParams(), null).toString() : formResult
@@ -1426,7 +1376,11 @@ public class ExtJs3_3 implements ViewAdapter {
 		} else
 			postCode = "";
 		if (!GenericUtil.isEmpty(postCode)) {
-			s.append("try{").append(postCode).append("\n}catch(e){");
+			s.append("try{");
+			if(FrameworkSetting.debug)s.append("\n/*iwb:start:form:").append(formResult.getFormId()).append(":Code*/\n");
+			s.append(postCode);
+			if(FrameworkSetting.debug)s.append("\n/*iwb:end:form:").append(formResult.getFormId()).append(":Code*/\n");
+			s.append("\n}catch(e){");
 			s.append(FrameworkSetting.debug ? "if(confirm('ERROR form.JS!!! Throw?'))throw e;"
 					: "alert('System/Customization ERROR')");
 			s.append("}\n");
@@ -2371,32 +2325,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		}
 		// f.get_formCellHelp().get(xlocale).get(fc.getFormCellId()) TODO:eralp
 
-		HashMap<String, String> h = null;
 		W5Form form = formResult == null ? null : formResult.getForm();
-		if (form != null && form.get_formCellHelps() != null) {
-			h = (HashMap<String, String>) form.get_formCellHelps().get(xlocale+"-"+fc.getFormCellId());
-		}
-
-		if (h != null) {
-			h.put("htitle", fieldLabel);
-			h.put("hid", cellResult.getDsc() + fc.getFormCellId());
-			StringBuilder cfg = new StringBuilder();
-			cfg.append("{");
-			for (Object q : h.keySet()) {
-				Object o = h.get(q);
-				cfg.append(q)
-						.append(":\\\'")
-						.append(o != null ? GenericUtil
-								.stringToHtml2(o.toString())
-								.replaceAll("\"", "").replaceAll("'", "") : "")
-						.append("\\\',");
-			}
-			cfg.deleteCharAt(cfg.length() - 1);
-			cfg.append("}");
-			// System.out.println(cfg.toString());
-			fieldLabel += " <img src=\"../images/custom/icons/help_mini.png\" onmouseover=\"this.style.cursor=\\\'pointer\\\'\" onclick=\"buildHelpWindow("
-					+ cfg.toString() + ");\" border=\"0\" />";
-		}
 
 		boolean notNull = fc.getNotNullFlag() != 0;
 		// if(notNull)fieldLabel+=" <span style=\"color:red;\">*</span>";
@@ -2875,9 +2804,9 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append("new Ext.ux.NumericField");
 			break;
 		case 41:// edit js - codemirror
-			if (formResult != null && formResult.getForm() != null
+			if (true || (formResult != null && formResult.getForm() != null
 					&& formResult.getForm().getObjectTip() == 2
-					&& formResult.getAction() == 1) {
+					&& formResult.getAction() == 1)) {
 				buf.setLength(0);
 				buf.append("new Ext.ux.form.CodeMirror");
 				break;
@@ -3989,7 +3918,7 @@ public class ExtJs3_3 implements ViewAdapter {
 
 
 		if (controlTip == 41 && fc.getLookupQueryId()>0 && fc.getLookupQueryId()<5)
-			buf.append(",mode:'").append(new String[]{"javascript","htmlmixed","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
+			buf.append(",value:'',listeners:{blur:function(aq){if(!aq || !aq.el)return;aq._newValue=aq.getValue();aq._newValue2=aq.el.dom.value;}},mode:'").append(new String[]{"javascript","htmlmixed","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
 
 		if (fc.get_sourceObjectDetail() != null)
 			buf.append(",allowBlank:").append(!notNull);
@@ -4539,8 +4468,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		if (FrameworkSetting.liveSyncRecord && g.get_viewTable() != null
 				&& g.get_viewTable().getLiveSyncFlag() != 0)
 			buf.append(",\n liveSync:true");
-		if (g.getMaximizeFlag() != 0)
-			buf.append(",\n maximizeFlag:true");
+
 		if (g.getDefaultWidth() != 0)
 			buf.append(",\n defaultWidth:").append(g.getDefaultWidth());
 		if (gridResult.isViewLogMode())
@@ -4560,16 +4488,6 @@ public class ExtJs3_3 implements ViewAdapter {
 
 			buf.append(",\n gridReport:").append(FrameworkCache.roleAccessControl(scd,  105));
 
-			if (g.getMoveUpDownFlag() != 0) {
-				boolean tabOrderExists = false;
-				for (W5TableField f : g.get_viewTable().get_tableFieldList()) {
-					if (f.getDsc().equals("tab_order")) {
-						tabOrderExists = true;
-						break;
-					}
-				}
-				buf.append(",\n moveUpDown:").append(tabOrderExists);
-			}
 			buf.append(",\n saveUserInfo:false");
 		}
 		buf.append(",\n loadMask:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
@@ -4861,17 +4779,6 @@ public class ExtJs3_3 implements ViewAdapter {
 
 		buf.append(serializeGridColumns(gridResult));
 
-		if (g.getSummaryTip() != 0) {
-			if (g.getSummaryTip() == 1) {
-				buf.append("\n").append(g.getDsc())
-						.append(".plugins.push(new Ext.ux.grid.GridSummary())");
-			} else if (g.getSummaryTip() == 2) {
-				buf.append("\n")
-						.append(g.getDsc())
-						.append(".plugins.push(new Ext.ux.grid.GroupSummary())");
-			}
-		}
-
 		if (expander)
 			buf.append("\n").append(g.getDsc()).append(".plugins.push(")
 					.append(g.getDsc()).append("_dv)");
@@ -4968,10 +4875,11 @@ public class ExtJs3_3 implements ViewAdapter {
 		}
 
 		if (!GenericUtil.isEmpty(g.getJsCode())) {
-			buf.append("\ntry{")
-					.append(GenericUtil.filterExt(g.getJsCode(), scd,
-							gridResult.getRequestParams(), null))
-					.append("\n}catch(e){")
+			buf.append("\ntry{");
+			if(FrameworkSetting.debug)buf.append("\n/*iwb:start:grid:").append(gridResult.getGridId()).append(":Code*/\n");
+			buf.append(GenericUtil.filterExt(g.getJsCode(), scd,gridResult.getRequestParams(), null));
+			if(FrameworkSetting.debug)buf.append("\n/*iwb:end:grid:").append(gridResult.getGridId()).append(":Code*/\n");
+			buf.append("\n}catch(e){")
 					.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw?'))throw e;"
 							: "alert('System/Customization ERROR')");
 			buf.append("}\n");
@@ -5340,7 +5248,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					c.set_queryField(f);
 					c.setWidth(f.getTabOrder());
 					c.setAlignTip((short) 0);
-					c.setLocaleMsgKey("<img src=\"../images/custom/"
+					c.setLocaleMsgKey("<img src=\"../ext3.4.1/custom/images/"
 							+ FrameworkSetting.postQueryGridImgMap[f.getFieldTip()]
 							+ "\" border=0>");
 					c.setVisibleFlag((short) 1);

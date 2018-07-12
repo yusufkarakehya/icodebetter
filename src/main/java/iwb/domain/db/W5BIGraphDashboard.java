@@ -11,7 +11,7 @@ import org.hibernate.annotations.Immutable;
 
 @Entity
 @Immutable
-@Table(name="w5_bi_graph_dashboard")
+@Table(name="w5_bi_graph_dashboard",schema="iwb")
 public class W5BIGraphDashboard implements java.io.Serializable, W5Base {
 /*
  * graph_dashboard_id integer NOT NULL,

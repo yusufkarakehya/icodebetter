@@ -27,10 +27,6 @@ public class W5DbFunc implements java.io.Serializable {
 	
 	private short logLevelTip;
 	private short execRestrictTip; //0:kisitlama yok, 1:var
-	private int moduleId;
-	private int relatedTableId;
-	private short includeApprovalFieldsFlag;
-	private String insideActions;
 	private String rhinoScriptCode;
 	private List<W5DbFuncParam> _dbFuncParamList;
 
@@ -85,39 +81,7 @@ public class W5DbFunc implements java.io.Serializable {
 		this.execRestrictTip = execRestrictTip;
 	}
 
-	@Column(name="module_id")
-	public int getModuleId() {
-		return moduleId;
-	}
 
-	public void setModuleId(int moduleId) {
-		this.moduleId = moduleId;
-	}
-
-	@Column(name="related_table_id")
-	public int getRelatedTableId() {
-		return relatedTableId;
-	}
-
-	public void setRelatedTableId(int relatedTableId) {
-		this.relatedTableId = relatedTableId;
-	}
-	@Column(name="include_approval_fields_flag")
-	public short getIncludeApprovalFieldsFlag() {
-		return includeApprovalFieldsFlag;
-	}
-
-	public void setIncludeApprovalFieldsFlag(short includeApprovalFieldsFlag) {
-		this.includeApprovalFieldsFlag = includeApprovalFieldsFlag;
-	}
-	@Column(name="inside_actions")
-	public String getInsideActions() {
-		return insideActions;
-	}
-
-	public void setInsideActions(String insideActions) {
-		this.insideActions = insideActions;
-	}
 
 	@Column(name="rhino_script_code")
 	public String getRhinoScriptCode() {

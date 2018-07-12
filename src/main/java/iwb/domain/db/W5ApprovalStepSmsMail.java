@@ -13,7 +13,7 @@ import org.hibernate.annotations.Immutable;
 
 @Entity
 @Immutable
-@Table(name="w5_approval_step_sms_mail")
+@Table(name="w5_approval_step_sms_mail",schema="iwb")
 public class W5ApprovalStepSmsMail implements java.io.Serializable {
 	
 	private static final long serialVersionUID = 1L;

@@ -1,6 +1,5 @@
 package iwb.adapter.ui.webix;
 
-import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,17 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import iwb.adapter.ui.ViewAdapter;
 import iwb.domain.db.W5Approval;
@@ -48,7 +36,6 @@ import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5TempLogRecord;
 import iwb.domain.db.W5Template;
 import iwb.domain.db.W5TemplateObject;
 import iwb.domain.db.W5Tutorial;
@@ -249,34 +236,7 @@ public class Webix3_3 implements ViewAdapter {
 			}
 			buf.append("]");
 		}
-		if (!GenericUtil.isEmpty(formResult.getCrudLogRecordList())) {
-			short logLevel = (short) FrameworkCache.getAppSettingIntValue(
-					formResult.getScd(), "db_proc_log_level");
-			buf.append(",\n\"logErrors\":[");
-			boolean bx = false;
-			for (W5TempLogRecord tlr : formResult.getCrudLogRecordList())
-				if (tlr.getLogLevel() >= logLevel) {
-					if (bx)
-						buf.append(",\n");
-					else
-						bx = true;
-					buf.append("{\"table_id\":").append(tlr.getTableId())
-							.append(",\"table_pk\":").append(tlr.getTablePk())
-							.append(",\"log_level\":")
-							.append(tlr.getLogLevel()).append(",\"dsc\":\"")
-							.append(GenericUtil.stringToJS2(tlr.getDsc()))
-							.append("\"");
-					if (!GenericUtil.isEmpty(tlr.get_parentRecords())) {
-						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":").append(
-								serializeTableHelperList((Integer) formResult
-										.getScd().get("customizationId"),
-										xlocale, tlr.get_parentRecords()));
-					}
-					buf.append("}");
-				}
-
-			buf.append("]");
-		}
+	
 		buf.append("\n}");
 		return buf;
 	}
@@ -2859,8 +2819,6 @@ public class Webix3_3 implements ViewAdapter {
 		if (FrameworkSetting.liveSyncRecord && g.get_viewTable() != null
 				&& g.get_viewTable().getLiveSyncFlag() != 0)
 			buf.append(",\n liveSync:true");
-		if (g.getMaximizeFlag() != 0)
-			buf.append(",\n maximizeFlag:true");
 		if (g.getDefaultWidth() != 0)
 			buf.append(",\n defaultWidth:").append(g.getDefaultWidth());
 		if (gridResult.isViewLogMode())
@@ -2880,17 +2838,6 @@ public class Webix3_3 implements ViewAdapter {
 
 			buf.append(",\n gridReport:").append(FrameworkCache.roleAccessControl(scd,  105));
 
-			if (g.getMoveUpDownFlag() != 0) {
-				boolean tabOrderExists = false;
-				for (W5TableField f : g.get_viewTable().get_tableFieldList()) {
-					if (f.getDsc().equals("tab_order")) {
-						tabOrderExists = true;
-						break;
-					}
-				}
-				buf.append(",\n moveUpDown:").append(tabOrderExists);
-			}
-		
 		}
 		buf.append(",\n loadMask:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
 		

@@ -11,7 +11,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="log5_exception")
+@Table(name="log5_exception",schema="iwb")
 public class Log5Exception implements Serializable{
 	
 	private int logId;

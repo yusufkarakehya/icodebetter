@@ -22,7 +22,7 @@ import iwb.util.LocaleMsgCache;
 
 @Entity
 @Immutable
-@Table(name="w5_notification")
+@Table(name="w5_notification",schema="iwb")
 public class W5Notification implements java.io.Serializable {
 
 	private int notificationId;

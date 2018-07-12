@@ -6,7 +6,7 @@ import java.util.Date;
 
 import javax.persistence.Table;
 
-@Table(name="log5_user_role_login")
+@Table(name="log5_user_role_login",schema="iwb")
 public class Log5UserRoleLogin implements java.io.Serializable {
 
 	private int logId;
