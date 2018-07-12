@@ -5,6 +5,7 @@ import iwb.domain.db.W5Notification;
 import iwb.domain.db.W5Project;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
+import iwb.util.DBUtil;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -12,23 +13,12 @@ import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
 
 public class PostFormTrigger {
-	public static void beforePostForm(W5FormResult formResult){
-		switch(formResult.getFormId()){
-		
-		}
-	}
-	
-	
-	public static void afterPostForm(W5FormResult formResult, RdbmsDao dao, String prefix){
-		String msg;
+	public static void beforePostForm(W5FormResult formResult, RdbmsDao dao, String prefix){
 		switch(formResult.getFormId()){
 		case	2491://SQL Script
 			String sql = formResult.getRequestParams().get("extra_sql");
-			if(!GenericUtil.isEmpty(sql) && (Integer)formResult.getScd().get("customizationId")>0) {
-				String sql2=sql.toLowerCase(FrameworkSetting.appLocale);
-				if(sql2.contains("iwb.") || sql2.contains("drop") || sql2.contains("delete") || sql2.contains("truncate") || sql2.contains("search_path") || sql2.contains("grant") || sql2.contains("vacuum") || sql2.contains("lock") || sql2.contains("execute")) {
-					throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
-				}
+			if(!GenericUtil.isEmpty(sql) && (Integer)formResult.getScd().get("customizationId")>0 && DBUtil.checkTenantSQLSecurity(sql)) {
+				throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
 			}
 			if(GenericUtil.uCheckBox(formResult.getRequestParams().get("run_local_flag"))!=0){// simple security check. TODO
 				W5Project prj = FrameworkCache.wProjects.get(formResult.getScd().get("projectId").toString());
@@ -38,6 +28,14 @@ public class PostFormTrigger {
 				dao.executeUpdateSQLQuery(sql);
 			}
 			break;
+		}
+	}
+	
+	
+	public static void afterPostForm(W5FormResult formResult, RdbmsDao dao, String prefix){
+		String msg;
+		switch(formResult.getFormId()){
+	
 		
 		case	551://comment
 			if(formResult.getErrorMap().isEmpty() && formResult.getAction()==2){

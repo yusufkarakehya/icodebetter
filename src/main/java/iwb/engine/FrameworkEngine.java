@@ -1027,7 +1027,7 @@ public class FrameworkEngine{
 	    Map<String, Object> scd = formResult.getScd();
 	    Map<String,String> requestParams = formResult.getRequestParams();
 
-		PostFormTrigger.beforePostForm(formResult);
+		PostFormTrigger.beforePostForm(formResult, dao, prefix);
 		boolean dev = scd.get("roleId")!=null && (Integer)scd.get("roleId")==0 && GenericUtil.uInt(requestParams,"_dev")!=0;
 		int customizationId = dev ? 0 : (Integer)scd.get("customizationId");
 		W5Table t = FrameworkCache.getTable(customizationId, formResult.getForm().getObjectId());//formResult.getForm().get_sourceTable();
@@ -5374,7 +5374,7 @@ public class FrameworkEngine{
 		if(!PromisUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
 			throw new PromisException("security","Form", ui.getFormId(), null, PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 		}*/
-		PostFormTrigger.beforePostForm(formResult);
+		PostFormTrigger.beforePostForm(formResult, dao, "");
 
 //		accessControl4FormTable(formResult);
 		if(formResult.isViewMode()){
@@ -7053,7 +7053,7 @@ public class FrameworkEngine{
 		if(!tablePrefix.endsWith("_"))tablePrefix+="_";
 		fullTableName = schema + tablePrefix + tableName;
 		parentTableId = main.has("parent_table_id") ? GenericUtil.uInt(main.get("parent_table_id")) : 0;
-		s.append("create table ").append(fullTableName)
+		s.append("create table ").append(tableName)
 		  .append(" (");
 		s.append(tableName).append("_id integer not null");
 		String relParentFieldName = null;
@@ -7140,7 +7140,7 @@ public class FrameworkEngine{
 		try {
 			dao.executeUpdateSQLQuery(createTableSql);
 
-			String createSeqSql = "create sequence "+schema+"seq_"+tablePrefix+tableName;
+			String createSeqSql = "create sequence seq_"+tablePrefix+tableName;
 			dao.executeUpdateSQLQuery(createSeqSql);
 
 			if(vcs){
@@ -7589,6 +7589,9 @@ public class FrameworkEngine{
 	    				if(!l.isEmpty())t = FrameworkCache.getTable(scd, (Integer)l.get(0));
 	    			}
 	    		}
+				if((Integer)scd.get("customizationId")>0 && DBUtil.checkTenantSQLSecurity(queryResult.getExecutedSql())) {
+					throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
+				}
 
 	        	return dao.executeSQLQuery2Map4Debug(scd, t, queryResult.getExecutedSql(), queryResult.getSqlParams(), GenericUtil.uIntNvl(requestParams, "limit", 50), GenericUtil.uIntNvl(requestParams, "start", 0));
 	//        	if(queryResult.getData()==null)queryResult.setData(new ArrayList());

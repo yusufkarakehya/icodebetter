@@ -8,6 +8,10 @@ import java.util.Map;
 import iwb.exception.IWBException;
 
 public class DBUtil {
+	public static boolean checkTenantSQLSecurity(String sql) {
+		String sql2=sql.toLowerCase(FrameworkSetting.appLocale);
+		return (sql2.contains("iwb.") || sql2.contains("information_schema.") || sql2.contains("drop") || sql2.contains("delete") || sql2.contains("truncate") || sql2.contains("search_path") || sql2.contains("grant") || sql2.contains("vacuum") || sql2.contains("lock") || sql2.contains("execute"));
+	}
 	public static Object[] filterExt4SQL(String code, Map<String, Object> scd, Map<String, String> requestParams, Map<String, Object> obj) {
 		StringBuilder sql = new StringBuilder();
 		List<Object> params = new ArrayList();
