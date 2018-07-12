@@ -747,28 +747,23 @@ class XGrid extends React.PureComponent {
 			multiselect,
 			showDetail,
 			crudFlags,
-			pageSize,
 			keyField
 		} = this.props;
 
 		if(!rows || !rows.length) return null;
-		return _(_dxgrb.Grid, {
-				rows,
-				columns, 
-				getRowId : row => row[keyField]
-			},
-			!!_disableIntegratedSorting && _(_dxrg.SortingState, !pageSize ? null : {
+		return _(_dxgrb.Grid,{ rows, columns, getRowId : (row) => row[keyField]},
+			!_disableIntegratedSorting && _(_dxrg.SortingState, !this.props.pageSize ? null : {
 					sorting,
 					onSortingChange: this.onSortingChange,
 					columnExtensions:tableColumnExtensions
 				}),
 			multiselect && _(_dxrg.SelectionState,null),
-			!pageSize ? _(_dxrg.SearchState, null) : null,
-			!pageSize ?  _(_dxrg.RowDetailState,null) : null,
-			!pageSize 	&& rows.length>1  ? _(_dxrg.IntegratedFiltering, null) 		: null,
-			!pageSize 	&& rows.length>1  ? _(_dxrg.GroupingState,null) 			: null,		  
-			!pageSize 	&& rows.length>1  ? _(_dxrg.IntegratedGrouping ,null) 		: null,
-			!pageSize 	&& rows.length>1  ? _(_dxrg.IntegratedSorting,null) 		: null,
+			!this.props.pageSize ? _(_dxrg.SearchState, null) : null,
+			!this.props.pageSize ?  _(_dxrg.RowDetailState,null) : null,
+			!this.props.pageSize 	&& rows.length>1  ? _(_dxrg.IntegratedFiltering, null) 		: null,
+			!this.props.pageSize 	&& rows.length>1  ? _(_dxrg.GroupingState,null) 			: null,		  
+			!this.props.pageSize 	&& rows.length>1  ? _(_dxrg.IntegratedGrouping ,null) 		: null,
+			!this.props.pageSize 	&& rows.length>1  ? _(_dxrg.IntegratedSorting,null) 		: null,
 			showDetail 	&&  _(_dxrg.RowDetailState,null),
 			rows.length>iwb.detailPageSize || pageSize>1 ? _(_dxrg.PagingState, pageSize>1 ? {
 				currentPage,
@@ -778,6 +773,7 @@ class XGrid extends React.PureComponent {
 			pageSize>1 && rows.length>1  ? _(_dxrg.CustomPaging, {totalCount}) : null,
 			
 			multiselect && _(_dxrg.IntegratedSelection,null),
+
 			_(_dxgrb.DragDropProvider,null),
 			_(_dxgrb.Table, {
 				columnExtensions: tableColumnExtensions,
