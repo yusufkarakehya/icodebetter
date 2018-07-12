@@ -8092,16 +8092,18 @@ public class FrameworkEngine{
     		W5FileAttachment fa = new W5FileAttachment();
 
     		fa.setSystemFileName(fileId + "." + GenericUtil.strUTF2En(FilenameUtils.getBaseName(url.getPath())));
-    		String picPath = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator + "profile_pix";
-    		File f = new File(picPath);
-
-    		if (!f.exists()/* && f.isDirectory()*/) {
-    			boolean cDir = new File(picPath).mkdirs();
-//    			boolean aDir = new File(picPath + File.separator + "attachment").mkdirs();
+	   		String testPath = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
+	    				+ File.separator + cusId;
+    		File f = new File(testPath);
+    		
+    		if (!f.exists()) {
+    			boolean cDir = new File(testPath).mkdirs();
+    			boolean aDir = new File(testPath + File.separator + "attachment").mkdirs();
     		}
 
-    		String filePath = picPath + File.separator + fa.getSystemFileName();
-
+    		String filePath = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
+    				+ File.separator + cusId + File.separator + "attachment"+ File.separator + fa.getSystemFileName();
+    		
     		OutputStream os = new FileOutputStream(filePath);
     		byte[] b = new byte[2048];
 

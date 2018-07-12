@@ -3273,6 +3273,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					updateList.add(field);
 				}
 	    	} catch(Exception e){
+	    		if(FrameworkSetting.debug)e.printStackTrace();
 	    		if(queryId!=-1)throw new IWBException("sql","Query Field Creation",queryId,sql.toString(), e.getMessage(), e.getCause());
 	    	}
 		}
