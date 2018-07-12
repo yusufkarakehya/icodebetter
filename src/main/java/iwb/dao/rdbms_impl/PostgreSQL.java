@@ -3169,6 +3169,12 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 	@Override
 	public void organizeQueryFields(Map<String, Object> scd,  final int queryId, final short insertFlag) {
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		
+		if(po.getSetSearchPathFlag()!=0){
+			executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
+		}
 		final int userId = (Integer)scd.get("userId");
 		final List<W5QueryFieldCreation> updateList = new ArrayList<W5QueryFieldCreation>();
 		final List<W5QueryFieldCreation> insertList = new ArrayList<W5QueryFieldCreation>();
