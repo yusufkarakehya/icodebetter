@@ -2171,16 +2171,20 @@ class XMainNav extends React.PureComponent {
 	    	var qi=0, si=0;
 	    	for(var k in iwb.nav.visitedItems){
 	    		var o=iwb.nav.visitedItems[k];
-	    		vi.push(_(XCardMiniMenu,{color:dgColors3[qi%dgColors3.length],node:o}));
+	    		vi.push(_(XCardMiniMenu,{key: 'xcardmini'+ Math.random(),color:dgColors3[qi%dgColors3.length],node:o}));
 	    		qi++;
 	    		if(o.visitCnt>2){
-		    		siri.push(_(XCardMiniMenu,{color:dgColors2[si%dgColors2.length],node:o}));
+		    		siri.push(_(XCardMiniMenu,{key: 'xcardminivisit'+ Math.random(), color:dgColors2[si%dgColors2.length],node:o}));
 		    		si++;			    			
 	    		}
 	    	}
 	    	if(qi==0)vi=false;
 	    	else {
-	    		vi=[_("div", { style: {height: "1.5rem"}}),"Açık Ekranlar",_("hr",{style: {marginTop: "0.4rem"}}),_(Row, {style:{maxWidth:"1300px"}}, vi)];
+				vi=[_("div", { key:"a1", style: {height: "1.5rem"}})
+					,"Açık Ekranlar",
+					_("hr",{ key:"a2", style: {marginTop: "0.4rem"}}),
+					_(Row, { key:"a3", style:{maxWidth:"1300px"}}, vi)
+				];
 	    		if(si>0){
 	    			if(siri.length>4){
 	    				siri.splice(4,1000);
