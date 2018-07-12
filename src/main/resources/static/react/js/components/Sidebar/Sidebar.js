@@ -92,7 +92,7 @@ class Sidebar extends React.Component {
   }
   
   visitItem(path){
-	  console.log('visitItem',path);
+	  // console.log('visitItem',path);
 	  var items = this.state.items;
 	  var r = iwb.nav.findNode(path, {children:items});
 	  if(r){

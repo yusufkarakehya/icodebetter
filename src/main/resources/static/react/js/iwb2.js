@@ -70,17 +70,19 @@ const Plugin				= DXReactCore.Plugin;
 
 var _dxgrb					= DXReactGridBootstrap4;
 var _dxrg					= DXReactGrid;
-
+/** iwb object */
 var iwb={
 	grids:{},
 	forms:{},
 	pages:{},
-	debug:true,
+	debug:false,
+	debugRender:false,
+	debugConstructor:false,
 	detailPageSize:10,
 	logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>',
 	detailSearch:()=>false,
 	openForm:(url)=>{
-		alert(url);	
+		if(url)iwb.openTab('1-'+Math.random(),url);
 		return false;
 	},
 	sidebarToggle:(e)=>{
@@ -209,142 +211,16 @@ var iwb={
 		}
 		return p;
 	},
-	DelayedTask : (fn, scope, args, cancelOnDelay, fireIdleEvent) => {
-		// @define Ext.util.DelayedTask 
-		// @uses Ext.GlobalEvents 
-			var me = this,
-				delay,
-				call = function() {
-					me.id = null;
-					
-					if (!(scope && scope.destroyed)) {
-						args ? fn.apply(scope, args) : fn.call(scope);
-					}
-					
-					if (fireIdleEvent === false) {
-						iwb._suppressIdle = true;
-					}
-				};
-			
-			//<debug> 
-			// DelayedTask can be called with no function upfront 
-			if (fn) {
-				call.$origFn = fn.$origFn || fn;
-				call.$skipTimerCheck = call.$origFn.$skipTimerCheck;
-			}
-			//</debug> 
-		 
-			cancelOnDelay = typeof cancelOnDelay === 'boolean' ? cancelOnDelay : true;
-		 
-			/**
-			 * @property {Number} id 
-			 * The id of the currently pending invocation.  Will be set to `null` if there is no
-			 * invocation pending.
-			 */
-			me.id = null;
-		 
-			/**
-			 * @method delay
-			 * By default, cancels any pending timeout and queues a new one.
-			 *
-			 * If the `cancelOnDelay` parameter was specified as `false` in the constructor, this does not cancel and
-			 * reschedule, but just updates the call settings, `newDelay`, `newFn`, `newScope` or `newArgs`, whichever are passed.
-			 *
-			 * @param {Number} newDelay The milliseconds to delay. `-1` means schedule for the next animation frame if supported.
-			 * @param {Function} [newFn] Overrides function passed to constructor
-			 * @param {Object} [newScope] Overrides scope passed to constructor. Remember that if no scope
-			 * is specified, `this` will refer to the browser window.
-			 * @param {Array} [newArgs] Overrides args passed to constructor
-			 * @return {Number} The timer id being used.
-			 */
-			me.delay = function(newDelay, newFn, newScope, newArgs) {
-				if (cancelOnDelay) {
-					me.cancel();
-				}
-				
-				if (typeof newDelay === 'number') {
-					delay = newDelay;
-				}
-				
-				fn    = newFn    || fn;
-				scope = newScope || scope;
-				args  = newArgs  || args;
-				me.delayTime = delay;
-				
-				//<debug> 
-				if (fn) {
-					call.$origFn = fn.$origFn || fn;
-					call.$skipTimerCheck = call.$origFn.$skipTimerCheck;
-				}
-				//</debug> 
-				
-				if (!me.id) {
-					if (delay === -1) {
-						me.id = Ext.raf(call);
-					} else {
-						me.id = Ext.defer(call, delay || 1);  // 0 == immediate call 
-					}
-				}
-				
-				return me.id;
-			};
-		 
-			/**
-			 * Cancel the last queued timeout
-			 */
-			me.cancel = function () {
-				if (me.id) {
-					if (me.delayTime === -1) {
-						Ext.unraf(me.id);
-					} else {
-						Ext.undefer(me.id);
-					}
-					me.id = null;
-				}
-			};
-		 
-			me.flush = function () {
-				if (me.id) {
-					me.cancel();
-		 
-					// we're not running on our own timer so don't mess with whatever thread 
-					// is calling us... 
-					var was = fireIdleEvent;
-					fireIdleEvent = true;
-		 
-					call();
-		 
-					fireIdleEvent = was;
-				}
-			};
-			
-			/**
-			 * @private
-			 * Cancel the timeout if it was set for the specified fn and scope.
-			 */
-			me.stop = function(stopFn, stopScope) {
-				// This kludginess is here because Classic components use shared focus task 
-				// and we need to be sure the task's current timeout was set for that 
-				// particular component before we can safely cancel it. 
-				if (stopFn && stopFn === fn && (!stopScope || stopScope === scope)) {
-					me.cancel();
-				}
-			};
-	},
-
 };
-var ajaxErrorHandler=iwb.requestErrorHandler;
-
-iwb.emptyField = _('i',{className:'raw-field-empty'},_('br'),' ','(boş)'),
-iwb.loadPage=function(cfg){}
-iwb.ui={buildPanel:function(c){
+var ajaxErrorHandler= iwb.requestErrorHandler;
+iwb.emptyField 		= _('i',{className:'raw-field-empty'},_('br'),' ','(boş)'),
+iwb.loadPage		= function(cfg){}
+iwb.ui				= {
+	buildPanel		: function(c){
 	if(!c.grid.pk)c.grid.pk=c.pk||c._pk;
 	if(!c.grid.detailGrids)c.grid.detailGrids=c.detailGrids||false;
 	return _(XPage,c);
 }}
-
-
-
 function disabledCheckBoxHtml(row, cell){ //TODO
 //		return _('img',{border:0,src:'../images/custom/'+(f ?'':'un')+'checked.gif'});
 	return row[cell] && 1*row[cell] ? _('i',{className:'fa fa-check', style:{color: 'white',background: '#4dbd74', padding: 5, borderRadius: 25}}) : null;// _('i',{className:'fa fa-check', style:{color: 'white',background: 'red', padding: 5, borderRadius: 25}});
@@ -352,7 +228,6 @@ function disabledCheckBoxHtml(row, cell){ //TODO
 function gridUserRenderer(row, cell){ //TODO
 	return row[cell+'_qw_'];
 }
-
 function gridQwRendererWithLink(t){//tableId
 	return	function(row, cell){
 		return row[cell+'_qw_'];
@@ -389,26 +264,21 @@ function editGridLovComboRenderer(cell, combo){
 function fileAttachmentHtml(row,cell){//TODO
 	return row[cell] && 1*row[cell] ? _('i',{className:'icon-paper-clip'}):null;
 } 
-
 function vcsHtml(row, cell){
 	return row[cell] && 1*row[cell] ? _('i',{className:'icon-social-github'}):null;
 }
 function pictureHtml(row, cell){	
 	return row[cell] && 1*row[cell] ? _('i',{className:'icon-picture'}):null;
 }
-
 function mailBoxRenderer(row, cell){
 	return row[cell] && 1*row[cell] ? _('i',{className:'icon-envelope'}):null;
 } 
-
 function fmtDateTime(x){
 	return x ? moment(x).format('DD/MM/YYYY HH:ss') : "";
 }
-
 function fmtShortDate(x){
 	return x ? moment(x).format('DD/MM/YYYY') : "";
 }
-
 function strShortDate(x){
 	return x ? x.substr(0,10) : "";
 }
@@ -425,14 +295,13 @@ function getStrapSize(w){
 	if(w>=700)return 'lg';
 	if(w>=400)return 'md';
 	return 'sm';
-	
 }
 function getMasterGridSel(a,sel){
 	return sel;
 }
 class XTabForm extends React.PureComponent{
 	constructor(props){
-		if(iwb.debugConstructor)console.log('XTabForm.constructor',props);
+		if(iwb.debugConstructor)if(iwb.debug)console.log('XTabForm.constructor',props);
 		super(props);
 		this.state = {viewMode:this.props.cfg.a==1};
 		this.onSubmit = this.onSubmit.bind(this);
@@ -466,7 +335,7 @@ class XTabForm extends React.PureComponent{
 		return false;
 	}
 	render() {
-		if(iwb.debugRender)console.log('XTabForm.render',this.props)
+		if(iwb.debugRender)if(iwb.debug)console.log('XTabForm.render',this.props)
 		var formBody = _(this.props.body,{parentCt:this, viewMode:this.state.viewMode});
 		if(!formBody)return null;
 		return _(Form, {onSubmit:function(e){e.preventDefault();}}, 
@@ -487,39 +356,60 @@ class XTabForm extends React.PureComponent{
 class XModal extends React.Component {
 	constructor(props){
 		super(props);
-		this.toggle=this.toggle.bind(this); 
-		this.open=this.open.bind(this); 
-		this.close=this.close.bind(this); 
+		this.open = cfg => {
+			this.setState({
+				modal			: true, 
+				title			: cfg.title||'Form', 
+				color			: cfg.color||'primary',
+				size			: cfg.size||'lg',
+				body			: cfg.body,
+				style			: cfg.style,
+				footer			: cfg.footer,
+				modalBodyProps	: cfg.modalBodyProps||{},props:cfg.props||{}});
+			return false;
+		}; 
+		this.close= () => { this.setState({modal:false}); } 
+		this.toggle = () => { this.setState({ modal: !this.state.modal }); }
 		this.state={modal:false};
 		iwb.showModal=this.open;
 		iwb.closeModal=this.close;
 	}
-	open(cfg){
-		this.setState({
-			modal:!0, 
-			title:cfg.title||'Form', 
-			color:cfg.color||'primary',
-			size:cfg.size||'lg',
-			body:cfg.body,
-			style:cfg.style,
-			footer:cfg.footer!==false,
-			modalBodyProps:cfg.modalBodyProps||{},props:cfg.props||{}});
-		return false;
 		
-	}
-	toggle(){
-		this.setState({modal:!this.state.modal});
-	}
-	close(){
-		this.setState({modal:false});
-	}
     render() {
-    	return this.state.modal && _(Modal, {keyboard:true, backdrop:this.state.footer!==false ? 'static':true, toggle: this.toggle, isOpen: this.state.modal, className: 'modal-'+this.state.size+' primary', style:this.state.style}
-			,_(ModalHeader, {toggle:this.toggle, className:'bg-'+this.state.color}, this.state.title)
-			,_(ModalBody,this.state.modalBodyProps, this.state.body)
-            ,this.state.footer!==false && _(ModalFooter, null,_(Button, { className:'btn-form',color: 'teal', onClick: this.toggle }, "KAYDET"),
-                  ' ', _(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick: this.toggle}, "VAZGEÇ")
+		const { modal, footer, size, style, color, title, modalBodyProps, body } = this.state;
+    	return modal && _(Modal, {
+			keyboard:true,
+			backdrop:footer!==false ? 'static':true, 
+			toggle: this.toggle, 
+			isOpen: modal, 
+			className: 'modal-'+size+' primary',
+			style
+			},
+				_(ModalHeader, {
+					toggle:this.toggle,
+					className:'bg-'+color
+					}, title),
+				_(ModalBody,modalBodyProps, body),
+				
+				// !footer && _(ModalFooter, null,
+				// 	_(Button, { 
+				// 		className:'btn-form',
+				// 		color: 'teal',
+				// 		onClick: this.toggle
+				// 		},"KAYDET"),
+				// 	' ',
+				// 	_(Button, {
+				// 		className:'btn-form',
+				// 		color: "light",
+				// 		style:{border: ".5px solid #e6e6e6"},
+				// 		onClick: this.toggle
+				// 	}, "VAZGEÇ")
+				// ),
+
+				footer && _(React.Fragment, null,
+					footer
             )
+				
           );
     }
 }
@@ -613,6 +503,14 @@ function buildParams2(params, map){
 	return bp;
 }
 
+function buildParams4transfer(params, map){
+	var bp='';
+	for(var key in params){
+			bp+='&'+key+'='+map[key];
+	}
+	return bp;
+}
+
 /**
  * used to open dropDown 
  * make edit and delete from main and detail grid 
@@ -652,7 +550,7 @@ class XGridRowAction extends React.PureComponent {
 				,menuButtons && menuButtons.map(
 					({ text, handler, cls })=>
 					{
-					return _(DropdownItem, { key:text , onClick:handler }
+					return _(DropdownItem, { key:text , onClick:handler.bind(this.state) }
 								, _('i', { className:cls, style:{...defstyle} })
 								, text)
 					}
@@ -713,12 +611,14 @@ class XGrid extends React.PureComponent {
 				var props=this.props;	
 				var pkz = buildParams2(props.pk,rowData);
 				var url = 'ajaxPostForm?a=3&_fid='+props.crudFormId+pkz;
-				console.log(props.pk);
-				console.log(url);
-				// ?a=3&_fid=2573&tlanguage_def_id=12
+				yesNoDialog({ text:"Are you Sure!", callback:(success)=>{
+					if(success){
+						iwb.request({ url, successCallback:()=>this.loadData(true)});
 			}
-			const canIOpen = (props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) || props.menuButtons;
-			if(canIOpen){
+				}})
+			}
+			const canIOpenActions = (props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) || props.menuButtons;
+			if(canIOpenActions){
 				columns.push({name:'_qw_',title:'.',getCellValue:function(rowData){
 					return _(XGridRowAction,{ 
 						...{ rowData }, 
@@ -771,14 +671,10 @@ class XGrid extends React.PureComponent {
 				{...tableRowData, ...{ onDoubleClick:(event)=>{ onEditClick({event,rowData:tableRowData.row})}, style:{cursor:'pointer'} }}
 				: tableRowData);
 		}
-	}
-	componentDidMount() { if(!this.dontRefresh)this.loadData(); this.dontRefresh=false; }
-	componentDidUpdate() { this.loadData(); this.dontRefresh=false; }
-	componentWillUnmount(){ iwb.grids[this.props.id]=Object.assign({},this.state); }
 	/**
 	 * prerpares url with query
 	 */
-	queryString() {
+		this.queryString 		= ()			=>{
 		const { sorting, pageSize, currentPage } = this.state;
 		let queryString = this.props._url+'&limit='+pageSize+'&start='+(pageSize * currentPage);
 		const columnSorting = sorting[0];
@@ -792,18 +688,21 @@ class XGrid extends React.PureComponent {
 	 * used to make request and fill the grid
 	 * @param {boolean} force 
 	 */
-	loadData(force) {
+		this.loadData 			= force 		=>{
 		if(this.props.rows)return;
 		const queryString = this.queryString();
 		if (!force && queryString === this.lastQuery) { return; }
 		this.setState({loading: true});
-		iwb.request({url:queryString, self:this, params:this.props.searchForm && iwb.getFormValues(document.getElementById(this.props.searchForm.id)), successCallback:function(result, cfg){
+			iwb.request({
+				url:queryString, self:this,
+				params:this.props.searchForm && iwb.getFormValues(document.getElementById(this.props.searchForm.id)), 
+				successCallback: (result, cfg)=>{
 			cfg.self.setState({
 				rows: result.data,
 				totalCount: result.total_count,
 				loading: false,
 			});
-		},errorCallback:function(error,cfg){
+			},errorCallback:(error,cfg)=>{
 			cfg.self.setState({
 				rows: [],
 				totalCount: 0,
@@ -818,7 +717,7 @@ class XGrid extends React.PureComponent {
 	 * @param {state/props} grid 
 	 * @param {Array} row 
 	 */
-	onOnNewRecord(event,grid, row) {
+		this.onOnNewRecord 		=(event,grid, row) =>{
 		if(!grid)grid=this.props;
 		if(grid.crudFlags && grid.crudFlags.insert && this.props.openTab){
 			var url = 'showForm?a=2&_fid='+grid.crudFormId;
@@ -830,38 +729,83 @@ class XGrid extends React.PureComponent {
 			this.props.openTab('2-'+grid.gridId,url+(modal?'&_modal=1':''),{},{modal:modal})
 		}
 	}
-
+	}
+	componentDidMount() { if(!this.dontRefresh)this.loadData(); this.dontRefresh=false; }
+	componentDidUpdate() { this.loadData(); this.dontRefresh=false; }
+	componentWillUnmount(){ iwb.grids[this.props.id]=Object.assign({},this.state); }
 	render() {
+		//state
 		const {rows, columns, tableColumnExtensions, sorting,
 			pageSize, pageSizes, currentPage, totalCount, loading, columnWidths, columnOrder
 		} = this.state;
-		if(!rows || !rows.length)return null;
-		return _(_dxgrb.Grid,{rows: rows, columns: columns, getRowId : (row) => row[this.props.keyField]},
-				_(_dxrg.SortingState, !this.props.pageSize ? null : {sorting: sorting,onSortingChange: this.onSortingChange, columnExtensions:tableColumnExtensions}),
-				this.props.multiselect && _(_dxrg.SelectionState,null),
-				!this.props.pageSize ? _(_dxrg.SearchState, null) : null,
-			!this.props.pageSize ?  _(_dxrg.RowDetailState,null) : null,
-			!this.props.pageSize && rows.length>1  ? _(_dxrg.IntegratedFiltering, null) : null,
-			!this.props.pageSize && rows.length>1  ?  _(_dxrg.GroupingState,null) : null,		  
-			!this.props.pageSize && rows.length>1  ? _(_dxrg.IntegratedGrouping ,null) : null,
-			!this.props.pageSize && rows.length>1  ? _(_dxrg.IntegratedSorting,null) : null,
-				this.props.showDetail?  _(_dxrg.RowDetailState,null):null,
-				rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxrg.PagingState, pageSize>1 ? {currentPage: currentPage, onCurrentPageChange: this.onCurrentPageChange, pageSize: pageSize, onPageSizeChange: this.onPageSizeChange}:{}) : null,
-				pageSize>1 && rows.length>1  ? _(_dxrg.CustomPaging, {totalCount: totalCount}) : null,
-			this.props.multiselect && _(_dxrg.IntegratedSelection,null),
-			_(_dxgrb.DragDropProvider,null),
-			_(_dxgrb.Table, {columnExtensions: tableColumnExtensions, rowComponent:this.TableRow}),
-			this.props.multiselect && _(_dxgrb.TableSelection,{showSelectAll:!0}),
+		//props
+		const {
+			_disableIntegratedGrouping,
+			_disableIntegratedSorting,
+			_disableSearchPanel,
+			_importClicked,
+			multiselect,
+			showDetail,
+			crudFlags,
+			pageSize,
+			keyField
+		} = this.props;
+
+		if(!rows || !rows.length) return null;
+		return _(_dxgrb.Grid, {
+				rows,
+				columns, 
+				getRowId : row => row[keyField]
+			},
+			!!_disableIntegratedSorting && _(_dxrg.SortingState, !pageSize ? null : {
+					sorting,
+					onSortingChange: this.onSortingChange,
+					columnExtensions:tableColumnExtensions
+				}),
+			multiselect && _(_dxrg.SelectionState,null),
+			!pageSize ? _(_dxrg.SearchState, null) : null,
+			!pageSize ?  _(_dxrg.RowDetailState,null) : null,
+			!pageSize 	&& rows.length>1  ? _(_dxrg.IntegratedFiltering, null) 		: null,
+			!pageSize 	&& rows.length>1  ? _(_dxrg.GroupingState,null) 			: null,		  
+			!pageSize 	&& rows.length>1  ? _(_dxrg.IntegratedGrouping ,null) 		: null,
+			!pageSize 	&& rows.length>1  ? _(_dxrg.IntegratedSorting,null) 		: null,
+			showDetail 	&&  _(_dxrg.RowDetailState,null),
+			rows.length>iwb.detailPageSize || pageSize>1 ? _(_dxrg.PagingState, pageSize>1 ? {
+				currentPage,
+				pageSize,
+				onCurrentPageChange	: this.onCurrentPageChange,
+				onPageSizeChange	: this.onPageSizeChange}:{}) : null,
+			pageSize>1 && rows.length>1  ? _(_dxrg.CustomPaging, {totalCount}) : null,
 			
-			_(_dxgrb.TableColumnReordering, {order:columnOrder,onOrderChange:this.onColumnOrderChange}),
-			_(_dxgrb.TableColumnResizing, {columnWidths:columnWidths, onColumnWidthsChange:this.onColumnWidthsChange}),		  
+			multiselect && _(_dxrg.IntegratedSelection,null),
+			_(_dxgrb.DragDropProvider,null),
+			_(_dxgrb.Table, {
+				columnExtensions: tableColumnExtensions,
+				rowComponent:this.TableRow
+			}),
+			
+			multiselect && _(_dxgrb.TableSelection,{showSelectAll:!0}),
+			
+			_(_dxgrb.TableColumnReordering, {
+				order:columnOrder,
+				onOrderChange:this.onColumnOrderChange
+			}),
+			_(_dxgrb.TableColumnResizing, {
+				columnWidths, 
+				onColumnWidthsChange:this.onColumnWidthsChange
+			}),		  
 			_(_dxgrb.TableHeaderRow, { showSortingControls: true }),
-			this.props.showDetail?  _(_dxgrb.TableRowDetail, {contentComponent:this.props.showDetail}):null,
-			rows.length>iwb.detailPageSize || this.props.pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
-			!this.props.pageSize && rows.length>1  ? _(_dxgrb.TableGroupRow,null) : null,
-			(!this.props.pageSize && rows.length>1)  ? _(_dxgrb.Toolbar,null):null,
-			(!this.props.pageSize && rows.length>1) ? _(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'},changeSearchValue:function(ax){console.log('onValueChange',ax);}}) : null,//TODO
-				!this.props.pageSize && rows.length>1  ? _(_dxgrb.GroupingPanel,{showSortingControls:true}) : null
+			showDetail?  _(_dxgrb.TableRowDetail, {contentComponent:showDetail}):null,
+			rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
+			!pageSize && rows.length>1 && _(_dxgrb.TableGroupRow,null),
+			!pageSize && rows.length>1 && _(_dxgrb.Toolbar,null),
+			!pageSize && rows.length>1 && _(_dxgrb.SearchPanel, {
+				messages:{searchPlaceholder:'Hızlı Arama...'},
+				changeSearchValue: ax=>{
+					if(iwb.debug)console.log('onValueChange',ax);
+				}
+			}),//TODO
+			!pageSize && rows.length>1 && _(_dxgrb.GroupingPanel,{showSortingControls:true})
 //		   	,loading && iwb.loading()
 		);
 	}
@@ -986,7 +930,8 @@ iwb.prepareParams4grid=function(grid, prefix, values){//sadece master-insert dur
 class SelectableStubCell extends React.PureComponent {
 	  render() {
 	    return _(Plugin,null,
-	      _(Template, { name: 'tableCell', predicate: ({ tableRow, tableColumn}) => {
+	      _(Template, { 
+			  name: 'tableCell', predicate: ({ tableRow, tableColumn}) => {
         	  if (tableRow.key !== 'heading' && tableColumn.key === 'select' && tableRow.type === 'edit') {
               return true;
             }}},
@@ -1006,10 +951,10 @@ class SelectableStubCell extends React.PureComponent {
  */
 class XEditGridSF extends React.PureComponent {
 	  constructor(props) {
-	    console.log('XEditGridSF.constructor', props);
+	    if(iwb.debug)console.log('XEditGridSF.constructor', props);
 	    super(props);
 	    var oldGridState = iwb.grids[props.id];
-	    console.log('oldGridState', oldGridState);
+	    if(iwb.debug)console.log('oldGridState', oldGridState);
 	    if(oldGridState){
 	    	this.dontRefresh = !0;
 	    	this.state = oldGridState;
@@ -1137,9 +1082,40 @@ class XEditGridSF extends React.PureComponent {
 	    if(this.props.searchForm){//hidden:!!this.props.grid.globalSearch
 	    	this.searchForm = _(Nav, {style:{}},_('div',{className:'hr-text'},_('h6',null,'Arama Kriterleri'))
 		    	,_('div',{style:{zoom:'.9'}},_(this.props.searchForm,{parentCt:this}),_('div',{className:'form-group',style:{paddingTop:10}},_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(!0);} },"ARA")))
-		    	
 	    	);
-
+		}
+		this.queryString = ()=>{
+			const { sorting, pageSize, currentPage } = this.state;
+			let queryString = this.props._url+'&limit='+pageSize+'&start='+(pageSize * currentPage);
+			const columnSorting = sorting[0];
+			if (columnSorting) {
+				const sortingDirectionString = columnSorting.direction === 'desc' ? ' desc' : '';
+				queryString += '&sort='+columnSorting.columnName+sortingDirectionString;
+			}
+			return queryString;
+		}
+		this.loadData = force =>{
+			const queryString = this.props._url;
+			const t_props=this.props;
+			this.setState({loading: true});
+			iwb.request({url:queryString, self:this, params:this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id)), successCallback:function(result, cfg){
+				var state={
+					rows: result.data,
+					totalCount: result.total_count,
+					loading: false,
+					};
+				if(true || t_props.multiselect){
+					state.editingRowIds=state.rows.map((row) => row[t_props.keyField])
+				}
+				cfg.self.setState(state);
+			},errorCallback:function(error,cfg){
+				cfg.self.setState({
+					rows: [],
+					totalCount: 0,
+					loading: false,
+					});
+				}});
+			this.lastQuery = queryString;
 	    }
 		this.EditCell = (xprops)=>{
 			var editor = this.editors[xprops.column.name];
@@ -1179,91 +1155,106 @@ class XEditGridSF extends React.PureComponent {
 			return _('td',{style:{verticalAlign: 'middle',padding: 1}}, _(cmp,editor))
 		}
 	  }
-	  queryString() {
-	    const { sorting, pageSize, currentPage } = this.state;
-	    let queryString = this.props._url+'&limit='+pageSize+'&start='+(pageSize * currentPage);
-	    const columnSorting = sorting[0];
-	    if (columnSorting) {
-	      const sortingDirectionString = columnSorting.direction === 'desc' ? ' desc' : '';
-	      queryString += '&sort='+columnSorting.columnName+sortingDirectionString;
-	    }
-	    return queryString;
-	  }
-	  loadData(force) {
-	    const queryString = this.props._url;
-	    const t_props=this.props;
-	    this.setState({loading: true});
-		iwb.request({url:queryString, self:this, params:this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id)), successCallback:function(result, cfg){
-			var state={
-			        rows: result.data,
-			        totalCount: result.total_count,
-			        loading: false,
-			      };
-			if(true || t_props.multiselect){
-				state.editingRowIds=state.rows.map((row) => row[t_props.keyField])
-			}
-		  cfg.self.setState(state);
-		},errorCallback:function(error,cfg){
-			cfg.self.setState({
-		        rows: [],
-		        totalCount: 0,
-		        loading: false,
-		      });
-	      }});
-	    this.lastQuery = queryString;
-	  }
 	  componentDidMount() { if(!this.dontRefresh)this.loadData();}
 	  componentDidUpdate() {if(this.props.editable && this.props.viewMode!=this.state.viewMode){ this.setState({viewMode:this.props.viewMode}); }}
 	  componentWillUnmount(){ iwb.grids[this.props.id]=Object.assign({},this.state); }
 	  render() {
-//		  console.log('XEditGrid:render')
-		    const {viewMode, rows, columns, tableColumnExtensions, sorting, 
-		      pageSize, pageSizes, currentPage, totalCount, loading, columnWidths, columnOrder, editingRowIds, rowChanges, addedRows, selection
+		if(iwb.debug)console.log('XEditGrid:render')
+		const {
+			viewMode, rows, columns, tableColumnExtensions, sorting,pageSize,
+			pageSizes, currentPage, totalCount, loading, columnWidths, columnOrder,
+			editingRowIds, rowChanges, addedRows, selection
 		    } = this.state;
-		    var g=_(_dxgrb.Grid,
-		    		{ rows: rows, columns: columns, getRowId : (row) => row[this.props.keyField] },
-	    		_(_dxrg.SortingState, null),
+		//props
+		const {
+			_disableIntegratedGrouping,
+			_disableIntegratedSorting,
+			_disableSearchPanel,
+			_importClicked,
+			multiselect,
+			crudFlags,
+			keyField,
+			selectRow
+		} = this.props;
+		// method
+		const {
+			onCurrentPageChange,
+			onPageSizeChange,
+			onColumnWidthsChange
+		} = this;
 	    		
-	    		this.props.multiselect && _(_dxrg.SelectionState,{selection:selection , onSelectionChange:this.changeSelection }),
+		var g = _(_dxgrb.Grid, { 
+				rows, columns,
+				getRowId : row => row[keyField] 
+			},
+			!_disableIntegratedSorting ? _(_dxrg.SortingState, null):null,
+			
+			multiselect && _(_dxrg.SelectionState,{
+				selection, 
+				onSelectionChange:this.changeSelection
+				}),
 	    		_(_dxrg.SearchState, null),
-				_(_dxrg.IntegratedFiltering, null),
-				_(_dxrg.GroupingState,null),		  
-				_(_dxrg.IntegratedGrouping ,null),
-				_(_dxrg.IntegratedSorting,null),
-		    	rows.length>iwb.detailPageSize ?  _(_dxrg.PagingState, pageSize>1 ? {currentPage: currentPage, onCurrentPageChange: this.onCurrentPageChange, pageSize: pageSize, onPageSizeChange: this.onPageSizeChange}:{}) : null,
+			!_disableSearchPanel		 	?_(_dxrg.IntegratedFiltering, null)	: null, //was used for panel search(@dependency)
+			!_disableIntegratedGrouping  	? _(_dxrg.GroupingState, null)	    : null,		  
+			!_disableIntegratedGrouping  	? _(_dxrg.IntegratedGrouping, null)	: null,
+			!_disableIntegratedSorting   	? _(_dxrg.IntegratedSorting, null)	: null,
 				
-		        this.props.multiselect && _(_dxrg.IntegratedSelection ,null),
-			    	!viewMode && _(_dxrg.EditingState,
-			    			{
-			    		columnExtensions:tableColumnExtensions,
-			    		editingRowIds:editingRowIds,
-			    		onEditingRowIdsChange:this.changeEditingRowIds,
-			    		rowChanges:rowChanges,
-			    		onRowChangesChange:this.changeRowChanges,
-			    		addedRows:addedRows,
-			    		onAddedRowsChange:this.changeAddedRows,
-			    		onCommitChanges:this.commitChanges
+			rows.length>iwb.detailPageSize ?  _(_dxrg.PagingState, 
+				pageSize>1 ? {
+				pageSize,				
+				currentPage,
+				onCurrentPageChange,
+				onPageSizeChange
+			}:{}) : null,
+			
+			multiselect && _(_dxrg.IntegratedSelection ,null),
+				!viewMode && _(_dxrg.EditingState,{
+					addedRows,
+					rowChanges,
+					editingRowIds,
+					onEditingRowIdsChange		: this.changeEditingRowIds,
+					onRowChangesChange			: this.changeRowChanges,
+					columnExtensions			: tableColumnExtensions,
+					onAddedRowsChange			: this.changeAddedRows,
+					onCommitChanges				: this.commitChanges
 			    		}),
 		    			
 				_(_dxgrb.DragDropProvider,null),
-				_(_dxgrb.Table, {columnExtensions: tableColumnExtensions}),
-				this.props.multiselect && _(_dxgrb.TableSelection,{showSelectAll:true}),
+			_(_dxgrb.Table, {
+				columnExtensions				: tableColumnExtensions
+				}),
+			multiselect && _(_dxgrb.TableSelection,{
+				showSelectAll:true
+				}),
+			_(_dxgrb.TableColumnReordering, {
+				order:columnOrder,
+				onOrderChange					:this.onColumnOrderChange
+			}),
+			_(_dxgrb.TableColumnResizing, {
+				columnWidths,
+				onColumnWidthsChange
+			}),		  
+			_(_dxgrb.TableHeaderRow,  { 
+				showSortingControls				: !0 
+				}),
+			selectRow.mode === 'checkbox' && _(SelectableStubCell,null), //select box
 				
-				_(_dxgrb.TableColumnReordering, {order:columnOrder,onOrderChange:this.onColumnOrderChange}),
-				_(_dxgrb.TableColumnResizing, {columnWidths:columnWidths, onColumnWidthsChange:this.onColumnWidthsChange}),		  
-				_(_dxgrb.TableHeaderRow,  { showSortingControls: !0 }),
-				this.props.selectRow.mode === 'checkbox' && _(SelectableStubCell,null), //select box
-				!viewMode && _(_dxgrb.TableEditRow, { cellComponent: this.EditCell}),
-				!this.props.multiselect && !viewMode && _(_dxgrb.TableEditColumn, { 
-					showAddCommand:this.props.crudFlags && this.props.crudFlags.insert, 
-					showEditCommand:this.props.crudFlags && this.props.crudFlags.edit,
-					showDeleteCommand:this.props.crudFlags && this.props.crudFlags.remove,
-					commandComponent:Command}),
-				rows.length>iwb.detailPageSize ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
-				_(_dxgrb.TableGroupRow,null),
-				_(_dxgrb.Toolbar,null),
-				_(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'}}),
-				_(_dxgrb.GroupingPanel,{showSortingControls:true})
+			!viewMode && _(_dxgrb.TableEditRow, {
+				cellComponent					: this.EditCell
+			}),
+			
+			!multiselect && !viewMode && _(_dxgrb.TableEditColumn, { 
+				showAddCommand					: crudFlags && crudFlags.insert, 
+				showEditCommand					: crudFlags && crudFlags.edit,
+				showDeleteCommand				: crudFlags && crudFlags.remove,
+				commandComponent				: Command
+			}),
+
+			rows.length>iwb.detailPageSize 		? _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) 		: null,
+			!_disableIntegratedGrouping 		? _(_dxgrb.TableGroupRow,null)										   		: null,
+			!_disableIntegratedGrouping || !_disableIntegratedSorting || !_disableSearchPanel ? _(_dxgrb.Toolbar,null)		: null,			
+			!_disableSearchPanel 				? _(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'}}) 	: null,
+			!_disableIntegratedGrouping 		? _(_dxgrb.GroupingPanel,{showSortingControls:true})						: null,
 			);
 		    
 		    var footer = _(ModalFooter, null,
@@ -1272,79 +1263,79 @@ class XEditGridSF extends React.PureComponent {
 		    		,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "VAZGEÇ")
             );
 		    
-		    return !this.searchForm ? g:_('div',{className:'tab-grid mb-4'},[
-		    	_('nav',{id:'sf-'+this.props.id}, this.searchForm)
-  			,_('main',{className: "inbox"},g,footer)
+		return !this.searchForm ? g:_('div',{
+			className:'tab-grid mb-4'
+		},[
+			_('nav',{
+				id:'sf-'+this.props.id,
+				key: 'sf-'+this.props.id
+				}, this.searchForm)
+			,_('main',{
+				className: "inbox",
+				key:'inbox'
+				}, g, footer)
 		    ])
 		  }
 }
 /**
- * adding import buttton to the panel of grid
- * @param {showAddCommand, showImportCommand, commandComponent, onClick } param0 
+ * used to extend template of the grid!
+ * @param { name, children, predicate, position }
+ * @example
+ * overloading template example located in XEditGrid render
+ */	
+const extendGrid = ({ name, children, predicate, position }) => {
+	return _(Plugin, null, _(Template, {
+			name,
+			predicate:rest=>predicate(rest)
+		},
+		params => {
+			return _(React.Fragment, null,
+				position === 'before' && children,
+				position && _(TemplatePlaceholder, null),
+				position === 'after' && children,
+				position !== true && children
+			);
+		}
+	));
+};
+/**
+ * used for making popup dialog
+ * @param {text,callback} obj
+ * @example 
+ * yesNoDialog({ text:"Are you Sure!", callback:(success)=>{ logic here }});
+ */	
+yesNoDialog = ({text,callback}) => {
+	iwb.showModal({
+		title	:text,
+		footer	:_(ModalFooter, null,
+			_(Button, { 
+				className:'btn-form',
+				color: 'teal',
+				onClick: ()=>{callback(true); iwb.closeModal()}
+				},"TAMAM"),
+			' ',
+			_(Button, {
+				className:'btn-form',
+				color: "light",
+				style:{border: ".5px solid #e6e6e6"},
+				onClick: ()=>{callback(false);  iwb.closeModal()}
+			}, "VAZGEÇ")
+		),
+		color	: 'danger', 
+		size	: 'sm', 
+		body	: text	
+	});
+		}
+/**
+ * component for edit Detail Grid
  */
-const ImportButtonOverload = ({showAddCommand, showImportCommand, commandComponent, onClick }) => {
-	return _(Plugin,null,
-	_(Template,{ 
-			name: "tableCell", 
-			predicate: rest => {if (rest.tableRow.key === "heading" && rest.tableColumn.key === "editCommand" && rest.tableRow.type === "heading") {
-			return true;
-			}}
-		},
-		params => {
-		return _(TemplateConnector, null, function (getters, actions) {
-			return _(_dxgrb.TableEditColumn.HeaderCell, params, 
-			showAddCommand && _(commandComponent, {
-				id: 'add',
-				onExecute:()=>actions.addRow()
-			}), 
-			showImportCommand && _(commandComponent, {
-				id: 'import',
-				onExecute:()=>onClick()
-			}));
-		});
-		}
-	)
-	);
-};
-/**
- *used to extend template of the grid! 
- */	
-const extendBefore = ({ name, children, predicate, ...rest }) => {
-	return _(Plugin, null, _(Template, {
-			name,
-			predicate
-		},
-		params => {
-			return _(React.Fragment, null,
-				children,
-				_(TemplatePlaceholder, null)
-			);
-		}
-	));
-};
-/**
- *used to extend template of the grid! 
- */	
-const extendAfter = ({ name, children, predicate, ...rest }) => {
-	return _(Plugin, null, _(Template, {
-			name,
-			predicate
-		},
-		params => {
-			return _(React.Fragment, null,
-				_(TemplatePlaceholder, null),
-				children
-			);
-		}
-	));
-};
-
 class XEditGrid extends React.PureComponent {
 	  constructor(props) {
-	    console.log('XEditGrid.constructor', props);
+	    if(iwb.debug)console.log('XEditGrid.constructor', props);
 	    super(props);
+		// state
 	    var oldGridState = iwb.grids[props.id];
-	    console.log('oldGridState', oldGridState);
+	    if(iwb.debug)console.log('oldGridState', oldGridState);
 	    if(oldGridState){
 	    	this.dontRefresh = !0;
 	    	this.state = oldGridState;
@@ -1388,29 +1379,33 @@ class XEditGrid extends React.PureComponent {
 		    }
 		    this.state = {
 		      viewMode:!props.editable && (props.viewMode||true), 
-		      columns: columns, columnOrder:columns.map(function(a){return a.name}), 
-		      tableColumnExtensions: tableColumnExtensions, columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}), 
-		      rows: [], sorting: [],
+				columns: columns,
+				columnOrder:columns.map(function(a){return a.name}), 
+				tableColumnExtensions: tableColumnExtensions,
+				columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}), 
+				rows: [], 
+				sorting: [],
 		      totalCount: 0,
 		      pageSize: props.pageSize || iwb.detailPageSize,
 		      pageSizes: props.pageSize>1 ? [parseInt(props.pageSize/2), props.pageSize, 3*props.pageSize]:[5,10,25,100],
 		      currentPage: 0,
-		      loading: false,deletingRows: [],addedRows: [],editingRowIds: [],rowChanges: {}, deletedRows:[]
-		      ,pkInsert:0
+				loading: false,deletingRows: [],addedRows: [],editingRowIds: [],rowChanges: {}, deletedRows:[],
+				pkInsert:0
 		    };
 	    }
-//		this._pk4insert = 0; //state te olmasi lazim: TODO
-	    this.onSortingChange = sorting => this.setState({ sorting });
-	    this.onCurrentPageChange = currentPage => this.setState({ currentPage });
-	    this.onColumnWidthsChange = columnWidths => this.setState({columnWidths});
-	    this.onColumnOrderChange = columnOrder => this.setState({columnOrder}); 
-		this.changeEditingRowIds = editingRowIds => { this.setState({ editingRowIds });}
-		this.onPageSizeChange	= (pageSize) =>{
+		//methods
+	    this.onSortingChange		= sorting 		=> this.setState({ sorting });
+	    this.onCurrentPageChange 	= currentPage 	=> this.setState({ currentPage });
+	    this.onColumnWidthsChange 	= columnWidths 	=> this.setState({columnWidths});
+	    this.onColumnOrderChange 	= columnOrder 	=> this.setState({columnOrder}); 
+		this.changeEditingRowIds 	= editingRowIds => this.setState({ editingRowIds });
+		this.changeRowChanges 		= rowChanges 	=> this.setState({ rowChanges });
+		this.onPageSizeChange		= (pageSize) 	=> {
 			var totalPages = Math.ceil(this.state.totalCount / pageSize);
 			var currentPage = Math.min(this.state.currentPage, totalPages - 1);
 			this.setState({pageSize, currentPage});
 		}
-	    this.getValues = () => {
+	    this.getValues 				= () 			=> {
 			let {rows,addedRows,deletedRows, editingRowIds} = this.state;
 			rows = rows.slice();
 			var changedRows = [];
@@ -1422,10 +1417,13 @@ class XEditGrid extends React.PureComponent {
 			});
 			return {inserted:addedRows, deleted:deletedRows, changed: changedRows};
 		}
-	    
-	    this.commitChanges = ({ added, changed, deleted }) => {
+	    this.commitChanges 			= ({ deleted }) => {
 	        let { rows, deletedRows } = this.state;
-	        if(deleted && deleted.length && confirm('Are you sure?')){
+	        if(deleted && deleted.length){
+				yesNoDialog({
+					text:"Are you Sure!",
+					callback:(success)=>{
+						if(success){
 	        	rows = rows.slice();
 		        deleted.forEach((rowId) => {
 		          const index = rows.findIndex(row => row[this.props.keyField] === rowId);
@@ -1439,37 +1437,88 @@ class XEditGrid extends React.PureComponent {
 		        this.setState({ rows, deletingRows: [], deletedRows });
 	        }
 	    }
-	    this.changeAddedRows = addedRows => {
+				})
+	        }
+	    }
+	    this.changeAddedRows 		= addedRows 	=> {
 	    	var newRecord = Object.assign({}, this.props.newRecord||{});
 	    	var pk=this.state.pk4insert;
 	    	--pk;
 	    	newRecord[this.props.keyField]=pk;
-	    	this.setState({pk4insert:pk,
+	    	this.setState({
+				pk4insert:pk,
 	    		addedRows: addedRows.map(row => (Object.keys(row).length ? row : newRecord)),
 	        });
 	    }
-	    this.deleteRows = () =>{
+	    this.deleteRows 			= () 			=> {
 	        const rows = this.state.rows.slice();
 	        this.state.deletingRows.forEach((rowId) => {
 	          const index = rows.findIndex(row => row.id === rowId);
-	          if (index > -1) {
-	            rows.splice(index, 1);
-	          }
+	          if (index > -1) {	rows.splice(index, 1); }
 	        });
 	        this.setState({ rows, deletingRows: [] });
 	    }
-	    this.changeRowChanges = rowChanges => {
-	    	this.setState({ rowChanges });
+		/**
+		 * bind with parent Element
+		 */
+		if(props.parentCt && props.parentCt.egrids)props.parentCt.egrids[props.gridId]=this;
+		/**
+		 * used to collect data from form and make url with rearch params
+		 */
+		this.queryString = ()=>{
+			const { sorting, pageSize, currentPage } = this.state;
+			let queryString = this.props._url+'&limit='+pageSize+'&start='+(pageSize * currentPage);
+			const columnSorting = sorting[0];
+			if (columnSorting) {
+			  const sortingDirectionString = columnSorting.direction === 'desc' ? ' desc' : '';
+			  queryString += '&sort='+columnSorting.columnName+sortingDirectionString;
+			}
+			return queryString;
+		}
+		/**
+		 * used to make data request to fill the frid with related data
+		 * @param {boolean} force 
+		 */
+		this.loadData = (force) => {
+			const queryString = this.props._url;
+			const t_props=this.props;
+			this.setState({loading: true});
+			iwb.request({
+				url:queryString,
+				self:this,
+				params:this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id)),
+				successCallback:(result, cfg) => {
+					var state = {
+							rows: result.data,
+							totalCount: result.total_count,
+							loading: false,
+						};
+					if(t_props.multiselect){ state.editingRowIds=state.rows.map((row) => row[t_props.keyField]) }
+			  		cfg.self.setState(state);
+				},
+				errorCallback:function(error,cfg){
+					cfg.self.setState({
+						rows: [],
+						totalCount: 0,
+						loading: false,
+					});
+			  	}});
+			this.lastQuery = queryString;
 	    }
-	    if(props.parentCt && props.parentCt.egrids)props.parentCt.egrids[props.gridId]=this;
 	    /**
 	     * used for import data from the popup 
 	     */
 	    this.BulkyImport = ({searchFormData, inserted, deleted, _state})=>{
 	    	const {rows, addedRows} = this.state;
 	    	let tempRow = [];
+			let max;
 	    	//find max tab_order from grid
-	    	let max = Math.max(...rows.map(d => +d.tab_order), ...addedRows.map(d => +d.tab_order))+10;
+			if((rows['0']&&rows['0'].tab_order) || (addedRows['0']&&addedRows['0'].tab_order)){
+				 max =Math.max(...rows.map(d => +d.tab_order), ...addedRows.map(d => +d.tab_order))+10;
+			}else{
+				max =(rows.length+addedRows.length)*10;
+			}
+			if(max === '-Infinity' || +max === 0){ max = 10;}
 	    	//xsample_id to sample_id converter could be written as helper function
 	    	Object.keys(searchFormData).forEach(function(key,index) {
 	    		if( key.charAt( 0 ) === 'x' ){
@@ -1482,19 +1531,29 @@ class XEditGrid extends React.PureComponent {
 	    		var merged = { ...searchFormData, ...data};
 	    		merged = { ...merged, ...merged._new};
 	    		merged.tab_order = max;
+				merged.max = max;
 	    		tempRow.push(merged);
 	    		max+=10;
 	    	});
 	    	//Adds data to the grit from the popup
-	    	this.setState((prev)=>{
-	    		return {addedRows:[...prev.addedRows , ...tempRow]};
-	    	});
+	    	this.setState((prev)=>{ {addedRows:[...prev.addedRows , ...tempRow]} });
 		}
+		/**
+		 * to get all data from grid editing + noneEdited at current time 
+		 */	
+		this.getAllData = ()=>{ 
+			let tempRowData = [];
+			this.state.rows.forEach((data)=>{ tempRowData.push({ ...data, ...data._new});});
+			return tempRowData;
+		}
+		/**
+		 * used for Cell Editing
+		 * @param {Object} xprops 
+		 */
 		this.EditCell = (xprops)=>{
 			var editor = this.editors[xprops.column.name];
 			if(this.props.isCellEditable && this.props.isCellEditable(xprops.row,xprops.column.name)===false)return _(_dxgrb.TableEditRow.Cell, {...xprops, ...{editingEnabled:false}});
 			if(!editor)return _(_dxgrb.TableEditRow.Cell, xprops);
-			this.props.isCellEditable(xprops.row,xprops.column.name)
 			editor = Object.assign({},editor);
 			if(!xprops.row._new)xprops.row._new={};//Object.assign({},xprops.row);
 			if(!xprops.row._new.hasOwnProperty(xprops.column.name))xprops.row._new[xprops.column.name]=xprops.row[xprops.column.name];
@@ -1534,97 +1593,118 @@ class XEditGrid extends React.PureComponent {
 			var cmp=Input;
 			if(editor.$){cmp = editor.$; delete editor.$;}
 			return _('td',{style:{verticalAlign: 'middle',padding: 1}}, _(cmp,editor))
-			}
-	  }
-	  componentDidMount() { if(!this.dontRefresh)this.loadData(); }
-	  componentDidUpdate() {if(this.props.editable && this.props.viewMode!=this.state.viewMode){ this.setState({viewMode:this.props.viewMode}); } }
-
-	  queryString() {
-	    const { sorting, pageSize, currentPage } = this.state;
-	    let queryString = this.props._url+'&limit='+pageSize+'&start='+(pageSize * currentPage);
-	    const columnSorting = sorting[0];
-	    if (columnSorting) {
-	      const sortingDirectionString = columnSorting.direction === 'desc' ? ' desc' : '';
-	      queryString += '&sort='+columnSorting.columnName+sortingDirectionString;
-	    }
-	    return queryString;
-	  }
-	  loadData(force) {
-	    const queryString = this.props._url;
-	    const t_props=this.props;
-	    this.setState({loading: true});
-		iwb.request({url:queryString, self:this, params:this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id)), successCallback:function(result, cfg){
-			var state={
-			        rows: result.data,
-			        totalCount: result.total_count,
-			        loading: false,
-			      };
-			if(t_props.multiselect){
-				state.editingRowIds=state.rows.map((row) => row[t_props.keyField])
-			}
-		  cfg.self.setState(state);
-		},errorCallback:function(error,cfg){
-			cfg.self.setState({
-		        rows: [],
-		        totalCount: 0,
-		        loading: false,
-		      });
-	      }});
-	    this.lastQuery = queryString;
-	  }
-	  componentWillUnmount(){
-			  iwb.grids[this.props.id]=Object.assign({},this.state);
-	  }
-	  render() {
-//		  console.log('XEditGrid:render')
-		    const {viewMode, rows, columns, tableColumnExtensions, sorting, 
-		      pageSize, pageSizes, currentPage, totalCount, loading, columnWidths, columnOrder, editingRowIds, rowChanges, addedRows
+		}
+	}
+	componentDidMount() 	{ if(!this.dontRefresh)this.loadData(); }
+	componentDidUpdate() 	{if(this.props.editable && this.props.viewMode!=this.state.viewMode){ this.setState({viewMode:this.props.viewMode}); } }
+	componentWillUnmount()	{ iwb.grids[this.props.id]=Object.assign({},this.state); }
+	render() {
+		//state:
+		const {
+			viewMode, rows, columns, tableColumnExtensions, sorting, pageSize,
+			pageSizes, currentPage, totalCount, loading, columnWidths, columnOrder,
+			editingRowIds, rowChanges, addedRows
 		    } = this.state;
-		    return _(_dxgrb.Grid,{rows: rows, columns: columns, getRowId : (row) => row[this.props.keyField]},
-		    	!this.props._disableIntegratedSorting   ? _(_dxrg.SortingState, null)		: null,
-  				this.props.multiselect && _(_dxrg.SelectionState,null),
+		//props
+		const {
+			_disableIntegratedGrouping,
+			_disableIntegratedSorting,
+			_disableSearchPanel,
+			_importClicked,
+			multiselect,
+			crudFlags,
+			keyField
+		} = this.props;
+		//methods:
+		const {onColumnWidthsChange} = this;
+		return _(_dxgrb.Grid,{
+				rows,
+				columns,
+				getRowId : row => row[keyField]
+			},
+			!_disableIntegratedSorting   	? _(_dxrg.SortingState, null)		: null,
+			multiselect && _(_dxrg.SelectionState,null),
 	    		_(_dxrg.SearchState, null),
-	    		_(_dxrg.IntegratedFiltering, null),
-  				!this.props._disableIntegratedGrouping  ? _(_dxrg.GroupingState,null)	    : null,		  
-  				!this.props._disableIntegratedGrouping  ? _(_dxrg.IntegratedGrouping ,null) : null,
-  				!this.props._disableIntegratedSorting   ? _(_dxrg.IntegratedSorting,null)	: null,
-		    	rows.length>iwb.detailPageSize ?  _(_dxrg.PagingState, pageSize>1 ? {currentPage: currentPage, onCurrentPageChange: this.onCurrentPageChange, pageSize: pageSize, onPageSizeChange: this.onPageSizeChange}:{}) : null,
-  				this.props.multiselect && _(_dxrg.IntegratedSelection ,null),
-		    	!viewMode && _(_dxrg.EditingState,{columnExtensions:tableColumnExtensions,editingRowIds:editingRowIds, onEditingRowIdsChange:this.changeEditingRowIds,rowChanges:rowChanges, onRowChangesChange:this.changeRowChanges, addedRows:addedRows, onAddedRowsChange:this.changeAddedRows, onCommitChanges:this.commitChanges}),
+			!_disableSearchPanel		 	?_(_dxrg.IntegratedFiltering, null)	: null, //was used for panel search(@dependency)
+			!_disableIntegratedGrouping  	? _(_dxrg.GroupingState, null)	    : null,		  
+			!_disableIntegratedGrouping  	? _(_dxrg.IntegratedGrouping, null)	: null,
+			!_disableIntegratedSorting   	? _(_dxrg.IntegratedSorting, null)	: null,
+			rows.length>iwb.detailPageSize 	? _(_dxrg.PagingState, 
+				pageSize>1 ? {
+				pageSize,
+				currentPage,
+				onPageSizeChange: this.onPageSizeChange,
+				onCurrentPageChange: this.onCurrentPageChange, 
+			}:{}) : null,
+			multiselect && _(_dxrg.IntegratedSelection ,null),
+			!viewMode && _(_dxrg.EditingState,{
+				addedRows,
+				rowChanges,
+				editingRowIds,
+				onCommitChanges				: this.commitChanges,
+				columnExtensions			: tableColumnExtensions,
+				onAddedRowsChange			: this.changeAddedRows,
+				onRowChangesChange			: this.changeRowChanges,
+				onEditingRowIdsChange		: this.changeEditingRowIds, 
+			}),
 		    	_(_dxgrb.DragDropProvider,null),
-  				_(_dxgrb.Table, {columnExtensions: tableColumnExtensions}),//,cellComponent: Cell
-  				this.props.multiselect && _(_dxgrb.TableSelection,{showSelectAll:!0}),
-  				_(_dxgrb.TableColumnReordering, {order:columnOrder,onOrderChange:this.onColumnOrderChange}),
-  				_(_dxgrb.TableColumnResizing, {columnWidths:columnWidths, onColumnWidthsChange:this.onColumnWidthsChange}),		  
-  				_(_dxgrb.TableHeaderRow,  { showSortingControls: !this.props._disableIntegratedSorting }),
-  				!viewMode && _(_dxgrb.TableEditRow, { cellComponent: this.EditCell}),
-  				!this.props.multiselect && !viewMode && _(_dxgrb.TableEditColumn, { 
-  					showAddCommand:this.props.crudFlags && this.props.crudFlags.insert, 
-  					showEditCommand:this.props.crudFlags && this.props.crudFlags.edit, 
-  					showDeleteCommand:this.props.crudFlags && this.props.crudFlags.remove, 
-  					commandComponent:Command
+			_(_dxgrb.Table,{
+					columnExtensions		: tableColumnExtensions
+				}),
+			multiselect && _(_dxgrb.TableSelection,{
+					showSelectAll:!0
+				}),
+			_(_dxgrb.TableColumnReordering, {
+					order:columnOrder,
+					onOrderChange			:this.onColumnOrderChange
+				}),
+			_(_dxgrb.TableColumnResizing, {
+					columnWidths,
+					onColumnWidthsChange
+				}),		  
+			_(_dxgrb.TableHeaderRow,  { 
+					showSortingControls: !_disableIntegratedSorting
+				}),
+			!viewMode && _(_dxgrb.TableEditRow, { 
+					cellComponent			:this.EditCell
+				}),
+			!multiselect && !viewMode && _(_dxgrb.TableEditColumn, { 
+				showAddCommand		: crudFlags &&  crudFlags.insert, 
+				showEditCommand		: crudFlags &&  crudFlags.edit, 
+				showDeleteCommand	: crudFlags &&  crudFlags.remove, 
+					commandComponent	: Command
+				}),
+
+			_importClicked && _(extendGrid,{ 
+					name: "tableCell", 
+					predicate: rest => {if (rest.tableRow.key === "heading" && rest.tableColumn.key === "editCommand" && rest.tableRow.type === "heading") { return true;}} 
+				}, _(TemplateConnector, {} ,(getters, actions)=>{
+					return _(_dxgrb.TableEditColumn.HeaderCell, {}, 
+						crudFlags &&  crudFlags.insert && _(Command, {
+							id: 'add',
+							onExecute:()=>actions.addRow()
   					}),
-  				_(ImportButtonOverload, {
-  				    //ToDo: i have to bind this method with _tid and function that will handle it else need to add showImportCommand to GridApi of the backend
-  					onClick:this.props._importClicked,
-  					showAddCommand:this.props.crudFlags && this.props.crudFlags.insert,
-  					showImportCommand:this.props._importClicked,
-  					commandComponent:Command
-  				},null),
-  				rows.length>iwb.detailPageSize ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
-  				!this.props._disableIntegratedGrouping ? _(_dxgrb.TableGroupRow,null)   : null,
-  				_(_dxgrb.Toolbar,null),
-  				_(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'}}),
-  				!this.props._disableIntegratedGrouping ? _(_dxgrb.GroupingPanel,{showSortingControls:true})			   : null,
-			);
-		  }
+						_importClicked && _(Command, {
+							id: 'import',
+							onExecute:()=>_importClicked()
+						}));
+				})
+			),
+
+			rows.length>iwb.detailPageSize	?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) 		: null,
+			!_disableIntegratedGrouping 	? _(_dxgrb.TableGroupRow,null)   											: null,
+			!_disableIntegratedGrouping || !_disableIntegratedSorting || !_disableSearchPanel ? _(_dxgrb.Toolbar,null)	: null,
+			!_disableSearchPanel 			? _(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'}}) 	: null,
+			!_disableIntegratedGrouping 	? _(_dxgrb.GroupingPanel,{showSortingControls:true})			   			: null,
+		);
+	}
 }
 
 class XMainGrid extends React.PureComponent {
 	  constructor(props) {
 		    super(props);
 		    var oldGridState = iwb.grids[props.id];
-			console.log('XMainGrid', props);
+			if(iwb.debug)console.log('XMainGrid', props);
 			var onEditClick = ({event,rowData})=>{
 				var props=this.props;	
 				var pkz = buildParams2(props.pk,rowData);
@@ -1636,27 +1716,35 @@ class XMainGrid extends React.PureComponent {
 				var modal=event.ctrlKey && !!event.ctrlKey;
 				props.openTab('1-'+pkz,url+(modal?'&_modal=1':''),{},{modal:modal})
 			};
+			var afterCrud = function(){
+				if(iwb.debug)console.log('hello fro console')
+				this.loadData();
+			}.bind(this);
+
 			var onDeleteClick = ({event,rowData}) => {
 				var props=this.props;	
 				var pkz = buildParams2(props.pk,rowData);
 				var url = 'ajaxPostForm?a=3&_fid='+props.crudFormId+pkz;
-				console.log(props.pk);
-				console.log(url);
-				// ?a=3&_fid=2573&tlanguage_def_id=12
+				yesNoDialog({ text:"Are you Sure!", callback:(success)=>{
+					if(success){
+						iwb.request({ url, successCallback:()=>this.loadData(true)});
+					}
+				}});
 			}
+		
 			if(oldGridState){
 		    	this.state = oldGridState;
 		    	this.dontRefresh = true;
 		    } else {
 				var columns=[], tableColumnExtensions=[];
-				const canIOpen =(props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) || props.menuButtons;
-				if(canIOpen){
+				const canIOpenActions =(props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) || props.menuButtons;
+				if(canIOpenActions){
 					columns.push({name:'_qw_',title:'.',getCellValue:function(rowData){
 						return _(XGridRowAction ,{ 
 							...{ rowData }, 
 							...{ menuButtons : props.menuButtons },
 							...{ crudFlags: props.crudFlags },
-							...{ onEditClick, onDeleteClick}
+							...{ onEditClick, onDeleteClick, afterCrud}
 						});
 					}});
 			    	tableColumnExtensions.push({columnName:'_qw_',width:60, align:'right',sortingEnabled:false});
@@ -1671,7 +1759,7 @@ class XMainGrid extends React.PureComponent {
 			    	case	'pkpkpk_apf':v.title=_('i',{className:'icon-picture'});break;
 			    	case	'pkpkpk_vcsf':v.title=_('i',{className:'icon-social-github'});break;
 			    	}
-			    	//if(c[qi].formatter)console.log('c[qi].formatter',c[qi].formatter)
+			    	//if(c[qi].formatter)if(iwb.debug)console.log('c[qi].formatter',c[qi].formatter)
 			    	if(c[qi].formatter)v.getCellValue=c[qi].formatter;
 			    	columns.push(v);
 			    	tableColumnExtensions.push({columnName:c[qi].name, align:c[qi].align||'left', width:1*c[qi].width,sortingEnabled:!!c[qi].sort});
@@ -1711,6 +1799,12 @@ class XMainGrid extends React.PureComponent {
 				s[c.name] = c.checked;
 				this.setState(s);
 			}
+			this.TableRow = tableRowData =>{
+				var props=this.props;
+				return _(_dxgrb.Table.Row, props.openTab && props.crudFlags && props.crudFlags.edit && props.pk && props.crudFormId ? 
+					{...tableRowData, ...{ onDoubleClick:(event)=>{ onEditClick({event,rowData:tableRowData.row})}, style:{cursor:'pointer'} }}
+					: tableRowData);
+			}
 			this.toggleSearch 			= ()				=>{				
 				var sf = document.getElementById('sf-'+this.props.id);
 				if(sf){
@@ -1743,21 +1837,15 @@ class XMainGrid extends React.PureComponent {
 						)
 				});
 			}
-		    this.TableRow = tableRowData =>{
-				var props=this.props;
-				return _(_dxgrb.Table.Row, props.openTab && props.crudFlags && props.crudFlags.edit && props.pk && props.crudFormId ? 
-					{...tableRowData, ...{ onDoubleClick:(event)=>{ onEditClick({event,rowData:tableRowData.row})}, style:{cursor:'pointer'} }}
-					: tableRowData);
-			}
 		    if(this.props.searchForm || (this.props.detailGrids && this.props.detailGrids.length>1)){//hidden:!!this.props.grid.globalSearch
 		    	var self = this;
-		    	this.searchForm = _(Nav, {style:{}},this.props.searchForm ? [_('div',{className:'hr-text'},_('h6',null,'Arama Kriterleri'))
+		    	this.searchForm = _(Nav, {style:{}},this.props.searchForm && _('span',null,_('div',{className:'hr-text'},_('h6',null,'Arama Kriterleri'))
 			    	,_('div',{style:{zoom:'.9'}},_(this.props.searchForm,{parentCt:this}),_('div',{className:'form-group',style:{paddingTop:10}},_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(!0);} },"ARA")))
 			    	,_('div',{style:{height:10}}),_('div',{className:'hr-text'},_('h6',null,'Şablonlar'))
 			    	,_(Link,{style:{padding:2},to:''},_('i',{className:'icon-star'}),' ',' Yıllık Faturalar') //TODO
 			   // 	,_(Link,{style:{padding:'2px'},to:''},_('i',{className:'icon-star'}),' ',' Ankara')
 			    	,_(Link,{style:{padding:2,color:'#a0a0a0'},to:''},_('i',{className:'icon-plus'}),' ',' Yeni Şablon Ekle')
-			    	,_('div',{style:{height:20}})]:null
+			    	,_('div',{style:{height:20}}))
 			    	,this.props.detailGrids && this.props.detailGrids.length>1 && _('div',{className:'hr-text'},_('h6',null,'DETAY KAYITLAR'))
 			    	,this.props.detailGrids && this.props.detailGrids.length>1 && this.props.detailGrids.map(function(a,key){
 			    		return _('div',{key:key,style:{padding: "3px 0px 2px 3px", color: "#6d7284", fontSize:".9rem"}},a.grid.name,_("label",{ "className": "float-right switch switch-xs switch-3d switch-"+dgColors[key % dgColors.length]+" form-control-label" },
@@ -1779,7 +1867,7 @@ class XMainGrid extends React.PureComponent {
 							g2.detailFlag=true; 
 							r.push(_("li",{key:qi, className: "timeline-inverted" },
   //								  	_(XGridAction,{color:dgColors[qi%dgColors.length]}),
-									  _("div", { className: "timeline-badge hover-shake "+dgColors[qi%dgColors.length], i:qi, onClick:function(e){var i=1*e.target.getAttribute('i');console.log('dasss',i,dgs[i].grid); xxx.onOnNewRecord(e,dgs[i].grid,row.row);} , style:{cursor:"pointer"}}, _("i", { className: "icon-grid", style:{fontSize:17} })),
+									  _("div", { className: "timeline-badge hover-shake "+dgColors[qi%dgColors.length], i:qi, onClick:function(e){var i=1*e.target.getAttribute('i');if(iwb.debug)console.log('dasss',i,dgs[i].grid); xxx.onOnNewRecord(e,dgs[i].grid,row.row);} , style:{cursor:"pointer"}}, _("i", { className: "icon-grid", style:{fontSize:17} })),
 									  _("div", { className: "timeline-panel" },_("div",{ className: "timeline-heading" },
 									  _("h5",{ /*style:{paddingBottom: '10px'},*/className: "timeline-title" },g2.name)
   //									,_('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},_('i',{ className: "icon-arrow-up", style:{marginRight: '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
@@ -1789,10 +1877,17 @@ class XMainGrid extends React.PureComponent {
 					} else return null;
 				}
 			}
+			this.onOnNewRecord = (e,grid, row) =>{
+				if(iwb.debug)console.log("XMainGrid.onOnNewRecord");
+				if(!grid)grid=this.props;
+				if(grid.crudFlags && grid.crudFlags.insert && this.props.openTab){
+					var url = 'showForm?a=2&_fid='+grid.crudFormId;
+					if(grid._postInsert){ url=grid._postInsert(row||{}, url, grid); if(!url)return;}
+					var modal=!!e.ctrlKey;
+					this.props.openTab('2-'+grid.gridId,url+(modal?'&_modal=1':''),{},{modal:modal})
+				}
 			}
-			componentDidMount() { if(!this.dontRefresh)this.loadData(); this.dontRefresh=false; }
-			componentDidUpdate() { this.loadData(); this.dontRefresh=false;}
-			queryString() {
+			this.queryString=() => {
 				const { sorting, pageSize, currentPage } = this.state;
 				let queryString = this.props._url+'&limit='+pageSize+'&start='+(pageSize * currentPage);
 				const columnSorting = sorting[0];
@@ -1802,18 +1897,12 @@ class XMainGrid extends React.PureComponent {
 				}
 				return queryString;
 			}
-			loadData(force, params) {
-	//			if(this.state.loading===true)return;
+			this.loadData = (force, params) => {
 				const queryString = this.queryString();
-				if (!force && queryString === this.lastQuery) {
-			//    this.setState({ loading: false });
-				return;
-				}
+				if (!force && queryString === this.lastQuery) { return; }
 				this.setState({loading: true});
-	//		    var params= Object.assign({},params||{},this.props.searchForm ? iwb.getFormValues(document.getElementById('fsf-'+this.props.id)):{});
 				var params= Object.assign({},params||{},this.form ? this.form.getValues():{});
-	//		    console.log(params);
-				iwb.request({url:queryString, self:this, params:params, successCallback:function(result, cfg){
+				iwb.request({url:queryString, self:this, params, successCallback:function(result, cfg){
 				cfg.self.setState({
 					rows: result.data,
 					totalCount: result.total_count,
@@ -1828,25 +1917,15 @@ class XMainGrid extends React.PureComponent {
 				}});
 				this.lastQuery = queryString;
 			}
-
-		onOnNewRecord(e,grid, row) {
-			console.log("XMainGrid.onOnNewRecord");
-			if(!grid)grid=this.props;
-			if(grid.crudFlags && grid.crudFlags.insert && this.props.openTab){
-				var url = 'showForm?a=2&_fid='+grid.crudFormId;
-				if(grid._postInsert){ url=grid._postInsert(row||{}, url, grid); if(!url)return;}
-				var modal=!!e.ctrlKey;
-				this.props.openTab('2-'+grid.gridId,url+(modal?'&_modal=1':''),{},{modal:modal})
-			}
 		}
-		
-		componentWillUnmount(){
+		componentDidMount() 	{ if(!this.dontRefresh)this.loadData(); this.dontRefresh=false; }
+		componentDidUpdate() 	{ this.loadData(); this.dontRefresh=false;}
+		componentWillUnmount()	{
 			var state = Object.assign({},this.state);
 			var sf = document.getElementById('sf-'+this.props.id);
 			if(sf){ state.hideSF = sf.classList.contains('sf-hidden');}
 			iwb.grids[this.props.id]=state;
 		}
-
 		render() {
 			const {
 				rows, columns, tableColumnExtensions,
@@ -1875,7 +1954,7 @@ class XMainGrid extends React.PureComponent {
 					rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
 					!pageSize && rows.length>1  ? _(_dxgrb.TableGroupRow,null) : null,
 					(!pageSize && rows.length>1)  ? _(_dxgrb.Toolbar,null):null,
-					(!pageSize && rows.length>1) ? _(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'},changeSearchValue:function(ax){console.log('onValueChange',ax);}}) : null,//TODO
+					(!pageSize && rows.length>1) ? _(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'},changeSearchValue:function(ax){if(iwb.debug)console.log('onValueChange',ax);}}) : null,//TODO
 					!pageSize && rows.length>1  ? _(_dxgrb.GroupingPanel,{showSortingControls:true}) : null
 //			    		,loading && iwb.loading()
 			);
@@ -1896,7 +1975,7 @@ class XMainGrid extends React.PureComponent {
 
 class XPage extends React.Component {
 	constructor(props){
-		if(iwb.debugConstructor)console.log('XPage.constructor',props);
+		if(iwb.debugConstructor)if(iwb.debug)console.log('XPage.constructor',props);
 		super(props);
 	    document.getElementById('id-breed').innerHTML = this.props.grid.name;//+(detailSearch ? '<a href="#" onClick="return iwb.detailSearch();"><i class="icon-magnifier" title="Detaylı Arama" style="color: gray;font-size: 1.1rem;padding-left: 10px;"></i></a>':'');
 	    iwb.killGlobalSearch();
@@ -1926,7 +2005,6 @@ class XPage extends React.Component {
 						this.toggle(action);
 						return;
 					}
-				
 				fetch(url,{
 					body: JSON.stringify(params||{}), // must match 'Content-Type' header
 					cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -1950,7 +2028,7 @@ class XPage extends React.Component {
 					(result) => {
 						if(result){
 							var f;
-							console.log('openTab.callAttributes2', callAttributes)
+							if(iwb.debug)console.log('openTab.callAttributes2', callAttributes)
 							eval("f=function(callAttributes, parentCt){\n"+result+"\n}");
 							var r=f(callAttributes || {}, this);
 							if(r){
@@ -1966,6 +2044,7 @@ class XPage extends React.Component {
 				)
 			}
 		};
+		iwb.openTab = this.openTab;
 	    this.closeTab = ()=>{
 			var state = this.state;
 			var tab=state.activeTab;
@@ -2008,7 +2087,7 @@ class XPage extends React.Component {
 	componentWillUnmount(){ iwb.killGlobalSearch(); iwb.pages[this.props.grid.id]=Object.assign({},this.state); }
 	
 	render(){
-		if(iwb.debugRender)console.log('XPage.render');
+		if(iwb.debugRender)if(iwb.debug)console.log('XPage.render');
 		return _("div",{},
 			_(Row,null,
 				_(Col,{ className: "mb-4" },
@@ -2032,7 +2111,7 @@ class XCardMenu  extends React.PureComponent {
 	render (){
  		return _(Col, {xs: "12",sm: "6",md:"6",lg: "6",xl: "4"}
  		, _(Link,{to:this.props.node.url},
-				_(Card, {//url:this.props.node.url,onClick:(e)=>{console.log(this.props.history);console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
+				_(Card, {//url:this.props.node.url,onClick:(e)=>{if(iwb.debug)console.log(this.props.history);if(iwb.debug)console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
 		    className: "card-menu text-white bg-"+this.props.color,style:this.props.fadeOut ? {opacity:0, transform:"scale(.9)"}:(this.props.fadeOut===false?{transform: "scale(1.1)"}:{})
 		},  _("i", {className: "big-icon "+(this.props.node.icon || "icon-settings"), style:this.props.color3 ? {color:this.props.color3}:{}})
 		,_(CardBlock, {className: "pb-0"}, this.props.fadeOut===false? _("div",{className: "float-right",style:{
@@ -2054,7 +2133,7 @@ class XCardMiniMenu  extends React.PureComponent {
 	render (){
  		return _(Col, {xs: "4",sm: "3",md:"2",lg: "2",xl: "1"}
  		, _(Link,{to:this.props.node.url},
-				_(Card, {//url:this.props.node.url,onClick:(e)=>{console.log(this.props.history);console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
+				_(Card, {//url:this.props.node.url,onClick:(e)=>{if(iwb.debug)console.log(this.props.history);if(iwb.debug)console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
 		    className: "card-mini-menu text-white bg-"+this.props.color,style:this.props.fadeOut ? {opacity:0, transform:"scale(.9)"}:(this.props.fadeOut===false?{transform: "scale(1.1)"}:{})
 		}
 		,_(CardBlock, {className: "pb-1", style:{textAlign:"center", padding:"0"}}, _("i", {
@@ -2068,19 +2147,19 @@ class XCardMiniMenu  extends React.PureComponent {
 
 class XMainNav extends React.PureComponent {
 	constructor(props){
-		if(iwb.debugConstructor)console.log('XMainNav.constructor',props);
+		if(iwb.debugConstructor)if(iwb.debug)console.log('XMainNav.constructor',props);
 		super(props);
 		this.onGlobalSearch = v=> this.setState({xsearch:v&&v.target ? v.target.value:v});
 		iwb.onGlobalSearch2 = this.onGlobalSearch;
 		this.state = {xsearch:''};
 	}
-	componentWillUnmount(){ console.log('XMainNav.componentWillUnmount'); iwb.killGlobalSearch(); }
-	componentDidUpdate() { console.log('XMainNav.componentDidUpdate'); }
+	componentWillUnmount()	{ if(iwb.debug)console.log('XMainNav.componentWillUnmount'); iwb.killGlobalSearch(); }
+	componentDidUpdate() 	{ if(iwb.debug)console.log('XMainNav.componentDidUpdate'); }
 	render (){
-		console.log('this.state.xsearch',this.state.xsearch);
+		if(iwb.debug)console.log('this.state.xsearch',this.state.xsearch);
 		if(this.state.xsearch){
 			var nodes=iwb.nav.findNodes(this.state.xsearch.toLowerCase(), {name:'Home',children:iwb.nav.items});
-			console.log('nodes', nodes);
+			if(iwb.debug)console.log('nodes', nodes);
 			if(!nodes || !nodes.length)return 'Bulunamadı :(';
 			return _('div', {className: 'animated fadeIn'}
 		      ,_('div',{style:{height: '1.45rem'}})
@@ -2179,15 +2258,15 @@ class XMainPanel extends React.PureComponent {
 	    	});
 	    }
 	}	
-	componentDidMount() {console.log('XMainPanel.componentDidMount',this.props.match.path);if(!this.l)this.loadPage();}
-	componentDidUpdate() { console.log('XMainPanel.componentDidUpdate',this.props.match.path); if(!this.l)this.loadPage();}
-	componentDidCatch(){console.log('XMainPanel.componentDidCatch',this);}
-	componentWillUnmount(){ console.log('XMainPanel.componentWillUnmount',this.props.match.path);}
+	componentDidMount() 	{	if(iwb.debug)console.log('XMainPanel.componentDidMount',this.props.match.path);if(!this.l)this.loadPage();}
+	componentDidUpdate() 	{ 	if(iwb.debug)console.log('XMainPanel.componentDidUpdate',this.props.match.path); if(!this.l)this.loadPage();}
+	componentDidCatch()		{	if(iwb.debug)console.log('XMainPanel.componentDidCatch',this);}
+	componentWillUnmount()	{ 	if(iwb.debug)console.log('XMainPanel.componentWillUnmount',this.props.match.path);}
 	render() {
 		var path = this.props.match.path;
 		var children = {name:'Home',children:iwb.nav.items};
 		var node = path=='/' || path=='/iwb-home'? children: iwb.nav.findNode(this.props.match.path, children);
-		console.log('XMainPanel:render:',path, node);
+		if(iwb.debug)console.log('XMainPanel:render:',path, node);
 		if(node){
 			var ix= path.indexOf("showPage");
 			if(ix>-1){
