@@ -978,10 +978,10 @@ border-radius: 4px 4px 4px 4px;
 }
 
 .ux-lovcombo-icon-checked {
-    background: transparent url(../images/default/menu/checked.gif) !important;
+    background: transparent url(../images/access/menu/checked.gif) !important;
 }
 .ux-lovcombo-icon-unchecked {
-    background: transparent url(../images/default/menu/unchecked.gif) !important;
+    background: transparent url(../images/access/menu/unchecked.gif) !important;
 }
 .typing-icon{ background: url(../images/custom/image_add.png) no-repeat 0 0 !important;}
 

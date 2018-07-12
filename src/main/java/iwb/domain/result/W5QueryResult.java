@@ -625,7 +625,7 @@ public class W5QueryResult implements W5MetaResult{
     			sqlWhere.append(query.getSqlWhere());
     	}
 
-		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale"));
+		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
 		List<W5QueryParam> pqs = null;
 		pqs=getQuery().get_queryParams();
     	for(W5QueryParam p1 : pqs){
@@ -1328,7 +1328,7 @@ public class W5QueryResult implements W5MetaResult{
     			sqlWhere.append(query.getSqlWhere());
     	}
 
-		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale"));
+		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
 		List<W5QueryParam> pqs = null;
 		pqs=getQuery().get_queryParams();
     	for(W5QueryParam p1 : pqs){
@@ -2105,7 +2105,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	} 
     	}
 
-		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale"));
+		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
 		List<W5QueryParam> pqs = getQuery().get_queryParams();
     	for(W5QueryParam p1 : pqs){
 			String pexpressionDsc = p1.getExpressionDsc();
@@ -2436,7 +2436,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	}
 
 	    	if(query!=null){
-				Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale"));
+				Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
 				List<W5QueryParam> pqs =  getQuery().get_queryParams();
 		    	for(W5QueryParam p1 : pqs){
 					String pexpressionDsc = p1.getExpressionDsc();
