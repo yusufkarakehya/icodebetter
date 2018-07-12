@@ -30,6 +30,7 @@ import iwb.domain.db.W5VcsObject;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
+import iwb.util.DBUtil;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -503,7 +504,7 @@ public class VcsEngine {
 							sql = new StringBuilder();
 							sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 							if(t.get_tableParamList().size()>1)sql.append(" AND x.customization_id=").append(customizationId);
-							Object[] res = GenericUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
+							Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 							summaryParams = (List)res[1];summaryParams.add(0);
 							ssql=((StringBuilder)res[0]).toString();
 						}
@@ -670,7 +671,7 @@ public class VcsEngine {
 							sql = new StringBuilder();
 							sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 							if(t.get_tableParamList().size()>1)sql.append(" AND x.customization_id=").append(customizationId);
-							Object[] res = GenericUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
+							Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 							summaryParams = (List)res[1];summaryParams.add(0);
 							ssql=((StringBuilder)res[0]).toString();
 						}
@@ -1321,7 +1322,7 @@ public class VcsEngine {
 					StringBuilder sql = new StringBuilder();
 					sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 					if(t.get_tableParamList().size()>1)sql.append(" AND x.customization_id=").append(customizationId);
-					Object[] res = GenericUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
+					Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 					List summaryParams = (List)res[1];summaryParams.add(0);
 					String ssql=((StringBuilder)res[0]).toString();
 					

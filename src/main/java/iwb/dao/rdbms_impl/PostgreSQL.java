@@ -113,6 +113,7 @@ import iwb.engine.FrameworkEngine;
 import iwb.engine.ScriptEngine;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
+import iwb.util.DBUtil;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -595,7 +596,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
    				sql2.append(",(select ");
    				
    	    		if(tqf.getSummaryRecordSql().contains("${")){
-   	    			Object[] oz = GenericUtil.filterExt4SQL(tqf.getSummaryRecordSql(),queryResult.getScd(), queryResult.getRequestParams(), null);
+   	    			Object[] oz = DBUtil.filterExt4SQL(tqf.getSummaryRecordSql(),queryResult.getScd(), queryResult.getRequestParams(), null);
    	    			sql2.append(oz[0]);
 					if(oz[1]!=null)preParams.addAll((List)oz[1]);
    	    		} else
@@ -619,7 +620,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
    				sql2.append(",(select ");
    				
    	    		if(tqf.getSummaryRecordSql().contains("${")){
-   	    			Object[] oz = GenericUtil.filterExt4SQL(tqf.getSummaryRecordSql(),queryResult.getScd(), queryResult.getRequestParams(), null);
+   	    			Object[] oz = DBUtil.filterExt4SQL(tqf.getSummaryRecordSql(),queryResult.getScd(), queryResult.getRequestParams(), null);
    	    			sql2.append("string_agg(").append(oz[0]).append(",',')");
 					if(oz[1]!=null)preParams.addAll((List)oz[1]);
    	    		} else
@@ -691,7 +692,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						sql2.append("select z.*");
 						if(query.getSqlPostSelect()!=null && query.getSqlPostSelect().trim().length()>2){				
 							if(query.getSqlPostSelect().contains("${")){
-								Object[] oz = GenericUtil.filterExt4SQL(query.getSqlPostSelect(), queryResult.getScd(), queryResult.getRequestParams(), null);
+								Object[] oz = DBUtil.filterExt4SQL(query.getSqlPostSelect(), queryResult.getScd(), queryResult.getRequestParams(), null);
 								sql2.append(", ").append(oz[0]);
 								if(oz[1]!=null){
 									queryResult.getSqlParams().addAll(0,(List)oz[1]);
@@ -739,7 +740,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							sql2.append("select z.*");//					
 							if(query.getSqlPostSelect()!=null && query.getSqlPostSelect().trim().length()>2){
 								if(query.getSqlPostSelect().contains("${")){
-									Object[] oz = GenericUtil.filterExt4SQL(query.getSqlPostSelect(), queryResult.getScd(), queryResult.getRequestParams(), null);
+									Object[] oz = DBUtil.filterExt4SQL(query.getSqlPostSelect(), queryResult.getScd(), queryResult.getRequestParams(), null);
 									sql2.append(", ").append(oz[0]);
 									if(oz[1]!=null){
 										queryResult.getSqlParams().addAll(0,(List)oz[1]);
@@ -782,7 +783,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							sql2.append("select z.*");
 							if(query.getSqlPostSelect()!=null && query.getSqlPostSelect().trim().length()>2){
 								if(query.getSqlPostSelect().contains("${")){
-									Object[] oz = GenericUtil.filterExt4SQL(query.getSqlPostSelect(), queryResult.getScd(), queryResult.getRequestParams(), null);
+									Object[] oz = DBUtil.filterExt4SQL(query.getSqlPostSelect(), queryResult.getScd(), queryResult.getRequestParams(), null);
 									sql2.append(", ").append(oz[0]);
 									if(oz[1]!=null)queryResult.getSqlParams().addAll(0,(List)oz[1]);
 								} else
@@ -934,7 +935,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	
 	@Override
 	public Map<String, Object> runSQLQuery2Map(String code, Map<String, Object> scd, Map<String, String> requestParams, Map<String, Object> obj) {
-		Object[] oz = GenericUtil.filterExt4SQL(code, scd, requestParams, obj);
+		Object[] oz = DBUtil.filterExt4SQL(code, scd, requestParams, obj);
 		return runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 	}
 	@Override
@@ -1479,7 +1480,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 								cellResult.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cellResult.getFormCell().getInitialValue()));
 							break;
 						case	4://SQL
-							Object[] oz = GenericUtil.filterExt4SQL(cellResult.getFormCell().getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
+							Object[] oz = DBUtil.filterExt4SQL(cellResult.getFormCell().getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
 							if(oz[1]!=null && ((List)oz[1]).size()>0){
 								Map<String, Object> m = runSQLQuery2Map(oz[0].toString(),(List)oz[1],null, false);
 								if(m!=null)cellResult.setValue(m.values().iterator().next().toString());
@@ -1810,7 +1811,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				result=(FrameworkCache.getAppSettingStringValue(scd, cell.getInitialValue()));
 			break;
 		case	4://SQL
-			Object[] oz = GenericUtil.filterExt4SQL(cell.getInitialValue(), scd, requestParams, null);
+			Object[] oz = DBUtil.filterExt4SQL(cell.getInitialValue(), scd, requestParams, null);
 			Map<String, Object> m = runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 			if(m!=null)result=(m.values().iterator().next().toString());
 			break;
@@ -1986,7 +1987,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					result.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cell.getInitialValue()));
 				break;
 			case	4://SQL
-				Object[] oz = GenericUtil.filterExt4SQL(cell.getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
+				Object[] oz = DBUtil.filterExt4SQL(cell.getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
 				if(oz[1]!=null && ((List)oz[1]).size()>0){
 					Map<String, Object> m = runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(m!=null && m.size()>0)result.setValue(m.values().iterator().next().toString());
@@ -3203,7 +3204,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	    	if(query.getSqlPostSelect()!=null && query.getSqlPostSelect().trim().length()>2){
 	    		sql = new StringBuilder(sql.length()+100).append("select z.*,").append(query.getSqlPostSelect()).append(" from (").append(sql).append(") z");
 	    	}
-	    	Object[] oz = GenericUtil.filterExt4SQL(sql.toString(), scd, null, null);
+	    	Object[] oz = DBUtil.filterExt4SQL(sql.toString(), scd, null, null);
 	    	final String sqlStr = ((StringBuilder)oz[0]).toString();
 			if(oz[1]!=null)sqlParams.addAll((List)oz[1]); else
 	    	for(int qi=0;qi<sqlStr.length();qi++)if(sqlStr.charAt(qi)=='?')sqlParams.add(null);
@@ -3235,7 +3236,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	        						field.setPostProcessTip((short)53);
 	        					field.setTabOrder((short)(i));
 	        					field.setQueryId(query.getQueryId());
-	        					field.setFieldTip((short)GenericUtil.java2promis_type(meta.getColumnType(i)));
+	        					field.setFieldTip((short)DBUtil.java2iwbType(meta.getColumnType(i)));
 	        					if (field.getFieldTip() == 4) {
 	        						//numeric değerde ondalık varsa tipi 3 yap
 	            					int sc = meta.getScale(i);
@@ -4438,7 +4439,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					if(t.get_tableParamList().get(1).getDsc().equals("customizationId"))sql.append(" AND x.customization_id=${scd.customizationId}");
 					else return l;
 				}
-				Object[] oz = GenericUtil.filterExt4SQL(sql.toString(), scd, requestParams, null);
+				Object[] oz = DBUtil.filterExt4SQL(sql.toString(), scd, requestParams, null);
 				Map<String, Object> m = runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 				trh = new W5TableRecordHelper();
 				trh.setTableId(tableId);
@@ -4532,7 +4533,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					String sqlCode = tfc.getSqlCode();
 					W5TableField ntf = new W5TableField(tfc.getTableFieldCalculatedId());ntf.setDefaultControlTip((short)-1);
 					if(sqlCode.contains("${")){
-						Object[] oz = GenericUtil.filterExt4SQL(sqlCode, scd, requestParams, null);
+						Object[] oz = DBUtil.filterExt4SQL(sqlCode, scd, requestParams, null);
 						sqlCode = (String)oz[0];
 						if(oz.length>1)params.addAll((List)oz[1]);
 					}
@@ -4689,7 +4690,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					W5TableField ntf = new W5TableField(tfc.getTableFieldCalculatedId());ntf.setDefaultControlTip((short)-1);
 					resField.put(subStr, ntf);
 					if(sqlCode.contains("${")){
-						Object[] oz = GenericUtil.filterExt4SQL(sqlCode, scd, requestParams, null);
+						Object[] oz = DBUtil.filterExt4SQL(sqlCode, scd, requestParams, null);
 						sqlCode = oz[0].toString();
 						if(oz.length>1)params.addAll((List)oz[1]);
 					}
@@ -5829,7 +5830,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(!GenericUtil.isEmpty(summarySql)){
 			List params = new ArrayList();
 			if(summarySql.indexOf("${")>-1){
-				Object[] oz = GenericUtil.filterExt4SQL(summarySql, scd, new HashMap(), null);
+				Object[] oz = DBUtil.filterExt4SQL(summarySql, scd, new HashMap(), null);
 				summarySql = oz[0].toString();
 				if(oz.length>1 && oz[1]!=null)params = (List)oz[1]; 
 			} 
@@ -6005,7 +6006,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 		if(t.get_tableParamList().size()>1)sql.append(" AND x.customization_id=").append(scd.get("customizationId"));
-		Object[] res = GenericUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
+		Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 		List summaryParams = (List)res[1];summaryParams.add(tablePk);
 		List l = executeSQLQuery2(((StringBuilder)res[0]).toString(), summaryParams);
 		if(GenericUtil.isEmpty(l))return "(record not found)("+tablePk+")";
@@ -6376,7 +6377,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		        					W5Table t = (W5Table)mm.get("t");
 		        					String sql = "select x."+t.get_tableFieldList().get(0).getDsc()+" id, "+t.getSummaryRecordSql()+" dsc from " +t.getDsc()+" x where "+t.get_tableParamList().get(0).getExpressionDsc()+" in ("+ss+")";
 		        					if(t.get_tableParamList().size()>1)sql+=" AND x.customization_id="+scd.get("customizationId");
-		        					Object[] oz = GenericUtil.filterExt4SQL(sql, scd, new HashMap(), null);
+		        					Object[] oz = DBUtil.filterExt4SQL(sql, scd, new HashMap(), null);
 		        					List<Object[]> lm = executeSQLQuery2(oz[0].toString(), (List)oz[1]);
 		        					if(lm!=null){
 		        						Map m3 = new HashMap();
@@ -7120,7 +7121,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			if(ltcf.isEmpty())
 				throw new IWBException("framework","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_grid_stat_field_error"), null);
 			W5TableFieldCalculated tcf = ltcf.get(0);
-			Object[] oo = GenericUtil.filterExt4SQL(tcf.getSqlCode(), scd, requestParams, null);
+			Object[] oo = DBUtil.filterExt4SQL(tcf.getSqlCode(), scd, requestParams, null);
 			tableFieldSQL =  "("+oo[0].toString()+")";//.put(tableFieldChain, o.toString());
 			if(oo.length>1)params.addAll((List)oo[1]);
 			tableField = t.get_tableFieldList().get(0);
@@ -7218,7 +7219,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	    					throw new IWBException("framework","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_grid_stat_field_error"), null);
 	    				count++;
 	    				W5TableFieldCalculated tcf = ltcf.get(0);
-	    				Object[] oo = GenericUtil.filterExt4SQL(tcf.getSqlCode(), scd, requestParams, null);
+	    				Object[] oo = DBUtil.filterExt4SQL(tcf.getSqlCode(), scd, requestParams, null);
 	    				//tableFieldSQL =  oo[0].toString();//.put(tableFieldChain, o.toString());
 	    				if(oo.length>1)params.addAll((List)oo[1]);
 
@@ -7607,7 +7608,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		
 		
 		
-		Object[] oz = GenericUtil.filterExt4SQL(sql2.toString(), scd, requestParams, null);
+		Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams, null);
 		List<Map> lm = executeSQLQuery2Map(oz[0].toString(),(List)oz[1]);
 		if(!staticLookups.isEmpty() || !iwbFieldMap.isEmpty())for(Map<String, Object> mo:lm){
 			for(String k:staticLookups.keySet()){
@@ -7908,7 +7909,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		
 		
 		
-		Object[] oz = GenericUtil.filterExt4SQL(sql2.toString(), scd, requestParams, null);
+		Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams, null);
 		List<Map> lm = executeSQLQuery2Map(oz[0].toString(),(List)oz[1]);
 		if(!staticLookups.isEmpty() || !iwbFieldMap.isEmpty())for(Map<String, Object> mo:lm){
 			for(String k:staticLookups.keySet()){
