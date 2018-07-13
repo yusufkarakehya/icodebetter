@@ -3819,8 +3819,13 @@ public class FrameworkEngine{
 
 	public W5FileAttachment loadFile(Map<String, Object> scd,int fileAttachmentId) { //+:fileId, -:userId : Map<String, Object> scd,
 		if(fileAttachmentId<0){
-			fileAttachmentId = UserUtil.getUserProfilePicture((Integer)scd.get("customizationId"),-fileAttachmentId);
-			List l = dao.executeSQLQuery("select t.profile_picture_id from iwb.w5_user t where t.customization_id=? AND t.user_id=?", scd.get("customizationId"),-fileAttachmentId);
+			int newFileAttachmentId = UserUtil.getUserProfilePicture((Integer)scd.get("customizationId"),-fileAttachmentId);
+			if(newFileAttachmentId==0) {
+				List l = dao.executeSQLQuery("select t.profile_picture_id from iwb.w5_user t where t.user_id=?", -fileAttachmentId);
+				if(!GenericUtil.isEmpty(l)) {
+					fileAttachmentId = GenericUtil.uInt(l.get(0));
+				}
+			} else fileAttachmentId = newFileAttachmentId;
 			if(fileAttachmentId==1 || fileAttachmentId==2){
 				W5FileAttachment fa2 = new W5FileAttachment();
 				fa2.setFileAttachmentId(fileAttachmentId);
@@ -3831,11 +3836,11 @@ public class FrameworkEngine{
 		List<W5FileAttachment> fal=  dao.find("from W5FileAttachment t where t.fileAttachmentId=?", fileAttachmentId);
 		if(GenericUtil.isEmpty(fal))return null;
 		W5FileAttachment fa = fal.get(0);
-		if(scd==null){
+//		if(scd==null){
 			scd = new HashMap();scd.put("customizationId", fa.getCustomizationId());
-		} else if((Integer)scd.get("customizationId")!=fa.getCustomizationId()){
-			return null;
-		}
+//		} else if((Integer)scd.get("customizationId")!=fa.getCustomizationId()){
+//			return null;
+//		}
 		if(fa!=null){ //bununla ilgili islemler
 			if(checkAccessRecordControlViolation(scd, 0, fa.getTableId(), fa.getTablePk())){
 				throw new IWBException("security","FileAttachment", fa.getFileAttachmentId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_dosya_yetki"), null);
