@@ -1,3 +1,5 @@
+if(typeof(iwb) == 'undefined')iwb = {};
+if(!iwb.ui)iwb.ui={};
 if(typeof(_localeMsg) == 'undefined')_localeMsg = {};
 
 function getLocMsg(key){if(key==null)return '';var val=_localeMsg[key];return val || key;}
@@ -2620,7 +2622,7 @@ function promisRequest(rcfg){
 	}, rcfg));
 }
 
-
+iwb.request=promisRequest;
 
 
 function combo2combo(comboMaster,comboDetail,param,formAction){//formAction:2(insert) ise ve comboDetail reload olunca 1 kayit geliyorsa otomatik onu sec
@@ -4488,8 +4490,6 @@ function fncMnuVcs(xgrid){
 }
 
 
-if(typeof(iwb) == 'undefined')iwb = {};
-if(!iwb.ui)iwb.ui={};
 
 /* Log Utils*/
 if(!iwb.log)iwb.log={};
