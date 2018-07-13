@@ -165,17 +165,12 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 	border-right: 1px solid #C7E3B4;
 }
 
-.x-grid3-hd-row .ux-filtered-column .x-grid3-hd-inner {
-	background-image: url(../images/custom/icons/header_bg.gif);
+
+.x-form-invalid-icon {
+    background-image: url(images/error-16.png);
 }
 
-.ux-filtered-column .x-grid3-hd-btn {
-	background-image: url(../images/custom/icons/hd-btn.gif);
-}
 
-.ux-filtered-column.sort-asc .x-grid3-sort-icon {
-	background-image: url(../images/custom/icons/sort_filtered_asc.gif);
-}
 
 .ux-filtered-column.sort-desc .x-grid3-sort-icon {
 	background-image: url(../images/custom/icons/sort_filtered_desc.gif);
@@ -978,10 +973,10 @@ border-radius: 4px 4px 4px 4px;
 }
 
 .ux-lovcombo-icon-checked {
-    background: transparent url(../images/default/menu/checked.gif) !important;
+    background: transparent url(../images/access/menu/checked.gif) !important;
 }
 .ux-lovcombo-icon-unchecked {
-    background: transparent url(../images/default/menu/unchecked.gif) !important;
+    background: transparent url(../images/access/menu/unchecked.gif) !important;
 }
 .typing-icon{ background: url(../images/custom/image_add.png) no-repeat 0 0 !important;}
 

@@ -23,6 +23,7 @@ import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5TableUserTip;
 import iwb.domain.db.W5TsMeasurement;
 import iwb.enums.FieldDefinitions;
+import iwb.util.DBUtil;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -196,14 +197,14 @@ public class W5QueryResult implements W5MetaResult{
     	String sqlSelect = null;
     	List sqlSelectParams= new ArrayList<Object>();
    		if(query.getSqlSelect().contains("${")){
-	   		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlSelect(), scd, requestParams2, null);
+	   		Object[] oz = DBUtil.filterExt4SQL(query.getSqlSelect(), scd, requestParams2, null);
 	   		sqlSelect = oz[0].toString();
 			if(oz[1]!=null)sqlSelectParams.addAll((List)oz[1]);
    		} else sqlSelect = query.getSqlSelect();
    		
    		String sqlFrom = null;
    		if(query.getSqlFrom().contains("${")){
-	   		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
+	   		Object[] oz = DBUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
 	   		sqlFrom = oz[0].toString();;
 			if(oz[1]!=null)sqlSelectParams.addAll((List)oz[1]);
    		} else sqlFrom=query.getSqlFrom();
@@ -263,7 +264,7 @@ public class W5QueryResult implements W5MetaResult{
 										sqlParams.add(psonuc);
 								}
 							} else if(pexpressionDsc.contains("${")){//bildigimiz ${req.xxx}
-								Object[] oz = GenericUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+								Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
 								if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 								sqlWhere.append("(").append(oz[0]).append(")");
 								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);							
@@ -300,7 +301,7 @@ public class W5QueryResult implements W5MetaResult{
 				
 				if(query.getSqlWhere()!=null){//parent icin
 					if(query.getSqlWhere().contains("${")){
-				   		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
+				   		Object[] oz = DBUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
 				   		sqlParentWhere.append(oz[0]);
 						if(oz[1]!=null)sqlParentParams.addAll((List)oz[1]);
 			   		} else sqlParentWhere.append(query.getSqlWhere());
@@ -310,7 +311,7 @@ public class W5QueryResult implements W5MetaResult{
 			case	1000://group by
 				sqlJoinOnWhere.append(sqlWhere);sqlJoinOnParams.addAll(sqlParams);
 				if(query.getSqlGroupby()!=null){//child icin
-					Object[] oz = GenericUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);
+					Object[] oz = DBUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);
 					sqlJoinOnWhere.append(oz[0]);
 					if(oz.length>1 && oz[1]!=null)sqlJoinOnParams.addAll((List)oz[1]);
 				}
@@ -327,7 +328,7 @@ public class W5QueryResult implements W5MetaResult{
 				
 				if(query.getSqlOrderby()!=null){
 					if(query.getSqlOrderby().contains("${")){
-				   		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlOrderby(), scd, requestParams2, null);
+				   		Object[] oz = DBUtil.filterExt4SQL(query.getSqlOrderby(), scd, requestParams2, null);
 				   		sqlRecrSelect.append(oz[0]);
 						if(oz[1]!=null)sqlRecrParams.addAll((List)oz[1]);
 			   		} else sqlRecrSelect.append(query.getSqlOrderby());					
@@ -389,14 +390,14 @@ public class W5QueryResult implements W5MetaResult{
     	String sqlSelect = null;
     	List sqlSelectParams= new ArrayList<Object>();
    		if(query.getSqlSelect().contains("${")){
-	   		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlSelect(), scd, requestParams2, null);
+	   		Object[] oz = DBUtil.filterExt4SQL(query.getSqlSelect(), scd, requestParams2, null);
 	   		sqlSelect = oz[0].toString();
 			if(oz[1]!=null)sqlSelectParams.addAll((List)oz[1]);
    		} else sqlSelect = query.getSqlSelect();
    		
    		String sqlFrom = null;
    		if(query.getSqlFrom().contains("${")){
-	   		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
+	   		Object[] oz = DBUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
 	   		sqlFrom = oz[0].toString();;
 			if(oz[1]!=null)sqlSelectParams.addAll((List)oz[1]);
    		} else sqlFrom=query.getSqlFrom();
@@ -456,7 +457,7 @@ public class W5QueryResult implements W5MetaResult{
 										sqlParams.add(psonuc);
 								}
 							} else if(pexpressionDsc.contains("${")){//bildigimiz ${req.xxx}
-								Object[] oz = GenericUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+								Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
 								if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 								sqlWhere.append("(").append(oz[0]).append(")");
 								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);							
@@ -493,7 +494,7 @@ public class W5QueryResult implements W5MetaResult{
 				
 				if(query.getSqlWhere()!=null){//parent icin
 					if(query.getSqlWhere().contains("${")){
-				   		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
+				   		Object[] oz = DBUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
 				   		sqlParentWhere.append(oz[0]);
 						if(oz[1]!=null)sqlParentParams.addAll((List)oz[1]);
 			   		} else sqlParentWhere.append(query.getSqlWhere());
@@ -503,7 +504,7 @@ public class W5QueryResult implements W5MetaResult{
 			case	1000://group by
 				sqlJoinOnWhere.append(sqlWhere);sqlJoinOnParams.addAll(sqlParams);
 				if(query.getSqlGroupby()!=null){//child icin
-					Object[] oz = GenericUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);
+					Object[] oz = DBUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);
 					sqlJoinOnWhere.append(oz[0]);
 					if(oz.length>1 && oz[1]!=null)sqlJoinOnParams.addAll((List)oz[1]);
 				}
@@ -520,7 +521,7 @@ public class W5QueryResult implements W5MetaResult{
 				
 				if(query.getSqlOrderby()!=null){
 					if(query.getSqlOrderby().contains("${")){
-				   		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlOrderby(), scd, requestParams2, null);
+				   		Object[] oz = DBUtil.filterExt4SQL(query.getSqlOrderby(), scd, requestParams2, null);
 				   		sqlRecrSelect.append(oz[0]);
 						if(oz[1]!=null)sqlRecrParams.addAll((List)oz[1]);
 			   		} else sqlRecrSelect.append(query.getSqlOrderby());					
@@ -608,7 +609,7 @@ public class W5QueryResult implements W5MetaResult{
     	sql.append(" from ");
     	String sqlFrom = null;
     	if(query.getSqlFrom().contains("${")){
-    		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
+    		Object[] oz = DBUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
     		sqlFrom = ((StringBuilder)oz[0]).toString();
 			if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
     	} else sqlFrom=query.getSqlFrom();
@@ -618,14 +619,14 @@ public class W5QueryResult implements W5MetaResult{
     	StringBuilder sqlWhere= new StringBuilder();
     	if(query.getSqlWhere()!=null){
     		if(query.getSqlWhere().contains("${")){
-    			Object[] oz = GenericUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
+    			Object[] oz = DBUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
     			sqlWhere.append(oz[0]);
     			if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
     		} else
     			sqlWhere.append(query.getSqlWhere());
     	}
 
-		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale"));
+		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
 		List<W5QueryParam> pqs = null;
 		pqs=getQuery().get_queryParams();
     	for(W5QueryParam p1 : pqs){
@@ -674,13 +675,13 @@ public class W5QueryResult implements W5MetaResult{
 									sqlParams.add(psonuc);
 							}
 							if(pexpressionDsc.contains("${")){//? işaretlerinden sonra başka bir parametre varsa
-								Object[] oz = GenericUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+								Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
 								if(oz[0]!=null)pexpressionDsc = oz[0].toString();
 								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
 							}
 							sqlWhere.append(pexpressionDsc).append(" ) ");
 						} else if(pexpressionDsc.contains("${")){//bildigimiz ${req.xxx}
-							Object[] oz = GenericUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+							Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
 							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 							sqlWhere.append("(").append(oz[0]).append(")");
 							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);							
@@ -764,7 +765,7 @@ public class W5QueryResult implements W5MetaResult{
 					int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 					W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 					if(accessConditionSql!=null){
-						Object[] oz = GenericUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
+						Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
 			    		sqlFrom = ((StringBuilder)oz[0]).toString();
 						if(bq)sqlWhere.append(" OR ");else bq=true;
 						sqlWhere.append(oz[0]);
@@ -790,7 +791,7 @@ public class W5QueryResult implements W5MetaResult{
 								}
 								sql2.append(")");
 								
-								Object[] oz = GenericUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
+								Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
 					    		sqlFrom = ((StringBuilder)oz[0]).toString();
 								if(bq)sqlWhere.append(" OR ");else bq=true;
 								sqlWhere.append(oz[0]);
@@ -865,7 +866,7 @@ public class W5QueryResult implements W5MetaResult{
 							int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 							if(accessConditionSql!=null){
-								Object[] oz = GenericUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
+								Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
 					    		sqlFrom = ((StringBuilder)oz[0]).toString();
 								if(bq)sqlWhere.append(" OR ");else bq=true;
 								sqlWhere.append(oz[0]);
@@ -891,7 +892,7 @@ public class W5QueryResult implements W5MetaResult{
 										}
 										sql2.append(")");
 										
-										Object[] oz = GenericUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
+										Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
 							    		sqlFrom = ((StringBuilder)oz[0]).toString();
 										if(bq)sqlWhere.append(" OR ");else bq=true;
 										sqlWhere.append(oz[0]);
@@ -996,7 +997,7 @@ public class W5QueryResult implements W5MetaResult{
 					if(tut!=null){
 						String accessViewSql = tut.getAccessViewSql();
 						if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-							Object[] oz = GenericUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
+							Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
 							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 							sqlWhere.append("(").append(oz[0]).append(")");
 							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
@@ -1014,7 +1015,7 @@ public class W5QueryResult implements W5MetaResult{
 									int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 									W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 									if(accessConditionSql!=null){
-										Object[] oz = GenericUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
+										Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
 							    		sqlFrom = ((StringBuilder)oz[0]).toString();
 										if(bq)sqlWhere.append(" OR ");else bq=true;
 										sqlWhere.append(oz[0]);
@@ -1040,7 +1041,7 @@ public class W5QueryResult implements W5MetaResult{
 												}
 												sql2.append(")");
 												
-												Object[] oz = GenericUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
+												Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
 									    		sqlFrom = ((StringBuilder)oz[0]).toString();
 												if(bq)sqlWhere.append(" OR ");else bq=true;
 												sqlWhere.append(oz[0]);
@@ -1103,7 +1104,7 @@ public class W5QueryResult implements W5MetaResult{
 					|| (FrameworkCache.getAppSettingIntValue(scd, "dealer_flag")!=0 && GenericUtil.uInt(scd.get("userTip"))==3 && tf.getAccessFilterDealers()!=null && GenericUtil.hasPartInside2(tf.getAccessFilterDealers(), scd.get("unitId")))){ // b2b dealer control
 				String accessViewSql = tf.getAccessViewSql();
 				if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-					Object[] oz = GenericUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
+					Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
 					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 					sqlWhere.append("(").append(oz[0]).append(")");
 					if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
@@ -1121,7 +1122,7 @@ public class W5QueryResult implements W5MetaResult{
    			if(query.getSqlSelect().contains("${")){
    				if(query.getSqlGroupby()!=null && query.getSqlGroupby().length()>0){
    		   			sql.append(" group by ");
-   					Object[] oz = GenericUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);
+   					Object[] oz = DBUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);
    					sql.append(oz[0]);
    					if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
    		   		}		
@@ -1231,7 +1232,7 @@ public class W5QueryResult implements W5MetaResult{
    		}
    		
    		if(sqlSelect.contains("${")){
-	   		Object[] oz = GenericUtil.filterExt4SQL(sqlSelect, scd, requestParams2, null);
+	   		Object[] oz = DBUtil.filterExt4SQL(sqlSelect, scd, requestParams2, null);
 			s.append(oz[0]);
 			if(oz[1]!=null){
 				sqlParams.addAll(0,(List)oz[1]);
@@ -1281,7 +1282,7 @@ public class W5QueryResult implements W5MetaResult{
 	   			} else {
 	   				strOrder = getOrderBy();
 	   			}
-	   			Object[] oz = GenericUtil.filterExt4SQL(strOrder, scd, requestParams2, null);
+	   			Object[] oz = DBUtil.filterExt4SQL(strOrder, scd, requestParams2, null);
 				s.append(oz[0]);
 				if(oz[1]!=null){
 				   		sqlParams.addAll((List)oz[1]);
@@ -1311,7 +1312,7 @@ public class W5QueryResult implements W5MetaResult{
     	sql.append(" from ");
     	String sqlFrom = null;
     	if(query.getSqlFrom().contains("${")){
-    		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
+    		Object[] oz = DBUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
     		sqlFrom = ((StringBuilder)oz[0]).toString();
 			if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
     	} else sqlFrom=query.getSqlFrom();
@@ -1321,14 +1322,14 @@ public class W5QueryResult implements W5MetaResult{
     	StringBuilder sqlWhere= new StringBuilder();
     	if(query.getSqlWhere()!=null){
     		if(query.getSqlWhere().contains("${")){
-    			Object[] oz = GenericUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
+    			Object[] oz = DBUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
     			sqlWhere.append(oz[0]);
     			if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
     		} else
     			sqlWhere.append(query.getSqlWhere());
     	}
 
-		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale"));
+		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
 		List<W5QueryParam> pqs = null;
 		pqs=getQuery().get_queryParams();
     	for(W5QueryParam p1 : pqs){
@@ -1377,13 +1378,13 @@ public class W5QueryResult implements W5MetaResult{
 									sqlParams.add(psonuc);
 							}
 							if(pexpressionDsc.contains("${")){//? işaretlerinden sonra başka bir parametre varsa
-								Object[] oz = GenericUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+								Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
 								if(oz[0]!=null)pexpressionDsc = oz[0].toString();
 								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
 							}
 							sqlWhere.append(pexpressionDsc).append(" ) ");
 						} else if(pexpressionDsc.contains("${")){//bildigimiz ${req.xxx}
-							Object[] oz = GenericUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+							Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
 							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 							sqlWhere.append("(").append(oz[0]).append(")");
 							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);							
@@ -1436,7 +1437,7 @@ public class W5QueryResult implements W5MetaResult{
 					int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 					W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 					if(accessConditionSql!=null){
-						Object[] oz = GenericUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
+						Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
 			    		sqlFrom = ((StringBuilder)oz[0]).toString();
 						if(bq)sqlWhere.append(" OR ");else bq=true;
 						sqlWhere.append(oz[0]);
@@ -1462,7 +1463,7 @@ public class W5QueryResult implements W5MetaResult{
 								}
 								sql2.append(")");
 								
-								Object[] oz = GenericUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
+								Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
 					    		sqlFrom = ((StringBuilder)oz[0]).toString();
 								if(bq)sqlWhere.append(" OR ");else bq=true;
 								sqlWhere.append(oz[0]);
@@ -1537,7 +1538,7 @@ public class W5QueryResult implements W5MetaResult{
 							int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 							if(accessConditionSql!=null){
-								Object[] oz = GenericUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
+								Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
 					    		sqlFrom = ((StringBuilder)oz[0]).toString();
 								if(bq)sqlWhere.append(" OR ");else bq=true;
 								sqlWhere.append(oz[0]);
@@ -1563,7 +1564,7 @@ public class W5QueryResult implements W5MetaResult{
 										}
 										sql2.append(")");
 										
-										Object[] oz = GenericUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
+										Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
 							    		sqlFrom = ((StringBuilder)oz[0]).toString();
 										if(bq)sqlWhere.append(" OR ");else bq=true;
 										sqlWhere.append(oz[0]);
@@ -1668,7 +1669,7 @@ public class W5QueryResult implements W5MetaResult{
 					if(tut!=null){
 						String accessViewSql = tut.getAccessViewSql();
 						if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-							Object[] oz = GenericUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
+							Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
 							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 							sqlWhere.append("(").append(oz[0]).append(")");
 							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
@@ -1686,7 +1687,7 @@ public class W5QueryResult implements W5MetaResult{
 									int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 									W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 									if(accessConditionSql!=null){
-										Object[] oz = GenericUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
+										Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
 							    		sqlFrom = ((StringBuilder)oz[0]).toString();
 										if(bq)sqlWhere.append(" OR ");else bq=true;
 										sqlWhere.append(oz[0]);
@@ -1712,7 +1713,7 @@ public class W5QueryResult implements W5MetaResult{
 												}
 												sql2.append(")");
 												
-												Object[] oz = GenericUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
+												Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
 									    		sqlFrom = ((StringBuilder)oz[0]).toString();
 												if(bq)sqlWhere.append(" OR ");else bq=true;
 												sqlWhere.append(oz[0]);
@@ -1776,7 +1777,7 @@ public class W5QueryResult implements W5MetaResult{
 					|| (FrameworkCache.getAppSettingIntValue(scd, "dealer_flag")!=0 && GenericUtil.uInt(scd.get("userTip"))==3 && tf.getAccessFilterDealers()!=null && GenericUtil.hasPartInside2(tf.getAccessFilterDealers(), scd.get("unitId")))){ // b2b dealer control
 				String accessViewSql = tf.getAccessViewSql();
 				if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-					Object[] oz = GenericUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
+					Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
 					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 					sqlWhere.append("(").append(oz[0]).append(")");
 					if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
@@ -1793,7 +1794,7 @@ public class W5QueryResult implements W5MetaResult{
    			if(query.getSqlSelect().contains("${")){
    				if(query.getSqlGroupby()!=null && query.getSqlGroupby().length()>0){
    		   			sql.append(" group by ");
-   					Object[] oz = GenericUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);
+   					Object[] oz = DBUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);
    					sql.append(oz[0]);
    					if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
    		   		}		
@@ -1903,7 +1904,7 @@ public class W5QueryResult implements W5MetaResult{
    		}
    		
    		if(sqlSelect.contains("${")){
-	   		Object[] oz = GenericUtil.filterExt4SQL(sqlSelect, scd, requestParams2, null);
+	   		Object[] oz = DBUtil.filterExt4SQL(sqlSelect, scd, requestParams2, null);
 			s.append(oz[0]);
 			if(oz[1]!=null){
 				sqlParams.addAll(0,(List)oz[1]);
@@ -1948,7 +1949,7 @@ public class W5QueryResult implements W5MetaResult{
    			if(false && getOrderBy()!=null && getOrderBy().length()>0){
 	   			s.append(" order by ");
 	   			String strOrder = getOrderBy();
-	   			Object[] oz = GenericUtil.filterExt4SQL(strOrder, scd, requestParams2, null);
+	   			Object[] oz = DBUtil.filterExt4SQL(strOrder, scd, requestParams2, null);
 				s.append(oz[0]);
 				if(oz[1]!=null){
 				   		sqlParams.addAll((List)oz[1]);
@@ -2074,7 +2075,7 @@ public class W5QueryResult implements W5MetaResult{
     	sql.append(" from ");
     	String sqlFrom = null;
     	if(query.getSqlFrom().contains("${")){
-    		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
+    		Object[] oz = DBUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
     		sqlFrom = ((StringBuilder)oz[0]).toString();
 			if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
     	} else sqlFrom=query.getSqlFrom();
@@ -2084,7 +2085,7 @@ public class W5QueryResult implements W5MetaResult{
     	StringBuilder sqlWhere= new StringBuilder();
     	if(query.getSqlWhere()!=null){
     		if(query.getSqlWhere().contains("${")){
-    			Object[] oz = GenericUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
+    			Object[] oz = DBUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
     			sqlWhere.append(oz[0]);
     			if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
     		} else
@@ -2105,7 +2106,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	} 
     	}
 
-		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale"));
+		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
 		List<W5QueryParam> pqs = getQuery().get_queryParams();
     	for(W5QueryParam p1 : pqs){
 			String pexpressionDsc = p1.getExpressionDsc();
@@ -2155,7 +2156,7 @@ public class W5QueryResult implements W5MetaResult{
 									sqlParams.add(psonuc);
 							}
 						} else if(pexpressionDsc.contains("${")){//bildigimiz ${req.xxx}
-							Object[] oz = GenericUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+							Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
 							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 							sqlWhere.append("(").append(oz[0]).append(")");
 							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);							
@@ -2286,7 +2287,7 @@ public class W5QueryResult implements W5MetaResult{
 					if(tut!=null){
 						String accessViewSql = tut.getAccessViewSql();
 						if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-							Object[] oz = GenericUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
+							Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
 							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 							sqlWhere.append("(").append(oz[0]).append(")");
 							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
@@ -2299,7 +2300,7 @@ public class W5QueryResult implements W5MetaResult{
 					|| (FrameworkCache.getAppSettingIntValue(scd, "dealer_flag")!=0 && GenericUtil.uInt(scd.get("userTip"))==3 && tf.getAccessFilterDealers()!=null && GenericUtil.hasPartInside2(tf.getAccessFilterDealers(), scd.get("unitId")))){ // b2b dealer control
 				String accessViewSql = tf.getAccessViewSql();
 				if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-					Object[] oz = GenericUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
+					Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
 					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 					sqlWhere.append("(").append(oz[0]).append(")");
 					if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
@@ -2319,7 +2320,7 @@ public class W5QueryResult implements W5MetaResult{
    		StringBuilder s = new StringBuilder("select ");
 
    		if(query.getSqlSelect().contains("${")){
-	   		Object[] oz = GenericUtil.filterExt4SQL(query.getSqlSelect(), scd, requestParams2, null);
+	   		Object[] oz = DBUtil.filterExt4SQL(query.getSqlSelect(), scd, requestParams2, null);
 			s.append(oz[0]);
 			if(oz[1]!=null)sqlParams.addAll(0,(List)oz[1]);
    		} else s.append(query.getSqlSelect());
@@ -2417,7 +2418,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	W5Query query = getQuery();
 	    	sql.append(" from ");
 	    	if(sqlFrom.contains("${")){
-	    		Object[] oz = GenericUtil.filterExt4SQL(sqlFrom, scd, requestParams2, null);
+	    		Object[] oz = DBUtil.filterExt4SQL(sqlFrom, scd, requestParams2, null);
 	    		sqlFrom = ((StringBuilder)oz[0]).toString();
 				if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
 	    	}
@@ -2428,7 +2429,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	
 	    	if(sqlWhere2!=null){
 	    		if(sqlWhere2.contains("${")){
-	    			Object[] oz = GenericUtil.filterExt4SQL(sqlWhere2, scd, requestParams2, null);
+	    			Object[] oz = DBUtil.filterExt4SQL(sqlWhere2, scd, requestParams2, null);
 	    			sqlWhere.append(oz[0]);
 	    			if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
 	    		} else
@@ -2436,7 +2437,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	}
 
 	    	if(query!=null){
-				Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale"));
+				Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
 				List<W5QueryParam> pqs =  getQuery().get_queryParams();
 		    	for(W5QueryParam p1 : pqs){
 					String pexpressionDsc = p1.getExpressionDsc();
@@ -2484,13 +2485,13 @@ public class W5QueryResult implements W5MetaResult{
 											sqlParams.add(psonuc);
 									}
 									if(pexpressionDsc.contains("${")){//? i�aretlerinden sonra ba�ka bir parametre varsa
-										Object[] oz = GenericUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+										Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
 										if(oz[0]!=null)pexpressionDsc = oz[0].toString();
 										if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
 									}
 									sqlWhere.append(pexpressionDsc).append(" ) ");
 								} else if(pexpressionDsc.contains("${")){//bildigimiz ${req.xxx}
-									Object[] oz = GenericUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+									Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
 									if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 									sqlWhere.append("(").append(oz[0]).append(")");
 									if(oz[1]!=null)sqlParams.addAll((List)oz[1]);							
@@ -2521,7 +2522,7 @@ public class W5QueryResult implements W5MetaResult{
 	   		setHasPaging(getFetchRowCount()!=0);
 	   		if(!GenericUtil.isEmpty(sqlGroupby)){
 	   			sql.append(" group by ");
-				Object[] oz = GenericUtil.filterExt4SQL(sqlGroupby, scd, requestParams2, null);
+				Object[] oz = DBUtil.filterExt4SQL(sqlGroupby, scd, requestParams2, null);
 				sql.append(oz[0]);
 				if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
 			}    	   	
@@ -2536,7 +2537,7 @@ public class W5QueryResult implements W5MetaResult{
 	   		}
 	   		
 	   		if(sqlSelect.contains("${")){
-		   		Object[] oz = GenericUtil.filterExt4SQL(sqlSelect, scd, requestParams2, null);
+		   		Object[] oz = DBUtil.filterExt4SQL(sqlSelect, scd, requestParams2, null);
 				s.append(oz[0]);
 				if(oz[1]!=null){
 					sqlParams.addAll(0,(List)oz[1]);
@@ -2556,7 +2557,7 @@ public class W5QueryResult implements W5MetaResult{
 	   			
 			if(!GenericUtil.isEmpty(sqlOrderby)){
 	   			s.append(" order by ");
-	   			Object[] oz = GenericUtil.filterExt4SQL(sqlOrderby, scd, requestParams2, null);
+	   			Object[] oz = DBUtil.filterExt4SQL(sqlOrderby, scd, requestParams2, null);
 				s.append(oz[0]);
 				if(oz[1]!=null){
 				   		sqlParams.addAll((List)oz[1]);

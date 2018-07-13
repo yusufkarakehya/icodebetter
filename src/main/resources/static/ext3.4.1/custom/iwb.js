@@ -2639,9 +2639,13 @@ function combo2combo(comboMaster,comboDetail,param,formAction){//formAction:2(in
 	        	p = param(comboMaster.getValue(),b);
 	        	if(comboDetail._controlTip != 60){
 		        	if(!p){
+		        		if(p===false)comboDetail.hide();
 		        		comboDetail.disable();
 		        		comboDetail.setValue('');
-		        	} else comboDetail.enable();
+		        	} else {
+		        		comboDetail.enable();
+		        		comboDetail.show();
+		        	}
 	        	}else{
 	        		comboDetail.clearValue();// Aşırı sıkış
 	        	}
