@@ -72,6 +72,7 @@ var _dxgrb					= DXReactGridBootstrap4;
 var _dxrg					= DXReactGrid;
 /** iwb object */
 var iwb={
+	toastr:toastr,
 	grids:{},
 	forms:{},
 	pages:{},
@@ -671,12 +672,12 @@ class XGrid extends React.PureComponent {
 				{...tableRowData, ...{ onDoubleClick:(event)=>{ onEditClick({event,rowData:tableRowData.row})}, style:{cursor:'pointer'} }}
 				: tableRowData);
 		}
-	/**
-	 * prerpares url with query
-	 */
+		/**
+		 * prerpares url with query
+		 */
 		this.queryString 		= ()			=>{
 		const { sorting, pageSize, currentPage } = this.state;
-		let queryString = this.props._url+'&limit='+pageSize+'&start='+(pageSize * currentPage);
+		let queryString = this.props._url+'&limit='+ +'&start='+(pageSize * currentPage);
 		const columnSorting = sorting[0];
 		if (columnSorting) {
 			const sortingDirectionString = columnSorting.direction === 'desc' ? ' desc' : '';
@@ -2306,5 +2307,68 @@ class XMainPanel extends React.PureComponent {
 class XLoading extends React.Component {
 	render(){
 		return _("span",{style:{position:"fixed",left:"48%",top:"45%"}},iwb.loading);
+	}
+}
+/**
+ * All the Forms will extend from this component
+ */
+class XForm extends React.PureComponent {
+	constructor(props) {
+		super(props);
+		//methods
+		/**
+		 * sets the state with value of input
+		 * @param {event} param0 
+		 */
+		this.onChange = ({target}) => {
+			var {values} = this.state;
+			if (target) {
+				values[target.name] = target.type == 'checkbox' ? target.checked : target.value;
+				this.setState({ values });
+			}
+		}
+		/**
+		 * sets state for combo change 
+		 * else sets oprions of it after the request
+		 * @param {String} dsc 
+		 */
+		this.onComboChange = (dsc)=>{var self=this;return function(o){var values=self.state.values;var v=o && o.id;values[dsc]=v;var q=self.triggerz4ComboRemotes;if(q[dsc])q[dsc].map(function(zzz){var nv=zzz.f(v,null,values);if(nv)iwb.request({url:'ajaxQueryData?'+iwb.JSON2URI(nv)+'.r='+Math.random(), successCallback:function(r){var options=self.state.options;options[zzz.n]=r.data;self.setState({options:options});}});else{var options=self.state.options;options[zzz.n]=[];self.setState({options:options});}});self.setState({values:values});}}
+		/**
+		 * sets state when low combo is entered
+		 * @param {String} dsc 
+		 */
+		this.onLovComboChange = (dsc)=>{var self=this;return function(o){var values=self.state.values;var v=[];if(o)o.map(function(q){v.push(q.id)});values[dsc]=v.join(',');self.setState({values:values});}}
+		/**
+		 * sets state when number entered
+		 * @param {String} dsc 
+		 */
+		this.onNumberChange = (dsc)=>{var self=this;return function(o){var values=self.state.values;var v=o && o.value;values[dsc]=v;self.setState({values:values});}}
+		/**
+		 * sends post to the server
+		 * @param {Object} cfg 
+		 */
+		this.submit = (cfg)=>{var p = Object.assign({}, this.state.values);if(this.manualValidation){var r = this.manualValidation(p, cfg||{});if(r===false)return false;p = Object.assign(p, r);}iwb.request({url:this.url+'?'+iwb.JSON2URI(this.params)+'_renderer=react16&.r='+Math.random(), params:p, self:this, errorCallback:(json)=>{var errors={};if(json.errorType)switch(json.errorType){case	'validation':toastr.error('Validation Errors');if(json.errors && json.errors.length)json.errors.map(function(o){errors[o.id]=o.msg;});if(json.error)iwb.showModal({title:'ERROR',footer:false, color:'danger', size:'sm', body:json.error});break;default:alert(json.errorType);} else alert(json);this.setState({errors:errors});return false;}, successCallback:(json, xcfg)=>{if(cfg.callback)cfg.callback(json,xcfg);}});}
+		/**
+		 * 
+		 * @param {object} tab 
+		 */
+		this.toggleTab = (tab)=>{if(this.state.activeTab!==tab)this.setState({activeTab:tab});}
+		/**
+		 * returns form data from state 
+		 */
+		this.getValues = ()=>{return Object.assign({}, this.state.values);}
+		/**
+		 * used for date inputs
+		 * @param {String} dsc 
+		 * @param {Data} dttm 
+		 */
+		this.onDateChange = (dsc, dttm)=>{var self=this;return function(o){var values=self.state.values;var v=o && o._d;values[dsc]=dttm ? fmtDateTime(v):fmtShortDate(v);self.setState({values:values});}}
+
+	}
+	
+	componentDidMount(){var self=this, q=this.triggerz4ComboRemotes,values=this.state.values;for(var dsc in q)if(values[dsc])q[dsc].map(function(zzz){var nv=zzz.f(values[dsc],null,values);if(nv)iwb.request({url:'ajaxQueryData?'+iwb.JSON2URI(nv)+'.r='+Math.random(), successCallback:function(r){var options=self.state.options;options[zzz.n]=r.data;self.setState({options:options});}});else{}});}
+	componentWillUnmount(){iwb.forms[this._id] = {...this.state}}
+	render() {
+		return _('div',{},'try to extend ParentForm Component')
 	}
 }
