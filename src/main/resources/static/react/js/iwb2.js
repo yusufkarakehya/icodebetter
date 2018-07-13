@@ -348,7 +348,7 @@ class XTabForm extends React.PureComponent{
        	    		  ,_("hr")
        	    		  , formBody),
        	    		!this.state.viewMode && _(CardFooter, {style:{padding: "1.1rem 1.25rem"}},_(Button,{type:'submit',color:'submit', className:'btn-form mr-1', onClick:this.onSubmit}
-       	    			,' ','KAYDET',' '),' ',_(Button,{color:"light", style:{border: ".5px solid #e6e6e6"}, className:'btn-form', onClick:this.props.parentCt.closeTab},'VAZGEÇ'))
+       	    			,' ','Save',' '),' ',_(Button,{color:"light", style:{border: ".5px solid #e6e6e6"}, className:'btn-form', onClick:this.props.parentCt.closeTab},'Cancel'))
        	);
 	} 
 }
@@ -579,7 +579,7 @@ class XGridAction extends React.PureComponent {
 				//{tag:'i',className: "icon-grid", color:this.props.color||'danger'}
 				,this.state.isOpen && _(DropdownMenu,{className: this.state.isOpen ? 'show' : ''} 
 //				,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
-				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Yeni Kayıt')
+				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Create New')
 				,_('hr')
 				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-equalizer',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Raporlar/BI')		    					
 //				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')		    					
@@ -1254,9 +1254,9 @@ class XEditGridSF extends React.PureComponent {
 			);
 		    
 		    var footer = _(ModalFooter, null,
-		    		_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ this.commitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "KAYDET")
+		    		_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ this.commitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "Save")
 		    		,' '
-		    		,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "VAZGEÇ")
+		    		,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "Cancel")
             );
 		    
 		return !this.searchForm ? g:_('div',{
@@ -1959,7 +1959,7 @@ class XMainGrid extends React.PureComponent {
 					,_('main',{className: "inbox"}, _(CardHeader, {}
 									, this.searchForm && _(Button, {className:'btn-round-shadow', color: "secondary", onClick:this.toggleSearch},_('i',{id:'eq-'+this.props.id,className:'icon-magnifier'})), this.searchForm && " "
 									, !this.searchForm &&_(Button, {className:'btn-round-shadow', disabled:loading, color: "secondary", onClick:() => {this.loadData(!0);} },_('i',{className:'icon-refresh'}))
-									," ", this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," YENİ KAYIT"):null
+									," ", this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," Create New"):null
 //										,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
 									,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.openBI},_('i',{className:'icon-equalizer'}))
 //										, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})
