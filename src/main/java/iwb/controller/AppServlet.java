@@ -1797,8 +1797,7 @@ public class AppServlet implements InitializingBean {
 		String filePath = null;
 		W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
 		if (fa == null) { // bulunamamis TODO
-			throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
-					"Wrong Id: " + fileAttachmentId, null);
+			throw new IWBException("validation", "File Attachment", fileAttachmentId, null, "Wrong Id: " + fileAttachmentId, null);
 		}
 
 		if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // man / woman default picture
@@ -1807,11 +1806,8 @@ public class AppServlet implements InitializingBean {
 //			filePath = request.getSession().getServletContext().getRealPath("static/images/custom/ppicture/default_" + (fa.getFileAttachmentId() == 2 ? "wo" : "") + "man_mini.png");
 			filePath = fa.getFileAttachmentId() == 2 ? womanPicPath : manPicPath;
 		} else {
-			if (scd == null)scd = UserUtil.getScd(request, "scd-dev", true);
-			String customizationId = String
-					.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-			String file_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
-			filePath = file_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
+			String file_path = FrameworkCache.getAppSettingStringValue(0, "file_local_path");
+			filePath = file_path + "/" + fa.getCustomizationId() + "/attachment/" + fa.getSystemFileName();
 		}
 
 		ServletOutputStream out = response.getOutputStream();
