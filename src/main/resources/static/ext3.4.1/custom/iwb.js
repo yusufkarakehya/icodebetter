@@ -4445,7 +4445,7 @@ function fncMnuVcs(xgrid){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
 			if(sel && sel.length>0 && !sel[0].data.pkpkpk_vcsf){
 				promisRequest({url:'ajaxVCSObjectAction',params:{t:aq._grid.crudTableId, k:sel[0].id, a:2}, successCallback:function(j){
-					Ext.infoMsg.msg('info','Added to VCS');
+					Ext.infoMsg.msg('success','Added to VCS');
 					aq._grid.ds.reload();
 				}});
 			}
