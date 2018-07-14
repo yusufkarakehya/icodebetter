@@ -1,17 +1,17 @@
-/**array color name */
+//array color name
 const dgColors				= ['warning','secondary','danger','primary','success','info']
 const dgColors2				= ["primary","info","secondary","gray-700","gray-500","gray-400","gray-700"];
 const detailSpinnerColors2	= ["#187da0","#2eadd3","darkorange","#187da0","#4d6672","#626a70","#66767d"];
 const dBGColors2			= [,,"#de9338","#222",,,,,];
 const dgColors3				= ["gray-700","danger","gray-500","gray-400","gray-700","info","secondary","secondary","secondary","warning"];
-/**ReactRouterDOM for routing*/
+//ReactRouterDOM for routing
 const HashRouter 			= ReactRouterDOM.HashRouter;
 const Route 				= ReactRouterDOM.Route;
 const Switch 				= ReactRouterDOM.Switch;
 const Link 					= ReactRouterDOM.Link;
 const NavLink 				= ReactRouterDOM.NavLink;
 const Redirect 				= ReactRouterDOM.Redirect;
-/**Reactstrap components*/
+//Reactstrap components
 const Container 			= Reactstrap.Container;
 const Row 					= Reactstrap.Row;
 const Col 					= Reactstrap.Col;
@@ -55,13 +55,13 @@ const TabContent 			= Reactstrap.TabContent;
 const TabPane 				= Reactstrap.TabPane;
 const ListGroup 			= Reactstrap.ListGroup;
 const ListGroupItem 		= Reactstrap.ListGroupItem;
-/**FW Customization */
+//FW Community Components 
 const Select 				= window.Select;
 const Popper 				= window.Popper;
 const findDOMNode 			= ReactDOM.findDOMNode;
-/**React  */
+//React
 var _						= React.createElement;
-/** DXReactCore imports */
+//DXReactCore imports
 const Getter 				= DXReactCore.Getter;
 const Template				= DXReactCore.Template;
 const TemplateConnector		= DXReactCore.TemplateConnector; 
@@ -70,8 +70,13 @@ const Plugin				= DXReactCore.Plugin;
 
 var _dxgrb					= DXReactGridBootstrap4;
 var _dxrg					= DXReactGrid;
-/** iwb object */
+/**
+ * @description 
+ * iwb object MIXIN like object
+ * most of the configuration is here and most used functions
+ */
 var iwb={
+	toastr:toastr,
 	grids:{},
 	forms:{},
 	pages:{},
@@ -299,6 +304,30 @@ function getStrapSize(w){
 function getMasterGridSel(a,sel){
 	return sel;
 }
+function buildParams2(params, map){
+	var bp='';
+	for(var key in params){
+		var newKey = params[key];
+		if(typeof newKey == 'function'){
+			bp+='&'+key+'='+newKey(params);
+		}else if(newKey.charAt(0)=='!')
+			bp+='&'+key+'='+newKey.substring(1);
+		else
+			bp+='&'+key+'='+map[params[key]];
+	}
+	return bp;
+}
+function buildParams4transfer(params, map){
+	var bp='';
+	for(var key in params){
+			bp+='&'+key+'='+map[key];
+	}
+	return bp;
+}
+/**
+ * @description
+ * used to render tab and show active tab on the full XPage
+ */
 class XTabForm extends React.PureComponent{
 	constructor(props){
 		if(iwb.debugConstructor)if(iwb.debug)console.log('XTabForm.constructor',props);
@@ -348,11 +377,16 @@ class XTabForm extends React.PureComponent{
        	    		  ,_("hr")
        	    		  , formBody),
        	    		!this.state.viewMode && _(CardFooter, {style:{padding: "1.1rem 1.25rem"}},_(Button,{type:'submit',color:'submit', className:'btn-form mr-1', onClick:this.onSubmit}
-       	    			,' ','KAYDET',' '),' ',_(Button,{color:"light", style:{border: ".5px solid #e6e6e6"}, className:'btn-form', onClick:this.props.parentCt.closeTab},'VAZGEÇ'))
+       	    			,' ','Save',' '),' ',_(Button,{color:"light", style:{border: ".5px solid #e6e6e6"}, className:'btn-form', onClick:this.props.parentCt.closeTab},'Cancel'))
        	);
 	} 
 }
-
+/**
+ * @description
+ * used for Pop a Modal
+ * it is singletone and u can use 
+ * iwb.showModal(conf)
+ */
 class XModal extends React.Component {
 	constructor(props){
 		super(props);
@@ -413,8 +447,12 @@ class XModal extends React.Component {
           );
     }
 }
-
-class	XLoginDialog extends React.Component {
+/**
+ * @description
+ * this component used to login after
+ * session is timeout
+ */
+class XLoginDialog extends React.Component {
 	constructor(props){
 		super(props);
 		this.state={modal:false, msg:false};
@@ -488,30 +526,8 @@ class	XLoginDialog extends React.Component {
 	              );
     }
 }
-
-function buildParams2(params, map){
-	var bp='';
-	for(var key in params){
-		var newKey = params[key];
-		if(typeof newKey == 'function'){
-			bp+='&'+key+'='+newKey(params);
-		}else if(newKey.charAt(0)=='!')
-			bp+='&'+key+'='+newKey.substring(1);
-		else
-			bp+='&'+key+'='+map[params[key]];
-	}
-	return bp;
-}
-
-function buildParams4transfer(params, map){
-	var bp='';
-	for(var key in params){
-			bp+='&'+key+'='+map[key];
-	}
-	return bp;
-}
-
 /**
+ * @description
  * used to open dropDown 
  * make edit and delete from main and detail grid 
  * when the Grid is not in edit mode
@@ -561,6 +577,7 @@ class XGridRowAction extends React.PureComponent {
 }
 /**
  * @deprecated
+ * todo: nnot used yet
  */
 class XGridAction extends React.PureComponent {
 	  constructor(props) {
@@ -579,7 +596,7 @@ class XGridAction extends React.PureComponent {
 				//{tag:'i',className: "icon-grid", color:this.props.color||'danger'}
 				,this.state.isOpen && _(DropdownMenu,{className: this.state.isOpen ? 'show' : ''} 
 //				,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
-				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Yeni Kayıt')
+				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'NEW RECORD')
 				,_('hr')
 				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-equalizer',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Raporlar/BI')		    					
 //				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')		    					
@@ -587,7 +604,10 @@ class XGridAction extends React.PureComponent {
 			)
 	  }
 }
-
+/**
+ * @description
+ * it renders detail grid there is no search form
+ */
 class XGrid extends React.PureComponent {
 	constructor(props) {
 		super(props);
@@ -671,12 +691,12 @@ class XGrid extends React.PureComponent {
 				{...tableRowData, ...{ onDoubleClick:(event)=>{ onEditClick({event,rowData:tableRowData.row})}, style:{cursor:'pointer'} }}
 				: tableRowData);
 		}
-	/**
-	 * prerpares url with query
-	 */
+		/**
+		 * prerpares url with query
+		 */
 		this.queryString 		= ()			=>{
 		const { sorting, pageSize, currentPage } = this.state;
-		let queryString = this.props._url+'&limit='+pageSize+'&start='+(pageSize * currentPage);
+		let queryString = this.props._url+'&limit='+ +'&start='+(pageSize * currentPage);
 		const columnSorting = sorting[0];
 		if (columnSorting) {
 			const sortingDirectionString = columnSorting.direction === 'desc' ? ' desc' : '';
@@ -806,7 +826,10 @@ class XGrid extends React.PureComponent {
 		);
 	}
 }
-
+/**
+ * @description
+ * used for giving data for grid button
+ */
 const commandComponentProps = {
 	add: {
 		icon: 'plus',
@@ -832,6 +855,11 @@ const commandComponentProps = {
 		hint: 'Import'
 	}
 };
+/**
+ * @description
+ * custom grid Button
+ * @param {onExecute, icon, text, hint, color, row} param0 
+ */
 const CommandButton = ({onExecute, icon, text, hint, color, row}) =>{
 	let button =_("button",{className: "btn btn-link",style: { padding: "11px" },
 	    onClick: e => {
@@ -847,12 +875,24 @@ const CommandButton = ({onExecute, icon, text, hint, color, row}) =>{
 	);
 	return button;
 }
+/**
+ * @description
+ * used to render button inside grid
+ * @param {{ id, onExecute}} param0 
+ */
 const Command = ({ id, onExecute}) => {
 	var c = commandComponentProps[id];
 	return c ? _(CommandButton,Object.assign({},c,{onExecute:onExecute})):null;
 }
-
-iwb.prepareParams4grid=function(grid, prefix, values){//sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman _insertedItems,_deletedItems dikkate almamasi
+/**
+ * @description 
+ * todo:have to write proper doc
+ * sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman _insertedItems,_deletedItems dikkate almamasi
+ * @param {*} grid 
+ * @param {*} prefix 
+ * @param {*} values 
+ */
+iwb.prepareParams4grid=function(grid, prefix, values){
   	var dirtyCount=0;
   	var params={};
 	var items = values.deleted;
@@ -921,7 +961,8 @@ iwb.prepareParams4grid=function(grid, prefix, values){//sadece master-insert dur
 	} else return {};
 }
 /**
- * Class for making GRIDROW Edit + Multiselect
+ * @description
+ * component for making GRIDROW Edit + Multiselect
  */
 class SelectableStubCell extends React.PureComponent {
 	  render() {
@@ -943,6 +984,7 @@ class SelectableStubCell extends React.PureComponent {
 	    }
 }
 /**
+ * @description
  * used for sf grid in popup Modal
  */
 class XEditGridSF extends React.PureComponent {
@@ -1254,9 +1296,9 @@ class XEditGridSF extends React.PureComponent {
 			);
 		    
 		    var footer = _(ModalFooter, null,
-		    		_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ this.commitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "KAYDET")
+		    		_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ this.commitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "Save")
 		    		,' '
-		    		,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "VAZGEÇ")
+		    		,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "Cancel")
             );
 		    
 		return !this.searchForm ? g:_('div',{
@@ -1274,6 +1316,7 @@ class XEditGridSF extends React.PureComponent {
 		  }
 }
 /**
+ * @description
  * used to extend template of the grid!
  * @param { name, children, predicate, position }
  * @example
@@ -1295,6 +1338,7 @@ const extendGrid = ({ name, children, predicate, position }) => {
 	));
 };
 /**
+ * @description
  * used for making popup dialog
  * @param {text,callback} obj
  * @example 
@@ -1323,7 +1367,9 @@ yesNoDialog = ({text,callback}) => {
 	});
 		}
 /**
- * component for edit Detail Grid
+ * @description
+ * component for edit Detail Grid 
+ * mostly used for form + grid mode
  */
 class XEditGrid extends React.PureComponent {
 	  constructor(props) {
@@ -1695,7 +1741,10 @@ class XEditGrid extends React.PureComponent {
 		);
 	}
 }
-
+/**
+ * @description
+ * used for rendering master grid with search form in it
+ */
 class XMainGrid extends React.PureComponent {
 	  constructor(props) {
 		    super(props);
@@ -1959,7 +2008,7 @@ class XMainGrid extends React.PureComponent {
 					,_('main',{className: "inbox"}, _(CardHeader, {}
 									, this.searchForm && _(Button, {className:'btn-round-shadow', color: "secondary", onClick:this.toggleSearch},_('i',{id:'eq-'+this.props.id,className:'icon-magnifier'})), this.searchForm && " "
 									, !this.searchForm &&_(Button, {className:'btn-round-shadow', disabled:loading, color: "secondary", onClick:() => {this.loadData(!0);} },_('i',{className:'icon-refresh'}))
-									," ", this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," YENİ KAYIT"):null
+									," ", this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," NEW RECORD"):null
 //										,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
 									,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.openBI},_('i',{className:'icon-equalizer'}))
 //										, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})
@@ -1968,7 +2017,12 @@ class XMainGrid extends React.PureComponent {
 //			        {loading && <Loading />}
 		}
 }
-
+/**
+ * @description 
+ * this component made for render complex ui
+ * @example
+ * form+grid, grid, form, form+form
+ */
 class XPage extends React.Component {
 	constructor(props){
 		if(iwb.debugConstructor)if(iwb.debug)console.log('XPage.constructor',props);
@@ -2102,7 +2156,11 @@ class XPage extends React.Component {
 		);
 	}
 }
-
+/**
+ * @description
+ * this component is mostly used for render menu page
+ * u can set ti as a home page
+ */
 class XCardMenu  extends React.PureComponent {
 	render (){
  		return _(Col, {xs: "12",sm: "6",md:"6",lg: "6",xl: "4"}
@@ -2124,7 +2182,10 @@ class XCardMenu  extends React.PureComponent {
 		));
 	}
 }
-
+/**
+ * @description
+ * it is used to list opened pages
+ */
 class XCardMiniMenu  extends React.PureComponent {
 	render (){
  		return _(Col, {xs: "4",sm: "3",md:"2",lg: "2",xl: "1"}
@@ -2140,7 +2201,11 @@ class XCardMiniMenu  extends React.PureComponent {
 		))), _("h6", {style:{textAlign:"center"}}, this.props.node.name));
 	}
 }
-
+/**
+ * @description
+ * used to render left menu
+ * it gets data from index.htm file (catche)
+ */
 class XMainNav extends React.PureComponent {
 	constructor(props){
 		if(iwb.debugConstructor)if(iwb.debug)console.log('XMainNav.constructor',props);
@@ -2171,16 +2236,20 @@ class XMainNav extends React.PureComponent {
 	    	var qi=0, si=0;
 	    	for(var k in iwb.nav.visitedItems){
 	    		var o=iwb.nav.visitedItems[k];
-	    		vi.push(_(XCardMiniMenu,{color:dgColors3[qi%dgColors3.length],node:o}));
+	    		vi.push(_(XCardMiniMenu,{key: 'xcardmini'+ Math.random(),color:dgColors3[qi%dgColors3.length],node:o}));
 	    		qi++;
 	    		if(o.visitCnt>2){
-		    		siri.push(_(XCardMiniMenu,{color:dgColors2[si%dgColors2.length],node:o}));
+		    		siri.push(_(XCardMiniMenu,{key: 'xcardminivisit'+ Math.random(), color:dgColors2[si%dgColors2.length],node:o}));
 		    		si++;			    			
 	    		}
 	    	}
 	    	if(qi==0)vi=false;
 	    	else {
-	    		vi=[_("div", { style: {height: "1.5rem"}}),"Açık Ekranlar",_("hr",{style: {marginTop: "0.4rem"}}),_(Row, {style:{maxWidth:"1300px"}}, vi)];
+				vi=[_("div", { key:"a1", style: {height: "1.5rem"}})
+					,"Açık Ekranlar",
+					_("hr",{ key:"a2", style: {marginTop: "0.4rem"}}),
+					_(Row, { key:"a3", style:{maxWidth:"1300px"}}, vi)
+				];
 	    		if(si>0){
 	    			if(siri.length>4){
 	    				siri.splice(4,1000);
@@ -2197,7 +2266,12 @@ class XMainNav extends React.PureComponent {
 		),vi);
 	}
 }
-
+/**
+ * @description
+ * it renders main part of the application
+ * it contains XPage component of XCardMenu
+ * role : component like a container
+ */
 class XMainPanel extends React.PureComponent {
 	constructor(props){
 		if(iwb.debugConstructor)console.log('XMainPanel.constructor',props);
@@ -2297,10 +2371,194 @@ class XMainPanel extends React.PureComponent {
 	}
 }
 /**
+ * @description
  * will work on first index.htm request
  */
 class XLoading extends React.Component {
 	render(){
 		return _("span",{style:{position:"fixed",left:"48%",top:"45%"}},iwb.loading);
 	}
+}
+/**
+ * @description
+ * All the Forms will extend from this component
+ */
+class XForm extends React.Component {
+	constructor(props) {
+		super(props);
+		//methods
+		/**
+		 * sets the state with value of input
+		 * @param {event} param0 
+		 */
+		this.onChange = ({target}) => {
+			var {values} = this.state;
+			if (target) {
+				values[target.name] = target.type == 'checkbox' ? target.checked : target.value;
+				this.setState({ values });
+			}
+		}
+		/**
+		 * sets state for combo change 
+		 * else sets oprions of it after the request
+		 * @param {String} inputName 
+		 */
+		this.onComboChange = inputName => {
+			var self = this;
+			return (selectedOption) => {
+				var {values} = self.state;
+				var slectedOption_Id = selectedOption && selectedOption.id;
+				values[inputName] = slectedOption_Id;
+				var triggers = self.triggerz4ComboRemotes;
+				//used for remote @depricated
+				if (triggers[inputName]){
+					triggers[inputName].map( zzz => {
+						var nv = zzz.f(slectedOption_Id, null, values);
+						var {options} = self.state;
+						if (nv){
+							iwb.request({
+								url: 'ajaxQueryData?' + iwb.JSON2URI(nv) + '.r=' + Math.random(),
+								successCallback: function (res) {
+									options[zzz.n] = res.data;
+									self.setState({ options });
+								}
+							});
+						} else {
+							options[zzz.n] = [];
+							self.setState({options});
+						}
+					});
+				}
+				self.setState({values});
+			}
+		}
+		/**
+		 * sets state when low combo is entered
+		 * @param {String} inputName 
+		 */
+		this.onLovComboChange = inputName => {
+			var self = this;
+			return selectedOptions => {
+				var {values} = self.state;
+				var slectedOption_Ids = [];
+				if (selectedOptions) {
+					selectedOptions.map(selectedOption => {
+						slectedOption_Ids.push(selectedOption.id);
+					});
+				}
+				values[inputName] = slectedOption_Ids.join(',');
+				self.setState({values});
+			}
+		}
+		/**
+		 * sets state when number entered
+		 * @param {String} dsc 
+		 */
+		this.onNumberChange = inputName => {
+			var self = this;
+			return inputEvent => {
+				var {values} = self.state;
+				var inputValue = inputEvent && inputEvent.value;
+				values[inputName] = inputValue;
+				self.setState({values});
+			}
+		}
+		/**
+		 * sends post to the server
+		 * @param {Object} cfg 
+		 */
+		this.submit = (cfg) => {
+			var values = {...this.state.values};
+			if (this.manualValidation) {
+				/** manualValidationResult = true || fase || {field_name : 'custom value'} */
+				var manualValidationResult = this.manualValidation(values, cfg || {});
+				if (!manualValidationResult) return false;
+				values = {...values, ...manualValidationResult};
+			}
+			iwb.request({
+				url: this.url + '?' + iwb.JSON2URI(this.params) + '_renderer=react16&.r=' + Math.random(),
+				params: values,
+				self: this,
+				errorCallback: json => {
+					var errors = {};
+					if (json.errorType) switch (json.errorType) {
+						case 'validation':
+							toastr.error('Validation Errors');
+							if (json.errors && json.errors.length) {
+								json.errors.map(oneError => {
+									errors[oneError.id] = oneError.msg;
+								});
+							}
+							if (json.error) {
+								iwb.showModal({
+									title: 'ERROR',
+									footer: false,
+									color: 'danger',
+									size: 'sm',
+									body: json.error
+								});
+							}
+							break;
+						default:
+							alert(json.errorType);
+					} else alert(json);
+					this.setState({ errors });
+					return false;
+				},
+				successCallback: (json, xcfg) => {
+					if (cfg.callback) cfg.callback(json, xcfg);
+				}
+			});
+		}
+		/**
+		 * used to make form active tab and visible on the page
+		 * @param {object} tab 
+		 */
+		this.toggleTab = (tab) => {
+			if (this.state.activeTab !== tab){
+				this.setState({activeTab: tab});
+			}
+		}
+		/**
+		 * returns form data from state 
+		 */
+		this.getValues = () => {
+			return {...this.state.values};
+		}
+		/**
+		 * used for date inputs
+		 * @param {String} inputName 
+		 * @param {Boolean} isItDTTM 
+		 */
+		this.onDateChange = (inputName, isItDTTM) => {
+			var self = this;
+			return selectedDate => {
+				var {values} = self.state;
+				var dateValue = selectedDate && selectedDate._d;
+				values[inputName] = isItDTTM ? fmtDateTime(dateValue) : fmtShortDate(dateValue);
+				self.setState({values});
+			}
+		}
+	}
+	componentDidMount() {
+		var self = this;
+		var	triggers = this.triggerz4ComboRemotes;
+		var	{values} = this.state;
+		for (var trigger in triggers){
+			if (values[trigger]) {
+				triggers[trigger].map( zzz=> {
+					var nv = zzz.f(values[trigger], null, values);
+					if (nv) iwb.request({
+						url: 'ajaxQueryData?' + iwb.JSON2URI(nv) + '.r=' + Math.random(),
+						successCallback: function (result) {
+							var {options} = self.state;
+							options[zzz.n] = result.data;
+							self.setState({options});
+						}
+					});
+				});
+			}
+		}
+	}
+	componentWillUnmount(){iwb.forms[this._id] = {...this.state}}
 }
