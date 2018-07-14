@@ -1538,7 +1538,7 @@ public class AppServlet implements InitializingBean {
 
 			}
 		} else { 
-			response.sendRedirect("login.htm");
+			response.sendRedirect("index.html");
 			return;
 		}
 		
