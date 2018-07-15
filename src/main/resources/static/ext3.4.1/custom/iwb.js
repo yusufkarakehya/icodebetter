@@ -2456,38 +2456,7 @@ function formSubmit(submitConfig){
             	autoOpenForms.delay(1);
             }
             
-            /*if(myJson.nextBpmActions && myJson.nextBpmActions.length>0){
-            	myJson.nextBpmActions[0].checked=true;
-            	var qwin = new Ext.Window({
-                    layout:'fit',
-                    width:300,
-                    height:200,
-                    closeAction:'destroy',
-                    plain: true, modal:true,
-                    title:'BPM Devami...',
-                    items: {xtype:'form', border:false,labelWidth:10,items:{
-                    xtype: 'radiogroup',itemCls: 'x-check-group-alt',id:'promisRadioGroup1',columns: 1,items:myJson.nextBpmActions}},
-                    buttons: [{
-                        text:'Sec',
-                        handler:function(ax,bx,cx){
-                    		var prg = Ext.getCmp('promisRadioGroup1');
-                            if(prg.getValue() && prg.getValue().getValue()){
-                            	var fxx=prg.getValue().js_code;
-                                qwin.destroy();
-                            	eval('fxx=function(xax,xbx){\n'+fxx+'\n}');
-                            	fxx(myJson);
-                            }
-                        }
-                    },{
-                        text: 'Iptal',
-                        handler: function(){
-                            qwin.destroy();
-                        }
-                    }]
-                });
-                qwin.show();
-                
-            }else */if(myJson.logErrors || myJson.msgs){
+            if(myJson.logErrors || myJson.msgs){
             	var str='';
             	if(myJson.msgs)str=myJson.msgs.join('<br>')+'<p>';
             	if(myJson.logErrors)str+=prepareLogErrors(myJson);
