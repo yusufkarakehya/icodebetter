@@ -827,7 +827,7 @@ public class VcsEngine {
 		if(ar.length()>0)try {
 			JSONObject params = new JSONObject(); 
 			params.put("u", po.getVcsUserName());
-			params.put("p", po.getVcsPassword());params.put("c", 0);params.put("r", po.getProjectUuid());
+			params.put("p", po.getVcsPassword());params.put("c", po.getCustomizationId());params.put("r", po.getProjectUuid());
 			params.put("objects", ar);
 			if(userId>0)params.put("_u", userId);
 			Date startDt = null, endDt = null;

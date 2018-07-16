@@ -7056,9 +7056,10 @@ public class FrameworkEngine{
 //		gridName = main.getString("grid_name");
 		String tablePrefix = FrameworkCache.getAppSettingStringValue(0, "form_builder_table_prefix", "iwb");
 		if(!tablePrefix.endsWith("_"))tablePrefix+="_";
-		fullTableName = schema + tablePrefix + tableName;
+		String tableName2 = tablePrefix + tableName;
+		fullTableName = schema + tableName2;
 		parentTableId = main.has("parent_table_id") ? GenericUtil.uInt(main.get("parent_table_id")) : 0;
-		s.append("create table ").append(tableName)
+		s.append("create table ").append(tableName2)
 		  .append(" (");
 		s.append(tableName).append("_id integer not null");
 		String relParentFieldName = null;
@@ -7141,6 +7142,10 @@ public class FrameworkEngine{
 		s.append(")");
 
 		createTableSql = s.toString();
+		if(po.getSetSearchPathFlag()!=0){
+			dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
+		}
+
 
 		try {
 			dao.executeUpdateSQLQuery(createTableSql);
@@ -7169,7 +7174,7 @@ public class FrameworkEngine{
 		if(!b)
 			throw new IWBException("framework","Define Table", 0, parameter, "Define Table", null);
 
-		int tableId = GenericUtil.uInt(dao.executeSQLQuery("select t.table_id from iwb.w5_table t where t.customization_id=? AND t.dsc=? AND t.project_uuid=?", customizationId, po.getSetSearchPathFlag()!=0 ? tablePrefix+tableName : fullTableName, projectUuid).get(0));
+		int tableId = GenericUtil.uInt(dao.executeSQLQuery("select t.table_id from iwb.w5_table t where t.customization_id=? AND t.dsc=? AND t.project_uuid=?", customizationId, po.getSetSearchPathFlag()!=0 ? tableName2 : fullTableName, projectUuid).get(0));
 
 		try {
 			main.put("table_id", tableId);
@@ -7260,10 +7265,6 @@ public class FrameworkEngine{
 				+ "0,  null,"
 				+ "0, null, 0, XFORM_BUILDER.project_uuid, XFORM_BUILDER.customization_id from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=?", queryId, customizationId, userId, userId, xformBuilderId);
 		if(vcs)dao.saveObject(new W5VcsObject(scd, 8, queryId));
-
-		if(po.getSetSearchPathFlag()!=0){
-			dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
-		}
 
 		dao.organizeQueryFields(scd, queryId, (short)1);
 
@@ -7576,7 +7577,7 @@ public class FrameworkEngine{
 
 		queryResult.setErrorMap(new HashMap());queryResult.setScd(scd);
 		queryResult.setRequestParams(requestParams);
-		if(queryId==-1 || queryResult.getQuery().getQueryTip()!=18){
+		if(queryId==-1 || queryResult.getQuery().getQuerySourceTip()!=0){
 			String orderBy = requestParams.get("sort");
 			if(GenericUtil.isEmpty(orderBy))orderBy=requestParams.get("_sql_orderby");
 			else if(requestParams.containsKey("dir"))orderBy+=" " + requestParams.get("dir");
