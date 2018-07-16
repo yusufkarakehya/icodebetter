@@ -1212,7 +1212,7 @@ public class GenericUtil {
 				errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_value_min")+" ("+param.getMinValue()+")"); //"Deï¿½eri "+ param.getMinValue()+" den kï¿½ï¿½ï¿½k olamaz"
 			} else if(param.getMaxValue()!=null && param.getMaxValue().compareTo(bd)==-1){
 				hasError = true;
-				errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_value_max")+" ("+param.getMinValue()+")");///"Deï¿½eri "+ param.getMaxValue()+" den bï¿½yï¿½k olamaz"
+				errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_value_max")+" ("+param.getMaxValue()+")");///"Deï¿½eri "+ param.getMaxValue()+" den bï¿½yï¿½k olamaz"
 			}
 		}
 
@@ -1358,7 +1358,7 @@ public class GenericUtil {
 				errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_value_min")+" ("+param.getMinValue()+")"); //"Deï¿½eri "+ param.getMinValue()+" den kï¿½ï¿½ï¿½k olamaz"
 			} else if(param.getMaxValue()!=null && param.getMaxValue().compareTo(bd)==-1){
 				hasError = true;
-				errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_value_max")+" ("+param.getMinValue()+")");///"Deï¿½eri "+ param.getMaxValue()+" den bï¿½yï¿½k olamaz"
+				errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_value_max")+" ("+param.getMaxValue()+")");///"Deï¿½eri "+ param.getMaxValue()+" den bï¿½yï¿½k olamaz"
 			}
 		}
 

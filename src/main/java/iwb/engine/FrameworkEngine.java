@@ -7577,7 +7577,7 @@ public class FrameworkEngine{
 
 		queryResult.setErrorMap(new HashMap());queryResult.setScd(scd);
 		queryResult.setRequestParams(requestParams);
-		if(queryId==-1 || queryResult.getQuery().getQueryTip()!=18){
+		if(queryId==-1 || queryResult.getQuery().getQuerySourceTip()!=0){
 			String orderBy = requestParams.get("sort");
 			if(GenericUtil.isEmpty(orderBy))orderBy=requestParams.get("_sql_orderby");
 			else if(requestParams.containsKey("dir"))orderBy+=" " + requestParams.get("dir");

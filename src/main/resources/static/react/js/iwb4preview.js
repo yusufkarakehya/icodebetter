@@ -445,7 +445,7 @@ class XGridAction extends React.PureComponent {
 				//{tag:'i',className: "icon-grid", color:this.props.color||'danger'}
 				,this.state.isOpen && _(DropdownMenu,{className: this.state.isOpen ? 'show' : ''} 
 //				,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
-				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Create New')
+				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'NEW RECORD')
 				,_('hr')
 				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-equalizer',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Raporlar/BI')		    					
 //				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')		    					
@@ -1309,7 +1309,7 @@ class XMainGrid extends React.PureComponent {
 		    			,_('main',{className: "inbox"}, _(CardHeader, {}
 		    							, this.searchForm && _(Button, {className:'btn-round-shadow', color: "secondary", onClick:this.toggleSearch},_('i',{id:'eq-'+this.props.id,className:'icon-magnifier'})), this.searchForm && " "
 										, !this.searchForm &&_(Button, {className:'btn-round-shadow', disabled:loading, color: "secondary", onClick:() => {this.loadData(!0);} },_('i',{className:'icon-refresh'}))
-										," ", this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," Create New"):null
+										," ", this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," NEW RECORD"):null
 //										,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
 										,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.openBI},_('i',{className:'icon-equalizer'}))
 //										, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})
@@ -1428,7 +1428,7 @@ class XPage extends React.Component {
 		      			if(r){
 		      		    	var state = this.state;
 		      		    	var plus = action.substr(0,1)=='2';
-		      		    	tabs.push({k:action, i:plus ? "icon-plus":"icon-doc", title:plus ? " Yeni":" Düzenle",  v:r});
+		      		    	tabs.push({k:action, i:plus ? "icon-plus":"icon-doc", title:plus ? " New":" Update",  v:r});
 		      		    	state.activeTab=action;
 		      		        this.setState(state);
 		      			}
@@ -1897,3 +1897,182 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
         }
     };
 };
+class XForm extends React.Component {
+	constructor(props) {
+		super(props);
+		//methods
+		/**
+		 * sets the state with value of input
+		 * @param {event} param0 
+		 */
+		this.onChange = ({target}) => {
+			var {values} = this.state;
+			if (target) {
+				values[target.name] = target.type == 'checkbox' ? target.checked : target.value;
+				this.setState({ values });
+			}
+		}
+		/**
+		 * sets state for combo change 
+		 * else sets oprions of it after the request
+		 * @param {String} inputName 
+		 */
+		this.onComboChange = inputName => {
+			var self = this;
+			return (selectedOption) => {
+				var {values} = self.state;
+				var slectedOption_Id = selectedOption && selectedOption.id;
+				values[inputName] = slectedOption_Id;
+				var triggers = self.triggerz4ComboRemotes;
+				//used for remote @depricated
+				if (triggers[inputName]){
+					triggers[inputName].map( zzz => {
+						var nv = zzz.f(slectedOption_Id, null, values);
+						var {options} = self.state;
+						if (nv){
+							iwb.request({
+								url: 'ajaxQueryData?' + iwb.JSON2URI(nv) + '.r=' + Math.random(),
+								successCallback: function (res) {
+									options[zzz.n] = res.data;
+									self.setState({ options });
+								}
+							});
+						} else {
+							options[zzz.n] = [];
+							self.setState({options});
+						}
+					});
+				}
+				self.setState({values});
+			}
+		}
+		/**
+		 * sets state when low combo is entered
+		 * @param {String} inputName 
+		 */
+		this.onLovComboChange = inputName => {
+			var self = this;
+			return selectedOptions => {
+				var {values} = self.state;
+				var slectedOption_Ids = [];
+				if (selectedOptions) {
+					selectedOptions.map(selectedOption => {
+						slectedOption_Ids.push(selectedOption.id);
+					});
+				}
+				values[inputName] = slectedOption_Ids.join(',');
+				self.setState({values});
+			}
+		}
+		/**
+		 * sets state when number entered
+		 * @param {String} dsc 
+		 */
+		this.onNumberChange = inputName => {
+			var self = this;
+			return inputEvent => {
+				var {values} = self.state;
+				var inputValue = inputEvent && inputEvent.value;
+				values[inputName] = inputValue;
+				self.setState({values});
+			}
+		}
+		/**
+		 * sends post to the server
+		 * @param {Object} cfg 
+		 */
+		this.submit = (cfg) => {
+			var values = {...this.state.values};
+			if (this.manualValidation) {
+				/** manualValidationResult = true || fase || {field_name : 'custom value'} */
+				var manualValidationResult = this.manualValidation(values, cfg || {});
+				if (!manualValidationResult) return false;
+				values = {...values, ...manualValidationResult};
+			}
+			iwb.request({
+				url: this.url + '?' + iwb.JSON2URI(this.params) + '_renderer=react16&.r=' + Math.random(),
+				params: values,
+				self: this,
+				errorCallback: json => {
+					var errors = {};
+					if (json.errorType) switch (json.errorType) {
+						case 'validation':
+							toastr.error('Validation Errors');
+							if (json.errors && json.errors.length) {
+								json.errors.map(oneError => {
+									errors[oneError.id] = oneError.msg;
+								});
+							}
+							if (json.error) {
+								iwb.showModal({
+									title: 'ERROR',
+									footer: false,
+									color: 'danger',
+									size: 'sm',
+									body: json.error
+								});
+							}
+							break;
+						default:
+							alert(json.errorType);
+					} else alert(json);
+					this.setState({ errors });
+					return false;
+				},
+				successCallback: (json, xcfg) => {
+					if (cfg.callback) cfg.callback(json, xcfg);
+				}
+			});
+		}
+		/**
+		 * used to make form active tab and visible on the page
+		 * @param {object} tab 
+		 */
+		this.toggleTab = (tab) => {
+			if (this.state.activeTab !== tab){
+				this.setState({activeTab: tab});
+			}
+		}
+		/**
+		 * returns form data from state 
+		 */
+		this.getValues = () => {
+			return {...this.state.values};
+		}
+		/**
+		 * used for date inputs
+		 * @param {String} inputName 
+		 * @param {Boolean} isItDTTM 
+		 */
+		this.onDateChange = (inputName, isItDTTM) => {
+			var self = this;
+			return selectedDate => {
+				var {values} = self.state;
+				var dateValue = selectedDate && selectedDate._d;
+				values[inputName] = isItDTTM ? fmtDateTime(dateValue) : fmtShortDate(dateValue);
+				self.setState({values});
+			}
+		}
+	}
+	componentDidMount() {
+		var self = this;
+		var	triggers = this.triggerz4ComboRemotes;
+		var	{values} = this.state;
+		for (var trigger in triggers){
+			if (values[trigger]) {
+				triggers[trigger].map( zzz=> {
+					var nv = zzz.f(values[trigger], null, values);
+					if (nv) iwb.request({
+						url: 'ajaxQueryData?' + iwb.JSON2URI(nv) + '.r=' + Math.random(),
+						successCallback: function (result) {
+							var {options} = self.state;
+							options[zzz.n] = result.data;
+							self.setState({options});
+						}
+					});
+				});
+			}
+		}
+	}
+	componentWillUnmount(){iwb.forms[this._id] = {...this.state}}
+}
