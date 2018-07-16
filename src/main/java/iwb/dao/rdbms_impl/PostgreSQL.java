@@ -123,7 +123,6 @@ import iwb.util.UserUtil;
 
 @SuppressWarnings({"unchecked","unused"})
 @Repository
-@Transactional
 public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 	private static Logger logger = Logger.getLogger(PostgreSQL.class);
