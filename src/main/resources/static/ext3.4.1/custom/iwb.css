@@ -446,12 +446,12 @@ background-image:url(../images/custom/app_req.png) !important;
 .app_req_small{
 background-image:url(../images/custom/app_req_small.png) !important;
 }
-.ikaydet_yeni{
-background-image:url(../images/custom/kaydet_yeni.png) !important;
+.isave_new{
+background-image:url(images/save-new-24.png) !important;
 }
 
-.inext{
-background-image:url(../images/custom/next.png) !important;
+.isave_cont{
+background-image:url(images/save-cont-24.png) !important;
 }
 .ino_record{
 background-image:url(../images/custom/norecord.png) !important;
