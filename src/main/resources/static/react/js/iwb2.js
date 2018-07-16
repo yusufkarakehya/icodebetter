@@ -2046,16 +2046,7 @@ class XMainGrid extends GridCommon {
 					,_('main',{className: "inbox"}, _(CardHeader, {}
 									, this.searchForm && _(Button, {className:'btn-round-shadow', color: "secondary", onClick:this.toggleSearch},_('i',{id:'eq-'+this.props.id,className:'icon-magnifier'})), this.searchForm && " "
 									, !this.searchForm &&_(Button, {className:'btn-round-shadow', disabled:loading, color: "secondary", onClick:() => {this.loadData(!0);} },_('i',{className:'icon-refresh'}))
-<<<<<<< HEAD
-									," ", 
-									this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {
-										className:'btn-round-shadow',
-										color: "primary",
-										onClick:(e) => {this.onOnNewRecord(e,this.props)}
-									},_('i',{className:'icon-plus'})," Create New"):null
-=======
 									," ", this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," NEW RECORD"):null
->>>>>>> 18dbc3e475a1e72f4329aa8433182e2e2b0ab06e
 //										,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
 									,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.openBI},_('i',{className:'icon-equalizer'}))
 //										, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})
