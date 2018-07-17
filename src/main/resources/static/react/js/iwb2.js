@@ -84,6 +84,17 @@ var iwb={
 	debugRender:false,
 	debugConstructor:false,
 	detailPageSize:10,
+	/**
+	 * @description
+	 * used for giving data for grid button
+	 */
+	commandComponentProps: {
+		add: 	{icon: 'plus',	hint: 'Create new row' },
+		edit: 	{icon: 'pencil',hint: 'Edit row',		color: 'text-warning',},
+		delete: {icon: 'trash',	hint: 'Delete row',		color: 'text-danger',},
+		cancel: {icon: 'x',		hint: 'Cancel changes',	color: 'text-danger',},
+		import: {icon: 'target',hint: 'Import'}
+	},
 	logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>',
 	detailSearch:()=>false,
 	fmtShortDate : (x) => {x ? moment(x).format('DD/MM/YYYY') : "";},
@@ -188,7 +199,6 @@ var iwb={
 			function(error){
 				if(cfg.errorCallback && cfg.errorCallback({error:error}, cfg)===false)return;
 				toastr.error(error || 'Unknown ERROR','Request Error');
-	//	    	alert('ERROR! ' + error);
 			}
 		);
 	},
@@ -218,6 +228,81 @@ var iwb={
 		}
 		return p;
 	},
+	/**
+	 * @description 
+	 * sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman _insertedItems,_deletedItems dikkate almamasi
+	 * @param {*} grid 
+	 * @param {*} prefix 
+	 * @param {*} values 
+	 */
+	prepareParams4grid:(grid, prefix, values)=>{
+		var dirtyCount=0;
+		var params={};
+		var items = values.deleted;
+		var pk = grid._pk || grid.pk;
+		if(items)for(var bjk=0;bjk<items.length;bjk++){ //deleted
+			dirtyCount++;
+			for(var key in pk){
+				var val=pk[key];
+				if(typeof val == 'function'){
+					params[key+prefix+"."+dirtyCount] = val(items[bjk]);
+				} else {
+					params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):items[bjk][val];
+				}
+			}
+			params["a"+prefix+"."+dirtyCount]=3;
+		}
+		items = values.changed;
+		if(items)for(var bjk=0;bjk<items.length;bjk++){ // edited
+			dirtyCount++;
+			params["a"+prefix+"."+dirtyCount]=1;
+			var changes=items[bjk]._new;
+			for(var key in changes)params[key+prefix+"."+dirtyCount]=changes[key];
+			if(grid._postMap)for(var key in grid._postMap){
+				var val = grid._postMap[key];
+				if(typeof val == 'function'){ 
+					params[key+prefix+"."+dirtyCount] = val(changes);
+				} else {
+					params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):changes[val];
+				}
+			}
+			
+			for(var key in pk){
+				var val=pk[key];
+				if(typeof val == 'function'){
+					params[key+prefix+"."+dirtyCount] = val(items[bjk]);
+				} else {
+					params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):items[bjk][val];
+				}
+				
+			}
+		}
+		items = values.inserted;
+		if(items)for(var bjk=0;bjk<items.length;bjk++){
+			dirtyCount++;
+			params["a"+prefix+"."+dirtyCount]=2;
+			var changes=items[bjk]._new;
+			for(var key in changes)params[key+prefix+"."+dirtyCount]=changes[key];
+
+			if(grid._postMap)for(var key in grid._postMap){
+				var val = grid._postMap[key];
+				if(typeof val == 'function'){
+					params[key+prefix+"."+dirtyCount] = val(changes);
+				} else {
+					params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):changes[val];
+				}
+			}
+			if(grid._postInsertParams){
+				for(var key in grid._postInsertParams)params[key+prefix+"."+dirtyCount]=grid._postInsertParams[key];
+			}
+			
+		}
+		if(dirtyCount>0){
+			params['_cnt'+prefix]=dirtyCount;
+			params['_fid'+prefix]=grid.crudFormId;
+			return params;
+		} else return {};
+	},
 };
 var ajaxErrorHandler= iwb.requestErrorHandler;
 iwb.emptyField 		= _('i',{className:'raw-field-empty'},_('br'),' ','(boş)'),
@@ -228,7 +313,7 @@ iwb.ui				= {
 	if(!c.grid.detailGrids)c.grid.detailGrids=c.detailGrids||false;
 	return _(XPage,c);
 }}
-function disabledCheckBoxHtml(row, cell){ //TODO
+function disabledCheckBoxHtml(row, cell){
 //		return _('img',{border:0,src:'../images/custom/'+(f ?'':'un')+'checked.gif'});
 	return row[cell] && 1*row[cell] ? _('i',{className:'fa fa-check', style:{color: 'white',background: '#4dbd74', padding: 5, borderRadius: 25}}) : null;// _('i',{className:'fa fa-check', style:{color: 'white',background: 'red', padding: 5, borderRadius: 25}});
 }
@@ -320,6 +405,10 @@ function buildParams4transfer(params, map){
 	}
 	return bp;
 }
+/**
+ * @description
+ * Grids common methods are located in this class
+ */
 class GridCommon extends React.PureComponent {
 	constructor(props) {
 		super(props);
@@ -328,28 +417,26 @@ class GridCommon extends React.PureComponent {
 		/**
 		 * @description
 		 * Used to set State of Grid with pagination number
-		 * @param {Number} currentPage 
+		 * @param {Number} currentPage - current page number
 		 */
 		this.onCurrentPageChange = currentPage   => this.setState({ currentPage });
 		/**
 		 * @description
-		 * [...,{columnName: "start_dttm", width: 180},...]
 		 * Used to Set State of grid with Column width
-		 * @param {Object} columnWidths 
+		 * @param {String} columnWidths[].columnName - name of the column
+		 * @param {Number} columnWidths[].width - width of the column
 		 */
 		this.onColumnWidthsChange= columnWidths	=> this.setState({columnWidths});
 		/**
 		 * @description
-		 * ["ColName1","ColName2",...]
 		 * Used to Set State of Grid with column order
-		 * @param {Array} columnOrder 
+		 * @param {Array} columnOrder - ["ColName1","ColName2",...] 
 		 */
 		this.onOrderChange		 = columnOrder 	=> this.setState({columnOrder});
 		/**
 		 * @description
-		 * [12,25,75]
 		 * Used to set Pagination row Nummber
-		 * @param {Number} pageSize 
+		 * @param {Number} pageSize - sets size of the number for 
 		 */
 		this.onPageSizeChange    = pageSize	  =>{
 			var {currentPage,totalCount} = this.state;
@@ -367,15 +454,15 @@ class GridCommon extends React.PureComponent {
 		this.onSortingChange 	 = sorting		 => this.setState({ sorting });
 		/**
 		 * @description
-		 * {childeren,row,style,TableRow}
-		 * childeren:[React.Components]
-		 * row:{...rowData}
-		 * TableRow:{Current RowData,key,type,rowId}
+
 		 * You can access every row data
 		 * Also Used to Map Doulble click action to the row
 		 * @example
 		 * Used Only in XMainGrid and XGrid
-		 * @param {Object} tableRowData 
+		 * @param {Object} tableRowData - 
+		 * @param {Symbol} tableRowData.childeren -React.Components
+		 * @param {Object} tableRowData.row - Row Data 
+		 * @param {Object} tableRowData.TableRow - {Current RowData,key,type,rowId}
 		 */
 		this.rowComponent 		= tableRowData =>{
 			var { openTab, crudFlags, pk, crudFormId } = this.props;
@@ -431,11 +518,12 @@ class GridCommon extends React.PureComponent {
 		/**
 		 * @description
 		 * Used to Edit and double click on the row
+		 * @param { Object } param0 - consist of two data evet and Rowdata 
 		 * @param { Event } param0.event - Click event from the Edit button and double click on the row 
 		 * @param { rowData } param0.rowData - Data of the row where the Edit button or double click clicked 
 		 */
 		this.onEditClick 		= ({event,rowData})=>{
-			var {props} = this.props;	
+			var {props} = this;	
 			var pkz = buildParams2(props.pk,rowData);
 			var url = 'showForm?a=1&_fid='+props.crudFormId+pkz;
 			if(props._postUpdate){ 
@@ -447,18 +535,119 @@ class GridCommon extends React.PureComponent {
 		};
 		/**
 		 * todo
-		 * @param {Object} param0 
+		 * @param {Object} param0 - event from delete button
+		 * @param {Event} param0.event - event from delete button
+		 * @param {Array} param0.rowData - data for the deleted Row 
 		 */
 		this.onDeleteClick 		= ({event,rowData}) => {
-			var props=this.props;	
-			var pkz = buildParams2(props.pk,rowData);
-			var url = 'ajaxPostForm?a=3&_fid='+props.crudFormId+pkz;
+			var {pk,crudFormId}=this.props;	
+			var pkz = buildParams2(pk,rowData);
+			var url = 'ajaxPostForm?a=3&_fid='+crudFormId+pkz;
 			yesNoDialog({ text:"Are you Sure!", callback:(success)=>{
 				if(success){
 					iwb.request({ url, successCallback:()=>this.loadData(true)});
 				}
 			}});
 		}
+		/**
+		 * @description
+		 * used to make request and fill the grid
+		 * @param {boolean} force - to fill with up to date data
+		 */
+		this.loadData 			= force 		=>{
+			if(this.props.rows)return;
+			const queryString = this.queryString();
+			if (!force && queryString === this.lastQuery) { return; }
+			this.setState({loading: true});
+				iwb.request({
+					url:queryString, self:this,
+					params:this.props.searchForm && iwb.getFormValues(document.getElementById(this.props.searchForm.id)), 
+					successCallback: (result, cfg)=>{
+				cfg.self.setState({
+					rows: result.data,
+					totalCount: result.total_count,
+					loading: false,
+				});
+				},errorCallback:(error,cfg)=>{
+				cfg.self.setState({
+					rows: [],
+					totalCount: 0,
+					loading: false,
+					});
+				}});
+			this.lastQuery = queryString;
+		}
+		// ####################################EDit Grid Common ############################################
+		/**
+		 * @param {Array} editingRowIds - IDs of the Editing rows 
+		 */
+		this.onEditingRowIdsChange 	= editingRowIds => this.setState({ editingRowIds });
+		/**
+		 * @description
+		 * A function that returns a row change object depending on row editor values. This function is called each time the row editor’s value changes.
+		 * @param {object} addedRows - (row: any, columnName: string, value: string | number)
+		 */
+		this.onAddedRowsChange 		= addedRows 	=> {
+	    	var newRecord = Object.assign({}, this.props.newRecord||{});
+	    	var pk=this.state.pk4insert;
+	    	--pk;
+	    	newRecord[this.props.keyField]=pk;
+	    	this.setState({
+				pk4insert:pk,
+	    		addedRows: addedRows.map(row => (Object.keys(row).length ? row : newRecord)),
+	        });
+		}
+		/**
+		 * @description
+		 * Handles adding or removing a row changes to/from the rowChanges array.
+		 * @param {Array} rowChanges -(rowChanges: { [key: string]: any }) => void 
+		 */
+		this.onRowChangesChange		= rowChanges 	=> {this.setState({ rowChanges });}
+		/**
+		 * @description
+		 * Handles selection changes.
+		 * @param {Array} selection - (selection: Array<number | string>) => void
+		 */
+		this.onSelectionChange 		= selection 	=> {this.setState({ selection });}
+		/**
+		 * Used to delete from the frontend
+		 * @param {Array} param0 
+		 * @param {Array} param0.deleted 
+		 */
+		this.onCommitChanges 			= ({ deleted }) => {
+	        let { rows, deletedRows } = this.state;
+	        if(deleted && deleted.length){
+				yesNoDialog({
+					text:"Are you Sure!",
+					callback:(success)=>{
+						if(success){
+	        				rows = rows.slice();
+		        			deleted.forEach((rowId) => {
+		          				const index = rows.findIndex(row => row[this.props.keyField] === rowId);
+		          				if (index > -1) {
+									if(rowId>0){ deletedRows.push(Object.assign({},rows[index]));}
+		             			 	rows.splice(index, 1);
+								}
+							});
+							this.setState({ rows, deletingRows: [], deletedRows });
+						}
+					}
+				})
+	        }
+		}
+		/**
+		 * @example
+		 * push id to this.state.deletingRows
+		 * then this.deleteRows();
+		 */
+		this.deleteRows 			= () 			=> {
+	        const rows = this.state.rows.slice();
+	        this.state.deletingRows.forEach((rowId) => {
+	          const index = rows.findIndex(row => row.id === rowId);
+	          if (index > -1) {	rows.splice(index, 1); }
+	        });
+	        this.setState({ rows, deletingRows: [] });
+	    }
 
 	}
 }
@@ -468,38 +657,37 @@ class GridCommon extends React.PureComponent {
  */
 class XTabForm extends React.PureComponent{
 	constructor(props){
-		if(iwb.debugConstructor)if(iwb.debug)console.log('XTabForm.constructor',props);
+		if(iwb.debug)console.log('XTabForm.constructor',props);
 		super(props);
+		//state
 		this.state = {viewMode:this.props.cfg.a==1};
-		this.onSubmit = this.onSubmit.bind(this);
-		this.toggleViewMode = this.toggleViewMode.bind(this);
-	}
-	toggleViewMode(){
-		this.setState({viewMode:!this.state.viewMode});
-	}
-	onSubmit(e){
-		if(e && e.preventDefault)e.preventDefault();
-		var selfie = this;
-		if(this.form)this.form.submit({callback:function(json,cfg){
-			var url='showForm';
-			if(json.outs){
-				url+='?a=1&_fid='+json.formId;
-				for(var k in json.outs)url+='&t'+k+'='+json.outs[k];
-			} else{
-				url+=cfg.url.substring('ajaxPostForm'.length);
+		//methods
+		this.toggleViewMode = ()=> this.setState({viewMode:!this.state.viewMode});
+		this.onSubmit = e => {
+			if(e && e.preventDefault){
+				e.preventDefault();
 			}
-//	    	var url = 'showForm?_renderer=react16&a=1&_fid='+props.crudFormId+pkz; 
-
-
-			toastr.success('İlgili kaydı görmek için <a href=# onClick="return iwb.openForm(\''+url+'\')">tıklayınız</a>','Başarıyla Kaydedildi',{timeOut:3000});
-			var parent = selfie.props.parentCt;
-			if(parent){
-				parent.closeTab();
-				iwb.onGlobalSearch2('');
+			var selfie = this;
+			if(this.form){
+				this.form.submit({callback:(json,cfg)=>{
+					var url='showForm';
+					if(json.outs){
+						url+='?a=1&_fid='+json.formId;
+						for(var key in json.outs)url+='&t'+key+'='+json.outs[key];
+					} else{
+						url+=cfg.url.substring('ajaxPostForm'.length);
+					}
+					toastr.success('İlgili kaydı görmek için <a href=# onClick="return iwb.openForm(\''+url+'\')">tıklayınız</a>','Başarıyla Kaydedildi',{timeOut:3000});
+					var {parentCt} = selfie.props;
+					if(parentCt){
+						parentCt.closeTab();
+						iwb.onGlobalSearch2('');
+					}
+				}});
 			}
-		}});
-		else alert('this.form not set');
-		return false;
+			else alert('this.form not set');
+			return false;
+		}
 	}
 	render() {
 		if(iwb.debugRender)if(iwb.debug)console.log('XTabForm.render',this.props)
@@ -521,13 +709,32 @@ class XTabForm extends React.PureComponent{
 }
 /**
  * @description
- * used for Pop a Modal
- * it is singletone and u can use 
- * iwb.showModal(conf)
+ * Used for PopUp a Modal
+ * it is singletone and you can use 
+ * @example
+ * iwb.showModal(cfg);
+ * iwb.closeModal
+ * @param {Object} props -props of the Xmodal
  */
 class XModal extends React.Component {
 	constructor(props){
 		super(props);
+		this.state={modal:false};
+		/**
+		 * @description
+		 * Used to construct Modal (popup)
+		 * @example
+		 * iwb.showModal(cfg);
+		 * iwb.closeModal
+		 * @param {Object} cfg - Moadal Configuration 
+		 * @param {String} cfg.title - Moadal title 
+		 * @param {String} cfg.color - Moadal Color 'primary' 
+		 * @param {String} cfg.size - Moadal Size 'lg' 'md' 'sm' 
+		 * @param {Symbol} cfg.body - Moadal body React.Component 
+		 * @param {Object} cfg.style - Moadal style 
+		 * @param {Object} cfg.footer - Moadal Configuration 
+		 * @param {Object} cfg.modalBodyProps - Moadal Body Props to pass to the body of the modal 
+		 */
 		this.open = cfg => {
 			this.setState({
 				modal			: true, 
@@ -540,9 +747,12 @@ class XModal extends React.Component {
 				modalBodyProps	: cfg.modalBodyProps||{},props:cfg.props||{}});
 			return false;
 		}; 
+		/**
+		 * @description
+		 * Used to close the Modal (actually hide)
+		 */
 		this.close= () => { this.setState({modal:false}); } 
 		this.toggle = () => { this.setState({ modal: !this.state.modal }); }
-		this.state={modal:false};
 		iwb.showModal=this.open;
 		iwb.closeModal=this.close;
 	}
@@ -594,74 +804,94 @@ class XLoginDialog extends React.Component {
 	constructor(props){
 		super(props);
 		this.state={modal:false, msg:false};
-		this.open=this.open.bind(this); 
-		this.login=this.login.bind(this);
+		/**
+		 * @description
+		 * Used to open Modal we made it GLOBAL
+		 * @example
+		 * iwb.showLoginDialog()
+		 */
+		this.open=()=>this.setState({modal: !0}); 
 		iwb.showLoginDialog = this.open;
-	}
-	open(){
-	    this.setState({modal: !0});
-	}
-	login(){
-		var self = this;
-		var passWord = document.getElementById('id-password').value;
-		if(!passWord){
-			self.setState({msg: 'Önce Şifre Giriniz' });
-			return false;
-		}
-		iwb.request({url: 'ajaxAuthenticateUser?userRoleId='+_scd.userRoleId+'&locale='+_scd.locale+(_scd.projectId ? '&projectId='+_scd.projectId:''),
-		params:{customizationId:_scd.customizationId, userName: _scd.userName, passWord: passWord, locale: _scd.locale},
-		callback:function(j){
-			if(j.success){
-				if(!j.waitFor){
-					if(j.session)_scd=j.session;
-					self.setState({modal: false, msg:false});
-				} else {
-					self.setState({msg: 'TODO! ' + j.waitFor });
-				}
+		/**
+		 * Used To Login User
+		 */
+		this.login = ()=>{
+			var self = this;
+			var passWord = document.getElementById('id-password').value;
+			if(!passWord){
+				self.setState({msg: 'Önce Şifre Giriniz' });
 				return false;
-			} else {
-				self.setState({msg: j.errorMsg });
 			}
-		},errorCallback:function(j){
-		    this.setState({msg: 'Olmadi'});
-		}});
+			iwb.request({
+				url: 'ajaxAuthenticateUser?userRoleId='+_scd.userRoleId+'&locale='+_scd.locale+(_scd.projectId ? '&projectId='+_scd.projectId:''),
+				params:{customizationId:_scd.customizationId, userName: _scd.userName, passWord: passWord, locale: _scd.locale},
+				callback: response => {
+					if(response.success){
+						if(!response.waitFor){
+							if(response.session){
+								_scd=response.session;
+							}
+							self.setState({modal: false, msg:false});
+						} else {
+							self.setState({msg: 'TODO! ' + response.waitFor });
+						}
+						return false;
+					} else {
+						self.setState({msg: response.errorMsg });
+					}
+				},
+				errorCallback:j=>{
+					this.setState({msg: 'Olmadi'});
+				}
+			});
+		}
 	}
+	
     render() {
-    	return _(Modal, { keyboard:false ,backdrop:'static', toggle: this.toggle, isOpen: this.state.modal, centered:true, className: 'modal-sm primary' },
-               _(ModalBody,null,
-   	                  _("h1", null, "Login"), 
-   	                  _("p", {className: "text-muted", style:{color:(this.state.msg? "red !important":"")}}, this.state.msg || "Session Timeout"), 
-   	              	_(InputGroup, {
-   	              	    className: "mb-3"
-   	              	}, _("div", {
-   	              	    className: "input-group-prepend"
-   	              	}, _("span", {
-   	              	    className: "input-group-text"
-   	              	}, _("i", {
-   	              	    className: "icon-user"
-   	              	}))), _(Input, {
-   	              	    type: "text", readOnly:true, value:_scd.userName,
-   	              	    placeholder: "Username"
-   	              	})), _(InputGroup, {
-   	              	    className: "mb-4"
-   	              	}, _("div", {
-   	              	    className: "input-group-prepend"
-   	              	}, _("span", {
-   	              	    className: "input-group-text"
-   	              	}, _("i", {
-   	              	    className: "icon-lock"
-   	              	}))), _(Input, {
-   	              	    type: "password",id:'id-password',
-   	              	    placeholder: "Password"
-   	              	}))
-   	                ),
-	                _(ModalFooter, null,
-	                  _(Button, { color: "primary", onClick: this.login }, "Login"),
-	                  ' ',
-	                  _(Button, { color: "secondary", onClick: function(){document.location='login.htm?.r='+Math.random();} },"Exit"
-	                  )
-	                )
-	              );
+    	return _(Modal, { 
+			keyboard:false,
+			backdrop:'static',
+			toggle: this.toggle,
+			isOpen: this.state.modal,
+			centered:true,
+			className: 'modal-sm primary'
+		}, 
+			_(ModalBody,null,
+				_("h1", null, "Login"), 
+				_("p", {className: "text-muted", style:{color:(this.state.msg? "red !important":"")}}, this.state.msg || "Session Timeout"), 
+				_(InputGroup, { className: "mb-3" },
+					_("div", {className: "input-group-prepend"},
+						_("span", { className: "input-group-text"},
+							_("i", {className: "icon-user"})
+						)
+					), 
+					_(Input, {
+						type: "text",
+						readOnly:true,
+						value:_scd.userName,
+						placeholder: "Username"
+					})
+				),
+				_(InputGroup, { className: "mb-4" }, 
+					_("div", { className: "input-group-prepend"},
+						_("span", { className: "input-group-text" },
+							_("i", { className: "icon-lock"})
+						)
+					),
+					_(Input, {
+						type: "password",
+						id:'id-password',
+						placeholder: "Password"
+					})
+				)
+			),
+			_(ModalFooter, null,
+				_(Button, { color: "primary", onClick: this.login }, "Login"),
+				' ',
+				_(Button, { color: "secondary", onClick: function(){document.location='login.htm?.r='+Math.random();} },"Exit"
+				)
+			)
+		);
     }
 }
 /**
@@ -669,10 +899,17 @@ class XLoginDialog extends React.Component {
  * used to open dropDown 
  * make edit and delete from main and detail grid 
  * when the Grid is not in edit mode
+ * @param { Object } props - gets data of right click and crud
+ * @param { Array } props.menuButtons - return array of Objects conf { text, handler, cls }
+ * @param { Boolean } props.crudFlags.edit -ACL Edit Option
+ * @param { Boolean } props.crudFlags.insert -ACL insert Option
+ * @param { Boolean } props.crudFlags.remove -ACL Delete Option
+ * @param { Array } props.rowData - data of the clicked Row
  */
 class XGridRowAction extends React.PureComponent {
 	  constructor(props) {
-		    super(props);
+			super(props);
+			if(iwb.debug)console.log('XGridRowAction',props);
 		    //state setter
 			this.state={
 				isOpen		:false,
@@ -683,14 +920,11 @@ class XGridRowAction extends React.PureComponent {
 			//methods
 			this.toggle= ()=>this.setState({isOpen:!this.state.isOpen});
 	  }
-
-	  render()
-	  {
+	  render(){
 		//state getter && constants
 		const { isOpen, menuButtons, crudFlags, rowData } = this.state;
-		const { edit,remove } = crudFlags;
+		const { edit, remove } = crudFlags;
 		const defstyle = { marginRight: 5,marginLeft: -2, fontSize: 12, color: '#777'};
-
 		return _(Dropdown, { isOpen, toggle: this.toggle }
 			, _(DropdownToggle, { tag: 'i', className: "icon-options-vertical column-action"})
 			, isOpen &&
@@ -715,18 +949,14 @@ class XGridRowAction extends React.PureComponent {
 }
 /**
  * @deprecated
- * todo: nnot used yet
+ * todo: not used yet
  */
 class XGridAction extends React.PureComponent {
 	  constructor(props) {
 		    super(props);
-		    this.toggle= this.toggle.bind(this);
+		    this.toggle = ()=> this.setState({isOpen:!this.state.isOpen});
 		    this.state={isOpen:false};
 	  }
-	  toggle(){
-		  this.setState({isOpen:!this.state.isOpen});
-	  }
-	  
 	  render(){
 		return _(Dropdown,{isOpen:this.state.isOpen, toggle: this.toggle}
 //				,_('i',{className:'icon-options-vertical column-action', onClick:qqq.toggleGridAction})
@@ -745,11 +975,39 @@ class XGridAction extends React.PureComponent {
 /**
  * @description
  * it renders detail grid there is no search form
+ * @param {Object} props - Input of the Grid Component
+ * @param {Boolean} props.bordered - Input of the Grid Component
+ * @param {Boolean} props.bulkEmailFlag - Input of the Grid Component
+ * @param {Boolean} props.bulkUpdateFlag - Input of the Grid Component
+ * @param {Array} props.columns - Column conf List {name title width sort}
+ * @param {Object} props.crudFlags - Grid Component {edit insert remove} options Used to render CRUD buttons and routes
+ * @param {Number} props.crudFormId - crudFormId is used to make route to the form
+ * @param {Number} props.crudTableId - crudTableId is id of sql table
+ * @param {Number} props.defaultHeight - @deprecated defaultHeight is a height of the Grid 
+ * @param {Number} props.defaultWidth - @deprecated defaultWidth is width of the Grid
+ * @param {Boolean} props.detailFlag - Use to render Maste Detail Grid
+ * @param {Boolean} props.editable - Used to Open Grid in EditingState Mode
+ * @param {Number} props.extraOutMap.tplId - id of the page 
+ * @param {Number} props.gridId - Id of the Detail grid
+ * @param {String} props.keyField - Used to spesify primety Key name of the Grid
+ * @param {String} props.name - Rendered name of the Grid Component
+ * @param {Function} props.openTab - Used to open Form in new tab
+ * @param {Number} props.queryId - Query id of the grid	
+ * @param {Boolean} props.responsive - Grid Component is responsive
+ * @param {Number} props.tabOrder - Accessibility 
+ * @param {Symbol} props._field_name - React.Component to Cell options
+ * @param {Symbol} props._disableIntegratedGrouping - ['null'] Disable Grouping
+ * @param {Symbol} props._disableIntegratedSorting - ['null'] Disable sorting
+ * @param {Symbol} props._disableSearchPanel - ['null'] Disable search panel
+ * @param {Symbol} props.multiselect - ['null'] Enambe multiselect option
+ * 
  */
 class XGrid extends GridCommon{
 	constructor(props) {
 		super(props);
-		var columns=[], tableColumnExtensions=[];
+		if(iwb.debug)console.log('XGrid',props);
+		var columns=[];
+		var tableColumnExtensions=[];
 		const canIOpenActions = (props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) || props.menuButtons;
 		if(canIOpenActions){
 			columns.push({name:'_qw_',title:'.',getCellValue:rowData=>{
@@ -791,10 +1049,12 @@ class XGrid extends GridCommon{
 			gridActionOpen: false
 		};
 		/**
+		 * @overloading
+		 * @description
 		 * used to make request and fill the grid
-		 * @param {boolean} force 
+		 * @param {boolean} force - to fill with up to date data
 		 */
-			this.loadData 			= force 		=>{
+		this.loadData 			= force 		=>{
 			if(this.props.rows)return;
 			const queryString = this.queryString();
 			if (!force && queryString === this.lastQuery) { return; }
@@ -831,9 +1091,7 @@ class XGrid extends GridCommon{
 			_disableIntegratedGrouping,
 			_disableIntegratedSorting,
 			_disableSearchPanel,
-			_importClicked,
 			multiselect,
-			crudFlags,
 			keyField
 		} = this.props
 		//methods
@@ -887,152 +1145,60 @@ class XGrid extends GridCommon{
 				onColumnWidthsChange
 			}),		  
 			_(_dxgrb.TableHeaderRow, { showSortingControls: true }),
+
 			rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
-			!pageSize && rows.length>1 && _(_dxgrb.TableGroupRow,null),
-			!pageSize && rows.length>1 && _(_dxgrb.Toolbar,null),
-			!pageSize && rows.length>1 && _(_dxgrb.SearchPanel, {
+			!_disableIntegratedGrouping && !pageSize && rows.length>1 && _(_dxgrb.TableGroupRow,null),
+			!_disableIntegratedGrouping || !_disableIntegratedSorting || !_disableSearchPanel || (!pageSize && rows.length>1) && _(_dxgrb.Toolbar,null),
+			!_disableSearchPanel && !pageSize && rows.length>1 && _(_dxgrb.SearchPanel, {
 				messages:{searchPlaceholder:'Hızlı Arama...'},
 				changeSearchValue: ax=>{
 					if(iwb.debug)console.log('onValueChange',ax);
 				}
 			}),//TODO
-			!pageSize && rows.length>1 && _(_dxgrb.GroupingPanel,{showSortingControls:true})
+			!_disableIntegratedGrouping && !pageSize && rows.length>1 && _(_dxgrb.GroupingPanel,{showSortingControls:true})
 		);
 	}
 }
 /**
  * @description
- * used for giving data for grid button
+ * a functional Component to return custom grid Button for the grid
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
+ * @param {Object} props.onExecute - a callback function to be executed when button is clicked
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
  */
-const commandComponentProps = {
-	add: {
-		icon: 'plus',
-		hint: 'Create new row',
-	},
-	edit: {
-		icon: 'pencil',
-		hint: 'Edit row',
-		color: 'text-warning',
-	},
-	delete: {
-		icon: 'trash',
-		hint: 'Delete row',
-		color: 'text-danger',
-	},
-	cancel: {
-		icon: 'x',
-		hint: 'Cancel changes',
-		color: 'text-danger',
-	},
-	import: {
-		icon: 'target',
-		hint: 'Import'
-	}
-};
+// class CommandButton extends React.PureComponent {
+// 	render(){
+// 		var {onExecute, icon, text, hint, color, row} = this.props;
+// 		return 
+// 	}
+	
+// }
 /**
  * @description
- * custom grid Button
- * @param {Object} param0 ({onExecute, icon, text, hint, color, row}) 
+ * A functional component to glue button inside grid with its props
+ * @param {Object} props - { id, onExecute } 
+ * @param {Number} props.id - index of the ComponentProps array
+ * @param {Function} props.onExecute - a callback function to be executed when button is clicked  
  */
-const CommandButton = ({onExecute, icon, text, hint, color, row}) =>{
-	let button =_("button",{className: "btn btn-link",style: { padding: "11px" },
-	    onClick: e => {
-	      onExecute();
-	      e.stopPropagation();
-	    },
-	    title: hint
-	  },
-	  _("span",{ className: color || 'undefined' },
-	    icon ? _("i", { className: 'oi oi-'+icon, style: { marginRight: text ? 5 : 0 } }) : null,
-	    text
-	  )
-	);
-	return button;
-}
-/**
- * @description
- * used to render button inside grid
- * @param {{ id, onExecute}} param0 
- */
-const Command = ({ id, onExecute}) => {
-	var c = commandComponentProps[id];
-	return c ? _(CommandButton,Object.assign({},c,{onExecute:onExecute})):null;
-}
-/**
- * @description 
- * todo:have to write proper doc
- * sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman _insertedItems,_deletedItems dikkate almamasi
- * @param {*} grid 
- * @param {*} prefix 
- * @param {*} values 
- */
-iwb.prepareParams4grid=function(grid, prefix, values){
-  	var dirtyCount=0;
-  	var params={};
-	var items = values.deleted;
-	var pk = grid._pk || grid.pk;
-  	if(items)for(var bjk=0;bjk<items.length;bjk++){ //deleted
-  		dirtyCount++;
-  		for(var key in pk){
-  			var val=pk[key];
-			if(typeof val == 'function'){
-				params[key+prefix+"."+dirtyCount] = val(items[bjk]);
-			} else {
-				params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):items[bjk][val];
-			}
-  		}
-  		params["a"+prefix+"."+dirtyCount]=3;
-  	}
-	items = values.changed;
-	if(items)for(var bjk=0;bjk<items.length;bjk++){ // edited
-		dirtyCount++;
-		params["a"+prefix+"."+dirtyCount]=1;
-		var changes=items[bjk]._new;
-		for(var key in changes)params[key+prefix+"."+dirtyCount]=changes[key];
-		if(grid._postMap)for(var key in grid._postMap){
-			var val = grid._postMap[key];
-			if(typeof val == 'function'){ 
-				params[key+prefix+"."+dirtyCount] = val(changes);
-			} else {
-				params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):changes[val];
-			}
-		}
-		
-		for(var key in pk){
-			var val=pk[key];
-			if(typeof val == 'function'){
-				params[key+prefix+"."+dirtyCount] = val(items[bjk]);
-			} else {
-				params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):items[bjk][val];
-			}
-			
-		}
+class Command extends React.PureComponent {
+	render(){
+		var { id, onExecute} = this.props;
+		var ComponentProps = iwb.commandComponentProps[id];
+		return ComponentProps ? _("button",{
+			className: "btn btn-link",
+			style: { padding: "11px" },
+			onClick: onExecute,
+			title: ComponentProps.hint
+		},
+			_("span",{ className: ComponentProps.color || 'undefined' },
+			ComponentProps.icon ? _("i", { className: 'oi oi-'+ComponentProps.icon, style: { marginRight: ComponentProps.text ? 5 : 0 } }) : null,
+			ComponentProps.text
+			)
+		) : null
 	}
-	items = values.inserted;
-	if(items)for(var bjk=0;bjk<items.length;bjk++){ // inserted
-		dirtyCount++;
-		params["a"+prefix+"."+dirtyCount]=2;
-		var changes=items[bjk]._new;
-		for(var key in changes)params[key+prefix+"."+dirtyCount]=changes[key];
-
-		if(grid._postMap)for(var key in grid._postMap){
-			var val = grid._postMap[key];
-			if(typeof val == 'function'){
-				params[key+prefix+"."+dirtyCount] = val(changes);
-			} else {
-				params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):changes[val];
-			}
-		}
-		if(grid._postInsertParams){
-			for(var key in grid._postInsertParams)params[key+prefix+"."+dirtyCount]=grid._postInsertParams[key];
-		}
-		
-	}
-	if(dirtyCount>0){
-		params['_cnt'+prefix]=dirtyCount;
-		params['_fid'+prefix]=grid.crudFormId;
-		return params;
-	} else return {};
 }
 /**
  * @description
@@ -1120,94 +1286,60 @@ class XEditGridSF extends GridCommon {
 		      ,pkInsert:0
 		      ,selection:[]
 		    };
-	    }
-//		this._pk4insert = 0; //state te olmasi lazim: TODO 
-		this.changeEditingRowIds 	= editingRowIds => this.setState({ editingRowIds });
-		this.changeSelection 		= selection 	=> this.setState({ selection });
-		this.changeRowChanges 		= rowChanges 	=> this.setState({ rowChanges });
-
-		
-
-	    this.getValues = () => {
-	    	  let {rows,addedRows,deletedRows, editingRowIds, selection} = this.state;
-	    	  rows = rows.slice();
-	    	  
-	    	  selection.forEach((rowId) => {
-	    		  if(rowId>0){
-			          const index = rows.findIndex(row => row[this.props.keyField] === rowId);
-			          if (index > -1){
-			        	  addedRows.push(Object.assign({},rows[index]));
-			          }
-	    		  }
-		        });
-	    	  
-	    	  var searchFormData = this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id));
-			  return {searchFormData, inserted:addedRows, deleted:deletedRows, _state: this.state};
 		}
-	   
-	    this.commitChanges = ({ added, changed, deleted }) => {
-	        let { rows, deletedRows } = this.state;
-	        if(deleted && deleted.length && confirm('Are you sure?')){
-	        	rows = rows.slice();
-		        deleted.forEach((rowId) => {
-		          const index = rows.findIndex(row => row[this.props.keyField] === rowId);
-		          if (index > -1) {
-		        	  if(rowId>0){
-		        		  deletedRows.push(Object.assign({},rows[index]));
-		        	  }
-		              rows.splice(index, 1);
-		          }
-		        });
-		        this.setState({ rows, deletingRows: [], deletedRows });
-	        }
-	    };
-	    this.changeAddedRows = addedRows => {
-	    	var newRecord = Object.assign({}, this.props.newRecord||{});
-	    	var pk=this.state.pk4insert;
-	    	--pk;
-	    	newRecord[this.props.keyField]=pk;
-	    	this.setState({pk4insert:pk,
-	    		addedRows: addedRows.map(row => (Object.keys(row).length ? row : newRecord)),
-	        });
-	    }
-	    this.deleteRows = () =>{
-	        const rows = this.state.rows.slice();
-	        this.state.deletingRows.forEach((rowId) => {
-	          const index = rows.findIndex(row => row.id === rowId);
-	          if (index > -1) {
-	            rows.splice(index, 1);
-	          }
-	        });
-	        this.setState({ rows, deletingRows: [] });
-		};
-	    
+		/**
+		 * used to get values of the grid
+		 */
+	    this.getValues = () => {
+			let {rows,addedRows,deletedRows, editingRowIds, selection} = this.state;
+			rows = rows.slice();
+			selection.forEach((rowId) => {
+				if(rowId>0){
+					const index = rows.findIndex(row => row[this.props.keyField] === rowId);
+					if (index > -1){
+						addedRows.push(Object.assign({},rows[index]));
+					}
+				}
+			});
+			var searchFormData = this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id));
+			return {searchFormData, inserted:addedRows, deleted:deletedRows, _state: this.state};
+		}
 	    if(props.parentCt && props.parentCt.egrids)props.parentCt.egrids[props.gridId]=this;
 	    if(this.props.searchForm){//hidden:!!this.props.grid.globalSearch
 	    	this.searchForm = _(Nav, {style:{}},_('div',{className:'hr-text'},_('h6',null,'Arama Kriterleri'))
 		    	,_('div',{style:{zoom:'.9'}},_(this.props.searchForm,{parentCt:this}),_('div',{className:'form-group',style:{paddingTop:10}},_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(!0);} },"ARA")))
 	    	);
 		}
+		/**
+		 * @param {Boolean} force 
+		 */
 		this.loadData = force =>{
 			const queryString = this.props._url;
 			const t_props=this.props;
 			this.setState({loading: true});
-			iwb.request({url:queryString, self:this, params:this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id)), successCallback:function(result, cfg){
-				var state={
-					rows: result.data,
-					totalCount: result.total_count,
-					loading: false,
+			iwb.request({
+				url:queryString,
+				self:this,
+				params:this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id)),
+				successCallback:(result, cfg)=>{
+					var state={
+						rows: result.data,
+						totalCount: result.total_count,
+						loading: false,
 					};
-				if(true || t_props.multiselect){
-					state.editingRowIds=state.rows.map((row) => row[t_props.keyField])
-				}
-				cfg.self.setState(state);
-			},errorCallback:function(error,cfg){
-				cfg.self.setState({
-					rows: [],
-					totalCount: 0,
-					loading: false,
+					if(true || t_props.multiselect){
+						state.editingRowIds=state.rows.map((row) => row[t_props.keyField])
+					}
+					cfg.self.setState(state);
+				},
+				errorCallback:(error,cfg)=>{
+					cfg.self.setState({
+						rows: [],
+						totalCount: 0,
+						loading: false,
 					});
-				}});
+				}
+			});
 			this.lastQuery = queryString;
 	    }
 		this.EditCell = (xprops)=>{
@@ -1247,11 +1379,11 @@ class XEditGridSF extends GridCommon {
 			if(editor.$){cmp = editor.$; delete editor.$;}
 			return _('td',{style:{verticalAlign: 'middle',padding: 1}}, _(cmp,editor))
 		}
-	  }
-	  componentDidMount() { if(!this.dontRefresh)this.loadData();}
-	  componentDidUpdate() {if(this.props.editable && this.props.viewMode!=this.state.viewMode){ this.setState({viewMode:this.props.viewMode}); }}
-	  componentWillUnmount(){ iwb.grids[this.props.id]=Object.assign({},this.state); }
-	  render() {
+	}
+	componentDidMount() { if(!this.dontRefresh)this.loadData();}
+	componentDidUpdate() {if(this.props.editable && this.props.viewMode!=this.state.viewMode){ this.setState({viewMode:this.props.viewMode}); }}
+	componentWillUnmount(){ iwb.grids[this.props.id]=Object.assign({},this.state); }
+	render() {
 		if(iwb.debug)console.log('XEditGrid:render')
 		const {
 			viewMode, rows, columns, tableColumnExtensions, sorting,pageSize,
@@ -1274,7 +1406,12 @@ class XEditGridSF extends GridCommon {
 			onCurrentPageChange,
 			onPageSizeChange,
 			onColumnWidthsChange,
-			onOrderChange
+			onOrderChange,
+			onEditingRowIdsChange,
+			onAddedRowsChange,
+			onRowChangesChange,
+			onSelectionChange,
+			onCommitChanges
 		} = this;
 	    		
 		var g = _(_dxgrb.Grid, { 
@@ -1285,7 +1422,7 @@ class XEditGridSF extends GridCommon {
 			
 			multiselect && _(_dxrg.SelectionState,{
 				selection, 
-				onSelectionChange:this.changeSelection
+				onSelectionChange
 				}),
 	    		_(_dxrg.SearchState, null),
 			!_disableSearchPanel		 	?_(_dxrg.IntegratedFiltering, null)	: null, //was used for panel search(@dependency)
@@ -1306,12 +1443,12 @@ class XEditGridSF extends GridCommon {
 					addedRows,
 					rowChanges,
 					editingRowIds,
-					onEditingRowIdsChange		: this.changeEditingRowIds,
-					onRowChangesChange			: this.changeRowChanges,
+					onEditingRowIdsChange,
+					onRowChangesChange,
 					columnExtensions			: tableColumnExtensions,
-					onAddedRowsChange			: this.changeAddedRows,
-					onCommitChanges				: this.commitChanges
-			    		}),
+					onAddedRowsChange,
+					onCommitChanges,
+				}),
 		    			
 				_(_dxgrb.DragDropProvider,null),
 			_(_dxgrb.Table, {
@@ -1351,15 +1488,13 @@ class XEditGridSF extends GridCommon {
 			!_disableIntegratedGrouping 		? _(_dxgrb.GroupingPanel,{showSortingControls:true})						: null,
 			);
 		    
-		    var footer = _(ModalFooter, null,
-		    		_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ this.commitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "Save")
-		    		,' '
-		    		,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "Cancel")
-            );
+		var footer = _(ModalFooter, null,
+				_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ this.onCommitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "Save")
+				,' '
+				,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "Cancel")
+		);
 		    
-		return !this.searchForm ? g:_('div',{
-			className:'tab-grid mb-4'
-		},[
+		return !this.searchForm ? g:_('div',{ className:'tab-grid mb-4'},[
 			_('nav',{
 				id:'sf-'+this.props.id,
 				key: 'sf-'+this.props.id
@@ -1369,13 +1504,17 @@ class XEditGridSF extends GridCommon {
 				key:'inbox'
 				}, g, footer)
 		    ])
-		  }
+	}
 }
 /**
  * @description
  * {name, children, predicate, position}
  * used to extend template of the grid!
  * @param { object } param0 
+ * @param { string } param0.name - to find tample name 
+ * @param { Symbol } param0.children - React.Component 
+ * @param { Function } param0.predicate - is a function to deside where to render
+ * @param { String } param0.position - ['before','after','',null] used to render before, after or override
  * @example
  * overloading template example located in XEditGrid render
  */	
@@ -1398,13 +1537,17 @@ const extendGrid = ({ name, children, predicate, position }) => {
  * @description
  * {text,callback}
  * used for making popup dialog
- * @param {object} obj
+ * @param {object} param0
+ * @param {object} param0.text - body of the mesasge
+ * @param {object} param0.title - title of the modal
+ * @param {function} param0.callback - callback function
+ * @return {boolean} - retur true or false to the call back
  * @example 
  * yesNoDialog({ text:"Are you Sure!", callback:(success)=>{ logic here }});
  */	
-yesNoDialog = ({text,callback}) => {
+yesNoDialog = ({text,callback,title}) => {
 	iwb.showModal({
-		title	:text,
+		title	: title,
 		footer	:_(ModalFooter, null,
 			_(Button, { 
 				className:'btn-form',
@@ -1493,9 +1636,10 @@ class XEditGrid extends GridCommon {
 				pkInsert:0
 		    };
 	    }
-		//methods 
-		this.changeEditingRowIds 	= editingRowIds => this.setState({ editingRowIds });
-		this.changeRowChanges 		= rowChanges 	=> this.setState({ rowChanges });
+		//methods
+		/**
+		 * used to get values of the grid
+		 */ 
 	    this.getValues 				= () 			=> {
 			let {rows,addedRows,deletedRows, editingRowIds} = this.state;
 			rows = rows.slice();
@@ -1508,47 +1652,7 @@ class XEditGrid extends GridCommon {
 			});
 			return {inserted:addedRows, deleted:deletedRows, changed: changedRows};
 		}
-	    this.commitChanges 			= ({ deleted }) => {
-	        let { rows, deletedRows } = this.state;
-	        if(deleted && deleted.length){
-				yesNoDialog({
-					text:"Are you Sure!",
-					callback:(success)=>{
-						if(success){
-	        	rows = rows.slice();
-		        deleted.forEach((rowId) => {
-		          const index = rows.findIndex(row => row[this.props.keyField] === rowId);
-		          if (index > -1) {
-		        	  if(rowId>0){
-		        		  deletedRows.push(Object.assign({},rows[index]));
-		        	  }
-		              rows.splice(index, 1);
-		          }
-		        });
-		        this.setState({ rows, deletingRows: [], deletedRows });
-	        }
-	    }
-				})
-	        }
-	    }
-	    this.changeAddedRows 		= addedRows 	=> {
-	    	var newRecord = Object.assign({}, this.props.newRecord||{});
-	    	var pk=this.state.pk4insert;
-	    	--pk;
-	    	newRecord[this.props.keyField]=pk;
-	    	this.setState({
-				pk4insert:pk,
-	    		addedRows: addedRows.map(row => (Object.keys(row).length ? row : newRecord)),
-	        });
-	    }
-	    this.deleteRows 			= () 			=> {
-	        const rows = this.state.rows.slice();
-	        this.state.deletingRows.forEach((rowId) => {
-	          const index = rows.findIndex(row => row.id === rowId);
-	          if (index > -1) {	rows.splice(index, 1); }
-	        });
-	        this.setState({ rows, deletingRows: [] });
-	    }
+	    
 		/**
 		 * bind with parent Element
 		 */
@@ -1634,8 +1738,8 @@ class XEditGrid extends GridCommon {
 			if(!editor)return _(_dxgrb.TableEditRow.Cell, xprops);
 			editor = Object.assign({},editor);
 			if(!xprops.row._new)xprops.row._new={};//Object.assign({},xprops.row);
-			if(!xprops.row._new.hasOwnProperty(xprops.column.name))xprops.row._new[xprops.column.name]=xprops.row[xprops.column.name];
-			delete editor.defaultValue;
+			if(!xprops.row._new.hasOwnProperty(xprops.column.name))
+				xprops.row._new[xprops.column.name]=xprops.row[xprops.column.name];
 			switch(1*editor._control){
 			case	3:case	4://number
 				editor.value=xprops.value;//xprops.row._new[xprops.column.name];
@@ -1668,6 +1772,8 @@ class XEditGrid extends GridCommon {
 				};
 				break;
 			}
+			delete editor.defaultValue;
+			delete editor.defaultChecked
 			var cmp=Input;
 			if(editor.$){cmp = editor.$; delete editor.$;}
 			return _('td',{style:{verticalAlign: 'middle',padding: 1}}, _(cmp,editor))
@@ -1698,7 +1804,11 @@ class XEditGrid extends GridCommon {
 			onColumnWidthsChange,
 			onCurrentPageChange,
 			onOrderChange,
-			onPageSizeChange
+			onPageSizeChange,
+			onEditingRowIdsChange,
+			onAddedRowsChange,
+			onRowChangesChange,
+			onCommitChanges
 		} = this;
 		return _(_dxgrb.Grid,{
 				rows,
@@ -1724,11 +1834,11 @@ class XEditGrid extends GridCommon {
 				addedRows,
 				rowChanges,
 				editingRowIds,
-				onCommitChanges				: this.commitChanges,
+				onCommitChanges,
 				columnExtensions			: tableColumnExtensions,
-				onAddedRowsChange			: this.changeAddedRows,
-				onRowChangesChange			: this.changeRowChanges,
-				onEditingRowIdsChange		: this.changeEditingRowIds, 
+				onAddedRowsChange,
+				onRowChangesChange,
+				onEditingRowIdsChange, 
 			}),
 		    	_(_dxgrb.DragDropProvider,null),
 			_(_dxgrb.Table,{
@@ -1785,13 +1895,36 @@ class XEditGrid extends GridCommon {
 /**
  * @description
  * used for rendering master grid with search form in it
+ * @param {Object} props - props of the grid
+ * @param {Array} props.columns - props of the grid 
+ * @param {string} props.columns[].title - Ui title of the grid 
+ * @param {string} props.columns[].name - column name of the sql tale 
+ * @param {Boolean} props.columns[].sort - is it sortable column? 
+ * @param {Number} props.columns[].width - width of the column 
+ * @param {Function} props.columns[].formatter - a function to make own UI from the backend params (row,cell) 
+ * @param {Object} props.crudFlags - An object to make UI ACL {insert: true, edit: true, remove: true}
+ * @param {Number} props.crudFormId - An Id of the Form
+ * @param {Number} props.crudTableId - SQL table id
+ * @param {Array} props.detailGrids[] - array of detail grids conf
+ * @param {Object} props.detailGrids[].grid - detail grids props
+ * @param {Object} props.detailGrids[].params - master detail connection Master primaty key name {xoffer_id: "offer_id"}
+ * @param {Object} props.detailGrids[].pk - Master detail connection Detail primaty key name {toffer_detail_id: "offer_detail_id"}
+ * @param {Number} props.gridId - Id of the grid
+ * @param {string} props.keyField - PK of the table
+ * @param { Array } props.menuButtons - return array of Objects conf { text, handler, cls, ref }
+ * @param {Number} props.pageSize - Number of rows in grid
+ * @param {Number} props.queryId - Query id of the Grid
+ * @param {String} props._url - ["ajaxQueryData?_renderer=react16&.t=tpi_1531758063549&.w=wpi_1531758063547&_qid=4220&_gid=3376&firstLimit=10"]
+ * @param {Symbol} props.searchForm - Search form is generated from ServerSide 
+ * 
+ * 
  */
 class XMainGrid extends GridCommon {
 	  constructor(props) {
-		    super(props);
+			super(props);
+			console.log(props);
 		    var oldGridState = iwb.grids[props.id];
 			if(iwb.debug)console.log('XMainGrid', props);
-			
 			if(oldGridState){
 		    	this.state = oldGridState;
 		    	this.dontRefresh = true;
@@ -1838,7 +1971,6 @@ class XMainGrid extends GridCommon {
 			    };
 			    props.detailGrids && props.detailGrids.length>1 && props.detailGrids.map(function(a,key){
 			    	if(key<2)state['dg-'+a.grid.gridId] = key<2;
-
 			    });
 			    this.state = state;
 			}
@@ -1939,7 +2071,11 @@ class XMainGrid extends GridCommon {
 					} else return null;
 				}
 			}
-			
+			/**
+			 * @overloading
+			 * @param {Boolean} force - Get up to data data 
+			 * @param {*} params - Params for the request body
+			 */
 			this.loadData = (force, params) => {
 				const queryString = this.queryString();
 				if (!force && queryString === this.lastQuery) { return; }
@@ -2221,7 +2357,7 @@ class XCardMenu  extends React.PureComponent {
 }
 /**
  * @description
- * it is used to list opened pages
+ * it is used to list opened pages on the main page
  */
 class XCardMiniMenu  extends React.PureComponent {
 	render (){

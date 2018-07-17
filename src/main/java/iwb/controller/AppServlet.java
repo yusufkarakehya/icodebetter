@@ -153,31 +153,6 @@ public class AppServlet implements InitializingBean {
 		return getViewAdapter(scd, request, ext3_4);
 	}
 	
-	/*
-	 * @RequestMapping("/xxx") public void hndXXX(HttpServletRequest request,
-	 * HttpServletResponse response) throws ServletException, IOException {
-	 * Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true); Map<String,
-	 * Object> x = engine.backUpDatabaseDP(scd); if(x != null){ // Komut
-	 * çalıştırılıyor final Process process = Runtime.getRuntime().exec(
-	 * "cmd /C start /wait "
-	 * +x.get("backupPath").toString()+File.separator+"command.bat"); try {
-	 * process.waitFor(); } catch (InterruptedException e) { // TODO
-	 * Auto-generated catch block e.printStackTrace(); }
-	 * 
-	 * // Bu işlem de bitti şimdi dosyalar taşınsın for (final File file :
-	 * ((File) x.get("tmpFolder")).listFiles()) { if (!file.isDirectory()) {
-	 * for(W5BackupSetting s : (List<W5BackupSetting>) x.get("settings")){
-	 * if((s.getFilePrefix()+".DMP").compareTo(file.getName()) == 0){
-	 * if(s.getFolder() != null){ Files.move(Paths.get(file.getAbsolutePath()),
-	 * Paths.get(x.get("backupPath").toString()+File.separator+s.getFolder().
-	 * replace("{date}",
-	 * x.get("today").toString())+File.separator+file.getName()),
-	 * StandardCopyOption.REPLACE_EXISTING); }else{
-	 * Files.move(Paths.get(file.getAbsolutePath()),
-	 * Paths.get(x.get("backupPath").toString()+File.separator+file.getName()),
-	 * StandardCopyOption.REPLACE_EXISTING); } } } } } } }
-	 */
-	
 	@RequestMapping("/ajaxChangeActiveProject")
 	public void hndAjaxChangeActiveProject(
 			HttpServletRequest request,
@@ -581,7 +556,7 @@ public class AppServlet implements InitializingBean {
 			scd = UserUtil.getScd(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 		requestParams.put("_remote_ip", request.getRemoteAddr());
-		W5DbFuncResult result = engine.executeDbFunc(scd, 250, requestParams, (short) 4);
+		W5DbFuncResult result = engine.executeFunc(scd, 250, requestParams, (short) 7);
 		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 		String errorMsg = result.getResultMap().get("errorMsg");
 		if (!success)
@@ -615,10 +590,7 @@ public class AppServlet implements InitializingBean {
 		requestParams.put("_mobile", deviceType + "");
 		requestParams.put("customizationId", customizationId + "");
 
-		W5DbFuncResult result = engine.executeDbFunc(new HashMap(), 1077, requestParams, (short) 4); // user
-																										// Authenticate
-																										// SMS
-																										// DbFunc:1077
+		W5DbFuncResult result = engine.executeFunc(new HashMap(), 1077, requestParams, (short) 7); // user Authenticate SMS DbFunc:1077
 		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 		String errorMsg = result.getResultMap().get("errorMsg");
 		boolean expireFlag = GenericUtil.uInt(result.getResultMap().get("expireFlag")) != 0;
@@ -725,7 +697,7 @@ public class AppServlet implements InitializingBean {
 			request.getSession(false).removeAttribute("scd-dev");
 		}
 		;
-		W5DbFuncResult result = engine.executeDbFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
+		W5DbFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
 
 		/*
 		 * 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
@@ -771,8 +743,7 @@ public class AppServlet implements InitializingBean {
 				HashMap<String, Object> user = engine.getUser(customizationId, userId);
 				String messageBody = LocaleMsgCache.get2(customizationId, xlocale, "mobil_onay_kodu") + ": " + c.getSmsCode();
 
-				engine.sendSms(customizationId, userId, user.get("gsm") + "",
-						messageBody, 1197, c.getSmsValidCodeId());
+				engine.sendSms(customizationId, userId, user.get("gsm") + "", messageBody, 1197, c.getSmsValidCodeId());
 				/////////////////////////
 
 				response.getWriter()
@@ -888,22 +859,6 @@ public class AppServlet implements InitializingBean {
 
 	}
 
-	@RequestMapping("/cnvMailPassEncDec")
-	public void hndCnvMailPassEncDec(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndCnvMailPassEncDec");
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-		response.setContentType("application/json");
-		int roleId = (Integer) scd.get("roleId");
-		if (roleId == 0 || roleId == 2 || GenericUtil.uInt(scd.get("administratorFlag")) != 0) {
-			engine.cnvMailPassEncDec(scd, GenericUtil.uInt(request, "_dec") == 0);
-			engine.reloadCache(GenericUtil.uInt(scd.get("customizationId")));
-			response.getWriter().write("{\"success\":true}");
-		} else
-			response.getWriter().write("{\"success\":false}");
-		response.getWriter().close();
-
-	}
 
 	@RequestMapping("/ajaxPostChatMsg")
 	public void hndAjaxPostChatMsg(HttpServletRequest request, HttpServletResponse response)
@@ -993,12 +948,6 @@ public class AppServlet implements InitializingBean {
 			}
 
 		
-		/*
-		 * if(!GenericUtil.isEmpty(formResult.getQueuedPushMessageList())){
-		 * executeQueuedMobilePushMessage eqf = new
-		 * executeQueuedMobilePushMessage(formResult.getQueuedPushMessageList())
-		 * ; taskExecutor.execute(eqf); }
-		 */
 		if (formResult.getErrorMap().isEmpty()){
 			UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
 //			UserUtil.mqSyncAfterPostFormAll(formResult.getScd(), formResult.getListSyncAfterPostHelper());
@@ -1191,11 +1140,18 @@ public class AppServlet implements InitializingBean {
 			dbFuncId = -GenericUtil.uInt(request, "_fid"); // +:dbFuncId,
 															// -:formId
 		}
-		W5DbFuncResult dbFuncResult = engine.executeDbFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
-				(short) 1);
-
+		
 		response.setContentType("application/json");
-		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
+		if(dbFuncId==-1){
+			if((Integer)scd.get("roleId")!=0)
+				throw new IWBException("security","System DbProc", dbFuncId, null, "Only for developers", null);
+			engine.organizeQuery(scd, GenericUtil.uInt(request,("queryId")), (short)GenericUtil.uInt(request,("insertFlag")));
+			response.getWriter().write("{\"success\":true}");
+		} else {
+			W5DbFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1); //request
+			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
+		}
+
 		response.getWriter().close();
 
 	}
@@ -1358,7 +1314,7 @@ public class AppServlet implements InitializingBean {
 				UserUtil.onlineUserLogout((Integer) scd.get("customizationId"), (Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
 				if(scd.containsKey("mobile")){
 					Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", scd.get("mobileDeviceId"));parameterMap.put("pactive_flag", 0);
-					engine.executeDbFunc(scd, 673, parameterMap, (short)4);
+					engine.executeFunc(scd, 673, parameterMap, (short)7);
 				}
 			}
 			session.removeAttribute("scd-dev");
@@ -2580,7 +2536,7 @@ public class AppServlet implements InitializingBean {
 			try {
 				// qt.put(th.getId(), executeDbFunc(scd, dbFuncId, parameterMap,
 				// execRestrictTip));//is bitince, result
-				W5DbFuncResult result = engine.executeDbFunc(queuedDbFunc.getScd(), queuedDbFunc.getDbFuncId(),
+				W5DbFuncResult result = engine.executeFunc(queuedDbFunc.getScd(), queuedDbFunc.getDbFuncId(),
 						queuedDbFunc.getParameterMap(), queuedDbFunc.getExecRestrictTip());// is
 																							// bitince,
 																							// result

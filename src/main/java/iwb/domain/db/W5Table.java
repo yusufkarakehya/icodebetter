@@ -59,6 +59,8 @@ public class W5Table implements java.io.Serializable, W5Base {
 	private String accessPermissionRoles;
 	private String accessPermissionUsers;
 	private String accessPermissionUserFields;
+	
+	private String accessSourceTypes;
 
 	private short makeCommentFlag;
 	private int defaultUpdateFormId;
@@ -609,6 +611,15 @@ public class W5Table implements java.io.Serializable, W5Base {
 
 	public void setTableTip(short tableTip) {
 		this.tableTip = tableTip;
+	}
+
+	@Column(name="access_source_types")
+	public String getAccessSourceTypes() {
+		return accessSourceTypes;
+	}
+
+	public void setAccessSourceTypes(String accessSourceTypes) {
+		this.accessSourceTypes = accessSourceTypes;
 	}
 
 }

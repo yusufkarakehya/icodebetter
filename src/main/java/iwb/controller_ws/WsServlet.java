@@ -121,7 +121,7 @@ public class WsServlet implements InitializingBean {
 					requestParams.put("_remote_ip", request.getRemoteAddr());
 					requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 					String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
-					W5DbFuncResult result = engine.executeDbFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
+					W5DbFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
 					W5DbFuncResult dfr = new W5DbFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
 					List<W5DbFuncParam> arl = new ArrayList();
 					dfr.setDbFunc(new W5DbFunc());dfr.getDbFunc().set_dbFuncParamList(arl);
@@ -199,7 +199,7 @@ public class WsServlet implements InitializingBean {
 							
 							break;
 						case	4://run Rhino
-							response.getWriter().write(soap.serializeDbFunc(wsm, engine.executeDbFunc(scd, wsm.getObjectId(), requestParams, (short)1)).toString());
+							response.getWriter().write(soap.serializeDbFunc(wsm, engine.executeFunc(scd, wsm.getObjectId(), requestParams, (short)1)).toString());
 							response.getWriter().close();
 							break;
 						case	19: //run Query
@@ -279,7 +279,7 @@ public class WsServlet implements InitializingBean {
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
-				W5DbFuncResult result = engine.executeDbFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
+				W5DbFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
 				W5DbFuncResult dfr = new W5DbFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
 				List<W5DbFuncParam> arl = new ArrayList();
 				dfr.setDbFunc(new W5DbFunc());dfr.getDbFunc().set_dbFuncParamList(arl);
@@ -366,7 +366,7 @@ public class WsServlet implements InitializingBean {
 
 						break;
 					case	4://run Rhino
-						response.getWriter().write(ext3_4.serializeDbFunc(engine.executeDbFunc(scd, wsm.getObjectId(), requestParams, (short)1)).toString());
+						response.getWriter().write(ext3_4.serializeDbFunc(engine.executeFunc(scd, wsm.getObjectId(), requestParams, (short)1)).toString());
 						response.getWriter().close();
 						break;
 					case	19: //run Query

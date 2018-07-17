@@ -3945,7 +3945,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	@Override
 	public void executeDbFunc(W5DbFuncResult r, String paramSuffix){
 		String error = null;
-		if(FrameworkCache.getAppSettingIntValue(0, "run_db_func_on_rhino")!=0 && !GenericUtil.isEmpty(r.getDbFunc().getRhinoScriptCode()) && r.getDbFunc().getRhinoScriptCode().charAt(0)=='!'){
+		if(r.getDbFunc().getLkpCodeType()==1){
 			Context cx = Context.enter();
 			String script = null;
 			try {
@@ -3955,7 +3955,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				// a scope object that we use in later calls.
 				Scriptable scope = cx.initStandardObjects();
 
-				script = r.getDbFunc().getRhinoScriptCode().substring(1);
+				script = r.getDbFunc().getRhinoScriptCode();
+				if(script.charAt(0)=='!')script = script.substring(1);
 				// Collect the arguments into a single string.
 				if(script.contains("$iwb.")){
 					ScriptEngine se = new ScriptEngine(r.getScd(), r.getRequestParams(), this, engine);
@@ -4031,7 +4032,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     	StringBuilder sql= new StringBuilder();
    		sql.append("{call ");
    		
-    	sql.append(r.getDbFunc().getProcName());
+    	sql.append(r.getDbFunc().getDsc());
 		boolean hasOutParam=false;
     	if(r.getDbFunc().get_dbFuncParamList().size()>0){
             boolean b = false;
@@ -4114,7 +4115,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					if(s!=null)s.close();
 					r.setSuccess(true);
 					
-					if(r.getDbFunc().getExecRestrictTip()==3){ //report
+				/*	if(r.getDbFunc().getExecRestrictTip()==3){ //report
 						
 						PreparedStatement st = conn.prepareStatement("select row_id, column_id, deger, row_tip, cell_tip, colspan, tag from w_temp_report order by row_id, column_id");
 		            	ResultSet rs = st.executeQuery();
@@ -4127,7 +4128,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		        		
 		    			if(rs!=null)rs.close();
 		    			if(st!=null)st.close();
-					}
+					}*/
 
 					if(FrameworkSetting.hibernateCloseAfterWork)if(conn!=null)conn.close();
 					switch(r.getDbFunc().getDbFuncId()){
@@ -6175,7 +6176,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		
 
 		int dbFuncId = 0;
-		l = executeSQLQuery("select qx.db_func_id from iwb.w5_db_func qx where qx.proc_name = ? and qx.customization_id = ? AND qx.project_uuid=?", fullDbFuncName, customizationId, projectUuid);
+		l = executeSQLQuery("select qx.db_func_id from iwb.w5_db_func qx where qx.dsc = ? and qx.customization_id = ? AND qx.project_uuid=?", fullDbFuncName, customizationId, projectUuid);
 		Map<String, Object> dbFuncParamMap= new HashMap();
 		if(!GenericUtil.isEmpty(l)){
 			dbFuncId = GenericUtil.uInt(l.get(0));
@@ -6189,11 +6190,9 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(dbFuncId==0){
 			dbFuncId = GenericUtil.getGlobalNextval("iwb.seq_db_func");
 			int rq = executeUpdateSQLQuery("insert into iwb.w5_db_func"
-					+ "(db_func_id, dsc, proc_name, insert_user_id, version_user_id, exec_restrict_tip, project_uuid, customization_id)values"
+					+ "(db_func_id, dsc, insert_user_id, version_user_id, project_uuid, customization_id)values"
 					+ "(?         , ?  , ?        , ?             , ?              , ?                , ?           , ?)",
-					dbFuncId, dbFuncName, schema+"."+dbFuncName, userId, userId,  
-					dbFuncName.startsWith("pcrud_") ? 2 : (dbFuncName.startsWith("j_") ? 5 : (dbFuncName.startsWith("i_") ? 3 : 1))
-					,projectUuid, customizationId);
+					dbFuncId, schema+"."+dbFuncName, userId, userId, projectUuid, customizationId);
 			if(vcs)saveObject(new W5VcsObject(scd, 20, dbFuncId));
 		}
 		params = params.toLowerCase(FrameworkSetting.appLocale).substring(1, params.length()-1);
@@ -6461,11 +6460,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			
 			script = sc.toString();
 
-			if(FrameworkSetting.debug)se.console("Start: " + (r.getDbFunc()!=null ? r.getDbFunc().getProcName(): "new"),"iWB-DEBUG","warn");
+			if(FrameworkSetting.debug)se.console("Start: " + (r.getDbFunc()!=null ? r.getDbFunc().getDsc(): "new"),"iWB-DEBUG","warn");
 			long startTm = System.currentTimeMillis(); 
 			cx.evaluateString(scope, script, null, 1, null);
 			r.setProcessTime((int)(System.currentTimeMillis() - startTm));
-			if(FrameworkSetting.debug)se.console("End: " + (r.getDbFunc()!=null ? r.getDbFunc().getProcName(): "new"),"iWB-DEBUG","warn");
+			if(FrameworkSetting.debug)se.console("End: " + (r.getDbFunc()!=null ? r.getDbFunc().getDsc(): "new"),"iWB-DEBUG","warn");
 			/*
 			if(scope.has("errorMsg", scope)){
 				Object em = GenericUtil.rhinoValue(scope.get("errorMsg", scope));

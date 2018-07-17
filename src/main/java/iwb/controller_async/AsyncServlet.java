@@ -32,7 +32,7 @@ public class AsyncServlet {
 //		if(PromisSetting.debug)logger.info("getNotifications - LongPolling");		
 		Map<String, Object> scd = null;
 		try {
-			scd = UserUtil.getScd(request, "scd-dev", false);
+			scd =  GenericUtil.uInt(request,"_preview")!=0 ? UserUtil.getScd4Preview(request, "scd-dev", false):UserUtil.getScd(request, "scd-dev", false);
 		} catch(IWBException e){
 			try {
 				response.getWriter().write(e.toJsonString(null));
