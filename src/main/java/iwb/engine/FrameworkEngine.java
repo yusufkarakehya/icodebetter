@@ -3489,7 +3489,7 @@ public class FrameworkEngine{
 		W5DbFuncResult dbFuncResult = null;
 
 		dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
-		if(GenericUtil.isEmpty(dbFuncResult.getDbFunc().getAccessSourceTypes()) && !GenericUtil.hasPartInside2(dbFuncResult.getDbFunc().getAccessSourceTypes(),accessSourceType))
+		if(!GenericUtil.isEmpty(dbFuncResult.getDbFunc().getAccessSourceTypes()) && !GenericUtil.hasPartInside2(dbFuncResult.getDbFunc().getAccessSourceTypes(),accessSourceType))
 			throw new IWBException("security","GlobalFunc", dbFuncId, null, "Access Source Type Control", null);
 		/*if(execRestrictTip!=4 && checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
 			throw new PromisException("security","DbProc Execute2", dbFuncId, null, "Access Execute Control", null);*/
@@ -3841,7 +3841,7 @@ public class FrameworkEngine{
 		}
 
 		W5DbFuncResult	dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
-		if(GenericUtil.isEmpty(dbFuncResult.getDbFunc().getAccessSourceTypes()) && !GenericUtil.hasPartInside2(dbFuncResult.getDbFunc().getAccessSourceTypes(),1))
+		if(!GenericUtil.isEmpty(dbFuncResult.getDbFunc().getAccessSourceTypes()) && !GenericUtil.hasPartInside2(dbFuncResult.getDbFunc().getAccessSourceTypes(),1))
 			throw new IWBException("security","DbProc", dbFuncId, null, "Access Restrict Type Control", null);
 		if(checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
 			throw new IWBException("security","DbProc Execute3", dbFuncId, null, "Access Execute Control", null);
