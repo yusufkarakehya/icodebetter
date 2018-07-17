@@ -646,7 +646,7 @@ public class PreviewServlet implements InitializingBean {
 			dbFuncId = -GenericUtil.uInt(request, "_fid"); // +:dbFuncId,
 															// -:formId
 		}
-		W5DbFuncResult dbFuncResult = engine.executeDbFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
+		W5DbFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
 				(short) 1);
 
 		response.setContentType("application/json");
@@ -813,7 +813,7 @@ public class PreviewServlet implements InitializingBean {
 				UserUtil.onlineUserLogout((Integer) scd.get("customizationId"), (Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
 				if(scd.containsKey("mobile")){
 					Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", scd.get("mobileDeviceId"));parameterMap.put("pactive_flag", 0);
-					engine.executeDbFunc(scd, 673, parameterMap, (short)4);
+					engine.executeFunc(scd, 673, parameterMap, (short)4);
 				}
 			}
 			session.removeAttribute("scd-dev");
@@ -1682,7 +1682,7 @@ public class PreviewServlet implements InitializingBean {
 			try {
 				// qt.put(th.getId(), executeDbFunc(scd, dbFuncId, parameterMap,
 				// execRestrictTip));//is bitince, result
-				W5DbFuncResult result = engine.executeDbFunc(queuedDbFunc.getScd(), queuedDbFunc.getDbFuncId(),
+				W5DbFuncResult result = engine.executeFunc(queuedDbFunc.getScd(), queuedDbFunc.getDbFuncId(),
 						queuedDbFunc.getParameterMap(), queuedDbFunc.getExecRestrictTip());// is
 																							// bitince,
 																							// result

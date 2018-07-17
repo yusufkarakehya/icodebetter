@@ -28,6 +28,7 @@ public class FrameworkSetting {
 	public static boolean chat=true;
 	public static boolean sms=true;
 	public static boolean mail=true;
+	public static int functionTimeout=5000;
 	public static boolean profilePicture=true;
 	public static boolean allowMultiLogin=true;
 	public static boolean vcs=true;

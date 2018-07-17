@@ -1398,9 +1398,12 @@ class XPage extends React.Component {
 				  this.toggle(action);
 				  return;
 			  }
-	    	
+	    	params=params||{};
+	    	if (typeof _webPageId != 'undefined') {
+				if (!params['.w'])params['.w'] = _webPageId;
+			}
 	    	fetch(url,{
-	    	    body: JSON.stringify(params||{}), // must match 'Content-Type' header
+	    	    body: JSON.stringify(params), // must match 'Content-Type' header
 	    		cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
 	    		credentials: 'same-origin', // include, same-origin, *omit
 	    		headers: {

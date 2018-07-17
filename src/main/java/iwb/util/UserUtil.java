@@ -1550,33 +1550,35 @@ public class UserUtil {
 		if((Integer)scd.get("roleId")!=0){
 			throw new IWBException("security","Only for Developers",0,null, "Only for Developers", null);
 		}
-		String uri = request.getRequestURI();
-		String s = "preview/";
-		int ix = uri.indexOf(s);
-		if(ix>-1){
-			String pid = uri.substring(ix+s.length(), uri.lastIndexOf('/'));
-			if(pid.length()>0){
-				int customizationId = (Integer)scd.get("customizationId");
-				W5Project po = FrameworkCache.wProjects.get(pid);
-				if(po!=null && po.getCustomizationId()==customizationId){
-					if(FrameworkSetting.customizationSystemStatus.get(customizationId)!=0){
-						throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
-					}
-					Map newScd =(Map<String, Object>)session.getAttribute("iwb-"+pid); 
-					if(newScd==null){
-						newScd=new HashMap<String, Object>();
-						newScd.putAll(scd);
-						newScd.put("renderer", 5);
-						newScd.put("_renderer", "react16");
-						newScd.put("mainTemplateId", 2459);
-						session.setAttribute("iwb-"+pid, newScd);
-					}
-					return newScd;
-				}
-
-				
+		String pid = null;
+		if(GenericUtil.uInt(request,"_preview")!=0) {
+			pid = request.getParameter(".p");
+		} else {
+			String uri = request.getRequestURI();
+			String s = "preview/";
+			int ix = uri.indexOf(s);
+			if(ix>-1){
+				pid = uri.substring(ix+s.length(), uri.lastIndexOf('/'));
 			}
-		
+		}
+		if(pid!=null && pid.length()>0){
+			int customizationId = (Integer)scd.get("customizationId");
+			W5Project po = FrameworkCache.wProjects.get(pid);
+			if(po!=null && po.getCustomizationId()==customizationId){
+				if(FrameworkSetting.customizationSystemStatus.get(customizationId)!=0){
+					throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
+				}
+				Map newScd =(Map<String, Object>)session.getAttribute("iwb-"+pid); 
+				if(newScd==null){
+					newScd=new HashMap<String, Object>();
+					newScd.putAll(scd);
+					newScd.put("renderer", 5);
+					newScd.put("_renderer", "react16");
+					newScd.put("mainTemplateId", 2459);
+					session.setAttribute("iwb-"+pid, newScd);
+				}
+				return newScd;
+			}
 		}
 		throw new IWBException("security","Temporary SCD Not Defined",0,null, "Temporary SCD Not Defined", null);
 	}

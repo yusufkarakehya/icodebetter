@@ -23,11 +23,20 @@ public class W5DbFunc implements java.io.Serializable {
 
 	private int dbFuncId;
 
-	private String procName;
+	private String dsc;
 	
 	private short logLevelTip;
-	private short execRestrictTip; //0:kisitlama yok, 1:var
 	private String rhinoScriptCode;
+	
+	private short accessExecTip;
+	private String accessExecRoles;
+	private String accessExecUsers;
+	
+	private String accessSourceTypes;
+	private int timeout;
+	private short lkpCodeType;
+
+	
 	private List<W5DbFuncParam> _dbFuncParamList;
 
 	
@@ -54,13 +63,13 @@ public class W5DbFunc implements java.io.Serializable {
 	}
 
 
-	@Column(name="proc_name")
-	public String getProcName() {
-		return this.procName;
+	@Column(name="dsc")
+	public String getDsc() {
+		return this.dsc;
 	}
 
-	public void setProcName(String procName) {
-		this.procName = procName;
+	public void setDsc(String dsc) {
+		this.dsc = dsc;
 	}
 	
 	@Transient
@@ -72,17 +81,6 @@ public class W5DbFunc implements java.io.Serializable {
 		_dbFuncParamList = dbFuncParamList;
 	}
 
-	@Column(name="exec_restrict_tip")
-	public short getExecRestrictTip() {
-		return execRestrictTip;
-	}
-
-	public void setExecRestrictTip(short execRestrictTip) {
-		this.execRestrictTip = execRestrictTip;
-	}
-
-
-
 	@Column(name="rhino_script_code")
 	public String getRhinoScriptCode() {
 		return rhinoScriptCode;
@@ -90,6 +88,61 @@ public class W5DbFunc implements java.io.Serializable {
 
 	public void setRhinoScriptCode(String rhinoScriptCode) {
 		this.rhinoScriptCode = rhinoScriptCode;
+	}	
+	
+
+	@Column(name="access_source_types")
+	public String getAccessSourceTypes() {
+		return accessSourceTypes;
+	}
+
+	public void setAccessSourceTypes(String accessSourceTypes) {
+		this.accessSourceTypes = accessSourceTypes;
+	}
+
+	@Column(name="access_exec_tip")
+	public short getAccessExecTip() {
+		return accessExecTip;
+	}
+
+	public void setAccessExecTip(short accessExecTip) {
+		this.accessExecTip = accessExecTip;
+	}
+
+	@Column(name="access_exec_roles")
+	public String getAccessExecRoles() {
+		return accessExecRoles;
+	}
+
+	public void setAccessExecRoles(String accessExecRoles) {
+		this.accessExecRoles = accessExecRoles;
+	}
+
+	@Column(name="access_exec_users")
+	public String getAccessExecUsers() {
+		return accessExecUsers;
+	}
+
+	public void setAccessExecUsers(String accessExecUsers) {
+		this.accessExecUsers = accessExecUsers;
+	}
+
+	@Column(name="timeout")
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
+	@Column(name="lkp_code_type")
+	public short getLkpCodeType() {
+		return lkpCodeType;
+	}
+
+	public void setLkpCodeType(short lkpCodeType) {
+		this.lkpCodeType = lkpCodeType;
 	}	
 	
 	

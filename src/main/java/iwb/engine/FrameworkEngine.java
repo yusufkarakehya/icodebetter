@@ -1748,7 +1748,7 @@ public class FrameworkEngine{
 			Map<String, String> mz = new HashMap();
 			mz.put("ptable_id", ""+t.getTableId());
 			mz.put("ptable_pk", ptablePk);
-			W5DbFuncResult dfr = executeDbFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
+//			W5DbFuncResult dfr = executeFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
 			if(ptablePk!=null && appRecord==null){
 				if(t.getTableId()==44 &&  FrameworkCache.getAppSettingIntValue(scd, "delete_file_attachment_real_flag")!=0){ // file attachment ise
 					List l = dao.executeSQLQuery("select x.SYSTEM_FILE_NAME from iwb.w5_file_attachment x where x.customization_id=? AND x.file_attachment_id=?", scd.get("customizationId"), ptablePk);
@@ -3381,9 +3381,6 @@ public class FrameworkEngine{
 						}
 					}
 					break;
-				case	9: //gantt
-
-					break;
 				case	7: //list view
 					W5ListViewResult listViewResult = dao.getListViewResult(scd, o.getObjectId(), requestParams, objectCount!=0);
 					if(o.getObjectTip()<0)listViewResult.setListId(-listViewResult.getListId());
@@ -3418,7 +3415,7 @@ public class FrameworkEngine{
 					obz = executeQuery(scd, o.getObjectId(), paramMap);
 					break;
 				case	5://dbFunc
-					obz = executeDbFunc(scd, o.getObjectId(), requestParams, (short)1);
+					obz = executeFunc(scd, o.getObjectId(), requestParams, (short)1);
 					break;
 				case	12://graph dashboard
 					obz = dao.getCustomizedObject("from W5BIGraphDashboard t where t.graphDashboardId=? AND t.customizationId=?", o.getObjectId(), o.getCustomizationId(),"GraphDashBoardID");
@@ -3433,75 +3430,38 @@ public class FrameworkEngine{
 				objectCount++;
 			}
 
-
-			if(requestParams.get("table_id")!=null && requestParams.get("table_id")!=null && templateId==714){ //Resimleri gostermek icin.
-
-				String tempHtml="<div id=\"content\">";
-				List<W5FileAttachment> fal= dao.getRecordPictures(scd,GenericUtil.uInt(requestParams.get("table_id")),requestParams.get("table_pk"));
-				for (W5FileAttachment fa :fal ){
-					 String fileUrl="sf/"+ fa.getSystemFileName()+"?_fai="+fa.getFileAttachmentId();;
-					 tempHtml+="<div class=\"thumbnail\"> <a href=\""+fileUrl+ "\"  class=\"lb-flower\" title=\""+ fa.getOrijinalFileName()+"\"   > <img src=\" ";
-					 tempHtml+= fileUrl;
-					 tempHtml+="\" alt=\"Pansy\" width=\"120 height=\"72\" ></a></div>";
-				}
-				if(fal.size()==0) tempHtml+="<h1>Picture Not Found</h1>";
-				tempHtml+="</div>";
-				W5Template originalTemplate = (W5Template)dao.getCustomizedObject("from W5Template t where t.templateId=? and t.customizationId=?", templateResult.getTemplateId(), 0,"TemplateID"); // ozel bir client icin varsa
-				String tempCode=originalTemplate.getCode();
-				templateResult.getTemplate().setCode(tempCode.replace("$temp_html",tempHtml ));
-			}
 		}
 		return templateResult;
 	}
-
-	public W5DbFuncResult executeDbFunc(Map<String, Object> scd, int dbFuncId,
-			Map<String, String> parameterMap, short execRestrictTip) {
-
-		W5DbFuncResult dbFuncResult = null;
-		switch(dbFuncId){
-		case	-631://SMS
-		case	-650://Mail
-			Object tk =null;
-			String result="";
-			if(!parameterMap.containsKey("pold_mail_id")){
-				tk = parameterMap.get("_tablePk")==null ? (Object)parameterMap.get("ptable_pk") : (Object)parameterMap.get("_tablePk"); //TODO
-				parameterMap.put("_tablePk", tk.toString());parameterMap.put("ptable_pk", String.valueOf(tk));
-				tk = parameterMap.get("_tableId")==null ? (Object)parameterMap.get("ptable_id") : (Object)parameterMap.get("_tableId");
-				parameterMap.put("_tableId", tk.toString());parameterMap.put("ptable_id", tk.toString());
-			}
-
-			if(dbFuncId==-631){//sms
-				if(FrameworkCache.getAppSettingIntValue(scd, "sms_flag")!=0 && !GenericUtil.isEmpty(parameterMap.get("phone")))
-					sendSms(GenericUtil.uInt(scd.get("customizationId")),GenericUtil.uInt(scd.get("userId")), parameterMap.get("phone"),parameterMap.get("body"), (parameterMap.get("_tablePk")==null ? GenericUtil.uInt(parameterMap.get("ptable_id")) : GenericUtil.uInt(parameterMap.get("_tableId"))), (parameterMap.get("_tablePk")==null ? GenericUtil.uInt(parameterMap.get("ptable_pk")) : GenericUtil.uInt(parameterMap.get("_tablePk"))));
-			} else if(FrameworkCache.getAppSettingIntValue(scd, "mail_flag")!=0){//mail
-				List<W5FileAttachment> fileAttachments = null;
-				String fas = parameterMap.get("pfile_attachment_ids");
-				if(fas!=null && fas.length()>0){
-					String[] q = fas.split(",");
-					if(q.length>0){
-						parameterMap.put("pfile_attachment_ids", fas);
-						Object[] ps = new Object[q.length+1];
-						String sql = "from W5FileAttachment t where t.customizationId=? and  t.fileAttachmentId in (";
-						int i = 1;
-						ps[0]=scd.get("customizationId");
-						for(String s:q){
-							ps[i++] = GenericUtil.uInt(s);
-							sql+="?,";
-						}
-						fileAttachments = dao.find(sql.substring(0,sql.length()-1)+")", ps);
-					}
+	
+	public void sendMail(Map<String, Object> scd, String mailTo, String mailCc, String mailBcc, String subject, String body, String fileIds) {
+/*		List<W5FileAttachment> fileAttachments = null;
+		String fas = parameterMap.get("pfile_attachment_ids");
+		if(fas!=null && fas.length()>0){
+			String[] q = fas.split(",");
+			if(q.length>0){
+				parameterMap.put("pfile_attachment_ids", fas);
+				Object[] ps = new Object[q.length+1];
+				String sql = "from W5FileAttachment t where t.customizationId=? and  t.fileAttachmentId in (";
+				int i = 1;
+				ps[0]=scd.get("customizationId");
+				for(String s:q){
+					ps[i++] = GenericUtil.uInt(s);
+					sql+="?,";
 				}
-				W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.find("from W5ObjectMailSetting t where t.customizationId=? and t.mailSettingId=?", (Integer)scd.get("customizationId"),GenericUtil.uInt((Object)parameterMap.get("pmail_setting_id"))).get(0);
-
-				if(oms!=null){
-					W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
-					result = mailAdapter.sendMail(scd, oms, email);
-					if(result!=null){ //basarisiz, queue'ye at
-						parameterMap.put("perror_msg", result);
-					}
-				}
+				fileAttachments = dao.find(sql.substring(0,sql.length()-1)+")", ps);
 			}
-			if(FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && result==null)try{
+		}
+		W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.find("from W5ObjectMailSetting t where t.customizationId=? and t.mailSettingId=?", (Integer)scd.get("customizationId"),GenericUtil.uInt((Object)parameterMap.get("pmail_setting_id"))).get(0);
+
+		if(oms!=null){
+			W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
+			result = mailAdapter.sendMail(scd, oms, email);
+			if(result!=null){ //basarisiz, queue'ye at
+				parameterMap.put("perror_msg", result);
+			}
+		} 
+		if(FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && result==null)try{
 				W5Feed feed = new W5Feed(scd);
 				feed.setFeedTip((short)(dbFuncId==-631 ? 22:21)); //sms:mail
 				feed.setTableId(GenericUtil.uInt(parameterMap.get("_tableId")));feed.setTablePk(GenericUtil.uInt(parameterMap.get("_tablePk")));
@@ -3520,207 +3480,40 @@ public class FrameworkEngine{
 				saveObject(feed);
 				FrameworkCache.addFeed(scd, feed, true);
 			} catch(Exception e){}
-		default:
-			dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
-			if(!FrameworkCache.roleAccessControl(scd, 0)){
-				throw new IWBException("security","Module", dbFuncId, null, "Role Access DbFunc Control", null);
+		*
+		*/
+	}
+
+	public W5DbFuncResult executeFunc(Map<String, Object> scd, int dbFuncId, Map<String, String> parameterMap, short accessSourceType) {
+
+		W5DbFuncResult dbFuncResult = null;
+
+		dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
+		if(GenericUtil.isEmpty(dbFuncResult.getDbFunc().getAccessSourceTypes()) && !GenericUtil.hasPartInside2(dbFuncResult.getDbFunc().getAccessSourceTypes(),accessSourceType))
+			throw new IWBException("security","GlobalFunc", dbFuncId, null, "Access Source Type Control", null);
+		/*if(execRestrictTip!=4 && checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
+			throw new PromisException("security","DbProc Execute2", dbFuncId, null, "Access Execute Control", null);*/
+
+		dbFuncResult.setErrorMap(new HashMap());
+		dbFuncResult.setRequestParams(parameterMap);
+		DbFuncTrigger.beforeExecDbFunc(dbFuncResult);
+
+		dao.executeDbFunc(dbFuncResult, "");
+
+		if(dbFuncResult.getErrorMap().isEmpty()){ //sorun yok
+			//post sms
+			if(!GenericUtil.isEmpty(dbFuncResult.getResultMap()))parameterMap.putAll(dbFuncResult.getResultMap()); // veli TODO acaba hata olabilir mi? baska bir map'e mi atsak sadece burasi icin?
+
+
+
+		}
+		DbFuncTrigger.afterExecDbFunc(dbFuncResult);
+		
+		switch(dbFuncId){
+		case	-478://reload locale msg cache
+			for(Object[] m : (List<Object[]>)dao.executeSQLQuery("select locale, locale_msg_key, dsc from iwb.w5_locale_msg where locale_msg_key=? AND customization_id=?",parameterMap.get("plocale_msg_key"), scd.get("customizationId"))){
+				LocaleMsgCache.set2((Integer)scd.get("customizationId"),(String)m[0], (String)m[1], (String)m[2]);
 			}
-			if(execRestrictTip!=dbFuncResult.getDbFunc().getExecRestrictTip())
-				throw new IWBException("security","DbProc", dbFuncId, null, "Access Restrict Type Control", null);
-			/*if(execRestrictTip!=4 && checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
-				throw new PromisException("security","DbProc Execute2", dbFuncId, null, "Access Execute Control", null);*/
-
-			dbFuncResult.setErrorMap(new HashMap());
-			dbFuncResult.setRequestParams(parameterMap);
-			DbFuncTrigger.beforeExecDbFunc(dbFuncResult);
-
-			if(dbFuncId==-1){
-				if((Integer)scd.get("roleId")!=0)
-					throw new IWBException("security","System DbProc", dbFuncId, null, "Only for developers", null);
-				dao.organizeQueryFields(scd, GenericUtil.uInt(parameterMap.get("queryId")), (short)GenericUtil.uInt(parameterMap.get("insertFlag")));
-				dbFuncResult.setSuccess(true);
-				dbFuncResult.setRequestParams(new HashMap());
-			} else
-				dao.executeDbFunc(dbFuncResult, "");
-			if(dbFuncResult.getErrorMap().isEmpty()){ //sorun yok
-				if(dbFuncId==-961){//table extended field ekleme
-					FrameworkCache.reloadCacheQueue.put("6-"+scd.get("customizationId"), System.currentTimeMillis());
-				}
-				//post sms
-				if(!GenericUtil.isEmpty(dbFuncResult.getResultMap()))parameterMap.putAll(dbFuncResult.getResultMap()); // veli TODO acaba hata olabilir mi? baska bir map'e mi atsak sadece burasi icin?
-
-
-				/*if(PromisCache.getAppSettingIntValue(dbFuncResult.getScd(), "bpm_flag")!=0){
-					//bpm:start action
-					if(dbFuncResult.getResultMap()!=null && !dbFuncResult.getResultMap().isEmpty())parameterMap.putAll(dbFuncResult.getResultMap());
-
-					int nextBpmActionId = dao.bpmControl(scd, parameterMap, dbFuncResult.getDbFunc().get_listBpmStartAction(), dbFuncResult.getDbFunc().get_listBpmEndAction(), 11, 0, 0, true);
-					if (nextBpmActionId>-1)dbFuncResult.setNextBpmActions(dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", nextBpmActionId));
-
-					/*
-					if(dbFuncResult.getDbFunc().get_listBpmStartAction()!=null)for(BpmAction ba:dbFuncResult.getDbFunc().get_listBpmStartAction())if(ba.getStartActionSql()!=null && ba.get_listRelatedProcessStep()!=null){//crud veya action=ilglili action
-						for(BpmProcessStep bps:ba.get_listRelatedProcessStep()){//her bir process step icin
-							int tablePk = 0, action=11;
-							boolean finishFlow = false;
-							Map m = dao.runSQLQuery2Map(ba.getStartActionSql(), scd, parameterMap, bps.get_stepParamMap());
-							if(m!=null){
-								if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;
-								if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0)finishFlow = true;
-								if(m.get("action")!=null)action=PromisUtil.uInt(m.get("action"));
-								tablePk = PromisUtil.uInt(m.get("table_pk"));
-								if(tablePk==0)continue;
-							}
-
-							int processId = bps.getProcessId();
-							int processStepId = bps.getProcessStepId();
-							int flowProcessId = 0;
-							if(bps.get_firstStepFlag()!=0){//ilk kayit yapilacak
-								BpmFlowProcess bfp = new BpmFlowProcess(scd);
-								bfp.setProcessId(processId);
-								bfp.setStartTableId(bps.get_action().getRelatedTableId());
-								bfp.setStartTablePk(tablePk);
-								bfp.setStatus(finishFlow ? (short)11 : (short)1);//active
-								bfp.setAssignedUserId((Integer)scd.get("userId"));
-								dao.saveObject(bfp);
-								BpmFlowProcessStep bfps = new BpmFlowProcessStep(bfp);
-								bfps.setProcessStepId(processStepId);
-								bfps.setActionId(ba.getActionId());
-								bfps.setTableId(bps.get_action().getRelatedTableId());
-								bfps.setTablePk(tablePk);//bu nedir
-								bfps.setCrudAction((short)action);
-								switch(ba.getEndActionTip()){
-								case	1://manual
-									bfps.setStatus((short)1);//active: manual finish
-									break;
-								case	2://instant
-									bfps.setStatus((short)11);//finish
-									bfps.setPercentDone((short)100);//active: manual finish
-									break;
-								case	3://table_record_condition
-									break;
-								case	4://exec_db_func
-									break;
-								case	6://finish_after_duration
-									bfps.setStatus((short)2);//active: finish_after_duration
-									break;
-								}
-								dao.saveObject(bfps);
-								dbFuncResult.setNextBpmActions(dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", ba.getActionId()));
-							} else if(ba.get_listLinkCondition()!=null)for(BpmActionLinkCondition balc:ba.get_listLinkCondition()){//bagli oldugu flowu bulmak icin gerekli kod
-								parameterMap.put("_pi", ""+processId);//processId
-								parameterMap.put("_psi", ""+bps.getProcessStepId());//processStepId
-								parameterMap.put("_ai", ""+ba.getActionId());//actionId
-								parameterMap.put("_pai", ""+balc.getParentActionId());//parentActionId
-								m = dao.runSQLQuery2Map(balc.getSqlCode(), scd, parameterMap, null);
-								if(m!=null){
-									flowProcessId = PromisUtil.uInt(m.get("flow_process_id"));
-									BpmFlowProcess bfp=(BpmFlowProcess)dao.getCustomizedObject("from BpmFlowProcess t where t.flowProcessId=? AND t.customizationId=?", flowProcessId, (Integer)scd.get("customizationId"));
-									if(bfp!=null){
-										if(bps.getRelatedStepIds()!=null){//daha onceki kayitlar yapilmis olmali, aksi halde devam edemez
-											String[] stepIds=bps.getRelatedStepIds().split(",");
-//											dao.find("from BpmProcessStep q where q.customizationId=? AND q.processId=", params)
-											//TODO: su su stepler saglanmadigi icin devam edilemez
-										}
-										//flowProcess Update
-										bfp.setVersionUserId((Integer)scd.get("userId"));
-										bfp.setVersionNo(bfp.getVersionNo()+1);
-										bfp.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-										if(finishFlow)bfp.setStatus((short)11);
-										dao.updateObject(bfp);
-										if(ba.getLogOnceFlag()!=0){//tek defa kaydedilecek
-											int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-											if(flowProcessStepId!=0){
-												BpmFlowProcessStep bfps=(BpmFlowProcessStep)dao.getCustomizedObject("from BpmFlowProcessStep t where t.flowProcessStepId=? AND t.customizationId=?", flowProcessStepId, (Integer)scd.get("customizationId"));
-												if(bfps!=null){
-													bfps.setVersionUserId((Integer)scd.get("userId"));
-													bfps.setVersionNo(bfps.getVersionNo()+1);
-													bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-													dao.updateObject(bfps);
-												}
-
-												continue;
-											}
-										}else { //birden fazla defa da kaydedilebilir, aynisindan varsa ilgili kaydi update et
-											int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-											if(flowProcessStepId!=0){ // bir tane var demek ki
-												List<BpmFlowProcessStep> lbfps=(List<BpmFlowProcessStep>)dao.find("from BpmFlowProcessStep t " +
-														"where t.tableId=? AND t.tablePk=? AND t.flowProcessId=? AND t.actionId=? AND t.customizationId=?", bps.get_action().getRelatedTableId(), tablePk, flowProcessId, bps.getActionId(), (Integer)scd.get("customizationId"));
-												if(!lbfps.isEmpty()){
-													BpmFlowProcessStep bfps = lbfps.get(0);
-													bfps.setVersionUserId((Integer)scd.get("userId"));
-													bfps.setVersionNo(bfps.getVersionNo()+1);
-													bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-													dao.updateObject(bfps);
-													continue;
-												}
-											}
-										}
-										if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;//active flag var ve akif degilse
-
-										BpmFlowProcessStep bfps = new BpmFlowProcessStep(scd);
-										bfps.setProcessStepId(processStepId);
-										bfps.setProcessId(processId);
-										bfps.setActionId(ba.getActionId());
-										bfps.setFlowProcessId(flowProcessId);
-										bfps.setTableId(bps.get_action().getRelatedTableId());
-										bfps.setTablePk(tablePk);//bu nedir
-										bfps.setCrudAction((short)action);
-										switch(ba.getEndActionTip()){
-										case	1://manual
-											bfps.setStatus((short)1);//active: manual finish
-											break;
-										case	2://instant
-											bfps.setStatus((short)11);//finish
-											bfps.setPercentDone((short)100);//active: manual finish
-											break;
-										case	3://table_record_condition
-											break;
-										case	4://exec_db_func
-											break;
-										case	6://finish_after_duration
-											bfps.setStatus((short)2);//active: finish_after_duration
-											break;
-										}
-										dao.saveObject(bfps);
-										dbFuncResult.setNextBpmActions(dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", ba.getActionId()));
-									}
-								}
-							}
-						}
-					}
-					//bpm:end action
-					if(dbFuncResult.getDbFunc().get_listBpmEndAction()!=null)for(BpmAction ba:dbFuncResult.getDbFunc().get_listBpmEndAction())if(ba.getEndActionTip()==3){//table crud
-						int percentDone=100;
-						if(ba.getEndActionSql()!=null){
-							Map<String, Object> m =  dao.runSQLQuery2Map(ba.getEndActionSql(), scd, parameterMap, null);
-							if(m!=null){
-								if(m.get("percent_done")!=null)percentDone=PromisUtil.uInt(m.get("percentDone"));
-								if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0){
-									//TODO : bitirmeyle ilgili islemler
-								}
-							}
-						}
-						List<BpmFlowProcessStep> lbfps = dao.find("from BpmFlowProcessStep t where t.percentDone<100 AND t.actionId=? AND t.customizationId=? AND exists(select 1 from BpmFlowProcess p where p.customizationId=t.customizationId AND p.processId=t.processId AND p.status=1)",ba.getActionId(),(Integer)scd.get("customizationId"));
-						for(BpmFlowProcessStep bfps:lbfps){
-							bfps.setVersionUserId((Integer)scd.get("userId"));
-							bfps.setVersionNo(bfps.getVersionNo()+1);
-							bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-							bfps.setPercentDone((short)percentDone);
-							dao.updateObject(bfps);
-						}
-					}
-
-				}*/
-
-			}
-			DbFuncTrigger.afterExecDbFunc(dbFuncResult);
-			switch(dbFuncId){
-			case	-478://reload locale msg cache
-				for(Object[] m : (List<Object[]>)dao.executeSQLQuery("select locale, locale_msg_key, dsc from iwb.w5_locale_msg where locale_msg_key=? AND customization_id=?",parameterMap.get("plocale_msg_key"), scd.get("customizationId"))){
-					LocaleMsgCache.set2((Integer)scd.get("customizationId"),(String)m[0], (String)m[1], (String)m[2]);
-				}
-			}
-
 		}
 		if(dbFuncResult == null) {
 			dbFuncResult = new W5DbFuncResult(dbFuncId);
@@ -3899,7 +3692,7 @@ public class FrameworkEngine{
 			List<W5QueuedDbFuncHelper> queuedDbFuncList = new ArrayList<W5QueuedDbFuncHelper>();
 			int preDbFuncId = GenericUtil.uInt(requestParams.get("_predid"));
 			if(preDbFuncId!=0){
-				W5DbFuncResult dbResult = executeDbFunc(scd, preDbFuncId, requestParams,(short)1);
+				W5DbFuncResult dbResult = executeFunc(scd, preDbFuncId, requestParams,(short)1);
 				if(!dbResult.getErrorMap().isEmpty()){
 					throw new IWBException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
 				}
@@ -3939,7 +3732,7 @@ public class FrameworkEngine{
 			}
 			int postDbFuncId = GenericUtil.uInt(requestParams.get("_postdid"));
 			if(postDbFuncId!=0){
-				W5DbFuncResult dbResult = executeDbFunc(scd, postDbFuncId, requestParams,(short)1);
+				W5DbFuncResult dbResult = executeFunc(scd, postDbFuncId, requestParams,(short)1);
 				if(!dbResult.getErrorMap().isEmpty()){
 					throw new IWBException("validation","PostDbFunc", preDbFuncId, null, "PostDbFunc Validation Error", null);
 				}
@@ -3963,7 +3756,7 @@ public class FrameworkEngine{
 		List<W5QueuedDbFuncHelper> queuedDbFuncList = new ArrayList<W5QueuedDbFuncHelper>();
 		int preDbFuncId = GenericUtil.uInt(requestParams.get("_predid"));
 		if(preDbFuncId!=0){
-			W5DbFuncResult dbResult = executeDbFunc(scd, preDbFuncId, requestParams,(short)1);
+			W5DbFuncResult dbResult = executeFunc(scd, preDbFuncId, requestParams,(short)1);
 			if(!dbResult.getErrorMap().isEmpty()){
 				throw new IWBException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
 			}
@@ -4037,7 +3830,7 @@ public class FrameworkEngine{
 			int dirtyCount, Map<String, String> requestParams, String prefix) {
 		int preDbFuncId = GenericUtil.uInt(requestParams.get("_predid"));
 		if(preDbFuncId!=0){
-			W5DbFuncResult dbResult = executeDbFunc(scd, preDbFuncId, requestParams,(short)1);
+			W5DbFuncResult dbResult = executeFunc(scd, preDbFuncId, requestParams,(short)1);
 			if(!dbResult.getErrorMap().isEmpty()){
 				throw new IWBException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
 			}
@@ -4048,8 +3841,7 @@ public class FrameworkEngine{
 		}
 
 		W5DbFuncResult	dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
-
-		if((short)1!=dbFuncResult.getDbFunc().getExecRestrictTip())
+		if(GenericUtil.isEmpty(dbFuncResult.getDbFunc().getAccessSourceTypes()) && !GenericUtil.hasPartInside2(dbFuncResult.getDbFunc().getAccessSourceTypes(),1))
 			throw new IWBException("security","DbProc", dbFuncId, null, "Access Restrict Type Control", null);
 		if(checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
 			throw new IWBException("security","DbProc Execute3", dbFuncId, null, "Access Execute Control", null);
@@ -4066,155 +3858,9 @@ public class FrameworkEngine{
 			if(!dbFuncResult.getErrorMap().isEmpty()  || !dbFuncResult.isSuccess()){
 					throw new IWBException("validation","DbFunc", -dbFuncId, null, "Detail Grid Validation", null);
 			}
-			/*if(PromisCache.getAppSettingIntValue(scd, "bpm_flag")!=0 && id==1){
-				//bpm:start action
-				if(dbFuncResult.getDbFunc().get_listBpmStartAction()!=null)for(BpmAction ba:dbFuncResult.getDbFunc().get_listBpmStartAction())if(ba.getStartActionSql()!=null && ba.get_listRelatedProcessStep()!=null){//crud veya action=ilglili action
-					for(BpmProcessStep bps:ba.get_listRelatedProcessStep()){//her bir process step icin
-						int tablePk = 0, action=11;
-						Map m = dao.runSQLQuery2Map(ba.getStartActionSql(), scd, requestParams, null);
-						if(m!=null){
-							if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;
-							if(m.get("action")!=null)action=PromisUtil.uInt(m.get("action"));
-							tablePk = PromisUtil.uInt(m.get("table_pk"));
-						}
-						int processId = bps.getProcessId();
-						int processStepId = bps.getProcessStepId();
-						int flowProcessId = 0;
-						if(bps.get_firstStepFlag()!=0){//ilk kayit yapilacak
-							BpmFlowProcess bfp = new BpmFlowProcess(scd);
-							bfp.setProcessId(processId);
-							bfp.setStartTableId(bps.get_action().getRelatedTableId());
-							bfp.setStartTablePk(tablePk);
-							bfp.setStatus((short)1);//active
-							bfp.setAssignedUserId((Integer)scd.get("userId"));
-							dao.saveObject(bfp);
-							BpmFlowProcessStep bfps = new BpmFlowProcessStep(bfp);
-							bfps.setProcessStepId(processStepId);
-							bfps.setActionId(ba.getActionId());
-							bfps.setTableId(bps.get_action().getRelatedTableId());
-							bfps.setTablePk(tablePk);//bu nedir
-							bfps.setCrudAction((short)action);
-							bfps.setPercentDone((short)10);//active: manual finish
-							switch(ba.getEndActionTip()){
-							case	1://manual
-								bfps.setStatus((short)1);//active: manual finish
-								break;
-							case	2://instant
-								bfps.setStatus((short)11);//finish
-								bfps.setPercentDone((short)100);//active: manual finish
-								break;
-							case	3://table_record_condition
-								break;
-							case	4://exec_db_func
-								break;
-							case	6://finish_after_duration
-								bfps.setStatus((short)2);//active: finish_after_duration
-								break;
-							}
-							dao.saveObject(bfps);
-						} else if(ba.get_listLinkCondition()!=null)for(BpmActionLinkCondition balc:ba.get_listLinkCondition()){//bagli oldugu flowu bulmak icin gerekli kod
-							requestParams.put("_pi", ""+processId);//processId
-							requestParams.put("_psi", ""+bps.getProcessStepId());//processStepId
-							requestParams.put("_ai", ""+ba.getActionId());//actionId
-							requestParams.put("_pai", ""+balc.getParentActionId());//parentActionId
-							m = dao.runSQLQuery2Map(balc.getSqlCode(), scd, requestParams, null);
-							if(m!=null){
-								flowProcessId = PromisUtil.uInt(m.get("flow_process_id"));
-								BpmFlowProcess bfp=(BpmFlowProcess)dao.getCustomizedObject("from BpmFlowProcess t where t.flowProcessId=? AND t.customizationId=?", flowProcessId, (Integer)scd.get("customizationId"));
-								if(bfp!=null){
-									//flowProcess Update
-									bfp.setVersionUserId((Integer)scd.get("userId"));
-									bfp.setVersionNo(bfp.getVersionNo()+1);
-									bfp.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-									dao.updateObject(bfp);
-									if(ba.getLogOnceFlag()!=0){//tek defa kaydedilecek
-										int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-										if(flowProcessStepId!=0){
-											BpmFlowProcessStep bfps=(BpmFlowProcessStep)dao.getCustomizedObject("from BpmFlowProcessStep t where t.flowProcessStepId=? AND t.customizationId=?", flowProcessStepId, (Integer)scd.get("customizationId"));
-											if(bfps!=null){
-												bfps.setVersionUserId((Integer)scd.get("userId"));
-												bfps.setVersionNo(bfps.getVersionNo()+1);
-												bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-												dao.updateObject(bfps);
-											}
-
-											continue;
-										}
-									}else { //birden fazla defa da kaydedilebilir, aynisindan varsa ilgili kaydi update et
-										int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-										if(flowProcessStepId!=0){ // bir tane var demek ki
-											List<BpmFlowProcessStep> lbfps=(List<BpmFlowProcessStep>)dao.find("from BpmFlowProcessStep t " +
-													"where t.tableId=? AND t.tablePk=? AND t.flowProcessId=? AND t.actionId=? AND t.customizationId=?", bps.get_action().getRelatedTableId(), tablePk, flowProcessId, bps.getActionId(), (Integer)scd.get("customizationId"));
-											if(!lbfps.isEmpty()){
-												BpmFlowProcessStep bfps = lbfps.get(0);
-												bfps.setVersionUserId((Integer)scd.get("userId"));
-												bfps.setVersionNo(bfps.getVersionNo()+1);
-												bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-												dao.updateObject(bfps);
-												continue;
-											}
-										}
-									}
-									if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;//active flag var ve akif degilse
-
-									BpmFlowProcessStep bfps = new BpmFlowProcessStep(scd);
-									bfps.setProcessStepId(processStepId);
-									bfps.setProcessId(processId);
-									bfps.setActionId(ba.getActionId());
-									bfps.setFlowProcessId(flowProcessId);
-									bfps.setTableId(bps.get_action().getRelatedTableId());
-									bfps.setTablePk(tablePk);//bu nedir
-									bfps.setCrudAction((short)action);
-									bfps.setPercentDone((short)10);//active: manual finish
-									switch(ba.getEndActionTip()){
-									case	1://manual
-										bfps.setStatus((short)1);//active: manual finish
-										break;
-									case	2://instant
-										bfps.setStatus((short)11);//finish
-										bfps.setPercentDone((short)100);//active: manual finish
-										break;
-									case	3://table_record_condition
-										break;
-									case	4://exec_db_func
-										break;
-									case	6://finish_after_duration
-										bfps.setStatus((short)2);//active: finish_after_duration
-										break;
-									}
-									dao.saveObject(bfps);
-								}
-							}
-						}
-					}
-				}
-				//bpm:end action
-				if(dbFuncResult.getDbFunc().get_listBpmEndAction()!=null)for(BpmAction ba:dbFuncResult.getDbFunc().get_listBpmEndAction())if(ba.getEndActionTip()==3){//table crud
-					int percentDone=100;
-					if(ba.getEndActionSql()!=null){
-						Object[] oz = PromisUtil.filterExt4SQL(ba.getEndActionSql(), scd, requestParams, null);
-						Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-						if(m!=null){
-							if(m.get("percent_done")!=null)percentDone=PromisUtil.uInt(m.get("percentDone"));
-							if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0){
-								//TODO : bitirmeyle ilgili islemler
-							}
-						}
-					}
-					List<BpmFlowProcessStep> lbfps = dao.find("from BpmFlowProcessStep t where t.percentDone<100 AND t.actionId=? AND t.customizationId=? AND exists(select 1 from BpmFlowProcess p where p.customizationId=t.customizationId AND p.processId=t.processId AND p.status=1)",ba.getActionId(),(Integer)scd.get("customizationId"));
-					for(BpmFlowProcessStep bfps:lbfps){
-						bfps.setVersionUserId((Integer)scd.get("userId"));
-						bfps.setVersionNo(bfps.getVersionNo()+1);
-						bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-						bfps.setPercentDone((short)percentDone);
-						dao.updateObject(bfps);
-					}
-				}
-			}*/
-	//		if(b && mailAtilacakMi(formResult)){} //basarili ve mail atilacak
+			
 
 		}
-//		 if (!b)throw new NkrException(formResult.getErrorMapForEXTJS());
 
 		 return dbFuncResult;
 	}
@@ -4360,7 +4006,7 @@ public class FrameworkEngine{
 			}
 			break;
 		case	2://dbFunc
-			W5DbFuncResult dbFuncResult = executeDbFunc(scd, o.getObjectId(), requestParams, (short)5);
+			W5DbFuncResult dbFuncResult = executeFunc(scd, o.getObjectId(), requestParams, (short)5);
 			Map<String, String> resultMap=dbFuncResult.getResultMap();
 			if(o.getHtmlFlag()==1){
 				for (Iterator i = resultMap.keySet().iterator(); i.hasNext();) {
@@ -4390,7 +4036,7 @@ public class FrameworkEngine{
 		if(m==null)return null;
 		if(!GenericUtil.isEmpty(mobileDeviceId)){
 			Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", mobileDeviceId);parameterMap.put("pactive_flag", 1);
-			executeDbFunc(m, 673, parameterMap, (short)4);
+			executeFunc(m, 673, parameterMap, (short)4);
 		}
 
 
@@ -4689,7 +4335,7 @@ public class FrameworkEngine{
 					nextStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
 				}
 				if(a.getOnApproveDbFuncId() != 0 && ar.getApprovalStepId() == 998){ // Dinamik Approve onay verildiğinde
-					executeDbFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
+					executeFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
 				}
 				break;
 			}
@@ -4762,14 +4408,14 @@ public class FrameworkEngine{
 			switch(a.getApprovalFlowTip()){
 			case	0://basit onay
 				if(currentStep.getOnApproveDbFuncId()!=0){
-					executeDbFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
+					executeFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
 				}
 
 				if(a.getActionTip()==3){//TODO: delete ise o zaman o kaydi ve bunu sil
 					Map<String, String> mz = new HashMap();
 					mz.put("ptable_id", ""+ar.getTableId());
 					mz.put("ptable_pk", ""+ar.getTablePk());
-					executeDbFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
+					executeFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
 					W5FormResult fr = new W5FormResult(-1);
 					fr.setForm(new W5Form());
 //					fr.getForm().set_sourceTable(PromisCache.getTable(scd, ar.getTableId()));
@@ -4815,7 +4461,7 @@ public class FrameworkEngine{
 							ar.setApprovalRoles(null);
 							ar.setApprovalUsers(uxs.substring(1));
 							if(a.getOnApproveDbFuncId() != 0 && ar.getApprovalStepId() == 998){ // Dinamik Approve onay verildiğinde aşırı yalan bişey ama
-								executeDbFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
+								executeFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
 							}
 						}
 						else
@@ -4904,7 +4550,7 @@ public class FrameworkEngine{
 			}
 
 			if(currentStep != null && currentStep.getOnApproveDbFuncId()!=0){
-				executeDbFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
+				executeFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
 			}
 
 
@@ -4948,7 +4594,7 @@ public class FrameworkEngine{
 			case	2://hierarchical onay
 			}
 			if(currentStep != null && currentStep.getOnReturnDbFuncId()!=0){
-				executeDbFunc(scd, currentStep.getOnReturnDbFuncId(), parameterMap, (short)6);
+				executeFunc(scd, currentStep.getOnReturnDbFuncId(), parameterMap, (short)6);
 			}
 			break;
 		case	3://red
@@ -4975,7 +4621,7 @@ public class FrameworkEngine{
 				currentStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
 			}
 			if(currentStep != null && currentStep.getOnRejectDbFuncId()!=0){
-				executeDbFunc(scd, currentStep.getOnRejectDbFuncId(), parameterMap, (short)6);
+				executeFunc(scd, currentStep.getOnRejectDbFuncId(), parameterMap, (short)6);
 			}
 			isFinished = true;
 			break;
@@ -5777,7 +5423,7 @@ public class FrameworkEngine{
 			if(fsm.getSmsMailTip()!=0 && !GenericUtil.isEmpty(scd.get("mailSettingId"))){
 				mq.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
 			}
-			r = executeDbFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
+			r = executeFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
 		}
 
 		return r;
@@ -6039,13 +5685,13 @@ public class FrameworkEngine{
 				case	0://sms
 //parameterMap.get("phone"),parameterMap.get("body")
 					m.putAll(dao.interprateSmsTemplate(fsm, scd, new HashMap(), a.getTableId(), a.getTablePk()));
-					rdb = executeDbFunc(scd, -631, m, (short)1);
+					rdb = executeFunc(scd, -631, m, (short)1);
 					break;
 				case	1://mail
 //W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
 					m.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
 					m.putAll(dao.interprateMailTemplate(fsm, scd, new HashMap(), a.getTableId(), a.getTablePk()));
-					rdb = executeDbFunc(scd, -650, m, (short)1);
+					rdb = executeFunc(scd, -650, m, (short)1);
 					break;
 				default:
 					break;
@@ -6064,39 +5710,6 @@ public class FrameworkEngine{
 		} else break;
 
 	}
-
-	public void cnvMailPassEncDec(Map<String, Object> scd, boolean encrypt) {
-		if(GenericUtil.uInt(scd.get("administratorFlag"))!=0){
-			List l = dao.executeSQLQuery("select x.mail_setting_id,x.pass_word,x.outbox_server_pass_word,x.customization_id from iwb.w5_object_mail_setting x");
-			if(!GenericUtil.isEmpty(l))for(Object o:l){
-				Object[] oo=(Object[])o;
-				StringBuilder sql = new StringBuilder();
-				sql.append("update iwb.w5_object_mail_setting x set ");
-				List p = new ArrayList();
-				boolean b = false;
-				if(!GenericUtil.isEmpty(oo[1])){
-					p.add(encrypt ? GenericUtil.PRMEncrypt((String)oo[1]) : GenericUtil.PRMDecrypt((String)oo[1]));
-					sql.append("pass_word = ?");
-					b = true;
-				}
-				if(!GenericUtil.isEmpty(oo[2])){
-					p.add(encrypt ? GenericUtil.PRMEncrypt((String)oo[2]) : GenericUtil.PRMDecrypt((String)oo[2]));
-					if(b)sql.append(","); else b = true;
-					sql.append("outbox_server_pass_word = ?");
-				}
-				if(b){
-					sql.append(" where x.mail_setting_id = ? and x.customization_id = ?");
-					p.add(oo[0]);
-					p.add(oo[3]);
-					dao.executeUpdateSQLQuery(sql.toString(), p);
-				}
-			}
-		} else
-			throw new IWBException("security","Administrator", 0, null, "Administrator Privilege Required", null);
-	}
-
-
-
 
 
 	public int getSubDomain2CustomizationId(String subDomain){
@@ -6183,7 +5796,7 @@ public class FrameworkEngine{
 			}
 
 			try{
-				W5DbFuncResult result = executeDbFunc(scd, 2, requestParams, (short)4); // user forgot pass
+				W5DbFuncResult result = executeFunc(scd, 2, requestParams, (short)4); // user forgot pass
 				if(result.isSuccess() && !GenericUtil.isEmpty(result.getResultMap()) && (GenericUtil.uInt(result.getResultMap().get("pout_user_id"))!=0)){
 					res.put("success", "1");
 					//tanımlanmış mail varsa mail-sms gönderiliyor
@@ -6218,12 +5831,12 @@ public class FrameworkEngine{
 
 	public void sendSms(int customizationId,int userId,String phoneNumber, String message, int tableId, int tablePk){
 		Map<String, String> smsMap= new HashMap<String, String>();
-			smsMap.put("customizationId",customizationId+"");
-			smsMap.put("userId", userId+"");
-			smsMap.put("tableId", tableId+"");
-			smsMap.put("tablePk", tablePk+"");
-			smsMap.put("phoneNumber", phoneNumber);
-			smsMap.put("message", message);
+		smsMap.put("customizationId",customizationId+"");
+		smsMap.put("userId", userId+"");
+		smsMap.put("tableId", tableId+"");
+		smsMap.put("tablePk", tablePk+"");
+		smsMap.put("phoneNumber", phoneNumber);
+		smsMap.put("message", message);
 
 		//	messageSender.sendMessage("SEND_SMS","BMPADAPTER", smsMap);
 
@@ -6667,7 +6280,7 @@ public class FrameworkEngine{
 		if(fsm.getSmsMailTip()!=0 && GenericUtil.isEmpty(scd.get("mailSettingId"))){
 			mq.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
 		}
-		r = executeDbFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
+		r = executeFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
 		return r;
 	}
 
@@ -6975,7 +6588,7 @@ public class FrameworkEngine{
                                    scd.put("userRoleId", data.get_userRoleId());
                                    scd.put("roleId", data.getExecuteRoleId());
                                    scd.put("userId", data.getExecuteUserId());
-                                   W5DbFuncResult res=executeDbFunc(scd, data.getActionDbFuncId(), requestParams , (short)1);
+                                   W5DbFuncResult res=executeFunc(scd, data.getActionDbFuncId(), requestParams , (short)1);
                                    if (FrameworkSetting.debug && (res.isSuccess() && !GenericUtil.isEmpty(res.getResultMap()))){
                                           System.out.println("Scheduled function is executed (functionId=" + data.getActionDbFuncId() + ")");
                                    }
@@ -7018,11 +6631,21 @@ public class FrameworkEngine{
 
 	public boolean organizeTable(Map<String, Object> scd, String tableName) {
 		return dao.organizeTable(scd, tableName);
+	}
 
+	public void organizeQuery(Map<String, Object> scd, int queryId, short insertFlag) {
+		dao.organizeQueryFields(scd, queryId, insertFlag);
+		if(FrameworkSetting.preloadWEngine!=0){
+			FrameworkCache.clearPreloadCache();
+		}
 	}
 
 	public boolean organizeDbFunc(Map<String, Object> scd, String dbFuncName) {
-		return dao.organizeDbFunc(scd, dbFuncName);
+		boolean b = dao.organizeDbFunc(scd, dbFuncName);
+		if(FrameworkSetting.preloadWEngine!=0){
+			FrameworkCache.clearPreloadCache();
+		}
+		return b;
 	}
 
 	public int buildForm(Map<String, Object> scd, String parameter) throws JSONException {

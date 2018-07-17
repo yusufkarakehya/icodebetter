@@ -6479,7 +6479,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					} else if (i instanceof W5DbFuncResult) {
 						buf.append("\nvar ")
 								.append(((W5DbFuncResult) i).getDbFunc()
-										.getProcName()).append("=")
+										.getDsc()).append("=")
 								.append(serializeDbFunc((W5DbFuncResult) i))
 								.append("\n");
 					} else if (i instanceof W5QueryResult) {
@@ -6576,7 +6576,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				} else if (i instanceof W5DbFuncResult) {
 					buf2.append("\nvar ")
 							.append(((W5DbFuncResult) i).getDbFunc()
-									.getProcName()).append("=")
+									.getDsc()).append("=")
 							.append(serializeDbFunc((W5DbFuncResult) i))
 							.append(";\n");
 				} else if (i instanceof W5QueryResult) {
