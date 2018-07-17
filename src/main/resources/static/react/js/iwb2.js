@@ -84,6 +84,17 @@ var iwb={
 	debugRender:false,
 	debugConstructor:false,
 	detailPageSize:10,
+	/**
+	 * @description
+	 * used for giving data for grid button
+	 */
+	commandComponentProps: {
+		add: 	{icon: 'plus',	hint: 'Create new row' },
+		edit: 	{icon: 'pencil',hint: 'Edit row',		color: 'text-warning',},
+		delete: {icon: 'trash',	hint: 'Delete row',		color: 'text-danger',},
+		cancel: {icon: 'x',		hint: 'Cancel changes',	color: 'text-danger',},
+		import: {icon: 'target',hint: 'Import'}
+	},
 	logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>',
 	detailSearch:()=>false,
 	fmtShortDate : (x) => {x ? moment(x).format('DD/MM/YYYY') : "";},
@@ -188,7 +199,6 @@ var iwb={
 			function(error){
 				if(cfg.errorCallback && cfg.errorCallback({error:error}, cfg)===false)return;
 				toastr.error(error || 'Unknown ERROR','Request Error');
-	//	    	alert('ERROR! ' + error);
 			}
 		);
 	},
@@ -268,7 +278,7 @@ var iwb={
 			}
 		}
 		items = values.inserted;
-		if(items)for(var bjk=0;bjk<items.length;bjk++){ // inserted
+		if(items)for(var bjk=0;bjk<items.length;bjk++){
 			dirtyCount++;
 			params["a"+prefix+"."+dirtyCount]=2;
 			var changes=items[bjk]._new;
@@ -303,7 +313,7 @@ iwb.ui				= {
 	if(!c.grid.detailGrids)c.grid.detailGrids=c.detailGrids||false;
 	return _(XPage,c);
 }}
-function disabledCheckBoxHtml(row, cell){ //TODO
+function disabledCheckBoxHtml(row, cell){
 //		return _('img',{border:0,src:'../images/custom/'+(f ?'':'un')+'checked.gif'});
 	return row[cell] && 1*row[cell] ? _('i',{className:'fa fa-check', style:{color: 'white',background: '#4dbd74', padding: 5, borderRadius: 25}}) : null;// _('i',{className:'fa fa-check', style:{color: 'white',background: 'red', padding: 5, borderRadius: 25}});
 }
@@ -604,7 +614,7 @@ class GridCommon extends React.PureComponent {
 		 * @param {Array} param0 
 		 * @param {Array} param0.deleted 
 		 */
-		this.commitChanges 			= ({ deleted }) => {
+		this.onCommitChanges 			= ({ deleted }) => {
 	        let { rows, deletedRows } = this.state;
 	        if(deleted && deleted.length){
 				yesNoDialog({
@@ -1151,61 +1161,44 @@ class XGrid extends GridCommon{
 }
 /**
  * @description
- * used for giving data for grid button
+ * a functional Component to return custom grid Button for the grid
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
+ * @param {Object} props.onExecute - a callback function to be executed when button is clicked
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
+ * @param {Object} props - ({onExecute, icon, text, hint, color, row}) 
  */
-const commandComponentProps = {
-	add: {
-		icon: 'plus',
-		hint: 'Create new row',
-	},
-	edit: {
-		icon: 'pencil',
-		hint: 'Edit row',
-		color: 'text-warning',
-	},
-	delete: {
-		icon: 'trash',
-		hint: 'Delete row',
-		color: 'text-danger',
-	},
-	cancel: {
-		icon: 'x',
-		hint: 'Cancel changes',
-		color: 'text-danger',
-	},
-	import: {
-		icon: 'target',
-		hint: 'Import'
+// class CommandButton extends React.PureComponent {
+// 	render(){
+// 		var {onExecute, icon, text, hint, color, row} = this.props;
+// 		return 
+// 	}
+	
+// }
+/**
+ * @description
+ * A functional component to glue button inside grid with its props
+ * @param {Object} props - { id, onExecute } 
+ * @param {Number} props.id - index of the ComponentProps array
+ * @param {Function} props.onExecute - a callback function to be executed when button is clicked  
+ */
+class Command extends React.PureComponent {
+	render(){
+		var { id, onExecute} = this.props;
+		var ComponentProps = iwb.commandComponentProps[id];
+		return ComponentProps ? _("button",{
+			className: "btn btn-link",
+			style: { padding: "11px" },
+			onClick: onExecute,
+			title: ComponentProps.hint
+		},
+			_("span",{ className: ComponentProps.color || 'undefined' },
+			ComponentProps.icon ? _("i", { className: 'oi oi-'+ComponentProps.icon, style: { marginRight: ComponentProps.text ? 5 : 0 } }) : null,
+			ComponentProps.text
+			)
+		) : null
 	}
-};
-/**
- * @description
- * a function to return custom grid Button fot the gris
- * @param {Object} param0 - ({onExecute, icon, text, hint, color, row}) 
- */
-const CommandButton = ({onExecute, icon, text, hint, color, row}) =>{
-	let button =_("button",{className: "btn btn-link",style: { padding: "11px" },
-	    onClick: e => {
-	      onExecute();
-	      e.stopPropagation();
-	    },
-	    title: hint
-	  },
-	  _("span",{ className: color || 'undefined' },
-	    icon ? _("i", { className: 'oi oi-'+icon, style: { marginRight: text ? 5 : 0 } }) : null,
-	    text
-	  )
-	);
-	return button;
-}
-/**
- * @description
- * A function to glue button inside grid with its props
- * @param {{ id, onExecute}} param0 
- */
-const Command = ({ id, onExecute}) => {
-	var c = commandComponentProps[id];
-	return c ? _(CommandButton,Object.assign({},c,{onExecute:onExecute})):null;
 }
 /**
  * @description
@@ -1496,7 +1489,7 @@ class XEditGridSF extends GridCommon {
 			);
 		    
 		var footer = _(ModalFooter, null,
-				_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ onCommitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "Save")
+				_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ this.onCommitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "Save")
 				,' '
 				,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "Cancel")
 		);
@@ -1745,8 +1738,8 @@ class XEditGrid extends GridCommon {
 			if(!editor)return _(_dxgrb.TableEditRow.Cell, xprops);
 			editor = Object.assign({},editor);
 			if(!xprops.row._new)xprops.row._new={};//Object.assign({},xprops.row);
-			if(!xprops.row._new.hasOwnProperty(xprops.column.name))xprops.row._new[xprops.column.name]=xprops.row[xprops.column.name];
-			delete editor.defaultValue;
+			if(!xprops.row._new.hasOwnProperty(xprops.column.name))
+				xprops.row._new[xprops.column.name]=xprops.row[xprops.column.name];
 			switch(1*editor._control){
 			case	3:case	4://number
 				editor.value=xprops.value;//xprops.row._new[xprops.column.name];
@@ -1779,6 +1772,8 @@ class XEditGrid extends GridCommon {
 				};
 				break;
 			}
+			delete editor.defaultValue;
+			delete editor.defaultChecked
 			var cmp=Input;
 			if(editor.$){cmp = editor.$; delete editor.$;}
 			return _('td',{style:{verticalAlign: 'middle',padding: 1}}, _(cmp,editor))
@@ -1903,10 +1898,10 @@ class XEditGrid extends GridCommon {
  */
 class XMainGrid extends GridCommon {
 	  constructor(props) {
-		    super(props);
+			super(props);
+			console.log(props);
 		    var oldGridState = iwb.grids[props.id];
 			if(iwb.debug)console.log('XMainGrid', props);
-			
 			if(oldGridState){
 		    	this.state = oldGridState;
 		    	this.dontRefresh = true;
@@ -1953,7 +1948,6 @@ class XMainGrid extends GridCommon {
 			    };
 			    props.detailGrids && props.detailGrids.length>1 && props.detailGrids.map(function(a,key){
 			    	if(key<2)state['dg-'+a.grid.gridId] = key<2;
-
 			    });
 			    this.state = state;
 			}
