@@ -120,6 +120,7 @@ import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
+import iwb.util.DBUtil;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -384,7 +385,7 @@ public class FrameworkEngine{
 						fcx2.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), fcx2.getFormCell().getInitialValue()));
 					break;
 				case	4://SQL
-					Object[] oz = GenericUtil.filterExt4SQL(fcx2.getFormCell().getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
+					Object[] oz = DBUtil.filterExt4SQL(fcx2.getFormCell().getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
 					if(oz[1]!=null && ((List)oz[1]).size()>0){
 						Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 						if(m!=null && m.size()>0)fcx2.setValue(m.values().iterator().next().toString());
@@ -719,7 +720,7 @@ public class FrameworkEngine{
 					if(formResult!=null)formResult.setViewMode(true);
 				} else {
 					String ads = prefix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessUpdateSql(), prefix).toString() : tableUserTip.getAccessUpdateSql();
-					Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams2, null);
+					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams2, null);
 					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(m!=null){
 						if(m.get("dont_throw")==null)throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
@@ -796,7 +797,7 @@ public class FrameworkEngine{
 					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
 				} else {
 					String ads = prefix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessDeleteSql(), prefix).toString() : tableUserTip.getAccessDeleteSql();
-					Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams2, null);
+					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams2, null);
 					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(m!=null){//TODO: error_msg diye birsey olursa onu bas
 						throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
@@ -887,7 +888,7 @@ public class FrameworkEngine{
 					formResult.setViewMode(true);
 				} else {
 					String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessUpdateSql(), paramSuffix).toString() : tableUserTip.getAccessUpdateSql();
-					Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams, null);
+					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams, null);
 					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(!GenericUtil.isEmpty(m)){
 						if(m.get("dont_throw")==null)throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
@@ -946,7 +947,7 @@ public class FrameworkEngine{
 
 			if(tableUserTip!=null && tableUserTip.getAccessInsertSql()!=null){ // Table user tip access control, prefixi sor
 				String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessInsertSql(), paramSuffix).toString() : tableUserTip.getAccessInsertSql();
-				Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams, null);
+				Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams, null);
 				Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 				if(m != null && m.size() > 0){
 					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),(String)m.get("error_msg")), null);
@@ -972,7 +973,7 @@ public class FrameworkEngine{
 					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
 				} else {
 					String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessDeleteSql(), paramSuffix).toString() : tableUserTip.getAccessDeleteSql();
-					Object[] oz = GenericUtil.filterExt4SQL(ads, scd, requestParams, null);
+					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams, null);
 					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(m!=null){//TODO: error_msg diye birsey olursa onu bas
 						throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
@@ -1026,7 +1027,7 @@ public class FrameworkEngine{
 	    Map<String, Object> scd = formResult.getScd();
 	    Map<String,String> requestParams = formResult.getRequestParams();
 
-		PostFormTrigger.beforePostForm(formResult);
+		PostFormTrigger.beforePostForm(formResult, dao, prefix);
 		boolean dev = scd.get("roleId")!=null && (Integer)scd.get("roleId")==0 && GenericUtil.uInt(requestParams,"_dev")!=0;
 		int customizationId = dev ? 0 : (Integer)scd.get("customizationId");
 		W5Table t = FrameworkCache.getTable(customizationId, formResult.getForm().getObjectId());//formResult.getForm().get_sourceTable();
@@ -1137,7 +1138,7 @@ public class FrameworkEngine{
 					if(appRecord==null && t.get_approvalMap()!=null && formResult.getRequestParams().get("_aa") != null && GenericUtil.uInt(formResult.getRequestParams().get("_aa")) == -1){ // Insertle ilgili bir onay başlatma isteği var ve böylece artık 901'e giriyor
 						Map<String, Object> advancedStepSqlResult = null;
 						if(approval.getAdvancedBeginSql()!=null && approval.getAdvancedBeginSql().length()>10){
-							Object[] oz = GenericUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
+							Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
 							advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 							if(advancedStepSqlResult!=null){
 								if(advancedStepSqlResult.get("active_flag")!=null && GenericUtil.uInt(advancedStepSqlResult.get("active_flag"))==0)
@@ -1310,7 +1311,7 @@ public class FrameworkEngine{
 					switch(approval.getApprovalRequestTip()){ // eger approval olacaksa
 					case	1://automatic approval
 						if(approval.getAdvancedBeginSql()!=null && approval.getAdvancedBeginSql().length()>10){//calisacak
-							Object[] oz = GenericUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
+							Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
 							advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 							//donen bir cevap var, aktive_flag deger olarak var ve onun degeri 0 ise o zaman girmeyecek
 							if(advancedStepSqlResult!=null){
@@ -1353,7 +1354,7 @@ public class FrameworkEngine{
 					case	2://manual after action
 						if(approval.getManualDemandStartAppFlag() == 0 || (approval.getManualDemandStartAppFlag() == 1 && GenericUtil.uInt(formResult.getRequestParams().get("_aa")) == -1)){ // Eğer onay mekanizması elle başlatılmayacaksa burada 901'e girmesi sağlanır
 							if(approval.getAdvancedBeginSql()!=null && approval.getAdvancedBeginSql().length()>10){//calisacak
-								Object[] oz = GenericUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
+								Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
 								advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 								//donen bir cevap var, aktive_flag deger olarak var ve onun degeri 0 ise o zaman girmeyecek
 								if(advancedStepSqlResult!=null){
@@ -1650,7 +1651,7 @@ public class FrameworkEngine{
 						switch(approval.getApprovalRequestTip()){ // eger approval olacaksa
 						case	1://automatic approval
 							if(approval.getAdvancedBeginSql()!=null && approval.getAdvancedBeginSql().length()>10){//calisacak
-								Object[] oz = GenericUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
+								Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
 								advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 								//donen bir cevap var, aktive_flag deger olarak var ve onun degeri 0 ise o zaman girmeyecek
 								if(advancedStepSqlResult!=null){
@@ -3818,8 +3819,13 @@ public class FrameworkEngine{
 
 	public W5FileAttachment loadFile(Map<String, Object> scd,int fileAttachmentId) { //+:fileId, -:userId : Map<String, Object> scd,
 		if(fileAttachmentId<0){
-			fileAttachmentId = UserUtil.getUserProfilePicture((Integer)scd.get("customizationId"),-fileAttachmentId);
-			List l = dao.executeSQLQuery("select t.profile_picture_id from iwb.w5_user t where t.customization_id=? AND t.user_id=?", scd.get("customizationId"),-fileAttachmentId);
+			int newFileAttachmentId = UserUtil.getUserProfilePicture((Integer)scd.get("customizationId"),-fileAttachmentId);
+			if(newFileAttachmentId==0) {
+				List l = dao.executeSQLQuery("select t.profile_picture_id from iwb.w5_user t where t.user_id=?", -fileAttachmentId);
+				if(!GenericUtil.isEmpty(l)) {
+					fileAttachmentId = GenericUtil.uInt(l.get(0));
+				}
+			} else fileAttachmentId = newFileAttachmentId;
 			if(fileAttachmentId==1 || fileAttachmentId==2){
 				W5FileAttachment fa2 = new W5FileAttachment();
 				fa2.setFileAttachmentId(fileAttachmentId);
@@ -3830,11 +3836,11 @@ public class FrameworkEngine{
 		List<W5FileAttachment> fal=  dao.find("from W5FileAttachment t where t.fileAttachmentId=?", fileAttachmentId);
 		if(GenericUtil.isEmpty(fal))return null;
 		W5FileAttachment fa = fal.get(0);
-		if(scd==null){
+//		if(scd==null){
 			scd = new HashMap();scd.put("customizationId", fa.getCustomizationId());
-		} else if((Integer)scd.get("customizationId")!=fa.getCustomizationId()){
-			return null;
-		}
+//		} else if((Integer)scd.get("customizationId")!=fa.getCustomizationId()){
+//			return null;
+//		}
 		if(fa!=null){ //bununla ilgili islemler
 			if(checkAccessRecordControlViolation(scd, 0, fa.getTableId(), fa.getTablePk())){
 				throw new IWBException("security","FileAttachment", fa.getFileAttachmentId(), null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_dosya_yetki"), null);
@@ -4616,7 +4622,7 @@ public class FrameworkEngine{
 				throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onay_talebi_onceden_yapilmis"), null);
 			Map<String, Object> advancedStepSqlResult = null;
 			if(a.getAdvancedBeginSql()!=null && a.getAdvancedBeginSql().length()>10){//calisacak
-				Object[] oz = GenericUtil.filterExt4SQL(a.getAdvancedBeginSql(), scd, parameterMap, null);
+				Object[] oz = DBUtil.filterExt4SQL(a.getAdvancedBeginSql(), scd, parameterMap, null);
 				advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 				//donen bir cevap var, aktive_flag deger olarak var ve onun degeri 0 ise o zaman girmeyecek
 				if(advancedStepSqlResult!=null){
@@ -4865,7 +4871,7 @@ public class FrameworkEngine{
 					}
 					if(currentStep.getOnApproveStepSql()!=null){
 						parameterMap.put("_tb_pk", ""+ar.getTablePk());
-						Object[] oz = GenericUtil.filterExt4SQL(currentStep.getOnApproveStepSql(), scd, parameterMap, null);
+						Object[] oz = DBUtil.filterExt4SQL(currentStep.getOnApproveStepSql(), scd, parameterMap, null);
 						advancedNextStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 						if(advancedNextStepSqlResult.get("error_msg")!=null)
 							throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, (String)advancedNextStepSqlResult.get("error_msg"), null);
@@ -4928,7 +4934,7 @@ public class FrameworkEngine{
 				int returnStepId = currentStep.getOnReturnStepId();
 				if(currentStep.getOnReturnStepSql()!=null){
 					parameterMap.put("_tb_pk", ""+ar.getTablePk());
-					Object[] oz = GenericUtil.filterExt4SQL(currentStep.getOnReturnStepSql(), scd, parameterMap, null);
+					Object[] oz = DBUtil.filterExt4SQL(currentStep.getOnReturnStepSql(), scd, parameterMap, null);
 					advancedNextStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 					if(advancedNextStepSqlResult.get("error_msg")!=null)
 						throw new IWBException("validation","ApprovalRecord", approvalRecordId, null, (String)advancedNextStepSqlResult.get("error_msg"), null);
@@ -5373,7 +5379,7 @@ public class FrameworkEngine{
 		if(!PromisUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
 			throw new PromisException("security","Form", ui.getFormId(), null, PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 		}*/
-		PostFormTrigger.beforePostForm(formResult);
+		PostFormTrigger.beforePostForm(formResult, dao, "");
 
 //		accessControl4FormTable(formResult);
 		if(formResult.isViewMode()){
@@ -5674,7 +5680,7 @@ public class FrameworkEngine{
 				if(tf==null || tf.getTableId()!=t.getTableId())continue;
 
 				int operatorTip =  GenericUtil.uInt(ps[1]);
-				Object[] o = GenericUtil.filterExt4SQL(tf.getSqlCode(), scd, requestParams, null);
+				Object[] o = DBUtil.filterExt4SQL(tf.getSqlCode(), scd, requestParams, null);
 				if(operatorTip!=14){//between den farkli
 					W5QueryParam qp = new W5QueryParam();
 					qp.setDsc("c2_"+tf.getDsc()+"1");
@@ -7050,9 +7056,10 @@ public class FrameworkEngine{
 //		gridName = main.getString("grid_name");
 		String tablePrefix = FrameworkCache.getAppSettingStringValue(0, "form_builder_table_prefix", "iwb");
 		if(!tablePrefix.endsWith("_"))tablePrefix+="_";
-		fullTableName = schema + tablePrefix + tableName;
+		String tableName2 = tablePrefix + tableName;
+		fullTableName = schema + tableName2;
 		parentTableId = main.has("parent_table_id") ? GenericUtil.uInt(main.get("parent_table_id")) : 0;
-		s.append("create table ").append(fullTableName)
+		s.append("create table ").append(tableName2)
 		  .append(" (");
 		s.append(tableName).append("_id integer not null");
 		String relParentFieldName = null;
@@ -7135,11 +7142,15 @@ public class FrameworkEngine{
 		s.append(")");
 
 		createTableSql = s.toString();
+		if(po.getSetSearchPathFlag()!=0){
+			dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
+		}
+
 
 		try {
 			dao.executeUpdateSQLQuery(createTableSql);
 
-			String createSeqSql = "create sequence "+schema+"seq_"+tablePrefix+tableName;
+			String createSeqSql = "create sequence seq_"+tablePrefix+tableName;
 			dao.executeUpdateSQLQuery(createSeqSql);
 
 			if(vcs){
@@ -7163,7 +7174,7 @@ public class FrameworkEngine{
 		if(!b)
 			throw new IWBException("framework","Define Table", 0, parameter, "Define Table", null);
 
-		int tableId = GenericUtil.uInt(dao.executeSQLQuery("select t.table_id from iwb.w5_table t where t.customization_id=? AND t.dsc=? AND t.project_uuid=?", customizationId, po.getSetSearchPathFlag()!=0 ? tablePrefix+tableName : fullTableName, projectUuid).get(0));
+		int tableId = GenericUtil.uInt(dao.executeSQLQuery("select t.table_id from iwb.w5_table t where t.customization_id=? AND t.dsc=? AND t.project_uuid=?", customizationId, po.getSetSearchPathFlag()!=0 ? tableName2 : fullTableName, projectUuid).get(0));
 
 		try {
 			main.put("table_id", tableId);
@@ -7254,10 +7265,6 @@ public class FrameworkEngine{
 				+ "0,  null,"
 				+ "0, null, 0, XFORM_BUILDER.project_uuid, XFORM_BUILDER.customization_id from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=?", queryId, customizationId, userId, userId, xformBuilderId);
 		if(vcs)dao.saveObject(new W5VcsObject(scd, 8, queryId));
-
-		if(po.getSetSearchPathFlag()!=0){
-			dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
-		}
 
 		dao.organizeQueryFields(scd, queryId, (short)1);
 
@@ -7503,7 +7510,7 @@ public class FrameworkEngine{
 		String s = "select k.sender_user_id user_id , count(1) cnt from iwb.w5_chat k where k.receiver_user_id=${scd.userId}::integer AND k.deliver_status_tip in (0,1) AND k.customization_id=${scd.customizationId}::integer "
 				+ "AND k.sender_user_id in (select u.user_id from iwb.w5_user u where u.customization_id=${scd.customizationId}::integer AND (u.global_flag=1 OR u.project_uuid='${scd.projectId}') AND u.user_status=1)"
 				+ " group by k.sender_user_id";
-		Object[] oz = GenericUtil.filterExt4SQL(s, scd, null, null);
+		Object[] oz = DBUtil.filterExt4SQL(s, scd, null, null);
 		List<Object[]> l = dao.executeSQLQuery2(oz[0].toString(),(List)oz[1]);
 		Map r = new HashMap();
 		if(l!=null)for(Object[] o:l)r.put(o[0], o[1]);
@@ -7570,7 +7577,7 @@ public class FrameworkEngine{
 
 		queryResult.setErrorMap(new HashMap());queryResult.setScd(scd);
 		queryResult.setRequestParams(requestParams);
-		if(queryId==-1 || queryResult.getQuery().getQueryTip()!=18){
+		if(queryId==-1 || queryResult.getQuery().getQuerySourceTip()!=0){
 			String orderBy = requestParams.get("sort");
 			if(GenericUtil.isEmpty(orderBy))orderBy=requestParams.get("_sql_orderby");
 			else if(requestParams.containsKey("dir"))orderBy+=" " + requestParams.get("dir");
@@ -7588,6 +7595,9 @@ public class FrameworkEngine{
 	    				if(!l.isEmpty())t = FrameworkCache.getTable(scd, (Integer)l.get(0));
 	    			}
 	    		}
+				if((Integer)scd.get("customizationId")>0 && DBUtil.checkTenantSQLSecurity(queryResult.getExecutedSql())) {
+					throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
+				}
 
 	        	return dao.executeSQLQuery2Map4Debug(scd, t, queryResult.getExecutedSql(), queryResult.getSqlParams(), GenericUtil.uIntNvl(requestParams, "limit", 50), GenericUtil.uIntNvl(requestParams, "start", 0));
 	//        	if(queryResult.getData()==null)queryResult.setData(new ArrayList());
@@ -8019,7 +8029,7 @@ public class FrameworkEngine{
 		s.append(" from ").append(t.getDsc()).append(" x");
 		if(t.get_tableParamList().size()>1 && t.get_tableParamList().get(1).getDsc().equals("customizationId"))
 			s.append(" WHERE x.customization_id=${scd.customizationId}");
-		Object[] oz = GenericUtil.filterExt4SQL(s.toString(), scd, new HashMap(), null);
+		Object[] oz = DBUtil.filterExt4SQL(s.toString(), scd, new HashMap(), null);
 		List<Map> lm = dao.executeSQLQuery2Map(oz[0].toString(),(List)oz[1]);
 
 
@@ -8048,7 +8058,7 @@ public class FrameworkEngine{
 		FrameworkSetting.customizationSystemStatus.put(cusId, 0);
 		dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)",
 				userId, cusId, nickName, email, nickName+1, 1, nickName, 1 , socialNet, email,projects.get(0).get("project_uuid"));
-		int userRoleId = GenericUtil.getGlobalNextval("seq_user_role");
+		int userRoleId = GenericUtil.getGlobalNextval("iwb.seq_user_role");
 		dao.executeUpdateSQLQuery("insert into iwb.w5_user_role(user_role_id, user_id, role_id, customization_id,unit_id, project_uuid) values(?, ?, 0, ?,?, ?)",userRoleId, userId, cusId,0,projects.get(0).get("project_uuid"));
 
 		for(Map p: projects){
@@ -8092,16 +8102,18 @@ public class FrameworkEngine{
     		W5FileAttachment fa = new W5FileAttachment();
 
     		fa.setSystemFileName(fileId + "." + GenericUtil.strUTF2En(FilenameUtils.getBaseName(url.getPath())));
-    		String picPath = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator + "profile_pix";
-    		File f = new File(picPath);
-
-    		if (!f.exists()/* && f.isDirectory()*/) {
-    			boolean cDir = new File(picPath).mkdirs();
-//    			boolean aDir = new File(picPath + File.separator + "attachment").mkdirs();
+	   		String testPath = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
+	    				+ File.separator + cusId;
+    		File f = new File(testPath);
+    		
+    		if (!f.exists()) {
+    			boolean cDir = new File(testPath).mkdirs();
+    			boolean aDir = new File(testPath + File.separator + "attachment").mkdirs();
     		}
 
-    		String filePath = picPath + File.separator + fa.getSystemFileName();
-
+    		String filePath = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
+    				+ File.separator + cusId + File.separator + "attachment"+ File.separator + fa.getSystemFileName();
+    		
     		OutputStream os = new FileOutputStream(filePath);
     		byte[] b = new byte[2048];
 

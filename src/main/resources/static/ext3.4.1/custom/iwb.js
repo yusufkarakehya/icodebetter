@@ -1,3 +1,5 @@
+if(typeof(iwb) == 'undefined')iwb = {};
+if(!iwb.ui)iwb.ui={};
 if(typeof(_localeMsg) == 'undefined')_localeMsg = {};
 
 function getLocMsg(key){if(key==null)return '';var val=_localeMsg[key];return val || key;}
@@ -679,14 +681,12 @@ function renderTableRecordInfo(j){
 	if(!j || !j.dsc)return false;
 	var s='<p>';if(j.profile_picture_id)s+=Ext.util.Format.getPic3Mini(j)+' &nbsp;';
 	s+='<a href=# style="font-size:16px;color:#95d847" onclick="return fnTblRecEdit('+j.tableId+','+j.tablePk+', true);">'+j.dsc+'</a></p><table border=0 width=100%><tr><td width=70% valign=top>';
-	if(j.commentFlag && j.commentCount>0)s+=' &nbsp; <img src="../images/custom/comments.png" title="Yorumlar"> '+(j.commentCount);
-	if(j.fileAttachFlag && j.fileAttachCount>0)s+=' &nbsp; <img src="../images/custom/crm/attachment.gif" title="İlişkili Dosyalar"> '+(j.fileAttachCount);
-	if(j.accessControlFlag && j.accessControlCount>0)s+=' &nbsp; <img src="../images/custom/record_security.png" title="Kayıt Bazlı Güvenlik"> '+(j.accessControlCount);
-	if(j.keywords && j.keywords.length>0)s+=' &nbsp; <img src="../images/custom/keyword.png" title="Anahtar Kelimeler"> '+j.keywords;
-//	if(j.relationFlag && j.relationCount>0)s+='&nbsp; <img src="../images/custom/record_security.png" title="İlişkili Kayıtlar"> '+(j.relationCount>0 ? j.relationCount:'');
+	if(j.commentFlag && j.commentCount>0)s+=' &nbsp; <img src="../ext3.4.1/custom/images/comments-16.png" title="Comments"> '+(j.commentCount);
+	if(j.fileAttachFlag && j.fileAttachCount>0)s+=' &nbsp; <img src="../ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> '+(j.fileAttachCount);
+	if(j.accessControlFlag && j.accessControlCount>0)s+=' &nbsp; <img src="../ext3.4.1/custom/images/key-16.png" title="Kayıt Bazlı Güvenlik"> '+(j.accessControlCount);
 	s+='</td><td width=30% align=right valign=top>';
-	if(j.formSmsMailCount)s+=' &nbsp; <img src="../images/famfam/email.png" title="EPosta/SMS Dönüşümleri"> '+j.formSmsMailCount;
-	if(j.conversionCount)s+=' &nbsp; <img src="../images/famfam/cog.png" title="Form Dönüşümleri"> '+j.conversionCount;
+	if(j.formSmsMailCount)s+=' &nbsp; <img src="../ext3.4.1/custom/images/email-16.png" title="EMail/SMS Notifications"> '+j.formSmsMailCount;
+	if(j.conversionCount)s+=' &nbsp; <img src="../ext3.4.1/custom/images/gear-16.png" title="Form Conversions"> '+j.conversionCount;
 	s+='</td></tr></table><hr>';
 	var rs=j.parents;
 	var ss='';
@@ -717,8 +717,8 @@ function renderTableRecordInfo(j){
     for(var qi=0;qi<rs.length;qi++){
         var r=rs[qi];
         ss+='<br> · '+ (r.vtip ? '<a href=# id="idLinkRel_'+r.rel_id+'" onclick="return showTableChildList(event,'+r.vtip+','+r.void+','+r.mtbid+','+r.mtbpk+','+r.rel_id+');return false;">'+r.tdsc +'</a>': r.dsc) + ' ('+r.tc + (_app.table_children_max_record_number && 1*r.tc==1*_app.table_children_max_record_number-1 ? '+':'')+' adet)';
-    	if(r.tcc)ss+=' &nbsp; <img src="../images/custom/comments.png" title="Yorumlar"> '+(r.tcc);
-    	if(r.tfc)ss+=' &nbsp; <img src="../images/custom/crm/attachment.gif" title="İlişkili Dosyalar"> '+(r.tfc);
+    	if(r.tcc)ss+=' &nbsp; <img src="../ext3.4.1/custom/images/comments-16.png" title="Comments"> '+(r.tcc);
+    	if(r.tfc)ss+=' &nbsp; <img src="../ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> '+(r.tfc);
 
 //        if(r.dsc)ss+=(qi!=0 ? ': '+r.dsc:': <b>'+r.dsc+'</b>');// else ss+=': (...)';
     }
@@ -2454,38 +2454,7 @@ function formSubmit(submitConfig){
             	autoOpenForms.delay(1);
             }
             
-            /*if(myJson.nextBpmActions && myJson.nextBpmActions.length>0){
-            	myJson.nextBpmActions[0].checked=true;
-            	var qwin = new Ext.Window({
-                    layout:'fit',
-                    width:300,
-                    height:200,
-                    closeAction:'destroy',
-                    plain: true, modal:true,
-                    title:'BPM Devami...',
-                    items: {xtype:'form', border:false,labelWidth:10,items:{
-                    xtype: 'radiogroup',itemCls: 'x-check-group-alt',id:'promisRadioGroup1',columns: 1,items:myJson.nextBpmActions}},
-                    buttons: [{
-                        text:'Sec',
-                        handler:function(ax,bx,cx){
-                    		var prg = Ext.getCmp('promisRadioGroup1');
-                            if(prg.getValue() && prg.getValue().getValue()){
-                            	var fxx=prg.getValue().js_code;
-                                qwin.destroy();
-                            	eval('fxx=function(xax,xbx){\n'+fxx+'\n}');
-                            	fxx(myJson);
-                            }
-                        }
-                    },{
-                        text: 'Iptal',
-                        handler: function(){
-                            qwin.destroy();
-                        }
-                    }]
-                });
-                qwin.show();
-                
-            }else */if(myJson.logErrors || myJson.msgs){
+            if(myJson.logErrors || myJson.msgs){
             	var str='';
             	if(myJson.msgs)str=myJson.msgs.join('<br>')+'<p>';
             	if(myJson.logErrors)str+=prepareLogErrors(myJson);
@@ -2620,7 +2589,7 @@ function promisRequest(rcfg){
 	}, rcfg));
 }
 
-
+iwb.request=promisRequest;
 
 
 function combo2combo(comboMaster,comboDetail,param,formAction){//formAction:2(insert) ise ve comboDetail reload olunca 1 kayit geliyorsa otomatik onu sec
@@ -2639,9 +2608,13 @@ function combo2combo(comboMaster,comboDetail,param,formAction){//formAction:2(in
 	        	p = param(comboMaster.getValue(),b);
 	        	if(comboDetail._controlTip != 60){
 		        	if(!p){
+		        		if(p===false)comboDetail.hide();
 		        		comboDetail.disable();
 		        		comboDetail.setValue('');
-		        	} else comboDetail.enable();
+		        	} else {
+		        		comboDetail.enable();
+		        		comboDetail.show();
+		        	}
 	        	}else{
 	        		comboDetail.clearValue();// Aşırı sıkış
 	        	}
@@ -4441,7 +4414,7 @@ function fncMnuVcs(xgrid){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
 			if(sel && sel.length>0 && !sel[0].data.pkpkpk_vcsf){
 				promisRequest({url:'ajaxVCSObjectAction',params:{t:aq._grid.crudTableId, k:sel[0].id, a:2}, successCallback:function(j){
-					Ext.infoMsg.msg('info','Added to VCS');
+					Ext.infoMsg.msg('success','Added to VCS');
 					aq._grid.ds.reload();
 				}});
 			}
@@ -4484,8 +4457,6 @@ function fncMnuVcs(xgrid){
 }
 
 
-if(typeof(iwb) == 'undefined')iwb = {};
-if(!iwb.ui)iwb.ui={};
 
 /* Log Utils*/
 if(!iwb.log)iwb.log={};
@@ -4856,7 +4827,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            style: {
 	                margin: '0px 5px 0px 5px'
 	            },
-	            iconCls: 'inext',
+	            iconCls: 'isave_cont',
 	            handler: function(a, b, c) {
 	                if (!getForm._cfg.formPanel.getForm().isDirty() && !confirm('${attention_you_save_without_change_are_you_sure}')) return;
 	                var r = null;
@@ -4892,7 +4863,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            style: {
 	                margin: '0px 5px 0px 5px'
 	            },
-	            iconCls: 'ikaydet_yeni',
+	            iconCls: 'isave_new',
 	            handler: function(a, b, c) {
 	                var r = null;
 	                if (extDef.manuelValidation) {
@@ -5266,49 +5237,6 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 
 	if (getForm.a == 1 || getForm.tmpId) {
 	    var xb = false;
-	    if (getForm.accessControlFlag) {
-	        btn.push({
-	            text: '${record_security}',
-	            id: 'rsec_' + getForm.id,
-	            iconAlign: 'top',
-	            scale: 'medium',
-	            style: {
-	                margin: '0px 5px 0px 5px'
-	            },
-	            iconCls: getForm.accessControlCount > 0 ? 'ibig_locked' : 'ibig_unlocked',
-	            handler: function(a, b, c) {
-	                var table_pk = '';
-	                if (getForm.a == 1) {
-	                    for (var key in getForm.pk) {
-	                        if (key != 'customizationId') {
-	                            table_pk += "|" + getForm.pk[key];
-	                        }
-	                    }
-	                } else table_pk = "|" + getForm.tmpId;
-	                var cfg = {
-	                    attributes: {
-	                        modalWindow: true,
-	                        href: 'showPage?_tid=259&_gid1=477&crud_table_id=' + getForm.crudTableId,
-	                        _pk: {
-	                            access_roles: 'access_roles',
-	                            access_users: 'access_users',
-	                            paccess_flag: 'access_flag',
-	                            paccess_tip: 'val',
-	                            ptable_id: '!' + getForm.crudTableId,
-	                            ptable_pk: '!' + table_pk.substring(1)
-	                        },
-	                        baseParams: {
-	                            xtable_id: getForm.crudTableId,
-	                            xtable_pk: table_pk.substring(1)
-	                        }
-	                    }
-	                };
-	                cfg.attributes._title_ = getForm.name
-	                mainPanel.loadTab(cfg);
-	            }
-	        });
-	        xb = true;
-	    }
 	    if (getForm.commentFlag) {
 	        if (xb) {
 	            btn.push('-');

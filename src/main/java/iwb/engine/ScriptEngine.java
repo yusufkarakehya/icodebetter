@@ -18,6 +18,7 @@ import iwb.domain.db.W5Table;
 import iwb.domain.result.W5DbFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
+import iwb.util.DBUtil;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
@@ -34,6 +35,15 @@ public class ScriptEngine {
 		List l = dao.executeSQLQuery2Map(sql, null); 
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
+	
+	public Object[] sqlQuery(String sql, NativeObject jsRequestParams){
+		Map m = fromNativeObject2Map(jsRequestParams);
+		if(GenericUtil.isEmpty(m) || !sql.contains("${"))return sqlQuery(sql);
+		Object[] oz = DBUtil.filterExt4SQL(sql, scd, m, null);
+		List l = dao.executeSQLQuery2Map(oz[0].toString(), (List)oz[1]); 
+		return GenericUtil.isEmpty(l) ? null : l.toArray();
+	}
+	
 	
 	/*public Object tsqlQuery(String sql, String dbName){
 		return engine.executeInfluxQuery(scd, sql, dbName);

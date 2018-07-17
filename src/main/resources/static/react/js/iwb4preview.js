@@ -24,7 +24,7 @@ iwb.JSON2URI=function(j){
 	var s=''
 	for (key in j)s += encodeURIComponent(key)+"="+(j[key]===null || j[key]===false ? '':encodeURIComponent(j[key]))+"&";
 	return s;
-	
+
 }
 iwb.gridActionColumn=!0;
 var dgColors=['warning','secondary','danger','primary','success','info']
@@ -38,7 +38,7 @@ iwb.killGlobalSearch=function(){
 	iwb.onGlobalSearch2=false;
 	var c=document.getElementById('id-global-search');
 	c.value='';
-	c.classList.remove('global-search-active');	
+	c.classList.remove('global-search-active');
 }
 
 var _webPageId ="xrand";
@@ -132,7 +132,7 @@ function editGridComboRenderer(cell, combo){
 		if(!c)return '';
 		var  o = combo.moptions[c];
 		return o ? o.dsc:('???: ' +row[cell]);
-	}	
+	}
 }
 
 function editGridLovComboRenderer(cell, combo){
@@ -147,24 +147,24 @@ function editGridLovComboRenderer(cell, combo){
 		if(!c)return '';
 		c = c.split(',');
 		return c.map(function(o){return combo.moptions[o];});
-	}	
+	}
 }
 
 
 function fileAttachmentHtml(row,cell){//TODO
 	return row[cell] && 1*row[cell] ? _('i',{className:'icon-paper-clip'}):null;
-} 
+}
 
 function vcsHtml(row, cell){
 	return row[cell] && 1*row[cell] ? _('i',{className:'icon-social-github'}):null;
 }
-function pictureHtml(row, cell){	
+function pictureHtml(row, cell){
 	return row[cell] && 1*row[cell] ? _('i',{className:'icon-picture'}):null;
 }
 
 function mailBoxRenderer(row, cell){
 	return row[cell] && 1*row[cell] ? _('i',{className:'icon-envelope'}):null;
-} 
+}
 
 function fmtDateTime(x){
 	return x ? moment(x).format('DD/MM/YYYY HH:ss') : "";
@@ -192,7 +192,7 @@ function getStrapSize(w){
 	if(w>=700)return 'lg';
 	if(w>=400)return 'md';
 	return 'sm';
-	
+
 }
 
 iwb.emptyField = _('i',{className:'raw-field-empty'},_('br'),' ','(boş)');
@@ -203,7 +203,7 @@ iwb.getFieldRawValue=function(field, extraOptions){
 		var value = field.value;
 		if(typeof value=='undefined' || value=='')return iwb.emptyField;
 		return _('b',{className:'form-control'},value);
-		 
+
 	}
 	var optionsMap = {}
 	options.map(function(o){optionsMap[o.id]=o.dsc;})
@@ -216,14 +216,14 @@ iwb.getFieldRawValue=function(field, extraOptions){
 	}
 	var value = field.value;
 	if(value.id)value = value.id;
-	value = optionsMap[value];	
+	value = optionsMap[value];
 	if(value==undefined || value=='')return iwb.emptyField;
 	return _('b',{className:'form-control'},value);
 }
 
 
 iwb.openForm=function(url){
-	alert(url);	
+	alert(url);
 	return false;
 }
 
@@ -266,7 +266,7 @@ class XTabForm extends React.PureComponent{
 		if(iwb.debugRender)console.log('XTabForm.render',this.props)
 		var formBody = _(this.props.body,{parentCt:this, viewMode:this.state.viewMode});
 		if(!formBody)return null;
-		return _(Form, {onSubmit:function(e){e.preventDefault();}}, 
+		return _(Form, {onSubmit:function(e){e.preventDefault();}},
            		 _(CardBlock, {className: 'card-body'},
        	    		  _("h3", { className: "form-header" }, /*_("i",{className:"icon-star form-icon"})," ",*/this.props.cfg.name, ' ', this.state.viewMode && _(Button,{color:'light', className:'btn-form-edit',onClick:this.toggleViewMode},_("i",{className:"icon-pencil"})," ",'Düzenle'), ' ', this.state.viewMode && _(Button,{color:'light', className:'btn-form-edit',onClick:this.props.parentCt.closeTab},'Kapat')
      	    				  	, _(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger'},_('i',{className:'icon-options'}))
@@ -278,7 +278,7 @@ class XTabForm extends React.PureComponent{
        	    		!this.state.viewMode && _(CardFooter, {style:{padding: "1.1rem 1.25rem"}},_(Button,{type:'submit',color:'submit', className:'btn-form mr-1', onClick:this.onSubmit}
        	    			,' ','Save',' '),' ',_(Button,{color:"light", style:{border: ".5px solid #e6e6e6"}, className:'btn-form', onClick:this.props.parentCt.closeTab},'Cancel'))
        	);
-	} 
+	}
 }
 
 
@@ -288,15 +288,15 @@ iwb.detailSearch=function(){return false;};
 class	XModal extends React.Component {
 	constructor(props){
 		super(props);
-		this.toggle=this.toggle.bind(this); 
-		this.open=this.open.bind(this); 
+		this.toggle=this.toggle.bind(this);
+		this.open=this.open.bind(this);
 		this.state={modal:false};
 		iwb.showModal=this.open;
 	}
 	open(cfg){
 		this.setState({modal:!0, title:cfg.title||'Form', color:cfg.color||'primary',size:cfg.size||'lg',body:cfg.body, footer:cfg.footer!==false, props:cfg.props||{}});
 		return false;
-		
+
 	}
 	toggle(){
 		this.setState({modal:!this.state.modal});
@@ -316,7 +316,7 @@ class	XLoginDialog extends React.Component {
 	constructor(props){
 		super(props);
 		this.state={modal:false, msg:false};
-		this.open=this.open.bind(this); 
+		this.open=this.open.bind(this);
 		this.login=this.login.bind(this);
 		iwb.showLoginDialog = this.open;
 	}
@@ -351,8 +351,8 @@ class	XLoginDialog extends React.Component {
     render() {
     	return _(Modal, { keyboard:false ,backdrop:'static', toggle: this.toggle, isOpen: this.state.modal, centered:true, className: 'modal-sm primary' },
                _(ModalBody,null,
-   	                  _("h1", null, "Login"), 
-   	                  _("p", {className: "text-muted", style:{color:(this.state.msg? "red !important":"")}}, this.state.msg || "Session Timeout"), 
+   	                  _("h1", null, "Login"),
+   	                  _("p", {className: "text-muted", style:{color:(this.state.msg? "red !important":"")}}, this.state.msg || "Session Timeout"),
    	              	_(InputGroup, {
    	              	    className: "mb-3"
    	              	}, _("div", {
@@ -411,17 +411,17 @@ class XGridRowAction extends React.PureComponent {
 	  toggle(){
 		  this.setState({isOpen:!this.state.isOpen});
 	  }
-	  
+
 	  render(){
 		return _(Dropdown,{isOpen:this.state.isOpen, toggle: this.toggle}
 //				,_('i',{className:'icon-options-vertical column-action', onClick:qqq.toggleGridAction})
 				,_(DropdownToggle, {tag:'i',className: "icon-options-vertical column-action"})
-				,this.state.isOpen && _(DropdownMenu,{className: this.state.isOpen ? 'show' : ''} 
+				,this.state.isOpen && _(DropdownMenu,{className: this.state.isOpen ? 'show' : ''}
 //				,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
-				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-pencil',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Güncelle')		    					
-				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-minus text-danger',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Sil')		    					
-//				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')		    					
-				) 
+				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-pencil',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Güncelle')
+				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-minus text-danger',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Sil')
+//				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
+				)
 			)
 	  }
 }
@@ -436,20 +436,20 @@ class XGridAction extends React.PureComponent {
 	  toggle(){
 		  this.setState({isOpen:!this.state.isOpen});
 	  }
-	  
+
 	  render(){
 		return _(Dropdown,{isOpen:this.state.isOpen, toggle: this.toggle}
 //				,_('i',{className:'icon-options-vertical column-action', onClick:qqq.toggleGridAction})
 				,_(DropdownToggle, {tag:"div", className: "timeline-badge hover-shake "+this.props.color, onClick:function(){alert('hehey')}}, _("i", { className: "icon-grid", style:{fontSize:17} }))
-				
+
 				//{tag:'i',className: "icon-grid", color:this.props.color||'danger'}
-				,this.state.isOpen && _(DropdownMenu,{className: this.state.isOpen ? 'show' : ''} 
+				,this.state.isOpen && _(DropdownMenu,{className: this.state.isOpen ? 'show' : ''}
 //				,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
-				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Create New')
+				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'NEW RECORD')
 				,_('hr')
-				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-equalizer',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Raporlar/BI')		    					
-//				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')		    					
-				) 
+				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-equalizer',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Raporlar/BI')
+//				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
+				)
 			)
 	  }
 }
@@ -474,7 +474,7 @@ class XGrid extends React.PureComponent {
 		    	var v={name:c[qi].name, title:c[qi].title};
 		    	switch(c[qi].name){
 		    	case	'pkpkpk_faf':v.title=_('i',{className:'icon-paper-clip'});break;
-		    	case	'pkpkpk_ms':v.title=_('i',{className:'icon-envelope'});break; 
+		    	case	'pkpkpk_ms':v.title=_('i',{className:'icon-envelope'});break;
 		    	case	'pkpkpk_cf':v.title=_('i',{className:'icon-bubble'});break;
 		    	case	'pkpkpk_apf':v.title=_('i',{className:'icon-picture'});break;
 		    	case	'pkpkpk_vcsf':v.title=_('i',{className:'icon-social-github'});break;
@@ -485,8 +485,8 @@ class XGrid extends React.PureComponent {
 		    	tableColumnExtensions.push({columnName:c[qi].name, align:c[qi].align||'left', width:1*c[qi].width,sortingEnabled:!!c[qi].sort});
 		    }
 		    this.state = {
-		      columns: columns, columnOrder:columns.map(function(a){return a.name}), 
-		      tableColumnExtensions: tableColumnExtensions, columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}), 
+		      columns: columns, columnOrder:columns.map(function(a){return a.name}),
+		      tableColumnExtensions: tableColumnExtensions, columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}),
 		      rows: props.rows || [],
 		      sorting: [],
 		      totalCount: 0,
@@ -537,12 +537,12 @@ class XGrid extends React.PureComponent {
 	  onColumnWidthsChange(widths){
 		  console.log('onColumnWidthsChange', widths)
 		    this.setState({columnWidths:widths});
-		  
+
 	  }
 	  onColumnOrderChange(order){
 		  console.log('onColumnOrderChange', order)
-		    this.setState({columnOrder:order}); 
-		  
+		    this.setState({columnOrder:order});
+
 	  }
 	  queryString() {
 	    const { sorting, pageSize, currentPage } = this.state;
@@ -622,7 +622,7 @@ class XGrid extends React.PureComponent {
 		    		!this.props.pageSize ? _(_dxrg.SearchState, null) : null,
   				!this.props.pageSize ?  _(_dxrg.RowDetailState,null) : null,
   				!this.props.pageSize && rows.length>1  ? _(_dxrg.IntegratedFiltering, null) : null,
-  				!this.props.pageSize && rows.length>1  ?  _(_dxrg.GroupingState,null) : null,		  
+  				!this.props.pageSize && rows.length>1  ?  _(_dxrg.GroupingState,null) : null,
   				!this.props.pageSize && rows.length>1  ? _(_dxrg.IntegratedGrouping ,null) : null,
   				!this.props.pageSize && rows.length>1  ? _(_dxrg.IntegratedSorting,null) : null,
 		    		this.props.showDetail?  _(_dxrg.RowDetailState,null):null,
@@ -631,7 +631,7 @@ class XGrid extends React.PureComponent {
   				_(_dxgrb.DragDropProvider,null),
   				_(_dxgrb.Table, {columnExtensions: tableColumnExtensions, rowComponent:this.TableRow}),//,cellComponent: Cell
   				_(_dxgrb.TableColumnReordering, {order:columnOrder,onOrderChange:this.onColumnOrderChange}),
-  				_(_dxgrb.TableColumnResizing, {columnWidths:columnWidths, onColumnWidthsChange:this.onColumnWidthsChange}),		  
+  				_(_dxgrb.TableColumnResizing, {columnWidths:columnWidths, onColumnWidthsChange:this.onColumnWidthsChange}),
   				_(_dxgrb.TableHeaderRow, { showSortingControls: true }),
   				this.props.showDetail?  _(_dxgrb.TableRowDetail, {contentComponent:this.props.showDetail}):null,
   				rows.length>iwb.detailPageSize || this.props.pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
@@ -715,13 +715,13 @@ iwb.prepareParams4grid=function(grid, prefix, values){//sadece master-insert dur
 		for(var key in changes)params[key+prefix+"."+dirtyCount]=changes[key];
 		if(grid._postMap)for(var key in grid._postMap){
 			var val = grid._postMap[key];
-			if(typeof val == 'function'){ 
+			if(typeof val == 'function'){
 				params[key+prefix+"."+dirtyCount] = val(changes);
 			} else {
 				params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):changes[val];
 			}
 		}
-		
+
 		for(var key in pk){
 			var val=pk[key];
 			if(typeof val == 'function'){
@@ -729,7 +729,7 @@ iwb.prepareParams4grid=function(grid, prefix, values){//sadece master-insert dur
 			} else {
 				params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):items[bjk][val];
 			}
-			
+
 		}
 	}
 	items = values.inserted;
@@ -750,7 +750,7 @@ iwb.prepareParams4grid=function(grid, prefix, values){//sadece master-insert dur
 		if(grid._postInsertParams){
 			for(var key in grid._postInsertParams)params[key+prefix+"."+dirtyCount]=grid._postInsertParams[key];
 		}
-		
+
 	}
 	if(dirtyCount>0){
 		params['_cnt'+prefix]=dirtyCount;
@@ -805,9 +805,9 @@ class XEditGrid extends React.PureComponent {
 		    	}
 		    }
 		    this.state = {
-		      viewMode:!props.editable && (props.viewMode||true), 
-		      columns: columns, columnOrder:columns.map(function(a){return a.name}), 
-		      tableColumnExtensions: tableColumnExtensions, columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}), 
+		      viewMode:!props.editable && (props.viewMode||true),
+		      columns: columns, columnOrder:columns.map(function(a){return a.name}),
+		      tableColumnExtensions: tableColumnExtensions, columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}),
 		      rows: [], sorting: [],
 		      totalCount: 0,
 		      pageSize: props.pageSize || iwb.detailPageSize,
@@ -822,7 +822,7 @@ class XEditGrid extends React.PureComponent {
 	    this.onCurrentPageChange = currentPage => this.setState({ currentPage });
 	    this.onPageSizeChange = this.onPageSizeChange.bind(this);
 	    this.onColumnWidthsChange = columnWidths => this.setState({columnWidths});
-	    this.onColumnOrderChange = columnOrder => this.setState({columnOrder}); 
+	    this.onColumnOrderChange = columnOrder => this.setState({columnOrder});
 	    this.changeEditingRowIds = editingRowIds => {
 	    	this.setState({ editingRowIds });
 	    }
@@ -877,7 +877,7 @@ class XEditGrid extends React.PureComponent {
 	    this.changeRowChanges = rowChanges => {
 	    	this.setState({ rowChanges });
 	    }
-	    
+
 	    this.EditCell = this.EditCell.bind(this);
 	    if(props.parentCt && props.parentCt.egrids)props.parentCt.egrids[props.gridId]=this;
 //	    this.SimpleEditCell = (props) => {console.log('SimpleEditCell', props);return _(_dxgrb.TableEditRow.Cell, props);}
@@ -902,7 +902,7 @@ class XEditGrid extends React.PureComponent {
 	  EditCell(xprops){
 		var editor = this.editors[xprops.column.name];
 		if(!editor)return _(_dxgrb.TableEditRow.Cell, xprops);
-		
+
 		editor = Object.assign({},editor);
 		if(!xprops.row._new)xprops.row._new={};//Object.assign({},xprops.row);
 		if(!xprops.row._new.hasOwnProperty(xprops.column.name))xprops.row._new[xprops.column.name]=xprops.row[xprops.column.name];
@@ -973,14 +973,14 @@ class XEditGrid extends React.PureComponent {
 	  }
 	  render() {
 //		  console.log('XEditGrid:render')
-		    const {viewMode, rows, columns, tableColumnExtensions, sorting, 
+		    const {viewMode, rows, columns, tableColumnExtensions, sorting,
 		      pageSize, pageSizes, currentPage, totalCount, loading, columnWidths, columnOrder, editingRowIds, rowChanges, addedRows
 		    } = this.state;
 		    return _(_dxgrb.Grid,{rows: rows, columns: columns, getRowId : (row) => row[this.props.keyField]},
 	    		_(_dxrg.SortingState, null),
 	    		_(_dxrg.SearchState, null),
   				_(_dxrg.IntegratedFiltering, null),
-  				_(_dxrg.GroupingState,null),		  
+  				_(_dxrg.GroupingState,null),
   				_(_dxrg.IntegratedGrouping ,null),
   				_(_dxrg.IntegratedSorting,null),
 		    	rows.length>iwb.detailPageSize ?  _(_dxrg.PagingState, pageSize>1 ? {currentPage: currentPage, onCurrentPageChange: this.onCurrentPageChange, pageSize: pageSize, onPageSizeChange: this.onPageSizeChange}:{}) : null,
@@ -988,7 +988,7 @@ class XEditGrid extends React.PureComponent {
   				_(_dxgrb.DragDropProvider,null),
   				_(_dxgrb.Table, {columnExtensions: tableColumnExtensions}),//,cellComponent: Cell
   				_(_dxgrb.TableColumnReordering, {order:columnOrder,onOrderChange:this.onColumnOrderChange}),
-  				_(_dxgrb.TableColumnResizing, {columnWidths:columnWidths, onColumnWidthsChange:this.onColumnWidthsChange}),		  
+  				_(_dxgrb.TableColumnResizing, {columnWidths:columnWidths, onColumnWidthsChange:this.onColumnWidthsChange}),
   				_(_dxgrb.TableHeaderRow,  { showSortingControls: !0 }),
   				!viewMode && _(_dxgrb.TableEditRow, { cellComponent: this.EditCell}),
   				!viewMode && _(_dxgrb.TableEditColumn, { showAddCommand:this.props.crudFlags.insert, showEditCommand:this.props.crudFlags.edit, showDeleteCommand:this.props.crudFlags.remove, commandComponent:Command  }),
@@ -1035,8 +1035,8 @@ class XMainGrid extends React.PureComponent {
 			    	tableColumnExtensions.push({columnName:c[qi].name, align:c[qi].align||'left', width:1*c[qi].width,sortingEnabled:!!c[qi].sort});
 			    }
 			    var state = {
-			      columns: columns, columnOrder:columns.map(function(a){return a.name}), 
-			      tableColumnExtensions: tableColumnExtensions, columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}), 
+			      columns: columns, columnOrder:columns.map(function(a){return a.name}),
+			      tableColumnExtensions: tableColumnExtensions, columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}),
 			      rows: [],
 			      sorting: [],
 			      totalCount: 0,
@@ -1062,14 +1062,14 @@ class XMainGrid extends React.PureComponent {
 		    this.openBI = this.openBI.bind(this);
 		    this.onGlobalSearch = this.onGlobalSearch.bind(this); iwb.onGlobalSearch2 = this.onGlobalSearch;
 		    this.showDetail2 = this.showDetail2.bind(this);
-		    this.TableRow = this.TableRow.bind(this); 
-		    
+		    this.TableRow = this.TableRow.bind(this);
+
 		    if(this.props.searchForm || (this.props.detailGrids && this.props.detailGrids.length>1)){//hidden:!!this.props.grid.globalSearch
 		    	var self = this;
 		    	this.searchForm = _(Nav, {style:{}},this.props.searchForm ? [_('div',{className:'hr-text'},_('h6',null,'Arama Kriterleri'))
 			    	,_('div',{style:{zoom:'.9'}},_(this.props.searchForm,{parentCt:this}),_('div',{className:'form-group',style:{paddingTop:10}},_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(!0);} },"ARA")))
-			    	
-					
+
+
 			   // 	,_('div',{style:{height:10}}),_('div',{className:'hr-text'},_('h6',null,'Şablonlar'))
 			   // 	,_(Link,{style:{padding:2},to:''},_('i',{className:'icon-star'}),' ',' Yıllık Faturalar') //TODO
 			   // 	,_(Link,{style:{padding:'2px'},to:''},_('i',{className:'icon-star'}),' ',' Ankara')
@@ -1094,7 +1094,7 @@ class XMainGrid extends React.PureComponent {
 			  var s = {};
 			  s[c.name] = c.checked;
 			  this.setState(s);
-			  
+
 		  }
 		  showDetail2(dgs){
 			  var xxx=this;
@@ -1106,7 +1106,7 @@ class XMainGrid extends React.PureComponent {
 						  var g2 = Object.assign({pk:dgs[qi].pk||{}},dgs[qi].grid); //buildParams2(obj.detailGrids[i].params, sel);
 					      if(g2._url)g2._url+=buildParams2(dgs[qi].params, row.row);
 					      else g2.rows=row.row[g2.detailRowsFieldName];
-						  g2.detailFlag=true; 
+						  g2.detailFlag=true;
 						  r.push(_("li",{key:qi, className: "timeline-inverted" },
 //								  	_(XGridAction,{color:dgColors[qi%dgColors.length]}),
 								    _("div", { className: "timeline-badge hover-shake "+dgColors[qi%dgColors.length], i:qi, onClick:function(e){var i=1*e.target.getAttribute('i');console.log('dasss',i,dgs[i].grid); xxx.onOnNewRecord(e,dgs[i].grid,row.row);} , style:{cursor:"pointer"}}, _("i", { className: "icon-grid", style:{fontSize:17} })),
@@ -1116,7 +1116,7 @@ class XMainGrid extends React.PureComponent {
 								      ),_(XGrid, Object.assign({responsive:true, openTab:xxx.props.openTab, showDetail:dgs[qi].detailGrids?xxx.showDetail2(dgs[qi].detailGrids):false},g2)))));
 					  }
 					  return r.length>0 && _("ul",{ className: "timeline" },r);
-					  
+
 				  } else return null;
 			  }
 		  }
@@ -1149,12 +1149,12 @@ class XMainGrid extends React.PureComponent {
 		  onColumnWidthsChange(widths){
 			  console.log('onColumnWidthsChange', widths)
 			    this.setState({columnWidths:widths});
-			  
+
 		  }
 		  onColumnOrderChange(order){
 			  console.log('onColumnOrderChange', order)
-			    this.setState({columnOrder:order}); 
-			  
+			    this.setState({columnOrder:order});
+
 		  }
 		  queryString() {
 		    const { sorting, pageSize, currentPage } = this.state;
@@ -1179,14 +1179,14 @@ class XMainGrid extends React.PureComponent {
 				  if(sf.classList.contains('sf-hidden')){
 					  eq.classList.add('rotate-90deg');
 				  } else {
-					  eq.classList.remove('rotate-90deg');				  
+					  eq.classList.remove('rotate-90deg');
 				  }
 				  sf.classList.toggle('sf-hidden');
-				  
+
 			  }
 			return false;
 
-			  
+
 		  }
 		  loadData(force, params) {
 //			if(this.state.loading===true)return;
@@ -1247,7 +1247,7 @@ class XMainGrid extends React.PureComponent {
 				  if(sf){
 					  state.hideSF = sf.classList.contains('sf-hidden');
 				  }
-				   
+
 				  iwb.grids[this.props.id]=state;
 				  //console.log('XGrid.componentWillUnmount', Object.assign({},this.state));
 			  }
@@ -1257,7 +1257,7 @@ class XMainGrid extends React.PureComponent {
 				  var params='?_gid='+props.gridId+'&_columns=';
 				  columns.map(function(oo){cmap[oo.columnName]=oo.width});
 				  columnOrder.map(function(oo){params+=oo+','+(cmap[oo]||100)+';'});
-				  iwb.showModal({title:'RAPORLAR',footer:false, color:'danger', size:'sm', 
+				  iwb.showModal({title:'RAPORLAR',footer:false, color:'danger', size:'sm',
 					  body:_(ListGroup,{style:{    fontSize: "1.0rem"}}
 					  			,_('b',null,'Exports')
 							  	,_(ListGroupItem,{tag:'a',href:url+'xls'+params, target:'_blank', action:!0},_('i',{className:'float-right text-success fa fa-file-excel'}),' ', 'Export to Excel')
@@ -1285,7 +1285,7 @@ class XMainGrid extends React.PureComponent {
 			    		!pageSize ? _(_dxrg.SearchState, null) : null,
 	    				!pageSize ?  _(_dxrg.RowDetailState,null) : null,
 	    				!pageSize && rows.length>1  ? _(_dxrg.IntegratedFiltering, null) : null,
-	    				!pageSize && rows.length>1  ?  _(_dxrg.GroupingState,null) : null,		   
+	    				!pageSize && rows.length>1  ?  _(_dxrg.GroupingState,null) : null,
 	    				!pageSize && rows.length>1  ? _(_dxrg.IntegratedGrouping ,null) : null,
 	    				!pageSize && rows.length>1  ? _(_dxrg.IntegratedSorting,null) : null,
 			    		showDetail?  _(_dxrg.RowDetailState,null):null,
@@ -1294,7 +1294,7 @@ class XMainGrid extends React.PureComponent {
 	    				_(_dxgrb.DragDropProvider,null),
 	    				_(_dxgrb.Table, {columnExtensions: tableColumnExtensions, rowComponent:this.TableRow}),//,cellComponent: Cell
 	    				_(_dxgrb.TableColumnReordering, {order:columnOrder,onOrderChange:this.onColumnOrderChange}),
-	    				_(_dxgrb.TableColumnResizing, {columnWidths:columnWidths, onColumnWidthsChange:this.onColumnWidthsChange}),		  
+	    				_(_dxgrb.TableColumnResizing, {columnWidths:columnWidths, onColumnWidthsChange:this.onColumnWidthsChange}),
 	    				_(_dxgrb.TableHeaderRow, { showSortingControls: true }),
 	    				showDetail?  _(_dxgrb.TableRowDetail, {contentComponent:this.showDetail2(this.props.detailGrids)}):null,
 	    				rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
@@ -1304,12 +1304,12 @@ class XMainGrid extends React.PureComponent {
 			    		!pageSize && rows.length>1  ? _(_dxgrb.GroupingPanel,{showSortingControls:true}) : null
 //			    		,loading && iwb.loading()
 				);
-			    
+
 			    return _('div',{className:'tab-grid mb-4'},this.searchForm && _('nav',{id:'sf-'+this.props.id,className:this.state.hideSF ? 'sf-hidden':''}, this.searchForm)
 		    			,_('main',{className: "inbox"}, _(CardHeader, {}
 		    							, this.searchForm && _(Button, {className:'btn-round-shadow', color: "secondary", onClick:this.toggleSearch},_('i',{id:'eq-'+this.props.id,className:'icon-magnifier'})), this.searchForm && " "
 										, !this.searchForm &&_(Button, {className:'btn-round-shadow', disabled:loading, color: "secondary", onClick:() => {this.loadData(!0);} },_('i',{className:'icon-refresh'}))
-										," ", this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," Create New"):null
+										," ", this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," NEW RECORD"):null
 //										,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
 										,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.openBI},_('i',{className:'icon-equalizer'}))
 //										, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})
@@ -1330,7 +1330,7 @@ class XPage extends React.Component {
 	    this.closeTab = this.closeTab.bind(this);
 	    this.showDetail2 = this.showDetail2.bind(this);
 	    this.openForm = this.openForm.bind(this); iwb.openForm=this.openForm;
-	    
+
 
 	    var oldPageState = iwb.pages[props.grid.id];
 //	    console.log('oldPageState', oldPageState);
@@ -1386,7 +1386,7 @@ class XPage extends React.Component {
 							      ),_(XGrid, Object.assign({responsive:true, openTab:self.openTab, showDetail:dgs[qi].detailGrids?self.showDetail2(dgs[qi].detailGrids):false},g2)))));
 				  }
 				  return r.length>0 && _("ul",{ className: "timeline" },r);
-				  
+
 			  } else return null;
 		  }
 	  }
@@ -1398,7 +1398,7 @@ class XPage extends React.Component {
 				  this.toggle(action);
 				  return;
 			  }
-	    	
+
 	    	fetch(url,{
 	    	    body: JSON.stringify(params||{}), // must match 'Content-Type' header
 	    		cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -1428,7 +1428,7 @@ class XPage extends React.Component {
 		      			if(r){
 		      		    	var state = this.state;
 		      		    	var plus = action.substr(0,1)=='2';
-		      		    	tabs.push({k:action, i:plus ? "icon-plus":"icon-doc", title:plus ? " Yeni":" Düzenle",  v:r});
+		      		    	tabs.push({k:action, i:plus ? "icon-plus":"icon-doc", title:plus ? " New":" Update",  v:r});
 		      		    	state.activeTab=action;
 		      		        this.setState(state);
 		      			}
@@ -1442,13 +1442,13 @@ class XPage extends React.Component {
 //		        	alert('Hata! ' + error);
 		        }
 		      )
-	    	
+
 	    }
 	  }
 	  openForm(url){
 		  if(url)this.openTab('1-'+Math.random(),url);
 		  return false;
-		  
+
 	  }
 	  componentWillUnmount(){
 		  iwb.killGlobalSearch();
@@ -1547,7 +1547,7 @@ class XMainNav extends React.PureComponent {
 					  nodes.map(function(o,qi){return _(XCardMiniMenu,{color:dgColors3[qi%dgColors3.length],node:o})})
 			));
 		}
-		
+
 		var path = this.props.path, node = this.props.node;
 		var vi = false, siri=false;
 	    if(path=='/' || path=='/iwb-home'){
@@ -1559,7 +1559,7 @@ class XMainNav extends React.PureComponent {
 	    		qi++;
 	    		if(o.visitCnt>2){
 		    		siri.push(_(XCardMiniMenu,{color:dgColors2[si%dgColors2.length],node:o}));
-		    		si++;			    			
+		    		si++;
 	    		}
 	    	}
 	    	if(qi==0)vi=false;
@@ -1573,7 +1573,7 @@ class XMainNav extends React.PureComponent {
 	    		}
 	    	}
 	    }
-	    
+
 		return _('div', {className: 'animated fadeIn'}
 	      ,_('div',{style:{height: '1.45rem'}})
 		  ,_(Row, {style:{maxWidth:"1300px"}},
@@ -1591,7 +1591,7 @@ class XMainPanel extends React.PureComponent {
 	}
 	loadPage(){
 		var t = this.t;
-		if(!iwb['t-'+t]){		
+		if(!iwb['t-'+t]){
 		  fetch("showPage?_tid="+t,{
 //			    body: JSON.stringify(cfg.params||{}), // must match 'Content-Type' header
 				cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -1647,7 +1647,7 @@ class XMainPanel extends React.PureComponent {
 	componentWillUnmount(){
 		console.log('XMainPanel.componentWillUnmount',this.props.match.path);
 	}
-	
+
 	render() {
 		var path = this.props.match.path;
 		var children = {name:'Home',children:iwb.nav.items};
@@ -1766,7 +1766,7 @@ iwb.getFormValues=function(f){
 }
 
 iwb.loadPage=function(cfg){
-	
+
 }
 
 iwb.ui={buildPanel:function(c){
@@ -1776,39 +1776,39 @@ iwb.ui={buildPanel:function(c){
 }}
 
 iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
-// @define Ext.util.DelayedTask 
-// @uses Ext.GlobalEvents 
+// @define Ext.util.DelayedTask
+// @uses Ext.GlobalEvents
     var me = this,
         delay,
         call = function() {
             me.id = null;
-            
+
             if (!(scope && scope.destroyed)) {
                 args ? fn.apply(scope, args) : fn.call(scope);
             }
-            
+
             if (fireIdleEvent === false) {
                 iwb._suppressIdle = true;
             }
         };
-    
-    //<debug> 
-    // DelayedTask can be called with no function upfront 
+
+    //<debug>
+    // DelayedTask can be called with no function upfront
     if (fn) {
         call.$origFn = fn.$origFn || fn;
         call.$skipTimerCheck = call.$origFn.$skipTimerCheck;
     }
-    //</debug> 
- 
+    //</debug>
+
     cancelOnDelay = typeof cancelOnDelay === 'boolean' ? cancelOnDelay : true;
- 
+
     /**
-     * @property {Number} id 
+     * @property {Number} id
      * The id of the currently pending invocation.  Will be set to `null` if there is no
      * invocation pending.
      */
     me.id = null;
- 
+
     /**
      * @method delay
      * By default, cancels any pending timeout and queues a new one.
@@ -1827,34 +1827,34 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
         if (cancelOnDelay) {
             me.cancel();
         }
-        
+
         if (typeof newDelay === 'number') {
             delay = newDelay;
         }
-        
+
         fn    = newFn    || fn;
         scope = newScope || scope;
         args  = newArgs  || args;
         me.delayTime = delay;
-        
-        //<debug> 
+
+        //<debug>
         if (fn) {
             call.$origFn = fn.$origFn || fn;
             call.$skipTimerCheck = call.$origFn.$skipTimerCheck;
         }
-        //</debug> 
-        
+        //</debug>
+
         if (!me.id) {
             if (delay === -1) {
                 me.id = Ext.raf(call);
             } else {
-                me.id = Ext.defer(call, delay || 1);  // 0 == immediate call 
+                me.id = Ext.defer(call, delay || 1);  // 0 == immediate call
             }
         }
-        
+
         return me.id;
     };
- 
+
     /**
      * Cancel the last queued timeout
      */
@@ -1868,32 +1868,211 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
             me.id = null;
         }
     };
- 
+
     me.flush = function () {
         if (me.id) {
             me.cancel();
- 
-            // we're not running on our own timer so don't mess with whatever thread 
-            // is calling us... 
+
+            // we're not running on our own timer so don't mess with whatever thread
+            // is calling us...
             var was = fireIdleEvent;
             fireIdleEvent = true;
- 
+
             call();
- 
+
             fireIdleEvent = was;
         }
     };
-    
+
     /**
      * @private
      * Cancel the timeout if it was set for the specified fn and scope.
      */
     me.stop = function(stopFn, stopScope) {
-        // This kludginess is here because Classic components use shared focus task 
-        // and we need to be sure the task's current timeout was set for that 
-        // particular component before we can safely cancel it. 
+        // This kludginess is here because Classic components use shared focus task
+        // and we need to be sure the task's current timeout was set for that
+        // particular component before we can safely cancel it.
         if (stopFn && stopFn === fn && (!stopScope || stopScope === scope)) {
             me.cancel();
         }
     };
 };
+class XForm extends React.Component {
+	constructor(props) {
+		super(props);
+		//methods
+		/**
+		 * sets the state with value of input
+		 * @param {event} param0
+		 */
+		this.onChange = ({target}) => {
+			var {values} = this.state;
+			if (target) {
+				values[target.name] = target.type == 'checkbox' ? target.checked : target.value;
+				this.setState({ values });
+			}
+		}
+		/**
+		 * sets state for combo change
+		 * else sets oprions of it after the request
+		 * @param {String} inputName
+		 */
+		this.onComboChange = inputName => {
+			var self = this;
+			return (selectedOption) => {
+				var {values} = self.state;
+				var slectedOption_Id = selectedOption && selectedOption.id;
+				values[inputName] = slectedOption_Id;
+				var triggers = self.triggerz4ComboRemotes;
+				//used for remote @depricated
+				if (triggers[inputName]){
+					triggers[inputName].map( zzz => {
+						var nv = zzz.f(slectedOption_Id, null, values);
+						var {options} = self.state;
+						if (nv){
+							iwb.request({
+								url: 'ajaxQueryData?' + iwb.JSON2URI(nv) + '.r=' + Math.random(),
+								successCallback: function (res) {
+									options[zzz.n] = res.data;
+									self.setState({ options });
+								}
+							});
+						} else {
+							options[zzz.n] = [];
+							self.setState({options});
+						}
+					});
+				}
+				self.setState({values});
+			}
+		}
+		/**
+		 * sets state when low combo is entered
+		 * @param {String} inputName
+		 */
+		this.onLovComboChange = inputName => {
+			var self = this;
+			return selectedOptions => {
+				var {values} = self.state;
+				var slectedOption_Ids = [];
+				if (selectedOptions) {
+					selectedOptions.map(selectedOption => {
+						slectedOption_Ids.push(selectedOption.id);
+					});
+				}
+				values[inputName] = slectedOption_Ids.join(',');
+				self.setState({values});
+			}
+		}
+		/**
+		 * sets state when number entered
+		 * @param {String} dsc
+		 */
+		this.onNumberChange = inputName => {
+			var self = this;
+			return inputEvent => {
+				var {values} = self.state;
+				var inputValue = inputEvent && inputEvent.value;
+				values[inputName] = inputValue;
+				self.setState({values});
+			}
+		}
+		/**
+		 * sends post to the server
+		 * @param {Object} cfg
+		 */
+		this.submit = (cfg) => {
+			var values = {...this.state.values};
+			if (this.manualValidation) {
+				/** manualValidationResult = true || fase || {field_name : 'custom value'} */
+				var manualValidationResult = this.manualValidation(values, cfg || {});
+				if (!manualValidationResult) return false;
+				values = {...values, ...manualValidationResult};
+			}
+			iwb.request({
+				url: this.url + '?' + iwb.JSON2URI(this.params) + '_renderer=react16&.r=' + Math.random(),
+				params: values,
+				self: this,
+				errorCallback: json => {
+					var errors = {};
+					if (json.errorType) switch (json.errorType) {
+						case 'validation':
+							toastr.error('Validation Errors');
+							if (json.errors && json.errors.length) {
+								json.errors.map(oneError => {
+									errors[oneError.id] = oneError.msg;
+								});
+							}
+							if (json.error) {
+								iwb.showModal({
+									title: 'ERROR',
+									footer: false,
+									color: 'danger',
+									size: 'sm',
+									body: json.error
+								});
+							}
+							break;
+						default:
+							alert(json.errorType);
+					} else alert(json);
+					this.setState({ errors });
+					return false;
+				},
+				successCallback: (json, xcfg) => {
+					if (cfg.callback) cfg.callback(json, xcfg);
+				}
+			});
+		}
+		/**
+		 * used to make form active tab and visible on the page
+		 * @param {object} tab
+		 */
+		this.toggleTab = (tab) => {
+			if (this.state.activeTab !== tab){
+				this.setState({activeTab: tab});
+			}
+		}
+		/**
+		 * returns form data from state
+		 */
+		this.getValues = () => {
+			return {...this.state.values};
+		}
+		/**
+		 * used for date inputs
+		 * @param {String} inputName
+		 * @param {Boolean} isItDTTM
+		 */
+		this.onDateChange = (inputName, isItDTTM) => {
+			var self = this;
+			return selectedDate => {
+				var {values} = self.state;
+				var dateValue = selectedDate && selectedDate._d;
+				values[inputName] = isItDTTM ? fmtDateTime(dateValue) : fmtShortDate(dateValue);
+				self.setState({values});
+			}
+		}
+	}
+	componentDidMount() {
+		var self = this;
+		var	triggers = this.triggerz4ComboRemotes;
+		var	{values} = this.state;
+		for (var trigger in triggers){
+			if (values[trigger]) {
+				triggers[trigger].map( zzz=> {
+					var nv = zzz.f(values[trigger], null, values);
+					if (nv) iwb.request({
+						url: 'ajaxQueryData?' + iwb.JSON2URI(nv) + '.r=' + Math.random(),
+						successCallback: function (result) {
+							var {options} = self.state;
+							options[zzz.n] = result.data;
+							self.setState({options});
+						}
+					});
+				});
+			}
+		}
+	}
+	componentWillUnmount(){iwb.forms[this._id] = {...this.state}}
+}

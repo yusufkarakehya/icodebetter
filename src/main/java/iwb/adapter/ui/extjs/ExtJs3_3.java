@@ -5513,7 +5513,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					buf.append(", renderer:fmtShortDate");// browser renderer
 															// ise
 				else if (qds.length() > 5 && qds.indexOf("_dttm") == qds.length() - 5){
-					buf.append(", renderer:fmtDateTime").append(FrameworkCache.getAppSettingIntValue(0, "fmt_date_time_ago_flag")!=0 ?"Ago":"");// browser renderer ise
+					buf.append(", renderer:fmtDateTimeAgo");// browser renderer ise
 					
 				} else if (qds.length() > 5
 						&& qds.indexOf("_flag") == qds.length() - 5) {

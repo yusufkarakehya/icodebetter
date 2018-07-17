@@ -1409,7 +1409,7 @@ try{
 	    return getPictureUrl(rrr.profile_picture_id, true);
 	}
 	Ext.util.Format.getPic3Mini=function(rrr){
-	    return !rrr || !rrr.profile_picture_id ? '' : '<img src="'+getPictureUrl(rrr.profile_picture_id, true)+'" width='+_app.profile_picture_width_mini+' height='+_app.profile_picture_height_mini+'>';
+	    return !rrr || !rrr.profile_picture_id ? '' : '<img style="border-radius:32px;vertical-align:middle;" src="'+getPictureUrl(rrr.profile_picture_id, true)+'" width='+_app.profile_picture_width_mini+' height='+_app.profile_picture_height_mini+'>';
 	}
 
 	Ext.util.Format.getRecordTree=function(rrr){
