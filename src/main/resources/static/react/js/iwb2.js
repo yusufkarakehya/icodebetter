@@ -395,6 +395,10 @@ function buildParams4transfer(params, map){
 	}
 	return bp;
 }
+/**
+ * @description
+ * Grids common methods are located in this class
+ */
 class GridCommon extends React.PureComponent {
 	constructor(props) {
 		super(props);
