@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: XGrid</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: XGrid</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>XGrid<span class="signature">(props)</span><span class="type-signature"></span></h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+
+    
+    <h4 class="name" id="XGrid"><span class="type-signature"></span>new XGrid<span class="signature">(props)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    it renders detail grid there is no search form
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>props</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Input of the Grid Component
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>bordered</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Input of the Grid Component</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>bulkEmailFlag</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Input of the Grid Component</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>bulkUpdateFlag</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Input of the Grid Component</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>columns</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Column conf List {name title width sort}</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>crudFlags</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Grid Component {edit insert remove} options Used to render CRUD buttons and routes</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>crudFormId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">crudFormId is used to make route to the form</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>crudTableId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">crudTableId is id of sql table</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaultHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">@deprecated defaultHeight is a height of the Grid</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaultWidth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">@deprecated defaultWidth is width of the Grid</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>detailFlag</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Use to render Maste Detail Grid</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>editable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Used to Open Grid in EditingState Mode</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>extraOutMap.tplId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">id of the page</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>gridId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Id of the Detail grid</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>keyField</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Used to spesify primety Key name of the Grid</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Rendered name of the Grid Component</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>openTab</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Used to open Form in new tab</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>queryId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Query id of the grid</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>responsive</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Grid Component is responsive</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>tabOrder</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Accessibility</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>_field_name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Symbol</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">React.Component to Cell options</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>_disableIntegratedGrouping</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Symbol</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">['null'] Disable Grouping</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>_disableIntegratedSorting</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Symbol</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">['null'] Disable sorting</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>_disableSearchPanel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Symbol</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">['null'] Disable search panel</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>multiselect</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Symbol</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">['null'] Enambe multiselect option</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="iwb2.js.html">iwb2.js</a>, <a href="iwb2.js.html#line991">line 991</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="loadData"><span class="type-signature"></span>loadData<span class="signature">(force)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    used to make request and fill the grid
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>force</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">to fill with up to date data</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="iwb2.js.html">iwb2.js</a>, <a href="iwb2.js.html#line1043">line 1043</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="SelectableStubCell.html">SelectableStubCell</a></li><li><a href="XCardMenu.html">XCardMenu</a></li><li><a href="XCardMiniMenu.html">XCardMiniMenu</a></li><li><a href="XEditGrid.html">XEditGrid</a></li><li><a href="XEditGridSF.html">XEditGridSF</a></li><li><a href="XForm.html">XForm</a></li><li><a href="XGrid.html">XGrid</a></li><li><a href="XGridAction.html">XGridAction</a></li><li><a href="XGridRowAction.html">XGridRowAction</a></li><li><a href="XLoading.html">XLoading</a></li><li><a href="XLoginDialog.html">XLoginDialog</a></li><li><a href="XMainGrid.html">XMainGrid</a></li><li><a href="XMainNav.html">XMainNav</a></li><li><a href="XMainPanel.html">XMainPanel</a></li><li><a href="XModal.html">XModal</a></li><li><a href="XPage.html">XPage</a></li><li><a href="XTabForm.html">XTabForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Command">Command</a></li><li><a href="global.html#CommandButton">CommandButton</a></li><li><a href="global.html#commandComponentProps">commandComponentProps</a></li><li><a href="global.html#extendGrid">extendGrid</a></li><li><a href="global.html#iwb">iwb</a></li><li><a href="global.html#yesNoDialog">yesNoDialog</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jul 17 2018 12:01:58 GMT+0300 (Türkiye Standart Saati)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
