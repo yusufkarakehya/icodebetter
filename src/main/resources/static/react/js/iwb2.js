@@ -1895,6 +1895,29 @@ class XEditGrid extends GridCommon {
 /**
  * @description
  * used for rendering master grid with search form in it
+ * @param {Object} props - props of the grid
+ * @param {Array} props.columns - props of the grid 
+ * @param {string} props.columns[].title - Ui title of the grid 
+ * @param {string} props.columns[].name - column name of the sql tale 
+ * @param {Boolean} props.columns[].sort - is it sortable column? 
+ * @param {Number} props.columns[].width - width of the column 
+ * @param {Function} props.columns[].formatter - a function to make own UI from the backend params (row,cell) 
+ * @param {Object} props.crudFlags - An object to make UI ACL {insert: true, edit: true, remove: true}
+ * @param {Number} props.crudFormId - An Id of the Form
+ * @param {Number} props.crudTableId - SQL table id
+ * @param {Array} props.detailGrids[] - array of detail grids conf
+ * @param {Object} props.detailGrids[].grid - detail grids props
+ * @param {Object} props.detailGrids[].params - master detail connection Master primaty key name {xoffer_id: "offer_id"}
+ * @param {Object} props.detailGrids[].pk - Master detail connection Detail primaty key name {toffer_detail_id: "offer_detail_id"}
+ * @param {Number} props.gridId - Id of the grid
+ * @param {string} props.keyField - PK of the table
+ * @param { Array } props.menuButtons - return array of Objects conf { text, handler, cls, ref }
+ * @param {Number} props.pageSize - Number of rows in grid
+ * @param {Number} props.queryId - Query id of the Grid
+ * @param {String} props._url - ["ajaxQueryData?_renderer=react16&.t=tpi_1531758063549&.w=wpi_1531758063547&_qid=4220&_gid=3376&firstLimit=10"]
+ * @param {Symbol} props.searchForm - Search form is generated from ServerSide 
+ * 
+ * 
  */
 class XMainGrid extends GridCommon {
 	  constructor(props) {
