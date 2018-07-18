@@ -57,7 +57,7 @@ import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Email;
-import iwb.domain.db.W5Feed;
+import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
@@ -73,7 +73,7 @@ import iwb.domain.db.W5JasperReport;
 import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5Notification;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5ObjectMailSetting;
 import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Project;
@@ -967,7 +967,7 @@ public class FrameworkEngine{
 		int	sourceStepId = -1;
 		String ptablePk = null; //accessControl islemi icin
 		String pcopyTablePk = null; //accessControl islemi icin
-		W5Feed feed = null;
+		Log5Feed feed = null;
 		int feedTableId=0,feedTablePk=0;
 		// once load edilmis eski objeye gerek var mi? wdiget'lar icin gerekir, condition olan yerler icin de gerekebilir
 		Map<String, Object> oldObj = null;
@@ -1125,22 +1125,13 @@ public class FrameworkEngine{
 				String appRecordUserList = null;
 				String appRecordRoleList = null;
 				String mesajBody = "";
-					/*
-					//Onay başlatacak kişilere notification gönder
-					for(Integer   notificationUserId:(List<Integer>)dao.executeSQLQuery("select distinct gu.userId from W5User gu where gu.userId != ? and (gu.userId in (select ur.userId from W5UserRole ur where ur.roleId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.userId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))", scd.get("userId"),appRecord.getApprovalUsers(),appRecord.getApprovalRoles())){
-						dao.saveObject(new W5Notification(scd,notificationUserId, (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-					}*/
+
 
 				List<Object> notificationUsers = dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.customization_id= ? and gu.user_Id != ? and (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("customizationId"),scd.get("userId"), appRecord.getApprovalRoles(), appRecord.getApprovalUsers());
 				if(notificationUsers!=null)for(Object o:notificationUsers){
-					dao.saveObject2(new W5Notification(scd,GenericUtil.uInt(o),(short)(appRecord.getApprovalStepId()==901 && approval.getApprovalFlowTip() == 3 ? 903 : 6), approval.getTableId(), appRecord.getTablePk(), GenericUtil.uInt(scd.get("userId")), null,1), scd);
+					dao.saveObject2(new Log5Notification(scd,GenericUtil.uInt(o),(short)(appRecord.getApprovalStepId()==901 && approval.getApprovalFlowTip() == 3 ? 903 : 6), approval.getTableId(), appRecord.getTablePk(), GenericUtil.uInt(scd.get("userId")), null,1), scd);
 				}
-				/*
-					for(Object[] liste : (List<Object[]>)dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.user_Id != ? or (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("userId"),appRecord.getApprovalUsers(),appRecord.getApprovalRoles())){
-						List<Object> newAttachUsers = executeSQLQuery("select distinct c.upload_user_id from iwb.w5_file_attachment c where c.table_id=? AND c.table_pk=? AND not exists(select 1 from iwb.w5_notification n where n.active_flag=1 AND n.notification_tip=2 AND n.table_id=c.table_id AND n.table_pk=c.table_pk AND n.user_id=c.upload_user_id)", tableId, tablePk);
-						if(liste[0]!=null) dao.saveObject(new W5Notification(scd,PromisUtil.uInt(liste[0]), (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-					}
-					*/
+
 				if ((approval != null && approval.getActiveFlag() != 0 && ((appRecord.getApprovalStepId()<900  && (approvalStep.getSendMailOnEnterStepFlag() != 0) )) || appRecord.getApprovalStepId()>900)) {
 					appRecordUserList = appRecord.getApprovalUsers();
 					appRecordRoleList = appRecord.getApprovalRoles();
@@ -1369,23 +1360,11 @@ public class FrameworkEngine{
 				String appRecordUserList = null;
 				String appRecordRoleList = null;
 				String mesajBody = "";
-					/*
-					//Onay başlatacak kişilere notification gönder
-					for(Integer   notificationUserId:(List<Integer>)dao.executeSQLQuery("select distinct gu.userId from W5User gu where gu.userId != ? and (gu.userId in (select ur.userId from W5UserRole ur where ur.roleId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.userId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))", scd.get("userId"),appRecord.getApprovalUsers(),appRecord.getApprovalRoles())){
-						dao.saveObject(new W5Notification(scd,notificationUserId, (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-					}*/
+
 
 				List<Object> notificationUsers = dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.customization_id= ? and gu.user_Id != ? and (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x)) or gu.user_id in ((select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x)))",scd.get("customizationId"),scd.get("userId"), appRecord.getApprovalRoles(), appRecord.getApprovalUsers());					if(notificationUsers!=null)for(Object o:notificationUsers){
-						dao.saveObject2(new W5Notification(scd,GenericUtil.uInt(o),(short)(appRecord.getApprovalStepId()==901 && approval.getApprovalFlowTip() == 3 ? 903 : 6), approval.getTableId(), appRecord.getTablePk(), GenericUtil.uInt(scd.get("userId")), null,1), scd);
+						dao.saveObject2(new Log5Notification(scd,GenericUtil.uInt(o),(short)(appRecord.getApprovalStepId()==901 && approval.getApprovalFlowTip() == 3 ? 903 : 6), approval.getTableId(), appRecord.getTablePk(), GenericUtil.uInt(scd.get("userId")), null,1), scd);
 					}
-				/*
-					for(Object[] liste : (List<Object[]>)dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.user_Id != ? or (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("userId"),appRecord.getApprovalUsers(),appRecord.getApprovalRoles())){
-						List<Object> newAttachUsers = executeSQLQuery("select distinct c.upload_user_id from iwb.w5_file_attachment c where c.table_id=? AND c.table_pk=? AND not exists(select 1 from iwb.w5_notification n where n.active_flag=1 AND n.notification_tip=2 AND n.table_id=c.table_id AND n.table_pk=c.table_pk AND n.user_id=c.upload_user_id)", tableId, tablePk);
-						if(liste[0]!=null) dao.saveObject(new W5Notification(scd,PromisUtil.uInt(liste[0]), (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-					}
-					*/
-
-
 				/*
 				 * Ekstra Bildirim Bilgileri, SMS, EMail ve Notification yükleniyor
 				 * SMS Mail Tip -> 0 SMS , 1 E-Mail, 2 Notification
@@ -1627,7 +1606,7 @@ public class FrameworkEngine{
 
 
 			if(appRecord==null && FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && t.getShowFeedTip()!=0 && (t.getTableId()!=671 && t.getTableId()!=329 && t.getTableId()!=44)){//TODO: delete icin onceden bakmak lazim yoksa gidecek kayit
-				feed = new W5Feed(scd);
+				feed = new Log5Feed(scd);
 				feed.set_showFeedTip(t.getShowFeedTip());
 				switch(feed.get_showFeedTip()){
 				case	2://master
@@ -1687,17 +1666,7 @@ public class FrameworkEngine{
 					String appRecordUserList = null;
 					String appRecordRoleList = null;
 					String mesajBody = "";
-	/*
-						//TODO:Onay başlatacak kişilere notification gönder
-						for(Integer   notificationUserId:(List<Integer>)dao.find("select distinct gu.userId from W5User gu where gu.userId != ? and (gu.userId in (select ur.userId from W5UserRole ur where ur.roleId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.userId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))", scd.get("userId"),approval.getManualAppRoleIds(),approval.getManualAppUserIds())){
-							dao.saveObject(new W5Notification(scd,notificationUserId, (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-						}
 
-
-						for(Object[] liste : (List<Object[]>)dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.user_Id != ? and (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("userId"),approval.getManualAppRoleIds(),approval.getManualAppUserIds())){
-							if(liste[0]!=null) dao.saveObject(new W5Notification(scd,PromisUtil.uInt(liste[0]), (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-						}
-	*/
 
 					if ((approval != null && approval.getActiveFlag() != 0 && ((appRecord.getApprovalStepId()<900  && approvalStep.getSendMailOnEnterStepFlag() != 0)) || appRecord.getApprovalStepId()>900)) {
 
@@ -1998,7 +1967,7 @@ public class FrameworkEngine{
 
 	private void extFormFeed(W5FormResult formResult, Map<String, Object> scd,
 			Map<String, String> requestParams, W5Table t, String ptablePk,
-			W5Feed feed, int feedTableId, int feedTablePk) {
+			Log5Feed feed, int feedTableId, int feedTablePk) {
 		if(FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && t.getShowFeedTip()!=0)try{
 			//buraya diger yerlerden de gelmesi lazim: dbFunc(email,sms),fileAttach, checkMailz
 //				W5Feed feed = null;
@@ -2007,7 +1976,7 @@ public class FrameworkEngine{
 			case	2://post action:insert
 				switch(t.getTableId()){
 				case	671://feed: signal:
-					feed = new W5Feed(scd);
+					feed = new Log5Feed(scd);
 					feed.setFeedTip((short)0);//feed:signal
 					feed.setDsc(requestParams.get("dsc"));
 					feed.setFeedId(GenericUtil.uInt(ptablePk));
@@ -2020,9 +1989,9 @@ public class FrameworkEngine{
 				case	329://comment:eger wall 'dayse oraya comment olarak koy, ve yukari tasi; aksi halde yeni bir comment koy
 					feedTableId=GenericUtil.uInt(requestParams,"table_id");
 					feedTablePk=GenericUtil.uInt(requestParams,"table_pk");
-					List<W5Feed> lx = FrameworkCache.wFeeds.get((Integer)scd.get("customizationId"));
+					List<Log5Feed> lx = FrameworkCache.wFeeds.get((Integer)scd.get("customizationId"));
 					if(lx!=null)for(int qz=lx.size()-1;qz>=0;qz--){
-						W5Feed lf = lx.get(qz);
+						Log5Feed lf = lx.get(qz);
 						if(lf!=null && lf.getTableId()==feedTableId && lf.getTablePk()==feedTablePk && lf.getCustomizationId()==(Integer)scd.get("customizationId")){
 							if(lf.get_tableCommentList()==null)lf.set_tableCommentList(new ArrayList());
 							W5CommentHelper ch = new W5CommentHelper(scd);
@@ -2036,7 +2005,7 @@ public class FrameworkEngine{
 						}
 					}
 					if(feed==null){//demek ki, bulamamis bir yerde simdikileri yapacak
-						feed = new W5Feed(scd);
+						feed = new Log5Feed(scd);
 						feed.setFeedTip((short)11);//comment
 //							feed.setDsc(requestParams.get("dsc"));
 						feed.setTableId(feedTableId=GenericUtil.uInt(requestParams,"table_id"));
@@ -2052,7 +2021,7 @@ public class FrameworkEngine{
 				case	44://file_attach:TODO
 					break;
 				default://diger herseyde
-					feed = new W5Feed(scd);
+					feed = new Log5Feed(scd);
 					feed.set_showFeedTip(t.getShowFeedTip());
 					switch(feed.get_showFeedTip()){
 					case	2://master
@@ -2070,7 +2039,7 @@ public class FrameworkEngine{
 
 				break;
 			case	1://post action:edit
-				feed = new W5Feed(scd);
+				feed = new Log5Feed(scd);
 				feed.set_showFeedTip(t.getShowFeedTip());
 				switch(feed.get_showFeedTip()){
 				case	2://master
@@ -2105,21 +2074,6 @@ public class FrameworkEngine{
 				FrameworkCache.addFeed(scd, feed, true);
 
 			}
-/*		if(t.get_feedMap()!=null){//feed mekanizmasi var mi bunda?
-				W5ObjectSmsMail tableFeed = t.get_feedMap().get((short)action); //action
-				if(tableFeed!=null && tableFeed.getActiveFlag()!=0){//edit sms mekanizmasi var
-					if(formResult.getOutputFields()!=null)for(String key:formResult.getOutputFields().keySet())requestParams.put("t"+key, formResult.getOutputFields().get(key).toString());
-					Object[] oz = PromisUtil.filterExt4SQL(tableFeed.getSqlCode(), scd, requestParams, null);
-					List<Map> lm = dao.executeSQLQuery2Map(oz[0].toString(),(List)oz[1]);
-					if(lm!=null && lm.size()>0)for(Map m : lm){
-						if(m!=null && !m.isEmpty()){
-							feed = new W5Feed(scd, m);//TODO:birkac tane
-
-
-						}
-					}
-				}
-			}*/
 
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
@@ -3458,36 +3412,7 @@ public class FrameworkEngine{
 				makeProfilePicture(GenericUtil.uInt(fa.getTablePk()), fa);
 			}
 			PostFormTrigger.afterPostForm(formResult, dao, null);
-/*			TODO: simpleformcontroller'dan cagirilan bus layerda transaction calismiyor. duzeltilecek
-			W5Feed feed = new W5Feed(formResult.getScd());
-			feed.setFeedTip((short)12);
-			feed.setTableId(fa.getTableId());feed.setTablePk(PromisUtil.uInt(fa.getTablePk()));
-//			if(ar.getAccessViewTip()!=0)feed.set_viewAccessControl(new W5AccessControlHelper(ar.getAccessViewRoles(),ar.getAccessViewUsers()));
 
-			feed.set_tableRecordList(dao.findRecordParentRecords(formResult.getScd(),feed.getTableId(),feed.getTablePk(),0, true)); //TODO: hata burda, memory leak
-
-			if(feed.get_tableRecordList()!=null && feed.get_tableRecordList().size()>0)feed.set_commentCount(feed.get_tableRecordList().get(0).getCommentCount());
-
-			dao.saveObject(feed);
-
-			List<W5Feed> lx = PromisCache.wFeeds.get(fa.getCustomizationId());
-			if(lx==null){
-				lx = new ArrayList();
-				PromisCache.wFeeds.put(fa.getCustomizationId(), lx);
-			}
-			int maxDerinlik = PromisCache.getAppSettingIntValue(fa.getCustomizationId(), "feed_control_depth");
-			for(int qi=lx.size()-1;qi>=0 && maxDerinlik>0;maxDerinlik--,qi--){//bir onceki feedlerle iliskisi belirleniyor
-				W5Feed lfeed =lx.get(qi);
-				if(lfeed==null)continue;
-				if(lfeed.getTableId()==feed.getTableId() && lfeed.getTablePk()==feed.getTablePk() && lfeed.getFeedTip()==12){//edit haricinde birsey veya edit ise ayni tablo uzerinde detay seviyesinde
-					lx.set(qi,null);
-					feed.set_relatedFeedMap(new HashMap<Integer,W5Feed>());
-					feed.get_relatedFeedMap().put(lfeed.getFeedId(),lfeed);
-					if(lfeed.get_relatedFeedMap()!=null)feed.get_relatedFeedMap().putAll(lfeed.get_relatedFeedMap());
-					break;
-				}
-			}
-			lx.add(feed);*/
 		}
 	}
 
@@ -3498,7 +3423,7 @@ public class FrameworkEngine{
 			scd.put("roleId", 2);
 			scd.put("customizationId", fa.getCustomizationId());
 			scd.put("userTip", 2);
-			W5Feed feed = new W5Feed(scd);
+			Log5Feed feed = new Log5Feed(scd);
 			feed.set_showFeedTip((short)1);
 			feed.setFeedTip((short)24);//remove:master icin
 			dao.saveObject(feed);
@@ -4852,7 +4777,7 @@ public class FrameworkEngine{
 
 		if(notificationList.size() > 0){
 			for(String uId:notificationList){
-				dao.saveObject2(new W5Notification(scd, Integer.parseInt(uId), (short)(2+approvalAction), a.getTableId(), ar.getTablePk(), userId, null, 1), scd);
+				dao.saveObject2(new Log5Notification(scd, Integer.parseInt(uId), (short)(2+approvalAction), a.getTableId(), ar.getTablePk(), userId, null, 1), scd);
 			}
 		}
 
@@ -4870,7 +4795,7 @@ public class FrameworkEngine{
 
 		//Feed Yazma
 		if(FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && (a.getActionTip()!=3 || !isFinished)){
-			W5Feed feed = new W5Feed(scd);
+			Log5Feed feed = new Log5Feed(scd);
 			feed.setFeedTip((short)((approvalAction>900 ? 0 : 6)+approvalAction));
 			feed.setTableId(a.getTableId());feed.setTablePk(ar.getTablePk());
 			if(ar.getAccessViewTip()!=0)feed.set_viewAccessControl(new W5AccessControlHelper(ar.getAccessViewRoles(),ar.getAccessViewUsers()));
@@ -5108,7 +5033,7 @@ public class FrameworkEngine{
 						FrameworkSetting.customizationSystemStatus.put(customizationId,2);
 //						notifiedAll = true;
 						notifiedSet.add(customizationId);
-						UserUtil.publishNotification(new W5Notification("System Reloading",2 /*warning*/, customizationId), true);
+						UserUtil.publishNotification(new Log5Notification("System Reloading",2 /*warning*/, customizationId), true);
 					}
 					switch(islem){
 						case 1://lookup,detay
@@ -5150,7 +5075,7 @@ public class FrameworkEngine{
 				FrameworkSetting.customizationSystemStatus.put(cusId,0);
 			}
 			for(Integer i:customizationSet)
-				UserUtil.publishNotification(new W5Notification("System Reloaded",0 /*warning*/, i), true);
+				UserUtil.publishNotification(new Log5Notification("System Reloaded",0 /*warning*/, i), true);
 		}
 	}
 
@@ -5601,7 +5526,7 @@ public class FrameworkEngine{
 					break;
 
 				}
-				W5Notification n = new W5Notification(a);
+				Log5Notification n = new Log5Notification(a);
 				n.set_tableRecordList(dao.findRecordParentRecords(scd,a.getTableId(),a.getTablePk(),0, true));
 				UserUtil.publishNotification(n, false);
 
@@ -5848,310 +5773,7 @@ public class FrameworkEngine{
 		return 0;
 	}
 
-	public List<W5ReportCellHelper> getGrid2ReportResult(
-			Map<String, Object> scd, int masterGridId,
-			String masterGridColumns, int detailGridId,
-			String detailGridColumns, String params,
-			Map<String, String> requestParams) {
-		String xlocale = (String)scd.get("locale");
-		W5GridResult	masterGridResult = dao.getGridResult(scd, masterGridId, requestParams, true);
-		W5GridResult	detailGridResult = dao.getGridResult(scd, detailGridId, requestParams, true);
-		int masterQueryId = masterGridResult.getGrid().getQueryId();
-		int detailQueryId = detailGridResult.getGrid().getQueryId();
-		requestParams.remove("firstLimit");requestParams.remove("limit");requestParams.remove("start");
-		requestParams.put("grid_report_flag", "1");
-		Map<String, String> paramMap = new HashMap();
-		String[] params2 = params.split(";");
-		for(int qi=0;qi<params2.length;qi++){
-			String[] params3=params2[qi].split(",");
-			paramMap.put(params3[0], params3[1]);
-		}
 
-		W5QueryResult masterQueryResult = executeQuery(scd, masterQueryId, requestParams);
-
-
-
-		if(masterQueryResult.getErrorMap().isEmpty()){
-
-			List<W5ReportCellHelper> list = new ArrayList<W5ReportCellHelper>();
-//			list.add(new WReportResult(row_id, column_id, deger, row_tip, cell_tip, colspan, tag));
-			list.add(new W5ReportCellHelper(0, 1, LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, masterGridResult.getGrid().getLocaleMsgKey()), (short)0, (short)1, (short)20, "1;30,70")); //baslik: id, font_size, dsc, row_tip, yatay?,
-			list.add(new W5ReportCellHelper(1, 1, GenericUtil.uFormatDateTime(new Date()), (short)1, (short)1, (short)-1, LocaleMsgCache.get2(scd, "report_time"))); //param: id, sira, dsc, row_tip,
-
-			Map<String, W5QueryField> m1 = new HashMap<String, W5QueryField>(), m1b = new HashMap<String, W5QueryField>();
-			for(W5QueryField f:masterQueryResult.getNewQueryFields()){
-				m1.put(f.getDsc(), f);
-			}
-			Map<Integer, W5GridColumn> m2 = new HashMap<Integer, W5GridColumn>(), m2b = new HashMap<Integer, W5GridColumn>();
-			int nxtTmp = -1;
-			for(W5GridColumn c:masterGridResult.getGrid().get_gridColumnList()){
-				if(c.getQueryFieldId()==0){
-					c.setQueryFieldId(nxtTmp--);
-				}
-				m2.put(c.getQueryFieldId(), c);
-			}
-			List<W5QueryField> l1 = new ArrayList<W5QueryField>(masterQueryResult.getNewQueryFields().size()), l1b = null;
-			String[] gcs = masterGridColumns.split(";");
-			int startRow = 2;
-			int startCol = 0;
-			for(int g=0;g<gcs.length;g++){
-				String[] cs = gcs[g].split(",");
-
-				W5QueryField f = m1.get(cs[0]);
-				if(f!=null){
-					W5GridColumn c = m2.get(f.getQueryFieldId());
-					if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {// onay varsa,raporda gorunmesi icin
-						c=new W5GridColumn();
-						c.setLocaleMsgKey(LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, "approval_status"));
-						c.setAlignTip((short)1);
-					}
-					if(c!=null){
-						list.add(new W5ReportCellHelper(startRow, (startCol + 1), LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, c.getLocaleMsgKey()), (short)2, (short)GenericUtil.uInt(cs[1]), c.getAlignTip(), "")); //column: id, font_size, dsc, row_tip,
-						l1.add(f);
-						startCol++;
-					}
-				}
-			}
-
-
-
-			int customizationId = (Integer)scd.get("customizationId");
-			//startRow = gcs.length + 2;
-			//startRow = 3;
-			int countRow = 0;
-			boolean firstTimeDetail = true;
-			for(int i=0;i<masterQueryResult.getData().size();i++){
-				Map<String, String> dataMap = new HashMap<String, String>();
-				for(W5QueryField f:masterQueryResult.getNewQueryFields())if(f.getTabOrder()>0){
-					Object obj = masterQueryResult.getData().get(i)[f.getTabOrder()-1];
-					if(obj!=null)
-					dataMap.put(f.getDsc(), obj.toString());
-				}
-				Map<String, String> requestParams2 = new HashMap();
-				for(String k:paramMap.keySet()){
-					String v = paramMap.get(k);
-					if(v.charAt(0)=='!'){
-						requestParams2.put(k, v.substring(1));
-					} else {
-						requestParams2.put(k, dataMap.get(v));
-					}
-				}
-				W5QueryResult detailQueryResult = executeQuery(scd, detailQueryId, requestParams2);
-
-				if(detailQueryResult.getErrorMap().isEmpty() && !GenericUtil.isEmpty(detailQueryResult.getData())){
-
-					if(firstTimeDetail){
-						for(W5QueryField f:detailQueryResult.getNewQueryFields()){
-							m1b.put(f.getDsc(), f);
-						}
-						int nxtTmpb = -1;
-						for(W5GridColumn c:detailGridResult.getGrid().get_gridColumnList()){
-							if(c.getQueryFieldId()==0){
-								c.setQueryFieldId(nxtTmpb--);
-							}
-							m2b.put(c.getQueryFieldId(), c);
-						}
-						l1b = new ArrayList<W5QueryField>(detailQueryResult.getNewQueryFields().size());
-						String[] gcsb = detailGridColumns.split(";");
-						for(int g=0;g<gcsb.length;g++){
-							String[] cs = gcsb[g].split(",");
-
-							W5QueryField f = m1b.get(cs[0]);
-							if(f!=null){
-								W5GridColumn c = m2b.get(f.getQueryFieldId());
-								if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {// onay varsa,raporda gorunmesi icin
-									c=new W5GridColumn();
-									c.setLocaleMsgKey(LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, "approval_status"));
-									c.setAlignTip((short)1);
-								}
-								if(c!=null){
-									list.add(new W5ReportCellHelper(startRow, (startCol + 1), LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, c.getLocaleMsgKey()), (short)2, (short)GenericUtil.uInt(cs[1]), c.getAlignTip(), "")); //column: id, font_size, dsc, row_tip,
-									l1b.add(f);
-									startCol++;
-								}
-							}
-						}
-
-
-
-						startRow++;
-						countRow = startRow;
-						firstTimeDetail = false;
-					}
-
-
-					for(int i2=0;i2<detailQueryResult.getData().size();i2++){
-						int g = 1;
-						for(W5QueryField f:l1)if(f.getTabOrder()>0){
-							String dataType = "";
-							Object obj = masterQueryResult.getData().get(i)[f.getTabOrder()-1];
-							if (obj!=null&& f.getDsc().equals(FieldDefinitions.queryFieldName_Approval) ){
-								String[] ozs=((String)masterQueryResult.getData().get(i)[f.getTabOrder()-1]).split(";");
-								int appId = GenericUtil.uInt(ozs[1]);//approvalId: kendisi yetkili ise + , aksi halde -
-								int appStepId = GenericUtil.uInt(ozs[2]);//approvalStepId
-								W5Approval appr =FrameworkCache.wApprovals.get(appId);
-								String appStepDsc="";
-								if(appr!=null && appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance()!=null)appStepDsc=appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance().getDsc();
-								obj=(LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, appStepDsc));
-							}
-							String res = null;
-							if(obj!=null){
-			        			res = obj.toString();
-
-			        			if(f.getDsc().contains("_flag")){
-			        				res = GenericUtil.uInt(res)!=0 ? "x" : "o";
-			        			} else {
-			        				switch(f.getPostProcessTip()){
-				        			case	20:
-				        				res = UserUtil.getUserName(customizationId, GenericUtil.uInt(obj));
-				        				break;
-				        			case	53:
-				        				res = UserUtil.getUserDsc(customizationId, GenericUtil.uInt(obj));
-				        				break;
-				        			case	10:case	11: // demek ki lookup'li deger tutulacak
-				    	        		W5LookUp lookUp = FrameworkCache.getLookUp(customizationId,f.getLookupQueryId());
-				    	        		if(lookUp!=null){
-				    	        			String[] ids=res.split(",");
-				    	        			res = "";
-				    	        			for(String sz:ids){
-				    	        				res+=", ";
-					    	        			W5LookUpDetay d=lookUp.get_detayMap().get(sz);
-					    	        			if(d!=null){
-						    	        			String s = d.getDsc();
-						    	        			if(s!=null){
-					    	        					s = LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, s);
-					    	    	        			res += s;
-						    	        			}
-					    	        			}
-					    	        			else if(d == null && f.getLookupQueryId() == 12){ // lookup static or lookup static(multi) ve empty
-					    	        				for(W5QueryField ff:masterQueryResult.getNewQueryFields()){
-					    	        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-					    	        						res += masterQueryResult.getData().get(i)[ff.getTabOrder()-1];
-					    	        						break;
-					    	        					}
-					    	        				}
-					    	        			}
-					    	        			else {
-				    	    	        			res += "???: " + sz;
-					    	        			}
-				    	        			}
-				    	        			if(res.length()>0)res = res.substring(1);
-				        				}
-				    	        		break;
-				        			case	12:
-				        				for(W5QueryField ff:masterQueryResult.getNewQueryFields()){
-		    	        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-		    	        						res = masterQueryResult.getData().get(i)[ff.getTabOrder()-1]!=null ? masterQueryResult.getData().get(i)[ff.getTabOrder()-1].toString(): "";
-		    	        						break;
-		    	        					}
-		    	        				}
-				        				break;
-
-				    	        	default : if (f.getFieldTip()==3 || f.getFieldTip()==4){dataType="T:1";};
-					    	        	for(W5QueryField ff:masterQueryResult.getNewQueryFields()){
-				        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-				        						res = masterQueryResult.getData().get(i)[ff.getTabOrder()-1]!=null ? masterQueryResult.getData().get(i)[ff.getTabOrder()-1].toString(): "";
-				        						break;
-				        					}
-				        				}
-				    	        		break;
-				        			}
-			        			}
-			        		}
-							list.add(new W5ReportCellHelper(countRow, g++, res, (short)3, (short)0, (short)1, dataType)); //data: id, font_size, dsc, row_tip,
-						}
-
-						for(W5QueryField f:l1b)if(f.getTabOrder()>0){
-							String dataType = "";
-							Object obj;
-							try {
-								obj = detailQueryResult.getData().get(i2)[f.getTabOrder()-1];
-							} catch (Exception e){
-								obj = null;
-							}
-							if (obj!=null&& f.getDsc().equals(FieldDefinitions.queryFieldName_Approval) ){
-								String[] ozs=((String)detailQueryResult.getData().get(i2)[f.getTabOrder()-1]).split(";");
-								int appId = GenericUtil.uInt(ozs[1]);//approvalId: kendisi yetkili ise + , aksi halde -
-								int appStepId = GenericUtil.uInt(ozs[2]);//approvalStepId
-								W5Approval appr =FrameworkCache.wApprovals.get(appId);
-								String appStepDsc="";
-								if(appr!=null && appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance()!=null)appStepDsc=appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance().getDsc();
-								obj=(LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, appStepDsc));
-							}
-							String res = null;
-							if(obj!=null){
-			        			res = obj.toString();
-
-			        			if(f.getDsc().contains("_flag")){
-			        				res = GenericUtil.uInt(res)!=0 ? "x" : "o";
-			        			} else {
-			        				switch(f.getPostProcessTip()){
-				        			case	20:
-				        				res = UserUtil.getUserName(customizationId, GenericUtil.uInt(obj));
-				        				break;
-				        			case	53:
-				        				res = UserUtil.getUserDsc(customizationId, GenericUtil.uInt(obj));
-				        				break;
-				        			case	10:case	11: // demek ki lookup'li deger tutulacak
-				    	        		W5LookUp lookUp = FrameworkCache.getLookUp(customizationId,f.getLookupQueryId());
-				    	        		if(lookUp!=null){
-				    	        			String[] ids=res.split(",");
-				    	        			res = "";
-				    	        			for(String sz:ids){
-				    	        				res+=", ";
-					    	        			W5LookUpDetay d=lookUp.get_detayMap().get(sz);
-					    	        			if(d!=null){
-						    	        			String s = d.getDsc();
-						    	        			if(s!=null){
-					    	        					s = LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, s);
-					    	    	        			res += s;
-						    	        			}
-					    	        			}
-					    	        			else if(d == null && f.getLookupQueryId() == 12){ // lookup static or lookup static(multi) ve empty
-					    	        				for(W5QueryField ff:detailQueryResult.getNewQueryFields()){
-					    	        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-					    	        						res += detailQueryResult.getData().get(i2)[ff.getTabOrder()-1];
-					    	        						break;
-					    	        					}
-					    	        				}
-					    	        			}
-					    	        			else {
-				    	    	        			res += "???: " + sz;
-					    	        			}
-				    	        			}
-				    	        			if(res.length()>0)res = res.substring(1);
-				        				}
-				    	        		break;
-				        			case	12:
-				        				for(W5QueryField ff:detailQueryResult.getNewQueryFields()){
-		    	        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-		    	        						res = detailQueryResult.getData().get(i2)[ff.getTabOrder()-1]!=null ? detailQueryResult.getData().get(i2)[ff.getTabOrder()-1].toString(): "";
-		    	        						break;
-		    	        					}
-		    	        				}
-				        				break;
-
-				    	        	default : if (f.getFieldTip()==3 || f.getFieldTip()==4){dataType="T:1";};
-					    	        	for(W5QueryField ff:detailQueryResult.getNewQueryFields()){
-				        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-				        						res = detailQueryResult.getData().get(i2)[ff.getTabOrder()-1]!=null ? detailQueryResult.getData().get(i2)[ff.getTabOrder()-1].toString(): "";
-				        						break;
-				        					}
-				        				}
-				    	        		break;
-				        			}
-			        			}
-			        		}
-							list.add(new W5ReportCellHelper(countRow, g++, res, (short)3, (short)0, (short)1, dataType)); //data: id, font_size, dsc, row_tip,
-						}
-						countRow++;
-					}
-				}
-			}
-			return list;
-		}
-		return null;
-	}
 
 	public W5FormResult postBulkConversionMulti(Map<String, Object> scd,
 			int conversionCount, Map<String, String> parameterMap) {

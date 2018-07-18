@@ -102,17 +102,20 @@ public class FrameworkSetting {
 	public static boolean projectAccessControl = true;
 	public static boolean log2tsdb = true;
 
-	public static String log2tsdbUrl = "http://10.200.41.20:8086";
+	public static int logType = 0;
+
+	public static String log2tsdbUrl = "http://localhost:8086";
 	public static String log2tsdbDbName = "iwb_log";
 	public static boolean log2tsdbVisitedPages = true;
 	public static boolean logQueryAction = true;
-	public static int logQueryActionMinTime = 1000;
+	public static int logQueryActionMinTime = 1;
 	public static boolean logScriptAction = true;
 
-	public static boolean mqTsdb = false;
-	public static String mqTsdbUrl = "10.200.39.32";
-	public static String mqTsdbQueue = "iwb-tsdb-exchange-bjk2";
 	
+	public static String log2mqUrl = "localhost";
+	public static String log2mqQueue = "icodebetter-tsdb-exchange";
+
+
 	
 	/**
      * This is your auth0 domain (tenant you have created when registering with auth0 - account name)

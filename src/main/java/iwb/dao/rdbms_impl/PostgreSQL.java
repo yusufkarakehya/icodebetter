@@ -51,7 +51,7 @@ import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5DbFunc;
 import iwb.domain.db.W5DbFuncParam;
-import iwb.domain.db.W5Feed;
+import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
@@ -68,7 +68,7 @@ import iwb.domain.db.W5List;
 import iwb.domain.db.W5ListColumn;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5Notification;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5ObjectToolbarItem;
 import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Project;
@@ -1092,11 +1092,10 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     			(queryResult.getQuery().getLogLevelTip()==1 && FrameworkSetting.logQueryActionMinTime<=action.getProcessTime())){
         	if(FrameworkSetting.log2tsdb){
 				action.setDsc(GenericUtil.replaceSql(queryResult.getExecutedSql(), queryResult.getSqlParams()));
-        		//InfluxUtil.logObject(action, error);
         	} else {
 				action.setDsc(GenericUtil.uStrMax(GenericUtil.replaceSql(queryResult.getExecutedSql(), queryResult.getSqlParams()), 3999));
-				saveObject(action);
         	}
+			saveObject(action);
     	}
     }
 	
@@ -3810,10 +3809,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 			FrameworkSetting.customizationSystemStatus.put(customizationId, 0); //working
 			
-//			PromisCache.wFeeds.put(customizationId, find("from W5Feed x where x.customizationId=? order by x.feedId", customizationId).);
-			//reloadBpmCache(customizationId);
-			//reloadTableSmsMailListCache(customizationId);	
-			//reloadApprovalCache(customizationId);
 			if(FrameworkSetting.feedLoadAtStartupDepth>0 && cid==-1)reloadFeed(customizationId);
 
 							
@@ -3875,14 +3870,14 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	}
 
 	private void reloadFeed(int customizationId) {
-		Query q = getCurrentSession().createQuery("from W5Feed t where t.customizationId=? order by t.feedId desc");
+		Query q = getCurrentSession().createQuery("from Log5Feed t where t.customizationId=? order by t.feedId desc");
 		q.setInteger(0, customizationId);
-		List<W5Feed> l = q.setFirstResult(0).setMaxResults(FrameworkSetting.feedLoadAtStartupDepth).list(); 
+		List<Log5Feed> l = q.setFirstResult(0).setMaxResults(FrameworkSetting.feedLoadAtStartupDepth).list(); 
 		FrameworkCache.wFeeds.remove(customizationId);
 		Map scd = new HashMap();scd.put("customizationId", customizationId);
 		Map<String, List> preloaded = new HashMap();
 		for(int i=l.size()-1;i>=0;i--){
-			W5Feed feed = l.get(i);
+			Log5Feed feed = l.get(i);
 			if(feed.getTableId()!=0 && feed.getTablePk()!=0){//detail icinse
 				String key = feed.getTableId()+"-"+feed.getTablePk();
 				List<W5TableRecordHelper> l2 = preloaded.get(key);
@@ -5531,8 +5526,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	 @Override
 	public void saveObject2(Object o, Map<String, Object> scd) {
 		saveObject(o);
-		if(o instanceof W5Notification){
-			W5Notification n = (W5Notification)o;
+		if(o instanceof Log5Notification){
+			Log5Notification n = (Log5Notification)o;
 			if(n.getTableId()!=0 && n.getTablePk()!=0){
 				if(scd==null){
 					scd = new HashMap(); //TODO: boyle olmaz, scd'yi al

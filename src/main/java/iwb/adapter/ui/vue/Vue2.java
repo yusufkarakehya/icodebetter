@@ -15,7 +15,7 @@ import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5Detay;
-import iwb.domain.db.W5Feed;
+import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormModule;
@@ -1139,35 +1139,33 @@ public class Vue2 implements ViewAdapter {
 			s.append("}\n");
 		}
 
-		if (b) {
-			if(formResult.getForm().getObjectTip()==1){ //search ise
-				s.append(renderSearchFormModuleList(customizationId, xlocale,
-						formResult.getUniqueId(),
-						formResult.getFormCellResults(),
-						"mf=h(Form, mf,")).append(");\n");
-			} else if(false)switch (formResult.getForm().getRenderTip()) {
-			case 1:// fieldset
-				s.append(renderFormFieldset(formResult));
-				break;
-			case 2:// tabpanel
-				s.append(renderFormTabpanel(formResult));
-				break;
-			case 3:// tabpanel+border
-				s.append(renderFormTabpanel(formResult));
+		if(formResult.getForm().getObjectTip()==1){ //search ise
+			s.append(renderSearchFormModuleList(customizationId, xlocale,
+					formResult.getUniqueId(),
+					formResult.getFormCellResults(),
+					"mf=h(Form, mf,")).append(");\n");
+		} else if(false)switch (formResult.getForm().getRenderTip()) {
+		case 1:// fieldset
+			s.append(renderFormFieldset(formResult));
+			break;
+		case 2:// tabpanel
+			s.append(renderFormTabpanel(formResult));
+			break;
+		case 3:// tabpanel+border
+			s.append(renderFormTabpanel(formResult));
 //				s.append(renderFormTabpanelBorder(formResult));
-				break;
-			case 0:// temiz
-				s.append(renderFormModuleListTop(customizationId, xlocale,
-						formResult.getUniqueId(),
-						formResult.getFormCellResults(),
-						"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
-			}
+			break;
+		case 0:// temiz
 			s.append(renderFormModuleListTop(customizationId, xlocale,
 					formResult.getUniqueId(),
 					formResult.getFormCellResults(),
 					"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
-
 		}
+		s.append(renderFormModuleListTop(customizationId, xlocale,
+				formResult.getUniqueId(),
+				formResult.getFormCellResults(),
+				"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
+
 
 
 		s.append("\nreturn mf}}");
@@ -4308,9 +4306,9 @@ columns:[
 		if(!GenericUtil.isEmpty(code))
 			buf.append("\n").append(code.startsWith("!") ? code.substring(1) : code);
 
-		if(GenericUtil.isEmpty(code) || code.startsWith("!")){
-			buf.append("\n").append(renderTemplateObject(templateResult));
-		}
+		short ttip= templateResult.getTemplate().getTemplateTip();
+		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
+
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
 				buf.toString(), templateResult.getScd(),
 				templateResult.getRequestParams(), null) : buf;
@@ -4483,7 +4481,7 @@ columns:[
 		// detaya crud, ...)
 		// 2. security
 		// 3. detay'da
-		List<W5Feed> lall = FrameworkCache.wFeeds.get(customizationId);
+		List<Log5Feed> lall = FrameworkCache.wFeeds.get(customizationId);
 		if (lall == null)
 			return buf
 					.append("{\"success\":true,\"data\":[],\"browseInfo\":{\"startRow\":0,\"fetchCount\":0,\"totalCount\":0}}");
@@ -4496,14 +4494,14 @@ columns:[
 		buf.append("{\"success\":true,\"latest_feed_index\":").append(qj);
 		if (lall == null || qj - 1 <= platestFeedIndex)
 			return buf.append("}");
-		Map<Integer, W5Feed> relatedFeedMap = new HashMap<Integer, W5Feed>();
+		Map<Integer, Log5Feed> relatedFeedMap = new HashMap<Integer, Log5Feed>();
 		if (platestFeedIndex < 0)
 			platestFeedIndex = -1;
 		if (qj - platestFeedIndex > maxDerinlik)
 			platestFeedIndex = qj - maxDerinlik;
 		buf.append(",\"data\":[");
 		for (int qi = qj - 1; qi > platestFeedIndex && feedCount < maxFeedCount; qi--) {
-			W5Feed feed = lall.get(qi);
+			Log5Feed feed = lall.get(qi);
 			if (feed == null)
 				continue;
 			if (userTip != feed.getInsertUserTip())
