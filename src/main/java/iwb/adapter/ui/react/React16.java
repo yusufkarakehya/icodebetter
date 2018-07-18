@@ -1208,7 +1208,7 @@ public class React16 implements ViewAdapter {
 				l.add(m);
 			}
 		StringBuilder buf = new StringBuilder();
-		buf.append("mf=[");
+		buf.append("mf=_('span',null");
 
 		int defaultWidth = -1;
 		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
@@ -1268,7 +1268,7 @@ public class React16 implements ViewAdapter {
 		if(firstTab>0){
 			buf.append(")").append(contentBuf).append(")))");
 		}
-		buf.append("];");
+		buf.append(");");
 
 		return buf;
 	}
@@ -1551,7 +1551,7 @@ public class React16 implements ViewAdapter {
 				l.add(m);
 			}
 		StringBuilder buf = new StringBuilder();
-		buf.append("mf=[");
+		buf.append("mf=_('span',null");
 
 		int defaultWidth = -1;
 		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
@@ -1598,7 +1598,7 @@ public class React16 implements ViewAdapter {
 						}
 					}
 				}
-		buf.append("];");
+		buf.append(");");
 
 		return buf;
 	}
@@ -2523,10 +2523,6 @@ public class React16 implements ViewAdapter {
 		else {
 			if (g.getSelectionModeTip() == 2 || g.getSelectionModeTip() == 3) // multi Select
 				buf.append(",\n selectRow:{mode: 'checkbox',clickToSelect: true}");
-			else if (g.getSelectionModeTip() == 5 && g.get_detailView() != null) // promis.js'de
-																					// halledilmek
-																					// uzere
-				buf.append(",\n detailDlg:true");
 			if (g.getDefaultHeight() > 0)
 				buf.append(",\n defaultHeight:").append(g.getDefaultHeight());
 
@@ -2534,12 +2530,7 @@ public class React16 implements ViewAdapter {
 		}
 		buf.append(",\n loading:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
 		
-		if(FrameworkCache.getAppSettingIntValue(customizationId, "toplu_onay") == 1 && g.getApproval() != null){
-			buf.append(",\n approveBulk:true");
-			if(g.getApproval().getApprovalRequestTip() == 2){ // Onay manuel mi başlatılacak ?
-				buf.append(",\n btnApproveRequest:true");
-			}
-		}
+
 		if (!GenericUtil.isEmpty(g.get_crudFormSmsMailList())) {
 			buf.append(",\n formSmsMailList:[");
 			boolean b = false;
@@ -2559,13 +2550,8 @@ public class React16 implements ViewAdapter {
 					buf.append("{xid:")
 							.append(fsm.getFormSmsMailId())
 							.append(",text:\"")
-							.append(fsm.getSmsMailTip() == 0 ? "[<b>SMS</b>] "
-									: "[<b>"
-											+ (LocaleMsgCache.get2(
-													customizationId, xlocale,
-													"email_upper")) + "</b>] ")
-							.append(GenericUtil.stringToJS(LocaleMsgCache.get2(
-									customizationId, xlocale, fsm.getDsc())))
+							.append(fsm.getSmsMailTip() == 0 ? "[SMS] " : "[" + (LocaleMsgCache.get2(customizationId, xlocale,"email_upper")) + "] ")
+							.append(GenericUtil.stringToJS(LocaleMsgCache.get2(customizationId, xlocale, fsm.getDsc())))
 							.append("\",smsMailTip:")
 							.append(fsm.getSmsMailTip()).append("}");
 				}
@@ -2578,9 +2564,9 @@ public class React16 implements ViewAdapter {
 		}
 		
 		String uniqueId = GenericUtil.getNextId("ng");
-		buf.append(",striped:true,hover:true,bordered:false, name:'").append(LocaleMsgCache.get2(customizationId, xlocale,
-						g.getLocaleMsgKey())).append("',\n id:'")
-				.append(uniqueId).append("',\n listeners:{}");
+		if(false)buf.append(",striped:true,hover:true,bordered:false,");
+		buf.append(",name:'").append(LocaleMsgCache.get2(customizationId, xlocale,
+						g.getLocaleMsgKey())).append("',\n id:'").append(uniqueId).append("'");
 
 		
 			buf.append(",\n _url:'ajaxQueryData?_renderer=react16&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
@@ -2689,11 +2675,8 @@ public class React16 implements ViewAdapter {
 						buf.append(",\n makeCommentFlag:true");
 					
 				
-					if (FrameworkCache.roleAccessControl(scd,  11))
-						buf.append(",\n bulkUpdateFlag:true");
-					if (FrameworkCache
-							.roleAccessControl(scd, 104))
-						buf.append(",\n bulkEmailFlag:true");
+//					if (FrameworkCache.roleAccessControl(scd,  11))buf.append(",\n bulkUpdateFlag:true");
+//					if (FrameworkCache.roleAccessControl(scd, 104))buf.append(",\n bulkEmailFlag:true");
 				}
 			}
 
