@@ -6675,6 +6675,7 @@ public class ExtJs3_3 implements ViewAdapter {
 	private StringBuilder renderTemplateObject(W5TemplateResult templateResult) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
+		if(!(templateResult.getTemplateObjectList().get(0) instanceof W5GridResult))return buf;
 		W5GridResult gr = (W5GridResult)templateResult.getTemplateObjectList().get(0);
 		buf.append("return iwb.ui.buildPanel({t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
 		if(gr.getGrid().get_crudTable()!=null){
