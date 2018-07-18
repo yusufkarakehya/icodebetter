@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="log5_user_action",schema="iwb")
-public class Log5UserAction implements Serializable{
+public class Log5UserAction implements Serializable, Log5Base{
 	
 	private int logId;
 	private int userId;
@@ -22,6 +22,12 @@ public class Log5UserAction implements Serializable{
 	private int tablePk;  
 	private short actionTip;  
 	private String userIp;  
+	
+	
+	public String toInfluxDB() {
+		StringBuilder s=new StringBuilder();
+		return s.toString();
+	}
 	
 	public Log5UserAction() {
 	}

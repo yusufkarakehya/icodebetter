@@ -20,7 +20,7 @@ import iwb.domain.helper.W5TableRecordHelper;
 
 @Entity
 @Table(name="w5_feed",schema="iwb")
-public class W5Feed implements java.io.Serializable {
+public class Log5Feed implements java.io.Serializable, Log5Base {
 
 	private int feedId;
 	
@@ -35,7 +35,7 @@ public class W5Feed implements java.io.Serializable {
 	private int insertUserTip;
 	private String dsc;
 	private W5AccessControlHelper _viewAccessControl;
-	private	Map<Integer,W5Feed> _relatedFeedMap;
+	private	Map<Integer,Log5Feed> _relatedFeedMap;
 	private List<W5TableRecordHelper> _tableRecordList;
 	private short _showFeedTip;
 	private long _insertTime;
@@ -43,19 +43,25 @@ public class W5Feed implements java.io.Serializable {
 	private List<W5CommentHelper> _tableCommentList;
 	private	Timestamp insertDttm;
 	
-	public W5Feed(){
+	
+	public String toInfluxDB() {
+		StringBuilder s=new StringBuilder();
+		return s.toString();
 	}
 	
-	public W5Feed(Map<String, Object> scd) {
+	public Log5Feed(){
+	}
+	
+	public Log5Feed(Map<String, Object> scd) {
 		customizationId=((Integer)scd.get("customizationId"));
 		insertUserId=((Integer)scd.get("userId"));
 		insertRoleId=((Integer)scd.get("roleId"));
 		insertUserTip=((Integer)scd.get("userTip"));
 		_insertTime = System.currentTimeMillis();
 	}
-	@SequenceGenerator(name="seqx_feed",sequenceName="iwb.seq_feed",allocationSize=1)
+	@SequenceGenerator(name="sex_feed",sequenceName="iwb.seq_feed",allocationSize=1)
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seqx_feed")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_feed")
 	@Column(name="feed_id")
 	public int getFeedId() {
 		return feedId;
@@ -125,10 +131,10 @@ public class W5Feed implements java.io.Serializable {
 		this._viewAccessControl = _viewAccessControl;
 	}
 	@Transient
-	public Map<Integer,W5Feed> get_relatedFeedMap() {
+	public Map<Integer,Log5Feed> get_relatedFeedMap() {
 		return _relatedFeedMap;
 	}
-	public void set_relatedFeedMap(Map<Integer,W5Feed> _relatedFeedMap) {
+	public void set_relatedFeedMap(Map<Integer,Log5Feed> _relatedFeedMap) {
 		this._relatedFeedMap = _relatedFeedMap;
 	}
 	@Transient

@@ -23,7 +23,7 @@ import iwb.util.LocaleMsgCache;
 @Entity
 @Immutable
 @Table(name="w5_notification",schema="iwb")
-public class W5Notification implements java.io.Serializable {
+public class Log5Notification implements java.io.Serializable, Log5Base {
 
 	private int notificationId;
 	
@@ -39,8 +39,11 @@ public class W5Notification implements java.io.Serializable {
 	private List<W5TableRecordHelper> _tableRecordList;
 	private String _tmpStr;
 	
-
-    public W5Notification(Map<String, Object> m) {
+	public String toInfluxDB() {
+		StringBuilder s=new StringBuilder();
+		return s.toString();
+	}
+    public Log5Notification(Map<String, Object> m) {
 //    	private int notificationId;
     	
 		super();
@@ -54,9 +57,9 @@ public class W5Notification implements java.io.Serializable {
     	this.actionUserId = GenericUtil.uInt(m.get("paction_user_id"));
     	this.notificationLevel = (short)GenericUtil.uInt(m.get("pnotification_level"));
 	}
-	@SequenceGenerator(name="seqx_notification",sequenceName="seq_notification",allocationSize=1)
+	@SequenceGenerator(name="sex_notification",sequenceName="seq_notification",allocationSize=1)
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seqx_notification")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_notification")
 	@Column(name="notification_id")
 	public int getNotificationId() {
 		return notificationId;
@@ -127,7 +130,7 @@ public class W5Notification implements java.io.Serializable {
 		this.actionUserId = actionUserId;
 	}
 	
-	public W5Notification(Map<String, Object> scd, int userId,  short notificationTip, int tableId, int tablePk, int actionUserId, String showUrl, int notLevel) {
+	public Log5Notification(Map<String, Object> scd, int userId,  short notificationTip, int tableId, int tablePk, int actionUserId, String showUrl, int notLevel) {
 		this.customizationId = (Integer)scd.get("customizationId");
 		this.userId =  userId;
 		this.userTip =  ((Integer)scd.get("userTip")).shortValue();
@@ -138,7 +141,7 @@ public class W5Notification implements java.io.Serializable {
 		this.actionUserId = actionUserId;
 		this.notificationLevel = (short)notLevel;
 	}
-	public W5Notification(Map<String, Object> scd, int userId,  short notificationTip, int tableId, int tablePk, int actionUserId, String showUrl, int notLevel, String _tmpStr) {
+	public Log5Notification(Map<String, Object> scd, int userId,  short notificationTip, int tableId, int tablePk, int actionUserId, String showUrl, int notLevel, String _tmpStr) {
 		this.customizationId = (Integer)scd.get("customizationId");
 		this.userId =  userId;
 		this.userTip =  ((Integer)scd.get("userTip")).shortValue();
@@ -150,10 +153,10 @@ public class W5Notification implements java.io.Serializable {
 		this._tmpStr = _tmpStr;
 		this.notificationLevel = (short)notLevel;
 	}
-	public W5Notification() {
+	public Log5Notification() {
 		super();
 	}
-	public W5Notification(W5FormSmsMailAlarm a) {
+	public Log5Notification(W5FormSmsMailAlarm a) {
 		super();
 		this.customizationId = a.getCustomizationId();
 		this.actionUserId = this.userId = a.getInsertUserId();
@@ -163,7 +166,7 @@ public class W5Notification implements java.io.Serializable {
 		this.notificationTip = 21;
 		this._tmpStr = a.getDsc();
 	}
-	public W5Notification(String _tmpStr, int notLevel, int customizationId) {
+	public Log5Notification(String _tmpStr, int notLevel, int customizationId) {
 		this._tmpStr = _tmpStr;
 		this.notificationLevel = (short)notLevel;
 		this.customizationId = customizationId;
