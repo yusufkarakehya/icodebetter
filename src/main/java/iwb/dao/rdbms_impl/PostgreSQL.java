@@ -84,7 +84,6 @@ import iwb.domain.db.W5TableFieldCalculated;
 import iwb.domain.db.W5TableFilter;
 import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5TableTrigger;
-import iwb.domain.db.W5TableUserTip;
 import iwb.domain.db.W5Template;
 import iwb.domain.db.W5TemplateObject;
 import iwb.domain.db.W5VcsObject;
@@ -953,13 +952,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 			}
 			
-			if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
-				W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-				if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-					throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme") + " (userTip)", null);
-				}
-			}
-
 		}
 /*		StringBuilder tmpx = new StringBuilder("ali baba ${obj.dsc} ve 40 haramiler ${lnk.pk_query_field_id.dsc} olmus");
 		dao.interprateTemplate(scd, 5,1294, tmpx, true); */
@@ -3558,7 +3550,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		
 	
 		reloadTableFieldListCache(customizationId);
-		reloadTableUserTipCache(customizationId);
 		reloadTableFilterCache(customizationId);
 
 		if(FrameworkSetting.approval)reloadApprovalCache(customizationId);
@@ -3712,16 +3703,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		}
 	}
 	
-	@Override
-	public void reloadTableUserTipCache(int customizationId){
-		for(W5TableUserTip tut : (List<W5TableUserTip>)find("from W5TableUserTip t where t.customizationId=?", customizationId)){
-			W5Table t = FrameworkCache.getTable(customizationId, tut.getTableId());
-			if(t!=null){
-				if(t.get_tableUserTipMap()==null)t.set_tableUserTipMap(new HashMap());
-				t.get_tableUserTipMap().put(tut.getUserTip(), tut);
-			}
-		}
-	}
+
 	
 	@Override
 	public void reloadTableFilterCache(int customizationId){ //customizationID ??
@@ -6893,12 +6875,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 			}
 			
-			if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
-				W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-				if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-					throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme") + " (userTip)", null);
-				}
-			}
+
 
 		}
 /*		StringBuilder tmpx = new StringBuilder("ali baba ${obj.dsc} ve 40 haramiler ${lnk.pk_query_field_id.dsc} olmus");
@@ -7094,13 +7071,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
 				throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 			}
-			
-			if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
-				W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-				if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-					throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme") + " (userTip)", null);
-				}
-			}
+
 
 		}
 /*		StringBuilder tmpx = new StringBuilder("ali baba ${obj.dsc} ve 40 haramiler ${lnk.pk_query_field_id.dsc} olmus");
@@ -7366,13 +7337,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
 			throw new IWBException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 		}
-		
-		if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
-			W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-			if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-				throw new IWBException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme") + " (userTip)", null);
-			}
-		}
+
 		/*W5Query q = new W5Query();
 		q.setMainTableId(tableId); q.setSqlFrom(t.getDsc() + " x");
 		
@@ -7647,12 +7612,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			throw new IWBException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 		}
 		
-		if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
-			W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-			if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-				throw new IWBException("security","Table", tableId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme") + " (userTip)", null);
-			}
-		}
+
 		/*W5Query q = new W5Query();
 		q.setMainTableId(tableId); q.setSqlFrom(t.getDsc() + " x");
 		

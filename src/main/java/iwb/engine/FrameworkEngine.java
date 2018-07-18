@@ -85,7 +85,6 @@ import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFieldCalculated;
 import iwb.domain.db.W5TableTrigger;
-import iwb.domain.db.W5TableUserTip;
 import iwb.domain.db.W5Template;
 import iwb.domain.db.W5TemplateObject;
 import iwb.domain.db.W5TsMeasurement;
@@ -272,12 +271,7 @@ public class FrameworkEngine{
 				}
 			}
 
-			if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
-				W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-				if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme")+ " (userTip)", null);
-				}
-			}
+		
 
 			if(accessControlSelfFlag)accessControl4FormTable(formResult, null);
 			if(formResult.getForm().get_moduleList()!=null){
@@ -673,7 +667,6 @@ public class FrameworkEngine{
 		int formId= (formResult!=null) ? formResult.getFormId() : 0;
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		String pkField = t.get_tableParamList().get(0).getDsc();
-		W5TableUserTip tableUserTip= null;
 		Map requestParams2 = null;
 		if(prefix==null)prefix="";
 		if(tablePk==0 || requestParams.containsKey(pkField)) requestParams2 = requestParams;
@@ -683,9 +676,7 @@ public class FrameworkEngine{
 			requestParams2.put(pkField+prefix, ""+tablePk);
 		}
 
-		if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){ // bu userTip icin istekleri var
-			tableUserTip= t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-		}
+
 		W5Approval approval = null;
 		W5ApprovalRecord appRecord = null;
 		W5ApprovalStep approvalStep = null;
@@ -712,24 +703,7 @@ public class FrameworkEngine{
 				} else
 					updatableUserFieldFlag = true;
 			}
-			//bu record'a show/update hakki var mi?
-			if(tableUserTip!=null && tableUserTip.getAccessUpdateSql()!=null){//update ile ilgili control var
-				if(tableUserTip.getAccessUpdateSql().equals("!")){
-//					throw new PromisException("security","Form", formId, null, "Kullanıcı Tip Ã–zel Kontrol: Güncelleştirilemez", null);
-					if(formResult!=null)formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"));
-					if(formResult!=null)formResult.setViewMode(true);
-				} else {
-					String ads = prefix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessUpdateSql(), prefix).toString() : tableUserTip.getAccessUpdateSql();
-					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams2, null);
-					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-					if(m!=null){
-						if(m.get("dont_throw")==null)throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
-						if(formResult!=null)formResult.getOutputMessages().add((String)m.get("error_msg"));
-						if(formResult!=null)formResult.setViewMode(true);
-					}
-
-				}
-			}
+		
 			if(appRecord!=null && (appRecord.getApprovalStepId()<900 || appRecord.getApprovalStepId()==999)){//eger bir approval sureci icindeyse
 				if(appRecord.getApprovalStepId()==999){
 					if(formResult!=null)formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_kontrol_red_kayit_guncelleme"));
@@ -758,12 +732,7 @@ public class FrameworkEngine{
 					if(formResult!=null)formResult.setViewMode(true);
 				}
 
-				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessUpdateTip(), tableUserTip.getAccessUpdateRoles(), tableUserTip.getAccessUpdateUsers())){
-					if(tableUserTip.getAccessUpdateUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessUpdateUserFields(), scd, requestParams2, prefix)){
-						if(formResult!=null)formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"));
-						if(formResult!=null)formResult.setViewMode(true);
-					}
-				}
+		
 
 
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){ // kayit bazli kontrol var
@@ -792,18 +761,7 @@ public class FrameworkEngine{
 				if(dao.accessUserFieldControl(t, t.getAccessDeleteUserFields(), scd, requestParams2, prefix))
 					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_alan_kisit"), null);
 			}
-			if(tableUserTip!=null && tableUserTip.getAccessDeleteSql()!=null){//update ile ilgili control var
-				if(tableUserTip.getAccessDeleteSql().equals("!")){
-					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
-				} else {
-					String ads = prefix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessDeleteSql(), prefix).toString() : tableUserTip.getAccessDeleteSql();
-					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams2, null);
-					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-					if(m!=null){//TODO: error_msg diye birsey olursa onu bas
-						throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
-					}
-				}
-			}
+		
 			if(appRecord!=null){//eger bir approval sureci icindeyse
 				if(!GenericUtil.accessControl(scd, appRecord.getAccessViewTip(), appRecord.getAccessViewRoles(), appRecord.getAccessViewUsers())
 						|| !GenericUtil.accessControl(scd, approvalStep.getAccessDeleteTip(), approvalStep.getAccessDeleteRoles(), approvalStep.getAccessDeleteUsers())){
@@ -815,11 +773,7 @@ public class FrameworkEngine{
 					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
 				}
 
-				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessDeleteTip(), tableUserTip.getAccessDeleteRoles(), tableUserTip.getAccessDeleteUsers())){
-					if(tableUserTip.getAccessDeleteUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessDeleteUserFields(), scd, requestParams2, prefix)){
-						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
-					}
-				}
+		
 
 				// kayit bazli kontrol var
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){//show
@@ -845,10 +799,7 @@ public class FrameworkEngine{
 
 		W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId());//formResult.getForm().get_sourceTable();
 		if(t==null)return;//TODO
-		W5TableUserTip tableUserTip= null;
-		if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){ // bu userTip icin istekleri var
-			tableUserTip= t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-		}
+
 
 		W5ApprovalRecord appRecord = null;
 		W5ApprovalStep approvalStep = null;
@@ -880,24 +831,7 @@ public class FrameworkEngine{
 				} else
 					updatableUserFieldFlag = true;
 			}
-			//bu record'a show/update hakki var mi?
-			if(tableUserTip!=null && tableUserTip.getAccessUpdateSql()!=null){//update ile ilgili control var
-				if(tableUserTip.getAccessUpdateSql().equals("!")){
-//					throw new PromisException("security","Form", formId, null, "Kullanıcı Tip Ã–zel Kontrol: Güncelleştirilemez", null);
-					formResult.getOutputMessages().add("Kullanıcı Tip Ã–zel Kontrol: Güncelleştirilemez");
-					formResult.setViewMode(true);
-				} else {
-					String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessUpdateSql(), paramSuffix).toString() : tableUserTip.getAccessUpdateSql();
-					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams, null);
-					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-					if(!GenericUtil.isEmpty(m)){
-						if(m.get("dont_throw")==null)throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
-						formResult.getOutputMessages().add((String)m.get("error_msg"));
-						formResult.setViewMode(true);
-					}
 
-				}
-			}
 			if(appRecord!=null && (appRecord.getApprovalStepId()<900 || appRecord.getApprovalStepId()==999)){//eger bir approval sureci icindeyse
 				if(appRecord.getApprovalStepId()==999){
 					formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_kontrol_red_kayit_guncelleme"));
@@ -918,12 +852,7 @@ public class FrameworkEngine{
 					formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"));
 					formResult.setViewMode(true);
 				}
-				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessUpdateTip(), tableUserTip.getAccessUpdateRoles(), tableUserTip.getAccessUpdateUsers())){
-					if(tableUserTip.getAccessUpdateUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessUpdateUserFields(), scd, requestParams, "")){
-						if(formResult!=null)formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"));
-						if(formResult!=null)formResult.setViewMode(true);
-					}
-				}
+
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){ // kayit bazli kontrol var
 					if(checkAccessRecordControlViolation(scd, 0, t.getTableId(), requestParams.get(t.get_tableParamList().get(0).getDsc()))){
 						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
@@ -945,14 +874,7 @@ public class FrameworkEngine{
 				throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_kayit_ekleme"), null);
 			}
 
-			if(tableUserTip!=null && tableUserTip.getAccessInsertSql()!=null){ // Table user tip access control, prefixi sor
-				String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessInsertSql(), paramSuffix).toString() : tableUserTip.getAccessInsertSql();
-				Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams, null);
-				Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-				if(m != null && m.size() > 0){
-					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),(String)m.get("error_msg")), null);
-				}
-			}
+
 
 			break;
 		case	3://delete
@@ -968,18 +890,7 @@ public class FrameworkEngine{
 				if(dao.accessUserFieldControl(t, t.getAccessDeleteUserFields(), scd, requestParams, paramSuffix))
 					throw new PromisException("security","Form", formId, null, PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_alan_kisit"), null);
 			}*/
-			if(tableUserTip!=null && tableUserTip.getAccessDeleteSql()!=null){//update ile ilgili control var
-				if(tableUserTip.getAccessDeleteSql().equals("!")){
-					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
-				} else {
-					String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessDeleteSql(), paramSuffix).toString() : tableUserTip.getAccessDeleteSql();
-					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams, null);
-					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-					if(m!=null){//TODO: error_msg diye birsey olursa onu bas
-						throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
-					}
-				}
-			}
+
 			if(appRecord!=null){//eger bir approval sureci icindeyse
 				if(!GenericUtil.accessControl(scd, appRecord.getAccessViewTip(), appRecord.getAccessViewRoles(), appRecord.getAccessViewUsers())
 						|| (approvalStep!=null && !GenericUtil.accessControl(scd, approvalStep.getAccessDeleteTip(), approvalStep.getAccessDeleteRoles(), approvalStep.getAccessDeleteUsers()))
@@ -995,11 +906,7 @@ public class FrameworkEngine{
 					throw new PromisException("security","Form", formId, null, PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
 				} */
 
-				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessDeleteTip(), tableUserTip.getAccessDeleteRoles(), tableUserTip.getAccessDeleteUsers())){
-					if(tableUserTip.getAccessDeleteUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessDeleteUserFields(), scd, requestParams, "")){
-						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
-					}
-				}
+
 
 				// kayit bazli kontrol var
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){//show
@@ -3035,12 +2942,6 @@ public class FrameworkEngine{
 					throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 				}
 
-				if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
-					W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-					if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-						throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme") + " (userTip)", null);
-					}
-				}
 				break;
 			}
 
@@ -5225,7 +5126,6 @@ public class FrameworkEngine{
 						case 6://table
 							dao.reloadTableParamListChildListParentListCache(customizationId);
 							dao.reloadTablesCache(customizationId);
-							dao.reloadTableUserTipCache(customizationId);
 							dao.reloadTableFilterCache(customizationId);
 							break;
 						case 7://job_schedule
