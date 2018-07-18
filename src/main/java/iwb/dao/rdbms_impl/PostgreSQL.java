@@ -3218,10 +3218,10 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	        			if(sqlParams.size()>0)applyParameters(stmt, sqlParams);
 	        			rs = stmt.executeQuery();
 	        			ResultSetMetaData meta = rs.getMetaData();
-	        			Map<String, Integer> fieldMap = new HashMap<String, Integer>();
+	        			Map<String, W5TableField> fieldMap = new HashMap<String, W5TableField>();
 	        			W5Table t = FrameworkCache.getTable(0, query.getMainTableId());
 	        			if(t!=null)for(W5TableField f:t.get_tableFieldList()){
-	        				fieldMap.put(f.getDsc().toLowerCase(), f.getTableFieldId());
+	        				fieldMap.put(f.getDsc().toLowerCase(), f);
 	        			}
 
 	        			int	columnNumber = meta.getColumnCount();
@@ -3245,7 +3245,20 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	        					field.setVersionUserId(userId);
 	        					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 	        					field.setProjectUuid((String)scd.get("projectId"));
-	        					if(fieldMap.containsKey(columnName.toLowerCase()))field.setMainTableFieldId(fieldMap.get(columnName.toLowerCase()));
+	        					if(fieldMap.containsKey(columnName.toLowerCase())) {
+	        						W5TableField tf = fieldMap.get(columnName.toLowerCase());
+	        						field.setMainTableFieldId(tf.getTableFieldId());
+	        						if(tf.getDefaultLookupTableId()>0){
+        								switch(tf.getDefaultControlTip()){
+			        					case	6: field.setPostProcessTip((short)10);break;//combo static
+			        					case	8: case 58: field.setPostProcessTip((short)11);break;//lov-combo static
+			        					case	7: case 10: field.setPostProcessTip((short)12);break;//combo query
+			        					case	15: case 59:field.setPostProcessTip((short)13);break;//lov-combo query
+			        					case	51: case 52: field.setPostProcessTip(tf.getDefaultControlTip());break;//combo static
+		        						}
+		        						if(tf.getDefaultControlTip()!=0)field.setLookupQueryId(tf.getDefaultLookupTableId());
+	        						}
+	        					}
 	        					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field"));
 	        					insertList.add(field);
 	        					j++;
@@ -3254,7 +3267,9 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
         						field.setTabOrder((short)(i));
         						field.setVersionUserId(userId);
 	        					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
-	        					if(field.getMainTableFieldId()==0 && fieldMap.containsKey(columnName.toLowerCase()))field.setMainTableFieldId(fieldMap.get(columnName.toLowerCase()));
+	        					if(field.getMainTableFieldId()==0 && fieldMap.containsKey(columnName.toLowerCase())) {
+	        						field.setMainTableFieldId(fieldMap.get(columnName.toLowerCase()).getTableFieldId());
+	        					}
         						updateList.add(field);
         					}
         					existField.remove(columnName);
