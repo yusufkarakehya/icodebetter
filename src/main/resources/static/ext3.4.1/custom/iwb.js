@@ -2170,6 +2170,10 @@ function ajaxErrorHandler(obj){
     	}
     	else{
     		var xbuttons =[];
+    		xbuttons.push({text:'Convert to Task',handler:function(){
+    			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG REPORT: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
+    			wndx.close();
+    		}});
     		if(obj.errorType=='rhino' && obj.error && obj.error.indexOf('script#')>-1 && obj.sql){
     			var xl = obj.error.substr(obj.error.indexOf('script#')+7);
     			var ml = 0;
