@@ -1208,7 +1208,7 @@ public class React16 implements ViewAdapter {
 				l.add(m);
 			}
 		StringBuilder buf = new StringBuilder();
-		buf.append("mf=[");
+		buf.append("mf=_('span',null");
 
 		int defaultWidth = -1;
 		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
@@ -1268,7 +1268,7 @@ public class React16 implements ViewAdapter {
 		if(firstTab>0){
 			buf.append(")").append(contentBuf).append(")))");
 		}
-		buf.append("];");
+		buf.append(");");
 
 		return buf;
 	}
@@ -1551,7 +1551,7 @@ public class React16 implements ViewAdapter {
 				l.add(m);
 			}
 		StringBuilder buf = new StringBuilder();
-		buf.append("mf=[");
+		buf.append("mf=_('span',null");
 
 		int defaultWidth = -1;
 		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
@@ -1598,7 +1598,7 @@ public class React16 implements ViewAdapter {
 						}
 					}
 				}
-		buf.append("];");
+		buf.append(");");
 
 		return buf;
 	}
