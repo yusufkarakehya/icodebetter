@@ -2319,7 +2319,9 @@ public class FrameworkEngine{
 					short resultAction = ta.getLkpResultAction();
 					if(scope.has("resultAction", scope))resultAction = (short)GenericUtil.uInt(scope.get("resultAction", scope).toString());
 					switch(resultAction){
-					case	1://message & continue
+					case	1://readonly
+						formResult.setViewMode(true);
+					case	0://continue
 						formResult.getOutputMessages().add(msg);
 						break;
 					case	2://confirm & continue
@@ -2344,7 +2346,9 @@ public class FrameworkEngine{
 				short resultAction = ta.getLkpResultAction();
 				if(m.containsKey("resultAction"))resultAction = (short)GenericUtil.uInt(m.get("resultAction"));
 				switch(resultAction){
-				case	1://message & continue
+				case	1://readonly
+					formResult.setViewMode(true);
+				case	0://continue
 					formResult.getOutputMessages().add(msg);
 					break;
 				case	2://confirm & continue
