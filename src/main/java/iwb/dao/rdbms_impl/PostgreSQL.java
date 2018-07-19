@@ -6456,7 +6456,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			long startTm = System.currentTimeMillis(); 
 			cx.evaluateString(scope, script, null, 1, null);
 			r.setProcessTime((int)(System.currentTimeMillis() - startTm));
-			if(FrameworkSetting.debug)se.console("end: " + (r.getDbFunc()!=null ? r.getDbFunc().getDsc(): "new"),"DEBUG","success");
+//			if(FrameworkSetting.debug)se.console("end: " + (r.getDbFunc()!=null ? r.getDbFunc().getDsc(): "new"),"DEBUG","success");
 			/*
 			if(scope.has("errorMsg", scope)){
 				Object em = GenericUtil.rhinoValue(scope.get("errorMsg", scope));

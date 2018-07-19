@@ -4430,7 +4430,7 @@ function fncMnuVcs(xgrid){
 					aq._grid.ds.reload();
 				}});
 			}
-		}},'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
+		}}/*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelected();
 			if(sel && sel.data.pkpkpk_vcsf){
 				var cmbSt2=[];
@@ -4457,7 +4457,7 @@ function fncMnuVcs(xgrid){
 				});
 				wx.show();
 			}
-		}}];
+		}}*/];
 }
 
 
