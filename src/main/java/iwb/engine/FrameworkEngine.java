@@ -57,7 +57,7 @@ import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Email;
-import iwb.domain.db.W5Feed;
+import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
@@ -73,7 +73,7 @@ import iwb.domain.db.W5JasperReport;
 import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5Notification;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5ObjectMailSetting;
 import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Project;
@@ -85,7 +85,6 @@ import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFieldCalculated;
 import iwb.domain.db.W5TableTrigger;
-import iwb.domain.db.W5TableUserTip;
 import iwb.domain.db.W5Template;
 import iwb.domain.db.W5TemplateObject;
 import iwb.domain.db.W5TsMeasurement;
@@ -272,12 +271,7 @@ public class FrameworkEngine{
 				}
 			}
 
-			if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
-				W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-				if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme")+ " (userTip)", null);
-				}
-			}
+		
 
 			if(accessControlSelfFlag)accessControl4FormTable(formResult, null);
 			if(formResult.getForm().get_moduleList()!=null){
@@ -673,7 +667,6 @@ public class FrameworkEngine{
 		int formId= (formResult!=null) ? formResult.getFormId() : 0;
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		String pkField = t.get_tableParamList().get(0).getDsc();
-		W5TableUserTip tableUserTip= null;
 		Map requestParams2 = null;
 		if(prefix==null)prefix="";
 		if(tablePk==0 || requestParams.containsKey(pkField)) requestParams2 = requestParams;
@@ -683,9 +676,7 @@ public class FrameworkEngine{
 			requestParams2.put(pkField+prefix, ""+tablePk);
 		}
 
-		if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){ // bu userTip icin istekleri var
-			tableUserTip= t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-		}
+
 		W5Approval approval = null;
 		W5ApprovalRecord appRecord = null;
 		W5ApprovalStep approvalStep = null;
@@ -712,24 +703,7 @@ public class FrameworkEngine{
 				} else
 					updatableUserFieldFlag = true;
 			}
-			//bu record'a show/update hakki var mi?
-			if(tableUserTip!=null && tableUserTip.getAccessUpdateSql()!=null){//update ile ilgili control var
-				if(tableUserTip.getAccessUpdateSql().equals("!")){
-//					throw new PromisException("security","Form", formId, null, "Kullanıcı Tip Ã–zel Kontrol: Güncelleştirilemez", null);
-					if(formResult!=null)formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"));
-					if(formResult!=null)formResult.setViewMode(true);
-				} else {
-					String ads = prefix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessUpdateSql(), prefix).toString() : tableUserTip.getAccessUpdateSql();
-					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams2, null);
-					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-					if(m!=null){
-						if(m.get("dont_throw")==null)throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
-						if(formResult!=null)formResult.getOutputMessages().add((String)m.get("error_msg"));
-						if(formResult!=null)formResult.setViewMode(true);
-					}
-
-				}
-			}
+		
 			if(appRecord!=null && (appRecord.getApprovalStepId()<900 || appRecord.getApprovalStepId()==999)){//eger bir approval sureci icindeyse
 				if(appRecord.getApprovalStepId()==999){
 					if(formResult!=null)formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_kontrol_red_kayit_guncelleme"));
@@ -758,12 +732,7 @@ public class FrameworkEngine{
 					if(formResult!=null)formResult.setViewMode(true);
 				}
 
-				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessUpdateTip(), tableUserTip.getAccessUpdateRoles(), tableUserTip.getAccessUpdateUsers())){
-					if(tableUserTip.getAccessUpdateUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessUpdateUserFields(), scd, requestParams2, prefix)){
-						if(formResult!=null)formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"));
-						if(formResult!=null)formResult.setViewMode(true);
-					}
-				}
+		
 
 
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){ // kayit bazli kontrol var
@@ -792,18 +761,7 @@ public class FrameworkEngine{
 				if(dao.accessUserFieldControl(t, t.getAccessDeleteUserFields(), scd, requestParams2, prefix))
 					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_alan_kisit"), null);
 			}
-			if(tableUserTip!=null && tableUserTip.getAccessDeleteSql()!=null){//update ile ilgili control var
-				if(tableUserTip.getAccessDeleteSql().equals("!")){
-					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
-				} else {
-					String ads = prefix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessDeleteSql(), prefix).toString() : tableUserTip.getAccessDeleteSql();
-					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams2, null);
-					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-					if(m!=null){//TODO: error_msg diye birsey olursa onu bas
-						throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
-					}
-				}
-			}
+		
 			if(appRecord!=null){//eger bir approval sureci icindeyse
 				if(!GenericUtil.accessControl(scd, appRecord.getAccessViewTip(), appRecord.getAccessViewRoles(), appRecord.getAccessViewUsers())
 						|| !GenericUtil.accessControl(scd, approvalStep.getAccessDeleteTip(), approvalStep.getAccessDeleteRoles(), approvalStep.getAccessDeleteUsers())){
@@ -815,11 +773,7 @@ public class FrameworkEngine{
 					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
 				}
 
-				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessDeleteTip(), tableUserTip.getAccessDeleteRoles(), tableUserTip.getAccessDeleteUsers())){
-					if(tableUserTip.getAccessDeleteUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessDeleteUserFields(), scd, requestParams2, prefix)){
-						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
-					}
-				}
+		
 
 				// kayit bazli kontrol var
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){//show
@@ -845,10 +799,7 @@ public class FrameworkEngine{
 
 		W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId());//formResult.getForm().get_sourceTable();
 		if(t==null)return;//TODO
-		W5TableUserTip tableUserTip= null;
-		if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){ // bu userTip icin istekleri var
-			tableUserTip= t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-		}
+
 
 		W5ApprovalRecord appRecord = null;
 		W5ApprovalStep approvalStep = null;
@@ -880,24 +831,7 @@ public class FrameworkEngine{
 				} else
 					updatableUserFieldFlag = true;
 			}
-			//bu record'a show/update hakki var mi?
-			if(tableUserTip!=null && tableUserTip.getAccessUpdateSql()!=null){//update ile ilgili control var
-				if(tableUserTip.getAccessUpdateSql().equals("!")){
-//					throw new PromisException("security","Form", formId, null, "Kullanıcı Tip Ã–zel Kontrol: Güncelleştirilemez", null);
-					formResult.getOutputMessages().add("Kullanıcı Tip Ã–zel Kontrol: Güncelleştirilemez");
-					formResult.setViewMode(true);
-				} else {
-					String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessUpdateSql(), paramSuffix).toString() : tableUserTip.getAccessUpdateSql();
-					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams, null);
-					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-					if(!GenericUtil.isEmpty(m)){
-						if(m.get("dont_throw")==null)throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
-						formResult.getOutputMessages().add((String)m.get("error_msg"));
-						formResult.setViewMode(true);
-					}
 
-				}
-			}
 			if(appRecord!=null && (appRecord.getApprovalStepId()<900 || appRecord.getApprovalStepId()==999)){//eger bir approval sureci icindeyse
 				if(appRecord.getApprovalStepId()==999){
 					formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_onay_kontrol_red_kayit_guncelleme"));
@@ -918,12 +852,7 @@ public class FrameworkEngine{
 					formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"));
 					formResult.setViewMode(true);
 				}
-				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessUpdateTip(), tableUserTip.getAccessUpdateRoles(), tableUserTip.getAccessUpdateUsers())){
-					if(tableUserTip.getAccessUpdateUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessUpdateUserFields(), scd, requestParams, "")){
-						if(formResult!=null)formResult.getOutputMessages().add(LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"));
-						if(formResult!=null)formResult.setViewMode(true);
-					}
-				}
+
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){ // kayit bazli kontrol var
 					if(checkAccessRecordControlViolation(scd, 0, t.getTableId(), requestParams.get(t.get_tableParamList().get(0).getDsc()))){
 						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_kayit_bazli_kontrol_goruntuleme"), null);
@@ -945,14 +874,7 @@ public class FrameworkEngine{
 				throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_kayit_ekleme"), null);
 			}
 
-			if(tableUserTip!=null && tableUserTip.getAccessInsertSql()!=null){ // Table user tip access control, prefixi sor
-				String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessInsertSql(), paramSuffix).toString() : tableUserTip.getAccessInsertSql();
-				Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams, null);
-				Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-				if(m != null && m.size() > 0){
-					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),(String)m.get("error_msg")), null);
-				}
-			}
+
 
 			break;
 		case	3://delete
@@ -968,18 +890,7 @@ public class FrameworkEngine{
 				if(dao.accessUserFieldControl(t, t.getAccessDeleteUserFields(), scd, requestParams, paramSuffix))
 					throw new PromisException("security","Form", formId, null, PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_alan_kisit"), null);
 			}*/
-			if(tableUserTip!=null && tableUserTip.getAccessDeleteSql()!=null){//update ile ilgili control var
-				if(tableUserTip.getAccessDeleteSql().equals("!")){
-					throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_silinemez_kullanici_tip_kisit"), null);
-				} else {
-					String ads = paramSuffix!=null? GenericUtil.filterExtWithPrefix(tableUserTip.getAccessDeleteSql(), paramSuffix).toString() : tableUserTip.getAccessDeleteSql();
-					Object[] oz = DBUtil.filterExt4SQL(ads, scd, requestParams, null);
-					Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-					if(m!=null){//TODO: error_msg diye birsey olursa onu bas
-						throw new IWBException("security","Form", formId, null, (String)m.get("error_msg"), null);
-					}
-				}
-			}
+
 			if(appRecord!=null){//eger bir approval sureci icindeyse
 				if(!GenericUtil.accessControl(scd, appRecord.getAccessViewTip(), appRecord.getAccessViewRoles(), appRecord.getAccessViewUsers())
 						|| (approvalStep!=null && !GenericUtil.accessControl(scd, approvalStep.getAccessDeleteTip(), approvalStep.getAccessDeleteRoles(), approvalStep.getAccessDeleteUsers()))
@@ -995,11 +906,7 @@ public class FrameworkEngine{
 					throw new PromisException("security","Form", formId, null, PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
 				} */
 
-				if(tableUserTip!=null && !GenericUtil.accessControl(scd, tableUserTip.getAccessDeleteTip(), tableUserTip.getAccessDeleteRoles(), tableUserTip.getAccessDeleteUsers())){
-					if(tableUserTip.getAccessDeleteUserFields()==null || dao.accessUserFieldControl(t, tableUserTip.getAccessDeleteUserFields(), scd, requestParams, "")){
-						throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_silme"), null);
-					}
-				}
+
 
 				// kayit bazli kontrol var
 				if(t.getAccessTips()!=null && t.getAccessTips().indexOf("0")>-1){//show
@@ -1060,7 +967,7 @@ public class FrameworkEngine{
 		int	sourceStepId = -1;
 		String ptablePk = null; //accessControl islemi icin
 		String pcopyTablePk = null; //accessControl islemi icin
-		W5Feed feed = null;
+		Log5Feed feed = null;
 		int feedTableId=0,feedTablePk=0;
 		// once load edilmis eski objeye gerek var mi? wdiget'lar icin gerekir, condition olan yerler icin de gerekebilir
 		Map<String, Object> oldObj = null;
@@ -1218,22 +1125,13 @@ public class FrameworkEngine{
 				String appRecordUserList = null;
 				String appRecordRoleList = null;
 				String mesajBody = "";
-					/*
-					//Onay başlatacak kişilere notification gönder
-					for(Integer   notificationUserId:(List<Integer>)dao.executeSQLQuery("select distinct gu.userId from W5User gu where gu.userId != ? and (gu.userId in (select ur.userId from W5UserRole ur where ur.roleId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.userId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))", scd.get("userId"),appRecord.getApprovalUsers(),appRecord.getApprovalRoles())){
-						dao.saveObject(new W5Notification(scd,notificationUserId, (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-					}*/
+
 
 				List<Object> notificationUsers = dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.customization_id= ? and gu.user_Id != ? and (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("customizationId"),scd.get("userId"), appRecord.getApprovalRoles(), appRecord.getApprovalUsers());
 				if(notificationUsers!=null)for(Object o:notificationUsers){
-					dao.saveObject2(new W5Notification(scd,GenericUtil.uInt(o),(short)(appRecord.getApprovalStepId()==901 && approval.getApprovalFlowTip() == 3 ? 903 : 6), approval.getTableId(), appRecord.getTablePk(), GenericUtil.uInt(scd.get("userId")), null,1), scd);
+					dao.saveObject2(new Log5Notification(scd,GenericUtil.uInt(o),(short)(appRecord.getApprovalStepId()==901 && approval.getApprovalFlowTip() == 3 ? 903 : 6), approval.getTableId(), appRecord.getTablePk(), GenericUtil.uInt(scd.get("userId")), null,1), scd);
 				}
-				/*
-					for(Object[] liste : (List<Object[]>)dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.user_Id != ? or (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("userId"),appRecord.getApprovalUsers(),appRecord.getApprovalRoles())){
-						List<Object> newAttachUsers = executeSQLQuery("select distinct c.upload_user_id from iwb.w5_file_attachment c where c.table_id=? AND c.table_pk=? AND not exists(select 1 from iwb.w5_notification n where n.active_flag=1 AND n.notification_tip=2 AND n.table_id=c.table_id AND n.table_pk=c.table_pk AND n.user_id=c.upload_user_id)", tableId, tablePk);
-						if(liste[0]!=null) dao.saveObject(new W5Notification(scd,PromisUtil.uInt(liste[0]), (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-					}
-					*/
+
 				if ((approval != null && approval.getActiveFlag() != 0 && ((appRecord.getApprovalStepId()<900  && (approvalStep.getSendMailOnEnterStepFlag() != 0) )) || appRecord.getApprovalStepId()>900)) {
 					appRecordUserList = appRecord.getApprovalUsers();
 					appRecordRoleList = appRecord.getApprovalRoles();
@@ -1462,23 +1360,11 @@ public class FrameworkEngine{
 				String appRecordUserList = null;
 				String appRecordRoleList = null;
 				String mesajBody = "";
-					/*
-					//Onay başlatacak kişilere notification gönder
-					for(Integer   notificationUserId:(List<Integer>)dao.executeSQLQuery("select distinct gu.userId from W5User gu where gu.userId != ? and (gu.userId in (select ur.userId from W5UserRole ur where ur.roleId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.userId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))", scd.get("userId"),appRecord.getApprovalUsers(),appRecord.getApprovalRoles())){
-						dao.saveObject(new W5Notification(scd,notificationUserId, (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-					}*/
+
 
 				List<Object> notificationUsers = dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.customization_id= ? and gu.user_Id != ? and (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x)) or gu.user_id in ((select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x)))",scd.get("customizationId"),scd.get("userId"), appRecord.getApprovalRoles(), appRecord.getApprovalUsers());					if(notificationUsers!=null)for(Object o:notificationUsers){
-						dao.saveObject2(new W5Notification(scd,GenericUtil.uInt(o),(short)(appRecord.getApprovalStepId()==901 && approval.getApprovalFlowTip() == 3 ? 903 : 6), approval.getTableId(), appRecord.getTablePk(), GenericUtil.uInt(scd.get("userId")), null,1), scd);
+						dao.saveObject2(new Log5Notification(scd,GenericUtil.uInt(o),(short)(appRecord.getApprovalStepId()==901 && approval.getApprovalFlowTip() == 3 ? 903 : 6), approval.getTableId(), appRecord.getTablePk(), GenericUtil.uInt(scd.get("userId")), null,1), scd);
 					}
-				/*
-					for(Object[] liste : (List<Object[]>)dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.user_Id != ? or (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("userId"),appRecord.getApprovalUsers(),appRecord.getApprovalRoles())){
-						List<Object> newAttachUsers = executeSQLQuery("select distinct c.upload_user_id from iwb.w5_file_attachment c where c.table_id=? AND c.table_pk=? AND not exists(select 1 from iwb.w5_notification n where n.active_flag=1 AND n.notification_tip=2 AND n.table_id=c.table_id AND n.table_pk=c.table_pk AND n.user_id=c.upload_user_id)", tableId, tablePk);
-						if(liste[0]!=null) dao.saveObject(new W5Notification(scd,PromisUtil.uInt(liste[0]), (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-					}
-					*/
-
-
 				/*
 				 * Ekstra Bildirim Bilgileri, SMS, EMail ve Notification yükleniyor
 				 * SMS Mail Tip -> 0 SMS , 1 E-Mail, 2 Notification
@@ -1720,7 +1606,7 @@ public class FrameworkEngine{
 
 
 			if(appRecord==null && FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && t.getShowFeedTip()!=0 && (t.getTableId()!=671 && t.getTableId()!=329 && t.getTableId()!=44)){//TODO: delete icin onceden bakmak lazim yoksa gidecek kayit
-				feed = new W5Feed(scd);
+				feed = new Log5Feed(scd);
 				feed.set_showFeedTip(t.getShowFeedTip());
 				switch(feed.get_showFeedTip()){
 				case	2://master
@@ -1748,7 +1634,7 @@ public class FrameworkEngine{
 			Map<String, String> mz = new HashMap();
 			mz.put("ptable_id", ""+t.getTableId());
 			mz.put("ptable_pk", ptablePk);
-			W5DbFuncResult dfr = executeDbFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
+//			W5DbFuncResult dfr = executeFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
 			if(ptablePk!=null && appRecord==null){
 				if(t.getTableId()==44 &&  FrameworkCache.getAppSettingIntValue(scd, "delete_file_attachment_real_flag")!=0){ // file attachment ise
 					List l = dao.executeSQLQuery("select x.SYSTEM_FILE_NAME from iwb.w5_file_attachment x where x.customization_id=? AND x.file_attachment_id=?", scd.get("customizationId"), ptablePk);
@@ -1780,17 +1666,7 @@ public class FrameworkEngine{
 					String appRecordUserList = null;
 					String appRecordRoleList = null;
 					String mesajBody = "";
-	/*
-						//TODO:Onay başlatacak kişilere notification gönder
-						for(Integer   notificationUserId:(List<Integer>)dao.find("select distinct gu.userId from W5User gu where gu.userId != ? and (gu.userId in (select ur.userId from W5UserRole ur where ur.roleId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.userId in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))", scd.get("userId"),approval.getManualAppRoleIds(),approval.getManualAppUserIds())){
-							dao.saveObject(new W5Notification(scd,notificationUserId, (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-						}
 
-
-						for(Object[] liste : (List<Object[]>)dao.executeSQLQuery("select distinct gu.user_id from iwb.w5_User gu where gu.user_Id != ? and (gu.user_Id in (select ur.user_Id from iwb.w5_User_Role ur where ur.role_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x))) or gu.user_id in ((select x.satir from table(tool_parse_numbers(?,\',\'))x)))",scd.get("userId"),approval.getManualAppRoleIds(),approval.getManualAppUserIds())){
-							if(liste[0]!=null) dao.saveObject(new W5Notification(scd,PromisUtil.uInt(liste[0]), (short)(2+approval.getActionTip()), approval.getTableId(), appRecord.getTablePk(), PromisUtil.uInt(scd.get("userId")), null));
-						}
-	*/
 
 					if ((approval != null && approval.getActiveFlag() != 0 && ((appRecord.getApprovalStepId()<900  && approvalStep.getSendMailOnEnterStepFlag() != 0)) || appRecord.getApprovalStepId()>900)) {
 
@@ -2091,7 +1967,7 @@ public class FrameworkEngine{
 
 	private void extFormFeed(W5FormResult formResult, Map<String, Object> scd,
 			Map<String, String> requestParams, W5Table t, String ptablePk,
-			W5Feed feed, int feedTableId, int feedTablePk) {
+			Log5Feed feed, int feedTableId, int feedTablePk) {
 		if(FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && t.getShowFeedTip()!=0)try{
 			//buraya diger yerlerden de gelmesi lazim: dbFunc(email,sms),fileAttach, checkMailz
 //				W5Feed feed = null;
@@ -2100,7 +1976,7 @@ public class FrameworkEngine{
 			case	2://post action:insert
 				switch(t.getTableId()){
 				case	671://feed: signal:
-					feed = new W5Feed(scd);
+					feed = new Log5Feed(scd);
 					feed.setFeedTip((short)0);//feed:signal
 					feed.setDsc(requestParams.get("dsc"));
 					feed.setFeedId(GenericUtil.uInt(ptablePk));
@@ -2113,9 +1989,9 @@ public class FrameworkEngine{
 				case	329://comment:eger wall 'dayse oraya comment olarak koy, ve yukari tasi; aksi halde yeni bir comment koy
 					feedTableId=GenericUtil.uInt(requestParams,"table_id");
 					feedTablePk=GenericUtil.uInt(requestParams,"table_pk");
-					List<W5Feed> lx = FrameworkCache.wFeeds.get((Integer)scd.get("customizationId"));
+					List<Log5Feed> lx = FrameworkCache.wFeeds.get((Integer)scd.get("customizationId"));
 					if(lx!=null)for(int qz=lx.size()-1;qz>=0;qz--){
-						W5Feed lf = lx.get(qz);
+						Log5Feed lf = lx.get(qz);
 						if(lf!=null && lf.getTableId()==feedTableId && lf.getTablePk()==feedTablePk && lf.getCustomizationId()==(Integer)scd.get("customizationId")){
 							if(lf.get_tableCommentList()==null)lf.set_tableCommentList(new ArrayList());
 							W5CommentHelper ch = new W5CommentHelper(scd);
@@ -2129,7 +2005,7 @@ public class FrameworkEngine{
 						}
 					}
 					if(feed==null){//demek ki, bulamamis bir yerde simdikileri yapacak
-						feed = new W5Feed(scd);
+						feed = new Log5Feed(scd);
 						feed.setFeedTip((short)11);//comment
 //							feed.setDsc(requestParams.get("dsc"));
 						feed.setTableId(feedTableId=GenericUtil.uInt(requestParams,"table_id"));
@@ -2145,7 +2021,7 @@ public class FrameworkEngine{
 				case	44://file_attach:TODO
 					break;
 				default://diger herseyde
-					feed = new W5Feed(scd);
+					feed = new Log5Feed(scd);
 					feed.set_showFeedTip(t.getShowFeedTip());
 					switch(feed.get_showFeedTip()){
 					case	2://master
@@ -2163,7 +2039,7 @@ public class FrameworkEngine{
 
 				break;
 			case	1://post action:edit
-				feed = new W5Feed(scd);
+				feed = new Log5Feed(scd);
 				feed.set_showFeedTip(t.getShowFeedTip());
 				switch(feed.get_showFeedTip()){
 				case	2://master
@@ -2198,21 +2074,6 @@ public class FrameworkEngine{
 				FrameworkCache.addFeed(scd, feed, true);
 
 			}
-/*		if(t.get_feedMap()!=null){//feed mekanizmasi var mi bunda?
-				W5ObjectSmsMail tableFeed = t.get_feedMap().get((short)action); //action
-				if(tableFeed!=null && tableFeed.getActiveFlag()!=0){//edit sms mekanizmasi var
-					if(formResult.getOutputFields()!=null)for(String key:formResult.getOutputFields().keySet())requestParams.put("t"+key, formResult.getOutputFields().get(key).toString());
-					Object[] oz = PromisUtil.filterExt4SQL(tableFeed.getSqlCode(), scd, requestParams, null);
-					List<Map> lm = dao.executeSQLQuery2Map(oz[0].toString(),(List)oz[1]);
-					if(lm!=null && lm.size()>0)for(Map m : lm){
-						if(m!=null && !m.isEmpty()){
-							feed = new W5Feed(scd, m);//TODO:birkac tane
-
-
-						}
-					}
-				}
-			}*/
 
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
@@ -2319,7 +2180,9 @@ public class FrameworkEngine{
 					short resultAction = ta.getLkpResultAction();
 					if(scope.has("resultAction", scope))resultAction = (short)GenericUtil.uInt(scope.get("resultAction", scope).toString());
 					switch(resultAction){
-					case	1://message & continue
+					case	1://readonly
+						formResult.setViewMode(true);
+					case	0://continue
 						formResult.getOutputMessages().add(msg);
 						break;
 					case	2://confirm & continue
@@ -2344,7 +2207,9 @@ public class FrameworkEngine{
 				short resultAction = ta.getLkpResultAction();
 				if(m.containsKey("resultAction"))resultAction = (short)GenericUtil.uInt(m.get("resultAction"));
 				switch(resultAction){
-				case	1://message & continue
+				case	1://readonly
+					formResult.setViewMode(true);
+				case	0://continue
 					formResult.getOutputMessages().add(msg);
 					break;
 				case	2://confirm & continue
@@ -3031,12 +2896,6 @@ public class FrameworkEngine{
 					throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 				}
 
-				if(scd.get("userTip")!=null && t.get_tableUserTipMap()!=null){
-					W5TableUserTip tut = t.get_tableUserTipMap().get((Integer)scd.get("userTip"));
-					if(tut!=null && tut.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tut.getAccessViewTip(), tut.getAccessViewRoles(), tut.getAccessViewUsers())){
-						throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme") + " (userTip)", null);
-					}
-				}
 				break;
 			}
 
@@ -3381,9 +3240,6 @@ public class FrameworkEngine{
 						}
 					}
 					break;
-				case	9: //gantt
-
-					break;
 				case	7: //list view
 					W5ListViewResult listViewResult = dao.getListViewResult(scd, o.getObjectId(), requestParams, objectCount!=0);
 					if(o.getObjectTip()<0)listViewResult.setListId(-listViewResult.getListId());
@@ -3418,7 +3274,7 @@ public class FrameworkEngine{
 					obz = executeQuery(scd, o.getObjectId(), paramMap);
 					break;
 				case	5://dbFunc
-					obz = executeDbFunc(scd, o.getObjectId(), requestParams, (short)1);
+					obz = executeFunc(scd, o.getObjectId(), requestParams, (short)1);
 					break;
 				case	12://graph dashboard
 					obz = dao.getCustomizedObject("from W5BIGraphDashboard t where t.graphDashboardId=? AND t.customizationId=?", o.getObjectId(), o.getCustomizationId(),"GraphDashBoardID");
@@ -3433,75 +3289,38 @@ public class FrameworkEngine{
 				objectCount++;
 			}
 
-
-			if(requestParams.get("table_id")!=null && requestParams.get("table_id")!=null && templateId==714){ //Resimleri gostermek icin.
-
-				String tempHtml="<div id=\"content\">";
-				List<W5FileAttachment> fal= dao.getRecordPictures(scd,GenericUtil.uInt(requestParams.get("table_id")),requestParams.get("table_pk"));
-				for (W5FileAttachment fa :fal ){
-					 String fileUrl="sf/"+ fa.getSystemFileName()+"?_fai="+fa.getFileAttachmentId();;
-					 tempHtml+="<div class=\"thumbnail\"> <a href=\""+fileUrl+ "\"  class=\"lb-flower\" title=\""+ fa.getOrijinalFileName()+"\"   > <img src=\" ";
-					 tempHtml+= fileUrl;
-					 tempHtml+="\" alt=\"Pansy\" width=\"120 height=\"72\" ></a></div>";
-				}
-				if(fal.size()==0) tempHtml+="<h1>Picture Not Found</h1>";
-				tempHtml+="</div>";
-				W5Template originalTemplate = (W5Template)dao.getCustomizedObject("from W5Template t where t.templateId=? and t.customizationId=?", templateResult.getTemplateId(), 0,"TemplateID"); // ozel bir client icin varsa
-				String tempCode=originalTemplate.getCode();
-				templateResult.getTemplate().setCode(tempCode.replace("$temp_html",tempHtml ));
-			}
 		}
 		return templateResult;
 	}
-
-	public W5DbFuncResult executeDbFunc(Map<String, Object> scd, int dbFuncId,
-			Map<String, String> parameterMap, short execRestrictTip) {
-
-		W5DbFuncResult dbFuncResult = null;
-		switch(dbFuncId){
-		case	-631://SMS
-		case	-650://Mail
-			Object tk =null;
-			String result="";
-			if(!parameterMap.containsKey("pold_mail_id")){
-				tk = parameterMap.get("_tablePk")==null ? (Object)parameterMap.get("ptable_pk") : (Object)parameterMap.get("_tablePk"); //TODO
-				parameterMap.put("_tablePk", tk.toString());parameterMap.put("ptable_pk", String.valueOf(tk));
-				tk = parameterMap.get("_tableId")==null ? (Object)parameterMap.get("ptable_id") : (Object)parameterMap.get("_tableId");
-				parameterMap.put("_tableId", tk.toString());parameterMap.put("ptable_id", tk.toString());
-			}
-
-			if(dbFuncId==-631){//sms
-				if(FrameworkCache.getAppSettingIntValue(scd, "sms_flag")!=0 && !GenericUtil.isEmpty(parameterMap.get("phone")))
-					sendSms(GenericUtil.uInt(scd.get("customizationId")),GenericUtil.uInt(scd.get("userId")), parameterMap.get("phone"),parameterMap.get("body"), (parameterMap.get("_tablePk")==null ? GenericUtil.uInt(parameterMap.get("ptable_id")) : GenericUtil.uInt(parameterMap.get("_tableId"))), (parameterMap.get("_tablePk")==null ? GenericUtil.uInt(parameterMap.get("ptable_pk")) : GenericUtil.uInt(parameterMap.get("_tablePk"))));
-			} else if(FrameworkCache.getAppSettingIntValue(scd, "mail_flag")!=0){//mail
-				List<W5FileAttachment> fileAttachments = null;
-				String fas = parameterMap.get("pfile_attachment_ids");
-				if(fas!=null && fas.length()>0){
-					String[] q = fas.split(",");
-					if(q.length>0){
-						parameterMap.put("pfile_attachment_ids", fas);
-						Object[] ps = new Object[q.length+1];
-						String sql = "from W5FileAttachment t where t.customizationId=? and  t.fileAttachmentId in (";
-						int i = 1;
-						ps[0]=scd.get("customizationId");
-						for(String s:q){
-							ps[i++] = GenericUtil.uInt(s);
-							sql+="?,";
-						}
-						fileAttachments = dao.find(sql.substring(0,sql.length()-1)+")", ps);
-					}
+	
+	public void sendMail(Map<String, Object> scd, String mailTo, String mailCc, String mailBcc, String subject, String body, String fileIds) {
+/*		List<W5FileAttachment> fileAttachments = null;
+		String fas = parameterMap.get("pfile_attachment_ids");
+		if(fas!=null && fas.length()>0){
+			String[] q = fas.split(",");
+			if(q.length>0){
+				parameterMap.put("pfile_attachment_ids", fas);
+				Object[] ps = new Object[q.length+1];
+				String sql = "from W5FileAttachment t where t.customizationId=? and  t.fileAttachmentId in (";
+				int i = 1;
+				ps[0]=scd.get("customizationId");
+				for(String s:q){
+					ps[i++] = GenericUtil.uInt(s);
+					sql+="?,";
 				}
-				W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.find("from W5ObjectMailSetting t where t.customizationId=? and t.mailSettingId=?", (Integer)scd.get("customizationId"),GenericUtil.uInt((Object)parameterMap.get("pmail_setting_id"))).get(0);
-
-				if(oms!=null){
-					W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
-					result = mailAdapter.sendMail(scd, oms, email);
-					if(result!=null){ //basarisiz, queue'ye at
-						parameterMap.put("perror_msg", result);
-					}
-				}
+				fileAttachments = dao.find(sql.substring(0,sql.length()-1)+")", ps);
 			}
-			if(FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && result==null)try{
+		}
+		W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.find("from W5ObjectMailSetting t where t.customizationId=? and t.mailSettingId=?", (Integer)scd.get("customizationId"),GenericUtil.uInt((Object)parameterMap.get("pmail_setting_id"))).get(0);
+
+		if(oms!=null){
+			W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
+			result = mailAdapter.sendMail(scd, oms, email);
+			if(result!=null){ //basarisiz, queue'ye at
+				parameterMap.put("perror_msg", result);
+			}
+		} 
+		if(FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && result==null)try{
 				W5Feed feed = new W5Feed(scd);
 				feed.setFeedTip((short)(dbFuncId==-631 ? 22:21)); //sms:mail
 				feed.setTableId(GenericUtil.uInt(parameterMap.get("_tableId")));feed.setTablePk(GenericUtil.uInt(parameterMap.get("_tablePk")));
@@ -3520,207 +3339,40 @@ public class FrameworkEngine{
 				saveObject(feed);
 				FrameworkCache.addFeed(scd, feed, true);
 			} catch(Exception e){}
-		default:
-			dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
-			if(!FrameworkCache.roleAccessControl(scd, 0)){
-				throw new IWBException("security","Module", dbFuncId, null, "Role Access DbFunc Control", null);
+		*
+		*/
+	}
+
+	public W5DbFuncResult executeFunc(Map<String, Object> scd, int dbFuncId, Map<String, String> parameterMap, short accessSourceType) {
+
+		W5DbFuncResult dbFuncResult = null;
+
+		dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
+		if(!GenericUtil.isEmpty(dbFuncResult.getDbFunc().getAccessSourceTypes()) && !GenericUtil.hasPartInside2(dbFuncResult.getDbFunc().getAccessSourceTypes(),accessSourceType))
+			throw new IWBException("security","GlobalFunc", dbFuncId, null, "Access Source Type Control", null);
+		/*if(execRestrictTip!=4 && checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
+			throw new PromisException("security","DbProc Execute2", dbFuncId, null, "Access Execute Control", null);*/
+
+		dbFuncResult.setErrorMap(new HashMap());
+		dbFuncResult.setRequestParams(parameterMap);
+		DbFuncTrigger.beforeExecDbFunc(dbFuncResult);
+
+		dao.executeDbFunc(dbFuncResult, "");
+
+		if(dbFuncResult.getErrorMap().isEmpty()){ //sorun yok
+			//post sms
+			if(!GenericUtil.isEmpty(dbFuncResult.getResultMap()))parameterMap.putAll(dbFuncResult.getResultMap()); // veli TODO acaba hata olabilir mi? baska bir map'e mi atsak sadece burasi icin?
+
+
+
+		}
+		DbFuncTrigger.afterExecDbFunc(dbFuncResult);
+		
+		switch(dbFuncId){
+		case	-478://reload locale msg cache
+			for(Object[] m : (List<Object[]>)dao.executeSQLQuery("select locale, locale_msg_key, dsc from iwb.w5_locale_msg where locale_msg_key=? AND customization_id=?",parameterMap.get("plocale_msg_key"), scd.get("customizationId"))){
+				LocaleMsgCache.set2((Integer)scd.get("customizationId"),(String)m[0], (String)m[1], (String)m[2]);
 			}
-			if(execRestrictTip!=dbFuncResult.getDbFunc().getExecRestrictTip())
-				throw new IWBException("security","DbProc", dbFuncId, null, "Access Restrict Type Control", null);
-			/*if(execRestrictTip!=4 && checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
-				throw new PromisException("security","DbProc Execute2", dbFuncId, null, "Access Execute Control", null);*/
-
-			dbFuncResult.setErrorMap(new HashMap());
-			dbFuncResult.setRequestParams(parameterMap);
-			DbFuncTrigger.beforeExecDbFunc(dbFuncResult);
-
-			if(dbFuncId==-1){
-				if((Integer)scd.get("roleId")!=0)
-					throw new IWBException("security","System DbProc", dbFuncId, null, "Only for developers", null);
-				dao.organizeQueryFields(scd, GenericUtil.uInt(parameterMap.get("queryId")), (short)GenericUtil.uInt(parameterMap.get("insertFlag")));
-				dbFuncResult.setSuccess(true);
-				dbFuncResult.setRequestParams(new HashMap());
-			} else
-				dao.executeDbFunc(dbFuncResult, "");
-			if(dbFuncResult.getErrorMap().isEmpty()){ //sorun yok
-				if(dbFuncId==-961){//table extended field ekleme
-					FrameworkCache.reloadCacheQueue.put("6-"+scd.get("customizationId"), System.currentTimeMillis());
-				}
-				//post sms
-				if(!GenericUtil.isEmpty(dbFuncResult.getResultMap()))parameterMap.putAll(dbFuncResult.getResultMap()); // veli TODO acaba hata olabilir mi? baska bir map'e mi atsak sadece burasi icin?
-
-
-				/*if(PromisCache.getAppSettingIntValue(dbFuncResult.getScd(), "bpm_flag")!=0){
-					//bpm:start action
-					if(dbFuncResult.getResultMap()!=null && !dbFuncResult.getResultMap().isEmpty())parameterMap.putAll(dbFuncResult.getResultMap());
-
-					int nextBpmActionId = dao.bpmControl(scd, parameterMap, dbFuncResult.getDbFunc().get_listBpmStartAction(), dbFuncResult.getDbFunc().get_listBpmEndAction(), 11, 0, 0, true);
-					if (nextBpmActionId>-1)dbFuncResult.setNextBpmActions(dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", nextBpmActionId));
-
-					/*
-					if(dbFuncResult.getDbFunc().get_listBpmStartAction()!=null)for(BpmAction ba:dbFuncResult.getDbFunc().get_listBpmStartAction())if(ba.getStartActionSql()!=null && ba.get_listRelatedProcessStep()!=null){//crud veya action=ilglili action
-						for(BpmProcessStep bps:ba.get_listRelatedProcessStep()){//her bir process step icin
-							int tablePk = 0, action=11;
-							boolean finishFlow = false;
-							Map m = dao.runSQLQuery2Map(ba.getStartActionSql(), scd, parameterMap, bps.get_stepParamMap());
-							if(m!=null){
-								if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;
-								if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0)finishFlow = true;
-								if(m.get("action")!=null)action=PromisUtil.uInt(m.get("action"));
-								tablePk = PromisUtil.uInt(m.get("table_pk"));
-								if(tablePk==0)continue;
-							}
-
-							int processId = bps.getProcessId();
-							int processStepId = bps.getProcessStepId();
-							int flowProcessId = 0;
-							if(bps.get_firstStepFlag()!=0){//ilk kayit yapilacak
-								BpmFlowProcess bfp = new BpmFlowProcess(scd);
-								bfp.setProcessId(processId);
-								bfp.setStartTableId(bps.get_action().getRelatedTableId());
-								bfp.setStartTablePk(tablePk);
-								bfp.setStatus(finishFlow ? (short)11 : (short)1);//active
-								bfp.setAssignedUserId((Integer)scd.get("userId"));
-								dao.saveObject(bfp);
-								BpmFlowProcessStep bfps = new BpmFlowProcessStep(bfp);
-								bfps.setProcessStepId(processStepId);
-								bfps.setActionId(ba.getActionId());
-								bfps.setTableId(bps.get_action().getRelatedTableId());
-								bfps.setTablePk(tablePk);//bu nedir
-								bfps.setCrudAction((short)action);
-								switch(ba.getEndActionTip()){
-								case	1://manual
-									bfps.setStatus((short)1);//active: manual finish
-									break;
-								case	2://instant
-									bfps.setStatus((short)11);//finish
-									bfps.setPercentDone((short)100);//active: manual finish
-									break;
-								case	3://table_record_condition
-									break;
-								case	4://exec_db_func
-									break;
-								case	6://finish_after_duration
-									bfps.setStatus((short)2);//active: finish_after_duration
-									break;
-								}
-								dao.saveObject(bfps);
-								dbFuncResult.setNextBpmActions(dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", ba.getActionId()));
-							} else if(ba.get_listLinkCondition()!=null)for(BpmActionLinkCondition balc:ba.get_listLinkCondition()){//bagli oldugu flowu bulmak icin gerekli kod
-								parameterMap.put("_pi", ""+processId);//processId
-								parameterMap.put("_psi", ""+bps.getProcessStepId());//processStepId
-								parameterMap.put("_ai", ""+ba.getActionId());//actionId
-								parameterMap.put("_pai", ""+balc.getParentActionId());//parentActionId
-								m = dao.runSQLQuery2Map(balc.getSqlCode(), scd, parameterMap, null);
-								if(m!=null){
-									flowProcessId = PromisUtil.uInt(m.get("flow_process_id"));
-									BpmFlowProcess bfp=(BpmFlowProcess)dao.getCustomizedObject("from BpmFlowProcess t where t.flowProcessId=? AND t.customizationId=?", flowProcessId, (Integer)scd.get("customizationId"));
-									if(bfp!=null){
-										if(bps.getRelatedStepIds()!=null){//daha onceki kayitlar yapilmis olmali, aksi halde devam edemez
-											String[] stepIds=bps.getRelatedStepIds().split(",");
-//											dao.find("from BpmProcessStep q where q.customizationId=? AND q.processId=", params)
-											//TODO: su su stepler saglanmadigi icin devam edilemez
-										}
-										//flowProcess Update
-										bfp.setVersionUserId((Integer)scd.get("userId"));
-										bfp.setVersionNo(bfp.getVersionNo()+1);
-										bfp.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-										if(finishFlow)bfp.setStatus((short)11);
-										dao.updateObject(bfp);
-										if(ba.getLogOnceFlag()!=0){//tek defa kaydedilecek
-											int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-											if(flowProcessStepId!=0){
-												BpmFlowProcessStep bfps=(BpmFlowProcessStep)dao.getCustomizedObject("from BpmFlowProcessStep t where t.flowProcessStepId=? AND t.customizationId=?", flowProcessStepId, (Integer)scd.get("customizationId"));
-												if(bfps!=null){
-													bfps.setVersionUserId((Integer)scd.get("userId"));
-													bfps.setVersionNo(bfps.getVersionNo()+1);
-													bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-													dao.updateObject(bfps);
-												}
-
-												continue;
-											}
-										}else { //birden fazla defa da kaydedilebilir, aynisindan varsa ilgili kaydi update et
-											int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-											if(flowProcessStepId!=0){ // bir tane var demek ki
-												List<BpmFlowProcessStep> lbfps=(List<BpmFlowProcessStep>)dao.find("from BpmFlowProcessStep t " +
-														"where t.tableId=? AND t.tablePk=? AND t.flowProcessId=? AND t.actionId=? AND t.customizationId=?", bps.get_action().getRelatedTableId(), tablePk, flowProcessId, bps.getActionId(), (Integer)scd.get("customizationId"));
-												if(!lbfps.isEmpty()){
-													BpmFlowProcessStep bfps = lbfps.get(0);
-													bfps.setVersionUserId((Integer)scd.get("userId"));
-													bfps.setVersionNo(bfps.getVersionNo()+1);
-													bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-													dao.updateObject(bfps);
-													continue;
-												}
-											}
-										}
-										if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;//active flag var ve akif degilse
-
-										BpmFlowProcessStep bfps = new BpmFlowProcessStep(scd);
-										bfps.setProcessStepId(processStepId);
-										bfps.setProcessId(processId);
-										bfps.setActionId(ba.getActionId());
-										bfps.setFlowProcessId(flowProcessId);
-										bfps.setTableId(bps.get_action().getRelatedTableId());
-										bfps.setTablePk(tablePk);//bu nedir
-										bfps.setCrudAction((short)action);
-										switch(ba.getEndActionTip()){
-										case	1://manual
-											bfps.setStatus((short)1);//active: manual finish
-											break;
-										case	2://instant
-											bfps.setStatus((short)11);//finish
-											bfps.setPercentDone((short)100);//active: manual finish
-											break;
-										case	3://table_record_condition
-											break;
-										case	4://exec_db_func
-											break;
-										case	6://finish_after_duration
-											bfps.setStatus((short)2);//active: finish_after_duration
-											break;
-										}
-										dao.saveObject(bfps);
-										dbFuncResult.setNextBpmActions(dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", ba.getActionId()));
-									}
-								}
-							}
-						}
-					}
-					//bpm:end action
-					if(dbFuncResult.getDbFunc().get_listBpmEndAction()!=null)for(BpmAction ba:dbFuncResult.getDbFunc().get_listBpmEndAction())if(ba.getEndActionTip()==3){//table crud
-						int percentDone=100;
-						if(ba.getEndActionSql()!=null){
-							Map<String, Object> m =  dao.runSQLQuery2Map(ba.getEndActionSql(), scd, parameterMap, null);
-							if(m!=null){
-								if(m.get("percent_done")!=null)percentDone=PromisUtil.uInt(m.get("percentDone"));
-								if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0){
-									//TODO : bitirmeyle ilgili islemler
-								}
-							}
-						}
-						List<BpmFlowProcessStep> lbfps = dao.find("from BpmFlowProcessStep t where t.percentDone<100 AND t.actionId=? AND t.customizationId=? AND exists(select 1 from BpmFlowProcess p where p.customizationId=t.customizationId AND p.processId=t.processId AND p.status=1)",ba.getActionId(),(Integer)scd.get("customizationId"));
-						for(BpmFlowProcessStep bfps:lbfps){
-							bfps.setVersionUserId((Integer)scd.get("userId"));
-							bfps.setVersionNo(bfps.getVersionNo()+1);
-							bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-							bfps.setPercentDone((short)percentDone);
-							dao.updateObject(bfps);
-						}
-					}
-
-				}*/
-
-			}
-			DbFuncTrigger.afterExecDbFunc(dbFuncResult);
-			switch(dbFuncId){
-			case	-478://reload locale msg cache
-				for(Object[] m : (List<Object[]>)dao.executeSQLQuery("select locale, locale_msg_key, dsc from iwb.w5_locale_msg where locale_msg_key=? AND customization_id=?",parameterMap.get("plocale_msg_key"), scd.get("customizationId"))){
-					LocaleMsgCache.set2((Integer)scd.get("customizationId"),(String)m[0], (String)m[1], (String)m[2]);
-				}
-			}
-
 		}
 		if(dbFuncResult == null) {
 			dbFuncResult = new W5DbFuncResult(dbFuncId);
@@ -3760,36 +3412,7 @@ public class FrameworkEngine{
 				makeProfilePicture(GenericUtil.uInt(fa.getTablePk()), fa);
 			}
 			PostFormTrigger.afterPostForm(formResult, dao, null);
-/*			TODO: simpleformcontroller'dan cagirilan bus layerda transaction calismiyor. duzeltilecek
-			W5Feed feed = new W5Feed(formResult.getScd());
-			feed.setFeedTip((short)12);
-			feed.setTableId(fa.getTableId());feed.setTablePk(PromisUtil.uInt(fa.getTablePk()));
-//			if(ar.getAccessViewTip()!=0)feed.set_viewAccessControl(new W5AccessControlHelper(ar.getAccessViewRoles(),ar.getAccessViewUsers()));
 
-			feed.set_tableRecordList(dao.findRecordParentRecords(formResult.getScd(),feed.getTableId(),feed.getTablePk(),0, true)); //TODO: hata burda, memory leak
-
-			if(feed.get_tableRecordList()!=null && feed.get_tableRecordList().size()>0)feed.set_commentCount(feed.get_tableRecordList().get(0).getCommentCount());
-
-			dao.saveObject(feed);
-
-			List<W5Feed> lx = PromisCache.wFeeds.get(fa.getCustomizationId());
-			if(lx==null){
-				lx = new ArrayList();
-				PromisCache.wFeeds.put(fa.getCustomizationId(), lx);
-			}
-			int maxDerinlik = PromisCache.getAppSettingIntValue(fa.getCustomizationId(), "feed_control_depth");
-			for(int qi=lx.size()-1;qi>=0 && maxDerinlik>0;maxDerinlik--,qi--){//bir onceki feedlerle iliskisi belirleniyor
-				W5Feed lfeed =lx.get(qi);
-				if(lfeed==null)continue;
-				if(lfeed.getTableId()==feed.getTableId() && lfeed.getTablePk()==feed.getTablePk() && lfeed.getFeedTip()==12){//edit haricinde birsey veya edit ise ayni tablo uzerinde detay seviyesinde
-					lx.set(qi,null);
-					feed.set_relatedFeedMap(new HashMap<Integer,W5Feed>());
-					feed.get_relatedFeedMap().put(lfeed.getFeedId(),lfeed);
-					if(lfeed.get_relatedFeedMap()!=null)feed.get_relatedFeedMap().putAll(lfeed.get_relatedFeedMap());
-					break;
-				}
-			}
-			lx.add(feed);*/
 		}
 	}
 
@@ -3800,7 +3423,7 @@ public class FrameworkEngine{
 			scd.put("roleId", 2);
 			scd.put("customizationId", fa.getCustomizationId());
 			scd.put("userTip", 2);
-			W5Feed feed = new W5Feed(scd);
+			Log5Feed feed = new Log5Feed(scd);
 			feed.set_showFeedTip((short)1);
 			feed.setFeedTip((short)24);//remove:master icin
 			dao.saveObject(feed);
@@ -3899,7 +3522,7 @@ public class FrameworkEngine{
 			List<W5QueuedDbFuncHelper> queuedDbFuncList = new ArrayList<W5QueuedDbFuncHelper>();
 			int preDbFuncId = GenericUtil.uInt(requestParams.get("_predid"));
 			if(preDbFuncId!=0){
-				W5DbFuncResult dbResult = executeDbFunc(scd, preDbFuncId, requestParams,(short)1);
+				W5DbFuncResult dbResult = executeFunc(scd, preDbFuncId, requestParams,(short)1);
 				if(!dbResult.getErrorMap().isEmpty()){
 					throw new IWBException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
 				}
@@ -3939,7 +3562,7 @@ public class FrameworkEngine{
 			}
 			int postDbFuncId = GenericUtil.uInt(requestParams.get("_postdid"));
 			if(postDbFuncId!=0){
-				W5DbFuncResult dbResult = executeDbFunc(scd, postDbFuncId, requestParams,(short)1);
+				W5DbFuncResult dbResult = executeFunc(scd, postDbFuncId, requestParams,(short)1);
 				if(!dbResult.getErrorMap().isEmpty()){
 					throw new IWBException("validation","PostDbFunc", preDbFuncId, null, "PostDbFunc Validation Error", null);
 				}
@@ -3963,7 +3586,7 @@ public class FrameworkEngine{
 		List<W5QueuedDbFuncHelper> queuedDbFuncList = new ArrayList<W5QueuedDbFuncHelper>();
 		int preDbFuncId = GenericUtil.uInt(requestParams.get("_predid"));
 		if(preDbFuncId!=0){
-			W5DbFuncResult dbResult = executeDbFunc(scd, preDbFuncId, requestParams,(short)1);
+			W5DbFuncResult dbResult = executeFunc(scd, preDbFuncId, requestParams,(short)1);
 			if(!dbResult.getErrorMap().isEmpty()){
 				throw new IWBException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
 			}
@@ -4037,7 +3660,7 @@ public class FrameworkEngine{
 			int dirtyCount, Map<String, String> requestParams, String prefix) {
 		int preDbFuncId = GenericUtil.uInt(requestParams.get("_predid"));
 		if(preDbFuncId!=0){
-			W5DbFuncResult dbResult = executeDbFunc(scd, preDbFuncId, requestParams,(short)1);
+			W5DbFuncResult dbResult = executeFunc(scd, preDbFuncId, requestParams,(short)1);
 			if(!dbResult.getErrorMap().isEmpty()){
 				throw new IWBException("validation","PreDbFunc", preDbFuncId, null, "PreDbFunc Validation Error", null);
 			}
@@ -4048,8 +3671,7 @@ public class FrameworkEngine{
 		}
 
 		W5DbFuncResult	dbFuncResult = dao.getDbFuncResult(scd, dbFuncId);
-
-		if((short)1!=dbFuncResult.getDbFunc().getExecRestrictTip())
+		if(!GenericUtil.isEmpty(dbFuncResult.getDbFunc().getAccessSourceTypes()) && !GenericUtil.hasPartInside2(dbFuncResult.getDbFunc().getAccessSourceTypes(),1))
 			throw new IWBException("security","DbProc", dbFuncId, null, "Access Restrict Type Control", null);
 		if(checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
 			throw new IWBException("security","DbProc Execute3", dbFuncId, null, "Access Execute Control", null);
@@ -4066,155 +3688,9 @@ public class FrameworkEngine{
 			if(!dbFuncResult.getErrorMap().isEmpty()  || !dbFuncResult.isSuccess()){
 					throw new IWBException("validation","DbFunc", -dbFuncId, null, "Detail Grid Validation", null);
 			}
-			/*if(PromisCache.getAppSettingIntValue(scd, "bpm_flag")!=0 && id==1){
-				//bpm:start action
-				if(dbFuncResult.getDbFunc().get_listBpmStartAction()!=null)for(BpmAction ba:dbFuncResult.getDbFunc().get_listBpmStartAction())if(ba.getStartActionSql()!=null && ba.get_listRelatedProcessStep()!=null){//crud veya action=ilglili action
-					for(BpmProcessStep bps:ba.get_listRelatedProcessStep()){//her bir process step icin
-						int tablePk = 0, action=11;
-						Map m = dao.runSQLQuery2Map(ba.getStartActionSql(), scd, requestParams, null);
-						if(m!=null){
-							if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;
-							if(m.get("action")!=null)action=PromisUtil.uInt(m.get("action"));
-							tablePk = PromisUtil.uInt(m.get("table_pk"));
-						}
-						int processId = bps.getProcessId();
-						int processStepId = bps.getProcessStepId();
-						int flowProcessId = 0;
-						if(bps.get_firstStepFlag()!=0){//ilk kayit yapilacak
-							BpmFlowProcess bfp = new BpmFlowProcess(scd);
-							bfp.setProcessId(processId);
-							bfp.setStartTableId(bps.get_action().getRelatedTableId());
-							bfp.setStartTablePk(tablePk);
-							bfp.setStatus((short)1);//active
-							bfp.setAssignedUserId((Integer)scd.get("userId"));
-							dao.saveObject(bfp);
-							BpmFlowProcessStep bfps = new BpmFlowProcessStep(bfp);
-							bfps.setProcessStepId(processStepId);
-							bfps.setActionId(ba.getActionId());
-							bfps.setTableId(bps.get_action().getRelatedTableId());
-							bfps.setTablePk(tablePk);//bu nedir
-							bfps.setCrudAction((short)action);
-							bfps.setPercentDone((short)10);//active: manual finish
-							switch(ba.getEndActionTip()){
-							case	1://manual
-								bfps.setStatus((short)1);//active: manual finish
-								break;
-							case	2://instant
-								bfps.setStatus((short)11);//finish
-								bfps.setPercentDone((short)100);//active: manual finish
-								break;
-							case	3://table_record_condition
-								break;
-							case	4://exec_db_func
-								break;
-							case	6://finish_after_duration
-								bfps.setStatus((short)2);//active: finish_after_duration
-								break;
-							}
-							dao.saveObject(bfps);
-						} else if(ba.get_listLinkCondition()!=null)for(BpmActionLinkCondition balc:ba.get_listLinkCondition()){//bagli oldugu flowu bulmak icin gerekli kod
-							requestParams.put("_pi", ""+processId);//processId
-							requestParams.put("_psi", ""+bps.getProcessStepId());//processStepId
-							requestParams.put("_ai", ""+ba.getActionId());//actionId
-							requestParams.put("_pai", ""+balc.getParentActionId());//parentActionId
-							m = dao.runSQLQuery2Map(balc.getSqlCode(), scd, requestParams, null);
-							if(m!=null){
-								flowProcessId = PromisUtil.uInt(m.get("flow_process_id"));
-								BpmFlowProcess bfp=(BpmFlowProcess)dao.getCustomizedObject("from BpmFlowProcess t where t.flowProcessId=? AND t.customizationId=?", flowProcessId, (Integer)scd.get("customizationId"));
-								if(bfp!=null){
-									//flowProcess Update
-									bfp.setVersionUserId((Integer)scd.get("userId"));
-									bfp.setVersionNo(bfp.getVersionNo()+1);
-									bfp.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-									dao.updateObject(bfp);
-									if(ba.getLogOnceFlag()!=0){//tek defa kaydedilecek
-										int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-										if(flowProcessStepId!=0){
-											BpmFlowProcessStep bfps=(BpmFlowProcessStep)dao.getCustomizedObject("from BpmFlowProcessStep t where t.flowProcessStepId=? AND t.customizationId=?", flowProcessStepId, (Integer)scd.get("customizationId"));
-											if(bfps!=null){
-												bfps.setVersionUserId((Integer)scd.get("userId"));
-												bfps.setVersionNo(bfps.getVersionNo()+1);
-												bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-												dao.updateObject(bfps);
-											}
-
-											continue;
-										}
-									}else { //birden fazla defa da kaydedilebilir, aynisindan varsa ilgili kaydi update et
-										int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-										if(flowProcessStepId!=0){ // bir tane var demek ki
-											List<BpmFlowProcessStep> lbfps=(List<BpmFlowProcessStep>)dao.find("from BpmFlowProcessStep t " +
-													"where t.tableId=? AND t.tablePk=? AND t.flowProcessId=? AND t.actionId=? AND t.customizationId=?", bps.get_action().getRelatedTableId(), tablePk, flowProcessId, bps.getActionId(), (Integer)scd.get("customizationId"));
-											if(!lbfps.isEmpty()){
-												BpmFlowProcessStep bfps = lbfps.get(0);
-												bfps.setVersionUserId((Integer)scd.get("userId"));
-												bfps.setVersionNo(bfps.getVersionNo()+1);
-												bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-												dao.updateObject(bfps);
-												continue;
-											}
-										}
-									}
-									if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;//active flag var ve akif degilse
-
-									BpmFlowProcessStep bfps = new BpmFlowProcessStep(scd);
-									bfps.setProcessStepId(processStepId);
-									bfps.setProcessId(processId);
-									bfps.setActionId(ba.getActionId());
-									bfps.setFlowProcessId(flowProcessId);
-									bfps.setTableId(bps.get_action().getRelatedTableId());
-									bfps.setTablePk(tablePk);//bu nedir
-									bfps.setCrudAction((short)action);
-									bfps.setPercentDone((short)10);//active: manual finish
-									switch(ba.getEndActionTip()){
-									case	1://manual
-										bfps.setStatus((short)1);//active: manual finish
-										break;
-									case	2://instant
-										bfps.setStatus((short)11);//finish
-										bfps.setPercentDone((short)100);//active: manual finish
-										break;
-									case	3://table_record_condition
-										break;
-									case	4://exec_db_func
-										break;
-									case	6://finish_after_duration
-										bfps.setStatus((short)2);//active: finish_after_duration
-										break;
-									}
-									dao.saveObject(bfps);
-								}
-							}
-						}
-					}
-				}
-				//bpm:end action
-				if(dbFuncResult.getDbFunc().get_listBpmEndAction()!=null)for(BpmAction ba:dbFuncResult.getDbFunc().get_listBpmEndAction())if(ba.getEndActionTip()==3){//table crud
-					int percentDone=100;
-					if(ba.getEndActionSql()!=null){
-						Object[] oz = PromisUtil.filterExt4SQL(ba.getEndActionSql(), scd, requestParams, null);
-						Map<String, Object> m = dao.runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-						if(m!=null){
-							if(m.get("percent_done")!=null)percentDone=PromisUtil.uInt(m.get("percentDone"));
-							if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0){
-								//TODO : bitirmeyle ilgili islemler
-							}
-						}
-					}
-					List<BpmFlowProcessStep> lbfps = dao.find("from BpmFlowProcessStep t where t.percentDone<100 AND t.actionId=? AND t.customizationId=? AND exists(select 1 from BpmFlowProcess p where p.customizationId=t.customizationId AND p.processId=t.processId AND p.status=1)",ba.getActionId(),(Integer)scd.get("customizationId"));
-					for(BpmFlowProcessStep bfps:lbfps){
-						bfps.setVersionUserId((Integer)scd.get("userId"));
-						bfps.setVersionNo(bfps.getVersionNo()+1);
-						bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-						bfps.setPercentDone((short)percentDone);
-						dao.updateObject(bfps);
-					}
-				}
-			}*/
-	//		if(b && mailAtilacakMi(formResult)){} //basarili ve mail atilacak
+			
 
 		}
-//		 if (!b)throw new NkrException(formResult.getErrorMapForEXTJS());
 
 		 return dbFuncResult;
 	}
@@ -4360,7 +3836,7 @@ public class FrameworkEngine{
 			}
 			break;
 		case	2://dbFunc
-			W5DbFuncResult dbFuncResult = executeDbFunc(scd, o.getObjectId(), requestParams, (short)5);
+			W5DbFuncResult dbFuncResult = executeFunc(scd, o.getObjectId(), requestParams, (short)5);
 			Map<String, String> resultMap=dbFuncResult.getResultMap();
 			if(o.getHtmlFlag()==1){
 				for (Iterator i = resultMap.keySet().iterator(); i.hasNext();) {
@@ -4390,7 +3866,7 @@ public class FrameworkEngine{
 		if(m==null)return null;
 		if(!GenericUtil.isEmpty(mobileDeviceId)){
 			Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", mobileDeviceId);parameterMap.put("pactive_flag", 1);
-			executeDbFunc(m, 673, parameterMap, (short)4);
+			executeFunc(m, 673, parameterMap, (short)4);
 		}
 
 
@@ -4689,7 +4165,7 @@ public class FrameworkEngine{
 					nextStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
 				}
 				if(a.getOnApproveDbFuncId() != 0 && ar.getApprovalStepId() == 998){ // Dinamik Approve onay verildiğinde
-					executeDbFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
+					executeFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
 				}
 				break;
 			}
@@ -4762,14 +4238,14 @@ public class FrameworkEngine{
 			switch(a.getApprovalFlowTip()){
 			case	0://basit onay
 				if(currentStep.getOnApproveDbFuncId()!=0){
-					executeDbFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
+					executeFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
 				}
 
 				if(a.getActionTip()==3){//TODO: delete ise o zaman o kaydi ve bunu sil
 					Map<String, String> mz = new HashMap();
 					mz.put("ptable_id", ""+ar.getTableId());
 					mz.put("ptable_pk", ""+ar.getTablePk());
-					executeDbFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
+					executeFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
 					W5FormResult fr = new W5FormResult(-1);
 					fr.setForm(new W5Form());
 //					fr.getForm().set_sourceTable(PromisCache.getTable(scd, ar.getTableId()));
@@ -4815,7 +4291,7 @@ public class FrameworkEngine{
 							ar.setApprovalRoles(null);
 							ar.setApprovalUsers(uxs.substring(1));
 							if(a.getOnApproveDbFuncId() != 0 && ar.getApprovalStepId() == 998){ // Dinamik Approve onay verildiğinde aşırı yalan bişey ama
-								executeDbFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
+								executeFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
 							}
 						}
 						else
@@ -4904,7 +4380,7 @@ public class FrameworkEngine{
 			}
 
 			if(currentStep != null && currentStep.getOnApproveDbFuncId()!=0){
-				executeDbFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
+				executeFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
 			}
 
 
@@ -4948,7 +4424,7 @@ public class FrameworkEngine{
 			case	2://hierarchical onay
 			}
 			if(currentStep != null && currentStep.getOnReturnDbFuncId()!=0){
-				executeDbFunc(scd, currentStep.getOnReturnDbFuncId(), parameterMap, (short)6);
+				executeFunc(scd, currentStep.getOnReturnDbFuncId(), parameterMap, (short)6);
 			}
 			break;
 		case	3://red
@@ -4975,7 +4451,7 @@ public class FrameworkEngine{
 				currentStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
 			}
 			if(currentStep != null && currentStep.getOnRejectDbFuncId()!=0){
-				executeDbFunc(scd, currentStep.getOnRejectDbFuncId(), parameterMap, (short)6);
+				executeFunc(scd, currentStep.getOnRejectDbFuncId(), parameterMap, (short)6);
 			}
 			isFinished = true;
 			break;
@@ -5301,7 +4777,7 @@ public class FrameworkEngine{
 
 		if(notificationList.size() > 0){
 			for(String uId:notificationList){
-				dao.saveObject2(new W5Notification(scd, Integer.parseInt(uId), (short)(2+approvalAction), a.getTableId(), ar.getTablePk(), userId, null, 1), scd);
+				dao.saveObject2(new Log5Notification(scd, Integer.parseInt(uId), (short)(2+approvalAction), a.getTableId(), ar.getTablePk(), userId, null, 1), scd);
 			}
 		}
 
@@ -5319,7 +4795,7 @@ public class FrameworkEngine{
 
 		//Feed Yazma
 		if(FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 && (a.getActionTip()!=3 || !isFinished)){
-			W5Feed feed = new W5Feed(scd);
+			Log5Feed feed = new Log5Feed(scd);
 			feed.setFeedTip((short)((approvalAction>900 ? 0 : 6)+approvalAction));
 			feed.setTableId(a.getTableId());feed.setTablePk(ar.getTablePk());
 			if(ar.getAccessViewTip()!=0)feed.set_viewAccessControl(new W5AccessControlHelper(ar.getAccessViewRoles(),ar.getAccessViewUsers()));
@@ -5557,7 +5033,7 @@ public class FrameworkEngine{
 						FrameworkSetting.customizationSystemStatus.put(customizationId,2);
 //						notifiedAll = true;
 						notifiedSet.add(customizationId);
-						UserUtil.publishNotification(new W5Notification("System Reloading",2 /*warning*/, customizationId), true);
+						UserUtil.publishNotification(new Log5Notification("System Reloading",2 /*warning*/, customizationId), true);
 					}
 					switch(islem){
 						case 1://lookup,detay
@@ -5575,7 +5051,6 @@ public class FrameworkEngine{
 						case 6://table
 							dao.reloadTableParamListChildListParentListCache(customizationId);
 							dao.reloadTablesCache(customizationId);
-							dao.reloadTableUserTipCache(customizationId);
 							dao.reloadTableFilterCache(customizationId);
 							break;
 						case 7://job_schedule
@@ -5600,7 +5075,7 @@ public class FrameworkEngine{
 				FrameworkSetting.customizationSystemStatus.put(cusId,0);
 			}
 			for(Integer i:customizationSet)
-				UserUtil.publishNotification(new W5Notification("System Reloaded",0 /*warning*/, i), true);
+				UserUtil.publishNotification(new Log5Notification("System Reloaded",0 /*warning*/, i), true);
 		}
 	}
 
@@ -5777,7 +5252,7 @@ public class FrameworkEngine{
 			if(fsm.getSmsMailTip()!=0 && !GenericUtil.isEmpty(scd.get("mailSettingId"))){
 				mq.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
 			}
-			r = executeDbFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
+			r = executeFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
 		}
 
 		return r;
@@ -6039,19 +5514,19 @@ public class FrameworkEngine{
 				case	0://sms
 //parameterMap.get("phone"),parameterMap.get("body")
 					m.putAll(dao.interprateSmsTemplate(fsm, scd, new HashMap(), a.getTableId(), a.getTablePk()));
-					rdb = executeDbFunc(scd, -631, m, (short)1);
+					rdb = executeFunc(scd, -631, m, (short)1);
 					break;
 				case	1://mail
 //W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
 					m.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
 					m.putAll(dao.interprateMailTemplate(fsm, scd, new HashMap(), a.getTableId(), a.getTablePk()));
-					rdb = executeDbFunc(scd, -650, m, (short)1);
+					rdb = executeFunc(scd, -650, m, (short)1);
 					break;
 				default:
 					break;
 
 				}
-				W5Notification n = new W5Notification(a);
+				Log5Notification n = new Log5Notification(a);
 				n.set_tableRecordList(dao.findRecordParentRecords(scd,a.getTableId(),a.getTablePk(),0, true));
 				UserUtil.publishNotification(n, false);
 
@@ -6064,39 +5539,6 @@ public class FrameworkEngine{
 		} else break;
 
 	}
-
-	public void cnvMailPassEncDec(Map<String, Object> scd, boolean encrypt) {
-		if(GenericUtil.uInt(scd.get("administratorFlag"))!=0){
-			List l = dao.executeSQLQuery("select x.mail_setting_id,x.pass_word,x.outbox_server_pass_word,x.customization_id from iwb.w5_object_mail_setting x");
-			if(!GenericUtil.isEmpty(l))for(Object o:l){
-				Object[] oo=(Object[])o;
-				StringBuilder sql = new StringBuilder();
-				sql.append("update iwb.w5_object_mail_setting x set ");
-				List p = new ArrayList();
-				boolean b = false;
-				if(!GenericUtil.isEmpty(oo[1])){
-					p.add(encrypt ? GenericUtil.PRMEncrypt((String)oo[1]) : GenericUtil.PRMDecrypt((String)oo[1]));
-					sql.append("pass_word = ?");
-					b = true;
-				}
-				if(!GenericUtil.isEmpty(oo[2])){
-					p.add(encrypt ? GenericUtil.PRMEncrypt((String)oo[2]) : GenericUtil.PRMDecrypt((String)oo[2]));
-					if(b)sql.append(","); else b = true;
-					sql.append("outbox_server_pass_word = ?");
-				}
-				if(b){
-					sql.append(" where x.mail_setting_id = ? and x.customization_id = ?");
-					p.add(oo[0]);
-					p.add(oo[3]);
-					dao.executeUpdateSQLQuery(sql.toString(), p);
-				}
-			}
-		} else
-			throw new IWBException("security","Administrator", 0, null, "Administrator Privilege Required", null);
-	}
-
-
-
 
 
 	public int getSubDomain2CustomizationId(String subDomain){
@@ -6183,7 +5625,7 @@ public class FrameworkEngine{
 			}
 
 			try{
-				W5DbFuncResult result = executeDbFunc(scd, 2, requestParams, (short)4); // user forgot pass
+				W5DbFuncResult result = executeFunc(scd, 2, requestParams, (short)4); // user forgot pass
 				if(result.isSuccess() && !GenericUtil.isEmpty(result.getResultMap()) && (GenericUtil.uInt(result.getResultMap().get("pout_user_id"))!=0)){
 					res.put("success", "1");
 					//tanımlanmış mail varsa mail-sms gönderiliyor
@@ -6218,12 +5660,12 @@ public class FrameworkEngine{
 
 	public void sendSms(int customizationId,int userId,String phoneNumber, String message, int tableId, int tablePk){
 		Map<String, String> smsMap= new HashMap<String, String>();
-			smsMap.put("customizationId",customizationId+"");
-			smsMap.put("userId", userId+"");
-			smsMap.put("tableId", tableId+"");
-			smsMap.put("tablePk", tablePk+"");
-			smsMap.put("phoneNumber", phoneNumber);
-			smsMap.put("message", message);
+		smsMap.put("customizationId",customizationId+"");
+		smsMap.put("userId", userId+"");
+		smsMap.put("tableId", tableId+"");
+		smsMap.put("tablePk", tablePk+"");
+		smsMap.put("phoneNumber", phoneNumber);
+		smsMap.put("message", message);
 
 		//	messageSender.sendMessage("SEND_SMS","BMPADAPTER", smsMap);
 
@@ -6331,310 +5773,7 @@ public class FrameworkEngine{
 		return 0;
 	}
 
-	public List<W5ReportCellHelper> getGrid2ReportResult(
-			Map<String, Object> scd, int masterGridId,
-			String masterGridColumns, int detailGridId,
-			String detailGridColumns, String params,
-			Map<String, String> requestParams) {
-		String xlocale = (String)scd.get("locale");
-		W5GridResult	masterGridResult = dao.getGridResult(scd, masterGridId, requestParams, true);
-		W5GridResult	detailGridResult = dao.getGridResult(scd, detailGridId, requestParams, true);
-		int masterQueryId = masterGridResult.getGrid().getQueryId();
-		int detailQueryId = detailGridResult.getGrid().getQueryId();
-		requestParams.remove("firstLimit");requestParams.remove("limit");requestParams.remove("start");
-		requestParams.put("grid_report_flag", "1");
-		Map<String, String> paramMap = new HashMap();
-		String[] params2 = params.split(";");
-		for(int qi=0;qi<params2.length;qi++){
-			String[] params3=params2[qi].split(",");
-			paramMap.put(params3[0], params3[1]);
-		}
 
-		W5QueryResult masterQueryResult = executeQuery(scd, masterQueryId, requestParams);
-
-
-
-		if(masterQueryResult.getErrorMap().isEmpty()){
-
-			List<W5ReportCellHelper> list = new ArrayList<W5ReportCellHelper>();
-//			list.add(new WReportResult(row_id, column_id, deger, row_tip, cell_tip, colspan, tag));
-			list.add(new W5ReportCellHelper(0, 1, LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, masterGridResult.getGrid().getLocaleMsgKey()), (short)0, (short)1, (short)20, "1;30,70")); //baslik: id, font_size, dsc, row_tip, yatay?,
-			list.add(new W5ReportCellHelper(1, 1, GenericUtil.uFormatDateTime(new Date()), (short)1, (short)1, (short)-1, LocaleMsgCache.get2(scd, "report_time"))); //param: id, sira, dsc, row_tip,
-
-			Map<String, W5QueryField> m1 = new HashMap<String, W5QueryField>(), m1b = new HashMap<String, W5QueryField>();
-			for(W5QueryField f:masterQueryResult.getNewQueryFields()){
-				m1.put(f.getDsc(), f);
-			}
-			Map<Integer, W5GridColumn> m2 = new HashMap<Integer, W5GridColumn>(), m2b = new HashMap<Integer, W5GridColumn>();
-			int nxtTmp = -1;
-			for(W5GridColumn c:masterGridResult.getGrid().get_gridColumnList()){
-				if(c.getQueryFieldId()==0){
-					c.setQueryFieldId(nxtTmp--);
-				}
-				m2.put(c.getQueryFieldId(), c);
-			}
-			List<W5QueryField> l1 = new ArrayList<W5QueryField>(masterQueryResult.getNewQueryFields().size()), l1b = null;
-			String[] gcs = masterGridColumns.split(";");
-			int startRow = 2;
-			int startCol = 0;
-			for(int g=0;g<gcs.length;g++){
-				String[] cs = gcs[g].split(",");
-
-				W5QueryField f = m1.get(cs[0]);
-				if(f!=null){
-					W5GridColumn c = m2.get(f.getQueryFieldId());
-					if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {// onay varsa,raporda gorunmesi icin
-						c=new W5GridColumn();
-						c.setLocaleMsgKey(LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, "approval_status"));
-						c.setAlignTip((short)1);
-					}
-					if(c!=null){
-						list.add(new W5ReportCellHelper(startRow, (startCol + 1), LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, c.getLocaleMsgKey()), (short)2, (short)GenericUtil.uInt(cs[1]), c.getAlignTip(), "")); //column: id, font_size, dsc, row_tip,
-						l1.add(f);
-						startCol++;
-					}
-				}
-			}
-
-
-
-			int customizationId = (Integer)scd.get("customizationId");
-			//startRow = gcs.length + 2;
-			//startRow = 3;
-			int countRow = 0;
-			boolean firstTimeDetail = true;
-			for(int i=0;i<masterQueryResult.getData().size();i++){
-				Map<String, String> dataMap = new HashMap<String, String>();
-				for(W5QueryField f:masterQueryResult.getNewQueryFields())if(f.getTabOrder()>0){
-					Object obj = masterQueryResult.getData().get(i)[f.getTabOrder()-1];
-					if(obj!=null)
-					dataMap.put(f.getDsc(), obj.toString());
-				}
-				Map<String, String> requestParams2 = new HashMap();
-				for(String k:paramMap.keySet()){
-					String v = paramMap.get(k);
-					if(v.charAt(0)=='!'){
-						requestParams2.put(k, v.substring(1));
-					} else {
-						requestParams2.put(k, dataMap.get(v));
-					}
-				}
-				W5QueryResult detailQueryResult = executeQuery(scd, detailQueryId, requestParams2);
-
-				if(detailQueryResult.getErrorMap().isEmpty() && !GenericUtil.isEmpty(detailQueryResult.getData())){
-
-					if(firstTimeDetail){
-						for(W5QueryField f:detailQueryResult.getNewQueryFields()){
-							m1b.put(f.getDsc(), f);
-						}
-						int nxtTmpb = -1;
-						for(W5GridColumn c:detailGridResult.getGrid().get_gridColumnList()){
-							if(c.getQueryFieldId()==0){
-								c.setQueryFieldId(nxtTmpb--);
-							}
-							m2b.put(c.getQueryFieldId(), c);
-						}
-						l1b = new ArrayList<W5QueryField>(detailQueryResult.getNewQueryFields().size());
-						String[] gcsb = detailGridColumns.split(";");
-						for(int g=0;g<gcsb.length;g++){
-							String[] cs = gcsb[g].split(",");
-
-							W5QueryField f = m1b.get(cs[0]);
-							if(f!=null){
-								W5GridColumn c = m2b.get(f.getQueryFieldId());
-								if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {// onay varsa,raporda gorunmesi icin
-									c=new W5GridColumn();
-									c.setLocaleMsgKey(LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, "approval_status"));
-									c.setAlignTip((short)1);
-								}
-								if(c!=null){
-									list.add(new W5ReportCellHelper(startRow, (startCol + 1), LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, c.getLocaleMsgKey()), (short)2, (short)GenericUtil.uInt(cs[1]), c.getAlignTip(), "")); //column: id, font_size, dsc, row_tip,
-									l1b.add(f);
-									startCol++;
-								}
-							}
-						}
-
-
-
-						startRow++;
-						countRow = startRow;
-						firstTimeDetail = false;
-					}
-
-
-					for(int i2=0;i2<detailQueryResult.getData().size();i2++){
-						int g = 1;
-						for(W5QueryField f:l1)if(f.getTabOrder()>0){
-							String dataType = "";
-							Object obj = masterQueryResult.getData().get(i)[f.getTabOrder()-1];
-							if (obj!=null&& f.getDsc().equals(FieldDefinitions.queryFieldName_Approval) ){
-								String[] ozs=((String)masterQueryResult.getData().get(i)[f.getTabOrder()-1]).split(";");
-								int appId = GenericUtil.uInt(ozs[1]);//approvalId: kendisi yetkili ise + , aksi halde -
-								int appStepId = GenericUtil.uInt(ozs[2]);//approvalStepId
-								W5Approval appr =FrameworkCache.wApprovals.get(appId);
-								String appStepDsc="";
-								if(appr!=null && appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance()!=null)appStepDsc=appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance().getDsc();
-								obj=(LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, appStepDsc));
-							}
-							String res = null;
-							if(obj!=null){
-			        			res = obj.toString();
-
-			        			if(f.getDsc().contains("_flag")){
-			        				res = GenericUtil.uInt(res)!=0 ? "x" : "o";
-			        			} else {
-			        				switch(f.getPostProcessTip()){
-				        			case	20:
-				        				res = UserUtil.getUserName(customizationId, GenericUtil.uInt(obj));
-				        				break;
-				        			case	53:
-				        				res = UserUtil.getUserDsc(customizationId, GenericUtil.uInt(obj));
-				        				break;
-				        			case	10:case	11: // demek ki lookup'li deger tutulacak
-				    	        		W5LookUp lookUp = FrameworkCache.getLookUp(customizationId,f.getLookupQueryId());
-				    	        		if(lookUp!=null){
-				    	        			String[] ids=res.split(",");
-				    	        			res = "";
-				    	        			for(String sz:ids){
-				    	        				res+=", ";
-					    	        			W5LookUpDetay d=lookUp.get_detayMap().get(sz);
-					    	        			if(d!=null){
-						    	        			String s = d.getDsc();
-						    	        			if(s!=null){
-					    	        					s = LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, s);
-					    	    	        			res += s;
-						    	        			}
-					    	        			}
-					    	        			else if(d == null && f.getLookupQueryId() == 12){ // lookup static or lookup static(multi) ve empty
-					    	        				for(W5QueryField ff:masterQueryResult.getNewQueryFields()){
-					    	        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-					    	        						res += masterQueryResult.getData().get(i)[ff.getTabOrder()-1];
-					    	        						break;
-					    	        					}
-					    	        				}
-					    	        			}
-					    	        			else {
-				    	    	        			res += "???: " + sz;
-					    	        			}
-				    	        			}
-				    	        			if(res.length()>0)res = res.substring(1);
-				        				}
-				    	        		break;
-				        			case	12:
-				        				for(W5QueryField ff:masterQueryResult.getNewQueryFields()){
-		    	        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-		    	        						res = masterQueryResult.getData().get(i)[ff.getTabOrder()-1]!=null ? masterQueryResult.getData().get(i)[ff.getTabOrder()-1].toString(): "";
-		    	        						break;
-		    	        					}
-		    	        				}
-				        				break;
-
-				    	        	default : if (f.getFieldTip()==3 || f.getFieldTip()==4){dataType="T:1";};
-					    	        	for(W5QueryField ff:masterQueryResult.getNewQueryFields()){
-				        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-				        						res = masterQueryResult.getData().get(i)[ff.getTabOrder()-1]!=null ? masterQueryResult.getData().get(i)[ff.getTabOrder()-1].toString(): "";
-				        						break;
-				        					}
-				        				}
-				    	        		break;
-				        			}
-			        			}
-			        		}
-							list.add(new W5ReportCellHelper(countRow, g++, res, (short)3, (short)0, (short)1, dataType)); //data: id, font_size, dsc, row_tip,
-						}
-
-						for(W5QueryField f:l1b)if(f.getTabOrder()>0){
-							String dataType = "";
-							Object obj;
-							try {
-								obj = detailQueryResult.getData().get(i2)[f.getTabOrder()-1];
-							} catch (Exception e){
-								obj = null;
-							}
-							if (obj!=null&& f.getDsc().equals(FieldDefinitions.queryFieldName_Approval) ){
-								String[] ozs=((String)detailQueryResult.getData().get(i2)[f.getTabOrder()-1]).split(";");
-								int appId = GenericUtil.uInt(ozs[1]);//approvalId: kendisi yetkili ise + , aksi halde -
-								int appStepId = GenericUtil.uInt(ozs[2]);//approvalStepId
-								W5Approval appr =FrameworkCache.wApprovals.get(appId);
-								String appStepDsc="";
-								if(appr!=null && appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance()!=null)appStepDsc=appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance().getDsc();
-								obj=(LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, appStepDsc));
-							}
-							String res = null;
-							if(obj!=null){
-			        			res = obj.toString();
-
-			        			if(f.getDsc().contains("_flag")){
-			        				res = GenericUtil.uInt(res)!=0 ? "x" : "o";
-			        			} else {
-			        				switch(f.getPostProcessTip()){
-				        			case	20:
-				        				res = UserUtil.getUserName(customizationId, GenericUtil.uInt(obj));
-				        				break;
-				        			case	53:
-				        				res = UserUtil.getUserDsc(customizationId, GenericUtil.uInt(obj));
-				        				break;
-				        			case	10:case	11: // demek ki lookup'li deger tutulacak
-				    	        		W5LookUp lookUp = FrameworkCache.getLookUp(customizationId,f.getLookupQueryId());
-				    	        		if(lookUp!=null){
-				    	        			String[] ids=res.split(",");
-				    	        			res = "";
-				    	        			for(String sz:ids){
-				    	        				res+=", ";
-					    	        			W5LookUpDetay d=lookUp.get_detayMap().get(sz);
-					    	        			if(d!=null){
-						    	        			String s = d.getDsc();
-						    	        			if(s!=null){
-					    	        					s = LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, s);
-					    	    	        			res += s;
-						    	        			}
-					    	        			}
-					    	        			else if(d == null && f.getLookupQueryId() == 12){ // lookup static or lookup static(multi) ve empty
-					    	        				for(W5QueryField ff:detailQueryResult.getNewQueryFields()){
-					    	        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-					    	        						res += detailQueryResult.getData().get(i2)[ff.getTabOrder()-1];
-					    	        						break;
-					    	        					}
-					    	        				}
-					    	        			}
-					    	        			else {
-				    	    	        			res += "???: " + sz;
-					    	        			}
-				    	        			}
-				    	        			if(res.length()>0)res = res.substring(1);
-				        				}
-				    	        		break;
-				        			case	12:
-				        				for(W5QueryField ff:detailQueryResult.getNewQueryFields()){
-		    	        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-		    	        						res = detailQueryResult.getData().get(i2)[ff.getTabOrder()-1]!=null ? detailQueryResult.getData().get(i2)[ff.getTabOrder()-1].toString(): "";
-		    	        						break;
-		    	        					}
-		    	        				}
-				        				break;
-
-				    	        	default : if (f.getFieldTip()==3 || f.getFieldTip()==4){dataType="T:1";};
-					    	        	for(W5QueryField ff:detailQueryResult.getNewQueryFields()){
-				        					if(ff.getDsc().compareTo(f.getDsc()+"_qw_") == 0){
-				        						res = detailQueryResult.getData().get(i2)[ff.getTabOrder()-1]!=null ? detailQueryResult.getData().get(i2)[ff.getTabOrder()-1].toString(): "";
-				        						break;
-				        					}
-				        				}
-				    	        		break;
-				        			}
-			        			}
-			        		}
-							list.add(new W5ReportCellHelper(countRow, g++, res, (short)3, (short)0, (short)1, dataType)); //data: id, font_size, dsc, row_tip,
-						}
-						countRow++;
-					}
-				}
-			}
-			return list;
-		}
-		return null;
-	}
 
 	public W5FormResult postBulkConversionMulti(Map<String, Object> scd,
 			int conversionCount, Map<String, String> parameterMap) {
@@ -6667,7 +5806,7 @@ public class FrameworkEngine{
 		if(fsm.getSmsMailTip()!=0 && GenericUtil.isEmpty(scd.get("mailSettingId"))){
 			mq.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
 		}
-		r = executeDbFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
+		r = executeFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
 		return r;
 	}
 
@@ -6975,7 +6114,7 @@ public class FrameworkEngine{
                                    scd.put("userRoleId", data.get_userRoleId());
                                    scd.put("roleId", data.getExecuteRoleId());
                                    scd.put("userId", data.getExecuteUserId());
-                                   W5DbFuncResult res=executeDbFunc(scd, data.getActionDbFuncId(), requestParams , (short)1);
+                                   W5DbFuncResult res=executeFunc(scd, data.getActionDbFuncId(), requestParams , (short)1);
                                    if (FrameworkSetting.debug && (res.isSuccess() && !GenericUtil.isEmpty(res.getResultMap()))){
                                           System.out.println("Scheduled function is executed (functionId=" + data.getActionDbFuncId() + ")");
                                    }
@@ -7018,11 +6157,21 @@ public class FrameworkEngine{
 
 	public boolean organizeTable(Map<String, Object> scd, String tableName) {
 		return dao.organizeTable(scd, tableName);
+	}
 
+	public void organizeQuery(Map<String, Object> scd, int queryId, short insertFlag) {
+		dao.organizeQueryFields(scd, queryId, insertFlag);
+		if(FrameworkSetting.preloadWEngine!=0){
+			FrameworkCache.clearPreloadCache();
+		}
 	}
 
 	public boolean organizeDbFunc(Map<String, Object> scd, String dbFuncName) {
-		return dao.organizeDbFunc(scd, dbFuncName);
+		boolean b = dao.organizeDbFunc(scd, dbFuncName);
+		if(FrameworkSetting.preloadWEngine!=0){
+			FrameworkCache.clearPreloadCache();
+		}
+		return b;
 	}
 
 	public int buildForm(Map<String, Object> scd, String parameter) throws JSONException {
@@ -7051,10 +6200,10 @@ public class FrameworkEngine{
 		if(GenericUtil.isEmpty(schema))schema="";
 		else schema+=".";
 		String formName = main.getString("form_name");
-		tableName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(formName)).toLowerCase(en);
-		String gridName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(main.getString("grid_name"))).toLowerCase(en);
+		tableName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(formName),"x").toLowerCase(en);
+		String gridName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(main.getString("grid_name")),"x").toLowerCase(en);
 //		gridName = main.getString("grid_name");
-		String tablePrefix = FrameworkCache.getAppSettingStringValue(0, "form_builder_table_prefix", "iwb");
+		String tablePrefix = FrameworkCache.getAppSettingStringValue(0, "form_builder_table_prefix", "x");
 		if(!tablePrefix.endsWith("_"))tablePrefix+="_";
 		String tableName2 = tablePrefix + tableName;
 		fullTableName = schema + tableName2;
@@ -7101,8 +6250,32 @@ public class FrameworkEngine{
 					int lookUpId=GenericUtil.uInt(d.get("look_up_id"));
 					if(FrameworkCache.getLookUp(scd, lookUpId)==null)
 						throw new IWBException("framework","Form+ Builder", lookUpId, null, "Wrong Static LookupID: " + lookUpId, null);
-				} else
-						throw new IWBException("framework","Form+ Builder", 0, null, "LookupID not defined", null);
+				} else {
+					if(!d.has("list_of_values") || GenericUtil.isEmpty(d.get("list_of_values")))
+						throw new IWBException("framework","Form+ Builder", 0, null, "LookupID OR Combo Values Not Defined", null);
+					String lov = d.getString("list_of_values");
+					String[] vz = lov.split("\\r?\\n");
+					
+					
+					
+					int lookUpId = GenericUtil.getGlobalNextval("iwb.seq_look_up");
+					dao.executeUpdateSQLQuery("insert into iwb.w5_look_up "
+							+ "(look_up_id, customization_id, dsc, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, project_uuid)"
+					+  "values (?         , ?               , ?  , 1         , ?             , current_timestamp    , ?              , current_timestamp     , ?)",
+					lookUpId, scd.get("customizationId"), "lkp_"+fieldDsc, scd.get("userId"), scd.get("userId"), projectUuid);
+					if(vcs)dao.saveObject(new W5VcsObject(scd, 13, lookUpId));
+					int tabOrder = 1;
+					for(String sx:vz)if(!GenericUtil.isEmpty(sx) && !GenericUtil.isEmpty(sx.trim())){
+						int lookUpIdDetail = GenericUtil.getGlobalNextval("iwb.seq_look_up_detay");
+						dao.executeUpdateSQLQuery("insert into iwb.w5_look_up_detay "
+								+ "(look_up_detay_id, look_up_id, tab_order, val      , dsc, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, customization_id, project_uuid)"
+						 + "values (?,        ?,                 ?        , ?        , ?  , 1         , ?             , current_timestamp    , ?              , current_timestamp     , ?, ?)",
+						 lookUpIdDetail, lookUpId, tabOrder, ""+tabOrder, sx.trim(), scd.get("userId"), scd.get("userId"), scd.get("customizationId"), projectUuid);
+						tabOrder++;
+						if(vcs)dao.saveObject(new W5VcsObject(scd, 14, lookUpIdDetail));
+					}
+					d.put("look_up_id", ""+lookUpId);
+				}
 				s.append(controlTip==6 || controlTip==7 || controlTip==10 || controlTip==51 ? " integer":" character varying(256)");
 				break;
 			case	7: case 10:case 15:case 59:
@@ -7189,7 +6362,7 @@ public class FrameworkEngine{
 		int xformBuilderId = GenericUtil.uInt(fr.getOutputFields().get("xform_builder_id").toString());
 		int parentTemplateId =  parentTableId==0 || !main.has("template_id") ? 0 : main.getInt("template_id");
 		int parentTemplateObjectId = parentTableId==0 || !main.has("parent_object_id")  ? 0 : main.getInt("parent_object_id");
-		int formId = GenericUtil.getGlobalNextval("seq_form");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
+		int formId = GenericUtil.getGlobalNextval("iwb.seq_form");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
 //				  XFORM_ID := nextval('seq_form');
 		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form("
 				+ "form_id, customization_id, object_tip, object_id, dsc, locale_msg_key, "
@@ -7208,7 +6381,7 @@ public class FrameworkEngine{
 		List<Map> lm = dao.executeSQLQuery2Map("select x.* from iwb.w5_xform_builder_detail x where x.xform_builder_id=? order by 1", lp);
 		int tabOrder = 1;
 		for(Map m:lm){
-			int formCellId = GenericUtil.getGlobalNextval("seq_form_cell");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
+			int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form_cell("
 					+ "form_cell_id, customization_id, form_id, dsc, locale_msg_key,"
 					+ "control_tip, vtype, source_tip, not_null_flag, tab_order, control_width,"
@@ -7229,7 +6402,7 @@ public class FrameworkEngine{
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
 		}
 		if(relParentFieldName!=null){
-			int formCellId = GenericUtil.getGlobalNextval("seq_form_cell");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
+			int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form_cell("
 					+ "form_cell_id, customization_id, form_id, dsc, locale_msg_key,"
 					+ "control_tip, vtype, source_tip, not_null_flag, tab_order, control_width,"
@@ -7249,10 +6422,8 @@ public class FrameworkEngine{
 					+ " ? )",formCellId, customizationId, formId, relParentFieldName, relParentFieldName, tabOrder++, tableId, customizationId, tableId, relParentFieldName, userId, userId, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
 		}
-
-
 //				XQUERY_ID := nextval('seq_query');
-		int queryId = GenericUtil.getGlobalNextval("seq_query");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query')").get(0));
+		int queryId = GenericUtil.getGlobalNextval("iwb.seq_query");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query')").get(0));
 		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query("
 				+ "query_id, dsc, main_table_id, sql_select, sql_from, sql_where,"
 				+ "sql_groupby, sql_orderby, query_tip, log_level_tip, version_no,"
@@ -7276,7 +6447,7 @@ public class FrameworkEngine{
 //		dao.getHibernateTemplate().flush();
 		//				XGRID_ID := nextval('seq_grid');
 //		List lw = dao.executeSQLQuery("select min(qf.query_field_id) from iwb.w5_query_field qf where qf.query_id=? AND qf.customization_id=? AND qf.project_uuid=?", queryId, customizationId, projectUuid);
-		int gridId = GenericUtil.getGlobalNextval("seq_grid");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid')").get(0));
+		int gridId = GenericUtil.getGlobalNextval("iwb.seq_grid");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid')").get(0));
 		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_grid("
 				+ "grid_id, customization_id, dsc, query_id, locale_msg_key, grid_tip,"
 				+ "default_page_record_number, selection_mode_tip, pk_query_field_id,"
@@ -7301,7 +6472,7 @@ public class FrameworkEngine{
 
 		tabOrder = 1;
 		for(Map m:lm){
-			int gridColumnId = GenericUtil.getGlobalNextval("seq_grid_column");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid_column')").get(0));
+			int gridColumnId = GenericUtil.getGlobalNextval("iwb.seq_grid_column");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid_column')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_grid_column("
 					+ "grid_column_id, query_field_id, grid_id, customization_id, locale_msg_key, tab_order,"
 					+ "visible_flag, sortable_flag, width, renderer, align_tip, version_no,"
@@ -7322,7 +6493,7 @@ public class FrameworkEngine{
 		if(parentTableId==0){
 			tabOrder = 1;
 			for(Map m:lm)if(GenericUtil.uInt(m.get("grd_search_flag"))!=0){
-				int queryParamId = GenericUtil.getGlobalNextval("seq_query_param");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
+				int queryParamId = GenericUtil.getGlobalNextval("iwb.seq_query_param");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
 				dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query_param("
 					+ "query_param_id, query_id, dsc, param_tip, expression_dsc, operator_tip,"
 					+ "not_null_flag, tab_order, source_tip, default_value, min_length,"
@@ -7338,7 +6509,7 @@ public class FrameworkEngine{
 			}
 
 			//  XSFORM_ID := nextval('seq_form');
-			formId = GenericUtil.getGlobalNextval("seq_form");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
+			int sformId = GenericUtil.getGlobalNextval("iwb.seq_form");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form("
 				+ "form_id, customization_id, object_tip, object_id, dsc, locale_msg_key, "
 				+ "default_width, default_height, tab_order, render_tip, code, label_width,"
@@ -7348,11 +6519,11 @@ public class FrameworkEngine{
 				+ "\nselect ?, XFORM_BUILDER.customization_id, 1, ?, 'sfrm_'||XFORM_BUILDER.form_name, 'search_criteria',"
 				+ "400, 300, 1, 1, null, XFORM_BUILDER.label_width,"
 				+ "XFORM_BUILDER.label_align, 0,"
-				+ "1, ?, current_timestamp, ?, current_timestamp, 0, XFORM_BUILDER.project_uuid from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=? AND XFORM_BUILDER.customization_id=?", formId, gridId, userId, userId, xformBuilderId, customizationId);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 40, formId));
+				+ "1, ?, current_timestamp, ?, current_timestamp, 0, XFORM_BUILDER.project_uuid from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=? AND XFORM_BUILDER.customization_id=?", sformId, gridId, userId, userId, xformBuilderId, customizationId);
+			if(vcs)dao.saveObject(new W5VcsObject(scd, 40, sformId));
 
 			for(Map m:lm)if(GenericUtil.uInt(m.get("grd_search_flag"))!=0){
-				int formCellId = GenericUtil.getGlobalNextval("seq_form_cell");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
+				int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
 				int controlTip = GenericUtil.uInt(m.get("real_control_tip"));
 				if(controlTip==0)controlTip = GenericUtil.uInt(m.get("control_tip"));
 				int lookUpId = GenericUtil.uInt(m.get("look_up_id"));
@@ -7376,7 +6547,7 @@ public class FrameworkEngine{
 						+ "current_timestamp, ?, current_timestamp, 0, 0,"
 						+ "0, 1, 0, 1, 0, x.project_uuid "
 						+ "from iwb.w5_xform_builder_detail x where x.grd_search_flag=1 AND x.xform_builder_detail_id=? AND x.customization_id=?"
-						, formCellId, formId, controlTip, tabOrder++, lookUpId, gridId, queryId, userId, userId, GenericUtil.uInt(m.get("xform_builder_detail_id")), customizationId);
+						, formCellId, sformId, controlTip, tabOrder++, lookUpId, gridId, queryId, userId, userId, GenericUtil.uInt(m.get("xform_builder_detail_id")), customizationId);
 				if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
 			}
 
@@ -7387,7 +6558,7 @@ public class FrameworkEngine{
 		int templateId = 0, menuId = 0;
 		if(parentTableId==0){
 					 //  XTEMPLATE_ID := nextval('seq_template');
-			templateId = GenericUtil.getGlobalNextval("seq_template");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template')").get(0));
+			templateId = GenericUtil.getGlobalNextval("iwb.seq_template");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_template("
 					+ "template_id, customization_id, template_tip, dsc, object_id,"
 					+ "object_tip, code, version_no, insert_user_id, insert_dttm, version_user_id,"
@@ -7397,7 +6568,7 @@ public class FrameworkEngine{
 					+ "current_timestamp, 1, ?)",templateId, customizationId, tableName, userId, userId, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 63, templateId));
 
-			int templateObjectId = GenericUtil.getGlobalNextval("seq_template_object");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
+			int templateObjectId = GenericUtil.getGlobalNextval("iwb.seq_template_object");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_template_object("
 					+ "template_object_id, template_id, customization_id, object_id, tab_order, object_tip,"
 					+ "version_no, insert_user_id, insert_dttm, version_user_id, version_dttm,"
@@ -7410,7 +6581,7 @@ public class FrameworkEngine{
 					+ "0, null, null,null, null, 1, ?)",templateObjectId, templateId, customizationId, gridId, userId, userId, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 64, templateObjectId));
 
-			menuId = GenericUtil.getGlobalNextval("seq_menu");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
+			menuId = GenericUtil.getGlobalNextval("iwb.seq_menu");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_menu(" +
 					"menu_id, parent_menu_id, user_tip, node_tip, locale_msg_key," +
 					"tab_order, img_icon, url, version_no, insert_user_id, insert_dttm," +
@@ -7424,7 +6595,7 @@ public class FrameworkEngine{
 					+ "from iwb.w5_table_field f where f.customization_id=? AND f.table_id=? AND f.tab_order=2", customizationId, tableId).get(0);
 			dao.executeUpdateSQLQuery("UPDATE iwb.w5_table_field f SET can_update_flag=0 WHERE f.customization_id=? AND f.table_id=? AND f.tab_order=2", customizationId, tableId);
 			dao.executeUpdateSQLQuery("UPDATE iwb.w5_grid f SET code=f.dsc||'._postInsert=function(sel,url,a){var m=getMasterGridSel(a,sel);if(m)return url+\"&"+loo[0]+"=\" +(m."+loo[0]+" || m.get(\""+loo[0]+"\"));};' WHERE f.customization_id=? AND f.grid_id=?", customizationId, gridId);
-			int tableChildId = GenericUtil.getGlobalNextval("seq_table_relation");
+			int tableChildId = GenericUtil.getGlobalNextval("iwb.seq_table_relation");
 			dao.executeUpdateSQLQuery("insert INTO iwb.w5_table_child "
 					+ "(table_child_id, locale_msg_key, relation_tip, table_id, table_field_id, related_table_id, related_table_field_id, related_static_table_field_id, related_static_table_field_val, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, copy_strategy_tip, on_readonly_related_action, on_invisible_related_action, on_delete_action, tab_order, on_delete_action_value, child_view_tip, child_view_object_id, revision_flag, project_uuid, customization_id) "
 					+ "values(?, ?, 2, ?     , ?             , ?               , ?                     , 0                            , 0                             , 1         , ?             , current_timestamp  , ?      , current_timestamp , 0          , 0                         , 0                          , 0               , 10       , null                  , 0             , 0                   , 0            , ?           , ?)",
@@ -7432,7 +6603,7 @@ public class FrameworkEngine{
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 657, tableChildId));
 
 
-			int queryParamId = GenericUtil.getGlobalNextval("seq_query_param");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
+			int queryParamId = GenericUtil.getGlobalNextval("iwb.seq_query_param");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query_param("
 					+ "query_param_id, query_id, dsc, param_tip, expression_dsc, operator_tip,"
 					+ "not_null_flag, tab_order, source_tip, default_value, min_length,"
@@ -7450,7 +6621,7 @@ public class FrameworkEngine{
 			int parentQueryId = GenericUtil.uInt(dao.executeSQLQuery("select g.query_id from iwb.w5_template_object q, iwb.w5_grid g where q.template_object_id=? AND q.customization_id=? "
 					+ " AND g.customization_id=q.customization_id AND q.object_id=g.grid_id",parentTemplateObjectId, customizationId).get(0));
 
-			int templateObjectId = GenericUtil.getGlobalNextval("seq_template_object");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
+			int templateObjectId = GenericUtil.getGlobalNextval("iwb.seq_template_object");//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_template_object("
 					+ "template_object_id, template_id, customization_id, object_id, tab_order, object_tip,"
 					+ "version_no, insert_user_id, insert_dttm, version_user_id, version_dttm,"
@@ -7467,7 +6638,24 @@ public class FrameworkEngine{
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 64, templateObjectId));
 
 		}
+		dao.executeUpdateSQLQuery("update iwb.w5_table t "
+				+ "set default_insert_form_id=?, default_update_form_id=?, default_view_grid_id=?, summary_record_sql='x.'||(select tf.dsc from iwb.w5_table_field tf where tf.tab_order=2 AND tf.table_id=t.table_id AND t.customization_id=tf.customization_id)||'::text' "
+				+ "where t.table_id=? AND t.customization_id=? ", formId, formId, gridId, tableId, customizationId);
 
+		dao.executeUpdateSQLQuery("update iwb.w5_table_field tf "
+				+ "set default_control_tip=(select fc.control_tip from iwb.w5_form_cell fc, iwb.w5_form f where fc.customization_id=f.customization_id AND f.form_id=fc.form_id AND f.object_tip=2 AND f.object_id=tf.table_id AND fc.dsc=tf.dsc), default_lookup_table_id=(select fc.lookup_query_id from iwb.w5_form_cell fc, iwb.w5_form f where fc.customization_id=f.customization_id AND f.form_id=fc.form_id AND f.object_tip=2 AND f.object_id=tf.table_id AND fc.dsc=tf.dsc) "
+				+ "where tf.table_id=? AND tf.customization_id=? AND tf.tab_order>1 AND tf.dsc not in ('version_no','insert_user_id','insert_dttm','version_user_id','version_dttm') "
+				,tableId, customizationId);
+
+		dao.executeUpdateSQLQuery("update iwb.w5_query_field tf "
+				+ "set post_process_tip=(select case when f.default_control_tip in (6) then 10 when f.default_control_tip in (8) then 11 else 0 end from w5_table_field f where tf.customization_id=f.customization_id AND f.table_id=? AND f.dsc=tf.dsc)"
+				+ ", lookup_query_id=(select case when f.default_control_tip in (6,8) then f.default_lookup_table_id else 0 end from w5_table_field f where tf.customization_id=f.customization_id AND f.table_id=? AND f.dsc=tf.dsc)  "
+				+ ", main_table_field_id=(select f.table_field_id from w5_table_field f where tf.customization_id=f.customization_id AND f.table_id=? AND f.dsc=tf.dsc)  "
+				+ "where tf.query_id=? AND tf.customization_id=?"
+				,tableId, tableId, tableId, queryId, customizationId);
+
+
+		
 		if(parentTableId==0){ //main Template
 			return menuId;
 		} else {
@@ -7645,176 +6833,7 @@ public class FrameworkEngine{
 		}
 		return wsmoMap;
 	}
-	/*
-	public boolean extractWs(Map<String, Object> scd, int wsId) throws IOException{
-		W5Ws ws = (W5Ws)dao.getCustomizedObject("from W5Ws t where t.wsId=? AND t.customizationId=?", wsId, (Integer)scd.get("customizationId"),"WS");
-		SoapService service = new SoapService(ws.getWsUrl());
-		ws.set_service(service);
-		// service operations
 
-		List<SoapOperation> allOps = service.getOperations();
-		int customizationId = (Integer)scd.get("customizationId");
-		boolean vcs = FrameworkSetting.vcs && customizationId==0;
-
-		Map<String, String> paramMap = new HashMap();
-		paramMap.put("string","1");
-		paramMap.put("boolean","5");
-		paramMap.put("byte","4");
-		paramMap.put("short","4");
-		paramMap.put("integer","4");
-		paramMap.put("int","4");
-		paramMap.put("long","4");
-		paramMap.put("float","3");
-		paramMap.put("double","3");
-		paramMap.put("date","2");
-		paramMap.put("time","2");
-		paramMap.put("decimal","7");
-		paramMap.put("datetime","2");
-		paramMap.put("object","8");
-
-		List<W5WsMethod> wsMethods = dao.find("from W5WsMethod t where t.wsId=? AND t.customizationId=? order by 1", wsId, (Integer)scd.get("customizationId"));
-		Map<String, W5WsMethod> wsMethodMap = new HashMap();
-		for(W5WsMethod wm:wsMethods)wsMethodMap.put(wm.getDsc(), wm);
-
-
-		dao.updateObject(ws);
-		if(vcs)dao.makeDirtyVcsObject(scd, 1375, ws.getWsId());
-
-		for(SoapOperation so:service.getOperations()){
-			W5WsMethod m = wsMethodMap.get(so.getName());
-
-			Map<String, W5WsMethodParam> wsMethodParamMap = new HashMap();
-
-			short tabOrder=10;
-			if(m!=null){
-//				m.setUid(def2.getString("identifier"));
-				m.setCallMethodTip((short)1);
-				dao.updateObject(m);
-				if(vcs)dao.makeDirtyVcsObject(scd, 1376, m.getWsMethodId());
-
-
-				List<W5WsMethodParam> wsMethodParams = dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by 1", m.getWsMethodId(), (Integer)scd.get("customizationId"));
-				tabOrder=0;
-				for(W5WsMethodParam wmp:wsMethodParams){
-					wsMethodParamMap.put(wmp.getDsc(), wmp);
-					if(wmp.getTabOrder()>tabOrder)tabOrder = wmp.getTabOrder();
-				}
-				tabOrder+=10;
-				wsMethodMap.remove(so.getName());
-			} else {
-				m = new W5WsMethod();
-				m.setDsc(so.getName());
-//				m.setUid(def2.getString("identifier"));
-				m.setWsId(ws.getWsId());
-				m.setCustomizationId((Integer)scd.get("customizationId"));
-				m.setCallMethodTip((short)1);
-				m.setWsMethodId(GenericUtil.getGlobalNextval("SEQ_WS_METHOD"));
-				dao.saveObject(m);
-				if(vcs)dao.saveObject(new W5VcsObject(scd, 1376, m.getWsMethodId()));
-			}
-			for(SoapInput si:so.getInputs()){
-				W5WsMethodParam p = wsMethodParamMap.get(si.getName());
-				if(p!=null){
-//					p.setUid(def3.getString("identifier"));
-					p.setOutFlag((short)0);
-					XSType paramType = si.getTypeFromOperation();
-					if(paramType!=null){
-						if(p.getNotNullFlag()==0)p.setNotNullFlag(si.getNotNullFromOperation() ? (short)1:0);
-						short ptip = (short)GenericUtil.uInt(paramMap, paramType.getName());
-						if(ptip!=0)p.setParamTip(ptip);
-					}
-//					p.setOutFlag(si.getjp.getString("direction").equals("IN") ? 0:(short)1);
-//					if(si.get)p.setParamTip(paramMap.get(jp.getString("dataType"))); //TODO
-
-//					p.setNotNullFlag(jp.getString("existence").equals("MANDATORY") ? (short)1:0);
-					dao.updateObject(p);
-					if(vcs)dao.makeDirtyVcsObject(scd, 1377, p.getWsMethodParamId());
-					wsMethodParamMap.remove(si.getName());
-				} else {
-					p = new W5WsMethodParam();
-					p.setDsc(si.getName());
-					p.setWsMethodId(m.getWsMethodId());
-					p.setCustomizationId((Integer)scd.get("customizationId"));
-					p.setOutFlag((short)0);
-
-//					if(!jp.getString("dataTypeClass").equals("ANY"))p.setParamTip(paramMap.get(jp.getString("dataType")));
-
-//					p.setNotNullFlag(jp.getString("existence").equals("MANDATORY") ? (short)1:0);
-					p.setSourceTip((short)1);
-					p.setTabOrder(tabOrder);
-					XSType paramType = si.getTypeFromOperation();
-					if(paramType!=null){
-						p.setNotNullFlag(si.getNotNullFromOperation() ? (short)1:0);
-						short ptip = (short)GenericUtil.uInt(paramMap, paramType.getName());
-						if(ptip!=0)p.setParamTip(ptip);
-					}
-					tabOrder+=10;
-					p.setWsMethodParamId(GenericUtil.getGlobalNextval("SEQ_WS_METHOD_PARAM"));
-					dao.saveObject(p);
-					if(vcs)dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
-				}
-			}
-
-
-			List<Map> lx = service.getParamsFromSchema(so.getName()+"Response");
-			if(!GenericUtil.isEmpty(lx))for(Map mx:lx){
-				W5WsMethodParam p = wsMethodParamMap.get(mx.get("name"));
-				if(p!=null){
-					p.setOutFlag((short)1);
-					short ptip = (short)GenericUtil.uInt(paramMap, (String)mx.get("type"));
-					if(ptip!=0)p.setParamTip(ptip);
-					dao.updateObject(p);
-					if(vcs)dao.makeDirtyVcsObject(scd, 1377, p.getWsMethodParamId());
-					wsMethodParamMap.remove(mx.get("name"));
-				} else {
-					p = new W5WsMethodParam();
-					p.setDsc((String)mx.get("name"));
-					short ptip = (short)GenericUtil.uInt(paramMap, (String)mx.get("type"));
-					if(ptip!=0)p.setParamTip(ptip);
-					p.setWsMethodId(m.getWsMethodId());
-					p.setCustomizationId((Integer)scd.get("customizationId"));
-					p.setOutFlag((short)1);
-					p.setTabOrder(tabOrder);
-					tabOrder+=10;
-					p.setWsMethodParamId(GenericUtil.getGlobalNextval("SEQ_WS_METHOD_PARAM"));
-					dao.saveObject(p);
-					if(vcs)dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
-				}
-				if(mx.containsKey("children"))for(Map mx2:(List<Map>)mx.get("children")){
-					W5WsMethodParam p2 = wsMethodParamMap.get(mx2.get("name"));
-					if(p2!=null){
-						p2.setOutFlag((short)1);
-						short ptip = (short)GenericUtil.uInt(paramMap, (String)mx2.get("type"));
-						if(ptip!=0)p2.setParamTip(ptip);
-						p2.setParentWsMethodParamId(p.getWsMethodParamId());
-						dao.updateObject(p);
-						if(vcs)dao.makeDirtyVcsObject(scd, 1377, p2.getWsMethodParamId());
-					} else {
-						p2 = new W5WsMethodParam();
-						p2.setDsc((String)mx2.get("name"));
-						short ptip = (short)GenericUtil.uInt(paramMap, (String)mx2.get("type"));
-						if(ptip!=0)p2.setParamTip(ptip);
-						p2.setWsMethodId(m.getWsMethodId());
-						p2.setCustomizationId((Integer)scd.get("customizationId"));
-						p2.setOutFlag((short)1);
-						p2.setTabOrder(tabOrder);
-						p2.setParentWsMethodParamId(p.getWsMethodParamId());
-						tabOrder+=10;
-						p2.setWsMethodParamId(GenericUtil.getGlobalNextval("SEQ_WS_METHOD_PARAM"));
-						dao.saveObject(p2);
-						if(vcs)dao.saveObject(new W5VcsObject(scd, 1377, p2.getWsMethodParamId()));
-					}
-				}
-			}
-			if(!GenericUtil.isEmpty(wsMethodParamMap))for(W5WsMethodParam p:wsMethodParamMap.values())if(p.getTabOrder()>0){
-				p.setTabOrder((short)-p.getTabOrder());
-				dao.updateObject(p);
-			}
-		}
-
-		return true;
-	}
-*/
 	public Map callWs(Map<String, Object> scd, String name, Map requestParams) throws IOException{
 		String[] u = name.replace('.', ',').split(",");
 		if(u.length<2)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Call should be [serviceName].[methodName]", null);

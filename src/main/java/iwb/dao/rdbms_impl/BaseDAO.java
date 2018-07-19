@@ -20,9 +20,11 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import iwb.domain.db.Log5Base;
 import iwb.exception.IWBException;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
+import iwb.util.LogUtil;
 
 /**
  * Base dao class based on hibernate session
@@ -53,7 +55,8 @@ public abstract class BaseDAO {
     }
 
     public void saveObject(Object o) {
-        getCurrentSession().save(o);
+    	if(o instanceof Log5Base && FrameworkSetting.logType>0) LogUtil.logObject(((Log5Base)o).toInfluxDB());
+    	else getCurrentSession().save(o);
     }
 
     public void updateObject(Object o) {

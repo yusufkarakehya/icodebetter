@@ -15,7 +15,7 @@ import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5Detay;
-import iwb.domain.db.W5Feed;
+import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormModule;
@@ -1159,29 +1159,27 @@ public class React16 implements ViewAdapter {
 			s.append("}\n");
 		}
 
-		if (b) {
-			if(formResult.getForm().getObjectTip()==1){ //search ise
-				s.append(renderSearchFormModuleList(customizationId, xlocale,
-						formResult.getUniqueId(),
-						formResult.getFormCellResults(),
-						"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
-			} else switch (formResult.getForm().getRenderTip()) {
-			case 1:// fieldset
-				s.append(renderFormFieldset(formResult));
-				break;
-			case 2:// tabpanel
-				s.append(renderFormTabpanel(formResult));
-				break;
-			case 3:// tabpanel+border
-				s.append(renderFormTabpanel(formResult));
+		if(formResult.getForm().getObjectTip()==1){ //search ise
+			s.append(renderSearchFormModuleList(customizationId, xlocale,
+					formResult.getUniqueId(),
+					formResult.getFormCellResults(),
+					"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
+		} else switch (formResult.getForm().getRenderTip()) {
+		case 1:// fieldset
+			s.append(renderFormFieldset(formResult));
+			break;
+		case 2:// tabpanel
+			s.append(renderFormTabpanel(formResult));
+			break;
+		case 3:// tabpanel+border
+			s.append(renderFormTabpanel(formResult));
 //				s.append(renderFormTabpanelBorder(formResult));
-				break;
-			case 0:// temiz
-				s.append(renderFormModuleListTop(customizationId, xlocale,
-						formResult.getUniqueId(),
-						formResult.getFormCellResults(),
-						"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
-			}
+			break;
+		case 0:// temiz
+			s.append(renderFormModuleListTop(customizationId, xlocale,
+					formResult.getUniqueId(),
+					formResult.getFormCellResults(),
+					"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
 		}
 
 
@@ -1208,14 +1206,14 @@ public class React16 implements ViewAdapter {
 				l.add(m);
 			}
 		StringBuilder buf = new StringBuilder();
-		buf.append("mf=[");
+		buf.append("mf=_('span',null");
 
 		int defaultWidth = -1;
 		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleListTop(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), "", defaultWidth));
+					formResult.getUniqueId(), map.get(0), ",", defaultWidth));
 		}
 		StringBuilder contentBuf = new StringBuilder();
 		int firstTab = 0;
@@ -1268,7 +1266,7 @@ public class React16 implements ViewAdapter {
 		if(firstTab>0){
 			buf.append(")").append(contentBuf).append(")))");
 		}
-		buf.append("];");
+		buf.append(");");
 
 		return buf;
 	}
@@ -1312,6 +1310,7 @@ public class React16 implements ViewAdapter {
 	private StringBuilder renderTemplateObject(W5TemplateResult templateResult) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
+		if(!(templateResult.getTemplateObjectList().get(0) instanceof W5GridResult))return buf;
 		W5GridResult gr = (W5GridResult)templateResult.getTemplateObjectList().get(0);
 		buf.append("return iwb.ui.buildPanel({t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
 		if(gr.getGrid().get_crudTable()!=null){
@@ -1551,14 +1550,14 @@ public class React16 implements ViewAdapter {
 				l.add(m);
 			}
 		StringBuilder buf = new StringBuilder();
-		buf.append("mf=[");
+		buf.append("mf=_('span',null");
 
 		int defaultWidth = -1;
 		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleListTop(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), "", defaultWidth));
+					formResult.getUniqueId(), map.get(0), ",", defaultWidth));
 		}
 		if (formResult.getForm().get_moduleList() != null)
 			for (W5FormModule m : formResult.getForm().get_moduleList())
@@ -1598,7 +1597,7 @@ public class React16 implements ViewAdapter {
 						}
 					}
 				}
-		buf.append("];");
+		buf.append(");");
 
 		return buf;
 	}
@@ -2523,10 +2522,6 @@ public class React16 implements ViewAdapter {
 		else {
 			if (g.getSelectionModeTip() == 2 || g.getSelectionModeTip() == 3) // multi Select
 				buf.append(",\n selectRow:{mode: 'checkbox',clickToSelect: true}");
-			else if (g.getSelectionModeTip() == 5 && g.get_detailView() != null) // promis.js'de
-																					// halledilmek
-																					// uzere
-				buf.append(",\n detailDlg:true");
 			if (g.getDefaultHeight() > 0)
 				buf.append(",\n defaultHeight:").append(g.getDefaultHeight());
 
@@ -2534,12 +2529,7 @@ public class React16 implements ViewAdapter {
 		}
 		buf.append(",\n loading:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
 		
-		if(FrameworkCache.getAppSettingIntValue(customizationId, "toplu_onay") == 1 && g.getApproval() != null){
-			buf.append(",\n approveBulk:true");
-			if(g.getApproval().getApprovalRequestTip() == 2){ // Onay manuel mi başlatılacak ?
-				buf.append(",\n btnApproveRequest:true");
-			}
-		}
+
 		if (!GenericUtil.isEmpty(g.get_crudFormSmsMailList())) {
 			buf.append(",\n formSmsMailList:[");
 			boolean b = false;
@@ -2559,13 +2549,8 @@ public class React16 implements ViewAdapter {
 					buf.append("{xid:")
 							.append(fsm.getFormSmsMailId())
 							.append(",text:\"")
-							.append(fsm.getSmsMailTip() == 0 ? "[<b>SMS</b>] "
-									: "[<b>"
-											+ (LocaleMsgCache.get2(
-													customizationId, xlocale,
-													"email_upper")) + "</b>] ")
-							.append(GenericUtil.stringToJS(LocaleMsgCache.get2(
-									customizationId, xlocale, fsm.getDsc())))
+							.append(fsm.getSmsMailTip() == 0 ? "[SMS] " : "[" + (LocaleMsgCache.get2(customizationId, xlocale,"email_upper")) + "] ")
+							.append(GenericUtil.stringToJS(LocaleMsgCache.get2(customizationId, xlocale, fsm.getDsc())))
 							.append("\",smsMailTip:")
 							.append(fsm.getSmsMailTip()).append("}");
 				}
@@ -2578,9 +2563,9 @@ public class React16 implements ViewAdapter {
 		}
 		
 		String uniqueId = GenericUtil.getNextId("ng");
-		buf.append(",striped:true,hover:true,bordered:false, name:'").append(LocaleMsgCache.get2(customizationId, xlocale,
-						g.getLocaleMsgKey())).append("',\n id:'")
-				.append(uniqueId).append("',\n listeners:{}");
+		if(false)buf.append(",striped:true,hover:true,bordered:false,");
+		buf.append(",name:'").append(LocaleMsgCache.get2(customizationId, xlocale,
+						g.getLocaleMsgKey())).append("',\n id:'").append(uniqueId).append("'");
 
 		
 			buf.append(",\n _url:'ajaxQueryData?_renderer=react16&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
@@ -2689,11 +2674,8 @@ public class React16 implements ViewAdapter {
 						buf.append(",\n makeCommentFlag:true");
 					
 				
-					if (FrameworkCache.roleAccessControl(scd,  11))
-						buf.append(",\n bulkUpdateFlag:true");
-					if (FrameworkCache
-							.roleAccessControl(scd, 104))
-						buf.append(",\n bulkEmailFlag:true");
+//					if (FrameworkCache.roleAccessControl(scd,  11))buf.append(",\n bulkUpdateFlag:true");
+//					if (FrameworkCache.roleAccessControl(scd, 104))buf.append(",\n bulkEmailFlag:true");
 				}
 			}
 
@@ -4196,7 +4178,7 @@ columns:[
 					} else if (i instanceof W5DbFuncResult) {
 						buf.append("\nvar ")
 								.append(((W5DbFuncResult) i).getDbFunc()
-										.getProcName()).append("=")
+										.getDsc()).append("=")
 								.append(serializeDbFunc((W5DbFuncResult) i))
 								.append("\n");
 					} else if (i instanceof W5QueryResult) {
@@ -4300,7 +4282,7 @@ columns:[
 				} else if (i instanceof W5DbFuncResult) {
 					buf2.append("\nvar ")
 							.append(((W5DbFuncResult) i).getDbFunc()
-									.getProcName()).append("=")
+									.getDsc()).append("=")
 							.append(serializeDbFunc((W5DbFuncResult) i))
 							.append(";\n");
 				} else if (i instanceof W5QueryResult) {
@@ -4358,9 +4340,9 @@ columns:[
 		if(!GenericUtil.isEmpty(code))
 			buf.append("\n").append(code.startsWith("!") ? code.substring(1) : code);
 
-		if(GenericUtil.isEmpty(code) || code.startsWith("!")){
-			buf.append("\n").append(renderTemplateObject(templateResult));
-		}
+		short ttip= templateResult.getTemplate().getTemplateTip();
+		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
+		
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
 				buf.toString(), templateResult.getScd(),
 				templateResult.getRequestParams(), null) : buf;
@@ -4532,7 +4514,7 @@ columns:[
 		// detaya crud, ...)
 		// 2. security
 		// 3. detay'da
-		List<W5Feed> lall = FrameworkCache.wFeeds.get(customizationId);
+		List<Log5Feed> lall = FrameworkCache.wFeeds.get(customizationId);
 		if (lall == null)
 			return buf
 					.append("{\"success\":true,\"data\":[],\"browseInfo\":{\"startRow\":0,\"fetchCount\":0,\"totalCount\":0}}");
@@ -4545,14 +4527,14 @@ columns:[
 		buf.append("{\"success\":true,\"latest_feed_index\":").append(qj);
 		if (lall == null || qj - 1 <= platestFeedIndex)
 			return buf.append("}");
-		Map<Integer, W5Feed> relatedFeedMap = new HashMap<Integer, W5Feed>();
+		Map<Integer, Log5Feed> relatedFeedMap = new HashMap<Integer, Log5Feed>();
 		if (platestFeedIndex < 0)
 			platestFeedIndex = -1;
 		if (qj - platestFeedIndex > maxDerinlik)
 			platestFeedIndex = qj - maxDerinlik;
 		buf.append(",\"data\":[");
 		for (int qi = qj - 1; qi > platestFeedIndex && feedCount < maxFeedCount; qi--) {
-			W5Feed feed = lall.get(qi);
+			Log5Feed feed = lall.get(qi);
 			if (feed == null)
 				continue;
 			if (userTip != feed.getInsertUserTip())
@@ -5067,29 +5049,27 @@ columns:[
 				s.append("}\n");
 			}
 	
-			if (b) {
-				if(formResult.getForm().getObjectTip()==1){ //search ise
-					s.append(renderSearchFormModuleList(customizationId, xlocale,
-							formResult.getUniqueId(),
-							formResult.getFormCellResults(),
-							"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
-				} else switch (formResult.getForm().getRenderTip()) {
-				case 1:// fieldset
-					s.append(renderFormFieldset(formResult));
-					break;
-				case 2:// tabpanel
-					s.append(renderFormTabpanel(formResult));
-					break;
-				case 3:// tabpanel+border
-					s.append(renderFormTabpanel(formResult));
-	//				s.append(renderFormTabpanelBorder(formResult));
-					break;
-				case 0:// temiz
-					s.append(renderFormModuleListTop(customizationId, xlocale,
-							formResult.getUniqueId(),
-							formResult.getFormCellResults(),
-							"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
-				}
+			if(formResult.getForm().getObjectTip()==1){ //search ise
+				s.append(renderSearchFormModuleList(customizationId, xlocale,
+						formResult.getUniqueId(),
+						formResult.getFormCellResults(),
+						"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
+			} else switch (formResult.getForm().getRenderTip()) {
+			case 1:// fieldset
+				s.append(renderFormFieldset(formResult));
+				break;
+			case 2:// tabpanel
+				s.append(renderFormTabpanel(formResult));
+				break;
+			case 3:// tabpanel+border
+				s.append(renderFormTabpanel(formResult));
+//				s.append(renderFormTabpanelBorder(formResult));
+				break;
+			case 0:// temiz
+				s.append(renderFormModuleListTop(customizationId, xlocale,
+						formResult.getUniqueId(),
+						formResult.getFormCellResults(),
+						"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
 			}
 	
 	

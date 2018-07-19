@@ -48,7 +48,7 @@ import iwb.adapter.ui.webix.Webix3_3;
 import iwb.domain.db.Log5UserAction;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5FileAttachment;
-import iwb.domain.db.W5Notification;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Query;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5QueuedDbFuncHelper;
@@ -646,7 +646,7 @@ public class PreviewServlet implements InitializingBean {
 			dbFuncId = -GenericUtil.uInt(request, "_fid"); // +:dbFuncId,
 															// -:formId
 		}
-		W5DbFuncResult dbFuncResult = engine.executeDbFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
+		W5DbFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
 				(short) 1);
 
 		response.setContentType("application/json");
@@ -813,7 +813,7 @@ public class PreviewServlet implements InitializingBean {
 				UserUtil.onlineUserLogout((Integer) scd.get("customizationId"), (Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
 				if(scd.containsKey("mobile")){
 					Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", scd.get("mobileDeviceId"));parameterMap.put("pactive_flag", 0);
-					engine.executeDbFunc(scd, 673, parameterMap, (short)4);
+					engine.executeFunc(scd, 673, parameterMap, (short)4);
 				}
 			}
 			session.removeAttribute("scd-dev");
@@ -953,56 +953,6 @@ public class PreviewServlet implements InitializingBean {
 
 	}
 
-	@RequestMapping("/*/grd2/*") // master detail report
-	public ModelAndView hndGrid2Report(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndGrid2Report");
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-
-		int masterGridId = GenericUtil.uInt(request, "_gid");
-		String masterGridColumns = request.getParameter("_columns");
-		int detailGridId = GenericUtil.uInt(request, "_gid2");
-		String detailGridColumns = request.getParameter("_columns2");
-		String params = request.getParameter("_params");
-		List<W5ReportCellHelper> list = engine.getGrid2ReportResult(scd, masterGridId, masterGridColumns, detailGridId,
-				detailGridColumns, params, GenericUtil.getParameterMap(request));
-		if (list != null) {
-			Map<String, Object> m = new HashMap<String, Object>();
-			m.put("report", list);
-			m.put("scd-dev", scd);
-
-			ModelAndView result = null;
-			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
-				result = new ModelAndView(new RptExcelRenderer(), m);
-			else // if(request.getRequestURI().indexOf(".pdf")!=-1)
-				result = new ModelAndView(new RptPdfRenderer(engine.getCustomizationLogoFilePath(scd)), m);
-			;
-			return result;
-
-		} else {
-			response.getWriter().write("Hata");
-			response.getWriter().close();
-
-			return null;
-		}
-
-	}
-
-	/*
-	 * 
-	 * public ModelAndView hndSaveUserGridSetting( HttpServletRequest request,
-	 * HttpServletResponse response) throws ServletException, IOException {
-	 * log.info("hndSaveUserGridSetting"); Map<String, Object> scd =
-	 * UserUtil.getScd4Preview(request, "scd-dev", true);
-	 * 
-	 * int gridId= GenericUtil.uInt(request, "_gid"); String gridUserDsc =
-	 * request.getParameter("_dsc"); String gridColumns =
-	 * request.getParameter("_columns"); String gridSFRMCells =
-	 * request.getParameter("_sfrm_cells");
-	 * response.getWriter().write("{\"success\":"+bus.getGridReportResult(scd,
-	 * gridId, gridUserDsc, gridColumns, gridSFRMCells)+"}");
-	 * response.getWriter().close(); return null; }
-	 */
 
 	@RequestMapping("/*/dl/*")
 	public void hndFileDownload(HttpServletRequest request, HttpServletResponse response)
@@ -1151,185 +1101,6 @@ public class PreviewServlet implements InitializingBean {
 		}
 	}
 
-	@RequestMapping("/*/jasper/*")
-	public ModelAndView hndJasper(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndJasperReport"); 
-    	Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-    	int customizationId=(Integer) ((scd.get("customizationId")==null) ? 0 : scd.get("customizationId"));
-    	//int jasperId = PromisUtil.uInt(request, "_jid");
-    	//int jasperReportId=PromisUtil.uInt(request, "_jrid");
-    	//int jasperTypeId=PromisUtil.uInt(request, "_jtid");// jasper raporlara ön yazı eklemek icin   _jtid isminde raporlar yolluyoruz.
-    	String locale= (request.getParameter("tlocale")==null) ?  (String)scd.get("locale") : (String) request.getParameter("tlocale") ; //Sisteme login dili değilde farklı bir dil seçeneği kullanılmak isteniyosa
-    	Map<String, String> requestParams = GenericUtil.getParameterMap(request);    	
-    	int multiJasperFlag=GenericUtil.uInt(request, "_multiple_flag");
-    	JasperPrint jasperPrint = new JasperPrint() ;
-    	JasperPrint jasperPrintMulti = new JasperPrint();
-    	
-		// Eğer 20 den fazla sayfa varsa dosya sistemini kullanacak önce //
-    	String fileLocalPath = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
-		File tmp = new File(fileLocalPath + "/" + customizationId + "/temp"); 
-		if(!tmp.exists()) tmp.mkdirs();	
-		int virtualizer_page=FrameworkCache.getAppSettingIntValue(customizationId,"jasper_virtualizer",20);
-		JRFileVirtualizer virtualizer = new JRFileVirtualizer(virtualizer_page, tmp.getPath());
-		///////////////////////////////////////////////////////////////////
-		
-    	//W5JasperResult result = null;
-    	int jasperId=GenericUtil.uInt(requestParams.get("xjasper_id"));
-    	    	
-    	try {    		
-	    	if(multiJasperFlag!=0){	 	    		
-	    		String jasperReportIds=requestParams.get("xjasper_report_ids");	    		
-	    		int pageIndex=0;	    		
-	    		W5QueryResult queryResult=engine.getJasperMultipleData(scd, requestParams, jasperId);
-	    		for(Object[] o: queryResult.getData()){	    				    			
-	    			if(jasperReportIds!=null){
-	    				//birden fazla raporu birleştirerek yine her birinden istediğimiz kadar sayfa bastırmak için		    				
-	    				String[] jr=jasperReportIds.split(",");
-	    				for(int i=0;i<jr.length;i++){
-	    					requestParams.clear();
-	    					//query sonucunun her bir satırını requestParams olarak kullanacağız
-		    				for(int j=0;j<o.length;j++){
-		    					if (o[j]!=null) requestParams.put(queryResult.getNewQueryFields().get(j).getDsc(),o[j].toString()); //multi query sonucu
-		    				}
-		    				requestParams.put("_jrid", jr[i]);
-	    					jasperPrint=engine.prepareJasperPrint(scd,requestParams,virtualizer);
-	    					if(pageIndex==0) jasperPrintMulti=jasperPrint;
-							if(pageIndex!=0) for(JRPrintPage jrPage:jasperPrint.getPages())jasperPrintMulti.addPage(jrPage);
-							pageIndex++;
-	    				}
-	    			}else{
-	    				//bir raporu çok sayfa bastırmak için, örneğin toplu fatura basımı
-		    			requestParams = GenericUtil.getParameterMap(request);
-		    			for(int i=0;i<o.length;i++) requestParams.put(queryResult.getNewQueryFields().get(i).getDsc(),o[i].toString()); //multi query sonucu
-		    			jasperPrint=engine.prepareJasperPrint(scd,requestParams,virtualizer);
-		    			if(pageIndex==0) jasperPrintMulti=jasperPrint;
-						if(pageIndex!=0) for(JRPrintPage jrPage:jasperPrint.getPages())jasperPrintMulti.addPage(jrPage);
-						pageIndex++;
-	    			}
-	    		}	    		
-	    		jasperPrint=jasperPrintMulti;
-	    	}	    	
-	    	else {	    	
-	    		jasperPrint=engine.prepareJasperPrint(scd,requestParams,virtualizer);
-	    	}
-			
-			/*if(jasperTypeId==2){//Fax Page				
-				resultMap.put("total_page_number",jasperPrint.getPages().size());
-				JasperPrint faxJasperPrint = JasperFillManager.fillReport(PromisCache.getAppSettingStringValue(scd, "file_local_path") + "/"+customizationId+"/jasper/fax_page.jasper",resultMap, new JRMapCollectionDataSource(result.getResultDetail()));			
-				faxJasperPrint=PromisUtil.convertKey2LocaleMsg(faxJasperPrint,locale);
-				jasperPrint.addPage(0, (JRPrintPage) faxJasperPrint.getPages().get(0));
-			}
-			if(jasperTypeId==3){//Cover Page
-				JasperPrint coverJasperPrint = JasperFillManager.fillReport(PromisCache.getAppSettingStringValue(scd, "file_local_path")+ "/"+customizationId+"/jasper/cover_page.jasper", (Map)result.getResultMap(), new JRMapCollectionDataSource(result.getResultDetail()));
-				coverJasperPrint=PromisUtil.convertKey2LocaleMsg(coverJasperPrint,locale);
-				jasperPrint.addPage(0, (JRPrintPage) coverJasperPrint.getPages().get(0));
-			}		*/	
-			
-	    	//if(result.getJasper().getLocaleKeyFlag()==1){//Jasper Raporunda textfild'e Key degerleri verilmisse,Key degerinin karsılıgı alınıyor.
-				jasperPrint=JasperUtil.convertKey2LocaleMsg(jasperPrint,locale);
-			//}
-			
-			if(request.getRequestURI().indexOf(".pdf")!=-1 || "pdf".equals(request.getParameter("_fmt"))){ //PDF
-				JRExporter exporter =new JRPdfExporter();
-				response.setContentType("application/pdf");
-				exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
-				if(GenericUtil.uInt(request, "_attachFile")==0)exporter.setParameter(JRExporterParameter.OUTPUT_STREAM,response.getOutputStream());
-				exporter.setParameter(JRExporterParameter.CHARACTER_ENCODING, "UTF-8");
-				
-				//engine.jasperAttachFile(jasperPrint,scd,requestParams,attach_file_name);
-				
-				if(GenericUtil.uInt(request, "_attachFile")!=0){ //pdf +
-					
-					String []  urlArray=request.getRequestURI().split("/");					
-					String attach_file_name=java.net.URLDecoder.decode(urlArray[urlArray.length-1],"UTF-8");
-					long fileId = new Date().getTime();
-				    String system_file_name=fileId+"."+attach_file_name;		
-					String path = GenericUtil.fileAttachPath(customizationId, "jasper");
-				    
-					
-					int table_id=GenericUtil.uInt(request, "_saveTableId");
-					String table_pk=request.getParameter("_saveTablePk") != null ? request.getParameter("_saveTablePk") : "0";
-					Integer file_type_id=GenericUtil.uInteger(request,"_file_type_id");
-					
-					File dirPath = new File(path);
-				    if (!dirPath.exists()) {
-				            dirPath.mkdirs();
-				    }
-					JasperExportManager.exportReportToPdfFile(jasperPrint, path+File.separator+system_file_name);
-					File attachFile=new File(path+File.separator+system_file_name);					
-					int totalBytesRead=(int) (attachFile.length());							
-					
-					engine.jasperFileAttachmentControl(table_id, table_pk, attach_file_name, file_type_id); // daha önce attach dosyaları disable ediyor.
-					
-					W5FileAttachment fa = new W5FileAttachment();	 		
-		  
-					try {			  
-//						    fa.setFileComment(bean.getFile_comment());
-							fa.setCustomizationId(customizationId);
-							fa.setFileTypeId(file_type_id);
-							fa.setSystemFileName(system_file_name);
-							fa.setOrijinalFileName(attach_file_name);
-							fa.setTableId(table_id);
-							fa.setTablePk(table_pk);
-							fa.setTabOrder((short)1);
-							fa.setUploadUserId((Integer)scd.get("userId"));
-							fa.setFileSize(totalBytesRead);
-							fa.setActiveFlag((short)1);
-					        engine.saveObject(fa);
-					        response.getWriter().printf("{ \"success\": \"%s\" , \"file_attachment_id\": %d}", "true", fa.getFileAttachmentId());
-					}
-				    catch (Exception e) {
-				        	response.getWriter().printf("{ \"success\": \"%s\" }", "false");
-					}
-				}else{
-					JasperExportManager.exportReportToPdfStream(jasperPrint,response.getOutputStream());
-				}
-			}
-			if(request.getRequestURI().indexOf(".xls")!=-1 || "xls".equals(request.getParameter("_fmt"))){ //Excel
-				JRExporter exporter = new JRXlsExporter();
-				response.setContentType("application/xls") ;
-				OutputStream ouputStream = response.getOutputStream();
-				exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
-				exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, ouputStream);
-				exporter.setParameter(JRXlsExporterParameter.IGNORE_PAGE_MARGINS, false);  
-				exporter.setParameter(JRXlsExporterParameter.IS_COLLAPSE_ROW_SPAN, true);  
-				exporter.setParameter(JRXlsExporterParameter.IS_WHITE_PAGE_BACKGROUND, false);  
-				exporter.setParameter(JRXlsExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_COLUMNS, true);  
-				exporter.setParameter(JRXlsExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS, true);  
-				exporter.setParameter(JRXlsExporterParameter.IS_DETECT_CELL_TYPE, true);  
-				//exporter.setParameter(JRXlsExporterParameter.IS_ONE_PAGE_PER_SHEET, true);   
-				exporter.setParameter(JRExporterParameter.CHARACTER_ENCODING, "UTF-8");
-				exporter.exportReport();		
-			}	
-			
-			if(request.getRequestURI().indexOf(".rtf")!=-1 || "rtf".equals(request.getParameter("_fmt"))){ // Word
-				JRRtfExporter exporter = new JRRtfExporter();				
-				response.setContentType("application/rtf") ;
-				OutputStream ouputStream = response.getOutputStream();
-				exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
-				exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, ouputStream);
-				exporter.setParameter(JRExporterParameter.CHARACTER_ENCODING, "UTF-8");
-				exporter.exportReport();		
-			}		
-			
-		
-		}catch (JRException e) {
-			if(FrameworkSetting.debug)e.printStackTrace();
-			//response.getOutputStream().print("Jasper Error: " + e.getMessage());
-			//response.getOutputStream().close();
-//			bus.logException(e.getMessage(),PromisUtil.uInt(scd.get("customizationId")),PromisUtil.uInt(scd.get("userRoleId")));
-			throw new IWBException("Error", "Jasper", jasperId, null, e.getMessage(), e.getCause());
-		}finally{
-			// Temp klasör içerisi de silinmeli
-			virtualizer.cleanup();
-		}
-		return null;
-	
-	
-	}
 
 	@RequestMapping("/*/showFormByQuery")
 	public void hndShowFormByQuery(HttpServletRequest request, HttpServletResponse response)
@@ -1676,13 +1447,13 @@ public class PreviewServlet implements InitializingBean {
 
 		@Override
 		public void run() {
-			W5Notification n = new W5Notification();// sanal
+			Log5Notification n = new Log5Notification();// sanal
 			n.setUserId((Integer) queuedDbFunc.getScd().get("userId"));
 			n.setUserTip((short) GenericUtil.uInt(queuedDbFunc.getScd().get("userTip")));
 			try {
 				// qt.put(th.getId(), executeDbFunc(scd, dbFuncId, parameterMap,
 				// execRestrictTip));//is bitince, result
-				W5DbFuncResult result = engine.executeDbFunc(queuedDbFunc.getScd(), queuedDbFunc.getDbFuncId(),
+				W5DbFuncResult result = engine.executeFunc(queuedDbFunc.getScd(), queuedDbFunc.getDbFuncId(),
 						queuedDbFunc.getParameterMap(), queuedDbFunc.getExecRestrictTip());// is
 																							// bitince,
 																							// result

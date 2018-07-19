@@ -20,7 +20,6 @@ import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFilter;
 import iwb.domain.db.W5TableParam;
-import iwb.domain.db.W5TableUserTip;
 import iwb.domain.db.W5TsMeasurement;
 import iwb.enums.FieldDefinitions;
 import iwb.util.DBUtil;
@@ -990,115 +989,7 @@ public class W5QueryResult implements W5MetaResult{
 					sqlParams.add(query.getMainTableId());
 				}
 			}
-			if(scd.get("userTip")!=null){
-				int  userTip = (Integer)scd.get("userTip");
-				if(mainTable.get_tableUserTipMap()!=null){//tableUserTip kisit
-					W5TableUserTip tut = mainTable.get_tableUserTipMap().get(userTip);
-					if(tut!=null){
-						String accessViewSql = tut.getAccessViewSql();
-						if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-							Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
-							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
-							sqlWhere.append("(").append(oz[0]).append(")");
-							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-						}
-						
-						if(tut.getAccessViewTip()!=0 && tut.getAccessViewUserFields()!=null 
-								&& (tut.getAccessViewRoles()==null || !GenericUtil.hasPartInside(tut.getAccessViewRoles(), scd.get("roleId").toString()))
-								&& (tut.getAccessViewUsers()==null || !GenericUtil.hasPartInside(tut.getAccessViewUsers(), scd.get("userId").toString()))
-						){
-							String[] fieldIdz = tut.getAccessViewUserFields().split(",");
-							sqlWhere.append(sqlWhere.length()>0 ? " AND (":" ("); 
-							boolean bq=false;
-							for(String s:fieldIdz){
-								if(s.charAt(0)=='*'){//advanced sql
-									int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
-									W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
-									if(accessConditionSql!=null){
-										Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
-							    		sqlFrom = ((StringBuilder)oz[0]).toString();
-										if(bq)sqlWhere.append(" OR ");else bq=true;
-										sqlWhere.append(oz[0]);
-										if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-									}
-									continue;
-								}
-								if(s.charAt(0)=='!'){//hierarchic advanced sql
-									int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
-									W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
-									if(accessConditionSql!=null){
-										W5Table t2 = FrameworkCache.getTable(scd, accessConditionSql.getTableId());
-										if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-											for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==mainTable.getTableId()){
-												StringBuilder sql2 = new StringBuilder();
-												if(tc.getRelatedStaticTableFieldId()>0){
-													sql2.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-												}
-												sql2.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=${scd.customizationId} AND ").append(accessConditionSql.getConditionCode().replace("x.", "hq.")).append(" AND hq.")
-												.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-												if(tc.getRelatedStaticTableFieldId()>0){
-													sql2.append(")");
-												}
-												sql2.append(")");
-												
-												Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
-									    		sqlFrom = ((StringBuilder)oz[0]).toString();
-												if(bq)sqlWhere.append(" OR ");else bq=true;
-												sqlWhere.append(oz[0]);
-												if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-												break;
-											}
-										}
-									}
-									continue;
-								}
-								int tableFieldId = GenericUtil.uInt(s);
-								boolean hrc = false;
-								if(tableFieldId<0){
-									hrc = true;
-									tableFieldId=-tableFieldId;
-								}
-								W5TableField tf = mainTable.get_tableFieldMap().get(tableFieldId);
-								if(tf!=null){
-									if(bq)sqlWhere.append(" OR ");else bq=true;					
-									if(hrc){
-										sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
-										sqlParams.add(scd.get("customizationId"));
-									} else {
-										sqlWhere.append("x.").append(tf.getDsc()).append("=?");
-									}
-									sqlParams.add(scd.get("userId"));
-
-								}else {
-									Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
-									if(tbId!=null){
-										W5Table t2 = FrameworkCache.getTable(tut.getCustomizationId(), tbId);
-										if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-											W5TableField tf2 = t2.get_tableFieldMap().get(tableFieldId);
-											for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==tut.getTableId()){
-												if(bq)sqlWhere.append(" OR ");else bq=true;
-												if(tc.getRelatedStaticTableFieldId()>0){
-													sqlWhere.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-												}
-												sqlWhere.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=? AND hq.").append(tf2.getDsc()).append("=?").append(" AND hq.")
-												.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-												if(tc.getRelatedStaticTableFieldId()>0){
-													sqlWhere.append(")");
-												}
-												sqlWhere.append(")");
-												sqlParams.add(scd.get("customizationId"));
-												sqlParams.add(scd.get("userId"));
-												break;
-											}
-										}
-									}
-								}
-							}
-							sqlWhere.append(")");
-						}
-					}
-				}
-			}
+			
 			
 			if(mainTable.get_tableFilterList()!=null)for(W5TableFilter tf:mainTable.get_tableFilterList())if(GenericUtil.accessControl(scd, (short)1, tf.getAccessFilterRoles(), tf.getAccessFilterUsers()) // role & user control 
 					|| (FrameworkCache.getAppSettingIntValue(scd, "dealer_flag")!=0 && GenericUtil.uInt(scd.get("userTip"))==3 && tf.getAccessFilterDealers()!=null && GenericUtil.hasPartInside2(tf.getAccessFilterDealers(), scd.get("unitId")))){ // b2b dealer control
@@ -1662,116 +1553,7 @@ public class W5QueryResult implements W5MetaResult{
 					sqlParams.add(query.getMainTableId());
 				}
 			}
-			if(scd.get("userTip")!=null){
-				int  userTip = (Integer)scd.get("userTip");
-				if(mainTable.get_tableUserTipMap()!=null){//tableUserTip kisit
-					W5TableUserTip tut = mainTable.get_tableUserTipMap().get(userTip);
-					if(tut!=null){
-						String accessViewSql = tut.getAccessViewSql();
-						if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-							Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
-							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
-							sqlWhere.append("(").append(oz[0]).append(")");
-							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-						}
-						
-						if(tut.getAccessViewTip()!=0 && tut.getAccessViewUserFields()!=null 
-								&& (tut.getAccessViewRoles()==null || !GenericUtil.hasPartInside(tut.getAccessViewRoles(), scd.get("roleId").toString()))
-								&& (tut.getAccessViewUsers()==null || !GenericUtil.hasPartInside(tut.getAccessViewUsers(), scd.get("userId").toString()))
-						){
-							String[] fieldIdz = tut.getAccessViewUserFields().split(",");
-							sqlWhere.append(sqlWhere.length()>0 ? " AND (":" ("); 
-							boolean bq=false;
-							for(String s:fieldIdz){
-								if(s.charAt(0)=='*'){//advanced sql
-									int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
-									W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
-									if(accessConditionSql!=null){
-										Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
-							    		sqlFrom = ((StringBuilder)oz[0]).toString();
-										if(bq)sqlWhere.append(" OR ");else bq=true;
-										sqlWhere.append(oz[0]);
-										if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-									}
-									continue;
-								}
-								if(s.charAt(0)=='!'){//hierarchic advanced sql
-									int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
-									W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
-									if(accessConditionSql!=null){
-										W5Table t2 = FrameworkCache.getTable(scd, accessConditionSql.getTableId());
-										if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-											for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==mainTable.getTableId()){
-												StringBuilder sql2 = new StringBuilder();
-												if(tc.getRelatedStaticTableFieldId()>0){
-													sql2.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-												}
-												sql2.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=${scd.customizationId} AND ").append(accessConditionSql.getConditionCode().replace("x.", "hq.")).append(" AND hq.")
-												.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-												if(tc.getRelatedStaticTableFieldId()>0){
-													sql2.append(")");
-												}
-												sql2.append(")");
-												
-												Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
-									    		sqlFrom = ((StringBuilder)oz[0]).toString();
-												if(bq)sqlWhere.append(" OR ");else bq=true;
-												sqlWhere.append(oz[0]);
-												if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-												break;
-											}
-										}
-									}
-									continue;
-								}
-								int tableFieldId = GenericUtil.uInt(s);
-								boolean hrc = false;
-								if(tableFieldId<0){
-									hrc = true;
-									tableFieldId=-tableFieldId;
-								}
-								W5TableField tf = mainTable.get_tableFieldMap().get(tableFieldId);
-								if(tf!=null){
-									if(bq)sqlWhere.append(" OR ");else bq=true;					
-									if(hrc){
-										sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
-										sqlParams.add(scd.get("customizationId"));
-									} else {
-										sqlWhere.append("x.").append(tf.getDsc()).append("=?");
-									}
-									sqlParams.add(scd.get("userId"));
-
-								}else {
-									Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
-									if(tbId!=null){
-										W5Table t2 = FrameworkCache.getTable(tut.getCustomizationId(), tbId);
-										if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-											W5TableField tf2 = t2.get_tableFieldMap().get(tableFieldId);
-											for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==tut.getTableId()){
-												if(bq)sqlWhere.append(" OR ");else bq=true;
-												if(tc.getRelatedStaticTableFieldId()>0){
-													sqlWhere.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-												}
-												sqlWhere.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=? AND hq.").append(tf2.getDsc()).append("=?").append(" AND hq.")
-												.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-												if(tc.getRelatedStaticTableFieldId()>0){
-													sqlWhere.append(")");
-												}
-												sqlWhere.append(")");
-												sqlParams.add(scd.get("customizationId"));
-												sqlParams.add(scd.get("userId"));
-												break;
-											}
-										}
-									}
-								}
-							}
-							sqlWhere.append(")");
-						}
-					}
-				}
-
-			}
+			
 			
 			if(mainTable.get_tableFilterList()!=null)for(W5TableFilter tf:mainTable.get_tableFilterList())if(GenericUtil.accessControl(scd, (short)1, tf.getAccessFilterRoles(), tf.getAccessFilterUsers()) // role & user control 
 					|| (FrameworkCache.getAppSettingIntValue(scd, "dealer_flag")!=0 && GenericUtil.uInt(scd.get("userTip"))==3 && tf.getAccessFilterDealers()!=null && GenericUtil.hasPartInside2(tf.getAccessFilterDealers(), scd.get("unitId")))){ // b2b dealer control
@@ -2280,21 +2062,7 @@ public class W5QueryResult implements W5MetaResult{
 					sqlParams.add(query.getMainTableId());
 				}
 			}
-			if(scd.get("userTip")!=null){
-				int  userTip = (Integer)scd.get("userTip");
-				if(mainTable.get_tableUserTipMap()!=null){//tableUserTip kisit
-					W5TableUserTip tut = mainTable.get_tableUserTipMap().get(userTip);
-					if(tut!=null){
-						String accessViewSql = tut.getAccessViewSql();
-						if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-							Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
-							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
-							sqlWhere.append("(").append(oz[0]).append(")");
-							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-						}
-					}
-				}
-			}
+		
 			
 			if(mainTable.get_tableFilterList()!=null)for(W5TableFilter tf:mainTable.get_tableFilterList())if(GenericUtil.accessControl(scd, (short)1, tf.getAccessFilterRoles(), tf.getAccessFilterUsers()) // role & user control 
 					|| (FrameworkCache.getAppSettingIntValue(scd, "dealer_flag")!=0 && GenericUtil.uInt(scd.get("userTip"))==3 && tf.getAccessFilterDealers()!=null && GenericUtil.hasPartInside2(tf.getAccessFilterDealers(), scd.get("unitId")))){ // b2b dealer control

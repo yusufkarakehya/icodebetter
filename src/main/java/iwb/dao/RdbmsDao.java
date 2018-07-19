@@ -159,8 +159,6 @@ public interface RdbmsDao{
 
 	void reloadTableFieldListCache(int customizationId);
 
-	void reloadTableUserTipCache(int customizationId);
-
 	void reloadTableFilterCache(int customizationId);
 
 	void reloadPromisCaches(int cid);

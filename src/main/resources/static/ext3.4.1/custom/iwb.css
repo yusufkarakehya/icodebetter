@@ -1043,14 +1043,14 @@ background-image:url(images/vcsw-16.png);
 }
 
 .fc-select-up {
-	background: url(../images/custom/arrow_right1.png);
+	background: url(images/arrow-right-16.png);
 	background-repeat: no-repeat;
-	background-position: 95px -5px;
+	background-position: 95px 17px;
 	background-size: 11px;
 }
 
 .fc-select-down {
-	background: url(../images/custom/arrow_right1.png);
+	background: url(images/arrow-right-16.png);
 	background-repeat: no-repeat;
 	background-position: 95px 17px;
 	background-size: 11px;

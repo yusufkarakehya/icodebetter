@@ -13,13 +13,19 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="log5_vcs_action",schema="iwb")
-public class Log5VcsAction implements Serializable{
+public class Log5VcsAction implements Serializable, Log5Base{
 	
 	private int logId;
 	private int userId;
 	private int customizationId;  
 	private short vcsActionTip;  
 	private String userIp;  
+	
+	public String toInfluxDB() {
+		StringBuilder s=new StringBuilder();
+		return s.toString();
+	}
+
 	
 	public Log5VcsAction() {
 	}

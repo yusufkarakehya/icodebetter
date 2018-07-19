@@ -2350,7 +2350,7 @@ public class GenericUtil {
 		return	sb.toString();
 	}
 	
-	public static String uStr2Alpha2(String source) {
+	public static String uStr2Alpha2(String source, String prefixIfError) {
 		StringBuilder sb = new StringBuilder();
 		int	n = source==null ? 0 : source.length();
 		for (int j = 0; j < n; j++){
@@ -2360,6 +2360,9 @@ public class GenericUtil {
 			else if(x==' ')
 				sb.append('_');
 		}
+		char x = source.charAt(0);
+		if(!isEmpty(prefixIfError) && !(x>='a' && x<='z') && !(x>='A' && x<='Z'))
+			sb.insert(0, prefixIfError);
 		return	sb.toString();
 	}
 	public static Object strToSoap(String source) {

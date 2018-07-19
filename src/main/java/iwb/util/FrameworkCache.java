@@ -15,7 +15,7 @@ import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5DbFunc;
-import iwb.domain.db.W5Feed;
+import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5Grid;
 import iwb.domain.db.W5JobSchedule;
@@ -58,7 +58,7 @@ public class FrameworkCache {
 	final public static Map<Integer, Map<Integer, String>> wRoles = new HashMap<Integer, Map<Integer, String>>();
 	final public static Map<Integer, Map<Integer, W5Table>> wTables = new HashMap<Integer, Map<Integer, W5Table>>();
 	final public static Map<Integer, W5Approval> wApprovals = new HashMap<Integer, W5Approval>();
-	final public static Map<Integer, List<W5Feed>> wFeeds = new HashMap<Integer, List<W5Feed>>();
+	final public static Map<Integer, List<Log5Feed>> wFeeds = new HashMap<Integer, List<Log5Feed>>();
 	final public static List<W5JobSchedule> wJobs= new ArrayList<W5JobSchedule>();
 	final public static Map<String, Long> reloadCacheQueue = new HashMap<String, Long>();
 	final public static Map<Integer, List<W5TableParam>> tableParamListMap = new HashMap<Integer, List<W5TableParam>>();
@@ -273,10 +273,10 @@ public class FrameworkCache {
 
 
 
-	synchronized private	static void reorganizeFeedList(List<W5Feed> lx){
+	synchronized private	static void reorganizeFeedList(List<Log5Feed> lx){
 		if(lx.size()>FrameworkSetting.feedMaxDepth){
-			List<W5Feed> lx2 = new ArrayList<W5Feed>(FrameworkSetting.feedMaxDepth+10);
-			for(W5Feed f:lx)if(f!=null)lx2.add(f);//aradaki null'lari atiyor
+			List<Log5Feed> lx2 = new ArrayList<Log5Feed>(FrameworkSetting.feedMaxDepth+10);
+			for(Log5Feed f:lx)if(f!=null)lx2.add(f);//aradaki null'lari atiyor
 			if(lx2.size()>lx.size()/2){
 				lx.clear();
 				lx.addAll(lx2.subList(lx2.size() - lx.size()/2, lx2.size()));
@@ -286,20 +286,20 @@ public class FrameworkCache {
 			}
 		}
 	}
-	public static boolean addFeed(Map scd,  W5Feed feed, boolean publish){
-		List<W5Feed> lx = wFeeds.get((Integer)scd.get("customizationId"));
+	public static boolean addFeed(Map scd,  Log5Feed feed, boolean publish){
+		List<Log5Feed> lx = wFeeds.get((Integer)scd.get("customizationId"));
 		if(lx==null){
-			lx = new ArrayList<W5Feed>(FrameworkSetting.feedMaxDepth+10);
+			lx = new ArrayList<Log5Feed>(FrameworkSetting.feedMaxDepth+10);
 			wFeeds.put((Integer)scd.get("customizationId"), lx);
 		}
 		int maxDerinlik = FrameworkCache.getAppSettingIntValue(scd, "feed_control_depth");
 		for(int qi=lx.size()-1;qi>=0 && maxDerinlik>0;maxDerinlik--,qi--){//bir onceki feedlerle iliskisi belirleniyor
-			W5Feed lfeed =lx.get(qi); 
+			Log5Feed lfeed =lx.get(qi); 
 			if(lfeed==null)continue;
 			if(lfeed.getTableId()==feed.getTableId() && lfeed.getTablePk()==feed.getTablePk() && lfeed.getFeedTip()==feed.getFeedTip() && feed.get_showFeedTip()==lfeed.get_showFeedTip() &&
 					(feed.get_showFeedTip()!=1 || (feed.getDetailTableId()==lfeed.getDetailTableId()))){//edit haricinde birsey veya edit ise ayni tablo uzerinde detay seviyesinde
 				lx.set(qi,null);
-				feed.set_relatedFeedMap(new HashMap<Integer,W5Feed>());
+				feed.set_relatedFeedMap(new HashMap<Integer,Log5Feed>());
 				feed.get_relatedFeedMap().put(lfeed.getFeedId(),lfeed);
 				if(lfeed.get_relatedFeedMap()!=null)feed.get_relatedFeedMap().putAll(lfeed.get_relatedFeedMap());
 				break;

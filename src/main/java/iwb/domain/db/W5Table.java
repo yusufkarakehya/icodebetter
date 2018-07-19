@@ -59,6 +59,8 @@ public class W5Table implements java.io.Serializable, W5Base {
 	private String accessPermissionRoles;
 	private String accessPermissionUsers;
 	private String accessPermissionUserFields;
+	
+	private String accessSourceTypes;
 
 	private short makeCommentFlag;
 	private int defaultUpdateFormId;
@@ -74,7 +76,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 	private	List<W5TableField> _tableFieldList;
 	private	Map<Integer,W5TableField> _tableFieldMap;
 	private	List<W5TableParam> _tableParamList;
-	private	Map<Integer, W5TableUserTip> _tableUserTipMap;
 	private	List<W5TableChild> _tableChildList;
 	private	List<W5TableChild> _tableParentList;
 //	private	Map<Integer,W5TableRecordHelper> _cachedObjectMap; //TODO burdan almak lazim
@@ -194,15 +195,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 		_hasApprovalViewControlFlag = hasApprovalViewControlFlag;
 	}
 	
-	@Transient
-	public Map<Integer, W5TableUserTip> get_tableUserTipMap() {
-		return _tableUserTipMap;
-	}
-
-	public void set_tableUserTipMap(Map<Integer, W5TableUserTip> tableUserTipMap) {//userTip
-		_tableUserTipMap = tableUserTipMap;
-	}
-
 
 	@Column(name="default_update_form_id")
 	public int getDefaultUpdateFormId() {
@@ -609,6 +601,15 @@ public class W5Table implements java.io.Serializable, W5Base {
 
 	public void setTableTip(short tableTip) {
 		this.tableTip = tableTip;
+	}
+
+	@Column(name="access_source_types")
+	public String getAccessSourceTypes() {
+		return accessSourceTypes;
+	}
+
+	public void setAccessSourceTypes(String accessSourceTypes) {
+		this.accessSourceTypes = accessSourceTypes;
 	}
 
 }

@@ -181,13 +181,13 @@ public class ScriptEngine {
 			Map m = new HashMap();
 			m.put("success", true);m.put("console", s);
 			if(!GenericUtil.isEmpty(title))m.put("title", title);
-			if(!GenericUtil.isEmpty(level) && GenericUtil.hasPartInside2("log,warn,error", level))m.put("level", level);
+			if(!GenericUtil.isEmpty(level) && GenericUtil.hasPartInside2("log,info,success,warn,warning,error", level))m.put("level", level);
 			UserUtil.broadCast((Integer)scd.get("customizationId"), (Integer)scd.get("userId"), (String)scd.get("sessionId"), (String)requestParams.get(".w"), m);
 		}catch(Exception e){}
 	}
 	
-	public Object execDbFunc(int dbFuncId, NativeObject jsRequestParams){
-		return execDbFunc(dbFuncId, jsRequestParams, (short)0, true, null);
+	public Object execFunc(int dbFuncId, NativeObject jsRequestParams){
+		return execFunc(dbFuncId, jsRequestParams, true, null);
 	}
 	
 	public int getAppSettingInt(String key){
@@ -200,10 +200,10 @@ public class ScriptEngine {
 	public String getAppSettingString(String key){
 		return FrameworkCache.getAppSettingStringValue(scd, key);
 	}
-	public Object execDbFunc(int dbFuncId, NativeObject jsRequestParams, short execRestrictTip, boolean throwOnError, String throwMessage){
-		W5DbFuncResult result = engine.executeDbFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), execRestrictTip); 
+	public Object execFunc(int dbFuncId, NativeObject jsRequestParams, boolean throwOnError, String throwMessage){
+		W5DbFuncResult result = engine.executeFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short)5); 
 		if(throwOnError && !result.getErrorMap().isEmpty()){
-			throw new IWBException("rhino","DbFuncId", dbFuncId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
+			throw new IWBException("rhino","GlobalFunc", dbFuncId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
 		}
 		return result;
 	}
