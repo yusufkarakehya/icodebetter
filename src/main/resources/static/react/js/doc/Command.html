@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>XGrid - Documentation</title>
+    <title>Command - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">XGrid</h1>
+    <h1 class="page-title">Command</h1>
     
 
     
@@ -40,7 +40,7 @@
 <header>
     
         <h2>
-        XGrid
+        Command
         </h2>
         
     
@@ -53,7 +53,7 @@
 
     
 
-    <h4 class="name" id="XGrid"><span class="type-signature"></span>new XGrid<span class="signature">(props)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Command"><span class="type-signature"></span>new Command<span class="signature">(props)</span><span class="type-signature"></span></h4>
 
     
 
@@ -65,7 +65,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iwb2.js.html">iwb2.js</a>, <a href="iwb2.js.html#line993">line 993</a>
+        <a href="iwb2.js.html">iwb2.js</a>, <a href="iwb2.js.html#line1171">line 1171</a>
     </li></ul></dd>
     
 
@@ -105,7 +105,7 @@
 
 
 <div class="description">
-    it renders detail grid there is no search form
+    A functional component to glue button inside grid with its props
 </div>
 
 
@@ -159,7 +159,7 @@
 
             
 
-            <td class="description last">Input of the Grid Component
+            <td class="description last">{ id, onExecute }
                 <h6>Properties</h6>
                 
 
@@ -185,53 +185,7 @@
 
         <tr>
             
-                <td class="name"><code>columns</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Column conf List {name title width sort}</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>crudFlags</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Grid Component {edit insert remove} options Used to render CRUD buttons and routes</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>crudFormId</code></td>
+                <td class="name"><code>id</code></td>
             
 
             <td class="type">
@@ -247,198 +201,14 @@
 
             
 
-            <td class="description last">crudFormId is used to make route to the form</td>
+            <td class="description last">index of the ComponentProps array</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>crudTableId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">crudTableId is id of sql table</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>defaultHeight</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">@deprecated defaultHeight is a height of the Grid</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>defaultWidth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">@deprecated defaultWidth is width of the Grid</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>detailFlag</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Am I detail grid?</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>editable</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Used to Open Grid in EditingState Mode############</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>gridId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Id of the Detail grid</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>keyField</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Used to spesify primety Key name of the Grid</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Rendered name of the Grid Component</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>openTab</code></td>
+                <td class="name"><code>onExecute</code></td>
             
 
             <td class="type">
@@ -454,145 +224,7 @@
 
             
 
-            <td class="description last">Used to open Form in new tab</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>pageSize</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">[0] by default</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>queryId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Query id of the grid</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>_disableIntegratedGrouping</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Symbol</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">['null'] Disable Grouping</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>_disableIntegratedSorting</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Symbol</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">['null'] Disable sorting</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>_disableSearchPanel</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Symbol</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">['null'] Disable search panel</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>multiselect</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Symbol</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">['null'] Enambe multiselect option</td>
+            <td class="description last">a callback function to be executed when button is clicked</td>
         </tr>
 
     
@@ -636,143 +268,6 @@
 
     
 
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="loadData"><span class="type-signature"></span>loadData<span class="signature">(force)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iwb2.js.html">iwb2.js</a>, <a href="iwb2.js.html#line1055">line 1055</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    used to make request and fill the grid
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>force</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">to fill with up to date data</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
     
 
     

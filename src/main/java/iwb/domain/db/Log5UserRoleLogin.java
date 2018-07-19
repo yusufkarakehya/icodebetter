@@ -7,7 +7,7 @@ import java.util.Date;
 import javax.persistence.Table;
 
 @Table(name="log5_user_role_login",schema="iwb")
-public class Log5UserRoleLogin implements java.io.Serializable {
+public class Log5UserRoleLogin implements java.io.Serializable, Log5Base {
 
 	private int logId;
 
@@ -18,6 +18,11 @@ public class Log5UserRoleLogin implements java.io.Serializable {
 	private String userIp;
 	
 	private String userAgent;
+	
+	public String toInfluxDB() {
+		StringBuilder s=new StringBuilder();
+		return s.toString();
+	}
 
 	public Log5UserRoleLogin() {}
 

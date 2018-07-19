@@ -50,11 +50,12 @@ import iwb.adapter.ui.react.React16;
 import iwb.adapter.ui.vue.Vue2;
 import iwb.adapter.ui.webix.Webix3_3;
 import iwb.domain.db.Log5UserAction;
+import iwb.domain.db.Log5VisitedPage;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5Notification;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5SmsValidCode;
 import iwb.domain.helper.W5FormCellHelper;
@@ -78,6 +79,7 @@ import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.JasperUtil;
 import iwb.util.LocaleMsgCache;
+import iwb.util.LogUtil;
 import iwb.util.UserUtil;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporter;
@@ -128,6 +130,7 @@ public class AppServlet implements InitializingBean {
 		womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
 
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
+		if(FrameworkSetting.logType==2)LogUtil.activateMQ();
 	}
         
 	private ViewAdapter getViewAdapter(Map<String, Object> scd, HttpServletRequest request, ViewAdapter defaultRenderer){
@@ -263,6 +266,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxQueryData4Stat")
 	public void hndAjaxQueryData4Stat(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int gridId = GenericUtil.uInt(request, "_gid");
 		if(gridId==0)gridId = -GenericUtil.uInt(request, "_qid");
 		logger.info("hndAjaxQueryData4Stat(" + gridId + ")");
@@ -273,10 +277,12 @@ public class AppServlet implements InitializingBean {
 		Map m = engine.executeQuery4Stat(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Stat", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 	@RequestMapping("/ajaxQueryData4StatTree")
 	public void hndAjaxQueryData4StatTree(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int gridId = GenericUtil.uInt(request, "_gid");
 		logger.info("hndAjaxQueryData4StatTree(" + gridId + ")");
 
@@ -286,11 +292,13 @@ public class AppServlet implements InitializingBean {
 		Map m = engine.executeQuery4StatTree(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4StatTree", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 	
 	@RequestMapping("/ajaxQueryData")
 	public void hndAjaxQueryData(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int queryId = GenericUtil.uInt(request, "_qid");
 //		JSONObject jo = null;
 		Map<String,String> requestMap = GenericUtil.getParameterMap(request);
@@ -383,6 +391,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(va.serializeQueryData(queryResult).toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData", queryId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
@@ -405,6 +414,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxApproveRecord")
 	public void hndAjaxApproveRecord(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxApproveRecord");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -443,6 +453,7 @@ public class AppServlet implements InitializingBean {
 					.write(",\"fileHash\":\"" + b.get("fileHash") + "\",\"fileId\":\"" + b.get("fileId") + "\"");
 		response.getWriter().write("}");
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxApproveRecord", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 
 	@RequestMapping("/ajaxLiveSync")
@@ -575,109 +586,7 @@ public class AppServlet implements InitializingBean {
 		response.getWriter().close();
 	}
 
-	@RequestMapping("/ajaxSmsCodeValidation")
-	public void hndAjaxSmsCodeValidation(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndAjaxSmsCodeValidation");
-		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
-		HttpSession session = request.getSession(true);
 
-		int userId = GenericUtil.uInt(session.getAttribute("userId"));
-		int customizationId = GenericUtil.uInt(session.getAttribute("customizationId"));
-		int deviceType = GenericUtil.uInt(session.getAttribute("_mobile"));
-
-		requestParams.put("userId", userId + "");
-		requestParams.put("_mobile", deviceType + "");
-		requestParams.put("customizationId", customizationId + "");
-
-		W5DbFuncResult result = engine.executeFunc(new HashMap(), 1077, requestParams, (short) 7); // user Authenticate SMS DbFunc:1077
-		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
-		String errorMsg = result.getResultMap().get("errorMsg");
-		boolean expireFlag = GenericUtil.uInt(result.getResultMap().get("expireFlag")) != 0;
-		int roleCount = GenericUtil.uInt(result.getResultMap().get("roleCount"));
-		String xlocale = session.getAttribute("locale").toString();
-		int forceUserRoleId = GenericUtil.uInt(GenericUtil.uInt(session.getAttribute("forceUserRoleId")));
-		if (!success)
-			errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
-		response.setContentType("application/json");
-		Map<String, Object> scd = null;
-		if (success) {
-			if (expireFlag) {
-				session.setAttribute("userId", userId);
-				session.setAttribute("waitFor", "expirePassword");
-				response.getWriter()
-						.write("{\"success\":true,\"expireFlag\":true,\"roleCount\":" + roleCount
-								+ ",\"defaultUserCustomizationId\":"
-								+ GenericUtil.uInt(result.getResultMap().get("defaultUserCustomizationId")));
-			} else if (roleCount < 0 || forceUserRoleId != 0) { // simdi rolunu
-																// sec ve login
-																// ol
-				if (forceUserRoleId == 0)
-					forceUserRoleId = -roleCount;
-				scd = engine.userRoleSelect(userId, forceUserRoleId,
-						GenericUtil.uInt(result.getResultMap().get("defaultUserCustomizationId")),
-						GenericUtil.uInt(requestParams.get("customizationId")), requestParams.get("projectId"), deviceType != 0 ? request.getParameter("_mobile_device_id") : null);
-				if (scd == null) {
-					if (FrameworkSetting.debug)
-						logger.info("empty scd");
-					response.getWriter().write("{\"success\":false"); // bir
-																		// hata
-																		// var
-					session.removeAttribute("scd-dev");
-				} else {
-					scd.put("locale", session.getAttribute("locale"));
-					session.removeAttribute("scd-dev");
-					if (FrameworkCache.getAppSettingIntValue(0, "interactive_tutorial_flag") != 0) {
-						String ws = (String) scd.get("widgetIds");
-						if (ws == null)
-							scd.put("widgetIds", "10");
-						else if (!GenericUtil.hasPartInside(ws, "10"))
-							scd.put("widgetIds", ws + ",10");
-					}
-					session = request.getSession(true);
-					session.setAttribute("scd-dev", scd);
-					if (deviceType != 0) {
-						session.setMaxInactiveInterval(FrameworkCache.getAppSettingIntValue(0, "mobile_session_timeout", 1 * 60) * 60); // 1  saat default
-						scd.put("mobileDeviceId", request.getParameter("_mobile_device_id"));
-						scd.put("mobile", deviceType);
-					}
-					scd.put("sessionId", session.getId());
-
-					UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) deviceType, deviceType != 0 ? request.getParameter("_mobile_device_id") : request.getParameter(".w"));
-					response.getWriter()
-							.write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd) + "}"); // hersey
-																													// duzgun
-				}
-			} else {
-				// o zaman once role'u sececek
-				/*
-				 * if
-				 * (GenericUtil.userLoginControl(userId,request.getRemoteAddr(),
-				 * request.getSession().getId(),GenericUtil.uInt(requestParams.
-				 * get("customizationId")))==false){ response.getWriter().write(
-				 * "{\"success\":true,\"loginUserUnique\":true}"); } else
-				 */ {
-					session.setAttribute("userId", userId);
-					session.setAttribute("waitFor", "selectRole");
-					response.getWriter()
-							.write("{\"success\":true,\"roleCount\":" + roleCount + ",\"defaultUserCustomizationId\":"
-									+ GenericUtil.uInt(result.getResultMap().get("defaultUserCustomizationId")) + "}");
-					// GenericUtil.onlineUserLogin();
-					/*
-					 * List l=new ArrayList<Object>(); l.add((String)
-					 * requestParams.get("userName")); l.add( new Date());
-					 * l.add(request.getRemoteAddr());
-					 * l.add(request.getSession().getId());
-					 * GenericUtil.lastUserAction.put((String)
-					 * requestParams.get("userName"),l);
-					 */
-				}
-			}
-		} else {
-			response.getWriter().write("{\"success\":false,\"errorMsg\":\"" + errorMsg + "\"}");
-		}
-		response.getWriter().close();
-	}
 
 	@RequestMapping("/ajaxAuthenticateUser")
 	public void hndAjaxAuthenticateUser(HttpServletRequest request, HttpServletResponse response)
@@ -835,6 +744,8 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/reloadCache")
 	public void hndReloadCache(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndReloadCache");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		/*
@@ -848,7 +759,6 @@ public class AppServlet implements InitializingBean {
 		if (roleId == 0 || roleId == 2 || GenericUtil.uInt(scd.get("administratorFlag")) != 0) {
 			engine.reloadCache(GenericUtil.uInt(scd.get("customizationId")));
 			response.getWriter().write("{\"success\":true}");
-			response.getWriter().close();
 /*			if(FrameworkSetting.mq)try{
 				String projectUuid = "067e6162-3b6f-4ae2-a221-2470b63dff00";
 				FrameworkCache.wProjects.get(projectUuid).get_mqChannel().basicPublish(projectUuid, "", null, ("iwb:69,0"+projectUuid+","+FrameworkSetting.instanceUuid).getBytes());
@@ -856,6 +766,8 @@ public class AppServlet implements InitializingBean {
 			}*/
 		} else
 			response.getWriter().write("{\"success\":false}");
+		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "reloadCache", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
@@ -924,6 +836,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxPostForm")
 	public void hndAjaxPostForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndAjaxPostForm(" + formId + ")");
 
@@ -952,6 +865,7 @@ public class AppServlet implements InitializingBean {
 			UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
 //			UserUtil.mqSyncAfterPostFormAll(formResult.getScd(), formResult.getListSyncAfterPostHelper());
 		}
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 
 	}
@@ -960,6 +874,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxPostFormBulkUpdate")
 	public void hndAjaxPostFormBulkUpdate(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxPostFormBulkUpdate");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -987,12 +902,14 @@ public class AppServlet implements InitializingBean {
 					GenericUtil.getParameterMap(request));
 			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		}
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostFormBulkUpdate", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
 	@RequestMapping("/ajaxQueryData4BulkUpdate")
 	public void hndAjaxQueryData4BulkUpdate(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxQueryData4BulkUpdate");
 		int formId = GenericUtil.uInt(request, "_fid");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1003,6 +920,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeQueryData(queryResult).toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4BulkUpdate", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
@@ -1030,6 +948,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxPostConversionGridMulti")
 	public void hndAjaxPostConversionGridMulti(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxPostConversionGridMulti");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
@@ -1053,11 +972,13 @@ public class AppServlet implements InitializingBean {
 			}
 		} else
 			response.getWriter().write("{\"success\":false}");
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostConversionGridMulti", conversionCount, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 
 	@RequestMapping("/ajaxPostEditGrid")
 	public void hndAjaxPostEditGrid(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxPostEditGrid");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1109,11 +1030,13 @@ public class AppServlet implements InitializingBean {
 				response.getWriter().write("{\"success\":false}");
 			}
 		}
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostEditGrid", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 
 	@RequestMapping("/ajaxBookmarkForm")
 	public void hndAjaxBookmarkForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxBookmarkForm");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1124,12 +1047,14 @@ public class AppServlet implements InitializingBean {
 
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"id\":" + formResult.getPkFields().get("id") + "}");
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxBookmarkForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
 	@RequestMapping("/ajaxExecDbFunc")
 	public void hndAjaxExecDbFunc(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxExecDbFunc");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1153,6 +1078,7 @@ public class AppServlet implements InitializingBean {
 		}
 
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxExecDbFunc", dbFuncId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
@@ -1161,6 +1087,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxGetFormSimple")
 	public void hndGetFormSimple(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndGetFormSimple(" + formId + ")");
 
@@ -1172,12 +1099,14 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGetFormSimple(formResult).toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxGetFormSimple", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
 	@RequestMapping("/ajaxReloadFormCell")
 	public void hndAjaxReloadFormCell(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxReloadFormCell");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		int fcId = GenericUtil.uInt(request, "_fcid");
@@ -1190,11 +1119,14 @@ public class AppServlet implements InitializingBean {
 						.serializeFormCellStore(rc, (Integer) scd.get("customizationId"), (String) scd.get("locale"))
 						.toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxReloadFormCell", fcId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		
 	}
 
 	@RequestMapping("/ajaxGetFormCellCodeDetail")
 	public void hndAjaxGetFormCellCodeDetail(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxGetFormCellCodeDetail");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1203,12 +1135,14 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"result\":\"" + result + "\"}");
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxGetFormCellCodeDetail", fccdId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
 	@RequestMapping("/ajaxFeed")
 	public void hndAjaxFeed(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxFeed");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1229,12 +1163,15 @@ public class AppServlet implements InitializingBean {
 					/* mainTable.getTableId() */ 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
 					request.getParameter(".w"), request.getParameter(".t"), /* grdOrFcId */ 919, null, true);
 		}
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxFeed", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		
 	}
 	
 
 	@RequestMapping("/ajaxTsPortletData")
 	public void hndAjaxTsPortletData(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxTsPortletData");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1245,12 +1182,15 @@ public class AppServlet implements InitializingBean {
 		String s = engine.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
 		response.getWriter().write(s);
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxTsPortletData", porletId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+
 	}
 
 
 	@RequestMapping("/showForm")
 	public void hndShowForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndShowForm(" + formId + ")");
 
@@ -1262,12 +1202,15 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeShowForm(formResult).toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		
 
 	}
 	
 	@RequestMapping("/showMForm")
 	public void hndShowMForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndShowMForm(" + formId + ")");
 
@@ -1278,12 +1221,14 @@ public class AppServlet implements InitializingBean {
 
 		response.getWriter().write(f7.serializeGetForm(formResult).toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showMForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
 	@RequestMapping("/showTutorial")
 	public void hndShowTutorial(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int tutorialId = GenericUtil.uInt(request, "_ttid");
 		logger.info("showTutorial(" + tutorialId + ")");
 
@@ -1299,6 +1244,7 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write(getViewAdapter(scd, request).serializeShowTutorial(tutorialResult).toString());
 		}
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showTutorial", tutorialId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
@@ -1342,6 +1288,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/login.htm")
 	public void hndLoginPageOld(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndLoginPage");
 		HttpSession session = request.getSession(false);
 		if (session != null) {
@@ -1396,6 +1343,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/login2.htm")
 	public void hndLoginPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndLoginPage");
 		HttpSession session = request.getSession(false);
 		if (session != null) {
@@ -1474,6 +1422,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/main.htm")
 	public void hndMainPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndMainPage");
 		
 		HttpSession session = request.getSession(false);
@@ -1518,6 +1467,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/index.html")
 	public void hndLandingPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		Map<String, Object> scd = new HashMap();
 		scd.put("customizationId", 0);scd.put("userId", 0);scd.put("locale", "en");
 		W5TemplateResult pageResult = engine.getTemplateResult(scd, 2453, new HashMap());
@@ -1530,6 +1480,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/showPage")
 	public void hndShowPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int templateId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndShowPage(" + templateId + ")");
 
@@ -1548,6 +1499,7 @@ public class AppServlet implements InitializingBean {
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showPage", templateId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 	
@@ -1555,6 +1507,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/showMList")
 	public void hndShowMList(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int listId = GenericUtil.uInt(request, "_lid");
 		logger.info("hndShowMList(" + listId + ")");
 
@@ -1571,6 +1524,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(f7.serializeList(listResult).toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showMList", listId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
@@ -1578,6 +1532,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/grd/*")
 	public ModelAndView hndGridReport(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndGridReport");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
@@ -1602,6 +1557,7 @@ public class AppServlet implements InitializingBean {
 				response.setContentType("application/octet-stream");
 				response.getWriter().print(GenericUtil.report2text(list));
 			}
+			if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndGridReport", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 			return result;
 
 		} else {
@@ -1613,60 +1569,11 @@ public class AppServlet implements InitializingBean {
 
 	}
 
-	@RequestMapping("/grd2/*") // master detail report
-	public ModelAndView hndGrid2Report(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndGrid2Report");
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-
-		int masterGridId = GenericUtil.uInt(request, "_gid");
-		String masterGridColumns = request.getParameter("_columns");
-		int detailGridId = GenericUtil.uInt(request, "_gid2");
-		String detailGridColumns = request.getParameter("_columns2");
-		String params = request.getParameter("_params");
-		List<W5ReportCellHelper> list = engine.getGrid2ReportResult(scd, masterGridId, masterGridColumns, detailGridId,
-				detailGridColumns, params, GenericUtil.getParameterMap(request));
-		if (list != null) {
-			Map<String, Object> m = new HashMap<String, Object>();
-			m.put("report", list);
-			m.put("scd-dev", scd);
-
-			ModelAndView result = null;
-			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
-				result = new ModelAndView(new RptExcelRenderer(), m);
-			else // if(request.getRequestURI().indexOf(".pdf")!=-1)
-				result = new ModelAndView(new RptPdfRenderer(engine.getCustomizationLogoFilePath(scd)), m);
-			;
-			return result;
-
-		} else {
-			response.getWriter().write("Hata");
-			response.getWriter().close();
-
-			return null;
-		}
-
-	}
-
-	/*
-	 * 
-	 * public ModelAndView hndSaveUserGridSetting( HttpServletRequest request,
-	 * HttpServletResponse response) throws ServletException, IOException {
-	 * log.info("hndSaveUserGridSetting"); Map<String, Object> scd =
-	 * UserUtil.getScd(request, "scd-dev", true);
-	 * 
-	 * int gridId= GenericUtil.uInt(request, "_gid"); String gridUserDsc =
-	 * request.getParameter("_dsc"); String gridColumns =
-	 * request.getParameter("_columns"); String gridSFRMCells =
-	 * request.getParameter("_sfrm_cells");
-	 * response.getWriter().write("{\"success\":"+bus.getGridReportResult(scd,
-	 * gridId, gridUserDsc, gridColumns, gridSFRMCells)+"}");
-	 * response.getWriter().close(); return null; }
-	 */
 
 	@RequestMapping("/dl/*")
 	public void hndFileDownload(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndFileDownload");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1730,11 +1637,13 @@ public class AppServlet implements InitializingBean {
 			if (stream != null)
 				stream.close();
 		}
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndFileDownload", fileAttachmentId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 
 	@RequestMapping("/sf/*")
 	public void hndShowFile(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int fileAttachmentId = GenericUtil.uInt(request, "_fai");
 		logger.info("hndShowFile(" + fileAttachmentId + ")");
 		Map<String, Object> scd = null;
@@ -1798,6 +1707,7 @@ public class AppServlet implements InitializingBean {
 			if(out!=null)out.close();
 			if(stream!=null)stream.close();
 		}
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndShowFile", fileAttachmentId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 
 	@RequestMapping("/jasper/*")
@@ -1805,6 +1715,7 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndJasperReport"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
     	int customizationId=(Integer) ((scd.get("customizationId")==null) ? 0 : scd.get("customizationId"));
@@ -1983,6 +1894,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/showFormByQuery")
 	public void hndShowFormByQuery(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndShowFormByQuery");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2004,6 +1916,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/getTableRecordInfo")
 	public void hndGetTableRecordInfo(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndGetTableRecordInfo");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		int tableId = GenericUtil.uInt(request, "_tb_id");
@@ -2017,6 +1930,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/getGraphDashboards")
 	public void hndGetGraphDashboards(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndGetGraphDashboards");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
@@ -2044,6 +1958,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxGetLoginLang")
 	public void hndGetLoginLang(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndGetLoginLang");
 		Map<String, Object> scd = new HashMap<String, Object>();
 		Map<String, String> req = GenericUtil.getParameterMap(request);
@@ -2071,6 +1986,7 @@ public class AppServlet implements InitializingBean {
 			@RequestParam("customizationId") Integer customizationId, @RequestParam("userId") Integer userId,
 			@RequestParam("table_pk") String table_pk, @RequestParam("table_id") Integer table_id,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("multiFileUpload");
 		// Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		String path = FrameworkCache.getAppSettingStringValue(customizationId, "file_local_path") + File.separator
@@ -2153,6 +2069,7 @@ public class AppServlet implements InitializingBean {
 	public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("table_pk") String table_pk,
 			@RequestParam("table_id") Integer table_id, @RequestParam("profilePictureFlag") Integer profilePictureFlag,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("singleFileUpload");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2247,6 +2164,7 @@ public class AppServlet implements InitializingBean {
 	public String singleFileUpload4Webix(@RequestParam("upload") MultipartFile file, @RequestParam("table_pk") String table_pk,
 			@RequestParam("table_id") Integer table_id, @RequestParam("profilePictureFlag") Integer profilePictureFlag,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("singleFileUpload4Webix");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2334,48 +2252,10 @@ public class AppServlet implements InitializingBean {
 			 */
 
 	}
-	/*
-	 * // CKEDITOR File Browser İçin
-	 * 
-	 * @RequestMapping("/imageFileBrowser") public ModelAndView hndGetFiles(
-	 * HttpServletRequest request, HttpServletResponse response) throws
-	 * ServletException, IOException{ Map<String, Object> scd =
-	 * UserUtil.getScd(request, "scd-dev", true); Map<String,String> requestParams =
-	 * GenericUtil.getParameterMap(request); HashMap<String,String> lookUp =
-	 * engine.getFileTypes(scd,1); Map<String, Object> values =
-	 * engine.getImage4FBrowser(scd, requestParams); ModelAndView m = new
-	 * ModelAndView("imageFileBrowser");
-	 * m.addObject("baseUrl",GenericUtil.getBaseURL(request));
-	 * m.addObject("images", (List<HashMap>) values.get("images"));
-	 * m.addObject("imgCount", values.get("imgCount")); m.addObject("pageNo",
-	 * GenericUtil.uInt(requestParams.get("pageno"))); m.addObject("groupByNum",
-	 * GenericUtil.uInt(requestParams.get("groupbynum")));
-	 * m.addObject("CKEditor",
-	 * GenericUtil.uStrNvl(requestParams.get("CKEditor"),""));
-	 * m.addObject("CKEditorFuncNum",
-	 * GenericUtil.uStrNvl(requestParams.get("CKEditorFuncNum"),""));
-	 * m.addObject("langCode",
-	 * GenericUtil.uStrNvl(requestParams.get("langCode"),""));
-	 * m.addObject("fileName",
-	 * GenericUtil.encodeGetParamsToUTF8(GenericUtil.uStrNvl(requestParams.get(
-	 * "fileName"),""))); m.addObject("fileType",
-	 * GenericUtil.uStrNvl(requestParams.get("fileType"),""));
-	 * m.addObject("lookup", lookUp); return m; }
-	 * 
-	 * @RequestMapping("/imageFileBrowserUpload") public ModelAndView
-	 * hndUploadPage( HttpServletRequest request, HttpServletResponse response)
-	 * throws ServletException, IOException{ Map<String, Object> scd =
-	 * UserUtil.getScd(request, "scd-dev", true); HashMap<String,String> lookUp =
-	 * engine.getFileTypes(scd,1); Map<String,String> requestParams =
-	 * GenericUtil.getParameterMap(request); ModelAndView m = new
-	 * ModelAndView("imageFileBrowserUpload");
-	 * m.addObject("baseUrl",GenericUtil.getBaseURL(request));
-	 * m.addObject("lookup", lookUp); m.addObject("scd-dev",scd); return m; }
-	 * 
-	 */
 	@RequestMapping("/ajaxCacheInfo")
 	public void hndAjaxCacheInfo(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", false);
 		int customizationId = (Integer) scd.get("customizationId");
 		if (customizationId == 0 && GenericUtil.uInt(request, "cusId") != 0)
@@ -2438,89 +2318,7 @@ public class AppServlet implements InitializingBean {
 
 
 
-	/*
-	 * private class executeQueuedMobilePushMessage implements Runnable {
-	 * 
-	 * private List<W5QueuedPushMessageHelper> listQueuedPushMessage;
-	 * 
-	 * @Override public void run() { if(listQueuedPushMessage!=null){ String
-	 * path = FrameworkCache.getAppSettingStringValue(0,
-	 * "mobile_push_key_path"); String passWord =
-	 * FrameworkCache.getAppSettingStringValue(0, "mobile_push_password");
-	 * if(passWord==null)passWord=""; List<PayloadPerDevice> payloadDevicePairs
-	 * = new ArrayList<PayloadPerDevice>(); for(W5QueuedPushMessageHelper
-	 * m:listQueuedPushMessage)if(!GenericUtil.isEmpty(m.getDeviceToken()))
-	 * switch(m.getDeviceName()){ case 1://ios try{ PushNotificationPayload
-	 * payload = PushNotificationPayload.complex();
-	 * payload.addAlert(m.getMsg()); payload.addCustomDictionary("tableId",
-	 * m.getTableId()); payload.addCustomDictionary("tablePk", m.getTablePk());
-	 * if(FrameworkSetting.mobilePushSound &&
-	 * FrameworkCache.getAppSettingIntValue(m.getCustomizationId(),
-	 * "mobile_push_sound_flag")!=0)payload.addSound("default"); //
-	 * payload.setCharacterEncoding("UTF-8"); payloadDevicePairs.add(new
-	 * PayloadPerDevice(payload, m.getDeviceToken())); } catch (JSONException e)
-	 * { if(FrameworkSetting.debug)e.printStackTrace(); } catch
-	 * (InvalidDeviceTokenFormatException e) {
-	 * if(FrameworkSetting.debug)e.printStackTrace(); } try {
-	 * List<PushedNotification> notifications = Push.payloads(path, passWord,
-	 * FrameworkSetting.mobilePushProduction, payloadDevicePairs); for
-	 * (PushedNotification notification : notifications) { if
-	 * (notification.isSuccessful()) { if(FrameworkSetting.debug)logger.info(
-	 * "Push notification sent successfully to: "
-	 * +notification.getDevice().getToken()); } else { String invalidToken =
-	 * notification.getDevice().getToken(); Exception theProblem =
-	 * notification.getException(); theProblem.printStackTrace();
-	 * 
-	 * ResponsePacket theErrorResponse = notification.getResponse(); if
-	 * (theErrorResponse != null) {
-	 * if(FrameworkSetting.debug)logger.error(theErrorResponse.getMessage()); }
-	 * } } } catch (CommunicationException e) {
-	 * if(FrameworkSetting.debug)e.printStackTrace(); } catch (KeystoreException
-	 * e) { if(FrameworkSetting.debug)e.printStackTrace(); } break; case
-	 * 2://android
-	 * 
-	 * List<String> androidTargets =new ArrayList<String>();
-	 * androidTargets.add(m.getDeviceToken());
-	 * 
-	 * // Instance of com.android.gcm.server.Sender, that does the //
-	 * transmission of a Message to the Google Cloud Messaging service. Sender
-	 * sender = new Sender("AIzaSyCTJ4moxk1qqZ47dv2QiJ2cifBy_YyuPTM");//app_id
-	 * 
-	 * // This Message object will hold the data that is being transmitted // to
-	 * the Android client devices. For this demo, it is a simple text // string,
-	 * but could certainly be a JSON object. Message message = new
-	 * Message.Builder()
-	 * 
-	 * // If multiple messages are sent using the same .collapseKey() // the
-	 * android target device, if it was offline during earlier message //
-	 * transmissions, will only receive the latest message for that key when //
-	 * it goes back on-line. .collapseKey(m.getTableId()+"-"+m.getTablePk())
-	 * .timeToLive(30) .delayWhileIdle(true) .addData("message", m.getMsg())
-	 * .addData("header", m.getTableId() == 935 ? "New Chat Message" :
-	 * "New Notificaton") .build();
-	 * 
-	 * try { // use this for multicast messages. The second parameter // of
-	 * sender.send() will need to be an array of register ids. MulticastResult
-	 * result = sender.send(message, androidTargets, 1);
-	 * 
-	 * if (result.getResults() != null) { int canonicalRegId =
-	 * result.getCanonicalIds(); if (canonicalRegId != 0) {
-	 * 
-	 * } } else { int error = result.getFailure();
-	 * if(FrameworkSetting.debug)logger.error("Broadcast failure: " + error); }
-	 * 
-	 * } catch (Exception e) { if(FrameworkSetting.debug)e.printStackTrace(); }
-	 * 
-	 * } } // UserUtil.publishNotification(n, false); }
-	 * 
-	 * 
-	 * public executeQueuedMobilePushMessage(List<W5QueuedPushMessageHelper>
-	 * listQueuedPushMessage){ this.listQueuedPushMessage =
-	 * listQueuedPushMessage; } }
-	 */
-	private class executeQueuedDbFunc implements Runnable {// TODO: buralar long
-															// polling ile
-															// olacak
+	private class executeQueuedDbFunc implements Runnable {// TODO: buralar long polling ile olacak
 		private W5QueuedDbFuncHelper queuedDbFunc;
 		private long threadId;
 
@@ -2530,7 +2328,7 @@ public class AppServlet implements InitializingBean {
 
 		@Override
 		public void run() {
-			W5Notification n = new W5Notification();// sanal
+			Log5Notification n = new Log5Notification();// sanal
 			n.setUserId((Integer) queuedDbFunc.getScd().get("userId"));
 			n.setUserTip((short) GenericUtil.uInt(queuedDbFunc.getScd().get("userTip")));
 			try {
@@ -2583,6 +2381,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxSendFormSmsMail")
 	public void hndAjaxSendFormSmsMail(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxSendFormSmsMail");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2592,15 +2391,17 @@ public class AppServlet implements InitializingBean {
 		W5DbFuncResult dbFuncResult = engine.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxSendFormSmsMail", smsMailId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 
 	
 	@RequestMapping("/ajaxGlobalNextVal")
-	public void hndAjaxGlobalNextVal(
+	public void hndAjaxGlobalNextVal( //TODO Add Security
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		String id=request.getParameter("id");
 		String key=request.getParameter("key");
 		
@@ -2608,13 +2409,14 @@ public class AppServlet implements InitializingBean {
 		
 		response.getWriter().write("{\"success\":true, \"val\":"+nextVal+"}"); //hersey duzgun
 		response.getWriter().close();
-		
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(new HashMap(), "ajaxGlobalNextVal", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 	@RequestMapping("/ajaxOrganizeTable")
 	public void hndAjaxOrganizeTable(
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		String tableName = request.getParameter("ptable_dsc");
 		logger.info("hndAjaxOrganizeTable("+tableName+")"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2622,6 +2424,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxOrganizeTable", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 
 	@RequestMapping("/ajaxCopyTable2Tsdb")
@@ -2629,6 +2432,7 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int tableId = GenericUtil.uInt(request, "_tid");
 		int measurementId = GenericUtil.uInt(request, "_mid");
 		logger.info("hndAjaxCopyTable2Tsdb("+tableId+")"); 
@@ -2637,12 +2441,14 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxCopyTable2Tsdb", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 	@RequestMapping("/ajaxOrganizeDbFunc")
 	public void hndAjaxOrganizeDbFunc(
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		String dbFuncName = request.getParameter("pdb_func_dsc");
 		logger.info("hndAjaxOrganizeDbFunc("+dbFuncName+")"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2650,6 +2456,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxOrganizeDbFunc", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 	
 	
@@ -2658,142 +2465,38 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException, JSONException {
+		long startTime = System.currentTimeMillis();
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		
 		int i = engine.buildForm(scd, request.getParameter("data"));
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true, \"result\":"+i+"}");
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxBuildForm", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
-	
-	@RequestMapping("/ajaxFormBuilderSync")
-	public void hndAjaxFormBuilderSync(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException, JSONException {
-		logger.info("hndAjaxFormBuilderSync");
-		JSONObject jo = HttpUtil.getJson(request);
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-		
-		String s = f7.serializeFormFromJSON(jo).toString();
-		int cnt = UserUtil.publishFormBuilderData2Mobile((Integer) scd.get("customizationId"), s);
-		response.getWriter().write("{\"success\":true, \"delivered_cnt\":"+cnt+"}");
-		response.getWriter().close();
-	}
-		
 
-	
-	@RequestMapping("/prj/*/showForm")
-	public void hndPrjShowForm(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException {
-		String projectUuid = request.getPathInfo().substring(5, 41);
-		logger.info("hndPrjShowForm("+projectUuid+")");
-		
-		Map<String, Object> scd = null;
-		HttpSession session = request.getSession(false);
-		if(session!=null){
-			scd =	(Map)session.getAttribute("scd-dev"); 
-		}
-		if(scd==null){
-			scd = new HashMap();
-			scd.put("locale", "tr");
-			int userId = 11; //Guest
-			if(userId<0)userId=-userId;
-			scd.put("userId", userId);
-			scd.put("customizationId", 0);
-			scd.put("roleId", 0);
-			scd.put("userTip", 0);
-			
-			session = request.getSession(true);
-			session.setAttribute("scd-dev", scd);
-		}
-
-		ViewAdapter va = getViewAdapter(scd, request, webix3_3); 
-
-
-		
-		int formId= GenericUtil.uInt(request, "_fid");
-		int action= GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
-
-		W5TemplateResult templateResult = engine.getTemplateResult(scd, va instanceof Webix3_3 ? 11: 12, GenericUtil.getParameterMap(request));
-		templateResult.setTemplateObjectList(new ArrayList());
-		templateResult.getTemplateObjectList().add(formResult);
-
-		response.getWriter().write(va.serializeTemplate(templateResult).toString());
-		response.getWriter().close();
-	}
-		
-	@RequestMapping("/prj/*/ajaxPostForm")
-	public void hndPrjAjaxPostForm(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		Map<String, Object> scd = null;
-		HttpSession session = request.getSession(false);
-		if(session!=null){
-			scd =	(Map)session.getAttribute("scd-dev"); 
-		}
-		if(scd==null){
-			scd = new HashMap();
-			scd.put("locale", "tr");
-			int userId = 11;//(int)GenericUtil.getNextLongId();
-			if(userId<0)userId=-userId;
-			scd.put("userId", userId);
-			scd.put("customizationId", 0);
-			scd.put("roleId", 0);
-			scd.put("userTip", 0);
-			
-			session = request.getSession(true);
-			session.setAttribute("scd-dev", scd);
-		}
-
-		int formId= GenericUtil.uInt(request, "_fid");
-		int action= GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.postForm4Table(scd, formId, action, GenericUtil.getParameterMap(request),"");
-		response.setContentType("application/json");
-		response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
-		response.getWriter().close();
-		
-		if(formResult.getErrorMap().isEmpty()){
-			UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
-//			UserUtil.mqSyncAfterPostFormAll(formResult.getScd(), formResult.getListSyncAfterPostHelper());
-		}
-
-	}
-	
 	@RequestMapping("/ajaxCallWs")
 	public void hndAjaxCallWs(
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxCallWs"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    
 		Map m =engine.callWs(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxCallWs", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 
-	/*@RequestMapping("/ajaxDefineWs")
-	public void hndAjaxDefineWs(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndAjaxDefineWs"); 
-	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-	    int wsId= GenericUtil.uInt(request, "_wsid");
-		response.getWriter().write("{\"success\":"+engine.extractWs(scd, wsId)+"}");
-		response.getWriter().close();		
-	}*/
-	
 
 	@RequestMapping("/ajaxQueryData4Debug")
 	public void hndAjaxQueryData4Debug(
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxQueryData4Debug"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2819,12 +2522,14 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		}
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Debug", queryId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 	
 	@RequestMapping("/ajaxQueryData4Pivot")
 	public void hndAjaxQueryData4Pivot(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int tableId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndAjaxQueryData4Pivot(" + tableId + ")");
 
@@ -2833,11 +2538,13 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4Pivot(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Pivot", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 	
 	@RequestMapping("/ajaxQueryData4DataList")
 	public void hndAjaxQueryData4DataList(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		int tableId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndAjaxQueryData4DataList(" + tableId + ")");
 
@@ -2846,6 +2553,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4DataList(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4DataList", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 	}
 	
 	
@@ -2854,6 +2562,7 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxExecDbFunc4Debug"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2869,6 +2578,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		response.getWriter().close();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxExecDbFunc4Debug", dbFuncId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
 
 	}
 }

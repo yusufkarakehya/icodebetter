@@ -12,10 +12,11 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import iwb.domain.result.W5QueryResult;
+import iwb.util.GenericUtil;
 
 @Entity
 @Table(name="log5_query_action",schema="iwb")
-public class Log5QueryAction implements java.io.Serializable {
+public class Log5QueryAction implements java.io.Serializable, Log5Base {
 
 	private int logId;
 
@@ -30,7 +31,22 @@ public class Log5QueryAction implements java.io.Serializable {
 	private int processTime;
 	private long startTime;
 
+	public String toInfluxDB() {
+		StringBuilder s=new StringBuilder();
+		switch(getQueryId()){
+		case -999:s.append("sql_query duration=").append(getProcessTime()).append("i,sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+			break;
+		case -998:s.append("sql_execute duration=").append(getProcessTime()).append("i,sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+			break;
+		default:
+			s.append("query,query_id=").append(getQueryId()).append(" user_id=").append(getUserId()).append("i,duration=").append(getProcessTime()).append("i,sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
 
+		}
+		return s.toString();
+	}
+
+	
+	
 	@Column(name="dsc")
 	public String getDsc() {
 		return dsc;

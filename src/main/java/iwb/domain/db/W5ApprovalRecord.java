@@ -40,9 +40,9 @@ public class W5ApprovalRecord implements java.io.Serializable {
 	private String accessViewUsers;
 	private Integer hierarchicalLevel;
   	
-	@SequenceGenerator(name="seqx_approval_record",sequenceName="iwb.seq_approval_record",allocationSize=1)
+	@SequenceGenerator(name="sex_approval_record",sequenceName="iwb.seq_approval_record",allocationSize=1)
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seqx_approval_record")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_approval_record")
 	@Column(name="approval_record_id")
 	public int getApprovalRecordId() {
 		return approvalRecordId;
