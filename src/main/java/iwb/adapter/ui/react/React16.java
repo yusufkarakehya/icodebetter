@@ -1213,7 +1213,7 @@ public class React16 implements ViewAdapter {
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleListTop(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), "", defaultWidth));
+					formResult.getUniqueId(), map.get(0), ",", defaultWidth));
 		}
 		StringBuilder contentBuf = new StringBuilder();
 		int firstTab = 0;
@@ -1557,7 +1557,7 @@ public class React16 implements ViewAdapter {
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleListTop(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), "", defaultWidth));
+					formResult.getUniqueId(), map.get(0), ",", defaultWidth));
 		}
 		if (formResult.getForm().get_moduleList() != null)
 			for (W5FormModule m : formResult.getForm().get_moduleList())

@@ -181,7 +181,7 @@ public class ScriptEngine {
 			Map m = new HashMap();
 			m.put("success", true);m.put("console", s);
 			if(!GenericUtil.isEmpty(title))m.put("title", title);
-			if(!GenericUtil.isEmpty(level) && GenericUtil.hasPartInside2("log,warn,error", level))m.put("level", level);
+			if(!GenericUtil.isEmpty(level) && GenericUtil.hasPartInside2("log,info,success,warn,warning,error", level))m.put("level", level);
 			UserUtil.broadCast((Integer)scd.get("customizationId"), (Integer)scd.get("userId"), (String)scd.get("sessionId"), (String)requestParams.get(".w"), m);
 		}catch(Exception e){}
 	}
