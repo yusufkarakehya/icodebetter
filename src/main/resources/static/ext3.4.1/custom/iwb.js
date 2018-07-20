@@ -2554,12 +2554,20 @@ function promisRequest(rcfg){
 		else 
 			reqWaitMsg=0;		
 	}		
-	if(reqWaitMsg==1)Ext.Msg.wait((rcfg.requestWaitMsg == '' ||typeof rcfg.requestWaitMsg == 'undefined' || typeof rcfg.requestWaitMsg == 'boolean') ? getLocMsg('js_lutfen_bekleyin') : rcfg.requestWaitMsg);
+	if(reqWaitMsg==1){
+		document.getElementById('loading-mask-full').style.display='block';
+		document.getElementById('loading-mask').style.display='block';
+//		Ext.Msg.wait((rcfg.requestWaitMsg == '' ||typeof rcfg.requestWaitMsg == 'undefined' || typeof rcfg.requestWaitMsg == 'boolean') ? getLocMsg('js_lutfen_bekleyin') : rcfg.requestWaitMsg);
+	}
 	if(!rcfg.params)rcfg.params={}
 	rcfg.params['.w']=_webPageId;
 	Ext.Ajax.request(Ext.apply({
 	    success: function(a,b,c){
-	    	if(reqWaitMsg==1) Ext.Msg.hide();
+	    	if(reqWaitMsg==1){
+//	    		Ext.Msg.hide();
+	    		document.getElementById('loading-mask-full').style.display='none';
+	    		document.getElementById('loading-mask').style.display='none';
+	    	}
 			if(rcfg.successResponse)
 				rcfg.successResponse(a,b,c);
 			else try{
@@ -2591,7 +2599,12 @@ function promisRequest(rcfg){
 			}
 		},
 	    failure: function(a,b,c){
-	    	if(reqWaitMsg==1) Ext.Msg.hide();
+	    	if(reqWaitMsg==1){
+//	    		Ext.Msg.hide();
+	    		document.getElementById('loading-mask-full').style.display='none';
+	    		document.getElementById('loading-mask').style.display='none';
+	    		
+	    	}
 			promisLoadException(a,b,c);
 		}
 	}, rcfg));
