@@ -3340,7 +3340,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	@Override
 	public void reloadErrorMessagesCache(){
 		FrameworkCache.wExceptions.clear();
-		for(Object[] m : (List<Object[]>)executeSQLQuery("select exc_code, locale_msg_key from iwb.w5_exception_filter")){
+		List l = executeSQLQuery("select exc_code, locale_msg_key from iwb.w5_exception_filter");
+		if(l!=null)for(Object[] m : (List<Object[]>)l){
 			FrameworkCache.wExceptions.put((String)m[0], (String)m[1]);
 		}	
 	}
