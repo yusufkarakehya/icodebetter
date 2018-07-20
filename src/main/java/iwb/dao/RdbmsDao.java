@@ -192,8 +192,6 @@ public interface RdbmsDao{
 	Map<String, String> interprateTemplate(Map<String, Object> scd, Map<String, String> requestParams, int tableId,
 			int tablePk, StringBuilder tmp, boolean replace, int smsMailReplaceTip, int conversionTip);
 
-	String getUsersFromUserFields(W5Table t, String userFields, Map<String, Object> scd, String pk_id);
-
 	boolean accessUserFieldControl(W5Table t, String accessUserFields, Map<String, Object> scd,
 			Map<String, String> requestParams, String paramSuffix);
 
