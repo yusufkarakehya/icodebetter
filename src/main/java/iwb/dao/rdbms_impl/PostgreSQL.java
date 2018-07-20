@@ -4957,75 +4957,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return newRes;
 	}
 	
-	@Override
-	public String getUsersFromUserFields(W5Table t, String userFields, Map<String, Object> scd, String pk_id){
-		StringBuilder sql = new StringBuilder();
-		String[] fieldIdz = userFields.split(",");
-		List<Object> params= new ArrayList();
-		int cnt = 0;
-		for(String s:fieldIdz){
-			int tableFieldId = GenericUtil.uInt(s);
-			W5TableField tf = t.get_tableFieldMap().get(tableFieldId);
-			if(tf!=null){
-				sql.append("select "+tf.getDsc()+" user_id from "+t.getDsc()+" u where u.customization_id=? and u."+t.get_tableParamList().get(0).getDsc()+"=?");
-				params.add(scd.get("customizationId"));
-				params.add(pk_id);
-				if(cnt < fieldIdz.length-1){
-					sql.append(" union ");
-				}
-			}
-			cnt++;
-		}
-		/*
-		sql.append("select 1 a from ").append(t.getDsc()).append(" t where (");
-		String[] fieldIdz = userFields.split(",");
-		boolean bq=false;		
-		for(String s:fieldIdz){
-			int tableFieldId = PromisUtil.uInt(s);
-			boolean hrc = false;
-			if(tableFieldId<0){
-				hrc = true;
-				tableFieldId=-tableFieldId;
-			}
-			W5TableField tf = t.get_tableFieldMap().get(tableFieldId);
-			if(tf!=null){
-				if(bq)sql.append(" OR ");else bq=true;
-				if(hrc){
-					sql.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=t.").append(tf.getDsc()).append(")");
-					params.add(scd.get("customizationId"));
-				} else {
-					sql.append("t.").append(tf.getDsc()).append("=?");
-				}
-//				sql.append("t.").append(tf.getDsc()).append("=?");
-				params.add(scd.get("userId"));
-			}else {
-				Integer tbId = PromisCache.wTableFieldMap.get(tableFieldId);
-				if(tbId!=null){
-					W5Table t2 = PromisCache.getTable(t.getCustomizationId(), tbId);
-					if(t2!=null && !PromisUtil.isEmpty(t2.get_tableChildList())){
-						W5TableField tf2 = t2.get_tableFieldMap().get(tableFieldId);
-						for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==t.getTableId()){
-							if(bq)sql.append(" OR ");else bq=true;
-							if(tc.getRelatedStaticTableFieldId()>0){
-								sql.append("(t.").append(t.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-							}
-							sql.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=? AND hq.").append(tf2.getDsc()).append("=?").append(" AND hq.")
-							.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=t.").append(t.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-							if(tc.getRelatedStaticTableFieldId()>0){
-								sql.append(")");
-							}
-							sql.append(")");
-							params.add(scd.get("customizationId"));
-							params.add(scd.get("userId"));
-							break;
-						}
-					}
-				}
-			}
-		}
-		sql.append(")");	*/	
-		return sql.toString();
-	}
 	
 	@Override
 	public boolean accessUserFieldControl(W5Table t,
@@ -5042,21 +4973,13 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		boolean bq=false;
 		for(String s:fieldIdz){
 			int tableFieldId = GenericUtil.uInt(s);
-			boolean hrc = false;
-			if(tableFieldId<0){
-				hrc = true;
-				tableFieldId=-tableFieldId;
+			if(tableFieldId<0){ //TODO: for conditionSQL 
+				continue;
 			}
 			W5TableField tf = t.get_tableFieldMap().get(tableFieldId);
 			if(tf!=null){
 				if(bq)sql.append(" OR ");else bq=true;
-				if(hrc){
-					sql.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=t.").append(tf.getDsc()).append(")");
-					params.add(scd.get("customizationId"));
-				} else {
-					sql.append("t.").append(tf.getDsc()).append("=?");
-				}
-//				sql.append("t.").append(tf.getDsc()).append("=?");
+				sql.append("t.").append(tf.getDsc()).append("=?");
 				params.add(scd.get("userId"));
 			}else {
 				Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);

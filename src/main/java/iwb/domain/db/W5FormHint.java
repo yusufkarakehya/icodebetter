@@ -26,7 +26,6 @@ public class W5FormHint implements java.io.Serializable, W5Base {
 	private String hintColor;
 	private String hintTip;
 
-	private short customizationUpdateTip;
 	private short tabOrder;
 	private String actionTips;
 	private short activeFlag;
@@ -88,13 +87,6 @@ public class W5FormHint implements java.io.Serializable, W5Base {
 	}
 	public void setHintTip(String hintTip) {
 		this.hintTip = hintTip;
-	}
-	@Column(name="customization_update_tip")
-	public short getCustomizationUpdateTip() {
-		return customizationUpdateTip;
-	}
-	public void setCustomizationUpdateTip(short customizationUpdateTip) {
-		this.customizationUpdateTip = customizationUpdateTip;
 	}
 	@Column(name="action_tips")
 	public String getActionTips() {
