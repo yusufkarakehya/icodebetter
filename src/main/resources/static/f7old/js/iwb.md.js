@@ -178,7 +178,7 @@ function recMenu(r, lvl){
 }
 
 iwb.prepareMainMenu=function(){
-	iwb.request({url:'ajaxQueryData?_qid='+ (_scd.mobileMenuQueryId || 1487)+'&.r='+Math.random(),dataType:'text',data:{_json:1}, success:function(d){
+	iwb.request({url:'ajaxQueryData?_qid='+ (_scd.mobileMenuQueryId || 1487)+'&.r='+Math.random(),dataType:'text',data:{_json:1, xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:_scd.userTip}, success:function(d){
 //		if(iwb.debug){console.log('prepareMainMenu');console.log(d);}
 		var j = eval('('+d+')');
 		if(_scd && _scd.roleDsc)$$('#idx-main-menu-label').html( _scd.roleDsc);

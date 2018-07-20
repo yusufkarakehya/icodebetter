@@ -50,8 +50,13 @@ public class AppFilter implements Filter {
 			} catch (NestedServletException e) {
 				response.setCharacterEncoding( "UTF-8" );
 				response.setContentType("text/html");
+				Exception te = e;
+				while(te.getCause()!=null && te.getCause() instanceof Exception){
+					te = (Exception)te.getCause();
+					if(te instanceof IWBException)break;
+				}
 				if(FrameworkSetting.debug){
-					if(e.getCause()!=null)e.getCause().printStackTrace();
+					if(te!=null)e.printStackTrace();
 					else e.printStackTrace();
 				}
 				StringBuilder b = new StringBuilder();
@@ -62,10 +67,10 @@ public class AppFilter implements Filter {
 						z = true;
 					}
 					
-					if(e.getCause() instanceof  IWBException)
-						b.append(((IWBException)e.getCause()).toJsonString((Map<String, Object>)((HttpServletRequest)request).getSession().getAttribute("scd")));
+					if(te!=null && te instanceof  IWBException)
+						b.append(((IWBException)te).toJsonString((Map<String, Object>)((HttpServletRequest)request).getSession().getAttribute("scd")));
 					else {
-						b.append("{\"success\":false,\n\"errorType\":\"framework\",\n\"error\":\"Unhandled1 -->").append(GenericUtil.stringToJS2(e.getMessage())).append(FrameworkSetting.debug && e.getCause()!=null ? ("\",\n\"stack\":\""+GenericUtil.stringToJS2(ExceptionUtils.getFullStackTrace(e.getCause()))) : "" ).append("\"}");
+						b.append("{\"success\":false,\n\"errorType\":\"framework\",\n\"error\":\"Root Cause -->").append(GenericUtil.stringToJS2(te.getMessage())).append(FrameworkSetting.debug && e.getCause()!=null ? ("\",\n\"stack\":\""+GenericUtil.stringToJS2(ExceptionUtils.getFullStackTrace(e.getCause()))) : "" ).append("\"}");
 					}
 					if(z)b.append(")");
 				} else { //

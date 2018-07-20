@@ -142,7 +142,7 @@ public class GenericMailAdapter implements MailAdapter {
 			}	
 			
 			if(oms.getOutboxAuthTip()==0)transport.connect();	//userName PassWord gerektirmeyen durumlarda.*
-			else transport.connect(oms.getOutboxServer(), oms.getOutboxServerPort(), oms.getOutboxAuthTip()==2 ? oms.getOutboxServerUserName() : oms.getUserName(), FrameworkSetting.mailPassEncrypt ? GenericUtil.PRMDecrypt(oms.getOutboxAuthTip()==2 ? oms.getOutboxServerPassWord() : oms.getPassWord()):(oms.getOutboxAuthTip()==2 ? oms.getOutboxServerPassWord() : oms.getPassWord()));
+			else transport.connect(oms.getOutboxServer(), oms.getOutboxServerPort(), oms.getOutboxServerUserName(), GenericUtil.PRMDecrypt(oms.getOutboxServerPassWord()));
 			transport.sendMessage(message, message.getAllRecipients());
 			transport.close();
 		}catch (SMTPAddressFailedException e) {//Yanlis adres ise hata verme

@@ -5768,8 +5768,8 @@ public class FrameworkEngine{
 	}
 
 	public int notifyChatMsgRead(Map<String, Object> scd, int userId, int chatId) {
-		int cnt1 = dao.executeUpdateSQLQuery("update iwb.w5_chat set DELIVER_STATUS_TIP=2, DELIVER_DTTM=iwb.fnc_sysdate(?) where customization_id=? AND RECEIVER_USER_ID=? AND SENDER_USER_ID=? AND DELIVER_STATUS_TIP in (0,1)",
-				scd.get("customizationId"), scd.get("customizationId"), scd.get("userId"), userId);
+		int cnt1 = dao.executeUpdateSQLQuery("update iwb.w5_chat set DELIVER_STATUS_TIP=2, DELIVER_DTTM=iwb.fnc_sysdate(?) where RECEIVER_USER_ID=? AND SENDER_USER_ID=? AND DELIVER_STATUS_TIP in (0,1)",
+				scd.get("customizationId"), scd.get("userId"), userId);
 		return 0;
 	}
 
@@ -6696,7 +6696,7 @@ public class FrameworkEngine{
 
 	public Map getUserNotReadChatMap(Map<String, Object> scd) {
 		String s = "select k.sender_user_id user_id , count(1) cnt from iwb.w5_chat k where k.receiver_user_id=${scd.userId}::integer AND k.deliver_status_tip in (0,1) AND k.customization_id=${scd.customizationId}::integer "
-				+ "AND k.sender_user_id in (select u.user_id from iwb.w5_user u where u.customization_id=${scd.customizationId}::integer AND (u.global_flag=1 OR u.project_uuid='${scd.projectId}') AND u.user_status=1)"
+				+ "AND k.sender_user_id in (select u.user_id from iwb.w5_user u where ((u.customization_id=${scd.customizationId}::integer AND (u.global_flag=1 OR u.project_uuid='${scd.projectId}') AND u.user_status=1)) OR exists(select 1 from iwb.w5_user_related_project rp where rp.user_id=u.user_id AND rp.related_project_uuid='${scd.projectId}'))"
 				+ " group by k.sender_user_id";
 		Object[] oz = DBUtil.filterExt4SQL(s, scd, null, null);
 		List<Object[]> l = dao.executeSQLQuery2(oz[0].toString(),(List)oz[1]);

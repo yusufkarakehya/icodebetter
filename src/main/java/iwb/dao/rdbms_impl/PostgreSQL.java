@@ -563,10 +563,10 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(FrameworkSetting.preloadWEngine!=0 && FrameworkCache.wQueries.get(queryId)!=null){
 			queryResult.setQuery(FrameworkCache.wQueries.get(queryId));
 		} else {
-			W5Query query = (W5Query)find("from W5Query t where t.queryId=?", queryResult.getQueryId()).get(0); // ozel bir client icin varsa
+			W5Query query = (W5Query)find("from W5Query t where t.queryId=? AND t.customizationId=?", queryResult.getQueryId(), customizationId).get(0); // ozel bir client icin varsa
 			queryResult.setQuery(query);
-			queryResult.getQuery().set_queryFields(find("from W5QueryField t where t.queryId=? AND t.tabOrder>0 AND t.postProcessTip!=99 order by t.tabOrder", queryResult.getQueryId()));
-	    	queryResult.getQuery().set_queryParams(find("from W5QueryParam t where t.queryId=? order by t.tabOrder", queryResult.getQueryId()));
+			queryResult.getQuery().set_queryFields(find("from W5QueryField t where t.queryId=? AND t.tabOrder>0 AND t.postProcessTip!=99 AND t.customizationId=? order by t.tabOrder", queryResult.getQueryId(), customizationId));
+	    	queryResult.getQuery().set_queryParams(find("from W5QueryParam t where t.queryId=? AND t.customizationId=? order by t.tabOrder", queryResult.getQueryId(), customizationId));
 
 			if(queryResult.getQuery().getShowParentRecordFlag()!=0)for(W5QueryField field:queryResult.getQuery().get_queryFields()){
 				if(field.getDsc().equals("table_id"))query.set_tableIdTabOrder(field.getTabOrder());
@@ -1115,7 +1115,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		int customizationId = (Integer)scd.get("customizationId");
 		W5Customization cus = FrameworkCache.wCustomizationMap.get(customizationId);
 				
-    	for(W5FormCellHelper rc : formCellResults){
+    	for(W5FormCellHelper rc : formCellResults)try{
     		W5FormCell c = rc.getFormCell();
 			includedValues = c.getLookupIncludedValues();
 	    	Map<String, String> paramMap = new HashMap<String, String>();
@@ -1136,7 +1136,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     		case 	58: // superboxselect
     		case    8://lovcombo static
     		case	6: //eger static combobox ise listeyi load et
-				W5LookUp lookUp = FrameworkCache.getLookUp(scd,c.getLookupQueryId());
+				W5LookUp lookUp = FrameworkCache.getLookUp(scd,c.getLookupQueryId(), "Form("+c.getFormId()+")."+c.getDsc()+"-> LookUp not found: "+c.getLookupQueryId());
 				rc.setLocaleMsgFlag((short)1);
 				List<W5LookUpDetay> oldList = !FrameworkCache.reloadCacheQueue.containsKey("3-"+customizationId) ? lookUp.get_detayList() : (List<W5LookUpDetay>)find("from W5LookUpDetay t where t.customizationId=? AND t.lookUpId=? order by t.tabOrder", customizationId, c.getLookupQueryId());
 
@@ -1268,6 +1268,14 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     	    	}
 //    			paramMap.clear();
     		}
+    	} catch(Exception e){
+			Exception te = e;
+			while(te.getCause()!=null && te.getCause() instanceof Exception){
+				te = (Exception)te.getCause();
+				if(te instanceof IWBException)break;
+			}
+    		throw new IWBException("framework", "Form", rc.getFormCell().getFormId(), te instanceof IWBException ? ((IWBException)e).getSql():null, "Form."+rc.getFormCell().getDsc() + " -> " + te.getMessage(), e.getCause());
+    		
     	}
 	}
 	
@@ -6456,7 +6464,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			long startTm = System.currentTimeMillis(); 
 			cx.evaluateString(scope, script, null, 1, null);
 			r.setProcessTime((int)(System.currentTimeMillis() - startTm));
-			if(FrameworkSetting.debug)se.console("end: " + (r.getDbFunc()!=null ? r.getDbFunc().getDsc(): "new"),"DEBUG","success");
+//			if(FrameworkSetting.debug)se.console("end: " + (r.getDbFunc()!=null ? r.getDbFunc().getDsc(): "new"),"DEBUG","success");
 			/*
 			if(scope.has("errorMsg", scope)){
 				Object em = GenericUtil.rhinoValue(scope.get("errorMsg", scope));
