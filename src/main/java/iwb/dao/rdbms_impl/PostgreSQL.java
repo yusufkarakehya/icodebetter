@@ -1115,7 +1115,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		int customizationId = (Integer)scd.get("customizationId");
 		W5Customization cus = FrameworkCache.wCustomizationMap.get(customizationId);
 				
-    	for(W5FormCellHelper rc : formCellResults){
+    	for(W5FormCellHelper rc : formCellResults)try{
     		W5FormCell c = rc.getFormCell();
 			includedValues = c.getLookupIncludedValues();
 	    	Map<String, String> paramMap = new HashMap<String, String>();
@@ -1268,6 +1268,14 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     	    	}
 //    			paramMap.clear();
     		}
+    	} catch(Exception e){
+			Exception te = e;
+			while(te.getCause()!=null && te.getCause() instanceof Exception){
+				te = (Exception)te.getCause();
+				if(te instanceof IWBException)break;
+			}
+    		throw new IWBException("framework", "Form", rc.getFormCell().getFormId(), te instanceof IWBException ? ((IWBException)e).getSql():null, "FormElement("+rc.getFormCell().getDsc() + ") -> " + te.getMessage(), e.getCause());
+    		
     	}
 	}
 	
