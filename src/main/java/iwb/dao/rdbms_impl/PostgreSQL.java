@@ -1274,7 +1274,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				te = (Exception)te.getCause();
 				if(te instanceof IWBException)break;
 			}
-    		throw new IWBException("framework", "Form", rc.getFormCell().getFormId(), te instanceof IWBException ? ((IWBException)e).getSql():null, "FormElement("+rc.getFormCell().getDsc() + ") -> " + te.getMessage(), e.getCause());
+    		throw new IWBException("framework", "Form", rc.getFormCell().getFormId(), te instanceof IWBException ? ((IWBException)e).getSql():null, "Form."+rc.getFormCell().getDsc() + " -> " + te.getMessage(), e.getCause());
     		
     	}
 	}
