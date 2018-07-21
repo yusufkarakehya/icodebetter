@@ -250,7 +250,7 @@ public class VcsEngine {
 			throws JSONException {
 		StringBuilder ql= new StringBuilder();
 		ql.append(schema).append("_").append(t.getDsc().replace('.', '_')).append(",").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=").append(tablePk);
-		Map m = GenericUtil.fromJSONObjectToMap(jo);
+		Map m = jo==null ? new HashMap() : GenericUtil.fromJSONObjectToMap(jo);
 		m.put("_action", action);
 		m.put("_vcs_commit_id", srvVcsCommitId);
 		ql.append(" ").append(GenericUtil.fromMapToInfluxFields(m));
