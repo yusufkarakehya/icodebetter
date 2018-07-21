@@ -1135,7 +1135,7 @@ public class FrameworkEngine{
 						}
 
 						if(oms!=null){
-							W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody,"", null);//mail_keep_body_original ?
+							W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody, null);//mail_keep_body_original ?
 							email.set_oms(oms);
 							String sonuc = MailUtil.sendMail(scd, email);
 							if(FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0){
@@ -1416,7 +1416,7 @@ public class FrameworkEngine{
 								mesajBody="'"+scd.get("completeName")+"' "+LocaleMsgCache.get2(0,(String)scd.get("locale"),"tarafindan_onaya_sunulmustur");
 							}
 
-							W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody,"", null);//mail_keep_body_original ?
+							W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody, null);//mail_keep_body_original ?
 							W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?)", (Integer)scd.get("mailSettingId"), (Integer)scd.get("customizationId"), "Mail Setting No Defined");
 							email.set_oms(oms);
 
@@ -1659,7 +1659,7 @@ public class FrameworkEngine{
 								mesajBody="'"+scd.get("completeName")+"' "+LocaleMsgCache.get2(0,(String)scd.get("locale"),"tarafindan_onaya_sunulmustur");
 							}
 
-							W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody,"", null);//mail_keep_body_original ?
+							W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody, null);//mail_keep_body_original ?
 							W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?)", (Integer)scd.get("mailSettingId"), (Integer)scd.get("customizationId"), "Mail Setting No Defined");
 							email.set_oms(oms);
 							String sonuc = MailUtil.sendMail(scd, email);
@@ -4674,7 +4674,7 @@ public class FrameworkEngine{
 			if(mail_setting_id==0) mail_setting_id=FrameworkCache.getAppSettingIntValue(scd, "default_outbox_id");
 			W5ObjectMailSetting oms=  (W5ObjectMailSetting) dao.getCustomizedObject("from W5ObjectMailSetting x where x.customizationId=? and x.mailSettingId=?", customizationId,mail_setting_id, null);
 			if(oms!=null){
-				W5Email email= new W5Email(pemailList.substring(1), null, null, mailSubject, mailBody, "", null);
+				W5Email email= new W5Email(pemailList.substring(1), null, null, mailSubject, mailBody, null);
 				email.set_oms(oms);
 				String sonuc = MailUtil.sendMail(scd, email);
 				if(sonuc!=null){ //basarisiz, queue'ye at//
@@ -4940,7 +4940,7 @@ public class FrameworkEngine{
 			if(oms!=null){
 				Map<String, Object> scd = new HashMap<String,Object>();
 				scd.put("locale", "tr");
-				W5Email email= new W5Email(pemailList,null,null,mailSubject,mailBody,"", null);
+				W5Email email= new W5Email(pemailList,null,null,mailSubject,mailBody, null);
 				email.set_oms(oms);
 				String sonuc = MailUtil.sendMail(scd, email);
 				if(sonuc!=null){

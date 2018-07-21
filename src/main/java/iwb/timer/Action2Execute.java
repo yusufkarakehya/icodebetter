@@ -19,15 +19,12 @@ public class Action2Execute implements Runnable {// TODO: buralar long polling i
 		n.setUserId((Integer)scd.get("userId"));
 		n.setUserTip((short) GenericUtil.uInt(scd.get("userTip")));
 		try {
-			// qt.put(th.getId(), executeDbFunc(scd, dbFuncId, parameterMap,
-			// execRestrictTip));//is bitince, result
-			
 			if(queuedAction.getAction() instanceof W5Email){
 				W5Email email = (W5Email)queuedAction.getAction();
 				String error = MailUtil.sendMail(scd, email);
 				if(GenericUtil.isEmpty(error)){
 					n.setNotificationTip((short) 1);// success
-					n.set_tmpStr("<b>Email Sent:</b>" + email.getMailSubject());
+					n.set_tmpStr("<b>Email Successfully Sent:</b>" + email.getMailSubject());
 				} else {
 					n.setNotificationTip((short) 3);// exec-basarisiz: atiyorum
 					n.set_tmpStr("<b>Email Could not Sent:</b>" + email.getMailSubject());

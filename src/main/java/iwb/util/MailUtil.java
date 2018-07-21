@@ -58,6 +58,7 @@ public class MailUtil {
 		String txt;
 		boolean mailDebug = FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0;
 		W5ObjectMailSetting oms = email.get_oms();
+		email.setStatus((short)1);
 		try {
 						
 			Properties properties = new Properties();			
@@ -96,13 +97,6 @@ public class MailUtil {
 			
 			MimeBodyPart messagePart = new MimeBodyPart();
 			
-		//	txt+="\n\n"+"****** Bu mesaj bilgilendirme amaçlı otomatik olarak yollanmıştır, hata oldugunu dusunuyorsaniz, REPLY ALL Yapınız ******\n"; //bu kısım fonksiyonlarda ayarlandı.
-/*		if(PromisCache.getAppSettingIntValue(scd, "mail_signature_override_flag") != 0 || oms.getEmailSignature()==null){
-				if(PromisCache.getAppSettingStringValue(scd, "mail_signature")!=null)txt+="<br>"+PromisCache.getAppSettingStringValue(scd, "mail_signature");
-			} else{
-				if(oms.getEmailSignature()!=null)txt+="<br>"+oms.getEmailSignature();
-			}
-*/
 			if(FrameworkCache.getAppSettingIntValue(scd, "mail_send_bmp_advertisement_flag") != 0) txt+="<br>"+getMailAd(scd);
 			
 			message.setSubject(email.getMailSubject(), "utf-8");
@@ -130,7 +124,7 @@ public class MailUtil {
 			}	
 			
 			if(oms.getOutboxAuthTip()==0)transport.connect();	//userName PassWord gerektirmeyen durumlarda.*
-			else transport.connect(oms.getOutboxServer(), oms.getOutboxServerPort(), oms.getOutboxServerUserName(), GenericUtil.PRMDecrypt(oms.getOutboxServerPassWord()));
+			else transport.connect(oms.getOutboxServer(), oms.getOutboxServerPort(), oms.getOutboxServerUserName(), oms.getOutboxServerPassWord()/*GenericUtil.PRMDecrypt(oms.getOutboxServerPassWord())*/);
 			transport.sendMessage(message, message.getAllRecipients());
 			transport.close();
 		}catch (SMTPAddressFailedException e) {//Yanlis adres ise hata verme
@@ -138,14 +132,18 @@ public class MailUtil {
 			return null;
 		}catch (MessagingException e) {
 			if(FrameworkSetting.debug || mailDebug)e.printStackTrace();		
-			if(e.getMessage()==null) return "unknown error";
 			if(e.getNextException() !=null && e.getNextException().getClass().getName().equals("com.sun.mail.smtp.SMTPAddressFailedException"))	return null;
-			if(e.getMessage().toLowerCase().contains("authentication")) return LocaleMsgCache.get2((Integer)scd.get("customizationId"), scd.get("locale").toString(), "error.mail.authentication_failed");
+			email.setStatus((short)0);//error
+			if(e.getMessage()==null) return "unknown error";
+			if(e.getMessage().toLowerCase().contains("authentication")) return LocaleMsgCache.get2(scd, "error.mail.authentication_failed");
 			return e.getMessage();
 			
 		}catch (Exception e) {
 			if(FrameworkSetting.debug || mailDebug)e.printStackTrace();
+			email.setStatus((short)0);//error
 			return e.getMessage()==null ? "unknown error" : e.getMessage();
+		} finally {
+			LogUtil.logObject(email);
 		}
 		return null;
 	}

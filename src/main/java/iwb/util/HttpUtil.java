@@ -29,7 +29,7 @@ public class HttpUtil {
 			connection.setRequestMethod(method);
 			if(GenericUtil.isEmpty(reqPropMap)){
 				connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
-				connection.setRequestProperty("Content-Language", "tr-TR");
+				connection.setRequestProperty("Content-Language", "en-EN");
 			} else for(String key:reqPropMap.keySet()){
 				connection.setRequestProperty(key,reqPropMap.get(key));
 			}
@@ -46,16 +46,19 @@ public class HttpUtil {
 			}
 
 			// Get Response
-			InputStream is = connection.getInputStream();
-			BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
-			String line;
-			StringBuffer response = new StringBuffer();
-			while ((line = rd.readLine()) != null) {
-				response.append(line);
-				response.append('\r');
-			}
-			rd.close();
-			return response.toString();
+			if(connection.getResponseCode()==200){
+				InputStream is = connection.getInputStream();
+				BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+				String line;
+				StringBuilder response = new StringBuilder();
+				while ((line = rd.readLine()) != null) {
+					response.append(line);
+					response.append('\r');
+				}
+				rd.close();
+				return response.toString();
+			} else
+				return null;
 
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();

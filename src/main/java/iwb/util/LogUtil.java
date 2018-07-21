@@ -1,6 +1,8 @@
 package iwb.util;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -34,13 +36,15 @@ public class LogUtil {
 		String str = o.toInfluxDB();
 		if(GenericUtil.isEmpty(str))return;
 		StringBuilder s=new StringBuilder(str);
-		s.append(o).append(" ").append(Instant.now().toEpochMilli()).append("000000");
+		s.append(" ").append(Instant.now().toEpochMilli()).append("000000");
 		try {
 			if(FrameworkSetting.logType==2){ //Asynchronized RabbitMQ
 				//mqChannel.basicPublish("", FrameworkSetting.mqTsdbQueue, null, s.toString().getBytes());
 				mqChannel.basicPublish("", FrameworkSetting.log2mqQueue, null, s.toString().getBytes("UTF-8"));
 			} else { //Synchronized
-				HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/write?db="+FrameworkSetting.log2tsdbDbName, s.toString());
+				Map m = new HashMap();
+				m.put("Content-Type", "application/json");
+				HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/write?db="+FrameworkSetting.log2tsdbDbName, s.toString(),"POST", m);
 			}
 			errorCount = 0;
 		}catch (Exception e) {
