@@ -44,7 +44,6 @@ public class W5Conversion implements java.io.Serializable {
 	private String rhinoCode;
 	
 	private	List<W5ConversionCol> _conversionColList;
-	private	List<W5ConversionDetail> _conversionDetail;
 	private	Map<Integer,W5ConversionCol> _conversionColMap;
 	
 	@Id

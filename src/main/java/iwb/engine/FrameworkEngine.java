@@ -7,14 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 //import com.sun.xml.xsom.XSType;
 
-import iwb.adapter.mail.MailAdapter;
 import iwb.custom.trigger.DbFuncTrigger;
 import iwb.custom.trigger.GetFormTrigger;
 import iwb.custom.trigger.PostFormTrigger;
@@ -46,6 +39,8 @@ import iwb.custom.trigger.QueryTrigger;
 import iwb.dao.RdbmsDao;
 //import iwb.dao.tsdb_impl.InfluxDao;
 import iwb.domain.db.Log5ApprovalRecord;
+import iwb.domain.db.Log5Feed;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5ApprovalRecord;
 import iwb.domain.db.W5ApprovalStep;
@@ -53,11 +48,10 @@ import iwb.domain.db.W5ApprovalStepSmsMail;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Comment;
 import iwb.domain.db.W5Conversion;
-import iwb.domain.db.W5ConvertedObject;
+import iwb.domain.db.Log5ConvertedObject;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Email;
-import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
@@ -70,10 +64,8 @@ import iwb.domain.db.W5GridColumn;
 import iwb.domain.db.W5Jasper;
 import iwb.domain.db.W5JasperObject;
 import iwb.domain.db.W5JasperReport;
-import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5ObjectMailSetting;
 import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Project;
@@ -102,7 +94,7 @@ import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.helper.W5AccessControlHelper;
 import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.helper.W5QueuedDbFuncHelper;
+import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.helper.W5SynchAfterPostHelper;
 import iwb.domain.helper.W5TableRecordHelper;
@@ -126,6 +118,7 @@ import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.JasperUtil;
 import iwb.util.LocaleMsgCache;
+import iwb.util.MailUtil;
 import iwb.util.Money2Text;
 import iwb.util.UserUtil;
 import net.sf.jasperreports.engine.JRExporter;
@@ -144,9 +137,6 @@ import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 public class FrameworkEngine{
 	@Autowired
 	private RdbmsDao dao;
-
-	@Autowired
-	private MailAdapter mailAdapter;
 
 	public synchronized void reloadCache(int cid){
 		try {
@@ -319,12 +309,12 @@ public class FrameworkEngine{
 						inStr+=","+cnv.getConversionId();
 					}
 					if(inStr.length()>1){
-						List<W5ConvertedObject> lco = dao.find("from W5ConvertedObject x where x.customizationId=? AND x.conversionId in ("+inStr.substring(1)+") and x.srcTablePk=?", scd.get("customizationId"), GenericUtil.uInt(requestParams,t.get_tableParamList().get(0).getDsc()));
+						List<Log5ConvertedObject> lco = dao.find("from W5ConvertedObject x where x.customizationId=? AND x.conversionId in ("+inStr.substring(1)+") and x.srcTablePk=?", scd.get("customizationId"), GenericUtil.uInt(requestParams,t.get_tableParamList().get(0).getDsc()));
 						if(!lco.isEmpty()){
-							Map<Integer, List<W5ConvertedObject>> m = new HashMap();
+							Map<Integer, List<Log5ConvertedObject>> m = new HashMap();
 							formResult.setMapConvertedObject(m);
-							List<W5ConvertedObject> orphanCol = new ArrayList();
-							for(W5ConvertedObject co:lco){
+							List<Log5ConvertedObject> orphanCol = new ArrayList();
+							for(Log5ConvertedObject co:lco){
 								int dstTableId = 0;
 								for(W5Conversion cnv:formResult.getForm().get_conversionList())if(cnv.getConversionId()==co.getConversionId()){
 									dstTableId = cnv.getDstTableId();
@@ -334,7 +324,7 @@ public class FrameworkEngine{
 								if(GenericUtil.isEmpty(co.get_relatedRecord())){
 									orphanCol.add(co);
 								} else {
-									List<W5ConvertedObject> l = m.get(co.getConversionId());
+									List<Log5ConvertedObject> l = m.get(co.getConversionId());
 									if(l==null){
 										l = new ArrayList();
 										m.put(co.getConversionId(), l);
@@ -428,39 +418,23 @@ public class FrameworkEngine{
 						}
 						mq = dao.interprateConversionTemplate(c, formResult,conversionTablePk, true, false);
 						if(mq!=null){
-							/*List<W5ObjectConditionGroup> locg = (List<W5ObjectConditionGroup>)mq.get("_cnv_error_list");
-							if(!GenericUtil.isEmpty(locg)){ //errors, exception
-								String errorMsg = "";
-								for(W5ObjectConditionGroup ocg:locg)if(ocg.getStrategyTip()==1){
-									errorMsg+=LocaleMsgCache.get2(scd,ocg.getLocaleMsgKey())+"<br>";
-								}
-								if(errorMsg.length()==0)errorMsg = "Condition Error for Conversion";
-								throw new PromisException("security","Module", 0, null, errorMsg, null);
-							} else {
-								locg = (List<W5ObjectConditionGroup>)mq.get("_cnv_warning_list");
-								if(!GenericUtil.isEmpty(locg))for(W5ObjectConditionGroup ocg:locg){ //warning
-									formResult.getOutputMessages().add(LocaleMsgCache.get2(scd, ocg.getLocaleMsgKey()));
-								}
-							}*///TODO
-
 							convb = true;
 							formResult.getOutputMessages().add(LocaleMsgCache.get2(scd, "fw_converted_from")+ " <b><a href=# onclick=\"return mainPanel.loadTab({attributes:{href:'showForm?a=1&_tb_id="+mq.get("_cnv_src_tbl_id")+"&_tb_pk="+mq.get("_cnv_src_tbl_pk")+"&_fid="+mq.get("_cnv_src_frm_id")+"'}})\">"+ mq.get("_cnv_record") + "</a></b> --> " + LocaleMsgCache.get2(scd, mq.get("_cnv_name").toString()+ " --> ?"));
 						}
 					}
-				} else if((formId==650 || formId==631) && requestParams.containsKey("_fsmId")){// formId=650/631 ise buna gore mail/sms hazirlanacak
+				} else if((formId==650/* || formId==631*/) && requestParams.containsKey("_fsmId")){// formId=650/631 ise buna gore mail/sms hazirlanacak
 					int fsmFrmId = GenericUtil.uInt(requestParams,"_fsmFrmId");
 					W5FormResult	fsmformResult = getFormResult(formResult.getScd(), fsmFrmId, (short)2,requestParams);
 					int fsmId = GenericUtil.uInt(requestParams,"_fsmId");
 					W5FormSmsMail fsm = fsmformResult.getForm().get_formSmsMailMap().get(fsmId);
 					int fsmTableId =  GenericUtil.uInt(requestParams,"_tableId");
 					int fsmTablePk =  GenericUtil.uInt(requestParams,"_tablePk");
-					mq =  formId==631 ? dao.interprateSmsTemplate(fsm, formResult.getScd(),requestParams,fsmTableId,fsmTablePk) : dao.interprateMailTemplate(fsm, formResult.getScd(),requestParams,fsmTableId,fsmTablePk);
+					W5Email email =  /*formId==631 ? dao.interprateSmsTemplate(fsm, formResult.getScd(),requestParams,fsmTableId,fsmTablePk) : */dao.interprateMailTemplate(fsm, formResult.getScd(),requestParams,fsmTableId,fsmTablePk);
 					if(formId==650 && !GenericUtil.isEmpty(scd.get("mailSettingId"))){
-    					Map<String, Object> mapMailSign = dao.runSQLQuery2Map("select x.EMAIL_SIGNATURE s from iwb.w5_object_mail_setting x where x.MAIL_SETTING_ID=${scd.mailSettingId} AND x.customization_id=${scd.customizationId}", scd, requestParams, null);
+    					Map<String, Object> mapMailSign = dao.runSQLQuery2Map("select x.EMAIL_SIGNATURE s from iwb.w5_object_mail_setting x where x.MAIL_SETTING_ID=${scd.mailSettingId} AND x.customization_id in (0,${scd.customizationId})", scd, requestParams, null);
     					if(!GenericUtil.isEmpty(mapMailSign) && !GenericUtil.isEmpty(mapMailSign.get("s"))){
-    						if(mq==null)mq=new HashMap();
-    						if(mq.get("pmail_body")==null)mq.put("pmail_body","");
-    						mq.put("pmail_body",mq.get("pmail_body")+FrameworkSetting.mailSeperator+(String)mapMailSign.get("s"));
+    						if(email==null || GenericUtil.isEmpty(email.getMailBody()))mq.put("pmail_body",FrameworkSetting.mailSeperator+(String)mapMailSign.get("s"));
+    						else mq.put("pmail_body",email.getMailBody()+FrameworkSetting.mailSeperator+(String)mapMailSign.get("s"));
     					}
     				}
 					formResult.getOutputMessages().add(LocaleMsgCache.get2(scd, "fw_mail_converted_from")+ " <b><a href=# onclick=\"return mainPanel.loadTab({attributes:{href:'showForm?a=1&_tb_id="+fsmTableId+"&_tb_pk="+fsmTablePk+"&_fid="+fsmFrmId+"'}})\">"+ dao.getSummaryText4Record(scd, fsmTableId, fsmTablePk) + "</a></b> --> " + fsm.getDsc());
@@ -925,9 +899,9 @@ public class FrameworkEngine{
 	}
 
 	@SuppressWarnings({ "unused", "unchecked" })
-	private	List<W5QueuedDbFuncHelper>	postForm4Table(W5FormResult formResult, String prefix, Set<String> checkedParentRecords){
+	private	List<W5QueuedActionHelper>	postForm4Table(W5FormResult formResult, String prefix, Set<String> checkedParentRecords){
 		if(!formResult.isDev())checkTenant(formResult.getScd());
-		List<W5QueuedDbFuncHelper> result = new ArrayList<W5QueuedDbFuncHelper>();
+		List<W5QueuedActionHelper> result = new ArrayList<W5QueuedActionHelper>();
 		int formId = formResult.getFormId();
 		int action = formResult.getAction();
 		int realAction = action;
@@ -963,7 +937,6 @@ public class FrameworkEngine{
 			}
 		}
 		boolean mobile = GenericUtil.uInt(formResult.getScd().get("mobile"))!=0;
-		String deletedRealFileName = null;
 		int	sourceStepId = -1;
 		String ptablePk = null; //accessControl islemi icin
 		String pcopyTablePk = null; //accessControl islemi icin
@@ -1163,7 +1136,8 @@ public class FrameworkEngine{
 
 						if(oms!=null){
 							W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody,"", null);//mail_keep_body_original ?
-							String sonuc = mailAdapter.sendMail(scd, oms, email);
+							email.set_oms(oms);
+							String sonuc = MailUtil.sendMail(scd, email);
 							if(FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0){
 								if(sonuc!=null){ //basarisiz, queue'ye at//
 									System.out.println(LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_mekanizmasi_akisinda_mail_gonderilemedi"));
@@ -1436,23 +1410,22 @@ public class FrameworkEngine{
 							int mail_setting_id=GenericUtil.uInt((Object)scd.get("mailSettingId"));
 							if(mail_setting_id==0) mail_setting_id=FrameworkCache.getAppSettingIntValue(scd, "default_outbox_id");
 
-							W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.find("from W5ObjectMailSetting t where t.customizationId=? and t.mailSettingId=?", (Integer)scd.get("customizationId"),mail_setting_id).get(0);
-
 							if(appRecord.getApprovalStepId() == 901){
 								mesajBody="'"+scd.get("completeName")+"' "+LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_surecini_baslatmanizi_istiyor");
 							}else{
 								mesajBody="'"+scd.get("completeName")+"' "+LocaleMsgCache.get2(0,(String)scd.get("locale"),"tarafindan_onaya_sunulmustur");
 							}
 
-							if(oms!=null){
-								W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody,"", null);//mail_keep_body_original ?
-								String sonuc = mailAdapter.sendMail(scd, oms, email);
-								if(FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0){
-									if(sonuc!=null){ //basarisiz, queue'ye at//
-										System.out.println(LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_mekanizmasi_akisinda_mail_gonderilemedi"));
-									}else{
-										System.out.println(LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_mekanizmasi_akisinda_mail_gonderildi"));
-									}
+							W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody,"", null);//mail_keep_body_original ?
+							W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?)", (Integer)scd.get("mailSettingId"), (Integer)scd.get("customizationId"), "Mail Setting No Defined");
+							email.set_oms(oms);
+
+							String sonuc = MailUtil.sendMail(scd, email);
+							if(FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0){
+								if(sonuc!=null){ //basarisiz, queue'ye at//
+									System.out.println(LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_mekanizmasi_akisinda_mail_gonderilemedi"));
+								}else{
+									System.out.println(LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_mekanizmasi_akisinda_mail_gonderildi"));
 								}
 							}
 						}
@@ -1636,10 +1609,6 @@ public class FrameworkEngine{
 			mz.put("ptable_pk", ptablePk);
 //			W5DbFuncResult dfr = executeFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
 			if(ptablePk!=null && appRecord==null){
-				if(t.getTableId()==44 &&  FrameworkCache.getAppSettingIntValue(scd, "delete_file_attachment_real_flag")!=0){ // file attachment ise
-					List l = dao.executeSQLQuery("select x.SYSTEM_FILE_NAME from iwb.w5_file_attachment x where x.customization_id=? AND x.file_attachment_id=?", scd.get("customizationId"), ptablePk);
-					if(!GenericUtil.isEmpty(l))deletedRealFileName=(String)l.get(0);
-				}
 				boolean b = dao.deleteTableRecord(formResult, prefix);
 				if(!b)formResult.getOutputMessages().add(LocaleMsgCache.get2(scd, "record_not_found"));
 			}
@@ -1684,22 +1653,21 @@ public class FrameworkEngine{
 							int mail_setting_id=GenericUtil.uInt((Object)scd.get("mailSettingId"));
 							if(mail_setting_id==0) mail_setting_id=FrameworkCache.getAppSettingIntValue(scd, "default_outbox_id");
 
-							W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.find("from W5ObjectMailSetting t where t.customizationId=? and t.mailSettingId=?", (Integer)scd.get("customizationId"),mail_setting_id).get(0);
 							if(appRecord.getApprovalStepId() == 901){
 								mesajBody="'"+scd.get("completeName")+"' "+LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_surecini_baslatmanizi_istiyor");
 							}else{
 								mesajBody="'"+scd.get("completeName")+"' "+LocaleMsgCache.get2(0,(String)scd.get("locale"),"tarafindan_onaya_sunulmustur");
 							}
 
-							if(oms!=null){
-								W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody,"", null);//mail_keep_body_original ?
-								String sonuc = mailAdapter.sendMail(scd, oms, email);
-								if(FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0){
-									if(sonuc!=null){ //basarisiz, queue'ye at//
-										System.out.println(LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_mekanizmasi_akisinda_mail_gonderilemedi"));
-									}else{
-										System.out.println(LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_mekanizmasi_akisinda_mail_gonderildi"));
-									}
+							W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody,"", null);//mail_keep_body_original ?
+							W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?)", (Integer)scd.get("mailSettingId"), (Integer)scd.get("customizationId"), "Mail Setting No Defined");
+							email.set_oms(oms);
+							String sonuc = MailUtil.sendMail(scd, email);
+							if(FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0){
+								if(sonuc!=null){ //basarisiz, queue'ye at//
+									System.out.println(LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_mekanizmasi_akisinda_mail_gonderilemedi"));
+								}else{
+									System.out.println(LocaleMsgCache.get2(0,(String)scd.get("locale"),"onay_mekanizmasi_akisinda_mail_gonderildi"));
 								}
 							}
 						}
@@ -1775,7 +1743,7 @@ public class FrameworkEngine{
 									requestParams.put(key+qi+"."+qi2,formResult.getOutputFields().get(key).toString());
 						}
 						W5FormResult detailForm = postEditGrid4Table(scd, detailFormId, dirtyCount, requestParams,qi+".",checkedParentRecords);
-						if(!GenericUtil.isEmpty(detailForm.getQueuedDbFuncList()))result.addAll(detailForm.getQueuedDbFuncList());
+						if(!GenericUtil.isEmpty(detailForm.getQueueActionList()))result.addAll(detailForm.getQueueActionList());
 						if(!GenericUtil.isEmpty(detailForm.getOutputFields()))formResult.getOutputFields().put("_fid"+qi, detailForm.getOutputFields());
 						if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecordAll(detailForm.getListSyncAfterPostHelper());
 						bd = true;
@@ -1806,61 +1774,36 @@ public class FrameworkEngine{
 			if(tla!=null)extFormTrigger(formResult, new String[]{"_","au","ai","ad","_","ai"}[action], scd, requestParams, t, ptablePk, prefix);
 			/* end of tableTrigger*/
 
-			/*BPM */
-		//	exFormBPM(formResult, action, scd, requestParams, t, ptablePk);
-			/*end of BPM */
-
-
-			/* feed */
-			extFormFeed(formResult, scd, requestParams, t, ptablePk, feed,
-					feedTableId, feedTablePk);
-			/* end of feed */
-
-			/* sms/mail customized templates*/
-			extFormSmsMailCustomizedTemplate(formResult, result, action, scd,
-					requestParams, t, mobile, ptablePk);
-			/* end of sms/mail customized templates*/
-
+			/* form conversion*/
+			extFormConversion(formResult, prefix, action, scd, requestParams,
+					t, ptablePk, false);
+			/* end of form conversion*/
+			
 			/* alarm start*/
 			extFormAlarm(formResult, action, scd, requestParams, t, mobile,
 					ptablePk);
 			/* end of alarm*/
 
+			/* sms/mail customized templates*/
+			extFormSmsMail(formResult, result, action, scd, requestParams, t, mobile, ptablePk);
+			/* end of sms/mail customized templates*/
 
-			/* form conversion*/
-			extFormConversion(formResult, prefix, action, scd, requestParams,
-					t, ptablePk, false);
-			/* end of form conversion*/
 
 
 			/* vcs control*/
 			extFormVcs(formResult, action, scd, requestParams,t, ptablePk);
 			/* end of vcs*/
 
-			/* delete files from file system*/
-			if(deletedRealFileName!=null)try{
-				 File f = new File(FrameworkCache.getAppSettingStringValue(scd,"file_local_path")+File.separator+GenericUtil.uInt((Object)scd.get("customizationId"))+File.separator+"attachment"+File.separator+deletedRealFileName);
-				 if (f.exists()){
-					 if(!f.delete()){
-						 formResult.getOutputMessages().add(LocaleMsgCache.get2(scd, "real_file_not_deleted"));
-					 } else
-						 formResult.getOutputMessages().add(LocaleMsgCache.get2(scd, "real_file_deleted"));
-				 } else formResult.getOutputMessages().add(LocaleMsgCache.get2(scd, "real_file_not_found"));
-			} catch (Exception e) {
-				if(FrameworkSetting.debug)e.printStackTrace();
-				formResult.getOutputMessages().add("DELETE REAL FILE EXCEPTION: " + e.getMessage());
-			}
-			/* end of delete files from file system*/
+
 
 			if(action==2){ // bir sorun yoksa, o zaman conversion kaydi yap
 				if(GenericUtil.isEmpty(prefix) && requestParams.containsKey("_cnvId") && requestParams.containsKey("_cnvTblPk")){//conversion var burda
 					int conversionId = GenericUtil.uInt(requestParams.get("_cnvId"));
 					int conversionTablePk = GenericUtil.uInt(requestParams.get("_cnvTblPk"));
-					String conversionDetailTableIds = requestParams.get("_cnvDetailTableIds");
 					List<W5Conversion> lcnv = dao.find("from W5Conversion x where x.conversionId=? AND x.customizationId=?", conversionId, (Integer)scd.get("customizationId"));
 					if(lcnv.size()==1 && lcnv.get(0).getDstFormId()==formId){ //bu form'a aitmis conversion
 						W5Conversion cnv = lcnv.get(0);
-						W5ConvertedObject co = new W5ConvertedObject(scd,conversionId,conversionTablePk, GenericUtil.uInt(ptablePk), conversionDetailTableIds);
+						Log5ConvertedObject co = new Log5ConvertedObject(scd,conversionId,conversionTablePk, GenericUtil.uInt(ptablePk));
 						saveObject(co);
 						if(cnv.getIncludeFileAttachmentFlag()!=0){
 							dao.executeUpdateSQLQuery("{call pcopy_file_attach( ?, ? , ?, ?, ?); }", (Integer)scd.get("userRoleId"), cnv.getSrcTableId(), conversionTablePk, cnv.getDstTableId(), GenericUtil.uInt(ptablePk));
@@ -1871,6 +1814,12 @@ public class FrameworkEngine{
 					}
 				}
 			}
+			
+
+			/* feed */
+			extFormFeed(formResult, scd, requestParams, t, ptablePk, feed,
+					feedTableId, feedTablePk);
+			/* end of feed */
 		}
 		PostFormTrigger.afterPostForm(formResult, dao, prefix);
 
@@ -1894,15 +1843,15 @@ public class FrameworkEngine{
 	    }
 
 
-		if(!GenericUtil.isEmpty(formResult.getMapWidgetCount())/* && !PromisUtil.isEmpty(request.getParameter("_promis_token"))*/){
+		if(false && !GenericUtil.isEmpty(formResult.getMapWidgetCount())/* && !PromisUtil.isEmpty(request.getParameter("_promis_token"))*/){
 			UserUtil.publishWidgetStatus(scd, formResult.getMapWidgetCount());
 		}
 
 		return result;
 	}
 
-	private void extFormSmsMailCustomizedTemplate(W5FormResult formResult,
-			List<W5QueuedDbFuncHelper> result, int action,
+	private void extFormSmsMail(W5FormResult formResult,
+			List<W5QueuedActionHelper> result, int action,
 			Map<String, Object> scd, Map<String, String> requestParams,
 			W5Table t, boolean mobile, String ptablePk) {
 		if(!GenericUtil.isEmpty(formResult.getForm().get_formSmsMailList())){
@@ -1925,10 +1874,10 @@ public class FrameworkEngine{
 				for(int fsmId:tplSet)try{
 					W5FormSmsMail fsm = formResult.getForm().get_formSmsMailMap().get(fsmId);
 					if(fsm==null || fsm.getAlarmFlag()!=0 || !GenericUtil.hasPartInside2(fsm.getActionTips(), action) || !GenericUtil.hasPartInside2(fsm.getWebMobileTips(), mobile ? "2":"1"))continue;
-				/*	if(!GenericUtil.isEmpty(fsm.get_conditionList()) || !GenericUtil.isEmpty(fsm.getConditionSqlCode())){
-						boolean conditionCheck = dao.conditionRecordExistsCheck(scd, fsm.get_conditionList(), null, requestParams,t.getTableId(), GenericUtil.uInt(ptablePk), fsm.getConditionSqlCode()).size()==0;
+					if(!GenericUtil.isEmpty(fsm.getConditionSqlCode())){
+						boolean conditionCheck = dao.conditionRecordExistsCheck(scd, requestParams,t.getTableId(), GenericUtil.uInt(ptablePk), fsm.getConditionSqlCode());
 						if(!conditionCheck)continue;
-					} */ //TODO
+					}
 					Map<String, String> m = new HashMap();
 					m.put("_tableId",""+t.getTableId());
 					m.put("_tablePk", ptablePk);
@@ -1945,15 +1894,16 @@ public class FrameworkEngine{
 					switch(fsm.getSmsMailTip()){
 					case	0://sms
 //parameterMap.get("phone"),parameterMap.get("body")
-						m.putAll(dao.interprateSmsTemplate(fsm, scd, requestParams, t.getTableId(), GenericUtil.uInt(ptablePk)));
-						if(!GenericUtil.isEmpty(m.get("phone")))result.add(new W5QueuedDbFuncHelper(scd, -631, m, (short)1));
+				//		m.putAll(dao.interprateSmsTemplate(fsm, scd, requestParams, t.getTableId(), GenericUtil.uInt(ptablePk)));
+				//		if(!GenericUtil.isEmpty(m.get("phone")))result.add(new W5QueuedActionHelper(scd, -631, m, (short)1));
 						break;
 					case	1://mail
 //W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
-						int myMailSettingId = GenericUtil.uInt(scd.get("mailSettingId"));
-						m.put("pmail_setting_id", myMailSettingId==0 ? FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"):""+myMailSettingId);
-						m.putAll(dao.interprateMailTemplate(fsm, scd, requestParams, t.getTableId(), GenericUtil.uInt(ptablePk)));
-						result.add(new W5QueuedDbFuncHelper(scd, -650, m, (short)1));
+						W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, t.getTableId(), GenericUtil.uInt(ptablePk));
+						W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?)", fsm.getMailSettingId()!=0 ? fsm.getMailSettingId():(Integer)scd.get("mailSettingId"), (Integer)scd.get("customizationId"), "Mail Setting No Defined");
+						email.set_oms(oms);
+						if(fsm.getAsyncFlag()!=0)result.add(new W5QueuedActionHelper(email));
+						else MailUtil.sendMail(scd, email);
 						break;
 					}
 				} catch (Exception e) {
@@ -2298,10 +2248,10 @@ public class FrameworkEngine{
 
 				}
 				if(alarmDttm!=null){ //TODO
-				/*	if(!GenericUtil.isEmpty(fsm.get_conditionList()) || !GenericUtil.isEmpty(fsm.getConditionSqlCode())){
-						boolean conditionCheck = dao.conditionRecordExistsCheck(scd, fsm.get_conditionList(), null, requestParams,t.getTableId(), GenericUtil.uInt(ptablePk), fsm.getConditionSqlCode()).size()==0;
+					if(!GenericUtil.isEmpty(fsm.getConditionSqlCode())){
+						boolean conditionCheck = dao.conditionRecordExistsCheck(scd, requestParams,t.getTableId(), GenericUtil.uInt(ptablePk), fsm.getConditionSqlCode());
 						if(!conditionCheck)continue;
-					} */
+					}
 					W5FormSmsMailAlarm fsma = null;
 					if(action==1 && alMap!=null && alMap.containsKey(fsm.getFormSmsMailId())){
 						fsma = alMap.get(fsm.getFormSmsMailId());
@@ -2372,12 +2322,12 @@ public class FrameworkEngine{
 				}
 
 				if(inStr.length()>1){
-					List<W5ConvertedObject> lco = dao.find("from W5ConvertedObject x where x.customizationId=? AND x.conversionId in ("+inStr.substring(1)+") and x.srcTablePk=?", scd.get("customizationId"), GenericUtil.uInt(requestParams,t.get_tableParamList().get(0).getDsc()+prefix));
+					List<Log5ConvertedObject> lco = dao.find("from W5ConvertedObject x where x.customizationId=? AND x.conversionId in ("+inStr.substring(1)+") and x.srcTablePk=?", scd.get("customizationId"), GenericUtil.uInt(requestParams,t.get_tableParamList().get(0).getDsc()+prefix));
 					if(!lco.isEmpty()){
-						Map<Integer, List<W5ConvertedObject>> m = new HashMap();
+						Map<Integer, List<Log5ConvertedObject>> m = new HashMap();
 						formResult.setMapConvertedObject(m);
-						for(W5ConvertedObject co:lco){
-							List<W5ConvertedObject> l = m.get(co.getConversionId());
+						for(Log5ConvertedObject co:lco){
+							List<Log5ConvertedObject> l = m.get(co.getConversionId());
 							if(l==null){
 								l = new ArrayList();
 								m.put(co.getConversionId(), l);
@@ -2402,10 +2352,10 @@ public class FrameworkEngine{
 //				if(!PromisUtil.hasPartInside2(c.getActionTips(), action) && (action!=1 || c.getSynchOnUpdateFlag()==0)) continue; // bulamadi veya buldugunun action'i uygun degil
 				if(c.getSrcDstTip()==0){ //Table -> Table
 					if(formResult.getMapConvertedObject()!=null){
-						List<W5ConvertedObject> lco = formResult.getMapConvertedObject().get(c.getConversionId());
+						List<Log5ConvertedObject> lco = formResult.getMapConvertedObject().get(c.getConversionId());
 						if(lco!=null){ //dikkat daha once convert edilmis object var
 							if(c.getMaxNumofConversion()==0 || c.getMaxNumofConversion()>lco.size() || (!cleanConversion && c.getSynchOnUpdateFlag()!=0)){
-								if(c.getSynchOnUpdateFlag()!=0)for(W5ConvertedObject co:lco){ //bu conversion'da synch var
+								if(c.getSynchOnUpdateFlag()!=0)for(Log5ConvertedObject co:lco){ //bu conversion'da synch var
 	//								formResult.getOutputMessages().add(PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_conversion_auto_error")+  "  ["+PromisLocaleMsg.get2(scd,c.getDsc())+"]");
 									int advancedConditionGroupId=0;
 
@@ -2425,13 +2375,11 @@ public class FrameworkEngine{
 									for(String k:mq.keySet())
 										if(!k.startsWith("_"))m.put(k+prefix2,mq.get(k).toString());
 
-									String cnvDetailTableIds = "";
 
 									postForm4Table(dstFormResult, prefix2, new HashSet());
 									if(dstFormResult.getErrorMap().isEmpty()){
 										co.setVersionNo(co.getVersionNo()+1);
 										co.setVersionUserId((Integer)scd.get("userId"));
-										co.setDstDetailTableIds(cnvDetailTableIds);
 										dao.updateObject(co);
 
 										if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecordAll(dstFormResult.getListSyncAfterPostHelper());
@@ -2505,7 +2453,7 @@ public class FrameworkEngine{
 					}
 				} else if(c.getSrcDstTip()==1){ //Table -> Ws Method
 					if(formResult.getMapConvertedObject()!=null){
-						List<W5ConvertedObject> lco = formResult.getMapConvertedObject().get(c.getConversionId());
+						List<Log5ConvertedObject> lco = formResult.getMapConvertedObject().get(c.getConversionId());
 						if(lco!=null && c.getMaxNumofConversion()>0 && c.getMaxNumofConversion()<=lco.size()){ //yapilmayacak
 							continue;
 						}
@@ -2677,7 +2625,7 @@ public class FrameworkEngine{
 			throw new IWBException("security","Form", formId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 		}
 		Set<String> checkedParentRecords = new HashSet<String>();
-		mainFormResult.setQueuedDbFuncList(postForm4Table(mainFormResult, prefix,checkedParentRecords));
+		mainFormResult.setQueuedActionList(postForm4Table(mainFormResult, prefix,checkedParentRecords));
 		if(!mainFormResult.getErrorMap().isEmpty()) return mainFormResult;
 		requestParams.remove("_fid1");//TODO: daha iyisi yapılana kadar en iyisi bu. Form extended işleminde a1.1 gibi değerler bir kez daha gönderiliyordu.
 		if(mainFormResult.getForm().get_moduleList()!=null){
@@ -3315,7 +3263,7 @@ public class FrameworkEngine{
 
 		if(oms!=null){
 			W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
-			result = mailAdapter.sendMail(scd, oms, email);
+			result = MailUtil.sendMail(scd, oms, email);
 			if(result!=null){ //basarisiz, queue'ye at
 				parameterMap.put("perror_msg", result);
 			}
@@ -3515,11 +3463,11 @@ public class FrameworkEngine{
 			if(!GenericUtil.isEmpty(formResult.getOutputMessages()))formResult.getOutputMessages().add("-");
 			formResult.getOutputMessages().add(convertedCount + " " +LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_records_converted"));
 			if(errorConversionCount>0)formResult.getOutputMessages().add(errorConversionCount + " " +LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_records_not_converted"));
-			formResult.setQueuedDbFuncList(new ArrayList<W5QueuedDbFuncHelper>());
+			formResult.setQueuedActionList(new ArrayList<W5QueuedActionHelper>());
 			return formResult;
 		} else if(GenericUtil.hasPartInside2(cnv.getActionTips(),3)){ //bulk conversion
 
-			List<W5QueuedDbFuncHelper> queuedDbFuncList = new ArrayList<W5QueuedDbFuncHelper>();
+			List<W5QueuedActionHelper> queuedDbFuncList = new ArrayList<W5QueuedActionHelper>();
 			int preDbFuncId = GenericUtil.uInt(requestParams.get("_predid"));
 			if(preDbFuncId!=0){
 				W5DbFuncResult dbResult = executeFunc(scd, preDbFuncId, requestParams,(short)1);
@@ -3570,7 +3518,7 @@ public class FrameworkEngine{
 					throw new IWBException("framework","PostDbFunc", preDbFuncId, null, "PostDbFunc Success Error", null);
 				}
 			}
-			formResult.setQueuedDbFuncList(queuedDbFuncList);
+			formResult.setQueuedActionList(queuedDbFuncList);
 			if(formResult.getOutputMessages()!=null && formResult.getOutputMessages().isEmpty())
 				formResult.getOutputMessages().add("Toplam " + dirtyCount + " adet işlem gerçekleşti.");
 			return formResult;
@@ -3583,7 +3531,7 @@ public class FrameworkEngine{
 
 	public W5FormResult postEditGrid4Table(Map<String, Object> scd, int formId,
 			int dirtyCount, Map<String, String> requestParams, String prefix,Set<String> checkedParentRecords) {
-		List<W5QueuedDbFuncHelper> queuedDbFuncList = new ArrayList<W5QueuedDbFuncHelper>();
+		List<W5QueuedActionHelper> queuedDbFuncList = new ArrayList<W5QueuedActionHelper>();
 		int preDbFuncId = GenericUtil.uInt(requestParams.get("_predid"));
 		if(preDbFuncId!=0){
 			W5DbFuncResult dbResult = executeFunc(scd, preDbFuncId, requestParams,(short)1);
@@ -3651,7 +3599,7 @@ public class FrameworkEngine{
 			dao.executeDbFunc(dbFuncResult,"");
 			if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
     	}*/
-		formResult.setQueuedDbFuncList(queuedDbFuncList);
+		formResult.setQueuedActionList(queuedDbFuncList);
 		if(formResult.getOutputMessages()!=null && formResult.getOutputMessages().isEmpty())
 			formResult.getOutputMessages().add("Toplam " + dirtyCount + " adet işlem gerçekleşti.");
 		return formResult;
@@ -3854,11 +3802,10 @@ public class FrameworkEngine{
 		return jasperResult;
 	}
 
-	public Map<String, Object> userRoleSelect(int userId, int userRoleId, int userCustomizationId, int customizationId, String projectId, String mobileDeviceId) {
+	public Map<String, Object> userRoleSelect(int userId, int userRoleId, int customizationId, String projectId, String mobileDeviceId) {
 		Map<String, Object> scd = new HashMap<String,Object>();
 		scd.put("userId", userId);
 		scd.put("userRoleId", userRoleId);
-		scd.put("userCustomizationId", userCustomizationId);
 		scd.put("customizationId", customizationId);
 		Map<String,String> rm = new HashMap();
 		if(!GenericUtil.isEmpty(projectId))rm.put("projectId", projectId);
@@ -4728,7 +4675,8 @@ public class FrameworkEngine{
 			W5ObjectMailSetting oms=  (W5ObjectMailSetting) dao.getCustomizedObject("from W5ObjectMailSetting x where x.customizationId=? and x.mailSettingId=?", customizationId,mail_setting_id, null);
 			if(oms!=null){
 				W5Email email= new W5Email(pemailList.substring(1), null, null, mailSubject, mailBody, "", null);
-				String sonuc = mailAdapter.sendMail(scd, oms, email);
+				email.set_oms(oms);
+				String sonuc = MailUtil.sendMail(scd, email);
 				if(sonuc!=null){ //basarisiz, queue'ye at//
 					System.out.println("Hata! Onay Mekanizması Akışında Mail Gönderilemedi");
 				}else{
@@ -4993,7 +4941,8 @@ public class FrameworkEngine{
 				Map<String, Object> scd = new HashMap<String,Object>();
 				scd.put("locale", "tr");
 				W5Email email= new W5Email(pemailList,null,null,mailSubject,mailBody,"", null);
-				String sonuc = mailAdapter.sendMail(scd, oms, email);
+				email.set_oms(oms);
+				String sonuc = MailUtil.sendMail(scd, email);
 				if(sonuc!=null){
 					System.out.println("Hata! Mail Gönderilemedi");
 				}else{
@@ -5246,13 +5195,13 @@ public class FrameworkEngine{
 		}
 		W5DbFuncResult r = null;
 		for(String s:arIds){
-			Map<String, String> mq =  fsm.getSmsMailTip() == 0 ? dao.interprateSmsTemplate(fsm, scd ,requestParams, tableId, GenericUtil.uInt(s)) : dao.interprateMailTemplate(fsm, scd,requestParams, tableId, GenericUtil.uInt(s));
-			mq.put("ptable_pk", s);
-			mq.put("ptable_id", ""+tableId);
-			if(fsm.getSmsMailTip()!=0 && !GenericUtil.isEmpty(scd.get("mailSettingId"))){
-				mq.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
+			if(fsm.getSmsMailTip() == 0){//sms
+				
+			} else {//email
+				W5Email email = dao.interprateMailTemplate(fsm, scd,requestParams, tableId, GenericUtil.uInt(s));
+				
+				MailUtil.sendMail(scd, email);
 			}
-			r = executeFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
 		}
 
 		return r;
@@ -5499,6 +5448,7 @@ public class FrameworkEngine{
 
 
 	public void checkAlarms(Map<String, Object> scd) {
+		if(true)return;
 		List<W5FormSmsMailAlarm> l = dao.find("from W5FormSmsMailAlarm t where t.status=1 AND t.customizationId=? order by t.alarmDttm", scd.get("customizationId"));
 		long d = new Date().getTime();
 		for(W5FormSmsMailAlarm a:l)if(d-a.getAlarmDttm().getTime()>1000*30)try{
@@ -5513,14 +5463,14 @@ public class FrameworkEngine{
 				switch(fsm.getSmsMailTip()){
 				case	0://sms
 //parameterMap.get("phone"),parameterMap.get("body")
-					m.putAll(dao.interprateSmsTemplate(fsm, scd, new HashMap(), a.getTableId(), a.getTablePk()));
-					rdb = executeFunc(scd, -631, m, (short)1);
+	//				m.putAll(dao.interprateSmsTemplate(fsm, scd, new HashMap(), a.getTableId(), a.getTablePk()));
+	//				rdb = executeFunc(scd, -631, m, (short)1);
 					break;
 				case	1://mail
 //W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
-					m.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
-					m.putAll(dao.interprateMailTemplate(fsm, scd, new HashMap(), a.getTableId(), a.getTablePk()));
-					rdb = executeFunc(scd, -650, m, (short)1);
+	//				m.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
+	//				m.putAll(dao.interprateMailTemplate(fsm, scd, new HashMap(), a.getTableId(), a.getTablePk()));
+	//				rdb = executeFunc(scd, -650, m, (short)1);
 					break;
 				default:
 					break;
@@ -5788,8 +5738,7 @@ public class FrameworkEngine{
 	}
 
 
-	public W5DbFuncResult sendFormSmsMail(Map<String, Object> scd, int formSmsMailId,
-			Map<String, String> requestParams) {
+	public Map sendFormSmsMail(Map<String, Object> scd, int formSmsMailId, Map<String, String> requestParams) {
 		W5FormSmsMail fsm = (W5FormSmsMail)dao.getCustomizedObject("from W5FormSmsMail t where t.formSmsMailId=? AND t.customizationId=?", formSmsMailId, (Integer)scd.get("customizationId"),"FormSMSMailID");
 		W5Form f = (W5Form)dao.getCustomizedObject("from W5Form t where t.formId=? AND t.customizationId=?", fsm.getFormId(), (Integer)scd.get("customizationId"),"FormID");
 		int tableId = f.getObjectId();
@@ -5798,15 +5747,24 @@ public class FrameworkEngine{
     		throw new IWBException("security","Module",0,null, "No Authorization for SMS/Email. Please contact Administrator", null);
 		}
 
-		W5DbFuncResult r = null;
-		Map<String, String> mq =  fsm.getSmsMailTip() == 0 ? dao.interprateSmsTemplate(fsm, scd ,requestParams, tableId, GenericUtil.uInt(requestParams.get("table_pk"))) : dao.interprateMailTemplate(fsm, scd,requestParams, tableId, GenericUtil.uInt(requestParams.get("table_pk")));
-		if(requestParams.get("pfile_attachment_ids")!=null)mq.put("pfile_attachment_ids", requestParams.get("pfile_attachment_ids"));
-		mq.put("ptable_pk", requestParams.get("table_pk"));
-		mq.put("ptable_id", ""+tableId);
-		if(fsm.getSmsMailTip()!=0 && GenericUtil.isEmpty(scd.get("mailSettingId"))){
-			mq.put("pmail_setting_id", FrameworkCache.getAppSettingStringValue(scd, "default_outbox_id"));
+		Map r = new HashMap();
+		if(fsm.getSmsMailTip()==0){ //sms
+			r.put("success", false);
+			r.put("error", "SMS Adapter Not Defined");
+			return r;
+		} else { //email
+			W5Email email = dao.interprateMailTemplate(fsm, scd,requestParams, tableId, GenericUtil.uInt(requestParams.get("table_pk")));
+			W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?)", (Integer)scd.get("mailSettingId"), (Integer)scd.get("customizationId"), "Mail Setting No Defined");
+//			if(requestParams.get("pfile_attachment_ids")!=null)mq.put("pfile_attachment_ids", requestParams.get("pfile_attachment_ids"));
+			email.set_oms(oms);
+			String error = MailUtil.sendMail(scd, email);
+			if(GenericUtil.isEmpty(error)){
+				r.put("success", true);
+			} else {
+				r.put("success", false);
+				r.put("error", error);
+			}
 		}
-		r = executeFunc(scd, fsm.getSmsMailTip() == 0 ? -631: -650, mq, (short)1);
 		return r;
 	}
 
@@ -5968,165 +5926,6 @@ public class FrameworkEngine{
         return sb.toString();
   }
 
-
-	public void scheduleControl(){
-        if(false)try {
-               List<W5JobSchedule> jobList = FrameworkCache.wJobs; //bus.getW5JobSchedule();
-               if (jobList.size()>0){
-                      for (W5JobSchedule data : jobList) {
-                             Date dateNow = Calendar.getInstance().getTime();
-                             Timestamp actionStartDttm = data.getActionStartDttm();
-                             Timestamp actionEndDttm = (data.getActionEndDttm()==null ? new Timestamp(dateNow.getTime()) : data.getActionEndDttm());
-                             Timestamp dt = new Timestamp(dateNow.getTime());
-                             int frekans = data.getActionFrequency();
-
-                             if (dt.compareTo(actionStartDttm)>0){ //başlangıç tarihi kontrol ediliyor
-                                   if (dt.compareTo(actionEndDttm)<=0){//bitiş tarihi kontrol ediliyor
-                                          if (frekans != 3){
-                                                 //haftanın günleri içerisinde mi? kontrol ediliyor
-                                                 String actionWeekDay = data.getActionWeekDays();
-                                                 String weekday = Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == 1 ? 7 : Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-1);
-                                                 if (actionWeekDay.indexOf(weekday)<0){
-                                                       continue;
-                                                 }
-                                          }
-                                          //aylar içerisinde mi? kontrol ediliyor
-                                          if(!GenericUtil.isEmpty(data.getActionMonths())){
-                                                 String[] actionMonths = data.getActionMonths().split(",");
-                                                 Arrays.sort(actionMonths);
-                                                 String month = Integer.toString(Calendar.getInstance().get(Calendar.MONTH) + 1);
-                                                 if (Arrays.binarySearch(actionMonths,month)<0){
-                                                       continue;
-                                                 }
-                                          }
-                                   }
-                                   else{
-                                          continue;
-                                   }
-                             }
-                             else{
-                                   continue;
-                             }
-
-                             Timestamp lastRunTime = data.getlastRunTime();
-
-                             if ((frekans == 2) || (frekans == 3) || (frekans == 4)){    //bir kez, aylık, günlük
-                                   if (data.getRepeatTime() == null)
-                                          continue;
-                                   Time nowTime = new Time(dateNow.getHours(), dateNow.getMinutes(), 0);
-                                   Time rtime = new Time(Integer.parseInt(data.getRepeatTime().substring(0,2)), Integer.parseInt(data.getRepeatTime().substring(3,5)), 0);
-
-                                   SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                                   String tmpDate = sdf.format(dateNow);
-                                   dateNow = sdf.parse(tmpDate);
-
-                                   if (frekans==3){ //aylık
-                                          //ayın kaçıncı günü gönderilmesi gerektiği kontrol ediliyor.
-                                          String[] actionMonthsDays = data.getActionMonthsDays().split(",");
-                                          String day = Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
-                                          if (Arrays.binarySearch(actionMonthsDays,day)<0){
-                                                 continue;
-                                          }
-                                   }else if (frekans == 2){
-                                          if (lastRunTime != null) continue;
-                                   }
-
-                                   if (lastRunTime != null){
-                                          int lastDay = lastRunTime.getDay();
-                                          int nowDay = dateNow.getDay();
-                                          if (nowDay == lastDay) continue; //bugün zaten gönderilmiş
-                                   }
-                                   if (!(nowTime.compareTo(rtime)>=0)) continue;
-
-                             }
-                             else{ //sürekli tekrar
-                                   int tekrarSuresi = data.getActionDelay();
-                                   if (tekrarSuresi == 0)
-                                          continue;
-                                   if (lastRunTime != null){
-                                       long diff = dt.getTime() - lastRunTime.getTime();
-                                       long sure = (diff / (1000 * 60));
-
-                                       if (sure<tekrarSuresi){
-                                          continue;
-                                       }
-                                   }
-                             }
-
-                             Date dateNow2 = Calendar.getInstance().getTime();
-                             Timestamp dt2 = new Timestamp(dateNow2.getTime());
-                             data.setlastRunTime(dt2);
-                             //updateObject(data);
-
-                             if (data.getActionTip()==1){ //mail gönderilecek ise
-                                   StringBuilder mailBody = new StringBuilder();
-                                   String[] st = data.getReports().split(",");
-                                   int userId = data.getExecuteUserId();
-                                   if (GenericUtil.uInt(data.get_userRoleId())!=0){
-                                          int userRoleId = data.get_userRoleId();
-                                          int customizationId = data.getCustomizationId();
-                                          String locale = data.getLocale();
-
-
-                                          //parametrelere günün tarihi eklenecekmi diye bakılıyor
-                                          int todayFlag = data.getTodayFlag();
-                                          int todayAddDayValue = data.getTodayAddDayValue();
-                                          String date1 = "";
-                                          String date2 = "";
-                                          if (todayFlag==1){
-                                                 Calendar cal = Calendar.getInstance();
-                                                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                                                 Date dte1 = cal.getTime();
-                                                 cal.add(Calendar.DATE, todayAddDayValue);
-                                                 Date dte2 = cal.getTime();
-                                                 if (dte2.compareTo(dte1)>0){
-                                                       date1 = sdf.format(dte1);
-                                                       date2 = sdf.format(dte2);
-                                                 }
-                                                 else{
-                                                       date1 = sdf.format(dte2);
-                                                       date2 = sdf.format(dte1);
-                                                 }
-                                          }
-
-                                          for (int i = 0; i < st.length; i++){
-                                                 if (mailBody.length()>0)
-                                                       mailBody.append("<br>");
-                                                 mailBody.append(mailBodyCreate(Integer.parseInt(st[i]), userId, userRoleId, data.getExecuteRoleId(), customizationId, locale, date1, date2));
-                                          }
-
-                                          if (mailBody.length()>0){
-                                                 mailBody.insert(0, data.getActionSendEmailBody() + "\n");
-                                                 mailBody.insert(0, "-----" + data.getDsc() + "-----\n\n");
-
-                                                 //mail gönderme işlemi
-                                                 String mailToUserList = data.getActionSendEmailTo();
-                                                 String mailSubject = data.getActionSendEmailSubject();
-                                                 mailGonder(mailToUserList, mailSubject, mailBody.toString(),data.getCustomizationId());
-                                          }
-                                   }
-                             }
-                             else if (data.getActionTip()==3 && data.getActionDbFuncId()>0){//fonksiyon çalıştırılacak ise
-                                   Map<String, String> requestParams = new HashMap<String, String>();
-                                   Map<String, Object> scd = new HashMap<String, Object>();
-                                   scd.put("customizationId", data.getCustomizationId());
-                                   scd.put("locale", data.getLocale());
-                                   scd.put("userRoleId", data.get_userRoleId());
-                                   scd.put("roleId", data.getExecuteRoleId());
-                                   scd.put("userId", data.getExecuteUserId());
-                                   W5DbFuncResult res=executeFunc(scd, data.getActionDbFuncId(), requestParams , (short)1);
-                                   if (FrameworkSetting.debug && (res.isSuccess() && !GenericUtil.isEmpty(res.getResultMap()))){
-                                          System.out.println("Scheduled function is executed (functionId=" + data.getActionDbFuncId() + ")");
-                                   }
-                             }
-                      }
-
-               }
-        } catch (Exception e) {
-               if (FrameworkSetting.debug)
-                      e.printStackTrace();
-        }
-  }
 
 	public boolean changeActiveProject(Map<String, Object> scd, String projectUuid){
 		List<Object> params= new ArrayList();
@@ -7063,7 +6862,7 @@ public class FrameworkEngine{
 				+ " where u.lkp_auth_external_source=? AND u.user_status=1 AND u.auth_external_id=?", socialCon, token);
 		if(!GenericUtil.isEmpty(list)){
 			Object[] oz = list.get(0);
-			return  userRoleSelect(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[2]), 0, GenericUtil.uInt(oz[1]), null, null);
+			return  userRoleSelect(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[2]), GenericUtil.uInt(oz[1]), null, null);
 		}
 		else{
 			return null;

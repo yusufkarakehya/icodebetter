@@ -1,10 +1,12 @@
-package iwb.adapter.mail.generic;
+package iwb.util;
 
 import java.io.File;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -24,32 +26,19 @@ import org.springframework.stereotype.Component;
 import com.sun.mail.smtp.SMTPAddressFailedException;
 import com.sun.mail.smtp.SMTPMessage;
 
-import iwb.adapter.mail.MailAdapter;
-import iwb.dao.RdbmsDao;
 import iwb.domain.db.W5Email;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5ObjectMailSetting;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
-import iwb.util.GenericUtil;
-import iwb.util.HtmlFilter;
-import iwb.util.LocaleMsgCache;
 
 @Component
-public class GenericMailAdapter implements MailAdapter {
-	private RdbmsDao dao;
-
-	public void setDao(RdbmsDao dao) {
-		this.dao = dao;
-	}
-
+public class MailUtil {
 	public static InternetAddress[] getEmailAddress(String[] adresler){
 		InternetAddress[] ia = null;		
 		try {
 			Vector<String> v = new Vector<String>();
 			for(int i = 0; i<adresler.length; i++){
 				adresler[i]=adresler[i].trim();
-				if(GenericUtil.isValidEmailAddress(adresler[i]) && !v.contains(adresler[i]))	{
+				if(isValidEmailAddress(adresler[i]) && !v.contains(adresler[i]))	{
 					v.add(adresler[i]);
 				}
 			}			
@@ -65,11 +54,10 @@ public class GenericMailAdapter implements MailAdapter {
 	} 
 
 
-	@Override
-	public String sendMail(Map<String, Object> scd, W5ObjectMailSetting oms, W5Email email) {
+	public static String sendMail(Map<String, Object> scd, W5Email email) {
 		String txt;
 		boolean mailDebug = FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0;
-
+		W5ObjectMailSetting oms = email.get_oms();
 		try {
 						
 			Properties properties = new Properties();			
@@ -89,7 +77,7 @@ public class GenericMailAdapter implements MailAdapter {
 			//txt = (PromisUtil.uInt(email.getMailKeepBodyOriginal()) != 0) ? email.getMailBody() : email.getMailBody();
 			txt = new HtmlFilter().filter(email.getMailBody());
 			SMTPMessage  message = new SMTPMessage(session);
-			message.setHeader("X-Mailer", MimeUtility.encodeText("ProMIS BMP Mailer, version 0.2b"));
+			message.setHeader("X-Mailer", MimeUtility.encodeText("iCodeBetter LCP Mailer, version 0.2b"));
 			message.setSentDate(Calendar.getInstance().getTime());
 			if(oms.getOutboxRequestReadFlag()!=0){  
 				message.setHeader("Disposition-Notification-To", MimeUtility.encodeText(oms.getEmailAddress().indexOf(">")>-1 ? oms.getEmailAddress():"\""+oms.getDsc()+"\" <"+oms.getEmailAddress()+">"));
@@ -115,7 +103,7 @@ public class GenericMailAdapter implements MailAdapter {
 				if(oms.getEmailSignature()!=null)txt+="<br>"+oms.getEmailSignature();
 			}
 */
-			if(FrameworkCache.getAppSettingIntValue(scd, "mail_send_bmp_advertisement_flag") != 0) txt+="<br>"+GenericUtil.getMailReklam(scd);
+			if(FrameworkCache.getAppSettingIntValue(scd, "mail_send_bmp_advertisement_flag") != 0) txt+="<br>"+getMailAd(scd);
 			
 			message.setSubject(email.getMailSubject(), "utf-8");
 			messagePart.setContent(txt, "text/html; charset=utf-8");
@@ -162,4 +150,28 @@ public class GenericMailAdapter implements MailAdapter {
 		return null;
 	}
 	
+	public static boolean isValidEmailAddress(String emailAddress)
+	{  
+		if(emailAddress!=null &&emailAddress.indexOf("<")!=-1 &&emailAddress.indexOf(">")!=-1) emailAddress=emailAddress.substring(emailAddress.indexOf("<")+1,emailAddress.indexOf(">"));
+		String expression= "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[_A-Za-z0-9-]+)" ;
+		CharSequence inputStr = emailAddress;  
+		Pattern pattern = Pattern.compile(expression,Pattern.CASE_INSENSITIVE);  
+		Matcher matcher = pattern.matcher(inputStr);
+		return matcher.matches();     
+	}
+	
+	public static String organizeMailAdress(String emailAddress)
+	{  
+		if(emailAddress==null || emailAddress.length()<3)return "";
+		String[] qx = emailAddress.split(",");
+		String newEmailAddress="";
+		for(String s:qx){
+			if(isValidEmailAddress(s))newEmailAddress+=","+s.trim();
+		}
+		return newEmailAddress.length()>1 ? newEmailAddress.substring(1): "";     
+	}
+	public static String getMailAd(Map<String, Object> scd )
+	{
+		return"<br><br><hr><br><div style='text-align:center;font-family:Verdana, Tahoma;font-size:12px;color:#444;'>This e-mail was sent by using <a href='http://www.icodebetter.com/' target='_blank' style='color:rgb(8,158,210);text-decoration: none;border-bottom: 1px dotted;'>iCodeBetter Low Code Platform</a>.</div>" ;
+	}	
 }

@@ -1,20 +1,14 @@
-package iwb.timerz;
+package iwb.timer;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
-import iwb.domain.db.W5Customization;
 import iwb.engine.FrameworkEngine;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 
-public class GenericTimer extends TimerTask {
+public class IWBTimer extends TimerTask {
 	@Autowired
 	private FrameworkEngine bus;
 	
@@ -22,7 +16,7 @@ public class GenericTimer extends TimerTask {
 	private SimpleAsyncTaskExecutor taskExecutor;
 
 	private void checkAlarms(){
-		boolean soDebugFlag = FrameworkCache.getAppSettingIntValue(0, "system_optimizer_debug_flag")!=0;
+	/*	boolean soDebugFlag = FrameworkCache.getAppSettingIntValue(0, "system_optimizer_debug_flag")!=0;
 		if(soDebugFlag)System.out.println("system optimizer debug: start");
 		
 		if (FrameworkSetting.debug)try {
@@ -75,7 +69,7 @@ public class GenericTimer extends TimerTask {
 			if (FrameworkSetting.debug)
 				e.printStackTrace();
 		}		
-	
+	*/
 	}
 
 	public void run() {
@@ -83,13 +77,6 @@ public class GenericTimer extends TimerTask {
 		//if(FrameworkSetting.mq)UserUtil.mqPublishOnlineUsers();
 		checkAlarms();
 		
-		//kuyrukta bekleyen cache tazeleme iÅŸlemi varmÄ± diye bakÄ±lÄ±yor
-		//bus.scheduledFrameworkCacheReload();
-		
-
-		//UserUtil.clearZombiUsers((FrameworkSetting.onlineUsersLimitMinute+5)*60*1000);//
-		//taskExecutor.execute(new checkTCMB());	
-		if(bus!=null)bus.scheduleControl();
 		
 		
 	}
@@ -109,16 +96,4 @@ public class GenericTimer extends TimerTask {
 		}
 	}
 	
-	private class checkTCMB implements Runnable {
-		
-		@Override
-		public void run() {
-			System.out.println("TEÄ°AÅ�");
-		}
-
-	}
-	
-	
-	
-
 }

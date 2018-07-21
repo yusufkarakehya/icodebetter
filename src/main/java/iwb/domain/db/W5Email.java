@@ -46,7 +46,8 @@ public class W5Email implements java.io.Serializable {
 	
 	private int tableId;
 	private int tablePk;
-	List<W5FileAttachment> _fileAttachments;
+	private List<W5FileAttachment> _fileAttachments;
+	private W5ObjectMailSetting _oms;
 	
 
 	public W5Email() {
@@ -262,4 +263,15 @@ public class W5Email implements java.io.Serializable {
 	public void setMailKeepBodyOriginal(String mailKeepBodyOriginal) {
 		this.mailKeepBodyOriginal = mailKeepBodyOriginal;
 	}
+
+	@Transient
+	public W5ObjectMailSetting get_oms() {
+		return _oms;
+	}
+
+	public void set_oms(W5ObjectMailSetting _oms) {
+		this._oms = _oms;
+	}
+	
+	
 }

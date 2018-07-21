@@ -7,12 +7,12 @@ import java.util.Map;
 
 import iwb.domain.db.W5ApprovalRecord;
 import iwb.domain.db.W5ApprovalStep;
-import iwb.domain.db.W5ConvertedObject;
+import iwb.domain.db.Log5ConvertedObject;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormSmsMailAlarm;
 import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.helper.W5QueuedDbFuncHelper;
+import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5SynchAfterPostHelper;
 import iwb.util.FrameworkCache;
@@ -37,25 +37,21 @@ public class W5FormResult implements W5MetaResult{
     private	W5ApprovalStep approvalStep;
 	private	int	commentCount;
 	private	String	commentExtraInfo;
-	private int pictureCount;
 	private	int	fileAttachmentCount;
-	private	int	keywordCount;
 	private	int	accessControlCount;
-	private	int	relationCount;
 	private	int	mailSettingId;
-	private	int	watchId;
 	private	boolean	viewMode;
 	private String liveSyncKey;
 	private Map<Integer,W5FormResult> moduleFormMap;
 	private	W5QueryResult queryResult4FormCell;
 	private	List<W5FormCell> extraFormCells;
 	private Map<Integer,W5GridResult> moduleGridMap;
-	private String unique_id;
-	private List<W5QueuedDbFuncHelper> queuedDbFuncList;
+	private String uniqueId;
+	private List<W5QueuedActionHelper> queuedActionList;
 	private List<W5QueuedPushMessageHelper> queuedPushMessageList;
 	private List<Map<String, String>> previewMapList;
 	private List<Map<String, String>> previewConversionMapList;
-	private Map<Integer, List<W5ConvertedObject>> mapConvertedObject;
+	private Map<Integer, List<Log5ConvertedObject>> mapConvertedObject;
 	private Map<Integer,Map<Integer, Integer>> mapWidgetCount; //userId, widgetId, count
 	private List<W5FormSmsMailAlarm> formAlarmList;
 
@@ -157,12 +153,6 @@ public class W5FormResult implements W5MetaResult{
 	public void setCommentCount(int commentCount) {
 		this.commentCount = commentCount;
 	}
-	public int getPictureCount() {
-		return pictureCount;
-	}
-	public void setPictureCount(int pictureCount) {
-		this.pictureCount = pictureCount;
-	}
 	public int getFileAttachmentCount() {
 		return fileAttachmentCount;
 	}
@@ -175,23 +165,11 @@ public class W5FormResult implements W5MetaResult{
 	public void setViewMode(boolean viewMode) {
 		this.viewMode = viewMode;
 	}
-	public int getKeywordCount() {
-		return keywordCount;
-	}
-	public void setKeywordCount(int keywordCount) {
-		this.keywordCount = keywordCount;
-	}
 	public int getAccessControlCount() {
 		return accessControlCount;
 	}
 	public void setAccessControlCount(int accessControlCount) {
 		this.accessControlCount = accessControlCount;
-	}
-	public int getRelationCount() {
-		return relationCount;
-	}
-	public void setRelationCount(int relationCount) {
-		this.relationCount = relationCount;
 	}
 	public Map<Integer, W5FormResult> getModuleFormMap() {
 		return moduleFormMap;
@@ -223,23 +201,17 @@ public class W5FormResult implements W5MetaResult{
 	public void setModuleGridMap(Map<Integer, W5GridResult> moduleGridMap) {
 		this.moduleGridMap = moduleGridMap;
 	}
-	public int getWatchId() {
-		return watchId;
-	}
-	public void setWatchId(int watchId) {
-		this.watchId = watchId;
-	}
 	public String getUniqueId() {
-		return unique_id;
+		return uniqueId;
 	}
-	public void setUniqueId(String unique_id) {
-		this.unique_id = unique_id;
+	public void setUniqueId(String uniqueId) {
+		this.uniqueId = uniqueId;
 	}
-	public List<W5QueuedDbFuncHelper> getQueuedDbFuncList() {
-		return queuedDbFuncList;
+	public List<W5QueuedActionHelper> getQueueActionList() {
+		return queuedActionList;
 	}
-	public void setQueuedDbFuncList(List<W5QueuedDbFuncHelper> queuedDbFuncList) {
-		this.queuedDbFuncList = queuedDbFuncList;
+	public void setQueuedActionList(List<W5QueuedActionHelper> queuedDbFuncList) {
+		this.queuedActionList = queuedDbFuncList;
 	}
 	public W5ApprovalStep getApprovalStep() {
 		return approvalStep;
@@ -261,11 +233,11 @@ public class W5FormResult implements W5MetaResult{
 			List<Map<String, String>> previewConversionMapList) {
 		this.previewConversionMapList = previewConversionMapList;
 	}
-	public Map<Integer, List<W5ConvertedObject>> getMapConvertedObject() {
+	public Map<Integer, List<Log5ConvertedObject>> getMapConvertedObject() {
 		return mapConvertedObject;
 	}
 	public void setMapConvertedObject(
-			Map<Integer, List<W5ConvertedObject>> mapConvertedObject) {
+			Map<Integer, List<Log5ConvertedObject>> mapConvertedObject) {
 		this.mapConvertedObject = mapConvertedObject;
 	}
 	public Map<Integer, Map<Integer, Integer>> getMapWidgetCount() {

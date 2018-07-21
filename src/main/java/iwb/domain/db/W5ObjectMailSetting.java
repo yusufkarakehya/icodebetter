@@ -22,7 +22,6 @@ public class W5ObjectMailSetting implements java.io.Serializable {
 	private String emailAddress;
 	private short outboxRequestDeliveryFlag;
 	private short outboxRequestReadFlag;
-	private short notifyOnNewMailFlag;
 	private short serverTimeout;
 	private short lastErrorTip;
 	private Timestamp lastErrorDttm;
@@ -153,13 +152,6 @@ public class W5ObjectMailSetting implements java.io.Serializable {
 	}
 	public void setErrorRetryCount(short errorRetryCount) {
 		this.errorRetryCount = errorRetryCount;
-	}
-	@Column(updatable=false,name="NOTIFY_ON_NEW_MAIL_FLAG")
-	public short getNotifyOnNewMailFlag() {
-		return notifyOnNewMailFlag;
-	}
-	public void setNotifyOnNewMailFlag(short notifyOnNewMailFlag) {
-		this.notifyOnNewMailFlag = notifyOnNewMailFlag;
 	}
 	@Column(name="outbox_request_delivery_flag")
 	public short getOutboxRequestDeliveryFlag() {
