@@ -46,19 +46,16 @@ public class HttpUtil {
 			}
 
 			// Get Response
-			if(connection.getResponseCode()==200){
-				InputStream is = connection.getInputStream();
-				BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
-				String line;
-				StringBuilder response = new StringBuilder();
-				while ((line = rd.readLine()) != null) {
-					response.append(line);
-					response.append('\r');
-				}
-				rd.close();
-				return response.toString();
-			} else
-				return null;
+			InputStream is = connection.getResponseCode()>=200 && connection.getResponseCode()<300 ? connection.getInputStream() : connection.getErrorStream();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+			String line;
+			StringBuilder response = new StringBuilder();
+			while ((line = rd.readLine()) != null) {
+				response.append(line);
+				response.append('\r');
+			}
+			rd.close();
+			return response.toString();
 
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
