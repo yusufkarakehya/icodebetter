@@ -1450,7 +1450,7 @@ public class UserUtil {
 		else ln.add(n.getCustomizationId());
 		Map m = new HashMap();
 		m.put("success", true);
-		m.put("notification", n);
+		m.put("notification", n.toMap());
 		boolean mobilePush = FrameworkSetting.mobilePush && (n.getCustomizationId()==0 || FrameworkCache.getAppSettingIntValue(n.getCustomizationId(), "mobile_push_flag")!=0);
 		List<W5QueuedPushMessageHelper> l = mobilePush ? new ArrayList<W5QueuedPushMessageHelper>() : null;
 		for(Integer customizationId:ln){

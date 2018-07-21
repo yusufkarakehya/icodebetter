@@ -1,5 +1,6 @@
 package iwb.domain.db;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -199,6 +200,14 @@ public class Log5Notification implements java.io.Serializable, Log5Base {
 	}
 	public void setNotificationLevel(short notificationLevel) {
 		this.notificationLevel = notificationLevel;
+	}
+	public Map toMap() {
+		Map m = new HashMap();
+		m.put("notificationTip", notificationTip);
+		m.put("level", new String[]{"info","success","warning","error"}[(notificationTip>=0 && notificationTip<=3) ? notificationTip:0]);
+		if(!GenericUtil.isEmpty(_tmpStr))m.put("_tmpStr", _tmpStr);
+		if(!GenericUtil.isEmpty(showUrl))m.put("showUrl", showUrl);
+		return m;
 	}
 	
 	

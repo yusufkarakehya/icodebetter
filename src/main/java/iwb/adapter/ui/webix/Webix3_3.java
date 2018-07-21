@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Set;
 
 import iwb.adapter.ui.ViewAdapter;
+import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5ApprovalStep;
 import iwb.domain.db.W5Conversion;
-import iwb.domain.db.W5ConvertedObject;
+import iwb.domain.db.Log5ConvertedObject;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5Detay;
-import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormHint;
@@ -1101,7 +1101,7 @@ public class Webix3_3 implements ViewAdapter {
 												.containsKey(
 														fsm.getConversionId());
 								boolean check = false;
-								List<W5ConvertedObject> convertedObjects = null;
+								List<Log5ConvertedObject> convertedObjects = null;
 								if (isConvertedBefore
 										&& fsm.getConversionTip() != 3
 										&& GenericUtil.hasPartInside2(
@@ -1141,7 +1141,7 @@ public class Webix3_3 implements ViewAdapter {
 								}
 								if (isConvertedBefore
 										&& convertedObjects != null)
-									for (W5ConvertedObject co : convertedObjects)
+									for (Log5ConvertedObject co : convertedObjects)
 										if (co.get_relatedRecord().size() > 0) {
 											if (check)
 												s.append("\n,");

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import iwb.domain.db.W5Conversion;
+import iwb.domain.db.W5Email;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormSmsMail;
@@ -103,8 +104,7 @@ public interface RdbmsDao{
 	Map<String, String> interprateSmsTemplate(W5FormSmsMail fsm, Map<String, Object> scd,
 			Map<String, String> requestParams, int fsmTableId, int fsmTablePk);
 
-	Map<String, String> interprateMailTemplate(W5FormSmsMail fsm, Map<String, Object> scd,
-			Map<String, String> requestParams, int fsmTableId, int fsmTablePk);
+	W5Email interprateMailTemplate(W5FormSmsMail fsm, Map<String, Object> scd, Map<String, String> requestParams, int fsmTableId, int fsmTablePk);
 
 	void initializeForm(W5FormResult formResult, boolean onlyFreeFields);
 
@@ -195,7 +195,7 @@ public interface RdbmsDao{
 	boolean accessUserFieldControl(W5Table t, String accessUserFields, Map<String, Object> scd,
 			Map<String, String> requestParams, String paramSuffix);
 
-	
+	public boolean conditionRecordExistsCheck(Map<String, Object> scd, Map<String, String> requestParams, int objectId, int conversionTablePk, String conditionSqlCode);
 	List getRecordPictures(Map<String, Object> scd, int tableId, String tablePk);
 
 	List<Object[]> getFileType(Map<String, Object> scd, int image_flag);

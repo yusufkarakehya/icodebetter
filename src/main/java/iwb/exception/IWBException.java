@@ -27,6 +27,9 @@ public class IWBException extends RuntimeException implements Log5Base {
 		this.sql=sql;
 	}
 
+	public static IWBException convertToIWBException(Exception e){
+		return null;
+	}
 
 	public String toHtmlString(String locale){
 		StringBuilder b = new StringBuilder();

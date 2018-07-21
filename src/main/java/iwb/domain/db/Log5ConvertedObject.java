@@ -15,6 +15,7 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Immutable;
 
 import iwb.domain.helper.W5TableRecordHelper;
+import iwb.util.GenericUtil;
 
 // Generated Jun 17, 2007 5:12:14 PM by Hibernate Tools 3.2.0.b9
 
@@ -22,9 +23,9 @@ import iwb.domain.helper.W5TableRecordHelper;
 @Entity
 @Immutable
 @Table(name="w5_converted_object",schema="iwb")
-public class W5ConvertedObject implements java.io.Serializable {
+public class Log5ConvertedObject implements java.io.Serializable, Log5Base {
 
-	public W5ConvertedObject() {
+	public Log5ConvertedObject() {
 		super();
 	}
 	private int convertedObjectId;
@@ -35,8 +36,6 @@ public class W5ConvertedObject implements java.io.Serializable {
 	private int versionNo;
 	private int insertUserId;
 	private int versionUserId;
-//	private int groupId;
-	private String dstDetailTableIds;
 	private	List<W5TableRecordHelper> _relatedRecord;
 	
     @SequenceGenerator(name="sex_converted_object",sequenceName="seq_converted_object",allocationSize=1)
@@ -49,6 +48,13 @@ public class W5ConvertedObject implements java.io.Serializable {
 	public void setConvertedObjectId(int convertedObjectId) {
 		this.convertedObjectId = convertedObjectId;
 	}
+	
+	public String toInfluxDB() {
+		StringBuilder s=new StringBuilder();
+		s.append("converted_object,conversion_id=").append(conversionId).append(",customization_id=").append(customizationId).append(" user_id=").append(insertUserId).append(",src_table_pk=").append(srcTablePk).append(",dst_table_pk=").append(dstTablePk);
+		return s.toString();
+	}
+
 	
 	@Column(name="conversion_id")
 	public int getConversionId() {
@@ -103,7 +109,7 @@ public class W5ConvertedObject implements java.io.Serializable {
 	public void setVersionUserId(int versionUserId) {
 		this.versionUserId = versionUserId;
 	}
-	public W5ConvertedObject(Map<String, Object> scd, int conversionId, int srcTablePk, int dstTablePk/*, int groupId*/, String dstDetailTableIds) {
+	public Log5ConvertedObject(Map<String, Object> scd, int conversionId, int srcTablePk, int dstTablePk) {
 		super();
 		this.versionNo = 1;
 		this.versionUserId = (Integer)scd.get("userId");
@@ -112,8 +118,6 @@ public class W5ConvertedObject implements java.io.Serializable {
 		this.conversionId = conversionId;
 		this.srcTablePk = srcTablePk;
 		this.dstTablePk = dstTablePk;
-		this.dstDetailTableIds = dstDetailTableIds;
-//		this.groupId = groupId;
 	}
 	@Transient
 	public List<W5TableRecordHelper> get_relatedRecord() {
@@ -122,20 +126,7 @@ public class W5ConvertedObject implements java.io.Serializable {
 	public void set_relatedRecord(List<W5TableRecordHelper> _relatedRecord) {
 		this._relatedRecord = _relatedRecord;
 	}
-/*	@Column(name="group_id")
-	public int getGroupId() {
-		return groupId;
-	}
-	public void setGroupId(int groupId) {
-		this.groupId = groupId;
-	}*/
-	@Column(name="dst_detail_table_ids")
-	public String getDstDetailTableIds() {
-		return dstDetailTableIds;
-	}
-	public void setDstDetailTableIds(String dstDetailTableIds) {
-		this.dstDetailTableIds = dstDetailTableIds;
-	}
+
 	
 	
 	

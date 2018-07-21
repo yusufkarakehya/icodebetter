@@ -685,6 +685,21 @@ public class GenericUtil {
     	html.append("}");
     	return html.toString();		
 	}
+	//" ile
+	public	static String fromMapToInfluxFields(Map s){
+		if(s==null || s.isEmpty())return "";
+        StringBuilder html = new StringBuilder();
+        boolean	b = false;
+    	for(Object q :s.keySet()){
+    		if(b)html.append(",");else b=true;
+    		Object o = s.get(q);
+    		if(o !=null && (o instanceof Integer || o instanceof Double || o instanceof BigDecimal || o instanceof Boolean))
+        		html.append(q).append("=").append(o);
+    		else
+    			html.append(q).append("=\"").append(o!=null ? stringToJS2(o.toString()) :"").append("\"");
+    	}
+    	return html.toString();		
+	}
 	@SuppressWarnings("unchecked")
 	public	static String fromListToJsonString2Recursive(List<Object> s){
 		if(s==null || s.isEmpty())return "[]";
@@ -1477,39 +1492,7 @@ public class GenericUtil {
 		return tmp;
 	}
 
-	
-	public static boolean isValidEmailAddress(String emailAddress)
-	{  
-		if(emailAddress!=null &&emailAddress.indexOf("<")!=-1 &&emailAddress.indexOf(">")!=-1) emailAddress=emailAddress.substring(emailAddress.indexOf("<")+1,emailAddress.indexOf(">"));
-		String expression= "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[_A-Za-z0-9-]+)" ;
-		CharSequence inputStr = emailAddress;  
-		Pattern pattern = Pattern.compile(expression,Pattern.CASE_INSENSITIVE);  
-		Matcher matcher = pattern.matcher(inputStr);
-		return matcher.matches();     
-	}
-	
-	public static String organizeMailAdress(String emailAddress)
-	{  
-		if(emailAddress==null || emailAddress.length()<3)return "";
-		String[] qx = emailAddress.split(",");
-		String newEmailAddress="";
-		for(String s:qx){
-			if(isValidEmailAddress(s))newEmailAddress+=","+s.trim();
-		}
-		return newEmailAddress.length()>1 ? newEmailAddress.substring(1): "";     
-	}
-	public static String getMailReklam(Map<String, Object> scd )
-	{
-		String temp = "";
-		String locale=scd.get("locale") != null ? scd.get("locale").toString() : "tr";
-		if(locale.equals("tr")){
-			temp = "<br><br><hr><br><div style='text-align:center;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:12px;color:#444;'>Bu e-posta <a href='http://www.iworkbetter.com/' target='_blank' style='color:rgb(8,158,210);text-decoration: none;border-bottom: 1px dotted;'>IWorkBetter ï¿½irket Yï¿½netim Platformu</a> kullanï¿½larak gï¿½nderilmiï¿½tir.</div>" ;
-		}
-		else if(locale.equals("en")){
-			temp = "<br><br><hr><br><div style='text-align:center;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:12px;color:#444;'>This e-mail was sent by using <a href='http://www.iworkbetter.com/' target='_blank' style='color:rgb(8,158,210);text-decoration: none;border-bottom: 1px dotted;'>IWorkBetter Business Management Platform</a>.</div>" ;
-		}
-		return temp;
-	}
+
 
 	public static String fromPromisType2OrclType(W5Param p) {
 		short maxLen = p.getMaxLength()== null ? 0:p.getMaxLength();

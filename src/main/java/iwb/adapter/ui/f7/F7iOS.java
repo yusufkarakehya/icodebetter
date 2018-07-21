@@ -575,9 +575,7 @@ public class F7iOS implements ViewMobileAdapter {
 				}
 
 			}
-			if (pictureFlag)
-				s.append(",\n pictureFlag:true, pictureCount:").append(
-						formResult.getPictureCount());
+//			if (pictureFlag)s.append(",\n pictureFlag:true, pictureCount:").append(formResult.getPictureCount());
 			if (FrameworkCache.getAppSettingIntValue(scd, "file_attachment_flag") != 0
 					&& t.getFileAttachmentFlag() != 0
 					&& FrameworkCache.roleAccessControl(scd,  101))
@@ -619,8 +617,8 @@ public class F7iOS implements ViewMobileAdapter {
 				.append(formResult.getForm().getLocaleMsgKey()).append("</div><div class=\"right\">");
 			if(pictureFlag){
 				s.append("<a href=# id=\"idx-photo-").append(formResult.getFormId()).append("\" class=\"link icon-only\"><i class=\"icon icon-camera\"><span id=\"idx-photo-badge-").append(formResult.getFormId()).append("\" class=\"badge bg-red\"");
-				if(formResult.getPictureCount()>0)s.append(">").append(formResult.getPictureCount());
-				else s.append(" style=\"display:none;\">1");
+//				if(formResult.getPictureCount()>0)s.append(">").append(formResult.getPictureCount());else 
+				s.append(" style=\"display:none;\">1");
 				s.append("</span></i></a>");
 			}
 			s.append("</div></div></div> <div class=\"page-content\"><form class=\"list-block inputs-list\" id=\"idx-form-")

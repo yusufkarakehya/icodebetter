@@ -55,7 +55,7 @@ public abstract class BaseDAO {
     }
 
     public void saveObject(Object o) {
-    	if(o instanceof Log5Base && FrameworkSetting.logType>0) LogUtil.logObject(((Log5Base)o).toInfluxDB());
+    	if(o instanceof Log5Base && FrameworkSetting.logType>0) LogUtil.logObject(((Log5Base)o));
     	else getCurrentSession().save(o);
     }
 

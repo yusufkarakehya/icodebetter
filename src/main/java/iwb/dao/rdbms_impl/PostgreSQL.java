@@ -35,12 +35,13 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import iwb.custom.trigger.QueryTrigger;
 import iwb.dao.RdbmsDao;
 //import iwb.dao.tsdb_impl.InfluxDao;
 import iwb.domain.db.Log5DbFuncAction;
+import iwb.domain.db.Log5Feed;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.Log5QueryAction;
 import iwb.domain.db.M5List;
 import iwb.domain.db.W5Approval;
@@ -51,7 +52,7 @@ import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5DbFunc;
 import iwb.domain.db.W5DbFuncParam;
-import iwb.domain.db.Log5Feed;
+import iwb.domain.db.W5Email;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
@@ -68,7 +69,6 @@ import iwb.domain.db.W5List;
 import iwb.domain.db.W5ListColumn;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5ObjectToolbarItem;
 import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Project;
@@ -95,7 +95,6 @@ import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.db.W5WsServerMethodParam;
 import iwb.domain.helper.W5AccessControlHelper;
 import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.M5ListResult;
@@ -118,6 +117,8 @@ import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 //import iwb.util.InfluxUtil;
 import iwb.util.LocaleMsgCache;
+import iwb.util.LogUtil;
+import iwb.util.MailUtil;
 import iwb.util.UserUtil;
 
 @SuppressWarnings({"unchecked","unused"})
@@ -400,8 +401,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return formResult;
 	}
 
-	private void logTableRecord(W5FormResult fr){
-		if(true)return;
+	private void logTableRecord(W5FormResult fr, String paramSuffix){
 		W5Table t = FrameworkCache.getTable(fr.getScd(), fr.getForm().getObjectId());
 		StringBuilder sql = new StringBuilder();
 		int userId =(Integer)fr.getScd().get("userId");
@@ -409,33 +409,28 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		String table = t.getDsc();
 
     	if(FrameworkSetting.log2tsdb){
-    		String xpr = "067e6162-3b6f-4ae2-a221-2470b63dff00"; //framework
-    		W5Project pr = null;
-    		if(fr.getScd()!=null){
-    			pr = FrameworkCache.wProjects.get(fr.getScd().get("projectId"));
-    			if(pr==null || pr.getTsdbFlag()==0)pr=null;
-    		}
-    		if(pr == null) pr = FrameworkCache.wProjects.get(xpr);
-    				
-    		if(pr.getTsdbFlag()==0)return;
-    		
-    		Map<String, Object> f = new HashMap(), p = new HashMap();
-
+    		String schema = FrameworkCache.wProjects.get((String)fr.getScd().get("projectId")).getRdbmsSchema();
     		sql.append("select * from ").append(table).append(" t ");
     		List<Object> whereParams = new ArrayList<Object>(fr.getPkFields().size());
     		
     		if(fr.getPkFields().size() > 0){		
     			sql.append(" where ");
     			boolean b = false;
-    			
+    			StringBuilder startQL= new StringBuilder();
+    			startQL.append(schema).append("_").append(t.getDsc().replace('.', '_'));
     			for(W5TableParam px: t.get_tableParamList()){
     				if(b)sql.append(" AND "); else b=true;
     				sql.append("t.").append(px.getExpressionDsc()).append("=?");
     				whereParams.add(fr.getPkFields().get(px.getDsc()));
-    				p.put(px.getExpressionDsc(), fr.getPkFields().get(px.getDsc()));
+    				startQL.append(",").append(px.getExpressionDsc()).append("=").append(fr.getPkFields().get(px.getDsc()));
     			}
     			List<Map> l = executeSQLQuery2Map(sql.toString(), whereParams);
     			if(!GenericUtil.isEmpty(l)){
+    				Map m = l.get(0);
+        			for(W5TableParam px: t.get_tableParamList())m.remove(px.getExpressionDsc());
+        			m.put("_action", fr.getAction());
+    				startQL.append(" ").append(GenericUtil.fromMapToInfluxFields(m));
+    				LogUtil.logCrud(startQL.toString());
     	//			influxDao.insert(pr, "log_table.."+table, p, l.get(0), null); TODO
     			}
     		}
@@ -1884,45 +1879,45 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return m;
 	}
 	@Override
-	public Map<String, String> interprateMailTemplate(W5FormSmsMail fsm, Map<String, Object> scd, Map<String,String> requestParams, int fsmTableId, int fsmTablePk) {
+	public W5Email interprateMailTemplate(W5FormSmsMail fsm, Map<String, Object> scd, Map<String,String> requestParams, int fsmTableId, int fsmTablePk) {
 		
-		Map<String, String> m = new HashMap<String, String>();
+		W5Email email = new W5Email();
 		String mailTo = fsm.getSmsMailTo();
 		if(mailTo!=null && mailTo.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailTo);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,2,0);
-			mailTo = GenericUtil.organizeMailAdress(tmp1.toString());
+			mailTo = MailUtil.organizeMailAdress(tmp1.toString());
 		}
-		m.put("pmail_to", mailTo);
+		email.setMailTo(mailTo);
 		String mailCc = fsm.getSmsMailCc();
 		if(mailCc!=null && mailCc.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailCc);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,2,0);
-			mailCc = GenericUtil.organizeMailAdress(tmp1.toString());
+			mailCc = MailUtil.organizeMailAdress(tmp1.toString());
 		}
-		m.put("pmail_cc", mailCc);
+		email.setMailCc(mailCc);
 		String mailBcc = fsm.getSmsMailBcc();
 		if(mailBcc!=null && mailBcc.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailBcc);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,2,0);
-			mailBcc = GenericUtil.organizeMailAdress(tmp1.toString());
+			mailBcc = MailUtil.organizeMailAdress(tmp1.toString());
 		}
-		m.put("pmail_bcc", mailBcc);
+		email.setMailBcc(mailBcc);
 		String mailSubject = fsm.getSmsMailSubject();
 		if(mailSubject!=null && mailSubject.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailSubject);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,0,0);
 			mailSubject = tmp1.toString();
 		}
-		m.put("pmail_subject", mailSubject);
+		email.setMailSubject(mailSubject);
 		String mailBody = fsm.getSmsMailBody();
 		if(mailBody!=null && mailBody.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailBody);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,0,0);
 			mailBody = tmp1.toString();
 		}
-		m.put("pmail_body", mailBody);
-		return m;
+		email.setMailBody(mailBody);
+		return email;
 		
 	}
 	@Override
@@ -2365,7 +2360,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							if(!GenericUtil.isEmpty(dbFuncResult.getLogRecordList()))formResult.getCrudLogRecordList().addAll(dbFuncResult.getLogRecordList());
 						}
 			    	} */
-		    		if(t.getDoUpdateLogFlag()!=0)logTableRecord(formResult);
+		    		if(t.getDoUpdateLogFlag()!=0)logTableRecord(formResult, paramSuffix);
 		    		return updateCount==1;
 				}
     		});
@@ -3064,7 +3059,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
     	}*/
     	
-    	if(t.getDoDeleteLogFlag()!=0)logTableRecord(formResult);
+    	if(t.getDoDeleteLogFlag()!=0)logTableRecord(formResult, paramSuffix);
     	Session session = getCurrentSession();
     	try {
     		b = applyParameters(session.createSQLQuery(sql.toString()),realParams).executeUpdate()>0;
@@ -5310,14 +5305,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(c.get_conversionColList()==null)return null;
 		Map<String, Object> m = new HashMap<String, Object>();
 		if(checkCondition && !GenericUtil.isEmpty(c.getConditionSqlCode())){ //TODO
-/*			List<W5ObjectConditionGroup> locg = conditionRecordExistsCheck(scd, c.get_conditionList(), c.get_conditionGroupList(), dstFormResult.getRequestParams(), sf.getObjectId(), conversionTablePk, c.getConditionSqlCode());
-			if(locg.size()>0){
-				for(W5ObjectConditionGroup ocg:locg)if(ocg.getStrategyTip()<2){
-					m.put("_cnv_error_list", locg);
-					return m;
-				}
-				m.put("_cnv_warning_list", locg);
-			} */
+			boolean b = conditionRecordExistsCheck(scd, dstFormResult.getRequestParams(), sf.getObjectId(), conversionTablePk, c.getConditionSqlCode());
+			if(!b)return null;
 		}
 		//TODO: source kayda yetki kontrolu olacak
 		
@@ -5360,6 +5349,23 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return m;
 	}
 	
+	public boolean conditionRecordExistsCheck(Map<String, Object> scd, Map<String, String> requestParams, int tableId, int tablePk, String conditionSqlCode) {
+		W5Table t = FrameworkCache.getTable(scd, tableId);
+		StringBuilder sql = new StringBuilder();
+		sql.append("select 1 from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=? AND ");
+		List params = new ArrayList();
+		params.add(tablePk);
+		if(t.get_tableParamList().size()>1 && t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
+			sql.append(" x.customization_id=? AND ");
+			params.add(scd.get("customizationId"));
+		}
+		Object[] oz = DBUtil.filterExt4SQL(conditionSqlCode, scd, new HashMap(), null);
+		sql.append(oz[0]);
+		if(oz.length>1 && oz[1]!=null)params.addAll((List)oz[1]);
+		List l = executeSQLQuery2(sql.toString(), params);
+		return !GenericUtil.isEmpty(l);
+	}
+
 	@Override
 	public Map interprateConversionTemplate4WsMethod(Map<String, Object> scd, Map<String, String> requestParams,W5Conversion c,
 			int conversionTablePk, W5WsMethod	wsm) {
@@ -5868,10 +5874,12 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		case	1://update
 			s.append("update ").append(t.getDsc()).append(" set ");
 			for(W5TableField f:t.get_tableFieldList())if(f.getTabOrder()>1){
-				if(f.getDsc().equals("version_no") || f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") 
-						|| f.getDsc().equals("version_user_id") || f.getDsc().equals("version_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
+				if(f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
 						continue;
-				
+				if(f.getDsc().equals("version_dttm")){
+					s.append(f.getDsc()).append("=fnc_sysdate(0),");
+					continue;
+				}
 				s.append(f.getDsc()).append("=?,");
 				try {
 					if(o.has(f.getDsc())){
