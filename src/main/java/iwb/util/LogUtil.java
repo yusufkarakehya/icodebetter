@@ -54,4 +54,26 @@ public class LogUtil {
 			}
 		}
 	}
+	
+	public static void logCrud(String str){
+		if(str==null)return;
+		StringBuilder s=new StringBuilder(str);
+		s.append(" ").append(Instant.now().toEpochMilli()).append("000000");
+		try {
+			if(FrameworkSetting.logType==2){ //Asynchronized RabbitMQ
+				//mqChannel.basicPublish("", FrameworkSetting.mqTsdbQueue, null, s.toString().getBytes());
+				mqChannel.basicPublish("", FrameworkSetting.log2mqQueue, null, s.toString().getBytes("UTF-8"));
+			} else { //Synchronized
+				Map m = new HashMap();
+				m.put("Content-Type", "application/json");
+				HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/write?db="+FrameworkSetting.log2tsdbDbName4Crud,s.toString(),"POST", m);
+			}
+			errorCount = 0;
+		}catch (Exception e) {
+			errorCount++;
+			if(errorCount % 100 == 1){//TODO 100 defada bir birseyler yap
+				
+			}
+		}
+	}
 }

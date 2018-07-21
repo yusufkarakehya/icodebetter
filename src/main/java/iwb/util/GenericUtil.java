@@ -685,6 +685,21 @@ public class GenericUtil {
     	html.append("}");
     	return html.toString();		
 	}
+	//" ile
+	public	static String fromMapToInfluxFields(Map s){
+		if(s==null || s.isEmpty())return "";
+        StringBuilder html = new StringBuilder();
+        boolean	b = false;
+    	for(Object q :s.keySet()){
+    		if(b)html.append(",");else b=true;
+    		Object o = s.get(q);
+    		if(o !=null && (o instanceof Integer || o instanceof Double || o instanceof BigDecimal || o instanceof Boolean))
+        		html.append(q).append("=").append(o);
+    		else
+    			html.append(q).append("=\"").append(o!=null ? stringToJS2(o.toString()) :"").append("\"");
+    	}
+    	return html.toString();		
+	}
 	@SuppressWarnings("unchecked")
 	public	static String fromListToJsonString2Recursive(List<Object> s){
 		if(s==null || s.isEmpty())return "[]";

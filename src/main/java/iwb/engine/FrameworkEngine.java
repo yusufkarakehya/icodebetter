@@ -899,7 +899,7 @@ public class FrameworkEngine{
 	}
 
 	@SuppressWarnings({ "unused", "unchecked" })
-	private	List<W5QueuedActionHelper>	postForm4Table(W5FormResult formResult, String prefix, Set<String> checkedParentRecords){
+	private	List<W5QueuedActionHelper>	postForm4Table(W5FormResult formResult, String paramSuffix, Set<String> checkedParentRecords){
 		if(!formResult.isDev())checkTenant(formResult.getScd());
 		List<W5QueuedActionHelper> result = new ArrayList<W5QueuedActionHelper>();
 		int formId = formResult.getFormId();
@@ -908,7 +908,7 @@ public class FrameworkEngine{
 	    Map<String, Object> scd = formResult.getScd();
 	    Map<String,String> requestParams = formResult.getRequestParams();
 
-		PostFormTrigger.beforePostForm(formResult, dao, prefix);
+		PostFormTrigger.beforePostForm(formResult, dao, paramSuffix);
 		boolean dev = scd.get("roleId")!=null && (Integer)scd.get("roleId")==0 && GenericUtil.uInt(requestParams,"_dev")!=0;
 		int customizationId = dev ? 0 : (Integer)scd.get("customizationId");
 		W5Table t = FrameworkCache.getTable(customizationId, formResult.getForm().getObjectId());//formResult.getForm().get_sourceTable();
@@ -920,7 +920,7 @@ public class FrameworkEngine{
 		boolean accessControlSelfFlag = true; // kendisi VEYA kendisi+master
 		if(accessControlSelfFlag){
 			int outCnt = formResult.getOutputMessages().size();
-			accessControl4FormTable(formResult, prefix);
+			accessControl4FormTable(formResult, paramSuffix);
 			if(formResult.isViewMode()){
 				throw new IWBException("security","Form", formId, null, formResult.getOutputMessages().size()>outCnt ? formResult.getOutputMessages().get(outCnt) : LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_guncelleme"), null);
 			}
@@ -954,14 +954,14 @@ public class FrameworkEngine{
 		List<W5TableTrigger> tla = null;
 		if(tmla!=null)tla = tmla.get(t.getTableId());
 		/* tableTrigger Before Action start*/
-		if(tla!=null)extFormTrigger(formResult, new String[]{"_","bu","bi","bd","_","bi"}[action], scd, requestParams, t, requestParams.get(t.get_tableParamList().get(0).getDsc()+prefix), prefix);
+		if(tla!=null)extFormTrigger(formResult, new String[]{"_","bu","bi","bd","_","bi"}[action], scd, requestParams, t, requestParams.get(t.get_tableParamList().get(0).getDsc()+paramSuffix), paramSuffix);
 		/* end of tableTrigger*/
 
 
 		switch(action){
 		case	1://update
-			ptablePk = requestParams.get(t.get_tableParamList().get(0).getDsc()+prefix);
-			if(GenericUtil.isEmpty(prefix)){
+			ptablePk = requestParams.get(t.get_tableParamList().get(0).getDsc()+paramSuffix);
+			if(GenericUtil.isEmpty(paramSuffix)){
 				formResult.setPkFields(new HashMap());
 				formResult.getPkFields().put(t.get_tableParamList().get(0).getDsc(), ptablePk);
 			}
@@ -1070,7 +1070,7 @@ public class FrameworkEngine{
 				}
 			}
 
-			dao.updateFormTable(formResult, schema, prefix);
+			dao.updateFormTable(formResult, schema, paramSuffix);
 
 			if(formResult.getErrorMap().isEmpty())FrameworkCache.removeTableCacheValue(t.getCustomizationId(), t.getTableId(),GenericUtil.uInt(ptablePk));//caching icin
 
@@ -1293,9 +1293,9 @@ public class FrameworkEngine{
 				}
 			}
 			if(action==2)//2:insert
-				dao.insertFormTable(formResult,schema, prefix);
+				dao.insertFormTable(formResult,schema, paramSuffix);
 			else {//5:copy
-				dao.copyFormTable(formResult,schema, prefix, prefix!=null && prefix.length()>0);
+				dao.copyFormTable(formResult,schema, paramSuffix, paramSuffix!=null && paramSuffix.length()>0);
 				pcopyTablePk = requestParams.get(t.get_tableParamList().get(0).getDsc());
 				action = 2;
 			}
@@ -1309,7 +1309,7 @@ public class FrameworkEngine{
 				if(o!=null){
 					ptablePk = o.toString();
 					requestParams.put(t.get_tableParamList().get(0).getDsc(), ptablePk);
-					if(!GenericUtil.isEmpty(prefix))requestParams.put(t.get_tableParamList().get(0).getDsc()+prefix, ptablePk);
+					if(!GenericUtil.isEmpty(paramSuffix))requestParams.put(t.get_tableParamList().get(0).getDsc()+paramSuffix, ptablePk);
 
 
 				}
@@ -1488,7 +1488,7 @@ public class FrameworkEngine{
 			}
 			break;
 		case	3://delete
-			ptablePk = requestParams.get(t.get_tableParamList().get(0).getDsc()+prefix);
+			ptablePk = requestParams.get(t.get_tableParamList().get(0).getDsc()+paramSuffix);
 			if(FrameworkSetting.vcs && t.getVcsFlag()!=0){
 				requestParams.put("_iwb_vcs_dsc", dao.getTableRecordSummary(scd, t.getTableId(), GenericUtil.uInt(ptablePk), 32));
 			}
@@ -1609,11 +1609,11 @@ public class FrameworkEngine{
 			mz.put("ptable_pk", ptablePk);
 //			W5DbFuncResult dfr = executeFunc(scd, 690, mz, (short)2);//bu kaydin child kayitlari var mi? iwb.w5_table_field'daki default_control_tip ve default_lookup_table_id'ye bakiliyor
 			if(ptablePk!=null && appRecord==null){
-				boolean b = dao.deleteTableRecord(formResult, prefix);
+				boolean b = dao.deleteTableRecord(formResult, paramSuffix);
 				if(!b)formResult.getOutputMessages().add(LocaleMsgCache.get2(scd, "record_not_found"));
 			}
 			if(formResult.getErrorMap().isEmpty()){
-				FrameworkCache.removeTableCacheValue(t.getCustomizationId(), t.getTableId(),GenericUtil.uInt(requestParams.get(t.get_tableParamList().get(0).getDsc()+prefix)));//caching icin
+				FrameworkCache.removeTableCacheValue(t.getCustomizationId(), t.getTableId(),GenericUtil.uInt(requestParams.get(t.get_tableParamList().get(0).getDsc()+paramSuffix)));//caching icin
 
 				if(FrameworkSetting.approval && appRecord!=null){ //aproval baslanmis
 					int tablePk = GenericUtil.uInt(ptablePk);
@@ -1711,14 +1711,14 @@ public class FrameworkEngine{
 			if(realAction==5 && formResult.getForm().getObjectTip()==2 && /*formResult.getForm().get_sourceTable()*/FrameworkCache.getTable(scd, formResult.getForm().getObjectId()).get_tableChildList()!=null){//copy ise o zaman detay var ise onlari da kopyala
 				String copyTblIds = requestParams.get("_copy_tbl_ids");
 				for(W5TableChild tc:/*formResult.getForm().get_sourceTable()*/FrameworkCache.getTable(scd, formResult.getForm().getObjectId()).get_tableChildList())if(tc.getCopyStrategyTip()!=0 && (tc.getCopyStrategyTip()==1 || GenericUtil.hasPartInside2(copyTblIds, ""+tc.getRelatedTableId()))){
-					dao.copyFormTableDetail(formResult, tc, null, schema, prefix);
+					dao.copyFormTableDetail(formResult, tc, null, schema, paramSuffix);
 					bc = true;
 				}
 			}
 
 			//detail records kaydet
 			boolean bd =false;
-			if(prefix.length()==0 && (action==1 || action==2)){ // detail kaydet
+			if(paramSuffix.length()==0 && (action==1 || action==2)){ // detail kaydet
 				for(int qi=1;GenericUtil.uInt(requestParams.get("_fid"+qi))!=0;qi++){
 					if(qi==1){
 						requestParams.putAll((Map)formResult.getOutputFields());
@@ -1766,16 +1766,16 @@ public class FrameworkEngine{
 				if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
 	    	} */
 			//approval
-			if(FrameworkSetting.approval && GenericUtil.uInt(requestParams.get("_arid"+prefix))!=0){//kaydet ve approve et???
-				approveRecord(scd, GenericUtil.uInt(requestParams.get("_arid"+prefix)), GenericUtil.uInt(requestParams.get("_aa"+prefix)),requestParams);
+			if(FrameworkSetting.approval && GenericUtil.uInt(requestParams.get("_arid"+paramSuffix))!=0){//kaydet ve approve et???
+				approveRecord(scd, GenericUtil.uInt(requestParams.get("_arid"+paramSuffix)), GenericUtil.uInt(requestParams.get("_aa"+paramSuffix)),requestParams);
 			}
 
 			/* tableTrigger After Action start*/
-			if(tla!=null)extFormTrigger(formResult, new String[]{"_","au","ai","ad","_","ai"}[action], scd, requestParams, t, ptablePk, prefix);
+			if(tla!=null)extFormTrigger(formResult, new String[]{"_","au","ai","ad","_","ai"}[action], scd, requestParams, t, ptablePk, paramSuffix);
 			/* end of tableTrigger*/
 
 			/* form conversion*/
-			extFormConversion(formResult, prefix, action, scd, requestParams,
+			extFormConversion(formResult, paramSuffix, action, scd, requestParams,
 					t, ptablePk, false);
 			/* end of form conversion*/
 			
@@ -1797,7 +1797,7 @@ public class FrameworkEngine{
 
 
 			if(action==2){ // bir sorun yoksa, o zaman conversion kaydi yap
-				if(GenericUtil.isEmpty(prefix) && requestParams.containsKey("_cnvId") && requestParams.containsKey("_cnvTblPk")){//conversion var burda
+				if(GenericUtil.isEmpty(paramSuffix) && requestParams.containsKey("_cnvId") && requestParams.containsKey("_cnvTblPk")){//conversion var burda
 					int conversionId = GenericUtil.uInt(requestParams.get("_cnvId"));
 					int conversionTablePk = GenericUtil.uInt(requestParams.get("_cnvTblPk"));
 					List<W5Conversion> lcnv = dao.find("from W5Conversion x where x.conversionId=? AND x.customizationId=?", conversionId, (Integer)scd.get("customizationId"));
@@ -1821,7 +1821,7 @@ public class FrameworkEngine{
 					feedTableId, feedTablePk);
 			/* end of feed */
 		}
-		PostFormTrigger.afterPostForm(formResult, dao, prefix);
+		PostFormTrigger.afterPostForm(formResult, dao, paramSuffix);
 
 		if(FrameworkSetting.liveSyncRecord && formResult.getErrorMap().isEmpty() && formResult.getForm()!=null && formResult.getForm().getObjectTip()==2){
 			int	userId = (Integer)formResult.getScd().get("userId");

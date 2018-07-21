@@ -106,6 +106,7 @@ public class FrameworkSetting {
 
 	public static String log2tsdbUrl = "http://localhost:8086";
 	public static String log2tsdbDbName = "icb_log";
+	public static String log2tsdbDbName4Crud = "icb_crud_log";
 	public static boolean log2tsdbVisitedPages = true;
 	public static boolean logQueryAction = true;
 	public static int logQueryActionMinTime = 1;

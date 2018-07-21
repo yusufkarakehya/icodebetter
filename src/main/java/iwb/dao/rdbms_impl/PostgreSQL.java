@@ -117,6 +117,7 @@ import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 //import iwb.util.InfluxUtil;
 import iwb.util.LocaleMsgCache;
+import iwb.util.LogUtil;
 import iwb.util.MailUtil;
 import iwb.util.UserUtil;
 
@@ -400,8 +401,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return formResult;
 	}
 
-	private void logTableRecord(W5FormResult fr){
-		if(true)return;
+	private void logTableRecord(W5FormResult fr, String paramSuffix){
 		W5Table t = FrameworkCache.getTable(fr.getScd(), fr.getForm().getObjectId());
 		StringBuilder sql = new StringBuilder();
 		int userId =(Integer)fr.getScd().get("userId");
@@ -409,33 +409,28 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		String table = t.getDsc();
 
     	if(FrameworkSetting.log2tsdb){
-    		String xpr = "067e6162-3b6f-4ae2-a221-2470b63dff00"; //framework
-    		W5Project pr = null;
-    		if(fr.getScd()!=null){
-    			pr = FrameworkCache.wProjects.get(fr.getScd().get("projectId"));
-    			if(pr==null || pr.getTsdbFlag()==0)pr=null;
-    		}
-    		if(pr == null) pr = FrameworkCache.wProjects.get(xpr);
-    				
-    		if(pr.getTsdbFlag()==0)return;
-    		
-    		Map<String, Object> f = new HashMap(), p = new HashMap();
-
+    		String schema = FrameworkCache.wProjects.get((String)fr.getScd().get("projectId")).getRdbmsSchema();
     		sql.append("select * from ").append(table).append(" t ");
     		List<Object> whereParams = new ArrayList<Object>(fr.getPkFields().size());
     		
     		if(fr.getPkFields().size() > 0){		
     			sql.append(" where ");
     			boolean b = false;
-    			
+    			StringBuilder startQL= new StringBuilder();
+    			startQL.append(schema).append("_").append(t.getDsc().replace('.', '_'));
     			for(W5TableParam px: t.get_tableParamList()){
     				if(b)sql.append(" AND "); else b=true;
     				sql.append("t.").append(px.getExpressionDsc()).append("=?");
     				whereParams.add(fr.getPkFields().get(px.getDsc()));
-    				p.put(px.getExpressionDsc(), fr.getPkFields().get(px.getDsc()));
+    				startQL.append(",").append(px.getExpressionDsc()).append("=").append(fr.getPkFields().get(px.getDsc()));
     			}
     			List<Map> l = executeSQLQuery2Map(sql.toString(), whereParams);
     			if(!GenericUtil.isEmpty(l)){
+    				Map m = l.get(0);
+        			for(W5TableParam px: t.get_tableParamList())m.remove(px.getExpressionDsc());
+        			m.put("_action", fr.getAction());
+    				startQL.append(" ").append(GenericUtil.fromMapToInfluxFields(m));
+    				LogUtil.logCrud(startQL.toString());
     	//			influxDao.insert(pr, "log_table.."+table, p, l.get(0), null); TODO
     			}
     		}
@@ -2365,7 +2360,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							if(!GenericUtil.isEmpty(dbFuncResult.getLogRecordList()))formResult.getCrudLogRecordList().addAll(dbFuncResult.getLogRecordList());
 						}
 			    	} */
-		    		if(t.getDoUpdateLogFlag()!=0)logTableRecord(formResult);
+		    		if(t.getDoUpdateLogFlag()!=0)logTableRecord(formResult, paramSuffix);
 		    		return updateCount==1;
 				}
     		});
@@ -3064,7 +3059,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
     	}*/
     	
-    	if(t.getDoDeleteLogFlag()!=0)logTableRecord(formResult);
+    	if(t.getDoDeleteLogFlag()!=0)logTableRecord(formResult, paramSuffix);
     	Session session = getCurrentSession();
     	try {
     		b = applyParameters(session.createSQLQuery(sql.toString()),realParams).executeUpdate()>0;
