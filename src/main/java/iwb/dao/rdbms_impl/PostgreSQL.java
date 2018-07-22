@@ -3111,7 +3111,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 					field.setProjectUuid((String)scd.get("projectId"));
 					field.setMainTableFieldId(wsmp.getWsMethodParamId());
-					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field"));
+					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", (String)scd.get("projectId")));
 					insertList.add(field);
 					j++;
 				}
@@ -3133,7 +3133,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 					field.setProjectUuid((String)scd.get("projectId"));
 					field.setMainTableFieldId(0);
-					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field"));
+					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", (String)scd.get("projectId")));
 					insertList.add(field);
 					j++;
 				}
@@ -3253,7 +3253,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		        						if(tf.getDefaultControlTip()!=0)field.setLookupQueryId(tf.getDefaultLookupTableId());
 	        						}
 	        					}
-	        					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field"));
+	        					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", (String)scd.get("projectId")));
 	        					insertList.add(field);
 	        					j++;
         					} else if(existField.get(columnName)!=null && (existField.get(columnName).getTabOrder()!=i || (existField.get(columnName).getMainTableFieldId()==0 && fieldMap.containsKey(columnName.toLowerCase())))){
@@ -5978,7 +5978,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			tableId = GenericUtil.uInt(l.get(0));
 		}
 		if(tableId==0){
-			tableId = GenericUtil.getGlobalNextval("iwb.seq_table");
+			tableId = GenericUtil.getGlobalNextval("iwb.seq_table", projectUuid);
 			int rq = executeUpdateSQLQuery("insert into iwb.w5_table"
 					+ "(table_id, dsc, insert_user_id, version_user_id, customization_id, project_uuid)values"
 					+ "(?       , ?  , ?             , ?              , ?               , ?)",
@@ -5988,7 +5988,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 			String firstField = (String)executeSQLQuery("SELECT lower(qz.COLUMN_NAME) from information_schema.columns qz where qz.table_name = ? and qz.table_schema = ? and qz.ordinal_position=1", tableName, schema).get(0);
 
-			int tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param");
+			int tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param", projectUuid);
 			rq = executeUpdateSQLQuery("insert into iwb.w5_table_param "
 					+ "(table_param_id, table_id, dsc, expression_dsc, tab_order, param_tip, operator_tip, not_null_flag, source_tip, insert_user_id, version_user_id, project_uuid, customization_id)values"
 					+ "(?             , ?       , ?  , ?             , ?        , ?        , ?           , ?            , ?         , ?             , ?              , ?           , ?)",
@@ -5998,7 +5998,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			cnt = GenericUtil.uInt(executeSQLQuery("SELECT count(1) from information_schema.columns qz where qz.table_name = ? and qz.table_schema = ? and lower(qz.COLUMN_NAME)='customization_id'", tableName, schema).get(0));
 
 			if(cnt>0){
-				tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param");
+				tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param", projectUuid);
 				rq = executeUpdateSQLQuery("insert into iwb.w5_table_param "
 					+ "(table_param_id, table_id, dsc, expression_dsc, tab_order, param_tip, operator_tip, not_null_flag, source_tip, insert_user_id, version_user_id, project_uuid, customization_id)values"
 					+ "(?             , ?       , ?  , ?             , ?        , ?        , ?           , ?            , ?         , ?             , ?              , ?           , ?)",
@@ -6022,7 +6022,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			int tabOrder = GenericUtil.uInt(m.get("ordinal_position"));
 			if(tfId==0){
 				String fieldName = ((String)m.get("column_name")).toLowerCase(FrameworkSetting.appLocale);
-				int tableFieldId = GenericUtil.getGlobalNextval("iwb.seq_table_field");
+				int tableFieldId = GenericUtil.getGlobalNextval("iwb.seq_table_field", projectUuid);
 				int rq = executeUpdateSQLQuery("insert into iwb.w5_table_field "
 						+ "(table_field_id, table_id, dsc, field_tip, not_null_flag, max_length, tab_order, insert_user_id, version_user_id, customization_id, project_uuid, source_tip, default_value, can_update_flag, can_insert_flag, copy_source_tip, default_control_tip, default_lookup_table_id) values"
 						+ "(?             , ?       , ?  , ?        , ?            , ?         , ?        , ?             , ?              , ?               , ?           , ?         , ?            , ?              , ?              , ?              , ?                  , ? )"
@@ -6120,7 +6120,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		}
 		
 		if(dbFuncId==0){
-			dbFuncId = GenericUtil.getGlobalNextval("iwb.seq_db_func");
+			dbFuncId = GenericUtil.getGlobalNextval("iwb.seq_db_func", projectUuid);
 			int rq = executeUpdateSQLQuery("insert into iwb.w5_db_func"
 					+ "(db_func_id, dsc, insert_user_id, version_user_id, project_uuid, customization_id)values"
 					+ "(?         , ?  , ?        , ?             , ?              , ?                , ?           , ?)",
@@ -6132,7 +6132,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		for(int qi=0;qi<arp.length;qi++){
 			int dbFuncParamId = GenericUtil.uInt(dbFuncParamMap.get(arp[qi]));
 			if(dbFuncParamId==0){ // boyle bir kayit yok
-				dbFuncParamId = GenericUtil.getGlobalNextval("iwb.seq_db_func_param");
+				dbFuncParamId = GenericUtil.getGlobalNextval("iwb.seq_db_func_param", projectUuid);
 				executeUpdateSQLQuery("insert into iwb.w5_db_func_param "
 						+ "(db_func_param_id, db_func_id, dsc, expression_dsc, param_tip, tab_order, insert_user_id, version_user_id, source_tip, default_value, not_null_flag, out_flag, project_uuid, customization_id )  values "
 						+ "( ?              , ?         , ?  , ?             , 1        , ?        , ?             , ?              , ?         , ?            , ?            , 0       , ?           , ? )",

@@ -142,7 +142,7 @@ public class ScriptEngine {
 
 	
 	public int globalNextval(String seq){
-		return GenericUtil.getGlobalNextval(seq);
+		return GenericUtil.getGlobalNextval(seq, (String)scd.get("projectId"));
 	}
 	
 	public void console(String oMsg, String title){

@@ -14,11 +14,12 @@ import iwb.util.GenericUtil;
 import iwb.util.LocaleMsgCache;
 
 
-public class IWBException extends RuntimeException implements Log5Base {
+public class IWBException extends RuntimeException {
 	private	String errorType;
 	private	String objectType;
 	private	int objectId;
 	private	String sql;
+	private Map<String, Object> scd;
 	public IWBException(String errorType, String objectType, int objectId, String sql, String message, Throwable cause) {
 		super(message, cause);
 		this.errorType=errorType;//security, validation, framework, definition
@@ -31,7 +32,7 @@ public class IWBException extends RuntimeException implements Log5Base {
 		return null;
 	}
 
-	public String toHtmlString(String locale){
+	public String toHtmlString(){
 		StringBuilder b = new StringBuilder();
 		b.append("<table>");
 		b.append("<tr><td><b>Error Type</b></td><td>").append(errorType).append("</td></tr>");
@@ -105,9 +106,5 @@ public class IWBException extends RuntimeException implements Log5Base {
 	}
 
 
-	public String toInfluxDB() {
-		StringBuilder s=new StringBuilder();
-		return s.toString();
-	}	
-	
+
 }

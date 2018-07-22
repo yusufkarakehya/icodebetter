@@ -44,7 +44,8 @@ public class LogUtil {
 			} else { //Synchronized
 				Map m = new HashMap();
 				m.put("Content-Type", "application/json");
-				HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/write?db="+FrameworkSetting.log2tsdbDbName,s.toString(),"POST", m);
+				String sq = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/write?db="+FrameworkSetting.log2tsdbDbName,s.toString(),"POST", m);
+				if(FrameworkSetting.debug && !GenericUtil.isEmpty(sq))System.out.println("log2tsdb response: "+sq);
 			}
 			errorCount = 0;
 		}catch (Exception e) {

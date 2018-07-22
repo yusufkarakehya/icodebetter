@@ -1097,7 +1097,7 @@ public class GenericUtil {
 			pvalue = defaultValue;
 			break;
 		case	8://global Nextval
-			return getGlobalNextval(defaultValue);
+			return getGlobalNextval(defaultValue, scd!=null ? (String)scd.get("projectId"):null);
 		case 9:  //UUID
 			pvalue = UUID.randomUUID().toString();
 			break;
@@ -1261,7 +1261,7 @@ public class GenericUtil {
 			pvalue = defaultValue;
 			break;
 		case	8://global Nextval
-			return getGlobalNextval(defaultValue);
+			return getGlobalNextval(defaultValue, scd!=null ? (String)scd.get("projectId"):null);
 		case 9:  //UUID
 			pvalue = UUID.randomUUID().toString();
 			break;			
@@ -2092,28 +2092,29 @@ public class GenericUtil {
 	}
 
 	
-	public static int getGlobalNextval(String seq){
+	public static int getGlobalNextval(String seq, String projectUuid){
 		String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url");
 		String vcsClientKey = FrameworkCache.getAppSettingStringValue(0, "vcs_client_key");
 		if(GenericUtil.isEmpty(vcsUrl))
 			throw new IWBException("framework","vcs_url OR vcs_client_key not defined for versioning", 0, "vcs_url not defined for versioning", null, null);
-		String s = HttpUtil.send(vcsUrl+"/ajaxGlobalNextVal", "id="+seq+"&key="+vcsClientKey);
+		String s = HttpUtil.send(vcsUrl+"/ajaxGlobalNextVal", "id="+seq+"&key="+vcsClientKey+"-"+projectUuid);
 		JSONObject json;
-		try {
+		if(s!=null)try {
 			json = new JSONObject(s);
-			boolean b = json.getBoolean("success");
+			boolean b = json.getBoolean("success") && json.has("val");
 			if(b)return json.getInt("val");
+			if(json.has("errorType") && json.has("error"))
+				try {
+					throw new IWBException(json.getString("errorType"),"Global Nextval: remote Error", 0, null, json.getString("error"), null);
+				} catch (JSONException e) {
+					throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
+				}
+			else 
+				throw new IWBException("framework","Global Nextval: remote Error", 0, s, "Unknown Error", null);
 		} catch (JSONException e) {
-			throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
-		}
-		if(json.has("errorType") && json.has("error"))
-			try {
-				throw new IWBException(json.getString("errorType"),"Global Nextval: remote Error", 0, null, json.getString("error"), null);
-			} catch (JSONException e) {
-				throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
-			}
-		else 
-			throw new IWBException("framework","Global Nextval: remote Error", 0, null, "Uknown Error", null);
+			throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), e.getCause());
+		} else
+			throw new IWBException("framework","Global Nextval", 0, "JSONException", "No Response from Server", null);
 
 	}
 	
