@@ -5874,10 +5874,12 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		case	1://update
 			s.append("update ").append(t.getDsc()).append(" set ");
 			for(W5TableField f:t.get_tableFieldList())if(f.getTabOrder()>1){
-				if(f.getDsc().equals("version_no") || f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") 
-						|| f.getDsc().equals("version_user_id") || f.getDsc().equals("version_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
+				if(f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
 						continue;
-				
+				if(f.getDsc().equals("version_dttm")){
+					s.append(f.getDsc()).append("=fnc_sysdate(0),");
+					continue;
+				}
 				s.append(f.getDsc()).append("=?,");
 				try {
 					if(o.has(f.getDsc())){
