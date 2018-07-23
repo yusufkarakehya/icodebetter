@@ -41,6 +41,7 @@ import iwb.dao.RdbmsDao;
 import iwb.domain.db.Log5ApprovalRecord;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5Notification;
+import iwb.domain.db.Log5WsMethodAction;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5ApprovalRecord;
 import iwb.domain.db.W5ApprovalStep;
@@ -118,6 +119,7 @@ import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.JasperUtil;
 import iwb.util.LocaleMsgCache;
+import iwb.util.LogUtil;
 import iwb.util.MailUtil;
 import iwb.util.Money2Text;
 import iwb.util.UserUtil;
@@ -6485,119 +6487,121 @@ public class FrameworkEngine{
 			throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "Access Forbidden", null);
 
 		}
-		if(wsm.get_params()==null){
-			wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
-			wsm.set_paramMap(new HashMap());
-			for(W5WsMethodParam wsmp:wsm.get_params())
-				wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
-		}
-		String tokenKey = null;
-		Map m = new HashMap();
-		Map errorMap = new HashMap();
-		if(ws.getWssTip()==2){//token ise ve token yok ise
-			if(ws.getWssLoginMethodId()==null || ws.getWssLoginMethodParamId()==null || ws.getWssLoginTimeout()==null)
-				throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Token Properties Not Defined", null);
-			if(ws.getWssLoginMethodId()!=wsm.getWsMethodId() && ws.getWssLoginMethodParamId()!=null && (ws.getWssLogoutMethodId()==null || ws.getWssLogoutMethodId()==wsm.getWsMethodId())){
-				tokenKey = (String)ws.loadValue("tokenKey");
-				Long tokenTimeout =  (Long)ws.loadValue("tokenKey.timeOut");
-				W5WsMethod loginMethod = FrameworkCache.wWsMethods.get(ws.getWssLoginMethodId());
-				if(loginMethod.get_params()==null){
-					loginMethod.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", loginMethod.getWsMethodId(), (Integer)scd.get("customizationId")));
-					loginMethod.set_paramMap(new HashMap());
-					for(W5WsMethodParam wsmp:loginMethod.get_params())
-						loginMethod.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
-				}
-				W5WsMethodParam tokenParam = loginMethod.get_paramMap().get(ws.getWssLoginMethodParamId());
-				if(tokenKey==null || tokenTimeout==null || tokenTimeout<=System.currentTimeMillis()){//yeni bir token alinacak
-					if(tokenParam!=null){
-						Map tokenResult = callWs(scd, ws.getDsc()+"." + loginMethod.getDsc(), new HashMap());
-						Object o = tokenResult.get(tokenParam.getDsc());
-						if(o==null)
-							throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Auto-Login Failed", null);
-						tokenKey = o.toString();
-						ws.storeValue("tokenKey", tokenKey);
-						ws.storeValue("tokenKey.timeOut", System.currentTimeMillis()+ws.getWssLoginTimeout().longValue());
+		try {
+			if(wsm.get_params()==null){
+				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
+				wsm.set_paramMap(new HashMap());
+				for(W5WsMethodParam wsmp:wsm.get_params())
+					wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
+			}
+			String tokenKey = null;
+			Map m = new HashMap();
+			Map errorMap = new HashMap();
+			if(ws.getWssTip()==2){//token ise ve token yok ise
+				if(ws.getWssLoginMethodId()==null || ws.getWssLoginMethodParamId()==null || ws.getWssLoginTimeout()==null)
+					throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Token Properties Not Defined", null);
+				if(ws.getWssLoginMethodId()!=wsm.getWsMethodId() && ws.getWssLoginMethodParamId()!=null && (ws.getWssLogoutMethodId()==null || ws.getWssLogoutMethodId()==wsm.getWsMethodId())){
+					tokenKey = (String)ws.loadValue("tokenKey");
+					Long tokenTimeout =  (Long)ws.loadValue("tokenKey.timeOut");
+					W5WsMethod loginMethod = FrameworkCache.wWsMethods.get(ws.getWssLoginMethodId());
+					if(loginMethod.get_params()==null){
+						loginMethod.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", loginMethod.getWsMethodId(), (Integer)scd.get("customizationId")));
+						loginMethod.set_paramMap(new HashMap());
+						for(W5WsMethodParam wsmp:loginMethod.get_params())
+							loginMethod.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
 					}
-				}
-				requestParams.put(tokenParam.getDsc(), tokenKey);
-			}
-		}
-
-
-		Map<String, Object> result = new HashMap();
-		switch(ws.getWsTip()){
-		case	1://soap
-			/*for(W5WsMethodParam p:wsm.get_params())if(p.getOutFlag()==0 && p.getParentWsMethodParamId()==0){
-				m.put(p.getDsc(), GenericUtil.prepareParam((W5Param)p, scd, requestParams, p.getSourceTip(), null, p.getNotNullFlag(), null, null, errorMap, dao));
-			}
-
-			if(!errorMap.isEmpty())
-				throw new PromisException("validation","WS Method Call",wsm.getWsId(), null, "Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
-
-			if(ws.get_service()==null){
-				ws.set_service(new SoapService(ws.getWsUrl()));
-			}
-			SoapOperation so = ws.get_service().getOperation(wsm.getDsc());
-			for(SoapInput si:so.getInputs()){
-				Object o = m.get(si.getName());
-				si.setValue(o==null?"":o.toString());
-			}
-			for(W5WsMethodParam p:wsm.get_params())if(p.getParamTip()==10){
-				Map mx = new HashMap();
-				mx.put(p.getDsc(), so.execute(ws, p.getDsc()));
-				return mx;
-			}
-
-			List<SoapOutput> outs = (List<SoapOutput>)so.execute(ws, null);
-			if(outs!=null)for(SoapOutput o:outs)result.put(o.getName(), o.getValue());*/
-			break;
-		case	2://rest
-			String url = ws.getWsUrl();
-			if(!url.endsWith("/"))url+="/";
-			url+=GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
-			String params = null;
-			Map<String, String> reqPropMap = new HashMap();
-			reqPropMap.put("Content-Language", "tr-TR");
-			if(!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip()>0){
-				if(wsm.getParamSendTip()<4){
-					for(W5WsMethodParam p:wsm.get_params())if(p.getOutFlag()==0 && p.getParentWsMethodParamId()==0){
-						Object o = GenericUtil.prepareParam((W5Param)p, scd, requestParams, p.getSourceTip(), null, p.getNotNullFlag(), null, null, errorMap, dao);
-						if(o!=null && o.toString().length()>0){
-							m.put(p.getDsc(), o);
+					W5WsMethodParam tokenParam = loginMethod.get_paramMap().get(ws.getWssLoginMethodParamId());
+					if(tokenKey==null || tokenTimeout==null || tokenTimeout<=System.currentTimeMillis()){//yeni bir token alinacak
+						if(tokenParam!=null){
+							Map tokenResult = callWs(scd, ws.getDsc()+"." + loginMethod.getDsc(), new HashMap());
+							Object o = tokenResult.get(tokenParam.getDsc());
+							if(o==null)
+								throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Auto-Login Failed", null);
+							tokenKey = o.toString();
+							ws.storeValue("tokenKey", tokenKey);
+							ws.storeValue("tokenKey.timeOut", System.currentTimeMillis()+ws.getWssLoginTimeout().longValue());
 						}
 					}
-					if(!errorMap.isEmpty()){
-						throw new IWBException("validation","WS Method Call",wsm.getWsId(), null, "Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
-					}
-					switch(wsm.getParamSendTip()){
-					case	1://form
-					case	3://form as post_url
-						params = GenericUtil.fromMapToURI(m);
-						if(wsm.getParamSendTip()==3){
-							if(!GenericUtil.isEmpty(params)){
-								if(url.indexOf('?')==-1)url+="?";
-								url+=params;
+					requestParams.put(tokenParam.getDsc(), tokenKey);
+				}
+			}
+	
+	
+			Map<String, Object> result = new HashMap();
+			switch(ws.getWsTip()){
+			case	1://soap
+				/*for(W5WsMethodParam p:wsm.get_params())if(p.getOutFlag()==0 && p.getParentWsMethodParamId()==0){
+					m.put(p.getDsc(), GenericUtil.prepareParam((W5Param)p, scd, requestParams, p.getSourceTip(), null, p.getNotNullFlag(), null, null, errorMap, dao));
+				}
+	
+				if(!errorMap.isEmpty())
+					throw new PromisException("validation","WS Method Call",wsm.getWsId(), null, "Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
+	
+				if(ws.get_service()==null){
+					ws.set_service(new SoapService(ws.getWsUrl()));
+				}
+				SoapOperation so = ws.get_service().getOperation(wsm.getDsc());
+				for(SoapInput si:so.getInputs()){
+					Object o = m.get(si.getName());
+					si.setValue(o==null?"":o.toString());
+				}
+				for(W5WsMethodParam p:wsm.get_params())if(p.getParamTip()==10){
+					Map mx = new HashMap();
+					mx.put(p.getDsc(), so.execute(ws, p.getDsc()));
+					return mx;
+				}
+	
+				List<SoapOutput> outs = (List<SoapOutput>)so.execute(ws, null);
+				if(outs!=null)for(SoapOutput o:outs)result.put(o.getName(), o.getValue());*/
+				break;
+			case	2://rest
+				String url = ws.getWsUrl();
+				if(!url.endsWith("/"))url+="/";
+				url+=GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
+				String params = null;
+				Map<String, String> reqPropMap = new HashMap();
+				reqPropMap.put("Content-Language", "tr-TR");
+				if(!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip()>0){
+					if(wsm.getParamSendTip()<4){
+						for(W5WsMethodParam p:wsm.get_params())if(p.getOutFlag()==0 && p.getParentWsMethodParamId()==0){
+							Object o = GenericUtil.prepareParam((W5Param)p, scd, requestParams, p.getSourceTip(), null, p.getNotNullFlag(), null, null, errorMap, dao);
+							if(o!=null && o.toString().length()>0){
+								m.put(p.getDsc(), o);
 							}
-							params = null;
 						}
-						reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-						break;
-					case	2://json
-						params = GenericUtil.fromMapToJsonString2Recursive(m);
-						reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
-						break;
+						if(!errorMap.isEmpty()){
+							throw new IWBException("validation","WS Method Call",wsm.getWsId(), null, "Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
+						}
+						switch(wsm.getParamSendTip()){
+						case	1://form
+						case	3://form as post_url
+							params = GenericUtil.fromMapToURI(m);
+							if(wsm.getParamSendTip()==3){
+								if(!GenericUtil.isEmpty(params)){
+									if(url.indexOf('?')==-1)url+="?";
+									url+=params;
+								}
+								params = null;
+							}
+							reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+							break;
+						case	2://json
+							params = GenericUtil.fromMapToJsonString2Recursive(m);
+							reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
+							break;
+						}
+					} else {
+						String postUrl = (String)requestParams.get("post_url");
+						if(!GenericUtil.isEmpty(postUrl))url += postUrl;
 					}
-				} else {
-					String postUrl = (String)requestParams.get("post_url");
-					if(!GenericUtil.isEmpty(postUrl))url += postUrl;
 				}
-			}
-			if(wsm.getHeaderAcceptTip()!=null){
-				reqPropMap.put("Accept", new String[]{"application/json","application/xml"}[wsm.getHeaderAcceptTip()-1]);
-			}
-			String x = HttpUtil.send(url, params,new String[]{"GET","POST","PUT","PATCH","DELETE"}[wsm.getCallMethodTip()], reqPropMap);
-			if(!GenericUtil.isEmpty(x)){
-				try {
+				if(wsm.getHeaderAcceptTip()!=null){
+					reqPropMap.put("Accept", new String[]{"application/json","application/xml"}[wsm.getHeaderAcceptTip()-1]);
+				}
+				Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params);
+				String x = HttpUtil.send(url, params,new String[]{"GET","POST","PUT","PATCH","DELETE"}[wsm.getCallMethodTip()], reqPropMap);
+				if(!GenericUtil.isEmpty(x))try{
+					log.setResponse(x);
 					String xx = x.trim();
 					if(xx.length()>0)switch(xx.charAt(0)){
 					case	'{':
@@ -6614,12 +6618,19 @@ public class FrameworkEngine{
 				} catch (JSONException e) {
 					throw new RuntimeException(e);
 				}
+				if(FrameworkSetting.log2tsdb){
+					log.calcProcessTime();
+					LogUtil.logObject(log);
+				}
+				break;
 			}
-			break;
+	
+	
+			return result;
+		} catch (Exception e){
+			throw new IWBException("framework", "RESTService_Method", wsm.getWsMethodId(), null, "[1376,"+wsm.getWsMethodId()+"] " + name, e);
 		}
 
-
-		return result;
 	}
 
 	private W5TsMeasurement getTsMeasurement(Map<String, Object> scd, int measurementId){
