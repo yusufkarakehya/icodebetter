@@ -15,10 +15,10 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.helper.W5TableRecordHelper;
-import iwb.util.FrameworkCache;
 import iwb.util.GenericUtil;
-import iwb.util.LocaleMsgCache;
 
 
 @Entity

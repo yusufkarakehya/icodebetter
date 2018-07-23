@@ -12,9 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import iwb.cache.FrameworkSetting;
 import iwb.domain.helper.W5DeferredResult;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 

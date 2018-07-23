@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 import iwb.adapter.ui.ViewAdapter;
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5BIGraphDashboard;
@@ -59,11 +62,8 @@ import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 import iwb.util.HtmlFilter;
-import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
 
 public class ExtJs3_3 implements ViewAdapter {
@@ -697,14 +697,10 @@ public class ExtJs3_3 implements ViewAdapter {
 				"ajaxExecDbFunc" };
 		s.append("{\n formId: ")
 				.append(formResult.getFormId())
-				.append(",\n a:")
-				.append(formResult.getAction())
-				.append(",\n name:'")
-				.append(LocaleMsgCache.get2(customizationId, xlocale,
-						formResult.getForm().getLocaleMsgKey()))
+				.append(", a:").append(formResult.getAction()).append(", name:'")
+				.append(LocaleMsgCache.get2(customizationId, xlocale, formResult.getForm().getLocaleMsgKey()))
 				.append("',id:'").append(formResult.getUniqueId())
-				.append("',\n defaultWidth:").append(f.getDefaultWidth())
-				.append(",\n defaultHeight:").append(f.getDefaultHeight());
+				.append("',\n defaultWidth:").append(f.getDefaultWidth()).append(", defaultHeight:").append(f.getDefaultHeight());
 
 		if (f.get_formHintList() != null) {
 			boolean b = false;
@@ -734,8 +730,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		// form(table) fields
 		if (f.getObjectTip() == 2
 				&& FrameworkCache.getTable(customizationId, f.getObjectId()) != null) {
-			s.append(",\n renderTip:").append(
-					formResult.getForm().getRenderTip());
+			s.append(",\n renderTip:").append(formResult.getForm().getRenderTip());
 			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord
 					&& t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
@@ -747,9 +742,8 @@ public class ExtJs3_3 implements ViewAdapter {
 						.append(",\n tmpId:").append(tmpId);
 				formResult.getRequestParams().put("_tmpId", "" + tmpId);
 			} else if (formResult.getAction() == 1) { // edit
-				s.append(",\n pk:")
-						.append(GenericUtil.fromMapToJsonString(formResult
-								.getPkFields()));
+				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
+				if(t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers()))s.append(", deletable:!0");
 				if (liveSyncRecord) {
 					s.append(",\n liveSync:true");
 					String webPageId = formResult.getRequestParams().get(".w");

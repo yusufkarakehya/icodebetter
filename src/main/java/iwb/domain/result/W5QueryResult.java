@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.json.JSONException;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
 import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
@@ -23,8 +25,6 @@ import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5TsMeasurement;
 import iwb.enums.FieldDefinitions;
 import iwb.util.DBUtil;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 
 

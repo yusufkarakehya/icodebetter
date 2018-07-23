@@ -20,9 +20,9 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import iwb.cache.FrameworkSetting;
 import iwb.domain.db.Log5Base;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 

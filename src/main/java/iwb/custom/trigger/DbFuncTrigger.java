@@ -1,8 +1,8 @@
 package iwb.custom.trigger;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
 import iwb.domain.result.W5DbFuncResult;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 
 public class DbFuncTrigger {
 	public static void beforeExecDbFunc(W5DbFuncResult dbFuncResult){

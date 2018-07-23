@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.W5LookUp;
 
 public class Money2Text {

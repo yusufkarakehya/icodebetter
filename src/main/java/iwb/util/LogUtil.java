@@ -8,6 +8,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import iwb.cache.FrameworkSetting;
 import iwb.domain.db.Log5Base;
 
 public class LogUtil {

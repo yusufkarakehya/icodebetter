@@ -2,8 +2,8 @@ package iwb.domain.result;
 
 import java.util.Map;
 
+import iwb.cache.FrameworkCache;
 import iwb.domain.db.M5List;
-import iwb.util.FrameworkCache;
 
 
 
