@@ -2354,7 +2354,7 @@ public class AppServlet implements InitializingBean {
 		String id=request.getParameter("id");
 		String key=request.getParameter("key");
 		int userId =0, customizationId=0;
-		String projectUuid = "";
+		String projectUuid = "undefined";
 		if(!GenericUtil.isEmpty(key)){
 			String[] oz = key.replace('.', ',').split(",");
 			if(oz.length==3){

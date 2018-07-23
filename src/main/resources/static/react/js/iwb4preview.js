@@ -252,7 +252,7 @@ class XTabForm extends React.PureComponent{
 			}
 //	    	var url = 'showForm?_renderer=react16&a=1&_fid='+props.crudFormId+pkz;
 
-			toastr.success('İlgili kaydı görmek için <a href=# onClick="return iwb.openForm(\''+url+'\')">tıklayınız</a>','Başarıyla Kaydedildi',{timeOut:3000});
+			toastr.success('Click! To see saved item <a href=# onClick="return iwb.openForm(\''+url+'\')"></a>','Saved Successfully',{timeOut:3000});
 			var parent = selfie.props.parentCt;
 			if(parent){
 				parent.closeTab();
