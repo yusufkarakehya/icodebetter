@@ -293,6 +293,14 @@ public class AppServlet implements InitializingBean {
 		response.getWriter().close();
 		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4StatTree", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
+	@RequestMapping("/ajaxMockQueryData")
+	public void hndAjaxMockQueryData(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		response.setContentType("application/json");
+		
+		response.getWriter().write("{success:true, id:\"asdasd\"}");
+		response.getWriter().close();
+		
+	}
 	
 	@RequestMapping("/ajaxQueryData")
 	public void hndAjaxQueryData(HttpServletRequest request, HttpServletResponse response)
