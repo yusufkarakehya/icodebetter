@@ -12,7 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import iwb.controller.AppServlet;
 import iwb.domain.helper.W5DeferredResult;
 import iwb.exception.IWBException;
 import iwb.util.FrameworkSetting;
@@ -35,7 +34,7 @@ public class AsyncServlet {
 			scd =  GenericUtil.uInt(request,"_preview")!=0 ? UserUtil.getScd4Preview(request, "scd-dev", false):UserUtil.getScd(request, "scd-dev", false);
 		} catch(IWBException e){
 			try {
-				response.getWriter().write(e.toJsonString(null));
+				response.getWriter().write(e.toJsonString());
 				response.getWriter().close();
 			} catch (IOException e1) {
 				e1.printStackTrace();

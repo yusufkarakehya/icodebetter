@@ -28,7 +28,7 @@ public class W5FileImport implements java.io.Serializable {
 	private Timestamp version_dttm;
 	
 	
-	@SequenceGenerator(name="sex_w5_file_import",sequenceName="seq_w5_file_import",allocationSize=1)
+	@SequenceGenerator(name="sex_w5_file_import",sequenceName="iwb.seq_w5_file_import",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_w5_file_import")
 	@Column(name="file_import_id")

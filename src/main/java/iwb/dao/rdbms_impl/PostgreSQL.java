@@ -35,12 +35,13 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import iwb.custom.trigger.QueryTrigger;
 import iwb.dao.RdbmsDao;
 //import iwb.dao.tsdb_impl.InfluxDao;
 import iwb.domain.db.Log5DbFuncAction;
+import iwb.domain.db.Log5Feed;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.Log5QueryAction;
 import iwb.domain.db.M5List;
 import iwb.domain.db.W5Approval;
@@ -51,7 +52,7 @@ import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5DbFunc;
 import iwb.domain.db.W5DbFuncParam;
-import iwb.domain.db.Log5Feed;
+import iwb.domain.db.W5Email;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
@@ -68,7 +69,6 @@ import iwb.domain.db.W5List;
 import iwb.domain.db.W5ListColumn;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5ObjectToolbarItem;
 import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Project;
@@ -95,7 +95,6 @@ import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.db.W5WsServerMethodParam;
 import iwb.domain.helper.W5AccessControlHelper;
 import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.M5ListResult;
@@ -118,6 +117,8 @@ import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 //import iwb.util.InfluxUtil;
 import iwb.util.LocaleMsgCache;
+import iwb.util.LogUtil;
+import iwb.util.MailUtil;
 import iwb.util.UserUtil;
 
 @SuppressWarnings({"unchecked","unused"})
@@ -186,7 +187,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 //		int customizationId = (Integer)f.getScd().get("customizationId");
 		int customizationId = f.isDev() ? 0 : FrameworkCache.getCustomizationId(f.getScd());
 
-		W5Form form = (W5Form)getCustomizedObject("from W5Form t where t.formId=? and t.customizationId=?", f.getFormId(), customizationId, "FormID"); // ozel bir client icin varsa
+		W5Form form = (W5Form)getCustomizedObject("from W5Form t where t.formId=? and t.customizationId=?", f.getFormId(), customizationId, "Form"); // ozel bir client icin varsa
 		f.setForm(form);
 		
 		f.getForm().set_formCells(find("from W5FormCell t where t.formId=? AND t.customizationId=? order by t.tabOrder, t.xOrder, t.dsc", f.getFormId(), customizationId));
@@ -400,8 +401,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return formResult;
 	}
 
-	private void logTableRecord(W5FormResult fr){
-		if(true)return;
+	private void logTableRecord(W5FormResult fr, String paramSuffix){
 		W5Table t = FrameworkCache.getTable(fr.getScd(), fr.getForm().getObjectId());
 		StringBuilder sql = new StringBuilder();
 		int userId =(Integer)fr.getScd().get("userId");
@@ -409,33 +409,28 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		String table = t.getDsc();
 
     	if(FrameworkSetting.log2tsdb){
-    		String xpr = "067e6162-3b6f-4ae2-a221-2470b63dff00"; //framework
-    		W5Project pr = null;
-    		if(fr.getScd()!=null){
-    			pr = FrameworkCache.wProjects.get(fr.getScd().get("projectId"));
-    			if(pr==null || pr.getTsdbFlag()==0)pr=null;
-    		}
-    		if(pr == null) pr = FrameworkCache.wProjects.get(xpr);
-    				
-    		if(pr.getTsdbFlag()==0)return;
-    		
-    		Map<String, Object> f = new HashMap(), p = new HashMap();
-
+    		String schema = FrameworkCache.wProjects.get((String)fr.getScd().get("projectId")).getRdbmsSchema();
     		sql.append("select * from ").append(table).append(" t ");
     		List<Object> whereParams = new ArrayList<Object>(fr.getPkFields().size());
     		
     		if(fr.getPkFields().size() > 0){		
     			sql.append(" where ");
     			boolean b = false;
-    			
+    			StringBuilder startQL= new StringBuilder();
+    			startQL.append(schema).append("_").append(t.getDsc().replace('.', '_'));
     			for(W5TableParam px: t.get_tableParamList()){
     				if(b)sql.append(" AND "); else b=true;
     				sql.append("t.").append(px.getExpressionDsc()).append("=?");
     				whereParams.add(fr.getPkFields().get(px.getDsc()));
-    				p.put(px.getExpressionDsc(), fr.getPkFields().get(px.getDsc()));
+    				startQL.append(",").append(px.getExpressionDsc()).append("=").append(fr.getPkFields().get(px.getDsc()));
     			}
     			List<Map> l = executeSQLQuery2Map(sql.toString(), whereParams);
     			if(!GenericUtil.isEmpty(l)){
+    				Map m = l.get(0);
+        			for(W5TableParam px: t.get_tableParamList())m.remove(px.getExpressionDsc());
+        			m.put("_action", fr.getAction());
+    				startQL.append(" ").append(GenericUtil.fromMapToInfluxFields(m));
+    				LogUtil.logCrud(startQL.toString());
     	//			influxDao.insert(pr, "log_table.."+table, p, l.get(0), null); TODO
     			}
     		}
@@ -550,7 +545,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		List list = find(hql, objectId,customizationId);
 		if(list.size()==0){
 			if(onErrorMsg==null)return null;
-			throw new IWBException("framework","WrongID:"+objectId, objectId,null, onErrorMsg, null);
+			throw new IWBException("framework",onErrorMsg, objectId,null, "Wrong ID", null);
 		}
 		else return list.get(0);
 	}
@@ -1115,7 +1110,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		int customizationId = (Integer)scd.get("customizationId");
 		W5Customization cus = FrameworkCache.wCustomizationMap.get(customizationId);
 				
-    	for(W5FormCellHelper rc : formCellResults){
+    	for(W5FormCellHelper rc : formCellResults)try{
     		W5FormCell c = rc.getFormCell();
 			includedValues = c.getLookupIncludedValues();
 	    	Map<String, String> paramMap = new HashMap<String, String>();
@@ -1268,7 +1263,9 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     	    	}
 //    			paramMap.clear();
     		}
-    	}
+    	} catch (Exception e){
+    		throw new IWBException("framework", "FormElement", rc.getFormCell().getFormCellId(), null, "[41,"+rc.getFormCell().getFormCellId()+"]", e);
+    	}    		
 	}
 	
 	@Override
@@ -1464,10 +1461,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							cellResult.setValue(o == null ? null: o.toString());
 							break;
 						case 3://app_setting
-							if(formResult.getScd()!=null && formResult.getScd().get("_user_settings")!=null && ((Map)formResult.getScd().get("_user_settings")).get(cellResult.getFormCell().getInitialValue())!=null)
-								cellResult.setValue(((Map)formResult.getScd().get("_user_settings")).get(cellResult.getFormCell().getInitialValue()).toString());
-							else
-								cellResult.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cellResult.getFormCell().getInitialValue()));
+							cellResult.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cellResult.getFormCell().getInitialValue()));
 							break;
 						case	4://SQL
 							Object[] oz = DBUtil.filterExt4SQL(cellResult.getFormCell().getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
@@ -1483,6 +1477,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							break;
 						case	5://CustomJS(Rhino)
 							Context cx = Context.enter();
+							StringBuilder sc = new StringBuilder(); 
 							try {
 								// Initialize the standard objects (Object, Function, etc.)
 								// This must be done before scripts can be executed. Returns
@@ -1490,9 +1485,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 								Scriptable scope = cx.initStandardObjects();
 
 								// Collect the arguments into a single string.
-								StringBuffer sc = new StringBuffer(); 
-								sc.append("\nvar scd=").append(GenericUtil.fromMapToJsonString(formResult.getScd()));
-								sc.append("\nvar request=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()));
+								sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString(formResult.getScd()));
+								sc.append("\nvar _request=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()));
 								sc.append("\n").append(cellResult.getFormCell().getDefaultValue());
 
 								//sc.append("'})';");
@@ -1513,6 +1507,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 									res = ""+new BigDecimal(res.toString()).intValue();
 								cellResult.setValue(res == null ? null : res.toString());
 				 
+							} catch(Exception e){
+								throw new IWBException("rhino", "FormElement", cellResult.getFormCell().getFormCellId(), sc.toString(), "[41,"+cellResult.getFormCell().getFormCellId()+"]", e);
 							} finally {
 					             // Exit from the context.
 				 	             Context.exit();
@@ -1622,7 +1618,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(cid!=0){
 			W5Customization cus = FrameworkCache.wCustomizationMap.get(cid);
 		}
-		W5Template template = (W5Template)getCustomizedObject("from W5Template t where t.templateId=? and t.customizationId=?", templateResult.getTemplateId(), cid, "TemplateID"); // ozel bir client icin varsa
+		W5Template template = (W5Template)getCustomizedObject("from W5Template t where t.templateId=? and t.customizationId=?", templateResult.getTemplateId(), cid, "Page"); // ozel bir client icin varsa
 		templateResult.setTemplate(template);
 		template.set_templateObjectList(find("from W5TemplateObject t where t.activeFlag=1 AND t.templateId=? AND t.customizationId=? order by t.tabOrder",templateResult.getTemplateId(), cid));
 		
@@ -1653,7 +1649,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			gridResult.setGrid(FrameworkCache.getGrid(scd,gridId));
 		} else {
 			int customizationId = (Integer)gridResult.getScd().get("customizationId");
-			W5Grid grid = (W5Grid)getCustomizedObject("from W5Grid t where t.gridId=? and t.customizationId=?", gridResult.getGridId(), customizationId, "GridID"); // ozel bir client icin varsa
+			W5Grid grid = (W5Grid)getCustomizedObject("from W5Grid t where t.gridId=? and t.customizationId=?", gridResult.getGridId(), customizationId, "Grid"); // ozel bir client icin varsa
 			gridResult.setGrid(grid);
 			grid.set_gridColumnList(find("from W5GridColumn t where t.gridId=? AND t.customizationId=? order by t.tabOrder",gridResult.getGridId(), customizationId));
 		}
@@ -1687,7 +1683,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	
 	private void loadDataView(W5DataViewResult dataViewResult) {
 		int customizationId = dataViewResult.isDev() ? 0 : (Integer)dataViewResult.getScd().get("customizationId");
-		W5DataView d = (W5DataView)getCustomizedObject("from W5DataView t where t.dataViewId=? and t.customizationId=?", dataViewResult.getDataViewId(), customizationId, "DataViewID"); // ozel bir client icin varsa
+		W5DataView d = (W5DataView)getCustomizedObject("from W5DataView t where t.dataViewId=? and t.customizationId=?", dataViewResult.getDataViewId(), customizationId, "DataView"); // ozel bir client icin varsa
 		dataViewResult.setDataView(d);
 
 		W5Query query = null;
@@ -1726,60 +1722,45 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	}
 	@Override
 	public W5GridResult getGridResult(Map<String, Object> scd, int gridId, Map<String,String> requestParams, boolean noSearchForm) {
-		int customizationId = (Integer)scd.get("customizationId");
-		W5GridResult gridResult = new W5GridResult(gridId);
-		gridResult.setRequestParams(requestParams);
-		gridResult.setScd(scd);
-		W5Grid g = null;
-		if(FrameworkSetting.preloadWEngine!=0 && (g=FrameworkCache.getGrid(customizationId,gridId))!=null){
-			gridResult.setGrid(g);
-		} else {
-			loadGrid(gridResult);
-			g = gridResult.getGrid();
-			if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.addGrid(customizationId, g);
-		}
-		
-
-		//search Form
-		if(!noSearchForm && g.get_searchFormId()!=0){
-			W5FormResult	searchForm = getFormResult(scd, g.get_searchFormId(), 2, requestParams);
-			initializeForm(searchForm, false);
-			loadFormCellLookups(scd, searchForm.getFormCellResults(), requestParams, null);
-			gridResult.setSearchFormResult(searchForm);
-		}
-		
-		gridResult.setFormCellResultMap(new HashMap());
-
-		if(!GenericUtil.isEmpty(gridResult.getUserCustomGridColumnList())){
-			int formCellCounter = 1;
-			for(W5GridColumn column:gridResult.getUserCustomGridColumnList()){
-				column.set_queryField(g.get_queryFieldMap().get(column.getQueryFieldId()));
-				if(column.getFormCellId()>0){ //form_cell
-					W5FormCell cell = (W5FormCell)getCustomizedObject("from W5FormCell t where t.formCellId=? and t.customizationId=?", column.getFormCellId(), g.getCustomizationId(), null);
-					if(cell!=null){
-						column.set_formCell(cell);
-						W5FormCellHelper cellResult = new W5FormCellHelper(cell);
-						gridResult.getFormCellResultMap().put(cell.getFormCellId(), cellResult);
-					}
-				} else if(column.getFormCellId()<0){//control
-					W5FormCell cell = new W5FormCell(-formCellCounter++);
-					cell.setControlTip((short)-column.getFormCellId());
-					cell.setDsc(column.get_queryField().getDsc());
-					column.set_formCell(cell);
-					W5FormCellHelper cellResult = new W5FormCellHelper(cell);
-					gridResult.getFormCellResultMap().put(cell.getFormCellId(), cellResult);
-				}
+		try{
+			int customizationId = (Integer)scd.get("customizationId");
+			W5GridResult gridResult = new W5GridResult(gridId);
+			gridResult.setRequestParams(requestParams);
+			gridResult.setScd(scd);
+			W5Grid g = null;
+			if(FrameworkSetting.preloadWEngine!=0 && (g=FrameworkCache.getGrid(customizationId,gridId))!=null){
+				gridResult.setGrid(g);
+			} else {
+				loadGrid(gridResult);
+				g = gridResult.getGrid();
+				if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.addGrid(customizationId, g);
 			}
-		} else {
+			
+	
+			//search Form
+			if(!noSearchForm && g.get_searchFormId()!=0)try{
+				W5FormResult	searchForm = getFormResult(scd, g.get_searchFormId(), 2, requestParams);
+				initializeForm(searchForm, false);
+				loadFormCellLookups(scd, searchForm.getFormCellResults(), requestParams, null);
+				gridResult.setSearchFormResult(searchForm);
+			} catch (Exception e){
+				throw new IWBException("framework", "SearchForm", g.get_searchFormId(), null, "[40,"+g.get_searchFormId()+"]", e);
+			}
+			
+			gridResult.setFormCellResultMap(new HashMap());
+	
 			for(W5GridColumn column:g.get_gridColumnList())if(column.get_formCell()!=null){
 				W5FormCellHelper cellResult = new W5FormCellHelper(column.get_formCell());
 				gridResult.getFormCellResultMap().put(column.get_formCell().getFormCellId(), cellResult);
 			}
+			
+			if(!gridResult.getFormCellResultMap().isEmpty())
+				loadFormCellLookups(gridResult.getScd(), new ArrayList(gridResult.getFormCellResultMap().values()), gridResult.getRequestParams(), null);
+	
+			return gridResult;
+		} catch (Exception e){
+			throw new IWBException("framework", "Grid", gridId, null, "[5,"+gridId+"]", e);
 		}
-		if(!gridResult.getFormCellResultMap().isEmpty())
-			loadFormCellLookups(gridResult.getScd(), new ArrayList(gridResult.getFormCellResultMap().values()), gridResult.getRequestParams(), null);
-
-		return gridResult;
 	}
 
 	@Override
@@ -1795,10 +1776,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			result=(o == null ? null: o.toString());
 			break;
 		case 3://app_setting
-			if(scd!=null && scd.get("_user_settings")!=null && ((Map)scd.get("_user_settings")).get(cell.getInitialValue())!=null)
-				result=(((Map)scd.get("_user_settings")).get(cell.getInitialValue()).toString());
-			else
-				result=(FrameworkCache.getAppSettingStringValue(scd, cell.getInitialValue()));
+			result=(FrameworkCache.getAppSettingStringValue(scd, cell.getInitialValue()));
 			break;
 		case	4://SQL
 			Object[] oz = DBUtil.filterExt4SQL(cell.getInitialValue(), scd, requestParams, null);
@@ -1876,45 +1854,45 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return m;
 	}
 	@Override
-	public Map<String, String> interprateMailTemplate(W5FormSmsMail fsm, Map<String, Object> scd, Map<String,String> requestParams, int fsmTableId, int fsmTablePk) {
+	public W5Email interprateMailTemplate(W5FormSmsMail fsm, Map<String, Object> scd, Map<String,String> requestParams, int fsmTableId, int fsmTablePk) {
 		
-		Map<String, String> m = new HashMap<String, String>();
+		W5Email email = new W5Email();
 		String mailTo = fsm.getSmsMailTo();
 		if(mailTo!=null && mailTo.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailTo);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,2,0);
-			mailTo = GenericUtil.organizeMailAdress(tmp1.toString());
+			mailTo = MailUtil.organizeMailAdress(tmp1.toString());
 		}
-		m.put("pmail_to", mailTo);
+		email.setMailTo(mailTo);
 		String mailCc = fsm.getSmsMailCc();
 		if(mailCc!=null && mailCc.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailCc);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,2,0);
-			mailCc = GenericUtil.organizeMailAdress(tmp1.toString());
+			mailCc = MailUtil.organizeMailAdress(tmp1.toString());
 		}
-		m.put("pmail_cc", mailCc);
+		email.setMailCc(mailCc);
 		String mailBcc = fsm.getSmsMailBcc();
 		if(mailBcc!=null && mailBcc.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailBcc);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,2,0);
-			mailBcc = GenericUtil.organizeMailAdress(tmp1.toString());
+			mailBcc = MailUtil.organizeMailAdress(tmp1.toString());
 		}
-		m.put("pmail_bcc", mailBcc);
+		email.setMailBcc(mailBcc);
 		String mailSubject = fsm.getSmsMailSubject();
 		if(mailSubject!=null && mailSubject.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailSubject);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,0,0);
 			mailSubject = tmp1.toString();
 		}
-		m.put("pmail_subject", mailSubject);
+		email.setMailSubject(mailSubject);
 		String mailBody = fsm.getSmsMailBody();
 		if(mailBody!=null && mailBody.contains("${")){
 			StringBuilder tmp1 = new StringBuilder(mailBody);
 			interprateTemplate(scd, requestParams, fsmTableId, fsmTablePk, tmp1, true,0,0);
 			mailBody = tmp1.toString();
 		}
-		m.put("pmail_body", mailBody);
-		return m;
+		email.setMailBody(mailBody);
+		return email;
 		
 	}
 	@Override
@@ -1927,12 +1905,12 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		case	1: 
 			W5Grid g = null;
 			if(FrameworkSetting.preloadWEngine==0 || (g=FrameworkCache.getGrid(customizationId,form.getObjectId()))==null){
-				g = (W5Grid)getCustomizedObject("from W5Grid g where g.customizationId=? AND g.gridId=?", customizationId, form.getObjectId(), "Wrong GridID(searchForm)");
+				g = (W5Grid)getCustomizedObject("from W5Grid g where g.customizationId=? AND g.gridId=?", customizationId, form.getObjectId(), "Grid");
 			}
 			if(g!=null){
 				W5Query q = null;
 				if(FrameworkSetting.preloadWEngine==0 || (q = FrameworkCache.wQueries.get(g.getQueryId()))==null){					
-					q = (W5Query)getCustomizedObject("from W5Query g where g.mainTableId>0 AND ?=1 AND g.queryId=?", 1, g.getQueryId(), "QueryID");
+					q = (W5Query)getCustomizedObject("from W5Query g where g.mainTableId>0 AND ?=1 AND g.queryId=?", 1, g.getQueryId(), "Query");
 				}
 				if(q!=null)t= FrameworkCache.getTable(customizationId, q.getMainTableId());  //grid
 			}
@@ -1971,10 +1949,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				result.setValue(o == null ? null: o.toString());
 				break;
 			case 3://app_setting
-				if(formResult.getScd()!=null && formResult.getScd().get("_user_settings")!=null && ((Map)formResult.getScd().get("_user_settings")).get(cell.getInitialValue())!=null)
-					result.setValue(((Map)formResult.getScd().get("_user_settings")).get(cell.getInitialValue()).toString());
-				else
-					result.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cell.getInitialValue()));
+				result.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cell.getInitialValue()));
 				break;
 			case	4://SQL
 				Object[] oz = DBUtil.filterExt4SQL(cell.getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
@@ -1989,6 +1964,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				break;
 			case	5://CustomJS(Rhino)
 				Context cx = Context.enter();
+				StringBuilder sc = new StringBuilder(); 
 				try {
 					// Initialize the standard objects (Object, Function, etc.)
 					// This must be done before scripts can be executed. Returns
@@ -2000,7 +1976,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 					}
 					// Collect the arguments into a single string.
-					StringBuffer sc = new StringBuffer(); 
 					sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString(formResult.getScd()));
 					sc.append("\nvar _request=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()));
 					sc.append("\n").append(cell.getInitialValue());
@@ -2025,6 +2000,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						res = ""+new BigDecimal(res.toString()).intValue();
 					result.setValue(res == null ? null : res.toString());
 	 
+				} catch(Exception e){
+					throw new IWBException("rhino", "FormElement", cell.getFormCellId(), sc.toString(), "[41,"+cell.getFormCellId()+"]", e);
 				} finally {
 		             // Exit from the context.
 	 	             Context.exit();
@@ -2047,7 +2024,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		int customizationId = gridResult.isDev() ? 0 : FrameworkCache.getCustomizationId(gridResult.getScd());
 		
 		
-		W5Grid grid = (W5Grid)getCustomizedObject("from W5Grid t where t.gridId=? and t.customizationId=?", gridResult.getGridId(), customizationId, "GridID"); // ozel bir client icin varsa
+		W5Grid grid = (W5Grid)getCustomizedObject("from W5Grid t where t.gridId=? and t.customizationId=?", gridResult.getGridId(), customizationId, "Grid"); // ozel bir client icin varsa
 		gridResult.setGrid(grid);
 
 		grid.set_gridColumnList(find("from W5GridColumn t where t.customizationId=? AND t.gridId=? order by t.tabOrder", customizationId,gridResult.getGridId()));
@@ -2140,7 +2117,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 
 		if(grid.getDefaultCrudFormId()!=0){
-			W5Form defaultCrudForm = (W5Form)getCustomizedObject("from W5Form t where t.formId=? and t.customizationId=?", grid.getDefaultCrudFormId(), customizationId, "CRUD-FormID"); // ozel bir client icin varsa
+			W5Form defaultCrudForm = (W5Form)getCustomizedObject("from W5Form t where t.formId=? and t.customizationId=?", grid.getDefaultCrudFormId(), customizationId, "Form"); // ozel bir client icin varsa
 			
 			if(defaultCrudForm!=null){
 //				defaultCrudForm.set_sourceTable(PromisCache.getTable(customizationId, defaultCrudForm.getObjectId()));
@@ -2357,7 +2334,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							if(!GenericUtil.isEmpty(dbFuncResult.getLogRecordList()))formResult.getCrudLogRecordList().addAll(dbFuncResult.getLogRecordList());
 						}
 			    	} */
-		    		if(t.getDoUpdateLogFlag()!=0)logTableRecord(formResult);
+		    		if(t.getDoUpdateLogFlag()!=0)logTableRecord(formResult, paramSuffix);
 		    		return updateCount==1;
 				}
     		});
@@ -3056,7 +3033,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
     	}*/
     	
-    	if(t.getDoDeleteLogFlag()!=0)logTableRecord(formResult);
+    	if(t.getDoDeleteLogFlag()!=0)logTableRecord(formResult, paramSuffix);
     	Session session = getCurrentSession();
     	try {
     		b = applyParameters(session.createSQLQuery(sql.toString()),realParams).executeUpdate()>0;
@@ -3108,7 +3085,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 					field.setProjectUuid((String)scd.get("projectId"));
 					field.setMainTableFieldId(wsmp.getWsMethodParamId());
-					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field"));
+					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", (String)scd.get("projectId")));
 					insertList.add(field);
 					j++;
 				}
@@ -3130,7 +3107,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 					field.setProjectUuid((String)scd.get("projectId"));
 					field.setMainTableFieldId(0);
-					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field"));
+					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", (String)scd.get("projectId")));
 					insertList.add(field);
 					j++;
 				}
@@ -3250,7 +3227,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		        						if(tf.getDefaultControlTip()!=0)field.setLookupQueryId(tf.getDefaultLookupTableId());
 	        						}
 	        					}
-	        					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field"));
+	        					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", (String)scd.get("projectId")));
 	        					insertList.add(field);
 	        					j++;
         					} else if(existField.get(columnName)!=null && (existField.get(columnName).getTabOrder()!=i || (existField.get(columnName).getMainTableFieldId()==0 && fieldMap.containsKey(columnName.toLowerCase())))){
@@ -3332,7 +3309,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	@Override
 	public void reloadErrorMessagesCache(){
 		FrameworkCache.wExceptions.clear();
-		for(Object[] m : (List<Object[]>)executeSQLQuery("select exc_code, locale_msg_key from iwb.w5_exception_filter")){
+		List l = executeSQLQuery("select exc_code, locale_msg_key from iwb.w5_exception_filter");
+		if(l!=null)for(Object[] m : (List<Object[]>)l){
 			FrameworkCache.wExceptions.put((String)m[0], (String)m[1]);
 		}	
 	}
@@ -3936,6 +3914,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	
 	@Override
 	public void executeDbFunc(W5DbFuncResult r, String paramSuffix){
+		Log5DbFuncAction action = new Log5DbFuncAction(r);
 		String error = null;
 		if(r.getDbFunc().getLkpCodeType()==1){
 			Context cx = Context.enter();
@@ -4000,25 +3979,16 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					Object em = scope.get("outMsgs", scope);
 				}
 				r.setSuccess(true);
-
-			} catch(IWBException e){
-				throw e;
 			} catch(Exception e){
-				if(e.getCause()!=null && e.getCause() instanceof IWBException){
-					IWBException pe = (IWBException) e.getCause();
-					throw new IWBException("rhino","DbFuncId", r.getDbFuncId(), pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-				}
-
-
-				if(FrameworkSetting.debug)e.printStackTrace();
-				throw new IWBException("rhino","DbFuncId", r.getDbFuncId(), script, LocaleMsgCache.get2(0,(String)r.getScd().get("locale"),e.getMessage()), e.getCause());
+				error = e.getMessage();
+				throw new IWBException("rhino", "GlobalFunc", r.getDbFuncId(), script, "[20,"+r.getDbFuncId()+"]", e);
 			} finally {
 	             // Exit from the context.
  	             cx.exit();
+ 		    	logDbFuncAction(action, r, error);
 	        }
 			return;
 		} 
-		Log5DbFuncAction action = new Log5DbFuncAction(r);
     	final List<Object> sqlParams = new ArrayList<Object>();
     	final List<String> sqlNames=new ArrayList<String>();
     	StringBuilder sql= new StringBuilder();
@@ -4659,7 +4629,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						if(st!=null && smsMailReplaceTip!=0 && smsMailTableIds.contains(st.getTableId())){// eger sms/mail isi ve bu bir link ise
 							res.put(subStr, fieldPrefix+field_cnt);
 							resField.put(subStr, tf);
-							sql.append("fnc_sms_mail_adress_multi(?,").append(st.getTableId()).append(",").append("x.").append(newSubStr).append(",").append(smsMailReplaceTip).append(") ").append(fieldPrefix).append(field_cnt).append(",");;
+							sql.append("iwb.fnc_sms_mail_adress_multi(?,").append(st.getTableId()).append(",").append("x.").append(newSubStr).append(",").append(smsMailReplaceTip).append(") ").append(fieldPrefix).append(field_cnt).append(",");;
 							params.add(scd.get("userRoleId"));
 							field_cnt++;
 						}
@@ -4730,11 +4700,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 								if(isss==sss.length-2 && summaryMust){//burda t'deki summary record sql varsa
 									if(smsMailReplaceTip!=0){
 										if(smsMailTableIds.contains(dltId))// eger sms/mail isi ve bu bir link ise
-											newSub.append("fnc_sms_mail_adress(?,").append(dltId).append(",").append("y").append(isss).append(".").append(sss[isss+1]).append(",").append(smsMailReplaceTip).append(")");
+											newSub.append("iwb.fnc_sms_mail_adress(?,").append(dltId).append(",").append("y").append(isss).append(".").append(sss[isss+1]).append(",").append(smsMailReplaceTip).append(")");
 										else
 											break;//HATA: sms mail tipinde olmasi gereken link, degil
 									} else
-										newSub.append("fnc_lookup_table_summary(?,").append(dltId).append(",").append("y").append(isss).append(".").append(sss[isss+1]).append(")");
+										newSub.append("iwb.fnc_lookup_table_summary(?,").append(dltId).append(",").append("y").append(isss).append(".").append(sss[isss+1]).append(")");
 									params.add(scd.get("userRoleId"));
 								} else
 									newSub.append("y").append(isss).append(".").append(sss[isss+1]);
@@ -4770,11 +4740,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							
 							if(smsMailReplaceTip!=0){
 								if(smsMailTableIds.contains(tf.getDefaultLookupTableId()))// eger sms/mail isi ve bu bir link ise
-									sql.append("fnc_sms_mail_adress(?,").append(tf.getDefaultLookupTableId()).append(",").append("x.").append(sss[0]).append(",").append(smsMailReplaceTip).append(")");
+									sql.append("iwb.fnc_sms_mail_adress(?,").append(tf.getDefaultLookupTableId()).append(",").append("x.").append(sss[0]).append(",").append(smsMailReplaceTip).append(")");
 								else
 									break;//HATA: sms mail tipinde olmasi gereken link, degil
 							} else
-								sql.append("fnc_lookup_table_summary(?,").append(tf.getDefaultLookupTableId()).append(",").append("x.").append(sss[0]).append(")");
+								sql.append("iwb.fnc_lookup_table_summary(?,").append(tf.getDefaultLookupTableId()).append(",").append("x.").append(sss[0]).append(")");
 							params.add(scd.get("userRoleId"));
 						} else
 							sql.append("x.").append(sss[0]);
@@ -4949,75 +4919,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return newRes;
 	}
 	
-	@Override
-	public String getUsersFromUserFields(W5Table t, String userFields, Map<String, Object> scd, String pk_id){
-		StringBuilder sql = new StringBuilder();
-		String[] fieldIdz = userFields.split(",");
-		List<Object> params= new ArrayList();
-		int cnt = 0;
-		for(String s:fieldIdz){
-			int tableFieldId = GenericUtil.uInt(s);
-			W5TableField tf = t.get_tableFieldMap().get(tableFieldId);
-			if(tf!=null){
-				sql.append("select "+tf.getDsc()+" user_id from "+t.getDsc()+" u where u.customization_id=? and u."+t.get_tableParamList().get(0).getDsc()+"=?");
-				params.add(scd.get("customizationId"));
-				params.add(pk_id);
-				if(cnt < fieldIdz.length-1){
-					sql.append(" union ");
-				}
-			}
-			cnt++;
-		}
-		/*
-		sql.append("select 1 a from ").append(t.getDsc()).append(" t where (");
-		String[] fieldIdz = userFields.split(",");
-		boolean bq=false;		
-		for(String s:fieldIdz){
-			int tableFieldId = PromisUtil.uInt(s);
-			boolean hrc = false;
-			if(tableFieldId<0){
-				hrc = true;
-				tableFieldId=-tableFieldId;
-			}
-			W5TableField tf = t.get_tableFieldMap().get(tableFieldId);
-			if(tf!=null){
-				if(bq)sql.append(" OR ");else bq=true;
-				if(hrc){
-					sql.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=t.").append(tf.getDsc()).append(")");
-					params.add(scd.get("customizationId"));
-				} else {
-					sql.append("t.").append(tf.getDsc()).append("=?");
-				}
-//				sql.append("t.").append(tf.getDsc()).append("=?");
-				params.add(scd.get("userId"));
-			}else {
-				Integer tbId = PromisCache.wTableFieldMap.get(tableFieldId);
-				if(tbId!=null){
-					W5Table t2 = PromisCache.getTable(t.getCustomizationId(), tbId);
-					if(t2!=null && !PromisUtil.isEmpty(t2.get_tableChildList())){
-						W5TableField tf2 = t2.get_tableFieldMap().get(tableFieldId);
-						for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==t.getTableId()){
-							if(bq)sql.append(" OR ");else bq=true;
-							if(tc.getRelatedStaticTableFieldId()>0){
-								sql.append("(t.").append(t.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-							}
-							sql.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=? AND hq.").append(tf2.getDsc()).append("=?").append(" AND hq.")
-							.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=t.").append(t.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-							if(tc.getRelatedStaticTableFieldId()>0){
-								sql.append(")");
-							}
-							sql.append(")");
-							params.add(scd.get("customizationId"));
-							params.add(scd.get("userId"));
-							break;
-						}
-					}
-				}
-			}
-		}
-		sql.append(")");	*/	
-		return sql.toString();
-	}
 	
 	@Override
 	public boolean accessUserFieldControl(W5Table t,
@@ -5034,21 +4935,13 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		boolean bq=false;
 		for(String s:fieldIdz){
 			int tableFieldId = GenericUtil.uInt(s);
-			boolean hrc = false;
-			if(tableFieldId<0){
-				hrc = true;
-				tableFieldId=-tableFieldId;
+			if(tableFieldId<0){ //TODO: for conditionSQL 
+				continue;
 			}
 			W5TableField tf = t.get_tableFieldMap().get(tableFieldId);
 			if(tf!=null){
 				if(bq)sql.append(" OR ");else bq=true;
-				if(hrc){
-					sql.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=t.").append(tf.getDsc()).append(")");
-					params.add(scd.get("customizationId"));
-				} else {
-					sql.append("t.").append(tf.getDsc()).append("=?");
-				}
-//				sql.append("t.").append(tf.getDsc()).append("=?");
+				sql.append("t.").append(tf.getDsc()).append("=?");
 				params.add(scd.get("userId"));
 			}else {
 				Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
@@ -5087,190 +4980,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     	Map<String, Object> m = runSQLQuery2Map(sql.toString(), params, null);
 		return m==null || m.isEmpty();
 	}
-	/*
-	public int bpmControl(Map<String, Object> scd, Map<String, String> requestParams, List<BpmAction> bpmStartActionList, List<BpmAction> bpmEndActionList, int action, int tableId, int tablePk){
-		int nextBpmActionId = -1; 
-		int percent = 100;
-		//bpm:start action
-		if(bpmStartActionList !=null)for(BpmAction ba:bpmStartActionList)
-		   if(ba.get_listRelatedProcessStep()!=null && (ba.getStartActionTip()==action || ba.getStartActionTip()==11 || ba.getStartActionTip()==12)){//function, sql veya tablo ile ilgili action(update-insert-delete)
-			  for(BpmProcessStep bps:ba.get_listRelatedProcessStep()){//her bir process step icin				
-				//eger insert durumundaysa ve processId verilmediyse
-				if(bps.get_firstStepFlag()!=0 && ba.getStartActionTip()==2 && PromisUtil.uInt(requestParams,"_sbpid")!=bps.getProcessId())continue;
-				boolean finishFlow = false;
-				if(ba.getStartActionSql()== null && ba.getStartActionTip()==12)	continue;				
-				if(ba.getStartActionSql()!=null){
-					Map<String, Object> m = runSQLQuery2Map(ba.getStartActionSql(), scd, requestParams, bps.get_stepParamMap());
-					if(m!=null){
-						if(m.get("active_flag")!=null &&PromisUtil.uInt(m.get("active_flag"))==0) continue;
-						if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0)finishFlow = true;
-						if(m.get("percent")!=null) percent = PromisUtil.uInt(m.get("percent"));
-						if(m.get("table_pk")!=null)tablePk = PromisUtil.uInt(m.get("table_pk"));
-						if(tablePk==0)continue;
-						
-						if (ba.getStartActionTip()==11){//function ise
-							if(m.get("action")!=null)action=PromisUtil.uInt(m.get("action"));							
-						}
-					}
-					else{
-						if(ba.getStartActionTip()==12)	continue;	//sql koşul sağlanmadıysa
-					}
-				}
-				if (ba.getStartActionTip()==11) tableId = bps.get_action().getRelatedTableId();
-				int processId = bps.getProcessId();
-				int processStepId = bps.getProcessStepId();
-				int flowProcessId = 0;
-				if(bps.get_firstStepFlag()!=0){//ilk kayit yapilacak
-					BpmFlowProcess bfp = new BpmFlowProcess(scd);
-					bfp.setProcessId(processId);
-					bfp.setStartTableId(bps.get_action().getRelatedTableId());
-					bfp.setStartTablePk(PromisUtil.uInt(tablePk));
-					bfp.setStatus(finishFlow ? (short)11 : (short)1);//active: finishFlow==true 11 aksi halde 1
-					bfp.setAssignedUserId((Integer)scd.get("userId"));
-					saveObject(bfp);
-					BpmFlowProcessStep bfps = new BpmFlowProcessStep(bfp);
-					bfps.setProcessStepId(processStepId);
-					bfps.setActionId(ba.getActionId());
-					bfps.setTableId(tableId);
-					bfps.setTablePk(PromisUtil.uInt(tablePk));
-					bfps.setCrudAction((short)action);
-					bfps.setPercentDone((short)10);//active: manual finish
-					switch(ba.getEndActionTip()){
-					case	1://manual
-						bfps.setStatus((short)1);//active: manual finish
-						break;
-					case	2://instant
-						bfps.setStatus((short)11);//finish
-						bfps.setPercentDone((short)percent);//active: manual finish
-						break;
-					case	3://table_record_condition
-						break;
-					case	4://exec_db_func
-						break;
-					case	6://finish_after_duration
-						bfps.setStatus((short)2);//active: finish_after_duration
-						break;
-					}
-					saveObject(bfps);
-					//nextBpmActions = dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", ba.getActionId());
-					nextBpmActionId = ba.getActionId();
-				} else if(ba.get_listLinkCondition()!=null)for(BpmActionLinkCondition balc:ba.get_listLinkCondition()){//bagli oldugu flowu bulmak icin gerekli kod
-					requestParams.put("_pi", ""+processId);//processId
-					requestParams.put("_psi", ""+bps.getProcessStepId());//processStepId
-					requestParams.put("_ai", ""+ba.getActionId());//actionId
-					requestParams.put("_pai", ""+balc.getParentActionId());//parentActionId
-					Map<String, Object> m = runSQLQuery2Map(balc.getSqlCode(), scd, requestParams, bps.get_stepParamMap());
-					if(m!=null){
-						flowProcessId = PromisUtil.uInt(m.get("flow_process_id"));
-						BpmFlowProcess bfp=(BpmFlowProcess)getCustomizedObject("from BpmFlowProcess t where t.flowProcessId=? AND t.customizationId=?", flowProcessId, (Integer)scd.get("customizationId"));
-						if(bfp!=null){
 
-							if(bps.getRelatedStepIds()!=null){//daha onceki kayitlar yapilmis olmali, aksi halde devam edemez
-								String[] stepIds=bps.getRelatedStepIds().split(",");
-								//TODO: su su sartlar saglanmadigi icin devam edilemez
-							}
-							//flowProcess Update
-							bfp.setVersionUserId((Integer)scd.get("userId"));
-							bfp.setVersionNo(bfp.getVersionNo()+1);
-							bfp.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-							if(finishFlow)bfp.setStatus((short)11);
-							updateObject(bfp);							
-							
-							if(ba.getLogOnceFlag()!=0){//bir defa mi kaydedilecek
-								int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-								if(flowProcessStepId!=0){
-									BpmFlowProcessStep bfps=(BpmFlowProcessStep)getCustomizedObject("from BpmFlowProcessStep t where t.flowProcessStepId=? AND t.customizationId=?", flowProcessStepId, (Integer)scd.get("customizationId"));
-									if(bfps!=null){
-										bfps.setVersionUserId((Integer)scd.get("userId"));
-										bfps.setVersionNo(bfps.getVersionNo()+1);
-										bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-										bfps.setPercentDone((short)percent);
-										updateObject(bfps);
-									}
-									continue;
-								}
-							} else { //birden fazla defa da kaydedilebilir, aynisindan varsa ilgili kaydi update et
-								int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-								if(flowProcessStepId!=0){ // bir tane var demek ki
-									List<BpmFlowProcessStep> lbfps=(List<BpmFlowProcessStep>)find("from BpmFlowProcessStep t " +
-											"where t.tableId=? AND t.tablePk=? AND t.flowProcessId=? AND t.actionId=? AND t.customizationId=?", tableId, tablePk, flowProcessId, bps.getActionId(), (Integer)scd.get("customizationId"));
-									if(!lbfps.isEmpty()){
-										BpmFlowProcessStep bfps = lbfps.get(0);
-										bfps.setVersionUserId((Integer)scd.get("userId"));
-										bfps.setVersionNo(bfps.getVersionNo()+1);
-										bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-										bfps.setPercentDone((short)percent);
-										updateObject(bfps);
-										continue;
-									}
-								}										
-							}
-
-							if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;//active flag var ve akif degilse
-
-							BpmFlowProcessStep bfps = new BpmFlowProcessStep(scd);
-							bfps.setProcessStepId(processStepId);
-							bfps.setProcessId(processId);
-							bfps.setActionId(ba.getActionId());
-							bfps.setFlowProcessId(flowProcessId);
-							bfps.setTableId(tableId);
-							bfps.setTablePk(PromisUtil.uInt(tablePk));
-							if(bps.get_action().getPrerequisitActionId()==0){//eger uste biri yoksa, direk bu kalsin
-								bfp.setStartTableId(tableId);
-								bfp.setStartTablePk(PromisUtil.uInt(tablePk));
-								updateObject(bfp);
-							}
-							bfps.setCrudAction((short)action);
-							bfps.setPercentDone((short)10);//active: manual finish
-							switch(ba.getEndActionTip()){
-							case	1://manual
-								bfps.setStatus((short)1);//active: manual finish
-								break;
-							case	2://instant
-								bfps.setStatus((short)11);//finish
-								bfps.setPercentDone((short)percent);//active: manual finish
-								break;
-							case	3://table_record_condition
-								break;
-							case	4://exec_db_func
-								break;
-							case	6://finish_after_duration
-								bfps.setStatus((short)2);//active: finish_after_duration
-								break;
-							}
-							saveObject(bfps);
-							//formResult.setNextBpmActions(dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", ba.getActionId()));
-							nextBpmActionId = ba.getActionId();
-						}
-					}
-				}
-			}					
-		}
-		//bpm:end action
-		if(bpmEndActionList!=null)for(BpmAction ba:bpmEndActionList)if(ba.getEndActionTip()==3){//table crud
-			int percentDone=100;
-			if(ba.getEndActionSql()!=null){
-				Object[] oz = PromisUtil.filterExt4SQL(ba.getEndActionSql(), scd, requestParams, null);
-				Map<String, Object> m = runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-				if(m!=null){
-					if(m.get("percent_done")!=null)percentDone=PromisUtil.uInt(m.get("percentDone"));
-					if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0){
-						//TODO : bitirmeyle ilgili islemler
-					}
-				}
-			}
-			List<BpmFlowProcessStep> lbfps = find("from BpmFlowProcessStep t where t.percentDone<100 AND t.actionId=? AND t.customizationId=? AND exists(select 1 from BpmFlowProcess p where p.customizationId=t.customizationId AND p.processId=t.processId AND p.status=1)",ba.getActionId(),(Integer)scd.get("customizationId"));
-			for(BpmFlowProcessStep bfps:lbfps){
-				bfps.setVersionUserId((Integer)scd.get("userId"));
-				bfps.setVersionNo(bfps.getVersionNo()+1);
-				bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-				bfps.setPercentDone((short)percentDone);
-				updateObject(bfps);
-			}
-		}
-		return nextBpmActionId;			
-	}
-*/
 	@Override
 	public List getRecordPictures(Map<String, Object> scd,int tableId,String tablePk){
 		List<Object[]> l=executeSQLQuery("select x.file_attachment_id from iwb.w5_file_attachment x where x.customization_Id=? and x.table_Id=? and x.table_pk=? and exists(select 1 from gen_file_type tt where tt.customization_id=x.customization_id and tt.image_flag=1 and tt.file_type_id=x.file_type_id)" , scd.get("customizationId"),tableId,tablePk);
@@ -5289,24 +4999,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return l;
 	}
 	
-
-/*	
-	public boolean logException(String exceptionText,int customizationId,int userRoleId){		
-		Log5Exception ex=new Log5Exception();
-		ex.setCustomizationId(customizationId);
-		ex.setExceptionText(exceptionText.substring(0,exceptionText.length()< 3999 ? exceptionText.length():3999));
-		ex.setUserRoleId(userRoleId);
-		*/
-		/*exceptionText=exceptionText.substring(0,exceptionText.length()< 3999 ? exceptionText.length():3999);
-		try { 
-			executeSQLWithoutTransaction("insert into log5_exception(log_id, exception_text, user_role_id,  customization_id)   values  (seq_log5_exception.nextval, ?,?, ?)",exceptionText,userRoleId,customizationId);
-			//saveObject(ex); 
-			return true;}
-        catch (Exception e) {
-			return false;
-		}
-        return true;
-	}*/
 	
 	@Override
 	public Object executeRhinoScript(Map<String, Object> scd, Map<String, String> requestParams, String script, Map obj, String result) {
@@ -5340,17 +5032,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			}
 			return null;
 			
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				IWBException pe = (IWBException) e.getCause();
-				throw new IWBException("rhino","Script Error", 0, pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-			}
-
-
-			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("rhino","Script Error", 0, script, LocaleMsgCache.get2(scd,e.getMessage()), e.getCause());
+			throw new IWBException("rhino", "BackendJS", 0, script, e.getMessage(), e);
 		} finally {
              // Exit from the context.
 	             cx.exit();
@@ -5378,14 +5061,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(c.get_conversionColList()==null)return null;
 		Map<String, Object> m = new HashMap<String, Object>();
 		if(checkCondition && !GenericUtil.isEmpty(c.getConditionSqlCode())){ //TODO
-/*			List<W5ObjectConditionGroup> locg = conditionRecordExistsCheck(scd, c.get_conditionList(), c.get_conditionGroupList(), dstFormResult.getRequestParams(), sf.getObjectId(), conversionTablePk, c.getConditionSqlCode());
-			if(locg.size()>0){
-				for(W5ObjectConditionGroup ocg:locg)if(ocg.getStrategyTip()<2){
-					m.put("_cnv_error_list", locg);
-					return m;
-				}
-				m.put("_cnv_warning_list", locg);
-			} */
+			boolean b = conditionRecordExistsCheck(scd, dstFormResult.getRequestParams(), sf.getObjectId(), conversionTablePk, c.getConditionSqlCode());
+			if(!b)return null;
 		}
 		//TODO: source kayda yetki kontrolu olacak
 		
@@ -5428,6 +5105,23 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return m;
 	}
 	
+	public boolean conditionRecordExistsCheck(Map<String, Object> scd, Map<String, String> requestParams, int tableId, int tablePk, String conditionSqlCode) {
+		W5Table t = FrameworkCache.getTable(scd, tableId);
+		StringBuilder sql = new StringBuilder();
+		sql.append("select 1 from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=? AND ");
+		List params = new ArrayList();
+		params.add(tablePk);
+		if(t.get_tableParamList().size()>1 && t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
+			sql.append(" x.customization_id=? AND ");
+			params.add(scd.get("customizationId"));
+		}
+		Object[] oz = DBUtil.filterExt4SQL(conditionSqlCode, scd, new HashMap(), null);
+		sql.append(oz[0]);
+		if(oz.length>1 && oz[1]!=null)params.addAll((List)oz[1]);
+		List l = executeSQLQuery2(sql.toString(), params);
+		return !GenericUtil.isEmpty(l);
+	}
+
 	@Override
 	public Map interprateConversionTemplate4WsMethod(Map<String, Object> scd, Map<String, String> requestParams,W5Conversion c,
 			int conversionTablePk, W5WsMethod	wsm) {
@@ -5551,7 +5245,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(FrameworkSetting.preloadWEngine!=0 && (d=FrameworkCache.getMListView(customizationId,listId))!=null){
 			mlistResult.setList(d);
 		} else {
-			d = (M5List)getCustomizedObject("from M5List t where t.listId=? and t.customizationId=?", listId, customizationId, "MobileListID"); // ozel bir client icin varsa
+			d = (M5List)getCustomizedObject("from M5List t where t.listId=? and t.customizationId=?", listId, customizationId, "MobileList"); // ozel bir client icin varsa
 			W5Query q = (W5Query)getCustomizedObject("from W5Query t where t.queryId=? and t.customizationId=?", d.getQueryId(), customizationId, "QueryID"); // ozel bir client icin varsa
 			d.set_query(q);
 			if(q.getMainTableId()!=0)d.set_mainTable(FrameworkCache.getTable(customizationId, q.getMainTableId()));
@@ -5612,7 +5306,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(customizationId!=0){
 			W5Customization cus = FrameworkCache.wCustomizationMap.get(customizationId);
 		}	
-		W5List d = (W5List)getCustomizedObject("from W5List t where t.listId=? and t.customizationId=?", listViewResult.getListId(), customizationId, "ListID"); // ozel bir client icin varsa
+		W5List d = (W5List)getCustomizedObject("from W5List t where t.listId=? and t.customizationId=?", listViewResult.getListId(), customizationId, "List"); // ozel bir client icin varsa
 		listViewResult.setListView(d);
 
 		W5Query query = null;
@@ -5936,10 +5630,12 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		case	1://update
 			s.append("update ").append(t.getDsc()).append(" set ");
 			for(W5TableField f:t.get_tableFieldList())if(f.getTabOrder()>1){
-				if(f.getDsc().equals("version_no") || f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") 
-						|| f.getDsc().equals("version_user_id") || f.getDsc().equals("version_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
+				if(f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
 						continue;
-				
+				if(f.getDsc().equals("version_dttm")){
+					s.append(f.getDsc()).append("=iwb.fnc_sysdate(0),");
+					continue;
+				}
 				s.append(f.getDsc()).append("=?,");
 				try {
 					if(o.has(f.getDsc())){
@@ -6038,7 +5734,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			tableId = GenericUtil.uInt(l.get(0));
 		}
 		if(tableId==0){
-			tableId = GenericUtil.getGlobalNextval("iwb.seq_table");
+			tableId = GenericUtil.getGlobalNextval("iwb.seq_table", projectUuid);
 			int rq = executeUpdateSQLQuery("insert into iwb.w5_table"
 					+ "(table_id, dsc, insert_user_id, version_user_id, customization_id, project_uuid)values"
 					+ "(?       , ?  , ?             , ?              , ?               , ?)",
@@ -6048,7 +5744,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 			String firstField = (String)executeSQLQuery("SELECT lower(qz.COLUMN_NAME) from information_schema.columns qz where qz.table_name = ? and qz.table_schema = ? and qz.ordinal_position=1", tableName, schema).get(0);
 
-			int tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param");
+			int tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param", projectUuid);
 			rq = executeUpdateSQLQuery("insert into iwb.w5_table_param "
 					+ "(table_param_id, table_id, dsc, expression_dsc, tab_order, param_tip, operator_tip, not_null_flag, source_tip, insert_user_id, version_user_id, project_uuid, customization_id)values"
 					+ "(?             , ?       , ?  , ?             , ?        , ?        , ?           , ?            , ?         , ?             , ?              , ?           , ?)",
@@ -6058,7 +5754,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			cnt = GenericUtil.uInt(executeSQLQuery("SELECT count(1) from information_schema.columns qz where qz.table_name = ? and qz.table_schema = ? and lower(qz.COLUMN_NAME)='customization_id'", tableName, schema).get(0));
 
 			if(cnt>0){
-				tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param");
+				tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param", projectUuid);
 				rq = executeUpdateSQLQuery("insert into iwb.w5_table_param "
 					+ "(table_param_id, table_id, dsc, expression_dsc, tab_order, param_tip, operator_tip, not_null_flag, source_tip, insert_user_id, version_user_id, project_uuid, customization_id)values"
 					+ "(?             , ?       , ?  , ?             , ?        , ?        , ?           , ?            , ?         , ?             , ?              , ?           , ?)",
@@ -6082,7 +5778,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			int tabOrder = GenericUtil.uInt(m.get("ordinal_position"));
 			if(tfId==0){
 				String fieldName = ((String)m.get("column_name")).toLowerCase(FrameworkSetting.appLocale);
-				int tableFieldId = GenericUtil.getGlobalNextval("iwb.seq_table_field");
+				int tableFieldId = GenericUtil.getGlobalNextval("iwb.seq_table_field", projectUuid);
 				int rq = executeUpdateSQLQuery("insert into iwb.w5_table_field "
 						+ "(table_field_id, table_id, dsc, field_tip, not_null_flag, max_length, tab_order, insert_user_id, version_user_id, customization_id, project_uuid, source_tip, default_value, can_update_flag, can_insert_flag, copy_source_tip, default_control_tip, default_lookup_table_id) values"
 						+ "(?             , ?       , ?  , ?        , ?            , ?         , ?        , ?             , ?              , ?               , ?           , ?         , ?            , ?              , ?              , ?              , ?                  , ? )"
@@ -6180,7 +5876,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		}
 		
 		if(dbFuncId==0){
-			dbFuncId = GenericUtil.getGlobalNextval("iwb.seq_db_func");
+			dbFuncId = GenericUtil.getGlobalNextval("iwb.seq_db_func", projectUuid);
 			int rq = executeUpdateSQLQuery("insert into iwb.w5_db_func"
 					+ "(db_func_id, dsc, insert_user_id, version_user_id, project_uuid, customization_id)values"
 					+ "(?         , ?  , ?        , ?             , ?              , ?                , ?           , ?)",
@@ -6192,7 +5888,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		for(int qi=0;qi<arp.length;qi++){
 			int dbFuncParamId = GenericUtil.uInt(dbFuncParamMap.get(arp[qi]));
 			if(dbFuncParamId==0){ // boyle bir kayit yok
-				dbFuncParamId = GenericUtil.getGlobalNextval("iwb.seq_db_func_param");
+				dbFuncParamId = GenericUtil.getGlobalNextval("iwb.seq_db_func_param", projectUuid);
 				executeUpdateSQLQuery("insert into iwb.w5_db_func_param "
 						+ "(db_func_param_id, db_func_id, dsc, expression_dsc, param_tip, tab_order, insert_user_id, version_user_id, source_tip, default_value, not_null_flag, out_flag, project_uuid, customization_id )  values "
 						+ "( ?              , ?         , ?  , ?             , 1        , ?        , ?             , ?              , ?         , ?            , ?            , 0       , ?           , ? )",
@@ -6617,17 +6313,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				}
 			} else return;
 			
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				IWBException pe = (IWBException) e.getCause();
-				throw new IWBException("rhino","QueryId", q.getQueryId(), pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-			}
-
-
-			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("rhino","QueryId", q.getQueryId(), script, LocaleMsgCache.get2(0,(String)qr.getScd().get("locale"),e.getMessage()), e.getCause());
+			throw new IWBException("rhino", "Query", q.getQueryId(), script, "[8,"+q.getQueryId()+"]", e);
 		} finally {
              // Exit from the context.
 	             cx.exit();

@@ -685,6 +685,21 @@ public class GenericUtil {
     	html.append("}");
     	return html.toString();		
 	}
+	//" ile
+	public	static String fromMapToInfluxFields(Map s){
+		if(s==null || s.isEmpty())return "";
+        StringBuilder html = new StringBuilder();
+        boolean	b = false;
+    	for(Object q :s.keySet()){
+    		if(b)html.append(",");else b=true;
+    		Object o = s.get(q);
+    		if(o !=null && (o instanceof Integer || o instanceof Double || o instanceof BigDecimal || o instanceof Boolean))
+        		html.append(q).append("=").append(o);
+    		else
+    			html.append(q).append("=\"").append(o!=null ? stringToJS2(o.toString()) :"").append("\"");
+    	}
+    	return html.toString();		
+	}
 	@SuppressWarnings("unchecked")
 	public	static String fromListToJsonString2Recursive(List<Object> s){
 		if(s==null || s.isEmpty())return "[]";
@@ -1082,7 +1097,7 @@ public class GenericUtil {
 			pvalue = defaultValue;
 			break;
 		case	8://global Nextval
-			return getGlobalNextval(defaultValue);
+			return getGlobalNextval(defaultValue, scd!=null ? (String)scd.get("projectId"):null);
 		case 9:  //UUID
 			pvalue = UUID.randomUUID().toString();
 			break;
@@ -1122,10 +1137,7 @@ public class GenericUtil {
 				pvalue=null;
 			break;
 		case 3://app_setting
-			if(scd!=null && scd.get("_user_settings")!=null && ((Map)scd.get("_user_settings")).get(param.getDefaultValue())!=null)
-				pvalue = ((Map)scd.get("_user_settings")).get(param.getDefaultValue()).toString();
-			else
-				pvalue = FrameworkCache.getAppSettingStringValue(scd,param.getDefaultValue());
+			pvalue = FrameworkCache.getAppSettingStringValue(scd,param.getDefaultValue());
 			break;
 		case	4://expression, ornegin seq_ali.nextval
 			if(dao!=null){
@@ -1152,8 +1164,8 @@ public class GenericUtil {
 				}*/
 				
 				StringBuilder sc = new StringBuilder(); 
-				sc.append("\nvar scd=").append(fromMapToJsonString(scd));
-				sc.append("\nvar request=").append(fromMapToJsonString(requestParams));
+				sc.append("\nvar _scd=").append(fromMapToJsonString(scd));
+				sc.append("\nvar _request=").append(fromMapToJsonString(requestParams));
 				sc.append("\n").append(defaultValue);
 
 
@@ -1246,7 +1258,7 @@ public class GenericUtil {
 			pvalue = defaultValue;
 			break;
 		case	8://global Nextval
-			return getGlobalNextval(defaultValue);
+			return getGlobalNextval(defaultValue, scd!=null ? (String)scd.get("projectId"):null);
 		case 9:  //UUID
 			pvalue = UUID.randomUUID().toString();
 			break;			
@@ -1303,8 +1315,8 @@ public class GenericUtil {
 
 				// Collect the arguments into a single string.
 				StringBuilder sc = new StringBuilder(); 
-				sc.append("\nvar scd=").append(fromMapToJsonString(scd));
-				sc.append("\nvar request=").append(fromMapToJsonString(requestParams));
+				sc.append("\nvar _scd=").append(fromMapToJsonString(scd));
+				sc.append("\nvar _request=").append(fromMapToJsonString(requestParams));
 				sc.append("\n").append(defaultValue);
 
 				//sc.append("'})';");
@@ -1477,39 +1489,7 @@ public class GenericUtil {
 		return tmp;
 	}
 
-	
-	public static boolean isValidEmailAddress(String emailAddress)
-	{  
-		if(emailAddress!=null &&emailAddress.indexOf("<")!=-1 &&emailAddress.indexOf(">")!=-1) emailAddress=emailAddress.substring(emailAddress.indexOf("<")+1,emailAddress.indexOf(">"));
-		String expression= "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[_A-Za-z0-9-]+)" ;
-		CharSequence inputStr = emailAddress;  
-		Pattern pattern = Pattern.compile(expression,Pattern.CASE_INSENSITIVE);  
-		Matcher matcher = pattern.matcher(inputStr);
-		return matcher.matches();     
-	}
-	
-	public static String organizeMailAdress(String emailAddress)
-	{  
-		if(emailAddress==null || emailAddress.length()<3)return "";
-		String[] qx = emailAddress.split(",");
-		String newEmailAddress="";
-		for(String s:qx){
-			if(isValidEmailAddress(s))newEmailAddress+=","+s.trim();
-		}
-		return newEmailAddress.length()>1 ? newEmailAddress.substring(1): "";     
-	}
-	public static String getMailReklam(Map<String, Object> scd )
-	{
-		String temp = "";
-		String locale=scd.get("locale") != null ? scd.get("locale").toString() : "tr";
-		if(locale.equals("tr")){
-			temp = "<br><br><hr><br><div style='text-align:center;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:12px;color:#444;'>Bu e-posta <a href='http://www.iworkbetter.com/' target='_blank' style='color:rgb(8,158,210);text-decoration: none;border-bottom: 1px dotted;'>IWorkBetter ï¿½irket Yï¿½netim Platformu</a> kullanï¿½larak gï¿½nderilmiï¿½tir.</div>" ;
-		}
-		else if(locale.equals("en")){
-			temp = "<br><br><hr><br><div style='text-align:center;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:12px;color:#444;'>This e-mail was sent by using <a href='http://www.iworkbetter.com/' target='_blank' style='color:rgb(8,158,210);text-decoration: none;border-bottom: 1px dotted;'>IWorkBetter Business Management Platform</a>.</div>" ;
-		}
-		return temp;
-	}
+
 
 	public static String fromPromisType2OrclType(W5Param p) {
 		short maxLen = p.getMaxLength()== null ? 0:p.getMaxLength();
@@ -2109,28 +2089,29 @@ public class GenericUtil {
 	}
 
 	
-	public static int getGlobalNextval(String seq){
+	public static int getGlobalNextval(String seq, String projectUuid){
 		String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url");
 		String vcsClientKey = FrameworkCache.getAppSettingStringValue(0, "vcs_client_key");
 		if(GenericUtil.isEmpty(vcsUrl))
 			throw new IWBException("framework","vcs_url OR vcs_client_key not defined for versioning", 0, "vcs_url not defined for versioning", null, null);
-		String s = HttpUtil.send(vcsUrl+"/ajaxGlobalNextVal", "id="+seq+"&key="+vcsClientKey);
+		String s = HttpUtil.send(vcsUrl+"/ajaxGlobalNextVal", "id="+seq+"&key="+vcsClientKey+"-"+projectUuid);
 		JSONObject json;
-		try {
+		if(s!=null)try {
 			json = new JSONObject(s);
-			boolean b = json.getBoolean("success");
+			boolean b = json.getBoolean("success") && json.has("val");
 			if(b)return json.getInt("val");
+			if(json.has("errorType") && json.has("error"))
+				try {
+					throw new IWBException(json.getString("errorType"),"Global Nextval: remote Error", 0, null, json.getString("error"), null);
+				} catch (JSONException e) {
+					throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
+				}
+			else 
+				throw new IWBException("framework","Global Nextval: remote Error", 0, s, "Unknown Error", null);
 		} catch (JSONException e) {
-			throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
-		}
-		if(json.has("errorType") && json.has("error"))
-			try {
-				throw new IWBException(json.getString("errorType"),"Global Nextval: remote Error", 0, null, json.getString("error"), null);
-			} catch (JSONException e) {
-				throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
-			}
-		else 
-			throw new IWBException("framework","Global Nextval: remote Error", 0, null, "Uknown Error", null);
+			throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), e.getCause());
+		} else
+			throw new IWBException("framework","Global Nextval", 0, "JSONException", "No Response from Server", null);
 
 	}
 	

@@ -21,6 +21,7 @@ public class Log5UserRoleLogin implements java.io.Serializable, Log5Base {
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
+//		s.append("user_role_login,user_id=\"").append(getPageName()).append("\",page_id=").append(getPageId()).append("i user_id=").append(getScd().get("userId")).append("i,duration=").append(getDuration()).append("i,ip=\"").append(getIp()).append("\"");
 		return s.toString();
 	}
 

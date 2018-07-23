@@ -1016,6 +1016,11 @@ background-image:url(images/vcsw-16.png);
 	background-repeat: no-repeat;
 }
 
+.icon-jsfiddle{
+	background-image: url(images/jsfiddle-48.png) !important;
+	background-repeat: no-repeat;
+    background-size: 24px;
+}
 
 
 .x-btn {
