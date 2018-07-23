@@ -53,6 +53,9 @@ import org.mozilla.javascript.Scriptable;
 
 import com.google.common.net.InternetDomainName;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
 import iwb.dao.RdbmsDao;
 import iwb.domain.db.W5Base;
 import iwb.domain.db.W5FormCell;

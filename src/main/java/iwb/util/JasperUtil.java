@@ -2,6 +2,7 @@ package iwb.util;
 
 import java.util.regex.Pattern;
 
+import iwb.cache.LocaleMsgCache;
 import net.sf.jasperreports.engine.JRPrintPage;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.fill.JRTemplatePrintFrame;

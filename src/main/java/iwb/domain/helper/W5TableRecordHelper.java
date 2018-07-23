@@ -1,8 +1,8 @@
 package iwb.domain.helper;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.W5Table;
-import iwb.util.FrameworkCache;
-import iwb.util.LocaleMsgCache;
 
 
 public class W5TableRecordHelper implements java.io.Serializable {

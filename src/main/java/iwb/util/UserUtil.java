@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
 import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Project;
 import iwb.domain.helper.W5DeferredResult;

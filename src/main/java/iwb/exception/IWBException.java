@@ -6,13 +6,13 @@ import java.util.Map;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Base;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5TableRecordHelper;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import iwb.util.LocaleMsgCache;
 
 
 public class IWBException extends RuntimeException {

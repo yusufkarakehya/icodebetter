@@ -1,4 +1,4 @@
-package iwb.util;
+package iwb.cache;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,6 +37,8 @@ import iwb.domain.db.W5WsMethod;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.exception.IWBException;
+import iwb.util.GenericUtil;
+import iwb.util.UserUtil;
 
 public class FrameworkCache {
 

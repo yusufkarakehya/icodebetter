@@ -19,8 +19,8 @@ import org.hibernate.jdbc.ReturningWork;
 import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import iwb.cache.FrameworkSetting;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 /**
  * This class serves as the Base class for all other DAOs - namely to hold

@@ -679,7 +679,7 @@ class XTabForm extends React.PureComponent{
 					} else{
 						url+=cfg.url.substring('ajaxPostForm'.length);
 					}
-					toastr.success('İlgili kaydı görmek için <a href=# onClick="return iwb.openForm(\''+url+'\')">tıklayınız</a>','Başarıyla Kaydedildi',{timeOut:3000});
+					toastr.success('Click! To see saved item <a href=# onClick="return iwb.openForm(\''+url+'\')"></a>','Saved Successfully',{timeOut:3000});
 					var {parentCt} = selfie.props;
 					if(parentCt){
 						parentCt.closeTab();
@@ -704,17 +704,14 @@ class XTabForm extends React.PureComponent{
 						' ', 
 						this.state.viewMode &&_(Button,{color:'light', className:'btn-form-edit',onClick:this.props.parentCt.closeTab},'Kapat'),
 						' ',
-						this.state.viewMode &&_(Button,{color:'danger', className:'btn-form-edit',onClick:(e)=>{
-							var {pk,formId}=this.props;	
+						this.state.viewMode &&_(Button,{color:'danger', className:'btn-form-edit',onClick:(event)=>{
+							//veli backend
+							// var {pk,formId}=this.props;	
 							// var pkz = buildParams2(pk,rowData);
 							// iwb.log(this);
 							// debugger;
 							// var url = 'ajaxPostForm?a=3&_fid='+formId+pkz;
-							yesNoDialog({ text:"Are you Sure!", callback:(success)=>{
-								if(success){
-									this.props.parentCt.closeTab(e,true);
-								}
-							}});
+							yesNoDialog({ text:"Are you Sure!", callback:success=>this.props.parentCt.closeTab(event,success) });
 						}},
 							_("i",{className:"icon-trash"})," ",'Sil'),
 
@@ -2457,22 +2454,12 @@ class XPage extends React.Component {
 		 * delating CurrentTab from the state of Xpage Component
 		 * this function will be passed to whenever new tab is opened
 		 */
-	    this.closeTab = (reloadData = false)=>{
+	    this.closeTab = (event,forceRelaod = false)=>{
 			var { activeTab,tabs } = this.state;
 			if(activeTab =='x')return;
 			tabs = tabs && tabs.length > 0 && tabs.filter((tempTab)=>tempTab.name!==activeTab && tempTab);
-			// console.log(this);
-			// iwb.log(tabs);
-			// iwb.log(iwb.grids[this.props.id]);
-			// iwb.grids[this.props.id].loadData();
-			// iwb.log(tabs[activeTab].grid.gridId);
-			if(reloadData){
-				alert('girdi')
-				tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000); ;
-				// console.log(tabs["0"].value);
-			}
+			if(forceRelaod){ tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);}
 			this.setState({activeTab:'x',tabs});
-			
 		};
 		/**
 		 * @description
