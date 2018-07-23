@@ -7,7 +7,7 @@ import java.util.Map;
 
 import iwb.domain.db.W5ApprovalRecord;
 import iwb.domain.db.W5ApprovalStep;
-import iwb.domain.db.Log5ConvertedObject;
+import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormSmsMailAlarm;
@@ -51,7 +51,7 @@ public class W5FormResult implements W5MetaResult{
 	private List<W5QueuedPushMessageHelper> queuedPushMessageList;
 	private List<Map<String, String>> previewMapList;
 	private List<Map<String, String>> previewConversionMapList;
-	private Map<Integer, List<Log5ConvertedObject>> mapConvertedObject;
+	private Map<Integer, List<W5ConvertedObject>> mapConvertedObject;
 	private Map<Integer,Map<Integer, Integer>> mapWidgetCount; //userId, widgetId, count
 	private List<W5FormSmsMailAlarm> formAlarmList;
 
@@ -233,11 +233,11 @@ public class W5FormResult implements W5MetaResult{
 			List<Map<String, String>> previewConversionMapList) {
 		this.previewConversionMapList = previewConversionMapList;
 	}
-	public Map<Integer, List<Log5ConvertedObject>> getMapConvertedObject() {
+	public Map<Integer, List<W5ConvertedObject>> getMapConvertedObject() {
 		return mapConvertedObject;
 	}
 	public void setMapConvertedObject(
-			Map<Integer, List<Log5ConvertedObject>> mapConvertedObject) {
+			Map<Integer, List<W5ConvertedObject>> mapConvertedObject) {
 		this.mapConvertedObject = mapConvertedObject;
 	}
 	public Map<Integer, Map<Integer, Integer>> getMapWidgetCount() {

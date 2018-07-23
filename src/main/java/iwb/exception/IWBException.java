@@ -1,5 +1,6 @@
 package iwb.exception;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,17 +20,30 @@ public class IWBException extends RuntimeException {
 	private	String objectType;
 	private	int objectId;
 	private	String sql;
-	private Map<String, Object> scd;
+	private List<IWBException> stack;
+	
 	public IWBException(String errorType, String objectType, int objectId, String sql, String message, Throwable cause) {
 		super(message, cause);
 		this.errorType=errorType;//security, validation, framework, definition
 		this.objectType=objectType;
 		this.objectId=objectId;
 		this.sql=sql;
+		if(cause!=null){
+			this.stack = convertToIWBException((Exception)cause).getStack();
+		} else 
+			this.stack = new ArrayList<IWBException>();
+
+		this.stack.add(this);
 	}
 
 	public static IWBException convertToIWBException(Exception e){
-		return null;
+		if(e instanceof IWBException)return (IWBException)e;
+		Exception te = e;
+		while(te.getCause()!=null && te.getCause() instanceof Exception){
+			te = (Exception)te.getCause();
+			if(te instanceof IWBException)return (IWBException)te;
+		}
+		return new IWBException("framework","Unknown", 0, null, "Root Cause -> " +te.getMessage(), e.getCause());
 	}
 
 	public String toHtmlString(){
@@ -45,27 +59,40 @@ public class IWBException extends RuntimeException {
 		return b.toString();
 	}
 
-	public String toJsonString(Map<String, Object> scd){
-		String locale = (scd == null) ? FrameworkCache.getAppSettingStringValue(0, "locale") : (String)scd.get("locale");
-		int customizationId =(scd == null) ? 0 : GenericUtil.uInt(scd.get("customizationId")) ;
+	public String toJsonString(){
 		StringBuilder b = new StringBuilder();
-		b.append("{\"success\":false,\n\"errorType\":\"").append(errorType).append("\"");
-		String msg = getMessage();
-		String cause = getCause()==null ? null :getCause().getMessage();
+		IWBException e = GenericUtil.isEmpty(this.stack) ? this : this.stack.get(0);
+		b.append("{\"success\":false,\n\"errorType\":\"").append(e.getErrorType()).append("\"");
+		String msg = e.getMessage();
 		if(msg!=null){
 			b.append(",\"error\":\"").append(GenericUtil.stringToJS2(msg)).append("\"");
 		}
 		
-		if(objectType!=null){
-			b.append(",\n\"objectType\":\"").append(GenericUtil.stringToJS2(objectType)).append("\"");
-			if(objectId!=0){
-				b.append(",\n\"objectId\":").append(objectId);
+		if(e.getObjectType()!=null){
+			b.append(",\n\"objectType\":\"").append(GenericUtil.stringToJS2(e.getObjectType())).append("\"");
+			if(e.getObjectId()!=0){
+				b.append(",\n\"objectId\":").append(e.getObjectId());
 			}
 		}
 
 		if(FrameworkSetting.debug){
 			b.append(",\n\"stack\":\"").append(GenericUtil.stringToJS2(ExceptionUtils.getFullStackTrace(this))).append("\"");
 			if(sql!=null)b.append(",\n\"sql\":\"").append(GenericUtil.stringToJS2(sql)).append("\"");
+			if(!GenericUtil.isEmpty(this.stack) && this.stack.size()>1){
+				b.append(",\n\"icodebetter\":[");
+				for(int qi=stack.size()-1;qi>=0;qi--){
+					if(qi<stack.size()-1)b.append(",");
+					IWBException iw = (IWBException)stack.get(qi);
+					
+					b.append("{errorType:\"").append(iw.getErrorType()).append("\"");
+					if(!GenericUtil.isEmpty(iw.getMessage()))b.append(",error:\"").append(GenericUtil.stringToJS2(iw.getMessage())).append("\"");
+					if(!GenericUtil.isEmpty(iw.getObjectType())){
+						b.append(",objectType:\"").append(GenericUtil.stringToJS2(iw.getObjectType())).append("\",objectId:").append(iw.getObjectId());
+					}
+					b.append("}");
+				}
+				b.append("]");
+			}
 		}
 		
 	
@@ -103,6 +130,10 @@ public class IWBException extends RuntimeException {
 
 	public String getSql() {
 		return sql;
+	}
+
+	public List<IWBException> getStack() {
+		return stack;
 	}
 
 

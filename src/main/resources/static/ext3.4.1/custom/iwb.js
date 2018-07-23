@@ -201,13 +201,13 @@ function accessControlHtml(x){
 }
 
 function fileAttachmentHtml(x){
-	return	x ? '<img src="../images/custom/bullet_file_attach.png" border=0>':'';
+	return	x ? '<img src="../ext3.4.1/custom/images/paperclip-16.png" border=0>':'';
 }
 
 
 function fileAttachmentRenderer(a){
 	return function(ax,bx,cx){
-		return	ax ? '<img src="../images/custom/bullet_file_attach.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\''+a.name+'\',href:\'showPage?_tid=518&_gid1=458&_gid458_a=1\',_pk:{tfile_attachment_id:\'file_attachment_id\'},baseParams:{xtable_id:'+a.crudTableId+', xtable_pk:'+cx.id+'}}});">':'';
+		return	ax ? '<img src="../ext3.4.1/custom/images/paperclip-16.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\''+a.name+'\',href:\'showPage?_tid=518&_gid1=458&_gid458_a=1\',_pk:{tfile_attachment_id:\'file_attachment_id\'},baseParams:{xtable_id:'+a.crudTableId+', xtable_pk:'+cx.id+'}}});">':'';
 	};
 }
 
@@ -2152,7 +2152,94 @@ function prepareLogErrors(obj){
 	}
 	return str;
 }
+
+
 function ajaxErrorHandler(obj){
+		
+    if (obj.errorType && obj.errorType=='validation'){
+        var msg='<b>'+getLocMsg('js_field_validation')+'</b><ul>';
+        if(obj.errors){
+        	for (var i=0;i<obj.errors.length;i++)if (obj.errors[i].id!='_')
+        		msg+='<li>&nbsp;&nbsp;&nbsp;&nbsp;'+(obj.errors[i].dsc || obj.errors[i].id)+' - '+obj.errors[i].msg+'</li>';
+        } else if(obj.error){
+        	msg+=obj.error;
+        }
+        msg+='</ul>';
+        Ext.Msg.show({title:getLocMsg('error'),msg: msg,icon: Ext.MessageBox.ERROR})
+    }else if (obj.errorType && obj.errorType=='session')
+        showLoginDialog(obj);
+    else if (obj.errorType && obj.errorType=='security')
+	    Ext.Msg.show({
+	    	title: getLocMsg('js_guvenlik_hatasi'), 
+	    	msg: getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>', 
+	    	icon: Ext.MessageBox.ERROR});
+    else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework')){
+    	var items=[];
+    	items.push({xtype:'displayfield',fieldLabel: 'Error',width:500,labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
+    	if(obj.objectType)items.push({xtype:'displayfield',fieldLabel: 'Type',width:500, labelSeparator:'', value:'<b>'+(obj.objectType)+'</b>'}
+    		,{xtype:'displayfield',fieldLabel: 'ID',width:500, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
+    	if(obj.icodebetter){
+    		var ss='';
+    		for(var qi=0;qi<obj.icodebetter.length;qi++){
+    			if(qi>0)ss+='<br>'
+    			for(var zi=0;zi<qi;zi++)ss+=' &nbsp; &nbsp;';
+    			var oo=obj.icodebetter[qi];
+    			ss+='&gt '+'<b>'+oo.objectType+'</b>';
+    			if(false && o.objectId){
+    				ss+=(qi!=0 ? ': <a href=# onclick="return fnTblRecEdit('+r.tid+','+r.tpk+');">'+r.dsc+'</a>':': <b><a href=# onclick="return fnTblRecEdit('+r.tid+','+r.tpk+');">'+r.dsc+'</a></b>');// else ss+=': (...)';
+    			}
+    		}
+    		items.push({xtype:'displayfield',fieldLabel: 'Stack',width:650,labelSeparator:'', value:ss});
+    		
+    	}
+    	if(obj.sql)items.push({xtype:'displayfield',fieldLabel: 'SQL', width:700,labelSeparator:'', value:'<b>'+(obj.sql)+'</b>'});
+    	var xbuttons =[];
+		xbuttons.push({text:'Convert to Task',cls:'info',handler:function(){
+			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG REPORT: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
+			wndx.close();
+		}});
+		if(obj.errorType=='rhino' && obj.error && obj.error.indexOf('script#')>-1 && obj.sql){
+			var xl = obj.error.substr(obj.error.indexOf('script#')+7);
+			var ml = 0;
+			for(var qi=0;qi<xl.length;qi++)if(xl.substr(qi,1)<'0' || xl.substr(qi,1)>'9')break;
+			else ml=10*ml+1*xl.substr(qi,1);
+			xbuttons.push({text:'RhinoScript Error',handler:function(){
+				var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'javascript', 
+				    config:{matchBrackets: true, lint:true, foldGutter: true, 
+				    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:obj.sql});
+
+				new Ext.Window({
+			        modal: true, closable:true,
+			        title: 'RhinoScript Error: '+obj.error,
+			        width: 1000, height: 380, border: false, layout: 'border',
+			        items: [new Ext.FormPanel({region:'center', items:[_code]})]
+				}).show();
+				var doc=_code.codeEditor.doc;
+				doc.addLineClass(ml-1,'background','veliSel');
+
+			}});
+		}
+		if(obj.stack)xbuttons.push({text:'Java StackTrace',cls:'warning',handler:function(){alert(obj.stack);}});
+		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
+        var wndx=new Ext.Window({
+            modal:true,
+            title:obj.errorType+' Error', cls:'xerror',
+            width: 800,
+           autoHeight:!0,
+            items:[{    
+                xtype:'form', labelAlign:'right', labelWidth:100, bodyStyle:'padding:10px',
+                autoHeight: true,layout:'form',
+               items:items
+            }],
+        buttons:xbuttons
+        });
+        wndx.show();    
+    }else
+        Ext.Msg.show({title:obj.errorType || getLocMsg('js_error'),msg: obj.error || 'Unknown',icon: Ext.MessageBox.ERROR})
+    
+}
+
+function ajaxErrorHandlerOld(obj){
 		
     if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino')){
     	if(1*_app.debug != 1){
@@ -2300,7 +2387,7 @@ function ajaxErrorHandler(obj){
 	    	msg: getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>', 
 	    	icon: Ext.MessageBox.ERROR});
     else
-        Ext.Msg.show({title:getLocMsg('js_bilgi'),msg: msg,icon: Ext.MessageBox.INFO})
+        Ext.Msg.show({title:getLocMsg('js_bilgi'),msg: msg,icon: Ext.MessageBox.ERROR})
     
 }
 var lw=null;

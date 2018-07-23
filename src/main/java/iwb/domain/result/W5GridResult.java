@@ -19,7 +19,6 @@ public class W5GridResult implements W5MetaResult{
 	private Map<String,String>	requestParams;	
 	private	W5Grid grid;
 	private	Map<Integer, W5FormCellHelper>	formCellResultMap;	
-	private	List<W5GridColumn> userCustomGridColumnList;
 	private	W5FormResult searchFormResult;
 	private	boolean viewReadOnlyMode;
 	private	boolean viewLogMode;
@@ -92,15 +91,6 @@ public class W5GridResult implements W5MetaResult{
 
 	public void setFormCellResultMap(Map<Integer, W5FormCellHelper> formCellResultMap) {
 		this.formCellResultMap = formCellResultMap;
-	}
-
-	public List<W5GridColumn> getUserCustomGridColumnList() {
-		return userCustomGridColumnList;
-	}
-
-	public void setUserCustomGridColumnList(
-			List<W5GridColumn> userCustomGridColumnList) {
-		this.userCustomGridColumnList = userCustomGridColumnList;
 	}
 
 	public W5FormResult getSearchFormResult() {

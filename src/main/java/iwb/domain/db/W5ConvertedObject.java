@@ -23,9 +23,9 @@ import iwb.util.GenericUtil;
 @Entity
 @Immutable
 @Table(name="w5_converted_object",schema="iwb")
-public class Log5ConvertedObject implements java.io.Serializable, Log5Base {
+public class W5ConvertedObject implements java.io.Serializable {
 
-	public Log5ConvertedObject() {
+	public W5ConvertedObject() {
 		super();
 	}
 	private int convertedObjectId;
@@ -109,7 +109,7 @@ public class Log5ConvertedObject implements java.io.Serializable, Log5Base {
 	public void setVersionUserId(int versionUserId) {
 		this.versionUserId = versionUserId;
 	}
-	public Log5ConvertedObject(Map<String, Object> scd, int conversionId, int srcTablePk, int dstTablePk) {
+	public W5ConvertedObject(Map<String, Object> scd, int conversionId, int srcTablePk, int dstTablePk) {
 		super();
 		this.versionNo = 1;
 		this.versionUserId = (Integer)scd.get("userId");

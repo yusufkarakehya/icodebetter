@@ -64,9 +64,6 @@ public class AppFilter implements Filter {
 				
 				if(false && FrameworkSetting.debug)if(te!=null)e.printStackTrace();
 				
-				HttpSession session = ((HttpServletRequest)request).getSession(false);
-				Map scd = session!=null ? (Map)session.getAttribute("scd-dev"): null;
-				
 				StringBuilder b = new StringBuilder();
 				if(jsonFlag){
 					boolean z = false;
@@ -74,7 +71,7 @@ public class AppFilter implements Filter {
 						b.append("ajaxErrorHandler(");
 						z = true;
 					}
-					b.append(iw.toJsonString(scd));
+					b.append(iw.toJsonString());
 					
 					if(z)b.append(")");
 				} else { //
@@ -82,6 +79,9 @@ public class AppFilter implements Filter {
 				}
 				
 				if(FrameworkSetting.log2tsdb){
+					HttpSession session = ((HttpServletRequest)request).getSession(false);
+					Map scd = session!=null ? (Map)session.getAttribute("scd-dev"): null;
+					
 					LogUtil.logObject(new Log5IWBException(scd, ((HttpServletRequest) request).getRequestURI(), GenericUtil.getParameterMap((HttpServletRequest)request), request.getRemoteAddr(), iw));
 				}
 				

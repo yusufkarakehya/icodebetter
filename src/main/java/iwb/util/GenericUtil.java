@@ -1137,10 +1137,7 @@ public class GenericUtil {
 				pvalue=null;
 			break;
 		case 3://app_setting
-			if(scd!=null && scd.get("_user_settings")!=null && ((Map)scd.get("_user_settings")).get(param.getDefaultValue())!=null)
-				pvalue = ((Map)scd.get("_user_settings")).get(param.getDefaultValue()).toString();
-			else
-				pvalue = FrameworkCache.getAppSettingStringValue(scd,param.getDefaultValue());
+			pvalue = FrameworkCache.getAppSettingStringValue(scd,param.getDefaultValue());
 			break;
 		case	4://expression, ornegin seq_ali.nextval
 			if(dao!=null){
@@ -1167,8 +1164,8 @@ public class GenericUtil {
 				}*/
 				
 				StringBuilder sc = new StringBuilder(); 
-				sc.append("\nvar scd=").append(fromMapToJsonString(scd));
-				sc.append("\nvar request=").append(fromMapToJsonString(requestParams));
+				sc.append("\nvar _scd=").append(fromMapToJsonString(scd));
+				sc.append("\nvar _request=").append(fromMapToJsonString(requestParams));
 				sc.append("\n").append(defaultValue);
 
 
@@ -1318,8 +1315,8 @@ public class GenericUtil {
 
 				// Collect the arguments into a single string.
 				StringBuilder sc = new StringBuilder(); 
-				sc.append("\nvar scd=").append(fromMapToJsonString(scd));
-				sc.append("\nvar request=").append(fromMapToJsonString(requestParams));
+				sc.append("\nvar _scd=").append(fromMapToJsonString(scd));
+				sc.append("\nvar _request=").append(fromMapToJsonString(requestParams));
 				sc.append("\n").append(defaultValue);
 
 				//sc.append("'})';");

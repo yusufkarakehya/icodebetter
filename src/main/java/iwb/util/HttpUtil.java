@@ -75,9 +75,10 @@ public class HttpUtil {
 	}
 	
 	public static String sendJson(String targetURL, JSONObject json){
+		HttpURLConnection conn = null;
 		try {
 	        URL url = new URL(targetURL);
-	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	        conn = (HttpURLConnection) url.openConnection();
 	        conn.setConnectTimeout(5000);
 	        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 	        conn.setDoOutput(true);
@@ -93,12 +94,15 @@ public class HttpUtil {
 	        String result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
 	
 	        in.close();
-	        conn.disconnect();
 	
 	        return result;
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
 			return null;
+		}finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
 		}
 	}
 }

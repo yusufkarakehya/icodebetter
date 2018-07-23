@@ -34,7 +34,7 @@ public class AsyncServlet {
 			scd =  GenericUtil.uInt(request,"_preview")!=0 ? UserUtil.getScd4Preview(request, "scd-dev", false):UserUtil.getScd(request, "scd-dev", false);
 		} catch(IWBException e){
 			try {
-				response.getWriter().write(e.toJsonString(null));
+				response.getWriter().write(e.toJsonString());
 				response.getWriter().close();
 			} catch (IOException e1) {
 				e1.printStackTrace();

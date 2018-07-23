@@ -187,7 +187,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 //		int customizationId = (Integer)f.getScd().get("customizationId");
 		int customizationId = f.isDev() ? 0 : FrameworkCache.getCustomizationId(f.getScd());
 
-		W5Form form = (W5Form)getCustomizedObject("from W5Form t where t.formId=? and t.customizationId=?", f.getFormId(), customizationId, "FormID"); // ozel bir client icin varsa
+		W5Form form = (W5Form)getCustomizedObject("from W5Form t where t.formId=? and t.customizationId=?", f.getFormId(), customizationId, "Form"); // ozel bir client icin varsa
 		f.setForm(form);
 		
 		f.getForm().set_formCells(find("from W5FormCell t where t.formId=? AND t.customizationId=? order by t.tabOrder, t.xOrder, t.dsc", f.getFormId(), customizationId));
@@ -545,7 +545,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		List list = find(hql, objectId,customizationId);
 		if(list.size()==0){
 			if(onErrorMsg==null)return null;
-			throw new IWBException("framework","WrongID:"+objectId, objectId,null, onErrorMsg, null);
+			throw new IWBException("framework",onErrorMsg, objectId,null, "Wrong ID", null);
 		}
 		else return list.get(0);
 	}
@@ -1263,15 +1263,9 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     	    	}
 //    			paramMap.clear();
     		}
-    	} catch(Exception e){
-			Exception te = e;
-			while(te.getCause()!=null && te.getCause() instanceof Exception){
-				te = (Exception)te.getCause();
-				if(te instanceof IWBException)break;
-			}
-    		throw new IWBException("framework", "Form", rc.getFormCell().getFormId(), te instanceof IWBException ? ((IWBException)e).getSql():null, "Form."+rc.getFormCell().getDsc() + " -> " + te.getMessage(), e.getCause());
-    		
-    	}
+    	} catch (Exception e){
+    		throw new IWBException("framework", "FormElement", rc.getFormCell().getFormCellId(), null, "[41,"+rc.getFormCell().getFormCellId()+"]", e);
+    	}    		
 	}
 	
 	@Override
@@ -1467,10 +1461,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							cellResult.setValue(o == null ? null: o.toString());
 							break;
 						case 3://app_setting
-							if(formResult.getScd()!=null && formResult.getScd().get("_user_settings")!=null && ((Map)formResult.getScd().get("_user_settings")).get(cellResult.getFormCell().getInitialValue())!=null)
-								cellResult.setValue(((Map)formResult.getScd().get("_user_settings")).get(cellResult.getFormCell().getInitialValue()).toString());
-							else
-								cellResult.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cellResult.getFormCell().getInitialValue()));
+							cellResult.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cellResult.getFormCell().getInitialValue()));
 							break;
 						case	4://SQL
 							Object[] oz = DBUtil.filterExt4SQL(cellResult.getFormCell().getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
@@ -1494,8 +1485,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 								// Collect the arguments into a single string.
 								StringBuffer sc = new StringBuffer(); 
-								sc.append("\nvar scd=").append(GenericUtil.fromMapToJsonString(formResult.getScd()));
-								sc.append("\nvar request=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()));
+								sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString(formResult.getScd()));
+								sc.append("\nvar _request=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()));
 								sc.append("\n").append(cellResult.getFormCell().getDefaultValue());
 
 								//sc.append("'})';");
@@ -1625,7 +1616,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(cid!=0){
 			W5Customization cus = FrameworkCache.wCustomizationMap.get(cid);
 		}
-		W5Template template = (W5Template)getCustomizedObject("from W5Template t where t.templateId=? and t.customizationId=?", templateResult.getTemplateId(), cid, "TemplateID"); // ozel bir client icin varsa
+		W5Template template = (W5Template)getCustomizedObject("from W5Template t where t.templateId=? and t.customizationId=?", templateResult.getTemplateId(), cid, "Page"); // ozel bir client icin varsa
 		templateResult.setTemplate(template);
 		template.set_templateObjectList(find("from W5TemplateObject t where t.activeFlag=1 AND t.templateId=? AND t.customizationId=? order by t.tabOrder",templateResult.getTemplateId(), cid));
 		
@@ -1656,7 +1647,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			gridResult.setGrid(FrameworkCache.getGrid(scd,gridId));
 		} else {
 			int customizationId = (Integer)gridResult.getScd().get("customizationId");
-			W5Grid grid = (W5Grid)getCustomizedObject("from W5Grid t where t.gridId=? and t.customizationId=?", gridResult.getGridId(), customizationId, "GridID"); // ozel bir client icin varsa
+			W5Grid grid = (W5Grid)getCustomizedObject("from W5Grid t where t.gridId=? and t.customizationId=?", gridResult.getGridId(), customizationId, "Grid"); // ozel bir client icin varsa
 			gridResult.setGrid(grid);
 			grid.set_gridColumnList(find("from W5GridColumn t where t.gridId=? AND t.customizationId=? order by t.tabOrder",gridResult.getGridId(), customizationId));
 		}
@@ -1690,7 +1681,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	
 	private void loadDataView(W5DataViewResult dataViewResult) {
 		int customizationId = dataViewResult.isDev() ? 0 : (Integer)dataViewResult.getScd().get("customizationId");
-		W5DataView d = (W5DataView)getCustomizedObject("from W5DataView t where t.dataViewId=? and t.customizationId=?", dataViewResult.getDataViewId(), customizationId, "DataViewID"); // ozel bir client icin varsa
+		W5DataView d = (W5DataView)getCustomizedObject("from W5DataView t where t.dataViewId=? and t.customizationId=?", dataViewResult.getDataViewId(), customizationId, "DataView"); // ozel bir client icin varsa
 		dataViewResult.setDataView(d);
 
 		W5Query query = null;
@@ -1729,60 +1720,43 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	}
 	@Override
 	public W5GridResult getGridResult(Map<String, Object> scd, int gridId, Map<String,String> requestParams, boolean noSearchForm) {
-		int customizationId = (Integer)scd.get("customizationId");
-		W5GridResult gridResult = new W5GridResult(gridId);
-		gridResult.setRequestParams(requestParams);
-		gridResult.setScd(scd);
-		W5Grid g = null;
-		if(FrameworkSetting.preloadWEngine!=0 && (g=FrameworkCache.getGrid(customizationId,gridId))!=null){
-			gridResult.setGrid(g);
-		} else {
-			loadGrid(gridResult);
-			g = gridResult.getGrid();
-			if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.addGrid(customizationId, g);
-		}
-		
-
-		//search Form
-		if(!noSearchForm && g.get_searchFormId()!=0){
-			W5FormResult	searchForm = getFormResult(scd, g.get_searchFormId(), 2, requestParams);
-			initializeForm(searchForm, false);
-			loadFormCellLookups(scd, searchForm.getFormCellResults(), requestParams, null);
-			gridResult.setSearchFormResult(searchForm);
-		}
-		
-		gridResult.setFormCellResultMap(new HashMap());
-
-		if(!GenericUtil.isEmpty(gridResult.getUserCustomGridColumnList())){
-			int formCellCounter = 1;
-			for(W5GridColumn column:gridResult.getUserCustomGridColumnList()){
-				column.set_queryField(g.get_queryFieldMap().get(column.getQueryFieldId()));
-				if(column.getFormCellId()>0){ //form_cell
-					W5FormCell cell = (W5FormCell)getCustomizedObject("from W5FormCell t where t.formCellId=? and t.customizationId=?", column.getFormCellId(), g.getCustomizationId(), null);
-					if(cell!=null){
-						column.set_formCell(cell);
-						W5FormCellHelper cellResult = new W5FormCellHelper(cell);
-						gridResult.getFormCellResultMap().put(cell.getFormCellId(), cellResult);
-					}
-				} else if(column.getFormCellId()<0){//control
-					W5FormCell cell = new W5FormCell(-formCellCounter++);
-					cell.setControlTip((short)-column.getFormCellId());
-					cell.setDsc(column.get_queryField().getDsc());
-					column.set_formCell(cell);
-					W5FormCellHelper cellResult = new W5FormCellHelper(cell);
-					gridResult.getFormCellResultMap().put(cell.getFormCellId(), cellResult);
-				}
+		try{
+			int customizationId = (Integer)scd.get("customizationId");
+			W5GridResult gridResult = new W5GridResult(gridId);
+			gridResult.setRequestParams(requestParams);
+			gridResult.setScd(scd);
+			W5Grid g = null;
+			if(FrameworkSetting.preloadWEngine!=0 && (g=FrameworkCache.getGrid(customizationId,gridId))!=null){
+				gridResult.setGrid(g);
+			} else {
+				loadGrid(gridResult);
+				g = gridResult.getGrid();
+				if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.addGrid(customizationId, g);
 			}
-		} else {
+			
+	
+			//search Form
+			if(!noSearchForm && g.get_searchFormId()!=0){
+				W5FormResult	searchForm = getFormResult(scd, g.get_searchFormId(), 2, requestParams);
+				initializeForm(searchForm, false);
+				loadFormCellLookups(scd, searchForm.getFormCellResults(), requestParams, null);
+				gridResult.setSearchFormResult(searchForm);
+			}
+			
+			gridResult.setFormCellResultMap(new HashMap());
+	
 			for(W5GridColumn column:g.get_gridColumnList())if(column.get_formCell()!=null){
 				W5FormCellHelper cellResult = new W5FormCellHelper(column.get_formCell());
 				gridResult.getFormCellResultMap().put(column.get_formCell().getFormCellId(), cellResult);
 			}
+			
+			if(!gridResult.getFormCellResultMap().isEmpty())
+				loadFormCellLookups(gridResult.getScd(), new ArrayList(gridResult.getFormCellResultMap().values()), gridResult.getRequestParams(), null);
+	
+			return gridResult;
+		} catch (Exception e){
+			throw new IWBException("framework", "Grid", gridId, null, "[5,"+gridId+"]", e);
 		}
-		if(!gridResult.getFormCellResultMap().isEmpty())
-			loadFormCellLookups(gridResult.getScd(), new ArrayList(gridResult.getFormCellResultMap().values()), gridResult.getRequestParams(), null);
-
-		return gridResult;
 	}
 
 	@Override
@@ -1798,10 +1772,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			result=(o == null ? null: o.toString());
 			break;
 		case 3://app_setting
-			if(scd!=null && scd.get("_user_settings")!=null && ((Map)scd.get("_user_settings")).get(cell.getInitialValue())!=null)
-				result=(((Map)scd.get("_user_settings")).get(cell.getInitialValue()).toString());
-			else
-				result=(FrameworkCache.getAppSettingStringValue(scd, cell.getInitialValue()));
+			result=(FrameworkCache.getAppSettingStringValue(scd, cell.getInitialValue()));
 			break;
 		case	4://SQL
 			Object[] oz = DBUtil.filterExt4SQL(cell.getInitialValue(), scd, requestParams, null);
@@ -1930,12 +1901,12 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		case	1: 
 			W5Grid g = null;
 			if(FrameworkSetting.preloadWEngine==0 || (g=FrameworkCache.getGrid(customizationId,form.getObjectId()))==null){
-				g = (W5Grid)getCustomizedObject("from W5Grid g where g.customizationId=? AND g.gridId=?", customizationId, form.getObjectId(), "Wrong GridID(searchForm)");
+				g = (W5Grid)getCustomizedObject("from W5Grid g where g.customizationId=? AND g.gridId=?", customizationId, form.getObjectId(), "Grid");
 			}
 			if(g!=null){
 				W5Query q = null;
 				if(FrameworkSetting.preloadWEngine==0 || (q = FrameworkCache.wQueries.get(g.getQueryId()))==null){					
-					q = (W5Query)getCustomizedObject("from W5Query g where g.mainTableId>0 AND ?=1 AND g.queryId=?", 1, g.getQueryId(), "QueryID");
+					q = (W5Query)getCustomizedObject("from W5Query g where g.mainTableId>0 AND ?=1 AND g.queryId=?", 1, g.getQueryId(), "Query");
 				}
 				if(q!=null)t= FrameworkCache.getTable(customizationId, q.getMainTableId());  //grid
 			}
@@ -1974,10 +1945,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				result.setValue(o == null ? null: o.toString());
 				break;
 			case 3://app_setting
-				if(formResult.getScd()!=null && formResult.getScd().get("_user_settings")!=null && ((Map)formResult.getScd().get("_user_settings")).get(cell.getInitialValue())!=null)
-					result.setValue(((Map)formResult.getScd().get("_user_settings")).get(cell.getInitialValue()).toString());
-				else
-					result.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cell.getInitialValue()));
+				result.setValue(FrameworkCache.getAppSettingStringValue(formResult.getScd(), cell.getInitialValue()));
 				break;
 			case	4://SQL
 				Object[] oz = DBUtil.filterExt4SQL(cell.getInitialValue(), formResult.getScd(), formResult.getRequestParams(), null);
@@ -2050,7 +2018,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		int customizationId = gridResult.isDev() ? 0 : FrameworkCache.getCustomizationId(gridResult.getScd());
 		
 		
-		W5Grid grid = (W5Grid)getCustomizedObject("from W5Grid t where t.gridId=? and t.customizationId=?", gridResult.getGridId(), customizationId, "GridID"); // ozel bir client icin varsa
+		W5Grid grid = (W5Grid)getCustomizedObject("from W5Grid t where t.gridId=? and t.customizationId=?", gridResult.getGridId(), customizationId, "Grid"); // ozel bir client icin varsa
 		gridResult.setGrid(grid);
 
 		grid.set_gridColumnList(find("from W5GridColumn t where t.customizationId=? AND t.gridId=? order by t.tabOrder", customizationId,gridResult.getGridId()));
@@ -2143,7 +2111,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 
 		if(grid.getDefaultCrudFormId()!=0){
-			W5Form defaultCrudForm = (W5Form)getCustomizedObject("from W5Form t where t.formId=? and t.customizationId=?", grid.getDefaultCrudFormId(), customizationId, "CRUD-FormID"); // ozel bir client icin varsa
+			W5Form defaultCrudForm = (W5Form)getCustomizedObject("from W5Form t where t.formId=? and t.customizationId=?", grid.getDefaultCrudFormId(), customizationId, "Form"); // ozel bir client icin varsa
 			
 			if(defaultCrudForm!=null){
 //				defaultCrudForm.set_sourceTable(PromisCache.getTable(customizationId, defaultCrudForm.getObjectId()));
@@ -5489,7 +5457,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(FrameworkSetting.preloadWEngine!=0 && (d=FrameworkCache.getMListView(customizationId,listId))!=null){
 			mlistResult.setList(d);
 		} else {
-			d = (M5List)getCustomizedObject("from M5List t where t.listId=? and t.customizationId=?", listId, customizationId, "MobileListID"); // ozel bir client icin varsa
+			d = (M5List)getCustomizedObject("from M5List t where t.listId=? and t.customizationId=?", listId, customizationId, "MobileList"); // ozel bir client icin varsa
 			W5Query q = (W5Query)getCustomizedObject("from W5Query t where t.queryId=? and t.customizationId=?", d.getQueryId(), customizationId, "QueryID"); // ozel bir client icin varsa
 			d.set_query(q);
 			if(q.getMainTableId()!=0)d.set_mainTable(FrameworkCache.getTable(customizationId, q.getMainTableId()));
@@ -5550,7 +5518,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		if(customizationId!=0){
 			W5Customization cus = FrameworkCache.wCustomizationMap.get(customizationId);
 		}	
-		W5List d = (W5List)getCustomizedObject("from W5List t where t.listId=? and t.customizationId=?", listViewResult.getListId(), customizationId, "ListID"); // ozel bir client icin varsa
+		W5List d = (W5List)getCustomizedObject("from W5List t where t.listId=? and t.customizationId=?", listViewResult.getListId(), customizationId, "List"); // ozel bir client icin varsa
 		listViewResult.setListView(d);
 
 		W5Query query = null;

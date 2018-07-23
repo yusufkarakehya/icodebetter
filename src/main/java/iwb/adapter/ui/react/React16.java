@@ -13,7 +13,7 @@ import iwb.adapter.ui.ViewAdapter;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5Conversion;
-import iwb.domain.db.Log5ConvertedObject;
+import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Form;
@@ -585,7 +585,7 @@ public class React16 implements ViewAdapter {
 												.containsKey(
 														fsm.getConversionId());
 								boolean check = false;
-								List<Log5ConvertedObject> convertedObjects = null;
+								List<W5ConvertedObject> convertedObjects = null;
 								if (isConvertedBefore
 										&& fsm.getConversionTip() != 3
 										&& GenericUtil.hasPartInside2(
@@ -625,7 +625,7 @@ public class React16 implements ViewAdapter {
 								}
 								if (isConvertedBefore
 										&& convertedObjects != null)
-									for (Log5ConvertedObject co : convertedObjects)
+									for (W5ConvertedObject co : convertedObjects)
 										if (co.get_relatedRecord().size() > 0) {
 											if (check)
 												s.append("\n,");
@@ -2972,10 +2972,7 @@ columns:[
 		String xlocale = (String) gridResult.getScd().get("locale");
 		int customizationId = (Integer) gridResult.getScd().get(
 				"customizationId");
-		List<W5GridColumn> oldColumns = gridResult
-				.getUserCustomGridColumnList() != null
-				&& gridResult.getUserCustomGridColumnList().size() > 0 ? gridResult
-				.getUserCustomGridColumnList() : grid.get_gridColumnList();
+		List<W5GridColumn> oldColumns = grid.get_gridColumnList();
 		W5Table viewTable = grid.get_viewTable();
 		W5Table crudTable = grid.get_crudTable();
 		if (crudTable == null)
