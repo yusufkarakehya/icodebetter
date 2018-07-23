@@ -29,7 +29,7 @@ public class HttpUtil {
 			connection.setRequestMethod(method);
 			if(GenericUtil.isEmpty(reqPropMap)){
 				connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
-				connection.setRequestProperty("Content-Language", "tr-TR");
+				connection.setRequestProperty("Content-Language", "en-EN");
 			} else for(String key:reqPropMap.keySet()){
 				connection.setRequestProperty(key,reqPropMap.get(key));
 			}
@@ -46,10 +46,10 @@ public class HttpUtil {
 			}
 
 			// Get Response
-			InputStream is = connection.getInputStream();
+			InputStream is = connection.getResponseCode()>=200 && connection.getResponseCode()<300 ? connection.getInputStream() : connection.getErrorStream();
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
 			String line;
-			StringBuffer response = new StringBuffer();
+			StringBuilder response = new StringBuilder();
 			while ((line = rd.readLine()) != null) {
 				response.append(line);
 				response.append('\r');
@@ -75,9 +75,10 @@ public class HttpUtil {
 	}
 	
 	public static String sendJson(String targetURL, JSONObject json){
+		HttpURLConnection conn = null;
 		try {
 	        URL url = new URL(targetURL);
-	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	        conn = (HttpURLConnection) url.openConnection();
 	        conn.setConnectTimeout(5000);
 	        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 	        conn.setDoOutput(true);
@@ -93,12 +94,15 @@ public class HttpUtil {
 	        String result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
 	
 	        in.close();
-	        conn.disconnect();
 	
 	        return result;
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
 			return null;
+		}finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
 		}
 	}
 }

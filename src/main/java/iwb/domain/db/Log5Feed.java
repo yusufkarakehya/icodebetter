@@ -16,6 +16,7 @@ import javax.persistence.Transient;
 import iwb.domain.helper.W5AccessControlHelper;
 import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5TableRecordHelper;
+import iwb.util.GenericUtil;
 
 
 @Entity
@@ -34,6 +35,7 @@ public class Log5Feed implements java.io.Serializable, Log5Base {
 	private int insertRoleId;
 	private int insertUserTip;
 	private String dsc;
+	private String projectId;
 	private W5AccessControlHelper _viewAccessControl;
 	private	Map<Integer,Log5Feed> _relatedFeedMap;
 	private List<W5TableRecordHelper> _tableRecordList;
@@ -46,6 +48,9 @@ public class Log5Feed implements java.io.Serializable, Log5Base {
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
+		s.append("feed,project_uuid=").append(projectId).append(" user_id=").append(insertUserId).append("i,feed_tip=").append(feedTip)
+			.append("i,table_id=").append(tableId).append("i,table_pk=").append(tablePk)
+			.append("i,dtable_id=").append(detailTableId).append("i,dtable_pk=").append(detailTablePk).append("i,dsc=\"").append(dsc).append("\"");
 		return s.toString();
 	}
 	
@@ -57,6 +62,7 @@ public class Log5Feed implements java.io.Serializable, Log5Base {
 		insertUserId=((Integer)scd.get("userId"));
 		insertRoleId=((Integer)scd.get("roleId"));
 		insertUserTip=((Integer)scd.get("userTip"));
+		projectId=((String)scd.get("projectId"));
 		_insertTime = System.currentTimeMillis();
 	}
 	@SequenceGenerator(name="sex_feed",sequenceName="iwb.seq_feed",allocationSize=1)
@@ -203,6 +209,14 @@ public class Log5Feed implements java.io.Serializable, Log5Base {
 	public void setInsertDttm(Timestamp insertDttm) {
 		this.insertDttm = insertDttm;
 	}
-	
-	
+
+	@Transient
+	public String getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
+	}
+
 }

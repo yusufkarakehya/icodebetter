@@ -28,7 +28,6 @@ import iwb.adapter.soap.impl.AxisSoap1_4;
 //import iwb.adapter.soap.impl.AxisSoap1_4;
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_3;
-import iwb.controller.AppServlet;
 import iwb.domain.db.W5DbFunc;
 import iwb.domain.db.W5DbFuncParam;
 import iwb.domain.db.W5FormCell;
@@ -144,7 +143,6 @@ public class WsServlet implements InitializingBean {
 					if (roleCount < 0 || forceUserRoleId != 0) {
 						if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
 						Map<String, Object> scd = engine.userRoleSelect(userId, forceUserRoleId,
-								GenericUtil.uInt(result.getResultMap().get("defaultUserCustomizationId")),
 								GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
 						if (scd == null){
 							dfr.getResultMap().put("errorMsg", "Session not created :(");
@@ -249,14 +247,12 @@ public class WsServlet implements InitializingBean {
 			} else
 				throw new IWBException("framework","Undefined Method",0,null, "User [methodName].wadl", null);
 		} catch (IWBException e) {
-			Map scd = new HashMap();scd.put("locale",FrameworkCache.getAppSettingStringValue(0, "locale"));scd.put("customizationId",0);
-			response.getWriter().write(e.toJsonString(scd));
+			response.getWriter().write(e.toJsonString());
 		} catch (Exception e) {
-			Map scd = new HashMap();scd.put("locale",FrameworkCache.getAppSettingStringValue(0, "locale"));scd.put("customizationId",0);
 			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				response.getWriter().write(((IWBException)e.getCause()).toJsonString(scd));
+				response.getWriter().write(((IWBException)e.getCause()).toJsonString());
 			} else 
-				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString(scd));
+				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString());
 		}
 	}
 
@@ -301,7 +297,6 @@ public class WsServlet implements InitializingBean {
 				if (roleCount < 0 || forceUserRoleId != 0) {
 					if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
 					Map<String, Object> scd = engine.userRoleSelect(userId, forceUserRoleId,
-							GenericUtil.uInt(result.getResultMap().get("defaultUserCustomizationId")),
 							GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
 					if (scd == null){
 						response.getWriter().write("{\"success\":false}"); // bir hata var
@@ -393,14 +388,12 @@ public class WsServlet implements InitializingBean {
 				throw new IWBException("ws","Method not Found",0,method, "Method not Found", null);
 			}
 		} catch (IWBException e) {
-			Map scd = new HashMap();scd.put("locale",FrameworkCache.getAppSettingStringValue(0, "locale"));scd.put("customizationId",0);
-			response.getWriter().write(e.toJsonString(scd));
+			response.getWriter().write(e.toJsonString());
 		} catch (Exception e) {
-			Map scd = new HashMap();scd.put("locale",FrameworkCache.getAppSettingStringValue(0, "locale"));scd.put("customizationId",0);
 			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				response.getWriter().write(((IWBException)e.getCause()).toJsonString(scd));
+				response.getWriter().write(((IWBException)e.getCause()).toJsonString());
 			} else 
-				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString(scd));
+				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString());
 		}
 	}
 

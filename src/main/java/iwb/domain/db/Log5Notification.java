@@ -1,5 +1,6 @@
 package iwb.domain.db;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class Log5Notification implements java.io.Serializable, Log5Base {
     	this.actionUserId = GenericUtil.uInt(m.get("paction_user_id"));
     	this.notificationLevel = (short)GenericUtil.uInt(m.get("pnotification_level"));
 	}
-	@SequenceGenerator(name="sex_notification",sequenceName="seq_notification",allocationSize=1)
+	@SequenceGenerator(name="sex_notification",sequenceName="iwb.seq_notification",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_notification")
 	@Column(name="notification_id")
@@ -199,6 +200,14 @@ public class Log5Notification implements java.io.Serializable, Log5Base {
 	}
 	public void setNotificationLevel(short notificationLevel) {
 		this.notificationLevel = notificationLevel;
+	}
+	public Map toMap() {
+		Map m = new HashMap();
+		m.put("notificationTip", notificationTip);
+		m.put("level", new String[]{"info","success","warning","error"}[(notificationTip>=0 && notificationTip<=3) ? notificationTip:0]);
+		if(!GenericUtil.isEmpty(_tmpStr))m.put("_tmpStr", _tmpStr);
+		if(!GenericUtil.isEmpty(showUrl))m.put("showUrl", showUrl);
+		return m;
 	}
 	
 	

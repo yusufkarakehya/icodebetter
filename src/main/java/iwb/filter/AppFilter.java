@@ -12,14 +12,17 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.NestedServletException;
 
 import iwb.exception.IWBException;
+import iwb.exception.Log5IWBException;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
+import iwb.util.LogUtil;
 
 @Component
 @WebFilter(urlPatterns = {"/app","/preview"})
@@ -50,10 +53,17 @@ public class AppFilter implements Filter {
 			} catch (NestedServletException e) {
 				response.setCharacterEncoding( "UTF-8" );
 				response.setContentType("text/html");
-				if(FrameworkSetting.debug){
-					if(e.getCause()!=null)e.getCause().printStackTrace();
-					else e.printStackTrace();
+				Exception te = e;
+				IWBException iw = null; 
+				while(te.getCause()!=null && te.getCause() instanceof Exception){
+					te = (Exception)te.getCause();
+					if(te instanceof IWBException)break;
 				}
+				if(te!=null && te instanceof  IWBException)iw = (IWBException)te;
+				else iw = new IWBException("framework","Unknown", 0, null, "Root Cause --> " + GenericUtil.stringToJS2(te.getMessage()), e);
+				
+				if(false && FrameworkSetting.debug)if(te!=null)e.printStackTrace();
+				
 				StringBuilder b = new StringBuilder();
 				if(jsonFlag){
 					boolean z = false;
@@ -61,17 +71,20 @@ public class AppFilter implements Filter {
 						b.append("ajaxErrorHandler(");
 						z = true;
 					}
+					b.append(iw.toJsonString());
 					
-					if(e.getCause() instanceof  IWBException)
-						b.append(((IWBException)e.getCause()).toJsonString((Map<String, Object>)((HttpServletRequest)request).getSession().getAttribute("scd")));
-					else {
-						b.append("{\"success\":false,\n\"errorType\":\"framework\",\n\"error\":\"Unhandled1 -->").append(GenericUtil.stringToJS2(e.getMessage())).append(FrameworkSetting.debug && e.getCause()!=null ? ("\",\n\"stack\":\""+GenericUtil.stringToJS2(ExceptionUtils.getFullStackTrace(e.getCause()))) : "" ).append("\"}");
-					}
 					if(z)b.append(")");
 				} else { //
-					if(!uri.contains("ajaxXmlQueryData"))
-					b.append(e.getCause() instanceof  IWBException ? ((IWBException)e.getCause()).toHtmlString("tr") : e.getMessage());
+					b.append(iw.toHtmlString());
 				}
+				
+				if(FrameworkSetting.log2tsdb){
+					HttpSession session = ((HttpServletRequest)request).getSession(false);
+					Map scd = session!=null ? (Map)session.getAttribute("scd-dev"): null;
+					
+					LogUtil.logObject(new Log5IWBException(scd, ((HttpServletRequest) request).getRequestURI(), GenericUtil.getParameterMap((HttpServletRequest)request), request.getRemoteAddr(), iw));
+				}
+				
 				try{ response.getWriter().write(b.toString());
 				} catch (Exception e2) {}
 			} catch (Exception e) {

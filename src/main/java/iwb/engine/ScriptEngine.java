@@ -10,14 +10,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.mozilla.javascript.NativeObject;
+import org.springframework.core.task.TaskExecutor;
 
 import iwb.dao.RdbmsDao;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Table;
+import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5DbFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
+import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
@@ -30,7 +33,8 @@ public class ScriptEngine {
 	Map<String,String> requestParams;
 	private RdbmsDao dao;
 	private FrameworkEngine engine;
-
+    public static TaskExecutor taskExecutor = null;
+    
 	public Object[] sqlQuery(String sql){
 		List l = dao.executeSQLQuery2Map(sql, null); 
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
@@ -138,7 +142,7 @@ public class ScriptEngine {
 
 	
 	public int globalNextval(String seq){
-		return GenericUtil.getGlobalNextval(seq);
+		return GenericUtil.getGlobalNextval(seq, (String)scd.get("projectId"));
 	}
 	
 	public void console(String oMsg, String title){
@@ -220,31 +224,34 @@ public class ScriptEngine {
 		return dao.executeUpdateSQLQuery(sql, null); 
 	}
 	
-	public Object postForm(int formId, int action, NativeObject jsRequestParams){
+	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams){
 		return postForm(formId, action, jsRequestParams, "", true, null);
 	}
 	
-	public Object postForm(int formId, int action, NativeObject jsRequestParams, String prefix){
+	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams, String prefix){
 		return postForm(formId, action, jsRequestParams, prefix, true, null);
 	}
 
-	public Object postForm(int formId, int action, NativeObject jsRequestParams, String prefix, boolean throwOnError){
+	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams, String prefix, boolean throwOnError){
 		return postForm(formId, action, jsRequestParams, prefix, throwOnError, null);
 	}
 
 	
-	public Object postForm(int formId, int action, NativeObject jsRequestParams, String prefix, boolean throwOnError, String throwMessage){
+	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams, String prefix, boolean throwOnError, String throwMessage){
 		
-
 		W5FormResult result = engine.postForm4Table(scd, formId, action, fromNativeObject2Map(jsRequestParams), prefix);
 		if(throwOnError && !result.getErrorMap().isEmpty()){
 			throw new IWBException("rhino","FormId", formId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
+		}
+		if(result.getQueueActionList()!=null)for (W5QueuedActionHelper o : result.getQueueActionList()) {
+			Action2Execute eqf = new Action2Execute(o, scd);
+			taskExecutor.execute(eqf);
 		}
 		return result; 
 	}
 	
 	public Map getTableJSON(String tableDsc, String tablePk){
-		List<Integer> l = dao.find("select t.tableId from W5Table t where t.dsc=? AND t.customizationId in (0,?) order by t.customizationId desc", tableDsc, scd.get("customizationId"));
+		List<Integer> l = (List<Integer>)dao.find("select t.tableId from W5Table t where t.dsc=? AND t.customizationId in (0,?) order by t.customizationId desc", tableDsc, scd.get("customizationId"));
 		if(l.isEmpty())
 			throw new IWBException("rhino","getTableJSON", 0, tableDsc, "table_not_found", null);
 

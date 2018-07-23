@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,10 +47,9 @@ import iwb.adapter.ui.webix.Webix3_3;
 import iwb.domain.db.Log5UserAction;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5FileAttachment;
-import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Query;
 import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.helper.W5QueuedDbFuncHelper;
+import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
@@ -65,23 +63,12 @@ import iwb.engine.FrameworkEngine;
 import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
+import iwb.timer.Action2Execute;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import iwb.util.JasperUtil;
 import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRExporter;
-import net.sf.jasperreports.engine.JRExporterParameter;
-import net.sf.jasperreports.engine.JRPrintPage;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.engine.export.JRRtfExporter;
-import net.sf.jasperreports.engine.export.JRXlsExporter;
-import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
-import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 
 @Controller
 @RequestMapping("/preview")
@@ -441,9 +428,9 @@ public class PreviewServlet implements InitializingBean {
 		response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 		response.getWriter().close();
 		
-		if (formResult.getQueuedDbFuncList() != null)
-			for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-				executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+		if (formResult.getQueueActionList() != null)
+			for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+				Action2Execute eqf = new Action2Execute(o, scd);
 				taskExecutor.execute(eqf);
 			}
 
@@ -475,8 +462,8 @@ public class PreviewServlet implements InitializingBean {
 		if (formId > 0) {
 			W5FormResult formResult = engine.postBulkUpdate4Table(scd, formId, GenericUtil.getParameterMap(request));
 
-			for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-				executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+			for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+				Action2Execute eqf = new Action2Execute(o, scd);
 				taskExecutor.execute(eqf);
 			}
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
@@ -548,8 +535,8 @@ public class PreviewServlet implements InitializingBean {
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 			response.getWriter().close();
 
-			for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-				executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+			for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+				Action2Execute eqf = new Action2Execute(o, scd);
 				taskExecutor.execute(eqf);
 			}
 			
@@ -577,8 +564,8 @@ public class PreviewServlet implements InitializingBean {
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 			response.getWriter().close();
 
-			for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-				executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+			for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+				Action2Execute eqf = new Action2Execute(o, scd);
 				taskExecutor.execute(eqf);
 			}
 
@@ -601,8 +588,8 @@ public class PreviewServlet implements InitializingBean {
 				response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 				response.getWriter().close();
 
-				for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-					executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+				for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+					Action2Execute eqf = new Action2Execute(o, scd);
 					taskExecutor.execute(eqf);
 				}
 				
@@ -1434,68 +1421,8 @@ public class PreviewServlet implements InitializingBean {
 
 	}
 	
-	
-	private class executeQueuedDbFunc implements Runnable {// TODO: buralar long
-															// polling ile
-															// olacak
-		private W5QueuedDbFuncHelper queuedDbFunc;
-		private long threadId;
 
-		public long getThreadId() {
-			return threadId;
-		}
 
-		@Override
-		public void run() {
-			Log5Notification n = new Log5Notification();// sanal
-			n.setUserId((Integer) queuedDbFunc.getScd().get("userId"));
-			n.setUserTip((short) GenericUtil.uInt(queuedDbFunc.getScd().get("userTip")));
-			try {
-				// qt.put(th.getId(), executeDbFunc(scd, dbFuncId, parameterMap,
-				// execRestrictTip));//is bitince, result
-				W5DbFuncResult result = engine.executeFunc(queuedDbFunc.getScd(), queuedDbFunc.getDbFuncId(),
-						queuedDbFunc.getParameterMap(), queuedDbFunc.getExecRestrictTip());// is
-																							// bitince,
-																							// result
-				String lbl, sbj;
-				switch (queuedDbFunc.getDbFuncId()) {
-				case -650:
-					lbl = "eMail";
-					sbj = queuedDbFunc.getParameterMap().get("pmail_subject");
-					break;
-				case -631:
-					lbl = "SMS";
-					sbj = queuedDbFunc.getParameterMap().get("phone") + " - "
-							+ queuedDbFunc.getParameterMap().get("body");
-					break;
-				default:
-					lbl = "Other";
-					sbj = "???";
-				}
-				if (result.isSuccess() && !queuedDbFunc.getParameterMap().containsKey("perror_msg")) {// error_msg
-																										// yoksa
-					n.setNotificationTip((short) 18);// exec-basarili: atiyorum
-					n.set_tmpStr("<b>" + lbl + ":</b>" + sbj);
-				} else {
-					n.setNotificationTip((short) 10);// exec-basarisiz: atiyorum
-					String err = queuedDbFunc.getParameterMap().get("perror_msg");
-					if (err == null)
-						err = GenericUtil.fromMapToHtmlString(result.getErrorMap());
-					n.set_tmpStr("<b>" + lbl + " error(s):</b>" + err);
-				}
-			} catch (Exception e) {
-				n.setNotificationTip((short) 10);// exec-basarisiz: atiyorum
-				n.setShowUrl(e.getMessage());
-			}
-
-			UserUtil.publishNotification(n, false);
-		}
-
-		public executeQueuedDbFunc(W5QueuedDbFuncHelper queuedDbFunc) {
-			this.queuedDbFunc = queuedDbFunc;
-			this.threadId = GenericUtil.getNextThreadId();
-		}
-	}
 
 	@RequestMapping("/*/ajaxSendFormSmsMail")
 	public void hndAjaxSendFormSmsMail(HttpServletRequest request, HttpServletResponse response)
@@ -1506,8 +1433,8 @@ public class PreviewServlet implements InitializingBean {
 
 		response.setContentType("application/json");
 		int smsMailId = GenericUtil.uInt(request, "_fsmid");
-		W5DbFuncResult dbFuncResult = engine.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
-		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
+		Map result = engine.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
+		response.getWriter().write(GenericUtil.fromMapToJsonString(result));
 		response.getWriter().close();
 
 	}

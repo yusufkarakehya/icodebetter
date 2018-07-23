@@ -29,7 +29,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -55,11 +54,10 @@ import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5SmsValidCode;
 import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.helper.W5QueuedDbFuncHelper;
+import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
@@ -70,13 +68,14 @@ import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.engine.FrameworkEngine;
+import iwb.engine.ScriptEngine;
 import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
+import iwb.timer.Action2Execute;
 import iwb.util.FrameworkCache;
 import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import iwb.util.HttpUtil;
 import iwb.util.JasperUtil;
 import iwb.util.LocaleMsgCache;
 import iwb.util.LogUtil;
@@ -128,7 +127,7 @@ public class AppServlet implements InitializingBean {
 		manPicPath = new ClassPathResource("static/ext3.4.1/custom/images/man-64.png").getFile().getPath();
 		brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
 		womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
-
+		ScriptEngine.taskExecutor = this.taskExecutor;
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
 		if(FrameworkSetting.logType==2)LogUtil.activateMQ();
 	}
@@ -277,7 +276,7 @@ public class AppServlet implements InitializingBean {
 		Map m = engine.executeQuery4Stat(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Stat", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Stat", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	@RequestMapping("/ajaxQueryData4StatTree")
 	public void hndAjaxQueryData4StatTree(HttpServletRequest request, HttpServletResponse response)
@@ -292,7 +291,15 @@ public class AppServlet implements InitializingBean {
 		Map m = engine.executeQuery4StatTree(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4StatTree", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4StatTree", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
+	}
+	@RequestMapping("/ajaxMockQueryData")
+	public void hndAjaxMockQueryData(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		response.setContentType("application/json");
+		
+		response.getWriter().write("{success:true, id:\"asdasd\"}");
+		response.getWriter().close();
+		
 	}
 	
 	@RequestMapping("/ajaxQueryData")
@@ -391,7 +398,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(va.serializeQueryData(queryResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData", queryId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData", queryId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -453,7 +460,7 @@ public class AppServlet implements InitializingBean {
 					.write(",\"fileHash\":\"" + b.get("fileHash") + "\",\"fileId\":\"" + b.get("fileId") + "\"");
 		response.getWriter().write("}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxApproveRecord", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxApproveRecord", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxLiveSync")
@@ -506,7 +513,7 @@ public class AppServlet implements InitializingBean {
 							: ((Map) session.getAttribute("scd-dev")).get("customizationId"));
 			Map<String, Object> oldScd = (Map<String, Object>)session.getAttribute("scd-dev"); 
 			Map<String, Object> scd = engine.userRoleSelect(userId, GenericUtil.uInt(request, "userRoleId"),
-					GenericUtil.uInt(request, "userCustomizationId"), customizationId, request.getParameter("projectId"), deviceType != 0 ? request.getParameter("_mobile_device_id") : null);
+					customizationId, request.getParameter("projectId"), deviceType != 0 ? request.getParameter("_mobile_device_id") : null);
 			if (scd == null) {
 				response.getWriter().write("{\"success\":false}"); // bir hata
 																	// var
@@ -670,7 +677,6 @@ public class AppServlet implements InitializingBean {
 				if (forceUserRoleId == 0)
 					forceUserRoleId = -roleCount;
 				scd = engine.userRoleSelect(userId, forceUserRoleId,
-						GenericUtil.uInt(result.getResultMap().get("defaultUserCustomizationId")),
 						customizationId, requestParams.get("projectId"), deviceType != 0 ? request.getParameter("_mobile_device_id") : null);
 				if (scd == null) {
 					if (FrameworkSetting.debug)
@@ -767,7 +773,7 @@ public class AppServlet implements InitializingBean {
 		} else
 			response.getWriter().write("{\"success\":false}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "reloadCache", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "reloadCache", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -854,9 +860,9 @@ public class AppServlet implements InitializingBean {
 		response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 		response.getWriter().close();
 		
-		if (formResult.getQueuedDbFuncList() != null)
-			for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-				executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+		if (formResult.getQueueActionList() != null)
+			for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+				Action2Execute eqf = new Action2Execute(o, scd);
 				taskExecutor.execute(eqf);
 			}
 
@@ -865,7 +871,7 @@ public class AppServlet implements InitializingBean {
 			UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
 //			UserUtil.mqSyncAfterPostFormAll(formResult.getScd(), formResult.getListSyncAfterPostHelper());
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 
 	}
@@ -884,8 +890,8 @@ public class AppServlet implements InitializingBean {
 		if (formId > 0) {
 			W5FormResult formResult = engine.postBulkUpdate4Table(scd, formId, GenericUtil.getParameterMap(request));
 
-			for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-				executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+			for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+				Action2Execute eqf = new Action2Execute(o, scd);
 				taskExecutor.execute(eqf);
 			}
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
@@ -902,7 +908,7 @@ public class AppServlet implements InitializingBean {
 					GenericUtil.getParameterMap(request));
 			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostFormBulkUpdate", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostFormBulkUpdate", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -920,7 +926,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeQueryData(queryResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4BulkUpdate", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4BulkUpdate", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -961,8 +967,8 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 			response.getWriter().close();
 
-			for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-				executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+			for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+				Action2Execute eqf = new Action2Execute(o, scd);
 				taskExecutor.execute(eqf);
 			}
 			
@@ -972,7 +978,7 @@ public class AppServlet implements InitializingBean {
 			}
 		} else
 			response.getWriter().write("{\"success\":false}");
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostConversionGridMulti", conversionCount, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostConversionGridMulti", conversionCount, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxPostEditGrid")
@@ -992,8 +998,8 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 			response.getWriter().close();
 
-			for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-				executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+			for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+				Action2Execute eqf = new Action2Execute(o, scd);
 				taskExecutor.execute(eqf);
 			}
 
@@ -1016,8 +1022,8 @@ public class AppServlet implements InitializingBean {
 				response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 				response.getWriter().close();
 
-				for (W5QueuedDbFuncHelper o : formResult.getQueuedDbFuncList()) {
-					executeQueuedDbFunc eqf = new executeQueuedDbFunc(o);
+				for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
+					Action2Execute eqf = new Action2Execute(o , scd);
 					taskExecutor.execute(eqf);
 				}
 				
@@ -1030,7 +1036,7 @@ public class AppServlet implements InitializingBean {
 				response.getWriter().write("{\"success\":false}");
 			}
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostEditGrid", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostEditGrid", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxBookmarkForm")
@@ -1047,7 +1053,7 @@ public class AppServlet implements InitializingBean {
 
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"id\":" + formResult.getPkFields().get("id") + "}");
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxBookmarkForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxBookmarkForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -1078,7 +1084,7 @@ public class AppServlet implements InitializingBean {
 		}
 
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxExecDbFunc", dbFuncId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxExecDbFunc", dbFuncId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -1099,7 +1105,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGetFormSimple(formResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxGetFormSimple", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxGetFormSimple", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -1119,7 +1125,7 @@ public class AppServlet implements InitializingBean {
 						.serializeFormCellStore(rc, (Integer) scd.get("customizationId"), (String) scd.get("locale"))
 						.toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxReloadFormCell", fcId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxReloadFormCell", fcId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 		
 	}
 
@@ -1135,7 +1141,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"result\":\"" + result + "\"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxGetFormCellCodeDetail", fccdId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxGetFormCellCodeDetail", fccdId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -1163,7 +1169,7 @@ public class AppServlet implements InitializingBean {
 					/* mainTable.getTableId() */ 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
 					request.getParameter(".w"), request.getParameter(".t"), /* grdOrFcId */ 919, null, true);
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxFeed", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxFeed", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 		
 	}
 	
@@ -1182,7 +1188,7 @@ public class AppServlet implements InitializingBean {
 		String s = engine.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
 		response.getWriter().write(s);
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxTsPortletData", porletId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxTsPortletData", porletId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -1202,7 +1208,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeShowForm(formResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 		
 
 	}
@@ -1221,7 +1227,7 @@ public class AppServlet implements InitializingBean {
 
 		response.getWriter().write(f7.serializeGetForm(formResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showMForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showMForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -1244,7 +1250,7 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write(getViewAdapter(scd, request).serializeShowTutorial(tutorialResult).toString());
 		}
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showTutorial", tutorialId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showTutorial", tutorialId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -1499,7 +1505,7 @@ public class AppServlet implements InitializingBean {
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showPage", templateId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showPage", templateId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 	
@@ -1524,7 +1530,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(f7.serializeList(listResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showMList", listId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showMList", listId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -1557,7 +1563,7 @@ public class AppServlet implements InitializingBean {
 				response.setContentType("application/octet-stream");
 				response.getWriter().print(GenericUtil.report2text(list));
 			}
-			if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndGridReport", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+			if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndGridReport", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 			return result;
 
 		} else {
@@ -1637,7 +1643,7 @@ public class AppServlet implements InitializingBean {
 			if (stream != null)
 				stream.close();
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndFileDownload", fileAttachmentId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndFileDownload", fileAttachmentId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/sf/*")
@@ -1707,7 +1713,7 @@ public class AppServlet implements InitializingBean {
 			if(out!=null)out.close();
 			if(stream!=null)stream.close();
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndShowFile", fileAttachmentId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndShowFile", fileAttachmentId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/jasper/*")
@@ -2317,67 +2323,6 @@ public class AppServlet implements InitializingBean {
 	}
 
 
-
-	private class executeQueuedDbFunc implements Runnable {// TODO: buralar long polling ile olacak
-		private W5QueuedDbFuncHelper queuedDbFunc;
-		private long threadId;
-
-		public long getThreadId() {
-			return threadId;
-		}
-
-		@Override
-		public void run() {
-			Log5Notification n = new Log5Notification();// sanal
-			n.setUserId((Integer) queuedDbFunc.getScd().get("userId"));
-			n.setUserTip((short) GenericUtil.uInt(queuedDbFunc.getScd().get("userTip")));
-			try {
-				// qt.put(th.getId(), executeDbFunc(scd, dbFuncId, parameterMap,
-				// execRestrictTip));//is bitince, result
-				W5DbFuncResult result = engine.executeFunc(queuedDbFunc.getScd(), queuedDbFunc.getDbFuncId(),
-						queuedDbFunc.getParameterMap(), queuedDbFunc.getExecRestrictTip());// is
-																							// bitince,
-																							// result
-				String lbl, sbj;
-				switch (queuedDbFunc.getDbFuncId()) {
-				case -650:
-					lbl = "eMail";
-					sbj = queuedDbFunc.getParameterMap().get("pmail_subject");
-					break;
-				case -631:
-					lbl = "SMS";
-					sbj = queuedDbFunc.getParameterMap().get("phone") + " - "
-							+ queuedDbFunc.getParameterMap().get("body");
-					break;
-				default:
-					lbl = "Other";
-					sbj = "???";
-				}
-				if (result.isSuccess() && !queuedDbFunc.getParameterMap().containsKey("perror_msg")) {// error_msg
-																										// yoksa
-					n.setNotificationTip((short) 18);// exec-basarili: atiyorum
-					n.set_tmpStr("<b>" + lbl + ":</b>" + sbj);
-				} else {
-					n.setNotificationTip((short) 10);// exec-basarisiz: atiyorum
-					String err = queuedDbFunc.getParameterMap().get("perror_msg");
-					if (err == null)
-						err = GenericUtil.fromMapToHtmlString(result.getErrorMap());
-					n.set_tmpStr("<b>" + lbl + " error(s):</b>" + err);
-				}
-			} catch (Exception e) {
-				n.setNotificationTip((short) 10);// exec-basarisiz: atiyorum
-				n.setShowUrl(e.getMessage());
-			}
-
-			UserUtil.publishNotification(n, false);
-		}
-
-		public executeQueuedDbFunc(W5QueuedDbFuncHelper queuedDbFunc) {
-			this.queuedDbFunc = queuedDbFunc;
-			this.threadId = GenericUtil.getNextThreadId();
-		}
-	}
-
 	@RequestMapping("/ajaxSendFormSmsMail")
 	public void hndAjaxSendFormSmsMail(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -2388,10 +2333,10 @@ public class AppServlet implements InitializingBean {
 
 		response.setContentType("application/json");
 		int smsMailId = GenericUtil.uInt(request, "_fsmid");
-		W5DbFuncResult dbFuncResult = engine.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
-		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
+		Map result = engine.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
+		response.getWriter().write(GenericUtil.fromMapToJsonString(result));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxSendFormSmsMail", smsMailId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxSendFormSmsMail", smsMailId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
@@ -2409,7 +2354,7 @@ public class AppServlet implements InitializingBean {
 		
 		response.getWriter().write("{\"success\":true, \"val\":"+nextVal+"}"); //hersey duzgun
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(new HashMap(), "ajaxGlobalNextVal", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(new HashMap(), "ajaxGlobalNextVal", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	@RequestMapping("/ajaxOrganizeTable")
 	public void hndAjaxOrganizeTable(
@@ -2424,7 +2369,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxOrganizeTable", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxOrganizeTable", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxCopyTable2Tsdb")
@@ -2441,7 +2386,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxCopyTable2Tsdb", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxCopyTable2Tsdb", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	@RequestMapping("/ajaxOrganizeDbFunc")
 	public void hndAjaxOrganizeDbFunc(
@@ -2456,7 +2401,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxOrganizeDbFunc", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxOrganizeDbFunc", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	
 	
@@ -2472,7 +2417,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true, \"result\":"+i+"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxBuildForm", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxBuildForm", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxCallWs")
@@ -2487,7 +2432,7 @@ public class AppServlet implements InitializingBean {
 		Map m =engine.callWs(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxCallWs", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxCallWs", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 
@@ -2522,7 +2467,7 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		}
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Debug", queryId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Debug", queryId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 	
@@ -2538,7 +2483,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4Pivot(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Pivot", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Pivot", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	
 	@RequestMapping("/ajaxQueryData4DataList")
@@ -2553,7 +2498,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4DataList(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4DataList", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4DataList", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	
 	
@@ -2578,7 +2523,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxExecDbFunc4Debug", dbFuncId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)).toInfluxDB());
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxExecDbFunc4Debug", dbFuncId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 }

@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.Set;
 
 import iwb.adapter.ui.ViewAdapter;
+import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5Detay;
-import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormModule;
@@ -2972,10 +2972,7 @@ columns:[
 		String xlocale = (String) gridResult.getScd().get("locale");
 		int customizationId = (Integer) gridResult.getScd().get(
 				"customizationId");
-		List<W5GridColumn> oldColumns = gridResult
-				.getUserCustomGridColumnList() != null
-				&& gridResult.getUserCustomGridColumnList().size() > 0 ? gridResult
-				.getUserCustomGridColumnList() : grid.get_gridColumnList();
+		List<W5GridColumn> oldColumns = grid.get_gridColumnList();
 		W5Table viewTable = grid.get_viewTable();
 		W5Table crudTable = grid.get_crudTable();
 		if (crudTable == null)
