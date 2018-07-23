@@ -31,7 +31,7 @@ public class W5FormValue implements java.io.Serializable {
 		this.formId = formId;
 	}
 
-    @SequenceGenerator(name="sex_form_value",sequenceName="seq_form_value",allocationSize=1)
+    @SequenceGenerator(name="sex_form_value",sequenceName="iwb.seq_form_value",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_form_value")
 	@Column(name="form_value_id")

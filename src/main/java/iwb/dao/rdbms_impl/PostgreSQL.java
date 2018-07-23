@@ -1477,6 +1477,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							break;
 						case	5://CustomJS(Rhino)
 							Context cx = Context.enter();
+							StringBuilder sc = new StringBuilder(); 
 							try {
 								// Initialize the standard objects (Object, Function, etc.)
 								// This must be done before scripts can be executed. Returns
@@ -1484,7 +1485,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 								Scriptable scope = cx.initStandardObjects();
 
 								// Collect the arguments into a single string.
-								StringBuffer sc = new StringBuffer(); 
 								sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString(formResult.getScd()));
 								sc.append("\nvar _request=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()));
 								sc.append("\n").append(cellResult.getFormCell().getDefaultValue());
@@ -1507,6 +1507,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 									res = ""+new BigDecimal(res.toString()).intValue();
 								cellResult.setValue(res == null ? null : res.toString());
 				 
+							} catch(Exception e){
+								throw new IWBException("rhino", "FormElement", cellResult.getFormCell().getFormCellId(), sc.toString(), "[41,"+cellResult.getFormCell().getFormCellId()+"]", e);
 							} finally {
 					             // Exit from the context.
 				 	             Context.exit();
@@ -1736,11 +1738,13 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			
 	
 			//search Form
-			if(!noSearchForm && g.get_searchFormId()!=0){
+			if(!noSearchForm && g.get_searchFormId()!=0)try{
 				W5FormResult	searchForm = getFormResult(scd, g.get_searchFormId(), 2, requestParams);
 				initializeForm(searchForm, false);
 				loadFormCellLookups(scd, searchForm.getFormCellResults(), requestParams, null);
 				gridResult.setSearchFormResult(searchForm);
+			} catch (Exception e){
+				throw new IWBException("framework", "SearchForm", g.get_searchFormId(), null, "[40,"+g.get_searchFormId()+"]", e);
 			}
 			
 			gridResult.setFormCellResultMap(new HashMap());
@@ -1960,6 +1964,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				break;
 			case	5://CustomJS(Rhino)
 				Context cx = Context.enter();
+				StringBuilder sc = new StringBuilder(); 
 				try {
 					// Initialize the standard objects (Object, Function, etc.)
 					// This must be done before scripts can be executed. Returns
@@ -1971,7 +1976,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 					}
 					// Collect the arguments into a single string.
-					StringBuffer sc = new StringBuffer(); 
 					sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString(formResult.getScd()));
 					sc.append("\nvar _request=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()));
 					sc.append("\n").append(cell.getInitialValue());
@@ -1996,6 +2000,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						res = ""+new BigDecimal(res.toString()).intValue();
 					result.setValue(res == null ? null : res.toString());
 	 
+				} catch(Exception e){
+					throw new IWBException("rhino", "FormElement", cell.getFormCellId(), sc.toString(), "[41,"+cell.getFormCellId()+"]", e);
 				} finally {
 		             // Exit from the context.
 	 	             Context.exit();
@@ -3908,6 +3914,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	
 	@Override
 	public void executeDbFunc(W5DbFuncResult r, String paramSuffix){
+		Log5DbFuncAction action = new Log5DbFuncAction(r);
 		String error = null;
 		if(r.getDbFunc().getLkpCodeType()==1){
 			Context cx = Context.enter();
@@ -3972,25 +3979,16 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					Object em = scope.get("outMsgs", scope);
 				}
 				r.setSuccess(true);
-
-			} catch(IWBException e){
-				throw e;
 			} catch(Exception e){
-				if(e.getCause()!=null && e.getCause() instanceof IWBException){
-					IWBException pe = (IWBException) e.getCause();
-					throw new IWBException("rhino","DbFuncId", r.getDbFuncId(), pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-				}
-
-
-				if(FrameworkSetting.debug)e.printStackTrace();
-				throw new IWBException("rhino","DbFuncId", r.getDbFuncId(), script, LocaleMsgCache.get2(0,(String)r.getScd().get("locale"),e.getMessage()), e.getCause());
+				error = e.getMessage();
+				throw new IWBException("rhino", "GlobalFunc", r.getDbFuncId(), script, "[20,"+r.getDbFuncId()+"]", e);
 			} finally {
 	             // Exit from the context.
  	             cx.exit();
+ 		    	logDbFuncAction(action, r, error);
 	        }
 			return;
 		} 
-		Log5DbFuncAction action = new Log5DbFuncAction(r);
     	final List<Object> sqlParams = new ArrayList<Object>();
     	final List<String> sqlNames=new ArrayList<String>();
     	StringBuilder sql= new StringBuilder();
@@ -4982,190 +4980,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     	Map<String, Object> m = runSQLQuery2Map(sql.toString(), params, null);
 		return m==null || m.isEmpty();
 	}
-	/*
-	public int bpmControl(Map<String, Object> scd, Map<String, String> requestParams, List<BpmAction> bpmStartActionList, List<BpmAction> bpmEndActionList, int action, int tableId, int tablePk){
-		int nextBpmActionId = -1; 
-		int percent = 100;
-		//bpm:start action
-		if(bpmStartActionList !=null)for(BpmAction ba:bpmStartActionList)
-		   if(ba.get_listRelatedProcessStep()!=null && (ba.getStartActionTip()==action || ba.getStartActionTip()==11 || ba.getStartActionTip()==12)){//function, sql veya tablo ile ilgili action(update-insert-delete)
-			  for(BpmProcessStep bps:ba.get_listRelatedProcessStep()){//her bir process step icin				
-				//eger insert durumundaysa ve processId verilmediyse
-				if(bps.get_firstStepFlag()!=0 && ba.getStartActionTip()==2 && PromisUtil.uInt(requestParams,"_sbpid")!=bps.getProcessId())continue;
-				boolean finishFlow = false;
-				if(ba.getStartActionSql()== null && ba.getStartActionTip()==12)	continue;				
-				if(ba.getStartActionSql()!=null){
-					Map<String, Object> m = runSQLQuery2Map(ba.getStartActionSql(), scd, requestParams, bps.get_stepParamMap());
-					if(m!=null){
-						if(m.get("active_flag")!=null &&PromisUtil.uInt(m.get("active_flag"))==0) continue;
-						if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0)finishFlow = true;
-						if(m.get("percent")!=null) percent = PromisUtil.uInt(m.get("percent"));
-						if(m.get("table_pk")!=null)tablePk = PromisUtil.uInt(m.get("table_pk"));
-						if(tablePk==0)continue;
-						
-						if (ba.getStartActionTip()==11){//function ise
-							if(m.get("action")!=null)action=PromisUtil.uInt(m.get("action"));							
-						}
-					}
-					else{
-						if(ba.getStartActionTip()==12)	continue;	//sql koşul sağlanmadıysa
-					}
-				}
-				if (ba.getStartActionTip()==11) tableId = bps.get_action().getRelatedTableId();
-				int processId = bps.getProcessId();
-				int processStepId = bps.getProcessStepId();
-				int flowProcessId = 0;
-				if(bps.get_firstStepFlag()!=0){//ilk kayit yapilacak
-					BpmFlowProcess bfp = new BpmFlowProcess(scd);
-					bfp.setProcessId(processId);
-					bfp.setStartTableId(bps.get_action().getRelatedTableId());
-					bfp.setStartTablePk(PromisUtil.uInt(tablePk));
-					bfp.setStatus(finishFlow ? (short)11 : (short)1);//active: finishFlow==true 11 aksi halde 1
-					bfp.setAssignedUserId((Integer)scd.get("userId"));
-					saveObject(bfp);
-					BpmFlowProcessStep bfps = new BpmFlowProcessStep(bfp);
-					bfps.setProcessStepId(processStepId);
-					bfps.setActionId(ba.getActionId());
-					bfps.setTableId(tableId);
-					bfps.setTablePk(PromisUtil.uInt(tablePk));
-					bfps.setCrudAction((short)action);
-					bfps.setPercentDone((short)10);//active: manual finish
-					switch(ba.getEndActionTip()){
-					case	1://manual
-						bfps.setStatus((short)1);//active: manual finish
-						break;
-					case	2://instant
-						bfps.setStatus((short)11);//finish
-						bfps.setPercentDone((short)percent);//active: manual finish
-						break;
-					case	3://table_record_condition
-						break;
-					case	4://exec_db_func
-						break;
-					case	6://finish_after_duration
-						bfps.setStatus((short)2);//active: finish_after_duration
-						break;
-					}
-					saveObject(bfps);
-					//nextBpmActions = dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", ba.getActionId());
-					nextBpmActionId = ba.getActionId();
-				} else if(ba.get_listLinkCondition()!=null)for(BpmActionLinkCondition balc:ba.get_listLinkCondition()){//bagli oldugu flowu bulmak icin gerekli kod
-					requestParams.put("_pi", ""+processId);//processId
-					requestParams.put("_psi", ""+bps.getProcessStepId());//processStepId
-					requestParams.put("_ai", ""+ba.getActionId());//actionId
-					requestParams.put("_pai", ""+balc.getParentActionId());//parentActionId
-					Map<String, Object> m = runSQLQuery2Map(balc.getSqlCode(), scd, requestParams, bps.get_stepParamMap());
-					if(m!=null){
-						flowProcessId = PromisUtil.uInt(m.get("flow_process_id"));
-						BpmFlowProcess bfp=(BpmFlowProcess)getCustomizedObject("from BpmFlowProcess t where t.flowProcessId=? AND t.customizationId=?", flowProcessId, (Integer)scd.get("customizationId"));
-						if(bfp!=null){
 
-							if(bps.getRelatedStepIds()!=null){//daha onceki kayitlar yapilmis olmali, aksi halde devam edemez
-								String[] stepIds=bps.getRelatedStepIds().split(",");
-								//TODO: su su sartlar saglanmadigi icin devam edilemez
-							}
-							//flowProcess Update
-							bfp.setVersionUserId((Integer)scd.get("userId"));
-							bfp.setVersionNo(bfp.getVersionNo()+1);
-							bfp.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-							if(finishFlow)bfp.setStatus((short)11);
-							updateObject(bfp);							
-							
-							if(ba.getLogOnceFlag()!=0){//bir defa mi kaydedilecek
-								int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-								if(flowProcessStepId!=0){
-									BpmFlowProcessStep bfps=(BpmFlowProcessStep)getCustomizedObject("from BpmFlowProcessStep t where t.flowProcessStepId=? AND t.customizationId=?", flowProcessStepId, (Integer)scd.get("customizationId"));
-									if(bfps!=null){
-										bfps.setVersionUserId((Integer)scd.get("userId"));
-										bfps.setVersionNo(bfps.getVersionNo()+1);
-										bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-										bfps.setPercentDone((short)percent);
-										updateObject(bfps);
-									}
-									continue;
-								}
-							} else { //birden fazla defa da kaydedilebilir, aynisindan varsa ilgili kaydi update et
-								int flowProcessStepId = PromisUtil.uInt(m.get("flow_process_step_id"));
-								if(flowProcessStepId!=0){ // bir tane var demek ki
-									List<BpmFlowProcessStep> lbfps=(List<BpmFlowProcessStep>)find("from BpmFlowProcessStep t " +
-											"where t.tableId=? AND t.tablePk=? AND t.flowProcessId=? AND t.actionId=? AND t.customizationId=?", tableId, tablePk, flowProcessId, bps.getActionId(), (Integer)scd.get("customizationId"));
-									if(!lbfps.isEmpty()){
-										BpmFlowProcessStep bfps = lbfps.get(0);
-										bfps.setVersionUserId((Integer)scd.get("userId"));
-										bfps.setVersionNo(bfps.getVersionNo()+1);
-										bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-										bfps.setPercentDone((short)percent);
-										updateObject(bfps);
-										continue;
-									}
-								}										
-							}
-
-							if(m.get("active_flag")!=null && PromisUtil.uInt(m.get("active_flag"))==0)continue;//active flag var ve akif degilse
-
-							BpmFlowProcessStep bfps = new BpmFlowProcessStep(scd);
-							bfps.setProcessStepId(processStepId);
-							bfps.setProcessId(processId);
-							bfps.setActionId(ba.getActionId());
-							bfps.setFlowProcessId(flowProcessId);
-							bfps.setTableId(tableId);
-							bfps.setTablePk(PromisUtil.uInt(tablePk));
-							if(bps.get_action().getPrerequisitActionId()==0){//eger uste biri yoksa, direk bu kalsin
-								bfp.setStartTableId(tableId);
-								bfp.setStartTablePk(PromisUtil.uInt(tablePk));
-								updateObject(bfp);
-							}
-							bfps.setCrudAction((short)action);
-							bfps.setPercentDone((short)10);//active: manual finish
-							switch(ba.getEndActionTip()){
-							case	1://manual
-								bfps.setStatus((short)1);//active: manual finish
-								break;
-							case	2://instant
-								bfps.setStatus((short)11);//finish
-								bfps.setPercentDone((short)percent);//active: manual finish
-								break;
-							case	3://table_record_condition
-								break;
-							case	4://exec_db_func
-								break;
-							case	6://finish_after_duration
-								bfps.setStatus((short)2);//active: finish_after_duration
-								break;
-							}
-							saveObject(bfps);
-							//formResult.setNextBpmActions(dao.find("select x from BpmAction x,BpmProcessStep s where x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", ba.getActionId()));
-							nextBpmActionId = ba.getActionId();
-						}
-					}
-				}
-			}					
-		}
-		//bpm:end action
-		if(bpmEndActionList!=null)for(BpmAction ba:bpmEndActionList)if(ba.getEndActionTip()==3){//table crud
-			int percentDone=100;
-			if(ba.getEndActionSql()!=null){
-				Object[] oz = PromisUtil.filterExt4SQL(ba.getEndActionSql(), scd, requestParams, null);
-				Map<String, Object> m = runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
-				if(m!=null){
-					if(m.get("percent_done")!=null)percentDone=PromisUtil.uInt(m.get("percentDone"));
-					if(m.get("finish_flag")!=null && PromisUtil.uInt(m.get("finish_flag"))!=0){
-						//TODO : bitirmeyle ilgili islemler
-					}
-				}
-			}
-			List<BpmFlowProcessStep> lbfps = find("from BpmFlowProcessStep t where t.percentDone<100 AND t.actionId=? AND t.customizationId=? AND exists(select 1 from BpmFlowProcess p where p.customizationId=t.customizationId AND p.processId=t.processId AND p.status=1)",ba.getActionId(),(Integer)scd.get("customizationId"));
-			for(BpmFlowProcessStep bfps:lbfps){
-				bfps.setVersionUserId((Integer)scd.get("userId"));
-				bfps.setVersionNo(bfps.getVersionNo()+1);
-				bfps.setVersionDttm(new java.sql.Timestamp(new Date().getTime()));
-				bfps.setPercentDone((short)percentDone);
-				updateObject(bfps);
-			}
-		}
-		return nextBpmActionId;			
-	}
-*/
 	@Override
 	public List getRecordPictures(Map<String, Object> scd,int tableId,String tablePk){
 		List<Object[]> l=executeSQLQuery("select x.file_attachment_id from iwb.w5_file_attachment x where x.customization_Id=? and x.table_Id=? and x.table_pk=? and exists(select 1 from gen_file_type tt where tt.customization_id=x.customization_id and tt.image_flag=1 and tt.file_type_id=x.file_type_id)" , scd.get("customizationId"),tableId,tablePk);
@@ -5184,24 +4999,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		return l;
 	}
 	
-
-/*	
-	public boolean logException(String exceptionText,int customizationId,int userRoleId){		
-		Log5Exception ex=new Log5Exception();
-		ex.setCustomizationId(customizationId);
-		ex.setExceptionText(exceptionText.substring(0,exceptionText.length()< 3999 ? exceptionText.length():3999));
-		ex.setUserRoleId(userRoleId);
-		*/
-		/*exceptionText=exceptionText.substring(0,exceptionText.length()< 3999 ? exceptionText.length():3999);
-		try { 
-			executeSQLWithoutTransaction("insert into log5_exception(log_id, exception_text, user_role_id,  customization_id)   values  (seq_log5_exception.nextval, ?,?, ?)",exceptionText,userRoleId,customizationId);
-			//saveObject(ex); 
-			return true;}
-        catch (Exception e) {
-			return false;
-		}
-        return true;
-	}*/
 	
 	@Override
 	public Object executeRhinoScript(Map<String, Object> scd, Map<String, String> requestParams, String script, Map obj, String result) {
@@ -5235,17 +5032,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			}
 			return null;
 			
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				IWBException pe = (IWBException) e.getCause();
-				throw new IWBException("rhino","Script Error", 0, pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-			}
-
-
-			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("rhino","Script Error", 0, script, LocaleMsgCache.get2(scd,e.getMessage()), e.getCause());
+			throw new IWBException("rhino", "BackendJS", 0, script, e.getMessage(), e);
 		} finally {
              // Exit from the context.
 	             cx.exit();
@@ -6525,17 +6313,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				}
 			} else return;
 			
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				IWBException pe = (IWBException) e.getCause();
-				throw new IWBException("rhino","QueryId", q.getQueryId(), pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-			}
-
-
-			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("rhino","QueryId", q.getQueryId(), script, LocaleMsgCache.get2(0,(String)qr.getScd().get("locale"),e.getMessage()), e.getCause());
+			throw new IWBException("rhino", "Query", q.getQueryId(), script, "[8,"+q.getQueryId()+"]", e);
 		} finally {
              // Exit from the context.
 	             cx.exit();

@@ -60,7 +60,7 @@ public class W5Email implements java.io.Serializable, Log5Base {
 	public W5Email() {
 	}
 
-    @SequenceGenerator(name="sex_mail",sequenceName="seq_mail",allocationSize=1)
+    @SequenceGenerator(name="sex_mail",sequenceName="iwb.seq_mail",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_mail")
 	@Column(name="mail_id")

@@ -26,7 +26,7 @@ public class W5ApprovalStepSmsMail implements java.io.Serializable {
 	private String usersToInform;
 	private int customizationId; 
 	
-    @SequenceGenerator(name="sex_approval_step_sms_mail_id",sequenceName="seq_approval_step_sms_mail_id",allocationSize=1)
+    @SequenceGenerator(name="sex_approval_step_sms_mail_id",sequenceName="iwb.seq_approval_step_sms_mail_id",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_approval_step_sms_mail_id")
 	@Column(name="approval_step_sms_mail_id")

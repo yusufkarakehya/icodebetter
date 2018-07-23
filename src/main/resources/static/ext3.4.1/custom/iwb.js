@@ -2175,27 +2175,35 @@ function ajaxErrorHandler(obj){
 	    	icon: Ext.MessageBox.ERROR});
     else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework')){
     	var items=[];
-    	items.push({xtype:'displayfield',fieldLabel: 'Error',width:500,labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
-    	if(obj.objectType)items.push({xtype:'displayfield',fieldLabel: 'Type',width:500, labelSeparator:'', value:'<b>'+(obj.objectType)+'</b>'}
-    		,{xtype:'displayfield',fieldLabel: 'ID',width:500, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
+    	items.push({xtype:'displayfield',fieldLabel: 'Error',anchor:'99%',labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
+    	if(obj.objectType){
+    		items.push({xtype:'displayfield',fieldLabel: obj.objectId ? obj.objectType : 'Type',anchor:'99%', labelSeparator:'', value:obj.objectId || obj.objectType});
+//    		if(obj.objectId)items.push({xtype:'displayfield',fieldLabel: 'ID',width:100, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
+    	}
     	if(obj.icodebetter){
     		var ss='';
     		for(var qi=0;qi<obj.icodebetter.length;qi++){
     			if(qi>0)ss+='<br>'
-    			for(var zi=0;zi<qi;zi++)ss+=' &nbsp; &nbsp;';
+    			for(var zi=0;zi<qi;zi++)ss+=' &nbsp;';
     			var oo=obj.icodebetter[qi];
-    			ss+='&gt '+'<b>'+oo.objectType+'</b>';
-    			if(false && o.objectId){
-    				ss+=(qi!=0 ? ': <a href=# onclick="return fnTblRecEdit('+r.tid+','+r.tpk+');">'+r.dsc+'</a>':': <b><a href=# onclick="return fnTblRecEdit('+r.tid+','+r.tpk+');">'+r.dsc+'</a></b>');// else ss+=': (...)';
-    			}
+    			ss+='&gt '+oo.objectType;
+    			if(oo.objectId){
+    				if(oo.error && oo.error.startsWith('[')){
+    					var tid=oo.error.substr(1).split(',')[0];
+    					ss+=': <a href=# onclick="return fnTblRecEdit('+tid+','+oo.objectId+');">'+oo.error+'</a>';
+    				} else ss+=': '+oo.objectId+ (oo.error ? ' / ' + oo.error:'');
+    			} else
+    				ss+=': ' + oo.error;
     		}
-    		items.push({xtype:'displayfield',fieldLabel: 'Stack',width:650,labelSeparator:'', value:ss});
+    		items.push({xtype:'displayfield',fieldLabel: 'Stack',anchor:'99%',labelSeparator:'', value:ss});
     		
     	}
-    	if(obj.sql)items.push({xtype:'displayfield',fieldLabel: 'SQL', width:700,labelSeparator:'', value:'<b>'+(obj.sql)+'</b>'});
+    	if(obj.sql){
+    		items.push({xtype:'displayfield',fieldLabel: 'Detail', anchor:'99%',labelSeparator:'', value:(obj.sql.length>800?obj.sql.substr(0,790)+' ... <a href=# onclick="return false">show more</a>':obj.sql)});
+    	}
     	var xbuttons =[];
 		xbuttons.push({text:'Convert to Task',cls:'info',handler:function(){
-			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG REPORT: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
+			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
 			wndx.close();
 		}});
 		if(obj.errorType=='rhino' && obj.error && obj.error.indexOf('script#')>-1 && obj.sql){
@@ -2223,12 +2231,12 @@ function ajaxErrorHandler(obj){
 		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
         var wndx=new Ext.Window({
             modal:true,
-            title:obj.errorType+' Error', cls:'xerror',
-            width: 800,
+            title:obj.errorType.toUpperCase()+' Error', cls:'xerror',
+            width: obj.sql ? 900:650,
            autoHeight:!0,
             items:[{    
-                xtype:'form', labelAlign:'right', labelWidth:100, bodyStyle:'padding:10px',
-                autoHeight: true,layout:'form',
+                xtype:'form', labelAlign:'right', labelWidth:80, bodyStyle:'padding:10px',
+                autoHeight: true,layout:'form',border:false,
                items:items
             }],
         buttons:xbuttons

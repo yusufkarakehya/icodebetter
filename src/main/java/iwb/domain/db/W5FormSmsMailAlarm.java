@@ -47,7 +47,7 @@ public class W5FormSmsMailAlarm implements java.io.Serializable, W5Base {
 		super();
 	}
 	@Id
-    @SequenceGenerator(name="sex_form_alarm",sequenceName="seq_form_alarm",allocationSize=1)
+    @SequenceGenerator(name="sex_form_alarm",sequenceName="iwb.seq_form_alarm",allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_form_alarm")
 	@Column(name="form_sms_mail_alarm_id")
 	public int getFormSmsMailAlarmId() {

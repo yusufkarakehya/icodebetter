@@ -38,7 +38,7 @@ public class W5ConvertedObject implements java.io.Serializable {
 	private int versionUserId;
 	private	List<W5TableRecordHelper> _relatedRecord;
 	
-    @SequenceGenerator(name="sex_converted_object",sequenceName="seq_converted_object",allocationSize=1)
+    @SequenceGenerator(name="sex_converted_object",sequenceName="iwb.seq_converted_object",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_converted_object")
 	@Column(name="converted_object_id")

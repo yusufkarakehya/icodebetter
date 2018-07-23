@@ -58,7 +58,7 @@ public class Log5Notification implements java.io.Serializable, Log5Base {
     	this.actionUserId = GenericUtil.uInt(m.get("paction_user_id"));
     	this.notificationLevel = (short)GenericUtil.uInt(m.get("pnotification_level"));
 	}
-	@SequenceGenerator(name="sex_notification",sequenceName="seq_notification",allocationSize=1)
+	@SequenceGenerator(name="sex_notification",sequenceName="iwb.seq_notification",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_notification")
 	@Column(name="notification_id")
