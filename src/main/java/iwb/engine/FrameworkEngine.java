@@ -40,6 +40,7 @@ import iwb.dao.RdbmsDao;
 //import iwb.dao.tsdb_impl.InfluxDao;
 import iwb.domain.db.Log5ApprovalRecord;
 import iwb.domain.db.Log5Feed;
+import iwb.domain.db.Log5GlobalNextval;
 import iwb.domain.db.Log5Notification;
 import iwb.domain.db.Log5WsMethodAction;
 import iwb.domain.db.W5Approval;
@@ -5772,17 +5773,17 @@ public class FrameworkEngine{
 		return true;
 	}
 
-	public int getGlobalNextval(String id, String key, String remoteAddr) {
-		if(!FrameworkSetting.vcsServer)
-			throw new IWBException("vcs","getGlobalNextval",0,null, "Not VCS Server to getGlobalNextval", null);
-		List l = dao.executeSQLQuery("select u.user_id from iwb.w5_vcs_user u where u.vcs_key=? AND u.active_flag=1", key);
-		if(false && GenericUtil.isEmpty(l))//TODO. hepsi tanimlaninca daha iyi olacak
-			throw new IWBException("framework","Wrong/Inactive ApiKey for GlobalNextval", 0, key, key, null);
-		l = dao.executeSQLQuery("select 1 from iwb.w5_vcs_global_nextval u where u.seq_dsc=? AND u.active_flag=1", id);
+	public int getGlobalNextval(String id, String projectUuid, int userId, int customizationId, String remoteAddr) {
+		
+		if(FrameworkSetting.log2tsdb){
+			LogUtil.logObject(new Log5GlobalNextval(userId, customizationId, id, remoteAddr, projectUuid));
+		}
+		
+/*		l = dao.executeSQLQuery("select 1 from iwb.w5_vcs_global_nextval u where u.seq_dsc=? AND u.active_flag=1", id);
 		if(false && GenericUtil.isEmpty(l))//TODO. hepsi tanimlaninca daha iyi olacak
 			throw new IWBException("framework","Wrong/Inactive Sequence Name for GlobalNextval", 0, id, id, null);
-
-		l = dao.executeSQLQuery("select nextval('"+id+"')");
+*/
+		List l = dao.executeSQLQuery("select nextval('"+id+"')");
 
 		return GenericUtil.uInt(l.get(0));
 	}
@@ -5894,7 +5895,7 @@ public class FrameworkEngine{
 					
 					
 					
-					int lookUpId = GenericUtil.getGlobalNextval("iwb.seq_look_up", projectUuid);
+					int lookUpId = GenericUtil.getGlobalNextval("iwb.seq_look_up", projectUuid, userId, customizationId);
 					dao.executeUpdateSQLQuery("insert into iwb.w5_look_up "
 							+ "(look_up_id, customization_id, dsc, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, project_uuid)"
 					+  "values (?         , ?               , ?  , 1         , ?             , current_timestamp    , ?              , current_timestamp     , ?)",
@@ -5902,7 +5903,7 @@ public class FrameworkEngine{
 					if(vcs)dao.saveObject(new W5VcsObject(scd, 13, lookUpId));
 					int tabOrder = 1;
 					for(String sx:vz)if(!GenericUtil.isEmpty(sx) && !GenericUtil.isEmpty(sx.trim())){
-						int lookUpIdDetail = GenericUtil.getGlobalNextval("iwb.seq_look_up_detay", projectUuid);
+						int lookUpIdDetail = GenericUtil.getGlobalNextval("iwb.seq_look_up_detay", projectUuid, userId, customizationId);
 						dao.executeUpdateSQLQuery("insert into iwb.w5_look_up_detay "
 								+ "(look_up_detay_id, look_up_id, tab_order, val      , dsc, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, customization_id, project_uuid)"
 						 + "values (?,        ?,                 ?        , ?        , ?  , 1         , ?             , current_timestamp    , ?              , current_timestamp     , ?, ?)",
@@ -5998,7 +5999,7 @@ public class FrameworkEngine{
 		int xformBuilderId = GenericUtil.uInt(fr.getOutputFields().get("xform_builder_id").toString());
 		int parentTemplateId =  parentTableId==0 || !main.has("template_id") ? 0 : main.getInt("template_id");
 		int parentTemplateObjectId = parentTableId==0 || !main.has("parent_object_id")  ? 0 : main.getInt("parent_object_id");
-		int formId = GenericUtil.getGlobalNextval("iwb.seq_form", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
+		int formId = GenericUtil.getGlobalNextval("iwb.seq_form", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
 //				  XFORM_ID := nextval('seq_form');
 		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form("
 				+ "form_id, customization_id, object_tip, object_id, dsc, locale_msg_key, "
@@ -6017,7 +6018,7 @@ public class FrameworkEngine{
 		List<Map> lm = dao.executeSQLQuery2Map("select x.* from iwb.w5_xform_builder_detail x where x.xform_builder_id=? order by 1", lp);
 		int tabOrder = 1;
 		for(Map m:lm){
-			int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
+			int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form_cell("
 					+ "form_cell_id, customization_id, form_id, dsc, locale_msg_key,"
 					+ "control_tip, vtype, source_tip, not_null_flag, tab_order, control_width,"
@@ -6038,7 +6039,7 @@ public class FrameworkEngine{
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
 		}
 		if(relParentFieldName!=null){
-			int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
+			int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form_cell("
 					+ "form_cell_id, customization_id, form_id, dsc, locale_msg_key,"
 					+ "control_tip, vtype, source_tip, not_null_flag, tab_order, control_width,"
@@ -6059,7 +6060,7 @@ public class FrameworkEngine{
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
 		}
 //				XQUERY_ID := nextval('seq_query');
-		int queryId = GenericUtil.getGlobalNextval("iwb.seq_query", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query')").get(0));
+		int queryId = GenericUtil.getGlobalNextval("iwb.seq_query", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query')").get(0));
 		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query("
 				+ "query_id, dsc, main_table_id, sql_select, sql_from, sql_where,"
 				+ "sql_groupby, sql_orderby, query_tip, log_level_tip, version_no,"
@@ -6083,7 +6084,7 @@ public class FrameworkEngine{
 //		dao.getHibernateTemplate().flush();
 		//				XGRID_ID := nextval('seq_grid');
 //		List lw = dao.executeSQLQuery("select min(qf.query_field_id) from iwb.w5_query_field qf where qf.query_id=? AND qf.customization_id=? AND qf.project_uuid=?", queryId, customizationId, projectUuid);
-		int gridId = GenericUtil.getGlobalNextval("iwb.seq_grid", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid')").get(0));
+		int gridId = GenericUtil.getGlobalNextval("iwb.seq_grid", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid')").get(0));
 		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_grid("
 				+ "grid_id, customization_id, dsc, query_id, locale_msg_key, grid_tip,"
 				+ "default_page_record_number, selection_mode_tip, pk_query_field_id,"
@@ -6108,7 +6109,7 @@ public class FrameworkEngine{
 
 		tabOrder = 1;
 		for(Map m:lm){
-			int gridColumnId = GenericUtil.getGlobalNextval("iwb.seq_grid_column", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid_column')").get(0));
+			int gridColumnId = GenericUtil.getGlobalNextval("iwb.seq_grid_column", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid_column')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_grid_column("
 					+ "grid_column_id, query_field_id, grid_id, customization_id, locale_msg_key, tab_order,"
 					+ "visible_flag, sortable_flag, width, renderer, align_tip, version_no,"
@@ -6129,7 +6130,7 @@ public class FrameworkEngine{
 		if(parentTableId==0){
 			tabOrder = 1;
 			for(Map m:lm)if(GenericUtil.uInt(m.get("grd_search_flag"))!=0){
-				int queryParamId = GenericUtil.getGlobalNextval("iwb.seq_query_param", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
+				int queryParamId = GenericUtil.getGlobalNextval("iwb.seq_query_param", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
 				dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query_param("
 					+ "query_param_id, query_id, dsc, param_tip, expression_dsc, operator_tip,"
 					+ "not_null_flag, tab_order, source_tip, default_value, min_length,"
@@ -6145,7 +6146,7 @@ public class FrameworkEngine{
 			}
 
 			//  XSFORM_ID := nextval('seq_form');
-			int sformId = GenericUtil.getGlobalNextval("iwb.seq_form", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
+			int sformId = GenericUtil.getGlobalNextval("iwb.seq_form", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form("
 				+ "form_id, customization_id, object_tip, object_id, dsc, locale_msg_key, "
 				+ "default_width, default_height, tab_order, render_tip, code, label_width,"
@@ -6159,7 +6160,7 @@ public class FrameworkEngine{
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 40, sformId));
 
 			for(Map m:lm)if(GenericUtil.uInt(m.get("grd_search_flag"))!=0){
-				int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
+				int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
 				int controlTip = GenericUtil.uInt(m.get("real_control_tip"));
 				if(controlTip==0)controlTip = GenericUtil.uInt(m.get("control_tip"));
 				int lookUpId = GenericUtil.uInt(m.get("look_up_id"));
@@ -6194,7 +6195,7 @@ public class FrameworkEngine{
 		int templateId = 0, menuId = 0;
 		if(parentTableId==0){
 					 //  XTEMPLATE_ID := nextval('seq_template');
-			templateId = GenericUtil.getGlobalNextval("iwb.seq_template", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template')").get(0));
+			templateId = GenericUtil.getGlobalNextval("iwb.seq_template", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_template("
 					+ "template_id, customization_id, template_tip, dsc, object_id,"
 					+ "object_tip, code, version_no, insert_user_id, insert_dttm, version_user_id,"
@@ -6204,7 +6205,7 @@ public class FrameworkEngine{
 					+ "current_timestamp, 1, ?)",templateId, customizationId, tableName, userId, userId, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 63, templateId));
 
-			int templateObjectId = GenericUtil.getGlobalNextval("iwb.seq_template_object", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
+			int templateObjectId = GenericUtil.getGlobalNextval("iwb.seq_template_object", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_template_object("
 					+ "template_object_id, template_id, customization_id, object_id, tab_order, object_tip,"
 					+ "version_no, insert_user_id, insert_dttm, version_user_id, version_dttm,"
@@ -6217,7 +6218,7 @@ public class FrameworkEngine{
 					+ "0, null, null,null, null, 1, ?)",templateObjectId, templateId, customizationId, gridId, userId, userId, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 64, templateObjectId));
 
-			menuId = GenericUtil.getGlobalNextval("iwb.seq_menu", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
+			menuId = GenericUtil.getGlobalNextval("iwb.seq_menu", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_menu(" +
 					"menu_id, parent_menu_id, user_tip, node_tip, locale_msg_key," +
 					"tab_order, img_icon, url, version_no, insert_user_id, insert_dttm," +
@@ -6231,7 +6232,7 @@ public class FrameworkEngine{
 					+ "from iwb.w5_table_field f where f.customization_id=? AND f.table_id=? AND f.tab_order=2", customizationId, tableId).get(0);
 			dao.executeUpdateSQLQuery("UPDATE iwb.w5_table_field f SET can_update_flag=0 WHERE f.customization_id=? AND f.table_id=? AND f.tab_order=2", customizationId, tableId);
 			dao.executeUpdateSQLQuery("UPDATE iwb.w5_grid f SET code=f.dsc||'._postInsert=function(sel,url,a){var m=getMasterGridSel(a,sel);if(m)return url+\"&"+loo[0]+"=\" +(m."+loo[0]+" || m.get(\""+loo[0]+"\"));};' WHERE f.customization_id=? AND f.grid_id=?", customizationId, gridId);
-			int tableChildId = GenericUtil.getGlobalNextval("iwb.seq_table_relation", projectUuid);
+			int tableChildId = GenericUtil.getGlobalNextval("iwb.seq_table_relation", projectUuid, userId, customizationId);
 			dao.executeUpdateSQLQuery("insert INTO iwb.w5_table_child "
 					+ "(table_child_id, locale_msg_key, relation_tip, table_id, table_field_id, related_table_id, related_table_field_id, related_static_table_field_id, related_static_table_field_val, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, copy_strategy_tip, on_readonly_related_action, on_invisible_related_action, on_delete_action, tab_order, on_delete_action_value, child_view_tip, child_view_object_id, revision_flag, project_uuid, customization_id) "
 					+ "values(?, ?, 2, ?     , ?             , ?               , ?                     , 0                            , 0                             , 1         , ?             , current_timestamp  , ?      , current_timestamp , 0          , 0                         , 0                          , 0               , 10       , null                  , 0             , 0                   , 0            , ?           , ?)",
@@ -6239,7 +6240,7 @@ public class FrameworkEngine{
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 657, tableChildId));
 
 
-			int queryParamId = GenericUtil.getGlobalNextval("iwb.seq_query_param", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
+			int queryParamId = GenericUtil.getGlobalNextval("iwb.seq_query_param", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query_param("
 					+ "query_param_id, query_id, dsc, param_tip, expression_dsc, operator_tip,"
 					+ "not_null_flag, tab_order, source_tip, default_value, min_length,"
@@ -6257,7 +6258,7 @@ public class FrameworkEngine{
 			int parentQueryId = GenericUtil.uInt(dao.executeSQLQuery("select g.query_id from iwb.w5_template_object q, iwb.w5_grid g where q.template_object_id=? AND q.customization_id=? "
 					+ " AND g.customization_id=q.customization_id AND q.object_id=g.grid_id",parentTemplateObjectId, customizationId).get(0));
 
-			int templateObjectId = GenericUtil.getGlobalNextval("iwb.seq_template_object", projectUuid);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
+			int templateObjectId = GenericUtil.getGlobalNextval("iwb.seq_template_object", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
 			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_template_object("
 					+ "template_object_id, template_id, customization_id, object_id, tab_order, object_tip,"
 					+ "version_no, insert_user_id, insert_dttm, version_user_id, version_dttm,"
@@ -6722,7 +6723,7 @@ public class FrameworkEngine{
 		FrameworkSetting.customizationSystemStatus.put(cusId, 0);
 		dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)",
 				userId, cusId, nickName, email, nickName+1, 1, nickName, 1 , socialNet, email,projects.get(0).get("project_uuid"));
-		int userRoleId = GenericUtil.getGlobalNextval("iwb.seq_user_role", (String)projects.get(0).get("project_uuid"));
+		int userRoleId = GenericUtil.getGlobalNextval("iwb.seq_user_role", (String)projects.get(0).get("project_uuid"), userId, cusId);
 		dao.executeUpdateSQLQuery("insert into iwb.w5_user_role(user_role_id, user_id, role_id, customization_id,unit_id, project_uuid) values(?, ?, 0, ?,?, ?)",userRoleId, userId, cusId,0,projects.get(0).get("project_uuid"));
 
 		for(Map p: projects){

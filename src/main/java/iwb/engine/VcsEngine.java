@@ -406,7 +406,7 @@ public class VcsEngine {
 		if(!GenericUtil.isEmpty(sqls))
 			m.put("sqls", sqls);
 		
-		dao.saveObject(new Log5VcsAction(scd, (short) 13,null));
+		dao.saveObject(new Log5VcsAction(scd, (short) 14, null));
 
 		return m;
 	}
@@ -3098,17 +3098,17 @@ public class VcsEngine {
 			map.put("userTips", tList);
 		} else {
 			String projectId = UUID.randomUUID().toString();
-			int cusId = GenericUtil.getGlobalNextval("iwb.seq_customization", projectId);
+			int cusId = GenericUtil.getGlobalNextval("iwb.seq_customization", projectId, 0, 0);
 			dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName);
 			
 			String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
-			int userId = GenericUtil.getGlobalNextval("iwb.seq_user", projectId);
+			int userId = GenericUtil.getGlobalNextval("iwb.seq_user", projectId, 0, cusId);
 
 			String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project");
 			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users, set_search_path_flag, rdbms_schema, vcs_flag, vcs_url, vcs_user_name, vcs_password)"
 					+ " values (?,?,?, ?, 1, ?,1,?,?,iwb.md5hash(?))", projectId, cusId, "New Project 1", ""+userId,schema,vcsUrl,nickName, nickName+1);
 			dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
-			int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId);
+			int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId, 0, cusId);
 			dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", cusId, projectId);
 			
 			dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
@@ -3116,7 +3116,7 @@ public class VcsEngine {
 			dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)", 
 
 					userId, cusId, nickName, email, nickName+1, 1, nickName, 1 , socialCon, email,projectId);
-			int userRoleId = GenericUtil.getGlobalNextval("iwb.seq_user_role", projectId);
+			int userRoleId = GenericUtil.getGlobalNextval("iwb.seq_user_role", projectId, 0, cusId);
 			dao.executeUpdateSQLQuery("insert into iwb.w5_user_role(user_role_id, user_id, role_id, customization_id,unit_id, project_uuid) values(?, ?, 0, ?,?, ?)",userRoleId, userId, cusId,0,projectId);
 
 			
