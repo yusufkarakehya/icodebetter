@@ -32,7 +32,7 @@ public class LogUtil {
 	}	
 	
 	public static void logObject(Log5Base o){
-		if(o==null)return;
+		if(!FrameworkSetting.log2tsdb || o==null)return;
 		String str = o.toInfluxDB();
 		if(GenericUtil.isEmpty(str))return;
 		StringBuilder s=new StringBuilder(str);

@@ -704,7 +704,7 @@ public class React16 implements ViewAdapter {
 							: formResult.getForm().get_renderTemplate()
 									.getCode());
 		} else if(formResult.getForm().getObjectTip()==2)
-			s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt});");
+			s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt, callAttributes:callAttributes});");
 		
 
 		return s;
