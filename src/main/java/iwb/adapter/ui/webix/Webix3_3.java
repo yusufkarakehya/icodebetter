@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Set;
 
 import iwb.adapter.ui.ViewAdapter;
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5ApprovalStep;
@@ -54,10 +57,7 @@ import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
 
 public class Webix3_3 implements ViewAdapter {
@@ -692,16 +692,11 @@ public class Webix3_3 implements ViewAdapter {
 				"ajaxPostForm",
 				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
 				"ajaxExecDbFunc", "", "", "", "" };
-		s.append("{\n formId: ")
-				.append(formResult.getFormId())
-				.append(",\n a:")
-				.append(formResult.getAction())
-				.append(",\n name:'")
-				.append(LocaleMsgCache.get2(customizationId, xlocale,
-						formResult.getForm().getLocaleMsgKey()))
+		s.append("{ formId: ").append(formResult.getFormId())
+				.append(", a:").append(formResult.getAction()).append(", name:'")
+				.append(LocaleMsgCache.get2(customizationId, xlocale, formResult.getForm().getLocaleMsgKey()))
 				.append("',id:'").append(formResult.getUniqueId())
-				.append("',\n defaultWidth:").append(f.getDefaultWidth())
-				.append(",\n defaultHeight:").append(f.getDefaultHeight());
+				.append("', defaultWidth:").append(f.getDefaultWidth()).append(", defaultHeight:").append(f.getDefaultHeight());
 
 		if (f.get_formHintList() != null) {
 			boolean b = false;
@@ -740,13 +735,11 @@ public class Webix3_3 implements ViewAdapter {
 			s.append(",\n crudTableId:").append(f.getObjectId());
 			if (formResult.getAction() == 2) { // insert
 				long tmpId = -GenericUtil.getNextTmpId();
-				s.append(",\n contFlag:").append(f.getContEntryFlag() != 0)
-						.append(",\n tmpId:").append(tmpId);
+				s.append(",\n contFlag:").append(f.getContEntryFlag() != 0).append(",\n tmpId:").append(tmpId);
 				formResult.getRequestParams().put("_tmpId", "" + tmpId);
 			} else if (formResult.getAction() == 1) { // edit
-				s.append(",\n pk:")
-						.append(GenericUtil.fromMapToJsonString(formResult
-								.getPkFields()));
+				s.append(", pk:").append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
+				if(t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers()))s.append(", deletable:!0");
 				if (liveSyncRecord) {
 					s.append(",\n liveSync:true");
 					String webPageId = formResult.getRequestParams().get(".w");

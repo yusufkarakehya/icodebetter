@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Set;
 
 import iwb.adapter.ui.ViewAdapter;
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5Conversion;
@@ -52,10 +55,7 @@ import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
 
 public class React16 implements ViewAdapter {
@@ -280,22 +280,18 @@ public class React16 implements ViewAdapter {
 		// form(table) fields
 		if (f.getObjectTip() == 2
 				&& FrameworkCache.getTable(customizationId, f.getObjectId()) != null) {
-			s.append(",\n renderTip:").append(
-					formResult.getForm().getRenderTip());
+			s.append(",\n renderTip:").append(formResult.getForm().getRenderTip());
 			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
-			liveSyncRecord = FrameworkSetting.liveSyncRecord
-					&& t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
+			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
 			// insert AND continue control
 			s.append(", crudTableId:").append(f.getObjectId());
 			if (formResult.getAction() == 2) { // insert
 				long tmpId = -GenericUtil.getNextTmpId();
-				s.append(", contFlag:").append(f.getContEntryFlag() != 0)
-						.append(",\n tmpId:").append(tmpId);
+				s.append(", contFlag:").append(f.getContEntryFlag() != 0).append(",\n tmpId:").append(tmpId);
 				formResult.getRequestParams().put("_tmpId", "" + tmpId);
 			} else if (formResult.getAction() == 1) { // edit
-				s.append(",\n pk:")
-						.append(GenericUtil.fromMapToJsonString(formResult
-								.getPkFields()));
+				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
+				if(t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers()))s.append(", deletable:!0");
 				if (liveSyncRecord) {
 					s.append(", liveSync:true");
 					String webPageId = formResult.getRequestParams().get(".w");
@@ -704,7 +700,7 @@ public class React16 implements ViewAdapter {
 							: formResult.getForm().get_renderTemplate()
 									.getCode());
 		} else if(formResult.getForm().getObjectTip()==2)
-			s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt});");
+			s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt, callAttributes:callAttributes});");
 		
 
 		return s;

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import iwb.cache.FrameworkCache;
 import iwb.domain.db.W5ApprovalRecord;
 import iwb.domain.db.W5ApprovalStep;
 import iwb.domain.db.W5ConvertedObject;
@@ -15,7 +16,6 @@ import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5SynchAfterPostHelper;
-import iwb.util.FrameworkCache;
 
 
 public class W5FormResult implements W5MetaResult{

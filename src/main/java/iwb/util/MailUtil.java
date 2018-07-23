@@ -26,6 +26,9 @@ import org.springframework.stereotype.Component;
 import com.sun.mail.smtp.SMTPAddressFailedException;
 import com.sun.mail.smtp.SMTPMessage;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.W5Email;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5ObjectMailSetting;

@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import iwb.cache.FrameworkSetting;
+
 public class HttpUtil {
 	public static String send(String targetURL, String urlParameters) {
 		return send(targetURL, urlParameters, "POST", null);

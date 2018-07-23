@@ -29,9 +29,9 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
 import iwb.engine.FrameworkEngine;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 

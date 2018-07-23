@@ -8,6 +8,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import iwb.cache.FrameworkSetting;
 import iwb.domain.db.Log5Base;
 
 public class LogUtil {
@@ -32,7 +33,7 @@ public class LogUtil {
 	}	
 	
 	public static void logObject(Log5Base o){
-		if(o==null)return;
+		if(!FrameworkSetting.log2tsdb || o==null)return;
 		String str = o.toInfluxDB();
 		if(GenericUtil.isEmpty(str))return;
 		StringBuilder s=new StringBuilder(str);

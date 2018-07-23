@@ -18,9 +18,9 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.NestedServletException;
 
+import iwb.cache.FrameworkSetting;
 import iwb.exception.IWBException;
 import iwb.exception.Log5IWBException;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 

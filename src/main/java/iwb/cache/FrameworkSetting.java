@@ -2,7 +2,7 @@
  * Created on 21.Mar.2005
  *
  */
-package iwb.util;
+package iwb.cache;
 
 import java.util.HashMap;
 import java.util.HashSet;

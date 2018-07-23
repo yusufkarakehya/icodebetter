@@ -2202,7 +2202,7 @@ function ajaxErrorHandler(obj){
     		items.push({xtype:'displayfield',fieldLabel: 'Detail', anchor:'99%',labelSeparator:'', value:(obj.sql.length>800?obj.sql.substr(0,790)+' ... <a href=# onclick="return false">show more</a>':obj.sql)});
     	}
     	var xbuttons =[];
-		xbuttons.push({text:'Convert to Task',cls:'info',handler:function(){
+		xbuttons.push({text:'Convert to Task',handler:function(){
 			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
 			wndx.close();
 		}});
@@ -2227,11 +2227,11 @@ function ajaxErrorHandler(obj){
 
 			}});
 		}
-		if(obj.stack)xbuttons.push({text:'Java StackTrace',cls:'warning',handler:function(){alert(obj.stack);}});
+		if(obj.stack)xbuttons.push({text:'Java StackTrace',handler:function(){alert(obj.stack);}});
 		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
         var wndx=new Ext.Window({
             modal:true,
-            title:obj.errorType.toUpperCase()+' Error', cls:'xerror',
+            title:obj.errorType.toUpperCase()+' Error', 
             width: obj.sql ? 900:650,
            autoHeight:!0,
             items:[{    

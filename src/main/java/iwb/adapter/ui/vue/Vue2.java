@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Set;
 
 import iwb.adapter.ui.ViewAdapter;
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5Conversion;
@@ -52,10 +55,7 @@ import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
 
 public class Vue2 implements ViewAdapter {
@@ -297,9 +297,8 @@ public class Vue2 implements ViewAdapter {
 						.append(",\n tmpId:").append(tmpId);
 				formResult.getRequestParams().put("_tmpId", "" + tmpId);
 			} else if (formResult.getAction() == 1) { // edit
-				s.append(",\n pk:")
-						.append(GenericUtil.fromMapToJsonString(formResult
-								.getPkFields()));
+				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
+				if(t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers()))s.append(", deletable:!0");
 				if (liveSyncRecord) {
 					s.append(", liveSync:true");
 					String webPageId = formResult.getRequestParams().get(".w");

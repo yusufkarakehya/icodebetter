@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import iwb.engine.FrameworkEngine;
-import iwb.util.FrameworkCache;
+import iwb.cache.FrameworkCache;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 

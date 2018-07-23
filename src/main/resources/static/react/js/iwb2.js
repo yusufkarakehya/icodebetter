@@ -370,6 +370,12 @@ function strShortDate(x){
 function accessControlHtml(){
 	return null;
 }
+function fmtDateTime(x){
+	return x ? moment(x).format('DD/MM/YYYY HH:ss') : "";
+}
+function fmtShortDate(x){
+	return x ? moment(x).format('DD/MM/YYYY') : "";
+}
 function strDateTime(x){
 	return x || "";
 }
@@ -461,7 +467,7 @@ class GridCommon extends React.PureComponent {
 			return _(_dxgrb.Table.Row, openTab && crudFlags && crudFlags.edit && pk && crudFormId ? {
 				...tableRowData,
 				...{ 
-					onDoubleClick:event=>this.onEditClick({event,rowData:tableRowData.row}),
+					onDoubleClick:event=>this.onEditClick({event,rowData:tableRowData.row, openEditable:false}),
 					style:{
 						...tableRowData.style,
 						cursor:'pointer'
@@ -514,7 +520,7 @@ class GridCommon extends React.PureComponent {
 		 * @param { Event } param0.event - Click event from the Edit button and double click on the row 
 		 * @param { rowData } param0.rowData - Data of the row where the Edit button or double click clicked 
 		 */
-		this.onEditClick 		= ({event,rowData})=>{
+		this.onEditClick 		= ({event,rowData,openEditable})=>{
 			var {props} = this;	
 			var pkz = buildParams2(props.pk,rowData);
 			var url = 'showForm?a=1&_fid='+props.crudFormId+pkz;
@@ -523,7 +529,7 @@ class GridCommon extends React.PureComponent {
 				if(!url)return;
 			}
 			var modal=event.ctrlKey && !!event.ctrlKey;
-			props.openTab('1-'+pkz,url+(modal?'&_modal=1':''),{},{modal:modal})
+			props.openTab('1-'+pkz,url+(modal?'&_modal=1':''),{},{modal:modal,openEditable})
 		};
 		/**
 		 * todo
@@ -649,13 +655,14 @@ class GridCommon extends React.PureComponent {
  * @param {Object} props.body - it renders bodyForm class wich came from the backend
  * @param {Object} props.cfg - config of the form [edit or intest, id of the form]
  * @param {Object} props.parentCt - [xpage]-a function to open and close tab from the form
+ * @param {Object} props.callAttributes - extra props to XTabForm
+ * @param {Object} props.callAttributes.openEditable - open form in edit mode
  */
 class XTabForm extends React.PureComponent{
 	constructor(props){
 		if(iwb.debug)console.log('XTabForm.constructor',props);
 		super(props);
-		//state
-		this.state = {viewMode:this.props.cfg.a==1};
+		this.state = {viewMode: (this.props.callAttributes && this.props.callAttributes.openEditable)?false:this.props.cfg.a==1};
 		//methods
 		this.toggleViewMode = ()=> this.setState({viewMode:!this.state.viewMode});
 		this.onSubmit = e => {
@@ -672,7 +679,7 @@ class XTabForm extends React.PureComponent{
 					} else{
 						url+=cfg.url.substring('ajaxPostForm'.length);
 					}
-					toastr.success('İlgili kaydı görmek için <a href=# onClick="return iwb.openForm(\''+url+'\')">tıklayınız</a>','Başarıyla Kaydedildi',{timeOut:3000});
+					toastr.success('Click! To see saved item <a href=# onClick="return iwb.openForm(\''+url+'\')"></a>','Saved Successfully',{timeOut:3000});
 					var {parentCt} = selfie.props;
 					if(parentCt){
 						parentCt.closeTab();
@@ -697,17 +704,14 @@ class XTabForm extends React.PureComponent{
 						' ', 
 						this.state.viewMode &&_(Button,{color:'light', className:'btn-form-edit',onClick:this.props.parentCt.closeTab},'Kapat'),
 						' ',
-						this.state.viewMode &&_(Button,{color:'danger', className:'btn-form-edit',onClick:()=>{
-							var {pk,formId}=this.props;	
+						this.state.viewMode &&_(Button,{color:'danger', className:'btn-form-edit',onClick:(event)=>{
+							//veli backend
+							// var {pk,formId}=this.props;	
 							// var pkz = buildParams2(pk,rowData);
-							iwb.log(this);
-							debugger;
-							var url = 'ajaxPostForm?a=3&_fid='+formId+pkz;
-							yesNoDialog({ text:"Are you Sure!", callback:(success)=>{
-								if(success){
-									iwb.request({ url, successCallback:()=>this.props.parentCt.closeTab()});
-								}
-							}});
+							// iwb.log(this);
+							// debugger;
+							// var url = 'ajaxPostForm?a=3&_fid='+formId+pkz;
+							yesNoDialog({ text:"Are you Sure!", callback:success=>this.props.parentCt.closeTab(event,success) });
 						}},
 							_("i",{className:"icon-trash"})," ",'Sil'),
 
@@ -949,7 +953,7 @@ class XGridRowAction extends React.PureComponent {
 			, _(DropdownToggle, { tag: 'i', className: "icon-options-vertical column-action"})
 			, isOpen &&
 			_(DropdownMenu, { className: this.state.isOpen ? 'show' : ''}
-				, edit && _(DropdownItem, { key: '123', onClick:(event)=>{this.props.onEditClick({event,rowData})} }
+				, edit && _(DropdownItem, { key: '123', onClick:(event)=>{this.props.onEditClick({event,rowData,openEditable:true})} }
 					, _('i', { className: 'icon-pencil', style:{...defstyle} })
 						,'Güncelle')
 				, remove && _(DropdownItem, { key: '1223', onClick:(event)=>{this.props.onDeleteClick({event,rowData})} }
@@ -1972,10 +1976,10 @@ class XMainGrid extends GridCommon {
 	constructor(props) {
 		super(props);
 		var oldGridState = iwb.grids[props.id];
-		if(iwb.debug)console.log('XMainGrid', props);
+		if(!iwb.debug)console.log('XMainGrid', props);
 		if(oldGridState){
 			this.state = oldGridState;
-			this.dontRefresh = true;
+			this.dontRefresh = true;// true-yuklemez, false-yukleme yapar
 		} else {
 			var columns=[], 
 			columnExtensions=[];
@@ -2030,6 +2034,7 @@ class XMainGrid extends GridCommon {
 			props.detailGrids && props.detailGrids.length>1 && props.detailGrids.map(({grid},key)=>{
 				if(key<2)state['dg-'+grid.gridId] = key<2;
 			});
+			
 			this.state = state;
 		}
 		/**
@@ -2228,8 +2233,21 @@ class XMainGrid extends GridCommon {
 			this.lastQuery = queryString;
 		}
 	}
+	componentWillReceiveProps(...rest){
+		console.log(rest);
+	}
 	componentDidMount() 	{ if(!this.dontRefresh)this.loadData(); this.dontRefresh=false; }
-	componentDidUpdate() 	{ this.loadData(); this.dontRefresh=false; }
+	componentDidUpdate(prevProps, prevState, snapshot) 	{
+		// console.log(prevProps)
+		// console.log(prevState)
+		// console.log(snapshot)
+		if(this.props.forceRelaod !== prevProps.forceRelaod){
+			console.log(this.props.forceRelaod !== prevProps.forceRelaod)
+			this.loadData(true);
+			console.log(this.props.forceRelaod);
+		}
+		this.loadData(); this.dontRefresh=false;
+	}
 	componentWillUnmount()	{
 		var state = Object.assign({},this.state);
 		var sf = document.getElementById('sf-'+this.props.id);
@@ -2436,10 +2454,11 @@ class XPage extends React.Component {
 		 * delating CurrentTab from the state of Xpage Component
 		 * this function will be passed to whenever new tab is opened
 		 */
-	    this.closeTab = ()=>{
+	    this.closeTab = (event,forceRelaod = false)=>{
 			var { activeTab,tabs } = this.state;
 			if(activeTab =='x')return;
 			tabs = tabs && tabs.length > 0 && tabs.filter((tempTab)=>tempTab.name!==activeTab && tempTab);
+			if(forceRelaod){ tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);}
 			this.setState({activeTab:'x',tabs});
 		};
 		/**
@@ -2447,8 +2466,8 @@ class XPage extends React.Component {
 		 * A function is used to open new FormTab
 		 * @param {string} url 
 		 */
-		this.openForm = (url)=>{
-			if(url)this.openTab('1-'+Math.random(),url);
+		this.openForm = (url, callAttributes = {})=>{
+			if(url)this.openTab('1-'+Math.random(),url,{},callAttributes);
 			return false;
 		}
 		iwb.openForm=this.openForm
@@ -2456,6 +2475,7 @@ class XPage extends React.Component {
 	componentWillUnmount(){ iwb.killGlobalSearch(); iwb.pages[this.props.grid.id]={...this.state} }
 	render(){
 		if(iwb.debugRender)if(iwb.debug)console.log('XPage.render');
+
 		return _("div",{},
 			_(Row,null,
 				_(Col,{ className: "mb-4" },
@@ -2893,13 +2913,23 @@ class XForm extends React.Component {
 		 * @param {String} inputName 
 		 * @param {Boolean} isItDTTM 
 		 */
-		this.onDateChange = (inputName, isItDTTM) => {
-			var self = this;
-			return selectedDate => {
-				var {values} = self.state;
-				var dateValue = selectedDate && selectedDate._d;
-				values[inputName] = isItDTTM ? iwb.fmtDateTime(dateValue) : iwb.fmtShortDate(dateValue);
-				self.setState({values});
+		// this.onDateChange = (inputName, isItDTTM) => {
+		// 	var self = this;
+		// 	return selectedDate => {
+		// 		debugger;
+		// 		var {values} = self.state;
+		// 		var dateValue = selectedDate && selectedDate._d;
+		// 		values[inputName] = isItDTTM ? iwb.fmtDateTime(dateValue) : iwb.fmtShortDate(dateValue);
+		// 		self.setState({values});
+		// 	}
+		// }
+		this.onDateChange = (dsc, dttm)=>{
+			var self=this;
+			return function(o){
+				var values=self.state.values;
+				var v=o && o._d;
+				values[dsc]=dttm ? fmtDateTime(v):fmtShortDate(v);
+				self.setState({values:values});
 			}
 		}
 	}
