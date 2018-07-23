@@ -6805,5 +6805,22 @@ public class FrameworkEngine{
     	}
     }
 
-
+	public Map userExists(String email) {
+		List<Object[]> list = dao.executeSQLQuery("select u.user_id, u.customization_id, (select min(r.user_role_id)"
+				+ " from iwb.w5_user_role r where r.customization_id=u.customization_id AND r.user_id=u.user_id) user_role_id from iwb.w5_user u where "
+				+ "u.user_status=1 AND u.auth_external_id=?",  email);
+		if(!GenericUtil.isEmpty(list)){
+			Object[] oz = list.get(0);
+			return  userRoleSelect(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[2]), GenericUtil.uInt(oz[1]), null, null);
+		}
+		else{
+			return null;
+		}
+	}
+	
+	public void addToProject(int userId, String projectId) {
+		dao.executeUpdateSQLQuery("insert into iwb.w5_user_related_project(user_id, related_project_uuid) values (?,?)",userId,projectId );
+		 
+	}
+	
 }
