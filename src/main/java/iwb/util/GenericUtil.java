@@ -1097,7 +1097,7 @@ public class GenericUtil {
 			pvalue = defaultValue;
 			break;
 		case	8://global Nextval
-			return getGlobalNextval(defaultValue, scd!=null ? (String)scd.get("projectId"):null);
+			return getGlobalNextval(defaultValue, scd!=null ? (String)scd.get("projectId"):null, scd!=null ? (Integer)scd.get("userId"):0, scd!=null ? (Integer)scd.get("customizationId"):0);
 		case 9:  //UUID
 			pvalue = UUID.randomUUID().toString();
 			break;
@@ -1258,7 +1258,7 @@ public class GenericUtil {
 			pvalue = defaultValue;
 			break;
 		case	8://global Nextval
-			return getGlobalNextval(defaultValue, scd!=null ? (String)scd.get("projectId"):null);
+			return getGlobalNextval(defaultValue, scd!=null ? (String)scd.get("projectId"):null, scd!=null ? (Integer)scd.get("userId"):0, scd!=null ? (Integer)scd.get("customizationId"):0);
 		case 9:  //UUID
 			pvalue = UUID.randomUUID().toString();
 			break;			
@@ -2089,12 +2089,12 @@ public class GenericUtil {
 	}
 
 	
-	public static int getGlobalNextval(String seq, String projectUuid){
+	public static int getGlobalNextval(String seq, String projectUuid, int userId, int customizationId){
 		String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url");
-		String vcsClientKey = FrameworkCache.getAppSettingStringValue(0, "vcs_client_key");
+//		String vcsClientKey = FrameworkCache.getAppSettingStringValue(0, "vcs_client_key");
 		if(GenericUtil.isEmpty(vcsUrl))
 			throw new IWBException("framework","vcs_url OR vcs_client_key not defined for versioning", 0, "vcs_url not defined for versioning", null, null);
-		String s = HttpUtil.send(vcsUrl+"/ajaxGlobalNextVal", "id="+seq+"&key="+vcsClientKey+"-"+projectUuid);
+		String s = HttpUtil.send(vcsUrl+"/ajaxGlobalNextVal", "id="+seq+"&key="+customizationId+"."+userId+"."+projectUuid);
 		JSONObject json;
 		if(s!=null)try {
 			json = new JSONObject(s);

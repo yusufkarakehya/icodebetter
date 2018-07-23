@@ -293,6 +293,14 @@ public class AppServlet implements InitializingBean {
 		response.getWriter().close();
 		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4StatTree", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
+	@RequestMapping("/ajaxMockQueryData")
+	public void hndAjaxMockQueryData(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		response.setContentType("application/json");
+		
+		response.getWriter().write("{success:true, id:\"asdasd\"}");
+		response.getWriter().close();
+		
+	}
 	
 	@RequestMapping("/ajaxQueryData")
 	public void hndAjaxQueryData(HttpServletRequest request, HttpServletResponse response)
@@ -2338,15 +2346,29 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		
+		if(!FrameworkSetting.vcsServer)
+			throw new IWBException("vcs","getGlobalNextval",0,null, "Not VCS Server to getGlobalNextval", null);
+		
 		long startTime = System.currentTimeMillis();
 		String id=request.getParameter("id");
 		String key=request.getParameter("key");
+		int userId =0, customizationId=0;
+		String projectUuid = "";
+		if(!GenericUtil.isEmpty(key)){
+			String[] oz = key.replace('.', ',').split(",");
+			if(oz.length==3){
+				customizationId = GenericUtil.uInt(oz[0]); 
+				userId = GenericUtil.uInt(oz[1]); 
+				projectUuid = oz[2]; 
+			}
+		}
 		
-		int nextVal = engine.getGlobalNextval(id, key, request.getRemoteAddr());
+		int nextVal = engine.getGlobalNextval(id, projectUuid, userId, customizationId, request.getRemoteAddr());
 		
 		response.getWriter().write("{\"success\":true, \"val\":"+nextVal+"}"); //hersey duzgun
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(new HashMap(), "ajaxGlobalNextVal", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
+//		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(new HashMap(), "ajaxGlobalNextVal", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	@RequestMapping("/ajaxOrganizeTable")
 	public void hndAjaxOrganizeTable(
