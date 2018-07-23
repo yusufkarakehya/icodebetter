@@ -4629,7 +4629,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						if(st!=null && smsMailReplaceTip!=0 && smsMailTableIds.contains(st.getTableId())){// eger sms/mail isi ve bu bir link ise
 							res.put(subStr, fieldPrefix+field_cnt);
 							resField.put(subStr, tf);
-							sql.append("fnc_sms_mail_adress_multi(?,").append(st.getTableId()).append(",").append("x.").append(newSubStr).append(",").append(smsMailReplaceTip).append(") ").append(fieldPrefix).append(field_cnt).append(",");;
+							sql.append("iwb.fnc_sms_mail_adress_multi(?,").append(st.getTableId()).append(",").append("x.").append(newSubStr).append(",").append(smsMailReplaceTip).append(") ").append(fieldPrefix).append(field_cnt).append(",");;
 							params.add(scd.get("userRoleId"));
 							field_cnt++;
 						}
@@ -4700,11 +4700,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 								if(isss==sss.length-2 && summaryMust){//burda t'deki summary record sql varsa
 									if(smsMailReplaceTip!=0){
 										if(smsMailTableIds.contains(dltId))// eger sms/mail isi ve bu bir link ise
-											newSub.append("fnc_sms_mail_adress(?,").append(dltId).append(",").append("y").append(isss).append(".").append(sss[isss+1]).append(",").append(smsMailReplaceTip).append(")");
+											newSub.append("iwb.fnc_sms_mail_adress(?,").append(dltId).append(",").append("y").append(isss).append(".").append(sss[isss+1]).append(",").append(smsMailReplaceTip).append(")");
 										else
 											break;//HATA: sms mail tipinde olmasi gereken link, degil
 									} else
-										newSub.append("fnc_lookup_table_summary(?,").append(dltId).append(",").append("y").append(isss).append(".").append(sss[isss+1]).append(")");
+										newSub.append("iwb.fnc_lookup_table_summary(?,").append(dltId).append(",").append("y").append(isss).append(".").append(sss[isss+1]).append(")");
 									params.add(scd.get("userRoleId"));
 								} else
 									newSub.append("y").append(isss).append(".").append(sss[isss+1]);
@@ -4740,11 +4740,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							
 							if(smsMailReplaceTip!=0){
 								if(smsMailTableIds.contains(tf.getDefaultLookupTableId()))// eger sms/mail isi ve bu bir link ise
-									sql.append("fnc_sms_mail_adress(?,").append(tf.getDefaultLookupTableId()).append(",").append("x.").append(sss[0]).append(",").append(smsMailReplaceTip).append(")");
+									sql.append("iwb.fnc_sms_mail_adress(?,").append(tf.getDefaultLookupTableId()).append(",").append("x.").append(sss[0]).append(",").append(smsMailReplaceTip).append(")");
 								else
 									break;//HATA: sms mail tipinde olmasi gereken link, degil
 							} else
-								sql.append("fnc_lookup_table_summary(?,").append(tf.getDefaultLookupTableId()).append(",").append("x.").append(sss[0]).append(")");
+								sql.append("iwb.fnc_lookup_table_summary(?,").append(tf.getDefaultLookupTableId()).append(",").append("x.").append(sss[0]).append(")");
 							params.add(scd.get("userRoleId"));
 						} else
 							sql.append("x.").append(sss[0]);
@@ -5633,7 +5633,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				if(f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
 						continue;
 				if(f.getDsc().equals("version_dttm")){
-					s.append(f.getDsc()).append("=fnc_sysdate(0),");
+					s.append(f.getDsc()).append("=iwb.fnc_sysdate(0),");
 					continue;
 				}
 				s.append(f.getDsc()).append("=?,");

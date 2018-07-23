@@ -2529,7 +2529,7 @@ public class FrameworkEngine{
 				m.put("msg", LocaleMsgCache.get2(scd, "js_manual_entry"));
 				return m;
 			case	3://Otomatik
-				Map<String, Object> qmz = dao.runSQLQuery2Map("select fnc_form_cell_code_detail_auto(${scd.customizationId},"+fccd.getFormCellCodeDetailId()+",'"+res+"') dsc from dual", scd, requestParams, null);
+				Map<String, Object> qmz = dao.runSQLQuery2Map("select iwb.fnc_form_cell_code_detail_auto(${scd.customizationId},"+fccd.getFormCellCodeDetailId()+",'"+res+"') dsc from dual", scd, requestParams, null);
 				if(!GenericUtil.isEmpty(qmz)){
 					String val = qmz.values().toArray()[0].toString();
 					res+= fccd.getCodeLength()>0 ? GenericUtil.lPad(val,fccd.getCodeLength(),fccd.getFillCharacter()) : val;
@@ -4842,7 +4842,7 @@ public class FrameworkEngine{
 					}
 				}
 				if (cellControlTip==6){ //static lookup
-					detailSql+=", (select ld.val from iwb.w5_look_up_detay ld where ld.customization_id=x.customization_id and ld.look_up_id="+cellLookupQueryId+" and lower(fnc_locale_msg(ld.customization_id,ld.dsc,'"+locale+"'))=lower(x."+importColumn+"))" + dsc;
+					detailSql+=", (select ld.val from iwb.w5_look_up_detay ld where ld.customization_id=x.customization_id and ld.look_up_id="+cellLookupQueryId+" and lower(iwb.fnc_locale_msg(ld.customization_id,ld.dsc,'"+locale+"'))=lower(x."+importColumn+"))" + dsc;
 				}else if (cellControlTip==7 || cellControlTip==9){ //lookup query
 					W5QueryResult queryResult = dao.getQueryResult(scd, cellLookupQueryId);
 					if (queryResult.getMainTable()!=null){

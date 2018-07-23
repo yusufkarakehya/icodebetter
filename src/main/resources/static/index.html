@@ -23,7 +23,79 @@ function redirectAuth() {
   
 </script>
 </head>
-<body onload="redirectAuth()">
-  loading...
+<body onload="redirectAuth()" style="margin:0;background:radial-gradient(#40404b, #111118) rgba(34,34,40,0.94);">
+<div id="loading-mask">
+      <img class="loader" src="/login/assets/tavsi_signin.png">
+<span class="shadow"></span>
+    </div>
+<style>
+#loading-mask {
+	position: absolute;
+	top: calc(50vh);
+	left: calc(50% - 40px)
+}
+
+#loading-mask .loader {
+	width: 80px;
+	height: 120px; margin-top:-25px; margin-left:10px;
+	z-index: 100;
+	animation: jump .8s ease-in infinite
+}
+
+#loading-mask .loader path {
+	stroke: #fff
+}
+
+#loading-mask .loader .cloud {
+	fill: #0084ff
+}
+
+#loading-mask .shadow {
+	position: absolute;
+	z-index: -1;
+	top: 80px;
+	left: 0;
+	display: block;
+	border-radius: 100%;
+	height: 14px;
+	width: 80px;
+	background: #000;
+	opacity: .3;
+	animation: scale-shadow .8s ease-in infinite
+}
+
+@keyframes jump {
+	0% {
+		transform: translateY(0) scale(1.15, .8)
+	}
+	20% {
+		transform: translateY(-35px) scaleY(1.1)
+	}
+	50% {
+		transform: translateY(-50px) scale(1)
+	}
+	80% {
+		transform: translateY(-35px) scale(1)
+	}
+	to {
+		transform: translateY(0) scale(1.15, .8)
+	}
+}
+
+@keyframes scale-shadow {
+	0% {
+		opacity: .3;
+		transform: scale(1)
+	}
+	50% {
+		opacity: .2;
+		transform: scale(.5)
+	}
+	to {
+		opacity: .3;
+		transform: scale(1)
+	}
+}
+  </style>
 </body>
 </html>
