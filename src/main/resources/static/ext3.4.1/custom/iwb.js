@@ -2231,7 +2231,7 @@ function ajaxErrorHandler(obj){
 		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
         var wndx=new Ext.Window({
             modal:true,
-            title:obj.errorType.toUpperCase()+' Error', 
+            title:obj.errorType.toUpperCase()+' Error', cls:'xerror',
             width: obj.sql ? 900:650,
            autoHeight:!0,
             items:[{    

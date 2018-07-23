@@ -1012,7 +1012,12 @@ public class UserUtil {
 		if(userId==0)return null;
 		Map<Integer, CachedUserBean3> m = userMap3.get(customizationId);
 		if(m==null)return null;
-		return m.get(userId);
+		CachedUserBean3 r = m.get(userId);
+		if(FrameworkSetting.debug && r==null)for(Map<Integer, CachedUserBean3> zz:userMap3.values()){
+			r = zz.get(userId);
+			if(r!=null)return r;
+		}
+		return r;
 	}
 	
 	
@@ -1419,7 +1424,7 @@ public class UserUtil {
 		CachedUserBean3 cub = getCachedUserBean(customizationId, toUserId);
 		if(cub==null)return null;
 		int b=0;
-		if(cub.getChatStatusTip()!=0){
+		if(true || cub.getChatStatusTip()!=0){
 			Map m = new HashMap();
 			m.put("success", true);
 			m.put("userChatMsg", true);
