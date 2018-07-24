@@ -37,16 +37,15 @@ public class InvitationServlet {
 				String email= request.getParameter("email");
 				Map scd = engine.userExists(email);
 				if(scd == null){
-					response.sendRedirect("/index.html");
+					//+"&.r="+System.currentTimeMillis()
+					response.sendRedirect("/index.html?email_projectid="+ projectUuid + ""+ email);
 				} else {
 					int userId = GenericUtil.uInt(scd.get("user_id"));
-					engine.addToProject(userId, projectUuid);
+					engine.addToProject(userId, projectUuid, email);
 				}
 			}
 		}
-	    
-	   
-	    //boolean b = engine.changeActiveProject(scd, uuid);
+
 		//response.getWriter().write("{\"success\"");
 		//response.getWriter().close();		
 	}

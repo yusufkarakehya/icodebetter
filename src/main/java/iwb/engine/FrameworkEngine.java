@@ -6819,9 +6819,9 @@ public class FrameworkEngine{
 		}
 	}
 	
-	public void addToProject(int userId, String projectId) {
+	public void addToProject(int userId, String projectId, String email) {
 		dao.executeUpdateSQLQuery("insert into iwb.w5_user_related_project(user_id, related_project_uuid) values (?,?)",userId,projectId );
-		 
+		dao.executeUpdateSQLQuery("update iwb.w5_user set email=? where user_id=?", email, userId);
 	}
 	
 }
