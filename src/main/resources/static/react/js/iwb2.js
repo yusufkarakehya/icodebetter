@@ -663,12 +663,16 @@ class XTabForm extends React.PureComponent{
 		if(iwb.debug)console.log('XTabForm.constructor',props);
 		super(props);
 		this.state = {viewMode: (this.props.callAttributes && this.props.callAttributes.openEditable)?false:this.props.cfg.a==1};
-		//methods
+		/**
+		 * a function to make editable and non editable
+		 */
 		this.toggleViewMode = ()=> this.setState({viewMode:!this.state.viewMode});
-		this.onSubmit = e => {
-			if(e && e.preventDefault){
-				e.preventDefault();
-			}
+		/**
+		 * a function to send form data
+		 * @param {Event} event 
+		 */
+		this.onSubmit = event => {
+			event && event.preventDefault && event.preventDefault();
 			var selfie = this;
 			if(this.form){
 				this.form.submit({callback:(json,cfg)=>{
@@ -683,51 +687,66 @@ class XTabForm extends React.PureComponent{
 					var {parentCt} = selfie.props;
 					if(parentCt){
 						parentCt.closeTab();
-						iwb.onGlobalSearch2('');
+						iwb.onGlobalSearch2 && iwb.onGlobalSearch2('');
 					}
 				}});
 			}
 			else alert('this.form not set');
 			return false;
 		}
+		/**
+		 * a function to delete current editing record
+		 * @param {event} event 
+		 */
+		this.deleteRecord = (event)=>{
+			event && event.preventDefault && event.preventDefault();
+			let {formId,pk}=this.props.cfg; let pkz = '';
+			for (let key in pk) { pkz+='&'+key+'='+pk[key]; }
+			let url = 'ajaxPostForm?a=3&_fid='+formId+pkz;
+			yesNoDialog({ text:"Are you Sure!", callback:success=>success && iwb.request({ url, successCallback:()=>this.props.parentCt.closeTab(event,success)}) });
+		}
 	}
 	render() {
-		if(iwb.debugRender)if(iwb.debug)console.log('XTabForm.render',this.props)
-		var formBody = _(this.props.body,{parentCt:this, viewMode:this.state.viewMode});
+		let {
+			props:{
+				body,
+				parentCt:{closeTab},
+				cfg:{deletable,name},
+			},
+			state:{viewMode},
+			//methods
+			onSubmit,
+			deleteRecord,
+			toggleViewMode,
+		}=this;
+
+		let formBody = _(body,{parentCt:this, viewMode});
 		if(!formBody)return null;
 		return _(Form, {onSubmit:(event)=>event.preventDefault()}, 
-           		_(CardBlock, {className: 'card-body'},
-					_("h3", { className: "form-header" }, /*_("i",{className:"icon-star form-icon"})," ",*/
-						this.props.cfg.name, ' ',
-						this.state.viewMode && _(Button,{color:'light', className:'btn-form-edit',onClick:this.toggleViewMode},
-							_("i",{className:"icon-pencil"})," ",'Düzenle'),
-						' ', 
-						this.state.viewMode &&_(Button,{color:'light', className:'btn-form-edit',onClick:this.props.parentCt.closeTab},'Kapat'),
-						' ',
-						this.state.viewMode &&_(Button,{color:'danger', className:'btn-form-edit',onClick:(event)=>{
-							//veli backend
-							// var {pk,formId}=this.props;	
-							// var pkz = buildParams2(pk,rowData);
-							// iwb.log(this);
-							// debugger;
-							// var url = 'ajaxPostForm?a=3&_fid='+formId+pkz;
-							yesNoDialog({ text:"Are you Sure!", callback:success=>this.props.parentCt.closeTab(event,success) });
-						}},
-							_("i",{className:"icon-trash"})," ",'Sil'),
-
-						_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger'},_('i',{className:'icon-options'})),
-						' ',
-						_(Button,{className:'float-right btn-round-shadow mr-1',color:'light'},_('i',{className:'icon-bubbles'})),
-						' ',
-						_(Button,{className:'float-right btn-round-shadow mr-1',color:'light'},_('i',{className:'icon-paper-clip'}))
-					),
-					_("hr"),
-				formBody),
-				!this.state.viewMode && _(CardFooter, {style:{padding: "1.1rem 1.25rem"}},
-					_(Button,{type:'submit',color:'submit', className:'btn-form mr-1', onClick:this.onSubmit},' ','Save',' '),
+			_(CardBlock, {className: 'card-body'},
+				_("h3", { className: "form-header" }, /*_("i",{className:"icon-star form-icon"})," ",*/
+					name, ' ',
+					viewMode && _(Button,{color:'light', className:'btn-form-edit',onClick:toggleViewMode},
+						_("i",{className:"icon-pencil"})," ",'Düzenle'),
+					' ', 
+					viewMode && _(Button,{color:'light', className:'btn-form-edit',onClick:closeTab},'Kapat'),
 					' ',
-					_(Button,{color:"light", style:{border: ".5px solid #e6e6e6"}, className:'btn-form', onClick:this.props.parentCt.closeTab},'Cancel')
-				)
+					viewMode && deletable &&_(Button,{color:'danger', className:'btn-form-edit',onClick:deleteRecord},
+						_("i",{className:"icon-trash"})," ",'Sil'),
+
+					_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger'},_('i',{className:'icon-options'})),
+					' ',
+					_(Button,{className:'float-right btn-round-shadow mr-1',color:'light'},_('i',{className:'icon-bubbles'})),
+					' ',
+					_(Button,{className:'float-right btn-round-shadow mr-1',color:'light'},_('i',{className:'icon-paper-clip'}))
+				),
+				_("hr"),
+			formBody),
+			!viewMode && _(CardFooter, {style:{padding: "1.1rem 1.25rem"}},
+				_(Button,{type:'submit',color:'submit', className:'btn-form mr-1', onClick:onSubmit},' ','Save',' '),
+				' ',
+				_(Button,{color:"light", style:{border: ".5px solid #e6e6e6"}, className:'btn-form', onClick:closeTab},'Cancel')
+			)
        	);
 	} 
 }
@@ -762,12 +781,12 @@ class XModal extends React.Component {
 		this.open = cfg => {
 			this.setState({
 				modal			: true, 
-				title			: cfg.title||'Form', 
-				color			: cfg.color||'primary',
-				size			: cfg.size||'lg',
 				body			: cfg.body,
 				style			: cfg.style,
 				footer			: cfg.footer,
+				size			: cfg.size||'lg',
+				title			: cfg.title||'Form', 
+				color			: cfg.color||'primary',
 				modalBodyProps	: cfg.modalBodyProps||{},props:cfg.props||{}});
 			return false;
 		}; 
@@ -873,11 +892,11 @@ class XLoginDialog extends React.Component {
 	
     render() {
     	return _(Modal, { 
+			centered:true,
 			keyboard:false,
 			backdrop:'static',
 			toggle: this.toggle,
 			isOpen: this.state.modal,
-			centered:true,
 			className: 'modal-sm primary'
 		}, 
 			_(ModalBody,null,
@@ -931,40 +950,46 @@ class XLoginDialog extends React.Component {
  * @param { Array } props.rowData - data of the clicked Row
  */
 class XGridRowAction extends React.PureComponent {
-	  constructor(props) {
-			super(props);
-			if(iwb.debug)console.log('XGridRowAction',props);
-		    //state setter
-			this.state={
-				isOpen		:false,
-				menuButtons :props.menuButtons,
-				crudFlags	:props.crudFlags,
-				rowData 	:props.rowData
-			};
-			//methods
-			this.toggle= ()=>this.setState({isOpen:!this.state.isOpen});
-	  }
-	  render(){
-		//state getter && constants
-		const { isOpen, menuButtons, crudFlags, rowData } = this.state;
-		const { edit, remove } = crudFlags;
+	constructor(props) {
+		super(props);
+		if(iwb.debug)console.log('XGridRowAction',props);
+		//state setter
+		this.state={
+			isOpen		:false,
+			rowData 	:props.rowData,
+			crudFlags	:props.crudFlags,
+			menuButtons :props.menuButtons,
+		};
+		//methods
+		this.toggle= ()=>this.setState({isOpen:!this.state.isOpen});
+	}
+	render(){
+		const {
+			state:{
+				isOpen,
+				rowData,
+				menuButtons,
+				crudFlags:{edit, remove},
+			},
+			props:{
+				onEditClick,
+				onDeleteClick
+			},
+			toggle
+		} = this;
 		const defstyle = { marginRight: 5,marginLeft: -2, fontSize: 12, color: '#777'};
-		return _(Dropdown, { isOpen, toggle: this.toggle }
-			, _(DropdownToggle, { tag: 'i', className: "icon-options-vertical column-action"})
-			, isOpen &&
-			_(DropdownMenu, { className: this.state.isOpen ? 'show' : ''}
-				, edit && _(DropdownItem, { key: '123', onClick:(event)=>{this.props.onEditClick({event,rowData,openEditable:true})} }
-					, _('i', { className: 'icon-pencil', style:{...defstyle} })
-						,'Güncelle')
-				, remove && _(DropdownItem, { key: '1223', onClick:(event)=>{this.props.onDeleteClick({event,rowData})} }
-					, _('i', { className: 'icon-minus text-danger', style:{...defstyle} })
-						, 'Sil')
-				,menuButtons && menuButtons.map(
-					({ text, handler, cls })=>
-					{
-					return _(DropdownItem, { key:text , onClick:handler.bind(this.state) }
-								, _('i', { className:cls, style:{...defstyle} })
-								, text)
+		return _(Dropdown, { isOpen, toggle},
+			_(DropdownToggle, { tag: 'i', className: "icon-options-vertical column-action"}),
+			isOpen && _(DropdownMenu, { className: isOpen ? 'show' : ''},
+				edit && _(DropdownItem, { key: '123', onClick:(event)=>{ onEditClick({event,rowData,openEditable:true})} },
+					_('i', { className: 'icon-pencil', style:{...defstyle} }), 'Güncelle'
+				),
+				remove && _(DropdownItem, { key: '1223', onClick:(event)=>{ onDeleteClick({event,rowData})} },
+					_('i', { className: 'icon-minus text-danger', style:{...defstyle} }), 'Sil'
+				),
+				menuButtons && menuButtons.map(({ text, handler, cls })=>{
+					return _(DropdownItem, { key:text , onClick:handler.bind(this.state) },
+						_('i', { className:cls, style:{...defstyle} }), text)
 					}
 				)
 			)
@@ -976,25 +1001,35 @@ class XGridRowAction extends React.PureComponent {
  * todo: not used yet
  */
 class XGridAction extends React.PureComponent {
-	  constructor(props) {
-		    super(props);
-		    this.toggle = ()=> this.setState({isOpen:!this.state.isOpen});
-		    this.state={isOpen:false};
-	  }
-	  render(){
-		return _(Dropdown,{isOpen:this.state.isOpen, toggle: this.toggle}
-//				,_('i',{className:'icon-options-vertical column-action', onClick:qqq.toggleGridAction})
-				,_(DropdownToggle, {tag:"div", className: "timeline-badge hover-shake "+this.props.color, onClick:()=>alert('hehey')}, _("i", { className: "icon-grid", style:{fontSize:17} }))
-				//{tag:'i',className: "icon-grid", color:this.props.color||'danger'}
-				,this.state.isOpen && _(DropdownMenu,{className: this.state.isOpen ? 'show' : ''} 
-//				,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
-				,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'NEW RECORD')
-				,_('hr')
-				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-equalizer',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Raporlar/BI')		    					
-//				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')		    					
-				) 
-			)
-	  }
+	constructor(props) {
+		super(props);
+		this.toggle = ()=> this.setState({isOpen:!this.state.isOpen});
+		this.state={isOpen:false};
+	}
+	render(){
+		const {
+			state:{
+				isOpen,
+			},
+			props:{
+				color,
+
+			},
+			toggle
+		} = this;
+		return _(Dropdown,{isOpen, toggle}
+//			,_('i',{className:'icon-options-vertical column-action', onClick:qqq.toggleGridAction})
+			,_(DropdownToggle, {tag:"div", className: "timeline-badge hover-shake "+color, onClick:()=>alert('hehey')}, _("i", { className: "icon-grid", style:{fontSize:17} }))
+//			{tag:'i',className: "icon-grid", color||'danger'}
+			,isOpen && _(DropdownMenu,{className: isOpen ? 'show' : ''} 
+//			,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
+			,_(DropdownItem,{ur:'123',onClick:false},_('i',{className:'icon-plus',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'NEW RECORD')
+			,_('hr')
+			,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-equalizer',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Raporlar/BI')		    					
+//			,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')		    					
+			) 
+		)
+	}
 }
 /**
  * @description
@@ -1032,9 +1067,9 @@ class XGrid extends GridCommon{
 				var { onEditClick, onDeleteClick} =this;
 				return _(XGridRowAction,{ 
 					...{ rowData }, 
-					...{ menuButtons : props.menuButtons },
+					...{ onEditClick, onDeleteClick},
 					...{ crudFlags: props.crudFlags },
-					...{ onEditClick, onDeleteClick}
+					...{ menuButtons : props.menuButtons },
 				});
 			}});
 			columnExtensions.push({columnName:'_qw_',width:50, align:'right',sortingEnabled:false});
@@ -1056,26 +1091,26 @@ class XGrid extends GridCommon{
 				getCellValue:colLocal.formatter||undefined
 			});
 			columnExtensions.push({
+				width:+colLocal.width,
 				columnName:colLocal.name,
 				align:colLocal.align||'left',
-				width:+colLocal.width,
 				sortingEnabled:!!colLocal.sort
 			});
 		});
 
 		this.state = {
-			columns, 
-			order:columns.map(({name})=>name), 
-			columnExtensions,
-			columnWidths: columnExtensions.map(({columnName,width})=>{return {columnName,width}}), 
-			rows: props.rows || [],
+			columns,
 			sorting: [],
 			totalCount: 0,
-			pageSize: props.pageSize || iwb.detailPageSize,
-			pageSizes: props.pageSize>1 ? [parseInt(props.pageSize/2), props.pageSize, 3*props.pageSize]:[5,10,25,100],
 			currentPage: 0,
 			loading: false,
-			gridActionOpen: false
+			columnExtensions,
+			gridActionOpen: false,
+			rows: props.rows || [],
+			order:columns.map(({name})=>name), 
+			pageSize: props.pageSize || iwb.detailPageSize,
+			columnWidths: columnExtensions.map(({columnName,width})=>{return {columnName,width}}), 
+			pageSizes: props.pageSize>1 ? [parseInt(props.pageSize/2), props.pageSize, 3*props.pageSize]:[5,10,25,100],
 		};
 		/**
 		 * @overloading
@@ -1111,27 +1146,34 @@ class XGrid extends GridCommon{
 	componentDidUpdate() { this.loadData(); this.dontRefresh=false; }
 	componentWillUnmount(){ iwb.grids[this.props.id]=Object.assign({},this.state); }
 	render() {
-		//state
-		const {rows, columns, columnExtensions, sorting,
-			pageSize, pageSizes, currentPage, totalCount, columnWidths, order
-		} = this.state;
-		//props
 		const {
-			_disableIntegratedGrouping,
-			_disableIntegratedSorting,
-			_disableSearchPanel,
-			multiselect,
-			keyField,
-			showDetail
-		} = this.props
-		//methods
-		const {
+			state:{
+				rows,
+				order,
+				columns,
+				sorting,
+				pageSize,
+				pageSizes,
+				totalCount,
+				currentPage,
+				columnWidths,
+				columnExtensions,
+			},
+			props:{
+				keyField,
+				showDetail,
+				multiselect,
+				_disableSearchPanel,
+				_disableIntegratedSorting,
+				_disableIntegratedGrouping,
+			},
+			//methods
+			rowComponent,
+			onOrderChange,
 			onSortingChange,
+			onPageSizeChange,
 			onCurrentPageChange,
 			onColumnWidthsChange,
-			onOrderChange,
-			rowComponent,
-			onPageSizeChange
 		} = this;
 		
 		if(!rows || !rows.length) return null;
@@ -1265,17 +1307,18 @@ class XEditGridSF extends GridCommon {
 	    var oldGridState = iwb.grids[props.id];
 	    if(iwb.debug)console.log('oldGridState', oldGridState);
 	    if(oldGridState){
+			this.editors={};
 	    	this.dontRefresh = true;
 	    	this.state = oldGridState;
 		    var colTemp = props.columns;
-			this.editors={};
 			colTemp && colTemp.map(colLocal=>{ 
 				if(colLocal.editor){this.editors[colLocal.name]=colLocal.editor;}
 			})
 	    } else {
-		    var columns=[], columnExtensions=[];
-			var colTemp = props.columns;
+			var columns=[];
 			this.editors={};
+			var columnExtensions=[];
+			var colTemp = props.columns;
 			colTemp && colTemp.map(colLocal=>{
 				switch(colLocal.name){
 					case	'pkpkpk_faf':case	'pkpkpk_ms':case	'pkpkpk_cf':case	'pkpkpk_apf':case	'pkpkpk_vcsf':break;
@@ -1300,35 +1343,34 @@ class XEditGridSF extends GridCommon {
 						this.editors[colLocal.name]=editor;
 					}
 					columnExtensions.push({
-						columnName:colLocal.name,
-						editingEnabled:!!editor,
-						align:colLocal.align||'left',
 						width:+colLocal.width,
+						editingEnabled:!!editor,
+						columnName:colLocal.name,
+						align:colLocal.align||'left',
 						sortingEnabled:!!colLocal.sort
 					});
 				}
 			});
-			 
 		    this.state = {
-		      	viewMode:!props.editable && (props.viewMode||true), 
-			  	columns,
+				columns,
+				rows: [],
+				pkInsert:0,
+				sorting: [],
+				selection:[],
+				addedRows: [],
+				totalCount: 0,
+				deletedRows:[],
+				rowChanges: {},
+				loading: false,
+				currentPage: 0,
+				columnExtensions, 
+				deletingRows: [],
+				editingRowIds: [],
 				order:columns.map(({name})=>name), 
-			  	columnExtensions, 
-			  	columnWidths: columnExtensions.map(({columnName,width})=>{return {columnName,width}}), 
-			  	rows: [],
-			  	sorting: [],
-		      	totalCount: 0,
-		      	pageSize: props.pageSize || iwb.detailPageSize,
+				pageSize: props.pageSize || iwb.detailPageSize,
+				viewMode:!props.editable && (props.viewMode||true), 
 		      	pageSizes: props.pageSize>1 ? [parseInt(props.pageSize/2), props.pageSize, 3*props.pageSize]:[5,10,25,100],
-		      	currentPage: 0,
-			  	loading: false,
-			  	deletingRows: [],
-			  	addedRows: [],
-			  	editingRowIds: [],
-			  	rowChanges: {},
-			  	deletedRows:[],
-			  	pkInsert:0,
-			  	selection:[]
+			  	columnWidths: columnExtensions.map(({columnName,width})=>{return {columnName,width}}), 
 		    };
 		}
 		/**
@@ -1375,13 +1417,11 @@ class XEditGridSF extends GridCommon {
 				params:this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id)),
 				successCallback:(result, cfg)=>{
 					var state={
+						loading: false,
 						rows: result.data,
 						totalCount: result.total_count,
-						loading: false,
 					};
-					if(true || t_props.multiselect){
-						state.editingRowIds=state.rows.map((row) => row[t_props.keyField])
-					}
+					state.editingRowIds=state.rows.map((row) => row[t_props.keyField])
 					cfg.self.setState(state);
 				},
 				errorCallback:(error,cfg)=>{
@@ -1438,34 +1478,45 @@ class XEditGridSF extends GridCommon {
 	render() {
 		if(iwb.debug)console.log('XEditGrid:render')
 		const {
-			viewMode, rows, columns, columnExtensions, sorting,pageSize,
-			pageSizes, currentPage, totalCount, loading, columnWidths, order,
-			editingRowIds, rowChanges, addedRows, selection
-		    } = this.state;
-		//props
-		const {
-			_disableIntegratedGrouping,
-			_disableIntegratedSorting,
-			_disableSearchPanel,
-			_importClicked,
-			multiselect,
-			crudFlags,
-			keyField,
-			selectRow
-		} = this.props;
-		// method
-		const {
-			onCurrentPageChange,
-			onPageSizeChange,
-			onColumnWidthsChange,
+			state:{
+				rows,
+				order,
+				loading,
+				sorting,
+				columns,
+				viewMode,
+				pageSize,
+				addedRows,
+				selection,
+				pageSizes,
+				rowChanges,
+				totalCount,
+				currentPage,
+				columnWidths,
+				editingRowIds,
+				columnExtensions,
+			},
+			props:{
+				keyField,
+				selectRow,
+				crudFlags,
+				multiselect,
+				_importClicked,
+				_disableSearchPanel,
+				_disableIntegratedSorting,
+				_disableIntegratedGrouping,
+			},
+			//methods
 			onOrderChange,
-			onEditingRowIdsChange,
+			onCommitChanges,
+			onPageSizeChange,
 			onAddedRowsChange,
-			onRowChangesChange,
 			onSelectionChange,
-			onCommitChanges
+			onRowChangesChange,
+			onCurrentPageChange,
+			onColumnWidthsChange,
+			onEditingRowIdsChange,
 		} = this;
-	    		
 		var g = _(_dxgrb.Grid, { 
 				rows, columns,
 				getRowId : row => row[keyField] 
@@ -1493,11 +1544,11 @@ class XEditGridSF extends GridCommon {
 					addedRows,
 					rowChanges,
 					editingRowIds,
-					onEditingRowIdsChange,
-					onRowChangesChange,
+					onCommitChanges,
 					columnExtensions,
 					onAddedRowsChange,
-					onCommitChanges,
+					onRowChangesChange,
+					onEditingRowIdsChange,
 				}),
 		    			
 				_(_dxgrb.DragDropProvider,null),
@@ -1521,8 +1572,8 @@ class XEditGridSF extends GridCommon {
 			!multiselect && !viewMode && _(_dxgrb.TableEditColumn, { 
 				showAddCommand					: crudFlags && crudFlags.insert, 
 				showEditCommand					: crudFlags && crudFlags.edit,
+				commandComponent				: Command,
 				showDeleteCommand				: crudFlags && crudFlags.remove,
-				commandComponent				: Command
 			}),
 
 			rows.length>iwb.detailPageSize 		? _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) 		: null,
@@ -1590,7 +1641,10 @@ const extendGrid = ({ name, children, predicate, position }) => {
  */
 yesNoDialog = ({text = 'Are You Sure?', title = 'Are You Sure?', callback}) => {
 	iwb.showModal({
+		body	: text,	
+		size	: 'sm', 
 		title	: title,
+		color	: 'danger',
 		footer	:_(ModalFooter, null,
 			_(Button, { 
 				className:'btn-form',
@@ -1604,10 +1658,7 @@ yesNoDialog = ({text = 'Are You Sure?', title = 'Are You Sure?', callback}) => {
 				style:{border: ".5px solid #e6e6e6"},
 				onClick: ()=>{callback(false);  iwb.closeModal()}
 			}, "VAZGEÇ")
-		),
-		color	: 'danger', 
-		size	: 'sm', 
-		body	: text	
+		), 
 	});
 }
 /**
@@ -1663,34 +1714,34 @@ class XEditGrid extends GridCommon {
 						this.editors[colLocal.name]=editor;
 					}
 					columnExtensions.push({
-						columnName:colLocal.name,
-						editingEnabled:!!editor,
-						align:colLocal.align||'left',
 						width:+colLocal.width,
+						editingEnabled:!!editor,
+						columnName:colLocal.name,
+						align:colLocal.align||'left',
 						sortingEnabled:!!colLocal.sort
 					});
 				}
 			});
 
 		    this.state = {
-		      	viewMode:!props.editable && (props.viewMode||true), 
 				columns,
-				order:columns.map(({name})=>name), 
-				columnExtensions,
-				columnWidths: columnExtensions.map(({columnName,width})=>{return {columnName,width}}), 
 				rows: [], 
+				pkInsert:0,
 				sorting: [],
-		     	totalCount: 0,
-		      	pageSize: props.pageSize || iwb.detailPageSize,
-		      	pageSizes: props.pageSize>1 ? [parseInt(props.pageSize/2), props.pageSize, 3*props.pageSize]:[5,10,25,100],
-		      	currentPage: 0,
-				loading: false,
-				deletingRows: [],
+				totalCount: 0,
 				addedRows: [],
-				editingRowIds: [],
 				rowChanges: {},
+				currentPage: 0,
 				deletedRows:[],
-				pkInsert:0
+				loading: false,
+				columnExtensions,
+				deletingRows: [],
+				editingRowIds: [],
+				order:columns.map(({name})=>name), 
+				pageSize: props.pageSize || iwb.detailPageSize,
+				viewMode:!props.editable && (props.viewMode||true), 
+				columnWidths: columnExtensions.map(({columnName,width})=>{return {columnName,width}}), 
+		      	pageSizes: props.pageSize>1 ? [parseInt(props.pageSize/2), props.pageSize, 3*props.pageSize]:[5,10,25,100],
 		    };
 	    }
 		//methods
@@ -1727,10 +1778,10 @@ class XEditGrid extends GridCommon {
 				params:this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id)),
 				successCallback:(result, cfg) => {
 					var state = {
-							rows: result.data,
-							totalCount: result.total_count,
-							loading: false,
-						};
+						loading: false,
+						rows: result.data,
+						totalCount: result.total_count,
+					};
 					if(t_props.multiselect){ state.editingRowIds=state.rows.map((row) => row[t_props.keyField]) }
 			  		cfg.self.setState(state);
 				},
@@ -1839,32 +1890,42 @@ class XEditGrid extends GridCommon {
 	componentDidUpdate() 	{ if(this.props.editable && this.props.viewMode!=this.state.viewMode){ this.setState({viewMode:this.props.viewMode}); } }
 	componentWillUnmount()	{ iwb.grids[this.props.id]=Object.assign({},this.state); }
 	render() {
-		//state:
+
 		const {
-			viewMode, rows, columns, columnExtensions, sorting, pageSize,
-			pageSizes, currentPage, totalCount, loading, columnWidths, order,
-			editingRowIds, rowChanges, addedRows
-		    } = this.state;
-		//props
-		const {
-			_disableIntegratedGrouping,
-			_disableIntegratedSorting,
-			_disableSearchPanel,
-			_importClicked,
-			multiselect,
-			crudFlags,
-			keyField
-		} = this.props;
-		//methods:
-		const {
-			onColumnWidthsChange,
-			onCurrentPageChange,
+			state:{
+				rows,
+				order,
+				columns,
+				loading,
+				sorting,
+				pageSize,
+				viewMode,
+				pageSizes,
+				addedRows,
+				rowChanges,
+				totalCount,
+				currentPage,
+				columnWidths,
+				editingRowIds,
+				columnExtensions,
+			},
+			props:{
+				keyField,
+				crudFlags,
+				multiselect,
+				_importClicked,
+				_disableSearchPanel,
+				_disableIntegratedSorting,
+				_disableIntegratedGrouping,
+			},
 			onOrderChange,
+			onCommitChanges,
 			onPageSizeChange,
-			onEditingRowIdsChange,
 			onAddedRowsChange,
 			onRowChangesChange,
-			onCommitChanges
+			onCurrentPageChange,
+			onColumnWidthsChange,
+			onEditingRowIdsChange,
 		} = this;
 		return _(_dxgrb.Grid,{
 				rows,
@@ -1970,13 +2031,14 @@ class XEditGrid extends GridCommon {
  * @param {Number} props.queryId - Query id of the Grid
  * @param {Symbol} props.searchForm - Search form is generated from ServerSide and extens from XForm Component 
  * @param {String} props._url - ["ajaxQueryData?_renderer=react16&.t=tpi_1531758063549&.w=wpi_1531758063547&_qid=4220&_gid=3376&firstLimit=10"]
- * @param {function} props._timelineBadge - will work when the timelineBadge is clicked
+ * @param {function} props._timelineBadgeBtn - will work when the timelineBadge is clicked
+ * @param {function} props.forceRelaod - to find out weathet it is delated or not used to compare props with prevProps
  */
 class XMainGrid extends GridCommon {
 	constructor(props) {
 		super(props);
 		var oldGridState = iwb.grids[props.id];
-		if(!iwb.debug)console.log('XMainGrid', props);
+		if(iwb.debug)console.log('XMainGrid', props);
 		if(oldGridState){
 			this.state = oldGridState;
 			this.dontRefresh = true;// true-yuklemez, false-yukleme yapar
@@ -2041,7 +2103,7 @@ class XMainGrid extends GridCommon {
 		 * used to give click event to the detail timeLineBadge button
 		 * (event,masterDridProps,detailGridProps,row) 
 		 */
-		this._timelineBadge = this.props._timelineBadge;
+		this._timelineBadgeBtn = this.props._timelineBadgeBtn;
 		/**
 		 * @description
 		 * A function to open and close detail grid
@@ -2171,22 +2233,22 @@ class XMainGrid extends GridCommon {
 							detailXGrid.detailFlag=true; 
 							rowSDetailGrids.push(_("li",{key:DGindex, className: "timeline-inverted" },
 									//_(XGridAction,{color:dgColors[DGindex%dgColors.length]}),
-									_("div", { 
+									false && _("div", { 
 										className: "timeline-badge hover-shake "+dgColors[DGindex%dgColors.length],
 										dgindex: DGindex,
 										onClick:(event)=>{
 											console.log(selfie);
 											var DGindexDOM = +event.target.getAttribute('dgindex');
 											if(iwb.debug)console.log('dasss',DGindexDOM,tempDetailGrids[DGindexDOM].grid);
-											if(!!selfie._timelineBadge){
-												selfie._timelineBadge(event,selfie.props,tempDetailGrids[DGindexDOM].grid,row.row);
+											if(!!selfie._timelineBadgeBtn){
+												selfie._timelineBadgeBtn(event,selfie.props,tempDetailGrids[DGindexDOM].grid,row.row);
 											}else{ selfie.onOnNewRecord(event,tempDetailGrids[DGindexDOM].grid,row.row); }
 										},
 										style:{cursor:"pointer"}
 										},
 											_("i", {className: "icon-grid", style:{fontSize:17} })
 									),
-									_("div", { className: "timeline-panel"},
+									_("div", {className: "timeline-panel"},
 										_("div",{className: "timeline-heading" },
 											_("h5",{ /**style:{paddingBottom: '10px'},*/className: "timeline-title" },detailXGrid.name),
 											// _('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},
@@ -2233,20 +2295,11 @@ class XMainGrid extends GridCommon {
 			this.lastQuery = queryString;
 		}
 	}
-	componentWillReceiveProps(...rest){
-		console.log(rest);
-	}
 	componentDidMount() 	{ if(!this.dontRefresh)this.loadData(); this.dontRefresh=false; }
 	componentDidUpdate(prevProps, prevState, snapshot) 	{
-		// console.log(prevProps)
-		// console.log(prevState)
-		// console.log(snapshot)
-		if(this.props.forceRelaod !== prevProps.forceRelaod){
-			console.log(this.props.forceRelaod !== prevProps.forceRelaod)
-			this.loadData(true);
-			console.log(this.props.forceRelaod);
+		if(this.props.forceRelaod !== prevProps.forceRelaod){ this.loadData(true); }else{
+			this.loadData(); this.dontRefresh=false;
 		}
-		this.loadData(); this.dontRefresh=false;
 	}
 	componentWillUnmount()	{
 		var state = Object.assign({},this.state);
@@ -2255,31 +2308,35 @@ class XMainGrid extends GridCommon {
 		iwb.grids[this.props.id]=state;
 	}
 	render() {
-		// state
 		const {
-			rows, columns, columnExtensions,
-			sorting, pageSize, pageSizes, 
-			currentPage, totalCount, loading, 
-			columnWidths, order
-		} = this.state;
-		// props
-		const {
-			_disableIntegratedGrouping,
-			_disableIntegratedSorting,
-			_disableSearchPanel,
-			keyField
-		} = this.props;
-		// methods
-		const {
-			onCurrentPageChange,
-			onPageSizeChange,
-			onColumnWidthsChange,
-			onOrderChange,
+			state:{
+				rows,
+				order,
+				columns,
+				sorting,
+				loading,
+				pageSize,
+				pageSizes,
+				totalCount,
+				currentPage,
+				columnWidths,
+				columnExtensions,
+			},
+			props:{
+				keyField,
+				_disableSearchPanel,
+				_disableIntegratedSorting,
+				_disableIntegratedGrouping,
+			},
 			rowComponent,
-			onSortingChange
+			onOrderChange,
+			onSortingChange,
+			onPageSizeChange,
+			onCurrentPageChange,
+			onColumnWidthsChange,
 		} = this;
+		
 		var showDetail = this.props.detailGrids && this.props.detailGrids.length>0;
-
 		var grid = _(_dxgrb.Grid,{rows: rows, columns, getRowId : (row) => row[keyField]},
 			/** sorting state */
 			!_disableIntegratedSorting && _(_dxrg.SortingState, !pageSize ? null : { sorting, onSortingChange, columnExtensions}),
@@ -2390,6 +2447,17 @@ class XPage extends React.Component {
 			}
 			return false;
 		};
+		this.isActionInTabList = (action)=>{
+			var {tabs} = this.state;
+			var stopToFetch = false;
+			tabs && tabs.forEach(tempTab=>{
+				if(tempTab.name === action){
+					this.toggle(action)
+					stopToFetch = true;
+				}
+			});
+			return stopToFetch
+		}
 		/**
 		 * @description
 		 * A function responsible for opening tab getting component from the server and evaluating it on the page
@@ -2400,27 +2468,12 @@ class XPage extends React.Component {
 		 */
 	    this.openTab = ( action, url, params, callAttributes)=>{
 			if (this.state.activeTab !== action) {
-				var {tabs} = this.state;
-				// for(var index=0;index<tabs.length;index++)
-				// if(tabs[index].name===action){
-				// 	this.toggle(action);
-				// 	return;
-				// }
-				var continueToFetch = true
-				tabs && tabs.forEach(tempTab=>{
-					if(tempTab.name === action){
-						this.toggle(action)
-						continueToFetch = false;
-					}
-				});
-				if(!continueToFetch)return;
+				if(this.isActionInTabList(action))return;
 				fetch(url,{
 					body: JSON.stringify(params||{}), // must match 'Content-Type' header
 					cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
 					credentials: 'same-origin', // include, same-origin, *omit
-					headers: {
-						'content-type': 'application/json'
-					},
+					headers: { 'content-type': 'application/json' },
 					method: 'POST', // *GET, POST, PUT, DELETE, etc.
 					mode: 'cors', // no-cors, cors, *same-origin
 					redirect: 'follow', // *manual, follow, error
@@ -2433,13 +2486,15 @@ class XPage extends React.Component {
 							var serverComponent = f(callAttributes || {}, this);
 							if(serverComponent){
 								var plus = action.substr(0,1)=='2';
+								var {tabs} = this.state;
+								if(this.isActionInTabList(action))return;
 								tabs.push({
 									name:action,
 									icon:plus ? "icon-plus":"icon-doc",
 									title:plus ? " Yeni":" Düzenle",  
 									value:serverComponent
 								});
-								this.setState({activeTab:action});
+								this.setState({activeTab:action, tabs });
 							}
 						} else { toastr.error('Sonuc Gelmedi',' Error') }
 					},
@@ -2475,7 +2530,6 @@ class XPage extends React.Component {
 	componentWillUnmount(){ iwb.killGlobalSearch(); iwb.pages[this.props.grid.id]={...this.state} }
 	render(){
 		if(iwb.debugRender)if(iwb.debug)console.log('XPage.render');
-
 		return _("div",{},
 			_(Row,null,
 				_(Col,{ className: "mb-4" },
@@ -2515,7 +2569,7 @@ class XPage extends React.Component {
  * You can set ti as a home page
  * @param {String} props.color - ["primary"] Color class of the card
  * @param {String} props.color2 - ["#2eadd3"] Color of the icon
- * @param {*} props.color3 - Fadein color of the card
+ * @param {String} props.color3 - Fadein color of the card
  * @param {Object} props.node - MINI MENU data 
  * @param {String} props.node.icon - ["icon-heart"] icon class of the menu
  * @param {String} props.node.name - ['Teklif/Talep Listesi'] name of the menu 
@@ -2640,10 +2694,10 @@ class XMainNav extends React.PureComponent {
 		_(Row, {style:{maxWidth:"1300px"}},
 			node.children.map((tempNode,index)=>_(XCardMenu,{
 				key:index,
+				node:tempNode,
 				color:dgColors2[index%dgColors2.length],
-				color2:detailSpinnerColors2[index%detailSpinnerColors2.length],
 				color3:dBGColors2[index%dBGColors2.length],
-				node:tempNode
+				color2:detailSpinnerColors2[index%detailSpinnerColors2.length],
 			}))
 		),visitedList);
 	}
@@ -2724,11 +2778,11 @@ class XMainPanel extends React.PureComponent {
 							ll.children.map((menuitem,index)=>{
 								return _(XCardMenu,{
 									key:index,
-									color:dgColors2[index%dgColors2.length],
-									color2:detailSpinnerColors2[index%detailSpinnerColors2.length],
-									color3:dBGColors2[index%dBGColors2.length],
 									node:menuitem,
-									fadeOut:menuitem.url!=node.url
+									fadeOut:menuitem.url!=node.url,
+									color:dgColors2[index%dgColors2.length],
+									color3:dBGColors2[index%dBGColors2.length],
+									color2:detailSpinnerColors2[index%detailSpinnerColors2.length],
 								})
 							})
 						));
@@ -2913,23 +2967,13 @@ class XForm extends React.Component {
 		 * @param {String} inputName 
 		 * @param {Boolean} isItDTTM 
 		 */
-		// this.onDateChange = (inputName, isItDTTM) => {
-		// 	var self = this;
-		// 	return selectedDate => {
-		// 		debugger;
-		// 		var {values} = self.state;
-		// 		var dateValue = selectedDate && selectedDate._d;
-		// 		values[inputName] = isItDTTM ? iwb.fmtDateTime(dateValue) : iwb.fmtShortDate(dateValue);
-		// 		self.setState({values});
-		// 	}
-		// }
-		this.onDateChange = (dsc, dttm)=>{
+		this.onDateChange = (inputName, isItDTTM)=>{
 			var self=this;
-			return function(o){
-				var values=self.state.values;
-				var v=o && o._d;
-				values[dsc]=dttm ? fmtDateTime(v):fmtShortDate(v);
-				self.setState({values:values});
+			return (selectedDate)=>{
+				var values = self.state.values;
+				var dateValue =selectedDate && selectedDate._d;
+				values[inputName]=isItDTTM ? fmtDateTime(dateValue):fmtShortDate(dateValue);
+				self.setState({values});
 			}
 		}
 	}
