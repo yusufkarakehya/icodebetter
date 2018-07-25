@@ -1379,7 +1379,7 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag){
 		if(typeof xgrid.crudFlags.ximport=='object' && typeof xgrid.crudFlags.ximport.length!='undefined'){
 			var xmenu=[];
 			for(var qi=0;qi<xgrid.crudFlags.ximport.length;qi++)if(!xgrid.crudFlags.ximport[qi].dsc)xmenu.push(xgrid.crudFlags.ximport[qi]); else {
-				xmenu.push({text:xgrid.crudFlags.ximport[qi].dsc,cls:xgrid.crudFlags.ximport[qi].cls || '', _activeOnSelection:false, _grid:xgrid, ximport:xgrid.crudFlags.ximport[qi],handler:fnTableImport});
+				//xmenu.push({text:xgrid.crudFlags.ximport[qi].dsc,cls:xgrid.crudFlags.ximport[qi].cls || '', _activeOnSelection:false, _grid:xgrid, ximport:xgrid.crudFlags.ximport[qi],handler:fnTableImport});
 			}
 			if(xgrid.extraButtons){
 				var bxx=xmenu.length>0;
@@ -1391,9 +1391,10 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag){
 				}
 				if(xgrid.extraButtons.length==0)xgrid.extraButtons=undefined;
 			}
-			xbuttons.push({tooltip:getLocMsg('js_diger_kayitlardan_aktar'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, menu:xmenu});
-		} else
-			xbuttons.push({tooltip:getLocMsg('js_diger_kayitlardan_aktar'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, handler:fnTableImport});
+			xbuttons.push({tooltip:getLocMsg('js_import_from_other_records'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, menu:xmenu});
+		} else {
+			//xbuttons.push({tooltip:getLocMsg('js_import_from_other_records'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, handler:fnTableImport});
+		}
 	}
 
 	if(xgrid.accessControlFlag)xbuttons.push({tooltip:getLocMsg('js_kayit_bazli_yetkilendirme'),cls:'x-btn-icon x-grid-record-privilege', disabled:true, _activeOnSelection:true ,_grid:xgrid, handler:fnRecordPrivileges});
@@ -2192,15 +2193,18 @@ function ajaxErrorHandler(obj){
     					var tid=oo.error.substr(1).split(',')[0];
     					ss+=': <a href=# onclick="return fnTblRecEdit('+tid+','+oo.objectId+');">'+oo.error+'</a>';
     				} else ss+=': '+oo.objectId+ (oo.error ? ' / ' + oo.error:'');
+    				if(oo.error.endsWith('}#')&&oo.error.indexOf('#{')>-1 && oo.sql){
+    					var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
+    					lineNo=lineNo.substr(0,lineNo.length-2);
+    					ss+=' &nbsp;<span style="display:none;" id="idPre'+qi+'">'+oo.sql+'</span> <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:document.getElementById("idPre'+qi+'").innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS.Exception</a>';
+    				}
     			} else
     				ss+=': ' + oo.error;
     		}
     		items.push({xtype:'displayfield',fieldLabel: 'Stack',anchor:'99%',labelSeparator:'', value:ss});
     		
     	}
-    	if(obj.sql){
-    		items.push({xtype:'displayfield',fieldLabel: 'Detail', anchor:'99%',labelSeparator:'', value:(obj.sql.length>800?obj.sql.substr(0,790)+' ... <a href=# onclick="return false">show more</a>':obj.sql)});
-    	}
+
     	var xbuttons =[];
 		xbuttons.push({text:'Convert to Task',handler:function(){
 			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});

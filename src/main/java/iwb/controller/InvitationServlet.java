@@ -1,6 +1,7 @@
 package iwb.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import iwb.engine.FrameworkEngine;
+import iwb.cache.FrameworkCache;
+import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
 @Controller
@@ -26,11 +29,23 @@ public class InvitationServlet {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		//logger.info("hndAjaxChangeActiveProject"); 
-	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-	    String uuid= request.getParameter("_uuid");
-	    Object ob = scd;
-	    //boolean b = engine.changeActiveProject(scd, uuid);
+
+		String code = request.getParameter("invitation_code");
+		if(!GenericUtil.isEmpty(code)) {
+			String projectUuid = code.substring(0,36);
+			if(FrameworkCache.wProjects.containsKey(projectUuid)) {
+				String email= request.getParameter("email");
+				Map scd = engine.userExists(email);
+				if(scd == null){
+					//+"&.r="+System.currentTimeMillis()
+					response.sendRedirect("/index.html?email_projectid="+ projectUuid + ""+ email);
+				} else {
+					int userId = GenericUtil.uInt(scd.get("user_id"));
+					engine.addToProject(userId, projectUuid, email);
+				}
+			}
+		}
+
 		//response.getWriter().write("{\"success\"");
 		//response.getWriter().close();		
 	}

@@ -23,13 +23,16 @@ public class IWBException extends RuntimeException {
 	private List<IWBException> stack;
 	
 	public IWBException(String errorType, String objectType, int objectId, String sql, String message, Throwable cause) {
-		super(message, cause);
+		super(cause!=null && cause.getMessage().contains("(unnamed script#") ? message + " #{"+cause.getMessage().substring(cause.getMessage().indexOf("(unnamed script#")+"(unnamed script#".length(),cause.getMessage().length()-1)+"}#" : message, cause);
 		this.errorType=errorType;//security, validation, framework, definition
 		this.objectType=objectType;
 		this.objectId=objectId;
 		this.sql=sql;
 		if(cause!=null){
 			this.stack = convertToIWBException((Exception)cause).getStack();
+			if(cause.getMessage().contains("(unnamed script#")){
+				
+			}
 		} else 
 			this.stack = new ArrayList<IWBException>();
 
@@ -86,6 +89,7 @@ public class IWBException extends RuntimeException {
 					
 					b.append("{errorType:\"").append(iw.getErrorType()).append("\"");
 					if(!GenericUtil.isEmpty(iw.getMessage()))b.append(",error:\"").append(GenericUtil.stringToJS2(iw.getMessage())).append("\"");
+					if(!GenericUtil.isEmpty(iw.getSql()))b.append(",sql:\"").append(GenericUtil.stringToJS2(iw.getSql())).append("\"");
 					if(!GenericUtil.isEmpty(iw.getObjectType())){
 						b.append(",objectType:\"").append(GenericUtil.stringToJS2(iw.getObjectType())).append("\",objectId:").append(iw.getObjectId());
 					}
