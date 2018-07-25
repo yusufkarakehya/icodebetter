@@ -637,7 +637,7 @@ class XGrid extends React.PureComponent {
   				rows.length>iwb.detailPageSize || this.props.pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
   				!this.props.pageSize && rows.length>1  ? _(_dxgrb.TableGroupRow,null) : null,
   				(!this.props.pageSize && rows.length>1)  ? _(_dxgrb.Toolbar,null):null,
-  				(!this.props.pageSize && rows.length>1) ? _(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'},changeSearchValue:function(ax){console.log('onValueChange',ax);}}) : null,//TODO
+  				(!this.props.pageSize && rows.length>1) ? _(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Quick Search...'},changeSearchValue:function(ax){console.log('onValueChange',ax);}}) : null,//TODO
 		    		!this.props.pageSize && rows.length>1  ? _(_dxgrb.GroupingPanel,{showSortingControls:true}) : null
 //		    		,loading && iwb.loading()
 			);
@@ -995,7 +995,7 @@ class XEditGrid extends React.PureComponent {
   				rows.length>iwb.detailPageSize ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
   				_(_dxgrb.TableGroupRow,null),
   				_(_dxgrb.Toolbar,null),
-  				_(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'}}),
+  				_(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Quick Search...'}}),
   				_(_dxgrb.GroupingPanel,{showSortingControls:true})
 			);
 		  }
@@ -1066,8 +1066,8 @@ class XMainGrid extends React.PureComponent {
 		    
 		    if(this.props.searchForm || (this.props.detailGrids && this.props.detailGrids.length>1)){//hidden:!!this.props.grid.globalSearch
 		    	var self = this;
-		    	this.searchForm = _(Nav, {style:{}},this.props.searchForm ? [_('div',{className:'hr-text'},_('h6',null,'Arama Kriterleri'))
-			    	,_('div',{style:{zoom:'.9'}},_(this.props.searchForm,{parentCt:this}),_('div',{className:'form-group',style:{paddingTop:10}},_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(!0);} },"ARA")))
+		    	this.searchForm = _(Nav, {style:{}},this.props.searchForm ? [_('div',{className:'hr-text'},_('h6',null,'Search Criteria'))
+			    	,_('div',{style:{zoom:'.9'}},_(this.props.searchForm,{parentCt:this}),_('div',{className:'form-group',style:{paddingTop:10}},_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(!0);} },"SEARCH")))
 			    	
 					
 			   // 	,_('div',{style:{height:10}}),_('div',{className:'hr-text'},_('h6',null,'Şablonlar'))
@@ -1075,7 +1075,7 @@ class XMainGrid extends React.PureComponent {
 			   // 	,_(Link,{style:{padding:'2px'},to:''},_('i',{className:'icon-star'}),' ',' Ankara')
 			   // 	,_(Link,{style:{padding:2,color:'#a0a0a0'},to:''},_('i',{className:'icon-plus'}),' ',' Yeni Şablon Ekle')
 			    	,_('div',{style:{height:20}})]:null
-			    	,this.props.detailGrids && this.props.detailGrids.length>1 && _('div',{className:'hr-text'},_('h6',null,'DETAY KAYITLAR'))
+			    	,this.props.detailGrids && this.props.detailGrids.length>1 && _('div',{className:'hr-text'},_('h6',null,'Detail Records'))
 			    	,this.props.detailGrids && this.props.detailGrids.length>1 && this.props.detailGrids.map(function(a,key){
 			    		return _('div',{key:key,style:{padding: "3px 0px 2px 3px", color: "#6d7284", fontSize:".9rem"}},a.grid.name,_("label",{ "className": "float-right switch switch-xs switch-3d switch-"+dgColors[key % dgColors.length]+" form-control-label" },
 			    				  _("input", { name:'dg-'+a.grid.gridId, type: "checkbox", "className": "switch-input form-check-input", onChange:self.toggleDetailGrid,defaultChecked: self.state['dg-'+a.grid.gridId] }),
@@ -1300,7 +1300,7 @@ class XMainGrid extends React.PureComponent {
 	    				rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
 	    				!pageSize && rows.length>1  ? _(_dxgrb.TableGroupRow,null) : null,
 	    				(!pageSize && rows.length>1)  ? _(_dxgrb.Toolbar,null):null,
-	    				(!pageSize && rows.length>1) ? _(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Hızlı Arama...'},changeSearchValue:function(ax){console.log('onValueChange',ax);}}) : null,//TODO
+	    				(!pageSize && rows.length>1) ? _(_dxgrb.SearchPanel, {messages:{searchPlaceholder:'Quick Search...'},changeSearchValue:function(ax){console.log('onValueChange',ax);}}) : null,//TODO
 			    		!pageSize && rows.length>1  ? _(_dxgrb.GroupingPanel,{showSortingControls:true}) : null
 //			    		,loading && iwb.loading()
 				);
@@ -1539,10 +1539,10 @@ class XMainNav extends React.PureComponent {
 		if(this.state.xsearch){
 			var nodes=iwb.nav.findNodes(this.state.xsearch.toLowerCase(), {name:'Home',children:iwb.nav.items});
 			console.log('nodes', nodes);
-			if(!nodes || !nodes.length)return 'Bulunamadı :(';
+			if(!nodes || !nodes.length)return 'Not found :(';
 			return _('div', {className: 'animated fadeIn'}
 		      ,_('div',{style:{height: '1.45rem'}})
-		      ,"Arama Sonuçları",_("hr",{style: {marginTop: "0.4rem"}})
+		      ,"Search Results",_("hr",{style: {marginTop: "0.4rem"}})
 			  ,_(Row, {style:{maxWidth:"1300px"}},
 					  nodes.map(function(o,qi){return _(XCardMiniMenu,{color:dgColors3[qi%dgColors3.length],node:o})})
 			));

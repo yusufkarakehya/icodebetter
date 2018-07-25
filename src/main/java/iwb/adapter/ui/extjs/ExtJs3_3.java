@@ -2791,8 +2791,8 @@ public class ExtJs3_3 implements ViewAdapter {
 			break;
 		case 41:// edit js - codemirror
 			buf.setLength(0);
-//			buf.append("new Ext.ux.form.CodeMirror");
-			buf.append("new Ext.ux.form.Monaco");
+			if(FrameworkSetting.monaco)buf.append("new Ext.ux.form.Monaco");
+			else buf.append("new Ext.ux.form.CodeMirror");
 			break;
 		case 11: // textarea
 			buf.append("TextArea");
@@ -3900,10 +3900,12 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append("',name: '").append(cellDsc).append("'");
 
 
-//		if (controlTip == 41 && fc.getLookupQueryId()>0 && fc.getLookupQueryId()<5)//codemirror
-//			buf.append(",value:'',listeners:{blur:function(aq){if(!aq || !aq.el)return;aq._newValue=aq.getValue();aq._newValue2=aq.el.dom.value;}},mode:'").append(new String[]{"javascript","htmlmixed","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
-		if (controlTip == 41 && fc.getLookupQueryId()>0 && fc.getLookupQueryId()<5)
-			buf.append(",value:'',language:'").append(new String[]{"javascript","html","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
+		if (controlTip == 41 && fc.getLookupQueryId()>0 && fc.getLookupQueryId()<5) {//codemirror
+			if(FrameworkSetting.monaco)
+				buf.append(",value:'',language:'").append(new String[]{"javascript","html","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
+			else 
+				buf.append(",value:'',listeners:{blur:function(aq){if(!aq || !aq.el)return;aq._newValue=aq.getValue();aq._newValue2=aq.el.dom.value;}},mode:'").append(new String[]{"javascript","htmlmixed","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
+		}
 
 		if (fc.get_sourceObjectDetail() != null)
 			buf.append(",allowBlank:").append(!notNull);

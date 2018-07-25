@@ -411,7 +411,7 @@ function fnRowEdit(g, pk){
 function prepareCrudButtons(g, pk){
 	var r=[];
 	if(!g.crudFlags)return r;//{view:"button",css:"button_primary button_raised",type:"iconButton",icon:"plus",label:"Add order",width:150,
-	if(g.crudFlags.insert)r.push({ view:"button", tooltip:'Yeni Kayıt', css:"button_primary button_raised",type:"iconButton", icon: "plus", label:"YENİ KAYIT", click: fnRowInsert(g, pk), width: 145});
+	if(g.crudFlags.insert)r.push({ view:"button", tooltip:'NEW RECORD', css:"button_primary button_raised",type:"iconButton", icon: "plus", label:"NEW RECORD", click: fnRowInsert(g, pk), width: 155});
 	if(g.crudFlags.edit){
 //		g.columns.push({header:' ', id: '_edit', width: 40, template:function(ax){return '<span onclick="fnRowEdit2(\''+g.crudFormId+buildParams2(pk, ax)+'\')" style="cursor:pointer;" class="webix_icon fa-pencil hi-highlight hi-highlight-red"></span>'}});
 		if(g._postUpdateButton!==false)g.columns.push({header:' ', id: '_edit', width: 40, template:g._postUpdateButton||function(ax){return '<span onclick="fnRowEdit2(\''+g.crudFormId+buildParams2(pk, ax)+'\')" style="cursor:pointer;" class="webix_icon fa-pencil hi-highlight hi-highlight-red"></span>'}});
@@ -455,7 +455,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj){
 	var r=prepareCrudButtons(masterGrid, masterGrid.pk || obj.pk);
 	if(r && r.length)buttons = buttons.concat(r);
 	if(masterGrid.extraButtons)buttons = buttons.concat(masterGrid.extraButtons);
-	buttons.push({view: "button", css: "button_primary", type: "iconButton", icon: "refresh", label:'TAZELE', width: 110, click:refreshMainGrid(masterGrid, searchForm)});
+	buttons.push({view: "button", css: "button_primary", type: "iconButton", icon: "refresh", /*label:'RELOAD', */width: 50, click:refreshMainGrid(masterGrid, searchForm)});
     buttons.push({});//,{view:"button", tooltip:'Diğer', css:"button_primary",type:"iconButton", icon: "chevron-down", label:"", click: false, width: 50}
     buttons.push({view:"pager",css:{'text-align':'right'},id:"pagerA-"+masterGrid.id,template:"{common.pages()}",autosize:!0,height:35,group:5});
 //    buttons.push({view:"toolbar",css:"highlighted_header header6",paddingX:5,paddingY:5,height:40,cols:[{view:"pager",id:"pagerA",template:"{common.pages()}",autosize:!0,height:35,group:5}]});
@@ -911,7 +911,7 @@ function addTab4Form(formDef, callAttributes, _page_tab_id){
 		extDef.id='tbv-'+formDef.id; //r.push({ view:"button", tooltip:'Yeni Kayıt', css:"	 button_raised",type:"iconButton", icon: "plus", label:"YENİ KAYIT", click: fnRowInsert(g, pk), width: 145});
 		bar.push({
             view: "button", css: "button_raised", type: "iconButton",
-            icon: "check",  width: 125, label: "KAYDET" , click:function(){
+            icon: "check",  width: 105, label: "SAVE" , click:function(){
             	var p=getValues(extDef, true);
             	p['.t=']=_page_tab_id;p['.w=']=_webPageId;
             	webix.ajax().post("ajaxPostForm", p, function(text, xml, xhr){
@@ -960,7 +960,7 @@ function addTab4Form(formDef, callAttributes, _page_tab_id){
 	
 	bar.push({
         view: "button", css: "button_primary", type: "iconButton",
-        icon: "ban",  width: 120, label: "Kapat" , click:function(){
+        icon: "ban",  width: 120, label: "CLOSE" , click:function(){
         	mainPanel.removeTab();
         }
 	});
@@ -968,11 +968,11 @@ function addTab4Form(formDef, callAttributes, _page_tab_id){
 	if(formDef.fileAttachFlag)bar.push(formDef.fileAttachCount?{view: "button", css: "button_primary" + (formDef.fileAttachCount?"":" button_raised"), type: "iconButton"
 		  ,icon: "upload",  width: 190, label: "Dosyalar" , badge:formDef.fileAttachCount, click:function(){return showFiles(formDef.crudTableId,getFormPk(formDef),this)}}
 	:{view: "uploader", css: "button_primary button_raised", type: "iconButton"
-					  ,icon: "upload",  width: 170, label: "Dosya Yükle" , link:"fl-"+formDef.id
+					  ,icon: "upload",  width: 150, label: "File Upload" , link:"fl-"+formDef.id
 							  ,upload:'upload2.form?profilePictureFlag=0&table_id='+formDef.crudTableId+'&table_pk='+getFormPk(formDef)
 							});
 	bar.push({view: "button", css: "button_warning button_raised", type: "iconButton",
-		icon: "suitcase",  width: 120, label: "Şablon" , click:function(){
+		icon: "suitcase",  width: 140, label: "Templates" , click:function(){
 			mainPanel.removeTab();
 		}
 	});
