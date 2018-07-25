@@ -16,7 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import iwb.domain.db.W5Notification;
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Project;
 import iwb.domain.helper.W5DeferredResult;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
@@ -1010,7 +1012,12 @@ public class UserUtil {
 		if(userId==0)return null;
 		Map<Integer, CachedUserBean3> m = userMap3.get(customizationId);
 		if(m==null)return null;
-		return m.get(userId);
+		CachedUserBean3 r = m.get(userId);
+		if(FrameworkSetting.debug && r==null)for(Map<Integer, CachedUserBean3> zz:userMap3.values()){
+			r = zz.get(userId);
+			if(r!=null)return r;
+		}
+		return r;
 	}
 	
 	
@@ -1413,28 +1420,11 @@ public class UserUtil {
 	}
 	
 	
-	public static int publishFormBuilderData2Mobile(int customizationId, String s){		
-//		CachedUserBean2 cub = getCachedUserBean2(userId);
-		Map<Integer, CachedUserBean3> m1 = userMap3.get(customizationId);
-		if(m1==null)return 0;
-		int count = 0;
-		for (Map.Entry<Integer, CachedUserBean3> userEntry : m1.entrySet()){
-			CachedUserBean3 cub = userEntry.getValue();//.broadCast(m);
-			if(cub.getSyncSessionMap()!=null)for(SyncSessionMapHelper3 val:cub.getSyncSessionMap().values())
-				if(val.getDeviceType()!=0){ //mobil ise
-					if(val.getSyncWebPageMap()!=null)for(SyncWebPageMapHelper3 wp:val.getSyncWebPageMap().values())
-						count+=wp.broadCast(s);
-				}			
-		}
-		return count;
-	}
-	
-	
 	public static List<W5QueuedPushMessageHelper> publishUserChatMsg(int customizationId, int fromUserId, int toUserId, String msg, Object chatId){
 		CachedUserBean3 cub = getCachedUserBean(customizationId, toUserId);
 		if(cub==null)return null;
 		int b=0;
-		if(cub.getChatStatusTip()!=0){
+		if(true || cub.getChatStatusTip()!=0){
 			Map m = new HashMap();
 			m.put("success", true);
 			m.put("userChatMsg", true);
@@ -1461,13 +1451,13 @@ public class UserUtil {
 		return null;
 	}
 
-	public static List<W5QueuedPushMessageHelper> publishNotification(W5Notification n, boolean allFlag){
+	public static List<W5QueuedPushMessageHelper> publishNotification(Log5Notification n, boolean allFlag){
 		List<Integer> ln = new ArrayList(n.getNotificationId()==-1 ? 1: userMap3.size());
 		if(n.getNotificationId()==-1)ln.addAll(userMap3.keySet());
 		else ln.add(n.getCustomizationId());
 		Map m = new HashMap();
 		m.put("success", true);
-		m.put("notification", n);
+		m.put("notification", n.toMap());
 		boolean mobilePush = FrameworkSetting.mobilePush && (n.getCustomizationId()==0 || FrameworkCache.getAppSettingIntValue(n.getCustomizationId(), "mobile_push_flag")!=0);
 		List<W5QueuedPushMessageHelper> l = mobilePush ? new ArrayList<W5QueuedPushMessageHelper>() : null;
 		for(Integer customizationId:ln){

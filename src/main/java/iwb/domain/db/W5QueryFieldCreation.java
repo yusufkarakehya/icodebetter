@@ -33,8 +33,9 @@ public class W5QueryFieldCreation implements java.io.Serializable {
 	private	java.sql.Timestamp versionDttm;
 	
 	private short postProcessTip;
-	private String projectUuid;
 	private int customizationId;
+	private String projectUuid;
+	private int lookupQueryId;
 	
 	@Column(name="version_no")
 	public short getVersionNo() {
@@ -154,6 +155,15 @@ public class W5QueryFieldCreation implements java.io.Serializable {
 
 	public void setCustomizationId(int customizationId) {
 		this.customizationId = customizationId;
+	}
+
+	@Column(name="lookup_query_id")
+	public int getLookupQueryId() {
+		return lookupQueryId;
+	}
+
+	public void setLookupQueryId(int lookupQueryId) {
+		this.lookupQueryId = lookupQueryId;
 	}
 	
 }

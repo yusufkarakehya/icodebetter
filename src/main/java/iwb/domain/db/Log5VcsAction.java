@@ -13,19 +13,28 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="log5_vcs_action",schema="iwb")
-public class Log5VcsAction implements Serializable{
+public class Log5VcsAction implements Serializable, Log5Base{
 	
 	private int logId;
 	private int userId;
 	private int customizationId;  
 	private short vcsActionTip;  
 	private String userIp;  
+	private String projectUuid;  
+	
+	public String toInfluxDB() {
+		StringBuilder s=new StringBuilder();
+		s.append("vcs_action,project_uuid=").append(projectUuid).append(" user_id=").append(userId).append("i,action=").append(vcsActionTip).append("i,ip=\"").append(userIp).append("\"");
+		return s.toString();
+	}
+
 	
 	public Log5VcsAction() {
 	}
 	
 	public Log5VcsAction(Map<String, Object> scd,short vcsActionTip,String userIp) {
 		this.customizationId = (Integer)scd.get("customizationId");
+		this.projectUuid = (String)scd.get("projectId");
 		this.userId = (Integer)scd.get("userId");
 		this.vcsActionTip = vcsActionTip;
 		this.userIp = userIp;
@@ -69,6 +78,15 @@ public class Log5VcsAction implements Serializable{
 	}
 	public void setUserIp(String userIp) {
 		this.userIp = userIp;
+	}
+
+
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

@@ -1,15 +1,15 @@
 package iwb.custom.trigger;
 
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
 import iwb.dao.RdbmsDao;
-import iwb.domain.db.W5Notification;
+import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Project;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
 
 public class PostFormTrigger {
@@ -49,7 +49,7 @@ public class PostFormTrigger {
 						tmpStr= "<b>"+UserUtil.getUserName((Integer)formResult.getScd().get("customizationId"), sessionUserId)+"</b>: "+tmpStr;
 						if(tmpStr.length()>100)tmpStr=tmpStr.substring(0,97)+"...";
 					}
-					W5Notification n = new W5Notification(formResult.getScd(), (Integer)userId, (short)1,  tableId,  tablePk, sessionUserId, null, 1,tmpStr); 
+					Log5Notification n = new Log5Notification(formResult.getScd(), (Integer)userId, (short)1,  tableId,  tablePk, sessionUserId, null, 1,tmpStr); 
 					dao.saveObject(n);
 					n.set_tableRecordList(dao.findRecordParentRecords(formResult.getScd(),n.getTableId(),n.getTablePk(),0, true));
 					UserUtil.publishNotification(n, false);

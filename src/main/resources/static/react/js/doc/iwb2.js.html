@@ -2,22 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: iwb2.js</title>
+    <title>iwb2.js - Documentation</title>
 
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
 </head>
-
 <body>
 
-<div id="main">
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-    <h1 class="page-title">Source: iwb2.js</h1>
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Command.html">Command</a></li><li><a href="GridCommon.html">GridCommon</a><ul class='methods'><li data-type='method'><a href="GridCommon.html#deleteRows">deleteRows</a></li><li data-type='method'><a href="GridCommon.html#loadData">loadData</a></li><li data-type='method'><a href="GridCommon.html#onAddedRowsChange">onAddedRowsChange</a></li><li data-type='method'><a href="GridCommon.html#onColumnWidthsChange">onColumnWidthsChange</a></li><li data-type='method'><a href="GridCommon.html#onCommitChanges">onCommitChanges</a></li><li data-type='method'><a href="GridCommon.html#onCurrentPageChange">onCurrentPageChange</a></li><li data-type='method'><a href="GridCommon.html#onDeleteClick">onDeleteClick</a></li><li data-type='method'><a href="GridCommon.html#onEditClick">onEditClick</a></li><li data-type='method'><a href="GridCommon.html#onEditingRowIdsChange">onEditingRowIdsChange</a></li><li data-type='method'><a href="GridCommon.html#onOnNewRecord">onOnNewRecord</a></li><li data-type='method'><a href="GridCommon.html#onOrderChange">onOrderChange</a></li><li data-type='method'><a href="GridCommon.html#onPageSizeChange">onPageSizeChange</a></li><li data-type='method'><a href="GridCommon.html#onRowChangesChange">onRowChangesChange</a></li><li data-type='method'><a href="GridCommon.html#onSelectionChange">onSelectionChange</a></li><li data-type='method'><a href="GridCommon.html#onSortingChange">onSortingChange</a></li><li data-type='method'><a href="GridCommon.html#queryString">queryString</a></li><li data-type='method'><a href="GridCommon.html#rowComponent">rowComponent</a></li></ul></li><li><a href="SelectableStubCell.html">SelectableStubCell</a></li><li><a href="XCardMenu.html">XCardMenu</a></li><li><a href="XCardMiniMenu.html">XCardMiniMenu</a></li><li><a href="XEditGrid.html">XEditGrid</a><ul class='methods'><li data-type='method'><a href="XEditGrid.html#BulkyImport">BulkyImport</a></li><li data-type='method'><a href="XEditGrid.html#EditCell">EditCell</a></li><li data-type='method'><a href="XEditGrid.html#getAllData">getAllData</a></li><li data-type='method'><a href="XEditGrid.html#getValues">getValues</a></li><li data-type='method'><a href="XEditGrid.html#loadData">loadData</a></li></ul></li><li><a href="XEditGridSF.html">XEditGridSF</a><ul class='methods'><li data-type='method'><a href="XEditGridSF.html#getValues">getValues</a></li><li data-type='method'><a href="XEditGridSF.html#loadData">loadData</a></li></ul></li><li><a href="XForm.html">XForm</a><ul class='methods'><li data-type='method'><a href="XForm.html#getValues">getValues</a></li><li data-type='method'><a href="XForm.html#onChange">onChange</a></li><li data-type='method'><a href="XForm.html#onComboChange">onComboChange</a></li><li data-type='method'><a href="XForm.html#onDateChange">onDateChange</a></li><li data-type='method'><a href="XForm.html#onLovComboChange">onLovComboChange</a></li><li data-type='method'><a href="XForm.html#onNumberChange">onNumberChange</a></li><li data-type='method'><a href="XForm.html#submit">submit</a></li><li data-type='method'><a href="XForm.html#toggleTab">toggleTab</a></li></ul></li><li><a href="XGrid.html">XGrid</a><ul class='methods'><li data-type='method'><a href="XGrid.html#loadData">loadData</a></li></ul></li><li><a href="XGridAction.html">XGridAction</a></li><li><a href="XGridRowAction.html">XGridRowAction</a></li><li><a href="XLoading.html">XLoading</a></li><li><a href="XLoginDialog.html">XLoginDialog</a><ul class='methods'><li data-type='method'><a href="XLoginDialog.html#login">login</a></li><li data-type='method'><a href="XLoginDialog.html#open">open</a></li></ul></li><li><a href="XMainGrid.html">XMainGrid</a><ul class='methods'><li data-type='method'><a href="XMainGrid.html#loadData">loadData</a></li><li data-type='method'><a href="XMainGrid.html#onGlobalSearch">onGlobalSearch</a></li><li data-type='method'><a href="XMainGrid.html#openBI">openBI</a></li><li data-type='method'><a href="XMainGrid.html#showDetail2">showDetail2</a></li><li data-type='method'><a href="XMainGrid.html#toggleDetailGrid">toggleDetailGrid</a></li><li data-type='method'><a href="XMainGrid.html#toggleSearch">toggleSearch</a></li></ul></li><li><a href="XMainNav.html">XMainNav</a></li><li><a href="XMainPanel.html">XMainPanel</a><ul class='methods'><li data-type='method'><a href="XMainPanel.html#loadPage">loadPage</a></li></ul></li><li><a href="XModal.html">XModal</a><ul class='methods'><li data-type='method'><a href="XModal.html#close">close</a></li><li data-type='method'><a href="XModal.html#open">open</a></li></ul></li><li><a href="XPage.html">XPage</a><ul class='methods'><li data-type='method'><a href="XPage.html#closeTab">closeTab</a></li><li data-type='method'><a href="XPage.html#openForm">openForm</a></li><li data-type='method'><a href="XPage.html#openTab">openTab</a></li><li data-type='method'><a href="XPage.html#toggle">toggle</a></li></ul></li><li><a href="XTabForm.html">XTabForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#className">className</a></li><li><a href="global.html#extendGrid">extendGrid</a></li><li><a href="global.html#iwb">iwb</a></li><li><a href="global.html#yesNoDialog">yesNoDialog</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">iwb2.js</h1>
+    
 
     
 
@@ -88,7 +99,7 @@ const Select 				= window.Select;
 const Popper 				= window.Popper;
 const findDOMNode 			= ReactDOM.findDOMNode;
 //React
-var _						= React.createElement;
+var _					= React.createElement;
 //DXReactCore imports
 const Getter 				= DXReactCore.Getter;
 const Template				= DXReactCore.Template;
@@ -112,6 +123,17 @@ var iwb={
 	debugRender:false,
 	debugConstructor:false,
 	detailPageSize:10,
+	/**
+	 * @description
+	 * used for giving data for grid button
+	 */
+	commandComponentProps: {
+		add: 	{icon: 'plus',	hint: 'Create new row' },
+		edit: 	{icon: 'pencil',hint: 'Edit row',		color: 'text-warning',},
+		delete: {icon: 'trash',	hint: 'Delete row',		color: 'text-danger',},
+		cancel: {icon: 'x',		hint: 'Cancel changes',	color: 'text-danger',},
+		import: {icon: 'target',hint: 'Import'}
+	},
 	logo:'&lt;svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content">&lt;g id="svg_14">&lt;path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange">&lt;/path>&lt;path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8">&lt;/path>&lt;path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb">&lt;/path>&lt;/g>&lt;/svg>',
 	detailSearch:()=>false,
 	fmtShortDate : (x) => {x ? moment(x).format('DD/MM/YYYY') : "";},
@@ -138,23 +160,28 @@ var iwb={
 		if(iwb.asideToggleX)iwb.asideToggleX(e)
 		else document.body.classList.toggle('aside-menu-hidden');
 	},
+	/**
+	 * used to remove Global search value
+	 */
 	killGlobalSearch:()=>{
 		iwb.onGlobalSearch2=false;
-		var c=document.getElementById('id-global-search');
-		if(!c)return;
-		c.value='';
-		c.classList.remove('global-search-active');
+		var component=document.getElementById('id-global-search');
+		if(!component)return;
+		component.value='';
+		component.classList.remove('global-search-active');
 	},
-	JSON2URI:(j)=>{
-		if(!j)return '';
-		var s=''
-		for (key in j)s += encodeURIComponent(key)+"="+(j[key]===null || j[key]===false ? '':encodeURIComponent(j[key]))+"&amp;";
-		return s;
-
+	/**
+	 * Converts JSON to URI
+	 */
+	JSON2URI:(json)=>{
+		if(!json)return '';
+		var resultString=''
+		for (key in json)resultString += encodeURIComponent(key)+"="+(json[key]===null || json[key]===false ? '':encodeURIComponent(json[key]))+"&amp;";
+		return resultString;
 	},
 	onGlobalSearch:(v)=>{
-		var c=document.getElementById('id-global-search');
-		var cc=c.classList.contains('global-search-active');
+		var component=document.getElementById('id-global-search');
+		var cc=component.classList.contains('global-search-active');
 		if((c.value &amp;&amp; !cc) || (!c.value &amp;&amp; cc))c.classList.toggle('global-search-active');
 		if(iwb.onGlobalSearch2)iwb.onGlobalSearch2(v);
 	},
@@ -196,15 +223,9 @@ var iwb={
 			mode: 'cors', // no-cors, cors, *same-origin
 			redirect: 'follow', // *manual, follow, error
 			referrer: 'no-referrer', // *client, no-referrer
-		}).then(function(response){
-			// status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
-			if (response.status === 200 || response.status === 0) {
-				return response.json();
-			} else {
-				return Promise.reject(new Error(response.text() || response.statusText))
-			}})
+		}).then((response)=>(response.status === 200 || response.status === 0)?response.json():Promise.reject(new Error(response.text() || response.statusText)))
 		.then(
-			function(result){
+			(result)=>{
 				if(cfg.callback &amp;&amp; cfg.callback(result, cfg)===false)return;
 				if(result.success){
 					if(cfg.successCallback)cfg.successCallback(result, cfg);
@@ -213,10 +234,9 @@ var iwb={
 					iwb.requestErrorHandler(result);
 				}
 			},
-			function(error){
+			(error)=>{
 				if(cfg.errorCallback &amp;&amp; cfg.errorCallback({error:error}, cfg)===false)return;
 				toastr.error(error || 'Unknown ERROR','Request Error');
-	//	    	alert('ERROR! ' + error);
 			}
 		);
 	},
@@ -234,17 +254,17 @@ var iwb={
 			toastr.error(obj.errorMsg || 'Unknown ERROR','Request Error');
 		}
 	},
-	getFormValues:(f)=>{
-		if(!f || !f.elements)return {}
-		var e = f.elements, p={};
-		for(var qi=0;qi&lt;e.length;qi++){
-			if(e[qi].name)switch(e[qi].type){
-			case	'checkbox': p[e[qi].name] = e[qi].checked;break;
-			case	'hidden': p[e[qi].name] = p[e[qi].name]===undefined ? e[qi].value : p[e[qi].name] +','+ e[qi].value;break;
-			default:p[e[qi].name]=e[qi].value;
+	getFormValues:(formObj)=>{
+		if(!formObj || !formObj.elements)return {}
+		var elements = formObj.elements, values = {};
+		for(var index=0;index&lt;elements.length;index++){
+			if(elements[index].name)switch(elements[index].type){
+			case	'checkbox': values[elements[index].name] = elements[index].checked;break;
+			case	'hidden': values[elements[index].name] = values[elements[index].name]===undefined ? elements[index].value : values[elements[index].name] +','+ elements[index].value;break;
+			default:values[elements[index].name]=elements[index].value;
 			}
 		}
-		return p;
+		return values;
 	},
 	/**
 	 * @description
@@ -296,7 +316,7 @@ var iwb={
 			}
 		}
 		items = values.inserted;
-		if(items)for(var bjk=0;bjk&lt;items.length;bjk++){ // inserted
+		if(items)for(var bjk=0;bjk&lt;items.length;bjk++){
 			dirtyCount++;
 			params["a"+prefix+"."+dirtyCount]=2;
 			var changes=items[bjk]._new;
@@ -326,13 +346,12 @@ var ajaxErrorHandler= iwb.requestErrorHandler;
 iwb.emptyField 		= _('i',{className:'raw-field-empty'},_('br'),' ','(boş)'),
 iwb.loadPage		= function(cfg){}
 iwb.ui				= {
-	buildPanel		: function(c){
+	buildPanel		: (c)=>{
 	if(!c.grid.pk)c.grid.pk=c.pk||c._pk;
 	if(!c.grid.detailGrids)c.grid.detailGrids=c.detailGrids||false;
 	return _(XPage,c);
 }}
-function disabledCheckBoxHtml(row, cell){ //TODO
-//		return _('img',{border:0,src:'../images/custom/'+(f ?'':'un')+'checked.gif'});
+function disabledCheckBoxHtml(row, cell){
 	return row[cell] &amp;&amp; 1*row[cell] ? _('i',{className:'fa fa-check', style:{color: 'white',background: '#4dbd74', padding: 5, borderRadius: 25}}) : null;// _('i',{className:'fa fa-check', style:{color: 'white',background: 'red', padding: 5, borderRadius: 25}});
 }
 function gridUserRenderer(row, cell){ //TODO
@@ -413,13 +432,6 @@ function buildParams2(params, map){
 			bp+='&amp;'+key+'='+newKey.substring(1);
 		else
 			bp+='&amp;'+key+'='+map[params[key]];
-	}
-	return bp;
-}
-function buildParams4transfer(params, map){
-	var bp='';
-	for(var key in params){
-			bp+='&amp;'+key+'='+map[key];
 	}
 	return bp;
 }
@@ -632,7 +644,7 @@ class GridCommon extends React.PureComponent {
 		 * @param {Array} param0
 		 * @param {Array} param0.deleted
 		 */
-		this.commitChanges 			= ({ deleted }) => {
+		this.onCommitChanges 			= ({ deleted }) => {
 	        let { rows, deletedRows } = this.state;
 	        if(deleted &amp;&amp; deleted.length){
 				yesNoDialog({
@@ -672,11 +684,15 @@ class GridCommon extends React.PureComponent {
 /**
  * @description
  * used to render tab and show active tab on the full XPage
+ * @param {Object} props.body - it renders bodyForm class wich came from the backend
+ * @param {Object} props.cfg - config of the form [edit or intest, id of the form]
+ * @param {Object} props.parentCt - [xpage]-a function to open and close tab from the form
  */
 class XTabForm extends React.PureComponent{
 	constructor(props){
 		if(iwb.debug)console.log('XTabForm.constructor',props);
 		super(props);
+		console.log(props)
 		//state
 		this.state = {viewMode:this.props.cfg.a==1};
 		//methods
@@ -994,31 +1010,24 @@ class XGridAction extends React.PureComponent {
  * @description
  * it renders detail grid there is no search form
  * @param {Object} props - Input of the Grid Component
- * @param {Boolean} props.bordered - Input of the Grid Component
- * @param {Boolean} props.bulkEmailFlag - Input of the Grid Component
- * @param {Boolean} props.bulkUpdateFlag - Input of the Grid Component
  * @param {Array} props.columns - Column conf List {name title width sort}
  * @param {Object} props.crudFlags - Grid Component {edit insert remove} options Used to render CRUD buttons and routes
  * @param {Number} props.crudFormId - crudFormId is used to make route to the form
  * @param {Number} props.crudTableId - crudTableId is id of sql table
  * @param {Number} props.defaultHeight - @deprecated defaultHeight is a height of the Grid
  * @param {Number} props.defaultWidth - @deprecated defaultWidth is width of the Grid
- * @param {Boolean} props.detailFlag - Use to render Maste Detail Grid
- * @param {Boolean} props.editable - Used to Open Grid in EditingState Mode
- * @param {Number} props.extraOutMap.tplId - id of the page
+ * @param {Boolean} props.detailFlag - Am I detail grid?
+ * @param {Boolean} props.editable - Used to Open Grid in EditingState Mode############
  * @param {Number} props.gridId - Id of the Detail grid
  * @param {String} props.keyField - Used to spesify primety Key name of the Grid
  * @param {String} props.name - Rendered name of the Grid Component
  * @param {Function} props.openTab - Used to open Form in new tab
+ * @param {Function} props.pageSize - [0] by default
  * @param {Number} props.queryId - Query id of the grid
- * @param {Boolean} props.responsive - Grid Component is responsive
- * @param {Number} props.tabOrder - Accessibility
- * @param {Symbol} props._field_name - React.Component to Cell options
  * @param {Symbol} props._disableIntegratedGrouping - ['null'] Disable Grouping
  * @param {Symbol} props._disableIntegratedSorting - ['null'] Disable sorting
  * @param {Symbol} props._disableSearchPanel - ['null'] Disable search panel
  * @param {Symbol} props.multiselect - ['null'] Enambe multiselect option
- *
  */
 class XGrid extends GridCommon{
 	constructor(props) {
@@ -1039,20 +1048,30 @@ class XGrid extends GridCommon{
 			}});
 			tableColumnExtensions.push({columnName:'_qw_',width:50, align:'right',sortingEnabled:false});
 		}
-		var c=props.columns;
-		for(var qi=0;qi&lt;c.length;qi++){
-			var v={name:c[qi].name, title:c[qi].title};
-			switch(c[qi].name){
-			case	'pkpkpk_faf':v.title=_('i',{className:'icon-paper-clip'});break;
-			case	'pkpkpk_ms':v.title=_('i',{className:'icon-envelope'});break;
-			case	'pkpkpk_cf':v.title=_('i',{className:'icon-bubble'});break;
-			case	'pkpkpk_apf':v.title=_('i',{className:'icon-picture'});break;
-			case	'pkpkpk_vcsf':v.title=_('i',{className:'icon-social-github'});break;
+
+		var colTemp = props.columns;
+		colTemp &amp;&amp; colTemp.length > 1 &amp;&amp; colTemp.map((colLocal)=>{
+			var title;
+			switch(colLocal.name){
+				case	'pkpkpk_faf'	:title=_('i',{className:'icon-paper-clip'});	break;
+				case	'pkpkpk_ms'		:title=_('i',{className:'icon-envelope'});		break;
+				case	'pkpkpk_cf'		:title=_('i',{className:'icon-bubble'});		break;
+				case	'pkpkpk_apf'	:title=_('i',{className:'icon-picture'});		break;
+				case	'pkpkpk_vcsf'	:title=_('i',{className:'icon-social-github'});	break;
 			}
-			if(c[qi].formatter)v.getCellValue=c[qi].formatter;
-			columns.push(v);
-			tableColumnExtensions.push({columnName:c[qi].name, align:c[qi].align||'left', width:1*c[qi].width,sortingEnabled:!!c[qi].sort});
-		}
+			columns.push({
+				name:colLocal.name,
+				title: title||colLocal.title,
+				getCellValue:colLocal.formatter||undefined
+			});
+			tableColumnExtensions.push({
+				columnName:colLocal.name,
+				align:colLocal.align||'left',
+				width:+colLocal.width,
+				sortingEnabled:!!colLocal.sort
+			});
+		});
+
 		this.state = {
 			columns: columns, columnOrder:columns.map(function(a){return a.name}),
 			tableColumnExtensions: tableColumnExtensions,
@@ -1124,6 +1143,7 @@ class XGrid extends GridCommon{
 
 		if(!rows || !rows.length) return null;
 		return _(_dxgrb.Grid,{ rows, columns, getRowId : (row) => row[keyField]},
+			/** sorting */
 			!_disableIntegratedSorting &amp;&amp; _(_dxrg.SortingState, !this.props.pageSize ? null : {
 					sorting,
 					onSortingChange,
@@ -1132,18 +1152,20 @@ class XGrid extends GridCommon{
 			multiselect &amp;&amp; _(_dxrg.SelectionState,null),
 			!this.props.pageSize ? _(_dxrg.SearchState, null) : null,
 			!this.props.pageSize ?  _(_dxrg.RowDetailState,null) : null,
-			!_disableSearchPanel &amp;&amp; !this.props.pageSize 	&amp;&amp; rows.length>1  ? _(_dxrg.IntegratedFiltering, null) 		: null,
+			!_disableSearchPanel &amp;&amp; !this.props.pageSize 	&amp;&amp; rows.length>1  ? _(_dxrg.IntegratedFiltering, null) 				: null,
 			!_disableIntegratedGrouping &amp;&amp; !this.props.pageSize 	&amp;&amp; rows.length>1  ? _(_dxrg.GroupingState,null) 			: null,
 			!_disableIntegratedGrouping &amp;&amp; !this.props.pageSize 	&amp;&amp; rows.length>1  ? _(_dxrg.IntegratedGrouping ,null) 		: null,
+			/** sorting */
 			!_disableIntegratedSorting 	&amp;&amp; !this.props.pageSize 	&amp;&amp; rows.length>1  ? _(_dxrg.IntegratedSorting,null) 		: null,
+			/** Paging */
 			rows.length>iwb.detailPageSize || pageSize>1 ? _(_dxrg.PagingState, pageSize>1 ? {
 				currentPage,
 				pageSize,
 				onCurrentPageChange,
 				onPageSizeChange
 			}:{}) : null,
-			pageSize>1 &amp;&amp; rows.length>1  ? _(_dxrg.CustomPaging, {totalCount}) : null,
-
+			pageSize>1 &amp;&amp; rows.length>1 &amp;&amp; totalCount>iwb.detailPageSize &amp;&amp; _(_dxrg.CustomPaging, {totalCount}),
+			/** Paging */
 			multiselect &amp;&amp; _(_dxrg.IntegratedSelection,null),
 
 			_(_dxgrb.DragDropProvider,null),
@@ -1163,8 +1185,9 @@ class XGrid extends GridCommon{
 				onColumnWidthsChange
 			}),
 			_(_dxgrb.TableHeaderRow, { showSortingControls: true }),
-
-			rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
+			/** Paging panel */
+			rows.length>iwb.detailPageSize &amp;&amp; _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}),
+			/** Paging panel */
 			!_disableIntegratedGrouping &amp;&amp; !pageSize &amp;&amp; rows.length>1 &amp;&amp; _(_dxgrb.TableGroupRow,null),
 			!_disableIntegratedGrouping || !_disableIntegratedSorting || !_disableSearchPanel || (!pageSize &amp;&amp; rows.length>1) &amp;&amp; _(_dxgrb.Toolbar,null),
 			!_disableSearchPanel &amp;&amp; !pageSize &amp;&amp; rows.length>1 &amp;&amp; _(_dxgrb.SearchPanel, {
@@ -1179,92 +1202,79 @@ class XGrid extends GridCommon{
 }
 /**
  * @description
- * used for giving data for grid button
+ * A functional component to glue button inside grid with its props
+ * @param {Object} props - { id, onExecute }
+ * @param {Number} props.id - index of the ComponentProps array
+ * @param {Function} props.onExecute - a callback function to be executed when button is clicked
  */
-const commandComponentProps = {
-	add: {
-		icon: 'plus',
-		hint: 'Create new row',
-	},
-	edit: {
-		icon: 'pencil',
-		hint: 'Edit row',
-		color: 'text-warning',
-	},
-	delete: {
-		icon: 'trash',
-		hint: 'Delete row',
-		color: 'text-danger',
-	},
-	cancel: {
-		icon: 'x',
-		hint: 'Cancel changes',
-		color: 'text-danger',
-	},
-	import: {
-		icon: 'target',
-		hint: 'Import'
+class Command extends React.PureComponent {
+	render(){
+		var { id, onExecute} = this.props;
+		var ComponentProps = iwb.commandComponentProps[id];
+		return ComponentProps ? _("button",{
+			className: "btn btn-link",
+			style: { padding: "11px" },
+			onClick: onExecute,
+			title: ComponentProps.hint
+		},
+			_("span",{ className: ComponentProps.color || 'undefined' },
+			ComponentProps.icon ? _("i", { className: 'oi oi-'+ComponentProps.icon, style: { marginRight: ComponentProps.text ? 5 : 0 } }) : null,
+			ComponentProps.text
+			)
+		) : null
 	}
-};
-/**
- * @description
- * a function to return custom grid Button fot the gris
- * @param {Object} param0 - ({onExecute, icon, text, hint, color, row})
- */
-const CommandButton = ({onExecute, icon, text, hint, color, row}) =>{
-	let button =_("button",{className: "btn btn-link",style: { padding: "11px" },
-	    onClick: e => {
-	      onExecute();
-	      e.stopPropagation();
-	    },
-	    title: hint
-	  },
-	  _("span",{ className: color || 'undefined' },
-	    icon ? _("i", { className: 'oi oi-'+icon, style: { marginRight: text ? 5 : 0 } }) : null,
-	    text
-	  )
-	);
-	return button;
 }
 /**
  * @description
- * A function to glue button inside grid with its props
- * @param {{ id, onExecute}} param0
- */
-const Command = ({ id, onExecute}) => {
-	var c = commandComponentProps[id];
-	return c ? _(CommandButton,Object.assign({},c,{onExecute:onExecute})):null;
-}
-/**
- * @description
+ * can be used to overload grid functionality
  * component for making GRIDROW Edit + Multiselect
  */
 class SelectableStubCell extends React.PureComponent {
-	  render() {
-	    return _(Plugin,null,
-	      _(Template, {
-			  name: 'tableCell', predicate: ({ tableRow, tableColumn}) => {
-        	  if (tableRow.key !== 'heading' &amp;&amp; tableColumn.key === 'select' &amp;&amp; tableRow.type === 'edit') {
-              return true;
-            }}},
-            params => _(TemplateConnector,null,
-                  ({ selection }, { toggleSelection }) => {
-                    return _(_dxgrb.TableSelection.Cell, {
-                      row: params.tableRow.row,
-                      selected: selection.indexOf(params.tableRow.rowId) !== -1,
-                      onToggle: () => toggleSelection({ rowIds: [params.tableRow.rowId] })
-                    });
-                  })
-          ));
-	    }
+	render() {
+		return _(Plugin,null,
+			_(Template, {
+				name: 'tableCell', predicate: ({ tableRow, tableColumn}) => {
+				if (tableRow.key !== 'heading' &amp;&amp; tableColumn.key === 'select' &amp;&amp; tableRow.type === 'edit') {
+				return true;
+			}}},
+			params => _(TemplateConnector,null,
+					({ selection }, { toggleSelection }) => {
+					return _(_dxgrb.TableSelection.Cell, {
+						row: params.tableRow.row,
+						selected: selection.indexOf(params.tableRow.rowId) !== -1,
+						onToggle: () => toggleSelection({ rowIds: [params.tableRow.rowId] })
+					});
+				})
+			)
+		);
+	}
 }
 /**
  * @description
  * used for sf grid in popup Modal
+ * @param {Object} props - Input of the Grid Component
+ * @param {Function} props.callback - used to send back selected data
+ * @param {Array} props.columns - Column conf List {name title width sort}
+ * @param {Boolean} props.crudFlags.edit - Grid Component {edit} options Used to render CRUD buttons and routes
+ * @param {Number} props.defaultHeight - @deprecated defaultHeight is a height of the Grid
+ * @param {Number} props.defaultWidth - @deprecated defaultWidth is width of the Grid
+ * @param {Boolean} props.editable - Used to Open Grid in EditingState Mode############
+ * @param {Number} props.gridId - Id of the grid grid
+ * @param {String} props.gridReport -@deprecated usage
+ * @param {String} props.keyField - Used to spesify primety Key name of the Grid
+ * @param {String} props.name - Rendered name of the Grid Component
+ * @param {Symbol} props.multiselect - ['null'] Enable multiselect option
+ * @param {Function} props.pageSize - [10] by default
+ * @param {Number} props.queryId - Query id of the grid
+ * @param {Symbol} props.searchForm - Search form is generated from ServerSide and extens from XForm Component
+ * @param {Object} props.selectRow - [{mode:"checkbox",clickToSelect: true}]Used to Edit and make Selectable
+ * @param {Symbol} props._disableIntegratedGrouping - ['null'] Disable Grouping
+ * @param {Symbol} props._disableIntegratedSorting - ['null'] Disable sorting
+ * @param {Symbol} props._disableSearchPanel - ['null'] Disable search panel
  */
 class XEditGridSF extends GridCommon {
 	  constructor(props) {
-	    if(iwb.debug)console.log('XEditGridSF.constructor', props);
+		if(iwb.debug)console.log('XEditGridSF.constructor', props);
 	    super(props);
 	    var oldGridState = iwb.grids[props.id];
 	    if(iwb.debug)console.log('oldGridState', oldGridState);
@@ -1281,33 +1291,41 @@ class XEditGridSF extends GridCommon {
 		    }
 	    } else {
 		    var columns=[], tableColumnExtensions=[];
-		    var c=props.columns;
-		    this.editors={};
-		    for(var qi=0;qi&lt;c.length;qi++){
-		    	switch(c[qi].name){
-		    	case	'pkpkpk_faf':case	'pkpkpk_ms':case	'pkpkpk_cf':case	'pkpkpk_apf':case	'pkpkpk_vcsf':break;
-		    	default:
-			    	var v={name:c[qi].name, title:c[qi].title};
-			    	if(c[qi].formatter)v.getCellValue=c[qi].formatter;
-			    	columns.push(v);
-			    	var editor=c[qi].editor||false;
-			    	if(editor){
-			    		editor.autoComplete='off';
-			    		if(!editor.style)editor.style={};
-			    		editor.style.width='100%';
-			    		switch(1*editor._control){
-			    		case	6:case	8:	case	58:
-			    		case	7:case	15:case	59:
-			    		case	9:	case	10: //combos
-			    			break;
-			    		default:
-			    			editor.style.textAlign=c[qi].align||'left';
-			    		}
-			    		this.editors[c[qi].name]=editor;
-			    	}
-			    	tableColumnExtensions.push({columnName:c[qi].name, editingEnabled:!!editor, align:c[qi].align||'left', width:1*c[qi].width,sortingEnabled:!!c[qi].sort});
-		    	}
-		    }
+			var colTemp = props.columns;
+			this.editors={};
+			colTemp &amp;&amp; colTemp.length > 1 &amp;&amp; colTemp.map((colLocal)=>{
+				switch(colLocal.name){
+					case	'pkpkpk_faf':case	'pkpkpk_ms':case	'pkpkpk_cf':case	'pkpkpk_apf':case	'pkpkpk_vcsf':break;
+					default: columns.push({
+						name:colLocal.name,
+						title: colLocal.title,
+						getCellValue:colLocal.formatter||undefined
+					});
+					var editor=colLocal.editor||false;
+					if(editor){
+						editor.autoComplete='off';
+						if(!editor.style)editor.style={};
+						editor.style.width='100%';
+						switch(+editor._control){
+						case	6:case	8:	case	58:
+						case	7:case	15:case	59:
+						case	9:	case	10: //combos
+							break;
+						default:
+							editor.style.textAlign=colLocal.align||'left';
+						}
+						this.editors[colLocal.name]=editor;
+					}
+					tableColumnExtensions.push({
+						columnName:colLocal.name,
+						editingEnabled:!!editor,
+						align:colLocal.align||'left',
+						width:+colLocal.width,
+						sortingEnabled:!!colLocal.sort
+					});
+				}
+			});
+
 		    this.state = {
 		      viewMode:!props.editable &amp;&amp; (props.viewMode||true),
 		      columns: columns, columnOrder:columns.map(function(a){return a.name}),
@@ -1524,7 +1542,7 @@ class XEditGridSF extends GridCommon {
 			);
 
 		var footer = _(ModalFooter, null,
-				_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ onCommitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "Save")
+				_(Button, { className:'btn-form',color: 'teal', onClick: ()=>{ this.onCommitChanges(this.state); if(this.props.callback(this.getValues())===true) iwb.closeModal()} }, "Save")
 				,' '
 				,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "Cancel")
 		);
@@ -1572,15 +1590,14 @@ const extendGrid = ({ name, children, predicate, position }) => {
  * @description
  * {text,callback}
  * used for making popup dialog
- * @param {object} param0
- * @param {object} param0.text - body of the mesasge
- * @param {object} param0.title - title of the modal
- * @param {function} param0.callback - callback function
+ * @param {object} conf.text - body of the mesasge
+ * @param {object} conf.title - title of the modal
+ * @param {function} conf.callback - callback function
  * @return {boolean} - retur true or false to the call back
  * @example
  * yesNoDialog({ text:"Are you Sure!", callback:(success)=>{ logic here }});
  */
-yesNoDialog = ({text,callback,title}) => {
+yesNoDialog = ({text = 'Are You Sure?', title = 'Are You Sure?', callback}) => {
 	iwb.showModal({
 		title	: title,
 		footer	:_(ModalFooter, null,
@@ -1601,7 +1618,7 @@ yesNoDialog = ({text,callback,title}) => {
 		size	: 'sm',
 		body	: text
 	});
-		}
+}
 /**
  * @description
  * component for edit Detail Grid
@@ -1627,34 +1644,46 @@ class XEditGrid extends GridCommon {
 		    }
 	    } else {
 		    var columns=[], tableColumnExtensions=[];
-		    var c=props.columns;
-		    this.editors={};
-		    for(var qi=0;qi&lt;c.length;qi++){
-		    	switch(c[qi].name){
-		    	case	'pkpkpk_faf':case	'pkpkpk_ms':case	'pkpkpk_cf':case	'pkpkpk_apf':case	'pkpkpk_vcsf':break;
-		    	default:
-			    	var v={name:c[qi].name, title:c[qi].title};
-			    	if(c[qi].formatter)v.getCellValue=c[qi].formatter;
-			    	columns.push(v);
-			    	var editor=c[qi].editor||false;
-			    	if(editor){
-			    		editor.autoComplete='off';
-			    		if(!editor.style)editor.style={};
-			    		editor.style.width='100%';
-			    		editor.style.position = 'inherit';
-			    		switch(1*editor._control){
-			    		case	6:case	8:	case	58:
-			    		case	7:case	15:case	59:
-			    		case	9:	case	10: //combos
-			    			break;
-			    		default:
-			    			editor.style.textAlign=c[qi].align||'left';
-			    		}
-			    		this.editors[c[qi].name]=editor;
-			    	}
-			    	tableColumnExtensions.push({columnName:c[qi].name, editingEnabled:!!editor, align:c[qi].align||'left', width:1*c[qi].width,sortingEnabled:!!c[qi].sort});
-		    	}
-		    }
+		    var colTemp = props.columns;
+			this.editors={};
+			colTemp &amp;&amp; colTemp.length > 1 &amp;&amp; colTemp.map((colLocal)=>{
+				switch(colLocal.name){
+					case	'pkpkpk_faf':
+					case	'pkpkpk_ms':
+					case	'pkpkpk_cf':
+					case	'pkpkpk_apf':
+					case	'pkpkpk_vcsf':break;
+					default: columns.push({
+						name:colLocal.name,
+						title: colLocal.title,
+						getCellValue:colLocal.formatter||undefined
+					});
+					var editor=colLocal.editor||false;
+					if(editor){
+						editor.autoComplete='off';
+						if(!editor.style)editor.style={};
+						editor.style.width='100%';
+						editor.style.position = 'inherit';
+						switch(+editor._control){
+						case	6:case	8:	case	58:
+						case	7:case	15:case	59:
+						case	9:	case	10: //combos
+							break;
+						default:
+							editor.style.textAlign=colLocal.align||'left';
+						}
+						this.editors[colLocal.name]=editor;
+					}
+					tableColumnExtensions.push({
+						columnName:colLocal.name,
+						editingEnabled:!!editor,
+						align:colLocal.align||'left',
+						width:+colLocal.width,
+						sortingEnabled:!!colLocal.sort
+					});
+				}
+			});
+
 		    this.state = {
 		      viewMode:!props.editable &amp;&amp; (props.viewMode||true),
 				columns: columns,
@@ -1687,7 +1716,6 @@ class XEditGrid extends GridCommon {
 			});
 			return {inserted:addedRows, deleted:deletedRows, changed: changedRows};
 		}
-
 		/**
 		 * bind with parent Element
 		 */
@@ -1773,8 +1801,8 @@ class XEditGrid extends GridCommon {
 			if(!editor)return _(_dxgrb.TableEditRow.Cell, xprops);
 			editor = Object.assign({},editor);
 			if(!xprops.row._new)xprops.row._new={};//Object.assign({},xprops.row);
-			if(!xprops.row._new.hasOwnProperty(xprops.column.name))xprops.row._new[xprops.column.name]=xprops.row[xprops.column.name];
-			delete editor.defaultValue;
+			if(!xprops.row._new.hasOwnProperty(xprops.column.name))
+				xprops.row._new[xprops.column.name]=xprops.row[xprops.column.name];
 			switch(1*editor._control){
 			case	3:case	4://number
 				editor.value=xprops.value;//xprops.row._new[xprops.column.name];
@@ -1807,6 +1835,8 @@ class XEditGrid extends GridCommon {
 				};
 				break;
 			}
+			delete editor.defaultValue;
+			delete editor.defaultChecked
 			var cmp=Input;
 			if(editor.$){cmp = editor.$; delete editor.$;}
 			return _('td',{style:{verticalAlign: 'middle',padding: 1}}, _(cmp,editor))
@@ -1928,278 +1958,390 @@ class XEditGrid extends GridCommon {
 /**
  * @description
  * used for rendering master grid with search form in it
+ * @param {Object} props - props of the grid
+ * @param {Array} props.columns - props of the grid
+ * @param {string} props.columns.title - Ui title of the grid
+ * @param {string} props.columns.name - column name of the sql tale
+ * @param {Boolean} props.columns.sort - is it sortable column?
+ * @param {Number} props.columns.width - width of the column
+ * @param {Function} props.columns.formatter - a function to make own UI from the backend params (row,cell)
+ * @param {Object} props.crudFlags - An object to make UI ACL {insert: true, edit: true, remove: true}
+ * @param {Number} props.crudFormId - An Id of the Form
+ * @param {Number} props.crudTableId - SQL table id
+ * @param {Number} props.defaultHeight - @deprecated defaultHeight is a height of the Grid
+ * @param {Number} props.defaultWidth - @deprecated defaultWidth is width of the Grid
+ * @param {Array} props.detailGrids - ['false']=> no grid, Array of detail grids conf
+ * @param {Object} props.detailGrids.grid - detail grids props
+ * @param {Object} props.detailGrids.params - master detail connection Master primaty key name {xoffer_id: "offer_id"}
+ * @param {Object} props.detailGrids.pk - Master detail connection Detail primaty key name {toffer_detail_id: "offer_detail_id"}
+ * @param {Number} props.gridId - Id of the grid
+ * @param {string} props.gridReport - show or not show reporter tools
+ * @param {string} props.keyField - PK of the table
+ * @param {string} props.name - UI Name of the grid table
+ * @param { Array } props.menuButtons - return array of Objects conf { text, handler, cls, ref }
+ * @param {Number} props.pageSize - Number of rows in grid to show in one page
+ * @param {Number} props.queryId - Query id of the Grid
+ * @param {Symbol} props.searchForm - Search form is generated from ServerSide and extens from XForm Component
+ * @param {String} props._url - ["ajaxQueryData?_renderer=react16&amp;.t=tpi_1531758063549&amp;.w=wpi_1531758063547&amp;_qid=4220&amp;_gid=3376&amp;firstLimit=10"]
+ * @tutorial tutorial-1
  */
 class XMainGrid extends GridCommon {
-	  constructor(props) {
-		    super(props);
-		    var oldGridState = iwb.grids[props.id];
-			if(iwb.debug)console.log('XMainGrid', props);
-
-			if(oldGridState){
-		    	this.state = oldGridState;
-		    	this.dontRefresh = true;
-		    } else {
-				var columns=[], tableColumnExtensions=[];
-				const canIOpenActions =(props.crudFlags &amp;&amp; (props.crudFlags.edit || props.crudFlags.remove)) || props.menuButtons;
-				if(canIOpenActions){
-					columns.push({name:'_qw_',title:'.',getCellValue:rowData=>{
-						var { onEditClick, onDeleteClick} = this;
-						return _(XGridRowAction ,{
-							...{ rowData },
-							...{ menuButtons : props.menuButtons },
-							...{ crudFlags: props.crudFlags },
-							...{ onEditClick, onDeleteClick }
-						});
-					}});
-			    	tableColumnExtensions.push({columnName:'_qw_',width:60, align:'right',sortingEnabled:false});
-			    }
-			    var c=props.columns;
-			    for(var qi=0;qi&lt;c.length;qi++){
-			    	var v={name:c[qi].name, title:c[qi].title};
-			    	switch(c[qi].name){
-			    	case	'pkpkpk_faf':v.title=_('i',{className:'icon-paper-clip'});break;
-			    	case	'pkpkpk_ms':v.title=_('i',{className:'icon-envelope'});break;
-			    	case	'pkpkpk_cf':v.title=_('i',{className:'icon-bubble'});break;
-			    	case	'pkpkpk_apf':v.title=_('i',{className:'icon-picture'});break;
-			    	case	'pkpkpk_vcsf':v.title=_('i',{className:'icon-social-github'});break;
-			    	}
-			    	//if(c[qi].formatter)if(iwb.debug)console.log('c[qi].formatter',c[qi].formatter)
-			    	if(c[qi].formatter)v.getCellValue=c[qi].formatter;
-			    	columns.push(v);
-			    	tableColumnExtensions.push({columnName:c[qi].name, align:c[qi].align||'left', width:1*c[qi].width,sortingEnabled:!!c[qi].sort});
-			    }
-			    var state = {
-			      columns: columns, columnOrder:columns.map(function(a){return a.name}),
-			      tableColumnExtensions: tableColumnExtensions, columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}),
-			      rows: [],
-			      sorting: [],
-			      totalCount: 0,
-			      pageSize: props.pageSize || iwb.detailPageSize,
-			      pageSizes: props.pageSize>1 ? [parseInt(props.pageSize/2), props.pageSize, 3*props.pageSize]:[5,10,25,100],
-			      currentPage: 0,
-			      hideSF:true, loading: false
-			    };
-			    props.detailGrids &amp;&amp; props.detailGrids.length>1 &amp;&amp; props.detailGrids.map(function(a,key){
-			    	if(key&lt;2)state['dg-'+a.grid.gridId] = key&lt;2;
-
-			    });
-			    this.state = state;
-			}
-			//methods
-			this.onGlobalSearch 		= v 				=>this.loadData(!0, {xsearch:v &amp;&amp; v.target ? v.target.value:v});
-			iwb.onGlobalSearch2 		= this.onGlobalSearch;
-			this.toggleDetailGrid		 = e 				=> {
-				var c = e.target;
-				var s = {};
-				s[c.name] = c.checked;
-				this.setState(s);
-			}
-
-			this.toggleSearch 			= ()				=>{
-				var sf = document.getElementById('sf-'+this.props.id);
-				if(sf){
-					var eq = document.getElementById('eq-'+this.props.id);
-					if(sf.classList.contains('sf-hidden')){
-						eq.classList.add('rotate-90deg');
-					} else {
-						eq.classList.remove('rotate-90deg'); }
-					sf.classList.toggle('sf-hidden');
-				}
-				return false;
-			}
-		    this.openBI 				= ()				=>{
-				var props=this.props, columns=this.state.tableColumnExtensions, columnOrder = this.state.columnOrder, cmap={};
-				var url='grd/'+props.name+'.';
-				var params='?_gid='+props.gridId+'&amp;_columns=';
-				columns.map(function(oo){cmap[oo.columnName]=oo.width});
-				columnOrder.map(function(oo){params+=oo+','+(cmap[oo]||100)+';'});
-				iwb.showModal({title:'RAPORLAR',footer:false, color:'danger', size:'sm',
-					body:_(ListGroup,{style:{fontSize: "1.0rem"}}
-							,_('b',null,'Exports')
-							,_(ListGroupItem,{tag:'a',href:url+'xls'+params, target:'_blank', action:!0},_('i',{className:'float-right text-success fa fa-file-excel'}),' ', 'Export to Excel')
-							,_(ListGroupItem,{tag:'a',href:url+'pdf'+params, target:'_blank', action:!0},_('i',{className:'float-right text-danger fa fa-file-pdf'}),' ','Export to PDF')
-							,_(ListGroupItem,{tag:'a',href:url+'csv'+params, target:'_blank', action:!0},_('i',{className:'float-right text-secondary fa fa-file-alt'}),' ','Export to CSV File')
-							,_(ListGroupItem,{tag:'a',href:url+'txt'+params, target:'_blank', action:!0},_('i',{className:'float-right text-secondary fa fa-file-word'}),' ','Export to Text File')
-							,_('hr')
-							,_('b',null,'BI')
-							,_(ListGroupItem,{tag:'a',href:'showPage?_tid=' + (props.crudTableId ? '1200&amp;xtable_id='+props.crudTableId:'2395&amp;xquery_id='+props.queryId), target:'_blank', action:!0/*, className:'list-group-item-danger2'*/},_('i',{className:'float-right text-primary fa fa-th'}),' ','Pivot Table')
-							,_(ListGroupItem,{tag:'a',href:'showPage?_tid='+ (props.crudTableId ? '784&amp;xtable_id='+props.crudTableId:'2413&amp;xquery_id='+props.queryId), target:'_blank', action:!0},_('i',{className:'float-right text-primary fa fa-table'}),' ','Data List')
-						)
-				});
-			}
-		    if(this.props.searchForm || (this.props.detailGrids &amp;&amp; this.props.detailGrids.length>1)){//hidden:!!this.props.grid.globalSearch
-		    	var self = this;
-		    	this.searchForm = _(Nav, {style:{}},this.props.searchForm &amp;&amp; _('span',null,_('div',{className:'hr-text'},_('h6',null,'Arama Kriterleri'))
-			    	,_('div',{style:{zoom:'.9'}},_(this.props.searchForm,{parentCt:this}),_('div',{className:'form-group',style:{paddingTop:10}},_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(!0);} },"ARA")))
-			    	,_('div',{style:{height:10}}),_('div',{className:'hr-text'},_('h6',null,'Şablonlar'))
-			    	,_(Link,{style:{padding:2},to:''},_('i',{className:'icon-star'}),' ',' Yıllık Faturalar') //TODO
-			   // 	,_(Link,{style:{padding:'2px'},to:''},_('i',{className:'icon-star'}),' ',' Ankara')
-			    	,_(Link,{style:{padding:2,color:'#a0a0a0'},to:''},_('i',{className:'icon-plus'}),' ',' Yeni Şablon Ekle')
-			    	,_('div',{style:{height:20}}))
-			    	,this.props.detailGrids &amp;&amp; this.props.detailGrids.length>1 &amp;&amp; _('div',{className:'hr-text'},_('h6',null,'DETAY KAYITLAR'))
-			    	,this.props.detailGrids &amp;&amp; this.props.detailGrids.length>1 &amp;&amp; this.props.detailGrids.map(function(a,key){
-			    		return _('div',{key:key,style:{padding: "3px 0px 2px 3px", color: "#6d7284", fontSize:".9rem"}},a.grid.name,_("label",{ "className": "float-right switch switch-xs switch-3d switch-"+dgColors[key % dgColors.length]+" form-control-label" },
-			    				  _("input", { name:'dg-'+a.grid.gridId, type: "checkbox", "className": "switch-input form-check-input", onChange:self.toggleDetailGrid,defaultChecked: self.state['dg-'+a.grid.gridId] }),
-			    				  _("span", { "className": "switch-label" }), _("span", { "className": "switch-handle" })
-			    				));
-			    	})
-		    	);
-			}
-			// todo: need to be cleaned
-			this.showDetail2 = (dgs)=>{
-				var selfie=this;
-				return function(row){
-					if(row){
-						var r=[];
-						for(var qi=0;qi&lt;dgs.length;qi++)if(dgs.length==1 ||selfie.state['dg-'+dgs[qi].grid.gridId]){
-							var g2 = Object.assign({pk:dgs[qi].pk||{}},dgs[qi].grid); //buildParams2(obj.detailGrids[i].params, sel);
-							if(g2._url)g2._url+=buildParams2(dgs[qi].params, row.row);
-							else g2.rows=row.row[g2.detailRowsFieldName];
-							g2.detailFlag=true;
-							r.push(_("li",{key:qi, className: "timeline-inverted" },
-  //								  	_(XGridAction,{color:dgColors[qi%dgColors.length]}),
-									  _("div", {
-											className: "timeline-badge hover-shake "+dgColors[qi%dgColors.length],
-											i:qi,
-											onClick:(e)=>{
-												var i=1*e.target.getAttribute('i');
-												if(iwb.debug)console.log('dasss',i,dgs[i].grid);
-												selfie.onOnNewRecord(e,dgs[i].grid,row.row);
-												},
-											style:{cursor:"pointer"}
-											}, _("i", {
-												className: "icon-grid",
-												style:{fontSize:17}
-												})),
-									  _("div", {
-										  className: "timeline-panel"
-											},_("div",{className: "timeline-heading" },
-									  _("h5",{ /*style:{paddingBottom: '10px'},*/className: "timeline-title" },g2.name)
-  //									,_('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},_('i',{ className: "icon-arrow-up", style:{marginRight: '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
-										),_(XGrid, Object.assign({responsive:true, openTab:selfie.props.openTab, showDetail:dgs[qi].detailGrids?selfie.showDetail2(dgs[qi].detailGrids):false},g2)))));
-						}
-						return r.length>0 &amp;&amp; _("ul",{ className: "timeline" },r);
-					} else return null;
-				}
-			}
-			/**
-			 * @overloading
-			 * @param {Boolean} force - Get up to data data
-			 * @param {*} params - Params for the request body
-			 */
-			this.loadData = (force, params) => {
-				const queryString = this.queryString();
-				if (!force &amp;&amp; queryString === this.lastQuery) { return; }
-				this.setState({loading: true});
-				var params= Object.assign({},params||{},this.form ? this.form.getValues():{});
-				iwb.request({url:queryString, self:this, params, successCallback:function(result, cfg){
-				cfg.self.setState({
-					rows: result.data,
-					totalCount: result.total_count,
-					loading: false,
-				});
-				},errorCallback:function(error,cfg){
-					cfg.self.setState({
-						rows: [],
-						totalCount: 0,
-						loading: false,
+	constructor(props) {
+		super(props);
+		var oldGridState = iwb.grids[props.id];
+		if(iwb.debug)console.log('XMainGrid', props);
+		if(oldGridState){
+			this.state = oldGridState;
+			this.dontRefresh = true;
+		} else {
+			var columns=[],
+			tableColumnExtensions=[];
+			const canIOpenActions =(props.crudFlags &amp;&amp; (props.crudFlags.edit || props.crudFlags.remove)) || props.menuButtons;
+			if(canIOpenActions){
+				columns.push({name:'_qw_',title:'.',getCellValue:rowData=>{
+					var { onEditClick, onDeleteClick} = this;
+					return _(XGridRowAction ,{
+						...{ rowData },
+						...{ menuButtons : props.menuButtons },
+						...{ crudFlags: props.crudFlags },
+						...{ onEditClick, onDeleteClick }
 					});
 				}});
-				this.lastQuery = queryString;
+				tableColumnExtensions.push({columnName:'_qw_',width:60, align:'right',sortingEnabled:false});
+			}
+			var colTemp = props.columns;
+			colTemp &amp;&amp; colTemp.length > 1 &amp;&amp; colTemp.map((colLocal)=>{
+				var title;
+				switch(colLocal.name){
+					case	'pkpkpk_faf'	:title=_('i',{className:'icon-paper-clip'});	break;
+					case	'pkpkpk_ms'		:title=_('i',{className:'icon-envelope'});		break;
+					case	'pkpkpk_cf'		:title=_('i',{className:'icon-bubble'});		break;
+					case	'pkpkpk_apf'	:title=_('i',{className:'icon-picture'});		break;
+					case	'pkpkpk_vcsf'	:title=_('i',{className:'icon-social-github'});	break;
+				}
+				columns.push({
+					name:colLocal.name,
+					title: title||colLocal.title,
+					getCellValue:colLocal.formatter||undefined
+				});
+				tableColumnExtensions.push({
+					columnName:colLocal.name,
+					align:colLocal.align||'left',
+					width:+colLocal.width,
+					sortingEnabled:!!colLocal.sort
+				});
+			});
+			var state = {
+				columns: columns,
+				columnOrder:columns.map(function(a){return a.name}),
+				tableColumnExtensions: tableColumnExtensions, columnWidths: tableColumnExtensions.map(function(a){return {columnName:a.columnName, width:a.width}}),
+				rows: [],
+				sorting: [],
+				totalCount: 0,
+				pageSize: props.pageSize || iwb.detailPageSize,
+				pageSizes: props.pageSize>1 ? [parseInt(props.pageSize/2), props.pageSize, 3*props.pageSize]:[5,10,25,100],
+				currentPage: 0,
+				hideSF:true,
+				loading: false
+			};
+			props.detailGrids &amp;&amp; props.detailGrids.length>1 &amp;&amp; props.detailGrids.map(({grid},key)=>{
+				if(key&lt;2)state['dg-'+grid.gridId] = key&lt;2;
+			});
+			this.state = state;
+		}
+		/**
+		 * @description
+		 * A function to open and close detail grid
+		 * @param {event} event - click event
+		 * @param {Object} event.target - target object from clicked place
+		 */
+		this.toggleDetailGrid= ({target})=> {
+			var detailGridList = {};
+			detailGridList[target.name] = target.checked;
+			this.setState(detailGridList);
+		}
+		let {searchForm,detailGrids} = this.props;
+		if(searchForm || (detailGrids &amp;&amp; detailGrids.length>1)){
+			var self = this;
+			this.searchForm = _(Nav, {style:{}},
+				searchForm &amp;&amp; _('span',null,
+					_('div',{className:'hr-text'},
+						_('h6',null,'Arama Kriterleri')
+					),
+					_('div',{style:{zoom:'.9'}},
+						_(searchForm,{parentCt:this}),
+						_('div',{className:'form-group',style:{paddingTop:10}},
+							_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(true);} },"ARA")
+						)
+					),
+					_('div',{style:{height:10}}),
+					_('div',{className:'hr-text'},
+						_('h6',null,'Şablonlar')
+					),
+					_(Link,{style:{padding:2},to:''},
+						_('i',{className:'icon-star'}),
+						' ',
+						' Yıllık Faturalar'
+					),
+					_(Link,{style:{padding:2,color:'#a0a0a0'},to:''},
+						_('i',{className:'icon-plus'}),
+						' ',
+						' Yeni Şablon Ekle'
+					),
+					_('div',{style:{height:20}})
+				),
+				detailGrids &amp;&amp; detailGrids.length > 1 &amp;&amp; _('div',{className:'hr-text',key:'hr-text'},_('h6',null,'DETAY KAYITLAR')),
+				detailGrids &amp;&amp; detailGrids.length > 1 &amp;&amp; detailGrids.map((detailGrid,key)=>{
+					return _('div',{ key,style:{padding: "3px 0px 2px 3px", color: "#6d7284", fontSize:".9rem"}},
+						detailGrid.grid.name,
+						_("label",{ "className": "float-right switch switch-xs switch-3d switch-"+dgColors[key % dgColors.length]+" form-control-label" },
+						_("input", { name:'dg-'+detailGrid.grid.gridId, type: "checkbox", "className": "switch-input form-check-input", onChange:self.toggleDetailGrid,defaultChecked: self.state['dg-'+detailGrid.grid.gridId] }),
+						_("span", { "className": "switch-label" }),
+							_("span", { "className": "switch-handle" })
+						)
+					);
+				})
+			);
+		}
+		/**
+		 * @description
+		 * A function to search globally
+		 * @param {Event} event - event from the global search
+		 */
+		this.onGlobalSearch = event=>this.loadData(!0, {xsearch:event &amp;&amp; event.target ? event.target.value:event});
+		iwb.onGlobalSearch2 = this.onGlobalSearch;
+		/**
+		 * @description
+		 * Is a function to toggle search form from the XMainGrid component and animata iconMagnifier
+		 */
+		this.toggleSearch = ()=>{
+			var searchFormDOM = document.getElementById('sf-'+this.props.id);
+			if(searchFormDOM){
+				var iconMagnifier = document.getElementById('eq-'+this.props.id);
+				if(searchFormDOM.classList.contains('sf-hidden')){
+					iconMagnifier.classList.add('rotate-90deg');
+				} else {
+					iconMagnifier.classList.remove('rotate-90deg');
+				}
+				searchFormDOM.classList.toggle('sf-hidden');
 			}
 		}
-		componentDidMount() 	{ if(!this.dontRefresh)this.loadData(); this.dontRefresh=false; }
-		componentDidUpdate() 	{ this.loadData(); this.dontRefresh=false;}
-		componentWillUnmount()	{
-			var state = Object.assign({},this.state);
-			var sf = document.getElementById('sf-'+this.props.id);
-			if(sf){ state.hideSF = sf.classList.contains('sf-hidden');}
-			iwb.grids[this.props.id]=state;
+		/**
+		 * @description
+		 * A function to open EXPORT menu in XModal
+		 */
+		this.openBI = ()=>{
+			let {props}=this;
+			let	{tableColumnExtensions, columnOrder} = this.state;
+			let cmap = {};
+			let url='grd/'+props.name+'.';
+			let params='?_gid='+props.gridId+'&amp;_columns=';
+			tableColumnExtensions.map(({columnName,width})=>{cmap[columnName]=width});
+			columnOrder.map(columnName=>params+=columnName+','+(cmap[columnName]||100)+';');
+			iwb.showModal({
+				title:'RAPORLAR',
+				footer:false,
+				color:'danger',
+				size:'sm',
+				body:_(ListGroup,{style:{fontSize: "1.0rem"}}
+					,_('b',null,'Exports')
+					,_(ListGroupItem,{tag:'a',href:url+'xls'+params, target:'_blank', action:!0},_('i',{className:'float-right text-success fa fa-file-excel'}),' ', 'Export to Excel')
+					,_(ListGroupItem,{tag:'a',href:url+'pdf'+params, target:'_blank', action:!0},_('i',{className:'float-right text-danger fa fa-file-pdf'}),' ','Export to PDF')
+					,_(ListGroupItem,{tag:'a',href:url+'csv'+params, target:'_blank', action:!0},_('i',{className:'float-right text-secondary fa fa-file-alt'}),' ','Export to CSV File')
+					,_(ListGroupItem,{tag:'a',href:url+'txt'+params, target:'_blank', action:!0},_('i',{className:'float-right text-secondary fa fa-file-word'}),' ','Export to Text File')
+					,_('hr')
+					,_('b',null,'BI')
+					,_(ListGroupItem,{tag:'a',href:'showPage?_tid=' + (props.crudTableId ? '1200&amp;xtable_id='+props.crudTableId:'2395&amp;xquery_id='+props.queryId), target:'_blank', action:!0/*, className:'list-group-item-danger2'*/},_('i',{className:'float-right text-primary fa fa-th'}),' ','Pivot Table')
+					,_(ListGroupItem,{tag:'a',href:'showPage?_tid='+ (props.crudTableId ? '784&amp;xtable_id='+props.crudTableId:'2413&amp;xquery_id='+props.queryId), target:'_blank', action:!0},_('i',{className:'float-right text-primary fa fa-table'}),' ','Data List')
+				)
+			});
 		}
-		render() {
-			// state
-			const {
-				rows, columns, tableColumnExtensions,
-				sorting, pageSize, pageSizes,
-				currentPage, totalCount, loading,
-				columnWidths, columnOrder
-			} = this.state;
-			// props
-			const {
-				_disableIntegratedGrouping,
-				_disableIntegratedSorting,
-				_disableSearchPanel,
-			} = this.props;
-			// methods
-			const {
-				onCurrentPageChange,
-				onPageSizeChange,
-				onColumnWidthsChange,
-				onOrderChange,
-				rowComponent,
-				onSortingChange
-			} = this;
-			var showDetail = this.props.detailGrids &amp;&amp; this.props.detailGrids.length>0;
+		/**
+		 * @description
+		 * A function to render Details under Muster's row
+		 * @param {Array} tempDetailGrids - array of detail grids conf
+		 * @param {Object} tempDetailGrids.grid - detail grids props
+		 * @param {Object} tempDetailGrids.params - master detail connection Master primaty key name {xoffer_id: "offer_id"}
+		 * @param {Object} tempDetailGrids.pk - Master detail connection Detail primaty key name {toffer_detail_id: "offer_detail_id"}
+		 */
+		this.showDetail2 = tempDetailGrids=>{
+			var selfie = this;
+			return row=>{
+				if(row){
+					var rowSDetailGrids=[];
+					for(var DGindex=0;DGindex&lt;tempDetailGrids.length;DGindex++){
 
-			var g = _(_dxgrb.Grid,{rows: rows, columns: columns, getRowId : (row) => row[this.props.keyField]},
-					!_disableIntegratedSorting &amp;&amp; _(_dxrg.SortingState, !pageSize ? null : {
-						sorting,
-						onSortingChange,
-						columnExtensions:tableColumnExtensions
-					}),
-					!pageSize ? _(_dxrg.SearchState, null) : null,
-					!pageSize ?  _(_dxrg.RowDetailState,null) : null,
-
-					!_disableSearchPanel 		&amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxrg.IntegratedFiltering, null) : null,
-					!_disableIntegratedGrouping &amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxrg.GroupingState,null) 		: null,
-					!_disableIntegratedGrouping &amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxrg.IntegratedGrouping ,null) 	: null,
-					!_disableIntegratedSorting 	&amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxrg.IntegratedSorting,null) 	: null,
-
-					showDetail?  _(_dxrg.RowDetailState,null):null,
-					rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxrg.PagingState, pageSize>1 ? {
-						pageSize,
-						currentPage,
-						onPageSizeChange,
-						onCurrentPageChange,
-					}:{}) : null,
-					pageSize>1 &amp;&amp; rows.length>1  ? _(_dxrg.CustomPaging, {totalCount: totalCount}) : null,
-					_(_dxgrb.DragDropProvider,null),
-					_(_dxgrb.Table, {
-						columnExtensions: tableColumnExtensions,
-						rowComponent
-					}),
-					_(_dxgrb.TableColumnReordering, {
-						order:columnOrder,
-						onOrderChange
-					}),
-					_(_dxgrb.TableColumnResizing, {
-						columnWidths,
-						onColumnWidthsChange
-					}),
-					_(_dxgrb.TableHeaderRow, { showSortingControls: true }),
-					showDetail?  _(_dxgrb.TableRowDetail, {contentComponent:this.showDetail2(this.props.detailGrids)}):null,
-					rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
-
-					!_disableIntegratedGrouping &amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxgrb.TableGroupRow,null) : null,
-					(!pageSize &amp;&amp; rows.length>1) &amp;&amp; _(_dxgrb.Toolbar,null),
-					(!pageSize &amp;&amp; rows.length>1 &amp;&amp; !_disableSearchPanel) ? _(_dxgrb.SearchPanel, {
-						messages:{searchPlaceholder:'Hızlı Arama...'},
-						changeSearchValue:ax=>{if(iwb.debug)console.log('onValueChange',ax);
-					}}) : null,
-					!_disableIntegratedGrouping &amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxgrb.GroupingPanel,{showSortingControls:true}) : null
-			);
-
-			return _('div',{className:'tab-grid mb-4'},this.searchForm &amp;&amp; _('nav',{id:'sf-'+this.props.id,className:this.state.hideSF ? 'sf-hidden':''}, this.searchForm)
-					,_('main',{className: "inbox"}, _(CardHeader, {}
-									, this.searchForm &amp;&amp; _(Button, {className:'btn-round-shadow', color: "secondary", onClick:this.toggleSearch},_('i',{id:'eq-'+this.props.id,className:'icon-magnifier'})), this.searchForm &amp;&amp; " "
-									, !this.searchForm &amp;&amp;_(Button, {className:'btn-round-shadow', disabled:loading, color: "secondary", onClick:() => {this.loadData(!0);} },_('i',{className:'icon-refresh'}))
-									," ", this.props.crudFlags &amp;&amp; this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(e) => {this.onOnNewRecord(e,this.props)} },_('i',{className:'icon-plus'})," NEW RECORD"):null
-//										,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
-									,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.openBI},_('i',{className:'icon-equalizer'}))
-//										, this.props.globalSearch &amp;&amp; _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})
+						if(tempDetailGrids.length == 1 || selfie.state['dg-'+tempDetailGrids[DGindex].grid.gridId]){
+							var detailXGrid = {...{pk:tempDetailGrids[DGindex].pk||{}},...tempDetailGrids[DGindex].grid};
+							if(detailXGrid._url)detailXGrid._url+=buildParams2(tempDetailGrids[DGindex].params, row.row);
+							else detailXGrid.rows=row.row[detailXGrid.detailRowsFieldName];
+							detailXGrid.detailFlag=true;
+							rowSDetailGrids.push(_("li",{key:DGindex, className: "timeline-inverted" },
+									//_(XGridAction,{color:dgColors[DGindex%dgColors.length]}),
+									_("div", {
+										className: "timeline-badge hover-shake "+dgColors[DGindex%dgColors.length],
+										dgindex: DGindex,
+										onClick:(event)=>{
+											var DGindexDOM = +event.target.getAttribute('dgindex');
+											if(iwb.debug)console.log('dasss',DGindexDOM,tempDetailGrids[DGindexDOM].grid);
+											selfie.onOnNewRecord(event,tempDetailGrids[DGindexDOM].grid,row.row);
+										},
+										style:{cursor:"pointer"}
+										},
+											_("i", {className: "icon-grid", style:{fontSize:17} })
+									),
+									_("div", { className: "timeline-panel"},
+										_("div",{className: "timeline-heading" },
+											_("h5",{ /**style:{paddingBottom: '10px'},*/className: "timeline-title" },detailXGrid.name),
+											// _('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},
+											// 	_('i',{ className: "icon-arrow-up", style:{marginRight: '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
+										),
+										_(XGrid,{
+											responsive:true,
+											openTab:selfie.props.openTab,
+											showDetail:tempDetailGrids[DGindex].detailGrids ? selfie.showDetail2(tempDetailGrids[DGindex].detailGrids) : false,
+											...detailXGrid
+										})
 									)
-						,g))
+								)
+							); //push end
+						} //if end
+					}//for end
+					return rowSDetailGrids.length>0 &amp;&amp; _("ul",{ className: "timeline" },rowSDetailGrids);
+				} else {
+					return null;
+				}
+			}
 		}
+		/**
+		 * @overloading
+		 * @param {Boolean} force - Get up to data data
+		 * @param {object} params -[{xsearch:'searchValue'}] Params from Global Search
+		 */
+		this.loadData = (force, params = {}) => {
+			const queryString = this.queryString();
+			if (!force &amp;&amp; queryString === this.lastQuery) { return; }
+			var tempParams = {...{params}, ... this.form ? this.form.getValues():{} };
+			iwb.request({url:queryString, self:this, tempParams, successCallback:(result, cfg)=>{
+				cfg.self.setState({
+					rows: result.data,
+					totalCount: result.total_count
+				});
+			},
+			errorCallback:(error,cfg)=>{
+				cfg.self.setState({
+					rows: [],
+					totalCount: 0,
+				});
+			}});
+			this.lastQuery = queryString;
+		}
+	}
+	componentDidMount() 	{ if(!this.dontRefresh)this.loadData(); this.dontRefresh=false; }
+	componentDidUpdate() 	{ this.loadData(); this.dontRefresh=false; }
+	componentWillUnmount()	{
+		var state = Object.assign({},this.state);
+		var sf = document.getElementById('sf-'+this.props.id);
+		if(sf){ state.hideSF = sf.classList.contains('sf-hidden');}
+		iwb.grids[this.props.id]=state;
+	}
+	render() {
+		// state
+		const {
+			rows, columns, tableColumnExtensions,
+			sorting, pageSize, pageSizes,
+			currentPage, totalCount, loading,
+			columnWidths, columnOrder
+		} = this.state;
+		// props
+		const {
+			_disableIntegratedGrouping,
+			_disableIntegratedSorting,
+			_disableSearchPanel,
+			keyField
+		} = this.props;
+		// methods
+		const {
+			onCurrentPageChange,
+			onPageSizeChange,
+			onColumnWidthsChange,
+			onOrderChange,
+			rowComponent,
+			onSortingChange
+		} = this;
+		var showDetail = this.props.detailGrids &amp;&amp; this.props.detailGrids.length>0;
+
+		var grid = _(_dxgrb.Grid,{rows: rows, columns: columns, getRowId : (row) => row[keyField]},
+			/** sorting state */
+			!_disableIntegratedSorting &amp;&amp; _(_dxrg.SortingState, !pageSize ? null : { sorting, onSortingChange, columnExtensions:tableColumnExtensions}),
+			/** pagesize > 0 will import search state */
+			!pageSize ? _(_dxrg.SearchState, null) : null,
+			/** pagesize > 0 will import Row Detail State */
+			// !pageSize ?  _(_dxrg.RowDetailState,null) : null, //unuseed
+			!_disableSearchPanel 		&amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxrg.IntegratedFiltering, null) : null,
+			/**state of the grouping */
+			!_disableIntegratedGrouping &amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxrg.GroupingState,null) 		: null,
+			/** ability to group like a tree*/
+			!_disableIntegratedGrouping &amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxrg.IntegratedGrouping ,null) 	: null,
+			/**sorting wii be enabled when pageSize>0 and  row has more than one data */
+			!_disableIntegratedSorting 	&amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxrg.IntegratedSorting,null) 	: null,
+			/** row detail state */
+			showDetail?  _(_dxrg.RowDetailState,null):null,
+			rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxrg.PagingState, pageSize>1 ? {
+				pageSize,
+				currentPage,
+				onPageSizeChange,
+				onCurrentPageChange,
+			}:{}) : null,
+			pageSize>1 &amp;&amp; rows.length>1  &amp;&amp; _(_dxrg.CustomPaging, {totalCount: totalCount}),
+			/**enable group drag drop */
+			_(_dxgrb.DragDropProvider,null),
+			/**ui table */
+			_(_dxgrb.Table, { columnExtensions: tableColumnExtensions, rowComponent}),
+			/** UI ordering of the table */
+			_(_dxgrb.TableColumnReordering, { order:columnOrder, onOrderChange }),
+			/**UI tablle resizing */
+			_(_dxgrb.TableColumnResizing, { columnWidths,onColumnWidthsChange }),
+			/** UI to show table row container */
+			_(_dxgrb.TableHeaderRow, { showSortingControls: true }),
+			/** ui of the detail table */
+			showDetail?  _(_dxgrb.TableRowDetail, {contentComponent:this.showDetail2(this.props.detailGrids)}):null,
+			rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
+			/**UI table Grouping */
+			!_disableIntegratedGrouping &amp;&amp; !pageSize &amp;&amp; rows.length>1  ? _(_dxgrb.TableGroupRow,null) : null,
+			/**top of grit do render some buttons  */
+			(!pageSize &amp;&amp; rows.length>1) &amp;&amp; _(_dxgrb.Toolbar,null),
+			/**ui search input */
+			(!pageSize &amp;&amp; rows.length>1 &amp;&amp; !_disableSearchPanel) &amp;&amp; _(_dxgrb.SearchPanel, {
+				messages:{searchPlaceholder:'Hızlı Arama...'},
+				changeSearchValue:ax=>{if(iwb.debug)console.log('onValueChange',ax);
+			}}),
+			/** UI grouping panel */
+			!_disableIntegratedGrouping &amp;&amp; !pageSize &amp;&amp; rows.length>1 &amp;&amp; _(_dxgrb.GroupingPanel,{showSortingControls:true})
+		);
+
+		return _('div',{className:'tab-grid mb-4'},
+			this.searchForm &amp;&amp; _('nav',{id:'sf-'+this.props.id,className:this.state.hideSF ? 'sf-hidden':''}, this.searchForm)
+			,_('main',{className: "inbox"},
+				_(CardHeader, {},
+					this.searchForm &amp;&amp; _(Button, {className:'btn-round-shadow', color: "secondary", onClick:this.toggleSearch},
+						_('i',{id:'eq-'+this.props.id,className:'icon-magnifier'})
+					),
+					this.searchForm &amp;&amp; " ",
+					!this.searchForm &amp;&amp; _(Button, {className:'btn-round-shadow', disabled:loading, color: "secondary", onClick:() => {this.loadData(true);} },
+						_('i',{className:'icon-refresh'})
+					)
+					," ",
+					this.props.crudFlags &amp;&amp; this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(event) => {this.onOnNewRecord(event,this.props)} },
+						_('i',{className:'icon-plus'})," NEW RECORD"):null,
+//							_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
+					this.props.gridReport &amp;&amp; _(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.openBI},
+						_('i',{className:'icon-equalizer'})
+					)//, this.props.globalSearch &amp;&amp; _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})		)
+				,grid)
+			)
+		)
+	}
 }
 /**
  * @description
@@ -2211,34 +2353,45 @@ class XPage extends React.Component {
 	constructor(props){
 		if(iwb.debugConstructor)if(iwb.debug)console.log('XPage.constructor',props);
 		super(props);
-	    document.getElementById('id-breed').innerHTML = this.props.grid.name;//+(detailSearch ? '&lt;a href="#" onClick="return iwb.detailSearch();">&lt;i class="icon-magnifier" title="Detaylı Arama" style="color: gray;font-size: 1.1rem;padding-left: 10px;">&lt;/i>&lt;/a>':'');
-	    iwb.killGlobalSearch();
+		document.getElementById('id-breed').innerHTML = this.props.grid.name;
+		iwb.killGlobalSearch();
 	    var oldPageState = iwb.pages[props.grid.id];
 	    if(oldPageState){
 	    	this.state = oldPageState;
 	    	this.dontRefresh = true;
 	    } else {
-		    this.state = {activeTab: 'x', tabs:[{k:'x',i:"icon-list", title:"Liste", v:props.grid}]}
+		    this.state = {
+				activeTab: 'x',
+				tabs:[
+					{name:'x',icon:"icon-list", title:"Liste", value:props.grid}
+				]
+			}
 		}
-		this.toggle = (e)=>{
-			var tab=false;
-			if(e.target){ tab = e.target.getAttribute("k") } else { tab=e; }
-			if (this.state.activeTab !== tab) {
-				var tabs = this.state.tabs;
-				for(var qi=0;qi&lt;tabs.length;qi++)if(tabs[qi].k===tab){
-					this.setState({activeTab:tab});
-					return true;
-				}
+		/**
+		 * @description
+		 * a Function to toggle between tabs
+		 * @param {Event} event - click event from tab
+		 */
+		this.toggle = (event)=>{
+			var activeTab = (event.target)?event.target.getAttribute("name") : event;
+			if (this.state.activeTab !== name) {
+				var {tabs} = this.state;
+				tabs &amp;&amp; tabs.length > 0 &amp;&amp; tabs.forEach(tempTab=>tempTab.name === activeTab &amp;&amp; this.setState({activeTab}));
 			}
 			return false;
 		};
-	    this.openTab = (action,url,params, callAttributes)=>{
+		/**
+		 * @description
+		 * A function responsible for opening tab getting component from the server and evaluating it on the page
+		 * @param {String} action - ['1-&amp;toffer_id=4'] EditForm satrts 1-* , InsertForm satrts 2-*
+		 * @param {String} url - ['showForm?a=1&amp;_fid=3988&amp;twork_position_id=1']
+		 * @param {Object} params - a varible wich holds request body params
+		 * @param {Object} callAttributes - [{modal:false}] a variable used to pass params to a component which comes from the server
+		 */
+	    this.openTab = ( action, url, params, callAttributes)=>{
 			if (this.state.activeTab !== action) {
-					var tabs=this.state.tabs;
-					for(var qi=1;qi&lt;tabs.length;qi++)if(tabs[qi].k===action){
-						this.toggle(action);
-						return;
-					}
+				var {tabs} = this.state;
+				tabs &amp;&amp; tabs.length > 0 &amp;&amp; tabs.forEach(tempTab=>tempTab.name === action &amp;&amp; this.toggle(action));
 				fetch(url,{
 					body: JSON.stringify(params||{}), // must match 'Content-Type' header
 					cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -2251,26 +2404,21 @@ class XPage extends React.Component {
 					redirect: 'follow', // *manual, follow, error
 					referrer: 'no-referrer', // *client, no-referrer
 				})
-				.then((response) => {
-					// status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
-					if (response.status === 200 || response.status === 0) {
-						return response.text();
-					} else {
-						return Promise.reject(new Error(response.text() || response.statusText))
-					}})
-				.then(
-					(result) => {
+				.then(response => (response.status === 200 || response.status === 0)?response.text():Promise.reject(new Error(response.text() || response.statusText)))
+				.then(result => {
 						if(result){
 							var f;
-							if(iwb.debug)console.log('openTab.callAttributes2', callAttributes)
 							eval("f=function(callAttributes, parentCt){\n"+result+"\n}");
-							var r=f(callAttributes || {}, this);
-							if(r){
-								var state = this.state;
+							var serverComponent = f(callAttributes || {}, this);
+							if(serverComponent){
 								var plus = action.substr(0,1)=='2';
-								tabs.push({k:action, i:plus ? "icon-plus":"icon-doc", title:plus ? " Yeni":" Düzenle",  v:r});
-								state.activeTab=action;
-								this.setState(state);
+								tabs.push({
+									name:action,
+									icon:plus ? "icon-plus":"icon-doc",
+									title:plus ? " Yeni":" Düzenle",
+									value:serverComponent
+								});
+								this.setState({activeTab:action});
 							}
 						} else { toastr.error('Sonuc Gelmedi',' Error') }
 					},
@@ -2279,60 +2427,58 @@ class XPage extends React.Component {
 			}
 		};
 		iwb.openTab = this.openTab;
+		/**
+		 * @description
+		 * A function responsible for closing tab and
+		 * delating CurrentTab from the state of Xpage Component
+		 * this function will be passed to whenever new tab is opened
+		 */
 	    this.closeTab = ()=>{
-			var state = this.state;
-			var tab=state.activeTab;
-			if(tab=='x')return;
-			var tabs = state.tabs;
-			for(var qi=1;qi&lt;tabs.length;qi++)if(tabs[qi].k===tab){
-				state.activeTab='x';
-				tabs.splice(qi,1);
-				state.tabs = tabs;
-				this.setState(state);
-				return;
-			}
+			var { activeTab,tabs } = this.state;
+			if(activeTab =='x')return;
+			tabs = tabs &amp;&amp; tabs.length > 0 &amp;&amp; tabs.filter((tempTab)=>tempTab.name!==activeTab &amp;&amp; tempTab);
+			this.setState({activeTab:'x',tabs});
 		};
-	    this.showDetail2 = (dgs)=>{
-			var self=this;
-			return function(row){
-				if(row){
-						var r=[];
-						for(var qi=0;qi&lt;dgs.length;qi++)if(self.state['dg-'+dgs[qi].grid.gridId]){
-							var g2 = Object.assign({pk:dgs[qi].pk||{}},dgs[qi].grid); //buildParams2(obj.detailGrids[i].params, sel);
-							g2._url+=buildParams2(dgs[qi].params, row.row);
-							g2.detailFlag=true;
-							r.push(_("li",{key:qi, className: "timeline-inverted" },
-										_("div", { className: "timeline-badge "+dgColors[qi%dgColors.length] }, _("i", { className: "icon-grid", style:{fontSize:17} })),
-										_("div", { className: "timeline-panel" },_("div",{ className: "timeline-heading" },
-										_("h5",{ /*style:{paddingBottom: '10px'},*/className: "timeline-title" },g2.name)
-		//								,_('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},_('i',{ className: "icon-arrow-up", style:{marginRight: '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
-										),_(XGrid, Object.assign({responsive:true, openTab:self.openTab, showDetail:dgs[qi].detailGrids?self.showDetail2(dgs[qi].detailGrids):false},g2)))));
-						  }
-					return r.length>0 &amp;&amp; _("ul",{ className: "timeline" },r);
-				} else return null;
-			}
-		};
+		/**
+		 * @description
+		 * A function is used to open new FormTab
+		 * @param {string} url
+		 */
 		this.openForm = (url)=>{
 			if(url)this.openTab('1-'+Math.random(),url);
 			return false;
 		}
 		iwb.openForm=this.openForm
 	}
-	componentWillUnmount(){ iwb.killGlobalSearch(); iwb.pages[this.props.grid.id]=Object.assign({},this.state); }
-
+	componentWillUnmount(){ iwb.killGlobalSearch(); iwb.pages[this.props.grid.id]={...this.state} }
 	render(){
 		if(iwb.debugRender)if(iwb.debug)console.log('XPage.render');
 		return _("div",{},
 			_(Row,null,
 				_(Col,{ className: "mb-4" },
 					_(Nav,{ tabs: true, hidden:this.state.tabs.length==1 }
-						, this.state.tabs.map((o,qi) => {
-							return _(NavItem, {key:qi},_(NavLinkS,{className: classNames({active: this.state.activeTab === o.k}), k:o.k, onClick: (e) => {this.toggle(e);} },_('i',{className:o.i, k:o.k, title:o.title, onClick: (e) => {this.toggle(e);}}),o.title &amp;&amp; o.k!='x' &amp;&amp; this.state.activeTab === o.k ? o.title:null));
+						, this.state.tabs.map(({name,icon,title},index) => {
+							return _(NavItem, {key:'NavItem'+index},
+								_(NavLinkS,{
+									className: classNames({active: this.state.activeTab === name}),
+									name,
+									onClick: event => this.toggle(event)
+								},
+									_('i',{
+										className:icon,
+										name,
+										title,
+										onClick: event=> this.toggle(event)
+									}),
+										title &amp;&amp; name!='x' &amp;&amp; this.state.activeTab === name &amp;&amp; title
+								)
+							);
 						})
 					),
-					_(TabContent,{ activeTab: this.state.activeTab }
-						, this.state.tabs.map((o,qi) => {
-							return _(TabPane, {key:qi, tabId: o.k }, o.v.gridId ? _(XMainGrid, Object.assign({openTab:this.openTab, closeTab:this.closeTab},o.v)): o.v);
+					_(TabContent,{ activeTab: this.state.activeTab },
+						this.state.tabs.map(({name,value},index) => {
+							return _(TabPane, { key:'TabPane'+index, tabId:name},
+								value.gridId ? _(XMainGrid, { openTab:this.openTab, closeTab:this.closeTab, ...value}): value);
 						})
 					)
 				)
@@ -2343,58 +2489,81 @@ class XPage extends React.Component {
 /**
  * @description
  * this component is mostly used for render menu page
- * u can set ti as a home page
+ * You can set ti as a home page
+ * @param {String} props.color - ["primary"] Color class of the card
+ * @param {String} props.color2 - ["#2eadd3"] Color of the icon
+ * @param {*} props.color3 - Fadein color of the card
+ * @param {Object} props.node - MINI MENU data
+ * @param {String} props.node.icon - ["icon-heart"] icon class of the menu
+ * @param {String} props.node.name - ['Teklif/Talep Listesi'] name of the menu
+ * @param {String} props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
+ * @param {Boolean} props.node.visited - Visited?
  */
 class XCardMenu  extends React.PureComponent {
 	render (){
- 		return _(Col, {xs: "12",sm: "6",md:"6",lg: "6",xl: "4"}
- 		, _(Link,{to:this.props.node.url},
-				_(Card, {//url:this.props.node.url,onClick:(e)=>{if(iwb.debug)console.log(this.props.history);if(iwb.debug)console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
-		    className: "card-menu text-white bg-"+this.props.color,style:this.props.fadeOut ? {opacity:0, transform:"scale(.9)"}:(this.props.fadeOut===false?{transform: "scale(1.1)"}:{})
-		},  _("i", {className: "big-icon "+(this.props.node.icon || "icon-settings"), style:this.props.color3 ? {color:this.props.color3}:{}})
-		,_(CardBlock, {className: "pb-0"}, this.props.fadeOut===false? _("div",{className: "float-right",style:{
-		        height: "56px", width:"56px",
-			    background: "white",
-			    padding: "0px",
-			    borderRadius: "55px"
-		    }},iwb.loaders.puff(56,56,this.props.color2)):_("i", {
-		    className: "float-right "+(this.props.node.icon || "icon-settings"), style:{
-		        fontSize: "30px", background: "white", padding: "13px", borderRadius: "55px", color:this.props.color2
-		    }
-		})
-		, _("h1", {className: "mb-0"}, this.props.node.name), _("p", null,this.props.node.name+  " ile ilgili işlemler")))
+		return _(Col, {xs: "12",sm: "6",md:"6",lg: "6",xl: "4"},
+		_(Link,{to:this.props.node.url},
+			_(Card, {
+				className: "card-menu text-white bg-"+this.props.color,style:this.props.fadeOut ? {opacity:0, transform:"scale(.9)"}:(this.props.fadeOut===false?{transform: "scale(1.1)"}:{})
+			},
+				_("i", {className: "big-icon "+(this.props.node.icon || "icon-settings"), style:this.props.color3 ? {color:this.props.color3}:{}}),
+				_(CardBlock, {className: "pb-0"},
+					this.props.fadeOut===false? _("div",{
+						className: "float-right",
+						style:{ height: "56px", width:"56px", background: "white", padding: "0px", borderRadius: "55px"}
+					},iwb.loaders.puff(56,56,this.props.color2)
+					):_("i", { className: "float-right "+(this.props.node.icon || "icon-settings"), style:{ fontSize: "30px", background: "white", padding: "13px", borderRadius: "55px", color:this.props.color2}}),
+					_("h1", {className: "mb-0"},this.props.node.name),
+					_("p", null,this.props.node.name+  " ile ilgili işlemler")
+				)
+			)
 		));
 	}
 }
 /**
  * @description
  * it is used to list opened pages on the main page
+ * @param {String} props.color - ['gray-700'] - color class of the Card
+ * @param {Boolean} props.fadeOut - Card Animation
+ * @param {Object} props.node - MINI MENU data
+ * @param {String} props.node.icon - ["icon-heart"] icon class of the menu
+ * @param {String} props.node.name - ['Teklif/Talep Listesi'] name of the menu
+ * @param {String} props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
  */
 class XCardMiniMenu  extends React.PureComponent {
 	render (){
+		let {color, fadeOut, node:{icon, name, url}} = this.props
  		return _(Col, {xs: "4",sm: "3",md:"2",lg: "2",xl: "1"}
- 		, _(Link,{to:this.props.node.url},
-				_(Card, {//url:this.props.node.url,onClick:(e)=>{if(iwb.debug)console.log(this.props.history);if(iwb.debug)console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
-		    className: "card-mini-menu text-white bg-"+this.props.color,style:this.props.fadeOut ? {opacity:0, transform:"scale(.9)"}:(this.props.fadeOut===false?{transform: "scale(1.1)"}:{})
-		}
-		,_(CardBlock, {className: "pb-1", style:{textAlign:"center", padding:"0"}}, _("i", {
-		    className: (this.props.node.icon || "icon-settings"), style:{
-		        fontSize: "28px", padding: "12px", color:"white"
-		    }
-		})
-		))), _("h6", {style:{textAlign:"center"}}, this.props.node.name));
+ 		, _(Link,{to: url},
+				_(Card, {
+					className: "card-mini-menu text-white bg-"+color,
+					style: fadeOut ? {opacity:0, transform:"scale(.9)"}:( fadeOut===false?{transform: "scale(1.1)"}:{})
+				}
+					,_(CardBlock, {className: "pb-1", style:{textAlign:"center", padding:"0"}},
+						_("i", {
+							className: ( icon || "icon-settings"),
+							style:{ fontSize: "28px", padding: "12px", color:"white"}
+						})
+					)
+				)
+			), _("h6", {style:{textAlign:"center"}}, name)
+		);
 	}
 }
 /**
  * @description
  * used to render left menu
  * it gets data from index.htm file (catche)
+ * @param {String} props.path - [/iwb-home"] path of the current route
+ * @param {String} props.node.icon - ["icon-heart"] icon class of the menu
+ * @param {String} props.node.name - ['Teklif/Talep Listesi'] name of the menu
+ * @param {String} props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
  */
 class XMainNav extends React.PureComponent {
 	constructor(props){
 		if(iwb.debugConstructor)if(iwb.debug)console.log('XMainNav.constructor',props);
 		super(props);
-		this.onGlobalSearch = v=> this.setState({xsearch:v&amp;&amp;v.target ? v.target.value:v});
+		this.onGlobalSearch = inputValue=> this.setState({xsearch:inputValue&amp;&amp;inputValue.target ? inputValue.target.value:inputValue});
 		iwb.onGlobalSearch2 = this.onGlobalSearch;
 		this.state = {xsearch:''};
 	}
@@ -2410,44 +2579,50 @@ class XMainNav extends React.PureComponent {
 		      ,_('div',{style:{height: '1.45rem'}})
 		      ,"Arama Sonuçları",_("hr",{style: {marginTop: "0.4rem"}})
 			  ,_(Row, {style:{maxWidth:"1300px"}},
-					  nodes.map(function(o,qi){return _(XCardMiniMenu,{color:dgColors3[qi%dgColors3.length],node:o})})
+					  nodes.map((node,visitedIndex)=>{return _(XCardMiniMenu,{color:dgColors3[visitedIndex%dgColors3.length],node})})
 			));
 		}
 		var path = this.props.path, node = this.props.node;
-		var vi = false, siri=false;
+		var visitedList = false, saggestedList=false;
 	    if(path=='/' || path=='/iwb-home'){
-	    	vi=[], siri=[];
-	    	var qi=0, si=0;
+	    	visitedList=[], saggestedList=[];
+	    	var visitedIndex=0, saggestedIndex=0;
 	    	for(var k in iwb.nav.visitedItems){
 	    		var o=iwb.nav.visitedItems[k];
-	    		vi.push(_(XCardMiniMenu,{key: 'xcardmini'+ Math.random(),color:dgColors3[qi%dgColors3.length],node:o}));
-	    		qi++;
+	    		visitedList.push(_(XCardMiniMenu,{key: 'xcardmini'+ Math.random(),color:dgColors3[visitedIndex%dgColors3.length],node:o}));
+	    		visitedIndex++;
 	    		if(o.visitCnt>2){
-		    		siri.push(_(XCardMiniMenu,{key: 'xcardminivisit'+ Math.random(), color:dgColors2[si%dgColors2.length],node:o}));
-		    		si++;
+		    		saggestedList.push(_(XCardMiniMenu,{key: 'xcardminivisit'+ Math.random(), color:dgColors2[saggestedIndex%dgColors2.length],node:o}));
+		    		saggestedIndex++;
 	    		}
 	    	}
-	    	if(qi==0)vi=false;
+	    	if(visitedIndex==0)visitedList=false;
 	    	else {
-				vi=[_("div", { key:"a1", style: {height: "1.5rem"}})
+				visitedList=[_("div", { key:"a1", style: {height: "1.5rem"}})
 					,"Açık Ekranlar",
 					_("hr",{ key:"a2", style: {marginTop: "0.4rem"}}),
-					_(Row, { key:"a3", style:{maxWidth:"1300px"}}, vi)
+					_(Row, { key:"a3", style:{maxWidth:"1300px"}}, visitedList)
 				];
-	    		if(si>0){
-	    			if(siri.length>4){
-	    				siri.splice(4,1000);
+	    		if(saggestedIndex>0){
+	    			if(saggestedList.length>4){
+	    				saggestedList.splice(4,1000);
 	    			}
-	    			vi.push(_("div", { style: {height: "1.5rem"}}),"iWB Öneriler",_("hr",{style: {marginTop: "0.4rem"}}),_(Row, {style:{maxWidth:"1300px"}}, siri));
+	    			visitedList.push(_("div", { style: {height: "1.5rem"}}),"iWB Öneriler",_("hr",{style: {marginTop: "0.4rem"}}),_(Row, {style:{maxWidth:"1300px"}}, saggestedList));
 	    		}
 	    	}
 	    }
 
-		return _('div', {className: 'animated fadeIn'}
-	      ,_('div',{style:{height: '1.45rem'}})
-		  ,_(Row, {style:{maxWidth:"1300px"}},
-			node.children.map(function(a,i){return _(XCardMenu,{key:i,color:dgColors2[i%dgColors2.length], color2:detailSpinnerColors2[i%detailSpinnerColors2.length], color3:dBGColors2[i%dBGColors2.length],node:a})})
-		),vi);
+		return _('div', {className: 'animated fadeIn'},
+		_('div',{style:{height: '1.45rem'}}),
+		_(Row, {style:{maxWidth:"1300px"}},
+			node.children.map((tempNode,index)=>_(XCardMenu,{
+				key:index,
+				color:dgColors2[index%dgColors2.length],
+				color2:detailSpinnerColors2[index%detailSpinnerColors2.length],
+				color3:dBGColors2[index%dBGColors2.length],
+				node:tempNode
+			}))
+		),visitedList);
 	}
 }
 /**
@@ -2455,17 +2630,23 @@ class XMainNav extends React.PureComponent {
  * it renders main part of the application
  * it contains XPage component of XCardMenu
  * role : component like a container
+ * @param {Object} props.history - history object from react router
+ * @param {Object} props.location - current location object from react router
+ * @param {Object} props.match - same with location object from react router
  */
 class XMainPanel extends React.PureComponent {
 	constructor(props){
 		if(iwb.debugConstructor)console.log('XMainPanel.constructor',props);
 		super(props);
-		this.state = {t:-1};
-		//methods
+		this.state = {templateID:-1};
+		/**
+		 * @description
+		 * A function to load page from the server
+		 */
 	    this.loadPage = () => {
-	    	var t = this.t;
-	    	if (!iwb['t-' + t]) {
-	    		fetch("showPage?_tid=" + t, {
+			var templateID = this.templateID;
+	    	if (!iwb['t-' + templateID]) {
+	    		fetch("showPage?_tid=" + templateID, {
 	    				cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
 	    				credentials: 'same-origin', // include, same-origin, *omit
 	    				headers: {
@@ -2476,87 +2657,81 @@ class XMainPanel extends React.PureComponent {
 	    				redirect: 'follow', // *manual, follow, error
 	    				referrer: 'no-referrer', // *client, no-referrer
 	    			})
-	    			.then((response) => {
-	    				if (response.status === 200 || response.status === 0) {
-	    					return response.text();
-	    				} else {
-	    					return Promise.reject(new Error(response.statusText))
-	    				}
-	    			})
+	    			.then(response => (response.status === 200 || response.status === 0)?response.text():Promise.reject(new Error(response.statusText)) )
 	    			.then(
-	    				(result) => {
+	    				result => {
 	    					if (result) {
 	    						var f;
 	    						eval("f=function(callAttributes, parentCt){\n" + result + "\n}");
-	    						var r = f(false, this);
-	    						if (r) {
-	    							r = _('div', {
-	    								className: 'animated fadeIn'
-	    							}, r);
-	    							iwb['t-' + t] = r;
-	    							this.setState({
-	    								t: t
-	    							});
+	    						var serverComponent = f(false, this);
+	    						if (serverComponent) {
+	    							serverComponent = _('div', { className: 'animated fadeIn' }, serverComponent);
+	    							iwb['t-' + templateID] = serverComponent;
+	    							this.setState({templateID});
 	    							iwb.nav.visitItem(this.props.match.path);
 	    						}
-	    					} else {
-	    						toastr.error('Sonuc Gelmedi', ' Error');
-	    					}
+	    					} else { toastr.error('Sonuc Gelmedi', ' Error') }
 	    				},
-	    				(error) => {
-	    					toastr.error(error, 'Connection Error');
-	    				}
+	    				error => { toastr.error(error, 'Connection Error')}
 	    			)
-	    	} else if (t != this.state.t) this.setState({
-	    		t: t
-	    	});
+	    	} else if (templateID != this.state.templateID) this.setState({templateID});
 	    }
 	}
-	componentDidMount() 	{	if(iwb.debug)console.log('XMainPanel.componentDidMount',this.props.match.path);if(!this.l)this.loadPage();}
-	componentDidUpdate() 	{ 	if(iwb.debug)console.log('XMainPanel.componentDidUpdate',this.props.match.path); if(!this.l)this.loadPage();}
-	componentDidCatch()		{	if(iwb.debug)console.log('XMainPanel.componentDidCatch',this);}
-	componentWillUnmount()	{ 	if(iwb.debug)console.log('XMainPanel.componentWillUnmount',this.props.match.path);}
+	componentDidMount() 	{	if(iwb.debug)console.log('XMainPanel.componentDidMount',this.props.match.path);if(!this.loading)this.loadPage()}
+	componentDidUpdate() 	{ 	if(iwb.debug)console.log('XMainPanel.componentDidUpdate',this.props.match.path); if(!this.loading)this.loadPage()}
+	componentDidCatch()		{	if(iwb.debug)console.log('XMainPanel.componentDidCatch',this)}
+	componentWillUnmount()	{ 	if(iwb.debug)console.log('XMainPanel.componentWillUnmount',this.props.match.path)}
 	render() {
-		var path = this.props.match.path;
+		var {path} = this.props.match;
 		var children = {name:'Home',children:iwb.nav.items};
-		var node = path=='/' || path=='/iwb-home'? children: iwb.nav.findNode(this.props.match.path, children);
+		var node = path=='/' || path=='/iwb-home' ? children: iwb.nav.findNode(path, children);
 		if(iwb.debug)console.log('XMainPanel:render:',path, node);
 		if(node){
-			var ix= path.indexOf("showPage");
-			if(ix>-1){
-				var t = 1*path.substr(ix+"showPage".length);
-				this.t=t;
-				if(t!=this.state.t){
-					if(this.l){
-						var ll = this.l;
-						this.l=false;
+			var showPageIndex = path.indexOf("showPage");
+			if(showPageIndex>-1){
+				var templateID = 1*path.substr(showPageIndex+"showPage".length);
+				this.templateID = templateID;
+				if(this.templateID!=this.state.templateID){
+					if(this.loading){
+						var ll = this.loading;
+						this.loading=false;
 						return _('div', {className: 'animated fadeIn'}
 					      ,_('div',{style:{height: '1.45rem'}})
 						  ,_(Row, {style:{maxWidth:"1300px"}},
-							ll.children.map(function(a,i){
-								return _(XCardMenu,{key:i,color:dgColors2[i%dgColors2.length],color2:detailSpinnerColors2[i%detailSpinnerColors2.length], color3:dBGColors2[i%dBGColors2.length], node:a, fadeOut:a.url!=node.url})})
+							ll.children.map((menuitem,index)=>{
+								return _(XCardMenu,{
+									key:index,
+									color:dgColors2[index%dgColors2.length],
+									color2:detailSpinnerColors2[index%detailSpinnerColors2.length],
+									color3:dBGColors2[index%dBGColors2.length],
+									node:menuitem,
+									fadeOut:menuitem.url!=node.url
+								})
+							})
 						));
 					}
 					return _(XLoading, null);
 				}
-				var r = iwb.nav.visitedItems[path];
-				if(r)r.visitCnt++;
-				return iwb['t-'+t];// || null;
+				var visitedItems = iwb.nav.visitedItems[path];
+				if(visitedItems)visitedItems.visitCnt++;
+				return iwb['t-'+templateID];
 			} else {
-			    var d = document.getElementById('id-breed');
-			    if(d)d.innerHTML =node.name || 'Home';
-			    this.l = node;
-			    return _(XMainNav,{path:path, node:node});
+			    var pageName = document.getElementById('id-breed');
+			    if(pageName){
+					pageName.innerHTML = node.name || 'Home';
+				}
+			    this.loading = node;
+			    return _(XMainNav,{path,node});
 			}
 		} else {
-			this.l=false;
+			this.loading=false;
 			return 'ERROR! Wrong Page';
 		}
 	}
 }
 /**
  * @description
- * will work on first index.htm request
+ * Loading Component
  */
 class XLoading extends React.Component {
 	render(){
@@ -2566,6 +2741,7 @@ class XLoading extends React.Component {
 /**
  * @description
  * All the Forms will extend from this component
+ * so all the props will come from the server side
  */
 class XForm extends React.Component {
 	constructor(props) {
@@ -2596,19 +2772,19 @@ class XForm extends React.Component {
 				var triggers = self.triggerz4ComboRemotes;
 				//used for remote @depricated
 				if (triggers[inputName]){
-					triggers[inputName].map( zzz => {
-						var nv = zzz.f(slectedOption_Id, null, values);
+					triggers[inputName].map( trigger => {
+						var nv = trigger.f(slectedOption_Id, null, values);
 						var {options} = self.state;
 						if (nv){
 							iwb.request({
 								url: 'ajaxQueryData?' + iwb.JSON2URI(nv) + '.r=' + Math.random(),
 								successCallback: function (res) {
-									options[zzz.n] = res.data;
+									options[trigger.n] = res.data;
 									self.setState({ options });
 								}
 							});
 						} else {
-							options[zzz.n] = [];
+							options[trigger.n] = [];
 							self.setState({options});
 						}
 					});
@@ -2755,17 +2931,13 @@ class XForm extends React.Component {
 
 </div>
 
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GridCommon.html">GridCommon</a></li><li><a href="SelectableStubCell.html">SelectableStubCell</a></li><li><a href="XCardMenu.html">XCardMenu</a></li><li><a href="XCardMiniMenu.html">XCardMiniMenu</a></li><li><a href="XEditGrid.html">XEditGrid</a></li><li><a href="XEditGridSF.html">XEditGridSF</a></li><li><a href="XForm.html">XForm</a></li><li><a href="XGrid.html">XGrid</a></li><li><a href="XGridAction.html">XGridAction</a></li><li><a href="XGridRowAction.html">XGridRowAction</a></li><li><a href="XLoading.html">XLoading</a></li><li><a href="XLoginDialog.html">XLoginDialog</a></li><li><a href="XMainGrid.html">XMainGrid</a></li><li><a href="XMainNav.html">XMainNav</a></li><li><a href="XMainPanel.html">XMainPanel</a></li><li><a href="XModal.html">XModal</a></li><li><a href="XPage.html">XPage</a></li><li><a href="XTabForm.html">XTabForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Command">Command</a></li><li><a href="global.html#CommandButton">CommandButton</a></li><li><a href="global.html#commandComponentProps">commandComponentProps</a></li><li><a href="global.html#extendGrid">extendGrid</a></li><li><a href="global.html#iwb">iwb</a></li><li><a href="global.html#yesNoDialog">yesNoDialog</a></li></ul>
-</nav>
-
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jul 17 2018 13:37:34 GMT+0300 (Türkiye Standart Saati)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jul 19 2018 19:59:33 GMT+0300 (Türkiye Standart Saati) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
 </body>
 </html>

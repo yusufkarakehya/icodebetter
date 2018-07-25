@@ -201,13 +201,13 @@ function accessControlHtml(x){
 }
 
 function fileAttachmentHtml(x){
-	return	x ? '<img src="../images/custom/bullet_file_attach.png" border=0>':'';
+	return	x ? '<img src="../ext3.4.1/custom/images/paperclip-16.png" border=0>':'';
 }
 
 
 function fileAttachmentRenderer(a){
 	return function(ax,bx,cx){
-		return	ax ? '<img src="../images/custom/bullet_file_attach.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\''+a.name+'\',href:\'showPage?_tid=518&_gid1=458&_gid458_a=1\',_pk:{tfile_attachment_id:\'file_attachment_id\'},baseParams:{xtable_id:'+a.crudTableId+', xtable_pk:'+cx.id+'}}});">':'';
+		return	ax ? '<img src="../ext3.4.1/custom/images/paperclip-16.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\''+a.name+'\',href:\'showPage?_tid=518&_gid1=458&_gid458_a=1\',_pk:{tfile_attachment_id:\'file_attachment_id\'},baseParams:{xtable_id:'+a.crudTableId+', xtable_pk:'+cx.id+'}}});">':'';
 	};
 }
 
@@ -352,7 +352,7 @@ function fmtPrice(value){
 
 function getGridSel (a){
   if(!a || !a._grid || !a._grid.sm.getSelected()){
-    Ext.Msg.show({title: getLocMsg('js_commons_info'), msg: getLocMsg('js_commons_error_secim'), icon: Ext.MessageBox.INFO});
+    Ext.infoMsg.msg('error', getLocMsg('js_select_something'));
     return null;
   }
   else {
@@ -362,7 +362,7 @@ function getGridSel (a){
 
 function getMasterGridSel (a){
   if(!a || !a._grid || !a._grid._masterGrid || !a._grid._masterGrid.sm.getSelected()){
-    Ext.Msg.show({title: getLocMsg('js_commons_info'), msg: getLocMsg('js_commons_error_secim'), icon: Ext.MessageBox.INFO});
+	    Ext.infoMsg.msg('error', getLocMsg('js_select_something'));
     return null;
   }
   else {
@@ -777,11 +777,11 @@ function fnRowBulkMail(a,b){
 
 function fnRowEdit(a,b){
     if(!a._grid.onlyCommitBtn && a._grid.editMode){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'), getLocMsg('js_yazma_modundan_cikmalisiniz'));
+    	Ext.infoMsg.msg('warning', getLocMsg('js_yazma_modundan_cikmalisiniz'));
     	return;
     }
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     
@@ -808,7 +808,7 @@ function fnRowEdit(a,b){
 
 function fnRowEdit4Log(a,b){
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
   	var sel = a._grid.sm.getSelected();
@@ -846,7 +846,7 @@ function fnRowEditDblClick(a,b){
 
 function fnRowInsert(a,b){
     if(!a._grid.onlyCommitBtn && a._grid.editMode){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_yazma_modundan_cikmalisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_yazma_modundan_cikmalisiniz'));
     	return;
     }
   	var sel = a._grid.sm.getSelected();
@@ -864,7 +864,7 @@ function fnRowInsert(a,b){
 };
 function fnRowCopy(a,b){
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     
@@ -890,7 +890,7 @@ function fnRowCopy(a,b){
 }
 function fnRowDelete(a,b){
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     if(a._grid.multiSelect){
@@ -1090,7 +1090,7 @@ function fnNewFileAttachment(a){
 	var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil mi onu sorguluyor. (major ver, minor ver, revision no)
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     var image_param="";
@@ -1111,7 +1111,7 @@ function fnNewFileAttachment(a){
 function fnNewFileAttachment4ExternalUrl(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
   	var table_pk='';
@@ -1142,7 +1142,7 @@ function fnNewFileAttachment4Form(tid,tpk,not_image_flag){
 function fnFileAttachmentList(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
   	var table_pk='';
@@ -1217,7 +1217,7 @@ function fnCommit(a){
 	    		});
 	        }
 	    });
-  	} else Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_degisiklik_yok'));
+  	} else Ext.infoMsg.msg('warning',getLocMsg('js_degisiklik_yok'));
 }
 
 
@@ -1295,7 +1295,7 @@ function fnGridPrivilege(a){
 function fnRecordComments(a){//TODO: daha duzgun bir chat interface'i yap
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
   	var table_pk='';
@@ -1308,7 +1308,7 @@ function fnRecordComments(a){//TODO: daha duzgun bir chat interface'i yap
 function fnRecordPrivileges(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
 	var sel=a._grid.sm.getSelected();
@@ -1340,7 +1340,7 @@ function buildHelpWindow(cfg){
 function fnShowLog4Update(a,b){
 	var sel=a._grid.sm.getSelected();
 	if(!sel){
-		Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+		Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return;
 	}
 	var paramz={_vlm:1};
@@ -1379,7 +1379,7 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag){
 		if(typeof xgrid.crudFlags.ximport=='object' && typeof xgrid.crudFlags.ximport.length!='undefined'){
 			var xmenu=[];
 			for(var qi=0;qi<xgrid.crudFlags.ximport.length;qi++)if(!xgrid.crudFlags.ximport[qi].dsc)xmenu.push(xgrid.crudFlags.ximport[qi]); else {
-				xmenu.push({text:xgrid.crudFlags.ximport[qi].dsc,cls:xgrid.crudFlags.ximport[qi].cls || '', _activeOnSelection:false, _grid:xgrid, ximport:xgrid.crudFlags.ximport[qi],handler:fnTableImport});
+				//xmenu.push({text:xgrid.crudFlags.ximport[qi].dsc,cls:xgrid.crudFlags.ximport[qi].cls || '', _activeOnSelection:false, _grid:xgrid, ximport:xgrid.crudFlags.ximport[qi],handler:fnTableImport});
 			}
 			if(xgrid.extraButtons){
 				var bxx=xmenu.length>0;
@@ -1391,9 +1391,10 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag){
 				}
 				if(xgrid.extraButtons.length==0)xgrid.extraButtons=undefined;
 			}
-			xbuttons.push({tooltip:getLocMsg('js_diger_kayitlardan_aktar'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, menu:xmenu});
-		} else
-			xbuttons.push({tooltip:getLocMsg('js_diger_kayitlardan_aktar'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, handler:fnTableImport});
+			xbuttons.push({tooltip:getLocMsg('js_import_from_other_records'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, menu:xmenu});
+		} else {
+			//xbuttons.push({tooltip:getLocMsg('js_import_from_other_records'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, handler:fnTableImport});
+		}
 	}
 
 	if(xgrid.accessControlFlag)xbuttons.push({tooltip:getLocMsg('js_kayit_bazli_yetkilendirme'),cls:'x-btn-icon x-grid-record-privilege', disabled:true, _activeOnSelection:true ,_grid:xgrid, handler:fnRecordPrivileges});
@@ -1487,17 +1488,17 @@ function addDefaultSpecialButtons(xbuttons, xgrid){
     		submenu.push({text:getLocMsg('onay_iste'), _grid: xgrid, handler: function(a, e){
     			var sels = a._grid.sm.getSelections();
     			if(sels.length==0){
-    				Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('commons.error.secim'), icon: Ext.MessageBox.ERROR});
+    				Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('commons.error.secim'), icon: Ext.MessageBox.ERROR});
     				return
     			}
 
     			for (var i=0; i<sels.length; i++){	
     				if (sels[i].data.pkpkpk_arf*1<0){
-    					Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('js_onay_adiminda_yer_almiyorsunuz'), icon: Ext.MessageBox.ERROR});
+    					Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('js_onay_adiminda_yer_almiyorsunuz'), icon: Ext.MessageBox.ERROR});
     					return;
     				} 
     				if (sels[i].data.pkpkpk_arf*1!=901){
-    					Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('secilenler_onay_istenecek_olmali'), icon: Ext.MessageBox.ERROR});
+    					Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('secilenler_onay_istenecek_olmali'), icon: Ext.MessageBox.ERROR});
     					return;
     				}	
     			}
@@ -2152,11 +2153,109 @@ function prepareLogErrors(obj){
 	}
 	return str;
 }
+
+function showSQLError(sql, xpos){
+	var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'sql', 
+	    config:{matchBrackets: true, lint:true, foldGutter: true, 
+	    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:sql});
+
+	new Ext.Window({
+        modal: true, closable:true,
+        title: 'SQL Error',
+        width: 1000, height: 380, border: false, layout: 'border',
+        items: [new Ext.FormPanel({region:'center', items:[_code]})]
+	}).show();
+	var doc=_code.codeEditor.doc;
+//	doc.addLineClass(ml-1,'background','veliSel');
+	return false;
+}
+
 function ajaxErrorHandler(obj){
+		
+    if (obj.errorType && obj.errorType=='validation'){
+        var msg='<b>'+getLocMsg('js_field_validation')+'</b><ul>';
+        if(obj.errors){
+        	for (var i=0;i<obj.errors.length;i++)if (obj.errors[i].id!='_')
+        		msg+='<li>&nbsp;&nbsp;&nbsp;&nbsp;'+(obj.errors[i].dsc || obj.errors[i].id)+' - '+obj.errors[i].msg+'</li>';
+        } else if(obj.error){
+        	msg+=obj.error;
+        }
+        msg+='</ul>';
+        Ext.infoMsg.msg('error',msg)
+    }else if (obj.errorType && obj.errorType=='session')
+        showLoginDialog(obj);
+    else if (obj.errorType && obj.errorType=='security')
+    	Ext.infoMsg.msg('error',getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>');
+    else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework')){
+    	var items=[];
+    	items.push({xtype:'displayfield',fieldLabel: '',anchor:'99%',labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
+    	if(obj.objectType){
+    		items.push({xtype:'displayfield',fieldLabel: obj.objectId ? obj.objectType : 'Type',anchor:'99%', labelSeparator:'', value:obj.objectId || obj.objectType});
+//    		if(obj.objectId)items.push({xtype:'displayfield',fieldLabel: 'ID',width:100, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
+    	}
+    	if(obj.icodebetter){
+    		var ss='', sqlPos=false;
+    		iwb.errors=[];
+    		for(var qi=0;qi<obj.icodebetter.length;qi++){
+    			if(qi>0)ss+='<br>'
+    			for(var zi=0;zi<qi;zi++)ss+=' &nbsp;';
+    			var oo=obj.icodebetter[qi];
+    			ss+='&gt '+oo.objectType;
+    			if(oo.objectId){
+    				if(oo.error && oo.error.startsWith('[')){
+    					var tid=oo.error.substr(1).split(',')[0];
+    					ss+=': <a href=# onclick="return fnTblRecEdit('+tid+','+oo.objectId+');">'+oo.error+'</a>';
+    				} else ss+=': '+oo.objectId+ (oo.error ? ' / ' + oo.error:'');
+    				if(oo.error && oo.sql){
+    					iwb.errors[qi]=oo.sql;
+    					if(oo.error.endsWith('}#') && oo.error.indexOf('#{')>-1){
+        					var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
+        					lineNo=lineNo.substr(0,lineNo.length-2);
+    						ss+=' &nbsp; <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:iwb.errors['+qi+']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS.Exception</a>';
+    					} 
+    				}
+
+    			} else
+    				ss+=': ' + oo.error;
+				if(oo.error && oo.error.indexOf('Position: ')>-1){
+					sqlPos=oo.error.substr(oo.error.indexOf('Position: ')+'Position: '.length);    						
+					ss+=' &nbsp; <a href=# onclick=\'showSQLError(iwb.errors['+(qi-1)+'],'+sqlPos+')\' style="padding:1px 5px;background:white;color:green;border-radius:20px;">SQL.Exception</a>';
+				}
+    		}
+    		items.push({xtype:'displayfield',fieldLabel: 'Stack',anchor:'99%',labelSeparator:'', value:ss});
+    		
+    	}
+
+    	var xbuttons =[];
+		xbuttons.push({text:'Convert to Task',handler:function(){
+			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
+			wndx.close();
+		}});
+		if(obj.stack)xbuttons.push({text:'Java StackTrace',handler:function(){alert(obj.stack);}});
+		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
+        var wndx=new Ext.Window({
+            modal:true,
+            title:obj.errorType.toUpperCase()+' Error', cls:'xerror',
+            width: obj.sql ? 900:650,
+           autoHeight:!0,
+            items:[{    
+                xtype:'form', labelAlign:'right', labelWidth:80, bodyStyle:'padding:10px',
+                autoHeight: true,layout:'form',border:false,
+               items:items
+            }],
+        buttons:xbuttons
+        });
+        wndx.show();    
+    }else
+        Ext.Msg.show({cls:'xerror',title:obj.errorType || getLocMsg('js_error'),msg: obj.error || 'Unknown',icon: Ext.MessageBox.ERROR})
+    
+}
+
+function ajaxErrorHandlerOld(obj){
 		
     if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino')){
     	if(1*_app.debug != 1){
-    		var jsm ={title: getLocMsg('js_hata'),
+    		var jsm ={title: getLocMsg('error'),
         			msg: '<b>'+obj.error+'</b>',
         			icon: Ext.MessageBox.ERROR}
     		if(obj.logErrors){
@@ -2170,6 +2269,10 @@ function ajaxErrorHandler(obj){
     	}
     	else{
     		var xbuttons =[];
+    		xbuttons.push({text:'Convert to Task', handler:function(){
+    			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG REPORT: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
+    			wndx.close();
+    		}});
     		if(obj.errorType=='rhino' && obj.error && obj.error.indexOf('script#')>-1 && obj.sql){
     			var xl = obj.error.substr(obj.error.indexOf('script#')+7);
     			var ml = 0;
@@ -2192,7 +2295,7 @@ function ajaxErrorHandler(obj){
     			}});
     		}
     		if(obj.stack)xbuttons.push({text:'Java StackTrace',handler:function(){alert(obj.stack);}});
-    		xbuttons.push({text:getLocMsg('js_kapat'),handler:function(){wndx.close();}});
+    		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
 	        var wndx=new Ext.Window({
 	            modal:true,
 	            title:'DB.SQL/Rhino Error',
@@ -2223,7 +2326,7 @@ function ajaxErrorHandler(obj){
 	        wndx.items.items[0].getColumnModel().setColumnWidth(1,wndx.items.items[0].getColumnModel().getColumnWidth(1)+300);
     	}
     }else if (obj.errorType && obj.errorType=='validation'){
-        var msg='<b>'+getLocMsg('js_alan_dogrulama_hatalari')+'</b><ul>';
+        var msg='<b>'+getLocMsg('js_field_validation')+'</b><ul>';
         if(obj.errors){
         	for (var i=0;i<obj.errors.length;i++)if (obj.errors[i].id!='_')
         		msg+='<li>&nbsp;&nbsp;&nbsp;&nbsp;'+(obj.errors[i].dsc || obj.errors[i].id)+' - '+obj.errors[i].msg+'</li>';
@@ -2231,9 +2334,13 @@ function ajaxErrorHandler(obj){
         	msg+=obj.error;
         }
         msg+='</ul>';
-        Ext.Msg.show({title:getLocMsg('js_hata'),msg: msg,icon: Ext.MessageBox.ERROR})
+        Ext.Msg.show({title:getLocMsg('error'),msg: msg,icon: Ext.MessageBox.ERROR})
     }else if (obj.errorType && obj.errorType=='framework'){
     	var xbuttons =[];
+		xbuttons.push({text:'Convert to Task',handler:function(){
+			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG REPORT: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
+			wndx.close();
+		}});
 		if(obj.errorType=='rhino' && obj.error && obj.error.indexOf('script#')>-1 && obj.sql){
 			var xl = obj.error.substr(obj.error.indexOf('script#')+7);
 			var ml = 0;
@@ -2256,7 +2363,7 @@ function ajaxErrorHandler(obj){
 			}});
 		}
 		if(obj.stack)xbuttons.push({text:'Java StackTrace',handler:function(){alert(obj.stack);}});
-		xbuttons.push({text:getLocMsg('js_kapat'),handler:function(){wndx.close();}});
+		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
         var wndx=new Ext.Window({
             modal:true,
             title:'Framework Error',
@@ -2289,10 +2396,10 @@ function ajaxErrorHandler(obj){
     else if (obj.errorType && obj.errorType=='security')
 	    Ext.Msg.show({
 	    	title: getLocMsg('js_guvenlik_hatasi'), 
-	    	msg: getLocMsg('js_hata')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>', 
+	    	msg: getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>', 
 	    	icon: Ext.MessageBox.ERROR});
     else
-        Ext.Msg.show({title:getLocMsg('js_bilgi'),msg: msg,icon: Ext.MessageBox.INFO})
+        Ext.Msg.show({title:getLocMsg('js_bilgi'),msg: msg,icon: Ext.MessageBox.ERROR})
     
 }
 var lw=null;
@@ -2318,7 +2425,7 @@ function ajaxAuthenticateUser(){
 	        				        	longPollTask.delay(0);
 	        						}
 	        						else {
-	        							Ext.Msg.show({title: getLocMsg('js_hata'), msg: 'Hatalı SMS Kodu', icon: Ext.MessageBox.ERROR});
+	        							Ext.Msg.show({title: getLocMsg('error'), msg: 'Hatalı SMS Kodu', icon: Ext.MessageBox.ERROR});
 	        						}
 	        					}
 	        				});
@@ -2332,16 +2439,16 @@ function ajaxAuthenticateUser(){
 	        	}
 //	        	if(typeof onlineUsersGridPanel!='undefined' && onlineUsersGridPanel)reloadOnlineUsers();
 	        }else {
-	            Ext.MessageBox.alert(getLocMsg('js_hata'),resp.errorMsg||getLocMsg('js_yanlis_kullanici_adi_sifre'));
+	            Ext.MessageBox.alert(getLocMsg('error'),resp.errorMsg||getLocMsg('js_yanlis_kullanici_adi_sifre'));
 			}
     	},
 	    failure: function(o,resp){
 			var resp=eval('('+resp.response.responseText+')');
 	        if(resp.errorMsg){
-	            Ext.MessageBox.alert(getLocMsg('js_hata'),resp.errorMsg);
+	            Ext.MessageBox.alert(getLocMsg('error'),resp.errorMsg);
 	            getSecurityWord();
 	        }else{
-	            Ext.MessageBox.alert(getLocMsg('js_hata'),resp.error||getLocMsg('js_verileri_kontrol'));
+	            Ext.MessageBox.alert(getLocMsg('error'),resp.error||getLocMsg('js_verileri_kontrol'));
 	        }
 	    }
     });
@@ -2502,14 +2609,14 @@ function formSubmit(submitConfig){
         failure:function(form, action) {
             switch (action.failureType) {
             case Ext.form.Action.CLIENT_INVALID:
-                Ext.Msg.alert(getLocMsg('js_hata'), getLocMsg('js_form_alan_veri_dogrulama_hatasi'));
+                Ext.infoMsg.msg('error', getLocMsg('js_form_alan_veri_dogrulama_hatasi'));
                 break;
             case Ext.form.Action.CONNECT_FAILURE:
-                Ext.Msg.alert(getLocMsg('js_hata'), getLocMsg('js_no_connection_error'));
+                Ext.infoMsg.wow('error', getLocMsg('js_no_connection_error'));
                 break;
             case Ext.form.Action.SERVER_INVALID:
             	if(action.result.msg){
-	            	Ext.Msg.alert(getLocMsg('js_hata'), action.result.msg);
+	            	Ext.Msg.alert(getLocMsg('error'), action.result.msg);
 	            	break;
             	}
 //            case Ext.form.Action.LOAD_FAILURE:
@@ -2535,7 +2642,7 @@ function formSubmit(submitConfig){
 function promisLoadException(a,b,c){
 	if(c && c.responseText){
 		ajaxErrorHandler(eval("("+c.responseText+")"));
-	} else Ext.Msg.show({title: getLocMsg('js_bilgi'), msg: getLocMsg('js_no_connection_error'), icon: Ext.MessageBox.INFO});
+	} else Ext.infoMsg.wow('error',getLocMsg('js_no_connection_error'));
 }
 
 function promisRequest(rcfg){
@@ -2546,12 +2653,20 @@ function promisRequest(rcfg){
 		else 
 			reqWaitMsg=0;		
 	}		
-	if(reqWaitMsg==1)Ext.Msg.wait((rcfg.requestWaitMsg == '' ||typeof rcfg.requestWaitMsg == 'undefined' || typeof rcfg.requestWaitMsg == 'boolean') ? getLocMsg('js_lutfen_bekleyin') : rcfg.requestWaitMsg);
+	if(reqWaitMsg==1){
+		document.getElementById('loading-mask-full').style.display='block';
+		document.getElementById('loading-mask').style.display='block';
+//		Ext.Msg.wait((rcfg.requestWaitMsg == '' ||typeof rcfg.requestWaitMsg == 'undefined' || typeof rcfg.requestWaitMsg == 'boolean') ? getLocMsg('js_lutfen_bekleyin') : rcfg.requestWaitMsg);
+	}
 	if(!rcfg.params)rcfg.params={}
 	rcfg.params['.w']=_webPageId;
 	Ext.Ajax.request(Ext.apply({
 	    success: function(a,b,c){
-	    	if(reqWaitMsg==1) Ext.Msg.hide();
+	    	if(reqWaitMsg==1){
+//	    		Ext.Msg.hide();
+	    		document.getElementById('loading-mask-full').style.display='none';
+	    		document.getElementById('loading-mask').style.display='none';
+	    	}
 			if(rcfg.successResponse)
 				rcfg.successResponse(a,b,c);
 			else try{
@@ -2583,7 +2698,12 @@ function promisRequest(rcfg){
 			}
 		},
 	    failure: function(a,b,c){
-	    	if(reqWaitMsg==1) Ext.Msg.hide();
+	    	if(reqWaitMsg==1){
+//	    		Ext.Msg.hide();
+	    		document.getElementById('loading-mask-full').style.display='none';
+	    		document.getElementById('loading-mask').style.display='none';
+	    		
+	    	}
 			promisLoadException(a,b,c);
 		}
 	}, rcfg));
@@ -2800,7 +2920,7 @@ function approveTableRecord(aa,a){
 	var rec_id;
 	
 	if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
     if(aa==2 && 1*sel.data.return_flag==0){
@@ -2900,7 +3020,7 @@ function approveTableRecords(aa, a){
 	var sels = a._grid.sm.getSelections();
 
 	if(sels.length==0){
-		Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('js_once_birseyler_secmelisiniz'), icon: Ext.MessageBox.ERROR});
+		Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('js_once_birseyler_secmelisiniz'), icon: Ext.MessageBox.ERROR});
     	return
     }
 	var tek_kayit = sels.length == 1 ? true : false;
@@ -2926,45 +3046,45 @@ function approveTableRecords(aa, a){
 		}				
 
 		if(aa != 901 && step_id == 901){
-			Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('approval_hatali_islem'), icon: Ext.MessageBox.ERROR});
+			Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('approval_hatali_islem'), icon: Ext.MessageBox.ERROR});
 			return;			
 		}
 		
 		if (step!=0 && step_id*1!=step ){
-			Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('js_secilenlerin_onay_adimi_ayni_olmali'), icon: Ext.MessageBox.ERROR});
+			Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('js_secilenlerin_onay_adimi_ayni_olmali'), icon: Ext.MessageBox.ERROR});
 			return;
 		}
 		step = step_id;	
 
 		if (step_id*1==998){
-			Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('js_kayit_onaylanmis'), icon: Ext.MessageBox.ERROR});
+			Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('js_kayit_onaylanmis'), icon: Ext.MessageBox.ERROR});
 			return;
 		}	
 				
 		if (step_id<0){
-			Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('js_onay_adiminda_yer_almiyorsunuz'), icon: Ext.MessageBox.ERROR});
+			Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('js_onay_adiminda_yer_almiyorsunuz'), icon: Ext.MessageBox.ERROR});
 			return;
 		} 
 		
 		if (sels[i].data.in_approval_users && sels[i].data.in_approval_roles){
 			if (sels[i].data.in_approval_users*1!=1 && sels[i].data.in_approval_roles*1!=1){
-				Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('js_onay_adiminda_yer_almiyorsunuz'), icon: Ext.MessageBox.ERROR});
+				Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('js_onay_adiminda_yer_almiyorsunuz'), icon: Ext.MessageBox.ERROR});
 				return;
 			}
 		}
 		
 		if(aa==2 && 1*sels[i].data.return_flag==0){
-			Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('js_bu_surecte_iade_yapilamaz'), icon: Ext.MessageBox.ERROR});
+			Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('js_bu_surecte_iade_yapilamaz'), icon: Ext.MessageBox.ERROR});
 			return
 		}      
 		var e_sign_flag = sels[i].data.e_sign_flag || 0;
 		if((1*e_sign_flag == 1) && (aa*1 == 1) && (tek_kayit == false)){ //
-			Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('js_e_imza_onay_tek_kayit_secilmeli'), icon: Ext.MessageBox.ERROR});
+			Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('js_e_imza_onay_tek_kayit_secilmeli'), icon: Ext.MessageBox.ERROR});
 			return;            
 		}
 		dynamix = (sels[0].data.approval_flow_tip*1==3 && aa==901)? true:false;
 		if (dynamix==true && tek_kayit==false){
-			Ext.Msg.show({title: getLocMsg('js_error'), msg: getLocMsg('js_dinamik_onay_tek_kayit_secilmeli'), icon: Ext.MessageBox.ERROR});                    
+			Ext.Msg.show({title: getLocMsg('error'), msg: getLocMsg('js_dinamik_onay_tek_kayit_secilmeli'), icon: Ext.MessageBox.ERROR});                    
 			return;  
 		}
 		if(dynamix)
@@ -3932,14 +4052,14 @@ function manuelDateValidation(date1, date2, blankControl, dateControl){
 		//tarih alanlarının boş olup olmadığı kontrol ediliyor
 		if (typeof date1!='undefined'){
 			if (date1.allowBlank == false && date1.getValue() == ''){
-				Ext.Msg.alert(getLocMsg('js_hata'), getLocMsg('js_blank_text') +' (' + date1.fieldLabel + ')');
+				Ext.infoMsg.msg('error', getLocMsg('js_blank_text') +' (' + date1.fieldLabel + ')');
 				return false;
 			}
 		}
 		
 		if (typeof date2!='undefined'){
 			if (date2.allowBlank == false && date2.getValue() == ''){
-				Ext.Msg.alert(getLocMsg('js_hata'), getLocMsg('js_blank_text') + ' (' + date2.fieldLabel + ')');
+				Ext.infoMsg.msg('error', getLocMsg('js_blank_text') + ' (' + date2.fieldLabel + ')');
 				return false;
 			}
 		}
@@ -3948,7 +4068,7 @@ function manuelDateValidation(date1, date2, blankControl, dateControl){
 	if (dateControl && typeof date1!='undefined' && typeof date2!='undefined'){
 		//birinci tarih ikinci tarihten küçük yada eşit olup olmadığı kontrol ediliyor
 		if (date1.getValue()>date2.getValue()){
-			Ext.Msg.alert(getLocMsg('js_hata'), getLocMsg('js_error_first_cannot_greater_than_second'));//'İlk Tarih İkinci Tarihten Büyük Olamaz'
+			Ext.infoMsg.msg('error', getLocMsg('js_error_first_cannot_greater_than_second'));//'İlk Tarih İkinci Tarihten Büyük Olamaz'
 			return false;		
 		}		
 	}
@@ -4391,16 +4511,16 @@ function fncMnuVcs(xgrid){
 				var d=sel[0].data.pkpkpk_vcsf;
 				if(d){
 					vcsPush(aq._grid, aq._grid.crudTableId, sel[0].id);
-				} else Ext.Msg.alert(getLocMsg('js_error'),'Not VCS Object');
-			} else Ext.Msg.alert(getLocMsg('js_error'),'Not selection');
+				} else Ext.Msg.alert(getLocMsg('error'),'Not VCS Object');
+			} else Ext.Msg.alert(getLocMsg('error'),'Not selection');
 		}},{text:'Pull',iconCls:'icon-vcs-pull', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
 			if(sel && sel.length>0){
 				var d=sel[0].data.pkpkpk_vcsf;
 				if(d){
 					vcsPull(aq._grid, aq._grid.crudTableId, sel[0].id);
-				} else Ext.Msg.alert(getLocMsg('js_error'),'Not VCS Object');
-			} else Ext.Msg.alert(getLocMsg('js_error'),'Not selection');
+				} else Ext.Msg.alert(getLocMsg('error'),'Not VCS Object');
+			} else Ext.Msg.alert(getLocMsg('error'),'Not selection');
 		}}
 		,'-'
 		/*,{text:'Synchronize Selected Record(Recursive)', _grid:xgrid, handler:function(aq){
@@ -4426,7 +4546,7 @@ function fncMnuVcs(xgrid){
 					aq._grid.ds.reload();
 				}});
 			}
-		}},'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
+		}}/*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelected();
 			if(sel && sel.data.pkpkpk_vcsf){
 				var cmbSt2=[];
@@ -4453,7 +4573,7 @@ function fncMnuVcs(xgrid){
 				});
 				wx.show();
 			}
-		}}];
+		}}*/];
 }
 
 
@@ -4801,13 +4921,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                getForm._cfg.dontClose = 0;
 	                getForm._cfg.extraParams = {};
 	                if ((typeof r == 'object') && (r != null)) getForm._cfg.extraParams = r;
-	                //bmp TODO
-	                if (getForm.bpmProcesses && getForm.bpmProcesses.length > 0) { //TODO
-	                    if (confirm('BPM için\n * ' + getForm.bpmProcesses[0].dsc + '\n\nkullanarak devam etmek ister misiniz?')) {
-	                        if (!getForm._cfg.extraParams) getForm._cfg.extraParams = {};
-	                        getForm._cfg.extraParams._sbpid = getForm.bpmProcesses[0].id;
-	                    }
-	                }
+	              
 
 	                form_extra_processes();
 
@@ -4845,7 +4959,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                    return null;
 	                }
 	                if(!getForm._cfg.callback)getForm._cfg.callback = function(js, conf) {
-	                    if (js.success) Ext.Msg.alert('${info}', '${operation_completed}');
+	                    if (js.success) Ext.infoMsg.msg('info', '${operation_completed}');
 	                }
 	                getForm._cfg.dontClose = 1;
 	                getForm._cfg.extraParams = {};
@@ -4880,7 +4994,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                    return null;
 	                }
 	                if(!getForm._cfg.callback)getForm._cfg.callback = function(js, conf) {
-	                    if (js.success) Ext.Msg.alert('${info}', '${operation_completed}');
+	                    if (js.success) Ext.infoMsg.msg('info', '${operation_completed}');
 	                }
 	                getForm._cfg.dontClose = 1;
 	                getForm._cfg.resetValues = 1;

@@ -3,6 +3,7 @@ package iwb.adapter.soap.impl;
 import java.util.Map;
 
 import iwb.adapter.soap.SoapAdapter;
+import iwb.cache.FrameworkCache;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.db.W5WsServerMethodParam;
@@ -10,7 +11,6 @@ import iwb.domain.result.W5DbFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkCache;
 import iwb.util.GenericUtil;
 
 public class MSSoap1 implements SoapAdapter{

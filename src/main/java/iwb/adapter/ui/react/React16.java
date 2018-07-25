@@ -10,12 +10,15 @@ import java.util.Map;
 import java.util.Set;
 
 import iwb.adapter.ui.ViewAdapter;
+import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
+import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5DataView;
 import iwb.domain.db.W5Detay;
-import iwb.domain.db.W5Feed;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormModule;
@@ -52,10 +55,7 @@ import iwb.domain.result.W5TemplateResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkCache;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
-import iwb.util.LocaleMsgCache;
 import iwb.util.UserUtil;
 
 public class React16 implements ViewAdapter {
@@ -280,22 +280,18 @@ public class React16 implements ViewAdapter {
 		// form(table) fields
 		if (f.getObjectTip() == 2
 				&& FrameworkCache.getTable(customizationId, f.getObjectId()) != null) {
-			s.append(",\n renderTip:").append(
-					formResult.getForm().getRenderTip());
+			s.append(",\n renderTip:").append(formResult.getForm().getRenderTip());
 			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
-			liveSyncRecord = FrameworkSetting.liveSyncRecord
-					&& t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
+			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
 			// insert AND continue control
 			s.append(", crudTableId:").append(f.getObjectId());
 			if (formResult.getAction() == 2) { // insert
 				long tmpId = -GenericUtil.getNextTmpId();
-				s.append(", contFlag:").append(f.getContEntryFlag() != 0)
-						.append(",\n tmpId:").append(tmpId);
+				s.append(", contFlag:").append(f.getContEntryFlag() != 0).append(",\n tmpId:").append(tmpId);
 				formResult.getRequestParams().put("_tmpId", "" + tmpId);
 			} else if (formResult.getAction() == 1) { // edit
-				s.append(",\n pk:")
-						.append(GenericUtil.fromMapToJsonString(formResult
-								.getPkFields()));
+				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
+				if(t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers()))s.append(", deletable:!0");
 				if (liveSyncRecord) {
 					s.append(", liveSync:true");
 					String webPageId = formResult.getRequestParams().get(".w");
@@ -704,7 +700,7 @@ public class React16 implements ViewAdapter {
 							: formResult.getForm().get_renderTemplate()
 									.getCode());
 		} else if(formResult.getForm().getObjectTip()==2)
-			s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt});");
+			s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt, callAttributes:callAttributes});");
 		
 
 		return s;
@@ -1159,29 +1155,27 @@ public class React16 implements ViewAdapter {
 			s.append("}\n");
 		}
 
-		if (b) {
-			if(formResult.getForm().getObjectTip()==1){ //search ise
-				s.append(renderSearchFormModuleList(customizationId, xlocale,
-						formResult.getUniqueId(),
-						formResult.getFormCellResults(),
-						"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
-			} else switch (formResult.getForm().getRenderTip()) {
-			case 1:// fieldset
-				s.append(renderFormFieldset(formResult));
-				break;
-			case 2:// tabpanel
-				s.append(renderFormTabpanel(formResult));
-				break;
-			case 3:// tabpanel+border
-				s.append(renderFormTabpanel(formResult));
+		if(formResult.getForm().getObjectTip()==1){ //search ise
+			s.append(renderSearchFormModuleList(customizationId, xlocale,
+					formResult.getUniqueId(),
+					formResult.getFormCellResults(),
+					"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
+		} else switch (formResult.getForm().getRenderTip()) {
+		case 1:// fieldset
+			s.append(renderFormFieldset(formResult));
+			break;
+		case 2:// tabpanel
+			s.append(renderFormTabpanel(formResult));
+			break;
+		case 3:// tabpanel+border
+			s.append(renderFormTabpanel(formResult));
 //				s.append(renderFormTabpanelBorder(formResult));
-				break;
-			case 0:// temiz
-				s.append(renderFormModuleListTop(customizationId, xlocale,
-						formResult.getUniqueId(),
-						formResult.getFormCellResults(),
-						"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
-			}
+			break;
+		case 0:// temiz
+			s.append(renderFormModuleListTop(customizationId, xlocale,
+					formResult.getUniqueId(),
+					formResult.getFormCellResults(),
+					"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
 		}
 
 
@@ -1208,14 +1202,14 @@ public class React16 implements ViewAdapter {
 				l.add(m);
 			}
 		StringBuilder buf = new StringBuilder();
-		buf.append("mf=[");
+		buf.append("mf=_('span',null");
 
 		int defaultWidth = -1;
 		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleListTop(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), "", defaultWidth));
+					formResult.getUniqueId(), map.get(0), ",", defaultWidth));
 		}
 		StringBuilder contentBuf = new StringBuilder();
 		int firstTab = 0;
@@ -1268,7 +1262,7 @@ public class React16 implements ViewAdapter {
 		if(firstTab>0){
 			buf.append(")").append(contentBuf).append(")))");
 		}
-		buf.append("];");
+		buf.append(");");
 
 		return buf;
 	}
@@ -1312,6 +1306,7 @@ public class React16 implements ViewAdapter {
 	private StringBuilder renderTemplateObject(W5TemplateResult templateResult) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
+		if(!(templateResult.getTemplateObjectList().get(0) instanceof W5GridResult))return buf;
 		W5GridResult gr = (W5GridResult)templateResult.getTemplateObjectList().get(0);
 		buf.append("return iwb.ui.buildPanel({t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
 		if(gr.getGrid().get_crudTable()!=null){
@@ -1551,14 +1546,14 @@ public class React16 implements ViewAdapter {
 				l.add(m);
 			}
 		StringBuilder buf = new StringBuilder();
-		buf.append("mf=[");
+		buf.append("mf=_('span',null");
 
 		int defaultWidth = -1;
 		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleListTop(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), "", defaultWidth));
+					formResult.getUniqueId(), map.get(0), ",", defaultWidth));
 		}
 		if (formResult.getForm().get_moduleList() != null)
 			for (W5FormModule m : formResult.getForm().get_moduleList())
@@ -1598,7 +1593,7 @@ public class React16 implements ViewAdapter {
 						}
 					}
 				}
-		buf.append("];");
+		buf.append(");");
 
 		return buf;
 	}
@@ -2973,10 +2968,7 @@ columns:[
 		String xlocale = (String) gridResult.getScd().get("locale");
 		int customizationId = (Integer) gridResult.getScd().get(
 				"customizationId");
-		List<W5GridColumn> oldColumns = gridResult
-				.getUserCustomGridColumnList() != null
-				&& gridResult.getUserCustomGridColumnList().size() > 0 ? gridResult
-				.getUserCustomGridColumnList() : grid.get_gridColumnList();
+		List<W5GridColumn> oldColumns = grid.get_gridColumnList();
 		W5Table viewTable = grid.get_viewTable();
 		W5Table crudTable = grid.get_crudTable();
 		if (crudTable == null)
@@ -4341,9 +4333,9 @@ columns:[
 		if(!GenericUtil.isEmpty(code))
 			buf.append("\n").append(code.startsWith("!") ? code.substring(1) : code);
 
-		if(GenericUtil.isEmpty(code) || code.startsWith("!")){
-			buf.append("\n").append(renderTemplateObject(templateResult));
-		}
+		short ttip= templateResult.getTemplate().getTemplateTip();
+		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
+		
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
 				buf.toString(), templateResult.getScd(),
 				templateResult.getRequestParams(), null) : buf;
@@ -4515,7 +4507,7 @@ columns:[
 		// detaya crud, ...)
 		// 2. security
 		// 3. detay'da
-		List<W5Feed> lall = FrameworkCache.wFeeds.get(customizationId);
+		List<Log5Feed> lall = FrameworkCache.wFeeds.get(customizationId);
 		if (lall == null)
 			return buf
 					.append("{\"success\":true,\"data\":[],\"browseInfo\":{\"startRow\":0,\"fetchCount\":0,\"totalCount\":0}}");
@@ -4528,14 +4520,14 @@ columns:[
 		buf.append("{\"success\":true,\"latest_feed_index\":").append(qj);
 		if (lall == null || qj - 1 <= platestFeedIndex)
 			return buf.append("}");
-		Map<Integer, W5Feed> relatedFeedMap = new HashMap<Integer, W5Feed>();
+		Map<Integer, Log5Feed> relatedFeedMap = new HashMap<Integer, Log5Feed>();
 		if (platestFeedIndex < 0)
 			platestFeedIndex = -1;
 		if (qj - platestFeedIndex > maxDerinlik)
 			platestFeedIndex = qj - maxDerinlik;
 		buf.append(",\"data\":[");
 		for (int qi = qj - 1; qi > platestFeedIndex && feedCount < maxFeedCount; qi--) {
-			W5Feed feed = lall.get(qi);
+			Log5Feed feed = lall.get(qi);
 			if (feed == null)
 				continue;
 			if (userTip != feed.getInsertUserTip())
@@ -5050,29 +5042,27 @@ columns:[
 				s.append("}\n");
 			}
 	
-			if (b) {
-				if(formResult.getForm().getObjectTip()==1){ //search ise
-					s.append(renderSearchFormModuleList(customizationId, xlocale,
-							formResult.getUniqueId(),
-							formResult.getFormCellResults(),
-							"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
-				} else switch (formResult.getForm().getRenderTip()) {
-				case 1:// fieldset
-					s.append(renderFormFieldset(formResult));
-					break;
-				case 2:// tabpanel
-					s.append(renderFormTabpanel(formResult));
-					break;
-				case 3:// tabpanel+border
-					s.append(renderFormTabpanel(formResult));
-	//				s.append(renderFormTabpanelBorder(formResult));
-					break;
-				case 0:// temiz
-					s.append(renderFormModuleListTop(customizationId, xlocale,
-							formResult.getUniqueId(),
-							formResult.getFormCellResults(),
-							"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
-				}
+			if(formResult.getForm().getObjectTip()==1){ //search ise
+				s.append(renderSearchFormModuleList(customizationId, xlocale,
+						formResult.getUniqueId(),
+						formResult.getFormCellResults(),
+						"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
+			} else switch (formResult.getForm().getRenderTip()) {
+			case 1:// fieldset
+				s.append(renderFormFieldset(formResult));
+				break;
+			case 2:// tabpanel
+				s.append(renderFormTabpanel(formResult));
+				break;
+			case 3:// tabpanel+border
+				s.append(renderFormTabpanel(formResult));
+//				s.append(renderFormTabpanelBorder(formResult));
+				break;
+			case 0:// temiz
+				s.append(renderFormModuleListTop(customizationId, xlocale,
+						formResult.getUniqueId(),
+						formResult.getFormCellResults(),
+						"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
 			}
 	
 	

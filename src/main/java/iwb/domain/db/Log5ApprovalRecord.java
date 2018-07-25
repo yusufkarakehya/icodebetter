@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="log5_approval_record",schema="iwb")
-public class Log5ApprovalRecord implements java.io.Serializable {
+public class Log5ApprovalRecord implements java.io.Serializable, Log5Base {
 
 	private int logId;
 	private int userId;
@@ -23,7 +23,11 @@ public class Log5ApprovalRecord implements java.io.Serializable {
 
 	private String dsc;
 
-	
+	public String toInfluxDB() {
+		StringBuilder s=new StringBuilder();
+		return s.toString();
+	}
+
 	@Column(name="approval_id")
 	public int getApprovalId() {
 		return approvalId;

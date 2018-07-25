@@ -19,13 +19,14 @@ public class W5FormSmsMail implements java.io.Serializable, W5Base {
 	private int formId;
 	
 	private int customizationId;
+	private int mailSettingId;
 
 	private String dsc;
 
 	private short tabOrder;
 
 	private short smsMailTip; // 0: sms, 1:mail 
-	private short smsMailSentTip; // 0: disabled, 1: auto, 2: preview_before, 3: manuel 
+	private short smsMailSentTip; // 0: disabled, 1: auto, 2: preview_before, 3: manual 
 	private short previewFlag;
 	
 	private String smsMailTo;
@@ -40,6 +41,7 @@ public class W5FormSmsMail implements java.io.Serializable, W5Base {
 	private Integer alarmDttmFieldId;
 	private short alarmTmTip;
 	private String alarmTm;
+	private short asyncFlag;
 
 	private String conditionSqlCode;
 	
@@ -207,6 +209,20 @@ public class W5FormSmsMail implements java.io.Serializable, W5Base {
 	}
 	public void setAlarmTm(String alarmTm) {
 		this.alarmTm = alarmTm;
+	}
+	@Column(name="mail_setting_id")
+	public int getMailSettingId() {
+		return mailSettingId;
+	}
+	public void setMailSettingId(int mailSettingId) {
+		this.mailSettingId = mailSettingId;
+	}
+	@Column(name="async_flag")
+	public short getAsyncFlag() {
+		return asyncFlag;
+	}
+	public void setAsyncFlag(short asyncFlag) {
+		this.asyncFlag = asyncFlag;
 	}
 
 

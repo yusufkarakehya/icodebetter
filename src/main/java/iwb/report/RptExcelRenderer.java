@@ -24,8 +24,8 @@ import org.apache.poi.hssf.util.Region;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.web.servlet.view.document.AbstractExcelView;
 
+import iwb.cache.FrameworkSetting;
 import iwb.domain.helper.W5ReportCellHelper;
-import iwb.util.FrameworkSetting;
 import iwb.util.GenericUtil;
 
 /**

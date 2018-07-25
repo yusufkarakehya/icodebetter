@@ -1,6 +1,6 @@
 package iwb.domain.helper;
 
-import iwb.util.FrameworkSetting;
+import iwb.cache.FrameworkSetting;
 import iwb.util.GenericUtil;
 
 public class W5SynchAfterPostHelper {

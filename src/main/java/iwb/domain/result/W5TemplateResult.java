@@ -3,9 +3,9 @@ package iwb.domain.result;
 import java.util.List;
 import java.util.Map;
 
+import iwb.cache.FrameworkCache;
 import iwb.domain.db.W5Template;
 import iwb.domain.helper.W5TableRecordHelper;
-import iwb.util.FrameworkCache;
 
 
 

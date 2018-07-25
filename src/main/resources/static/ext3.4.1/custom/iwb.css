@@ -239,6 +239,10 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
     background-image: url(images/database-16.png) !important;
 }
 
+.icon-dbhistory {
+    background-image: url(images/dbhistory-16.png) !important;
+}
+
 .icon-error {
     background-image: url(images/error-16.png) !important;
 }
@@ -1016,6 +1020,11 @@ background-image:url(images/vcsw-16.png);
 	background-repeat: no-repeat;
 }
 
+.icon-jsfiddle{
+	background-image: url(images/jsfiddle-48.png) !important;
+	background-repeat: no-repeat;
+    background-size: 24px;
+}
 
 
 .x-btn {
@@ -1043,14 +1052,14 @@ background-image:url(images/vcsw-16.png);
 }
 
 .fc-select-up {
-	background: url(../images/custom/arrow_right1.png);
+	background: url(images/arrow-right-16.png);
 	background-repeat: no-repeat;
-	background-position: 95px -5px;
+	background-position: 95px 17px;
 	background-size: 11px;
 }
 
 .fc-select-down {
-	background: url(../images/custom/arrow_right1.png);
+	background: url(images/arrow-right-16.png);
 	background-repeat: no-repeat;
 	background-position: 95px 17px;
 	background-size: 11px;

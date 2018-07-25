@@ -24,7 +24,7 @@ public class W5SmsValidCode implements java.io.Serializable {
 	private String smsCode;
 	private short validated;
 
-	@SequenceGenerator(name="sex_sms_valid_code",sequenceName="seq_sms_valid_code",allocationSize=1)
+	@SequenceGenerator(name="sex_sms_valid_code",sequenceName="iwb.seq_sms_valid_code",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_sms_valid_code")
 	

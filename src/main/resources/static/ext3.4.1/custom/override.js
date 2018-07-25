@@ -1436,11 +1436,32 @@ try{
 
 
 try{
-	Ext.override(Ext.form.Field, {
-	    reset : function(){
-	        this.setValue(this.originalValue);
-	        this.clearInvalid();
-	    },
-	});
-	}catch(eq){console.log(eq);}
+Ext.override(Ext.form.Field, {
+    reset : function(){
+        this.setValue(this.originalValue);
+        this.clearInvalid();
+    },
+});
+}catch(eq){}
 
+Ext.dd.DragDropMgr.getZIndex = function(element) {
+    var body = document.body, z, zIndex = -1;
+    var overTargetEl = element;
+
+    element = Ext.getDom(element);
+    while (element !== body) {
+
+        // this fixes the problem
+        if(!element) {
+            this._remove(overTargetEl); // remove the drop target from the manager
+            break;
+        }
+        // fix end
+
+        if (!isNaN(z = Number(Ext.fly(element).getStyle('zIndex')))) {
+            zIndex = z;
+        }
+        element = element.parentNode;
+    }
+    return zIndex;
+};

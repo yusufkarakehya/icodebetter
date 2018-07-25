@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import iwb.adapter.soap.SoapAdapter;
+import iwb.cache.FrameworkCache;
 import iwb.domain.db.W5DbFuncParam;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5QueryField;
@@ -21,7 +22,6 @@ import iwb.domain.result.W5DbFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
-import iwb.util.FrameworkCache;
 import iwb.util.GenericUtil;
 // xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://bar.foo" xmlns:intf="http://bar.foo" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 public class AxisSoap1_4 implements SoapAdapter{
