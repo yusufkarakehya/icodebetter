@@ -5,7 +5,7 @@ import java.util.Map;
 public class Log5VisitedPage implements Log5Base {
 	private	Map<String, Object> scd;
 	private	String pageName;
-	private	int pageId;
+	private	Object pageId;
 	private	String ip;
 	private int duration;
 	
@@ -16,7 +16,7 @@ public class Log5VisitedPage implements Log5Base {
 	}
 
 	
-	public Log5VisitedPage(Map<String, Object> scd, String pageName, int pageId, String ip, int duration) {
+	public Log5VisitedPage(Map<String, Object> scd, String pageName, Object pageId, String ip, int duration) {
 		this.scd = scd;
 		this.pageName = pageName;
 		this.pageId = pageId;
@@ -26,7 +26,7 @@ public class Log5VisitedPage implements Log5Base {
 	public Map<String, Object> getScd() {
 		return scd;
 	}
-	public int getPageId() {
+	public Object getPageId() {
 		return pageId;
 	}
 	public String getIp() {

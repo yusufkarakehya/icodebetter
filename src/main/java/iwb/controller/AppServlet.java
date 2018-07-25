@@ -315,10 +315,12 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		
-		String s = mockData.get(request.getParameter("_id"));
+		String id=request.getParameter("_id");
+		if(GenericUtil.isEmpty(id))id="_";
+		String s = mockData.get(id);
 		response.getWriter().write(s!=null ? s : "{success:false,error:\"Wrong MockID\"}");
 		response.getWriter().close();
-		
+		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryMockData", id, request.getRemoteAddr(), 0));
 	}
 	@RequestMapping("/ajaxQueryData")
 	public void hndAjaxQueryData(HttpServletRequest request, HttpServletResponse response)
