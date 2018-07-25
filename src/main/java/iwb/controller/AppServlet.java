@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -293,15 +294,32 @@ public class AppServlet implements InitializingBean {
 		response.getWriter().close();
 		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4StatTree", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
-	@RequestMapping("/ajaxMockQueryData")
+	public static Map<String, String> mockData = new HashMap();
+	@RequestMapping("/ajaxMockData")
 	public void hndAjaxMockQueryData(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
 		response.setContentType("application/json");
-		
-		response.getWriter().write("{success:true, id:\"asdasd\"}");
+		int queryId = GenericUtil.uInt(request, "_qid");
+		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		W5QueryResult queryResult = engine.executeQuery(scd, queryId, GenericUtil.getParameterMap(request));
+
+		response.setContentType("application/json");
+		String id = UUID.randomUUID().toString();
+		mockData.put(id, getViewAdapter(scd, request).serializeQueryData(queryResult).toString());
+		response.getWriter().write("{success:true, id:\""+id+"\"}");
 		response.getWriter().close();
 		
 	}
 	
+	@RequestMapping("/ajaxQueryMockData")
+	public void hndAjaxMockQueryData2(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		response.setContentType("application/json");
+		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		
+		String s = mockData.get(request.getParameter("_id"));
+		response.getWriter().write(s!=null ? s : "{success:false,error:\"Wrong MockID\"}");
+		response.getWriter().close();
+		
+	}
 	@RequestMapping("/ajaxQueryData")
 	public void hndAjaxQueryData(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
