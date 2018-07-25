@@ -2105,7 +2105,7 @@ public class W5QueryResult implements W5MetaResult{
    			
    		}
    		*/
-		s.append(" order by ").append(query.get_queryFields().get(0).getDsc()).append(" desc");
+		s.append(" order by ").append(GenericUtil.isEmpty(getOrderBy()) ? query.get_queryFields().get(0).getDsc()+" desc":getOrderBy());
    		setExecutedSql(s.toString());
    		setStartRowNumber(0);
 
