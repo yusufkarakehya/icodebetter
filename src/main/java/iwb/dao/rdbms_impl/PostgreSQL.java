@@ -865,17 +865,10 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					if(FrameworkSetting.hibernateCloseAfterWork)if(conn!=null)conn.close();
 				}
 			});
-    	} catch(IWBException pe){
-    		error = pe.getMessage();
-    		throw pe;
+//    	} catch(IWBException pe){error = pe.getMessage();throw pe;
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-			if(e.getCause()!=null && e.getCause() instanceof SQLException){
-	    		error = ((SQLException)(e.getCause())).getLocalizedMessage();
-				throw new IWBException("sql","Query Execute",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), ((SQLException)(e.getCause())).getLocalizedMessage(), e.getCause());
-			}
     		error = e.getMessage();
-			throw new IWBException("sql","Query Execute",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), e.getMessage(), e.getCause());
+			throw new IWBException("sql","Query Execution",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), "[8,"+queryResult.getQueryId()+"] "+queryResult.getQuery().getDsc(), e.getCause());
 		} finally {
 			logQueryAction(queryAction, queryResult, error);
 		}
@@ -895,9 +888,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		W5QueryResult queryResult = getQueryResult(scd, queryId);
 		if(queryId!=1 && queryId!=824 && queryResult.getMainTable()!=null && (!FrameworkSetting.debug || (scd.get("roleId")!=null && GenericUtil.uInt(scd.get("roleId"))!=0))){
 			W5Table t = queryResult.getMainTable();
-			if(t.getAccessViewTip()==0 && !FrameworkCache.roleAccessControl(scd,  0)){
-				throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
-			}
 			if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
 				throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 			}
@@ -1015,9 +1005,9 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			//s = conn.prepareStatement("select x.* from ("+sql+") x where rownum=1");
         	
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
+//			if(FrameworkSetting.debug)e.printStackTrace();
 //			logException(PromisUtil.replaceSql(sql, params)+"\n"+ e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Manuel Query Execute2Map",0, GenericUtil.replaceSql(sql, params), e.getMessage(), e.getCause());	
+			throw new IWBException("sql","Custom Query2Map",0, GenericUtil.replaceSql(sql, params), e.getMessage(), e);	
 		} 
 		
 	}
@@ -1213,79 +1203,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	}
 	
 	@Override
-	public Map<String, Object> loadRecordMapValue(Map<String, Object> scd, Map<String,String> requestParams, W5Table t, String prefix){
-		StringBuilder	sql = new StringBuilder();
-    	sql.append("select ");
-
-    	List<W5TableField> realFields = new ArrayList();
-		for(W5TableField tf:t.get_tableFieldList())if(tf.getTabOrder()>0){
-			if(!GenericUtil.accessControl(scd, tf.getAccessViewTip(), tf.getAccessViewRoles(), tf.getAccessViewUsers())/* ||
-					!PromisUtil.accessControl(formResult.getScd(), tf.getAccessUpdateTip(), tf.getAccessUpdateRoles(), tf.getAccessUpdateUsers())*/)continue;
-    		sql.append("t.").append(tf.getDsc()).append(",");
-    		realFields.add(tf);
-    	}
-    	sql.replace(sql.length()-1, sql.length(), " from ");
-
-    	sql.append(t.getDsc()).append(" t");
-    	boolean	b = false;
-    	sql.append(" where ");
-    	final	List<Object>	realParams = new ArrayList<Object>();
-    	Object pkField = null;
-    	Map errorMap = new HashMap();
-    	for(W5TableParam x: t.get_tableParamList()){
-    		if(b){
-    			sql.append(" AND ");
-    		}else 
-    			b=true;
-    		sql.append("t.").append(x.getExpressionDsc()).append(" = ? ");
-    		Object psonuc = GenericUtil.prepareParam((W5Param)x, scd, requestParams, (short)-1, null, (short)1, null, null, errorMap);
-    		if(pkField==null)pkField=psonuc;
-    		realParams.add(psonuc);
-    	}
-    	if(!errorMap.isEmpty())return null;
-    
-    	try {
-    		return getCurrentSession().doReturningWork(new ReturningWork<Map<String, Object>>() {
-				@Override
-				public Map<String, Object> execute(Connection conn) throws SQLException {
-					PreparedStatement s = conn.prepareStatement(sql.toString());
-			    	applyParameters(s, realParams);
-			    	ResultSet rs = s.executeQuery();
-			    	if(!rs.next()) return null;
-			    	Map<String, Object> result = new HashMap<String, Object>();
-			    	
-					for(W5TableField tf:realFields)if(tf.getTabOrder()>0){
-						Object obj = rs.getObject(tf.getDsc());
-						if(obj!=null){
-							if (obj instanceof java.sql.Timestamp) {
-		        				try{ obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
-		        				}catch (Exception e) {}
-							} else if (obj instanceof java.sql.Date) {
-		        				try{
-		        					obj = rs.getTimestamp(tf.getDsc());
-		    						obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
-		        				}catch (Exception e) {
-		    						obj = GenericUtil.uFormatDate((java.util.Date) obj);        					
-		        				}
-							}
-		        			if(obj!=null)result.put(tf.getDsc(), obj.toString());
-						}
-			    	}
-					if(rs!=null)rs.close();
-					if(s!=null)s.close();
-					return result;
-				}
-    		});
-	    	
-    	} catch (Exception e) {
-    		if(FrameworkSetting.debug)e.printStackTrace();
-    		return null;
-		}
-
-
-	}
-
-	@Override
 	public void loadFormTable(W5FormResult formResult){
 		W5Form f = formResult.getForm();
 		W5Table t = FrameworkCache.getTable(formResult.getScd(), f.getObjectId());
@@ -1443,7 +1360,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						}
 					}
 					if(rs.next())//fazladan kayit geldi
-						throw new IWBException("sql","Form Load",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), "Fazladan Kayit var", null);
+						throw new IWBException("sql","Table",t.getTableId(),GenericUtil.replaceSql(sql.toString(),realParams), "[15,"+t.getTableId()+"] Loaded more then 1 record", null);
 					if(rs!=null)rs.close();
 					if(s!=null)s.close();
 					
@@ -1507,13 +1424,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     			
     		});
 	    	
-    	} catch (IWBException pe) {
-    		throw pe;
-			// TODO: handle exception
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-//			logException(PromisUtil.replaceSql(sql.toString(), realParams)+"\n"+ e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Form Load",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), e.getMessage(), e.getCause());
+			throw new IWBException("framework","Form",formResult.getFormId(),null, "[40,"+formResult.getFormId()+"] Form Load Exception", e.getCause());
 		} finally {
 //    		session.close();
     	}

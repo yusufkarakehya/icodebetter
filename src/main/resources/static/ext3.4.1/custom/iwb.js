@@ -352,7 +352,7 @@ function fmtPrice(value){
 
 function getGridSel (a){
   if(!a || !a._grid || !a._grid.sm.getSelected()){
-    Ext.Msg.show({title: getLocMsg('js_commons_info'), msg: getLocMsg('js_commons_error_secim'), icon: Ext.MessageBox.INFO});
+    Ext.infoMsg.msg('error', getLocMsg('js_select_something'));
     return null;
   }
   else {
@@ -362,7 +362,7 @@ function getGridSel (a){
 
 function getMasterGridSel (a){
   if(!a || !a._grid || !a._grid._masterGrid || !a._grid._masterGrid.sm.getSelected()){
-    Ext.Msg.show({title: getLocMsg('js_commons_info'), msg: getLocMsg('js_commons_error_secim'), icon: Ext.MessageBox.INFO});
+	    Ext.infoMsg.msg('error', getLocMsg('js_select_something'));
     return null;
   }
   else {
@@ -2166,14 +2166,11 @@ function ajaxErrorHandler(obj){
         	msg+=obj.error;
         }
         msg+='</ul>';
-        Ext.Msg.show({title:getLocMsg('error'),msg: msg,icon: Ext.MessageBox.ERROR})
+        Ext.infoMsg.msg('error',msg)
     }else if (obj.errorType && obj.errorType=='session')
         showLoginDialog(obj);
     else if (obj.errorType && obj.errorType=='security')
-	    Ext.Msg.show({
-	    	title: getLocMsg('js_guvenlik_hatasi'), 
-	    	msg: getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>', 
-	    	icon: Ext.MessageBox.ERROR});
+    	Ext.infoMsg.msg('error',getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>');
     else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework')){
     	var items=[];
     	items.push({xtype:'displayfield',fieldLabel: 'Error',anchor:'99%',labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
@@ -2247,7 +2244,7 @@ function ajaxErrorHandler(obj){
         });
         wndx.show();    
     }else
-        Ext.Msg.show({title:obj.errorType || getLocMsg('js_error'),msg: obj.error || 'Unknown',icon: Ext.MessageBox.ERROR})
+        Ext.Msg.show({cls:'xerror',title:obj.errorType || getLocMsg('js_error'),msg: obj.error || 'Unknown',icon: Ext.MessageBox.ERROR})
     
 }
 
