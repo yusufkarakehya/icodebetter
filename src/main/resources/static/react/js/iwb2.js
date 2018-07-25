@@ -2033,6 +2033,8 @@ class XEditGrid extends GridCommon {
  * @param {String} props._url - ["ajaxQueryData?_renderer=react16&.t=tpi_1531758063549&.w=wpi_1531758063547&_qid=4220&_gid=3376&firstLimit=10"]
  * @param {function} props._timelineBadgeBtn - will work when the timelineBadge is clicked
  * @param {function} props.forceRelaod - to find out weathet it is delated or not used to compare props with prevProps
+ * @param {function} props._hideTimelineBadgeBtn - to hide _hideTimelineBadgeBtn
+ * 
  */
 class XMainGrid extends GridCommon {
 	constructor(props) {
@@ -2233,11 +2235,10 @@ class XMainGrid extends GridCommon {
 							detailXGrid.detailFlag=true; 
 							rowSDetailGrids.push(_("li",{key:DGindex, className: "timeline-inverted" },
 									//_(XGridAction,{color:dgColors[DGindex%dgColors.length]}),
-									false && _("div", { 
+									!selfie.props._hideTimelineBadgeBtn && _("div", { 
 										className: "timeline-badge hover-shake "+dgColors[DGindex%dgColors.length],
 										dgindex: DGindex,
 										onClick:(event)=>{
-											console.log(selfie);
 											var DGindexDOM = +event.target.getAttribute('dgindex');
 											if(iwb.debug)console.log('dasss',DGindexDOM,tempDetailGrids[DGindexDOM].grid);
 											if(!!selfie._timelineBadgeBtn){
@@ -2248,7 +2249,7 @@ class XMainGrid extends GridCommon {
 										},
 											_("i", {className: "icon-grid", style:{fontSize:17} })
 									),
-									_("div", {className: "timeline-panel"},
+									_("div", {className: "timeline-panel",...(!!selfie.props._hideTimelineBadgeBtn)?{style:{left: "30px"}}:{}},
 										_("div",{className: "timeline-heading" },
 											_("h5",{ /**style:{paddingBottom: '10px'},*/className: "timeline-title" },detailXGrid.name),
 											// _('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},
