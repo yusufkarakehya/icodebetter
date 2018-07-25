@@ -3980,7 +3980,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				r.setSuccess(true);
 			} catch(Exception e){
 				error = e.getMessage();
-				throw new IWBException("rhino", "GlobalFunc", r.getDbFuncId(), script, "[20,"+r.getDbFuncId()+"]", e);
+				throw new IWBException("rhino", "GlobalFunc", r.getDbFuncId(), script, "[20,"+r.getDbFuncId()+"] " + r.getDbFunc().getDsc(), e);
 			} finally {
 	             // Exit from the context.
  	             cx.exit();

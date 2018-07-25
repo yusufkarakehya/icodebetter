@@ -2098,7 +2098,7 @@ public class FrameworkEngine{
 		List<W5TableTrigger> la = mla.get(t.getTableId());
 		if(la==null)return;
 		Map<String, String> newRequestParam = GenericUtil.isEmpty(prefix) ? requestParams:null;
-		for(W5TableTrigger ta:la)if(GenericUtil.hasPartInside2(ta.getLkpTriggerActions(),action))try{
+		for(W5TableTrigger ta:la)if(GenericUtil.hasPartInside2(ta.getLkpTriggerActions(),action)){
 			if(ta.getLkpCodeType()==1){//javascript
 				if(newRequestParam==null) {
 					newRequestParam = new HashMap();
@@ -2107,6 +2107,7 @@ public class FrameworkEngine{
 					}
 				}
 				Context cx = Context.enter();
+				StringBuilder sc = new StringBuilder();
 				try {
 					cx.setOptimizationLevel(-1);
 					// Initialize the standard objects (Object, Function, etc.)
@@ -2119,7 +2120,6 @@ public class FrameworkEngine{
 						ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 					}
 					// Collect the arguments into a single string.
-					StringBuffer sc = new StringBuffer();
 					sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString(scd));
 					sc.append("\nvar _request=").append(GenericUtil.fromMapToJsonString(newRequestParam));
 					sc.append("\nvar triggerAction='").append(action).append("';");
@@ -2157,12 +2157,13 @@ public class FrameworkEngine{
 							throw new IWBException("security","TableTrigger", ta.getTableTriggerId(), null, msg, null);
 						}
 					}
-	
+				} catch(Exception e){
+					throw new IWBException("rhino", "TableEvent", ta.getTableTriggerId(), sc.toString(), "[1209,"+ta.getTableTriggerId()+"] " + ta.getDsc(), e);
 				} finally {
 		             // Exit from the context.
 	 	             cx.exit();
 		        }
-			} else if(ta.getLkpCodeType()==4){//sql
+			} else if(ta.getLkpCodeType()==4)try{//sql
 				Map<String, Object> obj= new HashMap();obj.put("triggerAction", action);
 				Map<String, Object> m = dao.runSQLQuery2Map(ta.getTriggerCode(), scd, requestParams, obj);
 				if(m!=null){
@@ -2184,9 +2185,9 @@ public class FrameworkEngine{
 						throw new IWBException("security","TableTrigger", ta.getTableTriggerId(), null, msg, null);
 					}
 				}
+			} catch(Exception e){
+				throw new IWBException("sql", "Event", ta.getTableTriggerId(), ta.getTriggerCode(), "[1209,"+ta.getTableTriggerId()+"] " + ta.getDsc(), e);
 			}
-		} catch(Exception e){
-			throw new IWBException("framework", "Event", ta.getTableTriggerId(), null, "[1209,"+ta.getTableTriggerId()+"] " + ta.getDsc(), e);
 		}
 	}
 
