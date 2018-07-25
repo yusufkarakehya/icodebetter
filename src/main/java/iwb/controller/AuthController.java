@@ -51,7 +51,7 @@ public class AuthController {
 
     private final String redirectOnFail = "../auth/login";
     private final String redirectOnSuccess = "/app/main.htm";
-    private String invite_email = null;
+    private String invitationEmail = null;
     private String invite_projectid = null;
 
 
@@ -125,8 +125,8 @@ public class AuthController {
             	List<Map> projectList = (List<Map>)m.get("projects");
             	List<Map> userTips = (List<Map>)m.get("userTips");
             	engine.saveCredentials(customizationId,userId,pictureUrl,fullName, socialCon, email, nickname, projectList, userTips);
-            	if(invite_email != null) {
-            		engine.addToProject(userId, invite_projectid, invite_email);
+            	if(!GenericUtil.isEmpty(invitationEmail)) {
+            		engine.addToProject(userId, invite_projectid, invitationEmail);
             	}           	
 
             } else {
@@ -138,8 +138,8 @@ public class AuthController {
             		engine.saveImage(pictureUrl, userId, cusId);
             	}
             	session.setAttribute("iwb-scd", scd);
-            	if(invite_email != null) {
-            		engine.addToProject(userId, invite_projectid, invite_email);
+            	if(!GenericUtil.isEmpty(invitationEmail)) {
+            		engine.addToProject(userId, invite_projectid, invitationEmail);
             	} 
             }
             res.sendRedirect(redirectOnSuccess);
@@ -183,7 +183,7 @@ public class AuthController {
 	@RequestMapping("/login")
     @ResponseBody
     protected void login(final HttpServletRequest req, HttpServletResponse res) throws IOException {
-		invite_email = req.getParameter("email");
+		invitationEmail = req.getParameter("email");
 		invite_projectid = req.getParameter("projectId");
         String redirectUri = req.getScheme() + "://" + req.getServerName() + (req.getServerPort()!=80 ? ":" + req.getServerPort(): "") + "/auth/callback";
         //"http://promiscrm:8585/auth/callback";

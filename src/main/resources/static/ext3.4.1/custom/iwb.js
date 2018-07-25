@@ -1379,7 +1379,7 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag){
 		if(typeof xgrid.crudFlags.ximport=='object' && typeof xgrid.crudFlags.ximport.length!='undefined'){
 			var xmenu=[];
 			for(var qi=0;qi<xgrid.crudFlags.ximport.length;qi++)if(!xgrid.crudFlags.ximport[qi].dsc)xmenu.push(xgrid.crudFlags.ximport[qi]); else {
-				xmenu.push({text:xgrid.crudFlags.ximport[qi].dsc,cls:xgrid.crudFlags.ximport[qi].cls || '', _activeOnSelection:false, _grid:xgrid, ximport:xgrid.crudFlags.ximport[qi],handler:fnTableImport});
+				//xmenu.push({text:xgrid.crudFlags.ximport[qi].dsc,cls:xgrid.crudFlags.ximport[qi].cls || '', _activeOnSelection:false, _grid:xgrid, ximport:xgrid.crudFlags.ximport[qi],handler:fnTableImport});
 			}
 			if(xgrid.extraButtons){
 				var bxx=xmenu.length>0;
@@ -1391,9 +1391,10 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag){
 				}
 				if(xgrid.extraButtons.length==0)xgrid.extraButtons=undefined;
 			}
-			xbuttons.push({tooltip:getLocMsg('js_diger_kayitlardan_aktar'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, menu:xmenu});
-		} else
-			xbuttons.push({tooltip:getLocMsg('js_diger_kayitlardan_aktar'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, handler:fnTableImport});
+			xbuttons.push({tooltip:getLocMsg('js_import_from_other_records'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, menu:xmenu});
+		} else {
+			//xbuttons.push({tooltip:getLocMsg('js_import_from_other_records'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, handler:fnTableImport});
+		}
 	}
 
 	if(xgrid.accessControlFlag)xbuttons.push({tooltip:getLocMsg('js_kayit_bazli_yetkilendirme'),cls:'x-btn-icon x-grid-record-privilege', disabled:true, _activeOnSelection:true ,_grid:xgrid, handler:fnRecordPrivileges});
