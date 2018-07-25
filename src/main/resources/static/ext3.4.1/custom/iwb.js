@@ -2154,6 +2154,21 @@ function prepareLogErrors(obj){
 	return str;
 }
 
+function showSQLError(sql, xpos){
+	var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'sql', 
+	    config:{matchBrackets: true, lint:true, foldGutter: true, 
+	    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:sql});
+
+	new Ext.Window({
+        modal: true, closable:true,
+        title: 'SQL Error',
+        width: 1000, height: 380, border: false, layout: 'border',
+        items: [new Ext.FormPanel({region:'center', items:[_code]})]
+	}).show();
+	var doc=_code.codeEditor.doc;
+//	doc.addLineClass(ml-1,'background','veliSel');
+	return false;
+}
 
 function ajaxErrorHandler(obj){
 		
@@ -2173,13 +2188,14 @@ function ajaxErrorHandler(obj){
     	Ext.infoMsg.msg('error',getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>');
     else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework')){
     	var items=[];
-    	items.push({xtype:'displayfield',fieldLabel: 'Error',anchor:'99%',labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
+    	items.push({xtype:'displayfield',fieldLabel: '',anchor:'99%',labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
     	if(obj.objectType){
     		items.push({xtype:'displayfield',fieldLabel: obj.objectId ? obj.objectType : 'Type',anchor:'99%', labelSeparator:'', value:obj.objectId || obj.objectType});
 //    		if(obj.objectId)items.push({xtype:'displayfield',fieldLabel: 'ID',width:100, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
     	}
     	if(obj.icodebetter){
-    		var ss='';
+    		var ss='', sqlPos=false;
+    		iwb.errors=[];
     		for(var qi=0;qi<obj.icodebetter.length;qi++){
     			if(qi>0)ss+='<br>'
     			for(var zi=0;zi<qi;zi++)ss+=' &nbsp;';
@@ -2190,13 +2206,21 @@ function ajaxErrorHandler(obj){
     					var tid=oo.error.substr(1).split(',')[0];
     					ss+=': <a href=# onclick="return fnTblRecEdit('+tid+','+oo.objectId+');">'+oo.error+'</a>';
     				} else ss+=': '+oo.objectId+ (oo.error ? ' / ' + oo.error:'');
-    				if(oo.error.endsWith('}#')&&oo.error.indexOf('#{')>-1 && oo.sql){
-    					var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
-    					lineNo=lineNo.substr(0,lineNo.length-2);
-    					ss+=' &nbsp;<span style="display:none;" id="idPre'+qi+'">'+oo.sql+'</span> <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:document.getElementById("idPre'+qi+'").innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS.Exception</a>';
+    				if(oo.error && oo.sql){
+    					iwb.errors[qi]=oo.sql;
+    					if(oo.error.endsWith('}#') && oo.error.indexOf('#{')>-1){
+        					var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
+        					lineNo=lineNo.substr(0,lineNo.length-2);
+    						ss+=' &nbsp; <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:iwb.errors['+qi+']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS.Exception</a>';
+    					} 
     				}
+
     			} else
     				ss+=': ' + oo.error;
+				if(oo.error && oo.error.indexOf('Position: ')>-1){
+					sqlPos=oo.error.substr(oo.error.indexOf('Position: ')+'Position: '.length);    						
+					ss+=' &nbsp; <a href=# onclick=\'showSQLError(iwb.errors['+(qi-1)+'],'+sqlPos+')\' style="padding:1px 5px;background:white;color:green;border-radius:20px;">SQL.Exception</a>';
+				}
     		}
     		items.push({xtype:'displayfield',fieldLabel: 'Stack',anchor:'99%',labelSeparator:'', value:ss});
     		
@@ -2207,27 +2231,6 @@ function ajaxErrorHandler(obj){
 			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
 			wndx.close();
 		}});
-		if(obj.errorType=='rhino' && obj.error && obj.error.indexOf('script#')>-1 && obj.sql){
-			var xl = obj.error.substr(obj.error.indexOf('script#')+7);
-			var ml = 0;
-			for(var qi=0;qi<xl.length;qi++)if(xl.substr(qi,1)<'0' || xl.substr(qi,1)>'9')break;
-			else ml=10*ml+1*xl.substr(qi,1);
-			xbuttons.push({text:'RhinoScript Error',handler:function(){
-				var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'javascript', 
-				    config:{matchBrackets: true, lint:true, foldGutter: true, 
-				    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:obj.sql});
-
-				new Ext.Window({
-			        modal: true, closable:true,
-			        title: 'RhinoScript Error: '+obj.error,
-			        width: 1000, height: 380, border: false, layout: 'border',
-			        items: [new Ext.FormPanel({region:'center', items:[_code]})]
-				}).show();
-				var doc=_code.codeEditor.doc;
-				doc.addLineClass(ml-1,'background','veliSel');
-
-			}});
-		}
 		if(obj.stack)xbuttons.push({text:'Java StackTrace',handler:function(){alert(obj.stack);}});
 		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
         var wndx=new Ext.Window({

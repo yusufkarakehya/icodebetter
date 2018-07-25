@@ -868,7 +868,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 //    	} catch(IWBException pe){error = pe.getMessage();throw pe;
 		} catch(Exception e){
     		error = e.getMessage();
-			throw new IWBException("sql","Query Execution",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), "[8,"+queryResult.getQueryId()+"] "+queryResult.getQuery().getDsc(), e.getCause());
+			throw new IWBException("sql","Query",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), "[8,"+queryResult.getQueryId()+"] "+queryResult.getQuery().getDsc(), e.getCause());
 		} finally {
 			logQueryAction(queryAction, queryResult, error);
 		}
