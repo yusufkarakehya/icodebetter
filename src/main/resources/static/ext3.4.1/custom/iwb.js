@@ -777,11 +777,11 @@ function fnRowBulkMail(a,b){
 
 function fnRowEdit(a,b){
     if(!a._grid.onlyCommitBtn && a._grid.editMode){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'), getLocMsg('js_yazma_modundan_cikmalisiniz'));
+    	Ext.infoMsg.msg('warning', getLocMsg('js_yazma_modundan_cikmalisiniz'));
     	return;
     }
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     
@@ -808,7 +808,7 @@ function fnRowEdit(a,b){
 
 function fnRowEdit4Log(a,b){
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
   	var sel = a._grid.sm.getSelected();
@@ -846,7 +846,7 @@ function fnRowEditDblClick(a,b){
 
 function fnRowInsert(a,b){
     if(!a._grid.onlyCommitBtn && a._grid.editMode){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_yazma_modundan_cikmalisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_yazma_modundan_cikmalisiniz'));
     	return;
     }
   	var sel = a._grid.sm.getSelected();
@@ -864,7 +864,7 @@ function fnRowInsert(a,b){
 };
 function fnRowCopy(a,b){
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     
@@ -890,7 +890,7 @@ function fnRowCopy(a,b){
 }
 function fnRowDelete(a,b){
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     if(a._grid.multiSelect){
@@ -1090,7 +1090,7 @@ function fnNewFileAttachment(a){
 	var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil mi onu sorguluyor. (major ver, minor ver, revision no)
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     var image_param="";
@@ -1111,7 +1111,7 @@ function fnNewFileAttachment(a){
 function fnNewFileAttachment4ExternalUrl(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
   	var table_pk='';
@@ -1142,7 +1142,7 @@ function fnNewFileAttachment4Form(tid,tpk,not_image_flag){
 function fnFileAttachmentList(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
   	var table_pk='';
@@ -1217,7 +1217,7 @@ function fnCommit(a){
 	    		});
 	        }
 	    });
-  	} else Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_degisiklik_yok'));
+  	} else Ext.infoMsg.msg('warning',getLocMsg('js_degisiklik_yok'));
 }
 
 
@@ -1295,7 +1295,7 @@ function fnGridPrivilege(a){
 function fnRecordComments(a){//TODO: daha duzgun bir chat interface'i yap
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
   	var table_pk='';
@@ -1308,7 +1308,7 @@ function fnRecordComments(a){//TODO: daha duzgun bir chat interface'i yap
 function fnRecordPrivileges(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
 	var sel=a._grid.sm.getSelected();
@@ -1340,7 +1340,7 @@ function buildHelpWindow(cfg){
 function fnShowLog4Update(a,b){
 	var sel=a._grid.sm.getSelected();
 	if(!sel){
-		Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+		Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return;
 	}
 	var paramz={_vlm:1};
@@ -2609,10 +2609,10 @@ function formSubmit(submitConfig){
         failure:function(form, action) {
             switch (action.failureType) {
             case Ext.form.Action.CLIENT_INVALID:
-                Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_form_alan_veri_dogrulama_hatasi'));
+                Ext.infoMsg.msg('error', getLocMsg('js_form_alan_veri_dogrulama_hatasi'));
                 break;
             case Ext.form.Action.CONNECT_FAILURE:
-                Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_no_connection_error'));
+                Ext.infoMsg.wow('error', getLocMsg('js_no_connection_error'));
                 break;
             case Ext.form.Action.SERVER_INVALID:
             	if(action.result.msg){
@@ -2642,7 +2642,7 @@ function formSubmit(submitConfig){
 function promisLoadException(a,b,c){
 	if(c && c.responseText){
 		ajaxErrorHandler(eval("("+c.responseText+")"));
-	} else Ext.Msg.show({title: getLocMsg('js_bilgi'), msg: getLocMsg('js_no_connection_error'), icon: Ext.MessageBox.INFO});
+	} else Ext.infoMsg.wow('error',getLocMsg('js_no_connection_error'));
 }
 
 function promisRequest(rcfg){
@@ -2920,7 +2920,7 @@ function approveTableRecord(aa,a){
 	var rec_id;
 	
 	if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
     if(aa==2 && 1*sel.data.return_flag==0){
@@ -4052,14 +4052,14 @@ function manuelDateValidation(date1, date2, blankControl, dateControl){
 		//tarih alanlarının boş olup olmadığı kontrol ediliyor
 		if (typeof date1!='undefined'){
 			if (date1.allowBlank == false && date1.getValue() == ''){
-				Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_blank_text') +' (' + date1.fieldLabel + ')');
+				Ext.infoMsg.msg('error', getLocMsg('js_blank_text') +' (' + date1.fieldLabel + ')');
 				return false;
 			}
 		}
 		
 		if (typeof date2!='undefined'){
 			if (date2.allowBlank == false && date2.getValue() == ''){
-				Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_blank_text') + ' (' + date2.fieldLabel + ')');
+				Ext.infoMsg.msg('error', getLocMsg('js_blank_text') + ' (' + date2.fieldLabel + ')');
 				return false;
 			}
 		}
@@ -4068,7 +4068,7 @@ function manuelDateValidation(date1, date2, blankControl, dateControl){
 	if (dateControl && typeof date1!='undefined' && typeof date2!='undefined'){
 		//birinci tarih ikinci tarihten küçük yada eşit olup olmadığı kontrol ediliyor
 		if (date1.getValue()>date2.getValue()){
-			Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_error_first_cannot_greater_than_second'));//'İlk Tarih İkinci Tarihten Büyük Olamaz'
+			Ext.infoMsg.msg('error', getLocMsg('js_error_first_cannot_greater_than_second'));//'İlk Tarih İkinci Tarihten Büyük Olamaz'
 			return false;		
 		}		
 	}
@@ -4921,13 +4921,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                getForm._cfg.dontClose = 0;
 	                getForm._cfg.extraParams = {};
 	                if ((typeof r == 'object') && (r != null)) getForm._cfg.extraParams = r;
-	                //bmp TODO
-	                if (getForm.bpmProcesses && getForm.bpmProcesses.length > 0) { //TODO
-	                    if (confirm('BPM için\n * ' + getForm.bpmProcesses[0].dsc + '\n\nkullanarak devam etmek ister misiniz?')) {
-	                        if (!getForm._cfg.extraParams) getForm._cfg.extraParams = {};
-	                        getForm._cfg.extraParams._sbpid = getForm.bpmProcesses[0].id;
-	                    }
-	                }
+	              
 
 	                form_extra_processes();
 
@@ -4965,7 +4959,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                    return null;
 	                }
 	                if(!getForm._cfg.callback)getForm._cfg.callback = function(js, conf) {
-	                    if (js.success) Ext.Msg.alert('${info}', '${operation_completed}');
+	                    if (js.success) Ext.infoMsg.msg('info', '${operation_completed}');
 	                }
 	                getForm._cfg.dontClose = 1;
 	                getForm._cfg.extraParams = {};
@@ -5000,7 +4994,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                    return null;
 	                }
 	                if(!getForm._cfg.callback)getForm._cfg.callback = function(js, conf) {
-	                    if (js.success) Ext.Msg.alert('${info}', '${operation_completed}');
+	                    if (js.success) Ext.infoMsg.msg('info', '${operation_completed}');
 	                }
 	                getForm._cfg.dontClose = 1;
 	                getForm._cfg.resetValues = 1;
