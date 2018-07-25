@@ -352,7 +352,7 @@ function fmtPrice(value){
 
 function getGridSel (a){
   if(!a || !a._grid || !a._grid.sm.getSelected()){
-    Ext.Msg.show({title: getLocMsg('js_commons_info'), msg: getLocMsg('js_commons_error_secim'), icon: Ext.MessageBox.INFO});
+    Ext.infoMsg.msg('error', getLocMsg('js_select_something'));
     return null;
   }
   else {
@@ -362,7 +362,7 @@ function getGridSel (a){
 
 function getMasterGridSel (a){
   if(!a || !a._grid || !a._grid._masterGrid || !a._grid._masterGrid.sm.getSelected()){
-    Ext.Msg.show({title: getLocMsg('js_commons_info'), msg: getLocMsg('js_commons_error_secim'), icon: Ext.MessageBox.INFO});
+	    Ext.infoMsg.msg('error', getLocMsg('js_select_something'));
     return null;
   }
   else {
@@ -777,11 +777,11 @@ function fnRowBulkMail(a,b){
 
 function fnRowEdit(a,b){
     if(!a._grid.onlyCommitBtn && a._grid.editMode){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'), getLocMsg('js_yazma_modundan_cikmalisiniz'));
+    	Ext.infoMsg.msg('warning', getLocMsg('js_yazma_modundan_cikmalisiniz'));
     	return;
     }
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     
@@ -808,7 +808,7 @@ function fnRowEdit(a,b){
 
 function fnRowEdit4Log(a,b){
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
   	var sel = a._grid.sm.getSelected();
@@ -846,7 +846,7 @@ function fnRowEditDblClick(a,b){
 
 function fnRowInsert(a,b){
     if(!a._grid.onlyCommitBtn && a._grid.editMode){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_yazma_modundan_cikmalisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_yazma_modundan_cikmalisiniz'));
     	return;
     }
   	var sel = a._grid.sm.getSelected();
@@ -864,7 +864,7 @@ function fnRowInsert(a,b){
 };
 function fnRowCopy(a,b){
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     
@@ -890,7 +890,7 @@ function fnRowCopy(a,b){
 }
 function fnRowDelete(a,b){
     if(!a._grid.sm.hasSelection()){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     if(a._grid.multiSelect){
@@ -1090,7 +1090,7 @@ function fnNewFileAttachment(a){
 	var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil mi onu sorguluyor. (major ver, minor ver, revision no)
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
     var image_param="";
@@ -1111,7 +1111,7 @@ function fnNewFileAttachment(a){
 function fnNewFileAttachment4ExternalUrl(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
   	var table_pk='';
@@ -1142,7 +1142,7 @@ function fnNewFileAttachment4Form(tid,tpk,not_image_flag){
 function fnFileAttachmentList(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
   	var table_pk='';
@@ -1217,7 +1217,7 @@ function fnCommit(a){
 	    		});
 	        }
 	    });
-  	} else Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_degisiklik_yok'));
+  	} else Ext.infoMsg.msg('warning',getLocMsg('js_degisiklik_yok'));
 }
 
 
@@ -1295,7 +1295,7 @@ function fnGridPrivilege(a){
 function fnRecordComments(a){//TODO: daha duzgun bir chat interface'i yap
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_once_birseyler_secmelisiniz'));
     	return
     }
   	var table_pk='';
@@ -1308,7 +1308,7 @@ function fnRecordComments(a){//TODO: daha duzgun bir chat interface'i yap
 function fnRecordPrivileges(a){
   	var sel = a._grid.sm.getSelected();
     if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
 	var sel=a._grid.sm.getSelected();
@@ -1340,7 +1340,7 @@ function buildHelpWindow(cfg){
 function fnShowLog4Update(a,b){
 	var sel=a._grid.sm.getSelected();
 	if(!sel){
-		Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+		Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return;
 	}
 	var paramz={_vlm:1};
@@ -2154,6 +2154,21 @@ function prepareLogErrors(obj){
 	return str;
 }
 
+function showSQLError(sql, xpos){
+	var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'sql', 
+	    config:{matchBrackets: true, lint:true, foldGutter: true, 
+	    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:sql});
+
+	new Ext.Window({
+        modal: true, closable:true,
+        title: 'SQL Error',
+        width: 1000, height: 380, border: false, layout: 'border',
+        items: [new Ext.FormPanel({region:'center', items:[_code]})]
+	}).show();
+	var doc=_code.codeEditor.doc;
+//	doc.addLineClass(ml-1,'background','veliSel');
+	return false;
+}
 
 function ajaxErrorHandler(obj){
 		
@@ -2166,23 +2181,21 @@ function ajaxErrorHandler(obj){
         	msg+=obj.error;
         }
         msg+='</ul>';
-        Ext.Msg.show({title:getLocMsg('error'),msg: msg,icon: Ext.MessageBox.ERROR})
+        Ext.infoMsg.msg('error',msg)
     }else if (obj.errorType && obj.errorType=='session')
         showLoginDialog(obj);
     else if (obj.errorType && obj.errorType=='security')
-	    Ext.Msg.show({
-	    	title: getLocMsg('js_guvenlik_hatasi'), 
-	    	msg: getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>', 
-	    	icon: Ext.MessageBox.ERROR});
+    	Ext.infoMsg.msg('error',getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>');
     else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework')){
     	var items=[];
-    	items.push({xtype:'displayfield',fieldLabel: 'Error',anchor:'99%',labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
+    	items.push({xtype:'displayfield',fieldLabel: '',anchor:'99%',labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
     	if(obj.objectType){
     		items.push({xtype:'displayfield',fieldLabel: obj.objectId ? obj.objectType : 'Type',anchor:'99%', labelSeparator:'', value:obj.objectId || obj.objectType});
 //    		if(obj.objectId)items.push({xtype:'displayfield',fieldLabel: 'ID',width:100, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
     	}
     	if(obj.icodebetter){
-    		var ss='';
+    		var ss='', sqlPos=false;
+    		iwb.errors=[];
     		for(var qi=0;qi<obj.icodebetter.length;qi++){
     			if(qi>0)ss+='<br>'
     			for(var zi=0;zi<qi;zi++)ss+=' &nbsp;';
@@ -2193,13 +2206,21 @@ function ajaxErrorHandler(obj){
     					var tid=oo.error.substr(1).split(',')[0];
     					ss+=': <a href=# onclick="return fnTblRecEdit('+tid+','+oo.objectId+');">'+oo.error+'</a>';
     				} else ss+=': '+oo.objectId+ (oo.error ? ' / ' + oo.error:'');
-    				if(oo.error.endsWith('}#')&&oo.error.indexOf('#{')>-1 && oo.sql){
-    					var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
-    					lineNo=lineNo.substr(0,lineNo.length-2);
-    					ss+=' &nbsp;<span style="display:none;" id="idPre'+qi+'">'+oo.sql+'</span> <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:document.getElementById("idPre'+qi+'").innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS.Exception</a>';
+    				if(oo.error && oo.sql){
+    					iwb.errors[qi]=oo.sql;
+    					if(oo.error.endsWith('}#') && oo.error.indexOf('#{')>-1){
+        					var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
+        					lineNo=lineNo.substr(0,lineNo.length-2);
+    						ss+=' &nbsp; <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:iwb.errors['+qi+']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS.Exception</a>';
+    					} 
     				}
+
     			} else
     				ss+=': ' + oo.error;
+				if(oo.error && oo.error.indexOf('Position: ')>-1){
+					sqlPos=oo.error.substr(oo.error.indexOf('Position: ')+'Position: '.length);    						
+					ss+=' &nbsp; <a href=# onclick=\'showSQLError(iwb.errors['+(qi-1)+'],'+sqlPos+')\' style="padding:1px 5px;background:white;color:green;border-radius:20px;">SQL.Exception</a>';
+				}
     		}
     		items.push({xtype:'displayfield',fieldLabel: 'Stack',anchor:'99%',labelSeparator:'', value:ss});
     		
@@ -2210,27 +2231,6 @@ function ajaxErrorHandler(obj){
 			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
 			wndx.close();
 		}});
-		if(obj.errorType=='rhino' && obj.error && obj.error.indexOf('script#')>-1 && obj.sql){
-			var xl = obj.error.substr(obj.error.indexOf('script#')+7);
-			var ml = 0;
-			for(var qi=0;qi<xl.length;qi++)if(xl.substr(qi,1)<'0' || xl.substr(qi,1)>'9')break;
-			else ml=10*ml+1*xl.substr(qi,1);
-			xbuttons.push({text:'RhinoScript Error',handler:function(){
-				var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'javascript', 
-				    config:{matchBrackets: true, lint:true, foldGutter: true, 
-				    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:obj.sql});
-
-				new Ext.Window({
-			        modal: true, closable:true,
-			        title: 'RhinoScript Error: '+obj.error,
-			        width: 1000, height: 380, border: false, layout: 'border',
-			        items: [new Ext.FormPanel({region:'center', items:[_code]})]
-				}).show();
-				var doc=_code.codeEditor.doc;
-				doc.addLineClass(ml-1,'background','veliSel');
-
-			}});
-		}
 		if(obj.stack)xbuttons.push({text:'Java StackTrace',handler:function(){alert(obj.stack);}});
 		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
         var wndx=new Ext.Window({
@@ -2247,7 +2247,7 @@ function ajaxErrorHandler(obj){
         });
         wndx.show();    
     }else
-        Ext.Msg.show({title:obj.errorType || getLocMsg('js_error'),msg: obj.error || 'Unknown',icon: Ext.MessageBox.ERROR})
+        Ext.Msg.show({cls:'xerror',title:obj.errorType || getLocMsg('js_error'),msg: obj.error || 'Unknown',icon: Ext.MessageBox.ERROR})
     
 }
 
@@ -2609,10 +2609,10 @@ function formSubmit(submitConfig){
         failure:function(form, action) {
             switch (action.failureType) {
             case Ext.form.Action.CLIENT_INVALID:
-                Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_form_alan_veri_dogrulama_hatasi'));
+                Ext.infoMsg.msg('error', getLocMsg('js_form_alan_veri_dogrulama_hatasi'));
                 break;
             case Ext.form.Action.CONNECT_FAILURE:
-                Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_no_connection_error'));
+                Ext.infoMsg.wow('error', getLocMsg('js_no_connection_error'));
                 break;
             case Ext.form.Action.SERVER_INVALID:
             	if(action.result.msg){
@@ -2642,7 +2642,7 @@ function formSubmit(submitConfig){
 function promisLoadException(a,b,c){
 	if(c && c.responseText){
 		ajaxErrorHandler(eval("("+c.responseText+")"));
-	} else Ext.Msg.show({title: getLocMsg('js_bilgi'), msg: getLocMsg('js_no_connection_error'), icon: Ext.MessageBox.INFO});
+	} else Ext.infoMsg.wow('error',getLocMsg('js_no_connection_error'));
 }
 
 function promisRequest(rcfg){
@@ -2920,7 +2920,7 @@ function approveTableRecord(aa,a){
 	var rec_id;
 	
 	if(!sel){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_once_birseyler_secmelisiniz'));
+    	Ext.infoMsg.msg('warning',getLocMsg('js_select_something'));
     	return
     }
     if(aa==2 && 1*sel.data.return_flag==0){
@@ -4052,14 +4052,14 @@ function manuelDateValidation(date1, date2, blankControl, dateControl){
 		//tarih alanlarının boş olup olmadığı kontrol ediliyor
 		if (typeof date1!='undefined'){
 			if (date1.allowBlank == false && date1.getValue() == ''){
-				Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_blank_text') +' (' + date1.fieldLabel + ')');
+				Ext.infoMsg.msg('error', getLocMsg('js_blank_text') +' (' + date1.fieldLabel + ')');
 				return false;
 			}
 		}
 		
 		if (typeof date2!='undefined'){
 			if (date2.allowBlank == false && date2.getValue() == ''){
-				Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_blank_text') + ' (' + date2.fieldLabel + ')');
+				Ext.infoMsg.msg('error', getLocMsg('js_blank_text') + ' (' + date2.fieldLabel + ')');
 				return false;
 			}
 		}
@@ -4068,7 +4068,7 @@ function manuelDateValidation(date1, date2, blankControl, dateControl){
 	if (dateControl && typeof date1!='undefined' && typeof date2!='undefined'){
 		//birinci tarih ikinci tarihten küçük yada eşit olup olmadığı kontrol ediliyor
 		if (date1.getValue()>date2.getValue()){
-			Ext.Msg.alert(getLocMsg('error'), getLocMsg('js_error_first_cannot_greater_than_second'));//'İlk Tarih İkinci Tarihten Büyük Olamaz'
+			Ext.infoMsg.msg('error', getLocMsg('js_error_first_cannot_greater_than_second'));//'İlk Tarih İkinci Tarihten Büyük Olamaz'
 			return false;		
 		}		
 	}
@@ -4921,13 +4921,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                getForm._cfg.dontClose = 0;
 	                getForm._cfg.extraParams = {};
 	                if ((typeof r == 'object') && (r != null)) getForm._cfg.extraParams = r;
-	                //bmp TODO
-	                if (getForm.bpmProcesses && getForm.bpmProcesses.length > 0) { //TODO
-	                    if (confirm('BPM için\n * ' + getForm.bpmProcesses[0].dsc + '\n\nkullanarak devam etmek ister misiniz?')) {
-	                        if (!getForm._cfg.extraParams) getForm._cfg.extraParams = {};
-	                        getForm._cfg.extraParams._sbpid = getForm.bpmProcesses[0].id;
-	                    }
-	                }
+	              
 
 	                form_extra_processes();
 
@@ -4965,7 +4959,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                    return null;
 	                }
 	                if(!getForm._cfg.callback)getForm._cfg.callback = function(js, conf) {
-	                    if (js.success) Ext.Msg.alert('${info}', '${operation_completed}');
+	                    if (js.success) Ext.infoMsg.msg('info', '${operation_completed}');
 	                }
 	                getForm._cfg.dontClose = 1;
 	                getForm._cfg.extraParams = {};
@@ -5000,7 +4994,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                    return null;
 	                }
 	                if(!getForm._cfg.callback)getForm._cfg.callback = function(js, conf) {
-	                    if (js.success) Ext.Msg.alert('${info}', '${operation_completed}');
+	                    if (js.success) Ext.infoMsg.msg('info', '${operation_completed}');
 	                }
 	                getForm._cfg.dontClose = 1;
 	                getForm._cfg.resetValues = 1;
