@@ -27,32 +27,22 @@ public class W5Approval implements java.io.Serializable {
 
 	private short activeFlag;
 	private int tableId;
-	private int approvalTableFieldId;
 	private short actionTip;
 	private short approvalStrategyTip;
 	private short approvalFlowTip;
 	private short onRejectTip;
 	private String advancedBeginSql;
 	private short approvalRequestTip;
-	private short eSignFlag;
-	private int eSignReportId;
 	private String manualAppRoleIds; 
 	private String manualAppUserIds; 
 	private String manualAppTableFieldIds;
-	private String dynamicStepUserIds;
-	private int dynamicStepMinUserCount;
-	private int dynamicStepMaxUserCount;
 	private String afterFinUpdateUserIds;	
 	private short manualDemandStartAppFlag;
 	private short sendMailOnManualStepFlag;
 	private short sendSmsOnManualStepFlag;
-	private int onApproveDbFuncId;
 	private String approvalRequestMsg;		
-	private String hierarchicalAppMsg;		
-	private String dynamicAppMsg;		
 	private String approvedMsg;		
 	private String rejectedMsg;	
-	private int hierarchicalLevelLimit;
 	private short sendMailFlag;
 	private short sendSmsFlag;
 			
@@ -155,21 +145,7 @@ public class W5Approval implements java.io.Serializable {
 	public void setApprovalRequestTip(short approvalRequestTip) {
 		this.approvalRequestTip = approvalRequestTip;
 	}
-	@Column(name="e_sign_flag")
-	public short geteSignFlag() {
-		return eSignFlag;
-	}
-	public void seteSignFlag(short eSignFlag) {
-		this.eSignFlag = eSignFlag;
-	}
-	
-	@Column(name="e_sign_report_id")
-	public int geteSignReportId() {
-		return eSignReportId;
-	}
-	public void seteSignReportId(int eSignReportId) {
-		this.eSignReportId = eSignReportId;
-	}
+
 
 	/*private String ; 
 	private String manual_app_user_ids; 
@@ -203,29 +179,6 @@ public class W5Approval implements java.io.Serializable {
 		this.manualAppTableFieldIds = manualAppTableFieldIds;
 	}
 	
-	@Column(name="dynamic_step_user_ids")
-	public String getDynamicStepUserIds() {
-		return dynamicStepUserIds;
-	}
-	public void setDynamicStepUserIds(String dynamicStepUserIds) {
-		this.dynamicStepUserIds = dynamicStepUserIds;
-	}
-	
-	@Column(name="dynamic_step_min_user_count")
-	public int getDynamicStepMinUserCount() {
-		return dynamicStepMinUserCount;
-	}
-	public void setDynamicStepMinUserCount(int dynamicStepMinUserCount) {
-		this.dynamicStepMinUserCount = dynamicStepMinUserCount;
-	}
-	
-	@Column(name="dynamic_step_max_user_count")
-	public int getDynamicStepMaxUserCount() {
-		return dynamicStepMaxUserCount;
-	}
-	public void setDynamicStepMaxUserCount(int dynamicStepMaxUserCount) {
-		this.dynamicStepMaxUserCount = dynamicStepMaxUserCount;
-	}
 	
 	@Column(name="after_fin_update_user_ids")
 	public String getAfterFinUpdateUserIds() {
@@ -261,13 +214,6 @@ public class W5Approval implements java.io.Serializable {
 	
 
 	
-	@Column(name="on_approve_db_func_id")
-	public int getOnApproveDbFuncId() {
-		return onApproveDbFuncId;
-	}
-	public void setOnApproveDbFuncId(int onApproveDbFuncId) {
-		this.onApproveDbFuncId = onApproveDbFuncId;
-	}	
 	
 	@Column(name="approval_request_msg")
 	public String getApprovalRequestMsg() {
@@ -277,21 +223,7 @@ public class W5Approval implements java.io.Serializable {
 		this.approvalRequestMsg = approvalRequestMsg;
 	}
 	
-	@Column(name="hierarchical_app_msg")
-	public String getHierarchicalAppMsg() {
-		return hierarchicalAppMsg;
-	}
-	public void setHierarchicalAppMsg(String hierarchicalAppMsg) {
-		this.hierarchicalAppMsg = hierarchicalAppMsg;
-	}
 	
-	@Column(name="dynamic_app_msg")
-	public String getDynamicAppMsg() {
-		return dynamicAppMsg;
-	}
-	public void setDynamicAppMsg(String dynamicAppMsg) {
-		this.dynamicAppMsg = dynamicAppMsg;
-	}
 	
 	@Column(name="approved_msg")
 	public String getApprovedMsg() {
@@ -308,15 +240,7 @@ public class W5Approval implements java.io.Serializable {
 	public void setRejectedMsg(String rejectedMsg) {
 		this.rejectedMsg = rejectedMsg;
 	}
-	
-	@Column(name="hierarchical_level_limit")
-	public int getHierarchicalLevelLimit() {
-		return hierarchicalLevelLimit;
-	}
-		
-	public void setHierarchicalLevelLimit(int hierarchicalLevelLimit) {
-		this.hierarchicalLevelLimit = hierarchicalLevelLimit;
-	}
+
 	
 	@Column(name="send_mail_flag")
 	public short getSendMailFlag() {
@@ -334,13 +258,6 @@ public class W5Approval implements java.io.Serializable {
 		this.sendSmsFlag = sendSmsFlag;
 	}
 
-	@Column(name="approval_table_field_id")
-	public int getApprovalTableFieldId() {
-		return approvalTableFieldId;
-	}
-	public void setApprovalTableFieldId(int approvalTableFieldId) {
-		this.approvalTableFieldId = approvalTableFieldId;
-	}
 	@Transient
 	public boolean safeEquals(W5Base q){
 		if(q==null)return false;
@@ -350,32 +267,22 @@ public class W5Approval implements java.io.Serializable {
 			GenericUtil.safeEquals(this.dsc,a.dsc) &&
 			this.activeFlag==a.approvalId &&
 			this.tableId==a.tableId &&
-			this.approvalTableFieldId==a.approvalTableFieldId &&
 			this.actionTip==a.actionTip &&
 			this.approvalStrategyTip==a.approvalStrategyTip &&
 			this.approvalFlowTip==a.approvalFlowTip &&
 			this.onRejectTip==a.onRejectTip &&
 			GenericUtil.safeEquals(this.advancedBeginSql,a.advancedBeginSql) &&
 			this.approvalRequestTip==a.approvalRequestTip &&
-			this.eSignFlag==a.eSignFlag &&
-			this.eSignReportId==a.eSignReportId &&
 			GenericUtil.safeEquals(this.manualAppRoleIds,a.manualAppRoleIds) && 
 			GenericUtil.safeEquals(this.manualAppUserIds,a.manualAppUserIds) && 
 			GenericUtil.safeEquals(this.manualAppTableFieldIds,a.manualAppTableFieldIds) &&
-			GenericUtil.safeEquals(this.dynamicStepUserIds,a.dynamicStepUserIds) &&
-			this.dynamicStepMinUserCount==a.dynamicStepMinUserCount &&
-			this.dynamicStepMaxUserCount==a.dynamicStepMaxUserCount &&
 			GenericUtil.safeEquals(this.afterFinUpdateUserIds,a.afterFinUpdateUserIds) &&	
 			this.manualDemandStartAppFlag==a.manualDemandStartAppFlag &&
 			this.sendMailOnManualStepFlag==a.sendMailOnManualStepFlag &&
 			this.sendSmsOnManualStepFlag==a.sendSmsOnManualStepFlag &&
-			this.onApproveDbFuncId==a.onApproveDbFuncId &&
 			GenericUtil.safeEquals(this.approvalRequestMsg,a.approvalRequestMsg) &&		
-			GenericUtil.safeEquals(this.hierarchicalAppMsg,a.hierarchicalAppMsg) &&		
-			GenericUtil.safeEquals(this.dynamicAppMsg,a.dynamicAppMsg) &&		
 			GenericUtil.safeEquals(this.approvedMsg,a.approvedMsg) &&		
 			GenericUtil.safeEquals(this.rejectedMsg,a.rejectedMsg) &&	
-			this.hierarchicalLevelLimit==a.approvalId &&
 			this.sendMailFlag==a.sendMailFlag &&
 			this.sendSmsFlag==a.sendSmsFlag;
 		if(!b)return false;

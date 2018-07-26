@@ -27,13 +27,10 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	private short updatableFlag;
 	private int onApproveStepId;
 	private String onApproveStepSql;
-	private int onApproveDbFuncId;
 	private short returnFlag;
 	private int onReturnStepId;
 	private String onReturnStepSql;
-	private int onReturnDbFuncId;
 	private String onRejectStepSql;
-	private int onRejectDbFuncId;	
 	private int customizationId;	
 	private short finalStepFlag;
 	private String updatableFields;
@@ -56,7 +53,6 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	
 	private short sendMailOnEnterStepFlag;
 	private short sendSmsOnEnterStepFlag;
-	private short eSignFlag;
 	
 	
 	@Column(name="approval_id")
@@ -241,20 +237,7 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	public void setFinalStepFlag(short finalStepFlag) {
 		this.finalStepFlag = finalStepFlag;
 	}
-	@Column(name="on_approve_db_func_id")
-	public int getOnApproveDbFuncId() {
-		return onApproveDbFuncId;
-	}
-	public void setOnApproveDbFuncId(int onApproveDbFuncId) {
-		this.onApproveDbFuncId = onApproveDbFuncId;
-	}
-	@Column(name="on_reject_db_func_id")
-	public int getOnRejectDbFuncId() {
-		return onRejectDbFuncId;
-	}
-	public void setOnRejectDbFuncId(int onRejectDbFuncId) {
-		this.onRejectDbFuncId = onRejectDbFuncId;
-	}
+
 	@Id
 	@Column(name="customization_id")
 	public int getCustomizationId() {
@@ -277,13 +260,6 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	public void setOnReturnStepSql(String onReturnStepSql) {
 		this.onReturnStepSql = onReturnStepSql;
 	}
-	@Column(name="on_return_db_func_id")
-	public int getOnReturnDbFuncId() {
-		return onReturnDbFuncId;
-	}
-	public void setOnReturnDbFuncId(int onReturnDbFuncId) {
-		this.onReturnDbFuncId = onReturnDbFuncId;
-	}
 	
 	@Column(name="send_mail_on_enter_step_flag")
 	public short getSendMailOnEnterStepFlag() {
@@ -299,13 +275,6 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	public void setSendSmsOnEnterStepFlag(short sendSmsOnEnterStepFlag) {
 		this.sendSmsOnEnterStepFlag = sendSmsOnEnterStepFlag;
 	}
-	@Column(name="e_sign_flag")
-	public short geteSignFlag() {
-		return eSignFlag;
-	}
-	public void seteSignFlag(short eSignFlag) {
-		this.eSignFlag = eSignFlag;
-	}	
 
 	@Column(name="access_view_user_fields")
 	public String getAccessViewUserFields() {
@@ -341,13 +310,10 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 		a.updatableFlag=this.updatableFlag;
 		a.onApproveStepId=this.onApproveStepId;
 		a.onApproveStepSql=this.onApproveStepSql;
-		a.onApproveDbFuncId=this.onApproveDbFuncId;
 		a.returnFlag=this.returnFlag;
 		a.onReturnStepId=this.onReturnStepId;
 		a.onReturnStepSql=this.onReturnStepSql;
-		a.onReturnDbFuncId=this.onReturnDbFuncId;
 		a.onRejectStepSql=this.onRejectStepSql;
-		a.onRejectDbFuncId=this.onRejectDbFuncId;
 		a.customizationId=this.customizationId;
 		a.finalStepFlag=this.finalStepFlag;
 		a.updatableFields=this.updatableFields;
@@ -366,7 +332,6 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 		a.accessDeleteUserFields=this.accessDeleteUserFields;
 		a.sendMailOnEnterStepFlag=this.sendMailOnEnterStepFlag;
 		a.sendSmsOnEnterStepFlag=this.sendSmsOnEnterStepFlag;
-		a.eSignFlag=this.eSignFlag;
 		return a;
 	}
 
@@ -384,13 +349,10 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 			this.updatableFlag== a.updatableFlag  &&
 			this.onApproveStepId== a.onApproveStepId  &&
 			GenericUtil.safeEquals(this.onApproveStepSql, a.onApproveStepSql)  &&
-			this.onApproveDbFuncId== a.onApproveDbFuncId  &&
 			this.returnFlag== a.returnFlag  &&
 			this.onReturnStepId== a.onReturnStepId  &&
 			GenericUtil.safeEquals(this.onReturnStepSql, a.onReturnStepSql)  &&
-			this.onReturnDbFuncId== a.onReturnDbFuncId  &&
 			GenericUtil.safeEquals(this.onRejectStepSql, a.onRejectStepSql)  &&
-			this.onRejectDbFuncId== a.onRejectDbFuncId  &&	
 			this.finalStepFlag== a.finalStepFlag  &&
 			GenericUtil.safeEquals(this.updatableFields, a.updatableFields)  &&
 			
@@ -410,8 +372,7 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 			GenericUtil.safeEquals(this.accessDeleteUserFields, a.accessDeleteUserFields)  &&
 			
 			this.sendMailOnEnterStepFlag== a.sendMailOnEnterStepFlag  &&
-			this.sendSmsOnEnterStepFlag== a.sendSmsOnEnterStepFlag  &&
-			this.eSignFlag== a.eSignFlag;  
+			this.sendSmsOnEnterStepFlag== a.sendSmsOnEnterStepFlag;
 	}
 	
 }

@@ -43,7 +43,9 @@ public class IWBException extends RuntimeException {
 			te = (Exception)te.getCause();
 			if(te instanceof IWBException)return (IWBException)te;
 		}
-		return new IWBException("framework",te.getClass().getName(), 0, null, te.getMessage(), e.getCause());
+		String newObjectType = te.getClass().getName();
+		if(newObjectType.equals("org.postgresql.util.PSQLException"))newObjectType="DataBase.Exception";
+		return new IWBException("framework",newObjectType, 0, null, te.getMessage(), e.getCause());
 	}
 
 	public String toHtmlString(){
