@@ -138,9 +138,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		W5QueryResult queryResult = getQueryResult(scd,queryId);
 		if(queryId!=1 && queryId!=824 && queryResult.getMainTable()!=null && (!FrameworkSetting.debug || (scd.get("roleId")!=null && GenericUtil.uInt(scd.get("roleId"))!=0))){
 			W5Table t = queryResult.getMainTable();
-			if(t.getAccessViewTip()==0 && !FrameworkCache.roleAccessControl(scd,  0)){
-				throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
-			}
 			if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
 				throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 			}
@@ -435,7 +432,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     		}
     		return;
     	}
-    	
+    /*	
 		String logTable = table;
 		if(logTable.contains(".")){
 			logTable = logTable.substring(logTable.lastIndexOf('.')+1);
@@ -452,14 +449,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		.append(",iwb.fnc_sysdate(").append(fr.getScd().get("customizationId")).append(") ").append(FieldDefinitions.tableFieldName_LogDateTime).append(",t.*");
 
 		sql.append(" from ").append(table).append(" t");
-	/*	if(extendedFlag){
-			sql.append(" left outer join ").append(table).append("_").append(f.getScd().get("customizationId")).append(" e on ");
-			boolean b=false;
-			for(W5TableParam tp:t.get_tableParamList()){
-				if(b)sql.append(" AND "); else b=true;
-				sql.append("t.").append(tp.getExpressionDsc()).append("=e.").append(tp.getExpressionDsc());
-			}
-		}*/
 		
 		List<Object> whereParams = new ArrayList<Object>(fr.getPkFields().size());
 		
@@ -512,31 +501,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				}
 			}
 		});
-		/*
-		try {
-			if(count==0){
-				try {
-					session.createSQLQuery(createSql).executeUpdate();
-				} catch (Exception e2) { // daha once varsa
-					if(FrameworkSetting.debug)e2.printStackTrace();
-				}				
-			} else {
-				SQLQuery query = session.createSQLQuery("insert into "+FrameworkSetting.crudLogSchema+"."+FrameworkSetting.crudLogTablePrefix+logTable+ sql.toString());
-				applyParameters(query, whereParams);
-				try {
-					query.executeUpdate();
-				} catch (Exception e) { //create edilmemisse
-					if(FrameworkSetting.debug)e.printStackTrace();					
-					session.createSQLQuery("alter table "+FrameworkSetting.crudLogSchema+"." +FrameworkSetting.crudLogTablePrefix+ logTable + " rename to lt5_" + f.getForm().getObjectId() + "_"+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())).executeUpdate();
-					session.createSQLQuery(createSql).executeUpdate();
-				}
-			}
-		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new PromisException("sql","Form Log",f.getFormId(),GenericUtil.replaceSql(sql.toString(), whereParams), e.getMessage(), e.getCause());
-		} finally {
-//			session.close();
-		} */
+*/
 	}
 	
 	@Override
@@ -866,15 +831,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						for(W5QueryField field : newQueryFields)if(!errorFieldSet.contains(field.getDsc()))try{
 							Object obj = rs.getObject(field.getDsc());
 							if(obj!=null){					
-								//if (obj instanceof oracle.sql.CLOB) {
-								//	oracle.sql.CLOB new_obj = (oracle.sql.CLOB) obj;
-			        			//	try{ obj = new_obj.getSubString((int)1, (int)new_obj.length());
-			        			//	}catch (Exception e) {obj="oracle.sql.CLOB";}
-							//	} else if (obj instanceof oracle.sql.TIMESTAMP) {
-								//	try{ obj = (queryResult.getQuery().getQueryTip() == 2 && field.getFieldTip() == 2) ? 
-								//			((oracle.sql.TIMESTAMP) obj).timestampValue() : PromisUtil.uFormatDateTime(((oracle.sql.TIMESTAMP) obj).timestampValue());
-								//	}catch (Exception e) {obj="oracle.sql.TIMESTAMP";}
-								//} else
 								if (obj instanceof java.sql.Timestamp) {
 			        				try{ obj = (queryResult.getQuery().getQueryTip() == 2 && field.getFieldTip() == 2) ? 
 			        						 (java.sql.Timestamp) obj : GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
@@ -909,17 +865,10 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					if(FrameworkSetting.hibernateCloseAfterWork)if(conn!=null)conn.close();
 				}
 			});
-    	} catch(IWBException pe){
-    		error = pe.getMessage();
-    		throw pe;
+//    	} catch(IWBException pe){error = pe.getMessage();throw pe;
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-			if(e.getCause()!=null && e.getCause() instanceof SQLException){
-	    		error = ((SQLException)(e.getCause())).getLocalizedMessage();
-				throw new IWBException("sql","Query Execute",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), ((SQLException)(e.getCause())).getLocalizedMessage(), e.getCause());
-			}
     		error = e.getMessage();
-			throw new IWBException("sql","Query Execute",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), e.getMessage(), e.getCause());
+			throw new IWBException("sql","Query",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), "[8,"+queryResult.getQueryId()+"] "+queryResult.getQuery().getDsc(), e.getCause());
 		} finally {
 			logQueryAction(queryAction, queryResult, error);
 		}
@@ -939,9 +888,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		W5QueryResult queryResult = getQueryResult(scd, queryId);
 		if(queryId!=1 && queryId!=824 && queryResult.getMainTable()!=null && (!FrameworkSetting.debug || (scd.get("roleId")!=null && GenericUtil.uInt(scd.get("roleId"))!=0))){
 			W5Table t = queryResult.getMainTable();
-			if(t.getAccessViewTip()==0 && !FrameworkCache.roleAccessControl(scd,  0)){
-				throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
-			}
 			if(t.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
 				throw new IWBException("security","Query", queryId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 			}
@@ -1011,10 +957,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 								if (obj instanceof java.sql.Timestamp) {
 			        				try{ result.put(columnName, GenericUtil.uFormatDateTime((java.sql.Timestamp) obj));
 			        				}catch (Exception e) {}
-								}// else if (obj instanceof oracle.sql.TIMESTAMP) {
-			        			//	try{ result.put(columnName, PromisUtil.uFormatDateTime(((oracle.sql.TIMESTAMP) obj).timestampValue()));
-			        			//	}catch (Exception e) {}
-								//} 
+								} 
 								else if (obj instanceof java.sql.Date) {
 									try{ 
 										obj = rs.getTimestamp(columnIndex);
@@ -1024,11 +967,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				        				try{ result.put(columnName, GenericUtil.uFormatDateSade((java.sql.Date) obj));
 				        				}catch (Exception e2) {}
 									}
-								} //else if (obj instanceof oracle.sql.CLOB) {
-									//oracle.sql.CLOB new_obj = (oracle.sql.CLOB) obj;
-			        				//try{ result.put(columnName, new_obj.getSubString((int)1,(int)new_obj.length()));
-			        				//}catch (Exception e) {}
-								//}
+								}
 			        			 else result.put(columnName, obj);
 							}
 						} else for(W5QueryField f:queryFields){
@@ -1041,11 +980,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 							} else if (obj instanceof java.sql.Date) {
 		        				try{ result.put(columnName, GenericUtil.uFormatDateSade((java.sql.Date) obj));
 		        				}catch (Exception e) {}
-							} //else if (obj instanceof oracle.sql.CLOB) {
-								//oracle.sql.CLOB new_obj = (oracle.sql.CLOB) obj;
-		        				//try{ result.put(columnName, new_obj.getSubString((int)1,(int)new_obj.length()));
-		        				//}catch (Exception e) {}
-							//}
+							}
 							else {
 								Object o = GenericUtil.getObjectByTip(obj.toString(),f.getFieldTip());
 								switch(f.getPostProcessTip()){
@@ -1070,9 +1005,9 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			//s = conn.prepareStatement("select x.* from ("+sql+") x where rownum=1");
         	
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
+//			if(FrameworkSetting.debug)e.printStackTrace();
 //			logException(PromisUtil.replaceSql(sql, params)+"\n"+ e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Manuel Query Execute2Map",0, GenericUtil.replaceSql(sql, params), e.getMessage(), e.getCause());	
+			throw new IWBException("sql","Custom Query2Map",0, GenericUtil.replaceSql(sql, params), e.getMessage(), e);	
 		} 
 		
 	}
@@ -1268,88 +1203,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	}
 	
 	@Override
-	public Map<String, Object> loadRecordMapValue(Map<String, Object> scd, Map<String,String> requestParams, W5Table t, String prefix){
-		StringBuilder	sql = new StringBuilder();
-    	sql.append("select ");
-
-    	List<W5TableField> realFields = new ArrayList();
-		for(W5TableField tf:t.get_tableFieldList())if(tf.getTabOrder()>0){
-			if(!GenericUtil.accessControl(scd, tf.getAccessViewTip(), tf.getAccessViewRoles(), tf.getAccessViewUsers())/* ||
-					!PromisUtil.accessControl(formResult.getScd(), tf.getAccessUpdateTip(), tf.getAccessUpdateRoles(), tf.getAccessUpdateUsers())*/)continue;
-    		sql.append("t.").append(tf.getDsc()).append(",");
-    		realFields.add(tf);
-    	}
-    	sql.replace(sql.length()-1, sql.length(), " from ");
-
-    	sql.append(t.getDsc()).append(" t");
-    	boolean	b = false;
-    	sql.append(" where ");
-    	final	List<Object>	realParams = new ArrayList<Object>();
-    	Object pkField = null;
-    	Map errorMap = new HashMap();
-    	for(W5TableParam x: t.get_tableParamList()){
-    		if(b){
-    			sql.append(" AND ");
-    		}else 
-    			b=true;
-    		sql.append("t.").append(x.getExpressionDsc()).append(" = ? ");
-    		Object psonuc = GenericUtil.prepareParam((W5Param)x, scd, requestParams, (short)-1, null, (short)1, null, null, errorMap);
-    		if(pkField==null)pkField=psonuc;
-    		realParams.add(psonuc);
-    	}
-    	if(!errorMap.isEmpty())return null;
-    
-    	try {
-    		return getCurrentSession().doReturningWork(new ReturningWork<Map<String, Object>>() {
-				@Override
-				public Map<String, Object> execute(Connection conn) throws SQLException {
-					PreparedStatement s = conn.prepareStatement(sql.toString());
-			    	applyParameters(s, realParams);
-			    	ResultSet rs = s.executeQuery();
-			    	if(!rs.next()) return null;
-			    	Map<String, Object> result = new HashMap<String, Object>();
-			    	
-					for(W5TableField tf:realFields)if(tf.getTabOrder()>0){
-						Object obj = rs.getObject(tf.getDsc());
-						if(obj!=null){
-		        			//if (obj instanceof oracle.sql.TIMESTAMP) {
-		        			//	try{ obj = PromisUtil.uFormatDateTime(((oracle.sql.TIMESTAMP) obj).timestampValue());
-		        			//	}catch (Exception e) {}
-							//} else
-							if (obj instanceof java.sql.Timestamp) {
-		        				try{ obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
-		        				}catch (Exception e) {}
-							} else if (obj instanceof java.sql.Date) {
-		        				try{
-		        					obj = rs.getTimestamp(tf.getDsc());
-		    						obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
-		        				}catch (Exception e) {
-		    						obj = GenericUtil.uFormatDate((java.util.Date) obj);        					
-		        				}
-							}// else if (obj instanceof oracle.sql.CLOB) {
-								//oracle.sql.CLOB new_obj = (oracle.sql.CLOB) obj;
-		        				//try{ 
-		        			//		obj = new_obj.getSubString((int)1, (int)new_obj.length());
-		        				//}catch (Exception e) {}
-							//}
-		        			if(obj!=null)result.put(tf.getDsc(), obj.toString());
-						}
-			    	}
-					if(rs!=null)rs.close();
-					if(s!=null)s.close();
-					return result;
-				}
-    		});
-	    	
-    	} catch (Exception e) {
-    		if(FrameworkSetting.debug)e.printStackTrace();
-    		return null;
-		}
-
-
-	}
-
-	@Override
 	public void loadFormTable(W5FormResult formResult){
 		W5Form f = formResult.getForm();
 		W5Table t = FrameworkCache.getTable(formResult.getScd(), f.getObjectId());
@@ -1421,15 +1274,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			    	applyParameters(s, realParams);
 			    	ResultSet rs = s.executeQuery();
 			    	if(!rs.next())				
-			    		throw new IWBException("sql","Form Load",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), "Kayit Gelmedi", null);
+			    		throw new IWBException("sql","Form Load",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), "No Record Found", null);
 
 					for(W5FormCellHelper cellResult:formResult.getFormCellResults())if(cellResult.getFormCell().getObjectDetailId()!=0){
 						Object obj = rs.getObject(((W5TableField)cellResult.getFormCell().get_sourceObjectDetail()).getDsc());
 						if(obj!=null){
-		        		//	if (obj instanceof oracle.sql.TIMESTAMP) {
-		        			//	try{ obj = PromisUtil.uFormatDateTime(((oracle.sql.TIMESTAMP) obj).timestampValue());
-		        			//	}catch (Exception e) {}
-							//} else
 							if (obj instanceof java.sql.Timestamp) {
 		        				try{ obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
 		        				}catch (Exception e) {}
@@ -1441,12 +1290,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		        					} else //date
 		        						obj = GenericUtil.uFormatDate((java.util.Date) obj);
 		        				}catch (Exception e) {}
-							} //else if (obj instanceof oracle.sql.CLOB) {
-								//oracle.sql.CLOB new_obj = (oracle.sql.CLOB) obj;
-		        				//try{ 
-		        				//	obj = new_obj.getSubString((int)1, (int)new_obj.length());
-		        				//}catch (Exception e) {}
-							//}
+							}
 							cellResult.setValue(obj.toString());
 						}
 					} else if(cellResult.getFormCell().getControlTip()==101){
@@ -1516,7 +1360,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						}
 					}
 					if(rs.next())//fazladan kayit geldi
-						throw new IWBException("sql","Form Load",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), "Fazladan Kayit var", null);
+						throw new IWBException("sql","Table",t.getTableId(),GenericUtil.replaceSql(sql.toString(),realParams), "[15,"+t.getTableId()+"] Loaded more then 1 record", null);
 					if(rs!=null)rs.close();
 					if(s!=null)s.close();
 					
@@ -1580,13 +1424,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     			
     		});
 	    	
-    	} catch (IWBException pe) {
-    		throw pe;
-			// TODO: handle exception
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-//			logException(PromisUtil.replaceSql(sql.toString(), realParams)+"\n"+ e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Form Load",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), e.getMessage(), e.getCause());
+			throw new IWBException("framework","Form",formResult.getFormId(),null, "[40,"+formResult.getFormId()+"] Form Load Exception", e.getCause());
 		} finally {
 //    		session.close();
     	}
@@ -2293,22 +2132,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     	updateParams.addAll(whereParams);
 
     	try {
- /*   		String tmp = t.getCrudActions();
-    		
-    		if(t.getCrudDbFuncId()!=0 && (GenericUtil.hasPartInside(t.getCrudActions(),"bu"))){
-				W5DbFuncResult dbFuncResult = getDbFuncResult(scd, t.getCrudDbFuncId());
-				dbFuncResult.setErrorMap(new HashMap());
-				Map m = new HashMap();
-				m.putAll(formResult.getRequestParams());
-				m.put("triggerAction"+paramSuffix, "bu");//trigger action
-				dbFuncResult.setRequestParams(m);
-				executeDbFunc(dbFuncResult, paramSuffix);
-				if(dbFuncResult.getErrorMap().isEmpty()){
-					if(dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-					if(!GenericUtil.isEmpty(dbFuncResult.getLogRecordList()))formResult.getCrudLogRecordList().addAll(dbFuncResult.getLogRecordList());
-				}
-	    	}*/
-    		final boolean extendedFlag2 = extendedFlag;
+     		final boolean extendedFlag2 = extendedFlag;
     		final Map<Integer, W5FormModule> moduleMap2 = moduleMap;
     		return getCurrentSession().doReturningWork(new ReturningWork<Boolean>() {
 				@Override
@@ -2318,21 +2142,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					int updateCount = s.executeUpdate();
 					s.close();
 					if(FrameworkSetting.hibernateCloseAfterWork)conn.close();
-//					if(extendedFlag2)updateFormTableExtension(formResult, paramSuffix, moduleMap2);
-					
-/*		    		if(t.getCrudDbFuncId()!=0 && (GenericUtil.hasPartInside(t.getCrudActions(),"au"))){
-						W5DbFuncResult dbFuncResult = getDbFuncResult(scd, t.getCrudDbFuncId());
-						dbFuncResult.setErrorMap(new HashMap());
-						Map m = new HashMap();
-						m.putAll(formResult.getRequestParams());
-						m.put("triggerAction"+paramSuffix, "au");//trigger action
-						dbFuncResult.setRequestParams(m);
-						executeDbFunc(dbFuncResult, paramSuffix);
-						if(dbFuncResult.getErrorMap().isEmpty()){
-							if(dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-							if(!GenericUtil.isEmpty(dbFuncResult.getLogRecordList()))formResult.getCrudLogRecordList().addAll(dbFuncResult.getLogRecordList());
-						}
-			    	} */
 		    		if(t.getDoUpdateLogFlag()!=0)logTableRecord(formResult, paramSuffix);
 		    		return updateCount==1;
 				}
@@ -2524,17 +2333,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     	
     	b = false;
     	try {
-/*	    	if(t.getCrudDbFuncId()!=0 && GenericUtil.hasPartInside(t.getCrudActions(),"bi")){
-				W5DbFuncResult dbFuncResult = getDbFuncResult(formResult.getScd(), t.getCrudDbFuncId());
-				dbFuncResult.setErrorMap(new HashMap());
-				Map m = new HashMap();
-				m.putAll(formResult.getRequestParams());
-				m.put("triggerAction"+paramSuffix, "bi");//trigger action
-				dbFuncResult.setRequestParams(m);
-				executeDbFunc(dbFuncResult,paramSuffix);
-				if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-	    	}
-*/	    	
 	    	return getCurrentSession().doReturningWork(new ReturningWork<Integer>() {
 				@Override
 				public Integer execute(Connection conn) throws SQLException {
@@ -2547,15 +2345,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			    		rs.next();
 			    		Object paramOut = rs.getObject(1);
 						if(paramOut!=null){
-							//if (paramOut instanceof oracle.sql.CLOB) {
-							//	oracle.sql.CLOB new_obj = (oracle.sql.CLOB) paramOut;
-		        			//	try{ 
-		        			//		paramOut = new_obj.getSubString((int)1, (int)new_obj.length());
-		        			//	}catch (Exception e) {paramOut="oracle.sql.CLOB";}
-							//} else if (paramOut instanceof oracle.sql.TIMESTAMP) {
-							//	try{ paramOut = ((oracle.sql.TIMESTAMP) paramOut).timestampValue();
-							//	}catch (Exception e) {paramOut="oracle.sql.TIMESTAMP";}
-							//} else
 							if (paramOut instanceof java.sql.Timestamp) {
 		        				try{ 
 		        					paramOut =(java.sql.Timestamp) paramOut;
@@ -2596,31 +2385,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					s.close();
 					if(FrameworkSetting.hibernateCloseAfterWork)conn.close();
 					
-					//BPM iş akış kaydı yapılıyor
-					/*if(PromisCache.getAppSettingIntValue(formResult.getScd(), "bpm_flag")!=0){	
-						Map<String,String> requestParams = formResult.getRequestParams();
-						String ptablePk = "";
-						if(formResult.getOutputFields()!=null && !formResult.getOutputFields().isEmpty()){
-							ptablePk = formResult.getOutputFields().get(t.get_tableParamList().get(0).getDsc().substring(1)).toString();
-							requestParams.put(t.get_tableParamList().get(0).getDsc(), ptablePk);
-						}
-						int nextBpmActionId = bpmControl(formResult.getScd(), formResult.getRequestParams(), t.get_listBpmStartAction(), t.get_listBpmEndAction(), formResult.getAction(), t.getTableId(), PromisUtil.uInt(ptablePk));
-						if (nextBpmActionId>-1)formResult.setNextBpmActions(find("select x from BpmAction x,BpmProcessStep s where x.customizationId=s.customizationId and x.customizationId=? and x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", f.getCustomizationId(),nextBpmActionId)); 
-					}*/
-					
-/*			    	if(t.getCrudDbFuncId()!=0 && GenericUtil.hasPartInside(t.getCrudActions(),"ai")){
-						W5DbFuncResult dbFuncResult = getDbFuncResult(formResult.getScd(), t.getCrudDbFuncId());
-						dbFuncResult.setErrorMap(new HashMap());
-
-						Map m = new HashMap();
-						m.putAll(formResult.getRequestParams());
-						for(String key:formResult.getOutputFields().keySet())m.put("t"+key, formResult.getOutputFields().get(key).toString());
-						m.put("triggerAction"+paramSuffix, "ai");//trigger action
-						dbFuncResult.setRequestParams(m);
-
-						executeDbFunc(dbFuncResult,paramSuffix);
-						if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-			    	}*/
 			    	return count;
 				}
 	    	});
@@ -2849,20 +2613,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 
     	try {
-	    /*	if(t.getCrudDbFuncId()!=0 && GenericUtil.hasPartInside(t.getCrudActions(),"bi")){
-				W5DbFuncResult dbFuncResult = getDbFuncResult(formResult.getScd(), t.getCrudDbFuncId());
-				dbFuncResult.setErrorMap(new HashMap());
-				Map m = new HashMap();
-				m.putAll(formResult.getRequestParams());
-				m.put("triggerAction"+paramSuffix, "bi");//trigger action
-				dbFuncResult.setRequestParams(m);
-				executeDbFunc(dbFuncResult,paramSuffix);
-				if(dbFuncResult.getErrorMap().isEmpty()){
-					if(!GenericUtil.isEmpty(dbFuncResult.getResultMap()))formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-					if(!GenericUtil.isEmpty(dbFuncResult.getLogRecordList()))formResult.getCrudLogRecordList().addAll(dbFuncResult.getLogRecordList());
-				}
-	    	}*/
-	    	
 	    	final 		Map<Integer, W5FormModule> moduleMap2 = moduleMap;
 
 	    	return getCurrentSession().doReturningWork(new ReturningWork<Integer>() {
@@ -2878,15 +2628,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			    		rs.next();   			    		
 			    		Object paramOut = rs.getObject(1);
 						if(paramOut!=null){
-						//	if (paramOut instanceof oracle.sql.CLOB) {
-							//	oracle.sql.CLOB new_obj = (oracle.sql.CLOB) paramOut;
-		        			//	try{ 
-		        				//	paramOut = new_obj.getSubString((int)1, (int)new_obj.length());
-		        			//	}catch (Exception e) {paramOut="oracle.sql.CLOB";}
-							//} else if (paramOut instanceof oracle.sql.TIMESTAMP) {
-							//	try{ paramOut = ((oracle.sql.TIMESTAMP) paramOut).timestampValue();
-							//	}catch (Exception e) {paramOut="oracle.sql.TIMESTAMP";}
-							//} else 
 							if (paramOut instanceof java.sql.Timestamp) {
 		        				try{ 
 		        					paramOut =(java.sql.Timestamp) paramOut;
@@ -2944,34 +2685,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 
 					if(FrameworkSetting.hibernateCloseAfterWork)conn.close();
 					
-					//BPM iş akış kaydı yapılıyor
-					/*if(PromisCache.getAppSettingIntValue(formResult.getScd(), "bpm_flag")!=0){
-						Map<String,String> requestParams = formResult.getRequestParams();
-						String ptablePk = "";
-						if(formResult.getOutputFields()!=null && !formResult.getOutputFields().isEmpty()){
-							ptablePk = formResult.getOutputFields().get(t.get_tableParamList().get(0).getDsc().substring(1)).toString();
-							requestParams.put(t.get_tableParamList().get(0).getDsc(), ptablePk);
-						}				
-						int nextBpmActionId = bpmControl(formResult.getScd(), requestParams, t.get_listBpmStartAction(), t.get_listBpmEndAction(), formResult.getAction(), t.getTableId(), PromisUtil.uInt(ptablePk));
-						if (nextBpmActionId>-1)formResult.setNextBpmActions(find("select x from BpmAction x,BpmProcessStep s where x.customizationId=s.customizationId and x.customizationId=? and x.activeFlag=1 AND x.prerequisitActionId=? AND x.wizardStepFlag!=0 AND s.actionId=x.actionId", customizationId,nextBpmActionId)); 
-					}*/
-					
-/*			    	if(t.getCrudDbFuncId()!=0 && GenericUtil.hasPartInside(t.getCrudActions(),"ai")){
-						W5DbFuncResult dbFuncResult = getDbFuncResult(formResult.getScd(), t.getCrudDbFuncId());
-						dbFuncResult.setErrorMap(new HashMap());
-
-						Map m = new HashMap();
-						m.putAll(formResult.getRequestParams());
-						for(String key:formResult.getOutputFields().keySet())m.put("t"+key+paramSuffix, formResult.getOutputFields().get(key).toString());
-						m.put("triggerAction"+paramSuffix, "ai");//trigger action
-						dbFuncResult.setRequestParams(m);
-
-						executeDbFunc(dbFuncResult,paramSuffix);
-						if(dbFuncResult.getErrorMap().isEmpty()){
-							if(dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-							if(!GenericUtil.isEmpty(dbFuncResult.getLogRecordList()))formResult.getCrudLogRecordList().addAll(dbFuncResult.getLogRecordList());
-						}
-			    	} */
 					return count;
 
 				}
@@ -3018,38 +2731,12 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     		realParams.add(psonuc);
     		formResult.getPkFields().put(x.getDsc(), psonuc);
     	}
-/*    	if(t.getCrudDbFuncId()!=0 && GenericUtil.hasPartInside(t.getCrudActions(),"bd")){
-			W5DbFuncResult dbFuncResult = getDbFuncResult(formResult.getScd(), t.getCrudDbFuncId());
-			dbFuncResult.setErrorMap(new HashMap());
-
-			Map m = new HashMap();
-			m.putAll(formResult.getRequestParams());
-			for(String key:formResult.getOutputFields().keySet())m.put("t"+key, formResult.getOutputFields().get(key).toString());
-			m.put("triggerAction"+paramSuffix, "bd");//trigger action
-			dbFuncResult.setRequestParams(m);
-
-			executeDbFunc(dbFuncResult, paramSuffix);
-			if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-    	}*/
     	
     	if(t.getDoDeleteLogFlag()!=0)logTableRecord(formResult, paramSuffix);
     	Session session = getCurrentSession();
     	try {
     		b = applyParameters(session.createSQLQuery(sql.toString()),realParams).executeUpdate()>0;
     		
-/*        	if(b && t.getCrudDbFuncId()!=0 && GenericUtil.hasPartInside(t.getCrudActions(),"ad")){
-    			W5DbFuncResult dbFuncResult = getDbFuncResult(formResult.getScd(), t.getCrudDbFuncId());
-    			dbFuncResult.setErrorMap(new HashMap());
-
-    			Map m = new HashMap();
-    			m.putAll(formResult.getRequestParams());
-    			for(String key:formResult.getOutputFields().keySet())m.put("t"+key, formResult.getOutputFields().get(key).toString());
-    			m.put("triggerAction"+paramSuffix, "ad");//trigger action
-    			dbFuncResult.setRequestParams(m);
-
-    			executeDbFunc(dbFuncResult, paramSuffix);
-				if(dbFuncResult.getErrorMap().isEmpty() && dbFuncResult.getResultMap()!=null)formResult.getOutputFields().putAll(dbFuncResult.getResultMap());
-        	}*/
     	} catch(Exception e){
     		throw new IWBException("sql","Form Delete",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), e.getMessage(), e.getCause());
     	} finally{

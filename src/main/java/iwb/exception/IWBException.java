@@ -30,9 +30,6 @@ public class IWBException extends RuntimeException {
 		this.sql=sql;
 		if(cause!=null){
 			this.stack = convertToIWBException((Exception)cause).getStack();
-			if(cause.getMessage().contains("(unnamed script#")){
-				
-			}
 		} else 
 			this.stack = new ArrayList<IWBException>();
 
@@ -46,7 +43,7 @@ public class IWBException extends RuntimeException {
 			te = (Exception)te.getCause();
 			if(te instanceof IWBException)return (IWBException)te;
 		}
-		return new IWBException("framework","Unknown", 0, null, "Root Cause -> " +te.getMessage(), e.getCause());
+		return new IWBException("framework",te.getClass().getName(), 0, null, te.getMessage(), e.getCause());
 	}
 
 	public String toHtmlString(){
