@@ -296,7 +296,7 @@ public class AppServlet implements InitializingBean {
 	}
 	public static Map<String, String> mockData = new HashMap();
 	@RequestMapping("/ajaxMockData")
-	public void hndAjaxMockQueryData(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+	public void hndAjaxMockData(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
 		response.setContentType("application/json");
 		int queryId = GenericUtil.uInt(request, "_qid");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -307,20 +307,20 @@ public class AppServlet implements InitializingBean {
 		mockData.put(id, getViewAdapter(scd, request).serializeQueryData(queryResult).toString());
 		response.getWriter().write("{success:true, id:\""+id+"\"}");
 		response.getWriter().close();
+		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxMockData", id, request.getRemoteAddr(), 0));
 		
 	}
 	
 	@RequestMapping("/ajaxQueryMockData")
-	public void hndAjaxMockQueryData2(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+	public void hndAjaxMockQueryData(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
 		response.setContentType("application/json");
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		
 		String id=request.getParameter("_id");
 		if(GenericUtil.isEmpty(id))id="_";
 		String s = mockData.get(id);
 		response.getWriter().write(s!=null ? s : "{success:false,error:\"Wrong MockID\"}");
 		response.getWriter().close();
-		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryMockData", id, request.getRemoteAddr(), 0));
+		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5VisitedPage(new HashMap(), "ajaxQueryMockData", id, request.getRemoteAddr(), 0));
 	}
 	@RequestMapping("/ajaxQueryData")
 	public void hndAjaxQueryData(HttpServletRequest request, HttpServletResponse response)
