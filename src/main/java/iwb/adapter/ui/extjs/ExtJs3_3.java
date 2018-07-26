@@ -270,7 +270,7 @@ public class ExtJs3_3 implements ViewAdapter {
 							return null;
 						s.append("var ").append(nfr.getForm().getDsc())
 								.append("=").append(serializeGetForm(nfr))
-								.append(".getExtDef();\n");
+								.append(".render();\n");
 						break;
 					case 5:// grid
 						if (formResult.getModuleGridMap() == null)
@@ -1291,7 +1291,7 @@ public class ExtJs3_3 implements ViewAdapter {
 
 		if (liveSyncRecord)
 			formResult.getRequestParams().put(".t", formResult.getUniqueId());
-		s.append(",\n getExtDef:function(){\nvar mf={_formId:").append(
+		s.append(",\n render:function(){\nvar mf={_formId:").append(
 				formResult.getFormId());
 		if (liveSyncRecord)
 			s.append(",id:'").append(formResult.getUniqueId()).append("'");
@@ -4069,23 +4069,6 @@ public class ExtJs3_3 implements ViewAdapter {
 										toolbarItem.getCode())).append("\n}}");
 						itemCount++;
 					} else {
-						/*
-						 * Burası Bu şekilde değiştirilecek
-						 * buttons.append(toolbarItem.getItemTip()==0 ?
-						 * "{tooltip:'"
-						 * :"{text:'").append(PromisLocaleMsg.get2(customizationId
-						 * , xlocale, toolbarItem.getLocaleMsgKey()))
-						 * .append("', ref:'../"
-						 * ).append(toolbarItem.getDsc()).append
-						 * ("',iconCls:'").append
-						 * (toolbarItem.getImgIcon()).append
-						 * ("', activeOnSelection:"
-						 * ).append(toolbarItem.getActiveOnSelectionFlag
-						 * ()!=0).append(", handler:function(a,b,c){\n")
-						 * .append(PromisLocaleMsg.filter2(customizationId,
-						 * xlocale, toolbarItem.getCode())).append("\n}}");
-						 * itemCount++;
-						 */
 						buttons.append("{")
 								.append(toolbarItem.getItemTip() == 0 ? "tooltip"
 										: "text")
@@ -4128,17 +4111,18 @@ public class ExtJs3_3 implements ViewAdapter {
 							|| toolbarItem.getItemTip() == 14) {
 						W5LookUp lu = FrameworkCache.getLookUp(scd,
 								toolbarItem.getLookupQueryId());
-
-						List<W5LookUpDetay> dl = new ArrayList<W5LookUpDetay>(
-								lu.get_detayList().size());
-						for (W5LookUpDetay dx : lu.get_detayList()) {
-							W5LookUpDetay e = new W5LookUpDetay();
-							e.setVal(dx.getVal());
-							e.setDsc(LocaleMsgCache.get2(customizationId,
-									xlocale, dx.getDsc()));
-							dl.add(e);
+						if(lu!=null){
+							List<W5LookUpDetay> dl = new ArrayList<W5LookUpDetay>(
+									lu.get_detayList().size());
+							for (W5LookUpDetay dx : lu.get_detayList()) {
+								W5LookUpDetay e = new W5LookUpDetay();
+								e.setVal(dx.getVal());
+								e.setDsc(LocaleMsgCache.get2(customizationId,
+										xlocale, dx.getDsc()));
+								dl.add(e);
+							}
+							cellResult.setLookupListValues(dl);
 						}
-						cellResult.setLookupListValues(dl);
 					}
 					buttons.append(serializeFormCell(customizationId, xlocale,
 							cellResult, null));

@@ -1617,9 +1617,9 @@ function addDefaultPrivilegeButtons(xbuttons, xgrid){
 	if(_scd.administratorFlag || _scd.customizationId==0){
 		xbuttons.push(false && xgrid.gridReport ? '-':'->');
 		var xxmenu=[], bx=false;
-	    if(_scd.customizerFlag){xxmenu.push({text:getLocMsg('js_ayarlar'),cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:fnGridSetting});bx=true;}
+	    if(_scd.administratorFlag){xxmenu.push({text:getLocMsg('js_ayarlar'),cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:fnGridSetting});bx=true;}
 	    if(_scd.administratorFlag){xxmenu.push({text:getLocMsg('js_yetkiler'),cls:'x-btn-icon x-grid-privilege', _activeOnSelection:false, _grid:xgrid, handler:fnGridPrivilege});bx=true;}
-	    if(_scd.customizerFlag && xgrid.crudTableId){
+	    if(_scd.administratorFlag && xgrid.crudTableId){
 			if(bx)xxmenu.push('-');else bx=true;
 			xxmenu.push({text:'Detail Form+ Builder',cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:function(ax){
 				return  mainPanel.loadTab({attributes:{href:'showPage?_tid=8&parent_table_id='+ax._grid.crudTableId+'&tpl_id='+ax._grid.tplInfo.id+'&po_id='+ax._grid.tplInfo.objId}});
@@ -1720,7 +1720,7 @@ function addTab4GridWSearchForm(obj){
     var items = [];
 	//---search form
     if(mainGrid.searchForm){
-		searchFormPanel =  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.getExtDef(),{
+		searchFormPanel =  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.render(),{
 			region: 'north', bodyStyle:'padding:3px',
 //			height: mainGrid.searchForm.defaultHeight||120,
 			autoHeight:true,
@@ -1907,7 +1907,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 	//---search form
 	var searchFormPanel = null;
     if(mainGrid.searchForm){
-    	var searchFormPanel = mainGrid.searchForm.fp = new Ext.FormPanel(Ext.apply(mainGrid.searchForm.getExtDef(),{
+    	var searchFormPanel = mainGrid.searchForm.fp = new Ext.FormPanel(Ext.apply(mainGrid.searchForm.render(),{
 			region: 'north', bodyStyle:'padding:3px',
 			autoHeight:true,
 			anchor: '100%',
@@ -2505,7 +2505,7 @@ function showLoginDialog(xobj){
            handler: function(){document.location='login.htm?r='+new Date().getTime();
         }
 		}],                       
-		items :pfrm_login.getExtDef().items[0].items
+		items :pfrm_login.render().items[0].items
 	});
 	
 	lw = new Ext.Window({
@@ -3817,7 +3817,7 @@ function prepareDetailGridCRUDButtons(grid,pk,toExtraButtonsFlag){
 //Multi Main Grid
 function addTab4DetailGridsWSearchForm(obj){
 	var mainGrid = obj.detailGrids[0].grid,detailGridTabPanel=null;
-	var searchFormPanel=  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.getExtDef(),{
+	var searchFormPanel=  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.render(),{
 		region: 'north', bodyStyle:'padding:3px',
 //		height: mainGrid.searchForm.defaultHeight||120,
 		autoHeight:true,
@@ -4210,7 +4210,7 @@ var usersBorderChat=['#37cc00','#5fcbff','pink']
 function getUsers4Chat(users, pix){
 	if(!users || users.length==0)return '';
 	var	str='';
-	for(var qi=0;qi<users.length;qi++)str+=', &nbsp;'+(pix ? '<img src="sf/pic'+users[qi].userId+'.png" class="ppic-mini" style="margin-top: -2px;border:3px solid '+(usersBorderChat[qi % usersBorderChat.length])+';"> ':'')+'<a href=# onclick="return openChatWindow('+users[qi].userId+',\''+users[qi].userDsc+'\',true)"><b>'+users[qi].userDsc+'</b></a>';
+	for(var qi=0;qi<users.length;qi++)str+=', &nbsp;'+(pix ? '<img src="sf/pic'+users[qi].userId+'.png" class="ppic-mini" style="margin-top: -2px;border:3px solid '+(usersBorderChat[qi % usersBorderChat.length])+';"> ':'')+'<a href=# onclick="return openChatWindow('+users[qi].userId+',\''+users[qi].userDsc+'\',true)"><span>'+users[qi].userDsc+'</span></a>';
 	return str.substring(2);
 }
 
@@ -4222,7 +4222,7 @@ function	safeIsEqual(a,b){
 function syncMaptoStr(t, m, reload){
 	if(!m || !t)return null;
 	var str = getUsers4Chat([m]);
-	var actionMap=['','var olan bir kayit düzenlendi','yeni bir kayit yapildi', 'var olan bir kayit silindi']
+	var actionMap=['','updated an existing record','created a new record', 'a record deleted']
 	if(m.gridId){
 		var c=Ext.getCmp(t+'-'+m.gridId);
 		if(!c)return null;
@@ -4625,7 +4625,7 @@ function buildPanel(obj, isMasterFlag){
 iwb.ui.buildPanel=buildPanel;
 
 iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
-	var extDef = getForm.getExtDef(); 
+	var extDef = getForm.render(); 
 
 	var extraItems = (!getForm.renderTip || getForm.renderTip!=3) ? extDef.items : extDef.items[0].items
 	if (_app.alarm_view_tip && 1 * _app.alarm_view_tip == 1 && getForm.alarmTemplates && getForm.alarmTemplates.length > 0) {
@@ -4844,18 +4844,18 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                                }
 	                                var r = null;
 	                                var bm=false;
-	                                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
+	                                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
 	                                    bm=true;
 	                                }
-	                                if (extDef.manuelValidation || bm) {
+	                                if (extDef.componentWillPost || bm) {
 	                                    if (getForm._cfg.formPanel.getForm().isValid()) {
 	                                        var vals=getForm._cfg.formPanel.getForm().getValues();
-	                                        if(extDef.manuelValidation){
-	                                            r = extDef.manuelValidation(vals);
+	                                        if(extDef.componentWillPost){
+	                                            r = extDef.componentWillPost(vals);
 	                                            if (!r) return;
 	                                        }
-	                                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
-	                                            var r2=extDef._extendedForms[qi].manuelValidation(vals);
+	                                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
+	                                            var r2=extDef._extendedForms[qi].componentWillPost(vals);
 	                                            if(!r2)return;
 	                                            if(!r)r=r2;
 	                                            else if(typeof r == 'object' && typeof r2 == 'object'){
@@ -4896,19 +4896,19 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                var r = null;
 	                //manuel validation
 	                var bm=false;
-	                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
+	                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
 	                    bm=true;
 	                }
 
-	                if (extDef.manuelValidation || bm) {
+	                if (extDef.componentWillPost || bm) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
 	                        var vals=getForm._cfg.formPanel.getForm().getValues();
-	                        if(extDef.manuelValidation){
-	                            r = extDef.manuelValidation(vals);
+	                        if(extDef.componentWillPost){
+	                            r = extDef.componentWillPost(vals);
 	                            if (!r) return;
 	                        }
-	                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
-	                            var r2=extDef._extendedForms[qi].manuelValidation(vals);
+	                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
+	                            var r2=extDef._extendedForms[qi].componentWillPost(vals);
 	                            if(!r2)return;
 	                            if(!r)r=r2;
 	                            else if(typeof r == 'object' && typeof r2 == 'object'){
@@ -4951,9 +4951,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            handler: function(a, b, c) {
 	                if (!getForm._cfg.formPanel.getForm().isDirty() && !confirm('${attention_you_save_without_change_are_you_sure}')) return;
 	                var r = null;
-	                if (extDef.manuelValidation) {
+	                if (extDef.componentWillPost) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
-	                        r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                        r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                        if (!r) return
 	                    } else {
 	                        getForm._cfg.formPanel.getForm().findInvalid();
@@ -4986,9 +4986,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            iconCls: 'isave_new',
 	            handler: function(a, b, c) {
 	                var r = null;
-	                if (extDef.manuelValidation) {
+	                if (extDef.componentWillPost) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
-	                        r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                        r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                        if (!r) return
 	                    } else {
 	                        getForm._cfg.formPanel.getForm().findInvalid();
@@ -5112,9 +5112,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	        iconCls: 'app_req',
 	        handler: function(a, b, c) {
 	            var r = null;
-	            if (extDef.manuelValidation) {
+	            if (extDef.componentWillPost) {
 	                if (getForm._cfg.formPanel.getForm().isValid()) {
-	                    r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                    r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                    if (!r) return
 	                } else {
 	                    getForm._cfg.formPanel.getForm().findInvalid();
@@ -5143,9 +5143,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	        iconCls: 'app_req',
 	        handler: function(a, b, c) {
 	            var r = null;
-	            if (extDef.manuelValidation) {
+	            if (extDef.componentWillPost) {
 	                if (getForm._cfg.formPanel.getForm().isValid()) {
-	                    r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                    r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                    if (!r) return
 	                } else {
 	                    getForm._cfg.formPanel.getForm().findInvalid();
@@ -5195,9 +5195,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            handler: function(a, b, c) {
 	                if (!getForm.viewMode) {
 	                    var r = null
-	                    if (extDef.manuelValidation) {
+	                    if (extDef.componentWillPost) {
 	                        if (getForm._cfg.formPanel.getForm().isValid()) {
-	                            r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                            r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                            if (!r) return
 	                        } else {
 	                            getForm._cfg.formPanel.getForm().findInvalid();
@@ -5517,10 +5517,10 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    }
 	});
 
-	if (_scd.administratorFlag || _scd.customizerFlag) {
+	if (_scd.administratorFlag || _scd.administratorFlag) {
 	    btn.push('-');
 	    var menuItems = []
-	    if (_scd.customizerFlag) {
+	    if (_scd.administratorFlag) {
 	        menuItems.push({
 	            text: '${form_field_settings}',
 	            handler: function(a, b, c) {
@@ -5580,7 +5580,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            }
 	        })
 	    }
-	    if (_scd.customizerFlag) {
+	    if (_scd.administratorFlag) {
 	        menuItems.push('-', {
 	            text: '${form_hints}',
 	            handler: function(a, b, c) {
