@@ -10,12 +10,8 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
     Ext.ux.form.Monaco.superclass.initComponent.apply(this, arguments);
 
     this.on({
-        afterrender: function () {
-          /*
-          if(self != null) {
-            console.log("hello there");
-            self.getEl().remove();
-          }*/
+        afterrender: function () {	
+          console.log("after render...");
           var self = this;
           require.config({ paths: { 'vs': '/monaco/min/vs' }});
           require(['vs/editor/editor.main'], function() {
@@ -33,61 +29,61 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
           console.log("element: ", self.getEl());
           console.log("ownerCt: ", self.ownerCt);
           console.log("container: ", self.ownerCt.container);
-          console.log("children count: ", childrenCount);
-
-          var childrenHeight = 0;
-          for(var index =0; index < childrenCount; index++) {
-            if(self.ownerCt.id !== self.ownerCt.container.dom.children[index].id) {
-              var childHeight = self.ownerCt.container.dom.children[index].clientHeight + 40;
-              childrenHeight += childHeight;
-            }
-          }
-
-          //console.log("ownerCt id: ", self.ownerCt.id);
-          //console.log("first child id: ", self.ownerCt.container.dom.children[0].id);
-          console.log("childrenHeight: ", childrenHeight);
-
+          
+          
           var containerHeight = self.ownerCt.container.dom.clientHeight;
           console.log('container height: ', containerHeight);
-          /*var trimmed = containerHeight.replace("px","");
-          console.log("trimmed: ", trimmed);
-          var intHeight = parseInt(trimmed);
-          console.log("int: ", intHeight);
-          var monacoInt = containerHeight - childrenHeight;
-          var monacoHeight = monacoInt + "px";
-          console.log("final height: ", monacoHeight);*/
           if(containerHeight<500){
             containerHeight=500;
           }
           self.setHeight(containerHeight);
-
+          
+          console.log("render ownerCt height: ", self.el.dom.clientHeight);
+          
           self.editor.layout();
-          
+          /*
           self.ownerCt.show = function() {
-        	  self.setHeight(containerHeight);
-              self.editor.layout();
-          }
-          
+        	  var pnl = this;
+        	  pnl.hidden = false;
+        	  console.log("se pnl: ", pnl);
+        	  containerHeight = pnl.container.dom.clientHeight;
+        	  console.log("se container height: ", containerHeight);
+			  if(containerHeight<500){
+			    containerHeight=500;
+			  }
+			  pnl.items.items[0].setHeight(containerHeight);
+			  console.log("se pnl after: ", pnl);
+			  console.log("se ownerCt height: ", pnl.el.dom.clientHeight);
+			  //self.editor.layout();
+          }*/
+         
           window.onresize = function() {
             console.log("hey it's resized... ");
             self.editor.layout();
-            console.log("childHeight: ", childHeight);
             containerHeight = self.ownerCt.container.dom.clientHeight;
             console.log("containerHeight: ", containerHeight);
-            /*trimmed = containerHeight.replace("px","");
-            intHeight = parseInt(trimmed);
-            monacoInt = intHeight - childrenHeight;
-            monacoHeight = monacoInt + "px";*/
             self.setHeight(containerHeight);
             self.editor.layout();
           };
 
           });
+        },
+        show: function() {
+        	console.log("hello there");
+        	var self = this;
+        	var containerHeight = self.ownerCt.container.dom.clientHeight;
+            console.log("se container height: ", containerHeight);
+            if(containerHeight<500){
+              containerHeight=500;
+            }
+            self.setHeight(containerHeight);
+            console.log("se ownerCt height: ", self.el.dom.clientHeight);
+            self.editor.layout();
         }
     }, this);
   },
 
-  getValue : function(x) {
+  getValue : function() {
     return this.editor.getValue();
   }
 
