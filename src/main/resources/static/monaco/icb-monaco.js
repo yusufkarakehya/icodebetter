@@ -11,7 +11,7 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
 
     this.on({
         afterrender: function () {	
-          console.log("after render...");
+          //console.log("after render...");
           var self = this;
           require.config({ paths: { 'vs': '/monaco/min/vs' }});
           require(['vs/editor/editor.main'], function() {
@@ -24,44 +24,27 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
           //self = self;
 
           var childrenCount = self.ownerCt.container.dom.children.length;
-          console.log("window: ", window);
+          //console.log("window: ", window);
 
-          console.log("element: ", self.getEl());
-          console.log("ownerCt: ", self.ownerCt);
-          console.log("container: ", self.ownerCt.container);
+          //console.log("element: ", self.getEl());
+          //console.log("ownerCt: ", self.ownerCt);
+          //console.log("container: ", self.ownerCt.container);
           
           
           var containerHeight = self.ownerCt.container.dom.clientHeight;
-          console.log('container height: ', containerHeight);
+          //console.log('container height: ', containerHeight);
           if(containerHeight<500){
             containerHeight=500;
           }
-          self.setHeight(containerHeight);
-          
-          console.log("render ownerCt height: ", self.el.dom.clientHeight);
-          
+          self.setHeight(containerHeight);          
+          //console.log("render ownerCt height: ", self.el.dom.clientHeight);         
           self.editor.layout();
-          /*
-          self.ownerCt.show = function() {
-        	  var pnl = this;
-        	  pnl.hidden = false;
-        	  console.log("se pnl: ", pnl);
-        	  containerHeight = pnl.container.dom.clientHeight;
-        	  console.log("se container height: ", containerHeight);
-			  if(containerHeight<500){
-			    containerHeight=500;
-			  }
-			  pnl.items.items[0].setHeight(containerHeight);
-			  console.log("se pnl after: ", pnl);
-			  console.log("se ownerCt height: ", pnl.el.dom.clientHeight);
-			  //self.editor.layout();
-          }*/
-         
+
           window.onresize = function() {
-            console.log("hey it's resized... ");
+            //console.log("hey it's resized... ");
             self.editor.layout();
             containerHeight = self.ownerCt.container.dom.clientHeight;
-            console.log("containerHeight: ", containerHeight);
+            //console.log("containerHeight: ", containerHeight);
             self.setHeight(containerHeight);
             self.editor.layout();
           };
@@ -69,15 +52,12 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
           });
         },
         show: function() {
-        	console.log("hello there");
         	var self = this;
         	var containerHeight = self.ownerCt.container.dom.clientHeight;
-            console.log("se container height: ", containerHeight);
             if(containerHeight<500){
               containerHeight=500;
             }
             self.setHeight(containerHeight);
-            console.log("se ownerCt height: ", self.el.dom.clientHeight);
             self.editor.layout();
         }
     }, this);
