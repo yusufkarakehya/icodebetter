@@ -2216,7 +2216,7 @@ function ajaxErrorHandler(obj){
 					if(oo.error.endsWith('}#') && oo.error.indexOf('#{')>-1){
 						var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
 						lineNo=lineNo.substr(0,lineNo.length-2);
-						ss+=' &nbsp; <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:iwb.errors['+qi+']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS</a>';
+						if(iwb.errors[qi])ss+=' &nbsp; <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:iwb.errors['+qi+']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS</a>';
 					} else {
 						if(oo.error.indexOf('Position: ')>-1){
 							sqlPos=oo.error.substr(oo.error.indexOf('Position: ')+'Position: '.length);

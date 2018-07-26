@@ -1007,7 +1007,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		} catch(Exception e){
 //			if(FrameworkSetting.debug)e.printStackTrace();
 //			logException(PromisUtil.replaceSql(sql, params)+"\n"+ e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Custom Query2Map",0, GenericUtil.replaceSql(sql, params), e.getMessage(), e);	
+			throw new IWBException("sql","Custom.Query:Map",0, GenericUtil.replaceSql(sql, params), e.getMessage(), e);	
 		} 
 		
 	}
@@ -1751,7 +1751,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		}
 		if(formResult.getFormCellResults()==null)formResult.setFormCellResults(new ArrayList<W5FormCellHelper>(form.get_formCells().size()));
 		if(form.get_formCells()!=null)formResult.getExtraFormCells().addAll(0, form.get_formCells());
-		for(W5FormCell cell:formResult.getExtraFormCells())if(!onlyFreeFields || cell.getObjectDetailId()==0){
+		for(W5FormCell cell:formResult.getExtraFormCells())if(!onlyFreeFields || cell.getObjectDetailId()==0)try{
 			if(t!=null){
 				W5TableField tf = null;
 				if(form.getObjectTip()==2 && cell.get_sourceObjectDetail()!=null && cell.get_sourceObjectDetail() instanceof W5TableField){
@@ -1833,7 +1833,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					result.setValue(res == null ? null : res.toString());
 	 
 				} catch(Exception e){
-					throw new IWBException("rhino", "FormElement", cell.getFormCellId(), sc.toString(), "[41,"+cell.getFormCellId()+"]", e);
+					throw new IWBException("rhino", "Run JS Code", 0, sc.toString(), e.getMessage(), null);
 				} finally {
 		             // Exit from the context.
 	 	             Context.exit();
@@ -1848,6 +1848,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				if(selectedItems.length()>0)result.setValue(selectedItems.substring(1));
 			}	
 			formResult.getFormCellResults().add(result);
+		}catch(Exception e){
+			throw new IWBException("framework", "Initialize FormElement", cell.getFormCellId(), null, "[41,"+cell.getFormCellId()+"] " + cell.getDsc(), e);
 		}
 	}
 	
@@ -5838,15 +5840,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			if(scope.has("outMsgs", scope)){//TODO
 				Object em = scope.get("outMsgs", scope);
 			}
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				IWBException pe = (IWBException) e.getCause();
-				throw new IWBException("rhino","DbFuncId", r.getDbFuncId(), pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-			}
-			throw new IWBException("rhino","DbFuncId", r.getDbFuncId(), script, LocaleMsgCache.get2(0,(String)r.getScd().get("locale"),e.getMessage()), e.getCause());
+			throw new IWBException("rhino","Debug Backend", r.getDbFuncId(), script, LocaleMsgCache.get2(0,(String)r.getScd().get("locale"),e.getMessage()), e);
 		} finally {
              // Exit from the context.
 	             cx.exit();
@@ -6088,17 +6083,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				fields.add(d);
 			}
 			m.put("fields", fields);
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				IWBException pe = (IWBException) e.getCause();
-				throw new IWBException("rhino","QueryId", q.getQueryId(), pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-			}
-
-
-			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("rhino","QueryId", q.getQueryId(), script, LocaleMsgCache.get2(0,(String)qr.getScd().get("locale"),e.getMessage()), e.getCause());
+			throw new IWBException("rhino","Debug Query", q.getQueryId(), script, LocaleMsgCache.get2(0,(String)qr.getScd().get("locale"),e.getMessage()), e);
 		} finally {
              // Exit from the context.
 	             cx.exit();

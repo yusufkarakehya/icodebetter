@@ -1073,7 +1073,7 @@ background-image:url(images/vcsw-16.png);
 
 label.table2form-active,.fc-form label:hover {
 	border: 1px solid #99bbe8;
-	border-radius: 10px 0 0 10px;
+	border-radius: 20px 0 0 20px;
 }
 
 header {
@@ -1271,3 +1271,7 @@ header .phone .theme-switch a+a {
 	margin-top: 10px;
 }
 
+
+.x-dd-drag-ghost .x-tab-strip-inner, .x-dd-drag-ghost .x-tab-right {
+	background: transparent !important;
+}
