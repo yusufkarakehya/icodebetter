@@ -1007,7 +1007,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		} catch(Exception e){
 //			if(FrameworkSetting.debug)e.printStackTrace();
 //			logException(PromisUtil.replaceSql(sql, params)+"\n"+ e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Custom Query2Map",0, GenericUtil.replaceSql(sql, params), e.getMessage(), e);	
+			throw new IWBException("sql","Custom.Query:Map",0, GenericUtil.replaceSql(sql, params), e.getMessage(), e);	
 		} 
 		
 	}
@@ -1751,7 +1751,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		}
 		if(formResult.getFormCellResults()==null)formResult.setFormCellResults(new ArrayList<W5FormCellHelper>(form.get_formCells().size()));
 		if(form.get_formCells()!=null)formResult.getExtraFormCells().addAll(0, form.get_formCells());
-		for(W5FormCell cell:formResult.getExtraFormCells())if(!onlyFreeFields || cell.getObjectDetailId()==0){
+		for(W5FormCell cell:formResult.getExtraFormCells())if(!onlyFreeFields || cell.getObjectDetailId()==0)try{
 			if(t!=null){
 				W5TableField tf = null;
 				if(form.getObjectTip()==2 && cell.get_sourceObjectDetail()!=null && cell.get_sourceObjectDetail() instanceof W5TableField){
@@ -1833,7 +1833,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					result.setValue(res == null ? null : res.toString());
 	 
 				} catch(Exception e){
-					throw new IWBException("rhino", "FormElement", cell.getFormCellId(), sc.toString(), "[41,"+cell.getFormCellId()+"]", e);
+					throw new IWBException("rhino", "Run JS Code", 0, sc.toString(), e.getMessage(), null);
 				} finally {
 		             // Exit from the context.
 	 	             Context.exit();
@@ -1848,6 +1848,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				if(selectedItems.length()>0)result.setValue(selectedItems.substring(1));
 			}	
 			formResult.getFormCellResults().add(result);
+		}catch(Exception e){
+			throw new IWBException("framework", "Initialize FormElement", cell.getFormCellId(), null, "[41,"+cell.getFormCellId()+"] " + cell.getDsc(), e);
 		}
 	}
 	
@@ -3050,22 +3052,9 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	@Override
 	public void reloadApplicationSettingsValues(){
 		FrameworkSetting.debug = FrameworkCache.getAppSettingIntValue(0, "debug")!=0;
-		/*if(FrameworkCache.getAppSettingIntValue(0, "dealer_flag")!=0){
-			FrameworkSetting.dealerTableIds.clear();
-			String x=FrameworkCache.getAppSettingStringValue(0, "dealer_table_ids");
-			if(x!=null){
-				String[] xs=x.split(",");
-				if(xs!=null && xs.length>0)for(String q:xs)FrameworkSetting.dealerTableIds.add(GenericUtil.uInt(q));
-			}
-			FrameworkSetting.dealerDetailTableIds.clear();
-			x=FrameworkCache.getAppSettingStringValue(0, "dealer_detail_table_ids");
-			if(x!=null){
-				String[] xs=x.split(",");
-				if(xs!=null && xs.length>0)for(String q:xs)FrameworkSetting.dealerDetailTableIds.add(GenericUtil.uInt(q));
-			}
-		}*/
 		
 		//preload olmamasinin sebebi: approval'da herkesin farkli kayitlarinin gelmesi search formlarda
+		FrameworkSetting.monaco = FrameworkCache.getAppSettingIntValue(0, "monaco")!=0;
 		FrameworkSetting.mq = FrameworkCache.getAppSettingIntValue(0, "mq_flag")!=0;
 		FrameworkSetting.preloadWEngine= FrameworkCache.getAppSettingIntValue(0, "preload_engine");
 		FrameworkSetting.chat = FrameworkCache.getAppSettingIntValue(0, "chat_flag")!=0;
@@ -4304,7 +4293,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					} else {
 						res.put(subStr, fieldPrefix+field_cnt);
 						resField.put(subStr, tf);
-						sql.append("x.").append(newSubStr).append(" ").append(fieldPrefix).append(field_cnt).append(",");
+						if(tf.getFieldTip()==2)
+							sql.append("to_char(x.").append(newSubStr).append(",'dd/mm/yyyy')");
+						else
+							sql.append("x.").append(newSubStr);
+						sql.append(" ").append(fieldPrefix).append(field_cnt).append(",");
 						field_cnt++;
 					}
 					break;
@@ -4324,19 +4317,16 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						sqlCode = oz[0].toString();
 						if(oz.length>1)params.addAll((List)oz[1]);
 					}
-					sql.append("(").append(sqlCode).append(") ").append(fieldPrefix).append(field_cnt).append(",");
+					if(tfc.getFieldTip()==2)
+						sql.append("to_char((").append(sqlCode).append("),'dd/mm/yyyy')");
+					else
+						sql.append("(").append(sqlCode).append(")");
+					sql.append(" ").append(fieldPrefix).append(field_cnt).append(",");
 					field_cnt++;
 					break;
 				}
 				if(!res.containsKey(subStr))invalidKeys.add(subStr);
-			} else if(subStr.equals("company_logo")){ //firma logosu
-				String logoFileUrl = "";
-				W5Customization c = FrameworkCache.wCustomizationMap.get(scd.get("customizationId"));
-				String url = FrameworkCache.getAppSettingStringValue(scd, "url_remote");
-				if (GenericUtil.isEmpty(url))requestParams.get("_ServerURL_");
-				logoFileUrl = "http://"+ url +"/bmp/app/sf/iworkbetter.png?_fai=-1000";	
-				res.put(subStr, logoFileUrl);
-			} else if(subStr.startsWith("lnk.")){// burda bu field ile olan baglantiyi cozmek lazim
+			} else  if(subStr.startsWith("lnk.")){// burda bu field ile olan baglantiyi cozmek lazim
 				String newSubStr = subStr.substring(4);
 				
 				String[] sss = newSubStr.replace(".", "&").split("&");
@@ -4562,26 +4552,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	             // Exit from the context.
  	             Context.exit();
 	        }
-			break;
-		case	4://expression
-/*			Context cx2 = Context.enter();
-			try {
-				// Initialize the standard objects (Object, Function, etc.)
-				// This must be done before scripts can be executed. Returns
-				// a scope object that we use in later calls.
-				Scriptable scope = cx2.initStandardObjects();
-				// Now evaluate the string we've colected.
-				cx2.evaluateString(scope, "var result=" + tmp.toString(), null, 1, null);
-
-				Object resq = scope.get("result", scope);
-				if(resq!=null && resq instanceof org.mozilla.javascript.Undefined)resq=null;
-				tmp.setLength(0);
-				if(resq!=null)tmp.append(resq);
- 
-			} finally {
-	             // Exit from the context.
- 	             Context.exit();
-	        } */
 			break;
 		}
 		return newRes;
@@ -5838,15 +5808,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			if(scope.has("outMsgs", scope)){//TODO
 				Object em = scope.get("outMsgs", scope);
 			}
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				IWBException pe = (IWBException) e.getCause();
-				throw new IWBException("rhino","DbFuncId", r.getDbFuncId(), pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-			}
-			throw new IWBException("rhino","DbFuncId", r.getDbFuncId(), script, LocaleMsgCache.get2(0,(String)r.getScd().get("locale"),e.getMessage()), e.getCause());
+			throw new IWBException("rhino","Debug Backend", r.getDbFuncId(), script, LocaleMsgCache.get2(0,(String)r.getScd().get("locale"),e.getMessage()), e);
 		} finally {
              // Exit from the context.
 	             cx.exit();
@@ -6088,17 +6051,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				fields.add(d);
 			}
 			m.put("fields", fields);
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				IWBException pe = (IWBException) e.getCause();
-				throw new IWBException("rhino","QueryId", q.getQueryId(), pe.getSql(), "Inside of Rhino("+pe.getErrorType() + ", " +  pe.getObjectType() + ", " +  pe.getObjectId()+"): "+pe.getMessage(), pe.getCause());
-			}
-
-
-			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("rhino","QueryId", q.getQueryId(), script, LocaleMsgCache.get2(0,(String)qr.getScd().get("locale"),e.getMessage()), e.getCause());
+			throw new IWBException("rhino","Debug Query", q.getQueryId(), script, LocaleMsgCache.get2(0,(String)qr.getScd().get("locale"),e.getMessage()), e);
 		} finally {
              // Exit from the context.
 	             cx.exit();
