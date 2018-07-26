@@ -4293,7 +4293,11 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					} else {
 						res.put(subStr, fieldPrefix+field_cnt);
 						resField.put(subStr, tf);
-						sql.append("x.").append(newSubStr).append(" ").append(fieldPrefix).append(field_cnt).append(",");
+						if(tf.getFieldTip()==2)
+							sql.append("to_char(x.").append(newSubStr).append(",'dd/mm/yyyy')");
+						else
+							sql.append("x.").append(newSubStr);
+						sql.append(" ").append(fieldPrefix).append(field_cnt).append(",");
 						field_cnt++;
 					}
 					break;
@@ -4313,19 +4317,16 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						sqlCode = oz[0].toString();
 						if(oz.length>1)params.addAll((List)oz[1]);
 					}
-					sql.append("(").append(sqlCode).append(") ").append(fieldPrefix).append(field_cnt).append(",");
+					if(tfc.getFieldTip()==2)
+						sql.append("to_char((").append(sqlCode).append("),'dd/mm/yyyy')");
+					else
+						sql.append("(").append(sqlCode).append(")");
+					sql.append(" ").append(fieldPrefix).append(field_cnt).append(",");
 					field_cnt++;
 					break;
 				}
 				if(!res.containsKey(subStr))invalidKeys.add(subStr);
-			} else if(subStr.equals("company_logo")){ //firma logosu
-				String logoFileUrl = "";
-				W5Customization c = FrameworkCache.wCustomizationMap.get(scd.get("customizationId"));
-				String url = FrameworkCache.getAppSettingStringValue(scd, "url_remote");
-				if (GenericUtil.isEmpty(url))requestParams.get("_ServerURL_");
-				logoFileUrl = "http://"+ url +"/bmp/app/sf/iworkbetter.png?_fai=-1000";	
-				res.put(subStr, logoFileUrl);
-			} else if(subStr.startsWith("lnk.")){// burda bu field ile olan baglantiyi cozmek lazim
+			} else  if(subStr.startsWith("lnk.")){// burda bu field ile olan baglantiyi cozmek lazim
 				String newSubStr = subStr.substring(4);
 				
 				String[] sss = newSubStr.replace(".", "&").split("&");
@@ -4551,26 +4552,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	             // Exit from the context.
  	             Context.exit();
 	        }
-			break;
-		case	4://expression
-/*			Context cx2 = Context.enter();
-			try {
-				// Initialize the standard objects (Object, Function, etc.)
-				// This must be done before scripts can be executed. Returns
-				// a scope object that we use in later calls.
-				Scriptable scope = cx2.initStandardObjects();
-				// Now evaluate the string we've colected.
-				cx2.evaluateString(scope, "var result=" + tmp.toString(), null, 1, null);
-
-				Object resq = scope.get("result", scope);
-				if(resq!=null && resq instanceof org.mozilla.javascript.Undefined)resq=null;
-				tmp.setLength(0);
-				if(resq!=null)tmp.append(resq);
- 
-			} finally {
-	             // Exit from the context.
- 	             Context.exit();
-	        } */
 			break;
 		}
 		return newRes;

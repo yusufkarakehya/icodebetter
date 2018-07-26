@@ -87,8 +87,8 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
     }, this);
   },
 
-  getValue : function() {
-    return self.editor.getValue();
+  getValue : function(x) {
+    return this.editor.getValue();
   }
 
 });
