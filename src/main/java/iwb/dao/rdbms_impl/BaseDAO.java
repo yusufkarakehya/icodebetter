@@ -236,11 +236,7 @@ public abstract class BaseDAO {
                 return l.isEmpty() ? null : l;
             });
         } catch (Exception e) {
-            if (FrameworkSetting.debug) {
-                e.printStackTrace();
-            }
-            throw new IWBException("sql", "Manuel Query Execute2List", 0, 
-                    sql, e.getMessage(), e.getCause());
+            throw new IWBException("sql", "Custom.Query:List", 0, sql, e.getMessage(), e);
         }
     }
 
@@ -314,19 +310,14 @@ public abstract class BaseDAO {
                 return l.isEmpty() ? null : l;
             });
         } catch (Exception e) {
-            if (FrameworkSetting.debug) {
-                e.printStackTrace();
-            }
-            throw new IWBException("sql", "Manuel Query Execute2ListOfMap", 0,
-                    GenericUtil.replaceSql(sql, params), e.getMessage(), 
-                    e.getCause());
+            throw new IWBException("sql", "Custom.Query:ListOfMap", 0,
+                    GenericUtil.replaceSql(sql, params), e.getMessage(), e);
         }
     }
 
     public int executeUpdateSQLQuery(final String sql, final Object... params) {
-        try {
-            return getCurrentSession().doReturningWork(
-                    (Connection conn) -> {
+        return getCurrentSession().doReturningWork((Connection conn) -> {
+            try {
                 PreparedStatement s = conn.prepareStatement(sql);
                 if (params != null && params.length > 0) {
                     if (params.length == 1 && params[0] instanceof List) {
@@ -366,27 +357,18 @@ public abstract class BaseDAO {
                         }
                     }
                 }
-                try {
-                    s.execute();
-                    s.close();
-                    if (FrameworkSetting.hibernateCloseAfterWork) {
-                        conn.close();
-                    }
-                } catch (Exception e) {
-                    if (FrameworkSetting.debug) {
-                        e.printStackTrace();
-                    }
-                    throw new IWBException("sql", "Manuel Query Execute Update",
-                            0, sql, e.getMessage(), e.getCause());
+                s.execute();
+                s.close();
+                if (FrameworkSetting.hibernateCloseAfterWork) {
+                    conn.close();
                 }
-                return 1;
-            });
-        } catch (Exception e) {
-            if (FrameworkSetting.debug) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                if (FrameworkSetting.debug) {
+                    e.printStackTrace();
+                }
+                throw new IWBException("sql", "Custom.Query:Update", 0, sql, e.getMessage(), e.getCause());
             }
-            throw new IWBException("sql", "Manuel Query Execute Update", 0, sql,
-                    e.getMessage(), e.getCause());
-        }
+            return 1;
+        });
     }
 }

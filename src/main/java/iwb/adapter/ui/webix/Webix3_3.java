@@ -1250,13 +1250,7 @@ public class Webix3_3 implements ViewAdapter {
 						.append(formResult.getApprovalStep() != null ? GenericUtil
 								.stringToJS(formResult.getApprovalStep()
 										.getDsc()) : "-")
-						.append("',eSignFlag:")
-						.append((formResult.getApprovalRecord()
-								.getApprovalStepId() > 901) ? a.geteSignFlag()
-								: (formResult.getApprovalStep() != null
-										&& formResult.getApprovalStep()
-												.geteSignFlag() != 0 && a
-										.geteSignFlag() != 0)).append("}");
+						.append("'}");
 			}
 		} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
 					// yapılabilir mi ? Formun bağlı olduğu tablonun onay

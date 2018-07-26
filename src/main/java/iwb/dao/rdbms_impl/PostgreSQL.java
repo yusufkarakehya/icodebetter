@@ -1178,12 +1178,6 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     				}
     	    		if(paramMap.get("xapproval_id")!=null && c.getLookupQueryId()==606){//onaylanmis ve reddedildiyi koy
     	    			W5Approval ta = FrameworkCache.wApprovals.get(GenericUtil.uInt(paramMap.get("xapproval_id")));
-    	    			if(ta.getApprovalFlowTip()==2){//hiyerarsik onay ise
-    	    				lookupQueryResult.getData().add(0,new Object[]{LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"),ta.getHierarchicalAppMsg()),902});
-    	    			}
-    	    			if(ta.getApprovalFlowTip()==3){//dinamik onay ise
-    	    				lookupQueryResult.getData().add(0,new Object[]{LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"),ta.getDynamicAppMsg()),903});
-    	    			}
     	    			if(ta.getApprovalRequestTip()!=1){//gercek veri uzerinde?
     	    				lookupQueryResult.getData().add(0,new Object[]{LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"),ta.getApprovalRequestMsg()),901});
     	    			}
@@ -3255,20 +3249,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				approvedStep.setDsc(ta.getApprovalRequestMsg());//setDsc("onay_talep_edilecek");
 				ta.get_approvalStepList().add(approvedStep);
 			}
-			if(ta.getApprovalFlowTip()==2){//hierarchical
-				W5ApprovalStep approvedStep = new W5ApprovalStep();
-				approvedStep.setApprovalStepId(902);
-				approvedStep.setDsc(ta.getHierarchicalAppMsg());//setDsc("onay_yonetici_bekleniyor");
-				approvedStep.seteSignFlag(ta.geteSignFlag());
-				ta.get_approvalStepList().add(approvedStep);
-			}
-			if(ta.getApprovalFlowTip()==3){//dynamic
-				W5ApprovalStep approvedStep = new W5ApprovalStep();
-				approvedStep.setApprovalStepId(903);
-				approvedStep.setDsc(ta.getDynamicAppMsg());//setDsc("onay_dinamik_bekleniyor");
-				approvedStep.seteSignFlag(ta.geteSignFlag());
-				ta.get_approvalStepList().add(approvedStep);
-			}
+			
+
 			if(ta.getApprovalStrategyTip()!=0){//gercek tablo uzerinde ise
 				W5ApprovalStep approvedStep = new W5ApprovalStep();
 				approvedStep.setApprovalStepId(998);

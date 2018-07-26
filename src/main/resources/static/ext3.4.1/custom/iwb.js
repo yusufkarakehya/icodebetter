@@ -2162,7 +2162,7 @@ function showSQLError(sql, xpos){
 	new Ext.Window({
         modal: true, closable:true,
         title: 'SQL Error',
-        width: 1000, height: 380, border: false, layout: 'border',
+        width: 1000, height:600, border: false, layout: 'border',
         items: [new Ext.FormPanel({region:'center', items:[_code]})]
 	}).show();
 	var doc=_code.codeEditor.doc;
@@ -2206,20 +2206,26 @@ function ajaxErrorHandler(obj){
     					var tid=oo.error.substr(1).split(',')[0];
     					ss+=': <a href=# onclick="return fnTblRecEdit('+tid+','+oo.objectId+');">'+oo.error+'</a>';
     				} else ss+=': '+oo.objectId+ (oo.error ? ' / ' + oo.error:'');
-    				if(oo.error && oo.sql){
-    					iwb.errors[qi]=oo.sql;
-    					if(oo.error.endsWith('}#') && oo.error.indexOf('#{')>-1){
-        					var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
-        					lineNo=lineNo.substr(0,lineNo.length-2);
-    						ss+=' &nbsp; <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:iwb.errors['+qi+']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS.Exception</a>';
-    					} 
-    				}
 
-    			} else
+
+    			} else {
     				ss+=': ' + oo.error;
-				if(oo.error && oo.error.indexOf('Position: ')>-1){
-					sqlPos=oo.error.substr(oo.error.indexOf('Position: ')+'Position: '.length);    						
-					ss+=' &nbsp; <a href=# onclick=\'showSQLError(iwb.errors['+(qi-1)+'],'+sqlPos+')\' style="padding:1px 5px;background:white;color:green;border-radius:20px;">SQL.Exception</a>';
+    			}
+				if(oo.error){
+					if(oo.sql)iwb.errors[qi]=oo.sql;
+					if(oo.error.endsWith('}#') && oo.error.indexOf('#{')>-1){
+						var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
+						lineNo=lineNo.substr(0,lineNo.length-2);
+						ss+=' &nbsp; <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:iwb.errors['+qi+']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS</a>';
+					} else {
+						if(oo.error.indexOf('Position: ')>-1){
+							sqlPos=oo.error.substr(oo.error.indexOf('Position: ')+'Position: '.length);
+						} //else if(sqlPos){
+							if(iwb.errors[qi-1])ss+=' &nbsp; <a href=# onclick=\'showSQLError(iwb.errors['+(qi-1)+'],'+sqlPos+')\' style="padding:1px 5px;background:white;color:green;border-radius:20px;">SQL</a>';
+						//	sqlPos=false;
+						//}
+						
+					}
 				}
     		}
     		items.push({xtype:'displayfield',fieldLabel: 'Stack',anchor:'99%',labelSeparator:'', value:ss});

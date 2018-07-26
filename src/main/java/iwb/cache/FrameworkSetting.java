@@ -17,7 +17,7 @@ import java.util.UUID;
 
 
 public class FrameworkSetting {
-	public static  boolean monaco = true;
+	public static  boolean monaco = false;
 	public	static	int	rdbmsTip= 0; //0:PostgreSQL, 1: SQL Server, 2: Oracle
 	public	static	boolean	tsdbFlag= true; //Time SeriesDB
 	public	static	int	systemStatus = 0; //0:working, 1:backup, 2:suspended, 3:remzi mode
