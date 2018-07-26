@@ -3052,22 +3052,9 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	@Override
 	public void reloadApplicationSettingsValues(){
 		FrameworkSetting.debug = FrameworkCache.getAppSettingIntValue(0, "debug")!=0;
-		/*if(FrameworkCache.getAppSettingIntValue(0, "dealer_flag")!=0){
-			FrameworkSetting.dealerTableIds.clear();
-			String x=FrameworkCache.getAppSettingStringValue(0, "dealer_table_ids");
-			if(x!=null){
-				String[] xs=x.split(",");
-				if(xs!=null && xs.length>0)for(String q:xs)FrameworkSetting.dealerTableIds.add(GenericUtil.uInt(q));
-			}
-			FrameworkSetting.dealerDetailTableIds.clear();
-			x=FrameworkCache.getAppSettingStringValue(0, "dealer_detail_table_ids");
-			if(x!=null){
-				String[] xs=x.split(",");
-				if(xs!=null && xs.length>0)for(String q:xs)FrameworkSetting.dealerDetailTableIds.add(GenericUtil.uInt(q));
-			}
-		}*/
 		
 		//preload olmamasinin sebebi: approval'da herkesin farkli kayitlarinin gelmesi search formlarda
+		FrameworkSetting.monaco = FrameworkCache.getAppSettingIntValue(0, "monaco")!=0;
 		FrameworkSetting.mq = FrameworkCache.getAppSettingIntValue(0, "mq_flag")!=0;
 		FrameworkSetting.preloadWEngine= FrameworkCache.getAppSettingIntValue(0, "preload_engine");
 		FrameworkSetting.chat = FrameworkCache.getAppSettingIntValue(0, "chat_flag")!=0;

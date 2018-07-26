@@ -12,9 +12,9 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
     this.on({
         afterrender: function () {
           /*
-          if(window.monacos != null) {
+          if(self != null) {
             console.log("hello there");
-            window.monacos.getEl().remove();
+            self.getEl().remove();
           }*/
           var self = this;
           require.config({ paths: { 'vs': '/monaco/min/vs' }});
@@ -25,29 +25,29 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
           });
           monaco.editor.setTheme("vs-dark");
 
-          window.monacos = self;
+          //self = self;
 
-          var childrenCount = window.monacos.ownerCt.container.dom.children.length;
+          var childrenCount = self.ownerCt.container.dom.children.length;
           console.log("window: ", window);
 
           console.log("element: ", self.getEl());
-          console.log("ownerCt: ", window.monacos.ownerCt);
-          console.log("container: ", window.monacos.ownerCt.container);
+          console.log("ownerCt: ", self.ownerCt);
+          console.log("container: ", self.ownerCt.container);
           console.log("children count: ", childrenCount);
 
           var childrenHeight = 0;
           for(var index =0; index < childrenCount; index++) {
-            if(window.monacos.ownerCt.id !== window.monacos.ownerCt.container.dom.children[index].id) {
-              var childHeight = window.monacos.ownerCt.container.dom.children[index].clientHeight + 40;
+            if(self.ownerCt.id !== self.ownerCt.container.dom.children[index].id) {
+              var childHeight = self.ownerCt.container.dom.children[index].clientHeight + 40;
               childrenHeight += childHeight;
             }
           }
 
-          //console.log("ownerCt id: ", window.monacos.ownerCt.id);
-          //console.log("first child id: ", window.monacos.ownerCt.container.dom.children[0].id);
+          //console.log("ownerCt id: ", self.ownerCt.id);
+          //console.log("first child id: ", self.ownerCt.container.dom.children[0].id);
           console.log("childrenHeight: ", childrenHeight);
 
-          var containerHeight = window.monacos.ownerCt.container.dom.clientHeight;
+          var containerHeight = self.ownerCt.container.dom.clientHeight;
           console.log('container height: ', containerHeight);
           /*var trimmed = containerHeight.replace("px","");
           console.log("trimmed: ", trimmed);
@@ -59,21 +59,27 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
           if(containerHeight<500){
             containerHeight=500;
           }
-          window.monacos.setHeight(containerHeight);
+          self.setHeight(containerHeight);
 
-          window.monacos.editor.layout();
+          self.editor.layout();
+          
+          self.ownerCt.show = function() {
+        	  self.setHeight(containerHeight);
+              self.editor.layout();
+          }
+          
           window.onresize = function() {
             console.log("hey it's resized... ");
-            window.monacos.editor.layout();
+            self.editor.layout();
             console.log("childHeight: ", childHeight);
-            containerHeight = window.monacos.ownerCt.container.dom.clientHeight;
+            containerHeight = self.ownerCt.container.dom.clientHeight;
             console.log("containerHeight: ", containerHeight);
             /*trimmed = containerHeight.replace("px","");
             intHeight = parseInt(trimmed);
             monacoInt = intHeight - childrenHeight;
             monacoHeight = monacoInt + "px";*/
-            window.monacos.setHeight(containerHeight);
-            window.monacos.editor.layout();
+            self.setHeight(containerHeight);
+            self.editor.layout();
           };
 
           });
@@ -82,7 +88,7 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
   },
 
   getValue : function() {
-    return window.monacos.editor.getValue();
+    return self.editor.getValue();
   }
 
 });
@@ -91,11 +97,11 @@ Ext.reg("monacoeditor", Ext.ux.form.Monaco);
 
 
 /*
-console.log('height: ',window.monacos.ownerCt.el.dom.style.height);
-console.log('width: ',window.monacos.ownerCt.el.dom.style.width);
-window.monacos.setWidth(window.monacos.ownerCt.el.dom.style.width);
-var w = window.monacos.ownerCt.el.dom.style.width;
-var h = window.monacos.ownerCt.el.dom.style.width;
+console.log('height: ',self.ownerCt.el.dom.style.height);
+console.log('width: ',self.ownerCt.el.dom.style.width);
+self.setWidth(self.ownerCt.el.dom.style.width);
+var w = self.ownerCt.el.dom.style.width;
+var h = self.ownerCt.el.dom.style.width;
 
 console.log("dark before: ",window.document.getElementsByClassName("vs-dark")[0].style);
 var darkStyle = "width: " + w + "; height: " + h + ";";
