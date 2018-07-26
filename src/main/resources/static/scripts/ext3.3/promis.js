@@ -1749,7 +1749,7 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport){
 }
 
 function addHelpButton(xbuttons, xgrid, xtable_id, xtable_pk){
-	//alert(xgrid.getExtDef().mf.basParams._tid);
+	//alert(xgrid.render().mf.basParams._tid);
 	xbuttons.push('->');
 	if(xgrid.displayInfo)xbuttons.push('-');	
 	xbuttons.push({id:'btn_help_' + xgrid.id, tooltip:getLocMsg('help'),cls:'x-btn-icon x-grid-help', _activeOnSelection:false, _grid:xgrid, handler:function(){
@@ -1984,7 +1984,7 @@ function addTab4GridWSearchForm(obj){
     var items = [];
 	//---search form
     if(mainGrid.searchForm){
-		searchFormPanel =  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.getExtDef(),{
+		searchFormPanel =  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.render(),{
 			region: 'north', bodyStyle:'padding:3px',
 //			height: mainGrid.searchForm.defaultHeight||120,
 			autoHeight:true,
@@ -2177,7 +2177,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 	//---search form
 	var searchFormPanel = null;
     if(mainGrid.searchForm){
-    	var searchFormPanel = mainGrid.searchForm.fp = new Ext.FormPanel(Ext.apply(mainGrid.searchForm.getExtDef(),{
+    	var searchFormPanel = mainGrid.searchForm.fp = new Ext.FormPanel(Ext.apply(mainGrid.searchForm.render(),{
 			region: 'north', bodyStyle:'padding:3px',
 			autoHeight:true,
 			anchor: '100%',
@@ -2672,7 +2672,7 @@ function showLoginDialog(xobj){
            handler: function(){document.location='login.htm?r='+new Date().getTime();
         }
 		}],                       
-		items :pfrm_login.getExtDef().items[0].items
+		items :pfrm_login.render().items[0].items
 	});
 	
 	lw = new Ext.Window({
@@ -3993,7 +3993,7 @@ function prepareDetailGridCRUDButtons(grid,pk,toExtraButtonsFlag){
 //Multi Main Grid
 function addTab4DetailGridsWSearchForm(obj){
 	var mainGrid = obj.detailGrids[0].grid,detailGridTabPanel=null;
-	var searchFormPanel=  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.getExtDef(),{
+	var searchFormPanel=  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.render(),{
 		region: 'north', bodyStyle:'padding:3px',
 //		height: mainGrid.searchForm.defaultHeight||120,
 		autoHeight:true,
@@ -4810,7 +4810,7 @@ function buildPanel(obj, isMasterFlag){
 iwb.ui.buildPanel=buildPanel;
 
 iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
-	var extDef = getForm.getExtDef(); 
+	var extDef = getForm.render(); 
 
 	var extraItems = (!getForm.renderTip || getForm.renderTip!=3) ? extDef.items : extDef.items[0].items
 	if (_app.alarm_view_tip && 1 * _app.alarm_view_tip == 1 && getForm.alarmTemplates && getForm.alarmTemplates.length > 0) {
@@ -5029,18 +5029,18 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                                }
 	                                var r = null;
 	                                var bm=false;
-	                                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
+	                                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
 	                                    bm=true;
 	                                }
-	                                if (extDef.manuelValidation || bm) {
+	                                if (extDef.componentWillPost || bm) {
 	                                    if (getForm._cfg.formPanel.getForm().isValid()) {
 	                                        var vals=getForm._cfg.formPanel.getForm().getValues();
-	                                        if(extDef.manuelValidation){
-	                                            r = extDef.manuelValidation(vals);
+	                                        if(extDef.componentWillPost){
+	                                            r = extDef.componentWillPost(vals);
 	                                            if (!r) return;
 	                                        }
-	                                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
-	                                            var r2=extDef._extendedForms[qi].manuelValidation(vals);
+	                                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
+	                                            var r2=extDef._extendedForms[qi].componentWillPost(vals);
 	                                            if(!r2)return;
 	                                            if(!r)r=r2;
 	                                            else if(typeof r == 'object' && typeof r2 == 'object'){
@@ -5081,19 +5081,19 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                var r = null;
 	                //manuel validation
 	                var bm=false;
-	                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
+	                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
 	                    bm=true;
 	                }
 
-	                if (extDef.manuelValidation || bm) {
+	                if (extDef.componentWillPost || bm) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
 	                        var vals=getForm._cfg.formPanel.getForm().getValues();
-	                        if(extDef.manuelValidation){
-	                            r = extDef.manuelValidation(vals);
+	                        if(extDef.componentWillPost){
+	                            r = extDef.componentWillPost(vals);
 	                            if (!r) return;
 	                        }
-	                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
-	                            var r2=extDef._extendedForms[qi].manuelValidation(vals);
+	                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
+	                            var r2=extDef._extendedForms[qi].componentWillPost(vals);
 	                            if(!r2)return;
 	                            if(!r)r=r2;
 	                            else if(typeof r == 'object' && typeof r2 == 'object'){
@@ -5229,9 +5229,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            handler: function(a, b, c) {
 	                if (!getForm._cfg.formPanel.getForm().isDirty() && !confirm('${attention_you_save_without_change_are_you_sure}')) return;
 	                var r = null;
-	                if (extDef.manuelValidation) {
+	                if (extDef.componentWillPost) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
-	                        r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                        r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                        if (!r) return
 	                    } else {
 	                        getForm._cfg.formPanel.getForm().findInvalid();
@@ -5264,9 +5264,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            iconCls: 'ikaydet_yeni',
 	            handler: function(a, b, c) {
 	                var r = null;
-	                if (extDef.manuelValidation) {
+	                if (extDef.componentWillPost) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
-	                        r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                        r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                        if (!r) return
 	                    } else {
 	                        getForm._cfg.formPanel.getForm().findInvalid();
@@ -5390,9 +5390,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	        iconCls: 'app_req',
 	        handler: function(a, b, c) {
 	            var r = null;
-	            if (extDef.manuelValidation) {
+	            if (extDef.componentWillPost) {
 	                if (getForm._cfg.formPanel.getForm().isValid()) {
-	                    r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                    r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                    if (!r) return
 	                } else {
 	                    getForm._cfg.formPanel.getForm().findInvalid();
@@ -5421,9 +5421,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	        iconCls: 'app_req',
 	        handler: function(a, b, c) {
 	            var r = null;
-	            if (extDef.manuelValidation) {
+	            if (extDef.componentWillPost) {
 	                if (getForm._cfg.formPanel.getForm().isValid()) {
-	                    r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                    r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                    if (!r) return
 	                } else {
 	                    getForm._cfg.formPanel.getForm().findInvalid();
@@ -5473,9 +5473,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            handler: function(a, b, c) {
 	                if (!getForm.viewMode) {
 	                    var r = null
-	                    if (extDef.manuelValidation) {
+	                    if (extDef.componentWillPost) {
 	                        if (getForm._cfg.formPanel.getForm().isValid()) {
-	                            r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                            r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                            if (!r) return
 	                        } else {
 	                            getForm._cfg.formPanel.getForm().findInvalid();

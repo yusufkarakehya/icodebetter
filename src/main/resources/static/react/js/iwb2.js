@@ -2852,11 +2852,11 @@ class XForm extends React.Component {
 		 */
 		this.submit = (cfg) => {
 			var values = {...this.state.values};
-			if (this.manualValidation) {
-				/** manualValidationResult = true || fase || {field_name : 'custom value'} */
-				var manualValidationResult = this.manualValidation(values, cfg || {});
-				if (!manualValidationResult) return false;
-				values = {...values, ...manualValidationResult};
+			if (this.componentWillPost) {
+				/** componentWillPostResult = true || fase || {field_name : 'custom value'} */
+				var componentWillPostResult = this.componentWillPost(values, cfg || {});
+				if (!componentWillPostResult) return false;
+				values = {...values, ...componentWillPostResult};
 			}
 			iwb.request({
 				url: this.url + '?' + iwb.JSON2URI(this.params) + '_renderer=react16&.r=' + Math.random(),
