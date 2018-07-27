@@ -2163,7 +2163,7 @@ public class React16 implements ViewAdapter {
 						buttons.append("{}");
 					else if (toolbarItem.getObjectTip() == 15) {// form toolbar
 																// ise
-						buttons.append("{view:'button', value:'")
+						buttons.append("{type:'icon' , value:'")
 								.append(LocaleMsgCache.get2(customizationId,
 										xlocale, toolbarItem.getLocaleMsgKey()))
 								.append("',");
@@ -2177,9 +2177,9 @@ public class React16 implements ViewAdapter {
 										toolbarItem.getCode())).append("\n}}");
 						itemCount++;
 					} else {
-						buttons.append("{view:'button', width:35, type:'icon', icon:'cube', tooltip:'")
-								.append(LocaleMsgCache.get2(customizationId,
-										xlocale, toolbarItem.getLocaleMsgKey()))
+						buttons.append("{type:'button'");
+						if(!GenericUtil.isEmpty(toolbarItem.getImgIcon()))buttons.append(", icon:'").append(toolbarItem.getImgIcon()).append("'");
+						buttons.append(", text:'").append(LocaleMsgCache.get2(customizationId,xlocale, toolbarItem.getLocaleMsgKey()))
 								.append("', click:function(a,b,c){\n")
 								.append(LocaleMsgCache.filter2(
 										customizationId, xlocale,

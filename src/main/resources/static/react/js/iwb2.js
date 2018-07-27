@@ -1,60 +1,62 @@
 //array color name
+const dBGColors2			= [,,"#de9338","#222",,,,,];
 const dgColors				= ['warning','secondary','danger','primary','success','info']
 const dgColors2				= ["primary","info","secondary","gray-700","gray-500","gray-400","gray-700"];
 const detailSpinnerColors2	= ["#187da0","#2eadd3","darkorange","#187da0","#4d6672","#626a70","#66767d"];
-const dBGColors2			= [,,"#de9338","#222",,,,,];
 const dgColors3				= ["gray-700","danger","gray-500","gray-400","gray-700","info","secondary","secondary","secondary","warning"];
 //ReactRouterDOM for routing
-const HashRouter 			= ReactRouterDOM.HashRouter;
+const Link 					= ReactRouterDOM.Link;
 const Route 				= ReactRouterDOM.Route;
 const Switch 				= ReactRouterDOM.Switch;
-const Link 					= ReactRouterDOM.Link;
 const NavLink 				= ReactRouterDOM.NavLink;
 const Redirect 				= ReactRouterDOM.Redirect;
+const HashRouter 			= ReactRouterDOM.HashRouter;
 //Reactstrap components
-const Container 			= Reactstrap.Container;
 const Row 					= Reactstrap.Row;
 const Col 					= Reactstrap.Col;
-const Card 					= Reactstrap.Card;
-const CardHeader 			= Reactstrap.CardHeader;
-const CardFooter			= Reactstrap.CardFooter;
-const CardBlock 			= Reactstrap.CardBody;
-const CardBody 				= Reactstrap.CardBody;
-const Button 				= Reactstrap.Button;
-const ButtonGroup 			= Reactstrap.ButtonGroup;
-const Breadcrumb 			= Reactstrap.Breadcrumb;
-const BreadcrumbItem		= Reactstrap.BreadcrumbItem;
-const Badge 				= Reactstrap.Badge;
-const Label 				= Reactstrap.Label;
-const Input 				= Reactstrap.Input;
-const InputGroup 			= Reactstrap.InputGroup;
-const InputGroupAddon		= Reactstrap.InputGroupAddon;
-const InputGroupButton		= Reactstrap.InputGroupButton;
-const ButtonDropdown		= Reactstrap.ButtonDropdown;
-const Dropdown 				= Reactstrap.Dropdown;
-const DropdownToggle		= Reactstrap.DropdownToggle;
-const DropdownMenu 			= Reactstrap.DropdownMenu;
-const DropdownItem 			= Reactstrap.DropdownItem;
-const Form 					= Reactstrap.Form;
-const FormGroup 			= Reactstrap.FormGroup;
-const FormText 				= Reactstrap.FormText;
-const Table 				= Reactstrap.Table;
-const Pagination 			= Reactstrap.Pagination;
-const PaginationItem		= Reactstrap.PaginationItem;
-const PaginationLink		= Reactstrap.PaginationLink;
 const Nav 					= Reactstrap.Nav;
+const Card 					= Reactstrap.Card;
+const Form 					= Reactstrap.Form;
+const Input 				= Reactstrap.Input;
+const Label 				= Reactstrap.Label;
+const Table 				= Reactstrap.Table;
+const Badge 				= Reactstrap.Badge;
+const Modal 				= Reactstrap.Modal;
+const Button 				= Reactstrap.Button;
 const NavItem 				= Reactstrap.NavItem;
 const NavLinkS 				= Reactstrap.NavLink;
-const NavbarToggler 		= Reactstrap.NavbarToggler;
-const NavbarBrand 			= Reactstrap.NavbarBrand;
-const Modal 				= Reactstrap.Modal;
-const ModalHeader 			= Reactstrap.ModalHeader;
-const ModalBody 			= Reactstrap.ModalBody;
-const ModalFooter 			= Reactstrap.ModalFooter;
-const TabContent 			= Reactstrap.TabContent;
 const TabPane 				= Reactstrap.TabPane;
+const Tooltip				= Reactstrap.Tooltip;
+const FormText 				= Reactstrap.FormText;
+const Dropdown 				= Reactstrap.Dropdown;
+const CardBody 				= Reactstrap.CardBody;
+const CardBlock 			= Reactstrap.CardBody;
 const ListGroup 			= Reactstrap.ListGroup;
+const Container 			= Reactstrap.Container;
+const ModalBody 			= Reactstrap.ModalBody;
+const FormGroup 			= Reactstrap.FormGroup;
+const CardHeader 			= Reactstrap.CardHeader;
+const CardFooter			= Reactstrap.CardFooter;
+const Breadcrumb 			= Reactstrap.Breadcrumb;
+const InputGroup 			= Reactstrap.InputGroup;
+const Pagination 			= Reactstrap.Pagination;
+const TabContent 			= Reactstrap.TabContent;
+const ModalHeader 			= Reactstrap.ModalHeader;
+const ModalFooter 			= Reactstrap.ModalFooter;
+const ButtonGroup 			= Reactstrap.ButtonGroup;
+const NavbarBrand 			= Reactstrap.NavbarBrand;
+const DropdownMenu 			= Reactstrap.DropdownMenu;
+const DropdownItem 			= Reactstrap.DropdownItem;
 const ListGroupItem 		= Reactstrap.ListGroupItem;
+const NavbarToggler 		= Reactstrap.NavbarToggler;
+const DropdownToggle		= Reactstrap.DropdownToggle;
+const PaginationLink		= Reactstrap.PaginationLink;
+const PaginationItem		= Reactstrap.PaginationItem;
+const ButtonDropdown		= Reactstrap.ButtonDropdown;
+const BreadcrumbItem		= Reactstrap.BreadcrumbItem;
+const InputGroupAddon		= Reactstrap.InputGroupAddon;
+const InputGroupButton		= Reactstrap.InputGroupButton;
+const UncontrolledTooltip	= Reactstrap.UncontrolledTooltip;
 //FW Community Components 
 const Select 				= window.Select;
 const Popper 				= window.Popper;
@@ -63,13 +65,13 @@ const findDOMNode 			= ReactDOM.findDOMNode;
 var _						= React.createElement;
 //DXReactCore imports
 const Getter 				= DXReactCore.Getter;
+const Plugin				= DXReactCore.Plugin;
 const Template				= DXReactCore.Template;
 const TemplateConnector		= DXReactCore.TemplateConnector; 
 const TemplatePlaceholder	= DXReactCore.TemplatePlaceholder;
-const Plugin				= DXReactCore.Plugin;
 
-var _dxgrb					= DXReactGridBootstrap4;
 var _dxrg					= DXReactGrid;
+var _dxgrb					= DXReactGridBootstrap4;
 /**
  * @description 
  * iwb object is MIXIN like object
@@ -274,7 +276,6 @@ var iwb={
 				} else {
 					params[key+prefix+"."+dirtyCount]=(val.charAt(0)=='!') ? val.substring(1):items[bjk][val];
 				}
-				
 			}
 		}
 		items = values.inserted;
@@ -794,8 +795,8 @@ class XModal extends React.Component {
 		 * @description
 		 * Used to close the Modal (actually hide)
 		 */
-		this.close= () => { this.setState({modal:false}); } 
-		this.toggle = () => { this.setState({ modal: !this.state.modal }); }
+		this.close= () => this.setState({modal:false}); 
+		this.toggle = () => this.setState({ modal: !this.state.modal }); 
 		iwb.showModal=this.open;
 		iwb.closeModal=this.close;
 	}
@@ -1369,8 +1370,8 @@ class XEditGridSF extends GridCommon {
 				order:columns.map(({name})=>name), 
 				pageSize: props.pageSize || iwb.detailPageSize,
 				viewMode:!props.editable && (props.viewMode||true), 
+				columnWidths: columnExtensions.map(({columnName,width})=>{return {columnName,width}}), 
 		      	pageSizes: props.pageSize>1 ? [parseInt(props.pageSize/2), props.pageSize, 3*props.pageSize]:[5,10,25,100],
-			  	columnWidths: columnExtensions.map(({columnName,width})=>{return {columnName,width}}), 
 		    };
 		}
 		/**
@@ -1387,11 +1388,15 @@ class XEditGridSF extends GridCommon {
 					}
 				}
 			});
+			console.dir(document.getElementById('s-'+this.props.id));
+			
 			var searchFormData = this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id));
+			console.dir(searchFormData);
+
 			return {searchFormData, inserted:addedRows, deleted:deletedRows, _state: this.state};
 		}
 	    if(props.parentCt && props.parentCt.egrids)props.parentCt.egrids[props.gridId]=this;
-	    if(this.props.searchForm){//hidden:!!this.props.grid.globalSearch
+	    if(this.props.searchForm){
 			this.searchForm = _(Nav, {style:{}},
 				_('div',{className:'hr-text'},
 					_('h6',null,'Arama Kriterleri')
@@ -1399,7 +1404,7 @@ class XEditGridSF extends GridCommon {
 				_('div',{style:{zoom:'.9'}},
 					_(this.props.searchForm,{parentCt:this}),
 					_('div',{className:'form-group',style:{paddingTop:10}},
-						_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(true)} },"ARA")
+						_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => this.loadData(true) },"ARA")
 					)
 				)
 	    	);
@@ -1446,8 +1451,8 @@ class XEditGridSF extends GridCommon {
 			case	3:case	4://number
 				editor.value=xprops.value || 0;//xprops.row._new[xprops.column.name];
 				editor.onValueChange = ({value})=>{
-				xprops.row._new[xprops.column.name] = value;
-				xprops.onValueChange(value);
+					xprops.row._new[xprops.column.name] = value;
+					xprops.onValueChange(value);
 				};
 				break;
 			case	6:case	8:	case	58:
@@ -1590,15 +1595,12 @@ class XEditGridSF extends GridCommon {
 		);
 		    
 		return !this.searchForm ? g:_('div',{ className:'tab-grid mb-4'},[
-			_('nav',{
-				id:'sf-'+this.props.id,
-				key: 'sf-'+this.props.id
-				}, this.searchForm)
-			,_('main',{
-				className: "inbox",
-				key:'inbox'
-				}, g, footer)
-		    ])
+			_('nav',{ id:'sf-'+this.props.id, key: 'sf-'+this.props.id},
+				this.searchForm)
+			,_('main',{ className: "inbox", key:'inbox'},
+				g,
+				footer)
+		])
 	}
 }
 /**
@@ -2032,15 +2034,16 @@ class XEditGrid extends GridCommon {
  * @param {Symbol} props.searchForm - Search form is generated from ServerSide and extens from XForm Component 
  * @param {String} props._url - ["ajaxQueryData?_renderer=react16&.t=tpi_1531758063549&.w=wpi_1531758063547&_qid=4220&_gid=3376&firstLimit=10"]
  * @param {function} props._timelineBadgeBtn - will work when the timelineBadge is clicked
- * @param {function} props.forceRelaod - to find out weathet it is delated or not used to compare props with prevProps
- * @param {function} props._hideTimelineBadgeBtn - to hide _hideTimelineBadgeBtn
+ * @param {Number} props.forceRelaod - to find out weathet it is delated or not used to compare props with prevProps
+ * @param {Boolean} props._hideTimelineBadgeBtn - to hide _hideTimelineBadgeBtn
+ * @param {Array} props.extraButtons - Array of buttons in grid
  * 
  */
 class XMainGrid extends GridCommon {
 	constructor(props) {
 		super(props);
 		var oldGridState = iwb.grids[props.id];
-		if(iwb.debug)console.log('XMainGrid', props);
+		if(!iwb.debug)console.log('XMainGrid', props.extraButtons);
 		if(oldGridState){
 			this.state = oldGridState;
 			this.dontRefresh = true;// true-yuklemez, false-yukleme yapar
@@ -2325,20 +2328,27 @@ class XMainGrid extends GridCommon {
 			},
 			props:{
 				keyField,
+				crudFlags,
+				detailGrids,
+				extraButtons,
 				_disableSearchPanel,
 				_disableIntegratedSorting,
 				_disableIntegratedGrouping,
 			},
+			loadData,
+			searchForm,
 			rowComponent,
+			toggleSearch,
 			onOrderChange,
+			onOnNewRecord,
 			onSortingChange,
 			onPageSizeChange,
 			onCurrentPageChange,
 			onColumnWidthsChange,
 		} = this;
 		
-		var showDetail = this.props.detailGrids && this.props.detailGrids.length>0;
-		var grid = _(_dxgrb.Grid,{rows: rows, columns, getRowId : (row) => row[keyField]},
+		let showDetail = detailGrids && detailGrids.length>0;
+		let grid = _(_dxgrb.Grid,{rows: rows, columns, getRowId : (row) => row[keyField]},
 			/** sorting state */
 			!_disableIntegratedSorting && _(_dxrg.SortingState, !pageSize ? null : { sorting, onSortingChange, columnExtensions}),
 			/** pagesize > 0 will import search state */
@@ -2355,6 +2365,7 @@ class XMainGrid extends GridCommon {
 			showDetail?  _(_dxrg.RowDetailState,null):null,
 			/**state paging */
 			rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxrg.PagingState, pageSize>1 ? { pageSize,currentPage, onPageSizeChange,onCurrentPageChange}:{}) : null,
+			/** For remote paging*/
 			pageSize>1 && rows.length>1  && _(_dxrg.CustomPaging, {totalCount: totalCount}),
 			/**enable group drag drop */
 			_(_dxgrb.DragDropProvider,null),
@@ -2367,7 +2378,7 @@ class XMainGrid extends GridCommon {
 			/** UI to show table row container */	  
 			_(_dxgrb.TableHeaderRow, { showSortingControls: true }),
 			/** UI of the detail table */
-			showDetail?  _(_dxgrb.TableRowDetail, {contentComponent:this.showDetail2(this.props.detailGrids)}):null,
+			showDetail?  _(_dxgrb.TableRowDetail, {contentComponent:this.showDetail2(detailGrids)}):null,
 			/**UI show pagining */
 			rows.length>iwb.detailPageSize || pageSize>1 ?  _(_dxgrb.PagingPanel, {pageSizes: pageSizes || iwb.detailPageSize}) : null,
 			/**UI table Grouping */
@@ -2384,20 +2395,39 @@ class XMainGrid extends GridCommon {
 		);
 		
 		return _('div',{className:'tab-grid mb-4'},
-			this.searchForm && _('nav',{id:'sf-'+this.props.id,className:this.state.hideSF ? 'sf-hidden':''}, this.searchForm)
+			searchForm && _('nav',{id:'sf-'+this.props.id,className:this.state.hideSF ? 'sf-hidden':''}, searchForm)
 			,_('main',{className: "inbox"},
 				_(CardHeader, {},
-					this.searchForm && _(Button, {className:'btn-round-shadow', color: "secondary", onClick:this.toggleSearch},
+					searchForm && _(Button, {className:'btn-round-shadow', color: "secondary", style:{'marginLeft':'5px'}, onClick:toggleSearch},
 						_('i',{id:'eq-'+this.props.id,className:'icon-magnifier'})
 					),
-					this.searchForm && " ",
-					!this.searchForm && _(Button, {className:'btn-round-shadow', disabled:loading, color: "secondary", onClick:() => {this.loadData(true);} },
+					
+					!searchForm && _(Button, {className:'btn-round-shadow', disabled:loading, color: "secondary", style:{'marginLeft':'5px'}, onClick:event=>loadData(true)},
 						_('i',{className:'icon-refresh'})
-					)
-					," ",
-					this.props.crudFlags && this.props.crudFlags.insert ? _(Button, {className:'btn-round-shadow', color: "primary", onClick:(event) => {this.onOnNewRecord(event,this.props)} },
-						_('i',{className:'icon-plus'})," NEW RECORD"):null,
-//							_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
+					),
+					
+					crudFlags && crudFlags.insert &&  _(Button, {className:'btn-round-shadow', style:{'marginLeft':'5px'}, color: "primary", onClick:event=>onOnNewRecord(event,this.props) },
+						_('i',{className:'icon-plus'})," NEW RECORD"),
+
+					extraButtons && extraButtons.map((prop,index)=>{
+						if(prop.type === 'button'){
+							return _(Button,{ 
+								id:'toolpin'+index,
+								key:'key'+index,
+								className:'btn-round-shadow',
+								color:'success',
+								style:{'marginLeft':'5px'},
+								onClick:prop.click && prop.click.bind(this)
+							},
+								prop.icon && _('i',{className:'icon-'+prop.icon}),
+								prop.text && prop.text
+							)
+						}
+						prop.autoComplete='off';
+						prop.key = 'Ikey'+index;
+						return  _(prop.$||Input, {...prop, $:undefined }, )
+					}),
+//					_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
 					this.props.gridReport && _(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.openBI},
 						_('i',{className:'icon-equalizer'})
 					)//, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})		)
