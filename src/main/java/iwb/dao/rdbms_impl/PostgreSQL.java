@@ -1007,7 +1007,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		} catch(Exception e){
 //			if(FrameworkSetting.debug)e.printStackTrace();
 //			logException(PromisUtil.replaceSql(sql, params)+"\n"+ e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Custom.Query:Map",0, GenericUtil.replaceSql(sql, params), e.getMessage(), e);	
+			throw new IWBException("sql","Custom.Query.Map",0, GenericUtil.replaceSql(sql, params), "Error Executing", e);	
 		} 
 		
 	}
@@ -1268,7 +1268,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			    	applyParameters(s, realParams);
 			    	ResultSet rs = s.executeQuery();
 			    	if(!rs.next())				
-			    		throw new IWBException("sql","Form Load",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), "No Record Found", null);
+			    		throw new IWBException("sql","Form.Load",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), "No Record Found", null);
 
 					for(W5FormCellHelper cellResult:formResult.getFormCellResults())if(cellResult.getFormCell().getObjectDetailId()!=0){
 						Object obj = rs.getObject(((W5TableField)cellResult.getFormCell().get_sourceObjectDetail()).getDsc());
@@ -1833,7 +1833,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 					result.setValue(res == null ? null : res.toString());
 	 
 				} catch(Exception e){
-					throw new IWBException("rhino", "Run JS Code", 0, sc.toString(), e.getMessage(), null);
+					throw new IWBException("rhino", "Backend JS Code", 0, sc.toString(), "Error Executing", e);
 				} finally {
 		             // Exit from the context.
 	 	             Context.exit();
@@ -2143,13 +2143,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				}
     		});
     		
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(e.getCause() instanceof IWBException)throw e;
-			//if(PromisSetting.debug)e.printStackTrace();
-//			logException(e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Form Update",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(), updateParams), e.getMessage(), e.getCause());
+			throw new IWBException("sql","Form.Update",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(), updateParams), "Error Updating", e.getCause());
 		} finally {
 //			session.close();
 		}
@@ -2387,9 +2382,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	    	
 
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-//			logException(e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Form Copy",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(), copyParams), e.getMessage(), e.getCause());
+			throw new IWBException("sql","Form.Copy",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(), copyParams), "Error Copying", e);
 		} finally {
 //			session.close();
 		}
@@ -2686,15 +2679,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				}
 	    	});
 	    	
-    	} catch(IWBException pe){ 
-    		throw pe;
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-			if(e.getCause()!=null && e.getCause() instanceof SQLException){
-				throw new IWBException("sql","Form Insert",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(), insertParams), ((SQLException)(e.getCause())).getLocalizedMessage(), e.getCause());
-			}
-//			logException(e.getMessage(),PromisUtil.uInt(PromisCache.appSettings.get(0).get("default_customization_id")),0);
-			throw new IWBException("sql","Form Insert(Unhandled)",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(), insertParams), e.getMessage(), e.getCause());
+			throw new IWBException("sql","Form.Insert",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(), insertParams), "Error Inserting", e);
 		} finally {
 //			session.close();
 		}
@@ -2734,7 +2720,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
     		b = applyParameters(session.createSQLQuery(sql.toString()),realParams).executeUpdate()>0;
     		
     	} catch(Exception e){
-    		throw new IWBException("sql","Form Delete",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), e.getMessage(), e.getCause());
+    		throw new IWBException("sql","Form.Delete",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(),realParams), "Error Deleting", e);
     	} finally{
 //    		session.close();
     	}
@@ -2939,7 +2925,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				}
 	    	} catch(Exception e){
 	    		if(FrameworkSetting.debug)e.printStackTrace();
-	    		if(queryId!=-1)throw new IWBException("sql","Query Field Creation",queryId,sql.toString(), e.getMessage(), e.getCause());
+	    		if(queryId!=-1)throw new IWBException("sql","QueryField.Creation",queryId,sql.toString(), "Error Creating", e);
 	    	}
 		}
 		boolean vcs = FrameworkSetting.vcs;
@@ -3758,10 +3744,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 				}
 			});
 		} catch(Exception e){
-			String exceptionText=GenericUtil.replaceSql(r.getExecutedSql(), sqlParams);
-			error = e.getLocalizedMessage();
-//			logException(exceptionText+" "+e.getMessage(),  PromisUtil.uInt(r.getScd().get("customizationId")), PromisUtil.uInt(r.getScd().get("userRoleId")));
-			throw new IWBException("sql","DbProc Execute1",r.getDbFuncId(),exceptionText, e.getMessage(), e.getCause());
+			throw new IWBException("sql","DbProc.Execute",r.getDbFuncId(),GenericUtil.replaceSql(r.getExecutedSql(), sqlParams), "Error Executing", e);
 		} finally {
 	    	logDbFuncAction(action, r, error);
 		}
@@ -5261,44 +5244,21 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	@Override
 	public boolean saveVcsObject(Map<String, Object> scd, int tableId, int tablePk, int action, JSONObject o) { //TODO
 //		dao.updatePlainTableRecord(t, o, vo.getTablePk(), srvCommitUserId);
-		W5Table t = FrameworkCache.getTable(scd, tableId);
-		StringBuilder s = new StringBuilder();
-		List p = new ArrayList();
-		switch(action){
-		case	1://update
-			s.append("update ").append(t.getDsc()).append(" set ");
-			for(W5TableField f:t.get_tableFieldList())if(f.getTabOrder()>1){
-				if(f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
+		try{
+			W5Table t = FrameworkCache.getTable(scd, tableId);
+			StringBuilder s = new StringBuilder();
+			List p = new ArrayList();
+			switch(action){
+			case	1://update
+				s.append("update ").append(t.getDsc()).append(" set ");
+				for(W5TableField f:t.get_tableFieldList())if(f.getTabOrder()>1){
+					if(f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
+							continue;
+					if(f.getDsc().equals("version_dttm")){
+						s.append(f.getDsc()).append("=iwb.fnc_sysdate(0),");
 						continue;
-				if(f.getDsc().equals("version_dttm")){
-					s.append(f.getDsc()).append("=iwb.fnc_sysdate(0),");
-					continue;
-				}
-				s.append(f.getDsc()).append("=?,");
-				try {
-					if(o.has(f.getDsc())){
-						p.add(GenericUtil.getObjectByControl((String)o.get(f.getDsc()), f.getParamTip()));
-					} else 
-						p.add(null);
-				} catch (JSONException e) {
-					throw new IWBException("vcs","JSONException : saveVcsObject", t.getTableId(), f.getDsc(), e.getMessage(), e.getCause());
-				}
-			}
-			s.setLength(s.length()-1);
-			s.append(" where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-			if(t.get_tableParamList().size()>1)s.append(" AND customization_id=").append(scd.get("customizationId"));
-			p.add(tablePk);
-			break;
-		case	2://insert
-			s.append("insert into ").append(t.getDsc()).append("(");
-			StringBuilder s2= new StringBuilder();
-			for(W5TableField f:t.get_tableFieldList())if(f.getTabOrder()>0){
-				if(GenericUtil.hasPartInside2("insert_dttm,version_dttm", f.getDsc())){
-					s.append(f.getDsc()).append(",");
-					s2.append("current_timestamp,");
-				} else {
-					s.append(f.getDsc()).append(",");
-					s2.append("?,");
+					}
+					s.append(f.getDsc()).append("=?,");
 					try {
 						if(o.has(f.getDsc())){
 							p.add(GenericUtil.getObjectByControl((String)o.get(f.getDsc()), f.getParamTip()));
@@ -5308,19 +5268,46 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						throw new IWBException("vcs","JSONException : saveVcsObject", t.getTableId(), f.getDsc(), e.getMessage(), e.getCause());
 					}
 				}
+				s.setLength(s.length()-1);
+				s.append(" where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
+				if(t.get_tableParamList().size()>1)s.append(" AND customization_id=").append(scd.get("customizationId"));
+				p.add(tablePk);
+				break;
+			case	2://insert
+				s.append("insert into ").append(t.getDsc()).append("(");
+				StringBuilder s2= new StringBuilder();
+				for(W5TableField f:t.get_tableFieldList())if(f.getTabOrder()>0){
+					if(GenericUtil.hasPartInside2("insert_dttm,version_dttm", f.getDsc())){
+						s.append(f.getDsc()).append(",");
+						s2.append("current_timestamp,");
+					} else {
+						s.append(f.getDsc()).append(",");
+						s2.append("?,");
+						try {
+							if(o.has(f.getDsc())){
+								p.add(GenericUtil.getObjectByControl((String)o.get(f.getDsc()), f.getParamTip()));
+							} else 
+								p.add(null);
+						} catch (JSONException e) {
+							throw new IWBException("vcs","JSONException : saveVcsObject", t.getTableId(), f.getDsc(), e.getMessage(), e.getCause());
+						}
+					}
+					
+				}
+				s.setLength(s.length()-1);s2.setLength(s2.length()-1);
+				s.append(") values (").append(s2).append(")");
 				
+				break;
+			case	3://delete
+				s.append("delete from ").append(t.getDsc()).append(" where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
+				if(t.get_tableParamList().size()>1)s.append(" AND customization_id=").append(scd.get("customizationId"));
+				p.add(tablePk);
+				break;
 			}
-			s.setLength(s.length()-1);s2.setLength(s2.length()-1);
-			s.append(") values (").append(s2).append(")");
-			
-			break;
-		case	3://delete
-			s.append("delete from ").append(t.getDsc()).append(" where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-			if(t.get_tableParamList().size()>1)s.append(" AND customization_id=").append(scd.get("customizationId"));
-			p.add(tablePk);
-			break;
+			executeUpdateSQLQuery(s.toString(), p);
+		} catch(Exception e){
+			throw new IWBException("framework","Save.VCSObject",tablePk,null, "["+tableId+","+tablePk+"] ", e);
 		}
-		executeUpdateSQLQuery(s.toString(), p);
 
 		return true;
 	}
@@ -5714,8 +5701,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		        				
 		        			}catch(Exception ee){}
 	        			} catch(SQLException se){
-	        				if(FrameworkSetting.debug)se.printStackTrace();
-	        				throw new IWBException("sql","Manual Query executeSQLQuery2Map4Debug",0,GenericUtil.replaceSql(sql,params), se.getMessage(), se.getCause());
+	        				throw se;
 	        			} finally {
 		        			if(rs!=null)rs.close();
 		        			if(s!=null)s.close();
@@ -5725,11 +5711,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 	                }
 	            }
 	    	);
-		} catch(IWBException e){
-			throw e;
 		} catch(Exception e){
-			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("sql","Manual Query executeSQLQuery2Map4Debug",0,GenericUtil.replaceSql(sql,params), e.getMessage(), e.getCause());
+			throw new IWBException("sql","Debug.Query",-1,GenericUtil.replaceSql(sql,params), "Error Executing", e);
 		}
 	}
 
