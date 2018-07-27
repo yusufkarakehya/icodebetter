@@ -405,7 +405,7 @@ var XMainGrid = Vue.component('x-main-grid', {
    			   h('el-row',{style:"padding: 5px"},[
    			                  (!0 || g.searchForm) && h('el-button',{props:{icon:"el-icon-search", circle:!0}})
    			                  ,h('el-button',{props:{icon:"el-icon-refresh", circle:!0},on:{click:this.loadData}})
-   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:this.onNewRecord}},'YENİ KAYIT')
+   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:this.onNewRecord}},'NEW RECORD')
    			                  ,h('el-button',{props:{icon:"el-icon-menu", circle:!0}})]),
    			                  h('hr',{style:"margin-bottom:0"}),
    				h('el-table',{style:"width: 100%", props:{stripe:!0, data:this.rows},directives:[{name:'loading',value:this.loading}], on:{'row-dblclick':this.dblClick,'expand-change':this.expandChange, 'sort-change':this.sortChange}},
@@ -464,7 +464,7 @@ function XPage(c){
 				      						iwb.closeModal();
 				      						if(scallback)scallback(json);
 				      					}});
-				      				},subHeader:url.indexOf('a=1')>0 ? ' · Düzenle':' · Yeni Kayıt', header:r.cfg.name,body:bodyForm,closable:true,viewMode:url.indexOf('a=1')>0,closableOutside:!1,footer:true,type:r.cfg.size||'lg'})
+				      				},subHeader:url.indexOf('a=1')>0 ? ' · Update':' · New Record', header:r.cfg.name,body:bodyForm,closable:true,viewMode:url.indexOf('a=1')>0,closableOutside:!1,footer:true,type:r.cfg.size||'lg'})
 				      			}
 				        	} else {
 				        		iwb.notifyVue('error','Sonuc Gelmedi',' Error');
@@ -602,7 +602,7 @@ var XModal = Vue.component('modal', {
 	                            h(this.body,{props:{viewMode:this.viewMode}})
 	                         ]),
 	                         !this.viewMode && this.footer!==false && h('div',{class:"modal-footer"+cls2str(this.footerClasses)},
-   	                            this.footer===true ? [h('el-button',{props:{type:"danger"},on:{click:this.submit}},'KAYDET'), h('el-button',{props:{type:"info"},on:{click:this.closeModal}},'KAPAT')]: [h(this.footer)]
+   	                            this.footer===true ? [h('el-button',{props:{type:"danger"},on:{click:this.submit}},'SAVE'), h('el-button',{props:{type:"info"},on:{click:this.closeModal}},'CLOSE')]: [h(this.footer)]
    	                         )	                              
                        ])
 		    	   ]) 

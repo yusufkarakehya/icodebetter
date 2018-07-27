@@ -23,7 +23,7 @@ public class IWBException extends RuntimeException {
 	private List<IWBException> stack;
 	
 	public IWBException(String errorType, String objectType, int objectId, String sql, String message, Throwable cause) {
-		super(message, cause);
+		super(cause!=null && cause.getMessage().contains("(unnamed script#") ? message + " #{"+cause.getMessage().substring(cause.getMessage().indexOf("(unnamed script#")+"(unnamed script#".length(),cause.getMessage().length()-1)+"}#" : message, cause);
 		this.errorType=errorType;//security, validation, framework, definition
 		this.objectType=objectType;
 		this.objectId=objectId;
@@ -43,7 +43,9 @@ public class IWBException extends RuntimeException {
 			te = (Exception)te.getCause();
 			if(te instanceof IWBException)return (IWBException)te;
 		}
-		return new IWBException("framework","Unknown", 0, null, "Root Cause -> " +te.getMessage(), e.getCause());
+		String newObjectType = te.getClass().getName();
+		if(newObjectType.equals("org.postgresql.util.PSQLException"))newObjectType="DataBase.Exception";
+		return new IWBException("framework",newObjectType, 0, null, te.getMessage(), e.getCause());
 	}
 
 	public String toHtmlString(){
@@ -80,12 +82,15 @@ public class IWBException extends RuntimeException {
 			if(sql!=null)b.append(",\n\"sql\":\"").append(GenericUtil.stringToJS2(sql)).append("\"");
 			if(!GenericUtil.isEmpty(this.stack) && this.stack.size()>1){
 				b.append(",\n\"icodebetter\":[");
+				String lastErrorMsg="";
 				for(int qi=stack.size()-1;qi>=0;qi--){
-					if(qi<stack.size()-1)b.append(",");
+					if(lastErrorMsg.length()>0)b.append(",");
 					IWBException iw = (IWBException)stack.get(qi);
-					
+//					if(lastErrorMsg.equals(iw.getMessage()))continue;
+					lastErrorMsg = iw.getMessage();
 					b.append("{errorType:\"").append(iw.getErrorType()).append("\"");
 					if(!GenericUtil.isEmpty(iw.getMessage()))b.append(",error:\"").append(GenericUtil.stringToJS2(iw.getMessage())).append("\"");
+					if(!GenericUtil.isEmpty(iw.getSql()))b.append(",sql:\"").append(GenericUtil.stringToJS2(iw.getSql())).append("\"");
 					if(!GenericUtil.isEmpty(iw.getObjectType())){
 						b.append(",objectType:\"").append(GenericUtil.stringToJS2(iw.getObjectType())).append("\",objectId:").append(iw.getObjectId());
 					}

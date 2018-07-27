@@ -2353,7 +2353,9 @@ public class VcsEngine {
 			dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
 		} 
 		
-		int result = dao.executeUpdateSQLQuery(sql);
+		if(customizationId==0){// security:only for customization 0
+			dao.executeUpdateSQLQuery(sql); 
+		}
 		
 		W5VcsCommit commit = new W5VcsCommit();
 		commit.setCommitTip((short)2);

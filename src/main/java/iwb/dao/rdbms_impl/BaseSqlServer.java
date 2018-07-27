@@ -268,63 +268,6 @@ public class BaseSqlServer extends HibernateDaoSupport {
     	return getHibernateTemplate().find(query,params);
     }
 
-/*	public List executeSQLQuery2(String sql,Object... params) {
-		Session session = getSession();
-		List l = null;
-		try {
-			SQLQuery query= session.createSQLQuery(sql);
-			if(params!=null && params.length>0)applyParameters2(query, params);
-			l = query.list();
-		} catch(Exception e){
-			if(PromisSetting.debug)e.printStackTrace();
-			throw new PromisException("sql","Manuel Query Execute2List",0,sql, e.getMessage(), e.getCause());
-		} finally {
-//			session.close();
-		}
-		return l;
-	} *//*
-	public List executeSQLQuery(final String sql,final Object... params) {
-		try {
-	    	return (List)getHibernateTemplate().execute(
-	            new HibernateCallback() {
-	                public Object doInHibernate(Session session) throws SQLException {
-	        			Connection conn = session.connection();
-	        			PreparedStatement s = conn.prepareStatement(sql);
-	        			
-	        			if(params!=null && params.length>0)for(int i=0;i<params.length;i++){
-	        				if(params[i]==null) s.setObject(i+1, null);
-	    					else if(params[i] instanceof Date)s.setDate(i+1, new java.sql.Date(((Date)params[i]).getTime()));
-	    					else s.setObject(i+1, params[i]);
-	        			}
-	        			
-	        			
-	        			ResultSet rs = s.executeQuery();
-	        			int columnCount = rs.getMetaData().getColumnCount();
-	        			List l = new ArrayList();
-	        			while(rs.next()){
-	        				if(columnCount==1)
-	        					l.add(rs.getObject(1));
-	        				else {
-	        					Object[] oz = new Object[columnCount];
-	        					for(int i=0;i<columnCount;i++)
-	        						oz[i] = rs.getObject(i+1);
-	        					l.add(oz);
-	        				}
-	        			}
-	        			rs.close();
-	        			s.close();
-	        			conn.close();
-	        			return l.size()==0 ? null : l;
-	                }
-	            }
-	    	);
-		} catch(Exception e){
-			if(PromisSetting.debug)e.printStackTrace();
-			throw new PromisException("sql","Manuel Query Execute2List",0,sql, e.getMessage(), e.getCause());
-		}
-	}
-	
-*/
 	public List executeSQLQuery(final String sql,final Object... params) {
 		try{
 			return getSessionFactory().getCurrentSession().doReturningWork(new ReturningWork<List>() {
@@ -361,7 +304,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 			});	
 		} catch(Exception e){
 			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("sql","Manuel Query Execute2List",0,sql, e.getMessage(), e.getCause());
+			throw new IWBException("sql","Custom.Query:Execute2List",0,sql, e.getMessage(), e.getCause());
 		}
 	}
 	public List executeSQLQuery2(final String sql,final List params) {
@@ -400,7 +343,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 	    	);
 		} catch(Exception e){
 			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("sql","Manuel Query Execute2List",0,sql, e.getMessage(), e.getCause());
+			throw new IWBException("sql","Custom.Query:Execute2List",0,sql, e.getMessage(), e.getCause());
 		}
 	}
 	public List executeSQLQuery2Map(final String sql,final List params) {
@@ -457,7 +400,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 	    	);
 		} catch(Exception e){
 			if(FrameworkSetting.debug)e.printStackTrace();
-			throw new IWBException("sql","Manuel Query Execute2ListOfMap",0,GenericUtil.replaceSql(sql,params), e.getMessage(), e.getCause());
+			throw new IWBException("sql","Custom.Query:Execute2ListOfMap",0,GenericUtil.replaceSql(sql,params), e.getMessage(), e.getCause());
 		}
 	}
 	/*
@@ -471,7 +414,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 			
 		} catch(Exception e){
 			if(PromisSetting.debug)e.printStackTrace();
-			throw new PromisException("sql","Manuel Query Execute Update",0,sql, e.getMessage(), e.getCause());
+			throw new PromisException("sql","Custom.Query:Execute Update",0,sql, e.getMessage(), e.getCause());
 		} 
 	}
 */
@@ -510,7 +453,7 @@ public class BaseSqlServer extends HibernateDaoSupport {
 	        			}
 	        			catch (Exception e) {
 	        				if(FrameworkSetting.debug)e.printStackTrace();
-	        				throw new IWBException("sql","Manuel Query Execute Update",0,sql, e.getMessage(), e.getCause());
+	        				throw new IWBException("sql","Custom.Query:Execute Update",0,sql, e.getMessage(), e.getCause());
 						}
 	        			
 	        			return 1;
@@ -519,44 +462,8 @@ public class BaseSqlServer extends HibernateDaoSupport {
 	    	);
 		} catch(Exception e){
 				if(FrameworkSetting.debug)e.printStackTrace();
-				throw new IWBException("sql","Manuel Query Execute Update",0,sql, e.getMessage(), e.getCause());
+				throw new IWBException("sql","Custom.Query:Execute Update",0,sql, e.getMessage(), e.getCause());
 		}
 	}
-	/*
-	public int executeSQLWithoutTransaction(final String sql,final Object... params){	// Transaction disable hale getiriliyor..
-		try{
-	    	getHibernateTemplate().execute(
-	            new HibernateCallback() {
-	                public Object doInHibernate(Session session) throws SQLException {
-	        			Connection conn = session.connection();
-	        			conn.rollback(); //**** daha oncekiler roolback yapliyor.
-	        			PreparedStatement s = conn.prepareStatement(sql);
-	        			if(params!=null && params.length>0)for(int i=0;i<params.length;i++){
-	        				if(params[i]==null) s.setObject(i+1, null);
-	    					else if(params[i] instanceof Date)s.setDate(i+1, new java.sql.Date(((Date)params[i]).getTime()));
-	    					else if(params[i] instanceof Double)s.setDouble(i+1, Double.valueOf(params[i].toString()));
-	    					else if(params[i] instanceof Integer)s.setInt(i+1, Integer.valueOf(params[i].toString()));
-	    					else s.setObject(i+1, params[i]);
-	        			}
-	        			try{
-	        				s.execute();
-	        			    conn.commit(); //** sadece bu sql calistiriliyor.
-		        			s.close();
-		        			conn.close();
-	        			}
-	        			catch (Exception e) {
-	        				if(PromisSetting.debug)e.printStackTrace();
-	        				throw new PromisException("sql","Manuel Query Execute Update",0,sql, e.getMessage(), e.getCause());
-						}
-	        			
-	        			return 1;
-	                }
-	            }
-	    	);
-		} catch(Exception e){
-				if(PromisSetting.debug)e.printStackTrace();
-				throw new PromisException("sql","Manuel Query Execute Update",0,sql, e.getMessage(), e.getCause());
-		}
-		return 1;
-	} */
+	
 }

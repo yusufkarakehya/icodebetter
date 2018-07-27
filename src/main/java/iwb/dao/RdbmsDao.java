@@ -84,9 +84,6 @@ public interface RdbmsDao{
 	void loadFormCellLookups(Map<String, Object> scd, List<W5FormCellHelper> formCellResults,
 			Map<String, String> requestParams, String tabId);
 
-	Map<String, Object> loadRecordMapValue(Map<String, Object> scd, Map<String, String> requestParams, W5Table t,
-			String prefix);
-
 	void loadFormTable(W5FormResult formResult);
 
 	W5TemplateResult getTemplateResult(Map<String, Object> scd, int templateId);

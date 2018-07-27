@@ -273,7 +273,7 @@ public class Webix3_3 implements ViewAdapter {
 							return null;
 						s.append("var ").append(nfr.getForm().getDsc())
 								.append("=").append(serializeGetForm(nfr))
-								.append(".getExtDef();\n");
+								.append(".render();\n");
 						break;
 					case 5:// grid
 						if (formResult.getModuleGridMap() == null)
@@ -328,7 +328,7 @@ public class Webix3_3 implements ViewAdapter {
 		s.append("var getForm=").append(serializeGetForm(formResult));
 
 		/*if(formResult.getForm().getRenderTemplateId()==26 && formResult.getForm().get_renderTemplate() != null && formResult.getScd()!=null && formResult.getScd().containsKey("_renderer") && formResult.getScd().get("_renderer").toString().startsWith("webix"))
-			s.append("\nvar extDef = getForm.getExtDef();return addTab4Form(extDef, getForm, callAttributes);"); 
+			s.append("\nvar extDef = getForm.render();return addTab4Form(extDef, getForm, callAttributes);"); 
 		else if (formResult.getRequestParams() != null
 				&& formResult.getRequestParams().containsKey("_log5_log_id")
 				&& FrameworkCache.wTemplates.containsKey(formResult.getScd().get(
@@ -1250,13 +1250,7 @@ public class Webix3_3 implements ViewAdapter {
 						.append(formResult.getApprovalStep() != null ? GenericUtil
 								.stringToJS(formResult.getApprovalStep()
 										.getDsc()) : "-")
-						.append("',eSignFlag:")
-						.append((formResult.getApprovalRecord()
-								.getApprovalStepId() > 901) ? a.geteSignFlag()
-								: (formResult.getApprovalStep() != null
-										&& formResult.getApprovalStep()
-												.geteSignFlag() != 0 && a
-										.geteSignFlag() != 0)).append("}");
+						.append("'}");
 			}
 		} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
 					// yapılabilir mi ? Formun bağlı olduğu tablonun onay
@@ -1308,7 +1302,7 @@ public class Webix3_3 implements ViewAdapter {
 
 		if (liveSyncRecord)
 			formResult.getRequestParams().put(".t", formResult.getUniqueId());
-		s.append(",\n getExtDef:function(){\nvar mf={_formId:").append(
+		s.append(",\n render:function(){\nvar mf={_formId:").append(
 				formResult.getFormId());
 		if (liveSyncRecord)
 			s.append(",id:'").append(formResult.getUniqueId()).append("'");

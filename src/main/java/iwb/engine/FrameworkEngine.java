@@ -50,7 +50,6 @@ import iwb.domain.db.Log5WsMethodAction;
 import iwb.domain.db.W5Approval;
 import iwb.domain.db.W5ApprovalRecord;
 import iwb.domain.db.W5ApprovalStep;
-import iwb.domain.db.W5ApprovalStepSmsMail;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Comment;
 import iwb.domain.db.W5Conversion;
@@ -1355,21 +1354,7 @@ public class FrameworkEngine{
 	
 					Map<Integer,Map> extraInformData = new HashMap<Integer,Map>();
 	
-					List<W5ApprovalStepSmsMail> extraInform = dao.find("from W5ApprovalStepSmsMail t where t.customizationId=? and t.approvalId=? and t.approvalStepId = ? and " +
-							"t.approvalActionTip = 0",approval.getCustomizationId()	,approval.getApprovalId(), approvalStep.getApprovalStepId());
-	
-					if(extraInform != null && extraInform.size() > 0){
-						for(int i=0; i<3; i++){
-							for(W5ApprovalStepSmsMail data:extraInform){
-								if(data.getSmsMailTip() == i){ // Ä°lgili Mail SMS type eşitse
-									Map m = new HashMap();
-									m.put("roles", data.getRolesToInform());
-									m.put("users", data.getUsersToInform());
-									extraInformData.put(Integer.parseInt(i+""), m);
-								}
-							}
-						}
-					}
+
 	
 					/* Ekstra bildirim sonu */
 	
@@ -1728,7 +1713,7 @@ public class FrameworkEngine{
 				//detail records kaydet
 				boolean bd =false;
 				if(paramSuffix.length()==0 && (action==1 || action==2)){ // detail kaydet
-					for(int qi=1;GenericUtil.uInt(requestParams.get("_fid"+qi))!=0;qi++){
+					for(int qi=1;GenericUtil.uInt(requestParams.get("_fid"+qi))!=0;qi++)try{
 						if(qi==1){
 							requestParams.putAll((Map)formResult.getOutputFields());
 							checkedParentRecords.add(formResult.getForm().getObjectId()+"^"+ptablePk);
@@ -1760,6 +1745,8 @@ public class FrameworkEngine{
 							postEditGridDbFunc(scd, -formId, dirtyCount, requestParams,qi+".");
 							bd = true;
 						}
+					} catch(Exception e){
+						throw new IWBException("framework", "postForm(detail)", GenericUtil.uInt(requestParams.get("_fid"+qi)), null, "[40,"+GenericUtil.uInt(requestParams.get("_fid"+qi))+"]", e);
 					}
 	
 				}
@@ -2098,7 +2085,7 @@ public class FrameworkEngine{
 		List<W5TableTrigger> la = mla.get(t.getTableId());
 		if(la==null)return;
 		Map<String, String> newRequestParam = GenericUtil.isEmpty(prefix) ? requestParams:null;
-		for(W5TableTrigger ta:la)if(GenericUtil.hasPartInside2(ta.getLkpTriggerActions(),action))try{
+		for(W5TableTrigger ta:la)if(GenericUtil.hasPartInside2(ta.getLkpTriggerActions(),action)){
 			if(ta.getLkpCodeType()==1){//javascript
 				if(newRequestParam==null) {
 					newRequestParam = new HashMap();
@@ -2107,6 +2094,7 @@ public class FrameworkEngine{
 					}
 				}
 				Context cx = Context.enter();
+				StringBuilder sc = new StringBuilder();
 				try {
 					cx.setOptimizationLevel(-1);
 					// Initialize the standard objects (Object, Function, etc.)
@@ -2119,7 +2107,6 @@ public class FrameworkEngine{
 						ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 					}
 					// Collect the arguments into a single string.
-					StringBuffer sc = new StringBuffer();
 					sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString(scd));
 					sc.append("\nvar _request=").append(GenericUtil.fromMapToJsonString(newRequestParam));
 					sc.append("\nvar triggerAction='").append(action).append("';");
@@ -2157,12 +2144,13 @@ public class FrameworkEngine{
 							throw new IWBException("security","TableTrigger", ta.getTableTriggerId(), null, msg, null);
 						}
 					}
-	
+				} catch(Exception e){
+					throw new IWBException("rhino", "TableEvent", ta.getTableTriggerId(), sc.toString(), "[1209,"+ta.getTableTriggerId()+"] " + ta.getDsc(), e);
 				} finally {
 		             // Exit from the context.
 	 	             cx.exit();
 		        }
-			} else if(ta.getLkpCodeType()==4){//sql
+			} else if(ta.getLkpCodeType()==4)try{//sql
 				Map<String, Object> obj= new HashMap();obj.put("triggerAction", action);
 				Map<String, Object> m = dao.runSQLQuery2Map(ta.getTriggerCode(), scd, requestParams, obj);
 				if(m!=null){
@@ -2184,9 +2172,9 @@ public class FrameworkEngine{
 						throw new IWBException("security","TableTrigger", ta.getTableTriggerId(), null, msg, null);
 					}
 				}
+			} catch(Exception e){
+				throw new IWBException("sql", "Event", ta.getTableTriggerId(), ta.getTriggerCode(), "[1209,"+ta.getTableTriggerId()+"] " + ta.getDsc(), e);
 			}
-		} catch(Exception e){
-			throw new IWBException("framework", "Event", ta.getTableTriggerId(), null, "[1209,"+ta.getTableTriggerId()+"] " + ta.getDsc(), e);
 		}
 	}
 
@@ -3840,150 +3828,7 @@ public class FrameworkEngine{
 	}
 
 
-	/*
-	public boolean startManuelApproval(Map<String, Object> scd, int action, int tableId,
-			int tablePk, Map<String, String> requestParams) {
-		W5Table t = PromisCache.getTable(scd, tableId);
-		if(t!=null && t.get_approvalMap()!=null){//onay mekanizmasi var mi bunda?
-			W5ApprovalStep approvalStep = null;
-			W5ApprovalRecord appRecord = null;
 
-			W5Approval approval = t.get_approvalMap().get((short)action); //action
-			if(approval!=null && approval.getActiveFlag()!=0 && approval.getApprovalRequestTip()!=1){//insert approval mekanizmasi var ve manual
-				Map<String, Object> advancedStepSqlResult = null;
-				if(approval.getAdvancedBeginSql()!=null && approval.getAdvancedBeginSql().length()>10){//calisacak
-					advancedStepSqlResult = dao.runSQLQuery2Map(approval.getAdvancedBeginSql(), scd, requestParams, null);
-					//donen bir cevap var, aktive_flag deger olarak var ve onun degeri 0 ise o zaman girmeyecek
-					if(advancedStepSqlResult!=null &&  advancedStepSqlResult.get("active_flag")!=null && PromisUtil.uInt(advancedStepSqlResult.get("active_flag"))==0){//girmeyecek
-						approval = null; //approval olmayacak
-					}
-				}
-				if(approval!=null){ // eger approval olacaksa
-					approvalStep = null;
-					switch(approval.getApprovalFlowTip()){ //simple
-					case	0://basit onay
-						approvalStep=approval.get_approvalStepList().get(0).getNewInstance();
-						break;
-					case	1://complex onay
-						if(advancedStepSqlResult!=null &&  advancedStepSqlResult.get("approval_step_id")!=null && PromisUtil.uInt(advancedStepSqlResult.get("approval_step_id"))!=0)
-							approvalStep=approval.get_approvalStepMap().get(PromisUtil.uInt(advancedStepSqlResult.get("approval_step_id")));
-						else
-							approvalStep=approval.get_approvalStepList().get(0).getNewInstance();
-						break;
-					case	2://hierarchical onay
-						int mngUserId = PromisUtil.uInt(scd.get("mngUserId"));
-						if(mngUserId!=0){
-							approvalStep = new W5ApprovalStep();
-							approvalStep.setApprovalUsers(""+mngUserId);
-							approvalStep.setApprovalStepId(902);
-						} else { //direk duz approval kismine geciyor:TODO
-							if(approval.get_approvalStepList()!=null && !approval.get_approvalStepList().isEmpty())
-								approvalStep=approval.get_approvalStepList().get(0).getNewInstance();
-							else
-								approvalStep= null;
-						}
-
-						break;
-					}
-					if(approvalStep!=null){ //step hazir
-						appRecord = new W5ApprovalRecord();
-						appRecord.setApprovalId(approval.getApprovalId());
-						appRecord.setApprovalStepId(approvalStep.getApprovalStepId());
-						appRecord.setApprovalActionTip((short)0);//start,approve,return,reject,time_limit_exceed
-						appRecord.setTableId(tableId);
-						appRecord.setReturnFlag(approvalStep.getReturnFlag());
-						appRecord.setApprovalUsers(advancedStepSqlResult!=null && advancedStepSqlResult.get("approval_users")!=null ? (String)advancedStepSqlResult.get("approval_users") : approvalStep.getApprovalUsers());
-						appRecord.setApprovalRoles(advancedStepSqlResult!=null && advancedStepSqlResult.get("approval_roles")!=null ? (String)advancedStepSqlResult.get("approval_roles") : approvalStep.getApprovalRoles());
-						appRecord.setAccessViewTip(advancedStepSqlResult!=null && advancedStepSqlResult.get("access_view_tip")!=null ? (short)PromisUtil.uInt(advancedStepSqlResult.get("access_view_tip")) : approvalStep.getAccessViewTip());
-						appRecord.setAccessViewRoles(advancedStepSqlResult!=null && advancedStepSqlResult.get("access_view_roles")!=null ? (String)advancedStepSqlResult.get("access_view_roles") : approvalStep.getAccessViewRoles());
-						appRecord.setAccessViewUsers(advancedStepSqlResult!=null && advancedStepSqlResult.get("access_view_users")!=null ? (String)advancedStepSqlResult.get("access_view_users") : approvalStep.getAccessViewUsers());
-						if(appRecord.getAccessViewTip()!=0 && !PromisUtil.hasPartInside2(appRecord.getAccessViewUsers(),scd.get("userId")))//goruntuleme kisiti var ve kendisi goremiyorsa, kendisini de ekle
-							appRecord.setAccessViewUsers(appRecord.getAccessViewUsers()!=null ? appRecord.getAccessViewUsers()+","+scd.get("userId") : scd.get("userId").toString());
-						appRecord.setInsertUserId((Integer)scd.get("userId"));
-						appRecord.setVersionUserId((Integer)scd.get("userId"));
-						appRecord.setCustomizationId((Integer)scd.get("customizationId"));
-
-						appRecord.setTablePk(tablePk);
-						String summaryText = dao.getSummaryText4Record(scd, tableId, tablePk);
-						appRecord.setDsc(summaryText);
-						saveObject(appRecord);
-						Log5ApprovalRecord logRecord = new Log5ApprovalRecord();
-						logRecord.setApprovalActionTip((short)0);// start, approve, return, reject, time_limit_cont ,final_approve, deleted
-						logRecord.setUserId((Integer)scd.get("userId"));
-						logRecord.setApprovalRecordId(appRecord.getApprovalRecordId());
-						logRecord.setApprovalStepId(approvalStep.getApprovalStepId());
-						logRecord.setApprovalId(appRecord.getApprovalId());
-						saveObject(logRecord);
-//						formResult.getOutputMessages().add(t.get_approvalMap().get((short)2).getDsc() + " onaya sunulmuştur ("+summaryText+")");
-
-						if(approval.geteSignFlag()!=0 && approval.geteSignReportId()!=0)try{ // burda dosya olusturulup, approval'a attach edilecek
-							requestParams.put("ttalimat_id", ""+tablePk);
-							W5JasperResult jr = getJasperResult(scd, requestParams,  approval.geteSignReportId());
-							String file_name=jr.getFile_name();
-							String localePath=PromisCache.getAppSettingStringValue(scd, "file_local_path")+"/"+scd.get("customizationId")+"/jasper/";
-							Map<String,Object> resultMap=(Map)jr.getResultMap();
-							resultMap.put("localePath", localePath); //dizaynlara eklenen resim path lerinin  dinamik olması saglanıyor.
-							JasperPrint jasperPrint = JasperFillManager.fillReport(localePath + file_name, resultMap, new JRMapCollectionDataSource(jr.getResultDetail()));
-
-							JRExporter exporter =new JRPdfExporter();
-							exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
-
-							String attach_file_name="APPROVAL-"+approval.getApprovalId();
-							long fileId = new Date().getTime();
-						    String system_file_name=fileId+"."+attach_file_name;
-							String path = PromisCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
-											+File.separator+scd.get("customizationId")+File.separator+"attachment";
-
-							int table_id=392; //approval record
-							String table_pk=appRecord.getApprovalRecordId()+"";
-							int file_type_id=1;//PromisUtil.uInteger(request,"_file_type_id");
-
-							File dirPath = new File(path);
-						    if (!dirPath.exists()) {
-						            dirPath.mkdirs();
-						    }
-							JasperExportManager.exportReportToPdfFile(jasperPrint, path+File.separator+system_file_name);
-							File attachFile=new File(path+File.separator+system_file_name);
-							int totalBytesRead=(int) (attachFile.length());
-
-//							jasperFileAttachmentControl(table_id, table_pk, attach_file_name, file_type_id); // daha önce attach dosyaları disable ediyor.
-
-							W5FileAttachment fa = new W5FileAttachment();
-
-//									    fa.setFileComment(bean.getFile_comment());
-							fa.setCustomizationId((Integer)scd.get("customizationId"));
-							fa.setFileTypeId(file_type_id);
-							fa.setFileDisciplineId(file_type_id);
-							fa.setSystemFileName(system_file_name);
-							fa.setOrijinalFileName(attach_file_name);
-							fa.setTableId(table_id);
-							fa.setTablePk(table_pk);
-							fa.setTabOrder((short)1);
-							fa.setUploadUserId((Integer)scd.get("userId"));
-							fa.setFileSize(totalBytesRead);
-							fa.setActiveFlag((short)1);
-					        saveObject(fa);
-							     //   response.getWriter().printf("{ \"success\": \"%s\" }", "true");
-
-
-						} catch (Exception e) {
-							throw new PromisException("framework","JasperReport", approval.geteSignReportId(), null, "Could not attach approval report", null);
-						}
-
-
-					} else {
-						throw new PromisException("framework","Approval", approval.getApprovalId(), null, PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_hatali_onay_tanimi"), null);
-					}
-
-
-				}
-			}
-		}
-
-		return true;
-
-	}
-	*/
 
 	private int approvalStepListControl(List<W5ApprovalStep> stepList){
 		int r = -1;
@@ -4037,7 +3882,6 @@ public class FrameworkEngine{
 		W5ApprovalStep currentStep = a.get_approvalStepMap().get(ar.getApprovalStepId()).getNewInstance();
 
 		W5ApprovalStep nextStep = null;
-		boolean	eSignFlag=false;
 		Map<String, Object> advancedNextStepSqlResult = null;
 		switch(approvalAction){
 		case	901://start approval
@@ -4076,49 +3920,11 @@ public class FrameworkEngine{
 					nextStep=a.get_approvalStepList().get(0).getNewInstance();
 				}
 				break;
-			case	2://hierarchical onay
-//				if(ar.getApprovalStepId()!=902)throw new PromisException("security","ApprovalRecord", approvalRecordId, null, "Bu kayıt için Hierarchical Onay Bilgileri hatali", null);
-				int mngUserId = GenericUtil.uInt(scd.get("mngUserId"));
-				if(mngUserId!=0){
-					nextStep = new W5ApprovalStep();
-					nextStep.setApprovalUsers(""+mngUserId);
-					nextStep.setApprovalStepId(902);
-					nextStep.setSendMailOnEnterStepFlag(a.getSendMailFlag());
-					nextStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
-				} else { //direk duz approval kismine geciyor:TODO
-					if(a.get_approvalStepList()!=null && !a.get_approvalStepList().isEmpty())
-						nextStep=a.get_approvalStepList().get(0).getNewInstance();
-					else
-						nextStep= null;
-				}
+			case	2://hierarchical onay //deprecated
+
 
 				break;
-			case	3:// dynamic onay
-//				if(ar.getApprovalStepId()!=902)throw new PromisException("security","ApprovalRecord", approvalRecordId, null, "Bu kayıt için Hierarchical Onay Bilgileri hatali", null);
-				nextStep = new W5ApprovalStep();
-				String appUserIds = parameterMap.get("_appUserIds");
-				if(appUserIds==null)
-					throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_onaylayacak_kisi_seciniz"), null);
-				if(appUserIds.split(",").length<a.getDynamicStepMinUserCount())
-					throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_min_onaylayacak_kisi")+ " = "+a.getDynamicStepMinUserCount(), null);
-				if(a.getDynamicStepMaxUserCount()>0 && appUserIds.split(",").length>a.getDynamicStepMaxUserCount())
-					throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_max_onaylayacak_kisi")+ " = "+a.getDynamicStepMaxUserCount(), null);
-				//TODO: appUserIds , approval'in icindeki userlardan olmali
-				if (appUserIds.compareTo("") == 0){
-					nextStep = null;
-					isFinished = true;
-					ar.setApprovalActionTip((short)5);//bitti(onaylandi)
-					ar.setApprovalStepId(998);
-				}
-				else{
-					nextStep.setApprovalUsers(appUserIds);
-					nextStep.setApprovalStepId(903); // dynamic onay
-					nextStep.setSendMailOnEnterStepFlag(a.getSendMailFlag());
-					nextStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
-				}
-				if(a.getOnApproveDbFuncId() != 0 && ar.getApprovalStepId() == 998){ // Dinamik Approve onay verildiğinde
-					executeFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
-				}
+			case	3:// dynamic onay //deprecated
 				break;
 			}
 
@@ -4130,68 +3936,12 @@ public class FrameworkEngine{
 				if(dynamicRoleUserSql != null && dynamicRoleUserSql.get("approval_roles") != null)nextStep.setApprovalUsers(nextStep.getApprovalRoles() == null ? (String)dynamicRoleUserSql.get("approval_roles") : GenericUtil.addUniqueValToStr(nextStep.getApprovalUsers(),(String)dynamicRoleUserSql.get("approval_roles"),","));
 			}
 
-			if(a.geteSignFlag()!=0 && a.geteSignReportId()!=0)try{ // burda dosya olusturulup, approval'a attach edilecek
-				parameterMap.put("ttalimat_id", ""+ar.getTablePk());
-				W5JasperResult jr = getJasperResult(scd, parameterMap, a.geteSignReportId());
-				String file_name=jr.getFile_name();
-				String localePath=FrameworkCache.getAppSettingStringValue(scd, "file_local_path")+"/"+scd.get("customizationId")+"/jasper/";
-				Map<String,Object> resultMap=(Map)jr.getResultMap();
-				resultMap.put("localePath", localePath); //dizaynlara eklenen resim path lerinin  dinamik olması saglanıyor.
-				JasperPrint jasperPrint = JasperFillManager.fillReport(localePath + file_name, resultMap, new JRMapCollectionDataSource(jr.getResultDetail()));
-
-				JRExporter exporter =new JRPdfExporter();
-				exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
-
-				String attach_file_name="approval-"+a.getApprovalId()+".pdf";
-				long fileId = new Date().getTime();
-			    String system_file_name=fileId+"."+attach_file_name;
-				String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
-								+File.separator+scd.get("customizationId")+File.separator+"attachment";
-
-				int table_id=ar.getTableId(); //approval record
-				String table_pk=ar.getTablePk()+"";
-				int file_type_id=1;//PromisUtil.uInteger(request,"_file_type_id");
-
-				File dirPath = new File(path);
-			    if (!dirPath.exists()) {
-			            dirPath.mkdirs();
-			    }
-				JasperExportManager.exportReportToPdfFile(jasperPrint, path+File.separator+system_file_name);
-				File attachFile=new File(path+File.separator+system_file_name);
-				int totalBytesRead=(int) (attachFile.length());
-
-//				jasperFileAttachmentControl(table_id, table_pk, attach_file_name, file_type_id); // daha önce attach dosyaları disable ediyor.
-
-				W5FileAttachment fa = new W5FileAttachment();
-
-//						    fa.setFileComment(bean.getFile_comment());
-				fa.setCustomizationId((Integer)scd.get("customizationId"));
-				fa.setFileTypeId(file_type_id);
-				fa.setSystemFileName(system_file_name);
-				fa.setOrijinalFileName(attach_file_name);
-				fa.setTableId(table_id);
-				fa.setTablePk(table_pk);
-				fa.setTabOrder((short)1);
-				fa.setUploadUserId((Integer)scd.get("userId"));
-				fa.setFileSize(totalBytesRead);
-				fa.setActiveFlag((short)1);
-		        saveObject(fa);
-				     //   response.getWriter().printf("{ \"success\": \"%s\" }", "true");
-
-
-			} catch (Exception e) {
-				if(FrameworkSetting.debug)e.printStackTrace();
-//				dao.logException(e.getMessage(),PromisUtil.uInt(scd.get("customizationId")),PromisUtil.uInt(scd.get("userRoleId")));
-				throw new IWBException("framework","JasperReport", a.geteSignReportId(), null, LocaleMsgCache.get2(0,xlocale,"approval_could_not_attach_report"), null);
-			}
+			
 			break;
 		case	1: //onay
 			mesaj = " '"+scd.get("completeName")+ "' "+LocaleMsgCache.get2(0,xlocale,"approval_presented_for_your_approval");
 			switch(a.getApprovalFlowTip()){
 			case	0://basit onay
-				if(currentStep.getOnApproveDbFuncId()!=0){
-					executeFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
-				}
 
 				if(a.getActionTip()==3){//TODO: delete ise o zaman o kaydi ve bunu sil
 					Map<String, String> mz = new HashMap();
@@ -4242,34 +3992,20 @@ public class FrameworkEngine{
 							ar.setApprovalActionTip((short)approvalAction);
 							ar.setApprovalRoles(null);
 							ar.setApprovalUsers(uxs.substring(1));
-							if(a.getOnApproveDbFuncId() != 0 && ar.getApprovalStepId() == 998){ // Dinamik Approve onay verildiğinde aşırı yalan bişey ama
-								executeFunc(scd, a.getOnApproveDbFuncId(), parameterMap, (short)6);
-							}
 						}
 						else
 							throw new IWBException("security","ApprovalRecord", approvalRecordId, null, LocaleMsgCache.get2(0,xlocale,"approval_dynamic_not_approve"), null);
-						eSignFlag=a.geteSignFlag()!=0;
 						break;
 					}
 				}
-				else if(a.getApprovalFlowTip()==2){//hiyerarsik onay
+				else if(a.getApprovalFlowTip()==2){//hiyerarsik onay: deprecated
 					if(ar.getApprovalStepId()==902){//yani bu su anda hala hiyerarsik onayda. complekse gecmemis
-						/*if(currentStep.getOnApproveDbFuncId()!=0){
-							executeDbFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
-						}*/
 						boolean stepControl = false;
 						int mngUserId = GenericUtil.uInt(scd.get("mngUserId"));
 						if(mngUserId!=0){
 							ar.setApprovalActionTip((short)approvalAction);
 							ar.setApprovalRoles(null);
 							ar.setApprovalUsers(""+mngUserId);
-							if (a.getHierarchicalLevelLimit()>0){ //hiyeraşik onayda seviye limiti varsa
-								int hl = ar.getHierarchicalLevel()+1;
-								ar.setHierarchicalLevel(hl);
-								if (hl>=a.getHierarchicalLevelLimit()){
-									stepControl = true;
-								}
-							}
 						} else {
 							stepControl = true;
 						}
@@ -4286,12 +4022,10 @@ public class FrameworkEngine{
 								currentStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
 							}
 						}
-						eSignFlag=a.geteSignFlag()!=0;
 						break;
 					}
 				}
 
-				eSignFlag=((currentStep.geteSignFlag()!=0 && a.geteSignFlag()!=0)||(a.geteSignFlag()!=0 && ar.getApprovalId()>900));
 				if(currentStep.getFinalStepFlag()==0){
 					int nextStepId = currentStep.getOnApproveStepId();
 					if(nextStepId == 0 && currentStep.getApprovalStepId() == 901){
@@ -4330,11 +4064,6 @@ public class FrameworkEngine{
 				if(dynamicRoleUserSql != null && dynamicRoleUserSql.get("approval_users") != null)nextStep.setApprovalUsers(nextStep.getApprovalUsers() == null ? (String)dynamicRoleUserSql.get("approval_users") : GenericUtil.addUniqueValToStr(nextStep.getApprovalUsers(),(String)dynamicRoleUserSql.get("approval_users"),","));
 				if(dynamicRoleUserSql != null && dynamicRoleUserSql.get("approval_roles") != null)nextStep.setApprovalUsers(nextStep.getApprovalRoles() == null ? (String)dynamicRoleUserSql.get("approval_roles") : GenericUtil.addUniqueValToStr(nextStep.getApprovalUsers(),(String)dynamicRoleUserSql.get("approval_roles"),","));
 			}
-
-			if(currentStep != null && currentStep.getOnApproveDbFuncId()!=0){
-				executeFunc(scd, currentStep.getOnApproveDbFuncId(), parameterMap, (short)6);
-			}
-
 
 			break;
 		case	2://iade: TODO . baska?
@@ -4375,9 +4104,7 @@ public class FrameworkEngine{
 				break;
 			case	2://hierarchical onay
 			}
-			if(currentStep != null && currentStep.getOnReturnDbFuncId()!=0){
-				executeFunc(scd, currentStep.getOnReturnDbFuncId(), parameterMap, (short)6);
-			}
+
 			break;
 		case	3://red
 			if(currentStep.getApprovalStepId() == 901){
@@ -4402,9 +4129,7 @@ public class FrameworkEngine{
 				currentStep.setSendMailOnEnterStepFlag(a.getSendMailFlag());
 				currentStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
 			}
-			if(currentStep != null && currentStep.getOnRejectDbFuncId()!=0){
-				executeFunc(scd, currentStep.getOnRejectDbFuncId(), parameterMap, (short)6);
-			}
+
 			isFinished = true;
 			break;
 		case	0://red
@@ -4527,24 +4252,7 @@ public class FrameworkEngine{
 		 * SMS Mail Tip -> 0 SMS , 1 E-Mail, 2 Notification
 		 */
 
-		Map<Integer,Map> extraInformData = new HashMap<Integer,Map>();
 
-		List<W5ApprovalStepSmsMail> extraInform = dao.find("from W5ApprovalStepSmsMail t where t.customizationId=? and t.approvalId=? and t.approvalStepId = ? and " +
-				"(t.approvalActionTip = ? or (t.approvalActionTip = 0 and ? = ?))",
-				ar.getCustomizationId(),ar.getApprovalId(), (currentStep.getApprovalStepId() != 901 ? currentStep.getApprovalStepId() : ar.getApprovalStepId()), (short)approvalAction, approvalAction, 901);
-
-		if(extraInform != null && extraInform.size() > 0){
-			for(int i=0; i<3; i++){
-				for(W5ApprovalStepSmsMail data:extraInform){
-					if(data.getSmsMailTip() == i){ // Ä°lgili Mail SMS type eşitse
-						Map m = new HashMap();
-						m.put("roles", data.getRolesToInform());
-						m.put("users", data.getUsersToInform());
-						extraInformData.put(Integer.parseInt(i+""), m);
-					}
-				}
-			}
-		}
 
 		/* Ekstra bildirim sonu */
 
@@ -4662,17 +4370,7 @@ public class FrameworkEngine{
 		}
 
 
-		if(extraInformData.get(1) != null){// eğer ekstra bilgilendirilecek birileri varsa
-			List<Object> usersToInform = dao.executeSQLQuery("select gu.email from iwb.w5_user gu where gu.customization_id=? and gu.email is not null and gu.user_id in " +
-					"(select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) or gu.user_id in " +
-					"(select ur.user_id from iwb.w5_user_role ur where ur.customization_id = ? and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))",
-					scd.get("customizationId"),extraInformData.get(1).get("users"), scd.get("customizationId"), extraInformData.get(1).get("roles"));
-			if(usersToInform != null && usersToInform.size() > 0){
-				for(Object address:usersToInform){
-					if(address != null)pemailList+=","+address.toString();
-				}
-			}
-		}
+
 
 		if(pemailList.length() > 0){
 			int mail_setting_id=GenericUtil.uInt((Object)scd.get("mailSettingId"));
@@ -4691,20 +4389,7 @@ public class FrameworkEngine{
 		}
 
 
-		// SMS Atma
 
-		if(extraInformData.get(0) != null){// eğer ekstra sms gönderilecek birileri varsa
-			if (gsmList == null)gsmList = new ArrayList<String>();
-			List<Object> usersToInform = dao.executeSQLQuery("select gu.gsm from iwb.w5_user gu where gu.customization_id=? and gu.gsm is not null and gu.user_id in " +
-					"(select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) or gu.user_id in " +
-					"(select ur.user_id from iwb.w5_user_role ur where ur.customization_id = gu.customization_id and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))",
-					scd.get("customizationId"),extraInformData.get(0).get("users"),extraInformData.get(0).get("roles"));
-			if(usersToInform != null && usersToInform.size() > 0){
-				for(Object gsm:usersToInform){
-					if(gsm != null)gsmList.add(gsm.toString());
-				}
-			}
-		}
 
 		if(gsmList.size() > 0){
 			String phoneNumber = "";
@@ -4714,19 +4399,7 @@ public class FrameworkEngine{
 			sendSms(GenericUtil.uInt(scd.get("customizationId")),GenericUtil.uInt(scd.get("userId")), phoneNumber, messageBody, ar.getTableId(), ar.getTablePk());
 		}
 
-		// Notification
-		if(extraInformData.get(2) != null){// eğer ekstra notification gönderilecek birileri varsa
-			if (gsmList == null)gsmList = new ArrayList<String>();
-			List<Object> usersToInform = dao.executeSQLQuery("select gu.user_id from iwb.w5_user gu where gu.customization_id=? and gu.user_status = 1 and gu.user_id in " +
-					"(select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) or gu.user_id in " +
-					"(select ur.user_id from iwb.w5_user_role ur where ur.customization_id =gu.customization_id  and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))",
-					scd.get("customizationId"),extraInformData.get(2).get("users"),extraInformData.get(2).get("roles"));
-			if(usersToInform != null && usersToInform.size() > 0){
-				for(Object uId:usersToInform){
-					if(uId != null)notificationList.add(uId.toString());
-				}
-			}
-		}
+
 
 		if(notificationList.size() > 0){
 			for(String uId:notificationList){
@@ -6806,5 +6479,22 @@ public class FrameworkEngine{
     	}
     }
 
-
+	public Map userExists(String email) {
+		List<Object[]> list = dao.executeSQLQuery("select u.user_id, u.customization_id, (select min(r.user_role_id)"
+				+ " from iwb.w5_user_role r where r.customization_id=u.customization_id AND r.user_id=u.user_id) user_role_id from iwb.w5_user u where "
+				+ "u.user_status=1 AND u.auth_external_id=?",  email);
+		if(!GenericUtil.isEmpty(list)){
+			Object[] oz = list.get(0);
+			return  userRoleSelect(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[2]), GenericUtil.uInt(oz[1]), null, null);
+		}
+		else{
+			return null;
+		}
+	}
+	
+	public void addToProject(int userId, String projectId, String email) {
+		dao.executeUpdateSQLQuery("insert into iwb.w5_user_related_project(user_id, related_project_uuid) values (?,?)",userId,projectId );
+		dao.executeUpdateSQLQuery("update iwb.w5_user set email=? where user_id=?", email, userId);
+	}
+	
 }
