@@ -2808,9 +2808,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.wProjects.get(projectUuid);
 		
-		if(po.getSetSearchPathFlag()!=0){
-			executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
-		}
+		executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
 		final int userId = (Integer)scd.get("userId");
 		final List<W5QueryFieldCreation> updateList = new ArrayList<W5QueryFieldCreation>();
 		final List<W5QueryFieldCreation> insertList = new ArrayList<W5QueryFieldCreation>();
@@ -5335,11 +5333,8 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 		int userId = (Integer)scd.get("userId");
 		String projectUuid = (String)scd.get("projectId");
 		W5Project prj = FrameworkCache.wProjects.get(projectUuid);
-		String schema="iwb";
-		if(prj.getSetSearchPathFlag()!=0) {
-			schema = prj.getRdbmsSchema();
-			executeUpdateSQLQuery("set search_path="+schema);
-		}
+		String schema=prj.getRdbmsSchema();
+		executeUpdateSQLQuery("set search_path="+schema);
 		
 		fullTableName = fullTableName.toLowerCase(FrameworkSetting.appLocale);
 		String tableName= fullTableName;
@@ -5363,7 +5358,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 			int rq = executeUpdateSQLQuery("insert into iwb.w5_table"
 					+ "(table_id, dsc, insert_user_id, version_user_id, customization_id, project_uuid)values"
 					+ "(?       , ?  , ?             , ?              , ?               , ?)",
-					tableId, prj.getSetSearchPathFlag()!=0 ? tableName : fullTableName, userId, userId, customizationId, projectUuid);
+					tableId, tableName, userId, userId, customizationId, projectUuid);
 			if(vcs)saveObject(new W5VcsObject(scd, 15, tableId));
 
 
@@ -5413,7 +5408,7 @@ public class PostgreSQL extends BaseDAO implements RdbmsDao {
 						xlen==0 ? 0 : (xlen==-1 ? GenericUtil.uInt(m.get("character_maximum_length")): xlen),
 						tabOrder, userId, userId, customizationId, projectUuid,
 						fieldName.equals("customization_id") ? 2 : (tabOrder==1 ? 4:1),
-						fieldName.endsWith("_flag") ? "0" : (fieldName.equals("customization_id") ? "customizationId": (tabOrder == 1 ? "nextval('"+(prj.getSetSearchPathFlag()==0 ? schema+".":"")+"seq_"+tableName+"')":null)),
+						fieldName.endsWith("_flag") ? "0" : (fieldName.equals("customization_id") ? "customizationId": (tabOrder == 1 ? "nextval('seq_"+tableName+"')":null)),
 						GenericUtil.hasPartInside2("customization_id,version_no,insert_user_id,insert_dttm,version_user_id,version_dttm", fieldName) || tabOrder==1 ? 0:1,
 						GenericUtil.hasPartInside2("version_no,insert_user_id,insert_dttm,version_user_id,version_dttm", fieldName) ? 0:1,
 						fieldName.equals("customization_id") ? 2 : (tabOrder==1 ? 4:6),

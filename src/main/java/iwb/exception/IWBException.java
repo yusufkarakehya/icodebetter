@@ -61,7 +61,7 @@ public class IWBException extends RuntimeException {
 		return b.toString();
 	}
 
-	public String toJsonString(){
+	public String toJsonString(String uri){
 		StringBuilder b = new StringBuilder();
 		IWBException e = GenericUtil.isEmpty(this.stack) ? this : this.stack.get(0);
 		b.append("{\"success\":false,\n\"errorType\":\"").append(e.getErrorType()).append("\"");
@@ -83,6 +83,10 @@ public class IWBException extends RuntimeException {
 			if(!GenericUtil.isEmpty(this.stack) && this.stack.size()>1){
 				b.append(",\n\"icodebetter\":[");
 				String lastErrorMsg="";
+				if(GenericUtil.isEmpty(uri)){
+					b.append("{errorType:\"Request\",error:\"").append(uri).append("\"}");
+					lastErrorMsg = uri;					
+				}
 				for(int qi=stack.size()-1;qi>=0;qi--){
 					if(lastErrorMsg.length()>0)b.append(",");
 					IWBException iw = (IWBException)stack.get(qi);

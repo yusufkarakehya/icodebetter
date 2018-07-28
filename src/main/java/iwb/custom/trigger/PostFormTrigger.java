@@ -22,9 +22,7 @@ public class PostFormTrigger {
 			}
 			if(GenericUtil.uCheckBox(formResult.getRequestParams().get("run_local_flag"))!=0){// simple security check. TODO
 				W5Project prj = FrameworkCache.wProjects.get(formResult.getScd().get("projectId").toString());
-				if(prj.getSetSearchPathFlag()!=0) {
-					dao.executeUpdateSQLQuery("set search_path="+prj.getRdbmsSchema());
-				}
+				dao.executeUpdateSQLQuery("set search_path="+prj.getRdbmsSchema());
 				dao.executeUpdateSQLQuery(sql);
 			}
 			break;

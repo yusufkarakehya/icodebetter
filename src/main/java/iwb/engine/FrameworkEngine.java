@@ -2822,9 +2822,7 @@ public class FrameworkEngine{
 		String projectUuid = (String)scd.get("projectId");
 		if(projectUuid==null)return;
 		W5Project po = FrameworkCache.wProjects.get(projectUuid);
-		if(po!=null && po.getSetSearchPathFlag()!=0){
-			dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
-		}
+		dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
 	}
 
 	public W5QueryResult executeQuery(Map<String, Object> scd,int queryId,	Map<String,String> requestParams) {
@@ -5442,7 +5440,9 @@ public class FrameworkEngine{
 		if(GenericUtil.isEmpty(list)) return false;
 		Map p = (Map)list.get(0);
 		int newCustomizationId = GenericUtil.uInt(p.get("customization_id"));
-		if(newCustomizationId!=(Integer)scd.get("customizationId"))return false;
+		if(newCustomizationId!=(Integer)scd.get("customizationId")){ // TODO check for invited projects
+			return false;
+		}
 		scd.put("projectId", projectUuid);
 		return true;
 	}
@@ -5487,7 +5487,6 @@ public class FrameworkEngine{
 
 	public int buildForm(Map<String, Object> scd, String parameter) throws JSONException {
 		int customizationId = (Integer)scd.get("customizationId");
-//		if(customizationId==0 || GenericUtil.uInt(scd.get("customizerFlag"))==0)throw new PromisException("framework","Form+ Builder", 0, null, "Only for Customizations>0 AND Customizer Developers", null);
 
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.wProjects.get(projectUuid);
@@ -5626,9 +5625,7 @@ public class FrameworkEngine{
 		s.append(")");
 
 		createTableSql = s.toString();
-		if(po.getSetSearchPathFlag()!=0){
-			dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
-		}
+		dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
 
 
 		try {
@@ -5658,7 +5655,7 @@ public class FrameworkEngine{
 		if(!b)
 			throw new IWBException("framework","Define Table", 0, parameter, "Define Table", null);
 
-		int tableId = GenericUtil.uInt(dao.executeSQLQuery("select t.table_id from iwb.w5_table t where t.customization_id=? AND t.dsc=? AND t.project_uuid=?", customizationId, po.getSetSearchPathFlag()!=0 ? tableName2 : fullTableName, projectUuid).get(0));
+		int tableId = GenericUtil.uInt(dao.executeSQLQuery("select t.table_id from iwb.w5_table t where t.customization_id=? AND t.dsc=? AND t.project_uuid=?", customizationId, tableName2, projectUuid).get(0));
 
 		try {
 			main.put("table_id", tableId);
@@ -5750,9 +5747,7 @@ public class FrameworkEngine{
 
 		dao.organizeQueryFields(scd, queryId, (short)1);
 
-		if(po.getSetSearchPathFlag()!=0){
-			dao.executeUpdateSQLQuery("set search_path=iwb");
-		}
+		dao.executeUpdateSQLQuery("set search_path=iwb");
 
 		List llo = dao.find("from W5QueryFieldCreation t where queryFieldId<?", 500);
 //		dao.getHibernateTemplate().flush();
@@ -5992,10 +5987,10 @@ public class FrameworkEngine{
 				String k= ik.next();
 				if(!GenericUtil.isEmpty(d.get(k)))requestParams.put(k+"1."+(i+1), d.get(k).toString());
 			} catch (Exception e) {
-				throw new IWBException("framework","Json2FormPost(FormId)", mainFormId, null, e.getMessage(), null);
+				throw new IWBException("framework","Json2FormPost(FormId)", mainFormId, null, e.getMessage(), e);
 			}
 		}catch (Exception e) {
-			throw new IWBException("framework","Json2FormPostDetail(FormId)", detailFormId, null, e.getMessage(), null);
+			throw new IWBException("framework","Json2FormPostDetail(FormId)", detailFormId, null, e.getMessage(), e);
 		}
 		return postForm4Table(scd, mainFormId, action, requestParams, "");
 	}
@@ -6407,8 +6402,8 @@ public class FrameworkEngine{
 			List list = dao.executeSQLQuery("select 1 from iwb.w5_project p where p.project_uuid=?",projectId);
 			if(GenericUtil.isEmpty(list)){
 				String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
-				dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users, set_search_path_flag, rdbms_schema, vcs_flag, vcs_url, vcs_user_name, vcs_password)"
-						+ " values (?,?,?, ?, 1, ?,1,?,?,?)", projectId, cusId, "New Project 1", ""+userId,schema,vcsUrl,nickName, "1");
+				dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
+						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, "New Project 1", ""+userId,schema,vcsUrl,nickName, "1", projectId);
 				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 			}
 
@@ -6496,5 +6491,5 @@ public class FrameworkEngine{
 		dao.executeUpdateSQLQuery("insert into iwb.w5_user_related_project(user_id, related_project_uuid) values (?,?)",userId,projectId );
 		dao.executeUpdateSQLQuery("update iwb.w5_user set email=? where user_id=?", email, userId);
 	}
-	
+
 }

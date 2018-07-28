@@ -246,13 +246,8 @@ public class WsServlet implements InitializingBean {
 				response.getWriter().write(serializeRestWADL(wss, wsmoMap).toString());
 			} else
 				throw new IWBException("framework","Undefined Method",0,null, "User [methodName].wadl", null);
-		} catch (IWBException e) {
-			response.getWriter().write(e.toJsonString());
 		} catch (Exception e) {
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				response.getWriter().write(((IWBException)e.getCause()).toJsonString());
-			} else 
-				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString());
+			response.getWriter().write(new IWBException("framework","WADL Def",0,null, "Error", e).toJsonString(request.getRequestURI()));
 		}
 	}
 
@@ -388,12 +383,12 @@ public class WsServlet implements InitializingBean {
 				throw new IWBException("ws","Method not Found",0,method, "Method not Found", null);
 			}
 		} catch (IWBException e) {
-			response.getWriter().write(e.toJsonString());
+			response.getWriter().write(e.toJsonString(request.getRequestURI()));
 		} catch (Exception e) {
 			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				response.getWriter().write(((IWBException)e.getCause()).toJsonString());
+				response.getWriter().write(((IWBException)e.getCause()).toJsonString(request.getRequestURI()));
 			} else 
-				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString());
+				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString(request.getRequestURI()));
 		}
 	}
 

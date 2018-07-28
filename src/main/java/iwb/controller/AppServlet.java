@@ -1312,7 +1312,7 @@ public class AppServlet implements InitializingBean {
 	}
 
 	@RequestMapping("/login.htm")
-	public void hndLoginPageOld(HttpServletRequest request, HttpServletResponse response)
+	public void hndSuperDeveloperLoginPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		long startTime = System.currentTimeMillis();
 		logger.info("hndLoginPage");
@@ -1340,62 +1340,6 @@ public class AppServlet implements InitializingBean {
 		scd.put("locale", getDefaultLanguage(scd, blocale.getLanguage()));
 
 		int templateId = 1; // Login Page Template
-		if (FrameworkCache.getAppSettingIntValue(0, "mobile_flag") != 0) {
-			String requestHeaderUserAgent = request.getHeader("User-Agent");
-			// iphone -> Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1_3 like Mac OS
-			// X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0
-			// Mobile/7E18 Safari/528.16
-			// android -> Mozilla/5.0 (Linux; U; Android 2.2.2; tr-tr; LG-P970
-			// Build/FRG83G) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0
-			// Mobile Safari/533.1 MMS/LG-Android-MMS-V1.0/1.2
-			if (requestHeaderUserAgent != null) {
-				requestHeaderUserAgent = requestHeaderUserAgent.toLowerCase();
-				if (requestHeaderUserAgent.contains("symbian") || requestHeaderUserAgent.contains("iphone")
-						|| requestHeaderUserAgent.contains("ipad") || request.getParameter("iphone") != null
-						|| requestHeaderUserAgent.contains("android") || request.getParameter("android") != null) {
-					// templateId = 564; //TODO : sencha ile ilgili kısımda
-					// hatalar olduğundan burası geçici olarak kapatıldı.
-				}
-			}
-		}
-
-		W5TemplateResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
-		response.setContentType("text/html; charset=UTF-8");
-		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
-		response.getWriter().close();
-
-	}
-
-	@RequestMapping("/login2.htm")
-	public void hndLoginPage(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
-		logger.info("hndLoginPage");
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			if (session.getAttribute("scd-dev") != null) {
-				Map<String, Object> scd = (Map<String, Object>) session.getAttribute("scd-dev");
-				if (scd != null)
-					UserUtil.onlineUserLogout((Integer) scd.get("customizationId"), (Integer) scd.get("userId"),
-							(String) scd.get("sessionId"));
-			}
-			session.removeAttribute("scd-dev");
-		}
-		int cust_id = FrameworkCache.getAppSettingIntValue(0, "default_customization_id");
-
-		String subDomain = GenericUtil.getSubdomainName(request);
-		logger.info("subDomain : " + subDomain);
-		if (!subDomain.equals(""))
-			cust_id = engine.getSubDomain2CustomizationId(subDomain);
-
-		Map<String, Object> scd = new HashMap();
-		scd.put("userId", 1);
-		scd.put("customizationId", cust_id);
-		Locale blocale = request.getLocale();
-		scd.put("locale", getDefaultLanguage(scd, blocale.getLanguage()));
-
-		int templateId = 1146; // Login Page Template
-
 		if (FrameworkCache.getAppSettingIntValue(0, "mobile_flag") != 0) {
 			String requestHeaderUserAgent = request.getHeader("User-Agent");
 			// iphone -> Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1_3 like Mac OS
@@ -2534,7 +2478,6 @@ public class AppServlet implements InitializingBean {
 		response.getWriter().close();
 		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4DataList", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
-	
 	
 	@RequestMapping("/ajaxExecDbFunc4Debug")
 	public void hndAjaxExecDbFunc4Debug(

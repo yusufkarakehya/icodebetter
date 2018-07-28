@@ -322,12 +322,8 @@ public class ScriptEngine {
 				}
 				result.putAll(m);
 			}
-		} catch (IWBException e) {
-			throw e;
 		} catch (Exception e) {
-			if(FrameworkSetting.debug)e.printStackTrace();
-			if(e.getCause()!=null && e.getCause() instanceof IWBException)throw (IWBException)e.getCause();
-			throw new IWBException("ws", "CallWs", 0, serviceName, "Unhandled Exception: "+e.getMessage(), e.getCause());
+			throw new IWBException("ws", "CallWs", 0, null, "Error: " +serviceName, e);
 		}
 		return result;
 	}

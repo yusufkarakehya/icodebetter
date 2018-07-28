@@ -604,26 +604,7 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write("{\"success\":true, \"cnt\":"+cnt+"}");
 		response.getWriter().close();	
 	}
-	
-	@RequestMapping("/serverVCSExportProject")
-	public void hndServerVCSExportProject(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException, JSONException {
-		
-		JSONObject jo = HttpUtil.getJson(request);
 
-		String userName = jo.getString("u")
-				   , passWord = jo.getString("p");
-			int customizationId = jo.getInt("c");
-			
-
-		logger.info("hndServerVCSExportProject"); 
-		
-    	boolean b = vcsEngine.vcsServerExportProject(userName, passWord, customizationId, jo.getJSONObject("object"));
-    	response.getWriter().write("{\"success\":"+b+"}");
-		response.getWriter().close();
-	}
 
 
 	@RequestMapping("/ajaxVCSTableConflicts")
@@ -704,5 +685,22 @@ public class VcsServlet implements InitializingBean {
 
     	response.getWriter().write("{\"success\":true, \"cnt\":"+cnt+"}");
 		response.getWriter().close();	
+	}
+	
+	
+	@RequestMapping("/ajaxPublish2AppStore")
+	public void hndAjaxPublish2AppStore(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
+		logger.info("ajaxPublish2AppStore"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		boolean b = vcsEngine.vcsClientPublish2AppStore(scd);
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();
+		
 	}
 }

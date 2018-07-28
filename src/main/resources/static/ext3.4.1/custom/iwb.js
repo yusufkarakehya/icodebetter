@@ -2188,8 +2188,8 @@ function ajaxErrorHandler(obj){
     	Ext.infoMsg.msg('error',getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>');
     else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework')){
     	var items=[];
-    	items.push({xtype:'displayfield',fieldLabel: '',anchor:'99%',labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
-    	if(obj.objectType){
+    	items.push({xtype:'displayfield',fieldLabel: '',anchor:'99%',labelSeparator:'', hideLabel:!0, value:'<b>'+(obj.error||'Unknown')+'</b>'});
+    	if(false && obj.objectType){
     		items.push({xtype:'displayfield',fieldLabel: obj.objectId ? obj.objectType : 'Type',anchor:'99%', labelSeparator:'', value:obj.objectId || obj.objectType});
 //    		if(obj.objectId)items.push({xtype:'displayfield',fieldLabel: 'ID',width:100, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
     	}
@@ -2200,7 +2200,7 @@ function ajaxErrorHandler(obj){
     			if(qi>0)ss+='<br>'
     			for(var zi=0;zi<qi;zi++)ss+=' &nbsp;';
     			var oo=obj.icodebetter[qi];
-    			ss+='&gt '+oo.objectType;
+    			ss+='&gt <span style="opacity:.8">'+oo.objectType+'</span>';
     			if(oo.objectId){
     				if(oo.error && oo.error.startsWith('[')){
     					var tid=oo.error.substr(1).split(',')[0];
@@ -2228,7 +2228,7 @@ function ajaxErrorHandler(obj){
 					}
 				}
     		}
-    		items.push({xtype:'displayfield',fieldLabel: 'Stack',anchor:'99%',labelSeparator:'', value:ss});
+    		items.push({xtype:'displayfield',fieldLabel: 'Stack',hideLabel:!0, anchor:'99%',labelSeparator:'', value:ss});
     		
     	}
 
