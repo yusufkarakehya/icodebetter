@@ -2641,7 +2641,7 @@ function formSubmit(submitConfig){
             }
         } 
     };
-    if(submitConfig.extraParams)cfg.params=submitConfig.extraParams;
+    cfg.params=Ext.apply({".p":_scd.projectId},submitConfig.extraParams||{});
     submitConfig.formPanel.getForm().submit(cfg);
 };
 
@@ -2666,6 +2666,7 @@ function promisRequest(rcfg){
 	}
 	if(!rcfg.params)rcfg.params={}
 	rcfg.params['.w']=_webPageId;
+	rcfg.params['.p']=_scd.projectId;
 	Ext.Ajax.request(Ext.apply({
 	    success: function(a,b,c){
 	    	if(reqWaitMsg==1){

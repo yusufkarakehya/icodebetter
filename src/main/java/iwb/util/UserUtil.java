@@ -1518,13 +1518,20 @@ public class UserUtil {
 		boolean mobile = scd.containsKey("mobile");
 		String sessionId = mobile ? (String)scd.get("mobileDeviceId") : (String)scd.get("sessionId");
 		String webPageId = mobile ? (String)scd.get("mobileDeviceId") : request.getParameter(".w");
-		if(false && onlineCheck)onlineUserCheck(scd, request.getRequestURI(), sessionId, webPageId);
+		String projectId = request.getParameter(".p");
+		if(onlineCheck)onlineUserCheck(scd, request.getRequestURI(), sessionId, webPageId);
+		if(!GenericUtil.isEmpty(projectId) && scd.containsKey("projectId") && !projectId.equals(scd.get("projectId").toString())) { //TODO. check for security
+			W5Project po = FrameworkCache.wProjects.get(projectId);
+			if(po==null || po.getCustomizationId()!=(Integer)scd.get("customizationId"))
+				throw new IWBException("security","Wrong.Project",0,null, "Not allowed to access this project", null);
+			Map newScd = new HashMap();
+			newScd.putAll(scd);
+			newScd.put("projectId", projectId);
+			scd = newScd;
+		}
 	
-		if(scd.containsKey("customizationId")){
-			int cusId = (Integer)scd.get("customizationId");
-			if(FrameworkSetting.customizationSystemStatus.get(cusId)!=0){
-				throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
-			}
+		if(scd.containsKey("customizationId") && FrameworkSetting.customizationSystemStatus.get((Integer)scd.get("customizationId"))!=0){
+			throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 		}
 		return scd;
 	}
