@@ -1612,7 +1612,7 @@ public class React16 implements ViewAdapter {
 			} else if (fc.getFormCell().getControlTip() == 100) {// button
 				buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 			} else {
-				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
+				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
 			}
 		}
 		return buf;
@@ -1898,7 +1898,7 @@ public class React16 implements ViewAdapter {
 				} else if (fc.getFormCell().getControlTip() == 100) {// button
 					buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 				} else {
-					buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:null, _(Label, {htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), _(_").append(dsc).append(".$||Input,_").append(dsc).append("))");
+					buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:null, _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), _(_").append(dsc).append(".$||Input,_").append(dsc).append("))");
 				}
 			}
 		}
@@ -1918,7 +1918,7 @@ public class React16 implements ViewAdapter {
 			if (fc.getFormCell().getActiveFlag() == 0 || fc.getFormCell().getControlTip()==0)
 				continue;
 			if(fc.getFormCell().getControlTip() == 5){
-				buf.append(", _(FormGroup, null, _(Label, {htmlFor:\"")
+				buf.append(", _(FormGroup, null, _(Label, {className:'inputLabel', htmlFor:\"")
 				.append(fc.getFormCell().getDsc()).append("\"},_").append(fc.getFormCell().getDsc()).append(".props.label), _(Label,{ className: 'switch switch-3d switch-primary' }, _").append(fc.getFormCell().getDsc())
 				.append(",_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })))");
 			} else {
@@ -2163,7 +2163,7 @@ public class React16 implements ViewAdapter {
 						buttons.append("{}");
 					else if (toolbarItem.getObjectTip() == 15) {// form toolbar
 																// ise
-						buttons.append("{view:'button', value:'")
+						buttons.append("{type:'icon' , value:'")
 								.append(LocaleMsgCache.get2(customizationId,
 										xlocale, toolbarItem.getLocaleMsgKey()))
 								.append("',");
@@ -2177,9 +2177,9 @@ public class React16 implements ViewAdapter {
 										toolbarItem.getCode())).append("\n}}");
 						itemCount++;
 					} else {
-						buttons.append("{view:'button', width:35, type:'icon', icon:'cube', tooltip:'")
-								.append(LocaleMsgCache.get2(customizationId,
-										xlocale, toolbarItem.getLocaleMsgKey()))
+						buttons.append("{type:'button'");
+						if(!GenericUtil.isEmpty(toolbarItem.getImgIcon()))buttons.append(", icon:'").append(toolbarItem.getImgIcon()).append("'");
+						buttons.append(", text:'").append(LocaleMsgCache.get2(customizationId,xlocale, toolbarItem.getLocaleMsgKey()))
 								.append("', click:function(a,b,c){\n")
 								.append(LocaleMsgCache.filter2(
 										customizationId, xlocale,

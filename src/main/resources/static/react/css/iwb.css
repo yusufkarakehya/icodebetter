@@ -913,3 +913,14 @@ a:hover{
     font-weight: 500;
     padding: 5px 10px;
 }
+/** custom form input */
+.inputLabel{
+    font-style: italic;
+}
+.dx-rg-bs4-table-detail-toggle-cell-icon {
+    font-size: 10px!important;
+    color: #0000006e;
+}
+.dx-rg-bs4-resizing-control {
+    z-index: 0!important;
+}
