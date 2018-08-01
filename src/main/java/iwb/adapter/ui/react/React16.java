@@ -279,9 +279,9 @@ public class React16 implements ViewAdapter {
 //		boolean liveSyncRecord = false;
 		// form(table) fields
 		if (f.getObjectTip() == 2
-				&& FrameworkCache.getTable(customizationId, f.getObjectId()) != null) {
+				&& FrameworkCache.getTable(scd, f.getObjectId()) != null) {
 			s.append(",\n renderTip:").append(formResult.getForm().getRenderTip());
-			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
 			// insert AND continue control
 			s.append(", crudTableId:").append(f.getObjectId());
@@ -557,7 +557,7 @@ public class React16 implements ViewAdapter {
 								.getMapConvertedObject() != null && formResult
 								.getMapConvertedObject().containsKey(
 										fsm.getConversionId())))) {
-							W5Table dt = FrameworkCache.getTable(customizationId,
+							W5Table dt = FrameworkCache.getTable(scd,
 									fsm.getDstTableId());
 							if ((dt.getAccessViewTip() == 0
 									|| !GenericUtil.isEmpty(dt
@@ -719,7 +719,7 @@ public class React16 implements ViewAdapter {
 				.append(formResult.getAction());
 		W5Table t = null;
 		if (f.getObjectTip() == 2) {
-			t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			t = FrameworkCache.getTable(formResult.getScd(), f.getObjectId());
 			if (FrameworkCache.getAppSettingIntValue(formResult.getScd(),
 					"file_attachment_flag") != 0
 					&& t.getFileAttachmentFlag() != 0)
@@ -1224,7 +1224,7 @@ public class React16 implements ViewAdapter {
 							W5GridResult gridResult = formResult.getModuleGridMap().get(m.getObjectId());
 							W5Table mainTable = gridResult.getGrid() != null
 									&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-									.getTable(customizationId, gridResult.getGrid()
+									.getTable(formResult.getScd(), gridResult.getGrid()
 											.get_defaultCrudForm().getObjectId())
 									: null;
 							if (mainTable != null
@@ -1403,7 +1403,7 @@ public class React16 implements ViewAdapter {
 								.getModuleFormMap().get(m.getObjectId());
 						W5Table mainTablex = subFormResult != null
 								&& subFormResult.getForm() != null ? FrameworkCache
-								.getTable(customizationId, subFormResult
+								.getTable(formResult.getScd(), subFormResult
 										.getForm().getObjectId()) : null;
 						if (mainTablex == null)
 							continue;
@@ -1443,7 +1443,7 @@ public class React16 implements ViewAdapter {
 								.get(m.getObjectId());
 						W5Table mainTable = gridResult.getGrid() != null
 								&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-								.getTable(customizationId, gridResult.getGrid()
+								.getTable(formResult.getScd(), gridResult.getGrid()
 										.get_defaultCrudForm().getObjectId())
 								: null;
 						if (mainTable != null
@@ -1570,7 +1570,7 @@ public class React16 implements ViewAdapter {
 						W5GridResult gridResult = formResult.getModuleGridMap().get(m.getObjectId());
 						W5Table mainTable = gridResult.getGrid() != null
 								&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-								.getTable(customizationId, gridResult.getGrid()
+								.getTable(formResult.getScd(), gridResult.getGrid()
 										.get_defaultCrudForm().getObjectId())
 								: null;
 						if (mainTable != null
@@ -4340,8 +4340,9 @@ columns:[
 
 	public StringBuilder serializeTableRecordInfo(
 			W5TableRecordInfoResult tableRecordInfoResult) {
-		String xlocale = (String) tableRecordInfoResult.getScd().get("locale");
-		int customizationId = (Integer) tableRecordInfoResult.getScd().get(
+		Map<String, Object> scd = tableRecordInfoResult.getScd();
+		String xlocale = (String) scd.get("locale");
+		int customizationId = (Integer) scd.get(
 				"customizationId");
 		StringBuilder buf = new StringBuilder();
 		W5TableRecordHelper trh0 = tableRecordInfoResult.getParentList().get(0);
@@ -4352,7 +4353,7 @@ columns:[
 				.append(",\"tdsc\":\"")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						FrameworkCache
-								.getTable(customizationId, trh0.getTableId())
+								.getTable(scd, trh0.getTableId())
 								.getDsc())).append("\",\"dsc\":\"")
 				.append(GenericUtil.stringToJS2(trh0.getRecordDsc()))
 				.append("\"");
@@ -4401,7 +4402,7 @@ columns:[
 		boolean b = false;
 		for (W5TableRecordHelper trh : tableRecordInfoResult.getParentList()) {
 			W5Table dt = FrameworkCache
-					.getTable(customizationId, trh.getTableId());
+					.getTable(scd, trh.getTableId());
 			if (dt == null)
 				break;
 			if (b)
@@ -4428,7 +4429,7 @@ columns:[
 			buf.append(",\n\"childs\":[");
 			for (W5TableChildHelper tch : tableRecordInfoResult.getChildList())
 				if (tch.getChildCount() > 0) {
-					W5Table dt = FrameworkCache.getTable(customizationId, tch
+					W5Table dt = FrameworkCache.getTable(scd, tch
 							.getTableChild().getRelatedTableId());
 					if (dt == null)
 						break;
@@ -4837,7 +4838,7 @@ columns:[
 																		// icin
 																		// var
 																		// mi
-				W5Table dt = FrameworkCache.getTable(customizationId,
+				W5Table dt = FrameworkCache.getTable(scd,
 						fsm.getDstTableId());
 				if ((dt.getAccessViewTip() == 0
 						|| !GenericUtil.isEmpty(dt.getAccessUpdateUserFields()) || GenericUtil

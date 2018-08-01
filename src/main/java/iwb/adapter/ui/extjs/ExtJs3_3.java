@@ -370,7 +370,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(formResult.getAction());
 		W5Table t = null;
 		if (f.getObjectTip() == 2) {
-			t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			t = FrameworkCache.getTable(formResult.getScd(), f.getObjectId());
 			if (FrameworkCache.getAppSettingIntValue(formResult.getScd(),
 					"file_attachment_flag") != 0
 					&& t.getFileAttachmentFlag() != 0)
@@ -729,9 +729,9 @@ public class ExtJs3_3 implements ViewAdapter {
 		boolean liveSyncRecord = false;
 		// form(table) fields
 		if (f.getObjectTip() == 2
-				&& FrameworkCache.getTable(customizationId, f.getObjectId()) != null) {
+				&& FrameworkCache.getTable(scd, f.getObjectId()) != null) {
 			s.append(",\n renderTip:").append(fr.getForm().getRenderTip());
-			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord
 					&& t.getLiveSyncFlag() != 0 && !fr.isViewMode();
 			// insert AND continue control
@@ -1070,7 +1070,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								.getMapConvertedObject() != null && fr
 								.getMapConvertedObject().containsKey(
 										fsm.getConversionId())))) {
-							W5Table dt = fsm.getSrcDstTip()==0 ? FrameworkCache.getTable(customizationId,fsm.getDstTableId()) : null;
+							W5Table dt = fsm.getSrcDstTip()==0 ? FrameworkCache.getTable(scd,fsm.getDstTableId()) : null;
 							if (dt==null || ((dt.getAccessViewTip() == 0
 									|| !GenericUtil.isEmpty(dt
 											.getAccessUpdateUserFields()) || GenericUtil
@@ -1240,7 +1240,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
 					// yapılabilir mi ? Formun bağlı olduğu tablonun onay
 					// mekanizması manualStart + Elle Başlatma İsteği aktif mi
-			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			if (t != null && t.get_approvalMap() != null
 					&& t.get_approvalMap().get((short) 2) != null) {
 				W5Workflow a = t.get_approvalMap().get((short) 2);
@@ -1452,7 +1452,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								.getModuleFormMap().get(m.getObjectId());
 						W5Table mainTablex = subFormResult != null
 								&& subFormResult.getForm() != null ? FrameworkCache
-								.getTable(customizationId, subFormResult
+								.getTable(formResult.getScd(), subFormResult
 										.getForm().getObjectId()) : null;
 						if (mainTablex == null)
 							continue;
@@ -1495,7 +1495,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						tabHeight = gridResult.getGrid().getDefaultHeight();
 						W5Table mainTable = gridResult.getGrid() != null
 								&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-								.getTable(customizationId, gridResult.getGrid()
+								.getTable(formResult.getScd(), gridResult.getGrid()
 										.get_defaultCrudForm().getObjectId())
 								: null;
 						if (mainTable != null
@@ -1636,7 +1636,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								.getModuleFormMap().get(m.getObjectId());
 						W5Table mainTablex = subFormResult != null
 								&& subFormResult.getForm() != null ? FrameworkCache
-								.getTable(customizationId, subFormResult
+								.getTable(formResult.getScd(), subFormResult
 										.getForm().getObjectId()) : null;
 						if (mainTablex == null)
 							continue;
@@ -1677,7 +1677,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								.get(m.getObjectId());
 						W5Table mainTable = gridResult.getGrid() != null
 								&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-								.getTable(customizationId, gridResult.getGrid()
+								.getTable(formResult.getScd(), gridResult.getGrid()
 										.get_defaultCrudForm().getObjectId())
 								: null;
 						if (mainTable != null
@@ -1817,7 +1817,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.getModuleFormMap().get(m.getObjectId());
 							W5Table mainTablex = subFormResult != null
 									&& subFormResult.getForm() != null ? FrameworkCache
-									.getTable(customizationId, subFormResult
+									.getTable(formResult.getScd(), subFormResult
 											.getForm().getObjectId()) : null;
 							if (mainTablex != null
 									&& (!FrameworkCache.roleAccessControl(
@@ -1863,7 +1863,7 @@ public class ExtJs3_3 implements ViewAdapter {
 							W5Table mainTable = gridResult.getGrid() != null
 									&& gridResult.getGrid()
 											.get_defaultCrudForm() != null ? FrameworkCache
-									.getTable(customizationId, gridResult
+									.getTable(formResult.getScd(), gridResult
 											.getGrid().get_defaultCrudForm()
 											.getObjectId()) : null;
 							if (mainTable != null
@@ -2319,7 +2319,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				&& formResult.getAction() == 1;
 		String liveSyncStr = null;
 		if (liveSyncRecord) {
-			W5Table t = FrameworkCache.getTable(customizationId, formResult
+			W5Table t = FrameworkCache.getTable(formResult.getScd(), formResult
 					.getForm().getObjectId());
 			if (t != null && t.getLiveSyncFlag() != 0) {
 				String s = ".t=" + formResult.getUniqueId() + "&.pk="
@@ -4382,6 +4382,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		String xlocale = (String) scd.get("locale");
 		boolean dev = GenericUtil.uInt(gridResult.getRequestParams(),"_dev")!=0;
 		int customizationId = dev ? 0:(Integer) scd.get("customizationId");
+		String projectId = FrameworkCache.getProjectId(scd, "5."+gridResult.getGridId());
 		W5Grid g = gridResult.getGrid();
 		W5Query q = g.get_query();
 		StringBuilder buf = new StringBuilder();
@@ -4519,7 +4520,7 @@ public class ExtJs3_3 implements ViewAdapter {
 							.get_queryFields(), "_id", g
 							.get_postProcessQueryFields(), (g.get_query()
 							.getShowParentRecordFlag() != 0 ? 2 : 0),
-							FrameworkCache.getTable(customizationId, g.get_query()
+							FrameworkCache.getTable(projectId, g.get_query()
 									.getMainTableId()), scd))
 					.append("}),listeners:{loadexception:promisLoadException}}),\n master_column_id:'")
 					.append(g.get_queryFieldMap().get(g.getTreeMasterFieldId())
@@ -4546,8 +4547,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.get_postProcessQueryFields(), gridResult
 									.isViewLogMode() ? 1 : (g.get_query()
 									.getShowParentRecordFlag() != 0 ? 2 : 0),
-							FrameworkCache.getTable(customizationId, g.get_query()
-									.getMainTableId()), scd)).append("})})");
+							FrameworkCache.getTable(projectId, g.get_query().getMainTableId()), scd)).append("})})");
 		} else {
 			buf.append(
 					",\n ds:new Ext.data.JsonStore({url:'"+ajaxUrl+"?.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
@@ -4570,7 +4570,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.get_postProcessQueryFields(), gridResult
 									.isViewLogMode() ? 1 : (g.get_query()
 									.getShowParentRecordFlag() != 0 ? 2 : 0),
-							FrameworkCache.getTable(customizationId, g.get_query()
+							FrameworkCache.getTable(projectId, g.get_query()
 									.getMainTableId()), scd)).append(
 					",listeners:{loadexception:promisLoadException}})");
 		}
@@ -4601,8 +4601,7 @@ public class ExtJs3_3 implements ViewAdapter {
 
 			if (g.get_defaultCrudForm() != null) { // insert ve delete
 													// buttonlari var mi yok mu?
-				W5Table t = FrameworkCache.getTable(customizationId, g.get_defaultCrudForm()
-						.getObjectId());// g.get_defaultCrudForm().get_sourceTable();
+				W5Table t = FrameworkCache.getTable(projectId, g.get_defaultCrudForm().getObjectId());// g.get_defaultCrudForm().get_sourceTable();
 				boolean insertFlag = GenericUtil.accessControl(scd,
 						t.getAccessInsertTip(), t.getAccessInsertRoles(),
 						t.getAccessInsertUsers());
@@ -6649,8 +6648,9 @@ public class ExtJs3_3 implements ViewAdapter {
 	}
 	public StringBuilder serializeTableRecordInfo(
 			W5TableRecordInfoResult tableRecordInfoResult) {
-		String xlocale = (String) tableRecordInfoResult.getScd().get("locale");
-		int customizationId = (Integer) tableRecordInfoResult.getScd().get(
+		Map<String, Object> scd = tableRecordInfoResult.getScd();
+		String xlocale = (String) scd.get("locale");
+		int customizationId = (Integer) scd.get(
 				"customizationId");
 		StringBuilder buf = new StringBuilder();
 		W5TableRecordHelper trh0 = tableRecordInfoResult.getParentList().get(0);
@@ -6661,7 +6661,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(",\"tdsc\":\"")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						FrameworkCache
-								.getTable(customizationId, trh0.getTableId())
+								.getTable(scd, trh0.getTableId())
 								.getDsc())).append("\",\"dsc\":\"")
 				.append(GenericUtil.stringToJS2(trh0.getRecordDsc()))
 				.append("\"");
@@ -6709,7 +6709,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		boolean b = false;
 		for (W5TableRecordHelper trh : tableRecordInfoResult.getParentList()) {
 			W5Table dt = FrameworkCache
-					.getTable(customizationId, trh.getTableId());
+					.getTable(scd, trh.getTableId());
 			if (dt == null)
 				break;
 			if (b)
@@ -6736,7 +6736,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(",\n\"childs\":[");
 			for (W5TableChildHelper tch : tableRecordInfoResult.getChildList())
 				if (tch.getChildCount() > 0) {
-					W5Table dt = FrameworkCache.getTable(customizationId, tch
+					W5Table dt = FrameworkCache.getTable(scd, tch
 							.getTableChild().getRelatedTableId());
 					if (dt == null)
 						break;
@@ -7144,7 +7144,7 @@ public class ExtJs3_3 implements ViewAdapter {
 																		// icin
 																		// var
 																		// mi
-				W5Table dt = FrameworkCache.getTable(customizationId,
+				W5Table dt = FrameworkCache.getTable(scd,
 						fsm.getDstTableId());
 				if ((dt.getAccessViewTip() == 0
 						|| !GenericUtil.isEmpty(dt.getAccessUpdateUserFields()) || GenericUtil
