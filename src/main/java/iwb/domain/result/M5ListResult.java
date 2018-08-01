@@ -64,9 +64,6 @@ public class M5ListResult implements W5MetaResult{
 	public M5ListResult(int listId) {
 		super();
 		this.listId = listId;
-		if(FrameworkCache.wDevEntityKeys.contains("1345."+listId)){
-			this.dev=true;
-		}
 	}
 
 	public int getListId() {
@@ -83,14 +80,5 @@ public class M5ListResult implements W5MetaResult{
 
 	public void setList(M5List list) {
 		this.list = list;
-	}
-	
-	private boolean dev = false;
-	
-	public boolean isDev() {
-		return dev;
-	}
-	public void setDev(boolean dev) {
-		this.dev = dev;
 	}
 }

@@ -22,7 +22,6 @@ import iwb.util.GenericUtil;
 public class W5Conversion implements java.io.Serializable {
 
 	private int conversionId;
-	private int customizationId;
 	private String dsc;
 	private int srcTableId;
 	private int dstTableId;
@@ -92,14 +91,7 @@ public class W5Conversion implements java.io.Serializable {
 	public void set_conversionColMap(Map<Integer, W5ConversionCol> conversionColMap) {
 		_conversionColMap = conversionColMap;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="include_file_attachment_flag")
 	public short getIncludeFileAttachmentFlag() {
 		return includeFileAttachmentFlag;
@@ -242,6 +234,18 @@ public class W5Conversion implements java.io.Serializable {
 	}
 	public void setRhinoCode(String rhinoCode) {
 		this.rhinoCode = rhinoCode;
+	}
+	
+	private String projectUuid;
+
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 
 }

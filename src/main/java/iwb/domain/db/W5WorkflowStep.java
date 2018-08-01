@@ -16,7 +16,7 @@ import iwb.util.GenericUtil;
 @Entity
 @Immutable
 @Table(name="w5_approval_step", schema="iwb")
-public class W5ApprovalStep implements java.io.Serializable, W5Base {
+public class W5WorkflowStep implements java.io.Serializable, W5Base {
 
 	private int approvalStepId;
 	private int approvalStepSeqId;
@@ -31,7 +31,6 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	private int onReturnStepId;
 	private String onReturnStepSql;
 	private String onRejectStepSql;
-	private int customizationId;	
 	private short finalStepFlag;
 	private String updatableFields;
 	private String dynamicRoleUserSql;
@@ -238,14 +237,7 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 		this.finalStepFlag = finalStepFlag;
 	}
 
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="on_return_step_id")
 	public int getOnReturnStepId() {
 		return onReturnStepId;
@@ -299,8 +291,8 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	}
 	
 	@Transient
-	public W5ApprovalStep getNewInstance(){
-		W5ApprovalStep a = new W5ApprovalStep();
+	public W5WorkflowStep getNewInstance(){
+		W5WorkflowStep a = new W5WorkflowStep();
 		a.approvalStepId=this.approvalStepId;
 		a.approvalStepSeqId=this.approvalStepSeqId;
 		a.approvalId=this.approvalId;
@@ -314,7 +306,6 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 		a.onReturnStepId=this.onReturnStepId;
 		a.onReturnStepSql=this.onReturnStepSql;
 		a.onRejectStepSql=this.onRejectStepSql;
-		a.customizationId=this.customizationId;
 		a.finalStepFlag=this.finalStepFlag;
 		a.updatableFields=this.updatableFields;
 		a.dynamicRoleUserSql=this.dynamicRoleUserSql;
@@ -338,7 +329,7 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 	@Transient
 	public boolean safeEquals(W5Base q){
 		if(q==null)return false;
-		W5ApprovalStep a = (W5ApprovalStep)q;
+		W5WorkflowStep a = (W5WorkflowStep)q;
 		return
 			this.approvalStepId== a.approvalStepId  &&
 			this.approvalStepSeqId== a.approvalStepSeqId  &&
@@ -374,5 +365,16 @@ public class W5ApprovalStep implements java.io.Serializable, W5Base {
 			this.sendMailOnEnterStepFlag== a.sendMailOnEnterStepFlag  &&
 			this.sendSmsOnEnterStepFlag== a.sendSmsOnEnterStepFlag;
 	}
-	
+
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
 }

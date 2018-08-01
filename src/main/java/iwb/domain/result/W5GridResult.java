@@ -6,7 +6,7 @@ import java.util.Map;
 import iwb.cache.FrameworkCache;
 import iwb.domain.db.W5Grid;
 import iwb.domain.db.W5GridColumn;
-import iwb.domain.db.W5TemplateObject;
+import iwb.domain.db.W5PageObject;
 import iwb.domain.helper.W5FormCellHelper;
 
 
@@ -23,7 +23,7 @@ public class W5GridResult implements W5MetaResult{
 	private	boolean viewReadOnlyMode;
 	private	boolean viewLogMode;
 	private Map<String,Object>	extraOutMap;	
-    private W5TemplateObject	tplObj;
+    private W5PageObject	tplObj;
     
 	public int getAction() {
 		return action;
@@ -36,9 +36,6 @@ public class W5GridResult implements W5MetaResult{
 
 	public W5GridResult(int gridId) {
 		this.gridId = gridId;
-		if(FrameworkCache.wDevEntityKeys.contains("5."+gridId)){
-			this.dev=true;
-		}
 	}
 
 	public W5GridResult() {}
@@ -125,19 +122,11 @@ public class W5GridResult implements W5MetaResult{
 		this.extraOutMap = extraOutMap;
 	}
 
-	public W5TemplateObject getTplObj() {
+	public W5PageObject getTplObj() {
 		return tplObj;
 	}
 
-	public void setTplObj(W5TemplateObject tplObj) {
+	public void setTplObj(W5PageObject tplObj) {
 		this.tplObj = tplObj;
-	}
-	private boolean dev = false;
-	
-	public boolean isDev() {
-		return dev;
-	}
-	public void setDev(boolean dev) {
-		this.dev = dev;
 	}
 }

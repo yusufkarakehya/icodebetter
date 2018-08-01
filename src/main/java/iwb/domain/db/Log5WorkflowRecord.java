@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="log5_approval_record",schema="iwb")
-public class Log5ApprovalRecord implements java.io.Serializable, Log5Base {
+public class Log5WorkflowRecord implements java.io.Serializable, Log5Base {
 
 	private int logId;
 	private int userId;
@@ -45,7 +45,7 @@ public class Log5ApprovalRecord implements java.io.Serializable, Log5Base {
 		this.dsc = dsc;
 	}
 	
-	public Log5ApprovalRecord() {
+	public Log5WorkflowRecord() {
 	}
 
     @SequenceGenerator(name="sex_log_approval_record",sequenceName="iwb.seq_log_approval_record",allocationSize=1)

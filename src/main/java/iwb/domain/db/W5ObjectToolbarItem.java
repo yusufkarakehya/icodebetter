@@ -15,7 +15,6 @@ import org.hibernate.annotations.Immutable;
 public class W5ObjectToolbarItem implements java.io.Serializable, W5Base {
 
 	private int toolbarItemId;
-	private int customizationId;	
 	private short objectTip; // hangi tablodan geldigi: 2:table_id, 1:gridId, 3:dbFunc
 	private int objectId; //gelen table'in PK'si
 	private String dsc;
@@ -39,14 +38,7 @@ public class W5ObjectToolbarItem implements java.io.Serializable, W5Base {
 	public void setToolbarItemId(int toolbarItemId) {
 		this.toolbarItemId = toolbarItemId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 
 	@Column(name="dsc")
 	public String getDsc() {
@@ -152,6 +144,16 @@ public class W5ObjectToolbarItem implements java.io.Serializable, W5Base {
 		if(q==null)return false;
 		W5ObjectToolbarItem l = (W5ObjectToolbarItem)q;
 		return false;
+	}
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

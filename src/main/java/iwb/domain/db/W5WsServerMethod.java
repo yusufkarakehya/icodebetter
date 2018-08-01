@@ -20,7 +20,6 @@ public class W5WsServerMethod  implements java.io.Serializable {
 	private String dsc;
 	private short objectTip;
 	private int objectId;
-	private int customizationId;
 	private W5WsServer _ws;
 	private short tabOrder;
 	private short accessExecuteTip;
@@ -72,14 +71,7 @@ public class W5WsServerMethod  implements java.io.Serializable {
 		this.dsc = dsc;
 	}
 	
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	
 	@Transient
 	public W5WsServer get_ws() {
@@ -143,6 +135,16 @@ public class W5WsServerMethod  implements java.io.Serializable {
 	}
 	public void set_sourceObject(Object _sourceObject) {
 		this._sourceObject = _sourceObject;
+	}
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

@@ -51,5 +51,15 @@ public class W5TableAccessConditionSql implements java.io.Serializable, W5Base {
 	public boolean safeEquals(W5Base q){
 		return false;
 	}
-	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
 }

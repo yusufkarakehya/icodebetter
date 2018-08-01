@@ -3,46 +3,45 @@ package iwb.domain.result;
 import java.util.List;
 import java.util.Map;
 
-import iwb.domain.db.W5DbFunc;
+import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 
 
 
-public class W5DbFuncResult implements W5MetaResult{
+public class W5GlobalFuncResult implements W5MetaResult{
 	
 	private	int	dbFuncId;
-	private W5DbFunc dbFunc;
+	private W5GlobalFunc globalFunc;
 	
 	private String executedSql;
 	private	List<Object> sqlParams;
-	private	W5Table approvalTable;
 	private Map<String, Object> scd;
 	private Map<String,String>	requestParams;
 	private Map<String,String>	resultMap;
 	private Map<String,String>	errorMap;
 	private	boolean success;
 	private List<W5ReportCellHelper> reportList;
-	private List<W5QueuedActionHelper> queuedDbFuncList;
+	private List<W5QueuedActionHelper> queuedGlobalFuncList;
 	private int processTime;
 	
 	
 
-	public W5DbFuncResult(int dbFuncId) {
+	public W5GlobalFuncResult(int dbFuncId) {
 		this.dbFuncId = dbFuncId;
 	}
-	public int getDbFuncId() {
+	public int getGlobalFuncId() {
 		return dbFuncId;
 	}
-	public void setDbFuncId(int dbFuncId) {
+	public void setGlobalFuncId(int dbFuncId) {
 		this.dbFuncId = dbFuncId;
 	}
-	public W5DbFunc getDbFunc() {
-		return dbFunc;
+	public W5GlobalFunc getGlobalFunc() {
+		return globalFunc;
 	}
-	public void setDbFunc(W5DbFunc dbFunc) {
-		this.dbFunc = dbFunc;
+	public void setGlobalFunc(W5GlobalFunc dbFunc) {
+		this.globalFunc = dbFunc;
 	}
 
 	public Map<String, Object> getScd() {
@@ -95,11 +94,11 @@ public class W5DbFuncResult implements W5MetaResult{
 	}
 
 
-	public List<W5QueuedActionHelper> getQueuedDbFuncList() {
-		return queuedDbFuncList;
+	public List<W5QueuedActionHelper> getQueuedGlobalFuncList() {
+		return queuedGlobalFuncList;
 	}
-	public void setQueuedDbFuncList(List<W5QueuedActionHelper> queuedDbFuncList) {
-		this.queuedDbFuncList = queuedDbFuncList;
+	public void setQueuedGlobalFuncList(List<W5QueuedActionHelper> queuedGlobalFuncList) {
+		this.queuedGlobalFuncList = queuedGlobalFuncList;
 	}
 
 	public int getProcessTime() {
@@ -107,13 +106,5 @@ public class W5DbFuncResult implements W5MetaResult{
 	}
 	public void setProcessTime(int processTime) {
 		this.processTime = processTime;
-	}
-	private boolean dev = false;
-	
-	public boolean isDev() {
-		return dev;
-	}
-	public void setDev(boolean dev) {
-		this.dev = dev;
 	}
 }

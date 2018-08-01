@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Map;
 
 import iwb.cache.FrameworkCache;
-import iwb.domain.db.W5Template;
+import iwb.domain.db.W5Page;
 import iwb.domain.helper.W5TableRecordHelper;
 
 
 
-public class W5TemplateResult implements W5MetaResult{
+public class W5PageResult implements W5MetaResult{
 	
 	private	int	templateId;
-	private W5Template template;
+	private W5Page page;
 	private	List<Object> templateObjectList;
 	
 	private int processTime;
@@ -20,11 +20,8 @@ public class W5TemplateResult implements W5MetaResult{
 	private Map<String,String>	requestParams;
 	private List<W5TableRecordHelper> masterRecordList;
 
-	public W5TemplateResult(int templateId) {
+	public W5PageResult(int templateId) {
 		this.templateId = templateId;
-		if(FrameworkCache.wDevEntityKeys.contains("63."+templateId)){
-			this.dev=true;
-		}
 	}
 	public int getTemplateId() {
 		return templateId;
@@ -32,11 +29,11 @@ public class W5TemplateResult implements W5MetaResult{
 	public void setTemplateId(int templateId) {
 		this.templateId = templateId;
 	}
-	public W5Template getTemplate() {
-		return template;
+	public W5Page getPage() {
+		return page;
 	}
-	public void setTemplate(W5Template template) {
-		this.template = template;
+	public void setPage(W5Page page) {
+		this.page = page;
 	}
 	public int getProcessTime() {
 		return processTime;
@@ -67,13 +64,5 @@ public class W5TemplateResult implements W5MetaResult{
 	}
 	public void setMasterRecordList(List<W5TableRecordHelper> masterRecordList) {
 		this.masterRecordList = masterRecordList;
-	}
-	private boolean dev = false;
-	
-	public boolean isDev() {
-		return dev;
-	}
-	public void setDev(boolean dev) {
-		this.dev = dev;
 	}
 }

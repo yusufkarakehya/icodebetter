@@ -21,7 +21,6 @@ public class W5TableParam  implements java.io.Serializable, W5Param {
 
 	
 	private int tableParamId;
-	private int customizationId;
 	private int tableId;
 
 	private String dsc;
@@ -64,14 +63,7 @@ public class W5TableParam  implements java.io.Serializable, W5Param {
 		this.tableParamId = tableParamId;
 	}
 
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="dsc")
 	public String getDsc() {
 		return dsc;
@@ -193,24 +185,17 @@ public class W5TableParam  implements java.io.Serializable, W5Param {
 	public void setNotNullFlag(short notNullFlag) {
 		this.notNullFlag = notNullFlag;
 	}
-/*
-	@Column(name="table_field_id")
-	public int getTableFieldId() {
-		return tableFieldId;
-	}
 
-	public void setTableFieldId(int tableFieldId) {
-		this.tableFieldId = tableFieldId;
-	}
-
-	@Transient
-	public W5TableField get_tableField() {
-		return _tableField;
-	}
-
-	public void set_tableField(W5TableField tableField) {
-		_tableField = tableField;
-	}
 	
-	*/
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
 }

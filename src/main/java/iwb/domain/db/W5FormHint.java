@@ -17,8 +17,6 @@ public class W5FormHint implements java.io.Serializable, W5Base {
 	private int formHintId;
 	private int formId;
 	
-	private int customizationId;
-
 	private String dsc;
 
 	private String locale;
@@ -51,14 +49,7 @@ public class W5FormHint implements java.io.Serializable, W5Base {
 	public void setTabOrder(short tabOrder) {
 		this.tabOrder = tabOrder;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Id
 	@Column(name="form_hint_id")
 	public int getFormHintId() {
@@ -106,4 +97,16 @@ public class W5FormHint implements java.io.Serializable, W5Base {
 	public boolean safeEquals(W5Base q){
 		return false;
 	}
+	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
 }

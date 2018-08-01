@@ -16,13 +16,11 @@ import iwb.util.GenericUtil;
 @Entity
 @Immutable
 @Table(name="w5_template_object",schema="iwb")
-public class W5TemplateObject implements java.io.Serializable, W5Base {
+public class W5PageObject implements java.io.Serializable, W5Base {
 
 	private int templateObjectId;
 	private int templateId;
 	private int parentObjectId;
-	private int customizationId;
-	
 	private int objectId;
 	
 	private short objectTip;
@@ -91,15 +89,7 @@ public class W5TemplateObject implements java.io.Serializable, W5Base {
 	public void setTabOrder(short tabOrder) {
 		this.tabOrder = tabOrder;
 	}
-	@Id
-	@Column(name="customization_id")	
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	@Column(name="access_view_tip")
 	public short getAccessViewTip() {
@@ -140,7 +130,7 @@ public class W5TemplateObject implements java.io.Serializable, W5Base {
 	@Transient
 	public boolean safeEquals(W5Base q){
 		if(q==null)return false;
-		W5TemplateObject t = (W5TemplateObject)q;
+		W5PageObject t = (W5PageObject)q;
 		return 	
 				this.templateObjectId == t.getTemplateObjectId()  &&
 		this.templateId == t.getTemplateId() &&
@@ -239,5 +229,15 @@ public class W5TemplateObject implements java.io.Serializable, W5Base {
 	public void setActiveFlag(short activeFlag) {
 		this.activeFlag = activeFlag;
 	}	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

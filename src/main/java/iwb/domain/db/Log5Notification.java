@@ -159,7 +159,7 @@ public class Log5Notification implements java.io.Serializable, Log5Base {
 	}
 	public Log5Notification(W5FormSmsMailAlarm a) {
 		super();
-		this.customizationId = a.getCustomizationId();
+	//	this.customizationId = a.getCustomizationId();
 		this.actionUserId = this.userId = a.getInsertUserId();
 		this.tableId = a.getTableId();
 		this.tablePk = a.getTablePk();

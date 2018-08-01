@@ -72,7 +72,7 @@ public class AppFilter implements Filter {
 						b.append("ajaxErrorHandler(");
 						z = true;
 					}
-					b.append(iw.toJsonString());
+					b.append(iw.toJsonString(uri));
 					
 					if(z)b.append(")");
 				} else { //

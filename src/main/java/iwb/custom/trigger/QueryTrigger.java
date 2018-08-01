@@ -1,15 +1,15 @@
 package iwb.custom.trigger;
 
-import iwb.dao.RdbmsDao;
+import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.result.W5QueryResult;
 
 public class QueryTrigger {
-	public static void beforeExecuteQuery(W5QueryResult queryResult, RdbmsDao dao){
+	public static void beforeExecuteQuery(W5QueryResult queryResult, PostgreSQL dao){
 		switch(queryResult.getQueryId()){
 		
 		}
 	}
-	public static void afterExecuteQuery(W5QueryResult queryResult, RdbmsDao dao){
+	public static void afterExecuteQuery(W5QueryResult queryResult, PostgreSQL dao){
 		/* TODO
 		switch(queryResult.getQueryId()){
 		case	1727://comment listing

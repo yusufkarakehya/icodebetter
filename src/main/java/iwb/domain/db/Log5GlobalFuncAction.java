@@ -11,7 +11,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.util.GenericUtil;
 
 /**
@@ -19,7 +19,7 @@ import iwb.util.GenericUtil;
  */
 @Entity
 @Table(name="log5_db_func_action",schema="iwb")
-public class Log5DbFuncAction implements java.io.Serializable, Log5Base {
+public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 
 	private int logId;
 
@@ -34,7 +34,7 @@ public class Log5DbFuncAction implements java.io.Serializable, Log5Base {
 
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("db_script,db_func_id=").append(getDbFuncId()).append(" user_id=").append(getUserId()).append("i,duration=").append(getProcessTime()).append("i,sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+		s.append("global_func,func_id=").append(getDbFuncId()).append(" user_id=").append(getUserId()).append("i,duration=").append(getProcessTime()).append("i,sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
 		return s.toString();
 	}
 
@@ -50,11 +50,11 @@ public class Log5DbFuncAction implements java.io.Serializable, Log5Base {
 
 
 
-	public Log5DbFuncAction() {
+	public Log5GlobalFuncAction() {
 	}
 
-	public Log5DbFuncAction(W5DbFuncResult r) {
-		this.dbFuncId = r.getDbFuncId();
+	public Log5GlobalFuncAction(W5GlobalFuncResult r) {
+		this.dbFuncId = r.getGlobalFuncId();
 		if(r.getScd()!=null && r.getScd().get("userId")!=null)this.userId = (Integer)r.getScd().get("userId");
 		this.startTime=System.currentTimeMillis();
 		this.processTime = -1;

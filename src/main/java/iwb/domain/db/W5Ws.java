@@ -20,7 +20,6 @@ public class W5Ws  implements java.io.Serializable {
 	private String dsc;
 	private String wsUrl;
 	private short wsTip;
-	private int customizationId;
 	private short accessExecuteTip;
 	private String accessExecuteRoles;
 	private String accessExecuteUsers;
@@ -56,15 +55,6 @@ public class W5Ws  implements java.io.Serializable {
 	}
 	public void setDsc(String dsc) {
 		this.dsc = dsc;
-	}
-	
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
 	}
 	
 	@Column(name="ws_url")
@@ -221,6 +211,16 @@ public class W5Ws  implements java.io.Serializable {
 	}
 	public void setWssLogoutMethodId(Integer wssLogoutMethodId) {
 		this.wssLogoutMethodId = wssLogoutMethodId;
+	}
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }
