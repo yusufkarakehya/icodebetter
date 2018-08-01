@@ -469,10 +469,7 @@ class GridCommon extends React.PureComponent {
 				...tableRowData,
 				...{ 
 					onDoubleClick:event=>this.onEditClick({event,rowData:tableRowData.row, openEditable:false}),
-					style:{
-						...tableRowData.style,
-						cursor:'pointer'
-					} 
+					style:{ ...tableRowData.style, cursor:'pointer'} 
 				}
 			}: tableRowData);
 		}
@@ -1388,11 +1385,14 @@ class XEditGridSF extends GridCommon {
 					}
 				}
 			});
-			console.dir(document.getElementById('s-'+this.props.id));
-			
 			var searchFormData = this.props.searchForm && iwb.getFormValues(document.getElementById('s-'+this.props.id));
-			console.dir(searchFormData);
-
+			//xsample_id to sample_id converter could be written as helper function
+	    	searchFormData && Object.keys(searchFormData).forEach((key,index) => {
+	    		if( key.charAt( 0 ) === 'x' ){
+	    			searchFormData[key.slice( 1 )] = searchFormData[key];
+	    			delete searchFormData[key];
+	    			}
+	    		});
 			return {searchFormData, inserted:addedRows, deleted:deletedRows, _state: this.state};
 		}
 	    if(props.parentCt && props.parentCt.egrids)props.parentCt.egrids[props.gridId]=this;
@@ -1594,12 +1594,9 @@ class XEditGridSF extends GridCommon {
 				,_(Button, { className:'btn-form',color: "light", style:{border: ".5px solid #e6e6e6"}, onClick:iwb.closeModal}, "Cancel")
 		);
 		    
-		return !this.searchForm ? g:_('div',{ className:'tab-grid mb-4'},[
-			_('nav',{ id:'sf-'+this.props.id, key: 'sf-'+this.props.id},
-				this.searchForm)
-			,_('main',{ className: "inbox", key:'inbox'},
-				g,
-				footer)
+		return _('div',{ className:'tab-grid mb-4'},[
+			!!this.searchForm && _('nav',{ id:'sf-'+this.props.id, key: 'sf-'+this.props.id}, this.searchForm)
+			,_('main',{ className: "inbox", key:'inbox'}, g, footer)
 		])
 	}
 }
@@ -1797,7 +1794,7 @@ class XEditGrid extends GridCommon {
 			this.lastQuery = queryString;
 	    }
 	    /**
-	     * used for import data from the popup 
+	     * used for import data from the popup with ne flag
 	     */
 	    this.BulkyImport = ({searchFormData, inserted, deleted, _state})=>{
 	    	const {rows, addedRows} = this.state;
@@ -1810,13 +1807,6 @@ class XEditGrid extends GridCommon {
 				max =(rows.length+addedRows.length)*10;
 			}
 			if(max === '-Infinity' || +max === 0){ max = 10;}
-	    	//xsample_id to sample_id converter could be written as helper function
-	    	Object.keys(searchFormData).forEach((key,index) => {
-	    		if( key.charAt( 0 ) === 'x' ){
-	    			searchFormData[key.slice( 1 )] = searchFormData[key];
-	    			delete searchFormData[key];
-	    			}
-	    		});
 	    	//merge new imported data
 	    	inserted.forEach((data)=>{
 	    		var merged = { ...searchFormData, ...data};
@@ -2043,7 +2033,7 @@ class XMainGrid extends GridCommon {
 	constructor(props) {
 		super(props);
 		var oldGridState = iwb.grids[props.id];
-		if(!iwb.debug)console.log('XMainGrid', props.extraButtons);
+		if(iwb.debug)console.log('XMainGrid', props.extraButtons);
 		if(oldGridState){
 			this.state = oldGridState;
 			this.dontRefresh = true;// true-yuklemez, false-yukleme yapar
