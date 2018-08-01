@@ -713,7 +713,7 @@ function renderTableRecordInfo(j){
     	
     rs=j.childs;
     if(!rs || !rs.length)return s;
-	ss='<br><b>Alt kırılımlar</b>';
+	ss='<br><b>Details</b>';
     for(var qi=0;qi<rs.length;qi++){
         var r=rs[qi];
         ss+='<br> · '+ (r.vtip ? '<a href=# id="idLinkRel_'+r.rel_id+'" onclick="return showTableChildList(event,'+r.vtip+','+r.void+','+r.mtbid+','+r.mtbpk+','+r.rel_id+');return false;">'+r.tdsc +'</a>': r.dsc) + ' ('+r.tc + (_app.table_children_max_record_number && 1*r.tc==1*_app.table_children_max_record_number-1 ? '+':'')+' adet)';
@@ -1617,9 +1617,9 @@ function addDefaultPrivilegeButtons(xbuttons, xgrid){
 	if(_scd.administratorFlag || _scd.customizationId==0){
 		xbuttons.push(false && xgrid.gridReport ? '-':'->');
 		var xxmenu=[], bx=false;
-	    if(_scd.customizerFlag){xxmenu.push({text:getLocMsg('js_ayarlar'),cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:fnGridSetting});bx=true;}
+	    if(_scd.administratorFlag){xxmenu.push({text:getLocMsg('js_ayarlar'),cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:fnGridSetting});bx=true;}
 	    if(_scd.administratorFlag){xxmenu.push({text:getLocMsg('js_yetkiler'),cls:'x-btn-icon x-grid-privilege', _activeOnSelection:false, _grid:xgrid, handler:fnGridPrivilege});bx=true;}
-	    if(_scd.customizerFlag && xgrid.crudTableId){
+	    if(_scd.administratorFlag && xgrid.crudTableId){
 			if(bx)xxmenu.push('-');else bx=true;
 			xxmenu.push({text:'Detail Form+ Builder',cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:function(ax){
 				return  mainPanel.loadTab({attributes:{href:'showPage?_tid=8&parent_table_id='+ax._grid.crudTableId+'&tpl_id='+ax._grid.tplInfo.id+'&po_id='+ax._grid.tplInfo.objId}});
@@ -1720,7 +1720,7 @@ function addTab4GridWSearchForm(obj){
     var items = [];
 	//---search form
     if(mainGrid.searchForm){
-		searchFormPanel =  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.getExtDef(),{
+		searchFormPanel =  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.render(),{
 			region: 'north', bodyStyle:'padding:3px',
 //			height: mainGrid.searchForm.defaultHeight||120,
 			autoHeight:true,
@@ -1750,15 +1750,6 @@ function addTab4GridWSearchForm(obj){
 					var c=Ext.getCmp(a._grid._gp._tid);
 					if(c && c._title){c.setTitle(c._title);c._title=false;}
 				}
-				if(a._grid.postCols && a._grid._gp.colModel && a._grid._gp.colModel.config){
-					var c=a._grid._gp.colModel.config;
-					var s='';
-					for(var qi=0;qi<c.length;qi++){
-						var cc=c[qi];
-						if(!cc.hidden)s+=','+cc.dataIndex;
-					}
-					a.baseParams._cols=s.substring(1);
-				}				
 			}
 		});
 		items.push(searchFormPanel);
@@ -1907,7 +1898,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 	//---search form
 	var searchFormPanel = null;
     if(mainGrid.searchForm){
-    	var searchFormPanel = mainGrid.searchForm.fp = new Ext.FormPanel(Ext.apply(mainGrid.searchForm.getExtDef(),{
+    	var searchFormPanel = mainGrid.searchForm.fp = new Ext.FormPanel(Ext.apply(mainGrid.searchForm.render(),{
 			region: 'north', bodyStyle:'padding:3px',
 			autoHeight:true,
 			anchor: '100%',
@@ -1934,15 +1925,6 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 		if(a._grid && a._grid._gp && a._grid._gp._tid){
 			var c=Ext.getCmp(a._grid._gp._tid);
 			if(c && c._title){c.setTitle(c._title);c._title=false;}
-		}
-		if(a._grid && a._grid.postCols && a._grid._gp && a._grid._gp.colModel && a._grid._gp.colModel.config){
-			var c=a._grid._gp.colModel.config;
-			var s='';
-			for(var qi=0;qi<c.length;qi++){
-				var cc=c[qi];
-				if(!cc.hidden)s+=','+cc.dataIndex;
-			}
-			a.baseParams._cols=s.substring(1);
 		}
 	});
 
@@ -2162,7 +2144,7 @@ function showSQLError(sql, xpos){
 	new Ext.Window({
         modal: true, closable:true,
         title: 'SQL Error',
-        width: 1000, height: 380, border: false, layout: 'border',
+        width: 1000, height:600, border: false, layout: 'border',
         items: [new Ext.FormPanel({region:'center', items:[_code]})]
 	}).show();
 	var doc=_code.codeEditor.doc;
@@ -2186,10 +2168,10 @@ function ajaxErrorHandler(obj){
         showLoginDialog(obj);
     else if (obj.errorType && obj.errorType=='security')
     	Ext.infoMsg.msg('error',getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>');
-    else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework')){
+    else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework' || obj.errorType=='cache')){
     	var items=[];
-    	items.push({xtype:'displayfield',fieldLabel: '',anchor:'99%',labelSeparator:'', value:'<b>'+(obj.error||'Unknown')+'</b>'});
-    	if(obj.objectType){
+    	items.push({xtype:'displayfield',fieldLabel: '',anchor:'99%',labelSeparator:'', hideLabel:!0, value:'<span style="font-size:1.5em">'+(obj.error||'Unknown')+'</span>'});
+    	if(false && obj.objectType){
     		items.push({xtype:'displayfield',fieldLabel: obj.objectId ? obj.objectType : 'Type',anchor:'99%', labelSeparator:'', value:obj.objectId || obj.objectType});
 //    		if(obj.objectId)items.push({xtype:'displayfield',fieldLabel: 'ID',width:100, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
     	}
@@ -2200,29 +2182,35 @@ function ajaxErrorHandler(obj){
     			if(qi>0)ss+='<br>'
     			for(var zi=0;zi<qi;zi++)ss+=' &nbsp;';
     			var oo=obj.icodebetter[qi];
-    			ss+='&gt '+oo.objectType;
+    			ss+='&gt <span style="opacity:.8">'+oo.objectType+'</span>';
     			if(oo.objectId){
     				if(oo.error && oo.error.startsWith('[')){
     					var tid=oo.error.substr(1).split(',')[0];
     					ss+=': <a href=# onclick="return fnTblRecEdit('+tid+','+oo.objectId+');">'+oo.error+'</a>';
     				} else ss+=': '+oo.objectId+ (oo.error ? ' / ' + oo.error:'');
-    				if(oo.error && oo.sql){
-    					iwb.errors[qi]=oo.sql;
-    					if(oo.error.endsWith('}#') && oo.error.indexOf('#{')>-1){
-        					var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
-        					lineNo=lineNo.substr(0,lineNo.length-2);
-    						ss+=' &nbsp; <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:iwb.errors['+qi+']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS.Exception</a>';
-    					} 
-    				}
 
-    			} else
+
+    			} else {
     				ss+=': ' + oo.error;
-				if(oo.error && oo.error.indexOf('Position: ')>-1){
-					sqlPos=oo.error.substr(oo.error.indexOf('Position: ')+'Position: '.length);    						
-					ss+=' &nbsp; <a href=# onclick=\'showSQLError(iwb.errors['+(qi-1)+'],'+sqlPos+')\' style="padding:1px 5px;background:white;color:green;border-radius:20px;">SQL.Exception</a>';
+    			}
+				if(oo.error){
+					if(oo.sql)iwb.errors[qi]=oo.sql;
+					if(oo.error.endsWith('}#') && oo.error.indexOf('#{')>-1){
+						var lineNo=oo.error.substr(oo.error.indexOf('#{')+2);
+						lineNo=lineNo.substr(0,lineNo.length-2);
+						if(iwb.errors[qi])ss+=' &nbsp; <a href=# onclick=\'return mainPanel.loadTab({attributes:{id:"idxwPre'+qi+'",href:"showForm?_fid=2643&a=2",params:{error_line:'+lineNo+',irhino_script_code:iwb.errors['+qi+']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS</a>';
+					} else {
+						if(oo.error.indexOf('Position: ')>-1){
+							sqlPos=oo.error.substr(oo.error.indexOf('Position: ')+'Position: '.length);
+						} //else if(sqlPos){
+							if(iwb.errors[qi-1])ss+=' &nbsp; <a href=# onclick=\'showSQLError(iwb.errors['+(qi-1)+'],'+sqlPos+')\' style="padding:1px 5px;background:white;color:green;border-radius:20px;">SQL</a>';
+						//	sqlPos=false;
+						//}
+						
+					}
 				}
     		}
-    		items.push({xtype:'displayfield',fieldLabel: 'Stack',anchor:'99%',labelSeparator:'', value:ss});
+    		items.push({xtype:'displayfield',fieldLabel: 'Stack',hideLabel:!0, anchor:'99%',labelSeparator:'', value:ss});
     		
     	}
 
@@ -2499,7 +2487,7 @@ function showLoginDialog(xobj){
            handler: function(){document.location='login.htm?r='+new Date().getTime();
         }
 		}],                       
-		items :pfrm_login.getExtDef().items[0].items
+		items :pfrm_login.render().items[0].items
 	});
 	
 	lw = new Ext.Window({
@@ -2635,7 +2623,7 @@ function formSubmit(submitConfig){
             }
         } 
     };
-    if(submitConfig.extraParams)cfg.params=submitConfig.extraParams;
+    cfg.params=Ext.apply({".p":_scd.projectId},submitConfig.extraParams||{});
     submitConfig.formPanel.getForm().submit(cfg);
 };
 
@@ -2660,6 +2648,7 @@ function promisRequest(rcfg){
 	}
 	if(!rcfg.params)rcfg.params={}
 	rcfg.params['.w']=_webPageId;
+	rcfg.params['.p']=_scd.projectId;
 	Ext.Ajax.request(Ext.apply({
 	    success: function(a,b,c){
 	    	if(reqWaitMsg==1){
@@ -3811,7 +3800,7 @@ function prepareDetailGridCRUDButtons(grid,pk,toExtraButtonsFlag){
 //Multi Main Grid
 function addTab4DetailGridsWSearchForm(obj){
 	var mainGrid = obj.detailGrids[0].grid,detailGridTabPanel=null;
-	var searchFormPanel=  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.getExtDef(),{
+	var searchFormPanel=  new Ext.FormPanel(Ext.apply(mainGrid.searchForm.render(),{
 		region: 'north', bodyStyle:'padding:3px',
 //		height: mainGrid.searchForm.defaultHeight||120,
 		autoHeight:true,
@@ -4204,7 +4193,7 @@ var usersBorderChat=['#37cc00','#5fcbff','pink']
 function getUsers4Chat(users, pix){
 	if(!users || users.length==0)return '';
 	var	str='';
-	for(var qi=0;qi<users.length;qi++)str+=', &nbsp;'+(pix ? '<img src="sf/pic'+users[qi].userId+'.png" class="ppic-mini" style="margin-top: -2px;border:3px solid '+(usersBorderChat[qi % usersBorderChat.length])+';"> ':'')+'<a href=# onclick="return openChatWindow('+users[qi].userId+',\''+users[qi].userDsc+'\',true)"><b>'+users[qi].userDsc+'</b></a>';
+	for(var qi=0;qi<users.length;qi++)str+=', &nbsp;'+(pix ? '<img src="sf/pic'+users[qi].userId+'.png" class="ppic-mini" style="margin-top: -2px;border:3px solid '+(usersBorderChat[qi % usersBorderChat.length])+';"> ':'')+'<a href=# onclick="return openChatWindow('+users[qi].userId+',\''+users[qi].userDsc+'\',true)"><span>'+users[qi].userDsc+'</span></a>';
 	return str.substring(2);
 }
 
@@ -4216,7 +4205,7 @@ function	safeIsEqual(a,b){
 function syncMaptoStr(t, m, reload){
 	if(!m || !t)return null;
 	var str = getUsers4Chat([m]);
-	var actionMap=['','var olan bir kayit düzenlendi','yeni bir kayit yapildi', 'var olan bir kayit silindi']
+	var actionMap=['','updated an existing record','created a new record', 'a record deleted']
 	if(m.gridId){
 		var c=Ext.getCmp(t+'-'+m.gridId);
 		if(!c)return null;
@@ -4306,7 +4295,7 @@ function fmtTypingBlock(j){
 	if(!j || j.length==0)return "";
 	var u = j[0].sender_user_id!=_scd.userId ? j[0].sender_user_id:j[0].receiver_user_id;
 	return '<tr style="display:none;" id="idTypingWith_'+u+'"><td width=24 valign=top><img src="sf/pic'+u+'.png" width='+_app.profile_picture_width_mini+' height='+_app.profile_picture_height_mini
-	+'></td><td width=5></td><td width=100% valign=top><img height=15 src="../images/custom/typing.gif"></td><td width=1></td><td width=5></td></tr>';
+	+'></td><td width=5></td><td width=100% valign=top><img height=35 src="../ext3.4.1/custom/images/typing.svg"></td><td width=1></td><td width=5></td></tr>';
 }
 
 function getPPicImgTag(userId, mid){
@@ -4340,7 +4329,7 @@ function fmtChatList(j){
 			var u=x.substring(0,i),l=x.substring(i+1);
 			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a>';
 		} catch(e){str+='<b style="color:red;">!error!</b>';}else str+='<span style="width:140px;word-wrap:break-word;display:block;">'+j.msg+'</span>';
-		str+='<span class="cfeed"> · '+ fmtDateTimeWithDay2(j.sent_dttm)
+		str+='<span class="cfeed">'+ fmtDateTimeWithDay2(j.sent_dttm)
 			+'</span></td><td width=5></td><td width=1></td></tr><tr height=10><td colspan=5></td></tr>';
 		return str;
 	} else {
@@ -4351,27 +4340,28 @@ function fmtChatList(j){
 			var u=x.substring(0,i),l=x.substring(i+1);
 			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a>';
 		} catch(e){str+='<b style="color:red;">!error!</b>';}else str+='<span style="width:140px;word-wrap:break-word;display:block;">'+j.msg+'</span>';
-		str+='<span class="cfeed"> · '+ fmtDateTimeWithDay2(j.sent_dttm)
+		str+='<span class="cfeed">'+ fmtDateTimeWithDay2(j.sent_dttm)
 			+'</span></td><td width=5></td><td width=24 valign=top>'+getPPicImgTag(j.sender_user_id)+'</td></tr><tr height=10><td colspan=5></td></tr>';
 		return str;
 	}
 }
 function fmtOnlineUser(j){
 	var str='<table border=0 width=100% padding=0 style="margin-left:-1px;"';
-	if(j.instance_count>0)str+=" class='veliSelLightBlue'";
-	str+='><tr><td width=24>'+getPPicImgTag(j.user_id)+'</td><td width=99%> <span>&nbsp; ';
-	if(j.adi_soyadi.length>20)j.adi_soyadi=j.adi_soyadi.substring(0,18)+'...';
-	str+=j.adi_soyadi+'</span>';
-	if(j.instance_count>0)str+='&nbsp; <span id="idChatNotRead_'+j.user_id+'" style="color:red;">('+(j.instance_count>9 ? '+9':j.instance_count)+')</span>';
+	if(j.not_read_count>0)str+=" class='veliSelLightBlue'";
+	str+='><tr><td width=24><img src="sf/pic'+j.user_id+'.png" '+(j.chat_status_tip? 'style="border-width: 3px;borderborder-color:'+usersBorderChat[j.chat_status_tip-1]+'" ':'')+' class="ppic-mini"></td><td width=99%> <span>&nbsp; ';
+	if(j.dsc.length>20)j.dsc=j.dsc.substring(0,18)+'...';
+	str+=j.dsc+'</span>';
+	if(j.not_read_count>0)str+='&nbsp; <span id="idChatNotRead_'+j.user_id+'" style="color:red;">('+(j.not_read_count>9 ? '+9':j.not_read_count)+')</span>';
 	str+='<br>&nbsp; &nbsp; <span class="cfeed" style="font-size:.95em;"> ';
-	var s=j.user_role;
+	var s=j.last_msg;
 	if(s.length>3 && s.substring(0,2)=='!{' && s.substring(s.length-1,s.length)=='}' && s.indexOf('-')>-1){
 		s='Link :'+s.substring(s.indexOf('-')+1,s.length-1)
 	}
 	if(s.length>27)s=s.substring(0,25)+'...';
 	str+=s+'</span></td><td width=1%>';
 	if(j.mobile)str+='<span class="status-item2 mobile-1">&nbsp;</span>';
-	str+='<span class="status-item2 status-'+j.chat_status_tip+'" style="margin-right:1px;">&nbsp;</span></td></tr></table>';
+//	str+='<span class="status-item2 status-'+j.chat_status_tip+'" style="margin-right:1px;">&nbsp;</span>';
+	str+='</td></tr></table>';
 	return str;
 }
 
@@ -4619,7 +4609,7 @@ function buildPanel(obj, isMasterFlag){
 iwb.ui.buildPanel=buildPanel;
 
 iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
-	var extDef = getForm.getExtDef(); 
+	var extDef = getForm.render(); 
 
 	var extraItems = (!getForm.renderTip || getForm.renderTip!=3) ? extDef.items : extDef.items[0].items
 	if (_app.alarm_view_tip && 1 * _app.alarm_view_tip == 1 && getForm.alarmTemplates && getForm.alarmTemplates.length > 0) {
@@ -4838,18 +4828,18 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                                }
 	                                var r = null;
 	                                var bm=false;
-	                                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
+	                                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
 	                                    bm=true;
 	                                }
-	                                if (extDef.manuelValidation || bm) {
+	                                if (extDef.componentWillPost || bm) {
 	                                    if (getForm._cfg.formPanel.getForm().isValid()) {
 	                                        var vals=getForm._cfg.formPanel.getForm().getValues();
-	                                        if(extDef.manuelValidation){
-	                                            r = extDef.manuelValidation(vals);
+	                                        if(extDef.componentWillPost){
+	                                            r = extDef.componentWillPost(vals);
 	                                            if (!r) return;
 	                                        }
-	                                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
-	                                            var r2=extDef._extendedForms[qi].manuelValidation(vals);
+	                                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
+	                                            var r2=extDef._extendedForms[qi].componentWillPost(vals);
 	                                            if(!r2)return;
 	                                            if(!r)r=r2;
 	                                            else if(typeof r == 'object' && typeof r2 == 'object'){
@@ -4890,19 +4880,19 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                var r = null;
 	                //manuel validation
 	                var bm=false;
-	                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
+	                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
 	                    bm=true;
 	                }
 
-	                if (extDef.manuelValidation || bm) {
+	                if (extDef.componentWillPost || bm) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
 	                        var vals=getForm._cfg.formPanel.getForm().getValues();
-	                        if(extDef.manuelValidation){
-	                            r = extDef.manuelValidation(vals);
+	                        if(extDef.componentWillPost){
+	                            r = extDef.componentWillPost(vals);
 	                            if (!r) return;
 	                        }
-	                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].manuelValidation){
-	                            var r2=extDef._extendedForms[qi].manuelValidation(vals);
+	                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
+	                            var r2=extDef._extendedForms[qi].componentWillPost(vals);
 	                            if(!r2)return;
 	                            if(!r)r=r2;
 	                            else if(typeof r == 'object' && typeof r2 == 'object'){
@@ -4945,9 +4935,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            handler: function(a, b, c) {
 	                if (!getForm._cfg.formPanel.getForm().isDirty() && !confirm('${attention_you_save_without_change_are_you_sure}')) return;
 	                var r = null;
-	                if (extDef.manuelValidation) {
+	                if (extDef.componentWillPost) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
-	                        r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                        r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                        if (!r) return
 	                    } else {
 	                        getForm._cfg.formPanel.getForm().findInvalid();
@@ -4980,9 +4970,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            iconCls: 'isave_new',
 	            handler: function(a, b, c) {
 	                var r = null;
-	                if (extDef.manuelValidation) {
+	                if (extDef.componentWillPost) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
-	                        r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                        r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                        if (!r) return
 	                    } else {
 	                        getForm._cfg.formPanel.getForm().findInvalid();
@@ -5106,9 +5096,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	        iconCls: 'app_req',
 	        handler: function(a, b, c) {
 	            var r = null;
-	            if (extDef.manuelValidation) {
+	            if (extDef.componentWillPost) {
 	                if (getForm._cfg.formPanel.getForm().isValid()) {
-	                    r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                    r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                    if (!r) return
 	                } else {
 	                    getForm._cfg.formPanel.getForm().findInvalid();
@@ -5137,9 +5127,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	        iconCls: 'app_req',
 	        handler: function(a, b, c) {
 	            var r = null;
-	            if (extDef.manuelValidation) {
+	            if (extDef.componentWillPost) {
 	                if (getForm._cfg.formPanel.getForm().isValid()) {
-	                    r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                    r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                    if (!r) return
 	                } else {
 	                    getForm._cfg.formPanel.getForm().findInvalid();
@@ -5189,9 +5179,9 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            handler: function(a, b, c) {
 	                if (!getForm.viewMode) {
 	                    var r = null
-	                    if (extDef.manuelValidation) {
+	                    if (extDef.componentWillPost) {
 	                        if (getForm._cfg.formPanel.getForm().isValid()) {
-	                            r = extDef.manuelValidation(getForm._cfg.formPanel.getForm().getValues());
+	                            r = extDef.componentWillPost(getForm._cfg.formPanel.getForm().getValues());
 	                            if (!r) return
 	                        } else {
 	                            getForm._cfg.formPanel.getForm().findInvalid();
@@ -5511,10 +5501,10 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    }
 	});
 
-	if (_scd.administratorFlag || _scd.customizerFlag) {
+	if (_scd.administratorFlag || _scd.administratorFlag) {
 	    btn.push('-');
 	    var menuItems = []
-	    if (_scd.customizerFlag) {
+	    if (_scd.administratorFlag) {
 	        menuItems.push({
 	            text: '${form_field_settings}',
 	            handler: function(a, b, c) {
@@ -5574,7 +5564,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            }
 	        })
 	    }
-	    if (_scd.customizerFlag) {
+	    if (_scd.administratorFlag) {
 	        menuItems.push('-', {
 	            text: '${form_hints}',
 	            handler: function(a, b, c) {

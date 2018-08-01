@@ -1,56 +1,168 @@
 /**
  * Bundle of @devexpress/dx-react-grid
- * Generated: 2018-03-20
- * Version: 1.1.1
+ * Generated: 2018-07-26
+ * Version: 1.5.0
  * License: https://js.devexpress.com/Licensing
  */
-
 var DXReactGrid=function(){
-//import { Fragment, PureComponent, createElement } from 'react';
-//import { any, array, arrayOf, bool, func, node, number, object, shape, string } from 'prop-types';
-var any=PropTypes.any, array=PropTypes.array, arrayOf=PropTypes.arrayOf, bool=PropTypes.bool, func=PropTypes.func
-	, node=PropTypes.node, number=PropTypes.number, object=PropTypes.object, shape=PropTypes.shape, string=PropTypes.string;
-//import { Action, DragDropProvider, DragSource, DropTarget, Getter, Plugin, PluginHost, Template, TemplateConnector, TemplatePlaceholder } from '@devexpress/dx-react-core';
-var Action=DXReactCore.Action, DragDropProvider=DXReactCore.DragDropProvider, DragSource=DXReactCore.DragSource, DropTarget=DXReactCore.DropTarget
-	, Getter=DXReactCore.Getter, Plugin=DXReactCore.Plugin, PluginHost=DXReactCore.PluginHost, Template=DXReactCore.Template
-	, TemplateConnector=DXReactCore.TemplateConnector, TemplatePlaceholder=DXReactCore.TemplatePlaceholder;
-//import { TABLE_DATA_TYPE, TABLE_REORDERING_TYPE, addRow, addedRowsByIds, allSelected, calculateKeepOther, cancelAddedRows, cancelChanges, cancelColumnGroupingDraft, cancelDeletedRows, cancelTableColumnWidthDraft, cellValueGetter, changeAddedRow, changeColumnFilter, changeColumnGrouping, changeColumnOrder, changeColumnSorting, changeRow, changeSearchValue, changeTableColumnWidth, changedRowsByIds, columnChooserItems, createRowChangeGetter, customGroupedRows, customGroupingRowIdGetter, deleteRows, draftColumnGrouping, draftOrder, draftTableColumnWidth, evalAnimations, expandedGroupRows, filterActiveAnimations, filteredRows, getAnimations, getColumnExtension, getColumnExtensionValueGetter, getColumnFilterConfig, getColumnSortingDirection, getGroupCellTargetIndex, getMessagesFormatter, getPersistentSortedColumns, getRowChange, getTableRowColumnsWithColSpan, getTableTargetColumnIndex, groupRowChecker, groupRowLevelKeyGetter, groupedRows, groupingPanelItems, isAddedTableRow, isDataTableCell, isDataTableRow, isDetailRowExpanded, isDetailTableRow, isDetailToggleTableCell, isEditCommandsTableCell, isEditTableCell, isEditTableRow, isFilterTableCell, isFilterTableRow, isGroupIndentTableCell, isGroupTableCell, isGroupTableRow, isHeaderStubTableCell, isHeadingEditCommandsTableCell, isHeadingTableCell, isHeadingTableRow, isNoDataTableRow, isSelectAllTableCell, isSelectTableCell, orderedColumns, pageCount, paginatedRows, pushFilterExpression, pushSearchFilterExpression, rowCount, rowIdGetter, rowsWithAvailableToSelect, rowsWithPageHeaders, setCurrentPage, setPageSize, someSelected, sortedRows, startEditRows, stopEditRows, tableColumnsWithDataRows, tableColumnsWithDetail, tableColumnsWithEditing, tableColumnsWithGrouping, tableColumnsWithSelection, tableColumnsWithWidths, tableDataColumnsExist, tableHeaderRowsWithFilter, tableHeaderRowsWithReordering, tableRowsWithDataRows, tableRowsWithEditing, tableRowsWithExpandedDetail, tableRowsWithGrouping, tableRowsWithHeading, toggleColumn, toggleDetailRowExpanded, toggleExpandedGroups, toggleSelection, unwrapSelectedRows, visibleTableColumns } from '@devexpress/dx-grid-core';
-var TABLE_DATA_TYPE=DXGridCore.TABLE_DATA_TYPE, TABLE_REORDERING_TYPE=DXGridCore.TABLE_REORDERING_TYPE, addRow=DXGridCore.addRow
-	, addedRowsByIds=DXGridCore.addedRowsByIds, allSelected=DXGridCore.allSelected, calculateKeepOther=DXGridCore.calculateKeepOther
-	, cancelAddedRows=DXGridCore.cancelAddedRows, cancelChanges=DXGridCore.cancelChanges, cancelColumnGroupingDraft=DXGridCore.cancelColumnGroupingDraft
-	, cancelDeletedRows=DXGridCore.cancelDeletedRows, cancelTableColumnWidthDraft=DXGridCore.cancelTableColumnWidthDraft, cellValueGetter=DXGridCore.cellValueGetter
-	, changeAddedRow=DXGridCore.changeAddedRow, changeColumnFilter=DXGridCore.changeColumnFilter, changeColumnGrouping=DXGridCore.changeColumnGrouping
-	, changeColumnOrder=DXGridCore.changeColumnOrder, changeColumnSorting=DXGridCore.changeColumnSorting, changeRow=DXGridCore.changeRow
-	, changeSearchValue=DXGridCore.changeSearchValue, changeTableColumnWidth=DXGridCore.changeTableColumnWidth, changedRowsByIds=DXGridCore.changedRowsByIds
-	, columnChooserItems=DXGridCore.columnChooserItems, createRowChangeGetter=DXGridCore.createRowChangeGetter, customGroupedRows=DXGridCore.customGroupedRows
-	, customGroupingRowIdGetter=DXGridCore.customGroupingRowIdGetter, deleteRows=DXGridCore.deleteRows, draftColumnGrouping=DXGridCore.draftColumnGrouping
-	, draftOrder=DXGridCore.draftOrder, draftTableColumnWidth=DXGridCore.draftTableColumnWidth, evalAnimations=DXGridCore.evalAnimations
-	, expandedGroupRows=DXGridCore.expandedGroupRows, filterActiveAnimations=DXGridCore.filterActiveAnimations, filteredRows=DXGridCore.filteredRows
-	, getAnimations=DXGridCore.getAnimations, getColumnExtension=DXGridCore.getColumnExtension, getColumnExtensionValueGetter=DXGridCore.getColumnExtensionValueGetter
-	, getColumnFilterConfig=DXGridCore.getColumnFilterConfig, getColumnSortingDirection=DXGridCore.getColumnSortingDirection, getGroupCellTargetIndex=DXGridCore.getGroupCellTargetIndex
-	, getMessagesFormatter=DXGridCore.getMessagesFormatter, getPersistentSortedColumns=DXGridCore.getPersistentSortedColumns, getRowChange=DXGridCore.getRowChange
-	, getTableRowColumnsWithColSpan=DXGridCore.getTableRowColumnsWithColSpan, getTableTargetColumnIndex=DXGridCore.getTableTargetColumnIndex, groupRowChecker=DXGridCore.groupRowChecker
-	, groupRowLevelKeyGetter=DXGridCore.groupRowLevelKeyGetter, groupedRows=DXGridCore.groupedRows, groupingPanelItems=DXGridCore.groupingPanelItems
-	, isAddedTableRow=DXGridCore.isAddedTableRow, isDataTableCell=DXGridCore.isDataTableCell, isDataTableRow=DXGridCore.isDataTableRow
-	, isDetailRowExpanded=DXGridCore.isDetailRowExpanded, isDetailTableRow=DXGridCore.isDetailTableRow, isDetailToggleTableCell=DXGridCore.isDetailToggleTableCell
-	, isEditCommandsTableCell=DXGridCore.isEditCommandsTableCell, isEditTableCell=DXGridCore.isEditTableCell, isEditTableRow=DXGridCore.isEditTableRow
-	, isFilterTableCell=DXGridCore.isFilterTableCell, isFilterTableRow=DXGridCore.isFilterTableRow, isGroupIndentTableCell=DXGridCore.isGroupIndentTableCell
-	, isGroupTableCell=DXGridCore.isGroupTableCell, isGroupTableRow=DXGridCore.isGroupTableRow, isHeaderStubTableCell=DXGridCore.isHeaderStubTableCell
-	, isHeadingEditCommandsTableCell=DXGridCore.isHeadingEditCommandsTableCell, isHeadingTableCell=DXGridCore.isHeadingTableCell, isHeadingTableRow=DXGridCore.isHeadingTableRow
-	, isNoDataTableRow=DXGridCore.isNoDataTableRow, isSelectAllTableCell=DXGridCore.isSelectAllTableCell, isSelectTableCell=DXGridCore.isSelectTableCell
-	, orderedColumns=DXGridCore.orderedColumns, pageCount=DXGridCore.pageCount, paginatedRows=DXGridCore.paginatedRows
-	, pushFilterExpression=DXGridCore.pushFilterExpression, pushSearchFilterExpression=DXGridCore.pushSearchFilterExpression, rowCount=DXGridCore.rowCount
-	, rowIdGetter=DXGridCore.rowIdGetter, rowsWithAvailableToSelect=DXGridCore.rowsWithAvailableToSelect, rowsWithPageHeaders=DXGridCore.rowsWithPageHeaders
-	, setCurrentPage=DXGridCore.setCurrentPage, setPageSize=DXGridCore.setPageSize, someSelected=DXGridCore.someSelected, sortedRows=DXGridCore.sortedRows
-	, startEditRows=DXGridCore.startEditRows, stopEditRows=DXGridCore.stopEditRows, tableColumnsWithDataRows=DXGridCore.tableColumnsWithDataRows
-	, tableColumnsWithDetail=DXGridCore.tableColumnsWithDetail, tableColumnsWithEditing=DXGridCore.tableColumnsWithEditing, tableColumnsWithGrouping=DXGridCore.tableColumnsWithGrouping
-	, tableColumnsWithSelection=DXGridCore.tableColumnsWithSelection, tableColumnsWithWidths=DXGridCore.tableColumnsWithWidths, tableDataColumnsExist=DXGridCore.tableDataColumnsExist
-	, tableHeaderRowsWithFilter=DXGridCore.tableHeaderRowsWithFilter, tableHeaderRowsWithReordering=DXGridCore.tableHeaderRowsWithReordering
-	, tableRowsWithDataRows=DXGridCore.tableRowsWithDataRows, tableRowsWithEditing=DXGridCore.tableRowsWithEditing, tableRowsWithExpandedDetail=DXGridCore.tableRowsWithExpandedDetail
-	, tableRowsWithGrouping=DXGridCore.tableRowsWithGrouping, tableRowsWithHeading=DXGridCore.tableRowsWithHeading, toggleColumn=DXGridCore.toggleColumn
-	, toggleDetailRowExpanded=DXGridCore.toggleDetailRowExpanded, toggleExpandedGroups=DXGridCore.toggleExpandedGroups, toggleSelection=DXGridCore.toggleSelection
-	, unwrapSelectedRows=DXGridCore.unwrapSelectedRows, visibleTableColumns =DXGridCore.visibleTableColumns;
-//import { findDOMNode } from 'react-dom';
+// import { Fragment, PureComponent, createElement } from 'react';
+var { any, array, arrayOf, bool, func, node, number, object, oneOf, oneOfType, shape, string } = PropTypes;
+var {
+  Action,
+  DragDropProvider,
+  DragSource,
+  DropTarget,
+  Getter,
+  Plugin,
+  PluginHost,
+  RefHolder,
+  Sizer,
+  Template,
+  TemplateConnector,
+  TemplatePlaceholder,
+  createStateHelper
+} = DXReactCore;
+var {
+  BAND_DUPLICATE_RENDER,
+  BAND_EMPTY_CELL,
+  BAND_GROUP_CELL,
+  BAND_HEADER_CELL,
+  TABLE_DATA_TYPE,
+  TABLE_REORDERING_TYPE,
+  addRow,
+  addedRowsByIds,
+  adjustSortIndex,
+  allSelected,
+  calculateKeepOther,
+  cancelAddedRows,
+  cancelChanges,
+  cancelColumnGroupingDraft,
+  cancelDeletedRows,
+  cancelTableColumnWidthDraft,
+  cellValueGetter,
+  changeAddedRow,
+  changeColumnFilter,
+  changeColumnGrouping,
+  changeColumnOrder,
+  changeColumnSorting,
+  changeRow,
+  changeSearchValue,
+  changeTableColumnWidth,
+  changedRowsByIds,
+  collapsedTreeRowsGetter,
+  columnChooserItems,
+  createRowChangeGetter,
+  currentPage,
+  customGroupedRows,
+  customGroupingRowIdGetter,
+  customTreeRowIdGetter,
+  customTreeRowLevelKeyGetter,
+  customTreeRowsWithMeta,
+  defaultFilterPredicate,
+  deleteRows,
+  draftColumnGrouping,
+  draftOrder,
+  draftTableColumnWidth,
+  evalAnimations,
+  expandedGroupRows,
+  expandedTreeRows,
+  filterActiveAnimations,
+  filterExpression,
+  filteredCollapsedRowsGetter,
+  filteredRows,
+  getAnimations,
+  getAvailableFilterOperationsGetter,
+  getBandComponent,
+  getCollapsedGrid,
+  getColumnExtension,
+  getColumnExtensionValueGetter,
+  getColumnFilterConfig,
+  getColumnFilterOperations,
+  getColumnSortingDirection,
+  getGroupCellTargetIndex,
+  getMessagesFormatter,
+  getPersistentSortedColumns,
+  getRowChange,
+  getTableTargetColumnIndex,
+  getTreeRowLevelGetter,
+  groupCollapsedRowsGetter,
+  groupRowChecker,
+  groupRowLevelKeyGetter,
+  groupedRows,
+  groupingPanelItems,
+  isAddedTableRow,
+  isBandedOrHeaderRow,
+  isBandedTableRow,
+  isDataTableCell,
+  isDataTableRow,
+  isDetailRowExpanded,
+  isDetailTableCell,
+  isDetailTableRow,
+  isDetailToggleTableCell,
+  isEditCommandsTableCell,
+  isEditTableCell,
+  isEditTableRow,
+  isFilterTableCell,
+  isFilterTableRow,
+  isFilterValueEmpty,
+  isGroupIndentTableCell,
+  isGroupTableCell,
+  isGroupTableRow,
+  isHeaderStubTableCell,
+  isHeadingEditCommandsTableCell,
+  isHeadingTableCell,
+  isHeadingTableRow,
+  isNoDataTableCell,
+  isNoDataTableRow,
+  isSelectAllTableCell,
+  isSelectTableCell,
+  isTreeRowLeafGetter,
+  isTreeTableCell,
+  orderedColumns,
+  pageCount,
+  paginatedRows,
+  rowCount,
+  rowIdGetter,
+  rowsWithAvailableToSelect,
+  rowsWithPageHeaders,
+  searchFilterExpression,
+  setCurrentPage,
+  setPageSize,
+  someSelected,
+  sortedRows,
+  startEditRows,
+  stopEditRows,
+  tableCellColSpanGetter,
+  tableColumnsWithDataRows,
+  tableColumnsWithDetail,
+  tableColumnsWithDraftWidths,
+  tableColumnsWithEditing,
+  tableColumnsWithGrouping,
+  tableColumnsWithSelection,
+  tableColumnsWithWidths,
+  tableDataColumnsExist,
+  tableDetailCellColSpanGetter,
+  tableGroupCellColSpanGetter,
+  tableHeaderRowsWithFilter,
+  tableHeaderRowsWithReordering,
+  tableRowsWithBands,
+  tableRowsWithDataRows,
+  tableRowsWithEditing,
+  tableRowsWithExpandedDetail,
+  tableRowsWithGrouping,
+  tableRowsWithHeading,
+  toggleColumn,
+  toggleDetailRowExpanded,
+  toggleExpandedGroups,
+  toggleRowExpanded,
+  toggleSelection,
+  unwrapSelectedRows,
+  unwrappedCustomTreeRows,
+  unwrappedFilteredRows,
+  visibleTableColumns
+} = DXGridCore;
+var { memoize } = DXCore;
+// import { findDOMNode } from 'react-dom';
 
 var asyncGenerator = function () {
   function AwaitValue(value) {
@@ -352,28 +464,26 @@ var GridCore = function (_React$PureComponent) {
           columns = _props.columns,
           getRowId = _props.getRowId,
           getCellValue = _props.getCellValue,
-          Root = _props.rootComponent;
+          Root = _props.rootComponent,
+          restProps = objectWithoutProperties(_props, ['rows', 'columns', 'getRowId', 'getCellValue', 'rootComponent']);
 
 
-      return _(
+      return React.createElement(
         Plugin,
         null,
-        _(Getter, { name: 'rows', value: rows }),
-        _(Getter, { name: 'getRowId', value: rowIdGetter(getRowId, rows) }),
-        _(Getter, { name: 'columns', value: columns }),
-        _(Getter, { name: 'getCellValue', value: cellValueGetter(getCellValue, columns) }),
-        _(Template, { name: 'header' }),
-        _(Template, { name: 'body' }),
-        _(Template, { name: 'footer' }),
-        _(
+        React.createElement(Getter, { name: 'rows', value: rows }),
+        React.createElement(Getter, { name: 'getRowId', value: rowIdGetter(getRowId, rows) }),
+        React.createElement(Getter, { name: 'columns', value: columns }),
+        React.createElement(Getter, { name: 'getCellValue', value: cellValueGetter(getCellValue, columns) }),
+        React.createElement(
           Template,
           { name: 'root' },
-          _(
+          React.createElement(
             Root,
-            null,
-            _(TemplatePlaceholder, { name: 'header' }),
-            _(TemplatePlaceholder, { name: 'body' }),
-            _(TemplatePlaceholder, { name: 'footer' })
+            restProps,
+            React.createElement(TemplatePlaceholder, { name: 'header' }),
+            React.createElement(TemplatePlaceholder, { name: 'body' }),
+            React.createElement(TemplatePlaceholder, { name: 'footer' })
           )
         )
       );
@@ -401,17 +511,18 @@ var Grid = function Grid(_ref) {
       getRowId = _ref.getRowId,
       getCellValue = _ref.getCellValue,
       rootComponent = _ref.rootComponent,
-      children = _ref.children;
-  return _(
+      children = _ref.children,
+      restProps = objectWithoutProperties(_ref, ['rows', 'columns', 'getRowId', 'getCellValue', 'rootComponent', 'children']);
+  return React.createElement(
     PluginHost,
     null,
-    _(GridCore, {
+    React.createElement(GridCore, _extends({
       rows: rows,
       columns: columns,
       getRowId: getRowId,
       getCellValue: getCellValue,
       rootComponent: rootComponent
-    }),
+    }, restProps)),
     children
   );
 };
@@ -458,7 +569,9 @@ var ColumnChooser = function (_React$PureComponent) {
   }, {
     key: 'handleToggle',
     value: function handleToggle() {
-      this.setState({ visible: !this.state.visible });
+      var visible = this.state.visible;
+
+      this.setState({ visible: !visible });
     }
   }, {
     key: 'handleHide',
@@ -481,17 +594,17 @@ var ColumnChooser = function (_React$PureComponent) {
       var visible = this.state.visible;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'ColumnChooser',
           dependencies: pluginDependencies
         },
-        _(
+        React.createElement(
           Template,
           { name: 'toolbarContent' },
-          _(TemplatePlaceholder, null),
-          _(
+          React.createElement(TemplatePlaceholder, null),
+          React.createElement(
             TemplateConnector,
             null,
             function (_ref, _ref2) {
@@ -499,31 +612,30 @@ var ColumnChooser = function (_React$PureComponent) {
                   hiddenColumnNames = _ref.hiddenColumnNames,
                   isColumnTogglingEnabled = _ref.isColumnTogglingEnabled;
               var toggleColumnVisibility = _ref2.toggleColumnVisibility;
-              return _(
+              return React.createElement(
                 React.Fragment,
                 null,
-                _(ToggleButton, {
+                React.createElement(ToggleButton, {
                   buttonRef: _this2.buttonRef,
                   onToggle: _this2.handleToggle,
                   getMessage: getMessage,
                   active: visible
                 }),
-                _(
+                React.createElement(
                   Overlay,
                   {
                     visible: visible,
                     target: _this2.button,
-                    onHide: _this2.handleHide,
-                    toggle: _this2.handleToggle
+                    onHide: _this2.handleHide
                   },
-                  _(
+                  React.createElement(
                     Container,
                     null,
                     columnChooserItems(columns, hiddenColumnNames).map(function (item) {
                       var columnName = item.column.name;
 
                       var togglingEnabled = isColumnTogglingEnabled(columnName);
-                      return _(Item, {
+                      return React.createElement(Item, {
                         key: columnName,
                         item: item,
                         disabled: !togglingEnabled,
@@ -556,65 +668,13 @@ ColumnChooser.defaultProps = {
   messages: {}
 };
 
-var STATE_CONSISTENCY_TIMEOUT = 1000 / 60;
-
-var createStateHelper = function createStateHelper(component) {
-  var controlledStateProperties = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  var stateConsistencyTimers = {};
-  var checkStateConsistency = function checkStateConsistency(propertyName) {
-    if (component.props[propertyName] !== undefined && component.props[propertyName] !== component.state[propertyName]) {
-      component.setState(defineProperty({}, propertyName, component.props[propertyName]));
-    }
-  };
-  var notifyStateChange = function notifyStateChange(nextState, state) {
-    Object.keys(controlledStateProperties).forEach(function (propertyName) {
-      var changeEvent = controlledStateProperties[propertyName]();
-      if (changeEvent && nextState[propertyName] !== state[propertyName]) {
-        changeEvent(nextState[propertyName]);
-        clearTimeout(stateConsistencyTimers[propertyName]);
-        stateConsistencyTimers[propertyName] = setTimeout(checkStateConsistency.bind(null, propertyName), STATE_CONSISTENCY_TIMEOUT);
-      }
-    });
-  };
-
-  var lastStateUpdater = null;
-  var initialState = null;
-  var applyReducer = function applyReducer(reduce, payload, callback) {
-    var stateUpdater = function stateUpdater(prevState) {
-      if (initialState === null) {
-        initialState = prevState;
-      }
-      var stateChange = reduce(_extends({}, prevState), payload);
-      var state = _extends({}, prevState, stateChange);
-
-      if (typeof callback === 'function') {
-        callback(state, prevState);
-      }
-      if (stateUpdater === lastStateUpdater) {
-        notifyStateChange(state, initialState);
-        initialState = null;
-      }
-
-      return stateChange;
-    };
-    lastStateUpdater = stateUpdater;
-    component.setState(stateUpdater);
-  };
-  var applyFieldReducer = function applyFieldReducer(field, reduce, payload) {
-    applyReducer(function (state) {
-      return defineProperty({}, field, reduce(state[field], payload));
-    });
-  };
-
-  return {
-    applyReducer: applyReducer,
-    applyFieldReducer: applyFieldReducer
-  };
-};
-
 var columnExtensionValueGetter = function columnExtensionValueGetter(columnExtensions, defaultValue) {
   return getColumnExtensionValueGetter(columnExtensions, 'filteringEnabled', defaultValue);
+};
+var filterExpressionComputed = function filterExpressionComputed(_ref) {
+  var filters = _ref.filters,
+      filterExpressionValue = _ref.filterExpression;
+  return filterExpression(filters, filterExpressionValue);
 };
 
 var FilteringState = function (_React$PureComponent) {
@@ -625,12 +685,15 @@ var FilteringState = function (_React$PureComponent) {
 
     var _this = possibleConstructorReturn(this, (FilteringState.__proto__ || Object.getPrototypeOf(FilteringState)).call(this, props));
 
+    var onFiltersChange = _this.props.onFiltersChange;
+
+
     _this.state = {
       filters: props.filters || props.defaultFilters
     };
     var stateHelper = createStateHelper(_this, {
       filters: function filters() {
-        return _this.props.onFiltersChange;
+        return onFiltersChange;
       }
     });
 
@@ -654,18 +717,18 @@ var FilteringState = function (_React$PureComponent) {
           columnFilteringEnabled = _props.columnFilteringEnabled;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'FilteringState'
         },
-        _(Getter, { name: 'filters', value: filters }),
-        _(Getter, { name: 'filterExpression', computed: pushFilterExpression(filters) }),
-        _(Getter, {
+        React.createElement(Getter, { name: 'filters', value: filters }),
+        React.createElement(Getter, { name: 'filterExpression', computed: filterExpressionComputed }),
+        React.createElement(Getter, {
           name: 'isColumnFilteringEnabled',
           value: columnExtensionValueGetter(columnExtensions, columnFilteringEnabled)
         }),
-        _(Action, { name: 'changeColumnFilter', action: this.changeColumnFilter })
+        React.createElement(Action, { name: 'changeColumnFilter', action: this.changeColumnFilter })
       );
     }
   }]);
@@ -690,6 +753,15 @@ FilteringState.defaultProps = {
 
 var pluginDependencies$1 = [{ name: 'FilteringState', optional: true }, { name: 'SearchState', optional: true }];
 
+var getCollapsedRowsComputed = function getCollapsedRowsComputed(_ref) {
+  var rows = _ref.rows;
+  return filteredCollapsedRowsGetter(rows);
+};
+var unwrappedRowsComputed = function unwrappedRowsComputed(_ref2) {
+  var rows = _ref2.rows;
+  return unwrappedFilteredRows(rows);
+};
+
 var IntegratedFiltering = function (_React$PureComponent) {
   inherits(IntegratedFiltering, _React$PureComponent);
 
@@ -707,27 +779,31 @@ var IntegratedFiltering = function (_React$PureComponent) {
         return getColumnExtension(columnExtensions, columnName).predicate;
       };
 
-      var rowsComputed = function rowsComputed(_ref) {
-        var rows = _ref.rows,
-            filterExpression = _ref.filterExpression,
-            getCellValue = _ref.getCellValue,
-            isGroupRow = _ref.isGroupRow,
-            getRowLevelKey = _ref.getRowLevelKey;
-        return filteredRows(rows, filterExpression, getCellValue, getColumnPredicate, isGroupRow, getRowLevelKey);
+      var rowsComputed = function rowsComputed(_ref3) {
+        var rows = _ref3.rows,
+            filterExpression$$1 = _ref3.filterExpression,
+            getCellValue = _ref3.getCellValue,
+            getRowLevelKey = _ref3.getRowLevelKey,
+            getCollapsedRows = _ref3.getCollapsedRows;
+        return filteredRows(rows, filterExpression$$1, getCellValue, getColumnPredicate, getRowLevelKey, getCollapsedRows);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'IntegratedFiltering',
           dependencies: pluginDependencies$1
         },
-        _(Getter, { name: 'rows', computed: rowsComputed })
+        React.createElement(Getter, { name: 'rows', computed: rowsComputed }),
+        React.createElement(Getter, { name: 'getCollapsedRows', computed: getCollapsedRowsComputed }),
+        React.createElement(Getter, { name: 'rows', computed: unwrappedRowsComputed })
       );
     }
   }]);
   return IntegratedFiltering;
 }(React.PureComponent);
+
+IntegratedFiltering.defaultPredicate = defaultFilterPredicate;
 
 IntegratedFiltering.propTypes = {
   columnExtensions: array
@@ -749,25 +825,46 @@ var EditingState = function (_React$PureComponent) {
 
     var _this = possibleConstructorReturn(this, (EditingState.__proto__ || Object.getPrototypeOf(EditingState)).call(this, props));
 
+    var rowChanges = props.rowChanges || props.defaultRowChanges;
+    var addedRows = props.addedRows || props.defaultAddedRows;
+    var getRowChanges = function getRowChanges() {
+      var stateRowChanges = _this.state.rowChanges;
+
+      return stateRowChanges;
+    };
+    var getAddedRows = function getAddedRows() {
+      var stateAddedRows = _this.state.addedRows;
+
+      return stateAddedRows;
+    };
+
     _this.state = {
       editingRowIds: props.editingRowIds || props.defaultEditingRowIds,
-      addedRows: props.addedRows || props.defaultAddedRows,
-      rowChanges: props.rowChanges || props.defaultRowChanges,
+      addedRows: addedRows,
+      rowChanges: rowChanges,
       deletedRowIds: props.deletedRowIds || props.defaultDeletedRowIds
     };
 
+    var _this$props = _this.props,
+        onEditingRowIdsChange = _this$props.onEditingRowIdsChange,
+        onAddedRowsChange = _this$props.onAddedRowsChange,
+        onRowChangesChange = _this$props.onRowChangesChange,
+        onDeletedRowIdsChange = _this$props.onDeletedRowIdsChange,
+        onCommitChanges = _this$props.onCommitChanges;
+
+
     var stateHelper = createStateHelper(_this, {
       editingRowIds: function editingRowIds() {
-        return _this.props.onEditingRowIdsChange;
+        return onEditingRowIdsChange;
       },
       addedRows: function addedRows() {
-        return _this.props.onAddedRowsChange;
+        return onAddedRowsChange;
       },
       rowChanges: function rowChanges() {
-        return _this.props.onRowChangesChange;
+        return onRowChangesChange;
       },
       deletedRowIds: function deletedRowIds() {
-        return _this.props.onDeletedRowIdsChange;
+        return onDeletedRowIdsChange;
       }
     });
 
@@ -779,8 +876,8 @@ var EditingState = function (_React$PureComponent) {
     _this.commitChangedRows = function (_ref) {
       var rowIds = _ref.rowIds;
 
-      _this.props.onCommitChanges({
-        changed: changedRowsByIds(_this.state.rowChanges, rowIds)
+      onCommitChanges({
+        changed: changedRowsByIds(getRowChanges(), rowIds)
       });
       _this.cancelChangedRows({ rowIds: rowIds });
     };
@@ -791,8 +888,8 @@ var EditingState = function (_React$PureComponent) {
     _this.commitAddedRows = function (_ref2) {
       var rowIds = _ref2.rowIds;
 
-      _this.props.onCommitChanges({
-        added: addedRowsByIds(_this.state.addedRows, rowIds)
+      onCommitChanges({
+        added: addedRowsByIds(getAddedRows(), rowIds)
       });
       _this.cancelAddedRows({ rowIds: rowIds });
     };
@@ -802,7 +899,7 @@ var EditingState = function (_React$PureComponent) {
     _this.commitDeletedRows = function (_ref3) {
       var rowIds = _ref3.rowIds;
 
-      _this.props.onCommitChanges({ deleted: rowIds });
+      onCommitChanges({ deleted: rowIds });
       _this.cancelDeletedRows({ rowIds: rowIds });
     };
     return _this;
@@ -832,32 +929,32 @@ var EditingState = function (_React$PureComponent) {
           deletedRowIds = _state.deletedRowIds;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'EditingState'
         },
-        _(Getter, {
+        React.createElement(Getter, {
           name: 'createRowChange',
           value: createRowChangeGetter(createRowChange, columnExtensions)
         }),
-        _(Getter, { name: 'editingRowIds', value: editingRowIds }),
-        _(Action, { name: 'startEditRows', action: this.startEditRows }),
-        _(Action, { name: 'stopEditRows', action: this.stopEditRows }),
-        _(Getter, { name: 'rowChanges', value: rowChanges }),
-        _(Action, { name: 'changeRow', action: this.changeRow }),
-        _(Action, { name: 'cancelChangedRows', action: this.cancelChangedRows }),
-        _(Action, { name: 'commitChangedRows', action: this.commitChangedRows }),
-        _(Getter, { name: 'addedRows', value: addedRows }),
-        _(Action, { name: 'addRow', action: this.addRow }),
-        _(Action, { name: 'changeAddedRow', action: this.changeAddedRow }),
-        _(Action, { name: 'cancelAddedRows', action: this.cancelAddedRows }),
-        _(Action, { name: 'commitAddedRows', action: this.commitAddedRows }),
-        _(Getter, { name: 'deletedRowIds', value: deletedRowIds }),
-        _(Action, { name: 'deleteRows', action: this.deleteRows }),
-        _(Action, { name: 'cancelDeletedRows', action: this.cancelDeletedRows }),
-        _(Action, { name: 'commitDeletedRows', action: this.commitDeletedRows }),
-        _(Getter, {
+        React.createElement(Getter, { name: 'editingRowIds', value: editingRowIds }),
+        React.createElement(Action, { name: 'startEditRows', action: this.startEditRows }),
+        React.createElement(Action, { name: 'stopEditRows', action: this.stopEditRows }),
+        React.createElement(Getter, { name: 'rowChanges', value: rowChanges }),
+        React.createElement(Action, { name: 'changeRow', action: this.changeRow }),
+        React.createElement(Action, { name: 'cancelChangedRows', action: this.cancelChangedRows }),
+        React.createElement(Action, { name: 'commitChangedRows', action: this.commitChangedRows }),
+        React.createElement(Getter, { name: 'addedRows', value: addedRows }),
+        React.createElement(Action, { name: 'addRow', action: this.addRow }),
+        React.createElement(Action, { name: 'changeAddedRow', action: this.changeAddedRow }),
+        React.createElement(Action, { name: 'cancelAddedRows', action: this.cancelAddedRows }),
+        React.createElement(Action, { name: 'commitAddedRows', action: this.commitAddedRows }),
+        React.createElement(Getter, { name: 'deletedRowIds', value: deletedRowIds }),
+        React.createElement(Action, { name: 'deleteRows', action: this.deleteRows }),
+        React.createElement(Action, { name: 'cancelDeletedRows', action: this.cancelDeletedRows }),
+        React.createElement(Action, { name: 'commitDeletedRows', action: this.commitDeletedRows }),
+        React.createElement(Getter, {
           name: 'isColumnEditingEnabled',
           value: columnExtensionValueGetter$1(columnExtensions, columnEditingEnabled)
         })
@@ -921,17 +1018,22 @@ var PagingState = function (_React$PureComponent) {
 
     var _this = possibleConstructorReturn(this, (PagingState.__proto__ || Object.getPrototypeOf(PagingState)).call(this, props));
 
+    var _this$props = _this.props,
+        onCurrentPageChange = _this$props.onCurrentPageChange,
+        onPageSizeChange = _this$props.onPageSizeChange;
+
+
     _this.state = {
       currentPage: props.currentPage || props.defaultCurrentPage,
       pageSize: props.pageSize !== undefined ? props.pageSize : props.defaultPageSize
     };
 
     var stateHelper = createStateHelper(_this, {
-      currentPage: function currentPage() {
-        return _this.props.onCurrentPageChange;
+      currentPage: function currentPage$$1() {
+        return onCurrentPageChange;
       },
       pageSize: function pageSize() {
-        return _this.props.onPageSizeChange;
+        return onPageSizeChange;
       }
     });
 
@@ -943,28 +1045,28 @@ var PagingState = function (_React$PureComponent) {
   createClass(PagingState, [{
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
-      var currentPage = nextProps.currentPage,
+      var currentPage$$1 = nextProps.currentPage,
           pageSize = nextProps.pageSize;
 
-      this.setState(_extends({}, currentPage !== undefined ? { currentPage: currentPage } : null, pageSize !== undefined ? { pageSize: pageSize } : null));
+      this.setState(_extends({}, currentPage$$1 !== undefined ? { currentPage: currentPage$$1 } : null, pageSize !== undefined ? { pageSize: pageSize } : null));
     }
   }, {
     key: 'render',
     value: function render() {
       var _state = this.state,
           pageSize = _state.pageSize,
-          currentPage = _state.currentPage;
+          currentPage$$1 = _state.currentPage;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'PagingState'
         },
-        _(Getter, { name: 'currentPage', value: currentPage }),
-        _(Getter, { name: 'pageSize', value: pageSize }),
-        _(Action, { name: 'setCurrentPage', action: this.setCurrentPage }),
-        _(Action, { name: 'setPageSize', action: this.setPageSize })
+        React.createElement(Getter, { name: 'currentPage', value: currentPage$$1 }),
+        React.createElement(Getter, { name: 'pageSize', value: pageSize }),
+        React.createElement(Action, { name: 'setCurrentPage', action: this.setCurrentPage }),
+        React.createElement(Action, { name: 'setPageSize', action: this.setPageSize })
       );
     }
   }]);
@@ -991,10 +1093,6 @@ PagingState.defaultProps = {
 
 var pluginDependencies$2 = [{ name: 'PagingState' }];
 
-var clamp = function clamp(value, max) {
-  return Math.max(Math.min(value, max), 0);
-};
-
 var rowsWithHeadersComputed = function rowsWithHeadersComputed(_ref) {
   var rows = _ref.rows,
       pageSize = _ref.pageSize,
@@ -1008,23 +1106,15 @@ var totalCountComputed = function totalCountComputed(_ref2) {
 var paginatedRowsComputed = function paginatedRowsComputed(_ref3) {
   var rows = _ref3.rows,
       pageSize = _ref3.pageSize,
-      currentPage = _ref3.currentPage;
-  return paginatedRows(rows, pageSize, currentPage);
+      page = _ref3.currentPage;
+  return paginatedRows(rows, pageSize, page);
 };
 var currentPageComputed = function currentPageComputed(_ref4, _ref5) {
-  var currentPage = _ref4.currentPage,
+  var page = _ref4.currentPage,
       totalCount = _ref4.totalCount,
       pageSize = _ref4.pageSize;
   var setCurrentPage$$1 = _ref5.setCurrentPage;
-
-  var totalPages = pageCount(totalCount, pageSize);
-  var adjustedCurrentPage = clamp(currentPage, totalPages - 1);
-  if (currentPage !== adjustedCurrentPage) {
-    setTimeout(function () {
-      return setCurrentPage$$1(adjustedCurrentPage);
-    });
-  }
-  return adjustedCurrentPage;
+  return currentPage(page, totalCount, pageSize, setCurrentPage$$1);
 };
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -1039,16 +1129,16 @@ var IntegratedPaging = function (_React$PureComponent) {
   createClass(IntegratedPaging, [{
     key: 'render',
     value: function render() {
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'IntegratedPaging',
           dependencies: pluginDependencies$2
         },
-        _(Getter, { name: 'rows', computed: rowsWithHeadersComputed }),
-        _(Getter, { name: 'totalCount', computed: totalCountComputed }),
-        _(Getter, { name: 'currentPage', computed: currentPageComputed }),
-        _(Getter, { name: 'rows', computed: paginatedRowsComputed })
+        React.createElement(Getter, { name: 'rows', computed: rowsWithHeadersComputed }),
+        React.createElement(Getter, { name: 'totalCount', computed: totalCountComputed }),
+        React.createElement(Getter, { name: 'currentPage', computed: currentPageComputed }),
+        React.createElement(Getter, { name: 'rows', computed: paginatedRowsComputed })
       );
     }
   }]);
@@ -1071,13 +1161,13 @@ var CustomPaging = function (_React$PureComponent) {
       var totalCount = this.props.totalCount;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'CustomPaging',
           dependencies: pluginDependencies$3
         },
-        _(Getter, { name: 'totalCount', value: totalCount })
+        React.createElement(Getter, { name: 'totalCount', value: totalCount })
       );
     }
   }]);
@@ -1094,15 +1184,6 @@ CustomPaging.defaultProps = {
 
 var dependencies = [{ name: 'SortingState', optional: true }];
 
-var adjustSortIndex = function adjustSortIndex(sortIndex, grouping, sorting) {
-  return Math.max(grouping.slice(0, sortIndex).reduce(function (acc, columnGrouping) {
-    var columnSortingIndex = sorting.findIndex(function (columnSorting) {
-      return columnSorting.columnName === columnGrouping.columnName;
-    });
-    return columnSortingIndex === -1 ? acc - 1 : acc;
-  }, sortIndex), 0);
-};
-
 var columnExtensionValueGetter$2 = function columnExtensionValueGetter(columnExtensions, defaultValue) {
   return getColumnExtensionValueGetter(columnExtensions, 'groupingEnabled', defaultValue);
 };
@@ -1115,6 +1196,11 @@ var GroupingState = function (_React$PureComponent) {
 
     var _this = possibleConstructorReturn(this, (GroupingState.__proto__ || Object.getPrototypeOf(GroupingState)).call(this, props));
 
+    var _this$props = _this.props,
+        onGroupingChange = _this$props.onGroupingChange,
+        onExpandedGroupsChange = _this$props.onExpandedGroupsChange;
+
+
     _this.state = {
       grouping: props.grouping || props.defaultGrouping,
       draftGrouping: null,
@@ -1123,10 +1209,10 @@ var GroupingState = function (_React$PureComponent) {
 
     _this.stateHelper = createStateHelper(_this, {
       grouping: function grouping() {
-        return _this.props.onGroupingChange;
+        return onGroupingChange;
       },
       expandedGroups: function expandedGroups() {
-        return _this.props.onExpandedGroupsChange;
+        return onExpandedGroupsChange;
       }
     });
 
@@ -1226,24 +1312,24 @@ var GroupingState = function (_React$PureComponent) {
           columnGroupingEnabled = _props.columnGroupingEnabled;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'GroupingState',
           dependencies: dependencies
         },
-        _(Getter, { name: 'grouping', value: grouping }),
-        _(Getter, { name: 'draftGrouping', value: draftGrouping || grouping }),
-        _(Getter, {
+        React.createElement(Getter, { name: 'grouping', value: grouping }),
+        React.createElement(Getter, { name: 'draftGrouping', value: draftGrouping || grouping }),
+        React.createElement(Getter, {
           name: 'isColumnGroupingEnabled',
           value: columnExtensionValueGetter$2(columnExtensions, columnGroupingEnabled)
         }),
-        _(Action, { name: 'changeColumnGrouping', action: this.changeColumnGrouping }),
-        _(Action, { name: 'draftColumnGrouping', action: this.draftColumnGrouping }),
-        _(Action, { name: 'cancelColumnGroupingDraft', action: this.cancelColumnGroupingDraft }),
-        _(Getter, { name: 'expandedGroups', value: expandedGroups }),
-        _(Action, { name: 'toggleGroupExpanded', action: this.toggleGroupExpanded }),
-        _(Action, { name: 'changeColumnSorting', action: this.changeColumnSorting })
+        React.createElement(Action, { name: 'changeColumnGrouping', action: this.changeColumnGrouping }),
+        React.createElement(Action, { name: 'draftColumnGrouping', action: this.draftColumnGrouping }),
+        React.createElement(Action, { name: 'cancelColumnGroupingDraft', action: this.cancelColumnGroupingDraft }),
+        React.createElement(Getter, { name: 'expandedGroups', value: expandedGroups }),
+        React.createElement(Action, { name: 'toggleGroupExpanded', action: this.toggleGroupExpanded }),
+        React.createElement(Action, { name: 'changeColumnSorting', action: this.changeColumnSorting })
       );
     }
   }]);
@@ -1274,10 +1360,14 @@ GroupingState.defaultProps = {
 
 var pluginDependencies$4 = [{ name: 'GroupingState' }];
 
-var expandedGroupedRowsComputed = function expandedGroupedRowsComputed(_ref) {
-  var rows = _ref.rows,
-      grouping = _ref.grouping,
-      expandedGroups = _ref.expandedGroups;
+var getCollapsedRowsComputed$1 = function getCollapsedRowsComputed(_ref) {
+  var getCollapsedRows = _ref.getCollapsedRows;
+  return groupCollapsedRowsGetter(getCollapsedRows);
+};
+var expandedGroupedRowsComputed = function expandedGroupedRowsComputed(_ref2) {
+  var rows = _ref2.rows,
+      grouping = _ref2.grouping,
+      expandedGroups = _ref2.expandedGroups;
   return expandedGroupRows(rows, grouping, expandedGroups);
 };
 
@@ -1298,23 +1388,24 @@ var IntegratedGrouping = function (_React$PureComponent) {
         return getColumnExtension(columnExtensions, columnName).criteria;
       };
 
-      var groupedRowsComputed = function groupedRowsComputed(_ref2) {
-        var rows = _ref2.rows,
-            grouping = _ref2.grouping,
-            getCellValue = _ref2.getCellValue;
+      var groupedRowsComputed = function groupedRowsComputed(_ref3) {
+        var rows = _ref3.rows,
+            grouping = _ref3.grouping,
+            getCellValue = _ref3.getCellValue;
         return groupedRows(rows, grouping, getCellValue, getColumnCriteria);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'IntegratedGrouping',
           dependencies: pluginDependencies$4
         },
-        _(Getter, { name: 'isGroupRow', value: groupRowChecker }),
-        _(Getter, { name: 'getRowLevelKey', value: groupRowLevelKeyGetter }),
-        _(Getter, { name: 'rows', computed: groupedRowsComputed }),
-        _(Getter, { name: 'rows', computed: expandedGroupedRowsComputed })
+        React.createElement(Getter, { name: 'isGroupRow', value: groupRowChecker }),
+        React.createElement(Getter, { name: 'getRowLevelKey', value: groupRowLevelKeyGetter }),
+        React.createElement(Getter, { name: 'getCollapsedRows', computed: getCollapsedRowsComputed$1 }),
+        React.createElement(Getter, { name: 'rows', computed: groupedRowsComputed }),
+        React.createElement(Getter, { name: 'rows', computed: expandedGroupedRowsComputed })
       );
     }
   }]);
@@ -1331,15 +1422,19 @@ IntegratedGrouping.defaultProps = {
 
 var pluginDependencies$5 = [{ name: 'GroupingState' }];
 
-var expandedGroupedRowsComputed$1 = function expandedGroupedRowsComputed(_ref) {
-  var rows = _ref.rows,
-      grouping = _ref.grouping,
-      expandedGroups = _ref.expandedGroups;
+var getCollapsedRowsComputed$2 = function getCollapsedRowsComputed(_ref) {
+  var getCollapsedRows = _ref.getCollapsedRows;
+  return groupCollapsedRowsGetter(getCollapsedRows);
+};
+var expandedGroupedRowsComputed$1 = function expandedGroupedRowsComputed(_ref2) {
+  var rows = _ref2.rows,
+      grouping = _ref2.grouping,
+      expandedGroups = _ref2.expandedGroups;
   return expandedGroupRows(rows, grouping, expandedGroups);
 };
-var getRowIdComputed = function getRowIdComputed(_ref2) {
-  var getRowId = _ref2.getRowId,
-      rows = _ref2.rows;
+var getRowIdComputed = function getRowIdComputed(_ref3) {
+  var getRowId = _ref3.getRowId,
+      rows = _ref3.rows;
   return customGroupingRowIdGetter(getRowId, rows);
 };
 
@@ -1359,25 +1454,26 @@ var CustomGrouping = function (_React$PureComponent) {
           appliedGrouping = _props.grouping,
           appliedExpandedGroups = _props.expandedGroups;
 
-      var groupedRowsComputed = function groupedRowsComputed(_ref3) {
-        var rows = _ref3.rows,
-            grouping = _ref3.grouping;
+      var groupedRowsComputed = function groupedRowsComputed(_ref4) {
+        var rows = _ref4.rows,
+            grouping = _ref4.grouping;
         return customGroupedRows(rows, grouping, getChildGroups);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'CustomGrouping',
           dependencies: pluginDependencies$5
         },
-        appliedGrouping && _(Getter, { name: 'grouping', value: appliedGrouping }),
-        appliedExpandedGroups && _(Getter, { name: 'expandedGroups', value: appliedExpandedGroups }),
-        _(Getter, { name: 'isGroupRow', value: groupRowChecker }),
-        _(Getter, { name: 'getRowLevelKey', value: groupRowLevelKeyGetter }),
-        _(Getter, { name: 'rows', computed: groupedRowsComputed }),
-        _(Getter, { name: 'getRowId', computed: getRowIdComputed }),
-        _(Getter, { name: 'rows', computed: expandedGroupedRowsComputed$1 })
+        appliedGrouping && React.createElement(Getter, { name: 'grouping', value: appliedGrouping }),
+        appliedExpandedGroups && React.createElement(Getter, { name: 'expandedGroups', value: appliedExpandedGroups }),
+        React.createElement(Getter, { name: 'isGroupRow', value: groupRowChecker }),
+        React.createElement(Getter, { name: 'getRowLevelKey', value: groupRowLevelKeyGetter }),
+        React.createElement(Getter, { name: 'getCollapsedRows', computed: getCollapsedRowsComputed$2 }),
+        React.createElement(Getter, { name: 'rows', computed: groupedRowsComputed }),
+        React.createElement(Getter, { name: 'getRowId', computed: getRowIdComputed }),
+        React.createElement(Getter, { name: 'rows', computed: expandedGroupedRowsComputed$1 })
       );
     }
   }]);
@@ -1403,13 +1499,16 @@ var SelectionState = function (_React$PureComponent) {
 
     var _this = possibleConstructorReturn(this, (SelectionState.__proto__ || Object.getPrototypeOf(SelectionState)).call(this, props));
 
+    var onSelectionChange = _this.props.onSelectionChange;
+
+
     _this.state = {
       selection: props.selection || props.defaultSelection
     };
 
     var stateHelper = createStateHelper(_this, {
       selection: function selection() {
-        return _this.props.onSelectionChange;
+        return onSelectionChange;
       }
     });
 
@@ -1430,13 +1529,13 @@ var SelectionState = function (_React$PureComponent) {
       var selection = this.state.selection;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'SelectionState'
         },
-        _(Getter, { name: 'selection', value: selection }),
-        _(Action, { name: 'toggleSelection', action: this.toggleSelection })
+        React.createElement(Getter, { name: 'selection', value: selection }),
+        React.createElement(Action, { name: 'toggleSelection', action: this.toggleSelection })
       );
     }
   }]);
@@ -1500,18 +1599,18 @@ var IntegratedSelection = function (_React$PureComponent) {
   createClass(IntegratedSelection, [{
     key: 'render',
     value: function render() {
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'IntegratedSelection',
           dependencies: pluginDependencies$6
         },
-        _(Getter, { name: 'rows', computed: rowsWithAvailableToSelectComputed }),
-        _(Getter, { name: 'allSelected', computed: allSelectedComputed }),
-        _(Getter, { name: 'someSelected', computed: someSelectedComputed }),
-        _(Getter, { name: 'selectAllAvailable', computed: selectAllAvailableComputed }),
-        _(Action, { name: 'toggleSelectAll', action: toggleSelectAll }),
-        _(Getter, { name: 'rows', computed: unwrapRowsComputed })
+        React.createElement(Getter, { name: 'rows', computed: rowsWithAvailableToSelectComputed }),
+        React.createElement(Getter, { name: 'allSelected', computed: allSelectedComputed }),
+        React.createElement(Getter, { name: 'someSelected', computed: someSelectedComputed }),
+        React.createElement(Getter, { name: 'selectAllAvailable', computed: selectAllAvailableComputed }),
+        React.createElement(Action, { name: 'toggleSelectAll', action: toggleSelectAll }),
+        React.createElement(Getter, { name: 'rows', computed: unwrapRowsComputed })
       );
     }
   }]);
@@ -1530,15 +1629,19 @@ var SortingState = function (_React$PureComponent) {
 
     var _this = possibleConstructorReturn(this, (SortingState.__proto__ || Object.getPrototypeOf(SortingState)).call(this, props));
 
+    var sorting = props.sorting || props.defaultSorting;
+    var onSortingChange = props.onSortingChange;
+
+
     _this.state = {
-      sorting: props.sorting || props.defaultSorting
+      sorting: sorting
     };
 
-    var persistentSortedColumns = getPersistentSortedColumns(_this.state.sorting, props.columnExtensions);
+    var persistentSortedColumns = getPersistentSortedColumns(sorting, props.columnExtensions);
 
     var stateHelper = createStateHelper(_this, {
       sorting: function sorting() {
-        return _this.props.onSortingChange;
+        return onSortingChange;
       }
     });
 
@@ -1565,17 +1668,17 @@ var SortingState = function (_React$PureComponent) {
           columnSortingEnabled = _props.columnSortingEnabled;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'SortingState'
         },
-        _(Getter, { name: 'sorting', value: sorting }),
-        _(Getter, {
+        React.createElement(Getter, { name: 'sorting', value: sorting }),
+        React.createElement(Getter, {
           name: 'isColumnSortingEnabled',
           value: columnExtensionValueGetter$3(columnExtensions, columnSortingEnabled)
         }),
-        _(Action, { name: 'changeColumnSorting', action: this.changeColumnSorting })
+        React.createElement(Action, { name: 'changeColumnSorting', action: this.changeColumnSorting })
       );
     }
   }]);
@@ -1626,13 +1729,13 @@ var IntegratedSorting = function (_React$PureComponent) {
         return sortedRows(rows, sorting, getCellValue, getColumnCompare, isGroupRow, getRowLevelKey);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'IntegratedSorting',
           dependencies: pluginDependencies$7
         },
-        _(Getter, { name: 'rows', computed: rowsComputed })
+        React.createElement(Getter, { name: 'rows', computed: rowsComputed })
       );
     }
   }]);
@@ -1689,34 +1792,34 @@ var DragDropProvider$1 = function (_React$PureComponent) {
           clientOffset = _state.clientOffset;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'DragDropProvider'
         },
-        _(Getter, { name: 'draggingEnabled', value: true }),
-        _(
+        React.createElement(Getter, { name: 'draggingEnabled', value: true }),
+        React.createElement(
           Template,
           { name: 'root' },
-          _(
+          React.createElement(
             DragDropProvider,
             {
               onChange: this.change
             },
-            _(TemplatePlaceholder, null)
+            React.createElement(TemplatePlaceholder, null)
           ),
-          payload && _(
+          payload && React.createElement(
             TemplateConnector,
             null,
             function (_ref2) {
               var columns = _ref2.columns;
-              return _(
+              return React.createElement(
                 Container,
                 {
                   clientOffset: clientOffset
                 },
                 getTargetColumns(payload, columns).map(function (column) {
-                  return _(Column, {
+                  return React.createElement(Column, {
                     key: column.name,
                     column: column
                   });
@@ -1766,8 +1869,9 @@ var TableColumnReordering = function (_React$PureComponent) {
   createClass(TableColumnReordering, [{
     key: 'getState',
     value: function getState() {
+      var orderState = this.state.order;
       var _props$order = this.props.order,
-          order = _props$order === undefined ? this.state.order : _props$order;
+          order = _props$order === undefined ? orderState : _props$order;
 
       return _extends({}, this.state, {
         order: order
@@ -1929,30 +2033,30 @@ var TableColumnReordering = function (_React$PureComponent) {
 
       this.cellDimensionGetters = {};
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableColumnReordering',
           dependencies: pluginDependencies$8
         },
-        _(Getter, { name: 'tableColumns', computed: columnsComputed }),
-        _(Getter, { name: 'tableHeaderRows', computed: tableHeaderRowsComputed }),
-        _(
+        React.createElement(Getter, { name: 'tableColumns', computed: columnsComputed }),
+        React.createElement(Getter, { name: 'tableHeaderRows', computed: tableHeaderRowsComputed }),
+        React.createElement(
           Template,
           { name: 'table' },
           function (params) {
-            return _(
+            return React.createElement(
               Container,
               _extends({}, params, {
                 onOver: _this5.onOver,
                 onLeave: _this5.onLeave,
                 onDrop: _this5.onDrop
               }),
-              _(TemplatePlaceholder, null)
+              React.createElement(TemplatePlaceholder, null)
             );
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableRow',
@@ -1962,10 +2066,10 @@ var TableColumnReordering = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(Row, params);
+            return React.createElement(Row, params);
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -1975,12 +2079,12 @@ var TableColumnReordering = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref8) {
                 var tableColumns = _ref8.tableColumns;
-                return _(Cell, _extends({}, params, {
+                return React.createElement(Cell, _extends({}, params, {
                   getCellDimensions: function getCellDimensions(getter) {
                     return _this5.storeCellDimensionsGetter(params.tableColumn, getter, tableColumns);
                   }
@@ -2011,10 +2115,10 @@ TableColumnReordering.defaultProps = {
 };
 
 var RowPlaceholder = function RowPlaceholder(props) {
-  return _(TemplatePlaceholder, { name: 'tableRow', params: props });
+  return React.createElement(TemplatePlaceholder, { name: 'tableRow', params: props });
 };
 var CellPlaceholder = function CellPlaceholder(props) {
-  return _(TemplatePlaceholder, { name: 'tableCell', params: props });
+  return React.createElement(TemplatePlaceholder, { name: 'tableCell', params: props });
 };
 
 var tableHeaderRows = [];
@@ -2043,6 +2147,7 @@ var Table = function (_React$PureComponent) {
           Row = _props.rowComponent,
           NoDataRow = _props.noDataRowComponent,
           NoDataCell = _props.noDataCellComponent,
+          StubRow = _props.stubRowComponent,
           StubCell = _props.stubCellComponent,
           StubHeaderCell = _props.stubHeaderCellComponent,
           columnExtensions = _props.columnExtensions,
@@ -2050,8 +2155,7 @@ var Table = function (_React$PureComponent) {
           containerComponent = _props.containerComponent,
           tableComponent = _props.tableComponent,
           headComponent = _props.headComponent,
-          bodyComponent = _props.bodyComponent,
-          fixedHeaderComponent = _props.fixedHeaderComponent;
+          bodyComponent = _props.bodyComponent;
 
 
       var getMessage = getMessagesFormatter(messages);
@@ -2060,32 +2164,33 @@ var Table = function (_React$PureComponent) {
         return tableColumnsWithDataRows(columns, columnExtensions);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'Table',
           dependencies: pluginDependencies$9
         },
-        _(Getter, { name: 'tableHeaderRows', value: tableHeaderRows }),
-        _(Getter, { name: 'tableBodyRows', computed: tableBodyRowsComputed }),
-        _(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
-        _(
+        React.createElement(Getter, { name: 'tableHeaderRows', value: tableHeaderRows }),
+        React.createElement(Getter, { name: 'tableBodyRows', computed: tableBodyRowsComputed }),
+        React.createElement(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
+        React.createElement(Getter, { name: 'getTableCellColSpan', value: tableCellColSpanGetter }),
+        React.createElement(
           Template,
           { name: 'body' },
-          _(TemplatePlaceholder, { name: 'table' })
+          React.createElement(TemplatePlaceholder, { name: 'table' })
         ),
-        _(
+        React.createElement(
           Template,
           { name: 'table' },
-          _(
+          React.createElement(
             TemplateConnector,
             null,
             function (_ref3) {
               var headerRows = _ref3.tableHeaderRows,
                   bodyRows = _ref3.tableBodyRows,
-                  columns = _ref3.tableColumns;
-              return _(Layout, {
-                headTableComponent: fixedHeaderComponent,
+                  columns = _ref3.tableColumns,
+                  getTableCellColSpan = _ref3.getTableCellColSpan;
+              return React.createElement(Layout, {
                 tableComponent: tableComponent,
                 headComponent: headComponent,
                 bodyComponent: bodyComponent,
@@ -2094,26 +2199,27 @@ var Table = function (_React$PureComponent) {
                 bodyRows: bodyRows,
                 columns: columns,
                 rowComponent: RowPlaceholder,
-                cellComponent: CellPlaceholder
+                cellComponent: CellPlaceholder,
+                getCellColSpan: getTableCellColSpan
               });
             }
           )
         ),
-        _(
+        React.createElement(
           Template,
           { name: 'tableCell' },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref4) {
                 var headerRows = _ref4.tableHeaderRows;
-                return isHeaderStubTableCell(params.tableRow, headerRows) ? _(StubHeaderCell, params) : _(StubCell, params);
+                return isHeaderStubTableCell(params.tableRow, headerRows) ? React.createElement(StubHeaderCell, params) : React.createElement(StubCell, params);
               }
             );
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -2124,7 +2230,7 @@ var Table = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref6) {
@@ -2132,7 +2238,7 @@ var Table = function (_React$PureComponent) {
 
                 var columnName = params.tableColumn.column.name;
                 var value = getCellValue(params.tableRow.row, columnName);
-                return _(
+                return React.createElement(
                   TemplatePlaceholder,
                   {
                     name: 'valueFormatter',
@@ -2143,7 +2249,7 @@ var Table = function (_React$PureComponent) {
                     }
                   },
                   function (content) {
-                    return _(
+                    return React.createElement(
                       Cell,
                       _extends({}, params, {
                         row: params.tableRow.row,
@@ -2158,7 +2264,7 @@ var Table = function (_React$PureComponent) {
             );
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -2168,35 +2274,55 @@ var Table = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(NoDataCell, _extends({ getMessage: getMessage }, params));
+            return React.createElement(
+              TemplateConnector,
+              null,
+              function (_ref8) {
+                var tableColumns = _ref8.tableColumns;
+
+                if (isNoDataTableCell(params.tableColumn, tableColumns)) {
+                  return React.createElement(NoDataCell, _extends({}, params, {
+                    getMessage: getMessage
+                  }));
+                }
+                return null;
+              }
+            );
           }
         ),
-        _(
+        React.createElement(
           Template,
-          {
-            name: 'tableRow',
-            predicate: function predicate(_ref8) {
-              var tableRow = _ref8.tableRow;
-              return isDataTableRow(tableRow);
-            }
-          },
+          { name: 'tableRow' },
           function (params) {
-            return _(Row, _extends({}, params, {
-              row: params.tableRow.row
-            }));
+            return React.createElement(StubRow, params);
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableRow',
             predicate: function predicate(_ref9) {
               var tableRow = _ref9.tableRow;
+              return isDataTableRow(tableRow);
+            }
+          },
+          function (params) {
+            return React.createElement(Row, _extends({}, params, {
+              row: params.tableRow.row
+            }));
+          }
+        ),
+        React.createElement(
+          Template,
+          {
+            name: 'tableRow',
+            predicate: function predicate(_ref10) {
+              var tableRow = _ref10.tableRow;
               return isNoDataTableRow(tableRow);
             }
           },
           function (params) {
-            return _(NoDataRow, params);
+            return React.createElement(NoDataRow, params);
           }
         )
       );
@@ -2215,15 +2341,14 @@ Table.propTypes = {
   rowComponent: func.isRequired,
   noDataCellComponent: func.isRequired,
   noDataRowComponent: func.isRequired,
+  stubRowComponent: func.isRequired,
   stubCellComponent: func.isRequired,
   stubHeaderCellComponent: func.isRequired,
   columnExtensions: array,
-  messages: object,
-  fixedHeaderComponent: func
+  messages: object
 };
 
 Table.defaultProps = {
-  fixedHeaderComponent: undefined,
   columnExtensions: undefined,
   messages: {}
 };
@@ -2255,14 +2380,14 @@ var TableSelection = function (_React$PureComponent) {
         return tableColumnsWithSelection(tableColumns, selectionColumnWidth);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableSelection',
           dependencies: [{ name: 'Table' }, { name: 'SelectionState' }, { name: 'IntegratedSelection', optional: !showSelectAll }]
         },
-        showSelectionColumn && _(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
-        showSelectionColumn && showSelectAll && _(
+        showSelectionColumn && React.createElement(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
+        showSelectionColumn && showSelectAll && React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -2273,7 +2398,7 @@ var TableSelection = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref3, _ref4) {
@@ -2281,7 +2406,7 @@ var TableSelection = function (_React$PureComponent) {
                     allSelected$$1 = _ref3.allSelected,
                     someSelected$$1 = _ref3.someSelected;
                 var toggleSelectAll = _ref4.toggleSelectAll;
-                return _(HeaderCell, _extends({}, params, {
+                return React.createElement(HeaderCell, _extends({}, params, {
                   disabled: !selectAllAvailable,
                   allSelected: allSelected$$1,
                   someSelected: someSelected$$1,
@@ -2293,7 +2418,7 @@ var TableSelection = function (_React$PureComponent) {
             );
           }
         ),
-        showSelectionColumn && _(
+        showSelectionColumn && React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -2304,13 +2429,13 @@ var TableSelection = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref6, _ref7) {
                 var selection = _ref6.selection;
                 var toggleSelection$$1 = _ref7.toggleSelection;
-                return _(Cell, _extends({}, params, {
+                return React.createElement(Cell, _extends({}, params, {
                   row: params.tableRow.row,
                   selected: selection.indexOf(params.tableRow.rowId) !== -1,
                   onToggle: function onToggle() {
@@ -2321,7 +2446,7 @@ var TableSelection = function (_React$PureComponent) {
             );
           }
         ),
-        (highlightRow || selectByRowClick) && _(
+        (highlightRow || selectByRowClick) && React.createElement(
           Template,
           {
             name: 'tableRow',
@@ -2331,14 +2456,14 @@ var TableSelection = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref9, _ref10) {
                 var selection = _ref9.selection;
                 var toggleSelection$$1 = _ref10.toggleSelection;
-                return _(Row, _extends({}, params, {
-                  selectByRowClick: true,
+                return React.createElement(Row, _extends({}, params, {
+                  selectByRowClick: selectByRowClick,
                   selected: highlightRow && selection.indexOf(params.tableRow.rowId) !== -1,
                   onToggle: function onToggle() {
                     return toggleSelection$$1({ rowIds: [params.tableRow.rowId] });
@@ -2380,13 +2505,16 @@ var RowDetailState = function (_React$PureComponent) {
 
     var _this = possibleConstructorReturn(this, (RowDetailState.__proto__ || Object.getPrototypeOf(RowDetailState)).call(this, props));
 
+    var onExpandedRowIdsChange = _this.props.onExpandedRowIdsChange;
+
+
     _this.state = {
       expandedRowIds: props.expandedRowIds || props.defaultExpandedRowIds
     };
 
     var stateHelper = createStateHelper(_this, {
       expandedRowIds: function expandedRowIds() {
-        return _this.props.onExpandedRowIdsChange;
+        return onExpandedRowIdsChange;
       }
     });
 
@@ -2407,13 +2535,13 @@ var RowDetailState = function (_React$PureComponent) {
       var expandedRowIds = this.state.expandedRowIds;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'RowDetailState'
         },
-        _(Getter, { name: 'expandedDetailRowIds', value: expandedRowIds }),
-        _(Action, { name: 'toggleDetailRowExpanded', action: this.toggleDetailRowExpanded })
+        React.createElement(Getter, { name: 'expandedDetailRowIds', value: expandedRowIds }),
+        React.createElement(Action, { name: 'toggleDetailRowExpanded', action: this.toggleDetailRowExpanded })
       );
     }
   }]);
@@ -2432,7 +2560,12 @@ RowDetailState.defaultProps = {
   onExpandedRowIdsChange: undefined
 };
 
-var pluginDependencies$10 = [{ name: 'Table' }];
+var getCellColSpanComputed = function getCellColSpanComputed(_ref) {
+  var getTableCellColSpan = _ref.getTableCellColSpan;
+  return tableDetailCellColSpanGetter(getTableCellColSpan);
+};
+
+var pluginDependencies$10 = [{ name: 'RowDetailState' }, { name: 'Table' }];
 
 var TableRowDetail = function (_React$PureComponent) {
   inherits(TableRowDetail, _React$PureComponent);
@@ -2454,42 +2587,43 @@ var TableRowDetail = function (_React$PureComponent) {
           toggleColumnWidth = _props.toggleColumnWidth;
 
 
-      var tableColumnsComputed = function tableColumnsComputed(_ref) {
-        var tableColumns = _ref.tableColumns;
+      var tableColumnsComputed = function tableColumnsComputed(_ref2) {
+        var tableColumns = _ref2.tableColumns;
         return tableColumnsWithDetail(tableColumns, toggleColumnWidth);
       };
-      var tableBodyRowsComputed = function tableBodyRowsComputed(_ref2) {
-        var tableBodyRows = _ref2.tableBodyRows,
-            expandedDetailRowIds = _ref2.expandedDetailRowIds;
+      var tableBodyRowsComputed = function tableBodyRowsComputed(_ref3) {
+        var tableBodyRows = _ref3.tableBodyRows,
+            expandedDetailRowIds = _ref3.expandedDetailRowIds;
         return tableRowsWithExpandedDetail(tableBodyRows, expandedDetailRowIds, rowHeight);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableRowDetail',
           dependencies: pluginDependencies$10
         },
-        _(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
-        _(Getter, { name: 'tableBodyRows', computed: tableBodyRowsComputed }),
-        _(
+        React.createElement(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
+        React.createElement(Getter, { name: 'tableBodyRows', computed: tableBodyRowsComputed }),
+        React.createElement(Getter, { name: 'getTableCellColSpan', computed: getCellColSpanComputed }),
+        React.createElement(
           Template,
           {
             name: 'tableCell',
-            predicate: function predicate(_ref3) {
-              var tableRow = _ref3.tableRow,
-                  tableColumn = _ref3.tableColumn;
+            predicate: function predicate(_ref4) {
+              var tableRow = _ref4.tableRow,
+                  tableColumn = _ref4.tableColumn;
               return isDetailToggleTableCell(tableRow, tableColumn);
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
-              function (_ref4, _ref5) {
-                var expandedDetailRowIds = _ref4.expandedDetailRowIds;
-                var toggleDetailRowExpanded$$1 = _ref5.toggleDetailRowExpanded;
-                return _(ToggleCell, _extends({}, params, {
+              function (_ref5, _ref6) {
+                var expandedDetailRowIds = _ref5.expandedDetailRowIds;
+                var toggleDetailRowExpanded$$1 = _ref6.toggleDetailRowExpanded;
+                return React.createElement(ToggleCell, _extends({}, params, {
                   row: params.tableRow.row,
                   expanded: isDetailRowExpanded(expandedDetailRowIds, params.tableRow.rowId),
                   onToggle: function onToggle() {
@@ -2500,36 +2634,47 @@ var TableRowDetail = function (_React$PureComponent) {
             );
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableCell',
-            predicate: function predicate(_ref6) {
-              var tableRow = _ref6.tableRow;
-              return isDetailTableRow(tableRow);
-            }
-          },
-          function (params) {
-            return _(
-              Cell,
-              _extends({}, params, {
-                row: params.tableRow.row
-              }),
-              _(Content, { row: params.tableRow.row })
-            );
-          }
-        ),
-        _(
-          Template,
-          {
-            name: 'tableRow',
             predicate: function predicate(_ref7) {
               var tableRow = _ref7.tableRow;
               return isDetailTableRow(tableRow);
             }
           },
           function (params) {
-            return _(Row, _extends({}, params, {
+            return React.createElement(
+              TemplateConnector,
+              null,
+              function (_ref8) {
+                var tableColumns = _ref8.tableColumns;
+
+                if (isDetailTableCell(params.tableColumn, tableColumns)) {
+                  return React.createElement(
+                    Cell,
+                    _extends({}, params, {
+                      row: params.tableRow.row
+                    }),
+                    React.createElement(Content, { row: params.tableRow.row })
+                  );
+                }
+                return null;
+              }
+            );
+          }
+        ),
+        React.createElement(
+          Template,
+          {
+            name: 'tableRow',
+            predicate: function predicate(_ref9) {
+              var tableRow = _ref9.tableRow;
+              return isDetailTableRow(tableRow);
+            }
+          },
+          function (params) {
+            return React.createElement(Row, _extends({}, params, {
               row: params.tableRow.row
             }));
           }
@@ -2562,6 +2707,10 @@ var tableBodyRowsComputed$1 = function tableBodyRowsComputed(_ref) {
   var tableBodyRows = _ref.tableBodyRows,
       isGroupRow = _ref.isGroupRow;
   return tableRowsWithGrouping(tableBodyRows, isGroupRow);
+};
+var getCellColSpanComputed$1 = function getCellColSpanComputed(_ref2) {
+  var getTableCellColSpan = _ref2.getTableCellColSpan;
+  return tableGroupCellColSpanGetter(getTableCellColSpan);
 };
 
 var showColumnWhenGroupedGetter = function showColumnWhenGroupedGetter(showColumnsWhenGrouped) {
@@ -2597,85 +2746,82 @@ var TableGroupRow = function (_React$PureComponent) {
           columnExtensions = _props.columnExtensions;
 
 
-      var tableColumnsComputed = function tableColumnsComputed(_ref2) {
-        var columns = _ref2.columns,
-            tableColumns = _ref2.tableColumns,
-            grouping = _ref2.grouping,
-            draftGrouping = _ref2.draftGrouping;
+      var tableColumnsComputed = function tableColumnsComputed(_ref3) {
+        var columns = _ref3.columns,
+            tableColumns = _ref3.tableColumns,
+            grouping = _ref3.grouping,
+            draftGrouping = _ref3.draftGrouping;
         return tableColumnsWithGrouping(columns, tableColumns, grouping, draftGrouping, indentColumnWidth, showColumnWhenGroupedGetter(showColumnsWhenGrouped, columnExtensions));
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableGroupRow',
           dependencies: pluginDependencies$11
         },
-        _(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
-        _(Getter, { name: 'tableBodyRows', computed: tableBodyRowsComputed$1 }),
-        _(
+        React.createElement(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
+        React.createElement(Getter, { name: 'tableBodyRows', computed: tableBodyRowsComputed$1 }),
+        React.createElement(Getter, { name: 'getTableCellColSpan', computed: getCellColSpanComputed$1 }),
+        React.createElement(
           Template,
           {
             name: 'tableCell',
-            predicate: function predicate(_ref3) {
-              var tableRow = _ref3.tableRow,
-                  tableColumn = _ref3.tableColumn;
-              return isGroupTableCell(tableRow, tableColumn);
+            predicate: function predicate(_ref4) {
+              var tableRow = _ref4.tableRow;
+              return isGroupTableRow(tableRow);
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
-              function (_ref4, _ref5) {
-                var expandedGroups = _ref4.expandedGroups;
-                var toggleGroupExpanded = _ref5.toggleGroupExpanded;
-                return _(
-                  TemplatePlaceholder,
-                  {
-                    name: 'valueFormatter',
-                    params: {
-                      column: params.tableColumn.column,
-                      value: params.tableRow.row.value
-                    }
-                  },
-                  function (content) {
-                    return _(
-                      GroupCell,
-                      _extends({}, params, {
-                        row: params.tableRow.row,
+              function (_ref5, _ref6) {
+                var grouping = _ref5.grouping,
+                    expandedGroups = _ref5.expandedGroups;
+                var toggleGroupExpanded = _ref6.toggleGroupExpanded;
+
+                if (isGroupTableCell(params.tableRow, params.tableColumn)) {
+                  return React.createElement(
+                    TemplatePlaceholder,
+                    {
+                      name: 'valueFormatter',
+                      params: {
                         column: params.tableColumn.column,
-                        expanded: expandedGroups.indexOf(params.tableRow.row.compoundKey) !== -1,
-                        onToggle: function onToggle() {
-                          return toggleGroupExpanded({ groupKey: params.tableRow.row.compoundKey });
-                        }
-                      }),
-                      content
-                    );
+                        value: params.tableRow.row.value
+                      }
+                    },
+                    function (content) {
+                      return React.createElement(
+                        GroupCell,
+                        _extends({}, params, {
+                          row: params.tableRow.row,
+                          column: params.tableColumn.column,
+                          expanded: expandedGroups.indexOf(params.tableRow.row.compoundKey) !== -1,
+                          onToggle: function onToggle() {
+                            return toggleGroupExpanded({ groupKey: params.tableRow.row.compoundKey });
+                          }
+                        }),
+                        content
+                      );
+                    }
+                  );
+                }
+                if (isGroupIndentTableCell(params.tableRow, params.tableColumn, grouping)) {
+                  if (GroupIndentCell) {
+                    return React.createElement(GroupIndentCell, _extends({}, params, {
+                      row: params.tableRow.row,
+                      column: params.tableColumn.column
+                    }));
                   }
-                );
+                  return React.createElement(TemplatePlaceholder, null);
+                }
+                return null;
               }
             );
           }
         ),
-        GroupIndentCell && _(
-          Template,
-          {
-            name: 'tableCell',
-            predicate: function predicate(_ref6) {
-              var tableRow = _ref6.tableRow,
-                  tableColumn = _ref6.tableColumn;
-              return isGroupIndentTableCell(tableRow, tableColumn);
-            }
-          },
-          function (params) {
-            return _(GroupIndentCell, _extends({}, params, {
-              row: params.tableRow.row,
-              column: params.tableColumn.column
-            }));
-          }
-        ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableRow',
@@ -2685,7 +2831,7 @@ var TableGroupRow = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(GroupRow, _extends({}, params, {
+            return React.createElement(GroupRow, _extends({}, params, {
               row: params.tableRow.row
             }));
           }
@@ -2736,14 +2882,14 @@ var TableHeaderRow = function (_React$PureComponent) {
 
       var getMessage = getMessagesFormatter(messages);
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableHeaderRow',
           dependencies: [{ name: 'Table' }, { name: 'SortingState', optional: !showSortingControls }, { name: 'GroupingState', optional: !showGroupingControls }, { name: 'DragDropProvider', optional: true }, { name: 'TableColumnResizing', optional: true }]
         },
-        _(Getter, { name: 'tableHeaderRows', computed: tableHeaderRowsComputed$1 }),
-        _(
+        React.createElement(Getter, { name: 'tableHeaderRows', computed: tableHeaderRowsComputed$1 }),
+        React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -2754,16 +2900,16 @@ var TableHeaderRow = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref3, _ref4) {
                 var sorting = _ref3.sorting,
-                    isColumnSortingEnabled = _ref3.isColumnSortingEnabled,
-                    isColumnGroupingEnabled = _ref3.isColumnGroupingEnabled,
                     tableColumns = _ref3.tableColumns,
                     draggingEnabled = _ref3.draggingEnabled,
-                    tableColumnResizingEnabled = _ref3.tableColumnResizingEnabled;
+                    tableColumnResizingEnabled = _ref3.tableColumnResizingEnabled,
+                    isColumnSortingEnabled = _ref3.isColumnSortingEnabled,
+                    isColumnGroupingEnabled = _ref3.isColumnGroupingEnabled;
                 var changeColumnSorting$$1 = _ref4.changeColumnSorting,
                     changeColumnGrouping$$1 = _ref4.changeColumnGrouping,
                     changeTableColumnWidth$$1 = _ref4.changeTableColumnWidth,
@@ -2778,7 +2924,7 @@ var TableHeaderRow = function (_React$PureComponent) {
                 var sortingEnabled = isColumnSortingEnabled && isColumnSortingEnabled(columnName);
                 var groupingEnabled = isColumnGroupingEnabled && isColumnGroupingEnabled(columnName) && atLeastOneDataColumn;
 
-                return _(HeaderCell, _extends({}, params, {
+                return React.createElement(HeaderCell, _extends({}, params, {
                   column: params.tableColumn.column,
                   getMessage: getMessage,
                   sortingEnabled: sortingEnabled,
@@ -2787,7 +2933,7 @@ var TableHeaderRow = function (_React$PureComponent) {
                   showGroupingControls: showGroupingControls,
                   draggingEnabled: draggingEnabled && atLeastOneDataColumn,
                   resizingEnabled: tableColumnResizingEnabled,
-                  sortingDirection: showSortingControls ? getColumnSortingDirection(sorting, columnName) : undefined,
+                  sortingDirection: showSortingControls && sorting !== undefined ? getColumnSortingDirection(sorting, columnName) : undefined,
                   onSort: function onSort(_ref6) {
                     var direction = _ref6.direction,
                         keepOther = _ref6.keepOther;
@@ -2806,13 +2952,19 @@ var TableHeaderRow = function (_React$PureComponent) {
                   },
                   onWidthDraftCancel: function onWidthDraftCancel() {
                     return cancelTableColumnWidthDraft$$1();
-                  }
+                  },
+                  before: React.createElement(TemplatePlaceholder, {
+                    name: 'tableHeaderCellBefore',
+                    params: {
+                      column: params.tableColumn.column
+                    }
+                  })
                 }));
               }
             );
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableRow',
@@ -2822,7 +2974,7 @@ var TableHeaderRow = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(HeaderRow, params);
+            return React.createElement(HeaderRow, params);
           }
         )
       );
@@ -2845,23 +2997,159 @@ TableHeaderRow.defaultProps = {
   messages: null
 };
 
+var CellPlaceholder$1 = function CellPlaceholder(props) {
+  return React.createElement(TemplatePlaceholder, { params: props });
+};
+
+var TableBandHeader = function (_React$PureComponent) {
+  inherits(TableBandHeader, _React$PureComponent);
+
+  function TableBandHeader() {
+    classCallCheck(this, TableBandHeader);
+    return possibleConstructorReturn(this, (TableBandHeader.__proto__ || Object.getPrototypeOf(TableBandHeader)).apply(this, arguments));
+  }
+
+  createClass(TableBandHeader, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          Cell = _props.cellComponent,
+          Row = _props.rowComponent,
+          HeaderCell = _props.bandedHeaderCellComponent,
+          InvisibleCell = _props.invisibleCellComponent,
+          columnBands = _props.columnBands;
+
+
+      var tableHeaderRowsComputed = function tableHeaderRowsComputed(_ref) {
+        var tableHeaderRows = _ref.tableHeaderRows,
+            tableColumns = _ref.tableColumns;
+        return tableRowsWithBands(tableHeaderRows, columnBands, tableColumns);
+      };
+
+      return React.createElement(
+        Plugin,
+        {
+          name: 'TableBandHeader',
+          dependencies: [{ name: 'Table' }, { name: 'TableHeaderRow' }, { name: 'TableSelection', optional: true }, { name: 'TableEditColumn', optional: true }]
+        },
+        React.createElement(Getter, { name: 'tableHeaderRows', computed: tableHeaderRowsComputed }),
+        React.createElement(
+          Template,
+          {
+            name: 'tableCell',
+            predicate: function predicate(_ref2) {
+              var tableRow = _ref2.tableRow;
+              return isBandedOrHeaderRow(tableRow);
+            }
+          },
+          function (params) {
+            return React.createElement(
+              TemplateConnector,
+              null,
+              function (_ref3) {
+                var tableColumns = _ref3.tableColumns,
+                    tableHeaderRows = _ref3.tableHeaderRows;
+
+                var bandComponent = getBandComponent(params, tableHeaderRows, tableColumns, columnBands);
+                switch (bandComponent.type) {
+                  case BAND_DUPLICATE_RENDER:
+                    return React.createElement(TemplatePlaceholder, null);
+                  case BAND_EMPTY_CELL:
+                    return React.createElement(InvisibleCell, null);
+                  case BAND_GROUP_CELL:
+                    {
+                      var _bandComponent$payloa = bandComponent.payload,
+                          value = _bandComponent$payloa.value,
+                          payload = objectWithoutProperties(_bandComponent$payloa, ['value']);
+
+                      return React.createElement(
+                        Cell,
+                        _extends({}, params, payload),
+                        value
+                      );
+                    }
+                  case BAND_HEADER_CELL:
+                    return React.createElement(TemplatePlaceholder, {
+                      name: 'tableCell',
+                      params: _extends({}, params, bandComponent.payload)
+                    });
+                  default:
+                    return null;
+                }
+              }
+            );
+          }
+        ),
+        React.createElement(
+          Template,
+          {
+            name: 'tableCell',
+            predicate: function predicate(_ref4) {
+              var tableRow = _ref4.tableRow,
+                  tableColumn = _ref4.tableColumn;
+              return isHeadingTableCell(tableRow, tableColumn);
+            }
+          },
+          function (params) {
+            return React.createElement(HeaderCell, _extends({ component: CellPlaceholder$1 }, params));
+          }
+        ),
+        React.createElement(
+          Template,
+          {
+            name: 'tableRow',
+            predicate: function predicate(_ref5) {
+              var tableRow = _ref5.tableRow;
+              return isBandedTableRow(tableRow);
+            }
+          },
+          function (params) {
+            return React.createElement(Row, params);
+          }
+        )
+      );
+    }
+  }]);
+  return TableBandHeader;
+}(React.PureComponent);
+
+TableBandHeader.propTypes = {
+  columnBands: array.isRequired,
+  cellComponent: func.isRequired,
+  rowComponent: func.isRequired,
+  bandedHeaderCellComponent: func.isRequired,
+  invisibleCellComponent: func.isRequired
+};
+
 var pluginDependencies$12 = [{ name: 'FilteringState' }, { name: 'Table' }, { name: 'DataTypeProvider', optional: true }];
 
 var TableFilterRow = function (_React$PureComponent) {
   inherits(TableFilterRow, _React$PureComponent);
 
-  function TableFilterRow() {
+  function TableFilterRow(props) {
     classCallCheck(this, TableFilterRow);
-    return possibleConstructorReturn(this, (TableFilterRow.__proto__ || Object.getPrototypeOf(TableFilterRow)).apply(this, arguments));
+
+    var _this = possibleConstructorReturn(this, (TableFilterRow.__proto__ || Object.getPrototypeOf(TableFilterRow)).call(this, props));
+
+    _this.state = {
+      filterOperations: {}
+    };
+    return _this;
   }
 
   createClass(TableFilterRow, [{
     key: 'render',
     value: function render() {
+      var _this2 = this;
+
       var _props = this.props,
           rowHeight = _props.rowHeight,
+          showFilterSelector = _props.showFilterSelector,
           FilterCell = _props.cellComponent,
           FilterRow = _props.rowComponent,
+          FilterSelector = _props.filterSelectorComponent,
+          iconComponent = _props.iconComponent,
+          EditorComponent = _props.editorComponent,
           messages = _props.messages;
 
 
@@ -2872,14 +3160,14 @@ var TableFilterRow = function (_React$PureComponent) {
         return tableHeaderRowsWithFilter(tableHeaderRows, rowHeight);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableFilterRow',
           dependencies: pluginDependencies$12
         },
-        _(Getter, { name: 'tableHeaderRows', computed: tableHeaderRowsComputed }),
-        _(
+        React.createElement(Getter, { name: 'tableHeaderRows', computed: tableHeaderRowsComputed }),
+        React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -2890,42 +3178,69 @@ var TableFilterRow = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref3, _ref4) {
                 var filters = _ref3.filters,
-                    isColumnFilteringEnabled = _ref3.isColumnFilteringEnabled;
+                    isColumnFilteringEnabled = _ref3.isColumnFilteringEnabled,
+                    getAvailableFilterOperations = _ref3.getAvailableFilterOperations;
                 var changeColumnFilter$$1 = _ref4.changeColumnFilter;
+                var filterOperations = _this2.state.filterOperations;
                 var columnName = params.tableColumn.column.name;
 
                 var filter = getColumnFilterConfig(filters, columnName);
                 var onFilter = function onFilter(config) {
                   return changeColumnFilter$$1({ columnName: columnName, config: config });
                 };
-                return _(
+                var columnFilterOperations = getColumnFilterOperations(getAvailableFilterOperations, columnName);
+                var selectedFilterOperation = filterOperations[columnName] || columnFilterOperations[0];
+                var handleFilterOperationChange = function handleFilterOperationChange(value) {
+                  _this2.setState({
+                    filterOperations: _extends({}, filterOperations, defineProperty({}, columnName, value))
+                  });
+                  if (filter && !isFilterValueEmpty(filter.value)) {
+                    onFilter({ value: filter.value, operation: value });
+                  }
+                };
+                var handleFilterValueChange = function handleFilterValueChange(value) {
+                  return onFilter(!isFilterValueEmpty(value) ? { value: value, operation: selectedFilterOperation } : null);
+                };
+                var filteringEnabled = isColumnFilteringEnabled(columnName);
+                return React.createElement(
                   TemplatePlaceholder,
                   {
                     name: 'valueEditor',
                     params: {
                       column: params.tableColumn.column,
                       value: filter ? filter.value : undefined,
-                      onValueChange: function onValueChange(newValue) {
-                        return onFilter(newValue !== undefined ? { value: newValue } : null);
-                      }
+                      onValueChange: handleFilterValueChange
                     }
                   },
                   function (content) {
-                    return _(
+                    return React.createElement(
                       FilterCell,
                       _extends({}, params, {
                         getMessage: getMessage,
                         column: params.tableColumn.column,
                         filter: filter,
-                        filteringEnabled: isColumnFilteringEnabled(columnName),
+                        filteringEnabled: filteringEnabled,
                         onFilter: onFilter
                       }),
-                      content
+                      showFilterSelector ? React.createElement(FilterSelector, {
+                        iconComponent: iconComponent,
+                        value: selectedFilterOperation,
+                        availableValues: columnFilterOperations,
+                        onChange: handleFilterOperationChange,
+                        disabled: !filteringEnabled,
+                        getMessage: getMessage
+                      }) : null,
+                      content || React.createElement(EditorComponent, {
+                        value: filter ? filter.value : '',
+                        disabled: !filteringEnabled,
+                        getMessage: getMessage,
+                        onChange: handleFilterValueChange
+                      })
                     );
                   }
                 );
@@ -2933,7 +3248,7 @@ var TableFilterRow = function (_React$PureComponent) {
             );
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableRow',
@@ -2943,7 +3258,7 @@ var TableFilterRow = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(FilterRow, params);
+            return React.createElement(FilterRow, params);
           }
         )
       );
@@ -2954,13 +3269,18 @@ var TableFilterRow = function (_React$PureComponent) {
 
 TableFilterRow.propTypes = {
   rowHeight: any,
+  showFilterSelector: bool,
   messages: object,
   cellComponent: func.isRequired,
-  rowComponent: func.isRequired
+  rowComponent: func.isRequired,
+  filterSelectorComponent: func.isRequired,
+  iconComponent: func.isRequired,
+  editorComponent: func.isRequired
 };
 
 TableFilterRow.defaultProps = {
   rowHeight: undefined,
+  showFilterSelector: false,
   messages: {}
 };
 
@@ -2990,14 +3310,14 @@ var TableEditRow = function (_React$PureComponent) {
         return tableRowsWithEditing(tableBodyRows, editingRowIds, addedRows, rowHeight);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableEditRow',
           dependencies: pluginDependencies$13
         },
-        _(Getter, { name: 'tableBodyRows', computed: tableBodyRowsComputed }),
-        _(
+        React.createElement(Getter, { name: 'tableBodyRows', computed: tableBodyRowsComputed }),
+        React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -3008,7 +3328,7 @@ var TableEditRow = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref3, _ref4) {
@@ -3040,7 +3360,7 @@ var TableEditRow = function (_React$PureComponent) {
                     changeRow$$1(changeArgs);
                   }
                 };
-                return _(
+                return React.createElement(
                   TemplatePlaceholder,
                   {
                     name: 'valueEditor',
@@ -3052,7 +3372,7 @@ var TableEditRow = function (_React$PureComponent) {
                     }
                   },
                   function (content) {
-                    return _(
+                    return React.createElement(
                       EditCell,
                       _extends({}, params, {
                         row: row,
@@ -3069,7 +3389,7 @@ var TableEditRow = function (_React$PureComponent) {
             );
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableRow',
@@ -3079,7 +3399,7 @@ var TableEditRow = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(EditRow, _extends({}, params, {
+            return React.createElement(EditRow, _extends({}, params, {
               row: params.tableRow.row
             }));
           }
@@ -3129,14 +3449,14 @@ var TableEditColumn = function (_React$PureComponent) {
         return tableColumnsWithEditing(tableColumns, width);
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableEditColumn',
           dependencies: pluginDependencies$14
         },
-        _(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
-        _(
+        React.createElement(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
+        React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -3147,14 +3467,14 @@ var TableEditColumn = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (getters, actions) {
-                return _(
+                return React.createElement(
                   HeaderCell,
                   params,
-                  showAddCommand && _(Command, {
+                  showAddCommand && React.createElement(Command, {
                     id: 'add',
                     text: getMessage('addCommand'),
                     onExecute: function onExecute() {
@@ -3166,7 +3486,7 @@ var TableEditColumn = function (_React$PureComponent) {
             );
           }
         ),
-        _(
+        React.createElement(
           Template,
           {
             name: 'tableCell',
@@ -3177,7 +3497,7 @@ var TableEditColumn = function (_React$PureComponent) {
             }
           },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (getters, actions) {
@@ -3185,19 +3505,19 @@ var TableEditColumn = function (_React$PureComponent) {
                 var isNew = isAddedTableRow(params.tableRow);
                 var isEditing = isEdit || isNew;
                 var rowIds = [params.tableRow.rowId];
-                return _(
+                return React.createElement(
                   Cell,
                   _extends({}, params, {
                     row: params.tableRow.row
                   }),
-                  showEditCommand && !isEditing && _(Command, {
+                  showEditCommand && !isEditing && React.createElement(Command, {
                     id: 'edit',
                     text: getMessage('editCommand'),
                     onExecute: function onExecute() {
                       return actions.startEditRows({ rowIds: rowIds });
                     }
                   }),
-                  showDeleteCommand && !isEditing && _(Command, {
+                  showDeleteCommand && !isEditing && React.createElement(Command, {
                     id: 'delete',
                     text: getMessage('deleteCommand'),
                     onExecute: function onExecute() {
@@ -3205,7 +3525,7 @@ var TableEditColumn = function (_React$PureComponent) {
                       actions.commitDeletedRows({ rowIds: rowIds });
                     }
                   }),
-                  isEditing && _(Command, {
+                  isEditing && React.createElement(Command, {
                     id: 'commit',
                     text: getMessage('commitCommand'),
                     onExecute: function onExecute() {
@@ -3217,7 +3537,7 @@ var TableEditColumn = function (_React$PureComponent) {
                       }
                     }
                   }),
-                  isEditing && _(Command, {
+                  isEditing && React.createElement(Command, {
                     id: 'cancel',
                     text: getMessage('cancelCommand'),
                     onExecute: function onExecute() {
@@ -3271,15 +3591,36 @@ var TableColumnResizing = function (_React$PureComponent) {
       columnWidths: props.columnWidths || props.defaultColumnWidths,
       draftColumnWidths: []
     };
+    var _this$props = _this.props,
+        onColumnWidthsChange = _this$props.onColumnWidthsChange,
+        minColumnWidth = _this$props.minColumnWidth;
+
 
     var stateHelper = createStateHelper(_this, {
       columnWidths: function columnWidths() {
-        return _this.props.onColumnWidthsChange;
+        return onColumnWidthsChange;
       }
     });
 
-    _this.changeTableColumnWidth = stateHelper.applyReducer.bind(stateHelper, changeTableColumnWidth);
-    _this.draftTableColumnWidth = stateHelper.applyReducer.bind(stateHelper, draftTableColumnWidth);
+    _this.tableColumnsComputed = memoize(function (columnWidths) {
+      return function (_ref) {
+        var tableColumns = _ref.tableColumns;
+        return tableColumnsWithWidths(tableColumns, columnWidths);
+      };
+    });
+    _this.tableColumnsDraftComputed = memoize(function (draftColumnWidths) {
+      return function (_ref2) {
+        var tableColumns = _ref2.tableColumns;
+        return tableColumnsWithDraftWidths(tableColumns, draftColumnWidths);
+      };
+    });
+
+    _this.changeTableColumnWidth = stateHelper.applyReducer.bind(stateHelper, function (prevState, payload) {
+      return changeTableColumnWidth(prevState, _extends({}, payload, { minColumnWidth: minColumnWidth }));
+    });
+    _this.draftTableColumnWidth = stateHelper.applyReducer.bind(stateHelper, function (prevState, payload) {
+      return draftTableColumnWidth(prevState, _extends({}, payload, { minColumnWidth: minColumnWidth }));
+    });
     _this.cancelTableColumnWidthDraft = stateHelper.applyReducer.bind(stateHelper, cancelTableColumnWidthDraft);
     return _this;
   }
@@ -3299,22 +3640,21 @@ var TableColumnResizing = function (_React$PureComponent) {
           draftColumnWidths = _state.draftColumnWidths;
 
 
-      var tableColumnsComputed = function tableColumnsComputed(_ref) {
-        var tableColumns = _ref.tableColumns;
-        return tableColumnsWithWidths(tableColumns, columnWidths, draftColumnWidths);
-      };
+      var tableColumnsComputed = this.tableColumnsComputed(columnWidths);
+      var tableColumnsDraftComputed = this.tableColumnsDraftComputed(draftColumnWidths);
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableColumnResizing',
           dependencies: pluginDependencies$15
         },
-        _(Getter, { name: 'tableColumnResizingEnabled', value: true }),
-        _(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
-        _(Action, { name: 'changeTableColumnWidth', action: this.changeTableColumnWidth }),
-        _(Action, { name: 'draftTableColumnWidth', action: this.draftTableColumnWidth }),
-        _(Action, { name: 'cancelTableColumnWidthDraft', action: this.cancelTableColumnWidthDraft })
+        React.createElement(Getter, { name: 'tableColumnResizingEnabled', value: true }),
+        React.createElement(Getter, { name: 'tableColumns', computed: tableColumnsComputed }),
+        React.createElement(Getter, { name: 'tableColumns', computed: tableColumnsDraftComputed }),
+        React.createElement(Action, { name: 'changeTableColumnWidth', action: this.changeTableColumnWidth }),
+        React.createElement(Action, { name: 'draftTableColumnWidth', action: this.draftTableColumnWidth }),
+        React.createElement(Action, { name: 'cancelTableColumnWidthDraft', action: this.cancelTableColumnWidthDraft })
       );
     }
   }]);
@@ -3324,7 +3664,8 @@ var TableColumnResizing = function (_React$PureComponent) {
 TableColumnResizing.propTypes = {
   defaultColumnWidths: array,
   columnWidths: array,
-  onColumnWidthsChange: func
+  onColumnWidthsChange: func,
+  minColumnWidth: number.isRequired
 };
 
 TableColumnResizing.defaultProps = {
@@ -3353,27 +3694,27 @@ var PagingPanel = function (_React$PureComponent) {
 
       var getMessage = getMessagesFormatter(messages);
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'PagingPanel',
           dependencies: pluginDependencies$16
         },
-        _(
+        React.createElement(
           Template,
           { name: 'footer' },
-          _(TemplatePlaceholder, null),
-          _(
+          React.createElement(TemplatePlaceholder, null),
+          React.createElement(
             TemplateConnector,
             null,
             function (_ref, _ref2) {
-              var currentPage = _ref.currentPage,
+              var currentPage$$1 = _ref.currentPage,
                   pageSize = _ref.pageSize,
                   totalCount = _ref.totalCount;
               var setCurrentPage$$1 = _ref2.setCurrentPage,
                   setPageSize$$1 = _ref2.setPageSize;
-              return _(Pager, {
-                currentPage: currentPage,
+              return React.createElement(Pager, {
+                currentPage: currentPage$$1,
                 pageSize: pageSize,
                 totalCount: totalCount,
                 totalPages: pageCount(totalCount, pageSize),
@@ -3426,7 +3767,7 @@ var GroupingPanel = function (_React$PureComponent) {
       var getMessage = getMessagesFormatter(messages);
 
       var EmptyMessagePlaceholder = function EmptyMessagePlaceholder() {
-        return _(EmptyMessage, {
+        return React.createElement(EmptyMessage, {
           getMessage: getMessage
         });
       };
@@ -3436,7 +3777,7 @@ var GroupingPanel = function (_React$PureComponent) {
         var columnName = item.column.name;
 
 
-        return _(
+        return React.createElement(
           TemplateConnector,
           null,
           function (_ref2, _ref3) {
@@ -3449,7 +3790,7 @@ var GroupingPanel = function (_React$PureComponent) {
             var sortingEnabled = isColumnSortingEnabled && isColumnSortingEnabled(columnName);
             var groupingEnabled = isColumnGroupingEnabled && isColumnGroupingEnabled(columnName);
 
-            return _(Item, {
+            return React.createElement(Item, {
               item: item,
               sortingEnabled: sortingEnabled,
               groupingEnabled: groupingEnabled,
@@ -3469,16 +3810,16 @@ var GroupingPanel = function (_React$PureComponent) {
         );
       };
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'GroupingPanel',
           dependencies: [{ name: 'GroupingState' }, { name: 'Toolbar' }, { name: 'SortingState', optional: !showSortingControls }]
         },
-        _(
+        React.createElement(
           Template,
           { name: 'toolbarContent' },
-          _(
+          React.createElement(
             TemplateConnector,
             null,
             function (_ref5, _ref6) {
@@ -3490,7 +3831,7 @@ var GroupingPanel = function (_React$PureComponent) {
               var changeColumnGrouping$$1 = _ref6.changeColumnGrouping,
                   draftColumnGrouping$$1 = _ref6.draftColumnGrouping,
                   cancelColumnGroupingDraft$$1 = _ref6.cancelColumnGroupingDraft;
-              return _(Layout, {
+              return React.createElement(Layout, {
                 items: groupingPanelItems(columns, grouping, draftGrouping),
                 isColumnGroupingEnabled: isColumnGroupingEnabled,
                 draggingEnabled: draggingEnabled,
@@ -3503,7 +3844,7 @@ var GroupingPanel = function (_React$PureComponent) {
               });
             }
           ),
-          _(TemplatePlaceholder, null)
+          React.createElement(TemplatePlaceholder, null)
         )
       );
     }
@@ -3542,35 +3883,43 @@ var DataTypeProvider = function (_React$PureComponent) {
       var _props = this.props,
           columnNames = _props.for,
           Formatter = _props.formatterComponent,
-          Editor = _props.editorComponent;
+          Editor = _props.editorComponent,
+          availableFilterOperations = _props.availableFilterOperations;
 
-      return _(
+
+      var getAvailableFilterOperationsComputed = function getAvailableFilterOperationsComputed(_ref) {
+        var getAvailableFilterOperations = _ref.getAvailableFilterOperations;
+        return getAvailableFilterOperationsGetter(getAvailableFilterOperations, availableFilterOperations, columnNames);
+      };
+
+      return React.createElement(
         Plugin,
         { name: 'DataTypeProvider' },
-        Formatter ? _(
+        React.createElement(Getter, { name: 'getAvailableFilterOperations', computed: getAvailableFilterOperationsComputed }),
+        Formatter ? React.createElement(
           Template,
           {
             name: 'valueFormatter',
-            predicate: function predicate(_ref) {
-              var column = _ref.column;
-              return columnNames.includes(column.name);
-            }
-          },
-          function (params) {
-            return _(Formatter, params);
-          }
-        ) : null,
-        Editor ? _(
-          Template,
-          {
-            name: 'valueEditor',
             predicate: function predicate(_ref2) {
               var column = _ref2.column;
               return columnNames.includes(column.name);
             }
           },
           function (params) {
-            return _(Editor, params);
+            return React.createElement(Formatter, params);
+          }
+        ) : null,
+        Editor ? React.createElement(
+          Template,
+          {
+            name: 'valueEditor',
+            predicate: function predicate(_ref3) {
+              var column = _ref3.column;
+              return columnNames.includes(column.name);
+            }
+          },
+          function (params) {
+            return React.createElement(Editor, params);
           }
         ) : null
       );
@@ -3582,12 +3931,14 @@ var DataTypeProvider = function (_React$PureComponent) {
 DataTypeProvider.propTypes = {
   for: arrayOf(string).isRequired,
   formatterComponent: func,
-  editorComponent: func
+  editorComponent: func,
+  availableFilterOperations: arrayOf(string)
 };
 
 DataTypeProvider.defaultProps = {
   formatterComponent: undefined,
-  editorComponent: undefined
+  editorComponent: undefined,
+  availableFilterOperations: undefined
 };
 
 var pluginDependencies$17 = [{ name: 'Table' }];
@@ -3610,12 +3961,14 @@ var TableColumnVisibility = function (_React$PureComponent) {
 
     var _this = possibleConstructorReturn(this, (TableColumnVisibility.__proto__ || Object.getPrototypeOf(TableColumnVisibility)).call(this, props));
 
+    var onHiddenColumnNamesChange = _this.props.onHiddenColumnNamesChange;
+
     _this.state = {
       hiddenColumnNames: props.hiddenColumnNames || props.defaultHiddenColumnNames
     };
     var stateHelper = createStateHelper(_this, {
       hiddenColumnNames: function hiddenColumnNames() {
-        return _this.props.onHiddenColumnNamesChange;
+        return onHiddenColumnNamesChange;
       }
     });
 
@@ -3644,32 +3997,32 @@ var TableColumnVisibility = function (_React$PureComponent) {
           columnTogglingEnabled = _props2.columnTogglingEnabled;
 
 
-      return _(
+      return React.createElement(
         Plugin,
         {
           name: 'TableColumnVisibility',
           dependencies: pluginDependencies$17
         },
-        _(Getter, { name: 'hiddenColumnNames', value: hiddenColumnNames }),
-        _(Getter, { name: 'tableColumns', computed: visibleTableColumnsComputed }),
-        _(Getter, {
+        React.createElement(Getter, { name: 'hiddenColumnNames', value: hiddenColumnNames }),
+        React.createElement(Getter, { name: 'tableColumns', computed: visibleTableColumnsComputed }),
+        React.createElement(Getter, {
           name: 'isColumnTogglingEnabled',
           value: columnExtensionValueGetter$4(columnExtensions, columnTogglingEnabled)
         }),
-        _(Action, {
+        React.createElement(Action, {
           name: 'toggleColumnVisibility',
           action: this.toggleColumnVisibility
         }),
-        _(
+        React.createElement(
           Template,
           { name: 'table' },
           function (params) {
-            return _(
+            return React.createElement(
               TemplateConnector,
               null,
               function (_ref2) {
                 var tableColumns = _ref2.tableColumns;
-                return tableDataColumnsExist(tableColumns) ? _(TemplatePlaceholder, null) : _(EmptyMessage, _extends({
+                return tableDataColumnsExist(tableColumns) ? React.createElement(TemplatePlaceholder, null) : React.createElement(EmptyMessage, _extends({
                   getMessage: getMessage
                 }, params));
               }
@@ -3699,6 +4052,476 @@ TableColumnVisibility.defaultProps = {
   messages: {},
   columnExtensions: undefined,
   columnTogglingEnabled: true
+};
+
+var Toolbar = function (_React$PureComponent) {
+  inherits(Toolbar, _React$PureComponent);
+
+  function Toolbar() {
+    classCallCheck(this, Toolbar);
+    return possibleConstructorReturn(this, (Toolbar.__proto__ || Object.getPrototypeOf(Toolbar)).apply(this, arguments));
+  }
+
+  createClass(Toolbar, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          Root = _props.rootComponent,
+          FlexibleSpaceComponent = _props.flexibleSpaceComponent;
+
+      return React.createElement(
+        Plugin,
+        {
+          name: 'Toolbar'
+        },
+        React.createElement(
+          Template,
+          { name: 'header' },
+          React.createElement(
+            Root,
+            null,
+            React.createElement(TemplatePlaceholder, { name: 'toolbarContent' })
+          ),
+          React.createElement(TemplatePlaceholder, null)
+        ),
+        React.createElement(
+          Template,
+          { name: 'toolbarContent' },
+          React.createElement(FlexibleSpaceComponent, null)
+        )
+      );
+    }
+  }]);
+  return Toolbar;
+}(React.PureComponent);
+
+Toolbar.propTypes = {
+  rootComponent: func.isRequired,
+  flexibleSpaceComponent: func.isRequired
+};
+
+var TreeDataState = function (_React$PureComponent) {
+  inherits(TreeDataState, _React$PureComponent);
+
+  function TreeDataState(props) {
+    classCallCheck(this, TreeDataState);
+
+    var _this = possibleConstructorReturn(this, (TreeDataState.__proto__ || Object.getPrototypeOf(TreeDataState)).call(this, props));
+
+    var onExpandedRowIdsChange = _this.props.onExpandedRowIdsChange;
+
+
+    _this.state = {
+      expandedRowIds: props.expandedRowIds || props.defaultExpandedRowIds
+    };
+
+    var stateHelper = createStateHelper(_this, {
+      expandedRowIds: function expandedRowIds() {
+        return onExpandedRowIdsChange;
+      }
+    });
+
+    _this.toggleRowExpanded = stateHelper.applyFieldReducer.bind(stateHelper, 'expandedRowIds', toggleRowExpanded);
+    return _this;
+  }
+
+  createClass(TreeDataState, [{
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      var expandedRowIds = nextProps.expandedRowIds;
+
+      this.setState(_extends({}, expandedRowIds !== undefined ? { expandedRowIds: expandedRowIds } : null));
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var expandedRowIds = this.state.expandedRowIds;
+
+
+      return React.createElement(
+        Plugin,
+        {
+          name: 'TreeDataState'
+        },
+        React.createElement(Getter, { name: 'expandedRowIds', value: expandedRowIds }),
+        ' ',
+        React.createElement(Action, { name: 'toggleRowExpanded', action: this.toggleRowExpanded })
+      );
+    }
+  }]);
+  return TreeDataState;
+}(React.PureComponent);
+
+TreeDataState.propTypes = {
+  expandedRowIds: array,
+  defaultExpandedRowIds: array,
+  onExpandedRowIdsChange: func
+};
+
+TreeDataState.defaultProps = {
+  expandedRowIds: undefined,
+  defaultExpandedRowIds: [],
+  onExpandedRowIdsChange: undefined
+};
+
+var pluginDependencies$18 = [{ name: 'TreeDataState' }];
+
+var expandedTreeRowsComputed = function expandedTreeRowsComputed(_ref) {
+  var rows = _ref.rows,
+      getRowId = _ref.getRowId,
+      expandedRowIds = _ref.expandedRowIds;
+  return expandedTreeRows(rows, getRowId, expandedRowIds);
+};
+var getRowIdComputed$1 = function getRowIdComputed(_ref2) {
+  var getRowId = _ref2.getRowId,
+      rows = _ref2.rows;
+  return customTreeRowIdGetter(getRowId, rows);
+};
+var getRowLevelKeyComputed = function getRowLevelKeyComputed(_ref3) {
+  var getRowLevelKey = _ref3.getRowLevelKey,
+      rows = _ref3.rows;
+  return customTreeRowLevelKeyGetter(getRowLevelKey, rows);
+};
+var isTreeRowLeafComputed = function isTreeRowLeafComputed(_ref4) {
+  var rows = _ref4.rows;
+  return isTreeRowLeafGetter(rows);
+};
+var getTreeRowLevelComputed = function getTreeRowLevelComputed(_ref5) {
+  var rows = _ref5.rows;
+  return getTreeRowLevelGetter(rows);
+};
+var collapsedTreeRowsGetterComputed = function collapsedTreeRowsGetterComputed(_ref6) {
+  var rows = _ref6.rows,
+      getCollapsedRows = _ref6.getCollapsedRows;
+  return collapsedTreeRowsGetter(getCollapsedRows, rows);
+};
+var unwrappedTreeRowsComputed = function unwrappedTreeRowsComputed(_ref7) {
+  var rows = _ref7.rows;
+  return unwrappedCustomTreeRows(rows);
+};
+
+var CustomTreeData = function (_React$PureComponent) {
+  inherits(CustomTreeData, _React$PureComponent);
+
+  function CustomTreeData() {
+    classCallCheck(this, CustomTreeData);
+    return possibleConstructorReturn(this, (CustomTreeData.__proto__ || Object.getPrototypeOf(CustomTreeData)).apply(this, arguments));
+  }
+
+  createClass(CustomTreeData, [{
+    key: 'render',
+    value: function render() {
+      var getChildRows = this.props.getChildRows;
+
+      var treeRowsComputed = function treeRowsComputed(_ref8) {
+        var rows = _ref8.rows;
+        return customTreeRowsWithMeta(rows, getChildRows);
+      };
+
+      return React.createElement(
+        Plugin,
+        {
+          name: 'CustomTreeData',
+          dependencies: pluginDependencies$18
+        },
+        React.createElement(Getter, { name: 'rows', computed: treeRowsComputed }),
+        React.createElement(Getter, { name: 'getRowId', computed: getRowIdComputed$1 }),
+        React.createElement(Getter, { name: 'getRowLevelKey', computed: getRowLevelKeyComputed }),
+        React.createElement(Getter, { name: 'isTreeRowLeaf', computed: isTreeRowLeafComputed }),
+        React.createElement(Getter, { name: 'getTreeRowLevel', computed: getTreeRowLevelComputed }),
+        React.createElement(Getter, { name: 'rows', computed: expandedTreeRowsComputed }),
+        React.createElement(Getter, { name: 'getCollapsedRows', computed: collapsedTreeRowsGetterComputed }),
+        React.createElement(Getter, { name: 'rows', computed: unwrappedTreeRowsComputed })
+      );
+    }
+  }]);
+  return CustomTreeData;
+}(React.PureComponent);
+
+CustomTreeData.propTypes = {
+  getChildRows: func.isRequired
+};
+
+var TableTreeColumn = function (_React$PureComponent) {
+  inherits(TableTreeColumn, _React$PureComponent);
+
+  function TableTreeColumn() {
+    classCallCheck(this, TableTreeColumn);
+    return possibleConstructorReturn(this, (TableTreeColumn.__proto__ || Object.getPrototypeOf(TableTreeColumn)).apply(this, arguments));
+  }
+
+  createClass(TableTreeColumn, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          forColumnName = _props.for,
+          showSelectionControls = _props.showSelectionControls,
+          showSelectAll = _props.showSelectAll,
+          Indent = _props.indentComponent,
+          ExpandButton = _props.expandButtonComponent,
+          Checkbox = _props.checkboxComponent,
+          Content = _props.contentComponent,
+          Cell = _props.cellComponent;
+
+      return React.createElement(
+        Plugin,
+        {
+          name: 'TableTreeColumn',
+          dependencies: [{ name: 'DataTypeProvider', optional: true }, { name: 'TreeDataState' }, { name: 'SelectionState', optional: !showSelectionControls }, { name: 'IntegratedSelection', optional: !showSelectAll }, { name: 'Table' }, { name: 'TableHeaderRow', optional: true }]
+        },
+        React.createElement(
+          Template,
+          {
+            name: 'tableHeaderCellBefore',
+            predicate: function predicate(_ref) {
+              var column = _ref.column;
+              return column.name === forColumnName;
+            }
+          },
+          React.createElement(ExpandButton, {
+            visible: false
+          }),
+          showSelectionControls && showSelectAll && React.createElement(
+            TemplateConnector,
+            null,
+            function (_ref2, _ref3) {
+              var selectAllAvailable = _ref2.selectAllAvailable,
+                  allSelected$$1 = _ref2.allSelected,
+                  someSelected$$1 = _ref2.someSelected;
+              var toggleSelectAll = _ref3.toggleSelectAll;
+              return React.createElement(Checkbox, {
+                disabled: !selectAllAvailable,
+                checked: allSelected$$1,
+                indeterminate: someSelected$$1,
+                onChange: toggleSelectAll
+              });
+            }
+          )
+        ),
+        React.createElement(
+          Template,
+          {
+            name: 'tableCell',
+            predicate: function predicate(_ref4) {
+              var tableRow = _ref4.tableRow,
+                  tableColumn = _ref4.tableColumn;
+              return isTreeTableCell(tableRow, tableColumn, forColumnName);
+            }
+          },
+          function (params) {
+            return React.createElement(
+              TemplateConnector,
+              null,
+              function (_ref5, _ref6) {
+                var getCollapsedRows = _ref5.getCollapsedRows,
+                    expandedRowIds = _ref5.expandedRowIds,
+                    selection = _ref5.selection,
+                    isTreeRowLeaf = _ref5.isTreeRowLeaf,
+                    getTreeRowLevel = _ref5.getTreeRowLevel,
+                    getCellValue = _ref5.getCellValue;
+                var toggleRowExpanded$$1 = _ref6.toggleRowExpanded,
+                    toggleSelection$$1 = _ref6.toggleSelection;
+                var _params$tableRow = params.tableRow,
+                    row = _params$tableRow.row,
+                    rowId = _params$tableRow.rowId;
+
+                var columnName = params.tableColumn.column.name;
+                var value = getCellValue(row, columnName);
+                var collapsedRows = getCollapsedRows(row);
+                return React.createElement(
+                  TemplatePlaceholder,
+                  {
+                    name: 'valueFormatter',
+                    params: {
+                      row: row,
+                      column: params.tableColumn.column,
+                      value: value
+                    }
+                  },
+                  function (content) {
+                    return React.createElement(
+                      Cell,
+                      _extends({}, params, {
+                        row: row,
+                        column: params.tableColumn.column,
+                        value: value
+                      }),
+                      React.createElement(Indent, {
+                        level: getTreeRowLevel(row)
+                      }),
+                      React.createElement(ExpandButton, {
+                        visible: collapsedRows ? !!collapsedRows.length : !isTreeRowLeaf(row),
+                        expanded: expandedRowIds.indexOf(rowId) > -1,
+                        onToggle: function onToggle() {
+                          return toggleRowExpanded$$1({ rowId: rowId });
+                        }
+                      }),
+                      showSelectionControls && React.createElement(Checkbox, {
+                        disabled: false,
+                        checked: selection.indexOf(rowId) > -1,
+                        indeterminate: false,
+                        onChange: function onChange() {
+                          return toggleSelection$$1({ rowIds: [rowId] });
+                        }
+                      }),
+                      React.createElement(
+                        Content,
+                        null,
+                        content || value
+                      )
+                    );
+                  }
+                );
+              }
+            );
+          }
+        )
+      );
+    }
+  }]);
+  return TableTreeColumn;
+}(React.PureComponent);
+
+TableTreeColumn.propTypes = {
+  for: string.isRequired,
+  showSelectionControls: bool,
+  showSelectAll: bool,
+  cellComponent: func.isRequired,
+  indentComponent: func.isRequired,
+  expandButtonComponent: func.isRequired,
+  checkboxComponent: func.isRequired,
+  contentComponent: func.isRequired
+};
+
+TableTreeColumn.defaultProps = {
+  showSelectionControls: false,
+  showSelectAll: false
+};
+
+var SearchState = function (_React$PureComponent) {
+  inherits(SearchState, _React$PureComponent);
+
+  function SearchState(props) {
+    classCallCheck(this, SearchState);
+
+    var _this = possibleConstructorReturn(this, (SearchState.__proto__ || Object.getPrototypeOf(SearchState)).call(this, props));
+
+    var onValueChange = _this.props.onValueChange;
+
+
+    _this.state = {
+      value: props.value || props.defaultValue
+    };
+    var stateHelper = createStateHelper(_this, {
+      value: function value() {
+        return onValueChange;
+      }
+    });
+
+    _this.changeValue = stateHelper.applyFieldReducer.bind(stateHelper, 'value', changeSearchValue);
+    return _this;
+  }
+
+  createClass(SearchState, [{
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      var value = nextProps.value;
+
+      this.setState(_extends({}, value !== undefined ? { value: value } : null));
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var value = this.state.value;
+
+      var filterExpressionComputed = function filterExpressionComputed(_ref) {
+        var filterExpression$$1 = _ref.filterExpression,
+            columns = _ref.columns;
+        return searchFilterExpression(value, columns, filterExpression$$1);
+      };
+
+      return React.createElement(
+        Plugin,
+        {
+          name: 'SearchState'
+        },
+        React.createElement(Getter, { name: 'filterExpression', computed: filterExpressionComputed }),
+        React.createElement(Getter, { name: 'searchValue', value: value }),
+        React.createElement(Action, { name: 'changeSearchValue', action: this.changeValue })
+      );
+    }
+  }]);
+  return SearchState;
+}(React.PureComponent);
+
+SearchState.propTypes = {
+  value: string,
+  defaultValue: string,
+  onValueChange: func
+};
+
+SearchState.defaultProps = {
+  value: undefined,
+  defaultValue: '',
+  onValueChange: undefined
+};
+
+var pluginDependencies$19 = [{ name: 'Toolbar' }, { name: 'SearchState' }];
+
+var SearchPanel = function (_React$PureComponent) {
+  inherits(SearchPanel, _React$PureComponent);
+
+  function SearchPanel() {
+    classCallCheck(this, SearchPanel);
+    return possibleConstructorReturn(this, (SearchPanel.__proto__ || Object.getPrototypeOf(SearchPanel)).apply(this, arguments));
+  }
+
+  createClass(SearchPanel, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          Input = _props.inputComponent,
+          messages = _props.messages;
+
+      var getMessage = getMessagesFormatter(messages);
+
+      return React.createElement(
+        Plugin,
+        {
+          name: 'SearchPanel',
+          dependencies: pluginDependencies$19
+        },
+        React.createElement(
+          Template,
+          { name: 'toolbarContent' },
+          React.createElement(TemplatePlaceholder, null),
+          React.createElement(
+            TemplateConnector,
+            null,
+            function (_ref, _ref2) {
+              var searchValue = _ref.searchValue;
+              var changeSearchValue$$1 = _ref2.changeSearchValue;
+              return React.createElement(Input, {
+                value: searchValue,
+                onValueChange: changeSearchValue$$1,
+                getMessage: getMessage
+              });
+            }
+          )
+        )
+      );
+    }
+  }]);
+  return SearchPanel;
+}(React.PureComponent);
+
+SearchPanel.propTypes = {
+  inputComponent: func.isRequired,
+  messages: object
+};
+
+SearchPanel.defaultProps = {
+  messages: {}
 };
 
 /* globals requestAnimationFrame */
@@ -3778,10 +4601,12 @@ var TableLayout = function (_React$PureComponent) {
   }, {
     key: 'processAnimationFrame',
     value: function processAnimationFrame() {
+      var animationComponentState = this.state.animationState;
+
       this.animations = filterActiveAnimations(this.animations);
 
       if (!this.animations.size) {
-        if (this.state.animationState.size) {
+        if (animationComponentState.size) {
           this.setState({ animationState: new Map() });
         }
         return;
@@ -3807,9 +4632,10 @@ var TableLayout = function (_React$PureComponent) {
         return acc + width;
       }, 0);
 
-      return _(Layout, _extends({}, restProps, {
+      return React.createElement(Layout, _extends({}, restProps, {
         columns: columns,
-        minWidth: minWidth
+        minWidth: minWidth,
+        minColumnWidth: minColumnWidth
       }));
     }
   }]);
@@ -3836,11 +4662,11 @@ var ColumnGroup = function (_React$PureComponent) {
       var columns = this.props.columns;
 
 
-      return _(
+      return React.createElement(
         'colgroup',
         null,
         columns.map(function (column) {
-          return _('col', {
+          return React.createElement('col', {
             key: column.key,
             style: column.width !== undefined ? { width: column.width + 'px' } : null
           });
@@ -3853,6 +4679,317 @@ var ColumnGroup = function (_React$PureComponent) {
 
 ColumnGroup.propTypes = {
   columns: array.isRequired
+};
+
+var AUTO_HEIGHT = 'auto';
+
+var VirtualTableLayout = function (_React$PureComponent) {
+  inherits(VirtualTableLayout, _React$PureComponent);
+
+  function VirtualTableLayout(props) {
+    classCallCheck(this, VirtualTableLayout);
+
+    var _this = possibleConstructorReturn(this, (VirtualTableLayout.__proto__ || Object.getPrototypeOf(VirtualTableLayout)).call(this, props));
+
+    _this.state = {
+      rowHeights: new Map(),
+      viewportTop: 0,
+      viewportLeft: 0
+    };
+
+    _this.rowRefs = new Map();
+    _this.registerRowRef = _this.registerRowRef.bind(_this);
+    _this.getRowHeight = _this.getRowHeight.bind(_this);
+    _this.updateViewport = _this.updateViewport.bind(_this);
+    return _this;
+  }
+
+  createClass(VirtualTableLayout, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      this.storeRowHeights();
+    }
+  }, {
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      var _props = this.props,
+          headerRows = _props.headerRows,
+          bodyRows = _props.bodyRows;
+
+      if (headerRows !== nextProps.headerRows || bodyRows !== nextProps.bodyRows) {
+        var prevRowHeight = this.state.rowHeights;
+
+        var rowHeights = [].concat(toConsumableArray(nextProps.headerRows), toConsumableArray(nextProps.bodyRows)).reduce(function (acc, row) {
+          var rowHeight = prevRowHeight.get(row.key);
+          if (rowHeight !== undefined) {
+            acc.set(row.key, rowHeight);
+          }
+          return acc;
+        }, new Map());
+        this.setState({ rowHeights: rowHeights });
+      }
+    }
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate() {
+      this.storeRowHeights();
+    }
+  }, {
+    key: 'getRowHeight',
+    value: function getRowHeight(row) {
+      var rowHeights = this.state.rowHeights;
+      var estimatedRowHeight = this.props.estimatedRowHeight;
+
+      var storedHeight = rowHeights.get(row.key);
+      if (storedHeight !== undefined) return storedHeight;
+      if (row.height) return row.height;
+      return estimatedRowHeight;
+    }
+  }, {
+    key: 'storeRowHeights',
+    value: function storeRowHeights() {
+      var _this2 = this;
+
+      var rowsWithChangedHeights = Array.from(this.rowRefs.entries())
+      // eslint-disable-next-line react/no-find-dom-node
+      .map(function (_ref) {
+        var _ref2 = slicedToArray(_ref, 2),
+            row = _ref2[0],
+            ref = _ref2[1];
+
+        return [row, findDOMNode(ref)];
+      }).filter(function (_ref3) {
+        var _ref4 = slicedToArray(_ref3, 2),
+            node$$1 = _ref4[1];
+
+        return !!node$$1;
+      }).map(function (_ref5) {
+        var _ref6 = slicedToArray(_ref5, 2),
+            row = _ref6[0],
+            node$$1 = _ref6[1];
+
+        return [row, node$$1.getBoundingClientRect().height];
+      }).filter(function (_ref7) {
+        var _ref8 = slicedToArray(_ref7, 2),
+            row = _ref8[0],
+            height = _ref8[1];
+
+        return height !== _this2.getRowHeight(row);
+      });
+
+      if (rowsWithChangedHeights.length) {
+        var rowHeights = this.state.rowHeights;
+
+        rowsWithChangedHeights.forEach(function (_ref9) {
+          var _ref10 = slicedToArray(_ref9, 2),
+              row = _ref10[0],
+              height = _ref10[1];
+
+          return rowHeights.set(row.key, height);
+        });
+
+        this.setState({
+          rowHeights: rowHeights
+        });
+      }
+    }
+  }, {
+    key: 'registerRowRef',
+    value: function registerRowRef(row, ref) {
+      if (ref === null) {
+        this.rowRefs.delete(row);
+      } else {
+        this.rowRefs.set(row, ref);
+      }
+    }
+  }, {
+    key: 'updateViewport',
+    value: function updateViewport(e) {
+      var node$$1 = e.target;
+
+      // NOTE: prevent nested scroll to update viewport
+      if (node$$1 !== e.currentTarget) {
+        return;
+      }
+
+      // NOTE: prevent iOS to flicker in bounces
+      if (node$$1.scrollTop < 0 || node$$1.scrollLeft < 0 || node$$1.scrollLeft + node$$1.clientWidth > Math.max(node$$1.scrollWidth, node$$1.clientWidth) || node$$1.scrollTop + node$$1.clientHeight > Math.max(node$$1.scrollHeight, node$$1.clientHeight)) {
+        return;
+      }
+
+      this.setState({
+        viewportTop: node$$1.scrollTop,
+        viewportLeft: node$$1.scrollLeft
+      });
+    }
+  }, {
+    key: 'renderRowsBlock',
+    value: function renderRowsBlock(collapsedGrid, Table, Body) {
+      var _this3 = this;
+
+      var _props2 = this.props,
+          minWidth = _props2.minWidth,
+          Row = _props2.rowComponent,
+          Cell = _props2.cellComponent;
+
+
+      return React.createElement(
+        Table,
+        {
+          style: { minWidth: minWidth + 'px' }
+        },
+        React.createElement(ColumnGroup, {
+          columns: collapsedGrid.columns
+        }),
+        React.createElement(
+          Body,
+          null,
+          collapsedGrid.rows.map(function (visibleRow) {
+            var row = visibleRow.row,
+                _visibleRow$cells = visibleRow.cells,
+                cells = _visibleRow$cells === undefined ? [] : _visibleRow$cells;
+
+            return React.createElement(
+              RefHolder,
+              {
+                key: row.key,
+                ref: function ref(_ref11) {
+                  return _this3.registerRowRef(row, _ref11);
+                }
+              },
+              React.createElement(
+                Row,
+                {
+                  tableRow: row,
+                  style: row.height !== undefined ? { height: row.height + 'px' } : undefined
+                },
+                cells.map(function (cell) {
+                  var column = cell.column;
+
+                  return React.createElement(Cell, {
+                    key: column.key,
+                    tableRow: row,
+                    tableColumn: column,
+                    style: column.animationState,
+                    colSpan: cell.colSpan
+                  });
+                })
+              )
+            );
+          })
+        )
+      );
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this4 = this;
+
+      var _props3 = this.props,
+          headerRows = _props3.headerRows,
+          bodyRows = _props3.bodyRows,
+          columns = _props3.columns,
+          minColumnWidth = _props3.minColumnWidth,
+          propHeight = _props3.height,
+          Container = _props3.containerComponent,
+          HeadTable = _props3.headTableComponent,
+          Table = _props3.tableComponent,
+          Head = _props3.headComponent,
+          Body = _props3.bodyComponent,
+          getCellColSpan = _props3.getCellColSpan;
+      var _state = this.state,
+          viewportLeft = _state.viewportLeft,
+          viewportTop = _state.viewportTop;
+
+
+      return React.createElement(
+        Sizer,
+        {
+          style: {
+            display: 'flex',
+            flex: 'auto'
+          }
+        },
+        function (_ref12) {
+          var width = _ref12.width,
+              intrisicHeight = _ref12.height;
+
+          var height = propHeight === AUTO_HEIGHT ? intrisicHeight : propHeight;
+          var headHeight = headerRows.reduce(function (acc, row) {
+            return acc + _this4.getRowHeight(row);
+          }, 0);
+          var getColSpan = function getColSpan(tableRow, tableColumn) {
+            return getCellColSpan({ tableRow: tableRow, tableColumn: tableColumn, tableColumns: columns });
+          };
+          var collapsedHeaderGrid = getCollapsedGrid({
+            rows: headerRows,
+            columns: columns,
+            top: 0,
+            left: viewportLeft,
+            width: width,
+            height: headHeight,
+            getColumnWidth: function getColumnWidth(column) {
+              return column.width || minColumnWidth;
+            },
+            getRowHeight: _this4.getRowHeight,
+            getColSpan: getColSpan
+          });
+          var collapsedBodyGrid = getCollapsedGrid({
+            rows: bodyRows,
+            columns: columns,
+            top: viewportTop,
+            left: viewportLeft,
+            width: width,
+            height: height - headHeight,
+            getColumnWidth: function getColumnWidth(column) {
+              return column.width || minColumnWidth;
+            },
+            getRowHeight: _this4.getRowHeight,
+            getColSpan: getColSpan
+          });
+
+          return React.createElement(
+            Container,
+            {
+              style: _extends({}, propHeight === AUTO_HEIGHT ? null : { height: height + 'px' }),
+              onScroll: _this4.updateViewport
+            },
+            !!headerRows.length && _this4.renderRowsBlock(collapsedHeaderGrid, HeadTable, Head),
+            _this4.renderRowsBlock(collapsedBodyGrid, Table, Body)
+          );
+        }
+      );
+    }
+  }]);
+  return VirtualTableLayout;
+}(React.PureComponent);
+
+VirtualTableLayout.propTypes = {
+  minWidth: number.isRequired,
+  minColumnWidth: number.isRequired,
+  height: oneOfType([number, oneOf(['auto'])]).isRequired,
+  headerRows: array,
+  bodyRows: array.isRequired,
+  columns: array.isRequired,
+  cellComponent: func.isRequired,
+  rowComponent: func.isRequired,
+  bodyComponent: func.isRequired,
+  headComponent: func,
+  tableComponent: func.isRequired,
+  headTableComponent: func,
+  containerComponent: func.isRequired,
+  estimatedRowHeight: number.isRequired,
+  getCellColSpan: func.isRequired
+};
+
+VirtualTableLayout.defaultProps = {
+  headerRows: [],
+  headComponent: function headComponent() {
+    return null;
+  },
+  headTableComponent: function headTableComponent() {
+    return null;
+  }
 };
 
 var getColumnStyle = function getColumnStyle(_ref) {
@@ -3880,22 +5017,26 @@ var RowLayout = function (_React$PureComponent) {
           row = _props.row,
           columns = _props.columns,
           Row = _props.rowComponent,
-          Cell = _props.cellComponent;
+          Cell = _props.cellComponent,
+          getCellColSpan = _props.getCellColSpan;
 
+      var getColSpan = function getColSpan(tableRow, tableColumn) {
+        return getCellColSpan({ tableRow: tableRow, tableColumn: tableColumn, tableColumns: columns });
+      };
 
-      return _(
+      return React.createElement(
         Row,
         {
           tableRow: row,
           style: getRowStyle({ row: row })
         },
-        getTableRowColumnsWithColSpan(columns, row.colSpanStart).map(function (column) {
-          return _(Cell, {
+        columns.map(function (column) {
+          return React.createElement(Cell, {
             key: column.key,
             tableRow: row,
             tableColumn: column,
             style: getColumnStyle({ column: column }),
-            colSpan: column.colSpan
+            colSpan: getColSpan(row, column)
           });
         })
       );
@@ -3905,348 +5046,11 @@ var RowLayout = function (_React$PureComponent) {
 }(React.PureComponent);
 
 RowLayout.propTypes = {
-  row: object.isRequired,
+  row: any.isRequired,
   columns: array.isRequired,
   rowComponent: func.isRequired,
-  cellComponent: func.isRequired
-};
-
-var OVERSCAN = 3;
-
-var STUB_TYPE = 'stub';
-var VISIBLE_TYPE = 'visible';
-var OVERSCAN_TYPE = 'overscan';
-
-var STARTING_KEY = 'starting';
-var ENDING_KEY = 'ending';
-
-var getVisibleRows = function getVisibleRows(rows, viewportTop, viewportHeight, getRowHeight) {
-  var result = [];
-
-  var viewportBottom = viewportTop + viewportHeight;
-  var topPosition = 0;
-
-  var _loop = function _loop(_i) {
-    var row = rows[_i];
-    var lastIndex = result.length - 1;
-    var last = result[lastIndex];
-
-    var height = getRowHeight(row);
-    var bottomPosition = topPosition + height;
-    if (topPosition >= viewportTop && topPosition < viewportBottom || bottomPosition > viewportTop && bottomPosition <= viewportBottom || topPosition < viewportTop && bottomPosition > viewportBottom) {
-      if (last && last.type === STUB_TYPE) {
-        rows.slice(Math.max(0, _i - OVERSCAN), _i).forEach(function (overscanRow) {
-          var overscanRowSize = getRowHeight(overscanRow);
-          last.height -= overscanRowSize;
-          result.push({ type: OVERSCAN_TYPE, height: overscanRowSize, row: overscanRow });
-        });
-        if (last.height === 0) {
-          result.splice(lastIndex, 1);
-        }
-      }
-      result.push({ type: VISIBLE_TYPE, height: height, row: row });
-    } else if (last && last.type === STUB_TYPE) {
-      last.height += height;
-    } else if (_i > 0) {
-      rows.slice(_i, _i + OVERSCAN).forEach(function (overscanRow) {
-        var overscanRowSize = getRowHeight(overscanRow);
-        result.push({ type: OVERSCAN_TYPE, height: overscanRowSize, row: overscanRow });
-      });
-      _i += OVERSCAN - 1;
-      if (_i < rows.length) {
-        result.push({ type: STUB_TYPE, key: ENDING_KEY, height: 0 });
-      }
-    } else {
-      result.push({ type: STUB_TYPE, key: STARTING_KEY, height: height });
-    }
-    topPosition = bottomPosition;
-    i = _i;
-  };
-
-  for (var i = 0; i < rows.length; i += 1) {
-    _loop(i);
-  }
-
-  return result;
-};
-
-var getRowPosition = function getRowPosition(visibleRows, index) {
-  return visibleRows.slice(0, index).reduce(function (acc, row) {
-    return acc + row.height;
-  }, 0);
-};
-
-var firstVisibleRowOffset = function firstVisibleRowOffset(prevVisibleRows, visibleRows) {
-  var firstVisibleRowIndex = visibleRows.findIndex(function (row) {
-    return row.type === VISIBLE_TYPE;
-  });
-  if (firstVisibleRowIndex === -1) return 0;
-
-  var firstVisibleRow = visibleRows[firstVisibleRowIndex].row;
-  var prevIndex = prevVisibleRows.findIndex(function (row) {
-    return row.row === firstVisibleRow;
-  });
-  if (prevIndex === -1) return 0;
-
-  var position = getRowPosition(visibleRows, firstVisibleRowIndex);
-  var prevPosition = getRowPosition(prevVisibleRows, prevIndex);
-  return position - prevPosition;
-};
-
-var VirtualTableLayout = function (_React$PureComponent) {
-  inherits(VirtualTableLayout, _React$PureComponent);
-
-  function VirtualTableLayout(props) {
-    classCallCheck(this, VirtualTableLayout);
-
-    var _this = possibleConstructorReturn(this, (VirtualTableLayout.__proto__ || Object.getPrototypeOf(VirtualTableLayout)).call(this, props));
-
-    _this.state = {
-      rowHeights: new Map(),
-      viewportTop: 0
-    };
-
-    _this.rowRefs = new Map();
-    _this.updateViewport = _this.updateViewport.bind(_this);
-    _this.registerRowRef = _this.registerRowRef.bind(_this);
-    _this.getRowHeight = _this.getRowHeight.bind(_this);
-    return _this;
-  }
-
-  createClass(VirtualTableLayout, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      this.storeRowHeights();
-    }
-  }, {
-    key: 'componentWillReceiveProps',
-    value: function componentWillReceiveProps(nextProps) {
-      if (this.props.headerRows !== nextProps.headerRows || this.props.rows !== nextProps.rows) {
-        var prevRowHeight = this.state.rowHeights;
-
-        this.setState({
-          rowHeights: [].concat(toConsumableArray(nextProps.headerRows), toConsumableArray(nextProps.rows)).reduce(function (acc, row) {
-            var rowHeight = prevRowHeight.get(row.key);
-            if (rowHeight !== undefined) {
-              acc.set(row.key, rowHeight);
-            }
-            return acc;
-          }, new Map())
-        });
-      }
-    }
-  }, {
-    key: 'componentDidUpdate',
-    value: function componentDidUpdate() {
-      this.storeRowHeights();
-    }
-  }, {
-    key: 'getRowHeight',
-    value: function getRowHeight(row) {
-      var storedHeight = this.state.rowHeights.get(row.key);
-      if (storedHeight !== undefined) return storedHeight;
-      if (row.height) return row.height;
-      return this.props.estimatedRowHeight;
-    }
-  }, {
-    key: 'getVisibleRows',
-    value: function getVisibleRows$$1() {
-      var _this2 = this;
-
-      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props,
-          rows = _ref.rows,
-          headerRows = _ref.headerRows,
-          height = _ref.height;
-
-      var top = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.state.viewportTop;
-
-      var headHeight = headerRows.reduce(function (acc, row) {
-        return acc + _this2.getRowHeight(row);
-      }, 0);
-      return getVisibleRows(rows, top, height - headHeight, this.getRowHeight);
-    }
-  }, {
-    key: 'storeRowHeights',
-    value: function storeRowHeights() {
-      var _this3 = this;
-
-      var rowsWithChangedHeights = Array.from(this.rowRefs.entries())
-      // eslint-disable-next-line react/no-find-dom-node
-      .map(function (_ref2) {
-        var _ref3 = slicedToArray(_ref2, 2),
-            row = _ref3[0],
-            ref = _ref3[1];
-
-        return [row, findDOMNode(ref).getBoundingClientRect().height];
-      }).filter(function (_ref4) {
-        var _ref5 = slicedToArray(_ref4, 2),
-            row = _ref5[0],
-            height = _ref5[1];
-
-        return height !== _this3.getRowHeight(row);
-      });
-
-      if (rowsWithChangedHeights.length) {
-        var prevVisibleBodyRows = this.getVisibleRows();
-
-        var rowHeights = this.state.rowHeights;
-
-        rowsWithChangedHeights.forEach(function (_ref6) {
-          var _ref7 = slicedToArray(_ref6, 2),
-              row = _ref7[0],
-              height = _ref7[1];
-
-          return rowHeights.set(row.key, height);
-        });
-
-        this.setState({
-          rowHeights: rowHeights
-        });
-
-        var visibleBodyRows = this.getVisibleRows();
-        var scrollOffset = firstVisibleRowOffset(prevVisibleBodyRows, visibleBodyRows);
-        if (scrollOffset !== 0) {
-          // eslint-disable-next-line react/no-find-dom-node
-          findDOMNode(this).scrollTop += scrollOffset;
-        }
-      }
-    }
-  }, {
-    key: 'registerRowRef',
-    value: function registerRowRef(row, ref) {
-      if (ref === null) {
-        this.rowRefs.delete(row);
-      } else {
-        this.rowRefs.set(row, ref);
-      }
-    }
-  }, {
-    key: 'updateViewport',
-    value: function updateViewport(e) {
-      var node$$1 = e.target;
-
-      if (node$$1 !== e.currentTarget) {
-        return;
-      }
-
-      // NOTE: prevent iOS to flicker in bounces
-      if (node$$1.scrollTop < 0 || node$$1.scrollLeft < 0 || node$$1.scrollLeft + node$$1.clientWidth > node$$1.scrollWidth || node$$1.scrollTop + node$$1.clientHeight > node$$1.scrollHeight) {
-        return;
-      }
-
-      if (this.viewportTop !== node$$1.scrollTop) {
-        this.setState({
-          viewportTop: node$$1.scrollTop
-        });
-      }
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var _this4 = this;
-
-      var _props = this.props,
-          headerRows = _props.headerRows,
-          columns = _props.columns,
-          minWidth = _props.minWidth,
-          height = _props.height,
-          Container = _props.containerComponent,
-          HeadTable = _props.headTableComponent,
-          Table = _props.tableComponent,
-          Head = _props.headComponent,
-          Body = _props.bodyComponent,
-          rowComponent = _props.rowComponent,
-          cellComponent = _props.cellComponent;
-
-      var visibleBodyRows = this.getVisibleRows();
-
-      return _(
-        Container,
-        {
-          style: { height: height + 'px' },
-          onScroll: this.updateViewport
-        },
-        !!headerRows.length && _(
-          HeadTable,
-          {
-            style: { minWidth: minWidth + 'px' }
-          },
-          _(ColumnGroup, { columns: columns }),
-          _(
-            Head,
-            null,
-            headerRows.map(function (row) {
-              return _(RowLayout, {
-                key: row.key,
-                ref: function ref(_ref8) {
-                  return _this4.registerRowRef(row, _ref8);
-                },
-                row: row,
-                columns: columns,
-                rowComponent: rowComponent,
-                cellComponent: cellComponent
-              });
-            })
-          )
-        ),
-        _(
-          Table,
-          {
-            style: { minWidth: minWidth + 'px' }
-          },
-          _(ColumnGroup, { columns: columns }),
-          _(
-            Body,
-            null,
-            visibleBodyRows.map(function (visibleRow) {
-              if (visibleRow.type === 'stub') {
-                return _('tr', { key: visibleRow.key, style: { height: visibleRow.height + 'px' } });
-              }
-              var row = visibleRow.row;
-
-              return _(RowLayout, {
-                key: row.key,
-                ref: function ref(_ref9) {
-                  return _this4.registerRowRef(row, _ref9);
-                },
-                row: row,
-                columns: columns,
-                rowComponent: rowComponent,
-                cellComponent: cellComponent
-              });
-            })
-          )
-        )
-      );
-    }
-  }]);
-  return VirtualTableLayout;
-}(React.PureComponent);
-
-VirtualTableLayout.propTypes = {
-  minWidth: number.isRequired,
-  height: number.isRequired,
-  headerRows: array,
-  rows: array.isRequired,
-  columns: array.isRequired,
   cellComponent: func.isRequired,
-  rowComponent: func.isRequired,
-  bodyComponent: func.isRequired,
-  headComponent: func,
-  tableComponent: func.isRequired,
-  headTableComponent: func,
-  containerComponent: func.isRequired,
-  estimatedRowHeight: number.isRequired
-};
-
-VirtualTableLayout.defaultProps = {
-  headerRows: [],
-  headComponent: function headComponent() {
-    return null;
-  },
-  headTableComponent: function headTableComponent() {
-    return null;
-  }
+  getCellColSpan: func.isRequired
 };
 
 var RowsBlockLayout = function (_React$PureComponent) {
@@ -4265,19 +5069,21 @@ var RowsBlockLayout = function (_React$PureComponent) {
           columns = _props.columns,
           Block = _props.blockComponent,
           rowComponent = _props.rowComponent,
-          cellComponent = _props.cellComponent;
+          cellComponent = _props.cellComponent,
+          getCellColSpan = _props.getCellColSpan;
 
 
-      return _(
+      return React.createElement(
         Block,
         null,
         rows.map(function (row) {
-          return _(RowLayout, {
+          return React.createElement(RowLayout, {
             key: row.key,
             row: row,
             columns: columns,
             rowComponent: rowComponent,
-            cellComponent: cellComponent
+            cellComponent: cellComponent,
+            getCellColSpan: getCellColSpan
           });
         })
       );
@@ -4291,7 +5097,8 @@ RowsBlockLayout.propTypes = {
   columns: array.isRequired,
   blockComponent: func.isRequired,
   rowComponent: func.isRequired,
-  cellComponent: func.isRequired
+  cellComponent: func.isRequired,
+  getCellColSpan: func.isRequired
 };
 
 var StaticTableLayout = function (_React$PureComponent) {
@@ -4307,7 +5114,7 @@ var StaticTableLayout = function (_React$PureComponent) {
     value: function render() {
       var _props = this.props,
           headerRows = _props.headerRows,
-          rows = _props.rows,
+          bodyRows = _props.bodyRows,
           columns = _props.columns,
           minWidth = _props.minWidth,
           Container = _props.containerComponent,
@@ -4315,31 +5122,34 @@ var StaticTableLayout = function (_React$PureComponent) {
           headComponent = _props.headComponent,
           bodyComponent = _props.bodyComponent,
           rowComponent = _props.rowComponent,
-          cellComponent = _props.cellComponent;
+          cellComponent = _props.cellComponent,
+          getCellColSpan = _props.getCellColSpan;
 
 
-      return _(
+      return React.createElement(
         Container,
         null,
-        _(
+        React.createElement(
           Table,
           {
             style: { minWidth: minWidth + 'px' }
           },
-          _(ColumnGroup, { columns: columns }),
-          !!headerRows.length && _(RowsBlockLayout, {
+          React.createElement(ColumnGroup, { columns: columns }),
+          !!headerRows.length && React.createElement(RowsBlockLayout, {
             rows: headerRows,
             columns: columns,
             blockComponent: headComponent,
             rowComponent: rowComponent,
-            cellComponent: cellComponent
+            cellComponent: cellComponent,
+            getCellColSpan: getCellColSpan
           }),
-          _(RowsBlockLayout, {
-            rows: rows,
+          React.createElement(RowsBlockLayout, {
+            rows: bodyRows,
             columns: columns,
             blockComponent: bodyComponent,
             rowComponent: rowComponent,
-            cellComponent: cellComponent
+            cellComponent: cellComponent,
+            getCellColSpan: getCellColSpan
           })
         )
       );
@@ -4350,7 +5160,7 @@ var StaticTableLayout = function (_React$PureComponent) {
 
 StaticTableLayout.propTypes = {
   headerRows: array,
-  rows: array.isRequired,
+  bodyRows: array.isRequired,
   columns: array.isRequired,
   minWidth: number.isRequired,
   containerComponent: func.isRequired,
@@ -4358,7 +5168,8 @@ StaticTableLayout.propTypes = {
   headComponent: func,
   bodyComponent: func.isRequired,
   rowComponent: func.isRequired,
-  cellComponent: func.isRequired
+  cellComponent: func.isRequired,
+  getCellColSpan: func.isRequired
 };
 
 StaticTableLayout.defaultProps = {
@@ -4396,9 +5207,9 @@ var ItemLayout = function (_React$PureComponent) {
       var dragging = this.state.dragging;
 
 
-      var itemElement = _(Item, { item: _extends({}, item, { draft: dragging || item.draft }) });
+      var itemElement = React.createElement(Item, { item: _extends({}, item, { draft: dragging || item.draft }) });
 
-      return draggingEnabled ? _(
+      return draggingEnabled ? React.createElement(
         DragSource,
         {
           payload: [{ type: 'column', columnName: item.column.name }],
@@ -4567,13 +5378,13 @@ var GroupPanelLayout = function (_React$PureComponent) {
 
       this.itemRefs = [];
 
-      var groupPanel = items.length ? _(
+      var groupPanel = items.length ? React.createElement(
         Container,
         null,
         items.map(function (item) {
           var columnName = item.column.name;
 
-          return _(ItemLayout, {
+          return React.createElement(ItemLayout, {
             key: columnName,
             ref: function ref(element) {
               return element && _this2.itemRefs.push(element);
@@ -4587,9 +5398,9 @@ var GroupPanelLayout = function (_React$PureComponent) {
             onDragEnd: _this2.onDragEnd
           });
         })
-      ) : _(EmptyMessage, null);
+      ) : React.createElement(EmptyMessage, null);
 
-      return draggingEnabled ? _(
+      return draggingEnabled ? React.createElement(
         DropTarget,
         {
           onEnter: function onEnter(args) {
@@ -4635,179 +5446,49 @@ GroupPanelLayout.defaultProps = {
   onGroupDraftCancel: function onGroupDraftCancel() {}
 };
 
-var Toolbar = function (_React$PureComponent) {
-  inherits(Toolbar, _React$PureComponent);
-
-  function Toolbar() {
-    classCallCheck(this, Toolbar);
-    return possibleConstructorReturn(this, (Toolbar.__proto__ || Object.getPrototypeOf(Toolbar)).apply(this, arguments));
-  }
-
-  createClass(Toolbar, [{
-    key: 'render',
-    value: function render() {
-      var _props = this.props,
-          Root = _props.rootComponent,
-          FlexibleSpaceComponent = _props.flexibleSpaceComponent;
-
-      return _(
-        Plugin,
-        {
-          name: 'Toolbar'
-        },
-        _(
-          Template,
-          { name: 'header' },
-          _(
-            Root,
-            null,
-            _(TemplatePlaceholder, { name: 'toolbarContent' })
-          ),
-          _(TemplatePlaceholder, null)
-        ),
-        _(
-          Template,
-          { name: 'toolbarContent' },
-          _(FlexibleSpaceComponent, null)
-        )
-      );
-    }
-  }]);
-  return Toolbar;
-}(React.PureComponent);
-
-Toolbar.propTypes = {
-  rootComponent: func.isRequired,
-  flexibleSpaceComponent: func.isRequired
+return {
+  Grid,
+  ColumnChooser,
+  FilteringState,
+  IntegratedFiltering,
+  EditingState,
+  PagingState,
+  IntegratedPaging,
+  CustomPaging,
+  GroupingState,
+  IntegratedGrouping,
+  CustomGrouping,
+  SelectionState,
+  IntegratedSelection,
+  SortingState,
+  IntegratedSorting,
+  DragDropProvider: DragDropProvider$1,
+  TableColumnReordering,
+  Table,
+  TableSelection,
+  RowDetailState,
+  TableRowDetail,
+  TableGroupRow,
+  TableHeaderRow,
+  TableBandHeader,
+  TableFilterRow,
+  TableEditRow,
+  TableEditColumn,
+  TableColumnResizing,
+  PagingPanel,
+  GroupingPanel,
+  DataTypeProvider,
+  TableColumnVisibility,
+  Toolbar,
+  TreeDataState,
+  CustomTreeData,
+  TableTreeColumn,
+  SearchState,
+  SearchPanel,
+  TableLayout,
+  VirtualTableLayout,
+  StaticTableLayout,
+  GroupPanelLayout
 };
-
-var SearchState = function (_React$PureComponent) {
-  inherits(SearchState, _React$PureComponent);
-
-  function SearchState(props) {
-    classCallCheck(this, SearchState);
-
-    var _this = possibleConstructorReturn(this, (SearchState.__proto__ || Object.getPrototypeOf(SearchState)).call(this, props));
-
-    _this.state = {
-      value: props.value || props.defaultValue
-    };
-    var stateHelper = createStateHelper(_this, {
-      value: function value() {
-        return _this.props.onValueChange;
-      }
-    });
-
-    _this.changeValue = stateHelper.applyFieldReducer.bind(stateHelper, 'value', changeSearchValue);
-    return _this;
-  }
-
-  createClass(SearchState, [{
-    key: 'componentWillReceiveProps',
-    value: function componentWillReceiveProps(nextProps) {
-      var value = nextProps.value;
-
-      this.setState(_extends({}, value !== undefined ? { value: value } : null));
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var value = this.state.value;
-
-
-      return _(
-        Plugin,
-        {
-          name: 'SearchState'
-        },
-        _(Getter, { name: 'filterExpression', computed: pushSearchFilterExpression(value) }),
-        _(Getter, { name: 'searchValue', value: value }),
-        _(Action, { name: 'changeSearchValue', action: this.changeValue })
-      );
-    }
-  }]);
-  return SearchState;
-}(React.PureComponent);
-
-SearchState.propTypes = {
-  value: string,
-  defaultValue: string,
-  onValueChange: func
-};
-
-SearchState.defaultProps = {
-  value: undefined,
-  defaultValue: '',
-  onValueChange: undefined
-};
-
-var pluginDependencies$18 = [{ name: 'Toolbar' }, { name: 'SearchState' }];
-
-var SearchPanel = function (_React$PureComponent) {
-  inherits(SearchPanel, _React$PureComponent);
-
-  function SearchPanel() {
-    classCallCheck(this, SearchPanel);
-    return possibleConstructorReturn(this, (SearchPanel.__proto__ || Object.getPrototypeOf(SearchPanel)).apply(this, arguments));
-  }
-
-  createClass(SearchPanel, [{
-    key: 'render',
-    value: function render() {
-      var _props = this.props,
-          Input = _props.inputComponent,
-          messages = _props.messages;
-
-      var getMessage = getMessagesFormatter(messages);
-
-      return _(
-        Plugin,
-        {
-          name: 'SearchPanel',
-          dependencies: pluginDependencies$18
-        },
-        _(
-          Template,
-          { name: 'toolbarContent' },
-          _(TemplatePlaceholder, null),
-          _(
-            TemplateConnector,
-            null,
-            function (_ref, _ref2) {
-              var searchValue = _ref.searchValue;
-              var changeSearchValue$$1 = _ref2.changeSearchValue;
-              return _(Input, {
-                value: searchValue,
-                onValueChange: changeSearchValue$$1,
-                getMessage: getMessage
-              });
-            }
-          )
-        )
-      );
-    }
-  }]);
-  return SearchPanel;
-}(React.PureComponent);
-
-SearchPanel.propTypes = {
-  inputComponent: func.isRequired,
-  messages: object
-};
-
-SearchPanel.defaultProps = {
-  messages: {}
-};
-
-return { Grid:Grid, ColumnChooser:ColumnChooser, FilteringState:FilteringState, IntegratedFiltering:IntegratedFiltering
-	, EditingState:EditingState, PagingState:PagingState, IntegratedPaging:IntegratedPaging, CustomPaging:CustomPaging
-	, GroupingState:GroupingState, IntegratedGrouping:IntegratedGrouping, CustomGrouping:CustomGrouping
-	, SelectionState:SelectionState, IntegratedSelection:IntegratedSelection, SortingState:SortingState
-	, IntegratedSorting:IntegratedSorting, DragDropProvider:DragDropProvider$1, TableColumnReordering:TableColumnReordering
-	, Table:Table, TableSelection:TableSelection, RowDetailState:RowDetailState, TableRowDetail:TableRowDetail, TableGroupRow:TableGroupRow
-	, TableHeaderRow:TableHeaderRow, TableFilterRow:TableFilterRow, TableEditRow:TableEditRow, TableEditColumn:TableEditColumn
-	, TableColumnResizing:TableColumnResizing, PagingPanel:PagingPanel, GroupingPanel:GroupingPanel, DataTypeProvider:DataTypeProvider
-	, TableColumnVisibility:TableColumnVisibility, TableLayout:TableLayout, VirtualTableLayout:VirtualTableLayout, StaticTableLayout:StaticTableLayout
-	, GroupPanelLayout:GroupPanelLayout, Toolbar:Toolbar, SearchState:SearchState, SearchPanel:SearchPanel };
 }();
 //# sourceMappingURL=dx-react-grid.es.js.map

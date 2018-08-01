@@ -43,7 +43,9 @@ public class IWBException extends RuntimeException {
 			te = (Exception)te.getCause();
 			if(te instanceof IWBException)return (IWBException)te;
 		}
-		return new IWBException("framework",te.getClass().getName(), 0, null, te.getMessage(), e.getCause());
+		String newObjectType = te.getClass().getName();
+		if(newObjectType.equals("org.postgresql.util.PSQLException"))newObjectType="DataBase.Exception";
+		return new IWBException("framework",newObjectType, 0, null, te.getMessage(), e.getCause());
 	}
 
 	public String toHtmlString(){
@@ -59,7 +61,7 @@ public class IWBException extends RuntimeException {
 		return b.toString();
 	}
 
-	public String toJsonString(){
+	public String toJsonString(String uri){
 		StringBuilder b = new StringBuilder();
 		IWBException e = GenericUtil.isEmpty(this.stack) ? this : this.stack.get(0);
 		b.append("{\"success\":false,\n\"errorType\":\"").append(e.getErrorType()).append("\"");
@@ -80,10 +82,16 @@ public class IWBException extends RuntimeException {
 			if(sql!=null)b.append(",\n\"sql\":\"").append(GenericUtil.stringToJS2(sql)).append("\"");
 			if(!GenericUtil.isEmpty(this.stack) && this.stack.size()>1){
 				b.append(",\n\"icodebetter\":[");
+				String lastErrorMsg="";
+				if(!GenericUtil.isEmpty(uri)){
+					b.append("{errorType:\"request\",objectType:\"Web.Request\",error:\"").append(uri).append("\"}");
+					lastErrorMsg = uri;					
+				}
 				for(int qi=stack.size()-1;qi>=0;qi--){
-					if(qi<stack.size()-1)b.append(",");
+					if(lastErrorMsg.length()>0)b.append(",");
 					IWBException iw = (IWBException)stack.get(qi);
-					
+//					if(lastErrorMsg.equals(iw.getMessage()))continue;
+					lastErrorMsg = iw.getMessage();
 					b.append("{errorType:\"").append(iw.getErrorType()).append("\"");
 					if(!GenericUtil.isEmpty(iw.getMessage()))b.append(",error:\"").append(GenericUtil.stringToJS2(iw.getMessage())).append("\"");
 					if(!GenericUtil.isEmpty(iw.getSql()))b.append(",sql:\"").append(GenericUtil.stringToJS2(iw.getSql())).append("\"");
@@ -94,6 +102,7 @@ public class IWBException extends RuntimeException {
 				}
 				b.append("]");
 			}
+			if(!GenericUtil.isEmpty(this.stack))this.stack.get(this.stack.size()-1).printStackTrace();
 		}
 		
 	

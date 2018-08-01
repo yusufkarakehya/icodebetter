@@ -18,7 +18,6 @@ public class W5WsMethod  implements java.io.Serializable {
 	private String dsc;
 	private String realDsc;
 	private short callMethodTip;
-	private int customizationId;
 	private String uid;
 	private W5Ws _ws;
 	private short accessExecuteTip;
@@ -62,15 +61,6 @@ public class W5WsMethod  implements java.io.Serializable {
 	}
 	public void setDsc(String dsc) {
 		this.dsc = dsc;
-	}
-	
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
 	}
 	
 	@Column(name="uid")
@@ -152,5 +142,15 @@ public class W5WsMethod  implements java.io.Serializable {
 		this.headerAcceptTip = headerAcceptTip;
 	}
 
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

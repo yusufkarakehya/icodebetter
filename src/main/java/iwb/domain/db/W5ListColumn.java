@@ -25,8 +25,6 @@ public class W5ListColumn implements java.io.Serializable {
 
 	private int listId;
 	
-	private int customizationId;
-	
 	private String localeMsgKey;
 
 	private short tabOrder;
@@ -49,20 +47,20 @@ public class W5ListColumn implements java.io.Serializable {
 	public W5ListColumn() {
 	}
 
-	public W5ListColumn(int queryFieldId, int listId, int customizationId) {
+	public W5ListColumn(int queryFieldId, int listId, String projectUuid) {
 		this.queryFieldId = queryFieldId;
 		this.listId = listId;
-		this.customizationId = customizationId;
+		this.projectUuid = projectUuid;
 
 	}
 
-	public W5ListColumn(int queryFieldId, int listId, int customizationId,
+	public W5ListColumn(int queryFieldId, int listId, String projectUuid,
 			String localeMsgKey, short tabOrder, short visibleFlag,
 			short width, String renderer, short alignTip,
 			 String extraDefinition) {
 		this.queryFieldId = queryFieldId;
 		this.listId = listId;
-		this.customizationId = customizationId;
+		this.projectUuid = projectUuid;
 		this.localeMsgKey = localeMsgKey;
 		this.tabOrder = tabOrder;
 		this.visibleFlag = visibleFlag;
@@ -173,15 +171,6 @@ public class W5ListColumn implements java.io.Serializable {
 		this.lookupQueryId = lookupQueryId;	
 	}
 */
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	
 	@Column(name="visible_flag")
@@ -212,5 +201,14 @@ public class W5ListColumn implements java.io.Serializable {
 		this.sortableFlag = sortableFlag;
 	}
 	
-	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 }

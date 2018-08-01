@@ -21,8 +21,6 @@ public class W5Form implements java.io.Serializable, W5Base {
 
 	private int formId;
 	
-	private int customizationId;
-
 	private short objectTip; // hangi tablodan geldigi: 2:table_id, 1:gridId, 3:dbFunc
 
 	private int objectId; //gelen table'in PK'si
@@ -54,7 +52,7 @@ public class W5Form implements java.io.Serializable, W5Base {
 	private W5Query _sourceQuery;
 	private List<W5FormCell> _formCells;
 	private List<W5FormModule> _moduleList;
-	private W5Template _renderTemplate;
+	private W5Page _renderTemplate;
 	private	List<W5ObjectToolbarItem>	_toolbarItemList;
 	private List<W5FormSmsMail> _formSmsMailList;
 	private Map<Integer,W5FormSmsMail> _formSmsMailMap;
@@ -172,13 +170,7 @@ public class W5Form implements java.io.Serializable, W5Base {
 	public void setRenderTemplateId(int renderTemplateId) {
 		this.renderTemplateId = renderTemplateId;
 	}
-/*	@Transient
-	public W5Table get_sourceTable() {
-		return _sourceTable;
-	}
-	public void set_sourceTable(W5Table sourceTable) {
-		_sourceTable = sourceTable;
-	}*/
+/*
 	@Id
 	@Column(name="customization_id")
 	public int getCustomizationId() {
@@ -186,7 +178,7 @@ public class W5Form implements java.io.Serializable, W5Base {
 	}
 	public void setCustomizationId(int customizationId) {
 		this.customizationId = customizationId;
-	}
+	}*/
 	@Transient
 	public W5Query get_sourceQuery() {
 		return _sourceQuery;
@@ -209,10 +201,10 @@ public class W5Form implements java.io.Serializable, W5Base {
 		_moduleList = moduleList;
 	}
 	@Transient
-	public W5Template get_renderTemplate() {
+	public W5Page get_renderTemplate() {
 		return _renderTemplate;
 	}
-	public void set_renderTemplate(W5Template renderTemplate) {
+	public void set_renderTemplate(W5Page renderTemplate) {
 		_renderTemplate = renderTemplate;
 	}
 	
@@ -314,6 +306,17 @@ public class W5Form implements java.io.Serializable, W5Base {
 	}
 	public void set_formHintList(List<W5FormHint> _formHintList) {
 		this._formHintList = _formHintList;
+	}
+
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 
 }

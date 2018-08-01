@@ -28,7 +28,7 @@ public class W5Tutorial implements java.io.Serializable {
 	private String requiredTutorialIds;
 	private String recommendedTutorialIds;
 	
-	private W5Template _renderTemplate;
+	private W5Page _renderTemplate;
 	
 	@Id
 	@Column(name="tutorial_id")
@@ -110,10 +110,21 @@ public class W5Tutorial implements java.io.Serializable {
 		this.menuId = menuId;
 	}
 	@Transient
-	public W5Template get_renderTemplate() {
+	public W5Page get_renderTemplate() {
 		return _renderTemplate;
 	}
-	public void set_renderTemplate(W5Template renderTemplate) {
+	public void set_renderTemplate(W5Page renderTemplate) {
 		_renderTemplate = renderTemplate;
 	}
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
 }

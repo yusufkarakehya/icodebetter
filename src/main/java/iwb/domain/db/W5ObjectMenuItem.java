@@ -16,7 +16,6 @@ import org.hibernate.annotations.Immutable;
 public class W5ObjectMenuItem implements java.io.Serializable, W5Base {
 
 	private int menuItemId;
-	private int customizationId;	
 	private short tabOrder;
 	private short objectTip; // hangi tablodan geldigi: 2:table_id, 1:gridId, 3:dbFunc
 	private int objectId; //gelen table'in PK'si
@@ -90,14 +89,8 @@ public class W5ObjectMenuItem implements java.io.Serializable, W5Base {
 	public void setImgIcon(String imgIcon) {
 		this.imgIcon = imgIcon;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
+
 	@Column(name="tab_order")
 	public short getTabOrder() {
 		return tabOrder;
@@ -139,6 +132,16 @@ public class W5ObjectMenuItem implements java.io.Serializable, W5Base {
 		if(q==null)return false;
 		W5ObjectMenuItem l = (W5ObjectMenuItem)q;
 		return false;
+	}
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

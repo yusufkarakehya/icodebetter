@@ -15,7 +15,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.M5List;
-import iwb.domain.db.W5Approval;
+import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Form;
@@ -265,8 +265,7 @@ public class F7iOS implements ViewMobileAdapter {
 												ozs.length > 4 ? ozs[4] : null))
 									buf.append("-");
 								buf.append(ozs[2]);
-								W5Approval appr = FrameworkCache.wApprovals
-										.get(appId);
+								W5Workflow appr = FrameworkCache.getWorkflow(queryResult.getScd(),appId);
 								String appStepDsc = "";
 								if (appr != null
 										&& appr.get_approvalStepMap().get(

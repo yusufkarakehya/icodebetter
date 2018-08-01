@@ -23,7 +23,6 @@ import iwb.util.GenericUtil;
 public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 
 	private int tableFieldId;
-	private int customizationId;
 
 	private int tableId;
 
@@ -281,14 +280,6 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 	public void setAccessUpdateUsers(String accessUpdateUsers) {
 		this.accessUpdateUsers = accessUpdateUsers;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 
 	@Column(name="copy_source_tip")
@@ -388,6 +379,16 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 		
 			this.defaultLookupTableId==t.getDefaultLookupTableId() &&
 			this.defaultControlTip==t.getDefaultControlTip();
+	}
+	private String projectUuid;
+	@Column(name="project_uuid")
+	@Id
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

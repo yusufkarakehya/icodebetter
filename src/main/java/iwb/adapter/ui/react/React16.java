@@ -14,7 +14,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
-import iwb.domain.db.W5Approval;
+import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5DataView;
@@ -37,21 +37,21 @@ import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5Template;
-import iwb.domain.db.W5TemplateObject;
+import iwb.domain.db.W5Page;
+import iwb.domain.db.W5PageObject;
 import iwb.domain.db.W5Tutorial;
 import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.W5DataViewResult;
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GridResult;
 import iwb.domain.result.W5ListViewResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TemplateResult;
+import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
@@ -1069,7 +1069,7 @@ public class React16 implements ViewAdapter {
 			s.append("'");
 		}
 		s.append("},options:{},activeTab:false}");
-		//\nif(this.manualValidation)this.manualValidation=this.manualValidation.bind(this);
+		//\nif(this.componentWillPost)this.componentWillPost=this.componentWillPost.bind(this);
 		Map<String, List<W5FormCell>> pcr = new HashMap();
 		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlTip()==9 && fc.getFormCell().getParentFormCellId()!=0 && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams())) {//combo remote
 			for (W5FormCellHelper rfc : formResult.getFormCellResults()) {
@@ -1106,7 +1106,7 @@ public class React16 implements ViewAdapter {
 	/*	s.append("\nthis.onChange=this.onChange.bind(this);this.onComboChange=this.onComboChange.bind(this);this.onLovComboChange=this.onLovComboChange.bind(this);this.onNumberChange=this.onNumberChange.bind(this);this.submit=this.submit.bind(this);this.toggleTab=this.toggleTab.bind(this);this.getValues=this.getValues.bind(this);}");
 		s.append("\ntoggleTab(tab){if(this.state.activeTab!==tab)this.setState({activeTab:tab});}");
 		s.append("\ngetValues(){return Object.assign({}, this.state.values);}");//this.cfg={...}
-		s.append("\nsubmit(cfg){var p = Object.assign({}, this.state.values);if(this.manualValidation){var r = this.manualValidation(p, cfg||{});if(r===false)return false;p = Object.assign(p, r);}iwb.request({url:this.url+'?'+iwb.JSON2URI(this.params)+'_renderer=react16&.r='+Math.random(), params:p, self:this, errorCallback:(json)=>{var errors={};if(json.errorType)switch(json.errorType){case	'validation':toastr.error('Validation Errors');if(json.errors && json.errors.length)json.errors.map(function(o){errors[o.id]=o.msg;});if(json.error)iwb.showModal({title:'ERROR',footer:false, color:'danger', size:'sm', body:json.error});break;default:alert(json.errorType);} else alert(json);this.setState({errors:errors});return false;}, successCallback:(json, xcfg)=>{if(cfg.callback)cfg.callback(json,xcfg);}});}");//this.cfg={...}
+		s.append("\nsubmit(cfg){var p = Object.assign({}, this.state.values);if(this.componentWillPost){var r = this.componentWillPost(p, cfg||{});if(r===false)return false;p = Object.assign(p, r);}iwb.request({url:this.url+'?'+iwb.JSON2URI(this.params)+'_renderer=react16&.r='+Math.random(), params:p, self:this, errorCallback:(json)=>{var errors={};if(json.errorType)switch(json.errorType){case	'validation':toastr.error('Validation Errors');if(json.errors && json.errors.length)json.errors.map(function(o){errors[o.id]=o.msg;});if(json.error)iwb.showModal({title:'ERROR',footer:false, color:'danger', size:'sm', body:json.error});break;default:alert(json.errorType);} else alert(json);this.setState({errors:errors});return false;}, successCallback:(json, xcfg)=>{if(cfg.callback)cfg.callback(json,xcfg);}});}");//this.cfg={...}
 		s.append("\nonChange(e){var values=this.state.values;if(e.target){var o=e.target;values[o.name]=o.type=='checkbox'?o.checked:o.value;this.setState({values:values});}}");//this.cfg={...}
 		s.append("\nonComboChange(dsc){var self=this;return function(o){var values=self.state.values;var v=o && o.id;values[dsc]=v;var q=self.triggerz4ComboRemotes;if(q[dsc])q[dsc].map(function(zzz){var nv=zzz.f(v,null,values);if(nv)iwb.request({url:'ajaxQueryData?'+iwb.JSON2URI(nv)+'.r='+Math.random(), successCallback:function(r){var options=self.state.options;options[zzz.n]=r.data;self.setState({options:options});}});else{var options=self.state.options;options[zzz.n]=[];self.setState({options:options});}});self.setState({values:values});}}");//this.cfg={...}
 		s.append("\nonLovComboChange(dsc){var self=this;return function(o){var values=self.state.values;var v=[];if(o)o.map(function(q){v.push(q.id)});values[dsc]=v.join(',');self.setState({values:values});}}");//this.cfg={...}
@@ -1303,7 +1303,7 @@ public class React16 implements ViewAdapter {
 		return buf;
 	}
 
-	private StringBuilder renderTemplateObject(W5TemplateResult templateResult) {
+	private StringBuilder renderTemplateObject(W5PageResult templateResult) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
 		if(!(templateResult.getTemplateObjectList().get(0) instanceof W5GridResult))return buf;
@@ -1612,7 +1612,7 @@ public class React16 implements ViewAdapter {
 			} else if (fc.getFormCell().getControlTip() == 100) {// button
 				buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 			} else {
-				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
+				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
 			}
 		}
 		return buf;
@@ -1898,7 +1898,7 @@ public class React16 implements ViewAdapter {
 				} else if (fc.getFormCell().getControlTip() == 100) {// button
 					buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 				} else {
-					buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:null, _(Label, {htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), _(_").append(dsc).append(".$||Input,_").append(dsc).append("))");
+					buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:null, _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), _(_").append(dsc).append(".$||Input,_").append(dsc).append("))");
 				}
 			}
 		}
@@ -1918,7 +1918,7 @@ public class React16 implements ViewAdapter {
 			if (fc.getFormCell().getActiveFlag() == 0 || fc.getFormCell().getControlTip()==0)
 				continue;
 			if(fc.getFormCell().getControlTip() == 5){
-				buf.append(", _(FormGroup, null, _(Label, {htmlFor:\"")
+				buf.append(", _(FormGroup, null, _(Label, {className:'inputLabel', htmlFor:\"")
 				.append(fc.getFormCell().getDsc()).append("\"},_").append(fc.getFormCell().getDsc()).append(".props.label), _(Label,{ className: 'switch switch-3d switch-primary' }, _").append(fc.getFormCell().getDsc())
 				.append(",_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })))");
 			} else {
@@ -2163,7 +2163,7 @@ public class React16 implements ViewAdapter {
 						buttons.append("{}");
 					else if (toolbarItem.getObjectTip() == 15) {// form toolbar
 																// ise
-						buttons.append("{view:'button', value:'")
+						buttons.append("{type:'icon' , value:'")
 								.append(LocaleMsgCache.get2(customizationId,
 										xlocale, toolbarItem.getLocaleMsgKey()))
 								.append("',");
@@ -2177,9 +2177,9 @@ public class React16 implements ViewAdapter {
 										toolbarItem.getCode())).append("\n}}");
 						itemCount++;
 					} else {
-						buttons.append("{view:'button', width:35, type:'icon', icon:'cube', tooltip:'")
-								.append(LocaleMsgCache.get2(customizationId,
-										xlocale, toolbarItem.getLocaleMsgKey()))
+						buttons.append("{type:'button'");
+						if(!GenericUtil.isEmpty(toolbarItem.getImgIcon()))buttons.append(", icon:'").append(toolbarItem.getImgIcon()).append("'");
+						buttons.append(", text:'").append(LocaleMsgCache.get2(customizationId,xlocale, toolbarItem.getLocaleMsgKey()))
 								.append("', click:function(a,b,c){\n")
 								.append(LocaleMsgCache.filter2(
 										customizationId, xlocale,
@@ -3427,8 +3427,7 @@ columns:[
 										buf.append("',")
 												.append(f.getDsc())
 												.append("_qw_:'")
-												.append(FrameworkCache.wApprovals
-														.get(f.getLookupQueryId())
+												.append(FrameworkCache.getWorkflow(queryResult.getScd(),f.getLookupQueryId())
 														.get_approvalStepMap()
 														.get(id).getDsc());
 									break;
@@ -3714,8 +3713,7 @@ columns:[
 										buf2.append("\",\"")
 												.append(f.getDsc())
 												.append("_qw_\":\"")
-												.append(FrameworkCache.wApprovals
-														.get(f.getLookupQueryId())
+												.append(FrameworkCache.getWorkflow(queryResult.getScd(),f.getLookupQueryId())
 														.get_approvalStepMap()
 														.get(id2).getDsc());
 									break;
@@ -3992,8 +3990,7 @@ columns:[
 												ozs.length > 4 ? ozs[4] : null))
 									buf.append("-");
 								buf.append(ozs[2]);
-								W5Approval appr = FrameworkCache.wApprovals
-										.get(appId);
+								W5Workflow appr = FrameworkCache.getWorkflow(queryResult.getScd(),appId);
 								String appStepDsc = "";
 								if (appr != null
 										&& appr.get_approvalStepMap().get(
@@ -4090,9 +4087,9 @@ columns:[
 		return buf.append("}");
 	}
 
-	public StringBuilder serializeTemplate(W5TemplateResult templateResult) {
+	public StringBuilder serializeTemplate(W5PageResult templateResult) {
 		boolean replacePostJsCode = false;
-		W5Template template = templateResult.getTemplate();
+		W5Page template = templateResult.getPage();
 
 		StringBuilder buf = new StringBuilder();
 		StringBuilder postBuf = new StringBuilder();
@@ -4168,11 +4165,11 @@ columns:[
 									.append(customObjectCount++).append("=")
 									.append(fr.getForm().getDsc()).append("\n");
 						}
-					} else if (i instanceof W5DbFuncResult) {
+					} else if (i instanceof W5GlobalFuncResult) {
 						buf.append("\nvar ")
-								.append(((W5DbFuncResult) i).getDbFunc()
+								.append(((W5GlobalFuncResult) i).getGlobalFunc()
 										.getDsc()).append("=")
-								.append(serializeDbFunc((W5DbFuncResult) i))
+								.append(serializeDbFunc((W5GlobalFuncResult) i))
 								.append("\n");
 					} else if (i instanceof W5QueryResult) {
 						buf.append("\nvar ")
@@ -4188,7 +4185,7 @@ columns:[
 			} else { // wizard
 				buf.append("\nvar templateObjects=[");
 				boolean b = false;
-				for (W5TemplateObject o : template.get_templateObjectList()) {
+				for (W5PageObject o : template.get_pageObjectList()) {
 					if (b)
 						buf.append(",\n");
 					else
@@ -4228,7 +4225,7 @@ columns:[
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))
 					.append(";\n");
 
-			if (!FrameworkCache.publishLookUps.isEmpty()) {
+/*			if (!FrameworkCache.publishLookUps.isEmpty()) {
 				buf2.append("var _lookups={");
 				boolean b2 = false;
 				for (Integer lookUpId : FrameworkCache.publishLookUps) {
@@ -4250,7 +4247,7 @@ columns:[
 					buf2.append(GenericUtil.fromMapToJsonString(tempMap));
 				}
 				buf2.append("};\n");
-			}
+			}*/
 			int customObjectCount=1;
 			for (Object i : templateResult.getTemplateObjectList()) {
 				if (i instanceof W5GridResult) {
@@ -4272,11 +4269,11 @@ columns:[
 					buf2.append("\nvar _form")
 					.append(customObjectCount++).append("=")
 					.append(fr.getForm().getDsc()).append(";\n");
-				} else if (i instanceof W5DbFuncResult) {
+				} else if (i instanceof W5GlobalFuncResult) {
 					buf2.append("\nvar ")
-							.append(((W5DbFuncResult) i).getDbFunc()
+							.append(((W5GlobalFuncResult) i).getGlobalFunc()
 									.getDsc()).append("=")
-							.append(serializeDbFunc((W5DbFuncResult) i))
+							.append(serializeDbFunc((W5GlobalFuncResult) i))
 							.append(";\n");
 				} else if (i instanceof W5QueryResult) {
 					buf2.append("\nvar ")
@@ -4333,7 +4330,7 @@ columns:[
 		if(!GenericUtil.isEmpty(code))
 			buf.append("\n").append(code.startsWith("!") ? code.substring(1) : code);
 
-		short ttip= templateResult.getTemplate().getTemplateTip();
+		short ttip= templateResult.getPage().getTemplateTip();
 		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
 		
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
@@ -4472,11 +4469,11 @@ columns:[
 		return buf;
 	}
 
-	public StringBuilder serializeDbFunc(W5DbFuncResult dbFuncResult) {
+	public StringBuilder serializeDbFunc(W5GlobalFuncResult dbFuncResult) {
 		String xlocale = (String) dbFuncResult.getScd().get("locale");
 		StringBuilder buf = new StringBuilder();
 		buf.append("{\"success\":").append(dbFuncResult.isSuccess())
-				.append(",\"db_func_id\":").append(dbFuncResult.getDbFuncId());
+				.append(",\"db_func_id\":").append(dbFuncResult.getGlobalFuncId());
 		if (dbFuncResult.getErrorMap() != null
 				&& dbFuncResult.getErrorMap().size() > 0)
 			buf.append(",\n\"errorType\":\"validation\",\n\"errors\":").append(
@@ -4957,7 +4954,7 @@ columns:[
 				s.append("'");
 			}
 			s.append("},options:{},activeTab:false}");
-			//\nif(this.manualValidation)this.manualValidation=this.manualValidation.bind(this);
+			//\nif(this.componentWillPost)this.componentWillPost=this.componentWillPost.bind(this);
 			Map<String, List<W5FormCell>> pcr = new HashMap();
 			for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlTip()==9 && fc.getFormCell().getParentFormCellId()!=0 && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams())) {//combo remote
 				for (W5FormCellHelper rfc : formResult.getFormCellResults()) {
@@ -4994,7 +4991,7 @@ columns:[
 			s.append("\nthis.onChange=this.onChange.bind(this);this.onComboChange=this.onComboChange.bind(this);this.onLovComboChange=this.onLovComboChange.bind(this);this.onNumberChange=this.onNumberChange.bind(this);this.submit=this.submit.bind(this);this.toggleTab=this.toggleTab.bind(this);this.getValues=this.getValues.bind(this);}");
 			s.append("\ntoggleTab(tab){if(this.state.activeTab!==tab)this.setState({activeTab:tab});}");
 			s.append("\ngetValues(){return Object.assign({}, this.state.values);}");//this.cfg={...}
-			s.append("\nsubmit(cfg){var p = Object.assign({}, this.state.values);if(this.manualValidation){var r = this.manualValidation(p, cfg||{});if(r===false)return false;p = Object.assign(p, r);}iwb.request({url:this.url+'?'+iwb.JSON2URI(this.params)+'_renderer=react16&.r='+Math.random(), params:p, self:this, errorCallback:(json)=>{var errors={};if(json.errorType)switch(json.errorType){case	'validation':toastr.error('Validation Errors');if(json.errors && json.errors.length)json.errors.map(function(o){errors[o.id]=o.msg;});if(json.error)iwb.showModal({title:'ERROR',footer:false, color:'danger', size:'sm', body:json.error});break;default:alert(json.errorType);} else alert(json);this.setState({errors:errors});return false;}, successCallback:(json, xcfg)=>{if(cfg.callback)cfg.callback(json,xcfg);}});}");//this.cfg={...}
+			s.append("\nsubmit(cfg){var p = Object.assign({}, this.state.values);if(this.componentWillPost){var r = this.componentWillPost(p, cfg||{});if(r===false)return false;p = Object.assign(p, r);}iwb.request({url:this.url+'?'+iwb.JSON2URI(this.params)+'_renderer=react16&.r='+Math.random(), params:p, self:this, errorCallback:(json)=>{var errors={};if(json.errorType)switch(json.errorType){case	'validation':toastr.error('Validation Errors');if(json.errors && json.errors.length)json.errors.map(function(o){errors[o.id]=o.msg;});if(json.error)iwb.showModal({title:'ERROR',footer:false, color:'danger', size:'sm', body:json.error});break;default:alert(json.errorType);} else alert(json);this.setState({errors:errors});return false;}, successCallback:(json, xcfg)=>{if(cfg.callback)cfg.callback(json,xcfg);}});}");//this.cfg={...}
 			s.append("\nonChange(e){var values=this.state.values;if(e.target){var o=e.target;values[o.name]=o.type=='checkbox'?o.checked:o.value;this.setState({values:values});}}");//this.cfg={...}
 			s.append("\nonComboChange(dsc){var self=this;return function(o){var values=self.state.values;var v=o && o.id;values[dsc]=v;var q=self.triggerz4ComboRemotes;if(q[dsc])q[dsc].map(function(zzz){var nv=zzz.f(v,null,values);if(nv)iwb.request({url:'ajaxQueryData?'+iwb.JSON2URI(nv)+'.r='+Math.random(), successCallback:function(r){var options=self.state.options;options[zzz.n]=r.data;self.setState({options:options});}});else{var options=self.state.options;options[zzz.n]=[];self.setState({options:options});}});self.setState({values:values});}}");//this.cfg={...}
 			s.append("\nonLovComboChange(dsc){var self=this;return function(o){var values=self.state.values;var v=[];if(o)o.map(function(q){v.push(q.id)});values[dsc]=v.join(',');self.setState({values:values});}}");//this.cfg={...}

@@ -20,8 +20,6 @@ public class W5List implements java.io.Serializable {
 
 	private int listId;
 
-	private int customizationId;
-	
 	private String dsc;
 
 	private int queryId;
@@ -139,14 +137,6 @@ public class W5List implements java.io.Serializable {
 		this._listColumnList = _listColumnList;
 	}
 
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 	
 	
 	@Transient
@@ -250,5 +240,15 @@ public class W5List implements java.io.Serializable {
 	public void set_totalWidth(int totalWidth) {
 		_totalWidth = totalWidth;
 	}	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

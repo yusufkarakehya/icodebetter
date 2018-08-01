@@ -62,9 +62,6 @@ public class W5QueryResult implements W5MetaResult{
 	
 	public	W5QueryResult(int queryId){
 		this.queryId = queryId;
-		if(FrameworkCache.wDevEntityKeys.contains("8."+queryId)){
-			this.dev=true;
-		}
 	}
 
 	public List<Object[]> getData() {
@@ -761,7 +758,7 @@ public class W5QueryResult implements W5MetaResult{
 			boolean bq=false;
 			for(String s:fieldIdz){
 				if(s.charAt(0)=='*'){
-					int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
+/*					int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 					W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 					if(accessConditionSql!=null){
 						Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
@@ -769,11 +766,11 @@ public class W5QueryResult implements W5MetaResult{
 						if(bq)sqlWhere.append(" OR ");else bq=true;
 						sqlWhere.append(oz[0]);
 						if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-					}
+					}*/
 					continue;
 				}
 				if(s.charAt(0)=='!'){
-					int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
+					/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 					W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 					if(accessConditionSql!=null){
 						W5Table t2 = FrameworkCache.getTable(scd, accessConditionSql.getTableId());
@@ -798,7 +795,7 @@ public class W5QueryResult implements W5MetaResult{
 								break;
 							}
 						}
-					}
+					}*/
 					continue;
 				}
 				int tableFieldId = GenericUtil.uInt(s);
@@ -819,7 +816,7 @@ public class W5QueryResult implements W5MetaResult{
 					sqlParams.add(scd.get("userId"));
 
 				}else {
-					Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
+/*					Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);//TODO
 					if(tbId!=null){
 						W5Table t2 = FrameworkCache.getTable(mainTable.getCustomizationId(), tbId);
 						if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
@@ -840,7 +837,7 @@ public class W5QueryResult implements W5MetaResult{
 								break;
 							}
 						}
-					}
+					}*/
 				}
 			}
 			sqlWhere.append(")");
@@ -862,7 +859,7 @@ public class W5QueryResult implements W5MetaResult{
 					boolean bq=false;
 					for(String s:fieldIdz){
 						if(s.charAt(0)=='*'){
-							int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
+							/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 							if(accessConditionSql!=null){
 								Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
@@ -870,11 +867,11 @@ public class W5QueryResult implements W5MetaResult{
 								if(bq)sqlWhere.append(" OR ");else bq=true;
 								sqlWhere.append(oz[0]);
 								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-							}							
+							}*/							
 							continue;
 						}
 						if(s.charAt(0)=='!'){
-							int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
+							/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 							if(accessConditionSql!=null){
 								W5Table t2 = FrameworkCache.getTable(scd, accessConditionSql.getTableId());
@@ -899,7 +896,8 @@ public class W5QueryResult implements W5MetaResult{
 										break;
 									}
 								}
-							}							
+							}*/							
+							continue;
 						}
 						int tableFieldId = GenericUtil.uInt(s);
 						boolean hrc = false;
@@ -917,8 +915,8 @@ public class W5QueryResult implements W5MetaResult{
 								sqlWhere.append("x.").append(tf.getDsc()).append("=?");
 							}
 							sqlParams.add(scd.get("userId"));
-						} else {
-							Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
+						} else {//TODO
+/*							Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
 							if(tbId!=null){
 								W5Table t2 = FrameworkCache.getTable(mainTable.getCustomizationId(), tbId);
 								if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
@@ -939,7 +937,7 @@ public class W5QueryResult implements W5MetaResult{
 										break;
 									}
 								}
-							}
+							}*/
 						}
 					}
 					sqlWhere.append(") AND");
@@ -1027,95 +1025,7 @@ public class W5QueryResult implements W5MetaResult{
    		if(viewLogModeTip!=0){
    			if(!sqlSelect.startsWith("x.*"))s.append("log5_log_id, log5_dttm,log5_user_id,");
    		}
-   		if(FrameworkSetting.replaceSqlSelectX && mainTable!=null && query.getOptTip()>0 && sqlSelect.startsWith("x.*")){
-			queryColMap = new HashMap();
-   			if(query.getOptTip()==2 && requestParams.get("_cols")!=null){ 
-   				Set<String> colSet = new HashSet<String>();
-   	   			Set<Integer> colSet2 = new HashSet<Integer>();
-   				String[] cols2 = requestParams.get("_cols").split(",");
-   				for(int i=0;i<cols2.length;i++)colSet.add(cols2[i]);
-   				if(query.getOptQueryFieldIds()!=null){
-   					String[] sqf = query.getOptQueryFieldIds().split(",");
-   					for(String ss:sqf)colSet2.add(GenericUtil.uInt(ss));
-   				}
-   				
-   				for(W5QueryField qf:query.get_queryFields())if(qf.getPostProcessTip()<99 && colSet.contains(qf.getDsc()) || colSet2.contains(qf.getQueryFieldId())){
-   					queryColMap.put(qf.getDsc(), qf);
-   					colSet.remove(qf.getDsc());
-   				}
-   				
-   				W5QueryField eqf = new W5QueryField();
-   				for(String ss:colSet)queryColMap.put(ss, eqf);
-   			} else {
-   				for(W5QueryField qf:query.get_queryFields())if(qf.getPostProcessTip()<99){
-   					queryColMap.put(qf.getDsc(), qf);
-   				}
-   			}
-   			
-   			StringBuilder ss = new StringBuilder();
-   			boolean first=true;
-   			for(W5TableField tf:mainTable.get_tableFieldList()){
-				if(first || ((queryColMap==null || queryColMap.containsKey(tf.getDsc())) )){//access control && related moduleId setting
-					if(GenericUtil.accessControl(getScd(), tf.getAccessViewTip(), tf.getAccessViewRoles(),tf.getAccessViewUsers())){
-						if(first)first=false; else ss.append(", "); 
-						ss.append("x.").append(tf.getDsc());
-					}else if(tf.getAccessViewTip()!=0 && !GenericUtil.isEmpty(tf.getAccessViewUserFields())){
-						StringBuilder sql2 = new StringBuilder();
-						String[] fieldIdz = tf.getAccessViewUserFields().split(",");
-						boolean bq=false;
-						for(String s1:fieldIdz){
-							if(s1.charAt(0)=='*' || s1.charAt(0)=='!'){//TODO
-								continue;
-							}
-							int tableFieldId = GenericUtil.uInt(s1);
-							boolean hrc = false;
-							if(tableFieldId<0){
-								hrc = true;
-								tableFieldId=-tableFieldId;
-							}
-							W5TableField tf2 = mainTable.get_tableFieldMap().get(tableFieldId);
-							if(tf2!=null){
-								if(bq)sql2.append(" OR ");else bq=true;
-								if(hrc){
-									sql2.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=${scd.customizationId} AND hq.user_id=${scd.userId} AND hq.parent_user_id=x.").append(tf2.getDsc()).append(")");
-								} else {
-									sql2.append("x.").append(tf2.getDsc()).append("=${scd.userId}");
-								}
-							}else {
-								Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
-								if(tbId!=null){
-									W5Table t2 = FrameworkCache.getTable(mainTable.getCustomizationId(), tbId);
-									if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-										W5TableField tf3 = t2.get_tableFieldMap().get(tableFieldId);
-										for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==mainTable.getTableId()){
-											if(bq)sql2.append(" OR ");else bq=true;
-											if(tc.getRelatedStaticTableFieldId()>0){
-												sql2.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-											}
-											sql2.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=${scd.customizationId} AND hq.").append(tf3.getDsc()).append("=${scd.userId} AND hq.")
-											.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-											if(tc.getRelatedStaticTableFieldId()>0){
-												sql2.append(")");
-											}
-											sql2.append(")");
-											break;
-										}
-									}
-								}
-							}
-						}
-
-						if(sql2.length()>0){
-							if(first)first=false; else ss.append(", "); 
-							ss.append("case when ").append(sql2).append(" then x.").append(tf.getDsc()).append(" end ").append(tf.getDsc());
-						}
-					}
-				} else if(queryColMap==null || queryColMap.containsKey(tf.getDsc())){
-					queryColMap.remove(tf.getDsc());
-				}
-			}
-  			sqlSelect = ss.toString()+sqlSelect.substring(3);
-   		}
+   		
    		
    		if(GenericUtil.isEmpty(query.getSqlGroupby())){
    			executedSqlFromParams = new ArrayList();
@@ -1325,7 +1235,7 @@ public class W5QueryResult implements W5MetaResult{
 			boolean bq=false;
 			for(String s:fieldIdz){
 				if(s.charAt(0)=='*'){
-					int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
+					/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 					W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 					if(accessConditionSql!=null){
 						Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
@@ -1333,11 +1243,11 @@ public class W5QueryResult implements W5MetaResult{
 						if(bq)sqlWhere.append(" OR ");else bq=true;
 						sqlWhere.append(oz[0]);
 						if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-					}
+					}*/
 					continue;
 				}
 				if(s.charAt(0)=='!'){
-					int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
+					/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 					W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 					if(accessConditionSql!=null){
 						W5Table t2 = FrameworkCache.getTable(scd, accessConditionSql.getTableId());
@@ -1362,7 +1272,7 @@ public class W5QueryResult implements W5MetaResult{
 								break;
 							}
 						}
-					}
+					}*/
 					continue;
 				}
 				int tableFieldId = GenericUtil.uInt(s);
@@ -1382,8 +1292,8 @@ public class W5QueryResult implements W5MetaResult{
 					}
 					sqlParams.add(scd.get("userId"));
 
-				}else {
-					Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
+				}else {//TODO
+/*					Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
 					if(tbId!=null){
 						W5Table t2 = FrameworkCache.getTable(mainTable.getCustomizationId(), tbId);
 						if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
@@ -1404,7 +1314,7 @@ public class W5QueryResult implements W5MetaResult{
 								break;
 							}
 						}
-					}
+					} */
 				}
 			}
 			sqlWhere.append(")");
@@ -1426,7 +1336,7 @@ public class W5QueryResult implements W5MetaResult{
 					boolean bq=false;
 					for(String s:fieldIdz){
 						if(s.charAt(0)=='*'){
-							int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
+							/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 							if(accessConditionSql!=null){
 								Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
@@ -1434,11 +1344,11 @@ public class W5QueryResult implements W5MetaResult{
 								if(bq)sqlWhere.append(" OR ");else bq=true;
 								sqlWhere.append(oz[0]);
 								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-							}							
+							}	*/						
 							continue;
 						}
 						if(s.charAt(0)=='!'){
-							int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
+							/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
 							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
 							if(accessConditionSql!=null){
 								W5Table t2 = FrameworkCache.getTable(scd, accessConditionSql.getTableId());
@@ -1463,7 +1373,8 @@ public class W5QueryResult implements W5MetaResult{
 										break;
 									}
 								}
-							}							
+							}*/							
+							continue;
 						}
 						int tableFieldId = GenericUtil.uInt(s);
 						boolean hrc = false;
@@ -1481,8 +1392,8 @@ public class W5QueryResult implements W5MetaResult{
 								sqlWhere.append("x.").append(tf.getDsc()).append("=?");
 							}
 							sqlParams.add(scd.get("userId"));
-						} else {
-							Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
+						} else {//TODO
+/*							Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
 							if(tbId!=null){
 								W5Table t2 = FrameworkCache.getTable(mainTable.getCustomizationId(), tbId);
 								if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
@@ -1503,7 +1414,7 @@ public class W5QueryResult implements W5MetaResult{
 										break;
 									}
 								}
-							}
+							}*/
 						}
 					}
 					sqlWhere.append(") AND");
@@ -1590,95 +1501,7 @@ public class W5QueryResult implements W5MetaResult{
    		if(viewLogModeTip!=0){
    			if(!sqlSelect.startsWith("x.*"))s.append("log5_log_id, log5_dttm,log5_user_id,");
    		}
-   		if(FrameworkSetting.replaceSqlSelectX && mainTable!=null && query.getOptTip()>0 && sqlSelect.startsWith("x.*")){
-			queryColMap = new HashMap();
-   			if(query.getOptTip()==2 && requestParams.get("_cols")!=null){ 
-   				Set<String> colSet = new HashSet<String>();
-   	   			Set<Integer> colSet2 = new HashSet<Integer>();
-   				String[] cols2 = requestParams.get("_cols").split(",");
-   				for(int i=0;i<cols2.length;i++)colSet.add(cols2[i]);
-   				if(query.getOptQueryFieldIds()!=null){
-   					String[] sqf = query.getOptQueryFieldIds().split(",");
-   					for(String ss:sqf)colSet2.add(GenericUtil.uInt(ss));
-   				}
-   				
-   				for(W5QueryField qf:query.get_queryFields())if(qf.getPostProcessTip()<99 && colSet.contains(qf.getDsc()) || colSet2.contains(qf.getQueryFieldId())){
-   					queryColMap.put(qf.getDsc(), qf);
-   					colSet.remove(qf.getDsc());
-   				}
-   				
-   				W5QueryField eqf = new W5QueryField();
-   				for(String ss:colSet)queryColMap.put(ss, eqf);
-   			} else {
-   				for(W5QueryField qf:query.get_queryFields())if(qf.getPostProcessTip()<99){
-   					queryColMap.put(qf.getDsc(), qf);
-   				}
-   			}
-   			
-   			StringBuilder ss = new StringBuilder();
-   			boolean first=true;
-   			for(W5TableField tf:mainTable.get_tableFieldList()){
-				if(first || ((queryColMap==null || queryColMap.containsKey(tf.getDsc())))){//access control && related moduleId setting
-					if(GenericUtil.accessControl(getScd(), tf.getAccessViewTip(), tf.getAccessViewRoles(),tf.getAccessViewUsers())){
-						if(first)first=false; else ss.append(", "); 
-						ss.append("x.").append(tf.getDsc());
-					}else if(tf.getAccessViewTip()!=0 && !GenericUtil.isEmpty(tf.getAccessViewUserFields())){
-						StringBuilder sql2 = new StringBuilder();
-						String[] fieldIdz = tf.getAccessViewUserFields().split(",");
-						boolean bq=false;
-						for(String s1:fieldIdz){
-							if(s1.charAt(0)=='*' || s1.charAt(0)=='!'){//TODO
-								continue;
-							}
-							int tableFieldId = GenericUtil.uInt(s1);
-							boolean hrc = false;
-							if(tableFieldId<0){
-								hrc = true;
-								tableFieldId=-tableFieldId;
-							}
-							W5TableField tf2 = mainTable.get_tableFieldMap().get(tableFieldId);
-							if(tf2!=null){
-								if(bq)sql2.append(" OR ");else bq=true;
-								if(hrc){
-									sql2.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=${scd.customizationId} AND hq.user_id=${scd.userId} AND hq.parent_user_id=x.").append(tf2.getDsc()).append(")");
-								} else {
-									sql2.append("x.").append(tf2.getDsc()).append("=${scd.userId}");
-								}
-							}else {
-								Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
-								if(tbId!=null){
-									W5Table t2 = FrameworkCache.getTable(mainTable.getCustomizationId(), tbId);
-									if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-										W5TableField tf3 = t2.get_tableFieldMap().get(tableFieldId);
-										for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==mainTable.getTableId()){
-											if(bq)sql2.append(" OR ");else bq=true;
-											if(tc.getRelatedStaticTableFieldId()>0){
-												sql2.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-											}
-											sql2.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=${scd.customizationId} AND hq.").append(tf3.getDsc()).append("=${scd.userId} AND hq.")
-											.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-											if(tc.getRelatedStaticTableFieldId()>0){
-												sql2.append(")");
-											}
-											sql2.append(")");
-											break;
-										}
-									}
-								}
-							}
-						}
-
-						if(sql2.length()>0){
-							if(first)first=false; else ss.append(", "); 
-							ss.append("case when ").append(sql2).append(" then x.").append(tf.getDsc()).append(" end ").append(tf.getDsc());
-						}
-					}
-				} else if(queryColMap==null || queryColMap.containsKey(tf.getDsc())){
-					queryColMap.remove(tf.getDsc());
-				}
-			}
-  			sqlSelect = ss.toString()+sqlSelect.substring(3);
-   		}
+   	
    		
    		if(GenericUtil.isEmpty(query.getSqlGroupby())){
    			executedSqlFromParams = new ArrayList();
@@ -2343,13 +2166,5 @@ public class W5QueryResult implements W5MetaResult{
 
 	public void setMainTsMeasurement(W5TsMeasurement mainTsMeasurement) {
 		this.mainTsMeasurement = mainTsMeasurement;
-	}
-	private boolean dev = false;
-	
-	public boolean isDev() {
-		return dev;
-	}
-	public void setDev(boolean dev) {
-		this.dev = dev;
 	}
 }

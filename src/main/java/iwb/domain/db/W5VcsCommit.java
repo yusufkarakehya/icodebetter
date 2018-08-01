@@ -88,6 +88,15 @@ public class W5VcsCommit  implements java.io.Serializable {
 	}
 	
 	
-	
+	public W5VcsCommit newInstance(String newProjectUuid){
+		W5VcsCommit n = new W5VcsCommit();
+		n.setComment(comment);
+		n.setCommitTip(commitTip);
+		n.setCommitUserId(commitUserId);
+		n.setExtraSql(extraSql);
+		n.setProjectUuid(newProjectUuid);
+		n.setVcsCommitId(vcsCommitId);
+		return n;
+	}
 	
 }

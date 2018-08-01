@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import iwb.cache.FrameworkCache;
-import iwb.domain.db.W5ApprovalRecord;
-import iwb.domain.db.W5ApprovalStep;
+import iwb.domain.db.W5WorkflowRecord;
+import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
@@ -33,8 +33,8 @@ public class W5FormResult implements W5MetaResult{
 	private Map<String,Object> outputFields;
 	private Map<String,Object> pkFields;
 	private	List<String> outputMessages;
-    private	W5ApprovalRecord approvalRecord;
-    private	W5ApprovalStep approvalStep;
+    private	W5WorkflowRecord approvalRecord;
+    private	W5WorkflowStep approvalStep;
 	private	int	commentCount;
 	private	String	commentExtraInfo;
 	private	int	fileAttachmentCount;
@@ -57,10 +57,6 @@ public class W5FormResult implements W5MetaResult{
 
 	public W5FormResult(int formId) {
 		this.formId=formId;
-		if(FrameworkCache.wDevEntityKeys.contains("40."+formId)){
-			this.dev=true;
-		}
-
 	}
 	public int getFormId() {
 		return formId;
@@ -141,10 +137,10 @@ public class W5FormResult implements W5MetaResult{
 	public void setOutputMessages(List<String> outputMessages) {
 		this.outputMessages = outputMessages;
 	}
-	public W5ApprovalRecord getApprovalRecord() {
+	public W5WorkflowRecord getApprovalRecord() {
 		return approvalRecord;
 	}
-	public void setApprovalRecord(W5ApprovalRecord approvalRecord) {
+	public void setApprovalRecord(W5WorkflowRecord approvalRecord) {
 		this.approvalRecord = approvalRecord;
 	}
 	public int getCommentCount() {
@@ -213,10 +209,10 @@ public class W5FormResult implements W5MetaResult{
 	public void setQueuedActionList(List<W5QueuedActionHelper> queuedDbFuncList) {
 		this.queuedActionList = queuedDbFuncList;
 	}
-	public W5ApprovalStep getApprovalStep() {
+	public W5WorkflowStep getApprovalStep() {
 		return approvalStep;
 	}
-	public void setApprovalStep(W5ApprovalStep approvalStep) {
+	public void setApprovalStep(W5WorkflowStep approvalStep) {
 		this.approvalStep = approvalStep;
 	}
 
@@ -291,15 +287,6 @@ public class W5FormResult implements W5MetaResult{
 		this.listSyncAfterPostHelper = listSyncAfterPostHelper;
 	}
 
-	private boolean dev = false;
-	
-	public boolean isDev() {
-		return dev;
-	}
-	public void setDev(boolean dev) {
-		this.dev = dev;
-	}
-	
 	
 }
 

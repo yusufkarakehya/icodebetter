@@ -34,8 +34,6 @@ public class W5QueryField implements java.io.Serializable, W5Param {
 	private int lookupQueryId;
 	
 	private int mainTableFieldId;
-	private int customizationId;
-
 	
 	public W5QueryField() {
 	}
@@ -118,16 +116,6 @@ public class W5QueryField implements java.io.Serializable, W5Param {
 		this.mainTableFieldId = mainTableFieldId;
 	}
 	
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
-
-
 	@Transient
 	public short getParamTip(){
 		return fieldTip;
@@ -174,6 +162,16 @@ public class W5QueryField implements java.io.Serializable, W5Param {
 	public Short getMaxLength(){
 		return 0;
 	}
-	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
 	
 }

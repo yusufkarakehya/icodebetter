@@ -17,7 +17,6 @@ import iwb.util.GenericUtil;
 public class W5GridModule implements java.io.Serializable, W5Base {
 
 	private int gridModuleId;
-	private int customizationId;	
 	private int gridId;
 	private String localeMsgKey;
 	private short tabOrder;
@@ -34,14 +33,7 @@ public class W5GridModule implements java.io.Serializable, W5Base {
 	public void setGridModuleId(int gridModuleId) {
 		this.gridModuleId = gridModuleId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 
 	@Column(name="grid_id")
 	public int getGridId() {
@@ -104,6 +96,16 @@ public class W5GridModule implements java.io.Serializable, W5Base {
 			this.accessViewTip == g.getAccessViewTip() &&
 			GenericUtil.safeEquals(this.accessViewRoles, g.getAccessViewRoles()) &&
 			GenericUtil.safeEquals(this.accessViewUsers, g.getAccessViewUsers());
+	}
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

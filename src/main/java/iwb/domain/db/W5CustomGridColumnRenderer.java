@@ -16,7 +16,6 @@ import org.hibernate.annotations.Immutable;
 public class W5CustomGridColumnRenderer implements java.io.Serializable {
 
 	private int customGridColumnRendererId;
-	private int customizationId;
 	private int gridId;
 	private int queryFieldId;
 	private String lookupDetayVal;
@@ -30,14 +29,7 @@ public class W5CustomGridColumnRenderer implements java.io.Serializable {
 	public void setCustomGridColumnRendererId(int customGridColumnRendererId) {
 		this.customGridColumnRendererId = customGridColumnRendererId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="grid_id")
 	public int getGridId() {
 		return gridId;
@@ -67,5 +59,15 @@ public class W5CustomGridColumnRenderer implements java.io.Serializable {
 		this.queryFieldId = queryFieldId;
 	}
 	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

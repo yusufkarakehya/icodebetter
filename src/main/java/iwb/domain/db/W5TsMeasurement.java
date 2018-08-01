@@ -19,7 +19,6 @@ public class W5TsMeasurement implements java.io.Serializable {
 
 	private int measurementId;
 	
-	private int customizationId;
 	private String dsc;
 	private int tableId;
 	private int tablePk;
@@ -37,15 +36,7 @@ public class W5TsMeasurement implements java.io.Serializable {
 	public W5TsMeasurement(){
 	}
 
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	@Column(name="dsc")
 	public String getDsc() {
@@ -157,5 +148,15 @@ public class W5TsMeasurement implements java.io.Serializable {
 		this._measurementFields = _measurementFields;
 	}	
 	
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

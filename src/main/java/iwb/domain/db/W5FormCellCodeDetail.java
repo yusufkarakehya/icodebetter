@@ -15,7 +15,6 @@ public class W5FormCellCodeDetail implements java.io.Serializable, W5Base {
 
 	private int formCellCodeDetailId;
 	private int formCellId;
-	private int customizationId;	
 	private short tabOrder;
 	private short codeTip;
 	private short codeLength;
@@ -92,15 +91,7 @@ public class W5FormCellCodeDetail implements java.io.Serializable, W5Base {
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 	@Column(name="fill_character")
 	public char getFillCharacter() {
 		return fillCharacter;
@@ -123,6 +114,17 @@ public class W5FormCellCodeDetail implements java.io.Serializable, W5Base {
 		if(q==null)return false;
 		W5FormCellCodeDetail f = (W5FormCellCodeDetail)q;
 		return false;
+	}
+	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 
 }

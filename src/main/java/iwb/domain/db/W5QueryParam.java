@@ -43,8 +43,6 @@ public class W5QueryParam implements java.io.Serializable, W5Param {
 	
 	private	Short	minLength;
 	private	Short	maxLength;
-	private int customizationId;
-
 	public W5QueryParam() {
 	}
 
@@ -189,14 +187,15 @@ public class W5QueryParam implements java.io.Serializable, W5Param {
 
 
 
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
 	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
-
 	
 }

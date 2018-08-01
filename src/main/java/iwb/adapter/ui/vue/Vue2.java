@@ -14,7 +14,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
-import iwb.domain.db.W5Approval;
+import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5DataView;
@@ -37,21 +37,21 @@ import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5Template;
-import iwb.domain.db.W5TemplateObject;
+import iwb.domain.db.W5Page;
+import iwb.domain.db.W5PageObject;
 import iwb.domain.db.W5Tutorial;
 import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.W5DataViewResult;
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GridResult;
 import iwb.domain.result.W5ListViewResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TemplateResult;
+import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
@@ -1291,7 +1291,7 @@ public class Vue2 implements ViewAdapter {
 		return buf;
 	}
 
-	private StringBuilder renderTemplateObject(W5TemplateResult templateResult) {
+	private StringBuilder renderTemplateObject(W5PageResult templateResult) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
 		if(!(templateResult.getTemplateObjectList().get(0) instanceof W5GridResult))return buf;
@@ -2480,10 +2480,10 @@ public class Vue2 implements ViewAdapter {
 		else {
 			if (g.getSelectionModeTip() == 2 || g.getSelectionModeTip() == 3) // multi Select
 				buf.append(",\n ,selectRow:{mode: 'checkbox',clickToSelect: true}");
-			else if (g.getSelectionModeTip() == 5 && g.get_detailView() != null) // promis.js'de
+/*			else if (g.getSelectionModeTip() == 5 && g.get_detailView() != null) // promis.js'de
 																					// halledilmek
 																					// uzere
-				buf.append(",\n detailDlg:true");
+				buf.append(",\n detailDlg:true");*/
 			if (g.getDefaultHeight() > 0)
 				buf.append(",\n defaultHeight:").append(g.getDefaultHeight());
 
@@ -3397,8 +3397,7 @@ columns:[
 										buf.append("',")
 												.append(f.getDsc())
 												.append("_qw_:'")
-												.append(FrameworkCache.wApprovals
-														.get(f.getLookupQueryId())
+												.append(FrameworkCache.getWorkflow(queryResult.getScd(),f.getLookupQueryId())
 														.get_approvalStepMap()
 														.get(id).getDsc());
 									break;
@@ -3684,8 +3683,7 @@ columns:[
 										buf2.append("\",\"")
 												.append(f.getDsc())
 												.append("_qw_\":\"")
-												.append(FrameworkCache.wApprovals
-														.get(f.getLookupQueryId())
+												.append(FrameworkCache.getWorkflow(queryResult.getScd(),f.getLookupQueryId())
 														.get_approvalStepMap()
 														.get(id2).getDsc());
 									break;
@@ -3962,8 +3960,7 @@ columns:[
 												ozs.length > 4 ? ozs[4] : null))
 									buf.append("-");
 								buf.append(ozs[2]);
-								W5Approval appr = FrameworkCache.wApprovals
-										.get(appId);
+								W5Workflow appr = FrameworkCache.getWorkflow(queryResult.getScd(),appId);
 								String appStepDsc = "";
 								if (appr != null
 										&& appr.get_approvalStepMap().get(
@@ -4060,9 +4057,9 @@ columns:[
 		return buf.append("}");
 	}
 
-	public StringBuilder serializeTemplate(W5TemplateResult templateResult) {
+	public StringBuilder serializeTemplate(W5PageResult templateResult) {
 		boolean replacePostJsCode = false;
-		W5Template template = templateResult.getTemplate();
+		W5Page template = templateResult.getPage();
 
 		StringBuilder buf = new StringBuilder();
 		StringBuilder postBuf = new StringBuilder();
@@ -4138,11 +4135,11 @@ columns:[
 									.append(customObjectCount++).append("=")
 									.append(fr.getForm().getDsc()).append("\n");
 						}
-					} else if (i instanceof W5DbFuncResult) {
+					} else if (i instanceof W5GlobalFuncResult) {
 						buf.append("\nvar ")
-								.append(((W5DbFuncResult) i).getDbFunc()
+								.append(((W5GlobalFuncResult) i).getGlobalFunc()
 										.getDsc()).append("=")
-								.append(serializeDbFunc((W5DbFuncResult) i))
+								.append(serializeDbFunc((W5GlobalFuncResult) i))
 								.append("\n");
 					} else if (i instanceof W5QueryResult) {
 						buf.append("\nvar ")
@@ -4158,7 +4155,7 @@ columns:[
 			} else { // wizard
 				buf.append("\nvar templateObjects=[");
 				boolean b = false;
-				for (W5TemplateObject o : template.get_templateObjectList()) {
+				for (W5PageObject o : template.get_pageObjectList()) {
 					if (b)
 						buf.append(",\n");
 					else
@@ -4198,7 +4195,7 @@ columns:[
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))
 					.append(";\n");
 
-			if (!FrameworkCache.publishLookUps.isEmpty()) {
+/*			if (!FrameworkCache.publishLookUps.isEmpty()) {
 				buf2.append("var _lookups={");
 				boolean b2 = false;
 				for (Integer lookUpId : FrameworkCache.publishLookUps) {
@@ -4220,7 +4217,7 @@ columns:[
 					buf2.append(GenericUtil.fromMapToJsonString(tempMap));
 				}
 				buf2.append("};\n");
-			}
+			}*/
 			int customObjectCount=1;
 			for (Object i : templateResult.getTemplateObjectList()) {
 				if (i instanceof W5GridResult) {
@@ -4242,11 +4239,11 @@ columns:[
 					buf2.append("\nvar _form")
 					.append(customObjectCount++).append("=")
 					.append(fr.getForm().getDsc()).append(";\n");
-				} else if (i instanceof W5DbFuncResult) {
+				} else if (i instanceof W5GlobalFuncResult) {
 					buf2.append("\nvar ")
-							.append(((W5DbFuncResult) i).getDbFunc()
+							.append(((W5GlobalFuncResult) i).getGlobalFunc()
 									.getDsc()).append("=")
-							.append(serializeDbFunc((W5DbFuncResult) i))
+							.append(serializeDbFunc((W5GlobalFuncResult) i))
 							.append(";\n");
 				} else if (i instanceof W5QueryResult) {
 					buf2.append("\nvar ")
@@ -4303,7 +4300,7 @@ columns:[
 		if(!GenericUtil.isEmpty(code))
 			buf.append("\n").append(code.startsWith("!") ? code.substring(1) : code);
 
-		short ttip= templateResult.getTemplate().getTemplateTip();
+		short ttip= templateResult.getPage().getTemplateTip();
 		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
 
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
@@ -4443,11 +4440,11 @@ columns:[
 		return buf;
 	}
 
-	public StringBuilder serializeDbFunc(W5DbFuncResult dbFuncResult) {
+	public StringBuilder serializeDbFunc(W5GlobalFuncResult dbFuncResult) {
 		String xlocale = (String) dbFuncResult.getScd().get("locale");
 		StringBuilder buf = new StringBuilder();
 		buf.append("{\"success\":").append(dbFuncResult.isSuccess())
-				.append(",\"db_func_id\":").append(dbFuncResult.getDbFuncId());
+				.append(",\"db_func_id\":").append(dbFuncResult.getGlobalFuncId());
 		if (dbFuncResult.getErrorMap() != null
 				&& dbFuncResult.getErrorMap().size() > 0)
 			buf.append(",\n\"errorType\":\"validation\",\n\"errors\":").append(

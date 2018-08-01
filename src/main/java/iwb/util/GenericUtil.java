@@ -56,7 +56,7 @@ import com.google.common.net.InternetDomainName;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
-import iwb.dao.RdbmsDao;
+import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5Base;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5LookUpDetay;
@@ -1088,7 +1088,7 @@ public class GenericUtil {
 	}
 	
 
-	public static Object prepareParam(W5Param param, Map<String, Object> scd, Map<String, String> requestParams, short sourceTip, Map<String, String> extraParams, short notNullFlag, String dsc, String defaultValue, Map<String, String>  errorMap, RdbmsDao dao){
+	public static Object prepareParam(W5Param param, Map<String, Object> scd, Map<String, String> requestParams, short sourceTip, Map<String, String> extraParams, short notNullFlag, String dsc, String defaultValue, Map<String, String>  errorMap, PostgreSQL dao){
 		String pvalue = null;
 		boolean hasError = false;
 		if(sourceTip<0)sourceTip = param.getSourceTip();
