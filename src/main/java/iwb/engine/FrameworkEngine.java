@@ -1790,7 +1790,7 @@ public class FrameworkEngine{
 					if(GenericUtil.isEmpty(paramSuffix) && requestParams.containsKey("_cnvId") && requestParams.containsKey("_cnvTblPk")){//conversion var burda
 						int conversionId = GenericUtil.uInt(requestParams.get("_cnvId"));
 						int conversionTablePk = GenericUtil.uInt(requestParams.get("_cnvTblPk"));
-						List<W5Conversion> lcnv = dao.find("from W5Conversion x where x.conversionId=? AND x.customizationId=?", conversionId, (Integer)scd.get("customizationId"));
+						List<W5Conversion> lcnv = dao.find("from W5Conversion x where x.conversionId=? AND x.projectUuid=?", conversionId, (String)scd.get("projectId"));
 						if(lcnv.size()==1 && lcnv.get(0).getDstFormId()==formId){ //bu form'a aitmis conversion
 							W5Conversion cnv = lcnv.get(0);
 							W5ConvertedObject co = new W5ConvertedObject(scd,conversionId,conversionTablePk, GenericUtil.uInt(ptablePk));
