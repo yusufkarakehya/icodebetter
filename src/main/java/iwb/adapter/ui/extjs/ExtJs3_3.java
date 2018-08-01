@@ -2455,7 +2455,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append(cellDsc)
 					.append("',\nstore: new Ext.data.JsonStore({url:'ajaxQueryData?_fdid=")
 					.append(fc.getFormCellId())
-					.append("&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
+					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
 					.append(cellResult.getLookupQueryResult()!=null ? cellResult.getLookupQueryResult().getQueryId() : cellResult.getFormCell().getLookupQueryId())
 					.append("&limit=").append(maxRows);
 			if (FrameworkSetting.validateLookups && formResult != null)
@@ -2626,7 +2626,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						.append(fieldLabel)
 						.append("',\nstore: new Ext.data.JsonStore({url:'ajaxQueryData?_fdid=")
 						.append(fc.getFormCellId())
-						.append("&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=1075&xtable_field_id=")
+						.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=1075&xtable_field_id=")
 						.append(fc.getObjectDetailId())
 						.append("',root:'data',totalProperty:'browseInfo.totalCount',id:'dsc',fields:[{name:'dsc'}],listeners:{loadexception:promisLoadException}})")
 						.append(",displayField:'dsc',forceSelection:false,typeAhead: false, loadingText: '").append(LocaleMsgCache.get2(customizationId, xlocale, "searching")).append("...',hideTrigger:true,queryParam:'xdsc',name:'")
@@ -2674,7 +2674,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						.append(fieldLabel)
 						.append("',\nstore: new Ext.data.JsonStore({url:'ajaxQueryData?_fdid=")
 						.append(fc.getFormCellId())
-						.append("&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=1075&xtable_field_id=")
+						.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=1075&xtable_field_id=")
 						.append(fc.getObjectDetailId())
 						.append("',root:'data',totalProperty:'browseInfo.totalCount',id:'dsc',fields:[{name:'dsc'}],listeners:{loadexception:promisLoadException}})")
 						.append(",displayField:'dsc',forceSelection:false,typeAhead: false, loadingText: '").append(LocaleMsgCache.get2(customizationId, xlocale, "searching")).append("...',hideTrigger:true,queryParam:'xdsc',name:'")
@@ -2714,7 +2714,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			// Prosedürlerin parametreleri için de yapılmalı, store ve
 			// queryParam eksik, oluşan alanın extra koduna yazılmalı
 			// store: new
-			// Ext.data.JsonStore({url:'ajaxQueryData?_fdid=").append(fc.getFormCellId()).append("&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=1075',root:'data',totalProperty:'browseInfo.totalCount',id:'dsc',fields:[{name:'dsc'}],listeners:{loadexception:promisLoadException}}),queryParam:'xdsc'
+			// Ext.data.JsonStore({url:'ajaxQueryData?_fdid=").append(fc.getFormCellId()).append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=1075',root:'data',totalProperty:'browseInfo.totalCount',id:'dsc',fields:[{name:'dsc'}],listeners:{loadexception:promisLoadException}}),queryParam:'xdsc'
 			// gibi
 			if (fc.get_sourceObjectDetail() != null
 					&& fc.get_sourceObjectDetail() instanceof W5DbFuncParam) {
@@ -2808,7 +2808,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append(cellDsc)
 					.append("',\nstore: new Ext.data.JsonStore({url:'ajaxQueryData?_fdid=")
 					.append(fc.getFormCellId())
-					.append("&.t='+_page_tab_id+'&.w='+_webPageId");
+					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId");
 			if (FrameworkSetting.validateLookups && formResult != null)
 				buf.append("+'&_fuid=").append(formResult.getUniqueId())
 						.append("&_fcid=").append(fc.getFormCellId())
@@ -2882,7 +2882,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append(cellDsc)
 					.append("',\nstore: new Ext.data.JsonStore({url:'ajaxQueryData?_fdid=")
 					.append(fc.getFormCellId())
-					.append("&.t='+_page_tab_id+'&.w='+_webPageId+'&_=_',")
+					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_=_',")
 					.append(cellResult.getLookupQueryResult() == null ? toDefaultLookupQueryReader()
 							: serializeQueryReader(cellResult
 									.getLookupQueryResult().getQuery()
@@ -2961,7 +2961,7 @@ public class ExtJs3_3 implements ViewAdapter {
 
 			buf.append("ajaxQueryData?_fdid=")
 					.append(fc.getFormCellId())
-					.append("&.t='+_page_tab_id+'&.w='+_webPageId+'&_=_");
+					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_=_");
 			if (FrameworkSetting.validateLookups && formResult != null)
 				buf.append("&_fuid=").append(formResult.getUniqueId())
 						.append("&_fcid=").append(fc.getFormCellId());
@@ -3436,7 +3436,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append(cellDsc)
 					.append("',\nstore: new Ext.data.JsonStore({url:'ajaxQueryData?_fdid=")
 					.append(fc.getFormCellId())
-					.append("&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
+					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
 					.append(cellResult.getLookupQueryResult().getQueryId())
 					.append("&limit=").append(maxRows1);
 			if (FrameworkSetting.validateLookups && formResult != null)
@@ -3555,7 +3555,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append("new Ext.ux.TreeCombo({").append(uniqeId)
 					.append("url: 'ajaxQueryData?_fdid=")
 					.append(fc.getFormCellId())
-					.append("&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
+					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
 					.append(cellResult.getLookupQueryResult().getQueryId())
 					.append("',_controlTip:").append(controlTip)
 					.append(",labelSeparator:'',fieldLabel:'")
@@ -4326,7 +4326,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						d.getLocaleMsgKey()))
 				.append("'")
-				.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
+				.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
 				.append(d.getQueryId()).append("&_lvid=").append(d.getListId());
 
 		if (d.getDefaultPageRecordNumber() != 0)
@@ -4512,7 +4512,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		if (!gridResult.isViewLogMode() && g.getTreeMasterFieldId() != 0) {// tree query + Grouping Field varsa, o zaman
 																			// bunu AdjacencyTreeGrid(MaximGB) olarak Goster
 			buf.append(
-					",\n ds:new Ext.ux.maximgb.tg.AdjacencyListStore({autoLoad:false,url:'"+ajaxUrl+"?.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")//_json=1&_tqd=1&
+					",\n ds:new Ext.ux.maximgb.tg.AdjacencyListStore({autoLoad:false,url:'"+ajaxUrl+"?.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")//_json=1&_tqd=1&
 					.append(g.getQueryId());
 			if(gridResult.isDev())buf.append("&_dev=1");
 			if (g.getDefaultPageRecordNumber() != 0)
@@ -4539,7 +4539,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(",\n view:new Ext.grid.GroupingView({groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? \"Items\" : \"Item\"]})'})");
 			buf.append(",\n ds:new Ext.data.GroupingStore({groupField:'")
 					.append(g.get_groupingField().getDsc())
-					.append("',\n proxy:new Ext.data.HttpProxy({url:'"+ajaxUrl+"?.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
+					.append("',\n proxy:new Ext.data.HttpProxy({url:'"+ajaxUrl+"?.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
 					.append(g.getQueryId());
 			if(gridResult.isDev())buf.append("&_dev=1");
 			if (g.getDefaultPageRecordNumber() != 0)
@@ -4558,7 +4558,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.getMainTableId()), scd)).append("})})");
 		} else {
 			buf.append(
-					",\n ds:new Ext.data.JsonStore({url:'"+ajaxUrl+"?.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
+					",\n ds:new Ext.data.JsonStore({url:'"+ajaxUrl+"?.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
 					.append(g.getQueryId()).append("&_gid=")
 					.append(g.getGridId());
 			if(gridResult.isDev())buf.append("&_dev=1");
