@@ -713,7 +713,7 @@ function renderTableRecordInfo(j){
     	
     rs=j.childs;
     if(!rs || !rs.length)return s;
-	ss='<br><b>Alt kırılımlar</b>';
+	ss='<br><b>Details</b>';
     for(var qi=0;qi<rs.length;qi++){
         var r=rs[qi];
         ss+='<br> · '+ (r.vtip ? '<a href=# id="idLinkRel_'+r.rel_id+'" onclick="return showTableChildList(event,'+r.vtip+','+r.void+','+r.mtbid+','+r.mtbpk+','+r.rel_id+');return false;">'+r.tdsc +'</a>': r.dsc) + ' ('+r.tc + (_app.table_children_max_record_number && 1*r.tc==1*_app.table_children_max_record_number-1 ? '+':'')+' adet)';
@@ -1750,15 +1750,6 @@ function addTab4GridWSearchForm(obj){
 					var c=Ext.getCmp(a._grid._gp._tid);
 					if(c && c._title){c.setTitle(c._title);c._title=false;}
 				}
-				if(a._grid.postCols && a._grid._gp.colModel && a._grid._gp.colModel.config){
-					var c=a._grid._gp.colModel.config;
-					var s='';
-					for(var qi=0;qi<c.length;qi++){
-						var cc=c[qi];
-						if(!cc.hidden)s+=','+cc.dataIndex;
-					}
-					a.baseParams._cols=s.substring(1);
-				}				
 			}
 		});
 		items.push(searchFormPanel);
@@ -1934,15 +1925,6 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 		if(a._grid && a._grid._gp && a._grid._gp._tid){
 			var c=Ext.getCmp(a._grid._gp._tid);
 			if(c && c._title){c.setTitle(c._title);c._title=false;}
-		}
-		if(a._grid && a._grid.postCols && a._grid._gp && a._grid._gp.colModel && a._grid._gp.colModel.config){
-			var c=a._grid._gp.colModel.config;
-			var s='';
-			for(var qi=0;qi<c.length;qi++){
-				var cc=c[qi];
-				if(!cc.hidden)s+=','+cc.dataIndex;
-			}
-			a.baseParams._cols=s.substring(1);
 		}
 	});
 
@@ -2186,9 +2168,9 @@ function ajaxErrorHandler(obj){
         showLoginDialog(obj);
     else if (obj.errorType && obj.errorType=='security')
     	Ext.infoMsg.msg('error',getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>');
-    else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework')){
+    else if (obj.errorType && (obj.errorType=='sql' || obj.errorType=='vcs' || obj.errorType=='rhino' || obj.errorType=='framework' || obj.errorType=='cache')){
     	var items=[];
-    	items.push({xtype:'displayfield',fieldLabel: '',anchor:'99%',labelSeparator:'', hideLabel:!0, value:'<b>'+(obj.error||'Unknown')+'</b>'});
+    	items.push({xtype:'displayfield',fieldLabel: '',anchor:'99%',labelSeparator:'', hideLabel:!0, value:'<span style="font-size:1.5em">'+(obj.error||'Unknown')+'</span>'});
     	if(false && obj.objectType){
     		items.push({xtype:'displayfield',fieldLabel: obj.objectId ? obj.objectType : 'Type',anchor:'99%', labelSeparator:'', value:obj.objectId || obj.objectType});
 //    		if(obj.objectId)items.push({xtype:'displayfield',fieldLabel: 'ID',width:100, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
@@ -4313,7 +4295,7 @@ function fmtTypingBlock(j){
 	if(!j || j.length==0)return "";
 	var u = j[0].sender_user_id!=_scd.userId ? j[0].sender_user_id:j[0].receiver_user_id;
 	return '<tr style="display:none;" id="idTypingWith_'+u+'"><td width=24 valign=top><img src="sf/pic'+u+'.png" width='+_app.profile_picture_width_mini+' height='+_app.profile_picture_height_mini
-	+'></td><td width=5></td><td width=100% valign=top><img height=15 src="../images/custom/typing.gif"></td><td width=1></td><td width=5></td></tr>';
+	+'></td><td width=5></td><td width=100% valign=top><img height=35 src="../ext3.4.1/custom/images/typing.svg"></td><td width=1></td><td width=5></td></tr>';
 }
 
 function getPPicImgTag(userId, mid){
@@ -4347,7 +4329,7 @@ function fmtChatList(j){
 			var u=x.substring(0,i),l=x.substring(i+1);
 			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a>';
 		} catch(e){str+='<b style="color:red;">!error!</b>';}else str+='<span style="width:140px;word-wrap:break-word;display:block;">'+j.msg+'</span>';
-		str+='<span class="cfeed"> · '+ fmtDateTimeWithDay2(j.sent_dttm)
+		str+='<span class="cfeed">'+ fmtDateTimeWithDay2(j.sent_dttm)
 			+'</span></td><td width=5></td><td width=1></td></tr><tr height=10><td colspan=5></td></tr>';
 		return str;
 	} else {
@@ -4358,7 +4340,7 @@ function fmtChatList(j){
 			var u=x.substring(0,i),l=x.substring(i+1);
 			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a>';
 		} catch(e){str+='<b style="color:red;">!error!</b>';}else str+='<span style="width:140px;word-wrap:break-word;display:block;">'+j.msg+'</span>';
-		str+='<span class="cfeed"> · '+ fmtDateTimeWithDay2(j.sent_dttm)
+		str+='<span class="cfeed">'+ fmtDateTimeWithDay2(j.sent_dttm)
 			+'</span></td><td width=5></td><td width=24 valign=top>'+getPPicImgTag(j.sender_user_id)+'</td></tr><tr height=10><td colspan=5></td></tr>';
 		return str;
 	}
@@ -4366,7 +4348,7 @@ function fmtChatList(j){
 function fmtOnlineUser(j){
 	var str='<table border=0 width=100% padding=0 style="margin-left:-1px;"';
 	if(j.not_read_count>0)str+=" class='veliSelLightBlue'";
-	str+='><tr><td width=24>'+getPPicImgTag(j.user_id)+'</td><td width=99%> <span>&nbsp; ';
+	str+='><tr><td width=24><img src="sf/pic'+j.user_id+'.png" '+(j.chat_status_tip? 'style="border-width: 3px;borderborder-color:'+usersBorderChat[j.chat_status_tip-1]+'" ':'')+' class="ppic-mini"></td><td width=99%> <span>&nbsp; ';
 	if(j.dsc.length>20)j.dsc=j.dsc.substring(0,18)+'...';
 	str+=j.dsc+'</span>';
 	if(j.not_read_count>0)str+='&nbsp; <span id="idChatNotRead_'+j.user_id+'" style="color:red;">('+(j.not_read_count>9 ? '+9':j.not_read_count)+')</span>';
@@ -4378,7 +4360,8 @@ function fmtOnlineUser(j){
 	if(s.length>27)s=s.substring(0,25)+'...';
 	str+=s+'</span></td><td width=1%>';
 	if(j.mobile)str+='<span class="status-item2 mobile-1">&nbsp;</span>';
-	str+='<span class="status-item2 status-'+j.chat_status_tip+'" style="margin-right:1px;">&nbsp;</span></td></tr></table>';
+//	str+='<span class="status-item2 status-'+j.chat_status_tip+'" style="margin-right:1px;">&nbsp;</span>';
+	str+='</td></tr></table>';
 	return str;
 }
 

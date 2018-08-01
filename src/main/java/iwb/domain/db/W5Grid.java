@@ -22,8 +22,6 @@ public class W5Grid implements java.io.Serializable, W5Base {
 
 	private int gridId;
 
-	private int customizationId;
-	
 	private String dsc;
 
 	private int queryId;
@@ -73,14 +71,13 @@ public class W5Grid implements java.io.Serializable, W5Base {
 	private	W5Table _crudTable;
 	private W5Query	_query;	
 	private W5WsMethod	_wsMethod;	
-	private W5Template _detailView;
 	private List<W5QueryField> _postProcessQueryFields;
 	private Map<Integer, W5QueryField> _queryFieldMap;
 	private List<W5CustomGridColumnRenderer> _listCustomGridColumnRenderer;
 	private List<W5CustomGridColumnCondition> _listCustomGridColumnCondition;
 	private short rowColorFxTip;
 	private int rowColorFxQueryFieldId;
-	private W5Approval _approval;
+	private W5Workflow _approval;
 	
 	@Id
 	@Column(name="grid_id")
@@ -190,15 +187,6 @@ public class W5Grid implements java.io.Serializable, W5Base {
 		_gridColumnList = gridColumnList;
 	}
 
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
-	
 	@Column(name="default_crud_form_id")
 	public int getDefaultCrudFormId() {
 		return defaultCrudFormId;
@@ -269,17 +257,6 @@ public class W5Grid implements java.io.Serializable, W5Base {
 	public void set_groupingField(W5QueryField groupingField) {
 		_groupingField = groupingField;
 	}
-	
-	@Transient
-	public W5Template get_detailView() {
-		return _detailView;
-	}
-	public void set_detailView(W5Template detailView) {
-		_detailView = detailView;
-	}
-	
-
-
 	
 	@Column(name="code")
 	public String getJsCode() {
@@ -512,10 +489,10 @@ public class W5Grid implements java.io.Serializable, W5Base {
 	}
 	
 	@Transient
-	public W5Approval getApproval() {
+	public W5Workflow getApproval() {
 		return _approval;
 	}
-	public void setApproval(W5Approval approval) {
+	public void setApproval(W5Workflow approval) {
 		_approval = approval;
 	}
 	
@@ -526,6 +503,15 @@ public class W5Grid implements java.io.Serializable, W5Base {
 	public void set_wsMethod(W5WsMethod _wsMethod) {
 		this._wsMethod = _wsMethod;
 	}
-	
-	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+		
 }

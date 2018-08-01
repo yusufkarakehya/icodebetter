@@ -83,8 +83,8 @@ public class IWBException extends RuntimeException {
 			if(!GenericUtil.isEmpty(this.stack) && this.stack.size()>1){
 				b.append(",\n\"icodebetter\":[");
 				String lastErrorMsg="";
-				if(GenericUtil.isEmpty(uri)){
-					b.append("{errorType:\"Request\",error:\"").append(uri).append("\"}");
+				if(!GenericUtil.isEmpty(uri)){
+					b.append("{errorType:\"request\",objectType:\"Web.Request\",error:\"").append(uri).append("\"}");
 					lastErrorMsg = uri;					
 				}
 				for(int qi=stack.size()-1;qi>=0;qi--){
@@ -102,6 +102,7 @@ public class IWBException extends RuntimeException {
 				}
 				b.append("]");
 			}
+			if(!GenericUtil.isEmpty(this.stack))this.stack.get(this.stack.size()-1).printStackTrace();
 		}
 		
 	

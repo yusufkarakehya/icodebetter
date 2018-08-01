@@ -7,7 +7,7 @@ import iwb.cache.FrameworkCache;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.db.W5WsServerMethodParam;
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
@@ -195,7 +195,7 @@ public class MSSoap1 implements SoapAdapter{
 		}
 		return new StringBuilder();
 	}
-	public 	StringBuilder serializeDbFunc(W5WsServerMethod wsm, W5DbFuncResult dbFuncResult){
+	public 	StringBuilder serializeDbFunc(W5WsServerMethod wsm, W5GlobalFuncResult dbFuncResult){
 		return new StringBuilder();
 	}
 

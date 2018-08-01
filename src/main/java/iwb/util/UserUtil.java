@@ -1521,7 +1521,7 @@ public class UserUtil {
 		String projectId = request.getParameter(".p");
 		if(onlineCheck)onlineUserCheck(scd, request.getRequestURI(), sessionId, webPageId);
 		if(!GenericUtil.isEmpty(projectId) && scd.containsKey("projectId") && !projectId.equals(scd.get("projectId").toString())) { //TODO. check for security
-			W5Project po = FrameworkCache.wProjects.get(projectId);
+			W5Project po = FrameworkCache.getProject(projectId);
 			if(po==null || po.getCustomizationId()!=(Integer)scd.get("customizationId"))
 				throw new IWBException("security","Wrong.Project",0,null, "Not allowed to access this project", null);
 			Map newScd = new HashMap();
@@ -1530,7 +1530,7 @@ public class UserUtil {
 			scd = newScd;
 		}
 	
-		if(scd.containsKey("customizationId") && FrameworkSetting.customizationSystemStatus.get((Integer)scd.get("customizationId"))!=0){
+		if(scd.containsKey("projectId") && FrameworkSetting.projectSystemStatus.get((String)scd.get("projectId"))!=0){
 			throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 		}
 		return scd;
@@ -1560,9 +1560,9 @@ public class UserUtil {
 		}
 		if(pid!=null && pid.length()>0){
 			int customizationId = (Integer)scd.get("customizationId");
-			W5Project po = FrameworkCache.wProjects.get(pid);
+			W5Project po = FrameworkCache.getProject(pid);
 			if(po!=null && po.getCustomizationId()==customizationId){
-				if(FrameworkSetting.customizationSystemStatus.get(customizationId)!=0){
+				if(FrameworkSetting.projectSystemStatus.get(pid)!=0){
 					throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 				}
 				Map newScd =(Map<String, Object>)session.getAttribute("iwb-"+pid); 

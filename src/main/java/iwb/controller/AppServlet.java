@@ -65,11 +65,11 @@ import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TemplateResult;
+import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.engine.FrameworkEngine;
 import iwb.engine.ScriptEngine;
@@ -594,7 +594,7 @@ public class AppServlet implements InitializingBean {
 			scd = UserUtil.getScd(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 		requestParams.put("_remote_ip", request.getRemoteAddr());
-		W5DbFuncResult result = engine.executeFunc(scd, 250, requestParams, (short) 7);
+		W5GlobalFuncResult result = engine.executeFunc(scd, 250, requestParams, (short) 7);
 		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 		String errorMsg = result.getResultMap().get("errorMsg");
 		if (!success)
@@ -633,7 +633,7 @@ public class AppServlet implements InitializingBean {
 			request.getSession(false).removeAttribute("scd-dev");
 		}
 		;
-		W5DbFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
+		W5GlobalFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
 
 		/*
 		 * 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
@@ -895,7 +895,7 @@ public class AppServlet implements InitializingBean {
 
 
 	}
-
+/*
 
 	@RequestMapping("/ajaxPostFormBulkUpdate")
 	public void hndAjaxPostFormBulkUpdate(HttpServletRequest request, HttpServletResponse response)
@@ -949,7 +949,7 @@ public class AppServlet implements InitializingBean {
 		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4BulkUpdate", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
-
+*/
 	@RequestMapping("/ajaxPing")
 	public void hndAjaxPing(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -1031,7 +1031,7 @@ public class AppServlet implements InitializingBean {
 
 		} else if (formId < 0) { // negatifse direk -dbFuncId
 			// int dbFuncId= GenericUtil.uInt(request, "_did");
-			W5DbFuncResult dbFuncResult = engine.postEditGridDbFunc(scd, -formId, dirtyCount,
+			W5GlobalFuncResult dbFuncResult = engine.postEditGridGlobalFunc(scd, -formId, dirtyCount,
 					GenericUtil.getParameterMap(request), "");
 			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		} else {
@@ -1099,7 +1099,7 @@ public class AppServlet implements InitializingBean {
 			engine.organizeQuery(scd, GenericUtil.uInt(request,("queryId")), (short)GenericUtil.uInt(request,("insertFlag")));
 			response.getWriter().write("{\"success\":true}");
 		} else {
-			W5DbFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1); //request
+			W5GlobalFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1); //request
 			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		}
 
@@ -1359,7 +1359,7 @@ public class AppServlet implements InitializingBean {
 			}
 		}
 
-		W5TemplateResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1382,7 +1382,7 @@ public class AppServlet implements InitializingBean {
 
 		int templateId = 7; // Page Template
 
-		W5TemplateResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1427,7 +1427,7 @@ public class AppServlet implements InitializingBean {
 		
 																		// Page
 																		// Template
-		W5TemplateResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1440,7 +1440,7 @@ public class AppServlet implements InitializingBean {
 		long startTime = System.currentTimeMillis();
 		Map<String, Object> scd = new HashMap();
 		scd.put("customizationId", 0);scd.put("userId", 0);scd.put("locale", "en");
-		W5TemplateResult pageResult = engine.getTemplateResult(scd, 2453, new HashMap());
+		W5PageResult pageResult = engine.getTemplateResult(scd, 2453, new HashMap());
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1456,7 +1456,7 @@ public class AppServlet implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
-		W5TemplateResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
 		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
 		// amele
@@ -1464,7 +1464,7 @@ public class AppServlet implements InitializingBean {
 		// Template Tip (must be page)", null);
 		// }
 
-		if(pageResult.getTemplate().getTemplateTip()!=0)
+		if(pageResult.getPage().getTemplateTip()!=0)
 			response.setContentType("application/json");
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
@@ -2057,8 +2057,7 @@ public class AppServlet implements InitializingBean {
 		int totalBytesRead = (int) file.getSize();
 
 		W5FileAttachment fa = new W5FileAttachment();
-		boolean ppicture = FrameworkSetting.profilePicture
-				&& (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
+		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;
 		try {
@@ -2152,8 +2151,7 @@ public class AppServlet implements InitializingBean {
 		int totalBytesRead = (int) file.getSize();
 
 		W5FileAttachment fa = new W5FileAttachment();
-		boolean ppicture = FrameworkSetting.profilePicture
-				&& (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
+		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;
 		try {
@@ -2222,6 +2220,7 @@ public class AppServlet implements InitializingBean {
 			 */
 
 	}
+	/*
 	@RequestMapping("/ajaxCacheInfo")
 	public void hndAjaxCacheInfo(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -2286,7 +2285,7 @@ public class AppServlet implements InitializingBean {
 		response.getWriter().close();
 	}
 
-
+*/
 	@RequestMapping("/ajaxSendFormSmsMail")
 	public void hndAjaxSendFormSmsMail(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -2366,7 +2365,7 @@ public class AppServlet implements InitializingBean {
 		response.getWriter().close();
 		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxCopyTable2Tsdb", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
-	@RequestMapping("/ajaxOrganizeDbFunc")
+/*	@RequestMapping("/ajaxOrganizeDbFunc")
 	public void hndAjaxOrganizeDbFunc(
 			HttpServletRequest request,
 			HttpServletResponse response)
@@ -2375,13 +2374,13 @@ public class AppServlet implements InitializingBean {
 		String dbFuncName = request.getParameter("pdb_func_dsc");
 		logger.info("hndAjaxOrganizeDbFunc("+dbFuncName+")"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	boolean b = (Integer)scd.get("roleId")!=0 ? false : engine.organizeDbFunc(scd, dbFuncName);
+    	boolean b = (Integer)scd.get("roleId")!=0 ? false : engine.organizeGlobalFunc(scd, dbFuncName);
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
 		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxOrganizeDbFunc", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
-	
+*/	
 	
 	@RequestMapping("/ajaxBuildForm")
 	public void hndAjaxBuildForm(
@@ -2495,7 +2494,7 @@ public class AppServlet implements InitializingBean {
 
 		int dbFuncId= GenericUtil.uInt(request, "_did"); // +:dbFuncId, -:formId
 
-		W5DbFuncResult dbFuncResult = engine.executeDbFunc4Debug(scd, dbFuncId, GenericUtil.getParameterMap(request));
+		W5GlobalFuncResult dbFuncResult = engine.executeGlobalFunc4Debug(scd, dbFuncId, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());

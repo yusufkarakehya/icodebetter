@@ -20,8 +20,6 @@ public class W5DataView implements java.io.Serializable {
 
 	private int dataViewId;
 
-	private int customizationId;
-	
 	private String dsc;
 
 	private int queryId;
@@ -148,15 +146,6 @@ public class W5DataView implements java.io.Serializable {
 	}
 
 
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
-	
 	@Column(name="default_crud_form_id")
 	public int getDefaultCrudFormId() {
 		return defaultCrudFormId;
@@ -249,6 +238,16 @@ public class W5DataView implements java.io.Serializable {
 	}
 	public void setJsCode(String jsCode) {
 		this.jsCode = jsCode;
+	}
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

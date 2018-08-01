@@ -20,7 +20,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_db_func_param",schema="iwb")
-public class W5DbFuncParam implements java.io.Serializable, W5Param {
+public class W5GlobalFuncParam implements java.io.Serializable, W5Param {
 
 	private int dbFuncParamId;
 
@@ -59,7 +59,7 @@ public class W5DbFuncParam implements java.io.Serializable, W5Param {
 		this.outFlag = outFlag;
 	}
 
-	public W5DbFuncParam() {
+	public W5GlobalFuncParam() {
 	}
 
 
@@ -183,10 +183,22 @@ public class W5DbFuncParam implements java.io.Serializable, W5Param {
 		this.notNullFlag = notNullFlag;
 	}
 
-	public W5DbFuncParam(String dsc) {
+	public W5GlobalFuncParam(String dsc) {
 		super();
 		this.dsc = dsc;
 		this.outFlag=(short)1;
+	}
+	
+	private String projectUuid;
+	
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 
 }

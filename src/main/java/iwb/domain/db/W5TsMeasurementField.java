@@ -17,7 +17,6 @@ public class W5TsMeasurementField implements java.io.Serializable {
 	private int measurementFieldId;
 	private int measurementId;
 	
-	private int customizationId;
 	private String dsc;
 	private short fieldTip;
 	private short accessViewTip;
@@ -45,15 +44,7 @@ public class W5TsMeasurementField implements java.io.Serializable {
 	public void setFieldTip(short fieldTip) {
 		this.fieldTip = fieldTip;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	@Column(name="dsc")
 	public String getDsc() {
@@ -103,5 +94,15 @@ public class W5TsMeasurementField implements java.io.Serializable {
 	}
 
 
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

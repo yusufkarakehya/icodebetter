@@ -15,7 +15,6 @@ import org.hibernate.annotations.Immutable;
 public class W5FormModule implements java.io.Serializable, W5Base {
 
 	private int formModuleId;
-	private int customizationId;	
 	private int formId;
 	private String localeMsgKey;
 	private short tabOrder;
@@ -37,14 +36,7 @@ public class W5FormModule implements java.io.Serializable, W5Base {
 	public void setFormModuleId(int formModuleId) {
 		this.formModuleId = formModuleId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 
 	@Column(name="form_id")
 	public int getFormId() {
@@ -144,5 +136,16 @@ public class W5FormModule implements java.io.Serializable, W5Base {
 */ return false;
 	}
 
+	private String projectUuid;
+	
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

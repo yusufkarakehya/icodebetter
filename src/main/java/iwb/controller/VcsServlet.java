@@ -20,6 +20,7 @@ import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_3;
 import iwb.domain.result.W5QueryResult;
 import iwb.engine.VcsEngine;
+import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.UserUtil;
@@ -68,6 +69,23 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
+	
+	@RequestMapping("/ajaxCopyProject")
+	public void hndAjaxCopyProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("hndAjaxCopyProject"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+    	String newProjectName = request.getParameter("dsc");
+    	if(GenericUtil.isEmpty(newProjectName))
+			throw new IWBException("vcs","Empty Project Name", 0, null, "Empty Project Name", null);
+    	Map m = vcsEngine.copyProject(scd, newProjectName, true);
+    	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
+		response.getWriter().close();
+	}
+	
 	@RequestMapping("/ajaxVCSObjectPullAll")
 	public void hndAjaxVCSObjectPullAll(
 			HttpServletRequest request,

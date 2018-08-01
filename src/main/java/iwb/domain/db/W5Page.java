@@ -20,11 +20,9 @@ import iwb.util.GenericUtil;
 @Entity
 @Immutable
 @Table(name="w5_template",schema="iwb")
-public class W5Template implements java.io.Serializable, W5Base {
+public class W5Page implements java.io.Serializable, W5Base {
 
 	private int templateId;
-	
-	private int customizationId;
 	
 	private short templateTip;
 
@@ -38,9 +36,9 @@ public class W5Template implements java.io.Serializable, W5Base {
 
 	private String code;
 
-	private List<W5TemplateObject> _templateObjectList;
+	private List<W5PageObject> _pageObjectList;
 	
-	public W5Template() {
+	public W5Page() {
 	}
 
 	@Id
@@ -88,15 +86,7 @@ public class W5Template implements java.io.Serializable, W5Base {
 	public void setObjectTip(short objectTip) {
 		this.objectTip = objectTip;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	@Column(name="code")
 	public String getCode() {
@@ -108,12 +98,12 @@ public class W5Template implements java.io.Serializable, W5Base {
 	}
 
 	@Transient
-	public List<W5TemplateObject> get_templateObjectList() {
-		return _templateObjectList;
+	public List<W5PageObject> get_pageObjectList() {
+		return _pageObjectList;
 	}
 
-	public void set_templateObjectList(List<W5TemplateObject> templateObjectList) {
-		_templateObjectList = templateObjectList;
+	public void set_pageObjectList(List<W5PageObject> templateObjectList) {
+		_pageObjectList = templateObjectList;
 	}
 	
 	@Column(name="locale_msg_flag")
@@ -129,7 +119,7 @@ public class W5Template implements java.io.Serializable, W5Base {
 	@Transient
 	public boolean safeEquals(W5Base q){
 		if(q==null)return false;
-		W5Template t = (W5Template)q;
+		W5Page t = (W5Page)q;
 		boolean b =  
 			this.templateId == t.getTemplateId() &&
 			this.templateTip == t.getTemplateTip() &&
@@ -140,17 +130,28 @@ public class W5Template implements java.io.Serializable, W5Base {
 			GenericUtil.safeEquals(this.code, t.getCode());
 		
 		if(!b)return false;
-		if(!GenericUtil.safeEquals(this._templateObjectList, t._templateObjectList))return false;
-/*		if(this._templateObjectList!=null && t.get_templateObjectList()!=null){
-			if(this._templateObjectList.size()==t.get_templateObjectList().size())return false;
-			for(int i=0;i<this._templateObjectList.size();i++){
-				W5TemplateObject c1 = this._templateObjectList.get(i); 
-				W5TemplateObject c2 = t.get_templateObjectList().get(i);
+		if(!GenericUtil.safeEquals(this._pageObjectList, t._pageObjectList))return false;
+/*		if(this._pageObjectList!=null && t.get_pageObjectList()!=null){
+			if(this._pageObjectList.size()==t.get_pageObjectList().size())return false;
+			for(int i=0;i<this._pageObjectList.size();i++){
+				W5TemplateObject c1 = this._pageObjectList.get(i); 
+				W5TemplateObject c2 = t.get_pageObjectList().get(i);
 				if(!c1.equals(c2))return false;
 			}			
-		} else if(this._templateObjectList!=null ^ t.get_templateObjectList()!=null) return false;*/
+		} else if(this._pageObjectList!=null ^ t.get_pageObjectList()!=null) return false;*/
 		
 		return true;
+	}
+
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 
 }

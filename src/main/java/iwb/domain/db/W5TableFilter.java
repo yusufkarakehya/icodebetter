@@ -22,7 +22,6 @@ public class W5TableFilter implements java.io.Serializable, W5Base {
 
 	private int tableFilterId;
 	private int tableId;
-	private int customizationId;
 	private String accessFilterRoles;
 	private String accessFilterUsers;
 	private String accessFilterDealers;
@@ -52,15 +51,7 @@ public class W5TableFilter implements java.io.Serializable, W5Base {
 	public void setTableFilterId(int tableFilterId) {
 		this.tableFilterId = tableFilterId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	@Column(name="access_view_sql")
 	public String getAccessViewSql() {
@@ -135,6 +126,16 @@ public class W5TableFilter implements java.io.Serializable, W5Base {
 			GenericUtil.safeEquals(this.accessViewSql, t.getAccessViewSql()) && 
 			GenericUtil.safeEquals(this.accessUpdateSql, t.getAccessUpdateSql()) && 
 			GenericUtil.safeEquals(this.accessDeleteSql, t.getAccessDeleteSql());
+	}
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

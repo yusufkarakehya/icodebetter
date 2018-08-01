@@ -56,11 +56,11 @@ import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TemplateResult;
+import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.engine.FrameworkEngine;
 import iwb.exception.IWBException;
@@ -449,56 +449,6 @@ public class PreviewServlet implements InitializingBean {
 
 	}
 
-
-	@RequestMapping("/*/ajaxPostFormBulkUpdate")
-	public void hndAjaxPostFormBulkUpdate(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndAjaxPostFormBulkUpdate");
-
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-
-		response.setContentType("application/json");
-		int formId = GenericUtil.uInt(request, "_fid");
-		if (formId > 0) {
-			W5FormResult formResult = engine.postBulkUpdate4Table(scd, formId, GenericUtil.getParameterMap(request));
-
-			for (W5QueuedActionHelper o : formResult.getQueueActionList()) {
-				Action2Execute eqf = new Action2Execute(o, scd);
-				taskExecutor.execute(eqf);
-			}
-			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
-			response.getWriter().close();
-
-			if (formResult.getErrorMap().isEmpty()){
-				UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
-//				UserUtil.mqSyncAfterPostFormAll(formResult.getScd4Preview(), formResult.getListSyncAfterPostHelper());
-			}
-
-		} else {
-			int smsMailId = GenericUtil.uInt(request, "_smsMailId");
-			W5DbFuncResult dbFuncResult = engine.postBulkSmsMail4Table(scd, smsMailId,
-					GenericUtil.getParameterMap(request));
-			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
-		}
-
-	}
-
-	@RequestMapping("/*/ajaxQueryData4BulkUpdate")
-	public void hndAjaxQueryData4BulkUpdate(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndAjaxQueryData4BulkUpdate");
-		int formId = GenericUtil.uInt(request, "_fid");
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-
-		W5QueryResult queryResult = engine.executeQuery4BulkUpdate(scd, formId, GenericUtil.getParameterMap(request),
-				false);
-
-		response.setContentType("application/json");
-		response.getWriter().write(getViewAdapter(scd, request).serializeQueryData(queryResult).toString());
-		response.getWriter().close();
-
-	}
-
 	@RequestMapping("/*/ajaxPing")
 	public void hndAjaxPing(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -577,7 +527,7 @@ public class PreviewServlet implements InitializingBean {
 
 		} else if (formId < 0) { // negatifse direk -dbFuncId
 			// int dbFuncId= GenericUtil.uInt(request, "_did");
-			W5DbFuncResult dbFuncResult = engine.postEditGridDbFunc(scd, -formId, dirtyCount,
+			W5GlobalFuncResult dbFuncResult = engine.postEditGridGlobalFunc(scd, -formId, dirtyCount,
 					GenericUtil.getParameterMap(request), "");
 			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		} else {
@@ -633,7 +583,7 @@ public class PreviewServlet implements InitializingBean {
 			dbFuncId = -GenericUtil.uInt(request, "_fid"); // +:dbFuncId,
 															// -:formId
 		}
-		W5DbFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
+		W5GlobalFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
 				(short) 1);
 
 		response.setContentType("application/json");
@@ -846,7 +796,7 @@ public class PreviewServlet implements InitializingBean {
 		
 																		// Page
 																		// Template
-		W5TemplateResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -862,7 +812,7 @@ public class PreviewServlet implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
-		W5TemplateResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
 		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
 		// amele
@@ -870,7 +820,7 @@ public class PreviewServlet implements InitializingBean {
 		// Template Tip (must be page)", null);
 		// }
 
-		if(pageResult.getTemplate().getTemplateTip()!=0)
+		if(pageResult.getPage().getTemplateTip()!=0)
 			response.setContentType("application/json");
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
@@ -1256,8 +1206,7 @@ public class PreviewServlet implements InitializingBean {
 		int totalBytesRead = (int) file.getSize();
 
 		W5FileAttachment fa = new W5FileAttachment();
-		boolean ppicture = FrameworkSetting.profilePicture
-				&& (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
+		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;
 		try {
@@ -1350,8 +1299,7 @@ public class PreviewServlet implements InitializingBean {
 		int totalBytesRead = (int) file.getSize();
 
 		W5FileAttachment fa = new W5FileAttachment();
-		boolean ppicture = FrameworkSetting.profilePicture
-				&& (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
+		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;
 		try {

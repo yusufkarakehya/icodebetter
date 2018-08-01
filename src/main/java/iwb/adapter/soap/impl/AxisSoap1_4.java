@@ -7,7 +7,7 @@ import java.util.Map;
 
 import iwb.adapter.soap.SoapAdapter;
 import iwb.cache.FrameworkCache;
-import iwb.domain.db.W5DbFuncParam;
+import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
@@ -18,7 +18,7 @@ import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.db.W5WsServerMethodParam;
 import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
@@ -55,7 +55,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 			case	0:case 1:case 2:case 3:
 				W5FormResult fr=(W5FormResult)o;
 				lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
-				t = FrameworkCache.getTable(ws.getCustomizationId(), fr.getForm().getObjectId());
+				t = FrameworkCache.getTable(ws.getProjectUuid(), fr.getForm().getObjectId());
 				for(W5TableParam tp:t.get_tableParamList())if(tp.getSourceTip()==1)lwsmp.add(new W5WsServerMethodParam(tp, (short)(wsm.getObjectTip()==2 ? 1:0),wsm.getObjectTip()==2?-999:0));
 				if(wsm.getObjectTip()!=3)for(W5FormCell fc:fr.getForm().get_formCells())if(fc.getActiveFlag()!=0 && fc.get_sourceObjectDetail()!=null && fc.getSourceTip()==1 
 							&& ((wsm.getObjectTip()==1 && ((W5TableField)fc.get_sourceObjectDetail()).getCanUpdateFlag()==1) || (wsm.getObjectTip()==2 && ((W5TableField)fc.get_sourceObjectDetail()).getCanInsertFlag()==1))
@@ -66,12 +66,12 @@ public class AxisSoap1_4 implements SoapAdapter{
 				lwsmp.add(outMsg);
 				break;
 			case	4:
-				W5DbFuncResult dfr=(W5DbFuncResult)o;
-				for(W5DbFuncParam dfp:dfr.getDbFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1 && dfp.getOutFlag()!=0){
+				W5GlobalFuncResult dfr=(W5GlobalFuncResult)o;
+				for(W5GlobalFuncParam dfp:dfr.getGlobalFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1 && dfp.getOutFlag()!=0){
 					lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
 					break;
 				}
-				for(W5DbFuncParam dfp:dfr.getDbFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1){
+				for(W5GlobalFuncParam dfp:dfr.getGlobalFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1){
 					lwsmp.add(new W5WsServerMethodParam(dfp, dfp.getOutFlag(), dfp.getOutFlag()==0 ? 0:-999));
 				}
 				break;
@@ -81,7 +81,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 				} else {
 					W5QueryResult qr=(W5QueryResult)o;
 					lwsmp.add(new W5WsServerMethodParam(-999, "data", (short)10));
-					if(qr.getQuery().getMainTableId()!=0)t = FrameworkCache.getTable(ws.getCustomizationId(), qr.getQuery().getMainTableId());
+					if(qr.getQuery().getMainTableId()!=0)t = FrameworkCache.getTable(ws.getProjectUuid(), qr.getQuery().getMainTableId());
 					for(W5QueryParam qp:qr.getQuery().get_queryParams())if(qp.getSourceTip()==1){
 						lwsmp.add(new W5WsServerMethodParam(qp, (short)0, 0));
 					}
@@ -260,7 +260,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 		.append("<").append(wsm.getDsc()).append("Response xmlns=\"http://www.iworkbetter.com\">");
 		buf.append("\n<").append(wsm.getDsc()).append("_result>");
 		if(fr.getAction()==2){//insert
-			W5Table t = FrameworkCache.getTable(wsm.getCustomizationId(), fr.getForm().getObjectId());
+			W5Table t = FrameworkCache.getTable(wsm.getProjectUuid(), fr.getForm().getObjectId());
 			for(W5TableParam tp:t.get_tableParamList())if(tp.getSourceTip()==1)//lwsmp.add(new W5WsServerMethodParam(tp, (short)(wsm.getObjectTip()==2 ? 1:0),wsm.getObjectTip()==2?-999:0));
 			buf.append("<").append(tp.getDsc()).append(">").append(GenericUtil.strToSoap(fr.getOutputFields().get(tp.getExpressionDsc()).toString())).append("</").append(tp.getDsc()).append(">");
 		}
@@ -319,7 +319,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 		.append("</soap:Envelope>");
 		return buf;
 	}
-	public 	StringBuilder serializeDbFunc(W5WsServerMethod wsm, W5DbFuncResult dfr){
+	public 	StringBuilder serializeDbFunc(W5WsServerMethod wsm, W5GlobalFuncResult dfr){
 		if(!dfr.getErrorMap().isEmpty()){
 			return serializeException(new IWBException("validation",wsm.getDsc(), wsm.getWsServerMethodId(), null, GenericUtil.fromMapToJsonString(dfr.getErrorMap()), null));
 		}
@@ -329,7 +329,7 @@ public class AxisSoap1_4 implements SoapAdapter{
 		.append("<soap:Body>")
 		.append("<").append(wsm.getDsc()).append("Response xmlns=\"http://www.iworkbetter.com\">")
 		.append("<").append(wsm.getDsc()).append("Result>");
-		for(W5DbFuncParam p:dfr.getDbFunc().get_dbFuncParamList())if(p.getOutFlag()!=0){
+		for(W5GlobalFuncParam p:dfr.getGlobalFunc().get_dbFuncParamList())if(p.getOutFlag()!=0){
 			Object o =dfr.getResultMap().get(p.getDsc());
 			if(o==null)o="";
 			buf.append("<").append(p.getDsc()).append(">").append(o.toString()).append("</").append(p.getDsc()).append(">");

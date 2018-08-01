@@ -18,7 +18,6 @@ public class W5FormSmsMail implements java.io.Serializable, W5Base {
 
 	private int formId;
 	
-	private int customizationId;
 	private int mailSettingId;
 
 	private String dsc;
@@ -82,14 +81,7 @@ public class W5FormSmsMail implements java.io.Serializable, W5Base {
 	public void setFormSmsMailId(int formSmsMailId) {
 		this.formSmsMailId = formSmsMailId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="sms_mail_tip")
 	public short getSmsMailTip() {
 		return smsMailTip;
@@ -226,5 +218,15 @@ public class W5FormSmsMail implements java.io.Serializable, W5Base {
 	}
 
 
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

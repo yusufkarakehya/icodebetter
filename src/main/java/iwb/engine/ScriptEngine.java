@@ -15,12 +15,11 @@ import org.springframework.core.task.TaskExecutor;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
-import iwb.dao.RdbmsDao;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
 import iwb.timer.Action2Execute;
@@ -31,7 +30,7 @@ import iwb.util.UserUtil;
 public class ScriptEngine {
 	Map<String, Object> scd;
 	Map<String,String> requestParams;
-	private RdbmsDao dao;
+	private PostgreSQL dao;
 	private FrameworkEngine engine;
     public static TaskExecutor taskExecutor = null;
     
@@ -131,7 +130,7 @@ public class ScriptEngine {
 	
 	
 	public void mqBasicPublish(String msg) throws IOException{
-		W5Project po = FrameworkCache.wProjects.get(scd.get("projectId"));
+//		W5Project po = FrameworkCache.wProjects.get(scd.get("projectId"));
 		//po.get_mqChannel().basicPublish(po.getProjectUuid(), "", null, msg.toString().getBytes());
 	}
 	
@@ -205,7 +204,7 @@ public class ScriptEngine {
 		return FrameworkCache.getAppSettingStringValue(scd, key);
 	}
 	public Object execFunc(int dbFuncId, NativeObject jsRequestParams, boolean throwOnError, String throwMessage){
-		W5DbFuncResult result = engine.executeFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short)5); 
+		W5GlobalFuncResult result = engine.executeFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short)5); 
 		if(throwOnError && !result.getErrorMap().isEmpty()){
 			throw new IWBException("rhino","GlobalFunc", dbFuncId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
 		}
@@ -352,7 +351,7 @@ public class ScriptEngine {
 		this.requestParams = requestParams;
 	}
 
-	public RdbmsDao getDao() {
+	public PostgreSQL getDao() {
 		return dao;
 	}
 
@@ -368,7 +367,7 @@ public class ScriptEngine {
 		this.engine = engine;
 	}
 
-	public ScriptEngine(Map<String, Object> scd, Map<String, String> requestParams, RdbmsDao dao, FrameworkEngine engine) {
+	public ScriptEngine(Map<String, Object> scd, Map<String, String> requestParams, PostgreSQL dao, FrameworkEngine engine) {
 		super();
 		this.scd = scd;
 		this.requestParams = requestParams;

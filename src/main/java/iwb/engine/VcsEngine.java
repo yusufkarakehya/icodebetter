@@ -4,9 +4,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 //import org.codehaus.jackson.map.ser.impl.SimpleBeanPropertyFilter.FilterExceptFilter;
@@ -20,13 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.custom.trigger.QueryTrigger;
-import iwb.dao.RdbmsDao;
+import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5VcsAction;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
+import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5VcsCommit;
 import iwb.domain.db.W5VcsObject;
@@ -43,7 +46,7 @@ import iwb.util.UserUtil;
 @Transactional
 public class VcsEngine {
 	@Autowired
-	private RdbmsDao dao;
+	private PostgreSQL dao;
 
 	synchronized public Map vcsClientObjectPull(Map<String, Object> scd, int tableId, int tablePk, boolean force) {
 		if(FrameworkSetting.vcsServer)
@@ -51,7 +54,7 @@ public class VcsEngine {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
 		
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		W5Table t = FrameworkCache.getTable(customizationId, tableId);
 		if(t.getVcsFlag()==0){
@@ -137,7 +140,7 @@ public class VcsEngine {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
 		
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		String[] arTableKeys = tableKeys.split(",");
 		
@@ -257,7 +260,7 @@ public class VcsEngine {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsServerObjectPullMulti",0,null, "Not a VCS Server to vcsServerObjectPullMulti", null);
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 		
 		Map result = new HashMap();
 		result.put("success", true);
@@ -327,7 +330,7 @@ public class VcsEngine {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsServerObjectPull",0,null, "Not a VCS Server to vcsServerObjectPull", null);
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 
 		W5Table t = FrameworkCache.getTable(customizationId, tableId);
 		if(t.getVcsFlag()==0){
@@ -405,7 +408,7 @@ public class VcsEngine {
 	public W5QueryResult vcsClientObjectsAll(Map<String, Object> scd) {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid();
 		String url=po.getVcsUrl();
@@ -557,7 +560,7 @@ public class VcsEngine {
 	public W5QueryResult vcsClientObjectsAllTree(Map<String, Object> scd, String schema, int userId, String dtStart, String dtEnd) {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid();
 		if(!GenericUtil.isEmpty(schema))urlParameters+="&s="+schema;
@@ -884,8 +887,8 @@ public class VcsEngine {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
 		if(projectUuid.equals(newProjectUiid))return false;
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
-		W5Project npo = FrameworkCache.wProjects.get(newProjectUiid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		W5Project npo = FrameworkCache.getProject(newProjectUiid);
 
 		W5Table mt = FrameworkCache.getTable(customizationId, tableId);
 		
@@ -1049,7 +1052,7 @@ public class VcsEngine {
 //		if(FrameworkSetting.vcsServer)throw new PromisException("vcs","vcsClientReorg",0,null, "VCS Server not allowed to vcsClientReorg", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		W5QueryResult qr = dao.getQueryResult(scd, 161);
 		qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
@@ -1215,7 +1218,7 @@ public class VcsEngine {
 	public W5QueryResult vcsClientObjectsList(Map<String, Object> scd, int tableId, int tableMasterId, int tableMasterPk) {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		W5Table t = FrameworkCache.getTable(customizationId, tableId);
 		if(t.getVcsFlag()==0){
 			throw new IWBException("vcs","vcsClientObjectsList", t.getTableId(), t.getDsc(), "Not VCS Table2", null);
@@ -1398,7 +1401,7 @@ public class VcsEngine {
 
 	public Map vcsServerObjectsList(String userName, String passWord, int customizationId, String projectId, int tableId) {
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, null);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 		if(tableId>0){
 			W5Table t = FrameworkCache.getTable(customizationId, tableId);
 			if(t.getVcsFlag()==0){
@@ -1429,7 +1432,7 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientObjectPush",0,null, "VCS Server not allowed to vcsClientObjectPush", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		
 		W5Table t = FrameworkCache.getTable(customizationId, tableId);
@@ -1491,7 +1494,7 @@ public class VcsEngine {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsServerObjectPush",0,null, "Not a VCS Server to vcsServerObjectPush", null);
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 
 		W5Table t = FrameworkCache.getTable(customizationId, tableId);
 		if(t.getVcsFlag()==0){
@@ -1553,7 +1556,7 @@ public class VcsEngine {
 	public boolean vcsClientExportProject(Map<String, Object> scd, int startCommitId) throws JSONException { //TODO
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		JSONObject params = new JSONObject(); 
 		params.put("u", po.getVcsUserName());params.put("p", po.getVcsPassword());params.put("c", customizationId);
@@ -1587,7 +1590,7 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientObjectPushMulti",0,null, "VCS Server not allowed to vcsClientObjectPushMulti", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		W5Table t = FrameworkCache.getTable(customizationId, tableId);
 		if(t.getVcsFlag()==0){
@@ -1665,7 +1668,7 @@ public class VcsEngine {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsServerObjectPushMulti",0,null, "Not a VCS Server to vcsServerObjectPushMulti", null);
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 
 		W5Table t = FrameworkCache.getTable(customizationId, tableId);
 		if(t.getVcsFlag()==0){
@@ -1731,7 +1734,7 @@ public class VcsEngine {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsServerObjectPushAll",0,null, "Not a VCS Server to vcsServerObjectPushAll", null);
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 		
 		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", projectId);
 		W5VcsCommit commit = new W5VcsCommit();
@@ -1795,7 +1798,7 @@ public class VcsEngine {
 	public Map vcsServerObjectsDetail(String userName, String passWord, int customizationId, String projectId, JSONArray ja) {
 //		if(!FrameworkSetting.vcsServer)throw new PromisException("vcs","vcsServerObjectsDetail",0,null, "Not a VCS Server to vcsServerObjectsDetail", null);
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 
 		Map m = new HashMap();
 		m.put("success", true);
@@ -1846,7 +1849,7 @@ public class VcsEngine {
 
 	public Map vcsServerObjectsAll(String userName, String passWord, int customizationId, String projectId, String schema) {
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, null);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 
 		List<W5VcsObject> l = null;
 		if(GenericUtil.isEmpty(schema)){
@@ -1883,7 +1886,7 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientCleanVCSObjects",0,null, "VCS Server not allowed to vcsClientCleanVCSObjects", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		int count =0;
 		if(tableId==-1){
@@ -1921,7 +1924,7 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientObjectPushAll",0,null, "VCS Server not allowed to vcsClientObjectPushAll", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		
 		
@@ -1999,7 +2002,7 @@ public class VcsEngine {
 	public W5QueryResult vcsClientDBObjectList(Map<String, Object> scd) {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		StringBuilder urlParameters = new StringBuilder();
 		urlParameters.append("u=").append(po.getVcsUserName()).append("&p=").append(po.getVcsPassword()).append("&c=").append(customizationId).append("&r=").append(projectUuid);
@@ -2081,7 +2084,7 @@ public class VcsEngine {
 		
 	public Map serverDBObjectAll(String userName, String passWord, int customizationId, String projectId) {
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 	
 
 		Map m = new HashMap();
@@ -2109,7 +2112,7 @@ public class VcsEngine {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsServerSQLCommit",0,null, "Not VCS Server to vcsServerSQLCommit", null);
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 		
 		//TODO, biraz inceleme gerekebilir
 		int cnt = dao.executeUpdateSQLQuery(sql);
@@ -2130,7 +2133,7 @@ public class VcsEngine {
 	public String vcsClientSqlCommitList(Map<String, Object> scd) {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", po.getProjectUuid());
 		int lastCommitId = 0;
@@ -2192,7 +2195,7 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun",0,null, "VCS Server not allowed to vcsClientSqlCommitsFetchAndRun", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", po.getProjectUuid());
 		int lastCommitId = 0;
@@ -2239,7 +2242,7 @@ public class VcsEngine {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsServerAddSQL",0,null, "Not VCS Server to vcsServerAddSQL", null);
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, null);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 
 		dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
 		
@@ -2271,7 +2274,7 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientPushSql",0,null, "VCS Server not allowed to vcsClientAddSql", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		String serverQR = vcsClientSqlCommitList(scd);
 		if(!GenericUtil.isEmpty(serverQR))try {
@@ -2323,7 +2326,7 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientPushSqlRT",0,null, "VCS Server not allowed to vcsClientPushSqlRT", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		String serverQR = vcsClientSqlCommitList(scd);
 		if(!GenericUtil.isEmpty(serverQR))try {
@@ -2375,7 +2378,7 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientObjectAction",0,null, "VCS Server not allowed to vcsClientObjectAction", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		W5Table t = FrameworkCache.getTable(customizationId, tableId);
 		if(customizationId>0 && t ==null)t = FrameworkCache.getTable(0, tableId);
@@ -2398,7 +2401,7 @@ public class VcsEngine {
 	public W5QueryResult vcsClientTableConflicts(Map<String, Object> scd, String tableName) throws JSONException {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid();
@@ -2455,7 +2458,7 @@ public class VcsEngine {
 	public Map vcsClientDBFuncDetail(Map<String, Object> scd, String dbFuncName) throws JSONException {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid();
 		urlParameters+="&q=301&f="+dbFuncName+"&s="+po.getRdbmsSchema();
@@ -2497,7 +2500,7 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientFix",0,null, "VCS Server not allowed to vcsClientFix", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		StringBuilder gsql = new StringBuilder();List<Object> gparams = new ArrayList();
 		W5Table mt = FrameworkCache.getTable(customizationId, tid);
@@ -2638,7 +2641,7 @@ public class VcsEngine {
 		
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", po.getProjectUuid());
 		int lastCommitId = 0;
@@ -2795,7 +2798,7 @@ public class VcsEngine {
 	public Map vcsClientLocaleMsgSynch(Map<String, Object> scd) throws JSONException {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		List lvlmd = dao.executeSQLQuery("select x.val from iwb.w5_app_setting x where x.customization_id=? AND x.dsc='vcs_locale_msg_dttm'", customizationId);
 		String vlmd = "20170101";
@@ -2923,7 +2926,7 @@ public class VcsEngine {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsServerLocaleMsgPushAll",0,null, "Not a VCS Server to vcsServerLocaleMsgPushAll", null);
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
 
 		int userId = (Integer)scd.get("userId");
 		for(int qi=0;qi<ja.length();qi++){
@@ -2997,9 +3000,9 @@ public class VcsEngine {
 			List<Map> tList = dao.executeSQLQuery2Map("select t.* from iwb.w5_user_tip t where t.customization_id=?", params);
 			map.put("userTips", tList);
 			
-			FrameworkSetting.customizationSystemStatus.put(cusId, 0);
+//			FrameworkSetting.projectSystemStatus.put(cusId, 0);
 			FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
-			FrameworkCache.wProjects.put(projectId, (W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, projectId).get(0));
+			FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, projectId).get(0));
 			//Map cache = FrameworkCache.reloadCacheQueue();
 		}
 		return map;
@@ -3017,7 +3020,7 @@ public class VcsEngine {
 		
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.wProjects.get(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid);
 
 		List<Object[]> ll = dao.executeSQLQuery("select (select max(x.vcs_commit_id) from iwb.w5_vcs_commit x where x.project_uuid=?) cmt_id1, (select min(x.vcs_commit_id) from iwb.w5_vcs_commit x where x.project_uuid=?) cmt_id2, (select max(x.vcs_commit_id) from iwb.w5_vcs_object x where x.vcs_object_status_tip>5 AND x.project_uuid=? and x.customization_id=?) cmt_id3, (select count(x.vcs_commit_id) from iwb.w5_vcs_object x where x.vcs_object_status_tip<5 AND x.project_uuid=? and x.customization_id=?) cmt_id4"
 				, po.getProjectUuid(), po.getProjectUuid(), po.getProjectUuid(), customizationId, po.getProjectUuid(), customizationId);
@@ -3046,11 +3049,74 @@ public class VcsEngine {
 		}		
 		return false;		
 	}
-	/*
-	public Map vcsServerPublish2AppStore(String userName, String passWord, int customizationId, String projectId,
-			int maxSqlCommit, int maxObjCommit) {
+	
+	public Map copyProject(Map scd, String projectName, boolean appStore){
+		String projectId = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectId), npo = null;
+		int customizationId = (Integer)scd.get("customizationId");
+		int dstCustomizationId = appStore ? 1:customizationId;
+		int smaxSqlCommit = 0;
+		Map result = new HashMap();
+		result.put("success", true);
+		String newProjectId = UUID.randomUUID().toString();
+		String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project");
+		String schema = "c"+GenericUtil.lPad(dstCustomizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
+		dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
+				+ " values (?,?,?, ?, ?,?,?,?, ?)", newProjectId, dstCustomizationId, projectName, 1, schema, appStore?vcsUrl:po.getVcsUrl(),appStore?"app.store":po.getVcsUserName(), appStore?"1":po.getVcsPassword(), projectId);
+		if(!appStore){
+			dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
+			dao.executeUpdateSQLQuery("set search_path="+schema);
+		}
+		npo =  (W5Project)dao.find("from W5Project w where w.projectUuid=?", newProjectId).get(0);
+		
+		List<W5VcsCommit> sqlCommits = dao.find("from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=? AND t.vcsCommitId>? order by t.vcsCommitId", projectId, smaxSqlCommit);
+		for(W5VcsCommit o:sqlCommits){
+			dao.saveObject(o.newInstance(newProjectId));
+			if(!appStore)dao.executeUpdateSQLQuery(o.getExtraSql());
+		}
+		
+		dao.executeUpdateSQLQuery("delete from iwb.w5_vcs_object x where x.project_uuid=? AND x.customization_id=? AND not exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.customization_id=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk AND z.vcs_commit_id=x.vcs_commit_id)"
+				, newProjectId, dstCustomizationId, projectId, customizationId);
+		
+		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_vcs_object(vcs_object_id, table_id, table_pk, customization_id, project_uuid, vcs_commit_id, vcs_commit_record_hash, vcs_object_status_tip) "
+				+ "select nextval('iwb.seq_vcs_object'), x.table_id, x.table_pk, ?, ?, x.vcs_commit_id, x.vcs_commit_record_hash, x.vcs_object_status_tip from iwb.w5_vcs_object x where x.project_uuid=? AND x.customization_id=? AND not exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.customization_id=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk AND z.vcs_commit_id=x.vcs_commit_id)"
+				, dstCustomizationId, newProjectId, projectId, customizationId, newProjectId, dstCustomizationId);
+		
+		List<Object> ll3 = dao.executeSQLQuery("select x.table_id from iwb.w5_vcs_object x where x.project_uuid=? group by x.table_id order by x.table_id", newProjectId);
+		if(ll3!=null)for(Object o:ll3){
+			StringBuilder sql = new StringBuilder();
+			W5Table t = FrameworkCache.getTable(0, GenericUtil.uInt(o));
+			String pkField = t.get_tableParamList().get(0).getExpressionDsc();
+			sql.append("delete from ").append(t.getDsc()).append(" x where x.customization_id=? AND x.project_uuid=? AND not exists(select 1 from ").append(t.getDsc())
+				.append(" z where z.project_uuid=? AND z.customization_id=? AND z.").append(pkField).append("=x.").append(pkField);
+			for(W5TableField tf:t.get_tableFieldList())if(tf.getTabOrder()>1 && !GenericUtil.hasPartInside2("customization_id,project_uuid,oproject_uuid,version_no,insert_user_id,version_user_id,insert_dttm,version_dttm", tf.getDsc())){
+				sql.append(" AND x.").append(tf.getDsc()).append("=z.").append(tf.getDsc());
+			}
+			sql.append(")");
+			dao.executeUpdateSQLQuery(sql.toString(), dstCustomizationId, newProjectId, projectId, customizationId);
+			
+			sql.setLength(0);
+			StringBuilder sql2 = new StringBuilder();
+			sql.append("insert into ").append(t.getDsc()).append("(");
+			for(W5TableField tf:t.get_tableFieldList())if(!GenericUtil.hasPartInside2("customization_id,project_uuid,oproject_uuid,version_no,insert_user_id,version_user_id,insert_dttm,version_dttm", tf.getDsc())){
+				sql.append(tf.getDsc()).append(",");
+				sql2.append(tf.getDsc()).append(",");
+			}
+			sql.append("customization_id,project_uuid,oproject_uuid)");
+			sql2.append("?,?,?");
+			sql.append(" select ").append(sql2).append(" from ").append(t.getDsc()).append(" x where x.customization_id=? AND x.project_uuid=? AND not exists(select 1 from ").append(t.getDsc())
+				.append(" z where z.customization_id=? AND z.project_uuid=? AND z.").append(pkField).append("=x.").append(pkField).append(")");
+			dao.executeUpdateSQLQuery(sql.toString(), dstCustomizationId, newProjectId, projectId, customizationId, projectId, dstCustomizationId, newProjectId);
+		}
+		
+		FrameworkCache.addProject(npo);
+		return result;
+		
+	}
+	
+	public Map vcsServerPublish2AppStore(String userName, String passWord, int customizationId, String projectId, int maxSqlCommit, int maxObjCommit) {
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, null);
-		W5Project po = FrameworkCache.wProjects.get(projectId);
+		W5Project po = FrameworkCache.getProject(projectId), npo = null;
 
 		List<Object[]> ll = dao.executeSQLQuery("select (select max(x.vcs_commit_id) from iwb.w5_vcs_commit x where x.project_uuid=?) cmt_id1, (select max(x.vcs_commit_id) from iwb.w5_vcs_object x where x.vcs_object_status_tip>5 AND x.project_uuid=? and x.customization_id=?) cmt_id2", po.getProjectUuid(), po.getProjectUuid(), customizationId);
 		int smaxSqlCommit = GenericUtil.uInt(ll.get(0)[0]), smaxObjCommit = GenericUtil.uInt(ll.get(0)[1]);
@@ -3059,20 +3125,124 @@ public class VcsEngine {
 		
 		Map result = new HashMap();
 		result.put("success", true);
-		List<Object[]> ll2 = dao.executeSQLQuery("select x.project_uuid, x.dsc, x.project_status_tip,  from iwb.w5_project x where x.customization_id=1 AND x.oproject_uuid=?", projectId);
+		List<Object[]> ll2 = dao.executeSQLQuery("select x.project_uuid, x.dsc, x.project_status_tip  from iwb.w5_project x where x.customization_id=1 AND x.oproject_uuid=?", projectId);
 		String newProjectId = null;
 		if(GenericUtil.isEmpty(ll2)){ // not defined
 			newProjectId = UUID.randomUUID().toString();
-			String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+projectId.replace('-', '_');
-			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
-					+ " values (?,?,?, ?, ?,?,?,?, ?)", newProjectId, 1, "New Project 1", ""+userId,schema,vcsUrl,nickName, "1", projectId);
-			dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
+			String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project");
+			String schema = "c"+GenericUtil.lPad("1", 5, '0')+"_"+newProjectId.replace('-', '_');
+			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
+					+ " values (?,?,?, ?, ?,?,?,?, ?)", newProjectId, 1, "App on Store", schema, vcsUrl,"app.store", "1", projectId);
+			//dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
+			npo =  (W5Project)dao.find("from W5Project w where w.projectUuid=?", newProjectId).get(0);
 		} else {
-			newProjectId = ll2.get(0)[0].toString();
+			Object[] oo = ll2.get(0);
+			int projectStatus= GenericUtil.uInt(oo[2]);
+			if(projectStatus!=1){
+				throw new IWBException("vcs","serverPublish2AppStore", 0, projectId, "Project Status Error", null);
+			}
+			newProjectId = oo[0].toString();
+			npo = FrameworkCache.getProject(newProjectId);
 		}
+		if(npo==null)
+			throw new IWBException("vcs","serverPublish2AppStore", 0, projectId, "Project Not Found", null);
 		
+		List<W5VcsCommit> sqlCommits = dao.find("from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=? AND t.vcsCommitId>? order by t.vcsCommitId", projectId, smaxSqlCommit);
+		for(W5VcsCommit o:sqlCommits)dao.saveObject(o.newInstance(newProjectId));
+		
+		dao.executeUpdateSQLQuery("delete from iwb.w5_vcs_object x where x.project_uuid=? AND x.customization_id=1 AND not exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.customization_id=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk AND z.vcs_commit_id=x.vcs_commit_id)", newProjectId, projectId, customizationId);
+		
+		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_vcs_object(vcs_object_id, table_id, table_pk, customization_id, project_uuid, vcs_commit_id, vcs_commit_record_hash, vcs_object_status_tip) "
+				+ "select nextval('iwb.seq_vcs_object'), x.table_id, x.table_pk, 1, ?, x.vcs_commit_id, x.vcs_commit_record_hash, x.vcs_object_status_tip from iwb.w5_vcs_object x where x.project_uuid=? AND x.customization_id=? AND not exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.customization_id=1 AND z.table_id=x.table_id AND z.table_pk=x.table_pk AND z.vcs_commit_id=x.vcs_commit_id)"
+				, newProjectId, projectId, customizationId, newProjectId);
+		
+		List<Object> ll3 = dao.executeSQLQuery("select x.table_id from iwb.w5_vcs_object x where x.project_uuid=? group by x.table_id order by x.table_id", newProjectId);
+		if(ll3!=null)for(Object o:ll3){
+			StringBuilder sql = new StringBuilder();
+			W5Table t = FrameworkCache.getTable(0, GenericUtil.uInt(o));
+			String pkField = t.get_tableParamList().get(0).getExpressionDsc();
+			sql.append("delete from ").append(t.getDsc()).append(" x where x.customization_id=1 AND x.project_uuid=? AND not exists(select 1 from ").append(t.getDsc())
+				.append(" z where z.project_uuid=? AND z.customization_id=? AND z.").append(pkField).append("=x.").append(pkField);
+			for(W5TableField tf:t.get_tableFieldList())if(tf.getTabOrder()>1 && !GenericUtil.hasPartInside2("customization_id,project_uuid,oproject_uuid,version_no,insert_user_id,version_user_id,insert_dttm,version_dttm", tf.getDsc())){
+				sql.append(" AND x.").append(tf.getDsc()).append("=z.").append(tf.getDsc());
+			}
+			sql.append(")");
+			dao.executeUpdateSQLQuery(sql.toString(), newProjectId, projectId, customizationId);
+			
+			sql.setLength(0);
+			StringBuilder sql2 = new StringBuilder();sql2.append(" select ");
+			sql.append("insert into ").append(t.getDsc()).append("(");
+			for(W5TableField tf:t.get_tableFieldList())if(!GenericUtil.hasPartInside2("customization_id,project_uuid,oproject_uuid,version_no,insert_user_id,version_user_id,insert_dttm,version_dttm", tf.getDsc())){
+				sql.append(tf.getDsc()).append(",");
+				sql2.append(tf.getDsc()).append(",");
+			}
+			sql.append("customization_id,project_uuid,oproject_uuid)");
+			sql2.append("1,?,?");
+			sql.append(" select ").append(sql2).append(" from ").append(t.getDsc()).append(" x where x.customization_id=? AND x.project_uuid=? AND not exists(select 1 from ").append(t.getDsc())
+				.append(" z where z.project_uuid=? AND z.customization_id=? AND z.").append(pkField).append("=x.").append(pkField).append(")");
+			dao.executeUpdateSQLQuery(sql.toString(), newProjectId, projectId, customizationId);
+		}
+
+/*
+		List<W5VcsObject> vcsObjects = dao.find("from W5VcsObject t where t.project_uuid=? AND t.vcsCommitId>? order by t.vcsCommitId, t.tableId, t.tablePk", projectId, smaxObjCommit);
+		Set<Integer> tableIds = new HashSet<>();
+		for(W5VcsObject o:vcsObjects){
+			if(!tableIds.contains(o.getTableId())){// delete, update, insert
+				StringBuilder sql = new StringBuilder();
+				W5Table t = FrameworkCache.getTable(0, o.getTableId());
+				String pkField = t.get_tableParamList().get(0).getExpressionDsc();
+				sql.append("delete from ").append(t.getDsc()).append(" t where t.customization_id=1 AND t.projectUuid=? AND not exists(select 1 from ").append(t.getDsc())
+					.append(" q where t.projectUuid=? AND q.customization_id=? AND q.").append(pkField).append("=t.").append(pkField);
+				dao.executeUpdateSQLQuery(sql.toString(), newProjectId, projectId, customizationId);
+
+				sql.setLength(0);
+				sql.append("select t.*,(select 1 from ").append(t.getDsc())
+					.append(" q where t.projectUuid=? AND q.customization_id=1 AND q.").append(pkField).append("=t.").append(pkField).append(") icb_bunny_diff from ").append(t.getDsc()).append(" t where t.projectUuid=? AND t.customization_id=?");
+
+				List params = new ArrayList();
+				params.add(newProjectId);params.add(projectId);params.add(customizationId);
+				List<Map> lmo =dao.executeSQLQuery2Map(sql.toString(), params);
+				if(lmo!=null)for(Map mo:lmo){
+					params.clear();
+					sql.setLength(0);
+
+					switch(GenericUtil.uInt(mo.get("icb_bunny_diff"))){
+					case	1://already have: update
+						sql.append("update ").append(t.getDsc()).append(" t set ");
+						for(W5TableField tf:t.get_tableFieldList())if(tf.getTabOrder()>1 && !GenericUtil.hasPartInside2("version_no,insert_user_id,version_user_id,insert_dttm,version_dttm", tf.getDsc())){
+							sql.append(tf.getDsc()).append("=?,");
+							params.add(mo.get(tf.getDsc()));
+						}
+						sql.setLength(sql.length()-1);
+						sql.append(" where t.customization_id=1 AND t.projectUuid=? AND t.").append(pkField).append("=?");
+						params.add(mo.get(pkField));
+						break;
+					case	0://does no: insert
+						sql.append("insert into ").append(t.getDsc()).append("(");
+						for(W5TableField tf:t.get_tableFieldList())if(tf.getTabOrder()>1 && !GenericUtil.hasPartInside2("version_no,insert_user_id,version_user_id,insert_dttm,version_dttm", tf.getDsc())){
+							sql.append(tf.getDsc()).append("=?,");
+							params.add(mo.get(tf.getDsc()));
+						}
+						sql.setLength(sql.length()-1);
+						sql.append(" where t.customization_id=1 AND t.projectUuid=? AND t.").append(pkField).append("=?");
+						params.add(mo.get(pkField));
+						break;
+	
+					}
+					dao.executeUpdateSQLQuery(sql.toString(), params);
+				}
+				
+				
+			} else tableIds.add(o.getTableId());
+			dao.saveObject(o.newInstance(1, newProjectId));
+		}
+
+		*/
+		if(GenericUtil.isEmpty(ll2))
+			FrameworkCache.addProject(npo);
+				
 		return result;
 	}
 	
-*/
+
 }

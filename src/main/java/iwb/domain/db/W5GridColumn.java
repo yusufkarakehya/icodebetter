@@ -26,8 +26,6 @@ public class W5GridColumn implements java.io.Serializable, W5Base {
 
 	private int gridId;
 	
-	private int customizationId;
-	
 	private String localeMsgKey;
 
 	private short tabOrder;
@@ -59,14 +57,14 @@ public class W5GridColumn implements java.io.Serializable, W5Base {
 	public W5GridColumn() {
 	}
 
-	public W5GridColumn(int queryFieldId, int gridId, int customizationId) {
+	public W5GridColumn(int queryFieldId, int gridId, String projectUuid) {
 		this.queryFieldId = queryFieldId;
 		this.gridId = gridId;
-		this.customizationId = customizationId;
+		this.projectUuid = projectUuid;
 
 	}
 
-	public W5GridColumn(int gridColumnId, int queryFieldId, int gridId, int customizationId,
+	public W5GridColumn(int gridColumnId, int queryFieldId, int gridId, String projectUuid,
 			String localeMsgKey, short tabOrder, short visibleFlag,
 			short width, String renderer, short sortableFlag, short alignTip,
 			short filterFlag, String extraDefinition, int gridModuleId,
@@ -74,7 +72,7 @@ public class W5GridColumn implements java.io.Serializable, W5Base {
 		this.gridColumnId = gridColumnId;
 		this.queryFieldId = queryFieldId;
 		this.gridId = gridId;
-		this.customizationId = customizationId;
+		this.projectUuid = projectUuid;
 		this.localeMsgKey = localeMsgKey;
 		this.tabOrder = tabOrder;
 		this.visibleFlag = visibleFlag;
@@ -190,15 +188,7 @@ public class W5GridColumn implements java.io.Serializable, W5Base {
 		this.lookupQueryId = lookupQueryId;	
 	}
 */
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	@Column(name="filter_flag")
 	public short getFilterFlag() {
@@ -298,5 +288,15 @@ public class W5GridColumn implements java.io.Serializable, W5Base {
 			this.formCellId==g.getFormCellId();
 		
 	}
-	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+		
 }

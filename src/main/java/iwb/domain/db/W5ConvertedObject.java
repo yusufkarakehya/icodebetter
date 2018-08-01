@@ -30,7 +30,6 @@ public class W5ConvertedObject implements java.io.Serializable {
 	}
 	private int convertedObjectId;
 	private int conversionId;
-	private int customizationId;
 	private int srcTablePk;
 	private int dstTablePk;
 	private int versionNo;
@@ -51,7 +50,7 @@ public class W5ConvertedObject implements java.io.Serializable {
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("converted_object,conversion_id=").append(conversionId).append(",customization_id=").append(customizationId).append(" user_id=").append(insertUserId).append(",src_table_pk=").append(srcTablePk).append(",dst_table_pk=").append(dstTablePk);
+		s.append("converted_object,conversion_id=").append(conversionId).append(",project_uuid=").append(projectUuid).append(" user_id=").append(insertUserId).append(",src_table_pk=").append(srcTablePk).append(",dst_table_pk=").append(dstTablePk);
 		return s.toString();
 	}
 
@@ -78,14 +77,6 @@ public class W5ConvertedObject implements java.io.Serializable {
 	}
 	public void setDstTablePk(int dstTablePk) {
 		this.dstTablePk = dstTablePk;
-	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
 	}
 
 	@Column(name="version_no")
@@ -114,7 +105,7 @@ public class W5ConvertedObject implements java.io.Serializable {
 		this.versionNo = 1;
 		this.versionUserId = (Integer)scd.get("userId");
 		this.insertUserId = (Integer)scd.get("userId");
-		this.customizationId = (Integer)scd.get("customizationId");
+		this.projectUuid = (String)scd.get("projectId");
 		this.conversionId = conversionId;
 		this.srcTablePk = srcTablePk;
 		this.dstTablePk = dstTablePk;
@@ -129,5 +120,15 @@ public class W5ConvertedObject implements java.io.Serializable {
 
 	
 	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

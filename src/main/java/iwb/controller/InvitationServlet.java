@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import iwb.engine.FrameworkEngine;
 import iwb.cache.FrameworkCache;
+import iwb.domain.db.W5Project;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
@@ -33,7 +34,8 @@ public class InvitationServlet {
 		String code = request.getParameter("invitation_code");
 		if(!GenericUtil.isEmpty(code)) {
 			String projectUuid = code.substring(0,36);
-			if(FrameworkCache.wProjects.containsKey(projectUuid)) {
+			W5Project po = FrameworkCache.getProject(projectUuid);
+			if(po!=null) {
 				String email= request.getParameter("email");
 				Map scd = engine.userExists(email);
 				if(scd == null){

@@ -16,11 +16,10 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_table_trigger",schema="iwb")
-public class W5TableTrigger implements java.io.Serializable {
+public class W5TableEvent implements java.io.Serializable {
 
 	private int tableTriggerId;
 	private int tableId;
-	private int customizationId;
 	private String triggerCode;
 	private String dsc;
 	private short lkpCodeType;
@@ -37,14 +36,7 @@ public class W5TableTrigger implements java.io.Serializable {
 	public void setTableTriggerId(int tableChildId) {
 		this.tableTriggerId = tableChildId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="table_id")
 	public int getTableId() {
 		return tableId;
@@ -104,5 +96,15 @@ public class W5TableTrigger implements java.io.Serializable {
 		this.dsc = dsc;
 	}
 	
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

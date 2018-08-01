@@ -20,25 +20,27 @@ public class FrameworkSetting {
 	public static  boolean monaco = false;
 	public	static	int	rdbmsTip= 0; //0:PostgreSQL, 1: SQL Server, 2: Oracle
 	public	static	boolean	tsdbFlag= true; //Time SeriesDB
-	public	static	int	systemStatus = 0; //0:working, 1:backup, 2:suspended, 3:remzi mode
-	public static final Map<Integer, Integer> customizationSystemStatus = new HashMap<Integer, Integer>();//
+	public	static	int	systemStatus = 0; //0:working, 1:backup, 2:suspended
+	public static final Map<String, Integer> projectSystemStatus = new HashMap<String, Integer>();//
 	public final static Locale appLocale = new Locale("en");
 	public final static String instanceUuid=UUID.randomUUID().toString();
+	public final static String devUuid="067e6162-3b6f-4ae2-a221-2470b63dff00";
 	public static boolean mq=false;
 	public static boolean debug=true;
 	public static boolean chat=true;
 	public static boolean sms=true;
 	public static boolean mail=true;
 	public static int functionTimeout=5000;
-	public static boolean profilePicture=true;
-	public static boolean allowMultiLogin=true;
+	
+//	public static boolean profilePicture=true;
+//	public static boolean allowMultiLogin=true;
 	public static boolean vcs=true;
 	public static boolean vcsServer=false;
 	
 //	public static boolean commentSummary=true;
 	public static boolean alarm=true;
-	public static boolean approval=true;
-	public static boolean cacheObject = false;
+	public static boolean workflow=true;
+//	public static boolean cacheObject = false;
 	public static boolean hibernateCloseAfterWork=false;
 	public static Set<Integer> dealerTableIds=new HashSet<Integer>();
 	public static Set<Integer> dealerDetailTableIds=new HashSet<Integer>();
@@ -50,6 +52,7 @@ public class FrameworkSetting {
 	final public static String[] alignMap = new String[]{"center","left","right"};
 	final public static String[] filterMap = new String[]{"", "string", "date", "numeric", "numeric", "boolean"};
 	public static int mailIntervalCount=100;	
+	public static boolean feed = false;
 	public static int feedMaxDepth=1000;
 	public static int feedLoadAtStartupDepth = 30; //0 if not wanted 
 	public static int optimizerCount=0;

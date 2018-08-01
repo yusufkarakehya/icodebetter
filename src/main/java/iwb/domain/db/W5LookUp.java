@@ -22,8 +22,6 @@ public class W5LookUp implements java.io.Serializable, W5Base {
 
 	private int lookUpId;
 	
-	private int customizationId;
-	
 	private String dsc;
 	
 	private short cssClassFlag;
@@ -53,15 +51,7 @@ public class W5LookUp implements java.io.Serializable, W5Base {
 	public void setDsc(String dsc) {
 		this.dsc = dsc;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 	
 	
 
@@ -116,4 +106,16 @@ public class W5LookUp implements java.io.Serializable, W5Base {
 		
 		return true;
 	}
+	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
 }

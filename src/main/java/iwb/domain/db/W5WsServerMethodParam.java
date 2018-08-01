@@ -18,7 +18,6 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param {
 	private int wsServerMethodId;
 	private String dsc;
 	private short paramTip;
-	private int customizationId;
 	private short outFlag;
 	private short notNullFlag;
 	private short tabOrder;
@@ -87,15 +86,6 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param {
 	}
 	public void setDsc(String dsc) {
 		this.dsc = dsc;
-	}
-	
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
 	}
 	
 	@Column(name="out_flag")
@@ -193,5 +183,15 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param {
 		this.objectDetailId = objectDetailId;
 	}
 
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

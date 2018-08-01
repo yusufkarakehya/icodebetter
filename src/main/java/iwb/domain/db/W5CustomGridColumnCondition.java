@@ -16,7 +16,6 @@ import org.hibernate.annotations.Immutable;
 public class W5CustomGridColumnCondition implements java.io.Serializable {
 
 	private int customGridColumnConditionId;
-	private int customizationId;
 	private int gridId;
 	private int queryFieldId;
 	private short tabOrder;
@@ -32,14 +31,7 @@ public class W5CustomGridColumnCondition implements java.io.Serializable {
 	public void setCustomGridColumnConditionId(int customGridColumnConditionId) {
 		this.customGridColumnConditionId = customGridColumnConditionId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="grid_id")
 	public int getGridId() {
 		return gridId;
@@ -81,6 +73,17 @@ public class W5CustomGridColumnCondition implements java.io.Serializable {
 	}
 	public void setQueryFieldId(int queryFieldId) {
 		this.queryFieldId = queryFieldId;
+	}
+
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

@@ -19,7 +19,6 @@ import org.hibernate.annotations.Immutable;
 public class W5Query implements java.io.Serializable {
 
 	private int queryId;
-	private int customizationId;
 
 	private int querySourceTip;
 	private int mainTableId;
@@ -37,8 +36,8 @@ public class W5Query implements java.io.Serializable {
 	private String sqlGroupby;
 
 	private String sqlOrderby;
-	private String optQueryFieldIds;
-	private short optTip;
+
+	private String projectUuid;
 
 	private short queryTip;
 
@@ -254,31 +253,8 @@ public class W5Query implements java.io.Serializable {
 		this.dataFillDirectionTip = dataFillDirectionTip;
 	}
 
-	@Column(name="opt_query_field_ids")
-	public String getOptQueryFieldIds() {
-		return optQueryFieldIds;
-	}
 
-	public void setOptQueryFieldIds(String optQueryFieldIds) {
-		this.optQueryFieldIds = optQueryFieldIds;
-	}
-	@Column(name="opt_tip")
-	public short getOptTip() {
-		return optTip;
-	}
 
-	public void setOptTip(short optTip) {
-		this.optTip = optTip;
-	}
-
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	@Column(name="query_source_tip")
 	public int getQuerySourceTip() {
@@ -287,6 +263,16 @@ public class W5Query implements java.io.Serializable {
 
 	public void setQuerySourceTip(int querySourceTip) {
 		this.querySourceTip = querySourceTip;
+	}
+
+	@Column(name="project_uuid")
+	@Id
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }
