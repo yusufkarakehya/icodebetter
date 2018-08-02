@@ -588,7 +588,7 @@ pre.code{
 .xform-live-sync {
     padding: 0px;
     border: none !important;
-/*    background:#75263f;*/
+    background:linear-gradient(127deg, rgba(255,0,0,.8), rgba(255,0,0,0) 70.71%), linear-gradient(127deg, rgba(0,255,0,.8), rgba(0,255,0,0) 70.71%), linear-gradient(336deg, #03A9F4, rgba(0,0,255,0) 70.71%);
 }
 
 
