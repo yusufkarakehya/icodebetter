@@ -51,7 +51,7 @@ public class AppFilter implements Filter {
 			try {
 				filterChain.doFilter( request, response );
 			} catch (NestedServletException e) {
-				e.printStackTrace();
+				if(FrameworkSetting.debug)e.printStackTrace();
 				response.setCharacterEncoding( "UTF-8" );
 				response.setContentType("text/html");
 				Exception te = e;

@@ -152,8 +152,10 @@ public class FrameworkCache {
 	
 	public static W5Table getTable(Object o, int tableId){
 		String projectId = getProjectId(o, "15."+tableId);
-		if(FrameworkSetting.debug && FrameworkCache.hasQueuedReloadCache(projectId,"15."+tableId))
-			throw new IWBException("cache","Table",tableId, null, "Cache not reloaded. Please Reload Cache", null);
+		if(FrameworkSetting.debug && FrameworkCache.hasQueuedReloadCache(projectId,"15."+tableId)){
+			Integer status = FrameworkSetting.projectSystemStatus.get(projectId);
+			if(status!=null && status==0)throw new IWBException("cache","Table",tableId, null, "Cache not reloaded. Please Reload Cache", null);
+		}
 		Map<Integer, W5Table> map = wTables.get(projectId);
 		if(map==null)return null;
 		return map.get(tableId);

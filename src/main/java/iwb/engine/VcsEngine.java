@@ -3000,9 +3000,9 @@ public class VcsEngine {
 			List<Map> tList = dao.executeSQLQuery2Map("select t.* from iwb.w5_user_tip t where t.customization_id=?", params);
 			map.put("userTips", tList);
 			
-//			FrameworkSetting.projectSystemStatus.put(cusId, 0);
 			FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
 			FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, projectId).get(0));
+			FrameworkSetting.projectSystemStatus.put(projectId, 0);
 			//Map cache = FrameworkCache.reloadCacheQueue();
 		}
 		return map;
@@ -3110,6 +3110,8 @@ public class VcsEngine {
 		}
 		
 		FrameworkCache.addProject(npo);
+		FrameworkSetting.projectSystemStatus.put(npo.getProjectUuid(), 0);
+
 		return result;
 		
 	}
@@ -3238,8 +3240,10 @@ public class VcsEngine {
 		}
 
 		*/
-		if(GenericUtil.isEmpty(ll2))
+		if(GenericUtil.isEmpty(ll2)){
 			FrameworkCache.addProject(npo);
+			FrameworkSetting.projectSystemStatus.put(npo.getProjectUuid(), 0);
+		}
 				
 		return result;
 	}

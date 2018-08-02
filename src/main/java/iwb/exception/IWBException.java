@@ -102,7 +102,6 @@ public class IWBException extends RuntimeException {
 				}
 				b.append("]");
 			}
-			if(!GenericUtil.isEmpty(this.stack))this.stack.get(this.stack.size()-1).printStackTrace();
 		}
 		
 	

@@ -77,6 +77,19 @@ public class PostFormTrigger {
 				}
 			}
 			break;
+		case	1407://project
+			if(fr.getAction()==2){
+				String newProjectId = fr.getOutputFields().get("project_uuid").toString();
+				int customizationId = (Integer)fr.getScd().get("customizationId");
+				String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
+				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project"), fr.getScd().get("userName"), "1", newProjectId);
+				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
+				int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId, 0, customizationId);
+				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", customizationId, newProjectId);
+				FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.projectUuid=?", newProjectId).get(0));
+				FrameworkSetting.projectSystemStatus.put(newProjectId,0);
+			}
+			break;
 		default:
             break;
 	
