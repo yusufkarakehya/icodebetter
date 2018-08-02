@@ -3776,6 +3776,14 @@ public class FrameworkEngine{
 	}
 
 
+	public Map<String, Object> userSession4Auth(int userId, int customizationId) {
+		Map<String, Object> scd = new HashMap<String,Object>();
+		scd.put("userId", userId);
+		scd.put("customizationId", customizationId);
+		Map<String,String> rm = new HashMap();
+		return executeQuery2Map(scd, 4546, rm); //auth.SessionQuery
+	}
+
 
 
 	private int approvalStepListControl(List<W5WorkflowStep> stepList){
@@ -6301,12 +6309,11 @@ public class FrameworkEngine{
 	}
 
 	public Map generateScdFromAuth(int socialCon, String token) {
-		List<Object[]> list = dao.executeSQLQuery("select u.user_id, u.customization_id, (select min(r.user_role_id)"
-				+ " from iwb.w5_user_role r where r.customization_id=u.customization_id AND r.user_id=u.user_id) user_role_id from iwb.w5_user u"
+		List<Object[]> list = dao.executeSQLQuery("select u.user_id, u.customization_id from iwb.w5_user u"
 				+ " where u.lkp_auth_external_source=? AND u.user_status=1 AND u.auth_external_id=?", socialCon, token);
 		if(!GenericUtil.isEmpty(list)){
 			Object[] oz = list.get(0);
-			return  userRoleSelect(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[2]), GenericUtil.uInt(oz[1]), null, null);
+			return  userSession4Auth(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[1]));
 		}
 		else{
 			return null;

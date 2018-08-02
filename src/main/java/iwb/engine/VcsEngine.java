@@ -3254,7 +3254,7 @@ public class VcsEngine {
 	public boolean vcsClientImportProject(Map<String, Object> scd, String projectId, String importedProjectId) {
 		Map<String, Object> newScd = new HashMap();
 		newScd.putAll(scd);newScd.put("projectId", importedProjectId);
-		return dao.copyProject(scd, projectId, (Integer)newScd.get("customizationId"));
+		return dao.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
 	}
 	
 
