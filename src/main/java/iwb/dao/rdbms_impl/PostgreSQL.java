@@ -572,7 +572,7 @@ public class PostgreSQL extends BaseDAO {
 
    				if(tqf.get_tableParamList().size()>1){
    					if(tqf.get_tableParamList().get(1).getDsc().equals("customizationId"))sql2.append(" AND x.customization_id=").append(queryResult.getScd().get("customizationId"));
-   					else if(tqf.get_tableParamList().get(1).getDsc().equals("projectId"))sql2.append(" AND x.project_uuid=").append(queryResult.getScd().get("projectId"));
+   					else if(tqf.get_tableParamList().get(1).getDsc().equals("projectId"))sql2.append(" AND x.project_uuid='").append(queryResult.getScd().get("projectId")).append("'");
    				}
    				sql2.append(") ").append(qf.getDsc()).append("_qw_ ");
    				W5QueryField field = new W5QueryField();
@@ -597,7 +597,7 @@ public class PostgreSQL extends BaseDAO {
 
    				if(tqf.get_tableParamList().size()>1){
    					if(tqf.get_tableParamList().get(1).getDsc().equals("customizationId"))sql2.append(" AND x.customization_id=").append(queryResult.getScd().get("customizationId"));
-   					else if(tqf.get_tableParamList().get(1).getDsc().equals("projectId"))sql2.append(" AND x.project_uuid=").append(queryResult.getScd().get("projectId"));
+   					else if(tqf.get_tableParamList().get(1).getDsc().equals("projectId"))sql2.append(" AND x.project_uuid='").append(queryResult.getScd().get("projectId")).append("'");
    				}
    				sql2.append(") ").append(qf.getDsc()).append("_qw_ ");
    				W5QueryField field = new W5QueryField();
