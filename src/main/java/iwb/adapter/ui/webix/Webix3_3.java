@@ -753,7 +753,7 @@ public class Webix3_3 implements ViewAdapter {
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
 									.syncGetListOfRecordEditUsers(
-											t.getCustomizationId(), key,
+											t.getProjectUuid(), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")
@@ -831,7 +831,7 @@ public class Webix3_3 implements ViewAdapter {
 					int ndx = ozc[3].indexOf('-');
 					s.append(ozc[0]).append(", commentExtra:{\"last_dttm\":\"").append(ozc[2])
 						.append("\",\"user_id\":").append(ozc[1])
-						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
 						.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userId+""))
 						.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 						.append("\"}");
@@ -3655,7 +3655,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_:'")
 											.append(UserUtil.getUserName(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
@@ -3665,7 +3664,6 @@ columns:[
 										for (String s : ids) {
 											res += ","
 													+ UserUtil.getUserName(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
@@ -3680,7 +3678,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_:'")
 											.append(UserUtil.getUserDsc(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
@@ -3690,7 +3687,6 @@ columns:[
 										for (String s : ids11) {
 											res += ","
 													+ UserUtil.getUserDsc(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
@@ -3937,7 +3933,7 @@ columns:[
 									break;
 								case 20: // user LookUp
 									buf2.append(obj).append("\",\"").append(f.getDsc())
-											.append("_qw_\":\"").append(UserUtil.getUserName(customizationId, GenericUtil.uInt(obj)));
+											.append("_qw_\":\"").append(UserUtil.getUserName( GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
 									String[] ids = ((String) obj).split(",");
@@ -3946,7 +3942,6 @@ columns:[
 										for (String s : ids) {
 											res += ","
 													+ UserUtil.getUserName(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",\"")
@@ -3961,7 +3956,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_\":\"")
 											.append(UserUtil.getUserDsc(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
@@ -3971,7 +3965,6 @@ columns:[
 										for (String s : ids11) {
 											res += ","
 													+ UserUtil.getUserDsc(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",\"")
@@ -4201,7 +4194,6 @@ columns:[
 										.append(f.getDsc())
 										.append("_qw_\":\"")
 										.append(UserUtil.getUserName(
-												customizationId,
 												GenericUtil.uInt(obj)));
 								break;
 							case 21: // users LookUp
@@ -4211,7 +4203,6 @@ columns:[
 									for (String s : ids) {
 										res += ","
 												+ UserUtil.getUserName(
-														customizationId,
 														GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
@@ -4226,7 +4217,6 @@ columns:[
 										.append(f.getDsc())
 										.append("_qw_\":\"")
 										.append(UserUtil.getUserDsc(
-												customizationId,
 												GenericUtil.uInt(obj)));
 								break;
 							case 54: // Users LookUp Real Name
@@ -4236,7 +4226,6 @@ columns:[
 									for (String s : ids11) {
 										res += ","
 												+ UserUtil.getUserDsc(
-														customizationId,
 														GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
@@ -4306,7 +4295,7 @@ columns:[
 								buf.append(ozc[0]).append("\",\"").append(FieldDefinitions.queryFieldName_CommentExtra)
 									.append("\":{\"last_dttm\":\"").append(ozc[2])
 									.append("\",\"user_id\":").append(ozc[1])
-									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
 									.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userIdStr))
 									.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 									.append("\"}");
@@ -4368,7 +4357,6 @@ columns:[
 									for (String uid : userIds) {
 										buf.append(
 												UserUtil.getUserDsc(
-														customizationId,
 														GenericUtil.uInt(uid)))
 												.append(", ");
 									}
@@ -4687,7 +4675,7 @@ columns:[
 				.append("\"");
 		if (tableRecordInfoResult.getInsertUserId() > 0)
 			buf.append(",\nprofile_picture_id:").append(
-					UserUtil.getUserProfilePicture(customizationId,
+					UserUtil.getUserProfilePicture(
 							tableRecordInfoResult.getInsertUserId()));
 		if (!GenericUtil.isEmpty(tableRecordInfoResult.getVersionDttm())) {
 			buf.append(",\n\"version_no\":")
@@ -4695,14 +4683,14 @@ columns:[
 					.append(",\"insert_user_id\":")
 					.append(tableRecordInfoResult.getInsertUserId())
 					.append(",\"insert_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							tableRecordInfoResult.getInsertUserId()))
 					.append("\",\"insert_dttm\":\"")
 					.append(tableRecordInfoResult.getInsertDttm())
 					.append("\",\"version_user_id\":")
 					.append(tableRecordInfoResult.getVersionUserId())
 					.append(",\"version_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							tableRecordInfoResult.getVersionUserId()))
 					.append("\",\"version_dttm\":\"")
 					.append(tableRecordInfoResult.getVersionDttm())
@@ -4956,10 +4944,10 @@ columns:[
 					.append(",\"user_id\":")
 					.append(feed.getInsertUserId())
 					.append(",\"user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							feed.getInsertUserId()))
 					.append("\",\"profile_picture_id\":")
-					.append(UserUtil.getUserProfilePicture(customizationId,
+					.append(UserUtil.getUserProfilePicture(
 							feed.getInsertUserId()))
 					.append(",\"show_feed_tip\":")
 					.append(feed.get_showFeedTip())
@@ -4995,7 +4983,7 @@ columns:[
 						else
 							b = true;
 						buf.append("\"")
-								.append(UserUtil.getUserDsc(customizationId, k))
+								.append(UserUtil.getUserDsc( k))
 								.append("\"");
 					}
 					buf.append("]");
@@ -5045,7 +5033,7 @@ columns:[
 							.append(",\"user_id\":")
 							.append(ch.getInsertUserId())
 							.append(",\"user_id_qw_\":\"")
-							.append(UserUtil.getUserDsc(customizationId,
+							.append(UserUtil.getUserDsc(
 									ch.getInsertUserId()))
 							.append("\",\"dsc\":\"")
 							.append(GenericUtil.stringToJS(ch.getDsc()))

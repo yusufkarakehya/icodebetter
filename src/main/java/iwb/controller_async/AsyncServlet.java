@@ -41,7 +41,7 @@ public class AsyncServlet {
 			}
 			return null;
 		}
-		final Integer customizationId = (Integer)scd.get("customizationId");
+		final String projectId = (String)scd.get("projectId");
 		final Integer userId = (Integer)scd.get("userId");
 		final String webPageId = request.getParameter(".w");
 		final String webPageId2 = GenericUtil.uInt(scd.get("mobile"))!=0 ? (String)scd.get("mobileDeviceId") : request.getParameter(".w");
@@ -50,12 +50,14 @@ public class AsyncServlet {
 		}
 		
 		final String activeTabId = request.getParameter(".at");
-		final W5DeferredResult deferredResult = new W5DeferredResult(customizationId, userId, webPageId, FrameworkSetting.asyncTimeout*1000L, Collections.emptyList());
-		
 		String rpid = request.getParameter(".p");
-		if(rpid!=null && !GenericUtil.safeEquals(rpid, scd.get("projectId"))){
+		if(GenericUtil.isEmpty(rpid))rpid = projectId;
+		else if(!GenericUtil.safeEquals(rpid, scd.get("projectId"))){
 		//	deferredResult.setResult("{\"success\":true, \"changeProjectId\":\""+scd.get("projectId")+"\"}"); //TODO
 		}
+
+		final W5DeferredResult deferredResult = new W5DeferredResult(rpid, userId, webPageId, FrameworkSetting.asyncTimeout*1000L, Collections.emptyList());
+		
 		
 		 /*	
 	    if(UserUtil.wLongPollRequests.containsKey(userId)) {
@@ -79,7 +81,7 @@ public class AsyncServlet {
 	        }
 	    });
 
-	    Object o = UserUtil.addDeferredResult(customizationId, userId, request.getSession().getId(), webPageId, activeTabId, scd, deferredResult);
+	    Object o = UserUtil.addDeferredResult(rpid, userId, request.getSession().getId(), webPageId, activeTabId, scd, deferredResult);
 	    
 	    if(FrameworkSetting.liveSyncRecord && !GenericUtil.isEmpty(webPageId)){
 	    	int	cnt =  GenericUtil.uInt(request, ".c");
@@ -92,7 +94,7 @@ public class AsyncServlet {
 	    			String tabId = sa[1];
 	    			short syncTip = sa.length>2 ? GenericUtil.uShort(sa[2]) : 0; //0:yok, 1:var, 2:hybrid
 	    			
-	    			UserUtil.syncRecordEditMap( customizationId,  key, userId, webPageId, tabId,  now,  syncTip);
+	    			UserUtil.syncRecordEditMap( rpid,  key, userId, webPageId, tabId,  now,  syncTip);
 	    			
 					
 	    		}

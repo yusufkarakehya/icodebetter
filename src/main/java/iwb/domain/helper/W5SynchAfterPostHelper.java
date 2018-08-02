@@ -4,7 +4,7 @@ import iwb.cache.FrameworkSetting;
 import iwb.util.GenericUtil;
 
 public class W5SynchAfterPostHelper {
-	private	int customizationId;
+	private	String projectId;
 	private	int tableId;
 	private	String key;
 	private	int userId;
@@ -13,9 +13,9 @@ public class W5SynchAfterPostHelper {
 	
 	
 	
-	public W5SynchAfterPostHelper(int customizationId, int userId, String chunk) {
+	public W5SynchAfterPostHelper(String projectId, int userId, String chunk) {
 		//			        	s.append(";").append(o.getTableId()).append(",").append(o.getKey()).append(",").append(o.getWebPageId()).append(",").append(o.getAction());
-		this.customizationId = customizationId;
+		this.projectId = projectId;
 		this.userId = userId;
 		String[] s=chunk.split(",");
 		this.tableId = GenericUtil.uInt(s[0]); 
@@ -24,21 +24,21 @@ public class W5SynchAfterPostHelper {
 		this.action = (short)GenericUtil.uInt(s[3]); 
 
 	}
-	public W5SynchAfterPostHelper(int customizationId, int tableId, String key,
+	public W5SynchAfterPostHelper(String projectId, int tableId, String key,
 			int userId, String webPageId, short action) {
 		super();
-		this.customizationId = customizationId;
+		this.projectId = projectId;
 		this.tableId = tableId;
 		this.key = key;
 		this.userId = userId;
 		this.webPageId = webPageId;
 		this.action = action;
 	}
-	public int getCustomizationId() {
-		return customizationId;
+	public String getProjectId() {
+		return projectId;
 	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
 	}
 	public int getTableId() {
 		return tableId;

@@ -275,7 +275,7 @@ public class Vue2 implements ViewAdapter {
 		
 		s.append("var cfgForm={formId: ")
 			.append(formResult.getFormId()).append(", a:").append(formResult.getAction())
-			.append(", name:'").append(LocaleMsgCache.get2(customizationId, xlocale, formResult.getForm().getLocaleMsgKey()))
+			.append(", name:'").append(LocaleMsgCache.get2(scd, formResult.getForm().getLocaleMsgKey()))
 			.append("',\n id:'").append(formResult.getUniqueId()).append("', defaultWidth:").append(f.getDefaultWidth()).append(", defaultHeight:").append(f.getDefaultHeight());
 	
 	
@@ -283,10 +283,10 @@ public class Vue2 implements ViewAdapter {
 //		boolean liveSyncRecord = false;
 		// form(table) fields
 		if (f.getObjectTip() == 2
-				&& FrameworkCache.getTable(customizationId, f.getObjectId()) != null) {
+				&& FrameworkCache.getTable(scd, f.getObjectId()) != null) {
 			s.append(",\n renderTip:").append(
 					formResult.getForm().getRenderTip());
-			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord
 					&& t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
 			// insert AND continue control
@@ -312,7 +312,7 @@ public class Vue2 implements ViewAdapter {
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
 									.syncGetListOfRecordEditUsers(
-											t.getCustomizationId(), key,
+											t.getProjectUuid(), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")
@@ -336,7 +336,7 @@ public class Vue2 implements ViewAdapter {
 					int ndx = ozc[3].indexOf('-');
 					s.append(ozc[0]).append(", commentExtra:{\"last_dttm\":\"").append(ozc[2])
 						.append("\",\"user_id\":").append(ozc[1])
-						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
 						.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userId+""))
 						.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 						.append("\"}");
@@ -356,12 +356,8 @@ public class Vue2 implements ViewAdapter {
 				int cnt = 0;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
 					if (fsm.getSmsMailSentTip() != 3
-							&& ((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-									.getAppSettingIntValue(customizationId,
-											"sms_flag") != 0) || (fsm
-									.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-									.getAppSettingIntValue(customizationId,
-											"mail_flag") != 0))
+							&& ((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+									.getSmsMailTip() != 0 && FrameworkSetting.mail ))
 							&& fsm.getAlarmFlag() == 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 									formResult.getAction())
@@ -373,14 +369,8 @@ public class Vue2 implements ViewAdapter {
 					boolean b = false;
 					for (W5FormSmsMail fsm : f.get_formSmsMailList())
 						if (fsm.getSmsMailSentTip() != 3
-								&& ((fsm.getSmsMailTip() == 0
-										&& FrameworkSetting.sms && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"sms_flag") != 0) || (fsm
-										.getSmsMailTip() != 0
-										&& FrameworkSetting.mail && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"mail_flag") != 0))
+								&& ((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+										.getSmsMailTip() != 0 && FrameworkSetting.mail))
 								&& fsm.getAlarmFlag() == 0
 								&& GenericUtil.hasPartInside2(
 										fsm.getActionTips(),
@@ -429,13 +419,9 @@ public class Vue2 implements ViewAdapter {
 					for (W5FormSmsMail fsm : f.get_formSmsMailList())
 						if (fsm.getSmsMailSentTip() != 3
 								&& ((fsm.getSmsMailTip() == 0
-										&& FrameworkSetting.sms && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"sms_flag") != 0) || (fsm
+										&& FrameworkSetting.sms) || (fsm
 										.getSmsMailTip() != 0
-										&& FrameworkSetting.mail && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"mail_flag") != 0))
+										&& FrameworkSetting.mail))
 								&& fsm.getAlarmFlag() != 0
 								&& GenericUtil.hasPartInside2(
 										fsm.getActionTips(),
@@ -458,14 +444,9 @@ public class Vue2 implements ViewAdapter {
 						for (W5FormSmsMail fsm : f.get_formSmsMailList())
 							if (fsm.getSmsMailSentTip() != 3
 									&& ((fsm.getSmsMailTip() == 0
-											&& FrameworkSetting.sms && FrameworkCache
-											.getAppSettingIntValue(
-													customizationId, "sms_flag") != 0) || (fsm
+											&& FrameworkSetting.sms) || (fsm
 											.getSmsMailTip() != 0
-											&& FrameworkSetting.mail && FrameworkCache
-											.getAppSettingIntValue(
-													customizationId,
-													"mail_flag") != 0))
+											&& FrameworkSetting.mail))
 									&& fsm.getAlarmFlag() != 0
 									&& GenericUtil.hasPartInside2(
 											fsm.getActionTips(),
@@ -564,7 +545,7 @@ public class Vue2 implements ViewAdapter {
 								.getMapConvertedObject() != null && formResult
 								.getMapConvertedObject().containsKey(
 										fsm.getConversionId())))) {
-							W5Table dt = FrameworkCache.getTable(customizationId,
+							W5Table dt = FrameworkCache.getTable(formResult.getScd(),
 									fsm.getDstTableId());
 							if ((dt.getAccessViewTip() == 0
 									|| !GenericUtil.isEmpty(dt
@@ -727,7 +708,7 @@ public class Vue2 implements ViewAdapter {
 				.append(formResult.getAction());
 		W5Table t = null;
 		if (f.getObjectTip() == 2) {
-			t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			t = FrameworkCache.getTable(formResult.getScd(), f.getObjectId());
 			if (FrameworkCache.getAppSettingIntValue(formResult.getScd(),
 					"file_attachment_flag") != 0
 					&& t.getFileAttachmentFlag() != 0)
@@ -745,10 +726,8 @@ public class Vue2 implements ViewAdapter {
 															// varsa
 			int cnt = 0;
 			for (W5FormSmsMail fsm : f.get_formSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+						.getSmsMailTip() != 0 && FrameworkSetting.mail))
 						&& fsm.getAlarmFlag() == 0
 						&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 								formResult.getAction())
@@ -761,10 +740,8 @@ public class Vue2 implements ViewAdapter {
 						.append(",\n\"smsMailTemplates\":[");
 				boolean b = false;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
-					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-							.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-							.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-							.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+							.getSmsMailTip() != 0 && FrameworkSetting.mail))
 							&& fsm.getAlarmFlag() == 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 									formResult.getAction())
@@ -783,11 +760,10 @@ public class Vue2 implements ViewAdapter {
 														customizationId,
 														xlocale, "email_upper"))
 												+ "] ")
-								.append(LocaleMsgCache.get2(customizationId,
-										xlocale, fsm.getDsc()))
+								.append(LocaleMsgCache.get2(formResult.getScd(), fsm.getDsc()))
 								.append(fsm.getPreviewFlag() != 0 ? " ("
 										+ (LocaleMsgCache.get2(
-												customizationId, xlocale,
+												formResult.getScd(),
 												"with_preview")) + ")" : "")
 								.append("\",\"checked\":")
 								.append(fsm.getSmsMailSentTip() == 1
@@ -805,10 +781,8 @@ public class Vue2 implements ViewAdapter {
 
 			cnt = 0;
 			for (W5FormSmsMail fsm : f.get_formSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+						.getSmsMailTip() != 0 && FrameworkSetting.mail))
 						&& fsm.getAlarmFlag() != 0
 						&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 								formResult.getAction())
@@ -826,10 +800,8 @@ public class Vue2 implements ViewAdapter {
 						.append(",\n\"alarmTemplates\":[");
 				boolean b = false;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
-					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-							.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-							.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-							.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+							.getSmsMailTip() != 0 && FrameworkSetting.mail))
 							&& fsm.getAlarmFlag() != 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 									formResult.getAction())
@@ -941,7 +913,7 @@ public class Vue2 implements ViewAdapter {
 							.append(fc.getFormCell().getDsc())
 							.append("\",\"label\":\"")
 							.append(LocaleMsgCache
-									.get2(customizationId, xlocale, fc
+									.get2(formResult.getScd(), fc
 											.getFormCell().getLocaleMsgKey()))
 							.append("\",\"not_null\":")
 							.append(fc.getFormCell().getNotNullFlag() != 0)
@@ -980,7 +952,7 @@ public class Vue2 implements ViewAdapter {
 							s.append("[\"")
 									.append(GenericUtil.stringToJS2(fc
 											.getLocaleMsgFlag() != 0 ? LocaleMsgCache
-											.get2(customizationId, xlocale,
+											.get2(formResult.getScd(),
 													p.getDsc()) : p.getDsc()))
 									.append("\",\"").append(p.getVal())
 									.append("\"");
@@ -1013,8 +985,7 @@ public class Vue2 implements ViewAdapter {
 										z = "";
 									s.append("\"")
 											.append(qf.getPostProcessTip() == 2 ? LocaleMsgCache
-													.get2(customizationId,
-															xlocale,
+													.get2(formResult.getScd(),
 															z.toString())
 													: GenericUtil.stringToJS2(z
 															.toString()))
@@ -1108,7 +1079,7 @@ public class Vue2 implements ViewAdapter {
 				if (fc.getFormCell().getControlTip() != 102) {// label'dan farkli ise. label direk render edilirken koyuluyor
 					s.append("var _").append(fc.getFormCell().getDsc()).append("=").append(serializeFormCell(customizationId, xlocale,fc, formResult)).append(";\n");
 				} else {
-					fc.setValue(LocaleMsgCache.get2(customizationId, xlocale,
+					fc.setValue(LocaleMsgCache.get2(formResult.getScd(),
 							fc.getFormCell().getLocaleMsgKey()));
 				}
 			}
@@ -1212,7 +1183,7 @@ public class Vue2 implements ViewAdapter {
 							W5GridResult gridResult = formResult.getModuleGridMap().get(m.getObjectId());
 							W5Table mainTable = gridResult.getGrid() != null
 									&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-									.getTable(customizationId, gridResult.getGrid()
+									.getTable(formResult.getScd(), gridResult.getGrid()
 											.get_defaultCrudForm().getObjectId())
 									: null;
 							if (mainTable != null
@@ -1391,7 +1362,7 @@ public class Vue2 implements ViewAdapter {
 								.getModuleFormMap().get(m.getObjectId());
 						W5Table mainTablex = subFormResult != null
 								&& subFormResult.getForm() != null ? FrameworkCache
-								.getTable(customizationId, subFormResult
+								.getTable(formResult.getScd(), subFormResult
 										.getForm().getObjectId()) : null;
 						if (mainTablex == null)
 							continue;
@@ -1431,7 +1402,7 @@ public class Vue2 implements ViewAdapter {
 								.get(m.getObjectId());
 						W5Table mainTable = gridResult.getGrid() != null
 								&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-								.getTable(customizationId, gridResult.getGrid()
+								.getTable(formResult.getScd(), gridResult.getGrid()
 										.get_defaultCrudForm().getObjectId())
 								: null;
 						if (mainTable != null
@@ -1457,8 +1428,7 @@ public class Vue2 implements ViewAdapter {
 									.append("(iwb.apply(")
 									.append(gridResult.getGrid().getDsc())
 									.append(",{title:'")
-									.append(LocaleMsgCache.get2(
-											customizationId, xlocale,
+									.append(LocaleMsgCache.get2(formResult.getScd(),
 											m.getLocaleMsgKey()))
 									.append("',height:")
 									.append(gridResult.getGrid()
@@ -1473,8 +1443,7 @@ public class Vue2 implements ViewAdapter {
 							else
 								b = true;
 							String extra = "{layout:'form',title:'"
-									+ LocaleMsgCache.get2(customizationId,
-											xlocale, m.getLocaleMsgKey()) + "'";
+									+ LocaleMsgCache.get2(formResult.getScd(), m.getLocaleMsgKey()) + "'";
 							// if(formBodyColor!=null)extra+=",bodyStyle:'background-color: #"+formBodyColor+"'";
 							if (formBodyStyle != null)
 								extra += ",bodyStyle:'" + formBodyStyle + "'";
@@ -1484,8 +1453,7 @@ public class Vue2 implements ViewAdapter {
 									m.getLocaleMsgKey());
 							if (extraInfo != null)
 								map.get(m.getFormModuleId()).add(0, extraInfo);
-							buf.append(renderFormModuleList(customizationId,
-									xlocale, formResult.getUniqueId(),
+							buf.append(renderFormModuleList(customizationId, xlocale, formResult.getUniqueId(),
 									map.get(m.getFormModuleId()), extra, formResult.getForm().getDefaultWidth(), formResult.getForm().getLabelWidth()));
 						}
 
@@ -1558,7 +1526,7 @@ public class Vue2 implements ViewAdapter {
 						W5GridResult gridResult = formResult.getModuleGridMap().get(m.getObjectId());
 						W5Table mainTable = gridResult.getGrid() != null
 								&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-								.getTable(customizationId, gridResult.getGrid()
+								.getTable(formResult.getScd(), gridResult.getGrid()
 										.get_defaultCrudForm().getObjectId())
 								: null;
 						if (mainTable != null
@@ -1566,7 +1534,7 @@ public class Vue2 implements ViewAdapter {
 										.accessControl(formResult.getScd(), mainTable.getAccessViewTip(), mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers())))
 							gridResult = null;// hicbirsey
 						else {
-							buf.append(",h('div',{class:'hr-text', style:{marginTop:'20px'}},h('h6',null,'").append(LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())).append("')),h(XEditGrid,").append(gridResult.getGrid().getDsc()).append(")");
+							buf.append(",h('div',{class:'hr-text', style:{marginTop:'20px'}},h('h6',null,'").append(LocaleMsgCache.get2(formResult.getScd(), m.getLocaleMsgKey())).append("')),h(XEditGrid,").append(gridResult.getGrid().getDsc()).append(")");
 							
 						}
 						break;
@@ -1576,7 +1544,7 @@ public class Vue2 implements ViewAdapter {
 								buf.append(renderFormModuleListTop(
 										customizationId, xlocale,
 										formResult.getUniqueId(),
-										map.get(m.getFormModuleId()), ",h('div',{class:'hr-text', style:{marginTop:'20px'}},h('h6',null,'"+LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())+"')),", defaultWidth));
+										map.get(m.getFormModuleId()), ",h('div',{class:'hr-text', style:{marginTop:'20px'}},h('h6',null,'"+LocaleMsgCache.get2(formResult.getScd(), m.getLocaleMsgKey())+"')),", defaultWidth));
 							}
 						}
 					}
@@ -1934,7 +1902,7 @@ public class Vue2 implements ViewAdapter {
 		if (fc.getControlTip() == 102)
 			return buf.append("$:'div', class:'alert alert-").append(labelMap[fc.getLookupQueryId()]).append("',children:[h('i',{class:'icon-info'}),' ','").append(GenericUtil.stringToJS(value)).append("']}");
 		else if ((fc.getControlTip() == 101 || cellResult.getHiddenValue() != null)/* && (fc.getControlTip()!=9 && fc.getControlTip()!=16) */) {
-			return buf.append("type:'text', readOnly:true, hiddenValue:'").append(GenericUtil.stringToJS(cellResult.getHiddenValue())).append("',label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("',disabled:true, value:'").append(GenericUtil.stringToJS(value)).append("'}");
+			return buf.append("type:'text', readOnly:true, hiddenValue:'").append(GenericUtil.stringToJS(cellResult.getHiddenValue())).append("',label:'").append(LocaleMsgCache.get2(formResult.getScd(), fc.getLocaleMsgKey())).append("',disabled:true, value:'").append(GenericUtil.stringToJS(value)).append("'}");
 			
 		}
 		
@@ -1969,7 +1937,7 @@ public class Vue2 implements ViewAdapter {
 		case	100:buf.append("color:'primary',on:{click:function(ax){").append(fc.getDefaultValue()).append("}}");
 				if(fc.getLocaleMsgKey().startsWith("icon-"))buf.append(",icon:'el-").append(fc.getLocaleMsgKey()).append("'");
 				else if(fc.getLocaleMsgKey().startsWith("el-icon-"))buf.append(",icon:'").append(fc.getLocaleMsgKey()).append("'");
-				else buf.append(", name:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("'");
+				else buf.append(", name:'").append(LocaleMsgCache.get2(formResult.getScd(), fc.getLocaleMsgKey())).append("'");
 				if(!GenericUtil.isEmpty(fc.getExtraDefinition())){
 					buf.append(fc.getExtraDefinition());//button
 				}
@@ -1994,7 +1962,7 @@ public class Vue2 implements ViewAdapter {
 						b1 = true;
 					buf.append("{id:'").append(p.getVal()).append("',dsc:'")
 							.append(cellResult.getLocaleMsgFlag() != 0 ? LocaleMsgCache
-									.get2(customizationId, xlocale, p.getDsc())
+									.get2(formResult.getScd(), p.getDsc())
 									: p.getDsc()).append("'");
 					buf.append("}");
 				}
@@ -2016,7 +1984,7 @@ public class Vue2 implements ViewAdapter {
 						if (z == null)z = "";
 						buf.append(f.getDsc()).append(":'")
 								.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
-										.get2(customizationId, xlocale,
+										.get2(formResult.getScd(),
 												z.toString()) : GenericUtil
 										.stringToJS(z.toString()))
 								.append("'");
@@ -2071,7 +2039,7 @@ public class Vue2 implements ViewAdapter {
 			if(fc.getMinLength()!=null && fc.getMinLength()>0)buf.append(",minlength:").append(fc.getMinLength());
 			if(fc.getMaxLength()!=null && fc.getMaxLength()>0)buf.append(",maxlength:").append(fc.getMaxLength());
 		}
-		buf.append(", label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("'");
+		buf.append(", label:'").append(LocaleMsgCache.get2(formResult.getScd(), fc.getLocaleMsgKey())).append("'");
 
 		if(formResult!=null){ //FORM
 			switch(fc.getControlTip()){
@@ -2127,8 +2095,7 @@ public class Vue2 implements ViewAdapter {
 					else if (toolbarItem.getObjectTip() == 15) {// form toolbar
 																// ise
 						buttons.append("{view:'button', value:'")
-								.append(LocaleMsgCache.get2(customizationId,
-										xlocale, toolbarItem.getLocaleMsgKey()))
+								.append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
 								.append("',");
 						if (mediumButtonSize)
 							buttons.append("iconAlign: 'top', scale:'medium', style:{margin: '0px 5px 0px 5px'},");
@@ -2141,8 +2108,7 @@ public class Vue2 implements ViewAdapter {
 						itemCount++;
 					} else {
 						buttons.append("{view:'button', width:35, type:'icon', icon:'cube', tooltip:'")
-								.append(LocaleMsgCache.get2(customizationId,
-										xlocale, toolbarItem.getLocaleMsgKey()))
+								.append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
 								.append("', click:function(a,b,c){\n")
 								.append(LocaleMsgCache.filter2(
 										customizationId, xlocale,
@@ -2157,7 +2123,7 @@ public class Vue2 implements ViewAdapter {
 					cell.setDsc(toolbarItem.getDsc());
 					cell.setNotNullFlag((short) 1);
 					cell.setExtraDefinition(",tooltip:'"
-							+ LocaleMsgCache.get2(customizationId, xlocale,
+							+ LocaleMsgCache.get2(scd,
 									toolbarItem.getLocaleMsgKey())
 							+ "',ref:'../" + toolbarItem.getDsc() + "'");
 					if (toolbarItem.getCode() != null
@@ -2175,8 +2141,7 @@ public class Vue2 implements ViewAdapter {
 						for (W5LookUpDetay dx : lu.get_detayList()) {
 							W5LookUpDetay e = new W5LookUpDetay();
 							e.setVal(dx.getVal());
-							e.setDsc(LocaleMsgCache.get2(customizationId,
-									xlocale, dx.getDsc()));
+							e.setDsc(LocaleMsgCache.get2(scd, dx.getDsc()));
 							dl.add(e);
 						}
 						cellResult.setLookupListValues(dl);
@@ -3288,7 +3253,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_:'")
 											.append(UserUtil.getUserName(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
@@ -3298,7 +3262,6 @@ columns:[
 										for (String s : ids) {
 											res += ","
 													+ UserUtil.getUserName(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
@@ -3313,7 +3276,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_:'")
 											.append(UserUtil.getUserDsc(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
@@ -3323,7 +3285,6 @@ columns:[
 										for (String s : ids11) {
 											res += ","
 													+ UserUtil.getUserDsc(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
@@ -3574,7 +3535,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_\":\"")
 											.append(UserUtil.getUserName(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
@@ -3584,7 +3544,6 @@ columns:[
 										for (String s : ids) {
 											res += ","
 													+ UserUtil.getUserName(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",\"")
@@ -3599,7 +3558,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_\":\"")
 											.append(UserUtil.getUserDsc(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
@@ -3609,7 +3567,6 @@ columns:[
 										for (String s : ids11) {
 											res += ","
 													+ UserUtil.getUserDsc(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",\"")
@@ -3832,7 +3789,6 @@ columns:[
 										.append(f.getDsc())
 										.append("_qw_\":\"")
 										.append(UserUtil.getUserName(
-												customizationId,
 												GenericUtil.uInt(obj)));
 								break;
 							case 21: // users LookUp
@@ -3842,7 +3798,6 @@ columns:[
 									for (String s : ids) {
 										res += ","
 												+ UserUtil.getUserName(
-														customizationId,
 														GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
@@ -3857,7 +3812,6 @@ columns:[
 										.append(f.getDsc())
 										.append("_qw_\":\"")
 										.append(UserUtil.getUserDsc(
-												customizationId,
 												GenericUtil.uInt(obj)));
 								break;
 							case 54: // Users LookUp Real Name
@@ -3867,7 +3821,6 @@ columns:[
 									for (String s : ids11) {
 										res += ","
 												+ UserUtil.getUserDsc(
-														customizationId,
 														GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
@@ -3937,7 +3890,7 @@ columns:[
 								buf.append(ozc[0]).append("\",\"").append(FieldDefinitions.queryFieldName_CommentExtra)
 									.append("\":{\"last_dttm\":\"").append(ozc[2])
 									.append("\",\"user_id\":").append(ozc[1])
-									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
 									.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userIdStr))
 									.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 									.append("\"}");
@@ -3999,7 +3952,6 @@ columns:[
 									for (String uid : userIds) {
 										buf.append(
 												UserUtil.getUserDsc(
-														customizationId,
 														GenericUtil.uInt(uid)))
 												.append(", ");
 									}
@@ -4310,8 +4262,9 @@ columns:[
 
 	public StringBuilder serializeTableRecordInfo(
 			W5TableRecordInfoResult tableRecordInfoResult) {
-		String xlocale = (String) tableRecordInfoResult.getScd().get("locale");
-		int customizationId = (Integer) tableRecordInfoResult.getScd().get(
+		Map<String, Object> scd = tableRecordInfoResult.getScd();
+		String xlocale = (String) scd.get("locale");
+		int customizationId = (Integer) scd.get(
 				"customizationId");
 		StringBuilder buf = new StringBuilder();
 		W5TableRecordHelper trh0 = tableRecordInfoResult.getParentList().get(0);
@@ -4320,15 +4273,15 @@ columns:[
 				.append(",\"tablePk\":")
 				.append(tableRecordInfoResult.getTablePk())
 				.append(",\"tdsc\":\"")
-				.append(LocaleMsgCache.get2(customizationId, xlocale,
+				.append(LocaleMsgCache.get2(scd,
 						FrameworkCache
-								.getTable(customizationId, trh0.getTableId())
+								.getTable(scd, trh0.getTableId())
 								.getDsc())).append("\",\"dsc\":\"")
 				.append(GenericUtil.stringToJS2(trh0.getRecordDsc()))
 				.append("\"");
 		if (tableRecordInfoResult.getInsertUserId() > 0)
 			buf.append(",\nprofile_picture_id:").append(
-					UserUtil.getUserProfilePicture(customizationId,
+					UserUtil.getUserProfilePicture(
 							tableRecordInfoResult.getInsertUserId()));
 		if (!GenericUtil.isEmpty(tableRecordInfoResult.getVersionDttm())) {
 			buf.append(",\n\"version_no\":")
@@ -4336,14 +4289,14 @@ columns:[
 					.append(",\"insert_user_id\":")
 					.append(tableRecordInfoResult.getInsertUserId())
 					.append(",\"insert_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							tableRecordInfoResult.getInsertUserId()))
 					.append("\",\"insert_dttm\":\"")
 					.append(tableRecordInfoResult.getInsertDttm())
 					.append("\",\"version_user_id\":")
 					.append(tableRecordInfoResult.getVersionUserId())
 					.append(",\"version_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							tableRecordInfoResult.getVersionUserId()))
 					.append("\",\"version_dttm\":\"")
 					.append(tableRecordInfoResult.getVersionDttm())
@@ -4372,7 +4325,7 @@ columns:[
 		boolean b = false;
 		for (W5TableRecordHelper trh : tableRecordInfoResult.getParentList()) {
 			W5Table dt = FrameworkCache
-					.getTable(customizationId, trh.getTableId());
+					.getTable(scd, trh.getTableId());
 			if (dt == null)
 				break;
 			if (b)
@@ -4399,7 +4352,7 @@ columns:[
 			buf.append(",\n\"childs\":[");
 			for (W5TableChildHelper tch : tableRecordInfoResult.getChildList())
 				if (tch.getChildCount() > 0) {
-					W5Table dt = FrameworkCache.getTable(customizationId, tch
+					W5Table dt = FrameworkCache.getTable(scd, tch
 							.getTableChild().getRelatedTableId());
 					if (dt == null)
 						break;
@@ -4597,10 +4550,10 @@ columns:[
 					.append(",\"user_id\":")
 					.append(feed.getInsertUserId())
 					.append(",\"user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							feed.getInsertUserId()))
 					.append("\",\"profile_picture_id\":")
-					.append(UserUtil.getUserProfilePicture(customizationId,
+					.append(UserUtil.getUserProfilePicture(
 							feed.getInsertUserId()))
 					.append(",\"show_feed_tip\":")
 					.append(feed.get_showFeedTip())
@@ -4636,7 +4589,7 @@ columns:[
 						else
 							b = true;
 						buf.append("\"")
-								.append(UserUtil.getUserDsc(customizationId, k))
+								.append(UserUtil.getUserDsc( k))
 								.append("\"");
 					}
 					buf.append("]");
@@ -4686,7 +4639,7 @@ columns:[
 							.append(",\"user_id\":")
 							.append(ch.getInsertUserId())
 							.append(",\"user_id_qw_\":\"")
-							.append(UserUtil.getUserDsc(customizationId,
+							.append(UserUtil.getUserDsc(
 									ch.getInsertUserId()))
 							.append("\",\"dsc\":\"")
 							.append(GenericUtil.stringToJS(ch.getDsc()))
@@ -4806,7 +4759,7 @@ columns:[
 																		// icin
 																		// var
 																		// mi
-				W5Table dt = FrameworkCache.getTable(customizationId,
+				W5Table dt = FrameworkCache.getTable(scd,
 						fsm.getDstTableId());
 				if ((dt.getAccessViewTip() == 0
 						|| !GenericUtil.isEmpty(dt.getAccessUpdateUserFields()) || GenericUtil

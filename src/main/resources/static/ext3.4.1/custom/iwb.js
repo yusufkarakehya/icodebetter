@@ -4327,7 +4327,7 @@ function fmtChatList(j){
 			var x=j.msg.substring(2, j.msg.length-1);
 			var i=x.indexOf('-');
 			var u=x.substring(0,i),l=x.substring(i+1);
-			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a>';
+			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a><br/>';
 		} catch(e){str+='<b style="color:red;">!error!</b>';}else str+='<span style="width:140px;word-wrap:break-word;display:block;">'+j.msg+'</span>';
 		str+='<span class="cfeed">'+ fmtDateTimeWithDay2(j.sent_dttm)
 			+'</span></td><td width=5></td><td width=1></td></tr><tr height=10><td colspan=5></td></tr>';
@@ -4348,7 +4348,7 @@ function fmtChatList(j){
 function fmtOnlineUser(j){
 	var str='<table border=0 width=100% padding=0 style="margin-left:-1px;"';
 	if(j.not_read_count>0)str+=" class='veliSelLightBlue'";
-	str+='><tr><td width=24><img src="sf/pic'+j.user_id+'.png" '+(j.chat_status_tip? 'style="border-width: 3px;borderborder-color:'+usersBorderChat[j.chat_status_tip-1]+'" ':'')+' class="ppic-mini"></td><td width=99%> <span>&nbsp; ';
+	str+='><tr><td width=24><img src="sf/pic'+j.user_id+'.png" '+(j.chat_status_tip? 'style="border-width: 3px;border-color:'+usersBorderChat[j.chat_status_tip-1]+'" ':'')+' class="ppic-mini"></td><td width=99%> <span>&nbsp; ';
 	if(j.dsc.length>20)j.dsc=j.dsc.substring(0,18)+'...';
 	str+=j.dsc+'</span>';
 	if(j.not_read_count>0)str+='&nbsp; <span id="idChatNotRead_'+j.user_id+'" style="color:red;">('+(j.not_read_count>9 ? '+9':j.not_read_count)+')</span>';

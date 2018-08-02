@@ -49,7 +49,7 @@ public class PostFormTrigger {
 				if(userIds!=null)for(Object userId:userIds){
 					String tmpStr = fr.getRequestParams().get("dsc");
 					if(tmpStr!=null){
-						tmpStr= "<b>"+UserUtil.getUserName((Integer)fr.getScd().get("customizationId"), sessionUserId)+"</b>: "+tmpStr;
+						tmpStr= "<b>"+UserUtil.getUserName(sessionUserId)+"</b>: "+tmpStr;
 						if(tmpStr.length()>100)tmpStr=tmpStr.substring(0,97)+"...";
 					}
 					Log5Notification n = new Log5Notification(fr.getScd(), (Integer)userId, (short)1,  tableId,  tablePk, sessionUserId, null, 1,tmpStr); 
@@ -69,6 +69,14 @@ public class PostFormTrigger {
 		}
     	msg = LocaleMsgCache.get2(fr.getScd(), "reload_cache_manually");
 		if(fr.getForm()!=null)switch(fr.getForm().getObjectId()){
+		case	1277: //user_related_project
+			if(fr.getAction()==2){
+				int userId = GenericUtil.uInt(fr.getRequestParams().get("user_id"));
+				if(userId>0){
+					UserUtil.addProjectUser((String)fr.getScd().get("projectId"), userId);
+				}
+			}
+			break;
 		default:
             break;
 	
@@ -179,7 +187,7 @@ public class PostFormTrigger {
 		
 		if(fr.getAction()==2 && (fr.getForm().getObjectId()==14)){
 			int lookUpId=GenericUtil.uInt((Object)fr.getRequestParams().get("look_up_id"));
-			if(lookUpId!=0)UserUtil.broadCastRecordForTemplates((Integer)fr.getScd().get("customizationId"), -lookUpId, "", 2, (Integer)fr.getScd().get("userId"));
+			if(lookUpId!=0)UserUtil.broadCastRecordForTemplates(projectId, -lookUpId, "", 2, (Integer)fr.getScd().get("userId"));
 		}
 		
 		

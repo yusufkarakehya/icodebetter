@@ -1067,7 +1067,7 @@ public class FrameworkEngine{
 								appRecord.setVersionNo(appRecord.getVersionNo()+1);
 								dao.updateObject(appRecord);
 							}
-							if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecord(new W5SynchAfterPostHelper((Integer)scd.get("customizationId"), 392/*w5_approval_record*/, ""+appRecord.getApprovalRecordId(), (Integer)scd.get("userId"), requestParams.get(".w"), (short)1));
+							if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecord(new W5SynchAfterPostHelper((String)scd.get("projectId"), 392/*w5_approval_record*/, ""+appRecord.getApprovalRecordId(), (Integer)scd.get("userId"), requestParams.get(".w"), (short)1));
 							appRecord = null; // bu kaydedilmeyecek
 						}
 					}
@@ -1086,7 +1086,7 @@ public class FrameworkEngine{
 					String summaryText = dao.getSummaryText4Record(scd, t.getTableId(), tablePk);
 					appRecord.setDsc(GenericUtil.uStrMax(summaryText, 512));
 					saveObject(appRecord);
-					if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecord(new W5SynchAfterPostHelper((Integer)scd.get("customizationId"), 392/*w5_approval_record*/, ""+appRecord.getApprovalRecordId(), (Integer)scd.get("userId"), requestParams.get(".w"), (short)2));
+					if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecord(new W5SynchAfterPostHelper((String)scd.get("projectId"), 392/*w5_approval_record*/, ""+appRecord.getApprovalRecordId(), (Integer)scd.get("userId"), requestParams.get(".w"), (short)2));
 					Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
 					logRecord.setApprovalActionTip((short)0);// start, approve, return, reject, time_limit_cont ,final_approve
 					logRecord.setUserId((Integer)scd.get("userId"));
@@ -1324,7 +1324,7 @@ public class FrameworkEngine{
 					String summaryText = dao.getSummaryText4Record(scd, t.getTableId(), tablePk);
 					appRecord.setDsc(summaryText);
 					saveObject(appRecord);
-					if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecord(new W5SynchAfterPostHelper((Integer)scd.get("customizationId"), 392/*w5_approval_record*/, ""+appRecord.getApprovalRecordId(), (Integer)scd.get("userId"), requestParams.get(".w"), (short)1));
+					if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecord(new W5SynchAfterPostHelper((String)scd.get("projectId"), 392/*w5_approval_record*/, ""+appRecord.getApprovalRecordId(), (Integer)scd.get("userId"), requestParams.get(".w"), (short)1));
 					Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
 					logRecord.setApprovalActionTip((short)0);// start, approve, return, reject, time_limit_cont ,final_approve, deleted
 					logRecord.setUserId((Integer)scd.get("userId"));
@@ -1609,7 +1609,7 @@ public class FrameworkEngine{
 						String summaryText = dao.getSummaryText4Record(scd, t.getTableId(), tablePk);
 						appRecord.setDsc(summaryText);
 						saveObject(appRecord);
-						if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecord(new W5SynchAfterPostHelper((Integer)scd.get("customizationId"), 392/*w5_approval_record*/, ""+appRecord.getApprovalRecordId(), (Integer)scd.get("userId"), requestParams.get(".w"), (short)1));
+						if(FrameworkSetting.liveSyncRecord)formResult.addSyncRecord(new W5SynchAfterPostHelper((String)scd.get("projectId"), 392/*w5_approval_record*/, ""+appRecord.getApprovalRecordId(), (Integer)scd.get("userId"), requestParams.get(".w"), (short)1));
 	
 						Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
 						logRecord.setApprovalActionTip((short)0);// start, approve, return, reject, time_limit_cont ,final_approve, deleted
@@ -2723,7 +2723,7 @@ public class FrameworkEngine{
 						W5Workflow appr =FrameworkCache.getWorkflow(scd, appId);
 						String appStepDsc="";
 						if(appr!=null && appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance()!=null)appStepDsc=appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance().getDsc();
-						obj=(LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, appStepDsc));
+						obj=(LocaleMsgCache.get2(scd, appStepDsc));
 					}
 					String res = null;
 					if(obj!=null){
@@ -2734,13 +2734,13 @@ public class FrameworkEngine{
 	        			} else {
 	        				switch(f.getPostProcessTip()){
 		        			case	20:
-		        				res = UserUtil.getUserName(customizationId, GenericUtil.uInt(obj));
+		        				res = UserUtil.getUserName(GenericUtil.uInt(obj));
 		        				break;
 		        			case	53:
-		        				res = UserUtil.getUserDsc(customizationId, GenericUtil.uInt(obj));
+		        				res = UserUtil.getUserDsc(GenericUtil.uInt(obj));
 		        				break;
 		        			case	10:case	11: // demek ki lookup'li deger tutulacak
-		    	        		W5LookUp lookUp = FrameworkCache.getLookUp(customizationId,f.getLookupQueryId());
+		    	        		W5LookUp lookUp = FrameworkCache.getLookUp(scd,f.getLookupQueryId());
 		    	        		if(lookUp!=null){
 		    	        			String[] ids=res.split(",");
 		    	        			res = "";
@@ -2750,7 +2750,7 @@ public class FrameworkEngine{
 			    	        			if(d!=null){
 				    	        			String s = d.getDsc();
 				    	        			if(s!=null){
-			    	    	        			res += LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale, s);
+			    	    	        			res += LocaleMsgCache.get2(scd, s);
 				    	        			}
 			    	        			}
 			    	        			else if(d == null && f.getLookupQueryId() == 12){ // lookup static or lookup static(multi) ve empty
@@ -3342,7 +3342,7 @@ public class FrameworkEngine{
 			dao.saveObject(feed);
 			FrameworkCache.addFeed(scd, feed, true);
 		}
-		UserUtil.setUserProfilePicture(fa.getCustomizationId(), userId,fa.getFileAttachmentId());
+		UserUtil.setUserProfilePicture(userId,fa.getFileAttachmentId());
 
 		return dao.executeUpdateSQLQuery("update iwb.w5_user set profile_picture_id=? where user_id=?", fa.getFileAttachmentId(), userId)==1;
 	}
@@ -3355,7 +3355,7 @@ public class FrameworkEngine{
 
 	public W5FileAttachment loadFile(Map<String, Object> scd,int fileAttachmentId) { //+:fileId, -:userId : Map<String, Object> scd,
 		if(fileAttachmentId<0){
-			int newFileAttachmentId = UserUtil.getUserProfilePicture((Integer)scd.get("customizationId"),-fileAttachmentId);
+			int newFileAttachmentId = UserUtil.getUserProfilePicture(-fileAttachmentId);
 			if(newFileAttachmentId==0) {
 				List l = dao.executeSQLQuery("select t.profile_picture_id from iwb.w5_user t where t.user_id=?", -fileAttachmentId);
 				if(!GenericUtil.isEmpty(l)) {
@@ -3634,7 +3634,7 @@ public class FrameworkEngine{
 			}
 
 			else if(f.getPostProcessTip()==10){ // demek ki lookup'li deger tutulacak
-	        		W5LookUp lookUp = FrameworkCache.getLookUp(customizationId,f.getLookupQueryId());
+	        		W5LookUp lookUp = FrameworkCache.getLookUp(customizationId,f.getLookupQueryId());//BUG customizationId olamaz
 	        		if(lookUp!=null){
 	        			W5LookUpDetay d=lookUp.get_detayMap().get(obj.toString());
 	        			if(d!=null){
@@ -5221,7 +5221,7 @@ public class FrameworkEngine{
 		case	6: //eger static combobox ise listeyi load et
 			W5LookUp lookUp = FrameworkCache.getLookUp(scd,c.getLookupQueryId());
 			rc.setLocaleMsgFlag((short)1);
-			requestParams = UserUtil.getTableGridFormCellReqParams(customizationId, -c.getLookupQueryId(), userId, (String)scd.get("sessionId"), webPageId, tabId, -fcId);
+			requestParams = UserUtil.getTableGridFormCellReqParams(projectId, -c.getLookupQueryId(), userId, (String)scd.get("sessionId"), webPageId, tabId, -fcId);
 			List<W5LookUpDetay> oldList = (List<W5LookUpDetay>)dao.find("from W5LookUpDetay t where t.projectUuid=? AND t.lookUpId=? order by t.tabOrder", projectId, c.getLookupQueryId());
 
 			List<W5LookUpDetay> newList = null;
@@ -5263,7 +5263,7 @@ public class FrameworkEngine{
 		case	7: case 15: case 59: // dynamic query, lovcombo, superbox
 		case	23:   case 24: case	55://tree combo and treepanel
 			Map paramMap = new HashMap();
-			requestParams = UserUtil.getTableGridFormCellReqParams(customizationId, c.getLookupQueryId(), userId, (String)scd.get("sessionId"), webPageId, tabId, -fcId);
+			requestParams = UserUtil.getTableGridFormCellReqParams((String)scd.get("projectId"), c.getLookupQueryId(), userId, (String)scd.get("sessionId"), webPageId, tabId, -fcId);
 			String	includedParams = GenericUtil.filterExt(c.getLookupIncludedParams(), scd, requestParams, null).toString();
 			if(includedParams!=null && includedParams.length()>2){
 				String[]	ar1 = includedParams.split("&");
@@ -5288,7 +5288,7 @@ public class FrameworkEngine{
 	    	if(lookupQueryResult.getErrorMap().isEmpty()){
 	    		dao.runQuery(lookupQueryResult);
 	    		if(tabId!=null && lookupQueryResult.getQuery().getMainTableId()!=0){
-					Set<Integer> keys = UserUtil.getTableGridFormCellCachedKeys(customizationId, lookupQueryResult.getQuery().getMainTableId(), userId,(String)scd.get("sessionId"),
+					Set<Integer> keys = UserUtil.getTableGridFormCellCachedKeys((String)scd.get("projectId"), lookupQueryResult.getQuery().getMainTableId(), userId,(String)scd.get("sessionId"),
 						requestParams.get(".w"),tabId, -c.getFormCellId(), requestParams, true);
 					for(Object[] o:lookupQueryResult.getData())keys.add(GenericUtil.uInt(o[1]));
 				}
@@ -5394,12 +5394,17 @@ public class FrameworkEngine{
 	public boolean changeActiveProject(Map<String, Object> scd, String projectUuid){
 		List<Object> params= new ArrayList();
 		params.add(projectUuid);
-		List list = dao.executeSQLQuery2Map("select x.* from iwb.w5_project x where x.project_uuid=?", params);
+		params.add(scd.get(scd.containsKey("ocustomizationId") ? "ocustomizationId":"customizationId"));
+		params.add(scd.get("userId"));
+		List list = dao.executeSQLQuery2Map("select x.* from iwb.w5_project x where x.project_uuid=? AND (x.customization_id=? OR exists(select 1 from iwb.w5_user_related_project ur where ur.user_id=? AND x.project_uuid=ur.related_project_uuid))", params);
 		if(GenericUtil.isEmpty(list)) return false;
 		Map p = (Map)list.get(0);
 		int newCustomizationId = GenericUtil.uInt(p.get("customization_id"));
+		
 		if(newCustomizationId!=(Integer)scd.get("customizationId")){ // TODO check for invited projects
-			return false;
+			if(!scd.containsKey("ocustomizationId"))
+				scd.put("ocustomizationId", (Integer)scd.get("customizationId"));
+			scd.put("customizationId", newCustomizationId);
 		}
 		scd.put("projectId", projectUuid);
 		return true;
@@ -6324,7 +6329,7 @@ public class FrameworkEngine{
 	}
 
 	public void saveCredentials(int cusId,int userId, String picUrl ,String fullName,int socialNet, String email, String nickName, List<Map> projects, List<Map> userTips) {
-		dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName);
+		dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName.replace('.', '_').replace('-', '_'));
 		FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
 
 		FrameworkSetting.projectSystemStatus.put(projects.get(0).get("project_uuid").toString(), 0);
@@ -6335,13 +6340,15 @@ public class FrameworkEngine{
 
 		for(Map p: projects){
 			String projectId = (String)p.get("project_uuid");
+			String oprojectId = (String)p.get("oproject_uuid");
+			if(oprojectId==null)oprojectId=projectId;
 			String vcsUrl = (String)p.get("vcs_url");
 
 			List list = dao.executeSQLQuery("select 1 from iwb.w5_project p where p.project_uuid=?",projectId);
 			if(GenericUtil.isEmpty(list)){
 				String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
 				dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
-						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, "New Project 1", ""+userId,schema,vcsUrl,nickName, "1", projectId);
+						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, "New Project 1", ""+userId,schema,vcsUrl,nickName, "1", oprojectId);
 				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 			}
 
@@ -6351,11 +6358,13 @@ public class FrameworkEngine{
 
 		for(Map t: userTips){
 			String projectId = (String)t.get("project_uuid");
+			String oprojectId = (String)t.get("oproject_uuid");
+			if(oprojectId==null)oprojectId=projectId;
 			int userTip = GenericUtil.uInt(t.get("user_tip"));
 			List list = dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=?",userTip);
 			if(GenericUtil.isEmpty(list)){
-				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id)"
-						+ " values (?,?,?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId);
+				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, oproject_uuid, web_frontend_tip, default_main_template_id)"
+						+ " values (?,?,?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId, oprojectId);
 				dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
 			}
 		}

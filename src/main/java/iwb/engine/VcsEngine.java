@@ -1819,7 +1819,7 @@ public class VcsEngine {
 						m2.put("id", tableId + "." + tablePk);
 						W5VcsObject vo = l2.get(0);
 						m2.put("user_id", vo.getVersionUserId());
-						String userDsc = UserUtil.getUserName(customizationId, vo.getVersionUserId());
+						String userDsc = UserUtil.getUserName(vo.getVersionUserId());
 						if(!GenericUtil.isEmpty(userDsc))m2.put("user_dsc", userDsc);
 						m2.put("commit_dttm", GenericUtil.uFormatDateTime(vo.getVersionDttm()));
 						l.add(m2);

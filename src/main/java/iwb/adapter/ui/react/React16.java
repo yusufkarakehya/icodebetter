@@ -305,7 +305,7 @@ public class React16 implements ViewAdapter {
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
 									.syncGetListOfRecordEditUsers(
-											t.getCustomizationId(), key,
+											t.getProjectUuid(), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")
@@ -329,7 +329,7 @@ public class React16 implements ViewAdapter {
 					int ndx = ozc[3].indexOf('-');
 					s.append(ozc[0]).append(", commentExtra:{\"last_dttm\":\"").append(ozc[2])
 						.append("\",\"user_id\":").append(ozc[1])
-						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
 						.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userId+""))
 						.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 						.append("\"}");
@@ -349,12 +349,8 @@ public class React16 implements ViewAdapter {
 				int cnt = 0;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
 					if (fsm.getSmsMailSentTip() != 3
-							&& ((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-									.getAppSettingIntValue(customizationId,
-											"sms_flag") != 0) || (fsm
-									.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-									.getAppSettingIntValue(customizationId,
-											"mail_flag") != 0))
+							&& ((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+									.getSmsMailTip() != 0 && FrameworkSetting.mail))
 							&& fsm.getAlarmFlag() == 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 									formResult.getAction())
@@ -367,13 +363,9 @@ public class React16 implements ViewAdapter {
 					for (W5FormSmsMail fsm : f.get_formSmsMailList())
 						if (fsm.getSmsMailSentTip() != 3
 								&& ((fsm.getSmsMailTip() == 0
-										&& FrameworkSetting.sms && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"sms_flag") != 0) || (fsm
+										&& FrameworkSetting.sms) || (fsm
 										.getSmsMailTip() != 0
-										&& FrameworkSetting.mail && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"mail_flag") != 0))
+										&& FrameworkSetting.mail))
 								&& fsm.getAlarmFlag() == 0
 								&& GenericUtil.hasPartInside2(
 										fsm.getActionTips(),
@@ -422,13 +414,9 @@ public class React16 implements ViewAdapter {
 					for (W5FormSmsMail fsm : f.get_formSmsMailList())
 						if (fsm.getSmsMailSentTip() != 3
 								&& ((fsm.getSmsMailTip() == 0
-										&& FrameworkSetting.sms && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"sms_flag") != 0) || (fsm
+										&& FrameworkSetting.sms) || (fsm
 										.getSmsMailTip() != 0
-										&& FrameworkSetting.mail && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"mail_flag") != 0))
+										&& FrameworkSetting.mail))
 								&& fsm.getAlarmFlag() != 0
 								&& GenericUtil.hasPartInside2(
 										fsm.getActionTips(),
@@ -451,14 +439,9 @@ public class React16 implements ViewAdapter {
 						for (W5FormSmsMail fsm : f.get_formSmsMailList())
 							if (fsm.getSmsMailSentTip() != 3
 									&& ((fsm.getSmsMailTip() == 0
-											&& FrameworkSetting.sms && FrameworkCache
-											.getAppSettingIntValue(
-													customizationId, "sms_flag") != 0) || (fsm
+											&& FrameworkSetting.sms) || (fsm
 											.getSmsMailTip() != 0
-											&& FrameworkSetting.mail && FrameworkCache
-											.getAppSettingIntValue(
-													customizationId,
-													"mail_flag") != 0))
+											&& FrameworkSetting.mail))
 									&& fsm.getAlarmFlag() != 0
 									&& GenericUtil.hasPartInside2(
 											fsm.getActionTips(),
@@ -737,10 +720,8 @@ public class React16 implements ViewAdapter {
 															// varsa
 			int cnt = 0;
 			for (W5FormSmsMail fsm : f.get_formSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+						.getSmsMailTip() != 0 && FrameworkSetting.mail))
 						&& fsm.getAlarmFlag() == 0
 						&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 								formResult.getAction())
@@ -753,10 +734,8 @@ public class React16 implements ViewAdapter {
 						.append(",\n\"smsMailTemplates\":[");
 				boolean b = false;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
-					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-							.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-							.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-							.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+							.getSmsMailTip() != 0 && FrameworkSetting.mail))
 							&& fsm.getAlarmFlag() == 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 									formResult.getAction())
@@ -797,10 +776,8 @@ public class React16 implements ViewAdapter {
 
 			cnt = 0;
 			for (W5FormSmsMail fsm : f.get_formSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+						.getSmsMailTip() != 0 && FrameworkSetting.mail))
 						&& fsm.getAlarmFlag() != 0
 						&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 								formResult.getAction())
@@ -818,10 +795,8 @@ public class React16 implements ViewAdapter {
 						.append(",\n\"alarmTemplates\":[");
 				boolean b = false;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
-					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-							.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-							.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-							.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+							.getSmsMailTip() != 0 && FrameworkSetting.mail))
 							&& fsm.getAlarmFlag() != 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 									formResult.getAction())
@@ -2530,10 +2505,8 @@ public class React16 implements ViewAdapter {
 			buf.append(",\n formSmsMailList:[");
 			boolean b = false;
 			for (W5FormSmsMail fsm : g.get_crudFormSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+						.getSmsMailTip() != 0 && FrameworkSetting.mail))
 						&& fsm.getAlarmFlag() == 0
 						&& GenericUtil.hasPartInside2(fsm.getWebMobileTips(),
 								GenericUtil.uInt(scd.get("mobile")) != 0 ? "2"
@@ -2963,11 +2936,11 @@ columns:[
 				],
 
  */
+		Map<String, Object> scd = gridResult.getScd();
 		W5Grid grid = gridResult.getGrid();
 		if(dsc==null)dsc= grid.getDsc();
-		String xlocale = (String) gridResult.getScd().get("locale");
-		int customizationId = (Integer) gridResult.getScd().get(
-				"customizationId");
+		String xlocale = (String) scd.get("locale");
+		int customizationId = (Integer) scd.get("customizationId");
 		List<W5GridColumn> oldColumns = grid.get_gridColumnList();
 		W5Table viewTable = grid.get_viewTable();
 		W5Table crudTable = grid.get_crudTable();
@@ -2996,8 +2969,8 @@ columns:[
 				}			
 		}
 		if (!gridResult.isViewLogMode() && grid.get_postProcessQueryFields() != null && (gridResult.getRequestParams()==null || GenericUtil.uInt(gridResult.getRequestParams(), "_no_post_process_fields")==0)) {
-			boolean gridPostProcessColumnFirst = FrameworkCache.getAppSettingIntValue(customizationId,"grid_post_process_column_first")!=0;
-			boolean gridPostProcessCommentFirst = FrameworkCache.getAppSettingIntValue(customizationId,"grid_post_process_comment_first")!=0;
+			boolean gridPostProcessColumnFirst = FrameworkCache.getAppSettingIntValue(scd,"grid_post_process_column_first")!=0;
+			boolean gridPostProcessCommentFirst = FrameworkCache.getAppSettingIntValue(scd,"grid_post_process_comment_first")!=0;
 			int x = 0;
 			for (W5QueryField f : grid.get_postProcessQueryFields()) {
 				if(!f.getDsc().equals("ar_version_no")){
@@ -3025,7 +2998,7 @@ columns:[
 					c.setVisibleFlag((short) 1);
 					String renderer = postQueryMap[f.getFieldTip()];
 					c.setRenderer(renderer);
-					if(f.getDsc().equals(FieldDefinitions.queryFieldName_Comment) && FrameworkCache.getAppSettingIntValue(customizationId, "make_comment_summary_flag")!=0){
+					if(f.getDsc().equals(FieldDefinitions.queryFieldName_Comment) && FrameworkCache.getAppSettingIntValue(scd, "make_comment_summary_flag")!=0){
 						c.setWidth((short) (f.getTabOrder() + 10));
 						c.setSortableFlag((short)1);
 					}
@@ -3166,9 +3139,9 @@ columns:[
 			
 			buf.append("{title:");
 			if (!editableFlag) {
-				buf.append("'").append(LocaleMsgCache.get2(customizationId, xlocale, c.getLocaleMsgKey())).append("'");
+				buf.append("'").append(LocaleMsgCache.get2(scd, c.getLocaleMsgKey())).append("'");
 			} else {
-				buf.append("_('span',{style:{color:'darkorange'}},'").append(LocaleMsgCache.get2(customizationId, xlocale,c.getLocaleMsgKey())).append("')");
+				buf.append("_('span',{style:{color:'darkorange'}},'").append(LocaleMsgCache.get2(scd,c.getLocaleMsgKey())).append("')");
 			}
 			boolean qwRendererFlag = false;
 			boolean boolRendererFlag = false;
@@ -3210,7 +3183,7 @@ columns:[
 					else {
 						boolean bx = true;
 						if(c.get_queryField().getPostProcessTip() < 11){
-							W5LookUp lu = FrameworkCache.getLookUp(customizationId, c.get_queryField().getLookupQueryId());
+							W5LookUp lu = FrameworkCache.getLookUp(scd, c.get_queryField().getLookupQueryId());
 							if(lu!=null && lu.getCssClassFlag()!=0){
 								bx = false;
 								buf.append(", formatter:function(row){var badgeMap={'':false");
@@ -3317,9 +3290,7 @@ columns:[
 											.append("',")
 											.append(f.getDsc())
 											.append("_qw_:'")
-											.append(UserUtil.getUserName(
-													customizationId,
-													GenericUtil.uInt(obj)));
+											.append(UserUtil.getUserName(GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
 									String[] ids = ((String) obj).split(",");
@@ -3327,9 +3298,7 @@ columns:[
 										String res = "";
 										for (String s : ids) {
 											res += ","
-													+ UserUtil.getUserName(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserName(GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
 												.append(f.getDsc())
@@ -3342,9 +3311,7 @@ columns:[
 											.append("',")
 											.append(f.getDsc())
 											.append("_qw_:'")
-											.append(UserUtil.getUserDsc(
-													customizationId,
-													GenericUtil.uInt(obj)));
+											.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
 									String[] ids11 = ((String) obj).split(",");
@@ -3352,9 +3319,7 @@ columns:[
 										String res = "";
 										for (String s : ids11) {
 											res += ","
-													+ UserUtil.getUserDsc(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserDsc(GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
 												.append(f.getDsc())
@@ -3382,7 +3347,7 @@ columns:[
 									if (f.getLookupQueryId() == 0)
 										break;
 									W5LookUp lookUp = FrameworkCache.getLookUp(
-											customizationId,
+											queryResult.getScd(),
 											f.getLookupQueryId());
 									if (lookUp == null)
 										break;
@@ -3471,7 +3436,7 @@ columns:[
 		return s;
 	}
 
-	public StringBuilder serializeTreeQueryData(W5QueryResult queryResult) {
+	public StringBuilder serializeTreeQueryData(W5QueryResult qr) {
 		/*
 {
               view:"tree", gravity:0.15,
@@ -3502,22 +3467,22 @@ columns:[
 }
 
 		 */
-		String children = queryResult.getRequestParams().get("_children") != null ? queryResult
+		String children = qr.getRequestParams().get("_children") != null ? qr
 				.getRequestParams().get("_children") : "data";
-		int customizationId = (Integer) queryResult.getScd().get(
+		int customizationId = (Integer) qr.getScd().get(
 				"customizationId");
-		String xlocale = (String) queryResult.getScd().get("locale");
+		String xlocale = (String) qr.getScd().get("locale");
 		StringBuilder buf = new StringBuilder();
-		boolean json = GenericUtil.uInt(queryResult.getRequestParams(), "_json")!=0;
-		boolean dismissNull = queryResult.getRequestParams()!=null && GenericUtil.uInt(queryResult.getRequestParams(), "_dismissNull")!=0;
+		boolean json = GenericUtil.uInt(qr.getRequestParams(), "_json")!=0;
+		boolean dismissNull = qr.getRequestParams()!=null && GenericUtil.uInt(qr.getRequestParams(), "_dismissNull")!=0;
 		if(json)buf.append("{\"success\":true,\"data\":");
-		if (queryResult.getErrorMap().isEmpty()) {
+		if (qr.getErrorMap().isEmpty()) {
 			buf.append("[");
 //			int levelField = -1;
 			int idField = -1;
 			int parentField = -1;
-			if (queryResult.getNewQueryFields() != null) {
-				for (W5QueryField field : queryResult.getNewQueryFields()){
+			if (qr.getNewQueryFields() != null) {
+				for (W5QueryField field : qr.getNewQueryFields()){
 //					if (levelField == -1 && field.getDsc().equals("xlevel")) { levelField = field.getTabOrder() - 1; continue; }
 					if (idField == -1 && field.getDsc().equals("id")) {
 						idField = field.getTabOrder() - 1;
@@ -3532,7 +3497,7 @@ columns:[
 				}
 				if (idField == -1 || parentField==-1){
 					idField = -1;parentField = -1;
-					for (W5QueryField field : queryResult.getNewQueryFields()){
+					for (W5QueryField field : qr.getNewQueryFields()){
 //						if (levelField == -1 && field.getDsc().equals("xlevel")) { levelField = field.getTabOrder() - 1; continue; }
 						if (idField == -1 && field.getDsc().equals("x_id")) {
 							idField = field.getTabOrder() - 1;
@@ -3546,16 +3511,16 @@ columns:[
 						}
 					}
 					if (idField == -1 || parentField==-1)throw new IWBException("sql", "Query(Tree)",
-							queryResult.getQueryId(), GenericUtil.replaceSql(
-									queryResult.getExecutedSql(),
-									queryResult.getSqlParams()),
+							qr.getQueryId(), GenericUtil.replaceSql(
+									qr.getExecutedSql(),
+									qr.getSqlParams()),
 							"TreeQueryField does\"nt exist: [id || parent_id]", null);
 				}
 
 				List<StringBuilder> treeData = new ArrayList();
 				Map<String, List> mapOfParent = new HashMap<String, List>();
 				
-				List<Object[]> datas = queryResult.getData();
+				List<Object[]> datas = qr.getData();
 				if (datas != null && datas.size() > 0) {
 					for (Object[] o : datas) {
 						String id = o[idField].toString();
@@ -3570,7 +3535,7 @@ columns:[
 						boolean b = false;
 						StringBuilder buf2= new StringBuilder();
 						buf2.append(id).append(":");//ilk bastaki
-						for (W5QueryField f : queryResult.getNewQueryFields()) {
+						for (W5QueryField f : qr.getNewQueryFields()) {
 							Object obj = o[f.getTabOrder() - 1];
 							if(dismissNull && obj==null)continue;
 							if (b)
@@ -3604,7 +3569,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_\":\"")
 											.append(UserUtil.getUserName(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
@@ -3613,9 +3577,7 @@ columns:[
 										String res = "";
 										for (String s : ids) {
 											res += ","
-													+ UserUtil.getUserName(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserName(GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",\"")
 												.append(f.getDsc())
@@ -3628,9 +3590,7 @@ columns:[
 											.append("\",\"")
 											.append(f.getDsc())
 											.append("_qw_\":\"")
-											.append(UserUtil.getUserDsc(
-													customizationId,
-													GenericUtil.uInt(obj)));
+											.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
 									String[] ids11 = ((String) obj).split(",");
@@ -3638,9 +3598,7 @@ columns:[
 										String res = "";
 										for (String s : ids11) {
 											res += ","
-													+ UserUtil.getUserDsc(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserDsc(GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",\"")
 												.append(f.getDsc())
@@ -3657,7 +3615,7 @@ columns:[
 									break;
 								case 2: // locale filtresinden gececek
 									buf2.append(LocaleMsgCache.get2(
-											customizationId, xlocale,
+											qr.getScd(),
 											obj.toString()));
 									break;
 								case 10:
@@ -3668,7 +3626,7 @@ columns:[
 									if (f.getLookupQueryId() == 0)
 										break;
 									W5LookUp lookUp = FrameworkCache.getLookUp(
-											customizationId,
+											qr.getScd(),
 											f.getLookupQueryId());
 									if (lookUp == null)
 										break;
@@ -3689,8 +3647,7 @@ columns:[
 											String s = d.getDsc();
 											if (s != null) {
 												s = LocaleMsgCache.get2(
-															customizationId,
-															xlocale, s);
+														qr.getScd(), s);
 												buf2.append(GenericUtil
 														.stringToJS2(s));
 											}
@@ -3713,7 +3670,7 @@ columns:[
 										buf2.append("\",\"")
 												.append(f.getDsc())
 												.append("_qw_\":\"")
-												.append(FrameworkCache.getWorkflow(queryResult.getScd(),f.getLookupQueryId())
+												.append(FrameworkCache.getWorkflow(qr.getScd(),f.getLookupQueryId())
 														.get_approvalStepMap()
 														.get(id2).getDsc());
 									break;
@@ -3737,13 +3694,13 @@ columns:[
 			}
 			buf.append("]");
 			
-			if(json)buf.append(",\n\"pos\":0, \"total_count\":").append(queryResult.getFetchRowCount()).append("}");
+			if(json)buf.append(",\n\"pos\":0, \"total_count\":").append(qr.getFetchRowCount()).append("}");
 
 			return buf;
 		} else {
 			return buf
 					.append("{\"success\":false,\"errorType\":\"validation\",\n\"errors\":")
-					.append(serializeValidatonErrors(queryResult.getErrorMap(),
+					.append(serializeValidatonErrors(qr.getErrorMap(),
 							xlocale)).append("}");
 
 		}
@@ -3781,23 +3738,23 @@ columns:[
 		return buf;
 	}
 
-	public StringBuilder serializeQueryData(W5QueryResult queryResult) {
-		if (queryResult.getQuery().getQueryTip() == 10 || (queryResult.getRequestParams()!=null && GenericUtil.uInt(queryResult.getRequestParams(), "_tqd")!=0) )
-			return serializeTreeQueryData(queryResult);
-		if (queryResult.getQuery().getQueryTip() == 14)
-			return serializeTreeQueryRemoteData(queryResult);
-		int customizationId = (Integer) queryResult.getScd().get("customizationId");
-		String xlocale = (String) queryResult.getScd().get("locale");
-		String userIdStr = queryResult.getScd().containsKey("userId") ? queryResult.getScd().get("userId").toString() : null;
-		List<Object[]> datas = queryResult.getData();
+	public StringBuilder serializeQueryData(W5QueryResult qr) {
+		if (qr.getQuery().getQueryTip() == 10 || (qr.getRequestParams()!=null && GenericUtil.uInt(qr.getRequestParams(), "_tqd")!=0) )
+			return serializeTreeQueryData(qr);
+		if (qr.getQuery().getQueryTip() == 14)
+			return serializeTreeQueryRemoteData(qr);
+		int customizationId = (Integer) qr.getScd().get("customizationId");
+		String xlocale = (String) qr.getScd().get("locale");
+		String userIdStr = qr.getScd().containsKey("userId") ? qr.getScd().get("userId").toString() : null;
+		List<Object[]> datas = qr.getData();
 		StringBuilder buf = new StringBuilder();
-		boolean convertDateToStr = queryResult.getRequestParams()!=null && GenericUtil.uInt(queryResult.getRequestParams(), "_cdds")!=0; 
-		buf.append("{\"success\":").append(queryResult.getErrorMap().isEmpty())
-				.append(",\"queryId\":").append(queryResult.getQueryId())
+		boolean convertDateToStr = qr.getRequestParams()!=null && GenericUtil.uInt(qr.getRequestParams(), "_cdds")!=0; 
+		buf.append("{\"success\":").append(qr.getErrorMap().isEmpty())
+				.append(",\"queryId\":").append(qr.getQueryId())
 				.append(",\"execDttm\":\"")
 				.append(GenericUtil.uFormatDateTime(new Date())).append("\"");
-		if (queryResult.getErrorMap().isEmpty()) {
-			boolean dismissNull = queryResult.getRequestParams()!=null && queryResult.getRequestParams().containsKey("_dismissNull");
+		if (qr.getErrorMap().isEmpty()) {
+			boolean dismissNull = qr.getRequestParams()!=null && qr.getRequestParams().containsKey("_dismissNull");
 			buf.append(",\n\"data\":["); // ana
 			if (datas != null && datas.size() > 0) {
 				boolean bx = false;
@@ -3808,7 +3765,7 @@ columns:[
 						bx = true;
 					buf.append("{"); // satir
 					boolean b = false;
-					for (W5QueryField f : queryResult.getNewQueryFields()) {
+					for (W5QueryField f : qr.getNewQueryFields()) {
 						Object obj = o[f.getTabOrder() - 1];
 						if(obj==null && dismissNull)continue;
 						if (b)
@@ -3862,7 +3819,6 @@ columns:[
 										.append(f.getDsc())
 										.append("_qw_\":\"")
 										.append(UserUtil.getUserName(
-												customizationId,
 												GenericUtil.uInt(obj)));
 								break;
 							case 21: // users LookUp
@@ -3871,9 +3827,7 @@ columns:[
 									String res = "";
 									for (String s : ids) {
 										res += ","
-												+ UserUtil.getUserName(
-														customizationId,
-														GenericUtil.uInt(s));
+												+ UserUtil.getUserName(GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
 											.append(f.getDsc())
@@ -3886,9 +3840,7 @@ columns:[
 										.append("\",\"")
 										.append(f.getDsc())
 										.append("_qw_\":\"")
-										.append(UserUtil.getUserDsc(
-												customizationId,
-												GenericUtil.uInt(obj)));
+										.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
 								break;
 							case 54: // Users LookUp Real Name
 								String[] ids11 = ((String) obj).split(",");
@@ -3896,9 +3848,7 @@ columns:[
 									String res = "";
 									for (String s : ids11) {
 										res += ","
-												+ UserUtil.getUserDsc(
-														customizationId,
-														GenericUtil.uInt(s));
+												+ UserUtil.getUserDsc(GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
 											.append(f.getDsc())
@@ -3926,7 +3876,7 @@ columns:[
 								if (f.getLookupQueryId() == 0)
 									break;
 								W5LookUp lookUp = FrameworkCache.getLookUp(
-										customizationId, f.getLookupQueryId());
+										qr.getScd(), f.getLookupQueryId());
 								if (lookUp == null)
 									break;
 								buf.append("\",\"").append(f.getDsc())
@@ -3967,7 +3917,7 @@ columns:[
 								buf.append(ozc[0]).append("\",\"").append(FieldDefinitions.queryFieldName_CommentExtra)
 									.append("\":{\"last_dttm\":\"").append(ozc[2])
 									.append("\",\"user_id\":").append(ozc[1])
-									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(GenericUtil.uInt(ozc[1])))
 									.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userIdStr))
 									.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 									.append("\"}");
@@ -3984,13 +3934,13 @@ columns:[
 								int appStepId = GenericUtil.uInt(ozs[2]);// approvalStepId
 								if (appStepId != 998
 										&& !GenericUtil.accessControl(
-												queryResult.getScd(),
+												qr.getScd(),
 												(short) 1,
 												ozs.length > 3 ? ozs[3] : null,
 												ozs.length > 4 ? ozs[4] : null))
 									buf.append("-");
 								buf.append(ozs[2]);
-								W5Workflow appr = FrameworkCache.getWorkflow(queryResult.getScd(),appId);
+								W5Workflow appr = FrameworkCache.getWorkflow(qr.getScd(),appId);
 								String appStepDsc = "";
 								if (appr != null
 										&& appr.get_approvalStepMap().get(
@@ -4029,7 +3979,7 @@ columns:[
 									for (String uid : userIds) {
 										buf.append(
 												UserUtil.getUserDsc(
-														customizationId,
+														
 														GenericUtil.uInt(uid)))
 												.append(", ");
 									}
@@ -4054,7 +4004,7 @@ columns:[
 						buf.append("\"");
 
 					}
-					if (queryResult.getQuery().getShowParentRecordFlag() != 0
+					if (qr.getQuery().getShowParentRecordFlag() != 0
 							&& o[o.length - 1] != null) {
 						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":")
 								.append(serializeTableHelperList(
@@ -4066,53 +4016,53 @@ columns:[
 				}
 			}
 			buf.append("],\n\"pos\":")
-					.append(queryResult.getStartRowNumber())
+					.append(qr.getStartRowNumber())
 					.append(",\"total_count\":")
-					.append(queryResult.getResultRowCount());
-			if (FrameworkSetting.debug && queryResult.getExecutedSql() != null) {
+					.append(qr.getResultRowCount());
+			if (FrameworkSetting.debug && qr.getExecutedSql() != null) {
 				buf.append(",\n\"sql\":\"")
 						.append(GenericUtil.stringToJS2(GenericUtil.replaceSql(
-								queryResult.getExecutedSql(),
-								queryResult.getSqlParams()))).append("\"");
+								qr.getExecutedSql(),
+								qr.getSqlParams()))).append("\"");
 			}
-			if (!GenericUtil.isEmpty(queryResult.getExtraOutMap()))
+			if (!GenericUtil.isEmpty(qr.getExtraOutMap()))
 				buf.append(",\n \"extraOutMap\":").append(
-						GenericUtil.fromMapToJsonString(queryResult
+						GenericUtil.fromMapToJsonString(qr
 								.getExtraOutMap()));
 		} else
 			buf.append(",\n\"errorType\":\"validation\",\n\"errors\":")
-					.append(serializeValidatonErrors(queryResult.getErrorMap(),
+					.append(serializeValidatonErrors(qr.getErrorMap(),
 							xlocale));
 
 		return buf.append("}");
 	}
 
-	public StringBuilder serializeTemplate(W5PageResult templateResult) {
+	public StringBuilder serializeTemplate(W5PageResult pr) {
 		boolean replacePostJsCode = false;
-		W5Page template = templateResult.getPage();
+		W5Page template = pr.getPage();
 
 		StringBuilder buf = new StringBuilder();
 		StringBuilder postBuf = new StringBuilder();
 		String code = null;
-		int customizationId = (Integer) templateResult.getScd().get(
+		int customizationId = (Integer) pr.getScd().get(
 				"customizationId");
-		String xlocale = (String) templateResult.getScd().get("locale");
+		String xlocale = (String) pr.getScd().get("locale");
 		if (template.getTemplateTip() != 0) { // html degilse
 			// notification Control
 			// masterRecord Control
-			if (templateResult.getMasterRecordList() != null
-					&& !templateResult.getMasterRecordList().isEmpty())
+			if (pr.getMasterRecordList() != null
+					&& !pr.getMasterRecordList().isEmpty())
 				buf.append("\n_mrl=")
 						.append(serializeTableHelperList(customizationId,
-								xlocale, templateResult.getMasterRecordList()))
+								xlocale, pr.getMasterRecordList()))
 						.append(";\n");
 			// request
 			buf.append("var _request=")
-					.append(GenericUtil.fromMapToJsonString(templateResult
+					.append(GenericUtil.fromMapToJsonString(pr
 							.getRequestParams())).append("\n");
-			if (templateResult.getRequestParams().get("_tabId") != null)
+			if (pr.getRequestParams().get("_tabId") != null)
 				buf.append("var _page_tab_id='")
-						.append(templateResult.getRequestParams().get("_tabId"))
+						.append(pr.getRequestParams().get("_tabId"))
 						.append("';\n");
 			else {
 				buf.append("var _page_tab_id='")
@@ -4121,7 +4071,7 @@ columns:[
 
 			if (template.getTemplateTip() != 8) { // wizard degilse
 				int customObjectCount = 1, tabOrder = 1;
-				for (Object i : templateResult.getTemplateObjectList()) {
+				for (Object i : pr.getTemplateObjectList()) {
 					if (i instanceof W5GridResult) { // objectTip=1
 						W5GridResult gr = (W5GridResult) i;
 						buf.append(serializeGrid(gr));
@@ -4209,17 +4159,17 @@ columns:[
 					.append("';\nvar _page_tab_id='")
 					.append(GenericUtil.getNextId("tpi")).append("';\n");
 			buf2.append("var _request=")
-					.append(GenericUtil.fromMapToJsonString(templateResult
+					.append(GenericUtil.fromMapToJsonString(pr
 							.getRequestParams())).append(";\n");
 			buf2.append("var _scd=")
-					.append(GenericUtil.fromMapToJsonString(templateResult
+					.append(GenericUtil.fromMapToJsonString(pr
 							.getScd())).append(";\n");
 			Map<String, String> publishedAppSetting = new HashMap<String, String>();
 			for (String key : FrameworkCache.publishAppSettings) {
 				publishedAppSetting.put(
 						key,
 						FrameworkCache.getAppSettingStringValue(
-								templateResult.getScd(), key));
+								pr.getScd(), key));
 			}
 			buf2.append("var _app=")
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))
@@ -4249,7 +4199,7 @@ columns:[
 				buf2.append("};\n");
 			}*/
 			int customObjectCount=1;
-			for (Object i : templateResult.getTemplateObjectList()) {
+			for (Object i : pr.getTemplateObjectList()) {
 				if (i instanceof W5GridResult) {
 					W5GridResult gr = (W5GridResult) i;
 					buf2.append(serializeGrid(gr));
@@ -4287,13 +4237,13 @@ columns:[
 				buf2.append("\n");
 			}
 			StringBuilder buf4 = new StringBuilder();
-			if (templateResult.getScd().containsKey("userId")) { // login olmus
+			if (pr.getScd().containsKey("userId")) { // login olmus
 																	// demek ki
 				buf2.append("\nvar _widgetMap={};\n");
 
 				if (template.getCode().contains("${gridColorCss}")) {
 					buf4.append("<style type=\"text/css\">\n");
-					W5LookUp c = FrameworkCache.getLookUp(customizationId, 665);
+					W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
 					for (W5LookUpDetay d : c.get_detayList()) {
 						buf4.append(".bgColor")
 								.append(d.getVal().replace("#", ""))
@@ -4307,7 +4257,7 @@ columns:[
 			StringBuilder buf3 = new StringBuilder();
 			buf3.append("var _localeMsg=")
 					.append(GenericUtil.fromMapToJsonString(LocaleMsgCache
-							.getPublishLocale2(customizationId, templateResult
+							.getPublishLocale2(customizationId, pr
 									.getScd().get("locale").toString())))
 					.append("\n");
 			// buf3.append("function getLocMsg(key){if(key==null)return '';var val=_localeMsg[key];return val || key;}\n");
@@ -4330,12 +4280,12 @@ columns:[
 		if(!GenericUtil.isEmpty(code))
 			buf.append("\n").append(code.startsWith("!") ? code.substring(1) : code);
 
-		short ttip= templateResult.getPage().getTemplateTip();
-		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
+		short ttip= pr.getPage().getTemplateTip();
+		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(pr.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(pr));
 		
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
-				buf.toString(), templateResult.getScd(),
-				templateResult.getRequestParams(), null) : buf;
+				buf.toString(), pr.getScd(),
+				pr.getRequestParams(), null) : buf;
 	}
 
 	public StringBuilder serializeTableRecordInfo(
@@ -4359,7 +4309,7 @@ columns:[
 				.append("\"");
 		if (tableRecordInfoResult.getInsertUserId() > 0)
 			buf.append(",\nprofile_picture_id:").append(
-					UserUtil.getUserProfilePicture(customizationId,
+					UserUtil.getUserProfilePicture(
 							tableRecordInfoResult.getInsertUserId()));
 		if (!GenericUtil.isEmpty(tableRecordInfoResult.getVersionDttm())) {
 			buf.append(",\n\"version_no\":")
@@ -4367,15 +4317,13 @@ columns:[
 					.append(",\"insert_user_id\":")
 					.append(tableRecordInfoResult.getInsertUserId())
 					.append(",\"insert_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
-							tableRecordInfoResult.getInsertUserId()))
+					.append(UserUtil.getUserDsc(tableRecordInfoResult.getInsertUserId()))
 					.append("\",\"insert_dttm\":\"")
 					.append(tableRecordInfoResult.getInsertDttm())
 					.append("\",\"version_user_id\":")
 					.append(tableRecordInfoResult.getVersionUserId())
 					.append(",\"version_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
-							tableRecordInfoResult.getVersionUserId()))
+					.append(UserUtil.getUserDsc(tableRecordInfoResult.getVersionUserId()))
 					.append("\",\"version_dttm\":\"")
 					.append(tableRecordInfoResult.getVersionDttm())
 					.append("\"");
@@ -4629,10 +4577,9 @@ columns:[
 					.append(",\"user_id\":")
 					.append(feed.getInsertUserId())
 					.append(",\"user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
-							feed.getInsertUserId()))
+					.append(UserUtil.getUserDsc(feed.getInsertUserId()))
 					.append("\",\"profile_picture_id\":")
-					.append(UserUtil.getUserProfilePicture(customizationId,
+					.append(UserUtil.getUserProfilePicture(
 							feed.getInsertUserId()))
 					.append(",\"show_feed_tip\":")
 					.append(feed.get_showFeedTip())
@@ -4668,7 +4615,7 @@ columns:[
 						else
 							b = true;
 						buf.append("\"")
-								.append(UserUtil.getUserDsc(customizationId, k))
+								.append(UserUtil.getUserDsc( k))
 								.append("\"");
 					}
 					buf.append("]");
@@ -4718,8 +4665,7 @@ columns:[
 							.append(",\"user_id\":")
 							.append(ch.getInsertUserId())
 							.append(",\"user_id_qw_\":\"")
-							.append(UserUtil.getUserDsc(customizationId,
-									ch.getInsertUserId()))
+							.append(UserUtil.getUserDsc(ch.getInsertUserId()))
 							.append("\",\"dsc\":\"")
 							.append(GenericUtil.stringToJS(ch.getDsc()))
 							.append("\"}");

@@ -137,9 +137,7 @@ public class F7 implements ViewMobileAdapter2 {
 										.append("\",\"")
 										.append(f.getDsc())
 										.append("_qw_\":\"")
-										.append(UserUtil.getUserName(
-												customizationId,
-												GenericUtil.uInt(obj)));
+										.append(UserUtil.getUserName(GenericUtil.uInt(obj)));
 								break;
 							case 21: // users LookUp
 								String[] ids = ((String) obj).split(",");
@@ -147,9 +145,7 @@ public class F7 implements ViewMobileAdapter2 {
 									String res = "";
 									for (String s : ids) {
 										res += ","
-												+ UserUtil.getUserName(
-														customizationId,
-														GenericUtil.uInt(s));
+												+ UserUtil.getUserName(GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
 											.append(f.getDsc())
@@ -162,9 +158,7 @@ public class F7 implements ViewMobileAdapter2 {
 										.append("\",\"")
 										.append(f.getDsc())
 										.append("_qw_\":\"")
-										.append(UserUtil.getUserDsc(
-												customizationId,
-												GenericUtil.uInt(obj)));
+										.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
 								break;
 							case 54: // Users LookUp Real Name
 								String[] ids11 = ((String) obj).split(",");
@@ -172,9 +166,7 @@ public class F7 implements ViewMobileAdapter2 {
 									String res = "";
 									for (String s : ids11) {
 										res += ","
-												+ UserUtil.getUserDsc(
-														customizationId,
-														GenericUtil.uInt(s));
+												+ UserUtil.getUserDsc(GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
 											.append(f.getDsc())
@@ -243,7 +235,7 @@ public class F7 implements ViewMobileAdapter2 {
 								buf.append(ozc[0]).append("\",\"").append(FieldDefinitions.queryFieldName_CommentExtra)
 									.append("\":{\"last_dttm\":\"").append(ozc[2])
 									.append("\",\"user_id\":").append(ozc[1])
-									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(GenericUtil.uInt(ozc[1])))
 									.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userIdStr))
 									.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 									.append("\"}");
@@ -304,9 +296,7 @@ public class F7 implements ViewMobileAdapter2 {
 									String[] userIds = ozs[4].split(",");
 									for (String uid : userIds) {
 										buf.append(
-												UserUtil.getUserDsc(
-														customizationId,
-														GenericUtil.uInt(uid)))
+												UserUtil.getUserDsc(GenericUtil.uInt(uid)))
 												.append(", ");
 									}
 									buf.setLength(buf.length() - 2);
@@ -608,7 +598,7 @@ public class F7 implements ViewMobileAdapter2 {
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
 									.syncGetListOfRecordEditUsers(
-											t.getCustomizationId(), key,
+											t.getProjectUuid(), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")
@@ -1253,7 +1243,7 @@ public class F7 implements ViewMobileAdapter2 {
 							key = t.getTableId() + "-" + key.substring(1);
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
-									.syncGetListOfRecordEditUsers(t.getCustomizationId(), key,
+									.syncGetListOfRecordEditUsers(t.getProjectUuid(), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")
