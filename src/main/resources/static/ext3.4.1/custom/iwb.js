@@ -2137,9 +2137,8 @@ function prepareLogErrors(obj){
 }
 
 function showSQLError(sql, xpos){
-	var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'sql', 
-	    config:{matchBrackets: true, lint:true, foldGutter: true, 
-	    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:sql});
+	var _code=new Ext.ux.form.Monaco({hideLabel: true , language:'sql', 
+	    name: 'code',anchor:'%100', height:'%100',value:sql});
 
 	new Ext.Window({
         modal: true, closable:true,
@@ -2267,9 +2266,8 @@ function ajaxErrorHandlerOld(obj){
     			for(var qi=0;qi<xl.length;qi++)if(xl.substr(qi,1)<'0' || xl.substr(qi,1)>'9')break;
     			else ml=10*ml+1*xl.substr(qi,1);
     			xbuttons.push({text:'RhinoScript Error',handler:function(){
-    				var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'javascript', 
-    				    config:{matchBrackets: true, lint:true, foldGutter: true, 
-    				    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:obj.sql});
+    				var _code=new Ext.ux.form.Monaco({hideLabel: true , language:'javascript', 
+    				    name: 'code',anchor:'%100', height:'%100',value:obj.sql});
 
     				new Ext.Window({
     			        modal: true, closable:true,
@@ -2335,9 +2333,8 @@ function ajaxErrorHandlerOld(obj){
 			for(var qi=0;qi<xl.length;qi++)if(xl.substr(qi,1)<'0' || xl.substr(qi,1)>'9')break;
 			else ml=10*ml+1*xl.substr(qi,1);
 			xbuttons.push({text:'RhinoScript Error',handler:function(){
-				var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'javascript', 
-				    config:{matchBrackets: true, lint:true, foldGutter: true, 
-				    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:obj.sql});
+				var _code=new Ext.ux.form.Monaco({hideLabel: true , language:'javascript', 
+				    name: 'code',anchor:'%100', height:'%100',value:obj.sql});
 
 				new Ext.Window({
 			        modal: true, closable:true,

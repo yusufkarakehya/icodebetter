@@ -1,6 +1,8 @@
 package iwb.custom.trigger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
@@ -10,6 +12,7 @@ import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableParam;
+import iwb.domain.db.W5VcsObject;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
@@ -36,25 +39,26 @@ public class PostFormTrigger {
 	
 	public static void afterPostForm(W5FormResult fr, PostgreSQL dao, String prefix){
 		String msg;
-		String projectId = fr.getScd()!=null ? (String)fr.getScd().get("projectId"):null;
+		Map scd = fr.getScd();
+		String projectId = scd!=null ? (String)scd.get("projectId"):null;
 		switch(fr.getFormId()){
 	
 		
 		case	551://comment
 			if(fr.getErrorMap().isEmpty() && fr.getAction()==2){
-				Object[] userIds = dao.listObjectCommentAndAttachUsers(fr.getScd(), fr.getRequestParams());
+				Object[] userIds = dao.listObjectCommentAndAttachUsers(scd, fr.getRequestParams());
 				int tableId = GenericUtil.uInt(fr.getRequestParams().get("table_id"));
 				int tablePk = GenericUtil.uInt(fr.getRequestParams().get("table_pk"));
-				int sessionUserId=(Integer)fr.getScd().get("userId");
+				int sessionUserId=(Integer)scd.get("userId");
 				if(userIds!=null)for(Object userId:userIds){
 					String tmpStr = fr.getRequestParams().get("dsc");
 					if(tmpStr!=null){
 						tmpStr= "<b>"+UserUtil.getUserName(sessionUserId)+"</b>: "+tmpStr;
 						if(tmpStr.length()>100)tmpStr=tmpStr.substring(0,97)+"...";
 					}
-					Log5Notification n = new Log5Notification(fr.getScd(), (Integer)userId, (short)1,  tableId,  tablePk, sessionUserId, null, 1,tmpStr); 
+					Log5Notification n = new Log5Notification(scd, (Integer)userId, (short)1,  tableId,  tablePk, sessionUserId, null, 1,tmpStr); 
 					dao.saveObject(n);
-					n.set_tableRecordList(dao.findRecordParentRecords(fr.getScd(),n.getTableId(),n.getTablePk(),0, true));
+					n.set_tableRecordList(dao.findRecordParentRecords(scd,n.getTableId(),n.getTablePk(),0, true));
 					UserUtil.publishNotification(n, false);
 				}
 			}
@@ -67,27 +71,44 @@ public class PostFormTrigger {
 		    default:
 			break;*/
 		}
-    	msg = LocaleMsgCache.get2(fr.getScd(), "reload_cache_manually");
+    	msg = LocaleMsgCache.get2(scd, "reload_cache_manually");
 		if(fr.getForm()!=null)switch(fr.getForm().getObjectId()){
 		case	1277: //user_related_project
 			if(fr.getAction()==2){
 				int userId = GenericUtil.uInt(fr.getRequestParams().get("user_id"));
 				if(userId>0){
-					UserUtil.addProjectUser((String)fr.getScd().get("projectId"), userId);
+					UserUtil.addProjectUser((String)scd.get("projectId"), userId);
 				}
 			}
 			break;
 		case	1407://project
-			if(fr.getAction()==2){
+			if(scd.containsKey("ocustomizationId") && (Integer)scd.get("ocustomizationId")!=(Integer)scd.get("customizationId")){
+				throw new IWBException("security","Project", 0, null, "Forbidden Command. Can manipulate a project on another tenant.", null);
+			}
+			switch(fr.getAction()){
+			case	5://clone
+			case	2://insert
 				String newProjectId = fr.getOutputFields().get("project_uuid").toString();
-				int customizationId = (Integer)fr.getScd().get("customizationId");
+				int customizationId = (Integer)scd.get("customizationId");
 				String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
-				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project"), fr.getScd().get("userName"), "1", newProjectId);
+				//validate from vcs server
+				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project"), scd.get("userName"), "1", newProjectId);
 				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
-				int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId, 0, customizationId);
-				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", customizationId, newProjectId);
+				if(fr.getAction()==5){ //clone
+					Map<String, Object> newScd = new HashMap();
+					newScd.putAll(scd);newScd.put("projectId", fr.getRequestParams().get("tproject_uuid"));
+					dao.copyProject(scd, newProjectId, customizationId);
+				} else {//insert
+					int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId, 0, customizationId);
+					dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", customizationId, newProjectId);
+					Map<String, Object> newScd = new HashMap();
+					newScd.putAll(scd);newScd.put("projectId", newProjectId);
+					dao.saveObject(new W5VcsObject(newScd, 369, userTip));
+				}
 				FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.projectUuid=?", newProjectId).get(0));
 				FrameworkSetting.projectSystemStatus.put(newProjectId,0);
+				break;
+			case	3://delete all metadata
 			}
 			break;
 		default:
@@ -124,7 +145,7 @@ public class PostFormTrigger {
 		case	1209: //tableevent
 		case	1217://w5_table_access_condition_sql		
 			if(FrameworkSetting.preloadWEngine!=0){
-				FrameworkCache.clearPreloadCache(fr.getScd());
+				FrameworkCache.clearPreloadCache(scd);
 			}
 			fr.getOutputMessages().add(msg);
 			int tableId = GenericUtil.uInt(fr.getOutputFields().get("table_id"+prefix));
@@ -146,7 +167,7 @@ public class PostFormTrigger {
 		case	389:
 		case	390://workflow/step
 			if(FrameworkSetting.preloadWEngine!=0){
-				FrameworkCache.clearPreloadCache(fr.getScd());
+				FrameworkCache.clearPreloadCache(scd);
 			}
 			int workflowId = GenericUtil.uInt(fr.getOutputFields().get("approval_id"+prefix));
 			fr.getOutputMessages().add(msg);
@@ -194,13 +215,13 @@ public class PostFormTrigger {
 		case	1173://condition_group
 		case    1198://conversion,conversion_col,conversion_detail
 			if(FrameworkSetting.preloadWEngine!=0){
-				FrameworkCache.clearPreloadCache(fr.getScd());
+				FrameworkCache.clearPreloadCache(scd);
 			}
 		}
 		
 		if(fr.getAction()==2 && (fr.getForm().getObjectId()==14)){
 			int lookUpId=GenericUtil.uInt((Object)fr.getRequestParams().get("look_up_id"));
-			if(lookUpId!=0)UserUtil.broadCastRecordForTemplates(projectId, -lookUpId, "", 2, (Integer)fr.getScd().get("userId"));
+			if(lookUpId!=0)UserUtil.broadCastRecordForTemplates(projectId, -lookUpId, "", 2, (Integer)scd.get("userId"));
 		}
 		
 		
