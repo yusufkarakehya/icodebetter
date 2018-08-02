@@ -3339,6 +3339,7 @@ public class PostgreSQL extends BaseDAO {
 		for(W5Customization c:customizationList)FrameworkCache.wCustomizationMap.put(c.getCustomizationId(), c);
 		
 		for(W5Project p:lp){
+			FrameworkCache.clearPreloadCache(p.getProjectUuid());
 			reloadProjectCaches(p.getProjectUuid());
 		}
 		
@@ -5278,7 +5279,10 @@ public class PostgreSQL extends BaseDAO {
 		if(GenericUtil.isEmpty(t.get_tableParamList()))return "TableParam not Found ;)";
 		StringBuilder sql = new StringBuilder();
 		sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-		if(t.get_tableParamList().size()>1)sql.append(" AND x.customization_id=").append(scd.get("customizationId"));
+		if(t.get_tableParamList().size()>1){
+			if(t.get_tableParamList().get(1).getDsc().equals("customizationId"))sql.append(" AND x.customization_id=").append(scd.get("customizationId"));
+			else if(t.get_tableParamList().get(1).getDsc().equals("projectId"))sql.append(" AND x.project_uuid='").append(scd.get("projectId")).append("'");
+		}
 		Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 		List summaryParams = (List)res[1];summaryParams.add(tablePk);
 		List l = executeSQLQuery2(((StringBuilder)res[0]).toString(), summaryParams);
@@ -7142,14 +7146,14 @@ public class PostgreSQL extends BaseDAO {
 		return lm;
 	}
 	
-	public Map copyProject(Map scd,  String newProjectId, int dstCustomizationId){
+	public boolean copyProject(Map scd,  String newProjectId, int dstCustomizationId){
 		String projectId = (String)scd.get("projectId");
+		if(projectId.equals(newProjectId))return false;
 		W5Project po = FrameworkCache.getProject(projectId), npo = null;
 		int customizationId = (Integer)scd.get("customizationId");
+		int userId = (Integer)scd.get("userId");
 //		int dstCustomizationId = customizationId;
 //		int smaxSqlCommit = 0;
-		Map result = new HashMap();
-		result.put("success", true);
 		String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
 		executeUpdateSQLQuery("set search_path="+schema);
 		
@@ -7199,9 +7203,11 @@ public class PostgreSQL extends BaseDAO {
 				.append(" z where z.customization_id=? AND z.project_uuid=? AND z.").append(pkField).append("=x.").append(pkField).append(")");
 			executeUpdateSQLQuery(sql.toString(), dstCustomizationId, newProjectId, projectId, customizationId, projectId, dstCustomizationId, newProjectId);
 		}
-		
+		List ll = executeSQLQuery("select 1 from iwb.w5_project_related_project where project_uuid=? AND related_project_uuid=?", projectId, newProjectId);
+		if(GenericUtil.isEmpty(ll))executeUpdateSQLQuery("INSERT INTO iwb.w5_project_related_project(project_uuid, related_project_uuid, insert_user_id,version_user_id) "
+				+ "VALUES (?, ?, ?, ?)", projectId, newProjectId, userId, userId);
 
-		return result;
+		return true;
 		
 	}
 }

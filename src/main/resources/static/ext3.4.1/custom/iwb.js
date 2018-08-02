@@ -4334,7 +4334,7 @@ function fmtChatList(j){
 			var x=j.msg.substring(2, j.msg.length-1);
 			var i=x.indexOf('-');
 			var u=x.substring(0,i),l=x.substring(i+1);
-			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a>';
+			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a><br/>';
 		} catch(e){str+='<b style="color:red;">!error!</b>';}else str+='<span style="width:140px;word-wrap:break-word;display:block;">'+j.msg+'</span>';
 		str+='<span class="cfeed">'+ fmtDateTimeWithDay2(j.sent_dttm)
 			+'</span></td><td width=5></td><td width=24 valign=top>'+getPPicImgTag(j.sender_user_id)+'</td></tr><tr height=10><td colspan=5></td></tr>';

@@ -92,7 +92,7 @@ public class PostFormTrigger {
 				int customizationId = (Integer)scd.get("customizationId");
 				String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
 				//validate from vcs server
-				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project"), scd.get("userName"), "1", newProjectId);
+				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project","http://81.214.24.77:8084/app/"), scd.get("userName"), "1", newProjectId);
 				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 				if(fr.getAction()==5){ //clone
 					Map<String, Object> newScd = new HashMap();

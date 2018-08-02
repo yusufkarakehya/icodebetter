@@ -721,4 +721,21 @@ public class VcsServlet implements InitializingBean {
 		response.getWriter().close();
 		
 	}
+	
+	@RequestMapping("/ajaxVCSImportProject")
+	public void hndAjaxVCSImportProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
+		logger.info("ajaxVCSImportProject"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+		boolean b = vcsEngine.vcsClientImportProject(scd, (String)request.getParameter("pid"), (String)request.getParameter("ipid"));
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();
+		
+	}
 }

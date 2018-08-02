@@ -2616,7 +2616,7 @@ public class FrameworkEngine{
 		W5FormResult	mainFormResult = dao.getFormResult(scd, formId, action, requestParams);
 		boolean dev = scd.get("roleId")!=null && (Integer)scd.get("roleId")==0 && GenericUtil.uInt(requestParams,"_dev")!=0;
 		int customizationId = dev ? 0 : (Integer)scd.get("customizationId");
-		W5Table t = FrameworkCache.getTable(customizationId, mainFormResult.getForm().getObjectId());//mainFormResult.getForm().get_sourceTable();
+		W5Table t = FrameworkCache.getTable(scd, mainFormResult.getForm().getObjectId());//mainFormResult.getForm().get_sourceTable();
 		if(t.getAccessViewTip()==0 && (!FrameworkCache.roleAccessControl(scd, 0) || !FrameworkCache.roleAccessControl(scd, action))){
 			throw new IWBException("security","Module", 0, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_guvenlik_modul_kontrol"), null);
 		}
@@ -2633,7 +2633,7 @@ public class FrameworkEngine{
 					int newAction = GenericUtil.uInt(requestParams.get("a"+m.getTabOrder()));
 					if(newAction==0)newAction=action;
 					W5FormResult	subFormResult = dao.getFormResult(scd, m.getObjectId(), newAction, requestParams);
-					t = FrameworkCache.getTable(customizationId, mainFormResult.getForm().getObjectId());//mainFormResult.getForm().get_sourceTable();
+					t = FrameworkCache.getTable(scd, mainFormResult.getForm().getObjectId());//mainFormResult.getForm().get_sourceTable();
 					if((t.getAccessViewTip()==0 && !FrameworkCache.roleAccessControl(scd, 0))||
 					(!GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers()))){
 						//nothing
@@ -5853,7 +5853,7 @@ public class FrameworkEngine{
 			dao.executeUpdateSQLQuery("insert INTO iwb.w5_table_child "
 					+ "(table_child_id, locale_msg_key, relation_tip, table_id, table_field_id, related_table_id, related_table_field_id, related_static_table_field_id, related_static_table_field_val, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, copy_strategy_tip, on_readonly_related_action, on_invisible_related_action, on_delete_action, tab_order, on_delete_action_value, child_view_tip, child_view_object_id, revision_flag, project_uuid, customization_id) "
 					+ "values(?, ?, 2, ?     , ?             , ?               , ?                     , 0                            , 0                             , 1         , ?             , current_timestamp  , ?      , current_timestamp , 0          , 0                         , 0                          , 0               , 10       , null                  , 0             , 0                   , 0            , ?           , ?)",
-					tableChildId,"rel_xxx2"+tableName,parentTableId, FrameworkCache.getTable(customizationId, parentTableId).get_tableFieldList().get(0).getTableFieldId(), tableId, loo[1], userId, userId, projectUuid, customizationId);
+					tableChildId,"rel_xxx2"+tableName,parentTableId, FrameworkCache.getTable(scd, parentTableId).get_tableFieldList().get(0).getTableFieldId(), tableId, loo[1], userId, userId, projectUuid, customizationId);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 657, tableChildId));
 
 
@@ -6352,6 +6352,10 @@ public class FrameworkEngine{
 			if(GenericUtil.isEmpty(list)){
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, oproject_uuid, web_frontend_tip, default_main_template_id)"
 						+ " values (?,?,?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId, oprojectId);
+				Map newScd = new HashMap();newScd.put("projectId", projectId);newScd.put("customizationId", cusId);newScd.put("userId", userId);
+				W5VcsObject vo = new W5VcsObject(newScd, 369, userTip);
+				vo.setVcsObjectStatusTip((short)9);
+				dao.saveObject(vo);
 				dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
 			}
 		}
