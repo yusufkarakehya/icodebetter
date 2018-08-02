@@ -552,7 +552,7 @@ public class F7iOS implements ViewMobileAdapter {
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
 									.syncGetListOfRecordEditUsers(
-											t.getProjectUuid(), key,
+											(String)scd.get("projectId"), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")

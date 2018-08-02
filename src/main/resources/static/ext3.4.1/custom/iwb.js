@@ -4294,8 +4294,7 @@ function loadTabFromId(id){
 function fmtTypingBlock(j){
 	if(!j || j.length==0)return "";
 	var u = j[0].sender_user_id!=_scd.userId ? j[0].sender_user_id:j[0].receiver_user_id;
-	return '<tr style="display:none;" id="idTypingWith_'+u+'"><td width=24 valign=top><img src="sf/pic'+u+'.png" width='+_app.profile_picture_width_mini+' height='+_app.profile_picture_height_mini
-	+'></td><td width=5></td><td width=100% valign=top><img height=35 src="../ext3.4.1/custom/images/typing.svg"></td><td width=1></td><td width=5></td></tr>';
+	return '<tr style="display:none;" id="idTypingWith_'+u+'"><td width=24 valign=top>'+getPPicImgTag(u)+'</td><td width=5></td><td width=100% valign=top><img height=35 src="../ext3.4.1/custom/images/typing.svg"></td><td width=1></td><td width=5></td></tr>';
 }
 
 function getPPicImgTag(userId, mid){

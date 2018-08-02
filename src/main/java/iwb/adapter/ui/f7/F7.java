@@ -598,7 +598,7 @@ public class F7 implements ViewMobileAdapter2 {
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
 									.syncGetListOfRecordEditUsers(
-											t.getProjectUuid(), key,
+											(String)scd.get("projectId"), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")
@@ -1243,7 +1243,7 @@ public class F7 implements ViewMobileAdapter2 {
 							key = t.getTableId() + "-" + key.substring(1);
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
-									.syncGetListOfRecordEditUsers(t.getProjectUuid(), key,
+									.syncGetListOfRecordEditUsers((String)scd.get("projectId"), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")

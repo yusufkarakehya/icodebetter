@@ -312,7 +312,7 @@ public class Vue2 implements ViewAdapter {
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
 									.syncGetListOfRecordEditUsers(
-											t.getProjectUuid(), key,
+											(String)scd.get("projectId"), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")

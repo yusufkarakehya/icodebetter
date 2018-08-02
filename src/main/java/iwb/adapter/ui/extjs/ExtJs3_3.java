@@ -747,7 +747,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						if (key.length() > 0) {
 							key = t.getTableId() + "-" + key.substring(1);
 							fr.setLiveSyncKey(key);
-							List<Object> l = UserUtil.syncGetListOfRecordEditUsers(t.getProjectUuid(), key, webPageId);
+							List<Object> l = UserUtil.syncGetListOfRecordEditUsers((String)scd.get("projectId"), key, webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")
 										.append(GenericUtil
@@ -2425,7 +2425,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append(cellDsc)
 					.append("',\nstore: new Ext.data.JsonStore({url:'ajaxQueryData?_fdid=")
 					.append(fc.getFormCellId())
-					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
+					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
 					.append(cellResult.getLookupQueryResult()!=null ? cellResult.getLookupQueryResult().getQueryId() : cellResult.getFormCell().getLookupQueryId())
 					.append("&limit=").append(maxRows);
 			if (FrameworkSetting.validateLookups && formResult != null)
@@ -4296,7 +4296,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						d.getLocaleMsgKey()))
 				.append("'")
-				.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
+				.append(",store: new Ext.data.JsonStore({baseParams:{},url:'ajaxQueryData?.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
 				.append(d.getQueryId()).append("&_lvid=").append(d.getListId());
 
 		if (d.getDefaultPageRecordNumber() != 0)
