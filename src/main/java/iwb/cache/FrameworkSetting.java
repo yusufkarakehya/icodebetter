@@ -104,7 +104,7 @@ public class FrameworkSetting {
 	public static boolean lookupEditFormFlag = true;
 	public static boolean replaceSqlSelectX = true;
 	public static boolean projectAccessControl = true;
-	public static boolean log2tsdb = false;
+	public static boolean log2tsdb = true;
 
 	public static int logType = 1;
 

@@ -208,7 +208,7 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
 	}
-
+/*
 	
 	@RequestMapping("/ajaxVCSMove2AnotherProject")
 	public void hndAjaxVCSSMove2AnotherProject(
@@ -224,7 +224,7 @@ public class VcsServlet implements InitializingBean {
 		response.getWriter().close();
 	}
 
-
+*/
 	@RequestMapping("/ajaxVCSObjectsAllTree")
 	public void hndAjaxVCSObjectsAllTree(
 			HttpServletRequest request,
@@ -258,7 +258,7 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write("{\"success\":true, \"commit_id\":"+commitId+"}");
 		response.getWriter().close();
 	}
-
+/*
 	@RequestMapping("/ajaxVCSExportProject")
 	public void hndAjaxVCSExportProject(
 			HttpServletRequest request,
@@ -273,7 +273,7 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
 	}
-	
+	*/
 	@RequestMapping("/ajaxVCSObjectPushMulti")
 	public void hndAjaxVCSObjectPushMulti(
 			HttpServletRequest request,
@@ -691,7 +691,7 @@ public class VcsServlet implements InitializingBean {
 		logger.info("hndAjaxVCSClientSynchProject("+tableId+")"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	Map m = vcsEngine.vcsClientLocaleMsgSynch(scd);
+    	Map m = vcsEngine.vcsClientProjectSynch(scd);
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
