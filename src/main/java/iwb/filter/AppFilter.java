@@ -63,8 +63,6 @@ public class AppFilter implements Filter {
 				if(te!=null && te instanceof  IWBException)iw = (IWBException)te;
 				else iw = new IWBException("framework","Unknown", 0, null, "Root Cause --> " + GenericUtil.stringToJS2(te.getMessage()), e);
 				
-				if(false && FrameworkSetting.debug)if(te!=null)e.printStackTrace();
-				
 				StringBuilder b = new StringBuilder();
 				if(jsonFlag){
 					boolean z = false;

@@ -3256,6 +3256,10 @@ public class VcsEngine {
 		newScd.putAll(scd);newScd.put("projectId", importedProjectId);
 		return dao.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
 	}
+	public Map vcsClientProjectSynch(Map<String, Object> scd) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 
 }
