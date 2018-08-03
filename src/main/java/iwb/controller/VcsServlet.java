@@ -682,6 +682,20 @@ public class VcsServlet implements InitializingBean {
 		response.getWriter().close();
 	}
 	
+	@RequestMapping("/ajaxVCSClientSynchProject")
+	public void hndAjaxVCSClientSynchProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException, JSONException {
+    	int tableId = GenericUtil.uInt(request, "t");
+		logger.info("hndAjaxVCSClientSynchProject("+tableId+")"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+    	Map m = vcsEngine.vcsClientLocaleMsgSynch(scd);
+    	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
+		response.getWriter().close();
+	}
+	
 	@RequestMapping("/serverVCSLocaleMsgPushAll")
 	public void hndServerVCSLocaleMsgPushAll(
 			HttpServletRequest request,
@@ -716,6 +730,23 @@ public class VcsServlet implements InitializingBean {
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		boolean b = vcsEngine.vcsClientPublish2AppStore(scd);
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();
+		
+	}
+	
+	@RequestMapping("/ajaxVCSImportProject")
+	public void hndAjaxVCSImportProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
+		logger.info("ajaxVCSImportProject"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+		boolean b = vcsEngine.vcsClientImportProject(scd, (String)request.getParameter("pid"), (String)request.getParameter("ipid"));
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();

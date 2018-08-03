@@ -370,7 +370,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(formResult.getAction());
 		W5Table t = null;
 		if (f.getObjectTip() == 2) {
-			t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			t = FrameworkCache.getTable(formResult.getScd(), f.getObjectId());
 			if (FrameworkCache.getAppSettingIntValue(formResult.getScd(),
 					"file_attachment_flag") != 0
 					&& t.getFileAttachmentFlag() != 0)
@@ -388,10 +388,8 @@ public class ExtJs3_3 implements ViewAdapter {
 															// varsa
 			int cnt = 0;
 			for (W5FormSmsMail fsm : f.get_formSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+						.getSmsMailTip() != 0 && FrameworkSetting.mail))
 						&& fsm.getAlarmFlag() == 0
 						&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 								formResult.getAction())
@@ -404,10 +402,8 @@ public class ExtJs3_3 implements ViewAdapter {
 						.append(",\n\"smsMailTemplates\":[");
 				boolean b = false;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
-					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-							.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-							.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-							.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+							.getSmsMailTip() != 0 && FrameworkSetting.mail))
 							&& fsm.getAlarmFlag() == 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 									formResult.getAction())
@@ -448,10 +444,8 @@ public class ExtJs3_3 implements ViewAdapter {
 
 			cnt = 0;
 			for (W5FormSmsMail fsm : f.get_formSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+						.getSmsMailTip() != 0 && FrameworkSetting.mail))
 						&& fsm.getAlarmFlag() != 0
 						&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 								formResult.getAction())
@@ -469,10 +463,8 @@ public class ExtJs3_3 implements ViewAdapter {
 						.append(",\n\"alarmTemplates\":[");
 				boolean b = false;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
-					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-							.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-							.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-							.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+							.getSmsMailTip() != 0 && FrameworkSetting.mail))
 							&& fsm.getAlarmFlag() != 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 									formResult.getAction())
@@ -729,9 +721,9 @@ public class ExtJs3_3 implements ViewAdapter {
 		boolean liveSyncRecord = false;
 		// form(table) fields
 		if (f.getObjectTip() == 2
-				&& FrameworkCache.getTable(customizationId, f.getObjectId()) != null) {
+				&& FrameworkCache.getTable(scd, f.getObjectId()) != null) {
 			s.append(",\n renderTip:").append(fr.getForm().getRenderTip());
-			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord
 					&& t.getLiveSyncFlag() != 0 && !fr.isViewMode();
 			// insert AND continue control
@@ -755,7 +747,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						if (key.length() > 0) {
 							key = t.getTableId() + "-" + key.substring(1);
 							fr.setLiveSyncKey(key);
-							List<Object> l = UserUtil.syncGetListOfRecordEditUsers(t.getCustomizationId(), key, webPageId);
+							List<Object> l = UserUtil.syncGetListOfRecordEditUsers((String)scd.get("projectId"), key, webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")
 										.append(GenericUtil
@@ -832,7 +824,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					int ndx = ozc[3].indexOf('-');
 					s.append(ozc[0]).append(", commentExtra:{\"last_dttm\":\"").append(ozc[2])
 						.append("\",\"user_id\":").append(ozc[1])
-						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
 						.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userId+""))
 						.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 						.append("\"}");
@@ -858,12 +850,8 @@ public class ExtJs3_3 implements ViewAdapter {
 				int cnt = 0;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
 					if (fsm.getSmsMailSentTip() != 3
-							&& ((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-									.getAppSettingIntValue(customizationId,
-											"sms_flag") != 0) || (fsm
-									.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-									.getAppSettingIntValue(customizationId,
-											"mail_flag") != 0))
+							&& ((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+									.getSmsMailTip() != 0 && FrameworkSetting.mail))
 							&& fsm.getAlarmFlag() == 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
 									fr.getAction())
@@ -878,13 +866,9 @@ public class ExtJs3_3 implements ViewAdapter {
 					for (W5FormSmsMail fsm : f.get_formSmsMailList())
 						if (fsm.getSmsMailSentTip() != 3
 								&& ((fsm.getSmsMailTip() == 0
-										&& FrameworkSetting.sms && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"sms_flag") != 0) || (fsm
+										&& FrameworkSetting.sms) || (fsm
 										.getSmsMailTip() != 0
-										&& FrameworkSetting.mail && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"mail_flag") != 0))
+										&& FrameworkSetting.mail))
 								&& fsm.getAlarmFlag() == 0
 								&& GenericUtil.hasPartInside2(
 										fsm.getActionTips(),
@@ -933,13 +917,9 @@ public class ExtJs3_3 implements ViewAdapter {
 					for (W5FormSmsMail fsm : f.get_formSmsMailList())
 						if (fsm.getSmsMailSentTip() != 3
 								&& ((fsm.getSmsMailTip() == 0
-										&& FrameworkSetting.sms && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"sms_flag") != 0) || (fsm
+										&& FrameworkSetting.sms) || (fsm
 										.getSmsMailTip() != 0
-										&& FrameworkSetting.mail && FrameworkCache
-										.getAppSettingIntValue(customizationId,
-												"mail_flag") != 0))
+										&& FrameworkSetting.mail))
 								&& fsm.getAlarmFlag() != 0
 								&& GenericUtil.hasPartInside2(
 										fsm.getActionTips(),
@@ -962,14 +942,8 @@ public class ExtJs3_3 implements ViewAdapter {
 						for (W5FormSmsMail fsm : f.get_formSmsMailList())
 							if (fsm.getSmsMailSentTip() != 3
 									&& ((fsm.getSmsMailTip() == 0
-											&& FrameworkSetting.sms && FrameworkCache
-											.getAppSettingIntValue(
-													customizationId, "sms_flag") != 0) || (fsm
-											.getSmsMailTip() != 0
-											&& FrameworkSetting.mail && FrameworkCache
-											.getAppSettingIntValue(
-													customizationId,
-													"mail_flag") != 0))
+											&& FrameworkSetting.sms) || (fsm.getSmsMailTip() != 0
+											&& FrameworkSetting.mail))
 									&& fsm.getAlarmFlag() != 0
 									&& GenericUtil.hasPartInside2(
 											fsm.getActionTips(),
@@ -1070,7 +1044,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								.getMapConvertedObject() != null && fr
 								.getMapConvertedObject().containsKey(
 										fsm.getConversionId())))) {
-							W5Table dt = fsm.getSrcDstTip()==0 ? FrameworkCache.getTable(customizationId,fsm.getDstTableId()) : null;
+							W5Table dt = fsm.getSrcDstTip()==0 ? FrameworkCache.getTable(scd,fsm.getDstTableId()) : null;
 							if (dt==null || ((dt.getAccessViewTip() == 0
 									|| !GenericUtil.isEmpty(dt
 											.getAccessUpdateUserFields()) || GenericUtil
@@ -1240,7 +1214,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
 					// yapılabilir mi ? Formun bağlı olduğu tablonun onay
 					// mekanizması manualStart + Elle Başlatma İsteği aktif mi
-			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			if (t != null && t.get_approvalMap() != null
 					&& t.get_approvalMap().get((short) 2) != null) {
 				W5Workflow a = t.get_approvalMap().get((short) 2);
@@ -1452,7 +1426,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								.getModuleFormMap().get(m.getObjectId());
 						W5Table mainTablex = subFormResult != null
 								&& subFormResult.getForm() != null ? FrameworkCache
-								.getTable(customizationId, subFormResult
+								.getTable(formResult.getScd(), subFormResult
 										.getForm().getObjectId()) : null;
 						if (mainTablex == null)
 							continue;
@@ -1495,7 +1469,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						tabHeight = gridResult.getGrid().getDefaultHeight();
 						W5Table mainTable = gridResult.getGrid() != null
 								&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-								.getTable(customizationId, gridResult.getGrid()
+								.getTable(formResult.getScd(), gridResult.getGrid()
 										.get_defaultCrudForm().getObjectId())
 								: null;
 						if (mainTable != null
@@ -1636,7 +1610,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								.getModuleFormMap().get(m.getObjectId());
 						W5Table mainTablex = subFormResult != null
 								&& subFormResult.getForm() != null ? FrameworkCache
-								.getTable(customizationId, subFormResult
+								.getTable(formResult.getScd(), subFormResult
 										.getForm().getObjectId()) : null;
 						if (mainTablex == null)
 							continue;
@@ -1677,7 +1651,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								.get(m.getObjectId());
 						W5Table mainTable = gridResult.getGrid() != null
 								&& gridResult.getGrid().get_defaultCrudForm() != null ? FrameworkCache
-								.getTable(customizationId, gridResult.getGrid()
+								.getTable(formResult.getScd(), gridResult.getGrid()
 										.get_defaultCrudForm().getObjectId())
 								: null;
 						if (mainTable != null
@@ -1817,7 +1791,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.getModuleFormMap().get(m.getObjectId());
 							W5Table mainTablex = subFormResult != null
 									&& subFormResult.getForm() != null ? FrameworkCache
-									.getTable(customizationId, subFormResult
+									.getTable(formResult.getScd(), subFormResult
 											.getForm().getObjectId()) : null;
 							if (mainTablex != null
 									&& (!FrameworkCache.roleAccessControl(
@@ -1863,7 +1837,7 @@ public class ExtJs3_3 implements ViewAdapter {
 							W5Table mainTable = gridResult.getGrid() != null
 									&& gridResult.getGrid()
 											.get_defaultCrudForm() != null ? FrameworkCache
-									.getTable(customizationId, gridResult
+									.getTable(formResult.getScd(), gridResult
 											.getGrid().get_defaultCrudForm()
 											.getObjectId()) : null;
 							if (mainTable != null
@@ -2319,7 +2293,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				&& formResult.getAction() == 1;
 		String liveSyncStr = null;
 		if (liveSyncRecord) {
-			W5Table t = FrameworkCache.getTable(customizationId, formResult
+			W5Table t = FrameworkCache.getTable(formResult.getScd(), formResult
 					.getForm().getObjectId());
 			if (t != null && t.getLiveSyncFlag() != 0) {
 				String s = ".t=" + formResult.getUniqueId() + "&.pk="
@@ -2451,7 +2425,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append(cellDsc)
 					.append("',\nstore: new Ext.data.JsonStore({url:'ajaxQueryData?_fdid=")
 					.append(fc.getFormCellId())
-					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
+					.append("&.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
 					.append(cellResult.getLookupQueryResult()!=null ? cellResult.getLookupQueryResult().getQueryId() : cellResult.getFormCell().getLookupQueryId())
 					.append("&limit=").append(maxRows);
 			if (FrameworkSetting.validateLookups && formResult != null)
@@ -4322,7 +4296,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						d.getLocaleMsgKey()))
 				.append("'")
-				.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
+				.append(",store: new Ext.data.JsonStore({baseParams:{},url:'ajaxQueryData?.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
 				.append(d.getQueryId()).append("&_lvid=").append(d.getListId());
 
 		if (d.getDefaultPageRecordNumber() != 0)
@@ -4382,6 +4356,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		String xlocale = (String) scd.get("locale");
 		boolean dev = GenericUtil.uInt(gridResult.getRequestParams(),"_dev")!=0;
 		int customizationId = dev ? 0:(Integer) scd.get("customizationId");
+		String projectId = FrameworkCache.getProjectId(scd, "5."+gridResult.getGridId());
 		W5Grid g = gridResult.getGrid();
 		W5Query q = g.get_query();
 		StringBuilder buf = new StringBuilder();
@@ -4461,10 +4436,8 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(",\n formSmsMailList:[");
 			boolean b = false;
 			for (W5FormSmsMail fsm : g.get_crudFormSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
-						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
-						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
+				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms) || (fsm
+						.getSmsMailTip() != 0 && FrameworkSetting.mail))
 						&& fsm.getAlarmFlag() == 0
 						&& GenericUtil.hasPartInside2(fsm.getWebMobileTips(),
 								GenericUtil.uInt(scd.get("mobile")) != 0 ? "2"
@@ -4519,7 +4492,7 @@ public class ExtJs3_3 implements ViewAdapter {
 							.get_queryFields(), "_id", g
 							.get_postProcessQueryFields(), (g.get_query()
 							.getShowParentRecordFlag() != 0 ? 2 : 0),
-							FrameworkCache.getTable(customizationId, g.get_query()
+							FrameworkCache.getTable(projectId, g.get_query()
 									.getMainTableId()), scd))
 					.append("}),listeners:{loadexception:promisLoadException}}),\n master_column_id:'")
 					.append(g.get_queryFieldMap().get(g.getTreeMasterFieldId())
@@ -4546,8 +4519,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.get_postProcessQueryFields(), gridResult
 									.isViewLogMode() ? 1 : (g.get_query()
 									.getShowParentRecordFlag() != 0 ? 2 : 0),
-							FrameworkCache.getTable(customizationId, g.get_query()
-									.getMainTableId()), scd)).append("})})");
+							FrameworkCache.getTable(projectId, g.get_query().getMainTableId()), scd)).append("})})");
 		} else {
 			buf.append(
 					",\n ds:new Ext.data.JsonStore({url:'"+ajaxUrl+"?.t='+_page_tab_id+'&.p='+_scd.projectId+'&.w='+_webPageId+'&_qid=")
@@ -4570,7 +4542,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.get_postProcessQueryFields(), gridResult
 									.isViewLogMode() ? 1 : (g.get_query()
 									.getShowParentRecordFlag() != 0 ? 2 : 0),
-							FrameworkCache.getTable(customizationId, g.get_query()
+							FrameworkCache.getTable(projectId, g.get_query()
 									.getMainTableId()), scd)).append(
 					",listeners:{loadexception:promisLoadException}})");
 		}
@@ -4601,8 +4573,7 @@ public class ExtJs3_3 implements ViewAdapter {
 
 			if (g.get_defaultCrudForm() != null) { // insert ve delete
 													// buttonlari var mi yok mu?
-				W5Table t = FrameworkCache.getTable(customizationId, g.get_defaultCrudForm()
-						.getObjectId());// g.get_defaultCrudForm().get_sourceTable();
+				W5Table t = FrameworkCache.getTable(projectId, g.get_defaultCrudForm().getObjectId());// g.get_defaultCrudForm().get_sourceTable();
 				boolean insertFlag = GenericUtil.accessControl(scd,
 						t.getAccessInsertTip(), t.getAccessInsertRoles(),
 						t.getAccessInsertUsers());
@@ -5088,11 +5059,11 @@ public class ExtJs3_3 implements ViewAdapter {
 	}
 
 	private StringBuilder serializeGridColumns(W5GridResult gridResult) {
-
-		String xlocale = (String) gridResult.getScd().get("locale");
+		Map<String, Object> scd = gridResult.getScd();
+		String xlocale = (String) scd.get("locale");
 		W5Grid grid = gridResult.getGrid();
-		boolean dev = GenericUtil.uInt(gridResult.getRequestParams(),"_dev")!=0;
-		int customizationId = dev ? 0:(Integer) gridResult.getScd().get("customizationId");
+//		boolean dev = GenericUtil.uInt(gridResult.getRequestParams(),"_dev")!=0;
+		int customizationId = (Integer) scd.get("customizationId");
 
 		List<W5GridColumn> oldColumns = grid.get_gridColumnList();
 		W5Table viewTable = grid.get_viewTable();
@@ -5144,8 +5115,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						bufGrdColumnGroups.append(",\n");
 					bufGrdColumnGroups
 							.append("{header: '")
-							.append(LocaleMsgCache.get2(customizationId,
-									xlocale, m.getLocaleMsgKey()))
+							.append(LocaleMsgCache.get2(scd, m.getLocaleMsgKey()))
 							.append("', colspan: ")
 							.append(initColSpan
 									+ map.get(m.getGridModuleId()).size())
@@ -5175,8 +5145,8 @@ public class ExtJs3_3 implements ViewAdapter {
 				}			
 		}
 		if (!gridResult.isViewLogMode() && grid.get_postProcessQueryFields() != null && (gridResult.getRequestParams()==null || GenericUtil.uInt(gridResult.getRequestParams(), "_no_post_process_fields")==0)) {
-			boolean gridPostProcessColumnFirst = FrameworkCache.getAppSettingIntValue(customizationId,"grid_post_process_column_first")!=0;
-			boolean gridPostProcessCommentFirst = FrameworkCache.getAppSettingIntValue(customizationId,"grid_post_process_comment_first")!=0;
+			boolean gridPostProcessColumnFirst = FrameworkCache.getAppSettingIntValue(scd,"grid_post_process_column_first")!=0;
+			boolean gridPostProcessCommentFirst = FrameworkCache.getAppSettingIntValue(scd,"grid_post_process_comment_first")!=0;
 			int x = 0;
 			for (W5QueryField f : grid.get_postProcessQueryFields()) {
 				if(!f.getDsc().equals("ar_version_no")){
@@ -5206,7 +5176,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					c.setVisibleFlag((short) 1);
 					String renderer = postQueryMap[f.getFieldTip()];
 					c.setRenderer(renderer);
-					if(f.getDsc().equals(FieldDefinitions.queryFieldName_Comment) && FrameworkCache.getAppSettingIntValue(customizationId, "make_comment_summary_flag")!=0){
+					if(f.getDsc().equals(FieldDefinitions.queryFieldName_Comment) && FrameworkCache.getAppSettingIntValue(scd, "make_comment_summary_flag")!=0){
 						c.setWidth((short) (f.getTabOrder() + 10));
 						c.setSortableFlag((short)1);
 					}
@@ -5361,7 +5331,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		}
 */
 		StringBuilder bufFilters = new StringBuilder(); // grid filtreleri ilgili kolonları tutacak
-		if(FrameworkCache.getAppSettingIntValue(customizationId, "grid_graph_marker")!=0){
+		if(FrameworkCache.getAppSettingIntValue(scd, "grid_graph_marker")!=0){
 			if (b)buf.append(",\n");
 			buf.append("{header: '',dataIndex:'grid_graph_marker', width:20, hidden:true, renderer:gridGraphMarkerRenderer(").append(grid.getDsc()).append(")}");
 			b = true;
@@ -5378,17 +5348,17 @@ public class ExtJs3_3 implements ViewAdapter {
 					.getQueryFieldId());
 			if (!editableFlag) {
 				buf.append("{header: '").append(
-						LocaleMsgCache.get2(customizationId, xlocale,
+						LocaleMsgCache.get2(scd,
 								c.getLocaleMsgKey()));
 			} else {
 				buf.append("{header: '")
 						.append("<span class=\"editable_column\">")
-						.append(LocaleMsgCache.get2(customizationId, xlocale,
+						.append(LocaleMsgCache.get2(scd,
 								c.getLocaleMsgKey())).append("</span>");
 			}
 			if (!qds.contains("pkpkpk"))
 				buf.append("',tooltip: '<b>")
-						.append(LocaleMsgCache.get2(customizationId, xlocale,
+						.append(LocaleMsgCache.get2(scd,
 								c.getLocaleMsgKey())).append("</b>");
 
 			boolean qwRendererFlag = false;
@@ -5507,7 +5477,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						&& c.get_queryField().getLookupQueryId() != 0) {
 					bufFilters.append("{type:'list',dataIndex:'").append(qds)
 							.append("', options: [");
-					W5LookUp lu = FrameworkCache.getLookUp(customizationId, c
+					W5LookUp lu = FrameworkCache.getLookUp(scd, c
 							.get_queryField().getLookupQueryId());
 					boolean b2 = false;
 					for (W5LookUpDetay ld : lu.get_detayList()) {
@@ -5524,7 +5494,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						bufFilters
 								.append(",'")
 								.append(LocaleMsgCache
-										.get2(customizationId, xlocale,
+										.get2(scd,
 												ld.getDsc())).append("']");
 					}
 					bufFilters.append("]},");
@@ -5621,9 +5591,7 @@ public class ExtJs3_3 implements ViewAdapter {
 											.append("',")
 											.append(f.getDsc())
 											.append("_qw_:'")
-											.append(UserUtil.getUserName(
-													customizationId,
-													GenericUtil.uInt(obj)));
+											.append(UserUtil.getUserName(GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
 									String[] ids = ((String) obj).split(",");
@@ -5631,9 +5599,7 @@ public class ExtJs3_3 implements ViewAdapter {
 										String res = "";
 										for (String s : ids) {
 											res += ","
-													+ UserUtil.getUserName(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserName(GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
 												.append(f.getDsc())
@@ -5646,9 +5612,7 @@ public class ExtJs3_3 implements ViewAdapter {
 											.append("',")
 											.append(f.getDsc())
 											.append("_qw_:'")
-											.append(UserUtil.getUserDsc(
-													customizationId,
-													GenericUtil.uInt(obj)));
+											.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
 									String[] ids11 = ((String) obj).split(",");
@@ -5656,9 +5620,7 @@ public class ExtJs3_3 implements ViewAdapter {
 										String res = "";
 										for (String s : ids11) {
 											res += ","
-													+ UserUtil.getUserDsc(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserDsc(GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
 												.append(f.getDsc())
@@ -5686,7 +5648,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									if (f.getLookupQueryId() == 0)
 										break;
 									W5LookUp lookUp = FrameworkCache.getLookUp(
-											customizationId,
+											qr.getScd(),
 											f.getLookupQueryId());
 									if (lookUp == null)
 										break;
@@ -5859,9 +5821,7 @@ public class ExtJs3_3 implements ViewAdapter {
 											.append("',")
 											.append(f.getDsc())
 											.append("_qw_:'")
-											.append(UserUtil.getUserName(
-													customizationId,
-													GenericUtil.uInt(obj)));
+											.append(UserUtil.getUserName(GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
 									String[] ids = ((String) obj).split(",");
@@ -5869,9 +5829,7 @@ public class ExtJs3_3 implements ViewAdapter {
 										String res = "";
 										for (String s : ids) {
 											res += ","
-													+ UserUtil.getUserName(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserName(GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("',")
 												.append(f.getDsc())
@@ -5884,9 +5842,7 @@ public class ExtJs3_3 implements ViewAdapter {
 											.append("',")
 											.append(f.getDsc())
 											.append("_qw_:'")
-											.append(UserUtil.getUserDsc(
-													customizationId,
-													GenericUtil.uInt(obj)));
+											.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
 									String[] ids11 = ((String) obj).split(",");
@@ -5894,9 +5850,7 @@ public class ExtJs3_3 implements ViewAdapter {
 										String res = "";
 										for (String s : ids11) {
 											res += ","
-													+ UserUtil.getUserDsc(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserDsc(GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("',")
 												.append(f.getDsc())
@@ -5913,7 +5867,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									break;
 								case 2: // locale filtresinden gececek
 									buf2.append(LocaleMsgCache.get2(
-											customizationId, xlocale,
+											qr.getScd(),
 											obj.toString()));
 									break;
 								case 10:
@@ -5924,7 +5878,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									if (f.getLookupQueryId() == 0)
 										break;
 									W5LookUp lookUp = FrameworkCache.getLookUp(
-											customizationId,
+											qr.getScd(),
 											f.getLookupQueryId());
 									if (lookUp == null)
 										break;
@@ -6116,9 +6070,7 @@ public class ExtJs3_3 implements ViewAdapter {
 										.append("\",\"")
 										.append(f.getDsc())
 										.append("_qw_\":\"")
-										.append(UserUtil.getUserName(
-												customizationId,
-												GenericUtil.uInt(obj)));
+										.append(UserUtil.getUserName(GenericUtil.uInt(obj)));
 								break;
 							case 21: // users LookUp
 								String[] ids = ((String) obj).split(",");
@@ -6126,9 +6078,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									String res = "";
 									for (String s : ids) {
 										res += ","
-												+ UserUtil.getUserName(
-														customizationId,
-														GenericUtil.uInt(s));
+												+ UserUtil.getUserName(GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
 											.append(f.getDsc())
@@ -6141,9 +6091,7 @@ public class ExtJs3_3 implements ViewAdapter {
 										.append("\",\"")
 										.append(f.getDsc())
 										.append("_qw_\":\"")
-										.append(UserUtil.getUserDsc(
-												customizationId,
-												GenericUtil.uInt(obj)));
+										.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
 								break;
 							case 54: // Users LookUp Real Name
 								String[] ids11 = ((String) obj).split(",");
@@ -6151,9 +6099,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									String res = "";
 									for (String s : ids11) {
 										res += ","
-												+ UserUtil.getUserDsc(
-														customizationId,
-														GenericUtil.uInt(s));
+												+ UserUtil.getUserDsc(GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
 											.append(f.getDsc())
@@ -6181,7 +6127,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								if (f.getLookupQueryId() == 0)
 									break;
 								W5LookUp lookUp = FrameworkCache.getLookUp(
-										customizationId, f.getLookupQueryId());
+										qr.getScd(), f.getLookupQueryId());
 								if (lookUp == null)
 									break;
 								buf.append("\",\"").append(f.getDsc())
@@ -6222,7 +6168,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								buf.append(ozc[0]).append("\",\"").append(FieldDefinitions.queryFieldName_CommentExtra)
 									.append("\":{\"last_dttm\":\"").append(ozc[2])
 									.append("\",\"user_id\":").append(ozc[1])
-									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
 									.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userIdStr))
 									.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 									.append("\"}");
@@ -6283,9 +6229,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									String[] userIds = ozs[4].split(",");
 									for (String uid : userIds) {
 										buf.append(
-												UserUtil.getUserDsc(
-														customizationId,
-														GenericUtil.uInt(uid)))
+												UserUtil.getUserDsc(GenericUtil.uInt(uid)))
 												.append(", ");
 									}
 									buf.setLength(buf.length() - 2);
@@ -6345,30 +6289,30 @@ public class ExtJs3_3 implements ViewAdapter {
 	}
 
 
-	public StringBuilder serializeTemplate(W5PageResult templateResult) {
+	public StringBuilder serializeTemplate(W5PageResult pr) {
 		boolean replacePostJsCode = false;
-		W5Page template = templateResult.getPage();
+		W5Page template = pr.getPage();
 
 		StringBuilder buf = new StringBuilder();
 		String code = null;
-		boolean dev = GenericUtil.uInt(templateResult.getRequestParams(),"_dev")!=0;
-		int customizationId = dev ? 0:(Integer) templateResult.getScd().get("customizationId");
-		String xlocale = (String) templateResult.getScd().get("locale");
+		boolean dev = GenericUtil.uInt(pr.getRequestParams(),"_dev")!=0;
+		int customizationId = dev ? 0:(Integer) pr.getScd().get("customizationId");
+		String xlocale = (String) pr.getScd().get("locale");
 		if (template.getTemplateTip() != 0) { // html degilse
 			// notification Control
 			// masterRecord Control
-			if (templateResult.getMasterRecordList() != null
-					&& !templateResult.getMasterRecordList().isEmpty())
+			if (pr.getMasterRecordList() != null
+					&& !pr.getMasterRecordList().isEmpty())
 				buf.append("\n_mrl=")
 						.append(serializeTableHelperList(customizationId,
-								xlocale, templateResult.getMasterRecordList()))
+								xlocale, pr.getMasterRecordList()))
 						.append(";\n");
 			// request
 			buf.append("var _request=")
-					.append(GenericUtil.fromMapToJsonString(templateResult.getRequestParams())).append("\n");
-			if (templateResult.getRequestParams().get("_tabId") != null)
+					.append(GenericUtil.fromMapToJsonString(pr.getRequestParams())).append("\n");
+			if (pr.getRequestParams().get("_tabId") != null)
 				buf.append("var _page_tab_id='")
-						.append(templateResult.getRequestParams().get("_tabId"))
+						.append(pr.getRequestParams().get("_tabId"))
 						.append("';\n");
 			else {
 				buf.append("var _page_tab_id='")
@@ -6377,10 +6321,10 @@ public class ExtJs3_3 implements ViewAdapter {
 
 			if (template.getTemplateTip() != 8) { // wizard degilse
 				int customObjectCount = 1, tabOrder = 1;
-				for (Object i : templateResult.getTemplateObjectList()) {
+				for (Object i : pr.getTemplateObjectList()) {
 					if (i instanceof W5BIGraphDashboard) { // objectTip=12
 						W5BIGraphDashboard gd = (W5BIGraphDashboard) i;
-						buf.append("\nif(!_request.grd_cfgs)_request.grd_cfgs=[];_request.grd_cfgs.push({dash: ").append(serializeGraphDashboard(gd, templateResult.getScd())).append("});\n\n");
+						buf.append("\nif(!_request.grd_cfgs)_request.grd_cfgs=[];_request.grd_cfgs.push({dash: ").append(serializeGraphDashboard(gd, pr.getScd())).append("});\n\n");
 					} else if (i instanceof W5GridResult) { // objectTip=1
 						W5GridResult gr = (W5GridResult) i;
 						buf.append(serializeGrid(gr));
@@ -6469,10 +6413,10 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append("';\nvar _page_tab_id='")
 					.append(GenericUtil.getNextId("tpi")).append("';\n");
 			buf2.append("var _request=")
-					.append(GenericUtil.fromMapToJsonString(templateResult
+					.append(GenericUtil.fromMapToJsonString(pr
 							.getRequestParams())).append(";\n");
 			buf2.append("var _scd=")
-					.append(GenericUtil.fromMapToJsonString(templateResult
+					.append(GenericUtil.fromMapToJsonString(pr
 							.getScd())).append(";\n");
 			Map<String, String> publishedAppSetting = new HashMap<String, String>();
 			for (String key : FrameworkCache.publishAppSettings) {
@@ -6506,7 +6450,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				buf2.append("};\n");
 			}
 */
-			for (Object i : templateResult.getTemplateObjectList()) {
+			for (Object i : pr.getTemplateObjectList()) {
 				if (i instanceof W5GridResult) {
 					W5GridResult gr = (W5GridResult) i;
 					buf2.append(serializeGrid(gr));
@@ -6540,13 +6484,13 @@ public class ExtJs3_3 implements ViewAdapter {
 				buf2.append("\n");
 			}
 			StringBuilder buf4 = new StringBuilder();
-			if (templateResult.getScd().containsKey("userId")) { // login olmus
+			if (pr.getScd().containsKey("userId")) { // login olmus
 																	// demek ki
 				buf2.append("\nvar _widgetMap={};\n");
 
 				if (template.getCode().contains("${gridColorCss}")) {
 					buf4.append("<style type=\"text/css\">\n");
-					W5LookUp c = FrameworkCache.getLookUp(customizationId, 665);
+					W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
 					for (W5LookUpDetay d : c.get_detayList()) {
 						buf4.append(".bgColor")
 								.append(d.getVal().replace("#", ""))
@@ -6560,7 +6504,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			StringBuilder buf3 = new StringBuilder();
 			buf3.append("var _localeMsg=")
 					.append(GenericUtil.fromMapToJsonString(LocaleMsgCache
-							.getPublishLocale2(customizationId, templateResult
+							.getPublishLocale2(customizationId, pr
 									.getScd().get("locale").toString())))
 					.append("\n");
 			// buf3.append("function getLocMsg(key){if(key==null)return '';var val=_localeMsg[key];return val || key;}\n");
@@ -6586,12 +6530,12 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(code.startsWith("!") ? code.substring(1) : code);
 			if(template.getTemplateTip()==2 && !GenericUtil.isEmpty(code) && FrameworkSetting.debug)buf.append("\n/*iwb:end:template:").append(template.getTemplateId()).append(":Code*/");
 		}
-		short ttip= templateResult.getPage().getTemplateTip();
-		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
+		short ttip= pr.getPage().getTemplateTip();
+		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(pr.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(pr));
 
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
-				buf.toString(), templateResult.getScd(),
-				templateResult.getRequestParams(), null) : buf;
+				buf.toString(), pr.getScd(),
+				pr.getRequestParams(), null) : buf;
 	}
 	
 	private StringBuilder recursiveTemplateObject(List l, int parentObjectId, int level) {
@@ -6649,8 +6593,9 @@ public class ExtJs3_3 implements ViewAdapter {
 	}
 	public StringBuilder serializeTableRecordInfo(
 			W5TableRecordInfoResult tableRecordInfoResult) {
-		String xlocale = (String) tableRecordInfoResult.getScd().get("locale");
-		int customizationId = (Integer) tableRecordInfoResult.getScd().get(
+		Map<String, Object> scd = tableRecordInfoResult.getScd();
+		String xlocale = (String) scd.get("locale");
+		int customizationId = (Integer) scd.get(
 				"customizationId");
 		StringBuilder buf = new StringBuilder();
 		W5TableRecordHelper trh0 = tableRecordInfoResult.getParentList().get(0);
@@ -6661,28 +6606,27 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(",\"tdsc\":\"")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						FrameworkCache
-								.getTable(customizationId, trh0.getTableId())
+								.getTable(scd, trh0.getTableId())
 								.getDsc())).append("\",\"dsc\":\"")
 				.append(GenericUtil.stringToJS2(trh0.getRecordDsc()))
 				.append("\"");
 		if (tableRecordInfoResult.getInsertUserId() > 0)
 			buf.append(",\nprofile_picture_id:").append(
-					UserUtil.getUserProfilePicture(customizationId,
-							tableRecordInfoResult.getInsertUserId()));
+					UserUtil.getUserProfilePicture(tableRecordInfoResult.getInsertUserId()));
 		if (!GenericUtil.isEmpty(tableRecordInfoResult.getVersionDttm())) {
 			buf.append(",\n\"version_no\":")
 					.append(tableRecordInfoResult.getVersionNo())
 					.append(",\"insert_user_id\":")
 					.append(tableRecordInfoResult.getInsertUserId())
 					.append(",\"insert_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							tableRecordInfoResult.getInsertUserId()))
 					.append("\",\"insert_dttm\":\"")
 					.append(tableRecordInfoResult.getInsertDttm())
 					.append("\",\"version_user_id\":")
 					.append(tableRecordInfoResult.getVersionUserId())
 					.append(",\"version_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							tableRecordInfoResult.getVersionUserId()))
 					.append("\",\"version_dttm\":\"")
 					.append(tableRecordInfoResult.getVersionDttm())
@@ -6709,7 +6653,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		boolean b = false;
 		for (W5TableRecordHelper trh : tableRecordInfoResult.getParentList()) {
 			W5Table dt = FrameworkCache
-					.getTable(customizationId, trh.getTableId());
+					.getTable(scd, trh.getTableId());
 			if (dt == null)
 				break;
 			if (b)
@@ -6736,7 +6680,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(",\n\"childs\":[");
 			for (W5TableChildHelper tch : tableRecordInfoResult.getChildList())
 				if (tch.getChildCount() > 0) {
-					W5Table dt = FrameworkCache.getTable(customizationId, tch
+					W5Table dt = FrameworkCache.getTable(scd, tch
 							.getTableChild().getRelatedTableId());
 					if (dt == null)
 						break;
@@ -6937,11 +6881,10 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append(",\"user_id\":")
 					.append(feed.getInsertUserId())
 					.append(",\"user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							feed.getInsertUserId()))
 					.append("\",\"profile_picture_id\":")
-					.append(UserUtil.getUserProfilePicture(customizationId,
-							feed.getInsertUserId()))
+					.append(UserUtil.getUserProfilePicture(feed.getInsertUserId()))
 					.append(",\"show_feed_tip\":")
 					.append(feed.get_showFeedTip())
 					// 1:detail, else main
@@ -6976,7 +6919,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						else
 							b = true;
 						buf.append("\"")
-								.append(UserUtil.getUserDsc(customizationId, k))
+								.append(UserUtil.getUserDsc( k))
 								.append("\"");
 					}
 					buf.append("]");
@@ -7026,7 +6969,7 @@ public class ExtJs3_3 implements ViewAdapter {
 							.append(",\"user_id\":")
 							.append(ch.getInsertUserId())
 							.append(",\"user_id_qw_\":\"")
-							.append(UserUtil.getUserDsc(customizationId,
+							.append(UserUtil.getUserDsc(
 									ch.getInsertUserId()))
 							.append("\",\"dsc\":\"")
 							.append(GenericUtil.stringToJS(ch.getDsc()))
@@ -7144,7 +7087,7 @@ public class ExtJs3_3 implements ViewAdapter {
 																		// icin
 																		// var
 																		// mi
-				W5Table dt = FrameworkCache.getTable(customizationId,
+				W5Table dt = FrameworkCache.getTable(scd,
 						fsm.getDstTableId());
 				if ((dt.getAccessViewTip() == 0
 						|| !GenericUtil.isEmpty(dt.getAccessUpdateUserFields()) || GenericUtil
@@ -7298,9 +7241,7 @@ public class ExtJs3_3 implements ViewAdapter {
 											.append("\",")
 											.append(f.getDsc())
 											.append("_qw_:\"")
-											.append(UserUtil.getUserName(
-													customizationId,
-													GenericUtil.uInt(obj)));
+											.append(UserUtil.getUserName(GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
 									String[] ids = ((String) obj).split(",");
@@ -7308,9 +7249,7 @@ public class ExtJs3_3 implements ViewAdapter {
 										String res = "";
 										for (String s : ids) {
 											res += ","
-													+ UserUtil.getUserName(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserName(GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",")
 												.append(f.getDsc())
@@ -7323,9 +7262,7 @@ public class ExtJs3_3 implements ViewAdapter {
 											.append("\",")
 											.append(f.getDsc())
 											.append("_qw_:\"")
-											.append(UserUtil.getUserDsc(
-													customizationId,
-													GenericUtil.uInt(obj)));
+											.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
 									String[] ids11 = ((String) obj).split(",");
@@ -7333,9 +7270,7 @@ public class ExtJs3_3 implements ViewAdapter {
 										String res = "";
 										for (String s : ids11) {
 											res += ","
-													+ UserUtil.getUserDsc(
-															customizationId,
-															GenericUtil.uInt(s));
+													+ UserUtil.getUserDsc(GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",")
 												.append(f.getDsc())
@@ -7352,7 +7287,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									break;
 								case 2: // locale filtresinden gececek
 									buf2.append(LocaleMsgCache.get2(
-											customizationId, xlocale,
+											qr.getScd(),
 											obj.toString()));
 									break;
 								case 10:
@@ -7363,7 +7298,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									if (f.getLookupQueryId() == 0)
 										break;
 									W5LookUp lookUp = FrameworkCache.getLookUp(
-											customizationId,
+											qr.getScd(),
 											f.getLookupQueryId());
 									if (lookUp == null)
 										break;

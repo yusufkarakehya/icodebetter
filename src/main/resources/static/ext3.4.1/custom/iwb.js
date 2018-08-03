@@ -2137,9 +2137,8 @@ function prepareLogErrors(obj){
 }
 
 function showSQLError(sql, xpos){
-	var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'sql', 
-	    config:{matchBrackets: true, lint:true, foldGutter: true, 
-	    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:sql});
+	var _code=new Ext.ux.form.Monaco({hideLabel: true , language:'sql', 
+	    name: 'code',anchor:'%100', height:'%100',value:sql});
 
 	new Ext.Window({
         modal: true, closable:true,
@@ -2267,9 +2266,8 @@ function ajaxErrorHandlerOld(obj){
     			for(var qi=0;qi<xl.length;qi++)if(xl.substr(qi,1)<'0' || xl.substr(qi,1)>'9')break;
     			else ml=10*ml+1*xl.substr(qi,1);
     			xbuttons.push({text:'RhinoScript Error',handler:function(){
-    				var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'javascript', 
-    				    config:{matchBrackets: true, lint:true, foldGutter: true, 
-    				    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:obj.sql});
+    				var _code=new Ext.ux.form.Monaco({hideLabel: true , language:'javascript', 
+    				    name: 'code',anchor:'%100', height:'%100',value:obj.sql});
 
     				new Ext.Window({
     			        modal: true, closable:true,
@@ -2335,9 +2333,8 @@ function ajaxErrorHandlerOld(obj){
 			for(var qi=0;qi<xl.length;qi++)if(xl.substr(qi,1)<'0' || xl.substr(qi,1)>'9')break;
 			else ml=10*ml+1*xl.substr(qi,1);
 			xbuttons.push({text:'RhinoScript Error',handler:function(){
-				var _code=new Ext.ux.form.CodeMirror({hideLabel: true , mode:'javascript', 
-				    config:{matchBrackets: true, lint:true, foldGutter: true, 
-				    gutters: ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"]},name: 'code',anchor:'%100', height:'%100',value:obj.sql});
+				var _code=new Ext.ux.form.Monaco({hideLabel: true , language:'javascript', 
+				    name: 'code',anchor:'%100', height:'%100',value:obj.sql});
 
 				new Ext.Window({
 			        modal: true, closable:true,
@@ -4294,8 +4291,7 @@ function loadTabFromId(id){
 function fmtTypingBlock(j){
 	if(!j || j.length==0)return "";
 	var u = j[0].sender_user_id!=_scd.userId ? j[0].sender_user_id:j[0].receiver_user_id;
-	return '<tr style="display:none;" id="idTypingWith_'+u+'"><td width=24 valign=top><img src="sf/pic'+u+'.png" width='+_app.profile_picture_width_mini+' height='+_app.profile_picture_height_mini
-	+'></td><td width=5></td><td width=100% valign=top><img height=35 src="../ext3.4.1/custom/images/typing.svg"></td><td width=1></td><td width=5></td></tr>';
+	return '<tr style="display:none;" id="idTypingWith_'+u+'"><td width=24 valign=top>'+getPPicImgTag(u)+'</td><td width=5></td><td width=100% valign=top><img height=35 src="../ext3.4.1/custom/images/typing.svg"></td><td width=1></td><td width=5></td></tr>';
 }
 
 function getPPicImgTag(userId, mid){
@@ -4327,7 +4323,7 @@ function fmtChatList(j){
 			var x=j.msg.substring(2, j.msg.length-1);
 			var i=x.indexOf('-');
 			var u=x.substring(0,i),l=x.substring(i+1);
-			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a>';
+			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a><br/>';
 		} catch(e){str+='<b style="color:red;">!error!</b>';}else str+='<span style="width:140px;word-wrap:break-word;display:block;">'+j.msg+'</span>';
 		str+='<span class="cfeed">'+ fmtDateTimeWithDay2(j.sent_dttm)
 			+'</span></td><td width=5></td><td width=1></td></tr><tr height=10><td colspan=5></td></tr>';
@@ -4338,7 +4334,7 @@ function fmtChatList(j){
 			var x=j.msg.substring(2, j.msg.length-1);
 			var i=x.indexOf('-');
 			var u=x.substring(0,i),l=x.substring(i+1);
-			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a>';
+			str+='<span style="color:red;">Link</span> :<a href=# style="text-w" onclick="return loadTabFromId('+u+')"><b>'+l+'</b></a><br/>';
 		} catch(e){str+='<b style="color:red;">!error!</b>';}else str+='<span style="width:140px;word-wrap:break-word;display:block;">'+j.msg+'</span>';
 		str+='<span class="cfeed">'+ fmtDateTimeWithDay2(j.sent_dttm)
 			+'</span></td><td width=5></td><td width=24 valign=top>'+getPPicImgTag(j.sender_user_id)+'</td></tr><tr height=10><td colspan=5></td></tr>';
@@ -4348,7 +4344,7 @@ function fmtChatList(j){
 function fmtOnlineUser(j){
 	var str='<table border=0 width=100% padding=0 style="margin-left:-1px;"';
 	if(j.not_read_count>0)str+=" class='veliSelLightBlue'";
-	str+='><tr><td width=24><img src="sf/pic'+j.user_id+'.png" '+(j.chat_status_tip? 'style="border-width: 3px;borderborder-color:'+usersBorderChat[j.chat_status_tip-1]+'" ':'')+' class="ppic-mini"></td><td width=99%> <span>&nbsp; ';
+	str+='><tr><td width=24><img src="sf/pic'+j.user_id+'.png" '+(j.chat_status_tip? 'style="border-width: 3px;border-color:'+usersBorderChat[j.chat_status_tip-1]+'" ':'')+' class="ppic-mini"></td><td width=99%> <span>&nbsp; ';
 	if(j.dsc.length>20)j.dsc=j.dsc.substring(0,18)+'...';
 	str+=j.dsc+'</span>';
 	if(j.not_read_count>0)str+='&nbsp; <span id="idChatNotRead_'+j.user_id+'" style="color:red;">('+(j.not_read_count>9 ? '+9':j.not_read_count)+')</span>';

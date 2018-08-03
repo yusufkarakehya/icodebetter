@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -85,6 +86,7 @@ import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFieldCalculated;
 import iwb.domain.db.W5TableFilter;
 import iwb.domain.db.W5TableParam;
+import iwb.domain.db.W5VcsCommit;
 import iwb.domain.db.W5TableEvent;
 import iwb.domain.db.W5Page;
 import iwb.domain.db.W5PageObject;
@@ -568,8 +570,9 @@ public class PostgreSQL extends BaseDAO {
 
    				sql2.append(" from ").append(tqf.getDsc()).append(" x where x.").append(tqf.get_tableParamList().get(0).getExpressionDsc()).append("=z.").append(qf.getDsc());
 
-   				if(tqf.get_tableParamList().size()==2 && tqf.get_tableParamList().get(1).getDsc().equals("customizationId")){
-	   				sql2.append(" AND x.customization_id=").append(queryResult.getScd().get("customizationId"));
+   				if(tqf.get_tableParamList().size()>1){
+   					if(tqf.get_tableParamList().get(1).getDsc().equals("customizationId"))sql2.append(" AND x.customization_id=").append(queryResult.getScd().get("customizationId"));
+   					else if(tqf.get_tableParamList().get(1).getDsc().equals("projectId"))sql2.append(" AND x.project_uuid='").append(queryResult.getScd().get("projectId")).append("'");
    				}
    				sql2.append(") ").append(qf.getDsc()).append("_qw_ ");
    				W5QueryField field = new W5QueryField();
@@ -592,8 +595,9 @@ public class PostgreSQL extends BaseDAO {
 
    				sql2.append(" from ").append(tqf.getDsc()).append(" x where x.").append(tqf.get_tableParamList().get(0).getExpressionDsc()).append(" in (select q.satir::int from iwb.tool_parse_numbers(z.").append(qf.getDsc()).append(",',') q)");
 
-   				if(tqf.get_tableParamList().size()==2 && tqf.get_tableParamList().get(1).getDsc().equals("customizationId")){
-	   				sql2.append(" AND x.customization_id=").append(queryResult.getScd().get("customizationId"));
+   				if(tqf.get_tableParamList().size()>1){
+   					if(tqf.get_tableParamList().get(1).getDsc().equals("customizationId"))sql2.append(" AND x.customization_id=").append(queryResult.getScd().get("customizationId"));
+   					else if(tqf.get_tableParamList().get(1).getDsc().equals("projectId"))sql2.append(" AND x.project_uuid='").append(queryResult.getScd().get("projectId")).append("'");
    				}
    				sql2.append(") ").append(qf.getDsc()).append("_qw_ ");
    				W5QueryField field = new W5QueryField();
@@ -795,7 +799,7 @@ public class PostgreSQL extends BaseDAO {
 						if(grdOrFcId!=0){
 							boolean mobile = GenericUtil.uInt(queryResult.getScd().get("mobile"))!=0;
 							String sessionId =  mobile ? (String)queryResult.getScd().get("mobileDeviceId"):(String)queryResult.getScd().get("sessionId");
-							liveSyncKeys = UserUtil.getTableGridFormCellCachedKeys((Integer)queryResult.getScd().get("customizationId"), mainTable.getTableId(), (Integer)queryResult.getScd().get("userId"), sessionId, 
+							liveSyncKeys = UserUtil.getTableGridFormCellCachedKeys((String)queryResult.getScd().get("projectId"), mainTable.getTableId(), (Integer)queryResult.getScd().get("userId"), sessionId, 
 									mobile ? sessionId : queryResult.getRequestParams().get(".w"),queryResult.getRequestParams().get(".t"), grdOrFcId, queryResult.getRequestParams(), true);
 //							if(liveSyncKeys!=null)liveSyncKeys.clear(); !queryResult.getScd().containsKey("mobile") ||
 						}
@@ -1106,7 +1110,7 @@ public class PostgreSQL extends BaseDAO {
 //    				newList = lookUp.get_detayList();
     			}
 				List<W5LookUpDetay> newList2 = new ArrayList<W5LookUpDetay>(newList.size());
-				if(tabId!=null)keys = UserUtil.getTableGridFormCellCachedKeys((Integer)scd.get("customizationId"), -c.getLookupQueryId(), (Integer)scd.get("userId"),(String)scd.get("sessionId"), 
+				if(tabId!=null)keys = UserUtil.getTableGridFormCellCachedKeys((String)scd.get("projectId"), -c.getLookupQueryId(), (Integer)scd.get("userId"),(String)scd.get("sessionId"), 
 						requestParams.get(".w"),tabId, -c.getFormCellId(), requestParams, false);
 				for(W5LookUpDetay ld:newList){
 					newList2.add(ld);
@@ -1179,7 +1183,7 @@ public class PostgreSQL extends BaseDAO {
     	    	if(lookupQueryResult.getErrorMap().isEmpty()){
     	    		runQuery(lookupQueryResult);
     				if(tabId!=null && lookupQueryResult.getQuery().getMainTableId()!=0 && requestParams.get(".w")!=null){
-    					keys = UserUtil.getTableGridFormCellCachedKeys((Integer)scd.get("customizationId"), lookupQueryResult.getQuery().getMainTableId(), (Integer)scd.get("userId"),(String)scd.get("sessionId"), 
+    					keys = UserUtil.getTableGridFormCellCachedKeys((String)scd.get("projectId"), lookupQueryResult.getQuery().getMainTableId(), (Integer)scd.get("userId"),(String)scd.get("sessionId"), 
     						requestParams.get(".w"),tabId, -c.getFormCellId(), requestParams, true);
     						if(keys!=null)for(Object[] o:lookupQueryResult.getData())keys.add(GenericUtil.uInt(o[1]));
     				}
@@ -2983,6 +2987,8 @@ public class PostgreSQL extends BaseDAO {
 		List<W5Project> lp = cid==-1 ? (List<W5Project>)find("from W5Project t"):(List<W5Project>)find("from W5Project t where t.customizationId=?",cid); 
 		if(lp!=null)for(W5Project p : lp){
 			FrameworkCache.addProject(p);
+			FrameworkSetting.projectSystemStatus.put(p.getProjectUuid(), 0);
+
 			/*if(FrameworkSetting.tsdbFlag && p.getTsdbFlag()!=0 && !GenericUtil.isEmpty(p.getTsdbUrl()))try{
 				p.set_tsdb(InfluxDBFactory.connect(p.getTsdbUrl(), p.getTsdbUserName(), p.getTsdbPassWord()));
 			}catch(Exception e){
@@ -3072,11 +3078,12 @@ public class PostgreSQL extends BaseDAO {
 	}
 	
 	
-	public void reloadMobileCache(){
+	public void reloadMobileCache(){//TODO
+		if(true)return;
 		UserUtil.clearDevices();
 		List<Object[]> l = (List<Object[]>)executeSQLQuery("select r.mobile_device_id, r.user_id, r.customization_id, r.device_tip, r.last_login_dttm  from iwb.w5_mobile_device r where r.active_flag=1");
 		if(l!=null)for(Object[] o:l){
-			UserUtil.addDevice(o[0].toString(), GenericUtil.uInt(o[1]), GenericUtil.uInt(o[2]), (short)GenericUtil.uInt(o[3]), ((Date)o[4]).getTime());
+//			UserUtil.addDevice(o[0].toString(), GenericUtil.uInt(o[1]), GenericUtil.uInt(o[2]), (short)GenericUtil.uInt(o[3]), ((Date)o[4]).getTime());
 		}
 	}
 	
@@ -3199,7 +3206,7 @@ public class PostgreSQL extends BaseDAO {
 	public void reloadUsersCache(String projectId){	 //customizationID ??
 		List<Object[]> l = (List<Object[]>)executeSQLQuery("select x.customization_id, x.user_id, x.user_name, x.dsc, 1 allow_multi_login_flag, x.profile_picture_id from iwb.w5_user x "+(projectId!=null ? (" where x.project_uuid='"+projectId+"'"):""));
 		if(l!=null)for(Object[] m : l){
-			UserUtil.addUserWithProfilePicutre(GenericUtil.uInt(m[0]),GenericUtil.uInt(m[1]),(String)m[2],(String)m[3],GenericUtil.uInt(m[4])!=0,GenericUtil.uInt(m[5])); 
+			UserUtil.addUserWithProfilePicutre(GenericUtil.uInt(m[1]),(String)m[2],(String)m[3],GenericUtil.uInt(m[4])!=0,GenericUtil.uInt(m[5])); 
 		}
 	}
 	
@@ -3332,10 +3339,14 @@ public class PostgreSQL extends BaseDAO {
 		for(W5Customization c:customizationList)FrameworkCache.wCustomizationMap.put(c.getCustomizationId(), c);
 		
 		for(W5Project p:lp){
+			FrameworkCache.clearPreloadCache(p.getProjectUuid());
 			reloadProjectCaches(p.getProjectUuid());
 		}
 		
-
+		List<Object[]> ll = executeSQLQuery("select x.related_project_uuid, string_agg(x.user_id::text,',') from iwb.w5_user_related_project x group by x.related_project_uuid");
+		if(ll!=null)for(Object[] oo:ll)UserUtil.addProjectUsers(oo[0].toString(), oo[1].toString());
+		ll = executeSQLQuery("select x.project_uuid, string_agg(x.user_id::text,',') from iwb.w5_user x group by x.project_uuid");
+		if(ll!=null)for(Object[] oo:ll)UserUtil.addProjectUsers(oo[0].toString(), oo[1].toString());
 
 	}
 	
@@ -4952,7 +4963,7 @@ public class PostgreSQL extends BaseDAO {
 			StringBuilder sql = new StringBuilder();
 			sql.append("select count(1) xcount");
 			if(ct.getMakeCommentFlag()!=0){
-				sql.append(",sum((select count(1) from iwb.w5_comment c where c.customization_id=").append(scd.get("customizationId")).append(" AND c.table_id=").append(ct.getTableId()).append(" AND c.table_pk=x.").append(ct.get_tableParamList().get(0).getExpressionDsc()).append("::text)) xcomment_count");
+				sql.append(",sum((select count(1) from iwb.w5_comment c where c.project_uuid='").append(scd.get("projectId")).append("' AND c.table_id=").append(ct.getTableId()).append(" AND c.table_pk=x.").append(ct.get_tableParamList().get(0).getExpressionDsc()).append(")) xcomment_count");
 			}
 			if(ct.getFileAttachmentFlag()!=0){
 				sql.append(",sum((select count(1) from iwb.w5_file_attachment c where c.customization_id=").append(scd.get("customizationId")).append(" AND c.table_id=").append(ct.getTableId()).append(" AND c.table_pk=x.").append(ct.get_tableParamList().get(0).getExpressionDsc()).append("::text)) xfile_count");
@@ -5026,33 +5037,33 @@ public class PostgreSQL extends BaseDAO {
 		int extraSqlCount=0;
 		StringBuilder extraSql=new StringBuilder();
 		
-		if(FrameworkCache.getAppSettingIntValue(scd, "file_attachment_flag")!=0 && t.getFileAttachmentFlag()!=0){
+/*		if(FrameworkCache.getAppSettingIntValue(scd, "file_attachment_flag")!=0 && t.getFileAttachmentFlag()!=0){
 			extraSql.append("(select count(1) cnt from iwb.w5_file_attachment x where x.customization_id=? AND x.table_id=? AND x.table_pk=?::text) file_attach_count");
 			extraSqlCount++;
-		} else result.setFileAttachmentCount(-1);
+		} else */result.setFileAttachmentCount(-1);
 		if(FrameworkCache.getAppSettingIntValue(scd, "make_comment_flag")!=0 && t.getMakeCommentFlag()!=0){
 			if(extraSql.length()>0)extraSql.append(",");
-			extraSql.append("(select count(1) cnt from iwb.w5_comment x where x.customization_id=? AND x.table_id=? AND x.table_pk=?::text) comment_count");
+			extraSql.append("(select count(1) cnt from iwb.w5_comment x where x.project_uuid=? AND x.table_id=? AND x.table_pk=?::integer) comment_count");
 			extraSqlCount++;
 		} else result.setCommentCount(-1);
 
-		if(FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && (Integer)scd.get("userTip")!=3 && t.getAccessTips()!=null && t.getAccessTips().length()>0){
+/*		if(FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && (Integer)scd.get("userTip")!=3 && t.getAccessTips()!=null && t.getAccessTips().length()>0){
 			if(extraSql.length()>0)extraSql.append(",");
 			extraSql.append("(select count(1) cnt from iwb.w5_access_control x where x.customization_id=? AND x.table_id=? AND x.table_pk=?) access_count");
 			extraSqlCount++;
 		} else result.setAccessControlCount(-1);
-
+*/
 		List<Object> params= new ArrayList(extraSqlCount*3+5);
 		for(int qi=0;qi<extraSqlCount;qi++){
-			params.add(scd.get("customizationId"));
+			params.add(scd.get("projectId"));
 			params.add(tableId);
 			params.add(tablePk);
 		}
 
 		if(FrameworkCache.getAppSettingIntValue(scd, "form_conversion_flag")!=0){
 			if(extraSql.length()>0)extraSql.append(",");
-			extraSql.append("(select count(1) cnt from iwb.w5_converted_object y, iwb.w5_conversion x where x.active_flag=1 AND x.customization_id=? AND x.customization_id=y.customization_id AND x.conversion_id=y.conversion_id AND x.src_table_id=? AND y.src_table_pk=?) conversion_count");
-			params.add(scd.get("customizationId"));
+			extraSql.append("(select count(1) cnt from iwb.w5_converted_object y, iwb.w5_conversion x where x.active_flag=1 AND x.project_uuid=? AND x.project_uuid=y.project_uuid AND x.conversion_id=y.conversion_id AND x.src_table_id=? AND y.src_table_pk=?) conversion_count");
+			params.add(scd.get("projectId"));
 			params.add(tableId);
 			params.add(tablePk);
 			extraSqlCount++;
@@ -5268,7 +5279,10 @@ public class PostgreSQL extends BaseDAO {
 		if(GenericUtil.isEmpty(t.get_tableParamList()))return "TableParam not Found ;)";
 		StringBuilder sql = new StringBuilder();
 		sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-		if(t.get_tableParamList().size()>1)sql.append(" AND x.customization_id=").append(scd.get("customizationId"));
+		if(t.get_tableParamList().size()>1){
+			if(t.get_tableParamList().get(1).getDsc().equals("customizationId"))sql.append(" AND x.customization_id=").append(scd.get("customizationId"));
+			else if(t.get_tableParamList().get(1).getDsc().equals("projectId"))sql.append(" AND x.project_uuid='").append(scd.get("projectId")).append("'");
+		}
 		Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 		List summaryParams = (List)res[1];summaryParams.add(tablePk);
 		List l = executeSQLQuery2(((StringBuilder)res[0]).toString(), summaryParams);
@@ -6231,7 +6245,7 @@ public class PostgreSQL extends BaseDAO {
 					}
 					break;
 				case	20: case 53://user
-					for(Object k:stackSet)lm.put(k, GenericUtil.uStrMax( UserUtil.getUserDsc(customizationId, GenericUtil.uInt(k)),20));
+					for(Object k:stackSet)lm.put(k, GenericUtil.uStrMax( UserUtil.getUserDsc(GenericUtil.uInt(k)),20));
 				}
 				result.put("lookUp", lm);
 			} else {
@@ -6280,7 +6294,7 @@ public class PostgreSQL extends BaseDAO {
 					for(Map m:l){
 						Object o2 = m.get("id");
 						if(o2!=null && GenericUtil.uInt(o2)!=-999999){
-							m.put("dsc", GenericUtil.uStrNvl(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(o2)),"user-"+o2) );
+							m.put("dsc", GenericUtil.uStrNvl(UserUtil.getUserDsc(GenericUtil.uInt(o2)),"user-"+o2) );
 						}
 						
 					}
@@ -6508,7 +6522,7 @@ public class PostgreSQL extends BaseDAO {
 						}
 						break;
 					case	20: case 53://user
-						for(Object k:stackSet)lm.put(k, GenericUtil.uStrMax( UserUtil.getUserDsc((Integer)scd.get("customizationId"), GenericUtil.uInt(k)),20));
+						for(Object k:stackSet)lm.put(k, GenericUtil.uStrMax( UserUtil.getUserDsc(GenericUtil.uInt(k)),20));
 					}
 					result.put("lookUp", lm);
 				} else {
@@ -7130,6 +7144,70 @@ public class PostgreSQL extends BaseDAO {
 			}
 		}
 		return lm;
+	}
+	
+	public boolean copyProject(Map scd,  String newProjectId, int dstCustomizationId){
+		String projectId = (String)scd.get("projectId");
+		if(projectId.equals(newProjectId))return false;
+		W5Project po = FrameworkCache.getProject(projectId), npo = null;
+//		int customizationId = (Integer)scd.get("customizationId");
+		int userId = (Integer)scd.get("userId");
+//		int dstCustomizationId = customizationId;
+//		int smaxSqlCommit = 0;
+		String schema = "c"+GenericUtil.lPad(dstCustomizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
+		executeUpdateSQLQuery("set search_path="+schema);
+		
+		npo =  (W5Project)find("from W5Project w where w.projectUuid=?", newProjectId).get(0);
+		
+		List<W5VcsCommit> sqlCommits = find("from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=? order by abs(t.vcsCommitId)", projectId);
+		for(W5VcsCommit o:sqlCommits){
+			if(!GenericUtil.isEmpty(o.getExtraSql())){
+				W5VcsCommit no = o.newInstance(newProjectId);
+				if(o.getVcsCommitId()>0)no.setVcsCommitId(-no.getVcsCommitId());
+				while(no.getExtraSql().contains(po.getRdbmsSchema()))no.setExtraSql(no.getExtraSql().replace(po.getRdbmsSchema(), schema));
+				saveObject(no);
+				if(o.getVcsCommitId()>0)executeUpdateSQLQuery(no.getExtraSql());
+			}
+		}
+		
+//		executeUpdateSQLQuery("delete from iwb.w5_vcs_object x where x.project_uuid=? AND not exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk AND z.vcs_commit_id=x.vcs_commit_id)", newProjectId, projectId);
+		
+		executeUpdateSQLQuery("INSERT INTO iwb.w5_vcs_object(vcs_object_id, table_id, table_pk, customization_id, project_uuid, vcs_commit_id, vcs_commit_record_hash, vcs_object_status_tip) "
+				+ "select nextval('iwb.seq_vcs_object'), x.table_id, x.table_pk, ?, ?, 1, x.vcs_commit_record_hash, 2 from iwb.w5_vcs_object x where x.vcs_object_status_tip not in (3,8) AND x.project_uuid=? AND not exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk)"
+				, dstCustomizationId, newProjectId, projectId, newProjectId);
+		
+		List<Object> ll3 = executeSQLQuery("select x.table_id from iwb.w5_vcs_object x where x.project_uuid=? group by x.table_id order by x.table_id", projectId);
+		if(ll3!=null)for(Object o:ll3){
+			StringBuilder sql = new StringBuilder();
+			W5Table t = FrameworkCache.getTable(0, GenericUtil.uInt(o));
+			String pkField = t.get_tableParamList().get(0).getExpressionDsc();
+			sql.append("delete from ").append(t.getDsc()).append(" x where x.project_uuid=? AND x.oproject_uuid=? AND not exists(select 1 from ").append(t.getDsc())
+				.append(" z where z.project_uuid=? AND z.").append(pkField).append("=x.").append(pkField);
+			for(W5TableField tf:t.get_tableFieldList())if(tf.getTabOrder()>1 && !GenericUtil.hasPartInside2("customization_id,project_uuid,oproject_uuid,version_no,insert_user_id,version_user_id,insert_dttm,version_dttm", tf.getDsc())){
+				sql.append(" AND x.").append(tf.getDsc()).append("=z.").append(tf.getDsc());
+			}
+			sql.append(")");
+			executeUpdateSQLQuery(sql.toString(), newProjectId, projectId, projectId);
+			
+			sql.setLength(0);
+			StringBuilder sql2 = new StringBuilder();
+			sql.append("insert into ").append(t.getDsc()).append("(");
+			for(W5TableField tf:t.get_tableFieldList())if(!GenericUtil.hasPartInside2("customization_id,project_uuid,oproject_uuid,version_no,insert_user_id,version_user_id,insert_dttm,version_dttm", tf.getDsc())){
+				sql.append(tf.getDsc()).append(",");
+				sql2.append(tf.getDsc()).append(",");
+			}
+			sql.append("customization_id,project_uuid,oproject_uuid)");
+			sql2.append("?,?,?");
+			sql.append(" select ").append(sql2).append(" from ").append(t.getDsc()).append(" x where x.project_uuid=? AND not exists(select 1 from ").append(t.getDsc())
+				.append(" z where z.project_uuid=? AND z.").append(pkField).append("=x.").append(pkField).append(")");
+			executeUpdateSQLQuery(sql.toString(), dstCustomizationId, newProjectId, projectId, projectId, newProjectId);
+		}
+		List ll = executeSQLQuery("select 1 from iwb.w5_project_related_project where project_uuid=? AND related_project_uuid=?", newProjectId, projectId);
+		if(GenericUtil.isEmpty(ll))executeUpdateSQLQuery("INSERT INTO iwb.w5_project_related_project(project_uuid, related_project_uuid, insert_user_id,version_user_id) "
+				+ "VALUES (?, ?, ?, ?)", newProjectId, projectId, userId, userId);
+
+		return true;
+		
 	}
 }
 

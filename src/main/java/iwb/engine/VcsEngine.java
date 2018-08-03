@@ -1819,7 +1819,7 @@ public class VcsEngine {
 						m2.put("id", tableId + "." + tablePk);
 						W5VcsObject vo = l2.get(0);
 						m2.put("user_id", vo.getVersionUserId());
-						String userDsc = UserUtil.getUserName(customizationId, vo.getVersionUserId());
+						String userDsc = UserUtil.getUserName(vo.getVersionUserId());
 						if(!GenericUtil.isEmpty(userDsc))m2.put("user_dsc", userDsc);
 						m2.put("commit_dttm", GenericUtil.uFormatDateTime(vo.getVersionDttm()));
 						l.add(m2);
@@ -2981,7 +2981,11 @@ public class VcsEngine {
 			dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 			int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId, 0, cusId);
 			dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", cusId, projectId);
-			
+			Map newScd = new HashMap();newScd.put("projectId", projectId);newScd.put("customizationId", cusId);newScd.put("userId", userId);
+			W5VcsObject vo = new W5VcsObject(newScd, 369, userTip);
+			vo.setVcsObjectStatusTip((short)9);
+			dao.saveObject(vo);
+
 			dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
 			
 			dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)", 
@@ -3000,9 +3004,9 @@ public class VcsEngine {
 			List<Map> tList = dao.executeSQLQuery2Map("select t.* from iwb.w5_user_tip t where t.customization_id=?", params);
 			map.put("userTips", tList);
 			
-//			FrameworkSetting.projectSystemStatus.put(cusId, 0);
 			FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
 			FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, projectId).get(0));
+			FrameworkSetting.projectSystemStatus.put(projectId, 0);
 			//Map cache = FrameworkCache.reloadCacheQueue();
 		}
 		return map;
@@ -3110,6 +3114,8 @@ public class VcsEngine {
 		}
 		
 		FrameworkCache.addProject(npo);
+		FrameworkSetting.projectSystemStatus.put(npo.getProjectUuid(), 0);
+
 		return result;
 		
 	}
@@ -3238,10 +3244,17 @@ public class VcsEngine {
 		}
 
 		*/
-		if(GenericUtil.isEmpty(ll2))
+		if(GenericUtil.isEmpty(ll2)){
 			FrameworkCache.addProject(npo);
+			FrameworkSetting.projectSystemStatus.put(npo.getProjectUuid(), 0);
+		}
 				
 		return result;
+	}
+	public boolean vcsClientImportProject(Map<String, Object> scd, String projectId, String importedProjectId) {
+		Map<String, Object> newScd = new HashMap();
+		newScd.putAll(scd);newScd.put("projectId", importedProjectId);
+		return dao.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
 	}
 	
 

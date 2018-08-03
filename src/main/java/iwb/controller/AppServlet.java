@@ -125,9 +125,11 @@ public class AppServlet implements InitializingBean {
 		// if(PromisSetting.checkLicenseFlag)engine.checkLicences();
 		// dao.organizeAudit();
 		engine.setJVMProperties(0);
+		try{
 		manPicPath = new ClassPathResource("static/ext3.4.1/custom/images/man-64.png").getFile().getPath();
 		brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
 		womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
+		} catch(Exception e){}
 		ScriptEngine.taskExecutor = this.taskExecutor;
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
 		if(FrameworkSetting.logType==2)LogUtil.activateMQ();
@@ -165,7 +167,7 @@ public class AppServlet implements InitializingBean {
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    String uuid= request.getParameter("_uuid");
 	    boolean b = engine.changeActiveProject(scd, uuid);
-		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().write("{\"success\":"+b+", customizationId:"+scd.get("customizationId")+"}");
 		response.getWriter().close();		
 	}
 	
@@ -176,17 +178,17 @@ public class AppServlet implements InitializingBean {
 		logger.info("hndAjaxDebugSyncData");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		response.setContentType("application/json");
-		int customizationId = (Integer) scd.get("customizationId");
+		String projectId = (String) scd.get("projectId");
 		Map m = null;
 		switch (GenericUtil.uInt(request, "t")) {
 		case 0:
-			m = UserUtil.getRecordEditMapInfo(customizationId);
+			m = UserUtil.getRecordEditMapInfo(projectId);
 			break;
 		case 1:
-			m = UserUtil.getUserMapInfo(customizationId);
+			m = UserUtil.getUserMapInfo(projectId);
 			break;
 		case 2:
-			m = UserUtil.getGridSyncMapInfo(customizationId);
+			m = UserUtil.getGridSyncMapInfo(projectId);
 			break;
 
 		}
@@ -504,8 +506,8 @@ public class AppServlet implements InitializingBean {
 		String webPageId = request.getParameter(".w");
 		String tabId = request.getParameter(".t");
 		int userId = (Integer) scd.get("userId");
-		int customizationId = (Integer) scd.get("customizationId");
-		String s = GenericUtil.fromMapToJsonString2Recursive(UserUtil.syncGetTabNotifications(customizationId, userId,
+		String projectId = (String) scd.get("projectId");
+		String s = GenericUtil.fromMapToJsonString2Recursive(UserUtil.syncGetTabNotifications(projectId, userId,
 				(String) scd.get("sessionId"), webPageId, tabId));
 		response.setContentType("application/json");
 		response.getWriter().write(s);
@@ -540,7 +542,7 @@ public class AppServlet implements InitializingBean {
 				session.removeAttribute("scd-dev");
 			} else {
 				scd.put("locale", oldScd == null ? session.getAttribute("locale"): oldScd.get("locale"));
-				UserUtil.removeUserSession((Integer) scd.get("customizationId"), (Integer) scd.get("userId"), session.getId());
+				UserUtil.removeUserSession((Integer) scd.get("userId"), session.getId());
 				session.removeAttribute("scd-dev");
 				if (FrameworkCache.getAppSettingIntValue(0, "interactive_tutorial_flag") != 0) {
 					String ws = (String) scd.get("widgetIds");
@@ -825,7 +827,7 @@ public class AppServlet implements InitializingBean {
 		}
 
 		Object chatId = formResult.getOutputFields().get("chat_id");
-		List<W5QueuedPushMessageHelper> l = UserUtil.publishUserChatMsg((Integer) scd.get("customizationId"),
+		List<W5QueuedPushMessageHelper> l = UserUtil.publishUserChatMsg(
 				(Integer) scd.get("userId"), userId, msg, chatId);
 		response.getWriter().write("{\"success\":true, \"delivered_cnt\":1, \"chatId\":"+chatId+"}");
 		response.getWriter().close();
@@ -1185,7 +1187,7 @@ public class AppServlet implements InitializingBean {
 				.write(getViewAdapter(scd, request).serializeFeeds(scd, platestFeedIndex, pfeedTip, proleId, puserId, pmoduleId).toString());
 		response.getWriter().close();
 		if (FrameworkSetting.liveSyncRecord) {
-			UserUtil.getTableGridFormCellCachedKeys((Integer) scd.get("customizationId"),
+			UserUtil.getTableGridFormCellCachedKeys((String) scd.get("projectId"),
 					/* mainTable.getTableId() */ 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
 					request.getParameter(".w"), request.getParameter(".t"), /* grdOrFcId */ 919, null, true);
 		}
@@ -1283,7 +1285,7 @@ public class AppServlet implements InitializingBean {
 		if (session != null) {
 			Map<String, Object> scd = (Map) session.getAttribute("scd-dev");
 			if (scd != null) {
-				UserUtil.onlineUserLogout((Integer) scd.get("customizationId"), (Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
+				UserUtil.onlineUserLogout((Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
 				if(scd.containsKey("mobile")){
 					Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", scd.get("mobileDeviceId"));parameterMap.put("pactive_flag", 0);
 					engine.executeFunc(scd, 673, parameterMap, (short)7);
@@ -1321,7 +1323,7 @@ public class AppServlet implements InitializingBean {
 			if (session.getAttribute("scd-dev") != null) {
 				Map<String, Object> scd = (Map<String, Object>) session.getAttribute("scd-dev");
 				if (scd != null)
-					UserUtil.onlineUserLogout((Integer) scd.get("customizationId"), (Integer) scd.get("userId"),
+					UserUtil.onlineUserLogout( (Integer) scd.get("userId"),
 							(String) scd.get("sessionId"));
 			}
 			session.removeAttribute("scd-dev");

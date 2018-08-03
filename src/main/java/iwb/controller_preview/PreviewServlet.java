@@ -337,8 +337,8 @@ public class PreviewServlet implements InitializingBean {
 		String webPageId = request.getParameter(".w");
 		String tabId = request.getParameter(".t");
 		int userId = (Integer) scd.get("userId");
-		int customizationId = (Integer) scd.get("customizationId");
-		String s = GenericUtil.fromMapToJsonString2Recursive(UserUtil.syncGetTabNotifications(customizationId, userId,
+		String projectId = (String) scd.get("projectId");
+		String s = GenericUtil.fromMapToJsonString2Recursive(UserUtil.syncGetTabNotifications(projectId, userId,
 				(String) scd.get("sessionId"), webPageId, tabId));
 		response.setContentType("application/json");
 		response.getWriter().write(s);
@@ -374,7 +374,7 @@ public class PreviewServlet implements InitializingBean {
 		}
 
 		Object chatId = formResult.getOutputFields().get("chat_id");
-		List<W5QueuedPushMessageHelper> l = UserUtil.publishUserChatMsg((Integer) scd.get("customizationId"),
+		List<W5QueuedPushMessageHelper> l = UserUtil.publishUserChatMsg(
 				(Integer) scd.get("userId"), userId, msg, chatId);
 		response.getWriter().write("{\"success\":true, \"delivered_cnt\":1, \"chatId\":"+chatId+"}");
 		response.getWriter().close();
@@ -661,7 +661,7 @@ public class PreviewServlet implements InitializingBean {
 				.write(getViewAdapter(scd, request).serializeFeeds(scd, platestFeedIndex, pfeedTip, proleId, puserId, pmoduleId).toString());
 		response.getWriter().close();
 		if (FrameworkSetting.liveSyncRecord) {
-			UserUtil.getTableGridFormCellCachedKeys((Integer) scd.get("customizationId"),
+			UserUtil.getTableGridFormCellCachedKeys((String) scd.get("projectId"),
 					/* mainTable.getTableId() */ 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
 					request.getParameter(".w"), request.getParameter(".t"), /* grdOrFcId */ 919, null, true);
 		}
@@ -747,7 +747,7 @@ public class PreviewServlet implements InitializingBean {
 		if (session != null) {
 			Map<String, Object> scd = (Map) session.getAttribute("scd-dev");
 			if (scd != null) {
-				UserUtil.onlineUserLogout((Integer) scd.get("customizationId"), (Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
+				UserUtil.onlineUserLogout((Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
 				if(scd.containsKey("mobile")){
 					Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", scd.get("mobileDeviceId"));parameterMap.put("pactive_flag", 0);
 					engine.executeFunc(scd, 673, parameterMap, (short)4);
