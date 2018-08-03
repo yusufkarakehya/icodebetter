@@ -683,6 +683,20 @@ public class VcsServlet implements InitializingBean {
 		response.getWriter().close();
 	}
 	
+	@RequestMapping("/ajaxVCSClientSynchProject")
+	public void hndAjaxVCSClientSynchProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException, JSONException {
+    	int tableId = GenericUtil.uInt(request, "t");
+		logger.info("hndAjaxVCSClientSynchProject("+tableId+")"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+    	Map m = vcsEngine.vcsClientLocaleMsgSynch(scd);
+    	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
+		response.getWriter().close();
+	}
+	
 	@RequestMapping("/serverVCSLocaleMsgPushAll")
 	public void hndServerVCSLocaleMsgPushAll(
 			HttpServletRequest request,

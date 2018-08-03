@@ -23,18 +23,19 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
 
           //self = self;
 
-          var childrenCount = self.ownerCt.container.dom.children.length;
-          //console.log("window: ", window);
-
-          //console.log("element: ", self.getEl());
-          //console.log("ownerCt: ", self.ownerCt);
-          //console.log("container: ", self.ownerCt.container);
+          console.log("element: ", self.getEl());
+          console.log("ownerCt: ", self.ownerCt);
+          console.log("container: ", self.ownerCt.container);
           
+          //self.ownerCt.el.dom.style = {minHeight: "500px", maxHeight: "2000px"};
+          //self.ownerCt.container.dom.style = {minHeight: "500px", maxHeight: "2000px"};
           
           var containerHeight = self.ownerCt.container.dom.clientHeight;
           //console.log('container height: ', containerHeight);
           if(containerHeight<500){
             containerHeight=500;
+            self.ownerCt.setHeight(500);
+            self.ownerCt.container.setHeight(500);
           }
           self.setHeight(containerHeight);          
           //console.log("render ownerCt height: ", self.el.dom.clientHeight);         
@@ -44,7 +45,7 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
             //console.log("hey it's resized... ");
             self.editor.layout();
             containerHeight = self.ownerCt.container.dom.clientHeight;
-            //console.log("containerHeight: ", containerHeight);
+            console.log("containerHeight: ", containerHeight);
             self.setHeight(containerHeight);
             self.editor.layout();
           };
