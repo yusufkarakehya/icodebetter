@@ -146,6 +146,21 @@ public class W5VcsObject  implements java.io.Serializable {
 		this.versionDttm = versionDttm;
 	}
 	
-	
+
+	public W5VcsObject newInstance(int newCustomizationId, String newProjectUuid){
+		W5VcsObject n = new W5VcsObject();
+		n.setCustomizationId(newCustomizationId);
+		n.setInsertUserId(insertUserId);
+		n.setProjectUuid(newProjectUuid);
+		n.setTableId(tableId);
+		n.setTablePk(tablePk);
+		n.setVcsCommitId(vcsCommitId);
+		n.setVcsCommitRecordHash(vcsCommitRecordHash);
+		n.setVcsObjectStatusTip(vcsObjectStatusTip);
+		n.setVersionUserId(versionUserId);
+		n.setVersionDttm(versionDttm);
+		return n;
+		
+	}
 	
 }

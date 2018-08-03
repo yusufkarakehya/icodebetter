@@ -19,7 +19,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_db_func",schema="iwb")
-public class W5DbFunc implements java.io.Serializable {
+public class W5GlobalFunc implements java.io.Serializable {
 
 	private int dbFuncId;
 
@@ -37,7 +37,7 @@ public class W5DbFunc implements java.io.Serializable {
 	private short lkpCodeType;
 
 	
-	private List<W5DbFuncParam> _dbFuncParamList;
+	private List<W5GlobalFuncParam> _dbFuncParamList;
 
 	
 	@Column(name="log_level_tip")	
@@ -49,7 +49,7 @@ public class W5DbFunc implements java.io.Serializable {
 		this.logLevelTip = logLevelTip;
 	}
 
-	public W5DbFunc() {
+	public W5GlobalFunc() {
 	}
 
 	@Id
@@ -73,11 +73,11 @@ public class W5DbFunc implements java.io.Serializable {
 	}
 	
 	@Transient
-	public List<W5DbFuncParam> get_dbFuncParamList() {
+	public List<W5GlobalFuncParam> get_dbFuncParamList() {
 		return _dbFuncParamList;
 	}
 
-	public void set_dbFuncParamList(List<W5DbFuncParam> dbFuncParamList) {
+	public void set_dbFuncParamList(List<W5GlobalFuncParam> dbFuncParamList) {
 		_dbFuncParamList = dbFuncParamList;
 	}
 
@@ -145,5 +145,15 @@ public class W5DbFunc implements java.io.Serializable {
 		this.lkpCodeType = lkpCodeType;
 	}	
 	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

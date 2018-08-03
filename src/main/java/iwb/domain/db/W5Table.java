@@ -25,7 +25,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 
 	private int tableId;
 	private int customizationId;
-
 	private String dsc;
 	private String summaryRecordSql;
 
@@ -72,7 +71,7 @@ public class W5Table implements java.io.Serializable, W5Base {
 	private	short _hasApprovalViewControlFlag;
 	private short fileAttachmentFlag;
 
-	private	Map<Short,W5Approval>	_approvalMap;
+	private	Map<Short,W5Workflow>	_approvalMap;
 	private	List<W5TableField> _tableFieldList;
 	private	Map<Integer,W5TableField> _tableFieldMap;
 	private	List<W5TableParam> _tableParamList;
@@ -152,14 +151,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 		_tableParamList = tableParamList;
 	}
 
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	@Column(name="access_tips")
 	public String getAccessTips() {
@@ -376,10 +367,10 @@ public class W5Table implements java.io.Serializable, W5Base {
 	}
 	
 	@Transient
-	public Map<Short, W5Approval> get_approvalMap() {
+	public Map<Short, W5Workflow> get_approvalMap() {
 		return _approvalMap;
 	}
-	public void set_approvalMap(Map<Short, W5Approval> approvalMap) {
+	public void set_approvalMap(Map<Short, W5Workflow> approvalMap) {
 		_approvalMap = approvalMap;
 	}
 	
@@ -610,6 +601,25 @@ public class W5Table implements java.io.Serializable, W5Base {
 
 	public void setAccessSourceTypes(String accessSourceTypes) {
 		this.accessSourceTypes = accessSourceTypes;
+	}
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
+	@Column(name="customization_id")
+	public int getCustomizationId() {
+		return customizationId;
+	}
+
+	public void setCustomizationId(int customizationId) {
+		this.customizationId = customizationId;
 	}
 
 }

@@ -27,7 +27,7 @@ if(Ext.ux.TabCloseMenu)Ext.override(Ext.ux.TabCloseMenu,{
                     handler: this.onCloseAll
                 });
             }
-            if(_scd.customizerFlag && _scd.customizationId==0/* && this.tabs.getActiveTab()._callCfg.request._tid*/){
+            if(_scd.customizationId==0/* && this.tabs.getActiveTab()._callCfg.request._tid*/){
                 items.push('-');
                 items.push({
                     itemId: 'showhelp',

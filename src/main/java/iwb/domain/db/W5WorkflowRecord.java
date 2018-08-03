@@ -14,13 +14,12 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="w5_approval_record",schema="iwb")
-public class W5ApprovalRecord implements java.io.Serializable {
+public class W5WorkflowRecord implements java.io.Serializable {
 
 	private int approvalRecordId;
 	private int approvalStepId;
 	private int approvalId;
 
-	private int customizationId;
 	private String dsc;
 	private String approvalRoles;
 	private String approvalUsers;
@@ -180,14 +179,7 @@ public class W5ApprovalRecord implements java.io.Serializable {
 	public void setAccessViewUsers(String accessViewUsers) {
 		this.accessViewUsers = accessViewUsers;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="version_no")
 	public int getVersionNo() {
 		return versionNo;
@@ -203,17 +195,17 @@ public class W5ApprovalRecord implements java.io.Serializable {
 		this.hierarchicalLevel = hierarchicalLevel;
 	}
 	
-	public W5ApprovalRecord() {
+	public W5WorkflowRecord() {
 		super();
 		versionNo=1;
 	}
-	public W5ApprovalRecord(Map<String, Object> scd,int approvalStepId, int approvalId,
+	public W5WorkflowRecord(Map<String, Object> scd,int approvalStepId, int approvalId,
 			int tableId, short approvalActionTip,
 			short returnFlag) {
 		super();
 		this.approvalStepId = approvalStepId;
 		this.approvalId = approvalId;
-		this.customizationId = (Integer)scd.get("customizationId");
+		this.projectUuid = (String)scd.get("projectId");
 		this.insertUserId = (Integer)scd.get("userId");
 		this.versionUserId = (Integer)scd.get("userId");
 		this.tableId = tableId;
@@ -221,5 +213,15 @@ public class W5ApprovalRecord implements java.io.Serializable {
 		this.returnFlag = returnFlag;
 		this.versionNo=1;
 	}	
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

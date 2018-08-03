@@ -20,8 +20,6 @@ public class M5List implements java.io.Serializable {
 	private int listId;
 	private int parentListId;
 
-	private int customizationId;
-	
 	private String dsc;
 
 	private int queryId;
@@ -105,14 +103,6 @@ public class M5List implements java.io.Serializable {
 		_pkQueryField = pkQueryField;
 	}
 
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 	
 	
 	@Transient
@@ -242,5 +232,16 @@ public class M5List implements java.io.Serializable {
 		_menuItemList = menuItemList;
 	}
 	
+	private String projectUuid;
+
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

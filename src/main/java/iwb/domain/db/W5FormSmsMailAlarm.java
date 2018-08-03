@@ -19,7 +19,6 @@ public class W5FormSmsMailAlarm implements java.io.Serializable, W5Base {
 	private int formSmsMailAlarmId;
 	private int formSmsMailId;
 
-	private int customizationId;
 	private int tableId;
 	
 	private int tablePk;
@@ -63,14 +62,7 @@ public class W5FormSmsMailAlarm implements java.io.Serializable, W5Base {
 	public void setFormSmsMailId(int formSmsMailId) {
 		this.formSmsMailId = formSmsMailId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Override
 	public boolean safeEquals(W5Base q) {
 		// TODO Auto-generated method stub
@@ -120,9 +112,19 @@ public class W5FormSmsMailAlarm implements java.io.Serializable, W5Base {
 	}
 	public W5FormSmsMailAlarm(Map<String, Object> scd) {
 		super();
-		this.customizationId = (Integer)scd.get("customizationId");
+		this.projectUuid = (String)scd.get("projectUuid");
 		this.insertUserId = (Integer)scd.get("userId");
 		this.versionUserId = (Integer)scd.get("userId");
+	}
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 
 

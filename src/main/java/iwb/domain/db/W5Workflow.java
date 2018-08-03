@@ -17,18 +17,15 @@ import iwb.util.GenericUtil;
 @Entity
 @Immutable
 @Table(name="w5_approval", schema="iwb")
-public class W5Approval implements java.io.Serializable {
+public class W5Workflow implements java.io.Serializable {
 
 	private int approvalId;
 	
-	private int customizationId;
-
 	private String dsc;
 
 	private short activeFlag;
 	private int tableId;
 	private short actionTip;
-	private short approvalStrategyTip;
 	private short approvalFlowTip;
 	private short onRejectTip;
 	private String advancedBeginSql;
@@ -47,8 +44,8 @@ public class W5Approval implements java.io.Serializable {
 	private short sendSmsFlag;
 			
 
-	private List<W5ApprovalStep> _approvalStepList;
-	private Map<Integer,W5ApprovalStep> _approvalStepMap;
+	private List<W5WorkflowStep> _approvalStepList;
+	private Map<Integer, W5WorkflowStep> _approvalStepMap;
 	
 	@Id
 	@Column(name="approval_id")
@@ -58,14 +55,7 @@ public class W5Approval implements java.io.Serializable {
 	public void setApprovalId(int approvalId) {
 		this.approvalId = approvalId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="dsc")
 	public String getDsc() {
 		return dsc;
@@ -95,20 +85,13 @@ public class W5Approval implements java.io.Serializable {
 		this.actionTip = actionTip;
 	}
 	@Transient
-	public List<W5ApprovalStep> get_approvalStepList() {
+	public List<W5WorkflowStep> get_approvalStepList() {
 		return _approvalStepList;
 	}
-	public void set_approvalStepList(List<W5ApprovalStep> approvalStepList) {
+	public void set_approvalStepList(List<W5WorkflowStep> approvalStepList) {
 		_approvalStepList = approvalStepList;
 	}
 	
-	@Column(name="approval_strategy_tip")
-	public short getApprovalStrategyTip() {
-		return approvalStrategyTip;
-	}
-	public void setApprovalStrategyTip(short approvalStrategyTip) {
-		this.approvalStrategyTip = approvalStrategyTip;
-	}
 	@Column(name="approval_flow_tip")
 	public short getApprovalFlowTip() {
 		return approvalFlowTip;
@@ -131,10 +114,10 @@ public class W5Approval implements java.io.Serializable {
 		this.advancedBeginSql = advancedBeginSql;
 	}
 	@Transient
-	public Map<Integer, W5ApprovalStep> get_approvalStepMap() {
+	public Map<Integer, W5WorkflowStep> get_approvalStepMap() {
 		return _approvalStepMap;
 	}
-	public void set_approvalStepMap(Map<Integer, W5ApprovalStep> approvalStepMap) {
+	public void set_approvalStepMap(Map<Integer, W5WorkflowStep> approvalStepMap) {
 		_approvalStepMap = approvalStepMap;
 	}
 	
@@ -261,14 +244,13 @@ public class W5Approval implements java.io.Serializable {
 	@Transient
 	public boolean safeEquals(W5Base q){
 		if(q==null)return false;
-		W5Approval a = (W5Approval)q;
+		W5Workflow a = (W5Workflow)q;
 		boolean b =
 			this.approvalId==a.approvalId &&
 			GenericUtil.safeEquals(this.dsc,a.dsc) &&
 			this.activeFlag==a.approvalId &&
 			this.tableId==a.tableId &&
 			this.actionTip==a.actionTip &&
-			this.approvalStrategyTip==a.approvalStrategyTip &&
 			this.approvalFlowTip==a.approvalFlowTip &&
 			this.onRejectTip==a.onRejectTip &&
 			GenericUtil.safeEquals(this.advancedBeginSql,a.advancedBeginSql) &&
@@ -290,5 +272,16 @@ public class W5Approval implements java.io.Serializable {
 		if(!GenericUtil.safeEquals(this._approvalStepList, a._approvalStepList))return false;
 		
 		return true;
-	}	
+	}
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
 }

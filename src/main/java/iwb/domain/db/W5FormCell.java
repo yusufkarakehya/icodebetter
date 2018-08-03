@@ -19,7 +19,6 @@ import iwb.util.GenericUtil;
 public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 
 	private int formCellId;
-	private int customizationId;
 	private int formId;
 	private String dsc;
 	private String localeMsgKey;
@@ -38,8 +37,8 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	private String defaultValue;
 	private short initialSourceTip;
 	private String initialValue;
-	private short outFlag;
 	private String extraDefinition;
+	private short outFlag;
 
 	private int objectDetailId; // queryParamId, tableFieldId
 	private int parentFormCellId; // queryParamId, tableFieldId
@@ -242,7 +241,7 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	public void set_sourceObjectDetail(Object sourceObjectDetail) {
 		_sourceObjectDetail = sourceObjectDetail;
 	}
-
+/*
 	@Id
 	@Column(name = "CUSTOMIZATION_ID")
 	public int getCustomizationId() {
@@ -252,7 +251,7 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	public void setCustomizationId(int customizationId) {
 		this.customizationId = customizationId;
 	}
-
+*/
 	@Column(name = "FORM_MODULE_ID")
 	public int getFormModuleId() {
 		return formModuleId;
@@ -260,15 +259,6 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 
 	public void setFormModuleId(int formModuleId) {
 		this.formModuleId = formModuleId;
-	}
-
-	@Column(name = "OUT_FLAG")
-	public short getOutFlag() {
-		return outFlag;
-	}
-
-	public void setOutFlag(short outFlag) {
-		this.outFlag = outFlag;
 	}
 
 	@Column(name = "DIALOG_GRID_ID")
@@ -352,7 +342,6 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 				&& this.initialSourceTip == fc.getInitialSourceTip()
 				&& GenericUtil.safeEquals(this.initialValue,
 						fc.getInitialValue())
-				&& this.outFlag == fc.getOutFlag()
 				&& GenericUtil.safeEquals(this.extraDefinition,
 						fc.getExtraDefinition())
 				&&
@@ -397,8 +386,28 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 		if(_sourceObjectDetail!=null){
 			if(_sourceObjectDetail instanceof W5TableField)return ((W5TableField)_sourceObjectDetail).getFieldTip();
 			if(_sourceObjectDetail instanceof W5QueryParam)return ((W5QueryParam)_sourceObjectDetail).getParamTip();
-			if(_sourceObjectDetail instanceof W5DbFuncParam)return ((W5DbFuncParam)_sourceObjectDetail).getParamTip();
+			if(_sourceObjectDetail instanceof W5GlobalFuncParam)return ((W5GlobalFuncParam)_sourceObjectDetail).getParamTip();
 		}
 		return 0;
-	}	
+	}
+	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+	@Column(name = "OUT_FLAG")
+	public short getOutFlag() {
+		return outFlag;
+	}
+
+	public void setOutFlag(short outFlag) {
+		this.outFlag = outFlag;
+	}
+
 }

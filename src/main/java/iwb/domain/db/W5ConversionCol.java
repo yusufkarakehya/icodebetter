@@ -20,7 +20,6 @@ public class W5ConversionCol implements java.io.Serializable, W5Base {
 
 	private int conversionColId;
 	private int conversionId;
-	private int customizationId;
 	private short tabOrder;
 	private String conversionCode;
 	private short fieldConversionTip;
@@ -72,15 +71,7 @@ public class W5ConversionCol implements java.io.Serializable, W5Base {
 	public void setFormCellId(int formCellId) {
 		this.formCellId = formCellId;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
-	
+
 	@Column(name="synch_flag")
 	public short getSynchFlag() {
 		return synchFlag;
@@ -99,6 +90,18 @@ public class W5ConversionCol implements java.io.Serializable, W5Base {
 			GenericUtil.safeEquals(this.conversionCode,c.getConversionCode()) &&
 			this.fieldConversionTip==c.getFieldConversionTip() &&
 			this.formCellId==c.getFormCellId();
+	}
+	
+	private String projectUuid;
+
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

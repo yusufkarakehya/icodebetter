@@ -236,7 +236,7 @@ public abstract class BaseDAO {
                 return l.isEmpty() ? null : l;
             });
         } catch (Exception e) {
-            throw new IWBException("sql", "Custom.Query:List", 0, sql, e.getMessage(), e);
+            throw new IWBException("sql", "Custom.Query.List", 0, sql, "Error Executing", e);
         }
     }
 
@@ -310,8 +310,7 @@ public abstract class BaseDAO {
                 return l.isEmpty() ? null : l;
             });
         } catch (Exception e) {
-            throw new IWBException("sql", "Custom.Query:ListOfMap", 0,
-                    GenericUtil.replaceSql(sql, params), e.getMessage(), e);
+            throw new IWBException("sql", "Custom.Query.ListOfMap", 0, GenericUtil.replaceSql(sql, params), "Error Executing", e);
         }
     }
 
@@ -363,10 +362,8 @@ public abstract class BaseDAO {
                     conn.close();
                 }
             } catch (Exception e) {
-                if (FrameworkSetting.debug) {
-                    e.printStackTrace();
-                }
-                throw new IWBException("sql", "Custom.Query:Update", 0, sql, e.getMessage(), e.getCause());
+                if (FrameworkSetting.debug)e.printStackTrace();
+                throw new IWBException("sql", "Custom.Query.Update", 0, sql, "Error Executing", e);
             }
             return 1;
         });

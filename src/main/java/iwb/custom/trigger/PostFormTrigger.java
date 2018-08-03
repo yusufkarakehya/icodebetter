@@ -1,11 +1,18 @@
 package iwb.custom.trigger;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
-import iwb.dao.RdbmsDao;
+import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Project;
+import iwb.domain.db.W5Table;
+import iwb.domain.db.W5TableParam;
+import iwb.domain.db.W5VcsObject;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
@@ -13,7 +20,7 @@ import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
 public class PostFormTrigger {
-	public static void beforePostForm(W5FormResult formResult, RdbmsDao dao, String prefix){
+	public static void beforePostForm(W5FormResult formResult, PostgreSQL dao, String prefix){
 		switch(formResult.getFormId()){
 		case	2491://SQL Script
 			String sql = formResult.getRequestParams().get("extra_sql");
@@ -21,10 +28,8 @@ public class PostFormTrigger {
 				throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
 			}
 			if(GenericUtil.uCheckBox(formResult.getRequestParams().get("run_local_flag"))!=0){// simple security check. TODO
-				W5Project prj = FrameworkCache.wProjects.get(formResult.getScd().get("projectId").toString());
-				if(prj.getSetSearchPathFlag()!=0) {
-					dao.executeUpdateSQLQuery("set search_path="+prj.getRdbmsSchema());
-				}
+				W5Project prj = FrameworkCache.getProject(formResult.getScd());
+				dao.executeUpdateSQLQuery("set search_path="+prj.getRdbmsSchema());
 				dao.executeUpdateSQLQuery(sql);
 			}
 			break;
@@ -32,26 +37,28 @@ public class PostFormTrigger {
 	}
 	
 	
-	public static void afterPostForm(W5FormResult formResult, RdbmsDao dao, String prefix){
+	public static void afterPostForm(W5FormResult fr, PostgreSQL dao, String prefix){
 		String msg;
-		switch(formResult.getFormId()){
+		Map scd = fr.getScd();
+		String projectId = scd!=null ? (String)scd.get("projectId"):null;
+		switch(fr.getFormId()){
 	
 		
 		case	551://comment
-			if(formResult.getErrorMap().isEmpty() && formResult.getAction()==2){
-				Object[] userIds = dao.listObjectCommentAndAttachUsers(formResult.getScd(), formResult.getRequestParams());
-				int tableId = GenericUtil.uInt(formResult.getRequestParams().get("table_id"));
-				int tablePk = GenericUtil.uInt(formResult.getRequestParams().get("table_pk"));
-				int sessionUserId=(Integer)formResult.getScd().get("userId");
+			if(fr.getErrorMap().isEmpty() && fr.getAction()==2){
+				Object[] userIds = dao.listObjectCommentAndAttachUsers(scd, fr.getRequestParams());
+				int tableId = GenericUtil.uInt(fr.getRequestParams().get("table_id"));
+				int tablePk = GenericUtil.uInt(fr.getRequestParams().get("table_pk"));
+				int sessionUserId=(Integer)scd.get("userId");
 				if(userIds!=null)for(Object userId:userIds){
-					String tmpStr = formResult.getRequestParams().get("dsc");
+					String tmpStr = fr.getRequestParams().get("dsc");
 					if(tmpStr!=null){
-						tmpStr= "<b>"+UserUtil.getUserName((Integer)formResult.getScd().get("customizationId"), sessionUserId)+"</b>: "+tmpStr;
+						tmpStr= "<b>"+UserUtil.getUserName(sessionUserId)+"</b>: "+tmpStr;
 						if(tmpStr.length()>100)tmpStr=tmpStr.substring(0,97)+"...";
 					}
-					Log5Notification n = new Log5Notification(formResult.getScd(), (Integer)userId, (short)1,  tableId,  tablePk, sessionUserId, null, 1,tmpStr); 
+					Log5Notification n = new Log5Notification(scd, (Integer)userId, (short)1,  tableId,  tablePk, sessionUserId, null, 1,tmpStr); 
 					dao.saveObject(n);
-					n.set_tableRecordList(dao.findRecordParentRecords(formResult.getScd(),n.getTableId(),n.getTablePk(),0, true));
+					n.set_tableRecordList(dao.findRecordParentRecords(scd,n.getTableId(),n.getTablePk(),0, true));
 					UserUtil.publishNotification(n, false);
 				}
 			}
@@ -64,88 +71,119 @@ public class PostFormTrigger {
 		    default:
 			break;*/
 		}
-    	msg = LocaleMsgCache.get2(formResult.getScd(), "cache_will_be_reloaded");
-		/*// TODO burada direk halledilecek
-		if(formResult.getForm()!=null && formResult.getForm().get_sourceTable().getTableId()==15){ //w5_table
-			if(ProformResult.getRequestParams().get("revision_flag"))
-			
-			//create table promis_revision.pm_urun_agaci_ex as
-select r.revision_id,x.* from pm_urun_agaci_ex x, w5_revision r where rownum<1
-
-		} */
-		//String msg = LocaleMsgCache.get2(formResult.getScd(), "cache_will_be_reloaded");//"Yaptığınız değişiklikler 1 dakika içerisinde uygulanacaktır.";//PromisLocaleMsg.get(formResult.getScd().get("locale").toString(), "commons.info.cache_reload");
-		if(formResult.getForm()!=null)switch(formResult.getForm().getObjectId()){
+    	msg = LocaleMsgCache.get2(scd, "reload_cache_manually");
+		if(fr.getForm()!=null)switch(fr.getForm().getObjectId()){
+		case	1277: //user_related_project
+			if(fr.getAction()==2){
+				int userId = GenericUtil.uInt(fr.getRequestParams().get("user_id"));
+				if(userId>0){
+					UserUtil.addProjectUser((String)scd.get("projectId"), userId);
+				}
+			}
+			break;
+		case	1407://project
+			if((fr.getAction()==1 || fr.getAction()==3) && scd.containsKey("ocustomizationId") && (Integer)scd.get("ocustomizationId")!=(Integer)scd.get("customizationId")){
+				throw new IWBException("security","Project", 0, null, "Forbidden Command. Can not manipulate a project on another tenant.", null);
+			}
+			switch(fr.getAction()){
+			case	5://clone
+			case	2://insert
+				String newProjectId = fr.getOutputFields().get("project_uuid").toString();
+				int customizationId = (Integer)scd.get(scd.containsKey("ocustomizationId") ?  "ocustomizationId":"customizationId");
+				String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
+				//validate from vcs server
+				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=?, customization_id=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project","http://81.214.24.77:8084/app/"), scd.get("userName"), "1", customizationId, newProjectId);
+				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
+				if(fr.getAction()==5){ //clone
+					Map<String, Object> newScd = new HashMap();
+					newScd.putAll(scd);newScd.put("projectId", fr.getRequestParams().get("tproject_uuid"));
+					dao.copyProject(scd, newProjectId, customizationId);
+				} else {//insert
+					int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId, 0, customizationId);
+					dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", customizationId, newProjectId);
+					Map<String, Object> newScd = new HashMap();
+					newScd.putAll(scd);newScd.put("projectId", newProjectId);
+					dao.saveObject(new W5VcsObject(newScd, 369, userTip));
+				}
+				FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.projectUuid=?", newProjectId).get(0));
+				FrameworkSetting.projectSystemStatus.put(newProjectId,0);
+				break;
+			case	3://delete all metadata
+			}
+			break;
 		default:
             break;
 	
 		case	13:
 		case	14://lookup,detay		
-			formResult.getOutputMessages().add(msg);
-			FrameworkCache.reloadCacheQueue.put("1-"+formResult.getForm().getCustomizationId(), System.currentTimeMillis());
+			fr.getOutputMessages().add(msg);
+			int lookUpId = GenericUtil.uInt(fr.getOutputFields().get("look_up_id"+prefix));
+			if(lookUpId==0)lookUpId = GenericUtil.uInt(fr.getRequestParams().get("look_up_id"+prefix));
+			if(lookUpId==0)lookUpId = GenericUtil.uInt(fr.getRequestParams().get("tlook_up_id"+prefix));
+			if(fr.getForm().getObjectId()==14 && lookUpId==0){
+				int detayId = GenericUtil.uInt(fr.getRequestParams().get("tlook_up_detay_id"+prefix));
+				if(detayId==0)detayId=GenericUtil.uInt(fr.getOutputFields().get("look_up_detay_id"+prefix));
+				if(detayId>0){
+					List qq = dao.executeSQLQuery("select x.look_up_id from iwb.w5_look_up_detay x where x.project_uuid=? AND x.look_up_detay_id=?", projectId, detayId);
+					if(!GenericUtil.isEmpty(qq))lookUpId = GenericUtil.uInt(qq.get(0));
+				}
+			}
+			FrameworkCache.addQueuedReloadCache(projectId,"13."+lookUpId);
 			break;	
-		case	617:
-		case	618://lookup_ext/detay
-			formResult.getOutputMessages().add(msg);
-			FrameworkCache.reloadCacheQueue.put("3-"+formResult.getForm().getCustomizationId(), System.currentTimeMillis());			
-			break;
 		case	79://apsetting
-			formResult.getOutputMessages().add(msg);
-			FrameworkCache.reloadCacheQueue.put("2-"+formResult.getForm().getCustomizationId(), System.currentTimeMillis());			
+			fr.getOutputMessages().add(msg);
+//			FrameworkCache.reloadCacheQueue.put("2-"+fr.getForm().getCustomizationId(), System.currentTimeMillis());			
 			break;
+			
+			
+		case	15://table
+		case	16://tablefield
+		case	945://tablefieldcalc
+		case	42://tableparam
+		case	657://w5_table_child	
+//		case	764://w5_table_filter	
+		case	1209: //tableevent
+		case	1217://w5_table_access_condition_sql		
+			if(FrameworkSetting.preloadWEngine!=0){
+				FrameworkCache.clearPreloadCache(scd);
+			}
+			fr.getOutputMessages().add(msg);
+			int tableId = GenericUtil.uInt(fr.getOutputFields().get("table_id"+prefix));
+			if(tableId==0)lookUpId = GenericUtil.uInt(fr.getRequestParams().get("table_id"+prefix));
+			if(tableId==0)lookUpId = GenericUtil.uInt(fr.getRequestParams().get("ttable_id"+prefix));
+			if(tableId==0){
+				W5Table tx = FrameworkCache.getTable(projectId, fr.getForm().getObjectId());
+				W5TableParam tp = tx.get_tableParamList().get(0);
+				int detayId = GenericUtil.uInt(fr.getRequestParams().get(tp.getDsc()+prefix));
+				if(detayId==0)detayId=GenericUtil.uInt(fr.getOutputFields().get(tp.getExpressionDsc()+prefix));
+				if(detayId>0){
+					List qq = dao.executeSQLQuery("select x.table_id from "+tx.getDsc()+" x where x.project_uuid=? AND x."+tp.getExpressionDsc()+"=?", projectId, detayId);
+					if(!GenericUtil.isEmpty(qq))tableId = GenericUtil.uInt(qq.get(0));
+				}
+			}
+			FrameworkCache.addQueuedReloadCache(projectId,"15."+tableId);
+			break;	
 
 		case	389:
-		case	390://aproval/step
-			formResult.getOutputMessages().add(msg);
-			FrameworkCache.reloadCacheQueue.put("4-"+formResult.getForm().getCustomizationId(), System.currentTimeMillis());			
-			break;
-		case	1209: //table_action_rule
-			formResult.getOutputMessages().add(msg);
-			FrameworkCache.reloadCacheQueue.put("9-"+formResult.getForm().getCustomizationId(), System.currentTimeMillis());			
-			break;
-		//case	688://bpm_process
-		//case	691://bpm_process_step
-		//case	692://bpm_action
-		//case	711://bpm_action_link_condition
-		//	formResult.getOutputMessages().add(msg);
-		//	FrameworkCache.reloadCacheQueue.put("5-"+formResult.getForm().getCustomizationId(), System.currentTimeMillis());			
-		//	break;
-		case 1065:
-		case 1069://integration/brand
-			formResult.getOutputMessages().add(msg);
-			FrameworkCache.reloadCacheQueue.put("8-"+formResult.getForm().getCustomizationId(), System.currentTimeMillis());			
-			break;
-		case	15:
-		case	16:
-		case	42://table/field/param
-		case	409://object_sms_mail
-		case	628://table_user_tip				
-		case	657://w5_table_child	
-		case	765://object_condition
-		case	1059://w5_access_delegation
-		case	1380://object_condition
+		case	390://workflow/step
 			if(FrameworkSetting.preloadWEngine!=0){
-				FrameworkCache.clearPreloadCache();
+				FrameworkCache.clearPreloadCache(scd);
 			}
-			formResult.getOutputMessages().add(msg);
-			FrameworkCache.reloadCacheQueue.put("6-"+formResult.getForm().getCustomizationId(), System.currentTimeMillis());			
-			break;	
-		case	1217://w5_table_access_condition_sql		
-			dao.reloadTableAccessConditionSQLs();
-			break;	
+			int workflowId = GenericUtil.uInt(fr.getOutputFields().get("approval_id"+prefix));
+			fr.getOutputMessages().add(msg);
+			FrameworkCache.addQueuedReloadCache(projectId,"389."+workflowId);			
+			break;
+
 		case	336://w5_user	
-			dao.reloadUsersCache((Integer)formResult.getScd().get("customizationId"));	
+			dao.reloadUsersCache(projectId);	
 			break;
 		case	338://w5_customization
 
 			break;
-		case 332://w5_user_role
-		case 337://w5_role
-		case 1180://w5_user_role
-//			dao.reloadRoleModulesCache(formResult.getForm().getCustomizationId());
-			break;
+
 		case    674://w5_job_schedule
-			formResult.getOutputMessages().add(msg);
-			FrameworkCache.reloadCacheQueue.put("7-"+formResult.getForm().getCustomizationId(), System.currentTimeMillis());
+			fr.getOutputMessages().add(msg);
+//			FrameworkCache.reloadCacheQueue.put("7-"+fr.getForm().getCustomizationId(), System.currentTimeMillis());
 			break;
 		case	4:
 		case	5://grid,grid_column
@@ -177,13 +215,13 @@ select r.revision_id,x.* from pm_urun_agaci_ex x, w5_revision r where rownum<1
 		case	1173://condition_group
 		case    1198://conversion,conversion_col,conversion_detail
 			if(FrameworkSetting.preloadWEngine!=0){
-				FrameworkCache.clearPreloadCache();
+				FrameworkCache.clearPreloadCache(scd);
 			}
 		}
 		
-		if(formResult.getAction()==2 && (formResult.getForm().getObjectId()==14 || formResult.getForm().getObjectId()==618)){
-			int lookUpId=GenericUtil.uInt((Object)formResult.getRequestParams().get("look_up_id"));
-			if(lookUpId!=0)UserUtil.broadCastRecordForTemplates((Integer)formResult.getScd().get("customizationId"), -lookUpId, "", 2, (Integer)formResult.getScd().get("userId"));
+		if(fr.getAction()==2 && (fr.getForm().getObjectId()==14)){
+			int lookUpId=GenericUtil.uInt((Object)fr.getRequestParams().get("look_up_id"));
+			if(lookUpId!=0)UserUtil.broadCastRecordForTemplates(projectId, -lookUpId, "", 2, (Integer)scd.get("userId"));
 		}
 		
 		

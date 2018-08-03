@@ -19,7 +19,6 @@ public class W5WsServer  implements java.io.Serializable {
 	private String dsc;
 	private String wsUrl;
 	private short wsTip;
-	private int customizationId;
 	private String projectUuid;
 	private short accessExecuteTip;
 	private String accessExecuteRoles;
@@ -46,15 +45,6 @@ public class W5WsServer  implements java.io.Serializable {
 		this.dsc = dsc;
 	}
 	
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
-	
 	@Column(name="ws_url")
 	public String getWsUrl() {
 		return wsUrl;
@@ -71,6 +61,7 @@ public class W5WsServer  implements java.io.Serializable {
 		this.wsTip = wsTip;
 	}
 	
+	@Id	
 	@Column(name="project_uuid")
 	public String getProjectUuid() {
 		return projectUuid;
@@ -118,5 +109,6 @@ public class W5WsServer  implements java.io.Serializable {
 		this.targetNamespace = targetNamespace;
 	}
 	
+
 	
 }

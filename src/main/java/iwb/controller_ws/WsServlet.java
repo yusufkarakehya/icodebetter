@@ -31,8 +31,8 @@ import iwb.adapter.ui.extjs.ExtJs3_3;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
-import iwb.domain.db.W5DbFunc;
-import iwb.domain.db.W5DbFuncParam;
+import iwb.domain.db.W5GlobalFunc;
+import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
@@ -41,7 +41,7 @@ import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.db.W5WsServerMethodParam;
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.engine.FrameworkEngine;
@@ -72,7 +72,7 @@ public class WsServlet implements InitializingBean {
 			HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndSOAP:"+request.getRequestURI());
-		String[] u = request.getRequestURI().replace('/', ',').split(",");
+/*		String[] u = request.getRequestURI().replace('/', ',').split(",");
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 		response.setContentType("text/xml");
 		request.setCharacterEncoding( "UTF-8" );
@@ -120,13 +120,13 @@ public class WsServlet implements InitializingBean {
 					requestParams.put("_remote_ip", request.getRemoteAddr());
 					requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 					String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
-					W5DbFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
-					W5DbFuncResult dfr = new W5DbFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
-					List<W5DbFuncParam> arl = new ArrayList();
-					dfr.setDbFunc(new W5DbFunc());dfr.getDbFunc().set_dbFuncParamList(arl);
-					arl.add(new W5DbFuncParam("tokenKey"));arl.add(new W5DbFuncParam("errorMsg"));
+					W5GlobalFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
+					W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
+					List<W5GlobalFuncParam> arl = new ArrayList();
+					dfr.setGlobalFunc(new W5GlobalFunc());dfr.getGlobalFunc().set_dbFuncParamList(arl);
+					arl.add(new W5GlobalFuncParam("tokenKey"));arl.add(new W5GlobalFuncParam("errorMsg"));
 					W5WsServerMethod wsm = wss.get_methods().get(0);
-					/* 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount */
+					// 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount 
 					boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 					boolean expireFlag = GenericUtil.uInt(result.getResultMap().get("expireFlag")) != 0;
 					if (!success || expireFlag){
@@ -222,7 +222,7 @@ public class WsServlet implements InitializingBean {
 				response.getWriter().write(soap.serializeException((IWBException)e.getCause()).toString());
 			} else response.getWriter().write(soap.serializeException(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause())).toString());
 		}
-		response.getWriter().close();		
+		response.getWriter().close();		*/
 	}
 	
 	@RequestMapping("/rest/*")
@@ -230,7 +230,7 @@ public class WsServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		logger.info("hndREST:"+request.getRequestURI());
+/*		logger.info("hndREST:"+request.getRequestURI());
 		request.setCharacterEncoding( "UTF-8" );
 		response.setCharacterEncoding( "UTF-8" );
 		response.setContentType("text/xml");
@@ -246,14 +246,9 @@ public class WsServlet implements InitializingBean {
 				response.getWriter().write(serializeRestWADL(wss, wsmoMap).toString());
 			} else
 				throw new IWBException("framework","Undefined Method",0,null, "User [methodName].wadl", null);
-		} catch (IWBException e) {
-			response.getWriter().write(e.toJsonString());
 		} catch (Exception e) {
-			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				response.getWriter().write(((IWBException)e.getCause()).toJsonString());
-			} else 
-				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString());
-		}
+			response.getWriter().write(new IWBException("framework","WADL Def",0,null, "Error", e).toJsonString(request.getRequestURI()));
+		}*/
 	}
 
 				
@@ -263,7 +258,7 @@ public class WsServlet implements InitializingBean {
 			HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndREST:"+request.getRequestURI());
-		request.setCharacterEncoding( "UTF-8" );
+/*		request.setCharacterEncoding( "UTF-8" );
 		response.setCharacterEncoding( "UTF-8" );
 		response.setContentType("application/json");
 		try {
@@ -275,13 +270,13 @@ public class WsServlet implements InitializingBean {
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
-				W5DbFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
-				W5DbFuncResult dfr = new W5DbFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
-				List<W5DbFuncParam> arl = new ArrayList();
-				dfr.setDbFunc(new W5DbFunc());dfr.getDbFunc().set_dbFuncParamList(arl);
-				arl.add(new W5DbFuncParam("tokenKey"));arl.add(new W5DbFuncParam("errorMsg"));
+				W5GlobalFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
+				W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
+				List<W5GlobalFuncParam> arl = new ArrayList();
+				dfr.setGlobalFunc(new W5GlobalFunc());dfr.getGlobalFunc().set_dbFuncParamList(arl);
+				arl.add(new W5GlobalFuncParam("tokenKey"));arl.add(new W5GlobalFuncParam("errorMsg"));
 //				W5WsServerMethod wsm = wss.get_methods().get(0);
-				/* 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount */
+				// 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
 				boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 				boolean expireFlag = GenericUtil.uInt(result.getResultMap().get("expireFlag")) != 0;
 				if (!success || expireFlag){
@@ -388,13 +383,13 @@ public class WsServlet implements InitializingBean {
 				throw new IWBException("ws","Method not Found",0,method, "Method not Found", null);
 			}
 		} catch (IWBException e) {
-			response.getWriter().write(e.toJsonString());
+			response.getWriter().write(e.toJsonString(request.getRequestURI()));
 		} catch (Exception e) {
 			if(e.getCause()!=null && e.getCause() instanceof IWBException){
-				response.getWriter().write(((IWBException)e.getCause()).toJsonString());
+				response.getWriter().write(((IWBException)e.getCause()).toJsonString(request.getRequestURI()));
 			} else 
-				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString());
-		}
+				response.getWriter().write(new IWBException("framework","Undefined Exception",0,null, e.getMessage(), e.getCause()).toJsonString(request.getRequestURI()));
+		}*/
 	}
 
 	public	StringBuilder serializeRestWADL(W5WsServer ws, Map<String, Object> wsmoMap){
@@ -431,7 +426,7 @@ public class WsServlet implements InitializingBean {
 			case	0:case 1:case 2:case 3:
 				W5FormResult fr=(W5FormResult)o;
 				lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
-				t = FrameworkCache.getTable(ws.getCustomizationId(), fr.getForm().getObjectId());
+				t = FrameworkCache.getTable(ws.getProjectUuid(), fr.getForm().getObjectId());
 				for(W5TableParam tp:t.get_tableParamList())if(tp.getSourceTip()==1)lwsmp.add(new W5WsServerMethodParam(tp, (short)(wsm.getObjectTip()==2 ? 1:0),wsm.getObjectTip()==2?-999:0));
 				if(wsm.getObjectTip()!=3)for(W5FormCell fc:fr.getForm().get_formCells())if(fc.getActiveFlag()!=0 && fc.get_sourceObjectDetail()!=null){
 					lwsmp.add(new W5WsServerMethodParam(fc, (short)(wsm.getObjectTip()==0 ? 1:0), wsm.getObjectTip()==0 ? -999:0));
@@ -440,19 +435,19 @@ public class WsServlet implements InitializingBean {
 				lwsmp.add(outMsg);
 				break;
 			case	4:
-				W5DbFuncResult dfr=(W5DbFuncResult)o;
-				for(W5DbFuncParam dfp:dfr.getDbFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1 && dfp.getOutFlag()!=0){
+				W5GlobalFuncResult dfr=(W5GlobalFuncResult)o;
+				for(W5GlobalFuncParam dfp:dfr.getGlobalFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1 && dfp.getOutFlag()!=0){
 					lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
 					break;
 				}
-				for(W5DbFuncParam dfp:dfr.getDbFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1){
+				for(W5GlobalFuncParam dfp:dfr.getGlobalFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1){
 					lwsmp.add(new W5WsServerMethodParam(dfp, dfp.getOutFlag(), dfp.getOutFlag()==0 ? 0:-999));
 				}
 				break;
 			case	19:
 				W5QueryResult qr=(W5QueryResult)o;
 				lwsmp.add(new W5WsServerMethodParam(-999, "data", (short)10));
-				if(qr.getQuery().getMainTableId()!=0)t = FrameworkCache.getTable(ws.getCustomizationId(), qr.getQuery().getMainTableId());
+				if(qr.getQuery().getMainTableId()!=0)t = FrameworkCache.getTable(ws.getProjectUuid(), qr.getQuery().getMainTableId());
 				for(W5QueryParam qp:qr.getQuery().get_queryParams())if(qp.getSourceTip()==1){
 					lwsmp.add(new W5WsServerMethodParam(qp, (short)0, 0));
 				}

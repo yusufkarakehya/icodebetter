@@ -19,8 +19,6 @@ public class W5LookUpDetay implements java.io.Serializable, W5Detay, W5Base {
 
 	private int lookUpDetayId;
 	
-	private int customizationId;
-	
 	private int lookUpId;
 
 	private int tabOrder;
@@ -79,14 +77,6 @@ public class W5LookUpDetay implements java.io.Serializable, W5Detay, W5Base {
 		this.dsc = dsc;
 	}
 	
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 	
 	@Column(name="parent_val")
@@ -118,5 +108,15 @@ public class W5LookUpDetay implements java.io.Serializable, W5Detay, W5Base {
 
 	}
 
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

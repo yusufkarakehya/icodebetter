@@ -79,18 +79,5 @@ public class W5DataViewResult implements W5MetaResult{
 	public W5DataViewResult(int dataViewId) {
 		super();
 		this.dataViewId = dataViewId;
-		if(FrameworkCache.wDevEntityKeys.contains("930."+dataViewId)){
-			this.dev=true;
-		}
 	}
-
-	private boolean dev = false;
-	
-	public boolean isDev() {
-		return dev;
-	}
-	public void setDev(boolean dev) {
-		this.dev = dev;
-	}
-
 }

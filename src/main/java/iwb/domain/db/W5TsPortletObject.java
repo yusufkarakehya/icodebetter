@@ -18,7 +18,6 @@ public class W5TsPortletObject implements java.io.Serializable {
 	private int portletObjectId;
 	private int portletId;
 	
-	private int customizationId;
 	private short tabOrder;
 	private int objectTip;
 	private int objectId;
@@ -39,15 +38,7 @@ public class W5TsPortletObject implements java.io.Serializable {
 	}
 	
 	
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 
 
 	@Column(name="portlet_id")
@@ -102,6 +93,16 @@ public class W5TsPortletObject implements java.io.Serializable {
 
 	public void set_sourceObject(Object _sourceObject) {
 		this._sourceObject = _sourceObject;
+	}
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 	
 }

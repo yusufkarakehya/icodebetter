@@ -450,7 +450,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj){
 
 	var masterGrid=obj.grid;
 	var pageRows=[], searchForm=null;
-//	if(masterGrid.searchForm)pageRows.push(searchForm=masterGrid.searchForm.getExtDef());
+//	if(masterGrid.searchForm)pageRows.push(searchForm=masterGrid.searchForm.render());
 	var buttons=[];
 	var r=prepareCrudButtons(masterGrid, masterGrid.pk || obj.pk);
 	if(r && r.length)buttons = buttons.concat(r);
@@ -904,7 +904,7 @@ function approveTableRecord(aa, frm){
 }
 
 function addTab4Form(formDef, callAttributes, _page_tab_id){
-	var extDef = formDef.getExtDef();
+	var extDef = formDef.render();
 //	console.log(extDef);console.log(formDef);
 	var bar=[];
 	if(!formDef.viewMode && (extDef.baseParams.sv_btn_visible || 1)==1){

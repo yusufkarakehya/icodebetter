@@ -172,28 +172,6 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 
 
 
-.ux-filtered-column.sort-desc .x-grid3-sort-icon {
-	background-image: url(../images/custom/icons/sort_filtered_desc.gif);
-}
-
-.ux-gridfilter-text-icon {
-	background-image: url(../images/custom/icons/find.png);
-}
-
-.ux-rangemenu-gt {
-	background-image: url(../images/custom/icons/greater_then.png);
-}
-
-.ux-rangemenu-lt {
-	background-image: url(../images/custom/icons/less_then.png);
-}
-
-.ux-rangemenu-eq {
-	background-image: url(../images/custom/icons/equals.png);
-}
-
-.bildirim{background-image: url(../images/famfam/report.png) !important;}
-
 .editable_column{
 	font-weight: bold;
 	color: #FF6600;
@@ -203,28 +181,6 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
     background-image: url(images/plus-16.png) !important;
 }
 
-.icon-delete {
-    background-image: url(../images/famfam/delete.png) !important;
-}
-
-.icon-report {
-    background-image: url(../images/famfam/report.png) !important;
-}
-.icon-ireport {
-    background-image: url(../images/famfam/ireport.png) !important;
-}
-
-.icon-info {
-    background-image: url(../images/custom/info.png) !important;
-}
-
-.icon-send {
-    background-image: url(../images/custom/send.png) !important;
-}
-
-.icon-magnifier {
-    background-image: url(../images/famfam/magnifier.png) !important;
-}
 
 .icon-new {
     background-image: url(images/plus-16.png) !important;
@@ -314,10 +270,6 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
     background-image: url(images/wizard-16.png);
 }
 
-.x-grid-percent .x-btn-text {
-    background-image: url(../images/custom/percent.png);
-}
-
 .menu-del .x-menu-item-icon,.x-grid-delete .x-btn-text {
 	background-image: url(images/delete-16.png);
 }
@@ -326,9 +278,6 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
     background-image: url(images/bolt-16.png) !important;
 }
 
-.icon-approval-edit {
-    background-image: url(../images/famfam/lightning_go.png) !important;
-}
 
 .icon-approve {
     background-image: url(../images/custom/approve1.png) !important;
@@ -358,21 +307,10 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
     background-image: url(images/gear-16.png);
 }
 
-.x-grid-remote-refresh .x-btn-text {
-    background-image: url(../images/famfam/database_refresh.png);
-}
-
 .x-grid-commit .x-btn-text {
     background-image: url(images/commit-16.png);
 }
 
-.x-grid-sum .x-btn-text {
-    background-image: url(../images/custom/sum-icon.png);
-}
-
-.x-grid-rollback .x-btn-text {
-    background-image: url(../images/famfam/arrow_undo.png);
-}
 
 .x-grid-startedit .x-btn-text {
     background-image: url(images/pencil-16.png);
@@ -382,26 +320,8 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
     background-image: url(images/setting-16.png);
 }
 
-.x-grid-expand_all .x-btn-text {
-    background-image: url(../images/custom/icons/ext_api_doc/expand-all.gif) 
-}
-
-.x-grid-collapse_all .x-btn-text {
-    background-image: url(../images/custom/icons/ext_api_doc/collapse-all.gif)
-}
-
-.x-grid-privilege .x-btn-text {background-image: url(../images/famfam/shape_square_key.png);}
-.x-grid-record-privilege .x-btn-text {background-image: url(../images/custom/record_security.png);}
 
 .x-form-locale-msg-key{cursor:pointer;}
-
-.x-form-field-wrap .x-form-locale-msg-key {background-image: url(../images/famfam/bomb.png);}
-
-.imail_send{background-image:url(../images/custom/mail_send.png) !important;}
-.imail_reply{background-image:url(../images/custom/mail_reply.png) !important;}
-.imail_forward{background-image:url(../images/custom/mail_forward.png) !important;}
-.imail_trash{background-image:url(../images/custom/trash1.png) !important;}
-.imail_open{background-image:url(../images/custom/email_open.png) !important;}
 
 .icon-home{
 	background-image:url(images/home-16.png) !important;
@@ -411,44 +331,11 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 .ifile_attach{
 background-image:url(images/paperclip-24.png) !important;
 }
-.ibul{
-background-image:url(../images/custom/bul.png) !important;
-}
-.itemizle{
-background-image:url(../images/custom/temizle.png) !important;
-}
 .ikaydet{
 background-image:url(images/kaydet-24.png) !important;
 }
 .iexecute{
 background-image:url(images/bolt-24.png) !important;
-}
-.ikaydet_small{
-background-image:url(../images/custom/kaydet2.png) !important;
-}
-.iapprove{
-background-image:url(../images/custom/icons/flag_green.png) !important;
-}
-.ireturn{
-background-image:url(../images/custom/icons/back.png) !important;
-}
-.ireject{
-background-image:url(../images/custom/icons/flag_red.png) !important;
-}
-.ilog{
-background-image:url(../images/custom/big_log1.png) !important;
-}
-.isms_mail{
-background-image:url(../images/custom/big_mail1.png) !important;
-}
-.iconvert_form{
-background-image:url(../images/custom/big_convert_form.png) !important;
-}
-.app_req{
-background-image:url(../images/custom/app_req.png) !important;
-}
-.app_req_small{
-background-image:url(../images/custom/app_req_small.png) !important;
 }
 .isave_new{
 background-image:url(images/save-new-24.png) !important;
@@ -457,76 +344,17 @@ background-image:url(images/save-new-24.png) !important;
 .isave_cont{
 background-image:url(images/save-cont-24.png) !important;
 }
-.ino_record{
-background-image:url(../images/custom/norecord.png) !important;
-}
-.iprivilege{
-background-image:url(../images/custom/big_key.png) !important;
-}
 .ikapat{
 background-image:url(images/close-window-24.png) !important;
 }
-.iprint {
-	background-image:url(../images/custom/print.png) !important;
-}
-.ibig_comment{
-background-image:url(../images/custom/big_comment1.png) !important;
-}
-
-.ipdf{
-background-image:url(../images/custom/pdf.png) !important;
-}
-.iexcel{
-background-image:url(../images/custom/excel.png) !important;
-}
-.itext{
-background-image:url(../images/custom/text.png) !important;
-}
-.iword{
-background-image:url(../images/custom/word.png) !important;
-}
 .isettings{
 background-image:url(images/setting-24.png) !important;
-}
-.ihelp{
-background-image:url(../images/custom/help.png) !important;
 }
 .ibig_info{
 background-image:url(images/info-24.png) !important;
 }
 .ibookmark{
 background-image:url(images/bookmark-24.png) !important;
-}
-.iplus{
-background-image:url(../images/custom/plus.png) !important;
-}
-.ibig_delete{
-background-image:url(../images/custom/big_delete.png) !important;
-}
-.ibig_locked{
-background-image:url(../images/custom/big_locked.png) !important;
-}
-.ibig_unlocked{
-background-image:url(../images/custom/big_unlocked.png) !important;
-}
-.ibig_keyword{
-background-image:url(../images/custom/big_keywords.png) !important;
-}
-.ibig_alarm{
-background-image:url(../images/custom/big_alarm1.png) !important;
-}
-.imagnify{
-background-image:url(../images/custom/magnifier.png) !important;
-}
-.iupload{
-background-image:url(../images/custom/upload.png) !important;
-}
-.x-grid-convert .x-btn-text{
-background-image:url(../images/custom/icons/convert.png);
-}
-
-.x-grid-clone .x-btn-text{
-background-image:url(../images/famfam/page_copy.png);
 }
 
 .x-grid-go-up .x-btn-text{
@@ -549,15 +377,6 @@ background-image:url(../images/famfam/email.png);
 background-image:url(../images/custom/icons/help.png);
 }
 
-.x-grid-conversion .x-btn-text{
-background-image:url(../images/custom/conversion.png);
-}
-
-.x-grid-go-down .x-btn-text{
-background-image:url(../images/custom/go_down.gif);
-}
-
-.folder_add {background-image:url(../images/famfam/folder_add.png);}
 
 
 .post {
@@ -610,157 +429,16 @@ background-image:url(../images/custom/go_down.gif);
 	display: none;
 }
 
-.x-grid-bulkmail .x-btn-text {
-	background-image: url(../images/custom/crm/emailNew.gif);
-}
-
-.x-grid-clear .x-btn-text {
-	background-image: url(../images/custom/crm/clear.gif);
-}
-
-.x-pm-tsevk .x-btn-text {
-	background-image: url(../images/custom/crm/sevk.gif);
-}
-
-.x-pm-tsiparis .x-btn-text {
-	background-image: url(../images/custom/crm/siparis.gif);
-}
-
-.x-plot .x-btn-text {
-	background-image: url(../images/custom/crm/reports.gif);
-}
-
-.x-add .x-btn-text {
-        background-image: url(../images/custom/crm/put.png);
-}
-.x-add4 .x-btn-text {
-	background-image: url(../images/custom/crm/27_sync.png);
-}
-.x-add2 .x-btn-text {
-		background-image: url(../images/custom/crm/32_yeni_kayit.png);
-}
-
-.x-servis .x-btn-text {
-        background-image: url(../images/custom/crm/06_servis.png);
-}
-
-.x-add-plus .x-btn-text {
-        background-image: url(../images/custom/crm/add.png);
-}
-
-.menu-kaydet .x-menu-item-icon {
-	background-image: url(../images/famfam/accept.png);
-}
-
-.menu-ayar .x-menu-item-icon {
-	background-image: url(../images/famfam/cog.png);
-}
-
-.menu-default .x-menu-item-icon {
-	background-image: url(../images/famfam/arrow_undo.png);
-}
-
-.menu-onay .x-menu-item-icon {
-	background-image: url(../images/custom/icons/accept_demand.png);
-}
-
-.menu-fatura .x-menu-item-icon {
-	background-image: url(../images/famfam/table_go.png);
-}
-
-.menu-reserve .x-menu-item-icon {
-	background-image: url(../images/famfam/basket_put.png);
-}
-
-.menu-keyword .x-menu-item-icon {
-	background-image: url(../images/famfam/shape_square_key.png);
-}
-
-.menu-user .x-menu-item-icon {
-	background-image: url(../images/famfam/user_add.png);
-}
-
-.menu-transfer .x-menu-item-icon {
-	background-image: url(../images/custom/icons/switch.png);
-}
-
-.menu-clone .x-menu-item-icon {
-	background-image:url(../images/famfam/page_copy.png);
-}
-
-.menu-ihale .x-menu-item-icon {
-	background-image: url(../images/famfam/table_add.png);
-}
-
-.new-project .x-menu-item-icon {
-	background-image: url(../images/custom/crm/createProject.gif);
-}
-
-.new-contact .x-menu-item-icon {
-	background-image: url(../images/custom/crm/createContacts.gif);
-}
-
-.new-lead .x-menu-item-icon {
-	background-image: url(../images/custom/crm/createLeads.gif);
-}
-.save .x-menu-item-icon {
-	background-image: url(../images/custom/save.png);
-}
-.new-call_center .x-menu-item-icon {
-	background-image: url(../images/custom/crm/07_cagri.png);
-}
-
-.new-service_contract .x-menu-item-icon {
-	background-image: url(../images/custom/service_contract.png);
-}
-
-.new-sale_order .x-menu-item-icon {
-	background-image: url(../images/custom/crm/16_hizli_satis.png);
-}
-
-.x-new_telephone .x-btn-text {
-	background-image: url(../images/famfam/telephone_add.png);
-}
-
-.x-send_toolbar .x-btn-text {
-	background-image: url(../images/custom/send_toolbar.png);
-}
-
-.x-insert_energy_data .x-btn-text {
-	background-image: url(../images/custom/insert_energy_data.png) ;
-}
 
 .new-email .x-menu-item-icon {
 	background-image: url(../images/custom/crm/email.gif);
 }
 
-.new-sms .x-menu-item-icon {
-	background-image: url(../images/custom/crm/sms.gif);
-}
-
-.new-case .x-menu-item-icon {
-	background-image: url(../images/custom/crm/createCases.gif);
-}
-
-.money .x-menu-item-icon {
-	background-image: url(../images/famfam/money.png);
-}
 
 .list-attach .x-menu-item-icon {
 	background-image: url(../images/custom/crm/attachment.gif);
 }
 
-.list-usercc .x-menu-item-icon {
-	background-image: url(../images/custom/crm/cc_users.gif);
-}
-
-.grid-options1 .x-menu-item-icon {
-	background-image: url(../images/custom/crm/gridOptions.gif);
-}
-
-.x-poke-button .x-menu-item-icon {
-	background-image:url(../images/famfam/clock_stop.png);
-}
 
 .x-reset-button .x-btn-text {
 	background-image:url(../images/custom/reset.png);
@@ -770,32 +448,10 @@ background-image:url(../images/custom/go_down.gif);
 	background-image:url(../images/custom/pie.gif);
 }
 
-.x-send-receive-button .x-btn-text {
-	background-image:url(../images/custom/send-receive.gif);
-}
-
-.x-printer-button .x-btn-text {
-	background-image:url(../images/custom/printer.png);
-}
-
-.x-eye-button .x-btn-text {
-	background-image:url(../images/custom/eye.png);
-}
-
-.x-bar-button .x-btn-text {
-	background-image:url(../images/custom/bar.png);
-}
-
-.x-bank-button .x-btn-text {
-	background-image:url(../images/custom/bank.png);
-}
-
-.x-line-button .x-btn-text {
-	background-image:url(../images/custom/line.png);
-}
 
 .x-addcomment-button{
 	background-image:url(images/plus-16.png) !important;
+	background-size: 12px;
 }
 
 .x-deletecomment-button{
@@ -811,9 +467,6 @@ background-image:url(../images/custom/go_down.gif);
 	padding-bottom: 1px;
 }
 
-.x-tree-node img.cmp,.menu-cmp .x-menu-item-icon {
-	background-image: url(../images/custom/crm/plugin.gif);
-}
 
 .veliSel {background-color: #FFFF77}
 .veliSelDark {background-color: #CCCC22}
@@ -935,7 +588,7 @@ pre.code{
 .xform-live-sync {
     padding: 0px;
     border: none !important;
-/*    background:#75263f;*/
+    background:linear-gradient(127deg, rgba(255,0,0,.8), rgba(255,0,0,0) 70.71%), linear-gradient(127deg, rgba(0,255,0,.8), rgba(0,255,0,0) 70.71%), linear-gradient(336deg, #03A9F4, rgba(0,0,255,0) 70.71%);
 }
 
 
@@ -1272,6 +925,6 @@ header .phone .theme-switch a+a {
 }
 
 
-.x-dd-drag-ghost .x-tab-strip-inner, .x-dd-drag-ghost .x-tab-right {
+.x-dd-drag-ghost .x-tab-strip-inner, .x-dd-drag-ghost .x-tab-right, .x-dd-drag-ghost .x-tab-left {
 	background: transparent !important;
 }

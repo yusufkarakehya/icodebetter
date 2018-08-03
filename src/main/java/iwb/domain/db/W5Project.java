@@ -16,12 +16,10 @@ public class W5Project  implements java.io.Serializable {
 	private String projectUuid;
 	private int customizationId;
 
-	private short vcsFlag;
 	private String vcsUrl;
 	private String vcsUserName;
 	private String vcsPassword;
 	
-	private short setSearchPathFlag;
 	private String rdbmsSchema;
 
 	
@@ -55,14 +53,7 @@ public class W5Project  implements java.io.Serializable {
 	public void setCustomizationId(int customizationId) {
 		this.customizationId = customizationId;
 	}
-	
-	@Column(name="vcs_flag")
-	public short getVcsFlag() {
-		return vcsFlag;
-	}
-	public void setVcsFlag(short vcsFlag) {
-		this.vcsFlag = vcsFlag;
-	}
+
 	@Column(name="vcs_url")
 	public String getVcsUrl() {
 		return vcsUrl;
@@ -178,15 +169,6 @@ public class W5Project  implements java.io.Serializable {
 	public void setTsdbDatabase(String tsdbDatabase) {
 		this.tsdbDatabase = tsdbDatabase;
 	}
-	
-	@Column(name="set_search_path_flag")
-	public short getSetSearchPathFlag() {
-		return setSearchPathFlag;
-	}
-	public void setSetSearchPathFlag(short setSearchPathFlag) {
-		this.setSearchPathFlag = setSearchPathFlag;
-	}
-	
-	
+
 }
 

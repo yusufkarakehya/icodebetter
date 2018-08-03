@@ -496,38 +496,58 @@ public class UserUtil {
 	public static String androidAPIKey = "AIzaSyBTET2hfQa_6AGQy5ErILBz9IFBAF3tx3E";
 	private static int androidSendRetryCount = 1;
 //	final private static Map<Integer, Map<String, OnlineUserBean2>> lastUserAction= new ConcurrentHashMap<Integer, Map<String, OnlineUserBean2>>();
-	final private static Map<Integer, Map<Integer, CachedUserBean3>> userMap3 = new HashMap<Integer, Map<Integer, CachedUserBean3>>();
+	final private static Map<String, Set<Integer>> projectMap3 = new HashMap<String, Set<Integer>>();//users of project
+	final private static Map<Integer, CachedUserBean3> userMap3 = new HashMap<Integer, CachedUserBean3>();
 	final private static Map<String, DeviceSyncHelper3> deviceMap3 = new HashMap();//mobileDeviceId, 
-	final private static Map<Integer, Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>>> recordEditMap3 = new HashMap<Integer, Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>>>();
-	//customizatioId, key, userId, webPageId
-	final private static Map<Integer, Map<Integer, Map<String, SyncTabMapHelper3>>> gridSyncMap3 = new HashMap<Integer, Map<Integer, Map<String, SyncTabMapHelper3>>>();
-	//customizationId, tableId, tabId, 
+	final private static Map<String, Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>>> recordEditMap3 = new HashMap<String, Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>>>();
+	//projectId, key, userId, webPageId
+	final private static Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> gridSyncMap3 = new HashMap<String, Map<Integer, Map<String, SyncTabMapHelper3>>>();
+	//projectId, tableId, tabId, 
 	
 
 	public static void clearDevices(){
 		deviceMap3.clear();
 	}
 	
-	public static void addDevice(String id, int userId, int customizationId, short deviceType, long t){
+	public static void addProjectUser(String projectId, int userId){
+		Set<Integer> s = projectMap3.get(projectId);
+		if(s==null){
+			s = new HashSet();
+			projectMap3.put(projectId, s);
+		}
+		s.add(userId);
+	}
+	
+	public static void addProjectUsers(String projectId, String userIds){
+		Set<Integer> s = projectMap3.get(projectId);
+		if(s==null){
+			s = new HashSet();
+			projectMap3.put(projectId, s);
+		}
+		String[] lu = userIds.split(",");
+		for(String u:lu)s.add(GenericUtil.uInteger(u));
+	}
+	
+	public static void addDevice(String id, int userId, String projectId, short deviceType, long t){
 		deviceMap3.put(id, new DeviceSyncHelper3(userId, id, t, deviceType));
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null)return;
 		if(cub.getSyncSessionMap()==null)cub.setSyncSessionMap(new HashMap());
 		SyncSessionMapHelper3 ses = cub.getSyncSessionMap().get(id);
 		if(ses==null){
-			Map scd = new HashMap();scd.put("customizationId", customizationId);scd.put("userId", userId);
+			Map scd = new HashMap();scd.put("projectId", projectId);scd.put("userId", userId);
 			ses = new SyncSessionMapHelper3(); ses.setDeviceType(deviceType);ses.setScd(scd);
 			cub.getSyncSessionMap().put(id, ses);
 			if(cub.getChatStatusTip()==0)cub.setChatStatusTip((short)1);
 		}
 	}
 	
-	public static int broadCastRecordForTemplates(int customizationId,
+	public static int broadCastRecordForTemplates(String projectId,
 			int tableId, String key, int action, int actionUserId) {
 		if(key==null)return 0;
 		int intKey = key.indexOf('-')>0 ? GenericUtil.uInt(key.split("-")[1]) : -1;
 		if(intKey==0)return 0;
-		Map<Integer, Map<String, SyncTabMapHelper3>>	tblMap = gridSyncMap3.get(customizationId);
+		Map<Integer, Map<String, SyncTabMapHelper3>>	tblMap = gridSyncMap3.get(projectId);
 		if(tblMap==null)return 0;
 		Map<String, SyncTabMapHelper3> tabMap = tblMap.get(tableId);
 		if(tabMap==null)return 0;
@@ -545,7 +565,7 @@ public class UserUtil {
 							if(action!=2)msg.put("key", intKey);
 							msg.put("crudAction", action);
 							msg.put("userId", actionUserId);
-							msg.put("userDsc", getUserDsc(customizationId, actionUserId));
+							msg.put("userDsc", getUserDsc(actionUserId));
 							if(g.getGridId()>0)
 								msg.put("gridId", g.getGridId());
 							else
@@ -557,7 +577,7 @@ public class UserUtil {
 					}
 					if(msg!=null){
 						//TODO tab.addMessages("Mazgallar kirlendi! ");//x grid'e yeni kayit, düzenlendi, silindi. form'daki formcell değişti
-						CachedUserBean3 cub = getCachedUserBean(customizationId, tab.getUserId());
+						CachedUserBean3 cub = getCachedUserBean(tab.getUserId());
 						if(cub.getSyncSessionMap()!=null)for(SyncSessionMapHelper3 ses:cub.getSyncSessionMap().values())if(ses.getSyncWebPageMap()!=null)for(String wps:ses.getSyncWebPageMap().keySet())/*if(!wps.equals(webPageId))*/{
 							SyncWebPageMapHelper3 wp = ses.getSyncWebPageMap().get(wps);
 							Map m = new HashMap();
@@ -581,12 +601,12 @@ public class UserUtil {
 		return count;
 	}
 	
-	public static int broadCastRecordForTemplatesOld(int customizationId,
+	public static int broadCastRecordForTemplatesOld(String projectId,
 			int tableId, String key, int action, int actionUserId) {
 		if(key==null)return 0;
 		int intKey = key.indexOf('-')>0 ? GenericUtil.uInt(key.split("-")[1]) : -1;
 		if(intKey==0)return 0;
-		Map<Integer, Map<String, SyncTabMapHelper3>>	tblMap = gridSyncMap3.get(customizationId);
+		Map<Integer, Map<String, SyncTabMapHelper3>>	tblMap = gridSyncMap3.get(projectId);
 		if(tblMap==null)return 0;
 		Map<String, SyncTabMapHelper3> tabMap = tblMap.get(tableId);
 		if(tabMap==null)return 0;
@@ -604,7 +624,7 @@ public class UserUtil {
 							if(action!=2)msg.put("key", intKey);
 							msg.put("crudAction", action);
 							msg.put("userId", actionUserId);
-							msg.put("userDsc", getUserDsc(customizationId, actionUserId));
+							msg.put("userDsc", getUserDsc(actionUserId));
 							if(g.getGridId()>0)
 								msg.put("gridId", g.getGridId());
 							else
@@ -616,7 +636,7 @@ public class UserUtil {
 					}
 					if(msg!=null){
 						//TODO tab.addMessages("Mazgallar kirlendi! ");//x grid'e yeni kayit, düzenlendi, silindi. form'daki formcell değişti
-						CachedUserBean3 cub = getCachedUserBean(customizationId, tab.getUserId());
+						CachedUserBean3 cub = getCachedUserBean(tab.getUserId());
 						if(cub.getSyncSessionMap()!=null)
 							for(SyncSessionMapHelper3 ses:cub.getSyncSessionMap().values())
 								if(ses.getSyncWebPageMap()!=null)
@@ -640,10 +660,10 @@ public class UserUtil {
 		return count;
 	}
 	
-	public static SyncTabMapHelper3 getTableTab(int customizationId, int tableId, int userId,
+	public static SyncTabMapHelper3 getTableTab(String projectId, int tableId, int userId,
 			String sessionId, String webPageId, String tabId){
 		if(userId==0 ||  webPageId==null || tabId==null)return null;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null)return null;
@@ -664,10 +684,10 @@ public class UserUtil {
 		SyncTabMapHelper3 tab = web.getSyncTabMap().get(tabId);
 		
 		
-		Map<Integer, Map<String, SyncTabMapHelper3>>	tblMap = gridSyncMap3.get(customizationId);
+		Map<Integer, Map<String, SyncTabMapHelper3>>	tblMap = gridSyncMap3.get(projectId);
 		if(tblMap==null){
 			tblMap = new ConcurrentHashMap<Integer, Map<String, SyncTabMapHelper3>>();
-			gridSyncMap3.put(customizationId,  tblMap);
+			gridSyncMap3.put(projectId,  tblMap);
 		}
 		Map<String, SyncTabMapHelper3> tabMap = tblMap.get(tableId);
 		if(tabMap==null){
@@ -695,10 +715,10 @@ public class UserUtil {
 		return tab;
 	}
 	
-	public static Set<Integer> getTableGridFormCellCachedKeys(int customizationId, int tableId, int userId,
+	public static Set<Integer> getTableGridFormCellCachedKeys(String projectId, int tableId, int userId,
 			String sessionId, String webPageId, String tabId, int gridId, Map requestParams, boolean clear) {
 		if(userId==0 ||  webPageId==null || tabId==null || gridId==0)return null;
-		SyncTabMapHelper3  tab = getTableTab(customizationId, tableId, userId, sessionId, webPageId, tabId);
+		SyncTabMapHelper3  tab = getTableTab(projectId, tableId, userId, sessionId, webPageId, tabId);
 		if(tab==null)return null;
 				
 //		tab.setDirty(false);
@@ -719,10 +739,10 @@ public class UserUtil {
 	}
 	
 	
-	public static Map getTableGridFormCellReqParams(int customizationId, int tableId, int userId,
+	public static Map getTableGridFormCellReqParams(String projectId, int tableId, int userId,
 			String sessionId, String webPageId, String tabId, int gridId) {
 		if(userId==0 ||  webPageId==null || tabId==null || gridId==0)return null;
-		SyncTabMapHelper3  tab = getTableTab(customizationId, tableId, userId, sessionId, webPageId, tabId);
+		SyncTabMapHelper3  tab = getTableTab(projectId, tableId, userId, sessionId, webPageId, tabId);
 		if(tab==null)return null;
 //		tab.setDirty(false);
 //		tab.setLastActionTime(System.currentTimeMillis());
@@ -735,8 +755,8 @@ public class UserUtil {
 			return g.getRequestParams();		
 	}
 	
-	public	static	Map getRecordEditMapInfo(int customizationId){
-		 Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> m1 = recordEditMap3.get(customizationId);
+	public	static	Map getRecordEditMapInfo(String projectId){
+		 Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> m1 = recordEditMap3.get(projectId);
          Map<String, Map<Integer, Map<String, Map<String, Object>>>> n1 = new HashMap();
          if(!GenericUtil.isEmpty(m1))for(String key:m1.keySet()){
 	       	  Map<Integer, Map<String, SyncTabMapHelper3>> m2 = m1.get(key);
@@ -765,17 +785,17 @@ public class UserUtil {
          }
          return n1;
 	}
-	public	static	Map getGridSyncMapInfo(int customizationId){
-		Map<Integer, Map<String, SyncTabMapHelper3>> m1 = gridSyncMap3.get(customizationId);
+	public	static	Map getGridSyncMapInfo(String projectId){
+		Map<Integer, Map<String, SyncTabMapHelper3>> m1 = gridSyncMap3.get(projectId);
         Map n1 = new HashMap();
         if(!GenericUtil.isEmpty(m1))for(Integer key:m1.keySet())try{
         	Map<String, SyncTabMapHelper3> m2 = m1.get(key);
         	Map n2 = new HashMap();
-	       	n1.put((key>0 ? ("table."+FrameworkCache.getTable(customizationId, key).getDsc()):("lookUp."+FrameworkCache.getLookUp(customizationId, -key.intValue()).getDsc()))+"("+key+")", n2);
+	       	n1.put((key>0 ? ("table."+FrameworkCache.getTable(projectId, key).getDsc()):("lookUp."+FrameworkCache.getLookUp(projectId, -key.intValue()).getDsc()))+"("+key+")", n2);
 	       	if(!GenericUtil.isEmpty(m2))for(String tabId:m2.keySet()){
 	       		  SyncTabMapHelper3 m3 = m2.get(tabId);
 	           	  Map n3 = new HashMap();
-	           	  n2.put(getUserName(customizationId, m3.getUserId())+"."+tabId, n3);
+	           	  n2.put(getUserName(m3.getUserId())+"."+tabId, n3);
 	           	  
 	       		  if(!GenericUtil.isEmpty(m3.getGridMap()))for(Integer gridId:m3.getGridMap().keySet()){
 	       			SyncGridMapHelper3 m4 = m3.getGridMap().get(gridId);
@@ -792,14 +812,14 @@ public class UserUtil {
 		}
         return n1;
 	}
-	public	static	Map getUserMapInfo(int customizationId){
+	public	static	Map getUserMapInfo(String projectId){
 		long now = System.currentTimeMillis();
-		Map<Integer, CachedUserBean3> m1 = userMap3.get(customizationId);
+		Map<Integer, CachedUserBean3> m1 = userMap3;//.get(projectId);
         Map<String, Map<Integer, Map<String, Map<String, Object>>>> n1 = new HashMap();
         if(!GenericUtil.isEmpty(m1))for(Integer userId:m1.keySet()){
         	CachedUserBean3 m2 = m1.get(userId);
 			Map n2 = new HashMap();
-			n1.put(getUserName(customizationId, userId), n2);
+			n1.put(getUserName(userId), n2);
 			if(m2!=null && !GenericUtil.isEmpty(m2.getSyncSessionMap()))for(String sessionId:m2.getSyncSessionMap().keySet()){
 				  SyncSessionMapHelper3 m3 = m2.getSyncSessionMap().get(sessionId);
 			   	  Map n3 = new HashMap();
@@ -821,7 +841,7 @@ public class UserUtil {
 					 if(m4.getDeferredResult()!=null){
 						 n4.put("deferredResult_active", !m4.getDeferredResult().isSetOrExpired());            		 
 						 n4.put("deferredResult_userId", m4.getDeferredResult().getUserId());
-						 n4.put("deferredResult_userName", getUserName(customizationId, m4.getDeferredResult().getUserId()));
+						 n4.put("deferredResult_userName", getUserName(m4.getDeferredResult().getUserId()));
 						 n4.put("deferredResult_webPageId", m4.getDeferredResult().getWebPageId());
 			   		 }
 					 if(m4.getSyncTabMap()!=null){
@@ -837,8 +857,8 @@ public class UserUtil {
         return n1;
 	}
 
-	public	static SyncWebPageMapHelper3 addDeferredResult(int customizationId, int userId, String sessionId, String webPageId, String activeTabId, Map scd, W5DeferredResult dr){
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+	public	static SyncWebPageMapHelper3 addDeferredResult(String projectId, int userId, String sessionId, String webPageId, String activeTabId, Map scd, W5DeferredResult dr){
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub.getSyncSessionMap()==null)cub.setSyncSessionMap(new HashMap());
 		boolean mobile = scd.containsKey("mobile");
 		if(mobile){
@@ -873,10 +893,10 @@ public class UserUtil {
 	}
 
 	//4mobile: webPageId=tabId=mobileDeviceId
-	public	static Map<Integer, Map<String, SyncTabMapHelper3>> syncRecordEditMap(int customizationId, String key, int userId, String webPageId, String tabId, long time, short syncTip){
+	public	static Map<Integer, Map<String, SyncTabMapHelper3>> syncRecordEditMap(String projectId, String key, int userId, String webPageId, String tabId, long time, short syncTip){
 		if(key==null || webPageId==null || tabId==null)return null;
-		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(customizationId);
-		if(rec4cus==null){rec4cus= new ConcurrentHashMap<String, Map<Integer, Map<String, SyncTabMapHelper3>>>();recordEditMap3.put(customizationId, rec4cus);}
+		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(projectId);
+		if(rec4cus==null){rec4cus= new ConcurrentHashMap<String, Map<Integer, Map<String, SyncTabMapHelper3>>>();recordEditMap3.put(projectId, rec4cus);}
 		Map<Integer, Map<String, SyncTabMapHelper3>> record = rec4cus.get(key);//record: webPageId, tabIds
 		if(record==null){record= new ConcurrentHashMap<Integer, Map<String, SyncTabMapHelper3>>();rec4cus.put(key, record);}
 		Map<String, SyncTabMapHelper3> rec4user = record.get(userId);
@@ -895,16 +915,16 @@ public class UserUtil {
 		
 	}
 
-	public	static Map<Integer, Map<String, SyncTabMapHelper3>> syncGetRecordEditUsersMap(int customizationId, String key){
-		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(customizationId);
+	public	static Map<Integer, Map<String, SyncTabMapHelper3>> syncGetRecordEditUsersMap(String projectId, String key){
+		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(projectId);
 		if(rec4cus==null)return null;
 		return rec4cus.get(key);//record
 		
 	}
 
 
-	public	static Map<Integer, Map<String, SyncTabMapHelper3>> syncUpdateRecord(int customizationId, String key, int userId, String webPageId, boolean makeDirty){
-		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> m1 = recordEditMap3.get(customizationId);
+	public	static Map<Integer, Map<String, SyncTabMapHelper3>> syncUpdateRecord(String projectId, String key, int userId, String webPageId, boolean makeDirty){
+		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> m1 = recordEditMap3.get(projectId);
 		if(m1==null)return null;
 		Map<Integer, Map<String, SyncTabMapHelper3>> m2 = m1.get(key);
 		if(m2==null)return null;
@@ -923,9 +943,9 @@ public class UserUtil {
 		return m2;
 	}
 
-	public static  Map<Integer, Map<String, SyncTabMapHelper3>> syncRemoveTab(int customizationId, int userId, String webPageId, String key) {
+	public static  Map<Integer, Map<String, SyncTabMapHelper3>> syncRemoveTab(String projectId, int userId, String webPageId, String key) {
 		if(userId==0 || key==null)return null;
-		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(customizationId);
+		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(projectId);
 		if(rec4cus==null)return null;
 		Map<Integer, Map<String, SyncTabMapHelper3>> record = rec4cus.get(key);
 		//userId, webPageId, SyncTabMapHelper3
@@ -935,12 +955,12 @@ public class UserUtil {
 		rec4user.remove(webPageId);
 		return record;		
 	}
-	public static  List<Map<Integer, Map<String, SyncTabMapHelper3>>> syncRemovePage(int customizationId, int userId, String sessionId, String webPageId) {
+	public static  List<Map<Integer, Map<String, SyncTabMapHelper3>>> syncRemovePage(String projectId, int userId, String sessionId, String webPageId) {
 		if(userId==0 ||  webPageId==null)return null;
 		List<Map<Integer, Map<String, SyncTabMapHelper3>>> result = null;
-		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> m1 = recordEditMap3.get(customizationId);
+		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> m1 = recordEditMap3.get(projectId);
 		//key, user, webPage
-		Map<Integer, Map<String, SyncTabMapHelper3>> m1b = gridSyncMap3.get(customizationId);
+		Map<Integer, Map<String, SyncTabMapHelper3>> m1b = gridSyncMap3.get(projectId);
 		//tableId, tabId, 
 		if(m1!=null)for(Map<Integer, Map<String, SyncTabMapHelper3>> m2:m1.values()){
 			Map<String, SyncTabMapHelper3> m3 = m2.get(userId);
@@ -962,30 +982,30 @@ public class UserUtil {
 			}
 		}		
 		
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null || cub.getSyncSessionMap()==null){
-			onlineUserLogout(customizationId, userId, sessionId);
+			onlineUserLogout(userId, sessionId);
 			return result;
 		}
 		SyncSessionMapHelper3 ses = cub.getSyncSessionMap().get(sessionId);
 		if(ses==null || ses.getSyncWebPageMap()==null){
-			onlineUserLogout(customizationId, userId, sessionId);
+			onlineUserLogout(userId, sessionId);
 			return result;
 		}
 		if(ses.getSyncWebPageMap().containsKey(webPageId)){
 			ses.getSyncWebPageMap().remove(webPageId);
 			if(ses.getSyncWebPageMap().isEmpty()){//logout olmus demek ki
-				onlineUserLogout(customizationId, userId, sessionId);
+				onlineUserLogout(userId, sessionId);
 			}
 		}
 		return result;
 	}
 
 	public static Map<Integer, Map<String, SyncTabMapHelper3>> syncRemoveRecord(
-			int customizationId, String key, int userId) {
-		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(customizationId);
+			String projectId, String key, int userId) {
+		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(projectId);
 		if(rec4cus==null)return null;
 		Map<Integer, Map<String, SyncTabMapHelper3>> record = rec4cus.get(key);
 		if(record==null)return null;
@@ -994,8 +1014,8 @@ public class UserUtil {
 	}
 	
 	public static Map<Integer, Map<String, SyncTabMapHelper3>> syncGetRecord(
-			int customizationId, String key) {
-		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(customizationId);
+			String projectId, String key) {
+		Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> rec4cus = recordEditMap3.get(projectId);
 		if(rec4cus==null)return null;
 		Map<Integer, Map<String, SyncTabMapHelper3>> record = rec4cus.get(key);
 		//only for web
@@ -1008,30 +1028,30 @@ public class UserUtil {
 	}
 
 	
-	public static CachedUserBean3 getCachedUserBean(int customizationId, int userId){
+	public static CachedUserBean3 getCachedUserBean(int userId){
 		if(userId==0)return null;
-		Map<Integer, CachedUserBean3> m = userMap3.get(customizationId);
+		Map<Integer, CachedUserBean3> m = userMap3;//.get(projectId);
 		if(m==null)return null;
 		CachedUserBean3 r = m.get(userId);
-		if(FrameworkSetting.debug && r==null)for(Map<Integer, CachedUserBean3> zz:userMap3.values()){
+	/*	if(FrameworkSetting.debug && r==null)for(Map<Integer, CachedUserBean3> zz:userMap3.values()){
 			r = zz.get(userId);
 			if(r!=null)return r;
-		}
+		} */
 		return r;
 	}
 	
 	
-	public static Map<String, SyncSessionMapHelper3> getUserSessions(int customizationId, int userId){
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+	public static Map<String, SyncSessionMapHelper3> getUserSessions(String projectId, int userId){
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null)return null;
 		return cub.getSyncSessionMap();
 	}
 
 	
 	
-	public static boolean removeUserSession(int customizationId, int userId, String sid){
+	public static boolean removeUserSession(int userId, String sid){
 		if(userId==0 || GenericUtil.isEmpty(sid))return false;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null)return false;
 		Map<String, SyncSessionMapHelper3>  userSessions = cub.getSyncSessionMap();
 		if(userSessions==null)return false;
@@ -1048,8 +1068,8 @@ public class UserUtil {
 		long awayTime = System.currentTimeMillis()-FrameworkSetting.onlineUsersAwayMinute;			
 		
 		int userId = (Integer)scd.get("userId");
-		int customizationId = (Integer)scd.get("customizationId");
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		String projectId = (String)scd.get("projectId");
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null)return;//TODO
 		
 		if(scd.containsKey("mobile"))cub.setLastMobileActionTime(System.currentTimeMillis());
@@ -1068,7 +1088,7 @@ public class UserUtil {
 //			oub.sessionId = sid;
 //			oub.setScd(scd);
 			if(awayTime>sess4user.getLastActionTime() && (Integer)scd.get("chatStatusTip")==1){
-				publishUserStatus(customizationId, userId, ((Integer)scd.get("chatStatusTip")).shortValue(), null, (String)scd.get("projectId"));//onceden away idi, simdi normal oldu herkese bildir
+				publishUserStatus(userId, ((Integer)scd.get("chatStatusTip")).shortValue(), null, projectId);//onceden away idi, simdi normal oldu herkese bildir
 			}
  			if(cub.getChatStatusTip()==0 && (Integer)scd.get("chatStatusTip")!=0){
  				cub.setChatStatusTip(((Integer)scd.get("chatStatusTip")).shortValue());
@@ -1080,7 +1100,7 @@ public class UserUtil {
  				cub.setChatStatusTip(((Integer)scd.get("chatStatusTip")).shortValue());
  			}
  			userSessions.put(sid, sess4user);
- 			publishUserStatus(customizationId, userId, ((Integer)scd.get("chatStatusTip")).shortValue(), null, (String)scd.get("projectId"));//herkese bildir
+ 			publishUserStatus(userId, ((Integer)scd.get("chatStatusTip")).shortValue(), null, projectId);//herkese bildir
 		}
 		if(!GenericUtil.isEmpty(webPageId) && sess4user.getSyncWebPageMap()!=null){
 			SyncWebPageMapHelper3 wpi = sess4user.getSyncWebPageMap().get(webPageId);
@@ -1090,8 +1110,8 @@ public class UserUtil {
 	
 	
 	
-	public static boolean onlineUserLogout(int customizationId, int userId, String sessionId){
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId); //
+	public static boolean onlineUserLogout(int userId, String sessionId){
+		CachedUserBean3 cub = getCachedUserBean(userId); //
 		if(cub==null)return false;//TODO
 		String projectUuid = null;
 		if(cub.getSyncSessionMap()!=null){
@@ -1109,7 +1129,7 @@ public class UserUtil {
 					break;
 				}
 				if(publish){
-					publishUserStatus(customizationId, userId, (short)0, null, projectUuid);//herkese bildir, logout oldugunu, eger baska instance'i yoksa kendisinin, logout'tur
+					publishUserStatus(userId, (short)0, null, projectUuid);//herkese bildir, logout oldugunu, eger baska instance'i yoksa kendisinin, logout'tur
 					//if(FrameworkSetting.mq)mqPublishUserStatus(customizationId, userId, (short)0);//herkese bildir, logout oldugunu, eger baska instance'i yoksa kendisinin, logout'tur
 					
 				}
@@ -1117,7 +1137,7 @@ public class UserUtil {
 		} else {
 			cub.setLastActionTime(0);cub.setLastAsyncActionTime(0);cub.setLastMobileActionTime(0);
 			cub.setChatStatusTip((short)0);
-			publishUserStatus(customizationId, userId, (short)0, null, null);//herkese bildir, logout oldugunu, eger baska instance'i yoksa kendisinin, logout'tur
+			publishUserStatus(userId, (short)0, null, null);//herkese bildir, logout oldugunu, eger baska instance'i yoksa kendisinin, logout'tur
 			//if(FrameworkSetting.mq)mqPublishUserStatus(customizationId, userId, (short)0);//herkese bildir, logout oldugunu, eger baska instance'i yoksa kendisinin, logout'tur
 		}
 		return true;
@@ -1128,11 +1148,11 @@ public class UserUtil {
 
 	public static boolean onlineUserLogin(Map<String, Object> scd, String ip, String sessionId, short deviceType, String mobileDeviceId){ // number, precision
 		int userId = (Integer)scd.get("userId");
-		int customizationId = (Integer)scd.get("customizationId");
+		String projectId = (String)scd.get("projectId");
 		int chatStatusTip = (Integer)scd.get("chatStatusTip"); 
 	//	if(chatStatusTip==0)return false;
 
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 
 		if(deviceType!=0){
 			if(GenericUtil.isEmpty(mobileDeviceId))
@@ -1141,7 +1161,7 @@ public class UserUtil {
 	//		SyncSessionMapHelper3 syncSes = null;
 			if(deviceSync!=null){
 				if(deviceSync.getUserId()!=userId){ //farkli bir user'da var. silinmesi lazim ordan
-					CachedUserBean3 cubDevice = getCachedUserBean(customizationId, deviceSync.getUserId());
+					CachedUserBean3 cubDevice = getCachedUserBean(deviceSync.getUserId());
 					if(cubDevice!=null && cubDevice.getSyncSessionMap()!=null){
 						cubDevice.getSyncSessionMap().remove(mobileDeviceId);
 					}
@@ -1173,70 +1193,12 @@ public class UserUtil {
 		} else if(sessionId!=null)
 			userSessions.put(sessionId, syncSes);
 //		syncSes.setDeviceToken(mobileDeviceId);
-		publishUserStatus(customizationId, userId, (short)chatStatusTip, ip, (String)scd.get("projectId"));//herkese bildir
+		publishUserStatus(userId, (short)chatStatusTip, ip, projectId);//herkese bildir
 		//if(FrameworkSetting.mq)mqPublishUserStatus(customizationId, userId, (short)chatStatusTip);//herkese bildir, logout oldugunu, eger baska instance'i yoksa kendisinin, logout'tur
 
 		return true; //diger session'larin listesi: multiAllow yok ise, onlari iptal et
 	}
 	
-	
-	
-	public static Map mapOfOnlineUsers(Map scd){
-        long curTime = System.currentTimeMillis();
-        long awayTime = curTime - (long)FrameworkSetting.onlineUsersAwayMinute;
-        long limitTime = curTime - (long)FrameworkSetting.onlineUsersLimitMinute;
-        long limitMobileTime = curTime - FrameworkSetting.onlineUsersLimitMobileMinute;
-        int userId = ((Integer)scd.get("userId")).intValue();
-        int customizationId = ((Integer)scd.get("customizationId")).intValue();
-        boolean administratorFlag = GenericUtil.uInt(scd.get("customizerFlag")) != 0 || GenericUtil.uInt(scd.get("administratorFlag")) != 0;
-        Map data = new HashMap();
-        for(Iterator iterator = ((Map)userMap3.get(Integer.valueOf(customizationId))).entrySet().iterator(); iterator.hasNext();)
-        {
-            java.util.Map.Entry mcub = (java.util.Map.Entry)iterator.next();
-            if(((CachedUserBean3)mcub.getValue()).getSyncSessionMap() != null && ((Integer)mcub.getKey()).intValue() != userId && ((CachedUserBean3)mcub.getValue()).getChatStatusTip() != 0)
-            {
-                Map m = ((CachedUserBean3)mcub.getValue()).getSyncSessionMap();
-                if(!GenericUtil.isEmpty(m))
-                {
-                    SyncSessionMapHelper3 bestOub = new SyncSessionMapHelper3();
-                    bestOub.setLastActionTime(limitTime);
-                    bestOub.setLastAsyncActionTime(awayTime);
-                    int onlineCount = 0;
-                    for(Iterator iterator1 = m.values().iterator(); iterator1.hasNext();)
-                    {
-                        SyncSessionMapHelper3 oub = (SyncSessionMapHelper3)iterator1.next();
-                        if(!GenericUtil.isEmpty(oub.getScd()))
-                        {
-                            boolean b = true;
-                            if(oub.getLastActionTime() > bestOub.getLastActionTime())
-                            {
-                                bestOub = oub;
-                                onlineCount++;
-                                b = false;
-                            }
-                            if(oub.getLastAsyncActionTime() > bestOub.getLastAsyncActionTime())
-                            {
-                                bestOub.setLastAsyncActionTime(oub.getLastAsyncActionTime());
-                                if(b)
-                                    onlineCount++;
-                            }
-                        }
-                    }
-
-                    Map bscd = bestOub.getScd();
-                    if(bscd != null && (bestOub.getDeviceType() == 0 && (bestOub.getLastActionTime() > limitTime || bestOub.getLastAsyncActionTime() > awayTime) || bestOub.getDeviceType() != 0 && bestOub.getLastActionTime() > limitMobileTime) && ((Integer)bscd.get("customizationId")).intValue() == customizationId)
-                    {
-                        short chatStatusTip = ((CachedUserBean3)mcub.getValue()).getChatStatusTip();
-                        if(chatStatusTip == 1 && bestOub.getLastActionTime() < awayTime)
-                            chatStatusTip = 3;
-                        data.put((Integer)mcub.getKey(), Integer.valueOf(chatStatusTip));
-                    }
-                }
-            }
-        }
-
-        return data;
-    }
 	
 	
 	
@@ -1250,12 +1212,8 @@ public class UserUtil {
 		long limitMobileTime = curTime-FrameworkSetting.onlineUsersLimitMobileMinute;
 		
 		int userId = (Integer)scd.get("userId");
-		int customizationId = (Integer)scd.get("customizationId");
-		String projectUuid = (String)scd.get("projectId");
-		boolean administratorFlag =  GenericUtil.uInt(scd.get("customizerFlag")) !=0 || GenericUtil.uInt(scd.get("administratorFlag"))!=0;
-		String[] accf = null;
-		String chatConstraintFields = (String)scd.get("chatConstraintFields");
-		if(!GenericUtil.isEmpty(chatConstraintFields))accf = chatConstraintFields.split(",");
+//		String projectId = (Integer)scd.get("customizationId");
+		String projectId = (String)scd.get("projectId");
 		
 		boolean mq = false;
 			
@@ -1263,7 +1221,7 @@ public class UserUtil {
 		if(FrameworkSetting.mq){
 			W5Project po = FrameworkCache.wProjects.get(projectUuid);
 			if(po.getMqFlag()!=0){
-				Map<String, MQOnlineUserHelper> mqoi = mqOnlineUsers.get(customizationId).get(projectUuid);// bu projenin altinda
+				Map<String, MQOnlineUserHelper> mqoi = mqOnlineUsers.get(projectId).get(projectUuid);// bu projenin altinda
 				if(mqoi!=null)for(String instanceUuid:mqoi.keySet())if(!instanceUuid.equals(FrameworkSetting.instanceUuid)){
 					MQOnlineUserHelper mqo = mqoi.get(instanceUuid);
 					if(mqo.getRefreshTime()>curTime-(90*1000)){ //eger 1.5 dka icinde refrsh olmussa
@@ -1291,22 +1249,18 @@ public class UserUtil {
 		
 		
 		List<Object[]> data=new ArrayList<Object[]>();
-		for(Map.Entry<Integer, CachedUserBean3> mcub : userMap3.get(customizationId).entrySet()){
-			CachedUserBean3 cub = mcub.getValue();
+		if(projectMap3.get(projectId)!=null)for(Integer key : projectMap3.get(projectId)){
+			CachedUserBean3 cub = userMap3.get(key);
 			boolean found = false;
-			if(cub.getSyncSessionMap()!=null && mcub.getKey()!=userId && cub.getChatStatusTip()!=0){
+			if(cub.getSyncSessionMap()!=null && key!=userId && cub.getChatStatusTip()!=0){
 				Map<String, SyncSessionMapHelper3> m = cub.getSyncSessionMap();
 				if(GenericUtil.isEmpty(m))continue;
 				SyncSessionMapHelper3 bestOub = new SyncSessionMapHelper3();
 				bestOub.setLastActionTime(limitTime);
 				bestOub.setLastAsyncActionTime(awayTime);
 				int onlineCount = 0; short deviceType = 0; long mobileActionTime = limitMobileTime;
-				for(SyncSessionMapHelper3 oub:m.values())if(!GenericUtil.isEmpty(oub.getScd()) && oub.getScd().containsKey("projectId") && projectUuid.equals((String)oub.getScd().get("projectId"))){
+				for(SyncSessionMapHelper3 oub:m.values())if(!GenericUtil.isEmpty(oub.getScd())/* && oub.getScd().containsKey("projectId") && projectId.equals((String)oub.getScd().get("projectId"))*/){
 					boolean xb = false;
-					if(accf!=null)for(String s:accf)if(!GenericUtil.safeEquals(oub.getScd().get(s), scd.get(s))){
-						xb = true;
-						break;
-					}
 					if(xb)break;
 					if(oub.getDeviceType()!=0){
 						deviceType = oub.getDeviceType();
@@ -1327,11 +1281,11 @@ public class UserUtil {
 					}
 				}
 				if(bestOub.getScd()!=null && ((bestOub.getDeviceType()==0 && (bestOub.getLastActionTime()>limitTime || bestOub.getLastAsyncActionTime()>awayTime)) || (deviceType!=0 && mobileActionTime>limitMobileTime))){
-					if((Integer)bestOub.getScd().get("customizationId")!=customizationId)continue;
+//					if(!projectId.equals((String)bestOub.getScd().get("projectId")))continue;
 					short chatStatusTip = cub.getChatStatusTip();
 					if(chatStatusTip==1 && bestOub.getLastActionTime()<awayTime)chatStatusTip=(short)3;//away
 	//				CachedUserBean2 oz = cachedUserMap.get(mcub.getKey().toString());
-	    			data.add(new Object[]{mcub.getKey(),cub.getUserName(),cub.getDsc(),bestOub.getLastActionTime(), administratorFlag ? bestOub.getRemoteIP():null,chatStatusTip,bestOub.getScd()==null ? "error": bestOub.getScd().get("roleDsc"), 0, cub.getProfilePictureId(), deviceType!=0 ? 1:0});
+	    			data.add(new Object[]{key,cub.getUserName(),cub.getDsc(),bestOub.getLastActionTime(), null,chatStatusTip,bestOub.getScd()==null ? "error": bestOub.getScd().get("roleDsc"), 0, cub.getProfilePictureId(), deviceType!=0 ? 1:0});
 	    			found = true;
 				} 
 			}
@@ -1348,10 +1302,10 @@ public class UserUtil {
 	
 	public static boolean publishWidgetStatus(Map<String, Object> scd, Map<Integer, Map<Integer, Integer>> mapWidgetCount){
 		if(GenericUtil.isEmpty(mapWidgetCount))return false;
-		int customizationId = (Integer)scd.get("customizationId");
+//		String projectId = (Integer)scd.get("customizationId");
 //		int userId = (Integer)scd.get("userId");
 		for(Map.Entry<Integer,Map<Integer,Integer>> entry:mapWidgetCount.entrySet()){
-			CachedUserBean3 cub = getCachedUserBean(customizationId, entry.getKey());
+			CachedUserBean3 cub = getCachedUserBean(entry.getKey());
 			if(cub==null)continue;
 			String widgedIds = "";
 			for(Integer key:entry.getValue().keySet()){
@@ -1372,20 +1326,20 @@ public class UserUtil {
 	public static boolean updateChatStatus(Map<String, Object> scd, int chatStatusTip) {
 		if(chatStatusTip<0 || chatStatusTip>3/* || chatStatusTip==(Integer)scd.get("chatStatusTip")*/) return false;
 		scd.put("chatStatusTip",chatStatusTip);
-		int customizationId = (Integer)scd.get("customizationId");
+		String projectId = (String)scd.get("projectId");
 		int userId = (Integer)scd.get("userId");
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		cub.setChatStatusTip((short)chatStatusTip);
-		publishUserStatus(customizationId, userId, (short)chatStatusTip, null, (String)scd.get("projectId"));
+		publishUserStatus(userId, (short)chatStatusTip, null, projectId);
 		//if(FrameworkSetting.mq)mqPublishUserStatus(customizationId, userId, (short)chatStatusTip);//herkese bildir, logout oldugunu, eger baska instance'i yoksa kendisinin, logout'tur
 		return true;
 	}
 	
 
 	
-	public static boolean publishUserStatus(int customizationId, int userId, short chatStatusTip, String remoteIp, String projectUuid){		//TODO. karisik buralar
+	public static boolean publishUserStatus(int userId, short chatStatusTip, String remoteIp, String projectUuid){		//TODO. karisik buralar
 //		CachedUserBean2 cub = getCachedUserBean2(userId);
-		/*Map<Integer, CachedUserBean3> m1 = userMap3.get(customizationId);
+		/*Map<Integer, CachedUserBean3> m1 = userMap3.get(projectId);
 		if(m1==null)return false;
 		if(chatStatusTip==0 && FrameworkSetting.mq && projectUuid!=null){//eger offline olduysa bir zahmet digerlerine de bak
 			W5Project po = FrameworkCache.wProjects.get(projectUuid);
@@ -1402,7 +1356,7 @@ public class UserUtil {
 		}
 		
 		for (Map.Entry<Integer, CachedUserBean3> userEntry : m1.entrySet()){
-//			CachedUserBean3 cub = userEntry.getValue(); //getCachedUserBean(customizationId, entry.getKey());
+//			CachedUserBean3 cub = userEntry.getValue(); //getCachedUserBean(entry.getKey());
 			if(userEntry.getValue().getChatStatusTip()==0 && userId!=userEntry.getKey())continue; // eger bu user offline ise, ona bilgi gonderme (kendisine gonder ama, bgelki de status degistirmistir)
 			Map m = new HashMap();
 			m.put("success", true);
@@ -1420,8 +1374,8 @@ public class UserUtil {
 	}
 	
 	
-	public static List<W5QueuedPushMessageHelper> publishUserChatMsg(int customizationId, int fromUserId, int toUserId, String msg, Object chatId){
-		CachedUserBean3 cub = getCachedUserBean(customizationId, toUserId);
+	public static List<W5QueuedPushMessageHelper> publishUserChatMsg(int fromUserId, int toUserId, String msg, Object chatId){
+		CachedUserBean3 cub = getCachedUserBean(toUserId);
 		if(cub==null)return null;
 		int b=0;
 		if(true || cub.getChatStatusTip()!=0){
@@ -1430,7 +1384,7 @@ public class UserUtil {
 			m.put("userChatMsg", true);
 			m.put("chatId", chatId);
 			m.put("userId", fromUserId);
-			String title = getUserDsc(customizationId, fromUserId);
+			String title = getUserDsc(fromUserId);
 			m.put("userDsc", title);
 			m.put("title", title);
 			m.put("msg", msg);
@@ -1461,7 +1415,7 @@ public class UserUtil {
 		boolean mobilePush = FrameworkSetting.mobilePush && (n.getCustomizationId()==0 || FrameworkCache.getAppSettingIntValue(n.getCustomizationId(), "mobile_push_flag")!=0);
 		List<W5QueuedPushMessageHelper> l = mobilePush ? new ArrayList<W5QueuedPushMessageHelper>() : null;
 		for(Integer customizationId:ln){
-			Map<Integer, CachedUserBean3> m1 = userMap3.get(customizationId);
+			Map<Integer, CachedUserBean3> m1 = userMap3;//.get(projectId);
 			if(m1==null)continue;
 			if(allFlag){
 				for(Map.Entry<Integer, CachedUserBean3> userBean:m1.entrySet()){
@@ -1480,7 +1434,7 @@ public class UserUtil {
 	}
 	/*
 
-	public static boolean userLoginControl(String userName,String remoteIp,String sessionId,int customizationId){
+	public static boolean userLoginControl(String userName,String remoteIp,String sessionId,String projectId){
 		boolean control=true;
 		if(PromisCache.getAppSettingIntValue(customizationId, "allow_multi_login_flag")==0){
 			for(String key :lastUserAction.keySet()){	
@@ -1518,13 +1472,20 @@ public class UserUtil {
 		boolean mobile = scd.containsKey("mobile");
 		String sessionId = mobile ? (String)scd.get("mobileDeviceId") : (String)scd.get("sessionId");
 		String webPageId = mobile ? (String)scd.get("mobileDeviceId") : request.getParameter(".w");
-		if(false && onlineCheck)onlineUserCheck(scd, request.getRequestURI(), sessionId, webPageId);
+		String projectId = request.getParameter(".p");
+		if(onlineCheck)onlineUserCheck(scd, request.getRequestURI(), sessionId, webPageId);
+		if(!GenericUtil.isEmpty(projectId) && scd.containsKey("projectId") && !projectId.equals(scd.get("projectId").toString())) { //TODO. check for security
+			W5Project po = FrameworkCache.getProject(projectId);
+			if(po==null/* || po.getCustomizationId()!=(Integer)scd.get("customizationId")*/)//TODO: security problem
+				throw new IWBException("security","Wrong.Project",0,null, "Not allowed to access this project", null);
+			Map newScd = new HashMap();
+			newScd.putAll(scd);
+			newScd.put("projectId", projectId);
+			scd = newScd;
+		}
 	
-		if(scd.containsKey("customizationId")){
-			int cusId = (Integer)scd.get("customizationId");
-			if(FrameworkSetting.customizationSystemStatus.get(cusId)!=0){
-				throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
-			}
+		if(scd.containsKey("projectId") && FrameworkSetting.projectSystemStatus.get((String)scd.get("projectId"))!=0){
+			throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 		}
 		return scd;
 	}
@@ -1553,9 +1514,9 @@ public class UserUtil {
 		}
 		if(pid!=null && pid.length()>0){
 			int customizationId = (Integer)scd.get("customizationId");
-			W5Project po = FrameworkCache.wProjects.get(pid);
+			W5Project po = FrameworkCache.getProject(pid);
 			if(po!=null && po.getCustomizationId()==customizationId){
-				if(FrameworkSetting.customizationSystemStatus.get(customizationId)!=0){
+				if(FrameworkSetting.projectSystemStatus.get(pid)!=0){
 					throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 				}
 				Map newScd =(Map<String, Object>)session.getAttribute("iwb-"+pid); 
@@ -1608,37 +1569,37 @@ public class UserUtil {
 
 
 	
-	public static String getUserName(int customizationId, int userId){
+	public static String getUserName(int userId){
 		if(userId==0)return "";
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null)return "";//"???";
 		return cub.getUserName();
 		
 	}
 	
 	
-	public static String getUserDsc(int customizationId, int userId){
+	public static String getUserDsc(int userId){
 		if(userId==0)return "";
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null)return "";//"???";
 		return cub.getDsc();
 		
 	}
 	
 	
-	public static void setUserProfilePicture(int customizationId, int userId, int profilePictureId){
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+	public static void setUserProfilePicture(int userId, int profilePictureId){
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null)return;
 		cub.setProfilePictureId(profilePictureId);
 	}
 	
-	public static boolean addUser(int customizationId, int userId, String userName, String userDsc, boolean canMultiLogin){
+	public static boolean addUser(String projectId, int userId, String userName, String userDsc, boolean canMultiLogin){
 		if(userId==0)return false;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null){
 			cub = new CachedUserBean3(userName, userDsc, canMultiLogin);
-			if(userMap3.get(customizationId)==null)userMap3.put(customizationId, new HashMap());
-			userMap3.get(customizationId).put(userId, cub);
+//			if(userMap3.get(projectId)==null)userMap3.put(customizationId, new HashMap());
+			userMap3.put(userId, cub);
 		} else {
 			cub.setDsc(userDsc);
 			cub.setUserName(userName);
@@ -1649,14 +1610,14 @@ public class UserUtil {
 	
 	
 	
-	public static boolean addUserWithProfilePicutre(int customizationId, int userId, String userName, String userDsc, boolean canMultiLogin, int profilePictureId){
+	public static boolean addUserWithProfilePicutre(int userId, String userName, String userDsc, boolean canMultiLogin, int profilePictureId){
 		if(userId==0)return false;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null){
 			cub = new CachedUserBean3(userName, userDsc, canMultiLogin);
 			cub.setProfilePictureId(profilePictureId);
-			if(userMap3.get(customizationId)==null)userMap3.put(customizationId, new HashMap());
-			userMap3.get(customizationId).put(userId, cub);
+//			if(userMap3.get(projectId)==null)userMap3.put(customizationId, new HashMap());
+			userMap3.put(userId, cub);
 		} else {
 			cub.setDsc(userDsc);
 			cub.setUserName(userName);
@@ -1667,19 +1628,19 @@ public class UserUtil {
 	}
 
 	
-	public static int getUserProfilePicture(int customizationId, int userId){
+	public static int getUserProfilePicture(int userId){
 		if(userId==0)return 0;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null)return 0;
 		return cub.getProfilePictureId();
 	}
 
 	//4mobile: sessionId = webPageId = mobileDeviceId 
 	public static boolean removeTemplateTab(
-			int customizationId, int userId, String sessionId, String webPageId, String tabId) {
+			String projectId, int userId, String sessionId, String webPageId, String tabId) {
 		if(userId==0 ||  webPageId==null || tabId==null)return false;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
-		Map<Integer, Map<String, SyncTabMapHelper3>> tableMap = gridSyncMap3.get(customizationId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
+		Map<Integer, Map<String, SyncTabMapHelper3>> tableMap = gridSyncMap3.get(projectId);
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null)return false;
 		if(cub.getSyncSessionMap()==null)return false;//cub.setSyncSessionMap(new HashMap());
@@ -1701,10 +1662,10 @@ public class UserUtil {
 		}
 		return false;
 	}
-	public static int broadCast(int customizationId, int userId, String sessionId, String webPageId,
+	public static int broadCast(String projectId, int userId, String sessionId, String webPageId,
 			Map m) {
 		if(userId==0 ||  webPageId==null || m==null)return 0;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		if(cub==null)return 0;
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null)return 0;
@@ -1751,9 +1712,9 @@ public class UserUtil {
 		
 	}
 
-	public static boolean syncTabActivate(int customizationId, int userId, String sessionId, String webPageId, String tabId, long currentTime) {
+	public static boolean syncTabActivate(String projectId, int userId, String sessionId, String webPageId, String tabId, long currentTime) {
 		if(userId==0 ||  webPageId==null || tabId==null)return false;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null)return false;
@@ -1774,12 +1735,12 @@ public class UserUtil {
 		else	
 			return false;
 	}
-	public	static Map syncGetTabNotifications(int customizationId, int userId, String sessionId,
+	public	static Map syncGetTabNotifications(String projectId, int userId, String sessionId,
 			String webPageId, String tabId){
 		Map	m = new HashMap();
 		m.put("success",true);
 		if(userId==0 ||  webPageId==null || tabId==null)return m;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		long now = System.currentTimeMillis();
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null)return m;
@@ -1809,8 +1770,8 @@ public class UserUtil {
 	}
 	
 	public static List<Object> syncGetListOfRecordEditUsers(
-			int customizationId, String key, String webPageId) {
-		Map<Integer, Map<String, SyncTabMapHelper3>> others = syncGetRecordEditUsersMap(customizationId,  key);
+			String projectId, String key, String webPageId) {
+		Map<Integer, Map<String, SyncTabMapHelper3>> others = syncGetRecordEditUsersMap(projectId,  key);
 		if(others!=null){
 			//userId, webPageId, SyncWebPageMapHelper3
 			List<Object> l = new ArrayList<Object>();
@@ -1828,7 +1789,7 @@ public class UserUtil {
 							us.add(u);
 							Map m2 = new HashMap();
 							m2.put("userId", u);
-							m2.put("userDsc", getUserDsc(customizationId, u));
+							m2.put("userDsc", getUserDsc(u));
 							l.add(m2);
 						}
 					}
@@ -1841,7 +1802,7 @@ public class UserUtil {
 
 	public	static void	liveSyncAction(Map scd, Map<String,String> paramMap){
 		int userId = (Integer)scd.get("userId");
-		int customizationId = (Integer)scd.get("customizationId");
+		String projectId = (String)scd.get("projectId");
 		boolean mobile = scd.containsKey("mobile");
 		String sessionId = mobile ? (String)scd.get("mobileDeviceId") : (String)scd.get("sessionId");
 		String webPageId = mobile ? (String)scd.get("mobileDeviceId") : paramMap.get(".w");
@@ -1858,59 +1819,59 @@ public class UserUtil {
 		case	31://send chat message
 			return;
 		case	101://web page closed
-			toBeUpdatedList = syncRemovePage(customizationId, userId, sessionId, webPageId);
+			toBeUpdatedList = syncRemovePage(projectId, userId, sessionId, webPageId);
 			if(GenericUtil.isEmpty(toBeUpdatedList))return;
 			break;
 		case	102://mobile status
-			syncMobileStatus(customizationId, userId, (String)scd.get("mobileDeviceId"), (short)GenericUtil.uInt(paramMap, ".s"));
+			syncMobileStatus(projectId, userId, (String)scd.get("mobileDeviceId"), (short)GenericUtil.uInt(paramMap, ".s"));
 			return;
 		//case	15: //not used -> server2client for templateGrid dirty
 		//	break;
 		case	16: // client2server clear tabMessages
-			syncTabClearMessages(customizationId, userId, sessionId, webPageId, tabId, currentTime);
+			syncTabClearMessages(projectId, userId, sessionId, webPageId, tabId, currentTime);
 			break;
 
 		case	10: // record opened(tab/form show) for update
-			toBeUpdated = syncRecordEditMap(customizationId, key, userId, webPageId, tabId, currentTime, (short)1);
+			toBeUpdated = syncRecordEditMap(projectId, key, userId, webPageId, tabId, currentTime, (short)1);
 			break;
 		//case	13: // template opened(show) for update: TODO not used
 //			openTemplateTab(customizationId, userId, webPageId, tabId, currentTime, request.getParameter(".g"));
 		//	break;
 		case	14: // tab activated
-			syncTabActivate(customizationId, userId, sessionId, webPageId, tabId, currentTime);
+			syncTabActivate(projectId, userId, sessionId, webPageId, tabId, currentTime);
 			break;
 		
 		case	1://record updated
-			toBeUpdated = syncRemoveTab(customizationId, userId, webPageId, key);
-			removeTemplateTab(customizationId, userId, sessionId, webPageId, tabId);
+			toBeUpdated = syncRemoveTab(projectId, userId, webPageId, key);
+			removeTemplateTab(projectId, userId, sessionId, webPageId, tabId);
 			break;
 		case	2://record update cancelled(tab closed)
-			toBeUpdated = syncRemoveTab(customizationId, userId, webPageId, key);
-			removeTemplateTab(customizationId, userId, sessionId, webPageId, tabId);
+			toBeUpdated = syncRemoveTab(projectId, userId, webPageId, key);
+			removeTemplateTab(projectId, userId, sessionId, webPageId, tabId);
 			break;
 		case	12://remove tab from template
-			removeTemplateTab(customizationId, userId, sessionId, webPageId, tabId);
+			removeTemplateTab(projectId, userId, sessionId, webPageId, tabId);
 			break;
 		case	3://record deleted
-			toBeUpdated = syncRemoveRecord(customizationId, key, userId);
+			toBeUpdated = syncRemoveRecord(projectId, key, userId);
 			break;
 		case	4://record field FOCUSED
 		case	5://record field CHANGED (and blurred)
 		case	6://record field BLURRED (not changed)
-			toBeUpdated = syncGetRecord(customizationId, key);
+			toBeUpdated = syncGetRecord(projectId, key);
 			break;
 		case	7://tab sync UPDATED (0:yok, 1:var, 2:hybrid)
-			toBeUpdated = syncRecordEditMap(customizationId, key, userId, webPageId, tabId, currentTime, GenericUtil.uShort(paramMap.get(".s")));
+			toBeUpdated = syncRecordEditMap(projectId, key, userId, webPageId, tabId, currentTime, GenericUtil.uShort(paramMap.get(".s")));
 			break;
 		case	8://record detailGrid field FOCUSED
 			break;
 		case	9://record detailGrid field CHANGED
 			break;  
 		case	11://record extra info changed (comment, fileAttachment, recordAccess, tableRelation, approval)
-			toBeUpdated = syncUpdateRecord(customizationId, key, userId, webPageId, false);
+			toBeUpdated = syncUpdateRecord(projectId, key, userId, webPageId, false);
 			break;
 		case	17: // typing to otherUserId
-			publishChatTyping(customizationId, userId, sessionId, webPageId, GenericUtil.uInt(paramMap,".ou"), currentTime);
+			publishChatTyping(projectId, userId, sessionId, webPageId, GenericUtil.uInt(paramMap,".ou"), currentTime);
 			break;
 		//case	18:// not used -> server2client chat msg read notify
 		//	break;
@@ -1953,7 +1914,7 @@ public class UserUtil {
 //								if(srh2.getDeferredResult()!=null){
 									Map m2 = new HashMap();
 									m2.put("userId", u2);
-									m2.put("userDsc", getUserDsc(customizationId, u2));
+									m2.put("userDsc", getUserDsc(u2));
 									users.add(m2);
 //								}
 							}
@@ -1961,7 +1922,7 @@ public class UserUtil {
 						if(!users.isEmpty())m.put("users", users);
 					}
 					m.put("userId", userId);
-					m.put("userDsc", getUserDsc(customizationId, userId));
+					m.put("userDsc", getUserDsc(userId));
 					m.put("tabId", srh.getTabId());
 					m.put("pk", key);
 					switch(action){
@@ -1975,17 +1936,17 @@ public class UserUtil {
 						m.put("extra", paramMap.get(".e"));
 						break;
 					}
-					broadCast(customizationId, u, null, w, m);
+					broadCast(projectId, u, null, w, m);
 				}								
 			}
 		}
 	}
 
-	private static boolean syncMobileStatus(int customizationId, int userId, String mobileDeviceId, short status) {
+	private static boolean syncMobileStatus(String projectId, int userId, String mobileDeviceId, short status) {
 		DeviceSyncHelper3 device = deviceMap3.get(mobileDeviceId);
 		if(device==null)return false;
 		if(device.getUserId()!=userId){
-			CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+			CachedUserBean3 cub = getCachedUserBean(userId);
 			if(cub.getSyncSessionMap()!=null)cub.getSyncSessionMap().remove(mobileDeviceId);
 			device.setUserId(userId);
 		}
@@ -2001,10 +1962,10 @@ public class UserUtil {
 		return true;
 	}
 
-	private static void publishChatTyping(int customizationId, int userId,
+	private static void publishChatTyping(String projectId, int userId,
 			String sessionId, String webPageId, int otherUserId, long currentTime) {
 		if(userId==0 ||  webPageId==null || otherUserId==0)return;
-		CachedUserBean3 ocub = getCachedUserBean(customizationId, otherUserId);
+		CachedUserBean3 ocub = getCachedUserBean(otherUserId);
 		
 		if(ocub!=null && ocub.getChatStatusTip()!=0 && !GenericUtil.isEmpty(ocub.getSyncSessionMap())){
 			long limitTime = System.currentTimeMillis() - FrameworkSetting.asyncToleranceTimeout; 
@@ -2018,10 +1979,10 @@ public class UserUtil {
 		}
 	}
 
-	private static boolean syncTabClearMessages(int customizationId, int userId,
+	private static boolean syncTabClearMessages(String projectId, int userId,
 			String sessionId, String webPageId, String tabId, long currentTime) {
 		if(userId==0 ||  webPageId==null || tabId==null)return false;
-		CachedUserBean3 cub = getCachedUserBean(customizationId, userId);
+		CachedUserBean3 cub = getCachedUserBean(userId);
 		
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null)return false;
@@ -2053,12 +2014,12 @@ public class UserUtil {
 
 	public static void syncAfterPostFormAll(List<W5SynchAfterPostHelper> l){
 		if(l==null)return;
-		for(W5SynchAfterPostHelper o:l)syncAfterPostForm(o.getCustomizationId(), o.getTableId(), o.getKey(), o.getUserId(), o.getWebPageId(), o.getAction());
+		for(W5SynchAfterPostHelper o:l)syncAfterPostForm(o.getProjectId(), o.getTableId(), o.getKey(), o.getUserId(), o.getWebPageId(), o.getAction());
 	}
 	
-	public static void syncAfterPostForm(int customizationId, int tableId, String key, int userId, String webPageId, short action) {
+	public static void syncAfterPostForm(String projectId, int tableId, String key, int userId, String webPageId, short action) {
 		if(action==1 || action==3){
-			Map<Integer, Map<String, SyncTabMapHelper3>> others =syncUpdateRecord( customizationId,  key, userId, webPageId, true);
+			Map<Integer, Map<String, SyncTabMapHelper3>> others =syncUpdateRecord( projectId,  key, userId, webPageId, true);
 			long limitTime = System.currentTimeMillis() - FrameworkSetting.asyncToleranceTimeout;
 			if(!GenericUtil.isEmpty(others)){
 	//			Map<W5DeferredResult, Map> broadcastMap = new HashMap();
@@ -2080,7 +2041,7 @@ public class UserUtil {
 										if(srh2!=null && srh2.getLastActionTime()>limitTime){
 											Map m = new HashMap();
 											m.put("userId", u2);
-											m.put("userDsc", getUserDsc(customizationId, u2));
+											m.put("userDsc", getUserDsc(u2));
 											users.add(m);
 										}
 									}
@@ -2090,10 +2051,10 @@ public class UserUtil {
 								m.put("liveSyncAction", action==1 ? 1:3);
 								if(!users.isEmpty())m.put("users", users);
 								m.put("userId", userId);
-								m.put("userDsc", getUserDsc(customizationId, userId));
+								m.put("userDsc", getUserDsc(userId));
 								m.put("tabId", srh.getTabId());
 								m.put("pk", key);
-								broadCast(customizationId, u, null, w, m);
+								broadCast(projectId, u, null, w, m);
 							}
 						}
 	
@@ -2103,42 +2064,42 @@ public class UserUtil {
 	//			for(W5DeferredResult d:broadcastMap.keySet())d.setResult(broadcastMap.get(d));
 			}
 		}
-		broadCastRecordForTemplates(customizationId, tableId, key, action, userId);
+		broadCastRecordForTemplates(projectId, tableId, key, action, userId);
 		
 	}
 	public	static boolean clearZombiUsers(long limit){
 		if(!FrameworkSetting.liveSyncRecord)return false;
 		long limitTime = System.currentTimeMillis()-limit; //30dka
-		for(Integer customizationId:userMap3.keySet()){
-			Map<Integer, CachedUserBean3> um=userMap3.get(customizationId);
+//		for(Integer customizationId:userMap3.keySet()){
+			Map<Integer, CachedUserBean3> um=userMap3;//.get(projectId);
 			for(CachedUserBean3 cub:um.values())if(cub.getSyncSessionMap()!=null)for(String sessionId:cub.getSyncSessionMap().keySet()){
 				SyncSessionMapHelper3 sm = cub.getSyncSessionMap().get(sessionId);
 				if(sm.getLastActionTime()<limitTime && sm.getLastAsyncActionTime()<limitTime){// bu sessionin bitirilmesi lazim
-					clearSyncSessionData(customizationId, sm);
+					clearSyncSessionData((String)sm.getScd().get("projectId"), sm);
 					cub.getSyncSessionMap().remove(sessionId);
 				} else if(sm.getSyncWebPageMap()!=null)for(String webPageId:sm.getSyncWebPageMap().keySet()){
 					SyncWebPageMapHelper3 web = sm.getSyncWebPageMap().get(webPageId);
 					if(web.getLastActionTime()<limitTime && web.getLastAsyncActionTime()<limitTime){//temizlik yapilacak
-						clearSyncWebPage(customizationId, web);
+						clearSyncWebPage((String)sm.getScd().get("projectId"), web);
 						sm.getSyncWebPageMap().remove(webPageId);
 					}
 				}
 				
 			}
-		}
+//		}
 		return true;
 		
 	}
 
-	private static void clearSyncSessionData(int cid, SyncSessionMapHelper3 sm) {
+	private static void clearSyncSessionData(String projectId, SyncSessionMapHelper3 sm) {
 		if(sm.getSyncWebPageMap()!=null)for(SyncWebPageMapHelper3 web:sm.getSyncWebPageMap().values())
-			clearSyncWebPage(cid, web);
+			clearSyncWebPage(projectId, web);
 		
 	}
 
-	private static void clearSyncWebPage(int cid, SyncWebPageMapHelper3 web) {
+	private static void clearSyncWebPage(String projectId, SyncWebPageMapHelper3 web) {
 		if(web.getSyncTabMap()!=null)for(SyncTabMapHelper3 tab:web.getSyncTabMap().values()){
-			Map<Integer, Map<String, SyncTabMapHelper3>> tableMap = gridSyncMap3.get(cid);
+			Map<Integer, Map<String, SyncTabMapHelper3>> tableMap = gridSyncMap3.get(projectId);
 			if(tableMap==null)continue;
 			for(Map<String, SyncTabMapHelper3> tabMap : tableMap.values()){
 				tabMap.remove(tab.getTabId());
@@ -2148,7 +2109,7 @@ public class UserUtil {
 
 	public static void publishUserChatMsgRead(Map<String, Object> scd,
 			int toUserId, int msgId) {
-		CachedUserBean3 ocub = getCachedUserBean((Integer)scd.get("customizationId"), toUserId);
+		CachedUserBean3 ocub = getCachedUserBean(toUserId);
 		long limitTime = System.currentTimeMillis() - FrameworkSetting.asyncToleranceTimeout;
 		if(ocub!=null && ocub.getChatStatusTip()!=0 && ocub.getSyncSessionMap()!=null)for(SyncSessionMapHelper3 ses:ocub.getSyncSessionMap().values())if(ses.getDeviceType()==0 && ses.getSyncWebPageMap()!=null && ses.getLastAsyncActionTime()>limitTime){ //web icinse okudum olarak isaretle
 			Map m = new HashMap();
@@ -2162,8 +2123,8 @@ public class UserUtil {
 	}
 
 /*
-	public static List publishObject2User(int customizationId, int fromUserId, int toUserId, Map o){
-	        CachedUserBean3 cub = getCachedUserBean(customizationId, toUserId);
+	public static List publishObject2User(String projectId, int fromUserId, int toUserId, Map o){
+	        CachedUserBean3 cub = getCachedUserBean(toUserId);
 	        if(cub == null)
 	            return null;
 	        int b = 0;
@@ -2218,7 +2179,7 @@ public class UserUtil {
 
 			        int i1 = m.indexOf(','), i2 = m.indexOf(',', i1+1), i3 = m.indexOf(',', i2+1);
 			        int action = GenericUtil.uInt(m.substring(4,i1));
-			        int customizationId = GenericUtil.uInt(m.substring(i1+1,i2));
+			        String projectId = GenericUtil.uInt(m.substring(i1+1,i2));
 			        String projectUuid = m.substring(i2+1,i3);
 
 					W5Project po = FrameworkCache.wProjects.get(projectUuid);
@@ -2303,7 +2264,7 @@ public class UserUtil {
 						m2.put("liveSyncAction", 99);
 						m2.put("msg", m.substring(38+i3));
 						m2.put("instanceId", instanceUuid);
-						getCachedUserBean(customizationId, 10).broadCast(m2);
+						getCachedUserBean(10).broadCast(m2);
 			        	break;
 			        	
 			        }
@@ -2366,7 +2327,7 @@ public class UserUtil {
 
 	
 
-	private static void mqPublishUserStatus(int customizationId, int userId, short chatStatus) {
+	private static void mqPublishUserStatus(String projectId, int userId, short chatStatus) {
 		if(!FrameworkSetting.mq)return;
 		for(W5Project po:FrameworkCache.wProjects.values())if(po.getMqFlag()!=0 && po.getCustomizationId()==customizationId)try {
 			StringBuilder s = new StringBuilder();
@@ -2394,11 +2355,11 @@ public class UserUtil {
 			.append(",").append(FrameworkSetting.instanceUuid);//.append(",").append(userUnitId).append(",").append(userId);//.append(",").append(userId).append(",").append(chatId).append(",").append(msg);
 //			for(W5SynchAfterPostHelper o:l)s.append(";").append(o.getTableId()).append(",").append(o.getKey()).append(",").append(o.getWebPageId()).append(",").append(o.getAction());
 			
-			int customizationId = po.getCustomizationId();
+			String projectId = po.getCustomizationId();
 				
 			
 			List<Object[]> data=new ArrayList<Object[]>();
-			for(Map.Entry<Integer, CachedUserBean3> mcub : userMap3.get(customizationId).entrySet()){
+			for(Map.Entry<Integer, CachedUserBean3> mcub : userMap3.get(projectId).entrySet()){
 				CachedUserBean3 cub = mcub.getValue();
 				if(cub.getSyncSessionMap()!=null && cub.getChatStatusTip()!=0){
 					Map<String, SyncSessionMapHelper3> m = cub.getSyncSessionMap();

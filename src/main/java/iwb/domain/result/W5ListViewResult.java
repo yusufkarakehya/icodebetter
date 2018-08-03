@@ -64,9 +64,6 @@ public class W5ListViewResult implements W5MetaResult{
 	public W5ListViewResult(int listId) {
 		super();
 		this.listId = listId;
-		if(FrameworkCache.wDevEntityKeys.contains("936."+listId)){
-			this.dev=true;
-		}
 	}
 
 	public int getListId() {
@@ -83,15 +80,6 @@ public class W5ListViewResult implements W5MetaResult{
 
 	public void setListView(W5List listView) {
 		this.listView = listView;
-	}
-
-	private boolean dev = false;
-	
-	public boolean isDev() {
-		return dev;
-	}
-	public void setDev(boolean dev) {
-		this.dev = dev;
 	}
 
 }

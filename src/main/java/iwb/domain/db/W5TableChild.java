@@ -19,7 +19,6 @@ import org.hibernate.annotations.Immutable;
 public class W5TableChild implements java.io.Serializable {
 
 	private int tableChildId;
-	private int customizationId;
 	private short relationTip;
 	private int tableId;
 	private int tableFieldId;
@@ -30,7 +29,6 @@ public class W5TableChild implements java.io.Serializable {
 	private short copyStrategyTip;
 	private short childViewTip;
 	private int childViewObjectId;
-	private short revisionFlag;
 	
 	@Id
 	@Column(name="table_child_id")
@@ -41,14 +39,7 @@ public class W5TableChild implements java.io.Serializable {
 		this.tableChildId = tableChildId;
 	}
 
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+
 	@Column(name="relation_tip")
 	public short getRelationTip() {
 		return relationTip;
@@ -119,13 +110,17 @@ public class W5TableChild implements java.io.Serializable {
 	public void setChildViewObjectId(int childViewObjectId) {
 		this.childViewObjectId = childViewObjectId;
 	}
-	@Column(name="revision_flag")
-	public short getRevisionFlag() {
-		return revisionFlag;
-	}
-	public void setRevisionFlag(short revisionFlag) {
-		this.revisionFlag = revisionFlag;
-	}
 	
+	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
 }

@@ -14,8 +14,8 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
-import iwb.domain.db.W5Approval;
-import iwb.domain.db.W5ApprovalStep;
+import iwb.domain.db.W5Workflow;
+import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5DataView;
@@ -39,21 +39,21 @@ import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5Template;
-import iwb.domain.db.W5TemplateObject;
+import iwb.domain.db.W5Page;
+import iwb.domain.db.W5PageObject;
 import iwb.domain.db.W5Tutorial;
 import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.W5DataViewResult;
-import iwb.domain.result.W5DbFuncResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GridResult;
 import iwb.domain.result.W5ListViewResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TemplateResult;
+import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
@@ -273,7 +273,7 @@ public class Webix3_3 implements ViewAdapter {
 							return null;
 						s.append("var ").append(nfr.getForm().getDsc())
 								.append("=").append(serializeGetForm(nfr))
-								.append(".getExtDef();\n");
+								.append(".render();\n");
 						break;
 					case 5:// grid
 						if (formResult.getModuleGridMap() == null)
@@ -328,7 +328,7 @@ public class Webix3_3 implements ViewAdapter {
 		s.append("var getForm=").append(serializeGetForm(formResult));
 
 		/*if(formResult.getForm().getRenderTemplateId()==26 && formResult.getForm().get_renderTemplate() != null && formResult.getScd()!=null && formResult.getScd().containsKey("_renderer") && formResult.getScd().get("_renderer").toString().startsWith("webix"))
-			s.append("\nvar extDef = getForm.getExtDef();return addTab4Form(extDef, getForm, callAttributes);"); 
+			s.append("\nvar extDef = getForm.render();return addTab4Form(extDef, getForm, callAttributes);"); 
 		else if (formResult.getRequestParams() != null
 				&& formResult.getRequestParams().containsKey("_log5_log_id")
 				&& FrameworkCache.wTemplates.containsKey(formResult.getScd().get(
@@ -753,7 +753,7 @@ public class Webix3_3 implements ViewAdapter {
 							formResult.setLiveSyncKey(key);
 							List<Object> l = UserUtil
 									.syncGetListOfRecordEditUsers(
-											t.getCustomizationId(), key,
+											(String)scd.get("projectId"), key,
 											webPageId);
 							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
 								s.append(",\n liveSyncBy:")
@@ -831,7 +831,7 @@ public class Webix3_3 implements ViewAdapter {
 					int ndx = ozc[3].indexOf('-');
 					s.append(ozc[0]).append(", commentExtra:{\"last_dttm\":\"").append(ozc[2])
 						.append("\",\"user_id\":").append(ozc[1])
-						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+						.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
 						.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userId+""))
 						.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 						.append("\"}");
@@ -1189,8 +1189,7 @@ public class Webix3_3 implements ViewAdapter {
 		}
 
 		if (formResult.getApprovalRecord() != null) { // Burası Artık Onay Mekanizması başlamış
-			W5Approval a = FrameworkCache.wApprovals.get(formResult
-					.getApprovalRecord().getApprovalId());
+			W5Workflow a = FrameworkCache.getWorkflow(formResult.getScd(), formResult.getApprovalRecord().getApprovalId());
 			if (formResult.getApprovalRecord().getApprovalStepId() == 901) {// kendisi start for approval yapacak
 				if ((a.getManualAppUserIds() == null
 						&& a.getManualAppRoleIds() == null
@@ -1224,7 +1223,7 @@ public class Webix3_3 implements ViewAdapter {
 				s.append(",\n approval:{approvalRecordId:")
 						.append(formResult.getApprovalRecord()
 								.getApprovalRecordId());
-				W5ApprovalStep step = a.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId());
+				W5WorkflowStep step = a.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId());
 				/*if(step!=null && step.getOnApproveFormActionTip()>0 && step.getOnApproveFormId()!=null && step.getOnApproveFormId()>0){
 					s.append(",onAppFormActionTip:").append(step.getOnApproveFormActionTip()).append(",onAppFormId:").append(step.getOnApproveFormId());
 					int approvalRelatedTablePk = GenericUtil.uInt(formResult.getOutputFields().get("_approval_app_pk")); 
@@ -1258,7 +1257,7 @@ public class Webix3_3 implements ViewAdapter {
 			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
 			if (t != null && t.get_approvalMap() != null
 					&& t.get_approvalMap().get((short) 2) != null) {
-				W5Approval a = t.get_approvalMap().get((short) 2);
+				W5Workflow a = t.get_approvalMap().get((short) 2);
 				if (a.getManualDemandStartAppFlag() != 0
 						&& a.getApprovalRequestTip() == 2)
 					s.append(",\n manualStartDemand:true");
@@ -1302,7 +1301,7 @@ public class Webix3_3 implements ViewAdapter {
 
 		if (liveSyncRecord)
 			formResult.getRequestParams().put(".t", formResult.getUniqueId());
-		s.append(",\n getExtDef:function(){\nvar mf={_formId:").append(
+		s.append(",\n render:function(){\nvar mf={_formId:").append(
 				formResult.getFormId());
 		if (liveSyncRecord)
 			s.append(",id:'").append(formResult.getUniqueId()).append("'");
@@ -1614,7 +1613,7 @@ public class Webix3_3 implements ViewAdapter {
 		return buf;
 	}
 
-	private StringBuilder renderTemplateObject(W5TemplateResult templateResult) {
+	private StringBuilder renderTemplateObject(W5PageResult templateResult) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
 		if(!(templateResult.getTemplateObjectList().get(0) instanceof W5GridResult))return buf;
@@ -2794,8 +2793,6 @@ public class Webix3_3 implements ViewAdapter {
 					.append(GenericUtil.fromMapToJsonString(gridResult
 							.getExtraOutMap()));
 		}
-		if(q!=null && q.getOptTip()==2)
-			buf.append(",\n postCols:true");
 			
 		if (FrameworkSetting.liveSyncRecord && g.get_viewTable() != null
 				&& g.get_viewTable().getLiveSyncFlag() != 0)
@@ -2807,13 +2804,12 @@ public class Webix3_3 implements ViewAdapter {
 					FrameworkCache.getAppSettingIntValue(scd,
 							"log_default_grid_height"));
 		else {
-			if (g.getSelectionModeTip() == 2 || g.getSelectionModeTip() == 3) // multi
-																				// Select
+			if (g.getSelectionModeTip() == 2 || g.getSelectionModeTip() == 3) // multi Select
 				buf.append(",\n multiSelect:true");
-			else if (g.getSelectionModeTip() == 5 && g.get_detailView() != null) // promis.js'de
+/*			else if (g.getSelectionModeTip() == 5 && g.get_detailView() != null) // promis.js'de
 																					// halledilmek
 																					// uzere
-				buf.append(",\n detailDlg:true");
+				buf.append(",\n detailDlg:true"); */
 			if (g.getDefaultHeight() > 0)
 				buf.append(",\n defaultHeight:").append(g.getDefaultHeight());
 
@@ -3659,7 +3655,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_:'")
 											.append(UserUtil.getUserName(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
@@ -3669,7 +3664,6 @@ columns:[
 										for (String s : ids) {
 											res += ","
 													+ UserUtil.getUserName(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
@@ -3684,7 +3678,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_:'")
 											.append(UserUtil.getUserDsc(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
@@ -3694,7 +3687,6 @@ columns:[
 										for (String s : ids11) {
 											res += ","
 													+ UserUtil.getUserDsc(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf.append(obj).append("',")
@@ -3768,8 +3760,7 @@ columns:[
 										buf.append("',")
 												.append(f.getDsc())
 												.append("_qw_:'")
-												.append(FrameworkCache.wApprovals
-														.get(f.getLookupQueryId())
+												.append(FrameworkCache.getWorkflow(queryResult.getScd(), f.getLookupQueryId())
 														.get_approvalStepMap()
 														.get(id).getDsc());
 									break;
@@ -3942,7 +3933,7 @@ columns:[
 									break;
 								case 20: // user LookUp
 									buf2.append(obj).append("\",\"").append(f.getDsc())
-											.append("_qw_\":\"").append(UserUtil.getUserName(customizationId, GenericUtil.uInt(obj)));
+											.append("_qw_\":\"").append(UserUtil.getUserName( GenericUtil.uInt(obj)));
 									break;
 								case 21: // users LookUp
 									String[] ids = ((String) obj).split(",");
@@ -3951,7 +3942,6 @@ columns:[
 										for (String s : ids) {
 											res += ","
 													+ UserUtil.getUserName(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",\"")
@@ -3966,7 +3956,6 @@ columns:[
 											.append(f.getDsc())
 											.append("_qw_\":\"")
 											.append(UserUtil.getUserDsc(
-													customizationId,
 													GenericUtil.uInt(obj)));
 									break;
 								case 54: // Users LookUp Real Name
@@ -3976,7 +3965,6 @@ columns:[
 										for (String s : ids11) {
 											res += ","
 													+ UserUtil.getUserDsc(
-															customizationId,
 															GenericUtil.uInt(s));
 										}
 										buf2.append(obj).append("\",\"")
@@ -4050,8 +4038,7 @@ columns:[
 										buf2.append("\",\"")
 												.append(f.getDsc())
 												.append("_qw_\":\"")
-												.append(FrameworkCache.wApprovals
-														.get(f.getLookupQueryId())
+												.append(FrameworkCache.getWorkflow(queryResult.getScd(), f.getLookupQueryId())
 														.get_approvalStepMap()
 														.get(id2).getDsc());
 									break;
@@ -4207,7 +4194,6 @@ columns:[
 										.append(f.getDsc())
 										.append("_qw_\":\"")
 										.append(UserUtil.getUserName(
-												customizationId,
 												GenericUtil.uInt(obj)));
 								break;
 							case 21: // users LookUp
@@ -4217,7 +4203,6 @@ columns:[
 									for (String s : ids) {
 										res += ","
 												+ UserUtil.getUserName(
-														customizationId,
 														GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
@@ -4232,7 +4217,6 @@ columns:[
 										.append(f.getDsc())
 										.append("_qw_\":\"")
 										.append(UserUtil.getUserDsc(
-												customizationId,
 												GenericUtil.uInt(obj)));
 								break;
 							case 54: // Users LookUp Real Name
@@ -4242,7 +4226,6 @@ columns:[
 									for (String s : ids11) {
 										res += ","
 												+ UserUtil.getUserDsc(
-														customizationId,
 														GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
@@ -4312,7 +4295,7 @@ columns:[
 								buf.append(ozc[0]).append("\",\"").append(FieldDefinitions.queryFieldName_CommentExtra)
 									.append("\":{\"last_dttm\":\"").append(ozc[2])
 									.append("\",\"user_id\":").append(ozc[1])
-									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(customizationId, GenericUtil.uInt(ozc[1])))
+									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
 									.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userIdStr))
 									.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 									.append("\"}");
@@ -4335,8 +4318,7 @@ columns:[
 												ozs.length > 4 ? ozs[4] : null))
 									buf.append("-");
 								buf.append(ozs[2]);
-								W5Approval appr = FrameworkCache.wApprovals
-										.get(appId);
+								W5Workflow appr = FrameworkCache.getWorkflow(queryResult.getScd(), appId);
 								String appStepDsc = "";
 								if (appr != null
 										&& appr.get_approvalStepMap().get(
@@ -4375,7 +4357,6 @@ columns:[
 									for (String uid : userIds) {
 										buf.append(
 												UserUtil.getUserDsc(
-														customizationId,
 														GenericUtil.uInt(uid)))
 												.append(", ");
 									}
@@ -4433,9 +4414,9 @@ columns:[
 		return buf.append("}");
 	}
 
-	public StringBuilder serializeTemplate(W5TemplateResult templateResult) {
+	public StringBuilder serializeTemplate(W5PageResult templateResult) {
 		boolean replacePostJsCode = false;
-		W5Template template = templateResult.getTemplate();
+		W5Page template = templateResult.getPage();
 
 		StringBuilder buf = new StringBuilder();
 		StringBuilder postBuf = new StringBuilder();
@@ -4511,11 +4492,11 @@ columns:[
 									.append(customObjectCount++).append("=")
 									.append(fr.getForm().getDsc()).append("\n");
 						}
-					} else if (i instanceof W5DbFuncResult) {
+					} else if (i instanceof W5GlobalFuncResult) {
 						buf.append("\nvar ")
-								.append(((W5DbFuncResult) i).getDbFunc()
+								.append(((W5GlobalFuncResult) i).getGlobalFunc()
 										.getDsc()).append("=")
-								.append(serializeDbFunc((W5DbFuncResult) i))
+								.append(serializeDbFunc((W5GlobalFuncResult) i))
 								.append("\n");
 					} else if (i instanceof W5QueryResult) {
 						buf.append("\nvar ")
@@ -4531,7 +4512,7 @@ columns:[
 			} else { // wizard
 				buf.append("\nvar templateObjects=[");
 				boolean b = false;
-				for (W5TemplateObject o : template.get_templateObjectList()) {
+				for (W5PageObject o : template.get_pageObjectList()) {
 					if (b)
 						buf.append(",\n");
 					else
@@ -4571,7 +4552,7 @@ columns:[
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))
 					.append(";\n");
 
-			if (!FrameworkCache.publishLookUps.isEmpty()) {
+/*			if (!FrameworkCache.publishLookUps.isEmpty()) {
 				buf2.append("var _lookups={");
 				boolean b2 = false;
 				for (Integer lookUpId : FrameworkCache.publishLookUps) {
@@ -4593,7 +4574,7 @@ columns:[
 					buf2.append(GenericUtil.fromMapToJsonString(tempMap));
 				}
 				buf2.append("};\n");
-			}
+			}*/
 			int customObjectCount=1;
 			for (Object i : templateResult.getTemplateObjectList()) {
 				if (i instanceof W5GridResult) {
@@ -4615,11 +4596,11 @@ columns:[
 					buf2.append("\nvar _form")
 					.append(customObjectCount++).append("=")
 					.append(fr.getForm().getDsc()).append(";\n");
-				} else if (i instanceof W5DbFuncResult) {
+				} else if (i instanceof W5GlobalFuncResult) {
 					buf2.append("\nvar ")
-							.append(((W5DbFuncResult) i).getDbFunc()
+							.append(((W5GlobalFuncResult) i).getGlobalFunc()
 									.getDsc()).append("=")
-							.append(serializeDbFunc((W5DbFuncResult) i))
+							.append(serializeDbFunc((W5GlobalFuncResult) i))
 							.append(";\n");
 				} else if (i instanceof W5QueryResult) {
 					buf2.append("\nvar ")
@@ -4666,7 +4647,7 @@ columns:[
 		if(!GenericUtil.isEmpty(code))
 			buf.append("\n").append(code.startsWith("!") ? code.substring(1) : code);
 
-		short ttip= templateResult.getTemplate().getTemplateTip();
+		short ttip= templateResult.getPage().getTemplateTip();
 		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
 		
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
@@ -4694,7 +4675,7 @@ columns:[
 				.append("\"");
 		if (tableRecordInfoResult.getInsertUserId() > 0)
 			buf.append(",\nprofile_picture_id:").append(
-					UserUtil.getUserProfilePicture(customizationId,
+					UserUtil.getUserProfilePicture(
 							tableRecordInfoResult.getInsertUserId()));
 		if (!GenericUtil.isEmpty(tableRecordInfoResult.getVersionDttm())) {
 			buf.append(",\n\"version_no\":")
@@ -4702,14 +4683,14 @@ columns:[
 					.append(",\"insert_user_id\":")
 					.append(tableRecordInfoResult.getInsertUserId())
 					.append(",\"insert_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							tableRecordInfoResult.getInsertUserId()))
 					.append("\",\"insert_dttm\":\"")
 					.append(tableRecordInfoResult.getInsertDttm())
 					.append("\",\"version_user_id\":")
 					.append(tableRecordInfoResult.getVersionUserId())
 					.append(",\"version_user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							tableRecordInfoResult.getVersionUserId()))
 					.append("\",\"version_dttm\":\"")
 					.append(tableRecordInfoResult.getVersionDttm())
@@ -4804,11 +4785,11 @@ columns:[
 		return buf;
 	}
 
-	public StringBuilder serializeDbFunc(W5DbFuncResult dbFuncResult) {
+	public StringBuilder serializeDbFunc(W5GlobalFuncResult dbFuncResult) {
 		String xlocale = (String) dbFuncResult.getScd().get("locale");
 		StringBuilder buf = new StringBuilder();
 		buf.append("{\"success\":").append(dbFuncResult.isSuccess())
-				.append(",\"db_func_id\":").append(dbFuncResult.getDbFuncId());
+				.append(",\"db_func_id\":").append(dbFuncResult.getGlobalFuncId());
 		if (dbFuncResult.getErrorMap() != null
 				&& dbFuncResult.getErrorMap().size() > 0)
 			buf.append(",\n\"errorType\":\"validation\",\n\"errors\":").append(
@@ -4963,10 +4944,10 @@ columns:[
 					.append(",\"user_id\":")
 					.append(feed.getInsertUserId())
 					.append(",\"user_id_qw_\":\"")
-					.append(UserUtil.getUserDsc(customizationId,
+					.append(UserUtil.getUserDsc(
 							feed.getInsertUserId()))
 					.append("\",\"profile_picture_id\":")
-					.append(UserUtil.getUserProfilePicture(customizationId,
+					.append(UserUtil.getUserProfilePicture(
 							feed.getInsertUserId()))
 					.append(",\"show_feed_tip\":")
 					.append(feed.get_showFeedTip())
@@ -5002,7 +4983,7 @@ columns:[
 						else
 							b = true;
 						buf.append("\"")
-								.append(UserUtil.getUserDsc(customizationId, k))
+								.append(UserUtil.getUserDsc( k))
 								.append("\"");
 					}
 					buf.append("]");
@@ -5052,7 +5033,7 @@ columns:[
 							.append(",\"user_id\":")
 							.append(ch.getInsertUserId())
 							.append(",\"user_id_qw_\":\"")
-							.append(UserUtil.getUserDsc(customizationId,
+							.append(UserUtil.getUserDsc(
 									ch.getInsertUserId()))
 							.append("\",\"dsc\":\"")
 							.append(GenericUtil.stringToJS(ch.getDsc()))

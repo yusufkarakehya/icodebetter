@@ -20,6 +20,7 @@ import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_3;
 import iwb.domain.result.W5QueryResult;
 import iwb.engine.VcsEngine;
+import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.UserUtil;
@@ -68,6 +69,23 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
+	
+	@RequestMapping("/ajaxCopyProject")
+	public void hndAjaxCopyProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("hndAjaxCopyProject"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+    	String newProjectName = request.getParameter("dsc");
+    	if(GenericUtil.isEmpty(newProjectName))
+			throw new IWBException("vcs","Empty Project Name", 0, null, "Empty Project Name", null);
+    	Map m = vcsEngine.copyProject(scd, newProjectName, true);
+    	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
+		response.getWriter().close();
+	}
+	
 	@RequestMapping("/ajaxVCSObjectPullAll")
 	public void hndAjaxVCSObjectPullAll(
 			HttpServletRequest request,
@@ -604,26 +622,7 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write("{\"success\":true, \"cnt\":"+cnt+"}");
 		response.getWriter().close();	
 	}
-	
-	@RequestMapping("/serverVCSExportProject")
-	public void hndServerVCSExportProject(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException, JSONException {
-		
-		JSONObject jo = HttpUtil.getJson(request);
 
-		String userName = jo.getString("u")
-				   , passWord = jo.getString("p");
-			int customizationId = jo.getInt("c");
-			
-
-		logger.info("hndServerVCSExportProject"); 
-		
-    	boolean b = vcsEngine.vcsServerExportProject(userName, passWord, customizationId, jo.getJSONObject("object"));
-    	response.getWriter().write("{\"success\":"+b+"}");
-		response.getWriter().close();
-	}
 
 
 	@RequestMapping("/ajaxVCSTableConflicts")
@@ -718,5 +717,39 @@ public class VcsServlet implements InitializingBean {
 
     	response.getWriter().write("{\"success\":true, \"cnt\":"+cnt+"}");
 		response.getWriter().close();	
+	}
+	
+	
+	@RequestMapping("/ajaxPublish2AppStore")
+	public void hndAjaxPublish2AppStore(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
+		logger.info("ajaxPublish2AppStore"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		boolean b = vcsEngine.vcsClientPublish2AppStore(scd);
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();
+		
+	}
+	
+	@RequestMapping("/ajaxVCSImportProject")
+	public void hndAjaxVCSImportProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
+		logger.info("ajaxVCSImportProject"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+		boolean b = vcsEngine.vcsClientImportProject(scd, (String)request.getParameter("pid"), (String)request.getParameter("ipid"));
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();
+		
 	}
 }
