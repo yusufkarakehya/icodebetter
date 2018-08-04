@@ -1379,18 +1379,18 @@ public class PostgreSQL extends BaseDAO {
 								extrInfoSet.add("comment_extra");
 								extraSqlCount++;
 							} else {
-								extraSql.append("(select count(1) cnt from iwb.w5_comment x where x.customization_id=? AND x.table_id=? AND x.table_pk=?::text) comment_count");
+								extraSql.append("(select count(1) cnt from iwb.w5_comment x where x.customization_id=? AND x.table_id=? AND x.table_pk=?) comment_count");
 								extrInfoSet.add("comment_count");
 								extraSqlCount++;					
 							}
 						}
-						if(FrameworkCache.getAppSettingIntValue(formResult.getScd(), "row_based_security_flag")!=0 && (Integer)formResult.getScd().get("userTip")!=3 && t.getAccessTips()!=null && t.getAccessTips().length()>0){
+/*						if(FrameworkCache.getAppSettingIntValue(formResult.getScd(), "row_based_security_flag")!=0 && (Integer)formResult.getScd().get("userTip")!=3 && t.getAccessTips()!=null && t.getAccessTips().length()>0){
 							if(extraSql.length()>10)extraSql.append(",");
 							extraSql.append("(select count(1) cnt from iwb.w5_access_control x where x.customization_id=? AND x.table_id=? AND x.table_pk=?) access_count");
 							extrInfoSet.add("access_count");
 							extraSqlCount++;
 						}
-
+*/
 
 						if(extraSql.length()>10){
 							s = conn.prepareStatement(extraSql.append(" ").toString());
@@ -1409,7 +1409,7 @@ public class PostgreSQL extends BaseDAO {
 					    		} else if(extrInfoSet.contains("comment_extra")){
 					    			formResult.setCommentExtraInfo((String)rs.getObject("comment_extra"));
 					    		}
-					    		if(extrInfoSet.contains("access_count"))formResult.setAccessControlCount(GenericUtil.uInt(rs.getObject("access_count")));
+					    		//if(extrInfoSet.contains("access_count"))formResult.setAccessControlCount(GenericUtil.uInt(rs.getObject("access_count")));
 					    	}
 							if(rs!=null)rs.close();
 							if(s!=null)s.close();
