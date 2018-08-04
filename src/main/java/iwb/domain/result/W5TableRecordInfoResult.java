@@ -133,12 +133,4 @@ public class W5TableRecordInfoResult  implements W5MetaResult{
 	}
 
 	public Map<String,String> getRequestParams(){return null;};
-	private boolean dev = false;
-	
-	public boolean isDev() {
-		return dev;
-	}
-	public void setDev(boolean dev) {
-		this.dev = dev;
-	}
 }

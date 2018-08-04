@@ -570,10 +570,8 @@ public class PostgreSQL extends BaseDAO {
 
    				sql2.append(" from ").append(tqf.getDsc()).append(" x where x.").append(tqf.get_tableParamList().get(0).getExpressionDsc()).append("=z.").append(qf.getDsc());
 
-   				if(tqf.get_tableParamList().size()>1){
-   					if(tqf.get_tableParamList().get(1).getDsc().equals("customizationId"))sql2.append(" AND x.customization_id=").append(queryResult.getScd().get("customizationId"));
-   					else if(tqf.get_tableParamList().get(1).getDsc().equals("projectId"))sql2.append(" AND x.project_uuid='").append(queryResult.getScd().get("projectId")).append("'");
-   				}
+   				sql2.append(DBUtil.includeTenantProjectPostSQL(queryResult.getScd(), tqf));
+
    				sql2.append(") ").append(qf.getDsc()).append("_qw_ ");
    				W5QueryField field = new W5QueryField();
    				field.setDsc(qf.getDsc()+"_qw_");
@@ -595,10 +593,8 @@ public class PostgreSQL extends BaseDAO {
 
    				sql2.append(" from ").append(tqf.getDsc()).append(" x where x.").append(tqf.get_tableParamList().get(0).getExpressionDsc()).append(" in (select q.satir::int from iwb.tool_parse_numbers(z.").append(qf.getDsc()).append(",',') q)");
 
-   				if(tqf.get_tableParamList().size()>1){
-   					if(tqf.get_tableParamList().get(1).getDsc().equals("customizationId"))sql2.append(" AND x.customization_id=").append(queryResult.getScd().get("customizationId"));
-   					else if(tqf.get_tableParamList().get(1).getDsc().equals("projectId"))sql2.append(" AND x.project_uuid='").append(queryResult.getScd().get("projectId")).append("'");
-   				}
+   				sql2.append(DBUtil.includeTenantProjectPostSQL(queryResult.getScd(), tqf));
+
    				sql2.append(") ").append(qf.getDsc()).append("_qw_ ");
    				W5QueryField field = new W5QueryField();
    				field.setDsc(qf.getDsc()+"_qw_");
@@ -3268,7 +3264,7 @@ public class PostgreSQL extends BaseDAO {
 	
 	
 	public void reloadTableFieldsCache(String projectId){
-		List<W5TableField> tfl = (List<W5TableField>)find("from W5TableField t where t.projectUuid=? order by t.tableId, t.tabOrder", projectId);
+		List<W5TableField> tfl = (List<W5TableField>)find("from W5TableField t where t.projectUuid=? AND t.tableFieldId>0 order by t.tableId, t.tabOrder", projectId);
 		W5Table t = null;
 		for(W5TableField tf:tfl){
 			if(t==null || tf.getTableId()!=t.getTableId()) t = FrameworkCache.getTable(projectId, tf.getTableId());//tableMap.get(tf.getTableId());
@@ -3886,11 +3882,9 @@ public class PostgreSQL extends BaseDAO {
 		+" AND q." + mt.get_tableParamList().get(0).getExpressionDsc() + " = ?"; //master kayit ile iliski
 		sqlParams.add(GenericUtil.uInt(masterFormResult.getPkFields().get("t"+masterFieldDsc)));
 		//sqlParams.add(PromisUtil.uInt(masterPk));
+
 		
-		if(mt.get_tableParamList().size()>1 && mt.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
-			detailSql+=" AND q.customization_id=?";
-			sqlParams.add(scd.get("customizationId"));
-		}
+		detailSql+=DBUtil.includeTenantProjectPostSQL(scd, mt, "q");
 
 		if(detailStaticFieldDsc!=null)
 			detailSql+=" AND x."+ detailStaticFieldDsc+"="+tc.getRelatedStaticTableFieldVal();
@@ -4001,10 +3995,7 @@ public class PostgreSQL extends BaseDAO {
 				sql.append(" from ").append(t.getDsc()).append(" x");
 				if(accessControlFlag)sql.append(" left outer join iwb.w5_access_control ac on ac.ACCESS_TIP=0 AND ac.table_id=").append(t.getTableId()).append(" AND ac.customization_id=${scd.customizationId} AND cast(ac.table_pk as int8)=x.").append(t.get_tableParamList().get(0).getExpressionDsc());
 				sql.append(" where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=${req.").append(t.get_tableParamList().get(0).getDsc()).append("}");
-				if(t.get_tableParamList().size()==2){
-					if(t.get_tableParamList().get(1).getDsc().equals("customizationId"))sql.append(" AND x.customization_id=${scd.customizationId}");
-					else return l;
-				}
+				sql.append(DBUtil.includeTenantProjectPostSQL(scd, t));
 				Object[] oz = DBUtil.filterExt4SQL(sql.toString(), scd, requestParams, null);
 				Map<String, Object> m = runSQLQuery2Map(oz[0].toString(),(List)oz[1],null);
 				trh = new W5TableRecordHelper();
@@ -4164,10 +4155,7 @@ public class PostgreSQL extends BaseDAO {
 		}
 		sql.append(tmp1).append(" xxx from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 		params.add(tablePk);
-		if(t.get_tableParamList().size()==2 && t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
-			sql.append(" AND x.customization_id=?");
-			params.add(scd.get("customizationId"));
-		}
+		sql.append(DBUtil.includeTenantProjectPostSQL(scd, t));
 		Map<String,Object> qres = runSQLQuery2Map(sql.toString(), params, null);
 		return GenericUtil.isEmpty(qres) ? "" : qres.get("xxx");
 	}
@@ -4693,13 +4681,10 @@ public class PostgreSQL extends BaseDAO {
 	public boolean conditionRecordExistsCheck(Map<String, Object> scd, Map<String, String> requestParams, int tableId, int tablePk, String conditionSqlCode) {
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		StringBuilder sql = new StringBuilder();
-		sql.append("select 1 from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=? AND ");
+		sql.append("select 1 from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 		List params = new ArrayList();
 		params.add(tablePk);
-		if(t.get_tableParamList().size()>1 && t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
-			sql.append(" x.customization_id=? AND ");
-			params.add(scd.get("customizationId"));
-		}
+		sql.append(DBUtil.includeTenantProjectPostSQL(scd, t)).append(" AND ");
 		Object[] oz = DBUtil.filterExt4SQL(conditionSqlCode, scd, new HashMap(), null);
 		sql.append(oz[0]);
 		if(oz.length>1 && oz[1]!=null)params.addAll((List)oz[1]);
@@ -4972,9 +4957,7 @@ public class PostgreSQL extends BaseDAO {
 			if(tc.getRelatedStaticTableFieldId()!=0){
 				sql.append(" AND x.").append(ct.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal());
 			}
-			if(ct.get_tableParamList().size()>1 && ct.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
-				sql.append(" AND x.customization_id=").append(scd.get("customizationId"));
-			}
+			sql.append(DBUtil.includeTenantProjectPostSQL(scd, ct));
 			if(FrameworkSetting.tableChildrenMaxRecordNumber>0)
 				sql.append(" limit ").append(FrameworkSetting.tableChildrenMaxRecordNumber);
 			/* //TODO. burda bir de iwb.w5_access_control ve approval yapilacak
@@ -5019,10 +5002,7 @@ public class PostgreSQL extends BaseDAO {
 			List params = new ArrayList();
 			sql.append("select x.version_no, x.insert_user_id, x.insert_dttm, x.version_user_id, x.version_dttm from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 			params.add(tablePk);
-			if(t.get_tableParamList().size()>1 && t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
-				sql.append(" AND x.customization_id=?");
-				params.add(scd.get("customizationId"));
-			}
+			sql.append(DBUtil.includeTenantProjectPostSQL(scd, t));
 			
 			List<Map> l = executeSQLQuery2Map(sql.toString(), params);
 			if(!GenericUtil.isEmpty(l)){
@@ -5104,10 +5084,7 @@ public class PostgreSQL extends BaseDAO {
 			} 
 			String sql = "select "+summarySql+" dsc from "+t.getDsc()+" x where x."+t.get_tableParamList().get(0).getExpressionDsc()+ "=?";
 			params.add(tablePk);
-			if(t.get_tableParamList().size()==2 && t.get_tableParamList().get(1).getDsc().equals("customizationId")){
-				sql+=" AND x.customization_id=?";
-				params.add(scd.get("customizationId"));
-			}
+			sql+=DBUtil.includeTenantProjectPostSQL(scd, t);
 			Map<String, Object> m = runSQLQuery2Map(sql,params,null);
 			if(m!=null)
 				summaryText = (String)m.get("dsc");
@@ -5181,10 +5158,7 @@ public class PostgreSQL extends BaseDAO {
 		s.append("select iwb.md5hash(").append(getTableFields4VCS(t,"x")).append(") xhash from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 		List p = new ArrayList();
 		p.add(tablePk);
-		if(t.get_tableParamList().size()>1){
-			s.append(" AND x.customization_id=?");
-			p.add(scd.get("customizationId"));
-		}
+		s.append(DBUtil.includeTenantProjectPostSQL(scd, t));
 		List l = executeSQLQuery2Map(s.toString(), p);
 		if(GenericUtil.isEmpty(l))
 		return "!";
@@ -5196,7 +5170,7 @@ public class PostgreSQL extends BaseDAO {
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		StringBuilder s = new StringBuilder();
 		s.append("select x.* from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-		if(t.get_tableParamList().size()>1)s.append(" AND x.customization_id=").append(scd.get("customizationId"));
+		s.append(DBUtil.includeTenantProjectPostSQL(scd, t));
 		List p= new ArrayList();p.add(tablePk);
 		List l = executeSQLQuery2Map(s.toString(), p);
 		return GenericUtil.isEmpty(l) ? null : (Map)l.get(0);
@@ -5231,8 +5205,8 @@ public class PostgreSQL extends BaseDAO {
 				}
 				s.setLength(s.length()-1);
 				s.append(" where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-				if(t.get_tableParamList().size()>1)s.append(" AND customization_id=").append(scd.get("customizationId"));
 				p.add(tablePk);
+				s.append(DBUtil.includeTenantProjectPostSQL(scd, t));
 				break;
 			case	2://insert
 				s.append("insert into ").append(t.getDsc()).append("(");
@@ -5261,8 +5235,8 @@ public class PostgreSQL extends BaseDAO {
 				break;
 			case	3://delete
 				s.append("delete from ").append(t.getDsc()).append(" where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-				if(t.get_tableParamList().size()>1)s.append(" AND customization_id=").append(scd.get("customizationId"));
 				p.add(tablePk);
+				s.append(DBUtil.includeTenantProjectPostSQL(scd, t));
 				break;
 			}
 			executeUpdateSQLQuery(s.toString(), p);
@@ -5272,6 +5246,7 @@ public class PostgreSQL extends BaseDAO {
 
 		return true;
 	}
+
 	
 	public String getTableRecordSummary(Map scd, int tableId, int tablePk, int maxLength) {
 		W5Table t = FrameworkCache.getTable(scd, tableId);
@@ -5279,10 +5254,7 @@ public class PostgreSQL extends BaseDAO {
 		if(GenericUtil.isEmpty(t.get_tableParamList()))return "TableParam not Found ;)";
 		StringBuilder sql = new StringBuilder();
 		sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-		if(t.get_tableParamList().size()>1){
-			if(t.get_tableParamList().get(1).getDsc().equals("customizationId"))sql.append(" AND x.customization_id=").append(scd.get("customizationId"));
-			else if(t.get_tableParamList().get(1).getDsc().equals("projectId"))sql.append(" AND x.project_uuid='").append(scd.get("projectId")).append("'");
-		}
+		sql.append(DBUtil.includeTenantProjectPostSQL(scd, t));
 		Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 		List summaryParams = (List)res[1];summaryParams.add(tablePk);
 		List l = executeSQLQuery2(((StringBuilder)res[0]).toString(), summaryParams);
@@ -5648,7 +5620,7 @@ public class PostgreSQL extends BaseDAO {
 		        					ss = ss.substring(1);
 		        					W5Table t = (W5Table)mm.get("t");
 		        					String sql = "select x."+t.get_tableFieldList().get(0).getDsc()+" id, "+t.getSummaryRecordSql()+" dsc from " +t.getDsc()+" x where "+t.get_tableParamList().get(0).getExpressionDsc()+" in ("+ss+")";
-		        					if(t.get_tableParamList().size()>1)sql+=" AND x.customization_id="+scd.get("customizationId");
+		        					sql+=DBUtil.includeTenantProjectPostSQL(scd, t);
 		        					Object[] oz = DBUtil.filterExt4SQL(sql, scd, new HashMap(), null);
 		        					List<Object[]> lm = executeSQLQuery2(oz[0].toString(), (List)oz[1]);
 		        					if(lm!=null){
@@ -6674,8 +6646,8 @@ public class PostgreSQL extends BaseDAO {
 							newSub.append(" x.").append(t.get_tableFieldMap().get(detTc.getTableFieldId()).getDsc()).append("=z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedTableFieldId()).getDsc());
 							if(detTc.getRelatedStaticTableFieldId()>0 && !GenericUtil.isEmpty(detTc.getRelatedStaticTableFieldVal()))
 								newSub.append(" AND z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(detTc.getRelatedStaticTableFieldVal());
-							if(detT.get_tableParamList().size()>1)
-								newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+//							if(detT.get_tableParamList().size()>1)newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+							newSub.append(DBUtil.includeTenantProjectPostSQL(scd, detT,"z"+isss));
 							sql.append("(").append(newSub).append(")");
 							iwfField++;
 							fieldName = clcFieldPrefix+iwfField;
@@ -6691,8 +6663,8 @@ public class PostgreSQL extends BaseDAO {
 						newSub.append(" x.").append(t.get_tableFieldMap().get(detTc.getTableFieldId()).getDsc()).append("=z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedTableFieldId()).getDsc());
 						if(detTc.getRelatedStaticTableFieldId()>0 && !GenericUtil.isEmpty(detTc.getRelatedStaticTableFieldVal()))
 							newSub.append(" AND z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(detTc.getRelatedStaticTableFieldVal());
-						if(detT.get_tableParamList().size()>1)
-							newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+//						if(detT.get_tableParamList().size()>1)newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+						newSub.append(DBUtil.includeTenantProjectPostSQL(scd, detT,"z"+isss));
 						sql.append("(").append(newSub).append(")");
 						iwfField++;
 						fieldName = clcFieldPrefix+iwfField;
@@ -6704,8 +6676,8 @@ public class PostgreSQL extends BaseDAO {
 						newSub.append(" x.").append(t.get_tableFieldMap().get(detTc.getTableFieldId()).getDsc()).append("=z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedTableFieldId()).getDsc());
 						if(detTc.getRelatedStaticTableFieldId()>0 && !GenericUtil.isEmpty(detTc.getRelatedStaticTableFieldVal()))
 							newSub.append(" AND z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(detTc.getRelatedStaticTableFieldVal());
-						if(detT.get_tableParamList().size()>1)
-							newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+//						if(detT.get_tableParamList().size()>1)newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+						newSub.append(DBUtil.includeTenantProjectPostSQL(scd, detT,"z"+isss));
 						sql.append("(").append(newSub).append(")");
 						iwfField++;
 						fieldName = clcFieldPrefix+iwfField;
@@ -6753,7 +6725,9 @@ public class PostgreSQL extends BaseDAO {
 									W5Table dt = FrameworkCache.getTable(scd, tableField.getDefaultLookupTableId());
 									if(dt!=null && !GenericUtil.isEmpty(dt.getSummaryRecordSql())){
 										newSub.append("(SELECT ").append(dt.getSummaryRecordSql().replaceAll("x.", "qxq.")).append(" FROM ").append(dt.getDsc()).append(" qxq WHERE qxq.").append(dt.get_tableFieldList().get(0).getDsc()).append("=y").append(isss).append(".").append(sss[isss+1]);
-										if(dt.get_tableParamList().size()>1)newSub.append(" AND qxq.customization_id=${scd.customizationId}");
+//										if(dt.get_tableParamList().size()>1)newSub.append(" AND qxq.customization_id=${scd.customizationId}");
+										newSub.append(DBUtil.includeTenantProjectPostSQL(scd, dt,"qxq"));
+										
 										newSub.append(")");
 									} else
 										newSub.append("y").append(isss).append(".").append(sss[isss+1]);
@@ -6807,7 +6781,8 @@ public class PostgreSQL extends BaseDAO {
 						W5Table dt = FrameworkCache.getTable(scd, f.getDefaultLookupTableId());
 						if(dt!=null && !GenericUtil.isEmpty(dt.getSummaryRecordSql())){
 							sql.append("(SELECT ").append(dt.getSummaryRecordSql().replaceAll("x.", "qxq.")).append(" FROM ").append(dt.getDsc()).append(" qxq WHERE qxq.").append(dt.get_tableFieldList().get(0).getDsc()).append("=x.").append(f.getDsc());
-							if(dt.get_tableParamList().size()>1)sql.append(" AND qxq.customization_id=${scd.customizationId}");
+//							if(dt.get_tableParamList().size()>1)sql.append(" AND qxq.customization_id=${scd.customizationId}");
+							sql.append(DBUtil.includeTenantProjectPostSQL(scd, dt,"qxq"));
 							sql.append(")");
 						} else { 
 							sql.append("x.").append(f.getDsc());
@@ -6827,7 +6802,7 @@ public class PostgreSQL extends BaseDAO {
 		}
 		sql.setLength(sql.length()-1);
 		sql.append(" FROM ").append(t.getDsc()).append(" x");
-		if(t.get_tableParamList().size()>1)sql.append(" WHERE x.customization_id=${scd.customizationId}");
+		if(t.get_tableParamList().size()>1)sql.append(" WHERE 1=1").append(DBUtil.includeTenantProjectPostSQL(scd, t));
 		// GROUP BY ").append(groupBy.substring(1)
 		StringBuilder sql2=sql;
 		sql2.append(" limit 100000");//simdilik sinir koyalim
@@ -6974,8 +6949,9 @@ public class PostgreSQL extends BaseDAO {
 							newSub.append(" x.").append(t.get_tableFieldMap().get(detTc.getTableFieldId()).getDsc()).append("=z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedTableFieldId()).getDsc());
 							if(detTc.getRelatedStaticTableFieldId()>0 && !GenericUtil.isEmpty(detTc.getRelatedStaticTableFieldVal()))
 								newSub.append(" AND z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(detTc.getRelatedStaticTableFieldVal());
-							if(detT.get_tableParamList().size()>1)
-								newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+//							if(detT.get_tableParamList().size()>1)newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+							newSub.append(DBUtil.includeTenantProjectPostSQL(scd, detT,"z"+isss));
+
 							sql.append("(").append(newSub).append(")");
 							iwfField++;
 							fieldName = clcFieldPrefix+iwfField;
@@ -6991,8 +6967,8 @@ public class PostgreSQL extends BaseDAO {
 						newSub.append(" x.").append(t.get_tableFieldMap().get(detTc.getTableFieldId()).getDsc()).append("=z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedTableFieldId()).getDsc());
 						if(detTc.getRelatedStaticTableFieldId()>0 && !GenericUtil.isEmpty(detTc.getRelatedStaticTableFieldVal()))
 							newSub.append(" AND z").append(isss).append(".").append(detT.get_tableFieldMap().get(detTc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(detTc.getRelatedStaticTableFieldVal());
-						if(detT.get_tableParamList().size()>1)
-							newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+//						if(detT.get_tableParamList().size()>1)newSub.append(" AND z").append(isss).append(".").append("customization_id=${scd.customizationId}");
+						newSub.append(DBUtil.includeTenantProjectPostSQL(scd, detT,"z"+isss));
 						sql.append("(").append(newSub).append(")");
 						iwfField++;
 						fieldName = clcFieldPrefix+iwfField;
@@ -7040,7 +7016,9 @@ public class PostgreSQL extends BaseDAO {
 									W5Table dt = FrameworkCache.getTable(scd, tableField.getDefaultLookupTableId());
 									if(dt!=null && !GenericUtil.isEmpty(dt.getSummaryRecordSql())){
 										newSub.append("(SELECT ").append(dt.getSummaryRecordSql().replaceAll("x.", "qxq.")).append(" FROM ").append(dt.getDsc()).append(" qxq WHERE qxq.").append(dt.get_tableFieldList().get(0).getDsc()).append("=y").append(isss).append(".").append(sss[isss+1]);
-										if(dt.get_tableParamList().size()>1)newSub.append(" AND qxq.customization_id=${scd.customizationId}");
+//										if(dt.get_tableParamList().size()>1)newSub.append(" AND qxq.customization_id=${scd.customizationId}");
+										newSub.append(DBUtil.includeTenantProjectPostSQL(scd, dt,"qxq"));
+										
 										newSub.append(")");
 									} else
 										newSub.append("y").append(isss).append(".").append(sss[isss+1]);
@@ -7094,7 +7072,9 @@ public class PostgreSQL extends BaseDAO {
 						W5Table dt = FrameworkCache.getTable(scd, f.getDefaultLookupTableId());
 						if(dt!=null && !GenericUtil.isEmpty(dt.getSummaryRecordSql())){
 							sql.append("(SELECT ").append(dt.getSummaryRecordSql().replaceAll("x.", "qxq.")).append(" FROM ").append(dt.getDsc()).append(" qxq WHERE qxq.").append(dt.get_tableFieldList().get(0).getDsc()).append("=x.").append(f.getDsc());
-							if(dt.get_tableParamList().size()>1)sql.append(" AND qxq.customization_id=${scd.customizationId}");
+//							if(dt.get_tableParamList().size()>1)sql.append(" AND qxq.customization_id=${scd.customizationId}");
+							sql.append(DBUtil.includeTenantProjectPostSQL(scd, dt,"qxq"));
+							
 							sql.append(")");
 						} else { 
 							sql.append("x.").append(f.getDsc());
@@ -7115,7 +7095,7 @@ public class PostgreSQL extends BaseDAO {
 		}
 		sql.setLength(sql.length()-1);
 		sql.append(" FROM ").append(t.getDsc()).append(" x");
-		if(t.get_tableParamList().size()>1)sql.append(" WHERE x.customization_id=${scd.customizationId}");
+		if(t.get_tableParamList().size()>1)sql.append(" WHERE 1=1").append(DBUtil.includeTenantProjectPostSQL(scd, t));
 		// GROUP BY ").append(groupBy.substring(1)
 		StringBuilder sql2;
 		if(!valMap.isEmpty()){

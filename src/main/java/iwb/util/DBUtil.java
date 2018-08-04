@@ -8,6 +8,8 @@ import java.util.Map;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
+import iwb.domain.db.W5Table;
+import iwb.domain.db.W5TableParam;
 import iwb.exception.IWBException;
 
 public class DBUtil {
@@ -101,4 +103,16 @@ public class DBUtil {
 		default :return 0;
 		}
 	}
+	
+	
+	public static String includeTenantProjectPostSQL(Map scd, W5Table t, String... alias){
+		String x = alias.length>0 ? alias[0]:"x";
+		StringBuilder sql = new StringBuilder();
+		if(t!=null)for(W5TableParam tp:t.get_tableParamList()){
+			if(tp.getDsc().equals("customizationId"))sql.append(" AND ").append(x).append(".customization_id=").append(scd.get("customizationId"));
+			if(tp.getDsc().equals("projectId"))sql.append(" AND ").append(x).append(".project_uuid='").append(scd.get("projectId")).append("'");
+		}
+		return sql.toString();
+	}
+
 }

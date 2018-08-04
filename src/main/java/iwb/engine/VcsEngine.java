@@ -2115,7 +2115,9 @@ public class VcsEngine {
 		W5Project po = FrameworkCache.getProject(projectId);
 		
 		//TODO, biraz inceleme gerekebilir
-		int cnt = dao.executeUpdateSQLQuery(sql);
+		if(po.getCustomizationId()==0){ //only for customizationId
+			dao.executeUpdateSQLQuery(sql);
+		}
 		
 		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", projectId);
 		W5VcsCommit commit = new W5VcsCommit();
@@ -2126,7 +2128,7 @@ public class VcsEngine {
 		dao.saveObject(commit);
 		Map m = new HashMap();
 		m.put("success", true);
-		m.put("cnt", cnt);
+		m.put("cnt", 1);
 		return m;
 	}
 

@@ -1617,15 +1617,15 @@ function addDefaultPrivilegeButtons(xbuttons, xgrid){
 	if(_scd.administratorFlag || _scd.customizationId==0){
 		xbuttons.push(false && xgrid.gridReport ? '-':'->');
 		var xxmenu=[], bx=false;
-	    if(_scd.administratorFlag){xxmenu.push({text:getLocMsg('js_ayarlar'),cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:fnGridSetting});bx=true;}
-	    if(_scd.administratorFlag){xxmenu.push({text:getLocMsg('js_yetkiler'),cls:'x-btn-icon x-grid-privilege', _activeOnSelection:false, _grid:xgrid, handler:fnGridPrivilege});bx=true;}
-	    if(_scd.administratorFlag && xgrid.crudTableId){
+	    if(_scd.customizationId==0){xxmenu.push({text:getLocMsg('js_ayarlar'),cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:fnGridSetting});bx=true;}
+	    if(_scd.customizationId==0){xxmenu.push({text:getLocMsg('js_yetkiler'),cls:'x-btn-icon x-grid-privilege', _activeOnSelection:false, _grid:xgrid, handler:fnGridPrivilege});bx=true;}
+	    if(xgrid.crudTableId){
 			if(bx)xxmenu.push('-');else bx=true;
 			xxmenu.push({text:'Detail Form+ Builder',cls:'x-btn-icon x-grid-setting', _activeOnSelection:false, _grid:xgrid, handler:function(ax){
 				return  mainPanel.loadTab({attributes:{href:'showPage?_tid=8&parent_table_id='+ax._grid.crudTableId+'&tpl_id='+ax._grid.tplInfo.id+'&po_id='+ax._grid.tplInfo.objId}});
 			}});
 	    }
-		if(xgrid.saveUserInfo){
+		if(false && xgrid.saveUserInfo){
 			if(bx)xxmenu.push('-');else bx=true;
 			addDefaultGridPersonalizationButtons(xxmenu,xgrid);
 		}
@@ -1663,10 +1663,6 @@ function addTab4GridWSearchForm(obj){
 	addDefaultSpecialButtons(buttons, mainGrid);
 	addGridExtraButtons(buttons,mainGrid);
 	 
-	if(mainGrid.detailView && mainGrid.detailDlg){ //selectionMode:5
-		buttons.push({tooltip:getLocMsg('js_detay_penceresi'), cls:'x-btn-icon x-grid-dpencere', _grid:mainGrid, handler: fnShowDetailDialog});
-	}
-
     if(mainGrid.menuButtons){
     	for(var j=0;j<mainGrid.menuButtons.length;j++){
         	mainGrid.menuButtons[j]._grid=mainGrid;
@@ -1821,10 +1817,6 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 	if(mainGrid.crudFlags)addDefaultCrudButtons(buttons, mainGrid);
 	addDefaultSpecialButtons(buttons, mainGrid);
 
-	if(mainGrid.detailView && mainGrid.detailDlg){ //selectionMode:5
-        buttons.push({tooltip:getLocMsg('js_detay_penceresi'), cls:'x-btn-icon x-grid-dpencere', _grid:mainGrid, handler: fnShowDetailDialog});
-	}
-
 
     addGridExtraButtons(buttons,mainGrid);
     
@@ -1939,33 +1931,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
     
 	//detail tabs
 	var detailGridPanels = [];
-	if(mainGrid.detailView && !mainGrid.detailDlg){ //selectionMode:5
-		
-		mainGridPanel._detailView = new Ext.DataView(Ext.apply({
-			store: new Ext.data.JsonStore({
-				fields: mainGridPanel.store.reader.meta.fields,
-				root: 'data'
-			}),
-			tpl:mainGrid.detailView,
-			autoScroll:true,
-			overClass:'x-view-over',
-			itemSelector:'table.grid_detay'
-		},mainGrid.detailViewExtra || {}));
-		
-		mainGridPanel._detailViewPanel = new Ext.Panel({
-			autoScroll:true,
-		    title:getLocMsg('js_detay'),
-		    items:mainGridPanel._detailView});//mainGridPanel._detailView
-		   
-		detailGridPanels.push(mainGridPanel._detailViewPanel);
-		mainGridPanel.getSelectionModel().on("selectionchange",function(a,b,c){
-			var sel=a.grid.getSelectionModel().getSelected();
-			if(sel)a.grid._detailView.store.loadData({data:[sel.json]});
-			else a.grid._detailView.store.loadData({data:[]});
-		});
-
-	}
-	 	
+		 	
 	if(obj.detailGrids.length>1) obj.detailGrids.sort(function(a,b){ return (a.grid.tabOrder||-1) -(b.grid.tabOrder||-1)});// gridler template object sirasina gore geliyor.	
 	for(var i=0;i<obj.detailGrids.length;i++){
 		if(obj.detailGrids[i].detailGrids){//master/detail olacak
@@ -2004,10 +1970,6 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 	
 	   		if(detailGrid.editGrid)addDefaultCommitButtons(buttons, detailGrid);	
 	
-			if(detailGrid.detailView && detailGrid.detailDlg){ //selectionMode:5
-	            buttons.push({tooltip:getLocMsg('js_detay_penceresi'), cls:'x-btn-icon x-grid-dpencere', _grid:detailGrid, handler: fnShowDetailDialog});
-			}
-			
 			if(detailGrid.hasFilter){
 			    if(buttons.length>0)buttons.push('-');
 			    buttons.push({tooltip:getLocMsg('js_filtreyi_kaldir'),cls:'x-btn-icon x-grid-funnel',_grid:detailGrid, handler:fnClearFilters});
@@ -3854,10 +3816,6 @@ function addTab4DetailGridsWSearchForm(obj){
 	
 	   		if(detailGrid.editGrid)addDefaultCommitButtons(buttons, detailGrid);	
 			
-			if(detailGrid.detailView && detailGrid.detailDlg){ //selectionMode:5
-	            buttons.push({tooltip:getLocMsg('js_detay_penceresi'), cls:'x-btn-icon x-grid-dpencere', _grid:detailGrid, handler: fnShowDetailDialog});
-			}
-			
 			if(detailGrid.hasFilter){
 				    if(buttons.length>0)buttons.push('-');
 				    buttons.push({tooltip:getLocMsg('js_filtreyi_kaldir'),cls:'x-btn-icon x-grid-funnel',_grid:detailGrid, handler:fnClearFilters});
@@ -5268,7 +5226,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    btn.push('-', ' ', ' ', ' ');
 	    if ((getForm.manualConversionForms && getForm.manualConversionForms.length > 0) || (getForm.reportList && getForm.reportList.length > 0)) {
 	        toolButtons.push({
-	            text: 'Kayit Bilgisi',
+	            text: 'Record Info',
 	            /*iconCls:'icon-info',*/
 	            handler: function() {
 	                fnTblRecEdit(getForm.crudTableId, pk, false);
@@ -5284,28 +5242,15 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                });
 	            }
 	            toolButtons.push({
-	                text: 'Dönüstür',
+	                text: 'Conversion',
 	                iconCls: 'icon-operation',
 	                menu: getForm.manualConversionForms
 	            });
 	        }
-
-	        if (getForm.reportList && getForm.reportList.length > 0) {
-	            for (var qz = 0; qz < getForm.reportList.length; qz++) {
-	                getForm.reportList[qz].handler = function(aq, bq, cq) {
-	                    //mainPanel.loadTab({attributes:{href:'showForm?a=2&_fid='+aq._fid+'&_cnvId='+aq.xid+'&_cnvTblPk='+sel.id}});
-	                    alert('olacak')
-	                }
-	            }
-	            toolButtons.push({
-	                text: 'Raporlar',
-	                iconCls: 'icon-ireport',
-	                menu: getForm.reportList
-	            });
-	        }		
+	
 			
 	        btn.push({
-	            text: 'Diger...',
+	            text: 'Others...',
 	            iconAlign: 'top',
 	            scale: 'medium',
 	            style: {
@@ -5462,10 +5407,10 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    },
 	    menu: {
 	        items: [{
-	            text: '${save_these_values}',
+	            text: 'Save these values',
 	            iconCls: 'icon-ekle',
 	            handler: function(a, b, c) {
-	                var p = prompt('${template_name}', '')
+	                var p = prompt('Template Name', '')
 	                if (p) {
 	                    var params = getForm._cfg.formPanel.getForm().getValues()
 	                    params._dsc = p
@@ -5480,7 +5425,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                }
 	            }
 	        }, {
-	            text: '${edit_records}',
+	            text: 'Edit Templates',
 	            iconCls: 'icon-duzenle',
 	            handler: function(a, b, c) {
 	                mainPanel.loadTab({
@@ -5501,7 +5446,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    }
 	});
 
-	if (_scd.administratorFlag || _scd.administratorFlag) {
+	if (_scd.customizationId==0) {
 	    btn.push('-');
 	    var menuItems = []
 	    if (_scd.administratorFlag) {
@@ -5679,4 +5624,11 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	}
 
 	return p;
+}
+iwb.isMonacoReady=function(e){
+	if(!e){
+		Ext.infoMsg.msg('error','Monaco Editor not Loaded yet!<br/>Good things take time',5);
+		return false;
+	}
+	return true;
 }
