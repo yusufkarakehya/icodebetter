@@ -82,14 +82,14 @@ public class PostFormTrigger {
 			}
 			break;
 		case	1407://project
-			if((fr.getAction()==1 || fr.getAction()==3) && scd.containsKey("ocustomizationId") && (Integer)scd.get("ocustomizationId")!=(Integer)scd.get("customizationId")){
+			if((fr.getAction()==1 || fr.getAction()==3) && scd.containsKey("ocustomizationId") && GenericUtil.uInt(scd.get("ocustomizationId"))!=GenericUtil.uInt(scd.get("customizationId"))){
 				throw new IWBException("security","Project", 0, null, "Forbidden Command. Can not manipulate a project on another tenant.", null);
 			}
 			switch(fr.getAction()){
 			case	5://clone
 			case	2://insert
 				String newProjectId = fr.getOutputFields().get("project_uuid").toString();
-				int customizationId = (Integer)scd.get(scd.containsKey("ocustomizationId") ?  "ocustomizationId":"customizationId");
+				int customizationId = GenericUtil.uInt(scd.get("ocustomizationId"));
 				String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
 				//validate from vcs server
 				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=?, customization_id=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project","http://81.214.24.77:8084/app/"), scd.get("userName"), "1", customizationId, newProjectId);
