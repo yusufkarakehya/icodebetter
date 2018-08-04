@@ -268,7 +268,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxQueryData4Stat")
 	public void hndAjaxQueryData4Stat(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int gridId = GenericUtil.uInt(request, "_gid");
 		if(gridId==0)gridId = -GenericUtil.uInt(request, "_qid");
 		logger.info("hndAjaxQueryData4Stat(" + gridId + ")");
@@ -279,12 +279,11 @@ public class AppServlet implements InitializingBean {
 		Map m = engine.executeQuery4Stat(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Stat", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	@RequestMapping("/ajaxQueryData4StatTree")
 	public void hndAjaxQueryData4StatTree(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int gridId = GenericUtil.uInt(request, "_gid");
 		logger.info("hndAjaxQueryData4StatTree(" + gridId + ")");
 
@@ -294,7 +293,6 @@ public class AppServlet implements InitializingBean {
 		Map m = engine.executeQuery4StatTree(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4StatTree", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	public static Map<String, String> mockData = new HashMap();
 	@RequestMapping("/ajaxMockData")
@@ -309,8 +307,6 @@ public class AppServlet implements InitializingBean {
 		mockData.put(id, getViewAdapter(scd, request).serializeQueryData(queryResult).toString());
 		response.getWriter().write("{success:true, id:\""+id+"\"}");
 		response.getWriter().close();
-		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxMockData", id, request.getRemoteAddr(), 0));
-		
 	}
 	
 	@RequestMapping("/ajaxQueryMockData")
@@ -322,12 +318,11 @@ public class AppServlet implements InitializingBean {
 		String s = mockData.get(id);
 		response.getWriter().write(s!=null ? s : "{success:false,error:\"Wrong MockID\"}");
 		response.getWriter().close();
-		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5VisitedPage(new HashMap(), "ajaxQueryMockData", id, request.getRemoteAddr(), 0));
 	}
 	@RequestMapping("/ajaxQueryData")
 	public void hndAjaxQueryData(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int queryId = GenericUtil.uInt(request, "_qid");
 //		JSONObject jo = null;
 		Map<String,String> requestMap = GenericUtil.getParameterMap(request);
@@ -420,8 +415,6 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(va.serializeQueryData(queryResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData", queryId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 
@@ -443,7 +436,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxApproveRecord")
 	public void hndAjaxApproveRecord(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxApproveRecord");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -482,7 +475,6 @@ public class AppServlet implements InitializingBean {
 					.write(",\"fileHash\":\"" + b.get("fileHash") + "\",\"fileId\":\"" + b.get("fileId") + "\"");
 		response.getWriter().write("}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxApproveRecord", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxLiveSync")
@@ -772,7 +764,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/reloadCache")
 	public void hndReloadCache(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		
 		logger.info("hndReloadCache");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -795,8 +787,6 @@ public class AppServlet implements InitializingBean {
 		} else
 			response.getWriter().write("{\"success\":false}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "reloadCache", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 
@@ -864,7 +854,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxPostForm")
 	public void hndAjaxPostForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndAjaxPostForm(" + formId + ")");
 
@@ -893,16 +883,13 @@ public class AppServlet implements InitializingBean {
 			UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
 //			UserUtil.mqSyncAfterPostFormAll(formResult.getScd(), formResult.getListSyncAfterPostHelper());
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
-
 	}
 /*
 
 	@RequestMapping("/ajaxPostFormBulkUpdate")
 	public void hndAjaxPostFormBulkUpdate(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxPostFormBulkUpdate");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -930,14 +917,13 @@ public class AppServlet implements InitializingBean {
 					GenericUtil.getParameterMap(request));
 			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostFormBulkUpdate", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
 	@RequestMapping("/ajaxQueryData4BulkUpdate")
 	public void hndAjaxQueryData4BulkUpdate(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxQueryData4BulkUpdate");
 		int formId = GenericUtil.uInt(request, "_fid");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -948,8 +934,6 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeQueryData(queryResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4BulkUpdate", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 */
 	@RequestMapping("/ajaxPing")
@@ -976,7 +960,6 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxPostConversionGridMulti")
 	public void hndAjaxPostConversionGridMulti(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
 		logger.info("hndAjaxPostConversionGridMulti");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
@@ -1000,13 +983,12 @@ public class AppServlet implements InitializingBean {
 			}
 		} else
 			response.getWriter().write("{\"success\":false}");
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostConversionGridMulti", conversionCount, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxPostEditGrid")
 	public void hndAjaxPostEditGrid(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxPostEditGrid");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1058,13 +1040,12 @@ public class AppServlet implements InitializingBean {
 				response.getWriter().write("{\"success\":false}");
 			}
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxPostEditGrid", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxBookmarkForm")
 	public void hndAjaxBookmarkForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxBookmarkForm");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1075,14 +1056,13 @@ public class AppServlet implements InitializingBean {
 
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"id\":" + formResult.getPkFields().get("id") + "}");
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxBookmarkForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 
 	}
 
 	@RequestMapping("/ajaxExecDbFunc")
 	public void hndAjaxExecDbFunc(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxExecDbFunc");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1106,8 +1086,6 @@ public class AppServlet implements InitializingBean {
 		}
 
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxExecDbFunc", dbFuncId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 	
@@ -1115,7 +1093,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxGetFormSimple")
 	public void hndGetFormSimple(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndGetFormSimple(" + formId + ")");
 
@@ -1127,14 +1105,12 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGetFormSimple(formResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxGetFormSimple", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 	@RequestMapping("/ajaxReloadFormCell")
 	public void hndAjaxReloadFormCell(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxReloadFormCell");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		int fcId = GenericUtil.uInt(request, "_fcid");
@@ -1147,14 +1123,12 @@ public class AppServlet implements InitializingBean {
 						.serializeFormCellStore(rc, (Integer) scd.get("customizationId"), (String) scd.get("locale"))
 						.toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxReloadFormCell", fcId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-		
 	}
 
 	@RequestMapping("/ajaxGetFormCellCodeDetail")
 	public void hndAjaxGetFormCellCodeDetail(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxGetFormCellCodeDetail");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1163,14 +1137,12 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"result\":\"" + result + "\"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxGetFormCellCodeDetail", fccdId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 	@RequestMapping("/ajaxFeed")
 	public void hndAjaxFeed(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxFeed");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1191,15 +1163,13 @@ public class AppServlet implements InitializingBean {
 					/* mainTable.getTableId() */ 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
 					request.getParameter(".w"), request.getParameter(".t"), /* grdOrFcId */ 919, null, true);
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxFeed", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-		
 	}
 	
 
 	@RequestMapping("/ajaxTsPortletData")
 	public void hndAjaxTsPortletData(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxTsPortletData");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1210,15 +1180,13 @@ public class AppServlet implements InitializingBean {
 		String s = engine.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
 		response.getWriter().write(s);
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxTsPortletData", porletId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 
 	@RequestMapping("/showForm")
 	public void hndShowForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndShowForm(" + formId + ")");
 
@@ -1230,15 +1198,12 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeShowForm(formResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-		
-
 	}
 	
 	@RequestMapping("/showMForm")
 	public void hndShowMForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndShowMForm(" + formId + ")");
 
@@ -1249,14 +1214,12 @@ public class AppServlet implements InitializingBean {
 
 		response.getWriter().write(f7.serializeGetForm(formResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showMForm", formId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 	@RequestMapping("/showTutorial")
 	public void hndShowTutorial(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int tutorialId = GenericUtil.uInt(request, "_ttid");
 		logger.info("showTutorial(" + tutorialId + ")");
 
@@ -1272,8 +1235,6 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write(getViewAdapter(scd, request).serializeShowTutorial(tutorialResult).toString());
 		}
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showTutorial", tutorialId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 	@RequestMapping("/ajaxLogoutUser")
@@ -1316,7 +1277,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/login.htm")
 	public void hndSuperDeveloperLoginPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndLoginPage");
 		HttpSession session = request.getSession(false);
 		if (session != null) {
@@ -1394,7 +1355,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/main.htm")
 	public void hndMainPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndMainPage");
 		
 		HttpSession session = request.getSession(false);
@@ -1439,7 +1400,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/index.html")
 	public void hndLandingPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		Map<String, Object> scd = new HashMap();
 		scd.put("customizationId", 0);scd.put("userId", 0);scd.put("locale", "en");
 		W5PageResult pageResult = engine.getTemplateResult(scd, 2453, new HashMap());
@@ -1452,7 +1413,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/showPage")
 	public void hndShowPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int templateId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndShowPage(" + templateId + ")");
 
@@ -1471,15 +1432,13 @@ public class AppServlet implements InitializingBean {
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showPage", templateId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 	
 
 	@RequestMapping("/showMList")
 	public void hndShowMList(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int listId = GenericUtil.uInt(request, "_lid");
 		logger.info("hndShowMList(" + listId + ")");
 
@@ -1496,15 +1455,13 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(f7.serializeList(listResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "showMList", listId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 	
 	@RequestMapping("/grd/*")
 	public ModelAndView hndGridReport(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndGridReport");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
@@ -1529,7 +1486,6 @@ public class AppServlet implements InitializingBean {
 				response.setContentType("application/octet-stream");
 				response.getWriter().print(GenericUtil.report2text(list));
 			}
-			if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndGridReport", gridId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 			return result;
 
 		} else {
@@ -1545,7 +1501,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/dl/*")
 	public void hndFileDownload(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndFileDownload");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1609,13 +1565,12 @@ public class AppServlet implements InitializingBean {
 			if (stream != null)
 				stream.close();
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndFileDownload", fileAttachmentId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/sf/*")
 	public void hndShowFile(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int fileAttachmentId = GenericUtil.uInt(request, "_fai");
 		logger.info("hndShowFile(" + fileAttachmentId + ")");
 		Map<String, Object> scd = null;
@@ -1679,7 +1634,6 @@ public class AppServlet implements InitializingBean {
 			if(out!=null)out.close();
 			if(stream!=null)stream.close();
 		}
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "hndShowFile", fileAttachmentId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/jasper/*")
@@ -1687,7 +1641,7 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndJasperReport"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
     	int customizationId=(Integer) ((scd.get("customizationId")==null) ? 0 : scd.get("customizationId"));
@@ -1866,7 +1820,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/showFormByQuery")
 	public void hndShowFormByQuery(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndShowFormByQuery");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -1888,7 +1842,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/getTableRecordInfo")
 	public void hndGetTableRecordInfo(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndGetTableRecordInfo");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		int tableId = GenericUtil.uInt(request, "_tb_id");
@@ -1902,7 +1856,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/getGraphDashboards")
 	public void hndGetGraphDashboards(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndGetGraphDashboards");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
@@ -1930,7 +1884,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxGetLoginLang")
 	public void hndGetLoginLang(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndGetLoginLang");
 		Map<String, Object> scd = new HashMap<String, Object>();
 		Map<String, String> req = GenericUtil.getParameterMap(request);
@@ -1958,7 +1912,7 @@ public class AppServlet implements InitializingBean {
 			@RequestParam("customizationId") Integer customizationId, @RequestParam("userId") Integer userId,
 			@RequestParam("table_pk") String table_pk, @RequestParam("table_id") Integer table_id,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("multiFileUpload");
 		// Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		String path = FrameworkCache.getAppSettingStringValue(customizationId, "file_local_path") + File.separator
@@ -2041,7 +1995,7 @@ public class AppServlet implements InitializingBean {
 	public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("table_pk") String table_pk,
 			@RequestParam("table_id") Integer table_id, @RequestParam("profilePictureFlag") Integer profilePictureFlag,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("singleFileUpload");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2135,7 +2089,7 @@ public class AppServlet implements InitializingBean {
 	public String singleFileUpload4Webix(@RequestParam("upload") MultipartFile file, @RequestParam("table_pk") String table_pk,
 			@RequestParam("table_id") Integer table_id, @RequestParam("profilePictureFlag") Integer profilePictureFlag,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("singleFileUpload4Webix");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2226,7 +2180,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxCacheInfo")
 	public void hndAjaxCacheInfo(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", false);
 		int customizationId = (Integer) scd.get("customizationId");
 		if (customizationId == 0 && GenericUtil.uInt(request, "cusId") != 0)
@@ -2291,7 +2245,7 @@ public class AppServlet implements InitializingBean {
 	@RequestMapping("/ajaxSendFormSmsMail")
 	public void hndAjaxSendFormSmsMail(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxSendFormSmsMail");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2301,8 +2255,6 @@ public class AppServlet implements InitializingBean {
 		Map result = engine.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString(result));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxSendFormSmsMail", smsMailId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 
 	
@@ -2315,7 +2267,7 @@ public class AppServlet implements InitializingBean {
 		if(!FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","getGlobalNextval",0,null, "Not VCS Server to getGlobalNextval", null);
 		
-		long startTime = System.currentTimeMillis();
+		
 		String id=request.getParameter("id");
 		String key=request.getParameter("key");
 		int userId =0, customizationId=0;
@@ -2333,14 +2285,13 @@ public class AppServlet implements InitializingBean {
 		
 		response.getWriter().write("{\"success\":true, \"val\":"+nextVal+"}"); //hersey duzgun
 		response.getWriter().close();
-//		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(new HashMap(), "ajaxGlobalNextVal", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	@RequestMapping("/ajaxOrganizeTable")
 	public void hndAjaxOrganizeTable(
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		String tableName = request.getParameter("ptable_dsc");
 		logger.info("hndAjaxOrganizeTable("+tableName+")"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2348,7 +2299,6 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxOrganizeTable", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxCopyTable2Tsdb")
@@ -2356,7 +2306,7 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int tableId = GenericUtil.uInt(request, "_tid");
 		int measurementId = GenericUtil.uInt(request, "_mid");
 		logger.info("hndAjaxCopyTable2Tsdb("+tableId+")"); 
@@ -2365,14 +2315,13 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxCopyTable2Tsdb", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 /*	@RequestMapping("/ajaxOrganizeDbFunc")
 	public void hndAjaxOrganizeDbFunc(
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		String dbFuncName = request.getParameter("pdb_func_dsc");
 		logger.info("hndAjaxOrganizeDbFunc("+dbFuncName+")"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2380,7 +2329,6 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxOrganizeDbFunc", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 */	
 	
@@ -2389,14 +2337,13 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException, JSONException {
-		long startTime = System.currentTimeMillis();
+		
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		
 		int i = engine.buildForm(scd, request.getParameter("data"));
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true, \"result\":"+i+"}");
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxBuildForm", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 	@RequestMapping("/ajaxCallWs")
@@ -2404,14 +2351,13 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxCallWs"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    
 		Map m =engine.callWs(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxCallWs", 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 
 
@@ -2420,7 +2366,7 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxQueryData4Debug"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2446,14 +2392,12 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		}
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Debug", queryId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 	
 	@RequestMapping("/ajaxQueryData4Pivot")
 	public void hndAjaxQueryData4Pivot(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int tableId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndAjaxQueryData4Pivot(" + tableId + ")");
 
@@ -2462,13 +2406,12 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4Pivot(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4Pivot", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	
 	@RequestMapping("/ajaxQueryData4DataList")
 	public void hndAjaxQueryData4DataList(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		int tableId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndAjaxQueryData4DataList(" + tableId + ")");
 
@@ -2477,7 +2420,6 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4DataList(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxQueryData4DataList", tableId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
 	}
 	
 	@RequestMapping("/ajaxExecDbFunc4Debug")
@@ -2485,7 +2427,7 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("hndAjaxExecDbFunc4Debug"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -2501,7 +2443,5 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
 		response.getWriter().close();
-		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5VisitedPage(scd, "ajaxExecDbFunc4Debug", dbFuncId, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
-
 	}
 }
