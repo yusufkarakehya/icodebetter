@@ -5185,7 +5185,7 @@ public class PostgreSQL extends BaseDAO {
 			List p = new ArrayList();
 			switch(action){
 			case	1://update
-				s.append("update ").append(t.getDsc()).append(" set ");
+				s.append("update ").append(t.getDsc()).append(" x set ");
 				for(W5TableField f:t.get_tableFieldList())if(f.getTabOrder()>1){
 					if(f.getDsc().equals("insert_user_id") || f.getDsc().equals("insert_dttm") || f.getDsc().equals("customization_id") || f.getDsc().equals("project_uuid"))
 							continue;
@@ -5234,7 +5234,7 @@ public class PostgreSQL extends BaseDAO {
 				
 				break;
 			case	3://delete
-				s.append("delete from ").append(t.getDsc()).append(" where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
+				s.append("delete from ").append(t.getDsc()).append(" x where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 				p.add(tablePk);
 				s.append(DBUtil.includeTenantProjectPostSQL(scd, t));
 				break;
