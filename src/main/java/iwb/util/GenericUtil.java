@@ -2367,4 +2367,12 @@ public class GenericUtil {
     	}
     	return html.toString();	
 	}
+	public static Object getSafeObject(JSONObject prj, String key) {
+		if(prj==null || !prj.has(key))return null;
+		try {
+			return prj.get(key);
+		} catch (JSONException e) {
+			return null;
+		}
+	}
 }
