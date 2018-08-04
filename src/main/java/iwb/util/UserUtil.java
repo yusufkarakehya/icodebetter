@@ -1562,8 +1562,6 @@ public class UserUtil {
 		scd.put("userRoleId", Integer.parseInt(o[5]));
 		scd.put("userTip", Integer.parseInt(o[6]));
 		scd.put("locale", o[7]);
-		scd.put("administratorFlag",0);
-		scd.put("customizerFlag",0);
 		return scd;
 	}
 

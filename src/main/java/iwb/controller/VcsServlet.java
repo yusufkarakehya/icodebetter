@@ -18,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_3;
+import iwb.cache.FrameworkSetting;
+import iwb.domain.db.Log5VisitedPage;
 import iwb.domain.result.W5QueryResult;
 import iwb.engine.VcsEngine;
 import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
+import iwb.util.LogUtil;
 import iwb.util.UserUtil;
 
 @Controller
@@ -673,8 +676,7 @@ public class VcsServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException, JSONException {
-    	int tableId = GenericUtil.uInt(request, "t");
-		logger.info("hndAjaxVCSClientCleanVCSObjects("+tableId+")"); 
+		logger.info("hndAjaxVCSClientSynchLocaleMsg"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
     	Map m = vcsEngine.vcsClientLocaleMsgSynch(scd);
@@ -682,19 +684,7 @@ public class VcsServlet implements InitializingBean {
 		response.getWriter().close();
 	}
 	
-	@RequestMapping("/ajaxVCSClientSynchProject")
-	public void hndAjaxVCSClientSynchProject(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException, JSONException {
-    	int tableId = GenericUtil.uInt(request, "t");
-		logger.info("hndAjaxVCSClientSynchProject("+tableId+")"); 
-		
-    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	Map m = vcsEngine.vcsClientProjectSynch(scd);
-    	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
-		response.getWriter().close();
-	}
+
 	
 	@RequestMapping("/serverVCSLocaleMsgPushAll")
 	public void hndServerVCSLocaleMsgPushAll(
@@ -725,7 +715,6 @@ public class VcsServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
 		logger.info("ajaxPublish2AppStore"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -741,7 +730,7 @@ public class VcsServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		long startTime = System.currentTimeMillis();
+		
 		logger.info("ajaxVCSImportProject"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
@@ -751,5 +740,41 @@ public class VcsServlet implements InitializingBean {
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
 		
+	}
+	
+	@RequestMapping("/ajaxVCSClientSynchProject")
+	public void hndAjaxVCSClientSynchProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException, JSONException {
+		
+		logger.info("hndAjaxVCSClientSynchProject"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+    	Map m = vcsEngine.vcsClientProjectSynch(scd);
+    	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
+		response.getWriter().close();
+	}
+	
+	@RequestMapping("/serverVCSProjectSynch")
+	public void hndServerVCSSynchProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException, JSONException {
+		logger.info("hndServerVCSSynchProject"); 
+		JSONObject jo = HttpUtil.getJson(request);
+		  
+		String userName = jo.getString("u")
+			   , passWord = jo.getString("p")
+			   , projectId = jo.getString("r");
+		int customizationId = jo.getInt("c");
+
+		JSONArray objects = jo.getJSONArray("objects");
+		
+    	Map m = vcsEngine.vcsServerProjectSynch(userName, passWord, customizationId, projectId, objects);
+
+
+    	response.getWriter().write(GenericUtil.fromMapToJsonString2(m));
+		response.getWriter().close();		
 	}
 }

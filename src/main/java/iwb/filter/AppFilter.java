@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.NestedServletException;
 
 import iwb.cache.FrameworkSetting;
+import iwb.domain.db.Log5VisitedPage;
 import iwb.exception.IWBException;
 import iwb.exception.Log5IWBException;
 import iwb.util.GenericUtil;
@@ -49,7 +50,13 @@ public class AppFilter implements Filter {
 		switch(FrameworkSetting.systemStatus){
 		case	0://working
 			try {
+				long startTime = System.currentTimeMillis();
 				filterChain.doFilter( request, response );
+				if(FrameworkSetting.logType>0){
+					HttpSession session = ((HttpServletRequest)request).getSession(false);
+					Map scd = session!=null ? (Map)session.getAttribute("scd-dev"): null;
+					if(scd!=null)LogUtil.logObject(new Log5VisitedPage(scd, ((HttpServletRequest) request).getRequestURI(), 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
+				}
 			} catch (NestedServletException e) {
 				if(FrameworkSetting.debug)e.printStackTrace();
 				response.setCharacterEncoding( "UTF-8" );
