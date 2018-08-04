@@ -1340,7 +1340,7 @@ public class VcsEngine {
 					if(ar.length()>0)try {
 						JSONObject params = new JSONObject(); 
 						params.put("u", po.getVcsUserName());
-						params.put("p", po.getVcsPassword());params.put("c", 0);params.put("r", po.getProjectUuid());
+						params.put("p", po.getVcsPassword());params.put("c", po.getCustomizationId());params.put("r", po.getProjectUuid());
 						params.put("objects", ar);
 						String url2=po.getVcsUrl();//"http://localhost:8080/q1/app/";//
 						if(!url2.endsWith("/"))url2+="/";
@@ -2884,7 +2884,7 @@ public class VcsEngine {
 						JSONObject params = new JSONObject(); 
 						
 						params.put("u", po.getVcsUserName());
-						params.put("p", po.getVcsPassword());params.put("c", 0);params.put("r", po.getProjectUuid());
+						params.put("p", po.getVcsPassword());params.put("c", customizationId);params.put("r", po.getProjectUuid());
 						params.put("objects", data);
 						url=po.getVcsUrl();//"http://localhost:8080/q1/app/";//
 						if(!url.endsWith("/"))url+="/";
@@ -2937,9 +2937,9 @@ public class VcsEngine {
 			String key = o.getString("k");
 			String val = o.getString("v");
 			String tm = o.getString("t");
-			if(GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_locale_msg where locale=? AND locale_msg_key=?", lcl, key).get(0))==0)
-				dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_locale_msg(locale, locale_msg_key, dsc, version_no, version_user_id, version_dttm, insert_user_id, insert_dttm, publish_flag, customizabled_flag, customization_id, project_uuid) "
-						+ " VALUES (?, ?, ?, 1, ?, current_timestamp, ?, to_timestamp(?,'yymmddhh24miss'), 0, 1, ?, ?)", lcl, key, val, userId, userId, tm, customizationId, projectId);
+			if(GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_locale_msg where locale=? AND locale_msg_key=? AND customization_id=?", lcl, key, customizationId).get(0))==0)
+				dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_locale_msg(locale, locale_msg_key, dsc, version_no, version_user_id, version_dttm, insert_user_id, insert_dttm, publish_flag, customization_id, project_uuid) "
+						+ " VALUES (?, ?, ?, 1, ?, current_timestamp, ?, to_timestamp(?,'yymmddhh24miss'), 0, ?, ?)", lcl, key, val, userId, userId, tm, customizationId, projectId);
 			else
 				dao.executeUpdateSQLQuery("update iwb.w5_locale_msg set dsc=?, version_no=version_no+1, version_dttm=to_timestamp(?,'yymmddhh24miss'), version_user_id=? where customization_id=? AND locale=? AND locale_msg_key=?", val, tm, userId, customizationId, lcl, key);
 			
@@ -3258,9 +3258,89 @@ public class VcsEngine {
 		newScd.putAll(scd);newScd.put("projectId", importedProjectId);
 		return dao.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
 	}
+	
+	
 	public Map vcsClientProjectSynch(Map<String, Object> scd) {
-		// TODO Auto-generated method stub
-		return null;
+		int customizationId = (Integer)scd.get("ocustomizationId");
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectUuid);
+
+		Map result = new HashMap();
+		result.put("success", false);
+		try {
+			JSONObject params = new JSONObject(); 
+			
+			params.put("u", po.getVcsUserName());
+			params.put("p", po.getVcsPassword());params.put("c", customizationId);params.put("r", po.getProjectUuid());
+			
+			List<Object> p = new ArrayList(); p.add(customizationId);
+			List<Map> lm = dao.executeSQLQuery2Map("select * from iwb.w5_project x where x.customization_id=?", p);
+			JSONArray data = new JSONArray();
+			for(Map m:lm)data.put(GenericUtil.fromMapToJSONObject(m));
+			params.put("objects", data);
+			String url=po.getVcsUrl();//"http://localhost:8080/q1/app/";//
+			if(!url.endsWith("/"))url+="/";
+			url+="serverVCSProjectSynch";
+			String s = HttpUtil.sendJson(url, params);
+	
+			if(!GenericUtil.isEmpty(s)){
+				JSONObject json;
+				try {
+					json = new JSONObject(s);
+					if(json.get("success").toString().equals("true")){
+						JSONArray serverProjects = json.getJSONArray("data");
+						if(serverProjects!=null && serverProjects.length()>0)for(int qi=0;qi< serverProjects.length();qi++){
+							JSONObject prj = serverProjects.getJSONObject(qi);
+							dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
+									+ " values (?,?,?, ?, ?,?,?,?, ?)", prj.getString("project_uuid"), customizationId, prj.getString("dsc"), GenericUtil.getSafeObject(prj,"access_users"),prj.getString("rdbms_schema"),GenericUtil.getSafeObject(prj,"vcs_url"),GenericUtil.getSafeObject(prj,"vcs_user_name"), GenericUtil.getSafeObject(prj,"vcs_password"), prj.getString("oproject_uuid"));
+							dao.executeUpdateSQLQuery("create schema "+prj.getString("rdbms_schema") + " AUTHORIZATION iwb");
+							FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", customizationId, prj.getString("project_uuid")).get(0));
+							FrameworkSetting.projectSystemStatus.put(prj.getString("project_uuid"), 0);
+						}
+						result.put("success", true);
+						
+					}
+				} catch (JSONException e){
+					throw new IWBException("vcs","vcsClientProjectSynch:JSONException", 0, s, "Error", e);
+				}
+			} else 
+				throw new IWBException("vcs","serverVCSProjectSynch:server No response", 0, s, "Error", null);
+		} catch (JSONException e){
+			throw new IWBException("vcs","vcsClientProjectSynch2:JSONException", 0, null, "Error", e);
+		}
+		return result;
+	}
+	
+	public Map vcsServerProjectSynch(String userName, String passWord, int customizationId, String projectId, JSONArray ja) {
+		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
+		W5Project po = FrameworkCache.getProject(projectId);
+
+		Map m = new HashMap();
+		m.put("success", true);
+		try {
+			List l = new ArrayList();
+			m.put("data", l);
+			Set<String> set = new HashSet();
+			for(int qi=0;qi<ja.length();qi++){
+				JSONObject prj = ja.getJSONObject(qi);
+				set.add(prj.getString("project_uuid"));
+				W5Project srvPrj = FrameworkCache.getProject(prj.getString("project_uuid"));
+				if(srvPrj==null){ //insert here
+					dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
+							+ " values (?,?,?, ?, ?,?,?,?, ?)", prj.getString("project_uuid"), customizationId, prj.getString("dsc"), GenericUtil.getSafeObject(prj,"access_users"),prj.getString("rdbms_schema"),GenericUtil.getSafeObject(prj,"vcs_url"),GenericUtil.getSafeObject(prj,"vcs_user_name"), GenericUtil.getSafeObject(prj,"vcs_password"), prj.getString("oproject_uuid"));
+					if(customizationId==0)dao.executeUpdateSQLQuery("create schema "+prj.getString("rdbms_schema") + " AUTHORIZATION iwb");
+					FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", customizationId, prj.getString("project_uuid")).get(0));
+					FrameworkSetting.projectSystemStatus.put(prj.getString("project_uuid"), 0);
+				}
+			}
+			List<Object> p = new ArrayList(); p.add(customizationId);
+			List<Map> lm = dao.executeSQLQuery2Map("select * from iwb.w5_project x where x.customization_id=?", p);
+			for(Map mo:lm)if(!set.contains((String)mo.get("project_uuid")))l.add(mo);
+			
+		} catch (JSONException e){
+			throw new IWBException("vcs","vcsServerProjectSynch:JSONException", 0, null, "Error", e);
+		}
+		return m;
 	}
 	
 

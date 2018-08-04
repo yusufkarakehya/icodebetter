@@ -1395,14 +1395,6 @@ public class GenericUtil {
 			short accessTip, String accessRoles,
 			String accessUsers) {
 		boolean b = (accessTip==0) ||(hasPartInside2(accessRoles, scd.get("roleId")) || hasPartInside2(accessUsers, scd.get("userId")));
-		if(!b){
-			int flag= uInt(scd.get("customizerFlag"));
-			if(flag==1)b=hasPartInside2(accessRoles, 1);
-			if(!b){
-				flag= uInt(scd.get("administratorFlag"));
-				if(flag==1)b=hasPartInside2(accessRoles, 2);
-			}
-		}
 		return b;
 	}
 	public static int accessControlFormCell(Map<String, Object> scd,
@@ -2374,5 +2366,13 @@ public class GenericUtil {
         		html.append(q).append("=").append(o);
     	}
     	return html.toString();	
+	}
+	public static Object getSafeObject(JSONObject prj, String key) {
+		if(prj==null || !prj.has(key))return null;
+		try {
+			return prj.get(key);
+		} catch (JSONException e) {
+			return null;
+		}
 	}
 }
