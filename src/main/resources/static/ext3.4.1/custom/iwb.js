@@ -2176,11 +2176,15 @@ function ajaxErrorHandler(obj){
     	}
 
     	var xbuttons =[];
-		xbuttons.push({text:'Convert to Task',handler:function(){
-			mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
-			wndx.close();
-		}});
-		if(obj.stack)xbuttons.push({text:'Java StackTrace',handler:function(){alert(obj.stack);}});
+    	if(obj.errorType=='cache'){
+    		xbuttons.push({text:'Reload Cache',handler:reloadCache});
+    	} else {
+			xbuttons.push({text:'Convert to Task',handler:function(){
+				mainPanel.loadTab({attributes:{modalWindow:true, notAutoHeight:true, href:'showForm?_fid=253&a=2&iproject_step_id=0&isubject=BUG: '+obj.errorType+'&ilong_dsc='+(obj.objectType ? obj.objectType+':'+obj.objectId+', ':'')+(obj.error||'')}});
+				wndx.close();
+			}});
+			if(obj.stack)xbuttons.push({text:'Java StackTrace',handler:function(){alert(obj.stack);}});
+    	}
 		xbuttons.push({text:getLocMsg('close'),handler:function(){wndx.close();}});
         var wndx=new Ext.Window({
             modal:true,

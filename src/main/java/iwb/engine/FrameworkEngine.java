@@ -6358,7 +6358,7 @@ public class FrameworkEngine{
 			List list = dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=?",userTip);
 			if(GenericUtil.isEmpty(list)){
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, oproject_uuid, web_frontend_tip, default_main_template_id)"
-						+ " values (?,?,?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId, oprojectId);
+						+ " values (?,?,?, ?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId, oprojectId);
 				Map newScd = new HashMap();newScd.put("projectId", projectId);newScd.put("customizationId", cusId);newScd.put("userId", userId);
 				W5VcsObject vo = new W5VcsObject(newScd, 369, userTip);
 				vo.setVcsObjectStatusTip((short)9);

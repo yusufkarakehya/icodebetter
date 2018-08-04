@@ -125,9 +125,11 @@ public class AppServlet implements InitializingBean {
 		// if(PromisSetting.checkLicenseFlag)engine.checkLicences();
 		// dao.organizeAudit();
 		engine.setJVMProperties(0);
+		try{
 		manPicPath = new ClassPathResource("static/ext3.4.1/custom/images/man-64.png").getFile().getPath();
 		brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
 		womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
+		} catch(Exception e){}
 		ScriptEngine.taskExecutor = this.taskExecutor;
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
 		if(FrameworkSetting.logType==2)LogUtil.activateMQ();
