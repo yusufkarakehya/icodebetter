@@ -774,7 +774,7 @@ public class VcsServlet implements InitializingBean {
     	Map m = vcsEngine.vcsServerProjectSynch(userName, passWord, customizationId, projectId, objects);
 
 
-    	response.getWriter().write(GenericUtil.fromMapToJsonString2(m));
+    	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}
 }
