@@ -6340,7 +6340,7 @@ public class FrameworkEngine{
 			if(GenericUtil.isEmpty(list)){
 				String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
 				dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
-						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, "New Project 1", ""+userId,schema,vcsUrl,nickName, "1", oprojectId);
+						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, "Project Name 1", ""+userId,schema,vcsUrl,nickName, "1", oprojectId);
 				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 			}
 
@@ -6358,7 +6358,7 @@ public class FrameworkEngine{
 			List list = dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=?",userTip);
 			if(GenericUtil.isEmpty(list)){
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, oproject_uuid, web_frontend_tip, default_main_template_id)"
-						+ " values (?,?,?, ?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId, oprojectId);
+						+ " values (?,?,?, ?, ?, 5, 2307)", userTip, "Role Group 1", cusId, projectId, oprojectId);
 				Map newScd = new HashMap();newScd.put("projectId", projectId);newScd.put("customizationId", cusId);newScd.put("userId", userId);
 				W5VcsObject vo = new W5VcsObject(newScd, 369, userTip);
 				vo.setVcsObjectStatusTip((short)9);
