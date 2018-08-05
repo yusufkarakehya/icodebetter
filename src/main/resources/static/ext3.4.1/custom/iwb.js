@@ -4786,9 +4786,6 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                                }
 	                                var r = null;
 	                                var bm=false;
-	                                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
-	                                    bm=true;
-	                                }
 	                                if (extDef.componentWillPost || bm) {
 	                                    if (getForm._cfg.formPanel.getForm().isValid()) {
 	                                        var vals=getForm._cfg.formPanel.getForm().getValues();
@@ -4796,14 +4793,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                                            r = extDef.componentWillPost(vals);
 	                                            if (!r) return;
 	                                        }
-	                                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
-	                                            var r2=extDef._extendedForms[qi].componentWillPost(vals);
-	                                            if(!r2)return;
-	                                            if(!r)r=r2;
-	                                            else if(typeof r == 'object' && typeof r2 == 'object'){
-	                                                r=Ext.apply(r,r2);
-	                                            }
-	                                        }
+
 	                                    } else {
 	                                        getForm._cfg.formPanel.getForm().findInvalid();
 	                                        return;
@@ -4838,9 +4828,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                var r = null;
 	                //manuel validation
 	                var bm=false;
-	                if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
-	                    bm=true;
-	                }
+
 
 	                if (extDef.componentWillPost || bm) {
 	                    if (getForm._cfg.formPanel.getForm().isValid()) {
@@ -4848,14 +4836,6 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                        if(extDef.componentWillPost){
 	                            r = extDef.componentWillPost(vals);
 	                            if (!r) return;
-	                        }
-	                        if(extDef._extendedForms)for(var qi=0;qi<extDef._extendedForms.length;qi++)if(extDef._extendedForms[qi].componentWillPost){
-	                            var r2=extDef._extendedForms[qi].componentWillPost(vals);
-	                            if(!r2)return;
-	                            if(!r)r=r2;
-	                            else if(typeof r == 'object' && typeof r2 == 'object'){
-	                                r=Ext.apply(r,r2);
-	                            }
 	                        }
 	                    } else {
 	                        getForm._cfg.formPanel.getForm().findInvalid();

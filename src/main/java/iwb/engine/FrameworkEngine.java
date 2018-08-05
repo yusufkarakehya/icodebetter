@@ -6071,8 +6071,8 @@ public class FrameworkEngine{
 	}
 	public Map<String, Object> getWsServerMethodObjects(W5WsServer wss) {
 		Map<String, Object> wsmoMap = new HashMap();
-		/*		Map scd = new HashMap();
-		scd.put("customizationId", wss.getCustomizationId());
+		Map scd = new HashMap();
+		scd.put("projectId", wss.getProjectUuid());
 		for(W5WsServerMethod wsm:wss.get_methods())try{
 			switch(wsm.getObjectTip()){
 			case	0:case 1:case 2:case 3://form
@@ -6092,14 +6092,14 @@ public class FrameworkEngine{
 			}
 		}catch(Exception e){
 			wsmoMap.put(wsm.getDsc(), "Invalid Object");
-		}*/
+		}
 		return wsmoMap;
 	}
 
 	public Map callWs(Map<String, Object> scd, String name, Map requestParams) throws IOException{
-	/*	String[] u = name.replace('.', ',').split(",");
+		String[] u = name.replace('.', ',').split(",");
 		if(u.length<2)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Call should be [serviceName].[methodName]", null);
-		W5Ws ws = FrameworkCache.getWsClient(u[0]);
+		W5Ws ws = FrameworkCache.getWsClient(scd, u[0]);
 		if(ws==null)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Could find ["+u[0]+"]", null);
 		W5WsMethod wsm = null;
 		for(W5WsMethod twm:ws.get_methods())if(twm.getDsc().equals(u[1])){
@@ -6114,8 +6114,9 @@ public class FrameworkEngine{
 
 		}
 		try {
+			String projectId = (String)scd.get("projectId");
 			if(wsm.get_params()==null){
-				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
+				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", wsm.getWsMethodId(), projectId));
 				wsm.set_paramMap(new HashMap());
 				for(W5WsMethodParam wsmp:wsm.get_params())
 					wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
@@ -6131,7 +6132,7 @@ public class FrameworkEngine{
 					Long tokenTimeout =  (Long)ws.loadValue("tokenKey.timeOut");
 					W5WsMethod loginMethod = FrameworkCache.getWsMethod(scd, ws.getWssLoginMethodId());
 					if(loginMethod.get_params()==null){
-						loginMethod.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", loginMethod.getWsMethodId(), (Integer)scd.get("customizationId")));
+						loginMethod.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", loginMethod.getWsMethodId(), projectId));
 						loginMethod.set_paramMap(new HashMap());
 						for(W5WsMethodParam wsmp:loginMethod.get_params())
 							loginMethod.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
@@ -6233,8 +6234,7 @@ public class FrameworkEngine{
 			return result;
 		} catch (Exception e){
 			throw new IWBException("framework", "RESTService_Method", wsm.getWsMethodId(), null, "[1376,"+wsm.getWsMethodId()+"] " + name, e);
-		}*/
-		return null;
+		}
 
 	}
 
