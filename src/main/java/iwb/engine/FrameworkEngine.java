@@ -5458,6 +5458,7 @@ public class FrameworkEngine{
 		List p= new ArrayList();p.add(customizationId);
 
 		JSONObject json = new JSONObject(parameter);
+		int userTip = json.getInt("user_tip");
 		main = json.getJSONObject("main");
 		detail = json.getJSONArray("detail");
 
@@ -5850,7 +5851,7 @@ public class FrameworkEngine{
 					"version_user_id, version_dttm, customization_id, access_view_tip, project_uuid, oproject_uuid)" +
 					"VALUES (?, 0, ?, 4, ?, " +
 		            "coalesce((select max(q.tab_order) from iwb.w5_menu q where q.customization_id=? AND q.user_tip=?),0)+10, null, 'showPage?_tid='||?::text, 1, ?, current_timestamp, " +
-		            "?, current_timestamp, ?, 0, ?, ?)", menuId, scd.get("userTip"), gridName, customizationId, scd.get("userTip"), templateId, userId, userId, customizationId, projectUuid, projectUuid);
+		            "?, current_timestamp, ?, 0, ?, ?)", menuId, userTip, gridName, customizationId, userTip, templateId, userId, userId, customizationId, projectUuid, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 65, menuId));
 		} else {
 			Object[] loo = (Object[])dao.executeSQLQuery("select f.dsc, f.table_field_id "
@@ -6071,8 +6072,8 @@ public class FrameworkEngine{
 	}
 	public Map<String, Object> getWsServerMethodObjects(W5WsServer wss) {
 		Map<String, Object> wsmoMap = new HashMap();
-		/*		Map scd = new HashMap();
-		scd.put("customizationId", wss.getCustomizationId());
+		Map scd = new HashMap();
+		scd.put("projectId", wss.getProjectUuid());
 		for(W5WsServerMethod wsm:wss.get_methods())try{
 			switch(wsm.getObjectTip()){
 			case	0:case 1:case 2:case 3://form
@@ -6092,14 +6093,14 @@ public class FrameworkEngine{
 			}
 		}catch(Exception e){
 			wsmoMap.put(wsm.getDsc(), "Invalid Object");
-		}*/
+		}
 		return wsmoMap;
 	}
 
 	public Map callWs(Map<String, Object> scd, String name, Map requestParams) throws IOException{
-	/*	String[] u = name.replace('.', ',').split(",");
+		String[] u = name.replace('.', ',').split(",");
 		if(u.length<2)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Call should be [serviceName].[methodName]", null);
-		W5Ws ws = FrameworkCache.getWsClient(u[0]);
+		W5Ws ws = FrameworkCache.getWsClient(scd, u[0]);
 		if(ws==null)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Could find ["+u[0]+"]", null);
 		W5WsMethod wsm = null;
 		for(W5WsMethod twm:ws.get_methods())if(twm.getDsc().equals(u[1])){
@@ -6114,8 +6115,9 @@ public class FrameworkEngine{
 
 		}
 		try {
+			String projectId = (String)scd.get("projectId");
 			if(wsm.get_params()==null){
-				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
+				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", wsm.getWsMethodId(), projectId));
 				wsm.set_paramMap(new HashMap());
 				for(W5WsMethodParam wsmp:wsm.get_params())
 					wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
@@ -6131,7 +6133,7 @@ public class FrameworkEngine{
 					Long tokenTimeout =  (Long)ws.loadValue("tokenKey.timeOut");
 					W5WsMethod loginMethod = FrameworkCache.getWsMethod(scd, ws.getWssLoginMethodId());
 					if(loginMethod.get_params()==null){
-						loginMethod.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", loginMethod.getWsMethodId(), (Integer)scd.get("customizationId")));
+						loginMethod.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", loginMethod.getWsMethodId(), projectId));
 						loginMethod.set_paramMap(new HashMap());
 						for(W5WsMethodParam wsmp:loginMethod.get_params())
 							loginMethod.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
@@ -6233,8 +6235,7 @@ public class FrameworkEngine{
 			return result;
 		} catch (Exception e){
 			throw new IWBException("framework", "RESTService_Method", wsm.getWsMethodId(), null, "[1376,"+wsm.getWsMethodId()+"] " + name, e);
-		}*/
-		return null;
+		}
 
 	}
 
@@ -6340,7 +6341,7 @@ public class FrameworkEngine{
 			if(GenericUtil.isEmpty(list)){
 				String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
 				dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
-						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, "New Project 1", ""+userId,schema,vcsUrl,nickName, "1", oprojectId);
+						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, "Project Name 1", ""+userId,schema,vcsUrl,nickName, "1", oprojectId);
 				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 			}
 
@@ -6358,7 +6359,7 @@ public class FrameworkEngine{
 			List list = dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=?",userTip);
 			if(GenericUtil.isEmpty(list)){
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, oproject_uuid, web_frontend_tip, default_main_template_id)"
-						+ " values (?,?,?, ?, ?, 1, 2464)", userTip, "Role Group 1", cusId, projectId, oprojectId);
+						+ " values (?,?,?, ?, ?, 5, 2307)", userTip, "Role Group 1", cusId, projectId, oprojectId);
 				Map newScd = new HashMap();newScd.put("projectId", projectId);newScd.put("customizationId", cusId);newScd.put("userId", userId);
 				W5VcsObject vo = new W5VcsObject(newScd, 369, userTip);
 				vo.setVcsObjectStatusTip((short)9);

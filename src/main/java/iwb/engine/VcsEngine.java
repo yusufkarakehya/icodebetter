@@ -3024,10 +3024,21 @@ public class VcsEngine {
 		// send: commit all SQL and Metadata, AND LocaleMsgs to VCS Server
 		// response, newProjectUuid, response
 		
-		int customizationId = (Integer)scd.get("customizationId");
-		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.getProject(projectUuid);
-
+		int customizationId = (Integer)scd.get("ocustomizationId");
+		String projectId = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectId);
+		if(customizationId!=po.getCustomizationId())
+			throw new IWBException("vcs","vcsClientPublish2AppStore",0,null, "Only your projects", null);
+		String newProjectId = UUID.randomUUID().toString();
+		String schema = "c"+GenericUtil.lPad("1", 5, '0')+"_"+newProjectId.replace('-', '_');
+		dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
+				+ " values (?,1,?, ?, ?,?,?,?, ?)", newProjectId, po.getDsc(), 1, schema, "http://81.214.24.77:8084/app/","app.store", "1", projectId);
+		dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
+		dao.copyProject(scd, newProjectId, 1);
+		FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", 1, newProjectId).get(0));
+		FrameworkSetting.projectSystemStatus.put(newProjectId, 0);
+		return true;
+/*
 		List<Object[]> ll = dao.executeSQLQuery("select (select max(x.vcs_commit_id) from iwb.w5_vcs_commit x where x.project_uuid=?) cmt_id1, (select min(x.vcs_commit_id) from iwb.w5_vcs_commit x where x.project_uuid=?) cmt_id2, (select max(x.vcs_commit_id) from iwb.w5_vcs_object x where x.vcs_object_status_tip>5 AND x.project_uuid=? and x.customization_id=?) cmt_id3, (select count(x.vcs_commit_id) from iwb.w5_vcs_object x where x.vcs_object_status_tip<5 AND x.project_uuid=? and x.customization_id=?) cmt_id4"
 				, po.getProjectUuid(), po.getProjectUuid(), po.getProjectUuid(), customizationId, po.getProjectUuid(), customizationId);
 		int maxSqlCommit = GenericUtil.uInt(ll.get(0)[0]), minSqlCommit = GenericUtil.uInt(ll.get(0)[1])
@@ -3052,10 +3063,9 @@ public class VcsEngine {
 		} catch (Exception e){
 			throw new IWBException("vcs","vcsClientPublish2AppStore:serverError", 0, s, "VCS Server Error", e);
 			
-		}		
-		return false;		
+		}		*/
 	}
-	
+	/*
 	public Map copyProject(Map scd, String projectName, boolean appStore){
 		String projectId = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectId), npo = null;
@@ -3121,7 +3131,7 @@ public class VcsEngine {
 		return result;
 		
 	}
-	
+	*/
 	public Map vcsServerPublish2AppStore(String userName, String passWord, int customizationId, String projectId, int maxSqlCommit, int maxObjCommit) {
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, null);
 		W5Project po = FrameworkCache.getProject(projectId), npo = null;

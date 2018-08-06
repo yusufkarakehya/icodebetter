@@ -152,7 +152,7 @@ public class FrameworkCache {
 	
 	public static W5Table getTable(Object o, int tableId){
 		String projectId = getProjectId(o, "15."+tableId);
-		if(FrameworkSetting.debug && FrameworkCache.hasQueuedReloadCache(projectId,"15."+tableId)){
+		if(false && FrameworkSetting.debug && FrameworkCache.hasQueuedReloadCache(projectId,"15."+tableId)){
 			Integer status = FrameworkSetting.projectSystemStatus.get(projectId);
 			if(status!=null && status==0)throw new IWBException("cache","Table",tableId, null, "Cache not reloaded. Please Reload Cache", null);
 		}
@@ -518,13 +518,13 @@ public class FrameworkCache {
 		return true;
 	}
 
-	public static W5WsServer getWsServer(String o, String serviceName){
+	public static W5WsServer getWsServer(Object o, String serviceName){
 		Map<String, W5WsServer> wssMap = wWsServers.get(getProjectId(o, null));
 		for(String sn:wssMap.keySet())if(serviceName.equals(sn))return wssMap.get(sn);
 		
 		return null;
 	}
-	public static W5Ws getWsClient(String o, String serviceName){
+	public static W5Ws getWsClient(Object o, String serviceName){
 		Map<String, W5Ws> wssMap = wWsClients.get(getProjectId(o, null));
 		for(String sn:wssMap.keySet())if(serviceName.equals(sn))return wssMap.get(sn);
 		return null;

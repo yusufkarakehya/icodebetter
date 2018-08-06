@@ -82,14 +82,14 @@ public class PostFormTrigger {
 			}
 			break;
 		case	1407://project
-			if((fr.getAction()==1 || fr.getAction()==3) && scd.containsKey("ocustomizationId") && (Integer)scd.get("ocustomizationId")!=(Integer)scd.get("customizationId")){
+			if((fr.getAction()==1 || fr.getAction()==3) && scd.containsKey("ocustomizationId") && GenericUtil.uInt(scd.get("ocustomizationId"))!=GenericUtil.uInt(scd.get("customizationId"))){
 				throw new IWBException("security","Project", 0, null, "Forbidden Command. Can not manipulate a project on another tenant.", null);
 			}
 			switch(fr.getAction()){
 			case	5://clone
 			case	2://insert
 				String newProjectId = fr.getOutputFields().get("project_uuid").toString();
-				int customizationId = (Integer)scd.get(scd.containsKey("ocustomizationId") ?  "ocustomizationId":"customizationId");
+				int customizationId = GenericUtil.uInt(scd.get("ocustomizationId"));
 				String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
 				//validate from vcs server
 				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=?, customization_id=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project","http://81.214.24.77:8084/app/"), scd.get("userName"), "1", customizationId, newProjectId);
@@ -100,7 +100,7 @@ public class PostFormTrigger {
 					dao.copyProject(scd, newProjectId, customizationId);
 				} else {//insert
 					int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId, 0, customizationId);
-					dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", customizationId, newProjectId);
+					dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 5, 2307)", userTip, "Role Group 1", customizationId, newProjectId);
 					Map<String, Object> newScd = new HashMap();
 					newScd.putAll(scd);newScd.put("projectId", newProjectId);
 					dao.saveObject(new W5VcsObject(newScd, 369, userTip));
@@ -109,6 +109,12 @@ public class PostFormTrigger {
 				FrameworkSetting.projectSystemStatus.put(newProjectId,0);
 				break;
 			case	3://delete all metadata
+				String delProjectId = fr.getRequestParams().get("tproject_uuid").toLowerCase();
+				W5Project po = FrameworkCache.getProject(delProjectId);
+				if(po.getCustomizationId()==GenericUtil.uInt(scd.get("ocustomizationId")) && GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_project x where x.customization_id=?", po.getCustomizationId()).get(0))>1){
+					dao.deleteProjectMetadata(delProjectId);
+					dao.executeUpdateSQLQuery("DROP SCHEMA IF EXISTS "+po.getRdbmsSchema()+" CASCADE");					
+				}
 			}
 			break;
 		default:
