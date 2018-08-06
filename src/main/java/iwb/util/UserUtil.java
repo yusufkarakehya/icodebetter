@@ -1534,6 +1534,50 @@ public class UserUtil {
 		throw new IWBException("security","Temporary SCD Not Defined",0,null, "Temporary SCD Not Defined", null);
 	}
 	
+	public static Map<String, Object> getScd4PAppSpace(HttpServletRequest request){
+		HttpSession session = null;
+		session = request.getSession(false);
+		String uri = request.getRequestURI();
+		String s = "space/";
+		String pid = null;
+		int ix = uri.indexOf(s);
+		if(ix>-1){
+			pid = uri.substring(ix+s.length(), uri.lastIndexOf('/'));
+		}
+		String scdKey = "space-"+pid;
+
+		if(session==null || session.getAttribute(scdKey)==null || ((HashMap<String,Object>)session.getAttribute(scdKey)).isEmpty()){
+			W5Project po = FrameworkCache.getProject(pid);
+			int customizationId = po.getCustomizationId();
+			if(po!=null && po.getCustomizationId()==customizationId){
+				if(FrameworkSetting.projectSystemStatus.get(pid)!=0){
+					throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
+				}
+				Map scd =(Map<String, Object>)session.getAttribute(scdKey); 
+				if(scd==null){
+					scd=new HashMap<String, Object>();
+					scd.put("customizationId", 1);
+					scd.put("ocustomizationId", 1);
+					scd.put("userId", 10);
+					scd.put("roleId", 0);
+					scd.put("userRoleId", 0);
+					scd.put("roleDsc", "Demo Role");
+					scd.put("chat", 1);
+					scd.put("chatStatusTip", 1);
+					scd.put("projectId", po.getProjectUuid());
+					scd.put("locale", "en");
+					scd.put("userName", "Demo User");
+					scd.put("email", "demo@icodebetter.com");
+					scd.put("renderer", 5);
+					scd.put("_renderer", "react16");
+					scd.put("mainTemplateId", 2459);
+					session.setAttribute(scdKey, scd);
+				}
+				return scd;
+			}
+		}
+		return (Map<String, Object>)session.getAttribute(scdKey);
+	}
 	public static String generateTokenFromScd(Map<String, Object> scd, int integrationObjectId, String ip, int validTimeMillis) {
 		String qq = ""+(System.currentTimeMillis()+validTimeMillis)+"-"+scd.get("customizationId")+"-"+scd.get("userId")+"-"+scd.get("roleId")+"-"+scd.get("userRoleId")+"-"+scd.get("userTip")+"-"+scd.get("locale")+"-"+integrationObjectId+"-"+ip;
 		int checksum = 0;
