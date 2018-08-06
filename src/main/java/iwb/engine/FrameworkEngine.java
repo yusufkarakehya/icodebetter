@@ -5458,6 +5458,7 @@ public class FrameworkEngine{
 		List p= new ArrayList();p.add(customizationId);
 
 		JSONObject json = new JSONObject(parameter);
+		int userTip = json.getInt("user_tip");
 		main = json.getJSONObject("main");
 		detail = json.getJSONArray("detail");
 
@@ -5850,7 +5851,7 @@ public class FrameworkEngine{
 					"version_user_id, version_dttm, customization_id, access_view_tip, project_uuid, oproject_uuid)" +
 					"VALUES (?, 0, ?, 4, ?, " +
 		            "coalesce((select max(q.tab_order) from iwb.w5_menu q where q.customization_id=? AND q.user_tip=?),0)+10, null, 'showPage?_tid='||?::text, 1, ?, current_timestamp, " +
-		            "?, current_timestamp, ?, 0, ?, ?)", menuId, scd.get("userTip"), gridName, customizationId, scd.get("userTip"), templateId, userId, userId, customizationId, projectUuid, projectUuid);
+		            "?, current_timestamp, ?, 0, ?, ?)", menuId, userTip, gridName, customizationId, userTip, templateId, userId, userId, customizationId, projectUuid, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 65, menuId));
 		} else {
 			Object[] loo = (Object[])dao.executeSQLQuery("select f.dsc, f.table_field_id "

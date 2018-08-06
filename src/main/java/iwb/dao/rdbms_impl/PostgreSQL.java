@@ -7195,10 +7195,12 @@ public class PostgreSQL extends BaseDAO {
 				.append(" z where z.project_uuid=? AND z.").append(pkField).append("=x.").append(pkField).append(")");
 			executeUpdateSQLQuery(sql.toString(), dstCustomizationId, dstProjectId, srcProjectId, srcProjectId, dstProjectId);
 		}
-/*		List ll = executeSQLQuery("select 1 from iwb.w5_project_related_project where project_uuid=? AND related_project_uuid=?", dstProjectId, srcProjectId);
-		if(GenericUtil.isEmpty(ll))executeUpdateSQLQuery("INSERT INTO iwb.w5_project_related_project(project_uuid, related_project_uuid, insert_user_id,version_user_id) "
-				+ "VALUES (?, ?, ?, ?)", dstProjectId, srcProjectId, userId, userId);
-*/
+		if(dstCustomizationId>1){
+			List ll = executeSQLQuery("select 1 from iwb.w5_project_related_project where project_uuid=? AND related_project_uuid=?", dstProjectId, srcProjectId);
+			if(GenericUtil.isEmpty(ll))executeUpdateSQLQuery("INSERT INTO iwb.w5_project_related_project(project_uuid, related_project_uuid, insert_user_id,version_user_id) "
+					+ "VALUES (?, ?, ?, ?)", dstProjectId, srcProjectId, userId, userId);
+		}
+
 		executeUpdateSQLQuery("INSERT INTO iwb.w5_project_related_project(project_uuid, related_project_uuid, insert_user_id,version_user_id) "
 				+ "select ?, related_project_uuid, ?,? from iwb.w5_project_related_project x where x.project_uuid=? and not exists(select 1 from iwb.w5_project_related_project z where z.project_uuid=? AND z.related_project_uuid=x.related_project_uuid)", dstProjectId, userId, userId, srcProjectId, dstProjectId);
 		return true;
