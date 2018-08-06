@@ -1423,7 +1423,7 @@ public class PostgreSQL extends BaseDAO {
     		});
 	    	
 		} catch(Exception e){
-			throw new IWBException("framework","FetchRecord.Form",formResult.getFormId(),null, "[40,"+formResult.getFormId()+"] Form Load Exception", e.getCause());
+			throw new IWBException("framework","FetchRecord.Form",formResult.getFormId(),null, "[40,"+formResult.getFormId()+"] Form Load Exception", e);
 		} finally {
 //    		session.close();
     	}
@@ -2124,7 +2124,7 @@ public class PostgreSQL extends BaseDAO {
     		});
     		
 		} catch(Exception e){
-			throw new IWBException("sql","Form.Update",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(), updateParams), "Error Updating", e.getCause());
+			throw new IWBException("sql","Form.Update",formResult.getFormId(),GenericUtil.replaceSql(sql.toString(), updateParams), "Error Updating", e);
 		} finally {
 //			session.close();
 		}
@@ -3797,10 +3797,10 @@ public class PostgreSQL extends BaseDAO {
 					query.executeUpdate();
 					session.createSQLQuery("alter table "+dstSchema+"."+t.getDsc()+" add constraint PK_T"+t.getTableId()+" primary key ("+tp.getExpressionDsc()+")").executeUpdate();
 				} catch(Exception e2){
-					throw new IWBException("sql","Copy(Insert) Table Record",tableId,b.toString() + " --> " +tablePk, e.getMessage(), e.getCause());
+					throw new IWBException("sql","Copy(Insert) Table Record",tableId,b.toString() + " --> " +tablePk, e.getMessage(), e);
 				}
 			} else
-				throw new IWBException("sql","Copy Table Record",tableId,b.toString() + " --> " +tablePk, e.getMessage(), e.getCause());
+				throw new IWBException("sql","Copy Table Record",tableId,b.toString() + " --> " +tablePk, e.getMessage(), e);
 		} finally {
 //			session.close();
 		}
@@ -5207,7 +5207,7 @@ public class PostgreSQL extends BaseDAO {
 						} else 
 							p.add(null);
 					} catch (JSONException e) {
-						throw new IWBException("vcs","JSONException : saveVcsObject", t.getTableId(), f.getDsc(), e.getMessage(), e.getCause());
+						throw new IWBException("vcs","JSONException : saveVcsObject", t.getTableId(), f.getDsc(), e.getMessage(), e);
 					}
 				}
 				s.setLength(s.length()-1);
@@ -5231,7 +5231,7 @@ public class PostgreSQL extends BaseDAO {
 							} else 
 								p.add(null);
 						} catch (JSONException e) {
-							throw new IWBException("vcs","JSONException : saveVcsObject", t.getTableId(), f.getDsc(), e.getMessage(), e.getCause());
+							throw new IWBException("vcs","JSONException : saveVcsObject", t.getTableId(), f.getDsc(), e.getMessage(), e);
 						}
 					}
 					
