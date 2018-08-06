@@ -16,6 +16,7 @@ public class W5Project  implements java.io.Serializable {
 	private String projectUuid;
 	private int customizationId;
 
+	private String dsc;
 	private String vcsUrl;
 	private String vcsUserName;
 	private String vcsPassword;
@@ -168,6 +169,13 @@ public class W5Project  implements java.io.Serializable {
 	}
 	public void setTsdbDatabase(String tsdbDatabase) {
 		this.tsdbDatabase = tsdbDatabase;
+	}
+	@Column(name="dsc")
+	public String getDsc() {
+		return dsc;
+	}
+	public void setDsc(String dsc) {
+		this.dsc = dsc;
 	}
 
 }

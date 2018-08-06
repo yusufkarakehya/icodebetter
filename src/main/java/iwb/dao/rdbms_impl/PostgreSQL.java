@@ -3207,6 +3207,12 @@ public class PostgreSQL extends BaseDAO {
 	}
 	
 	
+	public void reloadUsersCache(int customizationId){	 //customizationID ??
+		List<Object[]> l = (List<Object[]>)executeSQLQuery("select x.customization_id, x.user_id, x.user_name, x.dsc, 1 allow_multi_login_flag, x.profile_picture_id from iwb.w5_user x "+(customizationId>=0 ? (" where x.customization_id="+customizationId+""):""));
+		if(l!=null)for(Object[] m : l){
+			UserUtil.addUserWithProfilePicutre(GenericUtil.uInt(m[1]),(String)m[2],(String)m[3],GenericUtil.uInt(m[4])!=0,GenericUtil.uInt(m[5])); 
+		}
+	}
 	public void reloadTableParamListChildListParentListCache(String projectId){	//TODO
 		
 		
@@ -3334,6 +3340,8 @@ public class PostgreSQL extends BaseDAO {
 			
 		for(W5Customization c:customizationList)FrameworkCache.wCustomizationMap.put(c.getCustomizationId(), c);
 		
+		reloadUsersCache(customizationId);
+
 		for(W5Project p:lp){
 			FrameworkCache.clearPreloadCache(p.getProjectUuid());
 			reloadProjectCaches(p.getProjectUuid());
@@ -3353,7 +3361,6 @@ public class PostgreSQL extends BaseDAO {
 			FrameworkSetting.projectSystemStatus.put(projectId, 2); //suspended
 			logger.info("Caching project = "+projectId);
 
-			reloadUsersCache(projectId);
 			reloadRolesCache(projectId);
 			
 			
@@ -7126,37 +7133,43 @@ public class PostgreSQL extends BaseDAO {
 		return lm;
 	}
 	
-	public boolean copyProject(Map scd,  String newProjectId, int dstCustomizationId){
-		String projectId = (String)scd.get("projectId");
-		if(projectId.equals(newProjectId))return false;
-		W5Project po = FrameworkCache.getProject(projectId), npo = null;
+	public boolean copyProject(Map scd,  String dstProjectId, int dstCustomizationId){ //from, to
+		String srcProjectId = (String)scd.get("projectId");
+		if(srcProjectId.equals(dstProjectId))return false;
+		W5Project po = FrameworkCache.getProject(srcProjectId), npo = null;
 //		int customizationId = (Integer)scd.get("customizationId");
 		int userId = (Integer)scd.get("userId");
 //		int dstCustomizationId = customizationId;
-//		int smaxSqlCommit = 0;
-		String schema = "c"+GenericUtil.lPad(dstCustomizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
+		int smaxSqlCommit = 0;
+		String schema = "c"+GenericUtil.lPad(dstCustomizationId+"", 5, '0')+"_"+dstProjectId.replace('-', '_');
 		executeUpdateSQLQuery("set search_path="+schema);
 		
-		npo =  (W5Project)find("from W5Project w where w.projectUuid=?", newProjectId).get(0);
+		npo =  (W5Project)find("from W5Project w where w.projectUuid=?", dstProjectId).get(0);
 		
-		List<W5VcsCommit> sqlCommits = find("from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=? order by abs(t.vcsCommitId)", projectId);
+		List<W5VcsCommit> sqlCommits = find("from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=? order by abs(t.vcsCommitId)", srcProjectId);
 		for(W5VcsCommit o:sqlCommits){
 			if(!GenericUtil.isEmpty(o.getExtraSql())){
-				W5VcsCommit no = o.newInstance(newProjectId);
+				W5VcsCommit no = o.newInstance(dstProjectId);
 				if(o.getVcsCommitId()>0)no.setVcsCommitId(-no.getVcsCommitId());
 				while(no.getExtraSql().contains(po.getRdbmsSchema()))no.setExtraSql(no.getExtraSql().replace(po.getRdbmsSchema(), schema));
 				saveObject(no);
-				if(o.getVcsCommitId()>0)executeUpdateSQLQuery(no.getExtraSql());
+				if(o.getVcsCommitId()>0){
+					executeUpdateSQLQuery(no.getExtraSql());
+					smaxSqlCommit = o.getVcsCommitId();
+				}
 			}
 		}
 		
-//		executeUpdateSQLQuery("delete from iwb.w5_vcs_object x where x.project_uuid=? AND not exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk AND z.vcs_commit_id=x.vcs_commit_id)", newProjectId, projectId);
+		executeUpdateSQLQuery("update iwb.w5_vcs_object x "
+				+ "set vcs_object_status_tip=(select case when z.vcs_object_status_tip in (3,8) then z.vcs_object_status_tip when z.vcs_commit_id!=x.vcs_commit_id then 1 else z.vcs_object_status_tip end from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk),"
+				+ "vcs_commit_id=(select z.vcs_commit_id from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk) "
+				+ "where x.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk)", srcProjectId, srcProjectId, dstProjectId, srcProjectId);
 		
 		executeUpdateSQLQuery("INSERT INTO iwb.w5_vcs_object(vcs_object_id, table_id, table_pk, customization_id, project_uuid, vcs_commit_id, vcs_commit_record_hash, vcs_object_status_tip) "
 				+ "select nextval('iwb.seq_vcs_object'), x.table_id, x.table_pk, ?, ?, 1, x.vcs_commit_record_hash, 2 from iwb.w5_vcs_object x where x.vcs_object_status_tip not in (3,8) AND x.project_uuid=? AND not exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk)"
-				, dstCustomizationId, newProjectId, projectId, newProjectId);
+				, dstCustomizationId, dstProjectId, srcProjectId, dstProjectId);
 		
-		List<Object> ll3 = executeSQLQuery("select x.table_id from iwb.w5_vcs_object x where x.project_uuid=? group by x.table_id order by x.table_id", projectId);
+		List<Object> ll3 = executeSQLQuery("select x.table_id from iwb.w5_vcs_object x where x.project_uuid=? group by x.table_id order by x.table_id", srcProjectId);
 		if(ll3!=null)for(Object o:ll3){
 			StringBuilder sql = new StringBuilder();
 			W5Table t = FrameworkCache.getTable(0, GenericUtil.uInt(o));
@@ -7167,7 +7180,7 @@ public class PostgreSQL extends BaseDAO {
 				sql.append(" AND x.").append(tf.getDsc()).append("=z.").append(tf.getDsc());
 			}
 			sql.append(")");
-			executeUpdateSQLQuery(sql.toString(), newProjectId, projectId, projectId);
+			executeUpdateSQLQuery(sql.toString(), dstProjectId, srcProjectId, srcProjectId);
 			
 			sql.setLength(0);
 			StringBuilder sql2 = new StringBuilder();
@@ -7180,12 +7193,14 @@ public class PostgreSQL extends BaseDAO {
 			sql2.append("?,?,?");
 			sql.append(" select ").append(sql2).append(" from ").append(t.getDsc()).append(" x where x.project_uuid=? AND not exists(select 1 from ").append(t.getDsc())
 				.append(" z where z.project_uuid=? AND z.").append(pkField).append("=x.").append(pkField).append(")");
-			executeUpdateSQLQuery(sql.toString(), dstCustomizationId, newProjectId, projectId, projectId, newProjectId);
+			executeUpdateSQLQuery(sql.toString(), dstCustomizationId, dstProjectId, srcProjectId, srcProjectId, dstProjectId);
 		}
-		List ll = executeSQLQuery("select 1 from iwb.w5_project_related_project where project_uuid=? AND related_project_uuid=?", newProjectId, projectId);
+/*		List ll = executeSQLQuery("select 1 from iwb.w5_project_related_project where project_uuid=? AND related_project_uuid=?", dstProjectId, srcProjectId);
 		if(GenericUtil.isEmpty(ll))executeUpdateSQLQuery("INSERT INTO iwb.w5_project_related_project(project_uuid, related_project_uuid, insert_user_id,version_user_id) "
-				+ "VALUES (?, ?, ?, ?)", newProjectId, projectId, userId, userId);
-
+				+ "VALUES (?, ?, ?, ?)", dstProjectId, srcProjectId, userId, userId);
+*/
+		executeUpdateSQLQuery("INSERT INTO iwb.w5_project_related_project(project_uuid, related_project_uuid, insert_user_id,version_user_id) "
+				+ "select ?, related_project_uuid, ?,? from iwb.w5_project_related_project x where x.project_uuid=? and not exists(select 1 from iwb.w5_project_related_project z where z.project_uuid=? AND z.related_project_uuid=x.related_project_uuid)", dstProjectId, userId, userId, srcProjectId, dstProjectId);
 		return true;
 		
 	}

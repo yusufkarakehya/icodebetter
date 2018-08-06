@@ -1,6 +1,7 @@
 package iwb.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -72,7 +73,7 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
-	
+/*	
 	@RequestMapping("/ajaxCopyProject")
 	public void hndAjaxCopyProject(
 			HttpServletRequest request,
@@ -88,7 +89,7 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
-	
+*/	
 	@RequestMapping("/ajaxVCSObjectPullAll")
 	public void hndAjaxVCSObjectPullAll(
 			HttpServletRequest request,
@@ -718,7 +719,10 @@ public class VcsServlet implements InitializingBean {
 		logger.info("ajaxPublish2AppStore"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-		boolean b = vcsEngine.vcsClientPublish2AppStore(scd);
+		Map newScd = new HashMap();
+		newScd.putAll(scd);
+		newScd.put("projectId", request.getParameter("_uuid"));
+		boolean b = vcsEngine.vcsClientPublish2AppStore(newScd);
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
