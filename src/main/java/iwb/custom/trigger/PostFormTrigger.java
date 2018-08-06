@@ -100,7 +100,7 @@ public class PostFormTrigger {
 					dao.copyProject(scd, newProjectId, customizationId);
 				} else {//insert
 					int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId, 0, customizationId);
-					dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 1, 1145)", userTip, "Role Group 1", customizationId, newProjectId);
+					dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, 5, 2307)", userTip, "Role Group 1", customizationId, newProjectId);
 					Map<String, Object> newScd = new HashMap();
 					newScd.putAll(scd);newScd.put("projectId", newProjectId);
 					dao.saveObject(new W5VcsObject(newScd, 369, userTip));
@@ -109,6 +109,12 @@ public class PostFormTrigger {
 				FrameworkSetting.projectSystemStatus.put(newProjectId,0);
 				break;
 			case	3://delete all metadata
+				String delProjectId = fr.getRequestParams().get("tproject_uuid").toLowerCase();
+				W5Project po = FrameworkCache.getProject(delProjectId);
+				if(po.getCustomizationId()==GenericUtil.uInt(scd.get("ocustomizationId")) && GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_project x where x.customization_id=?", po.getCustomizationId()).get(0))>1){
+					dao.deleteProjectMetadata(delProjectId);
+					dao.executeUpdateSQLQuery("DROP SCHEMA IF EXISTS "+po.getRdbmsSchema()+" CASCADE");					
+				}
 			}
 			break;
 		default:
