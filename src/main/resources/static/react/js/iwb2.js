@@ -685,8 +685,10 @@ class XTabForm extends React.PureComponent{
 					var {parentCt} = selfie.props;
 					if(parentCt){
 						parentCt.closeTab();
+						iwb.closeModal();
 						iwb.onGlobalSearch2 && iwb.onGlobalSearch2('');
 					}
+				
 				}});
 			}
 			else alert('this.form not set');
@@ -2502,10 +2504,19 @@ class XPage extends React.Component {
 				})
 				.then(response => (response.status === 200 || response.status === 0)?response.text():Promise.reject(new Error(response.text() || response.statusText)))
 				.then(result => {
-						if(result){
-							var f; eval("f=(callAttributes, parentCt)=>{\n"+result+"\n}");
-							var serverComponent = f(callAttributes || {}, this);
-							if(serverComponent){
+					if(result){
+						var f; eval("f=(callAttributes, parentCt)=>{\n"+result+"\n}");
+						var serverComponent = f(callAttributes || {}, this);
+						if(serverComponent){							
+							if(callAttributes && callAttributes.modal){
+								iwb.showModal({
+									body	: serverComponent,	
+									size	: 'lg', 
+									title	: (serverComponent.props && serverComponent.props.cfg)? serverComponent.props.cfg.name : '',
+									color	: 'primary'
+									//style	:{maxWidth:'90%'}
+								});
+							}else {
 								var plus = action.substr(0,1)=='2';
 								var {tabs} = this.state;
 								if(this.isActionInTabList(action))return;
@@ -2517,7 +2528,8 @@ class XPage extends React.Component {
 								});
 								this.setState({activeTab:action, tabs });
 							}
-						} else { toastr.error('Sonuc Gelmedi',' Error') }
+						}
+					} else { toastr.error('Sonuc Gelmedi',' Error') }
 					},
 					(error) => { toastr.error(error,'Connection Error') }
 				)
