@@ -3269,6 +3269,12 @@ public class VcsEngine {
 		return dao.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
 	}
 	
+	public String vcsClientDeleteSubProject(Map<String, Object> scd, String projectId, String subProjectId) {
+		Map<String, Object> newScd = new HashMap();
+		newScd.putAll(scd);newScd.put("projectId", projectId);
+		return dao.deleteSubProject(newScd, subProjectId);
+	}
+	
 	
 	public Map vcsClientProjectSynch(Map<String, Object> scd) {
 		int customizationId = (Integer)scd.get("ocustomizationId");

@@ -35,14 +35,64 @@ public class W5Project  implements java.io.Serializable {
 	private String tsdbPassWord;
 	private String tsdbDatabase;
 	
+	private short uiWebFrontendTip;
+	private int uiMainTemplateId;
+	private int uiLoginTemplateId;
+	private int sessionQueryId;
+	private int authenticationFuncId;
+	
+	/*
+	  ui_web_frontend_tip smallint NOT NULL DEFAULT 1,
+	  ui_main_template_id integer NOT NULL DEFAULT 0,
+	  session_query_id integer NOT NULL DEFAULT 0,
+	  authentication_func_id integer NOT NULL DEFAULT 0,*/
 	/*private Channel _mqChannel;
 	private InfluxDB _tsdb;*/
-
+	
+	
+	@Column(name="ui_login_template_id")
+	public int getUiLoginTemplateId() {
+		return uiLoginTemplateId;
+	}
+	public void setUiLoginTemplateId(int uiLoginTemplateId) {
+		this.uiLoginTemplateId = uiLoginTemplateId;
+	}
+	
+	@Column(name="ui_web_frontend_tip")
+	public short getUiWebFrontendTip() {
+		return uiWebFrontendTip;
+	}
+	public void setUiWebFrontendTip(short uiWebFrontendTip) {
+		this.uiWebFrontendTip = uiWebFrontendTip;
+	}
+	@Column(name="ui_main_template_id")
+	public int getUiMainTemplateId() {
+		return uiMainTemplateId;
+	}
+	public void setUiMainTemplateId(int uiMainTemplateId) {
+		this.uiMainTemplateId = uiMainTemplateId;
+	}
+	@Column(name="session_query_id")
+	public int getSessionQueryId() {
+		return sessionQueryId;
+	}
+	public void setSessionQueryId(int sessionQueryId) {
+		this.sessionQueryId = sessionQueryId;
+	}
+	@Column(name="authentication_func_id")
+	public int getAuthenticationFuncId() {
+		return authenticationFuncId;
+	}
+	public void setAuthenticationFuncId(int authenticationFuncId) {
+		this.authenticationFuncId = authenticationFuncId;
+	}
+	
 	@Id
 	@Column(name="project_uuid")
 	public String getProjectUuid() {
 		return projectUuid;
 	}
+	
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
 	}

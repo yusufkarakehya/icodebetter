@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -50,7 +51,9 @@ import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5UserAction;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5FileAttachment;
+import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
+import iwb.domain.db.W5SmsValidCode;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
@@ -188,8 +191,11 @@ public class SpaceServlet implements InitializingBean {
 		logger.info("hndAjaxQueryData(" + queryId + ")");
 		Map<String, Object> scd = null;
 		HttpSession session = request.getSession(false);
-		if ((queryId == 1 || queryId == 824) && (session == null || session.getAttribute("scd-dev") == null
-				|| ((HashMap<String, String>) session.getAttribute("scd-dev")).size() == 0)) { // select
+		String projectId = UserUtil.getProjectId(request,"space/");
+		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+		String scdKey="space-"+projectId;
+		if ((queryId == 1 || queryId == 824) && (session == null || session.getAttribute(scdKey) == null
+				|| ((HashMap<String, String>) session.getAttribute(scdKey)).size() == 0)) { // select
 																							// role
 			if (session == null) {
 				response.getWriter().write("{\"success\":false,\"error\":\"no_session\"}");
@@ -454,12 +460,15 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxPing");
 		HttpSession session = request.getSession(false);
-		boolean notSessionFlag = session == null || session.getAttribute("scd-dev") == null
-				|| ((HashMap<String, String>) session.getAttribute("scd-dev")).size() == 0;
+		String projectId = UserUtil.getProjectId(request,"space/");
+		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+		String scdKey="space-"+projectId;
+		boolean notSessionFlag = session == null || session.getAttribute(scdKey) == null
+				|| ((HashMap<String, String>) session.getAttribute(scdKey)).size() == 0;
 		response.setContentType("application/json");
 		Map cm = null;
 		if(FrameworkSetting.chat && !notSessionFlag && GenericUtil.uInt(request, "c")!=0){
-			cm = engine.getUserNotReadChatMap((Map)session.getAttribute("scd-dev"));
+			cm = engine.getUserNotReadChatMap((Map)session.getAttribute(scdKey));
 		}
 		if(GenericUtil.uInt(request, "d")==0 || notSessionFlag)
 			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
@@ -744,8 +753,11 @@ public class SpaceServlet implements InitializingBean {
 		logger.info("hndAjaxLogoutUser");
 		HttpSession session = request.getSession(false);
 		response.setContentType("application/json");
+		String projectId = UserUtil.getProjectId(request,"space/");
+		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+		String scdKey="space-"+projectId;
 		if (session != null) {
-			Map<String, Object> scd = (Map) session.getAttribute("scd-dev");
+			Map<String, Object> scd = (Map) session.getAttribute(scdKey);
 			if (scd != null) {
 				UserUtil.onlineUserLogout((Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
 				if(scd.containsKey("mobile")){
@@ -753,10 +765,107 @@ public class SpaceServlet implements InitializingBean {
 					engine.executeFunc(scd, 673, parameterMap, (short)4);
 				}
 			}
-			session.removeAttribute("scd-dev");
+			session.removeAttribute(scdKey);
 		}
 		if(GenericUtil.uInt(request, "d")!=0)throw new IWBException("session","No Session",0,null, "No valid session", null);
 		else response.getWriter().write("{\"success\":true}");
+	}
+	@RequestMapping("/*/ajaxAuthenticateUser")
+	public void hndAjaxAuthenticateUser(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("hndAjaxAuthenticateUser(" + request.getParameter("userName") + ")");
+		String projectId = UserUtil.getProjectId(request,"space/");
+		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+//		if(po.getSessionQueryId()==0)response.sendRedirect("main.htm"); //TODO
+
+
+		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
+		requestParams.put("_remote_ip", request.getRemoteAddr());
+	/*	if (request.getSession(false) != null && request.getSession(false).getAttribute("securityWordId") != null)
+			requestParams.put("securityWordId", request.getSession(false).getAttribute("securityWordId").toString());
+*/
+		String scdKey="space-"+projectId;
+		if (request.getSession(false) != null) {
+			request.getSession(false).removeAttribute(scdKey);
+		}
+		
+		Map<String, Object> scd = new HashMap<String, Object>();
+		scd.put("projectId", projectId);
+		W5GlobalFuncResult result = engine.executeFunc(scd, po.getAuthenticationFuncId(), requestParams, (short) 7); // user Authenticate DbFunc:1
+
+		/*
+		 * 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
+		 */
+		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
+		String errorMsg = result.getResultMap().get("errorMsg");
+		int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
+		String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
+//		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
+		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
+		int userRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
+		response.setContentType("application/json");
+		scd = null;
+		if (success) { // basarili simdi sira diger islerde
+			scd = engine.userRoleSelect4App(po, userId, userRoleId, null);
+
+			if (scd == null) {
+				if (FrameworkSetting.debug)logger.info("empty scd");
+				response.getWriter().write("{\"success\":false"); // error
+			} else {
+				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
+				HttpSession session = request.getSession(true);
+				session.removeAttribute(scdKey);
+				session.setAttribute(scdKey, scd);
+				scd.put("locale", xlocale);
+				scd.put("customizationId", po.getCustomizationId());
+				scd.put("ocustomizationId", po.getCustomizationId());
+				scd.put("projectId", po.getProjectUuid());
+
+				scd.put("sessionId", session.getId());
+
+//				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) 0, request.getParameter(".w"));
+				response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun
+			}
+
+			response.getWriter().write("}");
+		} else {
+			response.getWriter().write("{\"success\":false,\"errorMsg\":\"" + errorMsg + "\"}");
+		}
+		response.getWriter().close();
+	}
+	@RequestMapping("/*/login.htm") //getScd4PAppSpace
+	public void hndLoginPage(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("hndLoginPage");
+		String projectId = UserUtil.getProjectId(request,"space/");
+		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+		if(po.getSessionQueryId()==0)
+			response.sendRedirect("main.htm");
+			
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			String scdKey = "space-"+projectId;
+			Map<String, Object> scd = (Map<String, Object>) session.getAttribute(scdKey);
+			if (scd != null)UserUtil.onlineUserLogout( (Integer) scd.get("userId"), (String) scd.get("sessionId"));
+			session.removeAttribute(scdKey);
+		}
+
+
+		Map<String, Object> scd = new HashMap();
+		scd.put("userId", 1);
+		scd.put("roleId", 1);
+		scd.put("customizationId", po.getCustomizationId());
+		scd.put("projectId", projectId);
+		scd.put("locale", "en");
+
+		int templateId = po.getUiLoginTemplateId();
+
+		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		response.setContentType("text/html; charset=UTF-8");
+		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
+		response.getWriter().close();
+
 	}
 
 
@@ -765,38 +874,21 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndMainPage");
 		
-		HttpSession session = request.getSession(false);
 		Map<String, Object> scd = null;
-		if(session!=null){
-			Object token = session.getAttribute("authToken");
-			if(token!=null){
-				scd = engine.generateScdFromAuth(1, token.toString());
-				if(scd!=null){
-					session.removeAttribute("authToken");
-					scd.put("locale", "tr");
-					session.setAttribute("scd-dev", scd);
-				}
-				else
-					response.sendRedirect("authError.htm");
-			} else {
-				scd = UserUtil.getScd4PAppSpace(request);
-
-			}
-		} else 
+		try{
+			scd = UserUtil.getScd4PAppSpace(request);
+		} catch(Exception e){
+			response.sendRedirect("login.htm");
+		}
+		if(scd==null)
 			response.sendRedirect("login.htm");
 
 		if (scd.get("mobile") != null)
 			scd.remove("mobile");
 
-		int templateId = GenericUtil.uInt(scd.get("mainTemplateId")); // Login
+		W5Project po = FrameworkCache.getProject(scd);
 		
-		//if it exists then create new session
-		
-		/*  how to separate these?   */
-		
-																		// Page
-																		// Template
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getTemplateResult(scd, po.getUiMainTemplateId(), GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -866,7 +958,7 @@ public class SpaceServlet implements InitializingBean {
 		if (list != null) {
 			Map<String, Object> m = new HashMap<String, Object>();
 			m.put("report", list);
-			m.put("scd-dev", scd);
+			m.put("scd", scd);
 			ModelAndView result = null;
 			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
 				result = new ModelAndView(new RptExcelRenderer(), m);
@@ -1386,7 +1478,6 @@ public class SpaceServlet implements InitializingBean {
 		response.getWriter().close();
 
 	}
-
 
 	
 	@RequestMapping("/*/ajaxCallWs")

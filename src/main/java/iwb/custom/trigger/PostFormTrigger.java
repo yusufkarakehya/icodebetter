@@ -72,7 +72,7 @@ public class PostFormTrigger {
 			break;*/
 		}
     	msg = LocaleMsgCache.get2(scd, "reload_cache_manually");
-		if(fr.getForm()!=null)switch(fr.getForm().getObjectId()){
+		if(fr.getErrorMap().isEmpty() && fr.getForm()!=null)switch(fr.getForm().getObjectId()){
 		case	1277: //user_related_project
 			if(fr.getAction()==2){
 				int userId = GenericUtil.uInt(fr.getRequestParams().get("user_id"));

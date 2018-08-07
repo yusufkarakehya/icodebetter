@@ -7133,6 +7133,51 @@ public class PostgreSQL extends BaseDAO {
 		return lm;
 	}
 	
+	public String deleteSubProject(Map scd,  String subProjectId){
+		W5Project po = FrameworkCache.getProject(scd);
+		W5Project dpo = FrameworkCache.getProject(subProjectId);
+		if(po==null || dpo==null)return "Projects do not exist";
+		List ll = executeSQLQuery("select 1 from iwb.w5_project_related_project where project_uuid=? AND related_project_uuid=?", po.getProjectUuid(), dpo.getProjectUuid());
+		if(GenericUtil.isEmpty(ll))return "No related project record";
+		
+		executeUpdateSQLQuery("delete from iwb.w5_project_related_project where project_uuid=? AND related_project_uuid=?", po.getProjectUuid(), dpo.getProjectUuid());
+		
+		List<Object[]> tableNames = executeSQLQuery("select t.dsc,(select tf.default_value from iwb.w5_table_field tf where tf.table_id=t.table_id AND tf.tab_order=1 AND tf.project_uuid=t.project_uuid limit 1) from iwb.w5_table t where t.project_uuid=? AND t.oproject_uuid=? order by table_id desc", po.getProjectUuid(), dpo.getProjectUuid());
+		executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
+		if(!GenericUtil.isEmpty(tableNames)){
+			StringBuilder sql= new StringBuilder();
+			for(Object[] t:tableNames){
+				sql.append("drop table ").append(t[0]).append(";");
+				if(!GenericUtil.isEmpty(t[1]) && t[1].toString().toLowerCase().startsWith("nextval(")){
+					String seq = t[1].toString().substring("nextval(".length()+1, t[1].toString().length()-2);
+					sql.append("drop sequence ").append(seq).append(";");
+				}
+			}
+			executeUpdateSQLQuery(sql.toString());
+		}
+		
+		executeUpdateSQLQuery("update iwb.w5_vcs_object x "
+				+ "set vcs_object_status_tip=3 "
+				+ "where x.project_uuid=? AND x.vcs_object_status_tip in (1,9) AND exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk)"
+				, po.getProjectUuid(), subProjectId);
+
+		executeUpdateSQLQuery("delete from iwb.w5_vcs_object x where "
+				+ "x.project_uuid=? AND x.vcs_object_status_tip=2 AND exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk)"
+				, po.getProjectUuid(), subProjectId);
+
+		List<Object> ll3 = executeSQLQuery("select x.table_id from iwb.w5_vcs_object x where x.project_uuid=? group by x.table_id order by x.table_id", subProjectId);
+		if(ll3!=null)for(Object o:ll3){
+			StringBuilder sql = new StringBuilder();
+			W5Table t = FrameworkCache.getTable(0, GenericUtil.uInt(o));
+			String pkField = t.get_tableParamList().get(0).getExpressionDsc();
+			sql.append("delete from ").append(t.getDsc()).append(" x where x.project_uuid=? AND x.oproject_uuid=?");
+			executeUpdateSQLQuery(sql.toString(), po.getProjectUuid(), subProjectId);
+			
+		}
+		
+		return null;
+		
+	}
 	public boolean copyProject(Map scd,  String dstProjectId, int dstCustomizationId){ //from, to
 		String srcProjectId = (String)scd.get("projectId");
 		if(srcProjectId.equals(dstProjectId))return false;

@@ -710,7 +710,7 @@ public class AppServlet implements InitializingBean {
 						else if (!GenericUtil.hasPartInside(ws, "10"))
 							scd.put("widgetIds", ws + ",10");
 					}
-					if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",new Object[]{0,0,"webix3_3","open1_4","webix4_2","react16","vue2"}[GenericUtil.uInt(scd.get("renderer"))]);
+					if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
 					session.setAttribute("scd-dev", scd);
 					if (deviceType != 0) {
 						session.setMaxInactiveInterval(FrameworkCache.getAppSettingIntValue(0, "mobile_session_timeout", 1 * 60) * 60); // 1 saat default

@@ -4152,7 +4152,7 @@ var usersBorderChat=['#37cc00','#5fcbff','pink']
 function getUsers4Chat(users, pix, onlineStatus){
 	if(!users || users.length==0)return '';
 	var	str='';
-	for(var qi=0;qi<users.length;qi++)str+=', &nbsp;'+(pix ? '<img src="sf/pic'+users[qi].userId+'.png" class="ppic-mini" style="margin-top: -2px;'+(onlineStatus ? 'border:3px solid '+(usersBorderChat[qi % usersBorderChat.length]):'')+';"> ':'')+'<a href=# onclick="return openChatWindow('+users[qi].userId+',\''+users[qi].userDsc+'\',true)"><span>'+users[qi].userDsc+'</span></a>';
+	for(var qi=0;qi<users.length;qi++)str+=', &nbsp;'+(pix ? '<img src="sf/pic'+users[qi].userId+'.png" class="ppic-mini" style="margin-top: -2px;'+(onlineStatus ? 'border:3px solid '+(usersBorderChat[qi % usersBorderChat.length]):(users[qi].userDsc.endsWith("·")?'border:3px solid #37cc00':''))+';"> ':'')+'<a href=# onclick="return openChatWindow('+users[qi].userId+',\''+users[qi].userDsc+'\',true)"><span>'+users[qi].userDsc+'</span></a>';
 	return str.substring(2);
 }
 
@@ -5606,7 +5606,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	return p;
 }
 iwb.isMonacoReady=function(e){
-	if(!e){
+	if(!e.editor){
 		Ext.infoMsg.msg('error','Monaco Editor not Loaded yet!<br/>Good things take time',5);
 		return false;
 	}
