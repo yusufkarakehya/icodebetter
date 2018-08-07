@@ -381,7 +381,10 @@ class CachedUserBean3{
 	}
 
 	public String getDsc() {
-		return dsc;
+		if(!FrameworkSetting.showOnlineStatus || chatStatusTip==0)return dsc;
+		long limitTime = System.currentTimeMillis() - FrameworkSetting.asyncToleranceTimeout;
+		return getLastAsyncActionTime()>limitTime?(dsc+"·"):dsc;
+		
 	}
 
 	public void setDsc(String dsc) {

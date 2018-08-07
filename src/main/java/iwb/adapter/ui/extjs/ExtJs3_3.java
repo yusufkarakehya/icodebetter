@@ -6077,8 +6077,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								if (ids.length > 0) {
 									String res = "";
 									for (String s : ids) {
-										res += ","
-												+ UserUtil.getUserName(GenericUtil.uInt(s));
+										res += ","+ UserUtil.getUserName(GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
 											.append(f.getDsc())
@@ -6098,8 +6097,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								if (ids11.length > 0) {
 									String res = "";
 									for (String s : ids11) {
-										res += ","
-												+ UserUtil.getUserDsc(GenericUtil.uInt(s));
+										res += ","+ UserUtil.getUserDsc(GenericUtil.uInt(s));
 									}
 									buf.append(obj).append("\",\"")
 											.append(f.getDsc())
