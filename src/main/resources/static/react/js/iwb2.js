@@ -681,11 +681,13 @@ class XTabForm extends React.PureComponent{
 					} else{
 						url+=cfg.url.substring('ajaxPostForm'.length);
 					}
+					//console.log(selfie.props);
+					selfie.props.callAttributes.callback && selfie.props.callAttributes.callback(json,cfg);
 					toastr.success('Click! To see saved item <a href=# onClick="return iwb.openForm(\''+url+'\')"></a>','Saved Successfully',{timeOut:3000});
 					var {parentCt} = selfie.props;
 					if(parentCt){
-						parentCt.closeTab();
 						iwb.closeModal();
+						parentCt.closeTab();						
 						iwb.onGlobalSearch2 && iwb.onGlobalSearch2('');
 					}
 				
@@ -2509,6 +2511,7 @@ class XPage extends React.Component {
 						var serverComponent = f(callAttributes || {}, this);
 						if(serverComponent){							
 							if(callAttributes && callAttributes.modal){
+								//console.log(callAttributes);
 								iwb.showModal({
 									body	: serverComponent,	
 									size	: 'lg', 
@@ -2564,7 +2567,7 @@ class XPage extends React.Component {
 	render(){
 		if(iwb.debugRender)if(iwb.debug)console.log('XPage.render');
 		return _("div",{},
-			_(Row,null,
+				_(Row,null,
 				_(Col,{ className: "mb-4" },
 					_(Nav,{ tabs: true, hidden:this.state.tabs.length==1 }
 						, this.state.tabs.map(({name,icon,title},index) => {
