@@ -20,26 +20,39 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
           });
           monaco.editor.setTheme("vs-dark");
 
-          /*
+          
           console.log("element: ", self.getEl());
           console.log("ownerCt: ", self.ownerCt);
           console.log("container: ", self.ownerCt.container);
-          */
+          
           
           
           var containerHeight = self.ownerCt.container.dom.clientHeight;
           //console.log('container height: ', containerHeight);
-          if(containerHeight == 600){
-        	  containerHeight = 500;
-          }
-          //console.log('container height: ', containerHeight);
+               
           if(containerHeight<500){
             containerHeight=500;
             self.ownerCt.setHeight(500);
             self.ownerCt.container.setHeight(500);
           }
-          self.setHeight(containerHeight);                   
+          self.setHeight(containerHeight);                  
           self.editor.layout();
+          
+          var itemLength = self.ownerCt.items.items.length;
+          var totalChildHeight = 0;
+          if(itemLength > 1){
+        	  for(var i=0; i<itemLength; i++){
+        		  if(self.ownerCt.items.items[i].editor == null){
+        			  totalChildHeight += self.ownerCt.items.items[i].el.dom.clientHeight;
+        		  }       		  
+        	  }
+        	  console.log("total child height: ", totalChildHeight);
+              var editorHeight = containerHeight - totalChildHeight - 70;
+              console.log("editor height: ", editorHeight);
+              self.setHeight(editorHeight);                  
+              self.editor.layout();
+          }
+          
 
           window.onresize = function() {
             self.editor.layout();
