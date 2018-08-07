@@ -24,7 +24,7 @@ public class PostFormTrigger {
 		switch(formResult.getFormId()){
 		case	2491://SQL Script
 			String sql = formResult.getRequestParams().get("extra_sql");
-			if(FrameworkSetting.cloud && !GenericUtil.isEmpty(sql) && (Integer)formResult.getScd().get("customizationId")>0 && DBUtil.checkTenantSQLSecurity(sql)) {
+			if(FrameworkSetting.cloud && !GenericUtil.isEmpty(sql) && (Integer)formResult.getScd().get("customizationId")>1 && DBUtil.checkTenantSQLSecurity(sql)) {
 				throw new IWBException("security","SQL", 0, null, "Suspicious Command! Download the platform and feel free to run all the commands ;)", null);
 			}
 			if(GenericUtil.uCheckBox(formResult.getRequestParams().get("run_local_flag"))!=0){// simple security check. TODO

@@ -2309,7 +2309,7 @@ public class VcsEngine {
 			try {
 				json = new JSONObject(s);
 				if(json.get("success").toString().equals("true")){
-					dao.executeUpdateSQLQuery("update iwb.w5_vcs_commit set vcs_commit_id=?, commit_user_id=?, commit_dttm=current_timestamp where vcs_commit_id=?", json.getInt("cnt"), (Integer)scd.get("userId"), commitId);
+					dao.executeUpdateSQLQuery("update iwb.w5_vcs_commit set vcs_commit_id=?, commit_user_id=?, commit_dttm=current_timestamp where vcs_commit_id=? AND project_uuid=?", json.getInt("cnt"), (Integer)scd.get("userId"), commitId, po.getProjectUuid());
 					return json.getInt("cnt");
 				} else
 					throw new IWBException("vcs","vcsClientPushSql:server Error Response", 0, s, json.getString("error"), null);

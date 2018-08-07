@@ -22,7 +22,7 @@ function promisManuelAjaxObject(){ //bu Fonksiyon kullanilmiyor. fakat ileride s
 			xmlhttp = new ActiveXObject(ieXmlHttpVersions[i]);
 			break;
 		}catch (err2){
-			Ext.Msg.alert(getLocMsg('js_bilgi'), ieXmlHttpVersions[i] + " not supported.");
+			Ext.Msg.alert(getLocMsg('js_info'), ieXmlHttpVersions[i] + " not supported.");
 		}
 	}
 	return xmlhttp;
@@ -113,7 +113,7 @@ function promisLoadException(a,b,c){
     if(c && c.responseText){
         ajaxErrorHandler(eval("("+c.responseText+")"));
     } else {
-//    	Ext.Msg.show({title:getLocMsg('js_bilgi'),msg: getLocMsg('js_no_connection_error'),icon: Ext.MessageBox.WARNING})
+//    	Ext.Msg.show({title:getLocMsg('js_info'),msg: getLocMsg('js_no_connection_error'),icon: Ext.MessageBox.WARNING})
     	showStatusText(getLocMsg('js_no_connection_error'), 3);//error
     }
 }
@@ -464,7 +464,7 @@ function gcx(w,h,r){
 
 function openPopup(url,name,x,y,r){
 	var wh=window.open(url,name,gcx(x,y,r));
-	if(!wh) Ext.Msg.alert(getLocMsg('js_bilgi'), getLocMsg('js_once_popup_engel_kaldir')); else wh.focus();
+	if(!wh) Ext.Msg.alert(getLocMsg('js_info'), getLocMsg('js_once_popup_engel_kaldir')); else wh.focus();
 	return false;
 }
 
@@ -651,7 +651,7 @@ function fnClearFilters(a,b){
 function fnTableImport(a,b){
 	var im=a.ximport || a._grid.crudFlags.ximport;
 	if(typeof im=='boolean'){
-		Ext.Msg.alert(getLocMsg('js_bilgi'), getLocMsg('js_table_import_setting_error'));
+		Ext.Msg.alert(getLocMsg('js_info'), getLocMsg('js_table_import_setting_error'));
 		return
 	}
 	
@@ -832,7 +832,7 @@ function fnRowEdit4Log(a,b){
 
 function fnDataMoveUpDown(a,b){
     if(!a._grid.onlyCommitBtn && a._grid.editMode){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_yazma_modundan_cikmalisiniz'));
+    	Ext.Msg.alert(getLocMsg('js_info'),getLocMsg('js_yazma_modundan_cikmalisiniz'));
     	return;
     }
     
@@ -935,7 +935,7 @@ function fnRowDelete(a,b){
 		                	var str='';
 		                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
 		                	if(j2.logErrors)str+=prepareLogErrors(j2);
-		                	Ext.Msg.show({title: getLocMsg('js_bilgi'),msg: str,icon: Ext.MessageBox.INFO});
+		                	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
 		    			}
 		    		}
 		    	});
@@ -975,7 +975,7 @@ function fnRowDelete(a,b){
 		                	var str='';
 		                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
 		                	if(j2.logErrors)str+=prepareLogErrors(j2);
-		                	Ext.Msg.show({title: getLocMsg('js_bilgi'),msg: str,icon: Ext.MessageBox.INFO});
+		                	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
 		    			}
 		    		}
 		    	});
@@ -1003,7 +1003,7 @@ function fnExportGridData(b){
 	return function(a){
 	    var g=a._grid;
 	    if(g.ds.getTotalCount()==0){
-	    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_no_data'));
+	    	Ext.Msg.alert(getLocMsg('js_info'),getLocMsg('js_no_data'));
 	    	return
 	    }
 	    var cols='';
@@ -1024,7 +1024,7 @@ function fnExportGridData(b){
 function fnGraphGridData(a){
 	var g=a._grid;
 	if(g.ds.getTotalCount()==0){
-		Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_no_data'));
+		Ext.Msg.alert(getLocMsg('js_info'),getLocMsg('js_no_data'));
 		return
 	}
 	mainPanel.loadTab({attributes:{href:'showPage?_tid=480&tgrid_id='+g.gridId, _grid:g}});
@@ -1033,7 +1033,7 @@ function fnGraphGridData(a){
 function fnGraphGridDataTree(a){
 	var g=a._grid;
 	if(g.ds.getTotalCount()==0){
-		Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_no_data'));
+		Ext.Msg.alert(getLocMsg('js_info'),getLocMsg('js_no_data'));
 		return
 	}
 	mainPanel.loadTab({attributes:{href:'showPage?_tid=481&xgrid_id='+g.gridId+'&xtable_id='+g.crudTableId, _grid:g}});
@@ -1047,7 +1047,7 @@ function fnExportGridDataWithDetail(b){
 	    var params = g2._gp._params;
 	    if(!params){return false;}
 	    if(g.ds.getTotalCount()==0){
-	    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_no_data'));
+	    	Ext.Msg.alert(getLocMsg('js_info'),getLocMsg('js_no_data'));
 	    	return
 	    }
 	    var cols='';
@@ -1211,7 +1211,7 @@ function fnCommit(a){
 		                	var str='';
 		                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
 		                	if(j2.logErrors)str+=prepareLogErrors(j2);
-		                	Ext.Msg.show({title: getLocMsg('js_bilgi'),msg: str,icon: Ext.MessageBox.INFO});
+		                	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
 		    			}
 	      			}
 	    		});
@@ -1436,7 +1436,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid){
 					} else {
 						var pr={_cnvId:aq.xid, _cnt:sels.length, form_id:aq._fid};
 						for(var qi=0;qi<sels.length;qi++)pr["srcTablePk"+(qi+1)]=sels[qi].id; 
-						promisRequest({url:'ajaxPostEditGrid',params:pr, requestWaitMsg:true, successCallback:function(j){Ext.Msg.alert(getLocMsg('js_bilgi'),j.msgs.join('<br>'));}}); 
+						promisRequest({url:'ajaxPostEditGrid',params:pr, requestWaitMsg:true, successCallback:function(j){Ext.Msg.alert(getLocMsg('js_info'),j.msgs.join('<br>'));}}); 
 					}
 				}
         	}
@@ -2350,7 +2350,7 @@ function ajaxErrorHandlerOld(obj){
 	    	msg: getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>', 
 	    	icon: Ext.MessageBox.ERROR});
     else
-        Ext.Msg.show({title:getLocMsg('js_bilgi'),msg: msg,icon: Ext.MessageBox.ERROR})
+        Ext.Msg.show({title:getLocMsg('js_info'),msg: msg,icon: Ext.MessageBox.ERROR})
     
 }
 var lw=null;
@@ -2474,7 +2474,7 @@ function showLoginDialog(xobj){
 
 function formSubmit(submitConfig){
     var cfg = {
-        waitMsg: getLocMsg('js_lutfen_bekleyin'),
+        waitMsg: getLocMsg('js_please_wait'),
         clientValidation: true,
         success: function(form,action){
             var myJson = eval('(' + action.response.responseText+ ')');
@@ -2497,9 +2497,9 @@ function formSubmit(submitConfig){
             	}
             } 
             
-            if(myJson.alarmPreviews && myJson.alarmPreviews.length>0){
+/*            if(myJson.alarmPreviews && myJson.alarmPreviews.length>0){
             	alert('TODO ALARM PREVIEWS: ' + myJson.alarmPreviews.length + " adet");//TODO
-            } 
+            }*/ 
             
             if(jsonQueue.length>0){
             	var jsonQueueCounter = 0;
@@ -2516,7 +2516,7 @@ function formSubmit(submitConfig){
             	var str='';
             	if(myJson.msgs)str=myJson.msgs.join('<br>')+'<p>';
             	if(myJson.logErrors)str+=prepareLogErrors(myJson);
-            	Ext.Msg.show({title: getLocMsg('js_bilgi'),msg: str,icon: Ext.MessageBox.INFO});
+            	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
             } /*else if(1*_app.mail_send_background_flag!=0 && myJson.outs && myJson.outs.thread_id){ //DEPRECATED
             	Ext.infoMsg.msg(getLocMsg('js_tamam,getLocMsg('js_eposta_gonderiliyor+'...');
             }*/
@@ -2539,7 +2539,7 @@ function formSubmit(submitConfig){
             if(submitConfig.resetValues){
             	submitConfig.formPanel.getForm().reset();
             }else{
-            	// Özel kodlama alanları resetlenmeli
+            	// reset special coding
             	if(submitConfig.dontClose){
 	            	submitConfig.formPanel.getForm().items.each(function(itm){
 	            		if(itm._controlTip*1 == 31){
@@ -2607,7 +2607,7 @@ function promisRequest(rcfg){
 	if(reqWaitMsg==1){
 		document.getElementById('loading-mask-full').style.display='block';
 		document.getElementById('loading-mask').style.display='block';
-//		Ext.Msg.wait((rcfg.requestWaitMsg == '' ||typeof rcfg.requestWaitMsg == 'undefined' || typeof rcfg.requestWaitMsg == 'boolean') ? getLocMsg('js_lutfen_bekleyin') : rcfg.requestWaitMsg);
+//		Ext.Msg.wait((rcfg.requestWaitMsg == '' ||typeof rcfg.requestWaitMsg == 'undefined' || typeof rcfg.requestWaitMsg == 'boolean') ? getLocMsg('js_please_wait') : rcfg.requestWaitMsg);
 	}
 	if(!rcfg.params)rcfg.params={}
 	rcfg.params['.w']=_webPageId;
@@ -2876,7 +2876,7 @@ function approveTableRecord(aa,a){
     	return
     }
     if(aa==2 && 1*sel.data.return_flag==0){
-    	Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_bu_surecte_iade_yapilamaz'));
+    	Ext.Msg.alert(getLocMsg('js_info'),getLocMsg('js_bu_surecte_iade_yapilamaz'));
     	return
     }     
     
@@ -2956,7 +2956,7 @@ function approveTableRecord(aa,a){
 						url: 'ajaxApproveRecord',
 						params:{_arid:rec_id,_adsc:_comment,_aa:aa, _avno:(sel.data.ar_version_no||sel.data.version_no), _appUserIds:_dynamic_approval_users},
 						successDs: a._grid.ds
-						,successCallback:aa!=901?win.close():function(){win.close();Ext.Msg.alert(getLocMsg('js_bilgi'),getLocMsg('js_onay_sureci_baslamistir'));}
+						,successCallback:aa!=901?win.close():function(){win.close();Ext.Msg.alert(getLocMsg('js_info'),getLocMsg('js_onay_sureci_baslamistir'));}
 					});
 				}},
 				{text:getLocMsg('js_iptal'),
@@ -3119,7 +3119,7 @@ function approveTableRecords(aa, a){
 					}					
 					prms += '_adsc' + '=' + encodeURIComponent(_comment) + '&' + '_aa' + '=' + encodeURIComponent(aa)+ '&' + '_appUserIds' + '=' + encodeURIComponent(_dynamic_approval_users);
 					
-					Ext.Msg.wait('',getLocMsg('js_lutfen_bekleyin') );
+					Ext.Msg.wait('',getLocMsg('js_please_wait') );
 					var request = promisManuelAjaxObject();
 					request.open("POST", 'ajaxApproveRecord', false);
 					request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -4476,7 +4476,7 @@ function fncMnuVcs(xgrid){
 		}}*/
 		,{text:'Synchronize Table Records', _grid:xgrid, handler:function(aq){
 			mainPanel.loadTab({attributes:{modalWindow:true, _title_:aq._grid.name,href:'showPage?_tid=238&_gid1=2127', tid:aq._grid.crudTableId}})
-//			promisRequest({url:'ajaxVCSObjectsList',params:{_tid:aq._grid.crudTableId}, successCallback:function(j){Ext.Msg.alert(getLocMsg('js_bilgi'),j.msgs.join('<br>'));}});			
+//			promisRequest({url:'ajaxVCSObjectsList',params:{_tid:aq._grid.crudTableId}, successCallback:function(j){Ext.Msg.alert(getLocMsg('js_info'),j.msgs.join('<br>'));}});			
 		}}
 		,'-',{text:'Add to VCS', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
