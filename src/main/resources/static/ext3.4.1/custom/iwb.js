@@ -5606,7 +5606,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	return p;
 }
 iwb.isMonacoReady=function(e){
-	if(!e){
+	if(!e.editor){
 		Ext.infoMsg.msg('error','Monaco Editor not Loaded yet!<br/>Good things take time',5);
 		return false;
 	}
