@@ -886,15 +886,9 @@ public class SpaceServlet implements InitializingBean {
 		if (scd.get("mobile") != null)
 			scd.remove("mobile");
 
-		int templateId = GenericUtil.uInt(scd.get("mainTemplateId")); // Login
+		W5Project po = FrameworkCache.getProject(scd);
 		
-		//if it exists then create new session
-		
-		/*  how to separate these?   */
-		
-																		// Page
-																		// Template
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getTemplateResult(scd, po.getUiMainTemplateId(), GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();

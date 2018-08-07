@@ -781,4 +781,23 @@ public class VcsServlet implements InitializingBean {
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}
+	
+	
+	@RequestMapping("/ajaxVCSDeleteSubProject")
+	public void hndAjaxVCSDeleteSubProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("ajaxVCSDeleteSubProject"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+		String error = vcsEngine.vcsClientDeleteSubProject(scd, (String)request.getParameter("pid"), (String)request.getParameter("spid"));
+		response.setContentType("application/json");
+		boolean b = GenericUtil.isEmpty(error);
+		response.getWriter().write("{\"success\":"+b+(!b?",error:\""+error+"\"":"")+"}");
+		response.getWriter().close();
+		
+	}
 }

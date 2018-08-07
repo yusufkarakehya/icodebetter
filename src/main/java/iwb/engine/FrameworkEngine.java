@@ -3265,7 +3265,7 @@ public class FrameworkEngine{
 			throw new IWBException("security","GlobalFunc", dbFuncId, null, "Access Source Type Control", null);
 		/*if(execRestrictTip!=4 && checkAccessRecordControlViolation(scd, 4, 20, ""+dbFuncId))
 			throw new PromisException("security","DbProc Execute2", dbFuncId, null, "Access Execute Control", null);*/
-
+		checkTenant(scd);
 		dbFuncResult.setErrorMap(new HashMap());
 		dbFuncResult.setRequestParams(parameterMap);
 		GlobalFuncTrigger.beforeExec(dbFuncResult);
