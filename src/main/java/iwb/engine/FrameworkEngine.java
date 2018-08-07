@@ -3765,13 +3765,19 @@ public class FrameworkEngine{
 			Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", mobileDeviceId);parameterMap.put("pactive_flag", 1);
 			executeFunc(m, 673, parameterMap, (short)4);
 		}
+		return m;
+	}
 
 
-		int detailQueryId = 0;
-		if(detailQueryId!=0){
-			Map<String, Object> m2 = executeQuery2Map(scd, detailQueryId, null); //detailSessionQuery
-			if(m2==null)m.putAll(m2);
-		}
+	public Map<String, Object> userRoleSelect4App(W5Project po, int userId, int userRoleId, String mobileDeviceId) {
+		Map<String, Object> scd = new HashMap<String,Object>();
+		scd.put("userId", userId);
+		scd.put("userRoleId", userRoleId);
+		scd.put("customizationId", po.getCustomizationId());
+		scd.put("projectId", po.getProjectUuid());
+		Map<String,String> rm = new HashMap();
+		Map<String, Object> m = executeQuery2Map(scd, po.getSessionQueryId(), rm); //mainSessionQuery
+		if(m==null)return null;
 		return m;
 	}
 

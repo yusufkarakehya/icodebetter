@@ -28,8 +28,6 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param {
 
 	private String dsc;
 
-	private String expressionDsc;
-
 	private short paramTip;
 
 	private short tabOrder;
@@ -60,16 +58,6 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param {
 	}
 
 	public W5GlobalFuncParam() {
-	}
-
-
-	@Column(name="expression_dsc")
-	public String getExpressionDsc() {
-		return expressionDsc;
-	}
-
-	public void setExpressionDsc(String expressionDsc) {
-		this.expressionDsc = expressionDsc;
 	}
 
 	@Id

@@ -149,6 +149,13 @@ public class FrameworkCache {
 		return wProjects.get(getProjectId(o, null));
 	}
 	
+	public	static W5Project getProject(Object o, String error){
+		W5Project po = wProjects.get(getProjectId(o, null));
+		if(po==null)
+			throw new IWBException("framework", "Project", 0, o.toString(), error, null);
+		return po;
+	}
+	
 	
 	public static W5Table getTable(Object o, int tableId){
 		String projectId = getProjectId(o, "15."+tableId);
