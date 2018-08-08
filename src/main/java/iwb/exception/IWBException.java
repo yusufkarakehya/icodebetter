@@ -23,7 +23,7 @@ public class IWBException extends RuntimeException {
 	private List<IWBException> stack;
 	
 	public IWBException(String errorType, String objectType, int objectId, String sql, String message, Throwable cause) {
-		super(cause!=null && cause.getMessage().contains("(unnamed script#") ? message + " #{"+cause.getMessage().substring(cause.getMessage().indexOf("(unnamed script#")+"(unnamed script#".length(),cause.getMessage().length()-1)+"}#" : message, cause);
+		super(cause!=null && cause.getMessage()!=null && cause.getMessage().contains("(unnamed script#") ? message + " #{"+cause.getMessage().substring(cause.getMessage().indexOf("(unnamed script#")+"(unnamed script#".length(),cause.getMessage().length()-1)+"}#" : message, cause);
 		this.errorType=errorType;//security, validation, framework, definition
 		this.objectType=objectType;
 		this.objectId=objectId;

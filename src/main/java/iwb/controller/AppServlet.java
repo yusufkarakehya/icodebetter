@@ -776,7 +776,7 @@ public class AppServlet implements InitializingBean {
 		// bus.daoReloadJobsCache();
 		response.setContentType("application/json");
 		int roleId = (Integer) scd.get("roleId");
-		if (roleId == 0 || roleId == 2 || GenericUtil.uInt(scd.get("administratorFlag")) != 0) {
+		if (roleId == 0 || roleId == 2) {
 			engine.reloadCache(GenericUtil.uInt(scd.get("customizationId")));
 			response.getWriter().write("{\"success\":true}");
 /*			if(FrameworkSetting.mq)try{

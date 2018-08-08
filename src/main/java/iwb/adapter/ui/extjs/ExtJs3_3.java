@@ -742,7 +742,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					if (webPageId != null) {
 						String key = "";
 						for (String k : fr.getPkFields().keySet())
-							if (!k.startsWith("customization"))
+							if (!k.startsWith("customization") && !k.startsWith("project"))
 								key += "*" + fr.getPkFields().get(k);
 						if (key.length() > 0) {
 							key = t.getTableId() + "-" + key.substring(1);

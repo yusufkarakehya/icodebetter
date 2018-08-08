@@ -275,7 +275,7 @@ public class W5QueryResult implements W5MetaResult{
 			
 			switch(tabOrderCount){
 			case	0://WHERE
-				if(mainTable!=null && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && ((Integer)scd.get("administratorFlag")==0 || FrameworkCache.getAppSettingIntValue(scd.get("customizationId"), "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
+				if(mainTable!=null && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd.get("customizationId"), "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
 					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 					String pkField = query.get_queryFields().get(0).getDsc();
 					sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
@@ -468,7 +468,7 @@ public class W5QueryResult implements W5MetaResult{
 			
 			switch(tabOrderCount){
 			case	0://WHERE
-				if(mainTable!=null && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && ((Integer)scd.get("administratorFlag")==0 || FrameworkCache.getAppSettingIntValue(scd.get("customizationId"), "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
+				if(mainTable!=null && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd.get("customizationId"), "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
 					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
 					String pkField = query.get_queryFields().get(0).getDsc();
 					sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
@@ -847,7 +847,7 @@ public class W5QueryResult implements W5MetaResult{
 			String pkField = mainTable.get_tableFieldList().get(0).getDsc();
 			boolean accessControlSelfFlag = true;
 			//record based privilege
-			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && ((Integer)scd.get("administratorFlag")==0 || FrameworkCache.getAppSettingIntValue(scd, "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
+			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd, "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				boolean ufFlag=false;
 				if(mainTable.getAccessViewTip()!=0 && mainTable.getAccessViewUserFields()!=null 
@@ -1324,7 +1324,7 @@ public class W5QueryResult implements W5MetaResult{
 			String pkField = mainTable.get_tableFieldList().get(0).getDsc();
 			boolean accessControlSelfFlag = true;
 			//record based privilege
-			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && ((Integer)scd.get("administratorFlag")==0 || FrameworkCache.getAppSettingIntValue(scd, "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
+			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd, "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				boolean ufFlag=false;
 				if(mainTable.getAccessViewTip()!=0 && mainTable.getAccessViewUserFields()!=null 
@@ -1804,7 +1804,7 @@ public class W5QueryResult implements W5MetaResult{
 			String pkField = mainTable.get_tableFieldList().get(0).getDsc();
 			boolean accessControlSelfFlag = true;
 			//record based privilege
-			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && ((Integer)scd.get("administratorFlag")==0 || FrameworkCache.getAppSettingIntValue(scd, "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
+			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd, "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				boolean ufFlag=false;
 				if(mainTable.getAccessViewTip()!=0 && mainTable.getAccessViewUserFields()!=null 
