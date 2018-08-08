@@ -4968,7 +4968,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 					var table_pk = '';
 					if (getForm.a == 1) {
 						for (var key in getForm.pk)
-							if (key != 'customizationId') table_pk += "|" + getForm.pk[key];
+							if (key != 'customizationId' && key != 'projectId') table_pk += "|" + getForm.pk[key];
 					} else table_pk = "|" + getForm.tmpId;
 					fnNewFileAttachment4Form(a._f.crudTableId, table_pk.substring(1))
 				}
@@ -5000,7 +5000,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 					var table_pk = '';
 					if (getForm.a == 1) {
 						for (var key in getForm.pk)
-							if (key != 'customizationId') table_pk += "|" + getForm.pk[key];
+							if (key != 'customizationId' && key != 'projectId') table_pk += "|" + getForm.pk[key];
 					} else table_pk = "|" + getForm.tmpId;
 					var cfg = {
 						attributes: {
@@ -5199,7 +5199,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    var pk = null,
 	        toolButtons = [];
 	    for (var xi in getForm.pk)
-	        if (xi != 'customizationId') {
+	        if (xi != 'customizationId' && xi != 'projectId') {
 	            pk = getForm.pk[xi];
 	            break;
 	        }
@@ -5240,9 +5240,8 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            menu: toolButtons
 	        });
 	    } else {
-			// Kayıt Bilgisi Yorum Yapıldı
-	       /* btn.push({
-	            text: 'Kayit Bilgisi',
+	       btn.push({
+	            text: 'Record Info',
 	            iconAlign: 'top',
 	            scale: 'medium',
 	            style: {
@@ -5252,7 +5251,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	            handler: function() {
 	                fnTblRecEdit(getForm.crudTableId, pk, false);
 	            }
-	        });*/
+	        });
 	    }
 	}
 
@@ -5302,7 +5301,7 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	                var table_pk = '';
 	                if (getForm.a == 1) {
 	                    for (var key in getForm.pk) {
-	                        if (key != 'customizationId') {
+	                        if (key != 'customizationId' && key != 'projectId') {
 	                            table_pk += "|" + getForm.pk[key];
 	                        }
 	                    }

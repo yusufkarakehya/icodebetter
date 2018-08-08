@@ -3241,29 +3241,31 @@ public class PostgreSQL extends BaseDAO {
 		//Map<Integer, List<W5TableChild>> tcMap = new HashMap<Integer, List<W5TableChild>>();//copy
 		//Map<Integer, List<W5TableChild>> tpMap = new HashMap<Integer, List<W5TableChild>>();//watch,feed
 		lastTableId = -1;
-		List<W5TableChild> tc=null, tpx=null;
-		for(W5TableChild tp:tcAll){
-			if(lastTableId!=tp.getTableId()){
-				W5Table tx = FrameworkCache.getTable(projectId, lastTableId);
+		List<W5TableChild> ltc=null, tpx=null;
+		for(W5TableChild tc:tcAll){
+			W5Table pr = FrameworkCache.getTable(projectId, tc.getRelatedTableId());
+			if(pr==null)continue;
+			if(lastTableId!=tc.getTableId()){
+				W5Table tx = FrameworkCache.getTable(projectId, lastTableId==-1? tc.getTableId():lastTableId);
 				if(tx!=null){
-					tc = tx.get_tableChildList();
-					if(tc==null){
-						tc = new ArrayList<W5TableChild>();
-						tx.set_tableChildList(tc);
+					ltc = tx.get_tableChildList();
+					if(ltc==null){
+						ltc = new ArrayList<W5TableChild>();
+						tx.set_tableChildList(ltc);
 					}
-				}
-				lastTableId=tp.getTableId();
+				} else
+					continue;
+				lastTableId=tc.getTableId();
 			}
-			if(tc!=null)tc.add(tp);
+			ltc.add(tc);
 
-			W5Table pr = FrameworkCache.getTable(projectId, tp.getRelatedTableId());
 			if(pr!=null){
 				tpx = pr.get_tableParentList();
 				if(tpx==null){
 					tpx = new ArrayList<W5TableChild>();
 					pr.set_tableParentList(tpx);
 				}
-				tpx.add(tp);
+				tpx.add(tc);
 			}
 		}		
 	}

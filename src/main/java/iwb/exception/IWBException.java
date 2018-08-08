@@ -88,7 +88,7 @@ public class IWBException extends RuntimeException {
 					lastErrorMsg = uri;					
 				}
 				for(int qi=stack.size()-1;qi>=0;qi--){
-					if(lastErrorMsg.length()>0)b.append(",");
+					if(lastErrorMsg!=null && lastErrorMsg.length()>0)b.append(",");
 					IWBException iw = (IWBException)stack.get(qi);
 //					if(lastErrorMsg.equals(iw.getMessage()))continue;
 					lastErrorMsg = iw.getMessage();
