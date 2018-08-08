@@ -42,7 +42,7 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
           var totalChildHeight = 0;
           if(itemLength > 1){
         	  for(var i=0; i<itemLength; i++){
-        		  if(self.ownerCt.items.items[i].editor == null){
+        		  if(self.ownerCt.items.items[i].editor == null && self.ownerCt.items.items[i].el){
         			  totalChildHeight += self.ownerCt.items.items[i].el.dom.clientHeight;
         		  }       		  
         	  }
