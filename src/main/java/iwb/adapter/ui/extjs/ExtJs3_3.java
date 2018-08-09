@@ -1446,14 +1446,14 @@ public class ExtJs3_3 implements ViewAdapter {
 								b = true;
 							buf.append("Ext.apply(")
 									.append(subFormResult.getForm().getDsc())
-									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",xtype:null,layout:'form',title:'")
+									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",bodyStyle:'min-height:550px',autoScroll:true,xtype:null,layout:'form',title:'")
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											m.getLocaleMsgKey()))
 									.append("',height:")
 									.append(subFormResult.getForm()
 											.getDefaultHeight())
-									.append(",autoScroll:true})");
+									.append("})");
 							extendedForms.add(subFormResult.getForm().getDsc());
 						}
 						tabHeight = subFormResult.getForm().getDefaultHeight();
@@ -1501,7 +1501,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								buf.append(",");
 							else
 								b = true;
-							String extra = "{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",layout:'form',autoScroll:true,title:'"
+							String extra = "{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",layout:'form',bodyStyle:'min-height:550px',autoScroll:true,title:'"
 									+ LocaleMsgCache.get2(customizationId,
 											xlocale, m.getLocaleMsgKey()) + "'";
 							// if(formBodyColor!=null)extra+=",bodyStyle:'background-color: #"+formBodyColor+"'";

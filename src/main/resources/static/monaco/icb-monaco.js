@@ -20,15 +20,14 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
           });
           monaco.editor.setTheme("vs-dark");
 
-          
+          /*
           console.log("element: ", self.getEl());
           console.log("ownerCt: ", self.ownerCt);
           console.log("container: ", self.ownerCt.container);
-          
-          
+          console.log("self.editor: ", self.editor);
+          */
           
           var containerHeight = self.ownerCt.container.dom.clientHeight;
-          //console.log('container height: ', containerHeight);
                
           if(containerHeight<500){
             containerHeight=500;
@@ -46,18 +45,24 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
         			  totalChildHeight += self.ownerCt.items.items[i].el.dom.clientHeight;
         		  }       		  
         	  }
-        	  console.log("total child height: ", totalChildHeight);
               var editorHeight = containerHeight - totalChildHeight - 70;
-              console.log("editor height: ", editorHeight);
               self.setHeight(editorHeight);                  
               self.editor.layout();
           }
-          
+
+          function resizeEditor() {        	  
+        	  if( window.document.getElementsByClassName("monaco-editor vs-dark")[0].clientHeight != self.el.dom.clientHeight
+        		|| window.document.getElementsByClassName("monaco-editor vs-dark")[0].clientWidth != self.el.dom.clientWidth ){
+        		  self.editor.layout();
+        	  } else {
+        		  setTimeout(resizeEditor, 100);
+        	  }
+          }
+          resizeEditor();
 
           window.onresize = function() {
             self.editor.layout();
             containerHeight = self.ownerCt.container.dom.clientHeight;
-            //console.log("containerHeight: ", containerHeight);
             self.setHeight(containerHeight);
             self.editor.layout();
           };
