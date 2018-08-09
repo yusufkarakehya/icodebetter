@@ -1724,7 +1724,7 @@ function addTab4GridWSearchForm(obj){
 			collapsible:true,
 			title:mainGrid.searchForm.name,
 			border: false,
-			tools:searchFormTools,
+//			tools:searchFormTools,
 			keys:{key:13,fn:mainGridPanel.store.reload,scope:mainGridPanel.store}
 		}));
 		
@@ -1897,7 +1897,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 			collapsible:true,
 			title:mainGrid.searchForm.name,
 			border: false, id:'sf_'+(obj.t||Math.random()),
-			tools:searchFormTools,
+//			tools:searchFormTools,
 			keys:{key:13,fn:mainGridPanel.store.reload,scope:mainGridPanel.store}
 		}));
     	mainGridPanel.store._formPanel = searchFormPanel;

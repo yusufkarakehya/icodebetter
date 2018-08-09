@@ -928,3 +928,31 @@ header .phone .theme-switch a+a {
 .x-dd-drag-ghost .x-tab-strip-inner, .x-dd-drag-ghost .x-tab-right, .x-dd-drag-ghost .x-tab-left {
 	background: transparent !important;
 }
+
+.x-tool.x-tool-toggle.x-tool-collapse-west{
+	background: url(images/arrow-left-16.png);
+}
+.x-tool.x-tool-toggle.x-tool-collapse-east, .x-tool.x-tool-expand-west{
+	background: url(images/arrow-right-16c.png);
+}
+.x-tool.x-tool-toggle.x-tool-collapse-north{
+	background: url(images/arrow-up-16.png);
+	margin-right: 5px;
+}
+.x-tool.x-tool-expand-north{
+	background: url(images/arrow-down-16c.png);
+}
+.x-layout-collapsed {
+    background-color: transparent;
+    border-color: transparent;
+}
+.x-tab-scroller-left{
+	background: url(images/arrow-left-16.png);
+	background-repeat: no-repeat;
+    background-position-y: 6px;	
+}
+.x-tab-scroller-right{
+	background: url(images/arrow-right-16c.png);
+	background-repeat: no-repeat;
+    background-position-y: 6px;	
+}

@@ -7144,6 +7144,8 @@ public class PostgreSQL extends BaseDAO {
 		
 		executeUpdateSQLQuery("delete from iwb.w5_project_related_project where project_uuid=? AND related_project_uuid=?", po.getProjectUuid(), dpo.getProjectUuid());
 		
+		executeUpdateSQLQuery("delete from iwb.w5_vcs_commit where project_uuid=? AND oproject_uuid=? and vcs_commit_id<0", po.getProjectUuid(), dpo.getProjectUuid());
+		
 		List<Object[]> tableNames = executeSQLQuery("select t.dsc,(select tf.default_value from iwb.w5_table_field tf where tf.table_id=t.table_id AND tf.tab_order=1 AND tf.project_uuid=t.project_uuid limit 1) from iwb.w5_table t where t.project_uuid=? AND t.oproject_uuid=? order by table_id desc", po.getProjectUuid(), dpo.getProjectUuid());
 		executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
 		if(!GenericUtil.isEmpty(tableNames)){
@@ -7199,11 +7201,12 @@ public class PostgreSQL extends BaseDAO {
 				W5VcsCommit no = o.newInstance(dstProjectId);
 				if(o.getVcsCommitId()>0)no.setVcsCommitId(-no.getVcsCommitId());
 				while(no.getExtraSql().contains(po.getRdbmsSchema()))no.setExtraSql(no.getExtraSql().replace(po.getRdbmsSchema(), schema));
-				saveObject(no);
 				if(o.getVcsCommitId()>0 || o.getRunLocalFlag()!=0){
+					if(no.getRunLocalFlag()==0)no.setRunLocalFlag((short)1);
 					executeUpdateSQLQuery(no.getExtraSql());
 					smaxSqlCommit = o.getVcsCommitId();
 				}
+				saveObject(no);
 			}
 		}
 		
