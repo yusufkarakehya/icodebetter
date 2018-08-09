@@ -27,7 +27,7 @@ public class PostFormTrigger {
 			if(FrameworkSetting.cloud && !GenericUtil.isEmpty(sql) && (Integer)formResult.getScd().get("customizationId")>1 && DBUtil.checkTenantSQLSecurity(sql)) {
 				throw new IWBException("security","SQL", 0, null, "Suspicious Command! Download the platform and feel free to run all the commands ;)", null);
 			}
-			if(GenericUtil.uCheckBox(formResult.getRequestParams().get("run_local_flag"))!=0){// simple security check. TODO
+			if(GenericUtil.uCheckBox(formResult.getRequestParams().get("orun_local_flag"))!=0){
 				W5Project prj = FrameworkCache.getProject(formResult.getScd());
 				dao.executeUpdateSQLQuery("set search_path="+prj.getRdbmsSchema());
 				dao.executeUpdateSQLQuery(sql);

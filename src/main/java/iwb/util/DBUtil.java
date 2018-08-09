@@ -14,6 +14,7 @@ import iwb.exception.IWBException;
 
 public class DBUtil {
 	public static boolean checkTenantSQLSecurity(String sql) {
+		if(!FrameworkSetting.cloud)return false;
 		String sql2=sql.toLowerCase(FrameworkSetting.appLocale);
 		return (sql2.contains("iwb.") || sql2.contains("information_schema.") || sql2.contains("drop") || /*sql2.contains("delete") || */sql2.contains("truncate") || sql2.contains("search_path") || sql2.contains("grant") || sql2.contains("vacuum") || sql2.contains("lock") || sql2.contains("execute"));
 	}

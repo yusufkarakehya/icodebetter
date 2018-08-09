@@ -2139,7 +2139,6 @@ public class VcsEngine {
 
 		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", po.getProjectUuid());
 		int lastCommitId = 0;
-		W5VcsCommit commit = new W5VcsCommit();
 		if(lm.isEmpty() || lm.get(0)==null)lastCommitId = 0;
 		else lastCommitId = (Integer)lm.get(0);
 		
@@ -2256,8 +2255,10 @@ public class VcsEngine {
 		commit.setCommitTip((short)2);
 		commit.setExtraSql(sql);
 		commit.setProjectUuid(projectId);
+		commit.setOprojectUuid(projectId);
 		commit.setComment(comment);
 		commit.setCommitUserId((Integer)scd.get("userId"));
+		commit.setRunLocalFlag((short)1);
 
 		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", po.getProjectUuid());
 		int lastCommitId = 0;
@@ -2295,7 +2296,7 @@ public class VcsEngine {
 
 		JSONObject params = new JSONObject(); 
 		params.put("u", po.getVcsUserName());params.put("p", po.getVcsPassword());params.put("c", customizationId);
-		params.put("r", po.getProjectUuid());params.put("s", co.getExtraSql());params.put("comment", co.getComment());
+		params.put("r", po.getProjectUuid());params.put("or", co.getOprojectUuid());params.put("s", co.getExtraSql());params.put("comment", co.getComment());
 
 		
 		String url=po.getVcsUrl();

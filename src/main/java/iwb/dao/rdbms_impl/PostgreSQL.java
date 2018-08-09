@@ -7200,7 +7200,7 @@ public class PostgreSQL extends BaseDAO {
 				if(o.getVcsCommitId()>0)no.setVcsCommitId(-no.getVcsCommitId());
 				while(no.getExtraSql().contains(po.getRdbmsSchema()))no.setExtraSql(no.getExtraSql().replace(po.getRdbmsSchema(), schema));
 				saveObject(no);
-				if(o.getVcsCommitId()>0){
+				if(o.getVcsCommitId()>0 || o.getRunLocalFlag()!=0){
 					executeUpdateSQLQuery(no.getExtraSql());
 					smaxSqlCommit = o.getVcsCommitId();
 				}
