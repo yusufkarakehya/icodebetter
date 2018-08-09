@@ -524,6 +524,10 @@ public class PostgreSQL extends BaseDAO {
 	
 	
 	public W5QueryResult getQueryResult(Map<String, Object> scd, int queryId) {
+		if(scd!=null && (Integer)scd.get("customizationId")>0)switch(queryId){ //tenant user and role conversion
+		case 43:queryId=4511;break;//lookup_user1
+		case 554:queryId=4512;break;//lookup_role1
+		}
 		W5QueryResult queryResult = new W5QueryResult(queryId);
 		queryResult.setScd(scd);
 		String projectId = FrameworkCache.getProjectId(scd, "8."+queryId);
