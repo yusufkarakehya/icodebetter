@@ -7150,14 +7150,28 @@ public class PostgreSQL extends BaseDAO {
 		executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
 		if(!GenericUtil.isEmpty(tableNames)){
 			StringBuilder sql= new StringBuilder();
-			for(Object[] t:tableNames){
+			for(Object[] t:tableNames)if(GenericUtil.uInt(executeSQLQuery("select count(1) from information_schema.tables qx where qx.table_name = ? and qx.table_schema = ?", t[0], po.getRdbmsSchema()).get(0))>0){
 				sql.append("drop table ").append(t[0]).append(";");
 				if(!GenericUtil.isEmpty(t[1]) && t[1].toString().toLowerCase().startsWith("nextval(")){
 					String seq = t[1].toString().substring("nextval(".length()+1, t[1].toString().length()-2);
-					sql.append("drop sequence ").append(seq).append(";");
+					if(GenericUtil.uInt(executeSQLQuery("select count(1) from information_schema.sequences qx where qx.sequence_name = ? and qx.sequence_schema = ?", seq, po.getRdbmsSchema()).get(0))>0)
+						sql.append("drop sequence ").append(seq).append(";");
 				}
+				sql.append("\n");
 			}
-			executeUpdateSQLQuery(sql.toString());
+			if(sql.length()!=0){
+				executeUpdateSQLQuery(sql.toString());
+				W5VcsCommit commit = new W5VcsCommit();
+				commit.setProjectUuid(po.getProjectUuid());
+				commit.setCommitTip((short)2);
+				commit.setExtraSql(sql.toString());
+				commit.setComment("iWB. Clean tables of sub project: "+dpo.getDsc());
+				commit.setCommitUserId((Integer)scd.get("userId"));
+				Object oi = executeSQLQuery("select nextval('iwb.seq_vcs_commit')").get(0);
+				commit.setVcsCommitId(-GenericUtil.uInt(oi));
+				saveObject(commit);
+
+			}
 		}
 		
 		executeUpdateSQLQuery("update iwb.w5_vcs_object x "
