@@ -49,10 +49,10 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
               self.setHeight(editorHeight);                  
               self.editor.layout();
           }
-
+          
           function resizeEditor() {        	  
-        	  if( window.document.getElementsByClassName("monaco-editor vs-dark")[0].clientHeight != self.el.dom.clientHeight
-        		|| window.document.getElementsByClassName("monaco-editor vs-dark")[0].clientWidth != self.el.dom.clientWidth ){
+        	  if( self.editor.getDomNode().clientHeight != self.el.dom.clientHeight ||
+        		self.editor.getDomNode().clientWidth != self.el.dom.clientWidth ){
         		  self.editor.layout();
         	  } else {
         		  setTimeout(resizeEditor, 100);
