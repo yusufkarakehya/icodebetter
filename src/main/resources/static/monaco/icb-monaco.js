@@ -78,6 +78,7 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
             self.setHeight(containerHeight);
             self.editor.layout();
         }
+        
     }, this);
   },
 
