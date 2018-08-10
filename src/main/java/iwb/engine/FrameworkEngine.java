@@ -5395,7 +5395,7 @@ public class FrameworkEngine{
 		params.add(projectUuid);
 		params.add(scd.get(scd.containsKey("ocustomizationId") ? "ocustomizationId":"customizationId"));
 		params.add(scd.get("userId"));
-		List list = dao.executeSQLQuery2Map("select x.* from iwb.w5_project x where x.project_uuid=? AND (x.customization_id=? OR exists(select 1 from iwb.w5_user_related_project ur where ur.user_id=? AND x.project_uuid=ur.related_project_uuid))", params);
+		List list = dao.executeSQLQuery2Map("select x.customization_id,(select 1 from iwb.w5_query q where q.query_id=session_query_id AND x.project_uuid=q.project_uuid) rbac from iwb.w5_project x where x.project_uuid=? AND (x.customization_id=? OR exists(select 1 from iwb.w5_user_related_project ur where ur.user_id=? AND x.project_uuid=ur.related_project_uuid))", params);
 		if(GenericUtil.isEmpty(list)) return false;
 		Map p = (Map)list.get(0);
 		int newCustomizationId = GenericUtil.uInt(p.get("customization_id"));
@@ -5406,6 +5406,7 @@ public class FrameworkEngine{
 			scd.put("customizationId", newCustomizationId);
 		}
 		scd.put("projectId", projectUuid);
+		scd.put("rbac", newCustomizationId>0?GenericUtil.uInt(p.get("rbac")):1);
 		return true;
 	}
 
