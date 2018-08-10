@@ -66,6 +66,7 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 	
 	private int defaultLookupTableId;
 	private short defaultControlTip;
+	private String relatedSessionField;
 	
 	public W5TableField() {
 	}
@@ -381,14 +382,24 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 			this.defaultControlTip==t.getDefaultControlTip();
 	}
 	private String projectUuid;
-	@Column(name="project_uuid")
+	
 	@Id
+	@Column(name="project_uuid")
 	public String getProjectUuid() {
 		return projectUuid;
 	}
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+
+	@Column(name="related_session_field")
+	public String getRelatedSessionField() {
+		return relatedSessionField;
+	}
+
+	public void setRelatedSessionField(String relatedSessionField) {
+		this.relatedSessionField = relatedSessionField;
 	}
 	
 }

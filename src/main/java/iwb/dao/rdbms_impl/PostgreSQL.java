@@ -816,15 +816,15 @@ public class PostgreSQL extends BaseDAO {
 							} else {
 								for(W5QueryField qf : queryResult.getQuery().get_queryFields())if(qf.getTabOrder()>0){
 									W5TableField tf = queryResult.getMainTable()!=null && qf.getMainTableFieldId()>0 ? queryResult.getMainTable().get_tableFieldMap().get(qf.getMainTableFieldId()) : null;
-				    				if(tf==null || 
-											(
+				    				if(tf==null || ((GenericUtil.isEmpty(tf.getRelatedSessionField()) || GenericUtil.uInt(queryResult.getScd().get(tf.getRelatedSessionField()))!=0) &&  
 											(tf.getAccessViewUserFields()!=null || GenericUtil.accessControl(queryResult.getScd(), tf.getAccessViewTip(), tf.getAccessViewRoles(),tf.getAccessViewUsers())))){//access control
 				    					newQueryFields.add(qf);
 				    					if(maxTabOrder<qf.getTabOrder())maxTabOrder=qf.getTabOrder();
 				    				}
 								}
 							}
-						
+				    	//	if(!GenericUtil.isEmpty(tf.getRelatedSessionField()) && GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField()))==0)continue;
+
 							//post process fields:comment, file attachment, access_control, approval
 							
 							if(queryResult.getPostProcessQueryFields()!=null){
@@ -1223,6 +1223,7 @@ public class PostgreSQL extends BaseDAO {
 						if((!GenericUtil.accessControl(formResult.getScd(), tf.getAccessViewTip(), tf.getAccessViewRoles(), tf.getAccessViewUsers()) &&
 								(!GenericUtil.isEmpty(tf.getAccessViewUserFields()) && accessUserFieldControl(t, tf.getAccessViewUserFields(), formResult.getScd(), formResult.getRequestParams(), null))))continue;
 		    		}
+		    		if(!GenericUtil.isEmpty(tf.getRelatedSessionField()) && GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField()))==0)continue;
 
 					W5FormCellHelper result = new W5FormCellHelper(cell);
 					formResult.getFormCellResults().add(result);
@@ -1756,6 +1757,7 @@ public class PostgreSQL extends BaseDAO {
 				}
 				if(tf!=null){
 		    		if(!GenericUtil.accessControl(formResult.getScd(), tf.getAccessInsertTip(), tf.getAccessInsertRoles(), tf.getAccessInsertUsers()))continue;//access control
+		    		if(!GenericUtil.isEmpty(tf.getRelatedSessionField()) && GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField()))==0)continue;
 				}
 			}
     		W5FormCellHelper result = new W5FormCellHelper(cell);
@@ -2045,7 +2047,8 @@ public class PostgreSQL extends BaseDAO {
     		if(tf.getAccessUpdateTip()!=0 && !GenericUtil.accessControl(scd, tf.getAccessUpdateTip(), tf.getAccessUpdateRoles(), tf.getAccessUpdateUsers()) 
 						&& (GenericUtil.isEmpty(tf.getAccessUpdateUserFields()) || accessUserFieldControl(t, tf.getAccessUpdateUserFields(), scd, formResult.getRequestParams(), paramSuffix)))continue;
 			
-			
+    		if(!GenericUtil.isEmpty(tf.getRelatedSessionField()) && GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField()))==0)continue;  
+
     		if(moduleMap!=null && moduleMap.get(x.getFormModuleId())!=null){
     			W5FormModule module = moduleMap.get(x.getFormModuleId());
     			if(!GenericUtil.accessControl(scd, module.getAccessViewTip(), module.getAccessViewRoles(), module.getAccessViewUsers()))
@@ -2475,13 +2478,15 @@ public class PostgreSQL extends BaseDAO {
     		if(/*!PromisUtil.accessControl(formResult.getScd(), p1.getAccessViewTip(), p1.getAccessViewRoles(), p1.getAccessViewUsers()) ||*/
     			!GenericUtil.accessControl(formResult.getScd(), tf.getAccessInsertTip(), tf.getAccessInsertRoles(), tf.getAccessInsertUsers()))continue;//access control
     		
+    		//related session field control
+    		if(!GenericUtil.isEmpty(tf.getRelatedSessionField()) && GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField()))==0)continue;  
+
     		//module view control
     		if(moduleMap!=null && moduleMap.get(x.getFormModuleId())!=null){
     			W5FormModule module = moduleMap.get(x.getFormModuleId());
     			if(!GenericUtil.accessControl(formResult.getScd(), module.getAccessViewTip(), module.getAccessViewRoles(), module.getAccessViewUsers()))
     				continue;
     		}
-    		
 
     		Object psonuc = GenericUtil.prepareParam(tf, formResult.getScd(), formResult.getRequestParams(), x.getSourceTip(), null, x.getNotNullFlag(), x.getDsc()+paramSuffix, x.getDefaultValue(), formResult.getErrorMap());
 
