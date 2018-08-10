@@ -2088,7 +2088,7 @@ public class FrameworkEngine{
 				StringBuilder sc = new StringBuilder();
 				try {
 					cx.setOptimizationLevel(-1);
-					if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+					//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 					// Initialize the standard objects (Object, Function, etc.)
 					// This must be done before scripts can be executed. Returns
 					// a scope object that we use in later calls.

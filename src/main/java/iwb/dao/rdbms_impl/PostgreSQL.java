@@ -1325,7 +1325,7 @@ public class PostgreSQL extends BaseDAO {
 							Context cx = Context.enter();
 							StringBuilder sc = new StringBuilder();
 							try {
-								if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+								//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 								// Initialize the standard objects (Object, Function, etc.)
 								// This must be done before scripts can be executed. Returns
 								// a scope object that we use in later calls.
@@ -1608,7 +1608,7 @@ public class PostgreSQL extends BaseDAO {
 		case	5://CustomJS(Rhino)
 			Context cx = Context.enter();
 			try {
-				if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+				//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 				// Initialize the standard objects (Object, Function, etc.)
 				// This must be done before scripts can be executed. Returns
 				// a scope object that we use in later calls.
@@ -1790,7 +1790,7 @@ public class PostgreSQL extends BaseDAO {
 				Context cx = Context.enter();
 				StringBuilder sc = new StringBuilder();
 				try {
-					if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+					//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 					// Initialize the standard objects (Object, Function, etc.)
 					// This must be done before scripts can be executed. Returns
 					// a scope object that we use in later calls.
@@ -3545,7 +3545,7 @@ public class PostgreSQL extends BaseDAO {
 			String script = null;
 			try {
 				cx.setOptimizationLevel(-1);
-				if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+				//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 				// Initialize the standard objects (Object, Function, etc.)
 				// This must be done before scripts can be executed. Returns
 				// a scope object that we use in later calls.
@@ -4487,7 +4487,7 @@ public class PostgreSQL extends BaseDAO {
 		case	3: //JavaScript
 			Context cx = Context.enter();
 			try {
-				if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+				//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 				// Initialize the standard objects (Object, Function, etc.)
 				// This must be done before scripts can be executed. Returns
 				// a scope object that we use in later calls.
@@ -4602,7 +4602,7 @@ public class PostgreSQL extends BaseDAO {
 		Context cx = Context.enter();
 		try {
 			cx.setOptimizationLevel(-1);
-			if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+			//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 			// Initialize the standard objects (Object, Function, etc.)
 			// This must be done before scripts can be executed. Returns
 			// a scope object that we use in later calls.
@@ -5683,7 +5683,7 @@ public class PostgreSQL extends BaseDAO {
 		String script = null;
 		try {
 			cx.setOptimizationLevel(-1);
-			if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+			//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 			// Initialize the standard objects (Object, Function, etc.)
 			// This must be done before scripts can be executed. Returns
 			// a scope object that we use in later calls.
@@ -5766,7 +5766,7 @@ public class PostgreSQL extends BaseDAO {
 		String script = GenericUtil.uStrNvl(code, q.getSqlFrom());
 		try {
 			cx.setOptimizationLevel(-1);
-			if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+			//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 			// Initialize the standard objects (Object, Function, etc.)
 			// This must be done before scripts can be executed. Returns
 			// a scope object that we use in later calls.
@@ -5903,7 +5903,7 @@ public class PostgreSQL extends BaseDAO {
 //		String script = q.getSqlFrom();
 		try {
 			cx.setOptimizationLevel(-1);
-			if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+			//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 			// Initialize the standard objects (Object, Function, etc.)
 			// This must be done before scripts can be executed. Returns
 			// a scope object that we use in later calls.
