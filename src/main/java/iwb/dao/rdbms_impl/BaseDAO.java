@@ -19,6 +19,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import iwb.cache.FrameworkSetting;
 import iwb.domain.db.Log5Base;
@@ -34,6 +35,7 @@ import iwb.util.LogUtil;
 public abstract class BaseDAO {
     
     @Autowired
+    @Qualifier("entityManagerFactory")
     private EntityManager entityManager;
 
     protected Session getCurrentSession() {

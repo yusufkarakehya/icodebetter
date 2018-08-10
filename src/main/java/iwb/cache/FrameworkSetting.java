@@ -37,7 +37,7 @@ public class FrameworkSetting {
 //	public static boolean allowMultiLogin=true;
 	public static boolean vcs=true;
 	public static boolean vcsServer=false;
-	
+	public static int rhinoInstructionCount = 10000;
 //	public static boolean commentSummary=true;
 	public static boolean alarm=true;
 	public static boolean workflow=true;
