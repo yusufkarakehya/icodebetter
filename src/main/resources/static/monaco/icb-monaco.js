@@ -54,6 +54,7 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent,{
         	  if( self.editor.getDomNode().clientHeight != self.el.dom.clientHeight ||
         		self.editor.getDomNode().clientWidth != self.el.dom.clientWidth ){
         		  self.editor.layout();
+        		  setTimeout(resizeEditor, 100);
         	  } else {
         		  setTimeout(resizeEditor, 100);
         	  }

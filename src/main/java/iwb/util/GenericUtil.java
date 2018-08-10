@@ -77,24 +77,24 @@ public class GenericUtil {
 	final public static String dtCh = "/";
 	final public static String dateFormat = "dd" + dtCh + "MM" + dtCh + "yyyy";
 	final private static String strIndex = "0123456789+-" + dtCh;
-	
-	
+
+
 
 	final public static int	promis_STRING =	1;
 	final public static int	promis_DATE =	2;
 	final public static int	promis_DOUBLE =	3;
 	final public static int	promis_INTEGER =	4;
 	final public static int	promis_BOOLEAN =	5;
-	
+
 
 	static public String orderStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	static int orderLen = orderStr.length();
-	
+
 	private static long nextThreadId=1000;
 	public synchronized static long getNextThreadId(){
 		return nextThreadId++;
 	}
-	
+
 	private static long nextTmpIdId=System.currentTimeMillis() % 1000000;
 	public synchronized static long getNextTmpId(){
 		return nextTmpIdId++;
@@ -122,7 +122,7 @@ public class GenericUtil {
 	public static	int uInt(JSONObject jo, String x){
 		try{return jo.getInt(x);}catch(Exception e){return 0;}
 	}
-	
+
 	public static	String uStr(JSONObject jo, String x){
 		try{return jo.getString(x);}catch(Exception e){return null;}
 	}
@@ -131,7 +131,7 @@ public class GenericUtil {
 		if(x.endsWith(".0"))x=x.substring(0, x.length()-2);
 		try{return Integer.valueOf(x);}catch(Exception e){return null;}
 	}
-	
+
 	public static	Long uLong(String x){
 		if(x==null || x.trim().length()==0)return null;
 		try{return Long.valueOf(x);}catch(Exception e){return null;}
@@ -141,7 +141,7 @@ public class GenericUtil {
 		if(x==null || x.trim().length()==0)return null;
 		try{return Double.valueOf(x);}catch(Exception e){return null;}
 	}
-	
+
 	public static	double udouble(String x){
 		if(x==null || x.trim().length()==0)return 0;
 		try{return Double.parseDouble(x);}catch(Exception e){return 0;}
@@ -155,7 +155,7 @@ public class GenericUtil {
 		if(x instanceof Short)return new BigDecimal((Short)x);
 		return uBigDecimal(x.toString());
 	}
-	
+
 	public static	BigDecimal uBigDecimal(String x){
 		if(x==null || x.trim().length()==0)return null;
 		try{return new BigDecimal(x);}catch(Exception e){
@@ -205,14 +205,14 @@ public class GenericUtil {
 		}catch(Exception e){}
 		return null;
 	}
-	
+
 	public static	Date uDateTm(String x){
 		if(x==null || x.trim().length()==0)return null;
 		try{
 			return new SimpleDateFormat(dateFormat.concat(" HH:mm")).parse(x);
 		}catch(Exception e){ return null;}
 	}
-	
+
 	public static	Calendar uCalendar(String x){
 		Calendar cal=Calendar.getInstance();
 		Date d=uDate(x);
@@ -222,14 +222,14 @@ public class GenericUtil {
 		}
 		else return null;
 	}
-	
+
 	public static String lPad(String s,int n,char c){
 		String r=(s==null)?"":""+s;
 		if(n<=r.length())return s.substring(r.length()-n,r.length());
 		else for(int i=r.length();i<n;i++)r=c+""+r;
 		return r;
 	}
-	
+
 	public static	String uDateStr(String e){
 		if(e==null)return "";
 		String ev=e.trim();
@@ -253,7 +253,7 @@ public class GenericUtil {
 				ev="0";
 			}
 		}
-		
+
 		if(ev.compareTo("0")!=0){
 			String tmp = ev.substring(0,1);
 			if(tmp.compareTo("+")==0 && uInteger(ev.substring(1,evl))!=null){
@@ -276,11 +276,11 @@ public class GenericUtil {
 			if(evl>5 && ev.substring(5,evl).indexOf(dtCh)==-1){ev=ev.substring(0,5)+dtCh+ev.substring(5,evl);}
 			e=ev;evl=ev.length();
 		}
-		
+
 		if(ev.indexOf(dtCh)==-1){ev+=dtCh;evl++;}
 		if(ev.indexOf(dtCh)==1){ev='0'+ev;evl++;}
 		if(evl==10){return (uDate(ev)==null) ? "HATA-2" : ev;}
-		
+
 		if(evl<4){
 			ev=ev.substring(0,2);
 			e=ev+dtCh+curMonth+dtCh+curYear;
@@ -298,13 +298,13 @@ public class GenericUtil {
 			return (uDate(e)==null) ? "HATA-5" : e;
 		}
 	}
-	public static Timestamp uTimestamp(XMLGregorianCalendar  x){		
-		try{			
+	public static Timestamp uTimestamp(XMLGregorianCalendar  x){
+		try{
 			Timestamp t = new Timestamp(x.toGregorianCalendar().getTimeInMillis());
 			return t;
 		}
-		catch(Exception e){return null;}	
-	}	
+		catch(Exception e){return null;}
+	}
 	public static	Integer uIntegerNullIfZero(String x){
 		if(x==null || x.trim().length()==0)return null;
 		try{Integer i=Integer.valueOf(x);if(i!=null && i.intValue()==0)return null; else return i;}catch(Exception e){return null;}
@@ -343,7 +343,7 @@ public class GenericUtil {
 			return Integer.parseInt(s);
 		}catch(Exception e){return 0;}
 	}
-	
+
 	public static long uLong (Object x) {
 		if(x==null)return 0;
 		if(x instanceof Long)return (Long)x;
@@ -352,7 +352,7 @@ public class GenericUtil {
 			if(s.endsWith(".0"))s=s.substring(0, s.length()-2);
 			return Long.parseLong(s);
 		}catch(Exception e){return 0;}
-		
+
 	}
 	public static	int uInt(HttpServletRequest request, String x){
 		return uInt(request.getParameter(x));
@@ -405,7 +405,7 @@ public class GenericUtil {
 	public static	String uFormatDateTime(java.sql.Timestamp x){
 		try{return new SimpleDateFormat(dateFormat.concat(" HH:mm:ss")).format(x);}catch(Exception e){return null;}
 	}
-	
+
 	public static	String uFormatDateOnlyTime(Date x){
 		try{return new SimpleDateFormat( "HH:mm").format(x);}catch(Exception e){return null;}
 	}
@@ -419,15 +419,15 @@ public class GenericUtil {
 	public static	Integer uInteger(HttpServletRequest request, String x){
 		return uInteger(request.getParameter(x));
 	}
-	
+
 	public static	Integer uInteger(Map<String,String> request, String x){
 		return uInteger(request.get(x));
 	}
-	
+
 	public static	Short uShort(HttpServletRequest request, String x){
 		return uShort(request.getParameter(x));
 	}
-	
+
 	public static Object getObjectByTip(String value, int tip){
 		try {
 			if(value!=null)switch(tip){
@@ -441,7 +441,7 @@ public class GenericUtil {
 			case 9:return value.length()>0 && value.charAt(0)=='{' ? new JSONObject(value):value;
 			case 10:return new JSONArray(value);
 			}
-		} catch (JSONException e) {			
+		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
 		return null;
@@ -461,7 +461,7 @@ public class GenericUtil {
 		} catch (Exception e){}
 		return null;
 	}
-	
+
 	public static Object getObjectByControl(String value, int tip){
 		try {
 		switch(tip){
@@ -475,16 +475,16 @@ public class GenericUtil {
 			return GenericUtil.uInteger(value);
 		case 5: //boolean
 			return GenericUtil.uCheckBox(value);
-		default: // aksi halde 
+		default: // aksi halde
 			return null;
 		}
 		} catch (Exception e){
 			return null;
 		}
 	}
-	
 
-	
+
+
 	public static Object valueFromString(String x, int promisType){
 		switch(promisType){
 			case	promis_STRING :return x;
@@ -495,7 +495,7 @@ public class GenericUtil {
 		}
 		return null;
 	}
-	
+
 	public static String stringToHtml(Object x){
 		if(x==null)return "";
 		String s =x.toString();
@@ -509,7 +509,7 @@ public class GenericUtil {
 		         case '&': sb.append("&amp;"); break;
 		         case '"': sb.append("&quot;"); break;
 		         // be carefull with this one (non-breaking whitee space)
-//		         case ' ': sb.append("&nbsp;");break;         
+//		         case ' ': sb.append("&nbsp;");break;
 				case '\'':sb.append("\\'");break;
 //					case '\\':sb.append("\\\\");break;
 				case '\n':sb.append("<br>");break;
@@ -519,7 +519,7 @@ public class GenericUtil {
 		   }
 		   return sb.toString();
 	}
-	
+
 	public static String stringToHtml2(Object x){
 		if(x==null)return "";
 		String s =x.toString();
@@ -533,7 +533,7 @@ public class GenericUtil {
 		         case '&': sb.append("&amp;"); break;
 		         case '"': sb.append("&quot;"); break;
 		         // be carefull with this one (non-breaking whitee space)
-//		         case ' ': sb.append("&nbsp;");break;         
+//		         case ' ': sb.append("&nbsp;");break;
 //				case '\'':sb.append("\\'");break;
 //					case '\\':sb.append("\\\\");break;
 				case '\n':sb.append("");break;
@@ -547,18 +547,18 @@ public class GenericUtil {
 		int	n = source.length();
 		for (int j = 0; j < n; j++){
 			char x = source.charAt(j);
-			if(x==c) 
+			if(x==c)
 				destination.append(s);
 			else
 				destination.append(x);
 		}
 	}
-	
+
 	public	static	void	replaceCharWidthString(String source, StringBuilder destination, char	c,	String s){
 		int	n = source.length();
 		for (int j = 0; j < n; j++){
 			char x = source.charAt(j);
-			if(x==c) 
+			if(x==c)
 				destination.append(s);
 			else
 				destination.append(x);
@@ -669,7 +669,7 @@ public class GenericUtil {
     			html.append("\"").append(q).append("\":\"").append(o!=null ? stringToJS2(o.toString()) :"").append("\"");
     	}
     	html.append("}");
-    	return html.toString();		
+    	return html.toString();
 	}
 	//" ile
 	public	static String fromMapToJsonString2(Map s){
@@ -686,7 +686,7 @@ public class GenericUtil {
     			html.append("\"").append(q).append("\":\"").append(o!=null ? stringToJS2(o.toString()) :"").append("\"");
     	}
     	html.append("}");
-    	return html.toString();		
+    	return html.toString();
 	}
 	//" ile
 	public	static String fromMapToInfluxFields(Map s){
@@ -701,7 +701,7 @@ public class GenericUtil {
     		else
     			html.append(q).append("=\"").append(o!=null ? stringToJS2(o.toString()) :"").append("\"");
     	}
-    	return html.toString();		
+    	return html.toString();
 	}
 	@SuppressWarnings("unchecked")
 	public	static String fromListToJsonString2Recursive(List<Object> s){
@@ -726,12 +726,12 @@ public class GenericUtil {
         		html.append(fromNativeObjectToJsonString2Recursive((NativeObject)o));
     		else if(o instanceof NativeArray){
     			html.append(fromNativeArrayToJsonString2Recursive((NativeArray)o));
-            }         	
+            }
     		else
     			html.append("\"").append(stringToJS2(o.toString())).append("\"");
         }
     	html.append("]");
-    	return html.toString();		    
+    	return html.toString();
 	}
 
 	//" ile
@@ -760,12 +760,12 @@ public class GenericUtil {
         		html.append("\"").append(q).append("\":").append(fromNativeObjectToJsonString2Recursive((NativeObject)o));
     		else if(o instanceof NativeArray){
     			html.append("\"").append(q).append("\":").append(fromNativeArrayToJsonString2Recursive((NativeArray)o));
-            } 
+            }
     		else
     			html.append("\"").append(q).append("\":\"").append(stringToJS2(o.toString())).append("\"");
     	}
     	html.append("}");
-    	return html.toString();		
+    	return html.toString();
 	}
 
 
@@ -778,7 +778,7 @@ public class GenericUtil {
 		}
 		return	sb.toString();
 	}
-	
+
 	public static String uAdres2String(Address[] a){
 		StringBuilder str = new StringBuilder();
 		if(a!=null){
@@ -790,10 +790,10 @@ public class GenericUtil {
 	    		str.append(s);
 	    	}
 		}
-		return str.toString();	
-		
+		return str.toString();
+
 	}
-	
+
 	public static boolean uBoolean(String x) {
 		if (x == null || x.trim().length() == 0)
 			return false;
@@ -831,7 +831,7 @@ public class GenericUtil {
 		}
 		return	sb.toString();
 	}
-	
+
 
 	public static String uStr2English(String source) {
 		StringBuilder sb = new StringBuilder();
@@ -867,7 +867,7 @@ public class GenericUtil {
 		}
 		return	sb.toString();
 	}
-	
+
 	public static String uStr2Alpha2(String source) {
 		StringBuilder sb = new StringBuilder();
 		int	n = source==null ? 0 : source.length();
@@ -904,12 +904,12 @@ public class GenericUtil {
 		String s = requestParams.get(x);
 		return GenericUtil.isEmpty(s) ? defaultValue: uInt(s);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <T> T stringToType(String value,Class<T> type,T defaultValue){
 		try{
 			if ((value==null)||("".equals(value)))
-				return defaultValue;	
+				return defaultValue;
 			else if(type.isAssignableFrom(String.class))
 				return (T)value;
 			else if(type.isAssignableFrom(Integer.class) || type.isAssignableFrom(int.class))
@@ -925,9 +925,9 @@ public class GenericUtil {
 		}catch (RuntimeException cce){
 			return defaultValue;
 		}
-	
+
 	}
-	
+
 	public static boolean isComplex(Class<?> type){
 		return !(
 				(type.isAssignableFrom(String.class))  ||
@@ -939,15 +939,15 @@ public class GenericUtil {
 				(type.isAssignableFrom(float.class))   ||
 				(type.isAssignableFrom(Boolean.class)) ||
 				(type.isAssignableFrom(boolean.class)) ||
-				(type.isAssignableFrom(java.util.Date.class)) 
+				(type.isAssignableFrom(java.util.Date.class))
 				);
 	}
-	
-	
+
+
 	@SuppressWarnings({ "unchecked"})
 	public static<T> T stringToType(String value,Class<T> type){
 		if(type.isAssignableFrom(Boolean.class)||type.isAssignableFrom(boolean.class))
-			return (T)(Boolean)("true".equalsIgnoreCase(value)||"1".equals(value)||"on".equals(value));		
+			return (T)(Boolean)("true".equalsIgnoreCase(value)||"1".equals(value)||"on".equals(value));
 		if(type.isAssignableFrom(String.class))
 			return (T)value;
 		if ((value==null)||("".equals(value)))
@@ -975,7 +975,7 @@ public class GenericUtil {
 			for (int i=0;i<e.length;i++)
 				if (e[i].toString().equals(value))
 					res=e[i];
-			return (T)res;					
+			return (T)res;
 		}
 		if (type.isAssignableFrom(Integer[].class)){
 			String[] s=value.trim().split(",");
@@ -986,11 +986,11 @@ public class GenericUtil {
 		}
 		throw new RuntimeException("Bilinmeyen veri tipi "+type+" (property="+value+")");
 	}
-	
+
 	public static<T> T objectToType(Object o,Class<T> type){
 		if (o==null)
 			return null;
-		return stringToType(o.toString(),type);				
+		return stringToType(o.toString(),type);
 	}
 
 	public static String objectToCurrency(Object o) {
@@ -1023,7 +1023,7 @@ public class GenericUtil {
 		}
 		return b.toString();
 	}
-	
+
 	public static boolean hasPartInside(String all, String sub) {
 		if(all==null || all.length()==0)return true;
 		for(String s:all.split(",")){
@@ -1031,7 +1031,7 @@ public class GenericUtil {
 		}
 		return false;
 	}
-	
+
 	public static boolean hasPartInside2(String all, Object sub) {
 		if(all==null || all.length()==0)return false;
 		String z = sub == null ? null : sub.toString();
@@ -1040,17 +1040,17 @@ public class GenericUtil {
 		z = ","+z+",";
 		return all.contains(z);
 	}
-	
+
 	public static String toCsv(List<String[]> list) {
 		String res="";
 		for (String[]arr:list){
 			for (String s:arr)
 				res+=s!=null?s+";":";";
-			res=res.substring(0,res.length()-1)+"\n";					
+			res=res.substring(0,res.length()-1)+"\n";
 		}
 		return res;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static Map<String,String> getParameterMap(HttpServletRequest request) throws IOException{
 		Map<String,String[]> m=request.getParameterMap();
@@ -1070,7 +1070,7 @@ public class GenericUtil {
 			/*}*/
 		}
 		res.put("_ServerURL_", request.getServerName());
-		
+
 		if(GenericUtil.safeEquals(request.getContentType(),"application/json")){
 			try {
 				JSONObject jo = HttpUtil.getJson(request);
@@ -1080,13 +1080,13 @@ public class GenericUtil {
 			}
 		}
 		return res;
-	}	
-	
+	}
+
 	static long next_id=System.currentTimeMillis();
 	public static String getNextId(String prefix) {
 		return prefix+"_"+(next_id++);
 	}
-	
+
 
 	public static Object prepareParam(W5Param param, Map<String, Object> scd, Map<String, String> requestParams, short sourceTip, Map<String, String> extraParams, short notNullFlag, String dsc, String defaultValue, Map<String, String>  errorMap, PostgreSQL dao){
 		String pvalue = null;
@@ -1094,7 +1094,7 @@ public class GenericUtil {
 		if(sourceTip<0)sourceTip = param.getSourceTip();
 		if(notNullFlag==0)notNullFlag=param.getNotNullFlag();
 		if(sourceTip == param.getSourceTip() && (defaultValue==null || defaultValue.length()==0))defaultValue=param.getDefaultValue();
-			
+
 		switch(sourceTip){
 		case 0:  //non-interaktif
 			pvalue = defaultValue;
@@ -1154,6 +1154,7 @@ public class GenericUtil {
 			Context cx = Context.enter();
 			try {
 				cx.setOptimizationLevel(-1);
+				if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 				// Initialize the standard objects (Object, Function, etc.)
 				// This must be done before scripts can be executed. Returns
 				// a scope object that we use in later calls.
@@ -1165,8 +1166,8 @@ public class GenericUtil {
 					Object wrappedOut = Context.javaToJS( se, scope);
 					ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 				}*/
-				
-				StringBuilder sc = new StringBuilder(); 
+
+				StringBuilder sc = new StringBuilder();
 				sc.append("\nvar _scd=").append(fromMapToJsonString(scd));
 				sc.append("\nvar _request=").append(fromMapToJsonString(requestParams));
 				sc.append("\n").append(defaultValue);
@@ -1175,14 +1176,14 @@ public class GenericUtil {
 				//sc.append("'})';");
 				// Now evaluate the string we've colected.
 				cx.evaluateString(scope, sc.toString(), null, 1, null);
-				
+
 				if(scope.has("errorMsg", scope)){
 					Object em = scope.get("errorMsg", scope);
 					if(em!=null){
 						errorMap.put(param.getDsc(), LocaleMsgCache.get2(0, (String)scd.get("locale"), em.toString()));
 					}
 				}
-				
+
 				if(scope.has("notNull", scope)){
 					Object nn = scope.get("notNull", scope);
 					if(nn!=null){
@@ -1211,15 +1212,15 @@ public class GenericUtil {
  	             cx.exit();
 	        }
 		}
-		
+
 		if(pvalue==null || pvalue.trim().length()==0)pvalue = defaultValue;
-		
+
 		Object psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamTip());
 		if(notNullFlag!=0 && psonuc==null){ // not null
 			hasError = true;
 			errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_not_null"));//"Boï¿½ Deï¿½er Olamaz"
 		}
-		
+
 		if(!hasError && psonuc!=null && (psonuc instanceof Integer || psonuc instanceof Double) && (param.getMinValue()!=null || param.getMaxValue()!=null)) {
 			BigDecimal bd = new BigDecimal(psonuc instanceof Integer ? ((Integer)psonuc).intValue() : ((Double)psonuc).doubleValue());
 			if(param.getMinValue()!=null && param.getMinValue().compareTo(bd)==1){
@@ -1241,7 +1242,7 @@ public class GenericUtil {
 				errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_length_max")+" ("+param.getMaxLength()+")");//"Uzunluk Sorunu"
 			}
 		}
-		
+
 		return psonuc;
 	}
 	public static Object prepareParam(W5Param param, Map<String, Object> scd, Map<String, String> requestParams, short sourceTip, Map<String, String> extraParams, short notNullFlag, String dsc, String defaultValue, Map<String, String>  errorMap){
@@ -1255,7 +1256,7 @@ public class GenericUtil {
 		if(notNullFlag==0)notNullFlag=param.getNotNullFlag();
 		// Burada deÄŸiÅŸiklik var 29.06.2016
 		if(sourceTip == param.getSourceTip() && (defaultValue==null || defaultValue.length()==0))defaultValue=(param.getDefaultValue() != null && param.getDefaultValue().length() == 0 ? null : param.getDefaultValue());
-			
+
 		switch(sourceTip){
 		case 0:  //non-interaktif
 			pvalue = defaultValue;
@@ -1264,7 +1265,7 @@ public class GenericUtil {
 			return getGlobalNextval(defaultValue, scd!=null ? (String)scd.get("projectId"):null, scd!=null ? (Integer)scd.get("userId"):0, scd!=null ? (Integer)scd.get("customizationId"):0);
 		case 9:  //UUID
 			pvalue = UUID.randomUUID().toString();
-			break;			
+			break;
 		case 1: // request : post edilmisse request'ten aksi halde grid'den al
 			if(extraParams!=null){
 				pvalue = extraParams.get(param.getDsc());
@@ -1311,13 +1312,14 @@ public class GenericUtil {
 			Context cx = Context.enter();
 			try {
 				cx.setOptimizationLevel(-1);
+				if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
 				// Initialize the standard objects (Object, Function, etc.)
 				// This must be done before scripts can be executed. Returns
 				// a scope object that we use in later calls.
 				Scriptable scope = cx.initStandardObjects();
 
 				// Collect the arguments into a single string.
-				StringBuilder sc = new StringBuilder(); 
+				StringBuilder sc = new StringBuilder();
 				sc.append("\nvar _scd=").append(fromMapToJsonString(scd));
 				sc.append("\nvar _request=").append(fromMapToJsonString(requestParams));
 				sc.append("\n").append(defaultValue);
@@ -1332,7 +1334,7 @@ public class GenericUtil {
 				}
 /*				Object exp = scope.get("expression", scope);
 				if(exp!=null){
-					
+
 				} */
 				Object nn = scope.get("notNull", scope);
 				if(nn!=null){
@@ -1351,21 +1353,21 @@ public class GenericUtil {
 				if(res!=null && param.getParamTip()==4)
 					res = ""+new BigDecimal(res.toString()).intValue();
 				pvalue = res == null ? null : res.toString();
- 
+
 			} finally {
 	             // Exit from the context.
  	             cx.exit();
 	        }
 		}
-		
+
 		if(pvalue==null || pvalue.trim().length()==0)pvalue = defaultValue;
-		
+
 		Object psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamTip());
 		if(notNullFlag!=0 && psonuc==null){ // not null
 			hasError = true;
 			errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_not_null"));//"Boï¿½ Deï¿½er Olamaz"
 		}
-		
+
 		if(!hasError && psonuc!=null && (psonuc instanceof Integer || psonuc instanceof Double) && (param.getMinValue()!=null || param.getMaxValue()!=null)) {
 			BigDecimal bd = new BigDecimal(psonuc instanceof Integer ? ((Integer)psonuc).intValue() : ((Double)psonuc).doubleValue());
 			if(param.getMinValue()!=null && param.getMinValue().compareTo(bd)==1){
@@ -1387,7 +1389,7 @@ public class GenericUtil {
 				errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_length_max")+" ("+param.getMaxLength()+")");//"Uzunluk Sorunu"
 			}
 		}
-		
+
 		return psonuc;
 	}
 
@@ -1400,12 +1402,12 @@ public class GenericUtil {
 	public static int accessControlFormCell(Map<String, Object> scd,
 			short accessTip, String accessRoles,
 			String accessUsers) { //0:izin var, 1:izin yok, 2: izin var, readonly
-		
+
 		if(accessTip==0)return 0;
 		boolean b = (hasPartInside2(accessRoles, scd.get("roleId")) || hasPartInside2(accessUsers, scd.get("userId")));
 		return b ? 0 : accessTip;
 	}
-	
+
 
 	public static String replaceSql(String sql, List<Object> params) {
 		if(params==null || sql==null)return sql;
@@ -1425,11 +1427,11 @@ public class GenericUtil {
 				return b.append(sql.substring(i+1)).toString();
 			}
 		} else b.append(sql.charAt(i));
-		
+
 		return b.toString();
 
 	}
-	
+
 	public static String replaceInfluxQL(String sql, List<Object> params) {
 		if(params==null || sql==null)return sql;
 		StringBuilder b = new StringBuilder();
@@ -1442,11 +1444,11 @@ public class GenericUtil {
 				return b.append(sql.substring(i+1)).toString();
 			}
 		} else b.append(sql.charAt(i));
-		
+
 		return b.toString();
 
 	}
-	
+
 
 	public static StringBuilder filterExt(String code, Map<String, Object> scd, Map<String, String> requestParams, Map<String, Object> obj) {
 		StringBuilder tmp = new StringBuilder();
@@ -1471,7 +1473,7 @@ public class GenericUtil {
 		}
 		return tmp;
 	}
-	
+
 	public static StringBuilder filterExtWithPrefix(String code, String prefix) {
 		StringBuilder tmp = new StringBuilder();
 		if(code==null || code.length()==0)return tmp;
@@ -1498,26 +1500,26 @@ public class GenericUtil {
 		}
 		return null;
 	}
-	
+
 	public static ArrayList<Object[]> transposeList(ArrayList<Object[]> data){ //ArrayList satï¿½r-sutun yer degistiriyor.
-		
+
 		ArrayList<Object[]> transposedata=new ArrayList<Object[]>();
 		int	numRows =data.size();
 		if(numRows==0) return transposedata;
 		int	numCols = data.get(0).length;
 		Object[][] oo=new Object[numCols][numRows];
-		
+
 		for (int i=0;i<numRows;i++){
 			for(int j=0;j<numCols;j++){
-				oo[j][i]=data.get(i)[j];	
-			}	
-		
+				oo[j][i]=data.get(i)[j];
+			}
+
 		}
 		transposedata=new ArrayList<Object[]>(Arrays.asList(oo));
 		return transposedata;
 
 	}
-	
+
 	public static W5FormCellHelper getFormCellResultByQueryRecord(Object[] d){
 		W5FormCell cell = new W5FormCell();
 		cell.setDsc((String)d[0]);
@@ -1537,7 +1539,7 @@ public class GenericUtil {
 		if(d.length>13)cell.setParentFormCellId(GenericUtil.uInt(d[13]));
 		cell.setActiveFlag((short)1);
 		return result;
-		
+
 	}
 
 	public static String strUTF2En(String txt) {
@@ -1547,15 +1549,15 @@ public class GenericUtil {
 		txt=txt.replace("Ö", "O");
 		txt=txt.replace("ğ", "g");
 		txt=txt.replace("Ğ", "G");
-		txt=txt.replace("ü", "u");	
+		txt=txt.replace("ü", "u");
 		txt=txt.replace("Ü", "U");
 		txt=txt.replace("ş", "s");
 		txt=txt.replace("Ş", "S");
 		txt=txt.replace("ç", "c");
-		txt=txt.replace("Ç", "C");		
+		txt=txt.replace("Ç", "C");
 		return txt;
 	}
-		
+
 	public static boolean writeFile(File file,String data){
 		boolean b=true;
 		try{
@@ -1564,14 +1566,14 @@ public class GenericUtil {
 			out.write(data);
 			out.close();
 			fstream.close();
-		}				 
+		}
 		catch (Exception e){//Catch exception if any
 			e.printStackTrace();
 			b=false;
-		}	
+		}
 		return b;
 	}
-	
+
 	public static XMLGregorianCalendar long2Gregorian(long ldate) {
 		DatatypeFactory dataTypeFactory = null;
 		GregorianCalendar gc = new GregorianCalendar();
@@ -1584,66 +1586,66 @@ public class GenericUtil {
 		}
 		return dataTypeFactory.newXMLGregorianCalendar(gc);
 	}
-	
-    
-	
+
+
+
 	public static byte[] file2Byte(File file){ //File to Byte[]
 		InputStream is;
 		try{
-			is = new FileInputStream(file);					 
+			is = new FileInputStream(file);
 		    long length = file.length();
 		    if (length > Integer.MAX_VALUE) {
 		        // File is too large
 		    }
 		    byte[] bytes = new byte[(int)length];
-		    
+
 		    int offset = 0;
 		    int numRead = 0;
 		    while (offset < bytes.length
 		           && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
 		        offset += numRead;
 		    }
-	 
+
 		    if (offset < bytes.length) throw new IOException("Could not completely read file "+file.getName());
 		    is.close();
 		    return bytes;
-		    
+
 		}
 	    catch (Exception e) {
 	    	if(FrameworkSetting.debug)e.printStackTrace();
 			return null;
 		}
-	    
-		
+
+
 	}
-	
+
 	public static int getIndexNo(String value,List list){
-		int indexNo = -1;		
+		int indexNo = -1;
 		for (int index=0;index<list.size();index++){
 			W5LookUpDetay ld=(W5LookUpDetay) list.get(index);
 			if((ld.getVal()).equals(value))	indexNo=index;
-		}		
+		}
 		return indexNo;
 	}
-	
-	public static boolean moveFile(String fileName, String directoryName) { 
+
+	public static boolean moveFile(String fileName, String directoryName) {
 		boolean success = true;
-		try { //copy then delete, 
-			File afile =new File(fileName);				
-			File directory=new File(directoryName);	
+		try { //copy then delete,
+			File afile =new File(fileName);
+			File directory=new File(directoryName);
 			if(!directory.exists()) directory.mkdir();
 			InputStream in = new FileInputStream(afile);
-			OutputStream out = new FileOutputStream(directory+"\\" + afile.getName());			
+			OutputStream out = new FileOutputStream(directory+"\\" + afile.getName());
 			byte[] buf = new byte[1024];
 			int len;
 			while ((len = in.read(buf)) > 0) {
 			    out.write(buf, 0, len);
 			}
 			in.close();
-			out.close();							
+			out.close();
 			//success=afile.renameTo(new File(directoryName+"\\" + afile.getName()));
 			success=afile.delete();
-			if(!success)System.out.println("File is failed to move!,fileName: "+fileName+",newFile : "+directoryName+"\\" + afile.getName());			
+			if(!success)System.out.println("File is failed to move!,fileName: "+fileName+",newFile : "+directoryName+"\\" + afile.getName());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -1651,17 +1653,17 @@ public class GenericUtil {
 		}
 		return success;
 	}
-	
+
 	public static void setProxySettings(int customizationId){
 		try{
 			if (FrameworkCache.getAppSettingIntValue(customizationId,"proxy_set_flag")==1){
 		      	System.setProperty("http.proxyHost", FrameworkCache.getAppSettingStringValue(customizationId,"proxy_host"));
 		        System.setProperty("http.proxyUser", FrameworkCache.getAppSettingStringValue(customizationId,"proxy_user"));
 		        System.setProperty("http.proxyPassword", FrameworkCache.getAppSettingStringValue(customizationId,"proxy_password"));
-		        System.setProperty("http.proxyPort", FrameworkCache.getAppSettingStringValue(customizationId,"proxy_port"));    
-		        System.setProperty("http.proxySet", "true");               
+		        System.setProperty("http.proxyPort", FrameworkCache.getAppSettingStringValue(customizationId,"proxy_port"));
+		        System.setProperty("http.proxySet", "true");
 		        System.setProperty("http.proxyDomain", FrameworkCache.getAppSettingStringValue(customizationId,"proxy_domain"));
-			}		
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -1670,11 +1672,11 @@ public class GenericUtil {
 	public static String duplicateChar(String s, short count){
 		String res = "";
 		for(int i =0; i<count; i++){
-			res += s;			
+			res += s;
 		}
 		return res;
 	}
-	
+
 	public static String completeChar(String deger, String karakter, short count, boolean alignRight){
 		String res = deger;
 		for(int i =0; i<(count-deger.length()); i++){
@@ -1685,12 +1687,12 @@ public class GenericUtil {
 		}
 		return res;
 	}
-	
-	public static String report2csv(List<W5ReportCellHelper> reportList){		
+
+	public static String report2csv(List<W5ReportCellHelper> reportList){
 		StringBuilder sb = new StringBuilder();
 		String sp = ";";
 		boolean ilk = true;
-		
+
 		for(W5ReportCellHelper sonuc : reportList){
 			if ((sonuc.getRowTip() == 2) || (sonuc.getRowTip() == 3)){ //kolon baï¿½lï¿½ï¿½ï¿½ yada deï¿½erler ise
 				if (sonuc.getColumnId() == 1){
@@ -1704,33 +1706,33 @@ public class GenericUtil {
 					deger = sonuc.getDeger();
 				sb.append(deger);
 				sb.append(sonuc.getColspan()>0? duplicateChar(sp,sonuc.getColspan()): sp);
-			}			
+			}
 		}
 		return sb.toString();
 	}
-	
+
 	public static String report2text(List<W5ReportCellHelper> reportList) {
 		StringBuilder sb = new StringBuilder();
 		ArrayList<Short> columnWidth = new ArrayList<Short>();
-		ArrayList<String> columnChar = new ArrayList<String>();	
+		ArrayList<String> columnChar = new ArrayList<String>();
 		boolean ilk = true;
-		
+
 		for(W5ReportCellHelper sonuc : reportList){
 			if (sonuc.getColumnId() == 1){
 				if (ilk==false)
-					sb.append(new Character((char)13).toString() + new Character((char)10).toString());//satï¿½r sonu	
+					sb.append(new Character((char)13).toString() + new Character((char)10).toString());//satï¿½r sonu
 				else
 					ilk = false;
 			}
 			String deger = "";
 			if (sonuc.getDeger()!=null)
 				deger = sonuc.getDeger();
-			
+
 			if ((sonuc.getRowTip() == 0)){ //baï¿½lï¿½k
 				sb.append(deger);
 			}
 			else if ((sonuc.getRowTip() == 1)){ //params
-				
+
 			}
 			else if (sonuc.getRowTip() == 2){ //kolon baï¿½lï¿½ï¿½ï¿½
 				columnWidth.add(sonuc.getCellTip());
@@ -1743,13 +1745,13 @@ public class GenericUtil {
 				else
 					sb.append(completeChar(deger, sp, sonuc.getCellTip(), false));
 			}
-			else if (sonuc.getRowTip() == 3){ //deï¿½erler								
+			else if (sonuc.getRowTip() == 3){ //deï¿½erler
 				sb.append(completeChar(deger, columnChar.get(sonuc.getColumnId()-1), columnWidth.get(sonuc.getColumnId()-1), false));
-			}			
+			}
 		}
 		return sb.toString();
 	}
-	
+
 	public	static String fromMapToHtmlString(Map s){
 		if(s==null || s.isEmpty())return "";
         StringBuilder html = new StringBuilder();
@@ -1759,9 +1761,9 @@ public class GenericUtil {
     		Object o = s.get(q);
        		html.append("<b>").append(q).append("</b>:").append(o!=null ? stringToJS(o.toString()) :"");
     	}
-    	return html.toString();		
+    	return html.toString();
 	}
-	
+
 	public	static boolean isEmpty(Object o){
 		if(o==null)return true;
 		if(o instanceof Map)return isEmpty((Map)o);
@@ -1770,7 +1772,7 @@ public class GenericUtil {
 		if(o instanceof Set)return isEmpty((Set)o);
 		return false;
 	}
-	
+
 	public	static boolean isEmpty(Map m){
 		return m==null || m.isEmpty();
 	}
@@ -1805,7 +1807,7 @@ public class GenericUtil {
 		StringBuilder sb = new StringBuilder();
 		for(int i=0;i<s.length();i++){
 			char ch = s.charAt(i);
-			
+
 			int o = 0;
 			if(ch>='A' && ch<='Z'){
 				o = ch-'A';
@@ -1815,7 +1817,7 @@ public class GenericUtil {
 				o = ch-'0';
 			}
 			o+=(GenericUtil.PRMEncStr.charAt(i%(GenericUtil.PRMEncStr.length()))-'a');
-			
+
 			char ch2=ch;
 			if(ch>='A' && ch<='Z'){
 				ch2 = (char)((o%(1+'Z'-'A'))+'A');
@@ -1833,7 +1835,7 @@ public class GenericUtil {
 		StringBuilder sb = new StringBuilder();
 		for(int i=0;i<s.length();i++){
 			char ch = s.charAt(i);
-			
+
 			int o = 0;
 			if(ch>='A' && ch<='Z'){
 				o = ch-'A';
@@ -1843,7 +1845,7 @@ public class GenericUtil {
 				o = ch-'0';
 			}
 			o-=(GenericUtil.PRMEncStr.charAt(i%(GenericUtil.PRMEncStr.length()))-'a');
-			
+
 			char ch2=ch;
 			if(ch>='A' && ch<='Z'){
 				ch2 = (char)(((1+'Z'-'A'+o)%(1+'Z'-'A'))+'A');
@@ -1856,12 +1858,12 @@ public class GenericUtil {
 		}
 		return sb.toString();
 	}
-	
+
 	public static class  ResultMessage{
-	
+
 	   boolean success;
 	   String result;
-	   
+
 	   public boolean isSuccess() {
 			return success;
 		}
@@ -1873,40 +1875,40 @@ public class GenericUtil {
 		}
 		public void setResult(String result) {
 			this.result = result;
-		}	
-		
+		}
+
 	}
-	
+
 	public static boolean safeEquals(Object o1, Object o2){
 		if(o1==null && o2==null)return true;
 		if(o1==null || o2==null)return false;
 		return o1.equals(o2);
-		
+
 	}
-	
+
 	public static boolean safeEquals2(Object o1, Object o2){
 		if(o1==null && o2==null)return true;
 //		if(uStrNvl((String)o1,"").equals(uStrNvl((String)o2,"")))return true;
 		if((o1==null || o1.toString().equals("")) && (o2==null  || o2.toString().equals("")))return true;
 		if(o1==null || o2==null)return false;
 		return o1.toString().equals(o2.toString());
-		
+
 	}
-	
+
 	public static boolean safeEquals(List<W5Base> l1, List<W5Base> l2){
 		if(l1!=null && l2!=null){
 			if(l1.size()==l2.size())return false;
 			for(int i=0;i<l1.size();i++){
-				W5Base c1 = l1.get(i); 
+				W5Base c1 = l1.get(i);
 				W5Base c2 = l2.get(i);
 				if(!c1.safeEquals(c2))return false;
-			}			
+			}
 		} else if(l1!=null ^ l2!=null) return false;
 		return true;
 	}
-	
+
 	// BaseURL
-	
+
 	public static String getBaseURL(HttpServletRequest request){
 		String baseUrl = null;
 	    if ( ( request.getServerPort() == 80 ) ||
@@ -1919,10 +1921,10 @@ public class GenericUtil {
 	      baseUrl =
 	        request.getScheme() + "://" +
 	        request.getServerName() + ":" + request.getServerPort() +
-	        request.getContextPath();		
+	        request.getContextPath();
 		return baseUrl;
 	}
-	
+
 	// Get parametresinden gelen farklï¿½ character kodlarï¿½nï¿½ utf-8 e ï¿½evirme
 	public static String encodeGetParamsToUTF8(String param){
 		String result = param;
@@ -1934,7 +1936,7 @@ public class GenericUtil {
 		}
 		return result;
 	}
-	
+
 	// Subdomain bulma
 	public static String getSubdomainName(HttpServletRequest request){
 		/*
@@ -1947,7 +1949,7 @@ public class GenericUtil {
 	    String queryString = request.getQueryString();          // d=789
 	    */
 		String subdomain = "";
-		try{			
+		try{
 			String rawUrl = request.getServerName();
 			if(InternetDomainName.isValid(rawUrl)){
 				if (InternetDomainName.from(rawUrl).hasPublicSuffix()){
@@ -1983,29 +1985,29 @@ public class GenericUtil {
 		if(o instanceof Set)return ((Set)o).size();
 		return 0;
 	}
-/*	
+/*
 	public static String encodeStr(String str) throws UnsupportedEncodingException{
-		String encodedStr = Base64.encodeBase64String(str.getBytes("UTF8"));	
+		String encodedStr = Base64.encodeBase64String(str.getBytes("UTF8"));
 		return encodedStr;
 	}
 	*/
 	public static String decodeStr(String str) throws UnsupportedEncodingException{
-		byte[] decodedByte = Base64.getDecoder().decode(str.getBytes());	
+		byte[] decodedByte = Base64.getDecoder().decode(str.getBytes());
 		String decodedStr = new String(decodedByte, "UTF8");
 		return decodedStr;
 	}
-	
-	public static void copyFolder(File src, File dest) throws IOException{	 
+
+	public static void copyFolder(File src, File dest) throws IOException{
     	if(src.isDirectory()){
     		//if directory not exists, create it
     		if(!dest.exists()){
     		   dest.mkdir();
     		   System.out.println("Directory copied from " + src + "  to " + dest);
     		}
- 
+
     		//list all the directory contents
     		String files[] = src.list();
- 
+
     		for (String file : files) {
     		   //construct the src and dest file structure
     		   File srcFile = new File(src, file);
@@ -2013,27 +2015,27 @@ public class GenericUtil {
     		   //recursive copy
     		   copyFolder(srcFile,destFile);
     		}
- 
+
     	}else{
     		//if file, then copy it
     		//Use bytes stream to support all file types
     		InputStream in = new FileInputStream(src);
-    	    OutputStream out = new FileOutputStream(dest); 
- 
+    	    OutputStream out = new FileOutputStream(dest);
+
     	    byte[] buffer = new byte[1024];
- 
+
     	    int length;
-    	    //copy the file content in bytes 
+    	    //copy the file content in bytes
     	    while ((length = in.read(buffer)) > 0){
     	    	out.write(buffer, 0, length);
     	    }
- 
+
     	    in.close();
     	    out.close();
     	    System.out.println("File copied from " + src + " to " + dest);
     	}
     }
-	
+
 	public static String smsCodeGenerator(int type, int length){
 		String code = "";
 		String[] arr;
@@ -2048,7 +2050,7 @@ public class GenericUtil {
 			arr = new String[]{"0","1","2","3","4","5","6","7","8","9"};
 			break;
 		}
-		
+
 		Random r;
 		try {
 		    r = SecureRandom.getInstance("SHA1PRNG");
@@ -2062,28 +2064,28 @@ public class GenericUtil {
 
 		return code;
 	}
-	
+
 	public static String uStrMax(String s, int maxLength){
 		if(s==null)return "";
 		return s.length()>maxLength ? (s.substring(0, maxLength-3)+"..."):s;
 	}
-	
+
 	public static String addUniqueValToStr(String source, String add,
 			String delimeter) {
 		if(isEmpty(source))return add;
 		if(isEmpty(add))return source;
 		if(hasPartInside(source, add))
 			return source;
-		else 
+		else
 			return source+delimeter+add;
 	}
-	
+
 	public static String uCoalesce(String x, String defaultValue){
 		if (x.isEmpty())return defaultValue;
 		else return x;
 	}
 
-	
+
 	public static int getGlobalNextval(String seq, String projectUuid, int userId, int customizationId){
 		String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url");
 //		String vcsClientKey = FrameworkCache.getAppSettingStringValue(0, "vcs_client_key");
@@ -2101,7 +2103,7 @@ public class GenericUtil {
 				} catch (JSONException e) {
 					throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), null);
 				}
-			else 
+			else
 				throw new IWBException("framework","Global Nextval: remote Error", 0, s, "Unknown Error", null);
 		} catch (JSONException e) {
 			throw new IWBException("framework","Global Nextval", 0, "JSONException", e.getMessage(), e.getCause());
@@ -2109,7 +2111,7 @@ public class GenericUtil {
 			throw new IWBException("framework","Global Nextval", 0, "JSONException", "No Response from Server", null);
 
 	}
-	
+
 
 	public static JSONObject fromMapToJSONObject(Map o) throws JSONException {
 		JSONObject jo = new JSONObject();
@@ -2118,7 +2120,7 @@ public class GenericUtil {
 			jo.put(k.toString(), o.get(k));
 		return jo;
 	}
-	
+
 	public static NativeArray fromJSONArrayToNativeArray(JSONArray a) throws JSONException {
 		if(a==null)return null;
 		NativeArray na = new NativeArray(a.length());
@@ -2155,7 +2157,7 @@ public class GenericUtil {
 		}
 		return no;
 	}
-	
+
 	public static List fromJSONArrayToList(JSONArray o) throws JSONException {
 		//return null;
 		if(o==null)return null;
@@ -2173,7 +2175,7 @@ public class GenericUtil {
 		}
 		return no;
 	}
-	
+
 	public static NativeObject fromJSONObjectToNativeObject(JSONObject o) throws JSONException {
 		if(o==null)return null;
 		NativeObject no = new NativeObject();
@@ -2198,13 +2200,13 @@ public class GenericUtil {
 		}
 		return false;
 	}
-	
+
 	public static String fileAttachSubFolderName(){
-		Date today = Calendar.getInstance().getTime();        
+		Date today = Calendar.getInstance().getTime();
 		String dt = new SimpleDateFormat("MMyyyy").format(today);
 		return dt;
 	}
-	
+
 	public static String fileAttachPath(int customizationId, String subFolder){
 		String path = FrameworkCache.getAppSettingStringValue(customizationId+"", "file_local_path")
 				+ File.separator + customizationId + File.separator + "attachment";
@@ -2215,13 +2217,13 @@ public class GenericUtil {
 	public static Object rhinoValue(Object o){
 		if(o==null)return null;
 		if(o instanceof NativeJavaObject){
-			o = ((NativeJavaObject)o).unwrap();			
+			o = ((NativeJavaObject)o).unwrap();
 		} else if(o instanceof NativeObject){//TODO
 		//	o = ((NativeObject) o).getAttributes(0);
 		} else if(o.toString().length()==0)return null;
 		return o;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public	static String fromNativeArrayToJsonString2Recursive(NativeArray s){
 		if(s==null || s.getLength()==0)return "[]";
@@ -2233,7 +2235,7 @@ public class GenericUtil {
         	if(b)html.append("\n,");else b=true;
         	if(o==null){html.append("\"\"");continue;}
         	if(o instanceof NativeJavaObject){
-    			o = ((NativeJavaObject)o).unwrap();			
+    			o = ((NativeJavaObject)o).unwrap();
     		}
         	if(o instanceof NativeObject)
         		html.append(fromNativeObjectToJsonString2Recursive((NativeObject)o));
@@ -2249,12 +2251,12 @@ public class GenericUtil {
         		html.append(fromMapToJsonString2Recursive((Map<String, Object>)o));
     		else if(o instanceof List){
     			html.append(fromListToJsonString2Recursive((List<Object>)o));
-            } 
+            }
     		else
     			html.append("\"").append(stringToJS2(o.toString())).append("\"");
         }
     	html.append("]");
-    	return html.toString();		    
+    	return html.toString();
 	}
 	@SuppressWarnings("unchecked")
 	public	static String fromNativeObjectToJsonString2Recursive(NativeObject s){
@@ -2267,7 +2269,7 @@ public class GenericUtil {
     		Object o = s.get(q.toString(), null);
     		if(o==null){html.append("\"").append(q).append("\":\"\"");continue;}
         	if(o instanceof NativeJavaObject){
-    			o = ((NativeJavaObject)o).unwrap();			
+    			o = ((NativeJavaObject)o).unwrap();
     		}
         	if(o instanceof NativeObject)
         		html.append("\"").append(q).append("\":").append(fromNativeObjectToJsonString2Recursive((NativeObject)o));
@@ -2287,9 +2289,9 @@ public class GenericUtil {
     			html.append("\"").append(q).append("\":\"").append(stringToJS2(o.toString())).append("\"");
     	}
     	html.append("}");
-    	return html.toString();		
+    	return html.toString();
 	}
-	
+
 	/*
 	public static String uStr2English(String source) {
 		StringBuilder sb = new StringBuilder();
@@ -2314,7 +2316,7 @@ public class GenericUtil {
 		}
 		return	sb.toString();
 	}*/
-	
+
 	public static String uStr2Alpha(String source) {
 		StringBuilder sb = new StringBuilder();
 		int	n = source==null ? 0 : source.length();
@@ -2325,7 +2327,7 @@ public class GenericUtil {
 		}
 		return	sb.toString();
 	}
-	
+
 	public static String uStr2Alpha2(String source, String prefixIfError) {
 		StringBuilder sb = new StringBuilder();
 		int	n = source==null ? 0 : source.length();
@@ -2365,7 +2367,7 @@ public class GenericUtil {
     		if(o !=null)
         		html.append(q).append("=").append(o);
     	}
-    	return html.toString();	
+    	return html.toString();
 	}
 	public static Object getSafeObject(JSONObject prj, String key) {
 		if(prj==null || !prj.has(key))return null;
