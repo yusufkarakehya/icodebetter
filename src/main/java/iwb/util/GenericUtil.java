@@ -1154,7 +1154,7 @@ public class GenericUtil {
 			Context cx = Context.enter();
 			try {
 				cx.setOptimizationLevel(-1);
-				//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+				if(FrameworkSetting.rhinoInstructionCount>0)cx.setInstructionObserverThreshold(FrameworkSetting.rhinoInstructionCount);
 				// Initialize the standard objects (Object, Function, etc.)
 				// This must be done before scripts can be executed. Returns
 				// a scope object that we use in later calls.
@@ -1312,7 +1312,7 @@ public class GenericUtil {
 			Context cx = Context.enter();
 			try {
 				cx.setOptimizationLevel(-1);
-				//if(FrameworkSetting.rhinoInstructionCount>0)cx.observeInstructionCount(FrameworkSetting.rhinoInstructionCount);
+				if(FrameworkSetting.rhinoInstructionCount>0)cx.setInstructionObserverThreshold(FrameworkSetting.rhinoInstructionCount);
 				// Initialize the standard objects (Object, Function, etc.)
 				// This must be done before scripts can be executed. Returns
 				// a scope object that we use in later calls.
