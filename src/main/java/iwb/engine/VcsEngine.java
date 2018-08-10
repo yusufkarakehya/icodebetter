@@ -1549,6 +1549,7 @@ public class VcsEngine {
 		scd.put("userRoleId", l.get(0)[1]);
 		scd.put("roleId", 0);
 		scd.put("customizationId", customizationId);
+		scd.put("ocustomizationId", customizationId);
 		if(projectUuid!=null)scd.put("projectId", projectUuid);
 		return scd;
 	}
