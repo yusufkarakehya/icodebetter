@@ -2723,6 +2723,7 @@ public class PostgreSQL extends BaseDAO {
 					field.setVersionUserId((Integer)scd.get("userId"));
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 					field.setProjectUuid((String)scd.get("projectId"));
+					field.setOprojectUuid((String)scd.get("projectId"));
 					field.setMainTableFieldId(wsmp.getWsMethodParamId());
 					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", projectId, (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
 					insertList.add(field);
@@ -2745,6 +2746,7 @@ public class PostgreSQL extends BaseDAO {
 					field.setVersionUserId((Integer)scd.get("userId"));
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 					field.setProjectUuid(projectId);
+					field.setOprojectUuid(projectId);
 					field.setMainTableFieldId(0);
 					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", projectId, (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
 					insertList.add(field);
