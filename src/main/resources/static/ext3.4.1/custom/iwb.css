@@ -956,3 +956,9 @@ header .phone .theme-switch a+a {
 	background-repeat: no-repeat;
     background-position-y: 6px;	
 }
+.x-form-field-wrap .x-form-trigger {
+    background-image: url(../images/access/form/trigger.png);
+}
+.x-trigger-wrap-focus .x-form-trigger {
+    border-bottom-color: #fd9c33;
+}
