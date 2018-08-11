@@ -2039,7 +2039,7 @@ public class FrameworkEngine{
     		break;
 		case	1://update
 		case	3://delete
-   			List l=dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", t.getTableId(), tablePk, scd.get("projectId"), scd.get("customizationId"));
+   			List l=dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=?", t.getTableId(), tablePk, scd.get("projectId"));
    			if(l.isEmpty())break;
    			W5VcsObject vo =(W5VcsObject)l.get(0);
    			vo.setVersionDttm(new Timestamp(new Date().getTime()));
@@ -2183,8 +2183,8 @@ public class FrameworkEngine{
 			}
 			if(alarm){
 				alMap = new HashMap();
-				List<W5FormSmsMailAlarm> l = (List<W5FormSmsMailAlarm>)dao.find("from W5FormSmsMailAlarm a where a.customizationId=? AND a.insertUserId=? AND a.tableId=? AND a.tablePk=? "
-						, scd.get("customizationId"), scd.get("userId"), formResult.getForm().getObjectId(), GenericUtil.uInt(ptablePk));
+				List<W5FormSmsMailAlarm> l = (List<W5FormSmsMailAlarm>)dao.find("from W5FormSmsMailAlarm a where a.projectUuid=? AND a.insertUserId=? AND a.tableId=? AND a.tablePk=? "
+						, scd.get("projectId"), scd.get("userId"), formResult.getForm().getObjectId(), GenericUtil.uInt(ptablePk));
 				for(W5FormSmsMailAlarm a:l){
 					alMap.put(a.getFormSmsMailId(), a);
 				}
@@ -2457,7 +2457,7 @@ public class FrameworkEngine{
 
 					W5WsMethod wsm = FrameworkCache.getWsMethod(scd, c.getDstTableId());
 					if(wsm.get_params()==null){
-						wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
+						wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", wsm.getWsMethodId(), (String)scd.get("projectId")));
 					}
 
 					Map mq = dao.interprateConversionTemplate4WsMethod(scd, requestParams, c, GenericUtil.uInt(ptablePk), wsm);
@@ -2854,7 +2854,7 @@ public class FrameworkEngine{
 		case	1376://WS Method
 			W5WsMethod wsm = FrameworkCache.getWsMethod(scd, queryResult.getQuery().getMainTableId());
 			if(wsm.get_params()==null){
-				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
+				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", wsm.getWsMethodId(), (String)scd.get("projectId")));
 				wsm.set_paramMap(new HashMap());
 				for(W5WsMethodParam wsmp:wsm.get_params())
 					wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
@@ -2938,7 +2938,7 @@ public class FrameworkEngine{
 					case	1376://WS Method
 						W5WsMethod wsm = FrameworkCache.getWsMethod(scd, lookupQueryResult.getQuery().getMainTableId());
 						if(wsm.get_params()==null){
-							wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
+							wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", wsm.getWsMethodId(), (String)scd.get("projectId")));
 							wsm.set_paramMap(new HashMap());
 							for(W5WsMethodParam wsmp:wsm.get_params())
 								wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
@@ -5998,29 +5998,6 @@ public class FrameworkEngine{
 		return l;
 	}
 
-	public W5WsServer getWsServer(int customizationId, String url) {
-		List<W5WsServer> lws = dao.find("from W5WsServer s where s.customizationId=? AND s.wsUrl=?", customizationId, url);
-		if(GenericUtil.isEmpty(lws))return null;
-		W5WsServer ws = lws.get(0);
-		ws.set_methods(dao.find("from W5WsServerMethod m where m.customizationId=? AND m.wsServerId=? order by m.tabOrder", customizationId, ws.getWsServerId()));
-		for(W5WsServerMethod wsm:ws.get_methods()){
-			switch(wsm.getObjectTip()){
-			case	2://table
-				break;
-			case	4://stored proc
-				break;
-
-			case	19://query
-				break;
-
-			}
-
-
-			wsm.set_params(dao.find("from W5WsServerMethodParam p where p.customizationId=? AND p.wsServerMethodId=? order by p.tabOrder", customizationId, wsm.getWsServerMethodId()));
-
-		}
-		return ws;
-	}
 
 /*
 	public String projectAccessUrl(String instanceUuid, String remoteAddr) {
@@ -6050,11 +6027,11 @@ public class FrameworkEngine{
 	    		if(!sqlFrom2.contains("select") && !sqlFrom2.contains(",")  && !sqlFrom2.contains("left")  && !sqlFrom2.contains("(")){
 	    			String[] ss = sqlFrom2.split(" ");
 	    			if(ss.length<3){
-	    				List l = dao.find("select t.tableId from W5Table t where t.customizationId=? AND t.dsc=?", scd.get("customizationId"), ss[0]);
+	    				List l = dao.find("select t.tableId from W5Table t where t.projectUuid=? AND t.dsc=?", scd.get("projectId"), ss[0]);
 	    				if(!l.isEmpty())t = FrameworkCache.getTable(scd, (Integer)l.get(0));
 	    			}
 	    		}
-				if((Integer)scd.get("customizationId")>0 && DBUtil.checkTenantSQLSecurity(queryResult.getExecutedSql())) {
+				if(FrameworkSetting.cloud && (Integer)scd.get("customizationId")>0 && DBUtil.checkTenantSQLSecurity(queryResult.getExecutedSql())) {
 					throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
 				}
 

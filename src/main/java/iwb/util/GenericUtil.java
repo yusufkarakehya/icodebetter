@@ -198,6 +198,9 @@ public class GenericUtil {
 			return new SimpleDateFormat(dateFormat.concat(" HH:mm:ss")).parse(x);
 		}catch(Exception e){}
 		try{
+			return new SimpleDateFormat(dateFormat.concat(" HH:mm")).parse(x);
+		}catch(Exception e){}
+		try{
 			return new SimpleDateFormat(dateFormat).parse(x);
 		}catch(Exception e){}
 		try{
