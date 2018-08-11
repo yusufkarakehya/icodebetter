@@ -50,6 +50,7 @@ import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5UserAction;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5FileAttachment;
+import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5QueuedActionHelper;
@@ -717,26 +718,6 @@ public class PreviewServlet implements InitializingBean {
 
 	}
 
-	@RequestMapping("/*/showTutorial")
-	public void hndShowTutorial(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		int tutorialId = GenericUtil.uInt(request, "_ttid");
-		logger.info("showTutorial(" + tutorialId + ")");
-
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-
-		W5TutorialResult tutorialResult = engine.getTutorialResult(scd, tutorialId,
-				GenericUtil.getParameterMap(request));
-
-		response.setContentType("application/json");
-		if (GenericUtil.uInt(scd.get("mobile")) != 0) {
-			response.getWriter().write("{\"success\":false}");
-		} else {
-			response.getWriter().write(getViewAdapter(scd, request).serializeShowTutorial(tutorialResult).toString());
-		}
-		response.getWriter().close();
-
-	}
 
 	@RequestMapping("/*/ajaxLogoutUser")
 	public void hndAjaxLogoutUser(HttpServletRequest request, HttpServletResponse response)
@@ -745,20 +726,120 @@ public class PreviewServlet implements InitializingBean {
 		HttpSession session = request.getSession(false);
 		response.setContentType("application/json");
 		if (session != null) {
-			Map<String, Object> scd = (Map) session.getAttribute("scd-dev");
+			String projectId = UserUtil.getProjectId(request, "preview/");
+			W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+			Map<String, Object> scd = (Map) session.getAttribute("preview-"+projectId);
 			if (scd != null) {
 				UserUtil.onlineUserLogout((Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
-				if(scd.containsKey("mobile")){
-					Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", scd.get("mobileDeviceId"));parameterMap.put("pactive_flag", 0);
-					engine.executeFunc(scd, 673, parameterMap, (short)4);
-				}
 			}
-			session.removeAttribute("scd-dev");
+			session.removeAttribute("preview-"+projectId);
 		}
 		if(GenericUtil.uInt(request, "d")!=0)throw new IWBException("session","No Session",0,null, "No valid session", null);
 		else response.getWriter().write("{\"success\":true}");
 	}
+	
+	@RequestMapping("/*/ajaxAuthenticateUser")
+	public void hndAjaxAuthenticateUser(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("hndAjaxAuthenticateUser(" + request.getParameter("userName") + ")");
+		String projectId = UserUtil.getProjectId(request,"preview/");
+		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+		if(po.getSessionQueryId()==0){
+			response.getWriter().write("{\"success\":true}");
+			response.getWriter().close();
+			return;
+		}
 
+
+		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
+		requestParams.put("_remote_ip", request.getRemoteAddr());
+	/*	if (request.getSession(false) != null && request.getSession(false).getAttribute("securityWordId") != null)
+			requestParams.put("securityWordId", request.getSession(false).getAttribute("securityWordId").toString());
+*/
+		String scdKey="preview-"+projectId;
+		if (request.getSession(false) != null) {
+			request.getSession(false).removeAttribute(scdKey);
+		}
+		
+		Map<String, Object> scd = new HashMap<String, Object>();
+		scd.put("projectId", projectId);
+		W5GlobalFuncResult result = engine.executeFunc(scd, po.getAuthenticationFuncId(), requestParams, (short) 7); // user Authenticate DbFunc:1
+
+		/*
+		 * 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
+		 */
+		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
+		String errorMsg = result.getResultMap().get("errorMsg");
+		int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
+		String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
+//		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
+		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
+		int userRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
+		response.setContentType("application/json");
+		scd = null;
+		if (success) { // basarili simdi sira diger islerde
+			scd = engine.userRoleSelect4App(po, userId, userRoleId, null);
+
+			if (scd == null) {
+				if (FrameworkSetting.debug)logger.info("empty scd");
+				response.getWriter().write("{\"success\":false"); // error
+			} else {
+				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
+				HttpSession session = request.getSession(true);
+				session.removeAttribute(scdKey);
+				session.setAttribute(scdKey, scd);
+				scd.put("locale", xlocale);
+				scd.put("customizationId", po.getCustomizationId());
+				scd.put("ocustomizationId", po.getCustomizationId());
+				scd.put("projectId", po.getProjectUuid());
+
+				scd.put("sessionId", session.getId());
+				scd.put("path", "../");
+
+//				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) 0, request.getParameter(".w"));
+				response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun
+			}
+
+			response.getWriter().write("}");
+		} else {
+			response.getWriter().write("{\"success\":false,\"errorMsg\":\"" + errorMsg + "\"}");
+		}
+		response.getWriter().close();
+	}
+	
+	@RequestMapping("/*/login.htm")
+	public void hndLoginPage(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("hndLoginPage");
+		String projectId = UserUtil.getProjectId(request,"preview/");
+		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+		if(po.getSessionQueryId()==0)
+			response.sendRedirect("main.htm");
+			
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			String scdKey = "preview-"+projectId;
+			Map<String, Object> scd = (Map<String, Object>) session.getAttribute(scdKey);
+			if (scd != null)UserUtil.onlineUserLogout( (Integer) scd.get("userId"), (String) scd.get("sessionId"));
+			session.removeAttribute(scdKey);
+		}
+
+
+		Map<String, Object> scd = new HashMap();
+		scd.put("userId", 1);
+		scd.put("roleId", 1);
+		scd.put("customizationId", po.getCustomizationId());
+		scd.put("projectId", projectId);
+		scd.put("locale", "en");
+		scd.put("path", "../");
+
+		W5PageResult pageResult = engine.getTemplateResult(scd, po.getUiLoginTemplateId()==0?1:po.getUiLoginTemplateId(), GenericUtil.getParameterMap(request));
+		response.setContentType("text/html; charset=UTF-8");
+		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
+		response.getWriter().close();
+
+	}
 
 	@RequestMapping("/*/main.htm")
 	public void hndMainPage(HttpServletRequest request, HttpServletResponse response)
@@ -767,26 +848,10 @@ public class PreviewServlet implements InitializingBean {
 		
 		HttpSession session = request.getSession(false);
 		Map<String, Object> scd = null;
-		if(session!=null){
-			Object token = session.getAttribute("authToken");
-			if(token!=null){
-				scd = engine.generateScdFromAuth(1, token.toString());
-				if(scd!=null){
-					session.removeAttribute("authToken");
-					scd.put("locale", "tr");
-					session.setAttribute("scd-dev", scd);
-				}
-				else
-					response.sendRedirect("authError.htm");
-			} else {
-				scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-
-			}
-		} else 
-			response.sendRedirect("login.htm");
-
-		if (scd.get("mobile") != null)
-			scd.remove("mobile");
+		if(session!=null)try{
+			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		} catch(Exception e){scd=null;}
+		if(scd==null)response.sendRedirect("login.htm");
 
 		int templateId = GenericUtil.uInt(scd.get("mainTemplateId")); // Login
 		
@@ -967,10 +1032,10 @@ public class PreviewServlet implements InitializingBean {
 		Map<String, Object> scd = null;
 		if (fileAttachmentId == 0) {
 			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-			String spi = request.getPathInfo();
-			if (spi.startsWith("/sf/pic") && spi.contains(".")) {
-				spi = spi.substring(7);
-				spi = spi.substring(0, spi.indexOf("."));
+			String spi = request.getRequestURI();
+			if (spi.contains("/sf/pic") && spi.contains(".")) {
+				spi = spi.substring(spi.indexOf("/sf/pic")+7);
+				spi = spi.substring(0,spi.indexOf("."));
 				fileAttachmentId = -GenericUtil.uInt(spi);
 			}
 			if (fileAttachmentId == 0)

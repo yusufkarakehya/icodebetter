@@ -550,7 +550,7 @@ public class AppServlet implements InitializingBean {
 					scd.put("mobileDeviceId", request.getParameter("_mobile_device_id"));
 				}
 				
-				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",new Object[]{0,0,"webix3_3","open1_4","webix4_2","react16","vue2"}[GenericUtil.uInt(scd.get("renderer"))]);
+				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
 				session.setAttribute("scd-dev", scd);
 				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) deviceType, deviceType != 0 ? request.getParameter("_mobile_device_id") : request.getParameter(".w"));
 				response.getWriter().write("{\"success\":true"); // hersey duzgun

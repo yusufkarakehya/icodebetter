@@ -822,6 +822,7 @@ public class SpaceServlet implements InitializingBean {
 				scd.put("projectId", po.getProjectUuid());
 
 				scd.put("sessionId", session.getId());
+				scd.put("path", "../");
 
 //				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) 0, request.getParameter(".w"));
 				response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun
@@ -839,7 +840,7 @@ public class SpaceServlet implements InitializingBean {
 		
 		logger.info("hndLoginPage");
 		String projectId = UserUtil.getProjectId(request,"space/");
-		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+		W5Project po = FrameworkCache.getProject(projectId,"Not a valid Project");
 		if(po.getSessionQueryId()==0)
 			response.sendRedirect("main.htm");
 			
@@ -858,10 +859,9 @@ public class SpaceServlet implements InitializingBean {
 		scd.put("customizationId", po.getCustomizationId());
 		scd.put("projectId", projectId);
 		scd.put("locale", "en");
+		scd.put("path", "../");
 
-		int templateId = po.getUiLoginTemplateId();
-
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getTemplateResult(scd, po.getUiLoginTemplateId()==0?1:po.getUiLoginTemplateId(), GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
