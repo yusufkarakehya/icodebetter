@@ -1501,14 +1501,12 @@ public class UserUtil {
 		if(FrameworkSetting.projectSystemStatus.get(pid)!=0){
 			throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 		}
+		String newScdKey = "preview-"+pid;
 
 		HttpSession session = request.getSession(false);
-		if(po.getSessionQueryId()!=0 &&  (session==null || session.getAttribute(scdKey)==null || ((HashMap<String,Object>)session.getAttribute(scdKey)).isEmpty())){
-			throw new IWBException("session","No Session",0,null, "No valid session", null);
-		}
 		Map newScd = null;
 		if(session!=null){
-			newScd =(Map<String, Object>)session.getAttribute("preview-"+pid);
+			newScd =(Map<String, Object>)session.getAttribute(newScdKey);
 			if(newScd==null){
 				scd =(Map<String, Object>)session.getAttribute(scdKey); //developer
 				if(scd!=null){
@@ -1525,7 +1523,7 @@ public class UserUtil {
 					newScd.put("path", "../");
 					newScd.put("userTip",po.get_defaultUserTip());
 					newScd.put("sessionId", session.getId());
-					session.setAttribute("preview-"+pid, newScd);
+					session.setAttribute(newScdKey, newScd);
 				}
 			}
 		}
@@ -1544,11 +1542,11 @@ public class UserUtil {
 			newScd.put("path", "../");
 			if(session==null)session = request.getSession(true);
 			newScd.put("sessionId", session.getId());
-			session.setAttribute("preview-"+pid, newScd);
+			session.setAttribute(newScdKey, newScd);
 			return newScd;
 		}
 		
-		throw new IWBException("security","Temporary SCD Not Defined",0,null, "Temporary SCD Not Defined", null);
+		throw new IWBException("session","No Session",0,null, "No valid session", null);
 	}
 	public static String getProjectId(HttpServletRequest request, String prefix){
 		String uri = request.getRequestURI();

@@ -771,7 +771,7 @@ public class PreviewServlet implements InitializingBean {
 		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 		String errorMsg = result.getResultMap().get("errorMsg");
 		int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
-		String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
+		String xlocale = "en";//GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
 //		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
 		int userRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
@@ -786,15 +786,17 @@ public class PreviewServlet implements InitializingBean {
 			} else {
 				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
 				HttpSession session = request.getSession(true);
-				session.removeAttribute(scdKey);
-				session.setAttribute(scdKey, scd);
+//				session.removeAttribute(scdKey);
 				scd.put("locale", xlocale);
 				scd.put("customizationId", po.getCustomizationId());
 				scd.put("ocustomizationId", po.getCustomizationId());
 				scd.put("projectId", po.getProjectUuid());
-
+				scd.put("renderer", po.getUiWebFrontendTip());
+				scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+				scd.put("mainTemplateId", po.getUiMainTemplateId());
 				scd.put("sessionId", session.getId());
 				scd.put("path", "../");
+				session.setAttribute(scdKey, scd);
 
 //				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) 0, request.getParameter(".w"));
 				response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun

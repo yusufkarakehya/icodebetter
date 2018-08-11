@@ -820,6 +820,9 @@ public class SpaceServlet implements InitializingBean {
 				scd.put("customizationId", po.getCustomizationId());
 				scd.put("ocustomizationId", po.getCustomizationId());
 				scd.put("projectId", po.getProjectUuid());
+				scd.put("renderer", po.getUiWebFrontendTip());
+				scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+				scd.put("mainTemplateId", po.getUiMainTemplateId());
 
 				scd.put("sessionId", session.getId());
 				scd.put("path", "../");
