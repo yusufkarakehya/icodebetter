@@ -1299,8 +1299,9 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = new HashMap();
 		scd.put("userId", 1);
 		scd.put("customizationId", cust_id);
+		scd.put("path", "");
 		Locale blocale = request.getLocale();
-		scd.put("locale", getDefaultLanguage(scd, blocale.getLanguage()));
+		scd.put("locale", "en");
 
 		int templateId = 1; // Login Page Template
 		if (FrameworkCache.getAppSettingIntValue(0, "mobile_flag") != 0) {

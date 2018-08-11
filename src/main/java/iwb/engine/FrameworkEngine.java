@@ -1406,7 +1406,7 @@ public class FrameworkEngine{
 								}
 
 								W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody, null);//mail_keep_body_original ?
-								W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.projectUuid=?", (Integer)scd.get("mailSettingId"), projectId, "MailSetting");
+								W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", (Integer)scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 								email.set_oms(oms);
 
 								String sonuc = MailUtil.sendMail(scd, email);
@@ -1648,7 +1648,7 @@ public class FrameworkEngine{
 								}
 
 								W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody, null);//mail_keep_body_original ?
-								W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.projectUuid=?", (Integer)scd.get("mailSettingId"), (String)scd.get("projectId"), "MailSetting");
+								W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", (Integer)scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 								email.set_oms(oms);
 								String sonuc = MailUtil.sendMail(scd, email);
 								if(FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0){
@@ -1894,7 +1894,7 @@ public class FrameworkEngine{
 					case	1://mail
 //W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
 						W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, t.getTableId(), GenericUtil.uInt(ptablePk));
-						W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.projectUuid=?", fsm.getMailSettingId()!=0 ? fsm.getMailSettingId():(Integer)scd.get("mailSettingId"), (String)scd.get("projectId"), "MailSetting");
+						W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", fsm.getMailSettingId()!=0 ? fsm.getMailSettingId():(Integer)scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 						email.set_oms(oms);
 						if(fsm.getAsyncFlag()!=0)result.add(new W5QueuedActionHelper(email));
 						else MailUtil.sendMail(scd, email);
@@ -5338,7 +5338,7 @@ public class FrameworkEngine{
 			return r;
 		} else { //email
 			W5Email email = dao.interprateMailTemplate(fsm, scd,requestParams, tableId, GenericUtil.uInt(requestParams.get("table_pk")));
-			W5ObjectMailSetting oms =(W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.projectUuid=?", (Integer)scd.get("mailSettingId"), (String)scd.get("projectId"), "MailSetting");
+			W5ObjectMailSetting oms =(W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", (Integer)scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 //					(W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?)", (Integer)scd.get("mailSettingId"), (Integer)scd.get("customizationId"), "MailSetting");
 //			if(requestParams.get("pfile_attachment_ids")!=null)mq.put("pfile_attachment_ids", requestParams.get("pfile_attachment_ids"));
 			email.set_oms(oms);

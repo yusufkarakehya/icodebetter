@@ -131,8 +131,8 @@ public class PostgreSQL extends BaseDAO {
 
 
 
-	public Object getCustomizedObject(String hql, int objectId, String projectId, String onErrorMsg){
-		List list = find(hql, objectId, projectId);
+	public Object getCustomizedObject(String hql, int objectId, Object tenantId, String onErrorMsg){
+		List list = find(hql, objectId, tenantId);
 		if(list.size()==0){
 			if(onErrorMsg==null)return null;
 			throw new IWBException("framework",onErrorMsg, objectId,null, "Wrong ID", null);
