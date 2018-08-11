@@ -962,3 +962,9 @@ header .phone .theme-switch a+a {
 .x-trigger-wrap-focus .x-form-trigger {
     border-bottom-color: #fd9c33;
 }
+.x-form-field-wrap .x-form-clear-trigger {
+    background-image: url(../images/access/form/clear-trigger.gif) !important;
+}
+.x-form-field-wrap .x-form-lang-trigger {
+    background-image: url(../images/lang-trigger.png) !important;
+}
