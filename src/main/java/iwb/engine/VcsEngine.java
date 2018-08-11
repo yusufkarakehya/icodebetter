@@ -3360,6 +3360,19 @@ public class VcsEngine {
 		}
 		return m;
 	}
+	public String vcsClientListServerProjects(Map<String, Object> scd) {
+		int customizationId = (Integer)scd.get("ocustomizationId");
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		
+		
+		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid();
+		urlParameters+="&q=4536";
+		String url=po.getVcsUrl();
+		if(!url.endsWith("/"))url+="/";
+		url+="serverVCSQueryResult";
+		return HttpUtil.send(url, urlParameters);
+	}
 	
 
 }
