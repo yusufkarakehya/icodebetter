@@ -7332,7 +7332,7 @@ public class PostgreSQL extends BaseDAO {
 				,"w5_access_control"
 				,"w5_user_tip"
 				,"w5_role"
-				,"w5_user"
+//				,"w5_user"
 				,"w5_login_rule_detail"
 				,"w5_login_rule"
 				,"w5_user_role"
