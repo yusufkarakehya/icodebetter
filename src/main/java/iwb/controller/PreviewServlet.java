@@ -846,12 +846,14 @@ public class PreviewServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndMainPage");
 		
-		HttpSession session = request.getSession(false);
 		Map<String, Object> scd = null;
-		if(session!=null)try{
+		try{
 			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		} catch(Exception e){scd=null;}
-		if(scd==null)response.sendRedirect("login.htm");
+		if(scd==null){
+			response.sendRedirect("login.htm");
+			return;
+		}
 
 		int templateId = GenericUtil.uInt(scd.get("mainTemplateId")); // Login
 		

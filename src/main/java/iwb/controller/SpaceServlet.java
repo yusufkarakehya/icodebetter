@@ -878,10 +878,12 @@ public class SpaceServlet implements InitializingBean {
 		try{
 			scd = UserUtil.getScd4PAppSpace(request);
 		} catch(Exception e){
-			response.sendRedirect("login.htm");
+			scd = null;
 		}
-		if(scd==null)
+		if(scd==null){
 			response.sendRedirect("login.htm");
+			return;
+		}
 
 		if (scd.get("mobile") != null)
 			scd.remove("mobile");

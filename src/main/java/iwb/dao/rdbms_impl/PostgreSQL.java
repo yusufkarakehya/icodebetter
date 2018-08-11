@@ -2996,6 +2996,8 @@ public class PostgreSQL extends BaseDAO {
 
 		List<W5Project> lp = cid==-1 ? (List<W5Project>)find("from W5Project t"):(List<W5Project>)find("from W5Project t where t.customizationId=?",cid);
 		if(lp!=null)for(W5Project p : lp){
+			List ll = executeSQLQuery("select min(t.user_tip) from iwb.w5_user_tip t where t.active_flag=1 AND t.project_uuid=?", p.getProjectUuid());
+			if(!GenericUtil.isEmpty(ll))p.set_defaultUserTip(GenericUtil.uInt(ll.get(0)));
 			FrameworkCache.addProject(p);
 			FrameworkSetting.projectSystemStatus.put(p.getProjectUuid(), 0);
 

@@ -1517,10 +1517,13 @@ public class UserUtil {
 					}
 					newScd=new HashMap<String, Object>();
 					newScd.putAll(scd);
+					newScd.put("customizationId",po.getCustomizationId());
+					newScd.put("projectId",po.getProjectUuid());newScd.put("roleId",999999);
 					newScd.put("renderer", po.getUiWebFrontendTip());
 					newScd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 					newScd.put("mainTemplateId", po.getUiMainTemplateId());
 					newScd.put("path", "../");
+					newScd.put("userTip",po.get_defaultUserTip());
 					newScd.put("sessionId", session.getId());
 					session.setAttribute("preview-"+pid, newScd);
 				}
@@ -1529,14 +1532,15 @@ public class UserUtil {
 		if(newScd!=null)return newScd;
 		if(po.getSessionQueryId()==0){
 			newScd=new HashMap<String, Object>();
-			newScd.put("customizationId",po.getCustomizationId());newScd.put("userId",999999);newScd.put("completeName","XXX");
-			newScd.put("projectId",po.getProjectUuid());newScd.put("roleId",999999);
+			newScd.put("customizationId",po.getCustomizationId());newScd.put("ocustomizationId",po.getCustomizationId());newScd.put("userId",10);newScd.put("completeName","XXX");
+			newScd.put("projectId",po.getProjectUuid());newScd.put("roleId",10);newScd.put("roleDsc", "XXX Role");
 			newScd.put("renderer", po.getUiWebFrontendTip());
 			newScd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 			newScd.put("mainTemplateId", po.getUiMainTemplateId());
 			newScd.put("userName", "Demo User");
 			newScd.put("email", "demo@icodebetter.com");newScd.put("locale", "en");
 			newScd.put("chat", 1);newScd.put("chatStatusTip", 1);
+			newScd.put("userTip",po.get_defaultUserTip());
 			newScd.put("path", "../");
 			if(session==null)session = request.getSession(true);
 			newScd.put("sessionId", session.getId());
@@ -1576,8 +1580,8 @@ public class UserUtil {
 			Map scd=new HashMap<String, Object>();
 			scd.put("customizationId", po.getCustomizationId());
 			scd.put("ocustomizationId", po.getCustomizationId());
-			scd.put("userId", 10);
-			scd.put("roleId", 0);
+			scd.put("userId", 10);scd.put("completeName","XXX");
+			scd.put("roleId", 10);
 			scd.put("userRoleId", 0);
 			scd.put("roleDsc", "Demo Role");
 			scd.put("chat", 1);
@@ -1589,6 +1593,7 @@ public class UserUtil {
 			scd.put("renderer", po.getUiWebFrontendTip());
 			scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 			scd.put("mainTemplateId", po.getUiMainTemplateId());
+			scd.put("userTip",po.get_defaultUserTip());
 			scd.put("path", "../");
 			if(session==null)session = request.getSession(true);
 			scd.put("sessionId", session.getId());
