@@ -935,7 +935,7 @@ function fnRowDelete(a,b){
 		                	var str='';
 		                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
 		                	if(j2.logErrors)str+=prepareLogErrors(j2);
-		                	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
+		                	Ext.infoMsg.alert('info',str);
 		    			}
 		    		}
 		    	});
@@ -975,7 +975,7 @@ function fnRowDelete(a,b){
 		                	var str='';
 		                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
 		                	if(j2.logErrors)str+=prepareLogErrors(j2);
-		                	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
+		                	Ext.infoMsg.alert('info',str);
 		    			}
 		    		}
 		    	});
@@ -1211,7 +1211,7 @@ function fnCommit(a){
 		                	var str='';
 		                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
 		                	if(j2.logErrors)str+=prepareLogErrors(j2);
-		                	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
+		                	Ext.infoMsg.alert('info',str);
 		    			}
 	      			}
 	    		});
@@ -2350,7 +2350,8 @@ function ajaxErrorHandlerOld(obj){
 	    	msg: getLocMsg('error')+': <b>'+(obj.error || getLocMsg('js_belirtilmemis'))+'</b><br/>'+obj.objectType+" Id: <b>"+obj.objectId+'</b>', 
 	    	icon: Ext.MessageBox.ERROR});
     else
-        Ext.Msg.show({title:getLocMsg('js_info'),msg: msg,icon: Ext.MessageBox.ERROR})
+    	Ext.infoMsg.alert('error',msg);
+//Ext.Msg.show({title:getLocMsg('js_info'),msg: msg,icon: Ext.MessageBox.ERROR})
     
 }
 var lw=null;
@@ -2516,7 +2517,9 @@ function formSubmit(submitConfig){
             	var str='';
             	if(myJson.msgs)str=myJson.msgs.join('<br>')+'<p>';
             	if(myJson.logErrors)str+=prepareLogErrors(myJson);
-            	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
+            	Ext.infoMsg.alert('info',str);
+
+//            	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
             } /*else if(1*_app.mail_send_background_flag!=0 && myJson.outs && myJson.outs.thread_id){ //DEPRECATED
             	Ext.infoMsg.msg(getLocMsg('js_tamam,getLocMsg('js_eposta_gonderiliyor+'...');
             }*/
