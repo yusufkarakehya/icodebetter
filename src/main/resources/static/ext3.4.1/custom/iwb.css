@@ -549,16 +549,6 @@ pre.code{
     margin:5px 5px 10px 5px !important;
 }
 
-.x-form-field-wrap .x-form-lang-trigger {
-	cursor:pointer;
-	background-image: url(images/lang-trigger.png);
-}
-
-.x-form-field-wrap .x-form-add-trigger {
-	cursor:pointer;
-	background-image: url(images/add-trigger.png);
-}
-
 .x-form-field-wrap .x-form-cog-trigger {
 	cursor:pointer;
 	background-image: url(images/cog-trigger.png);
@@ -966,5 +956,12 @@ header .phone .theme-switch a+a {
     background-image: url(../images/access/form/clear-trigger.gif) !important;
 }
 .x-form-field-wrap .x-form-lang-trigger {
-    background-image: url(../images/lang-trigger.png) !important;
+	cursor:pointer;
+	background-image: url(images/lang-trigger.png);
 }
+
+.x-form-field-wrap .x-form-add-trigger {
+	cursor:pointer;
+	background-image: url(images/add-trigger.png);
+}
+
