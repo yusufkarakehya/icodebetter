@@ -2574,12 +2574,12 @@ function formSubmit(submitConfig){
             default:
             	if(action.result && action.result.errorType && action.result.errorType=='confirm'){
             		var obj=action.result;
-            		if(confirm(obj.error)){//TODO. burda birseyler yapilacak. baseParams['_confirmId_'+obj.objectId]=1 eklenecek
+            		Ext.infoMsg.confirm(obj.error,()=>{//TODO. burda birseyler yapilacak. baseParams['_confirmId_'+obj.objectId]=1 eklenecek
             			var fm=submitConfig.formPanel.getForm();
             			if(!fm.baseParams)fm.baseParams={}
             			fm.baseParams['_confirmId_'+obj.objectId]=1;
             			fm.submit(cfg);
-            		}
+            		});
             	} else
             		ajaxErrorHandler(action.result);
             	break;
@@ -2637,10 +2637,10 @@ function promisRequest(rcfg){
 				} else {
 			    	if(rcfg.noSuccessCallback)rcfg.noSuccessCallback(json,rcfg);
 			    	else if(json.errorType && json.errorType=='confirm' && json.error){
-			    		if(confirm(json.error)){
+			    		Ext.infoMsg.confirm(json.error,()=>{
 			    			rcfg.params['_confirmId_'+json.objectId]=1;
 			    			promisRequest(rcfg);
-			    		}
+			    		});
 			    	} else ajaxErrorHandler(json);
 				}
 			}catch(e){
@@ -4341,11 +4341,11 @@ function vcsHtml(x){ // 0: exclude, 1:edit, 2:insert, 3:delete, 9:synched
 }
 
 function vcsFix(xgridId, tid, action){
-	if(confirm('Would you like to FIX the problem?')){
+	Ext.infoMsg.confirm('Would you like to FIX the problem?',()=>{
 		promisRequest({url:'ajaxVCSFix',requestWaitMsg:true,params:{t:tid, a:action}, successCallback:function(j){
 			Ext.getCmp(xgridId).store.reload();
 		}});
-	}
+	});
 	return false;
 	
 }
@@ -4358,14 +4358,14 @@ function vcsPush(xgrid, tid, tpk){
 		if(j.error){
 			switch(j.error){
 				case	'force':
-					if(confirm('There is conflicts. Do you STILL want to Overwrite?')){
+					Ext.infoMsg.confirm('There is conflicts. Do you STILL want to Overwrite?',()=>{
 						xparams.f=1;
 						var xxgrd=xgrd;
 						promisRequest({url:'ajaxVCSObjectPush',params:xparams, successCallback:function(j){
 							Ext.infoMsg.msg('success','VCS Objects Pushed');
 							xxgrd.ds.reload();
 						}});
-					}
+					});
 					break;
 					default:Ext.infoMsg.alert('Error','unknown error: '+j.error,'error' )
 			}
@@ -4384,14 +4384,14 @@ function vcsPushMulti(xgrid, tid, tpk){
 		if(j.error){
 			switch(j.error){
 				case	'force':
-					if(confirm('There is conflicts. Do you STILL want to Overwrite?')){
+					Ext.infoMsg.confirm('There is conflicts. Do you STILL want to Overwrite?',()=>{
 						xparams.f=1;
 						var xxgrd=xgrd;
 						promisRequest({url:'ajaxVCSObjectPushMulti',params:xparams, successCallback:function(j){
 							Ext.infoMsg.msg('success','VCS Objects Pushed');
 							xxgrd.ds.reload();
 						}});
-					}
+					});
 					break;
 					default:Ext.infoMsg.alert('Error','unknown error: '+j.error ,'error')
 			}
@@ -4409,14 +4409,14 @@ function vcsPushAll(xgrid, keyz){
 		if(j.error){
 			switch(j.error){
 				case	'force':
-					if(confirm('There is conflicts. Do you STILL want to Overwrite?')){
+					Ext.infoMsg.confirm('There is conflicts. Do you STILL want to Overwrite?',()=>{
 						xparams.f=1;
 						var xxgrd=xgrd;
 						promisRequest({url:'ajaxVCSObjectPushAll',params:xparams, successCallback:function(j){
 							Ext.infoMsg.msg('success','VCS Objects Pushed');
 							xxgrd.ds.reload();
 						}});
-					}
+					});
 					break;
 					default:Ext.infoMsg.alert('Error','unknown error: '+j.error,'error' )
 			}
@@ -4434,13 +4434,14 @@ function vcsPull(xgrid, tid, tpk){
 		if(j.error){
 			switch(j.error){
 				case	'force':
-					if(confirm((j.error_msg || 'There is conflicts.') +' Do you STILL want to Overwrite?')){
+					Ext.infoMsg.confirm((j.error_msg || 'There is conflicts.') +' Do you STILL want to Overwrite?',()=>{
 						xparams.f=1;
 						var xxgrd=xgrd;
 						promisRequest({url:'ajaxVCSObjectPull',requestWaitMsg:false, params:xparams, successCallback:function(j){
 							Ext.infoMsg.msg('success','VCS Objects Pulled');
 							xxgrd.ds.reload();
-						}});					}
+						}});					
+					});
 					break;
 			}
 			return;
@@ -4488,12 +4489,12 @@ function fncMnuVcs(xgrid){
 			}
 		}},{text:'Ignore', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelections();
-			if(sel && sel.length>0 && sel[0].data.pkpkpk_vcsf && confirm('Are you sure?')){
+			sel && sel.length>0 && sel[0].data.pkpkpk_vcsf && Ext.infoMsg.confirm('Are you sure?',()=>{
 				promisRequest({url:'ajaxVCSObjectAction',params:{t:aq._grid.crudTableId, k:sel[0].id, a:3}, successCallback:function(j){
 					Ext.infoMsg.msg('warning','Deleted from VCS');
 					aq._grid.ds.reload();
 				}});
-			}
+			});
 		}}/*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelected();
 			if(sel && sel.data.pkpkpk_vcsf){
@@ -4943,9 +4944,12 @@ iwb.ui.buildCRUDForm=function(getForm, callAttributes, _page_tab_id){
 	    },
 	    iconCls: 'ikapat',
 	    handler: function(a, b, c) {
-	        if (!getForm.viewMode && 1 * _app.form_cancel_dirty_control && getForm._cfg.formPanel.getForm().isDirty() && !confirm('${changed_records_sure_to_close}')) return;
-	        if (!callAttributes.modalWindowFlag) mainPanel.getActiveTab().destroy();
-	        else mainPanel.closeModalWindow()
+	    	function closeMe(){
+		        if (!callAttributes.modalWindowFlag) mainPanel.getActiveTab().destroy();
+		        else mainPanel.closeModalWindow()
+	    	}
+	        if(!getForm.viewMode && 1 * _app.form_cancel_dirty_control && getForm._cfg.formPanel.getForm().isDirty())Ext.infoMsg.confirm('There are changed fields. Do you still want to close?',()=>{ closeMe()}); 
+	        else closeMe();
 	    }
 	});
 
