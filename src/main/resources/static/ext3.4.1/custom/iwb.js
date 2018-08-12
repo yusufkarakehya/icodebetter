@@ -914,32 +914,30 @@ function fnRowDelete(a,b){
 	    	return;
 	    }
 	    
-	    Ext.MessageBox.confirm(getLocMsg('js_warning'), getLocMsg('js_secili_kayitlari_silmek_emin')+' ('+sels.length+' '+getLocMsg('js_kayit')+')', function(btn){
-	        if(btn == 'yes'){
-		    	var href='ajaxPostEditGrid?_fid='+a._grid.crudFormId;
-		    	var params={_cnt:sels.length};
-		    	if(typeof a._grid._postDelete == 'function'){
-		      		href = a._grid._postDelete(sels,href,a); // null donerse acilmayacak
-		      	}else{
-			      	for(var bjk=0;bjk<sels.length;bjk++){ // delete
-			      		for(var key in a._grid._pk)params[key+""+(bjk+1)]=sels[bjk].data[a._grid._pk[key]];
-			      		params["a"+(bjk+1)]=3;
-			      	}
+	    Ext.infoMsg.confirm(getLocMsg('js_secili_kayitlari_silmek_emin')+' ('+sels.length+' '+getLocMsg('js_kayit')+')', ()=>{
+	    	var href='ajaxPostEditGrid?_fid='+a._grid.crudFormId;
+	    	var params={_cnt:sels.length};
+	    	if(typeof a._grid._postDelete == 'function'){
+	      		href = a._grid._postDelete(sels,href,a); // null donerse acilmayacak
+	      	}else{
+		      	for(var bjk=0;bjk<sels.length;bjk++){ // delete
+		      		for(var key in a._grid._pk)params[key+""+(bjk+1)]=sels[bjk].data[a._grid._pk[key]];
+		      		params["a"+(bjk+1)]=3;
 		      	}
-		    	if(href)promisRequest({
-					url: href,
-					params:params,requestWaitMsg:true, 
-					successDs: a._grid.ds,
-					successCallback:function(j2){
-		    			if(j2.logErrors || j2.msgs){
-		                	var str='';
-		                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
-		                	if(j2.logErrors)str+=prepareLogErrors(j2);
-		                	Ext.infoMsg.alert('info',str);
-		    			}
-		    		}
-		    	});
-	        }
+	      	}
+	    	if(href)promisRequest({
+				url: href,
+				params:params,requestWaitMsg:true, 
+				successDs: a._grid.ds,
+				successCallback:function(j2){
+	    			if(j2.logErrors || j2.msgs){
+	                	var str='';
+	                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
+	                	if(j2.logErrors)str+=prepareLogErrors(j2);
+	                	Ext.infoMsg.alert('info',str);
+	    			}
+	    		}
+	    	});
 	    });
     } else {
 	    var sel=a._grid.sm.getSelected();
@@ -957,29 +955,27 @@ function fnRowDelete(a,b){
 	    	}
 	    	return;
 	    }
-	    Ext.MessageBox.confirm(getLocMsg('js_warning'), getLocMsg('js_secili_kayit_silmek_emin'), function(btn){
-	        if(btn == 'yes'){
-		    	var href='ajaxPostForm?a=3&_fid='+a._grid.crudFormId;
-		    	if(typeof a._grid._postDelete == 'function'){
-		      		href = a._grid._postDelete(sel,href,a); // null donerse acilmayacak
-		      	} else {
-			    	for(var key in a._grid._pk)href+="&"+key+"="+sel.data[a._grid._pk[key]];
-			    	if(a._grid._postDelete)href+="&"+a._grid._postDelete;
-		      	}
-		    	if(href)promisRequest({
-					url: href,
-					successDs: a._grid.ds,requestWaitMsg:true, 
-					successCallback:function(j2){
-						if(!j2.logErrors){a._grid.ds.remove(sel);}
-		    			if(j2.logErrors || j2.msgs){
-		                	var str='';
-		                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
-		                	if(j2.logErrors)str+=prepareLogErrors(j2);
-		                	Ext.infoMsg.alert('info',str);
-		    			}
-		    		}
-		    	});
-	        }
+	    Ext.infoMsg.confirm(getLocMsg('js_secili_kayit_silmek_emin'), ()=>{
+	    	var href='ajaxPostForm?a=3&_fid='+a._grid.crudFormId;
+	    	if(typeof a._grid._postDelete == 'function'){
+	      		href = a._grid._postDelete(sel,href,a); // null donerse acilmayacak
+	      	} else {
+		    	for(var key in a._grid._pk)href+="&"+key+"="+sel.data[a._grid._pk[key]];
+		    	if(a._grid._postDelete)href+="&"+a._grid._postDelete;
+	      	}
+	    	if(href)promisRequest({
+				url: href,
+				successDs: a._grid.ds,requestWaitMsg:true, 
+				successCallback:function(j2){
+					if(!j2.logErrors){a._grid.ds.remove(sel);}
+	    			if(j2.logErrors || j2.msgs){
+	                	var str='';
+	                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
+	                	if(j2.logErrors)str+=prepareLogErrors(j2);
+	                	Ext.infoMsg.alert('info',str);
+	    			}
+	    		}
+	    	});
 	    });
     }
 };
@@ -1198,24 +1194,22 @@ function fnCommit(a){
 	}
   	if(dirtyCount>0){
   		params._cnt=dirtyCount;  		
-  		Ext.MessageBox.confirm(getLocMsg('js_warning'), getLocMsg('js_degisiklik_kayit_emin'), function(btn){
-	        if(btn == 'yes'){
-	      		promisRequest({
-	    			url:'ajaxPostEditGrid?_fid='+a._grid.crudFormId,
-	    			params:params,requestWaitMsg:true, 
-	    			successDs: a._grid.ds,
-	    			successCallback:function(j2){
-		      			if(a._grid._deletedItems)a._grid._deletedItems=[];
-		      			if(a._grid._insertedItems)a._grid._insertedItems=[];
-		    			if(j2.logErrors || j2.msgs){
-		                	var str='';
-		                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
-		                	if(j2.logErrors)str+=prepareLogErrors(j2);
-		                	Ext.infoMsg.alert('info',str);
-		    			}
-	      			}
-	    		});
-	        }
+  		Ext.infoMsg.confirm(getLocMsg('js_degisiklik_kayit_emin'), ()=>{
+      		promisRequest({
+    			url:'ajaxPostEditGrid?_fid='+a._grid.crudFormId,
+    			params:params,requestWaitMsg:true, 
+    			successDs: a._grid.ds,
+    			successCallback:function(j2){
+	      			if(a._grid._deletedItems)a._grid._deletedItems=[];
+	      			if(a._grid._insertedItems)a._grid._insertedItems=[];
+	    			if(j2.logErrors || j2.msgs){
+	                	var str='';
+	                	if(j2.msgs)str=j2.msgs.join('<br>')+'<p>';
+	                	if(j2.logErrors)str+=prepareLogErrors(j2);
+	                	Ext.infoMsg.alert('info',str);
+	    			}
+      			}
+    		});
 	    });
   	} else Ext.infoMsg.msg('warning',getLocMsg('js_degisiklik_yok'));
 }
