@@ -1293,6 +1293,32 @@ Ext.ux.panel.DraggableTabs.DropTarget = Ext.extend(Ext.dd.DropTarget, {
 
 Ext.infoMsg = {
 		msgTypes:{info:'bottom',success:'bottom',warning:'top',error:'top'},
+		alert:function(type, msg){
+			if(!msg){msg=type||'msg';type='info';}
+			var c={text: msg,theme:'metroui', type: type, modal:!0,layout: 'center', animation:{open:null,close:null},
+					buttons: [Noty.button('OK', 'noty-btn btn-success', function () {nw.close();}, {})]
+				};
+			var nw=new Noty(c);
+			nw.show();
+		},
+		confirm:function(msg,callback){
+			if(!callback){alert('confirm.define callback for: '+msg);return}
+			var c={text: msg,theme:'metroui', type: 'info', modal:!0,layout: 'center', animation:{open:null,close:null},closeWith:[],
+					buttons: [Noty.button('OK', 'noty-btn btn-success', function () {nw.close();callback()}, {}), Noty.button('Cancel', 'noty-btn', function () {nw.close();}, {})]
+				};
+			var nw=new Noty(c);
+			nw.show();			
+		},
+		prompt:function(msg,defaultValue, callback){
+			if(!callback){alert('prompt.define callback for: '+msg);return}
+			defaultValue=defaultValue||'';
+			var idx='idx-'+new Date().getTime();
+			var c={text: msg+'<br/><br/><input autofocus value="'+defaultValue+'" id="'+idx+'">',theme:'metroui', type: 'info', modal:!0,layout: 'center', animation:{open:null,close:null},closeWith:[],
+					buttons: [Noty.button('OK', 'noty-btn btn-success', function () {nw.close();var val=document.getElementById(idx);if(val.value)callback(val.value);}, {}), Noty.button('Cancel', 'noty-btn', function () {nw.close();}, {})]
+				};
+			var nw=new Noty(c);
+			nw.show();			
+		},
         msg : function(type, msg, timeout){
         	var pos=Ext.infoMsg.msgTypes[type];
         	if(!pos){msg='<b>'+type+'</b><br/>'+msg;type='info';pos='bottom';}
@@ -1331,7 +1357,7 @@ Ext.infoMsg = {
         	}).show();
         },
 };
-
+try{window.alert=Ext.infoMsg.alert;alert=Ext.infoMsg.alert;}catch(ee){};
 
 /* IBAN Validation */
 
