@@ -1495,95 +1495,108 @@ public class UserUtil {
 	
 	public static Map<String, Object> getScd4Preview(HttpServletRequest request, String scdKey, boolean onlineCheck){
 		Map<String, Object> scd = null; //only in developer mode
-		HttpSession session = null;
-		session = request.getSession(false);
-		if(session==null || session.getAttribute(scdKey)==null || ((HashMap<String,Object>)session.getAttribute(scdKey)).isEmpty()){
-			throw new IWBException("session","No Session",0,null, "No valid session", null);
+		String pid = getProjectId(request, "preview");
+		W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
+		
+		if(FrameworkSetting.projectSystemStatus.get(pid)!=0){
+			throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 		}
-		scd =(Map<String, Object>)session.getAttribute(scdKey);
-		if((Integer)scd.get("roleId")!=0){
-			throw new IWBException("security","Only for Developers",0,null, "Only for Developers", null);
-		}
-		String pid = null;
-		if(GenericUtil.uInt(request,"_preview")!=0) {
-			pid = request.getParameter(".p");
-		} else {
-			String uri = request.getRequestURI();
-			String s = "preview/";
-			int ix = uri.indexOf(s);
-			if(ix>-1){
-				pid = uri.substring(ix+s.length(), uri.lastIndexOf('/'));
-			}
-		}
-		if(pid!=null && pid.length()>0){
-			int customizationId = (Integer)scd.get("customizationId");
-			W5Project po = FrameworkCache.getProject(pid);
-			if(po!=null && po.getCustomizationId()==customizationId){
-				if(FrameworkSetting.projectSystemStatus.get(pid)!=0){
-					throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
-				}
-				Map newScd =(Map<String, Object>)session.getAttribute("iwb-"+pid); 
-				if(newScd==null){
+		String newScdKey = "preview-"+pid;
+
+		HttpSession session = request.getSession(false);
+		Map newScd = null;
+		if(session!=null){
+			newScd =(Map<String, Object>)session.getAttribute(newScdKey);
+			if(newScd==null){
+				scd =(Map<String, Object>)session.getAttribute(scdKey); //developer
+				if(scd!=null){
+					if((Integer)scd.get("roleId")!=0){
+						throw new IWBException("security","Only for Developers",0,null, "Only for Developers", null);
+					}
 					newScd=new HashMap<String, Object>();
 					newScd.putAll(scd);
-					newScd.put("renderer", 5);
-					newScd.put("_renderer", "react16");
-					newScd.put("mainTemplateId", 2459);
-					session.setAttribute("iwb-"+pid, newScd);
+					newScd.put("customizationId",po.getCustomizationId());
+					newScd.put("projectId",po.getProjectUuid());newScd.put("roleId",999999);
+					newScd.put("renderer", po.getUiWebFrontendTip());
+					newScd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+					newScd.put("mainTemplateId", po.getUiMainTemplateId());
+					newScd.put("path", "../");
+					newScd.put("userTip",po.get_defaultUserTip());
+					newScd.put("sessionId", "nosession");
+					session.setAttribute(newScdKey, newScd);
 				}
-				return newScd;
 			}
 		}
-		throw new IWBException("security","Temporary SCD Not Defined",0,null, "Temporary SCD Not Defined", null);
+		if(newScd!=null)return newScd;
+		if(po.getSessionQueryId()==0){
+			newScd=new HashMap<String, Object>();
+			newScd.put("customizationId",po.getCustomizationId());newScd.put("ocustomizationId",po.getCustomizationId());newScd.put("userId",10);newScd.put("completeName","XXX");
+			newScd.put("projectId",po.getProjectUuid());newScd.put("roleId",10);newScd.put("roleDsc", "XXX Role");
+			newScd.put("renderer", po.getUiWebFrontendTip());
+			newScd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+			newScd.put("mainTemplateId", po.getUiMainTemplateId());
+			newScd.put("userName", "Demo User");
+			newScd.put("email", "demo@icodebetter.com");newScd.put("locale", "en");
+			newScd.put("chat", 1);newScd.put("chatStatusTip", 1);
+			newScd.put("userTip",po.get_defaultUserTip());
+			newScd.put("path", "../");
+			if(session==null)session = request.getSession(true);
+			newScd.put("sessionId", "nosession");
+			session.setAttribute(newScdKey, newScd);
+			return newScd;
+		}
+		
+		throw new IWBException("session","No Session",0,null, "No valid session", null);
 	}
 	public static String getProjectId(HttpServletRequest request, String prefix){
 		String uri = request.getRequestURI();
 		String pid = null;
-		if(GenericUtil.isEmpty(prefix))prefix = "/";
+		if(GenericUtil.isEmpty(prefix))prefix = "";
+		if(!prefix.endsWith("/"))prefix+="/";
 		int ix = uri.indexOf(prefix);
 		if(ix>-1){
-			pid = uri.substring(ix+prefix.length(), uri.lastIndexOf('/'));
+			pid = uri.substring(ix+prefix.length());
+			return pid.substring(0,pid.indexOf('/'));
 		}
-		return pid;
-		
+		return null;		
 	}
 	
 	public static Map<String, Object> getScd4PAppSpace(HttpServletRequest request){
 		HttpSession session = null;
 		session = request.getSession(false);
 		String pid = getProjectId(request, "space/");
+		W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
+		if(FrameworkSetting.projectSystemStatus.get(pid)!=0){
+			throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
+		}
 		String scdKey = "space-"+pid;
 
 		if(session==null || session.getAttribute(scdKey)==null || ((HashMap<String,Object>)session.getAttribute(scdKey)).isEmpty()){
-			W5Project po = FrameworkCache.getProject(pid);
 			if(po.getSessionQueryId()>0){
 				throw new IWBException("session","No Session",0,null, "No valid session", null);
 			}
-			int customizationId = po.getCustomizationId();
-			if(po!=null && po.getCustomizationId()==customizationId){
-				if(FrameworkSetting.projectSystemStatus.get(pid)!=0){
-					throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
-				}
-				Map scd=new HashMap<String, Object>();
-				scd.put("customizationId", po.getCustomizationId());
-				scd.put("ocustomizationId", po.getCustomizationId());
-				scd.put("userId", 10);
-				scd.put("roleId", 0);
-				scd.put("userRoleId", 0);
-				scd.put("roleDsc", "Demo Role");
-				scd.put("chat", 1);
-				scd.put("chatStatusTip", 1);
-				scd.put("projectId", po.getProjectUuid());
-				scd.put("locale", "en");
-				scd.put("userName", "Demo User");
-				scd.put("email", "demo@icodebetter.com");
-				scd.put("renderer", po.getUiWebFrontendTip());
-				scd.put("_renderer", "react16");
-				scd.put("mainTemplateId", po.getUiMainTemplateId());
-				if(session==null)session = request.getSession(true);
-				session.setAttribute(scdKey, scd);
-				return scd;
-			}
+			Map scd=new HashMap<String, Object>();
+			scd.put("customizationId", po.getCustomizationId());
+			scd.put("ocustomizationId", po.getCustomizationId());
+			scd.put("userId", 10);scd.put("completeName","XXX");
+			scd.put("roleId", 10);
+			scd.put("userRoleId", 0);
+			scd.put("roleDsc", "Demo Role");
+			scd.put("chat", 1);
+			scd.put("chatStatusTip", 1);
+			scd.put("projectId", po.getProjectUuid());
+			scd.put("locale", "en");
+			scd.put("userName", "Demo User");
+			scd.put("email", "demo@icodebetter.com");
+			scd.put("renderer", po.getUiWebFrontendTip());
+			scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+			scd.put("mainTemplateId", po.getUiMainTemplateId());
+			scd.put("userTip",po.get_defaultUserTip());
+			scd.put("path", "../");
+			if(session==null)session = request.getSession(true);
+			scd.put("sessionId", "nosession");
+			session.setAttribute(scdKey, scd);
+			return scd;
 		}
 		return (Map<String, Object>)session.getAttribute(scdKey);
 	}

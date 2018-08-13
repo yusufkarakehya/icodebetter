@@ -1407,7 +1407,7 @@ public class ExtJs3_3 implements ViewAdapter {
 
 		boolean b = false;
 		int tabHeight = 0;
-		buf.append(",{xtype:'tabpanel',activeTab: 0, deferredRender:false,defaults:{bodyStyle:'padding:0px'}, items:[");// defaults:{autoHeight:true,
+		buf.append(",{xtype:'tabpanel',activeTab: 0, border:false,deferredRender:false,defaults:{bodyStyle:'padding:0px'}, items:[");// defaults:{autoHeight:true,
 																														// bodyStyle:'padding:10px'},
 		for (W5FormModule m : formResult.getForm().get_moduleList())
 			if (m.getFormModuleId() != 0) {
@@ -1490,7 +1490,8 @@ public class ExtJs3_3 implements ViewAdapter {
 									.append(formResult.isViewMode() ? (gridResult.getGrid().getTreeMasterFieldId() == 0 ? "Ext.grid.GridPanel": "Ext.ux.maximgb.tg.GridPanel")
 											: (gridResult.getGrid().getTreeMasterFieldId() == 0 ? "Ext.grid.EditorGridPanel" : "Ext.ux.maximgb.tg.EditorGridPanel"))
 									.append("(Ext.apply(").append(gridResult.getGrid().getDsc())
-									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",title:'").append(LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey()))
+									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",bodyStyle:'border-top: 1px solid #18181a;min-height:").append(gridResult.getGrid().getDefaultHeight())
+									.append("',title:'").append(LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey()))
 									.append("',height:").append(gridResult.getGrid().getDefaultHeight())
 									.append(",autoScroll:true,clicksToEdit: 1*_app.edit_grid_clicks_to_edit}))");
 						}
@@ -1677,7 +1678,7 @@ public class ExtJs3_3 implements ViewAdapter {
 													: "Ext.ux.maximgb.tg.EditorGridPanel"))
 									.append("(Ext.apply(")
 									.append(gridResult.getGrid().getDsc())
-									.append(",{title:'")
+									.append(",{bodyStyle:'border-top: 1px solid #18181a;',title:'")
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											m.getLocaleMsgKey()))
@@ -1868,7 +1869,7 @@ public class ExtJs3_3 implements ViewAdapter {
 														: "Ext.ux.maximgb.tg.EditorGridPanel"))
 										.append("(Ext.apply(")
 										.append(gridResult.getGrid().getDsc())
-										.append(",{title:'")
+										.append(",{bodyStyle:'border-top: 1px solid #18181a;',title:'")
 										.append(LocaleMsgCache.get2(
 												customizationId, xlocale,
 												m.getLocaleMsgKey()))

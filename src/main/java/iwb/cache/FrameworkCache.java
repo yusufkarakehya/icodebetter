@@ -101,7 +101,10 @@ public class FrameworkCache {
 		wDevEntityKeys.clear();
 		wDevEntityKeys.addAll(m);
 	}
-	
+
+	public static boolean isDevEntity(String key){
+		return wDevEntityKeys.contains(key);
+	}
 
 	public static W5Customization getCustomization(int customizationId){
 		if(wCustomization==null)return null;

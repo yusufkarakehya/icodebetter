@@ -800,4 +800,22 @@ public class VcsServlet implements InitializingBean {
 		response.getWriter().close();
 		
 	}
+	
+	
+	@RequestMapping("/ajaxVCSListServerProjects")
+	public void hndAjaxVCSListServerProjects(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("ajaxVCSListServerProjects"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+		String s = vcsEngine.vcsClientListServerProjects(scd);
+		response.setContentType("application/json");
+		response.getWriter().write(s);
+		response.getWriter().close();
+		
+	}
 }

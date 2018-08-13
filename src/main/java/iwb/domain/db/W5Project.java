@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
 //import org.influxdb.InfluxDB;
@@ -40,6 +41,7 @@ public class W5Project  implements java.io.Serializable {
 	private int uiLoginTemplateId;
 	private int sessionQueryId;
 	private int authenticationFuncId;
+	private int _defaultUserTip;
 	
 	/*
 	  ui_web_frontend_tip smallint NOT NULL DEFAULT 1,
@@ -226,6 +228,14 @@ public class W5Project  implements java.io.Serializable {
 	}
 	public void setDsc(String dsc) {
 		this.dsc = dsc;
+	}
+	
+	@Transient
+	public int get_defaultUserTip() {
+		return _defaultUserTip;
+	}
+	public void set_defaultUserTip(int _defaultUserTip) {
+		this._defaultUserTip = _defaultUserTip;
 	}
 
 }

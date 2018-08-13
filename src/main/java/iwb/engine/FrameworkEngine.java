@@ -1406,7 +1406,7 @@ public class FrameworkEngine{
 								}
 
 								W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody, null);//mail_keep_body_original ?
-								W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.projectUuid=?", (Integer)scd.get("mailSettingId"), projectId, "MailSetting");
+								W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", (Integer)scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 								email.set_oms(oms);
 
 								String sonuc = MailUtil.sendMail(scd, email);
@@ -1648,7 +1648,7 @@ public class FrameworkEngine{
 								}
 
 								W5Email email= new W5Email(pemailList,null,null,t.get_approvalMap().get((short)2).getDsc()," ("+summaryText+") "+mesajBody, null);//mail_keep_body_original ?
-								W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.projectUuid=?", (Integer)scd.get("mailSettingId"), (String)scd.get("projectId"), "MailSetting");
+								W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", (Integer)scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 								email.set_oms(oms);
 								String sonuc = MailUtil.sendMail(scd, email);
 								if(FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag")!=0){
@@ -1894,7 +1894,13 @@ public class FrameworkEngine{
 					case	1://mail
 //W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
 						W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, t.getTableId(), GenericUtil.uInt(ptablePk));
-						W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.projectUuid=?", fsm.getMailSettingId()!=0 ? fsm.getMailSettingId():(Integer)scd.get("mailSettingId"), (String)scd.get("projectId"), "MailSetting");
+						int ms = fsm.getMailSettingId()!=0 ? fsm.getMailSettingId():(Integer)scd.get("mailSettingId");
+						if(ms==0)ms=1;
+						int cusId = ms!=1 ? (Integer)scd.get("customizationId"):0;
+						W5ObjectMailSetting oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", fsm.getMailSettingId()!=0 ? fsm.getMailSettingId():(Integer)scd.get("mailSettingId"), cusId, ms!=1 ? "MailSetting":null);
+						if(oms==null){
+							oms = (W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", 1, 0, "SystemMailSetting");
+						}
 						email.set_oms(oms);
 						if(fsm.getAsyncFlag()!=0)result.add(new W5QueuedActionHelper(email));
 						else MailUtil.sendMail(scd, email);
@@ -2039,7 +2045,7 @@ public class FrameworkEngine{
     		break;
 		case	1://update
 		case	3://delete
-   			List l=dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", t.getTableId(), tablePk, scd.get("projectId"), scd.get("customizationId"));
+   			List l=dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=?", t.getTableId(), tablePk, scd.get("projectId"));
    			if(l.isEmpty())break;
    			W5VcsObject vo =(W5VcsObject)l.get(0);
    			vo.setVersionDttm(new Timestamp(new Date().getTime()));
@@ -2183,8 +2189,8 @@ public class FrameworkEngine{
 			}
 			if(alarm){
 				alMap = new HashMap();
-				List<W5FormSmsMailAlarm> l = (List<W5FormSmsMailAlarm>)dao.find("from W5FormSmsMailAlarm a where a.customizationId=? AND a.insertUserId=? AND a.tableId=? AND a.tablePk=? "
-						, scd.get("customizationId"), scd.get("userId"), formResult.getForm().getObjectId(), GenericUtil.uInt(ptablePk));
+				List<W5FormSmsMailAlarm> l = (List<W5FormSmsMailAlarm>)dao.find("from W5FormSmsMailAlarm a where a.projectUuid=? AND a.insertUserId=? AND a.tableId=? AND a.tablePk=? "
+						, scd.get("projectId"), scd.get("userId"), formResult.getForm().getObjectId(), GenericUtil.uInt(ptablePk));
 				for(W5FormSmsMailAlarm a:l){
 					alMap.put(a.getFormSmsMailId(), a);
 				}
@@ -2457,7 +2463,7 @@ public class FrameworkEngine{
 
 					W5WsMethod wsm = FrameworkCache.getWsMethod(scd, c.getDstTableId());
 					if(wsm.get_params()==null){
-						wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
+						wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", wsm.getWsMethodId(), (String)scd.get("projectId")));
 					}
 
 					Map mq = dao.interprateConversionTemplate4WsMethod(scd, requestParams, c, GenericUtil.uInt(ptablePk), wsm);
@@ -2854,7 +2860,7 @@ public class FrameworkEngine{
 		case	1376://WS Method
 			W5WsMethod wsm = FrameworkCache.getWsMethod(scd, queryResult.getQuery().getMainTableId());
 			if(wsm.get_params()==null){
-				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
+				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", wsm.getWsMethodId(), (String)scd.get("projectId")));
 				wsm.set_paramMap(new HashMap());
 				for(W5WsMethodParam wsmp:wsm.get_params())
 					wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
@@ -2938,7 +2944,7 @@ public class FrameworkEngine{
 					case	1376://WS Method
 						W5WsMethod wsm = FrameworkCache.getWsMethod(scd, lookupQueryResult.getQuery().getMainTableId());
 						if(wsm.get_params()==null){
-							wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.customizationId=? order by t.tabOrder", wsm.getWsMethodId(), (Integer)scd.get("customizationId")));
+							wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", wsm.getWsMethodId(), (String)scd.get("projectId")));
 							wsm.set_paramMap(new HashMap());
 							for(W5WsMethodParam wsmp:wsm.get_params())
 								wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
@@ -5338,7 +5344,7 @@ public class FrameworkEngine{
 			return r;
 		} else { //email
 			W5Email email = dao.interprateMailTemplate(fsm, scd,requestParams, tableId, GenericUtil.uInt(requestParams.get("table_pk")));
-			W5ObjectMailSetting oms =(W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.projectUuid=?", (Integer)scd.get("mailSettingId"), (String)scd.get("projectId"), "MailSetting");
+			W5ObjectMailSetting oms =(W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", (Integer)scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 //					(W5ObjectMailSetting)dao.getCustomizedObject("from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?)", (Integer)scd.get("mailSettingId"), (Integer)scd.get("customizationId"), "MailSetting");
 //			if(requestParams.get("pfile_attachment_ids")!=null)mq.put("pfile_attachment_ids", requestParams.get("pfile_attachment_ids"));
 			email.set_oms(oms);
@@ -5998,29 +6004,6 @@ public class FrameworkEngine{
 		return l;
 	}
 
-	public W5WsServer getWsServer(int customizationId, String url) {
-		List<W5WsServer> lws = dao.find("from W5WsServer s where s.customizationId=? AND s.wsUrl=?", customizationId, url);
-		if(GenericUtil.isEmpty(lws))return null;
-		W5WsServer ws = lws.get(0);
-		ws.set_methods(dao.find("from W5WsServerMethod m where m.customizationId=? AND m.wsServerId=? order by m.tabOrder", customizationId, ws.getWsServerId()));
-		for(W5WsServerMethod wsm:ws.get_methods()){
-			switch(wsm.getObjectTip()){
-			case	2://table
-				break;
-			case	4://stored proc
-				break;
-
-			case	19://query
-				break;
-
-			}
-
-
-			wsm.set_params(dao.find("from W5WsServerMethodParam p where p.customizationId=? AND p.wsServerMethodId=? order by p.tabOrder", customizationId, wsm.getWsServerMethodId()));
-
-		}
-		return ws;
-	}
 
 /*
 	public String projectAccessUrl(String instanceUuid, String remoteAddr) {
@@ -6050,11 +6033,11 @@ public class FrameworkEngine{
 	    		if(!sqlFrom2.contains("select") && !sqlFrom2.contains(",")  && !sqlFrom2.contains("left")  && !sqlFrom2.contains("(")){
 	    			String[] ss = sqlFrom2.split(" ");
 	    			if(ss.length<3){
-	    				List l = dao.find("select t.tableId from W5Table t where t.customizationId=? AND t.dsc=?", scd.get("customizationId"), ss[0]);
+	    				List l = dao.find("select t.tableId from W5Table t where t.projectUuid=? AND t.dsc=?", scd.get("projectId"), ss[0]);
 	    				if(!l.isEmpty())t = FrameworkCache.getTable(scd, (Integer)l.get(0));
 	    			}
 	    		}
-				if((Integer)scd.get("customizationId")>0 && DBUtil.checkTenantSQLSecurity(queryResult.getExecutedSql())) {
+				if(FrameworkSetting.cloud && (Integer)scd.get("customizationId")>0 && DBUtil.checkTenantSQLSecurity(queryResult.getExecutedSql())) {
 					throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
 				}
 
@@ -6330,14 +6313,16 @@ public class FrameworkEngine{
 	}
 
 	public void saveCredentials(int cusId,int userId, String picUrl ,String fullName,int socialNet, String email, String nickName, List<Map> projects, List<Map> userTips) {
-		dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName.replace('.', '_').replace('-', '_'));
+		if(dao.find("select 1 from W5Customization t where t.customizationId=?", cusId).isEmpty())dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName.replace('.', '_').replace('-', '_'));
 		FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
 
 		FrameworkSetting.projectSystemStatus.put(projects.get(0).get("project_uuid").toString(), 0);
-		dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)",
+		if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_user u where u.user_id=?", userId))) {
+			dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)",
 				userId, cusId, nickName, email, nickName+1, 1, nickName, 1 , socialNet, email,projects.get(0).get("project_uuid"));
-		int userRoleId = GenericUtil.getGlobalNextval("iwb.seq_user_role", (String)projects.get(0).get("project_uuid"), userId, cusId);
-		dao.executeUpdateSQLQuery("insert into iwb.w5_user_role(user_role_id, user_id, role_id, customization_id,unit_id, project_uuid) values(?, ?, 0, ?,?, ?)",userRoleId, userId, cusId,0,projects.get(0).get("project_uuid"));
+			int userRoleId = GenericUtil.getGlobalNextval("iwb.seq_user_role", (String)projects.get(0).get("project_uuid"), userId, cusId);
+			dao.executeUpdateSQLQuery("insert into iwb.w5_user_role(user_role_id, user_id, role_id, customization_id,unit_id, project_uuid) values(?, ?, 0, ?,?, ?)",userRoleId, userId, cusId,0,projects.get(0).get("project_uuid"));
+		}
 
 		for(Map p: projects){
 			String projectId = (String)p.get("project_uuid");
@@ -6345,11 +6330,10 @@ public class FrameworkEngine{
 			if(oprojectId==null)oprojectId=projectId;
 			String vcsUrl = (String)p.get("vcs_url");
 
-			List list = dao.executeSQLQuery("select 1 from iwb.w5_project p where p.project_uuid=?",projectId);
-			if(GenericUtil.isEmpty(list)){
+			if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_project p where p.project_uuid=?",projectId))){
 				String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
 				dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
-						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, "Project Name 1", ""+userId,schema,vcsUrl,nickName, "1", oprojectId);
+						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, p.get("dsc"), ""+userId,schema,vcsUrl,nickName, "1", oprojectId);
 				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 			}
 
@@ -6364,15 +6348,17 @@ public class FrameworkEngine{
 			String oprojectId = (String)t.get("oproject_uuid");
 			if(oprojectId==null)oprojectId=projectId;
 			int userTip = GenericUtil.uInt(t.get("user_tip"));
-			List list = dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=?",userTip);
-			if(GenericUtil.isEmpty(list)){
+//			List list = dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=?",userTip);
+			if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=? AND p.project_uuid=?",userTip,projectId))){
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, oproject_uuid, web_frontend_tip, default_main_template_id)"
 						+ " values (?,?,?, ?, ?, 5, 2307)", userTip, "Role Group 1", cusId, projectId, oprojectId);
 				Map newScd = new HashMap();newScd.put("projectId", projectId);newScd.put("customizationId", cusId);newScd.put("userId", userId);
 				W5VcsObject vo = new W5VcsObject(newScd, 369, userTip);
 				vo.setVcsObjectStatusTip((short)9);
 				dao.saveObject(vo);
-				dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
+				if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_role p where p.role_id=0 AND project_uuid=?", projectId))){
+					dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role "+System.currentTimeMillis(), userTip, projectId);
+				}
 			}
 		}
 		dao.reloadFrameworkCaches(cusId);

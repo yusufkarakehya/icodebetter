@@ -488,16 +488,6 @@ background-image:url(../images/custom/icons/help.png);
 .veliSelLightRed {background-color: #F5A9A9}
 .veliSelBrown {background-color: #DBA901}
 
-.x-form-live-sync-working, textarea.x-form-live-sync-working {
-	border-color: #3c0
-/*	;background-color: #afc; */
-}
-	
-.x-form-live-sync-changed, textarea.x-form-live-sync-changed {
-	border-color: #c84;
-/*	background-color: #fdc; */
-}
-
 
 
 .x-date-middle {
@@ -547,16 +537,6 @@ pre.code{
 }
 .x-grid3-row-body p {
     margin:5px 5px 10px 5px !important;
-}
-
-.x-form-field-wrap .x-form-lang-trigger {
-	cursor:pointer;
-	background-image: url(images/lang-trigger.png);
-}
-
-.x-form-field-wrap .x-form-add-trigger {
-	cursor:pointer;
-	background-image: url(images/add-trigger.png);
 }
 
 .x-form-field-wrap .x-form-cog-trigger {
@@ -955,4 +935,50 @@ header .phone .theme-switch a+a {
 	background: url(images/arrow-right-16c.png);
 	background-repeat: no-repeat;
     background-position-y: 6px;	
+}
+
+.ext-strict .x-form-text {
+    height: 21px;
+    border-width: 1px;
+}
+.ext-webkit .x-form-text, .ext-webkit textarea.x-form-field {
+    border-width: 1px;
+}
+#idProjects input {
+    height: 19px !important;
+}
+.x-form-field-wrap .x-form-trigger {
+    border-bottom-width: 1px;
+}
+.x-form-item {
+    margin-bottom: 6px;
+}
+.x-form-field-wrap .x-form-trigger {
+    background-image: url(../images/access/form/trigger.png);
+}
+.x-trigger-wrap-focus .x-form-trigger {
+    border-bottom-color: #fd9c33;
+}
+.x-form-field-wrap .x-form-clear-trigger {
+    background-image: url(../images/access/form/clear-trigger.png) !important;
+}
+.x-form-field-wrap .x-form-lang-trigger {
+	cursor:pointer;
+	background-image: url(images/lang-trigger.png);
+}
+
+.x-form-field-wrap .x-form-add-trigger {
+	cursor:pointer;
+	background-image: url(images/add-trigger.png);
+}
+
+
+.ext-webkit .x-form-text.x-form-live-sync-working, .ext-webkit textarea.x-form-field.x-form-live-sync-working, .x-form-live-sync-working, textarea.x-form-live-sync-working {
+	border-color:#3c0;
+    border-width: 2px !important;
+}
+	
+.ext-webkit .x-form-text.x-form-live-sync-changed,.ext-webkit textarea.x-form-field.x-form-live-sync-changed,.x-form-live-sync-changed, textarea.x-form-live-sync-changed {
+	border-color:#945640;
+    border-width: 2px !important;
 }

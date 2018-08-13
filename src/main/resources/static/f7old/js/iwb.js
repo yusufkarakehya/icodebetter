@@ -1085,7 +1085,7 @@ iwb.liveSyncRecord={
 
 
 $$('#idx-logout-1').on('click', function(){
-	iwb.app.confirm('Çıkmak istediğinizden emin misiniz?', 
+	iwb.app.confirm('Are you sure you want to exit?', 
 		function(){
 			iwb.request({url:'ajaxLogoutUser?d=1&.r='+Math.random(),
 				success:function(j){
@@ -1289,7 +1289,7 @@ function attachMenu(il, json){
 		var pk=this.attributes['iwb-key'].value;
 		if(iwbAction)switch(1*iwbAction.crudAction){
 		case	1://edit
-			iwb.app.addNotification({closeOnClick:true,title:user4chat(iwbAction), message: iwb.m4a(iwbAction)+'Bu kaydı az önce ' + ['','düzenlemiştir','','silmiştir'][1*iwbAction.crudAction] + '. Güncel hali için tezeleyin.', media:user4media(iwbAction), hold:3000}); // TODO
+			iwb.app.addNotification({closeOnClick:true,title:user4chat(iwbAction), message: iwb.m4a(iwbAction)+'This record was ' + ['','updated','','deleted'][1*iwbAction.crudAction] + '. Pull to refresh.', media:user4media(iwbAction), hold:3000}); // TODO
 //			iwb.app.alert('Lütfen önce listeyi tazeleyiniz', '<b style="color:red;">Listenin İçeriği Değişti</b>');
 			return;
 		case	3://remove
@@ -1302,10 +1302,10 @@ function attachMenu(il, json){
 		if(json3.crudFlags){
 			if(json3.crudFlags.edit){
 				href='showMForm?a=1&_fid='+json3.crudFormId+'&'+json3.pkName+'='+pk+'&.r='+Math.random()+'&.w=' + iwb.webPageId;
-				lnk.push('<li><a href="'+href+'" class="item-link item-content close-popover"><div class="item-inner" style="background-image:none;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;color: #027eff;">compose</i> &nbsp; Güncelle</div></div></a></li>');
+				lnk.push('<li><a href="'+href+'" class="item-link item-content close-popover"><div class="item-inner" style="background-image:none;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;color: #027eff;">compose</i> &nbsp; Update</div></div></a></li>');
 			}
 			if(json3.crudFlags.remove){
-				lnk.push('<li><a href="#" id="idx-confirm-delete-'+json3.crudFormId+'" class="item-link item-content close-popover"><div class="item-inner" style="background-image:none;color:red;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;">delete_round</i> &nbsp; Sil</div></div></a></li>');
+				lnk.push('<li><a href="#" id="idx-confirm-delete-'+json3.crudFormId+'" class="item-link item-content close-popover"><div class="item-inner" style="background-image:none;color:red;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;">delete_round</i> &nbsp; Delete</div></div></a></li>');
 			}
 		}
 		
@@ -1331,7 +1331,7 @@ function attachMenu(il, json){
 					var pp = $$('#idx-confirm-delete-'+json3.crudFormId);
 					pp.off('click');
 					pp.on('click', function(){
-						iwb.app.confirm('Silmek istediğinizden emin misiniz?', function(){
+						iwb.app.confirm('Areyou sure you want to delete?', function(){
 							alert('TODO');return;
 							iwb.request({url:'ajaxPostForm?a=3&_fid='+json3.crudFormId+'&'+json3.pkName+'='+pk+'&.r='+Math.random()+'&.w=' + iwb.webPageId, success:function(){
 								alert('silindi');

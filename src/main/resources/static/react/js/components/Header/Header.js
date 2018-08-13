@@ -20,7 +20,7 @@ class Header extends React.Component {
   			}});
 	}
 	componentDidMount(){
-		document.getElementById('id-iwb-logo').innerHTML=iwb.logo+' <span>iWorkBetter</span>';
+		document.getElementById('id-iwb-logo').innerHTML=iwb.logo+' <span>iCodeBetter</span>';
 	}
 	render() {
 		var self = this;
@@ -30,7 +30,7 @@ class Header extends React.Component {
     		  _(NavbarToggler, { className: "d-md-down-none", onClick: iwb.sidebarMinimize },_('i',{className:'oi oi-menu', style:{fontSize:'16px'}})),
    		      _(Breadcrumb2,  { className: "d-md-down-none"}),
     		  _(Nav,{ className: "d-md-down-none mr-auto", navbar: true })
-    		  ,typeof qry_select_user_role1!='undefined' && qry_select_user_role1.data && _("ul",{ "className": "ml-auto navbar-nav" }
+    		  ,_scd.session && _scd.sessionId!='nosession' && _("ul",{ "className": "ml-auto navbar-nav" }
     		  
     		 /*    ,(NavItem,null
 		    		 ,_(Dropdown,{isOpen:this.state.rolesOpen, toggle: this.toggleRoles}

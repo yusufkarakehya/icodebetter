@@ -131,11 +131,11 @@ public class PostgreSQL extends BaseDAO {
 
 
 
-	public Object getCustomizedObject(String hql, int objectId, String projectId, String onErrorMsg){
-		List list = find(hql, objectId, projectId);
+	public Object getCustomizedObject(String hql, int objectId, Object tenantId, String onErrorMsg){
+		List list = find(hql, objectId, tenantId);
 		if(list.size()==0){
 			if(onErrorMsg==null)return null;
-			throw new IWBException("framework",onErrorMsg, objectId,null, "Wrong ID", null);
+			throw new IWBException("framework",onErrorMsg, objectId,null, "Wrong ID: "+onErrorMsg, null);
 		}
 		else return list.get(0);
 	}
@@ -793,7 +793,7 @@ public class PostgreSQL extends BaseDAO {
 					rs = s.executeQuery();
 					int	maxTabOrder = 0;
 					Set liveSyncKeys = null;
-					if(FrameworkSetting.liveSyncRecord && mainTable!=null && mainTable.getLiveSyncFlag()!=0 && queryResult.getRequestParams()!=null && queryResult.getScd()!=null && queryResult.getRequestParams().containsKey(".t") && queryResult.getRequestParams().containsKey(".w")){
+					if(FrameworkSetting.liveSyncRecord && mainTable!=null && mainTable.getLiveSyncFlag()!=0 && FrameworkCache.isDevEntity("15."+mainTable.getTableId()) && queryResult.getRequestParams()!=null && queryResult.getScd()!=null && queryResult.getRequestParams().containsKey(".t") && queryResult.getRequestParams().containsKey(".w")){
 						int	 grdOrFcId = GenericUtil.uInt(queryResult.getRequestParams().get("_gid"));
 						if(grdOrFcId==0)grdOrFcId = -GenericUtil.uInt(queryResult.getRequestParams().get("_fdid"));
 						if(grdOrFcId!=0){
@@ -879,7 +879,7 @@ public class PostgreSQL extends BaseDAO {
 //    	} catch(IWBException pe){error = pe.getMessage();throw pe;
 		} catch(Exception e){
     		error = e.getMessage();
-			throw new IWBException("sql","Query",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), "[8,"+queryResult.getQueryId()+"] "+queryResult.getQuery().getDsc(), e.getCause());
+			throw new IWBException("sql","Query",queryResult.getQueryId(),GenericUtil.replaceSql(sql2.length()==0 ? queryResult.getExecutedSql() : sql2.toString(),queryResult.getSqlParams()), "[8,"+queryResult.getQueryId()+"] "+queryResult.getQuery().getDsc(), e);
 		} finally {
 			logQueryAction(queryAction, queryResult, error);
 		}
@@ -2726,6 +2726,7 @@ public class PostgreSQL extends BaseDAO {
 					field.setVersionUserId((Integer)scd.get("userId"));
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 					field.setProjectUuid((String)scd.get("projectId"));
+					field.setOprojectUuid((String)scd.get("projectId"));
 					field.setMainTableFieldId(wsmp.getWsMethodParamId());
 					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", projectId, (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
 					insertList.add(field);
@@ -2748,6 +2749,7 @@ public class PostgreSQL extends BaseDAO {
 					field.setVersionUserId((Integer)scd.get("userId"));
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 					field.setProjectUuid(projectId);
+					field.setOprojectUuid(projectId);
 					field.setMainTableFieldId(0);
 					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", projectId, (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
 					insertList.add(field);
@@ -2994,6 +2996,8 @@ public class PostgreSQL extends BaseDAO {
 
 		List<W5Project> lp = cid==-1 ? (List<W5Project>)find("from W5Project t"):(List<W5Project>)find("from W5Project t where t.customizationId=?",cid);
 		if(lp!=null)for(W5Project p : lp){
+			List ll = executeSQLQuery("select min(t.user_tip) from iwb.w5_user_tip t where t.user_tip!=122 AND t.active_flag=1 AND t.project_uuid=?", p.getProjectUuid());
+			if(!GenericUtil.isEmpty(ll))p.set_defaultUserTip(GenericUtil.uInt(ll.get(0)));
 			FrameworkCache.addProject(p);
 			FrameworkSetting.projectSystemStatus.put(p.getProjectUuid(), 0);
 
@@ -7227,13 +7231,16 @@ public class PostgreSQL extends BaseDAO {
 
 		npo =  (W5Project)find("from W5Project w where w.projectUuid=?", dstProjectId).get(0);
 
+		List<String> doneCommits = find("select t.extraSql from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=? AND (t.vcsCommitId>0 OR t.runLocalFlag!=0) AND length(t.extraSql)>2", dstProjectId);
+		Set<String> doneSet = new HashSet();
+		for(String co:doneCommits)doneSet.add(co);
 		List<W5VcsCommit> sqlCommits = find("from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=? order by abs(t.vcsCommitId)", srcProjectId);
 		for(W5VcsCommit o:sqlCommits){
-			if(!GenericUtil.isEmpty(o.getExtraSql())){
+			if(!GenericUtil.isEmpty(o.getExtraSql()) && !doneSet.contains(o.getExtraSql())){
 				W5VcsCommit no = o.newInstance(dstProjectId);
 				if(o.getVcsCommitId()>0)no.setVcsCommitId(-no.getVcsCommitId());
 				while(no.getExtraSql().contains(po.getRdbmsSchema()))no.setExtraSql(no.getExtraSql().replace(po.getRdbmsSchema(), schema));
-				if(o.getVcsCommitId()>0 || o.getRunLocalFlag()!=0){
+				if((o.getVcsCommitId()>0 || o.getRunLocalFlag()!=0)){
 					if(no.getRunLocalFlag()==0)no.setRunLocalFlag((short)1);
 					executeUpdateSQLQuery(no.getExtraSql());
 					smaxSqlCommit = o.getVcsCommitId();
@@ -7243,7 +7250,7 @@ public class PostgreSQL extends BaseDAO {
 		}
 
 		executeUpdateSQLQuery("update iwb.w5_vcs_object x "
-				+ "set vcs_object_status_tip=(select case when z.vcs_object_status_tip in (3,8) then z.vcs_object_status_tip when z.vcs_commit_id!=x.vcs_commit_id then 1 else z.vcs_object_status_tip end from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk),"
+				+ "set vcs_object_status_tip=(select case when z.vcs_object_status_tip in (3,8) then z.vcs_object_status_tip when x.vcs_commit_id!=2 AND z.vcs_commit_id!=x.vcs_commit_id then 1 else z.vcs_object_status_tip end from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk),"
 				+ "vcs_commit_id=(select z.vcs_commit_id from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk) "
 				+ "where x.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk)", srcProjectId, srcProjectId, dstProjectId, srcProjectId);
 
@@ -7330,7 +7337,7 @@ public class PostgreSQL extends BaseDAO {
 				,"w5_access_control"
 				,"w5_user_tip"
 				,"w5_role"
-				,"w5_user"
+//				,"w5_user"
 				,"w5_login_rule_detail"
 				,"w5_login_rule"
 				,"w5_user_role"
