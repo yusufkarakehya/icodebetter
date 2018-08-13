@@ -1778,7 +1778,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 	if(obj.pk)mainGrid._pk = obj.pk;
 	
 	var grdExtra=Ext.apply({
-		region:obj.region || 'north',
+		region:obj.region || 'north', bodyStyle:"border-top: 1px solid #18181a;",
 		autoScroll:true,
 		border: false},obj.grdExtra || {
 		split:true,stripeRows: true,
@@ -1958,7 +1958,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
 			}
 			if(obj.detailGrids[i].pk)detailGrid._pk = obj.detailGrids[i].pk;
 			var grdExtra={
-				title:obj.detailGrids[i]._title_||detailGrid.name,stripeRows: true,id:'gr'+Math.random(), border:false,
+				title:obj.detailGrids[i]._title_||detailGrid.name,stripeRows: true,id:'gr'+Math.random(), border:false,bodyStyle:"border-top: 1px solid #18181a;",
 				autoScroll:true, clicksToEdit: 1*_app.edit_grid_clicks_to_edit};
 			var buttons=[];
 	
@@ -2051,7 +2051,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag){
     
     var subTab={region:'center',
 			enableTabScroll:true,
-			activeTab:0,
+			activeTab:0, border:false,
 			visible:false,
 			items:detailGridPanels,
 			plugins:[scrollerMenu]};
