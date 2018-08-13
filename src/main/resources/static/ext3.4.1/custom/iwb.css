@@ -937,10 +937,11 @@ header .phone .theme-switch a+a {
     background-position-y: 6px;	
 }
 
-.ext-strict .x-form-text {
-    height: 21px;
+.ext-strict .x-form-text, .ext-strict .x-small-editor .x-form-text {
+    height: 21px !important;
     border-width: 1px;
 }
+
 .ext-webkit .x-form-text, .ext-webkit textarea.x-form-field {
     border-width: 1px;
 }

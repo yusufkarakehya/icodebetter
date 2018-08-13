@@ -49,7 +49,7 @@ class Header extends React.Component {
 				    )
 				 )	*/
 				 ,_(NavItem,{ "className": "d-md-down-none nav-link" },
-					_('input',{type:"text", autoComplete:'off',id:'id-global-search', className:"global-search", onChange:iwb.onGlobalSearch, placeholder:"Hızlı arama...", defaultValue:""})
+					_('input',{type:"text", autoComplete:'off',id:'id-global-search', className:"global-search", onChange:iwb.onGlobalSearch, placeholder:"Quick search...", defaultValue:""})
 				    ,_("i", { onClick:function(){var c=document.getElementById('id-global-search');c.focus();}, style:{cursor:'pointer',  fontSize:"17px", fontWeight:'bold', position: 'absolute', top: '17px', right: '10px'},"className": "icon-magnifier" })
 				 )	
 		/*		 

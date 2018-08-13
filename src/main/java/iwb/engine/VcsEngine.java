@@ -3031,11 +3031,28 @@ public class VcsEngine {
 		W5Project po = FrameworkCache.getProject(projectId);
 		if(customizationId!=po.getCustomizationId())
 			throw new IWBException("vcs","vcsClientPublish2AppStore",0,null, "Only your projects", null);
-		String newProjectId = UUID.randomUUID().toString();
-		String schema = "c"+GenericUtil.lPad("1", 5, '0')+"_"+newProjectId.replace('-', '_');
-		dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
-				+ " values (?,1,?, ?, ?,?,?,?, ?)", newProjectId, po.getDsc(), 1, schema, "http://81.214.24.77:8084/app/","app.store", "1", projectId);
-		dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
+		List<Object[]> cnts = dao.executeSQLQuery("select (select count(1) from iwb.w5_vcs_commit x where x.project_uuid=? AND x.vcs_commit_id<0),(select count(1) from iwb.w5_vcs_object x where x.project_uuid=? AND x.vcs_object_status_tip<5),(select x.project_uuid from iwb.w5_project x where x.oproject_uuid=? limit 1)", projectId, projectId, projectId);
+		if(GenericUtil.uInt(cnts.get(0)[0])+GenericUtil.uInt(cnts.get(0)[1])>0)
+			throw new IWBException("vcs","vcsClientPublish2AppStore",0,null, "The project must be synchronized before publishing to App Space (Metadata AND DB Scripts)", null);
+		String newProjectId = null;
+		if(GenericUtil.isEmpty(cnts.get(0)[2])) {
+//			throw new IWBException("vcs","vcsClientPublish2AppStore",0,null, "The project already published", null);
+			newProjectId = UUID.randomUUID().toString();
+			String schema = "c"+GenericUtil.lPad("1", 5, '0')+"_"+newProjectId.replace('-', '_');
+			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid, "
+					+ " ui_web_frontend_tip, ui_main_template_id, session_query_id, authentication_func_id, ui_login_template_id)"
+					+ " values (?,1,?, ?, ?,?,?,?, ?,"
+					+ "?, ?, ?, ?, ?)", newProjectId, po.getDsc(), 1, schema, "http://81.214.24.77:8084/app/","app.store", "1", projectId
+					, po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId());
+			dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
+		} else { 
+			newProjectId = cnts.get(0)[2].toString();
+			dao.executeUpdateSQLQuery("update iwb.w5_project"
+					+ " set dsc=?,ui_web_frontend_tip=?, ui_main_template_id=?, session_query_id=?, authentication_func_id=?, ui_login_template_id=?"
+					+ " where project_uuid=?"
+					, po.getDsc(), po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId(),
+					newProjectId);
+		}
 		dao.copyProject(scd, newProjectId, 1);
 		FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", 1, newProjectId).get(0));
 		FrameworkSetting.projectSystemStatus.put(newProjectId, 0);
