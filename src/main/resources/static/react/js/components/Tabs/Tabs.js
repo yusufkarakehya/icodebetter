@@ -31,7 +31,7 @@ class Tabs extends React.Component {
               <NavItem><NavLinkS className={classNames({ active: this.state.activeTab === '6' })} onClick={() => { this.toggle('6'); }}>Projeler</NavLinkS></NavItem>
               <NavItem><NavLinkS className={classNames({ active: this.state.activeTab === '7' })} onClick={() => { this.toggle('7'); }}>Ozgur</NavLinkS></NavItem>
               <NavItem><NavLinkS className={classNames({ active: this.state.activeTab === '8' })} onClick={() => { this.toggle('8'); }}>Arkadaşları</NavLinkS></NavItem>
-              <NavItem><NavLinkS className={classNames({ active: this.state.activeTab === '9' })} onClick={() => { this.toggle('9'); }}>iWorkBetter</NavLinkS></NavItem>
+              <NavItem><NavLinkS className={classNames({ active: this.state.activeTab === '9' })} onClick={() => { this.toggle('9'); }}>iCodeBetter</NavLinkS></NavItem>
             </Nav>
             <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">

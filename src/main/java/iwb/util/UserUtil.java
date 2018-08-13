@@ -1522,7 +1522,7 @@ public class UserUtil {
 					newScd.put("mainTemplateId", po.getUiMainTemplateId());
 					newScd.put("path", "../");
 					newScd.put("userTip",po.get_defaultUserTip());
-					newScd.put("sessionId", session.getId());
+					newScd.put("sessionId", "nosession");
 					session.setAttribute(newScdKey, newScd);
 				}
 			}
@@ -1541,7 +1541,7 @@ public class UserUtil {
 			newScd.put("userTip",po.get_defaultUserTip());
 			newScd.put("path", "../");
 			if(session==null)session = request.getSession(true);
-			newScd.put("sessionId", session.getId());
+			newScd.put("sessionId", "nosession");
 			session.setAttribute(newScdKey, newScd);
 			return newScd;
 		}
@@ -1594,7 +1594,7 @@ public class UserUtil {
 			scd.put("userTip",po.get_defaultUserTip());
 			scd.put("path", "../");
 			if(session==null)session = request.getSession(true);
-			scd.put("sessionId", session.getId());
+			scd.put("sessionId", "nosession");
 			session.setAttribute(scdKey, scd);
 			return scd;
 		}
