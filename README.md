@@ -11,7 +11,7 @@
 There are certain parts of a business application that developers build from scratch again and again everytime they build a business application. And these parts take the most time to finish. We need to stop reinventing the wheel. 
 
 ## This solution
-iCodeBetter is way powerful than existing low-code platforms. And unlinke others it's online and open source. 
+iCodeBetter is way powerful than existing low-code platforms. And unlike others it's online and open source. 
 
 ## Table of contents
 
