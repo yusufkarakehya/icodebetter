@@ -1516,7 +1516,7 @@ public class UserUtil {
 					newScd=new HashMap<String, Object>();
 					newScd.putAll(scd);
 					newScd.put("customizationId",po.getCustomizationId());
-					newScd.put("projectId",po.getProjectUuid());newScd.put("roleId",999999);
+					newScd.put("projectId",po.getProjectUuid());newScd.put("projectName", po.getDsc());newScd.put("roleId",999999);
 					newScd.put("renderer", po.getUiWebFrontendTip());
 					newScd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 					newScd.put("mainTemplateId", po.getUiMainTemplateId());
@@ -1531,7 +1531,7 @@ public class UserUtil {
 		if(po.getSessionQueryId()==0){
 			newScd=new HashMap<String, Object>();
 			newScd.put("customizationId",po.getCustomizationId());newScd.put("ocustomizationId",po.getCustomizationId());newScd.put("userId",10);newScd.put("completeName","XXX");
-			newScd.put("projectId",po.getProjectUuid());newScd.put("roleId",10);newScd.put("roleDsc", "XXX Role");
+			newScd.put("projectId",po.getProjectUuid());newScd.put("projectName", po.getDsc());newScd.put("roleId",10);newScd.put("roleDsc", "XXX Role");
 			newScd.put("renderer", po.getUiWebFrontendTip());
 			newScd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 			newScd.put("mainTemplateId", po.getUiMainTemplateId());
@@ -1584,7 +1584,7 @@ public class UserUtil {
 			scd.put("roleDsc", "Demo Role");
 			scd.put("chat", 1);
 			scd.put("chatStatusTip", 1);
-			scd.put("projectId", po.getProjectUuid());
+			scd.put("projectId", po.getProjectUuid());scd.put("projectName", po.getDsc());
 			scd.put("locale", "en");
 			scd.put("userName", "Demo User");
 			scd.put("email", "demo@icodebetter.com");

@@ -116,7 +116,27 @@ a:hover {
     background-size: contain;
 }
 .x-grid3-cell-inner {
-    color: #f7f7f7;
+    color: #eee;
+}
+.x-form-item, .x-form-text, textarea.x-form-field {
+    color: #eee;    
+}
+.x-fieldset legend {
+    color: #efefef;
+}
+
+.x-window-mc {
+    border: none !important;;
+    background-color: #3f4757;
+}
+.x-window-body form{
+    background: linear-gradient(#353d4b,#3f4757);	
+}
+.x-tab-strip span.x-tab-strip-text {
+    color: #d5d5d5;
+}
+.x-tab-strip-active span.x-tab-strip-text {
+    color: #fff !important;
 }
 
 .x-dd-drop-ok .x-dd-drop-icon{
@@ -982,4 +1002,11 @@ header .phone .theme-switch a+a {
 .ext-webkit .x-form-text.x-form-live-sync-changed,.ext-webkit textarea.x-form-field.x-form-live-sync-changed,.x-form-live-sync-changed, textarea.x-form-live-sync-changed {
 	border-color:#945640;
     border-width: 2px !important;
+}
+
+.x-tool-minimize {
+    background: url(images/arrow-down-16c.png) !important;
+}
+.x-tool-maximize {
+    background: url(images/arrow-up-16.png) !important;
 }

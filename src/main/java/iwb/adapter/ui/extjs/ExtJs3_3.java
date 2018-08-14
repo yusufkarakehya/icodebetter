@@ -5171,7 +5171,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					c.set_queryField(f);
 					c.setWidth(f.getTabOrder());
 					c.setAlignTip((short) 0);
-					c.setLocaleMsgKey("<img src=\"../ext3.4.1/custom/images/"
+					c.setLocaleMsgKey("<img src=\"/ext3.4.1/custom/images/"
 							+ FrameworkSetting.postQueryGridImgMap[f.getFieldTip()]
 							+ "\" border=0>");
 					c.setVisibleFlag((short) 1);

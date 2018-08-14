@@ -790,7 +790,7 @@ public class PreviewServlet implements InitializingBean {
 				scd.put("locale", xlocale);
 				scd.put("customizationId", po.getCustomizationId());
 				scd.put("ocustomizationId", po.getCustomizationId());
-				scd.put("projectId", po.getProjectUuid());
+				scd.put("projectId", po.getProjectUuid());scd.put("projectName", po.getDsc());
 				scd.put("renderer", po.getUiWebFrontendTip());
 				scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 				scd.put("mainTemplateId", po.getUiMainTemplateId());
@@ -832,7 +832,7 @@ public class PreviewServlet implements InitializingBean {
 		scd.put("userId", 1);
 		scd.put("roleId", 1);
 		scd.put("customizationId", po.getCustomizationId());
-		scd.put("projectId", projectId);
+		scd.put("projectId", projectId);scd.put("projectName", po.getDsc());
 		scd.put("locale", "en");
 		scd.put("path", "../");
 

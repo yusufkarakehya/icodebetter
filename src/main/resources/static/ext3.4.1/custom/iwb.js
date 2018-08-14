@@ -193,7 +193,7 @@ function getCookie(c_name){
 
 
 function disabledCheckBoxHtml(x){
-	return	x!=0 ? '<img src="../ext3.4.1/custom/images/checked.png" border=0>':'';
+	return	x!=0 ? '<img src="/ext3.4.1/custom/images/checked.png" border=0>':'';
 }
 
 function accessControlHtml(x){
@@ -201,13 +201,13 @@ function accessControlHtml(x){
 }
 
 function fileAttachmentHtml(x){
-	return	x ? '<img src="../ext3.4.1/custom/images/paperclip-16.png" border=0>':'';
+	return	x ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0>':'';
 }
 
 
 function fileAttachmentRenderer(a){
 	return function(ax,bx,cx){
-		return	ax ? '<img src="../ext3.4.1/custom/images/paperclip-16.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\''+a.name+'\',href:\'showPage?_tid=518&_gid1=458&_gid458_a=1\',_pk:{tfile_attachment_id:\'file_attachment_id\'},baseParams:{xtable_id:'+a.crudTableId+', xtable_pk:'+cx.id+'}}});">':'';
+		return	ax ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\''+a.name+'\',href:\'showPage?_tid=518&_gid1=458&_gid458_a=1\',_pk:{tfile_attachment_id:\'file_attachment_id\'},baseParams:{xtable_id:'+a.crudTableId+', xtable_pk:'+cx.id+'}}});">':'';
 	};
 }
 
@@ -681,12 +681,12 @@ function renderTableRecordInfo(j){
 	if(!j || !j.dsc)return false;
 	var s='<p>';if(j.profile_picture_id)s+=Ext.util.Format.getPic3Mini(j)+' &nbsp;';
 	s+='<a href=# style="font-size:16px;color:#95d847" onclick="return fnTblRecEdit('+j.tableId+','+j.tablePk+', true);">'+j.dsc+'</a></p><table border=0 width=100%><tr><td width=70% valign=top>';
-	if(j.commentFlag && j.commentCount>0)s+=' &nbsp; <img src="../ext3.4.1/custom/images/comments-16.png" title="Comments"> '+(j.commentCount);
-	if(j.fileAttachFlag && j.fileAttachCount>0)s+=' &nbsp; <img src="../ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> '+(j.fileAttachCount);
-	if(j.accessControlFlag && j.accessControlCount>0)s+=' &nbsp; <img src="../ext3.4.1/custom/images/key-16.png" title="Kayıt Bazlı Güvenlik"> '+(j.accessControlCount);
+	if(j.commentFlag && j.commentCount>0)s+=' &nbsp; <img src="/ext3.4.1/custom/images/comments-16.png" title="Comments"> '+(j.commentCount);
+	if(j.fileAttachFlag && j.fileAttachCount>0)s+=' &nbsp; <img src="/ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> '+(j.fileAttachCount);
+	if(j.accessControlFlag && j.accessControlCount>0)s+=' &nbsp; <img src="/ext3.4.1/custom/images/key-16.png" title="Kayıt Bazlı Güvenlik"> '+(j.accessControlCount);
 	s+='</td><td width=30% align=right valign=top>';
-	if(j.formSmsMailCount)s+=' &nbsp; <img src="../ext3.4.1/custom/images/email-16.png" title="EMail/SMS Notifications"> '+j.formSmsMailCount;
-	if(j.conversionCount)s+=' &nbsp; <img src="../ext3.4.1/custom/images/gear-16.png" title="Form Conversions"> '+j.conversionCount;
+	if(j.formSmsMailCount)s+=' &nbsp; <img src="/ext3.4.1/custom/images/email-16.png" title="EMail/SMS Notifications"> '+j.formSmsMailCount;
+	if(j.conversionCount)s+=' &nbsp; <img src="/ext3.4.1/custom/images/gear-16.png" title="Form Conversions"> '+j.conversionCount;
 	s+='</td></tr></table><hr>';
 	var rs=j.parents;
 	var ss='';
@@ -717,8 +717,8 @@ function renderTableRecordInfo(j){
     for(var qi=0;qi<rs.length;qi++){
         var r=rs[qi];
         ss+='<br> · '+ (r.vtip ? '<a href=# id="idLinkRel_'+r.rel_id+'" onclick="return showTableChildList(event,'+r.vtip+','+r.void+','+r.mtbid+','+r.mtbpk+','+r.rel_id+');return false;">'+r.tdsc +'</a>': r.dsc) + ' ('+r.tc + (_app.table_children_max_record_number && 1*r.tc==1*_app.table_children_max_record_number-1 ? '+':'')+' adet)';
-    	if(r.tcc)ss+=' &nbsp; <img src="../ext3.4.1/custom/images/comments-16.png" title="Comments"> '+(r.tcc);
-    	if(r.tfc)ss+=' &nbsp; <img src="../ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> '+(r.tfc);
+    	if(r.tcc)ss+=' &nbsp; <img src="/ext3.4.1/custom/images/comments-16.png" title="Comments"> '+(r.tcc);
+    	if(r.tfc)ss+=' &nbsp; <img src="/ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> '+(r.tfc);
 
 //        if(r.dsc)ss+=(qi!=0 ? ': '+r.dsc:': <b>'+r.dsc+'</b>');// else ss+=': (...)';
     }
@@ -4250,7 +4250,7 @@ function loadTabFromId(id){
 function fmtTypingBlock(j){
 	if(!j || j.length==0)return "";
 	var u = j[0].sender_user_id!=_scd.userId ? j[0].sender_user_id:j[0].receiver_user_id;
-	return '<tr style="display:none;" id="idTypingWith_'+u+'"><td width=24 valign=top>'+getPPicImgTag(u)+'</td><td width=5></td><td width=100% valign=top><img height=35 src="../ext3.4.1/custom/images/typing.svg"></td><td width=1></td><td width=5></td></tr>';
+	return '<tr style="display:none;" id="idTypingWith_'+u+'"><td width=24 valign=top>'+getPPicImgTag(u)+'</td><td width=5></td><td width=100% valign=top><img height=35 src="/ext3.4.1/custom/images/typing.svg"></td><td width=1></td><td width=5></td></tr>';
 }
 
 function getPPicImgTag(userId, mid){
@@ -4332,7 +4332,7 @@ function vcsHtml(x){ // 0: exclude, 1:edit, 2:insert, 3:delete, 9:synched
 	if(x){
 		x=x.split(',');
 		if(1*x[0]!=9)
-		return	'<img alt="'+x[1]+'" src="../ext3.4.1/custom/images/vcs'+x[0]+'.png" border=0>';
+		return	'<img alt="'+x[1]+'" src="/ext3.4.1/custom/images/vcs'+x[0]+'.png" border=0>';
 		else return x[1];
 	}
 }
