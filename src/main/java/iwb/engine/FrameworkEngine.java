@@ -6356,7 +6356,7 @@ public class FrameworkEngine{
 				W5VcsObject vo = new W5VcsObject(newScd, 369, userTip);
 				vo.setVcsObjectStatusTip((short)9);
 				dao.saveObject(vo);
-				if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_role p where p.role_id=0 AND project_uuid=?", projectId))){
+				if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_role p where p.role_id=0 AND customization_id=?", cusId))){
 					dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role "+System.currentTimeMillis(), userTip, projectId);
 				}
 			}
