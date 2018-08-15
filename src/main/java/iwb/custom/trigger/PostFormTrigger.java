@@ -256,7 +256,7 @@ public class PostFormTrigger {
 					dao.deleteProjectMetadata(delProjectId);
 					dao.executeUpdateSQLQuery("DROP SCHEMA IF EXISTS "+po.getRdbmsSchema()+" CASCADE");					
 				}
-				FrameworkSetting.projectSystemStatus.remove(delProjectId);
+//				FrameworkSetting.projectSystemStatus.remove(delProjectId);
 				break;
 			case	1:
 				dao.addProject2Cache(fr.getRequestParams().get("tproject_uuid"));
