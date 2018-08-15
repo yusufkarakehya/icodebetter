@@ -110,11 +110,20 @@ a:hover {
     background-image: url(images/refresh-16.png) !important;
 }
 
-.x-tab-strip .x-tab-strip-closable a.x-tab-strip-close {
+.x-tab-strip .x-tab-strip-closable a.x-tab-strip-close, .x-tool-close {
 	margin-top: 4px;
-    background-image: url(images/x-mark-11.png);
-    background-size: contain;
+    background-image: url(images/cross-12.png);
 }
+.x-tab-strip .x-tab-strip-closable a.x-tab-strip-close:hover{
+	margin-top: 4px;
+    background-image: url(images/cross-12b.png);
+}
+.x-tool-close-over {
+	margin-top: 4px;
+    background-image: url(images/cross-12o.png);
+    background-position:0;
+
+}		
 .x-grid3-cell-inner {
     color: #eee;
 }
@@ -1005,8 +1014,10 @@ header .phone .theme-switch a+a {
 }
 
 .x-tool-minimize {
-    background: url(images/arrow-down-16c.png) !important;
+    background-image: url(images/arrow-down-16c.png) !important;
+    background-position: 0 2px;
 }
 .x-tool-maximize {
-    background: url(images/arrow-up-16.png) !important;
+    background-image: url(images/arrow-up-16.png) !important;
+    background-position: 0 2px;
 }
