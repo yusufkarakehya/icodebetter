@@ -27,6 +27,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -138,6 +139,7 @@ import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 @Service
 @Transactional
 public class FrameworkEngine{
+	@Lazy
 	@Autowired
 	private PostgreSQL dao;
 
