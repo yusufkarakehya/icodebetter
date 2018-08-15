@@ -3282,16 +3282,35 @@ public class VcsEngine {
 				
 		return result;
 	}
+	//4147a129-06ad-4983-9b1c-8e88826454ac rbac project
 	public boolean vcsClientImportProject(Map<String, Object> scd, String projectId, String importedProjectId) {
 		Map<String, Object> newScd = new HashMap();
 		newScd.putAll(scd);newScd.put("projectId", importedProjectId);
-		return dao.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
+		boolean b = dao.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
+		if(b){
+			if(importedProjectId.equals("4147a129-06ad-4983-9b1c-8e88826454ac")){
+				dao.executeUpdateSQLQuery("update iwb.w5_project set ui_login_template_id=2590, session_query_id=4514,authentication_func_id=1252 where project_uuid=?", projectId);
+				FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.projectUuid=?",  projectId).get(0));
+			}
+			
+		}
+		return b;
 	}
 	
 	public String vcsClientDeleteSubProject(Map<String, Object> scd, String projectId, String subProjectId) {
 		Map<String, Object> newScd = new HashMap();
 		newScd.putAll(scd);newScd.put("projectId", projectId);
-		return dao.deleteSubProject(newScd, subProjectId);
+		String b = dao.deleteSubProject(newScd, subProjectId);
+		if(b==null){
+			if(subProjectId.equals("4147a129-06ad-4983-9b1c-8e88826454ac")){
+				dao.executeUpdateSQLQuery("update iwb.w5_project set ui_login_template_id=0, session_query_id=0,authentication_func_id=0 where project_uuid=?", projectId);
+				FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.projectUuid=?",  projectId).get(0));
+				
+			}
+			
+		}
+
+		return b;
 	}
 	
 	
