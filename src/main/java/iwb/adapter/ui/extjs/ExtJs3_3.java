@@ -5358,9 +5358,9 @@ public class ExtJs3_3 implements ViewAdapter {
 								c.getLocaleMsgKey())).append("</span>");
 			}
 			if (!qds.contains("pkpkpk"))
-				buf.append("',tooltip: '<b>")
+				buf.append("',tooltip: '")
 						.append(LocaleMsgCache.get2(scd,
-								c.getLocaleMsgKey())).append("</b>");
+								c.getLocaleMsgKey()));
 
 			boolean qwRendererFlag = false;
 			boolean boolRendererFlag = false;
