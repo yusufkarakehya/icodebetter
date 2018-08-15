@@ -35,10 +35,14 @@ iCodeBetter is way powerful than existing low-code platforms. And unlike others 
 6. Run spring boot application
 > Go to http://localhost:8080
 
-## Getting involved
-This is an open source project and we :heart: to build great tools together with community.
+### Next steps
 
-If it's your first PR or you don't where to start, come say hi in our [slack](icodebetter.herokuapp.com) channel and a team member will mentor you. 
+To get familiar with the project and see what it is capable of you can watch introductory and tutorial videos at icodebetter [youtube channel](https://www.youtube.com/channel/UCZk_sRiOY4A0NReyy9Ruf0Q).
+
+## Getting involved
+This is an open source project and we :heart: to build great tools together with community. We have prepared a [contributing](https://github.com/icodebetter/icodebetter/blob/master/.github/CONTRIBUTING.md) guide to help you get started.   
+
+If it's your first PR or you don't know where to start, come say hi in our [slack](icodebetter.herokuapp.com) channel and a team member will mentor you. 
 
 
 ## Documentation
