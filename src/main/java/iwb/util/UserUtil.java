@@ -1507,7 +1507,7 @@ public class UserUtil {
 		Map newScd = null;
 		if(session!=null){
 			newScd =(Map<String, Object>)session.getAttribute(newScdKey);
-			if(newScd==null){
+			if(newScd==null || GenericUtil.uInt(newScd.get("renderer"))!=po.getUiWebFrontendTip() || GenericUtil.uInt(newScd.get("mainTemplateId"))!=po.getUiMainTemplateId()){
 				scd =(Map<String, Object>)session.getAttribute(scdKey); //developer
 				if(scd!=null){
 					if((Integer)scd.get("roleId")!=0){

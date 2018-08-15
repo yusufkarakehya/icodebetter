@@ -115,5 +115,23 @@ public class DBUtil {
 		}
 		return sql.toString();
 	}
-
+	public static String iwb2dbType(int iwbType, int len){
+		if(len==0)len=1024;
+		switch(iwbType){
+		case	1://string
+			return "character varying("+len+")";
+		case	2://date
+			return "date";
+		case	3://double
+			return "numeric(20,4)";
+		case	4://integer
+			return "integer";
+		case	5://boolean
+			return "smallint not null default 0";
+		}
+		
+		return "character varying("+len+")";
+		
+	}
+	
 }
