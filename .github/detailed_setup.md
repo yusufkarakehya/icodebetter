@@ -46,7 +46,7 @@ Install [PostgreSQL](https://www.postgresql.org/download/) database and [Eclipse
   Then click next and select icodebetter project directory.
   
   #### 2. Create application.properties file
-  Create application.properties file under src/main/resources directory. And paste this code replacing placeholders with your own database name, database username and password. 
+  Create `application.properties` file under `src/main/resources` directory. And paste this code replacing placeholders with your own database name, database username and password. 
   
   ```
   spring.datasource.url=jdbc:postgresql://localhost:5432/[DATABASE_NAME]
@@ -63,5 +63,30 @@ Install [PostgreSQL](https://www.postgresql.org/download/) database and [Eclipse
   <br>
     <img src="https://cdn.rawgit.com/icodebetter/icodebetter/ad761c4d/other/pg6.png" alt="pg" title="pgadmin" width="600">
   <br>
+
+<hr/>
+
+### Common issues
+
+If you encounter an error while starting the project in eclipse, then do the following: 
+
+Select the framework and press `Alt + Enter`
+
+  <br>
+    <img src="https://cdn.rawgit.com/icodebetter/icodebetter/c0cc5cf4/other/pg7.png" alt="pg" title="pgadmin" width="600">
+  <br>
+
+Check if eclipse is using JavaSE-1.6.
+
+  <br>
+    <img src="https://cdn.rawgit.com/icodebetter/icodebetter/c0cc5cf4/other/pg8.png" alt="pg" title="pgadmin" width="600">
+  <br>
+
+If it is using 1.6 then change it to 1.8.
+
+  <br>
+    <img src="https://cdn.rawgit.com/icodebetter/icodebetter/c0cc5cf4/other/pg9.png" alt="pg" title="pgadmin" width="600">
+  <br>
+
 
   
