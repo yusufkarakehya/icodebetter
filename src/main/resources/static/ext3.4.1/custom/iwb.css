@@ -975,13 +975,13 @@ header .phone .theme-switch a+a {
     margin-bottom: 6px;
 }
 .x-form-field-wrap .x-form-trigger {
-    background-image: url(../images/access/form/trigger.png);
+    background-image: url(/ext3.4.1/images/access/form/trigger.png);
 }
 .x-trigger-wrap-focus .x-form-trigger {
     border-bottom-color: #fd9c33;
 }
 .x-form-field-wrap .x-form-clear-trigger {
-    background-image: url(../images/access/form/clear-trigger.png) !important;
+    background-image: url(/ext3.4.1/images/access/form/clear-trigger.png) !important;
 }
 .x-form-field-wrap .x-form-lang-trigger {
 	cursor:pointer;

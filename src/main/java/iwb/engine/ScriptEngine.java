@@ -165,7 +165,7 @@ public class ScriptEngine {
 						List l;
 						if(oMsg instanceof Object[]){
 							Object[] oz = (Object[])oMsg;
-							l = new ArrayList<>();
+							l = new ArrayList();
 							for(int qi=0;qi<oz.length;qi++){
 								l.add(GenericUtil.rhinoValue(oz[qi]));								
 							}

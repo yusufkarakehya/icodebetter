@@ -12,6 +12,7 @@ import iwb.domain.db.Log5Notification;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableParam;
+import iwb.domain.db.W5VcsCommit;
 import iwb.domain.db.W5VcsObject;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
@@ -21,7 +22,8 @@ import iwb.util.UserUtil;
 
 public class PostFormTrigger {
 	public static void beforePostForm(W5FormResult formResult, PostgreSQL dao, String prefix){
-		switch(formResult.getFormId()){
+		if(prefix==null)prefix="";
+		if(formResult.getErrorMap()!=null && formResult.getErrorMap().isEmpty())switch(formResult.getFormId()){
 		case	2491://SQL Script
 			String sql = formResult.getRequestParams().get("extra_sql");
 			if(FrameworkSetting.cloud && !GenericUtil.isEmpty(sql) && (Integer)formResult.getScd().get("customizationId")>1 && DBUtil.checkTenantSQLSecurity(sql)) {
@@ -34,6 +36,145 @@ public class PostFormTrigger {
 			}
 			break;
 		}
+		W5Project prj = null;
+		if(formResult.getErrorMap()!=null && formResult.getErrorMap().isEmpty() && formResult.getForm()!=null)switch(formResult.getForm().getObjectId()){
+		case	15://table
+			prj = FrameworkCache.getProject(formResult.getScd());
+			if(formResult.getAction()==1 || formResult.getAction()==3){
+				List<Object> ll =  dao.executeSQLQuery("select lower(t.dsc) tdsc from iwb.w5_table t where t.table_id=? AND t.project_uuid=?"
+						, GenericUtil.uInt(formResult.getRequestParams(),"ttable_id"+prefix), prj.getProjectUuid());
+				String tableName = ll.get(0).toString();
+				if(tableName.indexOf('.')>0)tableName = tableName.substring(tableName.indexOf('.')+1);
+				int cntField = GenericUtil.uInt(dao.executeSQLQuery("SELECT count(1) from information_schema.tables qz where lower(qz.table_name) = ? and qz.table_schema = ?"
+						, tableName, prj.getRdbmsSchema()).get(0));
+				if(cntField>0){
+					switch(formResult.getAction()){
+					case	3://delete
+						String dropTableSql = "drop table " + tableName;
+						
+						dao.executeUpdateSQLQuery(dropTableSql);
+	
+						if(FrameworkSetting.vcs){
+							W5VcsCommit commit = new W5VcsCommit();
+							commit.setCommitTip((short)2);
+							commit.setExtraSql(dropTableSql);
+							commit.setProjectUuid(prj.getProjectUuid());
+							commit.setComment("AutoDrop Scripts for Table: " + tableName);
+							commit.setCommitUserId((Integer)formResult.getScd().get("userId"));
+							Object oi = dao.executeSQLQuery("select nextval('iwb.seq_vcs_commit')").get(0);
+							commit.setVcsCommitId(-GenericUtil.uInt(oi));commit.setRunLocalFlag((short)1);
+							dao.saveObject(commit);
+						}
+						break;
+					case	1://update
+						String newTableName = formResult.getRequestParams().get("dsc"+prefix);
+						if(newTableName!=null && !newTableName.toLowerCase().equals(tableName)){
+							String renameTableColumnSql = "alter table " + tableName + " RENAME TO " + newTableName;
+							dao.executeUpdateSQLQuery(renameTableColumnSql);
+		
+							if(FrameworkSetting.vcs){
+								W5VcsCommit commit = new W5VcsCommit();
+								commit.setCommitTip((short)2);
+								commit.setExtraSql(renameTableColumnSql);
+								commit.setProjectUuid(prj.getProjectUuid());
+								commit.setComment("AutoRename Scripts for Table: " + tableName);
+								commit.setCommitUserId((Integer)formResult.getScd().get("userId"));
+								Object oi = dao.executeSQLQuery("select nextval('iwb.seq_vcs_commit')").get(0);
+								commit.setVcsCommitId(-GenericUtil.uInt(oi));commit.setRunLocalFlag((short)1);
+								dao.saveObject(commit);
+							}
+							
+						}
+						break;
+					}
+				}
+			}
+			break;
+		case	16://table_field
+			prj = FrameworkCache.getProject(formResult.getScd());
+			if(formResult.getAction()==1 || formResult.getAction()==3){
+				List<Object[]> ll =  dao.executeSQLQuery("select lower(tf.dsc), lower(t.dsc) tdsc from iwb.w5_table_field tf, iwb.w5_table t where tf.table_id=t.table_id AND tf.project_uuid=t.project_uuid AND tf.table_field_id=? AND tf.project_uuid=?"
+						, GenericUtil.uInt(formResult.getRequestParams(),"ttable_field_id"+prefix), prj.getProjectUuid());
+				String tableFieldName = ll.get(0)[0].toString(), tableName = ll.get(0)[1].toString();
+				if(tableName.indexOf('.')>0)tableName = tableName.substring(tableName.indexOf('.')+1);
+				int cntField = GenericUtil.uInt(dao.executeSQLQuery("SELECT count(1) from information_schema.columns qz where lower(qz.COLUMN_NAME)=? AND lower(qz.table_name) = ? and qz.table_schema = ?"
+						, tableFieldName, tableName, prj.getRdbmsSchema()).get(0));
+				if(cntField>0){
+					switch(formResult.getAction()){
+					case	3://delete
+						String dropTableColumnSql = "alter table " + tableName + " drop column " + tableFieldName;
+					
+						dao.executeUpdateSQLQuery(dropTableColumnSql);
+	
+						if(FrameworkSetting.vcs){
+							W5VcsCommit commit = new W5VcsCommit();
+							commit.setCommitTip((short)2);
+							commit.setExtraSql(dropTableColumnSql);
+							commit.setProjectUuid(prj.getProjectUuid());
+							commit.setComment("AutoDropColumn Scripts for TableField: " + tableName + "." + tableFieldName);
+							commit.setCommitUserId((Integer)formResult.getScd().get("userId"));
+							Object oi = dao.executeSQLQuery("select nextval('iwb.seq_vcs_commit')").get(0);
+							commit.setVcsCommitId(-GenericUtil.uInt(oi));commit.setRunLocalFlag((short)1);
+							dao.saveObject(commit);
+						}
+						break;
+					case	1://update
+						String newTableFieldName = formResult.getRequestParams().get("dsc"+prefix);
+						if(newTableFieldName!=null && !newTableFieldName.toLowerCase().equals(tableFieldName)){
+							String renameTableColumnSql = "alter table " + tableName + " RENAME " + tableFieldName + " TO " + newTableFieldName;
+							dao.executeUpdateSQLQuery(renameTableColumnSql);
+		
+							if(FrameworkSetting.vcs){
+								W5VcsCommit commit = new W5VcsCommit();
+								commit.setCommitTip((short)2);
+								commit.setExtraSql(renameTableColumnSql);
+								commit.setProjectUuid(prj.getProjectUuid());
+								commit.setComment("AutoRenameColumn Scripts for TableField: " + tableName + "." + tableFieldName);
+								commit.setCommitUserId((Integer)formResult.getScd().get("userId"));
+								Object oi = dao.executeSQLQuery("select nextval('iwb.seq_vcs_commit')").get(0);
+								commit.setVcsCommitId(-GenericUtil.uInt(oi));commit.setRunLocalFlag((short)1);
+								dao.saveObject(commit);
+							}
+							
+						}
+						break;
+					}
+				}
+			} else {//insert
+				String tableFieldName = formResult.getRequestParams().get("dsc"+prefix);
+				if(!GenericUtil.isEmpty(tableFieldName)){
+					List<Object> ll =  dao.executeSQLQuery("select lower(t.dsc) tdsc from iwb.w5_table t where t.table_id=? AND t.project_uuid=?"
+							, GenericUtil.uInt(formResult.getRequestParams(),"table_id"+prefix), prj.getProjectUuid());
+					String tableName = ll.get(0).toString();
+					if(tableName.indexOf('.')>0)tableName = tableName.substring(tableName.indexOf('.')+1);
+					int cntField = GenericUtil.uInt(dao.executeSQLQuery("SELECT count(1) from information_schema.columns qz where lower(qz.COLUMN_NAME)=? AND lower(qz.table_name) = ? and qz.table_schema = ?"
+							, tableFieldName, tableName, prj.getRdbmsSchema()).get(0));
+					if(cntField==0){
+						int fieldType = GenericUtil.uInt(formResult.getRequestParams().get("field_tip"+prefix));
+//						int defaultControlType = GenericUtil.uInt(formResult.getRequestParams().get("default_control_tip"+prefix));
+						
+						String addTableColumnSql = "alter table " + tableName + " add column " + tableFieldName + " " + DBUtil.iwb2dbType(fieldType, GenericUtil.uInt(formResult.getRequestParams().get("max_length"+prefix)));
+						dao.executeUpdateSQLQuery(addTableColumnSql);
+	
+						if(FrameworkSetting.vcs){
+							W5VcsCommit commit = new W5VcsCommit();
+							commit.setCommitTip((short)2);
+							commit.setExtraSql(addTableColumnSql);
+							commit.setProjectUuid(prj.getProjectUuid());
+							commit.setComment("AutoAddColumn Scripts for TableField: " + tableName + "." + tableFieldName);
+							commit.setCommitUserId((Integer)formResult.getScd().get("userId"));
+							Object oi = dao.executeSQLQuery("select nextval('iwb.seq_vcs_commit')").get(0);
+							commit.setVcsCommitId(-GenericUtil.uInt(oi));commit.setRunLocalFlag((short)1);
+							dao.saveObject(commit);
+						}
+					}
+				}
+			
+				
+			}
+
+			break;
+		}
 	}
 	
 	
@@ -41,7 +182,7 @@ public class PostFormTrigger {
 		String msg;
 		Map scd = fr.getScd();
 		String projectId = scd!=null ? (String)scd.get("projectId"):null;
-		switch(fr.getFormId()){
+		if(fr.getErrorMap()!=null && fr.getErrorMap().isEmpty() && fr.getForm()!=null)switch(fr.getFormId()){
 	
 		
 		case	551://comment
@@ -111,7 +252,7 @@ public class PostFormTrigger {
 			case	3://delete all metadata
 				String delProjectId = fr.getRequestParams().get("tproject_uuid").toLowerCase();
 				W5Project po = FrameworkCache.getProject(delProjectId);
-				if(!delProjectId.equals("067e6162-3b6f-4ae2-a221-2470b63dff00") && (GenericUtil.uInt(scd.get("ocustomizationId"))==0 || (po.getCustomizationId()==GenericUtil.uInt(scd.get("ocustomizationId")) && GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_project x where x.customization_id=?", po.getCustomizationId()).get(0))>1))){
+				if(po.getCustomizationId()==GenericUtil.uInt(scd.get("ocustomizationId")) && GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_project x where x.customization_id=?", po.getCustomizationId()).get(0))>1){
 					dao.deleteProjectMetadata(delProjectId);
 					dao.executeUpdateSQLQuery("DROP SCHEMA IF EXISTS "+po.getRdbmsSchema()+" CASCADE");					
 				}
