@@ -94,6 +94,7 @@ a:hover {
 .x-form-text, textarea.x-form-field {
     background-color: #34383f;
     background-image: none;
+    border-width: 1px;
 }
 
 .x-grid3-header {
@@ -1040,6 +1041,7 @@ header .phone .theme-switch a+a {
 .x-item-disabled .x-tbar-page-prev {
     background-image: url(/ext3.4.1/images/access/grid/page-prev.gif)!important;
 }
+
 .xg-hmenu-sort-asc .x-menu-item-icon {
     background-image: url(images/arrow-up-16.png);
 }

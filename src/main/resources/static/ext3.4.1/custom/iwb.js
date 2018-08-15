@@ -2790,7 +2790,7 @@ function addTab4GridWSearchForm(obj) {
 
   var grdExtra = {
     stripeRows: true,
-    region: "center",
+    region: "center", border:false,
     clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
   };
   if (obj.t) mainGrid.id = obj.t + "-" + mainGrid.gridId;
@@ -3002,7 +3002,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     },
     obj.grdExtra || {
       split: true,
-      stripeRows: true,
+      stripeRows: true, border:false,
       clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
     }
   );
@@ -5224,7 +5224,7 @@ function addTab4Portal(obj) {
       var grdExtra = {
         stripeRows: true,
         id: obj.t + "-" + detailGrid.gridId,
-        autoScroll: true,
+        autoScroll: true, border:false,
         clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
       };
       var buttons = [];
@@ -5693,7 +5693,7 @@ function addTab4DetailGridsWSearchForm(obj) {
         title: obj.detailGrids[i]._title_ || detailGrid.name,
         stripeRows: true,
         id: "gr" + Math.random(),
-        autoScroll: true,
+        autoScroll: true, border:false,
         clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
       };
       var buttons = [];
