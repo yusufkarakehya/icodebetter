@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <img src="https://cdn.rawgit.com/icodebetter/icodebetter/8c1e7b6c/icodebetter_logo-1-300x60.png" alt="icb logo" title="icb logo" width="300">
+  <img src="https://cdn.rawgit.com/icodebetter/icodebetter/7d9e287f/other/icodebetter_logo-1-300x60.png" alt="icb logo" title="icb logo" width="300">
   <br>
 </h1>
 <p align="center" style="font-size: 1.2rem;">An opinionated low code platform that helps you code business applications in a better way</p>
