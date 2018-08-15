@@ -689,7 +689,7 @@ background-image:url(images/vcsw-16.png);
 }
 
 
-.x-btn {
+/*.x-btn {
 	filter: grayscale(.3);
 	transition: all .5s ease-out;
 	-moz-transition: all .5s ease-out;
@@ -699,7 +699,7 @@ background-image:url(images/vcsw-16.png);
 
 .x-btn:hover {
 	filter: grayscale(0);
-}
+}*/
 
 .table2form-active {
 	background-color: rgba(126, 215, 255, 0.3);
@@ -1020,4 +1020,23 @@ header .phone .theme-switch a+a {
 .x-tool-maximize {
     background-image: url(images/arrow-up-16.png) !important;
     background-position: 0 2px;
+}
+.x-toolbar .x-item-disabled {
+    cursor: default;
+    opacity: .5;
+    -moz-opacity: .5;
+    filter: alpha(opacity=50);
+}
+
+.x-item-disabled .x-tbar-page-first {
+    background-image: url(/ext3.4.1/images/access/grid/page-first.gif)!important;
+}
+.x-item-disabled .x-tbar-page-next {
+    background-image: url(/ext3.4.1/images/access/grid/page-next.gif)!important;
+}
+.x-item-disabled .x-tbar-page-last {
+    background-image: url(/ext3.4.1/images/access/grid/page-last.gif)!important;
+}
+.x-item-disabled .x-tbar-page-prev {
+    background-image: url(/ext3.4.1/images/access/grid/page-prev.gif)!important;
 }
