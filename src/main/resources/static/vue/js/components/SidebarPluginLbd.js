@@ -206,7 +206,7 @@ var SideBar =  Vue.component('side-bar', {
   ,props: {
       title: {
           type: String,
-          default: 'iCodeBetter'
+          default: _scd.projectName || 'iCodeBetter'
         },
         backgroundColor: {
           type: String,

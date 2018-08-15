@@ -246,7 +246,7 @@ public class PostFormTrigger {
 					newScd.putAll(scd);newScd.put("projectId", newProjectId);
 					dao.saveObject(new W5VcsObject(newScd, 369, userTip));
 				}
-				FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.projectUuid=?", newProjectId).get(0));
+				dao.addProject2Cache(newProjectId);
 				FrameworkSetting.projectSystemStatus.put(newProjectId,0);
 				break;
 			case	3://delete all metadata
@@ -256,6 +256,10 @@ public class PostFormTrigger {
 					dao.deleteProjectMetadata(delProjectId);
 					dao.executeUpdateSQLQuery("DROP SCHEMA IF EXISTS "+po.getRdbmsSchema()+" CASCADE");					
 				}
+				FrameworkSetting.projectSystemStatus.remove(delProjectId);
+				break;
+			case	1:
+				dao.addProject2Cache(fr.getRequestParams().get("tproject_uuid"));
 			}
 			break;
 		default:

@@ -6337,7 +6337,7 @@ public class FrameworkEngine{
 				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 			}
 
-			FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, projectId).get(0));
+			dao.addProject2Cache(projectId);
 			FrameworkSetting.projectSystemStatus.put(projectId, 0);
 
 		}

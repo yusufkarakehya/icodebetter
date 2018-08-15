@@ -32,7 +32,7 @@ const BreadcrumbsItem = ({match}) => {
 const Breadcrumbs = ({location : {pathname}, match}) => {
   const paths = getPaths(pathname);
   const items = paths.map((path, i) => _(Route, {key: i++, path: path, component: BreadcrumbsItem }));
-  return _(Breadcrumb, null, _('h3',{id:'id-breed'},'iCodeBetter'),_('span',{style:{width: '20px'}},' '),items);
+  return _(Breadcrumb, null, _('h3',{id:'id-breed'},_scd.projectName || 'iCodeBetter'),_('span',{style:{width: '20px'}},' '),items);
 };
 
 const Breadcrumb2 = (props) =>{
