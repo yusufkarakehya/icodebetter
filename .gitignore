@@ -30,3 +30,5 @@ build
 target
 src/main/resources/application.properties
 node_modules/
+.DS_Store
+src/.DS_Store

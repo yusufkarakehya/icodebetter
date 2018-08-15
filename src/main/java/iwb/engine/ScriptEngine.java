@@ -33,21 +33,21 @@ public class ScriptEngine {
 	private PostgreSQL dao;
 	private FrameworkEngine engine;
     public static TaskExecutor taskExecutor = null;
-    
+
 	public Object[] sqlQuery(String sql){
-		List l = dao.executeSQLQuery2Map(sql, null); 
+		List l = dao.executeSQLQuery2Map(sql, null);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
-	
+
 	public Object[] sqlQuery(String sql, NativeObject jsRequestParams){
 		Map m = fromNativeObject2Map(jsRequestParams);
 		if(GenericUtil.isEmpty(m) || !sql.contains("${"))return sqlQuery(sql);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, m, null);
-		List l = dao.executeSQLQuery2Map(oz[0].toString(), (List)oz[1]); 
+		List l = dao.executeSQLQuery2Map(oz[0].toString(), (List)oz[1]);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
-	
-	
+
+
 	/*public Object tsqlQuery(String sql, String dbName){
 		return engine.executeInfluxQuery(scd, sql, dbName);
 	}
@@ -58,27 +58,27 @@ public class ScriptEngine {
 		engine.insertInfluxRecord(scd, measurement, fromNativeObject2Map2(jsTags, true), fromNativeObject2Map2(jsFields, false), date);
 	}
 	public Object tsqlExecute(String sql, String dbName){
-		return null;//TODO 
+		return null;//TODO
 	}
 	*/
-	
-	
+
+
 	public	String getCurrentDate(){
 		return dao.getCurrentDate((Integer)scd.get("customizationId"));
 	}
-	
-	
+
+
 	public	String getLocMsg(String key){
 		return LocaleMsgCache.get2(scd, key);
 	}
-	
+
 	public String md5hash(String s){
 		return dao.getMd5Hash(s);
-	}	
+	}
 	public Object sqlFunc(String s){
 		return dao.getSqlFunc(s);
 	}
-	
+
 	public int compareDates(String date1, String date2){
 //		if(date1==null && date2==null)return 0;
 //		if(date1==null)return -1;if(date2==null)return 1;
@@ -86,9 +86,9 @@ public class ScriptEngine {
 		if(d1==null || d2==null)
 			throw new IWBException("rhino","Invalid Date Format", 0,null, "compareDates("+date1+","+date2+")", null);
 		return d1.equals(d2) ? 0 : (d1.after(d2) ? 1: -1);
-		
+
 	}
-	
+
 	private Map<String, String> fromNativeObject2Map(NativeObject jsRequestParams){
 		Map<String, String> rp= new HashMap<String, String>();
 		if(jsRequestParams!=null){
@@ -105,8 +105,8 @@ public class ScriptEngine {
 		if(requestParams.containsKey(".w") && !rp.containsKey(".w"))rp.put(".w", requestParams.get(".w"));
 		return rp;
 	}
-	
-	
+
+
 	private Map<String, Object> fromNativeObject2Map2(NativeObject jsRequestParams, boolean forceInt){
 		Map<String, Object> rp= new HashMap<String, Object>();
 		if(jsRequestParams!=null){
@@ -122,33 +122,33 @@ public class ScriptEngine {
 		}
 		return rp;
 	}
-	
+
 	public Object[] runQuery(int queryId, NativeObject jsRequestParams){
-		List l = dao.runQuery2Map(scd, queryId, fromNativeObject2Map(jsRequestParams)); 
+		List l = dao.runQuery2Map(scd, queryId, fromNativeObject2Map(jsRequestParams));
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
-	
-	
+
+
 	public void mqBasicPublish(String msg) throws IOException{
 //		W5Project po = FrameworkCache.wProjects.get(scd.get("projectId"));
 		//po.get_mqChannel().basicPublish(po.getProjectUuid(), "", null, msg.toString().getBytes());
 	}
-	
-	
+
+
 	public void console(Object oMsg){
 		console(oMsg, null, null);
 	}
 
-	
+
 	public int globalNextval(String seq){
 		return GenericUtil.getGlobalNextval(seq, scd!=null ? (String)scd.get("projectId"):null, scd!=null ? (Integer)scd.get("userId"):0, scd!=null ? (Integer)scd.get("customizationId"):0);
 	}
-	
+
 	public void console(String oMsg, String title){
 		if(!FrameworkSetting.debug)return;
 		console(oMsg, title, null);
 	}
-	
+
 	public void console(Object oMsg, String title, String level){
 		if(!FrameworkSetting.debug)return;
 		String s = "(null)";
@@ -165,16 +165,16 @@ public class ScriptEngine {
 						List l;
 						if(oMsg instanceof Object[]){
 							Object[] oz = (Object[])oMsg;
-							l = new ArrayList<>();
+							l = new ArrayList();
 							for(int qi=0;qi<oz.length;qi++){
-								l.add(GenericUtil.rhinoValue(oz[qi]));								
+								l.add(GenericUtil.rhinoValue(oz[qi]));
 							}
-						} else l = (List)oMsg; 
+						} else l = (List)oMsg;
 						s = GenericUtil.fromListToJsonString2Recursive(l);
 					} else  if(oMsg instanceof Map){
 						s = GenericUtil.fromMapToJsonString2Recursive((Map)oMsg);
 					} else {
-						s = "Undefined Object Type: "  + oMsg.toString();						
+						s = "Undefined Object Type: "  + oMsg.toString();
 					}
 				}
 			}
@@ -188,30 +188,30 @@ public class ScriptEngine {
 			UserUtil.broadCast((String)scd.get("projectId"), (Integer)scd.get("userId"), (String)scd.get("sessionId"), (String)requestParams.get(".w"), m);
 		}catch(Exception e){}
 	}
-	
+
 	public Object execFunc(int dbFuncId, NativeObject jsRequestParams){
 		return execFunc(dbFuncId, jsRequestParams, true, null);
 	}
-	
+
 	public int getAppSettingInt(String key){
 		return FrameworkCache.getAppSettingIntValue(scd, key);
 	}
 	public int getAppSettingInt(int customizationId, String key){
 		return FrameworkCache.getAppSettingIntValue(customizationId, key);
 	}
-	
+
 	public String getAppSettingString(String key){
 		return FrameworkCache.getAppSettingStringValue(scd, key);
 	}
 	public Object execFunc(int dbFuncId, NativeObject jsRequestParams, boolean throwOnError, String throwMessage){
-		W5GlobalFuncResult result = engine.executeFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short)5); 
+		W5GlobalFuncResult result = engine.executeFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short)5);
 		if(throwOnError && !result.getErrorMap().isEmpty()){
 			throw new IWBException("rhino","GlobalFunc", dbFuncId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
 		}
 		return result;
 	}
-	
-	
+
+
 	public int sqlExecute(String sql){
 		if(scd!=null && scd.get("customizationId")!=null && (Integer)scd.get("customizationId")>0) {
 			String sql2=sql.toLowerCase(FrameworkSetting.appLocale);
@@ -220,13 +220,13 @@ public class ScriptEngine {
 			}
 		}
 
-		return dao.executeUpdateSQLQuery(sql, null); 
+		return dao.executeUpdateSQLQuery(sql, null);
 	}
-	
+
 	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams){
 		return postForm(formId, action, jsRequestParams, "", true, null);
 	}
-	
+
 	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams, String prefix){
 		return postForm(formId, action, jsRequestParams, prefix, true, null);
 	}
@@ -235,9 +235,9 @@ public class ScriptEngine {
 		return postForm(formId, action, jsRequestParams, prefix, throwOnError, null);
 	}
 
-	
+
 	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams, String prefix, boolean throwOnError, String throwMessage){
-		
+
 		W5FormResult result = engine.postForm4Table(scd, formId, action, fromNativeObject2Map(jsRequestParams), prefix);
 		if(throwOnError && !result.getErrorMap().isEmpty()){
 			throw new IWBException("rhino","FormId", formId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()), null);
@@ -246,9 +246,9 @@ public class ScriptEngine {
 			Action2Execute eqf = new Action2Execute(o, scd);
 			taskExecutor.execute(eqf);
 		}
-		return result; 
+		return result;
 	}
-	
+
 	public Map getTableJSON(String tableDsc, String tablePk){
 		List<Integer> l = (List<Integer>)dao.find("select t.tableId from W5Table t where t.dsc=? AND t.customizationId in (0,?) order by t.customizationId desc", tableDsc, scd.get("customizationId"));
 		if(l.isEmpty())
@@ -256,11 +256,11 @@ public class ScriptEngine {
 
 		return getTableJSON(l.get(0), tablePk, 0);
 	}
-	
+
 	public Map getTableJSON(int tableId, String tablePk, int forAction){
 		return getTableJSON(tableId, tablePk, forAction, false, null);
 	}
-	
+
 	public Map getTableJSON(int tableId, String tablePk, int forAction, boolean throwOnError, String throwMessage){
 
 		W5Table t = FrameworkCache.getTable(scd, tableId);
@@ -293,16 +293,16 @@ public class ScriptEngine {
 			if(throwOnError)
 				throw new IWBException("rhino","getTableJSON", tableId,null, throwMessage!=null ? LocaleMsgCache.get2(scd, throwMessage) : "record_not_found", null);
 			return null;
-		}		
+		}
 		Map mo =(Map)l.get(0);
-		
-		return mo; 
+
+		return mo;
 	}
 
 	public Map callWs(String serviceName, NativeObject jsRequestParams){
-		return callWs(serviceName, jsRequestParams, true);		
+		return callWs(serviceName, jsRequestParams, true);
 	}
-	
+
 	public Map callWs(String serviceName, NativeObject jsRequestParams, boolean throwFlag){
 		Map result = new HashMap();
 		result.put("success", true);
@@ -310,7 +310,7 @@ public class ScriptEngine {
 			Map m = engine.callWs(scd, serviceName, fromNativeObject2Map(jsRequestParams));
 			if(m!=null){
 				if(m.containsKey("errorMsg")){
-					if(throwFlag)throw new IWBException("ws", "Error:CallWs", 0, serviceName, m.get("errorMsg").toString(), null);else result.put("success", false); 
+					if(throwFlag)throw new IWBException("ws", "Error:CallWs", 0, serviceName, m.get("errorMsg").toString(), null);else result.put("success", false);
 				}
 				if(m.containsKey("faultcode") && m.containsKey("faultstring")){
 					if(throwFlag)throw new IWBException("ws", m.get("faultcode").toString(), 0, serviceName, m.get("faultstring").toString(), null);
@@ -326,11 +326,11 @@ public class ScriptEngine {
 		}
 		return result;
 	}
-	
+
 	public String postRecord(int formId, int action, String params){
 		return "{success:true}";
 	}
-	
+
 	public String getRecord(int formId, int action, int tablePk, String params){
 		return "{success:true}";
 	}
@@ -374,7 +374,7 @@ public class ScriptEngine {
 		this.dao = dao;
 		this.engine = engine;
 	}
-	
-	
-	
+
+
+
 }
