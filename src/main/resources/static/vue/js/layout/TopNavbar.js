@@ -22,7 +22,7 @@ var TopNavbar =  Vue.component('top-navbar', {
 
       <form>
         <div class="input-group no-border">
-          <fg-input placeholder="Hızlı Arama..." addon-right-icon="now-ui-icons ui-1_zoom-bold">
+          <fg-input placeholder="Quick Search..." addon-right-icon="now-ui-icons ui-1_zoom-bold">
           </fg-input>
         </div>
       </form>
