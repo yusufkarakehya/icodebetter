@@ -403,7 +403,7 @@ var XMainGrid = Vue.component('x-main-grid', {
    			   h('el-row',{style:"padding: 5px"},[
    			                  (!0 || g.searchForm) && h('el-button',{props:{icon:"el-icon-search", circle:!0}})
    			                  ,h('el-button',{props:{icon:"el-icon-refresh", circle:!0},on:{click:this.loadData}})
-   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{class:"float-right",props:{type:'primary',icon:"el-icon-plus", round:!0},on:{click:this.onNewRecord}},'NEW RECORD')
+   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:this.onNewRecord}},'NEW RECORD')
    			                  ,h('el-button',{props:{icon:"el-icon-menu", circle:!0}})]),
    			                  h('hr',{style:"margin-bottom:0"}),
    				h('el-table',{style:"width: 100%", props:{stripe:!0, data:this.rows},directives:[{name:'loading',value:this.loading}], on:{'row-dblclick':this.dblClick,'expand-change':this.expandChange, 'sort-change':this.sortChange}},

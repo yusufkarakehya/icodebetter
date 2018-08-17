@@ -1,4 +1,4 @@
-## Setting up local development environment
+# Setting up local development environment
 
 ## Step 1. Clone the repository and install tools
 
