@@ -2198,7 +2198,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
       handler: fnSendMail
     });
   }
-  if (false && xgrid.vcs) {
+  if (xgrid.vcs) {
     xbuttons.push({
 //      tooltip: getLocMsg("vcs"),
       cls: "x-btn-icon x-grid-vcs",

@@ -4071,7 +4071,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					cell.setExtraDefinition(",tooltip:'"
 							+ LocaleMsgCache.get2(customizationId, xlocale,
 									toolbarItem.getLocaleMsgKey())
-							+ "'");
+							+ "',ref:'../" + toolbarItem.getDsc() + "'");
 					if (toolbarItem.getCode() != null
 							&& toolbarItem.getCode().length() > 2)
 						cell.setExtraDefinition(cell.getExtraDefinition() + ","
@@ -4141,6 +4141,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					buttons.append("{text:'")
 							.append(LocaleMsgCache.get2(customizationId,
 									xlocale, menuItem.getLocaleMsgKey()))
+							.append("', ref:'../").append(menuItem.getDsc())
 							.append("'");
 					if (!GenericUtil.isEmpty(menuItem.getImgIcon()))
 						buttons.append(",cls:'").append(menuItem.getImgIcon())
