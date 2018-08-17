@@ -7259,7 +7259,7 @@ public class PostgreSQL extends BaseDAO {
 		}
 
 		executeUpdateSQLQuery("update iwb.w5_vcs_object x "
-				+ "set vcs_object_status_tip=(select case when z.vcs_object_status_tip in (3,8) then z.vcs_object_status_tip when x.vcs_commit_id!=2 AND z.vcs_commit_id!=x.vcs_commit_id then 1 else z.vcs_object_status_tip end from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk),"
+				+ "set vcs_object_status_tip=(select case when z.vcs_object_status_tip in (3,8) then z.vcs_object_status_tip when x.vcs_commit_id!=2 AND z.vcs_commit_id!=x.vcs_commit_id then 1 else x.vcs_object_status_tip end from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk),"
 				+ "vcs_commit_id=(select z.vcs_commit_id from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk) "
 				+ "where x.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk)", srcProjectId, srcProjectId, dstProjectId, srcProjectId);
 

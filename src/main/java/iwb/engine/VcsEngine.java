@@ -3040,15 +3040,15 @@ public class VcsEngine {
 			newProjectId = UUID.randomUUID().toString();
 			String schema = "c"+GenericUtil.lPad("1", 5, '0')+"_"+newProjectId.replace('-', '_');
 			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid, "
-					+ " ui_web_frontend_tip, ui_main_template_id, session_query_id, authentication_func_id, ui_login_template_id)"
+					+ " ui_web_frontend_tip, ui_main_template_id, session_query_id, authentication_func_id, ui_login_template_id, insert_user_id)"
 					+ " values (?,1,?, ?, ?,?,?,?, ?,"
-					+ "?, ?, ?, ?, ?)", newProjectId, po.getDsc(), 1, schema, "http://81.214.24.77:8084/app/","app.store", "1", projectId
-					, po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId());
+					+ "?, ?, ?, ?, ?, ?)", newProjectId, po.getDsc(), 0, schema, "http://81.214.24.77:8084/app/","app.store", "1", projectId
+					, po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId(), scd.get("userId"));
 			dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 		} else { 
 			newProjectId = cnts.get(0)[2].toString();
 			dao.executeUpdateSQLQuery("update iwb.w5_project"
-					+ " set dsc=?,ui_web_frontend_tip=?, ui_main_template_id=?, session_query_id=?, authentication_func_id=?, ui_login_template_id=?"
+					+ " set dsc=?,ui_web_frontend_tip=?, ui_main_template_id=?, session_query_id=?, authentication_func_id=?, ui_login_template_id=?, project_status_tip=0"
 					+ " where project_uuid=?"
 					, po.getDsc(), po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId(),
 					newProjectId);
