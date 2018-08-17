@@ -1,4 +1,5 @@
-> NOTE : This section is constantly being updated. Information presented here is correct. We will just keep expanding it to help you learn more parts of the project.
+> NOTE : This section is being updated frequently. Information presented here is correct. We will just keep expanding it to help you learn more parts of the project.
+
 ## iCodeBetter 
 iCodeBetter low-code platform is a Spring Boot application. So you need to know some Spring concepts in order to understand codebase better. In this guide we
 will give detailed overview of backend and frontend of iCodeBetter :bowtie:
@@ -46,12 +47,5 @@ As we mentioned above, *AppServet.java* calls framework engine's functions. Basi
 #### UI adapter
 
 When Framework Engine finishes its job, AppServlet serializes the output of FrameworkEngine using UI Adapters. That output is serialized according to UI library selected in browser. It can be React, Vue or Webix.
-
-<hr/>
-
-### Frontend
-
-<hr/>
-
 
 
