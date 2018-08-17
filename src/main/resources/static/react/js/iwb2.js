@@ -650,6 +650,37 @@ class GridCommon extends React.PureComponent {
 	}
 }
 /**
+ * XAjaxQueryData - function is used to get data by giving guery id
+ * @param {String} props.qui - query id that you want to get data from 
+ * @param {Function} props.middleMan
+ * @param {Symbol} props.children
+ * @example
+ * React.createElement(XAjaxQueryData,{},data=>{ return React.createElement(AnyComponent,{data}......) }
+ */
+class XAjaxQueryData extends React.PureComponent {
+    constructor(props) {
+        super(props)
+        this.state = { data: [] }
+        /**to get data from backend */
+        this.fetch = () => {
+            //todo: build url
+            let self = this;
+            iwb.request({
+                url: 'ajaxQueryData?' + '_qid=' + this.props.qid,
+                successCallback: ({ data }) => {
+                    self.setState({ data: (this.props.middleMan && typeof this.props.middleMan === 'function') ? this.props.middleMan(data) : data });
+                }
+            });
+        };
+    }
+    componentDidMount() { this.fetch() }
+    render() {
+        return _(React.Fragment,{},
+            (this.props && this.props.children && typeof this.props.children === 'function') ? this.props.children(this.state.data) : this.props.children
+        );
+    }
+}
+/**
  * @description
  * used to render tab and show active tab on the full XPage
  * @param {Object} props.body - it renders bodyForm class wich came from the backend
