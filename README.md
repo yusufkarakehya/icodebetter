@@ -29,7 +29,7 @@ iCodeBetter is way powerful than existing low-code platforms. And unlike others 
 #### To set up local development environment: 
 1. Clone the repository
 2. Create a new database 
-3. Restore icb.backup file (this file is in root directory)
+3. Restore icb_db.backup file (this file is in root directory)
 4. Open the project in your IDE
 5. Change database name, username, password in application.properties
 6. Run spring boot application
