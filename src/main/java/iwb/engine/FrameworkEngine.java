@@ -5474,6 +5474,7 @@ public class FrameworkEngine{
 		List p= new ArrayList();p.add(customizationId);
 
 		JSONObject json = new JSONObject(parameter);
+		String webPageId = json.has("_webPageId") ?json.getString("_webPageId"):null;
 		int userTip = json.getInt("user_tip");
 		main = json.getJSONObject("main");
 		detail = json.getJSONArray("detail");
@@ -5600,10 +5601,15 @@ public class FrameworkEngine{
 		createTableSql = s.toString();
 		dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
 
+		Map msg = null, nt = null;
+		if(webPageId!=null) {
+			msg = new HashMap();msg.put("success", true);
+			nt = new HashMap();
+			msg.put("notification", nt);
+		}
 
 		try {
 			dao.executeUpdateSQLQuery(createTableSql);
-
 			String createSeqSql = "create sequence seq_"+tablePrefix+tableName;
 			dao.executeUpdateSQLQuery(createSeqSql);
 
@@ -5620,6 +5626,12 @@ public class FrameworkEngine{
 			}
 
 			s.setLength(0);
+
+			if(webPageId!=null) {
+				nt.put("_tmpStr", "Table Created on RDBMS");
+				UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
+			}
+
 		} catch (Exception e2) {
 			throw new IWBException("framework","Create Table&Seq", 0, createTableSql, e2.getMessage(), e2);
 		}
@@ -5627,6 +5639,11 @@ public class FrameworkEngine{
 		boolean b = dao.organizeTable(scd, fullTableName);
 		if(!b)
 			throw new IWBException("framework","Define Table", 0, parameter, "Define Table", null);
+		if(webPageId!=null) {
+			nt.put("_tmpStr", "Table Imported to iCodeBetter");
+			UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
+		}
+
 
 		int tableId = GenericUtil.uInt(dao.executeSQLQuery("select t.table_id from iwb.w5_table t where t.customization_id=? AND t.dsc=? AND t.project_uuid=?", customizationId, tableName2, projectUuid).get(0));
 
@@ -5703,6 +5720,11 @@ public class FrameworkEngine{
 					+ " ?, ? )",formCellId, customizationId, formId, relParentFieldName, relParentFieldName, tabOrder++, tableId, customizationId, tableId, relParentFieldName, userId, userId, projectUuid, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
 		}
+		if(webPageId!=null) {
+			nt.put("_tmpStr", "Form Created for CRUD Operations");
+			UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
+		}
+
 //				XQUERY_ID := nextval('seq_query');
 		int queryId = GenericUtil.getGlobalNextval("iwb.seq_query", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query')").get(0));
 		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query("
@@ -5719,6 +5741,12 @@ public class FrameworkEngine{
 		if(vcs)dao.saveObject(new W5VcsObject(scd, 8, queryId));
 
 		dao.organizeQueryFields(scd, queryId, (short)1);
+		
+		if(webPageId!=null) {
+			nt.put("_tmpStr", "Query Created");
+			UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
+		}
+
 
 		dao.executeUpdateSQLQuery("set search_path=iwb");
 
@@ -5765,6 +5793,11 @@ public class FrameworkEngine{
 					+ "where x.xform_builder_id = y.xform_builder_id AND x.customization_id=y.customization_id "
 					+ "AND x.xform_builder_detail_id=?  AND x.customization_id=?",gridColumnId, queryId, gridId, tabOrder++, userId, userId, formId, GenericUtil.uInt(m.get("xform_builder_detail_id")), customizationId);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 4, gridColumnId));
+		}
+
+		if(webPageId!=null) {
+			nt.put("_tmpStr", "Grid Created");
+			UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
 		}
 
 
@@ -5829,6 +5862,12 @@ public class FrameworkEngine{
 						, formCellId, sformId, controlTip, tabOrder++, lookUpId, gridId, queryId, userId, userId, GenericUtil.uInt(m.get("xform_builder_detail_id")), customizationId);
 				if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
 			}
+			
+			if(webPageId!=null) {
+				nt.put("_tmpStr", "Form Created for Grid Search");
+				UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
+			}
+
 
 		}
 
@@ -5916,6 +5955,12 @@ public class FrameworkEngine{
 					+ "null, null, 1, ?, ?)", templateObjectId, parentTemplateId, customizationId, gridId, parentTemplateId, customizationId, userId, userId, parentTemplateObjectId, parentQueryId, parentQueryId, queryParamId, projectUuid, projectUuid);
 			if(vcs)dao.saveObject(new W5VcsObject(scd, 64, templateObjectId));
 
+			if(webPageId!=null) {
+				nt.put("_tmpStr", "Page & Menu Created");
+				UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
+			}
+
+
 		}
 		dao.executeUpdateSQLQuery("update iwb.w5_table t "
 				+ "set default_insert_form_id=?, default_update_form_id=?, default_view_grid_id=?, summary_record_sql='x.'||(select tf.dsc from iwb.w5_table_field tf where tf.tab_order=2 AND tf.table_id=t.table_id AND t.customization_id=tf.customization_id)||'::text' "
@@ -5936,7 +5981,7 @@ public class FrameworkEngine{
 
 
 		if(parentTableId==0){ //main Template
-			return menuId;
+			return templateId;
 		} else {
 			return gridId;
 		}
@@ -5985,10 +6030,12 @@ public class FrameworkEngine{
 	}
 
 	public Map executeQuery4Stat(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
+		checkTenant(scd);
 		return dao.executeQuery4Stat(scd, gridId, requestParams);
 	}
 
 	public Map executeQuery4StatTree(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
+		checkTenant(scd);
 		return dao.executeQuery4StatTree(scd, gridId, requestParams);
 	}
 

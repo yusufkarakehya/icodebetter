@@ -2829,7 +2829,7 @@ public class PostgreSQL extends BaseDAO {
 	        			rs = stmt.executeQuery();
 	        			ResultSetMetaData meta = rs.getMetaData();
 	        			Map<String, W5TableField> fieldMap = new HashMap<String, W5TableField>();
-	        			W5Table t = FrameworkCache.getTable(0, query.getMainTableId());
+	        			W5Table t = FrameworkCache.getTable(scd, query.getMainTableId());
 	        			if(t!=null)for(W5TableField f:t.get_tableFieldList()){
 	        				fieldMap.put(f.getDsc().toLowerCase(), f);
 	        			}
@@ -6579,7 +6579,7 @@ public class PostgreSQL extends BaseDAO {
 				default:
 					for(Map m:l){
 						Object o2 = m.get("id");
-						m.put("dsc", o2.toString());
+						m.put("dsc", o2==null ? "":o2.toString());
 
 					}
 				}

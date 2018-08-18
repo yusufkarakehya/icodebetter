@@ -3313,7 +3313,7 @@ columns:[
 									if (f.getLookupQueryId() == 0)
 										break;
 									W5LookUp lookUp = FrameworkCache.getLookUp(
-											customizationId,
+											queryResult.getScd(),
 											f.getLookupQueryId());
 									if (lookUp == null)
 										break;
@@ -3595,7 +3595,7 @@ columns:[
 									if (f.getLookupQueryId() == 0)
 										break;
 									W5LookUp lookUp = FrameworkCache.getLookUp(
-											customizationId,
+											queryResult.getScd(),
 											f.getLookupQueryId());
 									if (lookUp == null)
 										break;
@@ -3849,7 +3849,7 @@ columns:[
 								if (f.getLookupQueryId() == 0)
 									break;
 								W5LookUp lookUp = FrameworkCache.getLookUp(
-										customizationId, f.getLookupQueryId());
+										queryResult.getScd(), f.getLookupQueryId());
 								if (lookUp == null)
 									break;
 								buf.append("\",\"").append(f.getDsc())
@@ -4215,7 +4215,7 @@ columns:[
 
 				if (template.getCode().contains("${gridColorCss}")) {
 					buf4.append("<style type=\"text/css\">\n");
-					W5LookUp c = FrameworkCache.getLookUp(customizationId, 665);
+					W5LookUp c = FrameworkCache.getLookUp(templateResult.getScd(), 665);
 					for (W5LookUpDetay d : c.get_detayList()) {
 						buf4.append(".bgColor")
 								.append(d.getVal().replace("#", ""))

@@ -18,9 +18,9 @@ var TopNavbar =  Vue.component('top-navbar', {
       <span class="navbar-toggler-bar navbar-kebab"></span>
     </button>
  
-    <template slot="navbar-menu">
+    <template slot="navbar-menu">`+
 
-      <form>
+      (false? `<form>
         <div class="input-group no-border">
           <fg-input placeholder="Quick Search..." addon-right-icon="now-ui-icons ui-1_zoom-bold">
           </fg-input>
@@ -44,9 +44,9 @@ var TopNavbar =  Vue.component('top-navbar', {
         </drop-down>
 
 
-      </ul>
+      </ul>`:'')
 
-    </template>
+    +`</template>
   </navbar>`
 ,
     computed: {
