@@ -1885,7 +1885,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									buf.append(",");
 								else
 									b = true;
-								String extra = "{xtype:'fieldset',labelWidth:mf._lb_"
+								String extra = "{id:_page_tab_id+'_fm_"+m.getFormModuleId()+"',xtype:'fieldset',labelWidth:mf._lb_"
 										+ m.getFormModuleId()
 										+ "||"
 										+ formResult.getForm().getLabelWidth()

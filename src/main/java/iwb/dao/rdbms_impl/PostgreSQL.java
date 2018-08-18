@@ -4637,8 +4637,9 @@ public class PostgreSQL extends BaseDAO {
 			script = sc.toString();
 
 			cx.evaluateString(scope, script, null, 1, null);
-			if(scope.has("result", scope)){
-				return scope.get("result", scope);
+			if(GenericUtil.isEmpty(result))result="result";
+			if(scope.has(result, scope)){
+				return scope.get(result, scope);
 			}
 			return null;
 

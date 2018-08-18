@@ -6481,4 +6481,44 @@ public class FrameworkEngine{
 		dao.executeUpdateSQLQuery("update iwb.w5_user set email=? where user_id=?", email, userId);
 	}
 
+	public int runTests(Map<String, Object> scd, String testIds, String webPageId) {
+		String projectUuid = scd.get("projectId").toString();
+		List<Object[]> l = null;
+		if(GenericUtil.isEmpty(testIds))
+			l=dao.executeSQLQuery("select x.test_id, x.dsc, x.code from iwb.w5_test x where x.lkp_test_type=0 AND x.project_uuid=? order by x.tab_order ", projectUuid);
+		else {
+			List params = new ArrayList();
+			params.add(projectUuid);
+			String[] xx = testIds.split(",");
+			StringBuilder sql = new StringBuilder();
+			sql.append("select x.test_id, x.dsc, x.code from iwb.w5_test x where x.lkp_test_type=0 AND x.project_uuid=? AND x.test_id in(-1");
+			for(String s:xx) {
+				params.add(GenericUtil.uInt(s));
+				sql.append(",?");
+			}
+			sql.append(") order by x.tab_order "); 
+			l=dao.executeSQLQuery(sql.toString(), params);
+		}
+
+		if(l!=null) {
+			Map tmp = new HashMap();
+			Map msg = null, nt = null;
+			if(webPageId!=null) {
+				msg = new HashMap();msg.put("success", true);
+				nt = new HashMap();
+				msg.put("notification", nt);
+			}
+			for(Object[] o:l){
+				Object result = dao.executeRhinoScript(scd, tmp, o[2].toString(), tmp, "result");
+				if(result!=null) {
+					return GenericUtil.uInt(o[0]);
+				} else if(webPageId!=null) {
+					nt.put("_tmpStr", "Passed: " + o[1].toString());
+					UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
+				}
+			}					
+		}
+		return 0;
+	}
+
 }

@@ -2505,7 +2505,7 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
     _grid: xgrid,
     handler: fnExportGridData("txt")
   });
-  if (showMasterDetailReport) {
+  if (false && showMasterDetailReport) {
     xxmenu.push("-");
     xxmenu.push({
       text: "MasterDetail -> " + getLocMsg("js_excele_aktar"),

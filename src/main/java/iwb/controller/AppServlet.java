@@ -167,10 +167,23 @@ public class AppServlet implements InitializingBean {
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    String uuid= request.getParameter("_uuid");
 	    boolean b = engine.changeActiveProject(scd, uuid);
-		response.getWriter().write("{\"success\":"+b+", customizationId:"+scd.get("customizationId")+"}");
+		response.getWriter().write("{\"success\":"+b+", customizationId:"+scd.get("customizationId")+",scd:"+GenericUtil.fromMapToJsonString2Recursive(scd)+"}");
 		response.getWriter().close();		
 	}
 	
+	
+	@RequestMapping("/ajaxRunTest")
+	public void hndAjaxRunTest(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("ajaxRunTest"); 
+	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+	    String testIds= request.getParameter("_tids");
+	    int failId = engine.runTests(scd, testIds, request.getParameter(".w"));
+		response.getWriter().write("{\"success\":true, failId:"+failId+"}");
+		response.getWriter().close();		
+	}
 	
 	@RequestMapping("/ajaxDebugSyncData")
 	public void hndAjaxDebugSyncData(HttpServletRequest request, HttpServletResponse response)
