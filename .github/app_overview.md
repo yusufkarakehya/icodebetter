@@ -1,3 +1,5 @@
+> NOTE : This section is being updated frequently. Information presented here is correct. We will just keep expanding it to help you learn more parts of the project.
+
 ## iCodeBetter 
 iCodeBetter low-code platform is a Spring Boot application. So you need to know some Spring concepts in order to understand codebase better. In this guide we
 will give detailed overview of backend and frontend of iCodeBetter :bowtie:
@@ -10,10 +12,11 @@ will give detailed overview of backend and frontend of iCodeBetter :bowtie:
 
 #### Controller
 
-> It would be best to read about roles of these requests in [page lifecycle](https://docs.icodebetter.com/lifecycles/page) section of documentation.
 
 *AppServet.java* handles ajax requests. Most common requests are `showPage` , `showForm` , `ajaxQueryData` , `ajaxPostForm` , 
 `ajaxExecDbFunc` . So this how it handles these requests:
+
+> It would be best to read about roles of these requests in [page lifecycle](https://docs.icodebetter.com/lifecycles/page) section of documentation.
 
 * `showPage` - used to render a page/grid
 
@@ -37,7 +40,12 @@ It calls Framework engine's `executeFunc` function and returns result as respons
 
 #### Framework engine
 
+As we mentioned above, *AppServet.java* calls framework engine's functions. Basically *FrameworkEngine.java* is the one that orchestrates all the backend: Access Control, CRUD Engine, Query Engine, Conversion Engine, Backend Record State Management Engine, BI Engine.
+
+
+
 #### UI adapter
 
+When Framework Engine finishes its job, AppServlet serializes the output of FrameworkEngine using UI Adapters. That output is serialized according to UI library selected in browser. It can be React, Vue or Webix.
 
-<hr/>
+
