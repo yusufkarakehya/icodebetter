@@ -1303,7 +1303,7 @@ Ext.infoMsg = {
 		},
 		confirm:function(msg,callback,type){
 			if(!callback){alert('confirm.define callback for: '+msg);return}
-			var c={text: msg,theme:'metroui', type: type||'warning', modal:!0,layout: 'center', animation:{open:'animated flipInY',close:null},closeWith:[],
+			var c={text: msg,theme:'metroui', type: type||'warning', modal:!0,layout: 'center', animation:{open:null,close:null},closeWith:[],
 					buttons: [Noty.button('OK', 'noty-btn btn-success', function () {nw.close();callback()}, {}), Noty.button('Cancel', 'noty-btn', function () {nw.close();}, {})]
 				};
 			var nw=new Noty(c);
