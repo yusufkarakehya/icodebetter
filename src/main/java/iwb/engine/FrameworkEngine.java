@@ -2474,7 +2474,7 @@ public class FrameworkEngine{
 						continue;
 					}
 					if(GenericUtil.isEmpty(c.getRhinoCode()) || c.getRhinoCode().startsWith("!")){
-						Map result = callWs(scd, wsm.get_ws().getDsc()+"."+wsm.getDsc(), mq); // TODO: result ne yapayim
+						Map result = REST(scd, wsm.get_ws().getDsc()+"."+wsm.getDsc(), mq); // TODO: result ne yapayim
 						if(result!=null){
 							if(result.containsKey("faultcode"))
 								throw new IWBException("rhino","Conversion", c.getConversionId(), wsm.get_ws().getDsc()+"."+wsm.getDsc(), result.get("faulcode") + ": " + result.get("faultstring"), null);
@@ -6137,7 +6137,7 @@ public class FrameworkEngine{
 		return wsmoMap;
 	}
 
-	public Map callWs(Map<String, Object> scd, String name, Map requestParams) throws IOException{
+	public Map REST(Map<String, Object> scd, String name, Map requestParams) throws IOException{
 		String[] u = name.replace('.', ',').split(",");
 		if(u.length<2)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Call should be [serviceName].[methodName]", null);
 		W5Ws ws = FrameworkCache.getWsClient(scd, u[0]);
@@ -6181,7 +6181,7 @@ public class FrameworkEngine{
 					W5WsMethodParam tokenParam = loginMethod.get_paramMap().get(ws.getWssLoginMethodParamId());
 					if(tokenKey==null || tokenTimeout==null || tokenTimeout<=System.currentTimeMillis()){//yeni bir token alinacak
 						if(tokenParam!=null){
-							Map tokenResult = callWs(scd, ws.getDsc()+"." + loginMethod.getDsc(), new HashMap());
+							Map tokenResult = REST(scd, ws.getDsc()+"." + loginMethod.getDsc(), new HashMap());
 							Object o = tokenResult.get(tokenParam.getDsc());
 							if(o==null)
 								throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Auto-Login Failed", null);
@@ -6519,6 +6519,21 @@ public class FrameworkEngine{
 			}					
 		}
 		return 0;
+	}
+
+	public boolean changeChangeProjectStatus(Map<String, Object> scd, String projectUuid, int newStatus) {
+		List params = new ArrayList(); params.add(projectUuid);
+		List<Map<String, Object>> l = dao.executeSQLQuery2Map("SELECT x.*,(select q.customization_id from iwb.w5_project q where q.project_uuid=x.oproject_uuid) qcus_id FROM iwb.w5_project x WHERE x.project_uuid=? ", params);
+		if(GenericUtil.isEmpty(l))return false;
+		Map m= l.get(0);
+		if(GenericUtil.uInt(m.get("customization_id"))==1) {
+			if((Integer)scd.get("customizationId")==1 || (newStatus==2 && GenericUtil.uInt(m.get("qcus_id"))==(Integer)scd.get("customizationId"))) {
+				dao.executeUpdateSQLQuery("update iwb.w5_project set project_status_tip=? WHERE project_uuid=?", newStatus, projectUuid);
+				dao.addProject2Cache(projectUuid);
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

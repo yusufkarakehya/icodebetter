@@ -258,17 +258,9 @@ public class ScriptEngine {
   public int sqlExecute(String sql) {
     if (scd != null
         && scd.get("customizationId") != null
-        && (Integer) scd.get("customizationId") > 0) {
+        && (Integer) scd.get("customizationId") > 1) {
       String sql2 = sql.toLowerCase(FrameworkSetting.appLocale);
-      if (sql2.contains("iwb.")
-          || sql2.contains("drop")
-          || sql2.contains("delete")
-          || sql2.contains("truncate")
-          || sql2.contains("search_path")
-          || sql2.contains("grant")
-          || sql2.contains("vacuum")
-          || sql2.contains("lock")
-          || sql2.contains("execute")) {
+      if (DBUtil.checkTenantSQLSecurity(sql2)){
         throw new IWBException(
             "security",
             "SQL",
@@ -437,15 +429,15 @@ public class ScriptEngine {
     return mo;
   }
 
-  public Map callWs(String serviceName, NativeObject jsRequestParams) {
-    return callWs(serviceName, jsRequestParams, true);
+  public Map REST(String serviceName, NativeObject jsRequestParams) {
+    return REST(serviceName, jsRequestParams, true);
   }
 
-  public Map callWs(String serviceName, NativeObject jsRequestParams, boolean throwFlag) {
+  public Map REST(String serviceName, NativeObject jsRequestParams, boolean throwFlag) {
     Map result = new HashMap();
     result.put("success", true);
     try {
-      Map m = engine.callWs(scd, serviceName, fromNativeObject2Map(jsRequestParams));
+      Map m = engine.REST(scd, serviceName, fromNativeObject2Map(jsRequestParams));
       if (m != null) {
         if (m.containsKey("errorMsg")) {
           if (throwFlag)

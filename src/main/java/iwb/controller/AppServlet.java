@@ -172,6 +172,19 @@ public class AppServlet implements InitializingBean {
 	}
 	
 	
+	@RequestMapping("/ajaxChangeProjectStatus")
+	public void hndAjaxChangeProjectStatus(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("hndAjaxChangeProjectStatus"); 
+	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+	    String uuid= request.getParameter("project_uuid");
+	    boolean b = engine.changeChangeProjectStatus(scd, request.getParameter("project_uuid"), GenericUtil.uInt(request, "new_status"));
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();		
+	}
+	
 	@RequestMapping("/ajaxRunTest")
 	public void hndAjaxRunTest(
 			HttpServletRequest request,
@@ -2369,7 +2382,7 @@ public class AppServlet implements InitializingBean {
 		logger.info("hndAjaxCallWs"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    
-		Map m =engine.callWs(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
+		Map m =engine.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}

@@ -1493,7 +1493,7 @@ public class SpaceServlet implements InitializingBean {
 		logger.info("hndAjaxCallWs"); 
 	    Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
 	    
-		Map m =engine.callWs(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
+		Map m =engine.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}
