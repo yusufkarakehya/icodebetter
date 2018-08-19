@@ -68,8 +68,8 @@ iwb.request=function(cfg){
 
 
 function disabledCheckBoxHtml(row, cell){ //TODO
-//		return _('img',{border:0,src:'../images/custom/'+(f ?'':'un')+'checked.gif'});
-	return row[cell] && 1*row[cell] ? _('i',{className:'fa fa-check', style:{color:'green'}}) : null;
+//		return h('img',{border:0,src:'../images/custom/'+(f ?'':'un')+'checked.gif'});
+	return row[cell] && 1*row[cell] ? h('i',{class:'fa fa-check', style:{color:'green'}}) : null;
 }
 function gridUserRenderer(row, cell){ //TODO
 	return row[cell+'_qw_'];
@@ -112,18 +112,18 @@ function editGridLovComboRenderer(cell, combo){
 
 
 function fileAttachmentHtml(row,cell){//TODO
-	return row[cell] && 1*row[cell] ? _('i',{className:'icon-paper-clip'}):null;
+	return row[cell] && 1*row[cell] ? h('i',{class:'icon-paper-clip'}):null;
 } 
 
 function vcsHtml(row, cell){
-	return row[cell] && 1*row[cell] ? _('i',{className:'icon-social-github'}):null;
+	return row[cell] && 1*row[cell] ? h('i',{class:'icon-social-github'}):null;
 }
 function pictureHtml(row, cell){	
-	return row[cell] && 1*row[cell] ? _('i',{className:'icon-picture'}):null;
+	return row[cell] && 1*row[cell] ? h('i',{class:'icon-picture'}):null;
 }
 
 function mailBoxRenderer(row, cell){
-	return row[cell] && 1*row[cell] ? _('i',{className:'icon-envelope'}):null;
+	return row[cell] && 1*row[cell] ? h('i',{class:'icon-envelope'}):null;
 } 
 
 function fmtDateTime(x){
@@ -153,7 +153,7 @@ function getStrapSize(w){
 	
 }
 
-function _(){
+function h(){
 	return '';
 }
 iwb.ui={}
@@ -619,7 +619,6 @@ var XModal = Vue.component('modal', {
 			this.closableOutside = this.viewMode;
     	},
 		closeModal(e) {
-    		console.log('bbb',e);
 			if(e && e.preventDefault)e.preventDefault();
 			this.show=false;
 		},
@@ -685,3 +684,87 @@ Vue.component('time-line-item', {
       }
     }
 });
+
+
+var XGraph = Vue.component('xgraph', {
+	props: ['o'],
+	data(){
+		return {};
+	},
+	mounted() {
+		var dg = this.o.graph;
+        var gid = 'idG'+dg.graphId;
+		iwb.graphAmchart(dg,gid);
+	},
+	render(h){
+		return h('div',{style:"width:100%;height:"+(this.o.props.height||'20vw'),attrs:{id:'idG'+this.o.graph.graphId}})
+	}
+});
+
+var XPortlet=Vue.component('xportlet',{
+	props: ['o'],
+	data(){
+		return {};
+	},
+	render(h){
+		var o = this.o;
+		var name=o.graph||o.grid||o.card||o.query;
+		if(!name)return h('div',null,'not portlet');
+		if(o.query){
+			var q=o.query.data;
+			if(!q || !q.length)return h('div',null,'not data');
+			q=q[0];
+			return h('card', {class: "card-portlet text-white bg-"+(o.color||this.o.color||'info')},[
+//					h("i", {class: "big-icon "+(q.icon || "icon-settings")}),
+					h('card-block', {class: "pb-0"},[
+						h("div", { class: "kpi-portlet-val float-right"},q.xvalue),
+						h("h1", {class: "mb-0",style:"font-size:40px"},q.dsc),
+						h("div",{style:"height: 25px"})]
+					)]);
+		}
+		name = name.name;
+		var cmp=null;
+		if(o.graph){
+			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')},[h("h3", { class: "form-header", style:"padding: 5px 2px 0px; " },name)
+					,h(XGraph,{props:{o:o}})]);
+		} else if(o.grid){
+			o.grid.crudFlags=false;
+			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')},[h("h3", { class: "form-header", style:"padding: 5px 2px 0px; " },name)
+				,h(XGrid,{props:o})]);
+		} else if(o.card)cmp='Card';
+		else if(o.query)cmp='KPI Card';
+		return  h('card', {
+			class: "card-portlet text-white bg-"+o.props.color||'primary'
+			},[h('card-block', {class: 'card-body'},
+					[h("h3", { class: "form-header", style:"padding: 10px 12px 0px; margin-bottom:.5rem" },
+						name)],
+					h("hr"),
+				cmp)]);
+		
+	}
+});
+
+function props2css(x){
+	if(!x)return '';
+	var s='';
+	for(var k in x)switch(k){
+	case	'xs':case	'sm':case	'md':case	'lg':case	'xl':
+		s+=' col-'+k+'-'+x[k];
+	}
+	return s;
+	
+}
+iwb.ui.buildDashboard=function(o){
+	return {
+		data() {
+		  return {}
+		}, 
+		render(h){
+			if(!o || !o.rows || !o.rows.length)return h('div',{class:"container-fluid", style:""},[h('div',{class:"row"},[h('div',{class:"col-12"},[h('div',{},'No portlets defined')])])]); 
+
+			return h('div',{class:"container-fluid", style:""}, o.rows.map((rowItem)=>{
+				return h('div',{class:"row"}, rowItem.map((colItem)=> h('div',{class:props2css(colItem.props)}, [h(XPortlet,{props:{o:colItem}})])));//iwb.createPortlet(colItem)
+			}));
+		}
+	}
+}

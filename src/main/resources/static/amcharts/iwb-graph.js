@@ -181,7 +181,7 @@ iwb.graphAmchart=function(dg,gid){
               Object.assign(extraCfg, {
                 type: "pie",
                 theme: "black",
-                startDuration: 2,
+                startDuration: 1,
                 labelRadius: 15,
                 labelText: dg.legend
                   ? "[[percents]]%"
@@ -230,7 +230,7 @@ iwb.graphAmchart=function(dg,gid){
                 Object.assign(extraCfg, {
                   type: "serial",
                   theme: "black",
-                  startDuration: 2,
+                  startDuration: 1,
                   graphs: graphs,
                   chartCursor: {
                     categoryBalloonEnabled: false,
@@ -251,7 +251,7 @@ iwb.graphAmchart=function(dg,gid){
                 Object.assign(extraCfg, {
                   type: "serial",
                   theme: "black",
-                  startDuration: 2,
+                  startDuration: 1,
                   graphs: [
                     {
                       balloonText: "<b>[[dsc]]: [[xres]]</b>",

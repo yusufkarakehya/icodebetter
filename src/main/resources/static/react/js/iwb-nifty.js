@@ -4526,7 +4526,7 @@ iwb.createPortlet=function(o){
 	} else if(o.card)cmp='Card';
 	else if(o.query)cmp='KPI Card';
 	return  _(Card, {
-		className: "text-white bg-"+o.props.color||'primary', style:{boxShadow:'0px 1px 15px 1px rgba(69, 65, 78, 0.1)'}
+		className: "card-portlet text-white bg-"+o.props.color||'primary'
 		},_(CardBlock, {className: 'card-body'},
 				_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },
 					name),
