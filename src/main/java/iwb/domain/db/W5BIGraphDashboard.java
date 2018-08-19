@@ -48,6 +48,8 @@ public class W5BIGraphDashboard implements java.io.Serializable, W5Base {
 	private String graphFuncFields;
 	private int defaultHeight; //gelen table'in PK'si
 	
+    private W5PageObject	_tplObj;
+
 	
 	@Id
 	@Column(name="graph_dashboard_id")
@@ -218,9 +220,30 @@ public class W5BIGraphDashboard implements java.io.Serializable, W5Base {
 		this.dtTip = dtTip;
 	}
 
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
 
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	@Transient
 	public boolean safeEquals(W5Base q){
 		return false;
 	}
+
+	@Transient
+	public W5PageObject get_tplObj() {
+		return _tplObj;
+	}
+
+
+	public void set_tplObj(W5PageObject _tplObj) {
+		this._tplObj = _tplObj;
+	}
+	
+	
 }

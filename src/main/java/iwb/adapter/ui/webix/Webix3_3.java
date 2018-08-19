@@ -14,6 +14,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
+import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5Conversion;
@@ -1616,15 +1617,15 @@ public class Webix3_3 implements ViewAdapter {
 	private StringBuilder renderTemplateObject(W5PageResult templateResult) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
-		if(!(templateResult.getTemplateObjectList().get(0) instanceof W5GridResult))return buf;
-		W5GridResult gr = (W5GridResult)templateResult.getTemplateObjectList().get(0);
+		if(!(templateResult.getPageObjectList().get(0) instanceof W5GridResult))return buf;
+		W5GridResult gr = (W5GridResult)templateResult.getPageObjectList().get(0);
 		buf.append("return iwb.ui.buildPanel({t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
 		if(gr.getGrid().get_crudTable()!=null){
 			W5Table t = gr.getGrid().get_crudTable();
 			buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
 		}
-		if(templateResult.getTemplateObjectList().size()>1){
-			StringBuilder rbuf = recursiveTemplateObject(templateResult.getTemplateObjectList(), ((W5GridResult)templateResult.getTemplateObjectList().get(0)).getTplObj().getTemplateObjectId(), 1);
+		if(templateResult.getPageObjectList().size()>1){
+			StringBuilder rbuf = recursiveTemplateObject(templateResult.getPageObjectList(), ((W5GridResult)templateResult.getPageObjectList().get(0)).getTplObj().getTemplateObjectId(), 1);
 			if(rbuf!=null && rbuf.length()>0)
 				buf.append(",").append(rbuf);
 			
@@ -4414,32 +4415,32 @@ columns:[
 		return buf.append("}");
 	}
 
-	public StringBuilder serializeTemplate(W5PageResult templateResult) {
+	public StringBuilder serializeTemplate(W5PageResult pr) {
 		boolean replacePostJsCode = false;
-		W5Page template = templateResult.getPage();
+		W5Page template = pr.getPage();
 
 		StringBuilder buf = new StringBuilder();
 		StringBuilder postBuf = new StringBuilder();
 		String code = null;
-		int customizationId = (Integer) templateResult.getScd().get(
+		int customizationId = (Integer) pr.getScd().get(
 				"customizationId");
-		String xlocale = (String) templateResult.getScd().get("locale");
+		String xlocale = (String) pr.getScd().get("locale");
 		if (template.getTemplateTip() != 0) { // html degilse
 			// notification Control
 			// masterRecord Control
-			if (templateResult.getMasterRecordList() != null
-					&& !templateResult.getMasterRecordList().isEmpty())
+			if (pr.getMasterRecordList() != null
+					&& !pr.getMasterRecordList().isEmpty())
 				buf.append("\n_mrl=")
 						.append(serializeTableHelperList(customizationId,
-								xlocale, templateResult.getMasterRecordList()))
+								xlocale, pr.getMasterRecordList()))
 						.append(";\n");
 			// request
 			buf.append("var _request=")
-					.append(GenericUtil.fromMapToJsonString(templateResult
+					.append(GenericUtil.fromMapToJsonString(pr
 							.getRequestParams())).append("\n");
-			if (templateResult.getRequestParams().get("_tabId") != null)
+			if (pr.getRequestParams().get("_tabId") != null)
 				buf.append("var _page_tab_id='")
-						.append(templateResult.getRequestParams().get("_tabId"))
+						.append(pr.getRequestParams().get("_tabId"))
 						.append("';\n");
 			else {
 				buf.append("var _page_tab_id='")
@@ -4448,7 +4449,7 @@ columns:[
 
 			if (template.getTemplateTip() != 8) { // wizard degilse
 				int customObjectCount = 1, tabOrder = 1;
-				for (Object i : templateResult.getTemplateObjectList()) {
+				for (Object i : pr.getPageObjectList()) {
 					if (i instanceof W5GridResult) { // objectTip=1
 						W5GridResult gr = (W5GridResult) i;
 						buf.append(serializeGrid(gr));
@@ -4504,6 +4505,13 @@ columns:[
 								.append("=")
 								.append(serializeQueryData((W5QueryResult) i))
 								.append("\n");
+					}  else if (i instanceof W5BIGraphDashboard) {
+						W5BIGraphDashboard gd = (W5BIGraphDashboard) i;
+						buf.append("\nvar graph")
+								.append(gd.getGraphDashboardId())
+								.append("=")
+								.append(serializeGraphDashboard(gd, pr.getScd()))
+								.append(";\n");
 					} else if (i instanceof String) {
 						buf.append("\nvar ").append(i).append("={}");
 					}
@@ -4536,17 +4544,17 @@ columns:[
 					.append("';\nvar _page_tab_id='")
 					.append(GenericUtil.getNextId("tpi")).append("';\n");
 			buf2.append("var _request=")
-					.append(GenericUtil.fromMapToJsonString(templateResult
+					.append(GenericUtil.fromMapToJsonString(pr
 							.getRequestParams())).append(";\n");
 			buf2.append("var _scd=")
-					.append(GenericUtil.fromMapToJsonString(templateResult
+					.append(GenericUtil.fromMapToJsonString(pr
 							.getScd())).append(";\n");
 			Map<String, String> publishedAppSetting = new HashMap<String, String>();
 			for (String key : FrameworkCache.publishAppSettings) {
 				publishedAppSetting.put(
 						key,
 						FrameworkCache.getAppSettingStringValue(
-								templateResult.getScd(), key));
+								pr.getScd(), key));
 			}
 			buf2.append("var _app=")
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))
@@ -4576,7 +4584,7 @@ columns:[
 				buf2.append("};\n");
 			}*/
 			int customObjectCount=1;
-			for (Object i : templateResult.getTemplateObjectList()) {
+			for (Object i : pr.getPageObjectList()) {
 				if (i instanceof W5GridResult) {
 					W5GridResult gr = (W5GridResult) i;
 					buf2.append(serializeGrid(gr));
@@ -4614,13 +4622,13 @@ columns:[
 				buf2.append("\n");
 			}
 			StringBuilder buf4 = new StringBuilder();
-			if (templateResult.getScd().containsKey("userId")) { // login olmus
+			if (pr.getScd().containsKey("userId")) { // login olmus
 																	// demek ki
 				buf2.append("\nvar _widgetMap={};\n");
 
 				if (template.getCode().contains("${gridColorCss}")) {
 					buf4.append("<style type=\"text/css\">\n");
-					W5LookUp c = FrameworkCache.getLookUp(templateResult.getScd(), 665);
+					W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
 					for (W5LookUpDetay d : c.get_detayList()) {
 						buf4.append(".bgColor")
 								.append(d.getVal().replace("#", ""))
@@ -4634,7 +4642,7 @@ columns:[
 			StringBuilder buf3 = new StringBuilder();
 			buf3.append("var _localeMsg=")
 					.append(GenericUtil.fromMapToJsonString(LocaleMsgCache
-							.getPublishLocale2(customizationId, templateResult
+							.getPublishLocale2(customizationId, pr
 									.getScd().get("locale").toString())))
 					.append("\n");
 			// buf3.append("function getLocMsg(key){if(key==null)return '';var val=_localeMsg[key];return val || key;}\n");
@@ -4647,12 +4655,21 @@ columns:[
 		if(!GenericUtil.isEmpty(code))
 			buf.append("\n").append(code.startsWith("!") ? code.substring(1) : code);
 
-		short ttip= templateResult.getPage().getTemplateTip();
-		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
+//		short ttip= templateResult.getPage().getTemplateTip();
+//		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getPageObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
+		if(!GenericUtil.isEmpty(pr.getPageObjectList()))switch(pr.getPage().getTemplateTip()){
+		case	2:case	4://page, pop up
+			buf.append("\n").append(renderTemplateObject(pr));
+			break;
+		case	10://dashboard
+			buf.append("\n").append(renderDashboardObject(pr));
+			break;
+			
+		}
 		
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
-				buf.toString(), templateResult.getScd(),
-				templateResult.getRequestParams(), null) : buf;
+				buf.toString(), pr.getScd(),
+				pr.getRequestParams(), null) : buf;
 	}
 
 	public StringBuilder serializeTableRecordInfo(
@@ -5226,5 +5243,61 @@ columns:[
 		return buf;
 	}
 	
+	private Object renderDashboardObject(W5PageResult pr) {
+		StringBuilder buf = new StringBuilder();
+		if(GenericUtil.isEmpty(pr.getPageObjectList()))return buf;
+		buf.append("return iwb.ui.buildDashboard({t:_page_tab_id, rows:[");
+		int rowId=-1;
+		for(Object o:pr.getPageObjectList())if(o!=null){
+			W5PageObject po = null;
+			StringBuilder rbuf = new StringBuilder();
+			if(o instanceof W5GridResult){
+				W5GridResult gr = (W5GridResult)o;
+				po = gr.getTplObj();
+				rbuf.append("{grid:").append(gr.getGrid().getDsc());
+				
+			} else if(o instanceof W5BIGraphDashboard){
+				W5BIGraphDashboard gr = (W5BIGraphDashboard)o;
+				po = gr.get_tplObj();
+				rbuf.append("{graph:graph").append(gr.getGraphDashboardId());
+			} else if(o instanceof W5QueryResult){
+				W5QueryResult qr = (W5QueryResult)o;
+				rbuf.append("{query:").append(qr.getQuery().getDsc());
+//				po = gr.getTplObj();
+			}
+			if(po!=null){
+				int currentRowID = po.getTabOrder()/1000;
+				if(currentRowID!=rowId){
+					if(rowId>-1){
+						buf.append("],");
+					}
+					buf.append("[");
+				}
+				if(!GenericUtil.isEmpty(po.getPostJsCode())){
+					rbuf.append(",props:{").append(po.getPostJsCode()).append("}");
+				}
+				rbuf.append("}");
+				if(rowId == currentRowID)buf.append(",");
+				buf.append(rbuf);
+				rowId= currentRowID;
+			}
+		}
+		if(rowId!=-1)buf.append("]");
+		buf.append("]});");
+		return buf;
+	}
 
+	private StringBuilder serializeGraphDashboard(W5BIGraphDashboard gd, Map<String, Object> scd){
+		StringBuilder buf = new StringBuilder();
+		buf.append("{graphId:").append(gd.getGraphDashboardId())
+		 .append(",name:'").append(LocaleMsgCache.get2(scd, gd.getLocaleMsgKey())).append("', gridId:").append(gd.getGridId()).append(",tableId:").append(gd.getTableId())
+		 .append(",is3d:").append(gd.getIs3dFlag()!=0).append(",dtTip:").append(gd.getDtTip())
+		.append(",graphTip:").append(gd.getGraphTip()).append(",groupBy:'").append(gd.getGraphGroupByField()).append("',funcTip:").append(gd.getGraphFuncTip()).append(",funcFields:'").append(gd.getGraphFuncFields())
+		.append("', queryParams:").append(gd.getQueryBaseParams());
+		if(gd.getStackedQueryField()!=0)buf.append(",stackedFieldId:").append(gd.getStackedQueryField());
+		if(gd.getDefaultHeight()!=0)buf.append(",height:").append(gd.getDefaultHeight());
+		if(gd.getLegendFlag()!=0)buf.append(",legend:true");
+		buf.append("}");
+		return buf;
+	}
 }

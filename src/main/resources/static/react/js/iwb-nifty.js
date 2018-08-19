@@ -4485,3 +4485,8 @@ class XForm extends React.Component {
     iwb.forms[this._id] = { ...this.state };
   }
 }
+
+
+iwb.ui.buildDashboard=function(o){
+	return _('div',null,'Ahmet');
+}

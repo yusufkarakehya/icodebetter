@@ -6320,10 +6320,14 @@ public class ExtJs3_3 implements ViewAdapter {
 
 			if (template.getTemplateTip() != 8) { // wizard degilse
 				int customObjectCount = 1, tabOrder = 1;
-				for (Object i : pr.getTemplateObjectList()) {
-					if (i instanceof W5BIGraphDashboard) { // objectTip=12
+				for (Object i : pr.getPageObjectList()) {
+					if (i instanceof W5BIGraphDashboard) {
 						W5BIGraphDashboard gd = (W5BIGraphDashboard) i;
-						buf.append("\nif(!_request.grd_cfgs)_request.grd_cfgs=[];_request.grd_cfgs.push({dash: ").append(serializeGraphDashboard(gd, pr.getScd())).append("});\n\n");
+						buf.append("\nvar graph")
+								.append(gd.getGraphDashboardId())
+								.append("=")
+								.append(serializeGraphDashboard(gd, pr.getScd()))
+								.append(";\n");
 					} else if (i instanceof W5GridResult) { // objectTip=1
 						W5GridResult gr = (W5GridResult) i;
 						buf.append(serializeGrid(gr));
@@ -6449,7 +6453,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				buf2.append("};\n");
 			}
 */
-			for (Object i : pr.getTemplateObjectList()) {
+			for (Object i : pr.getPageObjectList()) {
 				if (i instanceof W5GridResult) {
 					W5GridResult gr = (W5GridResult) i;
 					buf2.append(serializeGrid(gr));
@@ -6529,8 +6533,17 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(code.startsWith("!") ? code.substring(1) : code);
 			if(template.getTemplateTip()==2 && !GenericUtil.isEmpty(code) && FrameworkSetting.debug)buf.append("\n/*iwb:end:template:").append(template.getTemplateId()).append(":Code*/");
 		}
-		short ttip= pr.getPage().getTemplateTip();
-		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(pr.getTemplateObjectList()))buf.append("\n").append(renderTemplateObject(pr));
+//		short ttip= pr.getPage().getTemplateTip();
+//		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(pr.getPageObjectList()))buf.append("\n").append(renderTemplateObject(pr));
+		if(!GenericUtil.isEmpty(pr.getPageObjectList()))switch(pr.getPage().getTemplateTip()){
+		case	2:case	4://page, pop up
+			buf.append("\n").append(renderTemplateObject(pr));
+			break;
+		case	10://dashboard
+			buf.append("\n").append(renderDashboardObject(pr));
+			break;
+			
+		}
 
 		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
 				buf.toString(), pr.getScd(),
@@ -6575,15 +6588,15 @@ public class ExtJs3_3 implements ViewAdapter {
 	private StringBuilder renderTemplateObject(W5PageResult templateResult) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
-		if(!(templateResult.getTemplateObjectList().get(0) instanceof W5GridResult))return buf;
-		W5GridResult gr = (W5GridResult)templateResult.getTemplateObjectList().get(0);
+		if(!(templateResult.getPageObjectList().get(0) instanceof W5GridResult))return buf;
+		W5GridResult gr = (W5GridResult)templateResult.getPageObjectList().get(0);
 		buf.append("return iwb.ui.buildPanel({t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
 		if(gr.getGrid().get_crudTable()!=null){
 			W5Table t = gr.getGrid().get_crudTable();
 			buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
 		}
-		if(templateResult.getTemplateObjectList().size()>1){
-			StringBuilder rbuf = recursiveTemplateObject(templateResult.getTemplateObjectList(), ((W5GridResult)templateResult.getTemplateObjectList().get(0)).getTplObj().getTemplateObjectId(), 1);
+		if(templateResult.getPageObjectList().size()>1){
+			StringBuilder rbuf = recursiveTemplateObject(templateResult.getPageObjectList(), ((W5GridResult)templateResult.getPageObjectList().get(0)).getTplObj().getTemplateObjectId(), 1);
 			if(rbuf!=null && rbuf.length()>0)
 				buf.append(",").append(rbuf);
 		}
@@ -7387,6 +7400,49 @@ public class ExtJs3_3 implements ViewAdapter {
 		if(gd.getDefaultHeight()!=0)buf.append(",height:").append(gd.getDefaultHeight());
 		if(gd.getLegendFlag()!=0)buf.append(",legend:true");
 		buf.append("}");
+		return buf;
+	}
+	private Object renderDashboardObject(W5PageResult pr) {
+		StringBuilder buf = new StringBuilder();
+		if(GenericUtil.isEmpty(pr.getPageObjectList()))return buf;
+		buf.append("return iwb.ui.buildDashboard({t:_page_tab_id, rows:[");
+		int rowId=-1;
+		for(Object o:pr.getPageObjectList())if(o!=null){
+			W5PageObject po = null;
+			StringBuilder rbuf = new StringBuilder();
+			if(o instanceof W5GridResult){
+				W5GridResult gr = (W5GridResult)o;
+				po = gr.getTplObj();
+				rbuf.append("{grid:").append(gr.getGrid().getDsc());
+				
+			} else if(o instanceof W5BIGraphDashboard){
+				W5BIGraphDashboard gr = (W5BIGraphDashboard)o;
+				po = gr.get_tplObj();
+				rbuf.append("{graph:graph").append(gr.getGraphDashboardId());
+			} else if(o instanceof W5QueryResult){
+				W5QueryResult qr = (W5QueryResult)o;
+				rbuf.append("{query:").append(qr.getQuery().getDsc());
+//				po = gr.getTplObj();
+			}
+			if(po!=null){
+				int currentRowID = po.getTabOrder()/1000;
+				if(currentRowID!=rowId){
+					if(rowId>-1){
+						buf.append("],");
+					}
+					buf.append("[");
+				}
+				if(!GenericUtil.isEmpty(po.getPostJsCode())){
+					rbuf.append(",props:{").append(po.getPostJsCode()).append("}");
+				}
+				rbuf.append("}");
+				if(rowId == currentRowID)buf.append(",");
+				buf.append(rbuf);
+				rowId= currentRowID;
+			}
+		}
+		if(rowId!=-1)buf.append("]");
+		buf.append("]});");
 		return buf;
 	}
 

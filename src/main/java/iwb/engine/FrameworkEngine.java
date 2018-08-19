@@ -31,6 +31,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.deser.impl.PropertyBasedObjectIdGenerator;
+
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
@@ -3024,19 +3026,19 @@ public class FrameworkEngine{
 		influxDao.insert(FrameworkCache.wProjects.get((String)scd.get("projectId")), measurement, tags, fields, date);
 	}*/
 
-	public W5PageResult getTemplateResult(Map<String, Object> scd,int templateId, Map<String,String> requestParams){
-		W5PageResult templateResult = null;
+	public W5PageResult getTemplateResult(Map<String, Object> scd,int pageId, Map<String,String> requestParams){
+		W5PageResult pr = null;
 		try{
 			boolean developer = scd.get("roleId")!=null && (Integer)scd.get("roleId")==0;
 			boolean debugAndDeveloper = FrameworkSetting.debug && developer ;
-			templateResult = dao.getPageResult(scd,templateId);
-			templateResult.setRequestParams(requestParams);
-			templateResult.setTemplateObjectList(new ArrayList<Object>());
-			List<W5PageObject> templateObjectListExt = new ArrayList<W5PageObject>(templateResult.getPage().get_pageObjectList().size()+5);
-			templateObjectListExt.addAll(templateResult.getPage().get_pageObjectList());
+			pr = dao.getPageResult(scd,pageId);
+			pr.setRequestParams(requestParams);
+			pr.setPageObjectList(new ArrayList<Object>());
+			List<W5PageObject> templateObjectListExt = new ArrayList<W5PageObject>(pr.getPage().get_pageObjectList().size()+5);
+			templateObjectListExt.addAll(pr.getPage().get_pageObjectList());
 
 			requestParams.put("_dont_throw","1");
-			if(templateId==238){ // Record Bazlı yetkilendirme gridi
+			if(pageId==238){ // Record Bazlı yetkilendirme gridi
 				int objectId = GenericUtil.uInt(requestParams.get("_gid1"));
 				if(objectId == 477){
 					W5Table t = FrameworkCache.getTable(scd, GenericUtil.uInt(requestParams.get("crud_table_id")));
@@ -3071,15 +3073,15 @@ public class FrameworkEngine{
 				templateObjectListExt.add(o);
 			}
 
-			if(templateId==622){//"maximizeGrid template" bunun icin masterTableId(_mtid), masterTablePk(_mtpk) icin value alinacak ve gonderilecek
+			if(pageId==622){//"maximizeGrid template" bunun icin masterTableId(_mtid), masterTablePk(_mtpk) icin value alinacak ve gonderilecek
 				int mtid=GenericUtil.uInt(requestParams.get("_mtid"));
 				int mtpk=GenericUtil.uInt(requestParams.get("_mtpk"));
 				if(mtid!=0 && mtpk!=0){
-					templateResult.setMasterRecordList(dao.findRecordParentRecords(scd, mtid, mtpk, 0, true));
+					pr.setMasterRecordList(dao.findRecordParentRecords(scd, mtid, mtpk, 0, true));
 				}
 			}
 
-			if(templateId==358){//"sayfam" bunun icindeki portlet gridleri eklenecke, role'e bakarak
+/*			if(templateId==358){//"sayfam" bunun icindeki portlet gridleri eklenecke, role'e bakarak DEPRECATED. instead we use pageType=10 Dashboard
 				List<Object> params= new ArrayList<Object>();
 				params.add(scd.get("customizationId"));
 				params.add(scd.get("userRoleId"));
@@ -3107,9 +3109,9 @@ public class FrameworkEngine{
 					}
 				}
 			}
-
+*/
 			int objectCount=0;
-			if(templateResult.getPage().getTemplateTip()!=8){ // wizard'dan farkli ise
+			if(pr.getPage().getTemplateTip()!=8){ // wizard'dan farkli ise
 				W5Table masterTable = null;
 				for(W5PageObject o:templateObjectListExt){
 					boolean accessControl = debugAndDeveloper ? true : GenericUtil.accessControl(scd, o.getAccessViewTip(), o.getAccessViewRoles(),o.getAccessViewUsers());
@@ -3117,8 +3119,8 @@ public class FrameworkEngine{
 					W5Table mainTable = null;
 					switch(Math.abs(o.getObjectTip())){
 					case	1://grid
-						W5GridResult gridResult = dao.getGridResult(scd, o.getObjectId(), requestParams, templateId==298 /*|| objectCount!=0*/);
-						if(templateId==298){//log template
+						W5GridResult gridResult = dao.getGridResult(scd, o.getObjectId(), requestParams, pageId==298 /*|| objectCount!=0*/);
+						if(pageId==298){//log template
 							gridResult.setViewLogMode(true);
 						}
 						if(o.getObjectTip()<0){
@@ -3142,7 +3144,7 @@ public class FrameworkEngine{
 							m.put("tplObjId", o.getTemplateObjectId());
 						}
 						break;
-					case	2: //data view
+					case	2: //card view
 						W5DataViewResult dataViewResult = dao.getDataViewResult(scd, o.getObjectId(), requestParams, objectCount!=0);
 						if(o.getObjectTip()<0)dataViewResult.setDataViewId(-dataViewResult.getDataViewId());
 						mainTable = dataViewResult.getDataView()!=null && dataViewResult.getDataView().get_query()!=null ? FrameworkCache.getTable(scd, dataViewResult.getDataView().get_query().getMainTableId()) : null;
@@ -3191,26 +3193,35 @@ public class FrameworkEngine{
 						}
 						obz = executeQuery(scd, o.getObjectId(), paramMap);
 						break;
+					case	10://KPI Single Card
+						obz = executeQuery(scd, o.getObjectId(), new HashMap());
+						break;
 					case	5://dbFunc
 						obz = executeFunc(scd, o.getObjectId(), requestParams, (short)1);
 						break;
-					case	12://graph dashboard
-		//				obz = dao.getCustomizedObject("from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?", o.getObjectId(), o.getCustomizationId(),"GraphDashboard");
+					case	9://graph dashboard
+						W5BIGraphDashboard obz2 = (W5BIGraphDashboard)dao.getCustomizedObject("from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?", o.getObjectId(), scd.get("projectId"),null);
+						if(accessControl){
+							obz2.set_tplObj(o);
+							obz = obz2;
+						} else {
+							obz = "graph"+o.getObjectId();
+						}
 					}
-					if(templateId!=358 && objectCount==0){ // daha ilk objede sorun varsa exception ver
+					if(pr.getPage().getTemplateTip()!=9 && objectCount==0){ // daha ilk objede sorun varsa exception ver
 						if(obz instanceof String)
 							throw new IWBException("security","Module", o.getObjectId(), null, "Role Access Control(Template Object)", null);
 						else
 							masterTable = mainTable;
 					}
-					if(obz!=null)templateResult.getTemplateObjectList().add(obz);
+					if(obz!=null)pr.getPageObjectList().add(obz);
 					objectCount++;
 				}
 
 			}
-			return templateResult;
+			return pr;
 		} catch (Exception e){
-			throw new IWBException("framework", "Load.Page", templateId, null, "[63,"+templateId+"]"+(templateResult!=null && templateResult.getPage()!=null ? " "+templateResult.getPage().getDsc():""), e);
+			throw new IWBException("framework", "Load.Page", pageId, null, "[63,"+pageId+"]"+(pr!=null && pr.getPage()!=null ? " "+pr.getPage().getDsc():""), e);
 		}
 
 	}
@@ -5414,8 +5425,10 @@ public class FrameworkEngine{
 				scd.put("ocustomizationId", (Integer)scd.get("customizationId"));
 			scd.put("customizationId", newCustomizationId);
 		}
+		W5Project po = FrameworkCache.getProject(projectUuid);
 		scd.put("projectId", projectUuid);
 		scd.put("rbac", newCustomizationId>0?GenericUtil.uInt(p.get("rbac")):1);
+		scd.put("_renderer2", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 		return true;
 	}
 

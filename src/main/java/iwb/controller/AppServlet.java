@@ -58,6 +58,7 @@ import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5LookUpDetay;
+import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5SmsValidCode;
 import iwb.domain.helper.W5FormCellHelper;
@@ -167,7 +168,7 @@ public class AppServlet implements InitializingBean {
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    String uuid= request.getParameter("_uuid");
 	    boolean b = engine.changeActiveProject(scd, uuid);
-		response.getWriter().write("{\"success\":"+b+", customizationId:"+scd.get("customizationId")+",scd:"+GenericUtil.fromMapToJsonString2Recursive(scd)+"}");
+		response.getWriter().write("{\"success\":"+b+", \"customizationId\":"+scd.get("customizationId")+",\"scd\":"+GenericUtil.fromMapToJsonString2Recursive(scd)+"}");
 		response.getWriter().close();		
 	}
 	
@@ -1394,6 +1395,9 @@ public class AppServlet implements InitializingBean {
 				if(scd!=null){
 					session.removeAttribute("authToken");
 					scd.put("locale", "en");
+			        W5Project po = FrameworkCache.getProject(scd);
+			        scd.put("_renderer2", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+
 					session.setAttribute("scd-dev", scd);
 				}
 				else

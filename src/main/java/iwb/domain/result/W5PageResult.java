@@ -13,7 +13,7 @@ public class W5PageResult implements W5MetaResult{
 	
 	private	int	templateId;
 	private W5Page page;
-	private	List<Object> templateObjectList;
+	private	List<Object> pageObjectList;
 	
 	private int processTime;
 	private Map<String, Object> scd;
@@ -53,11 +53,11 @@ public class W5PageResult implements W5MetaResult{
 	public void setRequestParams(Map<String, String> requestParams) {
 		this.requestParams = requestParams;
 	}
-	public List<Object> getTemplateObjectList() {
-		return templateObjectList;
+	public List<Object> getPageObjectList() {
+		return pageObjectList;
 	}
-	public void setTemplateObjectList(List<Object> templateObjectList) {
-		this.templateObjectList = templateObjectList;
+	public void setPageObjectList(List<Object> pageObjectList) {
+		this.pageObjectList = pageObjectList;
 	}
 	public List<W5TableRecordHelper> getMasterRecordList() {
 		return masterRecordList;

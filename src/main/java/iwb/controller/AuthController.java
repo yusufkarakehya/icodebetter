@@ -155,10 +155,10 @@ public class AuthController {
       }
       res.sendRedirect(redirectOnSuccess);
     } catch (IdentityVerificationException e) {
-      e.printStackTrace();
+      if(FrameworkSetting.debug)e.printStackTrace();
       res.sendRedirect(redirectOnFail);
     } catch (JWTVerificationException exception) {
-      exception.printStackTrace();
+    	if(FrameworkSetting.debug)exception.printStackTrace();
       res.sendRedirect(redirectOnFail);
     }
   }
