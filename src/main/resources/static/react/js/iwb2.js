@@ -1516,12 +1516,12 @@ class XEditGridSF extends GridCommon {
 	    if(this.props.searchForm){
 			this.searchForm = _(Nav, {style:{}},
 				_('div',{className:'hr-text'},
-					_('h6',null,'Arama Kriterleri')
+					_('h6',null,'Search Criteria')
 				),
 				_('div',{style:{zoom:'.9'}},
 					_(this.props.searchForm,{parentCt:this}),
 					_('div',{className:'form-group',style:{paddingTop:10}},
-						_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => this.loadData(true) },"ARA")
+						_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => this.loadData(true) },"SEARCH")
 					)
 				)
 	    	);
@@ -2233,15 +2233,15 @@ class XMainGrid extends GridCommon {
 			this.searchForm = _(Nav, {style:{}},
 				searchForm && _('span',null,
 					_('div',{className:'hr-text'},
-						_('h6',null,'Arama Kriterleri')
+						_('h6',null,'Search Criteria')
 					),
 					_('div',{style:{zoom:'.9'}},
 						_(searchForm,{parentCt:this}),
 						_('div',{className:'form-group',style:{paddingTop:10}},
-							_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(true);} },"ARA")
+							_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(true);} },"SEARCH")
 						)
 					),
-					_('div',{style:{height:10}}),
+				/*	_('div',{style:{height:10}}),
 					_('div',{className:'hr-text'},
 						_('h6',null,'Şablonlar')
 					),
@@ -2254,10 +2254,10 @@ class XMainGrid extends GridCommon {
 						_('i',{className:'icon-plus'}),
 						' ',
 						' Yeni Şablon Ekle'
-					),
+					),*/
 					_('div',{style:{height:20}})
 				),
-				detailGrids && detailGrids.length > 1 && _('div',{className:'hr-text',key:'hr-text'},_('h6',null,'DETAY KAYITLAR')),
+				detailGrids && detailGrids.length > 1 && _('div',{className:'hr-text',key:'hr-text'},_('h6',null,'DETAIL RECORDS')),
 				detailGrids && detailGrids.length > 1 && detailGrids.map((detailGrid,key)=>{
 					return _('div',{ key,style:{padding: "3px 0px 2px 3px", color: "#6d7284", fontSize:".9rem"}},
 						detailGrid.grid.name,
@@ -3149,6 +3149,59 @@ class XForm extends React.Component {
 	componentWillUnmount(){iwb.forms[this._id] = {...this.state}}
 }
 
+class XGraph extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	componentDidMount() {
+		var dg = this.props;
+        var gid = 'idG'+dg.graphId;
+		iwb.graphAmchart(dg,gid);
+	}
+	render(){
+		return _('div',{style:{width:'100%',height:'20vw'},id:'idG'+this.props.graphId})
+	}
+}
+
+iwb.createPortlet=function(o){
+	var name=o.graph||o.grid||o.card||o.query;
+	if(!name)return _('div',null,'not portlet');
+	if(o.query){
+		var q=o.query.data;
+		if(!q || !q.length)return _('div',null,'not data');
+		q=q[0];
+		return _(Card, {className: "card-portlet text-white bg-"+(o.props.color||'primary')},
+				_("i", {className: "big-icon "+(q.icon || "icon-settings")}),
+				_(CardBlock, {className: "pb-0"},
+					_("div", { className: "float-right", style:{ fontSize: "30px", background: "white", padding: "0 13px", borderRadius: "55px", color:'darkorange'}},q.xvalue),
+					_("h1", {className: "mb-0"},q.dsc),
+					_("div",{style:{ height: "25px"}})
+				));
+	}
+	name = name.name;
+	var cmp=null;
+	if(o.graph){
+		return _(Card, {className: "card-portlet"},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
+				,_(XGraph,o.graph));
+	} else if(o.grid){
+		o.grid.crudFlags=false;
+		return _(Card, {className: "card-portlet"},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
+			,_(XGrid,o.grid));
+	} else if(o.card)cmp='Card';
+	else if(o.query)cmp='KPI Card';
+	return  _(Card, {
+		className: "text-white bg-"+o.props.color||'primary', style:{boxShadow:'0px 1px 15px 1px rgba(69, 65, 78, 0.1)'}
+		},_(CardBlock, {className: 'card-body'},
+				_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },
+					name),
+				_("hr"),
+			cmp));
+}
+
 iwb.ui.buildDashboard=function(o){
-	return _('div',null,'Ahmet');
+	if(!o || !o.rows || !o.rows.length)return _('div',null,'No portlets defined');
+	return o.rows.map((rowItem,rowIndex)=>{
+		return _(Row, {key:rowIndex, children:rowItem.map((colItem, colIndex)=> _(Col,colItem.props, iwb.createPortlet(colItem)))});
+		
+	});
 }

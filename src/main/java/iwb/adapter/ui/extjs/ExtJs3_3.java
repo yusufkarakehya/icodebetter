@@ -7417,12 +7417,26 @@ public class ExtJs3_3 implements ViewAdapter {
 				
 			} else if(o instanceof W5BIGraphDashboard){
 				W5BIGraphDashboard gr = (W5BIGraphDashboard)o;
-				po = gr.get_tplObj();
 				rbuf.append("{graph:graph").append(gr.getGraphDashboardId());
+				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==gr.getGraphDashboardId()){
+					po = po2;
+					break;
+				}
 			} else if(o instanceof W5QueryResult){
 				W5QueryResult qr = (W5QueryResult)o;
 				rbuf.append("{query:").append(qr.getQuery().getDsc());
-//				po = gr.getTplObj();
+				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==qr.getQueryId()){
+					po = po2;
+					break;
+				}
+			} else if(o instanceof W5DataViewResult){
+				W5DataViewResult cr = (W5DataViewResult)o;
+				rbuf.append("{card:").append(cr.getDataView().getDsc());
+				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==cr.getDataViewId()){
+					po = po2;
+					break;
+				}
+//				po = cr.getTplObj();TODO
 			}
 			if(po!=null){
 				int currentRowID = po.getTabOrder()/1000;

@@ -685,3 +685,63 @@ Vue.component('time-line-item', {
       }
     }
 });
+
+
+
+var XGraph = Vue.component('xgraph', {
+	constructor(props) {
+		super(props);
+	}
+	mounted() {
+		var dg = this;
+        var gid = 'idG'+dg.graphId;
+		iwb.graphAmchart(dg,gid);
+
+	}
+	render(h){
+		return h('div',{style:{width:'100%',height:'20vw'},id:'idG'+this.props.graphId})
+	}
+}
+
+iwb.createPortlet=function(o){
+	var name=o.graph||o.grid||o.card||o.query;
+	if(!name)return _('div',null,'not portlet');
+	if(o.query){
+		var q=o.query.data;
+		if(!q || !q.length)return _('div',null,'not data');
+		q=q[0];
+		return _(Card, {className: "card-portlet text-white bg-"+(o.props.color||'primary')},
+				_("i", {className: "big-icon "+(q.icon || "icon-settings")}),
+				_(CardBlock, {className: "pb-0"},
+					_("div", { className: "float-right", style:{ fontSize: "30px", background: "white", padding: "0 13px", borderRadius: "55px", color:'darkorange'}},q.xvalue),
+					_("h1", {className: "mb-0"},q.dsc),
+					_("div",{style:{ height: "25px"}})
+				));
+	}
+	name = name.name;
+	var cmp=null;
+	if(o.graph){
+		return _(Card, {className: "card-portlet"},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
+				,_(XGraph,o.graph));
+	} else if(o.grid){
+		o.grid.crudFlags=false;
+		return _(Card, {className: "card-portlet"},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
+			,_(XGrid,o.grid));
+	} else if(o.card)cmp='Card';
+	else if(o.query)cmp='KPI Card';
+	return  _(Card, {
+		className: "text-white bg-"+o.props.color||'primary', style:{boxShadow:'0px 1px 15px 1px rgba(69, 65, 78, 0.1)'}
+		},_(CardBlock, {className: 'card-body'},
+				_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },
+					name),
+				_("hr"),
+			cmp));
+}
+
+iwb.ui.buildDashboard=function(o){
+	if(!o || !o.rows || !o.rows.length)return _('div',null,'No portlets defined');
+	return o.rows.map((rowItem,rowIndex)=>{
+		return _(Row, {key:rowIndex, children:rowItem.map((colItem, colIndex)=> _(Col,colItem.props, iwb.createPortlet(colItem)))});
+		
+	});
+}

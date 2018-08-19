@@ -546,7 +546,7 @@ body {
     z-index: 2;
     transform: scale(1.1);
 }
-.card-menu .big-icon{
+.big-icon{
     position: absolute;
     font-size: 271px;
     overflow: hidden;
@@ -555,6 +555,10 @@ body {
     top: -5px;
     bottom: 0;
     right: 0;
+}
+
+.card-portlet{
+	box-shadow: 0px 2px 15px 1px rgba(69, 65, 78, 0.2);
 }
 
 .card-mini-menu{

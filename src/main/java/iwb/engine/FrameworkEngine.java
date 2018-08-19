@@ -3202,7 +3202,6 @@ public class FrameworkEngine{
 					case	9://graph dashboard
 						W5BIGraphDashboard obz2 = (W5BIGraphDashboard)dao.getCustomizedObject("from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?", o.getObjectId(), scd.get("projectId"),null);
 						if(accessControl){
-							obz2.set_tplObj(o);
 							obz = obz2;
 						} else {
 							obz = "graph"+o.getObjectId();
