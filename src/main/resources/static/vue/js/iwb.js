@@ -689,17 +689,17 @@ Vue.component('time-line-item', {
 
 
 var XGraph = Vue.component('xgraph', {
-	props: ['graph'],
+	props: ['o'],
 	data(){
 		return {};
 	},
 	mounted() {
-		var dg = this.graph;
+		var dg = this.o.graph;
         var gid = 'idG'+dg.graphId;
 		iwb.graphAmchart(dg,gid);
 	},
 	render(h){
-		return h('div',{style:"width:100%;height:20vw",attrs:{id:'idG'+this.graph.graphId}})
+		return h('div',{style:"width:100%;height:"+(this.o.props.height||'20vw'),attrs:{id:'idG'+this.o.graph.graphId}})
 	}
 });
 
@@ -716,22 +716,27 @@ var XPortlet=Vue.component('xportlet',{
 			var q=o.query.data;
 			if(!q || !q.length)return h('div',null,'not data');
 			q=q[0];
-			return h('card', {class: "card-portlet text-white bg-"+(o.props.color||'primary')},[
-					h("i", {class: "big-icon "+(q.icon || "icon-settings")}),
-					h('card-block', {class: "pb-0"},
-						h("div", { class: "float-right", style:"font-size: 30px;background: white; padding: 0 13px; borderRadius: 55px; color:darkorange"},q.xvalue),
-						h("h1", {class: "mb-0"},q.dsc),
-						h("div",{style:"height: 25px"})
+			return h('card', {class: "card-portlet text-white bg-"+(o.props.color||this.o.props.color||'info')},[
+//					h("i", {class: "big-icon "+(q.icon || "icon-settings")}),
+					h('card-block', {class: "pb-0"},[
+						h("div", { class: "kpi-portlet-val float-right"},q.xvalue),
+						h("h1", {class: "mb-0",style:"font-size:40px"},q.dsc),
+						h("hr",{style:"border-color:#eee"}),
+						h("div",{style:"height: 5px"})]
 					)]);
 		}
 		name = name.name;
 		var cmp=null;
 		if(o.graph){
-			return h('card', {class: "card-portlet"},[h("h3", { class: "form-header", style:"padding: 10px 12px 0px; marginBottom:.5rem" },name)
-					,h(XGraph,{props:o})]);
+			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
+			,[h("h3", { class: "form-header", style:"padding: 5px 2px 0px;margin-bottom:0px" },name)
+				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
+					,h(XGraph,{props:{o:o}})]);
 		} else if(o.grid){
 			o.grid.crudFlags=false;
-			return h('card', {class: "card-portlet"},[h("h3", { class: "form-header", style:"padding: 10px 12px 0px; marginBottom:.5rem" },name)
+			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:''),style:o.props.height?"height:"+o.props.height:""}
+			,[h("h3", { class: "form-header", style:"padding: 5px 2px 0px;;margin-bottom:0px " },name)
+				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
 				,h(XGrid,{props:o})]);
 		} else if(o.card)cmp='Card';
 		else if(o.query)cmp='KPI Card';
