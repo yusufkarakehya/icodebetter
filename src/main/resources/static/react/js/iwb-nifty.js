@@ -4484,18 +4484,17 @@ class XForm extends React.Component {
   }
 }
 
-
 class XGraph extends React.Component {
 	constructor(props) {
 		super(props);
 	}
 	componentDidMount() {
-		var dg = this.props;
+		var dg = this.props.graph;
         var gid = 'idG'+dg.graphId;
 		iwb.graphAmchart(dg,gid);
 	}
 	render(){
-		return _('div',{style:{width:'100%',height:'20vw'},id:'idG'+this.props.graphId})
+		return _('div',{style:{width:'100%',height:this.props.props.height||'20vw'},id:'idG'+this.props.graph.graphId})
 	}
 }
 
@@ -4517,11 +4516,11 @@ iwb.createPortlet=function(o){
 	name = name.name;
 	var cmp=null;
 	if(o.graph){
-		return _(Card, {className: "card-portlet"},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
-				,_(XGraph,o.graph));
+		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
+				,_(XGraph,o));
 	} else if(o.grid){
 		o.grid.crudFlags=false;
-		return _(Card, {className: "card-portlet"},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
+		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
 			,_(XGrid,o.grid));
 	} else if(o.card)cmp='Card';
 	else if(o.query)cmp='KPI Card';
