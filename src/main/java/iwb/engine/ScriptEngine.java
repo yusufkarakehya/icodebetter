@@ -196,7 +196,7 @@ public class ScriptEngine {
         }
       }
     }
-    System.out.println(s);
+    if(FrameworkSetting.debug)System.out.println(s);
     if (scd != null
         && scd.containsKey("customizationId")
         && scd.containsKey("userId")

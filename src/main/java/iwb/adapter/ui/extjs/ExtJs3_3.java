@@ -19,7 +19,7 @@ import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5CustomGridColumnCondition;
 import iwb.domain.db.W5CustomGridColumnRenderer;
-import iwb.domain.db.W5DataView;
+import iwb.domain.db.W5Card;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Form;
@@ -51,7 +51,7 @@ import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
-import iwb.domain.result.W5DataViewResult;
+import iwb.domain.result.W5CardResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GridResult;
@@ -4217,11 +4217,11 @@ public class ExtJs3_3 implements ViewAdapter {
 		return html;
 	}
 
-	public StringBuilder serializeDataView(W5DataViewResult dataViewResult) {
+	public StringBuilder serializeCard(W5CardResult dataViewResult) {
 		String xlocale = (String) dataViewResult.getScd().get("locale");
 		int customizationId = (Integer) dataViewResult.getScd().get(
 				"customizationId");
-		W5DataView d = dataViewResult.getDataView();
+		W5Card d = dataViewResult.getCard();
 		StringBuilder buf = new StringBuilder();
 		buf.append("var ")
 				.append(d.getDsc())
@@ -4243,7 +4243,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		buf.append(
 				serializeQueryReader(d.get_query().get_queryFields(), d.get_pkQueryField().getDsc(), null, (d
 						.get_query().getShowParentRecordFlag() != 0 ? 2 : 0), d
-						.get_mainTable(), dataViewResult.getScd())).append(
+						.get_crudTable(), dataViewResult.getScd())).append(
 				",listeners:{loadexception:promisLoadException");
 		// if(d.getDefaultPageRecordNumber()!=0)buf.append(",afterload:function(aa,bb){alert('geldim');alert(aa.getCount())}");
 		buf.append("}})");
@@ -6343,13 +6343,13 @@ public class ExtJs3_3 implements ViewAdapter {
 							
 						}
 						// if(replacePostJsCode)
-					} else if (i instanceof W5DataViewResult) {// objectTip=2
-						W5DataViewResult dr = (W5DataViewResult) i;
-						buf.append(serializeDataView(dr));
+					} else if (i instanceof W5CardResult) {// objectTip=2
+						W5CardResult dr = (W5CardResult) i;
+						buf.append(serializeCard(dr));
 						if (dr.getDataViewId() < 0) {
 							buf.append("\nvar _dataView")
 									.append(customObjectCount++).append("=")
-									.append(dr.getDataView().getDsc())
+									.append(dr.getCard().getDsc())
 									.append("\n");
 						}
 					} else if (i instanceof W5ListViewResult) {// objectTip=7
@@ -6376,7 +6376,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						buf.append("\nvar ")
 								.append(((W5GlobalFuncResult) i).getGlobalFunc()
 										.getDsc()).append("=")
-								.append(serializeDbFunc((W5GlobalFuncResult) i))
+								.append(serializeGlobalFunc((W5GlobalFuncResult) i))
 								.append("\n");
 					} else if (i instanceof W5QueryResult) {
 						buf.append("\nvar ")
@@ -6457,9 +6457,9 @@ public class ExtJs3_3 implements ViewAdapter {
 				if (i instanceof W5GridResult) {
 					W5GridResult gr = (W5GridResult) i;
 					buf2.append(serializeGrid(gr));
-				} else if (i instanceof W5DataViewResult) {// objectTip=2
-					W5DataViewResult dr = (W5DataViewResult) i;
-					buf2.append(serializeDataView(dr));
+				} else if (i instanceof W5CardResult) {// objectTip=2
+					W5CardResult dr = (W5CardResult) i;
+					buf2.append(serializeCard(dr));
 				} else if (i instanceof W5ListViewResult) {// objectTip=7
 					W5ListViewResult lr = (W5ListViewResult) i;
 					buf2.append(serializeListView(lr));
@@ -6473,7 +6473,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					buf2.append("\nvar ")
 							.append(((W5GlobalFuncResult) i).getGlobalFunc()
 									.getDsc()).append("=")
-							.append(serializeDbFunc((W5GlobalFuncResult) i))
+							.append(serializeGlobalFunc((W5GlobalFuncResult) i))
 							.append(";\n");
 				} else if (i instanceof W5QueryResult) {
 					buf2.append("\nvar ")
@@ -6733,7 +6733,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		return buf;
 	}
 
-	public StringBuilder serializeDbFunc(W5GlobalFuncResult dbFuncResult) {
+	public StringBuilder serializeGlobalFunc(W5GlobalFuncResult dbFuncResult) {
 		String xlocale = (String) dbFuncResult.getScd().get("locale");
 		StringBuilder buf = new StringBuilder();
 		buf.append("{\"success\":").append(dbFuncResult.isSuccess())
@@ -7429,9 +7429,9 @@ public class ExtJs3_3 implements ViewAdapter {
 					po = po2;
 					break;
 				}
-			} else if(o instanceof W5DataViewResult){
-				W5DataViewResult cr = (W5DataViewResult)o;
-				rbuf.append("{card:").append(cr.getDataView().getDsc());
+			} else if(o instanceof W5CardResult){
+				W5CardResult cr = (W5CardResult)o;
+				rbuf.append("{card:").append(cr.getCard().getDsc());
 				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==cr.getDataViewId()){
 					po = po2;
 					break;

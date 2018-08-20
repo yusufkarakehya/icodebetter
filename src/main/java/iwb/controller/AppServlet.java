@@ -194,8 +194,8 @@ public class AppServlet implements InitializingBean {
 		logger.info("ajaxRunTest"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    String testIds= request.getParameter("_tids");
-	    int failId = engine.runTests(scd, testIds, request.getParameter(".w"));
-		response.getWriter().write("{\"success\":true, failId:"+failId+"}");
+	    Map m = engine.runTests(scd, testIds, request.getParameter(".w"));
+		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}
 	
@@ -738,6 +738,7 @@ public class AppServlet implements InitializingBean {
 							scd.put("widgetIds", ws + ",10");
 					}
 					if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
+					scd.put("sessionId", session.getId());
 					session.setAttribute("scd-dev", scd);
 					if (deviceType != 0) {
 						session.setMaxInactiveInterval(FrameworkCache.getAppSettingIntValue(0, "mobile_session_timeout", 1 * 60) * 60); // 1 saat default
@@ -1044,7 +1045,7 @@ public class AppServlet implements InitializingBean {
 			// int dbFuncId= GenericUtil.uInt(request, "_did");
 			W5GlobalFuncResult dbFuncResult = engine.postEditGridGlobalFunc(scd, -formId, dirtyCount,
 					GenericUtil.getParameterMap(request), "");
-			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
+			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		} else {
 			int conversionId = GenericUtil.uInt(request, "_cnvId");
 			if (conversionId > 0) {
@@ -1109,7 +1110,7 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write("{\"success\":true}");
 		} else {
 			W5GlobalFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1); //request
-			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
+			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		}
 
 		response.getWriter().close();
@@ -1397,7 +1398,7 @@ public class AppServlet implements InitializingBean {
 					scd.put("locale", "en");
 			        W5Project po = FrameworkCache.getProject(scd);
 			        scd.put("_renderer2", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
-
+					scd.put("sessionId", session.getId());
 					session.setAttribute("scd-dev", scd);
 				}
 				else
@@ -2472,7 +2473,7 @@ public class AppServlet implements InitializingBean {
 		W5GlobalFuncResult dbFuncResult = engine.executeGlobalFunc4Debug(scd, dbFuncId, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
-		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
+		response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		response.getWriter().close();
 	}
 }

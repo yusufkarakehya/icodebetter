@@ -19,7 +19,7 @@ import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
-import iwb.domain.db.W5DataView;
+import iwb.domain.db.W5Card;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
@@ -47,7 +47,7 @@ import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
-import iwb.domain.result.W5DataViewResult;
+import iwb.domain.result.W5CardResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GridResult;
@@ -1606,6 +1606,28 @@ public class Webix3_3 implements ViewAdapter {
 					buf.append(",").append(rbuf);
 				buf.append("},");
 			}
+		} else if(o instanceof W5CardResult){
+			W5CardResult gr = (W5CardResult)o;
+			if(gr.getTplObj().getTemplateObjectId()!=parentObjectId && gr.getTplObj().getParentObjectId()==parentObjectId){
+				if(buf.length()==0){
+					buf.append("detailGrids:[");
+				}
+				buf.append("{card:").append(gr.getCard().getDsc());
+				if(gr.getCard().get_crudTable()!=null){
+					W5Table t = gr.getCard().get_crudTable();
+					buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
+				}
+				if(!GenericUtil.isEmpty(gr.getTplObj().get_srcQueryFieldName()) && !GenericUtil.isEmpty(gr.getTplObj().get_dstQueryParamName())){
+					buf.append(",params:{").append(gr.getTplObj().get_dstQueryParamName()).append(":'").append(gr.getTplObj().get_srcQueryFieldName()).append("'");
+					if(!GenericUtil.isEmpty(gr.getTplObj().getDstStaticQueryParamVal()) && !GenericUtil.isEmpty(gr.getTplObj().get_dstStaticQueryParamName())){
+						buf.append(",").append(gr.getTplObj().get_dstStaticQueryParamName()).append(":'!").append(gr.getTplObj().getDstStaticQueryParamVal()).append("'");
+					}
+					buf.append("}");
+				}
+				StringBuilder rbuf = recursiveTemplateObject(l, gr.getTplObj().getTemplateObjectId(), level+1);
+				if(rbuf!=null && rbuf.length()>0)buf.append(",").append(rbuf);
+				buf.append("},");
+			}
 		}
 		if(buf.length()>0){
 			buf.setLength(buf.length()-1);
@@ -1614,18 +1636,28 @@ public class Webix3_3 implements ViewAdapter {
 		return buf;
 	}
 
-	private StringBuilder renderTemplateObject(W5PageResult templateResult) {
+	private StringBuilder renderTemplateObject(W5PageResult pr) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
-		if(!(templateResult.getPageObjectList().get(0) instanceof W5GridResult))return buf;
-		W5GridResult gr = (W5GridResult)templateResult.getPageObjectList().get(0);
+		if(pr.getPageObjectList().get(0) instanceof W5CardResult){
+			W5CardResult gr = (W5CardResult)pr.getPageObjectList().get(0);
+			buf.append("return iwb.ui.buildPanel({t:_page_tab_id, card:").append(gr.getCard().getDsc());
+			if(gr.getCard().get_crudTable()!=null){
+				W5Table t = gr.getCard().get_crudTable();
+				buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
+			}
+			buf.append("});");
+			return buf;
+		}
+		if(!(pr.getPageObjectList().get(0) instanceof W5GridResult))return buf;
+		W5GridResult gr = (W5GridResult)pr.getPageObjectList().get(0);
 		buf.append("return iwb.ui.buildPanel({t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
 		if(gr.getGrid().get_crudTable()!=null){
 			W5Table t = gr.getGrid().get_crudTable();
 			buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
 		}
-		if(templateResult.getPageObjectList().size()>1){
-			StringBuilder rbuf = recursiveTemplateObject(templateResult.getPageObjectList(), ((W5GridResult)templateResult.getPageObjectList().get(0)).getTplObj().getTemplateObjectId(), 1);
+		if(pr.getPageObjectList().size()>1){
+			StringBuilder rbuf = recursiveTemplateObject(pr.getPageObjectList(), ((W5GridResult)pr.getPageObjectList().get(0)).getTplObj().getTemplateObjectId(), 1);
 			if(rbuf!=null && rbuf.length()>0)
 				buf.append(",").append(rbuf);
 			
@@ -2630,37 +2662,28 @@ public class Webix3_3 implements ViewAdapter {
 		return html;
 	}
 
-	public StringBuilder serializeDataView(W5DataViewResult dataViewResult) {
+	public StringBuilder serializeCard(W5CardResult dataViewResult) {
 		String xlocale = (String) dataViewResult.getScd().get("locale");
 		int customizationId = (Integer) dataViewResult.getScd().get(
 				"customizationId");
-		W5DataView d = dataViewResult.getDataView();
+		W5Card d = dataViewResult.getCard();
 		StringBuilder buf = new StringBuilder();
 		buf.append("var ")
 				.append(d.getDsc())
-				.append("={dataViewId:")
+				.append("={cardId:")
 				.append(d.getDataViewId())
 				.append(",name:'")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						d.getLocaleMsgKey()))
 				.append("'")
-				.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
+				.append(",_url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
 				.append(d.getQueryId()).append("&_dvid=")
 				.append(d.getDataViewId());
 
 		if (d.getDefaultPageRecordNumber() != 0)
-			buf.append("&firstLimit=").append(d.getDefaultPageRecordNumber())
-					.append("',remoteSort:true,");
-		else
-			buf.append("',");
-		buf.append(
-				serializeQueryReader(d.get_query().get_queryFields(), d
-						.get_pkQueryField().getDsc(), null, null, (d
-						.get_query().getShowParentRecordFlag() != 0 ? 2 : 0), d
-						.get_mainTable(), dataViewResult.getScd())).append(
-				",listeners:{loadexception:promisLoadException");
-		// if(d.getDefaultPageRecordNumber()!=0)buf.append(",afterload:function(aa,bb){alert('geldim');alert(aa.getCount())}");
-		buf.append("}})");
+			buf.append("&firstLimit=").append(d.getDefaultPageRecordNumber());
+		buf.append("'");
+
 		if (d.getDefaultWidth() != 0)
 			buf.append(",\n defaultWidth:").append(d.getDefaultWidth());
 		if (d.getDefaultHeight() != 0)
@@ -2683,14 +2706,14 @@ public class Webix3_3 implements ViewAdapter {
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
 		buf.append(",\n tpl:\"")
 				.append(GenericUtil.stringToJS2(d.getTemplateCode()))
-				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"table.grid_detay\"};\n");
+				.append("\"");
 		if (!GenericUtil.isEmpty(d.getJsCode())) {
 			buf.append("\ntry{")
 					.append(GenericUtil.filterExt(d.getJsCode(),
 							dataViewResult.getScd(),
 							dataViewResult.getRequestParams(), null))
 					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR dataView.JS!!! Throw?'))throw e;"
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR cardView.JS!!! Throw?'))throw e;"
 							: "alert('System/Customization ERROR')");
 			buf.append("}\n");
 		}
@@ -4464,13 +4487,13 @@ columns:[
 									.append(gr.getGrid().getDsc()).append("\n");
 						}
 						// if(replacePostJsCode)
-					} else if (i instanceof W5DataViewResult) {// objectTip=2
-						W5DataViewResult dr = (W5DataViewResult) i;
-						buf.append(serializeDataView(dr));
+					} else if (i instanceof W5CardResult) {// objectTip=2
+						W5CardResult dr = (W5CardResult) i;
+						buf.append(serializeCard(dr));
 						if (dr.getDataViewId() < 0) {
 							buf.append("\nvar _dataView")
 									.append(customObjectCount++).append("=")
-									.append(dr.getDataView().getDsc())
+									.append(dr.getCard().getDsc())
 									.append("\n");
 						}
 					} else if (i instanceof W5ListViewResult) {// objectTip=7
@@ -4497,7 +4520,7 @@ columns:[
 						buf.append("\nvar ")
 								.append(((W5GlobalFuncResult) i).getGlobalFunc()
 										.getDsc()).append("=")
-								.append(serializeDbFunc((W5GlobalFuncResult) i))
+								.append(serializeGlobalFunc((W5GlobalFuncResult) i))
 								.append("\n");
 					} else if (i instanceof W5QueryResult) {
 						buf.append("\nvar ")
@@ -4591,9 +4614,9 @@ columns:[
 					buf2.append("\nvar _grid")
 					.append(customObjectCount++).append("=")
 					.append(gr.getGrid().getDsc()).append(";\n");
-				} else if (i instanceof W5DataViewResult) {// objectTip=2
-					W5DataViewResult dr = (W5DataViewResult) i;
-					buf2.append(serializeDataView(dr));
+				} else if (i instanceof W5CardResult) {// objectTip=2
+					W5CardResult dr = (W5CardResult) i;
+					buf2.append(serializeCard(dr));
 				} else if (i instanceof W5ListViewResult) {// objectTip=7
 					W5ListViewResult lr = (W5ListViewResult) i;
 					buf2.append(serializeListView(lr));
@@ -4608,7 +4631,7 @@ columns:[
 					buf2.append("\nvar ")
 							.append(((W5GlobalFuncResult) i).getGlobalFunc()
 									.getDsc()).append("=")
-							.append(serializeDbFunc((W5GlobalFuncResult) i))
+							.append(serializeGlobalFunc((W5GlobalFuncResult) i))
 							.append(";\n");
 				} else if (i instanceof W5QueryResult) {
 					buf2.append("\nvar ")
@@ -4802,7 +4825,7 @@ columns:[
 		return buf;
 	}
 
-	public StringBuilder serializeDbFunc(W5GlobalFuncResult dbFuncResult) {
+	public StringBuilder serializeGlobalFunc(W5GlobalFuncResult dbFuncResult) {
 		String xlocale = (String) dbFuncResult.getScd().get("locale");
 		StringBuilder buf = new StringBuilder();
 		buf.append("{\"success\":").append(dbFuncResult.isSuccess())
@@ -5270,9 +5293,9 @@ columns:[
 					po = po2;
 					break;
 				}
-			} else if(o instanceof W5DataViewResult){
-				W5DataViewResult cr = (W5DataViewResult)o;
-				rbuf.append("{card:").append(cr.getDataView().getDsc());
+			} else if(o instanceof W5CardResult){
+				W5CardResult cr = (W5CardResult)o;
+				rbuf.append("{card:").append(cr.getCard().getDsc());
 				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==cr.getDataViewId()){
 					po = po2;
 					break;

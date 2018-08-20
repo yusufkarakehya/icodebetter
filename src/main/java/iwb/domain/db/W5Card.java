@@ -16,7 +16,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_data_view",schema="iwb")
-public class W5DataView implements java.io.Serializable {
+public class W5Card implements java.io.Serializable {
 
 	private int dataViewId;
 
@@ -34,12 +34,6 @@ public class W5DataView implements java.io.Serializable {
 
 	private int pkQueryFieldId;
 
-	private short saveUserInfoFlag;
-	
-	private short displayInfoFlag;
-	
-	private short gridReportFlag;
-	
 	private String defaultSqlOrderby;
 
 	private int defaultCrudFormId;// burdan edit, insert vs olaylari incelenecek
@@ -53,7 +47,7 @@ public class W5DataView implements java.io.Serializable {
 	private W5QueryField	_pkQueryField;
 	private	List<W5ObjectToolbarItem>	_toolbarItemList;
 	private	W5Form _defaultCrudForm;
-	private	W5Table _mainTable;
+	private	W5Table _crudTable;
 	private W5Query	_query;	
 	private List<W5QueryField> _postProcessQueryFields;
 	private Map<Integer, W5QueryField> _queryFieldMap;
@@ -116,20 +110,6 @@ public class W5DataView implements java.io.Serializable {
 	public void setPkQueryFieldId(int pkQueryFieldId) {
 		this.pkQueryFieldId = pkQueryFieldId;
 	}
-	@Column(name="save_user_info_flag")
-	public short getSaveUserInfoFlag() {
-		return saveUserInfoFlag;
-	}
-	public void setSaveUserInfoFlag(short saveUserInfoFlag) {
-		this.saveUserInfoFlag = saveUserInfoFlag;
-	}
-	@Column(name="display_info_flag")
-	public short getDisplayInfoFlag() {
-		return displayInfoFlag;
-	}
-	public void setDisplayInfoFlag(short displayInfoFlag) {
-		this.displayInfoFlag = displayInfoFlag;
-	}
 	@Column(name="default_sql_order_by")
 	public String getDefaultSqlOrderby() {
 		return defaultSqlOrderby;
@@ -177,14 +157,6 @@ public class W5DataView implements java.io.Serializable {
 	public void set_query(W5Query query) {
 		_query = query;
 	}
-	@Column(name="grid_report_flag")
-	public short getGridReportFlag() {
-		return gridReportFlag;
-	}
-	public void setGridReportFlag(short gridReportFlag) {
-		this.gridReportFlag = gridReportFlag;
-	}
-
 	
 	@Transient
 	public Map<String, W5QueryField> get_queryFieldMapDsc() {
@@ -202,11 +174,11 @@ public class W5DataView implements java.io.Serializable {
 		_postProcessQueryFields = postProcessQueryFields;
 	}
 	@Transient	
-	public W5Table get_mainTable() {
-		return _mainTable;
+	public W5Table get_crudTable() {
+		return _crudTable;
 	}
-	public void set_mainTable(W5Table mainTable) {
-		_mainTable = mainTable;
+	public void set_crudTable(W5Table mainTable) {
+		_crudTable = mainTable;
 	}
 	
 	@Transient

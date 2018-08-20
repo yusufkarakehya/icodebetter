@@ -3,19 +3,22 @@ package iwb.domain.result;
 import java.util.Map;
 
 import iwb.cache.FrameworkCache;
-import iwb.domain.db.W5DataView;
+import iwb.domain.db.W5Card;
+import iwb.domain.db.W5PageObject;
 
 
 
-public class W5DataViewResult implements W5MetaResult{
+public class W5CardResult implements W5MetaResult{
 	
 	private	int	dataViewId;
     private int	action;
     private Map<String, Object> scd;    
 	private Map<String,String>	requestParams;	
-	private	W5DataView dataView;
+	private	W5Card card;
 	private	W5FormResult searchFormResult;
-	
+    private W5PageObject	tplObj;
+	private Map<String,Object>	extraOutMap;	
+
 	public int getAction() {
 		return action;
 	}
@@ -68,16 +71,34 @@ public class W5DataViewResult implements W5MetaResult{
 		this.dataViewId = dataViewId;
 	}
 
-	public W5DataView getDataView() {
-		return dataView;
+	public W5Card getCard() {
+		return card;
 	}
 
-	public void setDataView(W5DataView dataView) {
-		this.dataView = dataView;
+	public void setCard(W5Card card) {
+		this.card = card;
 	}
 
-	public W5DataViewResult(int dataViewId) {
+	public W5CardResult(int dataViewId) {
 		super();
 		this.dataViewId = dataViewId;
 	}
+
+	public W5PageObject getTplObj() {
+		return tplObj;
+	}
+
+	public void setTplObj(W5PageObject tplObj) {
+		this.tplObj = tplObj;
+	}
+
+	public Map<String, Object> getExtraOutMap() {
+		return extraOutMap;
+	}
+
+	public void setExtraOutMap(Map<String, Object> extraOutMap) {
+		this.extraOutMap = extraOutMap;
+	}
+	
+	
 }

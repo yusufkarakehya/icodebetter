@@ -52,7 +52,7 @@ import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConversionCol;
 import iwb.domain.db.W5Customization;
-import iwb.domain.db.W5DataView;
+import iwb.domain.db.W5Card;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5Email;
@@ -102,7 +102,7 @@ import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5DataViewResult;
+import iwb.domain.result.W5CardResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GridResult;
@@ -1480,22 +1480,22 @@ public class PostgreSQL extends BaseDAO {
 	}
 
 
-	public W5DataViewResult getDataViewResult(Map<String, Object> scd, int dataViewId, Map<String,String> requestParams, boolean noSearchForm) {
-		W5DataViewResult dr = new W5DataViewResult(dataViewId);
+	public W5CardResult getDataViewResult(Map<String, Object> scd, int dataViewId, Map<String,String> requestParams, boolean noSearchForm) {
+		W5CardResult dr = new W5CardResult(dataViewId);
 		String projectId =  FrameworkCache.getProjectId(scd, "930."+dataViewId);
 		dr.setRequestParams(requestParams);
 		dr.setScd(scd);
 
 		if(FrameworkSetting.preloadWEngine!=0){
-			dr.setDataView(FrameworkCache.getDataView(projectId,dataViewId));
+			dr.setCard(FrameworkCache.getDataView(projectId,dataViewId));
 		}
-		if(dr.getDataView()==null){
+		if(dr.getCard()==null){
 			loadDataView(dr);
-			if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.addDataView(projectId, dr.getDataView());
+			if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.addDataView(projectId, dr.getCard());
 		}
 		//search Form
-		if(!noSearchForm && dr.getDataView().get_searchFormId()!=0){
-			W5FormResult	searchForm = getFormResult(scd, dr.getDataView().get_searchFormId(), 2, requestParams);
+		if(!noSearchForm && dr.getCard().get_searchFormId()!=0){
+			W5FormResult	searchForm = getFormResult(scd, dr.getCard().get_searchFormId(), 2, requestParams);
 			initializeForm(searchForm, false);
 			loadFormCellLookups(dr.getScd(), searchForm.getFormCellResults(), dr.getRequestParams(), null);
 			dr.setSearchFormResult(searchForm);
@@ -1503,10 +1503,10 @@ public class PostgreSQL extends BaseDAO {
 		return dr;
 	}
 
-	private void loadDataView(W5DataViewResult dr) {
+	private void loadDataView(W5CardResult dr) {
 		String projectId =  FrameworkCache.getProjectId(dr.getScd(), "930."+dr.getDataViewId());
-		W5DataView d = (W5DataView)getCustomizedObject("from W5DataView t where t.dataViewId=? and t.projectUuid=?", dr.getDataViewId(), projectId, "DataView"); // ozel bir client icin varsa
-		dr.setDataView(d);
+		W5Card d = (W5Card)getCustomizedObject("from W5Card t where t.dataViewId=? and t.projectUuid=?", dr.getDataViewId(), projectId, "DataView"); // ozel bir client icin varsa
+		dr.setCard(d);
 
 		W5Query query = null;
 		if(FrameworkSetting.preloadWEngine!=0){
@@ -1522,7 +1522,7 @@ public class PostgreSQL extends BaseDAO {
 		} else
 			d.set_query(query);
 
-		d.set_mainTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
+		d.set_crudTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
 
 
 		Map<Integer, W5QueryField> fieldMap = new HashMap<Integer, W5QueryField>();
@@ -4232,7 +4232,7 @@ public class PostgreSQL extends BaseDAO {
 		List<Object> params = new ArrayList();
 		sql.append("select ");
 		int field_cnt=1;
-		List<W5TableFieldCalculated> ltfc = find("from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? order by t.tabOrder", scd.get("projectId"), tableId);
+		List<W5TableFieldCalculated> ltfc = find("from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? order by t.tabOrder", FrameworkCache.getProjectId(scd.get("projectId"),"15."+tableId), tableId);
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		for(int bas = tmp.indexOf("${"); bas>=0; bas=tmp.indexOf("${",bas+2)){
 			if(bas>0 && tmp.charAt(bas-1)=='$')continue;

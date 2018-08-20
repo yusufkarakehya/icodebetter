@@ -3,7 +3,7 @@ package iwb.adapter.ui;
 import java.util.Map;
 
 import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.result.W5DataViewResult;
+import iwb.domain.result.W5CardResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GridResult;
@@ -20,9 +20,9 @@ public interface ViewAdapter {
 	public	StringBuilder serializeTemplate(W5PageResult templateResult);
 	public	StringBuilder serializeQueryData(W5QueryResult queryResult);
 	public	StringBuilder serializeGrid(W5GridResult	gridResult);
-	public	StringBuilder serializeDataView(W5DataViewResult	dataViewResult);
+	public	StringBuilder serializeCard(W5CardResult	cardResult);
 	public	StringBuilder serializeListView(W5ListViewResult	listViewResult);
-	public 	StringBuilder serializeDbFunc(W5GlobalFuncResult dbFuncResult);
+	public 	StringBuilder serializeGlobalFunc(W5GlobalFuncResult globalFuncResult);
 	public	StringBuilder serializeFeeds(Map<String, Object> scd, int platestFeedIndex, int pfeedTip, int proleId, int puserId, int pmoduleId);
 	public 	StringBuilder serializeException(Map<String, Object> scd, IWBException ex);
 	public StringBuilder serializeTableRecordInfo(W5TableRecordInfoResult tableRecordInfoResult);

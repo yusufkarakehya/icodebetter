@@ -24,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +109,7 @@ import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.helper.W5SynchAfterPostHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5DataViewResult;
+import iwb.domain.result.W5CardResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GridResult;
@@ -3145,19 +3147,21 @@ public class FrameworkEngine{
 						}
 						break;
 					case	2: //card view
-						W5DataViewResult dataViewResult = dao.getDataViewResult(scd, o.getObjectId(), requestParams, objectCount!=0);
-						if(o.getObjectTip()<0)dataViewResult.setDataViewId(-dataViewResult.getDataViewId());
-						mainTable = dataViewResult.getDataView()!=null && dataViewResult.getDataView().get_query()!=null ? FrameworkCache.getTable(scd, dataViewResult.getDataView().get_query().getMainTableId()) : null;
+						W5CardResult cardResult = dao.getDataViewResult(scd, o.getObjectId(), requestParams, objectCount!=0);
+						if(o.getObjectTip()<0)cardResult.setDataViewId(-cardResult.getDataViewId());
+						mainTable = cardResult.getCard()!=null && cardResult.getCard().get_query()!=null ? FrameworkCache.getTable(scd, cardResult.getCard().get_query().getMainTableId()) : null;
 						if(!debugAndDeveloper && mainTable!=null
 								&& (((mainTable.getAccessTips()==null || mainTable.getAccessTips().indexOf("0")==-1) && mainTable.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(), mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers())) ))
-							obz = dataViewResult.getDataView().getDsc();
+							obz = cardResult.getCard().getDsc();
 						else {
-							obz = accessControl ? dataViewResult : dataViewResult.getDataView().getDsc();
+							obz = accessControl ? cardResult : cardResult.getCard().getDsc();
 						}
-						if(obz instanceof W5DataViewResult){
-							if(mainTable!=null && masterTable!=null){ // burda extra bilgiler gelecek revision icin
-
-							}
+						if(obz instanceof W5CardResult){
+							Map m = new HashMap();
+							cardResult.setTplObj(o);
+							cardResult.setExtraOutMap(m);
+							m.put("tplId", o.getTemplateId());
+							m.put("tplObjId", o.getTemplateObjectId());
 						}
 						break;
 					case	7: //list view
@@ -6493,8 +6497,10 @@ public class FrameworkEngine{
 		dao.executeUpdateSQLQuery("update iwb.w5_user set email=? where user_id=?", email, userId);
 	}
 
-	public int runTests(Map<String, Object> scd, String testIds, String webPageId) {
+	public Map runTests(Map<String, Object> scd, String testIds, String webPageId) {
 		String projectUuid = scd.get("projectId").toString();
+		Map m = new HashMap();
+		m.put("success", true);
 		List<Object[]> l = null;
 		if(GenericUtil.isEmpty(testIds))
 			l=dao.executeSQLQuery("select x.test_id, x.dsc, x.code from iwb.w5_test x where x.lkp_test_type=0 AND x.project_uuid=? order by x.tab_order ", projectUuid);
@@ -6520,17 +6526,36 @@ public class FrameworkEngine{
 				nt = new HashMap();
 				msg.put("notification", nt);
 			}
-			for(Object[] o:l){
+			for(Object[] o:l)try{
 				Object result = dao.executeRhinoScript(scd, tmp, o[2].toString(), tmp, "result");
-				if(result!=null) {
-					return GenericUtil.uInt(o[0]);
-				} else if(webPageId!=null) {
+				if(result!=null) { 
+					if(result instanceof Double || result instanceof Integer || result instanceof Float || result instanceof BigDecimal){
+						if(GenericUtil.uInt(result)==0)result=null;
+					} else if(result instanceof Boolean){
+						if(!((Boolean)result))result=null;
+					} else if(result instanceof String){
+						if(((String)result).length()==0)result=null;
+					} else if(result instanceof NativeObject){
+					}
+				} 
+				if(result!=null){
+					m.put("dsc", o[1]);
+					m.put("failId", o[0]);
+					m.put("msg", result);
+					return m;
+				}
+				if(webPageId!=null) {
 					nt.put("_tmpStr", "Passed: " + o[1].toString());
 					UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
 				}
-			}					
+			}catch(Exception e){
+				m.put("dsc", o[1]);
+				m.put("failId", o[0]);
+				m.put("msg", e.getMessage());
+				return m;
+			}
 		}
-		return 0;
+		return m;
 	}
 
 	public boolean changeChangeProjectStatus(Map<String, Object> scd, String projectUuid, int newStatus) {
