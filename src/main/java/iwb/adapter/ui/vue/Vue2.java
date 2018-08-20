@@ -2278,33 +2278,23 @@ public class Vue2 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		buf.append("var ")
 				.append(d.getDsc())
-				.append("={dataViewId:")
+				.append("={cardId:")
 				.append(d.getDataViewId())
 				.append(",name:'")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						d.getLocaleMsgKey()))
 				.append("'")
-				.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
+				.append(",_url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
 				.append(d.getQueryId()).append("&_dvid=")
 				.append(d.getDataViewId());
 
 		if (d.getDefaultPageRecordNumber() != 0)
-			buf.append("&firstLimit=").append(d.getDefaultPageRecordNumber())
-					.append("',remoteSort:true,");
-		else
-			buf.append("',");
-		buf.append(
-				serializeQueryReader(d.get_query().get_queryFields(), d
-						.get_pkQueryField().getDsc(), null, null, (d
-						.get_query().getShowParentRecordFlag() != 0 ? 2 : 0), d
-						.get_mainTable(), dataViewResult.getScd())).append(
-				",listeners:{loadexception:promisLoadException");
-		// if(d.getDefaultPageRecordNumber()!=0)buf.append(",afterload:function(aa,bb){alert('geldim');alert(aa.getCount())}");
-		buf.append("}})");
+			buf.append("&firstLimit=").append(d.getDefaultPageRecordNumber());
+		buf.append("'");
 		if (d.getDefaultWidth() != 0)
-			buf.append(",\n defaultWidth:").append(d.getDefaultWidth());
+			buf.append(", defaultWidth:").append(d.getDefaultWidth());
 		if (d.getDefaultHeight() != 0)
-			buf.append(",\n defaultHeight:").append(d.getDefaultHeight());
+			buf.append(", defaultHeight:").append(d.getDefaultHeight());
 		if (dataViewResult.getSearchFormResult() != null) {
 			buf.append(",\n searchForm:").append(
 					serializeGetForm(dataViewResult.getSearchFormResult()));
@@ -2322,15 +2312,17 @@ public class Vue2 implements ViewAdapter {
 			buf.append(",\n pageSize:").append(d.getDefaultPageRecordNumber());
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
 		buf.append(",\n tpl:\"")
-				.append(GenericUtil.stringToJS2(d.getTemplateCode()))
-				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"table.grid_detay\"};\n");
+				.append(GenericUtil.filterExt(GenericUtil.stringToJS2(d.getTemplateCode()),
+						dataViewResult.getScd(),
+						dataViewResult.getRequestParams(), null))
+				.append("\"};");
 		if (!GenericUtil.isEmpty(d.getJsCode())) {
 			buf.append("\ntry{")
 					.append(GenericUtil.filterExt(d.getJsCode(),
 							dataViewResult.getScd(),
 							dataViewResult.getRequestParams(), null))
 					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR dataView.JS!!! Throw?'))throw e;"
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR card.JS!!! Throw?'))throw e;"
 							: "alert('System/Customization ERROR')");
 			buf.append("}\n");
 		}

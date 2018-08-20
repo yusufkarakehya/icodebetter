@@ -16,10 +16,12 @@ body{
 }
 
 .panel-header {
-/*   #5a6279 background: linear-gradient(130deg,#9576d0,#8073c8); /*#9d7cff #797575; #8680dd; #7a62a9 linear-gradient(130deg,#6e7b8e,#625784) rgb(251, 51, 101)*/
-	background: #3f475d;
-    background-image: url(../css/img/pattern.svg) !important;
+/*   #5a6279 background: linear-gradient(130deg,#9576d0,#8073c8); /*#9d7cff #797575; #8680dd; #7a62a9 linear-gradient(130deg,#6e7b8e,#625784) rgb(251, 51, 101)
+background-image: url(../css/img/pattern.svg) !important;
     background-position: right center,center center;
+*/
+	background: #292929;
+    
 }
     
 .sidebar .sidebar-wrapper [data-toggle="collapse"] ~ div > ul > li.active > a .sidebar-mini-icon, .sidebar .sidebar-wrapper > .nav [data-toggle="collapse"] ~ div > ul > li.active > a .sidebar-normal{
