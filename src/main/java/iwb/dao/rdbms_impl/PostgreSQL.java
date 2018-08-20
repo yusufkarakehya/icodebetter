@@ -1154,7 +1154,7 @@ public class PostgreSQL extends BaseDAO {
     					m2.put(qp.getExpressionDsc(), requestParams.get(qp.getDsc()));
     				}
     				StringBuilder rc2 = new StringBuilder();
-    				rc2.append("function _x_(x){\nreturn {").append(lookupQueryResult.getQuery().getSqlSelect()).append("\n}}\nvar result=[], q=$iwb.callWs('")
+    				rc2.append("function _x_(x){\nreturn {").append(lookupQueryResult.getQuery().getSqlSelect()).append("\n}}\nvar result=[], q=$iwb.REST('")
     				  .append(wsm.get_ws().getDsc()+"."+wsm.getDsc()).append("',")
     				  .append(GenericUtil.fromMapToJsonString2(m2)).append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc()).append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
     				executeQueryAsRhino(lookupQueryResult, rc2.toString());
@@ -3896,8 +3896,8 @@ public class PostgreSQL extends BaseDAO {
 		boolean multiKey = false;
 		boolean cusFlag = false;
 		if(t.get_tableParamList().size()>1){
-			if(!t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
-				for(W5TableParam tp:t.get_tableParamList())if(!t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
+			if(!t.get_tableParamList().get(1).getExpressionDsc().equals("project_uuid")){
+				for(W5TableParam tp:t.get_tableParamList())if(!t.get_tableParamList().get(1).getExpressionDsc().equals("project_uuid")){
 					if(!multiKey){
 						multiKey = true;
 						continue;
@@ -3909,8 +3909,8 @@ public class PostgreSQL extends BaseDAO {
 		detailSql+=" from " + t.getDsc()
 		+ " x where ";
 		if(cusFlag){
-			detailSql+="x.customization_id=? AND ";
-			sqlParams.add(scd.get("customizationId"));
+			detailSql+="x.project_uuid=? AND ";
+			sqlParams.add(scd.get("projectId"));
 		}
 		detailSql+="exists(select 1 from " + mt.getDsc()
 		+ " q where q." + masterFieldDsc +" = x." + detailFieldDsc //detail ile iliski
@@ -3939,7 +3939,7 @@ public class PostgreSQL extends BaseDAO {
 		if(rl!=null)for(Object o:rl){
 			if(multiKey){
 				int qi=0;
-				for(W5TableParam tp:t.get_tableParamList())if(!t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
+				for(W5TableParam tp:t.get_tableParamList())if(!t.get_tableParamList().get(1).getExpressionDsc().equals("project_uuid")){
 					requestParams.put(tp.getDsc(), ((Object[])o)[qi++].toString());
 				}
 			} else
@@ -3976,7 +3976,7 @@ public class PostgreSQL extends BaseDAO {
 		sql.replace(sql.length()-1, sql.length(), " from "+table.getDsc()+"  t where");
 		for(W5TableParam x: table.get_tableParamList()){
     		sql.append(" t."+x.getExpressionDsc()+"= ? and");
-    		if(x.getExpressionDsc().equals("customization_id")) lp.add(customizationId);
+    		if(x.getExpressionDsc().equals("project_uuid")) lp.add(scd.get("projectId"));
     	}
 		sql.replace(sql.length()-3,sql.length(),"");
 
@@ -4166,9 +4166,9 @@ public class PostgreSQL extends BaseDAO {
 								newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 								.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 								.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-								if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-									newSub.append(" AND y").append(isss).append(".customization_id=?");
-									params.add(scd.get("customizationId"));
+								if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+									newSub.append(" AND y").append(isss).append(".project_uuid=?");
+									params.add(scd.get("projectId"));
 									break;
 								}
 
@@ -4339,9 +4339,9 @@ public class PostgreSQL extends BaseDAO {
 								newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 								.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 								.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-								if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-									newSub.append(" AND y").append(isss).append(".customization_id=?");
-									params.add(scd.get("customizationId"));
+								if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+									newSub.append(" AND y").append(isss).append(".project_uuid=?");
+									params.add(scd.get("projectId"));
 									break;
 								}
 
@@ -4393,12 +4393,9 @@ public class PostgreSQL extends BaseDAO {
 		if(field_cnt>1){
 			sql.append("1 from ").append(t.getDsc()).append(" x where x.").append(t.get_tableFieldList().get(0).getDsc()).append("=?");
 			params.add(tablePk);
-			if(t.get_tableFieldList().size()>1 && (t.getTableId()!=338))for(W5TableField tf2:t.get_tableFieldList())if(tf2.getDsc().equals("customization_id")){
-				sql.append(" AND x.customization_id=?");
-				if (requestParams.get("tcustomization_id")!=null)
-					params.add(requestParams.get("tcustomization_id"));
-				else
-					params.add(scd.get("customizationId"));
+			if(t.get_tableFieldList().size()>1 && (t.getTableId()!=338))for(W5TableField tf2:t.get_tableFieldList())if(tf2.getDsc().equals("project_uuid")){
+				sql.append(" AND x.project_uuid=?");
+				params.add(scd.get("projectId"));
 				break;
 			}
 			qres = runSQLQuery2Map(sql.toString(), params, null);
@@ -5375,6 +5372,7 @@ public class PostgreSQL extends BaseDAO {
 			if(tfId==0){
 				String fieldName = ((String)m.get("column_name")).toLowerCase(FrameworkSetting.appLocale);
 				int tableFieldId = GenericUtil.getGlobalNextval("iwb.seq_table_field", projectUuid, userId, customizationId);
+				boolean sessField = fieldName.equals("customization_id") || fieldName.equals("project_uuid") ||fieldName.equals("oproject_uuid");
 				int rq = executeUpdateSQLQuery("insert into iwb.w5_table_field "
 						+ "(table_field_id, table_id, dsc, field_tip, not_null_flag, max_length, tab_order, insert_user_id, version_user_id, customization_id, project_uuid, source_tip, default_value, can_update_flag, can_insert_flag, copy_source_tip, default_control_tip, default_lookup_table_id, oproject_uuid) values"
 						+ "(?             , ?       , ?  , ?        , ?            , ?         , ?        , ?             , ?              , ?               , ?           , ?         , ?            , ?              , ?              , ?              , ?                  , ?                      , ?)"
@@ -5383,11 +5381,11 @@ public class PostgreSQL extends BaseDAO {
 						((String)m.get("is_nullable")).equals("YES") ? 0 : 1,
 						xlen==0 ? 0 : (xlen==-1 ? GenericUtil.uInt(m.get("character_maximum_length")): xlen),
 						tabOrder, userId, userId, customizationId, projectUuid,
-						fieldName.equals("customization_id") ? 2 : (tabOrder==1 ? 4:1),
+						sessField ? 2 : (tabOrder==1 ? 4:1),
 						fieldName.endsWith("_flag") ? "0" : (fieldName.equals("customization_id") ? "customizationId": (tabOrder == 1 ? "nextval('seq_"+tableName+"')":null)),
 						GenericUtil.hasPartInside2("customization_id,version_no,insert_user_id,insert_dttm,version_user_id,version_dttm", fieldName) || tabOrder==1 ? 0:1,
 						GenericUtil.hasPartInside2("version_no,insert_user_id,insert_dttm,version_user_id,version_dttm", fieldName) ? 0:1,
-						fieldName.equals("customization_id") ? 2 : (tabOrder==1 ? 4:6),
+						sessField ? 2 : (tabOrder==1 ? 4:6),
 						GenericUtil.hasPartInside2("insert_user_id,version_user_id", fieldName) ? 10: 0,GenericUtil.hasPartInside2("insert_user_id,version_user_id", fieldName) ? 336: 0, projectUuid);
 				if(vcs)saveObject(new W5VcsObject(scd, 16, tableFieldId));
 
@@ -5399,9 +5397,9 @@ public class PostgreSQL extends BaseDAO {
 						+ " version_no      = version_no+1, "
 						+ " not_null_flag =  ?, "
 						+ " max_length =  ? "
-						+ " where table_field_id =  ? AND customization_id=?  AND project_uuid=?",
+						+ " where table_field_id =  ? AND  project_uuid=?",
 						tabOrder, userId, ((String)m.get("is_nullable")).equals("YES") ? 0 : 1, xlen==0 ? 0 : (xlen==-1 ? GenericUtil.uInt(m.get("character_maximum_length")): xlen),
-								tfId, customizationId, projectUuid);
+								tfId,  projectUuid);
 				if(vcs)makeDirtyVcsObject(scd, 16, tfId);
 			}
 		}
@@ -5411,9 +5409,9 @@ public class PostgreSQL extends BaseDAO {
 				+ "version_user_id = ?, "
 				+ "version_dttm    = LOCALTIMESTAMP, "
 				+ "version_no      = version_no+1 "
-				+ "where table_id = ?  AND tab_order > 0 AND customization_id=? AND project_uuid=? "
+				+ "where table_id = ?  AND tab_order > 0  AND project_uuid=? "
 				+ " AND (lower(dsc) not in (SELECT lower(q.COLUMN_NAME) from information_schema.columns q where q.table_name = ? and q.table_schema = ?))",
-				userId, tableId, customizationId, projectUuid, tableName, schema);
+				userId, tableId, projectUuid, tableName, schema);
 
 		return true;
 
@@ -6046,7 +6044,7 @@ public class PostgreSQL extends BaseDAO {
 			m2.put(qp.getExpressionDsc(), requestParams.get(qp.getDsc()));
 		}
 		StringBuilder rc = new StringBuilder();
-		rc.append("function _x_(x){\nreturn {").append(queryResult.getQuery().getSqlSelect()).append("\n}}\nvar result=[], q=$iwb.callWs('")
+		rc.append("function _x_(x){\nreturn {").append(queryResult.getQuery().getSqlSelect()).append("\n}}\nvar result=[], q=$iwb.REST('")
 		  .append(wsm.get_ws().getDsc()+"."+wsm.getDsc()).append("',")
 		  .append(GenericUtil.fromMapToJsonString2(m2)).append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc()).append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
 		executeQueryAsRhino(queryResult, rc.toString());
@@ -6404,9 +6402,9 @@ public class PostgreSQL extends BaseDAO {
 							newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 							.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 							.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-								newSub.append(" AND y").append(isss).append(".customization_id=?");
-								params.add(scd.get("customizationId"));
+							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+								newSub.append(" AND y").append(isss).append(".project_uuid=?");
+								params.add(scd.get("projectId"));
 								break;
 							}
 
@@ -6781,8 +6779,8 @@ public class PostgreSQL extends BaseDAO {
 							newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 							.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 							.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-								newSub.append(" AND y").append(isss).append(".customization_id=${scd.customizationId}");
+							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+								newSub.append(" AND y").append(isss).append(".project_uuid='${scd.projectId}'");
 								break;
 							}
 
@@ -7072,8 +7070,8 @@ public class PostgreSQL extends BaseDAO {
 							newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 							.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 							.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-								newSub.append(" AND y").append(isss).append(".customization_id=${scd.customizationId}");
+							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+								newSub.append(" AND y").append(isss).append(".project_uuid='${scd.projectId}'");
 								break;
 							}
 

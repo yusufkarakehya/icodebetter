@@ -442,7 +442,7 @@ public class ScriptEngine {
         if (m.containsKey("errorMsg")) {
           if (throwFlag)
             throw new IWBException(
-                "ws", "Error:CallWs", 0, serviceName, m.get("errorMsg").toString(), null);
+                "ws", "Error:REST", 0, serviceName, m.get("errorMsg").toString(), null);
           else result.put("success", false);
         }
         if (m.containsKey("faultcode") && m.containsKey("faultstring")) {
@@ -462,7 +462,7 @@ public class ScriptEngine {
         result.putAll(m);
       }
     } catch (Exception e) {
-      throw new IWBException("ws", "CallWs", 0, null, "Error: " + serviceName, e);
+      throw new IWBException("ws", "REST", 0, null, "Error: " + serviceName, e);
     }
     return result;
   }

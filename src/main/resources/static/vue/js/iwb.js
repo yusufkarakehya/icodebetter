@@ -153,6 +153,10 @@ function getStrapSize(w){
 	
 }
 
+function getMasterGridSel(a,sel){
+	return sel;
+}
+
 function _(){
 	return '';
 }
@@ -330,7 +334,7 @@ var XMainGrid = Vue.component('x-main-grid', {
 	},
     methods: {
 		onNewRecord(e,grid, row) {
-		    var g = this.grid;
+		    var g = grid;//this.grid;
 		    if(g.crudFlags && g.crudFlags.insert && this.showForm){
 		    	var url = 'showForm?a=2&_fid='+g.crudFormId;
 				if(g._postInsert){
@@ -341,7 +345,6 @@ var XMainGrid = Vue.component('x-main-grid', {
 		    }
 		},
 		dblClick(row){
-//			this.$message({type: 'success',message: 'Your email is:'});
 		    var g = this.grid;
 		    if(g.crudFlags && g.crudFlags.edit && this.showForm){
 		    	var pkz = buildParams2(this.grid.pk,row);
@@ -403,14 +406,15 @@ var XMainGrid = Vue.component('x-main-grid', {
    			   h('el-row',{style:"padding: 5px"},[
    			                  (!0 || g.searchForm) && h('el-button',{props:{icon:"el-icon-search", circle:!0}})
    			                  ,h('el-button',{props:{icon:"el-icon-refresh", circle:!0},on:{click:this.loadData}})
-   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:this.onNewRecord}},'NEW RECORD')
-   			                  ,h('el-button',{props:{icon:"el-icon-menu", circle:!0}})]),
-   			                  h('hr',{style:"margin-bottom:0"}),
-   				h('el-table',{style:"width: 100%", props:{stripe:!0, data:this.rows},directives:[{name:'loading',value:this.loading}], on:{'row-dblclick':this.dblClick,'expand-change':this.expandChange, 'sort-change':this.sortChange}},
+   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:()=>this.onNewRecord(false,g,{})}},'NEW RECORD')
+//   			                  ,h('el-button',{props:{icon:"el-icon-menu", circle:!0}})]),
+   			               ])
+   			                  ,h('hr',{style:"margin-bottom:0"})
+   				,h('el-table',{style:"width: 100%", props:{stripe:!0, data:this.rows},directives:[{name:'loading',value:this.loading}], on:{'row-dblclick':this.dblClick,'expand-change':this.expandChange, 'sort-change':this.sortChange}},
    						columns.map(function(p){return p.type && p.type=='expand' ? h('el-table-column',{props:p,scopedSlots:{'default':function(props){
    								return h('time-line',{type:'simple'},
    		   						     g.detailGrids.map(function(o,key){
-   		   						   return h('time-line-item',{props:{inverted:true, badgeType:dgColors[key % dgColors.length], badgeIcon:"now-ui-icons business_briefcase-24"}}
+   		   						   return h('time-line-item',{props:{iconClick:()=>{self.onNewRecord(false,o.grid,props.row)},inverted:true, badgeType:dgColors[key % dgColors.length], badgeIcon:"now-ui-icons ui-1_simple-add"}}
   						        	,[h('h5',{slot:'header'},o.grid.name),
   						        	  h('p',{slot:'content'},[h(XGrid,{props:{grid:o.grid,showForm:self.showForm,row:props.row}})])])
    		   						})
@@ -840,12 +844,11 @@ var XCard = Vue.component('x-card', {
     },
     mounted(){
     	var cmp='x-icb-card-'+this.card.cardId;
-    	console.log(cmp);
     	Vue.component(cmp, {
     		props:['row'],
     		template:this.card.tpl
     	});
-    	this.loadData(!0);
+    	this.card._url && this.loadData(!0);
     },
 	render(h){
     	var rows=this.rows;
@@ -853,10 +856,10 @@ var XCard = Vue.component('x-card', {
     	return h('div',{},[
                  ,h('hr',{style:"margin-bottom:0"})
    	             ,h('el-row',{style:"padding: 5px"},
-   			                  rows.length && rows.map((o)=>{
+   			                  g._url ? (rows.length && rows.map((o)=>{
    			                	  return h('x-icb-card-'+g.cardId,{props:{row:o}});
-   			                  }))
-   				,g.pageSize && rows.length>g.pageSize && h('el-row',{style:"padding-top: 10px"},[h('el-pagination',{class:'float-right', on:{'current-change':this.currentPageChange},props:{background:!0,currentPage:this.currentPage+1, pageSize:g.pageSize,layout:'total, prev, pager, next', total:this.totalCount}})])
+   			                  })):[h('x-icb-card-'+g.cardId,{})])
+   				,g._url && g.pageSize && rows.length>g.pageSize && h('el-row',{style:"padding-top: 10px"},[h('el-pagination',{class:'float-right', on:{'current-change':this.currentPageChange},props:{background:!0,currentPage:this.currentPage+1, pageSize:g.pageSize,layout:'total, prev, pager, next', total:this.totalCount}})])
         ]); 
 	}
 });
