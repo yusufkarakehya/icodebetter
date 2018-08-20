@@ -16,6 +16,7 @@ iwb.graphAmchart=function(dg,gid){
       params: Object.assign(params, dg.queryParams),
       successCallback: function(az) {
         if (!az.data) az.data = [];
+    	for(var qi=0;qi<az.data.length;qi++)az.data[qi].dsc=az.data[qi].dsc||'(empty)';
         var resc = 1;
         if (1 * dg.graphTip < 5) {
           if (newStat.indexOf(",") > 0) {
@@ -78,7 +79,7 @@ iwb.graphAmchart=function(dg,gid){
                 fillAlphas: 0.6,
                 lineAlpha: 0.2,
                 color: "#000000",
-                title: az.lookUp[k],
+                title: az.lookUp[k]||'(empty)',
                 valueField: "xres_" + k
               });
             if (dg.legend)
@@ -131,7 +132,7 @@ iwb.graphAmchart=function(dg,gid){
                 lineAlpha: 0.2,
                 type: "column",
                 color: "#000000",
-                title: az.lookUp[k],
+                title: az.lookUp[k]||'(empty)',
                 valueField: "xres_" + k
               });
             if (dg.legend)

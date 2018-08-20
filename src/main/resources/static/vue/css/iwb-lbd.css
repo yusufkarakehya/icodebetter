@@ -435,3 +435,12 @@ ul.timeline{
     z-index: 2;
     transform: scale(1.1);
 }
+
+.card-portlet .form-header{
+	font-size:22px;
+}
+
+.main-panel nav.navbar{
+	background: white !important;
+	border-bottom: 1px solid #e3e3e3;
+}

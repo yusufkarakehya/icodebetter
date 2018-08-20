@@ -483,6 +483,7 @@ function XPage(c){
 iwb.pages={};
 var XMainPanel = Vue.component('x-main-panel', {
 	data(){
+		console.log('aha',this.$route.path)
 		var path = this.$route.path;
 		var ix = path.indexOf('showPage');
 		if(ix>-1){
@@ -501,7 +502,7 @@ var XMainPanel = Vue.component('x-main-panel', {
 //		console.log('ShowPage.beforeMount');
 	},
 	mounted(){
-//		console.log('ShowPage.mounted',this.$route);
+		console.log('ShowPage.mounted',this.$route);
 		//this.t = this.$route.query._tid;
 		if(!this.t){
 
@@ -551,6 +552,7 @@ var XMainPanel = Vue.component('x-main-panel', {
 //		console.log('ShowPage.beforeDestroy',this.t);
 	},
 	render(h){
+		console.log('baha',this.$route.path)
 		if(this.t)return h(this.t);
 		else return false;
 		
@@ -714,22 +716,27 @@ var XPortlet=Vue.component('xportlet',{
 			var q=o.query.data;
 			if(!q || !q.length)return h('div',null,'not data');
 			q=q[0];
-			return h('card', {class: "card-portlet text-white bg-"+(o.color||this.o.color||'info')},[
+			return h('card', {class: "card-portlet text-white bg-"+(o.props.color||this.o.props.color||'info')},[
 //					h("i", {class: "big-icon "+(q.icon || "icon-settings")}),
 					h('card-block', {class: "pb-0"},[
 						h("div", { class: "kpi-portlet-val float-right"},q.xvalue),
 						h("h1", {class: "mb-0",style:"font-size:40px"},q.dsc),
-						h("div",{style:"height: 25px"})]
+						h("hr",{style:"border-color:#eee"}),
+						h("div",{style:"height: 5px"})]
 					)]);
 		}
 		name = name.name;
 		var cmp=null;
 		if(o.graph){
-			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')},[h("h3", { class: "form-header", style:"padding: 5px 2px 0px; " },name)
+			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
+			,[h("h3", { class: "form-header", style:"padding: 5px 2px 0px;margin-bottom:0px" },name)
+				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
 					,h(XGraph,{props:{o:o}})]);
 		} else if(o.grid){
 			o.grid.crudFlags=false;
-			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')},[h("h3", { class: "form-header", style:"padding: 5px 2px 0px; " },name)
+			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:''),style:o.props.height?"height:"+o.props.height:""}
+			,[h("h3", { class: "form-header", style:"padding: 5px 2px 0px;;margin-bottom:0px " },name)
+				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
 				,h(XGrid,{props:o})]);
 		} else if(o.card)cmp='Card';
 		else if(o.query)cmp='KPI Card';

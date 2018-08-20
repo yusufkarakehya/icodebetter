@@ -169,7 +169,7 @@ var SideBar = Vue.component("side-bar", {
        :data-color="backgroundColor">
 
     <div class="logo">
-      <a href="http://www.iworkbetter.com" class="simple-text logo-mini">
+      <a href="http://www.icodebetter.com" class="simple-text logo-mini">
         <div class="logo-image">
           ` +
     iwb.logo +
@@ -177,7 +177,7 @@ var SideBar = Vue.component("side-bar", {
         </div>
       </a>
 
-      <a href="http://www.iworkbetter.com" class="simple-text logo-normal">
+      <a href="http://www.icodebetter.com" class="simple-text logo-normal">
         {{title}}
       </a>
       <div class="navbar-minimize">
@@ -270,7 +270,7 @@ var SideBar = Vue.component("side-bar", {
 const SidebarStore = {
   showSidebar: false,
   sidebarLinks: [],
-  isMinimized: false,
+  isMinimized: true,
   displaySidebar(value) {
     this.showSidebar = value;
   },
