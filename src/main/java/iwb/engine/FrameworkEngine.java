@@ -6437,6 +6437,11 @@ public class FrameworkEngine{
 
 	public void saveImage(String imageUrl, int userId, int cusId){
     	try{
+    		List lf = dao.find("select t.fileAttachmentId from W5FileAttachment t where t.tableId=336 AND t.fileTypeId=-999 AND t.tablePk=? AND t.customizationId=? AND t.orijinalFileName=?", ""+userId, cusId, imageUrl);
+    		if(!lf.isEmpty()){
+    			if(UserUtil.getUserProfilePicture(userId)==(Integer)lf.get(0))
+    				return;
+    		}
     		URL url = new URL(imageUrl);
     		int length;
     		int totalBytesRead = 0;
@@ -6468,7 +6473,7 @@ public class FrameworkEngine{
     		os.close();
 
     		fa.setCustomizationId(cusId);
-    		fa.setOrijinalFileName(FilenameUtils.getBaseName(url.getPath()));
+    		fa.setOrijinalFileName(imageUrl);
     		fa.setUploadUserId(userId);
     		fa.setFileSize(totalBytesRead);
     		fa.setFileTypeId(-999);
