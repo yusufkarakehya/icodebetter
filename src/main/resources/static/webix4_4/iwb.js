@@ -819,7 +819,7 @@ function makeTRMap(_grid1){
 									iwb.graphAmchart(mapPopupGraphConfig,'idGraphX')
 								}}
 							});
-							xx.show(e.event, { pos: "center", x:120, y:0})
+							xx.show(e.event, { pos: "center", x:0, y:0})
 						} else {
 							$$("mymultiview"+_grid1.id).setValue("idTableView"+_grid1.id);
 							if(_grid1.$dontClearFilter)return;
