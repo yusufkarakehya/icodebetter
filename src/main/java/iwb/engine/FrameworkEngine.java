@@ -3075,14 +3075,14 @@ public class FrameworkEngine{
 				templateObjectListExt.add(o);
 			}
 
-			if(pageId==622){//"maximizeGrid template" bunun icin masterTableId(_mtid), masterTablePk(_mtpk) icin value alinacak ve gonderilecek
+/*			if(pageId==622){//"maximizeGrid template" bunun icin masterTableId(_mtid), masterTablePk(_mtpk) icin value alinacak ve gonderilecek
 				int mtid=GenericUtil.uInt(requestParams.get("_mtid"));
 				int mtpk=GenericUtil.uInt(requestParams.get("_mtpk"));
 				if(mtid!=0 && mtpk!=0){
 					pr.setMasterRecordList(dao.findRecordParentRecords(scd, mtid, mtpk, 0, true));
 				}
 			}
-
+*/
 /*			if(templateId==358){//"sayfam" bunun icindeki portlet gridleri eklenecke, role'e bakarak DEPRECATED. instead we use pageType=10 Dashboard
 				List<Object> params= new ArrayList<Object>();
 				params.add(scd.get("customizationId"));

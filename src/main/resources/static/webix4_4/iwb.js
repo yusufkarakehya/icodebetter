@@ -479,7 +479,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj){
 			if (pos && !pos.row){
 				selectedColumnIndex=pos.cind;
 				var columns = webix.toArray(grid.config.columns);
-				console.log('aaaa',columns[selectedColumnIndex])
+//				console.log('aaaa',columns[selectedColumnIndex])
 				$$("col-cmenu2"+masterGrid.id).show(e);
 			} else selectedColumnIndex=-1;
 		})
@@ -750,6 +750,13 @@ function makeGraph(_grid1){
 	renderGraph(areaData);
 }
 
+var mapPopupGraphConfig={};
+function onPopupGraphTypeChange(){
+	console.log(mapPopupGraphConfig);
+	mapPopupGraphConfig.graphTip=document.getElementById('idGraphTypeX').value;
+	iwb.graphAmchart(mapPopupGraphConfig,'idGraphX')
+} 
+
 function makeTRMap(_grid1){
 	if(!_grid1 || $$("mymultiview"+_grid1.id).getValue().indexOf("idMapView")!=0)return;
 	var tip=1*webix.$$("graph-"+_grid1.id).getValue();
@@ -793,13 +800,34 @@ function makeTRMap(_grid1){
 			"listeners": [{"event": "clickMapObject",
 				"method": function(e) {
 					if (e.mapObject.objectType !== "MapArea")return;
-					setTimeout(function(){
-						$$("mymultiview"+_grid1.id).setValue("idTableView"+_grid1.id);
-						if(_grid1.$dontClearFilter)return;
-						var gx=$$(_grid1.id);
-						if(gx.getFilter && _grid1.$filterField){
-							var flt = gx.getFilter(_grid1.$filterField);
-							if(flt)flt.setValue(''+1*e.mapObject.id.substr(3));
+					setTimeout(function(){	
+						if(_grid1.$mapGroupQueryField){
+							console.log('e',e)
+							var xx=$$('idGraphPopup')
+							if(xx)xx.close();
+							xx= webix.ui({
+								view:"popup", id:'idGraphPopup',
+								height:500,
+							    width:800,
+							    position:"center",
+								body:{
+									template:"<div style='font-size:2rem'>"+e.mapObject.enTitle+"</div><select id='idGraphTypeX' style='float:right;margin-top:-35px' onchange='onPopupGraphTypeChange()'><option value=3 selected>pie</option><option value=1>bar</option></select><div id='idGraphX' style='width:100%;height:100%'></div>"
+								},on:{onShow:function(){
+									var params={};//alert($$('qfield-'+_grid1.id).getValue())
+									params['x'+_grid1.$filterField]=e.mapObject.id.substr(3);
+									mapPopupGraphConfig={graphId:123,name:'', gridId:_grid1.gridId,tableId:_grid1.crudTableId,is3d:false,dtTip:3,graphTip:document.getElementById('idGraphTypeX').value,groupBy:_grid1.$mapGroupQueryField,funcTip:$$('aggr-'+_grid1.id).getValue()-10,funcFields:_grid1.$mapFuncFields||'', queryParams:params,stackedFieldId:null,legend:false}
+									iwb.graphAmchart(mapPopupGraphConfig,'idGraphX')
+								}}
+							});
+							xx.show(e.event, { pos: "center", x:120, y:0})
+						} else {
+							$$("mymultiview"+_grid1.id).setValue("idTableView"+_grid1.id);
+							if(_grid1.$dontClearFilter)return;
+							var gx=$$(_grid1.id);
+							if(gx.getFilter && _grid1.$filterField){
+								var flt = gx.getFilter(_grid1.$filterField);
+								if(flt)flt.setValue(''+1*e.mapObject.id.substr(3));
+							}
 						}
 					},1000);
 				}
