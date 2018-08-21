@@ -5253,7 +5253,8 @@ public class PostgreSQL extends BaseDAO {
 					} else {
 						s.append(f.getDsc()).append(",");
 						s2.append("?,");
-						try {
+						if(f.getDsc().equals("project_uuid"))p.add(scd.get("projectId"));
+						else try {
 							if(o.has(f.getDsc())){
 								p.add(GenericUtil.getObjectByControl((String)o.get(f.getDsc()), f.getParamTip()));
 							} else
