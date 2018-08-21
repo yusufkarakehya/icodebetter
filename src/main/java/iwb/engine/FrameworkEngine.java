@@ -3222,6 +3222,10 @@ public class FrameworkEngine{
 				}
 
 			}
+			if((Integer)scd.get("customizationId")==1 && GenericUtil.uInt(scd.get("mainTemplateId"))==pageId){
+				List<Object> params = new ArrayList();params.add(scd.get("projectId"));
+				dao.executeUpdateSQLQuery("update iwb.w5_project p set preview_count=preview_count+1 where p.project_uuid=?", params);
+			}
 			return pr;
 		} catch (Exception e){
 			throw new IWBException("framework", "Load.Page", pageId, null, "[63,"+pageId+"]"+(pr!=null && pr.getPage()!=null ? " "+pr.getPage().getDsc():""), e);
