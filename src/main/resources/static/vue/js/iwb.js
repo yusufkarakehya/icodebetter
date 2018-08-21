@@ -722,32 +722,33 @@ var XPortlet=Vue.component('xportlet',{
 			var q=o.query.data;
 			if(!q || !q.length)return h('div',null,'not data');
 			q=q[0];
-			return h('card', {class: "card-portlet text-white bg-"+(o.props.color||this.o.props.color||'info')},[
-					h('card-block', {class: "pb-0"},[
-						h("div", { class: "kpi-portlet-val float-right"},q.xvalue),
-						h("h1", {class: "mb-0",style:"font-size:40px"},q.dsc),
-						h("hr",{style:"border-color:#eee"}),
-						h("div",{style:"height: 5px"})]
-					)]);
+			return h('card', {class: "card-portlet bg-white text-"+(o.props.color||this.o.props.color||'success')},[
+				//h("i", {class: "big-icon "+(q.icon || "icon-settings")}),
+				h('card-block', {class: "pb-0"},[
+					h("div", { class: "kpi-portlet-val float-right"},q.xvalue),
+					h("h1", {class: "mb-0",style:"font-size:32px;color: gray;"},q.dsc),
+					h("hr",{style:"border-color: rgb(238, 238, 238);width: 70%;position: absolute;top: 50px;"}),
+					h("div",{style:"color: #aaa;font-size: .9rem;margin-top:22px"},o.props.longDsc||"updated a minute ago")]
+				)]);
 		}
 		name = name.name;
 		var cmp=null;
 		if(o.graph){
 			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
-			,[h("h3", { class: "form-header", style:"padding: 2px 2px 0px;margin-bottom:0px" },name)
+			,[h("h3", { class: "form-header", style:"font-size:1.5rem;padding: 0px 2px 0px;margin-bottom:0px" },name)
 			  ,h("div", { style: "position: absolute;top: 20px;right: 20px;"},[h('i',{class:'now-ui-icons loader_refresh'})])
 				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
 					,h(XGraph,{props:{o:o}})]);
 		} else if(o.grid){
 			o.grid.crudFlags=false;
 			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:''),style:o.props.height?"height:"+o.props.height:""}
-			,[h("h3", { class: "form-header", style:"padding: 2px 2px 0px;;margin-bottom:0px " },name)
+			,[h("h3", { class: "form-header", style:"font-size:1.5rem;padding: 0px 2px 0px;margin-bottom:0px " },name)
 			  ,h("div", { style: "position: absolute;top: 20px;right: 20px;"},[h('i',{class:'now-ui-icons loader_refresh'})])
 				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
 				,h(XGrid,{props:o})]);
 		} else if(o.card){
 			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:''),style:o.props.height?"height:"+o.props.height:""}
-			,[h("h3", { class: "form-header", style:"padding: 2px 2px 0px;;margin-bottom:0px " },name)
+			,[h("h3", { class: "form-header", style:"font-size:1.5rem;padding: 0px 2px 0px;margin-bottom:0px " },name)
 			  ,h("div", { style: "position: absolute;top: 20px;right: 20px;"},[h('i',{class:'now-ui-icons loader_refresh'})])
 				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
 				,h(XCard,{props:o})]);

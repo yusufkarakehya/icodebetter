@@ -20,8 +20,7 @@ body{
 background-image: url(../css/img/pattern.svg) !important;
     background-position: right center,center center;
 */
-	background: #292929;
-    
+    background: #515151;    
 }
     
 .sidebar .sidebar-wrapper [data-toggle="collapse"] ~ div > ul > li.active > a .sidebar-mini-icon, .sidebar .sidebar-wrapper > .nav [data-toggle="collapse"] ~ div > ul > li.active > a .sidebar-normal{
@@ -378,7 +377,10 @@ ul.timeline{
 }
 
 .kpi-portlet-val{
-	text-align:center;width:66px;height:66px;font-size: 45px;background: white; border-radius: 55px; color: #807e78;box-shadow: rgba(0,0,0,.3) 0 2px 15px 1px;	
+	text-align:center;width:66px;height:66px;font-size: 45px;border-radius: 55px; 
+	/*box-shadow: rgba(0,0,0,.3) 0 2px 15px 1px;*/
+    background: #515151;
+    color: #ffffff;	
 }
 
 
@@ -389,4 +391,12 @@ ul.timeline{
 .timeline-badge:hover{
 	transform:scale(1.1)
 	
+}
+
+.card {
+    border-radius: 0.25rem !important;
+}
+
+.active i.now-ui-icons{
+	color:#2da8ff;
 }
