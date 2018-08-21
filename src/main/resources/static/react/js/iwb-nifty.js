@@ -3657,9 +3657,9 @@ class XMainGrid extends GridCommon {
                 onClick: this.openBI
               },
               _("i", { className: "icon-equalizer" })
-            ), //, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})		)
-          grid
-        )
+            ) //, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})		)
+        ),
+        grid
       )
     );
   }
@@ -4516,11 +4516,13 @@ iwb.createPortlet=function(o){
 	name = name.name;
 	var cmp=null;
 	if(o.graph){
-		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
+		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
+				,_("h3", { className: "form-header", style:{fontSize: '1.5rem',padding: '10px 12px 0px', marginBottom:'.5rem'} },name,_("i", {className: "portlet-refresh float-right icon-refresh"}))
 				,_(XGraph,o));
 	} else if(o.grid){
 		o.grid.crudFlags=false;
-		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')},_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },name)
+		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
+			,_("h3", { className: "form-header", style:{fontSize: '1.5rem',padding: '10px 12px 0px', marginBottom:'.5rem'} },name,_("i", {className: "portlet-refresh float-right icon-refresh"}))
 			,_(XGrid,o.grid));
 	} else if(o.card)cmp='Card';
 	else if(o.query)cmp='KPI Card';

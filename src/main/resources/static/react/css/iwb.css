@@ -928,3 +928,9 @@ a:hover{
 .dx-rg-bs4-resizing-control {
     z-index: 0!important;
 }
+.portlet-refresh {
+	margin-top: 4px;
+    font-size: 1.2rem;
+    color: rgba(0,0,0,.4);	
+    cursor:pointer;
+}

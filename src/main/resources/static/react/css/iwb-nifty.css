@@ -998,3 +998,10 @@ a:hover{
     -ms-transform: rotate(-13deg);
     -o-transform: rotate(-13deg);
     transform: rotate(-13deg); } }
+
+.portlet-refresh {
+	margin-top: 4px;
+    font-size: 1.2rem;
+    color: rgba(0,0,0,.4);	
+    cursor:pointer;
+}
