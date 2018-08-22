@@ -148,7 +148,7 @@ public class AuthController {
         if (profilePictureId < 3) {
           engine.saveImage(pictureUrl, userId, cusId);
         }
-        session.setAttribute("iwb-scd", scd);
+        session.setAttribute("scd-dev", scd);
         if (!GenericUtil.isEmpty(invitationEmail)) {
           engine.addToProject(userId, invite_projectid, invitationEmail);
         }

@@ -6374,7 +6374,11 @@ public class FrameworkEngine{
 				+ " where u.lkp_auth_external_source=? AND u.user_status=1 AND u.auth_external_id=?", socialCon, token);
 		if(!GenericUtil.isEmpty(list)){
 			Object[] oz = list.get(0);
-			return  userSession4Auth(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[1]));
+			Map<String, Object> scd = userSession4Auth(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[1]));
+			if(scd!=null){
+				dao.executeUpdateSQLQuery("update iwb.w5_user set last_succesful_login_dttm=current_timestamp, succesful_login_count=succesful_login_count+1 where user_id=?", scd.get("userId"));
+			}
+			return scd;
 		}
 		else{
 			return null;
