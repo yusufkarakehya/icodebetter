@@ -1392,7 +1392,10 @@ public class AppServlet implements InitializingBean {
 		if(session!=null){
 			Object token = session.getAttribute("authToken");
 			if(token!=null){
-				scd = engine.generateScdFromAuth(1, token.toString());
+				scd = (Map)session.getAttribute("scd-dev");
+				if(scd==null || !GenericUtil.safeEquals(scd.get("email"), token)){
+					scd = engine.generateScdFromAuth(1, token.toString());
+				}
 				if(scd!=null){
 					session.removeAttribute("authToken");
 					scd.put("locale", "en");
