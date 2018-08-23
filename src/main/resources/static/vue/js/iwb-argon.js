@@ -418,7 +418,7 @@ var XMainGrid = Vue.component('x-main-grid', {
    						columns.map(function(p){return p.type && p.type=='expand' ? h('el-table-column',{props:p,scopedSlots:{'default':function(props){
    								return h('time-line',{type:'simple'},
    		   						     g.detailGrids.map(function(o,key){
-   		   						   return h('time-line-item',{props:{iconClick:()=>{self.onNewRecord(false,o.grid,props.row)},inverted:true, badgeType:dgColors[key % dgColors.length], badgeIcon:"now-ui-icons ui-1_simple-add"}}
+   		   						   return h('time-line-item',{props:{iconClick:()=>{self.onNewRecord(false,o.grid,props.row)},inverted:true, badgeType:dgColors[key % dgColors.length], badgeIcon:"el-icon-plus"}}
   						        	,[h('h5',{slot:'header'},o.grid.name),
   						        	  h('p',{slot:'content'},[h(XGrid,{props:{grid:o.grid,showForm:self.showForm,row:props.row}})])])
    		   						})
@@ -658,7 +658,7 @@ var XModal = Vue.component('modal', {
 });
 
 Vue.component('time-line', {
-  template:`<card class="card-timeline" plain><ul class="timeline" :class="{'timeline-simple': type === 'simple'}"><slot></slot></ul></card>`,
+  template:`<card class="card-timeline card-plain"><ul class="timeline" :class="{'timeline-simple': type === 'simple'}"><slot></slot></ul></card>`,
     props: {
       type: {
         type: String,

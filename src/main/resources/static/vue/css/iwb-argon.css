@@ -146,6 +146,7 @@ main {
 .card.card-timeline.card-plain{
   -webkit-box-shadow: none;
   box-shadow: none;
+  border: none !important;
 }
 
 .card-portlet{
@@ -206,4 +207,48 @@ main {
 .el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li {
     border-radius: 100px;
     margin: 0 1px;
+}
+
+.card-timeline .timeline:before {
+    top: 0;
+    bottom: 0;
+    position: absolute;
+    content: " ";
+    width: 3px;
+    background-color: #dbdbdb;
+    left: 50%;
+    margin-left: -1.5px;
+}
+
+
+
+.card-timeline .timeline > li:before, .card-timeline .timeline > li:after {
+    content: " ";
+    display: table;
+}
+
+.card-timeline .timeline > li > .timeline-badge {
+    color: #FFFFFF;
+    width: 50px;
+    height: 50px;
+    line-height: 51px;
+    font-size: 1.4em;
+    text-align: center;
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    margin-left: -25px;
+    background-color: #9A9A9A;
+    z-index: 100;
+    border-top-right-radius: 50%;
+    border-top-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+}
+.card-timeline .timeline-badge.warning {
+    background-color: #FFB236 !important;
+}
+
+.card-timeline .timeline:before, .card-timeline .timeline > li > .timeline-badge {
+    left: 10px !important;
 }
