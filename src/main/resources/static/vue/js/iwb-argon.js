@@ -408,9 +408,9 @@ var XMainGrid = Vue.component('x-main-grid', {
     	var g = this.grid;
     	return h('card',{class:"shadow"},[
    			   h('el-row',{style:"padding: 5px"},[
-   			                  (!0 || g.searchForm) && h('el-button',{props:{icon:"el-icon-search", circle:!0}})
-   			                  ,h('el-button',{props:{icon:"el-icon-refresh", circle:!0},on:{click:this.loadData}})
-   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:()=>this.onNewRecord(false,g,{})}},'NEW RECORD')
+   			                  (!0 || g.searchForm) && h('button',{style:"margin-right:5px",class:"icb-button icon icon-shape mb-4 icon-shape-primary rounded-circle"},[h('i',{class:"el-icon-search"})])
+   			                  ,h('button',{style:"margin-right:5px",class:"icb-button icon icon-shape mb-4 icon-shape-primary rounded-circle",on:{click:this.loadData}},[h('i',{class:"el-icon-refresh"})])
+   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{style:"    background: linear-gradient(87deg,#fb6340,#fbb140)!important;border-radius: 35px;padding: 16px 23px;",class:"icb-button float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:()=>this.onNewRecord(false,g,{})}},'NEW RECORD')
 //   			                  ,h('el-button',{props:{icon:"el-icon-menu", circle:!0}})]),
    			               ])
    			                  ,h('hr',{style:"margin-bottom:0"})
@@ -613,7 +613,7 @@ var XModal = Vue.component('modal', {
 	                            h(this.body,{props:{viewMode:this.viewMode}})
 	                         ]),
 	                         !this.viewMode && this.footer!==false && h('div',{class:"modal-footer"+cls2str(this.footerClasses)},
-   	                            this.footer===true ? [h('el-button',{props:{type:"danger"},on:{click:this.submit}},'SAVE'), h('el-button',{props:{type:"info"},on:{click:this.closeModal}},'CLOSE')]: [h(this.footer)]
+   	                            this.footer===true ? [h('button',{class:"btn mt-2 btn-success",props:{type:"danger"},on:{click:this.submit}},'SAVE'), h('button',{class:"btn mt-2 btn-secondary",props:{type:"info"},on:{click:this.closeModal}},'CLOSE')]: [h(this.footer)]
    	                         )	                              
                        ])
 		    	   ]) 
@@ -945,8 +945,8 @@ var XMainCard = Vue.component('x-main-card', {
     	var g = this.card;
     	return h('card',{},[
    			   h('row',{style:"padding: 5px"},[
-   			                  h('el-button',{props:{icon:"el-icon-refresh", circle:!0},on:{click:this.loadData}})
-   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:this.onNewRecord}},'NEW RECORD')])
+   			                  h('button',{class:"el-button icon icon-shape bg-gradient-warning shadow rounded-circle text-white",props:{icon:"el-icon-refresh", circle:!0},on:{click:this.loadData}})
+   			                  ,g.crudFlags && g.crudFlags.insert && h('button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:this.onNewRecord}},'NEW RECORD')])
    			                  ,h('hr',{style:"margin-bottom:0"})
    			                  ,rows.length && rows.map((o)=>{
    			                	  return h('x-icb-card-'+g.cardId,{props:{row:o}});
