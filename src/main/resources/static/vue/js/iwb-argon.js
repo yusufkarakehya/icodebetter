@@ -407,13 +407,13 @@ var XMainGrid = Vue.component('x-main-grid', {
     	var columns = this.columns, self=this;
     	var g = this.grid;
     	return h('card',{class:"shadow"},[
-   			   h('el-row',{style:"padding: 5px"},[
+   			   h('el-row',{style:""},[
    			                  (!0 || g.searchForm) && h('button',{style:"margin-right:5px",class:"icb-button icon icon-shape mb-4 icon-shape-primary rounded-circle"},[h('i',{class:"el-icon-search"})])
    			                  ,h('button',{style:"margin-right:5px",class:"icb-button icon icon-shape mb-4 icon-shape-primary rounded-circle",on:{click:this.loadData}},[h('i',{class:"el-icon-refresh"})])
    			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{style:"    background: linear-gradient(87deg,#fb6340,#fbb140)!important;border-radius: 35px;padding: 16px 23px;",class:"icb-button float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:()=>this.onNewRecord(false,g,{})}},'NEW RECORD')
 //   			                  ,h('el-button',{props:{icon:"el-icon-menu", circle:!0}})]),
    			               ])
-   			                  ,h('hr',{style:"margin-bottom:0"})
+   			                  ,h('hr',{style:"margin-bottom:0;margin-top: 0;"})
    				,h('el-table',{style:"width: 100%", props:{stripe:!0, data:this.rows},directives:[{name:'loading',value:this.loading}], on:{'row-dblclick':this.dblClick,'expand-change':this.expandChange, 'sort-change':this.sortChange}},
    						columns.map(function(p){return p.type && p.type=='expand' ? h('el-table-column',{props:p,scopedSlots:{'default':function(props){
    								return h('time-line',{type:'simple'},
@@ -504,13 +504,13 @@ var XMainPanel = Vue.component('x-main-panel', {
 		} else return {};
 	},
 	beforeCreate(){
-//		console.log('ShowPage.beforeCreate');
+		console.log('ShowPage.beforeCreate');
 	},
 	created(){
-//		console.log('ShowPage.created');
+		console.log('ShowPage.created');
 	},
 	beforeMount(){
-//		console.log('ShowPage.beforeMount');
+		console.log('ShowPage.beforeMount');
 	},
 	mounted(){
 		console.log('ShowPage.mounted',this.$route);
@@ -730,7 +730,7 @@ var XPortlet=Vue.component('xportlet',{
 			q=q[0];
 			return h('card', {class: "card-portlet shadow bg-white text-"+(o.props.color||this.o.props.color||'success')},[
 //					h("i", {class: "big-icon "+(q.icon || "icon-settings")}),
-					h('card-block', {class: "pb-0"},[
+					h('div', {class: "pb-0"},[
 						h("div", { class: "kpi-portlet-val float-right"},q.xvalue),
 						h("h1", {class: "mb-0",style:"font-size:40px"},q.dsc),
 						h("hr",{style:"border-color: rgb(238, 238, 238);width: 70%;position: absolute;top: 50px;"}),
@@ -861,8 +861,8 @@ var XCard = Vue.component('x-card', {
     	var rows=this.rows;
     	var g = this.card;
     	return h('div',{},[
-                 ,h('hr',{style:"margin-bottom:0"})
-   	             ,h('el-row',{style:"padding: 5px"},
+                 ,h('hr',{style:"margin-bottom:0;margin-top: 0;"})
+   	             ,h('el-row',{style:""},
    			                  g._url ? (rows.length && rows.map((o)=>{
    			                	  return h('x-icb-card-'+g.cardId,{props:{row:o}});
    			                  })):[h('x-icb-card-'+g.cardId,{})])
@@ -944,10 +944,10 @@ var XMainCard = Vue.component('x-main-card', {
     	var rows=this.rows;
     	var g = this.card;
     	return h('card',{},[
-   			   h('row',{style:"padding: 5px"},[
+   			   h('row',{style:""},[
    			                  h('button',{class:"el-button icon icon-shape bg-gradient-warning shadow rounded-circle text-white",props:{icon:"el-icon-refresh", circle:!0},on:{click:this.loadData}})
    			                  ,g.crudFlags && g.crudFlags.insert && h('button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:this.onNewRecord}},'NEW RECORD')])
-   			                  ,h('hr',{style:"margin-bottom:0"})
+   			                  ,h('hr',{style:"margin-bottom:0;margin-top: 0;"})
    			                  ,rows.length && rows.map((o)=>{
    			                	  return h('x-icb-card-'+g.cardId,{props:{row:o}});
    			                  })

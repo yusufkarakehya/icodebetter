@@ -1,19 +1,14 @@
-<template>
-    <button type="button" class="navbar-toggler"
+var CloseButton =  Vue.component('close-button',{
+	template:`<button type="button" class="navbar-toggler"
             data-toggle="collapse"
             @click="handleClick"
-            :data-target="`#${target}`"
+            :data-target="'#`+'${target}'+`'"
             :aria-controls="target"
             :aria-expanded="expanded"
             aria-label="Toggle navigation">
         <span></span>
         <span></span>
-    </button>
-</template>
-<script>
-export default {
-  name: "close-button",
-  props: {
+    </button>`,props: {
     target: {
       type: [String, Number],
       description: "Close button target element"
@@ -28,7 +23,4 @@ export default {
       this.$emit("click", evt);
     }
   }
-};
-</script>
-<style>
-</style>
+});

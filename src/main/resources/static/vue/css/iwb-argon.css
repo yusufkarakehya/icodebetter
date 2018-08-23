@@ -197,3 +197,13 @@ main {
 .el-table td, .el-table th.is-leaf {
     border-bottom: 1px solid #f4f7ff;
 }
+
+.el-pagination.is-background .el-pager li:not(.disabled).active {
+    background-color: rgba(147,231,195,.5);
+    color: #1aae6f;
+}
+
+.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li {
+    border-radius: 100px;
+    margin: 0 1px;
+}

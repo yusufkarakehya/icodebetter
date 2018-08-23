@@ -14,10 +14,10 @@ function initScrollbar (className) {
 }
 
 var ArgonLayout =  {
-	template:`<div id="app">
+	template:`<div>
 	<top-navbar></top-navbar>
 	<notifications></notifications>
-	  <span class="navbar-brand" style="    margin-left: 30px;
+	  <span class="navbar-brand" style="margin-left: 30px;
     text-transform: none;
     padding: 20px 20px 0px 0px;
     font-size: 2rem;
@@ -26,7 +26,7 @@ var ArgonLayout =  {
 	  </span>
 	<main style="padding-top: 15px;">
 	<fade-transition origin="center" mode="out-in" :duration="250">
-	    <router-view/>
+		<router-view :key="$route.fullPath"></router-view>
 	</fade-transition>
 	<modal></modal>
 	</main>
