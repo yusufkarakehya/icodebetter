@@ -3208,7 +3208,7 @@ iwb.ui.buildDashboard=function(o){
 		
 	});
 }
-
+/*
 
 var XCard extends React.PureComponent {
 	props: ['card','showForm'],
@@ -3291,4 +3291,4 @@ var XCard extends React.PureComponent {
 //   				,g._url && g.pageSize && rows.length>g.pageSize && _('el-row',{style:"padding-top: 10px"},[h('el-pagination',{class:'float-right', on:{'current-change':this.currentPageChange},props:{background:!0,currentPage:this.currentPage+1, pageSize:g.pageSize,layout:'total, prev, pager, next', total:this.totalCount}})])
         ]); 
 	}
-};
+};*/
