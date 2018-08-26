@@ -6657,6 +6657,7 @@ public class FrameworkEngine{
 						p2.setProjectUuid(scd.get("projectId").toString());
 						p2.setParamTip((short)1);
 						if(om.get(key)!=null && om.get(key) instanceof List)p2.setParamTip((short)10);
+						if(om.get(key)!=null && om.get(key) instanceof Map)p2.setParamTip((short)9);
 						p2.setTabOrder(tabOrder);tabOrder+=10;
 						dao.saveObject(p2);
 						dao.saveObject(new W5VcsObject(scd, 1377, p2.getWsMethodParamId()));
