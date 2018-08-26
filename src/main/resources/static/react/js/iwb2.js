@@ -760,6 +760,29 @@ class XLazyScriptLoader extends React.Component {
         )
     }
 }
+
+class XFormSMSEmailTemplateList extends React.PureComponent{
+	constructor(props){
+		super(props);
+		this.state={};
+		this.set
+	
+	}
+	render() {
+		return false;
+	/*	let list = this.props.list;
+		return _('div',{className:'hr-text', style:{marginTop:'20px'}},_('h6',null,'SMS / EMail Conversions')),
+		list.map(o=>{
+			return _(Row,{},_(Col,{xl:12}, 
+					
+					_(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-3d switch-primary' }, _(Input,{name:'smsmail-'+o.,checked:?,disabled:?,type:'checkbox', className:'switch-input'},_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}
+					,htmlFor:\"")
+					}
+							.append(dsc).append("\"},_").append(dsc).append(".label))
+			))
+		});*/
+	}
+}
 /**
  * @description
  * used to render tab and show active tab on the full XPage
@@ -856,7 +879,10 @@ class XTabForm extends React.PureComponent{
 					_(Button,{className:'float-right btn-round-shadow mr-1',color:'light'},_('i',{className:'icon-paper-clip'}))
 				),
 				_("hr"),
-			formBody),
+			formBody,
+//			this.props.cfg && this.props.cfg.smsMailTemplateCnt && _("hr"),
+			this.props.cfg && this.props.cfg.smsMailTemplateCnt && _(XFormSMSEmailTemplateList,{list:this.props.cfg.smsMailTemplates})
+			),
 			!viewMode && _(CardFooter, {style:{padding: "1.1rem 1.25rem"}},
 				_(Button,{type:'submit',color:'submit', className:'btn-form mr-1', onClick:onSubmit},' ','Save',' '),
 				' ',
@@ -3208,87 +3234,3 @@ iwb.ui.buildDashboard=function(o){
 		
 	});
 }
-/*
-
-var XCard extends React.PureComponent {
-	props: ['card','showForm'],
-	constructor(props) {
-		super(props);
-		var g = this.card;
-		this.state={loading:true,
-		        rows: [], totalCount: 0, 
-		        lastQuery:'', currentPage:0, pageSize:g.pageSize
-		  };
-	},
-    methods: {
-		onNewRecord(e, card, row) {
-		    var g = this.card;
-		    if(g.crudFlags && g.crudFlags.insert && this.showForm){
-		    	var url = 'showForm?a=2&_fid='+g.crudFormId;
-				if(g._postInsert){
-					url=g._postInsert(row||{}, url, card);
-					if(!url)return;
-				}
-				this.showForm(url,this.loadData);
-		    }
-		},
-		dblClick(row){
-//			this.$message({type: 'success',message: 'Your email is:'});
-		    var g = this.card;
-		    if(g.crudFlags && g.crudFlags.edit && this.showForm){
-		    	var pkz = buildParams2(this.card.pk,row);
-		    	var url = 'showForm?a=1&_fid='+this.card.crudFormId+pkz;
-		    	if(this.card._postUpdate){
-		    		var url=this.card._postUpdate(row, url, this.card);
-		    		if(!url)return;
-		    	}
-	    	  this.showForm(url,this.loadData);
-		    }			  
-		},
-		queryString() {
-			let queryString = this.card._url;
-			if(this.pageSize)queryString+='&limit='+this.pageSize+'&start='+(this.pageSize * this.currentPage);
-		    return queryString;
-		},
-		loadData(force, params) {
-		    const queryString = this.queryString();
-//		    if (!force && queryString === this.lastQuery) {return;}
-		    var params= Object.assign({},params||{},this.form ? this.form.getValues():{});
-		    //var ll = ELEMENT.Loading.service();
-		    this.loading=true;
-			iwb.request({url:queryString, params:params, successCallback:(result, cfg)=>{
-			  this.rows = result.data;this.totalCount=result.total_count;
-			  this.loading=false;
-			},errorCallback:(error,cfg)=>{
-				this.rows = [];this.totalCount=0;
-				this.loading=false;
-		    }});
-		    this.lastQuery = queryString;
-		},
-		currentPageChange(page){
-			this.currentPage = page-1;
-			this.loadData(!0);
-			
-		}
-    },
-    componentDidMount() {
-    	var cmp='x-icb-card-'+this.card.cardId;
-    	Vue.component(cmp, {
-    		props:['row'],
-    		template:this.card.tpl
-    	});
-    	this.card._url && this.loadData(!0);
-    },
-	render(){
-    	var rows=this.rows;
-    	var g = this.card;
-    	return _('div',{},[
-                 ,_('hr',{style:"margin-bottom:0"})
-   	             ,_('el-row',{style:"padding: 5px"},
-   			                  g._url ? (rows.length && rows.map((o)=>{
-   			                	  return _('x-icb-card-'+g.cardId,{props:{row:o}});
-   			                  })):[_('x-icb-card-'+g.cardId,{})])
-//   				,g._url && g.pageSize && rows.length>g.pageSize && _('el-row',{style:"padding-top: 10px"},[h('el-pagination',{class:'float-right', on:{'current-change':this.currentPageChange},props:{background:!0,currentPage:this.currentPage+1, pageSize:g.pageSize,layout:'total, prev, pager, next', total:this.totalCount}})])
-        ]); 
-	}
-};*/

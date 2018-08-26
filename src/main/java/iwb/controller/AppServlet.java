@@ -2335,6 +2335,18 @@ public class AppServlet implements InitializingBean {
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
 	}
+	@RequestMapping("/ajaxOrganizeREST")
+	public void hndAjaxOrganizeREST(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("hndAjaxCallWs"); 
+	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+	    
+		Map m =engine.organizeREST(scd, request.getParameter("serviceName"));
+		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
+		response.getWriter().close();		
+	}
 
 	@RequestMapping("/ajaxCopyTable2Tsdb")
 	public void hndAjaxCopyTable2Tsdb(

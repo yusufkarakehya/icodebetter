@@ -6281,6 +6281,9 @@ public class FrameworkEngine{
 					default:
 						result.put("data", x);
 					}
+					if(GenericUtil.uInt(requestParams.get("_iwb_cfg"))!=0) {
+						result.put("_iwb_cfg_rest_method", wsm);
+					}
 				} catch (JSONException e) {
 					throw new RuntimeException(e);
 				}
@@ -6584,6 +6587,107 @@ public class FrameworkEngine{
 			}
 		}
 		return false;
+	}
+
+	private W5WsMethodParam findWSMethodParamByName(List<W5WsMethodParam> l, String name) {
+		if(GenericUtil.isEmpty(l))return null;
+		for(W5WsMethodParam p:l)if(p.getDsc().equals(name) && p.getOutFlag()!=0){
+			return p;
+		}
+		return null;
+	}
+	
+	public Map organizeREST(Map<String, Object> scd, String serviceName) {
+		Map result = new HashMap();
+		result.put("success", true);
+		try {
+			Map rm = new HashMap();
+			rm.put("_iwb_cfg", 1);
+			Map<String, Object> r = REST(scd, serviceName, rm);
+			W5WsMethod wsm = (W5WsMethod)r.get("_iwb_cfg_rest_method");
+			W5WsMethodParam p = null;
+			List<Object> dataObject = null;
+			if(r.containsKey("data")) {
+				Object data = r.get("data");
+				p = findWSMethodParamByName(wsm.get_params(), "data");
+				if(data!=null && data instanceof List) {
+					if(p==null) {
+						p = new W5WsMethodParam();
+						p.setWsMethodParamId(GenericUtil.getGlobalNextval("iwb.seq_ws_method_param", scd.get("projectId").toString(), (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
+						p.setWsMethodId(wsm.getWsMethodId());
+						p.setDsc("data");
+						p.setOutFlag((short)1);
+						p.setProjectUuid(scd.get("projectId").toString());
+						p.setParamTip((short)10);
+						p.setTabOrder((short)100);
+						dao.saveObject(p);
+						dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
+
+					}
+					dataObject = (List)data;
+				}
+
+				
+			} else for(String key:r.keySet())if(r.get(key) instanceof List){
+				dataObject = (List)r.get(key);
+				p = findWSMethodParamByName(wsm.get_params(), key);
+				if(p==null) {
+					p = new W5WsMethodParam();
+					p.setWsMethodParamId(GenericUtil.getGlobalNextval("iwb.seq_ws_method_param", scd.get("projectId").toString(), (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
+					p.setWsMethodId(wsm.getWsMethodId());
+					p.setDsc(key);
+					p.setOutFlag((short)1);
+					p.setProjectUuid(scd.get("projectId").toString());
+					p.setParamTip((short)10);
+					p.setTabOrder((short)100);
+					dao.saveObject(p);
+					dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
+				}
+			}
+			if(dataObject!=null)for(Object o : dataObject)if(o!=null) {
+				if(o instanceof Map) {
+					short tabOrder = 110;
+					Map<String, Object> om = (Map<String, Object>)o;
+					for(String key:om.keySet())if(findWSMethodParamByName(wsm.get_params(), key)==null) {
+						W5WsMethodParam p2 = new W5WsMethodParam();
+						p2.setWsMethodParamId(GenericUtil.getGlobalNextval("iwb.seq_ws_method_param", scd.get("projectId").toString(), (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
+						p2.setWsMethodId(wsm.getWsMethodId());p2.setParentWsMethodParamId(p.getWsMethodParamId());
+						p2.setDsc(key);
+						p2.setOutFlag((short)1);
+						p2.setProjectUuid(scd.get("projectId").toString());
+						p2.setParamTip((short)1);
+						if(om.get(key)!=null && om.get(key) instanceof List)p2.setParamTip((short)10);
+						p2.setTabOrder(tabOrder);tabOrder+=10;
+						dao.saveObject(p2);
+						dao.saveObject(new W5VcsObject(scd, 1377, p2.getWsMethodParamId()));
+
+						if(om.get(key)!=null && om.get(key) instanceof Map) {
+							short tabOrder2 = (short)(10 * tabOrder);
+							Map<String, Object> om2 = (Map<String, Object>)om;
+							for(String key2:om2.keySet())if(findWSMethodParamByName(wsm.get_params(), key2)==null) {
+								W5WsMethodParam p22 = new W5WsMethodParam();
+								p22.setWsMethodParamId(GenericUtil.getGlobalNextval("iwb.seq_ws_method_param", scd.get("projectId").toString(), (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
+								p22.setWsMethodId(wsm.getWsMethodId());p22.setParentWsMethodParamId(p2.getWsMethodParamId());
+								p22.setDsc(key2);
+								p22.setOutFlag((short)1);
+								p22.setProjectUuid(scd.get("projectId").toString());
+								p22.setParamTip((short)1);
+								if(om2.get(key2)!=null && om2.get(key2) instanceof List)p22.setParamTip((short)10);
+								p22.setTabOrder(tabOrder2);tabOrder2+=10;
+								dao.saveObject(p22);
+								dao.saveObject(new W5VcsObject(scd, 1377, p22.getWsMethodParamId()));
+								
+							}
+						}
+					}
+				}
+				break;
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		return result;
 	}
 
 }
