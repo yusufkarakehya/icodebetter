@@ -760,6 +760,29 @@ class XLazyScriptLoader extends React.Component {
         )
     }
 }
+
+class XFormSMSEmailTemplateList extends React.PureComponent{
+	constructor(props){
+		super(props);
+		this.state={};
+		this.set
+	
+	}
+	render() {
+		return false;
+	/*	let list = this.props.list;
+		return _('div',{className:'hr-text', style:{marginTop:'20px'}},_('h6',null,'SMS / EMail Conversions')),
+		list.map(o=>{
+			return _(Row,{},_(Col,{xl:12}, 
+					
+					_(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-3d switch-primary' }, _(Input,{name:'smsmail-'+o.,checked:?,disabled:?,type:'checkbox', className:'switch-input'},_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}
+					,htmlFor:\"")
+					}
+							.append(dsc).append("\"},_").append(dsc).append(".label))
+			))
+		});*/
+	}
+}
 /**
  * @description
  * used to render tab and show active tab on the full XPage
@@ -856,7 +879,10 @@ class XTabForm extends React.PureComponent{
 					_(Button,{className:'float-right btn-round-shadow mr-1',color:'light'},_('i',{className:'icon-paper-clip'}))
 				),
 				_("hr"),
-			formBody),
+			formBody,
+//			this.props.cfg && this.props.cfg.smsMailTemplateCnt && _("hr"),
+			this.props.cfg && this.props.cfg.smsMailTemplateCnt && _(XFormSMSEmailTemplateList,{list:this.props.cfg.smsMailTemplates})
+			),
 			!viewMode && _(CardFooter, {style:{padding: "1.1rem 1.25rem"}},
 				_(Button,{type:'submit',color:'submit', className:'btn-form mr-1', onClick:onSubmit},' ','Save',' '),
 				' ',
@@ -3209,9 +3235,8 @@ iwb.ui.buildDashboard=function(o){
 	});
 }
 
-
-var XCard extends React.PureComponent {
-	props: ['card','showForm'],
+/*
+class XCard extends React.PureComponent {
 	constructor(props) {
 		super(props);
 		var g = this.card;
@@ -3292,3 +3317,4 @@ var XCard extends React.PureComponent {
         ]); 
 	}
 };
+*/

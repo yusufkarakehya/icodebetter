@@ -381,20 +381,20 @@ public class React16 implements ViewAdapter {
 							s.append("{\"xid\":")
 									.append(fsm.getFormSmsMailId())
 									.append(",\"text\":\"")
-									.append(fsm.getSmsMailTip() == 0 ? "[<b>SMS</b>] "
-											: "[<b>"
+									.append(fsm.getSmsMailTip() == 0 ? "[SMS] "
+											: "["
 													+ (LocaleMsgCache.get2(
 															customizationId,
 															xlocale,
 															"email_upper"))
-													+ "</b>] ")
+													+ "] ")
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											fsm.getDsc()))
-									.append(fsm.getPreviewFlag() != 0 ? " (<i>"
+									.append(fsm.getPreviewFlag() != 0 ? " ("
 											+ (LocaleMsgCache.get2(
 													customizationId, xlocale,
-													"with_preview")) + "</i>)"
+													"with_preview")) + ")"
 											: "")
 									.append("\",\"checked\":")
 									.append(fsm.getSmsMailSentTip() == 1
@@ -458,21 +458,21 @@ public class React16 implements ViewAdapter {
 								s.append("{\"xid\":")
 										.append(fsm.getFormSmsMailId())
 										.append(",\"text\":\"")
-										.append(fsm.getSmsMailTip() == 0 ? "[<b>SMS</b>] "
-												: "[<b>"
+										.append(fsm.getSmsMailTip() == 0 ? "[SMS] "
+												: "["
 														+ (LocaleMsgCache
 																.get2(customizationId,
 																		xlocale,
 																		"email_upper"))
-														+ "</b>] ")
+														+ "] ")
 										.append(GenericUtil.stringToJS(fsm
 												.getDsc()))
-										.append(fsm.getPreviewFlag() != 0 ? " (<i>"
+										.append(fsm.getPreviewFlag() != 0 ? " ("
 												+ (LocaleMsgCache
 														.get2(customizationId,
 																xlocale,
 																"with_preview"))
-												+ "</i>)"
+												+ ")"
 												: "")
 										.append("\",\"checked\":")
 										.append(a != null
