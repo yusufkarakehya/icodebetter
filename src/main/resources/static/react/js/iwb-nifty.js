@@ -818,114 +818,78 @@ class GridCommon extends React.PureComponent {
 }
 /**
  * A component to render Masonry layout
+ * @param {Object} props.masonryStyle - style of the container
+ * @param {Object} props.columnStyle - style of the column
  * @example
- * <XMasonry>{!!this.state.photos && this.state.photos.map(photo =>( <img key={photo.id}  src={photo.url}/> ) )} </XMasonry>
+ * <XMasonry brakePoints={[350, 500, 750]} >{ this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )} </XMasonry>
  */
 class XMasonry extends React.PureComponent {
-	
-	gridRef = null;
-	gridFilledBoundary = [];
-	constructor() {
-		super();
-		this.initArray = (size) => {
-			return Array(size).fill(0)
-		}
-		/**
-		 *  Loop through the gridFilledBoundary
-		 *  Find optimal position (Magic?)
-		 *  Min(y) that satisfies for x to x + element.offsetWidth
-		 *  If y found that satisfies, skip till next y < currentMinY
-		 *  Update gridFilledBoundary
-		 *
-		 * @param {HTMLElement} element
-		 */
-		this.addChild = (element) => {
-			let optimalPosition = {
-				x: 0,
-				y: Math.max(...this.gridFilledBoundary)
-			};
-			const width = element.offsetWidth;
-			for (let x = 0; x < this.gridFilledBoundary.length - width; x++) {
-				const columnHeight = this.gridFilledBoundary[x];
-				// For compact stacking, minimize Y, Early return if columnHeight > foundMinY
-				if (columnHeight >= optimalPosition.y) continue;
-				// Element can fit at given Y co-ordianate
-				if (this.canFit(x, element)) {
-					optimalPosition = {
-						x,
-						y: columnHeight,
-					};
-				}
-			}
-			this.updateGridBoundary(element, optimalPosition);
-			requestAnimationFrame(() => {
-				this.placeElement(element, optimalPosition);
-			})
-		}
-		/**
-		 * Checks if an element can fit at Position(x)
-		 *
-		 * @param {Number} x
-		 * @param {HTMLElement} element
-		 */
-		this.canFit = (x, element) => {
-			const gridFilledBoundary = this.gridFilledBoundary;
-			const width = element.offsetWidth;
-			const y = gridFilledBoundary[x];
-			const portion = gridFilledBoundary.slice(x, x + width);
-			return portion.every(value => value <= y);
-		}
-		this.placeElement = (element, position) => {
-			element.style.top = `${position.y}px`;
-			element.style.left = `${position.x}px`;
-		}
-		this.updateGridBoundary = (element, position) => {
-			const width = element.offsetWidth;
-			const boundaryY = position.y + element.offsetHeight;
-			for (let x = position.x; x < position.x + width; x++) {
-				this.gridFilledBoundary[x] = boundaryY;
-			}
-		}
-		this.layout = () => {
-			if (!this.gridRef) return;
-			this.gridFilledBoundary = this.initArray(this.gridRef.offsetWidth);
-			const children = this.gridRef.children;
-			for (let child of children) { this.addChild(child) }
-		}
-	}
-	componentDidUpdate() { this.layout() }
-	componentDidMount() { 
-		window.addEventListener('resize', this.layout);
-		setTimeout(()=> this.layout(), 1000);
-	}
-	componentWillUnmount() {
-		window.removeEventListener('resize', this.layout);
-	}
-	render() {
-		return (React.createElement("div", {
-					className: "masonry-grid",
-					style: {
-						position: "relative"
-					},
-					ref: node => (this.gridRef = node)
-				},
-				React.Children.map(this.props.children, child =>
-					React.createElement(
-						"div", {
-							className: "grid-item",
-							style: {
-								position: "absolute",
-								transition: "top 400ms cubic-bezier(0.455, 0.03, 0.515, 0.955), left 400ms cubic-bezier(0.455, 0.03, 0.515, 0.955)",
-							}
-						},
-						child
-					)
-				)
-			)
-		);
-	}
-}
+  constructor(props) {
+    super(props);
+    this.state = { columns: 1 };
 
+    this.onResize = () => {
+      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
+      if (columns !== this.state.columns) this.setState({ columns: columns });
+    };
+
+    this.getColumns = w => {
+      return (
+        this.props.brakePoints.reduceRight((p, c, i) => {
+          return c < w ? p : i;
+        }, this.props.brakePoints.length) + 1
+      );
+    };
+
+    this.mapChildren = () => {
+      let col = [];
+      const numC = this.state.columns;
+      for (let i = 0; i < numC; i++) {
+        col.push([]);
+      }
+      return this.props.children.reduce((p, c, i) => {
+        p[i % numC].push(c);
+        return p;
+      }, col);
+    };
+  }
+  componentDidMount() {
+    this.onResize();
+    window.addEventListener("resize", this.onResize);
+  }
+  render() {
+    const masonryStyle = {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignContent: "stretch",
+      width: "100%",
+      margin: "auto",
+      ...this.props.masonryStyle
+    };
+    const columnStyle = {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignContent: "stretch",
+      flexGrow: "1",
+      ... this.props.columnStyle
+    };
+    return React.createElement(
+      "div",
+      { style: masonryStyle, ref: "Masonry" },
+      this.mapChildren().map((col, ci) => {
+        return React.createElement(
+          "div",
+          { style: columnStyle, key: ci },
+          col.map((child, i) => {
+            return React.createElement(React.Fragment, { key: i }, child);
+          })
+        );
+      })
+    );
+  }
+}
 /**
  * XAjaxQueryData - function is used to get data by giving guery id
  * @param {String} props.qui - query id that you want to get data from 
