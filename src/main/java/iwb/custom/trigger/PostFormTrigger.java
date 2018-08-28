@@ -37,7 +37,8 @@ public class PostFormTrigger {
 			break;
 		}
 		W5Project prj = null;
-		if(formResult.getErrorMap()!=null && formResult.getErrorMap().isEmpty() && formResult.getForm()!=null)switch(formResult.getForm().getObjectId()){
+		if(formResult.getErrorMap()!=null && formResult.getErrorMap().isEmpty() && formResult.getForm()!=null
+				&& formResult.getScd()!=null && (Integer)formResult.getScd().get("customizationId")!=0)switch(formResult.getForm().getObjectId()){
 		case	15://table
 			prj = FrameworkCache.getProject(formResult.getScd());
 			if(formResult.getAction()==1 || formResult.getAction()==3){

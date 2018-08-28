@@ -196,7 +196,7 @@ public class ScriptEngine {
         }
       }
     }
-    System.out.println(s);
+    if(FrameworkSetting.debug)System.out.println(s);
     if (scd != null
         && scd.containsKey("customizationId")
         && scd.containsKey("userId")
@@ -258,17 +258,9 @@ public class ScriptEngine {
   public int sqlExecute(String sql) {
     if (scd != null
         && scd.get("customizationId") != null
-        && (Integer) scd.get("customizationId") > 0) {
+        && (Integer) scd.get("customizationId") > 1) {
       String sql2 = sql.toLowerCase(FrameworkSetting.appLocale);
-      if (sql2.contains("iwb.")
-          || sql2.contains("drop")
-          || sql2.contains("delete")
-          || sql2.contains("truncate")
-          || sql2.contains("search_path")
-          || sql2.contains("grant")
-          || sql2.contains("vacuum")
-          || sql2.contains("lock")
-          || sql2.contains("execute")) {
+      if (DBUtil.checkTenantSQLSecurity(sql2)){
         throw new IWBException(
             "security",
             "SQL",
@@ -437,20 +429,20 @@ public class ScriptEngine {
     return mo;
   }
 
-  public Map callWs(String serviceName, NativeObject jsRequestParams) {
-    return callWs(serviceName, jsRequestParams, true);
+  public Map REST(String serviceName, NativeObject jsRequestParams) {
+    return REST(serviceName, jsRequestParams, true);
   }
 
-  public Map callWs(String serviceName, NativeObject jsRequestParams, boolean throwFlag) {
+  public Map REST(String serviceName, NativeObject jsRequestParams, boolean throwFlag) {
     Map result = new HashMap();
     result.put("success", true);
     try {
-      Map m = engine.callWs(scd, serviceName, fromNativeObject2Map(jsRequestParams));
+      Map m = engine.REST(scd, serviceName, fromNativeObject2Map(jsRequestParams));
       if (m != null) {
         if (m.containsKey("errorMsg")) {
           if (throwFlag)
             throw new IWBException(
-                "ws", "Error:CallWs", 0, serviceName, m.get("errorMsg").toString(), null);
+                "ws", "Error:REST", 0, serviceName, m.get("errorMsg").toString(), null);
           else result.put("success", false);
         }
         if (m.containsKey("faultcode") && m.containsKey("faultstring")) {
@@ -470,7 +462,7 @@ public class ScriptEngine {
         result.putAll(m);
       }
     } catch (Exception e) {
-      throw new IWBException("ws", "CallWs", 0, null, "Error: " + serviceName, e);
+      throw new IWBException("ws", "REST", 0, null, "Error: " + serviceName, e);
     }
     return result;
   }

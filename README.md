@@ -16,20 +16,20 @@ iCodeBetter is way powerful than existing low-code platforms. And unlike others 
 ## Table of contents
 
 * [Local setup](#local-setup)
-* [Development guide](#development-guide)
+* [Getting involved](#getting-involved)
 * [Documentation](#documentation)
 
 ## Local setup
 > You can take a look at [detailed instruction](https://github.com/icodebetter/icodebetter/blob/master/.github/detailed_setup.md) as well :bowtie:
 #### Prerequisites
-- Postgres SQL 9.4
+- PostgreSQL
 - Spring Boot
 
 
 #### To set up local development environment: 
 1. Clone the repository
 2. Create a new database 
-3. Restore icb.backup file (this file is in root directory)
+3. Restore icb_db.backup file (this file is in root directory)
 4. Open the project in your IDE
 5. Change database name, username, password in application.properties
 6. Run spring boot application
@@ -38,6 +38,7 @@ iCodeBetter is way powerful than existing low-code platforms. And unlike others 
 ### Next steps
 
 To get familiar with the project and see what it is capable of you can watch introductory and tutorial videos at icodebetter [youtube channel](https://www.youtube.com/channel/UCZk_sRiOY4A0NReyy9Ruf0Q).
+
 
 ## Getting involved
 This is an open source project and we :heart: to build great tools together with community. We have prepared a [contributing](https://github.com/icodebetter/icodebetter/blob/master/.github/CONTRIBUTING.md) guide to help you get started.   

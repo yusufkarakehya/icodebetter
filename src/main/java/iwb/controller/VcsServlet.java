@@ -755,7 +755,7 @@ public class VcsServlet implements InitializingBean {
 		logger.info("hndAjaxVCSClientSynchProject"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	Map m = vcsEngine.vcsClientProjectSynch(scd);
+    	Map m = vcsEngine.vcsClientProjectSynch(scd, request.getParameter("_uuid"));
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}

@@ -129,6 +129,7 @@ function promisLoadException(a, b, c) {
 }
 
 function hideStatusText() {
+	return;
   var c1 = Ext.getCmp("idSouthBox");
   c1._level = 0;
   if (c1.isVisible()) {
@@ -140,6 +141,7 @@ function hideStatusText() {
 }
 
 function showStatusText(txt, level) {
+	return;
   //0:debug, 1:info, 2:warning, 3:error
   var c1 = Ext.getCmp("idSouthBox");
   if (!level) level = 0;
@@ -2062,7 +2064,6 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
       id: "btn_edit_" + xgrid.id,
       tooltip: getLocMsg("js_edit"),
       cls: "x-btn-icon x-grid-edit",
-      ref: "../btnEdit",
       disabled: true,
       showModalWindowFlag: modalflag || false,
       _activeOnSelection: true,
@@ -2074,7 +2075,6 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
       id: "btn_delete_" + xgrid.id,
       tooltip: getLocMsg("js_delete"),
       cls: "x-btn-icon x-grid-delete",
-      ref: "../btnDelete",
       disabled: true,
       _activeOnSelection: true,
       _grid: xgrid,
@@ -2085,7 +2085,6 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
       id: "btn_copy_" + xgrid.id,
       tooltip: getLocMsg("js_copy"),
       cls: "x-btn-icon x-grid-copy-record",
-      ref: "../btnCopy",
       disabled: true,
       showModalWindowFlag: modalflag || false,
       _activeOnSelection: true,
@@ -2124,7 +2123,7 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
         if (xgrid.extraButtons.length == 0) xgrid.extraButtons = undefined;
       }
       xbuttons.push({
-        tooltip: getLocMsg("js_import_from_other_records"),
+//        tooltip: getLocMsg("js_import_from_other_records"),
         cls: "x-btn-icon x-grid-import",
         _activeOnSelection: false,
         _grid: xgrid,
@@ -2161,7 +2160,7 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
         handler: fnShowLog4Delete
       });
     xbuttons.push({
-      tooltip: getLocMsg("js_log"),
+//      tooltip: getLocMsg("js_log"),
       cls: "x-btn-icon icon-log",
       _activeOnSelection: false,
       _grid: xgrid,
@@ -2201,7 +2200,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
   }
   if (xgrid.vcs) {
     xbuttons.push({
-      tooltip: getLocMsg("vcs"),
+//      tooltip: getLocMsg("vcs"),
       cls: "x-btn-icon x-grid-vcs",
       _grid: xgrid,
       menu: fncMnuVcs(xgrid)
@@ -2306,7 +2305,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
     if (xgrid.gridId * 1 != 1082) {
       xbuttons.push({
         id: "btn_attachments_" + xgrid.id,
-        tooltip: getLocMsg("js_iliskili_dosyalar"),
+//        tooltip: getLocMsg("js_iliskili_dosyalar"),
         cls: "x-btn-icon x-grid-attachment",
         disabled: true,
         _activeOnSelection: true,
@@ -2463,7 +2462,7 @@ function addGridExtraButtons(xbuttons, xgrid) {
 
   if (report_menu.length != 0) {
     xgrid.extraButtons.push({
-      tooltip: getLocMsg("js_report"),
+//      tooltip: getLocMsg("js_report"),
       cls: "x-btn-icon x-grid-report",
       _activeOnSelection: false,
       _grid: xgrid,
@@ -2506,7 +2505,7 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
     _grid: xgrid,
     handler: fnExportGridData("txt")
   });
-  if (showMasterDetailReport) {
+  if (false && showMasterDetailReport) {
     xxmenu.push("-");
     xxmenu.push({
       text: "MasterDetail -> " + getLocMsg("js_excele_aktar"),
@@ -2602,7 +2601,7 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
   }
   xbuttons.push({
     id: "btn_reports_" + xgrid.id,
-    tooltip: getLocMsg("reports"),
+//    tooltip: getLocMsg("reports"),
     cls: "x-btn-icon x-grid-pdf",
     _activeOnSelection: false,
     _grid: xgrid,
@@ -2695,7 +2694,7 @@ function addDefaultGridPersonalizationButtons(xbuttons, xgrid) {
 
 function addDefaultPrivilegeButtons(xbuttons, xgrid) {
   if (_scd.administratorFlag || _scd.customizationId == 0) {
-    xbuttons.push(false && xgrid.gridReport ? "-" : "->");
+    xbuttons.push(xgrid.gridReport ? "-" : "->");
     var xxmenu = [],
       bx = false;
     if (_scd.customizationId == 0) {
@@ -2747,7 +2746,7 @@ function addDefaultPrivilegeButtons(xbuttons, xgrid) {
       addDefaultGridPersonalizationButtons(xxmenu, xgrid);
     }
     xbuttons.push({
-      tooltip: getLocMsg("js_ayarlar"),
+//      tooltip: getLocMsg("js_ayarlar"),
       cls: "x-btn-icon x-grid-setting",
       _activeOnSelection: false,
       _grid: xgrid,
@@ -2821,15 +2820,14 @@ function addTab4GridWSearchForm(obj) {
     for (var j = 0; j < mainGrid.menuButtons.length; j++) {
       mainGrid.menuButtons[j]._grid = mainGrid;
     }
-    mainGrid.menuButtons = new Ext.menu.Menu({
+  /*  mainGrid.menuButtons = new Ext.menu.Menu({
       enableScrolling: false,
       items: mainGrid.menuButtons
-    });
+    });*/
     if (1 * _app.toolbar_edit_btn) {
       if (buttons.length > 0) buttons.push("-");
       buttons.push({
         id: "btn_operations_" + mainGrid.id,
-        tooltip: getLocMsg("js_islemler"),
         cls: "x-btn-icon x-grid-menu",
         disabled: true,
         _activeOnSelection: true,
@@ -2839,7 +2837,7 @@ function addTab4GridWSearchForm(obj) {
   }
 
   //    addHelpButton(buttons, mainGrid, 64, mainGrid.extraOutMap.tplId);
-  if (false && mainGrid.gridReport) addDefaultReportButtons(buttons, mainGrid);
+  if (mainGrid.gridReport) addDefaultReportButtons(buttons, mainGrid);
 
   addDefaultPrivilegeButtons(buttons, mainGrid);
 
@@ -2911,7 +2909,7 @@ function addTab4GridWSearchForm(obj) {
         //			height: mainGrid.searchForm.defaultHeight||120,
         autoHeight: true,
         anchor: "100%",
-        collapsible: true,
+        collapsible: true, animate:false,animCollapse : false,
         title: mainGrid.searchForm.name,
         border: false,
         //			tools:searchFormTools,
@@ -3027,7 +3025,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     //refresh buttonu
     buttons.push({
       id: "btn_refresh_" + mainGrid.id,
-      tooltip: getLocMsg("js_refresh"),
+//      tooltip: getLocMsg("js_refresh"),
       iconCls: "x-tbar-loading",
       _activeOnSelection: false,
       _grid: mainGrid,
@@ -3055,7 +3053,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     if (1 * _app.toolbar_edit_btn) {
       if (buttons.length > 0) buttons.push("-");
       buttons.push({
-        tooltip: getLocMsg("js_report"),
+//        tooltip: getLocMsg("js_report"),
         cls: "x-btn-icon icon-report",
         disabled: true,
         _activeOnSelection: true,
@@ -3076,7 +3074,6 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       if (buttons.length > 0) buttons.push("-");
       buttons.push({
         id: "btn_operations_" + mainGrid.id,
-        tooltip: getLocMsg("js_islemler"),
         cls: "x-btn-icon x-grid-menu",
         disabled: true,
         _activeOnSelection: true,
@@ -3087,7 +3084,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   //    if (master_flag && master_flag==1)addHelpButton(buttons,mainGrid, 5, mainGrid.gridId);
   //    else addHelpButton(buttons,mainGrid, 64, mainGrid.extraOutMap.tplId);
 
-  if (false && mainGrid.gridReport) addDefaultReportButtons(buttons, mainGrid);
+  if (mainGrid.gridReport) addDefaultReportButtons(buttons, mainGrid);
   mainGrid.isMainGrid = true;
   addDefaultPrivilegeButtons(buttons, mainGrid);
 
@@ -3162,7 +3159,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
         bodyStyle: "padding:3px",
         autoHeight: true,
         anchor: "100%",
-        collapsible: true,
+        collapsible: true,animate:false,animCollapse : false,
         title: mainGrid.searchForm.name,
         border: false,
         id: "sf_" + (obj.t || Math.random()),
@@ -3282,7 +3279,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       if (detailGrid.hasFilter) {
         if (buttons.length > 0) buttons.push("-");
         buttons.push({
-          tooltip: getLocMsg("js_filtreyi_kaldir"),
+//          tooltip: getLocMsg("js_filtreyi_kaldir"),
           cls: "x-btn-icon x-grid-funnel",
           _grid: detailGrid,
           handler: fnClearFilters
@@ -3306,7 +3303,6 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
           if (buttons.length > 0) buttons.push("-");
           buttons.push({
             id: "btn_operations_" + detailGrid.id,
-            tooltip: getLocMsg("js_islemler"),
             cls: "x-btn-icon x-grid-menu",
             disabled: true,
             _activeOnSelection: true,
@@ -3316,7 +3312,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
 
       //		    addHelpButton(buttons, detailGrid, 5, detailGrid.gridId);
-      if (false && detailGrid.gridReport)
+      if (detailGrid.gridReport)
         addDefaultReportButtons(buttons, detailGrid, true);
       addDefaultPrivilegeButtons(buttons, detailGrid);
 
@@ -5265,7 +5261,6 @@ function addTab4Portal(obj) {
           if (buttons.length > 0) buttons.push("-");
           buttons.push({
             id: "btn_operations_" + detailGrid.id,
-            tooltip: getLocMsg("js_islemler"),
             cls: "x-btn-icon x-grid-menu",
             disabled: true,
             _activeOnSelection: true,
@@ -5273,7 +5268,7 @@ function addTab4Portal(obj) {
           });
         }
       }
-      if (false && detailGrid.gridReport)
+      if (detailGrid.gridReport)
         addDefaultReportButtons(buttons, detailGrid);
       addDefaultPrivilegeButtons(buttons, detailGrid);
 
@@ -5511,7 +5506,6 @@ function prepareDetailGridCRUDButtons(grid, pk, toExtraButtonsFlag) {
         if (buttons.length > 0) buttons.push("-");
         buttons.push({
           id: "btn_operations_" + grid.id,
-          tooltip: getLocMsg("js_islemler"),
           cls: "x-btn-icon x-grid-menu",
           menu: grid.menuButtons
         });
@@ -5582,7 +5576,7 @@ function prepareDetailGridCRUDButtons(grid, pk, toExtraButtonsFlag) {
           if (grid.extraButtons.length == 0) grid.extraButtons = undefined;
         }
         buttons.push({
-          tooltip: getLocMsg("js_diger_kayitlardan_aktar"),
+//          tooltip: getLocMsg("js_diger_kayitlardan_aktar"),
           cls: "x-btn-icon x-grid-import",
           _activeOnSelection: false,
           _grid: grid,
@@ -5590,7 +5584,7 @@ function prepareDetailGridCRUDButtons(grid, pk, toExtraButtonsFlag) {
         });
       } else
         buttons.push({
-          tooltip: getLocMsg("js_diger_kayitlardan_aktar"),
+//          tooltip: getLocMsg("js_diger_kayitlardan_aktar"),
           cls: "x-btn-icon x-grid-import",
           _activeOnSelection: false,
           _grid: grid,
@@ -5612,7 +5606,7 @@ function prepareDetailGridCRUDButtons(grid, pk, toExtraButtonsFlag) {
         buttons.push(grid.extraButtons);
       }
       add_menu();
-      if (false && grid.gridReport) addDefaultReportButtons(buttons, grid);
+      if (grid.gridReport) addDefaultReportButtons(buttons, grid);
       if (!grid.noPrivilegeButtons) addDefaultPrivilegeButtons(buttons, grid);
       grid.tbar = buttons;
     }
@@ -5620,7 +5614,7 @@ function prepareDetailGridCRUDButtons(grid, pk, toExtraButtonsFlag) {
     if (grid.extraButtons && grid.extraButtons.length > 0)
       buttons.push(grid.extraButtons);
     add_menu();
-    if (false && grid.gridReport) addDefaultReportButtons(buttons, grid);
+    if (grid.gridReport) addDefaultReportButtons(buttons, grid);
     if (!grid.noPrivilegeButtons) addDefaultPrivilegeButtons(buttons, grid);
     grid.tbar = buttons;
   }
@@ -5640,7 +5634,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       //		height: mainGrid.searchForm.defaultHeight||120,
       autoHeight: true,
       anchor: "100%",
-      collapsible: true,
+      collapsible: true,animate:false,animCollapse : false,
       title: mainGrid.searchForm.name,
       border: false,
       keys: {
@@ -5735,7 +5729,6 @@ function addTab4DetailGridsWSearchForm(obj) {
           if (buttons.length > 0) buttons.push("-");
           buttons.push({
             id: "btn_operations_" + detailGrid.id,
-            tooltip: getLocMsg("js_islemler"),
             cls: "x-btn-icon x-grid-menu",
             disabled: true,
             _activeOnSelection: true,
@@ -5743,7 +5736,7 @@ function addTab4DetailGridsWSearchForm(obj) {
           });
         }
       }
-      if (false && detailGrid.gridReport)
+      if (detailGrid.gridReport)
         addDefaultReportButtons(buttons, detailGrid);
       addDefaultPrivilegeButtons(buttons, detailGrid);
 

@@ -14,7 +14,7 @@ import iwb.domain.db.M5List;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5Customization;
-import iwb.domain.db.W5DataView;
+import iwb.domain.db.W5Card;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5Grid;
@@ -50,7 +50,7 @@ public class FrameworkCache {
 	final private static Map<String, Map<Integer, W5Grid>> wGrids = new HashMap<String, Map<Integer, W5Grid>>();
 	final private static Map<String, Map<Integer, W5List>> wListViews = new HashMap<String, Map<Integer, W5List>>();
 	final private static Map<String, Map<Integer, M5List>> mListViews = new HashMap<String, Map<Integer, M5List>>();
-	final private static Map<String, Map<Integer, W5DataView>> wDataViews = new HashMap<String, Map<Integer, W5DataView>>();
+	final private static Map<String, Map<Integer, W5Card>> wDataViews = new HashMap<String, Map<Integer, W5Card>>();
 	final private static Map<String, Map<Integer, W5Form>> wForms = new HashMap<String, Map<Integer, W5Form>>();
 	final private static Map<String, Map<Integer, W5GlobalFunc>> wGlobalFuncs = new HashMap<String, Map<Integer, W5GlobalFunc>>();
 	final private static Map<String, Map<Integer, W5Page>> wTemplates = new HashMap<String, Map<Integer, W5Page>>();
@@ -171,7 +171,7 @@ public class FrameworkCache {
 		return map.get(tableId);
 	}
 	
-	public static W5DataView getDataView(Object o, int dataViewId) {
+	public static W5Card getDataView(Object o, int dataViewId) {
 		String projectId = getProjectId(o, "930."+dataViewId);
 		if(!wDataViews.containsKey(projectId)){
 			wDataViews.put(projectId, new HashMap());
@@ -179,7 +179,7 @@ public class FrameworkCache {
 		} else
 			return wDataViews.get(projectId).get(dataViewId);
 	}
-	public static void addDataView(Object o, W5DataView d){
+	public static void addDataView(Object o, W5Card d){
 		int dataViewId = d.getDataViewId();
 		String projectId = getProjectId(o, "930."+dataViewId);
 		//addX((Map)wDataViews, projectId, dataViewId, d);

@@ -16,10 +16,11 @@ body{
 }
 
 .panel-header {
-/*   #5a6279 background: linear-gradient(130deg,#9576d0,#8073c8); /*#9d7cff #797575; #8680dd; #7a62a9 linear-gradient(130deg,#6e7b8e,#625784) rgb(251, 51, 101)*/
-	background: #3f475d;
-    background-image: url(../css/img/pattern.svg) !important;
+/*   #5a6279 background: linear-gradient(130deg,#9576d0,#8073c8); /*#9d7cff #797575; #8680dd; #7a62a9 linear-gradient(130deg,#6e7b8e,#625784) rgb(251, 51, 101)
+background-image: url(../css/img/pattern.svg) !important;
     background-position: right center,center center;
+*/
+    background: #515151;    
 }
     
 .sidebar .sidebar-wrapper [data-toggle="collapse"] ~ div > ul > li.active > a .sidebar-mini-icon, .sidebar .sidebar-wrapper > .nav [data-toggle="collapse"] ~ div > ul > li.active > a .sidebar-normal{
@@ -366,4 +367,36 @@ ul.timeline{
     padding: 0 10px !important;
     background-color: #f7f7f8 !important;
     border-bottom: 1px solid #d2d2d2 !important;
+}
+.el-table th>.cell {
+    white-space: nowrap;
+}
+.card.card-timeline.card-plain{
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.kpi-portlet-val{
+	text-align:center;width:66px;height:66px;font-size: 45px;border-radius: 55px; 
+	/*box-shadow: rgba(0,0,0,.3) 0 2px 15px 1px;*/
+    background: #515151;
+    color: #ffffff;	
+}
+
+
+.timeline-badge{
+	cursor:pointer;
+    transition: all 300ms cubic-bezier(0.34, 1.61, 0.7, 1);
+}
+.timeline-badge:hover{
+	transform:scale(1.1)
+	
+}
+
+.card {
+    border-radius: 0.25rem !important;
+}
+
+.active i.now-ui-icons{
+	color:#2da8ff;
 }

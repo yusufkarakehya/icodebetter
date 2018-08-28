@@ -176,10 +176,10 @@ public class AuthController {
       }
       res.sendRedirect(redirectOnSuccess);
     } catch (IdentityVerificationException e) {
-      e.printStackTrace();
+      if(FrameworkSetting.debug)e.printStackTrace();
       res.sendRedirect(redirectOnFail);
     } catch (JWTVerificationException exception) {
-      exception.printStackTrace();
+    	if(FrameworkSetting.debug)exception.printStackTrace();
       res.sendRedirect(redirectOnFail);
     }
   }
@@ -258,7 +258,7 @@ public class AuthController {
     try {
       JSONObject params = new JSONObject();
       params.put("method", "GET");
-      String token = "xoxp-400071414103-400355743638-409628283425-24e403d0ed1b842f10bcdb28c5ed9434";
+      String token = "<fill yout token>";
       Map<String, Object> scd = UserUtil.getScd(req, "scd-dev", true);
       String email = (String) scd.get("email");
       String url =

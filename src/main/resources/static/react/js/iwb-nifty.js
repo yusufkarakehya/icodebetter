@@ -134,10 +134,8 @@ var iwb = {
     cancel: { icon: "x", hint: "Cancel changes", color: "text-danger" },
     import: { icon: "target", hint: "Import" }
   },
-  logo:
-    '<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>',
-  // logo:'<img src="/images/rabbit-head.png" border=0 style="vertical-align: top;width: 28px;margin-top: -4px;">',
-  //logo:'<svg width="35" height="24" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>',
+//  logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>',
+	logo:'<img src="/images/rabbit-head.png" border=0 style="vertical-align: top;width: 28px;margin-top: -2px;">',
 
   detailSearch: () => false,
   fmtShortDate: x => {
@@ -817,6 +815,191 @@ class GridCommon extends React.PureComponent {
       this.setState({ rows, deletingRows: [] });
     };
   }
+}
+/**
+ * A component to render Masonry layout
+ * @param {Object} props.masonryStyle - style of the container
+ * @param {Object} props.columnStyle - style of the column
+ * @example
+ * <XMasonry brakePoints={[350, 500, 750]} >{ this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )} </XMasonry>
+ */
+class XMasonry extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = { columns: 1 };
+
+    this.onResize = () => {
+      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
+      if (columns !== this.state.columns) this.setState({ columns: columns });
+    };
+
+    this.getColumns = w => {
+      return (
+        this.props.brakePoints.reduceRight((p, c, i) => {
+          return c < w ? p : i;
+        }, this.props.brakePoints.length) + 1
+      );
+    };
+
+    this.mapChildren = () => {
+      let col = [];
+      const numC = this.state.columns;
+      for (let i = 0; i < numC; i++) {
+        col.push([]);
+      }
+      return this.props.children.reduce((p, c, i) => {
+        p[i % numC].push(c);
+        return p;
+      }, col);
+    };
+  }
+  componentDidMount() {
+    this.onResize();
+    window.addEventListener("resize", this.onResize);
+  }
+  render() {
+    const masonryStyle = {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignContent: "stretch",
+      width: "100%",
+      margin: "auto",
+      ...this.props.masonryStyle
+    };
+    const columnStyle = {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignContent: "stretch",
+      flexGrow: "1",
+      ... this.props.columnStyle
+    };
+    return React.createElement(
+      "div",
+      { style: masonryStyle, ref: "Masonry" },
+      this.mapChildren().map((col, ci) => {
+        return React.createElement(
+          "div",
+          { style: columnStyle, key: ci },
+          col.map((child, i) => {
+            return React.createElement(React.Fragment, { key: i }, child);
+          })
+        );
+      })
+    );
+  }
+}
+/**
+ * XAjaxQueryData - function is used to get data by giving guery id
+ * @param {String} props.qui - query id that you want to get data from 
+ * @param {Function} props.middleMan
+ * @param {Symbol} props.children
+ * @example
+ * React.createElement(XAjaxQueryData,{},data=>{ return React.createElement(AnyComponent,{data}......) }
+ */
+class XAjaxQueryData extends React.PureComponent {
+    constructor(props) {
+        super(props)
+        this.state = { data: [] }
+        /**to get data from backend */
+        this.fetch = () => {
+            //todo: build url
+            let self = this;
+            iwb.request({
+                url: 'ajaxQueryData?' + '_qid=' + this.props.qid,
+                successCallback: ({ data }) => {
+                    self.setState({ data: (this.props.middleMan && typeof this.props.middleMan === 'function') ? this.props.middleMan(data) : data });
+                }
+            });
+        };
+    }
+    componentDidMount() { this.fetch() }
+    render() {
+        return _(React.Fragment,{},
+            (this.props && this.props.children && typeof this.props.children === 'function') ? this.props.children(this.state.data) : this.props.children
+        );
+    }
+}
+/**
+ * A function to load script from the CDN or filesystem and apply css
+ * @param {String} props.css - query id that you want to get data from 
+ * @param {Array/Object} props.load - used to define wich script to download see exapmle below
+ * @param {Symbol} props.loading - conponent to show loading indicator while feching scripts from CDN or static file 
+ * @param {Symbol} props.children  
+ * @example
+ *  _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`, load:[{name:'libName',src:'CDN'},{name:'libName',src:'CDN'}]||{name:'libName',src:'CDN'} }, childNode )
+ */
+class XLazyScriptLoader extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: true
+        }
+        props.load === null && console.warn(`provide load props to LazyScriptLoader Component `)
+        this.ListOfScripts = [];
+        this.head = document.head || document.getElementsByTagName('head')[0];
+        this.xscript = document.getElementsByTagName('script')[0];
+        /** METHODS */
+        this.onScriptLoad = () => {
+            var problem = false;
+            this.ListOfScripts.map(nameAndSrc => {
+                if (!window[nameAndSrc.name]) {
+                    problem = true;
+                    console.warn('problem with ${' + nameAndSrc.name + '} script there is no such script on window object')
+                    return null;
+                }
+                return nameAndSrc;
+            })
+            if (!!this.props.load && this.props.load.constructor === Array && this.ListOfScripts.length === this.props.load.length && !problem) {
+                this.setState({ loading: false });
+            } else if (!!this.props.load && this.props.load.constructor === Object && this.ListOfScripts.length === 1 && !problem) { this.setState({ loading: false }) }
+        }
+        this.loadScript = ({ name, src }) => {
+            let script = document.createElement('script');
+            script.id = 'script-' + name;
+            script.type = 'text/javascript'
+            script.async = false
+            script.src = src;
+            this.xscript.parentNode.insertBefore(script, this.xscript);
+            return script;
+        }
+        this.CSSIntoDom = (css = '') => {
+            let style = document.createElement('style');
+            style.type = 'text/css';
+            if (style.styleSheet) { style.styleSheet.cssText = css } else { style.appendChild(document.createTextNode(css)) }
+            this.head.appendChild(style);
+        }
+    }
+    componentDidMount() {
+        if (!!this.props.load && this.props.load.constructor === Array) {
+            // [{name:'Azat',src:'source code'},{name:'Azat',src:'source code'}]
+            this.props.load.map(nameAndSrc => {
+                this.ListOfScripts = [...this.ListOfScripts, nameAndSrc];
+                if (!window[nameAndSrc.name]) {
+                    let script = this.loadScript(nameAndSrc);
+                    script.addEventListener('load', e => this.onScriptLoad())
+                } else this.onScriptLoad()
+                return nameAndSrc;
+            });
+        } else if (!!this.props.load && this.props.load.constructor === Object) {
+            // {name:'Azat',src:'source code'}
+            this.ListOfScripts = [...this.ListOfScripts, this.props.load];
+            if (!window[this.props.load.name]) {
+                let script = this.loadScript(this.props.load);
+                script.addEventListener('load', e => this.onScriptLoad())
+            } else this.onScriptLoad()
+        } else {
+            console.warn(`provide load={name:'Azat',src:'source code'} to LazyScriptLoader`)
+        }
+        this.CSSIntoDom(this.props.css)
+    }
+    render() {
+        return React.createElement(React.Fragment, {},
+            this.state.loading && this.props.loading,
+            !this.state.loading && this.props && this.props.children,
+        )
+    }
 }
 /**
  * @description
@@ -3547,9 +3730,9 @@ class XMainGrid extends GridCommon {
                 onClick: this.openBI
               },
               _("i", { className: "icon-equalizer" })
-            ), //, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})		)
-          grid
-        )
+            ) //, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})		)
+        ),
+        grid
       )
     );
   }
@@ -4372,4 +4555,63 @@ class XForm extends React.Component {
   componentWillUnmount() {
     iwb.forms[this._id] = { ...this.state };
   }
+}
+
+class XGraph extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	componentDidMount() {
+		var dg = this.props.graph;
+        var gid = 'idG'+dg.graphId;
+		iwb.graphAmchart(dg,gid);
+	}
+	render(){
+		return _('div',{style:{width:'100%',height:this.props.props.height||'20vw'},id:'idG'+this.props.graph.graphId})
+	}
+}
+
+iwb.createPortlet=function(o){
+	var name=o.graph||o.grid||o.card||o.query;
+	if(!name)return _('div',null,'not portlet');
+	if(o.query){
+		var q=o.query.data;
+		if(!q || !q.length)return _('div',null,'not data');
+		q=q[0];
+		return _(Card, {className: "card-portlet text-white bg-"+(o.props.color||'primary')},
+				_("i", {className: "big-icon "+(q.icon || "icon-settings")}),
+				_(CardBlock, {className: "pb-0"},
+					_("div", { className: "float-right", style:{ fontSize: "30px", background: "white", padding: "0 13px", borderRadius: "55px", color:'darkorange'}},q.xvalue),
+					_("h1", {className: "mb-0"},q.dsc),
+					_("div",{style:{ height: "25px"}})
+				));
+	}
+	name = name.name;
+	var cmp=null;
+	if(o.graph){
+		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
+				,_("h3", { className: "form-header", style:{fontSize: '1.5rem',padding: '10px 12px 0px', marginBottom:'.5rem'} },name,_("i", {className: "portlet-refresh float-right icon-refresh"}))
+				,_(XGraph,o));
+	} else if(o.grid){
+		o.grid.crudFlags=false;
+		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
+			,_("h3", { className: "form-header", style:{fontSize: '1.5rem',padding: '10px 12px 0px', marginBottom:'.5rem'} },name,_("i", {className: "portlet-refresh float-right icon-refresh"}))
+			,_(XGrid,o.grid));
+	} else if(o.card)cmp='Card';
+	else if(o.query)cmp='KPI Card';
+	return  _(Card, {
+		className: "card-portlet text-white bg-"+o.props.color||'primary'
+		},_(CardBlock, {className: 'card-body'},
+				_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },
+					name),
+				_("hr"),
+			cmp));
+}
+
+iwb.ui.buildDashboard=function(o){
+	if(!o || !o.rows || !o.rows.length)return _('div',null,'No portlets defined');
+	return o.rows.map((rowItem,rowIndex)=>{
+		return _(Row, {key:rowIndex, children:rowItem.map((colItem, colIndex)=> _(Col,colItem.props, iwb.createPortlet(colItem)))});
+		
+	});
 }

@@ -171,7 +171,7 @@ public class RestServlet implements InitializingBean {
 
 						break;
 					case	4://run Rhino
-						response.getWriter().write(ext3_4.serializeDbFunc(engine.executeFunc(scd, wsm.getObjectId(), requestParams, (short)1)).toString());
+						response.getWriter().write(ext3_4.serializeGlobalFunc(engine.executeFunc(scd, wsm.getObjectId(), requestParams, (short)1)).toString());
 						response.getWriter().close();
 						break;
 					case	19: //run Query

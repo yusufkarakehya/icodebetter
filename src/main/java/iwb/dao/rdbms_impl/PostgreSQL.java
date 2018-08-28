@@ -52,7 +52,7 @@ import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConversionCol;
 import iwb.domain.db.W5Customization;
-import iwb.domain.db.W5DataView;
+import iwb.domain.db.W5Card;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5Email;
@@ -102,7 +102,7 @@ import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5DataViewResult;
+import iwb.domain.result.W5CardResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GridResult;
@@ -1154,7 +1154,7 @@ public class PostgreSQL extends BaseDAO {
     					m2.put(qp.getExpressionDsc(), requestParams.get(qp.getDsc()));
     				}
     				StringBuilder rc2 = new StringBuilder();
-    				rc2.append("function _x_(x){\nreturn {").append(lookupQueryResult.getQuery().getSqlSelect()).append("\n}}\nvar result=[], q=$iwb.callWs('")
+    				rc2.append("function _x_(x){\nreturn {").append(lookupQueryResult.getQuery().getSqlSelect()).append("\n}}\nvar result=[], q=$iwb.REST('")
     				  .append(wsm.get_ws().getDsc()+"."+wsm.getDsc()).append("',")
     				  .append(GenericUtil.fromMapToJsonString2(m2)).append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc()).append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
     				executeQueryAsRhino(lookupQueryResult, rc2.toString());
@@ -1480,22 +1480,22 @@ public class PostgreSQL extends BaseDAO {
 	}
 
 
-	public W5DataViewResult getDataViewResult(Map<String, Object> scd, int dataViewId, Map<String,String> requestParams, boolean noSearchForm) {
-		W5DataViewResult dr = new W5DataViewResult(dataViewId);
+	public W5CardResult getDataViewResult(Map<String, Object> scd, int dataViewId, Map<String,String> requestParams, boolean noSearchForm) {
+		W5CardResult dr = new W5CardResult(dataViewId);
 		String projectId =  FrameworkCache.getProjectId(scd, "930."+dataViewId);
 		dr.setRequestParams(requestParams);
 		dr.setScd(scd);
 
 		if(FrameworkSetting.preloadWEngine!=0){
-			dr.setDataView(FrameworkCache.getDataView(projectId,dataViewId));
+			dr.setCard(FrameworkCache.getDataView(projectId,dataViewId));
 		}
-		if(dr.getDataView()==null){
+		if(dr.getCard()==null){
 			loadDataView(dr);
-			if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.addDataView(projectId, dr.getDataView());
+			if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.addDataView(projectId, dr.getCard());
 		}
 		//search Form
-		if(!noSearchForm && dr.getDataView().get_searchFormId()!=0){
-			W5FormResult	searchForm = getFormResult(scd, dr.getDataView().get_searchFormId(), 2, requestParams);
+		if(!noSearchForm && dr.getCard().get_searchFormId()!=0){
+			W5FormResult	searchForm = getFormResult(scd, dr.getCard().get_searchFormId(), 2, requestParams);
 			initializeForm(searchForm, false);
 			loadFormCellLookups(dr.getScd(), searchForm.getFormCellResults(), dr.getRequestParams(), null);
 			dr.setSearchFormResult(searchForm);
@@ -1503,10 +1503,10 @@ public class PostgreSQL extends BaseDAO {
 		return dr;
 	}
 
-	private void loadDataView(W5DataViewResult dr) {
+	private void loadDataView(W5CardResult dr) {
 		String projectId =  FrameworkCache.getProjectId(dr.getScd(), "930."+dr.getDataViewId());
-		W5DataView d = (W5DataView)getCustomizedObject("from W5DataView t where t.dataViewId=? and t.projectUuid=?", dr.getDataViewId(), projectId, "DataView"); // ozel bir client icin varsa
-		dr.setDataView(d);
+		W5Card d = (W5Card)getCustomizedObject("from W5Card t where t.dataViewId=? and t.projectUuid=?", dr.getDataViewId(), projectId, "DataView"); // ozel bir client icin varsa
+		dr.setCard(d);
 
 		W5Query query = null;
 		if(FrameworkSetting.preloadWEngine!=0){
@@ -1522,7 +1522,7 @@ public class PostgreSQL extends BaseDAO {
 		} else
 			d.set_query(query);
 
-		d.set_mainTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
+		d.set_crudTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
 
 
 		Map<Integer, W5QueryField> fieldMap = new HashMap<Integer, W5QueryField>();
@@ -2829,7 +2829,7 @@ public class PostgreSQL extends BaseDAO {
 	        			rs = stmt.executeQuery();
 	        			ResultSetMetaData meta = rs.getMetaData();
 	        			Map<String, W5TableField> fieldMap = new HashMap<String, W5TableField>();
-	        			W5Table t = FrameworkCache.getTable(0, query.getMainTableId());
+	        			W5Table t = FrameworkCache.getTable(scd, query.getMainTableId());
 	        			if(t!=null)for(W5TableField f:t.get_tableFieldList()){
 	        				fieldMap.put(f.getDsc().toLowerCase(), f);
 	        			}
@@ -3896,8 +3896,8 @@ public class PostgreSQL extends BaseDAO {
 		boolean multiKey = false;
 		boolean cusFlag = false;
 		if(t.get_tableParamList().size()>1){
-			if(!t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
-				for(W5TableParam tp:t.get_tableParamList())if(!t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
+			if(!t.get_tableParamList().get(1).getExpressionDsc().equals("project_uuid")){
+				for(W5TableParam tp:t.get_tableParamList())if(!t.get_tableParamList().get(1).getExpressionDsc().equals("project_uuid")){
 					if(!multiKey){
 						multiKey = true;
 						continue;
@@ -3909,8 +3909,8 @@ public class PostgreSQL extends BaseDAO {
 		detailSql+=" from " + t.getDsc()
 		+ " x where ";
 		if(cusFlag){
-			detailSql+="x.customization_id=? AND ";
-			sqlParams.add(scd.get("customizationId"));
+			detailSql+="x.project_uuid=? AND ";
+			sqlParams.add(scd.get("projectId"));
 		}
 		detailSql+="exists(select 1 from " + mt.getDsc()
 		+ " q where q." + masterFieldDsc +" = x." + detailFieldDsc //detail ile iliski
@@ -3939,7 +3939,7 @@ public class PostgreSQL extends BaseDAO {
 		if(rl!=null)for(Object o:rl){
 			if(multiKey){
 				int qi=0;
-				for(W5TableParam tp:t.get_tableParamList())if(!t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id")){
+				for(W5TableParam tp:t.get_tableParamList())if(!t.get_tableParamList().get(1).getExpressionDsc().equals("project_uuid")){
 					requestParams.put(tp.getDsc(), ((Object[])o)[qi++].toString());
 				}
 			} else
@@ -3976,7 +3976,7 @@ public class PostgreSQL extends BaseDAO {
 		sql.replace(sql.length()-1, sql.length(), " from "+table.getDsc()+"  t where");
 		for(W5TableParam x: table.get_tableParamList()){
     		sql.append(" t."+x.getExpressionDsc()+"= ? and");
-    		if(x.getExpressionDsc().equals("customization_id")) lp.add(customizationId);
+    		if(x.getExpressionDsc().equals("project_uuid")) lp.add(scd.get("projectId"));
     	}
 		sql.replace(sql.length()-3,sql.length(),"");
 
@@ -4166,9 +4166,9 @@ public class PostgreSQL extends BaseDAO {
 								newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 								.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 								.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-								if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-									newSub.append(" AND y").append(isss).append(".customization_id=?");
-									params.add(scd.get("customizationId"));
+								if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+									newSub.append(" AND y").append(isss).append(".project_uuid=?");
+									params.add(scd.get("projectId"));
 									break;
 								}
 
@@ -4232,7 +4232,7 @@ public class PostgreSQL extends BaseDAO {
 		List<Object> params = new ArrayList();
 		sql.append("select ");
 		int field_cnt=1;
-		List<W5TableFieldCalculated> ltfc = find("from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? order by t.tabOrder", scd.get("projectId"), tableId);
+		List<W5TableFieldCalculated> ltfc = find("from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? order by t.tabOrder", FrameworkCache.getProjectId(scd.get("projectId"),"15."+tableId), tableId);
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		for(int bas = tmp.indexOf("${"); bas>=0; bas=tmp.indexOf("${",bas+2)){
 			if(bas>0 && tmp.charAt(bas-1)=='$')continue;
@@ -4339,9 +4339,9 @@ public class PostgreSQL extends BaseDAO {
 								newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 								.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 								.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-								if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-									newSub.append(" AND y").append(isss).append(".customization_id=?");
-									params.add(scd.get("customizationId"));
+								if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+									newSub.append(" AND y").append(isss).append(".project_uuid=?");
+									params.add(scd.get("projectId"));
 									break;
 								}
 
@@ -4393,12 +4393,9 @@ public class PostgreSQL extends BaseDAO {
 		if(field_cnt>1){
 			sql.append("1 from ").append(t.getDsc()).append(" x where x.").append(t.get_tableFieldList().get(0).getDsc()).append("=?");
 			params.add(tablePk);
-			if(t.get_tableFieldList().size()>1 && (t.getTableId()!=338))for(W5TableField tf2:t.get_tableFieldList())if(tf2.getDsc().equals("customization_id")){
-				sql.append(" AND x.customization_id=?");
-				if (requestParams.get("tcustomization_id")!=null)
-					params.add(requestParams.get("tcustomization_id"));
-				else
-					params.add(scd.get("customizationId"));
+			if(t.get_tableFieldList().size()>1 && (t.getTableId()!=338))for(W5TableField tf2:t.get_tableFieldList())if(tf2.getDsc().equals("project_uuid")){
+				sql.append(" AND x.project_uuid=?");
+				params.add(scd.get("projectId"));
 				break;
 			}
 			qres = runSQLQuery2Map(sql.toString(), params, null);
@@ -4637,8 +4634,9 @@ public class PostgreSQL extends BaseDAO {
 			script = sc.toString();
 
 			cx.evaluateString(scope, script, null, 1, null);
-			if(scope.has("result", scope)){
-				return scope.get("result", scope);
+			if(GenericUtil.isEmpty(result))result="result";
+			if(scope.has(result, scope)){
+				return scope.get(result, scope);
 			}
 			return null;
 
@@ -5255,7 +5253,8 @@ public class PostgreSQL extends BaseDAO {
 					} else {
 						s.append(f.getDsc()).append(",");
 						s2.append("?,");
-						try {
+						if(f.getDsc().equals("project_uuid"))p.add(scd.get("projectId"));
+						else try {
 							if(o.has(f.getDsc())){
 								p.add(GenericUtil.getObjectByControl((String)o.get(f.getDsc()), f.getParamTip()));
 							} else
@@ -5374,6 +5373,7 @@ public class PostgreSQL extends BaseDAO {
 			if(tfId==0){
 				String fieldName = ((String)m.get("column_name")).toLowerCase(FrameworkSetting.appLocale);
 				int tableFieldId = GenericUtil.getGlobalNextval("iwb.seq_table_field", projectUuid, userId, customizationId);
+				boolean sessField = fieldName.equals("customization_id") || fieldName.equals("project_uuid") ||fieldName.equals("oproject_uuid");
 				int rq = executeUpdateSQLQuery("insert into iwb.w5_table_field "
 						+ "(table_field_id, table_id, dsc, field_tip, not_null_flag, max_length, tab_order, insert_user_id, version_user_id, customization_id, project_uuid, source_tip, default_value, can_update_flag, can_insert_flag, copy_source_tip, default_control_tip, default_lookup_table_id, oproject_uuid) values"
 						+ "(?             , ?       , ?  , ?        , ?            , ?         , ?        , ?             , ?              , ?               , ?           , ?         , ?            , ?              , ?              , ?              , ?                  , ?                      , ?)"
@@ -5382,11 +5382,11 @@ public class PostgreSQL extends BaseDAO {
 						((String)m.get("is_nullable")).equals("YES") ? 0 : 1,
 						xlen==0 ? 0 : (xlen==-1 ? GenericUtil.uInt(m.get("character_maximum_length")): xlen),
 						tabOrder, userId, userId, customizationId, projectUuid,
-						fieldName.equals("customization_id") ? 2 : (tabOrder==1 ? 4:1),
+						sessField ? 2 : (tabOrder==1 ? 4:1),
 						fieldName.endsWith("_flag") ? "0" : (fieldName.equals("customization_id") ? "customizationId": (tabOrder == 1 ? "nextval('seq_"+tableName+"')":null)),
 						GenericUtil.hasPartInside2("customization_id,version_no,insert_user_id,insert_dttm,version_user_id,version_dttm", fieldName) || tabOrder==1 ? 0:1,
 						GenericUtil.hasPartInside2("version_no,insert_user_id,insert_dttm,version_user_id,version_dttm", fieldName) ? 0:1,
-						fieldName.equals("customization_id") ? 2 : (tabOrder==1 ? 4:6),
+						sessField ? 2 : (tabOrder==1 ? 4:6),
 						GenericUtil.hasPartInside2("insert_user_id,version_user_id", fieldName) ? 10: 0,GenericUtil.hasPartInside2("insert_user_id,version_user_id", fieldName) ? 336: 0, projectUuid);
 				if(vcs)saveObject(new W5VcsObject(scd, 16, tableFieldId));
 
@@ -5398,9 +5398,9 @@ public class PostgreSQL extends BaseDAO {
 						+ " version_no      = version_no+1, "
 						+ " not_null_flag =  ?, "
 						+ " max_length =  ? "
-						+ " where table_field_id =  ? AND customization_id=?  AND project_uuid=?",
+						+ " where table_field_id =  ? AND  project_uuid=?",
 						tabOrder, userId, ((String)m.get("is_nullable")).equals("YES") ? 0 : 1, xlen==0 ? 0 : (xlen==-1 ? GenericUtil.uInt(m.get("character_maximum_length")): xlen),
-								tfId, customizationId, projectUuid);
+								tfId,  projectUuid);
 				if(vcs)makeDirtyVcsObject(scd, 16, tfId);
 			}
 		}
@@ -5410,9 +5410,9 @@ public class PostgreSQL extends BaseDAO {
 				+ "version_user_id = ?, "
 				+ "version_dttm    = LOCALTIMESTAMP, "
 				+ "version_no      = version_no+1 "
-				+ "where table_id = ?  AND tab_order > 0 AND customization_id=? AND project_uuid=? "
+				+ "where table_id = ?  AND tab_order > 0  AND project_uuid=? "
 				+ " AND (lower(dsc) not in (SELECT lower(q.COLUMN_NAME) from information_schema.columns q where q.table_name = ? and q.table_schema = ?))",
-				userId, tableId, customizationId, projectUuid, tableName, schema);
+				userId, tableId, projectUuid, tableName, schema);
 
 		return true;
 
@@ -6045,7 +6045,7 @@ public class PostgreSQL extends BaseDAO {
 			m2.put(qp.getExpressionDsc(), requestParams.get(qp.getDsc()));
 		}
 		StringBuilder rc = new StringBuilder();
-		rc.append("function _x_(x){\nreturn {").append(queryResult.getQuery().getSqlSelect()).append("\n}}\nvar result=[], q=$iwb.callWs('")
+		rc.append("function _x_(x){\nreturn {").append(queryResult.getQuery().getSqlSelect()).append("\n}}\nvar result=[], q=$iwb.REST('")
 		  .append(wsm.get_ws().getDsc()+"."+wsm.getDsc()).append("',")
 		  .append(GenericUtil.fromMapToJsonString2(m2)).append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc()).append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
 		executeQueryAsRhino(queryResult, rc.toString());
@@ -6403,9 +6403,9 @@ public class PostgreSQL extends BaseDAO {
 							newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 							.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 							.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-								newSub.append(" AND y").append(isss).append(".customization_id=?");
-								params.add(scd.get("customizationId"));
+							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+								newSub.append(" AND y").append(isss).append(".project_uuid=?");
+								params.add(scd.get("projectId"));
 								break;
 							}
 
@@ -6579,7 +6579,7 @@ public class PostgreSQL extends BaseDAO {
 				default:
 					for(Map m:l){
 						Object o2 = m.get("id");
-						m.put("dsc", o2.toString());
+						m.put("dsc", o2==null ? "":o2.toString());
 
 					}
 				}
@@ -6780,8 +6780,8 @@ public class PostgreSQL extends BaseDAO {
 							newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 							.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 							.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-								newSub.append(" AND y").append(isss).append(".customization_id=${scd.customizationId}");
+							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+								newSub.append(" AND y").append(isss).append(".project_uuid='${scd.projectId}'");
 								break;
 							}
 
@@ -7071,8 +7071,8 @@ public class PostgreSQL extends BaseDAO {
 							newSub.append(" from ").append(st.getDsc()).append(" y").append(isss)
 							.append(" where y").append(isss).append(".").append(st.get_tableFieldList().get(0).getDsc())
 							.append("=").append(isss==0 ? ("x."+sss[isss]):newSub2);
-							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("customization_id")){
-								newSub.append(" AND y").append(isss).append(".customization_id=${scd.customizationId}");
+							if(st.get_tableFieldList().size()>1)for(W5TableField wtf :st.get_tableFieldList())if(wtf.getDsc().equals("project_uuid")){
+								newSub.append(" AND y").append(isss).append(".project_uuid='${scd.projectId}'");
 								break;
 							}
 
@@ -7259,7 +7259,7 @@ public class PostgreSQL extends BaseDAO {
 		}
 
 		executeUpdateSQLQuery("update iwb.w5_vcs_object x "
-				+ "set vcs_object_status_tip=(select case when z.vcs_object_status_tip in (3,8) then z.vcs_object_status_tip when x.vcs_commit_id!=2 AND z.vcs_commit_id!=x.vcs_commit_id then 1 else z.vcs_object_status_tip end from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk),"
+				+ "set vcs_object_status_tip=(select case when z.vcs_object_status_tip in (3,8) then z.vcs_object_status_tip when x.vcs_commit_id!=2 AND z.vcs_commit_id!=x.vcs_commit_id then 1 else x.vcs_object_status_tip end from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk),"
 				+ "vcs_commit_id=(select z.vcs_commit_id from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk) "
 				+ "where x.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk)", srcProjectId, srcProjectId, dstProjectId, srcProjectId);
 

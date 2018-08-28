@@ -234,7 +234,7 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 }
 
 .icon-locale {
-    background-image: url(images/emoticon-16.png) !important;
+    background-image: url(images/i18n-16.png) !important;
 }
 
 .icon-mobile {
@@ -995,7 +995,7 @@ header .phone .theme-switch a+a {
 }
 .x-form-field-wrap .x-form-lang-trigger {
 	cursor:pointer;
-	background-image: url(images/lang-trigger.png);
+	background-image: url(images/trigger-i18n.png);
 }
 
 .x-form-field-wrap .x-form-add-trigger {

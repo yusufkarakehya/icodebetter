@@ -530,7 +530,7 @@ public class PreviewServlet implements InitializingBean {
 			// int dbFuncId= GenericUtil.uInt(request, "_did");
 			W5GlobalFuncResult dbFuncResult = engine.postEditGridGlobalFunc(scd, -formId, dirtyCount,
 					GenericUtil.getParameterMap(request), "");
-			response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
+			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		} else {
 			int conversionId = GenericUtil.uInt(request, "_cnvId");
 			if (conversionId > 0) {
@@ -588,7 +588,7 @@ public class PreviewServlet implements InitializingBean {
 				(short) 1);
 
 		response.setContentType("application/json");
-		response.getWriter().write(getViewAdapter(scd, request).serializeDbFunc(dbFuncResult).toString());
+		response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		response.getWriter().close();
 
 	}
@@ -1466,7 +1466,7 @@ public class PreviewServlet implements InitializingBean {
 		logger.info("hndAjaxCallWs"); 
 	    Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 	    
-		Map m =engine.callWs(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
+		Map m =engine.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}

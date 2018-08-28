@@ -26,7 +26,7 @@ var RouteBreadCrumb =  Vue.component('route-breadcrumb', {
       <router-link :to="{name: route.name}" v-if="index < $route.matched.length - 1" class="breadcrumb-link">
         {{ route.name }}
       </router-link>
-      <span v-else class="breadcrumb-current">{{route.name}}</span>
+      <span v-else class="breadcrumb-current" style="vertical-align: middle;">{{route.name}}</span>
     </BreadCrumbItem>
   </bread-crumb>`,components: {
       BreadCrumb,

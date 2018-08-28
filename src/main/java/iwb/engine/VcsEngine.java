@@ -3040,15 +3040,15 @@ public class VcsEngine {
 			newProjectId = UUID.randomUUID().toString();
 			String schema = "c"+GenericUtil.lPad("1", 5, '0')+"_"+newProjectId.replace('-', '_');
 			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid, "
-					+ " ui_web_frontend_tip, ui_main_template_id, session_query_id, authentication_func_id, ui_login_template_id)"
+					+ " ui_web_frontend_tip, ui_main_template_id, session_query_id, authentication_func_id, ui_login_template_id, insert_user_id)"
 					+ " values (?,1,?, ?, ?,?,?,?, ?,"
-					+ "?, ?, ?, ?, ?)", newProjectId, po.getDsc(), 1, schema, "http://81.214.24.77:8084/app/","app.store", "1", projectId
-					, po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId());
+					+ "?, ?, ?, ?, ?, ?)", newProjectId, po.getDsc(), 0, schema, "http://81.214.24.77:8084/app/","app.store", "1", projectId
+					, po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId(), scd.get("userId"));
 			dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 		} else { 
 			newProjectId = cnts.get(0)[2].toString();
 			dao.executeUpdateSQLQuery("update iwb.w5_project"
-					+ " set dsc=?,ui_web_frontend_tip=?, ui_main_template_id=?, session_query_id=?, authentication_func_id=?, ui_login_template_id=?"
+					+ " set dsc=?,ui_web_frontend_tip=?, ui_main_template_id=?, session_query_id=?, authentication_func_id=?, ui_login_template_id=?, project_status_tip=0"
 					+ " where project_uuid=?"
 					, po.getDsc(), po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId(),
 					newProjectId);
@@ -3321,11 +3321,19 @@ public class VcsEngine {
 		return b;
 	}
 	
-	
-	public Map vcsClientProjectSynch(Map<String, Object> scd) {
+	// if newProjectId is null, then all projects will be syncronized
+	public Map vcsClientProjectSynch(Map<String, Object> scd, String newProjectId) {
 		int customizationId = (Integer)scd.get("ocustomizationId");
 		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.getProject(projectUuid);
+		W5Project po = FrameworkCache.getProject(projectUuid), npo = null;
+		if(!GenericUtil.isEmpty(newProjectId)){
+			npo = (W5Project)dao.getCustomizedObject("from W5Project t where 1=? AND t.projectUuid=?", 1, newProjectId, null);
+			if(npo!=null){
+				if(npo.getCustomizationId()!=customizationId){
+					throw new IWBException("vcs","vcsClientProjectSynch:Access Control", 0, null, "Forbiedd Project", null);
+				}
+			}
+		}
 
 		Map result = new HashMap();
 		result.put("success", false);
@@ -3335,10 +3343,11 @@ public class VcsEngine {
 			params.put("u", po.getVcsUserName());
 			params.put("p", po.getVcsPassword());params.put("c", customizationId);params.put("r", po.getProjectUuid());
 			
-			List<Object> p = new ArrayList(); p.add(customizationId);
-			List<Map> lm = dao.executeSQLQuery2Map("select * from iwb.w5_project x where x.customization_id=?", p);
+			List<Object> p = new ArrayList(); p.add(npo!=null ? npo.getProjectUuid() : customizationId);
+			List<Map> lm = GenericUtil.isEmpty(newProjectId) ? dao.executeSQLQuery2Map("select * from iwb.w5_project x where x.customization_id=?", p) 
+					: (npo!=null ? dao.executeSQLQuery2Map("select * from iwb.w5_project x where x.project_uuid=?", p) : null);
 			JSONArray data = new JSONArray();
-			for(Map m:lm)data.put(GenericUtil.fromMapToJSONObject(m));
+			if(lm!=null)for(Map m:lm)data.put(GenericUtil.fromMapToJSONObject(m));
 			params.put("objects", data);
 			String url=po.getVcsUrl();//"http://localhost:8080/q1/app/";//
 			if(!url.endsWith("/"))url+="/";
@@ -3351,8 +3360,9 @@ public class VcsEngine {
 					json = new JSONObject(s);
 					if(json.get("success").toString().equals("true")){
 						JSONArray serverProjects = json.getJSONArray("data");
-						if(serverProjects!=null && serverProjects.length()>0)for(int qi=0;qi< serverProjects.length();qi++){
+						if(npo==null && serverProjects!=null && serverProjects.length()>0)for(int qi=0;qi< serverProjects.length();qi++){
 							JSONObject prj = serverProjects.getJSONObject(qi);
+							if(!GenericUtil.isEmpty(newProjectId) && !prj.getString("project_uuid").equals(newProjectId))continue;
 							dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
 									+ " values (?,?,?, ?, ?,?,?,?, ?)", prj.getString("project_uuid"), customizationId, prj.getString("dsc"), GenericUtil.getSafeObject(prj,"access_users"),prj.getString("rdbms_schema"),GenericUtil.getSafeObject(prj,"vcs_url"),GenericUtil.getSafeObject(prj,"vcs_user_name"), GenericUtil.getSafeObject(prj,"vcs_password"), prj.getString("oproject_uuid"));
 							dao.executeUpdateSQLQuery("create schema if not exists "+prj.getString("rdbms_schema") + " AUTHORIZATION iwb");

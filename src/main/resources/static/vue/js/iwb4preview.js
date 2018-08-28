@@ -687,3 +687,263 @@ Vue.component('time-line-item', {
       }
     }
 });
+
+
+
+
+var XGraph = Vue.component('xgraph', {
+	props: ['o'],
+	data(){
+		return {};
+	},
+	mounted() {
+		var dg = this.o.graph;
+        var gid = 'idG'+dg.graphId;
+		parent.iwb.graphAmchart(dg,gid);
+	},
+	render(h){
+		return h('div',{style:"width:100%;height:"+(this.o.props.height||'20vw'),attrs:{id:'idG'+this.o.graph.graphId}})
+	}
+});
+
+var XPortlet=Vue.component('xportlet',{
+	props: ['o'],
+	data(){
+		return {};
+	},
+	render(h){
+		var o = this.o;
+		var name=o.graph||o.grid||o.card||o.query;
+		if(!name)return h('div',null,'not portlet');
+		if(o.query){
+			var q=o.query.data;
+			if(!q || !q.length)return h('div',null,'not data');
+			q=q[0];
+			return h('card', {class: "card-portlet bg-white text-"+(o.props.color||this.o.props.color||'success')},[
+				//h("i", {class: "big-icon "+(q.icon || "icon-settings")}),
+				h('card-block', {class: "pb-0"},[
+					h("div", { class: "kpi-portlet-val float-right"},q.xvalue),
+					h("h1", {class: "mb-0",style:"font-size:32px;color: gray;"},q.dsc),
+					h("hr",{style:"border-color: rgb(238, 238, 238);width: 70%;position: absolute;top: 50px;"}),
+					h("div",{style:"color: #aaa;font-size: .9rem;margin-top:22px"},o.props.longDsc||"updated a minute ago")]
+				)]);
+		}
+		name = name.name;
+		var cmp=null;
+		if(o.graph){
+			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
+			,[h("h3", { class: "form-header", style:"font-size:1.5rem;padding: 0px 2px 0px;margin-bottom:0px" },name)
+			  ,h("div", { style: "position: absolute;top: 20px;right: 20px;"},[h('i',{class:'now-ui-icons loader_refresh'})])
+				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
+					,h(XGraph,{props:{o:o}})]);
+		} else if(o.grid){
+			o.grid.crudFlags=false;
+			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:''),style:o.props.height?"height:"+o.props.height:""}
+			,[h("h3", { class: "form-header", style:"font-size:1.5rem;padding: 0px 2px 0px;margin-bottom:0px " },name)
+			  ,h("div", { style: "position: absolute;top: 20px;right: 20px;"},[h('i',{class:'now-ui-icons loader_refresh'})])
+				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
+				,h(XGrid,{props:o})]);
+		} else if(o.card){
+			return h('card', {class: "card-portlet "+(o.props.color?'bg-'+o.props.color:''),style:o.props.height?"height:"+o.props.height:""}
+			,[h("h3", { class: "form-header", style:"font-size:1.5rem;padding: 0px 2px 0px;margin-bottom:0px " },name)
+			  ,h("div", { style: "position: absolute;top: 20px;right: 20px;"},[h('i',{class:'now-ui-icons loader_refresh'})])
+				,o.props.longDsc && h('p',{style:"color:gray"},o.props.longDsc)
+				,h(XCard,{props:o})]);
+		} else return h('div',null,'not recognized portlet');
+		
+	}
+});
+
+function props2css(x){
+	if(!x)return '';
+	var s='';
+	for(var k in x)switch(k){
+	case	'xs':case	'sm':case	'md':case	'lg':case	'xl':
+		s+=' col-'+k+'-'+x[k];
+	}
+	return s;
+	
+}
+iwb.ui.buildDashboard=function(o){
+	return {
+		data() {
+		  return {}
+		}, 
+		render(h){
+			if(!o || !o.rows || !o.rows.length)return h('div',{class:"container-fluid", style:""},[h('div',{class:"row"},[h('div',{class:"col-12"},[h('div',{},'No portlets defined')])])]); 
+
+			return h('div',{class:"container-fluid", style:""}, o.rows.map((rowItem)=>{
+				return h('div',{class:"row"}, rowItem.map((colItem)=> h('div',{class:props2css(colItem.props)}, [h(XPortlet,{props:{o:colItem}})])));//iwb.createPortlet(colItem)
+			}));
+		}
+	}
+}
+
+
+var XCard = Vue.component('x-card', {
+	props: ['card','showForm'],
+	data(){
+		var g = this.card;
+		 return {loading:true,
+		        rows: [], totalCount: 0, 
+		        lastQuery:'', currentPage:0, pageSize:g.pageSize
+		  }
+	},
+    methods: {
+		onNewRecord(e, card, row) {
+		    var g = this.card;
+		    if(g.crudFlags && g.crudFlags.insert && this.showForm){
+		    	var url = 'showForm?a=2&_fid='+g.crudFormId;
+				if(g._postInsert){
+					url=g._postInsert(row||{}, url, card);
+					if(!url)return;
+				}
+				this.showForm(url,this.loadData);
+		    }
+		},
+		dblClick(row){
+//			this.$message({type: 'success',message: 'Your email is:'});
+		    var g = this.card;
+		    if(g.crudFlags && g.crudFlags.edit && this.showForm){
+		    	var pkz = buildParams2(this.card.pk,row);
+		    	var url = 'showForm?a=1&_fid='+this.card.crudFormId+pkz;
+		    	if(this.card._postUpdate){
+		    		var url=this.card._postUpdate(row, url, this.card);
+		    		if(!url)return;
+		    	}
+	    	  this.showForm(url,this.loadData);
+		    }			  
+		},
+		queryString() {
+			let queryString = this.card._url;
+			if(this.pageSize)queryString+='&limit='+this.pageSize+'&start='+(this.pageSize * this.currentPage);
+		    return queryString;
+		},
+		loadData(force, params) {
+		    const queryString = this.queryString();
+//		    if (!force && queryString === this.lastQuery) {return;}
+		    var params= Object.assign({},params||{},this.form ? this.form.getValues():{});
+		    //var ll = ELEMENT.Loading.service();
+		    this.loading=true;
+			iwb.request({url:queryString, params:params, successCallback:(result, cfg)=>{
+			  this.rows = result.data;this.totalCount=result.total_count;
+			  this.loading=false;
+			},errorCallback:(error,cfg)=>{
+				this.rows = [];this.totalCount=0;
+				this.loading=false;
+		    }});
+		    this.lastQuery = queryString;
+		},
+		currentPageChange(page){
+			this.currentPage = page-1;
+			this.loadData(!0);
+			
+		}
+    },
+    mounted(){
+    	var cmp='x-icb-card-'+this.card.cardId;
+    	Vue.component(cmp, {
+    		props:['row'],
+    		template:this.card.tpl
+    	});
+    	this.card._url && this.loadData(!0);
+    },
+	render(h){
+    	var rows=this.rows;
+    	var g = this.card;
+    	return h('div',{},[
+                 ,h('hr',{style:"margin-bottom:0"})
+   	             ,h('el-row',{style:"padding: 5px"},
+   			                  g._url ? (rows.length && rows.map((o)=>{
+   			                	  return h('x-icb-card-'+g.cardId,{props:{row:o}});
+   			                  })):[h('x-icb-card-'+g.cardId,{})])
+   				,g._url && g.pageSize && rows.length>g.pageSize && h('el-row',{style:"padding-top: 10px"},[h('el-pagination',{class:'float-right', on:{'current-change':this.currentPageChange},props:{background:!0,currentPage:this.currentPage+1, pageSize:g.pageSize,layout:'total, prev, pager, next', total:this.totalCount}})])
+        ]); 
+	}
+});
+
+var XMainCard = Vue.component('x-main-card', {
+	props: ['card','showForm'],
+	data(){
+		var g = this.card;
+		 return {loading:true,
+		        rows: [], totalCount: 0, 
+		        lastQuery:'', currentPage:0, pageSize:g.pageSize
+		  }
+	},
+    methods: {
+		onNewRecord(e, card, row) {
+		    var g = this.card;
+		    if(g.crudFlags && g.crudFlags.insert && this.showForm){
+		    	var url = 'showForm?a=2&_fid='+g.crudFormId;
+				if(g._postInsert){
+					url=g._postInsert(row||{}, url, card);
+					if(!url)return;
+				}
+				this.showForm(url,this.loadData);
+		    }
+		},
+		dblClick(row){
+//			this.$message({type: 'success',message: 'Your email is:'});
+		    var g = this.card;
+		    if(g.crudFlags && g.crudFlags.edit && this.showForm){
+		    	var pkz = buildParams2(this.card.pk,row);
+		    	var url = 'showForm?a=1&_fid='+this.card.crudFormId+pkz;
+		    	if(this.card._postUpdate){
+		    		var url=this.card._postUpdate(row, url, this.card);
+		    		if(!url)return;
+		    	}
+	    	  this.showForm(url,this.loadData);
+		    }			  
+		},
+		queryString() {
+			let queryString = this.card._url;
+			if(this.pageSize)queryString+='&limit='+this.pageSize+'&start='+(this.pageSize * this.currentPage);
+		    return queryString;
+		},
+		loadData(force, params) {
+		    const queryString = this.queryString();
+//		    if (!force && queryString === this.lastQuery) {return;}
+		    var params= Object.assign({},params||{},this.form ? this.form.getValues():{});
+		    //var ll = ELEMENT.Loading.service();
+		    this.loading=true;
+			iwb.request({url:queryString, params:params, successCallback:(result, cfg)=>{
+			  this.rows = result.data;this.totalCount=result.total_count;
+			  this.loading=false;
+			},errorCallback:(error,cfg)=>{
+				this.rows = [];this.totalCount=0;
+				this.loading=false;
+		    }});
+		    this.lastQuery = queryString;
+		},
+		currentPageChange(page){
+			this.currentPage = page-1;
+			this.loadData(!0);
+			
+		}
+    },
+    mounted(){
+    	var cmp='x-icb-card-'+this.card.cardId;
+    	console.log(cmp);
+    	Vue.component(cmp, {
+    		props:['row'],
+    		template:this.card.tpl
+    	});
+    	this.loadData(!0);
+    },
+	render(h){
+    	var rows=this.rows;
+    	var g = this.card;
+    	return h('card',{},[
+   			   h('row',{style:"padding: 5px"},[
+   			                  h('el-button',{props:{icon:"el-icon-refresh", circle:!0},on:{click:this.loadData}})
+   			                  ,g.crudFlags && g.crudFlags.insert && h('el-button',{class:"float-right",props:{type:'danger',icon:"el-icon-plus", round:!0},on:{click:this.onNewRecord}},'NEW RECORD')])
+   			                  ,h('hr',{style:"margin-bottom:0"})
+   			                  ,rows.length && rows.map((o)=>{
+   			                	  return h('x-icb-card-'+g.cardId,{props:{row:o}});
+   			                  })
+
+   				,g.pageSize && rows.length>g.pageSize && h('row',{style:"padding-top: 10px"},[h('el-pagination',{class:'float-right', on:{'current-change':this.currentPageChange},props:{background:!0,currentPage:this.currentPage+1, pageSize:g.pageSize,layout:'total, prev, pager, next', total:this.totalCount}})])
+        ]); 
+	}
+});

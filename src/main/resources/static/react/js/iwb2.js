@@ -650,6 +650,214 @@ class GridCommon extends React.PureComponent {
 	}
 }
 /**
+ * A component to render Masonry layout
+ * @param {Object} props.masonryStyle - style of the container
+ * @param {Object} props.columnStyle - style of the column
+ * @example
+ * <XMasonry brakePoints={[350, 500, 750]} >{ this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )} </XMasonry>
+ */
+class XMasonry extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = { columns: 1 };
+
+    this.onResize = () => {
+      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
+      if (columns !== this.state.columns) this.setState({ columns: columns });
+    };
+
+    this.getColumns = w => {
+      return (
+        this.props.brakePoints.reduceRight((p, c, i) => {
+          return c < w ? p : i;
+        }, this.props.brakePoints.length) + 1
+      );
+    };
+
+    this.mapChildren = () => {
+      let col = [];
+      const numC = this.state.columns;
+      for (let i = 0; i < numC; i++) {
+        col.push([]);
+      }
+      return this.props.children.reduce((p, c, i) => {
+        p[i % numC].push(c);
+        return p;
+      }, col);
+    };
+  }
+  componentDidMount() {
+    this.onResize();
+    window.addEventListener("resize", this.onResize);
+  }
+  render() {
+    const masonryStyle = {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignContent: "stretch",
+      width: "100%",
+      margin: "auto",
+      ...this.props.masonryStyle
+    };
+    const columnStyle = {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignContent: "stretch",
+      flexGrow: "1",
+      ... this.props.columnStyle
+    };
+    return React.createElement(
+      "div",
+      { style: masonryStyle, ref: "Masonry" },
+      this.mapChildren().map((col, ci) => {
+        return React.createElement(
+          "div",
+          { style: columnStyle, key: ci },
+          col.map((child, i) => {
+            return React.createElement(React.Fragment, { key: i }, child);
+          })
+        );
+      })
+    );
+  }
+}
+/**
+ * XAjaxQueryData - function is used to get data by giving guery id
+ * @param {String} props.qui - query id that you want to get data from 
+ * @param {Function} props.middleMan
+ * @param {Symbol} props.children
+ * @example
+ * React.createElement(XAjaxQueryData,{},data=>{ return React.createElement(AnyComponent,{data}......) }
+ */
+class XAjaxQueryData extends React.PureComponent {
+    constructor(props) {
+        super(props)
+        this.state = { data: [] }
+        /**to get data from backend */
+        this.fetch = () => {
+            //todo: build url
+            let self = this;
+            iwb.request({
+                url: 'ajaxQueryData?' + '_qid=' + this.props.qid,
+                successCallback: ({ data }) => {
+                    self.setState({ data: (this.props.middleMan && typeof this.props.middleMan === 'function') ? this.props.middleMan(data) : data });
+                }
+            });
+        };
+    }
+    componentDidMount() { this.fetch() }
+    render() {
+        return _(React.Fragment,{},
+            (this.props && this.props.children && typeof this.props.children === 'function') ? this.props.children(this.state.data) : this.props.children
+        );
+    }
+}
+/**
+ * A function to load script from the CDN or filesystem and apply css
+ * @param {String} props.css - query id that you want to get data from 
+ * @param {Array/Object} props.load - used to define wich script to download see exapmle below
+ * @param {Symbol} props.loading - conponent to show loading indicator while feching scripts from CDN or static file 
+ * @param {Symbol} props.children  
+ * @example
+ *  _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`, load:[{name:'libName',src:'CDN'},{name:'libName',src:'CDN'}]||{name:'libName',src:'CDN'} }, childNode )
+ */
+class XLazyScriptLoader extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: true
+        }
+        props.load === null && console.warn(`provide load props to LazyScriptLoader Component `)
+        this.ListOfScripts = [];
+        this.head = document.head || document.getElementsByTagName('head')[0];
+        this.xscript = document.getElementsByTagName('script')[0];
+        /** METHODS */
+        this.onScriptLoad = () => {
+            var problem = false;
+            this.ListOfScripts.map(nameAndSrc => {
+                if (!window[nameAndSrc.name]) {
+                    problem = true;
+                    console.warn('problem with ${' + nameAndSrc.name + '} script there is no such script on window object')
+                    return null;
+                }
+                return nameAndSrc;
+            })
+            if (!!this.props.load && this.props.load.constructor === Array && this.ListOfScripts.length === this.props.load.length && !problem) {
+                this.setState({ loading: false });
+            } else if (!!this.props.load && this.props.load.constructor === Object && this.ListOfScripts.length === 1 && !problem) { this.setState({ loading: false }) }
+        }
+        this.loadScript = ({ name, src }) => {
+            let script = document.createElement('script');
+            script.id = 'script-' + name;
+            script.type = 'text/javascript'
+            script.async = false
+            script.src = src;
+            this.xscript.parentNode.insertBefore(script, this.xscript);
+            return script;
+        }
+        this.CSSIntoDom = (css = '') => {
+            let style = document.createElement('style');
+            style.type = 'text/css';
+            if (style.styleSheet) { style.styleSheet.cssText = css } else { style.appendChild(document.createTextNode(css)) }
+            this.head.appendChild(style);
+        }
+    }
+    componentDidMount() {
+        if (!!this.props.load && this.props.load.constructor === Array) {
+            // [{name:'Azat',src:'source code'},{name:'Azat',src:'source code'}]
+            this.props.load.map(nameAndSrc => {
+                this.ListOfScripts = [...this.ListOfScripts, nameAndSrc];
+                if (!window[nameAndSrc.name]) {
+                    let script = this.loadScript(nameAndSrc);
+                    script.addEventListener('load', e => this.onScriptLoad())
+                } else this.onScriptLoad()
+                return nameAndSrc;
+            });
+        } else if (!!this.props.load && this.props.load.constructor === Object) {
+            // {name:'Azat',src:'source code'}
+            this.ListOfScripts = [...this.ListOfScripts, this.props.load];
+            if (!window[this.props.load.name]) {
+                let script = this.loadScript(this.props.load);
+                script.addEventListener('load', e => this.onScriptLoad())
+            } else this.onScriptLoad()
+        } else {
+            console.warn(`provide load={name:'Azat',src:'source code'} to LazyScriptLoader`)
+        }
+        this.CSSIntoDom(this.props.css)
+    }
+    render() {
+        return React.createElement(React.Fragment, {},
+            this.state.loading && this.props.loading,
+            !this.state.loading && this.props && this.props.children,
+        )
+    }
+}
+
+class XFormSMSEmailTemplateList extends React.PureComponent{
+	constructor(props){
+		super(props);
+		this.state={};
+		this.set
+	
+	}
+	render() {
+		return false;
+	/*	let list = this.props.list;
+		return _('div',{className:'hr-text', style:{marginTop:'20px'}},_('h6',null,'SMS / EMail Conversions')),
+		list.map(o=>{
+			return _(Row,{},_(Col,{xl:12}, 
+					
+					_(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-3d switch-primary' }, _(Input,{name:'smsmail-'+o.,checked:?,disabled:?,type:'checkbox', className:'switch-input'},_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}
+					,htmlFor:\"")
+					}
+							.append(dsc).append("\"},_").append(dsc).append(".label))
+			))
+		});*/
+	}
+}
+/**
  * @description
  * used to render tab and show active tab on the full XPage
  * @param {Object} props.body - it renders bodyForm class wich came from the backend
@@ -745,7 +953,10 @@ class XTabForm extends React.PureComponent{
 					_(Button,{className:'float-right btn-round-shadow mr-1',color:'light'},_('i',{className:'icon-paper-clip'}))
 				),
 				_("hr"),
-			formBody),
+			formBody,
+//			this.props.cfg && this.props.cfg.smsMailTemplateCnt && _("hr"),
+			this.props.cfg && this.props.cfg.smsMailTemplateCnt && _(XFormSMSEmailTemplateList,{list:this.props.cfg.smsMailTemplates})
+			),
 			!viewMode && _(CardFooter, {style:{padding: "1.1rem 1.25rem"}},
 				_(Button,{type:'submit',color:'submit', className:'btn-form mr-1', onClick:onSubmit},' ','Save',' '),
 				' ',
@@ -1405,12 +1616,12 @@ class XEditGridSF extends GridCommon {
 	    if(this.props.searchForm){
 			this.searchForm = _(Nav, {style:{}},
 				_('div',{className:'hr-text'},
-					_('h6',null,'Arama Kriterleri')
+					_('h6',null,'Search Criteria')
 				),
 				_('div',{style:{zoom:'.9'}},
 					_(this.props.searchForm,{parentCt:this}),
 					_('div',{className:'form-group',style:{paddingTop:10}},
-						_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => this.loadData(true) },"ARA")
+						_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => this.loadData(true) },"SEARCH")
 					)
 				)
 	    	);
@@ -2122,15 +2333,15 @@ class XMainGrid extends GridCommon {
 			this.searchForm = _(Nav, {style:{}},
 				searchForm && _('span',null,
 					_('div',{className:'hr-text'},
-						_('h6',null,'Arama Kriterleri')
+						_('h6',null,'Search Criteria')
 					),
 					_('div',{style:{zoom:'.9'}},
 						_(searchForm,{parentCt:this}),
 						_('div',{className:'form-group',style:{paddingTop:10}},
-							_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(true);} },"ARA")
+							_(Button, {color: "danger", style:{width:'100%', borderRadius:2},onClick:() => {this.loadData(true);} },"SEARCH")
 						)
 					),
-					_('div',{style:{height:10}}),
+				/*	_('div',{style:{height:10}}),
 					_('div',{className:'hr-text'},
 						_('h6',null,'Şablonlar')
 					),
@@ -2143,10 +2354,10 @@ class XMainGrid extends GridCommon {
 						_('i',{className:'icon-plus'}),
 						' ',
 						' Yeni Şablon Ekle'
-					),
+					),*/
 					_('div',{style:{height:20}})
 				),
-				detailGrids && detailGrids.length > 1 && _('div',{className:'hr-text',key:'hr-text'},_('h6',null,'DETAY KAYITLAR')),
+				detailGrids && detailGrids.length > 1 && _('div',{className:'hr-text',key:'hr-text'},_('h6',null,'DETAIL RECORDS')),
 				detailGrids && detailGrids.length > 1 && detailGrids.map((detailGrid,key)=>{
 					return _('div',{ key,style:{padding: "3px 0px 2px 3px", color: "#6d7284", fontSize:".9rem"}},
 						detailGrid.grid.name,
@@ -2427,7 +2638,8 @@ class XMainGrid extends GridCommon {
 					this.props.gridReport && _(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.openBI},
 						_('i',{className:'icon-equalizer'})
 					)//, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})		)
-				,grid)
+				)
+				,grid
 			)
 		)	
 	}
@@ -3036,4 +3248,63 @@ class XForm extends React.Component {
 		}
 	}
 	componentWillUnmount(){iwb.forms[this._id] = {...this.state}}
+}
+
+class XGraph extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	componentDidMount() {
+		var dg = this.props.graph;
+        var gid = 'idG'+dg.graphId;
+		iwb.graphAmchart(dg,gid);
+	}
+	render(){
+		return _('div',{style:{width:'100%',height:this.props.props.height||'20vw'},id:'idG'+this.props.graph.graphId})
+	}
+}
+
+iwb.createPortlet=function(o){
+	var name=o.graph||o.grid||o.card||o.query;
+	if(!name)return _('div',null,'not portlet');
+	if(o.query){
+		var q=o.query.data;
+		if(!q || !q.length)return _('div',null,'not data');
+		q=q[0];
+		return _(Card, {className: "card-portlet text-white bg-"+(o.props.color||'primary')},
+				_("i", {className: "big-icon "+(q.icon || "icon-settings")}),
+				_(CardBlock, {className: "pb-0"},
+					_("div", { className: "float-right", style:{ fontSize: "30px", background: "white", padding: "0 13px", borderRadius: "55px", color:'darkorange'}},q.xvalue),
+					_("h1", {className: "mb-0"},q.dsc),
+					_("div",{style:{ height: "25px"}})
+				));
+	}
+	name = name.name;
+	var cmp=null;
+	if(o.graph){
+		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
+				,_("h3", { className: "form-header", style:{fontSize: '1.5rem',padding: '10px 12px 0px', marginBottom:'.5rem'} },name,_("i", {className: "portlet-refresh float-right icon-refresh"}))
+				,_(XGraph,o));
+	} else if(o.grid){
+		o.grid.crudFlags=false;
+		return _(Card, {className: "card-portlet "+(o.props.color?'bg-'+o.props.color:'')}
+			,_("h3", { className: "form-header", style:{fontSize: '1.5rem',padding: '10px 12px 0px', marginBottom:'.5rem'} },name,_("i", {className: "portlet-refresh float-right icon-refresh"}))
+			,_(XGrid,o.grid));
+	} else if(o.card)cmp='Card';
+	else if(o.query)cmp='KPI Card';
+	return  _(Card, {
+		className: "card-portlet text-white bg-"+o.props.color||'primary'
+		},_(CardBlock, {className: 'card-body'},
+				_("h3", { className: "form-header", style:{padding: '10px 12px 0px', marginBottom:'.5rem'} },
+					name),
+				_("hr"),
+			cmp));
+}
+
+iwb.ui.buildDashboard=function(o){
+	if(!o || !o.rows || !o.rows.length)return _('div',null,'No portlets defined');
+	return o.rows.map((rowItem,rowIndex)=>{
+		return _(Row, {key:rowIndex, children:rowItem.map((colItem, colIndex)=> _(Col,colItem.props, iwb.createPortlet(colItem)))});
+		
+	});
 }
