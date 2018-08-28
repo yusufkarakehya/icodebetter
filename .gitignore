@@ -23,6 +23,7 @@
 hs_err_pid*
 
 .github/
+.github/CONTRIBUTING.md
 .classpath
 .project
 .settings
