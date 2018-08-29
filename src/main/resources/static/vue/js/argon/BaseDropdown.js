@@ -1,5 +1,5 @@
-var BaseDropdown =  Vue.component('base-dropdown',{
-	template:`<component class="dropdown"
+var BaseDropdown = Vue.component("base-dropdown", {
+  template: `<component class="dropdown"
                :is="tag"
                :class="[{show: isOpen}, {'dropdown': direction === 'down'}, {'dropup': direction ==='up'}]"
                aria-haspopup="true"
@@ -19,7 +19,8 @@ var BaseDropdown =  Vue.component('base-dropdown',{
             :class="[{'dropdown-menu-right': position === 'right'}, {show: isOpen}, menuClasses]">
             <slot></slot>
         </ul>
-    </component>`,props: {
+    </component>`,
+  props: {
     direction: {
       type: String,
       default: "down"

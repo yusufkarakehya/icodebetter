@@ -1,18 +1,23 @@
-var Icon =  Vue.component('icon',{
-	template:`<div class="icon icon-shape"
+var Icon = Vue.component("icon", {
+  template:
+    `<div class="icon icon-shape"
          :class="[
-            size && 'icon-$`+`{size}',
-            type && 'icon-shape-$`+`{type}',
-            gradient && 'bg-gradient-$`+`{gradient}',
+            size && 'icon-$` +
+    `{size}',
+            type && 'icon-shape-$` +
+    `{type}',
+            gradient && 'bg-gradient-$` +
+    `{gradient}',
             shadow && 'shadow',
             rounded && 'rounded-circle',
-            color && 'text-$`+`{color}'
+            color && 'text-$` +
+    `{color}'
          ]">
         <slot>
             <i :class="name"></i>
         </slot>
-    </div>`
-    ,props: {
+    </div>`,
+  props: {
     name: {
       type: String,
       default: "",

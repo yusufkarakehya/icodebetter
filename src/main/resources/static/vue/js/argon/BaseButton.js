@@ -1,5 +1,5 @@
-var BaseButton =  Vue.component('base-button',{
-	template:`<component :is="tag"
+var BaseButton = Vue.component("base-button", {
+  template: `<component :is="tag"
                :type="tag === 'button' ? nativeType: ''"
                @click="handleClick"
                class="btn"
@@ -16,8 +16,8 @@ var BaseButton =  Vue.component('base-button',{
           </slot>
     </span>
         <slot v-if="!$slots.icon && !icon"></slot>
-    </component>`
-    ,props: {
+    </component>`,
+  props: {
     tag: {
       type: String,
       default: "button",

@@ -1,8 +1,11 @@
 package iwb.controller;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -51,8 +54,8 @@ public class AuthController {
 
   private final String redirectOnFail = "../auth/login";
   private final String redirectOnSuccess = "/app/main.htm";
-  private String invitationEmail = null;
-  private String invite_projectid = null;
+
+  Map<String, String> inviteMap = new ConcurrentHashMap<>();
 
   public Tokens handleRequest(HttpServletRequest request) throws IdentityVerificationException {
     return originController.handle(request);
@@ -117,6 +120,7 @@ public class AuthController {
       }
 
       HttpSession session = req.getSession(true);
+      String there = (String) session.getAttribute("hello");
       session.setAttribute("authToken", email);
       Map scd = engine.generateScdFromAuth(socialCon, email);
       if (scd == null) {
@@ -136,8 +140,16 @@ public class AuthController {
             nickname,
             projectList,
             userTips);
-        if (!GenericUtil.isEmpty(invitationEmail)) {
-          engine.addToProject(userId, invite_projectid, invitationEmail);
+
+        if (!inviteMap.isEmpty()) {
+          Iterator<Entry<String, String>> it = inviteMap.entrySet().iterator();
+          while (it.hasNext()) {
+            Entry<String, String> entry = (Entry<String, String>) it.next();
+            String invitationEmail = entry.getValue();
+            String inviteProjectId = entry.getKey();
+            engine.addToProject(userId, inviteProjectId, invitationEmail);
+            it.remove();
+          }
         }
 
       } else {
@@ -148,24 +160,31 @@ public class AuthController {
         if (profilePictureId < 3) {
           engine.saveImage(pictureUrl, userId, cusId);
         }
-        session.setAttribute("scd-dev", scd);
-        if (!GenericUtil.isEmpty(invitationEmail)) {
-          engine.addToProject(userId, invite_projectid, invitationEmail);
+        session.setAttribute("iwb-scd", scd);
+
+        if (!inviteMap.isEmpty()) {
+          Iterator<Entry<String, String>> it = inviteMap.entrySet().iterator();
+          while (it.hasNext()) {
+            Entry<String, String> entry = (Entry<String, String>) it.next();
+            String invitationEmail = entry.getValue();
+            String inviteProjectId = entry.getKey();
+            engine.addToProject(userId, inviteProjectId, invitationEmail);
+            it.remove();
+          }
         }
       }
       res.sendRedirect(redirectOnSuccess);
     } catch (IdentityVerificationException e) {
-      if(FrameworkSetting.debug)e.printStackTrace();
+      if (FrameworkSetting.debug) e.printStackTrace();
       res.sendRedirect(redirectOnFail);
     } catch (JWTVerificationException exception) {
-    	if(FrameworkSetting.debug)exception.printStackTrace();
+      if (FrameworkSetting.debug) exception.printStackTrace();
       res.sendRedirect(redirectOnFail);
     }
   }
 
   private Map checkVcsTenant(int socialCon, String email, String nickname, String socialNet) {
-    String vcsUrl =
-        FrameworkCache.getAppSettingStringValue(0, "vcs_url"); // "http://81.214.24.77:8084/app"; //
+    String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url");
     try {
       JSONObject params = new JSONObject();
       params.put("email", email);
@@ -194,8 +213,12 @@ public class AuthController {
   @RequestMapping("/login")
   @ResponseBody
   protected void login(final HttpServletRequest req, HttpServletResponse res) throws IOException {
-    invitationEmail = req.getParameter("email");
-    invite_projectid = req.getParameter("projectId");
+    String email = req.getParameter("email");
+    String projectId = req.getParameter("projectId");
+    if (email != null && projectId != null) {
+      inviteMap.put(projectId, email);
+    }
+
     String redirectUri =
         req.getScheme()
             + "://"
@@ -209,7 +232,6 @@ public class AuthController {
 
   @RequestMapping(value = "/logout", method = RequestMethod.GET)
   protected String logout(final HttpServletRequest req) {
-
     invalidateSession(req);
     String returnTo = req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort();
     String logoutUrl =
@@ -237,7 +259,7 @@ public class AuthController {
       params.put("method", "GET");
       String token = "xoxp-400071414103-400355743638-409628283425-24e403d0ed1b842f10bcdb28c5ed9434";
       Map<String, Object> scd = UserUtil.getScd(req, "scd-dev", true);
-      String email = (String) scd.get("email"); //
+      String email = (String) scd.get("email");
       String url =
           "https://slack.com/api/users.lookupByEmail?token="
               + token
