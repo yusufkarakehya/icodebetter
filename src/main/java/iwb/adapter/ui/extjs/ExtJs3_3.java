@@ -6425,7 +6425,15 @@ public class ExtJs3_3 implements ViewAdapter {
 			for (String key : FrameworkCache.publishAppSettings) {
 				publishedAppSetting.put(
 						key,
-						FrameworkCache.getAppSettingStringValue(customizationId, key));
+						FrameworkCache.getAppSettingStringValue(0, key));
+			}
+			if(customizationId>0)for (String key : FrameworkCache.publishAppSettings) {
+				
+				String val = FrameworkCache.getAppSettingStringValue(customizationId, key);
+				if(!GenericUtil.isEmpty(val))
+						publishedAppSetting.put(
+						key, val
+						);
 			}
 			buf2.append("var _app=")
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))

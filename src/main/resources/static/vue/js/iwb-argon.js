@@ -432,7 +432,7 @@ function XPage(c){
 	var g=c.grid||c.card;
 	return {
 		render(h){
-			return h('div',{class:"container-fluid", style:""},[h('div',{class:"row"},[h('div',{class:"col-12"},[
+			return h('div',{class:"container-fluid", style:""},[h('div',{class:"row"},[h('div',{class:"col-12 col-xl-10 offset-xl-1"},[
 			        g.gridId? 
 					h(XMainGrid,{props:{grid:g, showForm:this.showForm}}): h(XMainCard,{props:{card:g, showForm:this.showForm}})
 			])])]); 
