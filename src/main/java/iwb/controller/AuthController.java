@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -176,10 +175,10 @@ public class AuthController {
       }
       res.sendRedirect(redirectOnSuccess);
     } catch (IdentityVerificationException e) {
-      if(FrameworkSetting.debug)e.printStackTrace();
+      if (FrameworkSetting.debug) e.printStackTrace();
       res.sendRedirect(redirectOnFail);
     } catch (JWTVerificationException exception) {
-    	if(FrameworkSetting.debug)exception.printStackTrace();
+      if (FrameworkSetting.debug) exception.printStackTrace();
       res.sendRedirect(redirectOnFail);
     }
   }

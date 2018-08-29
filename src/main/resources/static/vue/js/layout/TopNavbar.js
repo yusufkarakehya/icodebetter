@@ -1,5 +1,6 @@
-var TopNavbar =  Vue.component('top-navbar', {
-	template:`<navbar :show-navbar="showNavbar">
+var TopNavbar = Vue.component("top-navbar", {
+  template:
+    `<navbar :show-navbar="showNavbar">
     <div class="navbar-wrapper">
       <div class="navbar-toggle" :class="{toggled: $sidebar.showSidebar}">
         <navbar-toggle-button @click.native="toggleSidebar">
@@ -18,9 +19,9 @@ var TopNavbar =  Vue.component('top-navbar', {
       <span class="navbar-toggler-bar navbar-kebab"></span>
     </button>
  
-    <template slot="navbar-menu">`+
-
-      (false? `<form>
+    <template slot="navbar-menu">` +
+    (false
+      ? `<form>
         <div class="input-group no-border">
           <fg-input placeholder="Quick Search..." addon-right-icon="now-ui-icons ui-1_zoom-bold">
           </fg-input>
@@ -40,55 +41,60 @@ var TopNavbar =  Vue.component('top-navbar', {
         <drop-down tag="li" 
                    position="right"
                    class="nav-item"
-                   icon="now-ui-icons tech_tablet">`+iwb.roleMenu+`
+                   icon="now-ui-icons tech_tablet">` +
+        iwb.roleMenu +
+        `
         </drop-down>
 
 
-      </ul>`:'')
+      </ul>`
+      : "") +
+    `</template>
+  </navbar>`,
+  computed: {
+    routeName() {
+      const { name } = this.$route;
+      return this.capitalizeFirstLetter(name);
+    }
+  },
+  data() {
+    return {
+      activeNotifications: false,
+      showNavbar: false
+    };
+  },
 
-    +`</template>
-  </navbar>`
-,
-    computed: {
-      routeName() {
-        const {name} = this.$route
-        return this.capitalizeFirstLetter(name)
-      }
+  methods: {
+    capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
     },
-    data() {
-      return {
-        activeNotifications: false,
-        showNavbar: false
-      }
+    toggleNotificationDropDown() {
+      this.activeNotifications = !this.activeNotifications;
     },
-
-    methods: {
-      capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1)
-      },
-      toggleNotificationDropDown() {
-        this.activeNotifications = !this.activeNotifications
-      },
-      closeDropDown() {
-        this.activeNotifications = false
-      },
-      toggleSidebar() {
-        this.$sidebar.displaySidebar(!this.$sidebar.showSidebar)
-      },
-      toggleNavbar() {
-        this.showNavbar = !this.showNavbar;
-      },
-      hideSidebar() {
-        this.$sidebar.displaySidebar(false)
-      },
-      changeRole(userRoleId){
-    	  if(userRoleId && 1*userRoleId)iwb.request({
-			url: "ajaxSelectUserRole?userRoleId=" + userRoleId + "&userCustomizationId=" + _scd.userCustomizationId,
-			successCallback: function() {
-				document.location = 'main.htm?.r=' + new Date().getTime();
-			}});
-    	  
-      }
+    closeDropDown() {
+      this.activeNotifications = false;
+    },
+    toggleSidebar() {
+      this.$sidebar.displaySidebar(!this.$sidebar.showSidebar);
+    },
+    toggleNavbar() {
+      this.showNavbar = !this.showNavbar;
+    },
+    hideSidebar() {
+      this.$sidebar.displaySidebar(false);
+    },
+    changeRole(userRoleId) {
+      if (userRoleId && 1 * userRoleId)
+        iwb.request({
+          url:
+            "ajaxSelectUserRole?userRoleId=" +
+            userRoleId +
+            "&userCustomizationId=" +
+            _scd.userCustomizationId,
+          successCallback: function() {
+            document.location = "main.htm?.r=" + new Date().getTime();
+          }
+        });
     }
   }
-);
+});

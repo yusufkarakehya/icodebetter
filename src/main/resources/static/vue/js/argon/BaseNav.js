@@ -1,9 +1,12 @@
-var BaseNav =  Vue.component('base-nav',{
-	template:`<nav class="navbar" :class="[
+var BaseNav = Vue.component("base-nav", {
+  template:
+    `<nav class="navbar" :class="[
             {'navbar-expand-lg': expand},
-            {['navbar-$`+`{effect}']: effect},
+            {['navbar-$` +
+    `{effect}']: effect},
             {'navbar-transparent': transparent},
-            {['bg-$`+`{type}']: type},
+            {['bg-$` +
+    `{type}']: type},
             {'rounded': round}
          ]">
         <div class="container">
@@ -27,8 +30,8 @@ var BaseNav =  Vue.component('base-nav',{
                 <slot :close-menu="closeMenu"></slot>
             </div>
         </div>
-    </nav>`
-    ,components: {
+    </nav>`,
+  components: {
     FadeTransition,
     NavbarToggleButton
   },

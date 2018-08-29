@@ -4159,7 +4159,7 @@ public class FrameworkEngine {
             }
             if (GenericUtil.isEmpty(c.getRhinoCode()) || c.getRhinoCode().startsWith("!")) {
               Map result =
-                  callWs(
+                  REST(
                       scd,
                       wsm.get_ws().getDsc() + "." + wsm.getDsc(),
                       mq); // TODO: result ne yapayim
@@ -4241,7 +4241,6 @@ public class FrameworkEngine {
     					res+= fccd.getCodeLength()>0 ? GenericUtil.lPad(val,fccd.getCodeLength(),fccd.getFillCharacter()) : val;
     				} else
     					throw new IWBException("validation","FormElement", formCellId, null, "FormElementCode: wrong automatic definition", null);
-
     				break;
     			case	4://Formul/Advanced/SQL
     				String sql = fccd.getDefaultValue();
@@ -4317,7 +4316,6 @@ public class FrameworkEngine {
     				if(notFound)
     					throw new IWBException("validation","FormElement", formCellId, null, "FormElementCode: wrong SourceFormCell (Formdan/Combo)", null);
     				break;
-
     			}
     			m.put("result", res);
     			return m;
@@ -4754,7 +4752,7 @@ public class FrameworkEngine {
         StringBuilder rc = new StringBuilder();
         rc.append("function _x_(x){\nreturn {")
             .append(queryResult.getQuery().getSqlSelect())
-            .append("\n}}\nvar result=[], q=$iwb.callWs('")
+            .append("\n}}\nvar result=[], q=$iwb.REST('")
             .append(wsm.get_ws().getDsc() + "." + wsm.getDsc())
             .append("',")
             .append(GenericUtil.fromMapToJsonString2(m2))
@@ -4875,7 +4873,7 @@ public class FrameworkEngine {
                 StringBuilder rc2 = new StringBuilder();
                 rc2.append("function _x_(x){\nreturn {")
                     .append(lookupQueryResult.getQuery().getSqlSelect())
-                    .append("\n}}\nvar result=[], q=$iwb.callWs('")
+                    .append("\n}}\nvar result=[], q=$iwb.REST('")
                     .append(wsm.get_ws().getDsc() + "." + wsm.getDsc())
                     .append("',")
                     .append(GenericUtil.fromMapToJsonString2(m2))
@@ -4946,26 +4944,25 @@ public class FrameworkEngine {
   /*public QueryResult executeInfluxQuery(Map<String, Object> scd, String sql, String dbName){
   	return influxDao.runQuery(FrameworkCache.wProjects.get((String)scd.get("projectId")), sql, dbName);
   }
-
   public void insertInfluxRecord(Map<String, Object> scd, String measurement, Map<String, Object> tags, Map<String, Object> fields, String date){
   	influxDao.insert(FrameworkCache.wProjects.get((String)scd.get("projectId")), measurement, tags, fields, date);
   }*/
 
   public W5PageResult getTemplateResult(
-      Map<String, Object> scd, int templateId, Map<String, String> requestParams) {
-    W5PageResult templateResult = null;
+      Map<String, Object> scd, int pageId, Map<String, String> requestParams) {
+    W5PageResult pr = null;
     try {
       boolean developer = scd.get("roleId") != null && (Integer) scd.get("roleId") == 0;
       boolean debugAndDeveloper = FrameworkSetting.debug && developer;
-      templateResult = dao.getPageResult(scd, templateId);
-      templateResult.setRequestParams(requestParams);
-      templateResult.setTemplateObjectList(new ArrayList<Object>());
+      pr = dao.getPageResult(scd, pageId);
+      pr.setRequestParams(requestParams);
+      pr.setPageObjectList(new ArrayList<Object>());
       List<W5PageObject> templateObjectListExt =
-          new ArrayList<W5PageObject>(templateResult.getPage().get_pageObjectList().size() + 5);
-      templateObjectListExt.addAll(templateResult.getPage().get_pageObjectList());
+          new ArrayList<W5PageObject>(pr.getPage().get_pageObjectList().size() + 5);
+      templateObjectListExt.addAll(pr.getPage().get_pageObjectList());
 
       requestParams.put("_dont_throw", "1");
-      if (templateId == 238) { // Record Bazlı yetkilendirme gridi
+      if (pageId == 238) { // Record Bazlı yetkilendirme gridi
         int objectId = GenericUtil.uInt(requestParams.get("_gid1"));
         if (objectId == 477) {
           W5Table t =
@@ -5021,52 +5018,44 @@ public class FrameworkEngine {
         templateObjectListExt.add(o);
       }
 
-      if (templateId
-          == 622) { // "maximizeGrid template" bunun icin masterTableId(_mtid), masterTablePk(_mtpk)
-        // icin value alinacak ve gonderilecek
-        int mtid = GenericUtil.uInt(requestParams.get("_mtid"));
-        int mtpk = GenericUtil.uInt(requestParams.get("_mtpk"));
-        if (mtid != 0 && mtpk != 0) {
-          templateResult.setMasterRecordList(dao.findRecordParentRecords(scd, mtid, mtpk, 0, true));
-        }
-      }
-
-      if (templateId == 358) { // "sayfam" bunun icindeki portlet gridleri eklenecke, role'e bakarak
-        List<Object> params = new ArrayList<Object>();
-        params.add(scd.get("customizationId"));
-        params.add(scd.get("userRoleId"));
-        Map mp =
-            dao.runSQLQuery2Map(
-                "select ur.my_page_column_count,coalesce(ur.portlet_grids,r.portlet_grids) portlet_grids, r.portlet_grids pg from iwb.w5_user_role ur, iwb.w5_role r where ur.customization_id=? AND ur.customization_id=r.customization_id AND ur.role_id=r.role_id AND ur.user_role_id=?",
-                params,
-                null);
-        String portletGrids = (mp != null) ? (String) mp.get("portlet_grids") : null;
-        String rolePortletGrids = (mp != null) ? (String) mp.get("portlet_grids") : null;
-
-        if (rolePortletGrids != null && portletGrids != null && portletGrids.length() > 0) {
-          String[] gg = portletGrids.split(",");
-          for (int i = 0; i < gg.length; i++) {
-            int objectId = GenericUtil.uInt(gg[i]);
-            if (objectId < 0) { // graph dashboard
-              short objectTip = -12;
-              W5PageObject o = new W5PageObject();
-              o.setObjectTip(objectTip);
-              o.setObjectId(-objectId);
-              templateObjectListExt.add(o);
-            } else if (GenericUtil.hasPartInside2(
-                rolePortletGrids, gg[i])) { // extra olarak _gid1=12&_gid=2 gibi seyler soylenebilir
-              short objectTip = -1;
-              W5PageObject o = new W5PageObject();
-              o.setObjectTip(objectTip);
-              o.setObjectId(objectId);
-              templateObjectListExt.add(o);
-            }
-          }
-        }
-      }
-
+      /*			if(pageId==622){//"maximizeGrid template" bunun icin masterTableId(_mtid), masterTablePk(_mtpk) icin value alinacak ve gonderilecek
+      				int mtid=GenericUtil.uInt(requestParams.get("_mtid"));
+      				int mtpk=GenericUtil.uInt(requestParams.get("_mtpk"));
+      				if(mtid!=0 && mtpk!=0){
+      					pr.setMasterRecordList(dao.findRecordParentRecords(scd, mtid, mtpk, 0, true));
+      				}
+      			}
+      */
+      /*			if(templateId==358){//"sayfam" bunun icindeki portlet gridleri eklenecke, role'e bakarak DEPRECATED. instead we use pageType=10 Dashboard
+      				List<Object> params= new ArrayList<Object>();
+      				params.add(scd.get("customizationId"));
+      				params.add(scd.get("userRoleId"));
+      				Map mp =dao.runSQLQuery2Map("select ur.my_page_column_count,coalesce(ur.portlet_grids,r.portlet_grids) portlet_grids, r.portlet_grids pg from iwb.w5_user_role ur, iwb.w5_role r where ur.customization_id=? AND ur.customization_id=r.customization_id AND ur.role_id=r.role_id AND ur.user_role_id=?", params, null);
+      				String portletGrids = (mp != null) ? (String)mp.get("portlet_grids"): null;
+      				String rolePortletGrids= (mp != null) ? (String)mp.get("portlet_grids"): null;
+      				if(rolePortletGrids!=null && portletGrids!=null && portletGrids.length()>0){
+      					String[] gg = portletGrids.split(",");
+      					for(int i=0;i<gg.length;i++){
+      						int objectId = GenericUtil.uInt(gg[i]);
+      						if(objectId<0){ //graph dashboard
+      							short objectTip=-12;
+      							W5PageObject o = new W5PageObject();
+      							o.setObjectTip(objectTip);
+      							o.setObjectId(-objectId);
+      							templateObjectListExt.add(o);
+      						}else if(GenericUtil.hasPartInside2(rolePortletGrids, gg[i])){ // extra olarak _gid1=12&_gid=2 gibi seyler soylenebilir
+      							short objectTip=-1;
+      							W5PageObject o = new W5PageObject();
+      							o.setObjectTip(objectTip);
+      							o.setObjectId(objectId);
+      							templateObjectListExt.add(o);
+      						}
+      					}
+      				}
+      			}
+      */
       int objectCount = 0;
-      if (templateResult.getPage().getTemplateTip() != 8) { // wizard'dan farkli ise
+      if (pr.getPage().getTemplateTip() != 8) { // wizard'dan farkli ise
         W5Table masterTable = null;
         for (W5PageObject o : templateObjectListExt) {
           boolean accessControl =
@@ -5080,8 +5069,8 @@ public class FrameworkEngine {
             case 1: // grid
               W5GridResult gridResult =
                   dao.getGridResult(
-                      scd, o.getObjectId(), requestParams, templateId == 298 /*|| objectCount!=0*/);
-              if (templateId == 298) { // log template
+                      scd, o.getObjectId(), requestParams, pageId == 298 /*|| objectCount!=0*/);
+              if (pageId == 298) { // log template
                 gridResult.setViewLogMode(true);
               }
               if (o.getObjectTip() < 0) {
@@ -5120,16 +5109,14 @@ public class FrameworkEngine {
                 m.put("tplObjId", o.getTemplateObjectId());
               }
               break;
-            case 2: // data view
-              W5DataViewResult dataViewResult =
+            case 2: // card view
+              W5CardResult cardResult =
                   dao.getDataViewResult(scd, o.getObjectId(), requestParams, objectCount != 0);
-              if (o.getObjectTip() < 0)
-                dataViewResult.setDataViewId(-dataViewResult.getDataViewId());
+              if (o.getObjectTip() < 0) cardResult.setDataViewId(-cardResult.getDataViewId());
               mainTable =
-                  dataViewResult.getDataView() != null
-                          && dataViewResult.getDataView().get_query() != null
+                  cardResult.getCard() != null && cardResult.getCard().get_query() != null
                       ? FrameworkCache.getTable(
-                          scd, dataViewResult.getDataView().get_query().getMainTableId())
+                          scd, cardResult.getCard().get_query().getMainTableId())
                       : null;
               if (!debugAndDeveloper
                   && mainTable != null
@@ -5140,15 +5127,16 @@ public class FrameworkEngine {
                           scd,
                           mainTable.getAccessViewTip(),
                           mainTable.getAccessViewRoles(),
-                          mainTable.getAccessViewUsers()))))
-                obz = dataViewResult.getDataView().getDsc();
+                          mainTable.getAccessViewUsers())))) obz = cardResult.getCard().getDsc();
               else {
-                obz = accessControl ? dataViewResult : dataViewResult.getDataView().getDsc();
+                obz = accessControl ? cardResult : cardResult.getCard().getDsc();
               }
-              if (obz instanceof W5DataViewResult) {
-                if (mainTable != null
-                    && masterTable != null) { // burda extra bilgiler gelecek revision icin
-                }
+              if (obz instanceof W5CardResult) {
+                Map m = new HashMap();
+                cardResult.setTplObj(o);
+                cardResult.setExtraOutMap(m);
+                m.put("tplId", o.getTemplateId());
+                m.put("tplObjId", o.getTemplateObjectId());
               }
               break;
             case 7: // list view
@@ -5203,15 +5191,28 @@ public class FrameworkEngine {
               }
               obz = executeQuery(scd, o.getObjectId(), paramMap);
               break;
+            case 10: // KPI Single Card
+              obz = executeQuery(scd, o.getObjectId(), new HashMap());
+              break;
             case 5: // dbFunc
               obz = executeFunc(scd, o.getObjectId(), requestParams, (short) 1);
               break;
-            case 12: // graph dashboard
-              //				obz = dao.getCustomizedObject("from W5BIGraphDashboard t where
-              // t.graphDashboardId=? AND t.projectUuid=?", o.getObjectId(),
-              // o.getCustomizationId(),"GraphDashboard");
+            case 9: // graph dashboard
+              W5BIGraphDashboard obz2 =
+                  (W5BIGraphDashboard)
+                      dao.getCustomizedObject(
+                          "from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?",
+                          o.getObjectId(),
+                          scd.get("projectId"),
+                          null);
+              if (accessControl) {
+                obz = obz2;
+              } else {
+                obz = "graph" + o.getObjectId();
+              }
           }
-          if (templateId != 358 && objectCount == 0) { // daha ilk objede sorun varsa exception ver
+          if (pr.getPage().getTemplateTip() != 9
+              && objectCount == 0) { // daha ilk objede sorun varsa exception ver
             if (obz instanceof String)
               throw new IWBException(
                   "security",
@@ -5222,23 +5223,29 @@ public class FrameworkEngine {
                   null);
             else masterTable = mainTable;
           }
-          if (obz != null) templateResult.getTemplateObjectList().add(obz);
+          if (obz != null) pr.getPageObjectList().add(obz);
           objectCount++;
         }
       }
-      return templateResult;
+      if ((Integer) scd.get("customizationId") == 1
+          && GenericUtil.uInt(scd.get("mainTemplateId")) == pageId) {
+        List<Object> params = new ArrayList();
+        params.add(scd.get("projectId"));
+        dao.executeUpdateSQLQuery(
+            "update iwb.w5_project p set preview_count=preview_count+1 where p.project_uuid=?",
+            params);
+      }
+      return pr;
     } catch (Exception e) {
       throw new IWBException(
           "framework",
           "Load.Page",
-          templateId,
+          pageId,
           null,
           "[63,"
-              + templateId
+              + pageId
               + "]"
-              + (templateResult != null && templateResult.getPage() != null
-                  ? " " + templateResult.getPage().getDsc()
-                  : ""),
+              + (pr != null && pr.getPage() != null ? " " + pr.getPage().getDsc() : ""),
           e);
     }
   }
@@ -5269,8 +5276,6 @@ public class FrameworkEngine {
     	}
     }
     W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.find("from W5ObjectMailSetting t where t.customizationId=? and t.mailSettingId=?", (Integer)scd.get("customizationId"),GenericUtil.uInt((Object)parameterMap.get("pmail_setting_id"))).get(0);
-
-<<<<<<< HEAD
     if(oms!=null){
     	W5Email email= new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"), fileAttachments);
     	result = MailUtil.sendMail(scd, oms, email);
@@ -5293,1055 +5298,6 @@ public class FrameworkEngine {
     			if(feed.get_viewAccessControl()==null && feed.get_tableRecordList().get(0).getViewAccessControl()!=null){
     				feed.set_viewAccessControl(feed.get_tableRecordList().get(0).getViewAccessControl());
     			}
-=======
-	public boolean changeActiveProject(Map<String, Object> scd, String projectUuid){
-		List<Object> params= new ArrayList();
-		params.add(projectUuid);
-		params.add(scd.get(scd.containsKey("ocustomizationId") ? "ocustomizationId":"customizationId"));
-		params.add(scd.get("userId"));
-		List list = dao.executeSQLQuery2Map("select x.customization_id,(select 1 from iwb.w5_query q where q.query_id=session_query_id AND x.project_uuid=q.project_uuid) rbac from iwb.w5_project x where x.project_uuid=? AND (x.customization_id=? OR exists(select 1 from iwb.w5_user_related_project ur where ur.user_id=? AND x.project_uuid=ur.related_project_uuid))", params);
-		if(GenericUtil.isEmpty(list)) return false;
-		Map p = (Map)list.get(0);
-		int newCustomizationId = GenericUtil.uInt(p.get("customization_id"));
-
-		if(newCustomizationId!=(Integer)scd.get("customizationId")){ // TODO check for invited projects
-			if(!scd.containsKey("ocustomizationId"))
-				scd.put("ocustomizationId", (Integer)scd.get("customizationId"));
-			scd.put("customizationId", newCustomizationId);
-		}
-		W5Project po = FrameworkCache.getProject(projectUuid);
-		scd.put("projectId", projectUuid);
-		scd.put("rbac", newCustomizationId>0?GenericUtil.uInt(p.get("rbac")):1);
-		scd.put("_renderer2", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
-		return true;
-	}
-
-	public int getGlobalNextval(String id, String projectUuid, int userId, int customizationId, String remoteAddr) {
-
-		if(FrameworkSetting.log2tsdb){
-			LogUtil.logObject(new Log5GlobalNextval(userId, customizationId, id, remoteAddr, projectUuid));
-		}
-
-/*		l = dao.executeSQLQuery("select 1 from iwb.w5_vcs_global_nextval u where u.seq_dsc=? AND u.active_flag=1", id);
-		if(false && GenericUtil.isEmpty(l))//TODO. hepsi tanimlaninca daha iyi olacak
-			throw new IWBException("framework","Wrong/Inactive Sequence Name for GlobalNextval", 0, id, id, null);
-*/
-		List l = dao.executeSQLQuery("select nextval('"+id+"')");
-
-		return GenericUtil.uInt(l.get(0));
-	}
-
-	public boolean organizeTable(Map<String, Object> scd, String tableName) {
-		boolean b = dao.organizeTable(scd, tableName);
-		if(FrameworkSetting.preloadWEngine!=0){
-			FrameworkCache.clearPreloadCache(scd);
-		}
-		return b;
-	}
-
-	public void organizeQuery(Map<String, Object> scd, int queryId, short insertFlag) {
-		dao.organizeQueryFields(scd, queryId, insertFlag);
-		if(FrameworkSetting.preloadWEngine!=0){
-			FrameworkCache.clearPreloadCache(scd);
-		}
-	}
-
-	public boolean organizeGlobalFunc(Map<String, Object> scd, String dbFuncName) {
-		boolean b = dao.organizeGlobalFunc(scd, dbFuncName);
-		if(FrameworkSetting.preloadWEngine!=0){
-			FrameworkCache.clearPreloadCache(scd);
-		}
-		return b;
-	}
-
-	public int buildForm(Map<String, Object> scd, String parameter) throws JSONException {
-		int customizationId = (Integer)scd.get("customizationId");
-
-		String projectUuid = (String)scd.get("projectId");
-		W5Project po = FrameworkCache.getProject(projectUuid);
-		int userId = (Integer)scd.get("userId");
-//		boolean vcs = FrameworkSetting.vcs && po.getVcsFlag()!=0;
-		String createTableSql = "", tableName, fullTableName;
-		JSONObject main;
-		JSONArray detail;
-		int parentTableId;
-		boolean vcs = true;
-		Locale en = new Locale("en");
-
-		List p= new ArrayList();p.add(customizationId);
-
-		JSONObject json = new JSONObject(parameter);
-		String webPageId = json.has("_webPageId") ?json.getString("_webPageId"):null;
-		int userTip = json.getInt("user_tip");
-		main = json.getJSONObject("main");
-		detail = json.getJSONArray("detail");
-
-		StringBuilder s = new StringBuilder();
-		String schema = po.getRdbmsSchema();
-		if(GenericUtil.isEmpty(schema))schema="";
-		else schema+=".";
-		String formName = main.getString("form_name");
-		tableName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(formName),"x").toLowerCase(en);
-		String gridName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(main.getString("grid_name")),"x").toLowerCase(en);
-//		gridName = main.getString("grid_name");
-		String tablePrefix = FrameworkCache.getAppSettingStringValue(0, "form_builder_table_prefix", "x");
-		if(!tablePrefix.endsWith("_"))tablePrefix+="_";
-		String tableName2 = tablePrefix + tableName;
-		fullTableName = schema + tableName2;
-		parentTableId = main.has("parent_table_id") ? GenericUtil.uInt(main.get("parent_table_id")) : 0;
-		s.append("create table ").append(tableName2)
-		  .append(" (");
-		s.append(tableName).append("_id integer not null");
-		String relParentFieldName = null;
-		if(parentTableId!=0){
-			W5Table pt = FrameworkCache.getTable(scd, parentTableId);
-			if(pt!=null){
-				relParentFieldName = pt.get_tableFieldList().get(0).getDsc();
-				s.append(",\n ").append(relParentFieldName).append(" integer not null");
-			} else parentTableId=0;
-		}
-		for(int qi=0;qi<detail.length();qi++){
-			JSONObject  d = detail.getJSONObject(qi);
-			int controlTip = GenericUtil.uInt(d.get("real_control_tip"));
-			if(controlTip==102)continue;
-			String fieldDsc = d.getString("real_dsc");
-			if(GenericUtil.isEmpty(fieldDsc))fieldDsc=d.getString("dsc");
-			fieldDsc = fieldDsc.toLowerCase();
-			s.append(",\n ").append(fieldDsc);
-			int maxLen = GenericUtil.uInt(d.get("max_length"));
-			switch(controlTip){
-			case	2:if(!fieldDsc.endsWith("_dt")){s.append("_dt");fieldDsc=fieldDsc+"_dt";}
-				s.append(" date");break;//date
-			case	3:
-				s.append(" numeric");
-				if(maxLen>0){
-					if(maxLen>22)maxLen=22;
-					s.append("(").append(maxLen);
-					int decimalPrecision = d.has("decimal_precision") ? GenericUtil.uInt(d.get("decimal_precision")) : 0;
-					if(decimalPrecision>18)decimalPrecision=18;
-					s.append(",").append(decimalPrecision>0 ? decimalPrecision : 2);
-					s.append(")");
-				}
-				break;//float
-			case	4:s.append(maxLen<5 ? " smallint": " integer");break;//integer
-			case	5:if(!fieldDsc.endsWith("_flag")){s.append("_flag");fieldDsc=fieldDsc+"_flag";}
-				s.append(" smallint default 0");break;//checkbox
-			case	6: case 8: case 58:
-				if(GenericUtil.uInt(d.get("look_up_id"))>0){
-					int lookUpId=GenericUtil.uInt(d.get("look_up_id"));
-					if(FrameworkCache.getLookUp(scd, lookUpId)==null)
-						throw new IWBException("framework","Form+ Builder", lookUpId, null, "Wrong Static LookupID: " + lookUpId, null);
-				} else {
-					if(!d.has("list_of_values") || GenericUtil.isEmpty(d.get("list_of_values")))
-						throw new IWBException("framework","Form+ Builder", 0, null, "LookupID OR Combo Values Not Defined", null);
-					String lov = d.getString("list_of_values");
-					String[] vz = lov.split("\\r?\\n");
-
-
-
-					int lookUpId = GenericUtil.getGlobalNextval("iwb.seq_look_up", projectUuid, userId, customizationId);
-					dao.executeUpdateSQLQuery("insert into iwb.w5_look_up "
-							+ "(look_up_id, customization_id, dsc, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, project_uuid, oproject_uuid)"
-					+  "values (?         , ?               , ?  , 1         , ?             , current_timestamp    , ?              , current_timestamp     , ?, ?)",
-					lookUpId, scd.get("customizationId"), "lkp_"+fieldDsc, scd.get("userId"), scd.get("userId"), projectUuid, projectUuid);
-					if(vcs)dao.saveObject(new W5VcsObject(scd, 13, lookUpId));
-					int tabOrder = 1;
-					for(String sx:vz)if(!GenericUtil.isEmpty(sx) && !GenericUtil.isEmpty(sx.trim())){
-						int lookUpIdDetail = GenericUtil.getGlobalNextval("iwb.seq_look_up_detay", projectUuid, userId, customizationId);
-						dao.executeUpdateSQLQuery("insert into iwb.w5_look_up_detay "
-								+ "(look_up_detay_id, look_up_id, tab_order, val      , dsc, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, customization_id, project_uuid, oproject_uuid)"
-						 + "values (?,        ?,                 ?        , ?        , ?  , 1         , ?             , current_timestamp    , ?              , current_timestamp     , ?, ?, ?)",
-						 lookUpIdDetail, lookUpId, tabOrder, ""+tabOrder, sx.trim(), scd.get("userId"), scd.get("userId"), scd.get("customizationId"), projectUuid, projectUuid);
-						tabOrder++;
-						if(vcs)dao.saveObject(new W5VcsObject(scd, 14, lookUpIdDetail));
-					}
-					d.put("look_up_id", ""+lookUpId);
-				}
-				s.append(controlTip==6 || controlTip==7 || controlTip==10 || controlTip==51 ? " integer":" character varying(256)");
-				break;
-			case	7: case 10:case 15:case 59:
-				if(GenericUtil.uInt(d.get("look_up_id"))>0) {
-					int queryId=GenericUtil.uInt(d.get("look_up_id"));
-					if(dao.executeSQLQuery("select 1 from iwb.w5_query x where x.query_id=? AND x.query_tip=3", queryId)==null)
-						throw new IWBException("framework","Form+ Builder", queryId, null, "Wrong QueryID: " + queryId, null);
-				} else
-					throw new IWBException("framework","Form+ Builder", 0, null, "QueryID not defined", null);
-				s.append(controlTip==6 || controlTip==7 || controlTip==10 || controlTip==51 ? " integer":" character varying(256)");
-				break;
-
-			default:
-//				case	1:case	11:case	12:
-				if(maxLen==0 || maxLen>3999)s.append(" text");
-				else s.append(" character varying(").append(maxLen<1024 ? 1024:maxLen).append(")");
-				break;//string, textarea, htmleditor
-
-			}
-
-			/*
-			Object notNull = d.get("not_null_flag");
-			if(false && notNull!=null){ //sonra degistirmek isteyebilir, o yzden koyma
-				if(notNull instanceof Boolean){
-					if((Boolean)notNull)s.append(" not null");
-				} else if(GenericUtil.uInt(notNull)!=0)s.append(" not null");
-			}*/
-			d.put("real_dsc", fieldDsc);
-
-		}
-		s.append(",\n version_no integer NOT NULL DEFAULT 1")
-		 .append(",\n insert_user_id integer NOT NULL DEFAULT 1")
-		 .append(",\n  insert_dttm timestamp without time zone NOT NULL DEFAULT ('now'::text)::timestamp without time zone")
-		 .append(",\n version_user_id integer NOT NULL DEFAULT 1,\n version_dttm timestamp without time zone NOT NULL DEFAULT ('now'::text)::timestamp without time zone");
-
-		s.append(",\n CONSTRAINT pk_").append(tableName).append(" PRIMARY KEY (").append(tableName).append("_id)");
-		s.append(")");
-
-		createTableSql = s.toString();
-		dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
-
-		Map msg = null, nt = null;
-		if(webPageId!=null) {
-			msg = new HashMap();msg.put("success", true);
-			nt = new HashMap();
-			msg.put("notification", nt);
-		}
-
-		try {
-			dao.executeUpdateSQLQuery(createTableSql);
-			String createSeqSql = "create sequence seq_"+tablePrefix+tableName;
-			dao.executeUpdateSQLQuery(createSeqSql);
-
-			if(vcs){
-				W5VcsCommit commit = new W5VcsCommit();
-				commit.setCommitTip((short)2);
-				commit.setExtraSql(createTableSql+";\n\n"+createSeqSql+";");
-				commit.setProjectUuid(projectUuid);
-				commit.setComment("iWB. AutoCreate Scripts for Table: " + fullTableName);
-				commit.setCommitUserId((Integer)scd.get("userId"));
-				Object oi = dao.executeSQLQuery("select nextval('iwb.seq_vcs_commit')").get(0);
-				commit.setVcsCommitId(-GenericUtil.uInt(oi));
-				dao.saveObject(commit);
-			}
-
-			s.setLength(0);
-
-			if(webPageId!=null) {
-				nt.put("_tmpStr", "Table Created on RDBMS");
-				UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
-			}
-
-		} catch (Exception e2) {
-			throw new IWBException("framework","Create Table&Seq", 0, createTableSql, e2.getMessage(), e2);
-		}
-
-		boolean b = dao.organizeTable(scd, fullTableName);
-		if(!b)
-			throw new IWBException("framework","Define Table", 0, parameter, "Define Table", null);
-		if(webPageId!=null) {
-			nt.put("_tmpStr", "Table Imported to iCodeBetter");
-			UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
-		}
-
-
-		int tableId = GenericUtil.uInt(dao.executeSQLQuery("select t.table_id from iwb.w5_table t where t.customization_id=? AND t.dsc=? AND t.project_uuid=?", customizationId, tableName2, projectUuid).get(0));
-
-		try {
-			main.put("table_id", tableId);
-		} catch (JSONException e) {}
-//		dao.executeUpdateSQLQuery("supdate iwb.w5_table t set  where t.customization_id=? AND t.table_id=?", customizationId, tableId);
-		main.put("form_name", tableName);
-
-		W5FormResult fr = postFormAsJson(scd, 181, 2, main, 182, detail);
-		if(!fr.getErrorMap().isEmpty())
-			throw new IWBException("framework","Save FormBuilder Data", 0, parameter, GenericUtil.fromMapToJsonString(fr.getErrorMap()), null);
-
-		int xformBuilderId = GenericUtil.uInt(fr.getOutputFields().get("xform_builder_id").toString());
-		int parentTemplateId =  parentTableId==0 || !main.has("template_id") ? 0 : main.getInt("template_id");
-		int parentTemplateObjectId = parentTableId==0 || !main.has("parent_object_id")  ? 0 : main.getInt("parent_object_id");
-		int formId = GenericUtil.getGlobalNextval("iwb.seq_form", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
-//				  XFORM_ID := nextval('seq_form');
-		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form("
-				+ "form_id, customization_id, object_tip, object_id, dsc, locale_msg_key, "
-				+ "default_width, default_height, tab_order, render_tip, code, label_width,"
-				+ "label_align_tip,  cont_entry_flag, "
-				+ "version_no, insert_user_id, insert_dttm, version_user_id,"
-				+ "version_dttm, render_template_id, project_uuid, oproject_uuid)"
-				+ "\nselect ?, XFORM_BUILDER.customization_id, 2, XFORM_BUILDER.table_id, 'frm_'||XFORM_BUILDER.form_name, ? ,"
-				+ "400, 300, 1, 1, null, XFORM_BUILDER.label_width,"
-				+ "XFORM_BUILDER.label_align, 0,"
-				+ "1, ?, current_timestamp, ?,"
-				+ "current_timestamp, 0, XFORM_BUILDER.project_uuid,XFORM_BUILDER.project_uuid from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=? AND XFORM_BUILDER.customization_id=?", formId, formName, userId, userId, xformBuilderId, customizationId);
-		if(vcs)dao.saveObject(new W5VcsObject(scd, 40, formId));
-
-		List lp= new ArrayList();lp.add(xformBuilderId);
-		List<Map> lm = dao.executeSQLQuery2Map("select x.* from iwb.w5_xform_builder_detail x where x.xform_builder_id=? order by 1", lp);
-		int tabOrder = 1;
-		for(Map m:lm){
-			int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
-			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form_cell("
-					+ "form_cell_id, customization_id, form_id, dsc, locale_msg_key,"
-					+ "control_tip, vtype, source_tip, not_null_flag, tab_order, control_width,"
-					+ "max_length, nrd_tip, lookup_query_id, lookup_included_params,"
-					+ "lookup_included_values, default_value, initial_value, initial_source_tip,"
-					+ "extra_definition, object_id, object_detail_id, version_no, insert_user_id,"
-					+ "insert_dttm, version_user_id, version_dttm, form_module_id, out_flag,"
-					+ "dialog_grid_id, x_order, parent_form_cell_id, active_flag, lookup_edit_form_id,"
-					+ "project_uuid, oproject_uuid)"
-					+ "\nselect  ?, x.customization_id, ?, coalesce(x.real_dsc, x.dsc), x.label,"
-					+ "case when x.real_control_tip!=0 then x.real_control_tip else  x.control_tip end, null, 1, x.not_null_flag, x.tab_order, x.width,"
-					+ " 0, 0, x.look_up_id, null, "
-					+ " null, null, x.initial_value, 0,"
-					+ " null, ?, (select f.table_field_id from iwb.w5_table_field f where f.customization_id=x.customization_id AND f.table_id=? AND f.dsc=coalesce(x.real_dsc, x.dsc)), 1, ?,"
-					+ " current_timestamp, ?, current_timestamp, 0, 0,"
-					+ " 0, 1, 0, 1, 0,"
-					+ " x.project_uuid,x.project_uuid from iwb.w5_xform_builder_detail x where x.xform_builder_detail_id=? AND x.customization_id=?",formCellId, formId, tableId, tableId,  userId, userId, GenericUtil.uInt(m.get("xform_builder_detail_id")), customizationId);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
-		}
-		if(relParentFieldName!=null){
-			int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
-			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form_cell("
-					+ "form_cell_id, customization_id, form_id, dsc, locale_msg_key,"
-					+ "control_tip, vtype, source_tip, not_null_flag, tab_order, control_width,"
-					+ "max_length, nrd_tip, lookup_query_id, lookup_included_params,"
-					+ "lookup_included_values, default_value, initial_value, initial_source_tip,"
-					+ "extra_definition, object_id, object_detail_id, version_no, insert_user_id,"
-					+ "insert_dttm, version_user_id, version_dttm, form_module_id, out_flag,"
-					+ "dialog_grid_id, x_order, parent_form_cell_id, active_flag, lookup_edit_form_id,"
-					+ "project_uuid, oproject_uuid)"
-					+ "\nvalues(?, ?, ?, ?, ? ,"
-					+ "0, null, 1, 1, 10*?, 100,"
-					+ " 0, 0, 0, null, "
-					+ " null, null, null, 0,"
-					+ " null, ?, (select f.table_field_id from iwb.w5_table_field f where f.customization_id=? AND f.table_id=? AND f.dsc=?), 1, ?,"
-					+ " current_timestamp, ?, current_timestamp, 0, 0,"
-					+ " 0, 1, 0, 1, 0,"
-					+ " ?, ? )",formCellId, customizationId, formId, relParentFieldName, relParentFieldName, tabOrder++, tableId, customizationId, tableId, relParentFieldName, userId, userId, projectUuid, projectUuid);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
-		}
-		if(webPageId!=null) {
-			nt.put("_tmpStr", "Form Created for CRUD Operations");
-			UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
-		}
-
-//				XQUERY_ID := nextval('seq_query');
-		int queryId = GenericUtil.getGlobalNextval("iwb.seq_query", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query')").get(0));
-		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query("
-				+ "query_id, dsc, main_table_id, sql_select, sql_from, sql_where,"
-				+ "sql_groupby, sql_orderby, query_tip, log_level_tip, version_no,"
-				+ "insert_user_id, insert_dttm, version_user_id, version_dttm,"
-				+ "show_parent_record_flag, sql_post_select,"
-				+ "data_fill_direction_tip, opt_query_field_ids, opt_tip, project_uuid,oproject_uuid, customization_id)"
-				+ "select ?, 'qry_'||XFORM_BUILDER.form_name||'1', XFORM_BUILDER.table_id, 'x.*', (select t.dsc from iwb.w5_table t where t.table_id=XFORM_BUILDER.table_id AND t.customization_id=?)||' x', null,"
-				+ "null, 1, 1, 1, 1,"
-				+ "?, current_timestamp, ?, current_timestamp, "
-				+ "0,  null,"
-				+ "0, null, 0, XFORM_BUILDER.project_uuid,XFORM_BUILDER.project_uuid, XFORM_BUILDER.customization_id from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=?", queryId, customizationId, userId, userId, xformBuilderId);
-		if(vcs)dao.saveObject(new W5VcsObject(scd, 8, queryId));
-
-		dao.organizeQueryFields(scd, queryId, (short)1);
-
-		if(webPageId!=null) {
-			nt.put("_tmpStr", "Query Created");
-			UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
-		}
-
-
-		dao.executeUpdateSQLQuery("set search_path=iwb");
-
-		List llo = dao.find("from W5QueryFieldCreation t where queryFieldId<?", 500);
-//		dao.getHibernateTemplate().flush();
-		//				XGRID_ID := nextval('seq_grid');
-//		List lw = dao.executeSQLQuery("select min(qf.query_field_id) from iwb.w5_query_field qf where qf.query_id=? AND qf.customization_id=? AND qf.project_uuid=?", queryId, customizationId, projectUuid);
-		int gridId = GenericUtil.getGlobalNextval("iwb.seq_grid", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid')").get(0));
-		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_grid("
-				+ "grid_id, customization_id, dsc, query_id, locale_msg_key, grid_tip,"
-				+ "default_page_record_number, selection_mode_tip, pk_query_field_id,"
-				+ "auto_expand_field_id, "
-				+ "default_width, default_height, version_no, insert_user_id, insert_dttm,"
-				+ "version_user_id, version_dttm, default_sql_order_by, default_crud_form_id,"
-				+ "column_render_tip, grouping_field_id, "
-				+ "insert_edit_mode_flag, move_up_down_flag,"
-				+ "tree_master_field_id, summary_tip, row_color_fx_tip, row_color_fx_query_field_id,"
-				+ "row_color_fx_render_tip, row_color_fx_render_field_ids, code, project_uuid, oproject_uuid)"
-				+ "select ?, XFORM_BUILDER.customization_id, ? , ?, XFORM_BUILDER.grid_name, 0,"
-				+ "?, 1, (select min(qf.query_field_id) from iwb.w5_query_field qf where qf.query_id=?),"
-				+ "0, "
-				+ "400, 300, 1, ?, current_timestamp,"
-				+ "?, current_timestamp, null, ?,"
-				+ "0, 0, "
-				+ "0, 0,"
-				+ "0, 0, 0, 0,"
-				+ "0, null, null, XFORM_BUILDER.project_uuid,XFORM_BUILDER.project_uuid "
-				+ " from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=? AND XFORM_BUILDER.customization_id=?", gridId, "grd_"+gridName, queryId, parentTableId==0 ? 20:0, queryId, userId, userId, formId, xformBuilderId, customizationId);
-		if(vcs)dao.saveObject(new W5VcsObject(scd, 5, gridId));
-
-		tabOrder = 1;
-		for(Map m:lm){
-			int gridColumnId = GenericUtil.getGlobalNextval("iwb.seq_grid_column", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_grid_column')").get(0));
-			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_grid_column("
-					+ "grid_column_id, query_field_id, grid_id, customization_id, locale_msg_key, tab_order,"
-					+ "visible_flag, sortable_flag, width, renderer, align_tip, version_no,"
-					+ "insert_user_id, insert_dttm, version_user_id, version_dttm, extra_definition,"
-					+ "grid_module_id, form_cell_id, filter_flag, project_uuid, oproject_uuid)"
-					+ "\nselect ?, (select f.query_field_id from iwb.w5_query_field f where f.dsc=coalesce(x.real_dsc, x.dsc) AND f.query_id=?), ?, x.customization_id, coalesce(x.grd_label, x.label), 10*?,"
-					+ "x.grd_visible_flag, 1, x.grd_width, null, x.grd_align_tip, 1,"
-					+ "?, current_timestamp, ?, current_timestamp, null,"
-					+ "0, case when y.grid_edit=1 AND x.grd_editable_flag=1 then (select c.form_cell_id from iwb.w5_form_cell c where c.dsc=coalesce(x.real_dsc, x.dsc) AND c.form_id=? AND c.customization_id=x.customization_id) else 0 end, 0, x.project_uuid, x.project_uuid"
-					+ " from iwb.w5_xform_builder_detail x,iwb.w5_xform_builder y "
-					+ "where x.xform_builder_id = y.xform_builder_id AND x.customization_id=y.customization_id "
-					+ "AND x.xform_builder_detail_id=?  AND x.customization_id=?",gridColumnId, queryId, gridId, tabOrder++, userId, userId, formId, GenericUtil.uInt(m.get("xform_builder_detail_id")), customizationId);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 4, gridColumnId));
-		}
-
-		if(webPageId!=null) {
-			nt.put("_tmpStr", "Grid Created");
-			UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
-		}
-
-
-//					if(pmaster_flag=1 AND XFORM_BUILDER.grid_search=1 AND (select count(1) from iwb.w5_xform_builder_detail x where x.xform_builder_id=pxform_builder_id  AND x.customization_id=XUSER_ROLE.customization_id AND x.project_uuid=pproject_uuid AND x.grd_search_flag=1)>0) then
-		if(parentTableId==0){
-			tabOrder = 1;
-			for(Map m:lm)if(GenericUtil.uInt(m.get("grd_search_flag"))!=0){
-				int queryParamId = GenericUtil.getGlobalNextval("iwb.seq_query_param", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
-				dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query_param("
-					+ "query_param_id, query_id, dsc, param_tip, expression_dsc, operator_tip,"
-					+ "not_null_flag, tab_order, source_tip, default_value, min_length,"
-					+ "max_length, version_no, insert_user_id, insert_dttm, version_user_id,"
-					+ "version_dttm, related_table_field_id, min_value, max_value, project_uuid, oproject_uuid, customization_id)"
-					+ "SELECT  ?, ?, 'x'||coalesce(x.real_dsc, x.dsc), case when x.control_tip in (1,2,3,4) then x.control_tip else 1 end, 'x.'||coalesce(x.real_dsc, x.dsc), 0,"
-					+ "0, 10*?, 1, null, 0,"
-					+ "0, 1, ?, current_timestamp, ?,"
-					+ "current_timestamp, (select f.table_field_id from iwb.w5_table_field f where f.dsc=coalesce(x.real_dsc, x.dsc) AND f.table_id=? AND f.customization_id=x.customization_id), null, null, x.project_uuid, x.project_uuid, x.customization_id "
-					+ "from iwb.w5_xform_builder_detail x where "
-					+ "x.xform_builder_detail_id=? AND x.customization_id=?", queryParamId, queryId, tabOrder++, userId, userId, tableId, GenericUtil.uInt(m.get("xform_builder_detail_id")), customizationId);
-				if(vcs)dao.saveObject(new W5VcsObject(scd, 10, queryParamId));
-			}
-
-			//  XSFORM_ID := nextval('seq_form');
-			int sformId = GenericUtil.getGlobalNextval("iwb.seq_form", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form')").get(0));
-			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form("
-				+ "form_id, customization_id, object_tip, object_id, dsc, locale_msg_key, "
-				+ "default_width, default_height, tab_order, render_tip, code, label_width,"
-				+ "label_align_tip, cont_entry_flag, "
-				+ "version_no, insert_user_id, insert_dttm, version_user_id,"
-				+ "version_dttm, render_template_id, project_uuid, oproject_uuid)"
-				+ "\nselect ?, XFORM_BUILDER.customization_id, 1, ?, 'sfrm_'||XFORM_BUILDER.form_name, 'search_criteria',"
-				+ "400, 300, 1, 1, null, XFORM_BUILDER.label_width,"
-				+ "XFORM_BUILDER.label_align, 0,"
-				+ "1, ?, current_timestamp, ?, current_timestamp, 0, XFORM_BUILDER.project_uuid, XFORM_BUILDER.project_uuid from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=? AND XFORM_BUILDER.customization_id=?", sformId, gridId, userId, userId, xformBuilderId, customizationId);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 40, sformId));
-
-			for(Map m:lm)if(GenericUtil.uInt(m.get("grd_search_flag"))!=0){
-				int formCellId = GenericUtil.getGlobalNextval("iwb.seq_form_cell", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_form_cell')").get(0));
-				int controlTip = GenericUtil.uInt(m.get("real_control_tip"));
-				if(controlTip==0)controlTip = GenericUtil.uInt(m.get("control_tip"));
-				int lookUpId = GenericUtil.uInt(m.get("look_up_id"));
-				switch(controlTip){
-				case	5:controlTip=6; lookUpId = 143;break;
-				case	11:case	12:controlTip=1;break;
-				}
-				dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_form_cell("
-						+ "form_cell_id, customization_id, form_id, dsc, locale_msg_key,"
-						+ "control_tip, vtype, source_tip, not_null_flag, tab_order, control_width,"
-						+ "max_length, nrd_tip, lookup_query_id, lookup_included_params,"
-						+ "lookup_included_values, default_value, initial_value, initial_source_tip,"
-						+ "extra_definition, object_id, object_detail_id, version_no, insert_user_id,"
-						+ "insert_dttm, version_user_id, version_dttm, form_module_id, out_flag,"
-						+ "dialog_grid_id, x_order, parent_form_cell_id, active_flag, lookup_edit_form_id, project_uuid, oproject_uuid)"
-						+ "\nselect  ?, x.customization_id, ?, 'x'||coalesce(x.real_dsc, x.dsc), x.label,"
-						+ "?, null, 1, 0, 10*?, 200,"
-						+ "0, 0, ?, null,"
-						+ "null, null, null, 0,"
-						+ "null, ?, (select f.query_param_id from iwb.w5_query_param f where f.query_id=? AND f.dsc='x'||coalesce(x.real_dsc, x.dsc)), 1, ?,"
-						+ "current_timestamp, ?, current_timestamp, 0, 0,"
-						+ "0, 1, 0, 1, 0, x.project_uuid, x.project_uuid "
-						+ "from iwb.w5_xform_builder_detail x where x.grd_search_flag=1 AND x.xform_builder_detail_id=? AND x.customization_id=?"
-						, formCellId, sformId, controlTip, tabOrder++, lookUpId, gridId, queryId, userId, userId, GenericUtil.uInt(m.get("xform_builder_detail_id")), customizationId);
-				if(vcs)dao.saveObject(new W5VcsObject(scd, 41, formCellId));
-			}
-
-			if(webPageId!=null) {
-				nt.put("_tmpStr", "Form Created for Grid Search");
-				UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
-			}
-
-
-		}
-
-
-//				   if(pmaster_flag=1)then
-		int templateId = 0, menuId = 0;
-		if(parentTableId==0){
-					 //  XTEMPLATE_ID := nextval('seq_template');
-			templateId = GenericUtil.getGlobalNextval("iwb.seq_template", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template')").get(0));
-			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_template("
-					+ "template_id, customization_id, template_tip, dsc, object_id,"
-					+ "object_tip, code, version_no, insert_user_id, insert_dttm, version_user_id,"
-					+ "version_dttm, locale_msg_flag, project_uuid, oproject_uuid)"
-					+ "VALUES (?, ?, 2, 'tpl_'||?||'1', 0, "
-					+ "0, null, 1, ?, current_timestamp, ?,"
-					+ "current_timestamp, 1, ?, ?)",templateId, customizationId, tableName, userId, userId, projectUuid, projectUuid);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 63, templateId));
-
-			int templateObjectId = GenericUtil.getGlobalNextval("iwb.seq_template_object", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
-			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_template_object("
-					+ "template_object_id, template_id, customization_id, object_id, tab_order, object_tip,"
-					+ "version_no, insert_user_id, insert_dttm, version_user_id, version_dttm,"
-					+ "access_view_users, access_view_roles, access_view_tip, post_js_code,"
-					+ "parent_object_id, src_query_field_id, dst_query_param_id,"
-					+ "dst_static_query_param_val, dst_static_query_param_id, active_flag, project_uuid, oproject_uuid)"
-					+ "VALUES (?, ?, ?, ?, 1, 1,"
-					+ "1, ?, current_timestamp, ?, current_timestamp,"
-					+ "null, null, 0, null,"
-					+ "0, null, null,null, null, 1, ?, ?)",templateObjectId, templateId, customizationId, gridId, userId, userId, projectUuid, projectUuid);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 64, templateObjectId));
-
-			menuId = GenericUtil.getGlobalNextval("iwb.seq_menu", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
-			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_menu(" +
-					"menu_id, parent_menu_id, user_tip, node_tip, locale_msg_key," +
-					"tab_order, img_icon, url, version_no, insert_user_id, insert_dttm," +
-					"version_user_id, version_dttm, customization_id, access_view_tip, project_uuid, oproject_uuid)" +
-					"VALUES (?, 0, ?, 4, ?, " +
-		            "coalesce((select max(q.tab_order) from iwb.w5_menu q where q.customization_id=? AND q.user_tip=?),0)+10, null, 'showPage?_tid='||?::text, 1, ?, current_timestamp, " +
-		            "?, current_timestamp, ?, 0, ?, ?)", menuId, userTip, gridName, customizationId, userTip, templateId, userId, userId, customizationId, projectUuid, projectUuid);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 65, menuId));
-		} else {
-			Object[] loo = (Object[])dao.executeSQLQuery("select f.dsc, f.table_field_id "
-					+ "from iwb.w5_table_field f where f.customization_id=? AND f.table_id=? AND f.tab_order=2", customizationId, tableId).get(0);
-			dao.executeUpdateSQLQuery("UPDATE iwb.w5_table_field f SET can_update_flag=0 WHERE f.customization_id=? AND f.table_id=? AND f.tab_order=2", customizationId, tableId);
-			dao.executeUpdateSQLQuery("UPDATE iwb.w5_grid f SET code=f.dsc||'._postInsert=function(sel,url,a){var m=getMasterGridSel(a,sel);if(m)return url+\"&"+loo[0]+"=\" +(m."+loo[0]+" || m.get(\""+loo[0]+"\"));};' WHERE f.customization_id=? AND f.grid_id=?", customizationId, gridId);
-			int tableChildId = GenericUtil.getGlobalNextval("iwb.seq_table_relation", projectUuid, userId, customizationId);
-			dao.executeUpdateSQLQuery("insert INTO iwb.w5_table_child "
-					+ "(table_child_id, locale_msg_key, relation_tip, table_id, table_field_id, related_table_id, related_table_field_id, related_static_table_field_id, related_static_table_field_val, version_no, insert_user_id, insert_dttm, version_user_id, version_dttm, copy_strategy_tip, on_readonly_related_action, on_invisible_related_action, on_delete_action, tab_order, on_delete_action_value, child_view_tip, child_view_object_id, revision_flag, project_uuid, customization_id) "
-					+ "values(?, ?, 2, ?     , ?             , ?               , ?                     , 0                            , 0                             , 1         , ?             , current_timestamp  , ?      , current_timestamp , 0          , 0                         , 0                          , 0               , 10       , null                  , 0             , 0                   , 0            , ?           , ?)",
-					tableChildId,"rel_xxx2"+tableName,parentTableId, FrameworkCache.getTable(scd, parentTableId).get_tableFieldList().get(0).getTableFieldId(), tableId, loo[1], userId, userId, projectUuid, customizationId);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 657, tableChildId));
-
-
-			int queryParamId = GenericUtil.getGlobalNextval("iwb.seq_query_param", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_query_param')").get(0));
-			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_query_param("
-					+ "query_param_id, query_id, dsc, param_tip, expression_dsc, operator_tip,"
-					+ "not_null_flag, tab_order, source_tip, default_value, min_length,"
-					+ "max_length, version_no, insert_user_id, insert_dttm, version_user_id,"
-					+ "version_dttm, related_table_field_id, min_value, max_value, project_uuid, oproject_uuid, customization_id)"
-					+ "values ("
-					+ "?, ?, 'x'||?, 4, 'x.'||?, 0, "
-					+ "1, 1, 1, null, 0,"
-					+ "0, 1, ?, current_timestamp, ?,"
-					+ "current_timestamp, ?, null, null, ?, ?, ?)",
-					queryParamId, queryId, loo[0],loo[0],userId, userId, GenericUtil.uInt(loo[1]), projectUuid, projectUuid, customizationId);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 10, queryParamId));
-
-
-			int parentQueryId = GenericUtil.uInt(dao.executeSQLQuery("select g.query_id from iwb.w5_template_object q, iwb.w5_grid g where q.template_object_id=? AND q.customization_id=? "
-					+ " AND g.customization_id=q.customization_id AND q.object_id=g.grid_id",parentTemplateObjectId, customizationId).get(0));
-
-			int templateObjectId = GenericUtil.getGlobalNextval("iwb.seq_template_object", projectUuid, userId, customizationId);//1000000+GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_template_object')").get(0));
-			dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_template_object("
-					+ "template_object_id, template_id, customization_id, object_id, tab_order, object_tip,"
-					+ "version_no, insert_user_id, insert_dttm, version_user_id, version_dttm,"
-					+ "access_view_users, access_view_roles, access_view_tip, post_js_code,"
-					+ "parent_object_id, src_query_field_id, dst_query_param_id,"
-					+ "dst_static_query_param_val, dst_static_query_param_id, active_flag, project_uuid, oproject_uuid)"
-					+ "VALUES ("
-					+ "?, ?, ?, ?, (select coalesce(max(q.tab_order),0)+1 from iwb.w5_template_object q where q.template_id=? AND q.customization_id=? ), 1,"
-					+ "1, ?, current_timestamp, ?, current_timestamp,"
-					+ "null, null, 0, null,"
-					+ "?, (select min(r.query_field_id) from iwb.w5_query_field r where r.query_id=? AND  "
-					+ "r.tab_order=(select min(f.tab_order) from iwb.w5_query_field f where f.query_id=?)), ?,"
-					+ "null, null, 1, ?, ?)", templateObjectId, parentTemplateId, customizationId, gridId, parentTemplateId, customizationId, userId, userId, parentTemplateObjectId, parentQueryId, parentQueryId, queryParamId, projectUuid, projectUuid);
-			if(vcs)dao.saveObject(new W5VcsObject(scd, 64, templateObjectId));
-
-			if(webPageId!=null) {
-				nt.put("_tmpStr", "Page & Menu Created");
-				UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
-			}
-
-
-		}
-		dao.executeUpdateSQLQuery("update iwb.w5_table t "
-				+ "set default_insert_form_id=?, default_update_form_id=?, default_view_grid_id=?, summary_record_sql='x.'||(select tf.dsc from iwb.w5_table_field tf where tf.tab_order=2 AND tf.table_id=t.table_id AND t.customization_id=tf.customization_id)||'::text' "
-				+ "where t.table_id=? AND t.customization_id=? ", formId, formId, gridId, tableId, customizationId);
-
-		dao.executeUpdateSQLQuery("update iwb.w5_table_field tf "
-				+ "set default_control_tip=(select fc.control_tip from iwb.w5_form_cell fc, iwb.w5_form f where fc.customization_id=f.customization_id AND f.form_id=fc.form_id AND f.object_tip=2 AND f.object_id=tf.table_id AND fc.dsc=tf.dsc), default_lookup_table_id=(select fc.lookup_query_id from iwb.w5_form_cell fc, iwb.w5_form f where fc.customization_id=f.customization_id AND f.form_id=fc.form_id AND f.object_tip=2 AND f.object_id=tf.table_id AND fc.dsc=tf.dsc) "
-				+ "where tf.table_id=? AND tf.customization_id=? AND tf.tab_order>1 AND tf.dsc not in ('version_no','insert_user_id','insert_dttm','version_user_id','version_dttm') "
-				,tableId, customizationId);
-
-		dao.executeUpdateSQLQuery("update iwb.w5_query_field tf "
-				+ "set post_process_tip=(select case when f.default_control_tip in (6) then 10 when f.default_control_tip in (8) then 11 else 0 end from w5_table_field f where tf.customization_id=f.customization_id AND f.table_id=? AND f.dsc=tf.dsc)"
-				+ ", lookup_query_id=(select case when f.default_control_tip in (6,8) then f.default_lookup_table_id else 0 end from w5_table_field f where tf.customization_id=f.customization_id AND f.table_id=? AND f.dsc=tf.dsc)  "
-				+ ", main_table_field_id=(select f.table_field_id from w5_table_field f where tf.customization_id=f.customization_id AND f.table_id=? AND f.dsc=tf.dsc)  "
-				+ "where tf.query_id=? AND tf.customization_id=?"
-				,tableId, tableId, tableId, queryId, customizationId);
-
-
-
-		if(parentTableId==0){ //main Template
-			return templateId;
-		} else {
-			return gridId;
-		}
-	}
-	public W5FormResult postFormAsJson(Map<String, Object> scd, int mainFormId, int action, JSONObject mainFormData, int detailFormId, JSONArray detailFormData){
-		Map<String, String> requestParams = new HashMap<String, String>();
-		Iterator<String> ik = mainFormData.keys();
-		while(ik.hasNext())try{
-			String k= ik.next();
-			if(!GenericUtil.isEmpty(mainFormData.get(k)))requestParams.put(k, mainFormData.get(k).toString());
-		} catch (Exception e) {
-			throw new IWBException("framework","Json2FormPost(FormId)", mainFormId, null, e.getMessage(), null);
-		}
-		requestParams.put("_fid1", ""+detailFormId);
-		requestParams.put("_cnt1", ""+detailFormData.length());
-		for(int i=0;i<detailFormData.length();i++)try{
-			JSONObject  d = (JSONObject)detailFormData.get(i);
-			ik = d.keys();
-			requestParams.put("a1."+(i+1), "2");
-			while(ik.hasNext())try{
-				String k= ik.next();
-				if(!GenericUtil.isEmpty(d.get(k)))requestParams.put(k+"1."+(i+1), d.get(k).toString());
-			} catch (Exception e) {
-				throw new IWBException("framework","Json2FormPost(FormId)", mainFormId, null, e.getMessage(), e);
-			}
-		}catch (Exception e) {
-			throw new IWBException("framework","Json2FormPostDetail(FormId)", detailFormId, null, e.getMessage(), e);
-		}
-		return postForm4Table(scd, mainFormId, action, requestParams, "");
-	}
-
-	public M5ListResult getMListResult(Map<String, Object> scd, int listId, Map<String, String> parameterMap) {
-		M5ListResult result = dao.getMListResult(scd, listId, parameterMap, false);
-		return result;
-	}
-
-	public Map getUserNotReadChatMap(Map<String, Object> scd) {
-		String s = "select k.sender_user_id user_id , count(1) cnt from iwb.w5_chat k where k.receiver_user_id=${scd.userId}::integer AND k.deliver_status_tip in (0,1) AND k.customization_id=${scd.customizationId}::integer "
-				+ "AND k.sender_user_id in (select u.user_id from iwb.w5_user u where ((u.customization_id=${scd.customizationId}::integer AND (u.global_flag=1 OR u.project_uuid='${scd.projectId}') AND u.user_status=1)) OR exists(select 1 from iwb.w5_user_related_project rp where rp.user_id=u.user_id AND rp.related_project_uuid='${scd.projectId}'))"
-				+ " group by k.sender_user_id";
-		Object[] oz = DBUtil.filterExt4SQL(s, scd, null, null);
-		List<Object[]> l = dao.executeSQLQuery2(oz[0].toString(),(List)oz[1]);
-		Map r = new HashMap();
-		if(l!=null)for(Object[] o:l)r.put(o[0], o[1]);
-		return r;
-	}
-
-	public Map executeQuery4Stat(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
-		checkTenant(scd);
-		return dao.executeQuery4Stat(scd, gridId, requestParams);
-	}
-
-	public Map executeQuery4StatTree(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
-		checkTenant(scd);
-		return dao.executeQuery4StatTree(scd, gridId, requestParams);
-	}
-
-	public List<W5BIGraphDashboard> getGraphDashboards(Map<String, Object> scd) {
-		String dashIds = (String)dao.executeSQLQuery("select r.mobile_portlet_ids from iwb.w5_user_role r where r.customization_id=? AND r.user_role_id=?", (Integer)scd.get("customizationId"), (Integer)scd.get("userRoleId")).get(0);
-		if(GenericUtil.isEmpty(dashIds))return null;
-		String[] ds= dashIds.split(",");
-		List<W5BIGraphDashboard> l = new ArrayList();
-		for(String s:ds){
-			int id = GenericUtil.uInt(s);
-			if(id==0)continue;if(id<0)id=-id;
-			W5BIGraphDashboard gd = (W5BIGraphDashboard)dao.getCustomizedObject("from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?", id, (String)scd.get("projectId"),"GraphDashBoard");
-			if(gd!=null)l.add(gd);
-		}
-		return l;
-	}
-
-
-/*
-	public String projectAccessUrl(String instanceUuid, String remoteAddr) {
-		List l = dao.executeSQLQuery("select p.val from iwb.w5_app_setting p where p.customization_id=0 AND p.dsc=?", "iwb_active_projects4"+remoteAddr);
-		if(GenericUtil.isEmpty(l))return null;
-		return l.get(0).toString();
-	} */
-
-
-	public Object executeQuery4Debug(Map<String, Object> scd,
-			int queryId, Map<String, String> requestParams) {
-		W5QueryResult queryResult = queryId==-1 ? new W5QueryResult(-1) : dao.getQueryResult(scd, queryId);
-
-		queryResult.setErrorMap(new HashMap());queryResult.setScd(scd);
-		queryResult.setRequestParams(requestParams);
-		if(queryId==-1 || queryResult.getQuery().getQuerySourceTip()!=0){
-			String orderBy = requestParams.get("sort");
-			if(GenericUtil.isEmpty(orderBy))orderBy=requestParams.get("_sql_orderby");
-			else if(requestParams.containsKey("dir"))orderBy+=" " + requestParams.get("dir");
-			queryResult.prepareQuery4Debug(requestParams.get("_sql_select"), requestParams.get("_sql_from"), requestParams.get("_sql_where"), requestParams.get("_sql_groupby"), orderBy);
-
-			if(queryResult.getErrorMap().isEmpty()){
-		        queryResult.setFetchRowCount(20);
-		        queryResult.setStartRowNumber(0);
-	    		String sqlFrom2 = requestParams.get("_sql_from").toLowerCase();
-	    		W5Table t = null;
-	    		if(!sqlFrom2.contains("select") && !sqlFrom2.contains(",")  && !sqlFrom2.contains("left")  && !sqlFrom2.contains("(")){
-	    			String[] ss = sqlFrom2.split(" ");
-	    			if(ss.length<3){
-	    				List l = dao.find("select t.tableId from W5Table t where t.projectUuid=? AND t.dsc=?", scd.get("projectId"), ss[0]);
-	    				if(!l.isEmpty())t = FrameworkCache.getTable(scd, (Integer)l.get(0));
-	    			}
-	    		}
-				if(FrameworkSetting.cloud && (Integer)scd.get("customizationId")>0 && DBUtil.checkTenantSQLSecurity(queryResult.getExecutedSql())) {
-					throw new IWBException("security","SQL", 0, null, "Forbidden Command. Please contact iCodeBetter team ;)", null);
-				}
-
-	        	return dao.executeSQLQuery2Map4Debug(scd, t, queryResult.getExecutedSql(), queryResult.getSqlParams(), GenericUtil.uIntNvl(requestParams, "limit", 50), GenericUtil.uIntNvl(requestParams, "start", 0));
-	//        	if(queryResult.getData()==null)queryResult.setData(new ArrayList());
-			}
-		} else { //rhino
-			return dao.executeQueryAsRhino4Debug(queryResult, requestParams.get("_sql_from"));
-		}
-
-		return queryResult;
-	}
-
-	public List executeQuery4DataList(Map<String, Object> scd, int tableId, Map<String, String> requestParams) {
-		return dao.executeQuery4DataList(scd, tableId, requestParams);
-	}
-
-	public List executeQuery4Pivot(Map<String, Object> scd, int tableId, Map<String, String> requestParams) {
-		return dao.executeQuery4Pivot(scd, tableId, requestParams);
-	}
-	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int dbFuncId, Map<String, String> parameterMap) {
-		return dao.executeGlobalFunc4Debug(scd, dbFuncId, parameterMap);
-	}
-	public Map<String, Object> getWsServerMethodObjects(W5WsServer wss) {
-		Map<String, Object> wsmoMap = new HashMap();
-		Map scd = new HashMap();
-		scd.put("projectId", wss.getProjectUuid());
-		for(W5WsServerMethod wsm:wss.get_methods())try{
-			switch(wsm.getObjectTip()){
-			case	0:case 1:case 2:case 3://form
-				wsmoMap.put(wsm.getDsc(), dao.getFormResult(scd, wsm.getObjectId(), wsm.getObjectTip()==0 ? 1:wsm.getObjectTip(), new HashMap()));
-				break;
-			case	4:
-				wsmoMap.put(wsm.getDsc(), dao.getGlobalFuncResult(scd, wsm.getObjectId()));
-				break;
-			case	19:
-				wsmoMap.put(wsm.getDsc(), dao.getQueryResult(scd, wsm.getObjectId()));
-				break;
-			case	31:case 32:case 33:
-				wsmoMap.put(wsm.getDsc(), FrameworkCache.getWorkflow(scd, wsm.getObjectId()));
-				break;
-			default:
-				wsmoMap.put(wsm.getDsc(), "Wrong ObjectTip");
-			}
-		}catch(Exception e){
-			wsmoMap.put(wsm.getDsc(), "Invalid Object");
-		}
-		return wsmoMap;
-	}
-
-	public Map REST(Map<String, Object> scd, String name, Map requestParams) throws IOException{
-		String[] u = name.replace('.', ',').split(",");
-		if(u.length<2)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Call should be [serviceName].[methodName]", null);
-		W5Ws ws = FrameworkCache.getWsClient(scd, u[0]);
-		if(ws==null)throw new IWBException("ws", "Wrong ServiceName", 0, null, "Could find ["+u[0]+"]", null);
-		W5WsMethod wsm = null;
-		for(W5WsMethod twm:ws.get_methods())if(twm.getDsc().equals(u[1])){
-			wsm = twm;
-			break;
-		}
-		if(wsm==null)throw new IWBException("ws", "Wrong MethodName", 0, null, "Could find ["+u[1]+"]", null);
-
-		if(!GenericUtil.accessControl(scd, ws.getAccessExecuteTip(), ws.getAccessExecuteRoles(), ws.getAccessExecuteUsers())
-				|| !GenericUtil.accessControl(scd, wsm.getAccessExecuteTip(), wsm.getAccessExecuteRoles(), wsm.getAccessExecuteUsers())){
-			throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "Access Forbidden", null);
-
-		}
-		try {
-			String projectId = (String)scd.get("projectId");
-			if(wsm.get_params()==null){
-				wsm.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", wsm.getWsMethodId(), projectId));
-				wsm.set_paramMap(new HashMap());
-				for(W5WsMethodParam wsmp:wsm.get_params())
-					wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
-			}
-			String tokenKey = null;
-			Map m = new HashMap();
-			Map errorMap = new HashMap();
-			if(ws.getWssTip()==2){//token ise ve token yok ise
-				if(ws.getWssLoginMethodId()==null || ws.getWssLoginMethodParamId()==null || ws.getWssLoginTimeout()==null)
-					throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Token Properties Not Defined", null);
-				if(ws.getWssLoginMethodId()!=wsm.getWsMethodId() && ws.getWssLoginMethodParamId()!=null && (ws.getWssLogoutMethodId()==null || ws.getWssLogoutMethodId()==wsm.getWsMethodId())){
-					tokenKey = (String)ws.loadValue("tokenKey");
-					Long tokenTimeout =  (Long)ws.loadValue("tokenKey.timeOut");
-					W5WsMethod loginMethod = FrameworkCache.getWsMethod(scd, ws.getWssLoginMethodId());
-					if(loginMethod.get_params()==null){
-						loginMethod.set_params(dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder", loginMethod.getWsMethodId(), projectId));
-						loginMethod.set_paramMap(new HashMap());
-						for(W5WsMethodParam wsmp:loginMethod.get_params())
-							loginMethod.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
-					}
-					W5WsMethodParam tokenParam = loginMethod.get_paramMap().get(ws.getWssLoginMethodParamId());
-					if(tokenKey==null || tokenTimeout==null || tokenTimeout<=System.currentTimeMillis()){//yeni bir token alinacak
-						if(tokenParam!=null){
-							Map tokenResult = REST(scd, ws.getDsc()+"." + loginMethod.getDsc(), new HashMap());
-							Object o = tokenResult.get(tokenParam.getDsc());
-							if(o==null)
-								throw new IWBException("security","WS Method Call", wsm.getWsMethodId(), null, "WSS: Auto-Login Failed", null);
-							tokenKey = o.toString();
-							ws.storeValue("tokenKey", tokenKey);
-							ws.storeValue("tokenKey.timeOut", System.currentTimeMillis()+ws.getWssLoginTimeout().longValue());
-						}
-					}
-					requestParams.put(tokenParam.getDsc(), tokenKey);
-				}
-			}
-
-
-			Map<String, Object> result = new HashMap();
-			switch(ws.getWsTip()){
-			case	1://soap
-
-				break;
-			case	2://rest
-				String url = ws.getWsUrl();
-				if(!url.endsWith("/"))url+="/";
-				url+=GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
-				String params = null;
-				Map<String, String> reqPropMap = new HashMap();
-				reqPropMap.put("Content-Language", "tr-TR");
-				if(!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip()>0){
-					if(wsm.getParamSendTip()<4){
-						for(W5WsMethodParam p:wsm.get_params())if(p.getOutFlag()==0 && p.getParentWsMethodParamId()==0){
-							Object o = GenericUtil.prepareParam((W5Param)p, scd, requestParams, p.getSourceTip(), null, p.getNotNullFlag(), null, null, errorMap, dao);
-							if(o!=null && o.toString().length()>0){
-								m.put(p.getDsc(), o);
-							}
-						}
-						if(!errorMap.isEmpty()){
-							throw new IWBException("validation","WS Method Call",wsm.getWsId(), null, "Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
-						}
-						switch(wsm.getParamSendTip()){
-						case	1://form
-						case	3://form as post_url
-							params = GenericUtil.fromMapToURI(m);
-							if(wsm.getParamSendTip()==3){
-								if(!GenericUtil.isEmpty(params)){
-									if(url.indexOf('?')==-1)url+="?";
-									url+=params;
-								}
-								params = null;
-							}
-							reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-							break;
-						case	2://json
-							params = GenericUtil.fromMapToJsonString2Recursive(m);
-							reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
-							break;
-						}
-					} else {
-						String postUrl = (String)requestParams.get("post_url");
-						if(!GenericUtil.isEmpty(postUrl))url += postUrl;
-					}
-				}
-				if(wsm.getHeaderAcceptTip()!=null){
-					reqPropMap.put("Accept", new String[]{"application/json","application/xml"}[wsm.getHeaderAcceptTip()-1]);
-				}
-				Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params);
-				String x = HttpUtil.send(url, params,new String[]{"GET","POST","PUT","PATCH","DELETE"}[wsm.getCallMethodTip()], reqPropMap);
-				if(!GenericUtil.isEmpty(x))try{
-					log.setResponse(x);
-					String xx = x.trim();
-					if(xx.length()>0)switch(xx.charAt(0)){
-					case	'{':
-						JSONObject jo = new JSONObject(x);
-						result.putAll(GenericUtil.fromJSONObjectToMap(jo));
-						break;
-					case	'[':
-						JSONArray ja = new JSONArray(x);
-						result.put("data", GenericUtil.fromJSONArrayToList(ja));
-						break;
-					default:
-						result.put("data", x);
-					}
-					if(GenericUtil.uInt(requestParams.get("_iwb_cfg"))!=0) {
-						result.put("_iwb_cfg_rest_method", wsm);
-					}
-				} catch (JSONException e) {
-					throw new RuntimeException(e);
-				}
-				if(FrameworkSetting.log2tsdb){
-					log.calcProcessTime();
-					LogUtil.logObject(log);
-				}
-				break;
-			}
-
-
-			return result;
-		} catch (Exception e){
-			throw new IWBException("framework", "RESTService_Method", wsm.getWsMethodId(), null, "[1376,"+wsm.getWsMethodId()+"] " + name, e);
-		}
-
-	}
-
-	private W5TsMeasurement getTsMeasurement(Map<String, Object> scd, int measurementId){ //TODO
-		W5TsMeasurement m= null;
-/*		if(FrameworkSetting.preloadWEngine==0 && (m=FrameworkCache.getTsMeasurement(scd,measurementId))==null){
-			m = (W5TsMeasurement)dao.getCustomizedObject("from W5TsMeasurement t where t.measurementId=? AND t.customizationId=?", measurementId, (Integer)scd.get("customizationId"), "TSMeasurement");
-			m.set_measurementFields(dao.find("from W5TsMeasurementField t where t.portletId=? AND t.customizationId=? order by t.tabOrder, t.portletObjectId", measurementId, (Integer)scd.get("customizationId")));
-			if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.wTsMeasurements.get((Integer)scd.get("customizationId")).put(measurementId, m);
-		} */
-		return m;
-	}
-
-	public String getTsDashResult(Map<String, Object> scd, Map<String, String> requestParams, int porletId) { //TODO
-		W5TsPortlet p = null;
-/*		if(FrameworkSetting.preloadWEngine==0 || (p=FrameworkCache.getTsPortlet(scd,porletId))==null){
-			p = (W5TsPortlet)dao.getCustomizedObject("from W5TsPortlet t where t.portletId=? AND t.customizationId=?", porletId, (Integer)scd.get("customizationId"), "TSPorlet");
-			p.set_portletObjects(dao.find("from W5TsPortletObject t where t.portletId=? AND t.customizationId=? order by t.tabOrder, t.portletObjectId", porletId, (Integer)scd.get("customizationId")));
-			if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.wTsPortlets.get((Integer)scd.get("customizationId")).put(porletId, p);
-		}
-		StringBuilder s = new StringBuilder();
-		for(W5TsPortletObject po:p.get_portletObjects())switch(po.getObjectTip()){
-		case	2709://measurement
-			po.set_sourceObject(getTsMeasurement(scd, po.getObjectId()));
-//			Object o = influxDao.runQuery(po.getExtraCode());
-	//		resultMap.put(po.getPortletObjectId(), o);
-			break;
-		case	8://query
-			po.set_sourceObject(dao.getQueryResult(scd, po.getObjectId()));
-			break;
-
-		}
-		switch(p.getCodeTip()){
-		case	1://A*B/C
-			s.append("\nfunction(){\n").append(p.getExtraCode())
-			.append("\nvar result=[];for(var qi=0;qi<)");
-			break;
-		case	2:// function(A,B,C){}
-			s.append(p.getExtraCode());
-			break;
-		case	3:
-			s.append(p.getExtraCode());
-			break;
-		}
-		return s.toString(); */
-		return null;
-	}
-
-	public boolean copyTable2Tsdb(Map<String, Object> scd, int tableId, int measurementId) {
-		W5TsMeasurement tsm = getTsMeasurement(scd, measurementId);
-		if(!GenericUtil.accessControl(scd, tsm.getAccessViewTip(), tsm.getAccessViewRoles(), tsm.getAccessViewUsers())){
-			throw new IWBException("security","W5TsMeasurement", measurementId, null, LocaleMsgCache.get2(0,(String)scd.get("locale"),"fw_access_control_ts_measurement"), null);
-		}
-		if(tsm.getMeasurementObjectId()!=2 || tsm.getMeasurementObjectId()==0)
-			throw new IWBException("framework","W5TsMeasurement", measurementId, null, "Source Not RDB Table or X", null);
-		W5Table t = FrameworkCache.getTable(scd, tableId);
-		W5TableField timeField = t.get_tableFieldMap().get(tsm.getMeasurementObjectId());
-		StringBuilder s = new StringBuilder();
-		s.append("SELECT x.").append(timeField.getDsc()).append(" xtime");
-		if(!GenericUtil.isEmpty(tsm.getTagCode()))s.append(",").append(tsm.getTagCode());
-		if(!GenericUtil.isEmpty(tsm.getExtraCode()))s.append(",").append(tsm.getExtraCode());
-		s.append(" from ").append(t.getDsc()).append(" x");
-		if(t.get_tableParamList().size()>1 && t.get_tableParamList().get(1).getDsc().equals("customizationId"))
-			s.append(" WHERE x.customization_id=${scd.customizationId}");
-		Object[] oz = DBUtil.filterExt4SQL(s.toString(), scd, new HashMap(), null);
-		List<Map> lm = dao.executeSQLQuery2Map(oz[0].toString(),(List)oz[1]);
-
-
-
-
-		return false;
-	}
-
-	public Map generateScdFromAuth(int socialCon, String token) {
-		List<Object[]> list = dao.executeSQLQuery("select u.user_id, u.customization_id from iwb.w5_user u"
-				+ " where u.lkp_auth_external_source=? AND u.user_status=1 AND u.auth_external_id=?", socialCon, token);
-		if(!GenericUtil.isEmpty(list)){
-			Object[] oz = list.get(0);
-			Map<String, Object> scd = userSession4Auth(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[1]));
-			if(scd!=null){
-				dao.executeUpdateSQLQuery("update iwb.w5_user set last_succesful_login_dttm=current_timestamp, succesful_login_count=succesful_login_count+1 where user_id=?", scd.get("userId"));
-			}
-			return scd;
-		}
-		else{
-			return null;
-		}
-	}
-
-	public void saveCredentials(int cusId,int userId, String picUrl ,String fullName,int socialNet, String email, String nickName, List<Map> projects, List<Map> userTips) {
-		if(dao.find("select 1 from W5Customization t where t.customizationId=?", cusId).isEmpty())dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId, socialNet, nickName.replace('.', '_').replace('-', '_'));
-		FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
-
-		FrameworkSetting.projectSystemStatus.put(projects.get(0).get("project_uuid").toString(), 0);
-		if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_user u where u.user_id=?", userId))) {
-			dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)",
-				userId, cusId, nickName, email, nickName+1, 1, nickName, 1 , socialNet, email,projects.get(0).get("project_uuid"));
-			int userRoleId = GenericUtil.getGlobalNextval("iwb.seq_user_role", (String)projects.get(0).get("project_uuid"), userId, cusId);
-			dao.executeUpdateSQLQuery("insert into iwb.w5_user_role(user_role_id, user_id, role_id, customization_id,unit_id, project_uuid) values(?, ?, 0, ?,?, ?)",userRoleId, userId, cusId,0,projects.get(0).get("project_uuid"));
-		}
-
-		for(Map p: projects){
-			String projectId = (String)p.get("project_uuid");
-			String oprojectId = (String)p.get("oproject_uuid");
-			if(oprojectId==null)oprojectId=projectId;
-			String vcsUrl = (String)p.get("vcs_url");
-
-			if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_project p where p.project_uuid=?",projectId))){
-				String schema = "c"+GenericUtil.lPad(cusId+"", 5, '0')+"_"+projectId.replace('-', '_');
-				dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
-						+ " values (?,?,?, ?, ?,?,?,?, ?)", projectId, cusId, p.get("dsc"), ""+userId,schema,vcsUrl,nickName, "1", oprojectId);
-				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
-			}
-
-			dao.addProject2Cache(projectId);
-			FrameworkSetting.projectSystemStatus.put(projectId, 0);
-
-		}
-
-
-		for(Map t: userTips){
-			String projectId = (String)t.get("project_uuid");
-			String oprojectId = (String)t.get("oproject_uuid");
-			if(oprojectId==null)oprojectId=projectId;
-			int userTip = GenericUtil.uInt(t.get("user_tip"));
-//			List list = dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=?",userTip);
-			if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where p.user_tip=? AND p.project_uuid=?",userTip,projectId))){
-				dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, oproject_uuid, web_frontend_tip, default_main_template_id)"
-						+ " values (?,?,?, ?, ?, 5, 2307)", userTip, "Role Group 1", cusId, projectId, oprojectId);
-				Map newScd = new HashMap();newScd.put("projectId", projectId);newScd.put("customizationId", cusId);newScd.put("userId", userId);
-				W5VcsObject vo = new W5VcsObject(newScd, 369, userTip);
-				vo.setVcsObjectStatusTip((short)9);
-				dao.saveObject(vo);
-				if(GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_role p where p.role_id=0 AND customization_id=?", cusId))){
-					dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role "+System.currentTimeMillis(), userTip, projectId);
-				}
-			}
-		}
-		dao.reloadFrameworkCaches(cusId);
-		saveImage(picUrl,userId, cusId);
-	}
-
-
-	public void saveImage(String imageUrl, int userId, int cusId){
-    	try{
-    		List lf = dao.find("select t.fileAttachmentId from W5FileAttachment t where t.tableId=336 AND t.fileTypeId=-999 AND t.tablePk=? AND t.customizationId=? AND t.orijinalFileName=?", ""+userId, cusId, imageUrl);
-    		if(!lf.isEmpty()){
-    			if(UserUtil.getUserProfilePicture(userId)==(Integer)lf.get(0))
-    				return;
-    		}
-    		URL url = new URL(imageUrl);
-    		int length;
-    		int totalBytesRead = 0;
-    		InputStream is = url.openStream();
-    		long fileId = new Date().getTime();
-    		W5FileAttachment fa = new W5FileAttachment();
-
-    		fa.setSystemFileName(fileId + "." + GenericUtil.strUTF2En(FilenameUtils.getBaseName(url.getPath())));
-	   		String testPath = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
-	    				+ File.separator + cusId;
-    		File f = new File(testPath);
-
-    		if (!f.exists()) {
-    			boolean cDir = new File(testPath).mkdirs();
-    			boolean aDir = new File(testPath + File.separator + "attachment").mkdirs();
->>>>>>> c79e6be3f3df87f4ee67c8608a7c69c85c9ff199
     		}
     		saveObject(feed);
     		FrameworkCache.addFeed(scd, feed, true);
@@ -7357,7 +6313,9 @@ public class FrameworkEngine {
               mz.put("ptable_id", "" + ar.getTableId());
               mz.put("ptable_pk", "" + ar.getTablePk());
               executeFunc(
-                  scd, 690, mz,
+                  scd,
+                  690,
+                  mz,
                   (short) 2); // bu kaydin child kayitlari var mi? iwb.w5_table_field'daki
               // default_control_tip ve default_lookup_table_id'ye bakiliyor
               W5FormResult fr = new W5FormResult(-1);
@@ -7939,7 +6897,6 @@ public class FrameworkEngine {
       String stepName =a.get_approvalStepMap().get(ar.getApprovalStepId()).getNewInstance().getDsc();
       if(stepName == null)stepName =" ";
       else stepName =" '"+LocaleMsgCache.get2(ar.getCustomizationId(), xlocale,stepName)+"' "+ LocaleMsgCache.get2(0,xlocale,"adim") +" ";
-
       //Bir sonraki adım için ilgili kişilere mail gönderme işlemi
       if(nextStep!=null || a.getApprovalFlowTip()==2 || a.getApprovalFlowTip() == 3){//mail gondermece, burada hiyerarşiler aradında da mail gitsin mantığı var
       	List<Object[]> nextStepUsers= dao.executeSQLQuery(
@@ -7949,7 +6906,6 @@ public class FrameworkEngine {
                      "((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3 or "+
                      "((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) = 3))",
                      ar.getCustomizationId(), ar.getApprovalUsers(), ar.getCustomizationId(), ar.getApprovalRoles());
-
       		if(nextStepUsers == null && nextStep.getApprovalStepId() == 901){ // Manuel Onay'da kimlere mail gideceği
       			String userIds = ar.getInsertUserId()+(a.getManualAppUserIds() != null ? ","+a.getManualAppUserIds() : "")+(currentStep.getApprovalUsers() != null ? ","+currentStep.getApprovalUsers() : "");
       			String userRoles = (a.getManualAppRoleIds() != null ? a.getManualAppRoleIds() : "")+(currentStep.getApprovalRoles() != null ? (a.getManualAppRoleIds() != null ? ","+currentStep.getApprovalRoles() : currentStep.getApprovalRoles()) : "");
@@ -7960,30 +6916,24 @@ public class FrameworkEngine {
                       "((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3 or "+
                       "((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) = 3 )",
                       ar.getCustomizationId(), userIds, ar.getCustomizationId(), userRoles);
-
       	}
-
       	if(nextStepUsers != null){ // Bu kullanıcı listesi mevcutsa
       		for(Object[] liste : nextStepUsers){
       			if(liste[0]!=null && liste[0].toString().length()> 5 && nextStep!=null && nextStep.getSendSmsOnEnterStepFlag()!=0){//sms gondermece, length kontrolü bazı kullanıcılar için 0 girilmiş bunun için düz mantık
       				gsmList.add(liste[0].toString());
       			}
-
       			if(liste[1]!=null && nextStep!=null && nextStep.getSendMailOnEnterStepFlag()!=0){//mail adresi toplama (hepsini topla göndermek için toplanıyor)
       				pemailList+=","+ liste[1].toString();
       			}
-
       			if(liste[2]!=null){//user idler
       				notificationList.add(liste[2].toString());
       			}
       		}
       	}
-
       	if(nextStep!=null && nextStep.getSendMailOnEnterStepFlag()!=0){
       		mailSubject = a.getDsc()+" ("+(approvalAction != 2 ? LocaleMsgCache.get2((Integer)scd.get("customizationId"),xlocale,a.get_approvalStepMap().get(ar.getApprovalStepId()).getNewInstance().getDsc()) : LocaleMsgCache.get2(0,xlocale,"returned"))+")";
       		mailBody = ar.getDsc()+" ("+ stepName+" - "+ mesaj +")" + (!GenericUtil.isEmpty((String)parameterMap.get("_adsc")) ? "\n\n"+parameterMap.get("_adsc") : "");
       	}
-
       	if(nextStep!=null && nextStep.getSendSmsOnEnterStepFlag()!=0){
       		messageBody = ar.getDsc()+ stepName + mesaj;
       	}
@@ -8274,7 +7224,6 @@ public class FrameworkEngine {
     				customizationSet.add(customizationId);
     				long dirtyTimeMillis = FrameworkCache.reloadCacheQueue.get(s);
     				if(currentTimeMillis-dirtyTimeMillis>1000){//belirli bir aradan sonra
-
     					if(!notifiedSet.contains(customizationId)){ //!notifiedAll
     						FrameworkSetting.projectSystemStatus.put(customizationId,2);
     //						notifiedAll = true;
@@ -8291,7 +7240,6 @@ public class FrameworkEngine {
     						case 4://aproval/step
     							dao.reloadWorkflowCache(customizationId);
     							break;
-
     						case 6://table
     							dao.reloadTableParamListChildListParentListCache(customizationId);
     							dao.reloadTablesCache(customizationId);
@@ -8309,7 +7257,6 @@ public class FrameworkEngine {
     			}
     			for(String s:keyz)FrameworkCache.reloadCacheQueue.remove(s);
     			if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.clearPreloadCache();
-
     		} catch (Exception e) {
     			if(FrameworkSetting.debug)e.printStackTrace();
     			System.out.println("Cache Yeniden Yüklenemedi, HATA: " + e.getMessage());
@@ -8324,13 +7271,11 @@ public class FrameworkEngine {
   }
 
   /*
-
   	public W5QueryResult executeQuery4BulkUpdate(Map<String, Object> scd,
   			int tableId, Map<String, String> requestParams, boolean onlyIdsFlag) {
   		W5Table t = FrameworkCache.getTable(scd, tableId);
   		W5QueryResult queryResult = new W5QueryResult(-tableId);
   		queryResult.setScd(scd);
-
   //query
   		W5Query q = new W5Query();
   		queryResult.setQuery(q);
@@ -8357,7 +7302,6 @@ public class FrameworkEngine {
   				int tableFieldId = GenericUtil.uInt(ps[0]);
   				W5TableField tf = t.get_tableFieldMap().get(tableFieldId);
   				int operatorTip =  GenericUtil.uInt(ps[1]);
-
   				if(operatorTip!=14){//between den farkli
   					W5QueryParam qp = new W5QueryParam();
   					qp.setDsc("c_"+tf.getDsc()+"1");
@@ -8384,11 +7328,9 @@ public class FrameworkEngine {
   					qp2.setParamTip(tf.getFieldTip());
   					qp2.setNotNullFlag(tf.getNotNullFlag());
   					q.get_queryParams().add(qp2);
-
   				}
   			}
   		}
-
   		conditionFields = requestParams.get("pcondition_field2_ids");
   		if(conditionFields!=null && conditionFields.length()>1){
   			String[] cfs = conditionFields.split(",");
@@ -8397,7 +7339,6 @@ public class FrameworkEngine {
   				int tableFieldCalculatedId = GenericUtil.uInt(ps[0]);
   				W5TableFieldCalculated tf = (W5TableFieldCalculated)dao.getCustomizedObject("from W5TableFieldCalculated t where t.tableFieldCalculatedId=? AND t.customizationId=?", tableFieldCalculatedId, t.getCustomizationId(), null);//t.get_tableFieldMap().get(tableFieldCalculatedId);
   				if(tf==null || tf.getTableId()!=t.getTableId())continue;
-
   				int operatorTip =  GenericUtil.uInt(ps[1]);
   				Object[] o = DBUtil.filterExt4SQL(tf.getSqlCode(), scd, requestParams, null);
   				if(operatorTip!=14){//between den farkli
@@ -8429,22 +7370,18 @@ public class FrameworkEngine {
   					qp2.setParamTip(tf.getFieldTip());
   //					qp2.setNotNullFlag(tf.getNotNullFlag());
   					q.get_queryParams().add(qp2);
-
   				}
   			}
   		}
-
   		queryResult.setErrorMap(new HashMap());
   		queryResult.setRequestParams(requestParams);
   		queryResult.setViewLogModeTip((short)GenericUtil.uInt(requestParams,"_vlm"));
-
   //		queryResult.setOrderBy(PromisUtil.uStrNvl(requestParams.get(PromisUtil.uStrNvl(PromisSetting.appSettings.get("sql_sort"),"sort")), queryResult.getQuery().getSqlOrderby()));
   		queryResult.prepareQuery(null);
   		if(queryResult.getErrorMap().isEmpty()){
   	        queryResult.setFetchRowCount(GenericUtil.uIntNvl(requestParams, "limit", GenericUtil.uInt(requestParams,"firstLimit")));
   	        queryResult.setStartRowNumber(GenericUtil.uInt(requestParams,"start"));
           	dao.runQuery(queryResult);
-
   		}
   		return queryResult;
   	}
@@ -8469,7 +7406,6 @@ public class FrameworkEngine {
   			String[] sis = selectedIds.split(",");
   			updateCount = sis.length;
   			arIds = new ArrayList(updateCount);
-
   			Set<String> siss = new HashSet<String>();
   			for(String si:sis)siss.add(si);
   			for(Object[] os:qr.getData())if(siss.contains(os[0].toString())){
@@ -8486,17 +7422,13 @@ public class FrameworkEngine {
   		W5GlobalFuncResult r = null;
   		for(String s:arIds){
   			if(fsm.getSmsMailTip() == 0){//sms
-
   			} else {//email
   				W5Email email = dao.interprateMailTemplate(fsm, scd,requestParams, tableId, GenericUtil.uInt(s));
-
   				MailUtil.sendMail(scd, email);
   			}
   		}
-
   		return r;
   	}
-
   	public W5FormResult postBulkUpdate4Table(Map<String, Object> scd, int tableId,
   			Map<String, String> requestParams) {
   		W5Table t = FrameworkCache.getTable(scd, tableId);
@@ -8515,7 +7447,6 @@ public class FrameworkEngine {
   			String[] sis = selectedIds.split(",");
   			updateCount = sis.length;
   			arIds = new ArrayList(updateCount);
-
   			Set<String> siss = new HashSet<String>();
   			for(String si:sis)siss.add(si);
   			for(Object[] os:qr.getData())if(siss.contains(os[0].toString())){
@@ -8529,11 +7460,7 @@ public class FrameworkEngine {
   				arIds.add(os[0].toString());
   			}
   		}
-
-
   		Map<String, String> m = new HashMap<String, String>();
-
-
   		String updateFields = requestParams.get("pupdate_fields");
   		String[] ufs = updateFields.split(",");
   		int xi = 1;
@@ -8823,12 +7750,10 @@ public class FrameworkEngine {
     					break;
     				default:
     					break;
-
     				}
     				Log5Notification n = new Log5Notification(a);
     				n.set_tableRecordList(dao.findRecordParentRecords(scd,a.getTableId(),a.getTablePk(),0, true));
     				UserUtil.publishNotification(n, false);
-
     				a.setStatus(rdb== null || rdb.isSuccess() ? (short)0 : (short)2); // 0:done, 1: active, 2:error sending, 3:canceled
     			} else a.setStatus((short)2);
     		} catch(Exception e) {
@@ -8882,10 +7807,8 @@ public class FrameworkEngine {
       	if(fa==null){
       		return "";
       	}
-
       	String customizationId=String.valueOf( (scd.get("customizationId")==null) ? 0 : scd.get("customizationId"));
       	String file_path=FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
-
       	File file = new File(file_path + "/" + customizationId + "/attachment/"+ fa.getSystemFileName());
   		byte[] fileData = new byte[(int) file.length()];
   		stream = new FileInputStream(file);
@@ -8917,7 +7840,6 @@ public class FrameworkEngine {
     try{
     	String email = requestParams.get("email");
     	String pcustomization_id = requestParams.get("pcustomization_id");
-
     	if (!GenericUtil.isEmpty(email)){
     		List<Object[]> userList = dao.executeSQLQuery("select u.user_id, u.user_name, u.customization_id from iwb.w5_user u where u.email=? and (? is null or u.customization_id=?)", email, pcustomization_id, pcustomization_id);
     		if (userList!=null && !userList.isEmpty()){
@@ -8929,7 +7851,6 @@ public class FrameworkEngine {
     			return res;
     		}
     	}
-
     	try{
     		W5GlobalFuncResult result = executeFunc(scd, 2, requestParams, (short)4); // user forgot pass
     		if(result.isSuccess() && !GenericUtil.isEmpty(result.getResultMap()) && (GenericUtil.uInt(result.getResultMap().get("pout_user_id"))!=0)){
@@ -8952,31 +7873,11 @@ public class FrameworkEngine {
     		}else{
     			res.put("msg", "forgot_pass_no_such_user");
     		}
-<<<<<<< HEAD
     	}catch(Exception e){
     		if(FrameworkSetting.debug)e.printStackTrace();
     		res.put("msg", FrameworkSetting.debug? e.getMessage() : "error");
     		return res;
-=======
-    		is.close();
-    		os.close();
-
-    		fa.setCustomizationId(cusId);
-    		fa.setOrijinalFileName(imageUrl);
-    		fa.setUploadUserId(userId);
-    		fa.setFileSize(totalBytesRead);
-    		fa.setFileTypeId(-999);
-    		fa.setTabOrder((short) 1);
-    		fa.setActiveFlag((short) 1);
-    		fa.setTableId(336);
-			fa.setTablePk(""+userId);
-			saveObject(fa);
-
-    	}catch(IOException io){
-    		io.printStackTrace();
->>>>>>> c79e6be3f3df87f4ee67c8608a7c69c85c9ff199
     	}
-
     }catch(Exception e){
     	if(FrameworkSetting.debug)e.printStackTrace();
     }
@@ -9258,10 +8159,8 @@ public class FrameworkEngine {
     		if(GenericUtil.isEmpty(listOfTutorial)){//0:daha kayit yok, 1. var ve bitmemmis, 2. var ve bitmis
     			tr.setTutorialUserStatus((short)0);
     		} else tr.setTutorialUserStatus((short)(1 + GenericUtil.uInt(listOfTutorial.get(0))));
-
     		if(!GenericUtil.isEmpty(tutorial.getRecommendedTutorialIds()))
     			tr.setRecommendedTutorialList(dao.find("from W5Tutorial t where t.tutorialId in ("+tutorial.getRecommendedTutorialIds()+")"));
-
     		tutorial.set_renderTemplate((W5Page)dao.getCustomizedObject("from W5Template t where t.templateId=? AND t.customizationId=?", tutorial.getRenderTemplateId(), 0, null));
     */
     return tr;
@@ -9300,8 +8199,10 @@ public class FrameworkEngine {
         scd.put("ocustomizationId", (Integer) scd.get("customizationId"));
       scd.put("customizationId", newCustomizationId);
     }
+    W5Project po = FrameworkCache.getProject(projectUuid);
     scd.put("projectId", projectUuid);
     scd.put("rbac", newCustomizationId > 0 ? GenericUtil.uInt(p.get("rbac")) : 1);
+    scd.put("_renderer2", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
     return true;
   }
 
@@ -9363,6 +8264,7 @@ public class FrameworkEngine {
     p.add(customizationId);
 
     JSONObject json = new JSONObject(parameter);
+    String webPageId = json.has("_webPageId") ? json.getString("_webPageId") : null;
     int userTip = json.getInt("user_tip");
     main = json.getJSONObject("main");
     detail = json.getJSONArray("detail");
@@ -9555,9 +8457,16 @@ public class FrameworkEngine {
     createTableSql = s.toString();
     dao.executeUpdateSQLQuery("set search_path=" + po.getRdbmsSchema());
 
+    Map msg = null, nt = null;
+    if (webPageId != null) {
+      msg = new HashMap();
+      msg.put("success", true);
+      nt = new HashMap();
+      msg.put("notification", nt);
+    }
+
     try {
       dao.executeUpdateSQLQuery(createTableSql);
-
       String createSeqSql = "create sequence seq_" + tablePrefix + tableName;
       dao.executeUpdateSQLQuery(createSeqSql);
 
@@ -9574,14 +8483,29 @@ public class FrameworkEngine {
       }
 
       s.setLength(0);
+
+      if (webPageId != null) {
+        nt.put("_tmpStr", "Table Created on RDBMS");
+        UserUtil.broadCast(
+            projectUuid,
+            (Integer) scd.get("userId"),
+            (String) scd.get("sessionId"),
+            webPageId,
+            msg);
+      }
+
     } catch (Exception e2) {
       throw new IWBException(
           "framework", "Create Table&Seq", 0, createTableSql, e2.getMessage(), e2);
     }
 
-<<<<<<< HEAD
     boolean b = dao.organizeTable(scd, fullTableName);
     if (!b) throw new IWBException("framework", "Define Table", 0, parameter, "Define Table", null);
+    if (webPageId != null) {
+      nt.put("_tmpStr", "Table Imported to iCodeBetter");
+      UserUtil.broadCast(
+          projectUuid, (Integer) scd.get("userId"), (String) scd.get("sessionId"), webPageId, msg);
+    }
 
     int tableId =
         GenericUtil.uInt(
@@ -9728,6 +8652,12 @@ public class FrameworkEngine {
           projectUuid);
       if (vcs) dao.saveObject(new W5VcsObject(scd, 41, formCellId));
     }
+    if (webPageId != null) {
+      nt.put("_tmpStr", "Form Created for CRUD Operations");
+      UserUtil.broadCast(
+          projectUuid, (Integer) scd.get("userId"), (String) scd.get("sessionId"), webPageId, msg);
+    }
+
     //				XQUERY_ID := nextval('seq_query');
     int queryId =
         GenericUtil.getGlobalNextval(
@@ -9756,6 +8686,12 @@ public class FrameworkEngine {
     if (vcs) dao.saveObject(new W5VcsObject(scd, 8, queryId));
 
     dao.organizeQueryFields(scd, queryId, (short) 1);
+
+    if (webPageId != null) {
+      nt.put("_tmpStr", "Query Created");
+      UserUtil.broadCast(
+          projectUuid, (Integer) scd.get("userId"), (String) scd.get("sessionId"), webPageId, msg);
+    }
 
     dao.executeUpdateSQLQuery("set search_path=iwb");
 
@@ -9837,6 +8773,12 @@ public class FrameworkEngine {
           GenericUtil.uInt(m.get("xform_builder_detail_id")),
           customizationId);
       if (vcs) dao.saveObject(new W5VcsObject(scd, 4, gridColumnId));
+    }
+
+    if (webPageId != null) {
+      nt.put("_tmpStr", "Grid Created");
+      UserUtil.broadCast(
+          projectUuid, (Integer) scd.get("userId"), (String) scd.get("sessionId"), webPageId, msg);
     }
 
     //					if(pmaster_flag=1 AND XFORM_BUILDER.grid_search=1 AND (select count(1) from
@@ -9956,6 +8898,16 @@ public class FrameworkEngine {
               customizationId);
           if (vcs) dao.saveObject(new W5VcsObject(scd, 41, formCellId));
         }
+
+      if (webPageId != null) {
+        nt.put("_tmpStr", "Form Created for Grid Search");
+        UserUtil.broadCast(
+            projectUuid,
+            (Integer) scd.get("userId"),
+            (String) scd.get("sessionId"),
+            webPageId,
+            msg);
+      }
     }
 
     //				   if(pmaster_flag=1)then
@@ -10158,6 +9110,16 @@ public class FrameworkEngine {
           projectUuid,
           projectUuid);
       if (vcs) dao.saveObject(new W5VcsObject(scd, 64, templateObjectId));
+
+      if (webPageId != null) {
+        nt.put("_tmpStr", "Page & Menu Created");
+        UserUtil.broadCast(
+            projectUuid,
+            (Integer) scd.get("userId"),
+            (String) scd.get("sessionId"),
+            webPageId,
+            msg);
+      }
     }
     dao.executeUpdateSQLQuery(
         "update iwb.w5_table t "
@@ -10189,7 +9151,7 @@ public class FrameworkEngine {
         customizationId);
 
     if (parentTableId == 0) { // main Template
-      return menuId;
+      return templateId;
     } else {
       return gridId;
     }
@@ -10256,11 +9218,13 @@ public class FrameworkEngine {
 
   public Map executeQuery4Stat(
       Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
+    checkTenant(scd);
     return dao.executeQuery4Stat(scd, gridId, requestParams);
   }
 
   public Map executeQuery4StatTree(
       Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
+    checkTenant(scd);
     return dao.executeQuery4StatTree(scd, gridId, requestParams);
   }
 
@@ -10418,7 +9382,7 @@ public class FrameworkEngine {
     return wsmoMap;
   }
 
-  public Map callWs(Map<String, Object> scd, String name, Map requestParams) throws IOException {
+  public Map REST(Map<String, Object> scd, String name, Map requestParams) throws IOException {
     String[] u = name.replace('.', ',').split(",");
     if (u.length < 2)
       throw new IWBException(
@@ -10494,8 +9458,7 @@ public class FrameworkEngine {
               || tokenTimeout == null
               || tokenTimeout <= System.currentTimeMillis()) { // yeni bir token alinacak
             if (tokenParam != null) {
-              Map tokenResult =
-                  callWs(scd, ws.getDsc() + "." + loginMethod.getDsc(), new HashMap());
+              Map tokenResult = REST(scd, ws.getDsc() + "." + loginMethod.getDsc(), new HashMap());
               Object o = tokenResult.get(tokenParam.getDsc());
               if (o == null)
                 throw new IWBException(
@@ -10608,6 +9571,9 @@ public class FrameworkEngine {
                   default:
                     result.put("data", x);
                 }
+              if (GenericUtil.uInt(requestParams.get("_iwb_cfg")) != 0) {
+                result.put("_iwb_cfg_rest_method", wsm);
+              }
             } catch (JSONException e) {
               throw new RuntimeException(e);
             }
@@ -10658,7 +9624,6 @@ public class FrameworkEngine {
     		case	8://query
     			po.set_sourceObject(dao.getQueryResult(scd, po.getObjectId()));
     			break;
-
     		}
     		switch(p.getCodeTip()){
     		case	1://A*B/C
@@ -10716,7 +9681,13 @@ public class FrameworkEngine {
             token);
     if (!GenericUtil.isEmpty(list)) {
       Object[] oz = list.get(0);
-      return userSession4Auth(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[1]));
+      Map<String, Object> scd = userSession4Auth(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[1]));
+      if (scd != null) {
+        dao.executeUpdateSQLQuery(
+            "update iwb.w5_user set last_succesful_login_dttm=current_timestamp, succesful_login_count=succesful_login_count+1 where user_id=?",
+            scd.get("userId"));
+      }
+      return scd;
     } else {
       return null;
     }
@@ -10806,6 +9777,8 @@ public class FrameworkEngine {
       String oprojectId = (String) t.get("oproject_uuid");
       if (oprojectId == null) oprojectId = projectId;
       int userTip = GenericUtil.uInt(t.get("user_tip"));
+      //			List list = dao.executeSQLQuery("select 1 from iwb.w5_user_tip p where
+      // p.user_tip=?",userTip);
       if (GenericUtil.isEmpty(
           dao.executeSQLQuery(
               "select 1 from iwb.w5_user_tip p where p.user_tip=? AND p.project_uuid=?",
@@ -10844,6 +9817,15 @@ public class FrameworkEngine {
 
   public void saveImage(String imageUrl, int userId, int cusId) {
     try {
+      List lf =
+          dao.find(
+              "select t.fileAttachmentId from W5FileAttachment t where t.tableId=336 AND t.fileTypeId=-999 AND t.tablePk=? AND t.customizationId=? AND t.orijinalFileName=?",
+              "" + userId,
+              cusId,
+              imageUrl);
+      if (!lf.isEmpty()) {
+        if (UserUtil.getUserProfilePicture(userId) == (Integer) lf.get(0)) return;
+      }
       URL url = new URL(imageUrl);
       int length;
       int totalBytesRead = 0;
@@ -10882,7 +9864,7 @@ public class FrameworkEngine {
       os.close();
 
       fa.setCustomizationId(cusId);
-      fa.setOrijinalFileName(FilenameUtils.getBaseName(url.getPath()));
+      fa.setOrijinalFileName(imageUrl);
       fa.setUploadUserId(userId);
       fa.setFileSize(totalBytesRead);
       fa.setFileTypeId(-999);
@@ -10928,184 +9910,236 @@ public class FrameworkEngine {
       dao.executeUpdateSQLQuery("update iwb.w5_user set email=? where user_id=?", email, userId);
     }
   }
-=======
-	public Map runTests(Map<String, Object> scd, String testIds, String webPageId) {
-		String projectUuid = scd.get("projectId").toString();
-		Map m = new HashMap();
-		m.put("success", true);
-		List<Object[]> l = null;
-		if(GenericUtil.isEmpty(testIds))
-			l=dao.executeSQLQuery("select x.test_id, x.dsc, x.code from iwb.w5_test x where x.lkp_test_type=0 AND x.project_uuid=? order by x.tab_order ", projectUuid);
-		else {
-			List params = new ArrayList();
-			params.add(projectUuid);
-			String[] xx = testIds.split(",");
-			StringBuilder sql = new StringBuilder();
-			sql.append("select x.test_id, x.dsc, x.code from iwb.w5_test x where x.lkp_test_type=0 AND x.project_uuid=? AND x.test_id in(-1");
-			for(String s:xx) {
-				params.add(GenericUtil.uInt(s));
-				sql.append(",?");
-			}
-			sql.append(") order by x.tab_order ");
-			l=dao.executeSQLQuery(sql.toString(), params);
-		}
 
-		if(l!=null) {
-			Map tmp = new HashMap();
-			Map msg = null, nt = null;
-			if(webPageId!=null) {
-				msg = new HashMap();msg.put("success", true);
-				nt = new HashMap();
-				msg.put("notification", nt);
-			}
-			for(Object[] o:l)try{
-				Object result = dao.executeRhinoScript(scd, tmp, o[2].toString(), tmp, "result");
-				if(result!=null) {
-					if(result instanceof Double || result instanceof Integer || result instanceof Float || result instanceof BigDecimal){
-						if(GenericUtil.uInt(result)==0)result=null;
-					} else if(result instanceof Boolean){
-						if(!((Boolean)result))result=null;
-					} else if(result instanceof String){
-						if(((String)result).length()==0)result=null;
-					} else if(result instanceof NativeObject){
-					}
-				}
-				if(result!=null){
-					m.put("dsc", o[1]);
-					m.put("failId", o[0]);
-					m.put("msg", result);
-					return m;
-				}
-				if(webPageId!=null) {
-					nt.put("_tmpStr", "Passed: " + o[1].toString());
-					UserUtil.broadCast(projectUuid, (Integer)scd.get("userId"), (String)scd.get("sessionId"), webPageId, msg);
-				}
-			}catch(Exception e){
-				m.put("dsc", o[1]);
-				m.put("failId", o[0]);
-				m.put("msg", e.getMessage());
-				return m;
-			}
-		}
-		return m;
-	}
+  public Map runTests(Map<String, Object> scd, String testIds, String webPageId) {
+    String projectUuid = scd.get("projectId").toString();
+    Map m = new HashMap();
+    m.put("success", true);
+    List<Object[]> l = null;
+    if (GenericUtil.isEmpty(testIds))
+      l =
+          dao.executeSQLQuery(
+              "select x.test_id, x.dsc, x.code from iwb.w5_test x where x.lkp_test_type=0 AND x.project_uuid=? order by x.tab_order ",
+              projectUuid);
+    else {
+      List params = new ArrayList();
+      params.add(projectUuid);
+      String[] xx = testIds.split(",");
+      StringBuilder sql = new StringBuilder();
+      sql.append(
+          "select x.test_id, x.dsc, x.code from iwb.w5_test x where x.lkp_test_type=0 AND x.project_uuid=? AND x.test_id in(-1");
+      for (String s : xx) {
+        params.add(GenericUtil.uInt(s));
+        sql.append(",?");
+      }
+      sql.append(") order by x.tab_order ");
+      l = dao.executeSQLQuery(sql.toString(), params);
+    }
 
-	public boolean changeChangeProjectStatus(Map<String, Object> scd, String projectUuid, int newStatus) {
-		List params = new ArrayList(); params.add(projectUuid);
-		List<Map<String, Object>> l = dao.executeSQLQuery2Map("SELECT x.*,(select q.customization_id from iwb.w5_project q where q.project_uuid=x.oproject_uuid) qcus_id FROM iwb.w5_project x WHERE x.project_uuid=? ", params);
-		if(GenericUtil.isEmpty(l))return false;
-		Map m= l.get(0);
-		if(GenericUtil.uInt(m.get("customization_id"))==1) {
-			if((Integer)scd.get("customizationId")==1 || (newStatus==2 && GenericUtil.uInt(m.get("qcus_id"))==(Integer)scd.get("customizationId"))) {
-				dao.executeUpdateSQLQuery("update iwb.w5_project set project_status_tip=? WHERE project_uuid=?", newStatus, projectUuid);
-				dao.addProject2Cache(projectUuid);
-				return true;
-			}
-		}
-		return false;
-	}
+    if (l != null) {
+      Map tmp = new HashMap();
+      Map msg = null, nt = null;
+      if (webPageId != null) {
+        msg = new HashMap();
+        msg.put("success", true);
+        nt = new HashMap();
+        msg.put("notification", nt);
+      }
+      for (Object[] o : l)
+        try {
+          Object result = dao.executeRhinoScript(scd, tmp, o[2].toString(), tmp, "result");
+          if (result != null) {
+            if (result instanceof Double
+                || result instanceof Integer
+                || result instanceof Float
+                || result instanceof BigDecimal) {
+              if (GenericUtil.uInt(result) == 0) result = null;
+            } else if (result instanceof Boolean) {
+              if (!((Boolean) result)) result = null;
+            } else if (result instanceof String) {
+              if (((String) result).length() == 0) result = null;
+            } else if (result instanceof NativeObject) {
+            }
+          }
+          if (result != null) {
+            m.put("dsc", o[1]);
+            m.put("failId", o[0]);
+            m.put("msg", result);
+            return m;
+          }
+          if (webPageId != null) {
+            nt.put("_tmpStr", "Passed: " + o[1].toString());
+            UserUtil.broadCast(
+                projectUuid,
+                (Integer) scd.get("userId"),
+                (String) scd.get("sessionId"),
+                webPageId,
+                msg);
+          }
+        } catch (Exception e) {
+          m.put("dsc", o[1]);
+          m.put("failId", o[0]);
+          m.put("msg", e.getMessage());
+          return m;
+        }
+    }
+    return m;
+  }
 
-	private W5WsMethodParam findWSMethodParamByName(List<W5WsMethodParam> l, String name) {
-		if(GenericUtil.isEmpty(l))return null;
-		for(W5WsMethodParam p:l)if(p.getDsc().equals(name) && p.getOutFlag()!=0){
-			return p;
-		}
-		return null;
-	}
+  public boolean changeChangeProjectStatus(
+      Map<String, Object> scd, String projectUuid, int newStatus) {
+    List params = new ArrayList();
+    params.add(projectUuid);
+    List<Map<String, Object>> l =
+        dao.executeSQLQuery2Map(
+            "SELECT x.*,(select q.customization_id from iwb.w5_project q where q.project_uuid=x.oproject_uuid) qcus_id FROM iwb.w5_project x WHERE x.project_uuid=? ",
+            params);
+    if (GenericUtil.isEmpty(l)) return false;
+    Map m = l.get(0);
+    if (GenericUtil.uInt(m.get("customization_id")) == 1) {
+      if ((Integer) scd.get("customizationId") == 1
+          || (newStatus == 2
+              && GenericUtil.uInt(m.get("qcus_id")) == (Integer) scd.get("customizationId"))) {
+        dao.executeUpdateSQLQuery(
+            "update iwb.w5_project set project_status_tip=? WHERE project_uuid=?",
+            newStatus,
+            projectUuid);
+        dao.addProject2Cache(projectUuid);
+        return true;
+      }
+    }
+    return false;
+  }
 
-	public Map organizeREST(Map<String, Object> scd, String serviceName) {
-		Map result = new HashMap();
-		result.put("success", true);
-		try {
-			Map rm = new HashMap();
-			rm.put("_iwb_cfg", 1);
-			Map<String, Object> r = REST(scd, serviceName, rm);
-			W5WsMethod wsm = (W5WsMethod)r.get("_iwb_cfg_rest_method");
-			W5WsMethodParam p = null;
-			List<Object> dataObject = null;
-			if(r.containsKey("data")) {
-				Object data = r.get("data");
-				p = findWSMethodParamByName(wsm.get_params(), "data");
-				if(data!=null && data instanceof List) {
-					if(p==null) {
-						p = new W5WsMethodParam();
-						p.setWsMethodParamId(GenericUtil.getGlobalNextval("iwb.seq_ws_method_param", scd.get("projectId").toString(), (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
-						p.setWsMethodId(wsm.getWsMethodId());
-						p.setDsc("data");
-						p.setOutFlag((short)1);
-						p.setProjectUuid(scd.get("projectId").toString());
-						p.setParamTip((short)10);
-						p.setTabOrder((short)100);
-						dao.saveObject(p);
-						dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
+  private W5WsMethodParam findWSMethodParamByName(List<W5WsMethodParam> l, String name) {
+    if (GenericUtil.isEmpty(l)) return null;
+    for (W5WsMethodParam p : l)
+      if (p.getDsc().equals(name) && p.getOutFlag() != 0) {
+        return p;
+      }
+    return null;
+  }
 
-					}
-					dataObject = (List)data;
-				}
+  public Map organizeREST(Map<String, Object> scd, String serviceName) {
+    Map result = new HashMap();
+    result.put("success", true);
+    try {
+      Map rm = new HashMap();
+      rm.put("_iwb_cfg", 1);
+      Map<String, Object> r = REST(scd, serviceName, rm);
+      W5WsMethod wsm = (W5WsMethod) r.get("_iwb_cfg_rest_method");
+      W5WsMethodParam p = null;
+      List<Object> dataObject = null;
+      if (r.containsKey("data")) {
+        Object data = r.get("data");
+        p = findWSMethodParamByName(wsm.get_params(), "data");
+        if (data != null && data instanceof List) {
+          if (p == null) {
+            p = new W5WsMethodParam();
+            p.setWsMethodParamId(
+                GenericUtil.getGlobalNextval(
+                    "iwb.seq_ws_method_param",
+                    scd.get("projectId").toString(),
+                    (Integer) scd.get("userId"),
+                    (Integer) scd.get("customizationId")));
+            p.setWsMethodId(wsm.getWsMethodId());
+            p.setDsc("data");
+            p.setOutFlag((short) 1);
+            p.setProjectUuid(scd.get("projectId").toString());
+            p.setParamTip((short) 10);
+            p.setTabOrder((short) 100);
+            dao.saveObject(p);
+            dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
+          }
+          dataObject = (List) data;
+        }
 
+      } else
+        for (String key : r.keySet())
+          if (r.get(key) instanceof List) {
+            dataObject = (List) r.get(key);
+            p = findWSMethodParamByName(wsm.get_params(), key);
+            if (p == null) {
+              p = new W5WsMethodParam();
+              p.setWsMethodParamId(
+                  GenericUtil.getGlobalNextval(
+                      "iwb.seq_ws_method_param",
+                      scd.get("projectId").toString(),
+                      (Integer) scd.get("userId"),
+                      (Integer) scd.get("customizationId")));
+              p.setWsMethodId(wsm.getWsMethodId());
+              p.setDsc(key);
+              p.setOutFlag((short) 1);
+              p.setProjectUuid(scd.get("projectId").toString());
+              p.setParamTip((short) 10);
+              p.setTabOrder((short) 100);
+              dao.saveObject(p);
+              dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
+            }
+          }
+      if (dataObject != null)
+        for (Object o : dataObject)
+          if (o != null) {
+            if (o instanceof Map) {
+              short tabOrder = 110;
+              Map<String, Object> om = (Map<String, Object>) o;
+              for (String key : om.keySet())
+                if (findWSMethodParamByName(wsm.get_params(), key) == null) {
+                  W5WsMethodParam p2 = new W5WsMethodParam();
+                  p2.setWsMethodParamId(
+                      GenericUtil.getGlobalNextval(
+                          "iwb.seq_ws_method_param",
+                          scd.get("projectId").toString(),
+                          (Integer) scd.get("userId"),
+                          (Integer) scd.get("customizationId")));
+                  p2.setWsMethodId(wsm.getWsMethodId());
+                  p2.setParentWsMethodParamId(p.getWsMethodParamId());
+                  p2.setDsc(key);
+                  p2.setOutFlag((short) 1);
+                  p2.setProjectUuid(scd.get("projectId").toString());
+                  p2.setParamTip((short) 1);
+                  if (om.get(key) != null && om.get(key) instanceof List)
+                    p2.setParamTip((short) 10);
+                  if (om.get(key) != null && om.get(key) instanceof Map) p2.setParamTip((short) 9);
+                  p2.setTabOrder(tabOrder);
+                  tabOrder += 10;
+                  dao.saveObject(p2);
+                  dao.saveObject(new W5VcsObject(scd, 1377, p2.getWsMethodParamId()));
 
-			} else for(String key:r.keySet())if(r.get(key) instanceof List){
-				dataObject = (List)r.get(key);
-				p = findWSMethodParamByName(wsm.get_params(), key);
-				if(p==null) {
-					p = new W5WsMethodParam();
-					p.setWsMethodParamId(GenericUtil.getGlobalNextval("iwb.seq_ws_method_param", scd.get("projectId").toString(), (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
-					p.setWsMethodId(wsm.getWsMethodId());
-					p.setDsc(key);
-					p.setOutFlag((short)1);
-					p.setProjectUuid(scd.get("projectId").toString());
-					p.setParamTip((short)10);
-					p.setTabOrder((short)100);
-					dao.saveObject(p);
-					dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
-				}
-			}
-			if(dataObject!=null)for(Object o : dataObject)if(o!=null) {
-				if(o instanceof Map) {
-					short tabOrder = 110;
-					Map<String, Object> om = (Map<String, Object>)o;
-					for(String key:om.keySet())if(findWSMethodParamByName(wsm.get_params(), key)==null) {
-						W5WsMethodParam p2 = new W5WsMethodParam();
-						p2.setWsMethodParamId(GenericUtil.getGlobalNextval("iwb.seq_ws_method_param", scd.get("projectId").toString(), (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
-						p2.setWsMethodId(wsm.getWsMethodId());p2.setParentWsMethodParamId(p.getWsMethodParamId());
-						p2.setDsc(key);
-						p2.setOutFlag((short)1);
-						p2.setProjectUuid(scd.get("projectId").toString());
-						p2.setParamTip((short)1);
-						if(om.get(key)!=null && om.get(key) instanceof List)p2.setParamTip((short)10);
-						if(om.get(key)!=null && om.get(key) instanceof Map)p2.setParamTip((short)9);
-						p2.setTabOrder(tabOrder);tabOrder+=10;
-						dao.saveObject(p2);
-						dao.saveObject(new W5VcsObject(scd, 1377, p2.getWsMethodParamId()));
+                  if (om.get(key) != null && om.get(key) instanceof Map) {
+                    short tabOrder2 = (short) (10 * tabOrder);
+                    Map<String, Object> om2 = (Map<String, Object>) om;
+                    for (String key2 : om2.keySet())
+                      if (findWSMethodParamByName(wsm.get_params(), key2) == null) {
+                        W5WsMethodParam p22 = new W5WsMethodParam();
+                        p22.setWsMethodParamId(
+                            GenericUtil.getGlobalNextval(
+                                "iwb.seq_ws_method_param",
+                                scd.get("projectId").toString(),
+                                (Integer) scd.get("userId"),
+                                (Integer) scd.get("customizationId")));
+                        p22.setWsMethodId(wsm.getWsMethodId());
+                        p22.setParentWsMethodParamId(p2.getWsMethodParamId());
+                        p22.setDsc(key2);
+                        p22.setOutFlag((short) 1);
+                        p22.setProjectUuid(scd.get("projectId").toString());
+                        p22.setParamTip((short) 1);
+                        if (om2.get(key2) != null && om2.get(key2) instanceof List)
+                          p22.setParamTip((short) 10);
+                        p22.setTabOrder(tabOrder2);
+                        tabOrder2 += 10;
+                        dao.saveObject(p22);
+                        dao.saveObject(new W5VcsObject(scd, 1377, p22.getWsMethodParamId()));
+                      }
+                  }
+                }
+            }
+            break;
+          }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
-						if(om.get(key)!=null && om.get(key) instanceof Map) {
-							short tabOrder2 = (short)(10 * tabOrder);
-							Map<String, Object> om2 = (Map<String, Object>)om;
-							for(String key2:om2.keySet())if(findWSMethodParamByName(wsm.get_params(), key2)==null) {
-								W5WsMethodParam p22 = new W5WsMethodParam();
-								p22.setWsMethodParamId(GenericUtil.getGlobalNextval("iwb.seq_ws_method_param", scd.get("projectId").toString(), (Integer)scd.get("userId"), (Integer)scd.get("customizationId")));
-								p22.setWsMethodId(wsm.getWsMethodId());p22.setParentWsMethodParamId(p2.getWsMethodParamId());
-								p22.setDsc(key2);
-								p22.setOutFlag((short)1);
-								p22.setProjectUuid(scd.get("projectId").toString());
-								p22.setParamTip((short)1);
-								if(om2.get(key2)!=null && om2.get(key2) instanceof List)p22.setParamTip((short)10);
-								p22.setTabOrder(tabOrder2);tabOrder2+=10;
-								dao.saveObject(p22);
-								dao.saveObject(new W5VcsObject(scd, 1377, p22.getWsMethodParamId()));
-
-							}
-						}
-					}
-				}
-				break;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-
-		return result;
-	}
-
->>>>>>> c79e6be3f3df87f4ee67c8608a7c69c85c9ff199
+    return result;
+  }
 }

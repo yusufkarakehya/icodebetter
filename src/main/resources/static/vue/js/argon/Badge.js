@@ -1,16 +1,18 @@
-var Badge =  Vue.component('badge',{
-	template:`<component :is="tag"
+var Badge = Vue.component("badge", {
+  template:
+    `<component :is="tag"
                class="badge"
                :class="
-               ['badge-$`+`{type}',
+               ['badge-$` +
+    `{type}',
                 rounded ? 'badge-pill' : '',
                 circle && 'badge-circle'
                ]">
         <slot>
             <i v-if="icon" :class="icon"></i>
         </slot>
-    </component>`
-    ,props: {
+    </component>`,
+  props: {
     tag: {
       type: String,
       default: "span",
