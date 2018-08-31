@@ -1511,18 +1511,6 @@ class XLazyScriptLoader extends PureComponent {
         return React.createElement(React.Fragment, {},(this.state.loading)?this.props.loading:this.props.children)
     }
 }
-XLazyScriptLoader.propTypes = {
-    css: PropTypes.string,
-    loadjs: PropTypes.oneOfType([
-        PropTypes.array,
-        PropTypes.string,
-    ]),
-    loadcss: PropTypes.oneOfType([
-        PropTypes.array,
-        PropTypes.string,
-    ]),
-    children: PropTypes.node.isRequired
-};
 /**
  * @description
  * used to render tab and show active tab on the full XPage
