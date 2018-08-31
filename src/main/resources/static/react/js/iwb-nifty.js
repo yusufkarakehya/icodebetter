@@ -1437,7 +1437,7 @@ class XAjaxQueryData extends React.PureComponent {
  * @example
  *  _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`, loadjs:['CDN','CDN2']||'CDN' }, childNode )
  */
-class XLazyScriptLoader extends PureComponent {
+class XLazyScriptLoader extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
