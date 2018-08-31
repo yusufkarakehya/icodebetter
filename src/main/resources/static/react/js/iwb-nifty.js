@@ -1437,7 +1437,7 @@ class XAjaxQueryData extends React.PureComponent {
  * @example
  *  _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`, loadjs:['CDN','CDN2']||'CDN' }, childNode )
  */
-class XLazyScriptLoader extends React.PureComponent {
+class XLazyScriptLoader extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -1471,7 +1471,7 @@ class XLazyScriptLoader extends React.PureComponent {
                         // Need to set different attributes depending on tag type
                         switch (tag) {
                             case 'script':
-                                element.async = true;
+                                element.async = false;
                                 break;
                             case 'link':
                                 element.type = 'text/css';
@@ -1508,10 +1508,7 @@ class XLazyScriptLoader extends React.PureComponent {
         this.CSSIntoDom(css)
     }
     render() {
-        return React.createElement(React.Fragment, {},
-            this.state.loading && this.props.loading,
-            !this.state.loading && this.props && this.props.children,
-        )
+        return React.createElement(React.Fragment, {},(this.state.loading)?this.props.loading:this.props.children)
     }
 }
 XLazyScriptLoader.propTypes = {
