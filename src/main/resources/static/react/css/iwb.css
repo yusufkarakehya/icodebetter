@@ -934,3 +934,12 @@ a:hover{
     color: rgba(0,0,0,.4);	
     cursor:pointer;
 }
+.gMapPopover{
+    max-width: 100%!important;
+}
+.pac-container {
+    z-index: 1070;
+}
+.gm-control-active{
+	padding: 0px!important;
+}
