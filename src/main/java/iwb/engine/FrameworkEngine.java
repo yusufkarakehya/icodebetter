@@ -24,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
@@ -128,6 +129,7 @@ import iwb.util.JasperUtil;
 import iwb.util.LogUtil;
 import iwb.util.MailUtil;
 import iwb.util.Money2Text;
+import iwb.util.MyFactory;
 import iwb.util.UserUtil;
 import net.sf.jasperreports.engine.JRExporter;
 import net.sf.jasperreports.engine.JRExporterParameter;
@@ -3611,7 +3613,10 @@ public class FrameworkEngine {
                       key.substring(0, key.length() - prefix.length()), requestParams.get(key));
                 }
           }
-          Context cx = Context.enter();
+          ContextFactory factory = MyFactory.getGlobal();
+          Context cx = factory.enterContext();
+
+          // Context cx = Context.enter();
           StringBuilder sc = new StringBuilder();
           try {
             cx.setOptimizationLevel(-1);
@@ -6313,9 +6318,7 @@ public class FrameworkEngine {
               mz.put("ptable_id", "" + ar.getTableId());
               mz.put("ptable_pk", "" + ar.getTablePk());
               executeFunc(
-                  scd,
-                  690,
-                  mz,
+                  scd, 690, mz,
                   (short) 2); // bu kaydin child kayitlari var mi? iwb.w5_table_field'daki
               // default_control_tip ve default_lookup_table_id'ye bakiliyor
               W5FormResult fr = new W5FormResult(-1);
