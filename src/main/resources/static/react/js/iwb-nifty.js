@@ -1228,7 +1228,6 @@ class MapInput extends React.PureComponent {
 	        place_id: this.state.place_id
 	      };
 	      if (this.state.address_id) {
-	        console.log("edit",this.state.address_id);
 	        iwb.request({
 	          url: "ajaxPostForm?_fid=4559&a=1&taddress_id=" + this.state.address_id,
 	          params,
@@ -1238,7 +1237,6 @@ class MapInput extends React.PureComponent {
 	          }
 	        });
 	      } else {
-	        console.log("insert");
 	        iwb.request({
 	          url: "ajaxPostForm?a=2&_fid=4559",
 	          params,

@@ -54,7 +54,7 @@ const NavbarToggler 		= Reactstrap.NavbarToggler;
 const PopoverHeader	   		= Reactstrap.PopoverHeader;
 const DropdownToggle		= Reactstrap.DropdownToggle;
 const PaginationLink		= Reactstrap.PaginationLink;
-const PaginationItem		= Reactstrap.PaginationItem
+const PaginationItem		= Reactstrap.PaginationItem;
 const ButtonDropdown		= Reactstrap.ButtonDropdown;
 const BreadcrumbItem		= Reactstrap.BreadcrumbItem;
 const InputGroupAddon		= Reactstrap.InputGroupAddon;
@@ -1065,7 +1065,6 @@ class MapInput extends React.PureComponent {
 	        place_id: this.state.place_id
 	      };
 	      if (this.state.address_id) {
-	        console.log("edit",this.state.address_id);
 	        iwb.request({
 	          url: "ajaxPostForm?_fid=4559&a=1&taddress_id=" + this.state.address_id,
 	          params,
@@ -1075,7 +1074,6 @@ class MapInput extends React.PureComponent {
 	          }
 	        });
 	      } else {
-	        console.log("insert");
 	        iwb.request({
 	          url: "ajaxPostForm?a=2&_fid=4559",
 	          params,
@@ -1158,69 +1156,69 @@ class MapInput extends React.PureComponent {
  * <XMasonry brakePoints={[350, 500, 750]} >{ this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )} </XMasonry>
  */
 class XMasonry extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = { columns: 1 };
+	  constructor(props) {
+	    super(props);
+	    this.state = { columns: 1 };
 
-    this.onResize = () => {
-      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
-      if (columns !== this.state.columns) this.setState({ columns: columns });
-    };
+	    this.onResize = () => {
+	      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
+	      if (columns !== this.state.columns) this.setState({ columns: columns });
+	    };
 
-    this.getColumns = w => {
-      return (
-        this.props.brakePoints.reduceRight((p, c, i) => {
-          return c < w ? p : i;
-        }, this.props.brakePoints.length) + 1
-      );
-    };
+	    this.getColumns = w => {
+	      return (
+	        this.props.brakePoints.reduceRight((p, c, i) => {
+	          return c < w ? p : i;
+	        }, this.props.brakePoints.length) + 1
+	      );
+	    };
 
-    this.mapChildren = () => {
-      let col = [];
-      const numC = this.state.columns;
-      for (let i = 0; i < numC; i++) {
-        col.push([]);
-      }
-      return this.props.children.reduce((p, c, i) => {
-        p[i % numC].push(c);
-        return p;
-      }, col);
-    };
-  }
-  componentDidMount() {
-    this.onResize();
-    window.addEventListener("resize", this.onResize);
-  }
-  render() {
-    const masonryStyle = {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "center",
-      alignContent: "stretch",
-      width: "100%",
-      margin: "auto",
-      ...this.props.masonryStyle
-    };
-    
-    return React.createElement(
-      "div",
-      { style: masonryStyle, ref: "Masonry" },
-      this.mapChildren().map((col, ci) => {
-        return React.createElement(
-          Col,
-          { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
-          col.map((child, i) => {
-            return React.createElement(
-              Card,
-              { key: i, className: "mt-2 mb-2" },
-              child
-            );
-          })
-        );
-      })
-    );
-  }
-}
+	    this.mapChildren = () => {
+	      let col = [];
+	      const numC = this.state.columns;
+	      for (let i = 0; i < numC; i++) {
+	        col.push([]);
+	      }
+	      return this.props.children.reduce((p, c, i) => {
+	        p[i % numC].push(c);
+	        return p;
+	      }, col);
+	    };
+	  }
+	  componentDidMount() {
+	    this.onResize();
+	    window.addEventListener("resize", this.onResize);
+	  }
+	  render() {
+	    const masonryStyle = {
+	      display: "flex",
+	      flexDirection: "row",
+	      justifyContent: "center",
+	      alignContent: "stretch",
+	      width: "100%",
+	      margin: "auto",
+	      ...this.props.masonryStyle
+	    };
+	    
+	    return React.createElement(
+	      "div",
+	      { style: masonryStyle, ref: "Masonry" },
+	      this.mapChildren().map((col, ci) => {
+	        return React.createElement(
+	          Col,
+	          { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
+	          col.map((child, i) => {
+	            return React.createElement(
+	              Card,
+	              { key: i, className: "mt-2 mb-2" },
+	              child
+	            );
+	          })
+	        );
+	      })
+	    );
+	  }
+	}
 /**
  * XAjaxQueryData - function is used to get data by giving guery id
  * @param {String} props.qui - query id that you want to get data from 
