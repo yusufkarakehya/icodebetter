@@ -59,9 +59,10 @@ const Badge = Reactstrap.Badge;
 const Modal = Reactstrap.Modal;
 const Button = Reactstrap.Button;
 const NavItem = Reactstrap.NavItem;
-const NavLinkS = Reactstrap.NavLink;
+const Popover = Reactstrap.Popover;
 const TabPane = Reactstrap.TabPane;
 const Tooltip = Reactstrap.Tooltip;
+const NavLinkS = Reactstrap.NavLink;
 const FormText = Reactstrap.FormText;
 const Dropdown = Reactstrap.Dropdown;
 const CardBody = Reactstrap.CardBody;
@@ -77,6 +78,7 @@ const Breadcrumb = Reactstrap.Breadcrumb;
 const InputGroup = Reactstrap.InputGroup;
 const Pagination = Reactstrap.Pagination;
 const TabContent = Reactstrap.TabContent;
+const PopoverBody = Reactstrap.PopoverBody;
 const ModalHeader = Reactstrap.ModalHeader;
 const ModalFooter = Reactstrap.ModalFooter;
 const ButtonGroup = Reactstrap.ButtonGroup;
@@ -85,6 +87,7 @@ const DropdownMenu = Reactstrap.DropdownMenu;
 const DropdownItem = Reactstrap.DropdownItem;
 const ListGroupItem = Reactstrap.ListGroupItem;
 const NavbarToggler = Reactstrap.NavbarToggler;
+const PopoverHeader	= Reactstrap.PopoverHeader;
 const DropdownToggle = Reactstrap.DropdownToggle;
 const PaginationLink = Reactstrap.PaginationLink;
 const PaginationItem = Reactstrap.PaginationItem;
@@ -202,6 +205,7 @@ var iwb = {
   },
   getFieldRawValue: (field, extraOptions) => {
     if (!field || !field.value) return iwb.emptyField;
+    if (field.$ === MapInput) return _(field.$,{address_id:field[field.name], disabled:true});
     var options = extraOptions || field.options;
     if (!options || !options.length) {
       var value = field.value;
@@ -818,6 +822,497 @@ class GridCommon extends React.PureComponent {
   }
 }
 /**
+ * helper componet for MapInput
+ */
+class XMap extends React.PureComponent {
+	  constructor(props) {
+	    super(props);
+	    /**there is no state since if we provide state it will start rerendering itself */
+	    this.map;
+	    this.script;
+	    this.marker;
+	    this.geocoder;
+	    this.inputNode;
+	    this.infoWindow;
+	    this.autoComplete;
+	    this.elementsWithListeners = [];
+	    this.defPosition = { lat: 41.0082, lng: 28.9784 };
+	    !props.apiKey && alert("GoogleMaps:::::::this.props.apiKey not provided");
+	    this.id = "GoogleMaps" + Math.floor(Math.random() * 1000 + 1);
+	    /*
+	        * runs on ofter scrip is loaded
+	        */
+	    this.onScriptLoad = () => {
+	      this.map = this.createMap(this.props.mapOpt || {});
+	      this.marker = this.createMarker(this.props.markerOpt || {});
+	      this.geocoder = this.createGeocoder(this.props.geocoderOpt || {});
+	      this.infoWindow = this.createInfoWindow({maxWidth:300,...this.props.infoWindowOpt});
+	      this.autoComplete = this.createAutocomplete(
+	        this.props.autocompleteOpt || undefined
+	      );
+	      this.props.onMapLoad && this.props.onMapLoad(this);
+	      /**after all the map listeners is set */
+	      this.elementsWithListeners.push(this.map);
+	      this.elementsWithListeners.push(this.marker);
+	      this.elementsWithListeners.push(this.script);
+	      this.elementsWithListeners.push(this.geocoder);
+	      this.elementsWithListeners.push(this.inputNode);
+	      this.elementsWithListeners.push(this.infoWindow);
+	      this.elementsWithListeners.push(this.autoComplete);
+	    };
+	    /**
+	     * locate me on the map
+	     * and used as if stetement for displaying button of geolocation
+	     */
+	    this.findMe = () => {
+	      if (window.navigator.geolocation) {
+	        window.navigator.geolocation.getCurrentPosition(this.findMeOuter);
+	        return true;
+	      } else {
+	        return false;
+	      }
+	    };
+	    /**
+	     * A function to create Google Map object
+	     * @param {Object} opt
+	     */
+	    this.createMap = opt => {
+	      let opt1 = {
+	        center: this.defPosition,
+	        zoom: 8
+	      };
+	      return new window.google.maps.Map( document.getElementById(this.id), {...opt1, ...opt});
+	    };
+	    /**
+	     * A function return GMarker
+	     */
+	    this.createMarker = opt => {
+	      let opt1 = {
+	        position: this.defPosition,
+	        draggable: true,
+	        map: this.map,
+	        title: "default title"
+	      };
+	      return new window.google.maps.Marker({...opt1, ...opt});
+	    };
+	    /**
+	     * a function used to init geolocation
+	     * @param {Object} opt
+	     */
+	    this.createGeocoder = opt => {
+	      let opt1 = {};
+	      return new window.google.maps.Geocoder({...opt1, ...opt})
+	    };
+	    /**
+	     * a function to create InfoWindow
+	     * @param {Object} opt
+	     */
+	    this.createInfoWindow = opt => {
+	      let opt1 = {
+	        content: `<div id="infoWindow" />`,
+	        position: this.defPosition
+	      };
+	      return new window.google.maps.InfoWindow({...opt1, ...opt});
+	    };
+	    /**
+	     * A function return Autocomplete
+	     * @param {HTMLElement} inputNode
+	     */
+	    this.createAutocomplete = (
+	      inputNode = document.getElementById("pac-input")
+	    ) => {
+	      this.inputNode = inputNode;
+	      return new window.google.maps.places.Autocomplete(inputNode);
+	    };
+	    /**
+	     * function to remove listeners from the dom element
+	     * @param {HTMLElement} element
+	     */
+	    this.removeAllEventListenersFromElement = element => {
+	      /**
+	       * to find out if it is a dom object
+	       */
+	      if (element && element.cloneNode) {
+	        let clone = element.cloneNode();
+	        // move all child elements from the original to the clone
+	        while (element.firstChild) {
+	          clone.appendChild(element.lastChild);
+	        }
+	        element.parentNode.replaceChild(clone, element);
+	      }
+	    };
+	    /**
+	     * A function to remove listeners from the array of obj
+	     * @param {Array} elements
+	     */
+	    this.removeAllEventListenersFromElements = (elements = []) => {
+	      /**cheks if it is array */
+	      elements &&
+	        typeof elements.length === "number" &&
+	        elements.length > 0 &&
+	        elements.map(this.removeAllEventListenersFromElement);
+	    };
+	  }
+	  /**
+	   * Used to load script to the body
+	   */
+	  componentDidMount() {
+	    if (!window.google) {
+	      this.script = document.createElement("script");
+	      this.script.id = "script-" + this.id;
+	      this.script.type = "text/javascript";
+	      this.script.async = false;
+	      this.script.src = `https://maps.googleapis.com/maps/api/js?key=${
+	        this.props.apiKey
+	      }&libraries=places`;
+	      var xscript = document.getElementsByTagName("script")[0];
+	      xscript.parentNode.insertBefore(this.script, xscript);
+	      // Below is important.
+	      //We cannot access google.maps until it's finished loading
+	      this.script.addEventListener("load", e => {
+	        this.onScriptLoad();
+	      });
+	    } else {
+	      this.onScriptLoad();
+	    }
+	  }
+	  /**
+	   * Used to delete all listeners and delete script from the body but all the google func will work
+	   */
+	  componentWillUnmount() {
+	    this.removeAllEventListenersFromElements(this.elementsWithListeners);
+	  }
+	  render() {
+	    return React.createElement(
+	      React.Fragment,
+	      null,
+	      React.createElement(
+	        PopoverHeader,
+	        null,
+	        React.createElement(
+	          FormGroup,
+	          null,
+	          React.createElement(Label, { for: "exampleEmail" }, "Address"),
+	          React.createElement('div', {style:{cursor: 'pointer'},className:'float-right', onClick:()=>{this.props.onClick(false)}},
+	        		  React.createElement('i',{className:'icon-close'})
+	        		  ),
+	          React.createElement(
+	            InputGroup,
+	            { type: "text", name: "name" },
+	            React.createElement(
+	              InputGroupAddon,
+	              { hidden: !!this.findMe, addonType: "prepend" },
+	              React.createElement(
+	                Button,
+	                {
+	                  disabled: !!this.findMe,
+	                  type: "submit",
+	                  onClick: this.findMe
+	                },
+	                React.createElement("i", { className: "icon-location-pin" })
+	              )
+	            ),
+	            React.createElement(Input, {
+	              id: "pac-input",
+	              type: "text",
+	              placeholder: "Enter a location"
+	            }),
+	            React.createElement(
+	              InputGroupAddon,
+	              { addonType: "append" },
+	              React.createElement(
+	                Button,
+	                { type: "submit", onClick: this.props.onClick, className:'btn btn-success'},
+	                _('i', {className:'icon-pin'})
+	              )
+	            )
+	          )
+	        )
+	      ),
+	      React.createElement(
+	        PopoverBody,
+	        null,
+	        React.createElement("div", {
+	          style: {
+	            width: this.props.width || 400,
+	            height: this.props.height || 400
+	          },
+	          id: this.id
+	        })
+	      )
+	    );
+	  }
+	}
+class MapInput extends React.PureComponent {
+	  constructor(props) {
+	    super(props);
+	    this.state = {
+	      zoom: 8,
+	      maptype: "roadmap",
+	      formatted_address: "",
+	      place_id: "",
+	      place_lat: "",
+	      place_lng: "",
+	      mapOpen: false,
+	      inputValue: "",
+	      address_id: this.props.address_id
+	    };
+	    this.popoverId = this.props.id
+	      ? "popoverId" + this.props.id
+	      : "popoverId" + Math.floor(Math.random() * 1000 + 1);
+	    /**
+	     * a function used to hide and open the map on the DOM
+	     */
+	    this.toggle = () => {
+	      this.setState(prevState => ({
+	        mapOpen: !prevState.mapOpen
+	      }));
+	    };
+	    /**
+	     * a function used to render info window content
+	     */
+	    this.getInfoWindowContent = () => {
+	      return `
+	            <div class="">
+	                <div class="card-body">
+	                    <h5 class="card-title text-center">
+	                    		<i class="navbar-brand icon-globe"></i>
+	                    ${this.state.formatted_address}</h5>
+	                </div>
+	            </div>
+	            `;
+	    };
+	    /**
+	     * it is a callback function wich will work after imporing the google script
+	     * @param {object} innerScope - state of the internal component
+	     */
+	    this.onMapLoad = innerScope => {
+	      innerScope.geocoder.geocode(
+	    	(this.state.address_id)?{'placeId':this.state.place_id}:{ latLng: innerScope.defPosition || undefined },
+	        (result, status) => {
+	          if (
+	            status === window.google.maps.GeocoderStatus.OK &&
+	            result.length > 0
+	          ) {
+	            let {
+	              place_id,
+	              formatted_address,
+	              geometry: { location }
+	            } = result[0];
+	            this.setState({
+	              place_id,
+	              formatted_address,
+	              place_lat: location.lat(),
+	              place_lng: location.lng()
+	            });
+	            innerScope.map.setCenter(location);
+	            innerScope.marker.setPosition(location);
+	            innerScope.infoWindow.setPosition(location);
+	            innerScope.inputNode.value = formatted_address;
+	            innerScope.infoWindow.setContent(`${formatted_address}`);
+	            innerScope.infoWindow.open(innerScope.map);
+	          }
+	        }
+	      );
+	      /** when the marker is clicked */
+	      innerScope.marker.addListener("click", event => {
+	        let location = innerScope.marker.getPosition();
+	        innerScope.inputNode.value = this.state.formatted_address;
+	        innerScope.infoWindow.setPosition(location);
+	        innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
+	        innerScope.infoWindow.open(innerScope.map);
+	      });
+	      /** after marker is left */
+	      innerScope.marker.addListener("dragend", event => {
+	        let dragedPoint = innerScope.marker.getPosition();
+	        innerScope.map.panTo(dragedPoint);
+
+	        innerScope.geocoder.geocode(
+	          { latLng: dragedPoint },
+	          (result, status) => {
+	            if (
+	              status === window.google.maps.GeocoderStatus.OK &&
+	              result.length > 0
+	            ) {
+	              let {
+	                place_id,
+	                formatted_address,
+	                geometry: { location }
+	              } = result[0];
+	              this.setState({
+	                place_id,
+	                formatted_address,
+	                place_lat: location.lat(),
+	                place_lng: location.lng()
+	              });
+	              innerScope.map.setCenter(location);
+	              innerScope.marker.setPosition(location);
+	              innerScope.inputNode.value = formatted_address;
+	              innerScope.infoWindow.setPosition(location);
+	              innerScope.infoWindow.setContent(
+	                `${this.getInfoWindowContent()}`
+	              );
+	              innerScope.infoWindow.open(innerScope.map);
+	            }
+	          }
+	        );
+	      });
+	      /** lisens for the place change */
+	      innerScope.autoComplete.addListener("place_changed", () => {
+	        let place = innerScope.autoComplete.getPlace();
+	        //return if the auto compleate is not selected from the drop down
+	        if (!place.geometry) return;
+	        let {
+	          place_id,
+	          formatted_address,
+	          geometry: { location }
+	        } = place;
+	        this.setState({
+	          place_id,
+	          formatted_address,
+	          place_lat: location.lat(),
+	          place_lng: location.lng()
+	        });
+	        // bring the selected place in view on the innerScope.map
+	        // innerScope.map.fitBounds(place.geometry.viewport);
+	        innerScope.map.setCenter(location);
+	        innerScope.marker.setPosition(location);
+	        innerScope.infoWindow.setPosition(location);
+	        innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
+	        innerScope.infoWindow.open(innerScope.map);
+	      });
+
+	      innerScope.findMeOuter = position => {
+	        let pos = new window.google.maps.LatLng(
+	          position.coords.latitude,
+	          position.coords.longitude
+	        );
+	        innerScope.geocoder.geocode({ latLng: pos }, (result, status) => {
+	          if (
+	            status === window.google.maps.GeocoderStatus.OK &&
+	            result.length > 0
+	          ) {
+	            let {
+	              place_id,
+	              formatted_address,
+	              geometry: { location }
+	            } = result[0];
+	            this.setState({
+	              place_id,
+	              formatted_address,
+	              place_lat: location.lat(),
+	              place_lng: location.lng()
+	            });
+	            innerScope.map.setCenter(location);
+	            innerScope.marker.setPosition(location);
+	            innerScope.infoWindow.setPosition(location);
+	            innerScope.inputNode.value = formatted_address;
+	            innerScope.infoWindow.setContent(`${formatted_address}`);
+	            innerScope.infoWindow.open(innerScope.map);
+	          }
+	        });
+	      };
+	    };
+	    /**
+	     * a function used to give id of the table Row in db
+	     * @param {event} event
+	     */
+	    this.onClick = event => {
+	    	this.toggle();
+	    	if(!event)return
+	      event.preventDefault();
+	      this.setState({ inputValue: this.state.formatted_address });
+	      var params = {
+	        formatted_address: this.state.formatted_address,
+	        place_lat: this.state.place_lat,
+	        place_lng: this.state.place_lng,
+	        place_id: this.state.place_id
+	      };
+	      if (this.state.address_id) {
+	        iwb.request({
+	          url: "ajaxPostForm?_fid=4559&a=1&taddress_id=" + this.state.address_id,
+	          params,
+	          successCallback: data => {
+	            event.value = this.state.address_id
+	            this.props.onChange && this.props.onChange(event);
+	          }
+	        });
+	      } else {
+	        iwb.request({
+	          url: "ajaxPostForm?a=2&_fid=4559",
+	          params,
+	          successCallback: data => {
+	            event.value = data.outs.address_id
+	            this.props.onChange && this.props.onChange(event);
+	          }
+	        });
+	      }
+	    };
+	  }
+	  componentDidMount(){
+		  if (this.state.address_id) {
+	        let self = this;
+	        iwb.request({
+	          url: 'ajaxQueryData?_qid=4717&xaddress_id='+self.state.address_id,
+	          successCallback: ({data}) => {
+	        	  self.setState({
+	        		  formatted_address: data[0].formatted_address,
+	        		  place_id: data[0].place_id,
+	        	      place_lat: data[0].place_lat,
+	        	      place_lng: data[0].place_lng,
+	        	      inputValue: data[0].formatted_address,
+	        	  });
+	          }
+	        });
+	      }
+	  }
+	  render() {
+	    return React.createElement(
+	      React.Fragment,
+	      null,
+	      React.createElement(
+	        InputGroup,
+	        { type: "text", name: "name", id: this.popoverId},
+	        React.createElement(Input, {
+	          type: "text",
+	          value: this.state.inputValue,
+	          readOnly: true,
+	          disabled:!!this.props.disabled
+	        }),
+	        React.createElement(
+	          InputGroupAddon,
+	          { addonType: "append" },
+	          React.createElement(
+	            Button,
+	            {
+	              className: "mr-1 btn-success",
+	              onClick: this.toggle,
+	              color: "success",
+	              disabled:!!this.props.disabled
+	            },
+	            React.createElement("i", { className: "icon-map" })
+	          )
+	        )
+	      ),
+	      React.createElement(
+	        Popover,
+	        {
+	          className: "gMapPopover",
+	          placement: "bottom-end",
+	          isOpen: this.state.mapOpen,
+	          target: this.popoverId,
+	          toggle: this.toggle
+	        },
+	        React.createElement(XMap, {
+	          apiKey: "AIzaSyAi0oVNVO-e603aUY8SILdD4v9bVBkmiTg",
+	          onMapLoad: this.onMapLoad,
+	          onClick: this.onClick
+	        })
+	      )
+	    );
+	  }
+	}
+/**
  * A component to render Masonry layout
  * @param {Object} props.masonryStyle - style of the container
  * @param {Object} props.columnStyle - style of the column
@@ -825,72 +1320,69 @@ class GridCommon extends React.PureComponent {
  * <XMasonry brakePoints={[350, 500, 750]} >{ this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )} </XMasonry>
  */
 class XMasonry extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = { columns: 1 };
+	  constructor(props) {
+	    super(props);
+	    this.state = { columns: 1 };
 
-    this.onResize = () => {
-      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
-      if (columns !== this.state.columns) this.setState({ columns: columns });
-    };
+	    this.onResize = () => {
+	      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
+	      if (columns !== this.state.columns) this.setState({ columns: columns });
+	    };
 
-    this.getColumns = w => {
-      return (
-        this.props.brakePoints.reduceRight((p, c, i) => {
-          return c < w ? p : i;
-        }, this.props.brakePoints.length) + 1
-      );
-    };
+	    this.getColumns = w => {
+	      return (
+	        this.props.brakePoints.reduceRight((p, c, i) => {
+	          return c < w ? p : i;
+	        }, this.props.brakePoints.length) + 1
+	      );
+	    };
 
-    this.mapChildren = () => {
-      let col = [];
-      const numC = this.state.columns;
-      for (let i = 0; i < numC; i++) {
-        col.push([]);
-      }
-      return this.props.children.reduce((p, c, i) => {
-        p[i % numC].push(c);
-        return p;
-      }, col);
-    };
-  }
-  componentDidMount() {
-    this.onResize();
-    window.addEventListener("resize", this.onResize);
-  }
-  render() {
-    const masonryStyle = {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "center",
-      alignContent: "stretch",
-      width: "100%",
-      margin: "auto",
-      ...this.props.masonryStyle
-    };
-    const columnStyle = {
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "flex-start",
-      alignContent: "stretch",
-      flexGrow: "1",
-      ...this.props.columnStyle
-    };
-    return React.createElement(
-      "div",
-      { style: masonryStyle, ref: "Masonry" },
-      this.mapChildren().map((col, ci) => {
-        return React.createElement(
-          "div",
-          { style: columnStyle, key: ci },
-          col.map((child, i) => {
-            return React.createElement(React.Fragment, { key: i }, child);
-          })
-        );
-      })
-    );
-  }
-}
+	    this.mapChildren = () => {
+	      let col = [];
+	      const numC = this.state.columns;
+	      for (let i = 0; i < numC; i++) {
+	        col.push([]);
+	      }
+	      return this.props.children.reduce((p, c, i) => {
+	        p[i % numC].push(c);
+	        return p;
+	      }, col);
+	    };
+	  }
+	  componentDidMount() {
+	    this.onResize();
+	    window.addEventListener("resize", this.onResize);
+	  }
+	  render() {
+	    const masonryStyle = {
+	      display: "flex",
+	      flexDirection: "row",
+	      justifyContent: "center",
+	      alignContent: "stretch",
+	      width: "100%",
+	      margin: "auto",
+	      ...this.props.masonryStyle
+	    };
+	    
+	    return React.createElement(
+	      "div",
+	      { style: masonryStyle, ref: "Masonry" },
+	      this.mapChildren().map((col, ci) => {
+	        return React.createElement(
+	          Col,
+	          { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
+	          col.map((child, i) => {
+	            return React.createElement(
+	              Card,
+	              { key: i, className: "mt-2 mb-2" },
+	              child
+	            );
+	          })
+	        );
+	      })
+	    );
+	  }
+	}
 /**
  * XAjaxQueryData - function is used to get data by giving guery id
  * @param {String} props.qui - query id that you want to get data from
@@ -938,108 +1430,102 @@ class XAjaxQueryData extends React.PureComponent {
 /**
  * A function to load script from the CDN or filesystem and apply css
  * @param {String} props.css - query id that you want to get data from
- * @param {Array/Object} props.load - used to define wich script to download see exapmle below
+ * @param {Array/String} props.loadjs - used to define which script to download see exapmle below
+ * @param {Array/String} props.loadcss - used to define which css script to download see exapmle below
  * @param {Symbol} props.loading - conponent to show loading indicator while feching scripts from CDN or static file
  * @param {Symbol} props.children
  * @example
- *  _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`, load:[{name:'libName',src:'CDN'},{name:'libName',src:'CDN'}]||{name:'libName',src:'CDN'} }, childNode )
+ *  _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`, loadjs:['CDN','CDN2']||'CDN' }, childNode )
  */
-class XLazyScriptLoader extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loading: true
-    };
-    props.load === null &&
-      console.warn(`provide load props to LazyScriptLoader Component `);
-    this.ListOfScripts = [];
-    this.head = document.head || document.getElementsByTagName("head")[0];
-    this.xscript = document.getElementsByTagName("script")[0];
-    /** METHODS */
-    this.onScriptLoad = () => {
-      var problem = false;
-      this.ListOfScripts.map(nameAndSrc => {
-        if (!window[nameAndSrc.name]) {
-          problem = true;
-          console.warn(
-            "problem with ${" +
-              nameAndSrc.name +
-              "} script there is no such script on window object"
-          );
-          return null;
+class XLazyScriptLoader extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: true
         }
-        return nameAndSrc;
-      });
-      if (
-        !!this.props.load &&
-        this.props.load.constructor === Array &&
-        this.ListOfScripts.length === this.props.load.length &&
-        !problem
-      ) {
-        this.setState({ loading: false });
-      } else if (
-        !!this.props.load &&
-        this.props.load.constructor === Object &&
-        this.ListOfScripts.length === 1 &&
-        !problem
-      ) {
-        this.setState({ loading: false });
-      }
-    };
-    this.loadScript = ({ name, src }) => {
-      let script = document.createElement("script");
-      script.id = "script-" + name;
-      script.type = "text/javascript";
-      script.async = false;
-      script.src = src;
-      this.xscript.parentNode.insertBefore(script, this.xscript);
-      return script;
-    };
-    this.CSSIntoDom = (css = "") => {
-      let style = document.createElement("style");
-      style.type = "text/css";
-      if (style.styleSheet) {
-        style.styleSheet.cssText = css;
-      } else {
-        style.appendChild(document.createTextNode(css));
-      }
-      this.head.appendChild(style);
-    };
-  }
-  componentDidMount() {
-    if (!!this.props.load && this.props.load.constructor === Array) {
-      // [{name:'Azat',src:'source code'},{name:'Azat',src:'source code'}]
-      this.props.load.map(nameAndSrc => {
-        this.ListOfScripts = [...this.ListOfScripts, nameAndSrc];
-        if (!window[nameAndSrc.name]) {
-          let script = this.loadScript(nameAndSrc);
-          script.addEventListener("load", e => this.onScriptLoad());
-        } else this.onScriptLoad();
-        return nameAndSrc;
-      });
-    } else if (!!this.props.load && this.props.load.constructor === Object) {
-      // {name:'Azat',src:'source code'}
-      this.ListOfScripts = [...this.ListOfScripts, this.props.load];
-      if (!window[this.props.load.name]) {
-        let script = this.loadScript(this.props.load);
-        script.addEventListener("load", e => this.onScriptLoad());
-      } else this.onScriptLoad();
-    } else {
-      console.warn(
-        `provide load={name:'Azat',src:'source code'} to LazyScriptLoader`
-      );
+        /**
+         * A function to insert css classes into Dom
+         * @param {string} css - example '.aclass{display:none}'
+         */
+        this.CSSIntoDom = (css = '') => {
+            let style = document.createElement('style');
+            style.type = 'text/css';
+            (style.styleSheet)? style.styleSheet.cssText = css : style.appendChild(document.createTextNode(css))
+            document['head'].appendChild(style);
+        }
+        /**
+         * a self invoking function to load js and css into Dom from source {cdn,server,local.....}
+         */
+        this.load = (() => {
+            // Function which returns a function: https://davidwalsh.name/javascript-functions
+            var _load = (tag) => {
+                return (src) => {
+                    // This promise will be used by Promise.all to determine success or failure
+                    return new Promise( (resolve, reject) => {
+                        let element = document.createElement(tag);
+                        let parent = 'body';
+                        let attr = 'src';
+                        // Important success and error for the promise
+                        element.onload = e => resolve(src);
+                        element.onerror = e => reject(src);
+                        // Need to set different attributes depending on tag type
+                        switch (tag) {
+                            case 'script':
+                                element.async = true;
+                                break;
+                            case 'link':
+                                element.type = 'text/css';
+                                element.rel = 'stylesheet';
+                                attr = 'href';
+                                parent = 'head';
+                                break;
+                            default:
+                        }
+                        // Inject into document to kick off loading
+                        element[attr] = src;
+                        window.document[parent].appendChild(element);
+                    });
+                };
+            }
+            return {
+                css: _load('link'),
+                js:  _load('script'),
+                img: _load('img')
+            }
+        })();
     }
-    this.CSSIntoDom(this.props.css);
-  }
-  render() {
-    return React.createElement(
-      React.Fragment,
-      {},
-      this.state.loading && this.props.loading,
-      !this.state.loading && this.props && this.props.children
-    );
-  }
+    componentDidMount() {
+        let arrayProm = []
+        let {loadcss,loadjs, css} = this.props;
+        loadcss && arrayProm.push(...(loadcss.constructor === Array)?loadcss.map(item=>this.load.css(item)):[this.load.css(loadcss)]);
+        loadjs && arrayProm.push(...(loadjs.constructor === Array)?loadjs.map(item=>this.load.js(item)):[this.load.js(loadjs)]);
+        Promise.all(arrayProm).then(() => {
+            this.setState({ loading: false})
+        }).catch(() => {
+            console.error('Oh no, epic failure!');
+            alert('Oh no, epic failure!');
+        });
+        this.CSSIntoDom(css)
+    }
+    render() {
+        return React.createElement(React.Fragment, {},
+            this.state.loading && this.props.loading,
+            !this.state.loading && this.props && this.props.children,
+        )
+    }
 }
+XLazyScriptLoader.propTypes = {
+    css: PropTypes.string,
+    loadjs: PropTypes.oneOfType([
+        PropTypes.array,
+        PropTypes.string,
+    ]),
+    loadcss: PropTypes.oneOfType([
+        PropTypes.array,
+        PropTypes.string,
+    ]),
+    children: PropTypes.node.isRequired
+};
 /**
  * @description
  * used to render tab and show active tab on the full XPage
