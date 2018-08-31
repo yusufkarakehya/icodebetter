@@ -1,11 +1,15 @@
-var Card =  Vue.component('card',{
-	template:`<div class="card"
+var Card = Vue.component("card", {
+  template:
+    `<div class="card"
          :class="[
          {'card-lift--hover': hover},
          {'shadow': shadow},
-         {['shadow-$`+`{shadowSize}']: shadowSize},
-         {['bg-gradient-$`+`{gradient}']: gradient},
-         {['bg-$`+`{type}']: type}
+         {['shadow-$` +
+    `{shadowSize}']: shadowSize},
+         {['bg-gradient-$` +
+    `{gradient}']: gradient},
+         {['bg-$` +
+    `{type}']: type}
        ]">
         <div class="card-header" :class="headerClasses" v-if="$slots.header">
             <slot name="header">
@@ -20,8 +24,8 @@ var Card =  Vue.component('card',{
         <div class="card-footer" :class="footerClasses" v-if="$slots.footer">
             <slot name="footer"></slot>
         </div>
-    </div>`
-	, props: {
+    </div>`,
+  props: {
     type: {
       type: String,
       description: "Card type"

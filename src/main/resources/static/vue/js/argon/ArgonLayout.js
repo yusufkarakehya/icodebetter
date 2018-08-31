@@ -1,20 +1,20 @@
-function hasElement (className) {
-    return document.getElementsByClassName(className).length > 0;
+function hasElement(className) {
+  return document.getElementsByClassName(className).length > 0;
 }
 
-function initScrollbar (className) {
-    if (hasElement(className)) {
-      new PerfectScrollbar(`.${className}`);
-    } else {
-      // try to init it later in case this component is loaded async
-      setTimeout(() => {
-        initScrollbar(className);
-      }, 100);
-    }
+function initScrollbar(className) {
+  if (hasElement(className)) {
+    new PerfectScrollbar(`.${className}`);
+  } else {
+    // try to init it later in case this component is loaded async
+    setTimeout(() => {
+      initScrollbar(className);
+    }, 100);
+  }
 }
 
-var ArgonLayout =  {
-	template:`<div>
+var ArgonLayout = {
+  template: `<div>
 	<top-navbar></top-navbar>
 	<notifications></notifications>
 	  <span class="navbar-brand" style="margin-left: 30px;
@@ -30,11 +30,9 @@ var ArgonLayout =  {
 	</fade-transition>
 	<modal></modal>
 	</main>
-</div>`
-	,methods: {
-
-    },
-    mounted () {
-		iwb.$notify = this.$notify;
-    }
+</div>`,
+  methods: {},
+  mounted() {
+    iwb.$notify = this.$notify;
+  }
 };
