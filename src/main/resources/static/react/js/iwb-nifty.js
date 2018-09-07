@@ -205,7 +205,7 @@ var iwb = {
   },
   getFieldRawValue: (field, extraOptions) => {
     if (!field || !field.value) return iwb.emptyField;
-    if (field.$ === MapInput) return _(field.$,{address_id:field[field.name], disabled:true});
+    if (field.$ === MapInput) return _(field.$,{value:field.value, disabled:true});
     var options = extraOptions || field.options;
     if (!options || !options.length) {
       var value = field.value;
@@ -1046,16 +1046,15 @@ class XMap extends React.PureComponent {
 class MapInput extends React.PureComponent {
 	  constructor(props) {
 	    super(props);
+	    let st = (props.value)? JSON.parse(props.value):'';
 	    this.state = {
-	      zoom: 8,
-	      maptype: "roadmap",
-	      formatted_address: "",
-	      place_id: "",
-	      place_lat: "",
-	      place_lng: "",
+	      zoom: st.zoom || 8,
+	      maptype: st.maptype || "roadmap",
+	      formatted_address: st.formatted_address || "",
+	      place_id: st.place_id ||  "",
+	      place_lat: st.place_lat||  "",
+	      place_lng: st.place_lng ||  "",
 	      mapOpen: false,
-	      inputValue: "",
-	      address_id: this.props.address_id
 	    };
 	    this.popoverId = this.props.id
 	      ? "popoverId" + this.props.id
@@ -1083,12 +1082,12 @@ class MapInput extends React.PureComponent {
 	            `;
 	    };
 	    /**
-	     * it is a callback function wich will work after imporing the google script
+	     * it is a callback function which will work after imporing the google script
 	     * @param {object} innerScope - state of the internal component
 	     */
 	    this.onMapLoad = innerScope => {
 	      innerScope.geocoder.geocode(
-	    	(this.state.address_id)?{'placeId':this.state.place_id}:{ latLng: innerScope.defPosition || undefined },
+	    	(this.state.place_id)?{'placeId':this.state.place_id}:{ latLng: innerScope.defPosition || undefined },
 	        (result, status) => {
 	          if (
 	            status === window.google.maps.GeocoderStatus.OK &&
@@ -1220,51 +1219,10 @@ class MapInput extends React.PureComponent {
 	    this.onClick = event => {
 	    	this.toggle();
 	    	if(!event)return
-	      event.preventDefault();
-	      this.setState({ inputValue: this.state.formatted_address });
-	      var params = {
-	        formatted_address: this.state.formatted_address,
-	        place_lat: this.state.place_lat,
-	        place_lng: this.state.place_lng,
-	        place_id: this.state.place_id
-	      };
-	      if (this.state.address_id) {
-	        iwb.request({
-	          url: "ajaxPostForm?_fid=4559&a=1&taddress_id=" + this.state.address_id,
-	          params,
-	          successCallback: data => {
-	            event.value = this.state.address_id
-	            this.props.onChange && this.props.onChange(event);
-	          }
-	        });
-	      } else {
-	        iwb.request({
-	          url: "ajaxPostForm?a=2&_fid=4559",
-	          params,
-	          successCallback: data => {
-	            event.value = data.outs.address_id
-	            this.props.onChange && this.props.onChange(event);
-	          }
-	        });
-	      }
+	    	event.preventDefault();
+	    	event.target = {...this.props , value: JSON.stringify(this.state)}
+	    	this.props.onChange && this.props.onChange(event);	      
 	    };
-	  }
-	  componentDidMount(){
-		  if (this.state.address_id) {
-	        let self = this;
-	        iwb.request({
-	          url: 'ajaxQueryData?_qid=4717&xaddress_id='+self.state.address_id,
-	          successCallback: ({data}) => {
-	        	  self.setState({
-	        		  formatted_address: data[0].formatted_address,
-	        		  place_id: data[0].place_id,
-	        	      place_lat: data[0].place_lat,
-	        	      place_lng: data[0].place_lng,
-	        	      inputValue: data[0].formatted_address,
-	        	  });
-	          }
-	        });
-	      }
 	  }
 	  render() {
 	    return React.createElement(
@@ -1275,7 +1233,7 @@ class MapInput extends React.PureComponent {
 	        { type: "text", name: "name", id: this.popoverId},
 	        React.createElement(Input, {
 	          type: "text",
-	          value: this.state.inputValue,
+	          value: this.state.formatted_address,
 	          readOnly: true,
 	          disabled:!!this.props.disabled
 	        }),
@@ -3177,6 +3135,7 @@ class XEditGrid extends GridCommon {
             state.editingRowIds = state.rows.map(row => row[t_props.keyField]);
           }
           cfg.self.setState(state);
+          t_props.afterLoadData && t_props.afterLoadData(this);
         },
         errorCallback: (error, cfg) => {
           cfg.self.setState({
@@ -3260,6 +3219,7 @@ class XEditGrid extends GridCommon {
           editor.onValueChange = ({ value }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
+            this.props.onValueChange({inthis:this,inputName:xprops.column.name});
           };
           break;
         case 6:
@@ -4882,6 +4842,7 @@ class XForm extends React.Component {
      * @param {event} param0
      */
     this.onChange = ({ target }) => {
+    	debugger;
       var { values } = this.state;
       if (target) {
         values[target.name] =
