@@ -406,6 +406,70 @@ var XGrid = Vue.component("x-grid", {
   }
 });
 
+
+function XPage(c){
+	var g=c.grid||c.card;
+	return {
+		render(h){
+			return h('div',{class:"container-fluid", style:""},[h('div',{class:"row"},[h('div',{class:"col-12 col-xl-10 offset-xl-1"},[
+			        g.gridId?
+					h(XMainGrid,{props:{grid:g, showForm:this.showForm}}): h(XMainCard,{props:{card:g, showForm:this.showForm}})
+			])])]);
+		},
+		data() {
+		  return {bodyForm:false}
+		},
+		methods: {
+			  showForm(url, scallback){
+
+				  fetch(url+'&_modal=1',{
+			    	    body: JSON.stringify({}), // must match 'Content-Type' header
+			    		cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+			    		credentials: 'same-origin', // include, same-origin, *omit
+			    		headers: {'content-type': 'application/json'},
+			    		method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			    		mode: 'cors', // no-cors, cors, *same-origin
+			    		redirect: 'follow', // *manual, follow, error
+			    		referrer: 'no-referrer', // *client, no-referrer
+			    	})
+				      .then((response) => {
+				    	    // status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
+				    	    if (response.status === 200 || response.status === 0) {
+				    	        return response.text();
+				    	    } else {
+				    	        return Promise.reject(new Error(response.text() || response.statusText))
+				    	    }})
+				      .then(
+				        (result) => {
+				        	if(result){
+				      			var f;
+				      			eval("f=function(callAttributes, parentCt){\n"+result+"\n}");
+				      			var r=f({}, this);
+				      			if(r){
+				      				var bodyForm = r.body, self=this;
+				      				iwb.showModal({onSubmit:(scfg)=>{
+				      					if(self.form)self.form.submit({callback:function(json,cfg){
+				      						iwb.closeModal();
+				      						if(scallback)scallback(json);
+				      					}});
+				      				},subHeader:url.indexOf('a=1')>0 ? ' · Update':' · New Record', header:r.cfg.name,body:bodyForm,closable:true,viewMode:url.indexOf('a=1')>0,closableOutside:!1,footer:true,type:r.cfg.size||'lg'})
+				      			}
+				        	} else {
+				        		iwb.notifyVue('error','Sonuc Gelmedi',' Error');
+				        	}
+				        },
+				        (error) => {
+				        	iwb.notifyVue('error','Connection Error');
+				        }
+				      );
+			  }
+	    },
+	    mounted(){
+	    }
+
+	};
+};
+
 var dgColors = ["warning", "secondary", "danger", "primary", "success", "info"];
 var XMainGrid = Vue.component("x-main-grid", {
   props: ["grid", "showForm"],

@@ -257,7 +257,7 @@ public class AuthController {
     try {
       JSONObject params = new JSONObject();
       params.put("method", "GET");
-      String token = "<fill yout token>";
+      String token = "xoxp-400071414103-400355743638-409628283425-24e403d0ed1b842f10bcdb28c5ed9434";
       Map<String, Object> scd = UserUtil.getScd(req, "scd-dev", true);
       String email = (String) scd.get("email");
       String url =

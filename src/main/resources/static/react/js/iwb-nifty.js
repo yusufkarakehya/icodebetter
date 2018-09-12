@@ -2178,7 +2178,7 @@ class XGridAction extends React.PureComponent {
                 color: "#777"
               }
             }),
-            "Raporlar/BI"
+            "REPORTS/BI"
           )
           //			,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
         )
@@ -3715,7 +3715,7 @@ class XMainGrid extends GridCommon {
             _(
               "div",
               { className: "hr-text" },
-              _("h6", null, "Arama Kriterleri")
+              _("h6", null, "Seacrh Criteria")
             ),
             _(
               "div",
@@ -3733,11 +3733,11 @@ class XMainGrid extends GridCommon {
                       this.loadData(true);
                     }
                   },
-                  "ARA"
+                  "SEARCH"
                 )
               )
             ),
-            _("div", { style: { height: 10 } }),
+         /*   _("div", { style: { height: 10 } }),
             _("div", { className: "hr-text" }, _("h6", null, "Şablonlar")),
             _(
               Link,
@@ -3752,7 +3752,7 @@ class XMainGrid extends GridCommon {
               _("i", { className: "icon-plus" }),
               " ",
               " Yeni Şablon Ekle"
-            ),
+            ),*/
             _("div", { style: { height: 20 } })
           ),
         detailGrids &&
@@ -3760,7 +3760,7 @@ class XMainGrid extends GridCommon {
           _(
             "div",
             { className: "hr-text", key: "hr-text" },
-            _("h6", null, "DETAY KAYITLAR")
+            _("h6", null, "DETAILS")
           ),
         detailGrids &&
           detailGrids.length > 1 &&
@@ -3842,7 +3842,7 @@ class XMainGrid extends GridCommon {
           (params += columnName + "," + (cmap[columnName] || 100) + ";")
       );
       iwb.showModal({
-        title: "RAPORLAR",
+        title: "REPORTS / BI",
         footer: false,
         color: "danger",
         size: "sm",

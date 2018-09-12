@@ -17,14 +17,8 @@ var ArgonLayout = {
   template: `<div>
 	<top-navbar></top-navbar>
 	<notifications></notifications>
-	  <span class="navbar-brand" style="margin-left: 30px;
-    text-transform: none;
-    padding: 20px 20px 0px 0px;
-    font-size: 2rem;
-    font-weight: normal;" href="#">
-	    {{$route.name}}
-	  </span>
-	<main style="padding-top: 15px;">
+
+	<main style="padding-top: 35px;">
 	<fade-transition origin="center" mode="out-in" :duration="250">
 		<router-view :key="$route.fullPath"></router-view>
 	</fade-transition>

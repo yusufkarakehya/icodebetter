@@ -2211,7 +2211,7 @@ class XGridAction extends React.PureComponent {
                 color: "#777"
               }
             }),
-            "Raporlar/BI"
+            "REPORTS / BI"
           )
           //			,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
         )
@@ -3873,7 +3873,7 @@ class XMainGrid extends GridCommon {
           (params += columnName + "," + (cmap[columnName] || 100) + ";")
       );
       iwb.showModal({
-        title: "RAPORLAR",
+        title: "REPORTS / BI",
         footer: false,
         color: "danger",
         size: "sm",
