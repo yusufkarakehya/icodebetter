@@ -1276,7 +1276,7 @@ class MapInput extends React.PureComponent {
 	          toggle: this.toggle
 	        },
 	        React.createElement(XMap, {
-	          apiKey: "AIzaSyAi0oVNVO-e603aUY8SILdD4v9bVBkmiTg",
+	          apiKey: _app.map_api,
 	          onMapLoad: this.onMapLoad,
 	          onClick: this.onClick
 	        })
@@ -4967,7 +4967,6 @@ class XForm extends React.Component {
      * @param {event} param0
      */
     this.onChange = ({ target }) => {
-    	debugger;
       var { values } = this.state;
       if (target) {
         values[target.name] =
