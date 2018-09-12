@@ -1292,75 +1292,165 @@ class MapInput extends React.PureComponent {
 	}
 /**
  * A component to render Masonry layout
+ * @param {Object} props.masonryRowStyle - style of the container
  * @param {Object} props.masonryStyle - style of the container
  * @param {Object} props.columnStyle - style of the column
  * @example
- * <XMasonry brakePoints={[350, 500, 750]} >{ this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )} </XMasonry>
+ * ```jsx
+ * <XMasonry loadingComponent = {()=>{return '***********you can give loading component***********'}}
+ *    brakePoints={[350, 500, 750]}
+ *    loadNext={({columns,totalItems}) => {  {columns,totalItems} - use this to construct url}}
+ *    >{
+ *      this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )
+ *    } </XMasonry>
+ * ```
  */
 class XMasonry extends React.PureComponent {
-	  constructor(props) {
-	    super(props);
-	    this.state = { columns: 1 };
+  constructor(props) {
+    super(props);
+    this.state = {
+      columns: 1,
+      prevY: 0,
+      loading: false
+    };
+    /**
+     * a funntion used to calculate columns when resized
+     */
+    this.onResize = () => {
+      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
+      if (columns !== this.state.columns) this.setState({ columns: columns });
+    };
+    /**
+     * a function used to calculate columns from this.props.brakePoints
+     * @param {Number} width - width of the masonry component
+     */
+    this.getColumns = width => {
+      return (
+        this.props.brakePoints.reduceRight((p, c, i) => {
+          return c < width ? p : i;
+        }, this.props.brakePoints.length) + 1
+      );
+    };
+    /**
+     * a function used to calculate children according to column size
+     */
+    this.mapChildren = () => {
+      let col = [];
+      const numC = this.state.columns;
+      for (let i = 0; i < numC; i++) {
+        col.push([]);
+      }
+      return this.props.children.reduce((p, c, i) => {
+        p[i % numC].push(c);
+        return p;
+      }, col);
+    };
+    /**
+     * a function used to call loadNext method to make lazyLoading from the rest
+     * @param {*} entities
+     * @param {*} observer
+     */
+    this.handleObserver = (entities, observer) => {
+      const y = entities[0].boundingClientRect.y;
+      if (this.state.prevY > y) {
+        this.props.loadNext && this.setState({ loading: true });
+        this.props.loadNext &&
+          this.props.loadNext({
+            columns: this.mapChildren().length,
+            totalItems: this.props.children.reduce((tot, ch) => tot + 1, 0)
+          });
+      }
+      this.setState({ prevY: y });
+    };
+  }
 
-	    this.onResize = () => {
-	      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
-	      if (columns !== this.state.columns) this.setState({ columns: columns });
-	    };
-
-	    this.getColumns = w => {
-	      return (
-	        this.props.brakePoints.reduceRight((p, c, i) => {
-	          return c < w ? p : i;
-	        }, this.props.brakePoints.length) + 1
-	      );
-	    };
-
-	    this.mapChildren = () => {
-	      let col = [];
-	      const numC = this.state.columns;
-	      for (let i = 0; i < numC; i++) {
-	        col.push([]);
-	      }
-	      return this.props.children.reduce((p, c, i) => {
-	        p[i % numC].push(c);
-	        return p;
-	      }, col);
-	    };
-	  }
-	  componentDidMount() {
-	    this.onResize();
-	    window.addEventListener("resize", this.onResize);
-	  }
-	  render() {
-	    const masonryStyle = {
-	      display: "flex",
-	      flexDirection: "row",
-	      justifyContent: "center",
-	      alignContent: "stretch",
-	      width: "100%",
-	      margin: "auto",
-	      ...this.props.masonryStyle
-	    };
-	    
-	    return React.createElement(
-	      "div",
-	      { style: masonryStyle, ref: "Masonry" },
-	      this.mapChildren().map((col, ci) => {
-	        return React.createElement(
-	          Col,
-	          { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
-	          col.map((child, i) => {
-	            return React.createElement(
-	              Card,
-	              { key: i, className: "mt-2 mb-2" },
-	              child
-	            );
-	          })
-	        );
-	      })
-	    );
-	  }
-	}
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (
+      prevProps.children.length < this.props.children.length &&
+      this.props.loadNext
+    ) {
+      this.setState({ loading: false });
+    }
+    return true;
+  }
+  componentDidMount() {
+    //initial resize
+    this.onResize();
+    // add listener for window object
+    window.addEventListener("resize", this.onResize);
+    if (this.props.loadNext) {
+      // Create an observer
+      this.observer = new IntersectionObserver(
+        this.handleObserver.bind(this), //callback
+        {
+          root: null, // Page as root
+          rootMargin: "0px",
+          threshold: 0.01
+        }
+      );
+      //Observ the `loadingRef`
+      this.observer.observe(this.refs.loadingRef);
+    }
+  }
+  render() {
+    const masonryStyle = {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignContent: "stretch",
+      width: "100%",
+      margin: "auto",
+      ...this.props.masonryStyle
+    };
+    return React.createElement(
+      Row,
+      {
+        style: {
+          overflowY: "auto",
+          margin: "5px",
+          height: this.props.height || "500px",
+          ...this.props.masonryRowStyle
+        }
+      },
+      React.createElement(
+        "div",
+        { style: masonryStyle, ref: "Masonry" },
+        this.mapChildren().map((col, ci) => {
+          return React.createElement(
+            Col,
+            { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
+            col.map((child, i) => {
+              return React.createElement(
+                Card,
+                { key: i, className: "mt-2 mb-2" },
+                child
+              );
+            })
+          );
+        })
+      ),
+      React.createElement(
+        "div",
+        {
+          ref: "loadingRef",
+          style: {
+            height: "10%",
+            width: "100%",
+            margin: "0px",
+            display: this.props.loadNext ? "block" : "none"
+          }
+        },
+        React.createElement(
+          "span",
+          { style: { display: this.state.loading ? "block" : "none" } },
+          this.props.loadingComponent
+            ? this.props.loadingComponent()
+            : "Loading..."
+        )
+      )
+    );
+  }
+}
 /**
  * XAjaxQueryData - function is used to get data by giving guery id
  * @param {String} props.qui - query id that you want to get data from
