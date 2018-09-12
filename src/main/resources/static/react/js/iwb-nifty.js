@@ -126,6 +126,20 @@ var iwb = {
   debugConstructor: false,
   detailPageSize: 10,
   log: console.log.bind(window.console),
+  mem:(( isArrayEqual = (array1, array2) => array1.length === array2.length &&
+		  array1.every((value, index) => value === array2[index]) &&
+		  JSON.stringify(array1) === JSON.stringify(array2)
+		) => {
+		  let fnList = {}, resultList = {}, argList = {};
+		  return (resultFn, ...newArgs) => {
+		    let key = resultFn.toString().replace(/(\r\n\t|\n|\r\t|\s)/gm, "")+newArgs.toString().replace(/(,|\s)/gm, '');
+		    if ( key && fnList[key] && resultList[key] && isArrayEqual(argList[key], newArgs) ) { return resultList[key]; }
+		    argList[key] = newArgs;
+		    resultList[key] = resultFn.apply(this, newArgs);
+		    fnList[key] = resultFn;
+		    return resultList[key];
+		  };
+		})(),
   /**
    * @description
    * used for giving data for grid button
@@ -3135,7 +3149,7 @@ class XEditGrid extends GridCommon {
             state.editingRowIds = state.rows.map(row => row[t_props.keyField]);
           }
           cfg.self.setState(state);
-          t_props.afterLoadData && t_props.afterLoadData(this);
+          t_props.afterLoadData && t_props.afterLoadData(cfg.self);
         },
         errorCallback: (error, cfg) => {
           cfg.self.setState({
@@ -3212,14 +3226,17 @@ class XEditGrid extends GridCommon {
       if (!xprops.row._new) xprops.row._new = {}; //Object.assign({},xprops.row);
       if (!xprops.row._new.hasOwnProperty(xprops.column.name))
         xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
+      
+      var keyFieldValue = (xprops.row._new && xprops.row._new[this.props.keyField])?xprops.row._new[this.props.keyField]:xprops.row[this.props.keyField]; 
+      
       switch (1 * editor._control) {
         case 3:
         case 4: //number
-          editor.value = xprops.value; //xprops.row._new[xprops.column.name];
+          editor.value = (xprops.row && xprops.row._new && xprops.row._new[xprops.column.name])?xprops.row._new[xprops.column.name]:xprops.value;
           editor.onValueChange = ({ value }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
-            this.props.onValueChange({inthis:this,inputName:xprops.column.name});
+            this.props.onValueChange({inthis:this,keyFieldValue:keyFieldValue, inputName:xprops.column.name,inputValue:value })
           };
           break;
         case 6:
@@ -3234,6 +3251,12 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ id }) => {
             xprops.row._new[xprops.column.name] = id;
             xprops.onValueChange(id);
+            this.props.onValueChange({
+            	inthis:this,
+            	keyFieldValue,
+            	inputName:xprops.column.name,
+            	inputValue:id
+            })
           };
           break;
         case 5:
@@ -3241,13 +3264,25 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ target: { checked } }) => {
             xprops.row._new[xprops.column.name] = checked;
             xprops.onValueChange(checked);
+            this.props.onValueChange({
+            	inthis:this,
+            	keyFieldValue,
+            	inputName:xprops.column.name,
+            	inputValue:checked
+            })
           };
           break;
         default:
-          editor.value = xprops.value; //xprops.row._new[xprops.column.name];
+          editor.value = (xprops.row && xprops.row._new && xprops.row._new[xprops.column.name])?xprops.row._new[xprops.column.name]:xprops.value;
           editor.onChange = ({ target: { value } }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
+            this.props.onValueChange({
+            	inthis:this,
+            	keyFieldValue,
+            	inputName:xprops.column.name,
+            	inputValue:value
+            })
           };
           break;
       }
