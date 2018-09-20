@@ -1059,8 +1059,8 @@ class XMap extends React.PureComponent {
 	}
 class MapInput extends React.PureComponent {
 	  constructor(props) {
-	    super(props);
-	    let st = (props.value)? JSON.parse(props.value):'';
+      super(props);
+      let st = (props.stringifyResult && props.value)? JSON.parse(props.value):props.value;
 	    this.state = {
 	      zoom: st.zoom || 8,
 	      maptype: st.maptype || "roadmap",
@@ -1233,8 +1233,9 @@ class MapInput extends React.PureComponent {
 	    this.onClick = event => {
 	    	this.toggle();
 	    	if(!event)return
-	    	event.preventDefault();
-	    	event.target = {...this.props , value: JSON.stringify(this.state)}
+        event.preventDefault();
+        let val  = (this.props.stringifyResult)?JSON.stringify(this.state):this.state;
+	    	event.target = {...this.props , value: val}
 	    	this.props.onChange && this.props.onChange(event);	      
 	    };
 	  }
@@ -3326,7 +3327,7 @@ class XEditGrid extends GridCommon {
           editor.onValueChange = ({ value }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
-            this.props.onValueChange({inthis:this,keyFieldValue:keyFieldValue, inputName:xprops.column.name,inputValue:value })
+            this.props.onValueChange && this.props.onValueChange({inthis:this,keyFieldValue:keyFieldValue, inputName:xprops.column.name,inputValue:value })
           };
           break;
         case 6:
@@ -3341,7 +3342,7 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ id }) => {
             xprops.row._new[xprops.column.name] = id;
             xprops.onValueChange(id);
-            this.props.onValueChange({
+            this.props.onValueChange && this.props.onValueChange({
             	inthis:this,
             	keyFieldValue,
             	inputName:xprops.column.name,
@@ -3354,7 +3355,7 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ target: { checked } }) => {
             xprops.row._new[xprops.column.name] = checked;
             xprops.onValueChange(checked);
-            this.props.onValueChange({
+            this.props.onValueChange && this.props.onValueChange({
             	inthis:this,
             	keyFieldValue,
             	inputName:xprops.column.name,
@@ -3367,7 +3368,7 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ target: { value } }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
-            this.props.onValueChange({
+            this.props.onValueChange && this.props.onValueChange({
             	inthis:this,
             	keyFieldValue,
             	inputName:xprops.column.name,
@@ -3978,9 +3979,7 @@ class XMainGrid extends GridCommon {
                           dgColors[DGindex % dgColors.length],
                         dgindex: DGindex,
                         onClick: event => {
-                          var DGindexDOM = +event.target.getAttribute(
-                            "dgindex"
-                          );
+                          var DGindexDOM = +event.target.getAttribute("dgindex");
                           if (iwb.debug)
                             console.log(
                               "dasss",
@@ -4006,7 +4005,8 @@ class XMainGrid extends GridCommon {
                       },
                       _("i", {
                         className: "icon-grid",
-                        style: { fontSize: 17 }
+                        style: { fontSize: 17 },
+                        dgindex: DGindex
                       })
                     ),
                   _(
@@ -4072,7 +4072,7 @@ class XMainGrid extends GridCommon {
       iwb.request({
         url: queryString,
         self: this,
-        tempParams,
+        params:tempParams,
         successCallback: (result, cfg) => {
           cfg.self.setState({
             rows: result.data,
