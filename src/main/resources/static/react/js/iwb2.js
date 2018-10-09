@@ -46,58 +46,60 @@ const NavLink = ReactRouterDOM.NavLink;
 const Redirect = ReactRouterDOM.Redirect;
 const HashRouter = ReactRouterDOM.HashRouter;
 //Reactstrap components
-const Row 					= Reactstrap.Row;
-const Col 					= Reactstrap.Col;
-const Nav 					= Reactstrap.Nav;
-const Card 					= Reactstrap.Card;
-const Form 					= Reactstrap.Form;
-const Input 				= Reactstrap.Input;
-const Label 				= Reactstrap.Label;
-const Table 				= Reactstrap.Table;
-const Badge 				= Reactstrap.Badge;
-const Modal 				= Reactstrap.Modal;
-const Button 				= Reactstrap.Button;
-const NavItem 				= Reactstrap.NavItem;
-const NavLinkS 				= Reactstrap.NavLink;
-const Popover 				= Reactstrap.Popover;
-const TabPane 				= Reactstrap.TabPane;
-const Tooltip				= Reactstrap.Tooltip;
-const FormText 				= Reactstrap.FormText;
-const Dropdown 				= Reactstrap.Dropdown;
-const CardBody 				= Reactstrap.CardBody;
-const CardBlock 			= Reactstrap.CardBody;
-const ListGroup 			= Reactstrap.ListGroup;
-const Container 			= Reactstrap.Container;
-const ModalBody 			= Reactstrap.ModalBody;
-const FormGroup 			= Reactstrap.FormGroup;
-const CardHeader 			= Reactstrap.CardHeader;
-const CardFooter			= Reactstrap.CardFooter;
-const Breadcrumb 			= Reactstrap.Breadcrumb;
-const InputGroup 			= Reactstrap.InputGroup;
-const Pagination 			= Reactstrap.Pagination;
-const TabContent 			= Reactstrap.TabContent;
-const PopoverBody 			= Reactstrap.PopoverBody;
-const ModalHeader 			= Reactstrap.ModalHeader;
-const ModalFooter 			= Reactstrap.ModalFooter;
-const ButtonGroup 			= Reactstrap.ButtonGroup;
-const NavbarBrand 			= Reactstrap.NavbarBrand;
-const DropdownMenu 			= Reactstrap.DropdownMenu;
-const DropdownItem 			= Reactstrap.DropdownItem;
-const ListGroupItem 		= Reactstrap.ListGroupItem;
-const NavbarToggler 		= Reactstrap.NavbarToggler;
-const PopoverHeader	   		= Reactstrap.PopoverHeader;
-const DropdownToggle		= Reactstrap.DropdownToggle;
-const PaginationLink		= Reactstrap.PaginationLink;
-const PaginationItem		= Reactstrap.PaginationItem;
-const ButtonDropdown		= Reactstrap.ButtonDropdown;
-const BreadcrumbItem		= Reactstrap.BreadcrumbItem;
-const InputGroupAddon		= Reactstrap.InputGroupAddon;
-const InputGroupButton		= Reactstrap.InputGroupButton;
-const UncontrolledTooltip	= Reactstrap.UncontrolledTooltip;
-//FW Community Components 
-const Select 				= window.Select;
-const Popper 				= window.Popper;
-const findDOMNode 			= ReactDOM.findDOMNode;
+const Row = Reactstrap.Row;
+const Col = Reactstrap.Col;
+const Nav = Reactstrap.Nav;
+const Card = Reactstrap.Card;
+const Form = Reactstrap.Form;
+const Input = Reactstrap.Input;
+const Label = Reactstrap.Label;
+const Table = Reactstrap.Table;
+const Badge = Reactstrap.Badge;
+const Modal = Reactstrap.Modal;
+const Button = Reactstrap.Button;
+const NavItem = Reactstrap.NavItem;
+ 
+const Popover = Reactstrap.Popover;
+const TabPane = Reactstrap.TabPane;
+const Tooltip = Reactstrap.Tooltip;
+const NavLinkS = Reactstrap.NavLink;
+const FormText = Reactstrap.FormText;
+const Dropdown = Reactstrap.Dropdown;
+const CardBody = Reactstrap.CardBody;
+const CardBlock = Reactstrap.CardBody;
+const CardTitle = Reactstrap.CardTitle;
+const ListGroup = Reactstrap.ListGroup;
+const Container = Reactstrap.Container;
+const ModalBody = Reactstrap.ModalBody;
+const FormGroup = Reactstrap.FormGroup;
+const CardHeader = Reactstrap.CardHeader;
+const CardFooter = Reactstrap.CardFooter;
+const Breadcrumb = Reactstrap.Breadcrumb;
+const InputGroup = Reactstrap.InputGroup;
+const Pagination = Reactstrap.Pagination;
+const TabContent = Reactstrap.TabContent;
+const PopoverBody = Reactstrap.PopoverBody;
+const ModalHeader = Reactstrap.ModalHeader;
+const ModalFooter = Reactstrap.ModalFooter;
+const ButtonGroup = Reactstrap.ButtonGroup;
+const NavbarBrand = Reactstrap.NavbarBrand;
+const DropdownMenu = Reactstrap.DropdownMenu;
+const DropdownItem = Reactstrap.DropdownItem;
+const ListGroupItem = Reactstrap.ListGroupItem;
+const NavbarToggler = Reactstrap.NavbarToggler;
+const PopoverHeader = Reactstrap.PopoverHeader;
+const DropdownToggle = Reactstrap.DropdownToggle;
+const PaginationLink = Reactstrap.PaginationLink;
+const PaginationItem = Reactstrap.PaginationItem;
+const ButtonDropdown = Reactstrap.ButtonDropdown;
+const BreadcrumbItem = Reactstrap.BreadcrumbItem;
+const InputGroupAddon = Reactstrap.InputGroupAddon;
+const InputGroupButton = Reactstrap.InputGroupButton;
+const UncontrolledTooltip = Reactstrap.UncontrolledTooltip;
+//FW Community Components
+const Select = window.Select;
+const Popper = window.Popper;
+const findDOMNode = ReactDOM.findDOMNode;
 //React
 var _ = React.createElement;
 //DXReactCore imports
@@ -118,7 +120,8 @@ var iwb = {
   toastr: toastr,
   grids: {},
   forms: {},
-  pages: {},
+  tabs:{},
+  closeTab:null,
   debug: false,
   debugRender: false,
   debugConstructor: false,
@@ -1064,18 +1067,18 @@ class XMap extends React.PureComponent {
 	  }
 	}
 class MapInput extends React.PureComponent {
-	  constructor(props) {
-	    super(props);
-	    let st = (props.value)? JSON.parse(props.value):'';
-	    this.state = {
-	      zoom: st.zoom || 8,
-	      maptype: st.maptype || "roadmap",
-	      formatted_address: st.formatted_address || "",
-	      place_id: st.place_id ||  "",
-	      place_lat: st.place_lat||  "",
-	      place_lng: st.place_lng ||  "",
-	      mapOpen: false,
-	    };
+    constructor(props) {
+      super(props);
+      let st = (props.stringifyResult && props.value)? JSON.parse(props.value):props.value;
+      this.state = {
+        zoom: st.zoom || 8,
+        maptype: st.maptype || "roadmap",
+        formatted_address: st.formatted_address || "",
+        place_id: st.place_id ||  "",
+        place_lat: st.place_lat||  "",
+        place_lng: st.place_lng ||  "",
+        mapOpen: false,
+      };
 	    this.popoverId = this.props.id
 	      ? "popoverId" + this.props.id
 	      : "popoverId" + Math.floor(Math.random() * 1000 + 1);
@@ -1239,8 +1242,9 @@ class MapInput extends React.PureComponent {
 	    this.onClick = event => {
 	    	this.toggle();
 	    	if(!event)return
-	    	event.preventDefault();
-	    	event.target = {...this.props , value: JSON.stringify(this.state)}
+        event.preventDefault();
+        let val  = (this.props.stringifyResult)?JSON.stringify(this.state):this.state;
+	    	event.target = {...this.props , value: val}
 	    	this.props.onChange && this.props.onChange(event);	      
 	    };
 	  }
@@ -1282,7 +1286,7 @@ class MapInput extends React.PureComponent {
 	          toggle: this.toggle
 	        },
 	        React.createElement(XMap, {
-	          apiKey: "AIzaSyAi0oVNVO-e603aUY8SILdD4v9bVBkmiTg",
+	          apiKey: _app.map_api,
 	          onMapLoad: this.onMapLoad,
 	          onClick: this.onClick
 	        })
@@ -1655,7 +1659,7 @@ class XTabForm extends React.PureComponent {
             var { parentCt } = selfie.props;
             if (parentCt) {
               iwb.closeModal();
-              parentCt.closeTab();
+              iwb.closeTab();
               iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
             }
           }
@@ -1731,7 +1735,7 @@ class XTabForm extends React.PureComponent {
           viewMode &&
             _(
               Button,
-              { color: "light", className: "btn-form-edit", onClick: closeTab },
+              { color: "light", className: "btn-form-edit", onClick: iwb.closeTab },
               "Kapat"
             ),
           " ",
@@ -1802,7 +1806,7 @@ class XTabForm extends React.PureComponent {
               color: "light",
               style: { border: ".5px solid #e6e6e6" },
               className: "btn-form",
-              onClick: closeTab
+              onClick: iwb.closeTab
             },
             "Cancel"
           )
@@ -3359,7 +3363,7 @@ class XEditGrid extends GridCommon {
           editor.onValueChange = ({ value }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
-            this.props.onValueChange({inthis:this,keyFieldValue:keyFieldValue, inputName:xprops.column.name,inputValue:value })
+            this.props.onValueChange && this.props.onValueChange({inthis:this,keyFieldValue:keyFieldValue, inputName:xprops.column.name,inputValue:value })
           };
           break;
         case 6:
@@ -3374,7 +3378,7 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ id }) => {
             xprops.row._new[xprops.column.name] = id;
             xprops.onValueChange(id);
-            this.props.onValueChange({
+            this.props.onValueChange && this.props.onValueChange({
             	inthis:this,
             	keyFieldValue,
             	inputName:xprops.column.name,
@@ -3387,7 +3391,7 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ target: { checked } }) => {
             xprops.row._new[xprops.column.name] = checked;
             xprops.onValueChange(checked);
-            this.props.onValueChange({
+            this.props.onValueChange && this.props.onValueChange({
             	inthis:this,
             	keyFieldValue,
             	inputName:xprops.column.name,
@@ -3400,7 +3404,7 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ target: { value } }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
-            this.props.onValueChange({
+            this.props.onValueChange && this.props.onValueChange({
             	inthis:this,
             	keyFieldValue,
             	inputName:xprops.column.name,
@@ -3981,7 +3985,7 @@ class XMainGrid extends GridCommon {
           var rowSDetailGrids = [];
           for (var DGindex = 0; DGindex < tempDetailGrids.length; DGindex++) {
             if (
-              tempDetailGrids.length == 1 ||
+              tempDetailGrids.length >= 1 ||
               selfie.state["dg-" + tempDetailGrids[DGindex].grid.gridId]
             ) {
               var detailXGrid = {
@@ -4009,9 +4013,7 @@ class XMainGrid extends GridCommon {
                           dgColors[DGindex % dgColors.length],
                         dgindex: DGindex,
                         onClick: event => {
-                          var DGindexDOM = +event.target.getAttribute(
-                            "dgindex"
-                          );
+                          var DGindexDOM = +event.target.getAttribute("dgindex");
                           if (iwb.debug)
                             console.log(
                               "dasss",
@@ -4037,7 +4039,8 @@ class XMainGrid extends GridCommon {
                       },
                       _("i", {
                         className: "icon-grid",
-                        style: { fontSize: 17 }
+                        style: { fontSize: 17 },
+                        dgindex: DGindex
                       })
                     ),
                   _(
@@ -4103,7 +4106,7 @@ class XMainGrid extends GridCommon {
       iwb.request({
         url: queryString,
         self: this,
-        tempParams,
+        params:tempParams,
         successCallback: (result, cfg) => {
           cfg.self.setState({
             rows: result.data,
@@ -4369,25 +4372,14 @@ class XMainGrid extends GridCommon {
  * @example
  * form+grid, grid, form, form+form
  */
-class XPage extends React.Component {
+class XPage extends React.PureComponent {
   constructor(props) {
-    if (iwb.debugConstructor)
-      if (iwb.debug) console.log("XPage.constructor", props);
+    if (iwb.debugConstructor && iwb.debug) console.log("XPage.constructor", props);
     super(props);
     document.getElementById("id-breed").innerHTML = this.props.grid.name;
     iwb.killGlobalSearch();
-    var oldPageState = iwb.pages[props.grid.id];
-    if (oldPageState) {
-      this.state = oldPageState;
-      this.dontRefresh = true;
-    } else {
-      this.state = {
-        activeTab: "x",
-        tabs: [
-          { name: "x", icon: "icon-list", title: "Liste", value: props.grid }
-        ]
-      };
-    }
+    this.state = { activeTab: "x" };
+    this.tabs = (iwb.tabs[this.props.grid.id])?[...iwb.tabs[this.props.grid.id]]:[{ name: "x", icon:"icon-list", title: "Liste", value: props.grid }];
     /**
      * @description
      * a Function to toggle between tabs
@@ -4396,11 +4388,15 @@ class XPage extends React.Component {
     this.toggle = event => {
       var activeTab = event.target ? event.target.getAttribute("name") : event;
       if (this.state.activeTab !== activeTab) {
-        var { tabs } = this.state;
+        var {
+          tabs
+        } = this;
         tabs &&
           tabs.forEach(tempTab => {
             if (tempTab.name === activeTab) {
-              this.setState({ activeTab });
+              this.setState({
+                activeTab
+              });
               return true;
             }
           });
@@ -4408,10 +4404,9 @@ class XPage extends React.Component {
       return false;
     };
     this.isActionInTabList = action => {
-      var { tabs } = this.state;
       var stopToFetch = false;
-      tabs &&
-        tabs.forEach(tempTab => {
+      this.tabs &&
+      this.tabs.forEach(tempTab => {
           if (tempTab.name === action) {
             this.toggle(action);
             stopToFetch = true;
@@ -4431,22 +4426,24 @@ class XPage extends React.Component {
       if (this.state.activeTab !== action) {
         if (this.isActionInTabList(action)) return;
         fetch(url, {
-          body: JSON.stringify(params || {}), // must match 'Content-Type' header
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, same-origin, *omit
-          headers: { "content-type": "application/json" },
-          method: "POST", // *GET, POST, PUT, DELETE, etc.
-          mode: "cors", // no-cors, cors, *same-origin
-          redirect: "follow", // *manual, follow, error
-          referrer: "no-referrer" // *client, no-referrer
-        })
+            body: JSON.stringify(params || {}), // must match 'Content-Type' header
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, same-origin, *omit
+            headers: {
+              "content-type": "application/json"
+            },
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, cors, *same-origin
+            redirect: "follow", // *manual, follow, error
+            referrer: "no-referrer" // *client, no-referrer
+          })
           .then(
             response =>
-              response.status === 200 || response.status === 0
-                ? response.text()
-                : Promise.reject(
-                    new Error(response.text() || response.statusText)
-                  )
+            response.status === 200 || response.status === 0 ?
+            response.text() :
+            Promise.reject(
+              new Error(response.text() || response.statusText)
+            )
           )
           .then(
             result => {
@@ -4460,24 +4457,23 @@ class XPage extends React.Component {
                     iwb.showModal({
                       body: serverComponent,
                       size: "lg",
-                      title:
-                        serverComponent.props && serverComponent.props.cfg
-                          ? serverComponent.props.cfg.name
-                          : "",
+                      title: serverComponent.props && serverComponent.props.cfg ?
+                        serverComponent.props.cfg.name :
+                        "",
                       color: "primary"
-                      //style	:{maxWidth:'90%'}
                     });
                   } else {
                     var plus = action.substr(0, 1) == "2";
-                    var { tabs } = this.state;
                     if (this.isActionInTabList(action)) return;
-                    tabs.push({
+                    this.tabs.push({
                       name: action,
                       icon: plus ? "icon-plus" : "icon-doc",
                       title: plus ? " Yeni" : " Düzenle",
                       value: serverComponent
                     });
-                    this.setState({ activeTab: action, tabs });
+                    this.setState({
+                      activeTab: action
+                    });
                   }
                 }
               } else {
@@ -4498,17 +4494,14 @@ class XPage extends React.Component {
      * this function will be passed to whenever new tab is opened
      */
     this.closeTab = (event, forceRelaod = false) => {
-      var { activeTab, tabs } = this.state;
-      if (activeTab == "x") return;
-      tabs =
-        tabs &&
-        tabs.length > 0 &&
-        tabs.filter(tempTab => tempTab.name !== activeTab && tempTab);
+      if (this.state.activeTab == "x") return;
+      this.tabs = this.tabs && this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
       if (forceRelaod) {
-        tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
+        this.tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
       }
-      this.setState({ activeTab: "x", tabs });
+      this.toggle("x");
     };
+    iwb.closeTab = this.closeTab;
     /**
      * @description
      * A function is used to open new FormTab
@@ -4522,7 +4515,7 @@ class XPage extends React.Component {
   }
   componentWillUnmount() {
     iwb.killGlobalSearch();
-    iwb.pages[this.props.grid.id] = { ...this.state };
+    iwb.tabs[this.props.grid.id] = [...this.tabs];
   }
   render() {
     if (iwb.debugRender) if (iwb.debug) console.log("XPage.render");
@@ -4537,8 +4530,8 @@ class XPage extends React.Component {
           { className: "mb-4" },
           _(
             Nav,
-            { tabs: true, hidden: this.state.tabs.length == 1 },
-            this.state.tabs.map(({ name, icon, title }, index) => {
+            { tabs: true, hidden: this.tabs.length == 1 },
+            this.tabs.map(({ name, icon, title }, index) => {
               return _(
                 NavItem,
                 { key: "NavItem" + index },
@@ -4565,7 +4558,7 @@ class XPage extends React.Component {
           _(
             TabContent,
             { activeTab: this.state.activeTab },
-            this.state.tabs.map(({ name, value }, index) => {
+            this.tabs.map(({ name, value }, index) => {
               return _(
                 TabPane,
                 { key: "TabPane" + index, tabId: name },
