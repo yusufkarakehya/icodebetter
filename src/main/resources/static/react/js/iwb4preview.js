@@ -2877,7 +2877,7 @@ class XMainPanel extends React.PureComponent {
                 iwb.nav.visitItem(this.props.match.path);
               }
             } else {
-              toastr.error("Sonuc Gelmedi", " Error");
+              toastr.error("No Result", " Error");
               //		        	alert('Hata! Sonuc Gelmedi');
             }
           },
@@ -3297,7 +3297,7 @@ class XForm extends React.Component {
           this.url +
           "?" +
           iwb.JSON2URI(this.params) +
-          "_renderer=react16&.r=" +
+          "_renderer=react16&.w="+_webPageId+"&.r=" +
           Math.random(),
         params: values,
         self: this,
@@ -3323,9 +3323,11 @@ class XForm extends React.Component {
                 }
                 break;
               default:
-                alert(json.errorType);
+                top.ajaxErrorHandler(json);
             }
-          else alert(json);
+          else {
+              top.ajaxErrorHandler(json);
+          }
           this.setState({ errors });
           return false;
         },
