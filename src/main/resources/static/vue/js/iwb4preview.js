@@ -23,11 +23,7 @@ iwb.requestErrorHandler = function(obj) {
         iwb.notifyVue("error", obj.errors.join("<br/>"), "Validation Error");
         break;
       default:
-        iwb.notifyVue(
-          "error",
-          obj.errorMsg || "Unknown ERROR",
-          obj.errorType + " Error"
-        );
+    	  top.ajaxErrorHandler(obj);
     }
   } else {
     iwb.notifyVue("error", obj.errorMsg || "Unknown ERROR", "Request Error");

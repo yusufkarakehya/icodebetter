@@ -2979,12 +2979,13 @@ iwb.requestErrorHandler = function(obj) {
         //	    	alert('ERROR Validation: ' + obj.errors.join('\n'));
         break;
       default:
-        toastr.error(obj.errorMsg || "Unknown ERROR", obj.errorType + " Error");
+    	top.ajaxErrorHandler(obj);
       //	    	alert('ERROR['+obj.errorType+'] '+(obj.errorMsg || 'Bilinmeyen ERROR'));
     }
   } else {
-    toastr.error(obj.errorMsg || "Unknown ERROR", "Request Error");
+    //toastr.error(obj.errorMsg || "Unknown ERROR", "Request Error");
     //		alert(obj.errorMsg || 'Bilinmeyen ERROR');
+	  top.ajaxErrorHandler(obj);
   }
 };
 var ajaxErrorHandler = iwb.requestErrorHandler;
