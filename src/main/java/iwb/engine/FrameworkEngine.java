@@ -6088,7 +6088,7 @@ public class FrameworkEngine {
     if (!GenericUtil.isEmpty(projectId)) rm.put("projectId", projectId);
     Map<String, Object> m = executeQuery2Map(scd, 2, rm); // mainSessionQuery
     if (m == null) return null;
-    if (!GenericUtil.isEmpty(mobileDeviceId)) {
+    if (false && !GenericUtil.isEmpty(mobileDeviceId)) {
       Map parameterMap = new HashMap();
       parameterMap.put("pmobile_device_id", mobileDeviceId);
       parameterMap.put("pactive_flag", 1);
@@ -9207,9 +9207,10 @@ public class FrameworkEngine {
     return result;
   }
 
+  
   public Map getUserNotReadChatMap(Map<String, Object> scd) {
     String s =
-        "select k.sender_user_id user_id , count(1) cnt from iwb.w5_chat k where k.receiver_user_id=${scd.userId}::integer AND k.deliver_status_tip in (0,1) AND k.customization_id=${scd.customizationId}::integer "
+        "select k.sender_user_id user_id , count(1) cnt from iwb.w5_chat k where k.receiver_user_id=${scd.userId}::integer AND k.deliver_status_tip in (0,1) "// AND k.customization_id=${scd.customizationId}::integer "
             + "AND k.sender_user_id in (select u.user_id from iwb.w5_user u where ((u.customization_id=${scd.customizationId}::integer AND (u.global_flag=1 OR u.project_uuid='${scd.projectId}') AND u.user_status=1)) OR exists(select 1 from iwb.w5_user_related_project rp where rp.user_id=u.user_id AND rp.related_project_uuid='${scd.projectId}'))"
             + " group by k.sender_user_id";
     Object[] oz = DBUtil.filterExt4SQL(s, scd, null, null);

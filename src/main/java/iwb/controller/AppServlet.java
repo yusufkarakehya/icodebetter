@@ -776,7 +776,7 @@ public class AppServlet implements InitializingBean {
 				}
 			}
 
-			if(GenericUtil.uInt(request, "c")!=0){
+			if(false && GenericUtil.uInt(request, "c")!=0){
 				response.getWriter().write(",\"newMsgCnt\":"+ GenericUtil.fromMapToJsonString2Recursive(engine.getUserNotReadChatMap(scd)));
 			}
 			if (genToken && scd != null)
