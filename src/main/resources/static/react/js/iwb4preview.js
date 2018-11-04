@@ -315,6 +315,8 @@ class XTabForm extends React.PureComponent {
   }
   render() {
     if (iwb.debugRender) console.log("XTabForm.render", this.props);
+//    console.log('this.props.cfg', this.props.cfg);
+    var cfg = this.props.cfg;
     var formBody = _(this.props.body, {
       parentCt: this,
       viewMode: this.state.viewMode
@@ -329,7 +331,7 @@ class XTabForm extends React.PureComponent {
       },
       _(
         CardBlock,
-        { className: "card-body" },
+        {},
         _(
           "h3",
           { className: "form-header" },
@@ -382,6 +384,16 @@ class XTabForm extends React.PureComponent {
         _("hr"),
         formBody
       ),
+      cfg.conversionCnt && _(CardBlock,{}
+	  	  ,_('div',{className:'hr-text'},_('h6',null,'Conversions'))
+	      ,_(Row,null,cfg.conversionForms.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', style:{width:40}}),ox.text)})
+	  )),
+      cfg.smsMailTemplateCnt && _(CardBlock,{}
+  	    ,_('div',{className:'hr-text'},_('h6',null,'SMS/EMail'))
+      	,_(Row,null,
+    		  cfg.smsMailTemplates.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', style:{width:40}}),ox.text)})
+      )),
+      
       !this.state.viewMode &&
         _(
           CardFooter,
@@ -3503,7 +3515,7 @@ iwb.createPortlet = function(o) {
     },
     _(
       CardBlock,
-      { className: "card-body" },
+      {},
       _(
         "h3",
         {

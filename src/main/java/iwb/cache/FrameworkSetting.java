@@ -26,7 +26,7 @@ public class FrameworkSetting {
 	public final static String instanceUuid=UUID.randomUUID().toString();
 	public final static String devUuid="067e6162-3b6f-4ae2-a221-2470b63dff00";
 	public static boolean mq=false;
-	public static boolean cloud=true;
+	public static boolean cloud=false;
 	public static boolean debug=true;
 	public static boolean chat=true;
 	public static boolean sms=true;
