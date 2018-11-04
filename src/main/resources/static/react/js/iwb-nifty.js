@@ -59,6 +59,7 @@ const Badge = Reactstrap.Badge;
 const Modal = Reactstrap.Modal;
 const Button = Reactstrap.Button;
 const NavItem = Reactstrap.NavItem;
+ 
 const Popover = Reactstrap.Popover;
 const TabPane = Reactstrap.TabPane;
 const Tooltip = Reactstrap.Tooltip;
@@ -87,7 +88,7 @@ const DropdownMenu = Reactstrap.DropdownMenu;
 const DropdownItem = Reactstrap.DropdownItem;
 const ListGroupItem = Reactstrap.ListGroupItem;
 const NavbarToggler = Reactstrap.NavbarToggler;
-const PopoverHeader	= Reactstrap.PopoverHeader;
+const PopoverHeader = Reactstrap.PopoverHeader;
 const DropdownToggle = Reactstrap.DropdownToggle;
 const PaginationLink = Reactstrap.PaginationLink;
 const PaginationItem = Reactstrap.PaginationItem;
@@ -120,12 +121,27 @@ var iwb = {
   toastr: toastr,
   grids: {},
   forms: {},
-  pages: {},
+  tabs:{},
+  closeTab:null,
   debug: false,
   debugRender: false,
   debugConstructor: false,
   detailPageSize: 10,
   log: console.log.bind(window.console),
+  mem:(( isArrayEqual = (array1, array2) => array1.length === array2.length &&
+		  array1.every((value, index) => value === array2[index]) &&
+		  JSON.stringify(array1) === JSON.stringify(array2)
+		) => {
+		  let fnList = {}, resultList = {}, argList = {};
+		  return (resultFn, ...newArgs) => {
+		    let key = resultFn.toString().replace(/(\r\n\t|\n|\r\t|\s)/gm, "")+newArgs.toString().replace(/(,|\s)/gm, '');
+		    if ( key && fnList[key] && resultList[key] && isArrayEqual(argList[key], newArgs) ) { return resultList[key]; }
+		    argList[key] = newArgs;
+		    resultList[key] = resultFn.apply(this, newArgs);
+		    fnList[key] = resultFn;
+		    return resultList[key];
+		  };
+		})(),
   /**
    * @description
    * used for giving data for grid button
@@ -205,7 +221,7 @@ var iwb = {
   },
   getFieldRawValue: (field, extraOptions) => {
     if (!field || !field.value) return iwb.emptyField;
-    if (field.$ === MapInput) return _(field.$,{address_id:field[field.name], disabled:true});
+    if (field.$ === MapInput) return _(field.$,{value:field.value, disabled:true});
     var options = extraOptions || field.options;
     if (!options || !options.length) {
       var value = field.value;
@@ -1045,17 +1061,16 @@ class XMap extends React.PureComponent {
 	}
 class MapInput extends React.PureComponent {
 	  constructor(props) {
-	    super(props);
+      super(props);
+      let st = (props.stringifyResult && props.value)? JSON.parse(props.value):props.value;
 	    this.state = {
-	      zoom: 8,
-	      maptype: "roadmap",
-	      formatted_address: "",
-	      place_id: "",
-	      place_lat: "",
-	      place_lng: "",
+	      zoom: st.zoom || 8,
+	      maptype: st.maptype || "roadmap",
+	      formatted_address: st.formatted_address || "",
+	      place_id: st.place_id ||  "",
+	      place_lat: st.place_lat||  "",
+	      place_lng: st.place_lng ||  "",
 	      mapOpen: false,
-	      inputValue: "",
-	      address_id: this.props.address_id
 	    };
 	    this.popoverId = this.props.id
 	      ? "popoverId" + this.props.id
@@ -1083,12 +1098,12 @@ class MapInput extends React.PureComponent {
 	            `;
 	    };
 	    /**
-	     * it is a callback function wich will work after imporing the google script
+	     * it is a callback function which will work after imporing the google script
 	     * @param {object} innerScope - state of the internal component
 	     */
 	    this.onMapLoad = innerScope => {
 	      innerScope.geocoder.geocode(
-	    	(this.state.address_id)?{'placeId':this.state.place_id}:{ latLng: innerScope.defPosition || undefined },
+	    	(this.state.place_id)?{'placeId':this.state.place_id}:{ latLng: innerScope.defPosition || undefined },
 	        (result, status) => {
 	          if (
 	            status === window.google.maps.GeocoderStatus.OK &&
@@ -1220,51 +1235,11 @@ class MapInput extends React.PureComponent {
 	    this.onClick = event => {
 	    	this.toggle();
 	    	if(!event)return
-	      event.preventDefault();
-	      this.setState({ inputValue: this.state.formatted_address });
-	      var params = {
-	        formatted_address: this.state.formatted_address,
-	        place_lat: this.state.place_lat,
-	        place_lng: this.state.place_lng,
-	        place_id: this.state.place_id
-	      };
-	      if (this.state.address_id) {
-	        iwb.request({
-	          url: "ajaxPostForm?_fid=4559&a=1&taddress_id=" + this.state.address_id,
-	          params,
-	          successCallback: data => {
-	            event.value = this.state.address_id
-	            this.props.onChange && this.props.onChange(event);
-	          }
-	        });
-	      } else {
-	        iwb.request({
-	          url: "ajaxPostForm?a=2&_fid=4559",
-	          params,
-	          successCallback: data => {
-	            event.value = data.outs.address_id
-	            this.props.onChange && this.props.onChange(event);
-	          }
-	        });
-	      }
+        event.preventDefault();
+        let val  = (this.props.stringifyResult)?JSON.stringify(this.state):this.state;
+	    	event.target = {...this.props , value: val}
+	    	this.props.onChange && this.props.onChange(event);	      
 	    };
-	  }
-	  componentDidMount(){
-		  if (this.state.address_id) {
-	        let self = this;
-	        iwb.request({
-	          url: 'ajaxQueryData?_qid=4717&xaddress_id='+self.state.address_id,
-	          successCallback: ({data}) => {
-	        	  self.setState({
-	        		  formatted_address: data[0].formatted_address,
-	        		  place_id: data[0].place_id,
-	        	      place_lat: data[0].place_lat,
-	        	      place_lng: data[0].place_lng,
-	        	      inputValue: data[0].formatted_address,
-	        	  });
-	          }
-	        });
-	      }
 	  }
 	  render() {
 	    return React.createElement(
@@ -1275,7 +1250,7 @@ class MapInput extends React.PureComponent {
 	        { type: "text", name: "name", id: this.popoverId},
 	        React.createElement(Input, {
 	          type: "text",
-	          value: this.state.inputValue,
+	          value: this.state.formatted_address,
 	          readOnly: true,
 	          disabled:!!this.props.disabled
 	        }),
@@ -1304,7 +1279,7 @@ class MapInput extends React.PureComponent {
 	          toggle: this.toggle
 	        },
 	        React.createElement(XMap, {
-	          apiKey: "AIzaSyAi0oVNVO-e603aUY8SILdD4v9bVBkmiTg",
+	          apiKey: _app.map_api,
 	          onMapLoad: this.onMapLoad,
 	          onClick: this.onClick
 	        })
@@ -1314,75 +1289,165 @@ class MapInput extends React.PureComponent {
 	}
 /**
  * A component to render Masonry layout
+ * @param {Object} props.masonryRowStyle - style of the container
  * @param {Object} props.masonryStyle - style of the container
  * @param {Object} props.columnStyle - style of the column
  * @example
- * <XMasonry brakePoints={[350, 500, 750]} >{ this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )} </XMasonry>
+ * ```jsx
+ * <XMasonry loadingComponent = {()=>{return '***********you can give loading component***********'}}
+ *    brakePoints={[350, 500, 750]}
+ *    loadNext={({columns,totalItems}) => {  {columns,totalItems} - use this to construct url}}
+ *    >{
+ *      this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )
+ *    } </XMasonry>
+ * ```
  */
 class XMasonry extends React.PureComponent {
-	  constructor(props) {
-	    super(props);
-	    this.state = { columns: 1 };
+  constructor(props) {
+    super(props);
+    this.state = {
+      columns: 1,
+      prevY: 0,
+      loading: false
+    };
+    /**
+     * a funntion used to calculate columns when resized
+     */
+    this.onResize = () => {
+      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
+      if (columns !== this.state.columns) this.setState({ columns: columns });
+    };
+    /**
+     * a function used to calculate columns from this.props.brakePoints
+     * @param {Number} width - width of the masonry component
+     */
+    this.getColumns = width => {
+      return (
+        this.props.brakePoints.reduceRight((p, c, i) => {
+          return c < width ? p : i;
+        }, this.props.brakePoints.length) + 1
+      );
+    };
+    /**
+     * a function used to calculate children according to column size
+     */
+    this.mapChildren = () => {
+      let col = [];
+      const numC = this.state.columns;
+      for (let i = 0; i < numC; i++) {
+        col.push([]);
+      }
+      return this.props.children.reduce((p, c, i) => {
+        p[i % numC].push(c);
+        return p;
+      }, col);
+    };
+    /**
+     * a function used to call loadNext method to make lazyLoading from the rest
+     * @param {*} entities
+     * @param {*} observer
+     */
+    this.handleObserver = (entities, observer) => {
+      const y = entities[0].boundingClientRect.y;
+      if (this.state.prevY > y) {
+        this.props.loadNext && this.setState({ loading: true });
+        this.props.loadNext &&
+          this.props.loadNext({
+            columns: this.mapChildren().length,
+            totalItems: this.props.children.reduce((tot, ch) => tot + 1, 0)
+          });
+      }
+      this.setState({ prevY: y });
+    };
+  }
 
-	    this.onResize = () => {
-	      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
-	      if (columns !== this.state.columns) this.setState({ columns: columns });
-	    };
-
-	    this.getColumns = w => {
-	      return (
-	        this.props.brakePoints.reduceRight((p, c, i) => {
-	          return c < w ? p : i;
-	        }, this.props.brakePoints.length) + 1
-	      );
-	    };
-
-	    this.mapChildren = () => {
-	      let col = [];
-	      const numC = this.state.columns;
-	      for (let i = 0; i < numC; i++) {
-	        col.push([]);
-	      }
-	      return this.props.children.reduce((p, c, i) => {
-	        p[i % numC].push(c);
-	        return p;
-	      }, col);
-	    };
-	  }
-	  componentDidMount() {
-	    this.onResize();
-	    window.addEventListener("resize", this.onResize);
-	  }
-	  render() {
-	    const masonryStyle = {
-	      display: "flex",
-	      flexDirection: "row",
-	      justifyContent: "center",
-	      alignContent: "stretch",
-	      width: "100%",
-	      margin: "auto",
-	      ...this.props.masonryStyle
-	    };
-	    
-	    return React.createElement(
-	      "div",
-	      { style: masonryStyle, ref: "Masonry" },
-	      this.mapChildren().map((col, ci) => {
-	        return React.createElement(
-	          Col,
-	          { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
-	          col.map((child, i) => {
-	            return React.createElement(
-	              Card,
-	              { key: i, className: "mt-2 mb-2" },
-	              child
-	            );
-	          })
-	        );
-	      })
-	    );
-	  }
-	}
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (
+      prevProps.children.length < this.props.children.length &&
+      this.props.loadNext
+    ) {
+      this.setState({ loading: false });
+    }
+    return true;
+  }
+  componentDidMount() {
+    //initial resize
+    this.onResize();
+    // add listener for window object
+    window.addEventListener("resize", this.onResize);
+    if (this.props.loadNext) {
+      // Create an observer
+      this.observer = new IntersectionObserver(
+        this.handleObserver.bind(this), //callback
+        {
+          root: null, // Page as root
+          rootMargin: "0px",
+          threshold: 0.01
+        }
+      );
+      //Observ the `loadingRef`
+      this.observer.observe(this.refs.loadingRef);
+    }
+  }
+  render() {
+    const masonryStyle = {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignContent: "stretch",
+      width: "100%",
+      margin: "auto",
+      ...this.props.masonryStyle
+    };
+    return React.createElement(
+      Row,
+      {
+        style: {
+          overflowY: "auto",
+          margin: "5px",
+          height: this.props.height || "500px",
+          ...this.props.masonryRowStyle
+        }
+      },
+      React.createElement(
+        "div",
+        { style: masonryStyle, ref: "Masonry" },
+        this.mapChildren().map((col, ci) => {
+          return React.createElement(
+            Col,
+            { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
+            col.map((child, i) => {
+              return React.createElement(
+                Card,
+                { key: i, className: "mt-2 mb-2" },
+                child
+              );
+            })
+          );
+        })
+      ),
+      React.createElement(
+        "div",
+        {
+          ref: "loadingRef",
+          style: {
+            height: "10%",
+            width: "100%",
+            margin: "0px",
+            display: this.props.loadNext ? "block" : "none"
+          }
+        },
+        React.createElement(
+          "span",
+          { style: { display: this.state.loading ? "block" : "none" } },
+          this.props.loadingComponent
+            ? this.props.loadingComponent()
+            : "Loading..."
+        )
+      )
+    );
+  }
+}
 /**
  * XAjaxQueryData - function is used to get data by giving guery id
  * @param {String} props.qui - query id that you want to get data from
@@ -1566,7 +1631,7 @@ class XTabForm extends React.PureComponent {
             var { parentCt } = selfie.props;
             if (parentCt) {
               iwb.closeModal();
-              parentCt.closeTab();
+              iwb.closeTab();
               iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
             }
           }
@@ -1642,7 +1707,7 @@ class XTabForm extends React.PureComponent {
           viewMode &&
             _(
               Button,
-              { color: "light", className: "btn-form-edit", onClick: closeTab },
+              { color: "light", className: "btn-form-edit", onClick: iwb.closeTab },
               "Kapat"
             ),
           " ",
@@ -1707,7 +1772,7 @@ class XTabForm extends React.PureComponent {
               color: "light",
               style: { border: ".5px solid #e6e6e6" },
               className: "btn-form",
-              onClick: closeTab
+              onClick: iwb.closeTab
             },
             "Cancel"
           )
@@ -3177,6 +3242,7 @@ class XEditGrid extends GridCommon {
             state.editingRowIds = state.rows.map(row => row[t_props.keyField]);
           }
           cfg.self.setState(state);
+          t_props.afterLoadData && t_props.afterLoadData(cfg.self);
         },
         errorCallback: (error, cfg) => {
           cfg.self.setState({
@@ -3253,13 +3319,17 @@ class XEditGrid extends GridCommon {
       if (!xprops.row._new) xprops.row._new = {}; //Object.assign({},xprops.row);
       if (!xprops.row._new.hasOwnProperty(xprops.column.name))
         xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
+      
+      var keyFieldValue = (xprops.row._new && xprops.row._new[this.props.keyField])?xprops.row._new[this.props.keyField]:xprops.row[this.props.keyField]; 
+      
       switch (1 * editor._control) {
         case 3:
         case 4: //number
-          editor.value = xprops.value; //xprops.row._new[xprops.column.name];
+          editor.value = (xprops.row && xprops.row._new && xprops.row._new[xprops.column.name])?xprops.row._new[xprops.column.name]:xprops.value;
           editor.onValueChange = ({ value }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
+            this.props.onValueChange && this.props.onValueChange({inthis:this,keyFieldValue:keyFieldValue, inputName:xprops.column.name,inputValue:value })
           };
           break;
         case 6:
@@ -3274,6 +3344,12 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ id }) => {
             xprops.row._new[xprops.column.name] = id;
             xprops.onValueChange(id);
+            this.props.onValueChange && this.props.onValueChange({
+            	inthis:this,
+            	keyFieldValue,
+            	inputName:xprops.column.name,
+            	inputValue:id
+            })
           };
           break;
         case 5:
@@ -3281,13 +3357,25 @@ class XEditGrid extends GridCommon {
           editor.onChange = ({ target: { checked } }) => {
             xprops.row._new[xprops.column.name] = checked;
             xprops.onValueChange(checked);
+            this.props.onValueChange && this.props.onValueChange({
+            	inthis:this,
+            	keyFieldValue,
+            	inputName:xprops.column.name,
+            	inputValue:checked
+            })
           };
           break;
         default:
-          editor.value = xprops.value; //xprops.row._new[xprops.column.name];
+          editor.value = (xprops.row && xprops.row._new && xprops.row._new[xprops.column.name])?xprops.row._new[xprops.column.name]:xprops.value;
           editor.onChange = ({ target: { value } }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
+            this.props.onValueChange && this.props.onValueChange({
+            	inthis:this,
+            	keyFieldValue,
+            	inputName:xprops.column.name,
+            	inputValue:value
+            })
           };
           break;
       }
@@ -3865,7 +3953,7 @@ class XMainGrid extends GridCommon {
           var rowSDetailGrids = [];
           for (var DGindex = 0; DGindex < tempDetailGrids.length; DGindex++) {
             if (
-              tempDetailGrids.length == 1 ||
+              tempDetailGrids.length >= 1 ||
               selfie.state["dg-" + tempDetailGrids[DGindex].grid.gridId]
             ) {
               var detailXGrid = {
@@ -3893,9 +3981,7 @@ class XMainGrid extends GridCommon {
                           dgColors[DGindex % dgColors.length],
                         dgindex: DGindex,
                         onClick: event => {
-                          var DGindexDOM = +event.target.getAttribute(
-                            "dgindex"
-                          );
+                          var DGindexDOM = +event.target.getAttribute("dgindex");
                           if (iwb.debug)
                             console.log(
                               "dasss",
@@ -3921,7 +4007,8 @@ class XMainGrid extends GridCommon {
                       },
                       _("i", {
                         className: "icon-grid",
-                        style: { fontSize: 17 }
+                        style: { fontSize: 17 },
+                        dgindex: DGindex
                       })
                     ),
                   _(
@@ -3987,7 +4074,7 @@ class XMainGrid extends GridCommon {
       iwb.request({
         url: queryString,
         self: this,
-        tempParams,
+        params:tempParams,
         successCallback: (result, cfg) => {
           cfg.self.setState({
             rows: result.data,
@@ -4253,25 +4340,14 @@ class XMainGrid extends GridCommon {
  * @example
  * form+grid, grid, form, form+form
  */
-class XPage extends React.Component {
+class XPage extends React.PureComponent {
   constructor(props) {
-    if (iwb.debugConstructor)
-      if (iwb.debug) console.log("XPage.constructor", props);
+    if (iwb.debugConstructor && iwb.debug) console.log("XPage.constructor", props);
     super(props);
     document.getElementById("id-breed").innerHTML = this.props.grid.name;
     iwb.killGlobalSearch();
-    var oldPageState = iwb.pages[props.grid.id];
-    if (oldPageState) {
-      this.state = oldPageState;
-      this.dontRefresh = true;
-    } else {
-      this.state = {
-        activeTab: "x",
-        tabs: [
-          { name: "x", icon: "icon-list", title: "Liste", value: props.grid }
-        ]
-      };
-    }
+    this.state = { activeTab: "x" };
+    this.tabs = (iwb.tabs[this.props.grid.id])?[...iwb.tabs[this.props.grid.id]]:[{ name: "x", icon:"icon-list", title: "Liste", value: props.grid }];
     /**
      * @description
      * a Function to toggle between tabs
@@ -4280,11 +4356,15 @@ class XPage extends React.Component {
     this.toggle = event => {
       var activeTab = event.target ? event.target.getAttribute("name") : event;
       if (this.state.activeTab !== activeTab) {
-        var { tabs } = this.state;
+        var {
+          tabs
+        } = this;
         tabs &&
           tabs.forEach(tempTab => {
             if (tempTab.name === activeTab) {
-              this.setState({ activeTab });
+              this.setState({
+                activeTab
+              });
               return true;
             }
           });
@@ -4292,10 +4372,9 @@ class XPage extends React.Component {
       return false;
     };
     this.isActionInTabList = action => {
-      var { tabs } = this.state;
       var stopToFetch = false;
-      tabs &&
-        tabs.forEach(tempTab => {
+      this.tabs &&
+      this.tabs.forEach(tempTab => {
           if (tempTab.name === action) {
             this.toggle(action);
             stopToFetch = true;
@@ -4315,22 +4394,24 @@ class XPage extends React.Component {
       if (this.state.activeTab !== action) {
         if (this.isActionInTabList(action)) return;
         fetch(url, {
-          body: JSON.stringify(params || {}), // must match 'Content-Type' header
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, same-origin, *omit
-          headers: { "content-type": "application/json" },
-          method: "POST", // *GET, POST, PUT, DELETE, etc.
-          mode: "cors", // no-cors, cors, *same-origin
-          redirect: "follow", // *manual, follow, error
-          referrer: "no-referrer" // *client, no-referrer
-        })
+            body: JSON.stringify(params || {}), // must match 'Content-Type' header
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, same-origin, *omit
+            headers: {
+              "content-type": "application/json"
+            },
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, cors, *same-origin
+            redirect: "follow", // *manual, follow, error
+            referrer: "no-referrer" // *client, no-referrer
+          })
           .then(
             response =>
-              response.status === 200 || response.status === 0
-                ? response.text()
-                : Promise.reject(
-                    new Error(response.text() || response.statusText)
-                  )
+            response.status === 200 || response.status === 0 ?
+            response.text() :
+            Promise.reject(
+              new Error(response.text() || response.statusText)
+            )
           )
           .then(
             result => {
@@ -4344,24 +4425,23 @@ class XPage extends React.Component {
                     iwb.showModal({
                       body: serverComponent,
                       size: "lg",
-                      title:
-                        serverComponent.props && serverComponent.props.cfg
-                          ? serverComponent.props.cfg.name
-                          : "",
+                      title: serverComponent.props && serverComponent.props.cfg ?
+                        serverComponent.props.cfg.name :
+                        "",
                       color: "primary"
-                      //style	:{maxWidth:'90%'}
                     });
                   } else {
                     var plus = action.substr(0, 1) == "2";
-                    var { tabs } = this.state;
                     if (this.isActionInTabList(action)) return;
-                    tabs.push({
+                    this.tabs.push({
                       name: action,
                       icon: plus ? "icon-plus" : "icon-doc",
                       title: plus ? " Yeni" : " Düzenle",
                       value: serverComponent
                     });
-                    this.setState({ activeTab: action, tabs });
+                    this.setState({
+                      activeTab: action
+                    });
                   }
                 }
               } else {
@@ -4382,17 +4462,14 @@ class XPage extends React.Component {
      * this function will be passed to whenever new tab is opened
      */
     this.closeTab = (event, forceRelaod = false) => {
-      var { activeTab, tabs } = this.state;
-      if (activeTab == "x") return;
-      tabs =
-        tabs &&
-        tabs.length > 0 &&
-        tabs.filter(tempTab => tempTab.name !== activeTab && tempTab);
+      if (this.state.activeTab == "x") return;
+      this.tabs = this.tabs && this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
       if (forceRelaod) {
-        tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
+        this.tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
       }
-      this.setState({ activeTab: "x", tabs });
+      this.toggle("x");
     };
+    iwb.closeTab = this.closeTab;
     /**
      * @description
      * A function is used to open new FormTab
@@ -4406,7 +4483,7 @@ class XPage extends React.Component {
   }
   componentWillUnmount() {
     iwb.killGlobalSearch();
-    iwb.pages[this.props.grid.id] = { ...this.state };
+    iwb.tabs[this.props.grid.id] = [...this.tabs];
   }
   render() {
     if (iwb.debugRender) if (iwb.debug) console.log("XPage.render");
@@ -4421,8 +4498,8 @@ class XPage extends React.Component {
           { className: "mb-4" },
           _(
             Nav,
-            { tabs: true, hidden: this.state.tabs.length == 1 },
-            this.state.tabs.map(({ name, icon, title }, index) => {
+            { tabs: true, hidden: this.tabs.length == 1 },
+            this.tabs.map(({ name, icon, title }, index) => {
               return _(
                 NavItem,
                 { key: "NavItem" + index },
@@ -4449,7 +4526,7 @@ class XPage extends React.Component {
           _(
             TabContent,
             { activeTab: this.state.activeTab },
-            this.state.tabs.map(({ name, value }, index) => {
+            this.tabs.map(({ name, value }, index) => {
               return _(
                 TabPane,
                 { key: "TabPane" + index, tabId: name },
