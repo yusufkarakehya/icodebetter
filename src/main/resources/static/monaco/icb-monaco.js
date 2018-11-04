@@ -2,7 +2,7 @@ Ext.ns("Ext.ux.form");
 
 Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent, {
   value: null,
-  language: "javascript",
+  language: "javascript",html:'<span style="color:#ce9178">Loading Monaco Editor...<\span>',
 
   initComponent: function() {
     Ext.ux.form.Monaco.superclass.initComponent.apply(this, arguments);
@@ -13,6 +13,7 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent, {
           var self = this;
           require.config({ paths: { vs: "/monaco/min/vs" } });
           require(["vs/editor/editor.main"], function() {
+        	  self.el.dom.innerHTML='';
             self.editor = monaco.editor.create(self.el.dom, {
               value: self.value,
               language: self.language
@@ -77,10 +78,15 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent, {
 
             window.onresize = function() {
               self.editor.layout();
-              containerHeight = self.ownerCt.container.dom.clientHeight;
+              if(self.ownerCt.container != null){
+            	  containerHeight = self.ownerCt.container.dom.clientHeight;
+                  self.setHeight(containerHeight);
+              }
+/*              containerHeight = self.ownerCt.container.dom.clientHeight;
               containerWidth = self.ownerCt.container.dom.clientWidth;
               self.setHeight(containerHeight);
               self.setWidth(containerWidth);
+*/
               self.editor.layout();
             };
           });

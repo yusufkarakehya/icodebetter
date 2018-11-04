@@ -586,7 +586,7 @@ function open4chatAnother(j){
 
 iwb.showResponseError=function(j){
 //	iwb.app.alert(iwb.strTrim(j.error, 200), j.errorType || 'iWB');
-	iwb.app.alert(j.errorMsg || iwb.strTrim(j.error.length, 200), j.errorType || 'iWB');
+	iwb.app.alert(j.errorMsg || iwb.strTrim(j.error.length.toString(), 200), j.errorType || 'iWB');
 }
 
 $$('#idButtonLogin').on('click', function () {
