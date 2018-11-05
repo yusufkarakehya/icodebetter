@@ -2061,7 +2061,8 @@ class XGridRowAction extends React.PureComponent {
       isOpen: false,
       rowData: props.rowData,
       crudFlags: props.crudFlags,
-      menuButtons: props.menuButtons
+      menuButtons: props.menuButtons,
+      parentCt : props.parentCt
     };
     //methods
     this.toggle = () => this.setState({ isOpen: !this.state.isOpen });
@@ -2246,7 +2247,8 @@ class XGrid extends GridCommon {
             ...{ rowData },
             ...{ onEditClick, onDeleteClick },
             ...{ crudFlags: props.crudFlags },
-            ...{ menuButtons: props.menuButtons }
+            ...{ menuButtons: props.menuButtons },
+            ...{ parentCt: this}
           });
         }
       });
@@ -3633,7 +3635,8 @@ class XMainGrid extends GridCommon {
               ...{ rowData },
               ...{ menuButtons: props.menuButtons },
               ...{ crudFlags: props.crudFlags },
-              ...{ onEditClick, onDeleteClick }
+              ...{ onEditClick, onDeleteClick },
+              ...{ parentCt: this}
             });
           }
         });
