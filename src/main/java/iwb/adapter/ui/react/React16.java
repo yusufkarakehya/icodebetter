@@ -381,13 +381,7 @@ public class React16 implements ViewAdapter {
 							s.append("{\"xid\":")
 									.append(fsm.getFormSmsMailId())
 									.append(",\"text\":\"")
-									.append(fsm.getSmsMailTip() == 0 ? "[SMS] "
-											: "["
-													+ (LocaleMsgCache.get2(
-															customizationId,
-															xlocale,
-															"email_upper"))
-													+ "] ")
+//									.append(fsm.getSmsMailTip() == 0 ? "[SMS] ": "[" + (LocaleMsgCache.get2( customizationId,xlocale, "email_upper")) + "] ")
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											fsm.getDsc()))
@@ -458,13 +452,7 @@ public class React16 implements ViewAdapter {
 								s.append("{\"xid\":")
 										.append(fsm.getFormSmsMailId())
 										.append(",\"text\":\"")
-										.append(fsm.getSmsMailTip() == 0 ? "[SMS] "
-												: "["
-														+ (LocaleMsgCache
-																.get2(customizationId,
-																		xlocale,
-																		"email_upper"))
-														+ "] ")
+//										.append(fsm.getSmsMailTip() == 0 ? "[SMS] " : "["+ (LocaleMsgCache.get2(customizationId, xlocale, "email_upper")) + "] ")
 										.append(GenericUtil.stringToJS(fsm
 												.getDsc()))
 										.append(fsm.getPreviewFlag() != 0 ? " ("
@@ -587,15 +575,7 @@ public class React16 implements ViewAdapter {
 											.append(",text:\"")
 											.append(LocaleMsgCache.get2(scd,
 													fsm.getDsc()))
-											.append(formResult.getAction() == 2 ? (fsm
-													.getPreviewFlag() != 0 ? " (<i>"
-													+ (LocaleMsgCache.get2(
-															customizationId,
-															xlocale,
-															"with_preview"))
-													+ "</i>)"
-													: "")
-													: "")
+//											.append(formResult.getAction() == 2 ? (fsm.getPreviewFlag() != 0 ? " (<i>" + (LocaleMsgCache.get2( customizationId, xlocale, "with_preview")) + "</i>)" : "") : "")
 											.append("\",checked:")
 											.append(fsm.getConversionTip() == 1
 													|| fsm.getConversionTip() == 0);
@@ -749,12 +729,7 @@ public class React16 implements ViewAdapter {
 						s.append("{\"xid\":")
 								.append(fsm.getFormSmsMailId())
 								.append(",\"text\":\"")
-								.append(fsm.getSmsMailTip() == 0 ? "[SMS] "
-										: "["
-												+ (LocaleMsgCache.get2(
-														customizationId,
-														xlocale, "email_upper"))
-												+ "] ")
+//								.append(fsm.getSmsMailTip() == 0 ? "[SMS] ": "[" + (LocaleMsgCache.get2(customizationId, xlocale, "email_upper")) + "] ")
 								.append(LocaleMsgCache.get2(customizationId,
 										xlocale, fsm.getDsc()))
 								.append(fsm.getPreviewFlag() != 0 ? " ("
@@ -812,12 +787,7 @@ public class React16 implements ViewAdapter {
 						s.append("{\"xid\":")
 								.append(fsm.getFormSmsMailId())
 								.append(",\"text\":\"")
-								.append(fsm.getSmsMailTip() == 0 ? "[SMS] "
-										: "["
-												+ (LocaleMsgCache.get2(
-														customizationId,
-														xlocale, "email_upper"))
-												+ "] ")
+//								.append(fsm.getSmsMailTip() == 0 ? "[SMS] " : "[" + (LocaleMsgCache.get2( customizationId, xlocale, "email_upper")) + "] ")
 								.append(GenericUtil.stringToJS(fsm.getDsc()))
 								.append(fsm.getPreviewFlag() != 0 ? " ("
 										+ (LocaleMsgCache.get2(
@@ -2542,7 +2512,7 @@ public class React16 implements ViewAdapter {
 					buf.append("{xid:")
 							.append(fsm.getFormSmsMailId())
 							.append(",text:\"")
-							.append(fsm.getSmsMailTip() == 0 ? "[SMS] " : "[" + (LocaleMsgCache.get2(customizationId, xlocale,"email_upper")) + "] ")
+//							.append(fsm.getSmsMailTip() == 0 ? "[SMS] " : "[" + (LocaleMsgCache.get2(customizationId, xlocale,"email_upper")) + "] ")
 							.append(GenericUtil.stringToJS(LocaleMsgCache.get2(customizationId, xlocale, fsm.getDsc())))
 							.append("\",smsMailTip:")
 							.append(fsm.getSmsMailTip()).append("}");

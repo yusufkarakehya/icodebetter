@@ -315,6 +315,8 @@ class XTabForm extends React.PureComponent {
   }
   render() {
     if (iwb.debugRender) console.log("XTabForm.render", this.props);
+//    console.log('this.props.cfg', this.props.cfg);
+    var cfg = this.props.cfg;
     var formBody = _(this.props.body, {
       parentCt: this,
       viewMode: this.state.viewMode
@@ -329,7 +331,7 @@ class XTabForm extends React.PureComponent {
       },
       _(
         CardBlock,
-        { className: "card-body" },
+        {},
         _(
           "h3",
           { className: "form-header" },
@@ -382,6 +384,16 @@ class XTabForm extends React.PureComponent {
         _("hr"),
         formBody
       ),
+      cfg.conversionCnt && _(CardBlock,{}
+	  	  ,_('div',{className:'hr-text'},_('h6',null,'Conversions'))
+	      ,_(Row,null,cfg.conversionForms.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', style:{width:40}}),ox.text)})
+	  )),
+      cfg.smsMailTemplateCnt && _(CardBlock,{}
+  	    ,_('div',{className:'hr-text'},_('h6',null,'SMS/EMail'))
+      	,_(Row,null,
+    		  cfg.smsMailTemplates.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', style:{width:40}}),ox.text)})
+      )),
+      
       !this.state.viewMode &&
         _(
           CardFooter,
@@ -2877,7 +2889,7 @@ class XMainPanel extends React.PureComponent {
                 iwb.nav.visitItem(this.props.match.path);
               }
             } else {
-              toastr.error("Sonuc Gelmedi", " Error");
+              toastr.error("No Result", " Error");
               //		        	alert('Hata! Sonuc Gelmedi');
             }
           },
@@ -2979,12 +2991,13 @@ iwb.requestErrorHandler = function(obj) {
         //	    	alert('ERROR Validation: ' + obj.errors.join('\n'));
         break;
       default:
-        toastr.error(obj.errorMsg || "Unknown ERROR", obj.errorType + " Error");
+    	top.ajaxErrorHandler(obj);
       //	    	alert('ERROR['+obj.errorType+'] '+(obj.errorMsg || 'Bilinmeyen ERROR'));
     }
   } else {
-    toastr.error(obj.errorMsg || "Unknown ERROR", "Request Error");
+    //toastr.error(obj.errorMsg || "Unknown ERROR", "Request Error");
     //		alert(obj.errorMsg || 'Bilinmeyen ERROR');
+	  top.ajaxErrorHandler(obj);
   }
 };
 var ajaxErrorHandler = iwb.requestErrorHandler;
@@ -3297,7 +3310,7 @@ class XForm extends React.Component {
           this.url +
           "?" +
           iwb.JSON2URI(this.params) +
-          "_renderer=react16&.r=" +
+          "_renderer=react16&.w="+_webPageId+"&.r=" +
           Math.random(),
         params: values,
         self: this,
@@ -3323,9 +3336,11 @@ class XForm extends React.Component {
                 }
                 break;
               default:
-                alert(json.errorType);
+                top.ajaxErrorHandler(json);
             }
-          else alert(json);
+          else {
+              top.ajaxErrorHandler(json);
+          }
           this.setState({ errors });
           return false;
         },
@@ -3500,7 +3515,7 @@ iwb.createPortlet = function(o) {
     },
     _(
       CardBlock,
-      { className: "card-body" },
+      {},
       _(
         "h3",
         {
