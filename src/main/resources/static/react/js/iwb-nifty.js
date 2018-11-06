@@ -52,6 +52,7 @@ const Col = Reactstrap.Col;
 const Nav = Reactstrap.Nav;
 const Card = Reactstrap.Card;
 const Form = Reactstrap.Form;
+const Media = Reactstrap.Media;
 const Input = Reactstrap.Input;
 const Label = Reactstrap.Label;
 const Table = Reactstrap.Table;
@@ -96,7 +97,9 @@ const ButtonDropdown = Reactstrap.ButtonDropdown;
 const BreadcrumbItem = Reactstrap.BreadcrumbItem;
 const InputGroupAddon = Reactstrap.InputGroupAddon;
 const InputGroupButton = Reactstrap.InputGroupButton;
+const ListGroupItemText = Reactstrap.ListGroupItemText;
 const UncontrolledTooltip = Reactstrap.UncontrolledTooltip;
+const ListGroupItemHeading = Reactstrap.ListGroupItemHeading;
 //FW Community Components
 const Select = window.Select;
 const Popper = window.Popper;
@@ -152,6 +155,18 @@ var iwb = {
     delete: { icon: "trash", hint: "Delete row", color: "text-danger" },
     cancel: { icon: "x", hint: "Cancel changes", color: "text-danger" },
     import: { icon: "target", hint: "Import" }
+  },
+  copyToClipboard:(text)=>{
+    const el = document.createElement('textarea');
+    el.value = (typeof text === 'object')?window.JSON.stringify(text):text;
+    el.style.position = 'absolute'; 
+    el.style.left = '-9999px'; 
+    el.setAttribute('readonly', '');
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    toastr.success( "Use CTR + V to paste the content!", "Copied Successfully", { timeOut: 3000 } );
   },
   //  logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>',
   logo:
@@ -250,11 +265,11 @@ var iwb = {
   },
   request: cfg => {
     if (!window.fetch) {
-      alert("ERROR! window.fetch not supported");
+      toastr.error("window.fetch not supported",'ERROR! ');
       return false;
     }
     if (!cfg || !cfg.url) {
-      alert("ERROR! config missing");
+      toastr.error("Config missing",'ERROR!');
       return false;
     }
     fetch(cfg.url, {
@@ -664,7 +679,7 @@ class GridCommon extends React.PureComponent {
     this.queryString = () => {
       const { sorting, pageSize, currentPage } = this.state;
       let queryString =
-        this.props._url + "&limit=" + +"&start=" + pageSize * currentPage;
+        this.props._url + "&limit="+ pageSize +"&start=" + pageSize * currentPage;
       const columnSorting = sorting[0];
       if (columnSorting) {
         const sortingDirectionString =
@@ -2046,7 +2061,8 @@ class XGridRowAction extends React.PureComponent {
       isOpen: false,
       rowData: props.rowData,
       crudFlags: props.crudFlags,
-      menuButtons: props.menuButtons
+      menuButtons: props.menuButtons,
+      parentCt : props.parentCt
     };
     //methods
     this.toggle = () => this.setState({ isOpen: !this.state.isOpen });
@@ -2231,7 +2247,8 @@ class XGrid extends GridCommon {
             ...{ rowData },
             ...{ onEditClick, onDeleteClick },
             ...{ crudFlags: props.crudFlags },
-            ...{ menuButtons: props.menuButtons }
+            ...{ menuButtons: props.menuButtons },
+            ...{ parentCt: this}
           });
         }
       });
@@ -3618,7 +3635,8 @@ class XMainGrid extends GridCommon {
               ...{ rowData },
               ...{ menuButtons: props.menuButtons },
               ...{ crudFlags: props.crudFlags },
-              ...{ onEditClick, onDeleteClick }
+              ...{ onEditClick, onDeleteClick },
+              ...{ parentCt: this}
             });
           }
         });
@@ -5071,6 +5089,61 @@ class XForm extends React.Component {
                     color: "danger",
                     size: "sm",
                     body: json.error
+                  });
+                }
+                break;
+              case "framework":
+                if (json.error) {
+                  iwb.showModal({
+                    title: json.error,
+                    footer: false,
+                    color: "danger",
+                    size: "lg",
+                    body: _(Media, {
+                        body: true
+                      },
+                      json.objectType && _(Media, {
+                        heading: true
+                      }, json.objectType),
+
+                      _(ListGroup, {},
+                        json.icodebetter.map((item, index) => {
+                          return _(ListGroupItem, {},
+                            _(ListGroupItemHeading, {},
+                              item.errorType,
+                              item && _(Button, {
+                                  className: 'float-right btn btn-xs',
+                                  color:'info',
+                                  onClick: (e) => {
+                                    e.preventDefault();
+                                    iwb.copyToClipboard(item);
+                                  }
+                                },
+                                _('i', {
+                                  className: 'icon-docs'
+                                }, '')
+                              ),
+                              item && _(Button, {
+                                  className: 'float-right btn btn-xs',
+                                  color:'primary',
+                                  onClick: (e) => {
+                                    e.preventDefault();
+                                    iwb.log(item);
+                                    toastr.success( "Use CTR + SHIFT + I to see the log content!", "Console Log", { timeOut: 3000 } );
+                                  }
+                                },
+                                _('i', {
+                                  className: 'icon-target'
+                                }, '')
+                              )
+                            ),
+                            _(ListGroupItemText, {},
+                              item && _('pre', {}, window.JSON.stringify(item, null, 2))
+                            )
+                          )
+                        })
+                      )
+                    )
                   });
                 }
                 break;
