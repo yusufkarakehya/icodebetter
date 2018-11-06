@@ -5490,7 +5490,7 @@ public class FrameworkEngine {
     try {
       int customizationId = (Integer) scd.get("customizationId");
       String projectId = (String) scd.get("projectId");
-      if (customizationId > 0 && scd != null && (Integer) scd.get("roleId") == 0)
+      if (/*customizationId > 0 && */scd != null && (Integer) scd.get("roleId") == 0)
         projectId = FrameworkCache.getProjectId(scd, "707." + conversionId);
       cnv =
           (W5Conversion)
