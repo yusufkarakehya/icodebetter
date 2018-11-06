@@ -264,11 +264,11 @@ var iwb = {
   },
   request: cfg => {
     if (!window.fetch) {
-      alert("ERROR! window.fetch not supported");
+      toastr.error("window.fetch not supported",'ERROR! ');
       return false;
     }
     if (!cfg || !cfg.url) {
-      alert("ERROR! config missing");
+      toastr.error("Config missing",'ERROR!');
       return false;
     }
     fetch(cfg.url, {
