@@ -2762,7 +2762,7 @@ class XEditGridSF extends GridCommon {
         _("div", { className: "hr-text" }, _("h6", null, "Search Criteria")),
         _(
           "div",
-          { style: { zoom: ".9" } },
+          { style: { zoom: ".9" }, className:"searchFormFields"  },
           _(this.props.searchForm, { parentCt: this }),
           _(
             "div",
@@ -3774,7 +3774,7 @@ class XMainGrid extends GridCommon {
             ),
             _(
               "div",
-              { style: { zoom: ".9" } },
+              { style: { zoom: ".9"}, className:"searchFormFields"  },
               _(searchForm, { parentCt: this }),
               _(
                 "div",
@@ -4200,7 +4200,7 @@ class XMainGrid extends GridCommon {
     let showDetail = detailGrids && detailGrids.length > 0;
     let grid = _(
       _dxgrb.Grid,
-      { rows: rows, columns, getRowId: row => row[keyField] },
+      { className:'maingrid', rows: rows, columns, getRowId: row => row[keyField] },
       /** sorting state */
       !_disableIntegratedSorting &&
         _(
