@@ -4313,6 +4313,7 @@ class XMainGrid extends GridCommon {
               _("i", { className: "icon-plus" }),
               " NEW RECORD"
             ),
+            _('div',{className:"fgrow"},null),
 
           extraButtons &&
             extraButtons.map((prop, index) => {
