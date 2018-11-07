@@ -946,12 +946,12 @@ a:hover{
 /* menu right click cozum start */
 .searchFormFields>form {
     overflow-y: auto;
-    height: 80vh;
+    height: 70vh;
 }
 .maingrid > .table-responsive.dx-g-bs4-table-container {
-    height: 68vh;
+    height: 65vh;
 }
-/* scrollBar cozum start */
+/* scrollBar cozum start */	
 .searchFormFields>form::-webkit-scrollbar, .scrollX::-webkit-scrollbar {
     position: absolute;
     width: 10px;
