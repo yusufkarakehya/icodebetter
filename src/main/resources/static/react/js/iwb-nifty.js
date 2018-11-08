@@ -2078,12 +2078,6 @@ class XGridRowAction extends React.PureComponent {
       props: { onEditClick, onDeleteClick },
       toggle
     } = this;
-    const defstyle = {
-      marginRight: 5,
-      marginLeft: -2,
-      fontSize: 12,
-      color: "#777"
-    };
     return _(
       Dropdown,
       { isOpen, toggle },
@@ -2094,7 +2088,7 @@ class XGridRowAction extends React.PureComponent {
       isOpen &&
         _(
           DropdownMenu,
-          { className: isOpen ? "show" : "" },
+          { className: isOpen ? "show" : "", style:{fontSize:'small'}},
           edit &&
             _(
               DropdownItem,
@@ -2104,7 +2098,7 @@ class XGridRowAction extends React.PureComponent {
                   onEditClick({ event, rowData, openEditable: true });
                 }
               },
-              _("i", { className: "icon-pencil", style: { ...defstyle } }),
+              _("span", { className: "mr-2 icon-pencil"}),
               "Güncelle"
             ),
           remove &&
@@ -2116,18 +2110,18 @@ class XGridRowAction extends React.PureComponent {
                   onDeleteClick({ event, rowData });
                 }
               },
-              _("i", {
-                className: "icon-minus text-danger",
-                style: { ...defstyle }
+              _("span", {
+                className: "mr-2 icon-minus text-danger"
               }),
               "Sil"
             ),
           menuButtons &&
             menuButtons.map(({ text, handler, cls }) => {
+              cls = cls.split('|');
               return _(
                 DropdownItem,
-                { key: text, onClick: handler.bind(this.state) },
-                _("i", { className: cls, style: { ...defstyle } }),
+                { key: text, onClick: handler.bind(this.state), className:cls[1] },
+                _("span", { className: 'mr-2 ' + cls[0] }),
                 text
               );
             })
