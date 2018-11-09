@@ -52,6 +52,7 @@ const Col = Reactstrap.Col;
 const Nav = Reactstrap.Nav;
 const Card = Reactstrap.Card;
 const Form = Reactstrap.Form;
+const Alert = Reactstrap.Alert;
 const Media = Reactstrap.Media;
 const Input = Reactstrap.Input;
 const Label = Reactstrap.Label;
@@ -4441,7 +4442,8 @@ class XPage extends React.PureComponent {
                       title: serverComponent.props && serverComponent.props.cfg ?
                         serverComponent.props.cfg.name :
                         "",
-                      color: "primary"
+                      color:"primary",
+                      ...callAttributes.modalProps
                     });
                   } else {
                     var plus = action.substr(0, 1) == "2";
