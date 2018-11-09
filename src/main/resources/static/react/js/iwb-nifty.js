@@ -603,6 +603,14 @@ class GridCommon extends React.PureComponent {
       currentPage = Math.min(currentPage, Math.ceil(totalCount / pageSize) - 1);
       this.setState({ pageSize, currentPage });
     };
+    /**
+     * @description
+     * get selected array from grid
+     */
+    this.getSelected = () => this.state.rows.reduce((accumulator, row) => {
+      this.state.selection.includes(row[props.keyField]) ? accumulator.push(row) : '';
+      return accumulator;
+    }, []);
     ////////////////////////////////////////////------2-----////////////////////////////////////////
     /**
      * @description
@@ -4133,6 +4141,7 @@ class XMainGrid extends GridCommon {
         sorting,
         loading,
         pageSize,
+        selection,
         pageSizes,
         totalCount,
         currentPage,
@@ -4143,6 +4152,7 @@ class XMainGrid extends GridCommon {
         keyField,
         crudFlags,
         detailGrids,
+        multiselect,
         extraButtons,
         _disableSearchPanel,
         _disableIntegratedSorting,
@@ -4156,6 +4166,7 @@ class XMainGrid extends GridCommon {
       onOnNewRecord,
       onSortingChange,
       onPageSizeChange,
+      onSelectionChange,
       onCurrentPageChange,
       onColumnWidthsChange
     } = this;
@@ -4170,6 +4181,11 @@ class XMainGrid extends GridCommon {
           _dxrg.SortingState,
           !pageSize ? null : { sorting, onSortingChange, columnExtensions }
         ),
+        multiselect &&
+        _(_dxrg.SelectionState, {
+            selection,
+            onSelectionChange
+        }),
       /** pagesize > 0 will import search state */
       !pageSize ? _(_dxrg.SearchState, null) : null,
       /** Client filtering */
@@ -4204,6 +4220,7 @@ class XMainGrid extends GridCommon {
               : {}
           )
         : null,
+        multiselect && _(_dxrg.IntegratedSelection, null),
       /** For remote paging*/
       pageSize > 1 &&
         rows.length > 1 &&
@@ -4212,6 +4229,11 @@ class XMainGrid extends GridCommon {
       _(_dxgrb.DragDropProvider, null),
       /**ui table */
       _(_dxgrb.Table, { columnExtensions, rowComponent }),
+      /** multiselect */
+      multiselect &&
+        _(_dxgrb.TableSelection, {
+          showSelectAll: true
+        }),
       /** UI ordering of the table */
       _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
       /** UI tablle resizing */
