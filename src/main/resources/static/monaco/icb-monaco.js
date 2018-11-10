@@ -1,5 +1,59 @@
 Ext.ns("Ext.ux.form");
-
+var defineCompletionItemProvider = {
+    triggerCharacters:['$'],
+    provideCompletionItems: (model, position) => {
+      return [
+        {
+          label: '$.getTableJSON',
+          kind: monaco.languages.CompletionItemKind.Function,
+          documentation: "Load Table Record as JSON",
+          detail: 'JSON',insertText:'$.getTableJSON("table_name",pk)'
+        },
+        {
+          label: '$.postForm',
+          kind: monaco.languages.CompletionItemKind.Function,
+          documentation: "Post Form",
+          detail: 'W5FormResult',insertText:'$.postForm(formId,action,{params})'
+        },
+        {
+          label: '$.sqlQuery',
+          kind: monaco.languages.CompletionItemKind.Function,
+          documentation: "Run SELECT SQL",
+          detail: 'Array',insertText:'$.sqlQuery("SELECT * FROM x WHERE y", {params})'
+        },
+        {
+          label: '$.runQuery',
+          kind: monaco.languages.CompletionItemKind.Function,
+          documentation: "Run iCodeBetter Query",
+          detail: 'Array',insertText:'$.runQuery(queryId, {params})'
+        },
+        {
+          label: '$.sqlExecute',
+          kind: monaco.languages.CompletionItemKind.Function,
+          documentation: "Execute INSERT/UPDATE/DELETE SQL",
+          detail: 'int',insertText:'$.sqlExecute("UPDATE x set y WHERE z", {params})'
+        },
+        {
+          label: '$.execFunc',
+          kind: monaco.languages.CompletionItemKind.Function,
+          documentation: "Execute iCodeBetter Global Funcction",
+          detail: 'W5GlobalFuncResult',insertText:'$.execFunc(globalFuncId, {params})'
+        },
+        {
+          label: '$.REST',
+          kind: monaco.languages.CompletionItemKind.Function,
+          documentation: "Call REST Method",
+          detail: 'Map',insertText:'$.REST("serviceName.methodName", {params})'
+        },
+        {
+          label: '$.console',
+          kind: monaco.languages.CompletionItemKind.Function,
+          documentation: "Console",
+          detail: 'null',insertText:'$.console("Hellow World", "Warning", "warn")'
+        }
+      ];
+    }
+  };
 Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent, {
   value: null,
   language: "javascript",html:'<span style="color:#ce9178">Loading Monaco Editor...<\span>',
@@ -13,12 +67,16 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent, {
           var self = this;
           require.config({ paths: { vs: "/monaco/min/vs" } });
           require(["vs/editor/editor.main"], function() {
-        	  self.el.dom.innerHTML='';
-            self.editor = monaco.editor.create(self.el.dom, {
-              value: self.value,
-              language: self.language
-            });
-            monaco.editor.setTheme("vs-dark");
+	    	  self.el.dom.innerHTML='';
+	    	  self.editor = monaco.editor.create(self.el.dom, {
+	              value: self.value,
+	              language: self.language
+	            });
+	    	  monaco.editor.setTheme("vs-dark");
+	    	  if(defineCompletionItemProvider && self.language=='javascript'){
+	    		  monaco.languages.registerCompletionItemProvider('javascript', defineCompletionItemProvider);
+	    		  defineCompletionItemProvider=false;
+	    	  }
             /*
           console.log("element: ", self.getEl());
           console.log("ownerCt: ", self.ownerCt);
