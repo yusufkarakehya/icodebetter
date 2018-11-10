@@ -52,6 +52,7 @@ const Col = Reactstrap.Col;
 const Nav = Reactstrap.Nav;
 const Card = Reactstrap.Card;
 const Form = Reactstrap.Form;
+const Alert = Reactstrap.Alert;
 const Media = Reactstrap.Media;
 const Input = Reactstrap.Input;
 const Label = Reactstrap.Label;
@@ -602,6 +603,14 @@ class GridCommon extends React.PureComponent {
       currentPage = Math.min(currentPage, Math.ceil(totalCount / pageSize) - 1);
       this.setState({ pageSize, currentPage });
     };
+    /**
+     * @description
+     * get selected array from grid
+     */
+    this.getSelected = () => this.state.rows.reduce((accumulator, row) => {
+      this.state.selection.includes(row[props.keyField]) ? accumulator.push(row) : '';
+      return accumulator;
+    }, []);
     ////////////////////////////////////////////------2-----////////////////////////////////////////
     /**
      * @description
@@ -2078,12 +2087,6 @@ class XGridRowAction extends React.PureComponent {
       props: { onEditClick, onDeleteClick },
       toggle
     } = this;
-    const defstyle = {
-      marginRight: 5,
-      marginLeft: -2,
-      fontSize: 12,
-      color: "#777"
-    };
     return _(
       Dropdown,
       { isOpen, toggle },
@@ -2094,7 +2097,7 @@ class XGridRowAction extends React.PureComponent {
       isOpen &&
         _(
           DropdownMenu,
-          { className: isOpen ? "show" : "" },
+          { className: isOpen ? "show" : "", style:{fontSize:'small'}},
           edit &&
             _(
               DropdownItem,
@@ -2104,7 +2107,7 @@ class XGridRowAction extends React.PureComponent {
                   onEditClick({ event, rowData, openEditable: true });
                 }
               },
-              _("i", { className: "icon-pencil", style: { ...defstyle } }),
+              _("span", { className: "mr-2 icon-pencil"}),
               "Güncelle"
             ),
           remove &&
@@ -2116,18 +2119,18 @@ class XGridRowAction extends React.PureComponent {
                   onDeleteClick({ event, rowData });
                 }
               },
-              _("i", {
-                className: "icon-minus text-danger",
-                style: { ...defstyle }
+              _("span", {
+                className: "mr-2 icon-minus text-danger"
               }),
               "Sil"
             ),
           menuButtons &&
             menuButtons.map(({ text, handler, cls }) => {
+              cls = cls.split('|');
               return _(
                 DropdownItem,
-                { key: text, onClick: handler.bind(this.state) },
-                _("i", { className: cls, style: { ...defstyle } }),
+                { key: text, onClick: handler.bind(this.state), className:cls[1] },
+                _("span", { className: 'mr-2 ' + cls[0] }),
                 text
               );
             })
@@ -2728,7 +2731,7 @@ class XEditGridSF extends GridCommon {
         _("div", { className: "hr-text" }, _("h6", null, "Arama Kriterleri")),
         _(
           "div",
-          { style: { zoom: ".9" } },
+          { style: { zoom: ".9"}, className:"searchFormFields"  },
           _(this.props.searchForm, { parentCt: this }),
           _(
             "div",
@@ -3740,7 +3743,7 @@ class XMainGrid extends GridCommon {
             ),
             _(
               "div",
-              { style: { zoom: ".9" } },
+              { style: { zoom: ".9"}, className:"searchFormFields"  },
               _(searchForm, { parentCt: this }),
               _(
                 "div",
@@ -4138,6 +4141,7 @@ class XMainGrid extends GridCommon {
         sorting,
         loading,
         pageSize,
+        selection,
         pageSizes,
         totalCount,
         currentPage,
@@ -4148,6 +4152,7 @@ class XMainGrid extends GridCommon {
         keyField,
         crudFlags,
         detailGrids,
+        multiselect,
         extraButtons,
         _disableSearchPanel,
         _disableIntegratedSorting,
@@ -4161,6 +4166,7 @@ class XMainGrid extends GridCommon {
       onOnNewRecord,
       onSortingChange,
       onPageSizeChange,
+      onSelectionChange,
       onCurrentPageChange,
       onColumnWidthsChange
     } = this;
@@ -4168,13 +4174,18 @@ class XMainGrid extends GridCommon {
     let showDetail = detailGrids && detailGrids.length > 0;
     let grid = _(
       _dxgrb.Grid,
-      { rows: rows, columns, getRowId: row => row[keyField] },
+      { className:'maingrid', rows: rows, columns, getRowId: row => row[keyField] },
       /** sorting state */
       !_disableIntegratedSorting &&
         _(
           _dxrg.SortingState,
           !pageSize ? null : { sorting, onSortingChange, columnExtensions }
         ),
+        multiselect &&
+        _(_dxrg.SelectionState, {
+            selection,
+            onSelectionChange
+        }),
       /** pagesize > 0 will import search state */
       !pageSize ? _(_dxrg.SearchState, null) : null,
       /** Client filtering */
@@ -4209,6 +4220,7 @@ class XMainGrid extends GridCommon {
               : {}
           )
         : null,
+        multiselect && _(_dxrg.IntegratedSelection, null),
       /** For remote paging*/
       pageSize > 1 &&
         rows.length > 1 &&
@@ -4217,6 +4229,11 @@ class XMainGrid extends GridCommon {
       _(_dxgrb.DragDropProvider, null),
       /**ui table */
       _(_dxgrb.Table, { columnExtensions, rowComponent }),
+      /** multiselect */
+      multiselect &&
+        _(_dxgrb.TableSelection, {
+          showSelectAll: true
+        }),
       /** UI ordering of the table */
       _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
       /** UI tablle resizing */
@@ -4313,6 +4330,7 @@ class XMainGrid extends GridCommon {
               _("i", { className: "icon-plus" }),
               " NEW RECORD"
             ),
+            _('div',{className:"fgrow"},null),
 
           extraButtons &&
             extraButtons.map((prop, index) => {
@@ -4446,7 +4464,8 @@ class XPage extends React.PureComponent {
                       title: serverComponent.props && serverComponent.props.cfg ?
                         serverComponent.props.cfg.name :
                         "",
-                      color: "primary"
+                      color:"primary",
+                      ...callAttributes.modalProps
                     });
                   } else {
                     var plus = action.substr(0, 1) == "2";

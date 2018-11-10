@@ -386,12 +386,12 @@ class XTabForm extends React.PureComponent {
       ),
       cfg.conversionCnt && _(CardBlock,{}
 	  	  ,_('div',{className:'hr-text'},_('h6',null,'Conversions'))
-	      ,_(Row,null,cfg.conversionForms.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', style:{width:40}}),ox.text)})
+	      ,_(Row,null,cfg.conversionForms.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', checked:!!ox.checked, style:{width:40}}),ox.text)})
 	  )),
       cfg.smsMailTemplateCnt && _(CardBlock,{}
   	    ,_('div',{className:'hr-text'},_('h6',null,'SMS/EMail'))
       	,_(Row,null,
-    		  cfg.smsMailTemplates.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', style:{width:40}}),ox.text)})
+    		  cfg.smsMailTemplates.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', checked:!!ox.checked, style:{width:40}}),ox.text)})
       )),
       
       !this.state.viewMode &&

@@ -2323,7 +2323,7 @@ public class PostgreSQL extends BaseDAO {
           // This must be done before scripts can be executed. Returns
           // a scope object that we use in later calls.
           Scriptable scope = cx.initStandardObjects();
-          if (cell.getDefaultValue().indexOf("$iwb.") > -1) {
+          if (cell.getDefaultValue().contains("$iwb.") || cell.getDefaultValue().contains("$.")) {
             ScriptEngine se = new ScriptEngine(scd, requestParams, this, null);
             Object wrappedOut = Context.javaToJS(se, scope);
             ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
@@ -2559,12 +2559,12 @@ public class PostgreSQL extends BaseDAO {
                 // This must be done before scripts can be executed. Returns
                 // a scope object that we use in later calls.
                 Scriptable scope = cx.initStandardObjects();
-                if (cell.getInitialValue().indexOf("$iwb.") > -1) {
-                  ScriptEngine se =
-                      new ScriptEngine(
-                          formResult.getScd(), formResult.getRequestParams(), this, null);
+
+                if (cell.getInitialValue().contains("$iwb.") || cell.getInitialValue().contains("$.")) {
+                  ScriptEngine se =new ScriptEngine(formResult.getScd(), formResult.getRequestParams(), this, null);
                   Object wrappedOut = Context.javaToJS(se, scope);
                   ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
+                  sc.append("\nvar $=$iwb;");
                 }
                 // Collect the arguments into a single string.
                 sc.append("\nvar _scd=")
@@ -5040,13 +5040,9 @@ public class PostgreSQL extends BaseDAO {
         script = r.getGlobalFunc().getRhinoScriptCode();
         if (script.charAt(0) == '!') script = script.substring(1);
         // Collect the arguments into a single string.
-        if (script.contains("$iwb.")) {
-          ScriptEngine se = new ScriptEngine(r.getScd(), r.getRequestParams(), this, engine);
-          Object wrappedOut = Context.javaToJS(se, scope);
-          ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
-        }
-
         StringBuilder sc = new StringBuilder();
+
+
         boolean hasOutParam = false;
         if (r.getGlobalFunc().get_dbFuncParamList().size() > 0) {
           sc.append("var ");
@@ -5076,6 +5072,12 @@ public class PostgreSQL extends BaseDAO {
             } else hasOutParam = true;
           if (sc.length() > 4) sc.append(";\n");
           else sc.setLength(0);
+        }
+        if (script.contains("$iwb.") || script.contains("$.")) {
+            ScriptEngine se = new ScriptEngine(r.getScd(), r.getRequestParams(), this, engine);
+            Object wrappedOut = Context.javaToJS(se, scope);
+            ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
+            sc.append("\nvar $=$iwb;");
         }
         sc.append("\nvar _scd=")
             .append(GenericUtil.fromMapToJsonString2(r.getScd()))
@@ -6456,6 +6458,9 @@ public class PostgreSQL extends BaseDAO {
       ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 
       StringBuilder sc = new StringBuilder();
+      if (script.contains("$iwb.") || script.contains("$.")) {
+          sc.append("var $=$iwb;\n");
+      }
       if (obj != null)
         sc.append("var _obj=").append(GenericUtil.fromMapToJsonString2Recursive(obj)).append(";\n");
       if (scd != null)
@@ -8113,11 +8118,15 @@ public class PostgreSQL extends BaseDAO {
       script = parameterMap.get("_rhino_script_code");
       if (script.charAt(0) == '!') script = script.substring(1);
       // Collect the arguments into a single string.
+      StringBuilder sc = new StringBuilder();
+      if (script.contains("$iwb.") || script.contains("$.")) {
+          sc.append("var $=$iwb;\n");
+      }
+
       ScriptEngine se = new ScriptEngine(r.getScd(), r.getRequestParams(), this, engine);
       Object wrappedOut = Context.javaToJS(se, scope);
       ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 
-      StringBuilder sc = new StringBuilder();
       boolean hasOutParam = false;
       if (dbFuncId != -1 && r.getGlobalFunc().get_dbFuncParamList().size() > 0) {
         sc.append("var ");
@@ -8224,6 +8233,9 @@ public class PostgreSQL extends BaseDAO {
       ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 
       StringBuilder sc = new StringBuilder();
+      if (script.contains("$iwb.") || script.contains("$.")) {
+          sc.append("var $=$iwb;\n");
+      }
       boolean hasOutParam = false;
       if (q.get_queryParams().size() > 0) {
         sc.append("var ");
@@ -8387,6 +8399,9 @@ public class PostgreSQL extends BaseDAO {
       ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 
       StringBuilder sc = new StringBuilder();
+      if (script.contains("$iwb.") || script.contains("$.")) {
+          sc.append("var $=$iwb;\n");
+      }
       boolean hasOutParam = false;
       if (q.get_queryParams().size() > 0) {
         sc.append("var ");
