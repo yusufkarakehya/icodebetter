@@ -2788,7 +2788,7 @@ function addTab4GridWSearchForm(obj) {
   if (obj.pk) mainGrid._pk = obj.pk; //{tcase_id:'case_id',tclient_id:'client_id',tobject_tip:'!4'}
 
   var grdExtra = {
-    stripeRows: true,
+//    stripeRows: true,
     region: "center",
     border: false,
     clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
@@ -3003,7 +3003,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     },
     obj.grdExtra || {
       split: true,
-      stripeRows: true,
+//      stripeRows: true,
       border: false,
       clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
     }
@@ -3271,7 +3271,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
         title: obj.detailGrids[i]._title_ || detailGrid.name,
-        stripeRows: true,
+//        stripeRows: true,
         id: "gr" + Math.random(),
         border: false,
         bodyStyle: "border-top: 1px solid #18181a;",
@@ -5224,7 +5224,7 @@ function addTab4Portal(obj) {
       }
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
-        stripeRows: true,
+//        stripeRows: true,
         id: obj.t + "-" + detailGrid.gridId,
         autoScroll: true,
         border: false,
@@ -5693,7 +5693,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
         title: obj.detailGrids[i]._title_ || detailGrid.name,
-        stripeRows: true,
+//        stripeRows: true,
         id: "gr" + Math.random(),
         autoScroll: true,
         border: false,

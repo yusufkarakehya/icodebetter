@@ -462,11 +462,11 @@ public class PreviewServlet implements InitializingBean {
 		if(FrameworkSetting.chat && !notSessionFlag && GenericUtil.uInt(request, "c")!=0){
 			cm = engine.getUserNotReadChatMap((Map)session.getAttribute("scd-dev"));
 		}
-		if(GenericUtil.uInt(request, "d")==0 || notSessionFlag)
+		if(GenericUtil.uInt(request, "d")==0)
 			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
 		else {
 			Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-			response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2Recursive(scd) + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
+			response.getWriter().write("{\"success\":true,\"session\":" + (scd==null ? "false":GenericUtil.fromMapToJsonString2Recursive(scd)) + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
 		}
 		response.getWriter().close();
 	}
