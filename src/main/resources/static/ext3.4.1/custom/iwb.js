@@ -3474,9 +3474,9 @@ function prepareLogErrors(obj) {
   return str;
 }
 
-function showSQLError(sql, xpos) {
+function showSQLError(sql, xpos, err) {
   var _code = new Ext.ux.form.Monaco({
-    hideLabel: true,
+    hideLabel: true,//id:'id-ahmet',
     language: "sql",
     name: "code",
     anchor: "%100",
@@ -3484,18 +3484,24 @@ function showSQLError(sql, xpos) {
     value: sql
   });
 
-  new Ext.Window({
+  var wx = new Ext.Window({
     modal: true,
     closable: true,
-    title: "SQL Error",
+    title: "SQL Error" + (err ? ' &nbsp; <span style="color:red;font-size:.9em;">'+err+'</span>':''),
     width: 1000,
     height: 600,
     border: false,
     layout: "border",
-    items: [new Ext.FormPanel({ region: "center", items: [_code] })]
+    items: [new Ext.FormPanel({ region: "center", items: [_code] })],
+    buttons:[{text:'Format',handler:function(){
+    	iwb.request({url:'ajaxFormatSQL',params:{sql:sql},successCallback:function(jj){
+        	_code.editor.setValue(jj.result);
+    		
+    	}});
+    }}, {text:'Close',handler:function(){
+    	wx.destroy();
+    }}]
   }).show();
-  var doc = _code.codeEditor.doc;
-  //	doc.addLineClass(ml-1,'background','veliSel');
   return false;
 }
 
@@ -3601,15 +3607,18 @@ function ajaxErrorHandler(obj) {
                 oo.error.indexOf("Position: ") + "Position: ".length
               );
             } //else if(sqlPos){
-            if (iwb.errors[qi - 1])
+            if (iwb.errors[qi - 1]){
+              iwb.errors[qi] = oo.error;
               ss +=
                 " &nbsp; <a href=# onclick='showSQLError(iwb.errors[" +
                 (qi - 1) +
                 "]," +
                 sqlPos +
-                ')\' style="padding:1px 5px;background:white;color:green;border-radius:20px;">SQL</a>';
+                ",iwb.errors[" +
+                (qi) +
+                "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>SQL</a>";
             //	sqlPos=false;
-            //}
+            }
           }
         }
       }

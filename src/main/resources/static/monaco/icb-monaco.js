@@ -54,6 +54,19 @@ var defineCompletionItemProvider = {
       ];
     }
   };
+/*
+function sqlFmt(sql){
+    var url = "ajaxFormatSQL?sql=" + encodeURIComponent(sql);
+    return fetch(url).then((response)=>{
+    	var f = response.text();
+    	return f;
+    	console.log('aa',f)
+    	f = eval('('+f+')');
+    	console.log('bb',f)
+      return f.result;
+    });
+  };*/
+  
 Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent, {
   value: null,
   language: "javascript",html:'<span style="color:#ce9178">Loading Monaco Editor...<\span>',
