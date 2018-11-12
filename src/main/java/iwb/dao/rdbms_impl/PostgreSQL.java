@@ -8233,9 +8233,6 @@ public class PostgreSQL extends BaseDAO {
       ScriptableObject.putProperty(scope, "$iwb", wrappedOut);
 
       StringBuilder sc = new StringBuilder();
-      if (script.contains("$iwb.") || script.contains("$.")) {
-          sc.append("var $=$iwb;\n");
-      }
       boolean hasOutParam = false;
       if (q.get_queryParams().size() > 0) {
         sc.append("var ");
@@ -8261,6 +8258,10 @@ public class PostgreSQL extends BaseDAO {
         if (sc.length() > 4) sc.append(";\n");
         else sc.setLength(0);
       }
+      if (script.contains("$iwb.") || script.contains("$.")) {
+          sc.append("var $=$iwb;\n");
+      }
+
       if (!qr.getErrorMap().isEmpty()) {
         return;
       }
