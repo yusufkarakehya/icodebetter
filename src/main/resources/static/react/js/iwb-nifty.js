@@ -2108,7 +2108,7 @@ class XGridRowAction extends React.PureComponent {
                 }
               },
               _("span", { className: "mr-2 icon-pencil"}),
-              "Güncelle"
+              getLogMsg('edit')
             ),
           remove &&
             _(
