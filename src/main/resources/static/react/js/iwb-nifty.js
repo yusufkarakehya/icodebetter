@@ -3092,7 +3092,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        "TAMAM"
+        getLocMsg('js_tamam')
       ),
       " ",
       _(
@@ -3106,7 +3106,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        "VAZGEÇ"
+        getLocMsg('js_cansel')
       )
     ),
     ...confg
