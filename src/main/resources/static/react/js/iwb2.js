@@ -1753,14 +1753,14 @@ class XTabForm extends React.PureComponent {
               },
               _("i", { className: "icon-pencil" }),
               " ",
-              "Düzenle"
+              getLocMsg('js_edit'),
             ),
           " ",
           viewMode &&
             _(
               Button,
               { color: "light", className: "btn-form-edit", onClick: iwb.closeTab },
-              "Kapat"
+              getLocMsg('close')
             ),
           " ",
           viewMode &&
@@ -1774,7 +1774,7 @@ class XTabForm extends React.PureComponent {
               },
               _("i", { className: "icon-trash" }),
               " ",
-              "Sil"
+              getLocMsg('delete')
             ),
 
           _(
@@ -2156,7 +2156,7 @@ class XGridRowAction extends React.PureComponent {
               _("span", {
                 className: "mr-2 icon-minus text-danger"
               }),
-              "Sil"
+              getLocMsg('delete')
             ),
           menuButtons &&
             menuButtons.map(({ text, handler, cls }) => {
@@ -4508,7 +4508,7 @@ class XPage extends React.PureComponent {
                     this.tabs.push({
                       name: action,
                       icon: plus ? "icon-plus" : "icon-doc",
-                      title: plus ? " Yeni" : " Düzenle",
+                      title: ' '+plus ? getLocMsg('js_new') : getLocMsg('js_edit'),
                       value: serverComponent
                     });
                     this.setState({
