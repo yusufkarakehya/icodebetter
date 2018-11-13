@@ -3071,7 +3071,8 @@ const extendGrid = ({ name, children, predicate, position }) => {
 yesNoDialog = ({
   text = "Are You Sure?",
   title = "Are You Sure?",
-  callback
+  callback = alert('obj.callback is not a function'),
+  ...confg
 }) => {
   iwb.showModal({
     body: text,
@@ -3107,7 +3108,8 @@ yesNoDialog = ({
         },
         "VAZGEÇ"
       )
-    )
+    ),
+    ...confg
   });
 };
 /**
