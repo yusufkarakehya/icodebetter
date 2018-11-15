@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.json.JSONException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -2489,6 +2490,18 @@ public class AppServlet implements InitializingBean {
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
+		response.getWriter().close();
+	}
+	
+	@RequestMapping("/ajaxFormatSQL")
+	public void hndAjaxFormatSQL(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		String sql = request.getParameter("sql");
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":true, \"result\":\""+GenericUtil.stringToJS(new BasicFormatterImpl().format(sql))+"\"}");
 		response.getWriter().close();
 	}
 }

@@ -2788,7 +2788,7 @@ function addTab4GridWSearchForm(obj) {
   if (obj.pk) mainGrid._pk = obj.pk; //{tcase_id:'case_id',tclient_id:'client_id',tobject_tip:'!4'}
 
   var grdExtra = {
-    stripeRows: true,
+//    stripeRows: true,
     region: "center",
     border: false,
     clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
@@ -3003,7 +3003,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     },
     obj.grdExtra || {
       split: true,
-      stripeRows: true,
+//      stripeRows: true,
       border: false,
       clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
     }
@@ -3271,7 +3271,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
         title: obj.detailGrids[i]._title_ || detailGrid.name,
-        stripeRows: true,
+//        stripeRows: true,
         id: "gr" + Math.random(),
         border: false,
         bodyStyle: "border-top: 1px solid #18181a;",
@@ -3474,9 +3474,9 @@ function prepareLogErrors(obj) {
   return str;
 }
 
-function showSQLError(sql, xpos) {
+function showSQLError(sql, xpos, err) {
   var _code = new Ext.ux.form.Monaco({
-    hideLabel: true,
+    hideLabel: true,//id:'id-ahmet',
     language: "sql",
     name: "code",
     anchor: "%100",
@@ -3484,18 +3484,24 @@ function showSQLError(sql, xpos) {
     value: sql
   });
 
-  new Ext.Window({
+  var wx = new Ext.Window({
     modal: true,
     closable: true,
-    title: "SQL Error",
+    title: "SQL Error" + (err ? ' &nbsp; <span style="color:red;font-size:.9em;">'+err+'</span>':''),
     width: 1000,
     height: 600,
     border: false,
     layout: "border",
-    items: [new Ext.FormPanel({ region: "center", items: [_code] })]
+    items: [new Ext.FormPanel({ region: "center", items: [_code] })],
+    buttons:[{text:'Format',handler:function(){
+    	iwb.request({url:'ajaxFormatSQL',params:{sql:sql},successCallback:function(jj){
+        	_code.editor.setValue(jj.result);
+    		
+    	}});
+    }}, {text:'Close',handler:function(){
+    	wx.destroy();
+    }}]
   }).show();
-  var doc = _code.codeEditor.doc;
-  //	doc.addLineClass(ml-1,'background','veliSel');
   return false;
 }
 
@@ -3601,15 +3607,18 @@ function ajaxErrorHandler(obj) {
                 oo.error.indexOf("Position: ") + "Position: ".length
               );
             } //else if(sqlPos){
-            if (iwb.errors[qi - 1])
+            if (iwb.errors[qi - 1]){
+              iwb.errors[qi] = oo.error;
               ss +=
                 " &nbsp; <a href=# onclick='showSQLError(iwb.errors[" +
                 (qi - 1) +
                 "]," +
                 sqlPos +
-                ')\' style="padding:1px 5px;background:white;color:green;border-radius:20px;">SQL</a>';
+                ",iwb.errors[" +
+                (qi) +
+                "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>SQL</a>";
             //	sqlPos=false;
-            //}
+            }
           }
         }
       }
@@ -5224,7 +5233,7 @@ function addTab4Portal(obj) {
       }
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
-        stripeRows: true,
+//        stripeRows: true,
         id: obj.t + "-" + detailGrid.gridId,
         autoScroll: true,
         border: false,
@@ -5693,7 +5702,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
         title: obj.detailGrids[i]._title_ || detailGrid.name,
-        stripeRows: true,
+//        stripeRows: true,
         id: "gr" + Math.random(),
         autoScroll: true,
         border: false,

@@ -4497,7 +4497,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.getMainTableId()), scd))
 					.append("}),listeners:{loadexception:promisLoadException}}),\n master_column_id:'")
 					.append(g.get_queryFieldMap().get(g.getTreeMasterFieldId())
-							.getDsc()).append("',stripeRows: true");
+							.getDsc()).append("'");
 			if (g.get_groupingField() != null)
 				buf.append(",\n autoExpandColumn:'")
 						.append(g.get_groupingField().getDsc()).append("'");
