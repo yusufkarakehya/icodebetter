@@ -568,7 +568,7 @@ public class F7 implements ViewMobileAdapter2 {
 		
 		
 		if (f.getObjectTip() == 2){
-			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
 			pictureFlag = true;/*PromisCache.getAppSettingIntValue(scd, "attach_picture_flag") != 0
 					&& t.getFileAttachmentFlag() != 0
