@@ -18,17 +18,17 @@ var defineSQLCompletionItemProvider = {
 	    		var target = '';
 	    		var noBreakLines = textUntilPosition.replace(/\r?\n|\r/g, "");
 	    		var section = '';
-	    		if(textUntilPosition.includes("ORDER BY")){	
-	    			section = noBreakLines.split("ORDER BY");	
-	    		} else if (textUntilPosition.includes("GROUP BY")) {	
-	    			section = noBreakLines.split("GROUP BY");
-	    		} else if (textUntilPosition.includes("WHERE")) {
-	    			section = noBreakLines.split("WHERE");
+	    		if(textUntilPosition.search(/order by/i) >= 0){	
+	    			section = noBreakLines.split(/order by/i);	
+	    		} else if (textUntilPosition.search(/group by/i) >= 0) {	
+	    			section = noBreakLines.split(/group by/i);
+	    		} else if (textUntilPosition.search(/where/i) >= 0) {
+	    			section = noBreakLines.split(/where/i);
 	    			notList = true;
 	    		} else {
 	    			let text = model.getValue();
 	    			noBreakLines = text.replace(/\r?\n|\r/g, "");
-	    			section = noBreakLines.split("SELECT");
+	    			section = noBreakLines.split(/select/i);
 	    			leftRight = true;
 	    		}
 	    		var x = section[1].split('.');
@@ -36,12 +36,12 @@ var defineSQLCompletionItemProvider = {
 
 	    		//console.log(target);
 	    		var sectionSide = leftRight ? section[1] : section[0];
-	    		if(sectionSide.includes("WHERE")){
-	    			let noWhere = sectionSide.split("WHERE");
+	    		if(sectionSide.search(/where/i) >= 0){
+	    			let noWhere = sectionSide.split(/where/i);
 	    			sectionSide = noWhere;
 	    		}
 
-	    		var splitFrom = notList ? sectionSide.split("FROM") : sectionSide[0].split("FROM");
+	    		var splitFrom = notList ? sectionSide.split(/from/i) : sectionSide[0].split(/from/i);
 	    		var noComments = splitFrom[1].replace(/(\/\*[^*]*\*\/)|(\/\/[^*]*)/g, '');
 	    		var withSpace = noComments.replace(target, "");
 	    		var tableName = withSpace.trim();
