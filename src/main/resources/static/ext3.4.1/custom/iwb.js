@@ -7378,7 +7378,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   if (getForm.fileAttachFlag) {
     btn.push("-");
     btn.push({
-      text:
+      tooltip:
         "Files" +
         (getForm.fileAttachCount > 0
           ? " (" + getForm.fileAttachCount + ")"
@@ -7702,7 +7702,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       }
 
       btn.push({
-        text: "Others...",
+        tooltip: "Others...",
         iconAlign: "top",
         scale: "medium",
         style: {
@@ -7713,7 +7713,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
     } else {
       btn.push({
-        text: "Record Info",
+    	tooltip: "Record Info",
         iconAlign: "top",
         scale: "medium",
         style: {
@@ -7747,7 +7747,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       if (getForm.commentExtra && getForm.commentExtra.is_new)
         txt2 = '<b class="dirtyColor">' + txt2 + "</b>";
       btn.push({
-        text: txt2,
+    	tooltip: txt2,
         id: "cd_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -7826,7 +7826,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   }
 
   btn.push({
-    text: "Templates",
+	tooltip: "Templates",
     id: "ttemp_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
@@ -7929,7 +7929,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     var menuItems = [];
     if (_scd.administratorFlag) {
       menuItems.push({
-        text: "${form_field_settings}",
+        text: "Field Settings",
         handler: function(a, b, c) {
           mainPanel.loadTab({
             attributes: {
@@ -7956,7 +7956,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       )
         menuItems.push({
           text:
-            "${form_sms_mail_settings}" +
+            "SMS/E-MAIL Settings" +
             (getForm.smsMailTemplateCnt
               ? " (" + getForm.smsMailTemplateCnt + ")"
               : ""),
@@ -7980,7 +7980,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       if (_app.form_conversion_flag && 1 * _app.form_conversion_flag)
         menuItems.push({
           text:
-            "${form_conversion}" +
+            "Conversions" +
             (getForm.conversionCnt ? " (" + getForm.conversionCnt + ")" : ""),
           handler: function(a, b, c) {
             mainPanel.loadTab({
@@ -8002,7 +8002,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     }
     if (_scd.administratorFlag) {
       menuItems.push("-", {
-        text: "${form_hints}",
+        text: "Form Hints",
         handler: function(a, b, c) {
           mainPanel.loadTab({
             attributes: {
@@ -8021,7 +8021,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
     }
     btn.push({
-      text: "Settings",
+      tooltip: "Settings",
       id: "fs_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
