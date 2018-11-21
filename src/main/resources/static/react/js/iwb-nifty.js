@@ -3995,7 +3995,7 @@ class XMainGrid extends GridCommon {
                   "li",
                   { key: DGindex, className: "timeline-inverted" },
                   //_(XGridAction,{color:dgColors[DGindex%dgColors.length]}),
-                  !selfie.props._hideTimelineBadgeBtn &&
+                  !detailXGrid._hideTimelineBadgeBtn &&
                     _(
                       "div",
                       {
@@ -4038,7 +4038,7 @@ class XMainGrid extends GridCommon {
                     "div",
                     {
                       className: "timeline-panel",
-                      ...(!!selfie.props._hideTimelineBadgeBtn
+                      ...(!!detailXGrid._hideTimelineBadgeBtn
                         ? { style: { left: "30px" } }
                         : {})
                     },
