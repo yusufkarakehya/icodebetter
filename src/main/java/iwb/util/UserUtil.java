@@ -1517,8 +1517,14 @@ public class UserUtil {
 					newScd.putAll(scd);
 					newScd.put("customizationId",po.getCustomizationId());
 					newScd.put("projectId",po.getProjectUuid());newScd.put("projectName", po.getDsc());newScd.put("roleId",999999);
+					int deviceType = GenericUtil.uInt(request, "d");
+					if(deviceType==0)deviceType = po.getUiWebFrontendTip();
+					else {
+						scd.put("mobile", deviceType);
+						scd.put("mobileDeviceId", request.getParameter("_mobile_device_id"));
+					}
 					newScd.put("renderer", po.getUiWebFrontendTip());
-					newScd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+					newScd.put("_renderer", GenericUtil.getRenderer(deviceType));
 					newScd.put("mainTemplateId", po.getUiMainTemplateId());
 					newScd.put("path", "../");
 					newScd.put("userTip",po.get_defaultUserTip());

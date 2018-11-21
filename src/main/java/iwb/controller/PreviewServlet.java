@@ -772,7 +772,7 @@ public class PreviewServlet implements InitializingBean {
 		String errorMsg = result.getResultMap().get("errorMsg");
 		int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
 		String xlocale = "en";//GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
-//		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
+		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
 		int userRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
 		response.setContentType("application/json");
@@ -787,12 +787,17 @@ public class PreviewServlet implements InitializingBean {
 				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
 				HttpSession session = request.getSession(true);
 //				session.removeAttribute(scdKey);
+				if(deviceType!=0) {
+					scd.put("mobile", deviceType);
+					scd.put("mobileDeviceId", request.getParameter("_mobile_device_id"));
+				} else {
+					scd.put("renderer", po.getUiWebFrontendTip());
+					scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+				}
 				scd.put("locale", xlocale);
 				scd.put("customizationId", po.getCustomizationId());
 				scd.put("ocustomizationId", po.getCustomizationId());
 				scd.put("projectId", po.getProjectUuid());scd.put("projectName", po.getDsc());
-				scd.put("renderer", po.getUiWebFrontendTip());
-				scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 				scd.put("mainTemplateId", po.getUiMainTemplateId());
 				scd.put("sessionId", session.getId());
 				scd.put("path", "../");
@@ -1148,7 +1153,12 @@ public class PreviewServlet implements InitializingBean {
 		logger.info("hndGetGraphDashboards");
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
-		List<W5BIGraphDashboard> l = engine.getGraphDashboards(scd);
+		List<W5BIGraphDashboard> l = null;
+		try{
+			l = engine.getGraphDashboards(scd);
+		} catch (Exception e) {
+		}
+		
 		if(GenericUtil.isEmpty(l)){
 			response.getWriter().write("{\"success\":true,\"data\":[]}");
 		} else {
