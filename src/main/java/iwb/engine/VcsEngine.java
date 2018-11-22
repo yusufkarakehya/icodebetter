@@ -1465,7 +1465,7 @@ public class VcsEngine {
 		W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid).get(0);
 		int action=0;
 		switch(vo.getVcsObjectStatusTip()){
-		case	9:case	8://synch durumdaysa Push'a gerek yok (9:active synched, 8:deleted synched)
+		case 0:case	9:case	8://synch durumdaysa Push'a gerek yok (9:active synched, 8:deleted synched)
 			throw new IWBException("vcs","vcsClientObjectPush", tablePk, "vcsObjectStatusTip = " + vo.getVcsObjectStatusTip(), "Object Already Synched("+t.getDsc()+")", null);
 		default:
 			action = vo.getVcsObjectStatusTip();
@@ -1636,7 +1636,7 @@ public class VcsEngine {
 		for(String k:arTablePks){
 			int tablePk = GenericUtil.uInt(k);
 			W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid).get(0);
-			if(vo.getVcsObjectStatusTip()==9){//synch durumdaysa Push'a gerek yok
+			if(vo.getVcsObjectStatusTip()==9 || vo.getVcsObjectStatusTip()==8 || vo.getVcsObjectStatusTip()==0){//synch durumdaysa Push'a gerek yok
 				if(onSynchErrorThrow)throw new IWBException("vcs","vcsClientObjectPushMulti", vo.getVcsObjectId(), null, "Object Already Synched2", null);
 				else continue;
 			}
@@ -1973,7 +1973,7 @@ public class VcsEngine {
 			}
 			int tablePk=GenericUtil.uInt(tableKey[1]);
 			W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid).get(0);
-			if(vo.getVcsObjectStatusTip()==9){//synch durumdaysa Push'a gerek yok
+			if(vo.getVcsObjectStatusTip()==9 || vo.getVcsObjectStatusTip()==8 || vo.getVcsObjectStatusTip()==0){//synch durumdaysa Push'a gerek yok
 				if(onSynchErrorThrow)throw new IWBException("vcs","vcsClientObjectPushAll", vo.getVcsObjectId(), null, "Object Already Synched2", null);	else 
 					continue;
 			}
