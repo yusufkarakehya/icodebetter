@@ -59,7 +59,7 @@ var defineSQLCompletionItemProvider = {
 			    	var completionList = [];		    	
 			    	for (var i = 0; i < columnArray.length; i++) {
 			    		var obj = {};
-			    		obj.label = columnArray[i].column_name;
+			    		obj.label = columnArray[i].column_name;obj.detail = columnArray[i].data_type;
 			    		obj.kind = monaco.languages.CompletionItemKind.Function;
 			    		obj.insertText = columnArray[i].column_name;	    		
 			    		completionList.push(obj);
