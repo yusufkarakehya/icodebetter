@@ -6840,7 +6840,7 @@ function fncMnuVcs(xgrid) {
               url: "ajaxVCSObjectAction",
               params: { t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
               successCallback: function(j) {
-                Ext.infoMsg.msg("warning", "Deleted from VCS");
+                Ext.infoMsg.msg("success", "Ignored from VCS");
                 aq._grid.ds.reload();
               }
             });

@@ -3564,6 +3564,7 @@ public class FrameworkEngine {
         vo.setVersionDttm(new Timestamp(new Date().getTime()));
         vo.setVersionUserId((Integer) scd.get("userId"));
         switch (vo.getVcsObjectStatusTip()) { // zaten insert ise
+        case	0://ignored
           case 2: // insert: direk sil
           case 3: // zaten silinmisse boyle birsey olmamali
             if (action == 3) {
