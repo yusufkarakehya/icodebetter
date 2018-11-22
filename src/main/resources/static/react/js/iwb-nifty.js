@@ -240,7 +240,7 @@ var iwb = {
     if (field.$ === MapInput) return _(field.$,{value:field.value, disabled:true});
     var options = extraOptions || field.options;
     if (!options || !options.length) {
-      var value = field.value;
+      var value = (field.decimalScale)?Number(field.value).toFixed(field.decimalScale):field.value;
       if (typeof value == "undefined" || value == "") return iwb.emptyField;
       return _("b", { className: "form-control" }, value);
     }
