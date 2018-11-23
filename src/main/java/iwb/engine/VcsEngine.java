@@ -462,6 +462,10 @@ public class VcsEngine {
 							od[4]=srvCommitId;//server vcsCommitId
 							W5VcsObject lclObj = srcMap.get(pk);
 							if(lclObj!=null){//server'da ve localde var
+								if(lclObj.getVcsObjectStatusTip()==0) {
+									srcMap.remove(pk);
+									continue; // ignored object
+								}
 								if(srvCommitId<0){ //server'da silinmis, localde hala var
 									if(lclObj.getVcsObjectStatusTip()==8){ //localde de silinmis, atla
 										srcMap.remove(pk);
@@ -524,20 +528,23 @@ public class VcsEngine {
 						}
 
 					}
-					if(!srcMap.isEmpty())for(String k:srcMap.keySet()){ //localde yeni eklenmis, server'da yok TODO
-						Object[] od = new Object[8];
-						od[0]=k;
-						String[] kx = k.replace('.', ',').split(",");
-						int tableId = GenericUtil.uInt(kx[0]);
-						od[1]=tableId;
-						od[2]=FrameworkCache.getTable(customizationId, tableId).getDsc();
-						od[3]=GenericUtil.uInt(kx[1]);
-						od[4]=0;//server vcsCommitId (0,+)
-						od[5]=srcMap.get(k).getVcsCommitId();//local vcsCommitId
-						//summaryParams.set(summaryParams.size()-1, k);
-						od[6]=dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0);
-						od[7]=2;//push
-						data.add(od);
+					if(!srcMap.isEmpty())for(String k:srcMap.keySet()){
+						W5VcsObject lclObj = srcMap.get(k);
+						if(lclObj.getVcsObjectStatusTip()!=8 && lclObj.getVcsObjectStatusTip()!=0){ //localde yeni eklenmis, server'da yok //localde yeni eklenmis, server'da yok TODO
+							Object[] od = new Object[8];
+							od[0]=k;
+							String[] kx = k.replace('.', ',').split(",");
+							int tableId = GenericUtil.uInt(kx[0]);
+							od[1]=tableId;
+							od[2]=FrameworkCache.getTable(customizationId, tableId).getDsc();
+							od[3]=GenericUtil.uInt(kx[1]);
+							od[4]=0;//server vcsCommitId (0,+)
+							od[5]=lclObj.getVcsCommitId();//local vcsCommitId
+							//summaryParams.set(summaryParams.size()-1, k);
+							od[6]=dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0);
+							od[7]=2;//push
+							data.add(od);
+						}
 						
 					}
 					qr.setData(data);
@@ -626,6 +633,10 @@ public class VcsEngine {
 							od[4]=srvCommitId;//server vcsCommitId
 							W5VcsObject lclObj = srcMap.get(pk);
 							if(lclObj!=null){//server'da ve localde var
+								if(lclObj.getVcsObjectStatusTip()==0) {
+									srcMap.remove(pk);
+									continue; // ignored object
+								}
 								if(srvCommitId<0){ //server'da silinmis, localde hala var
 									if(lclObj.getVcsObjectStatusTip()==8){ //localde de silinmis, atla
 										srcMap.remove(pk);
@@ -685,23 +696,27 @@ public class VcsEngine {
 						}
 
 					}
-					if(!srcMap.isEmpty())for(String k:srcMap.keySet())if(srcMap.get(k).getVcsObjectStatusTip()!=8){ //localde yeni eklenmis, server'da yok TODO
-						Object[] od = new Object[14];
-						od[0]=k;
-						String[] kx = k.replace('.', ',').split(",");
-						int tableId = GenericUtil.uInt(kx[0]);
-						od[1]=tableId;
-						W5Table tx = FrameworkCache.getTable(customizationId, tableId); 
-						od[2]=tx!=null?tx.getDsc():"Table Not Found";
-						od[3]=GenericUtil.uInt(kx[1]);
-						od[4]=0;//server vcsCommitId (0,+)
-						od[5]=srcMap.get(k).getVcsCommitId();//local vcsCommitId
-						//summaryParams.set(summaryParams.size()-1, k);
-						od[6]=tx!=null?dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0):"";
-						od[7]=2;//push
-						data.add(od);
-						
+					if(!srcMap.isEmpty())for(String k:srcMap.keySet()) {
+						W5VcsObject lclObj = srcMap.get(k);
+						if(lclObj.getVcsObjectStatusTip()!=8 && lclObj.getVcsObjectStatusTip()!=0){ //localde yeni eklenmis, server'da yok TODO
+							Object[] od = new Object[14];
+							od[0]=k;
+							String[] kx = k.replace('.', ',').split(",");
+							int tableId = GenericUtil.uInt(kx[0]);
+							od[1]=tableId;
+							W5Table tx = FrameworkCache.getTable(customizationId, tableId); 
+							od[2]=tx!=null?tx.getDsc():"Table Not Found";
+							od[3]=GenericUtil.uInt(kx[1]);
+							od[4]=0;//server vcsCommitId (0,+)
+							od[5]=lclObj.getVcsCommitId();//local vcsCommitId
+							//summaryParams.set(summaryParams.size()-1, k);
+							od[6]=tx!=null?dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0):"";
+							od[7]=2;//push
+							data.add(od);
+							
+						}
 					}
+
 					qr.setData(data);
 					qr.setFetchRowCount(data.size());
 					qr.setResultRowCount(data.size());
@@ -1261,6 +1276,10 @@ public class VcsEngine {
 						od[1]=srvCommitId;//server vcsCommitId
 						W5VcsObject lclObj = srcMap.get(srvPk);
 						if(lclObj!=null){//server'da ve localde var
+							if(lclObj.getVcsObjectStatusTip()==0) {
+								srcMap.remove(srvPk);
+								continue; // ignored object
+							}
 							if(srvCommitId<0){ //server'da silinmis, localde hala var
 								if(lclObj.getVcsObjectStatusTip()==8){ //localde de silinmis, atla
 									srcMap.remove(srvPk);
@@ -1315,19 +1334,21 @@ public class VcsEngine {
 						data.add(od);
 						srcMap.remove(srvPk);
 					}
-					if(!srcMap.isEmpty())for(Integer k:srcMap.keySet()){ //localde yeni eklenmis, server'da yok
-						Object[] od = new Object[8];
-						od[0]=k;
-						od[1]=0;//server vcsCommitId (0,+)
-						od[2]=srcMap.get(k).getVcsCommitId();//local vcsCommitId
-						summaryParams.set(summaryParams.size()-1, k);
-						List tl = dao.executeSQLQuery2(ssql, summaryParams);
-						if(!GenericUtil.isEmpty(tl)){
-							od[3]=tl.get(0);//recordSummary
-							od[4]=2;//push
-							data.add(od);
-						}
-						
+					if(!srcMap.isEmpty())for(Integer k:srcMap.keySet()){
+						W5VcsObject lclObj = srcMap.get(k);
+						if(lclObj.getVcsObjectStatusTip()!=8 && lclObj.getVcsObjectStatusTip()!=0){ //localde yeni eklenmis, server'da yok //localde yeni eklenmis, server'da yok
+							Object[] od = new Object[8];
+							od[0]=k;
+							od[1]=0;//server vcsCommitId (0,+)
+							od[2]=lclObj.getVcsCommitId();//local vcsCommitId
+							summaryParams.set(summaryParams.size()-1, k);
+							List tl = dao.executeSQLQuery2(ssql, summaryParams);
+							if(!GenericUtil.isEmpty(tl)){
+								od[3]=tl.get(0);//recordSummary
+								od[4]=2;//push
+								data.add(od);
+							}
+						}						
 					}
 					
 					Map<String, Object[]> wpm = new HashMap<String, Object[]>();
@@ -1444,7 +1465,7 @@ public class VcsEngine {
 		W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid).get(0);
 		int action=0;
 		switch(vo.getVcsObjectStatusTip()){
-		case	9:case	8://synch durumdaysa Push'a gerek yok (9:active synched, 8:deleted synched)
+		case 0:case	9:case	8://synch durumdaysa Push'a gerek yok (9:active synched, 8:deleted synched)
 			throw new IWBException("vcs","vcsClientObjectPush", tablePk, "vcsObjectStatusTip = " + vo.getVcsObjectStatusTip(), "Object Already Synched("+t.getDsc()+")", null);
 		default:
 			action = vo.getVcsObjectStatusTip();
@@ -1615,7 +1636,7 @@ public class VcsEngine {
 		for(String k:arTablePks){
 			int tablePk = GenericUtil.uInt(k);
 			W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid).get(0);
-			if(vo.getVcsObjectStatusTip()==9){//synch durumdaysa Push'a gerek yok
+			if(vo.getVcsObjectStatusTip()==9 || vo.getVcsObjectStatusTip()==8 || vo.getVcsObjectStatusTip()==0){//synch durumdaysa Push'a gerek yok
 				if(onSynchErrorThrow)throw new IWBException("vcs","vcsClientObjectPushMulti", vo.getVcsObjectId(), null, "Object Already Synched2", null);
 				else continue;
 			}
@@ -1952,7 +1973,7 @@ public class VcsEngine {
 			}
 			int tablePk=GenericUtil.uInt(tableKey[1]);
 			W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid).get(0);
-			if(vo.getVcsObjectStatusTip()==9){//synch durumdaysa Push'a gerek yok
+			if(vo.getVcsObjectStatusTip()==9 || vo.getVcsObjectStatusTip()==8 || vo.getVcsObjectStatusTip()==0){//synch durumdaysa Push'a gerek yok
 				if(onSynchErrorThrow)throw new IWBException("vcs","vcsClientObjectPushAll", vo.getVcsObjectId(), null, "Object Already Synched2", null);	else 
 					continue;
 			}
@@ -2391,8 +2412,20 @@ public class VcsEngine {
 			throw new IWBException("vcs","vcsClientObjectAction", t.getTableId(), po.getProjectUuid()+"!="+projectUuid, "Not VCS Table2", null);
 		}
 		switch(action){
-		case	3://delete
-			return dao.executeUpdateSQLQuery("delete from iwb.w5_vcs_object where table_id=? AND table_pk=? AND customization_id=? AND project_uuid=?", tableId, tablePk, customizationId, projectUuid);
+		case	3://ignore
+//			return dao.executeUpdateSQLQuery("delete from iwb.w5_vcs_object where table_id=? AND table_pk=? AND customization_id=? AND project_uuid=?", tableId, tablePk, customizationId, projectUuid);
+			List<Object[]> ll = dao.executeSQLQuery("select count(1) xxx, sum(case when vcs_object_status_tip=0 then 1 else 0 end) yyy from iwb.w5_vcs_object where table_id=? AND table_pk=? AND customization_id=? AND project_uuid=?", tableId, tablePk, customizationId, projectUuid);
+			int cnt = GenericUtil.uInt(ll.get(0)[0]);
+			if(cnt==0) {
+				W5VcsObject vo = new W5VcsObject(scd, tableId, tablePk);
+				vo.setVcsObjectStatusTip((short)0);
+				dao.saveObject(vo);
+				return 1;
+			} else	if(GenericUtil.uInt(ll.get(0)[1])==0)	
+				return dao.executeUpdateSQLQuery("update iwb.w5_vcs_object set vcs_object_status_tip=0 where table_id=? AND table_pk=? AND customization_id=? AND project_uuid=?", tableId, tablePk, customizationId, projectUuid);
+			else
+				return dao.executeUpdateSQLQuery("delete from iwb.w5_vcs_object where table_id=? AND table_pk=? AND customization_id=? AND project_uuid=?", tableId, tablePk, customizationId, projectUuid);
+			
 		case	2://insert
 			dao.saveObject(new W5VcsObject(scd, tableId, tablePk));
 			return 1;		
@@ -2726,6 +2759,10 @@ public class VcsEngine {
 							String pk = t.getTableId()+"."+srvPk;
 							W5VcsObject lclObj = srcMap.get(pk);
 							if(lclObj!=null){//server'da ve localde var
+								if(lclObj.getVcsObjectStatusTip()==0) {
+									srcMap.remove(pk);
+									continue; // ignored object
+								}
 								if(srvCommitId<0){ //server'da silinmis, localde hala var
 									if(lclObj.getVcsObjectStatusTip()==8){ //localde de silinmis, atla
 										srcMap.remove(pk);

@@ -1,5 +1,79 @@
 Ext.ns("Ext.ux.form");
-var defineCompletionItemProvider = {
+async function fetchColumns(table_name) {
+	try{
+		let response = await fetch("ajaxQueryData?_qid=4809&table_name="+table_name);
+		let columns = await response.json();		
+		return columns.data;
+	} catch(error) {
+		console.log(error);
+	}
+}
+var defineSQLCompletionItemProvider = {		
+		triggerCharacters:['.'],
+	    provideCompletionItems: (model, position) => {	    	
+	    	try{	    		
+	    		var textUntilPosition = model.getValueInRange({startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
+	    		var leftRight = false;
+	    		var notList = false;
+	    		var target = '';
+	    		var noBreakLines = textUntilPosition.replace(/\r?\n|\r/g, "");
+	    		var section = '';
+	    		if(textUntilPosition.search(/order by/i) >= 0){	
+	    			section = noBreakLines.split(/order by/i);	
+	    		} else if (textUntilPosition.search(/group by/i) >= 0) {	
+	    			section = noBreakLines.split(/group by/i);
+	    		} else if (textUntilPosition.search(/where/i) >= 0) {
+	    			section = noBreakLines.split(/where/i);
+	    			notList = true;
+	    		} else {
+	    			let text = model.getValue();
+	    			noBreakLines = text.replace(/\r?\n|\r/g, "");
+	    			section = noBreakLines.split(/select/i);
+	    			leftRight = true;
+	    		}
+	    		var x = section[1].split('.');
+	    		target = x[0].trim();
+
+	    		//console.log(target);
+	    		var sectionSide = leftRight ? section[1] : section[0];
+	    		if(sectionSide.search(/where/i) >= 0){
+	    			let noWhere = sectionSide.split(/where/i);
+	    			sectionSide = noWhere;
+	    		}
+
+	    		var splitFrom = notList ? sectionSide.split(/from/i) : sectionSide[0].split(/from/i);
+	    		var noComments = splitFrom[1].replace(/(\/\*[^*]*\*\/)|(\/\/[^*]*)/g, '');
+	    		var withSpace = noComments.replace(target, "");
+	    		var tableName = withSpace.trim();
+	    		if (tableName.includes('.')) {
+	    			var schemaTable = tableName.split('.');
+	    			tableName = schemaTable[1];
+	    		}
+	    		//console.log(tableName);
+		    	
+		    	
+		    	var promise = fetchColumns(tableName);
+		    	//console.log(promise);
+		    	
+		    	return promise.then((columnArray)=> {
+			    	var completionList = [];		    	
+			    	for (var i = 0; i < columnArray.length; i++) {
+			    		var obj = {};
+			    		obj.label = columnArray[i].column_name;obj.detail = columnArray[i].data_type;
+			    		obj.kind = monaco.languages.CompletionItemKind.Function;
+			    		obj.insertText = columnArray[i].column_name;	    		
+			    		completionList.push(obj);
+			    	}
+			    	//console.log(completionList);
+			    	return completionList;
+		    	});	    
+	    		
+	    	} catch(error) {
+	    		console.log(error);
+	    	}		    	
+	    }
+}
+var defineJSCompletionItemProvider = {
     triggerCharacters:['$'],
     provideCompletionItems: (model, position) => {
       return [
@@ -86,9 +160,13 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent, {
 	              language: self.language
 	            });
 	    	  monaco.editor.setTheme("vs-dark");
-	    	  if(defineCompletionItemProvider && self.language=='javascript'){
-	    		  monaco.languages.registerCompletionItemProvider('javascript', defineCompletionItemProvider);
-	    		  defineCompletionItemProvider=false;
+	    	  if(defineJSCompletionItemProvider && self.language=='javascript'){
+	    		  monaco.languages.registerCompletionItemProvider('javascript', defineJSCompletionItemProvider);
+	    		  defineJSCompletionItemProvider=false;
+	    	  }
+	    	  if(defineSQLCompletionItemProvider && self.language=='sql'){
+	    		  monaco.languages.registerCompletionItemProvider('sql',defineSQLCompletionItemProvider);
+	    		  defineSQLCompletionItemProvider=false;
 	    	  }
             /*
           console.log("element: ", self.getEl());
