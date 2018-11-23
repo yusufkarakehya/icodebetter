@@ -2719,7 +2719,8 @@ class XEditGridSF extends GridCommon {
         searchFormData,
         inserted: addedRows,
         deleted: deletedRows,
-        _state: this.state
+        _state: this.state,
+        _this: this,
       };
     };
     if (props.parentCt && props.parentCt.egrids)
@@ -4016,7 +4017,8 @@ class XMainGrid extends GridCommon {
                               event,
                               selfie.props,
                               tempDetailGrids[DGindexDOM].grid,
-                              row.row
+                              row.row,
+                              selfie
                             );
                           } else {
                             selfie.onOnNewRecord(
