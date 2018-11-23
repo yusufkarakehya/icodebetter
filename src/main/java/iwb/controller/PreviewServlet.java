@@ -507,11 +507,12 @@ public class PreviewServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		int dirtyCount = GenericUtil.uInt(request, "_cnt");
-		int formId = GenericUtil.uInt(request, "_fid");
+		Map<String, String> requestMap = GenericUtil.getParameterMap(request);
+		int dirtyCount = GenericUtil.uInt(requestMap, "_cnt");
+		int formId = GenericUtil.uInt(requestMap, "_fid");
 		if (formId > 0) {
 			W5FormResult formResult = engine.postEditGrid4Table(scd, formId, dirtyCount,
-					GenericUtil.getParameterMap(request), "", new HashSet<String>());
+					requestMap, "", new HashSet<String>());
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 			response.getWriter().close();
 
@@ -529,13 +530,13 @@ public class PreviewServlet implements InitializingBean {
 		} else if (formId < 0) { // negatifse direk -dbFuncId
 			// int dbFuncId= GenericUtil.uInt(request, "_did");
 			W5GlobalFuncResult dbFuncResult = engine.postEditGridGlobalFunc(scd, -formId, dirtyCount,
-					GenericUtil.getParameterMap(request), "");
+					requestMap, "");
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		} else {
-			int conversionId = GenericUtil.uInt(request, "_cnvId");
+			int conversionId = GenericUtil.uInt(requestMap, "_cnvId");
 			if (conversionId > 0) {
 				W5FormResult formResult = engine.postBulkConversion(scd, conversionId, dirtyCount,
-						GenericUtil.getParameterMap(request), "");
+						requestMap, "");
 				response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 				response.getWriter().close();
 
