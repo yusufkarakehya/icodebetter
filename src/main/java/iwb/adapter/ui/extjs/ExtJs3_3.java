@@ -1407,7 +1407,7 @@ public class ExtJs3_3 implements ViewAdapter {
 
 		boolean b = false;
 		int tabHeight = 0;
-		buf.append(",{xtype:'tabpanel',activeTab: 0, border:false,deferredRender:false,defaults:{bodyStyle:'padding:0px'}, items:[");// defaults:{autoHeight:true,
+		buf.append(",{xtype:'tabpanel',cls:'iwb-detail-tab',activeTab: 0, border:false,deferredRender:false,defaults:{bodyStyle:'padding:0px'}, items:[");// defaults:{autoHeight:true,
 																														// bodyStyle:'padding:10px'},
 		for (W5FormModule m : formResult.getForm().get_moduleList())
 			if (m.getFormModuleId() != 0) {
@@ -1592,7 +1592,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		}
 
 		boolean b = false;
-		buf.append(",{xtype:'tabpanel',region:'center',activeTab: 0, deferredRender:false,defaults:{bodyStyle:'padding:0px'}, items:[");// defaults:{autoHeight:true,
+		buf.append(",{xtype:'tabpanel',cls:'iwb-detail-tab',region:'center',activeTab: 0, deferredRender:false,defaults:{bodyStyle:'padding:0px'}, items:[");// defaults:{autoHeight:true,
 																																		// bodyStyle:'padding:10px'},
 		for (W5FormModule m : formResult.getForm().get_moduleList())
 			if (m.getFormModuleId() != 0) {

@@ -33,8 +33,8 @@ a:hover {
 
 /* width */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
 }
 
 /* Track */
@@ -335,7 +335,7 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 }
 
 .x-grid-basket .x-btn-text {
-    background-image: url(images/gear-16.png);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' id='svgicon-mail--Header-Themes' viewBox='4.5 1.5 18 18' width='100%25' height='100%25'%3E%3Cg%3E%3Cpolygon fill='%23ccc' class='st0' points='12.5,1.5 12.5,19.5 22.5,17.5 22.5,3.5'%3E%3C/polygon%3E%3Cpolygon fill='%23ccc' class='st0' points='10.5,3.5 8.5,3.5 8.5,17.5 10.5,17.5 10.5,3.5'%3E%3C/polygon%3E%3Cpolygon fill='%23ccc' class='st0' points='6.5,5.5 4.5,5.5 4.5,15.5 6.5,15.5 6.5,5.5'%3E%3C/polygon%3E%3C/g%3E%3C/svg%3E");
 }
 
 .x-grid-commit .x-btn-text {
@@ -377,7 +377,9 @@ background-image:url(images/save-new-24.png) !important;
 background-image:url(images/save-cont-24.png) !important;
 }
 .ikapat{
-background-image:url(images/close-window-24.png) !important;
+/*background-image:url(images/close-window-24.png) !important;*/
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' width='100%25' height='100%25'%3E%3Cpath fill='%23ddd' d='M14,0.7L13.3,0L7,6.3L0.7,0L0,0.7L6.3,7L0,13.3L0.7,14L7,7.7l6.3,6.3l0.7-0.7L7.7,7L14,0.7z'%3E%3C/path%3E%3C/svg%3E") !important;
+    background-size: 22px 22px;
 }
 .isettings{
 background-image:/*url(images/setting-24.png) */

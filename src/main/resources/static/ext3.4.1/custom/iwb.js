@@ -632,17 +632,18 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
   //tabpanel
   gridDetail.store.baseParams = null;
   if (params) gridDetail._params = params;
-  gridMaster.getSelectionModel().on("selectionchange", function(a, b, c) {
+  var gs = gridMaster.getSelectionModel ?  gridMaster.getSelectionModel() : gridMaster;
+  gs.on("selectionchange", function(a, b, c) {
     if (
       !gridDetail.initialConfig.onlyCommitBtn &&
       gridDetail.initialConfig.editMode
     )
-      gridDetail.btnEditMode.toggle();
-    if (a.hasSelection()) {
+      gridDetail.btnEditMode.toggle(); 
+    if (a.hasSelection ?  a.hasSelection() : a.getSelectionCount()) { //
       if (params || gridDetail._baseParams) {
         gridDetail.store.baseParams = Ext.apply(
           gridDetail._baseParams || {},
-          params ? buildParams(params, a.getSelected().data) : {}
+          params ? buildParams(params, a.getSelected ? a.getSelected().data : a.getSelectedRecords()[0].data) : {}
         );
       }
       if (gridDetail.isVisible() && (!tp || tp.isVisible())) {
@@ -3422,7 +3423,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var subTab = {
     region: "center",
     enableTabScroll: true,
-    activeTab: 0,
+    activeTab: 0, cls:'iwb-detail-tab',
     border: false,
     visible: false,
     items: detailGridPanels,
