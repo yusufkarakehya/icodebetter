@@ -239,7 +239,7 @@ var iwb = {
     if (field.$ === MapInput) return _(field.$,{value:field.value, disabled:true});
     var options = extraOptions || field.options;
     if (!options || !options.length) {
-      var value = field.value;
+      var value = (field.decimalScale)?Number(field.value).toFixed(field.decimalScale):field.value;
       if (typeof value == "undefined" || value == "") return iwb.emptyField;
       return _("b", { className: "form-control" }, value);
     }
@@ -2753,7 +2753,8 @@ class XEditGridSF extends GridCommon {
         searchFormData,
         inserted: addedRows,
         deleted: deletedRows,
-        _state: this.state
+        _state: this.state,
+        _this: this,
       };
     };
     if (props.parentCt && props.parentCt.egrids)
@@ -2823,6 +2824,7 @@ class XEditGridSF extends GridCommon {
       if (!xprops.row._new) xprops.row._new = {}; //Object.assign({},xprops.row);
       if (!xprops.row._new.hasOwnProperty(xprops.column.name))
         xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
+      var keyFieldValue = (xprops.row._new && xprops.row._new[this.props.keyField])?xprops.row._new[this.props.keyField]:xprops.row[this.props.keyField];      
       delete editor.defaultValue;
       switch (1 * editor._control) {
         case 3:
@@ -2831,6 +2833,7 @@ class XEditGridSF extends GridCommon {
           editor.onValueChange = ({ value }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
+            this.props.onValueChange && this.props.onValueChange({inthis:this,keyFieldValue:keyFieldValue, inputName:xprops.column.name,inputValue:value })
           };
           break;
         case 6:
@@ -2845,6 +2848,25 @@ class XEditGridSF extends GridCommon {
           editor.onChange = ({ id }) => {
             xprops.row._new[xprops.column.name] = id;
             xprops.onValueChange(id);
+            this.props.onValueChange && this.props.onValueChange({
+            	inthis:this,
+            	keyFieldValue,
+            	inputName:xprops.column.name,
+            	inputValue:id
+            })
+          };
+          break;
+        case 5://checkbox
+          editor.checked = +xprops.row._new[xprops.column.name];
+          editor.onChange = ({ target: { checked } }) => {
+            xprops.row._new[xprops.column.name] = checked;
+            xprops.onValueChange(checked);
+            this.props.onValueChange && this.props.onValueChange({
+              inthis:this,
+              keyFieldValue,
+              inputName:xprops.column.name,
+              inputValue:checked
+            })
           };
           break;
         default:
@@ -2852,6 +2874,12 @@ class XEditGridSF extends GridCommon {
           editor.onChange = ({ target: { value } }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
+            this.props.onValueChange && this.props.onValueChange({
+            	inthis:this,
+            	keyFieldValue,
+            	inputName:xprops.column.name,
+            	inputValue:value
+            })
           };
           break;
       }
@@ -4048,7 +4076,8 @@ class XMainGrid extends GridCommon {
                               event,
                               selfie.props,
                               tempDetailGrids[DGindexDOM].grid,
-                              row.row
+                              row.row,
+                              selfie
                             );
                           } else {
                             selfie.onOnNewRecord(
