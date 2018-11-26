@@ -4217,11 +4217,11 @@ public class ExtJs3_3 implements ViewAdapter {
 		return html;
 	}
 
-	public StringBuilder serializeCard(W5CardResult dataViewResult) {
-		String xlocale = (String) dataViewResult.getScd().get("locale");
-		int customizationId = (Integer) dataViewResult.getScd().get(
+	public StringBuilder serializeCard(W5CardResult cardResult) {
+		String xlocale = (String) cardResult.getScd().get("locale");
+		int customizationId = (Integer) cardResult.getScd().get(
 				"customizationId");
-		W5Card d = dataViewResult.getCard();
+		W5Card d = cardResult.getCard();
 		StringBuilder buf = new StringBuilder();
 		buf.append("var ")
 				.append(d.getDsc())
@@ -4243,7 +4243,7 @@ public class ExtJs3_3 implements ViewAdapter {
 		buf.append(
 				serializeQueryReader(d.get_query().get_queryFields(), d.get_pkQueryField().getDsc(), null, (d
 						.get_query().getShowParentRecordFlag() != 0 ? 2 : 0), d
-						.get_crudTable(), dataViewResult.getScd())).append(
+						.get_crudTable(), cardResult.getScd())).append(
 				",listeners:{loadexception:promisLoadException");
 		// if(d.getDefaultPageRecordNumber()!=0)buf.append(",afterload:function(aa,bb){alert('geldim');alert(aa.getCount())}");
 		buf.append("}})");
@@ -4251,17 +4251,21 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(",\n defaultWidth:").append(d.getDefaultWidth());
 		if (d.getDefaultHeight() != 0)
 			buf.append(",\n defaultHeight:").append(d.getDefaultHeight());
-		if (dataViewResult.getSearchFormResult() != null) {
+		if (cardResult.getSearchFormResult() != null) {
 			buf.append(",\n searchForm:").append(
-					serializeGetForm(dataViewResult.getSearchFormResult()));
+					serializeGetForm(cardResult.getSearchFormResult()));
 		}
 		if (!GenericUtil.isEmpty(d.get_toolbarItemList())) { // extra buttonlari
 															// var mi yok mu?
 			StringBuilder buttons = serializeToolbarItems(
-					dataViewResult.getScd(), d.get_toolbarItemList(), false);
+					cardResult.getScd(), d.get_toolbarItemList(), false);
 			if (buttons != null && buttons.length() > 1) {
 				buf.append(",\n extraButtons:[").append(buttons).append("]");
 			}
+		}
+		if (!GenericUtil.isEmpty(d.get_crudFormConversionList())) {
+			buf.append(",\n formConversionList:[")
+					.append(serializeManualConversions(cardResult.getScd(), d.get_crudFormConversionList(), false)).append("]");
 		}
 
 		if (d.getDefaultPageRecordNumber() != 0)
@@ -4269,12 +4273,12 @@ public class ExtJs3_3 implements ViewAdapter {
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
 		buf.append(",\n tpl:\"")
 				.append(GenericUtil.stringToJS2(d.getTemplateCode()))
-				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"table.grid_detay\"};\n");
+				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"div.icb-card\"};\n");
 		if (!GenericUtil.isEmpty(d.getJsCode())) {
 			buf.append("\ntry{")
 					.append(GenericUtil.filterExt(d.getJsCode(),
-							dataViewResult.getScd(),
-							dataViewResult.getRequestParams(), null))
+							cardResult.getScd(),
+							cardResult.getRequestParams(), null))
 					.append("\n}catch(e){")
 					.append(FrameworkSetting.debug ? "if(confirm('ERROR dataView.JS!!! Throw?'))throw e;"
 							: "alert('System/Customization ERROR')");

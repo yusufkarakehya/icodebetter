@@ -51,6 +51,8 @@ public class W5Card implements java.io.Serializable {
 	private W5Query	_query;	
 	private List<W5QueryField> _postProcessQueryFields;
 	private Map<Integer, W5QueryField> _queryFieldMap;
+	private	List<W5FormSmsMail>	_crudFormSmsMailList;
+	private	List<W5Conversion>	_crudFormConversionList;
 
 	
 	@Id
@@ -220,6 +222,20 @@ public class W5Card implements java.io.Serializable {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+	@Transient
+	public List<W5FormSmsMail> get_crudFormSmsMailList() {
+		return _crudFormSmsMailList;
+	}
+	public void set_crudFormSmsMailList(List<W5FormSmsMail> _crudFormSmsMailList) {
+		this._crudFormSmsMailList = _crudFormSmsMailList;
+	}
+	@Transient
+	public List<W5Conversion> get_crudFormConversionList() {
+		return _crudFormConversionList;
+	}
+	public void set_crudFormConversionList(List<W5Conversion> _crudFormConversionList) {
+		this._crudFormConversionList = _crudFormConversionList;
 	}
 	
 }
