@@ -462,18 +462,30 @@ function fmtPrice(value) {
   return x1 + (_app.decimal_separator || ",") + x2;
 }
 
+function getSel(m){
+  if(m.gridId)return m.sm.getSelected();
+  else {
+	  m=m.getSelectedRecords ? m.getSelectedRecords() : Ext.getCmp(m.id).getSelectedRecords();
+	  if(!m || !m.length)return false;
+	  return m[0];
+  }	
+}
+
+function getSels(m){
+  if(m.gridId)return m.sm.getSelections();
+  else {
+	  m=m.getSelectedRecords ? m.getSelectedRecords() : Ext.getCmp(m.id).getSelectedRecords();
+	  if(!m || !m.length)return false;
+	  return m;
+  }	
+}
+
 function getGridSel(a) {
   if (!a || !a._grid) {
     Ext.infoMsg.msg("error", getLocMsg("js_list_not_defined"));
     return null;
   } else {
-	  var m = a._grid;
-	  if(m.gridId)m=m.sm.getSelected();
-	  else {
-		  m=Ext.getCmp(m.id).getSelectedRecords();
-		  if(!m || !m.length)m=false;
-		  else m=m[0];
-	  }
+	  var m = getSel(a._grid);
 	  if(!m){
 	    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
 	    return null;
@@ -481,6 +493,7 @@ function getGridSel(a) {
     return m;
   }
 }
+
 
 function getMasterGridSel(a) {
   if (
@@ -491,13 +504,7 @@ function getMasterGridSel(a) {
     Ext.infoMsg.msg("error", getLocMsg("js_master_list_not_defined"));
     return null;
   } else {
-	  var m = a._grid._masterGrid;
-	  if(m.gridId)m=m.sm.getSelected();
-	  else {
-		  m=Ext.getCmp(m.id).getSelectedRecords();
-		  if(!m || !m.length)m=false;
-		  else m=m[0];
-	  }
+	  var m = getSel(a._grid._masterGrid);
 	  if(!m){
 	    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
 	    return null;
@@ -842,7 +849,7 @@ function fnShowDetailDialog(a, b) {
   /*
 	 * TODO memory leak olabilir.
 	 */
-  var sel = a._grid.sm.getSelected(),
+  var sel = getSel(a._grid),
     dv;
   new Ext.Window({
     title: "",
@@ -1181,18 +1188,16 @@ function fnRowEdit(a, b) {
     Ext.infoMsg.msg("warning", getLocMsg("js_yazma_modundan_cikmalisiniz"));
     return;
   }
-  if (!a._grid.sm.hasSelection()) {
+  var sel = getSel(a._grid);
+  if (!sel) {//a._grid.sm.hasSelection()
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
 
   if (a._grid.multiSelect) {
   }
-  var sel = a._grid.sm.getSelected();
   var href =
-    "showForm?" +
-    (_request._dev && 1 * _request._dev ? "_dev=1&" : "") +
-    "a=1&_fid=" +
+    "showForm?a=1&_fid=" +
     a._grid.crudFormId;
   var idz = "";
   for (var key in a._grid._pk) {
@@ -1218,11 +1223,11 @@ function fnRowEdit(a, b) {
 }
 
 function fnRowEdit4Log(a, b) {
-  if (!a._grid.sm.hasSelection()) {
+	  var sel = getSel(a._grid);
+  if (!sel) {//a._grid.sm.hasSelection()
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
-  var sel = a._grid.sm.getSelected();
   var href =
     "showForm?a=1&_fid=" +
     a._cgrid.crudFormId +
@@ -1258,7 +1263,7 @@ function fnDataMoveUpDown(a, b) {
     return;
   }
 
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   promisRequest({
     url:
       "ajaxExecDbFunc?_did=701&ptable_id=" +
@@ -1276,33 +1281,7 @@ function fnRowEditDblClick(a, b) {
 }
 
 function fnCardDblClick(a, b) {
-	  var sel = a.getSelectedRecords()[0];
-	  var href =
-	    "showForm?" +
-	    (_request._dev && 1 * _request._dev ? "_dev=1&" : "") +
-	    "a=1&_fid=" +
-	    a.crudFormId;
-	  var idz = "";
-	  for (var key in a._pk) {
-	    href += "&" + key + "=" + sel.data[a._pk[key]];
-	    idz += sel.data[a._pk[key]];
-	  }
-	  if (typeof a._postUpdate == "function") {
-	    href = a._postUpdate(sel, href, a); // null donerse acilmayacak
-	  } else {
-	    if (a._postUpdate) href += "&" + a._postUpdate;
-	  }
-	  if (href) {
-	    var cfg = {
-	      attributes: {
-	        id: "g" + a.id + "-" + idz,
-	        href: href,
-	        _grid: a._grid ? a._refreshGrid || a._grid : null
-	      }
-	    };
-	    if (a.showModalWindowFlag) cfg.attributes.modalWindow = true;
-	    mainPanel.loadTab(cfg);
-	  }
+  return   fnRowEdit({ _grid: a}, b);
 }
 
 function fnRowInsert(a, b) {
@@ -1310,11 +1289,9 @@ function fnRowInsert(a, b) {
     Ext.infoMsg.msg("warning", getLocMsg("js_yazma_modundan_cikmalisiniz"));
     return;
   }
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   var href =
-    "showForm?" +
-    (_request._dev && 1 * _request._dev ? "_dev=1&" : "") +
-    "a=2&_fid=" +
+    "showForm?a=2&_fid=" +
     a._grid.crudFormId;
   if (typeof a._grid._postInsert == "function") {
     href = a._grid._postInsert(sel, href, a); // null donerse acilmayacak
@@ -1334,14 +1311,14 @@ function fnRowInsert(a, b) {
   }
 }
 function fnRowCopy(a, b) {
-  if (!a._grid.sm.hasSelection()) {
+  var sel = getSel(a._grid);
+  if (!sel) {//a._grid.sm.hasSelection()
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
 
   if (a._grid.multiSelect) {
   }
-  var sel = a._grid.sm.getSelected();
   var href = "showForm?a=5&_fid=" + a._grid.crudFormId;
   var idz = "";
   for (var key in a._grid._pk) {
@@ -1366,7 +1343,7 @@ function fnRowCopy(a, b) {
   }
 }
 function fnRowDelete(a, b) {
-  if (!a._grid.sm.hasSelection()) {
+  if (!getSel(a._grid)) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
@@ -1429,7 +1406,7 @@ function fnRowDelete(a, b) {
       }
     );
   } else {
-    var sel = a._grid.sm.getSelected();
+    var sel = getSel(a._grid);
     if (a._grid.onlyCommitBtn || a._grid.editMode) {
       var delItem = {};
       for (var key in a._grid._pk) delItem[key] = sel.data[a._grid._pk[key]];
@@ -1633,7 +1610,7 @@ function fnNewFileAttachmentMail(a) {
 
 function fnNewFileAttachment(a) {
   var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil mi onu sorguluyor. (major ver, minor ver, revision no)
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
@@ -1673,7 +1650,7 @@ function fnNewFileAttachment(a) {
 }
 
 function fnNewFileAttachment4ExternalUrl(a) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
     return;
@@ -1730,7 +1707,7 @@ function fnNewFileAttachment4Form(tid, tpk, not_image_flag) {
 }
 
 function fnFileAttachmentList(a) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
     return;
@@ -1954,7 +1931,7 @@ function fnGridPrivilege(a) {
 
 function fnRecordComments(a) {
   //TODO: daha duzgun bir chat interface'i yap
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
@@ -1980,12 +1957,11 @@ function fnRecordComments(a) {
 }
 
 function fnRecordPrivileges(a) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
     return;
   }
-  var sel = a._grid.sm.getSelected();
   var cfg = {
     attributes: {
       modalWindow: true,
@@ -2034,7 +2010,7 @@ function buildHelpWindow(cfg) {
 }
 
 function fnShowLog4Update(a, b) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
     return;
@@ -2383,7 +2359,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
                   modalWindow: true,
                   href: "showPage?_tid=238&_gid1=672",
                   tableId: a._grid.crudTableId,
-                  tablePk: a._grid.sm.getSelected().id
+                  tablePk: getSel(a._grid).id
                 }
               });
             }
@@ -4487,7 +4463,7 @@ function handleMouseDown(g, rowIndex, e) {
 }
 
 function approveTableRecord(aa, a) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   var rec_id;
 
   if (!sel) {
@@ -5490,7 +5466,7 @@ function fnRowInsert2(a, b) {
 }
 
 function fnRowDelete2(a, b) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) return;
   if (a._grid._deleteControl && a._grid._deleteControl(sel, a._grid) == false) {
     return;

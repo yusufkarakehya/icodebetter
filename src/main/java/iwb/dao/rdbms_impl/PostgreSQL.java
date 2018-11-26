@@ -2242,9 +2242,13 @@ public class PostgreSQL extends BaseDAO {
                       .getObjectId()); // PromisCache.getTable(f.getScd(), f.getForm().getObjectId())
           d.set_defaultCrudForm(defaultCrudForm);
 
-		    d.set_crudFormSmsMailList(
+		  d.set_crudFormSmsMailList(
 		            find(
 		                "from W5FormSmsMail t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.formId=? AND t.projectUuid=? order by t.tabOrder",
+		                d.getDefaultCrudFormId(), projectId));
+		  d.set_crudFormConversionList(
+		            find(
+		                "from W5Conversion t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.srcFormId=? AND t.projectUuid=? order by t.tabOrder",
 		                d.getDefaultCrudFormId(), projectId));
 
 		    

@@ -4268,6 +4268,7 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append(serializeManualConversions(cardResult.getScd(), d.get_crudFormConversionList(), false)).append("]");
 		}
 		if(d.get_defaultCrudForm()!=null) {
+			if(FrameworkSetting.vcs && d.get_crudTable().getVcsFlag()!=0)buf.append(",\n vcs:!0");
 			buf.append(",\n crudFormId:")
 			.append(d.getDefaultCrudFormId())
 			.append(serializeCrudFlags(cardResult.getScd(), d.get_crudTable(), false));
