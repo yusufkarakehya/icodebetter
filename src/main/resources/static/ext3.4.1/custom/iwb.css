@@ -61,7 +61,7 @@ a:hover {
 
 
 .padding0{
-	padding:0px 0px 0px 0px;
+	padding:0px !important;
 }
 
 #api-tree .x-panel-body {
@@ -344,7 +344,8 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 
 
 .x-grid-startedit .x-btn-text {
-    background-image: url(images/pencil-16.png);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath fill='#eb9b15' d='M5,15 C4.448,15 4,14.553 4,14 L4,11.172 C4,10.906 4.105,10.652 4.293,10.465 L12.379,2.379 C12.77,1.988 13.402,1.988 13.793,2.379 L16.621,5.207 C17.012,5.598 17.012,6.23 16.621,6.621 L8.536,14.707 C8.348,14.895 8.094,15 7.829,15 L5,15 Z M17,16 C17.552,16 18,16.447 18,17 C18,17.553 17.552,18 17,18 L3,18 C2.448,18 2,17.553 2,17 C2,16.447 2.448,16 3,16 L17,16 Z'%3E%3C/path%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpolygon points='0 20 20 20 20 0 0 0'%3E%3C/polygon%3E%3Cuse%3E%3C/use%3E%3C/g%3E%3C/svg%3E") !important;
+/*    url(images/pencil-16.png);*/
 }
 
 .x-grid-setting .x-btn-text {

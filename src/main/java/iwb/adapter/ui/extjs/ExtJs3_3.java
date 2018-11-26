@@ -4267,7 +4267,12 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(",\n formConversionList:[")
 					.append(serializeManualConversions(cardResult.getScd(), d.get_crudFormConversionList(), false)).append("]");
 		}
-
+		if(d.get_defaultCrudForm()!=null) {
+			buf.append(",\n crudFormId:")
+			.append(d.getDefaultCrudFormId())
+			.append(serializeCrudFlags(cardResult.getScd(), d.get_crudTable(), false));
+		}
+		
 		if (d.getDefaultPageRecordNumber() != 0)
 			buf.append(",\n pageSize:").append(d.getDefaultPageRecordNumber());
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
@@ -4356,6 +4361,42 @@ public class ExtJs3_3 implements ViewAdapter {
 		return buf;
 	}
 
+	private StringBuilder serializeCrudFlags(Map<String, Object> scd, W5Table t, boolean insertEditMode) {
+		StringBuilder buf = new StringBuilder();
+//		W5Table t = FrameworkCache.getTable(projectId, g.get_defaultCrudForm().getObjectId());// g.get_defaultCrudForm().get_sourceTable();
+		boolean insertFlag = GenericUtil.accessControl(scd,
+				t.getAccessInsertTip(), t.getAccessInsertRoles(),
+				t.getAccessInsertUsers());
+		
+		buf.append(",\n crudTableId:")
+				.append(t.getTableId())
+				.append(",\n crudFlags:{insert:")
+				.append(insertFlag)
+				.append(",edit:")
+				.append(t.getAccessUpdateUserFields() != null
+						|| GenericUtil.accessControl(scd,
+								t.getAccessUpdateTip(),
+								t.getAccessUpdateRoles(),
+								t.getAccessUpdateUsers()))
+				.append(",remove:")
+				.append(t.getAccessDeleteUserFields() != null
+						|| GenericUtil.accessControl(scd,
+								t.getAccessDeleteTip(),
+								t.getAccessDeleteRoles(),
+								t.getAccessDeleteUsers()));
+		if (insertEditMode && insertFlag)
+			buf.append(",insertEditMode:true");
+		if (insertFlag) {
+			if (t.getCopyTip() == 1)
+				buf.append(",xcopy:true");
+			else if (t.getCopyTip() == 2)
+				buf.append(",ximport:true");
+		}
+		// if(PromisCache.getAppSettingIntValue(scd, "revision_flag")!=0
+		// && t.getRevisionFlag()!=0)buf.append(",xrevision:true");
+		return buf.append("}");		
+	}
+	
 	public StringBuilder serializeGrid(W5GridResult gridResult) {
 		Map<String, Object> scd = gridResult.getScd();
 		String xlocale = (String) scd.get("locale");
@@ -4586,9 +4627,8 @@ public class ExtJs3_3 implements ViewAdapter {
 				
 				buf.append(",\n crudFormId:")
 						.append(g.getDefaultCrudFormId())
-						.append(",\n crudTableId:")
-						.append(t.getTableId())
-						.append(",\n crudFlags:{insert:")
+						.append(serializeCrudFlags(scd, t, g.getInsertEditModeFlag() != 0));
+/*						.append(",\n crudFlags:{insert:")
 						.append(insertFlag)
 						.append(",edit:")
 						.append(t.getAccessUpdateUserFields() != null
@@ -4612,7 +4652,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				}
 				// if(PromisCache.getAppSettingIntValue(scd, "revision_flag")!=0
 				// && t.getRevisionFlag()!=0)buf.append(",xrevision:true");
-				buf.append("}");
+				buf.append("}");*/
 				if ((t.getDoUpdateLogFlag() != 0 || t.getDoDeleteLogFlag() != 0)
 						&& FrameworkCache.roleAccessControl(scd, 108))
 					buf.append(",\n logFlags:{edit:")

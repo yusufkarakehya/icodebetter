@@ -475,13 +475,24 @@ function getMasterGridSel(a) {
   if (
     !a ||
     !a._grid ||
-    !a._grid._masterGrid ||
-    !a._grid._masterGrid.sm.getSelected()
+    !a._grid._masterGrid
   ) {
-    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
+    Ext.infoMsg.msg("error", getLocMsg("master_component_not_defined"));
     return null;
   } else {
-    return a._grid._masterGrid.sm.getSelected();
+	  var m = a._grid._masterGrid;
+	  if(m.gridId)m=m.sm.getSelected();
+	  else {
+		  console.log(m)
+		  m=Ext.getCmp(m.id).getSelectedRecords();
+		  if(!m || !m.length)m=false;
+		  else m=m[0];
+	  }
+	  if(!m){
+	    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
+	    return null;
+	  }
+	  return m;
   }
 }
 
@@ -1252,6 +1263,36 @@ function fnDataMoveUpDown(a, b) {
 
 function fnRowEditDblClick(a, b) {
   fnRowEdit({ _grid: a.initialConfig }, b);
+}
+
+function fnCardDblClick(a, b) {
+	  var sel = a.getSelectedRecords()[0];
+	  var href =
+	    "showForm?" +
+	    (_request._dev && 1 * _request._dev ? "_dev=1&" : "") +
+	    "a=1&_fid=" +
+	    a.crudFormId;
+	  var idz = "";
+	  for (var key in a._pk) {
+	    href += "&" + key + "=" + sel.data[a._pk[key]];
+	    idz += sel.data[a._pk[key]];
+	  }
+	  if (typeof a._postUpdate == "function") {
+	    href = a._postUpdate(sel, href, a); // null donerse acilmayacak
+	  } else {
+	    if (a._postUpdate) href += "&" + a._postUpdate;
+	  }
+	  if (href) {
+	    var cfg = {
+	      attributes: {
+	        id: "g" + a.id + "-" + idz,
+	        href: href,
+	        _grid: a._grid ? a._refreshGrid || a._grid : null
+	      }
+	    };
+	    if (a.showModalWindowFlag) cfg.attributes.modalWindow = true;
+	    mainPanel.loadTab(cfg);
+	  }
 }
 
 function fnRowInsert(a, b) {
@@ -3101,23 +3142,26 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   //    if (master_flag && master_flag==1)addHelpButton(buttons,mainGrid, 5, mainGrid.gridId);
   //    else addHelpButton(buttons,mainGrid, 64, mainGrid.extraOutMap.tplId);
 
-  if (mainGrid.gridReport) addDefaultReportButtons(buttons, mainGrid);
   mainGrid.isMainGrid = true;
-  addDefaultPrivilegeButtons(buttons, mainGrid);
 
-  if (mainGrid.pageSize) {
-    // paging'li toolbar
-    var tbarExtra = {
-      xtype: "paging",
-      store: mainGrid.ds,
-      pageSize: mainGrid.pageSize,
-      displayInfo: !0
-    };
-    if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
-    grdExtra.tbar = tbarExtra;
-  } else if (buttons.length > 0) {
-    //standart toolbar
-    grdExtra.tbar = organizeButtons(buttons);
+  if(mainGrid.gridId){
+	  if (mainGrid.gridReport) addDefaultReportButtons(buttons, mainGrid);
+	  addDefaultPrivilegeButtons(buttons, mainGrid);
+
+	  if (mainGrid.pageSize) {
+	    // paging'li toolbar
+	    var tbarExtra = {
+	      xtype: "paging",
+	      store: mainGrid.ds,
+	      pageSize: mainGrid.pageSize,
+	      displayInfo: !0
+	    };
+	    if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
+	    grdExtra.tbar = tbarExtra;
+	  } else if (buttons.length > 0) {
+	    //standart toolbar
+	    grdExtra.tbar = organizeButtons(buttons);
+	  }
   }
 
   var mainGridPanel = null;
@@ -3205,7 +3249,8 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     mainGrid.crudFlags.edit &&
     !mainGrid.crudFlags.nonEditDblClick /* && 1*_app.toolbar_edit_btn*/
   ) {
-    mainGridPanel.on(mainGrid.gridId ?"rowdblclick":"dblclick", fnRowEditDblClick);
+    if(mainGrid.gridId)mainGridPanel.on("rowdblclick", fnRowEditDblClick);
+    else mainGridPanel.on("dblclick", fnCardDblClick);
   }
 
   if(mainGrid.gridId)mainGridPanel.store.on("beforeload", function(a, b) {
@@ -3447,9 +3492,11 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var detailPanel = new Ext.TabPanel(subTab);
   
   if(!mainGrid.gridId){
-	  if(!mainGrid._dsc && mainButtons.length){
-		  mainGridPanel.tbar = organizeButtons(mainButtons);
+	  if(false && !mainGrid._dsc && mainButtons.length){
+		  detailPanel = {tbar : organizeButtons(mainButtons),items:[{region:'north',height:70},detailPanel]};
 	  }
+	  detailPanel = {region:'center', layout:'border', border:false,tbar : organizeButtons(mainButtons),items:[{region:'north',height:70},detailPanel]};
+
 	  var mainGridPanelOrj = mainGridPanel;
 	  mainGridPanel = {region:'west', autoScroll:!0, store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
@@ -3461,7 +3508,10 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      displayInfo: !0
 	    };
 	  } 
-	  mainGridPanel.tbar = [new Ext.form.TextField({emptyText:'Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}, style:'font-size:20px !important;padding:7px;',width:mainGridPanel.width-5})];
+	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0"
+		  ,items:[new Ext.form.TextField({emptyText:'Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}, style:'font-size:20px !important;padding:7px;',width:mainGridPanel.width})
+		  ,{xtype:'field',}
+		  ]};
 	  if (mainButtons.length > 0) {
 	    //standart toolbar
 		 // mainGridPanel.tbar = organizeButtons(mainButtons);
