@@ -795,11 +795,11 @@ class GridCommon extends React.PureComponent {
      */
     this.onAddedRowsChange = addedRows => {
       var newRecord = Object.assign({}, this.props.newRecord || {});
-      var pk = this.state.pk4insert;
+      var pk = this.state.pkInsert;
       --pk;
       newRecord[this.props.keyField] = pk;
       this.setState({
-        pk4insert: pk,
+        pk4Insert: pk,
         addedRows: addedRows.map(
           row => (Object.keys(row).length ? row : newRecord)
         )
