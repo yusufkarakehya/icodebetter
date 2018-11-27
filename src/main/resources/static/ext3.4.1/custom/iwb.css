@@ -379,11 +379,13 @@ background-image:url(images/kaydet-24.png) !important;
 background-image:url(images/bolt-24.png) !important;
 }
 .isave_new{
-background-image:url(images/save-new-24.png) !important;
+	background-image:url(images/save-new-24.png) !important;
+    background-position-y: -1px !important;	
 }
 
 .isave_cont{
-background-image:url(images/save-cont-24.png) !important;
+	background-image:url(images/save-cont-24.png) !important;
+    background-position-y: -1px !important;
 }
 .ikapat{
 /*background-image:url(images/close-window-24.png) !important;*/
@@ -1001,6 +1003,7 @@ header .phone .theme-switch a+a {
 }
 .x-form-field-wrap .x-form-trigger {
     background-image: url(/ext3.4.1/images/access/form/trigger.png);
+    margin-left:-1px;
 }
 .x-trigger-wrap-focus .x-form-trigger {
     border-bottom-color: #fd9c33;
@@ -1089,16 +1092,10 @@ header .phone .theme-switch a+a {
 }
 .x-btn {
 	padding: 7px 6px !important;
-/*    border-radius: 24px;
-    padding: 3px !important;
-    margin-left: 2px;
-    margin-right: 2px;
-    background: rgba(255,255,255,.06);
-    box-shadow: 0 0 2px #151515;*/
+    transition: background-color .3s;	
 }
 .x-btn.x-btn-over{
 	background: #485261;
-/*    box-shadow: 0 0 2px #222; rgba(255,255,255,.1)*/
 }
 .x-btn.x-btn-pressed{
     background: rgba(29, 29, 29, 0.4);
@@ -1157,4 +1154,31 @@ header .phone .theme-switch a+a {
 }
 .x-small-editor .x-form-field-wrap .x-form-trigger {
     height: 29px;
+}
+.x-tab-strip-wrap .x-tab-strip-close {
+    opacity: 0 !important;
+    transition: opacity .3s;
+}
+.x-tab-strip-wrap:hover .x-tab-strip-close {
+    opacity: .5 !important;
+}
+.x-tab-strip-closable:hover .x-tab-strip-close {
+    opacity: 1 !important;
+}
+.x-grid3-header {
+    padding: 0px 0 0 0;
+}
+.x-grid3-hd-row td {
+	border-left: none !important;
+    border-right: none;
+    transition: background-color .3s;
+}
+td.x-grid3-hd-over, td.sort-desc, td.sort-asc, td.x-grid3-hd-menu-open {
+    background: #3f4757;
+}
+.iwb-detail-tab .x-tab-strip span.x-tab-strip-text{
+    transition: color .3s;
+}
+.iwb-detail-tab .x-tab-strip span.x-tab-strip-text:hover{
+	color:#eee;
 }
