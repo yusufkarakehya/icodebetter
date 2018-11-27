@@ -2934,7 +2934,7 @@ function addTab4GridWSearchForm(obj) {
     searchFormPanel = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
         region: "north",
-        bodyStyle: "padding:3px",
+//        bodyStyle: "padding:3px",
         //			height: mainGrid.searchForm.defaultHeight||120,
         autoHeight: true,
         anchor: "100%",
@@ -3115,7 +3115,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       items: mainGrid.menuButtons
     });
     if (1 * _app.toolbar_edit_btn) {
-      if (buttons.length > 0) buttons.push("-");
+      if (buttons.length > 0) buttons.push(mainGrid.gridId?"-":"->");
       buttons.push({
         id: "btn_operations_" + mainGrid.id,
         cls: "x-btn-icon x-grid-menu",
@@ -3209,7 +3209,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     var searchFormPanel = (mainGrid.searchForm.fp = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
         region: "north",
-        bodyStyle: "padding:3px",
+//        bodyStyle: "padding:3px",
         autoHeight: true,
         anchor: "100%",
         collapsible: true,
@@ -3345,7 +3345,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
 
       if (detailGrid.crudFlags) addDefaultCrudButtons(buttons, detailGrid);
-      if (detailGrid.moveUpDown) addMoveUpDownButtons(buttons, detailGrid);
+ //     if (detailGrid.moveUpDown) addMoveUpDownButtons(buttons, detailGrid);
       addDefaultSpecialButtons(buttons, detailGrid);
       addGridExtraButtons(buttons, detailGrid);
 
@@ -3478,7 +3478,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var detailPanel = new Ext.TabPanel(subTab);
   
   if(!mainGrid.gridId){
-	  var xbuttons=[mainGrid._dscLabel||'Object','->'];
+	  var xbuttons=[mainGrid._dscLabel||'Object',' ','-'];
 	  xbuttons.push(organizeButtons(mainButtons));
 	  var subToolbar = new Ext.Toolbar({xtype:'toolbar',cls:'iwb-card-sub-toolbar',items:xbuttons}); 
 	  detailPanel = {region:'center', layout:'border', border:false,tbar : subToolbar
@@ -3496,7 +3496,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	  });
 	  var mainGridPanelOrj = mainGridPanel;
-	  mainGridPanel = {region:'west', autoScroll:!0, store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
+	  mainGridPanel = {region:'west', autoScroll:!0, bodyStyle:"    background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
 		  mainGridPanel.bbar = {
@@ -5730,7 +5730,7 @@ function addTab4DetailGridsWSearchForm(obj) {
   var searchFormPanel = new Ext.FormPanel(
     Ext.apply(mainGrid.searchForm.render(), {
       region: "north",
-      bodyStyle: "padding:3px",
+//      bodyStyle: "padding:3px",
       //		height: mainGrid.searchForm.defaultHeight||120,
       autoHeight: true,
       anchor: "100%",
@@ -8126,7 +8126,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     autoScroll: true,
     border: false,
     tbar: btn,
-    bodyStyle: "padding:3px;",
+//    bodyStyle: "padding:3px;",
     iconCls: callAttributes.iconCls || iconCls,
     _title_: callAttributes.title || "Form: " + getForm.name,
     _width_: getForm.defaultWidth,

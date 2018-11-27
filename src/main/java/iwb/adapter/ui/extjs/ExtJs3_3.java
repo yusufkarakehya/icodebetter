@@ -1446,7 +1446,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								b = true;
 							buf.append("Ext.apply(")
 									.append(subFormResult.getForm().getDsc())
-									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",bodyStyle:'min-height:550px',autoScroll:true,xtype:null,layout:'form',title:'")
+									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true,xtype:null,layout:'form',title:'")
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											m.getLocaleMsgKey()))
@@ -1502,7 +1502,7 @@ public class ExtJs3_3 implements ViewAdapter {
 								buf.append(",");
 							else
 								b = true;
-							String extra = "{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",layout:'form',bodyStyle:'min-height:550px',autoScroll:true,title:'"
+							String extra = "{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",layout:'form',bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true,title:'"
 									+ LocaleMsgCache.get2(customizationId,
 											xlocale, m.getLocaleMsgKey()) + "'";
 							// if(formBodyColor!=null)extra+=",bodyStyle:'background-color: #"+formBodyColor+"'";
