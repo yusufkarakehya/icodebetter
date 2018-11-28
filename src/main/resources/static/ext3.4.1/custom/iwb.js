@@ -462,26 +462,54 @@ function fmtPrice(value) {
   return x1 + (_app.decimal_separator || ",") + x2;
 }
 
+function getSel(m){
+  if(m.gridId)return m.sm.getSelected();
+  else {
+	  m=m.getSelectedRecords ? m.getSelectedRecords() : Ext.getCmp(m.id).getSelectedRecords();
+	  if(!m || !m.length)return false;
+	  return m[0];
+  }	
+}
+
+function getSels(m){
+  if(m.gridId)return m.sm.getSelections();
+  else {
+	  m=m.getSelectedRecords ? m.getSelectedRecords() : Ext.getCmp(m.id).getSelectedRecords();
+	  if(!m || !m.length)return false;
+	  return m;
+  }	
+}
+
 function getGridSel(a) {
-  if (!a || !a._grid || !a._grid.sm.getSelected()) {
-    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
+  if (!a || !a._grid) {
+    Ext.infoMsg.msg("error", getLocMsg("js_list_not_defined"));
     return null;
   } else {
-    return a._grid.sm.getSelected();
+	  var m = getSel(a._grid);
+	  if(!m){
+	    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
+	    return null;
+	  }
+    return m;
   }
 }
+
 
 function getMasterGridSel(a) {
   if (
     !a ||
     !a._grid ||
-    !a._grid._masterGrid ||
-    !a._grid._masterGrid.sm.getSelected()
+    !a._grid._masterGrid
   ) {
-    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
+    Ext.infoMsg.msg("error", getLocMsg("js_master_list_not_defined"));
     return null;
   } else {
-    return a._grid._masterGrid.sm.getSelected();
+	  var m = getSel(a._grid._masterGrid);
+	  if(!m){
+	    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
+	    return null;
+	  }
+	  return m;
   }
 }
 
@@ -632,17 +660,18 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
   //tabpanel
   gridDetail.store.baseParams = null;
   if (params) gridDetail._params = params;
-  gridMaster.getSelectionModel().on("selectionchange", function(a, b, c) {
+  var gs = gridMaster.getSelectionModel ?  gridMaster.getSelectionModel() : gridMaster;
+  gs.on("selectionchange", function(a, b, c) {
     if (
       !gridDetail.initialConfig.onlyCommitBtn &&
       gridDetail.initialConfig.editMode
     )
-      gridDetail.btnEditMode.toggle();
-    if (a.hasSelection()) {
+      gridDetail.btnEditMode.toggle(); 
+    if (a.hasSelection ?  a.hasSelection() : a.getSelectionCount()) { //
       if (params || gridDetail._baseParams) {
         gridDetail.store.baseParams = Ext.apply(
           gridDetail._baseParams || {},
-          params ? buildParams(params, a.getSelected().data) : {}
+          params ? buildParams(params, a.getSelected ? a.getSelected().data : a.getSelectedRecords()[0].data) : {}
         );
       }
       if (gridDetail.isVisible() && (!tp || tp.isVisible())) {
@@ -820,7 +849,7 @@ function fnShowDetailDialog(a, b) {
   /*
 	 * TODO memory leak olabilir.
 	 */
-  var sel = a._grid.sm.getSelected(),
+  var sel = getSel(a._grid),
     dv;
   new Ext.Window({
     title: "",
@@ -1159,18 +1188,16 @@ function fnRowEdit(a, b) {
     Ext.infoMsg.msg("warning", getLocMsg("js_yazma_modundan_cikmalisiniz"));
     return;
   }
-  if (!a._grid.sm.hasSelection()) {
+  var sel = getSel(a._grid);
+  if (!sel) {//a._grid.sm.hasSelection()
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
 
   if (a._grid.multiSelect) {
   }
-  var sel = a._grid.sm.getSelected();
   var href =
-    "showForm?" +
-    (_request._dev && 1 * _request._dev ? "_dev=1&" : "") +
-    "a=1&_fid=" +
+    "showForm?a=1&_fid=" +
     a._grid.crudFormId;
   var idz = "";
   for (var key in a._grid._pk) {
@@ -1196,11 +1223,11 @@ function fnRowEdit(a, b) {
 }
 
 function fnRowEdit4Log(a, b) {
-  if (!a._grid.sm.hasSelection()) {
+	  var sel = getSel(a._grid);
+  if (!sel) {//a._grid.sm.hasSelection()
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
-  var sel = a._grid.sm.getSelected();
   var href =
     "showForm?a=1&_fid=" +
     a._cgrid.crudFormId +
@@ -1236,7 +1263,7 @@ function fnDataMoveUpDown(a, b) {
     return;
   }
 
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   promisRequest({
     url:
       "ajaxExecDbFunc?_did=701&ptable_id=" +
@@ -1253,16 +1280,18 @@ function fnRowEditDblClick(a, b) {
   fnRowEdit({ _grid: a.initialConfig }, b);
 }
 
+function fnCardDblClick(a, b) {
+  return   fnRowEdit({ _grid: a}, b);
+}
+
 function fnRowInsert(a, b) {
   if (!a._grid.onlyCommitBtn && a._grid.editMode) {
     Ext.infoMsg.msg("warning", getLocMsg("js_yazma_modundan_cikmalisiniz"));
     return;
   }
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   var href =
-    "showForm?" +
-    (_request._dev && 1 * _request._dev ? "_dev=1&" : "") +
-    "a=2&_fid=" +
+    "showForm?a=2&_fid=" +
     a._grid.crudFormId;
   if (typeof a._grid._postInsert == "function") {
     href = a._grid._postInsert(sel, href, a); // null donerse acilmayacak
@@ -1282,14 +1311,14 @@ function fnRowInsert(a, b) {
   }
 }
 function fnRowCopy(a, b) {
-  if (!a._grid.sm.hasSelection()) {
+  var sel = getSel(a._grid);
+  if (!sel) {//a._grid.sm.hasSelection()
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
 
   if (a._grid.multiSelect) {
   }
-  var sel = a._grid.sm.getSelected();
   var href = "showForm?a=5&_fid=" + a._grid.crudFormId;
   var idz = "";
   for (var key in a._grid._pk) {
@@ -1314,7 +1343,7 @@ function fnRowCopy(a, b) {
   }
 }
 function fnRowDelete(a, b) {
-  if (!a._grid.sm.hasSelection()) {
+  if (!getSel(a._grid)) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
@@ -1377,7 +1406,7 @@ function fnRowDelete(a, b) {
       }
     );
   } else {
-    var sel = a._grid.sm.getSelected();
+    var sel = getSel(a._grid);
     if (a._grid.onlyCommitBtn || a._grid.editMode) {
       var delItem = {};
       for (var key in a._grid._pk) delItem[key] = sel.data[a._grid._pk[key]];
@@ -1581,7 +1610,7 @@ function fnNewFileAttachmentMail(a) {
 
 function fnNewFileAttachment(a) {
   var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil mi onu sorguluyor. (major ver, minor ver, revision no)
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
@@ -1621,7 +1650,7 @@ function fnNewFileAttachment(a) {
 }
 
 function fnNewFileAttachment4ExternalUrl(a) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
     return;
@@ -1678,7 +1707,7 @@ function fnNewFileAttachment4Form(tid, tpk, not_image_flag) {
 }
 
 function fnFileAttachmentList(a) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
     return;
@@ -1902,7 +1931,7 @@ function fnGridPrivilege(a) {
 
 function fnRecordComments(a) {
   //TODO: daha duzgun bir chat interface'i yap
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
@@ -1928,12 +1957,11 @@ function fnRecordComments(a) {
 }
 
 function fnRecordPrivileges(a) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
     return;
   }
-  var sel = a._grid.sm.getSelected();
   var cfg = {
     attributes: {
       modalWindow: true,
@@ -1982,7 +2010,7 @@ function buildHelpWindow(cfg) {
 }
 
 function fnShowLog4Update(a, b) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
     return;
@@ -2331,7 +2359,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
                   modalWindow: true,
                   href: "showPage?_tid=238&_gid1=672",
                   tableId: a._grid.crudTableId,
-                  tablePk: a._grid.sm.getSelected().id
+                  tablePk: getSel(a._grid).id
                 }
               });
             }
@@ -2848,7 +2876,7 @@ function addTab4GridWSearchForm(obj) {
       xtype: "paging",
       store: mainGrid.ds,
       pageSize: mainGrid.pageSize,
-      displayInfo: mainGrid.displayInfo
+      displayInfo: !0
     };
     if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
     grdExtra.tbar = tbarExtra;
@@ -2906,7 +2934,7 @@ function addTab4GridWSearchForm(obj) {
     searchFormPanel = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
         region: "north",
-        bodyStyle: "padding:3px",
+//        bodyStyle: "padding:3px",
         //			height: mainGrid.searchForm.defaultHeight||120,
         autoHeight: true,
         anchor: "100%",
@@ -2990,13 +3018,25 @@ function organizeButtons(items) {
   return items;
 }
 
+function fncCardSearchListener(card){
+	return function(ax,e){
+		if(!ax._delay){
+			ax._delay = new Ext.util.DelayedTask(function() {
+				if(!card.store.baseParams)card.store.baseParams={};
+				card.store.baseParams.xdsc=ax.getValue();
+				card.store.reload();
+			});
+		}
+		ax._delay.delay(200);
+	}
+}
 function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var mainGrid = obj.grid;
   if (obj.pk) mainGrid._pk = obj.pk;
 
   var grdExtra = Ext.apply(
     {
-      region: obj.region || "north",
+      region: obj.region || (mainGrid.gridId?"north":"west"),
       bodyStyle: "border-top: 1px solid #18181a;",
       autoScroll: true,
       border: false
@@ -3008,7 +3048,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
     }
   );
-  if (obj.t) mainGrid.id = obj.t + "-" + mainGrid.gridId;
+  if (obj.t) mainGrid.id = obj.t + "-" + (mainGrid.gridId || mainGrid.dataViewId);
 
   if (grdExtra.region == "north") {
     grdExtra.height = mainGrid.defaultHeight || 120;
@@ -3025,7 +3065,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   }
 
   var buttons = [];
-  if (mainGrid.searchForm && !mainGrid.pageSize) {
+  if (mainGrid.searchForm && !mainGrid.pageSize && mainGrid.gridId) {
     //refresh buttonu
     buttons.push({
       id: "btn_refresh_" + mainGrid.id,
@@ -3075,7 +3115,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       items: mainGrid.menuButtons
     });
     if (1 * _app.toolbar_edit_btn) {
-      if (buttons.length > 0) buttons.push("-");
+      if (buttons.length > 0) buttons.push(mainGrid.gridId?"-":"->");
       buttons.push({
         id: "btn_operations_" + mainGrid.id,
         cls: "x-btn-icon x-grid-menu",
@@ -3088,59 +3128,68 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   //    if (master_flag && master_flag==1)addHelpButton(buttons,mainGrid, 5, mainGrid.gridId);
   //    else addHelpButton(buttons,mainGrid, 64, mainGrid.extraOutMap.tplId);
 
-  if (mainGrid.gridReport) addDefaultReportButtons(buttons, mainGrid);
   mainGrid.isMainGrid = true;
-  addDefaultPrivilegeButtons(buttons, mainGrid);
 
-  if (mainGrid.pageSize) {
-    // paging'li toolbar
-    var tbarExtra = {
-      xtype: "paging",
-      store: mainGrid.ds,
-      pageSize: mainGrid.pageSize,
-      displayInfo: mainGrid.displayInfo
-    };
-    if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
-    grdExtra.tbar = tbarExtra;
-  } else if (buttons.length > 0) {
-    //standart toolbar
-    grdExtra.tbar = organizeButtons(buttons);
+  if(mainGrid.gridId){
+	  if (mainGrid.gridReport) addDefaultReportButtons(buttons, mainGrid);
+	  addDefaultPrivilegeButtons(buttons, mainGrid);
+
+	  if (mainGrid.pageSize) {
+	    // paging'li toolbar
+	    var tbarExtra = {
+	      xtype: "paging",
+	      store: mainGrid.ds,
+	      pageSize: mainGrid.pageSize,
+	      displayInfo: !0
+	    };
+	    if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
+	    grdExtra.tbar = tbarExtra;
+	  } else if (buttons.length > 0) {
+	    //standart toolbar
+	    grdExtra.tbar = organizeButtons(buttons);
+	  }
   }
 
-  //grid
-  var eg = mainGrid.master_column_id
-    ? mainGrid.editGrid
-      ? Ext.ux.maximgb.tg.EditorGridPanel
-      : Ext.ux.maximgb.tg.GridPanel
-    : mainGrid.editGrid
-      ? Ext.grid.EditorGridPanel
-      : Ext.grid.GridPanel;
-  var mainGridPanel = new eg(Ext.apply(mainGrid, grdExtra));
-  mainGrid._gp = mainGridPanel;
-  if (mainGrid.editGrid) {
-    mainGridPanel.getColumnModel()._grid = mainGrid;
-    if (!mainGrid.onlyCommitBtn) {
-      mainGridPanel.getColumnModel().isCellEditable = function(
-        colIndex,
-        rowIndex
-      ) {
-        if (
-          this._grid._isCellEditable &&
-          this._grid._isCellEditable(colIndex, rowIndex, this._grid) === false
-        )
-          return false;
-        return this._grid.editMode;
-      };
-    } else if (mainGrid._isCellEditable)
-      mainGridPanel.getColumnModel().isCellEditable = function(
-        colIndex,
-        rowIndex
-      ) {
-        return this._grid._isCellEditable(colIndex, rowIndex, this._grid);
-      };
-  }
-
-  if (buttons.length > 0) {
+  var mainGridPanel = null;
+  if(mainGrid.gridId){//grid
+	  var eg = mainGrid.master_column_id
+	    ? mainGrid.editGrid
+	      ? Ext.ux.maximgb.tg.EditorGridPanel
+	      : Ext.ux.maximgb.tg.GridPanel
+	    : mainGrid.editGrid
+	      ? Ext.grid.EditorGridPanel
+	      : Ext.grid.GridPanel;
+	  mainGridPanel = new eg(Ext.apply(mainGrid, grdExtra));
+	  mainGrid._gp = mainGridPanel;
+	  if (mainGrid.editGrid) {
+	    mainGridPanel.getColumnModel()._grid = mainGrid;
+	    if (!mainGrid.onlyCommitBtn) {
+	      mainGridPanel.getColumnModel().isCellEditable = function(
+	        colIndex,
+	        rowIndex
+	      ) {
+	        if (
+	          this._grid._isCellEditable &&
+	          this._grid._isCellEditable(colIndex, rowIndex, this._grid) === false
+	        )
+	          return false;
+	        return this._grid.editMode;
+	      };
+	    } else if (mainGrid._isCellEditable)
+	      mainGridPanel.getColumnModel().isCellEditable = function(
+	        colIndex,
+	        rowIndex
+	      ) {
+	        return this._grid._isCellEditable(colIndex, rowIndex, this._grid);
+	      };
+	  } 
+	} else { //card
+		mainGridPanel=new Ext.DataView(Ext.apply({emptyText: '<br>&nbsp; No Data',
+		    singleSelect:!0, loadMask:!0, 
+		    itemSelector: 'div.icb-card'
+		}, mainGrid));
+	}
+  if (buttons.length > 0 && mainGrid.gridId) {
     mainGridPanel.getSelectionModel().on("selectionchange", function(a, b, c) {
       if (!a || !a.grid) return;
       var titems = a.grid.getTopToolbar().items.items;
@@ -3150,7 +3199,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
     });
   }
-  if (mainGrid.menuButtons /* && !1*_app.toolbar_edit_btn*/) {
+  if (mainGrid.menuButtons && mainGrid.gridId/* && !1*_app.toolbar_edit_btn*/) {
     mainGridPanel.messageContextMenu = mainGrid.menuButtons;
     mainGridPanel.on("rowcontextmenu", fnRightClick);
   }
@@ -3160,7 +3209,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     var searchFormPanel = (mainGrid.searchForm.fp = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
         region: "north",
-        bodyStyle: "padding:3px",
+//        bodyStyle: "padding:3px",
         autoHeight: true,
         anchor: "100%",
         collapsible: true,
@@ -3186,10 +3235,11 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     mainGrid.crudFlags.edit &&
     !mainGrid.crudFlags.nonEditDblClick /* && 1*_app.toolbar_edit_btn*/
   ) {
-    mainGridPanel.on("rowdblclick", fnRowEditDblClick);
+    if(mainGrid.gridId)mainGridPanel.on("rowdblclick", fnRowEditDblClick);
+    else mainGridPanel.on("dblclick", fnCardDblClick);
   }
 
-  mainGridPanel.store.on("beforeload", function(a, b) {
+  if(mainGrid.gridId)mainGridPanel.store.on("beforeload", function(a, b) {
     if (searchFormPanel) {
       //mainGridPanel.store._formPanel = searchFormPanel;
       mainGridPanel.store._grid = mainGrid;
@@ -3212,7 +3262,8 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     }
   });
 
-  mainGridPanel.store.on("load", function(a, b) {
+
+  if(mainGrid.gridId)mainGridPanel.store.on("load", function(a, b) {
     if (a.totalLength == 0) return;
     var sm = mainGridPanel.getSelectionModel();
     if (!sm.hasSelection()) sm.selectFirstRow();
@@ -3225,7 +3276,8 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
         .fireEvent("selectionchange", mainGridPanel.getSelectionModel());
     }
   });
-
+  var mainButtons = buttons;
+	  
   //detail tabs
   var detailGridPanels = [];
 
@@ -3293,7 +3345,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
 
       if (detailGrid.crudFlags) addDefaultCrudButtons(buttons, detailGrid);
-      if (detailGrid.moveUpDown) addMoveUpDownButtons(buttons, detailGrid);
+ //     if (detailGrid.moveUpDown) addMoveUpDownButtons(buttons, detailGrid);
       addDefaultSpecialButtons(buttons, detailGrid);
       addGridExtraButtons(buttons, detailGrid);
 
@@ -3386,14 +3438,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       ) {
         detailGridPanel.on("rowdblclick", fnRowEditDblClick);
       }
-      if (detailGrid.extraOutMap && detailGrid.extraOutMap.revMstTableId) {
-        obj.detailGrids[i].params._revMstTableId =
-          "!" + detailGrid.extraOutMap.revMstTableId;
-        obj.detailGrids[i].params._revMstTablePk =
-          detailGrid.extraOutMap.revMstTablePKField;
-        obj.detailGrids[i].params._revDtlTableId =
-          "!" + detailGrid.extraOutMap.revDtlTableId;
-      }
+
       grid2grid(mainGridPanel, detailGridPanel, obj.detailGrids[i].params);
       if (buttons.length > 0) {
         detailGridPanel
@@ -3422,7 +3467,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var subTab = {
     region: "center",
     enableTabScroll: true,
-    activeTab: 0,
+    activeTab: 0, cls:'iwb-detail-tab',
     border: false,
     visible: false,
     items: detailGridPanels,
@@ -3430,11 +3475,51 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   };
 
   if (obj.t) subTab.id = "sub_tab_" + obj.t;
-
+  var detailPanel = new Ext.TabPanel(subTab);
+  
+  if(!mainGrid.gridId){
+	  var xbuttons=[mainGrid._dscLabel||'Object',' ','-'];
+	  xbuttons.push(organizeButtons(mainButtons));
+	  var subToolbar = new Ext.Toolbar({xtype:'toolbar',cls:'iwb-card-sub-toolbar',items:xbuttons}); 
+	  detailPanel = {region:'center', layout:'border', border:false,tbar : subToolbar
+			  ,items:[{region:'north',height:50, html:'<div class="iwb-card-sub-header"><span id="idc-'+mainGrid.id+'"></span></div>'},detailPanel]};
+	  mainGridPanel._subToolbar = subToolbar;
+	  mainGridPanel.on('selectionchange',function(ax, bx){
+		  var sel=ax.getSelectedRecords();
+		  sel = sel && sel.length>0 && sel[0];
+		  if(sel)document.getElementById('idc-'+ax.id).innerHTML=sel.get(ax._dsc||'dsc');
+		  
+	      var titems = ax._subToolbar.items.items;
+	      for (var ti = 0; ti < titems.length; ti++) {
+	        if (titems[ti]._activeOnSelection)
+	          titems[ti].setDisabled(!sel);
+	      }
+	  });
+	  var mainGridPanelOrj = mainGridPanel;
+	  mainGridPanel = {region:'west', autoScroll:!0, bodyStyle:"    background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
+	  if (mainGrid.pageSize) {
+	    // paging'li toolbar
+		  mainGridPanel.bbar = {
+	      xtype: "paging",
+	      store: mainGrid.store,
+	      pageSize: mainGrid.pageSize,
+	      displayInfo: !0
+	    };
+	  } 
+	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0"
+		  ,items:[new Ext.form.TextField({emptyText:'Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}, style:'font-size:20px !important;padding:7px;',width:mainGridPanel.width})
+//		  ,{xtype:'field',}
+		  ]};
+	  if (mainButtons.length > 0) {
+	    //standart toolbar
+		 // mainGridPanel.tbar = organizeButtons(mainButtons);
+	  }
+  }
+  
   lastItems.push({
     region: "center",
     layout: "border",
-    items: [mainGridPanel, new Ext.TabPanel(subTab)]
+    items: [mainGridPanel, detailPanel]
   });
   var p = {
     layout: "border",
@@ -3444,7 +3529,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     items: lastItems,
     refreshGrids: obj._dontRefresh
       ? null
-      : searchFormPanel
+      : searchFormPanel || !mainGrid.gridId
         ? [mainGridPanel]
         : null
   };
@@ -4378,7 +4463,7 @@ function handleMouseDown(g, rowIndex, e) {
 }
 
 function approveTableRecord(aa, a) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   var rec_id;
 
   if (!sel) {
@@ -5381,7 +5466,7 @@ function fnRowInsert2(a, b) {
 }
 
 function fnRowDelete2(a, b) {
-  var sel = a._grid.sm.getSelected();
+  var sel = getSel(a._grid);
   if (!sel) return;
   if (a._grid._deleteControl && a._grid._deleteControl(sel, a._grid) == false) {
     return;
@@ -5645,7 +5730,7 @@ function addTab4DetailGridsWSearchForm(obj) {
   var searchFormPanel = new Ext.FormPanel(
     Ext.apply(mainGrid.searchForm.render(), {
       region: "north",
-      bodyStyle: "padding:3px",
+//      bodyStyle: "padding:3px",
       //		height: mainGrid.searchForm.defaultHeight||120,
       autoHeight: true,
       anchor: "100%",
@@ -8041,7 +8126,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     autoScroll: true,
     border: false,
     tbar: btn,
-    bodyStyle: "padding:3px;",
+//    bodyStyle: "padding:3px;",
     iconCls: callAttributes.iconCls || iconCls,
     _title_: callAttributes.title || "Form: " + getForm.name,
     _width_: getForm.defaultWidth,

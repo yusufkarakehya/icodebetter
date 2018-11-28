@@ -82,16 +82,16 @@ public class IWBException extends RuntimeException {
 			if(sql!=null)b.append(",\n\"sql\":\"").append(GenericUtil.stringToJS2(sql)).append("\"");
 			if(!GenericUtil.isEmpty(this.stack) && this.stack.size()>1){
 				b.append(",\n\"icodebetter\":[");
-				String lastErrorMsg="";
+				boolean q = false;
 				if(!GenericUtil.isEmpty(uri)){
 					b.append("{\"errorType\":\"request\",\"objectType\":\"Web.Request\",\"error\":\"").append(uri).append("\"}");
-					lastErrorMsg = uri;					
+					q = true;;					
 				}
 				for(int qi=stack.size()-1;qi>=0;qi--){
-					if(lastErrorMsg!=null && lastErrorMsg.length()>0)b.append(",");
+					if(q)b.append(","); else q=true;
 					IWBException iw = (IWBException)stack.get(qi);
 //					if(lastErrorMsg.equals(iw.getMessage()))continue;
-					lastErrorMsg = iw.getMessage();
+					//lastErrorMsg = iw.getMessage();
 					b.append("{\"errorType\":\"").append(iw.getErrorType()).append("\"");
 					if(!GenericUtil.isEmpty(iw.getMessage()))b.append(",\"error\":\"").append(GenericUtil.stringToJS2(iw.getMessage())).append("\"");
 					if(!GenericUtil.isEmpty(iw.getSql()))b.append(",\"sql\":\"").append(GenericUtil.stringToJS2(iw.getSql())).append("\"");

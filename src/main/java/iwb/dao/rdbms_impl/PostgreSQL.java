@@ -2146,7 +2146,7 @@ public class PostgreSQL extends BaseDAO {
       dr.setCard(FrameworkCache.getDataView(projectId, dataViewId));
     }
     if (dr.getCard() == null) {
-      loadDataView(dr);
+      loadCard(dr);
       if (FrameworkSetting.preloadWEngine != 0) FrameworkCache.addDataView(projectId, dr.getCard());
     }
     // search Form
@@ -2161,7 +2161,7 @@ public class PostgreSQL extends BaseDAO {
     return dr;
   }
 
-  private void loadDataView(W5CardResult dr) {
+  private void loadCard(W5CardResult dr) {
     String projectId = FrameworkCache.getProjectId(dr.getScd(), "930." + dr.getDataViewId());
     W5Card d =
         (W5Card)
@@ -2223,6 +2223,37 @@ public class PostgreSQL extends BaseDAO {
                 projectId,
                 null);
     if (searchFormId != null) d.set_searchFormId(searchFormId);
+    if (d.getDefaultCrudFormId() != 0) {
+        W5Form defaultCrudForm =
+            (W5Form)
+                getCustomizedObject(
+                    "from W5Form t where t.formId=? and t.projectUuid=?",
+                    d.getDefaultCrudFormId(),
+                    projectId,
+                    "Form"); // ozel bir client icin varsa
+
+        if (defaultCrudForm != null) {
+          //				defaultCrudForm.set_sourceTable(PromisCache.getTable(customizationId,
+          // defaultCrudForm.getObjectId()));
+          W5Table t =
+              FrameworkCache.getTable(
+                  projectId,
+                  defaultCrudForm
+                      .getObjectId()); // PromisCache.getTable(f.getScd(), f.getForm().getObjectId())
+          d.set_defaultCrudForm(defaultCrudForm);
+
+		  d.set_crudFormSmsMailList(
+		            find(
+		                "from W5FormSmsMail t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.formId=? AND t.projectUuid=? order by t.tabOrder",
+		                d.getDefaultCrudFormId(), projectId));
+		  d.set_crudFormConversionList(
+		            find(
+		                "from W5Conversion t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.srcFormId=? AND t.projectUuid=? order by t.tabOrder",
+		                d.getDefaultCrudFormId(), projectId));
+
+		    
+        }
+    }
   }
 
   public W5GridResult getGridResult(
