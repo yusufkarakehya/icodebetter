@@ -985,7 +985,7 @@ header .phone .theme-switch a+a {
 }
 
 .ext-strict .x-form-text, .ext-strict .x-small-editor .x-form-text {
-    height: 23px !important;
+    height: 25px !important;
     border-width: 1px;
 }
 
@@ -1150,7 +1150,7 @@ header .phone .theme-switch a+a {
     color: #ddd !important;
 }
 .x-form-field-wrap .x-form-trigger{
-	height:26px;
+	height:28px;
 }
 .x-small-editor .x-form-field-wrap .x-form-trigger {
     height: 29px;
