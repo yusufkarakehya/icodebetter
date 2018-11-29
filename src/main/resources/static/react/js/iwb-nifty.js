@@ -4008,9 +4008,9 @@ class XMainGrid extends GridCommon {
           var rowSDetailGrids = [];
           for (var DGindex = 0; DGindex < tempDetailGrids.length; DGindex++) {
             if (
-              tempDetailGrids.length >= 1 ||
-              selfie.state["dg-" + tempDetailGrids[DGindex].grid.gridId]
+              tempDetailGrids.length >= 1 
             ) {
+              var show = (selfie.state.hasOwnProperty('dg-' + tempDetailGrids[DGindex].grid.gridId))?selfie.state['dg-' + tempDetailGrids[DGindex].grid.gridId]:true;
               var detailXGrid = {
                 ...{ pk: tempDetailGrids[DGindex].pk || {} },
                 ...tempDetailGrids[DGindex].grid
@@ -4022,7 +4022,7 @@ class XMainGrid extends GridCommon {
                 );
               else detailXGrid.rows = row.row[detailXGrid.detailRowsFieldName];
               detailXGrid.detailFlag = true;
-              rowSDetailGrids.push(
+              show && rowSDetailGrids.push(
                 _(
                   "li",
                   { key: DGindex, className: "timeline-inverted" },
