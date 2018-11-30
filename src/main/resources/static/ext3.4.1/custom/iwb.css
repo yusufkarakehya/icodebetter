@@ -161,7 +161,7 @@ a:hover {
 
 /*.x-form-field, .x-combo-list-item, .x-form-item {font-size:14px;margin-bottom: 1px}*/
 .x-form .label {border: none; background: none; color: #000D1F}
-.required .x-form-text, .required textarea.x-form-field, div.x-grid3-hd-inner.required {border-left: 2px solid red !important}
+.required .x-form-text, .required textarea.x-form-field, div.x-grid3-hd-inner.required {border-left: 1px solid red !important}
 .edit_form .x-form-text {border-top: 1px solid orange !important}
 .required_edit_form .x-form-text, div.x-grid3-hd-inner.required {border-left: 2px solid red !important;border-top: 1px solid orange !important}
 
@@ -294,6 +294,14 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 .x-grid-edit .x-btn-text {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='%23ddd' viewBox='0 0 32 32'%3E%3Cpath d='M18 14.45v6.55h-16v-12h6.743l1.978-2h-10.721v16h20v-10.573l-2 2.023zm1.473-10.615l1.707 1.707-9.281 9.378-2.23.472.512-2.169 9.292-9.388zm-.008-2.835l-11.104 11.216-1.361 5.784 5.898-1.248 11.103-11.218-4.536-4.534z'/%3E%3C/svg%3E");
 	background-position: 0 0;
+}
+
+.x-grid-search .x-btn-text {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='%23ddd' viewBox='0 0 32 32'%3E%3Cpath d='M23.809 21.646l-6.205-6.205c1.167-1.605 1.857-3.579 1.857-5.711 0-5.365-4.365-9.73-9.731-9.73-5.365 0-9.73 4.365-9.73 9.73 0 5.366 4.365 9.73 9.73 9.73 2.034 0 3.923-.627 5.487-1.698l6.238 6.238 2.354-2.354zm-20.955-11.916c0-3.792 3.085-6.877 6.877-6.877s6.877 3.085 6.877 6.877-3.085 6.877-6.877 6.877c-3.793 0-6.877-3.085-6.877-6.877z'/%3E%3C/svg%3E");
+	background-position: 0 0;
+}
+.x-layout-cmini-north, .x-layout-cmini-south {
+    height: 0px!important;
 }
 
 .x-grid-menu .x-btn-text {
@@ -1194,4 +1202,25 @@ td.x-grid3-hd-over, td.sort-desc, td.sort-asc, td.x-grid3-hd-menu-open {
 
 .noty_theme__metroui.noty_type__warning {
     background-color: #11589b;
+}
+
+.iwb-search-form .x-form-text, 
+.iwb-search-form .x-small-editor .x-form-text{
+height:21px !important;	
+font-size:13px !important;
+}
+.iwb-search-form .x-form-field-wrap .x-form-trigger {
+    height: 24px !important;
+}
+.iwb-search-form .x-form-item {
+    margin-bottom: 2px;
+}
+
+.iwb-search-form .x-fieldset {
+    padding: 0 0 7px 10px;
+    margin-bottom: 0px;
+}
+.iwb-search-form .x-panel-header{
+	font-size:13px;
+	color: #aaa !important;
 }

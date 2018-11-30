@@ -2250,7 +2250,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
       for (var qz = 0; qz < xgrid.formConversionList.length; qz++) {
         xgrid.formConversionList[qz]._grid = xgrid;
         xgrid.formConversionList[qz].handler = function(aq, bq, cq) {
-          var sels = aq._grid.sm.getSelections();
+          var sels = getSels(aq._grid);
           if (!sels || !sels.length) return;
           if (aq.preview) {
             for (var qi = 0; qi < sels.length; qi++)
@@ -2292,7 +2292,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
       for (var qz = 0; qz < xgrid.formSmsMailList.length; qz++) {
         xgrid.formSmsMailList[qz]._grid = xgrid;
         xgrid.formSmsMailList[qz].handler = function(aq, bq, cq) {
-          var sel = aq._grid.sm.getSelected();
+          var sel = getSel(aq._grid);
           if (!sel) return;
           mainPanel.loadTab({
             attributes: {
@@ -2403,7 +2403,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
         text: getLocMsg("onay_iste"),
         _grid: xgrid,
         handler: function(a, e) {
-          var sels = a._grid.sm.getSelections();
+          var sels = getSels(a._grid);
           if (sels.length == 0) {
             Ext.Msg.show({
               title: getLocMsg("error"),
@@ -2722,7 +2722,7 @@ function addDefaultGridPersonalizationButtons(xbuttons, xgrid) {
 
 function addDefaultPrivilegeButtons(xbuttons, xgrid) {
   if (_scd.administratorFlag || _scd.customizationId == 0) {
-    xbuttons.push(xgrid.gridReport ? "-" : "->");
+    if(!xgrid.gridReport)xbuttons.push("->");
     var xxmenu = [],
       bx = false;
     if (_scd.customizationId == 0) {
@@ -2933,7 +2933,7 @@ function addTab4GridWSearchForm(obj) {
   if (mainGrid.searchForm) {
     searchFormPanel = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
-        region: "north",
+        region: "north", cls:'iwb-search-form',
 //        bodyStyle: "padding:3px",
         //			height: mainGrid.searchForm.defaultHeight||120,
         autoHeight: true,
@@ -3208,7 +3208,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   if (mainGrid.searchForm) {
     var searchFormPanel = (mainGrid.searchForm.fp = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
-        region: "north",
+        region: "north",cls:'iwb-search-form',
 //        bodyStyle: "padding:3px",
         autoHeight: true,
         anchor: "100%",
@@ -3507,7 +3507,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	    };
 	  } 
 	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0"
-		  ,items:[new Ext.form.TextField({emptyText:'Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}, style:'font-size:20px !important;padding:7px;',width:mainGridPanel.width})
+		  ,items:[new Ext.form.TextField({emptyText:'Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}, style:'font-size:20px !important;padding:7px;border:0;border-bottom:1px solid #d64e20;',width:mainGridPanel.width})
 //		  ,{xtype:'field',}
 		  ]};
 	  if (mainButtons.length > 0) {
@@ -5729,7 +5729,7 @@ function addTab4DetailGridsWSearchForm(obj) {
     detailGridTabPanel = null;
   var searchFormPanel = new Ext.FormPanel(
     Ext.apply(mainGrid.searchForm.render(), {
-      region: "north",
+      region: "north",cls:'iwb-search-form',
 //      bodyStyle: "padding:3px",
       //		height: mainGrid.searchForm.defaultHeight||120,
       autoHeight: true,
