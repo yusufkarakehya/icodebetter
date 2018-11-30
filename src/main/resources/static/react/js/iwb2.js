@@ -2727,6 +2727,7 @@ class XEditGridSF extends GridCommon {
         editingRowIds,
         selection
       } = this.state;
+      let addedRowsTemp = addedRows;
       rows = rows.slice();
       selection.forEach(rowId => {
         if (rowId > 0) {
@@ -2734,7 +2735,7 @@ class XEditGridSF extends GridCommon {
             row => row[this.props.keyField] === rowId
           );
           if (index > -1) {
-            addedRows.push({ ...rows[index] });
+            addedRowsTemp = [{ ...rows[index] }];
           }
         }
       });
@@ -2751,7 +2752,7 @@ class XEditGridSF extends GridCommon {
         });
       return {
         searchFormData,
-        inserted: addedRows,
+        inserted: addedRowsTemp,
         deleted: deletedRows,
         _state: this.state,
         _this: this,
@@ -3362,16 +3363,19 @@ class XEditGrid extends GridCommon {
         max = 10;
       }
       //merge new imported data
+      let pkInsert = this.state.pkInsert;
       inserted.forEach(data => {
         var merged = { ...searchFormData, ...data };
         merged = { ...merged, ...merged._new };
         merged.tab_order = max;
         merged.max = max;
+        --pkInsert;
+        merged[this.props.keyField] = pkInsert;
         tempRow.push(merged);
         max += 10;
       });
       //Adds data to the grit from the popup
-      this.setState({ addedRows: [...addedRows, ...tempRow] });
+      this.setState({ addedRows: [...addedRows, ...tempRow], pkInsert });
     };
     /**
      * to get all data from grid editing + noneEdited at current time
@@ -4036,9 +4040,9 @@ class XMainGrid extends GridCommon {
           var rowSDetailGrids = [];
           for (var DGindex = 0; DGindex < tempDetailGrids.length; DGindex++) {
             if (
-              tempDetailGrids.length >= 1 ||
-              selfie.state["dg-" + tempDetailGrids[DGindex].grid.gridId]
+              tempDetailGrids.length >= 1 
             ) {
+              var show = (selfie.state.hasOwnProperty('dg-' + tempDetailGrids[DGindex].grid.gridId))?selfie.state['dg-' + tempDetailGrids[DGindex].grid.gridId]:true;
               var detailXGrid = {
                 ...{ pk: tempDetailGrids[DGindex].pk || {} },
                 ...tempDetailGrids[DGindex].grid
@@ -4050,7 +4054,7 @@ class XMainGrid extends GridCommon {
                 );
               else detailXGrid.rows = row.row[detailXGrid.detailRowsFieldName];
               detailXGrid.detailFlag = true;
-              rowSDetailGrids.push(
+              show && rowSDetailGrids.push(
                 _(
                   "li",
                   { key: DGindex, className: "timeline-inverted" },
