@@ -3787,6 +3787,7 @@ function ajaxErrorHandler(obj) {
 
 var lw = null;
 function ajaxAuthenticateUser() {
+  iwb.mask(!0);
   Ext.getCmp("loginForm")
     .getForm()
     .submit({
@@ -3798,8 +3799,9 @@ function ajaxAuthenticateUser() {
         (_scd.projectId ? "&projectId=" + _scd.projectId : ""),
       method: "POST",
       clientValidation: true,
-      waitMsg: getLocMsg("js_entering") + "...",
+//      waitMsg: getLocMsg("js_entering") + "...",
       success: function(o, resp) {
+        iwb.mask();
         if (resp.result.success) {
           if (resp.result.smsFlag) {
             Ext.MessageBox.prompt("SMS Doğrulama", "Mobil Onay Kodu", function(
@@ -3846,6 +3848,7 @@ function ajaxAuthenticateUser() {
         }
       },
       failure: function(o, resp) {
+        iwb.mask();
         var resp = eval("(" + resp.response.responseText + ")");
         if (resp.errorMsg) {
           Ext.infoMsg.alert("error", resp.errorMsg, "error");
@@ -3941,9 +3944,10 @@ function showLoginDialog(xobj) {
 
 function formSubmit(submitConfig) {
   var cfg = {
-    waitMsg: getLocMsg("js_please_wait"),
+//    waitMsg: getLocMsg("js_please_wait"),
     clientValidation: true,
     success: function(form, action) {
+      iwb.mask();
       var myJson = eval("(" + action.response.responseText + ")");
       var jsonQueue = [];
       if (myJson.smsMailPreviews && myJson.smsMailPreviews.length > 0) {
@@ -4066,6 +4070,7 @@ function formSubmit(submitConfig) {
       }
     },
     failure: function(form, action) {
+      iwb.mask();
       switch (action.failureType) {
         case Ext.form.Action.CLIENT_INVALID:
           Ext.infoMsg.msg(
@@ -4105,6 +4110,7 @@ function formSubmit(submitConfig) {
     { ".p": _scd.projectId },
     submitConfig.extraParams || {}
   );
+  iwb.mask(!0);
   submitConfig.formPanel.getForm().submit(cfg);
 }
 
@@ -4114,17 +4120,19 @@ function promisLoadException(a, b, c) {
   } else Ext.infoMsg.wow("error", getLocMsg("js_no_connection_error"));
 }
 
+iwb.mask=function(x){
+	try{
+	    document.getElementById("loading-mask-full").style.display = x?"block":"none";
+	    document.getElementById("loading-mask").style.display = x?"block":"none";
+	}catch(e){}
+}
 function promisRequest(rcfg) {
   var reqWaitMsg = 1 * _app.request_wait_msg;
   if (typeof rcfg.requestWaitMsg == "boolean") {
     if (rcfg.requestWaitMsg) reqWaitMsg = 1;
     else reqWaitMsg = 0;
   }
-  if (reqWaitMsg == 1) {
-    document.getElementById("loading-mask-full").style.display = "block";
-    document.getElementById("loading-mask").style.display = "block";
-    //		Ext.Msg.wait((rcfg.requestWaitMsg == '' ||typeof rcfg.requestWaitMsg == 'undefined' || typeof rcfg.requestWaitMsg == 'boolean') ? getLocMsg('js_please_wait') : rcfg.requestWaitMsg);
-  }
+  if (reqWaitMsg == 1)iwb.mask(!0);
   if (!rcfg.params) rcfg.params = {};
   rcfg.params[".w"] = _webPageId;
   rcfg.params[".p"] = _scd.projectId;
@@ -4132,11 +4140,7 @@ function promisRequest(rcfg) {
     Ext.apply(
       {
         success: function(a, b, c) {
-          if (reqWaitMsg == 1) {
-            //	    		Ext.Msg.hide();
-            document.getElementById("loading-mask-full").style.display = "none";
-            document.getElementById("loading-mask").style.display = "none";
-          }
+          if (reqWaitMsg == 1)iwb.mask();
           if (rcfg.successResponse) rcfg.successResponse(a, b, c);
           else
             try {
@@ -4183,11 +4187,7 @@ function promisRequest(rcfg) {
             }
         },
         failure: function(a, b, c) {
-          if (reqWaitMsg == 1) {
-            //	    		Ext.Msg.hide();
-            document.getElementById("loading-mask-full").style.display = "none";
-            document.getElementById("loading-mask").style.display = "none";
-          }
+          if (reqWaitMsg == 1)iwb.mask();
           promisLoadException(a, b, c);
         }
       },
