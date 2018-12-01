@@ -3506,8 +3506,11 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      displayInfo: !0
 	    };
 	  } 
-	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0"
-		  ,items:[new Ext.form.TextField({emptyText:'Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}, style:'font-size:20px !important;padding:7px;border:0;border-bottom:1px solid #d64e20;',width:mainGridPanel.width})
+	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0",style:'border-bottom:1px solid #d64e20;background:#323840;'
+		  ,items:[new Ext.form.TextField({emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}
+		  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:300})
+		  ,'->',{cls:'x-btn-icon x-grid-search',tooltip:'Advanced Search',handler:function(){}}
+		  ,{cls:'x-btn-icon x-grid-sort',tooltip:'Sort',handler:function(){}}
 //		  ,{xtype:'field',}
 		  ]};
 	  if (mainButtons.length > 0) {
@@ -4019,7 +4022,7 @@ function formSubmit(submitConfig) {
         var str = "";
         if (myJson.msgs) str = myJson.msgs.join("<br>") + "<p>";
         if (myJson.logErrors) str += prepareLogErrors(myJson);
-        Ext.infoMsg.alert("info", str);
+        Ext.infoMsg.msg("info", str);
 
         //            	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
       } /*else if(1*_app.mail_send_background_flag!=0 && myJson.outs && myJson.outs.thread_id){ //DEPRECATED

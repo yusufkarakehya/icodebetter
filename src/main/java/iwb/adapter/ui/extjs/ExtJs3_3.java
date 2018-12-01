@@ -1121,8 +1121,7 @@ public class ExtJs3_3 implements ViewAdapter {
 															.substring(0, 5))
 													.append("\",").append(FieldDefinitions.queryFieldName_HierarchicalData).append(":")
 													.append(serializeTableHelperList(
-															customizationId,
-															xlocale,
+															fr.getScd(),
 															co.get_relatedRecord()));
 											if (fsm.getSynchOnUpdateFlag() != 0)
 												s.append(",sync:true");
@@ -1490,7 +1489,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.append(formResult.isViewMode() ? (gridResult.getGrid().getTreeMasterFieldId() == 0 ? "Ext.grid.GridPanel": "Ext.ux.maximgb.tg.GridPanel")
 											: (gridResult.getGrid().getTreeMasterFieldId() == 0 ? "Ext.grid.EditorGridPanel" : "Ext.ux.maximgb.tg.EditorGridPanel"))
 									.append("(Ext.apply(").append(gridResult.getGrid().getDsc())
-									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",bodyStyle:'border-top: 1px solid #18181a;min-height:").append(gridResult.getGrid().getDefaultHeight())
+									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",border:false,bodyStyle:'min-height:").append(gridResult.getGrid().getDefaultHeight())
 									.append("',title:'").append(LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey()))
 									.append("',height:").append(gridResult.getGrid().getDefaultHeight())
 									.append(",autoScroll:true,clicksToEdit: 1*_app.edit_grid_clicks_to_edit}))");
@@ -1678,7 +1677,7 @@ public class ExtJs3_3 implements ViewAdapter {
 													: "Ext.ux.maximgb.tg.EditorGridPanel"))
 									.append("(Ext.apply(")
 									.append(gridResult.getGrid().getDsc())
-									.append(",{bodyStyle:'border-top: 1px solid #18181a;',title:'")
+									.append(",{border:false,bodyStyle:'',title:'")
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											m.getLocaleMsgKey()))
@@ -1869,7 +1868,7 @@ public class ExtJs3_3 implements ViewAdapter {
 														: "Ext.ux.maximgb.tg.EditorGridPanel"))
 										.append("(Ext.apply(")
 										.append(gridResult.getGrid().getDsc())
-										.append(",{bodyStyle:'border-top: 1px solid #18181a;',title:'")
+										.append(",{border:false,bodyStyle:'',title:'")
 										.append(LocaleMsgCache.get2(
 												customizationId, xlocale,
 												m.getLocaleMsgKey()))
@@ -6004,14 +6003,13 @@ public class ExtJs3_3 implements ViewAdapter {
 		}
 	}
 
-	private StringBuilder serializeTableHelperList(int customizationId,
-			String xlocale, List<W5TableRecordHelper> ltrh) {
+	private StringBuilder serializeTableHelperList(Map scd, List<W5TableRecordHelper> ltrh) {
 		StringBuilder buf = new StringBuilder();
 		boolean bq = false;
 		buf.append("[");
 		if (ltrh != null)
 			for (W5TableRecordHelper trh : ltrh) {
-				W5Table dt = FrameworkCache.getTable(customizationId,
+				W5Table dt = FrameworkCache.getTable(scd,
 						trh.getTableId());
 				if (dt == null)
 					break;
@@ -6026,7 +6024,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						.append(",\"tcc\":")
 						.append(trh.getCommentCount())
 						.append(",\"tdsc\":\"")
-						.append(LocaleMsgCache.get2(customizationId, xlocale,
+						.append(LocaleMsgCache.get2(scd,
 								dt.getDsc())).append("\"")
 						.append(",\"dsc\":\"")
 						.append(GenericUtil.stringToJS2(trh.getRecordDsc()))
@@ -6301,8 +6299,7 @@ public class ExtJs3_3 implements ViewAdapter {
 							&& o[o.length - 1] != null) {
 						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":")
 								.append(serializeTableHelperList(
-										customizationId,
-										xlocale,
+										qr.getScd(),
 										(List<W5TableRecordHelper>) o[o.length - 1]));
 					}
 					buf.append("}"); // satir
@@ -6348,8 +6345,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			if (pr.getMasterRecordList() != null
 					&& !pr.getMasterRecordList().isEmpty())
 				buf.append("\n_mrl=")
-						.append(serializeTableHelperList(customizationId,
-								xlocale, pr.getMasterRecordList()))
+						.append(serializeTableHelperList(pr.getScd(), pr.getMasterRecordList()))
 						.append(";\n");
 			// request
 			buf.append("var _request=")
