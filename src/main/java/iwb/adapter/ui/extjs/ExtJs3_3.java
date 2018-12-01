@@ -1940,9 +1940,14 @@ public class ExtJs3_3 implements ViewAdapter {
 		// if(xtype!=null)buf.append("{frame:true,xtype:'").append(xtype).append("'");
 		buf.append(xtype);
 		int lc = 0;
-		for (W5FormCellHelper fc : formCells)
-			if (fc.getFormCell().getActiveFlag() != 0)
-				lc = Math.max(lc, fc.getFormCell().getTabOrder() / 1000);
+		int[] maxWidths = new int[100];
+		for (W5FormCellHelper fc : formCells)if (fc.getFormCell().getActiveFlag() != 0) {
+			int columnOrder = fc.getFormCell().getTabOrder() / 1000;
+			int w = fc.getFormCell().getControlWidth();
+			if(w<0) w=300;
+			maxWidths[columnOrder] = Math.max(w, maxWidths[columnOrder]);
+			lc = Math.max(lc, columnOrder);
+		}
 		if (lc == 0) {// hersey duz
 			buf.append(",\nitems:[");// ,\nautoHeight:false
 			boolean b = false;
@@ -2012,20 +2017,20 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(",\nlayout:'column',\nitems:[");
 			StringBuilder columnBuf = new StringBuilder();
 			boolean b = false;
-			int order = -1;
+			int columnOrder = -1;
 			for (int i = 0; i < formCells.size(); i++) {
 				W5FormCellHelper fc = formCells.get(i);
 				if (fc.getFormCell().getActiveFlag() == 0)
 					continue;
 				if (fc.getFormCell().getControlTip() != 0) {
-					if (fc.getFormCell().getTabOrder() / 1000 != order) {
-						order = fc.getFormCell().getTabOrder() / 1000;
+					if (fc.getFormCell().getTabOrder() / 1000 != columnOrder) {
+						columnOrder = fc.getFormCell().getTabOrder() / 1000;
 						if (columnBuf.length() > 0) {
 							buf.append(columnBuf.append("]},"));
 							columnBuf.setLength(0);
 						}
-						columnBuf
-								.append("{layout:'form',border:false,columnWidth:")
+						int columnWidth = Math.max(maxWidths[columnOrder], 200) + 150;
+						columnBuf.append("{layout:'form',border:false,minW:").append(columnWidth).append(",style:'min-width:").append(columnWidth).append("px;max-width:").append(200+columnWidth).append("px;',columnWidth:")
 								.append(1.0 / (lc + 1)).append(",items:[");
 						b = false;
 					}

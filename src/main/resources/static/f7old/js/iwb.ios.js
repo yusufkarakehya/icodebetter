@@ -71,8 +71,7 @@ document.addEventListener("deviceready",onDeviceReady,false);
 iwb.app = new Framework7({
     modalTitle: iwb.logo(40), cache:false,animatePages:true,sortable:false,//swipeout:false,
     preprocess: function (content, url, next, aq) {
-    	if(iwb.debug)console.log('preprocess: ' + url);
-    	console.log('content -  ', content);
+    	if(iwb.debug)console.log('preprocess: ' + url, content);
     	//console.log(content);console.log(url);console.log(next);console.log(aq);
     	if(url && url.indexOf('showM')>-1)try{
     		var j = eval('('+content+')');
