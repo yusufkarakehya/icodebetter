@@ -873,7 +873,7 @@ function fnShowDetailDialog(a, b) {
         }),
         tpl: a._grid.detailView,
         autoScroll: true,
-        itemSelector: "table.mva-detail"
+        itemSelector: "div.icb-card"
       }))
     ]
   }).show();
@@ -3496,7 +3496,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	  });
 	  var mainGridPanelOrj = mainGridPanel;
-	  mainGridPanel = {region:'west', autoScroll:!0, bodyStyle:"    background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
+	  mainGridPanel = {region:'west', cls:'icb-main-card',autoScroll:!0, bodyStyle:"background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
 		  mainGridPanel.bbar = {
@@ -7230,9 +7230,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "sb_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ikaydet",
         handler: function(a, b, c) {
           if (
@@ -7357,9 +7355,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cc_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "isave_cont",
         handler: function(a, b, c) {
           if (
@@ -7400,9 +7396,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cn_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "isave_new",
         handler: function(a, b, c) {
           var r = null;
@@ -7439,9 +7433,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     id: "cl_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
-    style: {
-      margin: "0px 5px 0px 5px"
-    },
+//    style: {margin: "0px 5px 0px 5px"},
     iconCls: "ikapat",
     handler: function(a, b, c) {
       function closeMe() {
@@ -7474,9 +7466,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "af_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-      style: {
-        margin: "0px 5px 0px 5px"
-      },
+//      style: {margin: "0px 5px 0px 5px"},
       iconCls: "ifile_attach",
       menu: [
         {
@@ -7551,9 +7541,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "sapp_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-      style: {
-        margin: "0px 5px 0px 5px"
-      },
+//      style: {margin: "0px 5px 0px 5px"},
       iconCls: "app_req",
       handler: function(a, b, c) {
         var r = null;
@@ -7590,9 +7578,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "uapp_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-      style: {
-        margin: "0px 5px 0px 5px"
-      },
+//      style: {margin: "0px 5px 0px 5px"},
       iconCls: "app_req",
       handler: function(a, b, c) {
         var r = null;
@@ -7634,9 +7620,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "dapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "app_req",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(901, getForm, getForm.approval.dynamic);
@@ -7649,9 +7633,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         tooltip: getForm.approval.stepDsc,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "iapprove",
         handler: function(a, b, c) {
           if (!getForm.viewMode) {
@@ -7695,9 +7677,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           id: "gbapp_" + getForm.id,
           iconAlign: "top",
           scale: "medium",
-          style: {
-            margin: "0px 5px 0px 5px"
-          },
+//          style: {margin: "0px 5px 0px 5px"},
           iconCls: "ireturn",
           handler: function(a, b, c) {
             submitAndApproveTableRecord(2, getForm);
@@ -7709,9 +7689,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "rapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ireject",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(3, getForm);
@@ -7722,9 +7700,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "lapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ilog",
         handler: function(a, b, c) {
           mainPanel.loadTab({
@@ -7793,9 +7769,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         tooltip: "Others...",
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_info",
         menu: toolButtons
       });
@@ -7804,9 +7778,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     	tooltip: "Record Info",
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_info",
         handler: function() {
           fnTblRecEdit(getForm.crudTableId, pk, false);
@@ -7865,9 +7837,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             }
           }
         },
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_comment",
         handler: function(a, b, c) {
           if (a._commentCount)
@@ -7918,9 +7888,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     id: "ttemp_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
-    style: {
-      margin: "0px 5px 0px 5px"
-    },
+//    style: {margin: "0px 5px 0px 5px"},
     iconCls: "ibookmark",
     handler: function(a, b, c) {
       if (!getForm._loaded) {
@@ -8013,7 +7981,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   });
 
   if (_scd.customizationId == 0) {
-    btn.push("-");
+//    btn.push("-");
     var menuItems = [];
     if (_scd.administratorFlag) {
       menuItems.push({
@@ -8113,9 +8081,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "fs_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-      style: {
-        margin: "0px 5px 0px 5px"
-      },
+//      style: {margin: "0px 5px 0px 5px"},
       iconCls: "isettings",
       menu: {
         items: menuItems

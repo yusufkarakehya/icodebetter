@@ -135,8 +135,8 @@ a:hover {
     border: none !important;;
     background-color: #3f4757;
 }
-.x-window-body form{
-    background: linear-gradient(#353d4b,#3f4757);	
+.x-window-body form {
+    padding-top: 10px !important;
 }
 .x-tab-strip span.x-tab-strip-text {
     color: #d5d5d5;
@@ -1111,6 +1111,12 @@ header .phone .theme-switch a+a {
 .x-btn {
 	padding: 7px 6px !important;
     transition: background-color .3s;	
+}
+.icb-main-card .x-btn {
+    padding: 3px 2px !important;
+}
+.icb-main-card .x-panel-bbar .x-toolbar, .icb-main-card .x-panel-tbar .x-toolbar{
+	padding:0 !important;
 }
 .x-btn.x-btn-over{
 	background: #485261;
