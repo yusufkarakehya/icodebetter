@@ -2933,11 +2933,11 @@ function addTab4GridWSearchForm(obj) {
   if (mainGrid.searchForm) {
     searchFormPanel = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
-        region: "north", cls:'iwb-search-form',
-//        bodyStyle: "padding:3px",
-        //			height: mainGrid.searchForm.defaultHeight||120,
-        autoHeight: true,
-        anchor: "100%",
+          region: "north", autoHeight: true,anchor: "100%",
+//          region: "west", width:300,
+        cls:'iwb-search-form',
+        
+        
         collapsible: true,
         animate: false,
         animCollapse: false,
@@ -3208,10 +3208,9 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   if (mainGrid.searchForm) {
     var searchFormPanel = (mainGrid.searchForm.fp = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
-        region: "north",cls:'iwb-search-form',
-//        bodyStyle: "padding:3px",
-        autoHeight: true,
-        anchor: "100%",
+        region: "north",autoHeight: true, anchor: "100%",
+//        region: "west", width:300,
+        cls:'iwb-search-form',
         collapsible: true,
         animate: false,
         animCollapse: false,
@@ -5732,11 +5731,10 @@ function addTab4DetailGridsWSearchForm(obj) {
     detailGridTabPanel = null;
   var searchFormPanel = new Ext.FormPanel(
     Ext.apply(mainGrid.searchForm.render(), {
-      region: "north",cls:'iwb-search-form',
-//      bodyStyle: "padding:3px",
-      //		height: mainGrid.searchForm.defaultHeight||120,
-      autoHeight: true,
-      anchor: "100%",
+      region: "north",autoHeight: true, anchor: "100%",
+//      region: "west", width:300,
+      cls:'iwb-search-form',
+      
       collapsible: true,
       animate: false,
       animCollapse: false,
