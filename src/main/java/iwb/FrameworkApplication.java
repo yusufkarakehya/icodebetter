@@ -6,9 +6,11 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+//import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 @SpringBootApplication
 @ServletComponentScan
+/*@EnableRedisHttpSession*/
 public class FrameworkApplication {
 
 	@Bean

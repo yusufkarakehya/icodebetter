@@ -1545,7 +1545,7 @@ Ext.infoMsg = {
     var c = {
       text: msg,
       theme: "metroui",
-      type: type || "warning",
+      type: type || "info",
       modal: !0,
       layout: "center",
       animation: { open: null, close: null },
