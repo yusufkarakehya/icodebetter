@@ -2116,7 +2116,8 @@ class XGridRowAction extends React.PureComponent {
         isOpen,
         rowData,
         menuButtons,
-        crudFlags: { edit, remove }
+        crudFlags: { edit, remove },
+        parentCt
       },
       props: { onEditClick, onDeleteClick },
       toggle
@@ -2163,7 +2164,7 @@ class XGridRowAction extends React.PureComponent {
               cls = cls.split('|');
               return _(
                 DropdownItem,
-                { key: text, onClick: handler.bind(this.state), className:cls[1] },
+                { key: text, onClick: event=>handler.call(this.state,event, rowData, parentCt), className:cls[1] },
                 _("span", { className: 'mr-2 ' + cls[0] }),
                 text
               );
