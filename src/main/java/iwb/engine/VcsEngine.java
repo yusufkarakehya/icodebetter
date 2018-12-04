@@ -26,6 +26,7 @@ import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5VcsAction;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5Project;
+import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
@@ -299,7 +300,7 @@ public class VcsEngine {
 			else {
 				StringBuilder s = new StringBuilder();
 				s.append("select x.* from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-				if(t.get_tableParamList().size()>1)s.append(" AND x.customization_id=").append(customizationId);
+				s.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
 				List p= new ArrayList();p.add(tablePk);
 				Map mo =(Map)dao.executeSQLQuery2Map(s.toString(), p).get(0);
 				
@@ -358,7 +359,7 @@ public class VcsEngine {
 		else {
 			StringBuilder s = new StringBuilder();
 			s.append("select x.* from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-			if(t.get_tableParamList().size()>1)s.append(" AND x.customization_id=").append(customizationId);
+			s.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
 			List p= new ArrayList();p.add(tablePk);
 			Map mo =(Map)dao.executeSQLQuery2Map(s.toString(), p).get(0);
 			
@@ -441,7 +442,7 @@ public class VcsEngine {
 							t = FrameworkCache.getTable(customizationId, srvTableId);
 							sql = new StringBuilder();
 							sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-							if(t.get_tableParamList().size()>1)sql.append(" AND x.customization_id=").append(customizationId);
+							sql.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
 							Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 							summaryParams = (List)res[1];summaryParams.add(0);
 							ssql=((StringBuilder)res[0]).toString();
@@ -612,7 +613,7 @@ public class VcsEngine {
 							if(t==null)continue;
 							sql = new StringBuilder();
 							sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-							if(t.get_tableParamList().size()>1)sql.append(" AND x.customization_id=").append(customizationId);
+							sql.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
 							Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 							summaryParams = (List)res[1];summaryParams.add(0);
 							ssql=((StringBuilder)res[0]).toString();
@@ -765,6 +766,17 @@ public class VcsEngine {
 						pm.put(key, l = new ArrayList());
 					}
 					l.add(od);					
+				} else {
+					int masterTableId =t.get_tableParentList().get(0).getTableId(); 
+					String key = masterTableId + ".-666";
+					W5Table mt = FrameworkCache.getTable(po, masterTableId);
+					od[9]=key;//"Missing Parent: " + (t==null ? ""+masterTableId:mt.getDsc()+" ("+masterTableId+")");
+					od[10]=1;
+					List l = pm.get(key);
+					if(l==null){
+						pm.put(key, l = new ArrayList());
+					}
+					l.add(od);		
 				}
 			} else{ 
 				od[10]=1;
@@ -866,30 +878,41 @@ public class VcsEngine {
 			String[] k = key.replace('.', ',').split(",");
 			int tableId = GenericUtil.uInt(k[0]);
 			W5Table t = FrameworkCache.getTable(0, tableId);
-			if(t==null){
-				continue;
-			}
-			List<W5TableRecordHelper> pr = dao.findRecordParentRecords(qr.getScd(), tableId, GenericUtil.uInt(k[1]), 1, false);
-			if(!GenericUtil.isEmpty(pr)){
+//			if(t==null){ continue; }
+			int tablePk = GenericUtil.uInt(k[1]);
+			if(t== null || tablePk == -666){
 				Object[] od = new Object[14]; 
 				od[0]=key;
 				od[8]=key;
-				od[1]=t.getTableId();//table Desc
-				od[2]="("+pm.get(key).size()+") " +  t.getDsc();//table Desc
-				od[6]=pr.get(0).getRecordDsc();//server vcsCommitId
+				od[1]=tableId;//table Desc
+				od[2]="("+pm.get(key).size()+") " +  (t==null ? "(table not found: "+tableId+")":t.getDsc());//table Desc
+				od[6]="Missing Parent";//server vcsCommitId
 				od[7]=0;//server vcsCommitId
 				od[10]=0;
 				qr.getData().add(od);
 			} else {
-				Object[] od = new Object[14]; 
-				od[0]=key;
-				od[1]=t.getTableId();//table Desc
-				od[8]=key;
-				od[2]="("+pm.get(key).size()+") " +  t.getDsc();//table Desc
-				od[6]="(parent not found)";//server vcsCommitId
-				od[7]=0;//server vcsCommitId
-				od[10]=0;
-				qr.getData().add(od);
+				List<W5TableRecordHelper> pr = dao.findRecordParentRecords(qr.getScd(), tableId, tablePk, 1, false);
+				if(!GenericUtil.isEmpty(pr)){
+					Object[] od = new Object[14]; 
+					od[0]=key;
+					od[8]=key;
+					od[1]=t.getTableId();//table Desc
+					od[2]="("+pm.get(key).size()+") " +  t.getDsc();//table Desc
+					od[6]=pr.get(0).getRecordDsc();//server vcsCommitId
+					od[7]=0;//server vcsCommitId
+					od[10]=0;
+					qr.getData().add(od);
+				} else {
+					Object[] od = new Object[14]; 
+					od[0]=key;
+					od[1]=t.getTableId();//table Desc
+					od[8]=key;
+					od[2]="("+pm.get(key).size()+") " +  t.getDsc();//table Desc
+					od[6]="(parent not found)";//server vcsCommitId
+					od[7]=0;//server vcsCommitId
+					od[10]=0;
+					qr.getData().add(od);
+				}
 			}
 		}
 
@@ -1259,7 +1282,7 @@ public class VcsEngine {
 					}
 					StringBuilder sql = new StringBuilder();
 					sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
-					if(t.get_tableParamList().size()>1)sql.append(" AND x.customization_id=").append(customizationId);
+					sql.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
 					Object[] res = DBUtil.filterExt4SQL(sql.toString(), scd, new HashMap(), new HashMap());
 					List summaryParams = (List)res[1];summaryParams.add(0);
 					String ssql=((StringBuilder)res[0]).toString();
@@ -3463,6 +3486,69 @@ public class VcsEngine {
 		if(!url.endsWith("/"))url+="/";
 		url+="serverVCSQueryResult";
 		return HttpUtil.send(url, urlParameters);
+	}
+	public W5QueryResult vcsClientObjectConflicts(Map<String, Object> scd, String key) {
+		int customizationId = (Integer)scd.get("customizationId");
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		
+		String[] keyz = key.replace('.', ',').split(",");
+		
+		
+		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&t="+keyz[0]+"&k="+keyz[1]+"&r="+po.getProjectUuid();
+		String url=po.getVcsUrl();
+		if(!url.endsWith("/"))url+="/";
+		url+="serverVCSObjectPull";
+		String s = HttpUtil.send(url, urlParameters);
+		if(!GenericUtil.isEmpty(s)){
+			JSONObject json;
+			try {
+				json = new JSONObject(s);
+				if(json.get("success").toString().equals("true")){
+					Map<String, Object> mo = null;
+					W5Table t = FrameworkCache.getTable(scd, GenericUtil.uInt(keyz[0]));
+					StringBuilder sql = new StringBuilder();
+					String paramDsc = t.get_tableParamList().get(0).getExpressionDsc();
+					sql.append("select x.* from ").append(t.getDsc()).append(" x where x.").append(paramDsc).append("=?");
+					sql.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
+					List p= new ArrayList();p.add(GenericUtil.uInt(keyz[1]));
+					ArrayList ar = new ArrayList();
+					W5QueryField field = new W5QueryField();field.setDsc("name");field.setTabOrder((short)1);ar.add(field);
+					field = new W5QueryField();field.setDsc("local");field.setTabOrder((short)2);ar.add(field);
+					field = new W5QueryField();field.setDsc("remote");field.setTabOrder((short)3);ar.add(field);
+					field = new W5QueryField();field.setDsc("editor");field.setTabOrder((short)4);ar.add(field);
+					W5QueryResult qr = new W5QueryResult(-1);
+					qr.setNewQueryFields(ar);
+					qr.setScd(scd);qr.setRequestParams(new HashMap());
+					qr.setData(new ArrayList());
+					qr.setErrorMap(new HashMap());qr.setQuery(new W5Query(-1));
+					try {
+						mo =(Map)dao.executeSQLQuery2Map(sql.toString(), p).get(0);
+					} catch(Exception ez){
+						mo = new HashMap();
+					}
+					JSONObject jo = json.getJSONObject("object");
+					for(W5TableField tf:t.get_tableFieldList())if(!GenericUtil.hasPartInside("insert_user_id,version_no,insert_dttm,version_user_id,version_dttm", tf.getDsc())){
+						String k = tf.getDsc();
+						Object lcl = mo.get(k);
+						Object rmt = jo.has(k)?  jo.get(k) : null;
+						if(!GenericUtil.safeEquals(rmt, lcl)){
+							Object[] o = new Object[4];
+							o[0]=k;
+							o[1] = lcl;
+							o[2] = rmt;
+							o[3] = tf.getDefaultControlTip();
+							qr.getData().add(o);
+						}
+					}
+					return qr;
+				}
+			} catch (JSONException e){
+				throw new IWBException("vcs","vcsServerObjectConflicts:JSONException", 0, null, "Error", e);
+			}
+		}
+
+		return null;
 	}
 	
 
