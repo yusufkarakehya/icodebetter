@@ -6677,7 +6677,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(GenericUtil.stringToJS2(trh0.getRecordDsc()))
 				.append("\"");
 		if (tableRecordInfoResult.getInsertUserId() > 0)
-			buf.append(",\nprofile_picture_id:").append(
+			buf.append(",\n\"profile_picture_id\":").append(
 					UserUtil.getUserProfilePicture(tableRecordInfoResult.getInsertUserId()));
 		if (!GenericUtil.isEmpty(tableRecordInfoResult.getVersionDttm())) {
 			buf.append(",\n\"version_no\":")
@@ -6699,19 +6699,19 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append("\"");
 		}
 		if (tableRecordInfoResult.getFileAttachmentCount() != -1)
-			buf.append(",\nfileAttachFlag:true, fileAttachCount:").append(
+			buf.append(",\n\"fileAttachFlag\":true, \"fileAttachCount\":").append(
 					tableRecordInfoResult.getFileAttachmentCount());
 		if (tableRecordInfoResult.getCommentCount() != -1)
-			buf.append(",\ncommentFlag:true, commentCount:").append(
+			buf.append(",\n\"commentFlag\":true, \"commentCount\":").append(
 					tableRecordInfoResult.getCommentCount());
 		if (tableRecordInfoResult.getAccessControlCount() != -1)
-			buf.append(",\naccessControlFlag:true, accessControlCount:")
+			buf.append(",\n\"accessControlFlag\":true, \"accessControlCount\":")
 					.append(tableRecordInfoResult.getAccessControlCount());
 		if (tableRecordInfoResult.getFormMailSmsCount() > 0)
-			buf.append(",\nformSmsMailCount:").append(
+			buf.append(",\n\"formSmsMailCount\":").append(
 					tableRecordInfoResult.getFormMailSmsCount());
 		if (tableRecordInfoResult.getConversionCount() > 0)
-			buf.append(",\nconversionCount:").append(
+			buf.append(",\n\"conversionCount\":").append(
 					tableRecordInfoResult.getConversionCount());
 
 		buf.append(",\n\"parents\":[");// TODO: burda aradan 1 gunluk bir zaman
