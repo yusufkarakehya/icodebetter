@@ -3528,7 +3528,7 @@ public class VcsEngine {
 						mo = new HashMap();
 					}
 					JSONObject jo = json.getJSONObject("object");
-					for(W5TableField tf:t.get_tableFieldList())if(!GenericUtil.hasPartInside("insert_user_id,version_no,insert_dttm,version_user_id,version_dttm", tf.getDsc())){
+					for(W5TableField tf:t.get_tableFieldList())if(tf.getTabOrder()>1 && !GenericUtil.hasPartInside("project_uuid,oproject_uuid,customization_id,insert_user_id,version_no,insert_dttm,version_user_id,version_dttm", tf.getDsc())){
 						String k = tf.getDsc();
 						Object lcl = mo.get(k);
 						Object rmt = jo.has(k)?  jo.get(k) : null;
