@@ -2030,7 +2030,7 @@ public class ExtJs3_3 implements ViewAdapter {
 							columnBuf.setLength(0);
 						}
 						int columnWidth = Math.max(maxWidths[columnOrder], 200) + 150;
-						columnBuf.append("{layout:'form',border:false,minW:").append(columnWidth).append(",style:'min-width:").append(columnWidth).append("px;max-width:").append(200+columnWidth).append("px;',columnWidth:")
+						columnBuf.append("{layout:'form',border:false,minW:").append(columnWidth).append(",style:'min-width:").append(columnWidth).append("px;max-width:").append(150+columnWidth).append("px;',columnWidth:")
 								.append(1.0 / (lc + 1)).append(",items:[");
 						b = false;
 					}
