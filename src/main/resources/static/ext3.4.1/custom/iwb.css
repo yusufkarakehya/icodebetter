@@ -133,7 +133,7 @@ a:hover {
     background-color: #3f4757;
 }
 .x-panel form {
-    padding-top: 20px !important;
+    padding-top: 10px !important;
 }
 .x-panel.iwb-search-form form {
     padding-top: 2px !important;
@@ -1201,8 +1201,8 @@ td.x-grid3-hd-over, td.sort-desc, td.sort-asc, td.x-grid3-hd-menu-open {
 	color:#eee;
 }
 .x-form-display-field {
-    padding-top: 5px;
-    font-size: 14px;
+    padding-top: 6px;
+    font-size: 13px;
 }
 
 .noty_theme__metroui.noty_type__warning {

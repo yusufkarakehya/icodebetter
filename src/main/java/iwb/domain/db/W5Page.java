@@ -35,6 +35,8 @@ public class W5Page implements java.io.Serializable, W5Base {
 	private short localeMsgFlag;
 
 	private String code;
+	private String cssCode;
+	private int versionNo;
 
 	private List<W5PageObject> _pageObjectList;
 	
@@ -152,6 +154,24 @@ public class W5Page implements java.io.Serializable, W5Base {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+
+	@Column(name="css_code")
+	public String getCssCode() {
+		return cssCode;
+	}
+
+	public void setCssCode(String cssCode) {
+		this.cssCode = cssCode;
+	}
+
+	@Column(name="version_no")
+	public int getVersionNo() {
+		return versionNo;
+	}
+
+	public void setVersionNo(int versionNo) {
+		this.versionNo = versionNo;
 	}
 
 }

@@ -3869,11 +3869,11 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append("',name: '").append(cellDsc).append("'");
 
 
-		if (controlTip == 41 && fc.getLookupQueryId()>0 && fc.getLookupQueryId()<5) {//codemirror
+		if (controlTip == 41 && fc.getLookupQueryId()>0 && fc.getLookupQueryId()<6) {//codemirror
 			if(FrameworkSetting.monaco)
-				buf.append(",value:'',language:'").append(new String[]{"javascript","html","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
+				buf.append(",value:'',language:'").append(new String[]{"javascript","html","xml","sql","css"}[fc.getLookupQueryId()-1]).append("'");
 			else 
-				buf.append(",value:'',listeners:{blur:function(aq){if(!aq || !aq.el)return;aq._newValue=aq.getValue();aq._newValue2=aq.el.dom.value;}},mode:'").append(new String[]{"javascript","htmlmixed","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
+				buf.append(",value:'',listeners:{},mode:'").append(new String[]{"javascript","htmlmixed","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
 		}
 
 		if (fc.get_sourceObjectDetail() != null)
@@ -6337,14 +6337,14 @@ public class ExtJs3_3 implements ViewAdapter {
 
 	public StringBuilder serializeTemplate(W5PageResult pr) {
 		boolean replacePostJsCode = false;
-		W5Page template = pr.getPage();
+		W5Page page = pr.getPage();
 
 		StringBuilder buf = new StringBuilder();
 		String code = null;
 		boolean dev = GenericUtil.uInt(pr.getRequestParams(),"_dev")!=0;
 		int customizationId = dev ? 0:(Integer) pr.getScd().get("customizationId");
 		String xlocale = (String) pr.getScd().get("locale");
-		if (template.getTemplateTip() != 0) { // html degilse
+		if (page.getTemplateTip() != 0) { // html degilse
 			// notification Control
 			// masterRecord Control
 			if (pr.getMasterRecordList() != null
@@ -6364,7 +6364,12 @@ public class ExtJs3_3 implements ViewAdapter {
 						.append(GenericUtil.getNextId("tpi")).append("';\n");
 			}
 
-			if (template.getTemplateTip() != 8) { // wizard degilse
+			if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
+				buf.append("iwb.addCss(\"")
+				.append(GenericUtil.stringToJS2(pr.getPage().getCssCode().trim())).append("\",").append(pr.getTemplateId()).append(");\n");
+			}
+			
+			if (page.getTemplateTip() != 8) { // wizard degilse
 				int customObjectCount = 1, tabOrder = 1;
 				for (Object i : pr.getPageObjectList()) {
 					if (i instanceof W5BIGraphDashboard) {
@@ -6438,7 +6443,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			} else { // wizard
 				buf.append("\nvar templateObjects=[");
 				boolean b = false;
-				for (W5PageObject o : template.get_pageObjectList()) {
+				for (W5PageObject o : page.get_pageObjectList()) {
 					if (b)
 						buf.append(",\n");
 					else
@@ -6455,8 +6460,8 @@ public class ExtJs3_3 implements ViewAdapter {
 			if (replacePostJsCode) {
 
 			} else
-				code = template.getCode();
-		} else {
+				code = page.getCode();
+		} else { //html
 			StringBuilder buf2 = new StringBuilder();
 			buf2.append("var _webPageId='").append(GenericUtil.getNextId("wpi"))
 					.append("';\nvar _page_tab_id='")
@@ -6545,17 +6550,7 @@ public class ExtJs3_3 implements ViewAdapter {
 																	// demek ki
 				buf2.append("\nvar _widgetMap={};\n");
 
-				if (template.getCode().contains("${gridColorCss}")) {
-					buf4.append("<style type=\"text/css\">\n");
-					W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
-					for (W5LookUpDetay d : c.get_detayList()) {
-						buf4.append(".bgColor")
-								.append(d.getVal().replace("#", ""))
-								.append("{background-color:")
-								.append(d.getVal()).append(";}\n");
-					}
-					buf4.append("</style>");
-				}
+
 
 			}
 			StringBuilder buf3 = new StringBuilder();
@@ -6566,9 +6561,30 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append("\n");
 			// buf3.append("function getLocMsg(key){if(key==null)return '';var val=_localeMsg[key];return val || key;}\n");
 //			buf3.append("var _CompanyLogoFileId=1;\n");
-			code = template.getCode().replace("${promis}", buf2.toString())
-					.replace("${localemsg}", buf3.toString())
-					.replace("${gridColorCss}", buf4.toString());
+			
+			code = page.getCode().replace("${promis}", buf2.toString())
+					.replace("${localemsg}", buf3.toString());
+			
+			if (page.getCode().contains("${promis-css}")) {
+
+
+				if(!GenericUtil.isEmpty(page.getCssCode()) && page.getCssCode().trim().length()>3){
+					buf4.append(page.getCssCode()).append("\n");
+				}
+				W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
+				for (W5LookUpDetay d : c.get_detayList()) {
+					buf4.append(".bgColor")
+							.append(d.getVal().replace("#", ""))
+							.append("{background-color:")
+							.append(d.getVal()).append(";}\n");
+				}
+				FrameworkCache.addPageCss(pr.getScd(), page.getTemplateId(), buf4.toString());
+				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"/app/dyn-res/"+page.getTemplateId()+".css?.x="+page.getVersionNo()+"\" />");
+
+			}
+
+			
+
 		}
 		/*
 		 * if(templateResult.getTemplateId()==2){ // ana sayfa Map<String,
@@ -6583,13 +6599,13 @@ public class ExtJs3_3 implements ViewAdapter {
 		 */
 		buf.append("\n");
 		if(!GenericUtil.isEmpty(code)){
-			if(template.getTemplateTip()==2 && FrameworkSetting.debug)buf.append("\n/*iwb:start:template:").append(template.getTemplateId()).append(":Code*/\n");
+			if(page.getTemplateTip()==2 && FrameworkSetting.debug)buf.append("\n/*iwb:start:template:").append(page.getTemplateId()).append(":Code*/\n");
 			buf.append(code.startsWith("!") ? code.substring(1) : code);
-			if(template.getTemplateTip()==2 && !GenericUtil.isEmpty(code) && FrameworkSetting.debug)buf.append("\n/*iwb:end:template:").append(template.getTemplateId()).append(":Code*/");
+			if(page.getTemplateTip()==2 && !GenericUtil.isEmpty(code) && FrameworkSetting.debug)buf.append("\n/*iwb:end:template:").append(page.getTemplateId()).append(":Code*/");
 		}
-//		short ttip= pr.getPage().getTemplateTip();
+//		short ttip= page.getTemplateTip();
 //		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(pr.getPageObjectList()))buf.append("\n").append(renderTemplateObject(pr));
-		if(!GenericUtil.isEmpty(pr.getPageObjectList()))switch(pr.getPage().getTemplateTip()){
+		if(!GenericUtil.isEmpty(pr.getPageObjectList()))switch(page.getTemplateTip()){
 		case	2:case	4://page, pop up
 			buf.append("\n").append(renderTemplateObject(pr));
 			break;
@@ -6598,8 +6614,9 @@ public class ExtJs3_3 implements ViewAdapter {
 			break;
 			
 		}
+		
 
-		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
+		return page.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
 				buf.toString(), pr.getScd(),
 				pr.getRequestParams(), null) : buf;
 	}

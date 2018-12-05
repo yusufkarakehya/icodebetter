@@ -67,6 +67,9 @@ public class FrameworkCache {
 	final private static Map<String, List<W5TableChild>> tableChildListMap = new HashMap<String, List<W5TableChild>>();//copy
 	final private static Map<String, List<W5TableChild>> tableParentListMap = new HashMap<String, List<W5TableChild>>();//watch,feed
 */
+	
+	final private static Map<String, Map<Integer, String>> wPageCss = new HashMap<String, Map<Integer, String>>();
+
 	final private static Map<String, Map<Integer, W5Workflow>> wWorkflow = new HashMap<String,Map<Integer, W5Workflow>>();
 	final private static List<W5Customization> wCustomization = new ArrayList<W5Customization>();
 	final private static Map<String, W5Project> wProjects = new HashMap<String, W5Project>(); //projectUuid
@@ -546,6 +549,24 @@ public class FrameworkCache {
 	
 	public static void setWsServersMap(String o, Map m){
 		wWsServers.put(getProjectId(o, null), m);
+	}
+	public static void addPageCss(Object o, int pageId, String css){
+		String p = getProjectId(o,"63."+pageId);
+		Map<Integer, String> m = wPageCss.get(p);
+		if(m==null){
+			m = new HashMap();
+			wPageCss.put(p, m);
+		}
+		m.put(pageId, css);
+	}
+	
+	public static String getPageCss(Object o, int pageId){
+		String p = getProjectId(o,"63."+pageId);
+		Map<Integer, String> m = wPageCss.get(p);
+		if(m==null)return "";
+		String css = m.get(pageId);
+		if(css==null)return "";
+		return css;
 	}
 	
 /*	public static W5TsPortlet getTsPortlet(Map<String, Object> customizationId, int porletId) {

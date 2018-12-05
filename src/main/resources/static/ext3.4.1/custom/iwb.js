@@ -2817,7 +2817,7 @@ function addTab4GridWSearchForm(obj) {
 
   var grdExtra = {
 //    stripeRows: true,
-    region: "center",
+    region: "center", cls:'iwb-grid-'+mainGrid.gridId,
     border: false,
     clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
   };
@@ -3036,7 +3036,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 
   var grdExtra = Ext.apply(
     {
-      region: obj.region || (mainGrid.gridId?"north":"west"),
+      region: obj.region || (mainGrid.gridId?"north":"west"),cls:'iwb-grid-'+mainGrid.gridId,
       bodyStyle: "border-top: 1px solid #18181a;",
       autoScroll: true,
       border: false
@@ -3185,7 +3185,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	  } 
 	} else { //card
 		mainGridPanel=new Ext.DataView(Ext.apply({emptyText: '<br>&nbsp; No Data',
-		    singleSelect:!0, loadMask:!0, 
+		    singleSelect:!0, loadMask:!0, cls:'iwb-card-'+mainGrid.dataViewId,
 		    itemSelector: 'div.icb-card'
 		}, mainGrid));
 	}
@@ -3321,7 +3321,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
-        title: obj.detailGrids[i]._title_ || detailGrid.name,
+        title: obj.detailGrids[i]._title_ || detailGrid.name,cls:'iwb-grid-'+detailGrid.gridId,
 //        stripeRows: true,
         id: "gr" + Math.random(),
         border: false,
@@ -5301,7 +5301,7 @@ function addTab4Portal(obj) {
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
 //        stripeRows: true,
-        id: obj.t + "-" + detailGrid.gridId,
+        id: obj.t + "-" + detailGrid.gridId,cls:'iwb-grid-'+detailGrid.gridId,
         autoScroll: true,
         border: false,
         clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
@@ -5767,7 +5767,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       }
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
-        title: obj.detailGrids[i]._title_ || detailGrid.name,
+        title: obj.detailGrids[i]._title_ || detailGrid.name,cls:'iwb-grid-'+detailGrid.gridId,
 //        stripeRows: true,
         id: "gr" + Math.random(),
         autoScroll: true,
@@ -8261,3 +8261,7 @@ iwb.isMonacoReady = function(e) {
   }
   return true;
 };
+
+iwb.addCss=function(cssCode,id){
+	Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
+}
