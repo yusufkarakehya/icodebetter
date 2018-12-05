@@ -2099,25 +2099,20 @@ class XGridRowAction extends React.PureComponent {
   constructor(props) {
     super(props);
     if (iwb.debug) console.log("XGridRowAction", props);
-    //state setter
-    this.state = {
-      isOpen: false,
-      crudFlags: props.crudFlags,
-      menuButtons: props.menuButtons,
-      parentCt : props.parentCt
-    };
-    //methods
+    this.state = { isOpen: false };
     this.toggle = () => this.setState({ isOpen: !this.state.isOpen });
   }
   render() {
     const {
-      state: {
-        isOpen,
+      state: { isOpen },
+      props: {
+        rowData,
+        parentCt,
         menuButtons,
+        onEditClick,
+        onDeleteClick,
         crudFlags: { edit, remove },
-        parentCt
       },
-      props: { onEditClick, onDeleteClick, rowData },
       toggle
     } = this;
     return _(
