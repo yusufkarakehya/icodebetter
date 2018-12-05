@@ -67,10 +67,7 @@ a:hover {
 #api-tree .x-panel-body {
     background-color: #3f4757;
 }
-#api-tree .x-tree-node {
-    font: normal 15px tahoma, arial, helvetica, sans-serif;
-    padding: 3px;
-}
+
 .x-tree-node-collapsed .x-tree-node-icon, .x-tree-node-expanded .x-tree-node-icon, .x-tree-node-leaf .x-tree-node-icon {
     background-image: none;
     display: none;
@@ -1234,4 +1231,10 @@ font-size:13px !important;
 }
 .iwb-crud-form-toolbar{
     background-color: #1d232f;	
+}
+.x-form-field-wrap .x-form-trigger.x-form-trigger-over {
+    border-bottom-color: #737b8c;
+}
+.x-form-text, textarea.x-form-field {
+    padding: 1px 4px;
 }
