@@ -2099,26 +2099,20 @@ class XGridRowAction extends React.PureComponent {
   constructor(props) {
     super(props);
     if (iwb.debug) console.log("XGridRowAction", props);
-    //state setter
-    this.state = {
-      isOpen: false,
-      rowData: props.rowData,
-      crudFlags: props.crudFlags,
-      menuButtons: props.menuButtons,
-      parentCt : props.parentCt
-    };
-    //methods
+    this.state = { isOpen: false };
     this.toggle = () => this.setState({ isOpen: !this.state.isOpen });
   }
   render() {
     const {
-      state: {
-        isOpen,
+      state: { isOpen },
+      props: {
         rowData,
+        parentCt,
         menuButtons,
-        crudFlags: { edit, remove }
+        onEditClick,
+        onDeleteClick,
+        crudFlags: { edit, remove },
       },
-      props: { onEditClick, onDeleteClick },
       toggle
     } = this;
     return _(
@@ -2163,7 +2157,7 @@ class XGridRowAction extends React.PureComponent {
               cls = cls.split('|');
               return _(
                 DropdownItem,
-                { key: text, onClick: handler.bind(this.state), className:cls[1] },
+                { key: text, onClick: event=>handler.call(this.state , event, rowData, parentCt), className:cls[1] },
                 _("span", { className: 'mr-2 ' + cls[0] }),
                 text
               );
@@ -4040,11 +4034,13 @@ class XMainGrid extends GridCommon {
           var rowSDetailGrids = [];
           for (var DGindex = 0; DGindex < tempDetailGrids.length; DGindex++) {
             if (
-              tempDetailGrids.length >= 1 
+              tempDetailGrids.length >= 1
             ) {
-              var show = (selfie.state.hasOwnProperty('dg-' + tempDetailGrids[DGindex].grid.gridId))?selfie.state['dg-' + tempDetailGrids[DGindex].grid.gridId]:true;
+              var show = (selfie.state.hasOwnProperty('dg-' + tempDetailGrids[DGindex].grid.gridId)) ? selfie.state['dg-' + tempDetailGrids[DGindex].grid.gridId] : true;
               var detailXGrid = {
-                ...{ pk: tempDetailGrids[DGindex].pk || {} },
+                ...{
+                  pk: tempDetailGrids[DGindex].pk || {}
+                },
                 ...tempDetailGrids[DGindex].grid
               };
               if (detailXGrid._url)
@@ -4056,79 +4052,103 @@ class XMainGrid extends GridCommon {
               detailXGrid.detailFlag = true;
               show && rowSDetailGrids.push(
                 _(
-                  "li",
-                  { key: DGindex, className: "timeline-inverted" },
-                  //_(XGridAction,{color:dgColors[DGindex%dgColors.length]}),
+                  "li", {
+                    key: DGindex,
+                    className: "timeline-inverted"
+                  },
+                  // _(XGridAction,{color:dgColors[DGindex%dgColors.length]}),
                   !detailXGrid._hideTimelineBadgeBtn &&
-                    _(
-                      "div",
-                      {
-                        className:
-                          "timeline-badge hover-shake " +
-                          dgColors[DGindex % dgColors.length],
-                        dgindex: DGindex,
-                        onClick: event => {
-                          var DGindexDOM = +event.target.getAttribute("dgindex");
-                          if (iwb.debug)
-                            console.log(
-                              "dasss",
-                              DGindexDOM,
-                              tempDetailGrids[DGindexDOM].grid
-                            );
-                          if (!!selfie._timelineBadgeBtn) {
-                            selfie._timelineBadgeBtn(
-                              event,
-                              selfie.props,
-                              tempDetailGrids[DGindexDOM].grid,
-                              row.row,
-                              selfie
-                            );
-                          } else {
-                            selfie.onOnNewRecord(
-                              event,
-                              tempDetailGrids[DGindexDOM].grid,
-                              row.row
-                            );
-                          }
-                        },
-                        style: { cursor: "pointer" }
-                      },
-                      _("i", {
-                        className: "icon-grid",
-                        style: { fontSize: 17 },
-                        dgindex: DGindex
-                      })
-                    ),
                   _(
-                    "div",
-                    {
+                    "div", {
+                      className: "timeline-badge hover-shake " +
+                        dgColors[DGindex % dgColors.length],
+                      dgindex: DGindex,
+                      onClick: event => {
+                        var DGindexDOM = +event.target.getAttribute("dgindex");
+                        if (iwb.debug)
+                          console.log(
+                            "dasss",
+                            DGindexDOM,
+                            tempDetailGrids[DGindexDOM].grid
+                          );
+                        if (!!selfie._timelineBadgeBtn) {
+                          selfie._timelineBadgeBtn(
+                            event,
+                            selfie.props,
+                            tempDetailGrids[DGindexDOM].grid,
+                            row.row,
+                            selfie
+                          );
+                        } else {
+                          selfie.onOnNewRecord(
+                            event,
+                            tempDetailGrids[DGindexDOM].grid,
+                            row.row
+                          );
+                        }
+                      },
+                      style: {
+                        cursor: "pointer"
+                      }
+                    },
+                    _("i", {
+                      className: "icon-grid",
+                      style: {
+                        fontSize: 17
+                      },
+                      dgindex: DGindex
+                    })
+                  ),
+                  _(
+                    "div", {
                       className: "timeline-panel",
-                      ...(!!detailXGrid._hideTimelineBadgeBtn
-                        ? { style: { left: "30px" } }
-                        : {})
+                      ...(!!detailXGrid._hideTimelineBadgeBtn ? {
+                        style: {
+                          left: "30px"
+                        }
+                      } : {})
                     },
                     _(
-                      "div",
-                      { className: "timeline-heading" },
+                      "div", {
+                        className: "timeline-heading mb-1"
+                      },
                       _(
-                        "h5",
-                        {
-                          /**style:{paddingBottom: '10px'},*/ className:
-                            "timeline-title"
+                        "span", {
+                          className: "timeline-title pr-3 h5"
                         },
-                        detailXGrid.name
-                      )
+                        detailXGrid.name,
+                      ),
+                      detailXGrid.extraButtons && detailXGrid.extraButtons.map((props, index) => {
+                        if (props.type === "button") {
+                          var {click,text,icon} = props;
+                          var cls = icon.split('|');
+                          return _(
+                            Button, {
+                              key: 'key' + index,
+                              size: 'sm',
+                              outline: true,
+                              className: 'btn-round-shadow hover-to-show-link ml-1 ' + cls[1],
+                              color: dgColors[index % dgColors.length],
+                              onClick: event => click( event, detailXGrid, row.row )
+                            },
+                            cls[0] && _('i', { className: 'icon-' + cls[0] }),
+                            text && _('span', { className: 'hover-to-show'}, text)
+                          )
+                        }
+                      })
+                      /**
+                       * other inputs will be added when there will be need
+                       */
                       // _('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},
                       // 	_('i',{ className: "icon-arrow-up", style:{marginRight: '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
                     ),
                     _(XGrid, {
                       responsive: true,
                       openTab: selfie.props.openTab,
-                      showDetail: tempDetailGrids[DGindex].detailGrids
-                        ? selfie.showDetail2(
-                            tempDetailGrids[DGindex].detailGrids
-                          )
-                        : false,
+                      showDetail: tempDetailGrids[DGindex].detailGrids ?
+                        selfie.showDetail2(
+                          tempDetailGrids[DGindex].detailGrids
+                        ) : false,
                       ...detailXGrid
                     })
                   )
@@ -4138,7 +4158,9 @@ class XMainGrid extends GridCommon {
           } //for end
           return (
             rowSDetailGrids.length > 0 &&
-            _("ul", { className: "timeline" }, rowSDetailGrids)
+            _("ul", {
+              className: "timeline"
+            }, rowSDetailGrids)
           );
         } else {
           return null;

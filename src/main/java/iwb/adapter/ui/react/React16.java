@@ -2148,7 +2148,7 @@ public class React16 implements ViewAdapter {
 							buttons.append("iconAlign: 'top', scale:'medium', style:{margin: '0px 5px 0px 5px'},");
 						buttons.append("iconCls:'")
 								.append(toolbarItem.getImgIcon())
-								.append("', click:function(a,b,c){\n")
+								.append("', click:(a,b,c)=>{\n")
 								.append(LocaleMsgCache.filter2(
 										customizationId, xlocale,
 										toolbarItem.getCode())).append("\n}}");
@@ -2157,7 +2157,7 @@ public class React16 implements ViewAdapter {
 						buttons.append("{type:'button'");
 						if(!GenericUtil.isEmpty(toolbarItem.getImgIcon()))buttons.append(", icon:'").append(toolbarItem.getImgIcon()).append("'");
 						buttons.append(", text:'").append(LocaleMsgCache.get2(customizationId,xlocale, toolbarItem.getLocaleMsgKey()))
-								.append("', click:function(a,b,c){\n")
+								.append("', click:(a,b,c)=>{\n")
 								.append(LocaleMsgCache.filter2(
 										customizationId, xlocale,
 										toolbarItem.getCode())).append("\n}}");

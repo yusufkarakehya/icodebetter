@@ -1070,3 +1070,21 @@ main.inbox > div.card-header {
 .fgrow{
     flex-grow: 1;
 }
+/* animating toolbar button */
+.hover-to-show { 
+    visibility: hidden;
+    height: 0;
+    width: 0;
+    opacity: 0;
+    transition: visibility 0s, opacity 1s linear;
+    display: inline-block;
+    padding-left:0; 
+}
+.hover-to-show-link:hover .hover-to-show{
+    visibility: visible;
+    height: auto;
+    width: auto;
+    opacity: 1;
+    padding-left:5px;
+    transition: visibility 0s, opacity 1s linear;
+}
