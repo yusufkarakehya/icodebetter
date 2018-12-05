@@ -2068,7 +2068,6 @@ class XGridRowAction extends React.PureComponent {
     //state setter
     this.state = {
       isOpen: false,
-      rowData: props.rowData,
       crudFlags: props.crudFlags,
       menuButtons: props.menuButtons,
       parentCt : props.parentCt
@@ -2080,12 +2079,11 @@ class XGridRowAction extends React.PureComponent {
     const {
       state: {
         isOpen,
-        rowData,
         menuButtons,
         crudFlags: { edit, remove },
         parentCt
       },
-      props: { onEditClick, onDeleteClick },
+      props: { onEditClick, onDeleteClick, rowData },
       toggle
     } = this;
     return _(
@@ -2130,7 +2128,7 @@ class XGridRowAction extends React.PureComponent {
               cls = cls.split('|');
               return _(
                 DropdownItem,
-                { key: text, onClick: event=>handler.call(this.state,event, rowData, parentCt), className:cls[1] },
+                { key: text, onClick: event=>handler.call(this.state , event, rowData, parentCt), className:cls[1] },
                 _("span", { className: 'mr-2 ' + cls[0] }),
                 text
               );
