@@ -1455,7 +1455,7 @@ html:not (.watch-active-state ) .navbar a.link:active,html:not (.watch-active-st
 	top: auto;
 	height: 1px;
 	width: 100%;
-	background-color: #c4c4c4;
+	background: rgba(0,0,0,.2);
 	display: block;
 	z-index: 15;
 	-webkit-transform-origin: 50% 100%;

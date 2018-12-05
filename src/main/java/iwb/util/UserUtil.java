@@ -1254,6 +1254,7 @@ public class UserUtil {
 		List<Object[]> data=new ArrayList<Object[]>();
 		if(projectMap3.get(projectId)!=null)for(Integer key : projectMap3.get(projectId)){
 			CachedUserBean3 cub = userMap3.get(key);
+			if(cub==null)continue;
 			boolean found = false;
 			if(cub.getSyncSessionMap()!=null && key!=userId && cub.getChatStatusTip()!=0){
 				Map<String, SyncSessionMapHelper3> m = cub.getSyncSessionMap();

@@ -39,14 +39,13 @@ import iwb.util.UserUtil;
 public class F7 implements ViewMobileAdapter2 {
 	final private static String[] labelMap = new String[]{"info","warning","error"};
 	final private static String[] labelMapColor = new String[]{"rgba(33, 150, 243, 0.1)","rgba(255, 152, 0, 0.2);","rgba(255, 0, 0, 0.1);"};
-	private StringBuilder serializeTableHelperList(int customizationId,
-			String xlocale, List<W5TableRecordHelper> ltrh) {
+	private StringBuilder serializeTableHelperList(Map scd, List<W5TableRecordHelper> ltrh) {
 		StringBuilder buf = new StringBuilder();
 		boolean bq = false;
 		buf.append("[");
 		if (ltrh != null)
 			for (W5TableRecordHelper trh : ltrh) {
-				W5Table dt = FrameworkCache.getTable(customizationId,
+				W5Table dt = FrameworkCache.getTable(scd,
 						trh.getTableId());
 				if (dt == null)
 					break;
@@ -61,7 +60,7 @@ public class F7 implements ViewMobileAdapter2 {
 						.append(",\"tcc\":")
 						.append(trh.getCommentCount())
 						.append(",\"tdsc\":\"")
-						.append(LocaleMsgCache.get2(customizationId, xlocale,
+						.append(LocaleMsgCache.get2(scd,
 								dt.getDsc())).append("\"")
 						.append(",\"dsc\":\"")
 						.append(GenericUtil.stringToJS2(trh.getRecordDsc()))
@@ -324,8 +323,7 @@ public class F7 implements ViewMobileAdapter2 {
 							&& o[o.length - 1] != null) {
 						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":")
 								.append(serializeTableHelperList(
-										customizationId,
-										xlocale,
+										queryResult.getScd(),
 										(List<W5TableRecordHelper>) o[o.length - 1]));
 					}
 					buf.append("}"); // satir
@@ -1214,7 +1212,7 @@ public class F7 implements ViewMobileAdapter2 {
 		
 		
 		if (f.getObjectTip() == 2){
-			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
+			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
 			pictureFlag = true;/*PromisCache.getAppSettingIntValue(scd, "attach_picture_flag") != 0
 					&& t.getFileAttachmentFlag() != 0

@@ -121,7 +121,7 @@ function gridStore2JsonString(ds) {
 
 function promisLoadException(a, b, c) {
   if (c && c.responseText) {
-    ajaxErrorHandler(eval("(" + c.responseText + ")"));
+    ajaxErrorHandler(JSON.parse(c.responseText)); //eval("(" + c.responseText + ")")
   } else {
     //    	Ext.Msg.show({title:getLocMsg('js_info'),msg: getLocMsg('js_no_connection_error'),icon: Ext.MessageBox.WARNING})
     showStatusText(getLocMsg("js_no_connection_error"), 3); //error
@@ -873,7 +873,7 @@ function fnShowDetailDialog(a, b) {
         }),
         tpl: a._grid.detailView,
         autoScroll: true,
-        itemSelector: "table.mva-detail"
+        itemSelector: "div.icb-card"
       }))
     ]
   }).show();
@@ -2250,7 +2250,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
       for (var qz = 0; qz < xgrid.formConversionList.length; qz++) {
         xgrid.formConversionList[qz]._grid = xgrid;
         xgrid.formConversionList[qz].handler = function(aq, bq, cq) {
-          var sels = aq._grid.sm.getSelections();
+          var sels = getSels(aq._grid);
           if (!sels || !sels.length) return;
           if (aq.preview) {
             for (var qi = 0; qi < sels.length; qi++)
@@ -2292,7 +2292,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
       for (var qz = 0; qz < xgrid.formSmsMailList.length; qz++) {
         xgrid.formSmsMailList[qz]._grid = xgrid;
         xgrid.formSmsMailList[qz].handler = function(aq, bq, cq) {
-          var sel = aq._grid.sm.getSelected();
+          var sel = getSel(aq._grid);
           if (!sel) return;
           mainPanel.loadTab({
             attributes: {
@@ -2403,7 +2403,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
         text: getLocMsg("onay_iste"),
         _grid: xgrid,
         handler: function(a, e) {
-          var sels = a._grid.sm.getSelections();
+          var sels = getSels(a._grid);
           if (sels.length == 0) {
             Ext.Msg.show({
               title: getLocMsg("error"),
@@ -2722,7 +2722,7 @@ function addDefaultGridPersonalizationButtons(xbuttons, xgrid) {
 
 function addDefaultPrivilegeButtons(xbuttons, xgrid) {
   if (_scd.administratorFlag || _scd.customizationId == 0) {
-    xbuttons.push(xgrid.gridReport ? "-" : "->");
+    if(!xgrid.gridReport)xbuttons.push("->");
     var xxmenu = [],
       bx = false;
     if (_scd.customizationId == 0) {
@@ -2933,11 +2933,11 @@ function addTab4GridWSearchForm(obj) {
   if (mainGrid.searchForm) {
     searchFormPanel = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
-        region: "north",
-//        bodyStyle: "padding:3px",
-        //			height: mainGrid.searchForm.defaultHeight||120,
-        autoHeight: true,
-        anchor: "100%",
+          region: "north", autoHeight: true,anchor: "100%",
+//          region: "west", width:300,
+        cls:'iwb-search-form',
+        
+        
         collapsible: true,
         animate: false,
         animCollapse: false,
@@ -3208,10 +3208,9 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   if (mainGrid.searchForm) {
     var searchFormPanel = (mainGrid.searchForm.fp = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
-        region: "north",
-//        bodyStyle: "padding:3px",
-        autoHeight: true,
-        anchor: "100%",
+        region: "north",autoHeight: true, anchor: "100%",
+//        region: "west", width:300,
+        cls:'iwb-search-form',
         collapsible: true,
         animate: false,
         animCollapse: false,
@@ -3496,7 +3495,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	  });
 	  var mainGridPanelOrj = mainGridPanel;
-	  mainGridPanel = {region:'west', autoScroll:!0, bodyStyle:"    background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
+	  mainGridPanel = {region:'west', cls:'icb-main-card',autoScroll:!0, bodyStyle:"background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
 		  mainGridPanel.bbar = {
@@ -3506,8 +3505,11 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      displayInfo: !0
 	    };
 	  } 
-	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0"
-		  ,items:[new Ext.form.TextField({emptyText:'Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}, style:'font-size:20px !important;padding:7px;',width:mainGridPanel.width})
+	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0",style:'border-bottom:1px solid #d64e20;background:#323840;'
+		  ,items:[new Ext.form.TextField({emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}
+		  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:300})
+		  ,'->',{cls:'x-btn-icon x-grid-search',tooltip:'Advanced Search',handler:function(){}}
+		  ,{cls:'x-btn-icon x-grid-sort',tooltip:'Sort',handler:function(){}}
 //		  ,{xtype:'field',}
 		  ]};
 	  if (mainButtons.length > 0) {
@@ -3816,7 +3818,7 @@ function ajaxAuthenticateUser() {
                     "&smsCode=" +
                     text,
                   success: function(result, request) {
-                    var resp = eval("(" + result.responseText + ")");
+                    var resp = JSON.parse(result.responseText);//eval("(" + result.responseText + ")");
                     if (resp.success) {
                       lw.destroy();
                       hideStatusText();
@@ -3849,10 +3851,9 @@ function ajaxAuthenticateUser() {
       },
       failure: function(o, resp) {
         iwb.mask();
-        var resp = eval("(" + resp.response.responseText + ")");
+        var resp = JSON.parse(resp.response.responseText);//eval("(" + resp.response.responseText + ")");
         if (resp.errorMsg) {
           Ext.infoMsg.alert("error", resp.errorMsg, "error");
-          getSecurityWord();
         } else {
           Ext.infoMsg.alert(
             "error",
@@ -3865,25 +3866,6 @@ function ajaxAuthenticateUser() {
   return false;
 }
 
-function getSecurityWord() {
-  Ext.Ajax.request({
-    url: "ajaxGetSecurityPicture",
-    method: "POST",
-    success: function(result, request) {
-      var resp = eval("(" + result.responseText + ")");
-      if (resp.success && resp.data.length > 0) {
-        var file_name = resp.data[0].file_name;
-        Ext.get("security_div").dom.innerHTML =
-          "<img src=../images/security/" + file_name + ">";
-      } else {
-        if (Ext.get("security_word_table")) {
-          Ext.get("security_word_table").dom.innerHTML = "";
-          Ext.get("securityword_l").dom.innerHTML = "";
-        }
-      }
-    }
-  });
-}
 function showLoginDialog(xobj) {
   if (1 * _scd.customizationId > 0) {
     document.location = "/app/index.html";
@@ -3948,7 +3930,7 @@ function formSubmit(submitConfig) {
     clientValidation: true,
     success: function(form, action) {
       iwb.mask();
-      var myJson = eval("(" + action.response.responseText + ")");
+      var myJson = JSON.parse(action.response.responseText);//eval("(" + action.response.responseText + ")");
       var jsonQueue = [];
       if (myJson.smsMailPreviews && myJson.smsMailPreviews.length > 0) {
         for (var ix = 0; ix < myJson.smsMailPreviews.length; ix++) {
@@ -4019,7 +4001,7 @@ function formSubmit(submitConfig) {
         var str = "";
         if (myJson.msgs) str = myJson.msgs.join("<br>") + "<p>";
         if (myJson.logErrors) str += prepareLogErrors(myJson);
-        Ext.infoMsg.alert("info", str);
+        Ext.infoMsg.msg("info", str);
 
         //            	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
       } /*else if(1*_app.mail_send_background_flag!=0 && myJson.outs && myJson.outs.thread_id){ //DEPRECATED
@@ -4116,7 +4098,7 @@ function formSubmit(submitConfig) {
 
 function promisLoadException(a, b, c) {
   if (c && c.responseText) {
-    ajaxErrorHandler(eval("(" + c.responseText + ")"));
+    ajaxErrorHandler(JSON.parse(c.responseText)); //eval("(" + c.responseText + ")")
   } else Ext.infoMsg.wow("error", getLocMsg("js_no_connection_error"));
 }
 
@@ -4144,7 +4126,7 @@ function promisRequest(rcfg) {
           if (rcfg.successResponse) rcfg.successResponse(a, b, c);
           else
             try {
-              var json = eval("(" + a.responseText + ")");
+              var json = JSON.parse(a.responseText);//eval("(" + a.responseText + ")");
               if (json.success) {
                 if (rcfg.successDs) {
                   if (!rcfg.successDs.length) rcfg.successDs.reload();
@@ -4831,7 +4813,7 @@ function approveTableRecords(aa, a) {
             "application/x-www-form-urlencoded"
           );
           request.send(prms);
-          var json = eval("(" + request.responseText + ")");
+          var json = JSON.parse(request.responseText);//eval("(" + request.responseText + ")");
           Ext.Msg.hide();
           if (json.success) {
             win.close();
@@ -5729,11 +5711,10 @@ function addTab4DetailGridsWSearchForm(obj) {
     detailGridTabPanel = null;
   var searchFormPanel = new Ext.FormPanel(
     Ext.apply(mainGrid.searchForm.render(), {
-      region: "north",
-//      bodyStyle: "padding:3px",
-      //		height: mainGrid.searchForm.defaultHeight||120,
-      autoHeight: true,
-      anchor: "100%",
+      region: "north",autoHeight: true, anchor: "100%",
+//      region: "west", width:300,
+      cls:'iwb-search-form',
+      
       collapsible: true,
       animate: false,
       animCollapse: false,
@@ -6845,6 +6826,71 @@ function vcsPull(xgrid, tid, tpk) {
   });
 }
 
+iwb.valsDiffData = false;
+iwb.showValsDiffinMonaco = function (qi) {
+  var win = new Ext.Window({
+    layout: 'fit',
+    width: 900,
+    height: 800, title: '<span style="color:red">'+iwb.valsDiffData[qi].name+'</span> Field Differences',
+    closeAction: 'destroy',
+    plain: true,
+
+    html: '<div id="idx-mnc2-' + _page_tab_id + '" style="height:770px"></div>',
+    listeners: {
+      'afterrender': function () {
+        var originalModel = monaco.editor.createModel(iwb.valsDiffData[qi].local, "javascript");
+        var modifiedModel = monaco.editor.createModel(iwb.valsDiffData[qi].remote, "javascript");
+
+        var diffEditor = monaco.editor.createDiffEditor(document.getElementById("idx-mnc2-" + _page_tab_id), {
+          // You can optionally disable the resizing
+          enableSplitViewResizing: false,
+
+          // Render the diff inline
+          renderSideBySide: false
+        });
+        diffEditor.setModel({
+          original: originalModel,
+          modified: modifiedModel
+        });
+      }
+    },
+    buttons: [{
+      text: 'Close',
+      handler: function () {
+        win.close();
+      }
+    }]
+  });
+  win.show();
+
+}
+iwb.fnTblRecVCSDiff = function (tid, tpk, a) {
+  promisRequest({
+    url: 'ajaxVCSObjectConflicts', params: { k: tid + '.' + tpk }, requestWaitMsg: true, successCallback: function (j) {
+      if (j.data) {
+        iwb.valsDiffData = j.data;
+        var s = '<table width=100%><thead style="background:rgba(255,255,255,.2)"><tr><td width=10%>name</td><td width=45%>local</td><td width=45%>remote</td></tr></thead>';
+        for (var qi = 0; qi < j.data.length; qi++)
+          if (j.data[qi].editor != 11) s += '<tr style="color: #ccc;"><td>' + j.data[qi].name + '</td><td>' + j.data[qi].local + '</td><td>' + j.data[qi].remote + '</td></tr>';
+          else s += '<tr style="color: #ccc;background:rgba(0,0,0,.2)"><td>' + j.data[qi].name + '</td><td align=center colspan=2><a href=# onclick="return iwb.showValsDiffinMonaco(' + qi + ')">show diff in editor</a></td></tr>';
+        s += '</table>';
+        var wndx = new Ext.Window({
+          modal: true,closeAction: 'destroy',
+          title: 'Record Differences',
+          width: 800,
+          autoHeight: true,
+          html: s,
+          buttons: [{ text: 'Close', handler: function () { wndx.close(); } }]
+        });
+        wndx.show();
+      } else if (j.lcl) fnTblRecEdit(tid, tpk);
+      else alert('Remote:\n' + objProp(j.rmt));
+    }
+  });
+
+}
+
+
 function fncMnuVcs(xgrid) {
   return [
     {
@@ -6913,25 +6959,36 @@ function fncMnuVcs(xgrid) {
       }
     },
     {
-      text: "Ignore",
-      _grid: xgrid,
-      handler: function(aq) {
-        var sel = aq._grid._gp.getSelectionModel().getSelections();
-        sel &&
-          sel.length > 0 &&
-          sel[0].data.pkpkpk_vcsf &&
-          Ext.infoMsg.confirm("Are you sure?", () => {
-            promisRequest({
-              url: "ajaxVCSObjectAction",
-              params: { t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
-              successCallback: function(j) {
-                Ext.infoMsg.msg("success", "Ignored from VCS");
-                aq._grid.ds.reload();
-              }
+        text: "Ignore",
+        _grid: xgrid,
+        handler: function(aq) {
+          var sel = aq._grid._gp.getSelectionModel().getSelections();
+          sel &&
+            sel.length > 0 &&
+            sel[0].data.pkpkpk_vcsf &&
+            Ext.infoMsg.confirm("Are you sure?", () => {
+              promisRequest({
+                url: "ajaxVCSObjectAction",
+                params: { t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
+                successCallback: function(j) {
+                  Ext.infoMsg.msg("success", "Ignored from VCS");
+                  aq._grid.ds.reload();
+                }
+              });
             });
-          });
-      }
-    } /*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
+        }
+      },
+      {
+          text: "Show Diff",
+          _grid: xgrid,
+          handler: function(aq) {
+            var sel = aq._grid._gp.getSelectionModel().getSelections();
+            sel &&
+              sel.length > 0 &&
+              sel[0].data.pkpkpk_vcsf &&
+              iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id);;
+          }
+        } /*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelected();
 			if(sel && sel.data.pkpkpk_vcsf){
 				var cmbSt2=[];
@@ -7227,9 +7284,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "sb_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ikaydet",
         handler: function(a, b, c) {
           if (
@@ -7354,9 +7409,6 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cc_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
         iconCls: "isave_cont",
         handler: function(a, b, c) {
           if (
@@ -7397,9 +7449,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cn_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+
         iconCls: "isave_new",
         handler: function(a, b, c) {
           var r = null;
@@ -7436,9 +7486,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     id: "cl_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
-    style: {
-      margin: "0px 5px 0px 5px"
-    },
+
     iconCls: "ikapat",
     handler: function(a, b, c) {
       function closeMe() {
@@ -7461,7 +7509,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   });
 
   if (getForm.fileAttachFlag) {
-    btn.push("-");
+//    btn.push("-");
     btn.push({
       tooltip:
         "Files" +
@@ -7471,9 +7519,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "af_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-      style: {
-        margin: "0px 5px 0px 5px"
-      },
+
       iconCls: "ifile_attach",
       menu: [
         {
@@ -7548,9 +7594,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "sapp_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-      style: {
-        margin: "0px 5px 0px 5px"
-      },
+
       iconCls: "app_req",
       handler: function(a, b, c) {
         var r = null;
@@ -7587,9 +7631,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "uapp_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-      style: {
-        margin: "0px 5px 0px 5px"
-      },
+
       iconCls: "app_req",
       handler: function(a, b, c) {
         var r = null;
@@ -7631,9 +7673,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "dapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+
         iconCls: "app_req",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(901, getForm, getForm.approval.dynamic);
@@ -7646,9 +7686,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         tooltip: getForm.approval.stepDsc,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "iapprove",
         handler: function(a, b, c) {
           if (!getForm.viewMode) {
@@ -7692,9 +7730,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           id: "gbapp_" + getForm.id,
           iconAlign: "top",
           scale: "medium",
-          style: {
-            margin: "0px 5px 0px 5px"
-          },
+//          style: {margin: "0px 5px 0px 5px"},
           iconCls: "ireturn",
           handler: function(a, b, c) {
             submitAndApproveTableRecord(2, getForm);
@@ -7706,9 +7742,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "rapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ireject",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(3, getForm);
@@ -7719,9 +7753,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "lapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ilog",
         handler: function(a, b, c) {
           mainPanel.loadTab({
@@ -7738,79 +7770,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     }
   }
 
-  //manual form-conversion menu
-  if (1 * getForm.a == 1) {
-    var pk = null,
-      toolButtons = [];
-    for (var xi in getForm.pk)
-      if (xi != "customizationId" && xi != "projectId") {
-        pk = getForm.pk[xi];
-        break;
-      }
-    btn.push("-", " ", " ", " ");
-    if (
-      (getForm.manualConversionForms &&
-        getForm.manualConversionForms.length > 0) ||
-      (getForm.reportList && getForm.reportList.length > 0)
-    ) {
-      toolButtons.push({
-        text: "Record Info",
-        /*iconCls:'icon-info',*/
-        handler: function() {
-          fnTblRecEdit(getForm.crudTableId, pk, false);
-        }
-      });
-      toolButtons.push("-");
-      if (
-        getForm.manualConversionForms &&
-        getForm.manualConversionForms.length > 0
-      ) {
-        for (var xi = 0; xi < getForm.manualConversionForms.length; xi++)
-          getForm.manualConversionForms[xi].handler = function(aq, bq, cq) {
-            mainPanel.loadTab({
-              attributes: {
-                href:
-                  "showForm?a=2&_fid=" +
-                  aq._fid +
-                  "&_cnvId=" +
-                  aq.xid +
-                  "&_cnvTblPk=" +
-                  pk
-              }
-            });
-          };
-        toolButtons.push({
-          text: "Conversion",
-          iconCls: "icon-operation",
-          menu: getForm.manualConversionForms
-        });
-      }
 
-      btn.push({
-        tooltip: "Others...",
-        iconAlign: "top",
-        scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
-        iconCls: "ibig_info",
-        menu: toolButtons
-      });
-    } else {
-      btn.push({
-    	tooltip: "Record Info",
-        iconAlign: "top",
-        scale: "medium",
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
-        iconCls: "ibig_info",
-        handler: function() {
-          fnTblRecEdit(getForm.crudTableId, pk, false);
-        }
-      });
-    }
-  }
 
   if (getForm.extraButtons && getForm.extraButtons.length > 0) {
     btn.push("-");
@@ -7823,7 +7783,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     var xb = false;
     if (getForm.commentFlag) {
       if (xb) {
-        btn.push("-");
+//        btn.push("-");
         xb = false;
       }
       var txt2 =
@@ -7862,9 +7822,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             }
           }
         },
-        style: {
-          margin: "0px 5px 0px 5px"
-        },
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_comment",
         handler: function(a, b, c) {
           if (a._commentCount)
@@ -7915,9 +7873,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     id: "ttemp_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
-    style: {
-      margin: "0px 5px 0px 5px"
-    },
+//    style: {margin: "0px 5px 0px 5px"},
     iconCls: "ibookmark",
     handler: function(a, b, c) {
       if (!getForm._loaded) {
@@ -8010,7 +7966,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   });
 
   if (_scd.customizationId == 0) {
-    btn.push("-");
+//    btn.push("-");
     var menuItems = [];
     if (_scd.administratorFlag) {
       menuItems.push({
@@ -8110,14 +8066,82 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "fs_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-      style: {
-        margin: "0px 5px 0px 5px"
-      },
+//      style: {margin: "0px 5px 0px 5px"},
       iconCls: "isettings",
       menu: {
         items: menuItems
       }
     });
+  }
+
+  //manual form-conversion menu
+  if (1 * getForm.a == 1) {
+    var pk = null,
+      toolButtons = [];
+    for (var xi in getForm.pk)
+      if (xi != "customizationId" && xi != "projectId") {
+        pk = getForm.pk[xi];
+        break;
+      }
+//    btn.push("-", " ", " ", " ");
+    if (
+      (getForm.manualConversionForms &&
+        getForm.manualConversionForms.length > 0) ||
+      (getForm.reportList && getForm.reportList.length > 0)
+    ) {
+      toolButtons.push({
+        text: "Record Info",
+        /*iconCls:'icon-info',*/
+        handler: function() {
+          fnTblRecEdit(getForm.crudTableId, pk, false);
+        }
+      });
+      toolButtons.push("-");
+      if (
+        getForm.manualConversionForms &&
+        getForm.manualConversionForms.length > 0
+      ) {
+        for (var xi = 0; xi < getForm.manualConversionForms.length; xi++)
+          getForm.manualConversionForms[xi].handler = function(aq, bq, cq) {
+            mainPanel.loadTab({
+              attributes: {
+                href:
+                  "showForm?a=2&_fid=" +
+                  aq._fid +
+                  "&_cnvId=" +
+                  aq.xid +
+                  "&_cnvTblPk=" +
+                  pk
+              }
+            });
+          };
+        toolButtons.push({
+          text: "Conversion",
+          iconCls: "icon-operation",
+          menu: getForm.manualConversionForms
+        });
+      }
+
+      btn.push({
+        tooltip: "Others...",
+        iconAlign: "top",
+        scale: "medium",
+//        style: {margin: "0px 5px 0px 5px"},
+        iconCls: "ibig_info",
+        menu: toolButtons
+      });
+    } else {
+      btn.push({
+    	tooltip: "Record Info",
+        iconAlign: "top",
+        scale: "medium",
+//        style: {margin: "0px 5px 0px 5px"},
+        iconCls: "ibig_info",
+        handler: function() {
+          fnTblRecEdit(getForm.crudTableId, pk, false);
+        }
+      });
+    }
   }
 
   var iconCls = getForm.a == 1 ? "icon-edit" : "icon-new";

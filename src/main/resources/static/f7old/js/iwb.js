@@ -9,7 +9,7 @@ var globalSearchFormJson = false;
 
 
 
-var iwb={serverUrl:'./',tpls:{}, debug:true, chatMsgCount:0, newMsgCnt:{}, position:false};
+var iwb={serverUrl:'./',tpls:{}, debug:true, chatMsgCount:0, newMsgCnt:{}, position:false, ajaxTrack:false};
 
 iwb.mobile=3; //web
 iwb.webPageId="iwb-"+new Date().getTime()+"-"+ Math.round(1000*Math.random());
@@ -296,159 +296,152 @@ iwb.hasAny=function(str, list){
 	for(var qi=0;qi<list.length;qi++)if(str.indexOf(list[qi])>=0)return true;
 	return false;
 }*/
-
-$$(document).on('ajaxStart', function (e) {
-	if(iwb.debug)console.log('ajaxStart: ' + e.detail.xhr.requestUrl);
-//	console.log(e.detail);
-	var url=e.detail.xhr.requestUrl;
-	var ts = iwb.getTimeoutStrategy(url), nts=false;
-	if(ts && ts.warn){
-		nts = iwb.apply({xhr: e.detail.xhr}, ts);
-		e.detail.xhr.timeoutId = setTimeout(iwb.timeoutWarnCallback(nts), nts.warn*1000);
-//		nts.id = e.detail.xhr.timeoutId;
-	}
-
-	if(!ts || !ts.d4s){
-		e.detail.xhr.requestId = iwb.addRequest(e.detail.xhr);
-		if(iwb.iosDebug)iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Debug 4 ajaxStart </b>'+e.detail.xhr.requestId,message: url});
-	}
-	
-/*	if(url.indexOf('showMList')>=0 || url.indexOf('showMForm')>=0){ //adRequest'e koy
-		
-	} */
-//	if (!iwb.hasAny(url, iwb.indicatorList))return;
-	if(ts && ts.ind)iwb.showIndicator(e.detail.xhr.requestId);
-});
-$$(document).on('ajaxComplete', function (e) {
-	var xhr = e.detail.xhr;
-	if(iwb.debug)console.log('ajaxComplete: ' + xhr.requestUrl);
-//	console.log(xhr);
-	var id =xhr.requestId; 
-	if(id)iwb.removeRequest(id, 'on.ajaxComplete: ' + id);
-	var url=xhr.requestUrl;
-	
-	var ts = iwb.getTimeoutStrategy(url);
-	if(ts){
-		if(ts.warn && xhr.timeoutId){
-			if(xhr.timeoutId>0){
-				clearTimeout(xhr.timeoutId);
-			} else {
-				iwb.hideProgressbar('warn'+xhr.timeoutId);
-			}
-		} 
-		if(ts.err && xhr.timeoutId2){
-			if(xhr.timeoutId2>0){
-				clearTimeout(xhr.timeoutId2);
-			} else {
-				iwb.hideIndicator('err'+xhr.timeoutId2);
-			}
-		} 
-		if(ts.ind)iwb.hideIndicator(id);
-	}
-	
-//	if (!iwb.hasAny(url, iwb.indicatorList))return;
-});
-$$(document).on('ajaxError', function (e) {
-	var xhr = e.detail.xhr;
-	if(iwb.debug){console.log('ajaxError('+xhr.status+'): ' + e.detail.xhr.requestUrl);console.log(xhr);}
-//	console.log(e.detail.xhr);
-	var id = e.detail.xhr.requestId; 
-	if(id)iwb.removeRequest(id, 'on.ajaxError: ' + id);
-	var url=xhr.requestUrl;
-	
-	var ts = iwb.getTimeoutStrategy(url);
-	if(ts){
-		if(ts.warn && xhr.timeoutId){
-			if(xhr.timeoutId>0){
-				clearTimeout(xhr.timeoutId);
-			} else {
-				iwb.hideProgressbar('warn'+xhr.timeoutId);
-			}
+if(iwb.ajaxTrack){
+	$$(document).on('ajaxStart', function (e) {
+		if(iwb.debug)console.log('ajaxStart: ' + e.detail.xhr.requestUrl);
+	//	console.log(e.detail);
+		var url=e.detail.xhr.requestUrl;
+		var ts = iwb.getTimeoutStrategy(url), nts=false;
+		if(ts && ts.warn){
+			nts = iwb.apply({xhr: e.detail.xhr}, ts);
+			e.detail.xhr.timeoutId = setTimeout(iwb.timeoutWarnCallback(nts), nts.warn*1000);
+	//		nts.id = e.detail.xhr.timeoutId;
 		}
-		if(ts.err && xhr.timeoutId2){
-			if(xhr.timeoutId2>0){
-				clearTimeout(xhr.timeoutId2);
-			} else {
-				iwb.hideIndicator('err'+xhr.timeoutId2);
-			}
-		} 
-	}
 	
-	if(!xhr.status){ // connection error 1: checkSession/ajaxPing(start/resume), 2. asynch/ajaxNotification, 3. shotMList&showMForm, 4. ajaxLogoutUser, 5. Others (ajaxQuery & postForm/Chat, etc..)
-		if(url.indexOf('ajaxPing')>=0){
-        	if(iwb.debug){console.log('ajaxPing-failure');}
-			if(iwb.checkSessionId){
-                iwb.hideProgressbar('session');
-				clearTimeout(iwb.checkSessionId);
-				iwb.checkSessionId = false;
+		if(!ts || !ts.d4s){
+			e.detail.xhr.requestId = iwb.addRequest(e.detail.xhr);
+			if(iwb.iosDebug)iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Debug 4 ajaxStart </b>'+e.detail.xhr.requestId,message: url});
+		}
+		
+	/*	if(url.indexOf('showMList')>=0 || url.indexOf('showMForm')>=0){ //adRequest'e koy
+			
+		} */
+	//	if (!iwb.hasAny(url, iwb.indicatorList))return;
+		if(ts && ts.ind)iwb.showIndicator(e.detail.xhr.requestId);
+	});
+	$$(document).on('ajaxComplete', function (e) {
+		var xhr = e.detail.xhr;
+		if(iwb.debug)console.log('ajaxComplete: ' + xhr.requestUrl);
+	//	console.log(xhr);
+		var id =xhr.requestId; 
+		if(id)iwb.removeRequest(id, 'on.ajaxComplete: ' + id);
+		var url=xhr.requestUrl;
+		
+		var ts = iwb.getTimeoutStrategy(url);
+		if(ts){
+			if(ts.warn && xhr.timeoutId){
+				if(xhr.timeoutId>0){
+					clearTimeout(xhr.timeoutId);
+				} else {
+					iwb.hideProgressbar('warn'+xhr.timeoutId);
+				}
+			} 
+			if(ts.err && xhr.timeoutId2){
+				if(xhr.timeoutId2>0){
+					clearTimeout(xhr.timeoutId2);
+				} else {
+					iwb.hideIndicator('err'+xhr.timeoutId2);
+				}
+			} 
+			if(ts.ind)iwb.hideIndicator(id);
+		}
+		
+	//	if (!iwb.hasAny(url, iwb.indicatorList))return;
+	});
+	$$(document).on('ajaxError', function (e) {
+		var xhr = e.detail.xhr;
+		if(iwb.debug){console.log('ajaxError('+xhr.status+'): ' + e.detail.xhr.requestUrl);console.log(xhr);}
+	//	console.log(e.detail.xhr);
+		var id = e.detail.xhr.requestId; 
+		if(id)iwb.removeRequest(id, 'on.ajaxError: ' + id);
+		var url=xhr.requestUrl;
+		
+		var ts = iwb.getTimeoutStrategy(url);
+		if(ts){
+			if(ts.warn && xhr.timeoutId){
+				if(xhr.timeoutId>0){
+					clearTimeout(xhr.timeoutId);
+				} else {
+					iwb.hideProgressbar('warn'+xhr.timeoutId);
+				}
 			}
-			iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Bağlantı Hatası</b>',message: 'Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), media:info4media(2), hold:5000});
-			iwb.app.confirm('Tekrar Denemek ister misiniz?', function(){//convirmed
-				iwb.checkSession();
-			}, function (){//canceled
+			if(ts.err && xhr.timeoutId2){
+				if(xhr.timeoutId2>0){
+					clearTimeout(xhr.timeoutId2);
+				} else {
+					iwb.hideIndicator('err'+xhr.timeoutId2);
+				}
+			} 
+		}
+		
+		if(!xhr.status){ // connection error 1: checkSession/ajaxPing(start/resume), 2. asynch/ajaxNotification, 3. shotMList&showMForm, 4. ajaxLogoutUser, 5. Others (ajaxQuery & postForm/Chat, etc..)
+			if(url.indexOf('ajaxPing')>=0){
+	        	if(iwb.debug){console.log('ajaxPing-failure');}
+				if(iwb.checkSessionId){
+	                iwb.hideProgressbar('session');
+					clearTimeout(iwb.checkSessionId);
+					iwb.checkSessionId = false;
+				}
+				iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Bağlantı Hatası</b>',message: 'Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), media:info4media(2), hold:5000});
+				iwb.app.confirm('Tekrar Denemek ister misiniz?', function(){//convirmed
+					iwb.checkSession();
+				}, function (){//canceled
+					iwb.longPoll.end();
+					iwb.app.loginScreen();
+				});
+			} else if(url.indexOf('ajaxNotification')>=0){
+				if(iwb.debug){console.log('longPoll-failure');}
+				var j = iwb.longPoll; j.id = false; j.xhr = false;
+				j.error = true;
+				j.errorCount++; 
+				if(j.retryMenuFlag && j.errorCount >= j.lockScreenErrorCount){
+					if(j.errorCount == j.lockScreenErrorCount)iwb.hideProgressbar('longpoll');
+	
+					if(j.started && !j.id){
+						j.retryTimerCount = Math.round(j.errorTimex/1000);
+			            iwb.app.showPreloader('<span style="display: block;">'+ iwb.logo(40) + '</span><a href=# id="idx-timer-link" class="item" style="font-size:16px; color:black; font-weight:normal; margin-top:-10px;" > &nbsp; Bağlantı kesildi... <span id="idx-timer" style="color:red;">'+ j.retryTimerCount +'</span></a>');
+			            var tl= $$('#idx-timer-link');
+			            if(tl && tl.length){
+			            	tl.off('click');
+			            	tl.on('click', function(){
+			            		j.retryTimerCount = 0;
+			            	});
+			            }
+			            setTimeout(j.retryTimer, 1000);
+					}
+				} else {
+					if(j.started && !j.id){
+						j.id = setTimeout(j.doPoll, j.retryMenuFlag ? 1000 : j.errorTimex);
+					    iwb.showProgressbar('longpoll', 'multi');
+					}
+				}
+			} else if(url.indexOf('showMList')>=0 || url.indexOf('showMForm')>=0){
+				if(iwb.debug){console.log('showMList/showMForm-failure');}
+				iwb.hideIndicator(id);
+				iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Bağlantı Hatası</b>',message: 'Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), media:info4media(2), hold:5000});
+				iwb.app.confirm('Tekrar Denemek ister misiniz?', function(){//convirmed
+		            mainView.router.load({url:url+'&.r='+Math.random(), reload:url.indexOf('showM')==0 && url.indexOf('_reload=1')>-1,force: true, ignoreCache:true/*,animatePages:false*/}); //load another page with auth form
+				});
+			} else if(url.indexOf('ajaxLogoutUser')>=0){
+	//			alert('error4ajaxLogoutUser')
+				if(iwb.debug){console.log('ajaxLogoutUser-failure');}
+				_scd=false;
 				iwb.longPoll.end();
 				iwb.app.loginScreen();
-			});
-		} else if(url.indexOf('ajaxNotification')>=0){
-			if(iwb.debug){console.log('longPoll-failure');}
-			var j = iwb.longPoll; j.id = false; j.xhr = false;
-			j.error = true;
-			j.errorCount++; 
-			if(j.retryMenuFlag && j.errorCount >= j.lockScreenErrorCount){
-				if(j.errorCount == j.lockScreenErrorCount)iwb.hideProgressbar('longpoll');
-
-				if(j.started && !j.id){
-					j.retryTimerCount = Math.round(j.errorTimex/1000);
-		            iwb.app.showPreloader('<span style="display: block;">'+ iwb.logo(40) + '</span><a href=# id="idx-timer-link" class="item" style="font-size:16px; color:black; font-weight:normal; margin-top:-10px;" > &nbsp; Bağlantı kesildi... <span id="idx-timer" style="color:red;">'+ j.retryTimerCount +'</span></a>');
-		            var tl= $$('#idx-timer-link');
-		            if(tl && tl.length){
-		            	tl.off('click');
-		            	tl.on('click', function(){
-		            		j.retryTimerCount = 0;
-		            	});
-		            }
-		            setTimeout(j.retryTimer, 1000);
-				}
-			} else {
-				if(j.started && !j.id){
-					j.id = setTimeout(j.doPoll, j.retryMenuFlag ? 1000 : j.errorTimex);
-				    iwb.showProgressbar('longpoll', 'multi');
-				}
+			} else if (ts && ts.ind){ //ajaxAuthenticate,Project
+				if(iwb.debug){console.log('others-failure');}
+				iwb.hideIndicator(id);
+				iwb.app.alert('Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), '<b style="color:red;">Bağlantı Hatası</b>');
+				return;
+			} else { //TODO. requestPoll'dan cikar
+				iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Bağlantı Hatası</b>',message: 'Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), media:info4media(2), hold:5000});
 			}
-		} else if(url.indexOf('showMList')>=0 || url.indexOf('showMForm')>=0){
-			if(iwb.debug){console.log('showMList/showMForm-failure');}
-			iwb.hideIndicator(id);
-			iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Bağlantı Hatası</b>',message: 'Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), media:info4media(2), hold:5000});
-			iwb.app.confirm('Tekrar Denemek ister misiniz?', function(){//convirmed
-	            mainView.router.load({url:url+'&.r='+Math.random(), reload:url.indexOf('showM')==0 && url.indexOf('_reload=1')>-1,force: true, ignoreCache:true/*,animatePages:false*/}); //load another page with auth form
-			});
-		} else if(url.indexOf('ajaxLogoutUser')>=0){
-//			alert('error4ajaxLogoutUser')
-			if(iwb.debug){console.log('ajaxLogoutUser-failure');}
-			_scd=false;
-			iwb.longPoll.end();
-			iwb.app.loginScreen();
-		} else if (ts && ts.ind){ //ajaxAuthenticate,Project
-			if(iwb.debug){console.log('others-failure');}
-			iwb.hideIndicator(id);
-			iwb.app.alert('Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), '<b style="color:red;">Bağlantı Hatası</b>');
 			return;
-		} else { //TODO. requestPoll'dan cikar
-			iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Bağlantı Hatası</b>',message: 'Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), media:info4media(2), hold:5000});
 		}
-		return;
-	}
-	/*
-	if(iwb.checkSessionId){
-        iwb.app.hideProgressbar();
-		clearTimeout(iwb.checkSessionId);
-		iwb.checkSessionId = false;
-	}
-	*/
-	
-	if(ts && ts.ind)iwb.hideIndicator(id);
-});
-
+		
+		if(ts && ts.ind)iwb.hideIndicator(id);
+	});
+}
 iwb.request=function(cfg){
 	if(iwb.debug)console.log('iwb.request: ' + (cfg ? cfg.url:''));
 	if(!_scd){
@@ -586,7 +579,12 @@ function open4chatAnother(j){
 
 iwb.showResponseError=function(j){
 //	iwb.app.alert(iwb.strTrim(j.error, 200), j.errorType || 'iWB');
-	iwb.app.alert(j.errorMsg || iwb.strTrim(j.error.length.toString(), 200), j.errorType || 'iWB');
+	try{
+		if(top && top.ajaxErrorHandler)top.ajaxErrorHandler(j);
+		else iwb.app.alert(j.errorMsg || iwb.strTrim(j.error.length.toString(), 200), j.errorType || 'iWB');
+	}catch(e){
+		iwb.app.alert('System Error', j.errorType || 'iWB');		
+	}
 }
 
 $$('#idButtonLogin').on('click', function () {
@@ -800,7 +798,7 @@ iwb.checkSession=function(afterCfg){
         		if(j.session){
         			iwb.home = _scd && 1*_scd.userRoleId==1*j.session.userRoleId;
             		_scd=j.session;
-            		iwb.webPageId = _scd.mobileDeviceId; //hack
+            		if(_scd.mobileDeviceId)iwb.webPageId = _scd.mobileDeviceId; //hack
     				iwb.longPoll.init('../async/ajaxNotifications?&.w=' + iwb.webPageId, iwbLP);
             		iwb.newMsgCnt = j.newMsgCnt;
             		iwb.updateNewMsgBadge(true);

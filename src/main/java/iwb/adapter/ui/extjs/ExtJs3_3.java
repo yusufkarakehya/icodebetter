@@ -1121,8 +1121,7 @@ public class ExtJs3_3 implements ViewAdapter {
 															.substring(0, 5))
 													.append("\",").append(FieldDefinitions.queryFieldName_HierarchicalData).append(":")
 													.append(serializeTableHelperList(
-															customizationId,
-															xlocale,
+															fr.getScd(),
 															co.get_relatedRecord()));
 											if (fsm.getSynchOnUpdateFlag() != 0)
 												s.append(",sync:true");
@@ -1490,7 +1489,7 @@ public class ExtJs3_3 implements ViewAdapter {
 									.append(formResult.isViewMode() ? (gridResult.getGrid().getTreeMasterFieldId() == 0 ? "Ext.grid.GridPanel": "Ext.ux.maximgb.tg.GridPanel")
 											: (gridResult.getGrid().getTreeMasterFieldId() == 0 ? "Ext.grid.EditorGridPanel" : "Ext.ux.maximgb.tg.EditorGridPanel"))
 									.append("(Ext.apply(").append(gridResult.getGrid().getDsc())
-									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",bodyStyle:'border-top: 1px solid #18181a;min-height:").append(gridResult.getGrid().getDefaultHeight())
+									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",border:false,bodyStyle:'min-height:").append(gridResult.getGrid().getDefaultHeight())
 									.append("',title:'").append(LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey()))
 									.append("',height:").append(gridResult.getGrid().getDefaultHeight())
 									.append(",autoScroll:true,clicksToEdit: 1*_app.edit_grid_clicks_to_edit}))");
@@ -1678,7 +1677,7 @@ public class ExtJs3_3 implements ViewAdapter {
 													: "Ext.ux.maximgb.tg.EditorGridPanel"))
 									.append("(Ext.apply(")
 									.append(gridResult.getGrid().getDsc())
-									.append(",{bodyStyle:'border-top: 1px solid #18181a;',title:'")
+									.append(",{border:false,bodyStyle:'',title:'")
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											m.getLocaleMsgKey()))
@@ -1869,7 +1868,7 @@ public class ExtJs3_3 implements ViewAdapter {
 														: "Ext.ux.maximgb.tg.EditorGridPanel"))
 										.append("(Ext.apply(")
 										.append(gridResult.getGrid().getDsc())
-										.append(",{bodyStyle:'border-top: 1px solid #18181a;',title:'")
+										.append(",{border:false,bodyStyle:'',title:'")
 										.append(LocaleMsgCache.get2(
 												customizationId, xlocale,
 												m.getLocaleMsgKey()))
@@ -1941,9 +1940,14 @@ public class ExtJs3_3 implements ViewAdapter {
 		// if(xtype!=null)buf.append("{frame:true,xtype:'").append(xtype).append("'");
 		buf.append(xtype);
 		int lc = 0;
-		for (W5FormCellHelper fc : formCells)
-			if (fc.getFormCell().getActiveFlag() != 0)
-				lc = Math.max(lc, fc.getFormCell().getTabOrder() / 1000);
+		int[] maxWidths = new int[100];
+		for (W5FormCellHelper fc : formCells)if (fc.getFormCell().getActiveFlag() != 0) {
+			int columnOrder = fc.getFormCell().getTabOrder() / 1000;
+			int w = fc.getFormCell().getControlWidth();
+			if(w<0) w=300;
+			maxWidths[columnOrder] = Math.max(w, maxWidths[columnOrder]);
+			lc = Math.max(lc, columnOrder);
+		}
 		if (lc == 0) {// hersey duz
 			buf.append(",\nitems:[");// ,\nautoHeight:false
 			boolean b = false;
@@ -2013,20 +2017,20 @@ public class ExtJs3_3 implements ViewAdapter {
 			buf.append(",\nlayout:'column',\nitems:[");
 			StringBuilder columnBuf = new StringBuilder();
 			boolean b = false;
-			int order = -1;
+			int columnOrder = -1;
 			for (int i = 0; i < formCells.size(); i++) {
 				W5FormCellHelper fc = formCells.get(i);
 				if (fc.getFormCell().getActiveFlag() == 0)
 					continue;
 				if (fc.getFormCell().getControlTip() != 0) {
-					if (fc.getFormCell().getTabOrder() / 1000 != order) {
-						order = fc.getFormCell().getTabOrder() / 1000;
+					if (fc.getFormCell().getTabOrder() / 1000 != columnOrder) {
+						columnOrder = fc.getFormCell().getTabOrder() / 1000;
 						if (columnBuf.length() > 0) {
 							buf.append(columnBuf.append("]},"));
 							columnBuf.setLength(0);
 						}
-						columnBuf
-								.append("{layout:'form',border:false,columnWidth:")
+						int columnWidth = Math.max(maxWidths[columnOrder], 200) + 150;
+						columnBuf.append("{layout:'form',border:false,minW:").append(columnWidth).append(",style:'min-width:").append(columnWidth).append("px;max-width:").append(150+columnWidth).append("px;',columnWidth:")
 								.append(1.0 / (lc + 1)).append(",items:[");
 						b = false;
 					}
@@ -6004,14 +6008,13 @@ public class ExtJs3_3 implements ViewAdapter {
 		}
 	}
 
-	private StringBuilder serializeTableHelperList(int customizationId,
-			String xlocale, List<W5TableRecordHelper> ltrh) {
+	private StringBuilder serializeTableHelperList(Map scd, List<W5TableRecordHelper> ltrh) {
 		StringBuilder buf = new StringBuilder();
 		boolean bq = false;
 		buf.append("[");
 		if (ltrh != null)
 			for (W5TableRecordHelper trh : ltrh) {
-				W5Table dt = FrameworkCache.getTable(customizationId,
+				W5Table dt = FrameworkCache.getTable(scd,
 						trh.getTableId());
 				if (dt == null)
 					break;
@@ -6026,7 +6029,7 @@ public class ExtJs3_3 implements ViewAdapter {
 						.append(",\"tcc\":")
 						.append(trh.getCommentCount())
 						.append(",\"tdsc\":\"")
-						.append(LocaleMsgCache.get2(customizationId, xlocale,
+						.append(LocaleMsgCache.get2(scd,
 								dt.getDsc())).append("\"")
 						.append(",\"dsc\":\"")
 						.append(GenericUtil.stringToJS2(trh.getRecordDsc()))
@@ -6301,8 +6304,7 @@ public class ExtJs3_3 implements ViewAdapter {
 							&& o[o.length - 1] != null) {
 						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":")
 								.append(serializeTableHelperList(
-										customizationId,
-										xlocale,
+										qr.getScd(),
 										(List<W5TableRecordHelper>) o[o.length - 1]));
 					}
 					buf.append("}"); // satir
@@ -6348,8 +6350,7 @@ public class ExtJs3_3 implements ViewAdapter {
 			if (pr.getMasterRecordList() != null
 					&& !pr.getMasterRecordList().isEmpty())
 				buf.append("\n_mrl=")
-						.append(serializeTableHelperList(customizationId,
-								xlocale, pr.getMasterRecordList()))
+						.append(serializeTableHelperList(pr.getScd(), pr.getMasterRecordList()))
 						.append(";\n");
 			// request
 			buf.append("var _request=")
@@ -6676,7 +6677,7 @@ public class ExtJs3_3 implements ViewAdapter {
 				.append(GenericUtil.stringToJS2(trh0.getRecordDsc()))
 				.append("\"");
 		if (tableRecordInfoResult.getInsertUserId() > 0)
-			buf.append(",\nprofile_picture_id:").append(
+			buf.append(",\n\"profile_picture_id\":").append(
 					UserUtil.getUserProfilePicture(tableRecordInfoResult.getInsertUserId()));
 		if (!GenericUtil.isEmpty(tableRecordInfoResult.getVersionDttm())) {
 			buf.append(",\n\"version_no\":")
@@ -6698,19 +6699,19 @@ public class ExtJs3_3 implements ViewAdapter {
 					.append("\"");
 		}
 		if (tableRecordInfoResult.getFileAttachmentCount() != -1)
-			buf.append(",\nfileAttachFlag:true, fileAttachCount:").append(
+			buf.append(",\n\"fileAttachFlag\":true, \"fileAttachCount\":").append(
 					tableRecordInfoResult.getFileAttachmentCount());
 		if (tableRecordInfoResult.getCommentCount() != -1)
-			buf.append(",\ncommentFlag:true, commentCount:").append(
+			buf.append(",\n\"commentFlag\":true, \"commentCount\":").append(
 					tableRecordInfoResult.getCommentCount());
 		if (tableRecordInfoResult.getAccessControlCount() != -1)
-			buf.append(",\naccessControlFlag:true, accessControlCount:")
+			buf.append(",\n\"accessControlFlag\":true, \"accessControlCount\":")
 					.append(tableRecordInfoResult.getAccessControlCount());
 		if (tableRecordInfoResult.getFormMailSmsCount() > 0)
-			buf.append(",\nformSmsMailCount:").append(
+			buf.append(",\n\"formSmsMailCount\":").append(
 					tableRecordInfoResult.getFormMailSmsCount());
 		if (tableRecordInfoResult.getConversionCount() > 0)
-			buf.append(",\nconversionCount:").append(
+			buf.append(",\n\"conversionCount\":").append(
 					tableRecordInfoResult.getConversionCount());
 
 		buf.append(",\n\"parents\":[");// TODO: burda aradan 1 gunluk bir zaman
