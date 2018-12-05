@@ -2817,7 +2817,7 @@ function addTab4GridWSearchForm(obj) {
 
   var grdExtra = {
 //    stripeRows: true,
-    region: "center",
+    region: "center", cls:'iwb-grid-'+mainGrid.gridId,
     border: false,
     clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
   };
@@ -3036,7 +3036,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 
   var grdExtra = Ext.apply(
     {
-      region: obj.region || (mainGrid.gridId?"north":"west"),
+      region: obj.region || (mainGrid.gridId?"north":"west"),cls:'iwb-grid-'+mainGrid.gridId,
       bodyStyle: "border-top: 1px solid #18181a;",
       autoScroll: true,
       border: false
@@ -3185,7 +3185,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	  } 
 	} else { //card
 		mainGridPanel=new Ext.DataView(Ext.apply({emptyText: '<br>&nbsp; No Data',
-		    singleSelect:!0, loadMask:!0, 
+		    singleSelect:!0, loadMask:!0, cls:'iwb-card-'+mainGrid.dataViewId,
 		    itemSelector: 'div.icb-card'
 		}, mainGrid));
 	}
@@ -3321,7 +3321,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
-        title: obj.detailGrids[i]._title_ || detailGrid.name,
+        title: obj.detailGrids[i]._title_ || detailGrid.name,cls:'iwb-grid-'+detailGrid.gridId,
 //        stripeRows: true,
         id: "gr" + Math.random(),
         border: false,
@@ -5301,7 +5301,7 @@ function addTab4Portal(obj) {
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
 //        stripeRows: true,
-        id: obj.t + "-" + detailGrid.gridId,
+        id: obj.t + "-" + detailGrid.gridId,cls:'iwb-grid-'+detailGrid.gridId,
         autoScroll: true,
         border: false,
         clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
@@ -5767,7 +5767,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       }
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
-        title: obj.detailGrids[i]._title_ || detailGrid.name,
+        title: obj.detailGrids[i]._title_ || detailGrid.name,cls:'iwb-grid-'+detailGrid.gridId,
 //        stripeRows: true,
         id: "gr" + Math.random(),
         autoScroll: true,
@@ -6826,6 +6826,71 @@ function vcsPull(xgrid, tid, tpk) {
   });
 }
 
+iwb.valsDiffData = false;
+iwb.showValsDiffinMonaco = function (qi) {
+  var win = new Ext.Window({
+    layout: 'fit',
+    width: 900,
+    height: 800, title: '<span style="color:red">'+iwb.valsDiffData[qi].name+'</span> Field Differences',
+    closeAction: 'destroy',
+    plain: true,
+
+    html: '<div id="idx-mnc2-' + _page_tab_id + '" style="height:770px"></div>',
+    listeners: {
+      'afterrender': function () {
+        var originalModel = monaco.editor.createModel(iwb.valsDiffData[qi].local, "javascript");
+        var modifiedModel = monaco.editor.createModel(iwb.valsDiffData[qi].remote, "javascript");
+
+        var diffEditor = monaco.editor.createDiffEditor(document.getElementById("idx-mnc2-" + _page_tab_id), {
+          // You can optionally disable the resizing
+          enableSplitViewResizing: false,
+
+          // Render the diff inline
+          renderSideBySide: false
+        });
+        diffEditor.setModel({
+          original: originalModel,
+          modified: modifiedModel
+        });
+      }
+    },
+    buttons: [{
+      text: 'Close',
+      handler: function () {
+        win.close();
+      }
+    }]
+  });
+  win.show();
+
+}
+iwb.fnTblRecVCSDiff = function (tid, tpk, a) {
+  promisRequest({
+    url: 'ajaxVCSObjectConflicts', params: { k: tid + '.' + tpk }, requestWaitMsg: true, successCallback: function (j) {
+      if (j.data) {
+        iwb.valsDiffData = j.data;
+        var s = '<table width=100%><thead style="background:rgba(255,255,255,.2)"><tr><td width=10%>name</td><td width=45%>local</td><td width=45%>remote</td></tr></thead>';
+        for (var qi = 0; qi < j.data.length; qi++)
+          if (j.data[qi].editor != 11) s += '<tr style="color: #ccc;"><td>' + j.data[qi].name + '</td><td>' + j.data[qi].local + '</td><td>' + j.data[qi].remote + '</td></tr>';
+          else s += '<tr style="color: #ccc;background:rgba(0,0,0,.2)"><td>' + j.data[qi].name + '</td><td align=center colspan=2><a href=# onclick="return iwb.showValsDiffinMonaco(' + qi + ')">show diff in editor</a></td></tr>';
+        s += '</table>';
+        var wndx = new Ext.Window({
+          modal: true,closeAction: 'destroy',
+          title: 'Record Differences',
+          width: 800,
+          autoHeight: true,
+          html: s,
+          buttons: [{ text: 'Close', handler: function () { wndx.close(); } }]
+        });
+        wndx.show();
+      } else if (j.lcl) fnTblRecEdit(tid, tpk);
+      else alert('Remote:\n' + objProp(j.rmt));
+    }
+  });
+
+}
+
+
 function fncMnuVcs(xgrid) {
   return [
     {
@@ -6894,25 +6959,36 @@ function fncMnuVcs(xgrid) {
       }
     },
     {
-      text: "Ignore",
-      _grid: xgrid,
-      handler: function(aq) {
-        var sel = aq._grid._gp.getSelectionModel().getSelections();
-        sel &&
-          sel.length > 0 &&
-          sel[0].data.pkpkpk_vcsf &&
-          Ext.infoMsg.confirm("Are you sure?", () => {
-            promisRequest({
-              url: "ajaxVCSObjectAction",
-              params: { t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
-              successCallback: function(j) {
-                Ext.infoMsg.msg("success", "Ignored from VCS");
-                aq._grid.ds.reload();
-              }
+        text: "Ignore",
+        _grid: xgrid,
+        handler: function(aq) {
+          var sel = aq._grid._gp.getSelectionModel().getSelections();
+          sel &&
+            sel.length > 0 &&
+            sel[0].data.pkpkpk_vcsf &&
+            Ext.infoMsg.confirm("Are you sure?", () => {
+              promisRequest({
+                url: "ajaxVCSObjectAction",
+                params: { t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
+                successCallback: function(j) {
+                  Ext.infoMsg.msg("success", "Ignored from VCS");
+                  aq._grid.ds.reload();
+                }
+              });
             });
-          });
-      }
-    } /*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
+        }
+      },
+      {
+          text: "Show Diff",
+          _grid: xgrid,
+          handler: function(aq) {
+            var sel = aq._grid._gp.getSelectionModel().getSelections();
+            sel &&
+              sel.length > 0 &&
+              sel[0].data.pkpkpk_vcsf &&
+              iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id);;
+          }
+        } /*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelected();
 			if(sel && sel.data.pkpkpk_vcsf){
 				var cmbSt2=[];
@@ -7333,11 +7409,6 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cc_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-<<<<<<< HEAD
-//        style: {margin: "0px 5px 0px 5px"},
-=======
-//      style: {margin: "0px 5px 0px 5px"},
->>>>>>> b232d76723183431f02f3cf7e63b7039b652e07f
         iconCls: "isave_cont",
         handler: function(a, b, c) {
           if (
@@ -7378,11 +7449,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cn_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-<<<<<<< HEAD
-//        style: {margin: "0px 5px 0px 5px"},
-=======
-//      style: {margin: "0px 5px 0px 5px"},
->>>>>>> b232d76723183431f02f3cf7e63b7039b652e07f
+
         iconCls: "isave_new",
         handler: function(a, b, c) {
           var r = null;
@@ -7419,11 +7486,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     id: "cl_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
-<<<<<<< HEAD
-//    style: {margin: "0px 5px 0px 5px"},
-=======
-//  style: {margin: "0px 5px 0px 5px"},
->>>>>>> b232d76723183431f02f3cf7e63b7039b652e07f
+
     iconCls: "ikapat",
     handler: function(a, b, c) {
       function closeMe() {
@@ -7456,11 +7519,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "af_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-<<<<<<< HEAD
-//      style: {margin: "0px 5px 0px 5px"},
-=======
-//    style: {margin: "0px 5px 0px 5px"},
->>>>>>> b232d76723183431f02f3cf7e63b7039b652e07f
+
       iconCls: "ifile_attach",
       menu: [
         {
@@ -7535,11 +7594,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "sapp_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-<<<<<<< HEAD
-//      style: {margin: "0px 5px 0px 5px"},
-=======
-//    style: {margin: "0px 5px 0px 5px"},
->>>>>>> b232d76723183431f02f3cf7e63b7039b652e07f
+
       iconCls: "app_req",
       handler: function(a, b, c) {
         var r = null;
@@ -7576,11 +7631,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "uapp_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-<<<<<<< HEAD
-//      style: {margin: "0px 5px 0px 5px"},
-=======
-//    style: {margin: "0px 5px 0px 5px"},
->>>>>>> b232d76723183431f02f3cf7e63b7039b652e07f
+
       iconCls: "app_req",
       handler: function(a, b, c) {
         var r = null;
@@ -7622,11 +7673,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "dapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-<<<<<<< HEAD
-//        style: {margin: "0px 5px 0px 5px"},
-=======
-//      style: {margin: "0px 5px 0px 5px"},
->>>>>>> b232d76723183431f02f3cf7e63b7039b652e07f
+
         iconCls: "app_req",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(901, getForm, getForm.approval.dynamic);
@@ -7723,79 +7770,8 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     }
   }
 
-<<<<<<< HEAD
-  //manual form-conversion menu
-  if (1 * getForm.a == 1) {
-    var pk = null,
-      toolButtons = [];
-    for (var xi in getForm.pk)
-      if (xi != "customizationId" && xi != "projectId") {
-        pk = getForm.pk[xi];
-        break;
-      }
-    btn.push("-", " ", " ", " ");
-    if (
-      (getForm.manualConversionForms &&
-        getForm.manualConversionForms.length > 0) ||
-      (getForm.reportList && getForm.reportList.length > 0)
-    ) {
-      toolButtons.push({
-        text: "Record Info",
-        /*iconCls:'icon-info',*/
-        handler: function() {
-          fnTblRecEdit(getForm.crudTableId, pk, false);
-        }
-      });
-      toolButtons.push("-");
-      if (
-        getForm.manualConversionForms &&
-        getForm.manualConversionForms.length > 0
-      ) {
-        for (var xi = 0; xi < getForm.manualConversionForms.length; xi++)
-          getForm.manualConversionForms[xi].handler = function(aq, bq, cq) {
-            mainPanel.loadTab({
-              attributes: {
-                href:
-                  "showForm?a=2&_fid=" +
-                  aq._fid +
-                  "&_cnvId=" +
-                  aq.xid +
-                  "&_cnvTblPk=" +
-                  pk
-              }
-            });
-          };
-        toolButtons.push({
-          text: "Conversion",
-          iconCls: "icon-operation",
-          menu: getForm.manualConversionForms
-        });
-      }
 
-      btn.push({
-        tooltip: "Others...",
-        iconAlign: "top",
-        scale: "medium",
-//        style: {margin: "0px 5px 0px 5px"},
-        iconCls: "ibig_info",
-        menu: toolButtons
-      });
-    } else {
-      btn.push({
-    	tooltip: "Record Info",
-        iconAlign: "top",
-        scale: "medium",
-//        style: {margin: "0px 5px 0px 5px"},
-        iconCls: "ibig_info",
-        handler: function() {
-          fnTblRecEdit(getForm.crudTableId, pk, false);
-        }
-      });
-    }
-  }
 
-=======
->>>>>>> b232d76723183431f02f3cf7e63b7039b652e07f
   if (getForm.extraButtons && getForm.extraButtons.length > 0) {
     btn.push("-");
     btn.push(getForm.extraButtons);
@@ -8285,3 +8261,7 @@ iwb.isMonacoReady = function(e) {
   }
   return true;
 };
+
+iwb.addCss=function(cssCode,id){
+	Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
+}
