@@ -234,7 +234,7 @@ public class VcsServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		logger.info("hndAjaxVCSObjectsAll"); 
+		logger.info("hndAjaxVCSObjectsAllTree"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		if(!GenericUtil.isEmpty(request.getParameter("anode"))){
@@ -639,6 +639,19 @@ public class VcsServlet implements InitializingBean {
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
     	W5QueryResult qr= vcsEngine.vcsClientTableConflicts(scd, tableName);
+    	response.getWriter().write(getViewAdapter(scd, request).serializeQueryData(qr).toString());
+		response.getWriter().close();
+	}
+	@RequestMapping("/ajaxVCSObjectConflicts")
+	public void hndAjaxVCSObjectConflicts(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException, JSONException {
+    	String key =request.getParameter("k");
+		logger.info("hndAjaxVCSObjectConflicts("+key+")"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+    	W5QueryResult qr= vcsEngine.vcsClientObjectConflicts(scd, key);
     	response.getWriter().write(getViewAdapter(scd, request).serializeQueryData(qr).toString());
 		response.getWriter().close();
 	}

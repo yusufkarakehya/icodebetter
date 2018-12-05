@@ -121,7 +121,7 @@ function gridStore2JsonString(ds) {
 
 function promisLoadException(a, b, c) {
   if (c && c.responseText) {
-    ajaxErrorHandler(eval("(" + c.responseText + ")"));
+    ajaxErrorHandler(JSON.parse(c.responseText)); //eval("(" + c.responseText + ")")
   } else {
     //    	Ext.Msg.show({title:getLocMsg('js_info'),msg: getLocMsg('js_no_connection_error'),icon: Ext.MessageBox.WARNING})
     showStatusText(getLocMsg("js_no_connection_error"), 3); //error
@@ -873,7 +873,7 @@ function fnShowDetailDialog(a, b) {
         }),
         tpl: a._grid.detailView,
         autoScroll: true,
-        itemSelector: "table.mva-detail"
+        itemSelector: "div.icb-card"
       }))
     ]
   }).show();
@@ -3495,7 +3495,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	  });
 	  var mainGridPanelOrj = mainGridPanel;
-	  mainGridPanel = {region:'west', autoScroll:!0, bodyStyle:"    background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
+	  mainGridPanel = {region:'west', cls:'icb-main-card',autoScroll:!0, bodyStyle:"background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
 		  mainGridPanel.bbar = {
@@ -3818,7 +3818,7 @@ function ajaxAuthenticateUser() {
                     "&smsCode=" +
                     text,
                   success: function(result, request) {
-                    var resp = eval("(" + result.responseText + ")");
+                    var resp = JSON.parse(result.responseText);//eval("(" + result.responseText + ")");
                     if (resp.success) {
                       lw.destroy();
                       hideStatusText();
@@ -3851,10 +3851,9 @@ function ajaxAuthenticateUser() {
       },
       failure: function(o, resp) {
         iwb.mask();
-        var resp = eval("(" + resp.response.responseText + ")");
+        var resp = JSON.parse(resp.response.responseText);//eval("(" + resp.response.responseText + ")");
         if (resp.errorMsg) {
           Ext.infoMsg.alert("error", resp.errorMsg, "error");
-          getSecurityWord();
         } else {
           Ext.infoMsg.alert(
             "error",
@@ -3867,25 +3866,6 @@ function ajaxAuthenticateUser() {
   return false;
 }
 
-function getSecurityWord() {
-  Ext.Ajax.request({
-    url: "ajaxGetSecurityPicture",
-    method: "POST",
-    success: function(result, request) {
-      var resp = eval("(" + result.responseText + ")");
-      if (resp.success && resp.data.length > 0) {
-        var file_name = resp.data[0].file_name;
-        Ext.get("security_div").dom.innerHTML =
-          "<img src=../images/security/" + file_name + ">";
-      } else {
-        if (Ext.get("security_word_table")) {
-          Ext.get("security_word_table").dom.innerHTML = "";
-          Ext.get("securityword_l").dom.innerHTML = "";
-        }
-      }
-    }
-  });
-}
 function showLoginDialog(xobj) {
   if (1 * _scd.customizationId > 0) {
     document.location = "/app/index.html";
@@ -3950,7 +3930,7 @@ function formSubmit(submitConfig) {
     clientValidation: true,
     success: function(form, action) {
       iwb.mask();
-      var myJson = eval("(" + action.response.responseText + ")");
+      var myJson = JSON.parse(action.response.responseText);//eval("(" + action.response.responseText + ")");
       var jsonQueue = [];
       if (myJson.smsMailPreviews && myJson.smsMailPreviews.length > 0) {
         for (var ix = 0; ix < myJson.smsMailPreviews.length; ix++) {
@@ -4118,7 +4098,7 @@ function formSubmit(submitConfig) {
 
 function promisLoadException(a, b, c) {
   if (c && c.responseText) {
-    ajaxErrorHandler(eval("(" + c.responseText + ")"));
+    ajaxErrorHandler(JSON.parse(c.responseText)); //eval("(" + c.responseText + ")")
   } else Ext.infoMsg.wow("error", getLocMsg("js_no_connection_error"));
 }
 
@@ -4146,7 +4126,7 @@ function promisRequest(rcfg) {
           if (rcfg.successResponse) rcfg.successResponse(a, b, c);
           else
             try {
-              var json = eval("(" + a.responseText + ")");
+              var json = JSON.parse(a.responseText);//eval("(" + a.responseText + ")");
               if (json.success) {
                 if (rcfg.successDs) {
                   if (!rcfg.successDs.length) rcfg.successDs.reload();
@@ -4833,7 +4813,7 @@ function approveTableRecords(aa, a) {
             "application/x-www-form-urlencoded"
           );
           request.send(prms);
-          var json = eval("(" + request.responseText + ")");
+          var json = JSON.parse(request.responseText);//eval("(" + request.responseText + ")");
           Ext.Msg.hide();
           if (json.success) {
             win.close();
@@ -6846,6 +6826,71 @@ function vcsPull(xgrid, tid, tpk) {
   });
 }
 
+iwb.valsDiffData = false;
+iwb.showValsDiffinMonaco = function (qi) {
+  var win = new Ext.Window({
+    layout: 'fit',
+    width: 900,
+    height: 800, title: '<span style="color:red">'+iwb.valsDiffData[qi].name+'</span> Field Differences',
+    closeAction: 'destroy',
+    plain: true,
+
+    html: '<div id="idx-mnc2-' + _page_tab_id + '" style="height:770px"></div>',
+    listeners: {
+      'afterrender': function () {
+        var originalModel = monaco.editor.createModel(iwb.valsDiffData[qi].local, "javascript");
+        var modifiedModel = monaco.editor.createModel(iwb.valsDiffData[qi].remote, "javascript");
+
+        var diffEditor = monaco.editor.createDiffEditor(document.getElementById("idx-mnc2-" + _page_tab_id), {
+          // You can optionally disable the resizing
+          enableSplitViewResizing: false,
+
+          // Render the diff inline
+          renderSideBySide: false
+        });
+        diffEditor.setModel({
+          original: originalModel,
+          modified: modifiedModel
+        });
+      }
+    },
+    buttons: [{
+      text: 'Close',
+      handler: function () {
+        win.close();
+      }
+    }]
+  });
+  win.show();
+
+}
+iwb.fnTblRecVCSDiff = function (tid, tpk, a) {
+  promisRequest({
+    url: 'ajaxVCSObjectConflicts', params: { k: tid + '.' + tpk }, requestWaitMsg: true, successCallback: function (j) {
+      if (j.data) {
+        iwb.valsDiffData = j.data;
+        var s = '<table width=100%><thead style="background:rgba(255,255,255,.2)"><tr><td width=10%>name</td><td width=45%>local</td><td width=45%>remote</td></tr></thead>';
+        for (var qi = 0; qi < j.data.length; qi++)
+          if (j.data[qi].editor != 11) s += '<tr style="color: #ccc;"><td>' + j.data[qi].name + '</td><td>' + j.data[qi].local + '</td><td>' + j.data[qi].remote + '</td></tr>';
+          else s += '<tr style="color: #ccc;background:rgba(0,0,0,.2)"><td>' + j.data[qi].name + '</td><td align=center colspan=2><a href=# onclick="return iwb.showValsDiffinMonaco(' + qi + ')">show diff in editor</a></td></tr>';
+        s += '</table>';
+        var wndx = new Ext.Window({
+          modal: true,closeAction: 'destroy',
+          title: 'Record Differences',
+          width: 800,
+          autoHeight: true,
+          html: s,
+          buttons: [{ text: 'Close', handler: function () { wndx.close(); } }]
+        });
+        wndx.show();
+      } else if (j.lcl) fnTblRecEdit(tid, tpk);
+      else alert('Remote:\n' + objProp(j.rmt));
+    }
+  });
+
+}
+
+
 function fncMnuVcs(xgrid) {
   return [
     {
@@ -6914,25 +6959,36 @@ function fncMnuVcs(xgrid) {
       }
     },
     {
-      text: "Ignore",
-      _grid: xgrid,
-      handler: function(aq) {
-        var sel = aq._grid._gp.getSelectionModel().getSelections();
-        sel &&
-          sel.length > 0 &&
-          sel[0].data.pkpkpk_vcsf &&
-          Ext.infoMsg.confirm("Are you sure?", () => {
-            promisRequest({
-              url: "ajaxVCSObjectAction",
-              params: { t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
-              successCallback: function(j) {
-                Ext.infoMsg.msg("success", "Ignored from VCS");
-                aq._grid.ds.reload();
-              }
+        text: "Ignore",
+        _grid: xgrid,
+        handler: function(aq) {
+          var sel = aq._grid._gp.getSelectionModel().getSelections();
+          sel &&
+            sel.length > 0 &&
+            sel[0].data.pkpkpk_vcsf &&
+            Ext.infoMsg.confirm("Are you sure?", () => {
+              promisRequest({
+                url: "ajaxVCSObjectAction",
+                params: { t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
+                successCallback: function(j) {
+                  Ext.infoMsg.msg("success", "Ignored from VCS");
+                  aq._grid.ds.reload();
+                }
+              });
             });
-          });
-      }
-    } /*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
+        }
+      },
+      {
+          text: "Show Diff",
+          _grid: xgrid,
+          handler: function(aq) {
+            var sel = aq._grid._gp.getSelectionModel().getSelections();
+            sel &&
+              sel.length > 0 &&
+              sel[0].data.pkpkpk_vcsf &&
+              iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id);;
+          }
+        } /*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
 			var sel=aq._grid._gp.getSelectionModel().getSelected();
 			if(sel && sel.data.pkpkpk_vcsf){
 				var cmbSt2=[];
@@ -7219,18 +7275,16 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   }
 
   var realAction = 1 * extDef.baseParams.a;
-  var actionDsc = 1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : "New";
-  if(getForm.viewMode)actionDsc='View';
-  var btn = ['<span style="font-size: 1.6em;color:#aaa;padding-left: 10px;"><span style="width: 7px;  height: 7px;  background: darkorange;  display: inline-block;  margin-right: 10px;  margin-bottom: 4px;  border-radius: 20px;"></span>'+actionDsc+' '+getForm.name+'</span>','-',' ','-'];
+  var btn = [];
   if (!getForm.viewMode) {
     var sv_btn_visible = extDef.baseParams.sv_btn_visible || 1;
     if (sv_btn_visible * 1 == 1) {
       var saveBtn = {
-        text: "Save",//1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : 
+        text: 1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : "Save",
         id: "sb_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ikaydet",
         handler: function(a, b, c) {
           if (
@@ -7355,7 +7409,6 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cc_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
         iconCls: "isave_cont",
         handler: function(a, b, c) {
           if (
@@ -7396,7 +7449,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cn_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
+
         iconCls: "isave_new",
         handler: function(a, b, c) {
           var r = null;
@@ -7427,199 +7480,36 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
     }
   }
+  //close
+  btn.push({
+    text: "Close",
+    id: "cl_" + getForm.id,
+    iconAlign: "top",
+    scale: "medium",
 
-  if (1 * getForm.a == 2 && getForm.manualStartDemand) {
-    btn.push({
-      text: "${kaydet_onay_baslatma_talebi}",
-      id: "sapp_" + getForm.id,
-      iconAlign: "top",
-      scale: "medium",
-//    style: {margin: "0px 5px 0px 5px"},
-      iconCls: "app_req",
-      handler: function(a, b, c) {
-        var r = null;
-        if (extDef.componentWillPost) {
-          if (getForm._cfg.formPanel.getForm().isValid()) {
-            r = extDef.componentWillPost(
-              getForm._cfg.formPanel.getForm().getValues()
-            );
-            if (!r) return;
-          } else {
-            getForm._cfg.formPanel.getForm().findInvalid();
-            return;
+    iconCls: "ikapat",
+    handler: function(a, b, c) {
+      function closeMe() {
+        if (!callAttributes.modalWindowFlag) mainPanel.getActiveTab().destroy();
+        else mainPanel.closeModalWindow();
+      }
+      if (
+        !getForm.viewMode &&
+        1 * _app.form_cancel_dirty_control &&
+        getForm._cfg.formPanel.getForm().isDirty()
+      )
+        Ext.infoMsg.confirm(
+          "There are changed fields. Do you still want to close?",
+          () => {
+            closeMe();
           }
-        }
-        if (!getForm._cfg.formPanel.getForm().isValid()) {
-          getForm._cfg.formPanel.getForm().findInvalid();
-          return null;
-        }
-        getForm._cfg.extraParams = {};
-        if (typeof r == "object") getForm._cfg.extraParams = r;
-        submitAndApproveTableRecord(
-          -1,
-          getForm,
-          getForm.approval && getForm.approval.dynamic
-            ? getForm.approval.dynamic
-            : null
         );
-      }
-    });
-  }
-  if (1 * getForm.a == 1 && getForm.manualStartDemand) {
-    btn.push({
-      text: "${guncelle_onay_baslatma_talebi}",
-      id: "uapp_" + getForm.id,
-      iconAlign: "top",
-      scale: "medium",
-//    style: {margin: "0px 5px 0px 5px"},
-      iconCls: "app_req",
-      handler: function(a, b, c) {
-        var r = null;
-        if (extDef.componentWillPost) {
-          if (getForm._cfg.formPanel.getForm().isValid()) {
-            r = extDef.componentWillPost(
-              getForm._cfg.formPanel.getForm().getValues()
-            );
-            if (!r) return;
-          } else {
-            getForm._cfg.formPanel.getForm().findInvalid();
-            return;
-          }
-        }
-        if (!getForm._cfg.formPanel.getForm().isValid()) {
-          getForm._cfg.formPanel.getForm().findInvalid();
-          return null;
-        }
-        getForm._cfg.extraParams = {};
-        if (typeof r == "object") getForm._cfg.extraParams = r;
-        submitAndApproveTableRecord(
-          -1,
-          getForm,
-          getForm.approval && getForm.approval.dynamic
-            ? getForm.approval.dynamic
-            : null
-        );
-      }
-    });
-  }
-
-  //approval
-  if (1 * getForm.a == 1 && getForm.approval) {
-    btn.push("-");
-    //    btn.push({text: '${onay_adimi}<br>'+getForm.approval.stepDsc});
-    if (getForm.approval.wait4start) {
-      btn.push({
-        text: "${onay_iste}",
-        id: "dapp_" + getForm.id,
-        iconAlign: "top",
-        scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
-        iconCls: "app_req",
-        handler: function(a, b, c) {
-          submitAndApproveTableRecord(901, getForm, getForm.approval.dynamic);
-        }
-      });
-    } else {
-      btn.push({
-        text: getForm.approval.eSignFlag ? "E-Imza Onayla" : "${approve}",
-        id: "aapp_" + getForm.id,
-        tooltip: getForm.approval.stepDsc,
-        iconAlign: "top",
-        scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
-        iconCls: "iapprove",
-        handler: function(a, b, c) {
-          if (!getForm.viewMode) {
-            var r = null;
-            if (extDef.componentWillPost) {
-              if (getForm._cfg.formPanel.getForm().isValid()) {
-                r = extDef.componentWillPost(
-                  getForm._cfg.formPanel.getForm().getValues()
-                );
-                if (!r) return;
-              } else {
-                getForm._cfg.formPanel.getForm().findInvalid();
-                return;
-              }
-            }
-            if (!getForm._cfg.formPanel.getForm().isValid()) {
-              getForm._cfg.formPanel.getForm().findInvalid();
-              return null;
-            }
-            getForm._cfg.dontClose = 0;
-            if (typeof r == "object") {
-              getForm._cfg.extraParams = r;
-            }
-          }
-          if (getForm.approval.eSignFlag) {
-            openPopup(
-              "showPage?_tid=691&_arid=" + getForm.approval.approvalRecordId,
-              "_blank",
-              800,
-              600,
-              1
-            );
-            mainPanel.closeModalWindow();
-            return;
-          } else submitAndApproveTableRecord(1, getForm);
-        }
-      });
-      if (getForm.approval.returnFlag) {
-        btn.push({
-          text: "${give_back}",
-          id: "gbapp_" + getForm.id,
-          iconAlign: "top",
-          scale: "medium",
-//        style: {margin: "0px 5px 0px 5px"},
-          iconCls: "ireturn",
-          handler: function(a, b, c) {
-            submitAndApproveTableRecord(2, getForm);
-          }
-        });
-      }
-      btn.push({
-        text: "${reject}",
-        id: "rapp_" + getForm.id,
-        iconAlign: "top",
-        scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
-        iconCls: "ireject",
-        handler: function(a, b, c) {
-          submitAndApproveTableRecord(3, getForm);
-        }
-      });
-      btn.push({
-        text: "${approve_log}",
-        id: "lapp_" + getForm.id,
-        iconAlign: "top",
-        scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
-        iconCls: "ilog",
-        handler: function(a, b, c) {
-          mainPanel.loadTab({
-            attributes: {
-              modalWindow: true,
-              href: "showPage?_tid=259&_gid1=530",
-              baseParams: {
-                xapproval_record_id: getForm.approval.approvalRecordId
-              }
-            }
-          });
-        }
-      });
+      else closeMe();
     }
-  }
-
-  btn.push("->");
-
-  if (getForm.extraButtons && getForm.extraButtons.length > 0) {
- //   btn.push("-");
-    btn.push(getForm.extraButtons);
-  }
-  
+  });
 
   if (getForm.fileAttachFlag) {
- //   btn.push("-");
+//    btn.push("-");
     btn.push({
       tooltip:
         "Files" +
@@ -7629,7 +7519,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "af_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-//    style: {margin: "0px 5px 0px 5px"},
+
       iconCls: "ifile_attach",
       menu: [
         {
@@ -7698,12 +7588,202 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     });
   }
 
+  if (1 * getForm.a == 2 && getForm.manualStartDemand) {
+    btn.push({
+      text: "${kaydet_onay_baslatma_talebi}",
+      id: "sapp_" + getForm.id,
+      iconAlign: "top",
+      scale: "medium",
+
+      iconCls: "app_req",
+      handler: function(a, b, c) {
+        var r = null;
+        if (extDef.componentWillPost) {
+          if (getForm._cfg.formPanel.getForm().isValid()) {
+            r = extDef.componentWillPost(
+              getForm._cfg.formPanel.getForm().getValues()
+            );
+            if (!r) return;
+          } else {
+            getForm._cfg.formPanel.getForm().findInvalid();
+            return;
+          }
+        }
+        if (!getForm._cfg.formPanel.getForm().isValid()) {
+          getForm._cfg.formPanel.getForm().findInvalid();
+          return null;
+        }
+        getForm._cfg.extraParams = {};
+        if (typeof r == "object") getForm._cfg.extraParams = r;
+        submitAndApproveTableRecord(
+          -1,
+          getForm,
+          getForm.approval && getForm.approval.dynamic
+            ? getForm.approval.dynamic
+            : null
+        );
+      }
+    });
+  }
+  if (1 * getForm.a == 1 && getForm.manualStartDemand) {
+    btn.push({
+      text: "${guncelle_onay_baslatma_talebi}",
+      id: "uapp_" + getForm.id,
+      iconAlign: "top",
+      scale: "medium",
+
+      iconCls: "app_req",
+      handler: function(a, b, c) {
+        var r = null;
+        if (extDef.componentWillPost) {
+          if (getForm._cfg.formPanel.getForm().isValid()) {
+            r = extDef.componentWillPost(
+              getForm._cfg.formPanel.getForm().getValues()
+            );
+            if (!r) return;
+          } else {
+            getForm._cfg.formPanel.getForm().findInvalid();
+            return;
+          }
+        }
+        if (!getForm._cfg.formPanel.getForm().isValid()) {
+          getForm._cfg.formPanel.getForm().findInvalid();
+          return null;
+        }
+        getForm._cfg.extraParams = {};
+        if (typeof r == "object") getForm._cfg.extraParams = r;
+        submitAndApproveTableRecord(
+          -1,
+          getForm,
+          getForm.approval && getForm.approval.dynamic
+            ? getForm.approval.dynamic
+            : null
+        );
+      }
+    });
+  }
+
+  //approval
+  if (1 * getForm.a == 1 && getForm.approval) {
+    btn.push("-");
+    //    btn.push({text: '${onay_adimi}<br>'+getForm.approval.stepDsc});
+    if (getForm.approval.wait4start) {
+      btn.push({
+        text: "${onay_iste}",
+        id: "dapp_" + getForm.id,
+        iconAlign: "top",
+        scale: "medium",
+
+        iconCls: "app_req",
+        handler: function(a, b, c) {
+          submitAndApproveTableRecord(901, getForm, getForm.approval.dynamic);
+        }
+      });
+    } else {
+      btn.push({
+        text: getForm.approval.eSignFlag ? "E-Imza Onayla" : "${approve}",
+        id: "aapp_" + getForm.id,
+        tooltip: getForm.approval.stepDsc,
+        iconAlign: "top",
+        scale: "medium",
+//        style: {margin: "0px 5px 0px 5px"},
+        iconCls: "iapprove",
+        handler: function(a, b, c) {
+          if (!getForm.viewMode) {
+            var r = null;
+            if (extDef.componentWillPost) {
+              if (getForm._cfg.formPanel.getForm().isValid()) {
+                r = extDef.componentWillPost(
+                  getForm._cfg.formPanel.getForm().getValues()
+                );
+                if (!r) return;
+              } else {
+                getForm._cfg.formPanel.getForm().findInvalid();
+                return;
+              }
+            }
+            if (!getForm._cfg.formPanel.getForm().isValid()) {
+              getForm._cfg.formPanel.getForm().findInvalid();
+              return null;
+            }
+            getForm._cfg.dontClose = 0;
+            if (typeof r == "object") {
+              getForm._cfg.extraParams = r;
+            }
+          }
+          if (getForm.approval.eSignFlag) {
+            openPopup(
+              "showPage?_tid=691&_arid=" + getForm.approval.approvalRecordId,
+              "_blank",
+              800,
+              600,
+              1
+            );
+            mainPanel.closeModalWindow();
+            return;
+          } else submitAndApproveTableRecord(1, getForm);
+        }
+      });
+      if (getForm.approval.returnFlag) {
+        btn.push({
+          text: "${give_back}",
+          id: "gbapp_" + getForm.id,
+          iconAlign: "top",
+          scale: "medium",
+//          style: {margin: "0px 5px 0px 5px"},
+          iconCls: "ireturn",
+          handler: function(a, b, c) {
+            submitAndApproveTableRecord(2, getForm);
+          }
+        });
+      }
+      btn.push({
+        text: "${reject}",
+        id: "rapp_" + getForm.id,
+        iconAlign: "top",
+        scale: "medium",
+//        style: {margin: "0px 5px 0px 5px"},
+        iconCls: "ireject",
+        handler: function(a, b, c) {
+          submitAndApproveTableRecord(3, getForm);
+        }
+      });
+      btn.push({
+        text: "${approve_log}",
+        id: "lapp_" + getForm.id,
+        iconAlign: "top",
+        scale: "medium",
+//        style: {margin: "0px 5px 0px 5px"},
+        iconCls: "ilog",
+        handler: function(a, b, c) {
+          mainPanel.loadTab({
+            attributes: {
+              modalWindow: true,
+              href: "showPage?_tid=259&_gid1=530",
+              baseParams: {
+                xapproval_record_id: getForm.approval.approvalRecordId
+              }
+            }
+          });
+        }
+      });
+    }
+  }
+
+
+
+  if (getForm.extraButtons && getForm.extraButtons.length > 0) {
+    btn.push("-");
+    btn.push(getForm.extraButtons);
+  }
+
+  btn.push("->");
 
   if (getForm.a == 1 || getForm.tmpId) {
     var xb = false;
     if (getForm.commentFlag) {
       if (xb) {
-  //      btn.push("-");
+//        btn.push("-");
         xb = false;
       }
       var txt2 =
@@ -7742,7 +7822,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             }
           }
         },
-        //style: {margin: "0px 5px 0px 5px"},
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_comment",
         handler: function(a, b, c) {
           if (a._commentCount)
@@ -7793,9 +7873,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     id: "ttemp_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
-    style: {
-      margin: "0px 5px 0px 5px"
-    },
+//    style: {margin: "0px 5px 0px 5px"},
     iconCls: "ibookmark",
     handler: function(a, b, c) {
       if (!getForm._loaded) {
@@ -7888,7 +7966,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   });
 
   if (_scd.customizationId == 0) {
-    btn.push("-");
+//    btn.push("-");
     var menuItems = [];
     if (_scd.administratorFlag) {
       menuItems.push({
@@ -7988,9 +8066,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "fs_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-      style: {
-        margin: "0px 5px 0px 5px"
-      },
+//      style: {margin: "0px 5px 0px 5px"},
       iconCls: "isettings",
       menu: {
         items: menuItems
@@ -8007,7 +8083,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         pk = getForm.pk[xi];
         break;
       }
-  //  btn.push("-", " ", " ", " ");
+//    btn.push("-", " ", " ", " ");
     if (
       (getForm.manualConversionForms &&
         getForm.manualConversionForms.length > 0) ||
@@ -8050,7 +8126,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         tooltip: "Others...",
         iconAlign: "top",
         scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_info",
         menu: toolButtons
       });
@@ -8059,7 +8135,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     	tooltip: "Record Info",
         iconAlign: "top",
         scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
+//        style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_info",
         handler: function() {
           fnTblRecEdit(getForm.crudTableId, pk, false);
@@ -8067,39 +8143,13 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
     }
   }
-  //close
-  if(true || (_app.show_crud_btn_close && 1*_app.show_crud_btn_close))btn.push({
-    tooltip: "Close",
-    id: "cl_" + getForm.id,
-    iconAlign: "top",
-    scale: "medium",
-//  style: {margin: "0px 5px 0px 5px"},
-    iconCls: "ikapat",
-    handler: function(a, b, c) {
-      function closeMe() {
-        if (!callAttributes.modalWindowFlag) mainPanel.getActiveTab().destroy();
-        else mainPanel.closeModalWindow();
-      }
-      if (
-        !getForm.viewMode &&
-        1 * _app.form_cancel_dirty_control &&
-        getForm._cfg.formPanel.getForm().isDirty()
-      )
-        Ext.infoMsg.confirm(
-          "There are changed fields. Do you still want to close?",
-          () => {
-            closeMe();
-          }
-        );
-      else closeMe();
-    }
-  });
+
   var iconCls = getForm.a == 1 ? "icon-edit" : "icon-new";
 
   var o = {
-    autoScroll: true,cls:'iwb-crud-form',
+    autoScroll: true,
     border: false,
-    tbar: {xtype:'toolbar',cls:'iwb-crud-form-toolbar',items:btn},
+    tbar: btn,
 //    bodyStyle: "padding:3px;",
     iconCls: callAttributes.iconCls || iconCls,
     _title_: callAttributes.title || "Form: " + getForm.name,
