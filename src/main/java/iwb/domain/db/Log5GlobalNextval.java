@@ -1,15 +1,8 @@
 package iwb.domain.db;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 
 public class Log5GlobalNextval implements Serializable, Log5Base{
 	

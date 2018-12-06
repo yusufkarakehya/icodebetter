@@ -1,6 +1,9 @@
 package iwb.util;
 
-import org.mozilla.javascript.*;
+import org.mozilla.javascript.Callable;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Scriptable;
 
 public class MyFactory extends ContextFactory {
   // Custom {@link Context} to store execution time.

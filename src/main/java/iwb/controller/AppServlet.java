@@ -45,7 +45,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.ViewMobileAdapter2;
-import iwb.adapter.ui.extjs.ExtJs3_3;
+import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.adapter.ui.f7.F7;
 import iwb.adapter.ui.react.React16;
 import iwb.adapter.ui.vue.Vue2;
@@ -54,9 +54,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5UserAction;
-import iwb.domain.db.Log5VisitedPage;
 import iwb.domain.db.W5BIGraphDashboard;
-import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Project;
@@ -67,11 +65,11 @@ import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
+import iwb.domain.result.W5GlobalFuncResult;
+import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.engine.FrameworkEngine;
 import iwb.engine.ScriptEngine;
@@ -117,7 +115,7 @@ public class AppServlet implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		ext3_4 = new ExtJs3_3();
+		ext3_4 = new ExtJs3_4();
 		webix3_3 = new Webix3_3();
 		f7 = new F7();
 		react16 = new React16();

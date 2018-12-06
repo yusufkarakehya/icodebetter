@@ -27,23 +27,15 @@ import iwb.adapter.soap.impl.AxisSoap1_4;
 //import iwb.adapter.soap.SoapAdapter;
 //import iwb.adapter.soap.impl.AxisSoap1_4;
 import iwb.adapter.ui.ViewAdapter;
-import iwb.adapter.ui.extjs.ExtJs3_3;
+import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
-import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
-import iwb.domain.db.W5FormCell;
-import iwb.domain.db.W5QueryField;
-import iwb.domain.db.W5QueryParam;
-import iwb.domain.db.W5Table;
-import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
-import iwb.domain.db.W5WsServerMethodParam;
-import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
-import iwb.domain.result.W5QueryResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.engine.FrameworkEngine;
 import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
@@ -54,7 +46,7 @@ import iwb.util.UserUtil;
 public class SoapServlet implements InitializingBean {
 	private static Logger logger = Logger.getLogger(SoapServlet.class);
 
-	private ViewAdapter ext3_4 = new ExtJs3_3();
+	private ViewAdapter ext3_4 = new ExtJs3_4();
 	private SoapAdapter soap = new AxisSoap1_4();
 	
 	@Autowired

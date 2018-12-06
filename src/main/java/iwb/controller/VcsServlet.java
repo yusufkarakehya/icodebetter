@@ -18,15 +18,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import iwb.adapter.ui.ViewAdapter;
-import iwb.adapter.ui.extjs.ExtJs3_3;
-import iwb.cache.FrameworkSetting;
-import iwb.domain.db.Log5VisitedPage;
+import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.domain.result.W5QueryResult;
 import iwb.engine.VcsEngine;
-import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
-import iwb.util.LogUtil;
 import iwb.util.UserUtil;
 
 @Controller
@@ -43,7 +39,7 @@ public class VcsServlet implements InitializingBean {
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		ext3_4 = new ExtJs3_3();
+		ext3_4 = new ExtJs3_4();
 	//	webix3_3 = new Webix3_3();
 	}
 

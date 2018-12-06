@@ -1,7 +1,5 @@
 package iwb.custom.trigger;
 
-import iwb.cache.FrameworkCache;
-import iwb.cache.FrameworkSetting;
 import iwb.domain.result.W5GlobalFuncResult;
 
 public class GlobalFuncTrigger {

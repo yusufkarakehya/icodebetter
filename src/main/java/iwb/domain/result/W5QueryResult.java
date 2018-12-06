@@ -2,11 +2,9 @@ package iwb.domain.result;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONException;
 
@@ -17,8 +15,6 @@ import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
-import iwb.domain.db.W5TableAccessConditionSql;
-import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFilter;
 import iwb.domain.db.W5TableParam;

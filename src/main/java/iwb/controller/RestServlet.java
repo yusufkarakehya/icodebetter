@@ -1,9 +1,6 @@
 package iwb.controller;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,9 +9,6 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPMessage;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
@@ -22,18 +16,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import iwb.adapter.soap.SoapAdapter;
-import iwb.adapter.soap.impl.AxisSoap1_4;
 //import iwb.adapter.soap.SoapAdapter;
 //import iwb.adapter.soap.impl.AxisSoap1_4;
 import iwb.adapter.ui.ViewAdapter;
-import iwb.adapter.ui.extjs.ExtJs3_3;
+import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
+import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
-import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
@@ -41,8 +33,8 @@ import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.db.W5WsServerMethodParam;
-import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.engine.FrameworkEngine;
 import iwb.exception.IWBException;
@@ -54,7 +46,7 @@ import iwb.util.UserUtil;
 public class RestServlet implements InitializingBean {
 	private static Logger logger = Logger.getLogger(RestServlet.class);
 
-	private ViewAdapter ext3_4 = new ExtJs3_3();
+	private ViewAdapter ext3_4 = new ExtJs3_4();
 	
 	@Autowired
 	private FrameworkEngine engine;

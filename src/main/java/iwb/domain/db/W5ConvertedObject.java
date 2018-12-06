@@ -15,7 +15,6 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Immutable;
 
 import iwb.domain.helper.W5TableRecordHelper;
-import iwb.util.GenericUtil;
 
 // Generated Jun 17, 2007 5:12:14 PM by Hibernate Tools 3.2.0.b9
 

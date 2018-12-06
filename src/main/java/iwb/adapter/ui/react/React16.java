@@ -15,10 +15,9 @@ import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5BIGraphDashboard;
-import iwb.domain.db.W5Workflow;
+import iwb.domain.db.W5Card;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
-import iwb.domain.db.W5Card;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
@@ -33,26 +32,27 @@ import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5ObjectMenuItem;
 import iwb.domain.db.W5ObjectToolbarItem;
+import iwb.domain.db.W5Page;
+import iwb.domain.db.W5PageObject;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5Page;
-import iwb.domain.db.W5PageObject;
 import iwb.domain.db.W5Tutorial;
+import iwb.domain.db.W5Workflow;
 import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.W5CardResult;
-import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5GridResult;
 import iwb.domain.result.W5ListViewResult;
+import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
@@ -4033,7 +4033,7 @@ columns:[
 
 	public StringBuilder serializeTemplate(W5PageResult pr) {
 		boolean replacePostJsCode = false;
-		W5Page template = pr.getPage();
+		W5Page page = pr.getPage();
 
 		StringBuilder buf = new StringBuilder();
 		StringBuilder postBuf = new StringBuilder();
@@ -4041,7 +4041,7 @@ columns:[
 		int customizationId = (Integer) pr.getScd().get(
 				"customizationId");
 		String xlocale = (String) pr.getScd().get("locale");
-		if (template.getTemplateTip() != 0) { // html degilse
+		if (page.getTemplateTip() != 0) { // html degilse
 			// notification Control
 			// masterRecord Control
 			if (pr.getMasterRecordList() != null
@@ -4063,7 +4063,7 @@ columns:[
 						.append(GenericUtil.getNextId("tpi")).append("';\n");
 			}
 
-			if (template.getTemplateTip() != 8) { // wizard degilse
+			if (page.getTemplateTip() != 8) { // wizard degilse
 				int customObjectCount = 1, tabOrder = 1;
 				for (Object i : pr.getPageObjectList()) {
 					if (i instanceof W5GridResult) { // objectTip=1
@@ -4136,7 +4136,7 @@ columns:[
 			} else { // wizard
 				buf.append("\nvar templateObjects=[");
 				boolean b = false;
-				for (W5PageObject o : template.get_pageObjectList()) {
+				for (W5PageObject o : page.get_pageObjectList()) {
 					if (b)
 						buf.append(",\n");
 					else
@@ -4153,7 +4153,7 @@ columns:[
 			if (replacePostJsCode) {
 
 			} else
-				code = template.getCode();
+				code = page.getCode();
 		} else {
 			StringBuilder buf2 = new StringBuilder();
 			buf2.append("var _webPageId='").append(GenericUtil.getNextId("wpi"))
@@ -4244,24 +4244,6 @@ columns:[
 				}
 				buf2.append("\n");
 			}
-			StringBuilder buf4 = new StringBuilder();
-			if (pr.getScd().containsKey("userId")) { // login olmus
-																	// demek ki
-				buf2.append("\nvar _widgetMap={};\n");
-
-				if (template.getCode().contains("${gridColorCss}")) {
-					buf4.append("<style type=\"text/css\">\n");
-					W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
-					for (W5LookUpDetay d : c.get_detayList()) {
-						buf4.append(".bgColor")
-								.append(d.getVal().replace("#", ""))
-								.append("{background-color:")
-								.append(d.getVal()).append(";}\n");
-					}
-					buf4.append("</style>");
-				}
-
-			}
 			StringBuilder buf3 = new StringBuilder();
 			buf3.append("var _localeMsg=")
 					.append(GenericUtil.fromMapToJsonString(LocaleMsgCache
@@ -4270,9 +4252,26 @@ columns:[
 					.append("\n");
 			// buf3.append("function getLocMsg(key){if(key==null)return '';var val=_localeMsg[key];return val || key;}\n");
 //			buf3.append("var _CompanyLogoFileId=1;\n");
-			code = template.getCode().replace("${promis}", buf2.toString())
-					.replace("${localemsg}", buf3.toString())
-					.replace("${gridColorCss}", buf4.toString());
+			code = page.getCode().replace("${promis}", buf2.toString())
+					.replace("${localemsg}", buf3.toString());
+			if (page.getCode().contains("${promis-css}")) {
+				StringBuilder buf4 = new StringBuilder();
+
+				if(!GenericUtil.isEmpty(page.getCssCode()) && page.getCssCode().trim().length()>3){
+					buf4.append(page.getCssCode()).append("\n");
+				}
+				W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
+				for (W5LookUpDetay d : c.get_detayList()) {
+					buf4.append(".bgColor")
+							.append(d.getVal().replace("#", ""))
+							.append("{background-color:")
+							.append(d.getVal()).append(";}\n");
+				}
+				FrameworkCache.addPageCss(pr.getScd(), page.getTemplateId(), buf4.toString());
+				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"/app/dyn-res/"+page.getTemplateId()+".css?.x="+page.getVersionNo()+"\" />");
+
+			}
+			
 		}
 		/*
 		 * if(templateResult.getTemplateId()==2){ // ana sayfa Map<String,
@@ -4298,7 +4297,7 @@ columns:[
 			
 		}
 		
-		return template.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
+		return page.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(
 				buf.toString(), pr.getScd(),
 				pr.getRequestParams(), null) : buf;
 	}

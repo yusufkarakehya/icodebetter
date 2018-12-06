@@ -16,7 +16,6 @@ import javax.persistence.Transient;
 import iwb.domain.helper.W5AccessControlHelper;
 import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5TableRecordHelper;
-import iwb.util.GenericUtil;
 
 
 @Entity
