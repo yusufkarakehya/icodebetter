@@ -133,19 +133,31 @@ var iwb = {
   detailPageSize: 10,
   log: console.log.bind(window.console),
   mem:(( isArrayEqual = (array1, array2) => array1.length === array2.length &&
-		  array1.every((value, index) => value === array2[index]) &&
-		  JSON.stringify(array1) === JSON.stringify(array2)
-		) => {
-		  let fnList = {}, resultList = {}, argList = {};
-		  return (resultFn, ...newArgs) => {
-		    let key = resultFn.toString().replace(/(\r\n\t|\n|\r\t|\s)/gm, "")+newArgs.toString().replace(/(,|\s)/gm, '');
-		    if ( key && fnList[key] && resultList[key] && isArrayEqual(argList[key], newArgs) ) { return resultList[key]; }
-		    argList[key] = newArgs;
-		    resultList[key] = resultFn.apply(this, newArgs);
-		    fnList[key] = resultFn;
-		    return resultList[key];
-		  };
-		})(),
+  array1.every((value, index) => value === array2[index]) &&
+  JSON.stringify(array1) === JSON.stringify(array2)
+  ) => {
+    let fnList = {}, resultList = {}, argList = {};
+    return (resultFn, ...newArgs) => {
+      let key = resultFn.toString().replace(/(\r\n\t|\n|\r\t|\s)/gm, "")+newArgs.toString().replace(/(,|\s)/gm, '');
+      if ( key && fnList[key] && resultList[key] && isArrayEqual(argList[key], newArgs) ) { return resultList[key]; }
+      argList[key] = newArgs;
+      resultList[key] = resultFn.apply(this, newArgs);
+      fnList[key] = resultFn;
+      return resultList[key];
+    };
+  })(),
+  /**
+   * A function to insert css classes into Dom
+   * @param {string} css - example '.aclass{display:none}'
+   * @param {string} id - template id of the page not mandatory
+   */
+  addCss: (css = '', id = Math.random()) => {
+    let style = document.createElement('style');
+    style.type = 'text/css';
+    style.id = "iwb-tpl-" + id;
+    (style.styleSheet) ? style.styleSheet.cssText = css: style.appendChild(document.createTextNode(css))
+    document['head'].appendChild(style);
+  },
   /**
    * @description
    * used for giving data for grid button
@@ -1533,16 +1545,6 @@ class XLazyScriptLoader extends React.PureComponent {
             loading: true
         }
         /**
-         * A function to insert css classes into Dom
-         * @param {string} css - example '.aclass{display:none}'
-         */
-        this.CSSIntoDom = (css = '') => {
-            let style = document.createElement('style');
-            style.type = 'text/css';
-            (style.styleSheet)? style.styleSheet.cssText = css : style.appendChild(document.createTextNode(css))
-            document['head'].appendChild(style);
-        }
-        /**
          * a self invoking function to load js and css into Dom from source {cdn,server,local.....}
          */
         this.load = (() => {
@@ -1594,7 +1596,7 @@ class XLazyScriptLoader extends React.PureComponent {
             console.error('Oh no, epic failure!');
             alert('Oh no, epic failure!');
         });
-        this.CSSIntoDom(css)
+        iwb.addCss(css);
     }
     render() {
         return React.createElement(React.Fragment, {},(this.state.loading)?this.props.loading:this.props.children)
