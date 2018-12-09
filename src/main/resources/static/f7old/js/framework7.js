@@ -5248,7 +5248,7 @@ return t7;
             }
             var template = options.template;
             if (view.params.reloadPages === true) options.reload = true;
-        
+            
             if (!view.allowPageChange) return false;
             if (url && view.url === url && !options.reload && !view.params.allowDuplicateUrls) return false;
             view.allowPageChange = false;
