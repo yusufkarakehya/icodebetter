@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -40,7 +39,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.ViewMobileAdapter2;
-import iwb.adapter.ui.extjs.ExtJs3_3;
+import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.adapter.ui.f7.F7;
 import iwb.adapter.ui.react.React16;
 import iwb.adapter.ui.vue.Vue2;
@@ -53,17 +52,16 @@ import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
-import iwb.domain.db.W5SmsValidCode;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5FormResult;
+import iwb.domain.result.W5GlobalFuncResult;
+import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.engine.FrameworkEngine;
 import iwb.exception.IWBException;
@@ -92,7 +90,7 @@ public class SpaceServlet implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		ext3_4 = new ExtJs3_3();
+		ext3_4 = new ExtJs3_4();
 		webix3_3 = new Webix3_3();
 		f7 = new F7();
 		react16 = new React16();
@@ -123,7 +121,29 @@ public class SpaceServlet implements InitializingBean {
 		return getViewAdapter(scd, request, ext3_4);
 	}
 
+	@RequestMapping("/dyn-res/*")
+	public ModelAndView hndDynResource(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("hndJasperReport"); 
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+    	String uri = request.getRequestURI();
+    	if(uri.endsWith(".css")){
+    		uri = uri.substring(uri.lastIndexOf('/')+1);
+    		uri = uri.substring(0, uri.length()-4);
+        	String css = FrameworkCache.getPageCss(scd, GenericUtil.uInt(uri));
+        	if(css!=null){
+//        		response.setContentType("text/html; charset=UTF-8");
+        		response.getWriter().write(css);
+        	}
+    	}
+//    	int pageId =  ;
 
+		response.getWriter().close();
+    	return null;
+		
+	}
 
 	@RequestMapping("/*/ajaxFormCellCode")
 	public void hndAjaxFormCellCode(HttpServletRequest request, HttpServletResponse response)

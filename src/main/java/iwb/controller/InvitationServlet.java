@@ -1,7 +1,6 @@
 package iwb.controller;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -12,11 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import iwb.engine.FrameworkEngine;
 import iwb.cache.FrameworkCache;
 import iwb.domain.db.W5Project;
+import iwb.engine.FrameworkEngine;
 import iwb.util.GenericUtil;
-import iwb.util.UserUtil;
 
 @Controller
 @RequestMapping("/invitation")

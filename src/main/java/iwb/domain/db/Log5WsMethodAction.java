@@ -15,7 +15,6 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
 
-import iwb.domain.result.W5QueryResult;
 import iwb.util.GenericUtil;
 
 @Entity

@@ -3,7 +3,6 @@ package iwb.domain.result;
 import java.util.List;
 import java.util.Map;
 
-import iwb.cache.FrameworkCache;
 import iwb.domain.db.W5Page;
 import iwb.domain.helper.W5TableRecordHelper;
 
