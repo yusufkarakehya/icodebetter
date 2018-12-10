@@ -1105,8 +1105,8 @@ public class Vue2 implements ViewAdapter {
 			postCode = "";
 		if (!GenericUtil.isEmpty(postCode) && postCode.indexOf("Ext.")==-1) {
 			s.append("try{").append(postCode).append("\n}catch(e){");
-			s.append(FrameworkSetting.debug ? "if(confirm('ERROR form.JS!!! Throw?'))throw e;"
-					: "alert('System/Customization ERROR')");
+			s.append(FrameworkSetting.debug ? "if(confirm('ERROR form.JS!!! Throw? : ' + e.message))throw e;"
+					: "alert('System/Customization ERROR : ' + e.message)");
 			s.append("}\n");
 		}
 
@@ -2353,8 +2353,8 @@ public class Vue2 implements ViewAdapter {
 							dataViewResult.getScd(),
 							dataViewResult.getRequestParams(), null))
 					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR card.JS!!! Throw?'))throw e;"
-							: "alert('System/Customization ERROR')");
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR card.JS!!! Throw? : ' + e.message))throw e;"
+							: "alert('System/Customization ERROR : ' + e.message)");
 			buf.append("}\n");
 		}
 		return buf;
@@ -2420,8 +2420,8 @@ public class Vue2 implements ViewAdapter {
 							listViewResult.getScd(),
 							listViewResult.getRequestParams(), null))
 					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR listView.JS!!! Throw?'))throw e;"
-							: "alert('System/Customization ERROR')");
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR listView.JS!!! Throw? : ' + e.message))throw e;"
+							: "alert('System/Customization ERROR : ' + e.message)");
 			buf.append("}\n");
 		}
 		buf.append(serializeListColumns(listViewResult));
@@ -2670,8 +2670,8 @@ public class Vue2 implements ViewAdapter {
 					.append(GenericUtil.filterExt(g.getJsCode(), scd,
 							gridResult.getRequestParams(), null))
 					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw?'))throw e;"
-							: "alert('System/Customization ERROR')");
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw? : ' + e.message))throw e;"
+							: "alert('System/Customization ERROR : ' + e.message)");
 			buf.append("}\n");
 		}
 		return buf;
