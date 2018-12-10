@@ -1338,8 +1338,8 @@ public class ExtJs3_4 implements ViewAdapter {
 			s.append(postCode);
 			if(FrameworkSetting.debug)s.append("\n/*iwb:end:form:").append(fr.getFormId()).append(":Code*/\n");
 			s.append("\n}catch(e){");
-			s.append(FrameworkSetting.debug ? "if(confirm('ERROR form.JS!!! Throw?'))throw e;"
-					: "alert('System/Customization ERROR')");
+			s.append(FrameworkSetting.debug ? "if(confirm('ERROR form.JS!!! Throw? : ' + e.message))throw e;"
+					: "alert('System/Customization ERROR : ' + e.message)");
 			s.append("}\n");
 		}
 
@@ -4290,8 +4290,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							cardResult.getScd(),
 							cardResult.getRequestParams(), null))
 					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR dataView.JS!!! Throw?'))throw e;"
-							: "alert('System/Customization ERROR')");
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR dataView.JS!!! Throw? : ' + e.message))throw e;"
+							: "alert('System/Customization ERROR : ' + e.message)");
 			buf.append("}\n");
 		}
 		return buf;
@@ -4357,8 +4357,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							listViewResult.getScd(),
 							listViewResult.getRequestParams(), null))
 					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR listView.JS!!! Throw?'))throw e;"
-							: "alert('System/Customization ERROR')");
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR listView.JS!!! Throw? : ' + e.message))throw e;"
+							: "alert('System/Customization ERROR : ' + e.message)");
 			buf.append("}\n");
 		}
 		buf.append(serializeListColumns(listViewResult));
@@ -4786,8 +4786,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 				buf.append("\ndefault:return null;}}");
 				buf.append("\n}catch(e){")
-						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(1)!!! Throw?'))throw e;"
-								: "alert('System/Customization ERROR')");
+						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(1)!!! Throw? : ' + e.message))throw e;"
+								: "alert('System/Customization ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 			break;
@@ -4820,8 +4820,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							.append("';");
 				}
 				buf.append("\nreturn null;}}catch(e){")
-						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(2)!!! Throw?'))throw e;"
-								: "alert('System/Customization ERROR')");
+						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(2)!!! Throw? : ' + e.message))throw e;"
+								: "alert('System/Customization ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 			break;
@@ -4843,8 +4843,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							.append("';");
 				}
 				buf.append("\nreturn null;}}catch(e){")
-						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(3)!!! Throw?'))throw e;"
-								: "alert('System/Customization ERROR')");
+						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(3)!!! Throw? : ' + e.message))throw e;"
+								: "alert('System/Customization ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 
@@ -4856,8 +4856,8 @@ public class ExtJs3_4 implements ViewAdapter {
 			buf.append(GenericUtil.filterExt(g.getJsCode(), scd,gridResult.getRequestParams(), null));
 			if(FrameworkSetting.debug)buf.append("\n/*iwb:end:grid:").append(gridResult.getGridId()).append(":Code*/\n");
 			buf.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw?'))throw e;"
-							: "alert('System/Customization ERROR')");
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw? : ' + e.message))throw e;"
+							: "alert('System/Customization ERROR : ' + e.message)");
 			buf.append("}\n");
 		}
 		return buf;

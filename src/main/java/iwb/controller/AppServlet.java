@@ -1239,6 +1239,7 @@ public class AppServlet implements InitializingBean {
 		int action = GenericUtil.uInt(request, "a");
 		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
 
+		response.setContentType("application/json");
 		response.getWriter().write(f7.serializeGetForm(formResult).toString());
 		response.getWriter().close();
 	}
