@@ -2935,12 +2935,8 @@ function addTab4GridWSearchForm(obj) {
       Ext.apply(mainGrid.searchForm.render(), {
           region: "north", autoHeight: true,anchor: "100%",
 //          region: "west", width:300,
-        cls:'iwb-search-form',
-        
-        
-        collapsible: true,
-        animate: false,
-        animCollapse: false,
+        cls:'iwb-search-form',collapseMode: 'mini',
+        collapsible: true, animate: false, animCollapse: false,
         title: mainGrid.name,
         border: false,
         //			tools:searchFormTools,
@@ -3210,10 +3206,8 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       Ext.apply(mainGrid.searchForm.render(), {
         region: "north",autoHeight: true, anchor: "100%",
 //        region: "west", width:300,
-        cls:'iwb-search-form',
-        collapsible: true,
-        animate: false,
-        animCollapse: false,
+        cls:'iwb-search-form',collapseMode: 'mini',
+        collapsible: true, animate: false, animCollapse: false,
         title: mainGrid.name,
         border: false,
         id: "sf_" + (obj.t || Math.random()),
@@ -5713,11 +5707,8 @@ function addTab4DetailGridsWSearchForm(obj) {
     Ext.apply(mainGrid.searchForm.render(), {
       region: "north",autoHeight: true, anchor: "100%",
 //      region: "west", width:300,
-      cls:'iwb-search-form',
-      
-      collapsible: true,
-      animate: false,
-      animCollapse: false,
+      cls:'iwb-search-form', collapseMode: 'mini',
+      collapsible: true, animate: false, animCollapse: false,
       title: mainGrid.name,
       border: false,
       keys: {
@@ -7280,7 +7271,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     var sv_btn_visible = extDef.baseParams.sv_btn_visible || 1;
     if (sv_btn_visible * 1 == 1) {
       var saveBtn = {
-        text: '<span style="font-size:17px;">' + (1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : "Save") + ' '+getForm.name+'</span>',
+        text: (1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : "Save").toUpperCase(),// + ' '+getForm.name,
         id: "sb_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -7405,7 +7396,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     //post & continue
     if (getForm.contFlag && 1 * getForm.contFlag == 1 && realAction == 2) {
       btn.push({
-        text: "Save&Continue",
+        text: "Save&Continue".toUpperCase(),
         id: "cc_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -7445,7 +7436,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
 
       btn.push({
-        text: "Save&New",
+        text: "Save&New".toUpperCase(),
         id: "cn_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
