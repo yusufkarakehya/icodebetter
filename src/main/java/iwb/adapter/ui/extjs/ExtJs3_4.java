@@ -5220,9 +5220,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					c.set_queryField(f);
 					c.setWidth(f.getTabOrder());
 					c.setAlignTip((short) 0);
-					c.setLocaleMsgKey("<div class=\""
-							+ FrameworkSetting.postQueryGridImgMap[f.getFieldTip()]
-							+ "\"></div>");
+					c.setLocaleMsgKey(""); //<div class=\""+ FrameworkSetting.postQueryGridImgMap[f.getFieldTip()]+ "\"></div>
 					c.setVisibleFlag((short) 1);
 					String renderer = postQueryMap[f.getFieldTip()];
 					c.setRenderer(renderer);

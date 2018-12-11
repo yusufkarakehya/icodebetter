@@ -7473,7 +7473,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   }
   
   //close
-  if(false)btn.push({
+  if(_app.show_close_button)btn.push({
     tooltip: "Close",
     id: "cl_" + getForm.id,
     iconAlign: "top",
