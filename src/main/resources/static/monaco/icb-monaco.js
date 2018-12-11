@@ -159,7 +159,7 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent, {
 	              value: self.value,
 	              language: self.language
 	            });
-	    	  monaco.editor.setTheme("vs-dark");
+	    	  monaco.editor.setTheme(iwb.monacoTheme || "vs-dark");
 	    	  if(defineJSCompletionItemProvider && self.language=='javascript'){
 	    		  monaco.languages.registerCompletionItemProvider('javascript', defineJSCompletionItemProvider);
 	    		  defineJSCompletionItemProvider=false;

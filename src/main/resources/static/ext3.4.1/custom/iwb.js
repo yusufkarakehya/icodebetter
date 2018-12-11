@@ -1106,7 +1106,7 @@ function fnTblRecEdit(tid, tpk, b) {
       recordInfoWindow = null;
     }
     mainPanel.loadTab({
-      attributes: {
+      attributes: {text:'Update Record',
         id: "g-" + tid + "-" + tpk,
         href: "showForm?_tb_id=" + tid + "&_tb_pk=" + tpk
       }
@@ -1300,7 +1300,7 @@ function fnRowInsert(a, b) {
   }
   if (href) {
     var cfg = {
-      attributes: {
+      attributes: {text:'New Record',
         id: "g" + a._grid.id + "-i",
         href: href,
         _grid: a._grid ? a._grid._refreshGrid || a._grid : null
@@ -2941,7 +2941,7 @@ function addTab4GridWSearchForm(obj) {
         collapsible: true,
         animate: false,
         animCollapse: false,
-        title: mainGrid.searchForm.name,
+        title: mainGrid.name,
         border: false,
         //			tools:searchFormTools,
         keys: {
@@ -3214,7 +3214,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
         collapsible: true,
         animate: false,
         animCollapse: false,
-        title: mainGrid.searchForm.name,
+        title: mainGrid.name,
         border: false,
         id: "sf_" + (obj.t || Math.random()),
         //			tools:searchFormTools,
@@ -3325,7 +3325,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 //        stripeRows: true,
         id: "gr" + Math.random(),
         border: false,
-        bodyStyle: "border-top: 1px solid #18181a;",
+//        bodyStyle: "border-top: 1px solid #18181a;",
         autoScroll: true,
         clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
       };
@@ -3495,7 +3495,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	  });
 	  var mainGridPanelOrj = mainGridPanel;
-	  mainGridPanel = {region:'west', cls:'icb-main-card',autoScroll:!0, bodyStyle:"background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
+	  mainGridPanel = {region:'west', cls:'icb-main-card',autoScroll:!0, /*bodyStyle:"background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",*/store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
 		  mainGridPanel.bbar = {
@@ -3505,7 +3505,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      displayInfo: !0
 	    };
 	  } 
-	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0",style:'border-bottom:1px solid #d64e20;background:#323840;'
+	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0",style:'border-bottom:1px solid #d64e20;'//background:#323840;
 		  ,items:[new Ext.form.TextField({emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}
 		  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:300})
 		  ,'->',{cls:'x-btn-icon x-grid-search',tooltip:'Advanced Search',handler:function(){}}
@@ -5718,7 +5718,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       collapsible: true,
       animate: false,
       animCollapse: false,
-      title: mainGrid.searchForm.name,
+      title: mainGrid.name,
       border: false,
       keys: {
         key: 13,
@@ -7280,7 +7280,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     var sv_btn_visible = extDef.baseParams.sv_btn_visible || 1;
     if (sv_btn_visible * 1 == 1) {
       var saveBtn = {
-        text: 1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : "Save",
+        text: '<span style="font-size:17px;">' + (1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : "Save") + ' '+getForm.name+'</span>',
         id: "sb_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -7480,9 +7480,10 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
     }
   }
+  
   //close
-  btn.push({
-    text: "Close",
+  if(false)btn.push({
+    tooltip: "Close",
     id: "cl_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
