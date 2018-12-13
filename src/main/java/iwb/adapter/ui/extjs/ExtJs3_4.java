@@ -4234,8 +4234,16 @@ public class ExtJs3_4 implements ViewAdapter {
 				.append(",name:'")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						d.getLocaleMsgKey()))
-				.append("'")
-				.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
+				.append("'");
+		if(!GenericUtil.isEmpty(d.get_orderQueryFieldNames())){
+			buf.append(",\n orderNames:[");
+			for(String f:d.get_orderQueryFieldNames()){
+				buf.append("{id:'").append(f).append("',dsc:'").append(LocaleMsgCache.get2(cardResult.getScd(), f)).append("'},");
+			}
+			buf.setLength(buf.length()-1);
+			buf.append("]");
+		}		
+		buf.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
 				.append(d.getQueryId()).append("&_dvid=")
 				.append(d.getDataViewId());
 
