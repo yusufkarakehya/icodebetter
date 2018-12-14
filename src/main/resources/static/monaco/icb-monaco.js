@@ -175,18 +175,19 @@ Ext.ux.form.Monaco = Ext.extend(Ext.BoxComponent, {
           console.log("self.editor: ", self.editor);
           */
             var containerHeight = self.ownerCt.container.dom.clientHeight;
+//            console.log('containerHeight',containerHeight)
             var containerWidth = self.ownerCt.container.dom.clientWidth;
 
             if (containerHeight < 500 || containerWidth < 500 ) {
               containerHeight = 500;
               containerWidth = 500;
               self.ownerCt.setHeight(500);
-              self.ownerCt.setWidth(500);
+        //      self.ownerCt.setWidth(500);
               self.ownerCt.container.setHeight(500);
-              self.ownerCt.container.setWidth(500);
+       //       self.ownerCt.container.setWidth(500);
             }
             self.setHeight(containerHeight);
-            self.setWidth(containerWidth);
+      //      self.setWidth(containerWidth);
             self.editor.layout();
 
             var itemLength = self.ownerCt.items.items.length;

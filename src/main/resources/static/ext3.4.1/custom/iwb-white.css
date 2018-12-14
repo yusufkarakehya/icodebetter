@@ -1051,20 +1051,19 @@ background: none;
 }
 
 .iwb-card-sub-header{
-	padding:0px 30px;
-	margin-top:-4px;
+	padding:10px 30px 0 30px
 }
 .iwb-card-sub-header span {
-    font-size: 25px;
-    color: #ddd;
+    font-size: 20px;
+    color: #adadad;
 }
 .iwb-card-sub-header span::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     background: #FF9800;
     position: absolute;
-    top: 10px;
+    top: 20px;
     left: 14px;
     border-radius: 10px;
 }
@@ -1194,4 +1193,12 @@ font-size:13px !important;
 }
 .iwb-crud-form-toolbar{
     background-color: #ffffff;
+}
+
+a.x-menu-item{
+	padding: 2px 21px 2px 27px;
+}
+
+.sort-menu a.x-menu-item{
+	padding: 1px 21px 1px 27px;
 }

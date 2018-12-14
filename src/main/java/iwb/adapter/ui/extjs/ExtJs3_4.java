@@ -1445,7 +1445,7 @@ public class ExtJs3_4 implements ViewAdapter {
 								b = true;
 							buf.append("Ext.apply(")
 									.append(subFormResult.getForm().getDsc())
-									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true,xtype:null,layout:'form',title:'")
+									.append(",{id:_page_tab_id+'_fm_").append(m.getFormModuleId()).append("',bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true,xtype:null,layout:'form',title:'")
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											m.getLocaleMsgKey()))
@@ -1501,21 +1501,22 @@ public class ExtJs3_4 implements ViewAdapter {
 								buf.append(",");
 							else
 								b = true;
-							String extra = "{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",layout:'form',bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true,title:'"
-									+ LocaleMsgCache.get2(customizationId,
-											xlocale, m.getLocaleMsgKey()) + "'";
-							// if(formBodyColor!=null)extra+=",bodyStyle:'background-color: #"+formBodyColor+"'";
-							if (formBodyStyle != null)
-								extra += ",bodyStyle:'" + formBodyStyle + "'";
-
 							W5FormCellHelper extraInfo = getModulExtraInfo(
 									(String) formResult.getScd().get("locale"),
 									m.getLocaleMsgKey());
 							if (extraInfo != null)
 								map.get(m.getFormModuleId()).add(0, extraInfo);
+							List<W5FormCellHelper> lfch = map.get(m.getFormModuleId());
+							String extra = "{id:_page_tab_id+'_fm_"+m.getFormModuleId()+"',title:'"
+									+ LocaleMsgCache.get2(customizationId,
+											xlocale, m.getLocaleMsgKey()) + "'";
+							if(lfch.size()==1 && lfch.get(0).getFormCell().getControlTip()==41){
+								extra+=",layout:'fit'";
+							} else extra+=",layout:'form',bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true";
+
 							buf.append(renderFormModuleList(customizationId,
 									xlocale, formResult.getUniqueId(),
-									map.get(m.getFormModuleId()), extra));
+									lfch, extra));
 						}
 
 					}
@@ -1578,7 +1579,7 @@ public class ExtJs3_4 implements ViewAdapter {
 							xlocale,
 							formResult.getUniqueId(),
 							map.get(0),
-							"{xtype:'panel',region:'north',border:false,bodyStyle:'overflowY:auto',split:true,height:"
+							"{xtype:'panel',region:'north',border:false,bodyStyle:'overflowY:auto',ssplit:true,autoHeight:!0,sheight:"
 									+ formResult.getForm().getDefaultHeight()
 									+ ",items:[{xtype:'fieldset'"
 									+ (GenericUtil.isEmpty(formBodyStyle) ? ""
@@ -2295,7 +2296,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		boolean liveSyncRecord = FrameworkSetting.liveSyncRecord
 				&& formResult != null && formResult.getForm() != null
 				&& formResult.getForm().getObjectTip() == 2
-				&& formResult.getAction() == 1;
+				&& formResult.getAction() == 1 && fc.getControlTip()!=41;
 		String liveSyncStr = null;
 		if (liveSyncRecord) {
 			W5Table t = FrameworkCache.getTable(formResult.getScd(), formResult

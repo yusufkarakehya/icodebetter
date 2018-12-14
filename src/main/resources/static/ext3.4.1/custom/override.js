@@ -1752,6 +1752,13 @@ try {
   Ext.util.Format.fmtChatList = fmtChatList;
   Ext.util.Format.fmtOnlineUser = fmtOnlineUser;
 
+  Ext.util.Format.fmtVcs = function(x){
+	  if(!x)return '';
+	  var v = x.get('pkpkpk_vcsf');
+	  if(!v)return '';
+	  return 'VCS: ' + vcsHtml(v);
+  }
+  
   Ext.util.Format.getPic2 = function(rrr) {
     return getPictureUrl(rrr.profile_picture_id, true);
   };
@@ -1810,9 +1817,9 @@ try {
           rrr.tpk +
           ');">' +
           (!rrr.tcc
-            ? "Yorum Yap"
+            ? "Coment"
             : (rrr.comments && rrr.comments.length < rrr.tcc ? "Bütün " : "") +
-              "Yorumlar (" +
+              "Comments (" +
               rrr.tcc +
               ")") +
           "</a>");
@@ -1821,7 +1828,7 @@ try {
 } catch (e) {
   if (
     1 * _app.debug != 0 &&
-    confirm("ERROR Ext.util.Format definitions!!! throw?")
+    confirm("ERROR Ext.util.Format definitions!!! throw?: " + e.message)
   )
     throw e;
 }
