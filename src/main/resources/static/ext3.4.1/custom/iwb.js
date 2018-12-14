@@ -693,10 +693,10 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
 
         //else gridDetail.store.reload({add:false,params:gridDetail.store.baseParams,scope:gridDetail.store});
       } else gridDetail.loadOnShow = true;
-    } else {
+    } else try{
       gridDetail.store.baseParams = null;
       gridDetail.store.removeAll();
-    }
+    }catch(qe){}
   });
 
   if (!tp) {
@@ -3184,6 +3184,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		    singleSelect:!0, loadMask:!0, cls:'iwb-card-'+mainGrid.dataViewId,
 		    itemSelector: 'div.icb-card'
 		}, mainGrid));
+		mainGrid._gp=mainGridPanel;
 	}
   if (buttons.length > 0 && mainGrid.gridId) {
     mainGridPanel.getSelectionModel().on("selectionchange", function(a, b, c) {
@@ -3268,12 +3269,19 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	    }
 	  });
-  } else if(mainGrid.dataViewId && searchFormPanel)mainGrid.store.on("beforeload", function(a, b) {
-	  if(searchFormPanel.isVisible())a.baseParams = Ext.apply(
-		        a._baseParams || {},
-		        a._formPanel.getForm().getValues()
-		      )
-  });
+  } else if(mainGrid.dataViewId){
+	  if(searchFormPanel)mainGrid.store.on("beforeload", function(a, b) {
+		  if(searchFormPanel.isVisible())a.baseParams = Ext.apply(
+			        a._baseParams || {},
+			        a._formPanel.getForm().getValues()
+			      )
+	  });
+	  mainGrid.store.on("load", function(a, b) {
+	    if (a.totalLength == 0) return;
+	    if(!mainGrid._gp.getSelectionCount())mainGrid._gp.selectRange(0,0,false);		  
+	  });
+
+  }
 
 
   if(mainGrid.gridId)mainGridPanel.store.on("load", function(a, b) {
@@ -3526,14 +3534,15 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
 		  mainGridPanel.bbar = {
-	      xtype: "paging",
-	      store: mainGrid.store,
+	      xtype: "paging",displayMsg:'{0} - {1} of {2}',
+	      store: mainGrid.store, cls:'iwb-card-paging',
 	      pageSize: mainGrid.pageSize,
 	      displayInfo: !0
 	    };
 	  } 
+	  var tbiNums = (mainGrid.searchForm?1:0)+(mainGrid.orderNames?1:0);
 	  var tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGridPanelOrj)}
-	  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -70}),'->'];
+	  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -35*tbiNums}),'->'];
 	  if(mainGrid.searchForm)tbarItems.push({cls:'x-btn-icon x-grid-search', id:'sfb-card-'+obj.t, _sf:searchFormPanel, tooltip:'Advanced Search', handler:function(aq){
 		  if(!aq._sf.isVisible()){
 			  aq._sf.expand();

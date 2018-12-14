@@ -678,19 +678,6 @@ background-image:url(images/vcsw-16.png);
     background-size: 24px;
 }
 
-
-/*.x-btn {
-	filter: grayscale(.3);
-	transition: all .5s ease-out;
-	-moz-transition: all .5s ease-out;
-	-webkit-transition: all .5s ease-out;
-	-o-transition: all .5s ease-out;
-}
-
-.x-btn:hover {
-	filter: grayscale(0);
-}*/
-
 .table2form-active {
 	background-color: rgba(126, 215, 255, 0.3);
 }
@@ -1075,6 +1062,9 @@ background: none;
 .x-btn {
 	padding: 7px 6px !important;
     transition: background-color .3s;	
+}
+.iwb-card-paging .x-btn {
+	padding: 5px 4px !important;
 }
 .x-btn.x-btn-over{
 	background: #dcedff;
