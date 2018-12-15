@@ -4108,6 +4108,8 @@ function formSubmit(submitConfig) {
 
       if (submitConfig._callAttributes) {
         if (submitConfig._callAttributes._grid) {
+        	var xg = submitConfig._callAttributes._grid;
+        	if(!xg.ds && xg.store)xg.ds=xg.store;
           if (_app.live_sync_record && 1 * _app.live_sync_record != 0)
             Ext.defer(
               function(g) {
@@ -4115,9 +4117,9 @@ function formSubmit(submitConfig) {
               },
               1000,
               this,
-              [submitConfig._callAttributes._grid]
+              [xg]
             );
-          else submitConfig._callAttributes._grid.ds.reload();
+          else xg.ds.reload();
         }
       }
     },

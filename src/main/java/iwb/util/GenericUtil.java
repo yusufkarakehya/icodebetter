@@ -910,7 +910,7 @@ public class GenericUtil {
     boolean b = false;
     html.append("{");
     for (Object q : s.keySet()) {
-      if (b) html.append("\n,");
+      if (b) html.append(", ");
       else b = true;
       Object o = s.get(q);
       if (o != null && (o instanceof Integer || o instanceof Double || o instanceof BigDecimal))
