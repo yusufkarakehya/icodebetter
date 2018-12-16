@@ -2167,6 +2167,15 @@ public class PostgreSQL extends BaseDAO {
                 "DataView"); // ozel bir client icin varsa
     dr.setCard(d);
 
+    if (!GenericUtil.isEmpty(d.getOrderQueryFieldIds()))
+        d.set_orderQueryFieldNames(
+            find(
+                "select qf.dsc from W5QueryField qf where qf.queryId=? and qf.projectUuid=? AND qf.queryFieldId in ("
+                    + d.getOrderQueryFieldIds()
+                    + ") order by qf.tabOrder",
+                d.getQueryId(),
+                projectId));
+    
     W5Query query = null;
     if (FrameworkSetting.preloadWEngine != 0) {
       query = getQueryResult(dr.getScd(), d.getQueryId()).getQuery();

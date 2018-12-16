@@ -693,10 +693,10 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
 
         //else gridDetail.store.reload({add:false,params:gridDetail.store.baseParams,scope:gridDetail.store});
       } else gridDetail.loadOnShow = true;
-    } else {
+    } else try{
       gridDetail.store.baseParams = null;
       gridDetail.store.removeAll();
-    }
+    }catch(qe){}
   });
 
   if (!tp) {
@@ -2935,8 +2935,8 @@ function addTab4GridWSearchForm(obj) {
       Ext.apply(mainGrid.searchForm.render(), {
           region: "north", autoHeight: true,anchor: "100%",
 //          region: "west", width:300,
-        cls:'iwb-search-form',collapseMode: 'mini',
-        collapsible: true, animate: false, animCollapse: false,
+        cls:'iwb-search-form', //collapseMode: 'mini',
+        collapsible: true, animate: false, animCollapse: false, animFloat:false,
         title: mainGrid.name,
         border: false,
         //			tools:searchFormTools,
@@ -3014,7 +3014,7 @@ function organizeButtons(items) {
   return items;
 }
 
-function fncCardSearchListener(card){
+function fnCardSearchListener(card){
 	return function(ax,e){
 		if(!ax._delay){
 			ax._delay = new Ext.util.DelayedTask(function() {
@@ -3184,6 +3184,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		    singleSelect:!0, loadMask:!0, cls:'iwb-card-'+mainGrid.dataViewId,
 		    itemSelector: 'div.icb-card'
 		}, mainGrid));
+		mainGrid._gp=mainGridPanel;
 	}
   if (buttons.length > 0 && mainGrid.gridId) {
     mainGridPanel.getSelectionModel().on("selectionchange", function(a, b, c) {
@@ -3202,22 +3203,34 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   //---search form
   var searchFormPanel = null;
   if (mainGrid.searchForm) {
-    var searchFormPanel = (mainGrid.searchForm.fp = new Ext.FormPanel(
-      Ext.apply(mainGrid.searchForm.render(), {
-        region: "north",autoHeight: true, anchor: "100%",
-//        region: "west", width:300,
-        cls:'iwb-search-form',collapseMode: 'mini',
-        collapsible: true, animate: false, animCollapse: false,
-        title: mainGrid.name,
-        border: false,
-        id: "sf_" + (obj.t || Math.random()),
-        //			tools:searchFormTools,
-        keys: {
-          key: 13,
-          fn: mainGridPanel.store.reload,
-          scope: mainGridPanel.store
-        }
-      })
+	  var sfCfg = {
+		        region: "north",autoHeight: true, anchor: "100%",
+//		        region: "west", width:300,
+		        cls:'iwb-search-form',//collapseMode: 'mini',
+		        collapsible: true, animate: false, animCollapse: false, animFloat:false,
+		        title: mainGrid.gridId ? mainGrid.name : 'Advanced Search',
+		        border: false,
+		        id: "sf_" + (obj.t || Math.random()),
+		        //			tools:searchFormTools,
+		        keys: {
+		          key: 13,
+		          fn: mainGridPanel.store.reload,
+		          scope: mainGridPanel.store
+		        }
+		      };
+	  if(mainGrid.dataViewId){
+		  sfCfg.collapsed=!0; sfCfg._grid=mainGrid; sfCfg.collapseMode= 'mini';
+		  sfCfg.listeners={expand:function(ax,bx,cx){
+			  Ext.getCmp('sf-card-'+obj.t).hide();
+		  }, collapse:function(ax,bx,cx){
+			  Ext.getCmp('sf-card-'+obj.t).show();
+			  Ext.getCmp('sfb-card-'+obj.t).show();
+			  mainGrid.store.baseParams={xdsc:Ext.getCmp('sf-card-'+obj.t).getValue()};
+		  }};
+		  sfCfg.bodyStyle='padding-bottom:5px;';
+	  }
+    searchFormPanel = (mainGrid.searchForm.fp = new Ext.FormPanel(
+      Ext.apply(mainGrid.searchForm.render(), sfCfg)
     ));
     mainGridPanel.store._formPanel = searchFormPanel;
   }
@@ -3231,29 +3244,44 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     if(mainGrid.gridId)mainGridPanel.on("rowdblclick", fnRowEditDblClick);
     else mainGridPanel.on("dblclick", fnCardDblClick);
   }
+  
+  if(mainGrid.gridId){
+	  mainGridPanel.store._grid = mainGrid;
+	  mainGridPanel.store.on("beforeload", function(a, b) {
+	    if (searchFormPanel) {
+	      //mainGridPanel.store._formPanel = searchFormPanel;
+	      
+	      if (a._grid.editMode) a._grid._deletedItems = [];
+	      a.baseParams = Ext.apply(
+	        a._grid._baseParams || {},
+	        a._formPanel.getForm().getValues()
+	      ); //a._formPanel.getForm().getValues();
+	    }
+	    if (mainGridPanel.getSelectionModel().getSelected())
+	      mainGridPanel._lastSelectedGridRowId = mainGridPanel
+	        .getSelectionModel()
+	        .getSelected().id;
+	    if (a._grid && a._grid._gp && a._grid._gp._tid) {
+	      var c = Ext.getCmp(a._grid._gp._tid);
+	      if (c && c._title) {
+	        c.setTitle(c._title);
+	        c._title = false;
+	      }
+	    }
+	  });
+  } else if(mainGrid.dataViewId){
+	  if(searchFormPanel)mainGrid.store.on("beforeload", function(a, b) {
+		  if(searchFormPanel.isVisible())a.baseParams = Ext.apply(
+			        a._baseParams || {},
+			        a._formPanel.getForm().getValues()
+			      )
+	  });
+	  mainGrid.store.on("load", function(a, b) {
+	    if (a.totalLength == 0) return;
+	    if(!mainGrid._gp.getSelectionCount())mainGrid._gp.selectRange(0,0,false);		  
+	  });
 
-  if(mainGrid.gridId)mainGridPanel.store.on("beforeload", function(a, b) {
-    if (searchFormPanel) {
-      //mainGridPanel.store._formPanel = searchFormPanel;
-      mainGridPanel.store._grid = mainGrid;
-      if (a._grid.editMode) a._grid._deletedItems = [];
-      a.baseParams = Ext.apply(
-        a._grid._baseParams || {},
-        a._formPanel.getForm().getValues()
-      ); //a._formPanel.getForm().getValues();
-    }
-    if (mainGridPanel.getSelectionModel().getSelected())
-      mainGridPanel._lastSelectedGridRowId = mainGridPanel
-        .getSelectionModel()
-        .getSelected().id;
-    if (a._grid && a._grid._gp && a._grid._gp._tid) {
-      var c = Ext.getCmp(a._grid._gp._tid);
-      if (c && c._title) {
-        c.setTitle(c._title);
-        c._title = false;
-      }
-    }
-  });
+  }
 
 
   if(mainGrid.gridId)mainGridPanel.store.on("load", function(a, b) {
@@ -3311,13 +3339,17 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 
       if (detailGrid._ready) {
         detailGridPanels.push(detailGrid);
+        if(detailGrid._ready==2){
+        	detailGrid._masterGrid = mainGridPanel;
+        	grid2grid(mainGridPanel, detailGrid, obj.detailGrids[i].params);
+        }
         continue;
       }
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
         title: obj.detailGrids[i]._title_ || detailGrid.name,cls:'iwb-grid-'+detailGrid.gridId,
 //        stripeRows: true,
-        id: "gr" + Math.random(),
+        id: "gr-" + obj.t + '-' + detailGrid.gridId, _posId:i,
         border: false,
 //        bodyStyle: "border-top: 1px solid #18181a;",
         autoScroll: true,
@@ -3453,25 +3485,33 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     pageSize: 5
   });
   var lastItems = [];
-  if (searchFormPanel != null) {
+  if (mainGrid.gridId && searchFormPanel != null) {
     lastItems.push(searchFormPanel);
   }
 
+  var _posId = window.localStorage.getItem('sub-tab-'+(mainGrid.gridId || mainGrid.dataViewId));
+  var _posId2 = _posId ? parseInt(_posId) : 0;
+  if(!_posId2)_posId2=0;
   var subTab = {
     region: "center",
     enableTabScroll: true,
-    activeTab: 0, cls:'iwb-detail-tab',
+    activeTab: _posId2, cls:'iwb-detail-tab',
     border: false,
     visible: false,
-    items: detailGridPanels,
+    items: detailGridPanels, 
+    listeners:{
+    	tabchange: function(t, p) {
+    		if(typeof p._posId!='undefined')window.localStorage.setItem('sub-tab-'+(mainGrid.gridId || mainGrid.dataViewId), p._posId);
+    	}
+    },
     plugins: [scrollerMenu]
   };
 
   if (obj.t) subTab.id = "sub_tab_" + obj.t;
   var detailPanel = new Ext.TabPanel(subTab);
   
-  if(!mainGrid.gridId){
-	  var xbuttons=[mainGrid._dscLabel||'Object',' ','-'];
+  if(mainGrid.dataViewId){
+	  var xbuttons=[mainGrid._dscLabel||' ',' ','-'];
 	  xbuttons.push(organizeButtons(mainButtons));
 	  var subToolbar = new Ext.Toolbar({xtype:'toolbar',cls:'iwb-card-sub-toolbar',items:xbuttons}); 
 	  detailPanel = {region:'center', layout:'border', border:false,tbar : subToolbar
@@ -3489,26 +3529,62 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	  });
 	  var mainGridPanelOrj = mainGridPanel;
-	  mainGridPanel = {region:'west', cls:'icb-main-card',autoScroll:!0, /*bodyStyle:"background: linear-gradient(150deg, rgb(31, 39, 48), rgb(30, 32, 48));",*/store:mainGridPanel.store, split:!0, border:false,width:mainGrid.defaultWidth||400,items:mainGridPanel}
+	  var cardWidth = mainGrid.defaultWidth||400;
+	  mainGridPanel = {region:mainGrid.searchForm?'center':'west', cls:'icb-main-card',autoScroll:!0, store:mainGridPanel.store, split:!mainGrid.searchForm, border:false,width: cardWidth,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
 		  mainGridPanel.bbar = {
-	      xtype: "paging",
-	      store: mainGrid.store,
+	      xtype: "paging",displayMsg:'{0} - {1} of {2}',
+	      store: mainGrid.store, cls:'iwb-card-paging',
 	      pageSize: mainGrid.pageSize,
 	      displayInfo: !0
 	    };
 	  } 
-	  mainGridPanel.tbar = {xtype:'toolbar',cls:"padding0",style:'border-bottom:1px solid #d64e20;'//background:#323840;
-		  ,items:[new Ext.form.TextField({emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fncCardSearchListener(mainGridPanelOrj)}
-		  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:300})
-		  ,'->',{cls:'x-btn-icon x-grid-search',tooltip:'Advanced Search',handler:function(){}}
-		  ,{cls:'x-btn-icon x-grid-sort',tooltip:'Sort',handler:function(){}}
-//		  ,{xtype:'field',}
-		  ]};
+	  var tbiNums = (mainGrid.searchForm?1:0)+(mainGrid.orderNames?1:0);
+	  var tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGridPanelOrj)}
+	  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -35*tbiNums}),'->'];
+	  if(mainGrid.searchForm)tbarItems.push({cls:'x-btn-icon x-grid-search', id:'sfb-card-'+obj.t, _sf:searchFormPanel, tooltip:'Advanced Search', handler:function(aq){
+		  if(!aq._sf.isVisible()){
+			  aq._sf.expand();
+			  aq.hide();
+		  } else {
+			  aq._sf.collapse();
+		  }
+	  }});
+	  if(mainGrid.orderNames)tbarItems.push({cls:'x-btn-icon x-grid-sort',tooltip:'Sort',_grid:mainGrid, handler:function(aq,ev){
+		  if(!mainGrid.store.sortInfo)mainGrid.store.sortInfo={field:'', direction:'ASC'};
+		  var si = mainGrid.store.sortInfo;
+		  var xmenus=[];
+		  for(var ri=0;ri<mainGrid.orderNames.length;ri++){
+			  var rr = mainGrid.orderNames[ri];
+			  var o = {text:rr.dsc, _id:rr.id, handler:function(ab){
+				  var xsort='ASC';
+				  if(si.field==ab._id){
+					  si.direction = (si.direction=='ASC') ? 'DESC':'ASC';
+				  }
+				  si.field=ab._id;
+				  mainGrid.store.reload();
+			  }};
+			  if(si.field==rr.id){
+				  o.cls='xg-hmenu-sort-'+si.direction.toLowerCase();
+			  }
+			  xmenus.push(o);
+		  }
+		  console.log('xmenus',xmenus);
+        new Ext.menu.Menu({cls:'sort-menu',
+            enableScrolling: false,
+            items: xmenus
+          }).showAt(ev.getXY());			  
+
+	  }});
+	  mainGridPanel.tbar = {xtype:'toolbar',id:'tb-card-'+obj.t,cls:"padding0",style:'border-bottom:1px solid #d64e20;'//background:#323840;
+		  ,items:tbarItems};
 	  if (mainButtons.length > 0) {
 	    //standart toolbar
 		 // mainGridPanel.tbar = organizeButtons(mainButtons);
+	  }
+	  if(mainGrid.searchForm){
+		  mainGridPanel={border:false, layout:'border', store:mainGridPanel.store,region:'west', split:!0, width:mainGrid.defaultWidth||400,items:[mainGridPanel.store._formPanel, mainGridPanel]}
 	  }
   }
   
@@ -3572,7 +3648,7 @@ function showSQLError(sql, xpos, err) {
     width: 1000,
     height: 600,
     border: false,
-    layout: "border",
+    layout: "fit",
     items: [new Ext.FormPanel({ region: "center", items: [_code] })],
     buttons:[{text:'Format',handler:function(){
     	iwb.request({url:'ajaxFormatSQL',params:{sql:sql},successCallback:function(jj){
@@ -4032,6 +4108,8 @@ function formSubmit(submitConfig) {
 
       if (submitConfig._callAttributes) {
         if (submitConfig._callAttributes._grid) {
+        	var xg = submitConfig._callAttributes._grid;
+        	if(!xg.ds && xg.store)xg.ds=xg.store;
           if (_app.live_sync_record && 1 * _app.live_sync_record != 0)
             Ext.defer(
               function(g) {
@@ -4039,9 +4117,9 @@ function formSubmit(submitConfig) {
               },
               1000,
               this,
-              [submitConfig._callAttributes._grid]
+              [xg]
             );
-          else submitConfig._callAttributes._grid.ds.reload();
+          else xg.ds.reload();
         }
       }
     },
@@ -4152,12 +4230,12 @@ function promisRequest(rcfg) {
               }
             } catch (e) {
               if (1 * _app.debug != 0) {
-                if (confirm("ERROR Response from Ajax.Request!!! Throw?"))
+                if (confirm("ERROR Response from Ajax.Request!!! Throw? : " + e.message))
                   throw e;
               } else
                 Ext.infoMsg.alert(
                   "Error",
-                  "Framework Error(Ajax.Request)",
+                  "Framework Error(Ajax.Request) : " + e.message,
                   "error"
                 ); //???
             }
@@ -5707,8 +5785,8 @@ function addTab4DetailGridsWSearchForm(obj) {
     Ext.apply(mainGrid.searchForm.render(), {
       region: "north",autoHeight: true, anchor: "100%",
 //      region: "west", width:300,
-      cls:'iwb-search-form', collapseMode: 'mini',
-      collapsible: true, animate: false, animCollapse: false,
+      cls:'iwb-search-form', //collapseMode: 'mini',
+      collapsible: true, animate: false, animCollapse: false, animFloat:false,
       title: mainGrid.name,
       border: false,
       keys: {

@@ -724,19 +724,6 @@ background-image:url(images/vcsw-16.png);
     background-size: 24px;
 }
 
-
-/*.x-btn {
-	filter: grayscale(.3);
-	transition: all .5s ease-out;
-	-moz-transition: all .5s ease-out;
-	-webkit-transition: all .5s ease-out;
-	-o-transition: all .5s ease-out;
-}
-
-.x-btn:hover {
-	filter: grayscale(0);
-}*/
-
 .table2form-active {
 	background-color: rgba(126, 215, 255, 0.3);
 }
@@ -1086,20 +1073,19 @@ header .phone .theme-switch a+a {
 }
 
 .iwb-card-sub-header{
-	padding:0px 30px;
-	margin-top:-4px;
+	padding:10px 30px 0 30px
 }
 .iwb-card-sub-header span {
-    font-size: 25px;
+    font-size: 20px;
     color: #ddd;
 }
 .iwb-card-sub-header span::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     background: #FF9800;
     position: absolute;
-    top: 10px;
+    top: 20px;
     left: 14px;
     border-radius: 10px;
 }
@@ -1111,6 +1097,9 @@ header .phone .theme-switch a+a {
 .x-btn {
 	padding: 7px 6px !important;
     transition: background-color .3s;	
+}
+.iwb-card-paging .x-btn {
+	padding: 5px 4px !important;
 }
 .x-btn.x-btn-over{
 	background: #485261;
@@ -1237,4 +1226,12 @@ font-size:13px !important;
 }
 .x-form-text, textarea.x-form-field {
     padding: 1px 4px;
+}
+
+a.x-menu-item{
+	padding: 2px 21px 2px 27px;
+}
+
+.sort-menu a.x-menu-item{
+	padding: 1px 21px 1px 27px;
 }

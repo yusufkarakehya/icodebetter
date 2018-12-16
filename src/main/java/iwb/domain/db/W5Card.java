@@ -38,6 +38,9 @@ public class W5Card implements java.io.Serializable {
 
 	private int defaultCrudFormId;// burdan edit, insert vs olaylari incelenecek
 	 
+	private String orderQueryFieldIds;
+	private List<String> _orderQueryFieldNames;
+
 	
 	private int _searchFormId;
 	private	String templateCode;	
@@ -237,5 +240,20 @@ public class W5Card implements java.io.Serializable {
 	public void set_crudFormConversionList(List<W5Conversion> _crudFormConversionList) {
 		this._crudFormConversionList = _crudFormConversionList;
 	}
+
+	@Column(name="order_query_field_ids")
+	public String getOrderQueryFieldIds() {
+		return orderQueryFieldIds;
+	}
+	public void setOrderQueryFieldIds(String orderQueryFieldIds) {
+		this.orderQueryFieldIds = orderQueryFieldIds;
+	}
 	
+	@Transient
+	public List<String> get_orderQueryFieldNames() {
+		return _orderQueryFieldNames;
+	}
+	public void set_orderQueryFieldNames(List<String> _orderQueryFieldNames) {
+		this._orderQueryFieldNames = _orderQueryFieldNames;
+	}
 }
