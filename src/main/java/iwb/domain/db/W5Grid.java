@@ -18,7 +18,7 @@ import iwb.util.GenericUtil;
 @Entity
 @Immutable
 @Table(name="w5_grid",schema="iwb")
-public class W5Grid implements java.io.Serializable, W5Base {
+public class W5Grid implements java.io.Serializable, W5Base, W5ListBase {
 
 	private int gridId;
 
@@ -70,7 +70,6 @@ public class W5Grid implements java.io.Serializable, W5Base {
 	private	W5Table _viewTable;
 	private	W5Table _crudTable;
 	private W5Query	_query;	
-	private W5WsMethod	_wsMethod;	
 	private List<W5QueryField> _postProcessQueryFields;
 	private Map<Integer, W5QueryField> _queryFieldMap;
 	private List<W5CustomGridColumnRenderer> _listCustomGridColumnRenderer;
@@ -489,20 +488,13 @@ public class W5Grid implements java.io.Serializable, W5Base {
 	}
 	
 	@Transient
-	public W5Workflow getApproval() {
+	public W5Workflow get_workflow() {
 		return _approval;
 	}
-	public void setApproval(W5Workflow approval) {
+	public void set_workflow(W5Workflow approval) {
 		_approval = approval;
 	}
 	
-	@Transient
-	public W5WsMethod get_wsMethod() {
-		return _wsMethod;
-	}
-	public void set_wsMethod(W5WsMethod _wsMethod) {
-		this._wsMethod = _wsMethod;
-	}
 	private String projectUuid;
 	@Id
 	@Column(name="project_uuid")

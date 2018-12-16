@@ -70,7 +70,7 @@ public class FrameworkSetting {
 
 //	final public static Map<String, OnlineUserBean> lastUserAction= new HashMap<String, OnlineUserBean>();
 
-	public static int preloadWEngine = 0;
+//	public static int preloadWEngine = 0;
 	public static int cacheStatus = 0;
 //	public static String formBodyColor = null;
 	public static String formCellColor = null;

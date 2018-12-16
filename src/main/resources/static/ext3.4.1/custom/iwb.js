@@ -9,7 +9,8 @@ function getLocMsg(key) {
 }
 
 function promisManuelAjaxObject() {
-  //bu Fonksiyon kullanilmiyor. fakat ileride senkron islemler icin kullanilabilir.(27/12/2012 itibariyle de kur_cevir_sync de kullanılıyor)
+  // bu Fonksiyon kullanilmiyor. fakat ileride senkron islemler icin
+	// kullanilabilir.(27/12/2012 itibariyle de kur_cevir_sync de kullanılıyor)
   var xmlhttp = null;
   try {
     xmlhttp = new XMLHttpRequest();
@@ -121,10 +122,12 @@ function gridStore2JsonString(ds) {
 
 function promisLoadException(a, b, c) {
   if (c && c.responseText) {
-    ajaxErrorHandler(JSON.parse(c.responseText)); //eval("(" + c.responseText + ")")
+    ajaxErrorHandler(JSON.parse(c.responseText)); // eval("(" + c.responseText
+													// + ")")
   } else {
-    //    	Ext.Msg.show({title:getLocMsg('js_info'),msg: getLocMsg('js_no_connection_error'),icon: Ext.MessageBox.WARNING})
-    showStatusText(getLocMsg("js_no_connection_error"), 3); //error
+    // Ext.Msg.show({title:getLocMsg('js_info'),msg:
+	// getLocMsg('js_no_connection_error'),icon: Ext.MessageBox.WARNING})
+    showStatusText(getLocMsg("js_no_connection_error"), 3); // error
   }
 }
 
@@ -142,7 +145,7 @@ function hideStatusText() {
 
 function showStatusText(txt, level) {
   return;
-  //0:debug, 1:info, 2:warning, 3:error
+  // 0:debug, 1:info, 2:warning, 3:error
   var c1 = Ext.getCmp("idSouthBox");
   if (!level) level = 0;
   if (!c1._level) c1._level = 0;
@@ -181,7 +184,7 @@ function getScreenSize() {
   var myWidth = 0,
     myHeight = 0;
   if (typeof window.innerWidth == "number") {
-    //Non-IE
+    // Non-IE
     myWidth = window.innerWidth;
     myHeight = window.innerHeight;
   } else if (
@@ -189,14 +192,14 @@ function getScreenSize() {
     (document.documentElement.clientWidth ||
       document.documentElement.clientHeight)
   ) {
-    //IE 6+ in 'standards compliant mode'
+    // IE 6+ in 'standards compliant mode'
     myWidth = document.documentElement.clientWidth;
     myHeight = document.documentElement.clientHeight;
   } else if (
     document.body &&
     (document.body.clientWidth || document.body.clientHeight)
   ) {
-    //IE 4 compatible
+    // IE 4 compatible
     myWidth = document.body.clientWidth;
     myHeight = document.body.clientHeight;
   }
@@ -607,15 +610,15 @@ function fmtDateTimeAgo(dt2) {
   var tnow = new Date().getTime();
   var t = dt2.getTime();
   var xt = xtimeMap[_scd.locale] || {};
-  if (t + 30 * 1000 > tnow) return xt[0]; //'Az Önce';//5 sn
-  if (t + 2 * 60 * 1000 > tnow) return xt[1]; //'Bir Dakika Önce';//1 dka
+  if (t + 30 * 1000 > tnow) return xt[0]; // 'Az Önce';//5 sn
+  if (t + 2 * 60 * 1000 > tnow) return xt[1]; // 'Bir Dakika Önce';//1 dka
   if (t + 60 * 60 * 1000 > tnow)
-    return Math.round((tnow - t) / (60 * 1000)) + xt[2]; //' Dakika Önce';
+    return Math.round((tnow - t) / (60 * 1000)) + xt[2]; // ' Dakika Önce';
   if (t + 24 * 60 * 60 * 1000 > tnow)
-    return Math.round((tnow - t) / (60 * 60 * 1000)) + xt[3]; //' Saat Önce';
-  if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; //'Dün';
+    return Math.round((tnow - t) / (60 * 60 * 1000)) + xt[3]; // ' Saat Önce';
+  if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; // 'Dün';
   if (t + 7 * 24 * 60 * 60 * 1000 > tnow)
-    return daysOfTheWeek[_scd.locale][dt2.getDay()]; //5dka
+    return daysOfTheWeek[_scd.locale][dt2.getDay()]; // 5dka
   return dt2.dateFormat("d/m/Y");
 }
 
@@ -657,7 +660,7 @@ function openPopup(url, name, x, y, r) {
 }
 
 function grid2grid(gridMaster, gridDetail, params, tp) {
-  //tabpanel
+  // tabpanel
   gridDetail.store.baseParams = null;
   if (params) gridDetail._params = params;
   var gs = gridMaster.getSelectionModel ?  gridMaster.getSelectionModel() : gridMaster;
@@ -688,10 +691,11 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
               params: gridDetail.store.baseParams,
               scope: gridDetail.store
             });
-          else gridDetail.store.reload(); //Eğer burada hata olursa geri aç 24.06.2013
+          else gridDetail.store.reload(); // Eğer burada hata olursa geri aç
         }
 
-        //else gridDetail.store.reload({add:false,params:gridDetail.store.baseParams,scope:gridDetail.store});
+        // else
+		// gridDetail.store.reload({add:false,params:gridDetail.store.baseParams,scope:gridDetail.store});
       } else gridDetail.loadOnShow = true;
     } else try{
       gridDetail.store.baseParams = null;
@@ -717,7 +721,7 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
               params: a.store.baseParams,
               scope: a.store
             });
-          else a.store.reload(); //Eğer burada hata olursa geri aç 24.06.2013
+          else a.store.reload(); // Eğer burada hata olursa geri aç
         }
       }
     });
@@ -741,7 +745,7 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
               params: a.store.baseParams,
               scope: a.store
             });
-          else a.store.reload(); //Eğer burada hata olursa geri aç 24.06.2013				}
+          else a.store.reload(); // Eğer burada hata olursa geri aç
         }
       }
     });
@@ -752,7 +756,7 @@ var searchFormTools = [
   {
     id: "save",
     handler: function(ev, tb, sf) {
-      //event, toolbar, searchForm
+      // event, toolbar, searchForm
       if (!sf._menu) {
         var buttons = [
           {
@@ -801,7 +805,7 @@ var searchFormTools = [
           },
           successCallback: function(j) {
             if (j.success && j.data.length > 0) {
-              //                        while (a_menu.items.items.length > 2) a_menu.remove(2);
+              // while (a_menu.items.items.length > 2) a_menu.remove(2);
               buttons.push("-");
               var pf = true;
               for (var q = 0; q < j.data.length; q++) {
@@ -873,7 +877,7 @@ function fnShowDetailDialog(a, b) {
         }),
         tpl: a._grid.detailView,
         autoScroll: true,
-        itemSelector: "div.icb-card"
+        itemSelector: "div.card"
       }))
     ]
   }).show();
@@ -1022,10 +1026,14 @@ function renderTableRecordInfo(j) {
     }
   }
   ss = '<div class="dfeed">' + ss + "</div>";
-  /*    rs=j.parents[0];
-    if(typeof rs.tcc!='undefined')ss+=' · ' + ('<a href=# onclick="return fnTblRecComment('+j.tableId+','+j.tablePk+');">'+(!rs.tcc ? 'Yorum Yap':('Yorumlar ('+rs.tcc+')'))+'</a>')
-    if(typeof rs.tfc!='undefined')ss+=' · ' + ('<a href=# onclick="return fnNewFileAttachment4Form('+j.tableId+','+j.tablePk+');">'+(!rs.tfc ? 'İlişkili Dosyalar':('İlişkili Dosyalar ('+rs.tfc+')'))+'</a>')
-  */
+  /*
+	 * rs=j.parents[0]; if(typeof rs.tcc!='undefined')ss+=' · ' + ('<a href=#
+	 * onclick="return fnTblRecComment('+j.tableId+','+j.tablePk+');">'+(!rs.tcc ?
+	 * 'Yorum Yap':('Yorumlar ('+rs.tcc+')'))+'</a>') if(typeof
+	 * rs.tfc!='undefined')ss+=' · ' + ('<a href=# onclick="return
+	 * fnNewFileAttachment4Form('+j.tableId+','+j.tablePk+');">'+(!rs.tfc ?
+	 * 'İlişkili Dosyalar':('İlişkili Dosyalar ('+rs.tfc+')'))+'</a>')
+	 */
 
   s += ss + "<p><br>";
   if (j.insert_user_id) {
@@ -1094,7 +1102,8 @@ function renderTableRecordInfo(j) {
         ' &nbsp; <img src="/ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> ' +
         r.tfc;
 
-    //        if(r.dsc)ss+=(qi!=0 ? ': '+r.dsc:': <b>'+r.dsc+'</b>');// else ss+=': (...)';
+    // if(r.dsc)ss+=(qi!=0 ? ': '+r.dsc:': <b>'+r.dsc+'</b>');// else ss+=':
+	// (...)';
   }
   return s + ss;
 }
@@ -1120,7 +1129,7 @@ function fnTblRecEdit(tid, tpk, b) {
         if (j.dsc) {
           if (j.dsc.length > 100) j.dsc = j.dsc.substring(0, 97) + "...";
           if (recordInfoWindow && recordInfoWindow.isVisible()) {
-            //						recordInfoWindow.destroy();
+            // recordInfoWindow.destroy();
             recordInfoWindow.update(renderTableRecordInfo(j));
             recordInfoWindow.setTitle(j.parents[0].tdsc);
             recordInfoWindow.setIconClass("icon-folder-explorer");
@@ -1189,7 +1198,7 @@ function fnRowEdit(a, b) {
     return;
   }
   var sel = getSel(a._grid);
-  if (!sel) {//a._grid.sm.hasSelection()
+  if (!sel) {// a._grid.sm.hasSelection()
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
@@ -1224,7 +1233,7 @@ function fnRowEdit(a, b) {
 
 function fnRowEdit4Log(a, b) {
 	  var sel = getSel(a._grid);
-  if (!sel) {//a._grid.sm.hasSelection()
+  if (!sel) {// a._grid.sm.hasSelection()
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
@@ -1312,7 +1321,7 @@ function fnRowInsert(a, b) {
 }
 function fnRowCopy(a, b) {
   var sel = getSel(a._grid);
-  if (!sel) {//a._grid.sm.hasSelection()
+  if (!sel) {// a._grid.sm.hasSelection()
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
     return;
   }
@@ -1379,7 +1388,8 @@ function fnRowDelete(a, b) {
         var href = "ajaxPostEditGrid?_fid=" + a._grid.crudFormId;
         var params = { _cnt: sels.length };
         if (typeof a._grid._postDelete == "function") {
-          href = a._grid._postDelete(sels, href, a); // null donerse acilmayacak
+          href = a._grid._postDelete(sels, href, a); // null donerse
+														// acilmayacak
         } else {
           for (var bjk = 0; bjk < sels.length; bjk++) {
             // delete
@@ -1437,7 +1447,8 @@ function fnRowDelete(a, b) {
           requestWaitMsg: true,
           successCallback: function(j2) {
             if (!j2.logErrors) {
-              a._grid.ds.remove(sel);
+              var ds = a._grid.ds || a._grid.store;
+              ds.remove(sel);
             }
             if (j2.logErrors || j2.msgs) {
               var str = "";
@@ -1544,13 +1555,13 @@ function fnExportGridDataWithDetail(b) {
     }
     var cols = "";
     for (var z = 0; z < g.columns.length; z++) {
-      //master
+      // master
       if (!g.columns[z].hidden && g.columns[z].dataIndex)
         cols += ";" + g.columns[z].dataIndex + "," + g.columns[z].width;
     }
     var cols2 = "";
     for (var z = 0; z < g2.columns.length; z++) {
-      //detail
+      // detail
       if (!g2.columns[z].hidden && g2.columns[z].dataIndex)
         cols2 += ";" + g2.columns[z].dataIndex + "," + g2.columns[z].width;
     }
@@ -1586,7 +1597,10 @@ function fnExportGridDataWithDetail(b) {
 function fnNewFileAttachmentMail(a) {
   var fp = a._form._cfg.formPanel;
   var hasReqestedVersion = true;
-  /*var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil mi onu sorguluyor. (major ver, minor ver, revision no)*/
+  /*
+	 * var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü
+	 * değil mi onu sorguluyor. (major ver, minor ver, revision no)
+	 */
   if (hasReqestedVersion) {
     var href = "showForm?_fid=750&_did=447&table_id=48&table_pk=-1";
   } else {
@@ -1609,7 +1623,10 @@ function fnNewFileAttachmentMail(a) {
 }
 
 function fnNewFileAttachment(a) {
-  var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil mi onu sorguluyor. (major ver, minor ver, revision no)
+  var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
+													// mi onu sorguluyor. (major
+													// ver, minor ver, revision
+													// no)
   var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
@@ -1677,7 +1694,10 @@ function fnNewFileAttachment4ExternalUrl(a) {
 }
 
 function fnNewFileAttachment4Form(tid, tpk, not_image_flag) {
-  var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil mi onu sorguluyor. (major ver, minor ver, revision no)
+  var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
+													// mi onu sorguluyor. (major
+													// ver, minor ver, revision
+													// no)
   var image_param = "";
   if (not_image_flag) {
     image_param = "&xnot_image_flag=1";
@@ -1840,7 +1860,7 @@ function fnToggleEditMode(a) {
         }
     }
 
-    if (modified) a._grid.ds.reload();
+    if (modified) iwb.reload(a._grid);
   }
 }
 
@@ -1892,7 +1912,7 @@ function fnGridReportSetting(a) {
       baseParams: { xmaster_table_id: a._grid.crudTableId }
     }
   };
-  cfg.attributes._title_ = a._grid.name; //getLocMsg('report_settings');
+  cfg.attributes._title_ = a._grid.name; // getLocMsg('report_settings');
   mainPanel.loadTab(cfg);
 }
 
@@ -1930,7 +1950,7 @@ function fnGridPrivilege(a) {
 }
 
 function fnRecordComments(a) {
-  //TODO: daha duzgun bir chat interface'i yap
+  // TODO: daha duzgun bir chat interface'i yap
   var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
@@ -2071,7 +2091,7 @@ function addMoveUpDownButtons(xbuttons, xgrid) {
 function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
   if (xbuttons.length > 0) xbuttons.push("-");
   var xbl = xbuttons.length;
-  /* crud buttons & import*/
+  /* crud buttons & import */
   if (xgrid.crudFlags.insert) {
     var cfg = {
       id: "btn_add_" + xgrid.id,
@@ -2129,7 +2149,9 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
         if (!xgrid.crudFlags.ximport[qi].dsc)
           xmenu.push(xgrid.crudFlags.ximport[qi]);
         else {
-          //xmenu.push({text:xgrid.crudFlags.ximport[qi].dsc,cls:xgrid.crudFlags.ximport[qi].cls || '', _activeOnSelection:false, _grid:xgrid, ximport:xgrid.crudFlags.ximport[qi],handler:fnTableImport});
+          // xmenu.push({text:xgrid.crudFlags.ximport[qi].dsc,cls:xgrid.crudFlags.ximport[qi].cls
+			// || '', _activeOnSelection:false, _grid:xgrid,
+			// ximport:xgrid.crudFlags.ximport[qi],handler:fnTableImport});
         }
       if (xgrid.extraButtons) {
         var bxx = xmenu.length > 0;
@@ -2151,14 +2173,16 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
         if (xgrid.extraButtons.length == 0) xgrid.extraButtons = undefined;
       }
       xbuttons.push({
-        //        tooltip: getLocMsg("js_import_from_other_records"),
+        // tooltip: getLocMsg("js_import_from_other_records"),
         cls: "x-btn-icon x-grid-import",
         _activeOnSelection: false,
         _grid: xgrid,
         menu: xmenu
       });
     } else {
-      //xbuttons.push({tooltip:getLocMsg('js_import_from_other_records'), cls:'x-btn-icon x-grid-import', _activeOnSelection:false, _grid:xgrid, handler:fnTableImport});
+      // xbuttons.push({tooltip:getLocMsg('js_import_from_other_records'),
+		// cls:'x-btn-icon x-grid-import', _activeOnSelection:false,
+		// _grid:xgrid, handler:fnTableImport});
     }
   }
 
@@ -2188,7 +2212,7 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
         handler: fnShowLog4Delete
       });
     xbuttons.push({
-      //      tooltip: getLocMsg("js_log"),
+      // tooltip: getLocMsg("js_log"),
       cls: "x-btn-icon icon-log",
       _activeOnSelection: false,
       _grid: xgrid,
@@ -2228,7 +2252,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
   }
   if (xgrid.vcs) {
     xbuttons.push({
-      //      tooltip: getLocMsg("vcs"),
+      // tooltip: getLocMsg("vcs"),
       cls: "x-btn-icon x-grid-vcs",
       _grid: xgrid,
       menu: fncMnuVcs(xgrid)
@@ -2317,7 +2341,9 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
         iconCls: "icon-email",
         menu: xgrid.formSmsMailList
       });
-      //			xbuttons.push({tooltip:getLocMsg('js_send_email'),cls:'x-btn-icon x-grid-mail', disabled:true, _activeOnSelection:true, _grid:xgrid, menu:xgrid.formSmsMailList});
+      // xbuttons.push({tooltip:getLocMsg('js_send_email'),cls:'x-btn-icon
+		// x-grid-mail', disabled:true, _activeOnSelection:true, _grid:xgrid,
+		// menu:xgrid.formSmsMailList});
     }
   }
 
@@ -2333,7 +2359,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
     if (xgrid.gridId * 1 != 1082) {
       xbuttons.push({
         id: "btn_attachments_" + xgrid.id,
-        //        tooltip: getLocMsg("js_iliskili_dosyalar"),
+        // tooltip: getLocMsg("js_iliskili_dosyalar"),
         cls: "x-btn-icon x-grid-attachment",
         disabled: true,
         _activeOnSelection: true,
@@ -2482,7 +2508,8 @@ function addGridExtraButtons(xbuttons, xgrid) {
     ) {
       report_menu.push(xgrid.extraButtons[j]);
     } else {
-      //if(toolbar_menu.length>0){toolbar_menu.push('-');}// toolbarlar arasına otomatik | koyar.
+      // if(toolbar_menu.length>0){toolbar_menu.push('-');}// toolbarlar
+		// arasına otomatik | koyar.
       toolbar_menu.push(xgrid.extraButtons[j]);
     }
   }
@@ -2490,7 +2517,7 @@ function addGridExtraButtons(xbuttons, xgrid) {
 
   if (report_menu.length != 0) {
     xgrid.extraButtons.push({
-      //      tooltip: getLocMsg("js_report"),
+      // tooltip: getLocMsg("js_report"),
       cls: "x-btn-icon x-grid-report",
       _activeOnSelection: false,
       _grid: xgrid,
@@ -2586,7 +2613,10 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
           }
         ]
       });
-      //			xxmenu.push({text:'Pivot Table',_activeOnSelection:false, _grid:xgrid, handler:function(aq){openPopup('showPage?_tid=1200&xtable_id=' + aq._grid.crudTableId, '_blank', 1200, 800, 1);}});
+      // xxmenu.push({text:'Pivot Table',_activeOnSelection:false,
+		// _grid:xgrid,
+		// handler:function(aq){openPopup('showPage?_tid=1200&xtable_id=' +
+		// aq._grid.crudTableId, '_blank', 1200, 800, 1);}});
     } else {
       xxmenu.push({
         text: getLocMsg("js_graph"),
@@ -2629,7 +2659,7 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
   }
   xbuttons.push({
     id: "btn_reports_" + xgrid.id,
-    //    tooltip: getLocMsg("reports"),
+    // tooltip: getLocMsg("reports"),
     cls: "x-btn-icon x-grid-pdf",
     _activeOnSelection: false,
     _grid: xgrid,
@@ -2774,7 +2804,7 @@ function addDefaultPrivilegeButtons(xbuttons, xgrid) {
       addDefaultGridPersonalizationButtons(xxmenu, xgrid);
     }
     xbuttons.push({
-      //      tooltip: getLocMsg("js_ayarlar"),
+      // tooltip: getLocMsg("js_ayarlar"),
       cls: "x-btn-icon x-grid-setting",
       _activeOnSelection: false,
       _grid: xgrid,
@@ -2813,10 +2843,10 @@ function addDefaultCommitButtons(xbuttons, xgrid) {
 function addTab4GridWSearchForm(obj) {
   var mainGrid = obj.grid,
     searchFormPanel = null;
-  if (obj.pk) mainGrid._pk = obj.pk; //{tcase_id:'case_id',tclient_id:'client_id',tobject_tip:'!4'}
+  if (obj.pk) mainGrid._pk = obj.pk; // {tcase_id:'case_id',tclient_id:'client_id',tobject_tip:'!4'}
 
   var grdExtra = {
-//    stripeRows: true,
+// stripeRows: true,
     region: "center", cls:'iwb-grid-'+mainGrid.gridId,
     border: false,
     clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
@@ -2825,7 +2855,7 @@ function addTab4GridWSearchForm(obj) {
 
   var buttons = [];
   if (mainGrid.searchForm && !mainGrid.pageSize) {
-    //refresh buttonu
+    // refresh buttonu
     buttons.push({
       id: "btn_refresh_" + mainGrid.id,
       tooltip: getLocMsg("js_refresh"),
@@ -2833,7 +2863,7 @@ function addTab4GridWSearchForm(obj) {
       _activeOnSelection: false,
       _grid: mainGrid,
       handler: function(a) {
-        a._grid.ds.reload({
+        iwb.reload(a._grid,{
           params: a._grid._gp.store._formPanel.getForm().getValues()
         });
       }
@@ -2849,10 +2879,10 @@ function addTab4GridWSearchForm(obj) {
     for (var j = 0; j < mainGrid.menuButtons.length; j++) {
       mainGrid.menuButtons[j]._grid = mainGrid;
     }
-    /*  mainGrid.menuButtons = new Ext.menu.Menu({
-      enableScrolling: false,
-      items: mainGrid.menuButtons
-    });*/
+    /*
+	 * mainGrid.menuButtons = new Ext.menu.Menu({ enableScrolling: false, items:
+	 * mainGrid.menuButtons });
+	 */
     if (1 * _app.toolbar_edit_btn) {
       if (buttons.length > 0) buttons.push("-");
       buttons.push({
@@ -2865,7 +2895,7 @@ function addTab4GridWSearchForm(obj) {
     }
   }
 
-  //    addHelpButton(buttons, mainGrid, 64, mainGrid.extraOutMap.tplId);
+  // addHelpButton(buttons, mainGrid, 64, mainGrid.extraOutMap.tplId);
   if (mainGrid.gridReport) addDefaultReportButtons(buttons, mainGrid);
 
   addDefaultPrivilegeButtons(buttons, mainGrid);
@@ -2881,11 +2911,11 @@ function addTab4GridWSearchForm(obj) {
     if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
     grdExtra.tbar = tbarExtra;
   } else if (buttons.length > 0) {
-    //standart toolbar
+    // standart toolbar
     grdExtra.tbar = organizeButtons(buttons);
   }
 
-  //grid
+  // grid
   var eg = mainGrid.master_column_id
     ? mainGrid.editGrid
       ? Ext.ux.maximgb.tg.EditorGridPanel
@@ -2929,17 +2959,17 @@ function addTab4GridWSearchForm(obj) {
     });
   }
   var items = [];
-  //---search form
+  // ---search form
   if (mainGrid.searchForm) {
     searchFormPanel = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), {
           region: "north", autoHeight: true,anchor: "100%",
-//          region: "west", width:300,
-        cls:'iwb-search-form', //collapseMode: 'mini',
+// region: "west", width:300,
+        cls:'iwb-search-form', // collapseMode: 'mini',
         collapsible: true, animate: false, animCollapse: false, animFloat:false,
         title: mainGrid.name,
         border: false,
-        //			tools:searchFormTools,
+        // tools:searchFormTools,
         keys: {
           key: 13,
           fn: mainGridPanel.store.reload,
@@ -2948,16 +2978,16 @@ function addTab4GridWSearchForm(obj) {
       })
     );
 
-    //--standart beforeload, ondbliclick, onrowcontextmenu
+    // --standart beforeload, ondbliclick, onrowcontextmenu
     if (
       mainGrid.crudFlags &&
       mainGrid.crudFlags.edit &&
-      !mainGrid.crudFlags.nonEditDblClick /* && 1*_app.toolbar_edit_btn*/
+      !mainGrid.crudFlags.nonEditDblClick /* && 1*_app.toolbar_edit_btn */
     ) {
       mainGridPanel.on("rowdblclick", fnRowEditDblClick);
     }
 
-    if (mainGrid.menuButtons /* && !1*_app.toolbar_edit_btn*/) {
+    if (mainGrid.menuButtons /* && !1*_app.toolbar_edit_btn */) {
       mainGridPanel.messageContextMenu = mainGrid.menuButtons;
       mainGridPanel.on("rowcontextmenu", fnRightClick);
     }
@@ -2993,7 +3023,7 @@ function addTab4GridWSearchForm(obj) {
     items: items,
     refreshGrids: obj._dontRefresh ? null : [mainGridPanel]
   };
-  //	p.iconCls='icon-cmp';
+  // p.iconCls='icon-cmp';
   if (obj.t) {
     p.id = obj.t;
     mainGridPanel._tid = obj.t;
@@ -3039,7 +3069,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     },
     obj.grdExtra || {
       split: true,
-//      stripeRows: true,
+// stripeRows: true,
       border: false,
       clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
     }
@@ -3062,15 +3092,15 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 
   var buttons = [];
   if (mainGrid.searchForm && !mainGrid.pageSize && mainGrid.gridId) {
-    //refresh buttonu
+    // refresh buttonu
     buttons.push({
       id: "btn_refresh_" + mainGrid.id,
-      //      tooltip: getLocMsg("js_refresh"),
+      // tooltip: getLocMsg("js_refresh"),
       iconCls: "x-tbar-loading",
       _activeOnSelection: false,
       _grid: mainGrid,
       handler: function(a) {
-        a._grid.ds.reload({
+        iwb.reload(a._grid, {
           params: a._grid._gp.store._formPanel.getForm().getValues()
         });
       }
@@ -3093,7 +3123,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     if (1 * _app.toolbar_edit_btn) {
       if (buttons.length > 0) buttons.push("-");
       buttons.push({
-        //        tooltip: getLocMsg("js_report"),
+        // tooltip: getLocMsg("js_report"),
         cls: "x-btn-icon icon-report",
         disabled: true,
         _activeOnSelection: true,
@@ -3121,8 +3151,9 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       });
     }
   }
-  //    if (master_flag && master_flag==1)addHelpButton(buttons,mainGrid, 5, mainGrid.gridId);
-  //    else addHelpButton(buttons,mainGrid, 64, mainGrid.extraOutMap.tplId);
+  // if (master_flag && master_flag==1)addHelpButton(buttons,mainGrid, 5,
+	// mainGrid.gridId);
+  // else addHelpButton(buttons,mainGrid, 64, mainGrid.extraOutMap.tplId);
 
   mainGrid.isMainGrid = true;
 
@@ -3141,13 +3172,13 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	    if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
 	    grdExtra.tbar = tbarExtra;
 	  } else if (buttons.length > 0) {
-	    //standart toolbar
+	    // standart toolbar
 	    grdExtra.tbar = organizeButtons(buttons);
 	  }
   }
 
   var mainGridPanel = null;
-  if(mainGrid.gridId){//grid
+  if(mainGrid.gridId){// grid
 	  var eg = mainGrid.master_column_id
 	    ? mainGrid.editGrid
 	      ? Ext.ux.maximgb.tg.EditorGridPanel
@@ -3179,10 +3210,11 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	        return this._grid._isCellEditable(colIndex, rowIndex, this._grid);
 	      };
 	  } 
-	} else { //card
+	} else { // card
+		if(mainGrid.tpl && mainGrid.tpl.indexOf('<tpl')==-1)mainGrid.tpl='<tpl for=".">'+mainGrid.tpl+'</tpl>';
 		mainGridPanel=new Ext.DataView(Ext.apply({emptyText: '<br>&nbsp; No Data',
 		    singleSelect:!0, loadMask:!0, cls:'iwb-card-'+mainGrid.dataViewId,
-		    itemSelector: 'div.icb-card'
+		    itemSelector: 'div.card'
 		}, mainGrid));
 		mainGrid._gp=mainGridPanel;
 	}
@@ -3196,22 +3228,22 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
     });
   }
-  if (mainGrid.menuButtons && mainGrid.gridId/* && !1*_app.toolbar_edit_btn*/) {
+  if (mainGrid.menuButtons && mainGrid.gridId/* && !1*_app.toolbar_edit_btn */) {
     mainGridPanel.messageContextMenu = mainGrid.menuButtons;
     mainGridPanel.on("rowcontextmenu", fnRightClick);
   }
-  //---search form
+  // ---search form
   var searchFormPanel = null;
   if (mainGrid.searchForm) {
 	  var sfCfg = {
 		        region: "north",autoHeight: true, anchor: "100%",
-//		        region: "west", width:300,
-		        cls:'iwb-search-form',//collapseMode: 'mini',
+// region: "west", width:300,
+		        cls:'iwb-search-form',// collapseMode: 'mini',
 		        collapsible: true, animate: false, animCollapse: false, animFloat:false,
 		        title: mainGrid.gridId ? mainGrid.name : 'Advanced Search',
 		        border: false,
 		        id: "sf_" + (obj.t || Math.random()),
-		        //			tools:searchFormTools,
+		        // tools:searchFormTools,
 		        keys: {
 		          key: 13,
 		          fn: mainGridPanel.store.reload,
@@ -3235,11 +3267,11 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     mainGridPanel.store._formPanel = searchFormPanel;
   }
 
-  //--standart beforeload, ondbliclick, onrowcontextmenu
+  // --standart beforeload, ondbliclick, onrowcontextmenu
   if (
     mainGrid.crudFlags &&
     mainGrid.crudFlags.edit &&
-    !mainGrid.crudFlags.nonEditDblClick /* && 1*_app.toolbar_edit_btn*/
+    !mainGrid.crudFlags.nonEditDblClick /* && 1*_app.toolbar_edit_btn */
   ) {
     if(mainGrid.gridId)mainGridPanel.on("rowdblclick", fnRowEditDblClick);
     else mainGridPanel.on("dblclick", fnCardDblClick);
@@ -3249,13 +3281,13 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	  mainGridPanel.store._grid = mainGrid;
 	  mainGridPanel.store.on("beforeload", function(a, b) {
 	    if (searchFormPanel) {
-	      //mainGridPanel.store._formPanel = searchFormPanel;
+	      // mainGridPanel.store._formPanel = searchFormPanel;
 	      
 	      if (a._grid.editMode) a._grid._deletedItems = [];
 	      a.baseParams = Ext.apply(
 	        a._grid._baseParams || {},
 	        a._formPanel.getForm().getValues()
-	      ); //a._formPanel.getForm().getValues();
+	      ); // a._formPanel.getForm().getValues();
 	    }
 	    if (mainGridPanel.getSelectionModel().getSelected())
 	      mainGridPanel._lastSelectedGridRowId = mainGridPanel
@@ -3269,37 +3301,44 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	    }
 	  });
+	  mainGridPanel.store.on("load", function(a, b) {
+		    if (a.totalLength == 0) return;
+		    var sm = mainGridPanel.getSelectionModel();
+		    if (!sm.hasSelection()) sm.selectFirstRow();
+		    if (
+		      mainGridPanel._lastSelectedGridRowId &&
+		      1 * mainGridPanel._lastSelectedGridRowId == 1 * sm.getSelected().id
+		    ) {
+		      mainGridPanel
+		        .getSelectionModel()
+		        .fireEvent("selectionchange", mainGridPanel.getSelectionModel());
+		    }
+	  });
   } else if(mainGrid.dataViewId){
-	  if(searchFormPanel)mainGrid.store.on("beforeload", function(a, b) {
-		  if(searchFormPanel.isVisible())a.baseParams = Ext.apply(
+	  mainGrid.store.on("beforeload", function(a, b) {
+		  if(searchFormPanel && searchFormPanel.isVisible())a.baseParams = Ext.apply(
 			        a._baseParams || {},
-			        a._formPanel.getForm().getValues()
-			      )
+			        a._formPanel.getForm().getValues());
+		  var sels = mainGrid._gp.getSelectedRecords(); 
+		  mainGrid._lastSelectedGridRow = (sels && sels.length) ? sels[0] : null; 
 	  });
 	  mainGrid.store.on("load", function(a, b) {
 	    if (a.totalLength == 0) return;
+	    if(mainGrid._lastSelectedGridRow){
+	    	var ix =  a.indexOfId(mainGrid._lastSelectedGridRow.id);
+	    	if(ix>-1){
+	    		mainGrid._gp.selectRange(ix,ix,false);
+	    	}
+	    }
 	    if(!mainGrid._gp.getSelectionCount())mainGrid._gp.selectRange(0,0,false);		  
 	  });
 
   }
 
 
-  if(mainGrid.gridId)mainGridPanel.store.on("load", function(a, b) {
-    if (a.totalLength == 0) return;
-    var sm = mainGridPanel.getSelectionModel();
-    if (!sm.hasSelection()) sm.selectFirstRow();
-    if (
-      mainGridPanel._lastSelectedGridRowId &&
-      1 * mainGridPanel._lastSelectedGridRowId == 1 * sm.getSelected().id
-    ) {
-      mainGridPanel
-        .getSelectionModel()
-        .fireEvent("selectionchange", mainGridPanel.getSelectionModel());
-    }
-  });
   var mainButtons = buttons;
 	  
-  //detail tabs
+  // detail tabs
   var detailGridPanels = [];
 
   if (obj.detailGrids.length > 1)
@@ -3308,15 +3347,17 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     }); // gridler template object sirasina gore geliyor.
   for (var i = 0; i < obj.detailGrids.length; i++) {
     if (obj.detailGrids[i].detailGrids) {
-      //master/detail olacak
+      // master/detail olacak
       if (!obj.detailGrids[i].grid.gridId) continue;
 
-      delete obj.detailGrids[i].grid.searchForm; // Detail gridlerin searchFormu olamaz. Patlıyor.
+      delete obj.detailGrids[i].grid.searchForm; // Detail gridlerin
+													// searchFormu olamaz.
+													// Patlıyor.
 
       var xmxm = addTab4GridWSearchFormWithDetailGrids(obj.detailGrids[i], 1);
       obj.detailGrids[i].grid._masterGrid = mainGrid;
       if (xmxm.items.items[0].xtype == "form") {
-        //ilk sıradaki gridin ,detail gridi varsa Search Formunu yok ediyor
+        // ilk sıradaki gridin ,detail gridi varsa Search Formunu yok ediyor
         xmxm.items.items[0].destroy();
       }
 
@@ -3348,10 +3389,10 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
         title: obj.detailGrids[i]._title_ || detailGrid.name,cls:'iwb-grid-'+detailGrid.gridId,
-//        stripeRows: true,
+// stripeRows: true,
         id: "gr-" + obj.t + '-' + detailGrid.gridId, _posId:i,
         border: false,
-//        bodyStyle: "border-top: 1px solid #18181a;",
+// bodyStyle: "border-top: 1px solid #18181a;",
         autoScroll: true,
         clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
       };
@@ -3362,7 +3403,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       if (detailGrid.hasFilter) {
         if (buttons.length > 0) buttons.push("-");
         buttons.push({
-          //          tooltip: getLocMsg("js_filtreyi_kaldir"),
+          // tooltip: getLocMsg("js_filtreyi_kaldir"),
           cls: "x-btn-icon x-grid-funnel",
           _grid: detailGrid,
           handler: fnClearFilters
@@ -3370,7 +3411,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
 
       if (detailGrid.crudFlags) addDefaultCrudButtons(buttons, detailGrid);
- //     if (detailGrid.moveUpDown) addMoveUpDownButtons(buttons, detailGrid);
+ // if (detailGrid.moveUpDown) addMoveUpDownButtons(buttons, detailGrid);
       addDefaultSpecialButtons(buttons, detailGrid);
       addGridExtraButtons(buttons, detailGrid);
 
@@ -3394,7 +3435,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
         }
       }
 
-      //		    addHelpButton(buttons, detailGrid, 5, detailGrid.gridId);
+      // addHelpButton(buttons, detailGrid, 5, detailGrid.gridId);
       if (detailGrid.gridReport)
         addDefaultReportButtons(buttons, detailGrid, true);
       addDefaultPrivilegeButtons(buttons, detailGrid);
@@ -3410,7 +3451,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
         if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
         grdExtra.tbar = tbarExtra;
       } else if (buttons.length > 0) {
-        //standart toolbar
+        // standart toolbar
         grdExtra.tbar = organizeButtons(buttons);
       }
 
@@ -3447,19 +3488,24 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
           };
       }
 
-      if (detailGrid.menuButtons /* && !1*_app.toolbar_edit_btn*/) {
+      if (detailGrid.menuButtons /* && !1*_app.toolbar_edit_btn */) {
         detailGridPanel.messageContextMenu = detailGrid.menuButtons;
         detailGridPanel.on("rowcontextmenu", fnRightClick);
       }
-      /*	    if(detailGrid.saveUserInfo)detailGridPanel.on("afterrender",function(a,b,c){
-				detailGridPanel.getView().hmenu.add('-',{text: 'Mazgal Ayarları',cls:'grid-options1',menu: {items:[{text:'Mazgal Ayarlarını Kaydet',handler:function(){saveGridColumnInfo(grid.getColumnModel(),mainGrid.gridId)}},
-			    	                                                                                       {text:'Varsayılan Ayarlara Dön',handler:function(){resetGridColumnInfo(mainGrid.gridId)}}]}});
-		    }); */
+      /*
+		 * if(detailGrid.saveUserInfo)detailGridPanel.on("afterrender",function(a,b,c){
+		 * detailGridPanel.getView().hmenu.add('-',{text: 'Mazgal
+		 * Ayarları',cls:'grid-options1',menu: {items:[{text:'Mazgal Ayarlarını
+		 * Kaydet',handler:function(){saveGridColumnInfo(grid.getColumnModel(),mainGrid.gridId)}},
+		 * {text:'Varsayılan Ayarlara
+		 * Dön',handler:function(){resetGridColumnInfo(mainGrid.gridId)}}]}});
+		 * });
+		 */
       if (
         detailGridPanel.crudFlags &&
         detailGridPanel.crudFlags.edit &&
         !detailGridPanel.crudFlags
-          .nonEditDblClick /* && 1*_app.toolbar_edit_btn*/
+          .nonEditDblClick /* && 1*_app.toolbar_edit_btn */
       ) {
         detailGridPanel.on("rowdblclick", fnRowEditDblClick);
       }
@@ -3528,7 +3574,6 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	          titems[ti].setDisabled(!sel);
 	      }
 	  });
-	  var mainGridPanelOrj = mainGridPanel;
 	  var cardWidth = mainGrid.defaultWidth||400;
 	  mainGridPanel = {region:mainGrid.searchForm?'center':'west', cls:'icb-main-card',autoScroll:!0, store:mainGridPanel.store, split:!mainGrid.searchForm, border:false,width: cardWidth,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
@@ -3541,7 +3586,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	    };
 	  } 
 	  var tbiNums = (mainGrid.searchForm?1:0)+(mainGrid.orderNames?1:0);
-	  var tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGridPanelOrj)}
+	  var tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGrid._gp)}
 	  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -35*tbiNums}),'->'];
 	  if(mainGrid.searchForm)tbarItems.push({cls:'x-btn-icon x-grid-search', id:'sfb-card-'+obj.t, _sf:searchFormPanel, tooltip:'Advanced Search', handler:function(aq){
 		  if(!aq._sf.isVisible()){
@@ -3577,10 +3622,10 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
           }).showAt(ev.getXY());			  
 
 	  }});
-	  mainGridPanel.tbar = {xtype:'toolbar',id:'tb-card-'+obj.t,cls:"padding0",style:'border-bottom:1px solid #d64e20;'//background:#323840;
+	  mainGridPanel.tbar = {xtype:'toolbar',id:'tb-card-'+obj.t,cls:"padding0",style:'border-bottom:1px solid #d64e20;'// background:#323840;
 		  ,items:tbarItems};
 	  if (mainButtons.length > 0) {
-	    //standart toolbar
+	    // standart toolbar
 		 // mainGridPanel.tbar = organizeButtons(mainButtons);
 	  }
 	  if(mainGrid.searchForm){
@@ -3633,7 +3678,7 @@ function prepareLogErrors(obj) {
 
 function showSQLError(sql, xpos, err) {
   var _code = new Ext.ux.form.Monaco({
-    hideLabel: true,//id:'id-ahmet',
+    hideLabel: true,// id:'id-ahmet',
     language: "sql",
     name: "code",
     anchor: "%100",
@@ -3718,7 +3763,9 @@ function ajaxErrorHandler(obj) {
         labelSeparator: "",
         value: obj.objectId || obj.objectType
       });
-      //    		if(obj.objectId)items.push({xtype:'displayfield',fieldLabel: 'ID',width:100, labelSeparator:'', value:'<b>'+(obj.objectId)+'</b>'});
+      // if(obj.objectId)items.push({xtype:'displayfield',fieldLabel:
+		// 'ID',width:100, labelSeparator:'',
+		// value:'<b>'+(obj.objectId)+'</b>'});
     }
     if (obj.icodebetter) {
       var ss = "",
@@ -3763,7 +3810,7 @@ function ajaxErrorHandler(obj) {
               sqlPos = oo.error.substr(
                 oo.error.indexOf("Position: ") + "Position: ".length
               );
-            } //else if(sqlPos){
+            } // else if(sqlPos){
             if (iwb.errors[qi - 1]){
               iwb.errors[qi] = oo.error;
               ss +=
@@ -3774,7 +3821,7 @@ function ajaxErrorHandler(obj) {
                 ",iwb.errors[" +
                 (qi) +
                 "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>SQL</a>";
-            //	sqlPos=false;
+            // sqlPos=false;
             }
           }
         }
@@ -3871,7 +3918,7 @@ function ajaxAuthenticateUser() {
         (_scd.projectId ? "&projectId=" + _scd.projectId : ""),
       method: "POST",
       clientValidation: true,
-//      waitMsg: getLocMsg("js_entering") + "...",
+// waitMsg: getLocMsg("js_entering") + "...",
       success: function(o, resp) {
         iwb.mask();
         if (resp.result.success) {
@@ -3888,7 +3935,9 @@ function ajaxAuthenticateUser() {
                     "&smsCode=" +
                     text,
                   success: function(result, request) {
-                    var resp = JSON.parse(result.responseText);//eval("(" + result.responseText + ")");
+                    var resp = JSON.parse(result.responseText);// eval("(" +
+																// result.responseText
+																// + ")");
                     if (resp.success) {
                       lw.destroy();
                       hideStatusText();
@@ -3911,7 +3960,8 @@ function ajaxAuthenticateUser() {
             refreshGridsAfterRelogin();
             longPollTask.delay(0);
           }
-          //	        	if(typeof onlineUsersGridPanel!='undefined' && onlineUsersGridPanel)reloadOnlineUsers();
+          // if(typeof onlineUsersGridPanel!='undefined' &&
+			// onlineUsersGridPanel)reloadOnlineUsers();
         } else {
           Ext.infoMsg.alert(
             "error",
@@ -3921,7 +3971,9 @@ function ajaxAuthenticateUser() {
       },
       failure: function(o, resp) {
         iwb.mask();
-        var resp = JSON.parse(resp.response.responseText);//eval("(" + resp.response.responseText + ")");
+        var resp = JSON.parse(resp.response.responseText);// eval("(" +
+															// resp.response.responseText
+															// + ")");
         if (resp.errorMsg) {
           Ext.infoMsg.alert("error", resp.errorMsg, "error");
         } else {
@@ -3957,12 +4009,12 @@ function showLoginDialog(xobj) {
     buttons: [
       {
         text: getLocMsg("js_giris"),
-        //			iconCls: 'button-enter',
+        // iconCls: 'button-enter',
         handler: ajaxAuthenticateUser
       },
       {
         text: getLocMsg("js_cikis"),
-        //           iconCls: 'button-exit',
+        // iconCls: 'button-exit',
         handler: function() {
           document.location = "login.htm?r=" + new Date().getTime();
         }
@@ -3996,18 +4048,20 @@ function showLoginDialog(xobj) {
 
 function formSubmit(submitConfig) {
   var cfg = {
-//    waitMsg: getLocMsg("js_please_wait"),
+// waitMsg: getLocMsg("js_please_wait"),
     clientValidation: true,
     success: function(form, action) {
       iwb.mask();
-      var myJson = JSON.parse(action.response.responseText);//eval("(" + action.response.responseText + ")");
+      var myJson = JSON.parse(action.response.responseText);// eval("(" +
+															// action.response.responseText
+															// + ")");
       var jsonQueue = [];
       if (myJson.smsMailPreviews && myJson.smsMailPreviews.length > 0) {
         for (var ix = 0; ix < myJson.smsMailPreviews.length; ix++) {
           var smp = myJson.smsMailPreviews[ix];
           var ss = "";
           if (smp.tbId == 683)
-            //w5_customer_feedback
+            // w5_customer_feedback
             ss =
               "&tcustomization_id=" +
               submitConfig.extraParams.tcustomization_id;
@@ -4048,9 +4102,11 @@ function formSubmit(submitConfig) {
         }
       }
 
-      /*            if(myJson.alarmPreviews && myJson.alarmPreviews.length>0){
-            	Ext.infoMsg.alert('TODO ALARM PREVIEWS: ' + myJson.alarmPreviews.length + " adet");//TODO
-            }*/
+      /*
+		 * if(myJson.alarmPreviews && myJson.alarmPreviews.length>0){
+		 * Ext.infoMsg.alert('TODO ALARM PREVIEWS: ' +
+		 * myJson.alarmPreviews.length + " adet");//TODO }
+		 */
 
       if (jsonQueue.length > 0) {
         var jsonQueueCounter = 0;
@@ -4073,10 +4129,13 @@ function formSubmit(submitConfig) {
         if (myJson.logErrors) str += prepareLogErrors(myJson);
         Ext.infoMsg.msg("info", str);
 
-        //            	Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon: Ext.MessageBox.INFO});
-      } /*else if(1*_app.mail_send_background_flag!=0 && myJson.outs && myJson.outs.thread_id){ //DEPRECATED
-            	Ext.infoMsg.msg(getLocMsg('js_tamam,getLocMsg('js_eposta_gonderiliyor+'...');
-            }*/ else if (
+        // Ext.Msg.show({title: getLocMsg('js_info'),msg: str,icon:
+		// Ext.MessageBox.INFO});
+      } /*
+		 * else if(1*_app.mail_send_background_flag!=0 && myJson.outs &&
+		 * myJson.outs.thread_id){ //DEPRECATED
+		 * Ext.infoMsg.msg(getLocMsg('js_tamam,getLocMsg('js_eposta_gonderiliyor+'...'); }
+		 */ else if (
         _app.show_info_msg &&
         1 * _app.show_info_msg != 0
       )
@@ -4113,13 +4172,13 @@ function formSubmit(submitConfig) {
           if (_app.live_sync_record && 1 * _app.live_sync_record != 0)
             Ext.defer(
               function(g) {
-                g.ds.reload();
+                iwb.reload(g);
               },
               1000,
               this,
               [xg]
             );
-          else xg.ds.reload();
+          else iwb.reload(xg);
         }
       }
     },
@@ -4140,7 +4199,7 @@ function formSubmit(submitConfig) {
             Ext.infoMsg.alert("error", action.result.msg, "error");
             break;
           }
-        //            case Ext.form.Action.LOAD_FAILURE:
+        // case Ext.form.Action.LOAD_FAILURE:
         default:
           if (
             action.result &&
@@ -4149,7 +4208,8 @@ function formSubmit(submitConfig) {
           ) {
             var obj = action.result;
             Ext.infoMsg.confirm(obj.error, () => {
-              //TODO. burda birseyler yapilacak. baseParams['_confirmId_'+obj.objectId]=1 eklenecek
+              // TODO. burda birseyler yapilacak.
+				// baseParams['_confirmId_'+obj.objectId]=1 eklenecek
               var fm = submitConfig.formPanel.getForm();
               if (!fm.baseParams) fm.baseParams = {};
               fm.baseParams["_confirmId_" + obj.objectId] = 1;
@@ -4170,7 +4230,8 @@ function formSubmit(submitConfig) {
 
 function promisLoadException(a, b, c) {
   if (c && c.responseText) {
-    ajaxErrorHandler(JSON.parse(c.responseText)); //eval("(" + c.responseText + ")")
+    ajaxErrorHandler(JSON.parse(c.responseText)); // eval("(" + c.responseText
+													// + ")")
   } else Ext.infoMsg.wow("error", getLocMsg("js_no_connection_error"));
 }
 
@@ -4198,11 +4259,14 @@ function promisRequest(rcfg) {
           if (rcfg.successResponse) rcfg.successResponse(a, b, c);
           else
             try {
-              var json = JSON.parse(a.responseText);//eval("(" + a.responseText + ")");
+              var json = JSON.parse(a.responseText);// eval("(" + a.responseText
+													// + ")");
               if (json.success) {
                 if (rcfg.successDs) {
                   if (!rcfg.successDs.length) rcfg.successDs.reload();
-                  //rcfg.successDs TODO: onceden bu vardi kaldirdim, sorun cikarsa geri konulur. sebep, delete'ten sonra eski parametrelere gore refresh ediyordu gridi
+                  // rcfg.successDs TODO: onceden bu vardi kaldirdim, sorun
+					// cikarsa geri konulur. sebep, delete'ten sonra eski
+					// parametrelere gore refresh ediyordu gridi
                   else if (rcfg.successDs.length > 0) {
                     for (var qi = 0; qi < rcfg.successDs.length; qi++)
                       rcfg.successDs[qi].reload(rcfg.successDs[qi]);
@@ -4237,7 +4301,7 @@ function promisRequest(rcfg) {
                   "Error",
                   "Framework Error(Ajax.Request) : " + e.message,
                   "error"
-                ); //???
+                ); // ???
             }
         },
         failure: function(a, b, c) {
@@ -4253,7 +4317,8 @@ function promisRequest(rcfg) {
 iwb.request = promisRequest;
 
 function combo2combo(comboMaster, comboDetail, param, formAction) {
-  //formAction:2(insert) ise ve comboDetail reload olunca 1 kayit geliyorsa otomatik onu sec
+  // formAction:2(insert) ise ve comboDetail reload olunca 1 kayit geliyorsa
+	// otomatik onu sec
 
   if (typeof comboMaster == "undefined" || typeof comboDetail == "undefined")
     return;
@@ -4293,7 +4358,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
                 typeof comboDetail._controlTip != "undefined" &&
                 (comboDetail._controlTip == 16 || comboDetail._controlTip == 60)
               ) {
-                //lovcombo-remote
+                // lovcombo-remote
                 if (comboDetail._oldValue && comboDetail._oldValue != null) {
                   comboDetail.setValue(comboDetail._oldValue);
                   comboDetail._oldValue = null;
@@ -4332,7 +4397,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
           });
         }
       } else {
-        //	Ext.infoMsg.alert(2);
+        // Ext.infoMsg.alert(2);
       }
     });
     if (comboMaster.getValue())
@@ -4340,7 +4405,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
         comboMaster.fireEvent("select");
       });
   } else {
-    //master hiddenValue
+    // master hiddenValue
     var p = null;
     if (typeof param == "function") {
       p = param(comboMaster.hiddenValue, comboMaster);
@@ -4356,7 +4421,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
       if (typeof comboDetail.hiddenValue == "undefined") {
         comboDetail.store.baseParams = p;
         comboDetail.store.reload({
-          //				params:p,
+          // params:p,
           callback: function(ax) {
             if (
               typeof formAction != "undefined" &&
@@ -4414,7 +4479,7 @@ function loadCombo(comboMaster, param, formAction) {
         typeof formAction != "undefined" &&
         formAction == 2 &&
         ax &&
-        ax.length == 1 /* && !comboMaster.getValue()*/
+        ax.length == 1 /* && !comboMaster.getValue() */
       ) {
         comboMaster.setValue(ax[0].id);
       } else if (comboMaster.getValue() || comboMaster._oldValue)
@@ -4602,7 +4667,8 @@ function approveTableRecord(aa, a) {
         xtype: "textarea",
         fieldLabel: getLocMsg("js_yorumunuzu_girin"),
         name: "_comment",
-        anchor: "100% -5" // anchor width by percentage and height by raw adjustment
+        anchor: "100% -5" // anchor width by percentage and height by raw
+							// adjustment
       }
     ]
   });
@@ -4827,7 +4893,8 @@ function approveTableRecords(aa, a) {
         xtype: "textarea",
         fieldLabel: getLocMsg("js_yorumunuzu_girin"),
         name: "_comment",
-        anchor: "100% -5" // anchor width by percentage and height by raw adjustment
+        anchor: "100% -5" // anchor width by percentage and height by raw
+							// adjustment
       }
     ]
   });
@@ -4851,14 +4918,14 @@ function approveTableRecords(aa, a) {
               ? win.items.items[0].items.items[0].getValue()
               : null;
           var _comment = win.items.items[0].items.items[1].getValue();
-          /*promisRequest({
-						url: 'ajaxApproveRecord',
-						params:{_arids:sel_ids,_adsc:_comment,_aa:aa, _avnos:vers, _appUserIds:_dynamic_approval_users},
-						successDs: a._grid.ds
-						,successCallback:win.close()
-					});*/
+          /*
+			 * promisRequest({ url: 'ajaxApproveRecord',
+			 * params:{_arids:sel_ids,_adsc:_comment,_aa:aa, _avnos:vers,
+			 * _appUserIds:_dynamic_approval_users}, successDs: a._grid.ds
+			 * ,successCallback:win.close() });
+			 */
 
-          //senkron hale getirildi
+          // senkron hale getirildi
           var prms = "";
           for (var i = 0; i < sel_ids.length; i++) {
             prms += "_arids=" + sel_ids[i] + "&";
@@ -4885,11 +4952,13 @@ function approveTableRecords(aa, a) {
             "application/x-www-form-urlencoded"
           );
           request.send(prms);
-          var json = JSON.parse(request.responseText);//eval("(" + request.responseText + ")");
+          var json = JSON.parse(request.responseText);// eval("(" +
+														// request.responseText
+														// + ")");
           Ext.Msg.hide();
           if (json.success) {
             win.close();
-            a._grid.ds.reload();
+            iwb.reload(a._grid);
             Ext.infoMsg.msg(
               "success",
               getLocMsg("js_islem_basariyla_tamamlandi")
@@ -4960,7 +5029,8 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
         xtype: "textarea",
         fieldLabel: getLocMsg("js_yorumunuzu_girin"),
         name: "_comment",
-        anchor: "100% -5" // anchor width by percentage and height by raw adjustment
+        anchor: "100% -5" // anchor width by percentage and height by raw
+							// adjustment
       }
     ]
   });
@@ -4999,7 +5069,7 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
                 var submitConfig = frm._cfg;
                 if (submitConfig._callAttributes) {
                   if (submitConfig._callAttributes._grid)
-                    submitConfig._callAttributes._grid.ds.reload();
+                    iwb.reload(submitConfig._callAttributes._grid);
                 }
                 if (submitConfig._closeWindow) {
                   submitConfig._closeWindow.destroy();
@@ -5135,7 +5205,7 @@ function addTab4Portal(obj) {
                       ? { depth3D: 20, angle: 30 }
                       : {};
                   switch (1 * dg.graphTip) {
-                    case 6: //stacked area
+                    case 6: // stacked area
                       var graphs = [];
                       for (var k in az.lookUp)
                         graphs.push({
@@ -5187,7 +5257,7 @@ function addTab4Portal(obj) {
 
                       break;
 
-                    case 5: //stacked column
+                    case 5: // stacked column
                       var graphs = [];
                       for (var k in az.lookUp)
                         graphs.push({
@@ -5254,7 +5324,8 @@ function addTab4Portal(obj) {
                             : "[[dsc]]: [[value]]",
                           innerRadius: "50%",
 
-                          //							     "legend":{"position":"left"}, //","marginRight":100,"autoMargins":false
+                          // "legend":{"position":"left"},
+							// //","marginRight":100,"autoMargins":false
                           dataProvider: az.data,
                           balloonText: "[[dsc]]: [[value]]",
                           valueField: "xres",
@@ -5264,13 +5335,13 @@ function addTab4Portal(obj) {
                       break;
                     case 1:
                       if (resc > 1) {
-                        //pek cok var
+                        // pek cok var
                         var qq = newStat.split(",");
                         var graphs = [
                           {
                             balloonText:
                               "<b>" +
-                              "TODO" /*mf._func_query_field_ids.store.getById(qq[0].split('=')[1]).get('dsc')*/ +
+                              "TODO" /* mf._func_query_field_ids.store.getById(qq[0].split('=')[1]).get('dsc') */ +
                               ": [[xres]]</b>",
                             fillAlphas: 0.9,
                             lineAlpha: 0.2,
@@ -5282,7 +5353,7 @@ function addTab4Portal(obj) {
                           graphs.push({
                             balloonText:
                               "<b>" +
-                              "TODO" /*mf._func_query_field_ids.store.getById(qq[zi-1]).get('dsc')*/ +
+                              "TODO" /* mf._func_query_field_ids.store.getById(qq[zi-1]).get('dsc') */ +
                               ": [[xres" +
                               zi +
                               "]]</b>",
@@ -5361,7 +5432,7 @@ function addTab4Portal(obj) {
         dg
       );
       var p = new Ext.Panel(dgPanel);
-      dgPanel._gp = p; //dgPanel.gridId=-dg.dashId;
+      dgPanel._gp = p; // dgPanel.gridId=-dg.dashId;
       detailGridPanels.push(p);
     } else {
       var detailGrid = obj.detailGrids[i].grid;
@@ -5372,7 +5443,7 @@ function addTab4Portal(obj) {
       }
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
-//        stripeRows: true,
+// stripeRows: true,
         id: obj.t + "-" + detailGrid.gridId,cls:'iwb-grid-'+detailGrid.gridId,
         autoScroll: true,
         border: false,
@@ -5437,7 +5508,7 @@ function addTab4Portal(obj) {
         if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
         grdExtra.tbar = tbarExtra;
       } else if (buttons.length > 0) {
-        //standart toolbar
+        // standart toolbar
         grdExtra.tbar = organizeButtons(buttons);
       }
       var eg = detailGrid.master_column_id
@@ -5476,7 +5547,7 @@ function addTab4Portal(obj) {
           };
       }
 
-      if (detailGrid.menuButtons /* && !1*_app.toolbar_edit_btn*/) {
+      if (detailGrid.menuButtons /* && !1*_app.toolbar_edit_btn */) {
         detailGridPanel.messageContextMenu = detailGrid.menuButtons;
         detailGridPanel.on("rowcontextmenu", fnRightClick);
       }
@@ -5547,7 +5618,7 @@ function prepareParams4grid(grid, prefix) {
   var items = grid._deletedItems;
   if (items)
     for (var bjk = 0; bjk < items.length; bjk++) {
-      //deleted
+      // deleted
       dirtyCount++;
       for (var key in items[bjk])
         params[key + prefix + "." + dirtyCount] = items[bjk][key];
@@ -5614,7 +5685,8 @@ function prepareParams4grid(grid, prefix) {
 }
 
 function prepareParams4gridINSERT(grid, prefix) {
-  //sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman _insertedItems,_deletedItems dikkate almamasi
+  // sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman
+	// _insertedItems,_deletedItems dikkate almamasi
   var dirtyCount = 0;
   var params = {};
   var dirtyCount = 0;
@@ -5730,7 +5802,7 @@ function prepareDetailGridCRUDButtons(grid, pk, toExtraButtonsFlag) {
           if (grid.extraButtons.length == 0) grid.extraButtons = undefined;
         }
         buttons.push({
-          //          tooltip: getLocMsg("js_diger_kayitlardan_aktar"),
+          // tooltip: getLocMsg("js_diger_kayitlardan_aktar"),
           cls: "x-btn-icon x-grid-import",
           _activeOnSelection: false,
           _grid: grid,
@@ -5738,7 +5810,7 @@ function prepareDetailGridCRUDButtons(grid, pk, toExtraButtonsFlag) {
         });
       } else
         buttons.push({
-          //          tooltip: getLocMsg("js_diger_kayitlardan_aktar"),
+          // tooltip: getLocMsg("js_diger_kayitlardan_aktar"),
           cls: "x-btn-icon x-grid-import",
           _activeOnSelection: false,
           _grid: grid,
@@ -5772,20 +5844,22 @@ function prepareDetailGridCRUDButtons(grid, pk, toExtraButtonsFlag) {
     if (!grid.noPrivilegeButtons) addDefaultPrivilegeButtons(buttons, grid);
     grid.tbar = buttons;
   }
-  /*	grid.ds.on('beforeload',function(){
-		
-	});*/
+  /*
+	 * grid.ds.on('beforeload',function(){
+	 * 
+	 * });
+	 */
 }
 
-//Multi Main Grid
+// Multi Main Grid
 function addTab4DetailGridsWSearchForm(obj) {
   var mainGrid = obj.detailGrids[0].grid,
     detailGridTabPanel = null;
   var searchFormPanel = new Ext.FormPanel(
     Ext.apply(mainGrid.searchForm.render(), {
       region: "north",autoHeight: true, anchor: "100%",
-//      region: "west", width:300,
-      cls:'iwb-search-form', //collapseMode: 'mini',
+// region: "west", width:300,
+      cls:'iwb-search-form', // collapseMode: 'mini',
       collapsible: true, animate: false, animCollapse: false, animFloat:false,
       title: mainGrid.name,
       border: false,
@@ -5798,17 +5872,17 @@ function addTab4DetailGridsWSearchForm(obj) {
     })
   );
 
-  //--standart beforeload, ondbliclick, onrowcontextmenu
+  // --standart beforeload, ondbliclick, onrowcontextmenu
 
-  //detail tabs
+  // detail tabs
   var detailGridPanels = [];
   for (var i = 0; i < obj.detailGrids.length; i++) {
     if (obj.detailGrids[i].detailGrids) {
-      //master/detail olacak
+      // master/detail olacak
       obj.detailGrids[0].grid.searchForm = undefined;
       var xmxm = addTab4GridWSearchFormWithDetailGrids(obj.detailGrids[i]);
       if (xmxm.items.items[0].xtype == "form") {
-        //ilk sıradaki gridin ,detail gridi varsa Search Formunu yok ediyor
+        // ilk sıradaki gridin ,detail gridi varsa Search Formunu yok ediyor
         xmxm.items.items[0].destroy();
       }
 
@@ -5822,7 +5896,7 @@ function addTab4DetailGridsWSearchForm(obj) {
           a.baseParams = Ext.apply(
             a._grid._baseParams || {},
             a._formPanel.getForm().getValues()
-          ); //a._formPanel.getForm().getValues();
+          ); // a._formPanel.getForm().getValues();
       });
       xmxm.closable = false;
       detailGridPanels.push(xmxm);
@@ -5837,7 +5911,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       if (obj.detailGrids[i].pk) detailGrid._pk = obj.detailGrids[i].pk;
       var grdExtra = {
         title: obj.detailGrids[i]._title_ || detailGrid.name,cls:'iwb-grid-'+detailGrid.gridId,
-//        stripeRows: true,
+// stripeRows: true,
         id: "gr" + Math.random(),
         autoScroll: true,
         border: false,
@@ -5903,7 +5977,7 @@ function addTab4DetailGridsWSearchForm(obj) {
         if (buttons.length > 0) tbarExtra.items = organizeButtons(buttons);
         grdExtra.tbar = tbarExtra;
       } else if (buttons.length > 0) {
-        //standart toolbar
+        // standart toolbar
         grdExtra.tbar = organizeButtons(buttons);
       }
 
@@ -5940,21 +6014,26 @@ function addTab4DetailGridsWSearchForm(obj) {
           };
       }
 
-      if (detailGrid.menuButtons /* && !1*_app.toolbar_edit_btn*/) {
+      if (detailGrid.menuButtons /* && !1*_app.toolbar_edit_btn */) {
         detailGridPanel.messageContextMenu = detailGrid.menuButtons;
         detailGridPanel.on("rowcontextmenu", fnRightClick);
       }
-      /*	    if(detailGrid.saveUserInfo)detailGridPanel.on("afterrender",function(a,b,c){
-				detailGridPanel.getView().hmenu.add('-',{text: 'Mazgal Ayarları',cls:'grid-options1',menu: {items:[{text:'Mazgal Ayarlarını Kaydet',handler:function(){saveGridColumnInfo(grid.getColumnModel(),mainGrid.gridId)}},
-			    	                                                                                       {text:'Varsayılan Ayarlara Dön',handler:function(){resetGridColumnInfo(mainGrid.gridId)}}]}});
-		    }); */
+      /*
+		 * if(detailGrid.saveUserInfo)detailGridPanel.on("afterrender",function(a,b,c){
+		 * detailGridPanel.getView().hmenu.add('-',{text: 'Mazgal
+		 * Ayarları',cls:'grid-options1',menu: {items:[{text:'Mazgal Ayarlarını
+		 * Kaydet',handler:function(){saveGridColumnInfo(grid.getColumnModel(),mainGrid.gridId)}},
+		 * {text:'Varsayılan Ayarlara
+		 * Dön',handler:function(){resetGridColumnInfo(mainGrid.gridId)}}]}});
+		 * });
+		 */
       if (
         detailGridPanel.crudFlags &&
-        detailGridPanel.crudFlags.edit /* && 1*_app.toolbar_edit_btn*/
+        detailGridPanel.crudFlags.edit /* && 1*_app.toolbar_edit_btn */
       ) {
         detailGridPanel.on("rowdblclick", fnRowEditDblClick);
       }
-      //		grid2grid(mainGridPanel,detailGridPanel,obj.detailGrids[i].params);
+      // grid2grid(mainGridPanel,detailGridPanel,obj.detailGrids[i].params);
       detailGridPanel.store._formPanel = searchFormPanel;
       detailGridPanel.store.on("beforeload", function(a, b) {
         if (a._grid.editMode) a._grid._deletedItems = [];
@@ -5962,7 +6041,7 @@ function addTab4DetailGridsWSearchForm(obj) {
           a.baseParams = Ext.apply(
             a._grid._baseParams || {},
             a._formPanel.getForm().getValues()
-          ); //a._formPanel.getForm().getValues();
+          ); // a._formPanel.getForm().getValues();
       });
 
       if (buttons.length > 0) {
@@ -5985,7 +6064,7 @@ function addTab4DetailGridsWSearchForm(obj) {
           a.baseParams = Ext.apply(
             a._grid._baseParams || {},
             a._formPanel.getForm().getValues()
-          ); //a._formPanel.getForm().getValues();
+          ); // a._formPanel.getForm().getValues();
       });
 
       detailGridPanels.push(detailGridPanel);
@@ -6001,12 +6080,12 @@ function addTab4DetailGridsWSearchForm(obj) {
   var p = {
     layout: "border",
     title: obj._title_ || mainGrid.name,
-    //        id: obj.id||'x'+new Date().getTime(),
+    // id: obj.id||'x'+new Date().getTime(),
     border: false,
     closable: true,
     items: [searchFormPanel, detailGridTabPanel]
   };
-  //    p.iconCls='icon-cmp';
+  // p.iconCls='icon-cmp';
   p = new Ext.Panel(p);
   p._windowCfg = { layout: "border" };
   return p;
@@ -6028,19 +6107,13 @@ function promisUpdateNotifications(obj) {
     }
   }
 }
-/* DEPRECATED
-function check4Notifications(nt){
-	promisRequest({
-		url:'ajaxQueryData?_qid=1488', 
-		requestWaitMsg:false, 
-		timeout:120000,
-		params:{},
-		successCallback: function(json){
-			promisUpdateNotifications({new_notification_count:json.data[0].new_notifications});	
-		}
-	});
-}
-*/
+/*
+ * DEPRECATED function check4Notifications(nt){ promisRequest({
+ * url:'ajaxQueryData?_qid=1488', requestWaitMsg:false, timeout:120000,
+ * params:{}, successCallback: function(json){
+ * promisUpdateNotifications({new_notification_count:json.data[0].new_notifications}); }
+ * }); }
+ */
 
 function renderParentRecords(rs, sp) {
   var ss = "",
@@ -6087,7 +6160,7 @@ function renderParentRecords(rs, sp) {
 }
 
 function renderParentRecords2(rs, sp) {
-  //TODO: bizzat java 'ya gore
+  // TODO: bizzat java 'ya gore
   var ss = "",
     r = null;
   if (!sp) sp = 1;
@@ -6133,7 +6206,7 @@ function renderParentRecords2(rs, sp) {
 
 function manuelDateValidation(date1, date2, blankControl, dateControl) {
   if (blankControl) {
-    //tarih alanlarının boş olup olmadığı kontrol ediliyor
+    // tarih alanlarının boş olup olmadığı kontrol ediliyor
     if (typeof date1 != "undefined") {
       if (date1.allowBlank == false && date1.getValue() == "") {
         Ext.infoMsg.msg(
@@ -6160,12 +6233,13 @@ function manuelDateValidation(date1, date2, blankControl, dateControl) {
     typeof date1 != "undefined" &&
     typeof date2 != "undefined"
   ) {
-    //birinci tarih ikinci tarihten küçük yada eşit olup olmadığı kontrol ediliyor
+    // birinci tarih ikinci tarihten küçük yada eşit olup olmadığı kontrol
+	// ediliyor
     if (date1.getValue() > date2.getValue()) {
       Ext.infoMsg.msg(
         "error",
         getLocMsg("js_error_first_cannot_greater_than_second")
-      ); //'İlk Tarih İkinci Tarihten Büyük Olamaz'
+      ); // 'İlk Tarih İkinci Tarihten Büyük Olamaz'
       return false;
     }
   }
@@ -6704,7 +6778,8 @@ function fmtOnlineUser(j) {
   if (s.length > 27) s = s.substring(0, 25) + "...";
   str += s + "</span></td><td width=1%>";
   if (j.mobile) str += '<span class="status-item2 mobile-1">&nbsp;</span>';
-  //	str+='<span class="status-item2 status-'+j.chat_status_tip+'" style="margin-right:1px;">&nbsp;</span>';
+  // str+='<span class="status-item2 status-'+j.chat_status_tip+'"
+	// style="margin-right:1px;">&nbsp;</span>';
   str += "</td></tr></table>";
   return str;
 }
@@ -6767,7 +6842,7 @@ function vcsPush(xgrid, tid, tpk) {
                   params: xparams,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "VCS Objects Pushed");
-                    xxgrd.ds.reload();
+                    iwb.reload(xxgrd);
                   }
                 });
               }
@@ -6779,7 +6854,7 @@ function vcsPush(xgrid, tid, tpk) {
         return;
       }
       Ext.infoMsg.msg("success", "VCS Objects Pushed");
-      xgrd.ds.reload();
+      iwb.reload(xgrd);
     }
   });
 }
@@ -6804,7 +6879,7 @@ function vcsPushMulti(xgrid, tid, tpk) {
                   params: xparams,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "VCS Objects Pushed");
-                    xxgrd.ds.reload();
+                    iwb.reload(xxgrd);
                   }
                 });
               }
@@ -6816,7 +6891,7 @@ function vcsPushMulti(xgrid, tid, tpk) {
         return;
       }
       Ext.infoMsg.msg("success", "VCS Objects Pushed");
-      xgrd.ds.reload();
+      iwb.reload(xgrd);
     }
   });
 }
@@ -6841,7 +6916,7 @@ function vcsPushAll(xgrid, keyz) {
                   params: xparams,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "VCS Objects Pushed");
-                    xxgrd.ds.reload();
+                    iwb.reload(xxgrd);
                   }
                 });
               }
@@ -6853,10 +6928,16 @@ function vcsPushAll(xgrid, keyz) {
         return;
       }
       Ext.infoMsg.msg("success", "VCS Objects Pushed");
-      xgrd.ds.reload();
+      iwb.reload(xgrd);
     }
   });
 }
+iwb.reload=function(g, p){
+	if(!g)return;
+	if(g.ds && g.ds.reload)g.ds.reload(p||{});
+	else if(g.store && g.store.reload)g.store.reload(p||{});
+}
+
 function vcsPull(xgrid, tid, tpk) {
   var xparams = { t: tid, k: tpk };
   var xgrd = xgrid;
@@ -6880,7 +6961,7 @@ function vcsPull(xgrid, tid, tpk) {
                   params: xparams,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "VCS Objects Pulled");
-                    xxgrd.ds.reload();
+                    iwb.reload(xxgrd);
                   }
                 });
               }
@@ -6890,7 +6971,7 @@ function vcsPull(xgrid, tid, tpk) {
         return;
       }
       Ext.infoMsg.msg("success", "VCS Objects Pulled");
-      xgrd.ds.reload();
+      iwb.reload(xgrd);
     }
   });
 }
@@ -6967,7 +7048,7 @@ function fncMnuVcs(xgrid) {
       iconCls: "icon-vcs-push",
       _grid: xgrid,
       handler: function(aq) {
-        var sel = aq._grid._gp.getSelectionModel().getSelections();
+        var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
         if (sel && sel.length > 0) {
           var d = sel[0].data.pkpkpk_vcsf;
           if (d) {
@@ -6981,7 +7062,7 @@ function fncMnuVcs(xgrid) {
       iconCls: "icon-vcs-pull",
       _grid: xgrid,
       handler: function(aq) {
-        var sel = aq._grid._gp.getSelectionModel().getSelections();
+        var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
         if (sel && sel.length > 0) {
           var d = sel[0].data.pkpkpk_vcsf;
           if (d) {
@@ -6991,9 +7072,10 @@ function fncMnuVcs(xgrid) {
       }
     },
     "-",
-    /*,{text:'Synchronize Selected Record(Recursive)', _grid:xgrid, handler:function(aq){
-			Ext.infoMsg.alert('TODO')
-		}}*/
+    /*
+	 * ,{text:'Synchronize Selected Record(Recursive)', _grid:xgrid,
+	 * handler:function(aq){ Ext.infoMsg.alert('TODO') }}
+	 */
     {
       text: "Synchronize Table Records",
       _grid: xgrid,
@@ -7006,7 +7088,8 @@ function fncMnuVcs(xgrid) {
             tid: aq._grid.crudTableId
           }
         });
-        //			promisRequest({url:'ajaxVCSObjectsList',params:{_tid:aq._grid.crudTableId}, successCallback:function(j){Ext.infoMsg.alert('info',j.msgs.join('<br>'));}});
+        // promisRequest({url:'ajaxVCSObjectsList',params:{_tid:aq._grid.crudTableId},
+		// successCallback:function(j){Ext.infoMsg.alert('info',j.msgs.join('<br>'));}});
       }
     },
     "-",
@@ -7014,14 +7097,14 @@ function fncMnuVcs(xgrid) {
       text: "Add to VCS",
       _grid: xgrid,
       handler: function(aq) {
-        var sel = aq._grid._gp.getSelectionModel().getSelections();
+        var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
         if (sel && sel.length > 0 && !sel[0].data.pkpkpk_vcsf) {
           promisRequest({
             url: "ajaxVCSObjectAction",
             params: { t: aq._grid.crudTableId, k: sel[0].id, a: 2 },
             successCallback: function(j) {
               Ext.infoMsg.msg("success", "Added to VCS");
-              aq._grid.ds.reload();
+              iwb.reload(aq._grid);
             }
           });
         }
@@ -7031,7 +7114,7 @@ function fncMnuVcs(xgrid) {
         text: "Ignore",
         _grid: xgrid,
         handler: function(aq) {
-          var sel = aq._grid._gp.getSelectionModel().getSelections();
+          var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
           sel &&
             sel.length > 0 &&
             sel[0].data.pkpkpk_vcsf &&
@@ -7041,7 +7124,7 @@ function fncMnuVcs(xgrid) {
                 params: { t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
                 successCallback: function(j) {
                   Ext.infoMsg.msg("success", "Ignored from VCS");
-                  aq._grid.ds.reload();
+                  iwb.reload(aq._grid);
                 }
               });
             });
@@ -7051,44 +7134,17 @@ function fncMnuVcs(xgrid) {
           text: "Show Diff",
           _grid: xgrid,
           handler: function(aq) {
-            var sel = aq._grid._gp.getSelectionModel().getSelections();
+            var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
             sel &&
               sel.length > 0 &&
               sel[0].data.pkpkpk_vcsf &&
               iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id);;
           }
-        } /*,'-',{text:'Move to Another Project', _grid:xgrid, handler:function(aq){
-			var sel=aq._grid._gp.getSelectionModel().getSelected();
-			if(sel && sel.data.pkpkpk_vcsf){
-				var cmbSt2=[];
-				if(lookup_w5_project.data)for(var qi=0;qi<lookup_w5_project.data.length;qi++)if(_scd.projectId!=lookup_w5_project.data[qi].id)cmbSt2.push([lookup_w5_project.data[qi].id, lookup_w5_project.data[qi].dsc]);
-				var cmbProject2 = new Ext.form.ComboBox({width:205, typeAhead: false, mode: 'local',triggerAction: 'all',selectOnFocus:true,forceSelection:true, store:cmbSt2, emptyText:'Choose new Project'});
-				var wx=new Ext.Window({
-					modal:true, shadow:false, border:false,
-					width:220,
-					autoHeight:true,
-					closeAction:'destroy',
-					title:'Move To Another Project',
-
-					items: [cmbProject2],
-
-					buttons: [{
-					    text: 'Move',
-					    handler: function(){
-						if(cmbProject2.getValue() && confirm('Would you like to move to another Project?'))promisRequest({url:'ajaxVCSMove2AnotherProject',requestWaitMsg:true,params:{t:aq._grid.crudTableId, k:sel.id, np:cmbProject2.getValue()}, successCallback:function(j){
-							wx.hide();
-							aq._grid.ds.reload();
-						}});
-					    }
-					}]
-				});
-				wx.show();
-			}
-		}}*/
+        }
   ];
 }
 
-/* Log Utils*/
+/* Log Utils */
 if (!iwb.log) iwb.log = {};
 if (!iwb.log.map) iwb.log.map = {};
 iwb.log.log = function(group, msg) {
@@ -7242,7 +7298,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   }
 
   function form_extra_processes() {
-    //form-sms-mail post process
+    // form-sms-mail post process
     var smtBtn = Ext.getCmp("smt_" + getForm.id);
     if (smtBtn) {
       switch (1 * _app.form_sms_mail_view_tip) {
@@ -7264,12 +7320,12 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
               smsStr2 += "," + gals3[qs].xid;
             }
           }
-          //                                        Ext.infoMsg.alert(smsStr2);return false;
+          // Ext.infoMsg.alert(smsStr2);return false;
           if (smsStr2) getForm._cfg.extraParams._smsStr = smsStr2.substr(1);
           break;
       }
     }
-    //form-conversion post process
+    // form-conversion post process
     var cnvBtn = Ext.getCmp("cnv_" + getForm.id);
     if (cnvBtn) {
       switch (1 * _app.conversion_view_tip) {
@@ -7295,7 +7351,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           break;
       }
     }
-    //for alarm
+    // for alarm
     var almBtn = Ext.getCmp("alm_" + getForm.id);
     if (almBtn) {
       switch (1 * _app.alarm_view_tip) {
@@ -7349,11 +7405,12 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     var sv_btn_visible = extDef.baseParams.sv_btn_visible || 1;
     if (sv_btn_visible * 1 == 1) {
       var saveBtn = {
-        text: (1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : "Save").toUpperCase(),// + ' '+getForm.name,
+        text: (1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : "Save").toUpperCase(),// + '
+																								// '+getForm.name,
         id: "sb_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-//        style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
         iconCls: "ikaydet",
         handler: function(a, b, c) {
           if (
@@ -7440,7 +7497,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           }
 
           var r = null;
-          //manuel validation
+          // manuel validation
           var bm = false;
 
           if (extDef.componentWillPost || bm) {
@@ -7471,7 +7528,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
 
       btn.push(saveBtn);
     }
-    //post & continue
+    // post & continue
     if (getForm.contFlag && 1 * getForm.contFlag == 1 && realAction == 2) {
       btn.push({
         text: "Save&Continue".toUpperCase(),
@@ -7550,7 +7607,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     }
   }
   
-  //close
+  // close
   if(_app.show_close_button)btn.push({
     tooltip: "Close",
     id: "cl_" + getForm.id,
@@ -7579,7 +7636,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   });
 
   if (getForm.fileAttachFlag) {
-//    btn.push("-");
+// btn.push("-");
     btn.push({
       tooltip:
         "Files" +
@@ -7606,27 +7663,15 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             fnNewFileAttachment4Form(a._f.crudTableId, table_pk.substring(1));
           }
         },
-        /*{
-				text: getLocMsg('js_daha_once_eklenmis_dosyalardan_ekle'),
-				_f: getForm,
-				handler: function(a, b) {
-					var getForm = a._f;
-					var table_pk = '';
-					if (getForm.a == 1) {
-						for (var key in getForm.pk)
-							if (key != 'customizationId') table_pk += "|" + getForm.pk[key];
-					} else table_pk = "|" + getForm.tmpId;
-					mainPanel.loadTab({
-						attributes: {
-							_title_: 1,
-							modalWindow: true,
-							href: 'showPage?_tid=259&_gid1=672',
-							tableId: a._f.crudTableId,
-							tablePk: table_pk.substring(1)
-						}
-					})
-				}
-			}, '-',*/ {
+        /*
+		 * { text: getLocMsg('js_daha_once_eklenmis_dosyalardan_ekle'), _f:
+		 * getForm, handler: function(a, b) { var getForm = a._f; var table_pk =
+		 * ''; if (getForm.a == 1) { for (var key in getForm.pk) if (key !=
+		 * 'customizationId') table_pk += "|" + getForm.pk[key]; } else table_pk =
+		 * "|" + getForm.tmpId; mainPanel.loadTab({ attributes: { _title_: 1,
+		 * modalWindow: true, href: 'showPage?_tid=259&_gid1=672', tableId:
+		 * a._f.crudTableId, tablePk: table_pk.substring(1) } }) } }, '-',
+		 */ {
           text: "${related_files}",
           _f: getForm,
           handler: function(a, b, c) {
@@ -7733,10 +7778,10 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     });
   }
 
-  //approval
+  // approval
   if (1 * getForm.a == 1 && getForm.approval) {
     btn.push("-");
-    //    btn.push({text: '${onay_adimi}<br>'+getForm.approval.stepDsc});
+    // btn.push({text: '${onay_adimi}<br>'+getForm.approval.stepDsc});
     if (getForm.approval.wait4start) {
       btn.push({
         text: "${onay_iste}",
@@ -7756,7 +7801,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         tooltip: getForm.approval.stepDsc,
         iconAlign: "top",
         scale: "medium",
-//        style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
         iconCls: "iapprove",
         handler: function(a, b, c) {
           if (!getForm.viewMode) {
@@ -7800,7 +7845,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           id: "gbapp_" + getForm.id,
           iconAlign: "top",
           scale: "medium",
-//          style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
           iconCls: "ireturn",
           handler: function(a, b, c) {
             submitAndApproveTableRecord(2, getForm);
@@ -7812,7 +7857,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "rapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-//        style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
         iconCls: "ireject",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(3, getForm);
@@ -7823,7 +7868,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "lapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-//        style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
         iconCls: "ilog",
         handler: function(a, b, c) {
           mainPanel.loadTab({
@@ -7853,7 +7898,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     var xb = false;
     if (getForm.commentFlag) {
       if (xb) {
-//        btn.push("-");
+// btn.push("-");
         xb = false;
       }
       var txt2 =
@@ -7870,7 +7915,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           render: function(ax, bx, cx) {
             var axx = getForm.commentExtra;
             if (axx) {
-              //var ax=Ext.getCmp('cd_' + getForm.id);
+              // var ax=Ext.getCmp('cd_' + getForm.id);
               var tt = new Ext.ToolTip({
                 target: ax.getEl(),
                 anchor: "top",
@@ -7892,7 +7937,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             }
           }
         },
-//        style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_comment",
         handler: function(a, b, c) {
           if (a._commentCount)
@@ -7943,7 +7988,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     id: "ttemp_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
-//    style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
     iconCls: "ibookmark",
     handler: function(a, b, c) {
       if (!getForm._loaded) {
@@ -8036,7 +8081,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   });
 
   if (_scd.customizationId == 0) {
-//    btn.push("-");
+// btn.push("-");
     var menuItems = [];
     if (_scd.administratorFlag) {
       menuItems.push({
@@ -8136,7 +8181,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "fs_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
-//      style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
       iconCls: "isettings",
       menu: {
         items: menuItems
@@ -8144,7 +8189,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     });
   }
 
-  //manual form-conversion menu
+  // manual form-conversion menu
   if (1 * getForm.a == 1) {
     var pk = null,
       toolButtons = [];
@@ -8153,7 +8198,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         pk = getForm.pk[xi];
         break;
       }
-//    btn.push("-", " ", " ", " ");
+// btn.push("-", " ", " ", " ");
     if (
       (getForm.manualConversionForms &&
         getForm.manualConversionForms.length > 0) ||
@@ -8161,7 +8206,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     ) {
       toolButtons.push({
         text: "Record Info",
-        /*iconCls:'icon-info',*/
+        /* iconCls:'icon-info', */
         handler: function() {
           fnTblRecEdit(getForm.crudTableId, pk, false);
         }
@@ -8196,7 +8241,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         tooltip: "Others...",
         iconAlign: "top",
         scale: "medium",
-//        style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_info",
         menu: toolButtons
       });
@@ -8205,7 +8250,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     	tooltip: "Record Info",
         iconAlign: "top",
         scale: "medium",
-//        style: {margin: "0px 5px 0px 5px"},
+// style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_info",
         handler: function() {
           fnTblRecEdit(getForm.crudTableId, pk, false);
@@ -8220,7 +8265,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     autoScroll: true,
     border: false,
     tbar: btn,
-//    bodyStyle: "padding:3px;",
+// bodyStyle: "padding:3px;",
     iconCls: callAttributes.iconCls || iconCls,
     _title_: callAttributes.title || "Form: " + getForm.name,
     _width_: getForm.defaultWidth,
@@ -8273,7 +8318,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       cls: "xform-hint",
       title: "",
       labelWidth: 0,
-      //	        bodyStyle: 'background-color:#FFF8C6;',
+      // bodyStyle: 'background-color:#FFF8C6;',
       items: [lbl]
     });
   }
@@ -8286,7 +8331,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       cls: "xform-live-sync",
       labelWidth: 0,
       bodyStyle: "padding:none !important;",
-      //	    bodyStyle: 'background-color:#FFF8C6',
+      // bodyStyle: 'background-color:#FFF8C6',
       items: [
         new Ext.form.Label({
           hideLabel: true,

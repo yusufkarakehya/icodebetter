@@ -65,6 +65,7 @@ import iwb.domain.db.W5Jasper;
 import iwb.domain.db.W5JasperReport;
 import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5List;
+import iwb.domain.db.W5ListBase;
 import iwb.domain.db.W5ListColumn;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
@@ -406,14 +407,13 @@ public class PostgreSQL extends BaseDAO {
           gridResult.setRequestParams(f.getRequestParams());
           gridResult.setScd(f.getScd());
 
-          W5Grid g = null;
-          if (FrameworkSetting.preloadWEngine != 0
-              && (g = FrameworkCache.getGrid(projectId, fc.getLookupQueryId())) != null) {
+          W5Grid g = FrameworkCache.getGrid(projectId, fc.getLookupQueryId());
+          if (g != null) {
             gridResult.setGrid(g);
           } else {
             loadGrid(gridResult);
             g = gridResult.getGrid();
-            if (FrameworkSetting.preloadWEngine != 0) FrameworkCache.addGrid(projectId, g);
+            FrameworkCache.addGrid(projectId, g);
           }
           fc.set_sourceObjectDetail(g);
           break;
@@ -461,16 +461,11 @@ public class PostgreSQL extends BaseDAO {
     formResult.setPkFields(new HashMap());
     formResult.setOutputMessages(new ArrayList());
     formResult.setExtraFormCells(new ArrayList());
-    W5Form f = null;
-    if (FrameworkSetting.preloadWEngine != 0) {
-      f = FrameworkCache.getForm(scd, formId);
-    }
+    W5Form f = FrameworkCache.getForm(scd, formId);
     if (f == null) {
       loadForm(formResult);
       f = formResult.getForm();
-      if (FrameworkSetting.preloadWEngine != 0) {
-        FrameworkCache.addForm(scd, formResult.getForm());
-      }
+      FrameworkCache.addForm(scd, formResult.getForm());
     }
     formResult.setForm(f);
 
@@ -643,9 +638,7 @@ public class PostgreSQL extends BaseDAO {
     W5QueryResult queryResult = new W5QueryResult(queryId);
     queryResult.setScd(scd);
     String projectId = FrameworkCache.getProjectId(scd, "8." + queryId);
-    if (FrameworkSetting.preloadWEngine != 0) {
-      queryResult.setQuery(FrameworkCache.getQuery(projectId, queryId));
-    }
+    queryResult.setQuery(FrameworkCache.getQuery(projectId, queryId));
     if (queryResult.getQuery() == null) {
       W5Query query =
           (W5Query)
@@ -676,7 +669,7 @@ public class PostgreSQL extends BaseDAO {
           if (field.getDsc().equals("table_pk")) query.set_tablePkTabOrder(field.getTabOrder());
         }
 
-      if (FrameworkSetting.preloadWEngine != 0) FrameworkCache.addQuery(projectId, query);
+      FrameworkCache.addQuery(projectId, query);
     }
 
     switch (queryResult.getQuery().getQuerySourceTip()) {
@@ -2071,12 +2064,10 @@ public class PostgreSQL extends BaseDAO {
     W5PageResult pr = new W5PageResult(pageId);
     pr.setScd(scd);
 
-    if (FrameworkSetting.preloadWEngine != 0) {
-      pr.setPage(FrameworkCache.getPage(scd, pageId));
-    }
+    pr.setPage(FrameworkCache.getPage(scd, pageId));
     if (pr.getPage() == null) {
       loadPage(pr);
-      if (FrameworkSetting.preloadWEngine != 0) FrameworkCache.addPage(scd, pr.getPage());
+      FrameworkCache.addPage(scd, pr.getPage());
     }
 
     return pr;
@@ -2132,28 +2123,26 @@ public class PostgreSQL extends BaseDAO {
       int dataViewId,
       Map<String, String> requestParams,
       boolean noSearchForm) {
-    W5CardResult dr = new W5CardResult(dataViewId);
+    W5CardResult cr = new W5CardResult(dataViewId);
     String projectId = FrameworkCache.getProjectId(scd, "930." + dataViewId);
-    dr.setRequestParams(requestParams);
-    dr.setScd(scd);
+    cr.setRequestParams(requestParams);
+    cr.setScd(scd);
 
-    if (FrameworkSetting.preloadWEngine != 0) {
-      dr.setCard(FrameworkCache.getDataView(projectId, dataViewId));
-    }
-    if (dr.getCard() == null) {
-      loadCard(dr);
-      if (FrameworkSetting.preloadWEngine != 0) FrameworkCache.addDataView(projectId, dr.getCard());
+    cr.setCard(FrameworkCache.getDataView(projectId, dataViewId));
+    if (cr.getCard() == null) {
+      loadCard(cr);
+      FrameworkCache.addDataView(projectId, cr.getCard());
     }
     // search Form
-    if (!noSearchForm && dr.getCard().get_searchFormId() != 0) {
+    if (!noSearchForm && cr.getCard().get_searchFormId() != 0) {
       W5FormResult searchForm =
-          getFormResult(scd, dr.getCard().get_searchFormId(), 2, requestParams);
+          getFormResult(scd, cr.getCard().get_searchFormId(), 2, requestParams);
       initializeForm(searchForm, false);
       loadFormCellLookups(
-          dr.getScd(), searchForm.getFormCellResults(), dr.getRequestParams(), null);
-      dr.setSearchFormResult(searchForm);
+          cr.getScd(), searchForm.getFormCellResults(), cr.getRequestParams(), null);
+      cr.setSearchFormResult(searchForm);
     }
-    return dr;
+    return cr;
   }
 
   private void loadCard(W5CardResult dr) {
@@ -2177,9 +2166,7 @@ public class PostgreSQL extends BaseDAO {
                 projectId));
     
     W5Query query = null;
-    if (FrameworkSetting.preloadWEngine != 0) {
-      query = getQueryResult(dr.getScd(), d.getQueryId()).getQuery();
-    }
+    query = getQueryResult(dr.getScd(), d.getQueryId()).getQuery();
 
     if (query == null) {
       query = new W5Query();
@@ -2254,6 +2241,8 @@ public class PostgreSQL extends BaseDAO {
 		            find(
 		                "from W5Conversion t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.srcFormId=? AND t.projectUuid=? order by t.tabOrder",
 		                d.getDefaultCrudFormId(), projectId));
+		  
+		  organizeListPostProcessQueryFields(dr.getScd(), t, d);
 
 		    
         }
@@ -2271,13 +2260,13 @@ public class PostgreSQL extends BaseDAO {
       W5GridResult gridResult = new W5GridResult(gridId);
       gridResult.setRequestParams(requestParams);
       gridResult.setScd(scd);
-      if (FrameworkSetting.preloadWEngine != 0
-          && (g = FrameworkCache.getGrid(projectId, gridId)) != null) {
+      g = FrameworkCache.getGrid(projectId, gridId);
+      if (g != null) {
         gridResult.setGrid(g);
       } else {
         loadGrid(gridResult);
         g = gridResult.getGrid();
-        if (FrameworkSetting.preloadWEngine != 0) FrameworkCache.addGrid(projectId, g);
+        FrameworkCache.addGrid(projectId, g);
       }
 
       // search Form
@@ -2485,9 +2474,8 @@ public class PostgreSQL extends BaseDAO {
         t = FrameworkCache.getTable(projectId, form.getObjectId());
         break; // table
       case 1:
-        W5Grid g = null;
-        if (FrameworkSetting.preloadWEngine == 0
-            || (g = FrameworkCache.getGrid(projectId, form.getObjectId())) == null) {
+        W5Grid g = FrameworkCache.getGrid(projectId, form.getObjectId());
+        if (g == null) {
           g =
               (W5Grid)
                   getCustomizedObject(
@@ -2497,9 +2485,8 @@ public class PostgreSQL extends BaseDAO {
                       "Grid");
         }
         if (g != null) {
-          W5Query q = null;
-          if (FrameworkSetting.preloadWEngine == 0
-              || (q = FrameworkCache.getQuery(projectId, g.getQueryId())) == null) {
+          W5Query q = FrameworkCache.getQuery(projectId, g.getQueryId());
+          if (q == null) {
             q =
                 (W5Query)
                     getCustomizedObject(
@@ -2707,10 +2694,7 @@ public class PostgreSQL extends BaseDAO {
         break;
     }
 
-    W5Query query = null;
-    if (FrameworkSetting.preloadWEngine != 0) {
-      query = getQueryResult(gr.getScd(), grid.getQueryId()).getQuery();
-    }
+    W5Query query = getQueryResult(gr.getScd(), grid.getQueryId()).getQuery();
 
     if (query == null) {
       query = new W5Query();
@@ -2850,75 +2834,73 @@ public class PostgreSQL extends BaseDAO {
             find(
                 "from W5Conversion t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.srcFormId=? AND t.projectUuid=? order by t.tabOrder",
                 grid.getDefaultCrudFormId(), projectId));
-        // Gridle ilgili onay mekanizması ataması
-        List<W5Workflow> a =
-            find(
-                "from W5Workflow t where t.activeFlag=1 AND t.tableId = ? AND t.projectUuid = ?",
-                grid.get_defaultCrudForm().getObjectId(),
-                projectId);
-        if (!a.isEmpty()) {
-          grid.setApproval(a.get(0));
-        }
-
         if (grid.get_crudFormSmsMailList().isEmpty()) grid.set_crudFormSmsMailList(null);
-        // extra islemler
-        if (FrameworkCache.getAppSettingIntValue(gr.getScd(), "approval_flag") != 0
-            && !a.isEmpty()) { // table Record Approvals
-          if (grid.get_postProcessQueryFields() == null)
-            grid.set_postProcessQueryFields(new ArrayList());
-          W5QueryField f = new W5QueryField();
-          f.setDsc(FieldDefinitions.queryFieldName_Approval);
-          f.setFieldTip((short) 5); // comment
-          f.setTabOrder((short) 22); // aslinda width
-          f.setPostProcessTip((short) 49); // approvalPostProcess
-          grid.get_postProcessQueryFields().add(f);
-          W5QueryField f2 = new W5QueryField();
-          f2.setDsc(FieldDefinitions.queryFieldName_ArVersionNo);
-          f2.setFieldTip((short) 4); // comment
-          f2.setTabOrder((short) 22); // aslinda width
-          grid.get_postProcessQueryFields().add(f2);
-        }
 
-        /*				if(FrameworkCache.getAppSettingIntValue(gr.getScd(), "row_based_security_flag")!=0 && t.getAccessTips()!=null){ //var demek ki
-        	if(grid.get_postProcessQueryFields()==null)grid.set_postProcessQueryFields(new ArrayList());
-        	W5QueryField f = new W5QueryField();
-        	f.setDsc(FieldDefinitions.queryFieldName_RowBasedSecurity);
-        	f.setFieldTip((short)1);//access control
-        	f.setTabOrder((short)22);//aslinda width
-        	grid.get_postProcessQueryFields().add(f);
-        }*/
-        if (FrameworkCache.getAppSettingIntValue(gr.getScd(), "file_attachment_flag") != 0
-            && t.getFileAttachmentFlag() != 0) {
-          if (grid.get_postProcessQueryFields() == null)
-            grid.set_postProcessQueryFields(new ArrayList());
-          W5QueryField f = new W5QueryField();
-          f.setDsc(FieldDefinitions.queryFieldName_FileAttachment);
-          f.setFieldTip((short) 2); // file attachment
-          f.setTabOrder((short) 22); // aslinda width
-          grid.get_postProcessQueryFields().add(f);
-        }
-        if (FrameworkCache.getAppSettingIntValue(gr.getScd(), "make_comment_flag") != 0
-            && t.getMakeCommentFlag() != 0) { // table Comment
-          if (grid.get_postProcessQueryFields() == null)
-            grid.set_postProcessQueryFields(new ArrayList());
-          W5QueryField f = new W5QueryField();
-          f.setDsc(FieldDefinitions.queryFieldName_Comment);
-          f.setFieldTip((short) 3); // comment
-          f.setTabOrder((short) 22); // aslinda width
-          //					if(PromisSetting.commentSummary)f.set
-          grid.get_postProcessQueryFields().add(f);
-        }
-        if (FrameworkSetting.vcs && t.getVcsFlag() != 0) {
-          if (grid.get_postProcessQueryFields() == null)
-            grid.set_postProcessQueryFields(new ArrayList());
-          W5QueryField f = new W5QueryField();
-          f.setDsc(FieldDefinitions.queryFieldName_Vcs);
-          f.setFieldTip((short) 9); // vcs
-          f.setTabOrder((short) 32); // aslinda width
-          grid.get_postProcessQueryFields().add(f);
-        }
+        // Gridle ilgili onay mekanizması ataması
+        organizeListPostProcessQueryFields(gr.getScd(), t, grid);
       }
     }
+  }
+  
+  private void organizeListPostProcessQueryFields(Map<String, Object> scd, W5Table t, W5ListBase l){
+	  // Gridle ilgili onay mekanizması ataması
+      List<W5Workflow> a =
+          find(
+              "from W5Workflow t where t.activeFlag=1 AND t.tableId = ? AND t.projectUuid = ?",
+              t.getTableId(),
+              t.getProjectUuid());
+      if (!a.isEmpty()) {
+        l.set_workflow(a.get(0));
+      }
+
+      // extra islemler
+      if (FrameworkCache.getAppSettingIntValue(scd, "approval_flag") != 0
+          && !a.isEmpty()) { // table Record Approvals
+        if (l.get_postProcessQueryFields() == null)
+          l.set_postProcessQueryFields(new ArrayList());
+        W5QueryField f = new W5QueryField();
+        f.setDsc(FieldDefinitions.queryFieldName_Approval);
+        f.setFieldTip((short) 5); // comment
+        f.setTabOrder((short) 22); // aslinda width
+        f.setPostProcessTip((short) 49); // approvalPostProcess
+        l.get_postProcessQueryFields().add(f);
+        W5QueryField f2 = new W5QueryField();
+        f2.setDsc(FieldDefinitions.queryFieldName_ArVersionNo);
+        f2.setFieldTip((short) 4); // comment
+        f2.setTabOrder((short) 22); // aslinda width
+        l.get_postProcessQueryFields().add(f2);
+      }
+
+      if (FrameworkCache.getAppSettingIntValue(scd, "file_attachment_flag") != 0
+          && t.getFileAttachmentFlag() != 0) {
+        if (l.get_postProcessQueryFields() == null)
+          l.set_postProcessQueryFields(new ArrayList());
+        W5QueryField f = new W5QueryField();
+        f.setDsc(FieldDefinitions.queryFieldName_FileAttachment);
+        f.setFieldTip((short) 2); // file attachment
+        f.setTabOrder((short) 22); // aslinda width
+        l.get_postProcessQueryFields().add(f);
+      }
+      if (FrameworkCache.getAppSettingIntValue(scd, "make_comment_flag") != 0
+          && t.getMakeCommentFlag() != 0) { // table Comment
+        if (l.get_postProcessQueryFields() == null)
+          l.set_postProcessQueryFields(new ArrayList());
+        W5QueryField f = new W5QueryField();
+        f.setDsc(FieldDefinitions.queryFieldName_Comment);
+        f.setFieldTip((short) 3); // comment
+        f.setTabOrder((short) 22); // aslinda width
+        //					if(PromisSetting.commentSummary)f.set
+        l.get_postProcessQueryFields().add(f);
+      }
+      if (FrameworkSetting.vcs && t.getVcsFlag() != 0) {
+        if (l.get_postProcessQueryFields() == null)
+          l.set_postProcessQueryFields(new ArrayList());
+        W5QueryField f = new W5QueryField();
+        f.setDsc(FieldDefinitions.queryFieldName_Vcs);
+        f.setFieldTip((short) 9); // vcs
+        f.setTabOrder((short) 32); // aslinda width
+        l.get_postProcessQueryFields().add(f);
+      }
   }
 
   public boolean updateFormTable(W5FormResult formResult, String paramSuffix) {
@@ -4432,7 +4414,7 @@ public class PostgreSQL extends BaseDAO {
     // preload olmamasinin sebebi: approval'da herkesin farkli kayitlarinin gelmesi search formlarda
     FrameworkSetting.monaco = FrameworkCache.getAppSettingIntValue(0, "monaco") != 0;
     FrameworkSetting.mq = FrameworkCache.getAppSettingIntValue(0, "mq_flag") != 0;
-    FrameworkSetting.preloadWEngine = FrameworkCache.getAppSettingIntValue(0, "preload_engine");
+//    FrameworkSetting.preloadWEngine = FrameworkCache.getAppSettingIntValue(0, "preload_engine");
     FrameworkSetting.chat = FrameworkCache.getAppSettingIntValue(0, "chat_flag") != 0;
     //		FrameworkSetting.allowMultiLogin = FrameworkCache.getAppSettingIntValue(0,
     // "allow_multi_login_flag")!=0;
@@ -5015,9 +4997,7 @@ public class PostgreSQL extends BaseDAO {
     }
 
     W5GlobalFuncResult r = new W5GlobalFuncResult(dbFuncId);
-    if (FrameworkSetting.preloadWEngine != 0) {
-      r.setGlobalFunc(FrameworkCache.getGlobalFunc(projectId, dbFuncId));
-    }
+    r.setGlobalFunc(FrameworkCache.getGlobalFunc(projectId, dbFuncId));
     if (r.getGlobalFunc() == null) {
       r.setGlobalFunc(
           (W5GlobalFunc)
@@ -5033,9 +5013,7 @@ public class PostgreSQL extends BaseDAO {
                   projectId,
                   dbFuncId));
 
-      if (FrameworkSetting.preloadWEngine != 0) {
         FrameworkCache.addGlobalFunc(projectId, r.getGlobalFunc());
-      }
     }
 
     r.setScd(scd);
@@ -6857,9 +6835,8 @@ public class PostgreSQL extends BaseDAO {
     mlistResult.setRequestParams(requestParams);
     mlistResult.setScd(scd);
 
-    M5List d = null;
-    if (FrameworkSetting.preloadWEngine != 0
-        && (d = FrameworkCache.getMListView(projectId, listId)) != null) {
+    M5List d = FrameworkCache.getMListView(projectId, listId);
+    if (d != null) {
       mlistResult.setList(d);
     } else {
       d =
@@ -6947,14 +6924,13 @@ public class PostgreSQL extends BaseDAO {
     listViewResult.setRequestParams(requestParams);
     listViewResult.setScd(scd);
 
-    W5List d = null;
-    if (FrameworkSetting.preloadWEngine != 0
-        && (d = FrameworkCache.getListView(projectId, listViewId)) != null) {
+    W5List d = FrameworkCache.getListView(projectId, listViewId);
+    if (d != null) {
       listViewResult.setListView(d);
     } else {
       loadListView(listViewResult);
       d = listViewResult.getListView();
-      if (FrameworkSetting.preloadWEngine != 0) FrameworkCache.addListView(projectId, d);
+      FrameworkCache.addListView(projectId, d);
     }
     // search Form
     if (!noSearchForm && d.get_searchFormId() != 0) {
@@ -6981,10 +6957,7 @@ public class PostgreSQL extends BaseDAO {
                 "List"); // ozel bir client icin varsa
     lr.setListView(d);
 
-    W5Query query = null;
-    if (FrameworkSetting.preloadWEngine != 0) {
-      query = getQueryResult(lr.getScd(), d.getQueryId()).getQuery();
-    }
+    W5Query query = getQueryResult(lr.getScd(), d.getQueryId()).getQuery();
 
     if (query == null) {
       query = new W5Query();

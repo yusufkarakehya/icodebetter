@@ -1316,11 +1316,9 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 			}
 
-		s.append("\nvar __anaBaslik__='")
-				.append(GenericUtil.stringToJS(fr.getForm()
-						.getLocaleMsgKey())).append("'\nvar __action__=")
-				.append(fr.getAction()).append("\n");
-		if(((Integer)scd.get("roleId")!=0 || GenericUtil.uInt(fr.getRequestParams(),"_preview")==0)){
+		s.append("\nvar __action__=")
+				.append(fr.getAction()).append(";\n");
+		if(scd==null || scd.get("roleId")==null || ((Integer)scd.get("roleId")!=0 || GenericUtil.uInt(fr.getRequestParams(),"_preview")==0)){
 			// 24 nolu form form edit form olduğu için onu çevirmesin.
 			String postCode = (fr.getForm().get_renderTemplate() != null && fr.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && fr
 					.getFormId() != 24) ? GenericUtil.filterExt(
@@ -4260,7 +4258,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		else
 			buf.append("',");
 		buf.append(
-				serializeQueryReader(d.get_query().get_queryFields(), d.get_pkQueryField().getDsc(), null, (d
+				serializeQueryReader(d.get_query().get_queryFields(), d.get_pkQueryField().getDsc(), d.get_postProcessQueryFields(), (d
 						.get_query().getShowParentRecordFlag() != 0 ? 2 : 0), d
 						.get_crudTable(), cardResult.getScd())).append(
 				",listeners:{loadexception:promisLoadException");
@@ -4298,7 +4296,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
 		buf.append(",\n tpl:\"")
 				.append(GenericUtil.stringToJS2(d.getTemplateCode()))
-				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"div.icb-card\"};\n");
+				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"div.card\"};\n");
 		if (!GenericUtil.isEmpty(d.getJsCode())) {
 			buf.append("\ntry{")
 					.append(GenericUtil.filterExt(d.getJsCode(),
@@ -4492,9 +4490,9 @@ public class ExtJs3_4 implements ViewAdapter {
 		}
 		buf.append(", loadMask:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
 		
-		if(FrameworkCache.getAppSettingIntValue(customizationId, "toplu_onay") == 1 && g.getApproval() != null){
+		if(FrameworkCache.getAppSettingIntValue(customizationId, "toplu_onay") == 1 && g.get_workflow() != null){
 			buf.append(",\n approveBulk:true");
-			if(g.getApproval().getApprovalRequestTip() == 2){ // Onay manuel mi başlatılacak ?
+			if(g.get_workflow().getApprovalRequestTip() == 2){ // Onay manuel mi başlatılacak ?
 				buf.append(", btnApproveRequest:true");
 			}
 		}
@@ -4625,18 +4623,6 @@ public class ExtJs3_4 implements ViewAdapter {
 					serializeGetForm(gridResult.getSearchFormResult()));
 		}
 		if (!gridResult.isViewLogMode()) {
-			/*if (g.getSelectionModeTip() != 4 && g.get_detailView() != null) {// detailView
-																				// olarak
-																				// Goster
-				buf.append(",\n detailView:new Ext.XTemplate('")
-						.append(g.get_detailView().getLocaleMsgFlag() != 0 ? GenericUtil
-								.stringToJS(LocaleMsgCache.filter2(
-										customizationId, xlocale, g
-												.get_detailView().getCode()))
-								: GenericUtil.stringToJS(g.get_detailView()
-										.getCode())).append("')");
-			}*/
-
 			if (g.get_defaultCrudForm() != null) { // insert ve delete
 													// buttonlari var mi yok mu?
 				W5Table t = FrameworkCache.getTable(projectId, g.get_defaultCrudForm().getObjectId());// g.get_defaultCrudForm().get_sourceTable();
@@ -4648,31 +4634,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append(",\n crudFormId:")
 						.append(g.getDefaultCrudFormId())
 						.append(serializeCrudFlags(scd, t, g.getInsertEditModeFlag() != 0));
-/*						.append(",\n crudFlags:{insert:")
-						.append(insertFlag)
-						.append(",edit:")
-						.append(t.getAccessUpdateUserFields() != null
-								|| GenericUtil.accessControl(scd,
-										t.getAccessUpdateTip(),
-										t.getAccessUpdateRoles(),
-										t.getAccessUpdateUsers()))
-						.append(",remove:")
-						.append(t.getAccessDeleteUserFields() != null
-								|| GenericUtil.accessControl(scd,
-										t.getAccessDeleteTip(),
-										t.getAccessDeleteRoles(),
-										t.getAccessDeleteUsers()));
-				if (g.getInsertEditModeFlag() != 0 && insertFlag)
-					buf.append(",insertEditMode:true");
-				if (insertFlag) {
-					if (t.getCopyTip() == 1)
-						buf.append(",xcopy:true");
-					else if (t.getCopyTip() == 2)
-						buf.append(",ximport:true");
-				}
-				// if(PromisCache.getAppSettingIntValue(scd, "revision_flag")!=0
-				// && t.getRevisionFlag()!=0)buf.append(",xrevision:true");
-				buf.append("}");*/
+
 				if ((t.getDoUpdateLogFlag() != 0 || t.getDoDeleteLogFlag() != 0)
 						&& FrameworkCache.roleAccessControl(scd, 108))
 					buf.append(",\n logFlags:{edit:")
@@ -4859,7 +4821,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 				buf.append("\nreturn null;}}catch(e){")
 						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(3)!!! Throw? : ' + e.message))throw e;"
-								: "alert('System/Customization ERROR : ' + e.message)");
+								: "alert('System ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 
@@ -4872,7 +4834,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				if(FrameworkSetting.debug)buf.append("\n/*iwb:end:grid:").append(gridResult.getGridId()).append(":Code*/\n");
 				buf.append("\n}catch(e){")
 						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw? : ' + e.message))throw e;"
-								: "alert('System/Customization ERROR : ' + e.message)");
+								: "alert('System ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 		}
