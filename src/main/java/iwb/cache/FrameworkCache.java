@@ -189,7 +189,7 @@ public class FrameworkCache {
 		}
 		wDataViews.get(projectId).put(dataViewId, d);
 	}
-	
+
 	public static W5Workflow getWorkflow(Object o, int approvalId) {
 		String projectId = getProjectId(o, "389."+approvalId);
 		if(!wWorkflow.containsKey(projectId)){
@@ -198,7 +198,20 @@ public class FrameworkCache {
 		} else
 			return wWorkflow.get(projectId).get(approvalId);
 	}
+
+	public static void addWorkflow(Object o, W5Workflow w) {
+		String projectId = getProjectId(o, "389."+w.getApprovalId());
+		if(!wWorkflow.containsKey(projectId)){
+			wWorkflow.put(projectId, new HashMap());
+		} else
+		wWorkflow.get(projectId).put(w.getApprovalId(), w);
+	}
 	
+
+	public static void clearProjectWorkflows(String projectId) {
+		wWorkflow.put(projectId, new HashMap());
+
+	}
 	
 	public static W5WsMethod getWsMethod(Object o, int methodId) {
 		String projectId = getProjectId(o, "1376."+methodId);

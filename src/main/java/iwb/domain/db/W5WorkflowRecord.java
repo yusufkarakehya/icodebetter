@@ -223,5 +223,11 @@ public class W5WorkflowRecord implements java.io.Serializable {
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
 	}
+	  public W5WorkflowRecord(String projectUuid) {
+	    super();
+	    this.projectUuid = projectUuid;
+	    versionNo=1;
+	  }
+
 	
 }

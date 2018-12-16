@@ -1024,8 +1024,8 @@ public class FrameworkEngine {
         && !t.get_approvalMap().isEmpty()) {
       List<W5WorkflowRecord> ll =
           dao.find(
-              "from W5WorkflowRecord t where t.customizationId=? AND t.tableId=? AND t.tablePk=?",
-              scd.get("customizationId"),
+              "from W5WorkflowRecord t where t.projectUuid=? AND t.tableId=? AND t.tablePk=?",
+              scd.get("projectId"),
               tableId,
               tablePk);
       if (!ll.isEmpty()) {
@@ -1289,8 +1289,8 @@ public class FrameworkEngine {
         && !t.get_approvalMap().isEmpty()) {
       List<W5WorkflowRecord> ll =
           dao.find(
-              "from W5WorkflowRecord t where t.customizationId=? AND t.tableId=? AND t.tablePk=?",
-              scd.get("customizationId"),
+              "from W5WorkflowRecord t where t.projectUuid=? AND t.tableId=? AND t.tablePk=?",
+              scd.get("projectId"),
               t.getTableId(),
               GenericUtil.uInt(
                   requestParams.get(
@@ -2272,7 +2272,7 @@ public class FrameworkEngine {
                 if (approvalStep != null) { // step hazir
                   //								if(approval.getApprovalStrategyTip()==0)schema =
                   // FrameworkCache.getAppSettingStringValue(scd, "approval_schema");
-                  appRecord = new W5WorkflowRecord();
+                  appRecord = new W5WorkflowRecord((String)scd.get("projectId"));
                   appRecord.setApprovalId(approval.getApprovalId());
                   appRecord.setApprovalStepId(approvalStep.getApprovalStepId());
                   appRecord.setApprovalActionTip(
@@ -2546,13 +2546,12 @@ public class FrameworkEngine {
 
                 // Comment Yazma
                 if (!GenericUtil.isEmpty((String) requestParams.get("_adsc"))) {
-                  W5Comment comment = new W5Comment();
+                  W5Comment comment = new W5Comment((String)scd.get("projectId"));
                   comment.setTableId(appRecord.getTableId());
                   comment.setTablePk(appRecord.getTablePk());
                   comment.setDsc(requestParams.get("_adsc") + "");
                   comment.setCommentUserId((Integer) scd.get("userId"));
                   comment.setCommentDttm(new java.sql.Timestamp(new Date().getTime()));
-                  comment.setCustomizationId(Integer.parseInt(scd.get("customizationId") + ""));
                   saveObject(comment);
                 }
               }
@@ -6139,8 +6138,8 @@ public class FrameworkEngine {
     W5WorkflowRecord ar =
         (W5WorkflowRecord)
             dao.find(
-                    "from W5WorkflowRecord t where t.customizationId=? and  t.approvalRecordId=?",
-                    scd.get("customizationId"),
+                    "from W5WorkflowRecord t where t.projectUuid=? and  t.approvalRecordId=?",
+                    scd.get("projectId"),
                     approvalRecordId)
                 .get(0);
     String mesaj = "";
@@ -6981,13 +6980,13 @@ public class FrameworkEngine {
 
     // Comment Yazma
     if (!GenericUtil.isEmpty((String) parameterMap.get("_adsc"))) {
-      W5Comment comment = new W5Comment();
+      W5Comment comment = new W5Comment((String)scd.get("projectId"));
       comment.setTableId(ar.getTableId());
       comment.setTablePk(ar.getTablePk());
       comment.setDsc(parameterMap.get("_adsc") + "");
       comment.setCommentUserId(userId);
       comment.setCommentDttm(new java.sql.Timestamp(new Date().getTime()));
-      comment.setCustomizationId(Integer.parseInt(scd.get("customizationId") + ""));
+//      comment.setCustomizationId(Integer.parseInt(scd.get("customizationId") + ""));
       saveObject(comment);
     }
 
