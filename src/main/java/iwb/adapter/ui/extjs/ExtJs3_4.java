@@ -1316,11 +1316,9 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 			}
 
-		s.append("\nvar __anaBaslik__='")
-				.append(GenericUtil.stringToJS(fr.getForm()
-						.getLocaleMsgKey())).append("'\nvar __action__=")
-				.append(fr.getAction()).append("\n");
-		if(((Integer)scd.get("roleId")!=0 || GenericUtil.uInt(fr.getRequestParams(),"_preview")==0)){
+		s.append("\nvar __action__=")
+				.append(fr.getAction()).append(";\n");
+		if(scd==null || scd.get("roleId")==null || ((Integer)scd.get("roleId")!=0 || GenericUtil.uInt(fr.getRequestParams(),"_preview")==0)){
 			// 24 nolu form form edit form olduğu için onu çevirmesin.
 			String postCode = (fr.getForm().get_renderTemplate() != null && fr.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && fr
 					.getFormId() != 24) ? GenericUtil.filterExt(
@@ -4298,7 +4296,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
 		buf.append(",\n tpl:\"")
 				.append(GenericUtil.stringToJS2(d.getTemplateCode()))
-				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"div.icb-card\"};\n");
+				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"div.card\"};\n");
 		if (!GenericUtil.isEmpty(d.getJsCode())) {
 			buf.append("\ntry{")
 					.append(GenericUtil.filterExt(d.getJsCode(),
@@ -4859,7 +4857,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 				buf.append("\nreturn null;}}catch(e){")
 						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(3)!!! Throw? : ' + e.message))throw e;"
-								: "alert('System/Customization ERROR : ' + e.message)");
+								: "alert('System ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 
@@ -4872,7 +4870,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				if(FrameworkSetting.debug)buf.append("\n/*iwb:end:grid:").append(gridResult.getGridId()).append(":Code*/\n");
 				buf.append("\n}catch(e){")
 						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw? : ' + e.message))throw e;"
-								: "alert('System/Customization ERROR : ' + e.message)");
+								: "alert('System ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 		}
