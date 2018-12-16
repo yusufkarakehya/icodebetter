@@ -2842,9 +2842,9 @@ public class Webix3_3 implements ViewAdapter {
 		}
 		buf.append(",\n loadMask:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
 		
-		if(FrameworkCache.getAppSettingIntValue(customizationId, "toplu_onay") == 1 && g.getApproval() != null){
+		if(FrameworkCache.getAppSettingIntValue(customizationId, "toplu_onay") == 1 && g.get_workflow() != null){
 			buf.append(",\n approveBulk:true");
-			if(g.getApproval().getApprovalRequestTip() == 2){ // Onay manuel mi başlatılacak ?
+			if(g.get_workflow().getApprovalRequestTip() == 2){ // Onay manuel mi başlatılacak ?
 				buf.append(",\n btnApproveRequest:true");
 			}
 		}

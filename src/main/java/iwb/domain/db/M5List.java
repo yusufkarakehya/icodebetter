@@ -15,7 +15,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="m5_list",schema="iwb")
-public class M5List implements java.io.Serializable {
+public class M5List implements java.io.Serializable, W5Base, W5ListBase {
 
 	private int listId;
 	private int parentListId;
@@ -47,6 +47,10 @@ public class M5List implements java.io.Serializable {
 	private List<String> _orderQueryFieldNames;
 	private	List<W5ObjectToolbarItem>	_toolbarItemList;
 	private	List<W5ObjectMenuItem>	_menuItemList;
+	private	List<W5FormSmsMail>	_crudFormSmsMailList;
+	private	List<W5Conversion>	_crudFormConversionList;
+	private List<W5QueryField> _postProcessQueryFields;
+	private W5Workflow _approval;
 
 	private String orderQueryFieldIds;
 	
@@ -244,4 +248,41 @@ public class M5List implements java.io.Serializable {
 		this.projectUuid = projectUuid;
 	}
 	
+
+	@Transient
+	public W5Workflow get_workflow() {
+		return _approval;
+	}
+	public void set_workflow(W5Workflow approval) {
+		_approval = approval;
+	}
+	
+
+	@Transient
+	public List<W5QueryField> get_postProcessQueryFields() {
+		return _postProcessQueryFields;
+	}
+	public void set_postProcessQueryFields(List<W5QueryField> postProcessQueryFields) {
+		_postProcessQueryFields = postProcessQueryFields;
+	}
+
+	@Transient
+	public List<W5FormSmsMail> get_crudFormSmsMailList() {
+		return _crudFormSmsMailList;
+	}
+	public void set_crudFormSmsMailList(List<W5FormSmsMail> _crudFormSmsMailList) {
+		this._crudFormSmsMailList = _crudFormSmsMailList;
+	}
+	@Transient
+	public List<W5Conversion> get_crudFormConversionList() {
+		return _crudFormConversionList;
+	}
+	public void set_crudFormConversionList(List<W5Conversion> _crudFormConversionList) {
+		this._crudFormConversionList = _crudFormConversionList;
+	}
+	
+	@Transient
+	public boolean safeEquals(W5Base q){
+		return false;
+	}
 }

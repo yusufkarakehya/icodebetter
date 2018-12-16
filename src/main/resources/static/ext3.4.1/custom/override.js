@@ -1754,9 +1754,9 @@ try {
 
   Ext.util.Format.fmtVcs = function(x){
 	  if(!x)return '';
-	  var v = x.get('pkpkpk_vcsf');
+	  var v = x.pkpkpk_vcsf;
 	  if(!v)return '';
-	  return 'VCS: ' + vcsHtml(v);
+	  return '<span style="zoom:.9;font-size:12px;color:#888">'+vcsHtml(v)+'</span>';
   }
   
   Ext.util.Format.getPic2 = function(rrr) {

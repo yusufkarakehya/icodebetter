@@ -1447,7 +1447,8 @@ function fnRowDelete(a, b) {
           requestWaitMsg: true,
           successCallback: function(j2) {
             if (!j2.logErrors) {
-              a._grid.ds.remove(sel);
+              var ds = a._grid.ds || a._grid.store;
+              ds.remove(sel);
             }
             if (j2.logErrors || j2.msgs) {
               var str = "";
@@ -1859,7 +1860,7 @@ function fnToggleEditMode(a) {
         }
     }
 
-    if (modified) a._grid.ds.reload();
+    if (modified) iwb.reload(a._grid);
   }
 }
 
@@ -2862,7 +2863,7 @@ function addTab4GridWSearchForm(obj) {
       _activeOnSelection: false,
       _grid: mainGrid,
       handler: function(a) {
-        a._grid.ds.reload({
+        iwb.reload(a._grid,{
           params: a._grid._gp.store._formPanel.getForm().getValues()
         });
       }
@@ -3099,7 +3100,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       _activeOnSelection: false,
       _grid: mainGrid,
       handler: function(a) {
-        a._grid.ds.reload({
+        iwb.reload(a._grid, {
           params: a._grid._gp.store._formPanel.getForm().getValues()
         });
       }
@@ -4171,13 +4172,13 @@ function formSubmit(submitConfig) {
           if (_app.live_sync_record && 1 * _app.live_sync_record != 0)
             Ext.defer(
               function(g) {
-                g.ds.reload();
+                iwb.reload(g);
               },
               1000,
               this,
               [xg]
             );
-          else xg.ds.reload();
+          else iwb.reload(xg);
         }
       }
     },
@@ -4957,7 +4958,7 @@ function approveTableRecords(aa, a) {
           Ext.Msg.hide();
           if (json.success) {
             win.close();
-            a._grid.ds.reload();
+            iwb.reload(a._grid);
             Ext.infoMsg.msg(
               "success",
               getLocMsg("js_islem_basariyla_tamamlandi")
@@ -5068,7 +5069,7 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
                 var submitConfig = frm._cfg;
                 if (submitConfig._callAttributes) {
                   if (submitConfig._callAttributes._grid)
-                    submitConfig._callAttributes._grid.ds.reload();
+                    iwb.reload(submitConfig._callAttributes._grid);
                 }
                 if (submitConfig._closeWindow) {
                   submitConfig._closeWindow.destroy();
@@ -6841,7 +6842,7 @@ function vcsPush(xgrid, tid, tpk) {
                   params: xparams,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "VCS Objects Pushed");
-                    xxgrd.ds.reload();
+                    iwb.reload(xxgrd);
                   }
                 });
               }
@@ -6853,7 +6854,7 @@ function vcsPush(xgrid, tid, tpk) {
         return;
       }
       Ext.infoMsg.msg("success", "VCS Objects Pushed");
-      xgrd.ds.reload();
+      iwb.reload(xgrd);
     }
   });
 }
@@ -6878,7 +6879,7 @@ function vcsPushMulti(xgrid, tid, tpk) {
                   params: xparams,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "VCS Objects Pushed");
-                    xxgrd.ds.reload();
+                    iwb.reload(xxgrd);
                   }
                 });
               }
@@ -6890,7 +6891,7 @@ function vcsPushMulti(xgrid, tid, tpk) {
         return;
       }
       Ext.infoMsg.msg("success", "VCS Objects Pushed");
-      xgrd.ds.reload();
+      iwb.reload(xgrd);
     }
   });
 }
@@ -6915,7 +6916,7 @@ function vcsPushAll(xgrid, keyz) {
                   params: xparams,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "VCS Objects Pushed");
-                    xxgrd.ds.reload();
+                    iwb.reload(xxgrd);
                   }
                 });
               }
@@ -6927,10 +6928,16 @@ function vcsPushAll(xgrid, keyz) {
         return;
       }
       Ext.infoMsg.msg("success", "VCS Objects Pushed");
-      xgrd.ds.reload();
+      iwb.reload(xgrd);
     }
   });
 }
+iwb.reload=function(g, p){
+	if(!g)return;
+	if(g.ds && g.ds.reload)g.ds.reload(p||{});
+	else if(g.store && g.store.reload)g.store.reload(p||{});
+}
+
 function vcsPull(xgrid, tid, tpk) {
   var xparams = { t: tid, k: tpk };
   var xgrd = xgrid;
@@ -6954,7 +6961,7 @@ function vcsPull(xgrid, tid, tpk) {
                   params: xparams,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "VCS Objects Pulled");
-                    xxgrd.ds.reload();
+                    iwb.reload(xxgrd);
                   }
                 });
               }
@@ -6964,7 +6971,7 @@ function vcsPull(xgrid, tid, tpk) {
         return;
       }
       Ext.infoMsg.msg("success", "VCS Objects Pulled");
-      xgrd.ds.reload();
+      iwb.reload(xgrd);
     }
   });
 }
@@ -7041,7 +7048,7 @@ function fncMnuVcs(xgrid) {
       iconCls: "icon-vcs-push",
       _grid: xgrid,
       handler: function(aq) {
-        var sel = aq._grid._gp.getSelectionModel().getSelections();
+        var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
         if (sel && sel.length > 0) {
           var d = sel[0].data.pkpkpk_vcsf;
           if (d) {
@@ -7055,7 +7062,7 @@ function fncMnuVcs(xgrid) {
       iconCls: "icon-vcs-pull",
       _grid: xgrid,
       handler: function(aq) {
-        var sel = aq._grid._gp.getSelectionModel().getSelections();
+        var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
         if (sel && sel.length > 0) {
           var d = sel[0].data.pkpkpk_vcsf;
           if (d) {
@@ -7090,14 +7097,14 @@ function fncMnuVcs(xgrid) {
       text: "Add to VCS",
       _grid: xgrid,
       handler: function(aq) {
-        var sel = aq._grid._gp.getSelectionModel().getSelections();
+        var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
         if (sel && sel.length > 0 && !sel[0].data.pkpkpk_vcsf) {
           promisRequest({
             url: "ajaxVCSObjectAction",
             params: { t: aq._grid.crudTableId, k: sel[0].id, a: 2 },
             successCallback: function(j) {
               Ext.infoMsg.msg("success", "Added to VCS");
-              aq._grid.ds.reload();
+              iwb.reload(aq._grid);
             }
           });
         }
@@ -7107,7 +7114,7 @@ function fncMnuVcs(xgrid) {
         text: "Ignore",
         _grid: xgrid,
         handler: function(aq) {
-          var sel = aq._grid._gp.getSelectionModel().getSelections();
+          var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
           sel &&
             sel.length > 0 &&
             sel[0].data.pkpkpk_vcsf &&
@@ -7117,7 +7124,7 @@ function fncMnuVcs(xgrid) {
                 params: { t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
                 successCallback: function(j) {
                   Ext.infoMsg.msg("success", "Ignored from VCS");
-                  aq._grid.ds.reload();
+                  iwb.reload(aq._grid);
                 }
               });
             });
@@ -7127,37 +7134,13 @@ function fncMnuVcs(xgrid) {
           text: "Show Diff",
           _grid: xgrid,
           handler: function(aq) {
-            var sel = aq._grid._gp.getSelectionModel().getSelections();
+            var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
             sel &&
               sel.length > 0 &&
               sel[0].data.pkpkpk_vcsf &&
               iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id);;
           }
-        } /*
-			 * ,'-',{text:'Move to Another Project', _grid:xgrid,
-			 * handler:function(aq){ var
-			 * sel=aq._grid._gp.getSelectionModel().getSelected(); if(sel &&
-			 * sel.data.pkpkpk_vcsf){ var cmbSt2=[];
-			 * if(lookup_w5_project.data)for(var qi=0;qi<lookup_w5_project.data.length;qi++)if(_scd.projectId!=lookup_w5_project.data[qi].id)cmbSt2.push([lookup_w5_project.data[qi].id,
-			 * lookup_w5_project.data[qi].dsc]); var cmbProject2 = new
-			 * Ext.form.ComboBox({width:205, typeAhead: false, mode:
-			 * 'local',triggerAction:
-			 * 'all',selectOnFocus:true,forceSelection:true, store:cmbSt2,
-			 * emptyText:'Choose new Project'}); var wx=new Ext.Window({
-			 * modal:true, shadow:false, border:false, width:220,
-			 * autoHeight:true, closeAction:'destroy', title:'Move To Another
-			 * Project',
-			 * 
-			 * items: [cmbProject2],
-			 * 
-			 * buttons: [{ text: 'Move', handler: function(){
-			 * if(cmbProject2.getValue() && confirm('Would you like to move to
-			 * another
-			 * Project?'))promisRequest({url:'ajaxVCSMove2AnotherProject',requestWaitMsg:true,params:{t:aq._grid.crudTableId,
-			 * k:sel.id, np:cmbProject2.getValue()},
-			 * successCallback:function(j){ wx.hide(); aq._grid.ds.reload();
-			 * }}); } }] }); wx.show(); } }}
-			 */
+        }
   ];
 }
 

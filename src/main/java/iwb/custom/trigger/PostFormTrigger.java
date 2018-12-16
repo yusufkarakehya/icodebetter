@@ -296,9 +296,7 @@ public class PostFormTrigger {
 //		case	764://w5_table_filter	
 		case	1209: //tableevent
 		case	1217://w5_table_access_condition_sql		
-			if(FrameworkSetting.preloadWEngine!=0){
-				FrameworkCache.clearPreloadCache(scd);
-			}
+			FrameworkCache.clearPreloadCache(scd);
 			fr.getOutputMessages().add(msg);
 			int tableId = GenericUtil.uInt(fr.getOutputFields().get("table_id"+prefix));
 			if(tableId==0)lookUpId = GenericUtil.uInt(fr.getRequestParams().get("table_id"+prefix));
@@ -318,9 +316,7 @@ public class PostFormTrigger {
 
 		case	389:
 		case	390://workflow/step
-			if(FrameworkSetting.preloadWEngine!=0){
-				FrameworkCache.clearPreloadCache(scd);
-			}
+			FrameworkCache.clearPreloadCache(scd);
 			int workflowId = GenericUtil.uInt(fr.getOutputFields().get("approval_id"+prefix));
 			fr.getOutputMessages().add(msg);
 			FrameworkCache.addQueuedReloadCache(projectId,"389."+workflowId);			
@@ -366,9 +362,7 @@ public class PostFormTrigger {
 		case    1168://form/cell/code_detail/form_sms_mail
 		case	1173://condition_group
 		case    1198://conversion,conversion_col,conversion_detail
-			if(FrameworkSetting.preloadWEngine!=0){
-				FrameworkCache.clearPreloadCache(scd);
-			}
+			FrameworkCache.clearPreloadCache(scd);
 		}
 		
 		if(fr.getAction()==2 && (fr.getForm().getObjectId()==14)){
