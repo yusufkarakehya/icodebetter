@@ -3559,8 +3559,9 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var detailPanel = new Ext.TabPanel(subTab);
   
   if(mainGrid.dataViewId){
-	  var xbuttons=[mainGrid._dscLabel||' ',' ','-'];
+	  var xbuttons=[' ',mainGrid._dscLabel||' ','-'];
 	  xbuttons.push(organizeButtons(mainButtons));
+	  xbuttons.push({iconCls:'icon-maximize', tooltip:'Maximize',handler:function(){}});
 	  var subToolbar = new Ext.Toolbar({xtype:'toolbar',cls:'iwb-card-sub-toolbar',items:xbuttons}); 
 	  detailPanel = {region:'center', layout:'border', border:false,tbar : subToolbar
 			  ,items:[{region:'north',height:50, html:'<div class="iwb-card-sub-header"><span id="idc-'+mainGrid.id+'"></span></div>'},detailPanel]};
@@ -3617,7 +3618,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 			  }
 			  xmenus.push(o);
 		  }
-		  console.log('xmenus',xmenus);
+		  //console.log('xmenus',xmenus);
         new Ext.menu.Menu({cls:'sort-menu',
             enableScrolling: false,
             items: xmenus

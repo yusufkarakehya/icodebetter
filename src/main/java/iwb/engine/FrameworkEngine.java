@@ -9534,6 +9534,16 @@ public class FrameworkEngine {
                 "Accept",
                 new String[] {"application/json", "application/xml"}[wsm.getHeaderAcceptTip() - 1]);
           }
+          if(ws.getWssTip()==99 && !GenericUtil.isEmpty(ws.getWssDomain())) { //others
+        	  String[] lines = ws.getWssDomain().split("\n");
+        	  for(int qi=0;qi<lines.length;qi++) {
+        		  int ii = lines[qi].indexOf(':');
+        		  if(ii>0) {
+        			  reqPropMap.put(lines[qi].substring(0, ii).trim(), lines[qi].substring(ii+1).trim());        					  
+        		  }
+        	  }
+        	  
+          }
           Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params);
           String x =
               HttpUtil.send(
