@@ -16,7 +16,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_data_view",schema="iwb")
-public class W5Card implements java.io.Serializable {
+public class W5Card implements java.io.Serializable, W5Base, W5ListBase {
 
 	private int dataViewId;
 
@@ -38,6 +38,9 @@ public class W5Card implements java.io.Serializable {
 
 	private int defaultCrudFormId;// burdan edit, insert vs olaylari incelenecek
 	 
+	private String orderQueryFieldIds;
+	private List<String> _orderQueryFieldNames;
+
 	
 	private int _searchFormId;
 	private	String templateCode;	
@@ -49,10 +52,11 @@ public class W5Card implements java.io.Serializable {
 	private	W5Form _defaultCrudForm;
 	private	W5Table _crudTable;
 	private W5Query	_query;	
-	private List<W5QueryField> _postProcessQueryFields;
 	private Map<Integer, W5QueryField> _queryFieldMap;
 	private	List<W5FormSmsMail>	_crudFormSmsMailList;
 	private	List<W5Conversion>	_crudFormConversionList;
+	private List<W5QueryField> _postProcessQueryFields;
+	private W5Workflow _approval;
 
 	
 	@Id
@@ -237,5 +241,33 @@ public class W5Card implements java.io.Serializable {
 	public void set_crudFormConversionList(List<W5Conversion> _crudFormConversionList) {
 		this._crudFormConversionList = _crudFormConversionList;
 	}
+
+	@Column(name="order_query_field_ids")
+	public String getOrderQueryFieldIds() {
+		return orderQueryFieldIds;
+	}
+	public void setOrderQueryFieldIds(String orderQueryFieldIds) {
+		this.orderQueryFieldIds = orderQueryFieldIds;
+	}
 	
+	@Transient
+	public List<String> get_orderQueryFieldNames() {
+		return _orderQueryFieldNames;
+	}
+	public void set_orderQueryFieldNames(List<String> _orderQueryFieldNames) {
+		this._orderQueryFieldNames = _orderQueryFieldNames;
+	}
+	
+	@Transient
+	public W5Workflow get_workflow() {
+		return _approval;
+	}
+	public void set_workflow(W5Workflow approval) {
+		_approval = approval;
+	}
+	
+	@Transient
+	public boolean safeEquals(W5Base q){
+		return false;
+	}
 }

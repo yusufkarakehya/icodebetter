@@ -8218,24 +8218,18 @@ public class FrameworkEngine {
 
   public boolean organizeTable(Map<String, Object> scd, String tableName) {
     boolean b = dao.organizeTable(scd, tableName);
-    if (FrameworkSetting.preloadWEngine != 0) {
-      FrameworkCache.clearPreloadCache(scd);
-    }
+    FrameworkCache.clearPreloadCache(scd);
     return b;
   }
 
   public void organizeQuery(Map<String, Object> scd, int queryId, short insertFlag) {
     dao.organizeQueryFields(scd, queryId, insertFlag);
-    if (FrameworkSetting.preloadWEngine != 0) {
-      FrameworkCache.clearPreloadCache(scd);
-    }
+    FrameworkCache.clearPreloadCache(scd);
   }
 
   public boolean organizeGlobalFunc(Map<String, Object> scd, String dbFuncName) {
     boolean b = dao.organizeGlobalFunc(scd, dbFuncName);
-    if (FrameworkSetting.preloadWEngine != 0) {
-      FrameworkCache.clearPreloadCache(scd);
-    }
+    FrameworkCache.clearPreloadCache(scd);
     return b;
   }
 

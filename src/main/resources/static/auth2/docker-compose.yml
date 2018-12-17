@@ -1,0 +1,11 @@
+db:
+  image: icodebetter/db_package
+  ports:
+    - "6666:5432"
+web:
+  restart: on-failure
+  image: icodebetter/app_image
+  ports:
+    - "8080:8080"
+  links:
+    - db

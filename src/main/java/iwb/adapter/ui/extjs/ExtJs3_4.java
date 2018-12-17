@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
 import iwb.adapter.ui.ViewAdapter;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
@@ -340,18 +342,20 @@ public class ExtJs3_4 implements ViewAdapter {
 							formResult.getRequestParams(), null) : tpl
 							.getCode());
 		} else */
-		if (formResult.getForm().get_renderTemplate() != null) {
-			s.append("\n").append(
-					formResult.getForm().get_renderTemplate()
-							.getLocaleMsgFlag() != 0 ? GenericUtil
-							.filterExt(formResult.getForm()
-									.get_renderTemplate().getCode(),
-									formResult.getScd(),
-									formResult.getRequestParams(), null)
-							: formResult.getForm().get_renderTemplate()
-									.getCode());
-		} else if(formResult.getForm().getObjectTip()==2){
-			s.append("\nreturn iwb.ui.buildCRUDForm(getForm, callAttributes, _page_tab_id);\n");
+		if(formResult.getScd()==null || (Integer)formResult.getScd().get("roleId")!=0 || GenericUtil.uInt(formResult.getRequestParams().get("_preview"))==0){
+			if (formResult.getForm().get_renderTemplate() != null) {
+				s.append("\n").append(
+						formResult.getForm().get_renderTemplate()
+								.getLocaleMsgFlag() != 0 ? GenericUtil
+								.filterExt(formResult.getForm()
+										.get_renderTemplate().getCode(),
+										formResult.getScd(),
+										formResult.getRequestParams(), null)
+								: formResult.getForm().get_renderTemplate()
+										.getCode());
+			} else if(formResult.getForm().getObjectTip()==2){
+				s.append("\nreturn iwb.ui.buildCRUDForm(getForm, callAttributes, _page_tab_id);\n");
+			}
 		}
 
 		return s;
@@ -727,17 +731,17 @@ public class ExtJs3_4 implements ViewAdapter {
 			liveSyncRecord = FrameworkSetting.liveSyncRecord
 					&& t.getLiveSyncFlag() != 0 && !fr.isViewMode();
 			// insert AND continue control
-			s.append(",\n crudTableId:").append(f.getObjectId());
+			s.append(", crudTableId:").append(f.getObjectId());
 			if (fr.getAction() == 2) { // insert
 				long tmpId = -GenericUtil.getNextTmpId();
-				s.append(",\n contFlag:").append(f.getContEntryFlag() != 0)
-						.append(",\n tmpId:").append(tmpId);
+				s.append(", contFlag:").append(f.getContEntryFlag() != 0)
+						.append(", tmpId:").append(tmpId);
 				fr.getRequestParams().put("_tmpId", "" + tmpId);
 			} else if (fr.getAction() == 1) { // edit
 				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(fr.getPkFields()));
 				if(t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers()))s.append(", deletable:!0");
 				if (liveSyncRecord) {
-					s.append(",\n liveSync:true");
+					s.append(", liveSync:true");
 					String webPageId = fr.getRequestParams().get(".w");
 					if (webPageId != null) {
 						String key = "";
@@ -761,13 +765,13 @@ public class ExtJs3_4 implements ViewAdapter {
 
 			if (t.getCopyTip() == 1) {
 				if (fr.getAction() == 1)
-					s.append(",\n copyFlag:true");
+					s.append(", copyFlag:true");
 				else if (fr.getRequestParams().get("a") != null
 						&& fr.getRequestParams().get("a").equals("5")) {// kopyalama
 																				// yapilacak
 																				// sorulacaklari
 																				// diz
-					s.append(",\n copyTableIds:[");
+					s.append(", copyTableIds:[");
 					boolean b = false;
 					if (t.get_tableChildList() != null)
 						for (W5TableChild tc : t.get_tableChildList())
@@ -1269,7 +1273,7 @@ public class ExtJs3_4 implements ViewAdapter {
 						.getRequestParams()))
 				.append(",\nlabelAlign:'")
 				.append(FrameworkSetting.alignMap[fr.getForm()
-						.getLabelAlignTip()]).append("',\nlabelWidth:")
+						.getLabelAlignTip()]).append("', labelWidth:")
 				.append(fr.getForm().getLabelWidth());
 		if(fr.getForm().getObjectTip()<5)s.append(",url:'")
 				.append(postFormStr[fr.getForm().getObjectTip()])
@@ -1312,37 +1316,37 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 			}
 
-		s.append("\nvar __anaBaslik__='")
-				.append(GenericUtil.stringToJS(fr.getForm()
-						.getLocaleMsgKey())).append("'\nvar __action__=")
-				.append(fr.getAction()).append("\n");
-
-		// 24 nolu form form edit form olduğu için onu çevirmesin.
-		String postCode = (fr.getForm().get_renderTemplate() != null && fr.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && fr
-				.getFormId() != 24) ? GenericUtil.filterExt(
-				fr.getForm().getJsCode(), scd,
-				fr.getRequestParams(), null).toString() : fr
-				.getForm().getJsCode();
-
-		boolean b = true;
-		if (postCode != null && postCode.length() > 10) {
-			if (postCode.charAt(0) == '!') {
-				postCode = postCode.substring(1);
+		s.append("\nvar __action__=")
+				.append(fr.getAction()).append(";\n");
+		if(scd==null || scd.get("roleId")==null || ((Integer)scd.get("roleId")!=0 || GenericUtil.uInt(fr.getRequestParams(),"_preview")==0)){
+			// 24 nolu form form edit form olduğu için onu çevirmesin.
+			String postCode = (fr.getForm().get_renderTemplate() != null && fr.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && fr
+					.getFormId() != 24) ? GenericUtil.filterExt(
+					fr.getForm().getJsCode(), scd,
+					fr.getRequestParams(), null).toString() : fr
+					.getForm().getJsCode();
+	
+			boolean b = true;
+			if (postCode != null && postCode.length() > 10) {
+				if (postCode.charAt(0) == '!') {
+					postCode = postCode.substring(1);
+				} else
+					b = false;
 			} else
-				b = false;
-		} else
-			postCode = "";
-		if (!GenericUtil.isEmpty(postCode)) {
-			s.append("try{");
-			if(FrameworkSetting.debug)s.append("\n/*iwb:start:form:").append(fr.getFormId()).append(":Code*/\n");
-			s.append(postCode);
-			if(FrameworkSetting.debug)s.append("\n/*iwb:end:form:").append(fr.getFormId()).append(":Code*/\n");
-			s.append("\n}catch(e){");
-			s.append(FrameworkSetting.debug ? "if(confirm('ERROR form.JS!!! Throw?'))throw e;"
-					: "alert('System/Customization ERROR')");
-			s.append("}\n");
-		}
+				postCode = "";
+			if (!GenericUtil.isEmpty(postCode)) {
+				s.append("try{");
+				if(FrameworkSetting.debug)s.append("\n/*iwb:start:form:").append(fr.getFormId()).append(":Code*/\n");
+				s.append(postCode);
+				if(FrameworkSetting.debug)s.append("\n/*iwb:end:form:").append(fr.getFormId()).append(":Code*/\n");
+				s.append("\n}catch(e){");
+				s.append(FrameworkSetting.debug ? "if(confirm('ERROR form.JS!!! Throw? : ' + e.message))throw e;"
+						: "alert('System ERROR : ' + e.message)");
+				
+				s.append("}\n");
+			}
 
+		}
 		switch (fr.getForm().getRenderTip()) {
 		case 1:// fieldset
 			s.append(renderFormFieldset(fr));
@@ -1445,7 +1449,7 @@ public class ExtJs3_4 implements ViewAdapter {
 								b = true;
 							buf.append("Ext.apply(")
 									.append(subFormResult.getForm().getDsc())
-									.append(",{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true,xtype:null,layout:'form',title:'")
+									.append(",{id:_page_tab_id+'_fm_").append(m.getFormModuleId()).append("',bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true,xtype:null,layout:'form',title:'")
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											m.getLocaleMsgKey()))
@@ -1501,21 +1505,22 @@ public class ExtJs3_4 implements ViewAdapter {
 								buf.append(",");
 							else
 								b = true;
-							String extra = "{id:_page_tab_id+'_fm_'+"+m.getFormModuleId()+",layout:'form',bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true,title:'"
-									+ LocaleMsgCache.get2(customizationId,
-											xlocale, m.getLocaleMsgKey()) + "'";
-							// if(formBodyColor!=null)extra+=",bodyStyle:'background-color: #"+formBodyColor+"'";
-							if (formBodyStyle != null)
-								extra += ",bodyStyle:'" + formBodyStyle + "'";
-
 							W5FormCellHelper extraInfo = getModulExtraInfo(
 									(String) formResult.getScd().get("locale"),
 									m.getLocaleMsgKey());
 							if (extraInfo != null)
 								map.get(m.getFormModuleId()).add(0, extraInfo);
+							List<W5FormCellHelper> lfch = map.get(m.getFormModuleId());
+							String extra = "{id:_page_tab_id+'_fm_"+m.getFormModuleId()+"',title:'"
+									+ LocaleMsgCache.get2(customizationId,
+											xlocale, m.getLocaleMsgKey()) + "'";
+							if(lfch.size()==1 && lfch.get(0).getFormCell().getControlTip()==41){
+								extra+=",layout:'fit'";
+							} else extra+=",layout:'form',bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true";
+
 							buf.append(renderFormModuleList(customizationId,
 									xlocale, formResult.getUniqueId(),
-									map.get(m.getFormModuleId()), extra));
+									lfch, extra));
 						}
 
 					}
@@ -1578,7 +1583,7 @@ public class ExtJs3_4 implements ViewAdapter {
 							xlocale,
 							formResult.getUniqueId(),
 							map.get(0),
-							"{xtype:'panel',region:'north',border:false,bodyStyle:'overflowY:auto',split:true,height:"
+							"{xtype:'panel',region:'north',border:false,bodyStyle:'overflowY:auto',ssplit:true,autoHeight:!0,sheight:"
 									+ formResult.getForm().getDefaultHeight()
 									+ ",items:[{xtype:'fieldset'"
 									+ (GenericUtil.isEmpty(formBodyStyle) ? ""
@@ -2295,7 +2300,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		boolean liveSyncRecord = FrameworkSetting.liveSyncRecord
 				&& formResult != null && formResult.getForm() != null
 				&& formResult.getForm().getObjectTip() == 2
-				&& formResult.getAction() == 1;
+				&& formResult.getAction() == 1 && fc.getControlTip()!=41;
 		String liveSyncStr = null;
 		if (liveSyncRecord) {
 			W5Table t = FrameworkCache.getTable(formResult.getScd(), formResult
@@ -4234,8 +4239,16 @@ public class ExtJs3_4 implements ViewAdapter {
 				.append(",name:'")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						d.getLocaleMsgKey()))
-				.append("'")
-				.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
+				.append("'");
+		if(!GenericUtil.isEmpty(d.get_orderQueryFieldNames())){
+			buf.append(",\n orderNames:[");
+			for(String f:d.get_orderQueryFieldNames()){
+				buf.append("{id:'").append(f).append("',dsc:'").append(LocaleMsgCache.get2(cardResult.getScd(), f)).append("'},");
+			}
+			buf.setLength(buf.length()-1);
+			buf.append("]");
+		}		
+		buf.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
 				.append(d.getQueryId()).append("&_dvid=")
 				.append(d.getDataViewId());
 
@@ -4245,7 +4258,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		else
 			buf.append("',");
 		buf.append(
-				serializeQueryReader(d.get_query().get_queryFields(), d.get_pkQueryField().getDsc(), null, (d
+				serializeQueryReader(d.get_query().get_queryFields(), d.get_pkQueryField().getDsc(), d.get_postProcessQueryFields(), (d
 						.get_query().getShowParentRecordFlag() != 0 ? 2 : 0), d
 						.get_crudTable(), cardResult.getScd())).append(
 				",listeners:{loadexception:promisLoadException");
@@ -4254,7 +4267,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		if (d.getDefaultWidth() != 0)
 			buf.append(",\n defaultWidth:").append(d.getDefaultWidth());
 		if (d.getDefaultHeight() != 0)
-			buf.append(",\n defaultHeight:").append(d.getDefaultHeight());
+			buf.append(", defaultHeight:").append(d.getDefaultHeight());
 		if (cardResult.getSearchFormResult() != null) {
 			buf.append(",\n searchForm:").append(
 					serializeGetForm(cardResult.getSearchFormResult()));
@@ -4283,15 +4296,15 @@ public class ExtJs3_4 implements ViewAdapter {
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
 		buf.append(",\n tpl:\"")
 				.append(GenericUtil.stringToJS2(d.getTemplateCode()))
-				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"div.icb-card\"};\n");
+				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"div.card\"};\n");
 		if (!GenericUtil.isEmpty(d.getJsCode())) {
 			buf.append("\ntry{")
 					.append(GenericUtil.filterExt(d.getJsCode(),
 							cardResult.getScd(),
 							cardResult.getRequestParams(), null))
 					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR dataView.JS!!! Throw?'))throw e;"
-							: "alert('System/Customization ERROR')");
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR dataView.JS!!! Throw? : ' + e.message))throw e;"
+							: "alert('System/Customization ERROR : ' + e.message)");
 			buf.append("}\n");
 		}
 		return buf;
@@ -4357,8 +4370,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							listViewResult.getScd(),
 							listViewResult.getRequestParams(), null))
 					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR listView.JS!!! Throw?'))throw e;"
-							: "alert('System/Customization ERROR')");
+					.append(FrameworkSetting.debug ? "if(confirm('ERROR listView.JS!!! Throw? : ' + e.message))throw e;"
+							: "alert('System/Customization ERROR : ' + e.message)");
 			buf.append("}\n");
 		}
 		buf.append(serializeListColumns(listViewResult));
@@ -4458,7 +4471,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		if (g.getDefaultWidth() != 0)
 			buf.append(",\n defaultWidth:").append(g.getDefaultWidth());
 		if (gridResult.isViewLogMode())
-			buf.append(",\n defaultHeight:").append(
+			buf.append(", defaultHeight:").append(
 					FrameworkCache.getAppSettingIntValue(scd,
 							"log_default_grid_height"));
 		else {
@@ -4469,18 +4482,18 @@ public class ExtJs3_4 implements ViewAdapter {
 																					// uzere
 				buf.append(",\n detailDlg:true");*/
 			if (g.getDefaultHeight() > 0)
-				buf.append(",\n defaultHeight:").append(g.getDefaultHeight());
+				buf.append(", defaultHeight:").append(g.getDefaultHeight());
 
 			buf.append(",\n gridReport:").append(FrameworkCache.roleAccessControl(scd,  105));
 
-			buf.append(",\n saveUserInfo:false");
+			buf.append(", saveUserInfo:false");
 		}
-		buf.append(",\n loadMask:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
+		buf.append(", loadMask:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
 		
-		if(FrameworkCache.getAppSettingIntValue(customizationId, "toplu_onay") == 1 && g.getApproval() != null){
+		if(FrameworkCache.getAppSettingIntValue(customizationId, "toplu_onay") == 1 && g.get_workflow() != null){
 			buf.append(",\n approveBulk:true");
-			if(g.getApproval().getApprovalRequestTip() == 2){ // Onay manuel mi başlatılacak ?
-				buf.append(",\n btnApproveRequest:true");
+			if(g.get_workflow().getApprovalRequestTip() == 2){ // Onay manuel mi başlatılacak ?
+				buf.append(", btnApproveRequest:true");
 			}
 		}
 		if (!GenericUtil.isEmpty(g.get_crudFormSmsMailList())) {
@@ -4524,7 +4537,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				.append("}, plugins:[], name:'")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						g.getLocaleMsgKey())).append("',\n id:'")
-				.append(GenericUtil.getNextId("ng")).append("',\n listeners:{}");
+				.append(GenericUtil.getNextId("ng")).append("', listeners:{}");
 
 		String ajaxUrl = "ajaxQueryData";
 		if (!gridResult.isViewLogMode() && g.getTreeMasterFieldId() != 0) {// tree query + Grouping Field varsa, o zaman
@@ -4610,18 +4623,6 @@ public class ExtJs3_4 implements ViewAdapter {
 					serializeGetForm(gridResult.getSearchFormResult()));
 		}
 		if (!gridResult.isViewLogMode()) {
-			/*if (g.getSelectionModeTip() != 4 && g.get_detailView() != null) {// detailView
-																				// olarak
-																				// Goster
-				buf.append(",\n detailView:new Ext.XTemplate('")
-						.append(g.get_detailView().getLocaleMsgFlag() != 0 ? GenericUtil
-								.stringToJS(LocaleMsgCache.filter2(
-										customizationId, xlocale, g
-												.get_detailView().getCode()))
-								: GenericUtil.stringToJS(g.get_detailView()
-										.getCode())).append("')");
-			}*/
-
 			if (g.get_defaultCrudForm() != null) { // insert ve delete
 													// buttonlari var mi yok mu?
 				W5Table t = FrameworkCache.getTable(projectId, g.get_defaultCrudForm().getObjectId());// g.get_defaultCrudForm().get_sourceTable();
@@ -4633,31 +4634,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append(",\n crudFormId:")
 						.append(g.getDefaultCrudFormId())
 						.append(serializeCrudFlags(scd, t, g.getInsertEditModeFlag() != 0));
-/*						.append(",\n crudFlags:{insert:")
-						.append(insertFlag)
-						.append(",edit:")
-						.append(t.getAccessUpdateUserFields() != null
-								|| GenericUtil.accessControl(scd,
-										t.getAccessUpdateTip(),
-										t.getAccessUpdateRoles(),
-										t.getAccessUpdateUsers()))
-						.append(",remove:")
-						.append(t.getAccessDeleteUserFields() != null
-								|| GenericUtil.accessControl(scd,
-										t.getAccessDeleteTip(),
-										t.getAccessDeleteRoles(),
-										t.getAccessDeleteUsers()));
-				if (g.getInsertEditModeFlag() != 0 && insertFlag)
-					buf.append(",insertEditMode:true");
-				if (insertFlag) {
-					if (t.getCopyTip() == 1)
-						buf.append(",xcopy:true");
-					else if (t.getCopyTip() == 2)
-						buf.append(",ximport:true");
-				}
-				// if(PromisCache.getAppSettingIntValue(scd, "revision_flag")!=0
-				// && t.getRevisionFlag()!=0)buf.append(",xrevision:true");
-				buf.append("}");*/
+
 				if ((t.getDoUpdateLogFlag() != 0 || t.getDoDeleteLogFlag() != 0)
 						&& FrameworkCache.roleAccessControl(scd, 108))
 					buf.append(",\n logFlags:{edit:")
@@ -4786,8 +4763,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 				buf.append("\ndefault:return null;}}");
 				buf.append("\n}catch(e){")
-						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(1)!!! Throw?'))throw e;"
-								: "alert('System/Customization ERROR')");
+						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(1)!!! Throw? : ' + e.message))throw e;"
+								: "alert('System/Customization ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 			break;
@@ -4820,8 +4797,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							.append("';");
 				}
 				buf.append("\nreturn null;}}catch(e){")
-						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(2)!!! Throw?'))throw e;"
-								: "alert('System/Customization ERROR')");
+						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(2)!!! Throw? : ' + e.message))throw e;"
+								: "alert('System/Customization ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 			break;
@@ -4843,22 +4820,23 @@ public class ExtJs3_4 implements ViewAdapter {
 							.append("';");
 				}
 				buf.append("\nreturn null;}}catch(e){")
-						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(3)!!! Throw?'))throw e;"
-								: "alert('System/Customization ERROR')");
+						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.fx(3)!!! Throw? : ' + e.message))throw e;"
+								: "alert('System ERROR : ' + e.message)");
 				buf.append("}\n");
 			}
 
 		}
-
-		if (!GenericUtil.isEmpty(g.getJsCode())) {
-			buf.append("\ntry{");
-			if(FrameworkSetting.debug)buf.append("\n/*iwb:start:grid:").append(gridResult.getGridId()).append(":Code*/\n");
-			buf.append(GenericUtil.filterExt(g.getJsCode(), scd,gridResult.getRequestParams(), null));
-			if(FrameworkSetting.debug)buf.append("\n/*iwb:end:grid:").append(gridResult.getGridId()).append(":Code*/\n");
-			buf.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw?'))throw e;"
-							: "alert('System/Customization ERROR')");
-			buf.append("}\n");
+		if(scd==null || (Integer)scd.get("roleId")!=0 || GenericUtil.uInt(gridResult.getRequestParams().get("_preview"))==0){
+			if (!GenericUtil.isEmpty(g.getJsCode())) {
+				buf.append("\ntry{");
+				if(FrameworkSetting.debug)buf.append("\n/*iwb:start:grid:").append(gridResult.getGridId()).append(":Code*/\n");
+				buf.append(GenericUtil.filterExt(g.getJsCode(), scd,gridResult.getRequestParams(), null));
+				if(FrameworkSetting.debug)buf.append("\n/*iwb:end:grid:").append(gridResult.getGridId()).append(":Code*/\n");
+				buf.append("\n}catch(e){")
+						.append(FrameworkSetting.debug ? "if(confirm('ERROR grid.JS!!! Throw? : ' + e.message))throw e;"
+								: "alert('System ERROR : ' + e.message)");
+				buf.append("}\n");
+			}
 		}
 		return buf;
 	}
@@ -5220,9 +5198,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					c.set_queryField(f);
 					c.setWidth(f.getTabOrder());
 					c.setAlignTip((short) 0);
-					c.setLocaleMsgKey("<img src=\"/ext3.4.1/custom/images/"
-							+ FrameworkSetting.postQueryGridImgMap[f.getFieldTip()]
-							+ "\" border=0>");
+					c.setLocaleMsgKey(""); //<div class=\""+ FrameworkSetting.postQueryGridImgMap[f.getFieldTip()]+ "\"></div>
 					c.setVisibleFlag((short) 1);
 					String renderer = postQueryMap[f.getFieldTip()];
 					c.setRenderer(renderer);

@@ -63,14 +63,14 @@ public class FrameworkSetting {
 	public static String crudLogSchema="promis_log";
 	public static String crudLogTablePrefix="";
 	public static String revisionLogTablePrefix="rev_";
-	final public static String[] postQueryGridImgMap = new String[]{"checked.png","record_security.png","paperclip-16.png","comments-16.png","keyword.png","approval-16.png","mail.gif","picture.png","revision.png","vcsw-16.png"};
+	final public static String[] postQueryGridImgMap = new String[]{"checked.png","record_security.png","paperclip-16.png","comments-16.png","keyword.png","approval-16.png","mail.gif","picture.png","revision.png",".ivcs-icon"};
 	final public static String[] postQueryGridImgMap4Webix = new String[]{"check","key","cloud-download","comment-o","key","puzzle-piece","mail-forward","file-picture-o","history","git"};
 	public static final String bulkOperatorPostfix = "_opr_Zz_qw_";
 	public static final boolean logGeoPos = true;
 
 //	final public static Map<String, OnlineUserBean> lastUserAction= new HashMap<String, OnlineUserBean>();
 
-	public static int preloadWEngine = 0;
+//	public static int preloadWEngine = 0;
 	public static int cacheStatus = 0;
 //	public static String formBodyColor = null;
 	public static String formCellColor = null;

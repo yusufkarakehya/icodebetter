@@ -133,7 +133,7 @@ public class PreviewServlet implements InitializingBean {
     		uri = uri.substring(0, uri.length()-4);
         	String css = FrameworkCache.getPageCss(scd, GenericUtil.uInt(uri));
         	if(css!=null){
-//        		response.setContentType("text/html; charset=UTF-8");
+        		response.setContentType("text/css; charset=UTF-8");
         		response.getWriter().write(css);
         	}
     	}

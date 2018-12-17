@@ -1239,6 +1239,7 @@ public class AppServlet implements InitializingBean {
 		int action = GenericUtil.uInt(request, "a");
 		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
 
+		response.setContentType("application/json");
 		response.getWriter().write(f7.serializeGetForm(formResult).toString());
 		response.getWriter().close();
 	}
@@ -1682,7 +1683,7 @@ public class AppServlet implements InitializingBean {
     		uri = uri.substring(0, uri.length()-4);
         	String css = FrameworkCache.getPageCss(scd, GenericUtil.uInt(uri));
         	if(css!=null){
-//        		response.setContentType("text/html; charset=UTF-8");
+        		response.setContentType("text/css; charset=UTF-8");
         		response.getWriter().write(css);
         	}
     	}
