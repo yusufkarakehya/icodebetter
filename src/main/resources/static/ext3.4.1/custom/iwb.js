@@ -2092,7 +2092,7 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
   if (xbuttons.length > 0) xbuttons.push("-");
   var xbl = xbuttons.length;
   /* crud buttons & import */
-  if (xgrid.crudFlags.insert) {
+  if (xgrid.gridId && xgrid.crudFlags.insert) {
     var cfg = {
       id: "btn_add_" + xgrid.id,
       tooltip: getLocMsg("js_new"),
@@ -3106,12 +3106,13 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
     });
   }
-  if (mainGrid.editGrid) addDefaultCommitButtons(buttons, mainGrid);
+  if (mainGrid.gridId && mainGrid.editGrid) addDefaultCommitButtons(buttons, mainGrid);
   if (mainGrid.crudFlags) addDefaultCrudButtons(buttons, mainGrid);
   addDefaultSpecialButtons(buttons, mainGrid);
 
   addGridExtraButtons(buttons, mainGrid);
 
+  buttons.push('->');
   if (mainGrid.rmenu) {
     for (var j = 0; j < mainGrid.rmenu.length; j++) {
       mainGrid.rmenu[j]._grid = mainGrid;
@@ -3132,6 +3133,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     }
   }
 
+
   if (mainGrid.menuButtons) {
     for (var j = 0; j < mainGrid.menuButtons.length; j++) {
       mainGrid.menuButtons[j]._grid = mainGrid;
@@ -3141,7 +3143,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       items: mainGrid.menuButtons
     });
     if (1 * _app.toolbar_edit_btn) {
-      if (buttons.length > 0) buttons.push(mainGrid.gridId?"-":"->");
+      if (buttons.length > 0) buttons.push("-");
       buttons.push({
         id: "btn_operations_" + mainGrid.id,
         cls: "x-btn-icon x-grid-menu",
@@ -3574,7 +3576,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	          titems[ti].setDisabled(!sel);
 	      }
 	  });
-	  var cardWidth = mainGrid.defaultWidth||400;
+	  var cardWidth = mainGrid.defaultWidth||350;
 	  mainGridPanel = {region:mainGrid.searchForm?'center':'west', cls:'icb-main-card',autoScroll:!0, store:mainGridPanel.store, split:!mainGrid.searchForm, border:false,width: cardWidth,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
@@ -3585,9 +3587,9 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      displayInfo: !0
 	    };
 	  } 
-	  var tbiNums = (mainGrid.searchForm?1:0)+(mainGrid.orderNames?1:0);
+	  var tbiNums = (mainGrid.searchForm?1:0)+(mainGrid.orderNames?1:0) + (mainGrid.crudFlags && mainGrid.crudFlags.insert ? 1:0);
 	  var tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGrid._gp)}
-	  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -35*tbiNums}),'->'];
+	  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -36*tbiNums}),'->'];
 	  if(mainGrid.searchForm)tbarItems.push({cls:'x-btn-icon x-grid-search', id:'sfb-card-'+obj.t, _sf:searchFormPanel, tooltip:'Advanced Search', handler:function(aq){
 		  if(!aq._sf.isVisible()){
 			  aq._sf.expand();
@@ -3622,6 +3624,20 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
           }).showAt(ev.getXY());			  
 
 	  }});
+	  if (mainGrid.crudFlags.insert) {
+		    var cfg = {
+		      id: "btn_add_" + mainGrid.id,
+		      tooltip: getLocMsg("js_new") + ' ' + (mainGrid._labelDsc || 'Record'),
+		      cls: "x-btn-icon x-grid-new",
+		      ref: "../btnInsert",
+		      showModalWindowFlag: false,
+		      _activeOnSelection: false,
+		      _grid: mainGrid
+		    };
+		    if (mainGrid.mnuRowInsert) cfg.menu = mainGrid.mnuRowInsert;
+		    else cfg.handler = mainGrid.fnRowInsert || fnRowInsert;
+		    tbarItems.push(cfg);
+		  }
 	  mainGridPanel.tbar = {xtype:'toolbar',id:'tb-card-'+obj.t,cls:"padding0",style:'border-bottom:1px solid #d64e20;'// background:#323840;
 		  ,items:tbarItems};
 	  if (mainButtons.length > 0) {

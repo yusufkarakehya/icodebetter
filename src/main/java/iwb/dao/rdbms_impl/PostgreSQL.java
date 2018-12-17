@@ -2002,7 +2002,7 @@ public class PostgreSQL extends BaseDAO {
                         extraSqlCount++;
                       } else {
                         extraSql.append(
-                            "(select count(1) cnt from iwb.w5_comment x where x.customization_id=? AND x.table_id=? AND x.table_pk=?) comment_count");
+                            "(select count(1) cnt from iwb.w5_comment x where x.project_uuid=? AND x.table_id=? AND x.table_pk=?) comment_count");
                         extrInfoSet.add("comment_count");
                         extraSqlCount++;
                       }
@@ -4582,29 +4582,19 @@ public class PostgreSQL extends BaseDAO {
 
   public void reloadWorkflowCache(String projectId) {
     if (!FrameworkSetting.workflow) return;
-    /*		//Approval ın bağlantılı olduğu w5table ların approval maplari temizleniyor
-    List<Integer> keyz = new ArrayList();
-    for (Integer y : FrameworkCache.wApprovals.keySet()){
-    	W5Workflow a = FrameworkCache.wApprovals.get(y);
-    	if(customizationId!=a.getCustomizationId())continue;
-    	keyz.add(y);
-    	W5Table t = FrameworkCache.wTables.get(customizationId).get(a.getTableId());
-    	if(t.get_approvalMap()!=null){
-    		t.set_approvalMap(null);
-    	}
-    }
-    for(Integer y:keyz)FrameworkCache.wApprovals.remove(y);
+    		//Approval ın bağlantılı olduğu w5table ların approval maplari temizleniyor
+    FrameworkCache.clearProjectWorkflows(projectId);
 
     //approval cache yenileniyor ve ilgili w5table lara ekleniyor
-    List<W5Workflow> al = (List<W5Workflow>)find("from W5Workflow t where t.activeFlag!=0 AND t.customizationId=? order by t.tableId", customizationId);
+    List<W5Workflow> al = (List<W5Workflow>)find("from W5Workflow t where t.activeFlag!=0 AND t.projectUuid=? order by t.tableId", projectId);
     for(W5Workflow ta:al){
-    	FrameworkCache.wApprovals.put(ta.getApprovalId(), ta);
-    	W5Table t = FrameworkCache.wTables.get(customizationId).get(ta.getTableId());
+    	FrameworkCache.addWorkflow(projectId, ta);
+    	W5Table t = FrameworkCache.getTable(projectId, ta.getTableId());
     	if(t.get_approvalMap()==null){
     		t.set_approvalMap(new HashMap<Short,W5Workflow>());
     	}
     	t.get_approvalMap().put(ta.getActionTip(), ta);
-    	ta.set_approvalStepList((List<W5WorkflowStep>)find("from W5WorkflowStep t where t.customizationId=? and t.approvalId=? order by approvalStepId", ta.getCustomizationId(),ta.getApprovalId()));
+    	ta.set_approvalStepList((List<W5WorkflowStep>)find("from W5WorkflowStep t where t.projectUuid=? and t.approvalId=? order by approvalStepId", projectId, ta.getApprovalId()));
 
     	if(ta.getApprovalRequestTip()!=1){//automatic degilse
     		W5WorkflowStep approvedStep = new W5WorkflowStep();
@@ -4614,12 +4604,11 @@ public class PostgreSQL extends BaseDAO {
     	}
 
 
-    	if(ta.getApprovalStrategyTip()!=0){//gercek tablo uzerinde ise
-    		W5WorkflowStep approvedStep = new W5WorkflowStep();
-    		approvedStep.setApprovalStepId(998);
-    		approvedStep.setDsc(ta.getApprovedMsg());//setDsc("onaylandi");
-    		ta.get_approvalStepList().add(approvedStep);
-    	}
+		W5WorkflowStep approvedStep = new W5WorkflowStep();
+		approvedStep.setApprovalStepId(998);
+		approvedStep.setDsc(ta.getApprovedMsg());//setDsc("onaylandi");
+		ta.get_approvalStepList().add(approvedStep);
+
     	if(ta.getOnRejectTip()==1){//make status rejected
     		W5WorkflowStep rejectedStep = new W5WorkflowStep();
     		rejectedStep.setApprovalStepId(999);
@@ -4634,7 +4623,7 @@ public class PostgreSQL extends BaseDAO {
     		ta.get_approvalStepMap().put(step.getApprovalStepId(), step);
     	}
     	getCurrentSession().flush();
-    }		*/
+    }		
   }
 
   public void reloadUsersCache(String projectId) { // customizationID ??
@@ -6759,9 +6748,9 @@ public class PostgreSQL extends BaseDAO {
         sql2.append(
                 ",(select cx.comment_count||';'||cxx.comment_user_id||';'||to_char(cxx.comment_dttm,'dd/mm/yyyy hh24:mi:ss')||';'||cx.view_user_ids||'-'||cxx.dsc from iwb.w5_comment_summary cx, iwb.w5_comment cxx where cx.table_id=")
             .append(query.getMainTableId())
-            .append(" AND cx.customization_id=")
-            .append(customizationId)
-            .append("  AND cx.table_pk::int=z.")
+            .append(" AND cx.project_uuid='")
+            .append(queryResult.getScd().get("projectId"))
+            .append("'  AND cx.table_pk::int=z.")
             .append(pkFieldName)
             .append(
                 " AND cxx.customization_id=cx.customization_id AND cxx.comment_id=cx.last_comment_id) pkpkpk_cf ");
@@ -6770,9 +6759,9 @@ public class PostgreSQL extends BaseDAO {
       } else {
         sql2.append(",(select count(1) from iwb.w5_comment cx where cx.table_id=")
             .append(query.getMainTableId())
-            .append(" AND cx.customization_id=")
-            .append(customizationId)
-            .append("  AND cx.table_pk=z.")
+            .append(" AND cx.project_uuid='")
+            .append(queryResult.getScd().get("projectId"))
+            .append("'  AND cx.table_pk::int=z.")
             .append(pkFieldName)
             .append(" limit 10) ")
             .append(FieldDefinitions.queryFieldName_Comment)

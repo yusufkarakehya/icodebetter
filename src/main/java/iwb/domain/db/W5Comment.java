@@ -23,7 +23,22 @@ public class W5Comment  implements java.io.Serializable {
 	private String dsc;
 	private int commentUserId;
 	private	Timestamp commentDttm;
-	private int customizationId;
+	
+	private String projectUuid;
+	@Id	
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public W5Comment(String projectUuid) {
+    super();
+    this.projectUuid = projectUuid;
+  }
+
+  public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 	
     @SequenceGenerator(name="sex_comment",sequenceName="iwb.seq_comment",allocationSize=1)
 	@Id
@@ -75,14 +90,7 @@ public class W5Comment  implements java.io.Serializable {
 	public void setCommentDttm(Timestamp commentDttm) {
 		this.commentDttm = commentDttm;
 	}
-	@Id
-	@Column(name="customization_id")
-	public int getCustomizationId() {
-		return customizationId;
-	}
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
+	
 	public W5Comment() {
 		super();
 	}
