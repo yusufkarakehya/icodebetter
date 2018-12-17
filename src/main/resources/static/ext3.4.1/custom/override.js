@@ -1768,6 +1768,21 @@ try {
 	  }
 	  return '<span style="zoom:.9;font-size:12px;color:#888">'+v+'</span>';
   }
+  Ext.util.Format.fmtAgo = function(dt2){
+	if(!dt2)return '';
+	var tnow = new Date().getTime();
+  try{
+	var t = dt2.getTime();
+	if(t+30*1000>tnow)return 'Now';//5 sn
+	if(t+2*60*1000>tnow)return '1m';//1 dka
+	if(t+60*60*1000>tnow)return Math.round((tnow-t)/(60*1000)) + 'm';
+	if(t+24*60*60*1000>tnow)return Math.round((tnow-t)/(60*60*1000)) + 'h';
+	if(t+2*24*60*60*1000>tnow)return 'Yesterday';
+	if(t+7*24*60*60*1000>tnow)return daysOfTheWeek[_scd.locale][dt2.getDay()];//5dka
+	if(t+364*24*60*60*1000>tnow)return dt2.dateFormat('d/m');//5dka
+	return dt2.dateFormat('m/Y');
+  }catch(e){return dt2};
+  }
   
   Ext.util.Format.getPic2 = function(rrr) {
     return getPictureUrl(rrr.profile_picture_id, true);

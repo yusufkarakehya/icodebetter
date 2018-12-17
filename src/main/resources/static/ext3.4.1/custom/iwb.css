@@ -106,7 +106,7 @@ a:hover {
 }
 
 .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close, .x-tool-close {
-	margin-top: 4px;
+	margin-top: 4px; margin-right:2px;
     background-image: url(images/cross-12.png);
 }
 .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close:hover{
@@ -1284,4 +1284,8 @@ a.x-menu-item{
     padding: 10px 20px;
     border-radius: 100px;
     border: none !important;
+}
+
+.x-layout-split-west .x-layout-mini, .x-layout-split-east .x-layout-mini{
+	background-image:none !important;
 }

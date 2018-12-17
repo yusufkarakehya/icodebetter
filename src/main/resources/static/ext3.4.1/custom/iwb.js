@@ -3561,7 +3561,19 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   if(mainGrid.dataViewId){
 	  var xbuttons=[' ',mainGrid._dscLabel||' ','-'];
 	  xbuttons.push(organizeButtons(mainButtons));
-	  xbuttons.push({iconCls:'icon-maximize', tooltip:'Maximize',handler:function(){}});
+	  xbuttons.push({iconCls:'icon-maximize', tooltip:'Maximize',handler:function(){
+		  var sfx = Ext.getCmp('sfx-'+obj.t);
+		  if(sfx){
+			  if(sfx.isVisible()){
+				  sfx._leftPanelVis = iwb.leftPanel.isVisible();
+				  sfx.collapse();
+				  iwb.leftPanel.collapse();
+			  } else {
+				  sfx.expand();
+				  if(sfx._leftPanelVis)iwb.leftPanel.expand();
+			  }
+		  }
+	  }});
 	  var subToolbar = new Ext.Toolbar({xtype:'toolbar',cls:'iwb-card-sub-toolbar',items:xbuttons}); 
 	  detailPanel = {region:'center', layout:'border', border:false,tbar : subToolbar
 			  ,items:[{region:'north',height:50, html:'<div class="iwb-card-sub-header"><span id="idc-'+mainGrid.id+'"></span></div>'},detailPanel]};
@@ -3578,7 +3590,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	  });
 	  var cardWidth = mainGrid.defaultWidth||350;
-	  mainGridPanel = {region:mainGrid.searchForm?'center':'west', cls:'icb-main-card',autoScroll:!0, store:mainGridPanel.store, split:!mainGrid.searchForm, border:false,width: cardWidth,items:mainGridPanel}
+	  mainGridPanel = {region:mainGrid.searchForm?'center':'west', cls:'icb-main-card',autoScroll:!0, store:mainGridPanel.store, split:!mainGrid.searchForm, collapseMode:'mini',animate: false, animCollapse: false, animFloat:false,border:false,width: cardWidth,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
 		  mainGridPanel.bbar = {
@@ -3646,8 +3658,9 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		 // mainGridPanel.tbar = organizeButtons(mainButtons);
 	  }
 	  if(mainGrid.searchForm){
-		  mainGridPanel={border:false, layout:'border', store:mainGridPanel.store,region:'west', split:!0, width:mainGrid.defaultWidth||400,items:[mainGridPanel.store._formPanel, mainGridPanel]}
+		  mainGridPanel={border:false, layout:'border', store:mainGridPanel.store,region:'west', split:!0, animate: false, collapseMode:'mini',animCollapse: false, animFloat:false,width:mainGrid.defaultWidth||400,items:[mainGridPanel.store._formPanel, mainGridPanel]}
 	  }
+	  mainGridPanel.id='sfx-'+obj.t;
   }
   
   lastItems.push({
