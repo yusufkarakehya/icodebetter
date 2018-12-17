@@ -1753,10 +1753,20 @@ try {
   Ext.util.Format.fmtOnlineUser = fmtOnlineUser;
 
   Ext.util.Format.fmtVcs = function(x){
-	  if(!x)return '';
-	  var v = x.pkpkpk_vcsf;
-	  if(!v)return '';
-	  return '<span style="zoom:.9;font-size:12px;color:#888">'+vcsHtml(v)+'</span>';
+	  var v='-';
+	  if(x && x.pkpkpk_vcsf){
+		x = x.pkpkpk_vcsf.split(",");
+		if (1 * x[0] != 9)
+		  v = (
+		    '<img alt="' +
+		    x[1] +
+		    '" src="/ext3.4.1/custom/images/vcs' +
+		    x[0] +
+		    '.png" border=0>'
+		  );
+		else return '';
+	  }
+	  return '<span style="zoom:.9;font-size:12px;color:#888">'+v+'</span>';
   }
   
   Ext.util.Format.getPic2 = function(rrr) {
