@@ -273,6 +273,28 @@ public class ScriptEngine {
     return dao.executeUpdateSQLQuery(sql, null);
   }
 
+  public int sqlExecute(String sql, NativeObject jsRequestParams ){
+	  if (scd != null
+	        && scd.get("customizationId") != null
+	        && (Integer) scd.get("customizationId") > 1) {
+	      String sql2 = sql.toLowerCase(FrameworkSetting.appLocale);
+	      if (DBUtil.checkTenantSQLSecurity(sql2)){
+	        throw new IWBException(
+	            "security",
+	            "SQL",
+	            0,
+	            null,
+	            "Forbidden Command2. Please contact iCodeBetter team ;)",
+	            null);
+	      }
+	    }
+	  
+      Map<String, String> reqMap = fromNativeObject2Map(jsRequestParams);
+      Object[] oz = DBUtil.filterExt4SQL(sql, scd, reqMap, null);
+
+      return dao.executeUpdateSQLQuery((String)oz[0], oz.length>1 ? (List)oz[1]:null);
+  }
+  
   public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams) {
     return postForm(formId, action, jsRequestParams, "", true, null);
   }

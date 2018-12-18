@@ -600,54 +600,6 @@ $$(document).on('pageInit', function (e) {
 });
 
 
-
-
-iwb.autoCompleteJson={
-    openIn: 'page', //open in page
-//    opener: $$('#autocomplete-standalone-ajax'), //link that opens autocomplete
-//    multiple: true, //allow multiple values
-//  limit: 50,
-    valueProperty: 'id', //object's "value" property name
-    textProperty: 'dsc', //object's "text" property name
-    preloader: true, //enable preloader
-    source: function (autocomplete, query, render) {
-        var results = [];
-        if (query.length === 0) {
-            render(results);
-            return;
-        }
-        // Show Preloader
-        autocomplete.showPreloader();
-        // Do Ajax request to Autocomplete data
-        iwb.request({
-            url: 'ajaxQueryData?'+this.params,
-//            method: 'GET', dataType: 'json',
-            //send "query" to server. Useful in case you generate response dynamically
-            data: {
-                xdsc: query
-            },
-            success: function (j) {
-                // Hide Preoloader
-                autocomplete.hidePreloader();
-                // Render items by passing array with result items
-                render(j.data);
-            }
-        });
-    },
-    onChange: function (autocomplete, value) {
-        var itemText = [],
-            inputValue = [];
-        for (var i = 0; i < value.length; i++) {
-            itemText.push(value[i][this.textProperty]);
-            inputValue.push(value[i][this.valueProperty]);
-        }
-        // Add item text value to item-after
-        this.opener.find('.item-after').text(itemText.join(', '));
-        // Add item value to input value
-        this.opener.find('input').val(inputValue.join(','));
-    }
-}
-
 $$('#idx-main-menu-logo').html(iwb.logo(29));
 
 genTplOUsers();

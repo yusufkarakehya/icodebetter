@@ -1332,17 +1332,35 @@ public class F7 implements ViewMobileAdapter2 {
 					jsCode.append("iwb.app.autocomplete(iwb.apply({multiple:").append(fc.getFormCell().getControlTip()==61).append(", opener: $$('#idx-formcell-").append(fc.getFormCell().getFormCellId()).append("'), params:'_qid=").append(fc.getFormCell().getLookupQueryId());
 					if (fc.getFormCell().getLookupIncludedParams() != null && fc.getFormCell().getLookupIncludedParams().length() > 2)
 						jsCode.append("&").append(fc.getFormCell().getLookupIncludedParams());
-					jsCode.append("'}, iwb.autoCompleteJson));\n");
+					for (W5FormCellHelper cfc : formResult.getFormCellResults()) {
+						if (cfc.getFormCell().getParentFormCellId() == fc.getFormCell().getFormCellId()) {
+							if(!GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams()))
+								switch(cfc.getFormCell().getControlTip()){
+							case	9:case	16:
+								jsCode.append("'}, iwb.autoCompleteJson4Autocomplete('#idx-formcell-")
+									.append(fc.getFormCell().getFormCellId()).append("','#idx-formcell-")
+									.append(cfc.getFormCell().getFormCellId()).append("',function(ax,bx){\n") 
+									.append(cfc.getFormCell().getLookupIncludedParams()) 
+									.append("\n})));\n");
+								break;
+							default:
+								jsCode.append("'}, {}));\n");
+	
+								break;
+							}
+							break;
+
+						}
+					}
 					break;
-				case	9:case	16:
+				case	9:case	16://remote-combo, lov-combo-remote
 					if (formResult != null && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams()) && fc.getFormCell().getParentFormCellId() > 0) {
 						for (W5FormCellHelper rfc : formResult.getFormCellResults()) {
 							if (rfc.getFormCell().getFormCellId() == fc.getFormCell().getParentFormCellId()) {
 								W5FormCell pfc = rfc.getFormCell();
 								if (pfc.getControlTip() == 6
 										|| pfc.getControlTip() == 7
-										|| pfc.getControlTip() == 9
-										|| pfc.getControlTip() == 10)
+										|| pfc.getControlTip() == 9)
 									jsCode.append(
 											"iwb.combo2combo('#idx-formcell-").append(pfc.getFormCellId())
 											.append("','#idx-formcell-").append(fc.getFormCell().getFormCellId()).append("',function(ax,bx){\n")

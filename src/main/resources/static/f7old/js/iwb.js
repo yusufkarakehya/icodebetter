@@ -530,6 +530,119 @@ iwb.loadCombo = function(cmb, params){
 	}});
 }
 
+
+
+iwb.autoCompleteJson={
+    openIn: 'page', //open in page
+//    opener: $$('#autocomplete-standalone-ajax'), //link that opens autocomplete
+//    multiple: true, //allow multiple values
+//  limit: 50,
+    valueProperty: 'id', //object's "value" property name
+    textProperty: 'dsc', //object's "text" property name
+    preloader: true, //enable preloader
+    source: function (autocomplete, query, render) {
+        var results = [];
+        if (query.length === 0) {
+            render(results);
+            return;
+        }
+        // Show Preloader
+        autocomplete.showPreloader();
+        // Do Ajax request to Autocomplete data
+        iwb.request({
+            url: 'ajaxQueryData?'+this.params,
+//            method: 'GET', dataType: 'json',
+            //send "query" to server. Useful in case you generate response dynamically
+            data: {
+                xdsc: query
+            },
+            success: function (j) {
+                // Hide Preoloader
+                autocomplete.hidePreloader();
+                // Render items by passing array with result items
+                render(j.data);
+            }, failure:function (j) {
+                // Hide Preoloader
+                autocomplete.hidePreloader();
+            }
+        });
+    },
+    onChange: function (autocomplete, value) {
+        var itemText = [],
+            inputValue = [];
+        for (var i = 0; i < value.length; i++) {
+            itemText.push(value[i][this.textProperty]);
+            inputValue.push(value[i][this.valueProperty]);
+        }
+        // Add item text value to item-after
+        this.opener.find('.item-after').text(itemText.join(', '));
+        // Add item value to input value
+        this.opener.find('input').val(inputValue.join(','));
+    }
+}
+
+iwb.autoCompleteJson4Autocomplete=function(prt, cmb, fnc){
+	var params = fnc($$(prt).val());
+	if(params)iwb.loadCombo(cmb, params);
+	
+	return {
+	    openIn: 'page', //open in page
+	//    opener: $$('#autocomplete-standalone-ajax'), //link that opens autocomplete
+	//    multiple: true, //allow multiple values
+	//  limit: 50,
+	    valueProperty: 'id', //object's "value" property name
+	    textProperty: 'dsc', //object's "text" property name
+	    preloader: true, //enable preloader
+	    source: function (autocomplete, query, render) {
+	        var results = [];
+	        if (query.length === 0) {
+	            render(results);
+	            return;
+	        }
+	        // Show Preloader
+	        autocomplete.showPreloader();
+	        // Do Ajax request to Autocomplete data
+	        iwb.request({
+	            url: 'ajaxQueryData?'+this.params,
+	//            method: 'GET', dataType: 'json',
+	            //send "query" to server. Useful in case you generate response dynamically
+	            data: {
+	                xdsc: query
+	            },
+	            success: function (j) {
+	                // Hide Preoloader
+	                autocomplete.hidePreloader();
+	                // Render items by passing array with result items
+	                render(j.data);
+	            }, failure:function (j) {
+	                // Hide Preoloader
+	                autocomplete.hidePreloader();
+	            }
+	        });
+	    },
+	    onChange: function (autocomplete, value) {
+	        var itemText = [],
+	            inputValue = [];
+	        for (var i = 0; i < value.length; i++) {
+	            itemText.push(value[i][this.textProperty]);
+	            inputValue.push(value[i][this.valueProperty]);
+	        }
+	        // Add item text value to item-after
+	        this.opener.find('.item-after').text(itemText.join(', '));
+	        // Add item value to input value
+	        this.opener.find('input').val(inputValue.join(','));
+	        
+	        
+	        var params = fnc($$(prt).val());
+			if(params)iwb.loadCombo(cmb, params);
+			else {
+				$$(cmb).find('option').remove();//temizle once
+				if(true || params===false)$$(cmb.replace('idx-','id-')).hide();
+			}
+	    }
+	}
+}
+
 function user4chat(j){
 	return '<a href=# style="display:inline;'+(iwb.mobile==2 ? ' color:darkorange;':'')+'" iwb-key="'+j.userId+'" iwb-dsc="'+j.userDsc+'" class="item-link iwb-user-chat">'+j.userDsc + '</a>';
 }
