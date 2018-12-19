@@ -3559,7 +3559,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var detailPanel = new Ext.TabPanel(subTab);
   
   if(mainGrid.dataViewId){
-	  var xbuttons=[' ',mainGrid._dscLabel||' ','-'];
+	  var xbuttons=[' ',' ','-'];
 	  xbuttons.push(organizeButtons(mainButtons));
 	  xbuttons.push({iconCls:'icon-maximize', tooltip:'Maximize',handler:function(){
 		  var sfx = Ext.getCmp('sfx-'+obj.t);
@@ -3640,7 +3640,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	  if (mainGrid.crudFlags.insert) {
 		    var cfg = {
 		      id: "btn_add_" + mainGrid.id,
-		      tooltip: getLocMsg("js_new") + ' ' + (mainGrid._labelDsc || 'Record'),
+		      tooltip: getLocMsg("js_new") + ' ' + (mainGrid._dscLabel || 'Record'),
 		      cls: "x-btn-icon x-grid-new",
 		      ref: "../btnInsert",
 		      showModalWindowFlag: false,
@@ -7102,6 +7102,17 @@ function fncMnuVcs(xgrid) {
       }
     },
     "-",
+    {
+        text: "Show Diff",
+        _grid: xgrid,
+        handler: function(aq) {
+          var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
+          sel &&
+            sel.length > 0 &&
+            sel[0].data.pkpkpk_vcsf &&
+            iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id);;
+        }
+      },'-',
     /*
 	 * ,{text:'Synchronize Selected Record(Recursive)', _grid:xgrid,
 	 * handler:function(aq){ Ext.infoMsg.alert('TODO') }}
@@ -7159,18 +7170,7 @@ function fncMnuVcs(xgrid) {
               });
             });
         }
-      },
-      {
-          text: "Show Diff",
-          _grid: xgrid,
-          handler: function(aq) {
-            var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
-            sel &&
-              sel.length > 0 &&
-              sel[0].data.pkpkpk_vcsf &&
-              iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id);;
-          }
-        }
+      }
   ];
 }
 

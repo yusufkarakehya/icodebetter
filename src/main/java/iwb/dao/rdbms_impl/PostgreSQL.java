@@ -2147,46 +2147,46 @@ public class PostgreSQL extends BaseDAO {
 
   private void loadCard(W5CardResult dr) {
     String projectId = FrameworkCache.getProjectId(dr.getScd(), "930." + dr.getDataViewId());
-    W5Card d =
+    W5Card c =
         (W5Card)
             getCustomizedObject(
                 "from W5Card t where t.dataViewId=? and t.projectUuid=?",
                 dr.getDataViewId(),
                 projectId,
                 "DataView"); // ozel bir client icin varsa
-    dr.setCard(d);
+    dr.setCard(c);
 
-    if (!GenericUtil.isEmpty(d.getOrderQueryFieldIds()))
-        d.set_orderQueryFieldNames(
+    if (!GenericUtil.isEmpty(c.getOrderQueryFieldIds()))
+        c.set_orderQueryFieldNames(
             find(
                 "select qf.dsc from W5QueryField qf where qf.queryId=? and qf.projectUuid=? AND qf.queryFieldId in ("
-                    + d.getOrderQueryFieldIds()
+                    + c.getOrderQueryFieldIds()
                     + ") order by qf.tabOrder",
-                d.getQueryId(),
+                c.getQueryId(),
                 projectId));
     
     W5Query query = null;
-    query = getQueryResult(dr.getScd(), d.getQueryId()).getQuery();
+    query = getQueryResult(dr.getScd(), c.getQueryId()).getQuery();
 
     if (query == null) {
       query = new W5Query();
       List<W5QueryField> queryFields =
           find(
               "from W5QueryField t where t.queryId=? and t.projectUuid=? order by t.tabOrder",
-              d.getQueryId(),
+              c.getQueryId(),
               projectId);
-      d.set_query(query);
+      c.set_query(query);
       query.set_queryFields(queryFields); // dataReader icin gerekli
       query.setMainTableId(
           (Integer)
               find(
                       "select t.mainTableId from W5Query t where t.queryId=? and t.projectUuid=?",
-                      d.getQueryId(),
+                      c.getQueryId(),
                       projectId)
                   .get(0));
-    } else d.set_query(query);
+    } else c.set_query(query);
 
-    d.set_crudTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
+    c.set_crudTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
 
     Map<Integer, W5QueryField> fieldMap = new HashMap<Integer, W5QueryField>();
     Map<String, W5QueryField> fieldMapDsc = new HashMap<String, W5QueryField>();
@@ -2195,17 +2195,21 @@ public class PostgreSQL extends BaseDAO {
       fieldMapDsc.put(field.getDsc(), field);
     }
 
-    d.set_queryFieldMap(fieldMap);
+    c.set_queryFieldMap(fieldMap);
 
-    d.set_queryFieldMapDsc(fieldMapDsc);
-    d.set_pkQueryField(fieldMap.get(d.getPkQueryFieldId()));
+    c.set_queryFieldMapDsc(fieldMapDsc);
+    c.set_pkQueryField(fieldMap.get(c.getPkQueryFieldId()));
 
-    d.set_toolbarItemList(
+    c.set_toolbarItemList(
         find(
             "from W5ObjectToolbarItem t where t.objectTip=8 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-            d.getDataViewId(),
+            c.getDataViewId(),
             projectId));
-
+    c.set_menuItemList(
+            find(
+                "from W5ObjectMenuItem t where t.objectTip=8 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+                c.getDataViewId(),
+                projectId));
     Integer searchFormId =
         (Integer)
             getCustomizedObject(
@@ -2213,13 +2217,13 @@ public class PostgreSQL extends BaseDAO {
                 dr.getDataViewId(),
                 projectId,
                 null);
-    if (searchFormId != null) d.set_searchFormId(searchFormId);
-    if (d.getDefaultCrudFormId() != 0) {
+    if (searchFormId != null) c.set_searchFormId(searchFormId);
+    if (c.getDefaultCrudFormId() != 0) {
         W5Form defaultCrudForm =
             (W5Form)
                 getCustomizedObject(
                     "from W5Form t where t.formId=? and t.projectUuid=?",
-                    d.getDefaultCrudFormId(),
+                    c.getDefaultCrudFormId(),
                     projectId,
                     "Form"); // ozel bir client icin varsa
 
@@ -2231,18 +2235,18 @@ public class PostgreSQL extends BaseDAO {
                   projectId,
                   defaultCrudForm
                       .getObjectId()); // PromisCache.getTable(f.getScd(), f.getForm().getObjectId())
-          d.set_defaultCrudForm(defaultCrudForm);
+          c.set_defaultCrudForm(defaultCrudForm);
 
-		  d.set_crudFormSmsMailList(
+		  c.set_crudFormSmsMailList(
 		            find(
 		                "from W5FormSmsMail t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.formId=? AND t.projectUuid=? order by t.tabOrder",
-		                d.getDefaultCrudFormId(), projectId));
-		  d.set_crudFormConversionList(
+		                c.getDefaultCrudFormId(), projectId));
+		  c.set_crudFormConversionList(
 		            find(
 		                "from W5Conversion t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.srcFormId=? AND t.projectUuid=? order by t.tabOrder",
-		                d.getDefaultCrudFormId(), projectId));
+		                c.getDefaultCrudFormId(), projectId));
 		  
-		  organizeListPostProcessQueryFields(dr.getScd(), t, d);
+		  organizeListPostProcessQueryFields(dr.getScd(), t, c);
 
 		    
         }

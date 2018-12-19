@@ -4226,82 +4226,88 @@ public class ExtJs3_4 implements ViewAdapter {
 		return html;
 	}
 
-	public StringBuilder serializeCard(W5CardResult cardResult) {
-		String xlocale = (String) cardResult.getScd().get("locale");
-		int customizationId = (Integer) cardResult.getScd().get(
+	public StringBuilder serializeCard(W5CardResult cr) {
+		String xlocale = (String) cr.getScd().get("locale");
+		int customizationId = (Integer) cr.getScd().get(
 				"customizationId");
-		W5Card d = cardResult.getCard();
+		W5Card c = cr.getCard();
 		StringBuilder buf = new StringBuilder();
 		buf.append("var ")
-				.append(d.getDsc())
+				.append(c.getDsc())
 				.append("={dataViewId:")
-				.append(d.getDataViewId())
+				.append(c.getDataViewId())
 				.append(",name:'")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
-						d.getLocaleMsgKey()))
+						c.getLocaleMsgKey()))
 				.append("'");
-		if(!GenericUtil.isEmpty(d.get_orderQueryFieldNames())){
+		if(!GenericUtil.isEmpty(c.get_orderQueryFieldNames())){
 			buf.append(",\n orderNames:[");
-			for(String f:d.get_orderQueryFieldNames()){
-				buf.append("{id:'").append(f).append("',dsc:'").append(LocaleMsgCache.get2(cardResult.getScd(), f)).append("'},");
+			for(String f:c.get_orderQueryFieldNames()){
+				buf.append("{id:'").append(f).append("',dsc:'").append(LocaleMsgCache.get2(cr.getScd(), f)).append("'},");
 			}
 			buf.setLength(buf.length()-1);
 			buf.append("]");
 		}		
 		buf.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
-				.append(d.getQueryId()).append("&_dvid=")
-				.append(d.getDataViewId());
+				.append(c.getQueryId()).append("&_dvid=")
+				.append(c.getDataViewId());
 
-		if (d.getDefaultPageRecordNumber() != 0)
-			buf.append("&firstLimit=").append(d.getDefaultPageRecordNumber())
+		if (c.getDefaultPageRecordNumber() != 0)
+			buf.append("&firstLimit=").append(c.getDefaultPageRecordNumber())
 					.append("',remoteSort:true,");
 		else
 			buf.append("',");
 		buf.append(
-				serializeQueryReader(d.get_query().get_queryFields(), d.get_pkQueryField().getDsc(), d.get_postProcessQueryFields(), (d
-						.get_query().getShowParentRecordFlag() != 0 ? 2 : 0), d
-						.get_crudTable(), cardResult.getScd())).append(
+				serializeQueryReader(c.get_query().get_queryFields(), c.get_pkQueryField().getDsc(), c.get_postProcessQueryFields(), (c
+						.get_query().getShowParentRecordFlag() != 0 ? 2 : 0), c
+						.get_crudTable(), cr.getScd())).append(
 				",listeners:{loadexception:promisLoadException");
 		// if(d.getDefaultPageRecordNumber()!=0)buf.append(",afterload:function(aa,bb){alert('geldim');alert(aa.getCount())}");
 		buf.append("}})");
-		if (d.getDefaultWidth() != 0)
-			buf.append(",\n defaultWidth:").append(d.getDefaultWidth());
-		if (d.getDefaultHeight() != 0)
-			buf.append(", defaultHeight:").append(d.getDefaultHeight());
-		if (cardResult.getSearchFormResult() != null) {
+		if (c.getDefaultWidth() != 0)
+			buf.append(",\n defaultWidth:").append(c.getDefaultWidth());
+		if (c.getDefaultHeight() != 0)
+			buf.append(", defaultHeight:").append(c.getDefaultHeight());
+		if (cr.getSearchFormResult() != null) {
 			buf.append(",\n searchForm:").append(
-					serializeGetForm(cardResult.getSearchFormResult()));
+					serializeGetForm(cr.getSearchFormResult()));
 		}
-		if (!GenericUtil.isEmpty(d.get_toolbarItemList())) { // extra buttonlari
+		if (!GenericUtil.isEmpty(c.get_toolbarItemList())) { // extra buttonlari
 															// var mi yok mu?
 			StringBuilder buttons = serializeToolbarItems(
-					cardResult.getScd(), d.get_toolbarItemList(), false);
+					cr.getScd(), c.get_toolbarItemList(), false);
 			if (buttons != null && buttons.length() > 1) {
 				buf.append(",\n extraButtons:[").append(buttons).append("]");
 			}
 		}
-		if (!GenericUtil.isEmpty(d.get_crudFormConversionList())) {
-			buf.append(",\n formConversionList:[")
-					.append(serializeManualConversions(cardResult.getScd(), d.get_crudFormConversionList(), false)).append("]");
+		if (!GenericUtil.isEmpty(c.get_menuItemList())) { // menu items
+			StringBuilder buttons = serializeMenuItems(cr.getScd(), c.get_menuItemList());
+			if (buttons != null && buttons.length() > 1) {
+			buf.append(",\n menuButtons:[").append(buttons).append("]");
+			}
 		}
-		if(d.get_defaultCrudForm()!=null) {
-			if(FrameworkSetting.vcs && d.get_crudTable().getVcsFlag()!=0)buf.append(",\n vcs:!0");
+		if (!GenericUtil.isEmpty(c.get_crudFormConversionList())) {
+			buf.append(",\n formConversionList:[")
+					.append(serializeManualConversions(cr.getScd(), c.get_crudFormConversionList(), false)).append("]");
+		}
+		if(c.get_defaultCrudForm()!=null) {
+			if(FrameworkSetting.vcs && c.get_crudTable().getVcsFlag()!=0)buf.append(",\n vcs:!0");
 			buf.append(",\n crudFormId:")
-			.append(d.getDefaultCrudFormId())
-			.append(serializeCrudFlags(cardResult.getScd(), d.get_crudTable(), false));
+			.append(c.getDefaultCrudFormId())
+			.append(serializeCrudFlags(cr.getScd(), c.get_crudTable(), false));
 		}
 		
-		if (d.getDefaultPageRecordNumber() != 0)
-			buf.append(",\n pageSize:").append(d.getDefaultPageRecordNumber());
+		if (c.getDefaultPageRecordNumber() != 0)
+			buf.append(",\n pageSize:").append(c.getDefaultPageRecordNumber());
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
 		buf.append(",\n tpl:\"")
-				.append(GenericUtil.stringToJS2(d.getTemplateCode()))
+				.append(GenericUtil.stringToJS2(c.getTemplateCode()))
 				.append("\",\nautoScroll:true,overClass:\"x-view-over\",itemSelector:\"div.card\"};\n");
-		if (!GenericUtil.isEmpty(d.getJsCode())) {
+		if (!GenericUtil.isEmpty(c.getJsCode())) {
 			buf.append("\ntry{")
-					.append(GenericUtil.filterExt(d.getJsCode(),
-							cardResult.getScd(),
-							cardResult.getRequestParams(), null))
+					.append(GenericUtil.filterExt(c.getJsCode(),
+							cr.getScd(),
+							cr.getRequestParams(), null))
 					.append("\n}catch(e){")
 					.append(FrameworkSetting.debug ? "if(confirm('ERROR dataView.JS!!! Throw? : ' + e.message))throw e;"
 							: "alert('System/Customization ERROR : ' + e.message)");

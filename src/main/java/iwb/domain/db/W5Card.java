@@ -49,6 +49,7 @@ public class W5Card implements java.io.Serializable, W5Base, W5ListBase {
 	private Map<String, W5QueryField> _queryFieldMapDsc;
 	private W5QueryField	_pkQueryField;
 	private	List<W5ObjectToolbarItem>	_toolbarItemList;
+	private	List<W5ObjectMenuItem>	_menuItemList;
 	private	W5Form _defaultCrudForm;
 	private	W5Table _crudTable;
 	private W5Query	_query;	
@@ -185,6 +186,14 @@ public class W5Card implements java.io.Serializable, W5Base, W5ListBase {
 	}
 	public void set_crudTable(W5Table mainTable) {
 		_crudTable = mainTable;
+	}
+	
+	@Transient
+	public List<W5ObjectMenuItem> get_menuItemList() {
+		return _menuItemList;
+	}
+	public void set_menuItemList(List<W5ObjectMenuItem> menuItemList) {
+		_menuItemList = menuItemList;
 	}
 	
 	@Transient
