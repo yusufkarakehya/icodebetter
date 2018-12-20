@@ -1698,21 +1698,29 @@ public class ExtJs3_4 implements ViewAdapter {
 								buf.append(",");
 							else
 								b = true;
-							String extra = "{layout:'form',title:'"
+						/*	String extra = "{layout:'form',title:'"
 									+ LocaleMsgCache.get2(customizationId,
 											xlocale, m.getLocaleMsgKey()) + "'";
 							// if(formBodyColor!=null)extra+=",bodyStyle:'background-color: #"+formBodyColor+"'";
 							if (formBodyStyle != null)
 								extra += ",bodyStyle:'" + formBodyStyle + "'";
-
+*/
 							W5FormCellHelper extraInfo = getModulExtraInfo(
 									(String) formResult.getScd().get("locale"),
 									m.getLocaleMsgKey());
 							if (extraInfo != null)
 								map.get(m.getFormModuleId()).add(0, extraInfo);
+							List<W5FormCellHelper> lfch = map.get(m.getFormModuleId());
+							String extra = "{id:_page_tab_id+'_fm_"+m.getFormModuleId()+"',title:'"
+									+ LocaleMsgCache.get2(customizationId,
+											xlocale, m.getLocaleMsgKey()) + "'";
+							if(lfch.size()==1 && lfch.get(0).getFormCell().getControlTip()==41){
+								extra+=",layout:'fit'";
+							} else extra+=",layout:'form',bodyStyle:'min-height:550px;padding-top:10px;',autoScroll:true";
+							
 							buf.append(renderFormModuleList(customizationId,
 									xlocale, formResult.getUniqueId(),
-									map.get(m.getFormModuleId()), extra));
+									lfch, extra));
 						}
 
 					}
