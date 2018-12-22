@@ -63,6 +63,9 @@ a:hover {
 .padding0{
 	padding:0px !important;
 }
+.x-panel-body {
+    background-color: #1e232f;
+}
 
 #api-tree .x-panel-body {
     background-color: #3f4757;
