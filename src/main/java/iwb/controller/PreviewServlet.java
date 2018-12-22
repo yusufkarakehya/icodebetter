@@ -863,7 +863,7 @@ public class PreviewServlet implements InitializingBean {
 		scd.put("locale", "en");
 		scd.put("path", "../");
 
-		W5PageResult pageResult = engine.getTemplateResult(scd, po.getUiLoginTemplateId()==0?1:po.getUiLoginTemplateId(), GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, po.getUiLoginTemplateId()==0?1:po.getUiLoginTemplateId(), GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -892,7 +892,7 @@ public class PreviewServlet implements InitializingBean {
 		
 																		// Page
 																		// Template
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -908,7 +908,7 @@ public class PreviewServlet implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
 		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
 		// amele

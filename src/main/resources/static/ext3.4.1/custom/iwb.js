@@ -8,33 +8,6 @@ function getLocMsg(key) {
   return val || key;
 }
 
-function promisManuelAjaxObject() {
-  // bu Fonksiyon kullanilmiyor. fakat ileride senkron islemler icin
-	// kullanilabilir.(27/12/2012 itibariyle de kur_cevir_sync de kullanılıyor)
-  var xmlhttp = null;
-  try {
-    xmlhttp = new XMLHttpRequest();
-  } catch (err1) {
-    var ieXmlHttpVersions = new Array();
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.7.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.6.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.5.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.4.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.3.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "Microsoft.XMLHttp";
-    var i;
-    for (i = 0; i < ieXmlHttpVersions.length; i++)
-      try {
-        xmlhttp = new ActiveXObject(ieXmlHttpVersions[i]);
-        break;
-      } catch (err2) {
-        Ext.infoMsg.alert("error", ieXmlHttpVersions[i] + " not supported.");
-      }
-  }
-  return xmlhttp;
-}
-
 function objProp(o) {
   var t = "";
   for (var q in o)
@@ -1467,6 +1440,14 @@ function fnRightClick(grid, rowIndex, e) {
   grid.getSelectionModel().selectRow(rowIndex);
   var coords = e.getXY();
   grid.messageContextMenu.showAt([coords[0], coords[1]]);
+}
+
+
+function fnCardRightClick(card, rowIndex, node, e) {
+  e.stopEvent();
+  card.select(rowIndex,false);
+  var coords = e.getXY();
+  card.messageContextMenu.showAt([coords[0], coords[1]]);
 }
 
 function selections2string(selections, seperator) {
@@ -3230,9 +3211,12 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
     });
   }
-  if (mainGrid.menuButtons && mainGrid.gridId/* && !1*_app.toolbar_edit_btn */) {
+  if (mainGrid.menuButtons/*  && mainGrid.gridId && !1*_app.toolbar_edit_btn */) {
     mainGridPanel.messageContextMenu = mainGrid.menuButtons;
-    mainGridPanel.on("rowcontextmenu", fnRightClick);
+    if(mainGrid.gridId)
+    	mainGridPanel.on("rowcontextmenu", fnRightClick);
+    else
+    	mainGridPanel.on("contextmenu", fnCardRightClick);
   }
   // ---search form
   var searchFormPanel = null;
@@ -3559,7 +3543,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var detailPanel = new Ext.TabPanel(subTab);
   
   if(mainGrid.dataViewId){
-	  var xbuttons=[' ',' ','-'];
+	  var xbuttons=[];//[' ',' ','-'];
 	  xbuttons.push(organizeButtons(mainButtons));
 	  xbuttons.push({iconCls:'icon-maximize', tooltip:'Maximize',handler:function(){
 		  var sfx = Ext.getCmp('sfx-'+obj.t);
@@ -8399,7 +8383,7 @@ iwb.isMonacoReady = function(e) {
   if (!e.editor) {
     Ext.infoMsg.msg(
       "error",
-      "Monaco Editor not Loaded yet!<br/>Good things take time",
+      "Monaco Editor still loading!<br/>Good things take time",
       5
     );
     return false;
@@ -8409,4 +8393,7 @@ iwb.isMonacoReady = function(e) {
 
 iwb.addCss=function(cssCode,id){
 	Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
+}
+iwb.loadComponent=function(id){
+//	Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
 }

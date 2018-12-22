@@ -4942,7 +4942,7 @@ public class FrameworkEngine {
   	influxDao.insert(FrameworkCache.wProjects.get((String)scd.get("projectId")), measurement, tags, fields, date);
   }*/
 
-  public W5PageResult getTemplateResult(
+  public W5PageResult getPageResult(
       Map<String, Object> scd, int pageId, Map<String, String> requestParams) {
     W5PageResult pr = null;
     try {
@@ -5012,42 +5012,6 @@ public class FrameworkEngine {
         templateObjectListExt.add(o);
       }
 
-      /*			if(pageId==622){//"maximizeGrid template" bunun icin masterTableId(_mtid), masterTablePk(_mtpk) icin value alinacak ve gonderilecek
-      				int mtid=GenericUtil.uInt(requestParams.get("_mtid"));
-      				int mtpk=GenericUtil.uInt(requestParams.get("_mtpk"));
-      				if(mtid!=0 && mtpk!=0){
-      					pr.setMasterRecordList(dao.findRecordParentRecords(scd, mtid, mtpk, 0, true));
-      				}
-      			}
-      */
-      /*			if(templateId==358){//"sayfam" bunun icindeki portlet gridleri eklenecke, role'e bakarak DEPRECATED. instead we use pageType=10 Dashboard
-      				List<Object> params= new ArrayList<Object>();
-      				params.add(scd.get("customizationId"));
-      				params.add(scd.get("userRoleId"));
-      				Map mp =dao.runSQLQuery2Map("select ur.my_page_column_count,coalesce(ur.portlet_grids,r.portlet_grids) portlet_grids, r.portlet_grids pg from iwb.w5_user_role ur, iwb.w5_role r where ur.customization_id=? AND ur.customization_id=r.customization_id AND ur.role_id=r.role_id AND ur.user_role_id=?", params, null);
-      				String portletGrids = (mp != null) ? (String)mp.get("portlet_grids"): null;
-      				String rolePortletGrids= (mp != null) ? (String)mp.get("portlet_grids"): null;
-      				if(rolePortletGrids!=null && portletGrids!=null && portletGrids.length()>0){
-      					String[] gg = portletGrids.split(",");
-      					for(int i=0;i<gg.length;i++){
-      						int objectId = GenericUtil.uInt(gg[i]);
-      						if(objectId<0){ //graph dashboard
-      							short objectTip=-12;
-      							W5PageObject o = new W5PageObject();
-      							o.setObjectTip(objectTip);
-      							o.setObjectId(-objectId);
-      							templateObjectListExt.add(o);
-      						}else if(GenericUtil.hasPartInside2(rolePortletGrids, gg[i])){ // extra olarak _gid1=12&_gid=2 gibi seyler soylenebilir
-      							short objectTip=-1;
-      							W5PageObject o = new W5PageObject();
-      							o.setObjectTip(objectTip);
-      							o.setObjectId(objectId);
-      							templateObjectListExt.add(o);
-      						}
-      					}
-      				}
-      			}
-      */
       int objectCount = 0;
       if (pr.getPage().getTemplateTip() != 8) { // wizard'dan farkli ise
         W5Table masterTable = null;
@@ -5185,6 +5149,9 @@ public class FrameworkEngine {
               }
               obz = executeQuery(scd, o.getObjectId(), paramMap);
               break;
+            case	8://component
+            	obz = dao.loadComponent(scd, o.getObjectId(), new HashMap());
+            	break;
             case 10: // KPI Single Card
               obz = executeQuery(scd, o.getObjectId(), new HashMap());
               break;
@@ -5213,7 +5180,7 @@ public class FrameworkEngine {
                   "Module",
                   o.getObjectId(),
                   null,
-                  "Role Access Control(Template Object)",
+                  "Role Access Control(Page Object)",
                   null);
             else masterTable = mainTable;
           }

@@ -46,6 +46,7 @@ import iwb.domain.db.Log5Notification;
 import iwb.domain.db.Log5QueryAction;
 import iwb.domain.db.M5List;
 import iwb.domain.db.W5Card;
+import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConversionCol;
 import iwb.domain.db.W5Customization;
@@ -2128,10 +2129,10 @@ public class PostgreSQL extends BaseDAO {
     cr.setRequestParams(requestParams);
     cr.setScd(scd);
 
-    cr.setCard(FrameworkCache.getDataView(projectId, dataViewId));
+    cr.setCard(FrameworkCache.getCard(projectId, dataViewId));
     if (cr.getCard() == null) {
       loadCard(cr);
-      FrameworkCache.addDataView(projectId, cr.getCard());
+      FrameworkCache.addCard(projectId, cr.getCard());
     }
     // search Form
     if (!noSearchForm && cr.getCard().get_searchFormId() != 0) {
@@ -4773,7 +4774,7 @@ public class PostgreSQL extends BaseDAO {
     for (Object[] x :
         (List<Object[]>)
             executeSQLQuery(
-                "select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345)")) {
+                "select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345,3351)")) {
       List<Object> lo =
           executeSQLQuery(
               "select t."
@@ -10557,6 +10558,7 @@ public class PostgreSQL extends BaseDAO {
           "w5_exception_filter",
           "w5_xform_builder_detail",
           "w5_xform_builder",
+          "w5_component",
           "m5_menu",
           "w5_menu",
           "w5_template_object",
@@ -10583,12 +10585,28 @@ public class PostgreSQL extends BaseDAO {
           "w5_project_invitation",
           "w5_project_related_project"
         };
-    List params = new ArrayList();
-    params.add(delProjectId);
-    for (int qi = 0; qi < tables.length; qi++)
-      executeUpdateSQLQuery("delete from iwb." + tables[qi] + " where project_uuid=?", params);
-
-    executeUpdateSQLQuery(
-        "delete from iwb.w5_user_related_project where related_project_uuid=?", params);
-  }
+	    List params = new ArrayList();
+	    params.add(delProjectId);
+	    for (int qi = 0; qi < tables.length; qi++)
+	      executeUpdateSQLQuery("delete from iwb." + tables[qi] + " where project_uuid=?", params);
+	
+	    executeUpdateSQLQuery(
+	        "delete from iwb.w5_user_related_project where related_project_uuid=?", params);
+	}
+	
+	public W5Component loadComponent(Map<String, Object> scd, int componentId, Map paramMap) {
+		W5Component c = FrameworkCache.getComponent(scd, componentId);
+	    if (c == null) {
+	    	String projectId = FrameworkCache.getProjectId(scd, "3351." + componentId);
+	    	c =
+	            (W5Component)
+	                getCustomizedObject(
+	                    "from W5Component t where t.componentId=? and t.projectUuid=?",
+	                    componentId,
+	                    projectId,
+	                    "Component");
+	      FrameworkCache.addComponent(scd, c);
+	    }
+		return c;
+	}
 }
