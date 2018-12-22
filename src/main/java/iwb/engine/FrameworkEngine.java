@@ -9444,6 +9444,20 @@ public class FrameworkEngine {
           String params = null;
           Map<String, String> reqPropMap = new HashMap();
           reqPropMap.put("Content-Language", "tr-TR");
+          if (wsm.getHeaderAcceptTip() != null) {
+              reqPropMap.put(
+                  "Accept",
+                  new String[] {"application/json", "application/xml"}[wsm.getHeaderAcceptTip() - 1]);
+            }
+          if(ws.getWssTip()==1 && !GenericUtil.isEmpty(ws.getWssCredentials())) { //credentials
+        	  String[] lines = ws.getWssCredentials().split("\n");
+        	  for(int qi=0;qi<lines.length;qi++) {
+        		  int ii = lines[qi].indexOf(':');
+        		  if(ii>0) {
+        			  reqPropMap.put(lines[qi].substring(0, ii).trim(), lines[qi].substring(ii+1).trim());        					  
+        		  }
+        	  }        	  
+          }
           if (!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip() > 0) {
             if (wsm.getParamSendTip() < 4) {
               for (W5WsMethodParam p : wsm.get_params())
@@ -9461,7 +9475,10 @@ public class FrameworkEngine {
                           errorMap,
                           dao);
                   if (o != null && o.toString().length() > 0) {
-                    m.put(p.getDsc(), o);
+                	  if(p.getCredentialsFlag()!=0)
+                		  reqPropMap.put(p.getDsc(), o.toString());
+                	  else
+                		  m.put(p.getDsc(), o);
                   }
                 }
               if (!errorMap.isEmpty()) {
@@ -9496,21 +9513,8 @@ public class FrameworkEngine {
               if (!GenericUtil.isEmpty(postUrl)) url += postUrl;
             }
           }
-          if (wsm.getHeaderAcceptTip() != null) {
-            reqPropMap.put(
-                "Accept",
-                new String[] {"application/json", "application/xml"}[wsm.getHeaderAcceptTip() - 1]);
-          }
-          if(ws.getWssTip()==99 && !GenericUtil.isEmpty(ws.getWssDomain())) { //others
-        	  String[] lines = ws.getWssDomain().split("\n");
-        	  for(int qi=0;qi<lines.length;qi++) {
-        		  int ii = lines[qi].indexOf(':');
-        		  if(ii>0) {
-        			  reqPropMap.put(lines[qi].substring(0, ii).trim(), lines[qi].substring(ii+1).trim());        					  
-        		  }
-        	  }
-        	  
-          }
+
+       
           Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params);
           String x =
               HttpUtil.send(

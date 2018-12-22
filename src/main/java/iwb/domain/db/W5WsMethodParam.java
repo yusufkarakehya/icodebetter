@@ -18,6 +18,7 @@ public class W5WsMethodParam  implements java.io.Serializable, W5Param {
 	private short paramTip;
 	private String uid;
 	private short outFlag;
+	private short credentialsFlag;
 	private short notNullFlag;
 	private short tabOrder;
 	private short sourceTip;
@@ -163,6 +164,13 @@ public class W5WsMethodParam  implements java.io.Serializable, W5Param {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+	@Column(name="credentials_flag")
+	public short getCredentialsFlag() {
+		return credentialsFlag;
+	}
+	public void setCredentialsFlag(short credentialsFlag) {
+		this.credentialsFlag = credentialsFlag;
 	}
 	
 }
