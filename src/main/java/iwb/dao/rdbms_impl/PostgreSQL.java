@@ -1178,6 +1178,8 @@ public class PostgreSQL extends BaseDAO {
                               } catch (Exception e) {
                                 obj = "java.sql.Date";
                               }
+                            } else if (obj instanceof Boolean) {
+                            	obj = (Boolean) obj ? 1:0;
                             }
                           }
                           o[field.getTabOrder() - 1] = obj;
@@ -1832,17 +1834,20 @@ public class PostgreSQL extends BaseDAO {
 
                   for (W5FormCellHelper cellResult : formResult.getFormCellResults())
                     if (cellResult.getFormCell().getObjectDetailId() != 0) {
+                    	W5TableField tf = (W5TableField) cellResult.getFormCell().get_sourceObjectDetail(); 
                       Object obj =
                           rs.getObject(
-                              ((W5TableField) cellResult.getFormCell().get_sourceObjectDetail())
+                              (tf)
                                   .getDsc());
                       if (obj != null) {
-                        if (obj instanceof java.sql.Timestamp) {
+                        if (tf.getFieldTip()==5 && obj instanceof Boolean) {
+                        	obj = (Boolean)obj ? 1:0;
+                        } else if (tf.getFieldTip()==2 && obj instanceof java.sql.Timestamp) {
                           try {
                             obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
                           } catch (Exception e) {
                           }
-                        } else if (obj instanceof java.sql.Date) {
+                        } else if (tf.getFieldTip()==2 && obj instanceof java.sql.Date) {
                           try {
                             if (cellResult.getFormCell().getControlTip() == 18) { // date time
                               obj =
@@ -3035,6 +3040,10 @@ public class PostgreSQL extends BaseDAO {
             usedFields.add(p1.getDsc());
             sql.append(p1.getDsc()).append(" = ? ");
             usedFields.add(p1.getDsc());
+            
+            Object[] oo = DBUtil.filterExt4SQL("select ("+p1.getDefaultValue() + ")", scd, new HashMap(), null);
+            List res = executeSQLQuery2(oo[0].toString(), (List)(oo.length>1 ? oo[1]:null));
+            updateParams.add(GenericUtil.isEmpty(res) ? null : res.get(0));
             break;
           case 2: // session
             Object psonuc =
@@ -3054,6 +3063,7 @@ public class PostgreSQL extends BaseDAO {
               } else b = true;
               usedFields.add(p1.getDsc());
               sql.append(p1.getDsc()).append(" = ? ");
+              updateParams.add(psonuc);
               usedFields.add(p1.getDsc());
             }
 
