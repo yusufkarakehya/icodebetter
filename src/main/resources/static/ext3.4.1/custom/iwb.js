@@ -6992,6 +6992,14 @@ function vcsPull(xgrid, tid, tpk) {
 
 iwb.valsDiffData = false;
 iwb.showValsDiffinMonaco = function (qi) {
+	if(!window.monaco){
+		Ext.infoMsg.msg("info", "Loading Monaco", 2);
+		require.config({ paths: { vs: "/monaco/min/vs" } });
+		require(["/monaco/min/vs/editor/editor.main"], function() {
+//			iwb.showValsDiffinMonaco(qi);
+		});
+		return;
+	}
   var win = new Ext.Window({
     layout: 'fit',
     width: 900,
@@ -7002,6 +7010,7 @@ iwb.showValsDiffinMonaco = function (qi) {
     html: '<div id="idx-mnc2-' + _page_tab_id + '" style="height:770px"></div>',
     listeners: {
       'afterrender': function () {
+    	monaco.editor.setTheme(iwb.monacoTheme || "vs-dark");
         var originalModel = monaco.editor.createModel(iwb.valsDiffData[qi].local, "javascript");
         var modifiedModel = monaco.editor.createModel(iwb.valsDiffData[qi].remote, "javascript");
 
@@ -7028,19 +7037,28 @@ iwb.showValsDiffinMonaco = function (qi) {
   win.show();
 
 }
-iwb.fnTblRecVCSDiff = function (tid, tpk, a) {
+iwb.fnTblRecColumnVCSUpdate=function (tid, tpk, clmn) {
+	alert('todo: ' + tid + ' / ' + tpk  + ' / ' + clmn);
+	return false;
+}
+iwb.fnTblRecVCSDiff = function (tid, tpk, a, dsc) {
   promisRequest({
     url: 'ajaxVCSObjectConflicts', params: { k: tid + '.' + tpk }, requestWaitMsg: true, successCallback: function (j) {
       if (j.data) {
+    	  if(!j.data.length){
+    		  Ext.infoMsg.msg("info", "No difference between VCS Server and Local", 2);
+    		  return;
+    	  }
         iwb.valsDiffData = j.data;
-        var s = '<table width=100%><thead style="background:rgba(255,255,255,.2)"><tr><td width=10%>name</td><td width=45%>local</td><td width=45%>remote</td></tr></thead>';
+        var s = '<table width=100%><thead style="background:rgba(255,255,255,.2)"><tr><td width=10% style="padding: 5px;">field name</td><td width=45% style="padding: 5px;">local value</td><td width=45% style="padding: 5px;">remote value</td></tr></thead>';
         for (var qi = 0; qi < j.data.length; qi++)
-          if (j.data[qi].editor != 11) s += '<tr style="color: #ccc;"><td>' + j.data[qi].name + '</td><td>' + j.data[qi].local + '</td><td>' + j.data[qi].remote + '</td></tr>';
+          if (j.data[qi].editor != 11 && j.data[qi].editor != 41) s += '<tr style="color: #ccc;"><td>' + j.data[qi].name + '</td><td>' + j.data[qi].local 
+          	+ '<a title="Update Local" href=# style="float:right" onclick="return iwb.fnTblRecColumnVCSUpdate('+tid+','+tpk+',\''+j.data[qi].name+'\')"><div style="width: 20px;height: 20px;    background-position: center; transform: rotate(90deg);" class="icon-vcs-pull">&nbsp;</div></a></td><td>' + j.data[qi].remote + '</td></tr>';
           else s += '<tr style="color: #ccc;background:rgba(0,0,0,.2)"><td>' + j.data[qi].name + '</td><td align=center colspan=2><a href=# onclick="return iwb.showValsDiffinMonaco(' + qi + ')">show diff in editor</a></td></tr>';
         s += '</table>';
         var wndx = new Ext.Window({
           modal: true,closeAction: 'destroy',
-          title: 'Record Differences',
+          title: 'Record Differences'+ (dsc ? ' <span class="vcs-diff">' + unescape(dsc)+'</span>':''),
           width: 800,
           autoHeight: true,
           html: s,
@@ -7094,7 +7112,7 @@ function fncMnuVcs(xgrid) {
           sel &&
             sel.length > 0 &&
             sel[0].data.pkpkpk_vcsf &&
-            iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id);;
+            iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id, 1, sel[0].data.dsc);;
         }
       },'-',
     /*

@@ -1209,3 +1209,9 @@ a.x-menu-item{
 .x-layout-split-west .x-layout-mini, .x-layout-split-east .x-layout-mini{
 	background-image:none !important;
 }
+.ext-el-mask {
+    opacity: .20;
+}
+.vcs-diff{
+	color:#ff9797 !important;
+}
