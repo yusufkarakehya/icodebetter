@@ -5,6 +5,7 @@
 
 a {
 	color: #007fcc;
+	text-decoration: none;
     cursor: pointer;
 }
 a:link {
@@ -20,7 +21,7 @@ a:visited {
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: none;
     color: #007fcc;
     cursor: pointer;
 }
@@ -1205,6 +1206,26 @@ a.x-menu-item{
     background-color: #fafafa;
 }
 
+.panel-preview .source-link{
+	position: absolute;
+    bottom: 40px;
+    right: 40px;
+    background: #4ac39c;
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: none !important;
+    font-weight:bold;
+}
+.panel-preview .crud-form-link{
+	position: absolute;
+    right: 40px;
+    left: 40px;
+    background: #f19d25;
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: none !important;
+    font-weight:bold;
+}
 
 .x-layout-split-west .x-layout-mini, .x-layout-split-east .x-layout-mini{
 	background-image:none !important;

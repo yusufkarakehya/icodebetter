@@ -121,6 +121,8 @@ public abstract class BaseDAO {
                 s.setFloat(i, (Float) o);
             } else if (o instanceof Double) {
                 s.setDouble(i, ((Double) o));
+            } else if (o instanceof Boolean) {
+                s.setBoolean(i, ((Boolean) o));
             }
             i++;
         }
@@ -156,6 +158,8 @@ public abstract class BaseDAO {
                 query = query.setFloat(i, (Float) o);
             } else if (o instanceof Double) {
                 query = query.setDouble(i, ((Double) o));
+            } else if (o instanceof Boolean) {
+                query = query.setBoolean(i, ((Boolean) o));
             }
             i++;
         }
@@ -184,6 +188,8 @@ public abstract class BaseDAO {
                 query.setFloat(i, (Float) o);
             } else if (o instanceof Double) {
                 query.setDouble(i, ((Double) o));
+            } else if (o instanceof Boolean) {
+                query.setBoolean(i, ((Boolean) o));
             }
             i++;
         }

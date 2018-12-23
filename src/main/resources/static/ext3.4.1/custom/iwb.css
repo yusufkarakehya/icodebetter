@@ -1261,11 +1261,12 @@ a.x-menu-item{
 .panel-preview .source-link{
 	position: absolute;
     bottom: 40px;
-    left: 40px;
-    background: #2196F3;
+    right: 40px;
+    background: #4ac39c;
     padding: 10px 20px;
     border-radius: 100px;
     border: none !important;
+    font-weight:bold;
 }
 .panel-preview .crud-form-link{
 	position: absolute;
@@ -1275,6 +1276,7 @@ a.x-menu-item{
     padding: 10px 20px;
     border-radius: 100px;
     border: none !important;
+    font-weight:bold;
 }
 
 .x-layout-split-west .x-layout-mini, .x-layout-split-east .x-layout-mini{

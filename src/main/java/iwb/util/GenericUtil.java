@@ -61,10 +61,10 @@ import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Table;
+import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableParam;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5ReportCellHelper;
-import iwb.enums.FrameworkDataTypes;
 import iwb.exception.IWBException;
 
 // import iwb.dao.RdbmsDao;
@@ -594,27 +594,6 @@ public class GenericUtil {
     return null;
   }
 
-  public static Object getObjectByTip(String value, FrameworkDataTypes tip) {
-    if (tip == null || tip.equals(FrameworkDataTypes.UNKNOWN)) return null;
-    try {
-      switch (tip) {
-        case TEXT:
-          return value;
-        case DATE:
-          return GenericUtil.uDate(value);
-        case FLOAT:
-          return GenericUtil.uDouble(value);
-        case INTEGER:
-          return GenericUtil.uInteger(value);
-        case BOOLEAN:
-          return GenericUtil.uCheckBox(value);
-        case LONG:
-          return GenericUtil.uLong(value);
-      }
-    } catch (Exception e) {
-    }
-    return null;
-  }
 
   public static Object getObjectByControl(String value, int tip) {
     try {
@@ -1535,6 +1514,15 @@ public class GenericUtil {
       errorMap.put(
           param.getDsc(),
           LocaleMsgCache.get2(scd, "validation_error_not_null")); // "Boï¿½ Deï¿½er Olamaz"
+    } else if((param.getParamTip()==5 || param.getParamTip()==2) && (param instanceof W5TableField)){
+    	W5TableField tf =  (W5TableField)param;
+    	if(tf.getDefaultControlTip() == param.getParamTip() && tf.getDefaultLookupTableId()>0){
+    		if(param.getParamTip()==5){
+    			psonuc = GenericUtil.uInt(psonuc)!=0;
+    		} else {
+    			psonuc = GenericUtil.uDateTm(pvalue);
+    		}
+    	}    	
     }
 
     if (!hasError
@@ -1615,212 +1603,6 @@ public class GenericUtil {
         defaultValue,
         errorMap,
         null);
-  }
-
-  public static Object prepareParamOld(
-      W5Param param,
-      Map<String, Object> scd,
-      Map<String, String> requestParams,
-      short sourceTip,
-      Map<String, String> extraParams,
-      short notNullFlag,
-      String dsc,
-      String defaultValue,
-      Map<String, String> errorMap) {
-    String pvalue = null;
-    boolean hasError = false;
-    if (sourceTip < 0) sourceTip = param.getSourceTip();
-    if (notNullFlag == 0) notNullFlag = param.getNotNullFlag();
-    // Burada deÄŸiÅŸiklik var 29.06.2016
-    if (sourceTip == param.getSourceTip() && (defaultValue == null || defaultValue.length() == 0))
-      defaultValue =
-          (param.getDefaultValue() != null && param.getDefaultValue().length() == 0
-              ? null
-              : param.getDefaultValue());
-
-    switch (sourceTip) {
-      case 0: // non-interaktif
-        pvalue = defaultValue;
-        break;
-      case 8: // global Nextval
-        return getGlobalNextval(
-            defaultValue,
-            scd != null ? (String) scd.get("projectId") : null,
-            scd != null ? (Integer) scd.get("userId") : 0,
-            scd != null ? (Integer) scd.get("customizationId") : 0);
-      case 9: // UUID
-        pvalue = UUID.randomUUID().toString();
-        break;
-      case 1: // request : post edilmisse request'ten aksi halde grid'den al
-        if (extraParams != null) {
-          pvalue = extraParams.get(param.getDsc());
-        }
-        if (pvalue == null) {
-          String xdsc = dsc != null ? dsc : param.getDsc();
-          if (xdsc.contains("-")) { // ardarda birkactane, sadece custom operator ile kullanilabilir
-            String[] xdscs = xdsc.split("-");
-            Object[] pvalues = new Object[xdscs.length];
-            for (int q7 = 0; q7 < xdscs.length; q7++) {
-              pvalues[q7] =
-                  GenericUtil.getObjectByTip(
-                      requestParams.get(xdscs[q7].trim()), param.getParamTip());
-            }
-            return pvalues;
-          }
-          Object oo = requestParams.get(xdsc);
-          pvalue = oo == null ? null : oo.toString();
-        }
-        break;
-      case 2: // session
-        if (param.getDefaultValue() != null || defaultValue != null) {
-          String dv = defaultValue != null ? defaultValue : param.getDefaultValue();
-          if (dv.contains("-")) { // ardarda birkactane, sadece custom operator ile kullanilabilir
-            String[] xdscs = dv.split("-");
-            Object[] pvalues = new Object[xdscs.length];
-            for (int q7 = 0; q7 < xdscs.length; q7++) {
-              pvalues[q7] = scd.get(xdscs[q7].trim());
-            }
-            return pvalues;
-          }
-          Object o = scd.get(dv);
-          pvalue = o == null ? null : o.toString();
-        } else pvalue = null;
-        break;
-      case 3: // app_setting
-        if (scd != null
-            && scd.get("_user_settings") != null
-            && ((Map) scd.get("_user_settings")).get(param.getDefaultValue()) != null)
-          pvalue = ((Map) scd.get("_user_settings")).get(param.getDefaultValue()).toString();
-        else pvalue = FrameworkCache.getAppSettingStringValue(scd, param.getDefaultValue());
-        break;
-      case 4: // expression, ornegin seq_ali.nextval
-        return defaultValue;
-      case 5: // Custom JS Rhino
-        ContextFactory factory = MyFactory.getGlobal();
-        Context cx = factory.enterContext();
-
-        // Context cx = Context.enter();
-        try {
-          cx.setOptimizationLevel(-1);
-          if (FrameworkSetting.rhinoInstructionCount > 0)
-            cx.setInstructionObserverThreshold(FrameworkSetting.rhinoInstructionCount);
-          // Initialize the standard objects (Object, Function, etc.)
-          // This must be done before scripts can be executed. Returns
-          // a scope object that we use in later calls.
-          Scriptable scope = cx.initStandardObjects();
-
-          // Collect the arguments into a single string.
-          StringBuilder sc = new StringBuilder();
-          sc.append("\nvar _scd=").append(fromMapToJsonString(scd));
-          sc.append("\nvar _request=").append(fromMapToJsonString(requestParams));
-          sc.append("\n").append(defaultValue);
-
-          // sc.append("'})';");
-          // Now evaluate the string we've colected.
-          cx.evaluateString(scope, sc.toString(), null, 1, null);
-          Object em = scope.get("errorMsg", scope);
-          if (em != null) {
-            errorMap.put(
-                param.getDsc(), LocaleMsgCache.get2(0, (String) scd.get("locale"), em.toString()));
-            return null;
-          }
-          /*				Object exp = scope.get("expression", scope);
-          if(exp!=null){
-
-          } */
-          Object nn = scope.get("notNull", scope);
-          if (nn != null) {
-            notNullFlag = (short) GenericUtil.uInt(nn);
-          }
-          Object res = scope.get("result", scope);
-          if (res != null
-              && res instanceof org.mozilla.javascript.NativeArray) { // donen sonuc array ise
-            int len = (int) ((org.mozilla.javascript.NativeArray) res).getLength();
-            Object[] pvalues = new Object[len];
-            for (int q7 = 0; q7 < pvalues.length; q7++) {
-              pvalues[q7] =
-                  GenericUtil.getObjectByTip(
-                      requestParams.get(((org.mozilla.javascript.NativeArray) res).get(q7, scope)),
-                      param.getParamTip());
-            }
-            return pvalues;
-          }
-          if (res != null && res instanceof org.mozilla.javascript.Undefined) res = null;
-          if (res != null && param.getParamTip() == 4)
-            res = "" + new BigDecimal(res.toString()).intValue();
-          pvalue = res == null ? null : res.toString();
-
-        } finally {
-          // Exit from the context.
-          cx.exit();
-        }
-    }
-
-    if (pvalue == null || pvalue.trim().length() == 0) pvalue = defaultValue;
-
-    Object psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamTip());
-    if (notNullFlag != 0 && psonuc == null) { // not null
-      hasError = true;
-      errorMap.put(
-          param.getDsc(),
-          LocaleMsgCache.get2(scd, "validation_error_not_null")); // "Boï¿½ Deï¿½er Olamaz"
-    }
-
-    if (!hasError
-        && psonuc != null
-        && (psonuc instanceof Integer || psonuc instanceof Double)
-        && (param.getMinValue() != null || param.getMaxValue() != null)) {
-      BigDecimal bd =
-          new BigDecimal(
-              psonuc instanceof Integer
-                  ? ((Integer) psonuc).intValue()
-                  : ((Double) psonuc).doubleValue());
-      if (param.getMinValue() != null && param.getMinValue().compareTo(bd) == 1) {
-        hasError = true;
-        errorMap.put(
-            param.getDsc(),
-            LocaleMsgCache.get2(scd, "validation_error_value_min")
-                + " ("
-                + param.getMinValue()
-                + ")"); // "Deï¿½eri "+ param.getMinValue()+" den kï¿½ï¿½ï¿½k olamaz"
-      } else if (param.getMaxValue() != null && param.getMaxValue().compareTo(bd) == -1) {
-        hasError = true;
-        errorMap.put(
-            param.getDsc(),
-            LocaleMsgCache.get2(scd, "validation_error_value_max")
-                + " ("
-                + param.getMaxValue()
-                + ")"); /// "Deï¿½eri "+ param.getMaxValue()+" den bï¿½yï¿½k olamaz"
-      }
-    }
-
-    if (!hasError
-        && psonuc != null
-        && (psonuc instanceof String)
-        && (param.getMinLength() != null || param.getMaxLength() != null)) {
-      String s = (String) psonuc;
-      if (param.getMinLength() != null && param.getMinLength() > s.length()) {
-        hasError = true;
-        errorMap.put(
-            param.getDsc(),
-            LocaleMsgCache.get2(scd, "validation_error_length_min")
-                + " ("
-                + param.getMinLength()
-                + ")"); // "Uzunluk Sorunu"
-      } else if (param.getMaxLength() != null
-          && param.getMaxLength() > 0
-          && param.getMaxLength() < s.length()) {
-        hasError = true;
-        errorMap.put(
-            param.getDsc(),
-            LocaleMsgCache.get2(scd, "validation_error_length_max")
-                + " ("
-                + param.getMaxLength()
-                + ")"); // "Uzunluk Sorunu"
-      }
-    }
-
-    return psonuc;
   }
 
   public static boolean accessControl(

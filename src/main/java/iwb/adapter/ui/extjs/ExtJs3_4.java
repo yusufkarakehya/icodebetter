@@ -5477,8 +5477,9 @@ public class ExtJs3_4 implements ViewAdapter {
 				else if (qds.length() > 5 && qds.indexOf("_dttm") == qds.length() - 5){
 					buf.append(", renderer:fmtDateTimeAgo");// browser renderer ise
 					
-				} else if (qds.length() > 5
-						&& qds.indexOf("_flag") == qds.length() - 5) {
+				} else if ((qds.length() > 5
+						&& qds.endsWith("_flag")) || (qds.length() > 3
+								&& qds.startsWith("is_"))) {
 					buf.append(", renderer:disabledCheckBoxHtml");// browser
 																	// renderer
 																	// ise
