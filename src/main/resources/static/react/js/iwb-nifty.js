@@ -123,6 +123,7 @@ var _dxgrb = DXReactGridBootstrap4;
  */
 var iwb = {
   toastr: toastr,
+  components :{},
   grids: {},
   forms: {},
   tabs:{},
@@ -158,6 +159,58 @@ var iwb = {
     (style.styleSheet) ? style.styleSheet.cssText = css: style.appendChild(document.createTextNode(css))
     document['head'].appendChild(style);
   },
+  /**
+   * a function used for react.lazy
+   * @param {string} url - example '/comp/2/js'
+   */
+  import: async (url) => {
+    if (Object.keys(iwb.components).indexOf(url) > 0) {
+      return iwb.components[url];
+    }
+    var imported = await import(url);
+    iwb.components = { ...iwb.components,
+      [url]: imported
+    };
+    return imported;
+  },
+  /**
+   * @param {string} url - example '/comp/2/js'
+   * @param {string} id - example '2' -id of the component
+   */
+  addPageCss: async (url, id = Math.floor(Math.random() * 1000 + 1)) => {
+    let response = await fetch(url);
+    let cssText = await response.text();
+    if(document.getElementById(id)===null){
+      let element = document.createElement('style');
+      element.innerHTML = cssText;
+      element.id='style'+id
+      window.document.head.appendChild(element);
+    }
+    return cssText;
+  },
+  /**
+   * @param {string} id - example '2' -id of the component
+   */
+  removePageCss: (id)=>{
+    let elem = document.getElementById('style'+id);
+    if(elem !== null){
+      elem.parentNode.removeChild(elem);
+    }
+    return true
+  },
+  loadable : (loaderFunction) => 
+    class AsyncComponent extends React.Component {
+        state = { ResultComponent: null, error: false, errorText:''};
+        componentWillMount() {
+          loaderFunction
+            .then(result => this.setState({ ResultComponent: result.default || result})) // "es6" default export
+            .catch((errorText) => this.setState({ error: true, errorText}))
+        }
+        render() {
+          const { error, ResultComponent } = this.state;
+          return ResultComponent ? _(ResultComponent,{ ...this.props }) : (error ? _('span',{className:'alert alert-danger'}) : _(XLoading,null) )
+        }
+    },
   /**
    * @description
    * used for giving data for grid button

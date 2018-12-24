@@ -16,6 +16,7 @@ import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Card;
+import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5Detay;
@@ -4046,6 +4047,7 @@ columns:[
 		if (page.getTemplateTip() != 0) { // html degilse
 			// notification Control
 			// masterRecord Control
+			
 			if (pr.getMasterRecordList() != null
 					&& !pr.getMasterRecordList().isEmpty())
 				buf.append("\n_mrl=")
@@ -4063,6 +4065,13 @@ columns:[
 			else {
 				buf.append("var _page_tab_id='")
 						.append(GenericUtil.getNextId("tpi")).append("';\n");
+			}
+			if (page.getTemplateTip() != 8) { // wizard degilse
+				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
+					W5Component c = (W5Component)i;
+					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(a=>iwb.import('/comp/").append(c.getComponentId()).append(".js?.x='));");
+					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addPageCss('/comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");");
+				}
 			}
 
 			if (page.getTemplateTip() != 8) { // wizard degilse

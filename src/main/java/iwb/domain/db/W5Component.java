@@ -22,8 +22,6 @@ public class W5Component implements java.io.Serializable, W5Base{
 
 	private String dsc;
 
-	private String localeMsgKey;
-
 	private short status;
 	private short frontendTip;
 	private short frontendLang;

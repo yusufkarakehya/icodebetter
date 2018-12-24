@@ -4886,6 +4886,7 @@ public class PostgreSQL extends BaseDAO {
       reloadTableEventsCache(projectId);
       reloadWsServersCache(projectId);
       reloadWsClientsCache(projectId);
+      reloadComponentCache(projectId);
 
       FrameworkSetting.projectSystemStatus.put(projectId, 0); // working
       FrameworkCache.clearReloadCache(projectId);
@@ -4899,7 +4900,18 @@ public class PostgreSQL extends BaseDAO {
     logger.info("Cache Loaded.");
   }
 
-  private void reloadWsServersCache(String projectId) {
+  private void reloadComponentCache(String projectId) {
+	Map<Integer, String> wComponentCss = new HashMap<Integer, String>();
+	Map<Integer, String> wComponentJs = new HashMap<Integer, String>();
+	List<W5Component> l = find("from W5Component t where t.projectUuid=?", projectId);
+	for(W5Component c:l) {
+		wComponentCss.put(c.getComponentId(), c.getCssCode());
+		wComponentJs.put(c.getComponentId(), c.getCode());
+	}
+	FrameworkCache.setProjectComponents(projectId, wComponentCss, wComponentJs);
+}
+
+private void reloadWsServersCache(String projectId) {
     List<W5WsServer> lt =
         (List<W5WsServer>) find("from W5WsServer t where t.projectUuid=?", projectId);
     Map<String, W5WsServer> wssMap = new HashMap<String, W5WsServer>(lt.size() * 14 / 10);
