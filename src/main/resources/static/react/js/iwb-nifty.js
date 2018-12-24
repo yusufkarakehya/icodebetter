@@ -202,7 +202,7 @@ var iwb = {
     class AsyncComponent extends React.Component {
     	constructor(props){
             super(props);
-            state = { ResultComponent: null, error: false, errorText:''};
+            this.state = { ResultComponent: null, error: false, errorText:''};
           }
         componentWillMount() {
           loaderFunction
