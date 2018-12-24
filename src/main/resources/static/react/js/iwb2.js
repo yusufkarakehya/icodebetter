@@ -144,7 +144,19 @@ var iwb = {
 		    fnList[key] = resultFn;
 		    return resultList[key];
 		  };
-		})(),
+    })(),
+  /**
+   * A function to insert css classes into Dom
+   * @param {string} css - example '.aclass{display:none}'
+   * @param {string} id - template id of the page not mandatory
+   */
+  addCss: (css = '', id = Math.random()) => {
+    let style = document.createElement('style');
+    style.type = 'text/css';
+    style.id = "iwb-tpl-" + id;
+    (style.styleSheet) ? style.styleSheet.cssText = css: style.appendChild(document.createTextNode(css))
+    document['head'].appendChild(style);
+  },
   /**
    * @description
    * used for giving data for grid button
@@ -1540,16 +1552,6 @@ class XLazyScriptLoader extends React.PureComponent {
             loading: true
         }
         /**
-         * A function to insert css classes into Dom
-         * @param {string} css - example '.aclass{display:none}'
-         */
-        this.CSSIntoDom = (css = '') => {
-            let style = document.createElement('style');
-            style.type = 'text/css';
-            (style.styleSheet)? style.styleSheet.cssText = css : style.appendChild(document.createTextNode(css))
-            document['head'].appendChild(style);
-        }
-        /**
          * a self invoking function to load js and css into Dom from source {cdn,server,local.....}
          */
         this.load = (() => {
@@ -1601,12 +1603,22 @@ class XLazyScriptLoader extends React.PureComponent {
             console.error('Oh no, epic failure!');
             alert('Oh no, epic failure!');
         });
-        this.CSSIntoDom(css)
+        iwb.addCss(css);
     }
     render() {
         return React.createElement(React.Fragment, {},(this.state.loading)?this.props.loading:this.props.children)
     }
 }
+ // Set default props
+ XLazyScriptLoader.defaultProps = {
+   loading: "LOADING....",
+ };
+ XLazyScriptLoader.propTypes = {
+   loading: PropTypes.oneOfType([
+     PropTypes.func,
+     PropTypes.string,
+   ])
+ };
 class XFormSMSEmailTemplateList extends React.PureComponent {
   constructor(props) {
     super(props);
