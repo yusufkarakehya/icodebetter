@@ -9461,29 +9461,40 @@ public class FrameworkEngine {
           if (!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip() > 0) {
             if (wsm.getParamSendTip() != 4) {
               for (W5WsMethodParam p : wsm.get_params())
-                if (p.getOutFlag() == 0 && p.getParentWsMethodParamId() == 0) {
-                  Object o =
-                      GenericUtil.prepareParam(
-                          (W5Param) p,
-                          scd,
-                          requestParams,
-                          p.getSourceTip(),
-                          null,
-                          p.getNotNullFlag(),
-                          null,
-                          null,
-                          errorMap,
-                          dao);
-                  if (o != null && o.toString().length() > 0) {
-                	  if(p.getCredentialsFlag()!=0)
-                		  reqPropMap.put(p.getDsc(), o.toString());
-                	  else {
-                		  /*if(wsm.getParamSendTip()==5) {
-                			  
-                		  } else */
-                		  m.put(p.getDsc(), o);
-                	  }
-                  }
+                if (p.getOutFlag() == 0 && p.getParentWsMethodParamId() == 0) {// && p.getParentWsMethodParamId() == 0
+                	if(p.getParamTip()==9 || p.getParamTip()==8) { //object/json
+                		Map subMap = new HashMap();
+                		m.put(p.getDsc(), subMap);
+                		if(p.getSourceTip()==0) { //constant
+                			
+                		}
+                		requestParams.get(p.getDsc());
+                		
+                	} else if(p.getParamTip()==10) {//array
+                		List subList= new ArrayList();
+                		m.put(p.getDsc(), subList);
+                		
+                	} else {
+		                  Object o =
+		                      GenericUtil.prepareParam(
+		                          (W5Param) p,
+		                          scd,
+		                          requestParams,
+		                          p.getSourceTip(),
+		                          null,
+		                          p.getNotNullFlag(),
+		                          null,
+		                          null,
+		                          errorMap,
+		                          dao);
+		                  if (o != null && o.toString().length() > 0) {
+		                	  if(p.getCredentialsFlag()!=0)
+		                		  reqPropMap.put(p.getDsc(), o.toString());
+		                	  else {
+		                		  m.put(p.getDsc(), o);
+		                	  }
+		                  }
+                	}
                 }
               if (!errorMap.isEmpty()) {
                 throw new IWBException(
