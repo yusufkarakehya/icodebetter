@@ -9070,18 +9070,20 @@ public class FrameworkEngine {
       }
     return wsmoMap;
   }
-  private List recursiveParams2List(Map scd, int paramId, Object reqL, List<W5WsMethodParam> params, Map<String, String> errorMap) {
+  private List recursiveParams2List(Map scd, int paramId, Object reqL, List<W5WsMethodParam> params, Map<String, String> errorMap, int minListSize) {
 	  List l = new ArrayList();
-	  if(GenericUtil.isEmpty(reqL))return l;
+	  if(GenericUtil.isEmpty(reqL) && minListSize<1)return l;
 	  List requestList = null;
 	  if(reqL instanceof List)requestList=(List)reqL;
-	  else if(reqL instanceof NativeArray)try{//TODO
+	  else if(reqL instanceof NativeArray)try{
 		  requestList = GenericUtil.fromNativeArrayToList((NativeArray)reqL);
-	  }catch(Exception ee){return null;}
-	  else if(reqL instanceof JSONArray)try{//TODO
+	  }catch(Exception ee){}
+	  else if(reqL instanceof JSONArray)try{
 		  requestList = GenericUtil.fromJSONArrayToList((JSONArray)reqL);
-	  }catch(Exception ee){return null;}
-	  else return l;
+	  }catch(Exception ee){}
+	  if(GenericUtil.isEmpty(requestList) && minListSize<1)return l;
+	  if(requestList==null)requestList = new ArrayList();
+	  for(int qi=requestList.size();qi<minListSize;qi++)requestList.add(new HashMap());
 	  for(Object reqO:requestList){
 		  l.add(recursiveParams2Map(scd, paramId,  reqO, params, errorMap, new HashMap()));
 	  }
@@ -9105,7 +9107,7 @@ public class FrameworkEngine {
           	if(p.getParamTip()==9 || p.getParamTip()==8) { //object/json
           		m.put(p.getDsc(), recursiveParams2Map(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap, reqPropMap));
           	} else if(p.getParamTip()==10) {//array
-          		m.put(p.getDsc(), recursiveParams2List(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap));          		
+          		m.put(p.getDsc(), recursiveParams2List(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap, GenericUtil.uInt(p.getDefaultValue())));          		
           	} else {
               Object o =
                   GenericUtil.prepareParam(
