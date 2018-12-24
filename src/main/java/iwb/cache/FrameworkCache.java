@@ -64,6 +64,8 @@ public class FrameworkCache {
 */
 	
 	final private static Map<String, Map<Integer, String>> wPageCss = new HashMap<String, Map<Integer, String>>();
+	final private static Map<String, Map<Integer, String>> wComponentCss = new HashMap<String, Map<Integer, String>>();
+	final private static Map<String, Map<Integer, String>> wComponentJs = new HashMap<String, Map<Integer, String>>();
 
 	final private static Map<String, Map<Integer, W5Workflow>> wWorkflow = new HashMap<String,Map<Integer, W5Workflow>>();
 	final private static List<W5Customization> wCustomization = new ArrayList<W5Customization>();
@@ -586,7 +588,7 @@ public class FrameworkCache {
 		}
 		m.put(pageId, css);
 	}
-	
+
 	public static String getPageCss(Object o, int pageId){
 		String p = getProjectId(o,"63."+pageId);
 		Map<Integer, String> m = wPageCss.get(p);
@@ -595,6 +597,32 @@ public class FrameworkCache {
 		if(css==null)return "";
 		return css;
 	}
+
+	public static void setProjectComponents(String projectId, Map cssMap, Map jsMap){
+		wComponentCss.put(projectId, cssMap);
+		wComponentJs.put(projectId, jsMap);
+	}
+
+	
+	public static String getComponentCss(Object o, int componentId){
+		String p = getProjectId(o,"3351."+componentId);
+		Map<Integer, String> m = wComponentCss.get(p);
+		if(m==null)return "";
+		String css = m.get(componentId);
+		if(css==null)return "";
+		return css;
+	}
+
+	public static String getComponentJs(Object o, int componentId){
+		String p = getProjectId(o,"3351."+componentId);
+		Map<Integer, String> m = wComponentJs.get(p);
+		if(m==null)return "";
+		String js = m.get(componentId);
+		if(js==null)return "";
+		return js;
+	}
+
+
 	
 /*	public static W5TsPortlet getTsPortlet(Map<String, Object> customizationId, int porletId) {
 		int cid = getCustomizationId(customizationId);
