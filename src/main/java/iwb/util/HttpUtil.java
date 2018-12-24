@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import iwb.cache.FrameworkSetting;
+import iwb.exception.IWBException;
 
 public class HttpUtil {
 	public static String send(String targetURL, String urlParameters) {
@@ -61,7 +62,15 @@ public class HttpUtil {
 
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
-			return null;
+			 throw new IWBException(
+			          "framework",
+			          "HTTPUtil.send",
+			          0,
+			          targetURL,
+			          urlParameters,
+			          e);
+			
+//			throw ne;
 		} finally {
 			if (connection != null) {
 				connection.disconnect();

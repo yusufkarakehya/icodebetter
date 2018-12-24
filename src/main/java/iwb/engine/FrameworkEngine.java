@@ -9459,7 +9459,7 @@ public class FrameworkEngine {
         	  }        	  
           }
           if (!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip() > 0) {
-            if (wsm.getParamSendTip() < 4) {
+            if (wsm.getParamSendTip() != 4) {
               for (W5WsMethodParam p : wsm.get_params())
                 if (p.getOutFlag() == 0 && p.getParentWsMethodParamId() == 0) {
                   Object o =
@@ -9477,8 +9477,12 @@ public class FrameworkEngine {
                   if (o != null && o.toString().length() > 0) {
                 	  if(p.getCredentialsFlag()!=0)
                 		  reqPropMap.put(p.getDsc(), o.toString());
-                	  else
+                	  else {
+                		  /*if(wsm.getParamSendTip()==5) {
+                			  
+                		  } else */
                 		  m.put(p.getDsc(), o);
+                	  }
                   }
                 }
               if (!errorMap.isEmpty()) {
@@ -9508,10 +9512,14 @@ public class FrameworkEngine {
                   reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
                   break;
               }
-            } else {
+            } else if (wsm.getParamSendTip() == 4) { //free
               String postUrl = (String) requestParams.get("post_url");
               if (!GenericUtil.isEmpty(postUrl)) url += postUrl;
             }
+          }
+          if(wsm.getParamSendTip()==5) { //raw
+          	params = (String)m.get("body");
+          	m.clear();
           }
 
        
