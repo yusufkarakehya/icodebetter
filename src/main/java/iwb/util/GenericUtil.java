@@ -2722,4 +2722,87 @@ public class GenericUtil {
     return new String[] {"0", "ext3_4", "webix3_3", "open1_4", "webix4_2", "react16", "vue2"}
         [uInt(renderer)];
   }
+
+  public static String fromMapToYamlString2Recursive(Map s, int level){// TODO Auto-generated method stub
+	    if (s == null || s.isEmpty()) return "";
+	    StringBuilder html = new StringBuilder();
+	    boolean b = false;
+	    for (Object q : s.keySet()) {
+	      if (b) html.append("\n");
+	      else b = true;
+	      for(int ti=0;ti<level;ti++)html.append("  ");
+	      Object o = s.get(q);
+	      if (o == null) html.append(q).append(":");
+	      else /*if (o instanceof JSONObject)
+	        html.append("\"").append(q).append(": ").append(((JSONObject) o).toString());
+	      else if (o instanceof JSONArray)
+	        html.append("\"").append(q).append(": ").append(((JSONArray) o).toString());
+	      else */if (o instanceof Map)
+	        html.append(q)
+	            .append(": ")
+	            .append(fromMapToYamlString2Recursive((Map<String, Object>) o, level +1));
+	      else if (o instanceof List) {
+	        html.append(q)
+	            .append(": ")
+	            .append(fromListToYamlString2Recursive((List<Object>) o, level +1));
+	      } else if (o instanceof Integer
+	          || o instanceof Double
+	          || o instanceof BigDecimal
+	          || o instanceof Boolean
+	          || o instanceof Short
+	          || o instanceof Long
+	          || o instanceof Float) html.append(q).append(": ").append(o);
+	      else /*if (o instanceof NativeObject)
+	        html.append(q)
+	            .append(": ")
+	            .append(fromNativeObjectToJsonString2Recursive((NativeObject) o));
+	      else if (o instanceof NativeArray) {
+	        html.append(q)
+	            .append(": ")
+	            .append(fromNativeArrayToJsonString2Recursive((NativeArray) o));
+	      } else*/
+	        html.append(q).append(": ").append(stringToJS2(o.toString())).append("\"");
+	    }
+	    return html.toString();
+	 
+  }
+
+  private static Object fromListToYamlString2Recursive(List<Object> s,int level){
+	  if (s == null || s.isEmpty()) return "";
+	    StringBuilder str = new StringBuilder();
+	    boolean b = false;
+	    for (Object o : s) {
+	      
+	      StringBuilder html = new StringBuilder();
+
+	      if (o == null) html.append("");
+	      else if (o instanceof Map)
+	        html.append(fromMapToYamlString2Recursive((Map<String, Object>) o, level + 1));
+	      else if (o instanceof List) {
+	        html.append(fromListToYamlString2Recursive((List<Object>) o, level + 1));
+	      } else if (o instanceof Object[]) {
+	        List lx = new ArrayList(((Object[]) o).length);
+	        for (int qi = 0; qi < ((Object[]) o).length; qi++) lx.add(((Object[]) o)[qi]);
+	        html.append(fromListToYamlString2Recursive(lx, level + 1));
+	      } else {
+		      for(int ti=0;ti<level;ti++)html.append("  ");
+	    	  if (o instanceof Integer
+		          || o instanceof Double
+		          || o instanceof BigDecimal
+		          || o instanceof Boolean) html.append(o);
+		      else html.append(stringToJS2(o.toString()));
+	      }
+	      
+	      if (b) str.append("\n");
+	      else b = true;
+	      
+	      String newStr = "";
+	      for(int ti=0;ti<level-1;ti++)newStr+="  ";
+	      newStr+="- ";
+	      html = html.replace(0, 2*level, newStr);
+	      
+	      str.append(html);
+	    }
+	    return str.toString();
+  }
 }

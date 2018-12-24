@@ -9511,8 +9511,12 @@ public class FrameworkEngine {
                   params = GenericUtil.fromMapToJsonString2Recursive(m);
                   reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
                   break;
+                case	6:// yaml
+                	params = GenericUtil.fromMapToYamlString2Recursive(m, 0);
+                    reqPropMap.put("Content-Type", "application/yaml;charset=UTF-8");
+                  break;
               }
-            } else if (wsm.getParamSendTip() == 4) { //free
+            } else { //free
               String postUrl = (String) requestParams.get("post_url");
               if (!GenericUtil.isEmpty(postUrl)) url += postUrl;
             }
