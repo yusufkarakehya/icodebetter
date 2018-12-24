@@ -29,6 +29,7 @@ public class W5Ws  implements java.io.Serializable {
 	private	Map<String, Object> _map;
 	private int timeout;
 	private short wssTip;//0:none, 1:credentials, 2:token
+	private String wssCredentials;
 	private String wssPasswordType;
 	private String wssUserName;
 	private String wssPassWord;
@@ -221,6 +222,14 @@ public class W5Ws  implements java.io.Serializable {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+	
+	@Column(name="wss_credentials")
+	public String getWssCredentials() {
+		return wssCredentials;
+	}
+	public void setWssCredentials(String wssCredentials) {
+		this.wssCredentials = wssCredentials;
 	}
 	
 }

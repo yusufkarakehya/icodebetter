@@ -3597,7 +3597,9 @@ columns:[
 						buf.append(", template:function(ax){return ax.").append(qds).append("_qw_;}");// browser renderer ise
 					qwRendererFlag = true;
 				}
-			} else if (qds.length() > 5 && qds.endsWith("_flag")) {
+			} else if ((qds.length() > 5
+					&& qds.endsWith("_flag")) || (qds.length() > 3
+							&& qds.startsWith("is_"))) {
 				buf.append(", template:disabledCheckBoxHtml('").append(qds).append("')");// browser renderer ise
 				boolRendererFlag = true;
 			} else if (grid.get_queryFieldMapDsc().get(qds + "_qw_") != null) {

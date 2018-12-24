@@ -3207,7 +3207,9 @@ columns:[
 				buf.append(", renderer:strShortDate");// browser renderer ise
 			else if (qds.length() > 5 && qds.indexOf("_dttm") == qds.length() - 5){
 				buf.append(", renderer:strDateTime").append(FrameworkCache.getAppSettingIntValue(0, "fmt_date_time_ago_flag")!=0 ?"Ago":"");// browser renderer ise
-			} else if (qds.length() > 5 && qds.endsWith("_flag")) {
+			} else if ((qds.length() > 5
+					&& qds.endsWith("_flag")) || (qds.length() > 3
+							&& qds.startsWith("is_"))) {
 				buf.append(", formatter:disabledCheckBoxHtml");// browser renderer ise
 				boolRendererFlag = true;
 			} else if (grid.get_queryFieldMapDsc().get(qds + "_qw_") != null) {

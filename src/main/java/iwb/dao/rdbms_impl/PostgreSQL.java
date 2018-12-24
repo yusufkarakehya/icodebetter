@@ -46,6 +46,7 @@ import iwb.domain.db.Log5Notification;
 import iwb.domain.db.Log5QueryAction;
 import iwb.domain.db.M5List;
 import iwb.domain.db.W5Card;
+import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConversionCol;
 import iwb.domain.db.W5Customization;
@@ -1177,6 +1178,8 @@ public class PostgreSQL extends BaseDAO {
                               } catch (Exception e) {
                                 obj = "java.sql.Date";
                               }
+                            } else if (obj instanceof Boolean) {
+                            	obj = (Boolean) obj ? 1:0;
                             }
                           }
                           o[field.getTabOrder() - 1] = obj;
@@ -1831,17 +1834,20 @@ public class PostgreSQL extends BaseDAO {
 
                   for (W5FormCellHelper cellResult : formResult.getFormCellResults())
                     if (cellResult.getFormCell().getObjectDetailId() != 0) {
+                    	W5TableField tf = (W5TableField) cellResult.getFormCell().get_sourceObjectDetail(); 
                       Object obj =
                           rs.getObject(
-                              ((W5TableField) cellResult.getFormCell().get_sourceObjectDetail())
+                              (tf)
                                   .getDsc());
                       if (obj != null) {
-                        if (obj instanceof java.sql.Timestamp) {
+                        if (tf.getFieldTip()==5 && obj instanceof Boolean) {
+                        	obj = (Boolean)obj ? 1:0;
+                        } else if (tf.getFieldTip()==2 && obj instanceof java.sql.Timestamp) {
                           try {
                             obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
                           } catch (Exception e) {
                           }
-                        } else if (obj instanceof java.sql.Date) {
+                        } else if (tf.getFieldTip()==2 && obj instanceof java.sql.Date) {
                           try {
                             if (cellResult.getFormCell().getControlTip() == 18) { // date time
                               obj =
@@ -2128,10 +2134,10 @@ public class PostgreSQL extends BaseDAO {
     cr.setRequestParams(requestParams);
     cr.setScd(scd);
 
-    cr.setCard(FrameworkCache.getDataView(projectId, dataViewId));
+    cr.setCard(FrameworkCache.getCard(projectId, dataViewId));
     if (cr.getCard() == null) {
       loadCard(cr);
-      FrameworkCache.addDataView(projectId, cr.getCard());
+      FrameworkCache.addCard(projectId, cr.getCard());
     }
     // search Form
     if (!noSearchForm && cr.getCard().get_searchFormId() != 0) {
@@ -2147,46 +2153,46 @@ public class PostgreSQL extends BaseDAO {
 
   private void loadCard(W5CardResult dr) {
     String projectId = FrameworkCache.getProjectId(dr.getScd(), "930." + dr.getDataViewId());
-    W5Card d =
+    W5Card c =
         (W5Card)
             getCustomizedObject(
                 "from W5Card t where t.dataViewId=? and t.projectUuid=?",
                 dr.getDataViewId(),
                 projectId,
                 "DataView"); // ozel bir client icin varsa
-    dr.setCard(d);
+    dr.setCard(c);
 
-    if (!GenericUtil.isEmpty(d.getOrderQueryFieldIds()))
-        d.set_orderQueryFieldNames(
+    if (!GenericUtil.isEmpty(c.getOrderQueryFieldIds()))
+        c.set_orderQueryFieldNames(
             find(
                 "select qf.dsc from W5QueryField qf where qf.queryId=? and qf.projectUuid=? AND qf.queryFieldId in ("
-                    + d.getOrderQueryFieldIds()
+                    + c.getOrderQueryFieldIds()
                     + ") order by qf.tabOrder",
-                d.getQueryId(),
+                c.getQueryId(),
                 projectId));
     
     W5Query query = null;
-    query = getQueryResult(dr.getScd(), d.getQueryId()).getQuery();
+    query = getQueryResult(dr.getScd(), c.getQueryId()).getQuery();
 
     if (query == null) {
       query = new W5Query();
       List<W5QueryField> queryFields =
           find(
               "from W5QueryField t where t.queryId=? and t.projectUuid=? order by t.tabOrder",
-              d.getQueryId(),
+              c.getQueryId(),
               projectId);
-      d.set_query(query);
+      c.set_query(query);
       query.set_queryFields(queryFields); // dataReader icin gerekli
       query.setMainTableId(
           (Integer)
               find(
                       "select t.mainTableId from W5Query t where t.queryId=? and t.projectUuid=?",
-                      d.getQueryId(),
+                      c.getQueryId(),
                       projectId)
                   .get(0));
-    } else d.set_query(query);
+    } else c.set_query(query);
 
-    d.set_crudTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
+    c.set_crudTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
 
     Map<Integer, W5QueryField> fieldMap = new HashMap<Integer, W5QueryField>();
     Map<String, W5QueryField> fieldMapDsc = new HashMap<String, W5QueryField>();
@@ -2195,17 +2201,21 @@ public class PostgreSQL extends BaseDAO {
       fieldMapDsc.put(field.getDsc(), field);
     }
 
-    d.set_queryFieldMap(fieldMap);
+    c.set_queryFieldMap(fieldMap);
 
-    d.set_queryFieldMapDsc(fieldMapDsc);
-    d.set_pkQueryField(fieldMap.get(d.getPkQueryFieldId()));
+    c.set_queryFieldMapDsc(fieldMapDsc);
+    c.set_pkQueryField(fieldMap.get(c.getPkQueryFieldId()));
 
-    d.set_toolbarItemList(
+    c.set_toolbarItemList(
         find(
             "from W5ObjectToolbarItem t where t.objectTip=8 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-            d.getDataViewId(),
+            c.getDataViewId(),
             projectId));
-
+    c.set_menuItemList(
+            find(
+                "from W5ObjectMenuItem t where t.objectTip=8 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+                c.getDataViewId(),
+                projectId));
     Integer searchFormId =
         (Integer)
             getCustomizedObject(
@@ -2213,13 +2223,13 @@ public class PostgreSQL extends BaseDAO {
                 dr.getDataViewId(),
                 projectId,
                 null);
-    if (searchFormId != null) d.set_searchFormId(searchFormId);
-    if (d.getDefaultCrudFormId() != 0) {
+    if (searchFormId != null) c.set_searchFormId(searchFormId);
+    if (c.getDefaultCrudFormId() != 0) {
         W5Form defaultCrudForm =
             (W5Form)
                 getCustomizedObject(
                     "from W5Form t where t.formId=? and t.projectUuid=?",
-                    d.getDefaultCrudFormId(),
+                    c.getDefaultCrudFormId(),
                     projectId,
                     "Form"); // ozel bir client icin varsa
 
@@ -2231,18 +2241,18 @@ public class PostgreSQL extends BaseDAO {
                   projectId,
                   defaultCrudForm
                       .getObjectId()); // PromisCache.getTable(f.getScd(), f.getForm().getObjectId())
-          d.set_defaultCrudForm(defaultCrudForm);
+          c.set_defaultCrudForm(defaultCrudForm);
 
-		  d.set_crudFormSmsMailList(
+		  c.set_crudFormSmsMailList(
 		            find(
 		                "from W5FormSmsMail t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.formId=? AND t.projectUuid=? order by t.tabOrder",
-		                d.getDefaultCrudFormId(), projectId));
-		  d.set_crudFormConversionList(
+		                c.getDefaultCrudFormId(), projectId));
+		  c.set_crudFormConversionList(
 		            find(
 		                "from W5Conversion t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.srcFormId=? AND t.projectUuid=? order by t.tabOrder",
-		                d.getDefaultCrudFormId(), projectId));
+		                c.getDefaultCrudFormId(), projectId));
 		  
-		  organizeListPostProcessQueryFields(dr.getScd(), t, d);
+		  organizeListPostProcessQueryFields(dr.getScd(), t, c);
 
 		    
         }
@@ -3030,6 +3040,10 @@ public class PostgreSQL extends BaseDAO {
             usedFields.add(p1.getDsc());
             sql.append(p1.getDsc()).append(" = ? ");
             usedFields.add(p1.getDsc());
+            
+            Object[] oo = DBUtil.filterExt4SQL("select ("+p1.getDefaultValue() + ")", scd, new HashMap(), null);
+            List res = executeSQLQuery2(oo[0].toString(), (List)(oo.length>1 ? oo[1]:null));
+            updateParams.add(GenericUtil.isEmpty(res) ? null : res.get(0));
             break;
           case 2: // session
             Object psonuc =
@@ -3049,6 +3063,7 @@ public class PostgreSQL extends BaseDAO {
               } else b = true;
               usedFields.add(p1.getDsc());
               sql.append(p1.getDsc()).append(" = ? ");
+              updateParams.add(psonuc);
               usedFields.add(p1.getDsc());
             }
 
@@ -4769,7 +4784,7 @@ public class PostgreSQL extends BaseDAO {
     for (Object[] x :
         (List<Object[]>)
             executeSQLQuery(
-                "select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345)")) {
+                "select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345,3351)")) {
       List<Object> lo =
           executeSQLQuery(
               "select t."
@@ -10553,6 +10568,7 @@ public class PostgreSQL extends BaseDAO {
           "w5_exception_filter",
           "w5_xform_builder_detail",
           "w5_xform_builder",
+          "w5_component",
           "m5_menu",
           "w5_menu",
           "w5_template_object",
@@ -10579,12 +10595,28 @@ public class PostgreSQL extends BaseDAO {
           "w5_project_invitation",
           "w5_project_related_project"
         };
-    List params = new ArrayList();
-    params.add(delProjectId);
-    for (int qi = 0; qi < tables.length; qi++)
-      executeUpdateSQLQuery("delete from iwb." + tables[qi] + " where project_uuid=?", params);
-
-    executeUpdateSQLQuery(
-        "delete from iwb.w5_user_related_project where related_project_uuid=?", params);
-  }
+	    List params = new ArrayList();
+	    params.add(delProjectId);
+	    for (int qi = 0; qi < tables.length; qi++)
+	      executeUpdateSQLQuery("delete from iwb." + tables[qi] + " where project_uuid=?", params);
+	
+	    executeUpdateSQLQuery(
+	        "delete from iwb.w5_user_related_project where related_project_uuid=?", params);
+	}
+	
+	public W5Component loadComponent(Map<String, Object> scd, int componentId, Map paramMap) {
+		W5Component c = FrameworkCache.getComponent(scd, componentId);
+	    if (c == null) {
+	    	String projectId = FrameworkCache.getProjectId(scd, "3351." + componentId);
+	    	c =
+	            (W5Component)
+	                getCustomizedObject(
+	                    "from W5Component t where t.componentId=? and t.projectUuid=?",
+	                    componentId,
+	                    projectId,
+	                    "Component");
+	      FrameworkCache.addComponent(scd, c);
+	    }
+		return c;
+	}
 }

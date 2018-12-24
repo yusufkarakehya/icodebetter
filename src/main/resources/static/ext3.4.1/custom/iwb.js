@@ -8,33 +8,6 @@ function getLocMsg(key) {
   return val || key;
 }
 
-function promisManuelAjaxObject() {
-  // bu Fonksiyon kullanilmiyor. fakat ileride senkron islemler icin
-	// kullanilabilir.(27/12/2012 itibariyle de kur_cevir_sync de kullanılıyor)
-  var xmlhttp = null;
-  try {
-    xmlhttp = new XMLHttpRequest();
-  } catch (err1) {
-    var ieXmlHttpVersions = new Array();
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.7.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.6.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.5.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.4.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp.3.0";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "MSXML2.XMLHttp";
-    ieXmlHttpVersions[ieXmlHttpVersions.length] = "Microsoft.XMLHttp";
-    var i;
-    for (i = 0; i < ieXmlHttpVersions.length; i++)
-      try {
-        xmlhttp = new ActiveXObject(ieXmlHttpVersions[i]);
-        break;
-      } catch (err2) {
-        Ext.infoMsg.alert("error", ieXmlHttpVersions[i] + " not supported.");
-      }
-  }
-  return xmlhttp;
-}
-
 function objProp(o) {
   var t = "";
   for (var q in o)
@@ -1467,6 +1440,14 @@ function fnRightClick(grid, rowIndex, e) {
   grid.getSelectionModel().selectRow(rowIndex);
   var coords = e.getXY();
   grid.messageContextMenu.showAt([coords[0], coords[1]]);
+}
+
+
+function fnCardRightClick(card, rowIndex, node, e) {
+  e.stopEvent();
+  card.select(rowIndex,false);
+  var coords = e.getXY();
+  card.messageContextMenu.showAt([coords[0], coords[1]]);
 }
 
 function selections2string(selections, seperator) {
@@ -3230,9 +3211,12 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
     });
   }
-  if (mainGrid.menuButtons && mainGrid.gridId/* && !1*_app.toolbar_edit_btn */) {
+  if (mainGrid.menuButtons/*  && mainGrid.gridId && !1*_app.toolbar_edit_btn */) {
     mainGridPanel.messageContextMenu = mainGrid.menuButtons;
-    mainGridPanel.on("rowcontextmenu", fnRightClick);
+    if(mainGrid.gridId)
+    	mainGridPanel.on("rowcontextmenu", fnRightClick);
+    else
+    	mainGridPanel.on("contextmenu", fnCardRightClick);
   }
   // ---search form
   var searchFormPanel = null;
@@ -3559,8 +3543,21 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var detailPanel = new Ext.TabPanel(subTab);
   
   if(mainGrid.dataViewId){
-	  var xbuttons=[mainGrid._dscLabel||' ',' ','-'];
+	  var xbuttons=[];//[' ',' ','-'];
 	  xbuttons.push(organizeButtons(mainButtons));
+	  xbuttons.push({iconCls:'icon-maximize', tooltip:'Maximize',handler:function(){
+		  var sfx = Ext.getCmp('sfx-'+obj.t);
+		  if(sfx){
+			  if(sfx.isVisible()){
+				  sfx._leftPanelVis = iwb.leftPanel.isVisible();
+				  sfx.collapse();
+				  iwb.leftPanel.collapse();
+			  } else {
+				  sfx.expand();
+				  if(sfx._leftPanelVis)iwb.leftPanel.expand();
+			  }
+		  }
+	  }});
 	  var subToolbar = new Ext.Toolbar({xtype:'toolbar',cls:'iwb-card-sub-toolbar',items:xbuttons}); 
 	  detailPanel = {region:'center', layout:'border', border:false,tbar : subToolbar
 			  ,items:[{region:'north',height:50, html:'<div class="iwb-card-sub-header"><span id="idc-'+mainGrid.id+'"></span></div>'},detailPanel]};
@@ -3577,7 +3574,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	      }
 	  });
 	  var cardWidth = mainGrid.defaultWidth||350;
-	  mainGridPanel = {region:mainGrid.searchForm?'center':'west', cls:'icb-main-card',autoScroll:!0, store:mainGridPanel.store, split:!mainGrid.searchForm, border:false,width: cardWidth,items:mainGridPanel}
+	  mainGridPanel = {region:mainGrid.searchForm?'center':'west', cls:'icb-main-card',autoScroll:!0, store:mainGridPanel.store, split:!mainGrid.searchForm, collapseMode:'mini',animate: false, animCollapse: false, animFloat:false,border:false,width: cardWidth,items:mainGridPanel}
 	  if (mainGrid.pageSize) {
 	    // paging'li toolbar
 		  mainGridPanel.bbar = {
@@ -3617,7 +3614,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 			  }
 			  xmenus.push(o);
 		  }
-		  console.log('xmenus',xmenus);
+		  //console.log('xmenus',xmenus);
         new Ext.menu.Menu({cls:'sort-menu',
             enableScrolling: false,
             items: xmenus
@@ -3627,7 +3624,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	  if (mainGrid.crudFlags.insert) {
 		    var cfg = {
 		      id: "btn_add_" + mainGrid.id,
-		      tooltip: getLocMsg("js_new") + ' ' + (mainGrid._labelDsc || 'Record'),
+		      tooltip: getLocMsg("js_new") + ' ' + (mainGrid._dscLabel || 'Record'),
 		      cls: "x-btn-icon x-grid-new",
 		      ref: "../btnInsert",
 		      showModalWindowFlag: false,
@@ -3645,8 +3642,9 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		 // mainGridPanel.tbar = organizeButtons(mainButtons);
 	  }
 	  if(mainGrid.searchForm){
-		  mainGridPanel={border:false, layout:'border', store:mainGridPanel.store,region:'west', split:!0, width:mainGrid.defaultWidth||400,items:[mainGridPanel.store._formPanel, mainGridPanel]}
+		  mainGridPanel={border:false, layout:'border', store:mainGridPanel.store,region:'west', split:!0, animate: false, collapseMode:'mini',animCollapse: false, animFloat:false,width:mainGrid.defaultWidth||400,items:[mainGridPanel.store._formPanel, mainGridPanel]}
 	  }
+	  mainGridPanel.id='sfx-'+obj.t;
   }
   
   lastItems.push({
@@ -6994,6 +6992,14 @@ function vcsPull(xgrid, tid, tpk) {
 
 iwb.valsDiffData = false;
 iwb.showValsDiffinMonaco = function (qi) {
+	if(!window.monaco){
+		Ext.infoMsg.msg("info", "Loading Monaco", 2);
+		require.config({ paths: { vs: "/monaco/min/vs" } });
+		require(["/monaco/min/vs/editor/editor.main"], function() {
+//			iwb.showValsDiffinMonaco(qi);
+		});
+		return;
+	}
   var win = new Ext.Window({
     layout: 'fit',
     width: 900,
@@ -7004,6 +7010,7 @@ iwb.showValsDiffinMonaco = function (qi) {
     html: '<div id="idx-mnc2-' + _page_tab_id + '" style="height:770px"></div>',
     listeners: {
       'afterrender': function () {
+    	monaco.editor.setTheme(iwb.monacoTheme || "vs-dark");
         var originalModel = monaco.editor.createModel(iwb.valsDiffData[qi].local, "javascript");
         var modifiedModel = monaco.editor.createModel(iwb.valsDiffData[qi].remote, "javascript");
 
@@ -7030,19 +7037,28 @@ iwb.showValsDiffinMonaco = function (qi) {
   win.show();
 
 }
-iwb.fnTblRecVCSDiff = function (tid, tpk, a) {
+iwb.fnTblRecColumnVCSUpdate=function (tid, tpk, clmn) {
+	alert('todo: ' + tid + ' / ' + tpk  + ' / ' + clmn);
+	return false;
+}
+iwb.fnTblRecVCSDiff = function (tid, tpk, a, dsc) {
   promisRequest({
     url: 'ajaxVCSObjectConflicts', params: { k: tid + '.' + tpk }, requestWaitMsg: true, successCallback: function (j) {
       if (j.data) {
+    	  if(!j.data.length){
+    		  Ext.infoMsg.msg("info", "No difference between VCS Server and Local", 2);
+    		  return;
+    	  }
         iwb.valsDiffData = j.data;
-        var s = '<table width=100%><thead style="background:rgba(255,255,255,.2)"><tr><td width=10%>name</td><td width=45%>local</td><td width=45%>remote</td></tr></thead>';
+        var s = '<table width=100%><thead style="background:rgba(255,255,255,.2)"><tr><td width=10% style="padding: 5px;">field name</td><td width=45% style="padding: 5px;">local value</td><td width=45% style="padding: 5px;">remote value</td></tr></thead>';
         for (var qi = 0; qi < j.data.length; qi++)
-          if (j.data[qi].editor != 11) s += '<tr style="color: #ccc;"><td>' + j.data[qi].name + '</td><td>' + j.data[qi].local + '</td><td>' + j.data[qi].remote + '</td></tr>';
+          if (j.data[qi].editor != 11 && j.data[qi].editor != 41) s += '<tr style="color: #ccc;"><td>' + j.data[qi].name + '</td><td>' + j.data[qi].local 
+          	+ '<a title="Update Local" href=# style="float:right" onclick="return iwb.fnTblRecColumnVCSUpdate('+tid+','+tpk+',\''+j.data[qi].name+'\')"><div style="width: 20px;height: 20px;    background-position: center; transform: rotate(90deg);" class="icon-vcs-pull">&nbsp;</div></a></td><td>' + j.data[qi].remote + '</td></tr>';
           else s += '<tr style="color: #ccc;background:rgba(0,0,0,.2)"><td>' + j.data[qi].name + '</td><td align=center colspan=2><a href=# onclick="return iwb.showValsDiffinMonaco(' + qi + ')">show diff in editor</a></td></tr>';
         s += '</table>';
         var wndx = new Ext.Window({
           modal: true,closeAction: 'destroy',
-          title: 'Record Differences',
+          title: 'Record Differences'+ (dsc ? ' <span class="vcs-diff">' + unescape(dsc)+'</span>':''),
           width: 800,
           autoHeight: true,
           html: s,
@@ -7088,6 +7104,17 @@ function fncMnuVcs(xgrid) {
       }
     },
     "-",
+    {
+        text: "Show Diff",
+        _grid: xgrid,
+        handler: function(aq) {
+          var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
+          sel &&
+            sel.length > 0 &&
+            sel[0].data.pkpkpk_vcsf &&
+            iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id, 1, sel[0].data.dsc);;
+        }
+      },'-',
     /*
 	 * ,{text:'Synchronize Selected Record(Recursive)', _grid:xgrid,
 	 * handler:function(aq){ Ext.infoMsg.alert('TODO') }}
@@ -7145,18 +7172,7 @@ function fncMnuVcs(xgrid) {
               });
             });
         }
-      },
-      {
-          text: "Show Diff",
-          _grid: xgrid,
-          handler: function(aq) {
-            var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
-            sel &&
-              sel.length > 0 &&
-              sel[0].data.pkpkpk_vcsf &&
-              iwb.fnTblRecVCSDiff(aq._grid.crudTableId,sel[0].id);;
-          }
-        }
+      }
   ];
 }
 
@@ -8385,7 +8401,7 @@ iwb.isMonacoReady = function(e) {
   if (!e.editor) {
     Ext.infoMsg.msg(
       "error",
-      "Monaco Editor not Loaded yet!<br/>Good things take time",
+      "Monaco Editor still loading!<br/>Good things take time",
       5
     );
     return false;
@@ -8395,4 +8411,7 @@ iwb.isMonacoReady = function(e) {
 
 iwb.addCss=function(cssCode,id){
 	Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
+}
+iwb.loadComponent=function(id){
+//	Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
 }

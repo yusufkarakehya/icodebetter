@@ -884,7 +884,7 @@ public class SpaceServlet implements InitializingBean {
 		scd.put("locale", "en");
 		scd.put("path", "../");
 
-		W5PageResult pageResult = engine.getTemplateResult(scd, po.getUiLoginTemplateId()==0?1:po.getUiLoginTemplateId(), GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, po.getUiLoginTemplateId()==0?1:po.getUiLoginTemplateId(), GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -913,7 +913,7 @@ public class SpaceServlet implements InitializingBean {
 
 		W5Project po = FrameworkCache.getProject(scd);
 		
-		W5PageResult pageResult = engine.getTemplateResult(scd, po.getUiMainTemplateId(), GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, po.getUiMainTemplateId(), GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -929,7 +929,7 @@ public class SpaceServlet implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
 
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
 		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
 		// amele

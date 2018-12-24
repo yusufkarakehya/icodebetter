@@ -5,6 +5,7 @@
 
 a {
 	color: #007fcc;
+	text-decoration: none;
     cursor: pointer;
 }
 a:link {
@@ -20,7 +21,7 @@ a:visited {
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: none;
     color: #007fcc;
     cursor: pointer;
 }
@@ -247,9 +248,13 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 	background-size: 16px;
 }
 
+.icon-maximize {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='%23667' viewBox='0 0 32 32'%3E%3Cpath d='M24 9h-2v-7h-7v-2h9v9zm-9 15v-2h7v-7h2v9h-9zm-15-9h2v7h7v2h-9v-9zm9-15v2h-7v7h-2v-9h9z'/%3E%3C/svg%3E") !important;
+	background-position: 0 0 !important;
+}
 
 .x-grid-funnel .x-btn-text {
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='%23889' viewBox='0 0 32 32'%3E%3Cpath d='M19.479 2l-7.479 12.543v5.924l-1-.6v-5.324l-7.479-12.543h15.958zm3.521-2h-23l9 15.094v5.906l5 3v-8.906l9-15.094z'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='%23667' viewBox='0 0 32 32'%3E%3Cpath d='M19.479 2l-7.479 12.543v5.924l-1-.6v-5.324l-7.479-12.543h15.958zm3.521-2h-23l9 15.094v5.906l5 3v-8.906l9-15.094z'/%3E%3C/svg%3E");
 	background-position: 0 0;
 }
 
@@ -1199,4 +1204,35 @@ a.x-menu-item{
 }
 .panel-preview .card{
     background-color: #fafafa;
+}
+
+.panel-preview .source-link{
+	position: absolute;
+    bottom: 40px;
+    right: 40px;
+    background: #4ac39c;
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: none !important;
+    font-weight:bold;
+}
+.panel-preview .crud-form-link{
+	position: absolute;
+    right: 40px;
+    left: 40px;
+    background: #f19d25;
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: none !important;
+    font-weight:bold;
+}
+
+.x-layout-split-west .x-layout-mini, .x-layout-split-east .x-layout-mini{
+	background-image:none !important;
+}
+.ext-el-mask {
+    opacity: .20;
+}
+.vcs-diff{
+	color:#ff9797 !important;
 }

@@ -12,6 +12,7 @@ import java.util.Set;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.M5List;
 import iwb.domain.db.W5Card;
+import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5Form;
@@ -48,18 +49,14 @@ public class FrameworkCache {
 	final private static Map<String, Map<Integer, W5Grid>> wGrids = new HashMap<String, Map<Integer, W5Grid>>();
 	final private static Map<String, Map<Integer, W5List>> wListViews = new HashMap<String, Map<Integer, W5List>>();
 	final private static Map<String, Map<Integer, M5List>> mListViews = new HashMap<String, Map<Integer, M5List>>();
-	final private static Map<String, Map<Integer, W5Card>> wDataViews = new HashMap<String, Map<Integer, W5Card>>();
+	final private static Map<String, Map<Integer, W5Card>> wCards = new HashMap<String, Map<Integer, W5Card>>();
 	final private static Map<String, Map<Integer, W5Form>> wForms = new HashMap<String, Map<Integer, W5Form>>();
 	final private static Map<String, Map<Integer, W5GlobalFunc>> wGlobalFuncs = new HashMap<String, Map<Integer, W5GlobalFunc>>();
 	final private static Map<String, Map<Integer, W5Page>> wTemplates = new HashMap<String, Map<Integer, W5Page>>();
+	final private static Map<String, Map<Integer, W5Component>> wComponents = new HashMap<String, Map<Integer, W5Component>>();
 
 	final private static Map<String, Map<Integer, W5Table>> wTables = new HashMap<String, Map<Integer, W5Table>>();
-	final private static Map<String, Map<Integer, List<W5TableField>>> wTableFields = new HashMap<String, Map<Integer, List<W5TableField>>>();
-	final private static Map<String, Map<Integer, List<W5TableFieldCalculated>>> wTableFieldCalculateds = new HashMap<String, Map<Integer, List<W5TableFieldCalculated>>>();
-	final private static Map<String, Map<Integer, List<W5TableParam>>> wTableParams = new HashMap<String, Map<Integer, List<W5TableParam>>>();
 	final private static Map<String, Map<Integer, List<W5TableEvent>>> wTableEvents = new HashMap<String, Map<Integer,List<W5TableEvent>>>();	
-	final private static Map<String, Map<Integer, List<W5TableChild>>> wTableChilds = new HashMap<String, Map<Integer,List<W5TableChild>>>();	
-	final private static Map<String, Map<Integer, List<W5TableChild>>> wTableParents = new HashMap<String, Map<Integer,List<W5TableChild>>>();	
 /*	final private static Map<String, Map<Integer, Integer>> wTableFieldMap = new HashMap<String, Map<Integer, Integer>>();
 	final private static Map<String, List<W5TableParam>> tableParamListMap = new HashMap<String, List<W5TableParam>>();
 	final private static Map<String, List<W5TableChild>> tableChildListMap = new HashMap<String, List<W5TableChild>>();//copy
@@ -120,7 +117,7 @@ public class FrameworkCache {
 		wq = wForms.get(projectId); if(wq!=null)wq.clear();
 		wq = wGlobalFuncs.get(projectId); if(wq!=null)wq.clear();
 		wq = wTemplates.get(projectId); if(wq!=null)wq.clear();
-		wq = wDataViews.get(projectId); if(wq!=null)wq.clear();
+		wq = wCards.get(projectId); if(wq!=null)wq.clear();
 		wq = wListViews.get(projectId); if(wq!=null)wq.clear();
 		wq = mListViews.get(projectId); if(wq!=null)wq.clear();
 		wq = wConversions.get(projectId); if(wq!=null)wq.clear();
@@ -172,22 +169,41 @@ public class FrameworkCache {
 		return map.get(tableId);
 	}
 	
-	public static W5Card getDataView(Object o, int dataViewId) {
+	public static W5Card getCard(Object o, int dataViewId) {
 		String projectId = getProjectId(o, "930."+dataViewId);
-		if(!wDataViews.containsKey(projectId)){
-			wDataViews.put(projectId, new HashMap());
+		if(!wCards.containsKey(projectId)){
+			wCards.put(projectId, new HashMap());
 			return null;
 		} else
-			return wDataViews.get(projectId).get(dataViewId);
+			return wCards.get(projectId).get(dataViewId);
 	}
-	public static void addDataView(Object o, W5Card d){
+	public static void addCard(Object o, W5Card d){
 		int dataViewId = d.getDataViewId();
 		String projectId = getProjectId(o, "930."+dataViewId);
 		//addX((Map)wDataViews, projectId, dataViewId, d);
-		if(wDataViews.get(projectId)==null){
-			wDataViews.put(projectId, new HashMap());
+		if(wCards.get(projectId)==null){
+			wCards.put(projectId, new HashMap());
 		}
-		wDataViews.get(projectId).put(dataViewId, d);
+		wCards.get(projectId).put(dataViewId, d);
+	}
+
+
+	public static W5Component getComponent(Object o, int componentId) {
+		String projectId = getProjectId(o, "3351."+componentId);
+		if(!wComponents.containsKey(projectId)){
+			wComponents.put(projectId, new HashMap());
+			return null;
+		} else
+			return wComponents.get(projectId).get(componentId);
+	}
+	public static void addComponent(Object o, W5Component d){
+		int componentId = d.getComponentId();
+		String projectId = getProjectId(o, "3351."+componentId);
+		//addX((Map)wDataViews, projectId, dataViewId, d);
+		if(wComponents.get(projectId)==null){
+			wComponents.put(projectId, new HashMap());
+		}
+		wComponents.get(projectId).put(componentId, d);
 	}
 
 	public static W5Workflow getWorkflow(Object o, int approvalId) {

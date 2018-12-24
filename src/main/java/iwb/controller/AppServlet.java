@@ -1351,7 +1351,7 @@ public class AppServlet implements InitializingBean {
 			}
 		}
 
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1374,7 +1374,7 @@ public class AppServlet implements InitializingBean {
 
 		int templateId = 7; // Page Template
 
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1425,7 +1425,7 @@ public class AppServlet implements InitializingBean {
 		
 																		// Page
 																		// Template
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1438,7 +1438,7 @@ public class AppServlet implements InitializingBean {
 		
 		Map<String, Object> scd = new HashMap();
 		scd.put("customizationId", 0);scd.put("userId", 0);scd.put("locale", "en");
-		W5PageResult pageResult = engine.getTemplateResult(scd, 2453, new HashMap());
+		W5PageResult pageResult = engine.getPageResult(scd, 2453, new HashMap());
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1454,7 +1454,7 @@ public class AppServlet implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
-		W5PageResult pageResult = engine.getTemplateResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
 		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
 		// amele
