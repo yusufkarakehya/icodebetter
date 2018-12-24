@@ -1609,6 +1609,16 @@ class XLazyScriptLoader extends React.PureComponent {
         return React.createElement(React.Fragment, {},(this.state.loading)?this.props.loading:this.props.children)
     }
 }
+ // Set default props
+ XLazyScriptLoader.defaultProps = {
+   loading: "LOADING....",
+ };
+ XLazyScriptLoader.propTypes = {
+   loading: PropTypes.oneOfType([
+     PropTypes.func,
+     PropTypes.string,
+   ])
+ };
 class XFormSMSEmailTemplateList extends React.PureComponent {
   constructor(props) {
     super(props);
