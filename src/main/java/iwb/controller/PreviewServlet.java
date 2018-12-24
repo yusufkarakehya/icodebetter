@@ -1563,5 +1563,37 @@ public class PreviewServlet implements InitializingBean {
 		response.getWriter().close();
 	}
 	
+
+	@RequestMapping("/*/comp/*")
+	public void hndComponent(
+			HttpServletRequest request,
+			HttpServletResponse response) throws IOException{
+		logger.info("hndJasperReport"); 
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+    	String uri = request.getRequestURI();
+    	if(uri.endsWith(".css")){
+    		uri = uri.substring(uri.lastIndexOf('/')+1);
+    		uri = uri.substring(0, uri.length()-4);
+        	String css = FrameworkCache.getComponentCss(scd, GenericUtil.uInt(uri));
+    		response.setContentType("text/css; charset=UTF-8");
+        	if(css!=null){
+        		response.getWriter().write(css);
+        	} else {
+        		
+        	}
+    	} else if(uri.endsWith(".js")){
+    		uri = uri.substring(uri.lastIndexOf('/')+1);
+    		uri = uri.substring(0, uri.length()-3);
+        	String js = FrameworkCache.getComponentJs(scd, GenericUtil.uInt(uri));
+    		response.setContentType("text/javascript; charset=UTF-8");
+        	if(js!=null){
+        		response.getWriter().write(js);
+        	} else {
+        		
+        	}
+    	}
+
+		response.getWriter().close();
+	}	
 	
 }

@@ -200,7 +200,10 @@ var iwb = {
   },
   loadable : (loaderFunction) => 
     class AsyncComponent extends React.Component {
-        state = { ResultComponent: null, error: false, errorText:''};
+    	constructor(props){
+            super(props);
+            state = { ResultComponent: null, error: false, errorText:''};
+          }
         componentWillMount() {
           loaderFunction
             .then(result => this.setState({ ResultComponent: result.default || result})) // "es6" default export

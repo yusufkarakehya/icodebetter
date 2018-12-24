@@ -4069,8 +4069,8 @@ columns:[
 			if (page.getTemplateTip() != 8) { // wizard degilse
 				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
 					W5Component c = (W5Component)i;
-					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(a=>iwb.import('/comp/").append(c.getComponentId()).append(".js?.x='));");
-					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addPageCss('/comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");");
+					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(()=>iwb.import('comp/").append(c.getComponentId()).append(".js?.x='));");
+					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addPageCss('comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");");
 				}
 			}
 
