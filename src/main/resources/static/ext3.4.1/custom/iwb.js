@@ -3197,7 +3197,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		if(mainGrid.tpl && mainGrid.tpl.indexOf('<tpl')==-1)mainGrid.tpl='<tpl for=".">'+mainGrid.tpl+'</tpl>';
 		mainGridPanel=new Ext.DataView(Ext.apply({emptyText: '<br>&nbsp; No Data',
 		    singleSelect:!0, loadMask:!0, cls:'iwb-card-'+mainGrid.dataViewId,
-		    itemSelector: 'div.card'
+		    itemSelector: 'div.card',autoScroll:false
 		}, mainGrid));
 		mainGrid._gp=mainGridPanel;
 	}
