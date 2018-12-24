@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -9069,9 +9070,67 @@ public class FrameworkEngine {
       }
     return wsmoMap;
   }
+  private List recursiveParams2List(Map scd, int paramId, Object reqL, List<W5WsMethodParam> params, Map<String, String> errorMap) {
+	  List l = new ArrayList();
+	  if(GenericUtil.isEmpty(reqL))return l;
+	  List requestList = null;
+	  if(reqL instanceof List)requestList=(List)reqL;
+	  else if(reqL instanceof NativeArray)try{//TODO
+		  requestList = GenericUtil.fromNativeArrayToList((NativeArray)reqL);
+	  }catch(Exception ee){return null;}
+	  else if(reqL instanceof JSONArray)try{//TODO
+		  requestList = GenericUtil.fromJSONArrayToList((JSONArray)reqL);
+	  }catch(Exception ee){return null;}
+	  else return l;
+	  for(Object reqO:requestList){
+		  l.add(recursiveParams2Map(scd, paramId,  reqO, params, errorMap, new HashMap()));
+	  }
+	  return l;
+  }
 
-  private void recursiveParams4Hash(int paramId, Map m, Map rp, Map scd, List<W5WsMethodParam> params) {
+  private Map recursiveParams2Map(Map scd, int paramId, Object reqP, List<W5WsMethodParam> params, Map<String, String> errorMap, Map<String, String> reqPropMap) {
+	  Map m = new HashMap();
+	  if(GenericUtil.isEmpty(params))return m;
+	  Map requestParams = null;
+	  if(reqP instanceof Map)requestParams=(Map)reqP;
+	  else if(reqP instanceof NativeObject)try{//TODO
+		  requestParams = GenericUtil.fromNativeObjectToMap((NativeObject)reqP);
+	  }catch(Exception ee){return null;}
+	  else if(reqP instanceof JSONObject)try{//TODO
+		  requestParams = GenericUtil.fromJSONObjectToMap((JSONObject)reqP);
+	  }catch(Exception ee){return null;}
+	  else requestParams = new HashMap();
+
+	  for(W5WsMethodParam p:params)if(p.getOutFlag()==0 && p.getParentWsMethodParamId()==paramId){
+          	if(p.getParamTip()==9 || p.getParamTip()==8) { //object/json
+          		m.put(p.getDsc(), recursiveParams2Map(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap, reqPropMap));
+          	} else if(p.getParamTip()==10) {//array
+          		m.put(p.getDsc(), recursiveParams2List(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap));          		
+          	} else {
+              Object o =
+                  GenericUtil.prepareParam(
+                      (W5Param) p,
+                      scd,
+                      requestParams,
+                      p.getSourceTip(),
+                      null,
+                      p.getNotNullFlag(),
+                      null,
+                      null,
+                      errorMap,
+                      dao);
+              if (o != null && o.toString().length() > 0) {
+            	  if(p.getCredentialsFlag()!=0)
+            		  reqPropMap.put(p.getDsc(), o.toString());
+            	  else {
+            		  m.put(p.getDsc(), o);
+            	  }
+              }
+          	}
+          }
+		  
 	  
+	  return m;
   }
   
   public Map REST(Map<String, Object> scd, String name, Map requestParams) throws IOException {
@@ -9198,42 +9257,7 @@ public class FrameworkEngine {
           }
           if (!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip() > 0) {
             if (wsm.getParamSendTip() != 4) {
-              for (W5WsMethodParam p : wsm.get_params())
-                if (p.getOutFlag() == 0 && p.getParentWsMethodParamId() == 0) {// && p.getParentWsMethodParamId() == 0
-                	if(p.getParamTip()==9 || p.getParamTip()==8) { //object/json
-                		Map subMap = new HashMap();
-                		m.put(p.getDsc(), subMap);
-                		if(p.getSourceTip()==0) { //constant
-                			
-                		}
-                		requestParams.get(p.getDsc());
-                		
-                	} else if(p.getParamTip()==10) {//array
-                		List subList= new ArrayList();
-                		m.put(p.getDsc(), subList);
-                		
-                	} else {
-		                  Object o =
-		                      GenericUtil.prepareParam(
-		                          (W5Param) p,
-		                          scd,
-		                          requestParams,
-		                          p.getSourceTip(),
-		                          null,
-		                          p.getNotNullFlag(),
-		                          null,
-		                          null,
-		                          errorMap,
-		                          dao);
-		                  if (o != null && o.toString().length() > 0) {
-		                	  if(p.getCredentialsFlag()!=0)
-		                		  reqPropMap.put(p.getDsc(), o.toString());
-		                	  else {
-		                		  m.put(p.getDsc(), o);
-		                	  }
-		                  }
-                	}
-                }
+              m = recursiveParams2Map(scd, 0, requestParams, wsm.get_params(), errorMap, reqPropMap);
               if (!errorMap.isEmpty()) {
                 throw new IWBException(
                     "validation",

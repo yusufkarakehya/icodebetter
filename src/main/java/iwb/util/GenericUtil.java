@@ -2459,6 +2459,60 @@ public class GenericUtil {
     return no;
   }
 
+
+      public static Map fromNativeObjectToMap(NativeObject o) throws JSONException {
+        if (o == null) return null;
+        Map no = new HashMap();
+        for (Object id:o.getIds()) {
+          String key = id.toString();
+          Object val = o.get(key, null);
+          if (val == null) {
+            no.put(key, null);
+            continue;
+          }
+          if (val instanceof NativeJavaObject) {
+              val = ((NativeJavaObject) val).unwrap();
+          }
+          
+          if (val instanceof NativeObject) {
+            no.put(key, fromNativeObjectToMap((NativeObject) val));
+          } else if (val instanceof NativeArray) {
+            no.put(key, fromNativeArrayToList((NativeArray) val));
+          }  else if (val instanceof Integer
+                  || val instanceof Double
+                  || val instanceof BigDecimal
+                  || val instanceof Boolean) no.put(key, val);
+          else no.put(key, val.toString());
+        }
+        return no;
+      }
+      
+
+      public static List fromNativeArrayToList(NativeArray o) throws JSONException {
+        if (o == null) return null;
+        List no = new ArrayList();
+        for (int qi=0;qi<o.getLength();qi++) {
+          Object val = o.get(qi, null);
+          if (val == null) {
+            no.add(null);
+            continue;
+          } 
+          if (val instanceof NativeJavaObject) {
+              val = ((NativeJavaObject) val).unwrap();
+          }          
+          if (val instanceof NativeObject) {
+        	  no.add(fromNativeObjectToMap((NativeObject) val));
+          } else if (val instanceof NativeArray) {
+        	  no.add(fromNativeArrayToList((NativeArray) val));
+          } else if (val instanceof Integer
+                  || val instanceof Double
+                  || val instanceof BigDecimal
+                  || val instanceof Boolean) no.add(val);
+          else no.add(val.toString());
+        }
+        return no;
+      }
+
   public static List fromJSONArrayToList(JSONArray o) throws JSONException {
     // return null;
     if (o == null) return null;
