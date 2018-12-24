@@ -1317,16 +1317,16 @@ public class AppServlet implements InitializingBean {
 			}
 			session.removeAttribute("scd-dev");
 		}
-		int cust_id = FrameworkCache.getAppSettingIntValue(0, "default_customization_id");
+		int cusId = FrameworkCache.getAppSettingIntValue(0, "default_customization_id");
 
 		String subDomain = GenericUtil.getSubdomainName(request);
 		logger.info("subDomain : " + subDomain);
 		if (!subDomain.equals(""))
-			cust_id = engine.getSubDomain2CustomizationId(subDomain);
+			cusId = engine.getSubDomain2CustomizationId(subDomain);
 
 		Map<String, Object> scd = new HashMap();
 		scd.put("userId", 1);
-		scd.put("customizationId", cust_id);
+		scd.put("customizationId", cusId);
 		scd.put("path", "");
 		Locale blocale = request.getLocale();
 		scd.put("locale", "en");
