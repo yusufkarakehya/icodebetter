@@ -2583,6 +2583,18 @@ public class GenericUtil {
     return o;
   }
 
+  public static Object rhinoValue2(Object o) {
+    if (o == null) return null;
+    if (o instanceof NativeJavaObject) {
+      o = ((NativeJavaObject) o).unwrap();
+    } else if (o instanceof NativeArray) {
+        return fromNativeArrayToList((NativeArray)o);
+    } else if (o instanceof NativeObject) {
+        return fromNativeObjectToMap((NativeObject)o);
+    } else if (o.toString().length() == 0) return null;
+    return o;
+  }
+
   @SuppressWarnings("unchecked")
   public static String fromNativeArrayToJsonString2Recursive(NativeArray s) {
     if (s == null || s.getLength() == 0) return "[]";
@@ -2831,7 +2843,7 @@ public class GenericUtil {
 
 	      if (o == null) html.append("");
 	      else if (o instanceof Map)
-	        html.append(fromMapToYamlString2Recursive((Map<String, Object>) o, level + 1));
+	        html.append(fromMapToYamlString2Recursive((Map<String, Object>) o, level));
 	      else if (o instanceof List) {
 	        html.append(fromListToYamlString2Recursive((List<Object>) o, level + 1));
 	      } else if (o instanceof Object[]) {

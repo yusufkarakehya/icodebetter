@@ -110,25 +110,31 @@ public class ScriptEngine {
       rp.put(".w", requestParams.get(".w"));
     return rp;
   }
-
-  private Map<String, Object> fromNativeObject2Map2(
-      NativeObject jsRequestParams, boolean forceInt) {
-    Map<String, Object> rp = new HashMap<String, Object>();
-    if (jsRequestParams != null) {
-      Object[] ids = jsRequestParams.getAllIds();
-      if (ids != null)
-        for (int qi = 0; qi < ids.length; qi++) {
-          Object o = GenericUtil.rhinoValue(jsRequestParams.get(ids[qi].toString(), null));
-          if (o != null) {
-            String res = o.toString();
-            if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
-              rp.put(ids[qi].toString(), GenericUtil.uInt(res.substring(0, res.length() - 2)));
-            else rp.put(ids[qi].toString(), o);
-          }
-        }
-    }
-    return rp;
-  }
+  private Map<String, Object> fromNativeObject2Map2(NativeObject jsRequestParams) {
+	    Map<String, Object> rp = new HashMap<String, Object>();
+	    if (jsRequestParams != null) {
+	      Object[] ids = jsRequestParams.getAllIds();
+	      if (ids != null)
+	        for (int qi = 0; qi < ids.length; qi++) {
+	          Object o = GenericUtil.rhinoValue2(jsRequestParams.get(ids[qi].toString(), null));
+	          if (o != null) {
+	            String res = o.toString();
+	            if(res.length()>0)switch(res.charAt(0)) {
+	            case	'{':case	'[':
+	                rp.put(ids[qi].toString(), o);
+	            	break;
+	        	default:
+	                if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
+	                    res = res.substring(0, res.length() - 2);
+	                  rp.put(ids[qi].toString(), res);
+	            }
+	          }
+	        }
+	    }
+	    if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
+	      rp.put(".w", requestParams.get(".w"));
+	    return rp;
+	  }
 
   public Object[] runQuery(int queryId, NativeObject jsRequestParams) {
     List l = dao.runQuery2Map(scd, queryId, fromNativeObject2Map(jsRequestParams));
@@ -458,7 +464,7 @@ public class ScriptEngine {
     Map result = new HashMap();
     result.put("success", true);
     try {
-      Map m = engine.REST(scd, serviceName, fromNativeObject2Map(jsRequestParams));
+      Map m = engine.REST(scd, serviceName, fromNativeObject2Map2(jsRequestParams));
       if (m != null) {
         if (m.containsKey("errorMsg")) {
           if (throwFlag)
