@@ -2793,11 +2793,11 @@ public class GenericUtil {
 	        html.append("\"").append(q).append(": ").append(((JSONArray) o).toString());
 	      else */if (o instanceof Map)
 	        html.append(q)
-	            .append(": ")
+	            .append(":\n")
 	            .append(fromMapToYamlString2Recursive((Map<String, Object>) o, level +1));
 	      else if (o instanceof List) {
 	        html.append(q)
-	            .append(": ")
+	            .append(":\n")
 	            .append(fromListToYamlString2Recursive((List<Object>) o, level +1));
 	      } else if (o instanceof Integer
 	          || o instanceof Double
@@ -2815,14 +2815,14 @@ public class GenericUtil {
 	            .append(": ")
 	            .append(fromNativeArrayToJsonString2Recursive((NativeArray) o));
 	      } else*/
-	        html.append(q).append(": ").append(stringToJS2(o.toString())).append("\"");
+	        html.append(q).append(": ").append(stringToJS2(o.toString()));
 	    }
 	    return html.toString();
 	 
   }
 
   private static Object fromListToYamlString2Recursive(List<Object> s,int level){
-	  if (s == null || s.isEmpty()) return "";
+	  if (isEmpty(s)) return "";
 	    StringBuilder str = new StringBuilder();
 	    boolean b = false;
 	    for (Object o : s) {
