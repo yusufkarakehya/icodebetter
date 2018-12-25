@@ -115,7 +115,7 @@ public class ScriptEngine {
 	    if (jsRequestParams != null) {
 	      Object[] ids = jsRequestParams.getAllIds();
 	      if (ids != null)
-	        for (int qi = 0; qi < ids.length; qi++) {
+	        for (int qi = 0; qi < ids.length; qi++) try{
 	          Object o = GenericUtil.rhinoValue2(jsRequestParams.get(ids[qi].toString(), null));
 	          if (o != null) {
 	            String res = o.toString();
@@ -129,7 +129,7 @@ public class ScriptEngine {
 	                  rp.put(ids[qi].toString(), res);
 	            }
 	          }
-	        }
+	        } catch(Exception eq){}
 	    }
 	    if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
 	      rp.put(".w", requestParams.get(".w"));

@@ -2583,7 +2583,7 @@ public class GenericUtil {
     return o;
   }
 
-  public static Object rhinoValue2(Object o) {
+  public static Object rhinoValue2(Object o) throws JSONException {
     if (o == null) return null;
     if (o instanceof NativeJavaObject) {
       o = ((NativeJavaObject) o).unwrap();
