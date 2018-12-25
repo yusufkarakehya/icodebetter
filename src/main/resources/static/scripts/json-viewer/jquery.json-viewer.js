@@ -25,7 +25,7 @@
    * Transform a json object into html representation
    * @return string
    */
-  function json2html(json, options) {
+  function json2html(json, options, level) {
     var html = '';
     if (typeof json === 'string') {
       /* Escape tags */
@@ -33,7 +33,7 @@
       if (isUrl(json))
         html += '<a href="' + json + '" class="json-string">' + json + '</a>';
       else
-        html += '<span class="json-string">"' + json + '"</span>';
+        html += '<span class="json-string">' + json + '</span>';
     }
     else if (typeof json === 'number') {
       html += '<span class="json-literal">' + json + '</span>';
@@ -51,9 +51,9 @@
           html += '<li>';
           /* Add toggle button if item is collapsable */
           if (isCollapsable(json[i])) {
-            html += '<a href class="json-toggle"></a>';
+            html += '<a href class="json-toggle json-level-'+level+'"></a>';
           }
-          html += json2html(json[i], options);
+          html += json2html(json[i], options, level+1);
           /* Add comma if item is not last */
           if (i < json.length - 1) {
     //        html += ',';
@@ -77,12 +77,12 @@
               '<span class="json-string">"' + key + '"</span>' : key;
             /* Add toggle button if item is collapsable */
             if (isCollapsable(json[key])) {
-              html += '<a href class="json-toggle">' + keyRepr + '</a>';
+              html += '<a href class="json-toggle json-level-'+level+'">' + keyRepr + '</a>';
             }
             else {
               html += keyRepr;
             }
-            html += ': ' + json2html(json[key], options);
+            html += ': ' + json2html(json[key], options, level+1);
             /* Add comma if item is not last */
             if (--key_count > 0){
 //              html += ',';
@@ -111,9 +111,8 @@
     return this.each(function() {
 
       /* Transform to HTML */
-      var html = json2html(json, options);
-      if (isCollapsable(json))
-        html = '<a href class="json-toggle"></a>' + html;
+      var html = json2html(json, options, 0);
+//      if (isCollapsable(json))html = '<a href class="json-toggle"></a>' + html;
 
       /* Insert HTML in target DOM element */
       $(this).html(html);
@@ -140,7 +139,10 @@
         return false;
       });
 
-      if (options.collapsed == true) {
+      if (options.collapsedLevel) {
+    	  $(this).find('a.json-toggle.json-level-'+options.collapsedLevel).click();
+    	  
+      } else if (options.collapsed == true) {
         /* Trigger click to collapse all nodes */
         $(this).find('a.json-toggle').click();
       }
