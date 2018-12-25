@@ -56,7 +56,7 @@
           html += json2html(json[i], options);
           /* Add comma if item is not last */
           if (i < json.length - 1) {
-            html += ',';
+    //        html += ',';
           }
           html += '</li>';
         }
@@ -69,7 +69,7 @@
     else if (typeof json === 'object') {
       var key_count = Object.keys(json).length;
       if (key_count > 0) {
-        html += '{<ul class="json-dict">';
+        html += '<ul class="json-dict">';
         for (var key in json) {
           if (json.hasOwnProperty(key)) {
             html += '<li>';
@@ -84,12 +84,13 @@
             }
             html += ': ' + json2html(json[key], options);
             /* Add comma if item is not last */
-            if (--key_count > 0)
-              html += ',';
+            if (--key_count > 0){
+//              html += ',';
+            }
             html += '</li>';
           }
         }
-        html += '</ul>}';
+        html += '</ul>';//'</ul>}';
       }
       else {
         html += '{}';
