@@ -9246,7 +9246,7 @@ public class FrameworkEngine {
           if (wsm.getHeaderAcceptTip() != null) {
               reqPropMap.put(
                   "Accept",
-                  new String[] {"application/json", "application/xml"}[wsm.getHeaderAcceptTip() - 1]);
+                  new String[] {"text/plain","application/json", "application/xml"}[wsm.getHeaderAcceptTip()]);
             }
           if(ws.getWssTip()==1 && !GenericUtil.isEmpty(ws.getWssCredentials())) { //credentials
         	  String[] lines = ws.getWssCredentials().split("\n");
@@ -9291,17 +9291,17 @@ public class FrameworkEngine {
                     reqPropMap.put("Content-Type", "application/yaml;charset=UTF-8");
                   break;
               }
-            } else { //free
-              String postUrl = (String) requestParams.get("post_url");
-              if (!GenericUtil.isEmpty(postUrl)) url += postUrl;
             }
           }
           if(wsm.getParamSendTip()==5) { //raw
           	params = (String)m.get("body");
           	m.clear();
-          }
+          } else if(wsm.getParamSendTip()==4) {  //free
+              String postUrl = (String) requestParams.get("post_url");
+              if (!GenericUtil.isEmpty(postUrl)) url += postUrl;
+            }
 
-       
+
           Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params);
           String x =
               HttpUtil.send(
@@ -9310,7 +9310,7 @@ public class FrameworkEngine {
                   new String[] {"GET", "POST", "PUT", "PATCH", "DELETE"}[wsm.getCallMethodTip()],
                   reqPropMap);
           if (!GenericUtil.isEmpty(x))
-            try {
+            try {//System.out.println(x);
               log.setResponse(x);
               String xx = x.trim();
               if (xx.length() > 0)
@@ -9324,6 +9324,7 @@ public class FrameworkEngine {
                     result.put("data", GenericUtil.fromJSONArrayToList(ja));
                     break;
                   default:
+                    if(x.indexOf('\r')>-1)x=x.replace('\r', '\n');
                     result.put("data", x);
                 }
               if (GenericUtil.uInt(requestParams.get("_iwb_cfg")) != 0) {
