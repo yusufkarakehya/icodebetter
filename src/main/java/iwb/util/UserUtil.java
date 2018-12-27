@@ -666,6 +666,7 @@ public class UserUtil {
 			String sessionId, String webPageId, String tabId){
 		if(userId==0 ||  webPageId==null || tabId==null)return null;
 		CachedUserBean3 cub = getCachedUserBean(userId);
+		if(cub==null)return null;
 		
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null)return null;

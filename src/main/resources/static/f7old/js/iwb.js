@@ -581,9 +581,11 @@ iwb.autoCompleteJson={
     }
 }
 
-iwb.autoCompleteJson4Autocomplete=function(prt, cmb, fnc){
-	var params = fnc($$(prt).val());
-	if(params)iwb.loadCombo(cmb, params);
+iwb.autoCompleteJson4Autocomplete=function(prtInitVal, cmb, fnc){
+	if(prtInitVal){
+		var params = fnc(prtInitVal);
+		if(params)iwb.loadCombo(cmb, params);
+	}
 	
 	return {
 	    openIn: 'page', //open in page
@@ -630,14 +632,15 @@ iwb.autoCompleteJson4Autocomplete=function(prt, cmb, fnc){
 	        // Add item text value to item-after
 	        this.opener.find('.item-after').text(itemText.join(', '));
 	        // Add item value to input value
-	        this.opener.find('input').val(inputValue.join(','));
+	        var val = inputValue.join(',');
+	        this.opener.find('input').val(val);
 	        
 	        
-	        var params = fnc($$(prt).val());
+	        var params = fnc(val);
 			if(params)iwb.loadCombo(cmb, params);
 			else {
 				$$(cmb).find('option').remove();//temizle once
-				if(true || params===false)$$(cmb.replace('idx-','id-')).hide();
+				if(true || params===false)$$(cmb).hide();
 			}
 	    }
 	}
