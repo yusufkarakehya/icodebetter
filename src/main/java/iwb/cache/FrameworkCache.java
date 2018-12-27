@@ -123,6 +123,8 @@ public class FrameworkCache {
 		wq = wListViews.get(projectId); if(wq!=null)wq.clear();
 		wq = mListViews.get(projectId); if(wq!=null)wq.clear();
 		wq = wConversions.get(projectId); if(wq!=null)wq.clear();
+		wq = wComponents.get(projectId); if(wq!=null)wq.clear();
+		
 	}
 
 	

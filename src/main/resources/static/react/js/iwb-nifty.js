@@ -164,10 +164,14 @@ var iwb = {
    * @param {string} url - example '/comp/2/js'
    */
   import: async (url) => {
+    var loc = document.location.href;
+    var xloc = loc.split('main.htm');
+    xloc[xloc.length-1]=url;
+    loc = xloc.join('');
     if (Object.keys(iwb.components).indexOf(url) > 0) {
       return iwb.components[url];
     }
-    var imported = await import(url);
+    var imported = await import(loc);
     iwb.components = { ...iwb.components,
       [url]: imported
     };

@@ -32,7 +32,7 @@ public class W5Component implements java.io.Serializable, W5Base{
 	private	String jsCode;	
 
 	
-	
+	@Id
 	@Column(name="component_id")
 	public int getComponentId() {
 		return componentId;
