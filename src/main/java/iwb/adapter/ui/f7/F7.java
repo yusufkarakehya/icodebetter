@@ -1350,25 +1350,31 @@ public class F7 implements ViewMobileAdapter2 {
 					jsCode.append("iwb.app.autocomplete(iwb.apply({multiple:").append(fc.getFormCell().getControlTip()==61).append(", opener: $$('#idx-formcell-").append(fc.getFormCell().getFormCellId()).append("'), params:'_qid=").append(fc.getFormCell().getLookupQueryId());
 					if (fc.getFormCell().getLookupIncludedParams() != null && fc.getFormCell().getLookupIncludedParams().length() > 2)
 						jsCode.append("&").append(fc.getFormCell().getLookupIncludedParams());
+					jsCode.append("'}, ");
+					boolean dependantCombo=false;
 					for (W5FormCellHelper cfc : formResult.getFormCellResults()) {
 						if (cfc.getFormCell().getParentFormCellId() == fc.getFormCell().getFormCellId()) {
 							if(!GenericUtil.isEmpty(cfc.getFormCell().getLookupIncludedParams()))
 								switch(cfc.getFormCell().getControlTip()){
 							case	9:case	16:
-								jsCode.append("'}, iwb.autoCompleteJson4Autocomplete('#idx-formcell-")
-									.append(fc.getFormCell().getFormCellId()).append("','#idx-formcell-")
+								jsCode.append("iwb.autoCompleteJson4Autocomplete('")
+									.append(GenericUtil.isEmpty(fc.getValue()) ? "":fc.getValue()).append("','#idx-formcell-")
 									.append(cfc.getFormCell().getFormCellId()).append("',function(ax,bx){\n") 
 									.append(cfc.getFormCell().getLookupIncludedParams()) 
 									.append("\n})));\n");
+								dependantCombo=true;
 								break;
 							default:
-								jsCode.append("'}, {}));\n");
+								//jsCode.append("{}));\n");
 	
 								break;
 							}
 							break;
 
 						}
+					}
+					if(!dependantCombo) {
+						jsCode.append("iwb.autoCompleteJson));\n");
 					}
 					break;
 				case	9:case	16://remote-combo, lov-combo-remote
