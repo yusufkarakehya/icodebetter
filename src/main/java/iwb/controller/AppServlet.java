@@ -2523,7 +2523,18 @@ public class AppServlet implements InitializingBean {
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		String sql = request.getParameter("sql");
 		response.setContentType("application/json");
-		response.getWriter().write("{\"success\":true, \"result\":\""+GenericUtil.stringToJS(new BasicFormatterImpl().format(sql))+"\"}");
+		response.getWriter().write("{\"success\":true, \"result\":\""+GenericUtil.stringToJS2(new BasicFormatterImpl().format(sql))+"\"}");
+		response.getWriter().close();
+	}
+	
+	@RequestMapping("/ajaxServerDttm")
+	public void hndAjaxServerDttm(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":true, \"result\":\""+engine.getServerDttm()+"\"}");
 		response.getWriter().close();
 	}
 	

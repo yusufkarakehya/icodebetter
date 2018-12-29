@@ -9898,4 +9898,8 @@ public class FrameworkEngine {
 
     return result;
   }
+
+public String getServerDttm() {
+	return dao.executeSQLQuery("select to_char(current_timestamp,'dd/mm/yyyy hh24:mi:ss')").get(0).toString();
+}
 }

@@ -8415,3 +8415,9 @@ iwb.addCss=function(cssCode,id){
 iwb.loadComponent=function(id){
 //	Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
 }
+iwb.serverDttmDiff=0;
+iwb.getDate=function(x){//server DateTime OR parse(x)
+	if(!x)return iwb.serverDateDiff ? new Date(new Date().getTime()+iwb.serverDateDiff): new Date();
+	if(x.length<=10)return Date.parseDate(x,"d/m/Y");
+	return Date.parseDate(x,"d/m/Y H:i:s");
+}
