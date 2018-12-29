@@ -619,6 +619,18 @@ public class F7 implements ViewMobileAdapter2 {
 					&& ((Integer) scd.get("userTip") != 3 && t.getAccessTips() != null))
 				s.append(",\n accessControlFlag:true, accessControlCount:")
 						.append(formResult.getAccessControlCount());
+			if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null){
+				s.append(",\n subLists:[");
+				boolean bq = false;
+				for(W5FormModule fm:f.get_moduleList())if(fm.getModuleTip()==10){
+					M5ListResult mlr = formResult.getModuleListMap().get(fm.getObjectId());
+					if(mlr==null)continue;
+					if(bq)s.append("\n,"); else bq=true;
+					s.append(serializeListMaterial(mlr));
+				}
+				
+				s.append("]");
+			}
 		}
 		
 		if (formResult.isViewMode())
@@ -836,8 +848,12 @@ public class F7 implements ViewMobileAdapter2 {
 			s.append(GenericUtil.stringToJS(f.getJsCode().substring(f.getJsCode().indexOf("${iwb-data}")+11)));
 		} else if (f.getObjectTip() == 2){
 			s.append("</ul>");
-			if (!formResult.isViewMode())//kaydet butonu
-				s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-submit-").append(formResult.getFormId()).append("\">Kaydet</a></p></div>");
+			if (!formResult.isViewMode()){//kaydet butonu
+				if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null) //master detail
+					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-continue-").append(formResult.getFormId()).append("\">Continue</a></p></div>");
+				else
+					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-submit-").append(formResult.getFormId()).append("\">Save</a></p></div>");
+			}
 			s.append("</form></div></div>");
 			
 		}
@@ -1288,6 +1304,18 @@ public class F7 implements ViewMobileAdapter2 {
 					&& ((Integer) scd.get("userTip") != 3 && t.getAccessTips() != null))
 				s.append(",\n accessControlFlag:true, accessControlCount:")
 						.append(formResult.getAccessControlCount());
+			if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null){
+				s.append(",\n subLists:[");
+				boolean bq = false;
+				for(W5FormModule fm:f.get_moduleList())if(fm.getModuleTip()==10){
+					M5ListResult mlr = formResult.getModuleListMap().get(fm.getObjectId());
+					if(mlr==null)continue;
+					if(bq)s.append("\n,"); else bq=true;
+					s.append(serializeListiOS(mlr));
+				}
+				
+				s.append("]");
+			}
 		}
 		
 		if (formResult.isViewMode())
@@ -1503,8 +1531,12 @@ public class F7 implements ViewMobileAdapter2 {
 			s.append(GenericUtil.stringToJS(f.getJsCode().substring(f.getJsCode().indexOf("${iwb-data}")+11)));
 		} else if (f.getObjectTip() == 2){
 			s.append("</ul>");
-			if (!formResult.isViewMode())//kaydet butonu
-				s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-submit-").append(formResult.getFormId()).append("\">Kaydet</a></p></div>");
+			if (!formResult.isViewMode()){//kaydet butonu
+				if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null) //master detail
+					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-continue-").append(formResult.getFormId()).append("\">Continue</a></p></div>");
+				else
+					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-submit-").append(formResult.getFormId()).append("\">Save</a></p></div>");
+			}
 			s.append("</form></div></div>");
 			
 		}

@@ -45,6 +45,7 @@ public class W5FormResult implements W5MetaResult{
 	private	W5QueryResult queryResult4FormCell;
 	private	List<W5FormCell> extraFormCells;
 	private Map<Integer,W5GridResult> moduleGridMap;
+	private Map<Integer,M5ListResult> moduleListMap;
 	private String uniqueId;
 	private List<W5QueuedActionHelper> queuedActionList;
 	private List<W5QueuedPushMessageHelper> queuedPushMessageList;
@@ -54,6 +55,12 @@ public class W5FormResult implements W5MetaResult{
 	private Map<Integer,Map<Integer, Integer>> mapWidgetCount; //userId, widgetId, count
 	private List<W5FormSmsMailAlarm> formAlarmList;
 
+	public Map<Integer, M5ListResult> getModuleListMap() {
+		return moduleListMap;
+	}
+	public void setModuleListMap(Map<Integer, M5ListResult> moduleListMap) {
+		this.moduleListMap = moduleListMap;
+	}
 	public W5FormResult(int formId) {
 		this.formId=formId;
 	}

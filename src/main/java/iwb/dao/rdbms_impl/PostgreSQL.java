@@ -475,13 +475,13 @@ public class PostgreSQL extends BaseDAO {
         if (GenericUtil.accessControl(
             scd, m.getAccessViewTip(), m.getAccessViewRoles(), m.getAccessViewUsers())) { // form
           switch (m.getModuleTip()) {
-            case 5:
+            case 5: //grid
               if (formResult.getModuleGridMap() == null) formResult.setModuleGridMap(new HashMap());
               formResult
                   .getModuleGridMap()
                   .put(m.getObjectId(), getGridResult(scd, m.getObjectId(), requestParams, true));
               break;
-            case 6:
+            case 6: //query4formcell
               W5QueryResult queryResult4FormCell =
                   executeQuery(scd, m.getObjectId(), requestParams);
               if (formResult.getFormCellResults() == null)
@@ -496,6 +496,12 @@ public class PostgreSQL extends BaseDAO {
                 formResult.getFormCellResults().add(result);
               }
               break;
+            case	10://mobile list
+                if (formResult.getModuleListMap() == null) formResult.setModuleListMap(new HashMap());
+                formResult
+                .getModuleListMap()
+                .put(m.getObjectId(), getMListResult(scd, m.getObjectId(), requestParams, true));
+            			
           }
         }
     }
