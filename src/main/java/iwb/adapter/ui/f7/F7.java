@@ -859,14 +859,15 @@ public class F7 implements ViewMobileAdapter2 {
 		}
 //		for(W5FormCe){}
 		s.append("'");
+		if(!GenericUtil.isEmpty(f.getJsCode())){
+			jsCode.append("\n").append(f.getJsCode()).append("\n");
+		}
 		if(jsCode.length()>0){
 			StringBuilder  bx= new StringBuilder();
 			bx.append("callAttributes.json.postInit=function(j){\n").append(jsCode).append("\n}\n;");
 			jsCode = bx;
 		}
-		if(!GenericUtil.isEmpty(f.getJsCode())){
-		//	jsCode.append(f.getJsCode()); // TODO. bu degisecek
-		}
+
 		if(jsCode.length()>0)s.append(",\n init:function(callAttributes){\n")
 			.append(jsCode).append("\n}");
 		s.append("}");
@@ -1542,14 +1543,16 @@ public class F7 implements ViewMobileAdapter2 {
 		}
 //		for(W5FormCe){}
 		s.append("'");
+		if(!GenericUtil.isEmpty(f.getJsCode())){
+			jsCode.append("\n").append(f.getJsCode()).append("\n");
+		}
+
 		if(jsCode.length()>0){
 			StringBuilder  bx= new StringBuilder();
 			bx.append("callAttributes.json.postInit=function(j){\n").append(jsCode).append("\n}\n;");
 			jsCode = bx;
 		}
-		if(!GenericUtil.isEmpty(f.getJsCode())){
-		//	jsCode.append(f.getJsCode()); // TODO. bu degisecek
-		}
+
 		if(jsCode.length()>0)s.append(",\n init:function(callAttributes){\n")
 			.append(jsCode).append("\n}");
 		s.append("}");
