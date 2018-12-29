@@ -564,14 +564,13 @@ public class F7 implements ViewMobileAdapter2 {
 			l.add(m);
 		}
 		
+		boolean masterDetail = false;
 		
 		if (f.getObjectTip() == 2){
 			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
-			pictureFlag = true;/*PromisCache.getAppSettingIntValue(scd, "attach_picture_flag") != 0
-					&& t.getFileAttachmentFlag() != 0
-					&& t.getAttachPictureFlag() != 0
-					&& PromisCache.roleAccessControl(scd, t.getModuleId(), 101);*/
+			pictureFlag =FrameworkCache.getAppSettingIntValue(scd, "attach_picture_flag") != 0
+					&& t.getFileAttachmentFlag() != 0;
 			// insert AND continue control
 			s.append(",\n crudTableId:").append(f.getObjectId());
 			if (formResult.getAction() == 2) { // insert
@@ -622,11 +621,12 @@ public class F7 implements ViewMobileAdapter2 {
 			if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null){
 				s.append(",\n subLists:[");
 				boolean bq = false;
-				for(W5FormModule fm:f.get_moduleList())if(fm.getModuleTip()==10){
+				for(W5FormModule fm:f.get_moduleList())if(fm.getModuleTip()==10 && (fm.getModuleViewTip()==0 || formResult.getAction()==fm.getModuleViewTip())){
 					M5ListResult mlr = formResult.getModuleListMap().get(fm.getObjectId());
 					if(mlr==null)continue;
 					if(bq)s.append("\n,"); else bq=true;
 					s.append(serializeListMaterial(mlr));
+					masterDetail = true;
 				}
 				
 				s.append("]");
@@ -656,9 +656,9 @@ public class F7 implements ViewMobileAdapter2 {
 		
 //		buf.append(PromisUtil.filterExt(fc.getExtraDefinition(), formResult.getScd(), formResult.getRequestParams(), o));
 
-		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
+/*		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
 			s.append(GenericUtil.stringToJS(GenericUtil.filterExt(f.getJsCode().substring(0, f.getJsCode().indexOf("${iwb-data}")),formResult.getScd(), formResult.getRequestParams(),null)));
-		} else if (f.getObjectTip() == 2){
+		} else */if (f.getObjectTip() == 2){
 			s.append("<div data-page=\"iwb-form-").append(formResult.getFormId()).append("\" class=\"page\"><div class=\"navbar\">")
 				.append("<div class=\"navbar-inner iwb-navbar-form\"><div class=\"left\"><a href=# class=\"back link icon-only\"><i class=\"icon f7-icons\">left_arrow</i></a></div><div class=\"center\">")
 				.append(formResult.getForm().getLocaleMsgKey()).append("</div><div class=\"right\">");
@@ -844,13 +844,13 @@ public class F7 implements ViewMobileAdapter2 {
 			*/
 		}
 
-		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
+/*		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
 			s.append(GenericUtil.stringToJS(f.getJsCode().substring(f.getJsCode().indexOf("${iwb-data}")+11)));
-		} else if (f.getObjectTip() == 2){
+		} else */if (f.getObjectTip() == 2){
 			s.append("</ul>");
 			if (!formResult.isViewMode()){//kaydet butonu
-				if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null) //master detail
-					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-continue-").append(formResult.getFormId()).append("\">Continue</a></p></div>");
+				if(masterDetail) //master detail
+					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-continue-").append(formResult.getFormId()).append("\">Next</a></p></div>");
 				else
 					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-submit-").append(formResult.getFormId()).append("\">Save</a></p></div>");
 			}
@@ -864,7 +864,7 @@ public class F7 implements ViewMobileAdapter2 {
 		}
 		if(jsCode.length()>0){
 			StringBuilder  bx= new StringBuilder();
-			bx.append("callAttributes.json.postInit=function(j){\n").append(jsCode).append("\n}\n;");
+			bx.append("if(!callAttributes.json)callAttributes.json={};callAttributes.json.postInit=function(j){\n").append(jsCode).append("\n}\n;");
 			jsCode = bx;
 		}
 
@@ -1251,14 +1251,12 @@ public class F7 implements ViewMobileAdapter2 {
 			l.add(m);
 		}
 		
-		
+		boolean masterDetail = false;
 		if (f.getObjectTip() == 2){
 			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
-			pictureFlag = true;/*PromisCache.getAppSettingIntValue(scd, "attach_picture_flag") != 0
-					&& t.getFileAttachmentFlag() != 0
-					&& t.getAttachPictureFlag() != 0
-					&& PromisCache.roleAccessControl(scd, t.getModuleId(), 101);*/
+			pictureFlag = FrameworkCache.getAppSettingIntValue(scd, "attach_picture_flag") != 0
+					&& t.getFileAttachmentFlag() != 0;
 			// insert AND continue control
 			s.append(",\n crudTableId:").append(f.getObjectId());
 			if (formResult.getAction() == 2) { // insert
@@ -1308,11 +1306,12 @@ public class F7 implements ViewMobileAdapter2 {
 			if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null){
 				s.append(",\n subLists:[");
 				boolean bq = false;
-				for(W5FormModule fm:f.get_moduleList())if(fm.getModuleTip()==10){
+				for(W5FormModule fm:f.get_moduleList())if(fm.getModuleTip()==10 && (fm.getModuleViewTip()==0 || formResult.getAction()==fm.getModuleViewTip())){
 					M5ListResult mlr = formResult.getModuleListMap().get(fm.getObjectId());
 					if(mlr==null)continue;
 					if(bq)s.append("\n,"); else bq=true;
 					s.append(serializeListiOS(mlr));
+					masterDetail = true;
 				}
 				
 				s.append("]");
@@ -1340,9 +1339,9 @@ public class F7 implements ViewMobileAdapter2 {
 		
 //		buf.append(PromisUtil.filterExt(fc.getExtraDefinition(), formResult.getScd(), formResult.getRequestParams(), o));
 
-		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
+/*		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
 			s.append(GenericUtil.stringToJS(GenericUtil.filterExt(f.getJsCode().substring(0, f.getJsCode().indexOf("${iwb-data}")),formResult.getScd(), formResult.getRequestParams(),null)));
-		} else if (f.getObjectTip() == 2){
+		} else */if (f.getObjectTip() == 2){
 			s.append("<div data-page=\"iwb-form-").append(formResult.getFormId()).append("\" class=\"page\"><div class=\"navbar\">")
 				.append("<div class=\"navbar-inner iwb-navbar-form\"><div class=\"left\"><a href=# class=\"back link icon-only\"><i class=\"icon f7-icons\">left_arrow</i></a></div><div class=\"center\">")
 				.append(formResult.getForm().getLocaleMsgKey()).append("</div><div class=\"right\">");
@@ -1528,13 +1527,13 @@ public class F7 implements ViewMobileAdapter2 {
 			*/
 		}
 
-		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
+/*		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
 			s.append(GenericUtil.stringToJS(f.getJsCode().substring(f.getJsCode().indexOf("${iwb-data}")+11)));
-		} else if (f.getObjectTip() == 2){
+		} else */if (f.getObjectTip() == 2){
 			s.append("</ul>");
 			if (!formResult.isViewMode()){//kaydet butonu
-				if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null) //master detail
-					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-continue-").append(formResult.getFormId()).append("\">Continue</a></p></div>");
+				if(masterDetail) //master detail
+					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-continue-").append(formResult.getFormId()).append("\">Next</a></p></div>");
 				else
 					s.append("<div class=\"content-block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-submit-").append(formResult.getFormId()).append("\">Save</a></p></div>");
 			}
@@ -1549,7 +1548,7 @@ public class F7 implements ViewMobileAdapter2 {
 
 		if(jsCode.length()>0){
 			StringBuilder  bx= new StringBuilder();
-			bx.append("callAttributes.json.postInit=function(j){\n").append(jsCode).append("\n}\n;");
+			bx.append("if(!callAttributes.json)callAttributes.json={};callAttributes.json.postInit=function(j){\n").append(jsCode).append("\n}\n;");
 			jsCode = bx;
 		}
 

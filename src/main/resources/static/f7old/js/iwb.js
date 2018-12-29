@@ -419,7 +419,7 @@ if(iwb.ajaxTrack){
 				if(iwb.debug){console.log('showMList/showMForm-failure');}
 				iwb.hideIndicator(id);
 				iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Bağlantı Hatası</b>',message: 'Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), media:info4media(2), hold:5000});
-				iwb.app.confirm('Tekrar Denemek ister misiniz?', function(){//convirmed
+				iwb.app.confirm('Try again?', function(){//convirmed
 		            mainView.router.load({url:url+'&.r='+Math.random(), reload:url.indexOf('showM')==0 && url.indexOf('_reload=1')>-1,force: true, ignoreCache:true/*,animatePages:false*/}); //load another page with auth form
 				});
 			} else if(url.indexOf('ajaxLogoutUser')>=0){
@@ -431,10 +431,10 @@ if(iwb.ajaxTrack){
 			} else if (ts && ts.ind){ //ajaxAuthenticate,Project
 				if(iwb.debug){console.log('others-failure');}
 				iwb.hideIndicator(id);
-				iwb.app.alert('Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), '<b style="color:red;">Bağlantı Hatası</b>');
+				iwb.app.alert('Connection error. ' + (iwb.debug ? iwb.serverUrl : ''), '<b style="color:red;">ERROR</b>');
 				return;
 			} else { //TODO. requestPoll'dan cikar
-				iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Bağlantı Hatası</b>',message: 'Lütfen internet bağlantınızı kontrol edip tekrar deneyin. ' + (iwb.debug ? iwb.serverUrl : ''), media:info4media(2), hold:5000});
+				iwb.app.addNotification({closeOnClick:true,title:'<b style="color:red;">Connection error</b>',message: 'Connection error. ' + (iwb.debug ? iwb.serverUrl : ''), media:info4media(2), hold:5000});
 			}
 			return;
 		}

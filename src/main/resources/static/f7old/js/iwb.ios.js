@@ -1,5 +1,5 @@
 iwb.mobile=1;
-iwb.longPoll.strategy=1;
+iwb.longPoll.strategy=0;
 
 iwb.onPause=function(aq){//asagi atilinca
 	   setTimeout(function() {
@@ -45,7 +45,7 @@ function onDeviceReady(){
 
 		iwb.camera = !!navigator.camera;
 		
-		iwb.longPoll.init('../async/ajaxNotifications?&.w=' + iwb.webPageId, iwbLP);
+//		iwb.longPoll.init('../async/ajaxNotifications?&.w=' + iwb.webPageId, iwbLP);
 		iwb.checkSession({callback:iwb.prepareMainMenu});
 		
 	/*	 var push = PushNotification.init({ "android": {"senderID": "553372575530"},  "ios": {"sound": true, "vibration": true, "badge": true}});
@@ -69,9 +69,9 @@ document.addEventListener("deviceready",onDeviceReady,false);
 
 // Init App
 iwb.app = new Framework7({
-    modalTitle: iwb.logo(40), cache:false,animatePages:true,sortable:false,//swipeout:false,
+    modalTitle: iwb.logo(40), cache:false,animatePages:false,sortable:false,//swipeout:false,
     preprocess: function (content, url, next, aq) {
-    	if(iwb.debug)console.log('preprocess: ' + url, content);
+    	if(iwb.debug)console.log('preprocess: ' + url);//, content
     	//console.log(content);console.log(url);console.log(next);console.log(aq);
     	if(url && url.indexOf('showM')>-1)try{
     		var j = eval('('+content+')');
@@ -85,7 +85,7 @@ iwb.app = new Framework7({
     				return r || j.htmlPage;
     			} else switch(j.errorType){
     			case	'session':
-    				iwb.longPoll.end();
+//    				iwb.longPoll.end();
     				iwb.app.loginScreen();
     				return;
     			default:
@@ -93,7 +93,7 @@ iwb.app = new Framework7({
     				return;
     			}
     		}  
-		}catch(e){if(iwb.debug && confirm('ERROR form.JS!!! Throw?'))throw e;}
+		}catch(e){if(iwb.debug && confirm('ERROR form.JS!!! Throw? ' + e.message))throw e;}
     	return content;
     },
     preroute: function (view, options) {
@@ -185,7 +185,7 @@ iwb.cameraClearCache=function() {
 }
 iwb.photoFail=function(message) {
 	iwb.hideProgressbar('photo');
-	iwb.app.alert('Foto Yükleme Başarısız: ' + message);
+	iwb.app.alert('Photo Upload Error: ' + message);
 }
 
 
@@ -208,7 +208,7 @@ iwb.takePhoto=function(tid,tpk, jsonX, fromAlbum, profilePictureFlag){
 //							bd.animate({'zoom': 2.5},{duration: 200,easing: 'swing'}).animate({'zoom': 1},{duration: 50,easing: 'swing'});
 						}
 				 	}
-				 	iwb.app.addNotification({closeOnClick:true,message: 'Foto Yüklendi', hold:5000, title:'Bilgi', media:info4media(0)});
+				 	iwb.app.addNotification({closeOnClick:true,message: 'Photo Uploaded', hold:5000, title:'Info', media:info4media(0)});
 			    }
 			 
 			    var fail = function (error) {
@@ -226,7 +226,7 @@ iwb.takePhoto=function(tid,tpk, jsonX, fromAlbum, profilePictureFlag){
 		        iwb.showProgressbar('photo');
 			    ft.upload(fileURI, encodeURI(iwb.serverUrl + 'upload.form'), win, fail, params);
 		}, iwb.photoFail, options);
-	} else iwb.app.alert('Kamera Tanımlı Değil');
+	} else iwb.app.alert('Camera Not Defined');
 }
 
 function info4media(j){
@@ -313,7 +313,7 @@ $$(document).on('pageInit', function (e) {
 	if(iwb.debug){console.log('pageInit');console.log(page);}
 	
 	if(iwb.lastLiveSyncPk && (!page.name || page.name.indexOf('smart-select')<0) && (!page.name || page.name.indexOf('messages-')!=0) && page.id!='idx-list-14'){//TODO.hata var, gereksiz yere donuyor
-		iwb.request({url:'ajaxLiveSync?.a=2&.t=' + iwb.webPageId +  '-f-'+  iwb.liveSyncRecord.fId + '&.w=' + iwb.webPageId + '&.pk=' +  iwb.lastLiveSyncPk});
+//		iwb.request({url:'ajaxLiveSync?.a=2&.t=' + iwb.webPageId +  '-f-'+  iwb.liveSyncRecord.fId + '&.w=' + iwb.webPageId + '&.pk=' +  iwb.lastLiveSyncPk});
 		iwb.lastLiveSyncPk = false;
 	}
 
@@ -368,7 +368,7 @@ $$(document).on('pageInit', function (e) {
 					}
 //					$$('#idx-sfrm-navbar').css({'background-color':'darkgray'});
 //					$$('#idx-sfrm-navbar .navbar-inner').css({'background': 'linear-gradient(rgba(240, 249, 255,1), rgba(255,255,255,.9))', 'color': 'black'});
-					var pp=$$('.panel.panel-right');console.log('ahuu');console.log(pp);
+					var pp=$$('.panel.panel-right');
 					if(pp.hasClass('panel-reveal')){pp.removeClass('panel-reveal');pp.addClass('panel-cover');}
 					$$('#idx-sfrm-label').html('Arama Kriterleri');
 					$$('#idx-right-reload-icon').html('refresh');
@@ -450,7 +450,7 @@ $$(document).on('pageInit', function (e) {
 					for(var qi=0;qi<od.length;qi++){
 						var mm= od[qi];
 						var bq= json8.baseParams.sort && json8.baseParams.sort==mm.id;
-						bs.push({text: (bq ? ('<b>'+mm.dsc+' ('+(json8.baseParams.dir=='ASC' ? 'Artan':'Azalan')+')</b>'):mm.dsc), onClick: function (d,e) {
+						bs.push({text: (bq ? ('<b>'+mm.dsc+' ('+(json8.baseParams.dir=='ASC' ? 'Ascending':'Descending')+')</b>'):mm.dsc), onClick: function (d,e) {
 							if(iwb.debug){console.log('sort-action-click');console.log(d);console.log(e);}
 							if(!e.srcElement || !e.srcElement.innerText){
 								alert('olmadi');return;
@@ -514,12 +514,12 @@ $$(document).on('pageInit', function (e) {
 							for(var qi=0;qi<5 && qi<j.msgs.length;qi++)iwb.app.addNotification({closeOnClick:true, title:'Bilgi', media:info4media(0), message: j.msgs[qi], hold: qi==0? null: 2000});
 							if(j.msgs.length>5)iwb.app.addNotification({closeOnClick:true,title:'Bilgi', media:info4media(0), message: '... and ' + (j.msgs.length-5) + ' others', hold: 2000});
 						} else 
-							iwb.app.addNotification({closeOnClick:true,title:'Bilgi', media:info4media(0), message: 'Kaydedildi', hold:2000});
+							iwb.app.addNotification({closeOnClick:true,title:'Bilgi', media:info4media(0), message: 'Saved', hold:2000});
 						if(json4 && json4.submitSuccess && json4.submitSuccess(json4, j)===false)return;
 						mainView.router.back();
 					}, error:function(j){
 						if(j.errorType='validation'){
-							for(var qi=0;qi<5 && qi<j.errors.length;qi++)iwb.app.addNotification({closeOnClick:true,title:'Hata',media:info4media(2), message: '<b style="color:red;">'+j.errors[qi].dsc + '</b> ' + j.errors[qi].msg, hold: qi==0? null: 2000});
+							for(var qi=0;qi<5 && qi<j.errors.length;qi++)iwb.app.addNotification({closeOnClick:true,title:'Error',media:info4media(2), message: '<b style="color:red;">'+j.errors[qi].dsc + '</b> ' + j.errors[qi].msg, hold: qi==0? null: 2000});
 							if(j.errors.length>5)iwb.app.addNotification({closeOnClick:true,title:'Hata',media:info4media(2),message: '... and ' + (j.errors.length-5) + ' others', hold: 2000});
 
 							/*"errorType":"validation",
@@ -539,10 +539,10 @@ $$(document).on('pageInit', function (e) {
 		                   onClick: function () {
 		                	   iwb.photoBrowser(json4.crudTableId, json4.tmpId || getPk(json4.pk));
 		                   }}]);
-					buttons.push([{text: 'Kamera ile çek', onClick: function () {
+					buttons.push([{text: 'Camera', onClick: function () {
 					                	   iwb.takePhoto(json4.crudTableId, json4.tmpId || getPk(json4.pk), json4);
 					                   }
-					               },{text: 'Galeriden yükle', onClick: function () {
+					               },{text: 'Gallery', onClick: function () {
 					                	   iwb.takePhoto(json4.crudTableId, json4.tmpId || getPk(json4.pk), json4, true);
 					                   }
 					               }
@@ -553,8 +553,8 @@ $$(document).on('pageInit', function (e) {
 			if(json4.liveSync){
 				iwb.lastLiveSyncPk = json4.crudTableId + '-'+ getPk(json4.pk);
 				iwb.liveSyncRecord.fId=json4.formId;
-				if(iwb.longPoll.strategy==2)iwb.longPoll.start();
-				iwb.request({url:'ajaxLiveSync?.a=10&.t=' + iwb.webPageId + '-f-'+  iwb.liveSyncRecord.fId + '&.w=' + iwb.webPageId + '&.pk=' +  iwb.lastLiveSyncPk});
+//				if(iwb.longPoll.strategy==2)iwb.longPoll.start();
+//				iwb.request({url:'ajaxLiveSync?.a=10&.t=' + iwb.webPageId + '-f-'+  iwb.liveSyncRecord.fId + '&.w=' + iwb.webPageId + '&.pk=' +  iwb.lastLiveSyncPk});
 			}
 			if(json4.liveSyncBy){
 				iwb.app.addNotification({closeOnClick:true,title:user4chat(json4.liveSyncBy[0]), media:user4media(json4.liveSyncBy[0]),message:liveSyncHtml(json4.liveSyncBy), hold:8000});
@@ -663,5 +663,5 @@ $$('#idx-main-menu-logo').html(iwb.logo(29));
 
 genTplOUsers();
 
-iwb.longPoll.init('../async/ajaxNotifications?&.w=' + iwb.webPageId, iwbLP);
+//iwb.longPoll.init('../async/ajaxNotifications?&.w=' + iwb.webPageId, iwbLP);
 iwb.checkSession({callback:iwb.prepareMainMenu});
