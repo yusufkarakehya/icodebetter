@@ -1080,6 +1080,11 @@ header .phone .theme-switch a+a {
     font-size: 20px;
     color: #ddd;
 }
+.iwb-card-sub-header div {
+    display:inline;
+    color: #ddd;
+}
+
 .iwb-card-sub-header span::before {
     content: '';
     width: 7px;

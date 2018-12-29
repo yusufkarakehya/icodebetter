@@ -3560,7 +3560,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	  }});
 	  var subToolbar = new Ext.Toolbar({xtype:'toolbar',cls:'iwb-card-sub-toolbar',items:xbuttons}); 
 	  detailPanel = {region:'center', layout:'border', border:false,tbar : subToolbar
-			  ,items:[{region:'north',height:50, html:'<div class="iwb-card-sub-header"><span id="idc-'+mainGrid.id+'"></span></div>'},detailPanel]};
+			  ,items:[{region:'north',height:50, html:'<div class="iwb-card-sub-header"><span id="idc-'+mainGrid.id+'"></span><div id="pidc-'+mainGrid.id+'"></div></div>'},detailPanel]};
 	  mainGridPanel._subToolbar = subToolbar;
 	  mainGridPanel.on('selectionchange',function(ax, bx){
 		  var sel=ax.getSelectedRecords();
