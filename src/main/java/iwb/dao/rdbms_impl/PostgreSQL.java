@@ -6568,7 +6568,15 @@ private void reloadWsServersCache(String projectId) {
           switch (cCol.getFieldConversionTip()) {
             case 2: // SQL
               Map<String, Object> sqlm = runSQLQuery2Map(cc, scd, requestParams, null);
-              cc = GenericUtil.isEmpty(sqlm) ? null : sqlm.get("result").toString();
+              cc = null;
+              if(!GenericUtil.isEmpty(sqlm)){
+            	  Object oo = null;
+            	  if(sqlm.containsKey("result")){
+            		  oo = sqlm.get("result");
+            	  } else oo = sqlm.values().toArray()[0];
+            	  if(oo!=null) cc = oo.toString();
+              }
+//              cc = GenericUtil.isEmpty(sqlm) ? null : sqlm.get("result").toString();
               break;
             case 6: // Rhino
               Object result =
