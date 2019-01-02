@@ -120,13 +120,13 @@ public class PreviewServlet implements InitializingBean {
 		return getViewAdapter(scd, request, ext3_4);
 	}
 
-	@RequestMapping("/dyn-res/*")
+	@RequestMapping("/*/dyn-res/*")
 	public ModelAndView hndDynResource(
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		logger.info("hndJasperReport"); 
-    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		logger.info("hndDynResource"); 
+    	Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
     	String uri = request.getRequestURI();
     	if(uri.endsWith(".css")){
     		uri = uri.substring(uri.lastIndexOf('/')+1);
