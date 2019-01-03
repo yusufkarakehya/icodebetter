@@ -152,7 +152,7 @@ var iwb = {
    * @param {string} css - example '.aclass{display:none}'
    * @param {string} id - template id of the page not mandatory
    */
-  addCss: (css = '', id = Math.random()) => {
+  addCssString : (css = '', id = Math.random()) => {
     let style = document.createElement('style');
     style.type = 'text/css';
     style.id = "iwb-tpl-" + id;
@@ -181,7 +181,7 @@ var iwb = {
    * @param {string} url - example '/comp/2/js'
    * @param {string} id - example '2' -id of the component
    */
-  addPageCss: async (url, id = Math.floor(Math.random() * 1000 + 1)) => {
+  addCss: async (url, id = Math.floor(Math.random() * 1000 + 1)) => {
     let response = await fetch(url);
     let cssText = await response.text();
     if(document.getElementById(id)===null){
@@ -1656,7 +1656,7 @@ class XLazyScriptLoader extends React.PureComponent {
             console.error('Oh no, epic failure!');
             alert('Oh no, epic failure!');
         });
-        iwb.addCss(css);
+        iwb.addCssString(css);
     }
     render() {
         return React.createElement(React.Fragment, {},(this.state.loading)?this.props.loading:this.props.children)
