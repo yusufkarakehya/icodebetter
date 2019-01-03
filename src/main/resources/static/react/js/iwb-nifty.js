@@ -1391,7 +1391,7 @@ class MapInput extends React.PureComponent {
  * @example
  * ```jsx
  * <XMasonry loadingComponent = {()=>{return '***********you can give loading component***********'}}
- *    brakePoints={[350, 500, 750]}
+ *    breakPoints={[350, 500, 750]}
  *    loadNext={({columns,totalItems}) => {  {columns,totalItems} - use this to construct url}}
  *    >{
  *      this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )
@@ -1414,14 +1414,14 @@ class XMasonry extends React.PureComponent {
       if (columns !== this.state.columns) this.setState({ columns: columns });
     };
     /**
-     * a function used to calculate columns from this.props.brakePoints
+     * a function used to calculate columns from this.props.breakPoints
      * @param {Number} width - width of the masonry component
      */
     this.getColumns = width => {
       return (
-        this.props.brakePoints.reduceRight((p, c, i) => {
+        this.props.breakPoints.reduceRight((p, c, i) => {
           return c < width ? p : i;
-        }, this.props.brakePoints.length) + 1
+        }, this.props.breakPoints.length) + 1
       );
     };
     /**
@@ -1501,7 +1501,7 @@ class XMasonry extends React.PureComponent {
         style: {
           overflowY: "auto",
           margin: "5px",
-          height: this.props.height || "500px",
+//          height: this.props.height || "500px",
           ...this.props.masonryRowStyle
         }
       },
