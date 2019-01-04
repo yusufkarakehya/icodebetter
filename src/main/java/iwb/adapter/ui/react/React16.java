@@ -2326,7 +2326,7 @@ public class React16 implements ViewAdapter {
 				"customizationId");
 		W5Card d = dataViewResult.getCard();
 		StringBuilder buf = new StringBuilder();
-		buf.append("var ")
+		buf.append("\nvar ")
 				.append(d.getDsc())
 				.append("={cardId:")
 				.append(d.getDataViewId())
@@ -2361,22 +2361,11 @@ public class React16 implements ViewAdapter {
 		if (d.getDefaultPageRecordNumber() != 0)
 			buf.append(",\n pageSize:").append(d.getDefaultPageRecordNumber());
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
-		buf.append(",\n tpl:\"")
-				.append(GenericUtil.filterExt(GenericUtil.stringToJS2(d.getTemplateCode()),
-						dataViewResult.getScd(),
-						dataViewResult.getRequestParams(), null))
-				.append("\"};");
-		if (!GenericUtil.isEmpty(d.getJsCode())) {
-			buf.append("\ntry{")
-					.append(GenericUtil.filterExt(d.getJsCode(),
-							dataViewResult.getScd(),
-							dataViewResult.getRequestParams(), null))
-					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR card.JS!!! Throw? : ' + e.message))throw e;"
-							: "alert('System/Customization ERROR : ' + e.message)");
-			buf.append("}\n");
-		}
-		return buf;
+		buf.append(",\n render(record){\n")
+				.append(d.getTemplateCode())
+				.append("\n}");
+		
+		return buf.append("}");
 	}
 
 	public StringBuilder serializeListView(W5ListViewResult listViewResult) {
@@ -4066,11 +4055,18 @@ columns:[
 				buf.append("var _page_tab_id='")
 						.append(GenericUtil.getNextId("tpi")).append("';\n");
 			}
+			
+			if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
+				buf.append("iwb.addCssString(\"")
+				.append(GenericUtil.stringToJS2(pr.getPage().getCssCode().trim())).append("\",").append(pr.getTemplateId()).append(");\n");
+			}
+			
 			if (page.getTemplateTip() != 8) { // wizard degilse
 				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
 					W5Component c = (W5Component)i;
 					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(()=>iwb.import('comp/").append(c.getComponentId()).append(".js?.x='));");
-					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addPageCss('comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");");
+					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addCss('comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");");
+					
 				}
 			}
 

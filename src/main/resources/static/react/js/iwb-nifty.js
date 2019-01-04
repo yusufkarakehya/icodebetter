@@ -152,7 +152,7 @@ var iwb = {
    * @param {string} css - example '.aclass{display:none}'
    * @param {string} id - template id of the page not mandatory
    */
-  addCss: (css = '', id = Math.random()) => {
+  addCssString : (css = '', id = Math.random()) => {
     let style = document.createElement('style');
     style.type = 'text/css';
     style.id = "iwb-tpl-" + id;
@@ -181,7 +181,7 @@ var iwb = {
    * @param {string} url - example '/comp/2/js'
    * @param {string} id - example '2' -id of the component
    */
-  addPageCss: async (url, id = Math.floor(Math.random() * 1000 + 1)) => {
+  addCss: async (url, id = Math.floor(Math.random() * 1000 + 1)) => {
     let response = await fetch(url);
     let cssText = await response.text();
     if(document.getElementById(id)===null){
@@ -1391,7 +1391,7 @@ class MapInput extends React.PureComponent {
  * @example
  * ```jsx
  * <XMasonry loadingComponent = {()=>{return '***********you can give loading component***********'}}
- *    brakePoints={[350, 500, 750]}
+ *    breakPoints={[350, 500, 750]}
  *    loadNext={({columns,totalItems}) => {  {columns,totalItems} - use this to construct url}}
  *    >{
  *      this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )
@@ -1414,14 +1414,14 @@ class XMasonry extends React.PureComponent {
       if (columns !== this.state.columns) this.setState({ columns: columns });
     };
     /**
-     * a function used to calculate columns from this.props.brakePoints
+     * a function used to calculate columns from this.props.breakPoints
      * @param {Number} width - width of the masonry component
      */
     this.getColumns = width => {
       return (
-        this.props.brakePoints.reduceRight((p, c, i) => {
+        this.props.breakPoints.reduceRight((p, c, i) => {
           return c < width ? p : i;
-        }, this.props.brakePoints.length) + 1
+        }, this.props.breakPoints.length) + 1
       );
     };
     /**
@@ -1501,7 +1501,7 @@ class XMasonry extends React.PureComponent {
         style: {
           overflowY: "auto",
           margin: "5px",
-          height: this.props.height || "500px",
+//          height: this.props.height || "500px",
           ...this.props.masonryRowStyle
         }
       },
@@ -1656,7 +1656,7 @@ class XLazyScriptLoader extends React.PureComponent {
             console.error('Oh no, epic failure!');
             alert('Oh no, epic failure!');
         });
-        iwb.addCss(css);
+        iwb.addCssString(css);
     }
     render() {
         return React.createElement(React.Fragment, {},(this.state.loading)?this.props.loading:this.props.children)

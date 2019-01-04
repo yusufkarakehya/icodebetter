@@ -1675,7 +1675,7 @@ public class AppServlet implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		logger.info("hndJasperReport"); 
+		logger.info("hndDynResource"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
     	String uri = request.getRequestURI();
     	if(uri.endsWith(".css")){
