@@ -83,12 +83,12 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
       // the outer shape for the node, surrounding the Table{ doubleClick: nodeDoubleClick },
       $(go.Node, "Vertical",
         {
-          isShadowed: true, shadowOffset: new go.Point(1.1, 1.1), shadowColor: "gray", shadowBlur: 2, doubleClick: nodeDoubleClick
+         /* isShadowed: true, shadowOffset: new go.Point(1.1, 1.1), shadowColor: "gray", shadowBlur: 2, */doubleClick: nodeDoubleClick
         },
         // define the node's outer shape
         $(go.TextBlock,
           {
-            stroke: "lightgray", alignment: go.Spot.Left, margin: 2, font: "normal 14px 'Open Sans', sans-serif"
+            stroke: "#aaa", alignment: go.Spot.Left, margin: 2, font: "normal 14px 'Open Sans', sans-serif"
           },
           new go.Binding("text", "object")),
         $(go.Panel, "Auto", //{ isShadowed: false},
@@ -125,8 +125,8 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
     myDiagram.linkTemplate =
       $(go.Link,  // the whole link panel
         { selectable: false, curve: go.Link.Bezier },
-        $(go.Shape, { stroke: "lightgray", strokeWidth: 1 }), $(go.Shape,  // the arrowhead
-          { toArrow: "standard", fill: "lightgray", stroke: "lightgray" }));  // the link shape
+        $(go.Shape, { stroke: "#777", strokeWidth: 2 }), $(go.Shape,  // the arrowhead
+          { toArrow: "standard", fill: "#777", stroke: "#777" }));  // the link shape
     iwb.graph.diagrams[id] =  myDiagram;
   } else myDiagram = iwb.graph.diagrams[id];
 
