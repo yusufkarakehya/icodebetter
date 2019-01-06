@@ -63,6 +63,10 @@ public class ScriptEngine {
   }
   */
   
+  public void sleep(int millis) throws InterruptedException{
+	  Thread.sleep(millis);
+  }
+  
   public String mqBasicPublish(String host, String queueName, String msg){
 	  Channel ch = MQUtil.getChannel4Queue(host, queueName);
 	  if(ch==null)return "Connection Error";
@@ -71,8 +75,11 @@ public class ScriptEngine {
 		  return null;
 	  } catch (Exception e) {
 			return e.getMessage();
-	  }
-	  
+	  }	  
+  }
+  
+  public int mqQueueMsgCount(String host, String queueName){
+	  return MQUtil.getQueueMsgCount(host, queueName);
   }
 
   public String getCurrentDate() {

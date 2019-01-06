@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+import com.rabbitmq.client.AMQP.Queue.DeclareOk;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -15,6 +16,7 @@ import iwb.cache.FrameworkSetting;
 public class MQUtil {
 	private static Map<String, Connection> connMap = new HashMap<String, Connection>();
 	private static Map<String, Channel> channelMap = new HashMap<String, Channel>();
+	private static Map<String, DeclareOk> queueMap = new HashMap<String, DeclareOk>();
 	
 	public static Connection getConnection(String host){
 		Connection conn = connMap.get(host);
@@ -49,13 +51,23 @@ public class MQUtil {
 		Connection conn = getConnection(host);
 		if(conn!=null)try{
 			channel = conn.createChannel();
-			channel.queueDeclare(queueName, false, false, false, null);
+			DeclareOk dok = channel.queueDeclare(queueName, false, false, false, null);
 			channelMap.put(key, channel);
+			queueMap.put(key, dok);
 		    return channel;
 		}catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static int getQueueMsgCount(String host, String queueName){
+		String key = host + queueName;
+		DeclareOk dok = queueMap.get(key);
+		if(dok!=null){
+			return dok.getMessageCount();
+		}
+		return 0;
 	}
 	
 }
