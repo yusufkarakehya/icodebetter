@@ -9258,7 +9258,6 @@ public class FrameworkEngine {
         	  }        	  
           }
           if (!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip() > 0) {
-            if (wsm.getParamSendTip() != 4) {
               m = recursiveParams2Map(scd, 0, requestParams, wsm.get_params(), errorMap, reqPropMap);
               if (!errorMap.isEmpty()) {
                 throw new IWBException(
@@ -9291,13 +9290,9 @@ public class FrameworkEngine {
                     reqPropMap.put("Content-Type", "application/yaml;charset=UTF-8");
                   break;
               }
-            }
           }
-          if(wsm.getParamSendTip()==5) { //raw
-          	params = (String)m.get("body");
-          	m.clear();
-          } else if(wsm.getParamSendTip()==4) {  //free
-              String postUrl = (String) requestParams.get("post_url");
+          if(wsm.getPostUrlFlag()!=0){  //post_url_flag
+              String postUrl = (String) requestParams.get("_post_url");
               if (!GenericUtil.isEmpty(postUrl)) url += postUrl;
             }
 
