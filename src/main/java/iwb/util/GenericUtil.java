@@ -1435,7 +1435,7 @@ public class GenericUtil {
           return GenericUtil.isEmpty(lr) ? null : lr.get(0);
         } else return defaultValue;
       case 5: // Custom JS Rhino
-        ContextFactory factory = MyFactory.getGlobal();
+        ContextFactory factory = RhinoConextFactory.getGlobal();
         Context cx = factory.enterContext();
 
         // Context cx = Context.enter();

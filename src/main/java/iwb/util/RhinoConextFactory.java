@@ -5,7 +5,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 
-public class MyFactory extends ContextFactory {
+public class RhinoConextFactory extends ContextFactory {
   // Custom {@link Context} to store execution time.
   private static class MyContext extends Context {
     long startTime;
@@ -13,7 +13,7 @@ public class MyFactory extends ContextFactory {
 
   static {
     // Initialize GlobalFactory with custom factory
-    ContextFactory.initGlobal(new MyFactory());
+    ContextFactory.initGlobal(new RhinoConextFactory());
   }
 
   // Override {@link #makeContext()}

@@ -117,7 +117,7 @@ import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 import iwb.util.MailUtil;
-import iwb.util.MyFactory;
+import iwb.util.RhinoConextFactory;
 import iwb.util.UserUtil;
 
 @SuppressWarnings({"unchecked", "unused"})
@@ -1910,7 +1910,7 @@ public class PostgreSQL extends BaseDAO {
                           if (GenericUtil.isEmpty(cellResult.getValue())) cellResult.setValue(" ");
                           break;
                         case 5: // CustomJS(Rhino)
-                          ContextFactory factory = MyFactory.getGlobal();
+                          ContextFactory factory = RhinoConextFactory.getGlobal();
                           Context cx = factory.enterContext();
 
                           // Context cx = Context.enter();
@@ -2352,7 +2352,7 @@ public class PostgreSQL extends BaseDAO {
         if (m != null) result = (m.values().iterator().next().toString());
         break;
       case 5: // CustomJS(Rhino)
-        ContextFactory factory = MyFactory.getGlobal();
+        ContextFactory factory = RhinoConextFactory.getGlobal();
         Context cx = factory.enterContext();
 
         // Context cx = Context.enter();
@@ -2585,7 +2585,7 @@ public class PostgreSQL extends BaseDAO {
               }
               break;
             case 5: // CustomJS(Rhino)
-              ContextFactory factory = MyFactory.getGlobal();
+              ContextFactory factory = RhinoConextFactory.getGlobal();
               Context cx = factory.enterContext();
 
               // Context cx = Context.enter();
@@ -3704,7 +3704,8 @@ public class PostgreSQL extends BaseDAO {
     for (W5TableField p1 : t.get_tableFieldList())
       if (p1.getCanInsertFlag() != 0 && !usedFields.contains(p1.getDsc()))
         switch (p1.getSourceTip()) {
-          case 4: // calculated Fieldlar icin
+       
+          case 4: // SQL calculated Fieldlar icin
             if (b) {
               sql.append(" , ");
               postSql.append(" , ");
@@ -3724,6 +3725,7 @@ public class PostgreSQL extends BaseDAO {
             insertParams.add(null);
             paramCount++;
             break;
+          case	5://javascript
           case 2: // session
             Object psonuc =
                 GenericUtil.prepareParam(
@@ -5058,7 +5060,7 @@ private void reloadWsServersCache(String projectId) {
     Log5GlobalFuncAction action = new Log5GlobalFuncAction(r);
     String error = null;
     if (r.getGlobalFunc().getLkpCodeType() == 1) {
-      ContextFactory factory = MyFactory.getGlobal();
+      ContextFactory factory = RhinoConextFactory.getGlobal();
       Context cx = factory.enterContext();
 
       // Context cx = Context.enter();
@@ -6329,7 +6331,7 @@ private void reloadWsServersCache(String projectId) {
       }
     switch (conversionTip) {
       case 3: // JavaScript
-        ContextFactory factory = MyFactory.getGlobal();
+        ContextFactory factory = RhinoConextFactory.getGlobal();
         Context cx = factory.enterContext();
 
         // Context cx = Context.enter();
@@ -6474,7 +6476,7 @@ private void reloadWsServersCache(String projectId) {
       Map obj,
       String result) {
     if (GenericUtil.isEmpty(script)) return null;
-    ContextFactory factory = MyFactory.getGlobal();
+    ContextFactory factory = RhinoConextFactory.getGlobal();
     Context cx = factory.enterContext();
 
     // Context cx = Context.enter();
@@ -8139,7 +8141,7 @@ private void reloadWsServersCache(String projectId) {
     r.setScd(scd);
     r.setErrorMap(new HashMap());
     r.setRequestParams(parameterMap);
-    ContextFactory factory = MyFactory.getGlobal();
+    ContextFactory factory = RhinoConextFactory.getGlobal();
     Context cx = factory.enterContext();
 
     // Context cx = Context.enter();
@@ -8249,7 +8251,7 @@ private void reloadWsServersCache(String projectId) {
   }
 
   public void executeQueryAsRhino(W5QueryResult qr, String code) {
-    ContextFactory factory = MyFactory.getGlobal();
+    ContextFactory factory = RhinoConextFactory.getGlobal();
     Context cx = factory.enterContext();
 
     // Context cx = Context.enter();
@@ -8414,7 +8416,7 @@ private void reloadWsServersCache(String projectId) {
   }
 
   public Map executeQueryAsRhino4Debug(W5QueryResult qr, String script) {
-    ContextFactory factory = MyFactory.getGlobal();
+    ContextFactory factory = RhinoConextFactory.getGlobal();
     Context cx = factory.enterContext();
 
     // Context cx = Context.enter();

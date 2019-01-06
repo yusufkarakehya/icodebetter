@@ -123,7 +123,7 @@ import iwb.util.JasperUtil;
 import iwb.util.LogUtil;
 import iwb.util.MailUtil;
 import iwb.util.Money2Text;
-import iwb.util.MyFactory;
+import iwb.util.RhinoConextFactory;
 import iwb.util.UserUtil;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JRPrintPage;
@@ -3603,7 +3603,7 @@ public class FrameworkEngine {
                       key.substring(0, key.length() - prefix.length()), requestParams.get(key));
                 }
           }
-          ContextFactory factory = MyFactory.getGlobal();
+          ContextFactory factory = RhinoConextFactory.getGlobal();
           Context cx = factory.enterContext();
 
           // Context cx = Context.enter();

@@ -12,6 +12,8 @@ import java.util.Map;
 import org.mozilla.javascript.NativeObject;
 import org.springframework.core.task.TaskExecutor;
 
+import com.rabbitmq.client.Channel;
+
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
@@ -24,6 +26,7 @@ import iwb.exception.IWBException;
 import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
+import iwb.util.MQUtil;
 import iwb.util.UserUtil;
 
 public class ScriptEngine {
@@ -59,6 +62,18 @@ public class ScriptEngine {
   	return null;//TODO
   }
   */
+  
+  public String mqBasicPublish(String host, String queueName, String msg){
+	  Channel ch = MQUtil.getChannel4Queue(host, queueName);
+	  if(ch==null)return "Connection Error";
+	  try {
+		  ch.basicPublish("", queueName, null, msg.toString().getBytes("UTF-8"));
+		  return null;
+	  } catch (Exception e) {
+			return e.getMessage();
+	  }
+	  
+  }
 
   public String getCurrentDate() {
     return dao.getCurrentDate((Integer) scd.get("customizationId"));
