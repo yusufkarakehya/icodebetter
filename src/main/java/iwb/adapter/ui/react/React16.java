@@ -2361,7 +2361,7 @@ public class React16 implements ViewAdapter {
 		if (d.getDefaultPageRecordNumber() != 0)
 			buf.append(",\n pageSize:").append(d.getDefaultPageRecordNumber());
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
-		buf.append(",\n render(record){\n")
+		buf.append(",\n render(props, ...extrapProps){\n")
 				.append(d.getTemplateCode())
 				.append("\n}");
 		
