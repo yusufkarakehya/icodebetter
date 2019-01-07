@@ -1447,11 +1447,12 @@ class XMasonry extends React.PureComponent {
       const y = entities[0].boundingClientRect.y;
       if (this.state.prevY > y) {
         this.props.loadNext && this.setState({ loading: true });
-        this.props.loadNext &&
-          this.props.loadNext({
+        this.props.loadNext && !this.props.loadNext(
+          {
             columns: this.mapChildren().length,
             totalItems: this.props.children.reduce((tot, ch) => tot + 1, 0)
-          });
+          }
+        ) && this.setState({ loading: false });
       }
       this.setState({ prevY: y });
     };
@@ -1498,10 +1499,10 @@ class XMasonry extends React.PureComponent {
     return React.createElement(
       Row,
       {
+        className:'xMasonryRoot',
         style: {
           overflowY: "auto",
-          margin: "5px",
-//          height: this.props.height || "500px",
+          height: this.props.height || "500px",
           ...this.props.masonryRowStyle
         }
       },
@@ -1530,7 +1531,7 @@ class XMasonry extends React.PureComponent {
             height: "10%",
             width: "100%",
             margin: "0px",
-            display: this.props.loadNext ? "block" : "none"
+            display: this.props.loadNext? "block" : "none"
           }
         },
         React.createElement(
