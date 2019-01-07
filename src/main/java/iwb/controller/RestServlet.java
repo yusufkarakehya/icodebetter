@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,6 +40,7 @@ import iwb.domain.result.W5QueryResult;
 import iwb.engine.FrameworkEngine;
 import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
+import iwb.util.HttpUtil;
 import iwb.util.UserUtil;
 
 @Controller
@@ -65,20 +67,22 @@ public class RestServlet implements InitializingBean {
 		logger.info("hndREST:"+request.getRequestURI());
 		request.setCharacterEncoding( "UTF-8" );
 		response.setCharacterEncoding( "UTF-8" );
-		response.setContentType("text/xml");
 		try {
 			String[] u = request.getRequestURI().replace('/', ',').split(",");
 			Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 			String token = requestParams.get("tokenKey");
-			String projectId=u[u.length-2]; 
-			String method=u[u.length-1]; 
-			if(method.endsWith(".wadl") || method.endsWith(".WADL")){
-				if(method.endsWith(".wadl") || method.endsWith(".WADL"))method=method.substring(0, method.length()-5);
-			    W5WsServer wss = FrameworkCache.getWsServer(projectId, method);
-				if(wss==null)throw new IWBException("rest","WS Not Found",0,method, "WS Not Found", null);
+			String projectId=u[2]; 
+			String serviceName=u[3]; 
+			response.setContentType("application/json");
+
+			if(serviceName.endsWith(".wadl") || serviceName.endsWith(".WADL")){
+				if(serviceName.endsWith(".wadl") || serviceName.endsWith(".WADL"))serviceName=serviceName.substring(0, serviceName.length()-5);
+			    W5WsServer wss = FrameworkCache.getWsServer(projectId, serviceName);
+				if(wss==null)throw new IWBException("rest","WS Not Found",0,serviceName, "WS Not Found", null);
 				Map<String, Object> wsmoMap = engine.getWsServerMethodObjects(wss);
+				response.setContentType("text/xml");
 				response.getWriter().write(serializeRestWADL(wss, wsmoMap).toString());
-			} else if(method.equals("login")){
+			} else if(serviceName.equals("login")){
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
@@ -129,64 +133,83 @@ public class RestServlet implements InitializingBean {
 				}
 
 	//		} else if(u[0].equals("selectUserRole")){
-			} else if(method.equals("ping")){
+			} else if(serviceName.equals("ping")){
 				response.getWriter().write("{\"success\":true,\"session\":" + !(GenericUtil.isEmpty(token) || GenericUtil.isEmpty(UserUtil.getScdFromToken(token, ""))) + "}");
 				return;
 			} else {
-				Map<String, Object> scd = GenericUtil.isEmpty(token) ? null : UserUtil.getScdFromToken(token, "");
-				if(GenericUtil.isEmpty(scd)){
-					throw new IWBException("session","No Session",0,null, "No valid token", null);
+				String ss[] = serviceName.replace('.', ',').split(",");
+				W5WsServer wss = FrameworkCache.getWsServer(projectId, ss[0]);
+				if(wss==null)
+					throw new IWBException("framework","WrongService",0,null, "Wrong Service: Should Be [ServiceName].[MethodName]", null);
+				W5WsServerMethod wsm = null;
+				for(W5WsServerMethod wsmx:wss.get_methods())if(wsmx.getDsc().equals(ss[1])){
+					wsm = wsmx;
+					break;
+				}
+				if(wsm==null)
+					throw new IWBException("framework","WrongMethod",0,null, "Wrong Method: Should Be [ServiceName].[MethodName]", null);
+				
+				Map<String, Object> scd = null;
+				if(GenericUtil.isEmpty(wsm.getAccessSourceTypes()) || GenericUtil.hasPartInside2(wsm.getAccessSourceTypes(), "1")){
+					scd = GenericUtil.isEmpty(token) ? null : UserUtil.getScdFromToken(token, "");
+					if(!GenericUtil.hasPartInside2(wsm.getAccessSourceTypes(), "6") && GenericUtil.isEmpty(scd)){
+						throw new IWBException("session","No Session",0,null, "No valid token", null);
+					}
+				}
+				if(scd==null){
+					scd = new HashMap();
+					scd.put("projectId", projectId);
 				}
 
-				W5WsServer wss = FrameworkCache.getWsServer(projectId, method);
-
-				if(wss==null)throw new IWBException("ws","WS Not Found",0,u[u.length-2], "WS Not Found", null);
+				if(wsm.getDataAcceptTip()==2){//JSON
+					JSONObject jo = HttpUtil.getJson(request);
+					requestParams = jo!=null ? GenericUtil.fromJSONObjectToMap(jo) : new HashMap();
+				}
 				
 				W5FormResult fr=null; 
-				for(W5WsServerMethod wsm:wss.get_methods())if(wsm.getDsc().equals(method)){
-					switch(wsm.getObjectTip()){
-					case	0://show Record
-						fr = engine.getFormResult(scd, wsm.getObjectId(), 1, requestParams);
-						response.getWriter().write(ext3_4.serializeGetFormSimple(fr).toString());
-						response.getWriter().close();
-						break;
-					case	1://update Record by Form
-					case	2://insert Record by Form
-					case	3://delete Record by Form
-						if(FrameworkSetting.liveSyncRecord4WS)requestParams.put(".w","ws-server");
-						fr = engine.postForm4Table(scd, wsm.getObjectId(), wsm.getObjectTip(), requestParams, "");
-						response.getWriter().write(ext3_4.serializePostForm(fr).toString());
-						response.getWriter().close();		
-						if (FrameworkSetting.liveSyncRecord4WS && fr.getErrorMap().isEmpty()){
-							UserUtil.syncAfterPostFormAll(fr.getListSyncAfterPostHelper());
-						}
-
-						break;
-					case	4://run Rhino
-						response.getWriter().write(ext3_4.serializeGlobalFunc(engine.executeFunc(scd, wsm.getObjectId(), requestParams, (short)1)).toString());
-						response.getWriter().close();
-						break;
-					case	19: //run Query
-						W5QueryResult qr = engine.executeQuery(scd, wsm.getObjectId(), requestParams);
-						if(wsm.get_params()!=null){
-							List<W5QueryField> lqf = new ArrayList();
-							Map<String,W5QueryField> qfm = new HashMap();
-							for(W5QueryField qf:qr.getQuery().get_queryFields()){
-								qfm.put(qf.getDsc(), qf);
-							}
-							for(W5WsServerMethodParam wsmp:wsm.get_params())if(wsmp.getOutFlag()!=0 && wsmp.getParamTip()!=10){
-								lqf.add(qfm.get(wsmp.getDsc()));
-							}
-							qr.setNewQueryFields(lqf);								
-						}
-						response.getWriter().write(ext3_4.serializeQueryData(qr).toString());
-						response.getWriter().close();
-						break;
-					case	31:case	32:case	33:
-						throw new IWBException("ws","TODO",0,null, "Methods Not Implemented", null);
+				switch(wsm.getObjectTip()){
+				case	0://show Record
+					fr = engine.getFormResult(scd, wsm.getObjectId(), 1, requestParams);
+					response.getWriter().write(ext3_4.serializeGetFormSimple(fr).toString());
+					response.getWriter().close();
+					break;
+				case	1://update Record by Form
+				case	2://insert Record by Form
+				case	3://delete Record by Form
+					if(FrameworkSetting.liveSyncRecord4WS)requestParams.put(".w","ws-server");
+					fr = engine.postForm4Table(scd, wsm.getObjectId(), wsm.getObjectTip(), requestParams, "");
+					response.getWriter().write(ext3_4.serializePostForm(fr).toString());
+					response.getWriter().close();		
+					if (FrameworkSetting.liveSyncRecord4WS && fr.getErrorMap().isEmpty()){
+						UserUtil.syncAfterPostFormAll(fr.getListSyncAfterPostHelper());
 					}
-					return;
-				} 
+
+					break;
+				case	4://run Rhino
+					response.getWriter().write(ext3_4.serializeGlobalFunc(engine.executeFunc(scd, wsm.getObjectId(), requestParams
+							, GenericUtil.hasPartInside2(wsm.getAccessSourceTypes(), "1") ? (short)1:(short)6)).toString());
+					response.getWriter().close();
+					break;
+				case	19: //run Query
+					W5QueryResult qr = engine.executeQuery(scd, wsm.getObjectId(), requestParams);
+					if(wsm.get_params()!=null){
+						List<W5QueryField> lqf = new ArrayList();
+						Map<String,W5QueryField> qfm = new HashMap();
+						for(W5QueryField qf:qr.getQuery().get_queryFields()){
+							qfm.put(qf.getDsc(), qf);
+						}
+						for(W5WsServerMethodParam wsmp:wsm.get_params())if(wsmp.getOutFlag()!=0 && wsmp.getParamTip()!=10){
+							lqf.add(qfm.get(wsmp.getDsc()));
+						}
+						qr.setNewQueryFields(lqf);								
+					}
+					response.getWriter().write(ext3_4.serializeQueryData(qr).toString());
+					response.getWriter().close();
+					break;
+				case	31:case	32:case	33:
+					throw new IWBException("ws","TODO",0,null, "Methods Not Implemented", null);
+				}
+				return;
 			}
 		} catch (Exception e) {
 			response.getWriter().write(new IWBException("framework","WADL Def",0,null, "Error", e).toJsonString(request.getRequestURI()));
