@@ -5110,6 +5110,10 @@ private void reloadWsServersCache(String projectId) {
           if (sc.length() > 4) sc.append(";\n");
           else sc.setLength(0);
         }
+        Object requestJson = r.getRequestParams().get("_json");
+        if(requestJson!=null && requestJson instanceof JSONObject){
+        	sc.append("var json=").append(((JSONObject)requestJson).toString()).append(";\n");        	
+        }
         if (script.contains("$iwb.") || script.contains("$.")) {
             ScriptEngine se = new ScriptEngine(r.getScd(), r.getRequestParams(), this, engine);
             Object wrappedOut = Context.javaToJS(se, scope);
