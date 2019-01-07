@@ -5112,7 +5112,8 @@ private void reloadWsServersCache(String projectId) {
         }
         Object requestJson = r.getRequestParams().get("_json");
         if(requestJson!=null && requestJson instanceof JSONObject){
-        	sc.append("var json=").append(((JSONObject)requestJson).toString()).append(";\n");        	
+        	sc.append("var json=").append(((JSONObject)requestJson).toString()).append(";\n");   
+        	r.getRequestParams().remove("_json");
         }
         if (script.contains("$iwb.") || script.contains("$.")) {
             ScriptEngine se = new ScriptEngine(r.getScd(), r.getRequestParams(), this, engine);

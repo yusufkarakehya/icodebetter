@@ -71,7 +71,7 @@ public class RestServlet implements InitializingBean {
 			String token = (String)requestParams.get("tokenKey");
 			String projectId=u[2]; 
 			String serviceName=u[3]; 
-			String methodName=u[3]; 
+			String methodName=u[4]; 
 			response.setContentType("application/json");
 
 			W5WsServer wss = FrameworkCache.getWsServer(projectId, serviceName);
