@@ -132,7 +132,7 @@ public class AppServlet implements InitializingBean {
 		} catch(Exception e){}
 		ScriptEngine.taskExecutor = this.taskExecutor;
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
-		if(FrameworkSetting.logType==2)LogUtil.activateMQ();
+		if(FrameworkSetting.logType==2)LogUtil.activateMQ4Log();
 	}
         
 	private ViewAdapter getViewAdapter(Map<String, Object> scd, HttpServletRequest request, ViewAdapter defaultRenderer){

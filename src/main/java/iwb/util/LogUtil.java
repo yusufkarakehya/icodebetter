@@ -15,20 +15,14 @@ public class LogUtil {
 	private static int errorCount = 0;
 	private static Channel mqChannel = null;
 	
-	public static void activateMQ(){
+	public static void activateMQ4Log(){
 		if(FrameworkSetting.logType!=2)return;
 		try{
-		    ConnectionFactory factory = new ConnectionFactory();
-		    factory.setHost(FrameworkSetting.log2mqUrl);
-		    Connection connection = factory.newConnection();
-		    Channel channel = connection.createChannel();
-
-		    channel.queueDeclare(FrameworkSetting.log2mqQueue, false, false, false, null);
-			mqChannel = channel;
+			mqChannel = MQUtil.getChannel4Queue(FrameworkSetting.log2mqUrl, FrameworkSetting.log2mqQueue);
 		}catch(Exception e){
-			FrameworkSetting.logType = 0;
-			e.printStackTrace();
+			if(FrameworkSetting.debug)e.printStackTrace();
 		}
+		if(mqChannel==null)FrameworkSetting.logType = 0;
 
 	}	
 	
