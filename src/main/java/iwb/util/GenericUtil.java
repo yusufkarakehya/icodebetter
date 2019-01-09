@@ -2821,7 +2821,7 @@ public class GenericUtil {
 	            .append(": ")
 	            .append(fromNativeArrayToJsonString2Recursive((NativeArray) o));
 	      } else*/
-	        html.append(q).append(": ").append(stringToJS2(o.toString()));
+	        html.append(q).append(": ").append((o.toString()));//stringToJS2
 	    }
 	    return html.toString();
 	 
