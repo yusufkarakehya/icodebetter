@@ -460,8 +460,9 @@ public class ScriptEngine {
         .append(" x where x.")
         .append(t.get_tableParamList().get(0).getExpressionDsc())
         .append("=?");
-    if (t.get_tableParamList().size() > 1)
-      s.append(" AND x.customization_id=").append(scd.get("customizationId"));
+    if (t.get_tableParamList().size() > 1) {
+    	s.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
+    }
     List p = new ArrayList();
     p.add(t.get_tableParamList().get(0).getParamTip() == 1 ? tablePk : GenericUtil.uInt(tablePk));
     List l = dao.executeSQLQuery2Map(s.toString(), p);
