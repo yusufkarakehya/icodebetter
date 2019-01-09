@@ -9107,7 +9107,16 @@ public class FrameworkEngine {
           	if(p.getParamTip()==9 || p.getParamTip()==8) { //object/json
           		m.put(p.getDsc(), recursiveParams2Map(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap, reqPropMap));
           	} else if(p.getParamTip()==10) {//array
-          		m.put(p.getDsc(), recursiveParams2List(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap, GenericUtil.uInt(p.getDefaultValue())));          		
+          		if (p.getSourceTip()==0) { //constant ise altini da doldur
+              		m.put(p.getDsc(), recursiveParams2List(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap, GenericUtil.uInt(p.getDefaultValue())));          		
+          		} else { // aksi halde oldugu gibi yaz
+          			Object res = null;
+          			if(requestParams.containsKey(p.getDsc()))res = requestParams.get(p.getDsc());
+          			if(GenericUtil.isEmpty(res))res = p.getDefaultValue();
+          			if(!GenericUtil.isEmpty(res)) {
+          				m.put(p.getDsc(), GenericUtil.fromJSONArrayToList(new JSONArray(res.toString())));        				
+          			}          			
+          		}
           	} else {
               Object o =
                   GenericUtil.prepareParam(
