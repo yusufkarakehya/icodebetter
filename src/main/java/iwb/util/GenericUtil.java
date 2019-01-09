@@ -46,6 +46,7 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
@@ -2459,30 +2460,39 @@ public class GenericUtil {
     return no;
   }
 
+  	private static Object getJavaObject(Object val) {
+  		if (val == null) return null;
+          if (val instanceof NativeJavaArray) {
+        	  NativeJavaArray ar = (NativeJavaArray) val;
+        	  List ll = new ArrayList();
+        	  for(int qi=0;ar.has(qi, null);qi++) {
+        		  ll.add(getJavaObject(ar.get(qi, null)));
+        	  }
+        		  
+        	  return ll;
+          }
+          if (val instanceof NativeJavaObject) {
+              return ((NativeJavaObject) val).unwrap();
+          }
+          
+          if (val instanceof NativeObject) {
+            return fromNativeObjectToMap((NativeObject) val);
+          } else if (val instanceof NativeArray) {
+        	  return fromNativeArrayToList((NativeArray) val);
+          }  else if (val instanceof Integer
+                  || val instanceof Double
+                  || val instanceof BigDecimal
+                  || val instanceof Boolean || val instanceof Map || val instanceof List) return val;
+          else return val.toString();
+  	}
 
       public static Map fromNativeObjectToMap(NativeObject o) throws JSONException {
         if (o == null) return null;
         Map no = new HashMap();
         for (Object id:o.getIds()) {
           String key = id.toString();
-          Object val = o.get(key, null);
-          if (val == null) {
-            no.put(key, null);
-            continue;
-          }
-          if (val instanceof NativeJavaObject) {
-              val = ((NativeJavaObject) val).unwrap();
-          }
+          no.put(key, getJavaObject(o.get(key, null)));
           
-          if (val instanceof NativeObject) {
-            no.put(key, fromNativeObjectToMap((NativeObject) val));
-          } else if (val instanceof NativeArray) {
-            no.put(key, fromNativeArrayToList((NativeArray) val));
-          }  else if (val instanceof Integer
-                  || val instanceof Double
-                  || val instanceof BigDecimal
-                  || val instanceof Boolean) no.put(key, val);
-          else no.put(key, val.toString());
         }
         return no;
       }
@@ -2492,23 +2502,7 @@ public class GenericUtil {
         if (o == null) return null;
         List no = new ArrayList();
         for (int qi=0;qi<o.getLength();qi++) {
-          Object val = o.get(qi, null);
-          if (val == null) {
-            no.add(null);
-            continue;
-          } 
-          if (val instanceof NativeJavaObject) {
-              val = ((NativeJavaObject) val).unwrap();
-          }          
-          if (val instanceof NativeObject) {
-        	  no.add(fromNativeObjectToMap((NativeObject) val));
-          } else if (val instanceof NativeArray) {
-        	  no.add(fromNativeArrayToList((NativeArray) val));
-          } else if (val instanceof Integer
-                  || val instanceof Double
-                  || val instanceof BigDecimal
-                  || val instanceof Boolean) no.add(val);
-          else no.add(val.toString());
+          no.add(getJavaObject(o.get(qi, null)));
         }
         return no;
       }
