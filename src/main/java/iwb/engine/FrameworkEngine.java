@@ -9250,6 +9250,9 @@ public class FrameworkEngine {
           break;
         case 2: // rest
           String url = ws.getWsUrl();
+          if(url.indexOf("${")>-1) {//has special char
+        	  url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
+          }
           if (!url.endsWith("/")) url += "/";
           url += GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
           String params = null;
@@ -9261,7 +9264,11 @@ public class FrameworkEngine {
                   new String[] {"text/plain","application/json", "application/xml"}[wsm.getHeaderAcceptTip()]);
             }
           if(ws.getWssTip()==1 && !GenericUtil.isEmpty(ws.getWssCredentials())) { //credentials
-        	  String[] lines = ws.getWssCredentials().split("\n");
+        	  String cr = ws.getWssCredentials();
+              if(cr.indexOf("${")>-1) {//has special char
+            	  cr = GenericUtil.filterExt(url, scd, requestParams, null).toString();
+              }
+        	  String[] lines = cr.split("\n");
         	  for(int qi=0;qi<lines.length;qi++) {
         		  int ii = lines[qi].indexOf(':');
         		  if(ii>0) {
