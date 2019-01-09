@@ -9114,7 +9114,10 @@ public class FrameworkEngine {
           			if(requestParams.containsKey(p.getDsc()))res = requestParams.get(p.getDsc());
           			if(GenericUtil.isEmpty(res))res = p.getDefaultValue();
           			if(!GenericUtil.isEmpty(res)) {
-          				m.put(p.getDsc(), GenericUtil.fromJSONArrayToList(new JSONArray(res.toString())));        				
+          				if(res instanceof String)
+          					m.put(p.getDsc(), res);
+          				else
+          					m.put(p.getDsc(), GenericUtil.fromJSONArrayToList(new JSONArray(res.toString())));        				
           			}          			
           		}
           	} else {
