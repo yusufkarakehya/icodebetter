@@ -81,7 +81,10 @@ public class ScriptEngine {
   public int mqQueueMsgCount(String host, String queueName){
 	  return MQUtil.getQueueMsgCount(host, queueName);
   }
-
+  public void mqClose(String host, String queueName) {
+	  MQUtil.close(host, queueName);
+  }
+  
   public String getCurrentDate() {
     return dao.getCurrentDate((Integer) scd.get("customizationId"));
   }

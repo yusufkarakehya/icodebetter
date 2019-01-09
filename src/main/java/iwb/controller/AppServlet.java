@@ -126,9 +126,9 @@ public class AppServlet implements InitializingBean {
 		// dao.organizeAudit();
 		engine.setJVMProperties(0);
 		try{
-		manPicPath = new ClassPathResource("static/ext3.4.1/custom/images/man-64.png").getFile().getPath();
-		brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
-		womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
+			manPicPath = new ClassPathResource("static/ext3.4.1/custom/images/man-64.png").getFile().getPath();
+			brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
+			womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
 		} catch(Exception e){}
 		ScriptEngine.taskExecutor = this.taskExecutor;
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
@@ -1400,7 +1400,7 @@ public class AppServlet implements InitializingBean {
 					session.removeAttribute("authToken");
 					scd.put("locale", "en");
 			        W5Project po = FrameworkCache.getProject(scd);
-			        scd.put("_renderer2", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+			        if(po!=null)scd.put("_renderer2", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 					scd.put("sessionId", session.getId());
 					session.setAttribute("scd-dev", scd);
 				}

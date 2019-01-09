@@ -460,22 +460,26 @@ public class FrameworkCache {
 	}
 	
 	public static int getAppSettingIntValue(Object customizationId, String key){
+		if(FrameworkSetting.argMap.containsKey(key))return GenericUtil.uInt(FrameworkSetting.argMap.get(key));
 		Map<String, String> map = appSettings.get(getCustomizationId(customizationId));
 		if(map==null)map = appSettings.get(0);
 		return GenericUtil.uInt(map.get(key));
 	}
 	public static int getAppSettingIntValue(Object customizationId, String key, int defaultValue){
+		if(FrameworkSetting.argMap.containsKey(key))return GenericUtil.uInt(FrameworkSetting.argMap.get(key));
 		Map<String, String> map = appSettings.get(getCustomizationId(customizationId));
 		if(map==null)map = appSettings.get(0);
 		String res = map.get(key);
 		return res==null ? defaultValue : GenericUtil.uInt(res);
 	}
 	public static String getAppSettingStringValue(Object customizationId, String key){
+		if(FrameworkSetting.argMap.containsKey(key))return FrameworkSetting.argMap.get(key);
 		Map<String, String> map = appSettings.get(getCustomizationId(customizationId));
 		if(map==null)map = appSettings.get(0);
 		return map.get(key);
 	}	
 	public static String getAppSettingStringValue(Object customizationId, String key, String defaultValue){
+		if(FrameworkSetting.argMap.containsKey(key))return FrameworkSetting.argMap.get(key);
 		Map<String, String> map = appSettings.get(getCustomizationId(customizationId));
 		if(map==null)map = appSettings.get(0);
 		String res = map.get(key);
