@@ -1330,7 +1330,7 @@ class MapInput extends React.PureComponent {
 	     */
 	    this.onClick = event => {
 	    	this.toggle();
-	    	if(!event)return
+	    	if(!event)return;
         event.preventDefault();
         let val  = (this.props.stringifyResult)?JSON.stringify(this.state):this.state;
 	    	event.target = {...this.props , value: val}
@@ -1398,7 +1398,7 @@ class MapInput extends React.PureComponent {
  *    } </XMasonry>
  * ```
  */
-class XMasonry extends React.PureComponent {
+class XMasonry extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -1411,7 +1411,9 @@ class XMasonry extends React.PureComponent {
      */
     this.onResize = () => {
       const columns = this.getColumns(this.refs.Masonry.offsetWidth);
-      if (columns !== this.state.columns) this.setState({ columns: columns });
+      if (columns !== this.state.columns){
+        this.setState({ columns: columns });
+      } 
     };
     /**
      * a function used to calculate columns from this.props.breakPoints
@@ -1465,6 +1467,9 @@ class XMasonry extends React.PureComponent {
     ) {
       this.setState({ loading: false });
     }
+    if(prevProps.breakPoints.length !== this.props.breakPoints.length){
+      this.onResize();
+    }
     return true;
   }
   componentDidMount() {
@@ -1487,28 +1492,21 @@ class XMasonry extends React.PureComponent {
     }
   }
   render() {
-    const masonryStyle = {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "center",
-      alignContent: "stretch",
-      width: "100%",
-      margin: "auto",
-      ...this.props.masonryStyle
-    };
+    const masonryStyle = this.props
     return React.createElement(
       Row,
       {
-        className:'xMasonryRoot',
-        style: {
-          overflowY: "auto",
-          height: this.props.height || "500px",
-          ...this.props.masonryRowStyle
-        }
+        className:`xMasonryRoot overflowY-auto scrollY`,
+        ...this.props.root
       },
       React.createElement(
         "div",
-        { style: masonryStyle, ref: "Masonry" },
+        { 
+          className:'d-flex flex-row justify-content-center align-content-stretch flex-fill m-auto w-100',
+          style: masonryStyle,
+          ref: "Masonry",
+          ...this.props.rootInner
+        },
         this.mapChildren().map((col, ci) => {
           return React.createElement(
             Col,
@@ -1516,7 +1514,7 @@ class XMasonry extends React.PureComponent {
             col.map((child, i) => {
               return React.createElement(
                 Card,
-                { key: i, className: "mt-2 mb-2" },
+                { key: i, className: "mt-2 mb-2" , ...this.props.item },
                 child
               );
             })
@@ -2139,7 +2137,11 @@ class XGridRowAction extends React.PureComponent {
     super(props);
     if (iwb.debug) console.log("XGridRowAction", props);
     this.state = { isOpen: false };
-    this.toggle = () => this.setState({ isOpen: !this.state.isOpen });
+    this.toggle = (event) => {
+      event.preventDefault();
+      event.stopPropagation() 
+      this.setState({ isOpen: !this.state.isOpen });
+    }
   }
   render() {
     const {
@@ -2156,7 +2158,7 @@ class XGridRowAction extends React.PureComponent {
     } = this;
     return _(
       Dropdown,
-      { isOpen, toggle },
+      { isOpen, toggle, className:this.props.className },
       _(DropdownToggle, {
         tag: "i",
         className: "icon-options-vertical column-action"
@@ -2192,19 +2194,47 @@ class XGridRowAction extends React.PureComponent {
               getLocMsg('delete')
             ),
           menuButtons &&
-            menuButtons.map(({ text, handler, cls }) => {
-              cls = cls.split('|');
-              return _(
-                DropdownItem,
-                { key: text, onClick: event=>handler.call(this.state , event, rowData, parentCt), className:cls[1] },
-                _("span", { className: 'mr-2 ' + cls[0] }),
-                text
-              );
-            })
+          menuButtons.map(({
+            text = 'ButtonTextWillBeHere',
+            handler = (event, rowData, parentCt) => {
+              console.group();
+              console.warn('No Render Method! event, rowData, parentCt ');
+              console.table([{ 'event':event, 'rowData':rowData, 'parentCt':parentCt }])
+            },
+            cls = ''
+          }) => {
+            cls = cls.split('|');
+            return _(
+              DropdownItem, {
+                key: text,
+                onClick: event => handler.call(this.state, event, rowData, parentCt),
+                className: cls[1]
+              },
+              _("span", { className: 'mr-2 ' + cls[0] }),
+              text
+            );
+          })
         )
     );
   }
 }
+XGridRowAction.propTypes = {
+  rowData:PropTypes.object,
+  parentCt: PropTypes.obj,
+  menuButtons:PropTypes.arrayOf(
+    PropTypes.shape({
+      text: PropTypes.string,
+      handler: PropTypes.func,
+      cls: PropTypes.string
+    })
+  ),
+  onEditClick: PropTypes.func,
+  onDeleteClick: PropTypes.func,
+  crudFlags: PropTypes.shape({
+    edit: PropTypes.bool,
+    remove: PropTypes.bool
+  }),
+};
 /**
  * @deprecated
  * todo: not used yet
