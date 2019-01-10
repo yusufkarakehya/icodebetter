@@ -3585,56 +3585,60 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	    };
 	  } 
 	  var tbiNums = (mainGrid.searchForm?1:0)+(mainGrid.orderNames?1:0) + (mainGrid.crudFlags && mainGrid.crudFlags.insert ? 1:0);
-	  var tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGrid._gp)}
-	  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -36*tbiNums}),'->'];
-	  if(mainGrid.searchForm)tbarItems.push({cls:'x-btn-icon x-grid-search', id:'sfb-card-'+obj.t, _sf:searchFormPanel, tooltip:'Advanced Search', handler:function(aq){
-		  if(!aq._sf.isVisible()){
-			  aq._sf.expand();
-			  aq.hide();
-		  } else {
-			  aq._sf.collapse();
-		  }
-	  }});
-	  if(mainGrid.orderNames)tbarItems.push({cls:'x-btn-icon x-grid-sort',tooltip:'Sort',_grid:mainGrid, handler:function(aq,ev){
-		  if(!mainGrid.store.sortInfo)mainGrid.store.sortInfo={field:'', direction:'ASC'};
-		  var si = mainGrid.store.sortInfo;
-		  var xmenus=[];
-		  for(var ri=0;ri<mainGrid.orderNames.length;ri++){
-			  var rr = mainGrid.orderNames[ri];
-			  var o = {text:rr.dsc, _id:rr.id, handler:function(ab){
-				  var xsort='ASC';
-				  if(si.field==ab._id){
-					  si.direction = (si.direction=='ASC') ? 'DESC':'ASC';
-				  }
-				  si.field=ab._id;
-				  mainGrid.store.reload();
-			  }};
-			  if(si.field==rr.id){
-				  o.cls='xg-hmenu-sort-'+si.direction.toLowerCase();
+	  var tbarItems;
+	  if(mainGrid.tbarItems)tbarItems=mainGrid.tbarItems;
+	  else {
+		  tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGrid._gp)}
+		  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -36*tbiNums}),'->'];
+		  if(mainGrid.searchForm)tbarItems.push({cls:'x-btn-icon x-grid-search', id:'sfb-card-'+obj.t, _sf:searchFormPanel, tooltip:'Advanced Search', handler:function(aq){
+			  if(!aq._sf.isVisible()){
+				  aq._sf.expand();
+				  aq.hide();
+			  } else {
+				  aq._sf.collapse();
 			  }
-			  xmenus.push(o);
+		  }});
+		  if(mainGrid.orderNames)tbarItems.push({cls:'x-btn-icon x-grid-sort',tooltip:'Sort',_grid:mainGrid, handler:function(aq,ev){
+			  if(!mainGrid.store.sortInfo)mainGrid.store.sortInfo={field:'', direction:'ASC'};
+			  var si = mainGrid.store.sortInfo;
+			  var xmenus=[];
+			  for(var ri=0;ri<mainGrid.orderNames.length;ri++){
+				  var rr = mainGrid.orderNames[ri];
+				  var o = {text:rr.dsc, _id:rr.id, handler:function(ab){
+					  var xsort='ASC';
+					  if(si.field==ab._id){
+						  si.direction = (si.direction=='ASC') ? 'DESC':'ASC';
+					  }
+					  si.field=ab._id;
+					  mainGrid.store.reload();
+				  }};
+				  if(si.field==rr.id){
+					  o.cls='xg-hmenu-sort-'+si.direction.toLowerCase();
+				  }
+				  xmenus.push(o);
+			  }
+			  //console.log('xmenus',xmenus);
+	        new Ext.menu.Menu({cls:'sort-menu',
+	            enableScrolling: false,
+	            items: xmenus
+	          }).showAt(ev.getXY());			  
+	
+		  }});
+		  if (mainGrid.crudFlags.insert) {
+			    var cfg = {
+			      id: "btn_add_" + mainGrid.id,
+			      tooltip: getLocMsg("js_new") + ' ' + (mainGrid._dscLabel || 'Record'),
+			      cls: "x-btn-icon x-grid-new",
+			      ref: "../btnInsert",
+			      showModalWindowFlag: false,
+			      _activeOnSelection: false,
+			      _grid: mainGrid
+			    };
+			    if (mainGrid.mnuRowInsert) cfg.menu = mainGrid.mnuRowInsert;
+			    else cfg.handler = mainGrid.fnRowInsert || fnRowInsert;
+			    tbarItems.push(cfg);
 		  }
-		  //console.log('xmenus',xmenus);
-        new Ext.menu.Menu({cls:'sort-menu',
-            enableScrolling: false,
-            items: xmenus
-          }).showAt(ev.getXY());			  
-
-	  }});
-	  if (mainGrid.crudFlags.insert) {
-		    var cfg = {
-		      id: "btn_add_" + mainGrid.id,
-		      tooltip: getLocMsg("js_new") + ' ' + (mainGrid._dscLabel || 'Record'),
-		      cls: "x-btn-icon x-grid-new",
-		      ref: "../btnInsert",
-		      showModalWindowFlag: false,
-		      _activeOnSelection: false,
-		      _grid: mainGrid
-		    };
-		    if (mainGrid.mnuRowInsert) cfg.menu = mainGrid.mnuRowInsert;
-		    else cfg.handler = mainGrid.fnRowInsert || fnRowInsert;
-		    tbarItems.push(cfg);
-		  }
+	  }
 	  mainGridPanel.tbar = {xtype:'toolbar',id:'tb-card-'+obj.t,cls:"padding0",style:'border-bottom:1px solid #d64e20;'// background:#323840;
 		  ,items:tbarItems};
 	  if (mainButtons.length > 0) {
