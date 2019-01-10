@@ -5,8 +5,8 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
 	
 
 	function doubleTreeLayout(diagram) {
-	  // Within this function override the definition of '$' from jQuery:
-	  var $ = go.GraphObject.make;  // for conciseness in defining templates
+	  // Within this function override the definition of '$$' from jQuery:
+	  var $$ = go.GraphObject.make;  // for conciseness in defining templates
 	  diagram.startTransaction("Double Tree Layout");
 	  // split the nodes and links into two Sets, depending on direction
 	  var leftParts = new go.Set(go.Part);
@@ -16,14 +16,14 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
 	  // create and perform two TreeLayouts, one in each direction,
 	  // without moving the ROOT node, on the different subsets of nodes and links
 	  var layout1 =
-	    $(go.TreeLayout,
+	    $$(go.TreeLayout,
 	      {
 	        angle: 180,
 	        arrangement: go.TreeLayout.ArrangementFixedRoots,
 	        setsPortSpot: false
 	      });
 	  var layout2 =
-	    $(go.TreeLayout,
+	    $$(go.TreeLayout,
 	      {
 	        angle: 0,
 	        arrangement: go.TreeLayout.ArrangementFixedRoots,
@@ -61,14 +61,23 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
 	    if (thisEntity.edit_url) {
 	      //      win.minimize();
 	      mainPanel.loadTab({ attributes: { href: 'showForm?a=1&_fid=' + thisEntity.edit_url } });
+	    } else if(thisEntity.json){
+	    	console.log(thisEntity);
+	    	var xid='ww-' + thisEntity.key;
+	    	var w = Ext.getCmp(xid);
+	    	if(!w){
+	    		w = new Ext.Window({id:xid,cls:'icb-opacity-hover',autoScroll:!0,title:thisEntity.object + ': ' +thisEntity.text, width: 500, height: 500, html:'<div style="width:100% !important;height:100% !important;font-size: 12px;" id="'+xid+'x"></div>'})
+	    		w.show();
+				$('#'+xid+'x').jsonViewer(thisEntity.json, { collapsedLevel: 1 });
+	    	}
 	    }
 	  }
 	}
 	
   var myDiagram = null;
-  var $ = go.GraphObject.make;  // for conciseness in defining templates in this function
+  var $$ = go.GraphObject.make;  // for conciseness in defining templates in this function
   if (!iwb.graph.diagrams[id]) {
-	  myDiagram = $(go.Diagram, id,   // must be the ID or reference to div
+	  myDiagram = $$(go.Diagram, id,   // must be the ID or reference to div
       {
         // when the user drags a node, also move/copy/delete the whole subtree starting with that node
         "commandHandler.copiesTree": false,
@@ -81,25 +90,25 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
 
     myDiagram.nodeTemplate =
       // the outer shape for the node, surrounding the Table{ doubleClick: nodeDoubleClick },
-      $(go.Node, "Vertical",
+      $$(go.Node, "Vertical",
         {
          /* isShadowed: true, shadowOffset: new go.Point(1.1, 1.1), shadowColor: "gray", shadowBlur: 2, */doubleClick: nodeDoubleClick
         },
         // define the node's outer shape
-        $(go.TextBlock,
+        $$(go.TextBlock,
           {
             stroke: "#aaa", alignment: go.Spot.Left, margin: 2, font: "normal 14px 'Open Sans', sans-serif"
           },
           new go.Binding("text", "object")),
-        $(go.Panel, "Auto", //{ isShadowed: false},
-          $(go.Shape, "RoundedRectangle",
+        $$(go.Panel, "Auto", //{ isShadowed: false},
+          $$(go.Shape, "RoundedRectangle",
             { fill: "white", strokeWidth: .5, parameter1: 15, stroke: "steelblue" }
             , new go.Binding("stroke", "borderColor")
             , new go.Binding("fill", "bgColor")
           ),
 
           // a table to contain the different parts of the node
-          $(go.TextBlock,
+          $$(go.TextBlock,
             {
               stroke: "steelblue",
               margin: 2,
@@ -112,10 +121,10 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
         ),
         {
           selectionAdornmentTemplate:
-            $(go.Adornment, "Auto",
-              $(go.Shape, "RoundedRectangle",
+            $$(go.Adornment, "Auto",
+              $$(go.Shape, "RoundedRectangle",
                 { fill: null, stroke: "dodgerblue", strokeWidth: .5 }),
-              $(go.Placeholder)
+              $$(go.Placeholder)
             )  // end Adornment
         }
       );  // end Node
@@ -123,9 +132,9 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
 
     // define the Link template
     myDiagram.linkTemplate =
-      $(go.Link,  // the whole link panel
+      $$(go.Link,  // the whole link panel
         { selectable: false, curve: go.Link.Bezier },
-        $(go.Shape, { stroke: "#777", strokeWidth: 2 }), $(go.Shape,  // the arrowhead
+        $$(go.Shape, { stroke: "#777", strokeWidth: 2 }), $$(go.Shape,  // the arrowhead
           { toArrow: "standard", fill: "#777", stroke: "#777" }));  // the link shape
     iwb.graph.diagrams[id] =  myDiagram;
   } else myDiagram = iwb.graph.diagrams[id];

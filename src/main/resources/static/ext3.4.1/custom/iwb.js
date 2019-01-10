@@ -3639,7 +3639,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 			    tbarItems.push(cfg);
 		  }
 	  }
-	  mainGridPanel.tbar = {xtype:'toolbar',id:'tb-card-'+obj.t,cls:"padding0",style:'border-bottom:1px solid #d64e20;'// background:#323840;
+	  mainGridPanel.tbar = {xtype:'toolbar',id:'tb-card-'+obj.t,cls:"padding0",style:mainGrid.tbarItems?'':'border-bottom:1px solid #d64e20;'// background:#323840;
 		  ,items:tbarItems};
 	  if (mainButtons.length > 0) {
 	    // standart toolbar
