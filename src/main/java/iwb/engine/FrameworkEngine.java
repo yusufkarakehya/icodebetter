@@ -9269,7 +9269,7 @@ public class FrameworkEngine {
           if(ws.getWssTip()==1 && !GenericUtil.isEmpty(ws.getWssCredentials())) { //credentials
         	  String cr = ws.getWssCredentials();
               if(cr.indexOf("${")>-1) {//has special char
-            	  cr = GenericUtil.filterExt(url, scd, requestParams, null).toString();
+            	  cr = GenericUtil.filterExt(cr, scd, requestParams, null).toString();
               }
         	  String[] lines = cr.split("\n");
         	  for(int qi=0;qi<lines.length;qi++) {

@@ -1691,7 +1691,7 @@ public class GenericUtil {
     StringBuilder tmp = new StringBuilder();
     if (code == null || code.length() == 0) return tmp;
     tmp.append(code);
-    for (int bas = tmp.indexOf("${"); bas > 0; bas = tmp.indexOf("${", bas + 2)) {
+    for (int bas = tmp.indexOf("${"); bas > -1; bas = tmp.indexOf("${", bas + 2)) {
       int bit = tmp.indexOf("}", bas + 2);
       String subStr = tmp.substring(bas + 2, bit);
       String replaced = null;
