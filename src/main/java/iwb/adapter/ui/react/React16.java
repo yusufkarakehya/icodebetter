@@ -2357,11 +2357,18 @@ public class React16 implements ViewAdapter {
 				buf.append(",\n extraButtons:[").append(buttons).append("]");
 			}
 		}
+		
+		if (!GenericUtil.isEmpty(d.get_menuItemList() )) { // menu (rightClick) buttonlari
+			StringBuilder buttons = serializeMenuItems(dataViewResult.getScd(), d.get_menuItemList());
+			if (buttons != null && buttons.length() > 1) {
+				buf.append(",\n menuButtons:[").append(buttons).append("]");
+			}
+		}
 
 		if (d.getDefaultPageRecordNumber() != 0)
 			buf.append(",\n pageSize:").append(d.getDefaultPageRecordNumber());
 		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
-		buf.append(",\n render(props, ...extrapProps){\n")
+		buf.append(",\n render(props){\n")
 				.append(d.getTemplateCode())
 				.append("\n}");
 		
@@ -4109,7 +4116,7 @@ columns:[
 						W5FormResult fr = (W5FormResult) i;
 						if (Math.abs(fr.getObjectTip()) == 3) { // form
 							buf.append("\nvar ").append(fr.getForm().getDsc())
-									.append("=").append(serializeGetForm(fr));
+									.append("= class bodyForm extends XForm").append(serializeGetForm(fr));
 						}
 						if (fr.getFormId() < 0) {
 							buf.append("\nvar _form")
