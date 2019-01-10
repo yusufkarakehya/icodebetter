@@ -81,7 +81,10 @@ public class ScriptEngine {
   public int mqQueueMsgCount(String host, String queueName){
 	  return MQUtil.getQueueMsgCount(host, queueName);
   }
-
+  public void mqClose(String host, String queueName) {
+	  MQUtil.close(host, queueName);
+  }
+  
   public String getCurrentDate() {
     return dao.getCurrentDate((Integer) scd.get("customizationId"));
   }
@@ -180,7 +183,7 @@ public class ScriptEngine {
         scd != null ? (Integer) scd.get("customizationId") : 0);
   }
 
-  public void console(String oMsg, String title) {
+  public void console(Object oMsg, String title) {
     if (!FrameworkSetting.debug) return;
     console(oMsg, title, null);
   }
@@ -457,8 +460,9 @@ public class ScriptEngine {
         .append(" x where x.")
         .append(t.get_tableParamList().get(0).getExpressionDsc())
         .append("=?");
-    if (t.get_tableParamList().size() > 1)
-      s.append(" AND x.customization_id=").append(scd.get("customizationId"));
+    if (t.get_tableParamList().size() > 1) {
+    	s.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
+    }
     List p = new ArrayList();
     p.add(t.get_tableParamList().get(0).getParamTip() == 1 ? tablePk : GenericUtil.uInt(tablePk));
     List l = dao.executeSQLQuery2Map(s.toString(), p);

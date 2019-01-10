@@ -22,9 +22,12 @@ public class W5WsServerMethod  implements java.io.Serializable {
 	private int objectId;
 	private W5WsServer _ws;
 	private short tabOrder;
+	private short dataAcceptTip;
 	private short accessExecuteTip;
 	private String accessExecuteRoles;
 	private String accessExecuteUsers;
+	private String accessSourceTypes;
+
 	private List<W5WsServerMethodParam> _params;
 	private Object _sourceObject;
 	
@@ -145,6 +148,22 @@ public class W5WsServerMethod  implements java.io.Serializable {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+
+	@Column(name="data_accept_tip")
+	public short getDataAcceptTip() {
+		return dataAcceptTip;
+	}
+	public void setDataAcceptTip(short dataAcceptTip) {
+		this.dataAcceptTip = dataAcceptTip;
+	}
+	@Column(name="access_source_types")
+	public String getAccessSourceTypes() {
+		return accessSourceTypes;
+	}
+
+	public void setAccessSourceTypes(String accessSourceTypes) {
+		this.accessSourceTypes = accessSourceTypes;
 	}
 	
 }

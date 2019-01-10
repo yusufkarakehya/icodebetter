@@ -247,9 +247,8 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
 }
 
 .icon-kanban {
-	background-image: url(images/kanban-26.png) !important;
 	background-position-y: center !important;
-	background-size: 16px;
+	background-size: 14px;
 }
 
 
@@ -1287,7 +1286,7 @@ a.x-menu-item{
 .x-layout-split-west .x-layout-mini, .x-layout-split-east .x-layout-mini{
 	background-image:none !important;
 }
-.ikanban{
+.ikanban, .icon-kanban{
 	background-image:url("data:image/svg+xml,%3Csvg width='128' height='128' xmlns='http://www.w3.org/2000/svg'%3E%3Cg%3E%3Cpath stroke='null' fill='%23ddd' d='m112.152732,0.088359l-96.129799,0c-8.881558,0 -15.934559,7.052206 -15.934559,15.932761l0,95.857757c0,8.880555 7.053002,15.932761 15.934559,15.932761l95.868577,0c8.881558,0 15.934559,-7.052206 15.934559,-15.932761l0,-95.857757c0.261222,-8.880555 -6.791779,-15.932761 -15.673337,-15.932761zm-56.424013,100.298034c0,4.179085 -3.39589,7.574591 -7.575446,7.574591l-23.771228,0c-4.179556,0 -7.575446,-3.395506 -7.575446,-7.574591l0,-72.611598c0,-4.179085 3.39589,-7.574591 7.575446,-7.574591l23.771228,0c4.179556,0 7.575446,3.395506 7.575446,7.574591l0,72.611598zm55.640346,-31.865521c0,4.179085 -3.39589,7.574591 -7.575446,7.574591l-23.771228,0c-4.179556,0 -7.575446,-3.395506 -7.575446,-7.574591l0,-40.746076c0,-4.179085 3.39589,-7.574591 7.575446,-7.574591l23.771228,0c4.179556,0 7.575446,3.395506 7.575446,7.574591l0,40.746076z' class='st1'/%3E%3C/g%3E%3C/svg%3E") !important;
 }
 .ext-el-mask {

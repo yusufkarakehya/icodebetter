@@ -17,6 +17,7 @@ import java.util.UUID;
 
 
 public class FrameworkSetting {
+	public static Map<String, String> argMap = new HashMap();
 	public static  boolean monaco = false;
 	public	static	int	rdbmsTip= 0; //0:PostgreSQL, 1: SQL Server, 2: Oracle
 	public	static	boolean	tsdbFlag= true; //Time SeriesDB

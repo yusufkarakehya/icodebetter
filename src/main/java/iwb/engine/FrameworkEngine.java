@@ -9107,7 +9107,22 @@ public class FrameworkEngine {
           	if(p.getParamTip()==9 || p.getParamTip()==8) { //object/json
           		m.put(p.getDsc(), recursiveParams2Map(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap, reqPropMap));
           	} else if(p.getParamTip()==10) {//array
-          		m.put(p.getDsc(), recursiveParams2List(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap, GenericUtil.uInt(p.getDefaultValue())));          		
+          		if (p.getSourceTip()==0) { //constant ise altini da doldur
+              		m.put(p.getDsc(), recursiveParams2List(scd, p.getWsMethodParamId(),  requestParams.get(p.getDsc()), params, errorMap, GenericUtil.uInt(p.getDefaultValue())));          		
+          		} else { // aksi halde oldugu gibi yaz
+          			Object res = null;
+          			if(requestParams.containsKey(p.getDsc()))res = requestParams.get(p.getDsc());
+          			if(GenericUtil.isEmpty(res))res = p.getDefaultValue();
+          			if(!GenericUtil.isEmpty(res)) {
+          				if(res instanceof String)
+          					m.put(p.getDsc(), res);
+          				else try{
+          					m.put(p.getDsc(), GenericUtil.fromJSONArrayToList(new JSONArray(res.toString())));    
+          				}catch(Exception ee){
+          					m.put(p.getDsc(), null);
+          				}
+          			}          			
+          		}
           	} else {
               Object o =
                   GenericUtil.prepareParam(
@@ -9238,6 +9253,9 @@ public class FrameworkEngine {
           break;
         case 2: // rest
           String url = ws.getWsUrl();
+          if(url.indexOf("${")>-1) {//has special char
+        	  url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
+          }
           if (!url.endsWith("/")) url += "/";
           url += GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
           String params = null;
@@ -9249,7 +9267,11 @@ public class FrameworkEngine {
                   new String[] {"text/plain","application/json", "application/xml"}[wsm.getHeaderAcceptTip()]);
             }
           if(ws.getWssTip()==1 && !GenericUtil.isEmpty(ws.getWssCredentials())) { //credentials
-        	  String[] lines = ws.getWssCredentials().split("\n");
+        	  String cr = ws.getWssCredentials();
+              if(cr.indexOf("${")>-1) {//has special char
+            	  cr = GenericUtil.filterExt(url, scd, requestParams, null).toString();
+              }
+        	  String[] lines = cr.split("\n");
         	  for(int qi=0;qi<lines.length;qi++) {
         		  int ii = lines[qi].indexOf(':');
         		  if(ii>0) {
