@@ -9116,8 +9116,11 @@ public class FrameworkEngine {
           			if(!GenericUtil.isEmpty(res)) {
           				if(res instanceof String)
           					m.put(p.getDsc(), res);
-          				else
-          					m.put(p.getDsc(), GenericUtil.fromJSONArrayToList(new JSONArray(res.toString())));        				
+          				else try{
+          					m.put(p.getDsc(), GenericUtil.fromJSONArrayToList(new JSONArray(res.toString())));    
+          				}catch(Exception ee){
+          					m.put(p.getDsc(), null);
+          				}
           			}          			
           		}
           	} else {

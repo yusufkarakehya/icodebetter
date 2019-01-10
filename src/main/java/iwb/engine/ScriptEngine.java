@@ -183,7 +183,7 @@ public class ScriptEngine {
         scd != null ? (Integer) scd.get("customizationId") : 0);
   }
 
-  public void console(String oMsg, String title) {
+  public void console(Object oMsg, String title) {
     if (!FrameworkSetting.debug) return;
     console(oMsg, title, null);
   }

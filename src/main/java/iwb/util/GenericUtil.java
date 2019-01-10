@@ -2460,7 +2460,7 @@ public class GenericUtil {
     return no;
   }
 
-  	private static Object getJavaObject(Object val) {
+  	private static Object getJavaObject(Object val) throws JSONException {
   		if (val == null) return null;
           if (val instanceof NativeJavaArray) {
         	  NativeJavaArray ar = (NativeJavaArray) val;
