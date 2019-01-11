@@ -106,6 +106,11 @@ public class ScriptEngine {
 	  RedisUtil.close(host);  
   }
   
+  
+  public String redisInfo(String host, String section){
+	  return RedisUtil.info(host, section);  
+  }
+  
   public String mqBasicPublish(String host, String queueName, String msg){
 	  Channel ch = MQUtil.getChannel4Queue(host, queueName);
 	  if(ch==null)return "Connection Error";

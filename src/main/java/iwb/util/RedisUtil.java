@@ -35,10 +35,21 @@ public class RedisUtil {
 		return j.set(k, v);		
 	}
 	
+	/*
+	public static String add(String host, String k, String v){
+		Jedis j = getConnection(host);
+		return j.(k, v);		
+	}*/
 	
 	public static String get(String host, String k){
 		Jedis j = getConnection(host);
 		return j.get(k);		
+	}
+
+
+	public static String info(String host, String section) {
+		Jedis j = getConnection(host);
+		return j.info(section);	
 	}
 	
 }
