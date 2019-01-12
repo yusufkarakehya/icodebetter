@@ -584,6 +584,10 @@ public class ScriptEngine {
     return requestParams;
   }
 
+  public String formatDate(Object dt) {
+	  if(dt==null)return "";
+	  return "--";
+  }
   public void setRequestParams(Map<String, String> requestParams) {
     this.requestParams = requestParams;
   }
