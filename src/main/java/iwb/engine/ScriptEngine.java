@@ -210,11 +210,6 @@ public class ScriptEngine {
     return GenericUtil.isEmpty(l) ? null : l.toArray();
   }
 
-  public void mqBasicPublish(String msg) throws IOException {
-    //		W5Project po = FrameworkCache.wProjects.get(scd.get("projectId"));
-    // po.get_mqChannel().basicPublish(po.getProjectUuid(), "", null, msg.toString().getBytes());
-  }
-
   public void console(Object oMsg) {
     console(oMsg, null, null);
   }

@@ -66,8 +66,8 @@ public class HttpUtil {
 			          "framework",
 			          "HTTPUtil.send",
 			          0,
-			          targetURL,
-			          urlParameters,
+			          null,
+			          targetURL + (urlParameters!=null ? "?"+urlParameters:""),
 			          e);
 			
 //			throw ne;
