@@ -112,4 +112,10 @@ public class RedisUtil {
 		return j.info(section);	
 	}
 	
+	public static void closeAll(){
+		for(Jedis j:redisHostMap.values())if(j!=null && j.isConnected())try{
+			j.close();
+		}catch(Exception ee){}
+		redisHostMap.clear();
+	}
 }
