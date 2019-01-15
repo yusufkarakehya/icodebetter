@@ -100,6 +100,9 @@ public class ScriptEngine {
   public String redisGet(String host, String k){
 	  return RedisUtil.get(host, k);  
   }
+  public long redisLlen(String host, String k){
+	  return RedisUtil.llen(host, k);  
+  }
   
   
   public void redisClose(String host){
