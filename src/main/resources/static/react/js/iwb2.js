@@ -107,6 +107,7 @@ const findDOMNode = ReactDOM.findDOMNode;
 //React
 var _ = React.createElement;
 //DXReactCore imports
+const  { DXReactCore, DXReactGrid, DXReactGridBootstrap4 } = DevExpress;
 const Getter = DXReactCore.Getter;
 const Plugin = DXReactCore.Plugin;
 const Template = DXReactCore.Template;

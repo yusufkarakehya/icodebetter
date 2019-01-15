@@ -1,185 +1,109 @@
 /**
  * Bundle of @devexpress/dx-core
- * Generated: 2018-07-26
- * Version: 1.5.0
+ * Generated: 2018-12-25
+ * Version: 1.10.0
  * License: https://js.devexpress.com/Licensing
  */
-var DXCore=function(){
+
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = global || self, factory((global.DevExpress = global.DevExpress || {}, global.DevExpress.DXCore = {})));
+}(this, function (exports) { 'use strict';
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
+  var DELAY = 200;
+
   var compare = function compare(a, b) {
     var aPosition = a.position();
     var bPosition = b.position();
+
     for (var i = 0; i < Math.min(aPosition.length, bPosition.length); i += 1) {
       if (aPosition[i] < bPosition[i]) return -1;
       if (aPosition[i] > bPosition[i]) return 1;
     }
+
     return aPosition.length - bPosition.length;
   };
-  
+
   var insertPlugin = function insertPlugin(array, newItem) {
     var result = array.slice();
-    var targetIndex = array.findIndex(function (item) {
-      return compare(newItem, item) < 0;
+    var nextItemIndex = array.findIndex(function (item) {
+      return compare(newItem, item) <= 0;
     });
-    result.splice(targetIndex < 0 ? array.length : targetIndex, 0, newItem);
+    var targetIndex = nextItemIndex < 0 ? array.length : nextItemIndex;
+    var alreadyExists = targetIndex >= 0 && targetIndex < array.length && compare(newItem, array[targetIndex]) === 0;
+    result.splice(targetIndex, alreadyExists ? 1 : 0, newItem);
     return result;
   };
-  
-  var asyncGenerator = function () {
-    function AwaitValue(value) {
-      this.value = value;
-    }
-  
-    function AsyncGenerator(gen) {
-      var front, back;
-  
-      function send(key, arg) {
-        return new Promise(function (resolve, reject) {
-          var request = {
-            key: key,
-            arg: arg,
-            resolve: resolve,
-            reject: reject,
-            next: null
-          };
-  
-          if (back) {
-            back = back.next = request;
-          } else {
-            front = back = request;
-            resume(key, arg);
-          }
-        });
-      }
-  
-      function resume(key, arg) {
-        try {
-          var result = gen[key](arg);
-          var value = result.value;
-  
-          if (value instanceof AwaitValue) {
-            Promise.resolve(value.value).then(function (arg) {
-              resume("next", arg);
-            }, function (arg) {
-              resume("throw", arg);
-            });
-          } else {
-            settle(result.done ? "return" : "normal", result.value);
-          }
-        } catch (err) {
-          settle("throw", err);
+  var createClickHandlers = function createClickHandlers(click, dblClick) {
+    var timeoutId;
+    var events = {};
+
+    if (click) {
+      events.onClick = function (e) {
+        if (!timeoutId) {
+          timeoutId = setTimeout(function () {
+            clearTimeout(timeoutId);
+            click(e);
+          }, DELAY);
         }
-      }
-  
-      function settle(type, value) {
-        switch (type) {
-          case "return":
-            front.resolve({
-              value: value,
-              done: true
-            });
-            break;
-  
-          case "throw":
-            front.reject(value);
-            break;
-  
-          default:
-            front.resolve({
-              value: value,
-              done: false
-            });
-            break;
-        }
-  
-        front = front.next;
-  
-        if (front) {
-          resume(front.key, front.arg);
-        } else {
-          back = null;
-        }
-      }
-  
-      this._invoke = send;
-  
-      if (typeof gen.return !== "function") {
-        this.return = undefined;
-      }
-    }
-  
-    if (typeof Symbol === "function" && Symbol.asyncIterator) {
-      AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
-        return this;
       };
     }
-  
-    AsyncGenerator.prototype.next = function (arg) {
-      return this._invoke("next", arg);
-    };
-  
-    AsyncGenerator.prototype.throw = function (arg) {
-      return this._invoke("throw", arg);
-    };
-  
-    AsyncGenerator.prototype.return = function (arg) {
-      return this._invoke("return", arg);
-    };
-  
-    return {
-      wrap: function (fn) {
-        return function () {
-          return new AsyncGenerator(fn.apply(this, arguments));
-        };
-      },
-      await: function (value) {
-        return new AwaitValue(value);
-      }
-    };
-  }();
-  
-  
-  
-  
-  
-  var classCallCheck = function (instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
+
+    if (dblClick) {
+      events.onDoubleClick = function (e) {
+        clearTimeout(timeoutId);
+        dblClick(e);
+      };
     }
+
+    return events;
   };
-  
-  var createClass = function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-  
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  }();
-  
+  /* globals window:true */
+
+  var isEdgeBrowser = function isEdgeBrowser() {
+    return /Edge/.test(window.navigator.userAgent);
+  };
+
   var getDependencyError = function getDependencyError(pluginName, dependencyName) {
-    return new Error('The \'' + pluginName + '\' plugin requires \'' + dependencyName + '\' to be defined before it.');
+    return new Error("The '".concat(pluginName, "' plugin requires '").concat(dependencyName, "' to be defined before it."));
   };
-  
-  var PluginHost = function () {
+
+  var PluginHost =
+  /*#__PURE__*/
+  function () {
     function PluginHost() {
-      classCallCheck(this, PluginHost);
-  
+      _classCallCheck(this, PluginHost);
+
       this.plugins = [];
       this.subscriptions = new Set();
       this.gettersCache = {};
     }
-  
-    createClass(PluginHost, [{
-      key: 'ensureDependencies',
+
+    _createClass(PluginHost, [{
+      key: "ensureDependencies",
       value: function ensureDependencies() {
         var defined = new Set();
         var knownOptionals = new Map();
@@ -189,42 +113,44 @@ var DXCore=function(){
           if (knownOptionals.has(plugin.name)) {
             throw getDependencyError(knownOptionals.get(plugin.name), plugin.name);
           }
-  
+
           plugin.dependencies.forEach(function (dependency) {
             if (defined.has(dependency.name)) return;
+
             if (dependency.optional) {
               if (!knownOptionals.has(dependency.name)) {
                 knownOptionals.set(dependency.name, plugin.name);
               }
+
               return;
             }
+
             throw getDependencyError(plugin.name, dependency.name);
           });
-  
           defined.add(plugin.name);
         });
       }
     }, {
-      key: 'registerPlugin',
+      key: "registerPlugin",
       value: function registerPlugin(plugin) {
         this.plugins = insertPlugin(this.plugins, plugin);
         this.cleanPluginsCache();
       }
     }, {
-      key: 'unregisterPlugin',
+      key: "unregisterPlugin",
       value: function unregisterPlugin(plugin) {
         this.plugins.splice(this.plugins.indexOf(plugin), 1);
         this.cleanPluginsCache();
       }
     }, {
-      key: 'cleanPluginsCache',
+      key: "cleanPluginsCache",
       value: function cleanPluginsCache() {
         this.validationRequired = true;
         this.gettersCache = {};
         this.knownKeysCache = {};
       }
     }, {
-      key: 'knownKeys',
+      key: "knownKeys",
       value: function knownKeys(postfix) {
         if (!this.knownKeysCache[postfix]) {
           this.knownKeysCache[postfix] = Array.from(this.plugins.map(function (plugin) {
@@ -241,18 +167,19 @@ var DXCore=function(){
             return key.replace(postfix, '');
           });
         }
+
         return this.knownKeysCache[postfix];
       }
     }, {
-      key: 'collect',
+      key: "collect",
       value: function collect(key, upTo) {
         var _this = this;
-  
+
         if (this.validationRequired) {
           this.ensureDependencies();
           this.validationRequired = false;
         }
-  
+
         if (!this.gettersCache[key]) {
           this.gettersCache[key] = this.plugins.map(function (plugin) {
             return plugin[key];
@@ -260,23 +187,22 @@ var DXCore=function(){
             return !!plugin;
           });
         }
+
         if (!upTo) return this.gettersCache[key];
-  
         var upToIndex = this.plugins.indexOf(upTo);
         return this.gettersCache[key].filter(function (getter) {
           var pluginIndex = _this.plugins.findIndex(function (plugin) {
             return plugin[key] === getter;
           });
+
           return pluginIndex < upToIndex;
         });
       }
     }, {
-      key: 'get',
-      value: function get$$1(key, upTo) {
+      key: "get",
+      value: function get(key, upTo) {
         var plugins = this.collect(key, upTo);
-  
         if (!plugins.length) return undefined;
-  
         var result = plugins[0]();
         plugins.slice(1).forEach(function (plugin) {
           result = plugin(result);
@@ -284,34 +210,37 @@ var DXCore=function(){
         return result;
       }
     }, {
-      key: 'registerSubscription',
+      key: "registerSubscription",
       value: function registerSubscription(subscription) {
         this.subscriptions.add(subscription);
       }
     }, {
-      key: 'unregisterSubscription',
+      key: "unregisterSubscription",
       value: function unregisterSubscription(subscription) {
         this.subscriptions.delete(subscription);
       }
     }, {
-      key: 'broadcast',
+      key: "broadcast",
       value: function broadcast(event, message) {
         this.subscriptions.forEach(function (subscription) {
           return subscription[event] && subscription[event](message);
         });
       }
     }]);
+
     return PluginHost;
   }();
-  
-  var EventEmitter = function () {
+
+  var EventEmitter =
+  /*#__PURE__*/
+  function () {
     function EventEmitter() {
-      classCallCheck(this, EventEmitter);
-  
+      _classCallCheck(this, EventEmitter);
+
       this.handlers = [];
     }
-  
-    createClass(EventEmitter, [{
+
+    _createClass(EventEmitter, [{
       key: "emit",
       value: function emit(e) {
         this.handlers.forEach(function (handler) {
@@ -329,69 +258,71 @@ var DXCore=function(){
         this.handlers.splice(this.handlers.indexOf(handler), 1);
       }
     }]);
+
     return EventEmitter;
   }();
-  
+
   function shallowEqual(objA, objB) {
     if (objA === objB) {
       return true;
     }
-  
+
     var keysA = Object.keys(objA);
     var keysB = Object.keys(objB);
-  
+
     if (keysA.length !== keysB.length) {
       return false;
-    }
-  
-    // Test for A's keys different from B.
+    } // Test for A's keys different from B.
+
+
     var hasOwn = Object.prototype.hasOwnProperty;
+
     for (var i = 0; i < keysA.length; i += 1) {
       if (!hasOwn.call(objB, keysA[i]) || objA[keysA[i]] !== objB[keysA[i]]) {
         return false;
       }
-  
+
       var valA = objA[keysA[i]];
       var valB = objB[keysA[i]];
-  
+
       if (valA !== valB) {
         return false;
       }
     }
-  
+
     return true;
   }
-  
   function argumentsShallowEqual(prev, next) {
     if (prev === null || next === null || prev.length !== next.length) {
       return false;
     }
-  
+
     for (var i = 0; i < prev.length; i += 1) {
       if (prev[i] !== next[i]) {
         return false;
       }
     }
-  
+
     return true;
   }
-  
+
   var memoize = function memoize(func) {
     var lastArgs = null;
     var lastResult = null;
     return function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
-  
+
       if (lastArgs === null || !argumentsShallowEqual(lastArgs, args)) {
-        lastResult = func.apply(undefined, args);
+        lastResult = func.apply(void 0, args);
       }
+
       lastArgs = args;
       return lastResult;
     };
   };
-  
+
   var easeInQuad = function easeInQuad(t) {
     return t * t;
   };
@@ -401,7 +332,6 @@ var DXCore=function(){
   var easeInOutQuad = function easeInOutQuad(t) {
     return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
   };
-  
   var easeInCubic = function easeInCubic(t) {
     return t * t * t;
   };
@@ -411,7 +341,6 @@ var DXCore=function(){
   var easeInOutCubic = function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
   };
-  
   var easeInQuart = function easeInQuart(t) {
     return t * t * t * t;
   };
@@ -421,7 +350,6 @@ var DXCore=function(){
   var easeInOutQuart = function easeInOutQuart(t) {
     return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (t - 1) * (t - 1) * (t - 1) * (t - 1);
   };
-  
   var easeInQuint = function easeInQuint(t) {
     return t * t * t * t * t;
   };
@@ -431,26 +359,51 @@ var DXCore=function(){
   var easeInOutQuint = function easeInOutQuint(t) {
     return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * (t - 1) * (t - 1) * (t - 1) * (t - 1) * (t - 1);
   };
-  
-  return {
-    PluginHost,
-    EventEmitter,
-    memoize,
-    shallowEqual,
-    argumentsShallowEqual,
-    easeInQuad,
-    easeOutQuad,
-    easeInOutQuad,
-    easeInCubic,
-    easeOutCubic,
-    easeInOutCubic,
-    easeInQuart,
-    easeOutQuart,
-    easeInOutQuart,
-    easeInQuint,
-    easeOutQuint,
-    easeInOutQuint
+
+  var processPattern = function processPattern(pattern, params) {
+    return Object.keys(params).reduce(function (msg, key) {
+      return msg.replace("{".concat(key, "}"), params[key]);
+    }, pattern);
   };
-  }();
-  //# sourceMappingURL=dx-core.es.js.map
-  
+
+  var getMessagesFormatter = function getMessagesFormatter(messages) {
+    return function (key, params) {
+      var message = messages[key];
+
+      if (typeof message === 'function') {
+        return message(params);
+      }
+
+      if (params) {
+        return processPattern(message, params);
+      }
+
+      return message;
+    };
+  };
+
+  exports.PluginHost = PluginHost;
+  exports.EventEmitter = EventEmitter;
+  exports.memoize = memoize;
+  exports.shallowEqual = shallowEqual;
+  exports.argumentsShallowEqual = argumentsShallowEqual;
+  exports.getMessagesFormatter = getMessagesFormatter;
+  exports.createClickHandlers = createClickHandlers;
+  exports.isEdgeBrowser = isEdgeBrowser;
+  exports.easeInQuad = easeInQuad;
+  exports.easeOutQuad = easeOutQuad;
+  exports.easeInOutQuad = easeInOutQuad;
+  exports.easeInCubic = easeInCubic;
+  exports.easeOutCubic = easeOutCubic;
+  exports.easeInOutCubic = easeInOutCubic;
+  exports.easeInQuart = easeInQuart;
+  exports.easeOutQuart = easeOutQuart;
+  exports.easeInOutQuart = easeInOutQuart;
+  exports.easeInQuint = easeInQuint;
+  exports.easeOutQuint = easeOutQuint;
+  exports.easeInOutQuint = easeInOutQuint;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+}));
+//# sourceMappingURL=dx-core.umd.js.map
