@@ -173,9 +173,9 @@ var iwb = {
     }
     var imported = await import(loc);
     iwb.components = { ...iwb.components,
-      [url]: imported
+      [url]: imported.default? imported.default:imported
     };
-    return imported;
+    return imported.default? imported.default:imported;
   },
   /**
    * @param {string} url - example '/comp/2/js'
@@ -1484,7 +1484,7 @@ class XMasonry extends React.Component {
     //initial resize
     this.onResize();
     // add listener for window object
-    window.addEventListener("resize", this.onResize);
+    window.addEventListener("resize", this.onResize, true);
     if (this.props.loadNext) {
       // Create an observer
       this.observer = new IntersectionObserver(
@@ -1498,6 +1498,9 @@ class XMasonry extends React.Component {
       //Observ the `loadingRef`
       this.observer.observe(this.refs.loadingRef);
     }
+  }
+  componentWillUnmount(){
+    window.removeEventListener("resize", this.onResize, true);
   }
   render() {
     const masonryStyle = this.props
