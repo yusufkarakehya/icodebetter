@@ -6,9 +6,13 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.springframework.core.task.TaskExecutor;
 
@@ -27,6 +31,7 @@ import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
 import iwb.util.MQUtil;
+import iwb.util.RedisUtil;
 import iwb.util.UserUtil;
 
 public class ScriptEngine {
@@ -65,6 +70,48 @@ public class ScriptEngine {
   
   public void sleep(int millis) throws InterruptedException{
 	  Thread.sleep(millis);
+  }
+  
+  
+  public NativeObject redisGetJSON(String host, String k) throws JSONException{
+	  
+	  String v = RedisUtil.get(host, k);
+	  if(v!=null){		  
+		  JSONObject o = new JSONObject(v);
+		  return GenericUtil.fromJSONObjectToNativeObject(o);
+	  }
+	  return null;
+  }
+  
+  
+  public String redisPut(String host, String k, Object v){
+	  if(v==null)
+		  return RedisUtil.put(host, k, null);
+	  
+	  if(v instanceof NativeArray)
+		  return RedisUtil.put(host, k,  GenericUtil.fromNativeArrayToJsonString2Recursive((NativeArray)v));
+
+	  if(v instanceof NativeObject)
+		  return RedisUtil.put(host, k,  GenericUtil.fromNativeObjectToJsonString2Recursive((NativeObject)v));
+	  
+	  return RedisUtil.put(host, k, v.toString());  
+  }
+  
+  public String redisGet(String host, String k){
+	  return RedisUtil.get(host, k);  
+  }
+  public long redisLlen(String host, String k){
+	  return RedisUtil.llen(host, k);  
+  }
+  
+  
+  public void redisClose(String host){
+	  RedisUtil.close(host);  
+  }
+  
+  
+  public String redisInfo(String host, String section){
+	  return RedisUtil.info(host, section);  
   }
   
   public String mqBasicPublish(String host, String queueName, String msg){
@@ -164,11 +211,6 @@ public class ScriptEngine {
   public Object[] runQuery(int queryId, NativeObject jsRequestParams) {
     List l = dao.runQuery2Map(scd, queryId, fromNativeObject2Map(jsRequestParams));
     return GenericUtil.isEmpty(l) ? null : l.toArray();
-  }
-
-  public void mqBasicPublish(String msg) throws IOException {
-    //		W5Project po = FrameworkCache.wProjects.get(scd.get("projectId"));
-    // po.get_mqChannel().basicPublish(po.getProjectUuid(), "", null, msg.toString().getBytes());
   }
 
   public void console(Object oMsg) {
@@ -540,6 +582,10 @@ public class ScriptEngine {
     return requestParams;
   }
 
+  public String formatDate(Object dt) {
+	  if(dt==null)return "";
+	  return "--";
+  }
   public void setRequestParams(Map<String, String> requestParams) {
     this.requestParams = requestParams;
   }

@@ -120,11 +120,37 @@ var defineJSCompletionItemProvider = {
           detail: 'Map',insertText:'$.REST("serviceName.methodName", {params})'
         },
         {
-          label: '$.console',
-          kind: monaco.languages.CompletionItemKind.Function,
-          documentation: "Console",
-          detail: 'null',insertText:'$.console("Hellow World", "Warning", "warn")'
-        }
+            label: '$.console',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Console",
+            detail: 'null',insertText:'$.console("Hellow World", "Warning", "warn")'
+        },
+        {
+            label: '$.redisPut',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Redist PUT",
+            detail: 'null',insertText:'$.redisPut("host", "key", {})'
+        },
+        {
+            label: '$.redisGet',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Redist GET String",
+            detail: 'null',insertText:'$.redisGet("host", "key")'
+	    },
+	    {
+	        label: '$.redisGetJSON',
+	        kind: monaco.languages.CompletionItemKind.Function,
+	        documentation: "Redist GET JSON",
+	        detail: 'null',insertText:'$.redisGetJSON("host", "key")'
+	    },
+	    {
+	        label: '$.mqBasicPublish',
+	        kind: monaco.languages.CompletionItemKind.Function,
+	        documentation: "RabbitMQ Publish",
+	        detail: 'null',insertText:'$.mqBasicPublish("host", "queueName", "msg")'
+	    }
+	    
+	    
       ];
     }
   };

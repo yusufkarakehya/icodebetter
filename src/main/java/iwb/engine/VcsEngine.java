@@ -1525,7 +1525,7 @@ public class VcsEngine {
 					dao.updateObject(vo);
 					return srvVcsCommitId; 
 				} else
-					throw new IWBException("vcs","vcsClientObjectPush: serverVCSObjectPush response", t.getTableId(), s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientObjectPush: serverVCSObjectPush response", t.getTableId(), s, json.has("error") ? json.getString("error") : json.toString().substring(0,300), null);
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientObjectPush:JSON Exception", t.getTableId(), s, "Error", e);
 			}

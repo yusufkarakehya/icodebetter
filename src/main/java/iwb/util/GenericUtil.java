@@ -1395,7 +1395,7 @@ public class GenericUtil {
         }
         if (pvalue == null) {
           String xdsc = dsc != null ? dsc : param.getDsc();
-          if (xdsc.contains("-")) { // ardarda birkactane, sadece custom operator ile kullanilabilir
+          if (param.getParamTip()==10 && xdsc.contains("-")) { // ardarda birkactane, sadece custom operator ile kullanilabilir
             String[] xdscs = xdsc.split("-");
             Object[] pvalues = new Object[xdscs.length];
             for (int q7 = 0; q7 < xdscs.length; q7++) {
@@ -1691,7 +1691,7 @@ public class GenericUtil {
     StringBuilder tmp = new StringBuilder();
     if (code == null || code.length() == 0) return tmp;
     tmp.append(code);
-    for (int bas = tmp.indexOf("${"); bas > 0; bas = tmp.indexOf("${", bas + 2)) {
+    for (int bas = tmp.indexOf("${"); bas > -1; bas = tmp.indexOf("${", bas + 2)) {
       int bit = tmp.indexOf("}", bas + 2);
       String subStr = tmp.substring(bas + 2, bit);
       String replaced = null;
