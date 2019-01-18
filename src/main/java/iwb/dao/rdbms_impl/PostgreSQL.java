@@ -777,15 +777,15 @@ public class PostgreSQL extends BaseDAO {
     if (preParams.size() > 0) queryResult.getSqlParams().addAll(paramIndex.intValue(), preParams);
   }
 
-  public void runQuery(W5QueryResult queryResult) {
+  public void runQuery(final W5QueryResult queryResult) {
 
-    W5Query query = queryResult.getQuery();
+	  final W5Query query = queryResult.getQuery();
     Log5QueryAction queryAction = new Log5QueryAction(queryResult);
 
     //    	String sql = null;
-    W5Table mainTable = queryResult.getMainTable();
-    StringBuilder sql2 = new StringBuilder();
-    AtomicInteger paramIndex = new AtomicInteger(0);
+    final W5Table mainTable = queryResult.getMainTable();
+    final StringBuilder sql2 = new StringBuilder();
+    final AtomicInteger paramIndex = new AtomicInteger(0);
     String error = null;
 
     try {
@@ -1324,7 +1324,7 @@ public class PostgreSQL extends BaseDAO {
   }
 
   public Map<String, Object> runSQLQuery2Map(
-      String sql, List params, List<W5QueryField> queryFields, boolean closeConnectionAfterRun) {
+      final String sql, final List params, final List<W5QueryField> queryFields, final boolean closeConnectionAfterRun) {
     try {
       return getCurrentSession()
           .doReturningWork(
@@ -1730,10 +1730,10 @@ public class PostgreSQL extends BaseDAO {
       }
   }
 
-  public void loadFormTable(W5FormResult formResult) {
+  public void loadFormTable(final W5FormResult formResult) {
     W5Form f = formResult.getForm();
-    W5Table t = FrameworkCache.getTable(formResult.getScd(), f.getObjectId());
-    StringBuilder sql = new StringBuilder();
+    final W5Table t = FrameworkCache.getTable(formResult.getScd(), f.getObjectId());
+    final StringBuilder sql = new StringBuilder();
     sql.append("select ");
     String log5LogId = null; // logdan gosterilecekse
     if (formResult.getRequestParams() != null
@@ -2919,10 +2919,10 @@ public class PostgreSQL extends BaseDAO {
       }
   }
 
-  public boolean updateFormTable(W5FormResult formResult, String paramSuffix) {
+  public boolean updateFormTable(final W5FormResult formResult, final String paramSuffix) {
     Map<String, Object> scd = formResult.getScd();
     W5Form f = formResult.getForm();
-    W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
+    final W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
     if (FrameworkSetting.vcs && FrameworkSetting.vcsServer && t.getVcsFlag() != 0)
       throw new IWBException(
           "vcs",
@@ -2931,10 +2931,10 @@ public class PostgreSQL extends BaseDAO {
           null,
           "VCS Server not allowed to update VCS Table",
           null);
-    StringBuilder sql = new StringBuilder();
+    final StringBuilder sql = new StringBuilder();
     sql.append("update ");
     sql.append(t.getDsc()).append(" set ");
-    List<Object> updateParams = new ArrayList<Object>();
+    final List<Object> updateParams = new ArrayList<Object>();
     List<Object> whereParams = new ArrayList<Object>();
     Set<String> usedFields = new HashSet<String>();
 
@@ -3142,9 +3142,9 @@ public class PostgreSQL extends BaseDAO {
   }
 
   public int copyFormTable(
-      W5FormResult formResult, String schema, String paramSuffix, boolean copyFlag) {
-    W5Form f = formResult.getForm();
-    W5Table t =
+		  final W5FormResult formResult, final String schema, final String paramSuffix, boolean copyFlag) {
+	  final W5Form f = formResult.getForm();
+    final W5Table t =
         FrameworkCache.getTable(
             formResult.getScd(), f.getObjectId()); // formResult.getForm().get_sourceTable();
     if (FrameworkSetting.vcs && FrameworkSetting.vcsServer && t.getVcsFlag() != 0)
@@ -3155,7 +3155,7 @@ public class PostgreSQL extends BaseDAO {
           null,
           "VCS Server not allowed to insert VCS Table",
           null);
-    StringBuilder sql = new StringBuilder(), postSql = new StringBuilder();
+    final StringBuilder sql = new StringBuilder(), postSql = new StringBuilder();
     sql.append("insert into ");
     if (schema != null) sql.append(schema).append(".");
     sql.append(t.getDsc()).append(" ( ");
@@ -3164,8 +3164,8 @@ public class PostgreSQL extends BaseDAO {
     boolean b = false;
     boolean extendedFlag = false;
     int paramCount = 0;
-    Map<Integer, String> calculatedParams = new HashMap<Integer, String>();
-    Map<Integer, String> calculatedParamNames = new HashMap<Integer, String>();
+    final Map<Integer, String> calculatedParams = new HashMap<Integer, String>();
+    final Map<Integer, String> calculatedParamNames = new HashMap<Integer, String>();
     Set<String> usedFields = new HashSet<String>();
 
     Map<Integer, W5FormModule> moduleMap = null;
@@ -3592,11 +3592,11 @@ public class PostgreSQL extends BaseDAO {
     return extraUserIds.isEmpty() ? null : extraUserIds.toArray();
   }
 
-  public int insertFormTable(W5FormResult formResult, String paramSuffix) {
-    W5Form f = formResult.getForm();
-    String projectId =
+  public int insertFormTable(final W5FormResult formResult, final String paramSuffix) {
+	  final W5Form f = formResult.getForm();
+    final String projectId =
         FrameworkCache.getProjectId(formResult.getScd(), "40." + formResult.getFormId());
-    W5Table t =
+    final W5Table t =
         FrameworkCache.getTable(
             projectId, f.getObjectId()); // formResult.getForm().get_sourceTable();
     if (FrameworkSetting.vcs && FrameworkSetting.vcsServer && t.getVcsFlag() != 0)
@@ -3608,15 +3608,15 @@ public class PostgreSQL extends BaseDAO {
           "VCS Server not allowed to insert VCS Table",
           null);
 
-    StringBuilder sql = new StringBuilder(), postSql = new StringBuilder();
+    final StringBuilder sql = new StringBuilder(), postSql = new StringBuilder();
     sql.append("insert into ");
     sql.append(t.getDsc()).append(" ( ");
     postSql.append(" values (");
     final List<Object> insertParams = new ArrayList<Object>();
     boolean b = false;
     int paramCount = 0;
-    Map<Integer, String> calculatedParams = new HashMap<Integer, String>();
-    Map<Integer, String> calculatedParamNames = new HashMap<Integer, String>();
+    final Map<Integer, String> calculatedParams = new HashMap<Integer, String>();
+    final Map<Integer, String> calculatedParamNames = new HashMap<Integer, String>();
     Set<String> usedFields = new HashSet<String>();
 
     Map<Integer, W5FormModule> moduleMap = null;
@@ -4095,7 +4095,7 @@ public class PostgreSQL extends BaseDAO {
   }
 
   public void organizeQueryFields(
-      Map<String, Object> scd, final int queryId, final short insertFlag) {
+		  final Map<String, Object> scd, final int queryId, final short insertFlag) {
     W5Project po = FrameworkCache.getProject(scd);
 
     executeUpdateSQLQuery("set search_path=" + po.getRdbmsSchema());
@@ -5056,7 +5056,7 @@ private void reloadWsServersCache(String projectId) {
     return r;
   }
 
-  public void executeGlobalFunc(W5GlobalFuncResult r, String paramSuffix) {
+  public void executeGlobalFunc(final W5GlobalFuncResult r, final String paramSuffix) {
     Log5GlobalFuncAction action = new Log5GlobalFuncAction(r);
     String error = null;
     if (r.getGlobalFunc().getLkpCodeType() == 1) {
@@ -5169,7 +5169,7 @@ private void reloadWsServersCache(String projectId) {
     }
     final List<Object> sqlParams = new ArrayList<Object>();
     final List<String> sqlNames = new ArrayList<String>();
-    StringBuilder sql = new StringBuilder();
+    final StringBuilder sql = new StringBuilder();
     sql.append("{call ");
 
     sql.append(r.getGlobalFunc().getDsc());
