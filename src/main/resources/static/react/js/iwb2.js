@@ -173,9 +173,9 @@ var iwb = {
     }
     var imported = await import(loc);
     iwb.components = { ...iwb.components,
-      [url]: imported.default? imported.default:imported
+      [url]: imported
     };
-    return imported.default? imported.default:imported;
+    return imported;
   },
   /**
    * @param {string} url - example '/comp/2/js'
@@ -5323,7 +5323,7 @@ class XForm extends React.Component {
                       }, json.objectType),
 
                       _(ListGroup, {},
-                        json.icodebetter.map((item, index) => {
+                        json.icodebetter && json.icodebetter.map((item, index) => {
                           return _(ListGroupItem, {},
                             _(ListGroupItemHeading, {},
                               item.errorType,
