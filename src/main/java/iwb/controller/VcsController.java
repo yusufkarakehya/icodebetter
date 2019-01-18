@@ -27,9 +27,9 @@ import iwb.util.UserUtil;
 
 @Controller
 @RequestMapping("/app")
-public class VcsServlet implements InitializingBean {
+public class VcsController implements InitializingBean {
 
-	private static Logger logger = Logger.getLogger(VcsServlet.class);
+	private static Logger logger = Logger.getLogger(VcsController.class);
 	
 	@Autowired
 	private	VcsService vcsEngine;

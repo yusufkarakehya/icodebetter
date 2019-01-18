@@ -62,7 +62,6 @@ import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TutorialResult;
 import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
@@ -72,9 +71,9 @@ import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
 @Controller
-@RequestMapping("/space")
-public class SpaceServlet implements InitializingBean {
-	private static Logger logger = Logger.getLogger(SpaceServlet.class);
+@RequestMapping("/preview")
+public class PreviewController implements InitializingBean {
+	private static Logger logger = Logger.getLogger(PreviewController.class);
 
 	@Autowired
 	private FrameworkService engine;
@@ -121,13 +120,13 @@ public class SpaceServlet implements InitializingBean {
 		return getViewAdapter(scd, request, ext3_4);
 	}
 
-	@RequestMapping("/dyn-res/*")
+	@RequestMapping("/*/dyn-res/*")
 	public ModelAndView hndDynResource(
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		logger.info("hndJasperReport"); 
-    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		logger.info("hndDynResource"); 
+    	Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
     	String uri = request.getRequestURI();
     	if(uri.endsWith(".css")){
     		uri = uri.substring(uri.lastIndexOf('/')+1);
@@ -150,7 +149,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		int formCellId = GenericUtil.uInt(request, "_formCellId");
 		logger.info("hndAjaxFormCellCode(" + formCellId + ")");
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		Map m = engine.getFormCellCode(scd, GenericUtil.getParameterMap(request), formCellId, 1);
 		// m.put("success", true);
 		response.setContentType("application/json");
@@ -163,7 +162,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxChangeChatStatus");
 		response.setContentType("application/json");
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		int chatStatusTip = GenericUtil.uInt(request, "chatStatusTip");
 		response.getWriter().write("{\"success\":" + UserUtil.updateChatStatus(scd, chatStatusTip) + "}");
 		response.getWriter().close();
@@ -176,7 +175,7 @@ public class SpaceServlet implements InitializingBean {
 		if(gridId==0)gridId = -GenericUtil.uInt(request, "_qid");
 		logger.info("hndAjaxQueryData4Stat(" + gridId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
 		Map m = engine.executeQuery4Stat(scd, gridId, GenericUtil.getParameterMap(request));
@@ -189,7 +188,7 @@ public class SpaceServlet implements InitializingBean {
 		int gridId = GenericUtil.uInt(request, "_gid");
 		logger.info("hndAjaxQueryData4StatTree(" + gridId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
 		Map m = engine.executeQuery4StatTree(scd, gridId, GenericUtil.getParameterMap(request));
@@ -211,11 +210,8 @@ public class SpaceServlet implements InitializingBean {
 		logger.info("hndAjaxQueryData(" + queryId + ")");
 		Map<String, Object> scd = null;
 		HttpSession session = request.getSession(false);
-		String projectId = UserUtil.getProjectId(request,"space/");
-		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
-		String scdKey="space-"+projectId;
-		if ((queryId == 1 || queryId == 824) && (session == null || session.getAttribute(scdKey) == null
-				|| ((HashMap<String, String>) session.getAttribute(scdKey)).size() == 0)) { // select
+		if ((queryId == 1 || queryId == 824) && (session == null || session.getAttribute("scd-dev") == null
+				|| ((HashMap<String, String>) session.getAttribute("scd-dev")).size() == 0)) { // select
 																							// role
 			if (session == null) {
 				response.getWriter().write("{\"success\":false,\"error\":\"no_session\"}");
@@ -229,7 +225,7 @@ public class SpaceServlet implements InitializingBean {
 			scd.put("customizationId", session.getAttribute("customizationId"));
 		} else {
 			if (queryId == 142) { // online users
-				scd = UserUtil.getScd4PAppSpace(request);
+				scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 				W5QueryResult qr = new W5QueryResult(142);
 				W5Query q = new W5Query();
 				q.setQueryTip((short) 0);
@@ -278,7 +274,7 @@ public class SpaceServlet implements InitializingBean {
 				response.getWriter().close();
 				return;
 			} else
-				scd = UserUtil.getScd4PAppSpace(request);// TODO not auto
+				scd = UserUtil.getScd4Preview(request, "scd-dev", true);// TODO not auto
 		}
 
 		ViewAdapter va = getViewAdapter(scd, request);
@@ -304,7 +300,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxApproveRecord");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		if (FrameworkCache.getAppSettingIntValue(scd, "approval_flag") == 0) {
 			response.setContentType("application/json");
 			response.getWriter().write("{\"success\":false}");
@@ -346,7 +342,7 @@ public class SpaceServlet implements InitializingBean {
 	public void hndAjaxLiveSync(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("ajaxLiveSync");
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":" + FrameworkSetting.liveSyncRecord + "}");
 		response.getWriter().close();
@@ -359,7 +355,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxGetTabNotifications");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		String webPageId = request.getParameter(".w");
 		String tabId = request.getParameter(".t");
 		int userId = (Integer) scd.get("userId");
@@ -376,7 +372,7 @@ public class SpaceServlet implements InitializingBean {
 	@RequestMapping("/*/ajaxPostChatMsg")
 	public void hndAjaxPostChatMsg(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		logger.info("hndAjaxPostChatMsg");
 		response.setContentType("application/json");
 		String msg = request.getParameter("msg");
@@ -415,7 +411,7 @@ public class SpaceServlet implements InitializingBean {
 	@RequestMapping("/*/ajaxNotifyChatMsgRead")
 	public void hndAjaxNotifyChatMsgRead(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		logger.info("hndAjaxNotifyChatMsgRead");
 		int userId = GenericUtil.uInt(request, "u");
 		int msgId = GenericUtil.uInt(request, "m");
@@ -440,7 +436,7 @@ public class SpaceServlet implements InitializingBean {
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndAjaxPostForm(" + formId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
 		Map<String,String> requestMap = GenericUtil.getParameterMap(request);
@@ -469,7 +465,7 @@ public class SpaceServlet implements InitializingBean {
 		 */
 		if (formResult.getErrorMap().isEmpty()){
 			UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
-//			UserUtil.mqSyncAfterPostFormAll(formResult.getScd4PAppSpace(), formResult.getListSyncAfterPostHelper());
+//			UserUtil.mqSyncAfterPostFormAll(formResult.getScd4Preview(), formResult.getListSyncAfterPostHelper());
 		}
 
 
@@ -480,21 +476,18 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxPing");
 		HttpSession session = request.getSession(false);
-		String projectId = UserUtil.getProjectId(request,"space/");
-		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
-		String scdKey="space-"+projectId;
-		boolean notSessionFlag = session == null || session.getAttribute(scdKey) == null
-				|| ((HashMap<String, String>) session.getAttribute(scdKey)).size() == 0;
+		boolean notSessionFlag = session == null || session.getAttribute("scd-dev") == null
+				|| ((HashMap<String, String>) session.getAttribute("scd-dev")).size() == 0;
 		response.setContentType("application/json");
 		Map cm = null;
 		if(FrameworkSetting.chat && !notSessionFlag && GenericUtil.uInt(request, "c")!=0){
-			cm = engine.getUserNotReadChatMap((Map)session.getAttribute(scdKey));
+			cm = engine.getUserNotReadChatMap((Map)session.getAttribute("scd-dev"));
 		}
-		if(GenericUtil.uInt(request, "d")==0 || notSessionFlag)
+		if(GenericUtil.uInt(request, "d")==0)
 			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
 		else {
-			Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
-			response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2Recursive(scd) + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
+			Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			response.getWriter().write("{\"success\":true,\"session\":" + (scd==null ? "false":GenericUtil.fromMapToJsonString2Recursive(scd)) + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
 		}
 		response.getWriter().close();
 	}
@@ -503,7 +496,7 @@ public class SpaceServlet implements InitializingBean {
 	public void hndAjaxPostConversionGridMulti(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxPostConversionGridMulti");
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
 		int conversionCount = GenericUtil.uInt(request, "_ccnt");
@@ -521,7 +514,7 @@ public class SpaceServlet implements InitializingBean {
 			
 			if (formResult.getErrorMap().isEmpty()){
 				UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
-//				UserUtil.mqSyncAfterPostFormAll(formResult.getScd4PAppSpace(), formResult.getListSyncAfterPostHelper());
+//				UserUtil.mqSyncAfterPostFormAll(formResult.getScd4Preview(), formResult.getListSyncAfterPostHelper());
 			}
 		} else
 			response.getWriter().write("{\"success\":false}");
@@ -532,14 +525,15 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxPostEditGrid");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		int dirtyCount = GenericUtil.uInt(request, "_cnt");
-		int formId = GenericUtil.uInt(request, "_fid");
+		Map<String, String> requestMap = GenericUtil.getParameterMap(request);
+		int dirtyCount = GenericUtil.uInt(requestMap, "_cnt");
+		int formId = GenericUtil.uInt(requestMap, "_fid");
 		if (formId > 0) {
 			W5FormResult formResult = engine.postEditGrid4Table(scd, formId, dirtyCount,
-					GenericUtil.getParameterMap(request), "", new HashSet<String>());
+					requestMap, "", new HashSet<String>());
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 			response.getWriter().close();
 
@@ -550,20 +544,20 @@ public class SpaceServlet implements InitializingBean {
 
 			if (formResult.getErrorMap().isEmpty()){
 				UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
-//				UserUtil.mqSyncAfterPostFormAll(formResult.getScd4PAppSpace(), formResult.getListSyncAfterPostHelper());
+//				UserUtil.mqSyncAfterPostFormAll(formResult.getScd4Preview(), formResult.getListSyncAfterPostHelper());
 				
 			}
 
 		} else if (formId < 0) { // negatifse direk -dbFuncId
 			// int dbFuncId= GenericUtil.uInt(request, "_did");
 			W5GlobalFuncResult dbFuncResult = engine.postEditGridGlobalFunc(scd, -formId, dirtyCount,
-					GenericUtil.getParameterMap(request), "");
+					requestMap, "");
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		} else {
-			int conversionId = GenericUtil.uInt(request, "_cnvId");
+			int conversionId = GenericUtil.uInt(requestMap, "_cnvId");
 			if (conversionId > 0) {
 				W5FormResult formResult = engine.postBulkConversion(scd, conversionId, dirtyCount,
-						GenericUtil.getParameterMap(request), "");
+						requestMap, "");
 				response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 				response.getWriter().close();
 
@@ -574,7 +568,7 @@ public class SpaceServlet implements InitializingBean {
 				
 				if (formResult.getErrorMap().isEmpty()){
 					UserUtil.syncAfterPostFormAll(formResult.getListSyncAfterPostHelper());
-//					UserUtil.mqSyncAfterPostFormAll(formResult.getScd4PAppSpace(), formResult.getListSyncAfterPostHelper());
+//					UserUtil.mqSyncAfterPostFormAll(formResult.getScd4Preview(), formResult.getListSyncAfterPostHelper());
 				}
 
 			} else {
@@ -588,7 +582,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxBookmarkForm");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int formId = GenericUtil.uInt(request, "_fid");
 		int action = GenericUtil.uInt(request, "a");
@@ -604,7 +598,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxExecDbFunc");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int dbFuncId = GenericUtil.uInt(request, "_did"); // +:dbFuncId,
 															// -:formId
@@ -629,7 +623,7 @@ public class SpaceServlet implements InitializingBean {
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndGetFormSimple(" + formId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
 		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
@@ -644,7 +638,7 @@ public class SpaceServlet implements InitializingBean {
 	public void hndAjaxReloadFormCell(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxReloadFormCell");
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		int fcId = GenericUtil.uInt(request, "_fcid");
 		String webPageId = request.getParameter(".w");
 		String tabId = request.getParameter(".t");
@@ -662,7 +656,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxGetFormCellCodeDetail");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		int fccdId = GenericUtil.uInt(request, "_fccdid");
 		String result = engine.getFormCellCodeDetail(scd, GenericUtil.getParameterMap(request), fccdId);
 		response.setContentType("application/json");
@@ -676,7 +670,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxFeed");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
 
@@ -702,7 +696,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxTsPortletData");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
 
@@ -719,7 +713,7 @@ public class SpaceServlet implements InitializingBean {
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndShowForm(" + formId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
 		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
@@ -736,7 +730,7 @@ public class SpaceServlet implements InitializingBean {
 		int formId = GenericUtil.uInt(request, "_fid");
 		logger.info("hndShowMForm(" + formId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
 		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
@@ -746,26 +740,6 @@ public class SpaceServlet implements InitializingBean {
 
 	}
 
-	@RequestMapping("/*/showTutorial")
-	public void hndShowTutorial(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		int tutorialId = GenericUtil.uInt(request, "_ttid");
-		logger.info("showTutorial(" + tutorialId + ")");
-
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
-
-		W5TutorialResult tutorialResult = engine.getTutorialResult(scd, tutorialId,
-				GenericUtil.getParameterMap(request));
-
-		response.setContentType("application/json");
-		if (GenericUtil.uInt(scd.get("mobile")) != 0) {
-			response.getWriter().write("{\"success\":false}");
-		} else {
-			response.getWriter().write(getViewAdapter(scd, request).serializeShowTutorial(tutorialResult).toString());
-		}
-		response.getWriter().close();
-
-	}
 
 	@RequestMapping("/*/ajaxLogoutUser")
 	public void hndAjaxLogoutUser(HttpServletRequest request, HttpServletResponse response)
@@ -773,30 +747,30 @@ public class SpaceServlet implements InitializingBean {
 		logger.info("hndAjaxLogoutUser");
 		HttpSession session = request.getSession(false);
 		response.setContentType("application/json");
-		String projectId = UserUtil.getProjectId(request,"space/");
-		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
-		String scdKey="space-"+projectId;
 		if (session != null) {
-			Map<String, Object> scd = (Map) session.getAttribute(scdKey);
+			String projectId = UserUtil.getProjectId(request, "preview/");
+			W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+			Map<String, Object> scd = (Map) session.getAttribute("preview-"+projectId);
 			if (scd != null) {
 				UserUtil.onlineUserLogout((Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
-				if(scd.containsKey("mobile")){
-					Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", scd.get("mobileDeviceId"));parameterMap.put("pactive_flag", 0);
-					engine.executeFunc(scd, 673, parameterMap, (short)4);
-				}
 			}
-			session.removeAttribute(scdKey);
+			session.removeAttribute("preview-"+projectId);
 		}
 		if(GenericUtil.uInt(request, "d")!=0)throw new IWBException("session","No Session",0,null, "No valid session", null);
 		else response.getWriter().write("{\"success\":true}");
 	}
+	
 	@RequestMapping("/*/ajaxAuthenticateUser")
 	public void hndAjaxAuthenticateUser(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxAuthenticateUser(" + request.getParameter("userName") + ")");
-		String projectId = UserUtil.getProjectId(request,"space/");
+		String projectId = UserUtil.getProjectId(request,"preview/");
 		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
-//		if(po.getSessionQueryId()==0)response.sendRedirect("main.htm"); //TODO
+		if(po.getSessionQueryId()==0){
+			response.getWriter().write("{\"success\":true}");
+			response.getWriter().close();
+			return;
+		}
 
 
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
@@ -804,7 +778,7 @@ public class SpaceServlet implements InitializingBean {
 	/*	if (request.getSession(false) != null && request.getSession(false).getAttribute("securityWordId") != null)
 			requestParams.put("securityWordId", request.getSession(false).getAttribute("securityWordId").toString());
 */
-		String scdKey="space-"+projectId;
+		String scdKey="preview-"+projectId;
 		if (request.getSession(false) != null) {
 			request.getSession(false).removeAttribute(scdKey);
 		}
@@ -819,8 +793,8 @@ public class SpaceServlet implements InitializingBean {
 		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 		String errorMsg = result.getResultMap().get("errorMsg");
 		int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
-		String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
-//		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
+		String xlocale = "en";//GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
+		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
 		int userRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
 		response.setContentType("application/json");
@@ -834,18 +808,22 @@ public class SpaceServlet implements InitializingBean {
 			} else {
 				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
 				HttpSession session = request.getSession(true);
-				session.removeAttribute(scdKey);
-				session.setAttribute(scdKey, scd);
+//				session.removeAttribute(scdKey);
+				if(deviceType!=0) {
+					scd.put("mobile", deviceType);
+					scd.put("mobileDeviceId", request.getParameter("_mobile_device_id"));
+				} else {
+					scd.put("renderer", po.getUiWebFrontendTip());
+					scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+				}
 				scd.put("locale", xlocale);
 				scd.put("customizationId", po.getCustomizationId());
 				scd.put("ocustomizationId", po.getCustomizationId());
 				scd.put("projectId", po.getProjectUuid());scd.put("projectName", po.getDsc());
-				scd.put("renderer", po.getUiWebFrontendTip());
-				scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 				scd.put("mainTemplateId", po.getUiMainTemplateId());
-
 				scd.put("sessionId", session.getId());
 				scd.put("path", "../");
+				session.setAttribute(scdKey, scd);
 
 //				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) 0, request.getParameter(".w"));
 				response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun
@@ -857,19 +835,20 @@ public class SpaceServlet implements InitializingBean {
 		}
 		response.getWriter().close();
 	}
-	@RequestMapping("/*/login.htm") //getScd4PAppSpace
+	
+	@RequestMapping("/*/login.htm")
 	public void hndLoginPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
 		logger.info("hndLoginPage");
-		String projectId = UserUtil.getProjectId(request,"space/");
-		W5Project po = FrameworkCache.getProject(projectId,"Not a valid Project");
+		String projectId = UserUtil.getProjectId(request,"preview/");
+		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
 		if(po.getSessionQueryId()==0)
 			response.sendRedirect("main.htm");
 			
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			String scdKey = "space-"+projectId;
+			String scdKey = "preview-"+projectId;
 			Map<String, Object> scd = (Map<String, Object>) session.getAttribute(scdKey);
 			if (scd != null)UserUtil.onlineUserLogout( (Integer) scd.get("userId"), (String) scd.get("sessionId"));
 			session.removeAttribute(scdKey);
@@ -891,7 +870,6 @@ public class SpaceServlet implements InitializingBean {
 
 	}
 
-
 	@RequestMapping("/*/main.htm")
 	public void hndMainPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -899,21 +877,22 @@ public class SpaceServlet implements InitializingBean {
 		
 		Map<String, Object> scd = null;
 		try{
-			scd = UserUtil.getScd4PAppSpace(request);
-		} catch(Exception e){
-			scd = null;
-		}
+			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		} catch(Exception e){scd=null;}
 		if(scd==null){
 			response.sendRedirect("login.htm");
 			return;
 		}
 
-		if (scd.get("mobile") != null)
-			scd.remove("mobile");
-
-		W5Project po = FrameworkCache.getProject(scd);
+		int templateId = GenericUtil.uInt(scd.get("mainTemplateId")); // Login
 		
-		W5PageResult pageResult = engine.getPageResult(scd, po.getUiMainTemplateId(), GenericUtil.getParameterMap(request));
+		//if it exists then create new session
+		
+		/*  how to separate these?   */
+		
+																		// Page
+																		// Template
+		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -927,7 +906,7 @@ public class SpaceServlet implements InitializingBean {
 		int templateId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndShowPage(" + templateId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
@@ -952,7 +931,7 @@ public class SpaceServlet implements InitializingBean {
 		int listId = GenericUtil.uInt(request, "_lid");
 		logger.info("hndShowMList(" + listId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		M5ListResult listResult = engine.getMListResult(scd, listId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
@@ -973,7 +952,7 @@ public class SpaceServlet implements InitializingBean {
 	public ModelAndView hndGridReport(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndGridReport");
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int gridId = GenericUtil.uInt(request, "_gid");
 		String gridColumns = request.getParameter("_columns");
@@ -983,7 +962,7 @@ public class SpaceServlet implements InitializingBean {
 		if (list != null) {
 			Map<String, Object> m = new HashMap<String, Object>();
 			m.put("report", list);
-			m.put("scd", scd);
+			m.put("scd-dev", scd);
 			ModelAndView result = null;
 			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
 				result = new ModelAndView(new RptExcelRenderer(), m);
@@ -1013,7 +992,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndFileDownload");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int fileAttachmentId = GenericUtil.uInt(request, "_fai");
 		String customizationId = String.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
@@ -1083,11 +1062,11 @@ public class SpaceServlet implements InitializingBean {
 		logger.info("hndShowFile(" + fileAttachmentId + ")");
 		Map<String, Object> scd = null;
 		if (fileAttachmentId == 0) {
-			scd = UserUtil.getScd4PAppSpace(request);
-			String spi = request.getPathInfo();
-			if (spi.startsWith("/sf/pic") && spi.contains(".")) {
-				spi = spi.substring(7);
-				spi = spi.substring(0, spi.indexOf("."));
+			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			String spi = request.getRequestURI();
+			if (spi.contains("/sf/pic") && spi.contains(".")) {
+				spi = spi.substring(spi.indexOf("/sf/pic")+7);
+				spi = spi.substring(0,spi.indexOf("."));
 				fileAttachmentId = -GenericUtil.uInt(spi);
 			}
 			if (fileAttachmentId == 0)
@@ -1112,7 +1091,7 @@ public class SpaceServlet implements InitializingBean {
 				filePath = request.getRealPath("/images/custom/ppicture/default_"
 						+ (fa.getFileAttachmentId() == 2 ? "wo" : "") + "man_mini.png");
 			} else {
-				if (scd == null)scd = UserUtil.getScd4PAppSpace(request);
+				if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 				String customizationId = String
 						.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
 				String file_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
@@ -1161,7 +1140,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndShowFormByQuery");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int formId = GenericUtil.uInt(request, "_fid");
 		int queryId = GenericUtil.uInt(request, "_qid");
@@ -1181,7 +1160,7 @@ public class SpaceServlet implements InitializingBean {
 	public void hndGetTableRecordInfo(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndGetTableRecordInfo");
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		int tableId = GenericUtil.uInt(request, "_tb_id");
 		int tablePk = GenericUtil.uInt(request, "_tb_pk");
 		W5TableRecordInfoResult r = engine.getTableRecordInfo(scd, tableId, tablePk);
@@ -1194,9 +1173,14 @@ public class SpaceServlet implements InitializingBean {
 	public void hndGetGraphDashboards(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndGetGraphDashboards");
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
-		List<W5BIGraphDashboard> l = engine.getGraphDashboards(scd);
+		List<W5BIGraphDashboard> l = null;
+		try{
+			l = engine.getGraphDashboards(scd);
+		} catch (Exception e) {
+		}
+		
 		if(GenericUtil.isEmpty(l)){
 			response.getWriter().write("{\"success\":true,\"data\":[]}");
 		} else {
@@ -1225,7 +1209,7 @@ public class SpaceServlet implements InitializingBean {
 			@RequestParam("table_pk") String table_pk, @RequestParam("table_id") Integer table_id,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.info("multiFileUpload");
-		// Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		// Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		String path = FrameworkCache.getAppSettingStringValue(customizationId, "file_local_path") + File.separator
 				+ customizationId + File.separator + "attachment";
 
@@ -1308,7 +1292,7 @@ public class SpaceServlet implements InitializingBean {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.info("singleFileUpload");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
 		String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
@@ -1401,7 +1385,7 @@ public class SpaceServlet implements InitializingBean {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.info("singleFileUpload4Webix");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
 		String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
@@ -1494,7 +1478,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxSendFormSmsMail");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
 		int smsMailId = GenericUtil.uInt(request, "_fsmid");
@@ -1504,6 +1488,7 @@ public class SpaceServlet implements InitializingBean {
 
 	}
 
+
 	
 	@RequestMapping("/*/ajaxCallWs")
 	public void hndAjaxCallWs(
@@ -1511,7 +1496,7 @@ public class SpaceServlet implements InitializingBean {
 			HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxCallWs"); 
-	    Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+	    Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 	    
 		Map m =engine.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
@@ -1526,7 +1511,7 @@ public class SpaceServlet implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxQueryData4Debug"); 
 		
-    	Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+    	Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		int roleId =(Integer)scd.get("roleId");
 		if(roleId!=0){
 			throw new IWBException("security","Developer",0,null, "You Have to Be Developer TO Run this", null);
@@ -1558,7 +1543,7 @@ public class SpaceServlet implements InitializingBean {
 		int tableId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndAjaxQueryData4Pivot(" + tableId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4Pivot(scd, tableId, GenericUtil.getParameterMap(request))));
@@ -1571,12 +1556,44 @@ public class SpaceServlet implements InitializingBean {
 		int tableId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndAjaxQueryData4DataList(" + tableId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4DataList(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
 	}
 	
+
+	@RequestMapping("/*/comp/*")
+	public void hndComponent(
+			HttpServletRequest request,
+			HttpServletResponse response) throws IOException{
+		logger.info("hndJasperReport"); 
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+    	String uri = request.getRequestURI();
+    	if(uri.endsWith(".css")){
+    		uri = uri.substring(uri.lastIndexOf('/')+1);
+    		uri = uri.substring(0, uri.length()-4);
+        	String css = FrameworkCache.getComponentCss(scd, GenericUtil.uInt(uri));
+    		response.setContentType("text/css; charset=UTF-8");
+        	if(css!=null){
+        		response.getWriter().write(css);
+        	} else {
+        		
+        	}
+    	} else if(uri.endsWith(".js")){
+    		uri = uri.substring(uri.lastIndexOf('/')+1);
+    		uri = uri.substring(0, uri.length()-3);
+        	String js = FrameworkCache.getComponentJs(scd, GenericUtil.uInt(uri));
+    		response.setContentType("text/javascript; charset=UTF-8");
+        	if(js!=null){
+        		response.getWriter().write(js);
+        	} else {
+        		
+        	}
+    	}
+
+		response.getWriter().close();
+	}	
 	
 }

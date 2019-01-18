@@ -1,12 +1,10 @@
 package iwb.engine;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +13,6 @@ import org.json.JSONObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.stereotype.Component;
 
 import com.rabbitmq.client.Channel;
 

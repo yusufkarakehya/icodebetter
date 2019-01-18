@@ -38,7 +38,7 @@ public class WorkflowEngine {
 	
 	@Lazy
 	@Autowired
-	private XScriptEngine scriptEngine;
+	private ScriptEngine scriptEngine;
 
 	  // TODO: onayda, iade'de, reject'te notification gitsin
 	  public Map<String, Object> approveRecord(

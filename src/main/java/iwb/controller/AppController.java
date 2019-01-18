@@ -95,8 +95,8 @@ import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 
 @Controller
 @RequestMapping("/app")
-public class AppServlet implements InitializingBean {
-	private static Logger logger = Logger.getLogger(AppServlet.class);
+public class AppController implements InitializingBean {
+	private static Logger logger = Logger.getLogger(AppController.class);
 
 	@Autowired
 	private FrameworkService service;
