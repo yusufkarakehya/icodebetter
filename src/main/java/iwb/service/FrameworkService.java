@@ -7,29 +7,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.Undefined;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -38,50 +28,23 @@ import org.springframework.transaction.annotation.Transactional;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
-
-// import com.sun.xml.xsom.XSType;
-
-import iwb.custom.trigger.GetFormTrigger;
-import iwb.custom.trigger.GlobalFuncTrigger;
 import iwb.custom.trigger.PostFormTrigger;
-import iwb.custom.trigger.QueryTrigger;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5GlobalNextval;
-import iwb.domain.db.Log5Notification;
-// import iwb.dao.tsdb_impl.InfluxDao;
-import iwb.domain.db.Log5WorkflowRecord;
-import iwb.domain.db.Log5WsMethodAction;
 import iwb.domain.db.W5BIGraphDashboard;
-import iwb.domain.db.W5Comment;
-import iwb.domain.db.W5Conversion;
-import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5Customization;
-import iwb.domain.db.W5Detay;
-import iwb.domain.db.W5Email;
 import iwb.domain.db.W5FileAttachment;
-import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
-import iwb.domain.db.W5FormModule;
-import iwb.domain.db.W5FormSmsMail;
-import iwb.domain.db.W5FormSmsMailAlarm;
-import iwb.domain.db.W5Grid;
-import iwb.domain.db.W5GridColumn;
-import iwb.domain.db.W5Jasper;
 import iwb.domain.db.W5JasperObject;
 import iwb.domain.db.W5JasperReport;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5ObjectMailSetting;
-import iwb.domain.db.W5PageObject;
-import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
-import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
-import iwb.domain.db.W5TableEvent;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TsMeasurement;
 import iwb.domain.db.W5TsPortlet;
@@ -89,28 +52,15 @@ import iwb.domain.db.W5Tutorial;
 import iwb.domain.db.W5UploadedImport;
 import iwb.domain.db.W5VcsCommit;
 import iwb.domain.db.W5VcsObject;
-import iwb.domain.db.W5Workflow;
-import iwb.domain.db.W5WorkflowRecord;
-import iwb.domain.db.W5WorkflowStep;
-import iwb.domain.db.W5Ws;
-import iwb.domain.db.W5WsMethod;
-import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
-import iwb.domain.helper.W5AccessControlHelper;
-import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5ReportCellHelper;
-import iwb.domain.helper.W5SynchAfterPostHelper;
-import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5CardResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
-import iwb.domain.result.W5GridResult;
 import iwb.domain.result.W5JasperResult;
-import iwb.domain.result.W5ListViewResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
@@ -122,27 +72,18 @@ import iwb.engine.DebugEngine;
 import iwb.engine.NotificationEngine;
 import iwb.engine.QueryEngine;
 import iwb.engine.RESTEngine;
-import iwb.engine.RhinoEngine;
+import iwb.engine.ReportEngine;
 import iwb.engine.UIEngine;
 import iwb.engine.WorkflowEngine;
 import iwb.engine.XScriptEngine;
-import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
-import iwb.util.HttpUtil;
 import iwb.util.JasperUtil;
 import iwb.util.LogUtil;
-import iwb.util.MailUtil;
 import iwb.util.Money2Text;
-import iwb.util.RhinoContextFactory;
-import iwb.util.RhinoUtil;
 import iwb.util.UserUtil;
-import net.sf.jasperreports.engine.JRParameter;
-import net.sf.jasperreports.engine.JRPrintPage;
-import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.data.JRMapCollectionDataSource;
 import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 
 @Service
@@ -194,6 +135,12 @@ public class FrameworkService {
 	@Lazy
 	@Autowired
 	private DebugEngine debugEngine;
+	
+
+
+	@Lazy
+	@Autowired
+	private ReportEngine reportEngine;
 	
 	
 	public synchronized void reloadCache(int cid) {
@@ -540,192 +487,10 @@ public class FrameworkService {
 		return scriptEngine.postEditGridGlobalFunc(scd, dbFuncId, dirtyCount, requestParams, prefix);
 	}
 
-	@SuppressWarnings("unused")
-	private Object jasperReportObjectOrganizer(Object obj, W5JasperObject o, W5QueryField f, String xlocale,
-			int customizationId, Object helperData) {
-
-		String res = null;
-		if (obj != null) {
-			obj = (o.getHtmlFlag() == 1) ? JasperUtil.changeHtmlFont(obj.toString()) : obj;
-			if (obj instanceof java.math.BigDecimal) {
-				switch (f.getFieldTip()) {
-				case 3:
-					obj = ((java.math.BigDecimal) obj).doubleValue();
-					break;
-				case 4:
-					obj = ((java.math.BigDecimal) obj).intValue();
-					break;
-				case 7:
-					obj = obj;
-					break;
-				}
-			}
-
-			if (f.getPostProcessTip() == 2) { // locale filtresinden gececek
-				obj = LocaleMsgCache.get2(customizationId, xlocale, obj.toString());
-			} else if (f.getPostProcessTip() == 7) {
-				if (helperData == null)
-					helperData = FrameworkCache.getAppSettingStringValue(customizationId, "client_para_tip", "");
-				obj = Money2Text.StartConvert(GenericUtil.udouble(obj.toString()), helperData.toString(), xlocale);
-			} else if (f.getDsc().contains("_flag")) {
-				obj = GenericUtil.uInt(res) != 0 ? "x" : "o";
-			} else if (f.getPostProcessTip() == 10) { // demek ki lookup'li
-														// deger tutulacak
-				W5LookUp lookUp = FrameworkCache.getLookUp(customizationId, f.getLookupQueryId()); // BUG
-																									// customizationId
-																									// olamaz
-				if (lookUp != null) {
-					W5LookUpDetay d = lookUp.get_detayMap().get(obj.toString());
-					if (d != null) {
-						String s = d.getDsc();
-						if (s != null) {
-							obj = GenericUtil.stringToJS(LocaleMsgCache.get2(customizationId, xlocale, s));
-							// if(f.getDsc().equals("fatura_para_tip"))faturaParaTip=d.getVal();
-						}
-					} else {
-						obj = "???: " + obj.toString();
-					}
-				}
-			}
-		}
-		return obj;
-	}
 
 	public W5QueryResult getJasperMultipleData(Map<String, Object> scd, Map<String, String> requestParams,
 			int jasperId) {
-		W5Jasper jasper = (W5Jasper) dao.getObject(W5Jasper.class, jasperId);
-		W5QueryResult queryResult = executeQuery(scd, jasper.getMultiJasperQueryId(), requestParams);
-		return queryResult;
-	}
-
-	public W5JasperResult getJasperResult(Map<String, Object> scd, Map<String, String> requestParams,
-			int jasperReportId) {
-		String xlocale = (String) scd.get("locale");
-		int customizationId = (Integer) scd.get("customizationId");
-
-		W5JasperReport jasperreport = dao.getJasperReport(scd, jasperReportId);
-		W5JasperResult jasperResult = dao.getJasperResult(scd, jasperreport, requestParams);
-		String file_name = jasperreport.getReportFileName().toString();
-		jasperResult.setFile_name(file_name);
-
-		List<Map> detail = new ArrayList(); // detaylar için initialize ediliyor
-
-		jasperResult.getResultMap().putAll(requestParams); // request oldugu
-															// gibi aktar
-
-		int _saveTableId = GenericUtil.uInt(requestParams.get("_saveTableId"));
-		String _saveTablePk = requestParams.get("_saveTablePk");
-		if (_saveTableId != 0 && _saveTablePk != null) { // Bagli oldugu tabloyu
-															// oldugu gibi
-															// aktar.
-			Map<String, Object> mainTableData = dao.getMainTableData(scd, _saveTableId, _saveTablePk).get(0);
-			jasperResult.getResultMap().putAll(mainTableData); // .p((Map));
-		}
-
-		for (W5JasperObject o : jasperResult.getJasper().get_jasperObjects())
-			switch (o.getObjectTip()) {
-			case 3:
-				continue;
-			case 1: // query
-				if (o.getJasperQueryType() == 1) { // Standart Query
-					if (o.getSingleRecordFlag() == 1) { // param
-						W5QueryResult queryResult = executeQuery(scd, o.getObjectId(), requestParams);
-						if (queryResult != null && queryResult.getData().size() > 0) {
-							for (W5QueryField f : queryResult.getQuery().get_queryFields()) {
-								W5TableField tf = f.getMainTableFieldId() > 0
-										? queryResult.getMainTable().get_tableFieldMap().get(f.getMainTableFieldId())
-										: null;
-								if (tf != null && !GenericUtil.accessControl(scd, tf.getAccessViewTip(),
-										tf.getAccessViewRoles(), tf.getAccessViewUsers()))
-									continue;
-								W5QueryField helper = null;
-								Object helperData = null;
-								for (W5QueryField h : queryResult.getQuery().get_queryFields()) {
-									if (h.getDsc().equals(f.getDsc() + "_hp_")) {
-										helperData = queryResult.getData().get(0)[h.getTabOrder() - 1];
-									}
-								}
-								Object obj = queryResult.getData().get(0)[f.getTabOrder() - 1];
-								jasperResult.getResultMap().put(f.getDsc(),
-										jasperReportObjectOrganizer(obj, o, f, xlocale, customizationId, helperData));
-							}
-						}
-
-					} else { // detail
-						W5QueryResult queryResult = executeQuery(scd, o.getObjectId(), requestParams);
-						for (int i = 0; i < queryResult.getData().size(); i++) {
-							Map<String, Object> rowMap = new HashMap<String, Object>();
-
-							for (W5QueryField f : queryResult.getQuery().get_queryFields()) {
-								W5TableField tf = f.getMainTableFieldId() > 0
-										? queryResult.getMainTable().get_tableFieldMap().get(f.getMainTableFieldId())
-										: null;
-								if (tf != null && !GenericUtil.accessControl(scd, tf.getAccessViewTip(),
-										tf.getAccessViewRoles(), tf.getAccessViewUsers()))
-									continue;
-								W5QueryField helper = null;
-								Object helperData = null;
-								for (W5QueryField h : queryResult.getQuery().get_queryFields()) {
-									if (h.getDsc().equals(f.getDsc() + "_hp_")) {
-										helperData = queryResult.getData().get(0)[h.getTabOrder() - 1];
-									}
-								}
-								Object obj = queryResult.getData().get(i)[f.getTabOrder() - 1];
-								rowMap.put(f.getDsc().toUpperCase(FrameworkSetting.appLocale),
-										jasperReportObjectOrganizer(obj, o, f, xlocale, customizationId, helperData));
-							}
-
-							detail.add(rowMap);
-						}
-					}
-				} else if (o.getJasperQueryType() == 2) { // Subreport Query
-					W5QueryResult queryResult = executeQuery(scd, o.getObjectId(), requestParams);
-					List<Map> list = new ArrayList<Map>();
-					for (int i = 0; i < queryResult.getData().size(); i++) {
-						Map<String, Object> rowMap = new HashMap<String, Object>();
-
-						for (W5QueryField f : queryResult.getQuery().get_queryFields()) {
-							W5TableField tf = f.getMainTableFieldId() > 0
-									? queryResult.getMainTable().get_tableFieldMap().get(f.getMainTableFieldId())
-									: null;
-							if (tf != null && !GenericUtil.accessControl(scd, tf.getAccessViewTip(),
-									tf.getAccessViewRoles(), tf.getAccessViewUsers()))
-								continue;
-							W5QueryField helper = null;
-							Object helperData = null;
-							for (W5QueryField h : queryResult.getQuery().get_queryFields()) {
-								if (h.getDsc().equals(f.getDsc() + "_hp_")) {
-									helperData = queryResult.getData().get(0)[h.getTabOrder() - 1];
-								}
-							}
-							Object obj = queryResult.getData().get(i)[f.getTabOrder() - 1];
-							rowMap.put(f.getDsc().toUpperCase(FrameworkSetting.appLocale),
-									jasperReportObjectOrganizer(obj, o, f, xlocale, customizationId, helperData));
-						}
-						list.add(rowMap);
-					}
-					jasperResult.getResultMap().put(queryResult.getQuery().getDsc(), list);
-				}
-				break;
-			case 2: // dbFunc
-				W5GlobalFuncResult dbFuncResult = executeFunc(scd, o.getObjectId(), requestParams, (short) 5);
-				Map<String, String> resultMap = dbFuncResult.getResultMap();
-				if (o.getHtmlFlag() == 1) {
-					for (Iterator i = resultMap.keySet().iterator(); i.hasNext();) {
-						String key = (String) i.next();
-						String value = JasperUtil.changeHtmlFont(resultMap.get(key));
-						resultMap.put(key.toString(), value);
-					}
-				}
-				if (resultMap != null)
-					jasperResult.getResultMap().putAll(resultMap);
-				break;
-			}
-
-		if (!detail.isEmpty())
-			jasperResult.setResultDetail(detail);
-
-		return jasperResult;
+		return reportEngine.getJasperMultipleData(scd, requestParams, jasperId);
 	}
 
 	public Map<String, Object> userRoleSelect(int userId, int userRoleId, int customizationId, String projectId,
@@ -770,20 +535,7 @@ public class FrameworkService {
 		return executeQuery2Map(scd, 4546, rm); // auth.SessionQuery
 	}
 
-	private int approvalStepListControl(List<W5WorkflowStep> stepList) {
-		int r = -1;
-		int i = 0;
-		if (stepList != null && !stepList.isEmpty()) {
-			for (W5WorkflowStep s : stepList) {
-				if (s.getApprovalStepId() < 901) {
-					r = i;
-					break;
-				}
-				i++;
-			}
-		}
-		return r;
-	}
+
 
 	// TODO: onayda, iade'de, reject'te notification gitsin
 	public Map<String, Object> approveRecord(Map<String, Object> scd, int approvalRecordId, int approvalAction,
@@ -937,131 +689,12 @@ public class FrameworkService {
 
 	public JasperPrint prepareJasperPrint(Map<String, Object> scd, Map<String, String> requestParams,
 			JRFileVirtualizer virtualizer) {
-		JasperPrint jasperPrint = new JasperPrint();
-		int customizationId = (Integer) scd.get("customizationId");
-		int jasperReportId = GenericUtil.uInt(requestParams, "_jrid");
-		int jasperTypeId = GenericUtil.uInt(requestParams, "_jtid"); // jasper
-																		// raporlara
-																		// ön
-																		// yazı
-																		// eklemek
-																		// icin
-																		// _jtid
-																		// isminde
-																		// raporlar
-																		// yolluyoruz.
-		int jasperFooterId = GenericUtil.uInt(requestParams, "_jfid"); // jasper
-																		// raporlara
-																		// alt
-																		// yazı
-																		// eklemek
-																		// icin
-																		// _jfid
-																		// isminde
-																		// raporlar
-																		// yolluyoruz.
-		W5JasperResult result = getJasperResult(scd, requestParams, jasperReportId);
-		String locale = (requestParams.get("tlocale") == null) ? (String) scd.get("locale")
-				: (String) requestParams.get("tlocale"); // Sisteme login dili
-															// değilde farklı
-															// bir dil seçeneği
-															// kullanılmak
-		// isteniyosa
-		String file_name = result.getFile_name();
-		String fileLocalPath = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
-		// String localePath=fileLocalPath+"/"+(jasperReportId <100000 ?
-		// 0:customizationId)+"/jasper/";
-		Map<String, Object> resultMap = (Map) result.getResultMap();
-		W5Customization c = FrameworkCache.wCustomizationMap.get(customizationId);
-
-		resultMap.put("CompanyLogoFilePath", fileLocalPath + "/0/jasper/inscada.png"); // firma
-																						// logosunun
-																						// pathi
-																						// gönderiliyor
-
-		try {
-			String localePath = fileLocalPath + "/" + customizationId + "/jasper/";
-			File f = new File(localePath + file_name);
-			if (!f.exists()) {
-				localePath = fileLocalPath + "/0/jasper/";
-				f = new File(localePath + file_name);
-			}
-			resultMap.put("localePath", localePath); // jasper folder path
-			resultMap.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
-			jasperPrint = JasperFillManager.fillReport(localePath + file_name, resultMap,
-					new JRMapCollectionDataSource(result.getResultDetail()));
-			/*
-			 * if(result.getJasper().getLocaleKeyFlag()==1){//Jasper Raporunda
-			 * textfild'e Key degerleri verilmisse,Key degerinin karsılıgı
-			 * alınıyor.
-			 * jasperPrint=JasperUtil.convertKey2LocaleMsg(jasperPrint,locale);
-			 * }
-			 */
-
-			if (jasperTypeId > 0) { // Jasper Raporlar için Kapak Yazısı
-				W5JasperReport jp = getJasperReport(scd, result.getJasperId(), requestParams, jasperTypeId);
-				Map<String, Object> resultMapCover = (Map) result.getResultMap();
-				resultMapCover.put("total_page_number", jasperPrint.getPages().size());
-				file_name = jp.getReportFileName();
-				localePath = fileLocalPath + "/" + customizationId + "/jasper/";
-				f = new File(localePath + file_name);
-				if (!f.exists()) {
-					localePath = fileLocalPath + "/0/jasper/";
-					f = new File(localePath + file_name);
-				}
-				JasperPrint coverJasperPrint = JasperFillManager.fillReport(localePath + file_name, resultMapCover,
-						new JRMapCollectionDataSource(result.getResultDetail()));
-				// coverJasperPrint=JasperUtil.convertKey2LocaleMsg(coverJasperPrint,locale);
-				int index = 0;
-				for (Object addPage : coverJasperPrint.getPages()) {
-					jasperPrint.addPage(index, (JRPrintPage) addPage);
-					index++;
-				}
-			}
-
-			if (jasperFooterId > 0) { // Jasper Raporlar için Alt Yazı
-				W5JasperReport jp = getJasperReport(scd, result.getJasperId(), requestParams, jasperFooterId);
-				Map<String, Object> resultMapFooter = (Map) result.getResultMap();
-				resultMapFooter.put("total_page_number", jasperPrint.getPages().size());
-				file_name = jp.getReportFileName();
-				localePath = fileLocalPath + "/" + customizationId + "/jasper/";
-				f = new File(localePath + file_name);
-				if (!f.exists()) {
-					localePath = fileLocalPath + "/0/jasper/";
-					f = new File(localePath + file_name);
-				}
-				JasperPrint footerJasperPrint = JasperFillManager.fillReport(localePath + file_name, resultMapFooter,
-						new JRMapCollectionDataSource(result.getResultDetail()));
-				// footerJasperPrint=JasperUtil.convertKey2LocaleMsg(footerJasperPrint,locale);
-				int index = jasperPrint.getPages().size();
-				for (Object addPage : footerJasperPrint.getPages()) {
-					jasperPrint.addPage(index, (JRPrintPage) addPage);
-					index++;
-				}
-			}
-
-			/*
-			 * if(result.getJasper().getLocaleKeyFlag()==1){//Jasper Raporunda
-			 * textfild'e Key degerleri verilmisse,Key degerinin karsılıgı
-			 * alınıyor.
-			 * jasperPrint=JasperUtil.convertKey2LocaleMsg(jasperPrint,locale);
-			 * }
-			 */
-
-		} catch (Exception e) {
-			if (FrameworkSetting.debug)
-				e.printStackTrace();
-			throw new IWBException("Error", "Jasper", 0, "", e.getMessage(), e.getCause());
-		}
-		return jasperPrint;
+		return reportEngine.prepareJasperPrint(scd, requestParams, virtualizer);
 	}
 
 	public W5JasperReport getJasperReport(Map<String, Object> scd, int jasperId, Map<String, String> requestParams,
 			int jasperTypeId) {
-		List<W5JasperReport> l = (List<W5JasperReport>) dao.find(
-				"from W5JasperReport t where t.customizationId=? and t.jasperReportId=?", scd.get("customizationId"),
-				jasperTypeId);
-		return l.isEmpty() ? null : l.get(0);
+		return reportEngine.getJasperReport(scd, jasperId, requestParams, jasperTypeId);
 	}
 
 	public W5TableRecordInfoResult getTableRecordInfo(Map<String, Object> scd, int tableId, int tablePk) {
@@ -1160,16 +793,6 @@ public class FrameworkService {
 		 * "FormElementCode: wrong SQL code 4 (Formul/Advanced)", null); }
 		 */
 		return "";
-	}
-
-	public void setJVMProperties(int customizationId) {
-		List<Object[]> list = dao.executeSQLQuery(
-				"select dsc,val from iwb.w5_app_Setting x where x.setting_tip=19 and x.customization_id=?",
-				customizationId);
-		if (list != null && !list.isEmpty()) {
-			for (Object[] t : list)
-				System.setProperty(t[0].toString(), t[1].toString());
-		}
 	}
 
 	public void checkAlarms(Map<String, Object> scd) {

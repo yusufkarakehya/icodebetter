@@ -128,7 +128,7 @@ public class QueryEngine {
 				}
 			StringBuilder rc = new StringBuilder();
 			rc.append("function _x_(x){\nreturn {").append(queryResult.getQuery().getSqlSelect())
-					.append("\n}}\nvar result=[], q=$iwb.REST('").append(wsm.get_ws().getDsc() + "." + wsm.getDsc())
+					.append("\n}}\nvar result=[], q=$.REST('").append(wsm.get_ws().getDsc() + "." + wsm.getDsc())
 					.append("',").append(GenericUtil.fromMapToJsonString2(m2))
 					.append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc())
 					.append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
@@ -250,7 +250,7 @@ public class QueryEngine {
 								}
 							StringBuilder rc2 = new StringBuilder();
 							rc2.append("function _x_(x){\nreturn {").append(lookupQueryResult.getQuery().getSqlSelect())
-									.append("\n}}\nvar result=[], q=$iwb.REST('")
+									.append("\n}}\nvar result=[], q=$.REST('")
 									.append(wsm.get_ws().getDsc() + "." + wsm.getDsc()).append("',")
 									.append(GenericUtil.fromMapToJsonString2(m2))
 									.append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc())

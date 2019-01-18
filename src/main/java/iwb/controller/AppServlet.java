@@ -124,7 +124,7 @@ public class AppServlet implements InitializingBean {
 		service.reloadCache(-1);
 		// if(PromisSetting.checkLicenseFlag)engine.checkLicences();
 		// dao.organizeAudit();
-		service.setJVMProperties(0);
+		//service.setJVMProperties(0);
 		try{
 			manPicPath = new ClassPathResource("static/ext3.4.1/custom/images/man-64.png").getFile().getPath();
 			brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
