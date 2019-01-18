@@ -62,10 +62,10 @@ import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.engine.FrameworkEngine;
 import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
+import iwb.service.FrameworkService;
 import iwb.timer.Action2Execute;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
@@ -76,7 +76,7 @@ public class PreviewServlet implements InitializingBean {
 	private static Logger logger = Logger.getLogger(PreviewServlet.class);
 
 	@Autowired
-	private FrameworkEngine engine;
+	private FrameworkService engine;
 
 	@Autowired
 	private TaskExecutor taskExecutor;

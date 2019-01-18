@@ -1,4 +1,4 @@
-package iwb.engine;
+package iwb.service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import iwb.util.UserUtil;
 
 @Service
 @Transactional
-public class VcsEngine {
+public class VcsService {
 	@Autowired
 	private PostgreSQL dao;
 

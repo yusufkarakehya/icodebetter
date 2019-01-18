@@ -37,8 +37,8 @@ import iwb.domain.db.W5WsServerMethodParam;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5QueryResult;
-import iwb.engine.FrameworkEngine;
 import iwb.exception.IWBException;
+import iwb.service.FrameworkService;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.UserUtil;
@@ -51,7 +51,7 @@ public class RestServlet implements InitializingBean {
 	private ViewAdapter ext3_4 = new ExtJs3_4();
 	
 	@Autowired
-	private FrameworkEngine engine;
+	private FrameworkService engine;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {

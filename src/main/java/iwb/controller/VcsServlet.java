@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.domain.result.W5QueryResult;
-import iwb.engine.VcsEngine;
+import iwb.service.VcsService;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.UserUtil;
@@ -32,7 +32,7 @@ public class VcsServlet implements InitializingBean {
 	private static Logger logger = Logger.getLogger(VcsServlet.class);
 	
 	@Autowired
-	private	VcsEngine vcsEngine;
+	private	VcsService vcsEngine;
 	
 	private	ViewAdapter	ext3_4;
 	private	ViewAdapter	webix3_3;

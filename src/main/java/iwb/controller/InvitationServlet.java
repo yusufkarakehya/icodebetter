@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import iwb.cache.FrameworkCache;
 import iwb.domain.db.W5Project;
-import iwb.engine.FrameworkEngine;
+import iwb.service.FrameworkService;
 import iwb.util.GenericUtil;
 
 @Controller
@@ -21,7 +21,7 @@ import iwb.util.GenericUtil;
 public class InvitationServlet {
 	
 	@Autowired
-	private FrameworkEngine engine;
+	private FrameworkService engine;
 	
 	@RequestMapping("/accept")
 	public void hndAccept(

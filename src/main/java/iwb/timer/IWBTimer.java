@@ -6,11 +6,11 @@ import java.util.TimerTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
-import iwb.engine.FrameworkEngine;
+import iwb.service.FrameworkService;
 
 public class IWBTimer extends TimerTask {
 	@Autowired
-	private FrameworkEngine bus;
+	private FrameworkService bus;
 	
 	@Autowired
 	private SimpleAsyncTaskExecutor taskExecutor;

@@ -33,7 +33,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
-import iwb.engine.FrameworkEngine;
+import iwb.service.FrameworkService;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.UserUtil;
@@ -42,7 +42,7 @@ import iwb.util.UserUtil;
 @RequestMapping("/auth")
 public class AuthController {
 
-  @Autowired private FrameworkEngine engine;
+  @Autowired private FrameworkService engine;
 
   private final String domain = FrameworkSetting.domain;
   private final String clientId = FrameworkSetting.clientId;

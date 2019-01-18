@@ -71,11 +71,11 @@ import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TutorialResult;
-import iwb.engine.FrameworkEngine;
-import iwb.engine.ScriptEngine;
+import iwb.engine.RhinoEngine;
 import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
+import iwb.service.FrameworkService;
 import iwb.timer.Action2Execute;
 import iwb.util.GenericUtil;
 import iwb.util.JasperUtil;
@@ -99,7 +99,7 @@ public class AppServlet implements InitializingBean {
 	private static Logger logger = Logger.getLogger(AppServlet.class);
 
 	@Autowired
-	private FrameworkEngine engine;
+	private FrameworkService service;
 
 	@Autowired
 	private TaskExecutor taskExecutor;
@@ -121,16 +121,16 @@ public class AppServlet implements InitializingBean {
 		react16 = new React16();
 		vue2 = new Vue2();
 	//	FrameworkCache.activeProjectsStr = "067e6162-3b6f-4ae2-a221-2470b63dff00,29a3d378-3c59-4b5c-8f60-5334e3729959";
-		engine.reloadCache(-1);
+		service.reloadCache(-1);
 		// if(PromisSetting.checkLicenseFlag)engine.checkLicences();
 		// dao.organizeAudit();
-		engine.setJVMProperties(0);
+		service.setJVMProperties(0);
 		try{
 			manPicPath = new ClassPathResource("static/ext3.4.1/custom/images/man-64.png").getFile().getPath();
 			brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
 			womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
 		} catch(Exception e){}
-		ScriptEngine.taskExecutor = this.taskExecutor;
+		RhinoEngine.taskExecutor = this.taskExecutor;
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
 		if(FrameworkSetting.logType==2)LogUtil.activateMQ4Log();
 	}
@@ -166,7 +166,7 @@ public class AppServlet implements InitializingBean {
 		logger.info("hndAjaxChangeActiveProject"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    String uuid= request.getParameter("_uuid");
-	    boolean b = engine.changeActiveProject(scd, uuid);
+	    boolean b = service.changeActiveProject(scd, uuid);
 		response.getWriter().write("{\"success\":"+b+", \"customizationId\":"+scd.get("customizationId")+",\"scd\":"+GenericUtil.fromMapToJsonString2Recursive(scd)+"}");
 		response.getWriter().close();		
 	}
@@ -180,7 +180,7 @@ public class AppServlet implements InitializingBean {
 		logger.info("hndAjaxChangeProjectStatus"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    String uuid= request.getParameter("project_uuid");
-	    boolean b = engine.changeChangeProjectStatus(scd, request.getParameter("project_uuid"), GenericUtil.uInt(request, "new_status"));
+	    boolean b = service.changeChangeProjectStatus(scd, request.getParameter("project_uuid"), GenericUtil.uInt(request, "new_status"));
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();		
 	}
@@ -193,7 +193,7 @@ public class AppServlet implements InitializingBean {
 		logger.info("ajaxRunTest"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    String testIds= request.getParameter("_tids");
-	    Map m = engine.runTests(scd, testIds, request.getParameter(".w"));
+	    Map m = service.runTests(scd, testIds, request.getParameter(".w"));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}
@@ -244,7 +244,7 @@ public class AppServlet implements InitializingBean {
 		m.put("locale", xlocale);
 
 		response.setContentType("application/json");
-		Map<String, String> res = engine.sendMailForgotPassword(m, requestParams);
+		Map<String, String> res = service.sendMailForgotPassword(m, requestParams);
 		StringBuilder b = new StringBuilder();
 		b.append("{\"success\": " + (res.get("success").equals("1") == true ? "true" : "false") + ",\n").append(
 				"\"msg\":\"" + (res.get("msg") != null ? LocaleMsgCache.get2(0, xlocale, res.get("msg")) : "") + "\"}");
@@ -259,7 +259,7 @@ public class AppServlet implements InitializingBean {
 		int formCellId = GenericUtil.uInt(request, "_formCellId");
 		logger.info("hndAjaxFormCellCode(" + formCellId + ")");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-		Map m = engine.getFormCellCode(scd, GenericUtil.getParameterMap(request), formCellId, 1);
+		Map m = service.getFormCellCode(scd, GenericUtil.getParameterMap(request), formCellId, 1);
 		// m.put("success", true);
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromMapToJsonString2(m));
@@ -288,7 +288,7 @@ public class AppServlet implements InitializingBean {
 
 		response.setContentType("application/json");
 		response.getWriter()
-				.write(getViewAdapter(scd, request).serializeQueryData(engine.getTableRelationData(scd, tableId, tablePk, relId)).toString());
+				.write(getViewAdapter(scd, request).serializeQueryData(service.getTableRelationData(scd, tableId, tablePk, relId)).toString());
 		response.getWriter().close();
 	}
 	@RequestMapping("/ajaxQueryData4Stat")
@@ -302,7 +302,7 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		Map m = engine.executeQuery4Stat(scd, gridId, GenericUtil.getParameterMap(request));
+		Map m = service.executeQuery4Stat(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
@@ -316,7 +316,7 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		Map m = engine.executeQuery4StatTree(scd, gridId, GenericUtil.getParameterMap(request));
+		Map m = service.executeQuery4StatTree(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
@@ -326,7 +326,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		int queryId = GenericUtil.uInt(request, "_qid");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-		W5QueryResult queryResult = engine.executeQuery(scd, queryId, GenericUtil.getParameterMap(request));
+		W5QueryResult queryResult = service.executeQuery(scd, queryId, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		String id = UUID.randomUUID().toString();
@@ -389,7 +389,7 @@ public class AppServlet implements InitializingBean {
 					slou.put((Integer) scd.get("userId"), new Object[] { scd.get("userId") });
 					for (Object[] o : lou)
 						slou.put(GenericUtil.uInt(o[0]), o);
-					W5QueryResult allUsers = engine.executeQuery(scd, queryId, requestMap);
+					W5QueryResult allUsers = service.executeQuery(scd, queryId, requestMap);
 					for (Object[] o : allUsers.getData()) {
 						String msg = (String) o[6];
 						if (msg != null && msg.length() > 18) {
@@ -436,7 +436,7 @@ public class AppServlet implements InitializingBean {
 			}
 			
 		}
-		W5QueryResult queryResult = engine.executeQuery(scd, queryId, requestMap);
+		W5QueryResult queryResult = service.executeQuery(scd, queryId, requestMap);
 
 		response.setContentType("application/json");
 		response.getWriter().write(va.serializeQueryData(queryResult).toString());
@@ -452,7 +452,7 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		W5FormResult formResult = engine.importUploadedData(scd, GenericUtil.uInt(request, "_ui"),
+		W5FormResult formResult = service.importUploadedData(scd, GenericUtil.uInt(request, "_ui"),
 				GenericUtil.getParameterMap(request));
 		response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 		response.getWriter().close();
@@ -479,7 +479,7 @@ public class AppServlet implements InitializingBean {
 
 		if (app_rec_ids == null) {
 			int approvalRecordId = GenericUtil.uInt(request, "_arid");
-			b = engine.approveRecord(scd, approvalRecordId, approvalAction, parameterMap);
+			b = service.approveRecord(scd, approvalRecordId, approvalAction, parameterMap);
 		} else {
 			String[] version_ids = request.getParameterValues("_avnos");
 			for (int i = 0; i < app_rec_ids.length; i++) {
@@ -490,7 +490,7 @@ public class AppServlet implements InitializingBean {
 																	// parametre
 																	// olarak
 																	// kullanılıyor
-				b = engine.approveRecord(scd, approvalRecordId, approvalAction, parameterMap);
+				b = service.approveRecord(scd, approvalRecordId, approvalAction, parameterMap);
 			}
 		}
 
@@ -552,7 +552,7 @@ public class AppServlet implements InitializingBean {
 			int customizationId = GenericUtil.uInt(session.getAttribute("scd-dev") == null ? session.getAttribute("customizationId")
 							: ((Map) session.getAttribute("scd-dev")).get("customizationId"));
 			Map<String, Object> oldScd = (Map<String, Object>)session.getAttribute("scd-dev"); 
-			Map<String, Object> scd = engine.userRoleSelect(userId, GenericUtil.uInt(request, "userRoleId"),
+			Map<String, Object> scd = service.userRoleSelect(userId, GenericUtil.uInt(request, "userRoleId"),
 					customizationId, request.getParameter("projectId"), deviceType != 0 ? request.getParameter("_mobile_device_id") : null);
 			if (scd == null) {
 				response.getWriter().write("{\"success\":false}"); // bir hata
@@ -581,7 +581,7 @@ public class AppServlet implements InitializingBean {
 				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) deviceType, deviceType != 0 ? request.getParameter("_mobile_device_id") : request.getParameter(".w"));
 				response.getWriter().write("{\"success\":true"); // hersey duzgun
 				if(GenericUtil.uInt(request, "c")!=0){
-					response.getWriter().write(",\"newMsgCnt\":"+ GenericUtil.fromMapToJsonString2Recursive(engine.getUserNotReadChatMap(scd)));
+					response.getWriter().write(",\"newMsgCnt\":"+ GenericUtil.fromMapToJsonString2Recursive(service.getUserNotReadChatMap(scd)));
 				}
 				if(GenericUtil.uInt(request, "d")!=0){
 					response.getWriter().write(",\"session\":"+ GenericUtil.fromMapToJsonString2Recursive(scd));
@@ -614,7 +614,7 @@ public class AppServlet implements InitializingBean {
 			scd = UserUtil.getScd(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 		requestParams.put("_remote_ip", request.getRemoteAddr());
-		W5GlobalFuncResult result = engine.executeFunc(scd, 250, requestParams, (short) 7);
+		W5GlobalFuncResult result = service.executeFunc(scd, 250, requestParams, (short) 7);
 		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 		String errorMsg = result.getResultMap().get("errorMsg");
 		if (!success)
@@ -653,7 +653,7 @@ public class AppServlet implements InitializingBean {
 			request.getSession(false).removeAttribute("scd-dev");
 		}
 		;
-		W5GlobalFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
+		W5GlobalFuncResult result = service.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
 
 		/*
 		 * 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
@@ -693,13 +693,13 @@ public class AppServlet implements InitializingBean {
 								"sms_validation_code_type"),
 						FrameworkCache.getAppSettingIntValue(customizationId,
 								"sms_validation_code_length")));
-				engine.saveObject(c);
+				service.saveObject(c);
 
 				// SMS Gönderme İşlemi //
-				HashMap<String, Object> user = engine.getUser(customizationId, userId);
+				HashMap<String, Object> user = service.getUser(customizationId, userId);
 				String messageBody = LocaleMsgCache.get2(customizationId, xlocale, "mobil_onay_kodu") + ": " + c.getSmsCode();
 
-				engine.sendSms(customizationId, userId, user.get("gsm") + "", messageBody, 1197, c.getSmsValidCodeId());
+				service.sendSms(customizationId, userId, user.get("gsm") + "", messageBody, 1197, c.getSmsValidCodeId());
 				/////////////////////////
 
 				response.getWriter()
@@ -716,7 +716,7 @@ public class AppServlet implements InitializingBean {
 																// ol
 				if (forceUserRoleId == 0)
 					forceUserRoleId = -roleCount;
-				scd = engine.userRoleSelect(userId, forceUserRoleId,
+				scd = service.userRoleSelect(userId, forceUserRoleId,
 						customizationId, requestParams.get("projectId"), deviceType != 0 ? request.getParameter("_mobile_device_id") : null);
 				if (scd == null) {
 					if (FrameworkSetting.debug)
@@ -776,7 +776,7 @@ public class AppServlet implements InitializingBean {
 			}
 
 			if(false && GenericUtil.uInt(request, "c")!=0){
-				response.getWriter().write(",\"newMsgCnt\":"+ GenericUtil.fromMapToJsonString2Recursive(engine.getUserNotReadChatMap(scd)));
+				response.getWriter().write(",\"newMsgCnt\":"+ GenericUtil.fromMapToJsonString2Recursive(service.getUserNotReadChatMap(scd)));
 			}
 			if (genToken && scd != null)
 				response.getWriter().write(",\"promis_token\":\""
@@ -804,7 +804,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		int roleId = (Integer) scd.get("roleId");
 		if (roleId == 0 || roleId == 2) {
-			engine.reloadCache(GenericUtil.uInt(scd.get("customizationId")));
+			service.reloadCache(GenericUtil.uInt(scd.get("customizationId")));
 			response.getWriter().write("{\"success\":true}");
 /*			if(FrameworkSetting.mq)try{
 				String projectUuid = "067e6162-3b6f-4ae2-a221-2470b63dff00";
@@ -834,7 +834,7 @@ public class AppServlet implements InitializingBean {
 		if (GenericUtil.uInt(scd.get("mobile")) == 2)
 			s = GenericUtil.encodeGetParamsToUTF8(s);// hack for android mobile app
 		m.put("msg", s.contains("\\") ? s.replace('\\', '/') : s);
-		W5FormResult formResult = engine.postForm4Table(scd, 1703, 2, m, "");
+		W5FormResult formResult = service.postForm4Table(scd, 1703, 2, m, "");
 
 		response.setContentType("application/json");
 		if (!GenericUtil.isEmpty(formResult.getErrorMap())) {
@@ -867,7 +867,7 @@ public class AppServlet implements InitializingBean {
 			response.getWriter().write("{\"success\":false}");
 			return;
 		}
-		int countLeft = engine.notifyChatMsgRead(scd, userId, msgId);
+		int countLeft = service.notifyChatMsgRead(scd, userId, msgId);
 
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true, \"countLeft\":" + countLeft + "}");
@@ -893,7 +893,7 @@ public class AppServlet implements InitializingBean {
 			JSONObject jo = HttpUtil.getJson(request);
 			requestMap.putAll(GenericUtil.fromJSONObjectToMap(jo));
 		}*/
-		W5FormResult formResult = engine.postForm4Table(scd, formId, action, requestMap, "");
+		W5FormResult formResult = service.postForm4Table(scd, formId, action, requestMap, "");
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
@@ -973,7 +973,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		Map cm = null;
 		if(FrameworkSetting.chat && !notSessionFlag && GenericUtil.uInt(request, "c")!=0){
-			cm = engine.getUserNotReadChatMap((Map)session.getAttribute("scd-dev"));
+			cm = service.getUserNotReadChatMap((Map)session.getAttribute("scd-dev"));
 		}
 		if(GenericUtil.uInt(request, "d")==0 || notSessionFlag)
 			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
@@ -993,7 +993,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 		int conversionCount = GenericUtil.uInt(request, "_ccnt");
 		if (conversionCount > 0) {
-			W5FormResult formResult = engine.postBulkConversionMulti(scd, conversionCount,
+			W5FormResult formResult = service.postBulkConversionMulti(scd, conversionCount,
 					GenericUtil.getParameterMap(request));
 
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
@@ -1024,7 +1024,7 @@ public class AppServlet implements InitializingBean {
 		int dirtyCount = GenericUtil.uInt(request, "_cnt");
 		int formId = GenericUtil.uInt(request, "_fid");
 		if (formId > 0) {
-			W5FormResult formResult = engine.postEditGrid4Table(scd, formId, dirtyCount,
+			W5FormResult formResult = service.postEditGrid4Table(scd, formId, dirtyCount,
 					GenericUtil.getParameterMap(request), "", new HashSet<String>());
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 			response.getWriter().close();
@@ -1042,13 +1042,13 @@ public class AppServlet implements InitializingBean {
 
 		} else if (formId < 0) { // negatifse direk -dbFuncId
 			// int dbFuncId= GenericUtil.uInt(request, "_did");
-			W5GlobalFuncResult dbFuncResult = engine.postEditGridGlobalFunc(scd, -formId, dirtyCount,
+			W5GlobalFuncResult dbFuncResult = service.postEditGridGlobalFunc(scd, -formId, dirtyCount,
 					GenericUtil.getParameterMap(request), "");
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		} else {
 			int conversionId = GenericUtil.uInt(request, "_cnvId");
 			if (conversionId > 0) {
-				W5FormResult formResult = engine.postBulkConversion(scd, conversionId, dirtyCount,
+				W5FormResult formResult = service.postBulkConversion(scd, conversionId, dirtyCount,
 						GenericUtil.getParameterMap(request), "");
 				response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 				response.getWriter().close();
@@ -1079,7 +1079,7 @@ public class AppServlet implements InitializingBean {
 
 		int formId = GenericUtil.uInt(request, "_fid");
 		int action = GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.bookmarkForm(scd, formId, action, GenericUtil.getParameterMap(request));
+		W5FormResult formResult = service.bookmarkForm(scd, formId, action, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"id\":" + formResult.getPkFields().get("id") + "}");
@@ -1105,10 +1105,10 @@ public class AppServlet implements InitializingBean {
 		if(dbFuncId==-1){
 			if((Integer)scd.get("roleId")!=0)
 				throw new IWBException("security","System DbProc", dbFuncId, null, "Only for developers", null);
-			engine.organizeQuery(scd, GenericUtil.uInt(request,("queryId")), (short)GenericUtil.uInt(request,("insertFlag")));
+			service.organizeQuery(scd, GenericUtil.uInt(request,("queryId")), (short)GenericUtil.uInt(request,("insertFlag")));
 			response.getWriter().write("{\"success\":true}");
 		} else {
-			W5GlobalFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1); //request
+			W5GlobalFuncResult dbFuncResult = service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1); //request
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		}
 
@@ -1127,7 +1127,7 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
+		W5FormResult formResult = service.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGetFormSimple(formResult).toString());
@@ -1143,7 +1143,7 @@ public class AppServlet implements InitializingBean {
 		int fcId = GenericUtil.uInt(request, "_fcid");
 		String webPageId = request.getParameter(".w");
 		String tabId = request.getParameter(".t");
-		W5FormCellHelper rc = engine.reloadFormCell(scd, fcId, webPageId, tabId);
+		W5FormCellHelper rc = service.reloadFormCell(scd, fcId, webPageId, tabId);
 		response.setContentType("application/json");
 		response.getWriter()
 				.write(ext3_4
@@ -1160,7 +1160,7 @@ public class AppServlet implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		int fccdId = GenericUtil.uInt(request, "_fccdid");
-		String result = engine.getFormCellCodeDetail(scd, GenericUtil.getParameterMap(request), fccdId);
+		String result = service.getFormCellCodeDetail(scd, GenericUtil.getParameterMap(request), fccdId);
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"result\":\"" + result + "\"}");
 		response.getWriter().close();
@@ -1204,7 +1204,7 @@ public class AppServlet implements InitializingBean {
 		response.setContentType("application/json");
 
 		int porletId = GenericUtil.uInt(request, "_pid");
-		String s = engine.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
+		String s = service.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
 		response.getWriter().write(s);
 		response.getWriter().close();
 	}
@@ -1220,7 +1220,7 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
+		W5FormResult formResult = service.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeShowForm(formResult).toString());
@@ -1237,7 +1237,7 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
+		W5FormResult formResult = service.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write(f7.serializeGetForm(formResult).toString());
@@ -1253,7 +1253,7 @@ public class AppServlet implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
-		W5TutorialResult tutorialResult = engine.getTutorialResult(scd, tutorialId,
+		W5TutorialResult tutorialResult = service.getTutorialResult(scd, tutorialId,
 				GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
@@ -1277,7 +1277,7 @@ public class AppServlet implements InitializingBean {
 				UserUtil.onlineUserLogout((Integer) scd.get("userId"), scd.containsKey("mobile") ? (String)scd.get("mobileDeviceId") : session.getId());
 				if(scd.containsKey("mobile")){
 					Map parameterMap = new HashMap(); parameterMap.put("pmobile_device_id", scd.get("mobileDeviceId"));parameterMap.put("pactive_flag", 0);
-					engine.executeFunc(scd, 673, parameterMap, (short)7);
+					service.executeFunc(scd, 673, parameterMap, (short)7);
 				}
 			}
 			session.removeAttribute("scd-dev");
@@ -1322,7 +1322,7 @@ public class AppServlet implements InitializingBean {
 		String subDomain = GenericUtil.getSubdomainName(request);
 		logger.info("subDomain : " + subDomain);
 		if (!subDomain.equals(""))
-			cusId = engine.getSubDomain2CustomizationId(subDomain);
+			cusId = service.getSubDomain2CustomizationId(subDomain);
 
 		Map<String, Object> scd = new HashMap();
 		scd.put("userId", 1);
@@ -1351,7 +1351,7 @@ public class AppServlet implements InitializingBean {
 			}
 		}
 
-		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1374,7 +1374,7 @@ public class AppServlet implements InitializingBean {
 
 		int templateId = 7; // Page Template
 
-		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1394,7 +1394,7 @@ public class AppServlet implements InitializingBean {
 			if(token!=null){
 				scd = (Map)session.getAttribute("scd-dev");
 				if(scd==null || !GenericUtil.safeEquals(scd.get("email"), token)){
-					scd = engine.generateScdFromAuth(1, token.toString());
+					scd = service.generateScdFromAuth(1, token.toString());
 				}
 				if(scd!=null){
 					session.removeAttribute("authToken");
@@ -1425,7 +1425,7 @@ public class AppServlet implements InitializingBean {
 		
 																		// Page
 																		// Template
-		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1438,7 +1438,7 @@ public class AppServlet implements InitializingBean {
 		
 		Map<String, Object> scd = new HashMap();
 		scd.put("customizationId", 0);scd.put("userId", 0);scd.put("locale", "en");
-		W5PageResult pageResult = engine.getPageResult(scd, 2453, new HashMap());
+		W5PageResult pageResult = service.getPageResult(scd, 2453, new HashMap());
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1454,7 +1454,7 @@ public class AppServlet implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
-		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
 		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
 		// amele
@@ -1479,7 +1479,7 @@ public class AppServlet implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
-		M5ListResult listResult = engine.getMListResult(scd, listId, GenericUtil.getParameterMap(request));
+		M5ListResult listResult = service.getMListResult(scd, listId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
 		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
 		// amele
@@ -1503,7 +1503,7 @@ public class AppServlet implements InitializingBean {
 		int gridId = GenericUtil.uInt(request, "_gid");
 		String gridColumns = request.getParameter("_columns");
 
-		List<W5ReportCellHelper> list = engine.getGridReportResult(scd, gridId, gridColumns,
+		List<W5ReportCellHelper> list = service.getGridReportResult(scd, gridId, gridColumns,
 				GenericUtil.getParameterMap(request));
 		if (list != null) {
 			Map<String, Object> m = new HashMap<String, Object>();
@@ -1513,7 +1513,7 @@ public class AppServlet implements InitializingBean {
 			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
 				result = new ModelAndView(new RptExcelRenderer(), m);
 			else if (request.getRequestURI().indexOf(".pdf") != -1)
-				result = new ModelAndView(new RptPdfRenderer(engine.getCustomizationLogoFilePath(scd)), m);
+				result = new ModelAndView(new RptPdfRenderer(service.getCustomizationLogoFilePath(scd)), m);
 			else if (request.getRequestURI().indexOf(".csv") != -1) {
 				response.setContentType("application/octet-stream");
 				response.getWriter().print(GenericUtil.report2csv(list));
@@ -1549,7 +1549,7 @@ public class AppServlet implements InitializingBean {
 			file_path = local_path + "/0/jasper/iworkbetter.png";
 			response.setContentType("image/png");
 		} else {
-			W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
+			W5FileAttachment fa = service.loadFile(scd, fileAttachmentId);
 			if (fa == null) {
 				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
 						"Invalid Id: " + fileAttachmentId, null);
@@ -1585,7 +1585,7 @@ public class AppServlet implements InitializingBean {
 				ua.setTableId(44);
 				ua.setTablePk(fileAttachmentId);
 				ua.setUserIp(request.getRemoteAddr());
-				engine.saveObject(ua);
+				service.saveObject(ua);
 
 			}
 		} catch (Exception e) {
@@ -1622,7 +1622,7 @@ public class AppServlet implements InitializingBean {
 		}
 		InputStream stream = null;
 		String filePath = null;
-		W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
+		W5FileAttachment fa = service.loadFile(scd, fileAttachmentId);
 		if (fa == null) { // bulunamamis TODO
 			throw new IWBException("validation", "File Attachment", fileAttachmentId, null, "Wrong Id: " + fileAttachmentId, null);
 		}
@@ -1727,7 +1727,7 @@ public class AppServlet implements InitializingBean {
 	    	if(multiJasperFlag!=0){	 	    		
 	    		String jasperReportIds=requestParams.get("xjasper_report_ids");	    		
 	    		int pageIndex=0;	    		
-	    		W5QueryResult queryResult=engine.getJasperMultipleData(scd, requestParams, jasperId);
+	    		W5QueryResult queryResult=service.getJasperMultipleData(scd, requestParams, jasperId);
 	    		for(Object[] o: queryResult.getData()){	    				    			
 	    			if(jasperReportIds!=null){
 	    				//birden fazla raporu birleştirerek yine her birinden istediğimiz kadar sayfa bastırmak için		    				
@@ -1739,7 +1739,7 @@ public class AppServlet implements InitializingBean {
 		    					if (o[j]!=null) requestParams.put(queryResult.getNewQueryFields().get(j).getDsc(),o[j].toString()); //multi query sonucu
 		    				}
 		    				requestParams.put("_jrid", jr[i]);
-	    					jasperPrint=engine.prepareJasperPrint(scd,requestParams,virtualizer);
+	    					jasperPrint=service.prepareJasperPrint(scd,requestParams,virtualizer);
 	    					if(pageIndex==0) jasperPrintMulti=jasperPrint;
 							if(pageIndex!=0) for(JRPrintPage jrPage:jasperPrint.getPages())jasperPrintMulti.addPage(jrPage);
 							pageIndex++;
@@ -1748,7 +1748,7 @@ public class AppServlet implements InitializingBean {
 	    				//bir raporu çok sayfa bastırmak için, örneğin toplu fatura basımı
 		    			requestParams = GenericUtil.getParameterMap(request);
 		    			for(int i=0;i<o.length;i++) requestParams.put(queryResult.getNewQueryFields().get(i).getDsc(),o[i].toString()); //multi query sonucu
-		    			jasperPrint=engine.prepareJasperPrint(scd,requestParams,virtualizer);
+		    			jasperPrint=service.prepareJasperPrint(scd,requestParams,virtualizer);
 		    			if(pageIndex==0) jasperPrintMulti=jasperPrint;
 						if(pageIndex!=0) for(JRPrintPage jrPage:jasperPrint.getPages())jasperPrintMulti.addPage(jrPage);
 						pageIndex++;
@@ -1757,7 +1757,7 @@ public class AppServlet implements InitializingBean {
 	    		jasperPrint=jasperPrintMulti;
 	    	}	    	
 	    	else {	    	
-	    		jasperPrint=engine.prepareJasperPrint(scd,requestParams,virtualizer);
+	    		jasperPrint=service.prepareJasperPrint(scd,requestParams,virtualizer);
 	    	}
 			
 			/*if(jasperTypeId==2){//Fax Page				
@@ -1806,7 +1806,7 @@ public class AppServlet implements InitializingBean {
 					File attachFile=new File(path+File.separator+system_file_name);					
 					int totalBytesRead=(int) (attachFile.length());							
 					
-					engine.jasperFileAttachmentControl(table_id, table_pk, attach_file_name, file_type_id); // daha önce attach dosyaları disable ediyor.
+					service.jasperFileAttachmentControl(table_id, table_pk, attach_file_name, file_type_id); // daha önce attach dosyaları disable ediyor.
 					
 					W5FileAttachment fa = new W5FileAttachment();	 		
 		  
@@ -1822,7 +1822,7 @@ public class AppServlet implements InitializingBean {
 							fa.setUploadUserId((Integer)scd.get("userId"));
 							fa.setFileSize(totalBytesRead);
 							fa.setActiveFlag((short)1);
-					        engine.saveObject(fa);
+					        service.saveObject(fa);
 					        response.getWriter().printf("{ \"success\": \"%s\" , \"file_attachment_id\": %d}", "true", fa.getFileAttachmentId());
 					}
 				    catch (Exception e) {
@@ -1885,7 +1885,7 @@ public class AppServlet implements InitializingBean {
 
 		int formId = GenericUtil.uInt(request, "_fid");
 		int queryId = GenericUtil.uInt(request, "_qid");
-		W5FormResult formResult = engine.getFormResultByQuery(scd, formId, queryId,
+		W5FormResult formResult = service.getFormResultByQuery(scd, formId, queryId,
 				GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
@@ -1905,7 +1905,7 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		int tableId = GenericUtil.uInt(request, "_tb_id");
 		int tablePk = GenericUtil.uInt(request, "_tb_pk");
-		W5TableRecordInfoResult r = engine.getTableRecordInfo(scd, tableId, tablePk);
+		W5TableRecordInfoResult r = service.getTableRecordInfo(scd, tableId, tablePk);
 		response.setContentType("application/json");
 		response.getWriter().write(r != null ? getViewAdapter(scd, request).serializeTableRecordInfo(r).toString() : "{\"success\":false}");
 		response.getWriter().close();
@@ -1918,7 +1918,7 @@ public class AppServlet implements InitializingBean {
 		logger.info("hndGetGraphDashboards");
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
-		List<W5BIGraphDashboard> l = engine.getGraphDashboards(scd);
+		List<W5BIGraphDashboard> l = service.getGraphDashboards(scd);
 		if(GenericUtil.isEmpty(l)){
 			response.getWriter().write("{\"success\":true,\"data\":[]}");
 		} else {
@@ -1951,7 +1951,7 @@ public class AppServlet implements InitializingBean {
 		scd.put("locale", getDefaultLanguage(scd, req.get("language")));
 		req.put("xlookup_id", "2");
 
-		W5QueryResult queryResult = engine.executeQuery(scd, 337, req);
+		W5QueryResult queryResult = service.executeQuery(scd, 337, req);
 
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"q1\":");
@@ -2000,7 +2000,7 @@ public class AppServlet implements InitializingBean {
 					fa.setFileSize(totalBytesRead);
 					fa.setActiveFlag((short) 1);
 					lfa.add(fa);
-					engine.saveObject(fa);
+					service.saveObject(fa);
 					String webPageId = request.getParameter(".w");
 					if (!GenericUtil.isEmpty(webPageId))
 						try {
@@ -2111,7 +2111,7 @@ public class AppServlet implements InitializingBean {
 			} catch (Exception e) {
 
 			}
-			engine.saveObject(fa);
+			service.saveObject(fa);
 			String webPageId = request.getParameter(".w");
 			if (!GenericUtil.isEmpty(webPageId)) {
 				Map m = new HashMap();
@@ -2204,7 +2204,7 @@ public class AppServlet implements InitializingBean {
 			} catch (Exception e) {
 
 			}
-			engine.saveObject(fa);
+			service.saveObject(fa);
 			String webPageId = request.getParameter(".w");
 			if (!GenericUtil.isEmpty(webPageId)) {
 				Map m = new HashMap();
@@ -2310,7 +2310,7 @@ public class AppServlet implements InitializingBean {
 
 		response.setContentType("application/json");
 		int smsMailId = GenericUtil.uInt(request, "_fsmid");
-		Map result = engine.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
+		Map result = service.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString(result));
 		response.getWriter().close();
 	}
@@ -2339,7 +2339,7 @@ public class AppServlet implements InitializingBean {
 			}
 		}
 		
-		int nextVal = engine.getGlobalNextval(id, projectUuid, userId, customizationId, request.getRemoteAddr());
+		int nextVal = service.getGlobalNextval(id, projectUuid, userId, customizationId, request.getRemoteAddr());
 		
 		response.getWriter().write("{\"success\":true, \"val\":"+nextVal+"}"); //hersey duzgun
 		response.getWriter().close();
@@ -2353,7 +2353,7 @@ public class AppServlet implements InitializingBean {
 		String tableName = request.getParameter("ptable_dsc");
 		logger.info("hndAjaxOrganizeTable("+tableName+")"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	boolean b = (Integer)scd.get("roleId")!=0 ? false : engine.organizeTable(scd, tableName);
+    	boolean b = (Integer)scd.get("roleId")!=0 ? false : service.organizeTable(scd, tableName);
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
@@ -2366,7 +2366,7 @@ public class AppServlet implements InitializingBean {
 		logger.info("hndAjaxCallWs"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    
-		Map m =engine.organizeREST(scd, request.getParameter("serviceName"));
+		Map m =service.organizeREST(scd, request.getParameter("serviceName"));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}
@@ -2381,7 +2381,7 @@ public class AppServlet implements InitializingBean {
 		int measurementId = GenericUtil.uInt(request, "_mid");
 		logger.info("hndAjaxCopyTable2Tsdb("+tableId+")"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	boolean b = (Integer)scd.get("roleId")!=0 ? false : engine.copyTable2Tsdb(scd, tableId, measurementId);
+    	boolean b = (Integer)scd.get("roleId")!=0 ? false : service.copyTable2Tsdb(scd, tableId, measurementId);
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
@@ -2410,7 +2410,7 @@ public class AppServlet implements InitializingBean {
 		
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		
-		int i = engine.buildForm(scd, request.getParameter("data"));
+		int i = service.buildForm(scd, request.getParameter("data"));
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true, \"result\":"+i+"}");
 		response.getWriter().close();
@@ -2425,7 +2425,7 @@ public class AppServlet implements InitializingBean {
 		logger.info("hndAjaxCallWs"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    
-		Map m =engine.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
+		Map m =service.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}
@@ -2447,7 +2447,7 @@ public class AppServlet implements InitializingBean {
 
 		int queryId= GenericUtil.uInt(request, "_qid");
 
-		Object o = engine.executeQuery4Debug(scd, queryId, GenericUtil.getParameterMap(request));
+		Object o = service.executeQuery4Debug(scd, queryId, GenericUtil.getParameterMap(request));
 		
 		response.setContentType("application/json");
 		if(o instanceof W5QueryResult)
@@ -2474,7 +2474,7 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4Pivot(scd, tableId, GenericUtil.getParameterMap(request))));
+		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(service.executeQuery4Pivot(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
 	}
 	
@@ -2488,7 +2488,7 @@ public class AppServlet implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4DataList(scd, tableId, GenericUtil.getParameterMap(request))));
+		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(service.executeQuery4DataList(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
 	}
 	
@@ -2508,7 +2508,7 @@ public class AppServlet implements InitializingBean {
 
 		int dbFuncId= GenericUtil.uInt(request, "_did"); // +:dbFuncId, -:formId
 
-		W5GlobalFuncResult dbFuncResult = engine.executeGlobalFunc4Debug(scd, dbFuncId, GenericUtil.getParameterMap(request));
+		W5GlobalFuncResult dbFuncResult = service.executeGlobalFunc4Debug(scd, dbFuncId, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
@@ -2534,7 +2534,7 @@ public class AppServlet implements InitializingBean {
 			throws ServletException, IOException {
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		response.setContentType("application/json");
-		response.getWriter().write("{\"success\":true, \"result\":\""+engine.getServerDttm()+"\"}");
+		response.getWriter().write("{\"success\":true, \"result\":\""+service.getServerDttm()+"\"}");
 		response.getWriter().close();
 	}
 	

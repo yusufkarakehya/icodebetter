@@ -36,8 +36,8 @@ import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
-import iwb.engine.FrameworkEngine;
 import iwb.exception.IWBException;
+import iwb.service.FrameworkService;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
@@ -50,7 +50,7 @@ public class SoapServlet implements InitializingBean {
 	private SoapAdapter soap = new AxisSoap1_4();
 	
 	@Autowired
-	private FrameworkEngine engine;
+	private FrameworkService engine;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
