@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.M5List;
 import iwb.domain.db.W5Card;
@@ -624,6 +628,16 @@ public class FrameworkCache {
 		return js;
 	}
 
+	private static RedissonClient redissonClient = null;
+	
+	public static RedissonClient getRedissonClient(){
+		if(redissonClient == null){
+			Config config = new Config();
+			config.useSingleServer().setAddress(String.format("redis://%s:%s", FrameworkSetting.redisHost, 6379)).setTimeout(100000).setConnectionMinimumIdleSize(10).setConnectionPoolSize(10);
+			redissonClient = Redisson.create(config);
+		}
+		return redissonClient;
+	}
 
 	
 /*	public static W5TsPortlet getTsPortlet(Map<String, Object> customizationId, int porletId) {

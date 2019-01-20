@@ -207,7 +207,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	StringBuilder sqlWhere= new StringBuilder();
 	    	List sqlParams= new ArrayList<Object>();
 	    	
-	    	for(W5QueryParam p1 : getQuery().get_queryParams())if(p1.getTabOrder()>=tabOrderCount && p1.getTabOrder()<tabOrderCount+1000){
+	    	if(!GenericUtil.isEmpty(getQuery().get_queryParams()))for(W5QueryParam p1 : getQuery().get_queryParams())if(p1.getTabOrder()>=tabOrderCount && p1.getTabOrder()<tabOrderCount+1000){
 				String pexpressionDsc = p1.getExpressionDsc();
 	    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
 	    			String value = requestParams2.get(p1.getDsc()); 
@@ -621,7 +621,7 @@ public class W5QueryResult implements W5MetaResult{
 		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
 		List<W5QueryParam> pqs = null;
 		pqs=getQuery().get_queryParams();
-    	for(W5QueryParam p1 : pqs){
+    	if(!GenericUtil.isEmpty(pqs))for(W5QueryParam p1 : pqs){
 			String pexpressionDsc = p1.getExpressionDsc();
     		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
     			String value = requestParams2.get(p1.getDsc()); 

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.redisson.api.RMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
@@ -81,22 +82,50 @@ public class MetadataLoaderDAO extends BaseDAO {
 	@Autowired
 	private PostgreSQL dao;
 
-	
-	private boolean loadForm(W5FormResult f) {
+	private boolean loadForm(W5FormResult fr) {
 		// f.setForm((W5Form)loadObject(W5Form.class, f.getFormId()));
 
 		// int customizationId = (Integer)f.getScd().get("customizationId");
-		String projectId = FrameworkCache.getProjectId(f.getScd(), "40." + f.getFormId());
+		String projectId = FrameworkCache.getProjectId(fr.getScd(), "40." + fr.getFormId());
 
-		W5Form form = (W5Form) getCustomizedObject("from W5Form t where t.formId=? and t.projectUuid=?", f.getFormId(),
-				projectId, "Form"); // ozel bir client icin varsa
-		f.setForm(form);
+		W5Form form = null;
+		if (FrameworkSetting.redisCache)
+			try {
+				RMap<Integer, W5Form> rformMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:form", projectId));
+				if (rformMap != null) {// rgridMap.getName()
+					form = rformMap.get(fr.getFormId());
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.Form", fr.getFormId(), null, "Loading Form from Redis", e);
+			}
 
-		f.getForm().set_formCells(
-				find("from W5FormCell t where t.formId=? AND t.projectUuid=? order by t.tabOrder, t.xOrder, t.dsc",
-						f.getFormId(), projectId));
+		if (form == null) {
+			form = (W5Form) getCustomizedObject("from W5Form t where t.formId=? and t.projectUuid=?", fr.getFormId(),
+					projectId, "Form"); // ozel bir client icin varsa
+			form.set_formCells(
+					find("from W5FormCell t where t.formId=? AND t.projectUuid=? order by t.tabOrder, t.xOrder, t.dsc",
+							fr.getFormId(), projectId));
+			if (form.getRenderTip() != 0) { // eger baska turlu render
+											// edilecekse
+				form.set_moduleList(find("from W5FormModule t where t.formId=? AND t.projectUuid=? order by t.tabOrder",
+						form.getFormId(), projectId));
+			}
 
-		for (W5FormCell fc : f.getForm().get_formCells())
+			form.set_toolbarItemList(
+					find("from W5ObjectToolbarItem t where t.objectTip=? AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+							(short) 15, fr.getFormId(), projectId));
+			form.set_formHintList(
+					find("from W5FormHint h where h.activeFlag=1 AND h.formId=? AND h.projectUuid=? order by h.tabOrder",
+							fr.getFormId(), projectId));
+			if (form.get_formHintList().isEmpty())
+				form.set_formHintList(null);
+
+		}
+
+		fr.setForm(form);
+
+		for (W5FormCell fc : fr.getForm().get_formCells())
 			switch (fc.getControlTip()) {
 			case 31: // code_list
 				if (GenericUtil.uInt(fc.getLookupIncludedParams()) == 0) {
@@ -107,44 +136,31 @@ public class MetadataLoaderDAO extends BaseDAO {
 									fc.getFormCellId(), projectId));
 				break;
 			}
-		if (form.getRenderTip() != 0) { // eger baska turlu render edilecekse
-			form.set_moduleList(find("from W5FormModule t where t.formId=? AND t.projectUuid=? order by t.tabOrder",
-					form.getFormId(), projectId));
-		}
 
 		HashMap hlps = new HashMap();
 
-		f.getForm().set_toolbarItemList(
-				find("from W5ObjectToolbarItem t where t.objectTip=? AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-						(short) 15, f.getFormId(), projectId));
-		f.getForm().set_formHintList(
-				find("from W5FormHint h where h.activeFlag=1 AND h.formId=? AND h.projectUuid=? order by h.tabOrder",
-						f.getFormId(), projectId));
-		if (f.getForm().get_formHintList().isEmpty())
-			f.getForm().set_formHintList(null);
-
-		if (f.getForm().getObjectTip() != 1 && f.getForm().getRenderTemplateId() != 0) { // grid(seachForm)
+		if (fr.getForm().getObjectTip() != 1 && fr.getForm().getRenderTemplateId() != 0) { // grid(seachForm)
 																							// degilse
 																							// ve
 																							// templateId
 																							// varsa
 			W5Page template = (W5Page) getCustomizedObject("from W5Page t where t.templateId=? and t.projectUuid=?",
-					f.getForm().getRenderTemplateId(), projectId, null); // ozel
+					fr.getForm().getRenderTemplateId(), projectId, null); // ozel
 																			// bir
 																			// client
 																			// icin
 																			// varsa
-			f.getForm().set_renderTemplate(template);
+			fr.getForm().set_renderTemplate(template);
 		}
 		Map<Short, W5Workflow> mam = null;
 		W5Table mt = null;
-		switch (f.getForm().getObjectTip()) {
+		switch (fr.getForm().getObjectTip()) {
 		case 6: // conversion icin
-			W5Conversion c = FrameworkCache.getConversion(projectId, f.getForm().getObjectId());
+			W5Conversion c = FrameworkCache.getConversion(projectId, fr.getForm().getObjectId());
 			W5Table srct = FrameworkCache.getTable(projectId, c.getSrcTableId());
 			W5Table dstt = FrameworkCache.getTable(projectId, c.getDstTableId());
 			// f.getForm().set_sourceTable(dstt);
-			for (W5FormCell fc : f.getForm().get_formCells())
+			for (W5FormCell fc : fr.getForm().get_formCells())
 				if (fc.getObjectDetailId() != 0) {
 					fc.set_sourceObjectDetail(c.get_conversionColMap().get(fc.getObjectDetailId()));
 				}
@@ -153,41 +169,41 @@ public class MetadataLoaderDAO extends BaseDAO {
 		case 2: // table icin ise
 			// f.setTable((W5Table)loadObject(W5Table.class,
 			// f.getForm().getObjectId()));
-			W5Table t = FrameworkCache.getTable(projectId, f.getForm().getObjectId());
+			W5Table t = FrameworkCache.getTable(projectId, fr.getForm().getObjectId());
 			// f.getForm().set_sourceTable(t);
 			Map<String, W5TableField> fieldMap1 = new HashMap();
 			for (W5TableField tf : (List<W5TableField>) t.get_tableFieldList()) {
 				fieldMap1.put(tf.getDsc(), tf);
 			}
-			for (W5FormCell fc : f.getForm().get_formCells())
+			for (W5FormCell fc : fr.getForm().get_formCells())
 				if (fc.getObjectDetailId() != 0) {
 					fc.set_sourceObjectDetail(t.get_tableFieldMap().get(fc.getObjectDetailId()));
 				}
 			if ((fieldMap1.get("INSERT_USER_ID") != null || fieldMap1.get("insert_user_id") != null)
 					&& (fieldMap1.get("VERSION_USER_ID") != null || fieldMap1.get("version_user_id") != null)) {
-				f.getForm().set_versioningFlag(true);
+				fr.getForm().set_versioningFlag(true);
 			}
 			if (FrameworkSetting.sms || FrameworkSetting.mail) {
-				f.getForm().set_formSmsMailList(
+				fr.getForm().set_formSmsMailList(
 						find("from W5FormSmsMail t where t.projectUuid=? AND t.formId=? AND t.activeFlag=1 order by t.smsMailSentTip,t.tabOrder",
-								projectId, f.getFormId()));
-				if (f.getForm().get_formSmsMailList().isEmpty())
-					f.getForm().set_formSmsMailList(null);
+								projectId, fr.getFormId()));
+				if (fr.getForm().get_formSmsMailList().isEmpty())
+					fr.getForm().set_formSmsMailList(null);
 				else {
-					f.getForm().set_formSmsMailMap(new HashMap());
-					for (W5FormSmsMail fsm : f.getForm().get_formSmsMailList()) {
+					fr.getForm().set_formSmsMailMap(new HashMap());
+					for (W5FormSmsMail fsm : fr.getForm().get_formSmsMailList()) {
 						// if(fsm.getSmsMailTip()==0)f.getForm().set_mailFlag(true);
 						// else
 						// f.getForm().set_smsFlag(true);
-						f.getForm().get_formSmsMailMap().put(fsm.getFormSmsMailId(), fsm);
+						fr.getForm().get_formSmsMailMap().put(fsm.getFormSmsMailId(), fsm);
 					}
 				}
 			}
 
-			f.getForm().set_conversionList(
+			fr.getForm().set_conversionList(
 					find("from W5Conversion t where t.projectUuid=? AND ((t.srcDstTip=0 AND t.srcFormId=?) OR (t.srcDstTip=1 AND t.srcTableId=?)) AND t.activeFlag=1 order by t.tabOrder",
-							projectId, f.getFormId(), f.getForm().getObjectId()));
-			for (W5Conversion cnv : f.getForm().get_conversionList()) {
+							projectId, fr.getFormId(), fr.getForm().getObjectId()));
+			for (W5Conversion cnv : fr.getForm().get_conversionList()) {
 				cnv.set_conversionColList(
 						find("from W5ConversionCol t where t.projectUuid=? AND t.conversionId=? order by t.tabOrder",
 								projectId, cnv.getConversionId()));
@@ -198,7 +214,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		case 1: // grid icin ise
 			Object[] ooo = (Object[]) find(
 					"select t.queryId,(select q.mainTableId from W5Query q where q.queryId=t.queryId AND q.projectUuid=t.projectUuid) from W5Grid t where t.projectUuid=? AND t.gridId=?",
-					projectId, f.getForm().getObjectId()).get(0);
+					projectId, fr.getForm().getObjectId()).get(0);
 			int queryId = (Integer) ooo[0];
 			int mainTableId = (Integer) ooo[1];
 			if (mainTableId > 0)
@@ -206,12 +222,12 @@ public class MetadataLoaderDAO extends BaseDAO {
 			W5Query query = new W5Query(queryId);
 			query.set_queryParams(find("from W5QueryParam t where t.projectUuid=? AND t.queryId=? order by t.tabOrder",
 					projectId, queryId));
-			f.getForm().set_sourceQuery(query);
+			fr.getForm().set_sourceQuery(query);
 			Map<Integer, W5QueryParam> fieldMap2 = new HashMap();
-			for (W5QueryParam tf : f.getForm().get_sourceQuery().get_queryParams()) {
+			for (W5QueryParam tf : fr.getForm().get_sourceQuery().get_queryParams()) {
 				fieldMap2.put(tf.getQueryParamId(), tf);
 			}
-			for (W5FormCell fc : f.getForm().get_formCells())
+			for (W5FormCell fc : fr.getForm().get_formCells())
 				if (fc.getObjectDetailId() != 0) {
 					if (fc.getObjectDetailId() > 0)
 						fc.set_sourceObjectDetail(fieldMap2.get(fc.getObjectDetailId())); // queryField'dan
@@ -226,32 +242,32 @@ public class MetadataLoaderDAO extends BaseDAO {
 			break;
 		case 3:
 		case 4: // db func
-			W5GlobalFunc dbf = FrameworkCache.getGlobalFunc(projectId, f.getForm().getObjectId());
+			W5GlobalFunc dbf = FrameworkCache.getGlobalFunc(projectId, fr.getForm().getObjectId());
 			if (dbf == null) {
 				dbf = (W5GlobalFunc) getCustomizedObject("from W5GlobalFunc t where t.dbFuncId=? AND t.projectUuid=?",
-						f.getForm().getObjectId(), projectId, "GlobalFunc");
+						fr.getForm().getObjectId(), projectId, "GlobalFunc");
 				dbf.set_dbFuncParamList((List<W5GlobalFuncParam>) find(
 						"from W5GlobalFuncParam t where t.projectUuid=? AND t.dbFuncId=? order by t.tabOrder",
-						projectId, f.getForm().getObjectId()));
+						projectId, fr.getForm().getObjectId()));
 				FrameworkCache.addGlobalFunc(projectId, dbf);
 			}
 			Map<Integer, W5GlobalFuncParam> fieldMap3 = new HashMap();
 			for (W5GlobalFuncParam tf : dbf.get_dbFuncParamList()) {
 				fieldMap3.put(tf.getDbFuncParamId(), tf);
 			}
-			for (W5FormCell fc : f.getForm().get_formCells())
+			for (W5FormCell fc : fr.getForm().get_formCells())
 				if (fc.getObjectDetailId() != 0) {
 					fc.set_sourceObjectDetail(fieldMap3.get(fc.getObjectDetailId()));
 				}
 		}
 
 		// StringBuilder autoExtraJSConstructor = new StringBuilder();
-		for (W5FormCell fc : f.getForm().get_formCells())
+		for (W5FormCell fc : fr.getForm().get_formCells())
 			switch (fc.getControlTip()) {
 			case 99: // grid
 				W5GridResult gridResult = new W5GridResult(fc.getLookupQueryId());
-				gridResult.setRequestParams(f.getRequestParams());
-				gridResult.setScd(f.getScd());
+				gridResult.setRequestParams(fr.getRequestParams());
+				gridResult.setScd(fr.getScd());
 
 				W5Grid g = FrameworkCache.getGrid(projectId, fc.getLookupQueryId());
 				if (g != null) {
@@ -272,7 +288,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		if (mam != null && !mam.isEmpty()) { // map of ApprovalManagement
 			int maxFirstColumnTabOrder = 0;
-			for (W5FormCell c : f.getForm().get_formCells())
+			for (W5FormCell c : fr.getForm().get_formCells())
 				if (c.getFormModuleId() == 0 && c.getTabOrder() < 1000) {
 					maxFirstColumnTabOrder++;
 				}
@@ -288,7 +304,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				approvalCell.setInitialSourceTip((short) 10); // approvalStates
 				// approvalCell.setInitialValue(""+mam.get(actionTip).getApprovalId());//approvalId
 				approvalCell.setActiveFlag((short) 1);
-				f.getForm().get_formCells().add(/* maxFirstColumnTabOrder, */ approvalCell);
+				fr.getForm().get_formCells().add(/* maxFirstColumnTabOrder, */ approvalCell);
 			}
 		}
 		return true;
@@ -352,26 +368,42 @@ public class MetadataLoaderDAO extends BaseDAO {
 		return formResult;
 	}
 
-	private void loadQuery(W5QueryResult queryResult, String projectId) {
-		W5Query query = (W5Query) find("from W5Query t where t.queryId=? AND t.projectUuid=?", queryResult.getQueryId(),
-				projectId).get(0); // ozel bir
-									// client
-									// icin
-									// varsa
-		queryResult.setQuery(query);
-		queryResult.getQuery().set_queryFields(
-				find("from W5QueryField t where t.queryId=? AND t.tabOrder>0 AND t.postProcessTip!=99 AND t.projectUuid=? order by t.tabOrder",
-						queryResult.getQueryId(), projectId));
-		queryResult.getQuery()
-				.set_queryParams(find("from W5QueryParam t where t.queryId=? AND t.projectUuid=? order by t.tabOrder",
-						queryResult.getQueryId(), projectId));
+	private void loadQuery(W5QueryResult qr, String projectId) {
+		W5Query query = null;
+		if (FrameworkSetting.redisCache)
+			try {
+				RMap<Integer, W5Query> rqueryMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:query", projectId));
+				if (rqueryMap != null) {// rgridMap.getName()
+					query = rqueryMap.get(qr.getQueryId());
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.Query", qr.getQueryId(), null, "Loading Query from Redis",
+						e);
+			}
+		if (query == null) {
+			query = (W5Query) find("from W5Query t where t.queryId=? AND t.projectUuid=?", qr.getQueryId(), projectId)
+					.get(0); // ozel bir
+								// client
+								// icin
+								// varsa
+			query.set_queryFields(
+					find("from W5QueryField t where t.queryId=? AND t.tabOrder>0 AND t.postProcessTip!=99 AND t.projectUuid=? order by t.tabOrder",
+							qr.getQueryId(), projectId));
+			query.set_queryParams(
+					find("from W5QueryParam t where t.queryId=? AND t.projectUuid=? order by t.tabOrder",
+							qr.getQueryId(), projectId));
 
-		if (queryResult.getQuery().getShowParentRecordFlag() != 0)
-			for (W5QueryField field : queryResult.getQuery().get_queryFields()) {
+		}
+		qr.setQuery(query);
+
+		if (query.getShowParentRecordFlag() != 0)
+			for (W5QueryField field : query.get_queryFields()) {
 				if (field.getDsc().equals("table_id"))
 					query.set_tableIdTabOrder(field.getTabOrder());
 				if (field.getDsc().equals("table_pk"))
 					query.set_tablePkTabOrder(field.getTabOrder());
+
 			}
 	}
 
@@ -418,18 +450,31 @@ public class MetadataLoaderDAO extends BaseDAO {
 		return pr;
 	}
 
-	private void loadPage(W5PageResult tr) {
+	private void loadPage(W5PageResult pr) {
 
-		String projectId = FrameworkCache.getProjectId(tr.getScd(), "63." + tr.getTemplateId());
-		W5Page page = (W5Page) getCustomizedObject("from W5Page t where t.templateId=? and t.projectUuid=?",
-				tr.getTemplateId(), projectId, "Page"); // ozel bir client icin
-														// varsa
-		tr.setPage(page);
-		page.set_pageObjectList(
-				find("from W5PageObject t where t.activeFlag=1 AND t.templateId=? AND t.projectUuid=? order by t.tabOrder",
-						tr.getTemplateId(), projectId));
+		String projectId = FrameworkCache.getProjectId(pr.getScd(), "63." + pr.getTemplateId());
+		W5Page page = null;
+		if (FrameworkSetting.redisCache)
+			try {
+				RMap<Integer, W5Page> rqueryMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:page", projectId));
+				if (rqueryMap != null) {// rgridMap.getName()
+					page = rqueryMap.get(pr.getTemplateId());
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.Page", pr.getTemplateId(), null, "Loading Page from Redis",
+						e);
+			}
+		if (page == null) {
 
-		if (GenericUtil.isEmpty(page.getCode()) || page.getCode().startsWith("!"))
+			page = (W5Page) getCustomizedObject("from W5Page t where t.templateId=? and t.projectUuid=?",
+					pr.getTemplateId(), projectId, "Page"); // ozel bir client
+															// icin
+															// varsa
+			page.set_pageObjectList(
+					find("from W5PageObject t where t.activeFlag=1 AND t.templateId=? AND t.projectUuid=? order by t.tabOrder",
+							pr.getTemplateId(), projectId));
+
 			for (W5PageObject to : page.get_pageObjectList())
 				if (to.getSrcQueryFieldId() != null && to.getDstQueryParamId() != null) {
 					List p = new ArrayList();
@@ -453,6 +498,9 @@ public class MetadataLoaderDAO extends BaseDAO {
 							to.set_dstStaticQueryParamName((String) m.get("ps_dsc"));
 					}
 				}
+		}
+		pr.setPage(page);
+
 	}
 
 	public W5CardResult getDataViewResult(Map<String, Object> scd, int dataViewId, Map<String, String> requestParams,
@@ -477,35 +525,61 @@ public class MetadataLoaderDAO extends BaseDAO {
 		return cr;
 	}
 
-	private void loadCard(W5CardResult dr) {
-		String projectId = FrameworkCache.getProjectId(dr.getScd(), "930." + dr.getDataViewId());
-		W5Card c = (W5Card) getCustomizedObject("from W5Card t where t.dataViewId=? and t.projectUuid=?",
-				dr.getDataViewId(), projectId, "DataView"); // ozel bir client
-															// icin varsa
-		dr.setCard(c);
+	private void loadCard(W5CardResult cr) {
+		String projectId = FrameworkCache.getProjectId(cr.getScd(), "930." + cr.getDataViewId());
+		W5Card card = null;
 
-		if (!GenericUtil.isEmpty(c.getOrderQueryFieldIds()))
-			c.set_orderQueryFieldNames(
+		if (FrameworkSetting.redisCache)
+			try {
+				RMap<Integer, W5Card> rcardMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:card", projectId));
+				if (rcardMap != null) {// rgridMap.getName()
+					card = rcardMap.get(cr.getDataViewId());
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.Card", cr.getDataViewId(), null, "Loading Card from Redis",
+						e);
+			}
+		if (card == null) {
+			card = (W5Card) getCustomizedObject("from W5Card t where t.dataViewId=? and t.projectUuid=?",
+					cr.getDataViewId(), projectId, "Card"); // ozel bir client
+															// icin varsa
+
+			card.set_toolbarItemList(
+					find("from W5ObjectToolbarItem t where t.objectTip=8 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+							card.getDataViewId(), projectId));
+			card.set_menuItemList(
+					find("from W5ObjectMenuItem t where t.objectTip=8 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+							card.getDataViewId(), projectId));
+			Integer searchFormId = (Integer) getCustomizedObject(
+					"select t.formId from W5Form t where t.objectTip=8 and t.objectId=? and t.projectUuid=? ",
+					cr.getDataViewId(), projectId, null);
+			if (searchFormId != null)
+				card.set_searchFormId(searchFormId);
+		}
+		cr.setCard(card);
+
+		if (!GenericUtil.isEmpty(card.getOrderQueryFieldIds()))
+			card.set_orderQueryFieldNames(
 					find("select qf.dsc from W5QueryField qf where qf.queryId=? and qf.projectUuid=? AND qf.queryFieldId in ("
-							+ c.getOrderQueryFieldIds() + ") order by qf.tabOrder", c.getQueryId(), projectId));
+							+ card.getOrderQueryFieldIds() + ") order by qf.tabOrder", card.getQueryId(), projectId));
 
 		W5Query query = null;
-		query = getQueryResult(dr.getScd(), c.getQueryId()).getQuery();
+		query = getQueryResult(cr.getScd(), card.getQueryId()).getQuery();
 
-		if (query == null) {
-			query = new W5Query();
-			List<W5QueryField> queryFields = find(
-					"from W5QueryField t where t.queryId=? and t.projectUuid=? order by t.tabOrder", c.getQueryId(),
-					projectId);
-			c.set_query(query);
-			query.set_queryFields(queryFields); // dataReader icin gerekli
-			query.setMainTableId(
-					(Integer) find("select t.mainTableId from W5Query t where t.queryId=? and t.projectUuid=?",
-							c.getQueryId(), projectId).get(0));
-		} else
-			c.set_query(query);
+		/*
+		 * if (query == null) { query = new W5Query(); List<W5QueryField>
+		 * queryFields = find(
+		 * "from W5QueryField t where t.queryId=? and t.projectUuid=? order by t.tabOrder"
+		 * , card.getQueryId(), projectId); card.set_query(query);
+		 * query.set_queryFields(queryFields); // dataReader icin gerekli
+		 * query.setMainTableId( (Integer) find(
+		 * "select t.mainTableId from W5Query t where t.queryId=? and t.projectUuid=?"
+		 * , card.getQueryId(), projectId).get(0)); } else
+		 */
+		card.set_query(query);
 
-		c.set_crudTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
+		card.set_crudTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
 
 		Map<Integer, W5QueryField> fieldMap = new HashMap<Integer, W5QueryField>();
 		Map<String, W5QueryField> fieldMapDsc = new HashMap<String, W5QueryField>();
@@ -514,44 +588,33 @@ public class MetadataLoaderDAO extends BaseDAO {
 			fieldMapDsc.put(field.getDsc(), field);
 		}
 
-		c.set_queryFieldMap(fieldMap);
+		card.set_queryFieldMap(fieldMap);
 
-		c.set_queryFieldMapDsc(fieldMapDsc);
-		c.set_pkQueryField(fieldMap.get(c.getPkQueryFieldId()));
+		card.set_queryFieldMapDsc(fieldMapDsc);
+		card.set_pkQueryField(fieldMap.get(card.getPkQueryFieldId()));
 
-		c.set_toolbarItemList(
-				find("from W5ObjectToolbarItem t where t.objectTip=8 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-						c.getDataViewId(), projectId));
-		c.set_menuItemList(
-				find("from W5ObjectMenuItem t where t.objectTip=8 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-						c.getDataViewId(), projectId));
-		Integer searchFormId = (Integer) getCustomizedObject(
-				"select t.formId from W5Form t where t.objectTip=8 and t.objectId=? and t.projectUuid=? ",
-				dr.getDataViewId(), projectId, null);
-		if (searchFormId != null)
-			c.set_searchFormId(searchFormId);
-		if (c.getDefaultCrudFormId() != 0) {
+		if (card.getDefaultCrudFormId() != 0) {
 			W5Form defaultCrudForm = (W5Form) getCustomizedObject("from W5Form t where t.formId=? and t.projectUuid=?",
-					c.getDefaultCrudFormId(), projectId, "Form"); // ozel bir
-																	// client
-																	// icin
-																	// varsa
+					card.getDefaultCrudFormId(), projectId, "Form"); // ozel bir
+																		// client
+																		// icin
+																		// varsa
 
 			if (defaultCrudForm != null) {
 				// defaultCrudForm.set_sourceTable(PromisCache.getTable(customizationId,
 				// defaultCrudForm.getObjectId()));
 				W5Table t = FrameworkCache.getTable(projectId, defaultCrudForm.getObjectId()); // PromisCache.getTable(f.getScd(),
 																								// f.getForm().getObjectId())
-				c.set_defaultCrudForm(defaultCrudForm);
+				card.set_defaultCrudForm(defaultCrudForm);
 
-				c.set_crudFormSmsMailList(
+				card.set_crudFormSmsMailList(
 						find("from W5FormSmsMail t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.formId=? AND t.projectUuid=? order by t.tabOrder",
-								c.getDefaultCrudFormId(), projectId));
-				c.set_crudFormConversionList(
+								card.getDefaultCrudFormId(), projectId));
+				card.set_crudFormConversionList(
 						find("from W5Conversion t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.srcFormId=? AND t.projectUuid=? order by t.tabOrder",
-								c.getDefaultCrudFormId(), projectId));
+								card.getDefaultCrudFormId(), projectId));
 
-				organizeListPostProcessQueryFields(dr.getScd(), t, c);
+				organizeListPostProcessQueryFields(cr.getScd(), t, card);
 
 			}
 		}
@@ -608,12 +671,44 @@ public class MetadataLoaderDAO extends BaseDAO {
 	private void loadGrid(W5GridResult gr) {
 		String projectId = FrameworkCache.getProjectId(gr.getScd(), "5." + gr.getGridId());
 
-		W5Grid grid = (W5Grid) getCustomizedObject("from W5Grid t where t.gridId=? and t.projectUuid=?", gr.getGridId(),
-				projectId, "Grid"); // ozel bir client icin varsa
-		gr.setGrid(grid);
+		W5Grid grid = null;
+		if (FrameworkSetting.redisCache)
+			try {
+				RMap<Integer, W5Grid> rgridMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:grid", projectId));
+				if (rgridMap != null) {// rgridMap.getName()
+					grid = rgridMap.get(gr.getGridId());
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.Grid", gr.getGridId(), null, "Loading Grid from Redis", e);
+			}
 
-		grid.set_gridColumnList(find("from W5GridColumn t where t.projectUuid=? AND t.gridId=? order by t.tabOrder",
-				projectId, gr.getGridId()));
+		if (grid == null) {
+			grid = (W5Grid) getCustomizedObject("from W5Grid t where t.gridId=? and t.projectUuid=?", gr.getGridId(),
+					projectId, "Grid"); // ozel bir client icin varsa
+
+			grid.set_gridColumnList(find("from W5GridColumn t where t.projectUuid=? AND t.gridId=? order by t.tabOrder",
+					projectId, gr.getGridId()));
+			grid.set_toolbarItemList(
+					find("from W5ObjectToolbarItem t where t.objectTip=? AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+							(short) 5, gr.getGridId(), projectId));
+			grid.set_menuItemList(
+					find("from W5ObjectMenuItem t where t.objectTip=? AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+							(short) 5, gr.getGridId(), projectId));
+			if (grid.getColumnRenderTip() != 0)
+				grid.set_gridModuleList(
+						find("from W5GridModule t where t.gridId=? AND t.projectUuid=? order by t.tabOrder",
+								gr.getGridId(), projectId));
+
+			Integer searchFormId = (Integer) getCustomizedObject(
+					"select t.formId from W5Form t where t.objectTip=1 and t.objectId=? AND t.projectUuid=?",
+					gr.getGridId(), projectId, null);
+			if (searchFormId != null)
+				grid.set_searchFormId(searchFormId);
+
+		}
+
+		gr.setGrid(grid);
 		switch (grid.getRowColorFxTip()) {
 		case 1:
 			if (grid.getRowColorFxQueryFieldId() != 0) { // lookup eslesme
@@ -634,18 +729,17 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		W5Query query = getQueryResult(gr.getScd(), grid.getQueryId()).getQuery();
 
-		if (query == null) {
-			query = new W5Query();
-			List<W5QueryField> queryFields = find(
-					"from W5QueryField t where t.projectUuid=? AND t.queryId=? order by t.tabOrder", projectId,
-					grid.getQueryId());
-			grid.set_query(query);
-			query.set_queryFields(queryFields); // dataReader icin gerekli
-			query.setMainTableId((Integer) getCustomizedObject(
-					"select t.mainTableId from W5Query t where t.queryId=? AND t.projectUuid=?", grid.getQueryId(),
-					projectId, null));
-		} else
-			grid.set_query(query);
+		/*
+		 * if (query == null) { query = new W5Query(); List<W5QueryField>
+		 * queryFields = find(
+		 * "from W5QueryField t where t.projectUuid=? AND t.queryId=? order by t.tabOrder"
+		 * , projectId, grid.getQueryId()); grid.set_query(query);
+		 * query.set_queryFields(queryFields); // dataReader icin gerekli
+		 * query.setMainTableId((Integer) getCustomizedObject(
+		 * "select t.mainTableId from W5Query t where t.queryId=? AND t.projectUuid=?"
+		 * , grid.getQueryId(), projectId, null)); } else
+		 */
+		grid.set_query(query);
 
 		grid.set_viewTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
 
@@ -693,33 +787,20 @@ public class MetadataLoaderDAO extends BaseDAO {
 			}
 		}
 
-		Integer searchFormId = (Integer) getCustomizedObject(
-				"select t.formId from W5Form t where t.objectTip=1 and t.objectId=? AND t.projectUuid=?",
-				gr.getGridId(), projectId, null);
-		if (searchFormId != null)
-			grid.set_searchFormId(searchFormId);
-
-		grid.set_toolbarItemList(
-				find("from W5ObjectToolbarItem t where t.objectTip=? AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-						(short) 5, gr.getGridId(), projectId));
-		for (W5ObjectToolbarItem c : grid.get_toolbarItemList())
-			switch (c.getItemTip()) { // TODO:toolbar icine bisey konulacaksa
-			case 10:
-			case 7:
-			case 15:
-			case 9:
-				break;
-			case 14:
-			case 8:
-			case 6:
-				break;
-			}
-		grid.set_menuItemList(
-				find("from W5ObjectMenuItem t where t.objectTip=? AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-						(short) 5, gr.getGridId(), projectId));
-		if (grid.getColumnRenderTip() != 0)
-			grid.set_gridModuleList(find("from W5GridModule t where t.gridId=? AND t.projectUuid=? order by t.tabOrder",
-					gr.getGridId(), projectId));
+		if (grid.get_toolbarItemList() != null)
+			for (W5ObjectToolbarItem c : grid.get_toolbarItemList())
+				switch (c.getItemTip()) { // TODO:toolbar icine bisey
+											// konulacaksa
+				case 10:
+				case 7:
+				case 15:
+				case 9:
+					break;
+				case 14:
+				case 8:
+				case 6:
+					break;
+				}
 		// if(grid.getSelectionModeTip()==4)
 
 		if (grid.getDefaultCrudFormId() != 0) {
@@ -1011,20 +1092,38 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 	public void reloadLookUpCache(String projectId) {
 		Map<Integer, W5LookUp> subMap = new HashMap<Integer, W5LookUp>();
-		for (W5LookUp lookUp : (List<W5LookUp>) find("from W5LookUp t where t.projectUuid=? order by  t.lookUpId",
-				projectId)) {
-			lookUp.set_detayList(new ArrayList());
-			lookUp.set_detayMap(new HashMap());
-			subMap.put(lookUp.getLookUpId(), lookUp);
+
+		if (FrameworkSetting.redisCache) {
+			try {
+				RMap<Integer, W5LookUp> rlookUpMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:lookUp", projectId));
+				if (rlookUpMap != null) {// rgridMap.getName()
+					for (Integer key : rlookUpMap.keySet())
+						subMap.put(key, rlookUpMap.get(key));
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.LookUps", 0, null, "Loading LookUps from Redis", e);
+			}
 		}
 
-		for (W5LookUpDetay lookUpDetay : (List<W5LookUpDetay>) find(
-				"from W5LookUpDetay t where t.projectUuid=? order by t.lookUpId, t.tabOrder", projectId)) {
-			W5LookUp lookUp = subMap.get(lookUpDetay.getLookUpId());
-			lookUp.get_detayList().add(lookUpDetay);
-			lookUp.get_detayMap().put(lookUpDetay.getVal(), lookUpDetay);
+		if (subMap.isEmpty()) {
+
+			for (W5LookUp lookUp : (List<W5LookUp>) find("from W5LookUp t where t.projectUuid=? order by  t.lookUpId",
+					projectId)) {
+				lookUp.set_detayList(new ArrayList());
+				lookUp.set_detayMap(new HashMap());
+				subMap.put(lookUp.getLookUpId(), lookUp);
+			}
+
+			for (W5LookUpDetay lookUpDetay : (List<W5LookUpDetay>) find(
+					"from W5LookUpDetay t where t.projectUuid=? order by t.lookUpId, t.tabOrder", projectId)) {
+				W5LookUp lookUp = subMap.get(lookUpDetay.getLookUpId());
+				lookUp.get_detayList().add(lookUpDetay);
+				lookUp.get_detayMap().put(lookUpDetay.getVal(), lookUpDetay);
+			}
 		}
 		FrameworkCache.setLookUpMap(projectId, subMap);
+
 	}
 
 	public void reloadRolesCache(String projectId) { // deprecated
@@ -1057,20 +1156,50 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 	public void reloadConversionsCache(String projectId) {
 		Map<Integer, W5Conversion> conversionMap = new HashMap<Integer, W5Conversion>();
-		List<W5Conversion> cnvAll = (List<W5Conversion>) find("from W5Conversion t where t.projectUuid=?", projectId);
-		for (W5Conversion cnv : cnvAll) {
-			W5Table t = FrameworkCache.getTable(projectId, cnv.getSrcTableId());
-			if (t != null) {
-				conversionMap.put(cnv.getConversionId(), cnv);
-				if (t.get_tableConversionList() != null)
-					t.set_tableConversionList(new ArrayList());
-				t.get_tableConversionList().add(cnv);
-				cnv.set_conversionColList((List<W5ConversionCol>) find(
-						"from W5ConversionCol t where t.conversionId=? AND t.projectUuid=? order by t.conversionId, t.tabOrder",
-						cnv.getConversionId(), projectId));
-				cnv.set_conversionColMap(new HashMap());
-				for (W5ConversionCol cnvCol : cnv.get_conversionColList()) {
-					cnv.get_conversionColMap().put(cnvCol.getConversionColId(), cnvCol);
+
+		if (FrameworkSetting.redisCache) {
+			try {
+				RMap<Integer, W5Conversion> rconversionMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:conversion", projectId));
+				if (rconversionMap != null) {// rgridMap.getName()
+					for (Integer key : rconversionMap.keySet()){
+						W5Conversion cnv = rconversionMap.get(key);
+						
+						W5Table t = FrameworkCache.getTable(projectId, cnv.getSrcTableId());
+						if (t != null) {
+							conversionMap.put(cnv.getConversionId(), cnv);
+							if (t.get_tableConversionList() != null)
+								t.set_tableConversionList(new ArrayList());
+							t.get_tableConversionList().add(cnv);
+							cnv.set_conversionColMap(new HashMap());
+							for (W5ConversionCol cnvCol : cnv.get_conversionColList()) {
+								cnv.get_conversionColMap().put(cnvCol.getConversionColId(), cnvCol);
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.Conversions", 0, null, "Loading Conversions from Redis", e);
+			}
+		}
+
+		if (conversionMap.isEmpty()) {
+			List<W5Conversion> cnvAll = (List<W5Conversion>) find("from W5Conversion t where t.projectUuid=?",
+					projectId);
+			for (W5Conversion cnv : cnvAll) {
+				W5Table t = FrameworkCache.getTable(projectId, cnv.getSrcTableId());
+				if (t != null) {
+					conversionMap.put(cnv.getConversionId(), cnv);
+					if (t.get_tableConversionList() != null)
+						t.set_tableConversionList(new ArrayList());
+					t.get_tableConversionList().add(cnv);
+					cnv.set_conversionColList((List<W5ConversionCol>) find(
+							"from W5ConversionCol t where t.conversionId=? AND t.projectUuid=? order by t.conversionId, t.tabOrder",
+							cnv.getConversionId(), projectId));
+					cnv.set_conversionColMap(new HashMap());
+					for (W5ConversionCol cnvCol : cnv.get_conversionColList()) {
+						cnv.get_conversionColMap().put(cnvCol.getConversionColId(), cnvCol);
+					}
 				}
 			}
 		}
@@ -1096,15 +1225,117 @@ public class MetadataLoaderDAO extends BaseDAO {
 	public void reloadTablesCache(String projectId) {
 		// if (PromisCache.wTables.get(customizationId)!=null)
 		// PromisCache.wTables.get(customizationId).clear();
-		List<W5Table> lt = (List<W5Table>) find("from W5Table t where t.projectUuid=? order by t.tableId", projectId);
-		Map<Integer, W5Table> tableMap = new HashMap<Integer, W5Table>(lt.size() * 14 / 10);
-		for (W5Table t : lt) {
-			// t.set_cachedObjectMap(new HashMap());
-			tableMap.put(t.getTableId(), t);
+		Map<Integer, W5Table> tableMap = new HashMap<Integer, W5Table>();
+
+		if (FrameworkSetting.redisCache) {
+			try {
+				RMap<Integer, W5Table> rtableMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:table", projectId));
+				if (rtableMap != null) {// rgridMap.getName()
+					for (Integer key : rtableMap.keySet())
+						tableMap.put(key, rtableMap.get(key));
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.Tables", 0, null, "Loading Tables from Redis", e);
+			}
 		}
+
+		if (tableMap.isEmpty()) {
+			List<W5Table> lt = (List<W5Table>) find("from W5Table t where t.projectUuid=? order by t.tableId",
+					projectId);
+			for (W5Table t : lt) {
+				// t.set_cachedObjectMap(new HashMap());
+				tableMap.put(t.getTableId(), t);
+			}
+			List<W5TableField> tfl = (List<W5TableField>) find(
+					"from W5TableField t where t.projectUuid=? AND t.tableFieldId>0 order by t.tableId, t.tabOrder",
+					projectId);
+			W5Table t = null;
+			for (W5TableField tf : tfl) {
+				if (t == null || tf.getTableId() != t.getTableId())
+					t = tableMap.get(tf.getTableId()); // tableMap.get(tf.getTableId());
+				if (t != null) {
+					if (t.get_tableFieldList() == null) {
+						t.set_tableFieldList(new ArrayList<W5TableField>());
+						t.set_tableFieldMap(new HashMap<Integer, W5TableField>());
+						/*
+						 * t.set_tableParamList(FrameworkCache.tableParamListMap
+						 * .get (tf.getTableId()));
+						 * t.set_tableChildList(FrameworkCache.tableChildListMap
+						 * .get (tf.getTableId()));
+						 * t.set_tableParentList(FrameworkCache.
+						 * tableParentListMap. get(tf.getTableId()));
+						 */
+					}
+					t.get_tableFieldList().add(tf);
+					t.get_tableFieldMap().put(tf.getTableFieldId(), tf);
+				}
+			}
+
+			List<W5TableParam> tplAll = (List<W5TableParam>) find(
+					"from W5TableParam t where t.projectUuid=? order by t.tableId, t.tabOrder", projectId);
+			// Map<Integer, List<W5TableParam>> tplMap = new HashMap<Integer,
+			// List<W5TableParam>>();
+			int lastTableId = -1;
+			List<W5TableParam> x = null;
+			for (W5TableParam tp : tplAll) {
+				if (lastTableId != tp.getTableId()) {
+					if (x != null) {
+						W5Table tx = tableMap.get(lastTableId);
+						if (tx != null)
+							tx.set_tableParamList(x);
+						// FrameworkCache.tableParamListMap.put(lastTableId, x);
+					}
+					x = new ArrayList();
+					lastTableId = tp.getTableId();
+				}
+				x.add(tp);
+			}
+			if (x != null) {
+				W5Table tx = tableMap.get(lastTableId);
+				if (tx != null)
+					tx.set_tableParamList(x);
+			}
+
+			List<W5TableChild> tcAll = (List<W5TableChild>) find(
+					"from W5TableChild t where t.projectUuid=? order by t.tableId", projectId);
+			// Map<Integer, List<W5TableChild>> tcMap = new HashMap<Integer,
+			// List<W5TableChild>>();//copy
+			// Map<Integer, List<W5TableChild>> tpMap = new HashMap<Integer,
+			// List<W5TableChild>>();//watch,feed
+			lastTableId = -1;
+			List<W5TableChild> ltc = null, tpx = null;
+			for (W5TableChild tc : tcAll) {
+				W5Table pr = tableMap.get(tc.getRelatedTableId());
+				if (pr == null)
+					continue;
+				if (lastTableId != tc.getTableId()) {
+					W5Table tx = tableMap.get(lastTableId == -1 ? tc.getTableId() : lastTableId);
+					if (tx != null) {
+						ltc = tx.get_tableChildList();
+						if (ltc == null) {
+							ltc = new ArrayList<W5TableChild>();
+							tx.set_tableChildList(ltc);
+						}
+					} else
+						continue;
+					lastTableId = tc.getTableId();
+				}
+				ltc.add(tc);
+
+				if (pr != null) {
+					tpx = pr.get_tableParentList();
+					if (tpx == null) {
+						tpx = new ArrayList<W5TableChild>();
+						pr.set_tableParentList(tpx);
+					}
+					tpx.add(tc);
+				}
+			}
+		}
+
 		FrameworkCache.setTableMap(projectId, tableMap);
 
-		reloadTableFieldsCache(projectId);
 		// reloadTableFiltersCache(projectId);
 
 		reloadWorkflowCache(projectId);
@@ -1160,102 +1391,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 		}
 	}
 
-
 	public void reloadTableParamListChildListParentListCache(String projectId) { // TODO
 
-		List<W5TableParam> tplAll = (List<W5TableParam>) find(
-				"from W5TableParam t where t.projectUuid=? order by t.tableId, t.tabOrder", projectId);
-		// Map<Integer, List<W5TableParam>> tplMap = new HashMap<Integer,
-		// List<W5TableParam>>();
-		int lastTableId = -1;
-		List<W5TableParam> x = null;
-		for (W5TableParam tp : tplAll) {
-			if (lastTableId != tp.getTableId()) {
-				if (x != null) {
-					W5Table tx = FrameworkCache.getTable(projectId, lastTableId);
-					if (tx != null)
-						tx.set_tableParamList(x);
-					// FrameworkCache.tableParamListMap.put(lastTableId, x);
-				}
-				x = new ArrayList();
-				lastTableId = tp.getTableId();
-			}
-			x.add(tp);
-		}
-		if (x != null) {
-			W5Table tx = FrameworkCache.getTable(projectId, lastTableId);
-			if (tx != null)
-				tx.set_tableParamList(x);
-		}
-
-		List<W5TableChild> tcAll = (List<W5TableChild>) find(
-				"from W5TableChild t where t.projectUuid=? order by t.tableId", projectId);
-		// Map<Integer, List<W5TableChild>> tcMap = new HashMap<Integer,
-		// List<W5TableChild>>();//copy
-		// Map<Integer, List<W5TableChild>> tpMap = new HashMap<Integer,
-		// List<W5TableChild>>();//watch,feed
-		lastTableId = -1;
-		List<W5TableChild> ltc = null, tpx = null;
-		for (W5TableChild tc : tcAll) {
-			W5Table pr = FrameworkCache.getTable(projectId, tc.getRelatedTableId());
-			if (pr == null)
-				continue;
-			if (lastTableId != tc.getTableId()) {
-				W5Table tx = FrameworkCache.getTable(projectId, lastTableId == -1 ? tc.getTableId() : lastTableId);
-				if (tx != null) {
-					ltc = tx.get_tableChildList();
-					if (ltc == null) {
-						ltc = new ArrayList<W5TableChild>();
-						tx.set_tableChildList(ltc);
-					}
-				} else
-					continue;
-				lastTableId = tc.getTableId();
-			}
-			ltc.add(tc);
-
-			if (pr != null) {
-				tpx = pr.get_tableParentList();
-				if (tpx == null) {
-					tpx = new ArrayList<W5TableChild>();
-					pr.set_tableParentList(tpx);
-				}
-				tpx.add(tc);
-			}
-		}
-	}
-
-	public void reloadTableFieldsCache(String projectId) {
-		List<W5TableField> tfl = (List<W5TableField>) find(
-				"from W5TableField t where t.projectUuid=? AND t.tableFieldId>0 order by t.tableId, t.tabOrder",
-				projectId);
-		W5Table t = null;
-		for (W5TableField tf : tfl) {
-			if (t == null || tf.getTableId() != t.getTableId())
-				t = FrameworkCache.getTable(projectId, tf.getTableId()); // tableMap.get(tf.getTableId());
-			if (t != null) {
-				if (t.get_tableFieldList() == null) {
-					t.set_tableFieldList(new ArrayList<W5TableField>());
-					t.set_tableFieldMap(new HashMap<Integer, W5TableField>());
-					/*
-					 * t.set_tableParamList(FrameworkCache.tableParamListMap.get
-					 * (tf.getTableId()));
-					 * t.set_tableChildList(FrameworkCache.tableChildListMap.get
-					 * (tf.getTableId()));
-					 * t.set_tableParentList(FrameworkCache.tableParentListMap.
-					 * get(tf.getTableId()));
-					 */
-				}
-				t.get_tableFieldList().add(tf);
-				t.get_tableFieldMap().put(tf.getTableFieldId(), tf);
-			}
-		}
-		/*
-		 * if(customizationId==0){ FrameworkCache.wTableFieldMap.clear();
-		 * for(W5TableField
-		 * tf:tfl)FrameworkCache.wTableFieldMap.put(tf.getTableFieldId(),
-		 * tf.getTableId()); }
-		 */
 	}
 
 	public void reloadTableFiltersCache(String projectId) { // customizationID
@@ -1361,7 +1498,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 			reloadLookUpCache(projectId);
 			reloadTablesCache(projectId);
-			reloadTableParamListChildListParentListCache(projectId);
 			reloadTableAccessConditionSQLs(projectId);
 			reloadTableEventsCache(projectId);
 			reloadWsServersCache(projectId);
@@ -1444,7 +1580,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 			}
 		}
 	}
-
 
 	public W5GlobalFuncResult getGlobalFuncResult(Map<String, Object> scd, int dbFuncId) {
 		String projectId = FrameworkCache.getProjectId(scd, "20." + dbFuncId);
@@ -1561,8 +1696,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 		if (!noSearchForm && d.get_searchFormId() != 0) {
 			W5FormResult searchForm = getFormResult(scd, d.get_searchFormId(), 10, requestParams);
 			dao.initializeForm(searchForm, false);
-			dao.loadFormCellLookups(mlistResult.getScd(), searchForm.getFormCellResults(), mlistResult.getRequestParams(),
-					null);
+			dao.loadFormCellLookups(mlistResult.getScd(), searchForm.getFormCellResults(),
+					mlistResult.getRequestParams(), null);
 			mlistResult.setSearchFormResult(searchForm);
 		}
 		return mlistResult;

@@ -1110,7 +1110,7 @@ public class ExtJs3_4 implements ViewAdapter {
 								if (isConvertedBefore
 										&& convertedObjects != null)
 									for (W5ConvertedObject co : convertedObjects)
-										if (co.get_relatedRecord().size() > 0) {
+										if (!GenericUtil.isEmpty(co.get_relatedRecord())) {
 											if (check)
 												s.append("\n,");
 											else
@@ -1224,7 +1224,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					s.append(",\n manualStartDemand:true");
 			}
 		}
-		if (f.get_toolbarItemList().size() > 0) { // extra buttonlari var mi yok
+		if (!GenericUtil.isEmpty(f.get_toolbarItemList())) { // extra buttonlari var mi yok
 													// mu?
 			StringBuilder buttons = serializeToolbarItems(scd,
 					f.get_toolbarItemList(), (fr.getFormId() > 0 ? true
@@ -2466,7 +2466,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			// cellResult.getLookupQueryResult().getData().size()>0){
 			// buf.append(",valueNotFoundText:'").append(PromisUtil.stringToJS(cellResult.getLookupQueryResult().getData().get(0)[0].toString())).append("'");
 			if (value != null && cellResult.getLookupQueryResult() != null
-					&& cellResult.getLookupQueryResult().getData().size() > 0) {
+					&& !GenericUtil.isEmpty(cellResult.getLookupQueryResult().getData())) {
 				Object[] oo = cellResult.getLookupQueryResult().getData()
 						.get(0);
 				buf.append(
@@ -3448,7 +3448,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			// cellResult.getLookupQueryResult().getData().size()>0){
 			// buf.append(",valueNotFoundText:'").append(PromisUtil.stringToJS(cellResult.getLookupQueryResult().getData().get(0)[0].toString())).append("'");
 			if (value != null && cellResult.getLookupQueryResult() != null
-					&& cellResult.getLookupQueryResult().getData().size() > 0) {
+					&& !GenericUtil.isEmpty(cellResult.getLookupQueryResult().getData())) {
 				Object[] oo = cellResult.getLookupQueryResult().getData()
 						.get(0);
 				buf.append(
@@ -6645,18 +6645,18 @@ public class ExtJs3_4 implements ViewAdapter {
 		return buf;
 	}
 	
-	private StringBuilder renderTemplateObject(W5PageResult templateResult) {
+	private StringBuilder renderTemplateObject(W5PageResult pr) {
 //		return addTab4GridWSearchForm({t:_page_tab_id,grid:grd_online_users1, pk:{tuser_id:'user_id'}});
 		StringBuilder buf = new StringBuilder();
-		if(!(templateResult.getPageObjectList().get(0) instanceof W5GridResult))return buf;
-		W5GridResult gr = (W5GridResult)templateResult.getPageObjectList().get(0);
+		if(!(pr.getPageObjectList().get(0) instanceof W5GridResult))return buf;
+		W5GridResult gr = (W5GridResult)pr.getPageObjectList().get(0);
 		buf.append("return iwb.ui.buildPanel({t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
 		if(gr.getGrid().get_crudTable()!=null){
 			W5Table t = gr.getGrid().get_crudTable();
 			buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
 		}
-		if(templateResult.getPageObjectList().size()>1){
-			StringBuilder rbuf = recursiveTemplateObject(templateResult.getPageObjectList(), ((W5GridResult)templateResult.getPageObjectList().get(0)).getTplObj().getTemplateObjectId(), 1);
+		if(pr.getPageObjectList().size()>1){
+			StringBuilder rbuf = recursiveTemplateObject(pr.getPageObjectList(), ((W5GridResult)pr.getPageObjectList().get(0)).getTplObj().getTemplateObjectId(), 1);
 			if(rbuf!=null && rbuf.length()>0)
 				buf.append(",").append(rbuf);
 		}
@@ -6798,8 +6798,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		buf.append("{\"success\":").append(dbFuncResult.isSuccess())
 				.append(",\"db_func_id\":").append(dbFuncResult.getGlobalFuncId());
-		if (dbFuncResult.getErrorMap() != null
-				&& dbFuncResult.getErrorMap().size() > 0)
+		if (!GenericUtil.isEmpty(dbFuncResult.getErrorMap()))
 			buf.append(",\n\"errorType\":\"validation\",\n\"errors\":").append(
 					serializeValidatonErrors(dbFuncResult.getErrorMap(),
 							xlocale));
