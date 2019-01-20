@@ -29,6 +29,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.custom.trigger.PostFormTrigger;
+import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5GlobalNextval;
@@ -89,6 +90,11 @@ public class FrameworkService {
 
 	@Lazy
 	@Autowired
+	private MetadataLoaderDAO metaDataDao;
+	
+	
+	@Lazy
+	@Autowired
 	private CRUDEngine crudEngine;
 	
 	@Lazy
@@ -141,7 +147,7 @@ public class FrameworkService {
 			if (cid == -1)
 				FrameworkSetting.systemStatus = 2; // suspended
 			// dao.setEngine(this);
-			dao.reloadFrameworkCaches(cid);
+			metaDataDao.reloadFrameworkCaches(cid);
 		} catch (Exception e) {
 			if (FrameworkSetting.debug)
 				e.printStackTrace();
@@ -366,7 +372,7 @@ public class FrameworkService {
 
 	public W5FormResult bookmarkForm(Map<String, Object> scd, int formId, int action,
 			Map<String, String> parameterMap) {
-		W5FormResult formResult = dao.getFormResult(scd, formId, 2, parameterMap);
+		W5FormResult formResult = metaDataDao.getFormResult(scd, formId, 2, parameterMap);
 		dao.bookmarkForm(parameterMap.get("_dsc"), action > 10 ? -formId : formId, (Integer) scd.get("userId"),
 				(Integer) scd.get("customizationId"), formResult);
 
@@ -542,7 +548,7 @@ public class FrameworkService {
 				.find("from W5UploadedImport t where t.customizationId=? and t.uploadedImportId=?",
 						scd.get("customizationId"), uploadedImportId)
 				.get(0);
-		W5FormResult formResult = dao.getFormResult(scd, ui.getFormId(), 2, requestParams);
+		W5FormResult formResult = metaDataDao.getFormResult(scd, ui.getFormId(), 2, requestParams);
 		W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
 		String locale = (String) scd.get("locale");
 		/*
@@ -602,7 +608,7 @@ public class FrameworkService {
 							+ "'))=lower(x." + importColumn + "))" + dsc;
 				} else if (cellControlTip == 7 || cellControlTip == 9) { // lookup
 																			// query
-					W5QueryResult queryResult = dao.getQueryResult(scd, cellLookupQueryId);
+					W5QueryResult queryResult = metaDataDao.getQueryResult(scd, cellLookupQueryId);
 					if (queryResult.getMainTable() != null) {
 						boolean dscExists = false;
 						for (W5TableField f : queryResult.getMainTable().get_tableFieldList()) {
@@ -1797,14 +1803,14 @@ public class FrameworkService {
 				case 1:
 				case 2:
 				case 3: // form
-					wsmoMap.put(wsm.getDsc(), dao.getFormResult(scd, wsm.getObjectId(),
+					wsmoMap.put(wsm.getDsc(), metaDataDao.getFormResult(scd, wsm.getObjectId(),
 							wsm.getObjectTip() == 0 ? 1 : wsm.getObjectTip(), new HashMap()));
 					break;
 				case 4:
-					wsmoMap.put(wsm.getDsc(), dao.getGlobalFuncResult(scd, wsm.getObjectId()));
+					wsmoMap.put(wsm.getDsc(), metaDataDao.getGlobalFuncResult(scd, wsm.getObjectId()));
 					break;
 				case 19:
-					wsmoMap.put(wsm.getDsc(), dao.getQueryResult(scd, wsm.getObjectId()));
+					wsmoMap.put(wsm.getDsc(), metaDataDao.getQueryResult(scd, wsm.getObjectId()));
 					break;
 				case 31:
 				case 32:
@@ -1990,7 +1996,7 @@ public class FrameworkService {
 				}
 			}
 		}
-		dao.reloadFrameworkCaches(cusId);
+		metaDataDao.reloadFrameworkCaches(cusId);
 		saveImage(picUrl, userId, cusId);
 	}
 

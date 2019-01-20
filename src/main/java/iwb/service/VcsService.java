@@ -16,12 +16,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.custom.trigger.QueryTrigger;
+import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5VcsAction;
 import iwb.domain.db.W5Customization;
@@ -47,6 +49,11 @@ import iwb.util.UserUtil;
 public class VcsService {
 	@Autowired
 	private PostgreSQL dao;
+	
+
+	@Lazy
+	@Autowired
+	private MetadataLoaderDAO metaDataDao;
 
 	synchronized public Map vcsClientObjectPull(Map<String, Object> scd, int tableId, int tablePk, boolean force) {
 		if(FrameworkSetting.vcsServer)
@@ -427,7 +434,7 @@ public class VcsService {
 						srcMap.put(ox.getTableId()+"."+ox.getTablePk(), ox);
 					}
 					
-					W5QueryResult qr = dao.getQueryResult(scd, 2767);
+					W5QueryResult qr = metaDataDao.getQueryResult(scd, 2767);
 					qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 					List<Object[]> data = new ArrayList();
 					Iterator keyz = srvTables.keys();
@@ -597,7 +604,7 @@ public class VcsService {
 						srcMap.put(ox.getTableId()+"."+ox.getTablePk(), ox);
 					}
 					
-					W5QueryResult qr = dao.getQueryResult(scd, 148);
+					W5QueryResult qr = metaDataDao.getQueryResult(scd, 148);
 					qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 					List<Object[]> data = new ArrayList();
 					Iterator keyz = srvTables.keys();
@@ -1091,7 +1098,7 @@ public class VcsService {
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
 
-		W5QueryResult qr = dao.getQueryResult(scd, 161);
+		W5QueryResult qr = metaDataDao.getQueryResult(scd, 161);
 		qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 		List<Object[]> data = new ArrayList();qr.setData(data);
 		int id = 0;
@@ -1286,7 +1293,7 @@ public class VcsService {
 					List summaryParams = (List)res[1];summaryParams.add(0);
 					String ssql=((StringBuilder)res[0]).toString();
 					
-					W5QueryResult qr = dao.getQueryResult(scd, 2766);
+					W5QueryResult qr = metaDataDao.getQueryResult(scd, 2766);
 					qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 					List<Object[]> data = new ArrayList();
 					for(int qi=0;qi<srvObjects.length();qi++){
@@ -2082,7 +2089,7 @@ public class VcsService {
 						mlc.put("2."+o.get("dsc"), (String)o.get("src_md5hash"));
 					}
 					
-					W5QueryResult qr = dao.getQueryResult(scd, 2768);
+					W5QueryResult qr = metaDataDao.getQueryResult(scd, 2768);
 					qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 					List data = new ArrayList();
 					for(int qi=0;qi<ar.length();qi++) {
@@ -2203,7 +2210,7 @@ public class VcsService {
 	}
 
 	public W5QueryResult runQuery(Map scd, int queryId, Map<String,String>  requestParams) {
-		W5QueryResult queryResult = dao.getQueryResult(scd,queryId);
+		W5QueryResult queryResult = metaDataDao.getQueryResult(scd,queryId);
 
 /*		StringBuilder tmpx = new StringBuilder("ali baba ${obj.dsc} ve 40 haramiler ${lnk.pk_query_field_id.dsc} olmus");
 		dao.interprateTemplate(scd, 5,1294, tmpx, true); */
@@ -3350,7 +3357,7 @@ public class VcsService {
 			if(importedProjectId.equals("4147a129-06ad-4983-9b1c-8e88826454ac")){
 				dao.executeUpdateSQLQuery("update iwb.w5_project set ui_login_template_id=2590, session_query_id=4514,authentication_func_id=1252 where project_uuid=?", projectId);
 				dao.addProject2Cache(projectId);
-				dao.reloadProjectCaches(projectId);
+				metaDataDao.reloadProjectCaches(projectId);
 				List<Object[]> zz= dao.executeSQLQuery("select (select p.role_group_id from x_role p where p.role_group_id!=122) x1,(select max(t.user_tip) from iwb.w5_user_tip t where t.user_tip!=122 AND t.project_uuid=?) x2", projectId);
 				if(GenericUtil.uInt(zz.get(0)[0])==0){
 					int roleId = GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_role')").get(0));
@@ -3372,7 +3379,7 @@ public class VcsService {
 			if(subProjectId.equals("4147a129-06ad-4983-9b1c-8e88826454ac")){
 				dao.executeUpdateSQLQuery("update iwb.w5_project set ui_login_template_id=0, session_query_id=0,authentication_func_id=0 where project_uuid=?", projectId);
 				dao.addProject2Cache(projectId);
-				dao.reloadProjectCaches(projectId);				
+				metaDataDao.reloadProjectCaches(projectId);				
 			}
 			
 		}

@@ -21,6 +21,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.custom.trigger.PostFormTrigger;
+import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5Notification;
@@ -52,6 +53,10 @@ public class CRUDEngine {
 	@Lazy
 	@Autowired
 	private PostgreSQL dao;
+
+	@Lazy
+	@Autowired
+	private MetadataLoaderDAO metaDataDao;
 
 	@Lazy
 	@Autowired
@@ -1582,7 +1587,7 @@ public class CRUDEngine {
 			Map<String, String> requestParams, String prefix, Set<String> checkedParentRecords) {
 		List<W5QueuedActionHelper> queuedGlobalFuncList = new ArrayList<W5QueuedActionHelper>();
 
-		W5FormResult formResult = dao.getFormResult(scd, formId, 2, requestParams);
+		W5FormResult formResult = metaDataDao.getFormResult(scd, formId, 2, requestParams);
 		W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
 		if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 			throw new IWBException("security", "Module", 0, null,
@@ -1729,7 +1734,7 @@ public class CRUDEngine {
 			action = 1;
 			requestParams.put("a", "1");
 		}
-		W5FormResult mainFormResult = dao.getFormResult(scd, formId, action, requestParams);
+		W5FormResult mainFormResult = metaDataDao.getFormResult(scd, formId, action, requestParams);
 		boolean dev = scd.get("roleId") != null && (Integer) scd.get("roleId") == 0
 				&& GenericUtil.uInt(requestParams, "_dev") != 0;
 		W5Table t = FrameworkCache.getTable(scd, mainFormResult.getForm().getObjectId()); // mainFormResult.getForm().get_sourceTable();
@@ -1761,7 +1766,7 @@ public class CRUDEngine {
 						int newAction = GenericUtil.uInt(requestParams.get("a" + m.getTabOrder()));
 						if (newAction == 0)
 							newAction = action;
-						W5FormResult subFormResult = dao.getFormResult(scd, m.getObjectId(), newAction, requestParams);
+						W5FormResult subFormResult = metaDataDao.getFormResult(scd, m.getObjectId(), newAction, requestParams);
 						t = FrameworkCache.getTable(scd, mainFormResult.getForm().getObjectId()); // mainFormResult.getForm().get_sourceTable();
 						if ((t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0))
 								|| (!GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(),

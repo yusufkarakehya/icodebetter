@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.custom.trigger.GlobalFuncTrigger;
+import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableEvent;
@@ -32,6 +33,11 @@ public class ScriptEngine {
 	@Autowired
 	private PostgreSQL dao;
 
+	@Lazy
+	@Autowired
+	private MetadataLoaderDAO metaDataDao;
+
+	
 	@Lazy
 	@Autowired
 	private ConversionEngine conversionEngine;
@@ -59,7 +65,7 @@ public class ScriptEngine {
 
 		W5GlobalFuncResult globalFuncResult = null;
 
-		globalFuncResult = dao.getGlobalFuncResult(scd, globalFuncId);
+		globalFuncResult = metaDataDao.getGlobalFuncResult(scd, globalFuncId);
 		if (!GenericUtil.isEmpty(globalFuncResult.getGlobalFunc().getAccessSourceTypes())
 				&& !GenericUtil.hasPartInside2(globalFuncResult.getGlobalFunc().getAccessSourceTypes(), accessSourceType))
 			throw new IWBException("security", "GlobalFunc", globalFuncId, null, "Access Source Type Control", null);
@@ -109,7 +115,7 @@ public class ScriptEngine {
 	public W5GlobalFuncResult postEditGridGlobalFunc(Map<String, Object> scd, int dbFuncId, int dirtyCount,
 			Map<String, String> requestParams, String prefix) {
 
-		W5GlobalFuncResult dbFuncResult = dao.getGlobalFuncResult(scd, dbFuncId);
+		W5GlobalFuncResult dbFuncResult = metaDataDao.getGlobalFuncResult(scd, dbFuncId);
 		if (!GenericUtil.isEmpty(dbFuncResult.getGlobalFunc().getAccessSourceTypes())
 				&& !GenericUtil.hasPartInside2(dbFuncResult.getGlobalFunc().getAccessSourceTypes(), 1))
 			throw new IWBException("security", "DbProc", dbFuncId, null, "Access Restrict Type Control", null);

@@ -14,6 +14,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.custom.trigger.QueryTrigger;
+import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5GridColumn;
 import iwb.domain.db.W5LookUp;
@@ -37,6 +38,11 @@ public class QueryEngine {
 	@Lazy
 	@Autowired
 	private PostgreSQL dao;
+	
+	@Lazy
+	@Autowired
+	private MetadataLoaderDAO metaDataDao;
+
 
 	public Map executeQuery4Stat(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
 		dao.checkTenant(scd);
@@ -50,7 +56,7 @@ public class QueryEngine {
 
 	public W5QueryResult executeQuery(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
 		boolean developer = scd.get("roleId") != null && GenericUtil.uInt(scd.get("roleId")) != 0;
-		W5QueryResult queryResult = dao.getQueryResult(scd, queryId);
+		W5QueryResult queryResult = metaDataDao.getQueryResult(scd, queryId);
 		if (queryId != 1 && queryId != 824 && queryResult.getMainTable() != null
 				&& (!FrameworkSetting.debug || developer)) {
 			switch (queryResult.getQuery().getQuerySourceTip()) {
@@ -220,7 +226,7 @@ public class QueryEngine {
 																													// alinacak
 					W5QueryResult lookupQueryResult = qrm.get(qf.getLookupQueryId());
 					if (lookupQueryResult == null) {
-						lookupQueryResult = dao.getQueryResult(scd, qf.getLookupQueryId());
+						lookupQueryResult = metaDataDao.getQueryResult(scd, qf.getLookupQueryId());
 						lookupQueryResult.setErrorMap(new HashMap());
 						lookupQueryResult.setRequestParams(new HashMap());
 						lookupQueryResult.setOrderBy(lookupQueryResult.getQuery().getSqlOrderby());
@@ -319,7 +325,7 @@ public class QueryEngine {
 
 	public Map<String, Object> executeQuery2Map(Map<String, Object> scd, int queryId,
 			Map<String, String> requestParams) {
-		W5QueryResult queryResult = dao.getQueryResult(scd, queryId);
+		W5QueryResult queryResult = metaDataDao.getQueryResult(scd, queryId);
 		queryResult.setErrorMap(new HashMap());
 		queryResult.setRequestParams(requestParams);
 		queryResult.prepareQuery(null);
@@ -337,7 +343,7 @@ public class QueryEngine {
 	public List<W5ReportCellHelper> getGridReportResult(Map<String, Object> scd, int gridId, String gridColumns,
 			Map<String, String> requestParams) {
 		String xlocale = (String) scd.get("locale");
-		W5GridResult gridResult = dao.getGridResult(scd, gridId, requestParams, true);
+		W5GridResult gridResult = metaDataDao.getGridResult(scd, gridId, requestParams, true);
 		int queryId = gridResult.getGrid().getQueryId();
 		requestParams.remove("firstLimit");
 		requestParams.remove("limit");

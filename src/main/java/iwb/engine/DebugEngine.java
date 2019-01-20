@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
+import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5Table;
 import iwb.domain.result.W5GlobalFuncResult;
@@ -23,9 +24,14 @@ public class DebugEngine {
 	@Lazy
 	@Autowired
 	private PostgreSQL dao;
+	
+	@Lazy
+	@Autowired
+	private MetadataLoaderDAO metaDataDao;
+
 
 	public Object executeQuery4Debug(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
-		W5QueryResult queryResult = queryId == -1 ? new W5QueryResult(-1) : dao.getQueryResult(scd, queryId);
+		W5QueryResult queryResult = queryId == -1 ? new W5QueryResult(-1) : metaDataDao.getQueryResult(scd, queryId);
 
 		queryResult.setErrorMap(new HashMap());
 		queryResult.setScd(scd);

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
+import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5WsMethodAction;
 import iwb.domain.db.W5Param;
@@ -38,6 +39,11 @@ public class RESTEngine {
 	@Autowired
 	private PostgreSQL dao;
 
+
+	@Lazy
+	@Autowired
+	private MetadataLoaderDAO metaDataDao;
+	
 	public Map<String, Object> getWsServerMethodObjects(W5WsServer wss) {
 		Map<String, Object> wsmoMap = new HashMap();
 		Map scd = new HashMap();
@@ -49,14 +55,14 @@ public class RESTEngine {
 				case 1:
 				case 2:
 				case 3: // form
-					wsmoMap.put(wsm.getDsc(), dao.getFormResult(scd, wsm.getObjectId(),
+					wsmoMap.put(wsm.getDsc(), metaDataDao.getFormResult(scd, wsm.getObjectId(),
 							wsm.getObjectTip() == 0 ? 1 : wsm.getObjectTip(), new HashMap()));
 					break;
 				case 4:
-					wsmoMap.put(wsm.getDsc(), dao.getGlobalFuncResult(scd, wsm.getObjectId()));
+					wsmoMap.put(wsm.getDsc(), metaDataDao.getGlobalFuncResult(scd, wsm.getObjectId()));
 					break;
 				case 19:
-					wsmoMap.put(wsm.getDsc(), dao.getQueryResult(scd, wsm.getObjectId()));
+					wsmoMap.put(wsm.getDsc(), metaDataDao.getQueryResult(scd, wsm.getObjectId()));
 					break;
 				case 31:
 				case 32:

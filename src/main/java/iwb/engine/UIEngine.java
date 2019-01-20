@@ -15,6 +15,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.custom.trigger.GetFormTrigger;
+import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Conversion;
@@ -55,6 +56,10 @@ public class UIEngine {
 
 	@Lazy
 	@Autowired
+	private MetadataLoaderDAO metaDataDao;
+	
+	@Lazy
+	@Autowired
 	private QueryEngine queryEngine;
 
 	
@@ -77,7 +82,7 @@ public class UIEngine {
 	
 	public W5FormResult getFormResultByQuery(Map<String, Object> scd, int formId, int queryId,
 			Map<String, String> requestParams) {
-		W5FormResult formResult = dao.getFormResult(scd, formId, 1, requestParams);
+		W5FormResult formResult = metaDataDao.getFormResult(scd, formId, 1, requestParams);
 		// formResult.getForm().get_formCells().clear();
 		if (formId != 1622)
 			formResult.getForm().get_moduleList().clear(); // TODO: neden
@@ -150,7 +155,7 @@ public class UIEngine {
 		}
 		W5FormResult formResult = null;
 		try {
-			formResult = dao.getFormResult(scd, formId, action, requestParams);
+			formResult = metaDataDao.getFormResult(scd, formId, action, requestParams);
 			dao.checkTenant(formResult.getScd());
 			formResult.setUniqueId(GenericUtil.getNextId("fi"));
 			/*
@@ -752,7 +757,7 @@ public class UIEngine {
 		try {
 			boolean developer = scd.get("roleId") != null && (Integer) scd.get("roleId") == 0;
 			boolean debugAndDeveloper = FrameworkSetting.debug && developer;
-			pr = dao.getPageResult(scd, pageId);
+			pr = metaDataDao.getPageResult(scd, pageId);
 			pr.setRequestParams(requestParams);
 			pr.setPageObjectList(new ArrayList<Object>());
 			List<W5PageObject> templateObjectListExt = new ArrayList<W5PageObject>(
@@ -820,7 +825,7 @@ public class UIEngine {
 					W5Table mainTable = null;
 					switch (Math.abs(o.getObjectTip())) {
 					case 1: // grid
-						W5GridResult gridResult = dao.getGridResult(scd, o.getObjectId(), requestParams,
+						W5GridResult gridResult = metaDataDao.getGridResult(scd, o.getObjectId(), requestParams,
 								pageId == 298 /* || objectCount!=0 */);
 						if (pageId == 298) { // log template
 							gridResult.setViewLogMode(true);
@@ -856,7 +861,7 @@ public class UIEngine {
 						}
 						break;
 					case 2: // card view
-						W5CardResult cardResult = dao.getDataViewResult(scd, o.getObjectId(), requestParams,
+						W5CardResult cardResult = metaDataDao.getDataViewResult(scd, o.getObjectId(), requestParams,
 								objectCount != 0);
 						if (o.getObjectTip() < 0)
 							cardResult.setDataViewId(-cardResult.getDataViewId());
@@ -881,7 +886,7 @@ public class UIEngine {
 						}
 						break;
 					case 7: // list view
-						W5ListViewResult listViewResult = dao.getListViewResult(scd, o.getObjectId(), requestParams,
+						W5ListViewResult listViewResult = metaDataDao.getListViewResult(scd, o.getObjectId(), requestParams,
 								objectCount != 0);
 						if (o.getObjectTip() < 0)
 							listViewResult.setListId(-listViewResult.getListId());
@@ -1068,7 +1073,7 @@ public class UIEngine {
 				}
 			}
 
-			W5QueryResult lookupQueryResult = dao.getQueryResult(scd, c.getLookupQueryId());
+			W5QueryResult lookupQueryResult = metaDataDao.getQueryResult(scd, c.getLookupQueryId());
 			lookupQueryResult.setErrorMap(new HashMap());
 			lookupQueryResult.setRequestParams(requestParams);
 			lookupQueryResult.setOrderBy(lookupQueryResult.getQuery().getSqlOrderby());
@@ -1101,6 +1106,6 @@ public class UIEngine {
 	}
 	
 	public M5ListResult getMListResult(Map<String, Object> scd, int listId, Map<String, String> parameterMap) {
-		return dao.getMListResult(scd, listId, parameterMap, false);
+		return metaDataDao.getMListResult(scd, listId, parameterMap, false);
 	}
 }
