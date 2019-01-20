@@ -38,6 +38,16 @@ public abstract class BaseDAO {
 	@Autowired
 	@Qualifier("entityManagerFactory")
 	private EntityManager entityManager;
+	
+	public Object getCustomizedObject(String hql, int objectId, Object tenantId, String onErrorMsg) {
+		List list = find(hql, objectId, tenantId);
+		if (list.size() == 0) {
+			if (onErrorMsg == null)
+				return null;
+			throw new IWBException("framework", onErrorMsg, objectId, null, "Wrong ID: " + onErrorMsg, null);
+		} else
+			return list.get(0);
+	}
 
 	protected Session getCurrentSession() {
 		return entityManager.unwrap(Session.class);

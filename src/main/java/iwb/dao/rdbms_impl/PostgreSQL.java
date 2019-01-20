@@ -129,15 +129,7 @@ public class PostgreSQL extends BaseDAO {
 	@Autowired
 	private FrameworkService engine;
 
-	public Object getCustomizedObject(String hql, int objectId, Object tenantId, String onErrorMsg) {
-		List list = find(hql, objectId, tenantId);
-		if (list.size() == 0) {
-			if (onErrorMsg == null)
-				return null;
-			throw new IWBException("framework", onErrorMsg, objectId, null, "Wrong ID: " + onErrorMsg, null);
-		} else
-			return list.get(0);
-	}
+
 	/*
 	 * public void setEngine(FrameworkEngine engine) { this.engine = engine; }
 	 */
@@ -581,7 +573,29 @@ public class PostgreSQL extends BaseDAO {
 	 * null; throw new IWBException("framework",onErrorMsg, objectId,null,
 	 * "Wrong ID", null); } else return list.get(0); }
 	 */
+	private void loadQuery(W5QueryResult queryResult, String projectId) {
+		W5Query query = (W5Query) find("from W5Query t where t.queryId=? AND t.projectUuid=?",
+				queryResult.getQueryId(), projectId).get(0); // ozel bir
+																// client
+																// icin
+																// varsa
+		queryResult.setQuery(query);
+		queryResult.getQuery().set_queryFields(
+				find("from W5QueryField t where t.queryId=? AND t.tabOrder>0 AND t.postProcessTip!=99 AND t.projectUuid=? order by t.tabOrder",
+						queryResult.getQueryId(), projectId));
+		queryResult.getQuery().set_queryParams(
+				find("from W5QueryParam t where t.queryId=? AND t.projectUuid=? order by t.tabOrder",
+						queryResult.getQueryId(), projectId));
 
+		if (queryResult.getQuery().getShowParentRecordFlag() != 0)
+			for (W5QueryField field : queryResult.getQuery().get_queryFields()) {
+				if (field.getDsc().equals("table_id"))
+					query.set_tableIdTabOrder(field.getTabOrder());
+				if (field.getDsc().equals("table_pk"))
+					query.set_tablePkTabOrder(field.getTabOrder());
+			}
+	}
+	
 	public W5QueryResult getQueryResult(Map<String, Object> scd, int queryId) {
 		if (scd != null && (Integer) scd.get("customizationId") > 0)
 			switch (queryId) { // tenant user and role conversion
@@ -597,28 +611,8 @@ public class PostgreSQL extends BaseDAO {
 		String projectId = FrameworkCache.getProjectId(scd, "8." + queryId);
 		queryResult.setQuery(FrameworkCache.getQuery(projectId, queryId));
 		if (queryResult.getQuery() == null) {
-			W5Query query = (W5Query) find("from W5Query t where t.queryId=? AND t.projectUuid=?",
-					queryResult.getQueryId(), projectId).get(0); // ozel bir
-																	// client
-																	// icin
-																	// varsa
-			queryResult.setQuery(query);
-			queryResult.getQuery().set_queryFields(
-					find("from W5QueryField t where t.queryId=? AND t.tabOrder>0 AND t.postProcessTip!=99 AND t.projectUuid=? order by t.tabOrder",
-							queryResult.getQueryId(), projectId));
-			queryResult.getQuery().set_queryParams(
-					find("from W5QueryParam t where t.queryId=? AND t.projectUuid=? order by t.tabOrder",
-							queryResult.getQueryId(), projectId));
-
-			if (queryResult.getQuery().getShowParentRecordFlag() != 0)
-				for (W5QueryField field : queryResult.getQuery().get_queryFields()) {
-					if (field.getDsc().equals("table_id"))
-						query.set_tableIdTabOrder(field.getTabOrder());
-					if (field.getDsc().equals("table_pk"))
-						query.set_tablePkTabOrder(field.getTabOrder());
-				}
-
-			FrameworkCache.addQuery(projectId, query);
+			loadQuery(queryResult, projectId);
+			FrameworkCache.addQuery(projectId, queryResult.getQuery());
 		}
 
 		switch (queryResult.getQuery().getQuerySourceTip()) {

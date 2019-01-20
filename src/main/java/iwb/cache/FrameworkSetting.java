@@ -142,5 +142,7 @@ public class FrameworkSetting {
     //@Value(value = "${com.auth0.clientSecret}")
 	public static  String clientSecret = "U5qMXxnQ9jr2Hm7AGg7COwikaWGcOhl28fLpVfUEqe6_bVjJ1A2FnWCbmjNN8BzR";
 	public static boolean showOnlineStatus = true;
+	
+	public static boolean redisCache = false;
 
 }
