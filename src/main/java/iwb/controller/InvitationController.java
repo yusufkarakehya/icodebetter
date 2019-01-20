@@ -18,7 +18,7 @@ import iwb.util.GenericUtil;
 
 @Controller
 @RequestMapping("/invitation")
-public class InvitationServlet {
+public class InvitationController {
 	
 	@Autowired
 	private FrameworkService engine;

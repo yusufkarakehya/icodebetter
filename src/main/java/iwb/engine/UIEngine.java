@@ -72,7 +72,7 @@ public class UIEngine {
 
 	@Lazy
 	@Autowired
-	private XScriptEngine scriptEngine;
+	private ScriptEngine scriptEngine;
 	
 	
 	public W5FormResult getFormResultByQuery(Map<String, Object> scd, int formId, int queryId,

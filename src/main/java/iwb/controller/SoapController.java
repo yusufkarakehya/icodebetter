@@ -43,8 +43,8 @@ import iwb.util.UserUtil;
 
 @Controller
 @RequestMapping("/soap")
-public class SoapServlet implements InitializingBean {
-	private static Logger logger = Logger.getLogger(SoapServlet.class);
+public class SoapController implements InitializingBean {
+	private static Logger logger = Logger.getLogger(SoapController.class);
 
 	private ViewAdapter ext3_4 = new ExtJs3_4();
 	private SoapAdapter soap = new AxisSoap1_4();

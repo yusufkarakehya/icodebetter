@@ -27,7 +27,7 @@ import iwb.util.GenericUtil;
 import iwb.util.RhinoContextFactory;
 
 @Component
-public class XScriptEngine {
+public class ScriptEngine {
 	@Lazy
 	@Autowired
 	private PostgreSQL dao;
@@ -57,11 +57,11 @@ public class XScriptEngine {
 	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int globalFuncId, Map<String, String> parameterMap,
 			short accessSourceType) {
 
-		W5GlobalFuncResult dbFuncResult = null;
+		W5GlobalFuncResult globalFuncResult = null;
 
-		dbFuncResult = dao.getGlobalFuncResult(scd, globalFuncId);
-		if (!GenericUtil.isEmpty(dbFuncResult.getGlobalFunc().getAccessSourceTypes())
-				&& !GenericUtil.hasPartInside2(dbFuncResult.getGlobalFunc().getAccessSourceTypes(), accessSourceType))
+		globalFuncResult = dao.getGlobalFuncResult(scd, globalFuncId);
+		if (!GenericUtil.isEmpty(globalFuncResult.getGlobalFunc().getAccessSourceTypes())
+				&& !GenericUtil.hasPartInside2(globalFuncResult.getGlobalFunc().getAccessSourceTypes(), accessSourceType))
 			throw new IWBException("security", "GlobalFunc", globalFuncId, null, "Access Source Type Control", null);
 		/*
 		 * if(execRestrictTip!=4 && checkAccessRecordControlViolation(scd, 4,
@@ -69,16 +69,16 @@ public class XScriptEngine {
 		 * "DbProc Execute2", dbFuncId, null, "Access Execute Control", null);
 		 */
 		dao.checkTenant(scd);
-		dbFuncResult.setErrorMap(new HashMap());
-		dbFuncResult.setRequestParams(parameterMap);
-		GlobalFuncTrigger.beforeExec(dbFuncResult);
+		globalFuncResult.setErrorMap(new HashMap());
+		globalFuncResult.setRequestParams(parameterMap);
+		GlobalFuncTrigger.beforeExec(globalFuncResult);
 
-		dao.executeGlobalFunc(dbFuncResult, "");
+		dao.executeGlobalFunc(globalFuncResult, "");
 
-		if (dbFuncResult.getErrorMap().isEmpty()) { // sorun yok
+		if (globalFuncResult.getErrorMap().isEmpty()) { // sorun yok
 			// post sms
-			if (!GenericUtil.isEmpty(dbFuncResult.getResultMap()))
-				parameterMap.putAll(dbFuncResult.getResultMap()); // veli TODO
+			if (!GenericUtil.isEmpty(globalFuncResult.getResultMap()))
+				parameterMap.putAll(globalFuncResult.getResultMap()); // veli TODO
 																	// acaba
 																	// hata
 																	// olabilir
@@ -87,7 +87,7 @@ public class XScriptEngine {
 																	// mi atsak
 			// sadece burasi icin?
 		}
-		GlobalFuncTrigger.afterExec(dbFuncResult);
+		GlobalFuncTrigger.afterExec(globalFuncResult);
 
 		switch (globalFuncId) {
 		case -478: // reload locale msg cache
@@ -97,13 +97,13 @@ public class XScriptEngine {
 				LocaleMsgCache.set2((Integer) scd.get("customizationId"), (String) m[0], (String) m[1], (String) m[2]);
 			}
 		}
-		if (dbFuncResult == null) {
-			dbFuncResult = new W5GlobalFuncResult(globalFuncId);
-			dbFuncResult.setSuccess(true);
-			dbFuncResult.setRequestParams(new HashMap());
+		if (globalFuncResult == null) {
+			globalFuncResult = new W5GlobalFuncResult(globalFuncId);
+			globalFuncResult.setSuccess(true);
+			globalFuncResult.setRequestParams(new HashMap());
 		}
 
-		return dbFuncResult;
+		return globalFuncResult;
 	}
 
 	public W5GlobalFuncResult postEditGridGlobalFunc(Map<String, Object> scd, int dbFuncId, int dirtyCount,

@@ -472,4 +472,9 @@ public class NotificationEngine {
 		}
 		return r;
 	}
+	
+	public String sendMail(Map<String, Object> scd, W5Email email){
+		return MailUtil.sendMail(scd, email);
+		
+	}
 }

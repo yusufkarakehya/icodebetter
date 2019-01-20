@@ -45,8 +45,8 @@ import iwb.util.UserUtil;
 
 @Controller
 @RequestMapping("/rest")
-public class RestServlet implements InitializingBean {
-	private static Logger logger = Logger.getLogger(RestServlet.class);
+public class RestController implements InitializingBean {
+	private static Logger logger = Logger.getLogger(RestController.class);
 
 	private ViewAdapter ext3_4 = new ExtJs3_4();
 	

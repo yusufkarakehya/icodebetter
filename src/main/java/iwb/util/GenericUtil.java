@@ -22,7 +22,6 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,9 +42,8 @@ import org.apache.tomcat.jni.Address;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.NativeObject;
 
 import com.google.common.net.InternetDomainName;
 

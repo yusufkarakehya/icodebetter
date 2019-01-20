@@ -36,13 +36,9 @@ import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5FormCell;
-import iwb.domain.db.W5JasperObject;
 import iwb.domain.db.W5JasperReport;
-import iwb.domain.db.W5LookUp;
-import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
-import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
@@ -60,7 +56,6 @@ import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
-import iwb.domain.result.W5JasperResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
@@ -73,15 +68,13 @@ import iwb.engine.NotificationEngine;
 import iwb.engine.QueryEngine;
 import iwb.engine.RESTEngine;
 import iwb.engine.ReportEngine;
+import iwb.engine.ScriptEngine;
 import iwb.engine.UIEngine;
 import iwb.engine.WorkflowEngine;
-import iwb.engine.XScriptEngine;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
-import iwb.util.JasperUtil;
 import iwb.util.LogUtil;
-import iwb.util.Money2Text;
 import iwb.util.UserUtil;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
@@ -112,7 +105,7 @@ public class FrameworkService {
 
 	@Lazy
 	@Autowired
-	private XScriptEngine scriptEngine;
+	private ScriptEngine scriptEngine;
 
 	@Lazy
 	@Autowired

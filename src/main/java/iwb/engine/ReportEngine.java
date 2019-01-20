@@ -51,7 +51,7 @@ public class ReportEngine {
 
 	@Lazy
 	@Autowired
-	private XScriptEngine scriptEngine;
+	private ScriptEngine scriptEngine;
 
 	public JasperPrint prepareJasperPrint(Map<String, Object> scd, Map<String, String> requestParams,
 			JRFileVirtualizer virtualizer) {

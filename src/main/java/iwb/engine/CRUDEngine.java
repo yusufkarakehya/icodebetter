@@ -13,16 +13,9 @@ import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.Undefined;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
@@ -49,12 +42,9 @@ import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5SynchAfterPostHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.W5FormResult;
-import iwb.domain.result.W5GlobalFuncResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
-import iwb.util.MailUtil;
-import iwb.util.RhinoContextFactory;
 import iwb.util.UserUtil;
 
 @Component
@@ -77,7 +67,7 @@ public class CRUDEngine {
 
 	@Lazy
 	@Autowired
-	private XScriptEngine scriptEngine;
+	private ScriptEngine scriptEngine;
 	
 
 	@Lazy
@@ -400,7 +390,7 @@ public class CRUDEngine {
 					appRecord.setTablePk(tablePk);
 					String summaryText = dao.getSummaryText4Record(scd, t.getTableId(), tablePk);
 					appRecord.setDsc(GenericUtil.uStrMax(summaryText, 512));
-					saveObject(appRecord);
+					dao.saveObject(appRecord);
 					if (FrameworkSetting.liveSyncRecord)
 						formResult.addSyncRecord(new W5SynchAfterPostHelper((String) scd.get("projectId"),
 								392 /* w5_approval_record */, "" + appRecord.getApprovalRecordId(),
@@ -416,7 +406,7 @@ public class CRUDEngine {
 					logRecord.setApprovalRecordId(appRecord.getApprovalRecordId());
 					logRecord.setApprovalStepId(sourceStepId);
 					logRecord.setApprovalId(appRecord.getApprovalId());
-					saveObject(logRecord);
+					dao.saveObject(logRecord);
 					formResult.getOutputMessages()
 							.add(t.get_approvalMap().get((short) 2).getDsc() + " "
 									+ LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_onaya_sunulmustur") + " ("
@@ -498,7 +488,7 @@ public class CRUDEngine {
 										" (" + summaryText + ") " + mesajBody, null); // mail_keep_body_original
 																						// ?
 								email.set_oms(oms);
-								String sonuc = MailUtil.sendMail(scd, email);
+								String sonuc = notificationEngine.sendMail(scd, email);
 								if (FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag") != 0) {
 									if (sonuc != null) { // basarisiz, queue'ye
 															// at//
@@ -543,7 +533,7 @@ public class CRUDEngine {
 								for (String gsm : gsmList)
 									phoneNumber = phoneNumber + (GenericUtil.isEmpty(phoneNumber) ? "" : ",") + gsm;
 
-								sendSms(GenericUtil.uInt(scd.get("customizationId")),
+								notificationEngine.sendSms(GenericUtil.uInt(scd.get("customizationId")),
 										GenericUtil.uInt(scd.get("userId")), phoneNumber,
 										t.get_approvalMap().get((short) 2).getDsc() + " (" + summaryText + ") "
 												+ mesajBody,
@@ -798,7 +788,7 @@ public class CRUDEngine {
 					appRecord.setTablePk(tablePk);
 					String summaryText = dao.getSummaryText4Record(scd, t.getTableId(), tablePk);
 					appRecord.setDsc(summaryText);
-					saveObject(appRecord);
+					dao.saveObject(appRecord);
 					if (FrameworkSetting.liveSyncRecord)
 						formResult.addSyncRecord(new W5SynchAfterPostHelper((String) scd.get("projectId"),
 								392 /* w5_approval_record */, "" + appRecord.getApprovalRecordId(),
@@ -815,7 +805,7 @@ public class CRUDEngine {
 					logRecord.setApprovalRecordId(appRecord.getApprovalRecordId());
 					logRecord.setApprovalStepId(sourceStepId);
 					logRecord.setApprovalId(appRecord.getApprovalId());
-					saveObject(logRecord);
+					dao.saveObject(logRecord);
 
 					approval = t.get_approvalMap().get((short) 2); // action=1
 																	// for
@@ -930,7 +920,7 @@ public class CRUDEngine {
 										(Integer) scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 								email.set_oms(oms);
 
-								String sonuc = MailUtil.sendMail(scd, email);
+								String sonuc = notificationEngine.sendMail(scd, email);
 								if (FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag") != 0) {
 									if (sonuc != null) { // basarisiz, queue'ye
 															// at//
@@ -951,7 +941,7 @@ public class CRUDEngine {
 								comment.setDsc(requestParams.get("_adsc") + "");
 								comment.setCommentUserId((Integer) scd.get("userId"));
 								comment.setCommentDttm(new java.sql.Timestamp(new Date().getTime()));
-								saveObject(comment);
+								dao.saveObject(comment);
 							}
 						}
 					}
@@ -1006,7 +996,7 @@ public class CRUDEngine {
 							if (gsmList != null) {
 								Object[] m = gsmList.toArray();
 								for (int i = 0; i < m.length; i++) {
-									sendSms(Integer.valueOf(String.valueOf(scd.get("customizationId"))),
+									notificationEngine.sendSms(Integer.valueOf(String.valueOf(scd.get("customizationId"))),
 											Integer.valueOf(String.valueOf(scd.get("userId"))),
 											(String) m[i], t.get_approvalMap().get((short) 2).getDsc() + " ("
 													+ summaryText + ") " + mesajBody,
@@ -1050,7 +1040,7 @@ public class CRUDEngine {
 						logRecord.setApprovalRecordId(appRecord.getApprovalRecordId());
 						logRecord.setApprovalStepId(appRecord.getApprovalStepId());
 						logRecord.setApprovalId(appRecord.getApprovalId());
-						saveObject(logRecord);
+						dao.saveObject(logRecord);
 						dao.removeObject(appRecord); // TODO:aslinda bir de loga
 														// atmali bunu
 						appRecord = null;
@@ -1235,7 +1225,7 @@ public class CRUDEngine {
 						appRecord.setTablePk(tablePk);
 						String summaryText = dao.getSummaryText4Record(scd, t.getTableId(), tablePk);
 						appRecord.setDsc(summaryText);
-						saveObject(appRecord);
+						dao.saveObject(appRecord);
 						if (FrameworkSetting.liveSyncRecord)
 							formResult.addSyncRecord(new W5SynchAfterPostHelper((String) scd.get("projectId"),
 									392 /* w5_approval_record */, "" + appRecord.getApprovalRecordId(),
@@ -1253,7 +1243,7 @@ public class CRUDEngine {
 						logRecord.setApprovalRecordId(appRecord.getApprovalRecordId());
 						logRecord.setApprovalStepId(sourceStepId);
 						logRecord.setApprovalId(appRecord.getApprovalId());
-						saveObject(logRecord);
+						dao.saveObject(logRecord);
 
 						approval = t.get_approvalMap().get((short) 3); // action=3
 																		// for
@@ -1301,7 +1291,7 @@ public class CRUDEngine {
 										"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?",
 										(Integer) scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 								email.set_oms(oms);
-								String sonuc = MailUtil.sendMail(scd, email);
+								String sonuc = notificationEngine.sendMail(scd, email);
 								if (FrameworkCache.getAppSettingIntValue(0, "mail_debug_flag") != 0) {
 									if (sonuc != null) { // basarisiz, queue'ye
 															// at//
@@ -1330,7 +1320,7 @@ public class CRUDEngine {
 								if (gsmList != null) {
 									Object[] m = gsmList.toArray();
 									for (int i = 0; i < m.length; i++) {
-										sendSms(Integer.valueOf(String.valueOf(scd.get("customizationId"))),
+										notificationEngine.sendSms(Integer.valueOf(String.valueOf(scd.get("customizationId"))),
 												Integer.valueOf(String.valueOf(scd.get("userId"))),
 												(String) m[i], t.get_approvalMap().get((short) 2).getDsc() + " ("
 														+ summaryText + ") " + mesajBody,
@@ -1528,7 +1518,7 @@ public class CRUDEngine {
 							W5Conversion cnv = lcnv.get(0);
 							W5ConvertedObject co = new W5ConvertedObject(scd, conversionId, conversionTablePk,
 									GenericUtil.uInt(ptablePk));
-							saveObject(co);
+							dao.saveObject(co);
 							if (cnv.getIncludeFileAttachmentFlag() != 0) {
 								dao.executeUpdateSQLQuery("{call pcopy_file_attach( ?, ? , ?, ?, ?); }",
 										(Integer) scd.get("userRoleId"), cnv.getSrcTableId(), conversionTablePk,
@@ -1587,10 +1577,6 @@ public class CRUDEngine {
 		}
 	}
 
-	private void sendSms(int uInt, int uInt2, String phoneNumber, String string, int i, int approvalRecordId) {
-		// TODO Auto-generated method stub
-
-	}
 
 	public W5FormResult postEditGrid4Table(Map<String, Object> scd, int formId, int dirtyCount,
 			Map<String, String> requestParams, String prefix, Set<String> checkedParentRecords) {
@@ -1734,12 +1720,6 @@ public class CRUDEngine {
 	}
 
 
-
-	private void saveObject(Object logRecord) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public W5FormResult postForm4Table(Map<String, Object> scd, int formId, int action,
 			Map<String, String> requestParams, String prefix) {
 		if (formId == 0 && GenericUtil.uInt(requestParams.get("_tb_id")) != 0) {
@@ -1752,7 +1732,6 @@ public class CRUDEngine {
 		W5FormResult mainFormResult = dao.getFormResult(scd, formId, action, requestParams);
 		boolean dev = scd.get("roleId") != null && (Integer) scd.get("roleId") == 0
 				&& GenericUtil.uInt(requestParams, "_dev") != 0;
-		int customizationId = dev ? 0 : (Integer) scd.get("customizationId");
 		W5Table t = FrameworkCache.getTable(scd, mainFormResult.getForm().getObjectId()); // mainFormResult.getForm().get_sourceTable();
 		if (t.getAccessViewTip() == 0
 				&& (!FrameworkCache.roleAccessControl(scd, 0) || !FrameworkCache.roleAccessControl(scd, action))) {
