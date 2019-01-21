@@ -331,6 +331,15 @@ public class FrameworkCache {
 			return mListViews.get(projectId).get(listId);
 	}
 	
+	public static void addMListView(Object o, M5List list) {
+		int listId = list.getListId();
+		String projectId = getProjectId(o, "1345."+listId);
+		if(mListViews.get(projectId)==null){
+			mListViews.put(projectId, new HashMap());
+		}
+		mListViews.get(projectId).put(listId, list);
+	}
+	
 	public static W5Grid getGrid(Object o, int gridId){
 		String projectId = getProjectId(o, "5."+gridId);
 		if(wGrids.get(projectId)==null){

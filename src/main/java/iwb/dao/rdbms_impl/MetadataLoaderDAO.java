@@ -325,7 +325,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		if (f == null) {
 			loadForm(formResult);
 			f = formResult.getForm();
-			FrameworkCache.addForm(scd, formResult.getForm());
+			FrameworkCache.addForm(scd, f);
 		}
 		formResult.setForm(f);
 
@@ -390,9 +390,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 			query.set_queryFields(
 					find("from W5QueryField t where t.queryId=? AND t.tabOrder>0 AND t.postProcessTip!=99 AND t.projectUuid=? order by t.tabOrder",
 							qr.getQueryId(), projectId));
-			query.set_queryParams(
-					find("from W5QueryParam t where t.queryId=? AND t.projectUuid=? order by t.tabOrder",
-							qr.getQueryId(), projectId));
+			query.set_queryParams(find("from W5QueryParam t where t.queryId=? AND t.projectUuid=? order by t.tabOrder",
+					qr.getQueryId(), projectId));
 
 		}
 		qr.setQuery(query);
@@ -1162,9 +1161,9 @@ public class MetadataLoaderDAO extends BaseDAO {
 				RMap<Integer, W5Conversion> rconversionMap = FrameworkCache.getRedissonClient()
 						.getMap(String.format("icb-cache2:%s:conversion", projectId));
 				if (rconversionMap != null) {// rgridMap.getName()
-					for (Integer key : rconversionMap.keySet()){
+					for (Integer key : rconversionMap.keySet()) {
 						W5Conversion cnv = rconversionMap.get(key);
-						
+
 						W5Table t = FrameworkCache.getTable(projectId, cnv.getSrcTableId());
 						if (t != null) {
 							conversionMap.put(cnv.getConversionId(), cnv);
@@ -1204,22 +1203,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 			}
 		}
 		FrameworkCache.setConversionMap(projectId, conversionMap);
-	}
-
-	public void reloadTableEventsCache(String projectId) {
-		Map<Integer, List<W5TableEvent>> tableMap = new HashMap<Integer, List<W5TableEvent>>();
-		List<W5TableEvent> l = find(
-				"from W5TableEvent r where r.projectUuid=? AND r.activeFlag=1 order by r.tableId, r.tabOrder, r.tableTriggerId",
-				projectId);
-		for (W5TableEvent r : l) {
-			List<W5TableEvent> l2 = tableMap.get(r.getTableId());
-			if (l2 == null) {
-				l2 = new ArrayList();
-				tableMap.put(r.getTableId(), l2);
-			}
-			l2.add(r);
-		}
-		FrameworkCache.setTableEventMap(projectId, tableMap);
 	}
 
 	public void reloadTablesCache(String projectId) {
@@ -1335,6 +1318,36 @@ public class MetadataLoaderDAO extends BaseDAO {
 		}
 
 		FrameworkCache.setTableMap(projectId, tableMap);
+
+		Map<Integer, List<W5TableEvent>> tableEventMap = new HashMap<Integer, List<W5TableEvent>>();
+		if (FrameworkSetting.redisCache) {
+			try {
+				RMap<Integer, List<W5TableEvent>> rtableEventMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:tableEvent", projectId));
+				if (rtableEventMap != null) {// rgridMap.getName()
+					for (Integer key : rtableEventMap.keySet())
+						tableEventMap.put(key, rtableEventMap.get(key));
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.TableEvents", 0, null, "Loading TableEvents from Redis", e);
+			}
+		}
+
+		if (tableEventMap.isEmpty()) {
+
+			List<W5TableEvent> l = find(
+					"from W5TableEvent r where r.projectUuid=? AND r.activeFlag=1 order by r.tableId, r.tabOrder, r.tableTriggerId",
+					projectId);
+			for (W5TableEvent r : l) {
+				List<W5TableEvent> l2 = tableEventMap.get(r.getTableId());
+				if (l2 == null) {
+					l2 = new ArrayList();
+					tableEventMap.put(r.getTableId(), l2);
+				}
+				l2.add(r);
+			}
+			FrameworkCache.setTableEventMap(projectId, tableEventMap);
+		}
 
 		// reloadTableFiltersCache(projectId);
 
@@ -1499,7 +1512,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 			reloadLookUpCache(projectId);
 			reloadTablesCache(projectId);
 			reloadTableAccessConditionSQLs(projectId);
-			reloadTableEventsCache(projectId);
 			reloadWsServersCache(projectId);
 			reloadWsClientsCache(projectId);
 			reloadComponentCache(projectId);
@@ -1639,68 +1651,77 @@ public class MetadataLoaderDAO extends BaseDAO {
 		return jasperreport;
 	}
 
+	private void loadMList(M5ListResult mlr) {
+		String projectId = FrameworkCache.getProjectId(mlr.getScd(), "1345." + mlr.getListId());
+
+		M5List ml = null;
+		if (FrameworkSetting.redisCache) {
+			try {
+				RMap<Integer, M5List> rmlistMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:mlist", projectId));
+				if (rmlistMap != null) {// rgridMap.getName()
+					ml = rmlistMap.get(mlr.getListId());
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.MobileList", mlr.getListId(), null, "Loading MobileList from Redis", e);
+			}
+		}
+
+		if (ml == null) {
+			ml = (M5List) getCustomizedObject("from M5List t where t.listId=? and t.projectUuid=?", mlr.getListId(), projectId,
+					"MobileList"); // ozel bir client icin varsa
+
+			Integer searchFormId = (Integer) getCustomizedObject(
+					"select t.formId from W5Form t where t.objectTip=10 and t.objectId=? AND t.projectUuid=?", mlr.getListId(),
+					projectId, null);
+			if (searchFormId != null)
+				ml.set_searchFormId(searchFormId);
+			ml.set_detailMLists(find("from M5List l where l.projectUuid=? AND l.parentListId=? order by l.mlr.getListId()",
+					projectId, mlr.getListId()));
+			if (!GenericUtil.isEmpty(ml.getOrderQueryFieldIds()))
+				ml.set_orderQueryFieldNames(
+						find("select qf.dsc from W5QueryField qf where qf.queryId=? and qf.projectUuid=? AND qf.queryFieldId in ("
+								+ ml.getOrderQueryFieldIds() + ") order by qf.tabOrder", ml.getQueryId(), projectId));
+			ml.set_toolbarItemList(
+					find("from W5ObjectToolbarItem t where t.objectTip=1345 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+							mlr.getListId(), projectId));
+
+			ml.set_menuItemList(
+					find("from W5ObjectMenuItem t where t.objectTip=1345 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+							mlr.getListId(), projectId));
+		}
+		W5Query q = getQueryResult(mlr.getScd(), ml.getQueryId()).getQuery();
+		ml.set_query(q);
+		
+		if (q.getMainTableId() != 0)
+			ml.set_mainTable(FrameworkCache.getTable(projectId, q.getMainTableId()));
+		mlr.setList(ml);
+	}
+
 	public M5ListResult getMListResult(Map<String, Object> scd, int listId, Map<String, String> requestParams,
 			boolean noSearchForm) {
 		String projectId = FrameworkCache.getProjectId(scd, "1345." + listId);
-		M5ListResult mlistResult = new M5ListResult(listId);
-		mlistResult.setRequestParams(requestParams);
-		mlistResult.setScd(scd);
-
-		M5List d = FrameworkCache.getMListView(projectId, listId);
-		if (d != null) {
-			mlistResult.setList(d);
+		M5ListResult mlr = new M5ListResult(listId);
+		mlr.setRequestParams(requestParams);
+		mlr.setScd(scd);
+		M5List ml = FrameworkCache.getMListView(projectId, listId);
+		if (ml != null) {
+			mlr.setList(ml);
 		} else {
-			d = (M5List) getCustomizedObject("from M5List t where t.listId=? and t.projectUuid=?", listId, projectId,
-					"MobileList"); // ozel bir client icin varsa
-			W5Query q = (W5Query) getCustomizedObject("from W5Query t where t.queryId=? and t.projectUuid=?",
-					d.getQueryId(), projectId, "QueryID"); // ozel bir client
-															// icin varsa
-			d.set_query(q);
-			if (q.getMainTableId() != 0)
-				d.set_mainTable(FrameworkCache.getTable(projectId, q.getMainTableId()));
-			/*
-			 * if(d.getDefaultCrudFormId()!=0){ W5Form f =
-			 * (W5Form)getCustomizedObject(
-			 * "from W5Form t where t.formId=? and t.projectUuid=?",
-			 * d.getDefaultCrudFormId(), projectUuid); // ozel bir client icin
-			 * varsa f.set_formCells(find(
-			 * "from W5FormCell t where t.formId=? and t.projectUuid=? order by t.tabOrder"
-			 * , d.getDefaultCrudFormId(), projectUuid)); d.set_crudForm(f); }
-			 */
-			Integer searchFormId = (Integer) getCustomizedObject(
-					"select t.formId from W5Form t where t.objectTip=10 and t.objectId=? AND t.projectUuid=?", listId,
-					projectId, null);
-			if (searchFormId != null)
-				d.set_searchFormId(searchFormId);
-			d.set_detailMLists(find("from M5List l where l.projectUuid=? AND l.parentListId=? order by l.listId",
-					projectId, listId));
-			mlistResult.setList(d);
-			if (!GenericUtil.isEmpty(d.getOrderQueryFieldIds()))
-				d.set_orderQueryFieldNames(
-						find("select qf.dsc from W5QueryField qf where qf.queryId=? and qf.projectUuid=? AND qf.queryFieldId in ("
-								+ d.getOrderQueryFieldIds() + ") order by qf.tabOrder", d.getQueryId(), projectId));
-			d.set_toolbarItemList(
-					find("from W5ObjectToolbarItem t where t.objectTip=1345 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-							listId, projectId));
-
-			d.set_menuItemList(
-					find("from W5ObjectMenuItem t where t.objectTip=1345 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-							listId, projectId));
-
-			// d = mlistResult.getList();
-			//
-			// if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.wListViews.get(d.getCustomizationId()).put(listId,
-			// d);
+			loadMList(mlr);
+			ml = mlr.getList();
+			FrameworkCache.addMListView(scd, ml);
 		}
+
 		// search Form
-		if (!noSearchForm && d.get_searchFormId() != 0) {
-			W5FormResult searchForm = getFormResult(scd, d.get_searchFormId(), 10, requestParams);
+		if (!noSearchForm && ml.get_searchFormId() != 0) {
+			W5FormResult searchForm = getFormResult(scd, ml.get_searchFormId(), 10, requestParams);
 			dao.initializeForm(searchForm, false);
-			dao.loadFormCellLookups(mlistResult.getScd(), searchForm.getFormCellResults(),
-					mlistResult.getRequestParams(), null);
-			mlistResult.setSearchFormResult(searchForm);
+			dao.loadFormCellLookups(mlr.getScd(), searchForm.getFormCellResults(),
+					mlr.getRequestParams(), null);
+			mlr.setSearchFormResult(searchForm);
 		}
-		return mlistResult;
+		return mlr;
 	}
 
 	public W5ListViewResult getListViewResult(Map<String, Object> scd, int listViewId,
@@ -1796,7 +1817,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			}
 	}
 
-	public W5Component loadComponent(Map<String, Object> scd, int componentId, Map paramMap) {
+	private W5Component loadComponent(Map<String, Object> scd, int componentId, Map paramMap) {
 		W5Component c = FrameworkCache.getComponent(scd, componentId);
 		if (c == null) {
 			String projectId = FrameworkCache.getProjectId(scd, "3351." + componentId);
