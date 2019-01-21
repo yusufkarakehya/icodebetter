@@ -459,6 +459,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 						.getMap(String.format("icb-cache2:%s:page", projectId));
 				if (rqueryMap != null) {// rgridMap.getName()
 					page = rqueryMap.get(pr.getTemplateId());
+					if (page.get_pageObjectList() == null)
+						page.set_pageObjectList(new ArrayList());
 				}
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.Page", pr.getTemplateId(), null, "Loading Page from Redis",
@@ -1571,51 +1573,93 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 	public void reloadWsClientsCache(String projectId) {
 		// if(true)return;
-		List<W5Ws> l = find("from W5Ws x where x.projectUuid=?", projectId);
-		Map<Integer, W5Ws> mm = new HashMap();
-		Map<String, W5Ws> mm2 = new HashMap();
-		for (W5Ws w : l) {
-			mm.put(w.getWsId(), w);
-			mm2.put(w.getDsc(), w);
-		}
-		FrameworkCache.setWsClientsMap(projectId, mm2);
+		Map<String, W5Ws> wsMap = new HashMap();
+		if (FrameworkSetting.redisCache)
+			try {
+				RMap<Integer, W5Ws> rwsMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:ws", projectId));
+				if (rwsMap != null) {// rgridMap.getName()
+					for (Integer key : rwsMap.keySet()) {
+						W5Ws ws = rwsMap.get(key);
+						wsMap.put(ws.getDsc(), ws);
+						if (ws.get_methods() == null)
+							ws.set_methods(new ArrayList());
+						else
+							for (W5WsMethod wsm : ws.get_methods())
+								FrameworkCache.addWsMethod(projectId, wsm);
+					}
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.Ws", 0, null, "Loading Ws from Redis", e);
+			}
 
-		List<W5WsMethod> lm = find("from W5WsMethod x where x.projectUuid=? order by x.wsId, x.wsMethodId", projectId);
-		for (W5WsMethod m : lm) {
-			W5Ws c = mm.get(m.getWsId());
-			if (c != null) {
-				m.set_ws(c);
-				if (c.get_methods() == null)
-					c.set_methods(new ArrayList());
-				FrameworkCache.addWsMethod(projectId, m);
-				c.get_methods().add(m);
+		if (wsMap.isEmpty()) {
+			List<W5Ws> l = find("from W5Ws x where x.projectUuid=?", projectId);
+			Map<Integer, W5Ws> mm = new HashMap();
+			for (W5Ws w : l) {
+				mm.put(w.getWsId(), w);
+				wsMap.put(w.getDsc(), w);
+			}
+			FrameworkCache.setWsClientsMap(projectId, wsMap);
+
+			List<W5WsMethod> lm = find("from W5WsMethod x where x.projectUuid=? order by x.wsId, x.wsMethodId",
+					projectId);
+			for (W5WsMethod m : lm) {
+				W5Ws c = mm.get(m.getWsId());
+				if (c != null) {
+					m.set_ws(c);
+					if (c.get_methods() == null)
+						c.set_methods(new ArrayList());
+					FrameworkCache.addWsMethod(projectId, m);
+					c.get_methods().add(m);
+				}
 			}
 		}
 	}
 
-	public W5GlobalFuncResult getGlobalFuncResult(Map<String, Object> scd, int dbFuncId) {
-		String projectId = FrameworkCache.getProjectId(scd, "20." + dbFuncId);
-		if (dbFuncId < -1) {
-			dbFuncId = (Integer) find(
-					"select t.objectId from W5Form t where t.objectTip in (3,4) AND t.projectUuid=? AND t.formId=?",
-					projectId, -dbFuncId).get(0);
-		}
+	private void loadGlobalFunc(W5GlobalFuncResult gfr) {
+		String projectId = FrameworkCache.getProjectId(gfr.getScd(), "20." + gfr.getGlobalFuncId());
+		W5GlobalFunc func = null;
 
-		W5GlobalFuncResult r = new W5GlobalFuncResult(dbFuncId);
-		r.setGlobalFunc(FrameworkCache.getGlobalFunc(projectId, dbFuncId));
-		if (r.getGlobalFunc() == null) {
-			r.setGlobalFunc((W5GlobalFunc) getCustomizedObject(
-					"from W5GlobalFunc t where t.dbFuncId=? AND t.projectUuid=?", dbFuncId, projectId, "GlobalFunc"));
-			r.getGlobalFunc().set_dbFuncParamList(
+		if (FrameworkSetting.redisCache)
+			try {
+				RMap<Integer, W5GlobalFunc> rfuncMap = FrameworkCache.getRedissonClient()
+						.getMap(String.format("icb-cache2:%s:func", projectId));
+				if (rfuncMap != null) {// rgridMap.getName()
+					func = rfuncMap.get(gfr.getGlobalFuncId());
+				}
+			} catch (Exception e) {
+				throw new IWBException("framework", "Redis.GlobalFunc", gfr.getGlobalFuncId(), null,
+						"Loading GlobalFunc from Redis", e);
+			}
+		if (func == null) {
+			func = ((W5GlobalFunc) getCustomizedObject("from W5GlobalFunc t where t.dbFuncId=? AND t.projectUuid=?",
+					gfr.getGlobalFuncId(), projectId, "GlobalFunc"));
+			func.set_dbFuncParamList(
 					find("from W5GlobalFuncParam t where t.projectUuid=? AND t.dbFuncId=? order by t.tabOrder",
-							projectId, dbFuncId));
-
-			FrameworkCache.addGlobalFunc(projectId, r.getGlobalFunc());
+							projectId, gfr.getGlobalFuncId()));
 		}
 
-		r.setScd(scd);
+		gfr.setGlobalFunc(func);
+	}
 
-		return r;
+	public W5GlobalFuncResult getGlobalFuncResult(Map<String, Object> scd, int globalFuncId) {
+		String projectId = FrameworkCache.getProjectId(scd, "20." + globalFuncId);
+		if (globalFuncId < -1) {
+			globalFuncId = (Integer) find(
+					"select t.objectId from W5Form t where t.objectTip in (3,4) AND t.projectUuid=? AND t.formId=?",
+					projectId, -globalFuncId).get(0);
+		}
+
+		W5GlobalFuncResult gfr = new W5GlobalFuncResult(globalFuncId);
+		gfr.setScd(scd);
+		gfr.setGlobalFunc(FrameworkCache.getGlobalFunc(projectId, globalFuncId));
+		if (gfr.getGlobalFunc() == null) {
+			loadGlobalFunc(gfr);
+			FrameworkCache.addGlobalFunc(projectId, gfr.getGlobalFunc());
+		}
+
+		return gfr;
 	}
 
 	public W5JasperResult getJasperResult(Map<String, Object> scd, W5JasperReport jasperreport,
@@ -1663,21 +1707,23 @@ public class MetadataLoaderDAO extends BaseDAO {
 					ml = rmlistMap.get(mlr.getListId());
 				}
 			} catch (Exception e) {
-				throw new IWBException("framework", "Redis.MobileList", mlr.getListId(), null, "Loading MobileList from Redis", e);
+				throw new IWBException("framework", "Redis.MobileList", mlr.getListId(), null,
+						"Loading MobileList from Redis", e);
 			}
 		}
 
 		if (ml == null) {
-			ml = (M5List) getCustomizedObject("from M5List t where t.listId=? and t.projectUuid=?", mlr.getListId(), projectId,
-					"MobileList"); // ozel bir client icin varsa
+			ml = (M5List) getCustomizedObject("from M5List t where t.listId=? and t.projectUuid=?", mlr.getListId(),
+					projectId, "MobileList"); // ozel bir client icin varsa
 
 			Integer searchFormId = (Integer) getCustomizedObject(
-					"select t.formId from W5Form t where t.objectTip=10 and t.objectId=? AND t.projectUuid=?", mlr.getListId(),
-					projectId, null);
+					"select t.formId from W5Form t where t.objectTip=10 and t.objectId=? AND t.projectUuid=?",
+					mlr.getListId(), projectId, null);
 			if (searchFormId != null)
 				ml.set_searchFormId(searchFormId);
-			ml.set_detailMLists(find("from M5List l where l.projectUuid=? AND l.parentListId=? order by l.mlr.getListId()",
-					projectId, mlr.getListId()));
+			ml.set_detailMLists(
+					find("from M5List l where l.projectUuid=? AND l.parentListId=? order by l.mlr.getListId()",
+							projectId, mlr.getListId()));
 			if (!GenericUtil.isEmpty(ml.getOrderQueryFieldIds()))
 				ml.set_orderQueryFieldNames(
 						find("select qf.dsc from W5QueryField qf where qf.queryId=? and qf.projectUuid=? AND qf.queryFieldId in ("
@@ -1692,7 +1738,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		}
 		W5Query q = getQueryResult(mlr.getScd(), ml.getQueryId()).getQuery();
 		ml.set_query(q);
-		
+
 		if (q.getMainTableId() != 0)
 			ml.set_mainTable(FrameworkCache.getTable(projectId, q.getMainTableId()));
 		mlr.setList(ml);
@@ -1717,8 +1763,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		if (!noSearchForm && ml.get_searchFormId() != 0) {
 			W5FormResult searchForm = getFormResult(scd, ml.get_searchFormId(), 10, requestParams);
 			dao.initializeForm(searchForm, false);
-			dao.loadFormCellLookups(mlr.getScd(), searchForm.getFormCellResults(),
-					mlr.getRequestParams(), null);
+			dao.loadFormCellLookups(mlr.getScd(), searchForm.getFormCellResults(), mlr.getRequestParams(), null);
 			mlr.setSearchFormResult(searchForm);
 		}
 		return mlr;
