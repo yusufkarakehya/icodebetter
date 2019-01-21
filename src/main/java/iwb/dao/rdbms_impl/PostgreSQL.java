@@ -7821,16 +7821,6 @@ public class PostgreSQL extends BaseDAO {
 		executeUpdateSQLQuery("delete from iwb.w5_user_related_project where related_project_uuid=?", params);
 	}
 
-	public W5Component loadComponent(Map<String, Object> scd, int componentId, Map paramMap) {
-		W5Component c = FrameworkCache.getComponent(scd, componentId);
-		if (c == null) {
-			String projectId = FrameworkCache.getProjectId(scd, "3351." + componentId);
-			c = (W5Component) getCustomizedObject("from W5Component t where t.componentId=? and t.projectUuid=?",
-					componentId, projectId, "Component");
-			FrameworkCache.addComponent(scd, c);
-		}
-		return c;
-	}
 
 	public void checkTenant(Map<String, Object> scd) {
 		W5Project po = FrameworkCache.getProject(scd);

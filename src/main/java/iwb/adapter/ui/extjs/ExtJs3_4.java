@@ -6172,7 +6172,7 @@ public class ExtJs3_4 implements ViewAdapter {
 										.split(",") : new String[] { obj
 										.toString() };
 								boolean bz = false;
-								for (String q : objs) {
+								if(lookUp.get_detayMap()!=null)for (String q : objs) {
 									if (bz)
 										buf.append(", ");
 									else

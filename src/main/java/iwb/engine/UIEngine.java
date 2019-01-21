@@ -938,7 +938,7 @@ public class UIEngine {
 						obz = queryEngine.executeQuery(scd, o.getObjectId(), paramMap);
 						break;
 					case 8:// component
-						obz = dao.loadComponent(scd, o.getObjectId(), new HashMap());
+						obz = FrameworkCache.getComponent(scd, o.getObjectId());//metaDataDao.loadComponent(scd, o.getObjectId(), new HashMap());
 						break;
 					case 10: // KPI Single Card
 						obz = queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
