@@ -144,6 +144,6 @@ public class FrameworkSetting {
 	public static boolean showOnlineStatus = true;
 	
 	public static boolean redisCache = false;
-	public static String redisHost = "localhost";//"35.226.30.186"; //
+	public static String redisHost = "35.226.30.186";//"35.226.30.186"; //
 
 }

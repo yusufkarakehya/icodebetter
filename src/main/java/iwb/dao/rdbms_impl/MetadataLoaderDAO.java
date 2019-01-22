@@ -1479,17 +1479,19 @@ public class MetadataLoaderDAO extends BaseDAO {
 					}
 				FrameworkCache.setTableEventMap(projectId, tableEventMap);
 
-				Map<String, W5Ws> wsMap = (Map) xx.get("ws");
-				if (wsMap != null) {
-					FrameworkCache.setWsClientsMap(projectId, wsMap);
-					for (String key : wsMap.keySet()) {
-						W5Ws ws = wsMap.get(key);
+				Map<String, W5Ws> xwsMap = (Map) xx.get("ws");
+				Map<String, W5Ws> wsMap = new HashMap();
+				if (xwsMap != null) {
+					for (String key : xwsMap.keySet()) {
+						W5Ws ws = xwsMap.get(key);
+						wsMap.put(ws.getDsc(), ws);
 						if (ws.get_methods() == null)
 							ws.set_methods(new ArrayList());
 						else
 							for (W5WsMethod wsm : ws.get_methods())
 								FrameworkCache.addWsMethod(projectId, wsm);
 					}
+					FrameworkCache.setWsClientsMap(projectId, wsMap);
 				}
 
 				Map<String, W5Component> xcomponentMap = (Map) xx.get("component");
