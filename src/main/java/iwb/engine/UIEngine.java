@@ -861,7 +861,7 @@ public class UIEngine {
 						}
 						break;
 					case 2: // card view
-						W5CardResult cardResult = metaDataDao.getDataViewResult(scd, o.getObjectId(), requestParams,
+						W5CardResult cardResult = metaDataDao.getCardResult(scd, o.getObjectId(), requestParams,
 								objectCount != 0);
 						if (o.getObjectTip() < 0)
 							cardResult.setDataViewId(-cardResult.getDataViewId());

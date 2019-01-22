@@ -37,7 +37,6 @@ import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5FormCell;
-import iwb.domain.db.W5JasperReport;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5Table;
@@ -68,7 +67,6 @@ import iwb.engine.DebugEngine;
 import iwb.engine.NotificationEngine;
 import iwb.engine.QueryEngine;
 import iwb.engine.RESTEngine;
-import iwb.engine.ReportEngine;
 import iwb.engine.ScriptEngine;
 import iwb.engine.UIEngine;
 import iwb.engine.WorkflowEngine;
@@ -77,8 +75,6 @@ import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 import iwb.util.UserUtil;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 
 @Service
 @Transactional
@@ -136,10 +132,6 @@ public class FrameworkService {
 	private DebugEngine debugEngine;
 	
 
-
-	@Lazy
-	@Autowired
-	private ReportEngine reportEngine;
 	
 	
 	public synchronized void reloadCache(int cid) {
@@ -487,10 +479,6 @@ public class FrameworkService {
 	}
 
 
-	public W5QueryResult getJasperMultipleData(Map<String, Object> scd, Map<String, String> requestParams,
-			int jasperId) {
-		return reportEngine.getJasperMultipleData(scd, requestParams, jasperId);
-	}
 
 	public Map<String, Object> userRoleSelect(int userId, int userRoleId, int customizationId, String projectId,
 			String mobileDeviceId) {
@@ -686,15 +674,6 @@ public class FrameworkService {
 
 	}
 
-	public JasperPrint prepareJasperPrint(Map<String, Object> scd, Map<String, String> requestParams,
-			JRFileVirtualizer virtualizer) {
-		return reportEngine.prepareJasperPrint(scd, requestParams, virtualizer);
-	}
-
-	public W5JasperReport getJasperReport(Map<String, Object> scd, int jasperId, Map<String, String> requestParams,
-			int jasperTypeId) {
-		return reportEngine.getJasperReport(scd, jasperId, requestParams, jasperTypeId);
-	}
 
 	public W5TableRecordInfoResult getTableRecordInfo(Map<String, Object> scd, int tableId, int tablePk) {
 		// if(t==null)
@@ -997,13 +976,6 @@ public class FrameworkService {
 		return tr;
 	}
 
-	public int jasperFileAttachmentControl(int table_id, String table_pk, String file_name, Integer file_type_id) {
-		int x = dao.executeUpdateSQLQuery(
-				"update iwb.w5_file_attachment x  set x.active_flag=0  where x.table_id=? and x.table_pk=? and x.original_file_name=? and x.file_type_id=?",
-				table_id, table_pk, file_name, file_type_id);
-
-		return x;
-	}
 
 	public boolean changeActiveProject(Map<String, Object> scd, String projectUuid) {
 		List<Object> params = new ArrayList();
