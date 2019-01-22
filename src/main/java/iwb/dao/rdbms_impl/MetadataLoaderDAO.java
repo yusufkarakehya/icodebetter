@@ -662,6 +662,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 			try {
 				grid = (W5Grid) (redisGlobalMap.get(projectId + ":grid:" + gr.getGridId()));// FrameworkCache.getRedissonClient().getMap(String.format("icb-cache2:%s:grid",
 																							// projectId));
+				if(grid.getColumnRenderTip() == 1 && grid.get_gridModuleList() == null)
+					grid.set_gridModuleList(new ArrayList());
 
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.Grid", gr.getGridId(), null, "Loading Grid from Redis", e);
@@ -1492,6 +1494,34 @@ public class MetadataLoaderDAO extends BaseDAO {
 								FrameworkCache.addWsMethod(projectId, wsm);
 					}
 					FrameworkCache.setWsClientsMap(projectId, wsMap);
+				}
+				
+				Map<String, W5WsServer> xwssMap = (Map) xx.get("wss");
+				Map<String, W5WsServer> wssMap = new HashMap();
+				if (xwssMap != null) {
+					for (String key : xwssMap.keySet()) {
+						W5WsServer wss = xwssMap.get(key);
+						wssMap.put(wss.getWsUrl(), wss);
+						if (wss.get_methods() == null)
+							wss.set_methods(new ArrayList());
+
+						wss.get_methods().add(0, new W5WsServerMethod("login", (short) 4, 3));
+						// o.get_methods().add(1,new W5WsServerMethod("logout", (short)4,
+						// 5));
+						for (W5WsServerMethod wsm : wss.get_methods())
+							if (wsm.getObjectTip() == 19) { // QueryResult
+								if (wsm.get_params().isEmpty())
+									wsm.set_params(null);
+								else {
+									W5WsServerMethodParam tokenKey = new W5WsServerMethodParam(-998, "tokenKey", (short) 1);
+									tokenKey.setOutFlag((short) 0);
+									tokenKey.setNotNullFlag((short) 1);
+									wsm.get_params().add(0, tokenKey);
+								}
+							}
+						
+					}
+					FrameworkCache.setWsServersMap(projectId, wssMap);
 				}
 
 				Map<String, W5Component> xcomponentMap = (Map) xx.get("component");

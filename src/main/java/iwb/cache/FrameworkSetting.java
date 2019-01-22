@@ -143,7 +143,7 @@ public class FrameworkSetting {
 	public static  String clientSecret = "U5qMXxnQ9jr2Hm7AGg7COwikaWGcOhl28fLpVfUEqe6_bVjJ1A2FnWCbmjNN8BzR";
 	public static boolean showOnlineStatus = true;
 	
-	public static boolean redisCache = false;
-	public static String redisHost = "35.226.30.186";//"35.226.30.186"; //
+	public static boolean redisCache = true;
+	public static String redisHost = "localhost";//"35.226.30.186"; //
 
 }
