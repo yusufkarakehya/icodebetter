@@ -306,6 +306,21 @@ public class FrameworkCache {
 			return wConversions.get(projectId).get(conversionId);
 	}
 	
+	
+	public static List<W5Conversion> listConversion4Form(Object o, int formId, int tableId) {
+		List<W5Conversion> r = new ArrayList();
+		String projectId = getProjectId(o, "40."+formId);
+		if(!wConversions.containsKey(projectId)){
+			wConversions.put(projectId, new HashMap());
+			return r;
+		}
+		Map<Integer, W5Conversion> cMap = wConversions.get(projectId);
+		for(W5Conversion c:cMap.values())if((c.getSrcDstTip()==0 && c.getSrcFormId() == formId) || (c.getSrcDstTip()==1 && c.getSrcTableId()==tableId)){
+			r.add(c);
+		}
+		return r;
+	}
+	
 	public static void addConversion(Object o, W5Conversion cnv){
 		int conversionId = cnv.getConversionId();
 		String projectId = getProjectId(o, "707."+conversionId);
