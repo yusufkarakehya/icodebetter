@@ -1974,7 +1974,8 @@ class XModal extends React.Component {
       color,
       title,
       modalBodyProps,
-      body
+      body,
+      props
     } = this.state;
     return (
       modal &&
@@ -1986,7 +1987,8 @@ class XModal extends React.Component {
           toggle: this.toggle,
           isOpen: modal,
           className: "modal-" + size + " primary",
-          style
+          style,
+          ...props
         },
         _(
           ModalHeader,
