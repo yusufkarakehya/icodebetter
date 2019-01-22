@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.jdbc.ReturningWork;
@@ -40,17 +39,12 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.custom.trigger.QueryTrigger;
-import iwb.domain.db.Log5Feed;
 // import iwb.dao.tsdb_impl.InfluxDao;
 import iwb.domain.db.Log5GlobalFuncAction;
 import iwb.domain.db.Log5Notification;
 import iwb.domain.db.Log5QueryAction;
-import iwb.domain.db.M5List;
-import iwb.domain.db.W5Card;
-import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConversionCol;
-import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5Email;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Form;
@@ -62,18 +56,9 @@ import iwb.domain.db.W5FormValueCell;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5Grid;
-import iwb.domain.db.W5GridColumn;
-import iwb.domain.db.W5Jasper;
-import iwb.domain.db.W5JasperReport;
-import iwb.domain.db.W5JobSchedule;
-import iwb.domain.db.W5List;
 import iwb.domain.db.W5ListBase;
-import iwb.domain.db.W5ListColumn;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5ObjectToolbarItem;
-import iwb.domain.db.W5Page;
-import iwb.domain.db.W5PageObject;
 import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
@@ -82,7 +67,6 @@ import iwb.domain.db.W5QueryFieldCreation;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
-import iwb.domain.db.W5TableEvent;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFieldCalculated;
 import iwb.domain.db.W5TableParam;
@@ -90,24 +74,14 @@ import iwb.domain.db.W5VcsCommit;
 import iwb.domain.db.W5VcsObject;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
-import iwb.domain.db.W5Ws;
 import iwb.domain.db.W5WsMethod;
 import iwb.domain.db.W5WsMethodParam;
-import iwb.domain.db.W5WsServer;
-import iwb.domain.db.W5WsServerMethod;
-import iwb.domain.db.W5WsServerMethodParam;
 import iwb.domain.helper.W5AccessControlHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
-import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5CardResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
-import iwb.domain.result.W5GridResult;
-import iwb.domain.result.W5JasperResult;
-import iwb.domain.result.W5ListViewResult;
-import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.engine.RhinoEngine;
@@ -3439,38 +3413,6 @@ public class PostgreSQL extends BaseDAO {
 		formResult.getPkFields().put("id", formValue.getFormValueId());
 	}
 
-	public W5JasperResult getJasperResult(Map<String, Object> scd, W5JasperReport jasperreport,
-			Map<String, String> parameterMap) {
-		W5JasperResult jasperResult = new W5JasperResult(jasperreport.getJasperId());
-		jasperResult.setScd(scd);
-		/*
-		 * if(PromisSetting.preloadWEngine!=0 &&
-		 * PromisCache.wTemplates.get(templateId)!=null){ //
-		 * jasperResult.setJasper(PromisCache.wTemplates.get(templateId)); }
-		 * else { loadJasper(jasperResult);
-		 * if(PromisSetting.preloadWEngine!=0)PromisCache.wTemplates.put(
-		 * templateId, templateResult.getTemplate()); }
-		 */
-
-		W5Jasper jasper = (W5Jasper) find("from W5Jasper t where t.jasperId=?", jasperreport.getJasperId()).get(0); // ozel
-																													// bir
-																													// client
-																													// icin
-																													// varsa
-		jasperResult.setJasper(jasper);
-		jasper.set_jasperObjects(
-				find("from W5JasperObject t where t.jasperId=? order by t.tabOrder", jasperreport.getJasperId()));
-		jasper.set_jasperReport(jasperreport);
-		jasperResult.setResultMap(new HashMap());
-		return jasperResult;
-	}
-
-	public W5JasperReport getJasperReport(Map<String, Object> scd, int jasperReportId) {
-		W5JasperReport jasperreport = (W5JasperReport) find(
-				"from W5JasperReport t where t.customizationId=? and  t.jasperReportId=?", scd.get("customizationId"),
-				jasperReportId).get(0);
-		return jasperreport;
-	}
 
 	public void copyTableRecord(int tableId, int tablePk, String srcSchema, String dstSchema) {
 		W5Table t = FrameworkCache.getTable(0, tableId);
@@ -7821,16 +7763,6 @@ public class PostgreSQL extends BaseDAO {
 		executeUpdateSQLQuery("delete from iwb.w5_user_related_project where related_project_uuid=?", params);
 	}
 
-	public W5Component loadComponent(Map<String, Object> scd, int componentId, Map paramMap) {
-		W5Component c = FrameworkCache.getComponent(scd, componentId);
-		if (c == null) {
-			String projectId = FrameworkCache.getProjectId(scd, "3351." + componentId);
-			c = (W5Component) getCustomizedObject("from W5Component t where t.componentId=? and t.projectUuid=?",
-					componentId, projectId, "Component");
-			FrameworkCache.addComponent(scd, c);
-		}
-		return c;
-	}
 
 	public void checkTenant(Map<String, Object> scd) {
 		W5Project po = FrameworkCache.getProject(scd);

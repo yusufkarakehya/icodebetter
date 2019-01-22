@@ -108,7 +108,7 @@ public class QueryEngine {
 			break;
 		case 1376: // WS Method
 			W5WsMethod wsm = FrameworkCache.getWsMethod(scd, queryResult.getQuery().getMainTableId());
-			if (wsm.get_params() == null) {
+			if (!FrameworkSetting.redisCache && wsm.get_params() == null) {
 				wsm.set_params(
 						dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder",
 								wsm.getWsMethodId(), (String) scd.get("projectId")));
@@ -234,7 +234,7 @@ public class QueryEngine {
 						case 1376: // WS Method
 							W5WsMethod wsm = FrameworkCache.getWsMethod(scd,
 									lookupQueryResult.getQuery().getMainTableId());
-							if (wsm.get_params() == null) {
+							if (!FrameworkSetting.redisCache && wsm.get_params() == null) {
 								wsm.set_params(dao.find(
 										"from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder",
 										wsm.getWsMethodId(), (String) scd.get("projectId")));

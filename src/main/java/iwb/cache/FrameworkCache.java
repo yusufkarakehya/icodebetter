@@ -64,8 +64,6 @@ public class FrameworkCache {
 */
 	
 	final private static Map<String, Map<Integer, String>> wPageCss = new HashMap<String, Map<Integer, String>>();
-	final private static Map<String, Map<Integer, String>> wComponentCss = new HashMap<String, Map<Integer, String>>();
-	final private static Map<String, Map<Integer, String>> wComponentJs = new HashMap<String, Map<Integer, String>>();
 
 	final private static Map<String, Map<Integer, W5Workflow>> wWorkflow = new HashMap<String,Map<Integer, W5Workflow>>();
 	final private static List<W5Customization> wCustomization = new ArrayList<W5Customization>();
@@ -200,14 +198,10 @@ public class FrameworkCache {
 		} else
 			return wComponents.get(projectId).get(componentId);
 	}
-	public static void addComponent(Object o, W5Component d){
-		int componentId = d.getComponentId();
-		String projectId = getProjectId(o, "3351."+componentId);
+	public static void setComponentMap(Object o, Map<Integer, W5Component> m){
+		String projectId = getProjectId(o, null);
 		//addX((Map)wDataViews, projectId, dataViewId, d);
-		if(wComponents.get(projectId)==null){
-			wComponents.put(projectId, new HashMap());
-		}
-		wComponents.get(projectId).put(componentId, d);
+		wComponents.put(projectId, m);
 	}
 
 	public static W5Workflow getWorkflow(Object o, int approvalId) {
@@ -310,6 +304,21 @@ public class FrameworkCache {
 			return null;
 		} else
 			return wConversions.get(projectId).get(conversionId);
+	}
+	
+	
+	public static List<W5Conversion> listConversion4Form(Object o, int formId, int tableId) {
+		List<W5Conversion> r = new ArrayList();
+		String projectId = getProjectId(o, "40."+formId);
+		if(!wConversions.containsKey(projectId)){
+			wConversions.put(projectId, new HashMap());
+			return r;
+		}
+		Map<Integer, W5Conversion> cMap = wConversions.get(projectId);
+		for(W5Conversion c:cMap.values())if((c.getSrcDstTip()==0 && c.getSrcFormId() == formId) || (c.getSrcDstTip()==1 && c.getSrcTableId()==tableId)){
+			r.add(c);
+		}
+		return r;
 	}
 	
 	public static void addConversion(Object o, W5Conversion cnv){
@@ -613,28 +622,23 @@ public class FrameworkCache {
 		return css;
 	}
 
-	public static void setProjectComponents(String projectId, Map cssMap, Map jsMap){
-		wComponentCss.put(projectId, cssMap);
-		wComponentJs.put(projectId, jsMap);
-	}
-
 	
 	public static String getComponentCss(Object o, int componentId){
 		String p = getProjectId(o,"3351."+componentId);
-		Map<Integer, String> m = wComponentCss.get(p);
+		Map<Integer, W5Component> m = wComponents.get(p);
 		if(m==null)return "";
-		String css = m.get(componentId);
+		W5Component css = m.get(componentId);
 		if(css==null)return "";
-		return css;
+		return css.getCssCode()==null ? "":css.getCssCode();
 	}
 
 	public static String getComponentJs(Object o, int componentId){
 		String p = getProjectId(o,"3351."+componentId);
-		Map<Integer, String> m = wComponentJs.get(p);
+		Map<Integer, W5Component> m = wComponents.get(p);
 		if(m==null)return "";
-		String js = m.get(componentId);
-		if(js==null)return "";
-		return js;
+		W5Component css = m.get(componentId);
+		if(css==null)return "";
+		return css.getCode()==null ? "":css.getCode();
 	}
 
 	private static RedissonClient redissonClient = null;

@@ -351,12 +351,14 @@ public class ConversionEngine {
 			Map<String, String> requestParams, String prefix) {
 		W5Conversion cnv = null;
 		try {
-			int customizationId = (Integer) scd.get("customizationId");
 			String projectId = (String) scd.get("projectId");
 			if (/* customizationId > 0 && */scd != null && (Integer) scd.get("roleId") == 0)
 				projectId = FrameworkCache.getProjectId(scd, "707." + conversionId);
-			cnv = (W5Conversion) dao.getCustomizedObject(
+			cnv = FrameworkCache.getConversion(scd, conversionId);
+			if(!FrameworkSetting.redisCache && cnv == null){
+				cnv = (W5Conversion) dao.getCustomizedObject(
 					"from W5Conversion t where t.conversionId=? AND t.projectUuid=?", conversionId, projectId, null);
+			}
 			if (cnv == null || GenericUtil.isEmpty(cnv.getActionTips()) || cnv.getActiveFlag() == 0)
 				throw new IWBException("validation", "Conversion", conversionId, null,
 						"Conversion Control Error (" + conversionId + ")", null);
@@ -450,7 +452,7 @@ public class ConversionEngine {
 						formResult.setRequestParams(originalRequestParams);
 						if (!formResult.getErrorMap().isEmpty()) {
 							throw new IWBException("validation", "Form", dstFormId, null,
-									"Detay Conversion Veri Geçerliliği("
+									"Detail Conversion Validation Error("
 											+ LocaleMsgCache.get2((Integer) scd.get("customizationId"),
 													(String) scd.get("locale"), formResult.getForm().getLocaleMsgKey())
 											+ "): " + GenericUtil.fromMapToJsonString(formResult.getErrorMap()),
@@ -464,7 +466,7 @@ public class ConversionEngine {
 
 				formResult.setQueuedActionList(queuedGlobalFuncList);
 				if (formResult.getOutputMessages() != null && formResult.getOutputMessages().isEmpty())
-					formResult.getOutputMessages().add("Toplam " + dirtyCount + " adet işlem gerçekleşti.");
+					formResult.getOutputMessages().add("Total " + dirtyCount + " records processed.");
 				return formResult;
 			} else
 				throw new IWBException("validation", "Conversion", conversionId, null,
