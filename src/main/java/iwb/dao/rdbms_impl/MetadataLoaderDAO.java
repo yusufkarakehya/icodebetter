@@ -981,18 +981,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 			}
 	}
 
-	public void addProject2Cache(String projectId) {
-		List l = find("from W5Project t where t.projectUuid=?", projectId);
-		if (l.isEmpty())
-			throw new IWBException("framework", "Not Valid Project", 0, projectId, "Not Valid Project", null);
-		W5Project p = (W5Project) l.get(0);
-		List ll = executeSQLQuery(
-				"select min(t.user_tip) from iwb.w5_user_tip t where t.user_tip!=122 AND t.active_flag=1 AND t.project_uuid=?",
-				projectId);
-		if (!GenericUtil.isEmpty(ll))
-			p.set_defaultUserTip(GenericUtil.uInt(ll.get(0)));
-		FrameworkCache.addProject(p);
-	}
 
 	public List<W5Project> reloadProjectsCache(int cid) {
 		// if(cid==-1)FrameworkCache.wProjects.clear();
@@ -1571,7 +1559,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		FrameworkCache.setComponentMap(projectId, wComponentMap);
 	}
 
-	private void reloadWsServersCache(String projectId) {
+	public void reloadWsServersCache(String projectId) {
 		List<W5WsServer> lt = (List<W5WsServer>) find("from W5WsServer t where t.projectUuid=?", projectId);
 		Map<String, W5WsServer> wssMap = new HashMap<String, W5WsServer>(lt.size() * 14 / 10);
 		FrameworkCache.setWsServersMap(projectId, wssMap);
