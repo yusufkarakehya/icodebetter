@@ -80,6 +80,11 @@ public class UIEngine {
 	private ScriptEngine scriptEngine;
 	
 	
+	@Lazy
+	@Autowired
+	private ConversionEngine conversionEngine;
+
+	
 	public W5FormResult getFormResultByQuery(Map<String, Object> scd, int formId, int queryId,
 			Map<String, String> requestParams) {
 		W5FormResult formResult = metaDataDao.getFormResult(scd, formId, 1, requestParams);
@@ -412,7 +417,7 @@ public class UIEngine {
 												null);
 									}
 								}
-								mq = dao.interprateConversionTemplate(c, formResult, conversionTablePk, true, false);
+								mq = conversionEngine.interprateConversionTemplate(c, formResult, conversionTablePk, true, false);
 								if (mq != null) {
 									convb = true;
 									formResult.getOutputMessages()

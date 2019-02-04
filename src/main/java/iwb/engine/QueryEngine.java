@@ -44,6 +44,10 @@ public class QueryEngine {
 	private MetadataLoaderDAO metaDataDao;
 
 
+	@Lazy
+	@Autowired
+	private ScriptEngine scriptEngine;
+
 	public Map executeQuery4Stat(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
 		dao.checkTenant(scd);
 		return dao.executeQuery4Stat(scd, gridId, requestParams);
@@ -137,11 +141,11 @@ public class QueryEngine {
 					.append("',").append(GenericUtil.fromMapToJsonString2(m2))
 					.append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc())
 					.append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
-			dao.executeQueryAsRhino(queryResult, rc.toString());
+			scriptEngine.executeQueryAsRhino(queryResult, rc.toString());
 			break;
 
 		case 0: // Rhino Query
-			dao.executeQueryAsRhino(queryResult, null);
+			scriptEngine.executeQueryAsRhino(queryResult, null);
 			break;
 		default:
 			queryResult.setViewLogModeTip((short) GenericUtil.uInt(requestParams, "_vlm"));
@@ -260,7 +264,7 @@ public class QueryEngine {
 									.append(GenericUtil.fromMapToJsonString2(m2))
 									.append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc())
 									.append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
-							dao.executeQueryAsRhino(lookupQueryResult, rc2.toString());
+							scriptEngine.executeQueryAsRhino(lookupQueryResult, rc2.toString());
 							break;
 						case 15: // table
 							switch (lookupQueryResult.getQuery().getQueryTip()) {
@@ -529,5 +533,33 @@ public class QueryEngine {
 			return list;
 		}
 		return null;
+	}
+	public List executeQuery4DataList(Map<String, Object> scd, int tableId, Map<String, String> requestParams) {
+		W5Table t = FrameworkCache.getTable(scd, tableId);
+		if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
+			throw new IWBException("security", "Module", 0, null,
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+		}
+		if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
+				t.getAccessViewRoles(), t.getAccessViewUsers())) {
+			throw new IWBException("security", "Table", tableId, null,
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+		}
+		return dao.executeQuery4DataList(scd, t, requestParams);
+	}
+	
+	public List executeQuery4Pivot(Map<String, Object> scd, int tableId, Map<String, String> requestParams) {
+		W5Table t = FrameworkCache.getTable(scd, tableId);
+
+		if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
+			throw new IWBException("security", "Module", 0, null,
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+		}
+		if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
+				t.getAccessViewRoles(), t.getAccessViewUsers())) {
+			throw new IWBException("security", "Table", tableId, null,
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+		}
+		return dao.executeQuery4Pivot(scd, t, requestParams);
 	}
 }

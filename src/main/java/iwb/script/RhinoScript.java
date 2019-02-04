@@ -1,4 +1,4 @@
-package iwb.engine;
+package iwb.script;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -34,7 +34,7 @@ import iwb.util.RedisUtil;
 import iwb.util.RhinoUtil;
 import iwb.util.UserUtil;
 
-public class RhinoEngine {
+public class RhinoScript {
 	Map<String, Object> scd;
 	Map<String, String> requestParams;
 	private PostgreSQL dao;
@@ -512,7 +512,7 @@ public class RhinoEngine {
 		this.engine = engine;
 	}
 
-	public RhinoEngine(Map<String, Object> scd, Map<String, String> requestParams, PostgreSQL dao,
+	public RhinoScript(Map<String, Object> scd, Map<String, String> requestParams, PostgreSQL dao,
 			FrameworkService engine) {
 		super();
 		this.scd = scd;

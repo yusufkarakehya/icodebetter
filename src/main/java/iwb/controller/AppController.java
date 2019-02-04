@@ -70,10 +70,10 @@ import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TutorialResult;
-import iwb.engine.RhinoEngine;
 import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
+import iwb.script.RhinoScript;
 import iwb.service.FrameworkService;
 import iwb.timer.Action2Execute;
 import iwb.util.GenericUtil;
@@ -118,7 +118,7 @@ public class AppController implements InitializingBean {
 			brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
 			womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
 		} catch(Exception e){}
-		RhinoEngine.taskExecutor = this.taskExecutor;
+		RhinoScript.taskExecutor = this.taskExecutor;
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
 		if(FrameworkSetting.logType==2)LogUtil.activateMQ4Log();
 	}

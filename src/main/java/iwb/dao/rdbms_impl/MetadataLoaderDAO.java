@@ -46,6 +46,7 @@ import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableEvent;
 import iwb.domain.db.W5TableField;
+import iwb.domain.db.W5TableFieldCalculated;
 import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
@@ -1841,4 +1842,12 @@ public class MetadataLoaderDAO extends BaseDAO {
 			}
 	}
 
+	public List<W5TableFieldCalculated> findTableCalcFieldByDsc(W5Table t, String dsc){
+	/*	List<W5TableFieldCalculated> l = new ArrayList();
+		for(W5TableFieldCalculated cf:t.get_) */
+		return find(
+				"from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? AND t.dsc=?",
+				t.getProjectUuid(), t.getTableId(), dsc);
+	}
+	
 }
