@@ -4533,17 +4533,18 @@ class XMainGrid extends GridCommon {
           extraButtons &&
             extraButtons.map((prop, index) => {
               if (prop.type === "button") {
+                let { icon } = prop;
+                var cls = icon.split('|');
                 return _(
                   Button,
                   {
                     id: "toolpin" + index,
                     key: "key" + index,
-                    className: "btn-round-shadow",
+                    className: classNames("btn-round-shadow mx-1", cls[1]),
                     color: "success",
-                    style: { marginLeft: "5px" },
                     onClick: prop.click && prop.click.bind(this)
                   },
-                  prop.icon && _("i", { className: "icon-" + prop.icon }),
+                  cls[0] && _("i", { className: cls[0] }),
                   prop.text && prop.text
                 );
               }
