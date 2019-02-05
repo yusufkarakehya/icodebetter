@@ -77,7 +77,7 @@ public class UIEngine {
 
 	@Lazy
 	@Autowired
-	private ScriptEngine scriptEngine;
+	private GlobalScriptEngine scriptEngine;
 	
 	
 	@Lazy

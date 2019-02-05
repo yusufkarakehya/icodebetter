@@ -34,7 +34,7 @@ import iwb.util.RedisUtil;
 import iwb.util.RhinoUtil;
 import iwb.util.UserUtil;
 
-public class RhinoScript {
+public class NashornScript {
 	Map<String, Object> scd;
 	Map<String, String> requestParams;
 	private GlobalScriptEngine scriptEngine;
@@ -496,7 +496,7 @@ public class RhinoScript {
 	}
 
 
-	public RhinoScript(Map<String, Object> scd, Map<String, String> requestParams, GlobalScriptEngine scriptEngine) {
+	public NashornScript(Map<String, Object> scd, Map<String, String> requestParams, GlobalScriptEngine scriptEngine) {
 		super();
 		this.scd = scd;
 		this.requestParams = requestParams;

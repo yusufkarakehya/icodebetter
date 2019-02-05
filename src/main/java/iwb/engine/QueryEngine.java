@@ -46,7 +46,7 @@ public class QueryEngine {
 
 	@Lazy
 	@Autowired
-	private ScriptEngine scriptEngine;
+	private GlobalScriptEngine scriptEngine;
 
 	public Map executeQuery4Stat(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
 		dao.checkTenant(scd);

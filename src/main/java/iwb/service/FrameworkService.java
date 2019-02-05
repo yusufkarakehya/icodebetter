@@ -67,7 +67,7 @@ import iwb.engine.DebugEngine;
 import iwb.engine.NotificationEngine;
 import iwb.engine.QueryEngine;
 import iwb.engine.RESTEngine;
-import iwb.engine.ScriptEngine;
+import iwb.engine.GlobalScriptEngine;
 import iwb.engine.UIEngine;
 import iwb.engine.WorkflowEngine;
 import iwb.exception.IWBException;
@@ -107,7 +107,7 @@ public class FrameworkService {
 
 	@Lazy
 	@Autowired
-	private ScriptEngine scriptEngine;
+	private GlobalScriptEngine scriptEngine;
 
 	@Lazy
 	@Autowired

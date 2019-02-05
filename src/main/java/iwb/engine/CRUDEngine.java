@@ -72,7 +72,7 @@ public class CRUDEngine {
 
 	@Lazy
 	@Autowired
-	private ScriptEngine scriptEngine;
+	private GlobalScriptEngine scriptEngine;
 	
 
 	@Lazy

@@ -51,7 +51,7 @@ public class ConversionEngine {
 
 	@Lazy
 	@Autowired
-	private ScriptEngine scriptEngine;
+	private GlobalScriptEngine scriptEngine;
 	
 	public boolean extFormConversion(W5FormResult formResult, String prefix, int action, Map<String, Object> scd,
 			Map<String, String> requestParams, W5Table t, String ptablePk, boolean cleanConversion) {
