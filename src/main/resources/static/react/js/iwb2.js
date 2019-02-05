@@ -1340,8 +1340,7 @@ class MapInput extends React.PureComponent {
 	    	this.toggle();
 	    	if(!event)return;
         event.preventDefault();
-        let val  = (this.props.stringifyResult)?JSON.stringify(this.state):this.state;
-	    	event.target = {...this.props , value: val}
+	    	event.target = {...this.props , value: this.state, stringValue:JSON.stringify(this.state) }
 	    	this.props.onChange && this.props.onChange(event);	      
 	    };
 	  }
