@@ -1715,6 +1715,15 @@ public class MetadataLoaderDAO extends BaseDAO {
 			ml.set_detailMLists(
 					find("from M5List l where l.projectUuid=? AND l.parentListId=? order by l.mlr.getListId()",
 							projectId, mlr.getListId()));
+			for(M5List dl:ml.get_detailMLists()) {
+				dl.set_toolbarItemList(
+						find("from W5ObjectToolbarItem t where t.objectTip=1345 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+								dl.getListId(), projectId));
+
+				dl.set_menuItemList(
+						find("from W5ObjectMenuItem t where t.objectTip=1345 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
+								dl.getListId(), projectId));
+			}
 			if (!GenericUtil.isEmpty(ml.getOrderQueryFieldIds()))
 				ml.set_orderQueryFieldNames(
 						find("select qf.dsc from W5QueryField qf where qf.queryId=? and qf.projectUuid=? AND qf.queryFieldId in ("
