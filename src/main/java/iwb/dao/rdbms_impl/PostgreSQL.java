@@ -2963,7 +2963,7 @@ public class PostgreSQL extends BaseDAO {
 
 	
 
-	public void executeGlobalFunc(final W5GlobalFuncResult r, final String paramSuffix) {
+	public void executeDbFunc(final W5GlobalFuncResult r, final String paramSuffix) {
 		Log5GlobalFuncAction action = new Log5GlobalFuncAction(r);
 		String error = null;
 		

@@ -1024,18 +1024,18 @@ public class FrameworkService {
 		return GenericUtil.uInt(l.get(0));
 	}
 
-	public boolean organizeTable(Map<String, Object> scd, String tableName) {
+	public boolean organizeTableFields(Map<String, Object> scd, String tableName) {
 		boolean b = dao.organizeTable(scd, tableName);
 		FrameworkCache.clearPreloadCache(scd);
 		return b;
 	}
 
-	public void organizeQuery(Map<String, Object> scd, int queryId, short insertFlag) {
+	public void organizeQueryFields(Map<String, Object> scd, int queryId, short insertFlag) {
 		dao.organizeQueryFields(scd, queryId, insertFlag);
 		FrameworkCache.clearPreloadCache(scd);
 	}
 
-	public boolean organizeGlobalFunc(Map<String, Object> scd, String dbFuncName) {
+	public boolean organizeDbFuncParams(Map<String, Object> scd, String dbFuncName) {
 		boolean b = dao.organizeGlobalFunc(scd, dbFuncName);
 		FrameworkCache.clearPreloadCache(scd);
 		return b;

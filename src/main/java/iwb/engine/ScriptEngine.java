@@ -75,16 +75,38 @@ public class ScriptEngine {
 	@Autowired 
 	private AccessControlEngine acEngine;
 
+	@Lazy
+	@Autowired
+	private CRUDEngine crudEngine;
 	
 	@Lazy
-	@Autowired 
-	private FrameworkService service;
+	@Autowired
+	private RESTEngine restEngine;
+
 	
+	public PostgreSQL getDao() {
+		return dao;
+	}
+
+	public ConversionEngine getConversionEngine() {
+		return conversionEngine;
+	}
+
+	public QueryEngine getQueryEngine() {
+		return queryEngine;
+	}
+
+	public CRUDEngine getCrudEngine() {
+		return crudEngine;
+	}
+
+	public RESTEngine getRestEngine() {
+		return restEngine;
+	}
+
 	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int globalFuncId, Map<String, String> parameterMap, short accessSourceType) {
 
-		W5GlobalFuncResult r = null;
-		
-		r = metaDataDao.getGlobalFuncResult(scd, globalFuncId);
+		W5GlobalFuncResult r = metaDataDao.getGlobalFuncResult(scd, globalFuncId);
 		if (!GenericUtil.isEmpty(r.getGlobalFunc().getAccessSourceTypes())
 				&& !GenericUtil.hasPartInside2(r.getGlobalFunc().getAccessSourceTypes(), accessSourceType))
 			throw new IWBException("security", "GlobalFunc", globalFuncId, null, "Access Source Type Control", null);
@@ -155,7 +177,7 @@ public class ScriptEngine {
 					r.getRequestParams().remove("_json");
 				}
 				if (script.contains("$.") || script.contains("$.")) {
-					RhinoScript se = new RhinoScript(r.getScd(), r.getRequestParams(), dao, service);
+					RhinoScript se = new RhinoScript(r.getScd(), r.getRequestParams(), this);
 					Object wrappedOut = Context.javaToJS(se, scope);
 					ScriptableObject.putProperty(scope, "$", wrappedOut);
 				}
@@ -199,7 +221,7 @@ public class ScriptEngine {
 				dao.logGlobalFuncAction(action, r, error);
 			}
 		}
-			else dao.executeGlobalFunc(r, "");
+			else dao.executeDbFunc(r, "");
 
 		if (r.getErrorMap().isEmpty()) { // sorun yok
 			// post sms
@@ -243,7 +265,7 @@ public class ScriptEngine {
 		for (int id = 1; id <= dirtyCount; id++) {
 
 			GlobalFuncTrigger.beforeExec(dbFuncResult);
-			dao.executeGlobalFunc(dbFuncResult, prefix + id);
+			dao.executeDbFunc(dbFuncResult, prefix + id);
 			GlobalFuncTrigger.afterExec(dbFuncResult);
 
 			if (!dbFuncResult.getErrorMap().isEmpty() || !dbFuncResult.isSuccess()) {
@@ -273,7 +295,7 @@ public class ScriptEngine {
 			// a scope object that we use in later calls.
 			Scriptable scope = cx.initStandardObjects();
 			if (ta.getTriggerCode().indexOf("$.") > -1) {
-				RhinoScript se = new RhinoScript(scd, requestParams, dao, service);
+				RhinoScript se = new RhinoScript(scd, requestParams, this);
 				Object wrappedOut = Context.javaToJS(se, scope);
 				ScriptableObject.putProperty(scope, "$", wrappedOut);
 			}
@@ -350,7 +372,7 @@ public class ScriptEngine {
 			Scriptable scope = cx.initStandardObjects();
 
 			// Collect the arguments into a single string.
-			RhinoScript se = new RhinoScript(scd, requestParams, dao, service);
+			RhinoScript se = new RhinoScript(scd, requestParams, this);
 			Object wrappedOut = Context.javaToJS(se, scope);
 			ScriptableObject.putProperty(scope, "$", wrappedOut);
 
@@ -407,7 +429,7 @@ public class ScriptEngine {
 			if (script.charAt(0) == '!')
 				script = script.substring(1);
 			// Collect the arguments into a single string.
-			RhinoScript se = new RhinoScript(qr.getScd(), qr.getRequestParams(), dao, service);
+			RhinoScript se = new RhinoScript(qr.getScd(), qr.getRequestParams(), this);
 			Object wrappedOut = Context.javaToJS(se, scope);
 			ScriptableObject.putProperty(scope, "$", wrappedOut);
 
@@ -695,7 +717,7 @@ public class ScriptEngine {
 			// Collect the arguments into a single string.
 			StringBuilder sc = new StringBuilder();
 
-			RhinoScript se = new RhinoScript(r.getScd(), r.getRequestParams(), dao, service);
+			RhinoScript se = new RhinoScript(r.getScd(), r.getRequestParams(), this);
 			Object wrappedOut = Context.javaToJS(se, scope);
 			ScriptableObject.putProperty(scope, "$", wrappedOut);
 
@@ -800,7 +822,7 @@ public class ScriptEngine {
 			if (script.charAt(0) == '!')
 				script = script.substring(1);
 			// Collect the arguments into a single string.
-			RhinoScript se = new RhinoScript(qr.getScd(), qr.getRequestParams(), dao, service);
+			RhinoScript se = new RhinoScript(qr.getScd(), qr.getRequestParams(), this);
 			Object wrappedOut = Context.javaToJS(se, scope);
 			ScriptableObject.putProperty(scope, "$", wrappedOut);
 
@@ -912,4 +934,6 @@ public class ScriptEngine {
 		}
 		return m;
 	}
+	
+	
 }
