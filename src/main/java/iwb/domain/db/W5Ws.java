@@ -10,9 +10,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Immutable;
+
 //import iwb.soap.generic.SoapService;
 
 @Entity
+@Immutable
 @Table(name="w5_ws",schema="iwb")
 public class W5Ws  implements java.io.Serializable {
 

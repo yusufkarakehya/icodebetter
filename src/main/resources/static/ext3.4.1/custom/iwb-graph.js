@@ -97,12 +97,12 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
         // define the node's outer shape
         $$(go.TextBlock,
           {
-            stroke: "#aaa", alignment: go.Spot.Left, margin: 2, font: "normal 14px 'Open Sans', sans-serif"
+            stroke: "#aaa", alignment: go.Spot.Left, margin: 2, font: "normal 11px 'Open Sans', sans-serif"
           },
           new go.Binding("text", "object")),
         $$(go.Panel, "Auto", //{ isShadowed: false},
           $$(go.Shape, "RoundedRectangle",
-            { fill: "white", strokeWidth: .5, parameter1: 15, stroke: "steelblue" }
+            { fill: "white", stroke: "steelblue" }
             , new go.Binding("stroke", "borderColor")
             , new go.Binding("fill", "bgColor")
           ),
@@ -111,8 +111,8 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
           $$(go.TextBlock,
             {
               stroke: "steelblue",
-              margin: 2,
-              font: "bold 19px 'Open Sans', sans-serif",
+              margin: 5,
+              font: "bold 15px 'Open Sans', sans-serif",
               alignment: go.Spot.Center
             },
             new go.Binding("text", "text")

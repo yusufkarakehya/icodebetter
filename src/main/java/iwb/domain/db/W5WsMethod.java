@@ -9,7 +9,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Immutable;
+
 @Entity
+@Immutable
 @Table(name="w5_ws_method",schema="iwb")
 public class W5WsMethod  implements java.io.Serializable {
 

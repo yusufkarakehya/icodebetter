@@ -1024,18 +1024,18 @@ public class FrameworkService {
 		return GenericUtil.uInt(l.get(0));
 	}
 
-	public boolean organizeTable(Map<String, Object> scd, String tableName) {
+	public boolean organizeTableFields(Map<String, Object> scd, String tableName) {
 		boolean b = dao.organizeTable(scd, tableName);
 		FrameworkCache.clearPreloadCache(scd);
 		return b;
 	}
 
-	public void organizeQuery(Map<String, Object> scd, int queryId, short insertFlag) {
+	public void organizeQueryFields(Map<String, Object> scd, int queryId, short insertFlag) {
 		dao.organizeQueryFields(scd, queryId, insertFlag);
 		FrameworkCache.clearPreloadCache(scd);
 	}
 
-	public boolean organizeGlobalFunc(Map<String, Object> scd, String dbFuncName) {
+	public boolean organizeDbFuncParams(Map<String, Object> scd, String dbFuncName) {
 		boolean b = dao.organizeGlobalFunc(scd, dbFuncName);
 		FrameworkCache.clearPreloadCache(scd);
 		return b;
@@ -1707,13 +1707,19 @@ public class FrameworkService {
 	}
 
 	public Map executeQuery4Stat(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
-		dao.checkTenant(scd);
-		return dao.executeQuery4Stat(scd, gridId, requestParams);
+		requestParams.remove("firstLimit");
+		requestParams.remove("limit");
+		requestParams.remove("start");
+		requestParams.remove("sort");
+		return queryEngine.executeQuery4Stat(scd, gridId, requestParams);
 	}
 
 	public Map executeQuery4StatTree(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
-		dao.checkTenant(scd);
-		return dao.executeQuery4StatTree(scd, gridId, requestParams);
+		requestParams.remove("firstLimit");
+		requestParams.remove("limit");
+		requestParams.remove("start");
+		requestParams.remove("sort");
+		return queryEngine.executeQuery4StatTree(scd, gridId, requestParams);
 	}
 
 	public List<W5BIGraphDashboard> getGraphDashboards(Map<String, Object> scd) {
@@ -1752,16 +1758,16 @@ public class FrameworkService {
 	}
 
 	public List executeQuery4DataList(Map<String, Object> scd, int tableId, Map<String, String> requestParams) {
-		return dao.executeQuery4DataList(scd, tableId, requestParams);
+		return queryEngine.executeQuery4DataList(scd, tableId, requestParams);
 	}
 
 	public List executeQuery4Pivot(Map<String, Object> scd, int tableId, Map<String, String> requestParams) {
-		return dao.executeQuery4Pivot(scd, tableId, requestParams);
+		return queryEngine.executeQuery4Pivot(scd, tableId, requestParams);
 	}
 
 	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int dbFuncId,
 			Map<String, String> parameterMap) {
-		return dao.executeGlobalFunc4Debug(scd, dbFuncId, parameterMap);
+		return debugEngine.executeGlobalFunc4Debug(scd, dbFuncId, parameterMap);
 	}
 
 	public Map<String, Object> getWsServerMethodObjects(W5WsServer wss) {
@@ -2086,7 +2092,7 @@ public class FrameworkService {
 			}
 			for (Object[] o : l)
 				try {
-					Object result = dao.executeRhinoScript(scd, tmp, o[2].toString(), tmp, "result");
+					Object result = scriptEngine.executeRhinoScript(scd, tmp, o[2].toString(), tmp, "result");
 					if (result != null) {
 						if (result instanceof Double || result instanceof Integer || result instanceof Float
 								|| result instanceof BigDecimal) {

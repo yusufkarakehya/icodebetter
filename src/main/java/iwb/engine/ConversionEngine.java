@@ -17,13 +17,19 @@ import iwb.cache.LocaleMsgCache;
 import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5Conversion;
+import iwb.domain.db.W5ConversionCol;
 import iwb.domain.db.W5ConvertedObject;
+import iwb.domain.db.W5Form;
+import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5Table;
+import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5WsMethod;
+import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
+import iwb.util.RhinoUtil;
 
 @Component
 public class ConversionEngine {
@@ -43,6 +49,10 @@ public class ConversionEngine {
 	@Autowired
 	private RESTEngine restEngine;
 
+	@Lazy
+	@Autowired
+	private ScriptEngine scriptEngine;
+	
 	public boolean extFormConversion(W5FormResult formResult, String prefix, int action, Map<String, Object> scd,
 			Map<String, String> requestParams, W5Table t, String ptablePk, boolean cleanConversion) {
 		if ((action == 0 || action == 1 || action == 2)
@@ -149,7 +159,7 @@ public class ConversionEngine {
 											m.put(dt.get_tableParamList().get(0).getDsc() + prefix2,
 													"" + co.getDstTablePk());
 											W5FormResult dstFormResult = metaDataDao.getFormResult(scd, c.getDstFormId(), 1, m);
-											Map<String, Object> mq = dao.interprateConversionTemplate(c, dstFormResult,
+											Map<String, Object> mq = interprateConversionTemplate(c, dstFormResult,
 													GenericUtil.uInt(ptablePk), false, true);
 											if (GenericUtil.isEmpty(mq)) {
 												formResult.getOutputMessages()
@@ -217,7 +227,7 @@ public class ConversionEngine {
 						} else {
 							m.put("a", "2");
 							W5FormResult dstFormResult = metaDataDao.getFormResult(scd, c.getDstFormId(), 2, requestParams);
-							Map mq = dao.interprateConversionTemplate(c, dstFormResult, GenericUtil.uInt(ptablePk),
+							Map mq = interprateConversionTemplate(c, dstFormResult, GenericUtil.uInt(ptablePk),
 									false, false);
 							if (GenericUtil.isEmpty(mq)) {
 								formResult.getOutputMessages()
@@ -246,7 +256,7 @@ public class ConversionEngine {
 												if (newFormResult.getOutputFields().get(s) != null)
 													m.put("out." + s,
 															newFormResult.getOutputFields().get(s).toString());
-										dao.executeRhinoScript(scd, requestParams, c.getRhinoCode(), m, "result");
+										scriptEngine.executeRhinoScript(scd, requestParams, c.getRhinoCode(), m, "result");
 									}
 								} else {
 									if (FrameworkSetting.debug)
@@ -274,7 +284,7 @@ public class ConversionEngine {
 									}
 								}
 							} else {
-								dao.executeRhinoScript(scd, requestParams, c.getRhinoCode(), m, "result");
+								scriptEngine.executeRhinoScript(scd, requestParams, c.getRhinoCode(), m, "result");
 							}
 						}
 					} else if (c.getSrcDstTip() == 1) { // Table -> Ws Method
@@ -293,7 +303,7 @@ public class ConversionEngine {
 									wsm.getWsMethodId(), (String) scd.get("projectId")));
 						}
 
-						Map mq = dao.interprateConversionTemplate4WsMethod(scd, requestParams, c,
+						Map mq = interprateConversionTemplate4WsMethod(scd, requestParams, c,
 								GenericUtil.uInt(ptablePk), wsm);
 						if (GenericUtil.isEmpty(mq)) {
 							formResult.getOutputMessages()
@@ -320,7 +330,7 @@ public class ConversionEngine {
 							}
 						}
 						if (!GenericUtil.isEmpty(c.getRhinoCode())) {
-							dao.executeRhinoScript(scd, requestParams, c.getRhinoCode(), mq, "result");
+							scriptEngine.executeRhinoScript(scd, requestParams, c.getRhinoCode(), mq, "result");
 						}
 					}
 				} catch (IWBException e) {
@@ -443,7 +453,7 @@ public class ConversionEngine {
 				for (int id = 1; id <= dirtyCount; id++) {
 					// formResult.setAction(PromisUtil.uInt(requestParams.get("a"+prefix+id)));
 					int srcTablePk = GenericUtil.uInt(requestParams, "srcTablePk" + prefix + id);
-					Map mq = dao.interprateConversionTemplate(cnv, formResult, srcTablePk, false, false);
+					Map mq = interprateConversionTemplate(cnv, formResult, srcTablePk, false, false);
 					if (!GenericUtil.isEmpty(mq)) {
 						mq.put("_cnvId", "" + conversionId);
 						mq.put("_cnvTblPk", "" + srcTablePk);
@@ -487,5 +497,137 @@ public class ConversionEngine {
 			result = postBulkConversion(scd, cnvId, dirtyCount, parameterMap, i + ".");
 		}
 		return result;
+	}
+	
+
+	public Map interprateConversionTemplate(W5Conversion c, W5FormResult dstFormResult, int conversionTablePk,
+			boolean checkCondition, boolean onlyForSynch) {
+		Map<String, Object> scd = dstFormResult.getScd();
+		int customizationId = (Integer) scd.get("customizationId");
+		Map<String, String> requestParams = new HashMap();
+		requestParams.putAll(dstFormResult.getRequestParams());
+		requestParams.put("_conversion_table_pk", "" + conversionTablePk);
+		W5FormResult srcFormResult = metaDataDao.getFormResult(scd, c.getSrcFormId(), 2, requestParams);
+		W5Form sf = srcFormResult.getForm();
+		W5Form df = dstFormResult.getForm();
+		int conversionTableId = sf.getObjectId();
+		if (GenericUtil.isEmpty(sf.get_conversionList()))
+			return null;
+		if (c.getDstFormId() != df.getFormId())
+			return null; // boyle bir forma donus yok
+		if (c.get_conversionColList() == null)
+			for (W5Conversion co : sf.get_conversionList())
+				if (co.getConversionId() == c.getConversionId()) {
+					c.set_conversionColList(co.get_conversionColList());
+					break;
+				}
+		if (c.get_conversionColList() == null)
+			return null;
+		Map<String, Object> m = new HashMap<String, Object>();
+		if (checkCondition && !GenericUtil.isEmpty(c.getConditionSqlCode())) { // TODO
+			boolean b = dao.conditionRecordExistsCheck(scd, dstFormResult.getRequestParams(), sf.getObjectId(),
+					conversionTablePk, c.getConditionSqlCode());
+			if (!b)
+				return null;
+		}
+		// TODO: source kayda yetki kontrolu olacak
+
+		for (W5ConversionCol cCol : c.get_conversionColList())
+			if (!onlyForSynch || cCol.getSynchFlag() != 0) {
+				if (!GenericUtil.isEmpty(cCol.getConversionCode())) {
+					String cc = cCol.getConversionCode();
+					switch (cCol.getFieldConversionTip()) {
+					case 2: // SQL
+						Map<String, Object> sqlm = dao.runSQLQuery2Map(cc, scd, requestParams, null);
+						cc = null;
+						if (!GenericUtil.isEmpty(sqlm)) {
+							Object oo = null;
+							if (sqlm.containsKey("result")) {
+								oo = sqlm.get("result");
+							} else
+								oo = sqlm.values().toArray()[0];
+							if (oo != null)
+								cc = oo.toString();
+						}
+						// cc = GenericUtil.isEmpty(sqlm) ? null :
+						// sqlm.get("result").toString();
+						break;
+					case 6: // Rhino
+						Object result = RhinoUtil.rhinoValue(scriptEngine.executeRhinoScript(dstFormResult.getScd(),
+								dstFormResult.getRequestParams(), cc, null, "result"));
+						if (result != null)
+							cc = result.toString();
+						break;
+					case 1: // not implemented
+					default:
+						if (cc.contains("${")) {
+							StringBuilder tmp1 = new StringBuilder(cc);
+							dao.interprateTemplate(scd, dstFormResult.getRequestParams(), conversionTableId,
+									conversionTablePk, tmp1, true, 0, cCol.getFieldConversionTip());
+							cc = tmp1.toString();
+						}
+					}
+					for (W5FormCell fc : df.get_formCells())
+						if (cCol.getFormCellId() == fc.getFormCellId()) { // buna
+																			// donusecek
+							if (fc.get_sourceObjectDetail() == null)
+								break;
+							short fieldTip = ((W5TableField) fc.get_sourceObjectDetail()).getFieldTip();
+							Object ob = GenericUtil.getObjectByTip(cc, fieldTip);
+							if (ob != null)
+								m.put(fc.getDsc(), fieldTip == 2 /* date? */ ? cc : ob.toString());
+							break;
+						}
+				}
+			}
+		m.put("_cnv", c);
+		m.put("_cnv_name", c.getDsc());
+		m.put("_cnv_src_tbl_id", "" + c.getSrcTableId());
+		m.put("_cnv_src_tbl_pk", "" + conversionTablePk);
+		m.put("_cnv_src_frm_id", "" + sf.getFormId());
+		m.put("_cnv_record", dao.getSummaryText4Record(scd, c.getSrcTableId(), conversionTablePk));
+		return m;
+	}
+	
+
+	public Map interprateConversionTemplate4WsMethod(Map<String, Object> scd, Map<String, String> requestParams,
+			W5Conversion c, int conversionTablePk, W5WsMethod wsm) {
+		int customizationId = (Integer) scd.get("customizationId");
+		requestParams.put("_conversion_table_pk", "" + conversionTablePk);
+		int conversionTableId = c.getSrcTableId();
+		Map<String, Object> m = new HashMap<String, Object>();
+
+		for (W5ConversionCol cCol : c.get_conversionColList()) {
+			if (!GenericUtil.isEmpty(cCol.getConversionCode())) {
+				String cc = cCol.getConversionCode();
+				switch (cCol.getFieldConversionTip()) {
+				case 2: // SQL
+					Map<String, Object> sqlm = dao.runSQLQuery2Map(cc, scd, requestParams, null);
+					cc = GenericUtil.isEmpty(sqlm) ? null : sqlm.get("result").toString();
+				case 6: // Rhino
+					Object result = RhinoUtil.rhinoValue(scriptEngine.executeRhinoScript(scd, requestParams, cc, null, "result"));
+					if (result != null)
+						cc = result.toString();
+					break;
+				case 1: // not implemented
+				default:
+					if (cc.contains("${")) {
+						StringBuilder tmp1 = new StringBuilder(cc);
+						dao.interprateTemplate(scd, requestParams, conversionTableId, conversionTablePk, tmp1, true, 0,
+								cCol.getFieldConversionTip());
+						cc = tmp1.toString();
+					}
+				}
+				for (W5WsMethodParam wsmp : wsm.get_params())
+					if (cCol.getFormCellId() == wsmp.getWsMethodParamId()) { // buna
+																				// donusecek
+						Object ob = GenericUtil.getObjectByTip(cc, wsmp.getParamTip());
+						if (ob != null)
+							m.put(wsmp.getDsc(), wsmp.getParamTip() == 2 /* date? */ ? cc : ob.toString());
+						break;
+					}
+			}
+		}
+		return m;
 	}
 }

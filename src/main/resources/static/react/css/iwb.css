@@ -1062,3 +1062,7 @@ main.inbox > div.card-header {
 .mx--2 {
     margin-left: -0.5rem !important;
 }
+
+.tab-grid nav {
+    border-right: 0 solid #d1d4d7;
+}

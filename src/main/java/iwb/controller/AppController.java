@@ -70,10 +70,10 @@ import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TutorialResult;
-import iwb.engine.RhinoEngine;
 import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
+import iwb.script.RhinoScript;
 import iwb.service.FrameworkService;
 import iwb.timer.Action2Execute;
 import iwb.util.GenericUtil;
@@ -118,7 +118,7 @@ public class AppController implements InitializingBean {
 			brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
 			womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
 		} catch(Exception e){}
-		RhinoEngine.taskExecutor = this.taskExecutor;
+//		RhinoScript.taskExecutor = this.taskExecutor;
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
 		if(FrameworkSetting.logType==2)LogUtil.activateMQ4Log();
 	}
@@ -1093,7 +1093,7 @@ public class AppController implements InitializingBean {
 		if(dbFuncId==-1){
 			if((Integer)scd.get("roleId")!=0)
 				throw new IWBException("security","System DbProc", dbFuncId, null, "Only for developers", null);
-			service.organizeQuery(scd, GenericUtil.uInt(request,("queryId")), (short)GenericUtil.uInt(request,("insertFlag")));
+			service.organizeQueryFields(scd, GenericUtil.uInt(request,("queryId")), (short)GenericUtil.uInt(request,("insertFlag")));
 			response.getWriter().write("{\"success\":true}");
 		} else {
 			W5GlobalFuncResult dbFuncResult = service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1); //request
@@ -2161,7 +2161,7 @@ public class AppController implements InitializingBean {
 		String tableName = request.getParameter("ptable_dsc");
 		logger.info("hndAjaxOrganizeTable("+tableName+")"); 
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	boolean b = (Integer)scd.get("roleId")!=0 ? false : service.organizeTable(scd, tableName);
+    	boolean b = (Integer)scd.get("roleId")!=0 ? false : service.organizeTableFields(scd, tableName);
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":"+b+"}");
 		response.getWriter().close();
