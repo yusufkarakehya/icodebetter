@@ -53,6 +53,8 @@ import iwb.util.RhinoContextFactory;
 import iwb.util.RhinoUtil;
 
 import org.graalvm.polyglot.Value;
+import java.util.function.Function;
+
 
 @Component
 public class GlobalScriptEngine {
@@ -109,6 +111,7 @@ public class GlobalScriptEngine {
 	}
 
 	private ScriptEngine nashornEngine = null;
+	private org.graalvm.polyglot.Context polyglot = null;
 
 	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int globalFuncId, Map<String, String> parameterMap,
 			short accessSourceType) {
@@ -199,10 +202,10 @@ public class GlobalScriptEngine {
 			break;
 
 		case 11:// GraalJS
+			if(polyglot == null)
+				polyglot = org.graalvm.polyglot.Context.newBuilder().allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
 			if (func == null) try{
-				org.graalvm.polyglot.Context context = org.graalvm.polyglot.Context.newBuilder("js")
-						.allowHostAccess(true).build();
 				StringBuilder sb = new StringBuilder();
 				sb.append("(function($");
 				if (!GenericUtil.isEmpty(r.getGlobalFunc().get_dbFuncParamList())) {
@@ -220,7 +223,7 @@ public class GlobalScriptEngine {
 
 				sb.append("){\n").append(script).append("\n})");
 				script = sb.toString();
-				func = context.eval("js", script);
+				func = polyglot.eval("js", script);
 				FrameworkCache.addGraalFunc(scd, "20." + globalFuncId, func);
 			} catch(Exception ge) {
 				dao.logGlobalFuncAction(action, r, error);
