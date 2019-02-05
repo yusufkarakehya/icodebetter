@@ -75,7 +75,7 @@ import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.engine.ScriptEngine;
+import iwb.engine.GlobalScriptEngine;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
 import iwb.service.FrameworkService;
@@ -102,7 +102,7 @@ public class PostgreSQL extends BaseDAO {
 
 	@Lazy
 	@Autowired
-	private ScriptEngine scriptEngine;
+	private GlobalScriptEngine scriptEngine;
 	
 	/*
 	 * public void setEngine(FrameworkEngine engine) { this.engine = engine; }

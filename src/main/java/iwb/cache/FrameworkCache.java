@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.graalvm.polyglot.Value;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -64,6 +65,7 @@ public class FrameworkCache {
 */
 	
 	final private static Map<String, Map<Integer, String>> wPageCss = new HashMap<String, Map<Integer, String>>();
+	final private static Map<String, Map<String, Object>> wGraalFuncs = new HashMap<String, Map<String, Object>>();
 
 	final private static Map<String, Map<Integer, W5Workflow>> wWorkflow = new HashMap<String,Map<Integer, W5Workflow>>();
 	final private static List<W5Customization> wCustomization = new ArrayList<W5Customization>();
@@ -121,7 +123,8 @@ public class FrameworkCache {
 		wq = wListViews.get(projectId); if(wq!=null)wq.clear();
 		wq = mListViews.get(projectId); if(wq!=null)wq.clear();
 		wq = wConversions.get(projectId); if(wq!=null)wq.clear();
-		wq = wComponents.get(projectId); if(wq!=null)wq.clear();
+//		wq = wComponents.get(projectId); if(wq!=null)wq.clear();
+		wq = wGraalFuncs.get(projectId); if(wq!=null)wq.clear();
 		
 	}
 
@@ -650,6 +653,23 @@ public class FrameworkCache {
 			redissonClient = Redisson.create(config);
 		}
 		return redissonClient;
+	}
+
+	public static Object getGraalFunc(Object o, String pk) {
+		String p = getProjectId(o, pk);
+		Map<String, Object> m = wGraalFuncs.get(p);
+		if(m==null)return null;
+		return m.get(pk);
+	}
+
+	public static void addGraalFunc(Object o, String pk, Object func) {
+		String p = getProjectId(o, pk);
+		Map<String, Object> m = wGraalFuncs.get(p);
+		if(m==null) {
+			m = new HashMap();
+			wGraalFuncs.put(p, m);
+		}
+		m.put(pk, func);		
 	}
 
 	

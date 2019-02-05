@@ -32,7 +32,7 @@ public class DebugEngine {
 
 	@Lazy
 	@Autowired
-	private ScriptEngine scriptEngine;
+	private GlobalScriptEngine scriptEngine;
 	
 	public Object executeQuery4Debug(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
 		W5QueryResult queryResult = queryId == -1 ? new W5QueryResult(-1) : metaDataDao.getQueryResult(scd, queryId);
