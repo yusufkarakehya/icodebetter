@@ -1,4 +1,4 @@
-package iwb.engine;
+package iwb.script;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -19,11 +19,11 @@ import com.rabbitmq.client.Channel;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
-import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
+import iwb.engine.ScriptEngine;
 import iwb.exception.IWBException;
 import iwb.service.FrameworkService;
 import iwb.timer.Action2Execute;
@@ -34,15 +34,14 @@ import iwb.util.RedisUtil;
 import iwb.util.RhinoUtil;
 import iwb.util.UserUtil;
 
-public class RhinoEngine {
+public class RhinoScript {
 	Map<String, Object> scd;
 	Map<String, String> requestParams;
-	private PostgreSQL dao;
-	private FrameworkService engine;
-	public static TaskExecutor taskExecutor = null;
+	private ScriptEngine scriptEngine;
+	
 
 	public Object[] sqlQuery(String sql) {
-		List l = dao.executeSQLQuery2Map(sql, null);
+		List l = scriptEngine.getDao().executeSQLQuery2Map(sql, null);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
@@ -51,7 +50,7 @@ public class RhinoEngine {
 		if (GenericUtil.isEmpty(m) || !sql.contains("${"))
 			return sqlQuery(sql);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, m, null);
-		List l = dao.executeSQLQuery2Map(oz[0].toString(), (List) oz[1]);
+		List l = scriptEngine.getDao().executeSQLQuery2Map(oz[0].toString(), (List) oz[1]);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
@@ -131,7 +130,7 @@ public class RhinoEngine {
 	}
 
 	public String getCurrentDate() {
-		return dao.getCurrentDate((Integer) scd.get("customizationId"));
+		return scriptEngine.getDao().getCurrentDate((Integer) scd.get("customizationId"));
 	}
 
 	public String getLocMsg(String key) {
@@ -139,11 +138,11 @@ public class RhinoEngine {
 	}
 
 	public String md5hash(String s) {
-		return dao.getMd5Hash(s);
+		return scriptEngine.getDao().getMd5Hash(s);
 	}
 
 	public Object sqlFunc(String s) {
-		return dao.getSqlFunc(s);
+		return scriptEngine.getDao().getSqlFunc(s);
 	}
 
 	public int compareDates(String date1, String date2) {
@@ -207,7 +206,7 @@ public class RhinoEngine {
 	}
 
 	public Object[] runQuery(int queryId, NativeObject jsRequestParams) {
-		List l = dao.runQuery2Map(scd, queryId, fromNativeObject2Map(jsRequestParams));
+		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromNativeObject2Map(jsRequestParams));
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
@@ -297,7 +296,7 @@ public class RhinoEngine {
 	}
 
 	public Object execFunc(int dbFuncId, NativeObject jsRequestParams, boolean throwOnError, String throwMessage) {
-		W5GlobalFuncResult result = engine.executeFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short) 5);
+		W5GlobalFuncResult result = scriptEngine.executeFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short) 5);
 		if (throwOnError && !result.getErrorMap().isEmpty()) {
 			throw new IWBException("rhino", "GlobalFunc", dbFuncId, null,
 					throwMessage != null ? LocaleMsgCache.get2(scd, throwMessage)
@@ -316,7 +315,7 @@ public class RhinoEngine {
 			}
 		}
 
-		return dao.executeUpdateSQLQuery(sql, null);
+		return scriptEngine.getDao().executeUpdateSQLQuery(sql, null);
 	}
 
 	public int sqlExecute(String sql, NativeObject jsRequestParams) {
@@ -331,7 +330,7 @@ public class RhinoEngine {
 		Map<String, String> reqMap = fromNativeObject2Map(jsRequestParams);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, reqMap, null);
 
-		return dao.executeUpdateSQLQuery((String) oz[0], oz.length > 1 ? (List) oz[1] : null);
+		return scriptEngine.getDao().executeUpdateSQLQuery((String) oz[0], oz.length > 1 ? (List) oz[1] : null);
 	}
 
 	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams) {
@@ -350,7 +349,7 @@ public class RhinoEngine {
 	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams, String prefix,
 			boolean throwOnError, String throwMessage) {
 
-		W5FormResult result = engine.postForm4Table(scd, formId, action, fromNativeObject2Map(jsRequestParams), prefix);
+		W5FormResult result = scriptEngine.getCrudEngine().postForm4Table(scd, formId, action, fromNativeObject2Map(jsRequestParams), prefix);
 		if (throwOnError && !result.getErrorMap().isEmpty()) {
 			throw new IWBException("rhino", "FormId", formId, null,
 					throwMessage != null ? LocaleMsgCache.get2(scd, throwMessage)
@@ -360,13 +359,13 @@ public class RhinoEngine {
 		if (result.getQueueActionList() != null)
 			for (W5QueuedActionHelper o : result.getQueueActionList()) {
 				Action2Execute eqf = new Action2Execute(o, scd);
-				taskExecutor.execute(eqf);
-			}
+//				taskExecutor.execute(eqf);
+		}
 		return result;
 	}
 
 	public Map getTableJSON(String tableDsc, String tablePk) {
-		List<Integer> l = (List<Integer>) dao.find(
+		List<Integer> l = (List<Integer>) scriptEngine.getDao().find(
 				"select t.tableId from W5Table t where t.dsc=? AND t.customizationId in (0,?) order by t.customizationId desc",
 				tableDsc, scd.get("customizationId"));
 		if (l.isEmpty())
@@ -421,7 +420,7 @@ public class RhinoEngine {
 		}
 		List p = new ArrayList();
 		p.add(t.get_tableParamList().get(0).getParamTip() == 1 ? tablePk : GenericUtil.uInt(tablePk));
-		List l = dao.executeSQLQuery2Map(s.toString(), p);
+		List l = scriptEngine.getDao().executeSQLQuery2Map(s.toString(), p);
 		if (GenericUtil.isEmpty(l)) {
 			if (throwOnError)
 				throw new IWBException("rhino", "getTableJSON", tableId, null,
@@ -441,7 +440,7 @@ public class RhinoEngine {
 		Map result = new HashMap();
 		result.put("success", true);
 		try {
-			Map m = engine.REST(scd, serviceName, fromNativeObject2Map2(jsRequestParams));
+			Map m = scriptEngine.getRestEngine().REST(scd, serviceName, fromNativeObject2Map2(jsRequestParams));
 			if (m != null) {
 				if (m.containsKey("errorMsg")) {
 					if (throwFlag)
@@ -496,28 +495,11 @@ public class RhinoEngine {
 		this.requestParams = requestParams;
 	}
 
-	public PostgreSQL getDao() {
-		return dao;
-	}
 
-	public void setDao(PostgreSQL dao) {
-		this.dao = dao;
-	}
-
-	public FrameworkService getEngine() {
-		return engine;
-	}
-
-	public void setEngine(FrameworkService engine) {
-		this.engine = engine;
-	}
-
-	public RhinoEngine(Map<String, Object> scd, Map<String, String> requestParams, PostgreSQL dao,
-			FrameworkService engine) {
+	public RhinoScript(Map<String, Object> scd, Map<String, String> requestParams, ScriptEngine scriptEngine) {
 		super();
 		this.scd = scd;
 		this.requestParams = requestParams;
-		this.dao = dao;
-		this.engine = engine;
+		this.scriptEngine = scriptEngine;
 	}
 }

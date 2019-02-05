@@ -30,6 +30,10 @@ public class DebugEngine {
 	private MetadataLoaderDAO metaDataDao;
 
 
+	@Lazy
+	@Autowired
+	private ScriptEngine scriptEngine;
+	
 	public Object executeQuery4Debug(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
 		W5QueryResult queryResult = queryId == -1 ? new W5QueryResult(-1) : metaDataDao.getQueryResult(scd, queryId);
 
@@ -73,7 +77,7 @@ public class DebugEngine {
 				// ArrayList());
 			}
 		} else { // rhino
-			return dao.executeQueryAsRhino4Debug(queryResult, requestParams.get("_sql_from"));
+			return scriptEngine.executeQueryAsRhino4Debug(queryResult, requestParams.get("_sql_from"));
 		}
 
 		return queryResult;
@@ -81,6 +85,6 @@ public class DebugEngine {
 
 	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int dbFuncId,
 			Map<String, String> parameterMap) {
-		return dao.executeGlobalFunc4Debug(scd, dbFuncId, parameterMap);
+		return scriptEngine.executeGlobalFunc4Debug(scd, dbFuncId, parameterMap);
 	}
 }

@@ -1530,7 +1530,7 @@ public class CRUDEngine {
 										cnv.getDstTableId(), GenericUtil.uInt(ptablePk));
 							}
 							if (!GenericUtil.isEmpty(cnv.getRhinoCode())) {
-								dao.executeRhinoScript(scd, requestParams, cnv.getRhinoCode(), null, "result");
+								scriptEngine.executeRhinoScript(scd, requestParams, cnv.getRhinoCode(), null, "result");
 							}
 						}
 					}
