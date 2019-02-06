@@ -296,7 +296,7 @@ public class GraalScript {
 	}
 
 	public Object execFunc(int dbFuncId, NativeObject jsRequestParams, boolean throwOnError, String throwMessage) {
-		W5GlobalFuncResult result = scriptEngine.executeFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short) 5);
+		W5GlobalFuncResult result = scriptEngine.executeGlobalFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short) 5);
 		if (throwOnError && !result.getErrorMap().isEmpty()) {
 			throw new IWBException("rhino", "GlobalFunc", dbFuncId, null,
 					throwMessage != null ? LocaleMsgCache.get2(scd, throwMessage)

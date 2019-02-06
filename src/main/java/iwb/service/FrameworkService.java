@@ -358,7 +358,7 @@ public class FrameworkService {
 
 	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int dbFuncId, Map<String, String> parameterMap,
 			short accessSourceType) {
-		return scriptEngine.executeFunc(scd, dbFuncId, parameterMap, accessSourceType);
+		return scriptEngine.executeGlobalFunc(scd, dbFuncId, parameterMap, accessSourceType);
 		
 	}
 

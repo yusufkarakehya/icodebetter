@@ -54,6 +54,8 @@ import iwb.util.RhinoUtil;
 
 import org.graalvm.polyglot.Value;
 
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
+
 @Component
 public class GlobalScriptEngine {
 	@Lazy
@@ -109,8 +111,25 @@ public class GlobalScriptEngine {
 	}
 
 	private ScriptEngine nashornEngine = null;
+	private org.graalvm.polyglot.Context polyglot = null;
+	
+	private Map<String, String> fromScriptObject2Map(ScriptObjectMirror jsRequestParams) {
+		Map<String, String> rp = new HashMap<String, String>();
+		if (jsRequestParams != null) {
+			for (String key:jsRequestParams.keySet()) {
+				Object o = jsRequestParams.get(key);
+				if (o != null) {
+					String res = o.toString();
+					if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
+						res = res.substring(0, res.length() - 2);
+					rp.put(key, res);
+				}
+			}
+		}
+		return rp;
+	}
 
-	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int globalFuncId, Map<String, String> parameterMap,
+	public W5GlobalFuncResult executeGlobalFunc(Map<String, Object> scd, int globalFuncId, Map<String, String> parameterMap,
 			short accessSourceType) {
 
 		W5GlobalFuncResult r = metaDataDao.getGlobalFuncResult(scd, globalFuncId);
@@ -185,11 +204,30 @@ public class GlobalScriptEngine {
 							params.add(GenericUtil.uFormatDate((Date) o));
 						else
 							params.add(o);
-					}
+					}else
+						hasOutParam = true;
 			}
 			
 			try{
 				Object funcResult = ((Invocable) nashornEngine).invokeFunction(r.getGlobalFunc().getDsc(), params.toArray(new Object[0]));
+			
+				if (hasOutParam) {
+					// JSONObject jo=new JSONObject();
+					Map<String, String> res = new HashMap<String, String>();
+					if(funcResult!=null && funcResult instanceof ScriptObjectMirror) {
+						Map resultMap = fromScriptObject2Map((ScriptObjectMirror)funcResult);
+						for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
+							if (p1.getOutFlag() != 0 && resultMap.containsKey(p1.getDsc())) {
+								Object em = resultMap.get(p1.getDsc());
+								if (em != null) {
+									String v = em.toString();
+									if(p1.getParamTip()==4 && v.endsWith(".0"))v=v.substring(0,v.length()-2);
+									res.put(p1.getDsc(), v);
+								}
+						}
+					}
+					r.setResultMap(res);
+				}
 			} catch(Exception ge) {
 				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalGlobalFunc.Run", r.getGlobalFuncId(), script,
@@ -199,10 +237,10 @@ public class GlobalScriptEngine {
 			break;
 
 		case 11:// GraalJS
+			if(polyglot == null)
+				polyglot = org.graalvm.polyglot.Context.newBuilder("js").allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
 			if (func == null) try{
-				org.graalvm.polyglot.Context context = org.graalvm.polyglot.Context.newBuilder("js")
-						.allowHostAccess(true).build();
 				StringBuilder sb = new StringBuilder();
 				sb.append("(function($");
 				if (!GenericUtil.isEmpty(r.getGlobalFunc().get_dbFuncParamList())) {
@@ -220,7 +258,7 @@ public class GlobalScriptEngine {
 
 				sb.append("){\n").append(script).append("\n})");
 				script = sb.toString();
-				func = context.eval("js", script);
+				func = polyglot.eval("js", script);
 				FrameworkCache.addGraalFunc(scd, "20." + globalFuncId, func);
 			} catch(Exception ge) {
 				dao.logGlobalFuncAction(action, r, error);

@@ -224,7 +224,7 @@ public class WorkflowEngine {
 	              Map<String, String> mz = new HashMap();
 	              mz.put("ptable_id", "" + ar.getTableId());
 	              mz.put("ptable_pk", "" + ar.getTablePk());
-	              scriptEngine.executeFunc(
+	              scriptEngine.executeGlobalFunc(
 	                  scd, 690, mz,
 	                  (short) 2); // bu kaydin child kayitlari var mi? iwb.w5_table_field'daki
 	              // default_control_tip ve default_lookup_table_id'ye bakiliyor

@@ -11,8 +11,6 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeObject;
-import org.springframework.core.task.TaskExecutor;
 
 import com.rabbitmq.client.Channel;
 
@@ -25,7 +23,6 @@ import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.engine.GlobalScriptEngine;
 import iwb.exception.IWBException;
-import iwb.service.FrameworkService;
 import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
@@ -33,6 +30,7 @@ import iwb.util.MQUtil;
 import iwb.util.RedisUtil;
 import iwb.util.RhinoUtil;
 import iwb.util.UserUtil;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 public class NashornScript {
 	Map<String, Object> scd;
@@ -45,8 +43,8 @@ public class NashornScript {
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
-	public Object[] sqlQuery(String sql, NativeObject jsRequestParams) {
-		Map m = fromNativeObject2Map(jsRequestParams);
+	public Object[] sqlQuery(String sql, Object jsRequestParams) {
+		Map m = fromScriptObject2Map((ScriptObjectMirror)jsRequestParams);
 		if (GenericUtil.isEmpty(m) || !sql.contains("${"))
 			return sqlQuery(sql);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, m, null);
@@ -57,9 +55,9 @@ public class NashornScript {
 	/*
 	 * public Object tsqlQuery(String sql, String dbName){ return
 	 * engine.executeInfluxQuery(scd, sql, dbName); } public void
-	 * tsqlInsert(String measurement, NativeObject jsTags, NativeObject
+	 * tsqlInsert(String measurement, ScriptObjectMirror jsTags, ScriptObjectMirror
 	 * jsFields){ tsqlInsert(measurement, jsTags, jsFields, null); } public void
-	 * tsqlInsert(String measurement, NativeObject jsTags, NativeObject
+	 * tsqlInsert(String measurement, ScriptObjectMirror jsTags, ScriptObjectMirror
 	 * jsFields, String date){ engine.insertInfluxRecord(scd, measurement,
 	 * fromNativeObject2Map2(jsTags, true), fromNativeObject2Map2(jsFields,
 	 * false), date); } public Object tsqlExecute(String sql, String dbName){
@@ -70,13 +68,19 @@ public class NashornScript {
 		Thread.sleep(millis);
 	}
 
-	public NativeObject redisGetJSON(String host, String k) throws JSONException {
+	public ScriptObjectMirror redisGetJSON(String host, String k) throws JSONException {
 
 		String v = RedisUtil.get(host, k);
 		if (v != null) {
 			JSONObject o = new JSONObject(v);
-			return RhinoUtil.fromJSONObjectToNativeObject(o);
+			return fromJSONObjectToScriptObject(o);
 		}
+		return null;
+	}
+
+	private ScriptObjectMirror fromJSONObjectToScriptObject(JSONObject o) {
+//		ScriptObjectMirror r = new ScriptObjectMirror();
+		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -84,11 +88,15 @@ public class NashornScript {
 		if (v == null)
 			return RedisUtil.put(host, k, null);
 
-		if (v instanceof NativeArray)
-			return RedisUtil.put(host, k, RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) v));
-
-		if (v instanceof NativeObject)
-			return RedisUtil.put(host, k, RhinoUtil.fromNativeObjectToJsonString2Recursive((NativeObject) v));
+		if (v instanceof ScriptObjectMirror) {
+			ScriptObjectMirror so = (ScriptObjectMirror) v;
+			if(so.isArray()) {
+				return RedisUtil.put(host, k, RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) v));
+			}
+			else {
+				return RedisUtil.put(host, k, GenericUtil.fromMapToJsonString2Recursive(so));
+			}
+		}
 
 		return RedisUtil.put(host, k, v.toString());
 	}
@@ -155,46 +163,42 @@ public class NashornScript {
 		return d1.equals(d2) ? 0 : (d1.after(d2) ? 1 : -1);
 	}
 
-	private Map<String, String> fromNativeObject2Map(NativeObject jsRequestParams) {
+	private Map<String, String> fromScriptObject2Map(ScriptObjectMirror jsRequestParams) {
 		Map<String, String> rp = new HashMap<String, String>();
-		if (jsRequestParams != null) {
-			Object[] ids = jsRequestParams.getAllIds();
-			if (ids != null)
-				for (int qi = 0; qi < ids.length; qi++) {
-					Object o = RhinoUtil.rhinoValue(jsRequestParams.get(ids[qi].toString(), null));
-					if (o != null) {
-						String res = o.toString();
-						if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
-							res = res.substring(0, res.length() - 2);
-						rp.put(ids[qi].toString(), res);
-					}
+		if (jsRequestParams != null && jsRequestParams.isArray()) {
+			for (String key:jsRequestParams.keySet()) {
+				Object o = jsRequestParams.get(key);
+				if (o != null) {
+					String res = o.toString();
+					if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
+						res = res.substring(0, res.length() - 2);
+					rp.put(key, res);
 				}
+			}
 		}
 		if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
 			rp.put(".w", requestParams.get(".w"));
 		return rp;
 	}
 
-	private Map<String, Object> fromNativeObject2Map2(NativeObject jsRequestParams) {
+	private Map<String, Object> fromScriptObject2Map2(ScriptObjectMirror jsRequestParams) {
 		Map<String, Object> rp = new HashMap<String, Object>();
-		if (jsRequestParams != null) {
-			Object[] ids = jsRequestParams.getAllIds();
-			if (ids != null)
-				for (int qi = 0; qi < ids.length; qi++)
+		if (jsRequestParams != null && jsRequestParams.isArray()) {
+			for (String key:jsRequestParams.keySet()) 
 					try {
-						Object o = RhinoUtil.rhinoValue2(jsRequestParams.get(ids[qi].toString(), null));
+						Object o = jsRequestParams.get(key);
 						if (o != null) {
 							String res = o.toString();
 							if (res.length() > 0)
 								switch (res.charAt(0)) {
 								case '{':
 								case '[':
-									rp.put(ids[qi].toString(), o);
+									rp.put(key, o);
 									break;
 								default:
 									if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
 										res = res.substring(0, res.length() - 2);
-									rp.put(ids[qi].toString(), res);
+									rp.put(key, res);
 								}
 						}
 					} catch (Exception eq) {
@@ -205,8 +209,8 @@ public class NashornScript {
 		return rp;
 	}
 
-	public Object[] runQuery(int queryId, NativeObject jsRequestParams) {
-		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromNativeObject2Map(jsRequestParams));
+	public Object[] runQuery(int queryId, ScriptObjectMirror jsRequestParams) {
+		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromScriptObject2Map(jsRequestParams));//
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
@@ -279,7 +283,7 @@ public class NashornScript {
 			}
 	}
 
-	public Object execFunc(int dbFuncId, NativeObject jsRequestParams) {
+	public Object execFunc(int dbFuncId, ScriptObjectMirror jsRequestParams) {
 		return execFunc(dbFuncId, jsRequestParams, true, null);
 	}
 
@@ -295,8 +299,8 @@ public class NashornScript {
 		return FrameworkCache.getAppSettingStringValue(scd, key);
 	}
 
-	public Object execFunc(int dbFuncId, NativeObject jsRequestParams, boolean throwOnError, String throwMessage) {
-		W5GlobalFuncResult result = scriptEngine.executeFunc(scd, dbFuncId, fromNativeObject2Map(jsRequestParams), (short) 5);
+	public Object execFunc(int dbFuncId, ScriptObjectMirror jsRequestParams, boolean throwOnError, String throwMessage) {
+		W5GlobalFuncResult result = scriptEngine.executeGlobalFunc(scd, dbFuncId, fromScriptObject2Map(jsRequestParams), (short) 5);
 		if (throwOnError && !result.getErrorMap().isEmpty()) {
 			throw new IWBException("rhino", "GlobalFunc", dbFuncId, null,
 					throwMessage != null ? LocaleMsgCache.get2(scd, throwMessage)
@@ -318,7 +322,7 @@ public class NashornScript {
 		return scriptEngine.getDao().executeUpdateSQLQuery(sql, null);
 	}
 
-	public int sqlExecute(String sql, NativeObject jsRequestParams) {
+	public int sqlExecute(String sql, ScriptObjectMirror jsRequestParams) {
 		if (scd != null && scd.get("customizationId") != null && (Integer) scd.get("customizationId") > 1) {
 			String sql2 = sql.toLowerCase(FrameworkSetting.appLocale);
 			if (DBUtil.checkTenantSQLSecurity(sql2)) {
@@ -327,29 +331,29 @@ public class NashornScript {
 			}
 		}
 
-		Map<String, String> reqMap = fromNativeObject2Map(jsRequestParams);
+		Map<String, String> reqMap = fromScriptObject2Map(jsRequestParams);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, reqMap, null);
 
 		return scriptEngine.getDao().executeUpdateSQLQuery((String) oz[0], oz.length > 1 ? (List) oz[1] : null);
 	}
 
-	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams) {
+	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams) {
 		return postForm(formId, action, jsRequestParams, "", true, null);
 	}
 
-	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams, String prefix) {
+	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams, String prefix) {
 		return postForm(formId, action, jsRequestParams, prefix, true, null);
 	}
 
-	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams, String prefix,
+	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams, String prefix,
 			boolean throwOnError) {
 		return postForm(formId, action, jsRequestParams, prefix, throwOnError, null);
 	}
 
-	public W5FormResult postForm(int formId, int action, NativeObject jsRequestParams, String prefix,
+	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams, String prefix,
 			boolean throwOnError, String throwMessage) {
 
-		W5FormResult result = scriptEngine.getCrudEngine().postForm4Table(scd, formId, action, fromNativeObject2Map(jsRequestParams), prefix);
+		W5FormResult result = scriptEngine.getCrudEngine().postForm4Table(scd, formId, action, fromScriptObject2Map(jsRequestParams), prefix);
 		if (throwOnError && !result.getErrorMap().isEmpty()) {
 			throw new IWBException("rhino", "FormId", formId, null,
 					throwMessage != null ? LocaleMsgCache.get2(scd, throwMessage)
@@ -432,15 +436,15 @@ public class NashornScript {
 		return mo;
 	}
 
-	public Map REST(String serviceName, NativeObject jsRequestParams) {
+	public Map REST(String serviceName, ScriptObjectMirror jsRequestParams) {
 		return REST(serviceName, jsRequestParams, true);
 	}
 
-	public Map REST(String serviceName, NativeObject jsRequestParams, boolean throwFlag) {
+	public Map REST(String serviceName, ScriptObjectMirror jsRequestParams, boolean throwFlag) {
 		Map result = new HashMap();
 		result.put("success", true);
 		try {
-			Map m = scriptEngine.getRestEngine().REST(scd, serviceName, fromNativeObject2Map2(jsRequestParams));
+			Map m = scriptEngine.getRestEngine().REST(scd, serviceName, fromScriptObject2Map2(jsRequestParams));
 			if (m != null) {
 				if (m.containsKey("errorMsg")) {
 					if (throwFlag)
@@ -465,25 +469,7 @@ public class NashornScript {
 		return result;
 	}
 
-	public String postRecord(int formId, int action, String params) {
-		return "{success:true}";
-	}
 
-	public String getRecord(int formId, int action, int tablePk, String params) {
-		return "{success:true}";
-	}
-
-	public Map<String, Object> getScd() {
-		return scd;
-	}
-
-	public void setScd(Map<String, Object> scd) {
-		this.scd = scd;
-	}
-
-	public Map<String, String> getRequestParams() {
-		return requestParams;
-	}
 
 	public String formatDate(Object dt) {
 		if (dt == null)
@@ -491,9 +477,6 @@ public class NashornScript {
 		return "--";
 	}
 
-	public void setRequestParams(Map<String, String> requestParams) {
-		this.requestParams = requestParams;
-	}
 
 
 	public NashornScript(Map<String, Object> scd, Map<String, String> requestParams, GlobalScriptEngine scriptEngine) {

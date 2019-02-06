@@ -949,7 +949,7 @@ public class UIEngine {
 						obz = queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
 						break;
 					case 5: // dbFunc
-						obz = scriptEngine.executeFunc(scd, o.getObjectId(), requestParams, (short) 1);
+						obz = scriptEngine.executeGlobalFunc(scd, o.getObjectId(), requestParams, (short) 1);
 						break;
 					case 9: // graph dashboard
 						W5BIGraphDashboard obz2 = (W5BIGraphDashboard) dao.getCustomizedObject(
