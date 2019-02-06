@@ -141,11 +141,11 @@ public class QueryEngine {
 					.append("',").append(GenericUtil.fromMapToJsonString2(m2))
 					.append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc())
 					.append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
-			scriptEngine.executeQueryAsRhino(queryResult, rc.toString());
+			scriptEngine.executeQueryAsScript(queryResult, rc.toString());
 			break;
 
 		case 0: // Rhino Query
-			scriptEngine.executeQueryAsRhino(queryResult, null);
+			scriptEngine.executeQueryAsScript(queryResult, null);
 			break;
 		default:
 			queryResult.setViewLogModeTip((short) GenericUtil.uInt(requestParams, "_vlm"));
@@ -264,7 +264,7 @@ public class QueryEngine {
 									.append(GenericUtil.fromMapToJsonString2(m2))
 									.append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc())
 									.append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
-							scriptEngine.executeQueryAsRhino(lookupQueryResult, rc2.toString());
+							scriptEngine.executeQueryAsScript(lookupQueryResult, rc2.toString());
 							break;
 						case 15: // table
 							switch (lookupQueryResult.getQuery().getQueryTip()) {

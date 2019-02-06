@@ -744,6 +744,14 @@ public class PostgreSQL extends BaseDAO {
 
 	public List runQuery2Map(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
 		W5QueryResult queryResult = metaDataDao.getQueryResult(scd, queryId);
+		queryResult.setErrorMap(new HashMap());
+		queryResult.setRequestParams(requestParams);
+		
+		if(queryResult.getQuery().getQuerySourceTip()==0) { //if JavaScript
+			scriptEngine.executeQueryAsScript(queryResult, null);
+			return queryResult.getData();
+		}
+		
 		if (queryId != 1 && queryId != 824 && queryResult.getMainTable() != null && (!FrameworkSetting.debug
 				|| (scd.get("roleId") != null && GenericUtil.uInt(scd.get("roleId")) != 0))) {
 			W5Table t = queryResult.getMainTable();
@@ -759,8 +767,6 @@ public class PostgreSQL extends BaseDAO {
 		 * "ali baba ${obj.dsc} ve 40 haramiler ${lnk.pk_query_field_id.dsc} olmus"
 		 * ); dao.interprateTemplate(scd, 5,1294, tmpx, true);
 		 */
-		queryResult.setErrorMap(new HashMap());
-		queryResult.setRequestParams(requestParams);
 		queryResult.setViewLogModeTip((short) GenericUtil.uInt(requestParams, "_vlm"));
 
 		//
@@ -1102,7 +1108,7 @@ public class PostgreSQL extends BaseDAO {
 									.append(GenericUtil.fromMapToJsonString2(m2))
 									.append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc())
 									.append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
-							scriptEngine.executeQueryAsRhino(lookupQueryResult, rc2.toString());
+							scriptEngine.executeQueryAsScript(lookupQueryResult, rc2.toString());
 							rc.setLookupQueryResult(lookupQueryResult);
 							continue;
 						default:
@@ -1324,7 +1330,7 @@ public class PostgreSQL extends BaseDAO {
 									cellResult.setValue(" ");
 								break;
 							case 5: // CustomJS(Rhino)
-								Object res = scriptEngine.executeRhinoScript(formResult.getScd(), formResult.getRequestParams(), cellResult.getFormCell().getDefaultValue(), null, null );
+								Object res = scriptEngine.executeScript(formResult.getScd(), formResult.getRequestParams(), cellResult.getFormCell().getDefaultValue(), null, "41d"+cellResult.getFormCell().getFormCellId() );
 							
 //									if (res != null && res instanceof org.mozilla.javascript.Undefined)res = null;
 								if (res != null && ((W5Param) cellResult.getFormCell().get_sourceObjectDetail())
@@ -1450,7 +1456,7 @@ public class PostgreSQL extends BaseDAO {
 				result = (m.values().iterator().next().toString());
 			break;
 		case 5: // CustomJS(Rhino)
-			Object res = scriptEngine.executeRhinoScript(scd, requestParams, cell.getDefaultValue(), null, null );
+			Object res = scriptEngine.executeScript(scd, requestParams, cell.getInitialValue(), null, "41i"+cell.getFormCellId() );
 
 			if (res != null && ((W5Param) cell.get_sourceObjectDetail()).getParamTip() == 4)
 				res = "" + new BigDecimal(res.toString()).intValue();
@@ -1612,7 +1618,7 @@ public class PostgreSQL extends BaseDAO {
 						}
 						break;
 					case 5: // CustomJS(Rhino)
-						Object res = scriptEngine.executeRhinoScript(formResult.getScd(), formResult.getRequestParams(), cell.getInitialValue(), null, null );
+						Object res = scriptEngine.executeScript(formResult.getScd(), formResult.getRequestParams(), cell.getInitialValue(), null, "41i"+cell.getFormCellId() );
 
 						if (res != null && ((W5Param) cell.get_sourceObjectDetail()).getParamTip() == 4)
 							res = "" + new BigDecimal(res.toString()).intValue();
@@ -4064,7 +4070,7 @@ public class PostgreSQL extends BaseDAO {
 			}
 		switch (conversionTip) {
 		case 3: // JavaScript
-			Object resq = scriptEngine.executeRhinoScript(scd, requestParams, tmp.toString(), null, null );
+			Object resq = scriptEngine.executeScript(scd, requestParams, tmp.toString(), null, "cnv_it_"+tableId+"_"+tablePk );
 
 			tmp.setLength(0);
 			if (resq != null)

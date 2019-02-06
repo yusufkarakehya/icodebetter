@@ -45,6 +45,13 @@ public class Log5WsMethodAction implements java.io.Serializable, Log5Base {
 	
 	
 
+	public Log5WsMethodAction() {
+		super();
+	}
+
+
+
+
 	@Column(name="url")
 	public String getUrl() {
 		return url;

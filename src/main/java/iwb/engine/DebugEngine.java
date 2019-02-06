@@ -77,7 +77,7 @@ public class DebugEngine {
 				// ArrayList());
 			}
 		} else { // rhino
-			return scriptEngine.executeQueryAsRhino4Debug(queryResult, requestParams.get("_sql_from"));
+			return scriptEngine.executeQueryAsScript4Debug(queryResult, requestParams.get("_sql_from"));
 		}
 
 		return queryResult;

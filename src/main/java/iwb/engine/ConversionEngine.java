@@ -256,7 +256,7 @@ public class ConversionEngine {
 												if (newFormResult.getOutputFields().get(s) != null)
 													m.put("out." + s,
 															newFormResult.getOutputFields().get(s).toString());
-										scriptEngine.executeRhinoScript(scd, requestParams, c.getRhinoCode(), m, "result");
+										scriptEngine.executeScript(scd, requestParams, c.getRhinoCode(), m, "707r"+c.getConversionId());
 									}
 								} else {
 									if (FrameworkSetting.debug)
@@ -284,7 +284,7 @@ public class ConversionEngine {
 									}
 								}
 							} else {
-								scriptEngine.executeRhinoScript(scd, requestParams, c.getRhinoCode(), m, "result");
+								scriptEngine.executeScript(scd, requestParams, c.getRhinoCode(), m, "result");
 							}
 						}
 					} else if (c.getSrcDstTip() == 1) { // Table -> Ws Method
@@ -330,7 +330,7 @@ public class ConversionEngine {
 							}
 						}
 						if (!GenericUtil.isEmpty(c.getRhinoCode())) {
-							scriptEngine.executeRhinoScript(scd, requestParams, c.getRhinoCode(), mq, "result");
+							scriptEngine.executeScript(scd, requestParams, c.getRhinoCode(), mq, "result");
 						}
 					}
 				} catch (IWBException e) {
@@ -553,8 +553,8 @@ public class ConversionEngine {
 						// sqlm.get("result").toString();
 						break;
 					case 6: // Rhino
-						Object result = RhinoUtil.rhinoValue(scriptEngine.executeRhinoScript(dstFormResult.getScd(),
-								dstFormResult.getRequestParams(), cc, null, "result"));
+						Object result = RhinoUtil.rhinoValue(scriptEngine.executeScript(dstFormResult.getScd(),
+								dstFormResult.getRequestParams(), cc, null, "708c"+cCol.getConversionColId()));
 						if (result != null)
 							cc = result.toString();
 						break;
@@ -592,7 +592,6 @@ public class ConversionEngine {
 
 	public Map interprateConversionTemplate4WsMethod(Map<String, Object> scd, Map<String, String> requestParams,
 			W5Conversion c, int conversionTablePk, W5WsMethod wsm) {
-		int customizationId = (Integer) scd.get("customizationId");
 		requestParams.put("_conversion_table_pk", "" + conversionTablePk);
 		int conversionTableId = c.getSrcTableId();
 		Map<String, Object> m = new HashMap<String, Object>();
@@ -605,7 +604,7 @@ public class ConversionEngine {
 					Map<String, Object> sqlm = dao.runSQLQuery2Map(cc, scd, requestParams, null);
 					cc = GenericUtil.isEmpty(sqlm) ? null : sqlm.get("result").toString();
 				case 6: // Rhino
-					Object result = RhinoUtil.rhinoValue(scriptEngine.executeRhinoScript(scd, requestParams, cc, null, "result"));
+					Object result = RhinoUtil.rhinoValue(scriptEngine.executeScript(scd, requestParams, cc, null, "708c"+cCol.getConversionColId()));
 					if (result != null)
 						cc = result.toString();
 					break;

@@ -1178,7 +1178,8 @@ public class VcsService {
 			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList()){
 				W5Table dt = FrameworkCache.getTable(customizationId, tc.getRelatedTableId());
 				if(dt==null || dt.getTableTip()==0)continue;
-	
+				if(mt.get_tableFieldMap().get(tc.getTableFieldId())==null || dt.get_tableFieldMap().get(tc.getRelatedTableFieldId())==null 
+						|| (tc.getRelatedStaticTableFieldId()!=0 && dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId())==null))continue;
 				List params = new ArrayList();
 				StringBuilder sql = new StringBuilder();
 				sql.append("where d.project_uuid!=? AND exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
@@ -1220,7 +1221,9 @@ public class VcsService {
 			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList()){
 				W5Table dt = FrameworkCache.getTable(customizationId, tc.getRelatedTableId());
 				if(dt==null || dt.getTableTip()==0)continue;
-	
+				if(mt.get_tableFieldMap().get(tc.getTableFieldId())==null || dt.get_tableFieldMap().get(tc.getRelatedTableFieldId())==null 
+						|| (tc.getRelatedStaticTableFieldId()!=0 && dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId())==null))continue;
+
 				List params = new ArrayList();
 				StringBuilder sql = new StringBuilder();
 				sql.append("where d.project_uuid!=? AND exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")

@@ -2092,7 +2092,7 @@ public class FrameworkService {
 			}
 			for (Object[] o : l)
 				try {
-					Object result = scriptEngine.executeRhinoScript(scd, tmp, o[2].toString(), tmp, "result");
+					Object result = scriptEngine.executeScript(scd, tmp, o[2].toString(), tmp, "3243t"+o[0]);
 					if (result != null) {
 						if (result instanceof Double || result instanceof Integer || result instanceof Float
 								|| result instanceof BigDecimal) {
