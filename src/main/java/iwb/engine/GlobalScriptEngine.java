@@ -114,17 +114,17 @@ public class GlobalScriptEngine {
 
 	private ScriptEngine nashornEngine = null;
 	private org.graalvm.polyglot.Context polyglot = null;
-	
+
 	private List<Object> fromScriptObject2List(ScriptObjectMirror jsRequestParams) {
 		List ll = new ArrayList();
 		for (Object oo : jsRequestParams.values()) {
 			if (oo == null)
 				ll.add(null);
 			else if (oo instanceof ScriptObjectMirror)
-				if(((ScriptObjectMirror)oo).isArray()) {
+				if (((ScriptObjectMirror) oo).isArray()) {
 					ll.add(fromScriptObject2List((ScriptObjectMirror) oo));
-				}
-				else ll.add(fromScriptObject2Map((ScriptObjectMirror) oo));
+				} else
+					ll.add(fromScriptObject2Map((ScriptObjectMirror) oo));
 			else
 				ll.add(oo);
 		}
@@ -732,8 +732,6 @@ public class GlobalScriptEngine {
 	}
 
 	public void executeQueryAsScript(W5QueryResult qr, String code) {
-		ContextFactory factory = RhinoContextFactory.getGlobal();
-		Context cx = factory.enterContext();
 
 		// Context cx = Context.enter();
 		W5Query q = qr.getQuery();
@@ -863,16 +861,16 @@ public class GlobalScriptEngine {
 										o[qf.getTabOrder() - 1] = GenericUtil.uInt(o2);
 										break;
 									case 8: // json
-										if(o2 instanceof ScriptObjectMirror) {
+										if (o2 instanceof ScriptObjectMirror) {
 											ScriptObjectMirror no2 = (ScriptObjectMirror) o2;
-											if(no2.isArray()) {
+											if (no2.isArray()) {
 												o[qf.getTabOrder() - 1] = GenericUtil
 														.fromListToJsonString2Recursive(fromScriptObject2List(no2));
 											} else {
 												o[qf.getTabOrder() - 1] = GenericUtil
 														.fromMapToJsonString2Recursive(fromScriptObject2Map(no2));
 											}
-											
+
 										} else if (o2 instanceof Map)
 											o[qf.getTabOrder() - 1] = GenericUtil
 													.fromMapToJsonString2Recursive((Map) o2);
@@ -898,7 +896,9 @@ public class GlobalScriptEngine {
 				throw new IWBException("rhino", "NashornQuery.Run", qr.getQueryId(), script,
 						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
 			}
-		} else
+		} else {
+			ContextFactory factory = RhinoContextFactory.getGlobal();
+			Context cx = factory.enterContext();
 			try { // rhino
 				cx.setOptimizationLevel(-1);
 				if (FrameworkSetting.rhinoInstructionCount > 0)
@@ -1052,6 +1052,7 @@ public class GlobalScriptEngine {
 				// Exit from the context.
 				cx.exit();
 			}
+		}
 	}
 
 	public Map executeQuery4StatWS(W5QueryResult queryResult) {
@@ -1222,8 +1223,9 @@ public class GlobalScriptEngine {
 				throw new IWBException("rhino", "NashornGlobalFuncDebug.Compile", r.getGlobalFuncId(), script,
 						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), ge);
 			}
-
-			params.add(new NashornScript(r.getScd(), r.getRequestParams(), this));
+			NashornScript se = new NashornScript(r.getScd(), r.getRequestParams(), this); 
+			
+			params.add(se);
 			params.add(scd);
 			params.add(parameterMap);
 
@@ -1246,7 +1248,14 @@ public class GlobalScriptEngine {
 			}
 
 			try {
+				if (FrameworkSetting.debug)
+					se.console("start: " + (r.getGlobalFunc() != null ? r.getGlobalFunc().getDsc() : "new"), "DEBUG", "info");
+				long startTm = System.currentTimeMillis();
+				
 				Object funcResult = ((Invocable) nashornEngine).invokeFunction(fncName, params.toArray(new Object[0]));
+				r.setProcessTime((int) (System.currentTimeMillis() - startTm));
+				if (FrameworkSetting.debug)
+					se.console("end: " + (r.getGlobalFunc() != null ? r.getGlobalFunc().getDsc() : "new") + " in " + r.getProcessTime() +"ms", "DEBUG", "info");
 
 				if (hasOutParam) {
 					// JSONObject jo=new JSONObject();
@@ -1376,135 +1385,278 @@ public class GlobalScriptEngine {
 	}
 
 	public Map executeQueryAsScript4Debug(W5QueryResult qr, String script) {
-		ContextFactory factory = RhinoContextFactory.getGlobal();
-		Context cx = factory.enterContext();
 
 		// Context cx = Context.enter();
 		W5Query q = qr.getQuery();
 		Map m = new HashMap();
 		m.put("success", true);
-		// String script = q.getSqlFrom();
-		try {
-			cx.setOptimizationLevel(-1);
-			if (FrameworkSetting.rhinoInstructionCount > 0)
-				cx.setInstructionObserverThreshold(FrameworkSetting.rhinoInstructionCount);
-			// Initialize the standard objects (Object, Function, etc.)
-			// This must be done before scripts can be executed. Returns
-			// a scope object that we use in later calls.
-			Scriptable scope = cx.initStandardObjects();
+		List<Object> params = new ArrayList();
 
-			if (script.charAt(0) == '!')
-				script = script.substring(1);
-			// Collect the arguments into a single string.
-			RhinoScript se = new RhinoScript(qr.getScd(), qr.getRequestParams(), this);
-			Object wrappedOut = Context.javaToJS(se, scope);
-			ScriptableObject.putProperty(scope, "$", wrappedOut);
+		if (useNashorn) {
+			if (nashornEngine == null)
+				nashornEngine = new ScriptEngineManager().getEngineByName("nashorn");
+			Object nobj = FrameworkCache.getGraalFunc(qr.getScd(), "8." + qr.getQueryId());
+			String qryName =  "dqry_" + qr.getScd().get("projectId").toString().replace('-', '_') + "_"
+					+ Math.abs(qr.getQueryId());
+			if (nobj == null)
+				try {
+					StringBuilder sb = new StringBuilder();
+					sb.append("function ").append(qryName).append("($, _scd, _request");
+					if (!GenericUtil.isEmpty(qr.getQuery().get_queryParams())) {
+						for (W5QueryParam p1 : qr.getQuery().get_queryParams())
+							sb.append(",").append(p1.getDsc());
+					}
 
-			StringBuilder sc = new StringBuilder();
-
-			boolean hasOutParam = false;
-			if (q.get_queryParams().size() > 0) {
-				sc.append("var ");
-				for (W5QueryParam p1 : q.get_queryParams()) {
-					if (sc.length() > 4)
-						sc.append(", ");
-					sc.append(p1.getDsc()).append("=");
-					String s = qr.getRequestParams().get(p1.getDsc());
-					Object o = GenericUtil.isEmpty(s) ? null : GenericUtil.getObjectByTip(s, p1.getParamTip());
-					if (o == null) {
-						if (p1.getNotNullFlag() != 0)
-							qr.getErrorMap().put(p1.getDsc(),
-									LocaleMsgCache.get2(qr.getScd(), "validation_error_not_null"));
-						sc.append("null");
-					} else if ((o instanceof Integer) || (o instanceof Double) || (o instanceof BigDecimal)
-							|| (o instanceof Boolean))
-						sc.append(o);
-					else if ((o instanceof Date))
-						sc.append("'").append(GenericUtil.uFormatDate((Date) o)).append("'");
-					else
-						sc.append("'").append(o).append("'");
+					sb.append("){\n");
+					sb.append(script);
+					sb.append("\nreturn result}");
+					script = sb.toString();
+					nashornEngine.eval(script);
+				} catch (Exception ge) {
+//				dao.logGlobalFuncAction(action, r, error);
+					throw new IWBException("rhino", "DebugNashornQuery.Compile", qr.getQueryId(), script,
+							"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
 				}
-				if (sc.length() > 4)
-					sc.append(";\n");
+			else if (nobj instanceof String) {
+				qryName = nobj.toString();
+			}
+
+			NashornScript se = new NashornScript(qr.getScd(), qr.getRequestParams(), this); 
+			params.add(se);
+			params.add(qr.getScd());
+			params.add(qr.getRequestParams());
+
+			for (W5QueryParam p1 : q.get_queryParams()) {
+				String s = qr.getRequestParams().get(p1.getDsc());
+				Object o = GenericUtil.isEmpty(s) ? null : GenericUtil.getObjectByTip(s, p1.getParamTip());
+				if (o == null) {
+					if (p1.getNotNullFlag() != 0)
+						qr.getErrorMap().put(p1.getDsc(),
+								LocaleMsgCache.get2(qr.getScd(), "validation_error_not_null"));
+					params.add(null);
+				} else if ((o instanceof Integer) || (o instanceof Double) || (o instanceof BigDecimal)
+						|| (o instanceof Boolean))
+					params.add(o);
+				else if ((o instanceof Date))
+					params.add(GenericUtil.uFormatDateTime((Date) o));
 				else
-					sc.setLength(0);
+					params.add(o);
 			}
-			if (!qr.getErrorMap().isEmpty()) {
-				throw new IWBException("rhino", "QueryId", q.getQueryId(), script,
-						"Validation ERROR: " + GenericUtil.fromMapToJsonString2(qr.getErrorMap()), null);
+
+			try {
+				if (FrameworkSetting.debug)
+					se.console("start: " + (q != null ? q.getDsc() : "new"), "DEBUG", "info");
+				long startTm = System.currentTimeMillis();
+
+				Object funcResult = ((Invocable) nashornEngine).invokeFunction(qryName, params.toArray(new Object[0]));
+				qr.setProcessTime((int) (System.currentTimeMillis() - startTm));
+				if (FrameworkSetting.debug)
+					se.console("end: " + (q != null ? q.getDsc() : "new") + " in " + qr.getProcessTime() +"ms", "DEBUG", "info");
+
+				if (funcResult instanceof ScriptObjectMirror) {
+					ScriptObjectMirror result = (ScriptObjectMirror) funcResult;
+					if (!result.isArray()) { // result and extraOutMap:TODO
+						if (result.containsKey("extraOutMap"))
+							qr.setExtraOutMap(fromScriptObject2Map((ScriptObjectMirror) result.get("extraOutMap")));
+
+						if (result.containsKey("data"))
+							result = (ScriptObjectMirror) result.get("data");
+						else if (result.containsKey("result"))
+							result = (ScriptObjectMirror) result.get("result");
+						else
+							throw new IWBException("rhino", "DebugNashornQuery.Typo", qr.getQueryId(), script,
+									"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc() + " Missing data/result",
+									null);
+					}
+
+//					int qi = result.size();
+					qr.setFetchRowCount(result.size());
+
+					int maxTabOrder = 0;
+					qr.setNewQueryFields(new ArrayList());
+					for (W5QueryField qf : q.get_queryFields()) {
+						if (qf.getTabOrder() > maxTabOrder)
+							maxTabOrder = qf.getTabOrder();
+						qr.getNewQueryFields().add(qf);
+					}
+
+					List<Map> data = new ArrayList(result.size());
+					int qi = 0;
+					for (Object noo : result.values()) {
+						ScriptObjectMirror no = (ScriptObjectMirror) noo;
+						Object[] o = new Object[maxTabOrder];
+						Map d = new HashMap();
+						data.add(d);
+						for (W5QueryField qf : qr.getNewQueryFields())
+							if (no.containsKey(qf.getDsc())) {
+								// o[qf.getTabOrder()-1] =
+								// no.get(qf.getDsc(), scope);
+								d.put(qf.getDsc(), no.get(qf.getDsc()));
+							}
+						qi++;
+					}
+					m.put("data", data);
+					m.put("fetchTime", System.currentTimeMillis() - startTm);
+					Map m2 = new HashMap();
+					m2.put("startRow", 0);
+					m2.put("fetchCount", result.size());
+					m2.put("totalCount", result.size());
+					m.put("browseInfo", m2);
+					
+					List fields = new ArrayList();
+					for (W5QueryField qf : q.get_queryFields()) {
+						Map d = new HashMap();
+						d.put("name", qf.getDsc());
+						switch (qf.getFieldTip()) {
+						case 3:
+							d.put("type", "int");
+							break;
+						case 4:
+							d.put("type", "float");
+							break;
+						case 2:
+							d.put("type", "date");
+							break;
+						}
+						fields.add(d);
+					}
+					m.put("fields", fields);
+
+				}
+
+			} catch (Exception ge) {
+//				dao.logGlobalFuncAction(action, r, error);
+				throw new IWBException("rhino", "NashornQuery.Run", qr.getQueryId(), script,
+						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
 			}
-			sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString2(qr.getScd())).append(";\nvar _request=")
-					.append(GenericUtil.fromMapToJsonString2(qr.getRequestParams())).append(";\n").append(script);
+		} else {
+			ContextFactory factory = RhinoContextFactory.getGlobal();
+			Context cx = factory.enterContext();
+			// String script = q.getSqlFrom();
+			try {
+				cx.setOptimizationLevel(-1);
+				if (FrameworkSetting.rhinoInstructionCount > 0)
+					cx.setInstructionObserverThreshold(FrameworkSetting.rhinoInstructionCount);
+				// Initialize the standard objects (Object, Function, etc.)
+				// This must be done before scripts can be executed. Returns
+				// a scope object that we use in later calls.
+				Scriptable scope = cx.initStandardObjects();
 
-			script = sc.toString();
+				if (script.charAt(0) == '!')
+					script = script.substring(1);
+				// Collect the arguments into a single string.
+				RhinoScript se = new RhinoScript(qr.getScd(), qr.getRequestParams(), this);
+				Object wrappedOut = Context.javaToJS(se, scope);
+				ScriptableObject.putProperty(scope, "$", wrappedOut);
 
-			se.console("Start: " + (q.getDsc() != null ? q.getDsc() : "new"), "iWB-QUERY-DEBUG", "warn");
-			long startTm = System.currentTimeMillis();
-			cx.evaluateString(scope, script, null, 1, null);
-			m.put("execTime", System.currentTimeMillis() - startTm);
-			se.console("End: " + (q.getDsc() != null ? q.getDsc() : "new"), "iWB-QUERY-DEBUG", "warn");
-			startTm = System.currentTimeMillis();
-			List data = null;
-			if (scope.has("result", scope)) {
-				Object r = scope.get("result", scope);
-				if (r != null) {
-					if (r instanceof NativeArray) {
-						NativeArray ar = (NativeArray) r;
-						int maxTabOrder = 0;
-						for (W5QueryField qf : q.get_queryFields()) {
-							if (qf.getTabOrder() > maxTabOrder)
-								maxTabOrder = qf.getTabOrder();
+				StringBuilder sc = new StringBuilder();
+
+				boolean hasOutParam = false;
+				if (q.get_queryParams().size() > 0) {
+					sc.append("var ");
+					for (W5QueryParam p1 : q.get_queryParams()) {
+						if (sc.length() > 4)
+							sc.append(", ");
+						sc.append(p1.getDsc()).append("=");
+						String s = qr.getRequestParams().get(p1.getDsc());
+						Object o = GenericUtil.isEmpty(s) ? null : GenericUtil.getObjectByTip(s, p1.getParamTip());
+						if (o == null) {
+							if (p1.getNotNullFlag() != 0)
+								qr.getErrorMap().put(p1.getDsc(),
+										LocaleMsgCache.get2(qr.getScd(), "validation_error_not_null"));
+							sc.append("null");
+						} else if ((o instanceof Integer) || (o instanceof Double) || (o instanceof BigDecimal)
+								|| (o instanceof Boolean))
+							sc.append(o);
+						else if ((o instanceof Date))
+							sc.append("'").append(GenericUtil.uFormatDate((Date) o)).append("'");
+						else
+							sc.append("'").append(o).append("'");
+					}
+					if (sc.length() > 4)
+						sc.append(";\n");
+					else
+						sc.setLength(0);
+				}
+				if (!qr.getErrorMap().isEmpty()) {
+					throw new IWBException("rhino", "QueryId", q.getQueryId(), script,
+							"Validation ERROR: " + GenericUtil.fromMapToJsonString2(qr.getErrorMap()), null);
+				}
+				sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString2(qr.getScd()))
+						.append(";\nvar _request=").append(GenericUtil.fromMapToJsonString2(qr.getRequestParams()))
+						.append(";\n").append(script);
+
+				script = sc.toString();
+
+				se.console("Start: " + (q.getDsc() != null ? q.getDsc() : "new"), "iWB-QUERY-DEBUG", "warn");
+				long startTm = System.currentTimeMillis();
+				cx.evaluateString(scope, script, null, 1, null);
+				m.put("execTime", System.currentTimeMillis() - startTm);
+				se.console("End: " + (q.getDsc() != null ? q.getDsc() : "new"), "iWB-QUERY-DEBUG", "warn");
+				startTm = System.currentTimeMillis();
+				List data = null;
+				if (scope.has("result", scope)) {
+					Object r = scope.get("result", scope);
+					if (r != null) {
+						if (r instanceof NativeArray) {
+							NativeArray ar = (NativeArray) r;
+							int maxTabOrder = 0;
+							for (W5QueryField qf : q.get_queryFields()) {
+								if (qf.getTabOrder() > maxTabOrder)
+									maxTabOrder = qf.getTabOrder();
+							}
+							qr.setNewQueryFields(q.get_queryFields());
+							data = new ArrayList((int) ar.getLength());
+							for (int qi = 0; qi < ar.getLength(); qi++) {
+								NativeObject no = (NativeObject) (ar.get(qi, scope));
+								Object[] o = new Object[maxTabOrder];
+								Map d = new HashMap();
+								data.add(d);
+								for (W5QueryField qf : q.get_queryFields())
+									if (no.has(qf.getDsc(), scope)) {
+										// o[qf.getTabOrder()-1] =
+										// no.get(qf.getDsc(), scope);
+										d.put(qf.getDsc(), RhinoUtil.rhinoValue(no.get(qf.getDsc(), scope)));
+									}
+							}
+							m.put("fetchTime", System.currentTimeMillis() - startTm);
+							Map m2 = new HashMap();
+							m2.put("startRow", 0);
+							m2.put("fetchCount", (int) ar.getLength());
+							m2.put("totalCount", (int) ar.getLength());
+							m.put("browseInfo", m2);
 						}
-						qr.setNewQueryFields(q.get_queryFields());
-						data = new ArrayList((int) ar.getLength());
-						for (int qi = 0; qi < ar.getLength(); qi++) {
-							NativeObject no = (NativeObject) (ar.get(qi, scope));
-							Object[] o = new Object[maxTabOrder];
-							Map d = new HashMap();
-							data.add(d);
-							for (W5QueryField qf : q.get_queryFields())
-								if (no.has(qf.getDsc(), scope)) {
-									// o[qf.getTabOrder()-1] =
-									// no.get(qf.getDsc(), scope);
-									d.put(qf.getDsc(), RhinoUtil.rhinoValue(no.get(qf.getDsc(), scope)));
-								}
-						}
-						m.put("fetchTime", System.currentTimeMillis() - startTm);
-						Map m2 = new HashMap();
-						m2.put("startRow", 0);
-						m2.put("fetchCount", (int) ar.getLength());
-						m2.put("totalCount", (int) ar.getLength());
-						m.put("browseInfo", m2);
 					}
 				}
-			}
-			if (data == null)
-				throw new IWBException("rhino", "QueryId", q.getQueryId(), script, "[result] object not found", null);
-			m.put("data", data);
-			List fields = new ArrayList();
-			for (W5QueryField qf : q.get_queryFields()) {
-				Map d = new HashMap();
-				d.put("name", qf.getDsc());
-				switch (qf.getFieldTip()) {
-				case 3:
-					d.put("type", "int");
-					break;
-				case 4:
-					d.put("type", "float");
-					break;
-				case 2:
-					d.put("type", "date");
-					break;
+				if (data == null)
+					throw new IWBException("rhino", "QueryId", q.getQueryId(), script, "[result] object not found",
+							null);
+				m.put("data", data);
+				List fields = new ArrayList();
+				for (W5QueryField qf : q.get_queryFields()) {
+					Map d = new HashMap();
+					d.put("name", qf.getDsc());
+					switch (qf.getFieldTip()) {
+					case 3:
+						d.put("type", "int");
+						break;
+					case 4:
+						d.put("type", "float");
+						break;
+					case 2:
+						d.put("type", "date");
+						break;
+					}
+					fields.add(d);
 				}
-				fields.add(d);
+				m.put("fields", fields);
+			} catch (Exception e) {
+				throw new IWBException("rhino", "Debug Query", q.getQueryId(), script,
+						LocaleMsgCache.get2(0, (String) qr.getScd().get("locale"), e.getMessage()), e);
+			} finally {
+				// Exit from the context.
+				cx.exit();
 			}
-			m.put("fields", fields);
-		} catch (Exception e) {
-			throw new IWBException("rhino", "Debug Query", q.getQueryId(), script,
-					LocaleMsgCache.get2(0, (String) qr.getScd().get("locale"), e.getMessage()), e);
-		} finally {
-			// Exit from the context.
-			cx.exit();
 		}
 		return m;
 	}
