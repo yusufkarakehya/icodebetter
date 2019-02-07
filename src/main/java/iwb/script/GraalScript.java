@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.graalvm.polyglot.Value;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,8 +28,8 @@ import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
 import iwb.util.MQUtil;
 import iwb.util.RedisUtil;
+import iwb.util.ScriptUtil;
 import iwb.util.UserUtil;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 public class GraalScript {
 	Map<String, Object> scd;
@@ -42,7 +43,7 @@ public class GraalScript {
 	}
 
 	public Object[] sqlQuery(String sql, Object jsRequestParams) {
-		Map m = fromScriptObject2Map((ScriptObjectMirror)jsRequestParams);
+		Map m = fromGraalValue2Map((Value)jsRequestParams);
 		if (GenericUtil.isEmpty(m) || !sql.contains("${"))
 			return sqlQuery(sql);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, m, null);
@@ -53,9 +54,9 @@ public class GraalScript {
 	/*
 	 * public Object tsqlQuery(String sql, String dbName){ return
 	 * engine.executeInfluxQuery(scd, sql, dbName); } public void
-	 * tsqlInsert(String measurement, ScriptObjectMirror jsTags, ScriptObjectMirror
+	 * tsqlInsert(String measurement, Value jsTags, Value
 	 * jsFields){ tsqlInsert(measurement, jsTags, jsFields, null); } public void
-	 * tsqlInsert(String measurement, ScriptObjectMirror jsTags, ScriptObjectMirror
+	 * tsqlInsert(String measurement, Value jsTags, Value
 	 * jsFields, String date){ engine.insertInfluxRecord(scd, measurement,
 	 * fromNativeObject2Map2(jsTags, true), fromNativeObject2Map2(jsFields,
 	 * false), date); } public Object tsqlExecute(String sql, String dbName){
@@ -66,7 +67,7 @@ public class GraalScript {
 		Thread.sleep(millis);
 	}
 
-	public ScriptObjectMirror redisGetJSON(String host, String k) throws JSONException {
+	public Value redisGetJSON(String host, String k) throws JSONException {
 
 		String v = RedisUtil.get(host, k);
 		if (v != null) {
@@ -76,8 +77,8 @@ public class GraalScript {
 		return null;
 	}
 
-	private ScriptObjectMirror fromJSONObjectToScriptObject(JSONObject o) {
-//		ScriptObjectMirror r = new ScriptObjectMirror();
+	private Value fromJSONObjectToScriptObject(JSONObject o) {
+//		Value r = new Value();
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -86,14 +87,14 @@ public class GraalScript {
 		if (v == null)
 			return RedisUtil.put(host, k, null);
 
-		if (v instanceof ScriptObjectMirror) {
-			ScriptObjectMirror so = (ScriptObjectMirror) v;
-			if(so.isArray()) {
-//				return RedisUtil.put(host, k, RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) v));
-				return "OK";//TODO
+		if (v instanceof Value) {
+			Value so = (Value) v;
+			if(so.hasArrayElements()) {
+				return RedisUtil.put(host, k, so.toString());
+//				return "OK";//TODO
 			}
 			else {
-				return RedisUtil.put(host, k, GenericUtil.fromMapToJsonString2Recursive(so));
+				return RedisUtil.put(host, k, so.toString());
 			}
 		}
 
@@ -162,30 +163,19 @@ public class GraalScript {
 		return d1.equals(d2) ? 0 : (d1.after(d2) ? 1 : -1);
 	}
 
-	private Map<String, String> fromScriptObject2Map(ScriptObjectMirror jsRequestParams) {
-		Map<String, String> rp = new HashMap<String, String>();
-		if (jsRequestParams != null && jsRequestParams.isArray()) {
-			for (String key:jsRequestParams.keySet()) {
-				Object o = jsRequestParams.get(key);
-				if (o != null) {
-					String res = o.toString();
-					if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
-						res = res.substring(0, res.length() - 2);
-					rp.put(key, res);
-				}
-			}
-		}
+	private Map<String, String> fromGraalValue2Map(Value jsRequestParams) {
+		Map<String, String> rp = ScriptUtil.fromGraalValue2Map(jsRequestParams);
 		if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
 			rp.put(".w", requestParams.get(".w"));
 		return rp;
 	}
 
-	private Map<String, Object> fromScriptObject2Map2(ScriptObjectMirror jsRequestParams) {
+	private Map<String, Object> fromGraalValue2Map2(Value jsRequestParams) {
 		Map<String, Object> rp = new HashMap<String, Object>();
-		if (jsRequestParams != null && jsRequestParams.isArray()) {
-			for (String key:jsRequestParams.keySet()) 
+		if (jsRequestParams != null && !jsRequestParams.hasArrayElements()) {
+			for (String key:jsRequestParams.getMemberKeys()) 
 					try {
-						Object o = jsRequestParams.get(key);
+						Object o = jsRequestParams.getMember(key);
 						if (o != null) {
 							String res = o.toString();
 							if (res.length() > 0)
@@ -208,8 +198,8 @@ public class GraalScript {
 		return rp;
 	}
 
-	public Object[] runQuery(int queryId, ScriptObjectMirror jsRequestParams) {
-		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromScriptObject2Map(jsRequestParams));//
+	public Object[] runQuery(int queryId, Value jsRequestParams) {
+		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromGraalValue2Map(jsRequestParams));//
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
@@ -282,7 +272,7 @@ public class GraalScript {
 			}
 	}
 
-	public Object execFunc(int dbFuncId, ScriptObjectMirror jsRequestParams) {
+	public Object execFunc(int dbFuncId, Value jsRequestParams) {
 		return execFunc(dbFuncId, jsRequestParams, true, null);
 	}
 
@@ -298,8 +288,8 @@ public class GraalScript {
 		return FrameworkCache.getAppSettingStringValue(scd, key);
 	}
 
-	public Object execFunc(int dbFuncId, ScriptObjectMirror jsRequestParams, boolean throwOnError, String throwMessage) {
-		W5GlobalFuncResult result = scriptEngine.executeGlobalFunc(scd, dbFuncId, fromScriptObject2Map(jsRequestParams), (short) 5);
+	public Object execFunc(int dbFuncId, Value jsRequestParams, boolean throwOnError, String throwMessage) {
+		W5GlobalFuncResult result = scriptEngine.executeGlobalFunc(scd, dbFuncId, fromGraalValue2Map(jsRequestParams), (short) 5);
 		if (throwOnError && !result.getErrorMap().isEmpty()) {
 			throw new IWBException("rhino", "GlobalFunc", dbFuncId, null,
 					throwMessage != null ? LocaleMsgCache.get2(scd, throwMessage)
@@ -321,7 +311,7 @@ public class GraalScript {
 		return scriptEngine.getDao().executeUpdateSQLQuery(sql, null);
 	}
 
-	public int sqlExecute(String sql, ScriptObjectMirror jsRequestParams) {
+	public int sqlExecute(String sql, Value jsRequestParams) {
 		if (scd != null && scd.get("customizationId") != null && (Integer) scd.get("customizationId") > 1) {
 			String sql2 = sql.toLowerCase(FrameworkSetting.appLocale);
 			if (DBUtil.checkTenantSQLSecurity(sql2)) {
@@ -330,29 +320,29 @@ public class GraalScript {
 			}
 		}
 
-		Map<String, String> reqMap = fromScriptObject2Map(jsRequestParams);
+		Map<String, String> reqMap = fromGraalValue2Map(jsRequestParams);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, reqMap, null);
 
 		return scriptEngine.getDao().executeUpdateSQLQuery((String) oz[0], oz.length > 1 ? (List) oz[1] : null);
 	}
 
-	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams) {
+	public W5FormResult postForm(int formId, int action, Value jsRequestParams) {
 		return postForm(formId, action, jsRequestParams, "", true, null);
 	}
 
-	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams, String prefix) {
+	public W5FormResult postForm(int formId, int action, Value jsRequestParams, String prefix) {
 		return postForm(formId, action, jsRequestParams, prefix, true, null);
 	}
 
-	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams, String prefix,
+	public W5FormResult postForm(int formId, int action, Value jsRequestParams, String prefix,
 			boolean throwOnError) {
 		return postForm(formId, action, jsRequestParams, prefix, throwOnError, null);
 	}
 
-	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams, String prefix,
+	public W5FormResult postForm(int formId, int action, Value jsRequestParams, String prefix,
 			boolean throwOnError, String throwMessage) {
 
-		W5FormResult result = scriptEngine.getCrudEngine().postForm4Table(scd, formId, action, fromScriptObject2Map(jsRequestParams), prefix);
+		W5FormResult result = scriptEngine.getCrudEngine().postForm4Table(scd, formId, action, fromGraalValue2Map(jsRequestParams), prefix);
 		if (throwOnError && !result.getErrorMap().isEmpty()) {
 			throw new IWBException("rhino", "FormId", formId, null,
 					throwMessage != null ? LocaleMsgCache.get2(scd, throwMessage)
@@ -435,15 +425,15 @@ public class GraalScript {
 		return mo;
 	}
 
-	public Map REST(String serviceName, ScriptObjectMirror jsRequestParams) {
+	public Map REST(String serviceName, Value jsRequestParams) {
 		return REST(serviceName, jsRequestParams, true);
 	}
 
-	public Map REST(String serviceName, ScriptObjectMirror jsRequestParams, boolean throwFlag) {
+	public Map REST(String serviceName, Value jsRequestParams, boolean throwFlag) {
 		Map result = new HashMap();
 		result.put("success", true);
 		try {
-			Map m = scriptEngine.getRestEngine().REST(scd, serviceName, fromScriptObject2Map2(jsRequestParams));
+			Map m = scriptEngine.getRestEngine().REST(scd, serviceName, fromGraalValue2Map2(jsRequestParams));
 			if (m != null) {
 				if (m.containsKey("errorMsg")) {
 					if (throwFlag)

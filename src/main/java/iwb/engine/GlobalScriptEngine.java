@@ -326,10 +326,30 @@ public class GlobalScriptEngine {
 							params.add(GenericUtil.uFormatDate((Date) o));
 						else
 							params.add(o);
-					}
+					} else
+						hasOutParam = true;
 			}
 			try {
 				Object funcResult = func.execute(params.toArray(new Object[0]));
+				
+				if (hasOutParam) {
+					// JSONObject jo=new JSONObject();
+					Map<String, String> res = new HashMap<String, String>();
+					if (funcResult != null && funcResult instanceof Value) {
+						Map resultMap = ScriptUtil.fromGraalValue2Map((Value) funcResult);
+						for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
+							if (p1.getOutFlag() != 0 && resultMap.containsKey(p1.getDsc())) {
+								Object em = resultMap.get(p1.getDsc());
+								if (em != null) {
+									String v = em.toString();
+									if (p1.getParamTip() == 4 && v.endsWith(".0"))
+										v = v.substring(0, v.length() - 2);
+									res.put(p1.getDsc(), v);
+								}
+							}
+					}
+					r.setResultMap(res);
+				}
 			} catch (Exception ge) {
 				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalGlobalFunc.Run", r.getGlobalFuncId(), script,
