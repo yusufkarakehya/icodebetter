@@ -29,7 +29,6 @@ import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
-import iwb.util.RhinoUtil;
 
 @Component
 public class ConversionEngine {
@@ -553,8 +552,8 @@ public class ConversionEngine {
 						// sqlm.get("result").toString();
 						break;
 					case 6: // Rhino
-						Object result = RhinoUtil.rhinoValue(scriptEngine.executeScript(dstFormResult.getScd(),
-								dstFormResult.getRequestParams(), cc, null, "708c"+cCol.getConversionColId()));
+						Object result = scriptEngine.executeScript(dstFormResult.getScd(),
+								dstFormResult.getRequestParams(), cc, null, "708c"+cCol.getConversionColId());
 						if (result != null)
 							cc = result.toString();
 						break;
@@ -604,7 +603,7 @@ public class ConversionEngine {
 					Map<String, Object> sqlm = dao.runSQLQuery2Map(cc, scd, requestParams, null);
 					cc = GenericUtil.isEmpty(sqlm) ? null : sqlm.get("result").toString();
 				case 6: // Rhino
-					Object result = RhinoUtil.rhinoValue(scriptEngine.executeScript(scd, requestParams, cc, null, "708c"+cCol.getConversionColId()));
+					Object result = scriptEngine.executeScript(scd, requestParams, cc, null, "708c"+cCol.getConversionColId());
 					if (result != null)
 						cc = result.toString();
 					break;

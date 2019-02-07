@@ -19,7 +19,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.NativeObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -2104,7 +2103,6 @@ public class FrameworkService {
 						} else if (result instanceof String) {
 							if (((String) result).length() == 0)
 								result = null;
-						} else if (result instanceof NativeObject) {
 						}
 					}
 					if (result != null) {

@@ -12,14 +12,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
 import org.json.JSONObject;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeJavaObject;
-import org.mozilla.javascript.NativeObject;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.Undefined;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -34,6 +26,7 @@ import iwb.domain.db.Log5GlobalFuncAction;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
+import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
@@ -47,13 +40,11 @@ import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
 import iwb.script.GraalScript;
 import iwb.script.NashornScript;
-import iwb.script.RhinoScript;
 import iwb.util.GenericUtil;
-import iwb.util.RhinoContextFactory;
-import iwb.util.RhinoUtil;
+import iwb.util.ScriptUtil;
 
 import org.graalvm.polyglot.Value;
-
+import org.graalvm.polyglot.Context;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 @Component
@@ -113,8 +104,9 @@ public class GlobalScriptEngine {
 	}
 
 	private ScriptEngine nashornEngine = null;
-	private org.graalvm.polyglot.Context polyglot = null;
-
+	private Context polyglot = null;
+	
+/*
 	private List<Object> fromScriptObject2List(ScriptObjectMirror jsRequestParams) {
 		List ll = new ArrayList();
 		for (Object oo : jsRequestParams.values()) {
@@ -151,7 +143,7 @@ public class GlobalScriptEngine {
 			}
 		}
 		return rp;
-	}
+	}*/
 
 	public W5GlobalFuncResult executeGlobalFunc(Map<String, Object> scd, int globalFuncId,
 			Map<String, String> parameterMap, short accessSourceType) {
@@ -263,7 +255,7 @@ public class GlobalScriptEngine {
 					// JSONObject jo=new JSONObject();
 					Map<String, String> res = new HashMap<String, String>();
 					if (funcResult != null && funcResult instanceof ScriptObjectMirror) {
-						Map resultMap = fromScriptObject2Map((ScriptObjectMirror) funcResult);
+						Map resultMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror) funcResult);
 						for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
 							if (p1.getOutFlag() != 0 && resultMap.containsKey(p1.getDsc())) {
 								Object em = resultMap.get(p1.getDsc());
@@ -287,7 +279,7 @@ public class GlobalScriptEngine {
 
 		case 11:// GraalJS
 			if (polyglot == null)
-				polyglot = org.graalvm.polyglot.Context.newBuilder("js").allowHostAccess(true).build();
+				polyglot = Context.newBuilder("js").allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
 			if (func == null)
 				try {
@@ -346,7 +338,7 @@ public class GlobalScriptEngine {
 
 			break;
 		case 111: // rhino code
-
+/*
 			ContextFactory factory = RhinoContextFactory.getGlobal();
 			Context cx = factory.enterContext();
 
@@ -404,13 +396,8 @@ public class GlobalScriptEngine {
 
 				// Now evaluate the string we've colected.
 				cx.evaluateString(scope, script, null, 1, null);
-				/*
-				 * if(scope.has("errorMsg", scope)){ Object em =
-				 * RhinoUtil.rhinoValue(scope.get("errorMsg", scope)); if(em!=null)throw new
-				 * PromisException("rhino","GlobalFuncId", r.getGlobalFuncId(), script,
-				 * LocaleMsgCache.get2(0,(String)r.getScd().get("locale"),em. toString()),
-				 * null); }
-				 */
+
+
 				if (hasOutParam) {
 					// JSONObject jo=new JSONObject();
 					Map<String, String> res = new HashMap<String, String>();
@@ -435,6 +422,7 @@ public class GlobalScriptEngine {
 				cx.exit();
 				dao.logGlobalFuncAction(action, r, error);
 			}
+			*/
 			break;
 		case 99: // DB
 			dao.executeDbFunc(r, "");
@@ -561,7 +549,7 @@ public class GlobalScriptEngine {
 			}
 
 		} else {
-			ContextFactory factory = RhinoContextFactory.getGlobal();
+/*			ContextFactory factory = RhinoContextFactory.getGlobal();
 			Context cx = factory.enterContext();
 
 			// Context cx = Context.enter();
@@ -632,6 +620,7 @@ public class GlobalScriptEngine {
 				// Exit from the context.
 				cx.exit();
 			}
+			*/
 		}
 	}
 
@@ -679,7 +668,7 @@ public class GlobalScriptEngine {
 			}
 
 		} else {
-			ContextFactory factory = RhinoContextFactory.getGlobal();
+	/*		ContextFactory factory = RhinoContextFactory.getGlobal();
 			Context cx = factory.enterContext();
 
 			// Context cx = Context.enter();
@@ -728,7 +717,9 @@ public class GlobalScriptEngine {
 				// Exit from the context.
 				cx.exit();
 			}
+			*/
 		}
+		return null;
 	}
 
 	public void executeQueryAsScript(W5QueryResult qr, String code) {
@@ -797,7 +788,7 @@ public class GlobalScriptEngine {
 					ScriptObjectMirror result = (ScriptObjectMirror) funcResult;
 					if (!result.isArray()) { // result and extraOutMap:TODO
 						if (result.containsKey("extraOutMap"))
-							qr.setExtraOutMap(fromScriptObject2Map((ScriptObjectMirror) result.get("extraOutMap")));
+							qr.setExtraOutMap(ScriptUtil.fromScriptObject2Map((ScriptObjectMirror) result.get("extraOutMap")));
 
 						if (result.containsKey("data"))
 							result = (ScriptObjectMirror) result.get("data");
@@ -865,10 +856,10 @@ public class GlobalScriptEngine {
 											ScriptObjectMirror no2 = (ScriptObjectMirror) o2;
 											if (no2.isArray()) {
 												o[qf.getTabOrder() - 1] = GenericUtil
-														.fromListToJsonString2Recursive(fromScriptObject2List(no2));
+														.fromListToJsonString2Recursive(ScriptUtil.fromScriptObject2List(no2));
 											} else {
 												o[qf.getTabOrder() - 1] = GenericUtil
-														.fromMapToJsonString2Recursive(fromScriptObject2Map(no2));
+														.fromMapToJsonString2Recursive(ScriptUtil.fromScriptObject2Map(no2));
 											}
 
 										} else if (o2 instanceof Map)
@@ -897,7 +888,7 @@ public class GlobalScriptEngine {
 						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
 			}
 		} else {
-			ContextFactory factory = RhinoContextFactory.getGlobal();
+		/*	ContextFactory factory = RhinoContextFactory.getGlobal();
 			Context cx = factory.enterContext();
 			try { // rhino
 				cx.setOptimizationLevel(-1);
@@ -1052,6 +1043,7 @@ public class GlobalScriptEngine {
 				// Exit from the context.
 				cx.exit();
 			}
+			*/
 		}
 	}
 
@@ -1261,7 +1253,7 @@ public class GlobalScriptEngine {
 					// JSONObject jo=new JSONObject();
 					Map<String, String> res = new HashMap<String, String>();
 					if (funcResult != null && funcResult instanceof ScriptObjectMirror) {
-						Map resultMap = fromScriptObject2Map((ScriptObjectMirror) funcResult);
+						Map resultMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror) funcResult);
 						for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
 							if (p1.getOutFlag() != 0 && resultMap.containsKey(p1.getDsc())) {
 								Object em = resultMap.get(p1.getDsc());
@@ -1282,7 +1274,7 @@ public class GlobalScriptEngine {
 			}
 
 		} else {
-			ContextFactory factory = RhinoContextFactory.getGlobal();
+/*			ContextFactory factory = RhinoContextFactory.getGlobal();
 			Context cx = factory.enterContext();
 
 			// Context cx = Context.enter();
@@ -1351,13 +1343,8 @@ public class GlobalScriptEngine {
 				// if(FrameworkSetting.debug)se.console("end: " +
 				// (r.getGlobalFunc()!=null ?
 				// r.getGlobalFunc().getDsc(): "new"),"DEBUG","success");
-				/*
-				 * if(scope.has("errorMsg", scope)){ Object em =
-				 * RhinoUtil.rhinoValue(scope.get("errorMsg", scope)); if(em!=null)throw new
-				 * PromisException("rhino","GlobalFuncId", r.getGlobalFuncId(), script,
-				 * LocaleMsgCache.get2(0,(String)r.getScd().get("locale"),em. toString()),
-				 * null); }
-				 */
+				
+
 				if (hasOutParam) {
 					// JSONObject jo=new JSONObject();
 					Map<String, String> res = new HashMap<String, String>();
@@ -1379,6 +1366,8 @@ public class GlobalScriptEngine {
 				// Exit from the context.
 				cx.exit();
 			}
+			
+			*/
 		}
 		r.setSuccess(true);
 		return r;
@@ -1457,7 +1446,7 @@ public class GlobalScriptEngine {
 					ScriptObjectMirror result = (ScriptObjectMirror) funcResult;
 					if (!result.isArray()) { // result and extraOutMap:TODO
 						if (result.containsKey("extraOutMap"))
-							qr.setExtraOutMap(fromScriptObject2Map((ScriptObjectMirror) result.get("extraOutMap")));
+							qr.setExtraOutMap(ScriptUtil.fromScriptObject2Map((ScriptObjectMirror) result.get("extraOutMap")));
 
 						if (result.containsKey("data"))
 							result = (ScriptObjectMirror) result.get("data");
@@ -1530,7 +1519,7 @@ public class GlobalScriptEngine {
 						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
 			}
 		} else {
-			ContextFactory factory = RhinoContextFactory.getGlobal();
+	/*		ContextFactory factory = RhinoContextFactory.getGlobal();
 			Context cx = factory.enterContext();
 			// String script = q.getSqlFrom();
 			try {
@@ -1657,8 +1646,15 @@ public class GlobalScriptEngine {
 				// Exit from the context.
 				cx.exit();
 			}
+			*/
 		}
 		return m;
+	}
+
+	public static Object prepareParam(String defaultValue, W5Param param, Map<String, Object> scd,
+			Map<String, String> requestParams, Map<String, String> errorMap) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -73,7 +73,6 @@ import iwb.domain.result.W5TutorialResult;
 import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
-import iwb.script.RhinoScript;
 import iwb.service.FrameworkService;
 import iwb.timer.Action2Execute;
 import iwb.util.GenericUtil;

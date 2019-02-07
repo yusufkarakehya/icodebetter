@@ -42,8 +42,7 @@ import org.apache.tomcat.jni.Address;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeObject;
+
 
 import com.google.common.net.InternetDomainName;
 
@@ -60,6 +59,7 @@ import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableParam;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5ReportCellHelper;
+import iwb.engine.GlobalScriptEngine;
 import iwb.exception.IWBException;
 
 // import iwb.dao.RdbmsDao;
@@ -1049,11 +1049,11 @@ public class GenericUtil {
 				html.append(fromListToJsonString2Recursive(lx));
 			} else if (o instanceof Integer || o instanceof Double || o instanceof BigDecimal || o instanceof Boolean)
 				html.append(o);
-			else if (o instanceof NativeObject)
+/*			else if (o instanceof NativeObject)
 				html.append(RhinoUtil.fromNativeObjectToJsonString2Recursive((NativeObject) o));
 			else if (o instanceof NativeArray) {
 				html.append(RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) o));
-			} else
+			}*/ else
 				html.append("\"").append(stringToJS2(o.toString())).append("\"");
 		}
 		html.append("]");
@@ -1088,13 +1088,13 @@ public class GenericUtil {
 			} else if (o instanceof Integer || o instanceof Double || o instanceof BigDecimal || o instanceof Boolean
 					|| o instanceof Short || o instanceof Long || o instanceof Float)
 				html.append("\"").append(q).append("\":").append(o);
-			else if (o instanceof NativeObject)
+			/*else if (o instanceof NativeObject)
 				html.append("\"").append(q).append("\":")
 						.append(RhinoUtil.fromNativeObjectToJsonString2Recursive((NativeObject) o));
 			else if (o instanceof NativeArray) {
 				html.append("\"").append(q).append("\":")
 						.append(RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) o));
-			} else
+			}*/ else
 				html.append("\"").append(q).append("\":\"").append(stringToJS2(o.toString())).append("\"");
 		}
 		html.append("}");
@@ -1522,7 +1522,7 @@ public class GenericUtil {
 				return defaultValue;
 		case 5: // Custom JS Rhino
 
-			Object o = RhinoUtil.prepareParam(defaultValue, param, scd, requestParams, errorMap);
+			Object o = GlobalScriptEngine.prepareParam(defaultValue, param, scd, requestParams, errorMap);
 			if(o==null)pvalue = null;
 			else if(o instanceof String) pvalue= o.toString();
 			else return o;

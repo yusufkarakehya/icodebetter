@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.NativeArray;
 
 import com.rabbitmq.client.Channel;
 
@@ -28,7 +27,7 @@ import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
 import iwb.util.MQUtil;
 import iwb.util.RedisUtil;
-import iwb.util.RhinoUtil;
+import iwb.util.ScriptUtil;
 import iwb.util.UserUtil;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
@@ -91,7 +90,8 @@ public class NashornScript {
 		if (v instanceof ScriptObjectMirror) {
 			ScriptObjectMirror so = (ScriptObjectMirror) v;
 			if(so.isArray()) {
-				return RedisUtil.put(host, k, RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) v));
+//				return RedisUtil.put(host, k, RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) v));
+				return "OK";//TODO
 			}
 			else {
 				return RedisUtil.put(host, k, GenericUtil.fromMapToJsonString2Recursive(so));
@@ -164,18 +164,7 @@ public class NashornScript {
 	}
 
 	private Map<String, String> fromScriptObject2Map(ScriptObjectMirror jsRequestParams) {
-		Map<String, String> rp = new HashMap<String, String>();
-		if (jsRequestParams != null && jsRequestParams.isArray()) {
-			for (String key:jsRequestParams.keySet()) {
-				Object o = jsRequestParams.get(key);
-				if (o != null) {
-					String res = o.toString();
-					if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
-						res = res.substring(0, res.length() - 2);
-					rp.put(key, res);
-				}
-			}
-		}
+		Map<String, String> rp = ScriptUtil.fromScriptObject2Map(jsRequestParams);
 		if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
 			rp.put(".w", requestParams.get(".w"));
 		return rp;
@@ -237,7 +226,7 @@ public class NashornScript {
 			if (oMsg instanceof String)
 				s = (String) oMsg;
 			else {
-				oMsg = RhinoUtil.rhinoValue(oMsg);
+//				oMsg = RhinoUtil.rhinoValue(oMsg);
 				if (oMsg != null) {
 					if (oMsg instanceof String || oMsg instanceof Integer || oMsg instanceof Long
 							|| oMsg instanceof Float || oMsg instanceof Double || oMsg instanceof BigDecimal) {
@@ -251,7 +240,7 @@ public class NashornScript {
 							Object[] oz = (Object[]) oMsg;
 							l = new ArrayList();
 							for (int qi = 0; qi < oz.length; qi++) {
-								l.add(RhinoUtil.rhinoValue(oz[qi]));
+								l.add(oz[qi]);
 							}
 						} else
 							l = (List) oMsg;

@@ -9,8 +9,6 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -31,7 +29,9 @@ import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.LogUtil;
-import iwb.util.RhinoUtil;
+import iwb.util.ScriptUtil;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
+
 
 @Component
 public class RESTEngine {
@@ -86,9 +86,9 @@ public class RESTEngine {
 		List requestList = null;
 		if (reqL instanceof List)
 			requestList = (List) reqL;
-		else if (reqL instanceof NativeArray)
+		else if (reqL instanceof ScriptObjectMirror)
 			try {
-				requestList = RhinoUtil.fromNativeArrayToList((NativeArray) reqL);
+				requestList = ScriptUtil.fromScriptObject2List(reqL);
 			} catch (Exception ee) {
 			}
 		else if (reqL instanceof JSONArray)
@@ -116,9 +116,9 @@ public class RESTEngine {
 		Map requestParams = null;
 		if (reqP instanceof Map)
 			requestParams = (Map) reqP;
-		else if (reqP instanceof NativeObject)
+		else if (reqP instanceof ScriptObjectMirror)
 			try {// TODO
-				requestParams = RhinoUtil.fromNativeObjectToMap((NativeObject) reqP);
+				requestParams = ScriptUtil.fromScriptObject2Map(reqP);
 			} catch (Exception ee) {
 				return null;
 			}
