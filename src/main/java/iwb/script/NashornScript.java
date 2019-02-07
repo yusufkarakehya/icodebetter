@@ -172,7 +172,7 @@ public class NashornScript {
 
 	private Map<String, Object> fromScriptObject2Map2(ScriptObjectMirror jsRequestParams) {
 		Map<String, Object> rp = new HashMap<String, Object>();
-		if (jsRequestParams != null && jsRequestParams.isArray()) {
+		if (jsRequestParams != null && !jsRequestParams.isArray()) {
 			for (String key:jsRequestParams.keySet()) 
 					try {
 						Object o = jsRequestParams.get(key);
