@@ -76,7 +76,7 @@ public class ScriptUtil {
 		return rp;
 	}
 
-	public static Object fromGraalValue2List(Value o) {
+	public static List fromGraalValue2List(Value o) {
 		List<Object> ll = new ArrayList();
 		if(o==null)return ll;
 		if(o.hasArrayElements())for(int qi=0;qi<o.getArraySize();qi++) {
