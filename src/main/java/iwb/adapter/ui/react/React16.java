@@ -294,7 +294,7 @@ public class React16 implements ViewAdapter {
 			} else if (formResult.getAction() == 1) { // edit
 				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
 				if(t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers()))s.append(", deletable:!0");
-				if (liveSyncRecord) {
+				if (false && liveSyncRecord) {
 					s.append(", liveSync:true");
 					String webPageId = formResult.getRequestParams().get(".w");
 					if (webPageId != null) {
@@ -2403,9 +2403,9 @@ public class React16 implements ViewAdapter {
 						.get_mainTable(), listViewResult.getScd())).append(
 				",listeners:{loadexception:promisLoadException}})");
 		if (d.getDefaultWidth() != 0)
-			buf.append(",\n defaultWidth:").append(d.getDefaultWidth());
+			buf.append(", defaultWidth:").append(d.getDefaultWidth());
 		if (d.getDefaultHeight() != 0)
-			buf.append(",\n defaultHeight:").append(d.getDefaultHeight());
+			buf.append(", defaultHeight:").append(d.getDefaultHeight());
 		switch (d.getSelectionTip()) {
 		// case 0:buf.append(",\n singleSelect:false");break;
 		case 1:
@@ -2473,23 +2473,23 @@ public class React16 implements ViewAdapter {
 		}
 
 			
-		if (FrameworkSetting.liveSyncRecord && g.get_viewTable() != null && g.get_viewTable().getLiveSyncFlag() != 0)
+		if (false && FrameworkSetting.liveSyncRecord && g.get_viewTable() != null && g.get_viewTable().getLiveSyncFlag() != 0)
 			buf.append(",\n liveSync:true");
 		if (g.getDefaultWidth() != 0)
-			buf.append(",\n defaultWidth:").append(g.getDefaultWidth());
+			buf.append(", defaultWidth:").append(g.getDefaultWidth());
 		if (gridResult.isViewLogMode())
-			buf.append(",\n defaultHeight:").append(
+			buf.append(", defaultHeight:").append(
 					FrameworkCache.getAppSettingIntValue(scd,
 							"log_default_grid_height"));
 		else {
 			if (g.getSelectionModeTip() == 2 || g.getSelectionModeTip() == 3) // multi Select
 				buf.append(",\n selectRow:{mode: 'checkbox',clickToSelect: true}");
 			if (g.getDefaultHeight() > 0)
-				buf.append(",\n defaultHeight:").append(g.getDefaultHeight());
+				buf.append(", defaultHeight:").append(g.getDefaultHeight());
 
 			buf.append(",\n gridReport:").append(FrameworkCache.roleAccessControl(scd, 105));
 		}
-		buf.append(",\n loading:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
+//		buf.append(",\n loading:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
 		
 
 		if (!GenericUtil.isEmpty(g.get_crudFormSmsMailList())) {
@@ -2572,9 +2572,9 @@ public class React16 implements ViewAdapter {
 						t.getAccessInsertUsers());
 				buf.append(",\n crudFormId:")
 						.append(g.getDefaultCrudFormId())
-						.append(",\n crudTableId:")
+						.append(", crudTableId:")
 						.append(t.getTableId())
-						.append(",\n crudFlags:{insert:")
+						.append(", crudFlags:{insert:")
 						.append(insertFlag)
 						.append(",edit:")
 						.append(t.getAccessUpdateUserFields() != null

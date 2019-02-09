@@ -1101,10 +1101,28 @@ public class GlobalScriptEngine {
 					}
 					else r.setResultMap(res);
 				}
-			} catch (Exception ge) {ge.printStackTrace();
+			} catch (Exception ge) {//ge.printStackTrace();
 //				dao.logGlobalFuncAction(action, r, error);
-				throw new IWBException("rhino", "NashornGlobalFuncDebug.Run", r.getGlobalFuncId(), script,
-						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), ge);
+				String msg = ge.getMessage();
+				if(msg!=null) {
+					if(msg.contains("ReferenceError")) {
+						int lineNo = -1;
+						for(Throwable prt = ge;prt!=null;prt = prt.getCause()){
+							String xmsg = prt.getMessage();
+							if(xmsg!=null && xmsg.contains("at line number")) {
+								int xi = xmsg.indexOf("at line number");
+								msg = " #"+xmsg.substring(xi+"at line number".length()).trim()+"#";
+								break;
+							}
+						}
+						
+					}else msg="";
+					
+				} else msg="";
+				if(r.getGlobalFunc()!=null)throw new IWBException("rhino", "NashornGlobalFuncDebug.Run", r.getGlobalFuncId(), script,
+						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc() + msg, ge);
+				else throw new IWBException("rhino", "NashornDebug.Run", 0, script,
+						"Nashorn Exception" + msg, ge);
 			}
 
 		} else { //Graal
@@ -1144,7 +1162,7 @@ public class GlobalScriptEngine {
 			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalGlobalFuncDebug.Compile", r.getGlobalFuncId(), script,
-						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), ge);
+						"[20," + r.getGlobalFuncId() + "] " + (r.getGlobalFunc()!=null?r.getGlobalFunc().getDsc():""), ge);
 			}
 			GraalScript se = new GraalScript(r.getScd(), r.getRequestParams(), this); 
 			
@@ -1200,10 +1218,12 @@ public class GlobalScriptEngine {
 					}
 					else r.setResultMap(res);
 				}
-			} catch (Exception ge) {ge.printStackTrace();
+			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
-				throw new IWBException("rhino", "GraalGlobalFuncDebug.Run", r.getGlobalFuncId(), script,
+				if(r.getGlobalFunc()!=null)throw new IWBException("rhino", "GraalGlobalFuncDebug.Run", r.getGlobalFuncId(), script,
 						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), ge);
+				else throw new IWBException("rhino", "GraalDebug.Run", 0, script,
+						"Graal Exception", ge);				
 			}
 			
 		}
@@ -1240,7 +1260,7 @@ public class GlobalScriptEngine {
 			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "DebugNashornQuery.Compile", qr.getQueryId(), script,
-						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
+						"[8," + qr.getQueryId() + "] " + (qr.getQuery()!=null ? qr.getQuery().getDsc():""), ge);
 			}
 
 			NashornScript se = new NashornScript(qr.getScd(), qr.getRequestParams(), this); 
@@ -1287,7 +1307,7 @@ public class GlobalScriptEngine {
 							result = (ScriptObjectMirror) result.get("result");
 						else
 							throw new IWBException("rhino", "DebugNashornQuery.Typo", qr.getQueryId(), script,
-									"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc() + " Missing data/result",
+									"[8," + qr.getQueryId() + "] " + (qr.getQuery()!=null ? qr.getQuery().getDsc():"") + " Missing data/result",
 									null);
 					}
 
@@ -1349,7 +1369,7 @@ public class GlobalScriptEngine {
 			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "NashornQueryDebug.Run", qr.getQueryId(), script,
-						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
+						"[8," + qr.getQueryId() + "] " + (qr.getQuery()!=null ? qr.getQuery().getDsc():""), ge);
 			}
 		} else { //graal
 			if (polyglot == null)
@@ -1372,7 +1392,7 @@ public class GlobalScriptEngine {
 			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalQueryDebug.Compile", qr.getQueryId(), script,
-						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
+						"[8," + qr.getQueryId() + "] " + (qr.getQuery()!=null ? qr.getQuery().getDsc():""), ge);
 			}
 
 			GraalScript se = new GraalScript(qr.getScd(), qr.getRequestParams(), this); 
@@ -1420,7 +1440,7 @@ public class GlobalScriptEngine {
 							result = (Value) result.getMember("result");
 						else
 							throw new IWBException("rhino", "GraalQueryDebug.Typo", qr.getQueryId(), script,
-									"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc() + " Missing data/result",
+									"[8," + qr.getQueryId() + "] " + (qr.getQuery()!=null ? qr.getQuery().getDsc():"") + " Missing data/result",
 									null);
 					}
 
@@ -1481,7 +1501,7 @@ public class GlobalScriptEngine {
 			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalQueryDebug.Run", qr.getQueryId(), script,
-						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
+						"[8," + qr.getQueryId() + "] " + (qr.getQuery()!=null ? qr.getQuery().getDsc():""), ge);
 			}
 		}
 		return m;

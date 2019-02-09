@@ -43,7 +43,8 @@ public class IWBException extends RuntimeException {
 		}
 		String newObjectType = te.getClass().getName();
 		if(newObjectType.equals("org.postgresql.util.PSQLException"))newObjectType="DataBase.Exception";
-		return new IWBException("framework",newObjectType, 0, null, te.getMessage(), e.getCause());
+		if(newObjectType.equals("jdk.nashorn.internal.runtime.ECMAException"))newObjectType="Scripting.Exception";
+		return new IWBException("framework",newObjectType, 0, null, e.getMessage(), e.getCause()!=null ? te:null);
 	}
 
 	public String toHtmlString(){

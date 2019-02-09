@@ -3822,7 +3822,7 @@ function ajaxErrorHandler(obj) {
                 lineNo +
                 ",irhino_script_code:iwb.errors[" +
                 qi +
-                ']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">JS</a>';
+                ']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">Code</a>';
           } else {
             if (oo.error.indexOf("Position: ") > -1) {
               sqlPos = oo.error.substr(
@@ -3838,7 +3838,7 @@ function ajaxErrorHandler(obj) {
                 sqlPos +
                 ",iwb.errors[" +
                 (qi) +
-                "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>SQL</a>";
+                "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>Code</a>";
             // sqlPos=false;
             }
           }
