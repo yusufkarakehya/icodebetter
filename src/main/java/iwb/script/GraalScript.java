@@ -43,7 +43,7 @@ public class GraalScript {
 	}
 
 	public Object[] sqlQuery(String sql, Object jsRequestParams) {
-		Map m = fromGraalValue2Map((Value)jsRequestParams);
+		Map m = fromGraalValue2Map(jsRequestParams);
 		if (GenericUtil.isEmpty(m) || !sql.contains("${"))
 			return sqlQuery(sql);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, m, null);
@@ -163,8 +163,8 @@ public class GraalScript {
 		return d1.equals(d2) ? 0 : (d1.after(d2) ? 1 : -1);
 	}
 
-	private Map<String, String> fromGraalValue2Map(Value jsRequestParams) {
-		Map<String, String> rp = ScriptUtil.fromGraalValue2Map(jsRequestParams);
+	private Map<String, String> fromGraalValue2Map(Object obj) {
+		Map<String, String> rp = ScriptUtil.fromGraalValue2Map(obj);
 		if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
 			rp.put(".w", requestParams.get(".w"));
 		return rp;
