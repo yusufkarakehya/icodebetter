@@ -36,7 +36,7 @@ public class IWBException extends RuntimeException {
 
 	public static IWBException convertToIWBException(Exception e){
 		if(e instanceof IWBException)return (IWBException)e;
-		Exception te = e;
+		Exception te = e;//e.printStackTrace()
 		while(te.getCause()!=null && te.getCause() instanceof Exception){
 			te = (Exception)te.getCause();
 			if(te instanceof IWBException)return (IWBException)te;

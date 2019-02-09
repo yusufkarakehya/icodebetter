@@ -3829,11 +3829,11 @@ function ajaxErrorHandler(obj) {
                 oo.error.indexOf("Position: ") + "Position: ".length
               );
             } // else if(sqlPos){
-            if (iwb.errors[qi - 1]){
-              iwb.errors[qi] = oo.error;
+            if (iwb.errors[qi]){
+              //iwb.errors[qi] = oo.error;
               ss +=
                 " &nbsp; <a href=# onclick='showSQLError(iwb.errors[" +
-                (qi - 1) +
+                (qi) +
                 "]," +
                 sqlPos +
                 ",iwb.errors[" +

@@ -246,7 +246,7 @@ public class GlobalScriptEngine {
 
 		case 11:// GraalJS
 			if (polyglot == null)
-				polyglot = Context.newBuilder("js").allowHostAccess(true).build();
+				polyglot = Context.create();//newBuilder("js").allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
 			if (func == null)
 				try {
@@ -430,7 +430,7 @@ public class GlobalScriptEngine {
 
 		} else {
 			if (polyglot == null)
-				polyglot = Context.newBuilder("js").allowHostAccess(true).build();
+				polyglot = Context.create();//newBuilder("js").allowHostAccess(true).build();
 			
 			Value func = (Value)FrameworkCache.getGraalFunc(scd, "1209." + ta.getTableTriggerId());
 
@@ -537,7 +537,7 @@ public class GlobalScriptEngine {
 
 		} else { //graal
 			if (polyglot == null)
-				polyglot = Context.newBuilder("js").allowHostAccess(true).build();
+				polyglot = Context.create();//newBuilder("js").allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, key);
 			if (func == null)
 				try {
@@ -733,7 +733,7 @@ public class GlobalScriptEngine {
 			}
 		} else {//graal
 			if (polyglot == null)
-				polyglot = Context.newBuilder("js").allowHostAccess(true).build();
+				polyglot = Context.create();//newBuilder("js").allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(qr.getScd(), "8." + qr.getQueryId());
 			if (func == null)
 				try {
@@ -1140,7 +1140,7 @@ public class GlobalScriptEngine {
 
 		} else { //Graal
 			if (polyglot == null)
-				polyglot = Context.newBuilder("js").allowHostAccess(true).build();
+				polyglot = Context.create();//newBuilder("js").allowHostAccess(true).build();
 
 			boolean hasOutParam = false;
 			List<Object> params = new ArrayList();
@@ -1386,7 +1386,7 @@ public class GlobalScriptEngine {
 			}
 		} else { //graal
 			if (polyglot == null)
-				polyglot = Context.newBuilder("js").allowHostAccess(true).build();
+				polyglot = Context.create();//newBuilder("js").allowHostAccess(true).build();
 
 			Value func = null;
 			try {
@@ -1565,7 +1565,7 @@ public class GlobalScriptEngine {
 			}
 		} else {
 			if (spolyglot == null)
-				spolyglot = Context.newBuilder("js").allowHostAccess(true).build();
+				spolyglot = Context.create();//newBuilder("js").allowHostAccess(true).build();
 	
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, key);
 			if (func == null)try {
