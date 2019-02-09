@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -106,44 +107,6 @@ public class GlobalScriptEngine {
 	private ScriptEngine nashornEngine = null;
 	private Context polyglot = null;
 	
-/*
-	private List<Object> fromScriptObject2List(ScriptObjectMirror jsRequestParams) {
-		List ll = new ArrayList();
-		for (Object oo : jsRequestParams.values()) {
-			if (oo == null)
-				ll.add(null);
-			else if (oo instanceof ScriptObjectMirror)
-				if (((ScriptObjectMirror) oo).isArray()) {
-					ll.add(fromScriptObject2List((ScriptObjectMirror) oo));
-				} else
-					ll.add(fromScriptObject2Map((ScriptObjectMirror) oo));
-			else
-				ll.add(oo);
-		}
-		return ll;
-	}
-
-	private Map<String, Object> fromScriptObject2Map(ScriptObjectMirror jsRequestParams) {
-		Map<String, Object> rp = new HashMap<String, Object>();
-		if (jsRequestParams != null) {
-			if (jsRequestParams.isArray()) {
-				rp.put("rhino", fromScriptObject2List(jsRequestParams));
-				return rp;
-
-			}
-
-			for (String key : jsRequestParams.keySet()) {
-				Object o = jsRequestParams.get(key);
-				if (o != null) {
-					String res = o.toString();
-					if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
-						res = res.substring(0, res.length() - 2);
-					rp.put(key, res);
-				}
-			}
-		}
-		return rp;
-	}*/
 
 	public W5GlobalFuncResult executeGlobalFunc(Map<String, Object> scd, int globalFuncId,
 			Map<String, String> parameterMap, short accessSourceType) {
@@ -152,11 +115,7 @@ public class GlobalScriptEngine {
 		if (!GenericUtil.isEmpty(r.getGlobalFunc().getAccessSourceTypes())
 				&& !GenericUtil.hasPartInside2(r.getGlobalFunc().getAccessSourceTypes(), accessSourceType))
 			throw new IWBException("security", "GlobalFunc", globalFuncId, null, "Access Source Type Control", null);
-		/*
-		 * if(execRestrictTip!=4 && checkAccessRecordControlViolation(scd, 4, 20,
-		 * ""+dbFuncId)) throw new PromisException("security", "DbProc Execute2",
-		 * dbFuncId, null, "Access Execute Control", null);
-		 */
+
 		dao.checkTenant(scd);
 		r.setErrorMap(new HashMap());
 		r.setRequestParams(parameterMap);
@@ -482,7 +441,7 @@ public class GlobalScriptEngine {
 					sb.append("\n}");
 					script = sb.toString();
 					func = polyglot.eval("js", script);
-					FrameworkCache.addGraalFunc(scd, "1209." + ta.getTableTriggerId(), scrName);
+					FrameworkCache.addGraalFunc(scd, "1209." + ta.getTableTriggerId(), func);
 				} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 					throw new IWBException("rhino", "GraalTableEvent.Compile", ta.getTableTriggerId(), script,
@@ -530,17 +489,16 @@ public class GlobalScriptEngine {
 		if (GenericUtil.isEmpty(script))
 			return null;
 
+		String fncName = "scr_" + (scd != null && scd.get("projectId") != null
+				? scd.get("projectId").toString().replace('-', '_')
+				: "xxx") + "_" + key;
 		if (useNashorn) {
 			if (nashornEngine == null)
 				nashornEngine = new ScriptEngineManager().getEngineByName("nashorn");
 			Object nobj = FrameworkCache.getGraalFunc(scd, key);
 
-			String fncName = null;
 			if (nobj == null)
 				try {
-					fncName = "scr_" + (scd != null && scd.get("projectId") != null
-							? scd.get("projectId").toString().replace('-', '_')
-							: "xxx") + "_" + key;
 					StringBuilder sb = new StringBuilder();
 					sb.append("function ").append(fncName).append("($, _scd, _request, _obj");
 					sb.append("){\n");
@@ -581,6 +539,7 @@ public class GlobalScriptEngine {
 					sb.append("\nreturn result})");
 					script = sb.toString();
 					func = polyglot.eval("js", script);
+					FrameworkCache.addGraalFunc(scd, key, func);
 				} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 					throw new IWBException("rhino", "GraalScript.Compile", 0, script, key, ge);
@@ -594,9 +553,7 @@ public class GlobalScriptEngine {
 			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalScript.Run", 0, script, key, ge);
-			}
-			
-			
+			}			
 		}
 	}
 
@@ -1530,9 +1487,81 @@ public class GlobalScriptEngine {
 		return m;
 	}
 
-	public static Object prepareParam(String defaultValue, W5Param param, Map<String, Object> scd,
-			Map<String, String> requestParams, Map<String, String> errorMap) {
-		// TODO Auto-generated method stub
+	
+	private static ScriptEngine snashornEngine = null;
+	private static Context spolyglot = null;
+
+	
+	public static String executePrepareParam(String script, Map<String, Object> scd, Map<String, String> requestParams, PostgreSQL dao) {
+		
+		String key = UUID.fromString(script).toString();
+		
+		if(useNashorn) {
+			if (snashornEngine == null)
+				snashornEngine = new ScriptEngineManager().getEngineByName("nashorn");
+
+			Object nobj = FrameworkCache.getGraalFunc(scd, key);
+			String fncName = "ep_"+key.replace('-','_');
+			if (nobj == null)
+				try {
+					StringBuilder sb = new StringBuilder();
+					sb.append("function ").append(fncName).append("(_scd, _request, dao");
+					sb.append("){\n");
+					sb.append(script);
+					sb.append("\nreturn result}");
+					script = sb.toString();
+					snashornEngine.eval(script);
+					FrameworkCache.addGraalFunc(scd, key, fncName);
+				} catch (Exception ge) {
+//				dao.logGlobalFuncAction(action, r, error);
+					throw new IWBException("rhino", "NashornPrepareParam.Compile", 0, script, key, ge);
+				}
+			else if (nobj instanceof String) {
+				fncName = nobj.toString();
+			}
+
+			try {
+				Object funcResult = ((Invocable) snashornEngine).invokeFunction(fncName,
+						scd, requestParams, dao);
+
+				return funcResult!=null ? funcResult.toString():null;
+
+			} catch (Exception ge) {
+//				dao.logGlobalFuncAction(action, r, error);
+				throw new IWBException("rhino", "NashornPrepareParam.Run", 0, script, fncName, ge);
+			}
+		} else {
+			if (spolyglot == null)
+				spolyglot = Context.newBuilder("js").allowHostAccess(true).build();
+	
+			Value func = (Value) FrameworkCache.getGraalFunc(scd, key);
+			if (func == null)try {
+				StringBuilder sb = new StringBuilder();
+				sb.append("(function(_scd, _request, dao){\n");
+					sb.append(script);
+				sb.append("\nreturn result})");
+				script = sb.toString();
+				func = spolyglot.eval("js", script);
+				FrameworkCache.addGraalFunc(scd, key, func);
+			} catch (Exception ge) {
+	//			dao.logGlobalFuncAction(action, r, error);
+				throw new IWBException("rhino", "GraalPrepareParam.Compile", 0, script,
+						"Error Compile", ge);
+			}
+			
+			try {
+				Object funcResult = func.execute(scd, requestParams, dao);
+				
+				if (funcResult!=null && funcResult instanceof Value) {
+					Value result = (Value) funcResult;
+					return result.toString();
+				}
+			} catch (Exception ge) {
+	//			dao.logGlobalFuncAction(action, r, error);
+				throw new IWBException("rhino", "GraalPrepareParam.Run", 0, script,
+						"Error Run", ge);
+			}
+		}
 		return null;
 	}
 

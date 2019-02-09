@@ -1522,7 +1522,7 @@ public class GenericUtil {
 				return defaultValue;
 		case 5: // Custom JS Rhino
 
-			Object o = GlobalScriptEngine.prepareParam(defaultValue, param, scd, requestParams, errorMap);
+			Object o = GlobalScriptEngine.executePrepareParam(defaultValue, scd, requestParams, dao);
 			if(o==null)pvalue = null;
 			else if(o instanceof String) pvalue= o.toString();
 			else return o;
@@ -1535,9 +1535,7 @@ public class GenericUtil {
 		Object psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamTip());
 		if (notNullFlag != 0 && psonuc == null) { // not null
 			hasError = true;
-			errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_not_null")); // "Boï¿½
-																									// Deï¿½er
-																									// Olamaz"
+			errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_not_null")); 
 		} else if ((param.getParamTip() == 5 || param.getParamTip() == 2) && (param instanceof W5TableField)) {
 			W5TableField tf = (W5TableField) param;
 			if (tf.getDefaultControlTip() == param.getParamTip() && tf.getDefaultLookupTableId() > 0) {
@@ -1556,21 +1554,11 @@ public class GenericUtil {
 			if (param.getMinValue() != null && param.getMinValue().compareTo(bd) == 1) {
 				hasError = true;
 				errorMap.put(param.getDsc(),
-						LocaleMsgCache.get2(scd, "validation_error_value_min") + " (" + param.getMinValue() + ")"); // "Deï¿½eri
-																													// "+
-																													// param.getMinValue()+"
-																													// den
-																													// kï¿½ï¿½ï¿½k
-																													// olamaz"
+						LocaleMsgCache.get2(scd, "validation_error_value_min") + " (" + param.getMinValue() + ")"); 
 			} else if (param.getMaxValue() != null && param.getMaxValue().compareTo(bd) == -1) {
 				hasError = true;
 				errorMap.put(param.getDsc(),
-						LocaleMsgCache.get2(scd, "validation_error_value_max") + " (" + param.getMaxValue() + ")"); /// "Deï¿½eri
-																													/// "+
-																													/// param.getMaxValue()+"
-																													/// den
-																													/// bï¿½yï¿½k
-																													/// olamaz"
+						LocaleMsgCache.get2(scd, "validation_error_value_max") + " (" + param.getMaxValue() + ")"); 
 			}
 		}
 
