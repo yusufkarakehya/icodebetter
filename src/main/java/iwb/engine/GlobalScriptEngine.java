@@ -173,8 +173,7 @@ public class GlobalScriptEngine {
 		List<Object> params = new ArrayList();
 
 		switch (r.getGlobalFunc().getLkpCodeType()) {
-		case 1:
-		case 10:// NashornJS
+		case 1:// NashornJS
 			if (nashornEngine == null)
 				nashornEngine = new ScriptEngineManager().getEngineByName("nashorn");
 			Object nobj = FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
@@ -358,93 +357,6 @@ public class GlobalScriptEngine {
 			}
 
 			break;
-		case 111: // rhino code
-/*
-			ContextFactory factory = RhinoContextFactory.getGlobal();
-			Context cx = factory.enterContext();
-
-			// Context cx = Context.enter();
-			try {
-				cx.setOptimizationLevel(-1);
-				if (FrameworkSetting.rhinoInstructionCount > 0)
-					cx.setInstructionObserverThreshold(FrameworkSetting.rhinoInstructionCount);
-				// Initialize the standard objects (Object, Function, etc.)
-				// This must be done before scripts can be executed. Returns
-				// a scope object that we use in later calls.
-				Scriptable scope = cx.initStandardObjects();
-
-				// Collect the arguments into a single string.
-				StringBuilder sc = new StringBuilder();
-
-				if (!GenericUtil.isEmpty(r.getGlobalFunc().get_dbFuncParamList())) {
-					sc.append("var ");
-					for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
-						if (p1.getOutFlag() == 0) {
-							if (sc.length() > 4)
-								sc.append(", ");
-							sc.append(p1.getDsc()).append("=");
-							Object o = GenericUtil.prepareParam(p1, r.getScd(), r.getRequestParams(), (short) -1, null,
-									(short) 0, p1.getSourceTip() == 1 ? p1.getDsc() : null, null, r.getErrorMap());
-							if (o == null)
-								sc.append("null");
-							else if ((o instanceof Integer) || (o instanceof Double) || (o instanceof BigDecimal)
-									|| (o instanceof Boolean))
-								sc.append(o);
-							else if ((o instanceof Date))
-								sc.append("'").append(GenericUtil.uFormatDate((Date) o)).append("'");
-							else
-								sc.append("'").append(o).append("'");
-						} else
-							hasOutParam = true;
-					if (sc.length() > 4)
-						sc.append(";\n");
-					else
-						sc.setLength(0);
-				}
-				if (requestJson != null && requestJson instanceof JSONObject) {
-					sc.append("var json=").append(((JSONObject) requestJson).toString()).append(";\n");
-					r.getRequestParams().remove("_json");
-				}
-				if (script.contains("$.") || script.contains("$.")) {
-					RhinoScript se = new RhinoScript(r.getScd(), r.getRequestParams(), this);
-					Object wrappedOut = Context.javaToJS(se, scope);
-					ScriptableObject.putProperty(scope, "$", wrappedOut);
-				}
-				sc.append("\nvar _scd=").append(GenericUtil.fromMapToJsonString2(r.getScd())).append(";\nvar _request=")
-						.append(GenericUtil.fromMapToJsonString2(r.getRequestParams())).append(";\n").append(script);
-
-				script = sc.toString();
-
-				// Now evaluate the string we've colected.
-				cx.evaluateString(scope, script, null, 1, null);
-
-
-				if (hasOutParam) {
-					// JSONObject jo=new JSONObject();
-					Map<String, String> res = new HashMap<String, String>();
-					for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
-						if (p1.getOutFlag() != 0 && scope.has(p1.getDsc(), scope)) {
-							Object em = RhinoUtil.rhinoValue(scope.get(p1.getDsc(), scope));
-							if (em != null)
-								res.put(p1.getDsc(), em.toString());
-						}
-					r.setResultMap(res);
-				}
-				if (scope.has("outMsgs", scope)) { // TODO
-					Object em = scope.get("outMsgs", scope);
-				}
-				r.setSuccess(true);
-			} catch (Exception e) {
-				error = e.getMessage();
-				throw new IWBException("rhino", "GlobalFunc", r.getGlobalFuncId(), script,
-						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), e);
-			} finally {
-				// Exit from the context.
-				cx.exit();
-				dao.logGlobalFuncAction(action, r, error);
-			}
-			*/
-			break;
 		case 99: // DB
 			dao.executeDbFunc(r, "");
 
@@ -453,14 +365,8 @@ public class GlobalScriptEngine {
 		if (r.getErrorMap().isEmpty()) { // sorun yok
 			// post sms
 			if (!GenericUtil.isEmpty(r.getResultMap()))
-				parameterMap.putAll(r.getResultMap()); // veli TODO
-														// acaba
-														// hata
-														// olabilir
-														// mi? baska
-														// bir map'e
-														// mi atsak
-			// sadece burasi icin?
+				parameterMap.putAll(r.getResultMap()); 
+
 		}
 		GlobalFuncTrigger.afterExec(r);
 

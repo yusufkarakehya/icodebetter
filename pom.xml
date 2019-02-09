@@ -125,17 +125,6 @@
 			<version>3.9.1</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.graalvm.js</groupId>
-			<artifactId>js</artifactId>
-			<version>1.0.0-rc12</version>
-		</dependency>		
-		<!-- https://mvnrepository.com/artifact/com.oracle.truffle/truffle-api -->
-<dependency>
-    <groupId>com.oracle.truffle</groupId>
-    <artifactId>truffle-api</artifactId>
-    <version>1.0.0-rc7</version>
-</dependency>
 		
 	</dependencies>
 
