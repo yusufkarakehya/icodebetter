@@ -132,6 +132,15 @@ public class GlobalScriptEngine {
 		List<Object> params = new ArrayList();
 
 		switch (r.getGlobalFunc().getLkpCodeType()) {
+		case	12://R
+			throw new IWBException("rhino", "Graal R", 0, script,"R Not Implemented yet", null);
+//			break;
+		case	13://Python
+			throw new IWBException("rhino", "Graal Python", 0, script,"Python Not Implemented yet", null);
+//			break;
+		case	14://Java Groovy
+			throw new IWBException("rhino", "Java Groovy", 0, script,"Java Groovy Not Implemented yet", null);
+//			break;
 		case 1:// NashornJS
 			if (nashornEngine == null)
 				nashornEngine = new ScriptEngineManager().getEngineByName("nashorn");
@@ -998,6 +1007,23 @@ public class GlobalScriptEngine {
 		return result;
 	}
 
+	private String getErrorLineNumberAsMsg(Exception ge) {
+		String msg = ge.getMessage();
+		if(msg!=null) {
+			for(Throwable prt = ge;prt!=null;prt = prt.getCause()){
+				String xmsg = prt.getMessage();
+				if(xmsg!=null && xmsg.contains("at line number")) {
+					int xi = xmsg.indexOf("at line number");
+					xmsg = xmsg.substring(xi+"at line number".length()).trim();
+					xi = xmsg.indexOf(" ");
+					if(xi>-1)xmsg= xmsg.substring(0,xi);
+					return " #"+xmsg+"#";
+				}
+			}
+			
+		}
+		return "";
+	}
 	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int dbFuncId,
 			Map<String, String> parameterMap) {
 		W5GlobalFuncResult r = dbFuncId == -1 ? new W5GlobalFuncResult(-1)
@@ -1045,8 +1071,9 @@ public class GlobalScriptEngine {
 				nashornEngine.eval(script);
 			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
+				String msg = getErrorLineNumberAsMsg(ge);
 				throw new IWBException("rhino", "NashornGlobalFuncDebug.Compile", r.getGlobalFuncId(), script,
-						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), ge);
+						"[20," + r.getGlobalFuncId() + "] " + (r.getGlobalFunc()!=null ? r.getGlobalFunc().getDsc():"") + msg, ge);
 			}
 			NashornScript se = new NashornScript(r.getScd(), r.getRequestParams(), this); 
 			
@@ -1103,22 +1130,8 @@ public class GlobalScriptEngine {
 				}
 			} catch (Exception ge) {//ge.printStackTrace();
 //				dao.logGlobalFuncAction(action, r, error);
-				String msg = ge.getMessage();
-				if(msg!=null) {
-					if(msg.contains("ReferenceError")) {
-						int lineNo = -1;
-						for(Throwable prt = ge;prt!=null;prt = prt.getCause()){
-							String xmsg = prt.getMessage();
-							if(xmsg!=null && xmsg.contains("at line number")) {
-								int xi = xmsg.indexOf("at line number");
-								msg = " #"+xmsg.substring(xi+"at line number".length()).trim()+"#";
-								break;
-							}
-						}
-						
-					}else msg="";
-					
-				} else msg="";
+				String msg = getErrorLineNumberAsMsg(ge);
+
 				if(r.getGlobalFunc()!=null)throw new IWBException("rhino", "NashornGlobalFuncDebug.Run", r.getGlobalFuncId(), script,
 						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc() + msg, ge);
 				else throw new IWBException("rhino", "NashornDebug.Run", 0, script,
