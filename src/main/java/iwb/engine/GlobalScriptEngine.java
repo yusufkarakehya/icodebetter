@@ -132,15 +132,6 @@ public class GlobalScriptEngine {
 		List<Object> params = new ArrayList();
 
 		switch (r.getGlobalFunc().getLkpCodeType()) {
-		case	12://R
-			throw new IWBException("rhino", "Graal R", 0, script,"R Not Implemented yet", null);
-//			break;
-		case	13://Python
-			throw new IWBException("rhino", "Graal Python", 0, script,"Python Not Implemented yet", null);
-//			break;
-		case	14://Java Groovy
-			throw new IWBException("rhino", "Java Groovy", 0, script,"Java Groovy Not Implemented yet", null);
-//			break;
 		case 1:// NashornJS
 			if (nashornEngine == null)
 				nashornEngine = new ScriptEngineManager().getEngineByName("nashorn");
@@ -243,39 +234,95 @@ public class GlobalScriptEngine {
 			}
 
 			break;
+		case	13://Python
+			throw new IWBException("rhino", "Graal Python", 0, script,"Python Not Implemented yet", null);
+//			break;
+		case	14://Java Groovy
+			throw new IWBException("rhino", "Java Groovy", 0, script,"Java Groovy Not Implemented yet", null);
+//			break;
 
+//		case	12://R
+//			throw new IWBException("rhino", "Graal R", 0, script,"R Not Implemented yet", null);
+//			break;
 		case 11:// GraalJS
 			if (polyglot == null)
 				polyglot = Context.create();//newBuilder("js").allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
+			String lang = "js";
 			if (func == null)
 				try {
 					StringBuilder sb = new StringBuilder();
-					sb.append("(function($");
-					if (!GenericUtil.isEmpty(r.getGlobalFunc().get_dbFuncParamList())) {
-						for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
-							if (p1.getOutFlag() == 0) {
-								sb.append(",").append(p1.getDsc());
-							} else
-								hasOutParam = true;
+					StringBuilder sbPost1 = new StringBuilder(), sbPost2 = new StringBuilder();
+					switch(r.getGlobalFunc().getLkpCodeType()) {
+					case	11://JS
+						sb.append("(function($, _scd, _request");
+						if (!GenericUtil.isEmpty(r.getGlobalFunc().get_dbFuncParamList())) {
+							for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
+								if (p1.getOutFlag() == 0) {
+									sb.append(",").append(p1.getDsc());
+								} else {
+									hasOutParam = true;
+									sbPost1.append(p1.getDsc()).append("=null, ");
+									sbPost2.append(p1.getDsc()).append(":").append(p1.getDsc()).append(", ");
+								}
+						}
+						if (requestJson != null && requestJson instanceof JSONObject) {
+							sb.append(",json");
+							r.getRequestParams().remove("_json");
+						} else
+							requestJson = null;
+	
+						sb.append("){\n");
+						if (hasOutParam) {
+							sbPost1.setLength(sbPost1.length() - 2);
+							sbPost2.setLength(sbPost2.length() - 2);
+							sb.append("var ").append(sbPost1).append(";\n").append(script).append("\nreturn {")
+									.append(sbPost2).append("}");
+	
+						} else
+							sb.append(script);
+						sb.append("\n})");
+						break;
+					case	12://R
+						lang = "R";
+						sb.append("function(x, scd, request");
+						if (!GenericUtil.isEmpty(r.getGlobalFunc().get_dbFuncParamList())) {
+							for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
+								if (p1.getOutFlag() == 0) {
+									sb.append(",").append(p1.getDsc());
+								} else {
+									hasOutParam = true;
+									sbPost1.append(p1.getDsc()).append(" <- ").append(p1.getParamTip()>2?"0":"''").append(" \n");
+									sbPost2.append("\"").append(p1.getDsc()).append("\" = ").append(p1.getDsc()).append(", ");
+								}
+						}
+						if (requestJson != null && requestJson instanceof JSONObject) {
+							sb.append(",json");
+							r.getRequestParams().remove("_json");
+						} else
+							requestJson = null;
+	
+						sb.append("){\n");
+						if (hasOutParam) {
+							sbPost2.setLength(sbPost2.length() - 2);
+							sb.append(sbPost1).append(script).append("\nreturn (list(").append(sbPost2).append("))");
+	
+						} else
+							sb.append(script);
+						sb.append("\n}");
 					}
-					if (requestJson != null && requestJson instanceof JSONObject) {
-						sb.append(",json");
-						r.getRequestParams().remove("_json");
-					} else
-						requestJson = null;
-
-					sb.append("){\n").append(script).append("\n})");
 					script = sb.toString();
-					func = polyglot.eval("js", script);
+					func = polyglot.eval(lang, script);
 					FrameworkCache.addGraalFunc(scd, "20." + globalFuncId, func);
 				} catch (Exception ge) {
 					dao.logGlobalFuncAction(action, r, error);
-					throw new IWBException("rhino", "GraalGlobalFunc.Compile", r.getGlobalFuncId(), script,
+					throw new IWBException("rhino", "GraalGlobalFunc.Compile."+lang, r.getGlobalFuncId(), script,
 							"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), ge);
 				}
 
 			params.add(new GraalScript(r.getScd(), r.getRequestParams(), this));
+			params.add(scd);
+			params.add(parameterMap);
 
 			if (requestJson != null && requestJson instanceof JSONObject) {
 				params.add(requestJson);
@@ -320,7 +367,7 @@ public class GlobalScriptEngine {
 				}
 			} catch (Exception ge) {
 				dao.logGlobalFuncAction(action, r, error);
-				throw new IWBException("rhino", "GraalGlobalFunc.Run", r.getGlobalFuncId(), script,
+				throw new IWBException("rhino", "GraalGlobalFunc.Run."+lang, r.getGlobalFuncId(), script,
 						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), ge);
 			}
 
