@@ -784,8 +784,8 @@ class XGridAction extends React.PureComponent {
 
 iwb.detailPageSize = 10;
 iwb.grids = {};
-var _dxgrb = DXReactGridBootstrap4,
-  _dxrg = DXReactGrid;
+var _dxgrb = DevExpress.DXReactGridBootstrap4,
+  _dxrg = DevExpress.DXReactGrid; 
 class XGrid extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -2980,6 +2980,7 @@ class XLoading extends React.Component {
     );
   }
 }
+
 
 iwb.requestErrorHandler = function(obj) {
   if (obj.errorType) {
