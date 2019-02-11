@@ -44,7 +44,6 @@ import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5FormValue;
 import iwb.domain.db.W5FormValueCell;
-import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5Grid;
 import iwb.domain.db.W5ListBase;
@@ -4983,10 +4982,6 @@ public class PostgreSQL extends BaseDAO {
 	public String getCurrentDate(int customizationId) {
 		return (String) executeSQLQuery("select to_char(iwb.fnc_sysdate(?),'" + GenericUtil.dateFormat + "')",
 				customizationId).get(0);
-	}
-
-	public String getMd5Hash(String s) {
-		return (String) executeSQLQuery("select iwb.md5hash(?)", s).get(0);
 	}
 
 	public Object getSqlFunc(String s) {

@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
@@ -42,7 +43,6 @@ import org.apache.tomcat.jni.Address;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 import com.google.common.net.InternetDomainName;
 
@@ -2634,5 +2634,17 @@ public class GenericUtil {
 			str.append(html);
 		}
 		return str.toString();
+	}
+	private static MessageDigest messageDigest;
+	
+	public static String getMd5Hash(String s) {
+		if(messageDigest==null) try{
+			messageDigest = MessageDigest.getInstance("MD5");
+		} catch(Exception e) {}
+		try{
+		byte[] decodedByte =messageDigest.digest(s.getBytes("UTF-8"));
+		return new String(decodedByte, "UTF8");
+		} catch(Exception e) {}
+		return "error";
 	}
 }

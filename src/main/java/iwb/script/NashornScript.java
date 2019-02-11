@@ -146,7 +146,7 @@ public class NashornScript {
 	}
 
 	public String md5hash(String s) {
-		return scriptEngine.getDao().getMd5Hash(s);
+		return GenericUtil.getMd5Hash(s);
 	}
 
 	public Object sqlFunc(String s) {

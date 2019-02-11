@@ -6,12 +6,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -27,7 +28,6 @@ import iwb.domain.db.Log5GlobalFuncAction;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
@@ -43,9 +43,6 @@ import iwb.script.GraalScript;
 import iwb.script.NashornScript;
 import iwb.util.GenericUtil;
 import iwb.util.ScriptUtil;
-
-import org.graalvm.polyglot.Value;
-import org.graalvm.polyglot.Context;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 @Component
@@ -1574,7 +1571,7 @@ public class GlobalScriptEngine {
 	
 	public static String executePrepareParam(String script, Map<String, Object> scd, Map<String, String> requestParams, PostgreSQL dao) {
 		
-		String key = UUID.fromString(script).toString();
+		String key = GenericUtil.getMd5Hash(script);
 		
 		if(useNashorn) {
 			if (snashornEngine == null)
