@@ -224,6 +224,7 @@ public class GlobalScriptEngine {
 					}
 					r.setResultMap(res);
 				}
+				r.setSuccess(true);
 			} catch (Exception ge) {
 				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "NashornGlobalFunc.Run", r.getGlobalFuncId(), script,
@@ -362,6 +363,7 @@ public class GlobalScriptEngine {
 					}
 					else r.setResultMap(res);
 				}
+				r.setSuccess(true);
 			} catch (Exception ge) {
 				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalGlobalFunc.Run."+lang, r.getGlobalFuncId(), script,
