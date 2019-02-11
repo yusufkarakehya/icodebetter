@@ -2643,7 +2643,11 @@ public class GenericUtil {
 		} catch(Exception e) {}
 		try{
 		byte[] decodedByte =messageDigest.digest(s.getBytes("UTF-8"));
-		return new String(decodedByte, "UTF8");
+		StringBuilder stringBuffer = new StringBuilder();
+        for (byte bytes : decodedByte) {
+            stringBuffer.append(String.format("%02x", bytes & 0xff));
+        }
+		return stringBuffer.toString();
 		} catch(Exception e) {}
 		return "error";
 	}
