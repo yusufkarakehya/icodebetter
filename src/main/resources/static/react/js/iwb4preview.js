@@ -784,8 +784,8 @@ class XGridAction extends React.PureComponent {
 
 iwb.detailPageSize = 10;
 iwb.grids = {};
-var _dxgrb = DevExpress.DXReactGridBootstrap4,
-  _dxrg = DevExpress.DXReactGrid; 
+var _dxgrb = window.DevExpress?DevExpress.DXReactGridBootstrap4:DXReactGridBootstrap4,
+  _dxrg = window.DevExpress?DevExpress.DXReactGrid:DXReactGrid; 
 class XGrid extends React.PureComponent {
   constructor(props) {
     super(props);
