@@ -1702,7 +1702,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			if (searchFormId != null)
 				ml.set_searchFormId(searchFormId);
 			ml.set_detailMLists(
-					find("from M5List l where l.projectUuid=? AND l.parentListId=? order by l.mlr.getListId()",
+					find("from M5List l where l.projectUuid=? AND l.parentListId=? order by l.listId",
 							projectId, mlr.getListId()));
 			for(M5List dl:ml.get_detailMLists()) {
 				dl.set_toolbarItemList(

@@ -124,12 +124,14 @@
 			<artifactId>redisson</artifactId>
 			<version>3.9.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.graalvm.js</groupId>
 			<artifactId>js</artifactId>
-			<version>1.0.0-rc11</version>
+			<version>1.0.0-rc12</version>
 		</dependency>		
+
+		
 	</dependencies>
 
 	<build>

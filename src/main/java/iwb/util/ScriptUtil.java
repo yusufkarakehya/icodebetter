@@ -54,29 +54,48 @@ public class ScriptUtil {
 	public static Map fromGraalValue2Map(Object reqP) {
 		Map<String, Object> rp = new HashMap<String, Object>();
 		if(reqP==null)return rp;
-		Value jsRequestParams = (Value)reqP;
-		if(jsRequestParams.hasArrayElements()) {
-			rp.put("rhino", fromGraalValue2List(jsRequestParams));
-		}
-		for (String key : jsRequestParams.getMemberKeys()) {
-			Value o = jsRequestParams.getMember(key);
-			if (o != null) {
-				if(o.hasArrayElements()) {
-					rp.put(key, fromGraalValue2List(o));
-				} else if(o.hasMembers()) {
-					rp.put(key, fromGraalValue2Map(o));
-				} else {
-					String res = o.toString();
-					if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
-						res = res.substring(0, res.length() - 2);
-					rp.put(key, res);
+		if(reqP instanceof Value) {
+			Value jsRequestParams = (Value)reqP;
+			if(jsRequestParams.hasArrayElements()) {
+				rp.put("rhino", fromGraalValue2List(jsRequestParams));
+			}
+			for (String key : jsRequestParams.getMemberKeys()) {
+				Value o = jsRequestParams.getMember(key);
+				if (o != null) {
+					if(o.hasArrayElements()) {
+						rp.put(key, fromGraalValue2List(o));
+					} else if(o.hasMembers()) {
+						rp.put(key, fromGraalValue2Map(o));
+					} else {
+						String res = o.toString();
+						if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
+							res = res.substring(0, res.length() - 2);
+						rp.put(key, res);
+					}
+				}
+			}
+		} else if(reqP instanceof Map) {
+			Map jsRequestParams = (Map)reqP;
+			for (Object key : jsRequestParams.keySet()) {
+				Object o = jsRequestParams.get(key.toString());
+				if (o != null) {
+					if(o  instanceof List) {
+						rp.put(key.toString(), o); //fromGraalValue2List(o)
+					} else if(o  instanceof Map) {
+						rp.put(key.toString(), o); //fromGraalValue2Map(o)
+					} else {
+						String res = o.toString();
+						if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
+							res = res.substring(0, res.length() - 2);
+						rp.put(key.toString(), res);
+					}
 				}
 			}
 		}
 		return rp;
 	}
 
-	public static Object fromGraalValue2List(Value o) {
+	public static List fromGraalValue2List(Value o) {
 		List<Object> ll = new ArrayList();
 		if(o==null)return ll;
 		if(o.hasArrayElements())for(int qi=0;qi<o.getArraySize();qi++) {

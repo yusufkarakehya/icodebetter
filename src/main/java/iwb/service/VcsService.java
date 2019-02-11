@@ -3440,7 +3440,8 @@ public class VcsService {
 						}
 						result.put("success", true);
 						
-					}
+					} else if(json.get("success").toString().equals("false"))
+						return GenericUtil.fromJSONObjectToMap(json);
 				} catch (JSONException e){
 					throw new IWBException("vcs","vcsClientProjectSynch:JSONException", 0, s, "Error", e);
 				}

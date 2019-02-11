@@ -36,14 +36,18 @@ public class IWBException extends RuntimeException {
 
 	public static IWBException convertToIWBException(Exception e){
 		if(e instanceof IWBException)return (IWBException)e;
-		Exception te = e;
+		Exception te = e;//e.printStackTrace()
 		while(te.getCause()!=null && te.getCause() instanceof Exception){
 			te = (Exception)te.getCause();
 			if(te instanceof IWBException)return (IWBException)te;
 		}
 		String newObjectType = te.getClass().getName();
 		if(newObjectType.equals("org.postgresql.util.PSQLException"))newObjectType="DataBase.Exception";
-		return new IWBException("framework",newObjectType, 0, null, te.getMessage(), e.getCause());
+		
+		if(newObjectType.equals("jdk.nashorn.internal.runtime.ParserException"))newObjectType="Scripting.Parsing";
+		if(newObjectType.equals("jdk.nashorn.internal.runtime.ECMAException") || 
+				newObjectType.equals("org.graalvm.polyglot.PolyglotException"))newObjectType="Scripting.RuntTime";
+		return new IWBException("framework",newObjectType, 0, null, e.getMessage(), e.getCause()!=null ? te:null);
 	}
 
 	public String toHtmlString(){
