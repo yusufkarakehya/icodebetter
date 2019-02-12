@@ -971,6 +971,7 @@ public class PostgreSQL extends BaseDAO {
 		for (W5FormCellHelper rc : formCellResults)
 			try {
 				W5FormCell c = rc.getFormCell();
+				if(c.getActiveFlag()==0)continue;
 				includedValues = c.getLookupIncludedValues();
 				Map<String, String> paramMap = new HashMap<String, String>();
 				Set<Integer> keys = null;
