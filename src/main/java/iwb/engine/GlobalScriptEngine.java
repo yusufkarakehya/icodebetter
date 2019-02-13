@@ -350,7 +350,7 @@ public class GlobalScriptEngine {
 					Map<String, String> res = new HashMap<String, String>();
 					if (funcResult != null && funcResult instanceof Value) {
 						Map resultMap = ScriptUtil.fromGraalValue2Map((Value) funcResult);
-						for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
+						/*for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
 							if (p1.getOutFlag() != 0 && resultMap.containsKey(p1.getDsc())) {
 								Object em = resultMap.get(p1.getDsc());
 								if (em != null) {
@@ -359,7 +359,7 @@ public class GlobalScriptEngine {
 										v = v.substring(0, v.length() - 2);
 									res.put(p1.getDsc(), v);
 								}
-							}
+							}*/
 						r.setResultMap(resultMap);
 					}
 					else r.setResultMap(res);
