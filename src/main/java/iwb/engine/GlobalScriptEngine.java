@@ -239,12 +239,12 @@ public class GlobalScriptEngine {
 			throw new IWBException("rhino", "Java Groovy", 0, script,"Java Groovy Not Implemented yet", null);
 //			break;
 
-//		case	12://R
+		case	12://R
 //			throw new IWBException("rhino", "Graal R", 0, script,"R Not Implemented yet", null);
 //			break;
 		case 11:// GraalJS
 			if (polyglot == null)
-				polyglot = Context.create();//newBuilder("js").allowHostAccess(true).build();
+				polyglot = Context.newBuilder().allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
 			String lang = "js";
 			if (func == null)
@@ -313,6 +313,7 @@ public class GlobalScriptEngine {
 					func = polyglot.eval(lang, script);
 					FrameworkCache.addGraalFunc(scd, "20." + globalFuncId, func);
 				} catch (Exception ge) {
+					ge.printStackTrace();
 					dao.logGlobalFuncAction(action, r, error);
 					throw new IWBException("rhino", "GraalGlobalFunc.Compile."+lang, r.getGlobalFuncId(), script,
 							"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), ge);
