@@ -1076,6 +1076,7 @@ public class GlobalScriptEngine {
 		W5GlobalFuncResult r = dbFuncId == -1 ? new W5GlobalFuncResult(-1)
 				: metaDataDao.getGlobalFuncResult(scd, dbFuncId);
 		r.setScd(scd);
+		dao.checkTenant(scd);
 		r.setErrorMap(new HashMap());
 		r.setRequestParams(parameterMap);
 		String script = parameterMap.get("_rhino_script_code");
@@ -1295,6 +1296,8 @@ public class GlobalScriptEngine {
 
 		// Context cx = Context.enter();
 		W5Query q = qr.getQuery();
+		dao.checkTenant(qr.getScd());
+
 		Map m = new HashMap();
 		m.put("success", true);
 		List<Object> params = new ArrayList();

@@ -58,8 +58,7 @@ public class ScriptUtil {
 			Value jsRequestParams = (Value)reqP;
 			if(jsRequestParams.hasArrayElements()) {
 				rp.put("rhino", fromGraalValue2List(jsRequestParams));
-			}
-			for (String key : jsRequestParams.getMemberKeys()) {
+			} else for (String key : jsRequestParams.getMemberKeys()) {
 				Value o = jsRequestParams.getMember(key);
 				if (o != null) {
 					if(o.hasArrayElements()) {
