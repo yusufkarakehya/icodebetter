@@ -178,11 +178,12 @@ public class RestController implements InitializingBean {
 				Map<String, Object> wsmoMap = engine.getWsServerMethodObjects(wss);
 				response.setContentType("text/xml");
 				response.getWriter().write(serializeRestWADL(wss, wsmoMap).toString());
+				return;
 			} else if(serviceName.equals("login")){
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
-				W5GlobalFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 4); // user Authenticate DbFunc:1
+				W5GlobalFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
 				W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
 				List<W5GlobalFuncParam> arl = new ArrayList();
 				dfr.setGlobalFunc(new W5GlobalFunc());dfr.getGlobalFunc().set_dbFuncParamList(arl);
