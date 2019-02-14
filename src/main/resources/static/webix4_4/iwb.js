@@ -2404,3 +2404,14 @@ webix.protoUI(
   },
   webix.ui.suggest
 );
+
+iwb.ajax={}
+iwb.ajax.query=function(qid,params,callback){
+	iwb.request({url:'ajaxQueryData?_qid='+qid,params:params||{},successCallback:callback||false})
+}
+iwb.ajax.postForm=function(fid,action,params,callback){
+	iwb.request({url:'ajaxPostForm?_fid='+fid+'&a='+action,params:params||{},successCallback:callback||false})
+}
+iwb.ajax.execFunc=function(did,params,callback){
+	iwb.request({url:'ajaxExecDbFunc?_did='+did,params:params||{},successCallback:callback||false})
+}
