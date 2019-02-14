@@ -198,7 +198,7 @@ public class NashornScript {
 		return rp;
 	}
 
-	public Object[] runQuery(int queryId, ScriptObjectMirror jsRequestParams) {
+	public Object[] query(int queryId, ScriptObjectMirror jsRequestParams) {
 		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromScriptObject2Map(jsRequestParams));//
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}

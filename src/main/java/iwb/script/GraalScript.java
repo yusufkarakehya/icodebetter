@@ -198,7 +198,7 @@ public class GraalScript {
 		return rp;
 	}
 
-	public Object[] runQuery(int queryId, Value jsRequestParams) {
+	public Object[] query(int queryId, Value jsRequestParams) {
 		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromGraalValue2Map(jsRequestParams));//
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}

@@ -96,10 +96,10 @@ var defineJSCompletionItemProvider = {
           detail: 'Array',insertText:'$.sqlQuery("SELECT * FROM x WHERE y", {params})'
         },
         {
-          label: '$.runQuery',
+          label: '$.query',
           kind: monaco.languages.CompletionItemKind.Function,
           documentation: "Run iCodeBetter Query",
-          detail: 'Array',insertText:'$.runQuery(queryId, {params})'
+          detail: 'Array',insertText:'$.query(queryId, {params})'
         },
         {
           label: '$.sqlExecute',
