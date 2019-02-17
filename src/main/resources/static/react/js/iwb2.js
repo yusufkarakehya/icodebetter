@@ -524,9 +524,15 @@ var ajaxErrorHandler = iwb.requestErrorHandler;
   (iwb.loadPage = function(cfg) {});
 iwb.ui = {
   buildPanel: c => {
-    if (!c.grid.pk) c.grid.pk = c.pk || c._pk;
-    if (!c.grid.detailGrids) c.grid.detailGrids = c.detailGrids || false;
-    return _(XPage, c);
+	  if(c.grid){
+	    if (!c.grid.pk) c.grid.pk = c.pk || c._pk;
+	    if (!c.grid.detailGrids) c.grid.detailGrids = c.detailGrids || false;
+	    return _(XPage, c);
+	  } else if(c.card){
+	    if (!c.card.pk) c.card.pk = c.pk || c._pk;
+	    if (!c.card.detailGrids) c.card.detailGrids = c.detailGrids || false;
+	    return _(XPage4Card, c);
+	  }
   }
 };
 function disabledCheckBoxHtml(row, cell) {
@@ -4781,6 +4787,214 @@ class XPage extends React.PureComponent {
     );
   }
 }
+
+class XPage4Card extends React.PureComponent {
+	  constructor(props) {
+	    if (iwb.debugConstructor && iwb.debug) console.log("XPage4Card.constructor", props);
+	    super(props);
+	    document.getElementById("id-breed").innerHTML = this.props.card.name;
+	    iwb.killGlobalSearch();
+	    this.state = { activeTab: "x" };
+	    this.tabs = (iwb.tabs[this.props.card.id])?[...iwb.tabs[this.props.card.id]]:[{ name: "x", icon:"icon-list", title: "Liste", value: props.card }];
+	    /**
+	     * @description
+	     * a Function to toggle between tabs
+	     * @param {Event} event - click event from tab
+	     */
+	    this.toggle = event => {
+	      var activeTab = event.target ? event.target.getAttribute("name") : event;
+	      if (this.state.activeTab !== activeTab) {
+	        var {
+	          tabs
+	        } = this;
+	        tabs &&
+	          tabs.forEach(tempTab => {
+	            if (tempTab.name === activeTab) {
+	              this.setState({
+	                activeTab
+	              });
+	              return true;
+	            }
+	          });
+	      }
+	      return false;
+	    };
+	    this.isActionInTabList = action => {
+	      var stopToFetch = false;
+	      this.tabs &&
+	      this.tabs.forEach(tempTab => {
+	          if (tempTab.name === action) {
+	            this.toggle(action);
+	            stopToFetch = true;
+	          }
+	        });
+	      return stopToFetch;
+	    };
+	    /**
+	     * @description
+	     * A function responsible for opening tab getting component from the server and evaluating it on the page
+	     * @param {String} action - ['1-&toffer_id=4'] EditForm satrts 1-* , InsertForm satrts 2-*
+	     * @param {String} url - ['showForm?a=1&_fid=3988&twork_position_id=1']
+	     * @param {Object} params - a varible wich holds request body params
+	     * @param {Object} callAttributes - [{modal:false}] a variable used to pass params to a component which comes from the server
+	     */
+	    this.openTab = (action, url, params, callAttributes) => {
+	      if (this.state.activeTab !== action) {
+	        if (this.isActionInTabList(action)) return;
+	        fetch(url, {
+	            body: JSON.stringify(params || {}), // must match 'Content-Type' header
+	            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+	            credentials: "same-origin", // include, same-origin, *omit
+	            headers: {
+	              "content-type": "application/json"
+	            },
+	            method: "POST", // *GET, POST, PUT, DELETE, etc.
+	            mode: "cors", // no-cors, cors, *same-origin
+	            redirect: "follow", // *manual, follow, error
+	            referrer: "no-referrer" // *client, no-referrer
+	          })
+	          .then(
+	            response =>
+	            response.status === 200 || response.status === 0 ?
+	            response.text() :
+	            Promise.reject(
+	              new Error(response.text() || response.statusText)
+	            )
+	          )
+	          .then(
+	            result => {
+	              if (result) {
+	                var f;
+	                eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
+	                var serverComponent = f(callAttributes || {}, this);
+	                if (serverComponent) {
+	                  if (callAttributes && callAttributes.modal) {
+	                    //console.log(callAttributes);
+	                    iwb.showModal({
+	                      body: serverComponent,
+	                      size: "lg",
+	                      title: serverComponent.props && serverComponent.props.cfg ?
+	                        serverComponent.props.cfg.name :
+	                        "",
+	                      color: callAttributes.modalColor?callAttributes.modalColor:
+	                      "primary",
+	                      ...callAttributes.modalProps
+	                    });
+	                  } else {
+	                    var plus = action.substr(0, 1) == "2";
+	                    if (this.isActionInTabList(action)) return;
+	                    this.tabs.push({
+	                      name: action,
+	                      icon: plus ? "icon-plus" : "icon-doc",
+	                      title: ' '+plus ? getLocMsg('js_new') : getLocMsg('js_edit'),
+	                      value: serverComponent
+	                    });
+	                    this.setState({
+	                      activeTab: action
+	                    });
+	                  }
+	                }
+	              } else {
+	                toastr.error("Sonuc Gelmedi", " Error");
+	              }
+	            },
+	            error => {
+	              toastr.error(error, "Connection Error");
+	            }
+	          );
+	      }
+	    };
+	    iwb.openTab = this.openTab;
+	    /**
+	     * @description
+	     * A function responsible for closing tab and
+	     * delating CurrentTab from the state of Xpage Component
+	     * this function will be passed to whenever new tab is opened
+	     */
+	    this.closeTab = (event, forceRelaod = false) => {
+	      if (this.state.activeTab == "x") return;
+	      this.tabs = this.tabs && this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
+	      if (forceRelaod) {
+	        this.tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
+	      }
+	      this.toggle("x");
+	    };
+	    iwb.closeTab = this.closeTab;
+	    /**
+	     * @description
+	     * A function is used to open new FormTab
+	     * @param {string} url
+	     */
+	    this.openForm = (url, callAttributes = {}) => {
+	      if (url) this.openTab("1-" + Math.random(), url, {}, callAttributes);
+	      return false;
+	    };
+	    iwb.openForm = this.openForm;
+	  }
+	  componentWillUnmount() {
+	    iwb.killGlobalSearch();
+	    iwb.tabs[this.props.card.id] = [...this.tabs];
+	  }
+	  render() {
+	    if (iwb.debugRender) if (iwb.debug) console.log("XPage.render");
+	    return _(
+	      "div",
+	      {},
+	      _(
+	        Row,
+	        null,
+	        _(
+	          Col,
+	          { className: "mb-4" },
+	          _(
+	            Nav,
+	            { tabs: true, hidden: this.tabs.length == 1 },
+	            this.tabs.map(({ name, icon, title }, index) => {
+	              return _(
+	                NavItem,
+	                { key: "NavItem" + index },
+	                _(
+	                  NavLinkS,
+	                  {
+	                    className: classNames({
+	                      active: this.state.activeTab === name
+	                    }),
+	                    name,
+	                    onClick: event => this.toggle(event)
+	                  },
+	                  _("i", {
+	                    className: icon,
+	                    name,
+	                    title,
+	                    onClick: event => this.toggle(event)
+	                  }),
+	                  title && name != "x" && this.state.activeTab === name && title
+	                )
+	              );
+	            })
+	          ),
+	          _(
+	            TabContent,
+	            { activeTab: this.state.activeTab },
+	            this.tabs.map(({ name, value }, index) => {
+	              return _(
+	                TabPane,
+	                { key: "TabPane" + index, tabId: name },
+	                value.cardId
+	                  ? _(XMainCard, {
+	                      openTab: this.openTab,
+	                      closeTab: this.closeTab,
+	                      ...value
+	                    })
+	                  : value
+	              );
+	            })
+	          )
+	        )
+	      )
+	    );
+	  }
+	}
 /**
  * @description
  * this component is mostly used for render menu page

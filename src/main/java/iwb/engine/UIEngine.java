@@ -821,7 +821,6 @@ public class UIEngine {
 
 			int objectCount = 0;
 			if (pr.getPage().getTemplateTip() != 8) { // wizard'dan farkli ise
-				W5Table masterTable = null;
 				for (W5PageObject o : templateObjectListExt) {
 					boolean accessControl = debugAndDeveloper ? true
 							: GenericUtil.accessControl(scd, o.getAccessViewTip(), o.getAccessViewRoles(),
@@ -971,8 +970,7 @@ public class UIEngine {
 						if (obz instanceof String)
 							throw new IWBException("security", "Module", o.getObjectId(), null,
 									"Role Access Control(Page Object)", null);
-						else
-							masterTable = mainTable;
+
 					}
 					if (obz != null)
 						pr.getPageObjectList().add(obz);
