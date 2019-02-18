@@ -70,8 +70,58 @@ public class RestController implements InitializingBean {
 			Map requestParams = GenericUtil.getParameterMap(request);
 			String token = (String)requestParams.get("tokenKey");
 			String projectId=u[2]; 
-			String serviceName=u[3]; 
+			String serviceName=u[3];
 			String methodName=u[4]; 
+			if(methodName.equals("login")){
+				requestParams.put("_remote_ip", request.getRemoteAddr());
+				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
+				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
+				W5GlobalFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
+				W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
+				List<W5GlobalFuncParam> arl = new ArrayList();
+				dfr.setGlobalFunc(new W5GlobalFunc());dfr.getGlobalFunc().set_dbFuncParamList(arl);
+				arl.add(new W5GlobalFuncParam("tokenKey"));arl.add(new W5GlobalFuncParam("errorMsg"));
+//				W5WsServerMethod wsm = wss.get_methods().get(0);
+				// 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
+				boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
+				boolean expireFlag = GenericUtil.uInt(result.getResultMap().get("expireFlag")) != 0;
+				if (!success || expireFlag){
+					String errorMsg = LocaleMsgCache.get2(0, xlocale, expireFlag ? "pass_expired":result.getResultMap().get("errorMsg"));
+					response.getWriter().write("{\"success\":false,\"error\":\"" + GenericUtil.stringToJS2(errorMsg) + "\"}");
+					return;
+				}
+				
+				int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
+				int roleCount = GenericUtil.uInt(result.getResultMap().get("roleCount"));
+				int deviceType = GenericUtil.uInt(request.getParameter("deviceType"));
+				int forceUserRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
+				if (roleCount < 0 || forceUserRoleId != 0) {
+					if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
+					Map<String, Object> scd = engine.userRoleSelect(userId, forceUserRoleId,
+							GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
+					if (scd == null){
+						response.getWriter().write("{\"success\":false}"); // bir hata var
+						return;
+					}
+					scd.put("locale", xlocale);
+					if (deviceType != 0) {
+						scd.put("mobileDeviceId", request.getParameter("deviceId"));
+						scd.put("mobile", deviceType);
+						UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), null, (short) deviceType, request.getParameter("deviceId"));
+					}
+					dfr.getResultMap().put("tokenKey", UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000));
+					response.getWriter().write("{\"success\":true,\"token\":\""+UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000)+"\",\"session\":" + GenericUtil.fromMapToJsonString2(scd)+"}"); // hersey duzgun
+					
+//					response.getWriter().write("{\"success\":true,\"token\":\""+UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000)+"\",\"session\":" + GenericUtil.fromMapToJsonString2(scd)+"}"); // hersey duzgun
+	
+					return;
+	
+				} else {
+					dfr.getResultMap().put("errorMsg", "Too many roles. Use [forceUserRoleId]");
+					response.getWriter().write("{\"success\":false,\"error\":\"Too many roles. Use [forceUserRoleId]\"}");
+					return;
+				}
+			}
 			response.setContentType("application/json");
 
 			W5WsServer wss = FrameworkCache.getWsServer(projectId, serviceName);
@@ -94,8 +144,8 @@ public class RestController implements InitializingBean {
 			}
 			if(scd==null){
 				scd = new HashMap();
-				scd.put("projectId", projectId);
 			}
+			scd.put("projectId", projectId);
 
 			if(wsm.getDataAcceptTip()==2){//JSON
 				JSONObject jo = HttpUtil.getJson(request);
@@ -248,7 +298,7 @@ public class RestController implements InitializingBean {
 
 		StringBuilder buf = new StringBuilder();
 		buf.append("<?xml version=\"1.0\"?><application xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:html=\"http://www.w3.org/1999/xhtml\" xmlns=\"http://wadl.dev.java.net/2009/02\">")
-			.append("\n<doc xmlns:iworkbetter=\"http://www.iworkbetter.com/\" /><resources base=\"").append(wsRestUrl).append("\">");
+			.append("\n<doc xmlns:iworkbetter=\"http://www.iworkbetter.com/\" /><resources base=\"").append(wsRestUrl).append(ws.getProjectUuid()).append("\">");
 		buf.append("\n<resource path=\"").append(ws.getDsc()).append("\">");
 			
 		
