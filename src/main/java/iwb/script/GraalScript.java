@@ -38,6 +38,7 @@ public class GraalScript {
 	
 
 	public Object[] sqlQuery(String sql) {
+		scriptEngine.getDao().checkTenant(scd);
 		List l = scriptEngine.getDao().executeSQLQuery2Map(sql, null);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
@@ -47,6 +48,7 @@ public class GraalScript {
 		if (GenericUtil.isEmpty(m) || !sql.contains("${"))
 			return sqlQuery(sql);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, m, null);
+		scriptEngine.getDao().checkTenant(scd);
 		List l = scriptEngine.getDao().executeSQLQuery2Map(oz[0].toString(), (List) oz[1]);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
@@ -199,6 +201,7 @@ public class GraalScript {
 	}
 
 	public Object[] query(int queryId, Value jsRequestParams) {
+		scriptEngine.getDao().checkTenant(scd);
 		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromGraalValue2Map(jsRequestParams));//
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
@@ -308,6 +311,7 @@ public class GraalScript {
 			}
 		}
 
+		scriptEngine.getDao().checkTenant(scd);
 		return scriptEngine.getDao().executeUpdateSQLQuery(sql, null);
 	}
 
@@ -413,6 +417,7 @@ public class GraalScript {
 		}
 		List p = new ArrayList();
 		p.add(t.get_tableParamList().get(0).getParamTip() == 1 ? tablePk : GenericUtil.uInt(tablePk));
+		scriptEngine.getDao().checkTenant(scd);
 		List l = scriptEngine.getDao().executeSQLQuery2Map(s.toString(), p);
 		if (GenericUtil.isEmpty(l)) {
 			if (throwOnError)

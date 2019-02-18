@@ -70,6 +70,7 @@ public class DebugEngine {
 							"Forbidden Command. Please contact iCodeBetter team ;)", null);
 				}
 
+				dao.checkTenant(scd);
 				return dao.executeSQLQuery2Map4Debug(scd, t, queryResult.getExecutedSql(), queryResult.getSqlParams(),
 						GenericUtil.uIntNvl(requestParams, "limit", 50),
 						GenericUtil.uIntNvl(requestParams, "start", 0));
