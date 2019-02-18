@@ -67,12 +67,12 @@ public class RestController implements InitializingBean {
 		response.setCharacterEncoding( "UTF-8" );
 		try {
 			String[] u = request.getRequestURI().replace('/', ',').split(",");
-			Map requestParams = GenericUtil.getParameterMap(request);
-			String token = (String)requestParams.get("tokenKey");
+			String token = (String)request.getParameter("tokenKey");
 			String projectId=u[2]; 
 			String serviceName=u[3];
 			String methodName=u[4]; 
 			if(methodName.equals("login")){
+				Map requestParams = GenericUtil.getParameterMap(request);
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
@@ -146,16 +146,19 @@ public class RestController implements InitializingBean {
 				scd = new HashMap();
 			}
 			scd.put("projectId", projectId);
+			Map requestParams = null;
 
 			if(wsm.getDataAcceptTip()==2){//JSON
 				JSONObject jo = HttpUtil.getJson(request);
+				requestParams = new HashMap();
 				if(jo!=null){
 					if(wsm.getObjectTip()==4)
 						requestParams.put("_json", jo);
 					else
 						requestParams.putAll(GenericUtil.fromJSONObjectToMap(jo));
 				}
-			}
+			} else 
+				requestParams = GenericUtil.getParameterMap(request);
 			
 			W5FormResult fr=null; 
 			switch(wsm.getObjectTip()){
