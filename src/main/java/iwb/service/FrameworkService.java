@@ -1030,6 +1030,7 @@ public class FrameworkService {
 	}
 
 	public void organizeQueryFields(Map<String, Object> scd, int queryId, short insertFlag) {
+		dao.checkTenant(scd);
 		dao.organizeQueryFields(scd, queryId, insertFlag);
 		FrameworkCache.clearPreloadCache(scd);
 	}
