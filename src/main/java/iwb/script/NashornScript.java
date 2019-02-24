@@ -184,7 +184,10 @@ public class NashornScript {
 								switch (res.charAt(0)) {
 								case '{':
 								case '[':
-									rp.put(key, o);
+									if(o instanceof ScriptObjectMirror && ((ScriptObjectMirror)o).isArray()) {
+										rp.put(key, ScriptUtil.fromScriptObject2List((ScriptObjectMirror)o));
+									} else
+										rp.put(key, o);
 									break;
 								default:
 									if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
