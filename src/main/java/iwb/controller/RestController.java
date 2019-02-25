@@ -313,7 +313,7 @@ public class RestController implements InitializingBean {
 			}
 //			buf.append("\n<element name=\"").append(wsm.getDsc()).append("\"><complexType><sequence>");
 			buf.append("\n<resource path=\"").append(wsm.getDsc()).append("\">");
-			buf.append("\n<method name=\"GET\" id=\"").append(wsm.getDsc()).append("\">");
+			buf.append("\n<method name=\"").append(wsm.getObjectTip()<19 ? "POST":"GET").append("\" id=\"").append(wsm.getDsc()).append("\">");
 			
 			W5Table t = null;
 			Object o = wsmoMap.get(wsm.getDsc());
@@ -330,7 +330,7 @@ public class RestController implements InitializingBean {
 				W5FormResult fr=(W5FormResult)o;
 				lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
 				t = FrameworkCache.getTable(ws.getProjectUuid(), fr.getForm().getObjectId());
-				for(W5TableParam tp:t.get_tableParamList())if(tp.getSourceTip()==1)lwsmp.add(new W5WsServerMethodParam(tp, (short)(wsm.getObjectTip()==2 ? 1:0),wsm.getObjectTip()==2?-999:0));
+				if(wsm.getObjectTip()!=2)for(W5TableParam tp:t.get_tableParamList())if(tp.getSourceTip()==1)lwsmp.add(new W5WsServerMethodParam(tp, (short)(wsm.getObjectTip()==2 ? 1:0),wsm.getObjectTip()==2?-999:0));
 				if(wsm.getObjectTip()!=3)for(W5FormCell fc:fr.getForm().get_formCells())if(fc.getActiveFlag()!=0 && fc.get_sourceObjectDetail()!=null){
 					lwsmp.add(new W5WsServerMethodParam(fc, (short)(wsm.getObjectTip()==0 ? 1:0), wsm.getObjectTip()==0 ? -999:0));
 				}

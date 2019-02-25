@@ -149,7 +149,7 @@ public class RESTEngine {
 						if (GenericUtil.isEmpty(res))
 							res = p.getDefaultValue();
 						if (!GenericUtil.isEmpty(res)) {
-							if (res instanceof String)
+							if (res instanceof String || res instanceof List)
 								m.put(p.getDsc(), res);
 							else
 								try {

@@ -1030,6 +1030,7 @@ public class FrameworkService {
 	}
 
 	public void organizeQueryFields(Map<String, Object> scd, int queryId, short insertFlag) {
+		dao.checkTenant(scd);
 		dao.organizeQueryFields(scd, queryId, insertFlag);
 		FrameworkCache.clearPreloadCache(scd);
 	}
@@ -1545,7 +1546,7 @@ public class FrameworkService {
 					"INSERT INTO iwb.w5_template(" + "template_id, customization_id, template_tip, dsc, object_id,"
 							+ "object_tip, code, version_no, insert_user_id, insert_dttm, version_user_id,"
 							+ "version_dttm, locale_msg_flag, project_uuid, oproject_uuid)"
-							+ "VALUES (?, ?, 2, 'tpl_'||?||'1', 0, " + "0, null, 1, ?, current_timestamp, ?,"
+							+ "VALUES (?, ?, 2, 'pg_'||?||'1', 0, " + "0, null, 1, ?, current_timestamp, ?,"
 							+ "current_timestamp, 1, ?, ?)",
 					templateId, customizationId, tableName, userId, userId, projectUuid, projectUuid);
 			if (vcs)
