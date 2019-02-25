@@ -1674,6 +1674,202 @@ class XLazyScriptLoader extends React.PureComponent {
      PropTypes.string,
    ])
  };
+const XPreviewFile = ({
+  file
+}) => {
+  let type = file ? file.type : null;
+  let style = {
+    fontSize: '12em'
+  };
+  switch (type) {
+    case 'image/png':
+      return _('img', {
+        src: URL.createObjectURL(file),
+        className: 'img-fluid rounded'
+      })
+    case 'text/plain':
+      return _('i', {
+        style,
+        className: 'fas fa-file-alt m-auto'
+      })
+    case 'application/pdf':
+      return _('i', {
+        style,
+        className: 'fas fa-file-pdf m-auto'
+      })
+    default:
+      return _('div', {className:'m-auto text-center'},
+      file ? _('i',{className:'far fa-file',style}) : _('i',{className:'fas fa-upload',style}),
+        getLocMsg(file ? 'undefined_type' : 'choose_file_or_drag_it_here')
+      )
+  }
+}
+class XSingleUploadComponent extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      canUpload: false,
+      dragOver: false,
+      file: null,
+    };
+    this.onDrop = this.onDrop.bind(this);
+    this.dragenter = this.dragenter.bind(this);
+    this.dragleave = this.dragleave.bind(this);
+    this.dragover = this.dragover.bind(this);
+    this.onDeleteFile = this.onDeleteFile.bind(this);
+    this.onclick = this.onclick.bind(this);
+    this.onchange = this.onchange.bind(this);
+    console.log(this)
+  }
+  onclick(event){
+    event.preventDefault();
+    event.stopPropagation();
+    this.inpuRef.click();
+  }
+  /** used to disable opening file on new tab */
+  dragover(event){
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  dragleave(event){
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({ dragOver: false });
+  }
+  /** when the file over drag area */
+  dragenter(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({ dragOver: true });
+  }
+  /** when the file dproped over drop area */
+  onDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      canUpload:true,
+      dragOver: false,
+      file: event.dataTransfer.files[0]
+    })
+  }
+  /** when the file dproped over drop area */
+  onchange(event){
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      canUpload:true,
+      dragOver: false,
+      file: event.target.files[0]
+    })
+  }
+  /** remove file from form state */
+  onDeleteFile(event){
+    event.preventDefault();
+    event.stopPropagation();
+    /** will reset to null currently uploaded file  */
+    this.setState({
+      canUpload:false,
+      file: null
+    })
+  }
+  onUplaodClick(event){
+    event.preventDefault();
+    event.stopPropagation();
+    /** TODO:make fetch file */
+    /**will fetch file */
+    /**will will updateList on success and notify success */
+    /** will refreshImageList or add to the state */
+  }
+  render() {
+    let defaultStyle = {
+      height: '100%',
+      width: '100%',
+      position: 'absolute',
+      top: '0',
+      left: '0'
+    }
+    return _(React.Fragment, {},
+      _(Button, {
+          id: 'PopoverLegacyImage',
+          type: 'button',
+          className: 'float-right btn-round-shadow mr-1',
+          color: 'light'
+        },
+        _('i', {
+          className: 'icon-paper-clip'
+        })
+      ),
+      _(Reactstrap.UncontrolledPopover, {
+          trigger: 'legacy',
+          placement: 'auto',
+          target: 'PopoverLegacyImage'
+        },
+        _(PopoverHeader, null,
+          this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+          _('input',{
+            className:'d-none',
+            type:'file',
+            onChange:this.onchange,
+            ref:input => this.inpuRef = input
+          }),
+          _(Button, {
+              color: 'link',
+              size: 'md',
+              className: classNames({
+                'float-right p-0': true,
+                'd-none': !this.state.canUpload
+              })
+            },
+            _('i', {
+              className: 'icon-cloud-upload'
+            })
+          ),
+          this.props.extraButtons && this.props.extraButtons
+        ),
+        _(PopoverBody,
+          null,
+          _('div', {
+            style:{
+              height: '200px',
+              width: '200px',
+              position: 'relative',
+              border: this.state.dragOver ? '3px dashed #20a8d8' : '3px dashed #a4b7c1'
+            }
+          },
+              _('div', {
+                  style: {
+                    ...defaultStyle,
+                    zIndex: '10',
+                    background: 'gray',
+                    cursor: 'pointer',
+                    opacity: this.state.canUpload ? '0' : '0.5',
+                  },
+                  className: 'rounded',
+                  onDrop: this.onDrop,
+                  onDragEnter: this.dragenter,
+                  onDragLeave: this.dragleave,
+                  onDragOver: this.dragover,
+                  onClick: this.onclick
+                }
+              ),
+              _('div', {
+                style: {...defaultStyle, display:'flex'}
+              }, _(XPreviewFile,{file:this.state.file}) )
+          ), 
+          // this.state.files.length>0 && _(XMasonry,{breakPoints:[1]},
+          //   this.state.files.map(item=>{
+          //     console.log(item);
+          //    return _('div',{style:{
+          //      height:'50px'
+          //    }},'will be implemented') 
+          //   })
+          // )
+
+        )
+      )
+    )
+  }
+}
 /**
  * @description
  * used to render tab and show active tab on the full XPage
@@ -1838,11 +2034,7 @@ class XTabForm extends React.PureComponent {
             _("i", { className: "icon-bubbles" })
           ),
           " ",
-          _(
-            Button,
-            { className: "float-right btn-round-shadow mr-1", color: "light" },
-            _("i", { className: "icon-paper-clip" })
-          )
+          _(XSingleUploadComponent,{_this:this})
         ),
         _("hr"),
         formBody
