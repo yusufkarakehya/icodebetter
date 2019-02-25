@@ -977,7 +977,7 @@ public class W5QueryResult implements W5MetaResult{
 				if((approvalStepIds==null || approvalStepIds.length()==0) && mainTable.get_approvalMap().get((short)3)!=null)approvalStepIds = requestParams2.get("_approval_step_ids3");//delete icin
 				if(approvalStepIds!=null && approvalStepIds.length()>0){
 					if(sqlWhere.length()>0)sqlWhere.append(" AND");
-					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir=rz.approval_step_id) ");
+					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir::integer=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
 					sqlParams.add(scd.get("customizationId"));
 					sqlParams.add(query.getMainTableId());
@@ -1454,7 +1454,7 @@ public class W5QueryResult implements W5MetaResult{
 				if((approvalStepIds==null || approvalStepIds.length()==0) && mainTable.get_approvalMap().get((short)3)!=null)approvalStepIds = requestParams2.get("_approval_step_ids3");//delete icin
 				if(approvalStepIds!=null && approvalStepIds.length()>0){
 					if(sqlWhere.length()>0)sqlWhere.append(" AND");
-					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from dbo.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir=rz.approval_step_id) ");
+					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from dbo.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir::integer=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
 					sqlParams.add(scd.get("customizationId"));
 					sqlParams.add(query.getMainTableId());
@@ -1875,7 +1875,7 @@ public class W5QueryResult implements W5MetaResult{
 				if((approvalStepIds==null || approvalStepIds.length()==0) && mainTable.get_approvalMap().get((short)3)!=null)approvalStepIds = requestParams2.get("_approval_step_ids3");//delete icin
 				if(approvalStepIds!=null && approvalStepIds.length()>0){
 					if(sqlWhere.length()>0)sqlWhere.append(" AND");
-					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir=rz.approval_step_id) ");
+					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir::integer=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
 					sqlParams.add(scd.get("customizationId"));
 					sqlParams.add(query.getMainTableId());

@@ -289,7 +289,7 @@ public class WorkflowEngine {
 	                      null);
 	                break;
 	              }
-	            } else if (a.getApprovalFlowTip() == 2) { // hiyerarsik onay: deprecated
+	            }/* else if (a.getApprovalFlowTip() == 2) { // hiyerarsik onay: deprecated
 	              if (ar.getApprovalStepId()
 	                  == 902) { // yani bu su anda hala hiyerarsik onayda. complekse gecmemis
 	                boolean stepControl = false;
@@ -315,7 +315,7 @@ public class WorkflowEngine {
 	                }
 	                break;
 	              }
-	            }
+	            }*/
 
 	            if (currentStep.getFinalStepFlag() == 0) {
 	              int nextStepId = currentStep.getOnApproveStepId();
