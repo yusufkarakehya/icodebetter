@@ -1099,6 +1099,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			for (W5LookUpDetay lookUpDetay : (List<W5LookUpDetay>) find(
 					"from W5LookUpDetay t where t.projectUuid=? order by t.lookUpId, t.tabOrder", projectId)) {
 				W5LookUp lookUp = lookUpMap.get(lookUpDetay.getLookUpId());
+				if(lookUp==null)continue;
 				lookUp.get_detayList().add(lookUpDetay);
 				lookUp.get_detayMap().put(lookUpDetay.getVal(), lookUpDetay);
 			}
