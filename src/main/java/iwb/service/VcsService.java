@@ -1741,6 +1741,8 @@ public class VcsService {
 				JSONObject jo = ja.getJSONObject(qi);
 				
 				int action = jo.getInt("a");
+				if(action!=3 && !jo.has("o"))continue;
+				
 				int tablePk = jo.getInt("k");
 				List l = action!=2 ? dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", 
 						tableId, tablePk, projectId, customizationId) : null;
@@ -1802,6 +1804,8 @@ public class VcsService {
 				JSONObject jo = ja.getJSONObject(qi);
 				
 				int action = jo.getInt("a");
+				if(action!=3 && !jo.has("o"))continue;
+
 				int tablePk = jo.getInt("k");
 				int tableId = jo.getInt("t");
 				List l = action!=2 ? dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", 
