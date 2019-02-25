@@ -130,7 +130,7 @@ public class VcsService {
 					}
 					if(FrameworkSetting.log2tsdb)Log4Crud(po.getRdbmsSchema(), t, action, srvVcsCommitId, tablePk, jo);
 				} else
-					throw new IWBException("vcs","vcsClientObjectPull:server Error Response", t.getTableId(), s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientObjectPull:server Error Response", t.getTableId(), s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientObjectPull:JSONException", t.getTableId(), s, "Error", e);
 			}
@@ -561,7 +561,7 @@ public class VcsService {
 
 					return qr;
 				} else
-					throw new IWBException("vcs","vcsClientObjectsAll:server Error Response", 0, s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientObjectsAll:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientObjectsAll:JSONException", 0, url, "Error", e);
 				
@@ -732,7 +732,7 @@ public class VcsService {
 					return convertFromStraight2Tree(po, qr, userId, dtStart, dtEnd);
 //					return qr;
 				} else
-					throw new IWBException("vcs","vcsClientObjectsAll:server Error Response", 0, s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientObjectsAll:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientObjectsAll:JSONException", 0, url, "Error", e);
 				
@@ -859,7 +859,7 @@ public class VcsService {
 							if(bx)data2.add(od);
 						}
 					} else
-						throw new IWBException("vcs","convertFromStraight2Tree:server Error Response", 0, s, json.getString("error"), null);
+						throw new IWBException("vcs","convertFromStraight2Tree:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 				} catch (JSONException e){
 					throw new IWBException("vcs","convertFromStraight2Tree:JSONException", 0, s, "Error", e);
 				}
@@ -1425,7 +1425,7 @@ public class VcsService {
 										}
 									}
 								} else
-									throw new IWBException("vcs","vcsClientObjectsList:server Error Response", 0, s, json.getString("error"), null);
+									throw new IWBException("vcs","vcsClientObjectsList:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 							} catch (JSONException e){
 								throw new IWBException("vcs","vcsClientObjectsList:JSONException", 0, s, "Error", e);
 							}
@@ -1634,7 +1634,7 @@ public class VcsService {
 			if(json.get("success").toString().equals("true")){
 				return true;
 			} else
-				throw new IWBException("vcs","vcsClientExportProject:server Error Response", 0, s, json.getString("error"), null);
+				throw new IWBException("vcs","vcsClientExportProject:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 		}
 		return false;
 	}
@@ -1710,7 +1710,7 @@ public class VcsService {
 					}
 					return srvVcsCommitId;
 				} else
-					throw new IWBException("vcs","vcsClientObjectPushMulti:server Error Response", 0, s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientObjectPushMulti:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientObjectPushMulti:JSONException", t.getTableId(), s, "Error", e);
 			}
@@ -1741,6 +1741,8 @@ public class VcsService {
 				JSONObject jo = ja.getJSONObject(qi);
 				
 				int action = jo.getInt("a");
+				if(action!=3 && !jo.has("o"))continue;
+				
 				int tablePk = jo.getInt("k");
 				List l = action!=2 ? dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", 
 						tableId, tablePk, projectId, customizationId) : null;
@@ -1802,6 +1804,8 @@ public class VcsService {
 				JSONObject jo = ja.getJSONObject(qi);
 				
 				int action = jo.getInt("a");
+				if(action!=3 && !jo.has("o"))continue;
+
 				int tablePk = jo.getInt("k");
 				int tableId = jo.getInt("t");
 				List l = action!=2 ? dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", 
@@ -2046,7 +2050,7 @@ public class VcsService {
 					}
 					return srvVcsCommitId;
 				} else
-					throw new IWBException("vcs","vcsClientObjectPushAll:server Error Response", 0, s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientObjectPushAll:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientObjectPushAll:JSONException", 0, s, "Error", e);
 			}
@@ -2125,7 +2129,7 @@ public class VcsService {
 					qr.setData(data);
 					return qr;
 				} else
-					throw new IWBException("vcs","vcsClientDBObjectList:server Error Response", 0, s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientDBObjectList:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientDBObjectList:JSONException", 0, s, "Error", e);
 			}
@@ -2282,7 +2286,7 @@ public class VcsService {
 						dao.saveObject(new W5VcsCommit(o));
 					}
 				} else
-					throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun:server Error Response", 0, s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (IWBException e){
 				throw e;
 			} catch (JSONException e){
@@ -2367,7 +2371,7 @@ public class VcsService {
 					dao.executeUpdateSQLQuery("update iwb.w5_vcs_commit set vcs_commit_id=?, commit_user_id=?, commit_dttm=current_timestamp where vcs_commit_id=? AND project_uuid=?", json.getInt("cnt"), (Integer)scd.get("userId"), commitId, po.getProjectUuid());
 					return json.getInt("cnt");
 				} else
-					throw new IWBException("vcs","vcsClientPushSql:server Error Response", 0, s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientPushSql:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (IWBException e){
 				throw e;
 			} catch (JSONException e){
@@ -2419,7 +2423,7 @@ public class VcsService {
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?)", json.getInt("cnt"), projectUuid, comment, (Integer)scd.get("userId"), "localhost", sql, 2);
 					return json.getInt("cnt");
 				} else
-					throw new IWBException("vcs","vcsClientPushSqlRT:server Error Response", 0, s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientPushSqlRT:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (IWBException e){
 				throw e;
 			} catch (JSONException e){
@@ -2746,7 +2750,7 @@ public class VcsService {
 //						dao.saveObject(new W5VcsCommit(o));
 					}
 				}	else
-					throw new IWBException("vcs","vcsClientPullAll(DB):server Error Response", 0, dbS, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientPullAll(DB):server Error Response", 0, dbS, json.has("error") ? json.getString("error"): json.toString(), null);
 
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientPullAll(DB):JSONException", 0, url, "Error", e);
@@ -2858,7 +2862,7 @@ public class VcsService {
 					m.put("success", true);
 					return m;
 				} else
-					throw new IWBException("vcs","vcsClientPullAll:server Error Response", 0, s, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientPullAll:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientPullAll:JSONException", 0, url, "Error", e);
 				
@@ -2984,7 +2988,7 @@ public class VcsService {
 					String key = lmk.substring(2);
 */
 				}	else
-					throw new IWBException("vcs","vcsClientLocaleMsgSynch:server Error Response", 0, dbS, json.getString("error"), null);
+					throw new IWBException("vcs","vcsClientLocaleMsgSynch:server Error Response", 0, dbS, json.has("error") ? json.getString("error"): json.toString(), null);
 
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientLocaleMsgSynch:JSONException", 0, url, "Error", e);

@@ -42,6 +42,7 @@ import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5Tutorial;
 import iwb.domain.db.W5Workflow;
+import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.helper.W5CommentHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
@@ -624,6 +625,65 @@ public class React16 implements ViewAdapter {
 					s.append(",\nmanualConversionForms:[")
 							.append(serializeManualConversions(scd,
 									f.get_conversionList())).append("]");
+				}
+			}
+			
+			if (formResult.getApprovalRecord() != null) { // Burası Artık Onay Mekanizması başlamış
+				W5Workflow a = FrameworkCache.getWorkflow(formResult.getScd(), formResult.getApprovalRecord().getApprovalId());
+				if (formResult.getApprovalRecord().getApprovalStepId() == 901) {// kendisi start for approval yapacak
+					if ((a.getManualAppUserIds() == null
+							&& a.getManualAppRoleIds() == null
+							&& GenericUtil
+									.accessControl(scd, formResult
+											.getApprovalRecord()
+											.getApprovalActionTip() /*
+																	 * ??? Bu ne
+																	 */,
+											formResult.getApprovalRecord()
+													.getApprovalRoles(), formResult
+													.getApprovalRecord()
+													.getApprovalUsers()) || (GenericUtil
+							.hasPartInside2(a.getManualAppRoleIds(),
+									scd.get("roleId")) || GenericUtil
+							.hasPartInside2(a.getManualAppUserIds(),
+									scd.get("userId")))) // Burası daha güzel
+															// yazılabilir
+					)// TODO:Buraya tableUserIdField yetki kontrolü eklenecek
+						// (a.getManualAppTableFieldIds())
+						s.append(",\n approval:{approvalRecordId:")
+								.append(formResult.getApprovalRecord()
+										.getApprovalRecordId())
+								.append(",wait4start:true,dynamic:")
+								.append(a.getApprovalFlowTip() == 3).append("}");
+				} else if (GenericUtil.accessControl(scd, (short) 1, formResult
+						.getApprovalRecord().getApprovalRoles(), formResult
+						.getApprovalRecord().getApprovalUsers())) {
+					s.append(",\n approval:{approvalRecordId:")
+							.append(formResult.getApprovalRecord()
+									.getApprovalRecordId());
+					W5WorkflowStep step = a.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId());
+
+					s.append(",approvalStepId:")
+					.append(step.getApprovalStepId())
+					.append(",approvalId:")
+					.append(step.getApprovalId()).append(",versionNo:")
+							.append(formResult.getApprovalRecord().getVersionNo())
+							.append(",stepDsc:'")
+							.append(formResult.getApprovalStep() != null ? GenericUtil
+									.stringToJS(formResult.getApprovalStep()
+											.getDsc()) : "-")
+							.append("'}");
+				}
+			} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
+						// yapılabilir mi ? Formun bağlı olduğu tablonun onay
+						// mekanizması manualStart + Elle Başlatma İsteği aktif mi
+//				W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
+				if (t != null && t.get_approvalMap() != null
+						&& t.get_approvalMap().get((short) 2) != null) {
+					W5Workflow a = t.get_approvalMap().get((short) 2);
+					if (a.getManualDemandStartAppFlag() != 0
+							&& a.getApprovalRequestTip() == 2)
+						s.append(",\n manualStartDemand:true");
 				}
 			}
 		}

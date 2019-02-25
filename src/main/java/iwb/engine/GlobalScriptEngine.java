@@ -116,7 +116,7 @@ public class GlobalScriptEngine {
 		dao.checkTenant(scd);
 		r.setErrorMap(new HashMap());
 		r.setRequestParams(parameterMap);
-		GlobalFuncTrigger.beforeExec(r);
+		GlobalFuncTrigger.beforeExec(r, "");
 
 		Log5GlobalFuncAction action = new Log5GlobalFuncAction(r);
 		String error = null;
@@ -383,44 +383,58 @@ public class GlobalScriptEngine {
 				parameterMap.putAll(r.getResultMap()); 
 
 		}
-		GlobalFuncTrigger.afterExec(r);
+		GlobalFuncTrigger.afterExec(r, "");
 
-		switch (globalFuncId) {
+		/*switch (globalFuncId) {
 		case -478: // reload locale msg cache
 			for (Object[] m : (List<Object[]>) dao.executeSQLQuery(
 					"select locale, locale_msg_key, dsc from iwb.w5_locale_msg where locale_msg_key=? AND customization_id=?",
 					parameterMap.get("plocale_msg_key"), scd.get("customizationId"))) {
 				LocaleMsgCache.set2((Integer) scd.get("customizationId"), (String) m[0], (String) m[1], (String) m[2]);
 			}
-		}
+		}*/
 
 		return r;
 	}
 
-	public W5GlobalFuncResult postEditGridGlobalFunc(Map<String, Object> scd, int dbFuncId, int dirtyCount,
-			Map<String, String> requestParams, String prefix) {
+	public W5GlobalFuncResult postEditGridGlobalFunc(Map<String, Object> scd, int globalFuncId, int dirtyCount,
+			Map<String, String> requestParams, String paramSuffix) {
 
-		W5GlobalFuncResult dbFuncResult = metaDataDao.getGlobalFuncResult(scd, dbFuncId);
-		if (!GenericUtil.isEmpty(dbFuncResult.getGlobalFunc().getAccessSourceTypes())
-				&& !GenericUtil.hasPartInside2(dbFuncResult.getGlobalFunc().getAccessSourceTypes(), 1))
-			throw new IWBException("security", "DbProc", dbFuncId, null, "Access Restrict Type Control", null);
-		if (acEngine.checkAccessRecordControlViolation(scd, 4, 20, "" + dbFuncId))
-			throw new IWBException("security", "DbProc Execute3", dbFuncId, null, "Access Execute Control", null);
+		W5GlobalFuncResult globalFuncResult = metaDataDao.getGlobalFuncResult(scd, globalFuncId);
+		if (!GenericUtil.isEmpty(globalFuncResult.getGlobalFunc().getAccessSourceTypes())
+				&& !GenericUtil.hasPartInside2(globalFuncResult.getGlobalFunc().getAccessSourceTypes(), 1))
+			throw new IWBException("security", "GlobalFunc", globalFuncId, null, "Access Restrict Type Control", null);
+		if (acEngine.checkAccessRecordControlViolation(scd, 4, 20, "" + globalFuncId))
+			throw new IWBException("security", "GlobalFunc Execute", globalFuncId, null, "Access Execute Control", null);
 
-		dbFuncResult.setErrorMap(new HashMap());
-		dbFuncResult.setRequestParams(requestParams);
+		globalFuncResult.setErrorMap(new HashMap());
+		globalFuncResult.setRequestParams(requestParams);
+		
 		for (int id = 1; id <= dirtyCount; id++) {
+			if(globalFuncResult.getGlobalFunc().getLkpCodeType()==99) {
+				GlobalFuncTrigger.beforeExec(globalFuncResult, paramSuffix + id);
+				dao.executeDbFunc(globalFuncResult, paramSuffix + id);
+				GlobalFuncTrigger.afterExec(globalFuncResult, paramSuffix + id);
+				
+			} else {
+				Map<String, String> newRequestParams = new HashMap();
+				newRequestParams.putAll(requestParams);
+				for(String key:requestParams.keySet())if(key.endsWith(paramSuffix + id)) {
+					newRequestParams.put(key.substring(0,key.length()-(paramSuffix + id).length()), requestParams.get(key));
+				}
+				W5GlobalFuncResult res2 = executeGlobalFunc(scd, globalFuncId, newRequestParams, (short) 1);
+				globalFuncResult.setSuccess(res2.isSuccess());
+				globalFuncResult.setErrorMap(res2.getErrorMap());
+			}
 
-			GlobalFuncTrigger.beforeExec(dbFuncResult);
-			dao.executeDbFunc(dbFuncResult, prefix + id);
-			GlobalFuncTrigger.afterExec(dbFuncResult);
 
-			if (!dbFuncResult.getErrorMap().isEmpty() || !dbFuncResult.isSuccess()) {
-				throw new IWBException("validation", "GlobalFunc", -dbFuncId, null, "Detail Grid Validation", null);
+
+			if (!globalFuncResult.getErrorMap().isEmpty() || !globalFuncResult.isSuccess()) {
+				throw new IWBException("validation", "GlobalFunc", -globalFuncId, GenericUtil.fromMapToHtmlString(globalFuncResult.getErrorMap()), "Detail Grid Validation", null);
 			}
 		}
 
-		return dbFuncResult;
+		return globalFuncResult;
 	}
 
 	public void executeTableEvent(W5TableEvent ta, W5FormResult formResult, String action, Map<String, Object> scd,
