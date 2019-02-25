@@ -3071,38 +3071,15 @@ public class PostgreSQL extends BaseDAO {
 						s.close();
 					r.setSuccess(true);
 
-					/*
-					 * if(r.getGlobalFunc().getExecRestrictTip()==3){ //report
-					 * 
-					 * PreparedStatement st = conn.prepareStatement(
-					 * "select row_id, column_id, deger, row_tip, cell_tip, colspan, tag from w_temp_report order by row_id, column_id"
-					 * ); ResultSet rs = st.executeQuery();
-					 * List<W5ReportCellHelper> sonuc = new ArrayList();
-					 * while(rs.next()){ sonuc.add(new
-					 * W5ReportCellHelper(rs.getInt(1),rs.getInt(2),rs.getString
-					 * (3),
-					 * rs.getShort(4),rs.getShort(5),rs.getShort(6),rs.getString
-					 * (7))); } r.setReportList(sonuc);
-					 * 
-					 * if(rs!=null)rs.close(); if(st!=null)st.close(); }
-					 */
-
 					if (FrameworkSetting.hibernateCloseAfterWork)
 						if (conn != null)
 							conn.close();
-					switch (r.getGlobalFunc().getDbFuncId()) {
-					case 925: // reload locale msg cache
-						LocaleMsgCache.set2((Integer) r.getScd().get("customizationId"),
-								r.getRequestParams().get("plocale" + paramSuffix),
-								r.getRequestParams().get("plocale_msg_key" + paramSuffix),
-								r.getRequestParams().get("pdsc" + paramSuffix));
-						break;
-					}
+
 				}
 			});
 		} catch (Exception e) {
-			throw new IWBException("sql", "DbProc.Execute", r.getGlobalFuncId(),
-					GenericUtil.replaceSql(r.getExecutedSql(), sqlParams), "Error Executing", e);
+			throw new IWBException("sql", "DbFunc.Execute", r.getGlobalFuncId(),
+					GenericUtil.replaceSql(r.getExecutedSql(), sqlParams), "[20," + r.getGlobalFuncId() + "] Error Executing", e);
 		} finally {
 			logGlobalFuncAction(action, r, error);
 		}
