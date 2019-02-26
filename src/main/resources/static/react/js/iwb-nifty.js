@@ -2129,6 +2129,19 @@ class XTabForm extends React.PureComponent {
               getLocMsg('delete')
             ),
 
+            this.props.cfg.approval && this.props.cfg.approval.wait4start &&
+            _(
+              Button,
+              {
+                color: "succes",
+                className: "btn-form-edit",
+                // onClick: deleteRecord
+              },
+              // _("i", { className: "icon-trash" }),
+              " ",
+              getLocMsg('start_approval')
+            ),
+
           _(
             Button,
             {
