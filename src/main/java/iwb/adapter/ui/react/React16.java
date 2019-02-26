@@ -658,21 +658,20 @@ public class React16 implements ViewAdapter {
 				} else if (GenericUtil.accessControl(scd, (short) 1, formResult
 						.getApprovalRecord().getApprovalRoles(), formResult
 						.getApprovalRecord().getApprovalUsers())) {
-					s.append(",\n approval:{approvalRecordId:")
-							.append(formResult.getApprovalRecord()
-									.getApprovalRecordId());
-					W5WorkflowStep step = a.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId());
-
-					s.append(",approvalStepId:")
-					.append(step.getApprovalStepId())
-					.append(",approvalId:")
-					.append(step.getApprovalId()).append(",versionNo:")
-							.append(formResult.getApprovalRecord().getVersionNo())
-							.append(",stepDsc:'")
-							.append(formResult.getApprovalStep() != null ? GenericUtil
-									.stringToJS(formResult.getApprovalStep()
-											.getDsc()) : "-")
-							.append("'}");
+					s.append(",\n approval:{approvalRecordId:").append(formResult.getApprovalRecord()
+							.getApprovalRecordId()).append(",versionNo:")
+					.append(formResult.getApprovalRecord().getVersionNo())
+					.append(",returnFlag:")
+					.append(formResult.getApprovalRecord().getReturnFlag() != 0);
+			W5WorkflowStep wfs = a.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId());
+			if(wfs.getOnApproveFormId()!=null)s.append(",approveFormId:").append(wfs.getOnApproveFormId());
+			if(wfs.getOnRejectFormId()!=null)s.append(",rejectFormId:").append(wfs.getOnRejectFormId());
+			if(wfs.getOnReturnFormId()!=null)s.append(",returnFormId:").append(wfs.getOnReturnFormId());
+			s.append(",stepDsc:'")
+					.append(formResult.getApprovalStep() != null ? GenericUtil
+							.stringToJS(formResult.getApprovalStep()
+									.getDsc()) : "-")
+					.append("'}");
 				}
 			} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
 						// yapılabilir mi ? Formun bağlı olduğu tablonun onay

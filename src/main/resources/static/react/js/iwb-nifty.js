@@ -2197,7 +2197,7 @@ class XTabForm extends React.PureComponent {
             'span',
             {style:{fontSize:"1rem"}
             },
-            " step ",
+//            " step ",
             _("b",null,this.props.cfg.approval.stepDsc)
             ,"    "
           ),
