@@ -7832,7 +7832,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
     } else {
       btn.push({
-        text: getForm.approval.eSignFlag ? "E-Imza Onayla" : "${approve}",
+        text: "Approve",
         id: "aapp_" + getForm.id,
         tooltip: getForm.approval.stepDsc,
         iconAlign: "top",
@@ -7877,7 +7877,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
       if (getForm.approval.returnFlag) {
         btn.push({
-          text: "${give_back}",
+          text: "Return",
           id: "gbapp_" + getForm.id,
           iconAlign: "top",
           scale: "medium",
@@ -7889,7 +7889,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         });
       }
       btn.push({
-        text: "${reject}",
+        text: "Reject",
         id: "rapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -7900,7 +7900,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         }
       });
       btn.push({
-        text: "${approve_log}",
+        text: "Approval Log",
         id: "lapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",

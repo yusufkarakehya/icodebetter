@@ -27,6 +27,7 @@ import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
+import iwb.util.ScriptUtil;
 import iwb.util.UserUtil;
 
 @Component
@@ -35,6 +36,9 @@ public class WorkflowEngine {
 	@Autowired
 	private PostgreSQL dao;
 
+	@Lazy
+	@Autowired
+	private NotificationEngine notificationEngine;
 	
 	@Lazy
 	@Autowired
@@ -53,13 +57,7 @@ public class WorkflowEngine {
 	    int customizationId = (Integer) scd.get("customizationId");
 	    int userId = (Integer) scd.get("userId");
 	    int versionNo = GenericUtil.uInt(parameterMap.get("_avno"));
-	    W5WorkflowRecord ar =
-	        (W5WorkflowRecord)
-	            dao.find(
-	                    "from W5WorkflowRecord t where t.projectUuid=? and  t.approvalRecordId=?",
-	                    scd.get("projectId"),
-	                    approvalRecordId)
-	                .get(0);
+	    W5WorkflowRecord ar = (W5WorkflowRecord)dao.getCustomizedObject("from W5WorkflowRecord t where t.approvalRecordId=? AND t.projectUuid=?", approvalRecordId, scd.get("projectId"), "Workflow Record not Found");
 	    String mesaj = "";
 	    String xlocale = (String) scd.get("locale");
 
@@ -185,7 +183,7 @@ public class WorkflowEngine {
 	          case 3: // dynamic onay //deprecated
 	            break;
 	        }
-
+/*
 	        if (nextStep != null
 	            && nextStep.getDynamicRoleUserSql() != null
 	            && nextStep.getDynamicRoleUserSql().length() > 10) { // calisacak
@@ -209,7 +207,7 @@ public class WorkflowEngine {
 	                        nextStep.getApprovalUsers(),
 	                        (String) dynamicRoleUserSql.get("approval_roles"),
 	                        ","));
-	        }
+	        }*/
 
 	        break;
 	      case 1: // onay
@@ -252,12 +250,9 @@ public class WorkflowEngine {
 	          case 3: // dynamic onay
 	          case 2: // hierarchical
 	          case 1: // complex onay
-	            if (a.getApprovalFlowTip() == 3) { // dynamic onay
-	              if (ar.getApprovalStepId()
-	                  == 903) { // yani bu su anda hala dinamik onayda. complekse gecmemis
-	                /*if(currentStep.getOnApproveGlobalFuncId()!=0){
-	                	executeGlobalFunc(scd, currentStep.getOnApproveGlobalFuncId(), parameterMap, (short)6);
-	                }*/
+	         /*   if (a.getApprovalFlowTip() == 3) { // dynamic onay DEPRECATED
+	              if (ar.getApprovalStepId() == 903) { // yani bu su anda hala dinamik onayda. complekse gecmemis
+
 	                String uxs = ar.getApprovalUsers();
 	                if (GenericUtil.hasPartInside2(uxs, "" + userId)) {
 	                  String[] uxs2 = uxs.split(",");
@@ -330,21 +325,29 @@ public class WorkflowEngine {
 	              }
 	              if (currentStep.getOnApproveStepSql() != null) {
 	                parameterMap.put("_tb_pk", "" + ar.getTablePk());
-	                Object[] oz =
+	                Object oz = scriptEngine.executeScript(scd, parameterMap, currentStep.getOnApproveStepSql(), null, "wfs_"+nextStepId+"_ass");
+					if(oz!=null) {
+						if(oz instanceof Boolean) {
+							if(!((Boolean)oz))
+						          throw new IWBException(
+							              "validation",
+							              "WorkflowRecord",
+							              approvalRecordId,
+							              null,
+							              LocaleMsgCache.get2(0, xlocale, "approval_denied"),
+							              null);
+						} else if(oz instanceof Integer) {
+							nextStepId = (Integer) oz;
+						} else
+							advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
+					}
+	             /*   Object[] oz =
 	                    DBUtil.filterExt4SQL(
 	                        currentStep.getOnApproveStepSql(), scd, parameterMap, null);
 	                advancedNextStepSqlResult =
-	                    dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
-	                if (advancedNextStepSqlResult.get("error_msg") != null)
-	                  throw new IWBException(
-	                      "validation",
-	                      "WorkflowRecord",
-	                      approvalRecordId,
-	                      null,
-	                      (String) advancedNextStepSqlResult.get("error_msg"),
-	                      null);
+	                    dao.runSQLQuery2Map(oz[0]. toString(), (List) oz[1], null);
 	                if (advancedNextStepSqlResult.get("next_step_id") != null)
-	                  nextStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("next_step_id"));
+	                  nextStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("next_step_id"));*/
 	              }
 	              nextStep = a.get_approvalStepMap().get(nextStepId).getNewInstance();
 	            } else nextStep = null;
@@ -362,13 +365,29 @@ public class WorkflowEngine {
 	            }
 	            break;
 	        }
-
+/*
 	        if (nextStep != null
 	            && nextStep.getDynamicRoleUserSql() != null
 	            && nextStep.getDynamicRoleUserSql().length() > 10) { // calisacak
 	          Map<String, Object> dynamicRoleUserSql = null;
-	          dynamicRoleUserSql =
-	              dao.runSQLQuery2Map(nextStep.getDynamicRoleUserSql(), scd, parameterMap, null);
+	          
+				Object oz = scriptEngine.executeScript(scd, parameterMap, nextStep.getDynamicRoleUserSql(), null, "wfs_"+nextStep.getApprovalStepId()+"_drs");
+				if(oz!=null) {
+					if(oz instanceof Boolean) {
+						if(!((Boolean)oz))
+					          throw new IWBException(
+						              "validation",
+						              "WorkflowRecord",
+						              approvalRecordId,
+						              null,
+						              LocaleMsgCache.get2(0, xlocale, "approval_denied"),
+						              null);
+					} else
+						dynamicRoleUserSql = ScriptUtil.fromScriptObject2Map(oz); 
+				}
+
+				
+//	          dynamicRoleUserSql = dao.runSQLQuery2Map(nextStep.getDynamicRoleUserSql(), scd, parameterMap, null);
 	          // Ekstra Eklenecek Kullanıcı ve Roller varmı bu stepte
 	          if (dynamicRoleUserSql != null && dynamicRoleUserSql.get("approval_users") != null)
 	            nextStep.setApprovalUsers(
@@ -387,7 +406,7 @@ public class WorkflowEngine {
 	                        (String) dynamicRoleUserSql.get("approval_roles"),
 	                        ","));
 	        }
-
+*/
 	        break;
 	      case 2: // iade: TODO . baska?
 	        if (currentStep.getApprovalStepId() == 901) {
@@ -441,7 +460,23 @@ public class WorkflowEngine {
 	          case 1: // complex onay
 	            int returnStepId = currentStep.getOnReturnStepId();
 	            if (currentStep.getOnReturnStepSql() != null) {
-	              parameterMap.put("_tb_pk", "" + ar.getTablePk());
+	                parameterMap.put("_tb_pk", "" + ar.getTablePk());
+	                Object oz = scriptEngine.executeScript(scd, parameterMap, currentStep.getOnReturnStepSql(), null, "wfs_"+returnStepId+"_rss");
+					if(oz!=null) {
+						if(oz instanceof Boolean) {
+							if(!((Boolean)oz))
+						          throw new IWBException(
+							              "validation",
+							              "WorkflowRecord",
+							              approvalRecordId,
+							              null,
+							              LocaleMsgCache.get2(0, xlocale, "return_denied"),
+							              null);
+						} else if(oz instanceof Integer) {
+							returnStepId = (Integer) oz;
+						} else
+							advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
+					}/*
 	              Object[] oz =
 	                  DBUtil.filterExt4SQL(currentStep.getOnReturnStepSql(), scd, parameterMap, null);
 	              advancedNextStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
@@ -454,7 +489,7 @@ public class WorkflowEngine {
 	                    (String) advancedNextStepSqlResult.get("error_msg"),
 	                    null);
 	              if (advancedNextStepSqlResult.get("return_step_id") != null)
-	                returnStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("return_step_id"));
+	                returnStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("return_step_id"));*/
 	            }
 	            nextStep = a.get_approvalStepMap().get(returnStepId).getNewInstance();
 	            if (nextStep == null) {
@@ -587,21 +622,26 @@ public class WorkflowEngine {
 	                  if (a.getAdvancedBeginSql() != null
 	                      && a.getAdvancedBeginSql().length() > 10) { // calisacak
 	                    Map<String, Object> advancedStepSqlResult = null;
-	                    advancedStepSqlResult =
-	                        dao.runSQLQuery2Map(a.getAdvancedBeginSql(), scd, parameterMap, null);
+	                    
+	                    Object oz = scriptEngine.executeScript(scd, parameterMap, a.getAdvancedBeginSql(), null, "wf_"+a.getApprovalId()+"_abs");
+						if(oz!=null) {
+							if(oz instanceof Boolean) {
+								if(!((Boolean)oz))ar.setApprovalUsers(String.valueOf(ar.getInsertUserId()));
+							} else
+								advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
+						}
+	                    //advancedStepSqlResult =  dao.runSQLQuery2Map(a.getAdvancedBeginSql(), scd, parameterMap, null);
 	                    // donen bir cevap var, aktive_flag deger olarak var ve onun degeri 0 ise o
 	                    // zaman girmeyecek
-	                    if (advancedStepSqlResult != null
+	                  /*  if (advancedStepSqlResult != null
 	                        && advancedStepSqlResult.get("active_flag") != null
 	                        && GenericUtil.uInt(advancedStepSqlResult.get("active_flag"))
 	                            == 0) { // girmeyecek
 	                      ar.setApprovalUsers(String.valueOf(ar.getInsertUserId()));
-	                    } else if (advancedStepSqlResult != null) {
-	                      if (advancedStepSqlResult != null
-	                          && advancedStepSqlResult.get("approval_users") != null)
+	                    } else */if (advancedStepSqlResult != null) {
+	                      if (advancedStepSqlResult.get("approval_users") != null)
 	                        ar.setApprovalUsers((String) advancedStepSqlResult.get("approval_users"));
-	                      if (advancedStepSqlResult != null
-	                          && advancedStepSqlResult.get("approval_roles") != null)
+	                      if (advancedStepSqlResult.get("approval_roles") != null)
 	                        ar.setApprovalRoles((String) advancedStepSqlResult.get("approval_roles"));
 	                    }
 	                  } else {
@@ -732,7 +772,7 @@ public class WorkflowEngine {
 	      List<Object[]> approvalUsers =
 	          dao.executeSQLQuery(
 	              "select gu.gsm,gu.email,gu.user_id from iwb.w5_user gu where gu.customization_id=?::integer and gu.user_id <> ?::integer and "
-	                  + "(gu.user_id in (select lar.user_id from log5_approval_record lar where (lar.approval_action_tip = 0 or lar.approval_action_tip = 901) and lar.approval_record_id = ?::integer) or "
+	                  + "(gu.user_id in (select lar.user_id from iwb.log5_approval_record lar where (lar.approval_action_tip = 0 or lar.approval_action_tip = 901) and lar.approval_record_id = ?::integer) or "
 	                  + "gu.user_id in (select ur.user_id from iwb.w5_user_role ur where ur.customization_id = ?::integer and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and ((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3)) or "
 	                  + "gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))",
 	              scd.get("customizationId"),
@@ -798,7 +838,7 @@ public class WorkflowEngine {
 	    }
 
 	    /* Record Save Ediliyor */
-	    saveObject(logRecord);
+	    dao.saveObject(logRecord);
 	    ar.setVersionNo(ar.getVersionNo() + 1);
 	    dao.updateObject(ar);
 
@@ -871,7 +911,7 @@ public class WorkflowEngine {
 	      for (String gsm : gsmList)
 	        phoneNumber = phoneNumber + (GenericUtil.isEmpty(phoneNumber) ? "" : ",") + gsm;
 
-	      sendSms(
+	      notificationEngine.sendSms(
 	          GenericUtil.uInt(scd.get("customizationId")),
 	          GenericUtil.uInt(scd.get("userId")),
 	          phoneNumber,
@@ -905,7 +945,7 @@ public class WorkflowEngine {
 	      comment.setCommentUserId(userId);
 	      comment.setCommentDttm(new java.sql.Timestamp(new Date().getTime()));
 //	      comment.setCustomizationId(Integer.parseInt(scd.get("customizationId") + ""));
-	      saveObject(comment);
+	      dao.saveObject(comment);
 	    }
 
 	    // Feed Yazma
@@ -924,7 +964,7 @@ public class WorkflowEngine {
 	      if (feed.get_tableRecordList() != null && feed.get_tableRecordList().size() > 0)
 	        feed.set_commentCount(feed.get_tableRecordList().get(0).getCommentCount());
 
-	      saveObject(feed);
+	      dao.saveObject(feed);
 	      FrameworkCache.addFeed(scd, feed, true);
 
 	      /*int maxDerinlik = PromisCache.getAppSettingIntValue(scd, "feed_control_depth");
@@ -963,17 +1003,7 @@ public class WorkflowEngine {
 	    return result;
 	  }
 	  
-	  private void sendSms(int uInt, int uInt2, String phoneNumber, String messageBody, int tableId, int tablePk) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void saveObject(Object feed) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private int approvalStepListControl(List<W5WorkflowStep> stepList) {
+	  private int approvalStepListControl(List<W5WorkflowStep> stepList) {
 		    int r = -1;
 		    int i = 0;
 		    if (stepList != null && !stepList.isEmpty()) {

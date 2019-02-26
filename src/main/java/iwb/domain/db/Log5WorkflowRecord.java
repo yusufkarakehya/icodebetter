@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="log5_approval_record",schema="iwb")
-public class Log5WorkflowRecord implements java.io.Serializable, Log5Base {
+public class Log5WorkflowRecord implements java.io.Serializable {
 
 	private int logId;
 	private int userId;

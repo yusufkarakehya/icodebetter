@@ -46,6 +46,7 @@ import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
+import iwb.util.ScriptUtil;
 import iwb.util.UserUtil;
 
 @Component
@@ -570,24 +571,24 @@ public class CRUDEngine {
 																	// olacaksa
 						case 1: // automatic approval
 							if (approval.getAdvancedBeginSql() != null
-									&& approval.getAdvancedBeginSql().length() > 10) { // calisacak
-								Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams,
-										null);
-								advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
+									&& approval.getAdvancedBeginSql().trim().length() > 2) { // calisacak
+								
+								Object oz = scriptEngine.executeScript(scd, requestParams, approval.getAdvancedBeginSql(), null, "wf_"+approval.getApprovalId()+"_abs");
+								if(oz!=null) {
+									if(oz instanceof Boolean) {
+										if(!((Boolean)oz))approval=null;
+									} else
+										advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
+								}
+//								Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
+//								advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
 								// donen bir cevap var, aktive_flag deger olarak
 								// var ve onun degeri 0 ise o
 								// zaman girmeyecek
-								if (advancedStepSqlResult != null) {
-									if (advancedStepSqlResult.get("active_flag") != null
-											&& GenericUtil.uInt(advancedStepSqlResult.get("active_flag")) == 0) // girmeyecek
-										approval = null; // approval olmayacak
-									if (advancedStepSqlResult.get("error_msg") != null) // girmeyecek
-										throw new IWBException("security", "Workflow", approval.getApprovalId(), null,
-												(String) advancedStepSqlResult.get("error_msg"), null);
-								}
+
 							}
 							approvalStep = null;
-							switch (approval.getApprovalFlowTip()) { // simple
+							if(approval!=null)switch (approval.getApprovalFlowTip()) { // simple
 							case 0: // basit onay
 								approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
 								break;
@@ -601,7 +602,7 @@ public class CRUDEngine {
 								else
 									approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
 								break;
-							case 2: // hierarchical onay
+						/*	case 2: // hierarchical onay DEPRECATED
 								int mngUserId = GenericUtil.uInt(scd.get("mngUserId"));
 								if (mngUserId != 0) {
 									approvalStep = new W5WorkflowStep();
@@ -618,7 +619,7 @@ public class CRUDEngine {
 										approvalStep = null;
 								}
 
-								break;
+								break;*/
 							}
 
 							break;
@@ -635,9 +636,14 @@ public class CRUDEngine {
 								// girmesi sağlanır
 								if (approval.getAdvancedBeginSql() != null
 										&& approval.getAdvancedBeginSql().length() > 10) { // calisacak
-									Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd,
+									Object oz = scriptEngine.executeScript(scd, requestParams, approval.getAdvancedBeginSql(), null, "wf_"+approval.getApprovalId()+"_abs");
+									if(oz!=null) {
+										
+										advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
+									}
+									/*Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd,
 											requestParams, null);
-									advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
+									advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);*/
 									// donen bir cevap var, aktive_flag deger
 									// olarak var ve onun degeri 0 ise o
 									// zaman girmeyecek

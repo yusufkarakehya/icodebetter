@@ -571,7 +571,7 @@ public class GlobalScriptEngine {
 				try {
 					StringBuilder sb = new StringBuilder();
 					sb.append("function ").append(fncName).append("($, _scd, _request, _obj");
-					sb.append("){\n");
+					sb.append("){var result=null;\n");
 					sb.append(script);
 					sb.append("\nreturn result}");
 					script = sb.toString();
