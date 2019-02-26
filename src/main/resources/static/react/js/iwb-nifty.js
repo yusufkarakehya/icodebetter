@@ -2056,7 +2056,7 @@ class XTabForm extends React.PureComponent {
       }
       let url = "ajaxPostForm?a=3&_fid=" + formId + pkz;
       yesNoDialog({
-        text: "Are you Sure!",
+        text: "Are you Sure?",
         callback: success =>
           success &&
           iwb.request({
@@ -2065,7 +2065,46 @@ class XTabForm extends React.PureComponent {
           })
       });
     };
+    this.startApproval = event => {
+        event && event.preventDefault && event.preventDefault();
+        let { formId, pk } = this.props.cfg;
+        let pkz = "";
+        for (let key in pk) {
+          pkz += "&" + key + "=" + pk[key];
+        }
+        let url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
+        yesNoDialog({
+          text: "Are you Sure to Start Approval?",
+          callback: success =>
+            success &&
+            iwb.request({
+              url,params:{_adsc:'start approval'},
+              successCallback: () => this.props.parentCt.closeTab(event, success)
+            })
+        });
+      };
+      this.approvalAction = action => {
+      		return (event) => {
+          event && event.preventDefault && event.preventDefault();
+          let { formId, pk } = this.props.cfg;
+          let pkz = "";
+          for (let key in pk) {
+            pkz += "&" + key + "=" + pk[key];
+          }
+          let url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
+          yesNoDialog({
+            text: "Are you Sure!",
+            callback: success =>
+              success &&
+              iwb.request({
+                url,params:{_adsc:'start approval'},
+                successCallback: () => this.props.parentCt.closeTab(event, success)
+              })
+          });
+        };
+      }
   }
+  
   render() {
     let {
       props: {
@@ -2076,7 +2115,7 @@ class XTabForm extends React.PureComponent {
       state: { viewMode },
       //methods
       onSubmit,
-      deleteRecord,
+      deleteRecord, startApproval, approvalAction,
       toggleViewMode
     } = this;
 
@@ -2128,18 +2167,30 @@ class XTabForm extends React.PureComponent {
               " ",
               getLocMsg('delete')
             ),
-
+            " ",
             this.props.cfg.approval && this.props.cfg.approval.wait4start &&
             _(
               Button,
               {
-                color: "succes",
+                color: "success",
                 className: "btn-form-edit",
-                // onClick: deleteRecord
+                onClick: startApproval
               },
               // _("i", { className: "icon-trash" }),
               " ",
               getLocMsg('start_approval')
+            ),
+            this.props.cfg.approval && this.props.cfg.approval.wait4start &&
+            _(
+              Button,
+              {
+                color: "success",
+                className: "btn-form-edit",
+                onClick: approvalAction(1) //approve
+              },
+              // _("i", { className: "icon-trash" }),
+              " ",
+              getLocMsg('approve')
             ),
 
           _(
@@ -2151,13 +2202,13 @@ class XTabForm extends React.PureComponent {
             _("i", { className: "icon-options" })
           ),
           " ",
-          _(
+          this.props.cfg.commentFlag && _(
             Button,
             { className: "float-right btn-round-shadow mr-1", color: "light" },
             _("i", { className: "icon-bubbles" })
           ),
           " ",
-          _(XSingleUploadComponent, {
+          this.props.cfg.fileAttachFlag && _(XSingleUploadComponent, {
             cfg: this.props.cfg
           })
         ),
