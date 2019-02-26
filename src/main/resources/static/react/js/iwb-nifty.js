@@ -1700,10 +1700,29 @@ const XPreviewFile = ({
     default:
       return _('div', {className:'m-auto text-center'},
       file ? _('i',{className:'far fa-file',style}) : _('i',{className:'fas fa-upload',style}),
+        _('br',null),
         getLocMsg(file ? 'undefined_type' : 'choose_file_or_drag_it_here')
       )
   }
 }
+// class XListFiles extends React.Component {
+//   constructor(props){
+//     super(props)
+//     this.state = {
+//       files:[]
+//     }
+//   }
+//   render(){
+//     return this.state.files.length>0 && _(XMasonry,{breakPoints:[1]},
+//       this.state.files.map(item=>{
+//         console.log(item);
+//        return _('div',{style:{
+//          height:'50px'
+//        }},'will be implemented') 
+//       })
+//     )
+//   }
+// }
 class XSingleUploadComponent extends React.Component {
   constructor() {
     super();
@@ -1719,6 +1738,8 @@ class XSingleUploadComponent extends React.Component {
     this.onDeleteFile = this.onDeleteFile.bind(this);
     this.onclick = this.onclick.bind(this);
     this.onchange = this.onchange.bind(this);
+    this.onUplaodClick = this.onUplaodClick.bind(this);
+    
     console.log(this)
   }
   onclick(event){
@@ -1772,13 +1793,57 @@ class XSingleUploadComponent extends React.Component {
       file: null
     })
   }
-  onUplaodClick(event){
+  /** will get allt data from query 61 */
+  getList(){
+
+  }
+  onUplaodClick(event) {
     event.preventDefault();
     event.stopPropagation();
-    /** TODO:make fetch file */
-    /**will fetch file */
-    /**will will updateList on success and notify success */
-    /** will refreshImageList or add to the state */
+    if (!this.state.file) {
+      return;
+    }
+    let formData = new FormData()
+    formData.append('table_pk', this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))
+    formData.append('table_id', this.props.cfg.crudTableId)
+    formData.append('file', this.state.file)
+    formData.append('profilePictureFlag', this.props.profilePictureFlag || 0)
+
+    fetch('/app/upload.form', {
+        method: 'POST',
+        body: formData,
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        mode: 'cors',
+        redirect: 'follow',
+        referrer: 'no-referrer'
+      })
+      .then(response => response.status === 200 || response.status === 0 ? response.json() : Promise.reject(new Error(response.text() || response.statusText)))
+      .then(
+        result => {
+          if (result.success) {
+            toastr.success(getLocMsg('file_sucessfully_uploaded!'), getLocMsg('Success'), {
+              timeOut: 3000
+            });
+
+            this.setState({
+              file: null,
+              canUpload: false
+            }, () => {
+              this.getList();
+            })
+
+          } else {
+            if (result.error) {
+              toastr.error(result.error, result.errorType);
+            }
+            return;
+          }
+        },
+        error => {
+          toastr.error(error, getLocMsg('Error'));
+        }
+      )
   }
   render() {
     let defaultStyle = {
@@ -1790,7 +1855,7 @@ class XSingleUploadComponent extends React.Component {
     }
     return _(React.Fragment, {},
       _(Button, {
-          id: 'PopoverLegacyImage',
+          id: this.props.cfg.id,
           type: 'button',
           className: 'float-right btn-round-shadow mr-1',
           color: 'light'
@@ -1802,7 +1867,7 @@ class XSingleUploadComponent extends React.Component {
       _(Reactstrap.UncontrolledPopover, {
           trigger: 'legacy',
           placement: 'auto',
-          target: 'PopoverLegacyImage'
+          target: this.props.cfg.id
         },
         _(PopoverHeader, null,
           this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
@@ -1818,7 +1883,8 @@ class XSingleUploadComponent extends React.Component {
               className: classNames({
                 'float-right p-0': true,
                 'd-none': !this.state.canUpload
-              })
+              }),
+              onClick: this.onUplaodClick
             },
             _('i', {
               className: 'icon-cloud-upload'
@@ -1855,15 +1921,7 @@ class XSingleUploadComponent extends React.Component {
               _('div', {
                 style: {...defaultStyle, display:'flex'}
               }, _(XPreviewFile,{file:this.state.file}) )
-          ), 
-          // this.state.files.length>0 && _(XMasonry,{breakPoints:[1]},
-          //   this.state.files.map(item=>{
-          //     console.log(item);
-          //    return _('div',{style:{
-          //      height:'50px'
-          //    }},'will be implemented') 
-          //   })
-          // )
+          )    
 
         )
       )
@@ -2034,7 +2092,9 @@ class XTabForm extends React.PureComponent {
             _("i", { className: "icon-bubbles" })
           ),
           " ",
-          _(XSingleUploadComponent,{_this:this})
+          _(XSingleUploadComponent, {
+            cfg: this.props.cfg
+          })
         ),
         _("hr"),
         formBody
