@@ -7820,7 +7820,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     // btn.push({text: '${onay_adimi}<br>'+getForm.approval.stepDsc});
     if (getForm.approval.wait4start) {
       btn.push({
-        text: "${onay_iste}",
+        text: "Start Approval",
         id: "dapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -7862,15 +7862,9 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
               getForm._cfg.extraParams = r;
             }
           }
-          if (getForm.approval.eSignFlag) {
-            openPopup(
-              "showPage?_tid=691&_arid=" + getForm.approval.approvalRecordId,
-              "_blank",
-              800,
-              600,
-              1
-            );
-            mainPanel.closeModalWindow();
+          if (getForm.approval.approveFormId) {
+            mainPanel.loadTab({attributes:{href:"showForm?a=2&_fid="+getForm.approval.approveFormId+"&_arid=" + getForm.approval.approvalRecordId, modalWindow: true}});
+//            mainPanel.closeModalWindow();
             return;
           } else submitAndApproveTableRecord(1, getForm);
         }

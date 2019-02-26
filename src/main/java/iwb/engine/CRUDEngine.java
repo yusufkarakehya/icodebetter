@@ -634,16 +634,15 @@ public class CRUDEngine {
 																													// burada
 																													// 901'e
 								// girmesi sağlanır
-								if (approval.getAdvancedBeginSql() != null
+							/*	if (approval.getAdvancedBeginSql() != null
 										&& approval.getAdvancedBeginSql().length() > 10) { // calisacak
 									Object oz = scriptEngine.executeScript(scd, requestParams, approval.getAdvancedBeginSql(), null, "wf_"+approval.getApprovalId()+"_abs");
 									if(oz!=null) {
 										
 										advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
 									}
-									/*Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd,
-											requestParams, null);
-									advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);*/
+									//Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd,requestParams, null);
+									//advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
 									// donen bir cevap var, aktive_flag deger
 									// olarak var ve onun degeri 0 ise o
 									// zaman girmeyecek
@@ -671,7 +670,8 @@ public class CRUDEngine {
 											throw new IWBException("security", "Workflow", approval.getApprovalId(),
 													null, (String) advancedStepSqlResult.get("error_msg"), null);
 									}
-								} else {
+								} */
+								if(approvalStep==null) {
 									approvalStep = new W5WorkflowStep();
 									// if(approval.getDynamicStepFlag()!=0))
 									approvalStep.setApprovalRoles(approval.getManualAppRoleIds());

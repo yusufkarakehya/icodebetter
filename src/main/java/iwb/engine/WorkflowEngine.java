@@ -138,15 +138,30 @@ public class WorkflowEngine {
 	              null);
 	        Map<String, Object> advancedStepSqlResult = null;
 	        if (a.getAdvancedBeginSql() != null && a.getAdvancedBeginSql().length() > 10) { // calisacak
-	          Object[] oz = DBUtil.filterExt4SQL(a.getAdvancedBeginSql(), scd, parameterMap, null);
-	          advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
+	        	
+	        	Object oz = scriptEngine.executeScript(scd, parameterMap, a.getAdvancedBeginSql(), null, "wf_"+a.getApprovalId()+"_abs");
+				if(oz!=null) {
+					if(oz instanceof Boolean) {
+						if(!((Boolean)oz))
+					          throw new IWBException(
+						              "validation",
+						              "WorkflowRecord",
+						              approvalRecordId,
+						              null,
+						              LocaleMsgCache.get2(0, xlocale, "approval_request_denied"),
+						              null);
+					} else
+						advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
+				}
+	          //Object[] oz = DBUtil.filterExt4SQL(a.getAdvancedBeginSql(), scd, parameterMap, null);
+	          //advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
 	          // donen bir cevap var, aktive_flag deger olarak var ve onun degeri 0 ise o zaman
 	          // girmeyecek
-	          if (advancedStepSqlResult != null) {
+	          /*if (advancedStepSqlResult != null) {
 	            // onay başladıktan sonra AdvancedBeginSql ile tekrar active_flag kontrolü yapmak
 	            // anlamsız olmuş bu yüzden burayı kapattım (çağlar)
-	            /*if(advancedStepSqlResult.get("active_flag")!=null && PromisUtil.uInt(advancedStepSqlResult.get("active_flag"))==0)//girmeyecek
-	            a = null; //approval olmayacak*/
+	            //if(advancedStepSqlResult.get("active_flag")!=null && PromisUtil.uInt(advancedStepSqlResult.get("active_flag"))==0)//girmeyecek
+	            //a = null; //approval olmayacak
 	            if (advancedStepSqlResult.get("error_msg") != null) // girmeyecek
 	            throw new IWBException(
 	                  "security",
@@ -155,7 +170,7 @@ public class WorkflowEngine {
 	                  null,
 	                  (String) advancedStepSqlResult.get("error_msg"),
 	                  null);
-	          }
+	          }*/
 	        }
 	        nextStep = null;
 	        switch (a.getApprovalFlowTip()) { // simple

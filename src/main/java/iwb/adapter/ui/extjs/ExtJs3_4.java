@@ -45,6 +45,7 @@ import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5Tutorial;
 import iwb.domain.db.W5Workflow;
+import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5WsMethod;
 import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.helper.W5CommentHelper;
@@ -1192,8 +1193,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					s.append(",\n approval:{approvalRecordId:")
 							.append(fr.getApprovalRecord()
 									.getApprovalRecordId())
-							.append(",wait4start:true").append(",dynamic:")
-							.append(a.getApprovalFlowTip() == 3).append("}");
+							.append(",wait4start:true}"); //").append(",dynamic:").append(a.getApprovalFlowTip() == 3).append("
 			} else if (GenericUtil.accessControl(scd, (short) 1, fr
 					.getApprovalRecord().getApprovalRoles(), fr
 					.getApprovalRecord().getApprovalUsers())) {
@@ -1205,8 +1205,12 @@ public class ExtJs3_4 implements ViewAdapter {
 						.append(",versionNo:")
 						.append(fr.getApprovalRecord().getVersionNo())
 						.append(",returnFlag:")
-						.append(fr.getApprovalRecord().getReturnFlag() != 0)
-						.append(",stepDsc:'")
+						.append(fr.getApprovalRecord().getReturnFlag() != 0);
+				W5WorkflowStep wfs = a.get_approvalStepMap().get(fr.getApprovalRecord().getApprovalStepId());
+				if(wfs.getOnApproveFormId()!=null)s.append(",approveFormId:").append(wfs.getOnApproveFormId());
+				if(wfs.getOnRejectFormId()!=null)s.append(",rejectFormId:").append(wfs.getOnRejectFormId());
+				if(wfs.getOnReturnFormId()!=null)s.append(",returnFormId:").append(wfs.getOnReturnFormId());
+				s.append(",stepDsc:'")
 						.append(fr.getApprovalStep() != null ? GenericUtil
 								.stringToJS(fr.getApprovalStep()
 										.getDsc()) : "-")

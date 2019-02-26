@@ -26,11 +26,14 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 	private String approvalUsers;
 	private short updatableFlag;
 	private int onApproveStepId;
+	private Integer onApproveFormId;
 	private String onApproveStepSql;
 	private short returnFlag;
 	private int onReturnStepId;
+	private Integer onReturnFormId;
 	private String onReturnStepSql;
 	private String onRejectStepSql;
+	private Integer onRejectFormId;
 	private short finalStepFlag;
 	private String updatableFields;
 	private String dynamicRoleUserSql;
@@ -52,6 +55,7 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 	
 	private short sendMailOnEnterStepFlag;
 	private short sendSmsOnEnterStepFlag;
+	
 	
 	
 	@Column(name="approval_id")
@@ -375,6 +379,28 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+	
+	@Column(name="on_approve_form_id")	
+	public Integer getOnApproveFormId() {
+		return onApproveFormId;
+	}
+	public void setOnApproveFormId(Integer onApproveFormId) {
+		this.onApproveFormId = onApproveFormId;
+	}
+	@Column(name="on_return_form_id")	
+	public Integer getOnReturnFormId() {
+		return onReturnFormId;
+	}
+	public void setOnReturnFormId(Integer onReturnFormId) {
+		this.onReturnFormId = onReturnFormId;
+	}
+	@Column(name="on_reject_form_id")	
+	public Integer getOnRejectFormId() {
+		return onRejectFormId;
+	}
+	public void setOnRejectFormId(Integer onRejectFormId) {
+		this.onRejectFormId = onRejectFormId;
 	}
 
 }
