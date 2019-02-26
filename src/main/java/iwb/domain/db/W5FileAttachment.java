@@ -53,7 +53,7 @@ public class W5FileAttachment implements java.io.Serializable {
     public W5FileAttachment(Map<String, Object> scd) {
     if(scd!=null) {
        	if(scd.containsKey("customizationId"))this.customizationId = (Integer)scd.get("customizationId");
-       	if(scd.containsKey("project"))this.projectUuid = (String)scd.get("project");
+       	if(scd.containsKey("projectId"))this.projectUuid = (String)scd.get("projectId");
        	if(scd.containsKey("userId"))this.uploadUserId = (Integer)scd.get("userId");
            	
     }

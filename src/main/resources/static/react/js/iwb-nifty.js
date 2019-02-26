@@ -1705,24 +1705,69 @@ const XPreviewFile = ({
       )
   }
 }
-// class XListFiles extends React.Component {
-//   constructor(props){
-//     super(props)
-//     this.state = {
-//       files:[]
-//     }
-//   }
-//   render(){
-//     return this.state.files.length>0 && _(XMasonry,{breakPoints:[1]},
-//       this.state.files.map(item=>{
-//         console.log(item);
-//        return _('div',{style:{
-//          height:'50px'
-//        }},'will be implemented') 
-//       })
-//     )
-//   }
-// }
+class XListFiles extends React.Component {
+  constructor(){
+    super()
+    this.state = {
+      files:[]
+    }
+    this.getFileList = this.getFileList.bind(this)
+  }
+  /**run query to get data based on pk and id */
+  getFileList(){
+    iwb.request({
+      url:'ajaxQueryData?_qid=61&xtable_id='+this.props.cfg.crudTableId+'&xtable_pk='+ (this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk)),
+      successCallback: ({data}) => {
+        this.setState({
+          files:data
+        })
+      }
+    })
+  }
+  deleteItem(fileItem) {
+    return (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      /** deleteRequest */
+      iwb.request({
+        url: 'ajaxPostForm?a=3&_fid=1383&tfile_attachment_id='+fileItem.file_attachment_id,
+        successCallback: (res) => {
+          this.setState({
+            files: this.state.files.filter(file => file.file_attachment_id != fileItem.file_attachment_id)
+          })
+        }
+      })
+    }
+  }
+  /** test */
+  downladLink(fileItem) {
+    let url = 'dl/'+fileItem.original_file_name+'?_fai='+fileItem.file_attachment_id+'&.r='+Math.random();
+    return (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const link = document.createElement('a');
+      link.href = url ;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+  componentDidMount(){ this.getFileList() }
+  render() {
+    return _(
+      ListGroup, {},
+      this.state.files.map(fileItem => _(ListGroupItem, null,
+        _('a', { onClick:this.downladLink(fileItem),href:'#' }, fileItem.original_file_name),
+        _('i', {
+          key: fileItem.file_attachment_id,
+          onClick: this.deleteItem(fileItem),
+          style:{ cursor: 'pointer' },
+          className: 'icon-trash float-right text-danger'
+        })
+      ))
+    )
+  }
+}
 class XSingleUploadComponent extends React.Component {
   constructor() {
     super();
@@ -1730,6 +1775,7 @@ class XSingleUploadComponent extends React.Component {
       canUpload: false,
       dragOver: false,
       file: null,
+      freshKey:Math.floor(Math.random() * 1000)
     };
     this.onDrop = this.onDrop.bind(this);
     this.dragenter = this.dragenter.bind(this);
@@ -1739,63 +1785,62 @@ class XSingleUploadComponent extends React.Component {
     this.onclick = this.onclick.bind(this);
     this.onchange = this.onchange.bind(this);
     this.onUplaodClick = this.onUplaodClick.bind(this);
-    
-    console.log(this)
   }
-  onclick(event){
+  onclick(event) {
     event.preventDefault();
     event.stopPropagation();
     this.inpuRef.click();
   }
   /** used to disable opening file on new tab */
-  dragover(event){
+  dragover(event) {
     event.preventDefault();
     event.stopPropagation();
   }
-  dragleave(event){
+  /** used with css */
+  dragleave(event) {
     event.preventDefault();
     event.stopPropagation();
-    this.setState({ dragOver: false });
+    this.setState({
+      dragOver: false
+    });
   }
   /** when the file over drag area */
   dragenter(event) {
     event.preventDefault();
     event.stopPropagation();
-    this.setState({ dragOver: true });
+    this.setState({
+      dragOver: true
+    });
   }
   /** when the file dproped over drop area */
   onDrop(event) {
     event.preventDefault();
     event.stopPropagation();
     this.setState({
-      canUpload:true,
+      canUpload: true,
       dragOver: false,
       file: event.dataTransfer.files[0]
     })
   }
   /** when the file dproped over drop area */
-  onchange(event){
+  onchange(event) {
     event.preventDefault();
     event.stopPropagation();
     this.setState({
-      canUpload:true,
+      canUpload: true,
       dragOver: false,
       file: event.target.files[0]
     })
   }
   /** remove file from form state */
-  onDeleteFile(event){
+  onDeleteFile(event) {
     event.preventDefault();
     event.stopPropagation();
     /** will reset to null currently uploaded file  */
     this.setState({
-      canUpload:false,
+      canUpload: false,
       file: null
     })
-  }
-  /** will get allt data from query 61 */
-  getList(){
-
   }
   onUplaodClick(event) {
     event.preventDefault();
@@ -1828,9 +1873,8 @@ class XSingleUploadComponent extends React.Component {
 
             this.setState({
               file: null,
-              canUpload: false
-            }, () => {
-              this.getList();
+              canUpload: false,
+              freshkey: Math.floor(Math.random() * 1000)
             })
 
           } else {
@@ -1871,11 +1915,11 @@ class XSingleUploadComponent extends React.Component {
         },
         _(PopoverHeader, null,
           this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
-          _('input',{
-            className:'d-none',
-            type:'file',
-            onChange:this.onchange,
-            ref:input => this.inpuRef = input
+          _('input', {
+            className: 'd-none',
+            type: 'file',
+            onChange: this.onchange,
+            ref: input => this.inpuRef = input
           }),
           _(Button, {
               color: 'link',
@@ -1895,34 +1939,42 @@ class XSingleUploadComponent extends React.Component {
         _(PopoverBody,
           null,
           _('div', {
-            style:{
-              height: '200px',
-              width: '200px',
-              position: 'relative',
-              border: this.state.dragOver ? '3px dashed #20a8d8' : '3px dashed #a4b7c1'
-            }
-          },
-              _('div', {
-                  style: {
-                    ...defaultStyle,
-                    zIndex: '10',
-                    background: 'gray',
-                    cursor: 'pointer',
-                    opacity: this.state.canUpload ? '0' : '0.5',
-                  },
-                  className: 'rounded',
-                  onDrop: this.onDrop,
-                  onDragEnter: this.dragenter,
-                  onDragLeave: this.dragleave,
-                  onDragOver: this.dragover,
-                  onClick: this.onclick
+              style: {
+                height: '200px',
+                width: '200px',
+                position: 'relative',
+                border: this.state.dragOver ? '3px dashed #20a8d8' : '3px dashed #a4b7c1'
+              }
+            },
+            _('div', {
+              style: {
+                ...defaultStyle,
+                zIndex: '10',
+                background: 'gray',
+                cursor: 'pointer',
+                opacity: this.state.canUpload ? '0' : '0.5',
+              },
+              className: 'rounded',
+              onDrop: this.onDrop,
+              onDragEnter: this.dragenter,
+              onDragLeave: this.dragleave,
+              onDragOver: this.dragover,
+              onClick: this.onclick
+            }),
+            _('div', {
+                style: {
+                  ...defaultStyle,
+                  display: 'flex'
                 }
-              ),
-              _('div', {
-                style: {...defaultStyle, display:'flex'}
-              }, _(XPreviewFile,{file:this.state.file}) )
-          )    
-
+              },
+              _(XPreviewFile, {
+                file: this.state.file
+              }))
+          ),
+          _('div', {
+            className: 'clearfix'
+          }),
+          _(XListFiles,{cfg: this.props.cfg, key:this.state.freshKey})
         )
       )
     )
