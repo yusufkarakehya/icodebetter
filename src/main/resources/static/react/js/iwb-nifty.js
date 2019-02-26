@@ -378,7 +378,7 @@ var iwb = {
     if (value == undefined || value == "") return iwb.emptyField;
     return _("b", { className: "form-control" }, value);
   },
-  approvalColorMap:{1:'primary',2:'warning',3:'danger',901:'secondary'},
+  approvalColorMap:{1:'primary',2:'warning',3:'danger',5:'success',901:'secondary'},
   approvalLogs: arid =>{
 	return (event) =>{
 		event.preventDefault();
