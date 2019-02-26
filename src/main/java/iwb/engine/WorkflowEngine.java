@@ -345,7 +345,7 @@ public class WorkflowEngine {
 						if(oz instanceof Boolean) {
 							if(!((Boolean)oz))
 						          throw new IWBException(
-							              "validation",
+							              "framework",
 							              "WorkflowRecord",
 							              approvalRecordId,
 							              null,
@@ -830,7 +830,7 @@ public class WorkflowEngine {
 	        notificationList.add(notificationUserId.toString());
 	      }
 
-	      mailSubject =
+	   /*   mailSubject =
 	          a.getDsc()
 	              + " ("
 	              + LocaleMsgCache.get2(
@@ -844,7 +844,7 @@ public class WorkflowEngine {
 	                  ? "\n\n" + parameterMap.get("_adsc")
 	                  : "");
 
-	      messageBody = ar.getDsc() + mesaj;
+	      messageBody = ar.getDsc() + mesaj;*/
 
 	      ar.setFinishedFlag((short) 1);
 	      ar.setApprovalRoles(null);

@@ -337,6 +337,12 @@ var iwb = {
     if (value == undefined || value == "") return iwb.emptyField;
     return _("b", { className: "form-control" }, value);
   },
+  approvalLogs: arid =>{
+	return (event) =>{
+		  alert('TODO')
+		  return;
+	}  
+  },
   request: cfg => {
     if (!window.fetch) {
       toastr.error("window.fetch not supported",'ERROR! ');
@@ -386,6 +392,7 @@ var iwb = {
       );
   },
   requestErrorHandler: obj => {
+	  console.log("requestErrorHandler", obj)
     if (obj.errorType) {
       switch (obj.errorType) {
         case "session":
@@ -395,7 +402,7 @@ var iwb = {
           break;
         default:
           toastr.error(
-            obj.errorMsg || "Unknown ERROR",
+        		  obj.error || obj.errorMsg || "Unknown ERROR",
             obj.errorType + " Error"
           );
       }
@@ -2024,7 +2031,7 @@ class XTabForm extends React.PureComponent {
             }
             //console.log(selfie.props);
             selfie.props.callAttributes.callback &&
-              selfie.props.callAttributes.callback(json, cfg);
+            selfie.props.callAttributes.callback(json, cfg);
             toastr.success(
               "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
                 url +
@@ -2065,42 +2072,41 @@ class XTabForm extends React.PureComponent {
           })
       });
     };
-    this.startApproval = event => {
-        event && event.preventDefault && event.preventDefault();
-        let { formId, pk } = this.props.cfg;
-        let pkz = "";
-        for (let key in pk) {
-          pkz += "&" + key + "=" + pk[key];
-        }
-        let url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
-        yesNoDialog({
-          text: "Are you Sure to Start Approval?",
-          callback: success =>
-            success &&
-            iwb.request({
-              url,params:{_adsc:'start approval'},
-              successCallback: () => this.props.parentCt.closeTab(event, success)
-            })
-        });
-      };
-      this.approvalAction = action => {
-      		return (event) => {
+    this.approvalAction = action => {
+    	return (event) => {
           event && event.preventDefault && event.preventDefault();
           let { formId, pk } = this.props.cfg;
           let pkz = "";
           for (let key in pk) {
             pkz += "&" + key + "=" + pk[key];
           }
-          let url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
-          yesNoDialog({
-            text: "Are you Sure!",
-            callback: success =>
-              success &&
-              iwb.request({
-                url,params:{_adsc:'start approval'},
-                successCallback: () => this.props.parentCt.closeTab(event, success)
-              })
-          });
+          let url = "";
+          switch(action){
+          case	901://start approval
+        	  url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
+              yesNoDialog({
+                text: "Are you Sure to Start Approval?",
+                callback: success =>
+                  success &&
+                  iwb.request({
+                    url,params:{_adsc:'start approval'},
+                    successCallback: () => this.props.parentCt.closeTab(event, success)
+                  })
+              });
+              break;
+          default:
+        	  var p = prompt("Please enter comment", ["","Approve","Return","Reject"][action]);
+          	  if(p){
+	              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
+                  iwb.request({
+	                    url,params:{_adsc:p,_avno:this.props.cfg.approval.versionNo},
+	                    successCallback: () => this.props.parentCt.closeTab(event, true)
+	                    
+                  });
+          	  }
+          break;
+          }
+
         };
       }
   }
@@ -2167,33 +2173,7 @@ class XTabForm extends React.PureComponent {
               " ",
               getLocMsg('delete')
             ),
-            " ",
-            this.props.cfg.approval && this.props.cfg.approval.wait4start &&
-            _(
-              Button,
-              {
-                color: "success",
-                className: "btn-form-edit",
-                onClick: startApproval
-              },
-              // _("i", { className: "icon-trash" }),
-              " ",
-              getLocMsg('start_approval')
-            ),
-            this.props.cfg.approval && this.props.cfg.approval.wait4start &&
-            _(
-              Button,
-              {
-                color: "success",
-                className: "btn-form-edit",
-                onClick: approvalAction(1) //approve
-              },
-              // _("i", { className: "icon-trash" }),
-              " ",
-              getLocMsg('approve')
-            ),
-
-          _(
+          false && _(
             Button,
             {
               className: "float-right btn-round-shadow hover-shake",
@@ -2211,6 +2191,79 @@ class XTabForm extends React.PureComponent {
           this.props.cfg.fileAttachFlag && _(XSingleUploadComponent, {
             cfg: this.props.cfg
           })
+          , _('br'),
+          this.props.cfg.approval && this.props.cfg.approval.stepDsc &&
+          _(
+            'span',
+            {style:{fontSize:"1rem"}
+            },
+            " step ",
+            _("b",null,this.props.cfg.approval.stepDsc)
+            ,"    "
+          ),
+          this.props.cfg.approval && this.props.cfg.approval.wait4start &&
+          _(
+            Button,
+            {
+              color: "success",
+              className: "btn-form-edit",
+              onClick: approvalAction(901)
+            },
+            _("i", { className: "icon-support" }),
+            " ",
+            getLocMsg('start_approval')
+          ),
+          this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          _(
+            Button,
+            {
+              color: "success",
+              className: "btn-form-edit",
+              onClick: approvalAction(1) //approve
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('approve')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.returnFlag &&
+          _(
+            Button,
+            {
+              color: "warning",
+              className: "btn-form-edit",
+              onClick: approvalAction(2) //return
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('return')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          _(
+            Button,
+            {
+              color: "secondary",
+              className: "btn-form-edit",
+              onClick: approvalAction(3) //reject
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('reject')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
+          _(
+            Button,
+            {
+              color: "light",
+              className: "btn-form-edit",
+              onClick: iwb.approvalLogs(this.props.cfg.approval.approvalRecordId) //reject
+            },
+            _("i", { className: "icon-eye" }),
+            " ",
+            getLocMsg('logs')
+          )
         ),
         _("hr"),
         formBody
