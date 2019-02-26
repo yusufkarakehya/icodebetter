@@ -1877,7 +1877,7 @@ public class AppController implements InitializingBean {
 		long fileId = new Date().getTime();
 		int totalBytesRead = (int) file.getSize();
 
-		W5FileAttachment fa = new W5FileAttachment();
+		W5FileAttachment fa = new W5FileAttachment(scd);
 		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;

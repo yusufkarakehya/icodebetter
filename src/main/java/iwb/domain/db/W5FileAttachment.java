@@ -1,5 +1,7 @@
 package iwb.domain.db;
 
+import java.util.Map;
+
 // Generated May 18, 2007 3:50:53 AM by Hibernate Tools 3.2.0.b9
 
 import javax.persistence.Column;
@@ -48,7 +50,16 @@ public class W5FileAttachment implements java.io.Serializable {
 	public W5FileAttachment() {
 	}
 	
-    @SequenceGenerator(name="sex_file_attachment",sequenceName="iwb.seq_file_attachment",allocationSize=1)
+    public W5FileAttachment(Map<String, Object> scd) {
+    if(scd!=null) {
+       	if(scd.containsKey("customizationId"))this.customizationId = (Integer)scd.get("customizationId");
+       	if(scd.containsKey("project"))this.projectUuid = (String)scd.get("project");
+       	if(scd.containsKey("userId"))this.uploadUserId = (Integer)scd.get("userId");
+           	
+    }
+  }
+
+  @SequenceGenerator(name="sex_file_attachment",sequenceName="iwb.seq_file_attachment",allocationSize=1)
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="sex_file_attachment")
 	@Column(name="file_attachment_id")
@@ -141,7 +152,7 @@ public class W5FileAttachment implements java.io.Serializable {
 		this.uploadUserId = uploadUserId;
 	}
 
-	@Id
+	
 	@Column(name="customization_id") 
 	public int getCustomizationId() {
 		return customizationId;
@@ -158,5 +169,15 @@ public class W5FileAttachment implements java.io.Serializable {
 	
 	public void setActiveFlag(short activeFlag) {
 		this.activeFlag = activeFlag;
+	}
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
 	}
 }
