@@ -6250,16 +6250,14 @@ public class ExtJs3_4 implements ViewAdapter {
 										&& ozs[3].length() > 0) {// roleIds
 									buf.append("\",\"app_role_ids_qw_\":\"");
 									String[] roleIds = ozs[3].split(",");
-									for (String rid : roleIds) {
+									Map<Integer, String> roles = FrameworkCache.wRoles.get(customizationId);
+									if(roles!=null)for (String rid : roleIds) {
 										buf.append(
-												FrameworkCache.wRoles.get(
-														customizationId).get(
-														GenericUtil.uInt(rid)) != null ? FrameworkCache.wRoles
-														.get(customizationId)
-														.get(GenericUtil
+												roles.get(
+														GenericUtil.uInt(rid)) != null ? roles.get(GenericUtil
 																.uInt(rid))
 														: "null").append(", ");
-									}
+									} else buf.append("null, ");
 									buf.setLength(buf.length() - 2);
 								}
 								if (ozs.length > 4 && ozs[4] != null
