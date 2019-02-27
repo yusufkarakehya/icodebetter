@@ -3855,7 +3855,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        getLocMsg('js_cansel')
+        getLocMsg('js_cancel')
       )
     ),
     ...confg

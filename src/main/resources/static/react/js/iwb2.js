@@ -336,6 +336,36 @@ var iwb = {
     if (value == undefined || value == "") return iwb.emptyField;
     return _("b", { className: "form-control" }, value);
   },
+  approvalColorMap:{1:'primary',2:'warning',3:'danger',5:'success',901:'secondary'},
+  approvalLogs: arid =>{
+	return (event) =>{
+		event.preventDefault();
+		iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
+		if(j.data && j.data.length)iwb.showModal({
+	        title: "Approval Logs",
+	        footer: false,
+	        color: "primary",
+	        size: "lg",
+	        body: _(
+	          ListGroup,
+	          { style: { fontSize: "1.0rem" }, children:j.data.map( item =>
+	          _(
+	  	            ListGroupItem,
+	  	            {
+	  	            },
+	  	            _("span", { className: "float-right badge badge-pill badge-"+iwb.approvalColorMap[item.approval_action_tip] }, item.approval_action_tip_qw_),
+	  	            " ",
+	  	            _("b",null,item.user_id_qw_)," ",
+	  	            item.step_dsc, " - ", _("i",{style:{color:'#aaa'}},item.log_dttm)
+	  	          )
+	          )}
+	        )
+	      });
+		else alert('no data');
+	}
+		);
+	}  
+  },
   request: cfg => {
     if (!window.fetch) {
       toastr.error("window.fetch not supported",'ERROR! ');
@@ -3696,7 +3726,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        getLocMsg('js_cansel')
+        getLocMsg('js_cancel')
       )
     ),
     ...confg

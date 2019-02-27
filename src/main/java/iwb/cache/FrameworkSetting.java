@@ -108,7 +108,7 @@ public class FrameworkSetting {
 	public static boolean projectAccessControl = true;
 	public static boolean log2tsdb = false;
 
-	public static int logType = 1;
+	public static int logType = 0;
 
 	public static String log2tsdbUrl = "http://localhost:8086";
 	public static String log2tsdbDbName = "icb_log";
