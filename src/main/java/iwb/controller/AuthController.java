@@ -158,7 +158,7 @@ public class AuthController {
         int userId = GenericUtil.uInt(scd.get("userId"));
 
         if (profilePictureId < 3) {
-          engine.saveImage(pictureUrl, userId, cusId);
+          engine.saveImage(pictureUrl, userId, cusId, (String)scd.get("projectId"));
         }
         session.setAttribute("iwb-scd", scd);
 
