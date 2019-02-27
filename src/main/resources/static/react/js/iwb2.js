@@ -2220,11 +2220,9 @@ class XTabForm extends React.PureComponent {
             _("i", { className: "icon-bubbles" })
           ),
           " ",
-          _(
-            Button,
-            { className: "float-right btn-round-shadow mr-1", color: "light" },
-            _("i", { className: "icon-paper-clip" })
-          )
+          this.props.cfg.fileAttachFlag && _(XSingleUploadComponent, {
+            cfg: this.props.cfg
+          })
           , _('br'),
           this.props.cfg.approval && this.props.cfg.approval.stepDsc &&
           _(
