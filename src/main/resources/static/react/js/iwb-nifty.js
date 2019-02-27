@@ -1712,11 +1712,13 @@ class XListFiles extends React.Component {
       files:[]
     }
     this.getFileList = this.getFileList.bind(this)
+    this.deleteItem = this.deleteItem.bind(this)
+    this.downladLink = this.downladLink.bind(this)
   }
   /**run query to get data based on pk and id */
   getFileList(){
     iwb.request({
-      url:'ajaxQueryData?_qid=61&xtable_id='+this.props.cfg.crudTableId+'&xtable_pk='+ (this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk)),
+      url:'ajaxQueryData?_qid=61&xtable_id='+this.props.cfg.crudTableId+'&xtable_pk='+ (this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))+'&.r='+Math.random(),
       successCallback: ({data}) => {
         this.setState({
           files:data
@@ -1774,9 +1776,9 @@ class XSingleUploadComponent extends React.Component {
     this.state = {
       canUpload: false,
       dragOver: false,
-      file: null,
-      freshKey:Math.floor(Math.random() * 1000)
+      file: null
     };
+    this.xListFilesRef = React.createRef();
     this.onDrop = this.onDrop.bind(this);
     this.dragenter = this.dragenter.bind(this);
     this.dragleave = this.dragleave.bind(this);
@@ -1784,8 +1786,9 @@ class XSingleUploadComponent extends React.Component {
     this.onDeleteFile = this.onDeleteFile.bind(this);
     this.onclick = this.onclick.bind(this);
     this.onchange = this.onchange.bind(this);
-    this.onUplaodClick = this.onUplaodClick.bind(this);
+    this.uplaodFile = this.uplaodFile.bind(this);
   }
+  /** function to click input ref click */
   onclick(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -1820,6 +1823,8 @@ class XSingleUploadComponent extends React.Component {
       canUpload: true,
       dragOver: false,
       file: event.dataTransfer.files[0]
+    },()=>{
+      this.uplaodFile()
     })
   }
   /** when the file dproped over drop area */
@@ -1830,6 +1835,8 @@ class XSingleUploadComponent extends React.Component {
       canUpload: true,
       dragOver: false,
       file: event.target.files[0]
+    },()=>{
+      this.uplaodFile();
     })
   }
   /** remove file from form state */
@@ -1842,9 +1849,10 @@ class XSingleUploadComponent extends React.Component {
       file: null
     })
   }
-  onUplaodClick(event) {
-    event.preventDefault();
-    event.stopPropagation();
+  /** uploader function */
+  uplaodFile() {
+    // event.preventDefault();
+    // event.stopPropagation();
     if (!this.state.file) {
       return;
     }
@@ -1853,7 +1861,6 @@ class XSingleUploadComponent extends React.Component {
     formData.append('table_id', this.props.cfg.crudTableId)
     formData.append('file', this.state.file)
     formData.append('profilePictureFlag', this.props.profilePictureFlag || 0)
-
     fetch('/app/upload.form', {
         method: 'POST',
         body: formData,
@@ -1870,11 +1877,10 @@ class XSingleUploadComponent extends React.Component {
             toastr.success(getLocMsg('file_sucessfully_uploaded!'), getLocMsg('Success'), {
               timeOut: 3000
             });
-
+            this.xListFilesRef.current.getFileList();
             this.setState({
               file: null,
-              canUpload: false,
-              freshkey: Math.floor(Math.random() * 1000)
+              canUpload: false
             })
 
           } else {
@@ -1921,19 +1927,6 @@ class XSingleUploadComponent extends React.Component {
             onChange: this.onchange,
             ref: input => this.inpuRef = input
           }),
-          _(Button, {
-              color: 'link',
-              size: 'md',
-              className: classNames({
-                'float-right p-0': true,
-                'd-none': !this.state.canUpload
-              }),
-              onClick: this.onUplaodClick
-            },
-            _('i', {
-              className: 'icon-cloud-upload'
-            })
-          ),
           this.props.extraButtons && this.props.extraButtons
         ),
         _(PopoverBody,
@@ -1974,7 +1967,7 @@ class XSingleUploadComponent extends React.Component {
           _('div', {
             className: 'clearfix'
           }),
-          _(XListFiles,{cfg: this.props.cfg, key:this.state.freshKey})
+          _(XListFiles,{cfg: this.props.cfg, ref: this.xListFilesRef})
         )
       )
     )
