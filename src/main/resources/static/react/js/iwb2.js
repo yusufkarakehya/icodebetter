@@ -1687,6 +1687,305 @@ class XLazyScriptLoader extends React.PureComponent {
      PropTypes.string,
    ])
  };
+ const XPreviewFile = ({
+  file
+}) => {
+  let type = file ? file.type : null;
+  let style = {
+    fontSize: '12em'
+  };
+  switch (type) {
+    case 'image/png':
+      return _('img', {
+        src: URL.createObjectURL(file),
+        className: 'img-fluid rounded'
+      })
+    case 'text/plain':
+      return _('i', {
+        style,
+        className: 'fas fa-file-alt m-auto'
+      })
+    case 'application/pdf':
+      return _('i', {
+        style,
+        className: 'fas fa-file-pdf m-auto'
+      })
+    default:
+      return _('div', {className:'m-auto text-center'},
+      file ? _('i',{className:'far fa-file',style}) : _('i',{className:'fas fa-upload',style}),
+        _('br',null),
+        getLocMsg(file ? 'undefined_type' : 'choose_file_or_drag_it_here')
+      )
+  }
+}
+class XListFiles extends React.Component {
+  constructor(){
+    super()
+    this.state = {
+      files:[]
+    }
+    this.getFileList = this.getFileList.bind(this)
+    this.deleteItem = this.deleteItem.bind(this)
+    this.downladLink = this.downladLink.bind(this)
+  }
+  /**run query to get data based on pk and id */
+  getFileList(){
+    iwb.request({
+      url:'ajaxQueryData?_qid=61&xtable_id='+this.props.cfg.crudTableId+'&xtable_pk='+ (this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))+'&.r='+Math.random(),
+      successCallback: ({data}) => {
+        this.setState({
+          files:data
+        })
+      }
+    })
+  }
+  deleteItem(fileItem) {
+    return (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      /** deleteRequest */
+      iwb.request({
+        url: 'ajaxPostForm?a=3&_fid=1383&tfile_attachment_id='+fileItem.file_attachment_id,
+        successCallback: (res) => {
+          this.setState({
+            files: this.state.files.filter(file => file.file_attachment_id != fileItem.file_attachment_id)
+          })
+        }
+      })
+    }
+  }
+  /** test */
+  downladLink(fileItem) {
+    let url = 'dl/'+fileItem.original_file_name+'?_fai='+fileItem.file_attachment_id+'&.r='+Math.random();
+    return (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const link = document.createElement('a');
+      link.href = url ;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+  componentDidMount(){ this.getFileList() }
+  render() {
+    return _(
+      ListGroup, {},
+      this.state.files.map(fileItem => _(ListGroupItem, null,
+        _('a', { onClick:this.downladLink(fileItem),href:'#' }, fileItem.original_file_name),
+        _('i', {
+          key: fileItem.file_attachment_id,
+          onClick: this.deleteItem(fileItem),
+          style:{ cursor: 'pointer' },
+          className: 'icon-trash float-right text-danger'
+        })
+      ))
+    )
+  }
+}
+class XSingleUploadComponent extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      canUpload: false,
+      dragOver: false,
+      file: null
+    };
+    this.xListFilesRef = React.createRef();
+    this.onDrop = this.onDrop.bind(this);
+    this.dragenter = this.dragenter.bind(this);
+    this.dragleave = this.dragleave.bind(this);
+    this.dragover = this.dragover.bind(this);
+    this.onDeleteFile = this.onDeleteFile.bind(this);
+    this.onclick = this.onclick.bind(this);
+    this.onchange = this.onchange.bind(this);
+    this.uplaodFile = this.uplaodFile.bind(this);
+  }
+  /** function to click input ref click */
+  onclick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.inpuRef.click();
+  }
+  /** used to disable opening file on new tab */
+  dragover(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  /** used with css */
+  dragleave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      dragOver: false
+    });
+  }
+  /** when the file over drag area */
+  dragenter(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      dragOver: true
+    });
+  }
+  /** when the file dproped over drop area */
+  onDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      canUpload: true,
+      dragOver: false,
+      file: event.dataTransfer.files[0]
+    },()=>{
+      this.uplaodFile()
+    })
+  }
+  /** when the file dproped over drop area */
+  onchange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      canUpload: true,
+      dragOver: false,
+      file: event.target.files[0]
+    },()=>{
+      this.uplaodFile();
+    })
+  }
+  /** remove file from form state */
+  onDeleteFile(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    /** will reset to null currently uploaded file  */
+    this.setState({
+      canUpload: false,
+      file: null
+    })
+  }
+  /** uploader function */
+  uplaodFile() {
+    // event.preventDefault();
+    // event.stopPropagation();
+    if (!this.state.file) {
+      return;
+    }
+    let formData = new FormData()
+    formData.append('table_pk', this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))
+    formData.append('table_id', this.props.cfg.crudTableId)
+    formData.append('file', this.state.file)
+    formData.append('profilePictureFlag', this.props.profilePictureFlag || 0)
+    fetch('/app/upload.form', {
+        method: 'POST',
+        body: formData,
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        mode: 'cors',
+        redirect: 'follow',
+        referrer: 'no-referrer'
+      })
+      .then(response => response.status === 200 || response.status === 0 ? response.json() : Promise.reject(new Error(response.text() || response.statusText)))
+      .then(
+        result => {
+          if (result.success) {
+            toastr.success(getLocMsg('file_sucessfully_uploaded!'), getLocMsg('Success'), {
+              timeOut: 3000
+            });
+            this.xListFilesRef.current.getFileList();
+            this.setState({
+              file: null,
+              canUpload: false
+            })
+
+          } else {
+            if (result.error) {
+              toastr.error(result.error, result.errorType);
+            }
+            return;
+          }
+        },
+        error => {
+          toastr.error(error, getLocMsg('Error'));
+        }
+      )
+  }
+  render() {
+    let defaultStyle = {
+      height: '100%',
+      width: '100%',
+      position: 'absolute',
+      top: '0',
+      left: '0'
+    }
+    return _(React.Fragment, {},
+      _(Button, {
+          id: this.props.cfg.id,
+          type: 'button',
+          className: 'float-right btn-round-shadow mr-1',
+          color: 'light'
+        },
+        _('i', {
+          className: 'icon-paper-clip'
+        })
+      ),
+      _(Reactstrap.UncontrolledPopover, {
+          trigger: 'legacy',
+          placement: 'auto',
+          target: this.props.cfg.id
+        },
+        _(PopoverHeader, null,
+          this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+          _('input', {
+            className: 'd-none',
+            type: 'file',
+            onChange: this.onchange,
+            ref: input => this.inpuRef = input
+          }),
+          this.props.extraButtons && this.props.extraButtons
+        ),
+        _(PopoverBody,
+          null,
+          _('div', {
+              style: {
+                height: '200px',
+                width: '200px',
+                position: 'relative',
+                border: this.state.dragOver ? '3px dashed #20a8d8' : '3px dashed #a4b7c1'
+              }
+            },
+            _('div', {
+              style: {
+                ...defaultStyle,
+                zIndex: '10',
+                background: 'gray',
+                cursor: 'pointer',
+                opacity: this.state.canUpload ? '0' : '0.5',
+              },
+              className: 'rounded',
+              onDrop: this.onDrop,
+              onDragEnter: this.dragenter,
+              onDragLeave: this.dragleave,
+              onDragOver: this.dragover,
+              onClick: this.onclick
+            }),
+            _('div', {
+                style: {
+                  ...defaultStyle,
+                  display: 'flex'
+                }
+              },
+              _(XPreviewFile, {
+                file: this.state.file
+              }))
+          ),
+          _('div', {
+            className: 'clearfix'
+          }),
+          _(XListFiles,{cfg: this.props.cfg, ref: this.xListFilesRef})
+        )
+      )
+    )
+  }
+}
 class XFormSMSEmailTemplateList extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -1855,6 +2154,18 @@ class XTabForm extends React.PureComponent {
               _("i", { className: "icon-trash" }),
               " ",
               getLocMsg('delete')
+            ),
+            this.props.cfg.approval && this.props.cfg.approval.wait4start &&
+            _(
+              Button,
+              {
+                color: "succes",
+                className: "btn-form-edit",
+                // onClick: deleteRecord
+              },
+              // _("i", { className: "icon-trash" }),
+              " ",
+              getLocMsg('start_approval')
             ),
 
           _(
