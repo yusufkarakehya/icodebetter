@@ -2252,7 +2252,7 @@ class XTabForm extends React.PureComponent {
       state: { viewMode },
       // methods
       onSubmit,
-      deleteRecord, startApproval, approvalAction,
+      deleteRecord, approvalAction,
       toggleViewMode
     } = this;
 

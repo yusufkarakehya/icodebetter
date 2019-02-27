@@ -17,6 +17,37 @@ var iwb = {
     if (iwb.asideToggleX) iwb.asideToggleX(e);
     else document.body.classList.toggle("aside-menu-hidden");
   }
+  ,
+  approvalColorMap:{1:'primary',2:'warning',3:'danger',5:'success',901:'secondary'},
+  approvalLogs: arid =>{
+	return (event) =>{
+		event.preventDefault();
+		iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
+		if(j.data && j.data.length)iwb.showModal({
+	        title: "Approval Logs",
+	        footer: false,
+	        color: "primary",
+	        size: "lg",
+	        body: _(
+	          ListGroup,
+	          { style: { fontSize: "1.0rem" }, children:j.data.map( item =>
+	          _(
+	  	            ListGroupItem,
+	  	            {
+	  	            },
+	  	            _("span", { className: "float-right badge badge-pill badge-"+iwb.approvalColorMap[item.approval_action_tip] }, item.approval_action_tip_qw_),
+	  	            " ",
+	  	            _("b",null,item.user_id_qw_)," ",
+	  	            item.step_dsc, " - ", _("i",{style:{color:'#aaa'}},item.log_dttm)
+	  	          )
+	          )}
+	        )
+	      });
+		else alert('no data');
+	}
+		);
+	}  
+  }
 };
 iwb.logo =
   '<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>';
@@ -112,6 +143,63 @@ const Popper = window.Popper;
 const findDOMNode = ReactDOM.findDOMNode;
 var _ = React.createElement;
 
+
+/**
+ * @description {text,callback} used for making popup dialog
+ * @param {object}
+ *            conf.text - body of the mesasge
+ * @param {object}
+ *            conf.title - title of the modal
+ * @param {function}
+ *            conf.callback - callback function
+ * @return {boolean} - retur true or false to the call back
+ * @example yesNoDialog({ text:"Are you Sure!", callback:(success)=>{ logic here
+ *          }});
+ */
+yesNoDialog = ({
+  text = "Are You Sure?",
+  title = "Are You Sure?",
+  callback = alert('obj.callback is not a function'),
+  ...confg
+}) => {
+  iwb.showModal({
+    body: text,
+    size: "sm",
+    title: title,
+    color: "danger",
+    footer: _(
+      ModalFooter,
+      null,
+      _(
+        Button,
+        {
+          className: "btn-form",
+          color: "teal",
+          onClick: () => {
+            callback(true);
+            iwb.closeModal();
+          }
+        },
+        getLocMsg('js_tamam')
+      ),
+      " ",
+      _(
+        Button,
+        {
+          className: "btn-form",
+          color: "light",
+          style: { border: ".5px solid #e6e6e6" },
+          onClick: () => {
+            callback(false);
+            iwb.closeModal();
+          }
+        },
+        getLocMsg('js_cancel')
+      )
+    ),
+    ...confg
+  });
+};
 function disabledCheckBoxHtml(row, cell) {
   //TODO
   //		return _('img',{border:0,src:'../images/custom/'+(f ?'':'un')+'checked.gif'});
@@ -277,6 +365,7 @@ class XTabForm extends React.PureComponent {
     this.state = { viewMode: this.props.cfg.a == 1 };
     this.onSubmit = this.onSubmit.bind(this);
     this.toggleViewMode = this.toggleViewMode.bind(this);
+    this.approvalAction = this.approvalAction.bind(this);
   }
   toggleViewMode() {
     this.setState({ viewMode: !this.state.viewMode });
@@ -313,6 +402,43 @@ class XTabForm extends React.PureComponent {
     else alert("this.form not set");
     return false;
   }
+  approvalAction(action){
+  	return (event) => {
+        event && event.preventDefault && event.preventDefault();
+        let { formId, pk } = this.props.cfg;
+        let pkz = "";
+        for (let key in pk) {
+          pkz += "&" + key + "=" + pk[key];
+        }
+        let url = "";
+        switch(action){
+        case	901:// start approval
+      	  url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
+            yesNoDialog({
+              text: "Are you Sure to Start Approval?",
+              callback: success =>
+                success &&
+                iwb.request({
+                  url,params:{_adsc:'start approval'},
+                  successCallback: () => this.props.parentCt.closeTab(event, success)
+                })
+            });
+            break;
+        default:
+      	  var p = prompt("Please enter comment", ["","Approve","Return","Reject"][action]);
+        	  if(p){
+	              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
+                iwb.request({
+	                    url,params:{_adsc:p,_avno:this.props.cfg.approval.versionNo},
+	                    successCallback: () => this.props.parentCt.closeTab(event, true)
+	                    
+                });
+        	  }
+        break;
+        }
+
+      };
+    }
   render() {
     if (iwb.debugRender) console.log("XTabForm.render", this.props);
 //    console.log('this.props.cfg', this.props.cfg);
@@ -379,6 +505,79 @@ class XTabForm extends React.PureComponent {
             Button,
             { className: "float-right btn-round-shadow mr-1", color: "light" },
             _("i", { className: "icon-paper-clip" })
+          )
+          , _('br'),
+          this.props.cfg.approval && this.props.cfg.approval.stepDsc &&
+          _(
+            'span',
+            {style:{fontSize:"1rem"}
+            },
+// " step ",
+            _("b",null,this.props.cfg.approval.stepDsc)
+            ,"    "
+          ),
+          this.props.cfg.approval && this.props.cfg.approval.wait4start &&
+          _(
+            Button,
+            {
+              color: "success",
+              className: "btn-form-edit",
+              onClick: this.approvalAction(901)
+            },
+            _("i", { className: "icon-support" }),
+            " ",
+            getLocMsg('start_approval')
+          ),
+          this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          _(
+            Button,
+            {
+              color: "success",
+              className: "btn-form-edit",
+              onClick: this.approvalAction(1) // approve
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('approve')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.returnFlag &&
+          _(
+            Button,
+            {
+              color: "warning",
+              className: "btn-form-edit",
+              onClick: this.approvalAction(2) // return
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('return')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          _(
+            Button,
+            {
+              color: "secondary",
+              className: "btn-form-edit",
+              onClick: this.approvalAction(3) // reject
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('reject')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
+          _(
+            Button,
+            {
+              color: "light",
+              className: "btn-form-edit",
+              onClick: iwb.approvalLogs(this.props.cfg.approval.approvalRecordId) // reject
+            },
+            _("i", { className: "icon-eye" }),
+            " ",
+            getLocMsg('logs')
           )
         ),
         _("hr"),
