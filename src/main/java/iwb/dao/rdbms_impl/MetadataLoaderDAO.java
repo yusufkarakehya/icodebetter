@@ -1182,7 +1182,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			tableMap.put(t.getTableId(), t);
 		}
 		List<W5TableField> tfl = (List<W5TableField>) find(
-				"from W5TableField t where t.projectUuid=? AND t.tableFieldId>0 order by t.tableId, t.tabOrder",
+				"from W5TableField t where t.projectUuid=? AND t.tableFieldId>0 AND t.tabOrder>0 order by t.tableId, t.tabOrder",
 				projectId);
 		W5Table t = null;
 		for (W5TableField tf : tfl) {
@@ -1797,7 +1797,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		if (query == null) {
 			query = new W5Query();
 			List<W5QueryField> queryFields = find(
-					"from W5QueryField t where t.queryId=? and t.projectUuid=? order by t.tabOrder", d.getQueryId(),
+					"from W5QueryField t where t.queryId=? and t.tabOrder>0 AND t.projectUuid=? order by t.tabOrder", d.getQueryId(),
 					projectId);
 			d.set_query(query);
 			query.set_queryFields(queryFields); // dataReader icin gerekli

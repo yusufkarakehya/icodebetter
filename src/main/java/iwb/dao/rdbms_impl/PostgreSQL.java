@@ -1644,63 +1644,6 @@ public class PostgreSQL extends BaseDAO {
 				}
 	}
 
-	private void organizeListPostProcessQueryFields(Map<String, Object> scd, W5Table t, W5ListBase l) {
-		// Gridle ilgili onay mekanizması ataması
-		List<W5Workflow> a = find("from W5Workflow t where t.activeFlag=1 AND t.tableId = ? AND t.projectUuid = ?",
-				t.getTableId(), t.getProjectUuid());
-		if (!a.isEmpty()) {
-			l.set_workflow(a.get(0));
-		}
-
-		// extra islemler
-		if (FrameworkCache.getAppSettingIntValue(scd, "approval_flag") != 0 && !a.isEmpty()) { // table
-																								// Record
-																								// Approvals
-			if (l.get_postProcessQueryFields() == null)
-				l.set_postProcessQueryFields(new ArrayList());
-			W5QueryField f = new W5QueryField();
-			f.setDsc(FieldDefinitions.queryFieldName_Approval);
-			f.setFieldTip((short) 5); // comment
-			f.setTabOrder((short) 22); // aslinda width
-			f.setPostProcessTip((short) 49); // approvalPostProcess
-			l.get_postProcessQueryFields().add(f);
-			W5QueryField f2 = new W5QueryField();
-			f2.setDsc(FieldDefinitions.queryFieldName_ArVersionNo);
-			f2.setFieldTip((short) 4); // comment
-			f2.setTabOrder((short) 22); // aslinda width
-			l.get_postProcessQueryFields().add(f2);
-		}
-
-		if (FrameworkCache.getAppSettingIntValue(scd, "file_attachment_flag") != 0 && t.getFileAttachmentFlag() != 0) {
-			if (l.get_postProcessQueryFields() == null)
-				l.set_postProcessQueryFields(new ArrayList());
-			W5QueryField f = new W5QueryField();
-			f.setDsc(FieldDefinitions.queryFieldName_FileAttachment);
-			f.setFieldTip((short) 2); // file attachment
-			f.setTabOrder((short) 22); // aslinda width
-			l.get_postProcessQueryFields().add(f);
-		}
-		if (FrameworkCache.getAppSettingIntValue(scd, "make_comment_flag") != 0 && t.getMakeCommentFlag() != 0) { // table
-																													// Comment
-			if (l.get_postProcessQueryFields() == null)
-				l.set_postProcessQueryFields(new ArrayList());
-			W5QueryField f = new W5QueryField();
-			f.setDsc(FieldDefinitions.queryFieldName_Comment);
-			f.setFieldTip((short) 3); // comment
-			f.setTabOrder((short) 22); // aslinda width
-			// if(PromisSetting.commentSummary)f.set
-			l.get_postProcessQueryFields().add(f);
-		}
-		if (FrameworkSetting.vcs && t.getVcsFlag() != 0) {
-			if (l.get_postProcessQueryFields() == null)
-				l.set_postProcessQueryFields(new ArrayList());
-			W5QueryField f = new W5QueryField();
-			f.setDsc(FieldDefinitions.queryFieldName_Vcs);
-			f.setFieldTip((short) 9); // vcs
-			f.setTabOrder((short) 32); // aslinda width
-			l.get_postProcessQueryFields().add(f);
-		}
-	}
 
 	public boolean updateFormTable(final W5FormResult formResult, final String paramSuffix) {
 		Map<String, Object> scd = formResult.getScd();
