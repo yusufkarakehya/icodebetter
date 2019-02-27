@@ -1975,10 +1975,10 @@ public class FrameworkService {
 			}
 		}
 		metaDataDao.reloadFrameworkCaches(cusId);
-		saveImage(picUrl, userId, cusId);
+		saveImage(picUrl, userId, cusId, null);
 	}
 
-	public void saveImage(String imageUrl, int userId, int cusId) {
+	public void saveImage(String imageUrl, int userId, int cusId, String projectUuid) {
 		try {
 			List lf = dao.find(
 					"select t.fileAttachmentId from W5FileAttachment t where t.tableId=336 AND t.fileTypeId=-999 AND t.tablePk=? AND t.customizationId=? AND t.orijinalFileName=?",
@@ -2025,9 +2025,10 @@ public class FrameworkService {
 			fa.setActiveFlag((short) 1);
 			fa.setTableId(336);
 			fa.setTablePk("" + userId);
+			fa.setProjectUuid(projectUuid == null ? "067e6162-3b6f-4ae2-a221-2470b63dff00": projectUuid);
 			saveObject(fa);
 
-		} catch (IOException io) {
+		} catch (Exception io) {
 			io.printStackTrace();
 		}
 	}

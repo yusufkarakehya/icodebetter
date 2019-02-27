@@ -8,7 +8,8 @@ const dgColors = [
   "success",
   "info"
 ];
-// const dgColors2				= ["primary","info","secondary","gray-700","gray-500","gray-400","gray-700"];
+// const dgColors2 =
+// ["primary","info","secondary","gray-700","gray-500","gray-400","gray-700"];
 var dgColors2 = [
   "orange",
   "primary",
@@ -39,14 +40,14 @@ const dgColors3 = [
   "secondary",
   "warning"
 ];
-//ReactRouterDOM for routing
+// ReactRouterDOM for routing
 const Link = ReactRouterDOM.Link;
 const Route = ReactRouterDOM.Route;
 const Switch = ReactRouterDOM.Switch;
 const NavLink = ReactRouterDOM.NavLink;
 const Redirect = ReactRouterDOM.Redirect;
 const HashRouter = ReactRouterDOM.HashRouter;
-//Reactstrap components
+// Reactstrap components
 const Row = Reactstrap.Row;
 const Col = Reactstrap.Col;
 const Nav = Reactstrap.Nav;
@@ -101,13 +102,13 @@ const InputGroupButton = Reactstrap.InputGroupButton;
 const ListGroupItemText = Reactstrap.ListGroupItemText;
 const UncontrolledTooltip = Reactstrap.UncontrolledTooltip;
 const ListGroupItemHeading = Reactstrap.ListGroupItemHeading;
-//FW Community Components
+// FW Community Components
 const Select = window.Select;
 const Popper = window.Popper;
 const findDOMNode = ReactDOM.findDOMNode;
-//React
+// React
 var _ = React.createElement;
-//DXReactCore imports
+// DXReactCore imports
 const  { DXReactCore, DXReactGrid, DXReactGridBootstrap4 } = DevExpress;
 const Getter = DXReactCore.Getter;
 const Plugin = DXReactCore.Plugin;
@@ -118,9 +119,8 @@ const TemplatePlaceholder = DXReactCore.TemplatePlaceholder;
 var _dxrg = DXReactGrid;
 var _dxgrb = DXReactGridBootstrap4;
 /**
- * @description
- * iwb object is MIXIN like object
- * most of the configuration is here and most used functions
+ * @description iwb object is MIXIN like object most of the configuration is
+ *              here and most used functions
  */
 var iwb = {
   toastr: toastr,
@@ -149,10 +149,13 @@ var iwb = {
     };
   })(),
   /**
-   * A function to insert css classes into Dom
-   * @param {string} css - example '.aclass{display:none}'
-   * @param {string} id - template id of the page not mandatory
-   */
+	 * A function to insert css classes into Dom
+	 * 
+	 * @param {string}
+	 *            css - example '.aclass{display:none}'
+	 * @param {string}
+	 *            id - template id of the page not mandatory
+	 */
   addCssString : (css = '', id = Math.random()) => {
     let style = document.createElement('style');
     style.type = 'text/css';
@@ -161,9 +164,11 @@ var iwb = {
     document['head'].appendChild(style);
   },
   /**
-   * a function used for react.lazy
-   * @param {string} url - example '/comp/2/js'
-   */
+	 * a function used for react.lazy
+	 * 
+	 * @param {string}
+	 *            url - example '/comp/2/js'
+	 */
   import: async (url) => {
     var loc = document.location.href;
     var xloc = loc.split('main.htm');
@@ -179,9 +184,11 @@ var iwb = {
     return imported;
   },
   /**
-   * @param {string} url - example '/comp/2/js'
-   * @param {string} id - example '2' -id of the component
-   */
+	 * @param {string}
+	 *            url - example '/comp/2/js'
+	 * @param {string}
+	 *            id - example '2' -id of the component
+	 */
   addCss: async (url, id = Math.floor(Math.random() * 1000 + 1)) => {
     let response = await fetch(url);
     let cssText = await response.text();
@@ -194,8 +201,9 @@ var iwb = {
     return cssText;
   },
   /**
-   * @param {string} id - example '2' -id of the component
-   */
+	 * @param {string}
+	 *            id - example '2' -id of the component
+	 */
   removePageCss: (id)=>{
     let elem = document.getElementById('style'+id);
     if(elem !== null){
@@ -211,7 +219,9 @@ var iwb = {
           }
         componentWillMount() {
           loaderFunction
-            .then(result => this.setState({ ResultComponent: result.default || result})) // "es6" default export
+            .then(result => this.setState({ ResultComponent: result.default || result})) // "es6"
+																							// default
+																							// export
             .catch((errorText) => this.setState({ error: true, errorText}))
         }
         render() {
@@ -220,9 +230,8 @@ var iwb = {
         }
     },
   /**
-   * @description
-   * used for giving data for grid button
-   */
+	 * @description used for giving data for grid button
+	 */
   commandComponentProps: {
     add: { icon: "plus", hint: "Create new row" },
     edit: { icon: "pencil", hint: "Edit row", color: "text-warning" },
@@ -242,7 +251,39 @@ var iwb = {
     document.body.removeChild(el);
     toastr.success( "Use CTR + V to paste the content!", "Copied Successfully", { timeOut: 3000 } );
   },
-  //  logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>',
+  // logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg"
+	// x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300
+	// 202.576" class="white-logo standard-logo middle-content"><g
+	// id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429
+	// -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179
+	// 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43"
+	// fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0
+	// -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065
+	// -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003
+	// -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79
+	// -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063
+	// 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055
+	// 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026
+	// 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956
+	// -29.956,29.956c-15.521,0 -28.283,-11.804
+	// -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896
+	// -18.375,-17.896c-9.995,0 -18.086,7.971
+	// -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85
+	// 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816
+	// -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17"
+	// d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021
+	// -17.428,16.021s-16.624,-7.054
+	// -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979
+	// -18.384,-17.979s-18.139,8.014
+	// -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021
+	// -17.428,16.021c-9.176,0 -16.624,-7.054
+	// -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978
+	// -18.384,-17.978c-10.024,0 -18.139,8.014
+	// -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849
+	// 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458
+	// 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759
+	// 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722"
+	// fill="#bbb"></path></g></svg>',
   logo:
     '<img src="/images/rabbit-head.png" border=0 style="vertical-align: top;width: 28px;margin-top: -2px;">',
 
@@ -276,8 +317,8 @@ var iwb = {
     else document.body.classList.toggle("aside-menu-hidden");
   },
   /**
-   * used to remove Global search value
-   */
+	 * used to remove Global search value
+	 */
   killGlobalSearch: () => {
     iwb.onGlobalSearch2 = false;
     var component = document.getElementById("id-global-search");
@@ -286,8 +327,8 @@ var iwb = {
     component.classList.remove("global-search-active");
   },
   /**
-   * Converts JSON to URI
-   */
+	 * Converts JSON to URI
+	 */
   JSON2URI: json => {
     if (!json) return "";
     var resultString = "";
@@ -337,6 +378,36 @@ var iwb = {
     if (value == undefined || value == "") return iwb.emptyField;
     return _("b", { className: "form-control" }, value);
   },
+  approvalColorMap:{1:'primary',2:'warning',3:'danger',5:'success',901:'secondary'},
+  approvalLogs: arid =>{
+	return (event) =>{
+		event.preventDefault();
+		iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
+		if(j.data && j.data.length)iwb.showModal({
+	        title: "Approval Logs",
+	        footer: false,
+	        color: "primary",
+	        size: "lg",
+	        body: _(
+	          ListGroup,
+	          { style: { fontSize: "1.0rem" }, children:j.data.map( item =>
+	          _(
+	  	            ListGroupItem,
+	  	            {
+	  	            },
+	  	            _("span", { className: "float-right badge badge-pill badge-"+iwb.approvalColorMap[item.approval_action_tip] }, item.approval_action_tip_qw_),
+	  	            " ",
+	  	            _("b",null,item.user_id_qw_)," ",
+	  	            item.step_dsc, " - ", _("i",{style:{color:'#aaa'}},item.log_dttm)
+	  	          )
+	          )}
+	        )
+	      });
+		else alert('no data');
+	}
+		);
+	}  
+  },
   request: cfg => {
     if (!window.fetch) {
       toastr.error("window.fetch not supported",'ERROR! ');
@@ -347,8 +418,10 @@ var iwb = {
       return false;
     }
     fetch(cfg.url, {
-      body: JSON.stringify(cfg.params || {}), // must match 'Content-Type' header
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      body: JSON.stringify(cfg.params || {}), // must match 'Content-Type'
+												// header
+      cache: "no-cache", // *default, no-cache, reload, force-cache,
+							// only-if-cached
       credentials: "same-origin", // include, same-origin, *omit
       headers: {
         "content-type": "application/json"
@@ -386,6 +459,7 @@ var iwb = {
       );
   },
   requestErrorHandler: obj => {
+	  console.log("requestErrorHandler", obj)
     if (obj.errorType) {
       switch (obj.errorType) {
         case "session":
@@ -395,7 +469,7 @@ var iwb = {
           break;
         default:
           toastr.error(
-            obj.errorMsg || "Unknown ERROR",
+        		  obj.error || obj.errorMsg || "Unknown ERROR",
             obj.errorType + " Error"
           );
       }
@@ -426,12 +500,15 @@ var iwb = {
     return values;
   },
   /**
-   * @description
-   * sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman _insertedItems,_deletedItems dikkate almamasi
-   * @param {*} grid
-   * @param {*} prefix
-   * @param {*} values
-   */
+	 * @description sadece master-insert durumunda cagir. farki _postMap ve hic
+	 *              bir zaman _insertedItems,_deletedItems dikkate almamasi
+	 * @param {*}
+	 *            grid
+	 * @param {*}
+	 *            prefix
+	 * @param {*}
+	 *            values
+	 */
   prepareParams4grid: (grid, prefix, values) => {
     var dirtyCount = 0;
     var params = {};
@@ -439,7 +516,7 @@ var iwb = {
     var pk = grid._pk || grid.pk;
     if (items)
       for (var bjk = 0; bjk < items.length; bjk++) {
-        //deleted
+        // deleted
         dirtyCount++;
         for (var key in pk) {
           var val = pk[key];
@@ -533,14 +610,15 @@ iwb.ui = {
 function disabledCheckBoxHtml(row, cell) {
   return row[cell] && 1 * row[cell]
     ? _("i", { className: "fa fa-check", style: { color: "green" } })
-    : null; // _('i',{className:'fa fa-check', style:{color: 'white',background: 'red', padding: 5, borderRadius: 25}});
+    : null; // _('i',{className:'fa fa-check', style:{color: 'white',background:
+			// 'red', padding: 5, borderRadius: 25}});
 }
 function gridUserRenderer(row, cell) {
-  //TODO
+  // TODO
   return row[cell + "_qw_"];
 }
 function gridQwRendererWithLink(t) {
-  //tableId
+  // tableId
   return function(row, cell) {
     return row[cell + "_qw_"];
   };
@@ -580,7 +658,7 @@ function editGridLovComboRenderer(cell, combo) {
   };
 }
 function fileAttachmentHtml(row, cell) {
-  //TODO
+  // TODO
   return row[cell] && 1 * row[cell]
     ? _("i", { className: "icon-paper-clip" })
     : null;
@@ -639,8 +717,7 @@ function buildParams2(params, map) {
   return bp;
 }
 /**
- * @description
- * Grids common methods are located in this class
+ * @description Grids common methods are located in this class
  */
 class GridCommon extends React.PureComponent {
   constructor(props) {
@@ -648,63 +725,65 @@ class GridCommon extends React.PureComponent {
     this.state = {};
     this.lastQuery;
     /**
-     * @description
-     * Used to set State of Grid with pagination number
-     * @param {Number} currentPage - current page number
-     */
+	 * @description Used to set State of Grid with pagination number
+	 * @param {Number}
+	 *            currentPage - current page number
+	 */
     this.onCurrentPageChange = currentPage => this.setState({ currentPage });
     /**
-     * @description
-     * Used to Set State of grid with Column width
-     * @param {String} columnWidths[].columnName - name of the column
-     * @param {Number} columnWidths[].width - width of the column
-     */
+	 * @description Used to Set State of grid with Column width
+	 * @param {String}
+	 *            columnWidths[].columnName - name of the column
+	 * @param {Number}
+	 *            columnWidths[].width - width of the column
+	 */
     this.onColumnWidthsChange = columnWidths => this.setState({ columnWidths });
     /**
-     * @description
-     * Used to Set State of Grid with column order
-     * @param {Array} order - ["ColName1","ColName2",...]
-     */
+	 * @description Used to Set State of Grid with column order
+	 * @param {Array}
+	 *            order - ["ColName1","ColName2",...]
+	 */
     this.onOrderChange = order => this.setState({ order });
     /**
-     * @description
-     * Used to set Pagination row Nummber
-     * @param {Number} pageSize - sets size of the number for
-     */
+	 * @description Used to set Pagination row Nummber
+	 * @param {Number}
+	 *            pageSize - sets size of the number for
+	 */
     this.onPageSizeChange = pageSize => {
       var { currentPage, totalCount } = this.state;
       currentPage = Math.min(currentPage, Math.ceil(totalCount / pageSize) - 1);
       this.setState({ pageSize, currentPage });
     };
     /**
-     * @description
-     * get selected array from grid
-     */
+	 * @description get selected array from grid
+	 */
     this.getSelected = () => this.state.rows.reduce((accumulator, row) => {
       this.state.selection.includes(row[props.keyField]) ? accumulator.push(row) : '';
       return accumulator;
     }, []);
-    ////////////////////////////////////////////------2-----////////////////////////////////////////
+    // //////////////////////////////////////////------2-----////////////////////////////////////////
     /**
-     * @description
-     * Used to Set Sorting state of Grid with column name
-     * @example
-     * Used only in XMainGrid and XGrid
-     * @param {String} sorting
-     */
+	 * @description Used to Set Sorting state of Grid with column name
+	 * @example Used only in XMainGrid and XGrid
+	 * @param {String}
+	 *            sorting
+	 */
     this.onSortingChange = sorting => this.setState({ sorting });
     /**
-		 * @description
-
-		 * You can access every row data
-		 * Also Used to Map Doulble click action to the row
-		 * @example
-		 * Used Only in XMainGrid and XGrid
-		 * @param {Object} tableRowData - 
-		 * @param {Symbol} tableRowData.childeren -React.Components
-		 * @param {Object} tableRowData.row - Row Data 
-		 * @param {Object} tableRowData.TableRow - {Current RowData,key,type,rowId}
-		 */
+	 * @description
+	 * 
+	 * You can access every row data Also Used to Map Doulble click action to
+	 * the row
+	 * @example Used Only in XMainGrid and XGrid
+	 * @param {Object}
+	 *            tableRowData -
+	 * @param {Symbol}
+	 *            tableRowData.childeren -React.Components
+	 * @param {Object}
+	 *            tableRowData.row - Row Data
+	 * @param {Object}
+	 *            tableRowData.TableRow - {Current RowData,key,type,rowId}
+	 */
     this.rowComponent = tableRowData => {
       var { openTab, crudFlags, pk, crudFormId } = this.props;
       return _(
@@ -726,14 +805,15 @@ class GridCommon extends React.PureComponent {
       );
     };
     /**
-     * @description
-     * will open new page with
-     * @example
-     * Used in XMainGrid and XGrid
-     * @param {event} event - Event from of the clicked buttuon
-     * @param {state/props} grid -state of the grid
-     * @param {Array} row - row data to pass into _postInsert
-     */
+	 * @description will open new page with
+	 * @example Used in XMainGrid and XGrid
+	 * @param {event}
+	 *            event - Event from of the clicked buttuon
+	 * @param {state/props}
+	 *            grid -state of the grid
+	 * @param {Array}
+	 *            row - row data to pass into _postInsert
+	 */
     this.onOnNewRecord = (event, grid, row) => {
       if (!grid) grid = this.props;
       if (grid.crudFlags && grid.crudFlags.insert && this.props.openTab) {
@@ -752,12 +832,10 @@ class GridCommon extends React.PureComponent {
       }
     };
     /**
-     * @description
-     * prerpares url with query
-     * @example
-     * Used in XMainGrid and XGrid to make query inside loadData
-     * @returns {String}
-     */
+	 * @description prerpares url with query
+	 * @example Used in XMainGrid and XGrid to make query inside loadData
+	 * @returns {String}
+	 */
     this.queryString = () => {
       const { sorting, pageSize, currentPage } = this.state;
       let queryString =
@@ -772,12 +850,16 @@ class GridCommon extends React.PureComponent {
       return queryString;
     };
     /**
-     * @description
-     * Used to Edit and double click on the row
-     * @param { Object } param0 - consist of two data evet and Rowdata
-     * @param { Event } param0.event - Click event from the Edit button and double click on the row
-     * @param { rowData } param0.rowData - Data of the row where the Edit button or double click clicked
-     */
+	 * @description Used to Edit and double click on the row
+	 * @param {
+	 *            Object } param0 - consist of two data evet and Rowdata
+	 * @param {
+	 *            Event } param0.event - Click event from the Edit button and
+	 *            double click on the row
+	 * @param {
+	 *            rowData } param0.rowData - Data of the row where the Edit
+	 *            button or double click clicked
+	 */
     this.onEditClick = ({ event, rowData, openEditable }) => {
       var { props } = this;
       var pkz = buildParams2(props.pk, rowData);
@@ -795,11 +877,15 @@ class GridCommon extends React.PureComponent {
       );
     };
     /**
-     * todo
-     * @param {Object} param0 - event from delete button
-     * @param {Event} param0.event - event from delete button
-     * @param {Array} param0.rowData - data for the deleted Row
-     */
+	 * todo
+	 * 
+	 * @param {Object}
+	 *            param0 - event from delete button
+	 * @param {Event}
+	 *            param0.event - event from delete button
+	 * @param {Array}
+	 *            param0.rowData - data for the deleted Row
+	 */
     this.onDeleteClick = ({ event, rowData }) => {
       var { pk, crudFormId } = this.props;
       var pkz = buildParams2(pk, rowData);
@@ -814,10 +900,10 @@ class GridCommon extends React.PureComponent {
       });
     };
     /**
-     * @description
-     * used to make request and fill the grid
-     * @param {boolean} force - to fill with up to date data
-     */
+	 * @description used to make request and fill the grid
+	 * @param {boolean}
+	 *            force - to fill with up to date data
+	 */
     this.loadData = force => {
       if (this.props.rows) return;
       const queryString = this.queryString();
@@ -848,17 +934,22 @@ class GridCommon extends React.PureComponent {
       });
       this.lastQuery = queryString;
     };
-    // ####################################EDit Grid Common ############################################
+    // ####################################EDit Grid Common
+	// ############################################
     /**
-     * @param {Array} editingRowIds - IDs of the Editing rows
-     */
+	 * @param {Array}
+	 *            editingRowIds - IDs of the Editing rows
+	 */
     this.onEditingRowIdsChange = editingRowIds =>
       this.setState({ editingRowIds });
     /**
-     * @description
-     * A function that returns a row change object depending on row editor values. This function is called each time the row editor’s value changes.
-     * @param {object} addedRows - (row: any, columnName: string, value: string | number)
-     */
+	 * @description A function that returns a row change object depending on row
+	 *              editor values. This function is called each time the row
+	 *              editor’s value changes.
+	 * @param {object}
+	 *            addedRows - (row: any, columnName: string, value: string |
+	 *            number)
+	 */
     this.onAddedRowsChange = addedRows => {
       var newRecord = Object.assign({}, this.props.newRecord || {});
       var pk = this.state.pkInsert;
@@ -872,26 +963,30 @@ class GridCommon extends React.PureComponent {
       });
     };
     /**
-     * @description
-     * Handles adding or removing a row changes to/from the rowChanges array.
-     * @param {Array} rowChanges -(rowChanges: { [key: string]: any }) => void
-     */
+	 * @description Handles adding or removing a row changes to/from the
+	 *              rowChanges array.
+	 * @param {Array}
+	 *            rowChanges -(rowChanges: { [key: string]: any }) => void
+	 */
     this.onRowChangesChange = rowChanges => {
       this.setState({ rowChanges });
     };
     /**
-     * @description
-     * Handles selection changes.
-     * @param {Array} selection - (selection: Array<number | string>) => void
-     */
+	 * @description Handles selection changes.
+	 * @param {Array}
+	 *            selection - (selection: Array<number | string>) => void
+	 */
     this.onSelectionChange = selection => {
       this.setState({ selection });
     };
     /**
-     * Used to delete from the frontend
-     * @param {Array} param0
-     * @param {Array} param0.deleted
-     */
+	 * Used to delete from the frontend
+	 * 
+	 * @param {Array}
+	 *            param0
+	 * @param {Array}
+	 *            param0.deleted
+	 */
     this.onCommitChanges = ({ deleted }) => {
       let { rows, deletedRows } = this.state;
       if (deleted && deleted.length) {
@@ -918,10 +1013,8 @@ class GridCommon extends React.PureComponent {
       }
     };
     /**
-     * @example
-     * push id to this.state.deletingRows
-     * then this.deleteRows();
-     */
+	 * @example push id to this.state.deletingRows then this.deleteRows();
+	 */
     this.deleteRows = () => {
       const rows = this.state.rows.slice();
       this.state.deletingRows.forEach(rowId => {
@@ -940,7 +1033,10 @@ class GridCommon extends React.PureComponent {
 class XMap extends React.PureComponent {
 	  constructor(props) {
 	    super(props);
-	    /**there is no state since if we provide state it will start rerendering itself */
+	    /**
+		 * there is no state since if we provide state it will start rerendering
+		 * itself
+		 */
 	    this.map;
 	    this.script;
 	    this.marker;
@@ -953,8 +1049,8 @@ class XMap extends React.PureComponent {
 	    !props.apiKey && alert("GoogleMaps:::::::this.props.apiKey not provided");
 	    this.id = "GoogleMaps" + Math.floor(Math.random() * 1000 + 1);
 	    /*
-	        * runs on ofter scrip is loaded
-	        */
+		 * runs on ofter scrip is loaded
+		 */
 	    this.onScriptLoad = () => {
 	      this.map = this.createMap(this.props.mapOpt || {});
 	      this.marker = this.createMarker(this.props.markerOpt || {});
@@ -964,7 +1060,7 @@ class XMap extends React.PureComponent {
 	        this.props.autocompleteOpt || undefined
 	      );
 	      this.props.onMapLoad && this.props.onMapLoad(this);
-	      /**after all the map listeners is set */
+	      /** after all the map listeners is set */
 	      this.elementsWithListeners.push(this.map);
 	      this.elementsWithListeners.push(this.marker);
 	      this.elementsWithListeners.push(this.script);
@@ -974,9 +1070,9 @@ class XMap extends React.PureComponent {
 	      this.elementsWithListeners.push(this.autoComplete);
 	    };
 	    /**
-	     * locate me on the map
-	     * and used as if stetement for displaying button of geolocation
-	     */
+		 * locate me on the map and used as if stetement for displaying button
+		 * of geolocation
+		 */
 	    this.findMe = () => {
 	      if (window.navigator.geolocation) {
 	        window.navigator.geolocation.getCurrentPosition(this.findMeOuter);
@@ -986,9 +1082,11 @@ class XMap extends React.PureComponent {
 	      }
 	    };
 	    /**
-	     * A function to create Google Map object
-	     * @param {Object} opt
-	     */
+		 * A function to create Google Map object
+		 * 
+		 * @param {Object}
+		 *            opt
+		 */
 	    this.createMap = opt => {
 	      let opt1 = {
 	        center: this.defPosition,
@@ -997,8 +1095,8 @@ class XMap extends React.PureComponent {
 	      return new window.google.maps.Map( document.getElementById(this.id), {...opt1, ...opt});
 	    };
 	    /**
-	     * A function return GMarker
-	     */
+		 * A function return GMarker
+		 */
 	    this.createMarker = opt => {
 	      let opt1 = {
 	        position: this.defPosition,
@@ -1009,17 +1107,21 @@ class XMap extends React.PureComponent {
 	      return new window.google.maps.Marker({...opt1, ...opt});
 	    };
 	    /**
-	     * a function used to init geolocation
-	     * @param {Object} opt
-	     */
+		 * a function used to init geolocation
+		 * 
+		 * @param {Object}
+		 *            opt
+		 */
 	    this.createGeocoder = opt => {
 	      let opt1 = {};
 	      return new window.google.maps.Geocoder({...opt1, ...opt})
 	    };
 	    /**
-	     * a function to create InfoWindow
-	     * @param {Object} opt
-	     */
+		 * a function to create InfoWindow
+		 * 
+		 * @param {Object}
+		 *            opt
+		 */
 	    this.createInfoWindow = opt => {
 	      let opt1 = {
 	        content: `<div id="infoWindow" />`,
@@ -1028,9 +1130,11 @@ class XMap extends React.PureComponent {
 	      return new window.google.maps.InfoWindow({...opt1, ...opt});
 	    };
 	    /**
-	     * A function return Autocomplete
-	     * @param {HTMLElement} inputNode
-	     */
+		 * A function return Autocomplete
+		 * 
+		 * @param {HTMLElement}
+		 *            inputNode
+		 */
 	    this.createAutocomplete = (
 	      inputNode = document.getElementById("pac-input")
 	    ) => {
@@ -1038,13 +1142,15 @@ class XMap extends React.PureComponent {
 	      return new window.google.maps.places.Autocomplete(inputNode);
 	    };
 	    /**
-	     * function to remove listeners from the dom element
-	     * @param {HTMLElement} element
-	     */
+		 * function to remove listeners from the dom element
+		 * 
+		 * @param {HTMLElement}
+		 *            element
+		 */
 	    this.removeAllEventListenersFromElement = element => {
 	      /**
-	       * to find out if it is a dom object
-	       */
+			 * to find out if it is a dom object
+			 */
 	      if (element && element.cloneNode) {
 	        let clone = element.cloneNode();
 	        // move all child elements from the original to the clone
@@ -1055,11 +1161,13 @@ class XMap extends React.PureComponent {
 	      }
 	    };
 	    /**
-	     * A function to remove listeners from the array of obj
-	     * @param {Array} elements
-	     */
+		 * A function to remove listeners from the array of obj
+		 * 
+		 * @param {Array}
+		 *            elements
+		 */
 	    this.removeAllEventListenersFromElements = (elements = []) => {
-	      /**cheks if it is array */
+	      /** cheks if it is array */
 	      elements &&
 	        typeof elements.length === "number" &&
 	        elements.length > 0 &&
@@ -1067,8 +1175,8 @@ class XMap extends React.PureComponent {
 	    };
 	  }
 	  /**
-	   * Used to load script to the body
-	   */
+		 * Used to load script to the body
+		 */
 	  componentDidMount() {
 	    if (!window.google) {
 	      this.script = document.createElement("script");
@@ -1081,7 +1189,7 @@ class XMap extends React.PureComponent {
 	      var xscript = document.getElementsByTagName("script")[0];
 	      xscript.parentNode.insertBefore(this.script, xscript);
 	      // Below is important.
-	      //We cannot access google.maps until it's finished loading
+	      // We cannot access google.maps until it's finished loading
 	      this.script.addEventListener("load", e => {
 	        this.onScriptLoad();
 	      });
@@ -1090,8 +1198,9 @@ class XMap extends React.PureComponent {
 	    }
 	  }
 	  /**
-	   * Used to delete all listeners and delete script from the body but all the google func will work
-	   */
+		 * Used to delete all listeners and delete script from the body but all
+		 * the google func will work
+		 */
 	  componentWillUnmount() {
 	    this.removeAllEventListenersFromElements(this.elementsWithListeners);
 	  }
@@ -1173,16 +1282,16 @@ class MapInput extends React.PureComponent {
 	      ? "popoverId" + this.props.id
 	      : "popoverId" + Math.floor(Math.random() * 1000 + 1);
 	    /**
-	     * a function used to hide and open the map on the DOM
-	     */
+		 * a function used to hide and open the map on the DOM
+		 */
 	    this.toggle = () => {
 	      this.setState(prevState => ({
 	        mapOpen: !prevState.mapOpen
 	      }));
 	    };
 	    /**
-	     * a function used to render info window content
-	     */
+		 * a function used to render info window content
+		 */
 	    this.getInfoWindowContent = () => {
 	      return `
 	            <div class="">
@@ -1195,9 +1304,12 @@ class MapInput extends React.PureComponent {
 	            `;
 	    };
 	    /**
-	     * it is a callback function which will work after imporing the google script
-	     * @param {object} innerScope - state of the internal component
-	     */
+		 * it is a callback function which will work after imporing the google
+		 * script
+		 * 
+		 * @param {object}
+		 *            innerScope - state of the internal component
+		 */
 	    this.onMapLoad = innerScope => {
 	      innerScope.geocoder.geocode(
 	    	(this.state.place_id)?{'placeId':this.state.place_id}:{ latLng: innerScope.defPosition || undefined },
@@ -1272,7 +1384,7 @@ class MapInput extends React.PureComponent {
 	      /** lisens for the place change */
 	      innerScope.autoComplete.addListener("place_changed", () => {
 	        let place = innerScope.autoComplete.getPlace();
-	        //return if the auto compleate is not selected from the drop down
+	        // return if the auto compleate is not selected from the drop down
 	        if (!place.geometry) return;
 	        let {
 	          place_id,
@@ -1326,13 +1438,15 @@ class MapInput extends React.PureComponent {
 	      };
 	    };
 	    /**
-	     * a function used to give id of the table Row in db
-	     * @param {event} event
-	     */
+		 * a function used to give id of the table Row in db
+		 * 
+		 * @param {event}
+		 *            event
+		 */
 	    this.onClick = event => {
 	    	this.toggle();
 	    	if(!event)return;
-        event.preventDefault();
+	    	event.preventDefault();
 	    	event.target = {...this.props , value: this.state, stringValue:JSON.stringify(this.state) }
 	    	this.props.onChange && this.props.onChange(event);	      
 	    };
@@ -1385,18 +1499,18 @@ class MapInput extends React.PureComponent {
 	}
 /**
  * A component to render Masonry layout
- * @param {Object} props.masonryRowStyle - style of the container
- * @param {Object} props.masonryStyle - style of the container
- * @param {Object} props.columnStyle - style of the column
- * @example
- * ```jsx
- * <XMasonry loadingComponent = {()=>{return '***********you can give loading component***********'}}
- *    breakPoints={[350, 500, 750]}
- *    loadNext={({columns,totalItems}) => {  {columns,totalItems} - use this to construct url}}
- *    >{
- *      this.state.photos.map((image, id) =>( <img key={id}  src={image}/> ) )
- *    } </XMasonry>
- * ```
+ * 
+ * @param {Object}
+ *            props.masonryRowStyle - style of the container
+ * @param {Object}
+ *            props.masonryStyle - style of the container
+ * @param {Object}
+ *            props.columnStyle - style of the column
+ * @example ```jsx <XMasonry loadingComponent = {()=>{return '***********you can
+ *          give loading component***********'}} breakPoints={[350, 500, 750]}
+ *          loadNext={({columns,totalItems}) => { {columns,totalItems} - use
+ *          this to construct url}} >{ this.state.photos.map((image, id) =>(
+ *          <img key={id} src={image}/> ) ) } </XMasonry> ```
  */
 class XMasonry extends React.Component {
   constructor(props) {
@@ -1407,8 +1521,8 @@ class XMasonry extends React.Component {
       loading: false
     };
     /**
-     * a funntion used to calculate columns when resized
-     */
+	 * a funntion used to calculate columns when resized
+	 */
     this.onResize = () => {
       const columns = this.getColumns(this.refs.Masonry.offsetWidth);
       if (columns !== this.state.columns){
@@ -1416,9 +1530,11 @@ class XMasonry extends React.Component {
       } 
     };
     /**
-     * a function used to calculate columns from this.props.breakPoints
-     * @param {Number} width - width of the masonry component
-     */
+	 * a function used to calculate columns from this.props.breakPoints
+	 * 
+	 * @param {Number}
+	 *            width - width of the masonry component
+	 */
     this.getColumns = width => {
       return (
         this.props.breakPoints.reduceRight((p, c, i) => {
@@ -1427,8 +1543,8 @@ class XMasonry extends React.Component {
       );
     };
     /**
-     * a function used to calculate children according to column size
-     */
+	 * a function used to calculate children according to column size
+	 */
     this.mapChildren = () => {
       let col = [];
       const numC = this.state.columns;
@@ -1441,10 +1557,13 @@ class XMasonry extends React.Component {
       }, col);
     };
     /**
-     * a function used to call loadNext method to make lazyLoading from the rest
-     * @param {*} entities
-     * @param {*} observer
-     */
+	 * a function used to call loadNext method to make lazyLoading from the rest
+	 * 
+	 * @param {*}
+	 *            entities
+	 * @param {*}
+	 *            observer
+	 */
     this.handleObserver = (entities, observer) => {
       const y = entities[0].boundingClientRect.y;
       if (this.state.prevY > y) {
@@ -1473,21 +1592,21 @@ class XMasonry extends React.Component {
     return true;
   }
   componentDidMount() {
-    //initial resize
+    // initial resize
     this.onResize();
     // add listener for window object
     window.addEventListener("resize", this.onResize, true);
     if (this.props.loadNext) {
       // Create an observer
       this.observer = new IntersectionObserver(
-        this.handleObserver.bind(this), //callback
+        this.handleObserver.bind(this), // callback
         {
           root: null, // Page as root
           rootMargin: "0px",
           threshold: 0.01
         }
       );
-      //Observ the `loadingRef`
+      // Observ the `loadingRef`
       this.observer.observe(this.refs.loadingRef);
     }
   }
@@ -1548,19 +1667,23 @@ class XMasonry extends React.Component {
 }
 /**
  * XAjaxQueryData - function is used to get data by giving guery id
- * @param {String} props.qui - query id that you want to get data from
- * @param {Function} props.middleMan
- * @param {Symbol} props.children
- * @example
- * React.createElement(XAjaxQueryData,{},data=>{ return React.createElement(AnyComponent,{data}......) }
+ * 
+ * @param {String}
+ *            props.qui - query id that you want to get data from
+ * @param {Function}
+ *            props.middleMan
+ * @param {Symbol}
+ *            props.children
+ * @example React.createElement(XAjaxQueryData,{},data=>{ return
+ *          React.createElement(AnyComponent,{data}......) }
  */
 class XAjaxQueryData extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = { data: [] };
-    /**to get data from backend */
+    /** to get data from backend */
     this.fetch = () => {
-      //todo: build url
+      // todo: build url
       let self = this;
       iwb.request({
         url: "ajaxQueryData?" + "_qid=" + this.props.qid,
@@ -1592,13 +1715,22 @@ class XAjaxQueryData extends React.PureComponent {
 }
 /**
  * A function to load script from the CDN or filesystem and apply css
- * @param {String} props.css - query id that you want to get data from
- * @param {Array/String} props.loadjs - used to define which script to download see exapmle below
- * @param {Array/String} props.loadcss - used to define which css script to download see exapmle below
- * @param {Symbol} props.loading - conponent to show loading indicator while feching scripts from CDN or static file
- * @param {Symbol} props.children
- * @example
- *  _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`, loadjs:['CDN','CDN2']||'CDN' }, childNode )
+ * 
+ * @param {String}
+ *            props.css - query id that you want to get data from
+ * @param {Array/String}
+ *            props.loadjs - used to define which script to download see exapmle
+ *            below
+ * @param {Array/String}
+ *            props.loadcss - used to define which css script to download see
+ *            exapmle below
+ * @param {Symbol}
+ *            props.loading - conponent to show loading indicator while feching
+ *            scripts from CDN or static file
+ * @param {Symbol}
+ *            props.children
+ * @example _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`,
+ *          loadjs:['CDN','CDN2']||'CDN' }, childNode )
  */
 class XLazyScriptLoader extends React.PureComponent {
     constructor(props) {
@@ -1607,13 +1739,16 @@ class XLazyScriptLoader extends React.PureComponent {
             loading: true
         }
         /**
-         * a self invoking function to load js and css into Dom from source {cdn,server,local.....}
-         */
+		 * a self invoking function to load js and css into Dom from source
+		 * {cdn,server,local.....}
+		 */
         this.load = (() => {
-            // Function which returns a function: https://davidwalsh.name/javascript-functions
+            // Function which returns a function:
+			// https://davidwalsh.name/javascript-functions
             var _load = (tag) => {
                 return (src) => {
-                    // This promise will be used by Promise.all to determine success or failure
+                    // This promise will be used by Promise.all to determine
+					// success or failure
                     return new Promise( (resolve, reject) => {
                         let element = document.createElement(tag);
                         let parent = 'body';
@@ -1621,7 +1756,8 @@ class XLazyScriptLoader extends React.PureComponent {
                         // Important success and error for the promise
                         element.onload = e => resolve(src);
                         element.onerror = e => reject(src);
-                        // Need to set different attributes depending on tag type
+                        // Need to set different attributes depending on tag
+						// type
                         switch (tag) {
                             case 'script':
                                 element.async = false;
@@ -1715,7 +1851,7 @@ class XListFiles extends React.Component {
     this.deleteItem = this.deleteItem.bind(this)
     this.downladLink = this.downladLink.bind(this)
   }
-  /**run query to get data based on pk and id */
+  /** run query to get data based on pk and id */
   getFileList(){
     iwb.request({
       url:'ajaxQueryData?_qid=61&xtable_id='+this.props.cfg.crudTableId+'&xtable_pk='+ (this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))+'&.r='+Math.random(),
@@ -1843,7 +1979,7 @@ class XSingleUploadComponent extends React.Component {
   onDeleteFile(event) {
     event.preventDefault();
     event.stopPropagation();
-    /** will reset to null currently uploaded file  */
+    /** will reset to null currently uploaded file */
     this.setState({
       canUpload: false,
       file: null
@@ -1974,13 +2110,18 @@ class XSingleUploadComponent extends React.Component {
   }
 }
 /**
- * @description
- * used to render tab and show active tab on the full XPage
- * @param {Object} props.body - it renders bodyForm class wich came from the backend
- * @param {Object} props.cfg - config of the form [edit or intest, id of the form]
- * @param {Object} props.parentCt - [xpage]-a function to open and close tab from the form
- * @param {Object} props.callAttributes - extra props to XTabForm
- * @param {Object} props.callAttributes.openEditable - open form in edit mode
+ * @description used to render tab and show active tab on the full XPage
+ * @param {Object}
+ *            props.body - it renders bodyForm class wich came from the backend
+ * @param {Object}
+ *            props.cfg - config of the form [edit or intest, id of the form]
+ * @param {Object}
+ *            props.parentCt - [xpage]-a function to open and close tab from the
+ *            form
+ * @param {Object}
+ *            props.callAttributes - extra props to XTabForm
+ * @param {Object}
+ *            props.callAttributes.openEditable - open form in edit mode
  */
 class XTabForm extends React.PureComponent {
   constructor(props) {
@@ -1993,14 +2134,16 @@ class XTabForm extends React.PureComponent {
           : this.props.cfg.a == 1
     };
     /**
-     * a function to make editable and non editable
-     */
+	 * a function to make editable and non editable
+	 */
     this.toggleViewMode = () =>
       this.setState({ viewMode: !this.state.viewMode });
     /**
-     * a function to send form data
-     * @param {Event} event
-     */
+	 * a function to send form data
+	 * 
+	 * @param {Event}
+	 *            event
+	 */
     this.onSubmit = event => {
       event && event.preventDefault && event.preventDefault();
       var selfie = this;
@@ -2015,9 +2158,9 @@ class XTabForm extends React.PureComponent {
             } else {
               url += cfg.url.substring("ajaxPostForm".length);
             }
-            //console.log(selfie.props);
+            // console.log(selfie.props);
             selfie.props.callAttributes.callback &&
-              selfie.props.callAttributes.callback(json, cfg);
+            selfie.props.callAttributes.callback(json, cfg);
             toastr.success(
               "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
                 url +
@@ -2037,9 +2180,11 @@ class XTabForm extends React.PureComponent {
       return false;
     };
     /**
-     * a function to delete current editing record
-     * @param {event} event
-     */
+	 * a function to delete current editing record
+	 * 
+	 * @param {event}
+	 *            event
+	 */
     this.deleteRecord = event => {
       event && event.preventDefault && event.preventDefault();
       let { formId, pk } = this.props.cfg;
@@ -2049,7 +2194,7 @@ class XTabForm extends React.PureComponent {
       }
       let url = "ajaxPostForm?a=3&_fid=" + formId + pkz;
       yesNoDialog({
-        text: "Are you Sure!",
+        text: "Are you Sure?",
         callback: success =>
           success &&
           iwb.request({
@@ -2058,7 +2203,45 @@ class XTabForm extends React.PureComponent {
           })
       });
     };
+    this.approvalAction = action => {
+    	return (event) => {
+          event && event.preventDefault && event.preventDefault();
+          let { formId, pk } = this.props.cfg;
+          let pkz = "";
+          for (let key in pk) {
+            pkz += "&" + key + "=" + pk[key];
+          }
+          let url = "";
+          switch(action){
+          case	901:// start approval
+        	  url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
+              yesNoDialog({
+                text: "Are you Sure to Start Approval?",
+                callback: success =>
+                  success &&
+                  iwb.request({
+                    url,params:{_adsc:'start approval'},
+                    successCallback: () => this.props.parentCt.closeTab(event, success)
+                  })
+              });
+              break;
+          default:
+        	  var p = prompt("Please enter comment", ["","Approve","Return","Reject"][action]);
+          	  if(p){
+	              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
+                  iwb.request({
+	                    url,params:{_adsc:p,_avno:this.props.cfg.approval.versionNo},
+	                    successCallback: () => this.props.parentCt.closeTab(event, true)
+	                    
+                  });
+          	  }
+          break;
+          }
+
+        };
+      }
   }
+  
   render() {
     let {
       props: {
@@ -2067,9 +2250,9 @@ class XTabForm extends React.PureComponent {
         cfg: { deletable, name }
       },
       state: { viewMode },
-      //methods
+      // methods
       onSubmit,
-      deleteRecord,
+      deleteRecord, startApproval, approvalAction,
       toggleViewMode
     } = this;
 
@@ -2085,10 +2268,10 @@ class XTabForm extends React.PureComponent {
           "h3",
           {
             className: "form-header"
-          } /*_("i",{className:"icon-star form-icon"})," ",*/,
+          } /* _("i",{className:"icon-star form-icon"})," ", */,
           name,
           " ",
-          viewMode &&
+          !this.props.cfg.viewMode && viewMode &&
             _(
               Button,
               {
@@ -2121,21 +2304,7 @@ class XTabForm extends React.PureComponent {
               " ",
               getLocMsg('delete')
             ),
-
-            this.props.cfg.approval && this.props.cfg.approval.wait4start &&
-            _(
-              Button,
-              {
-                color: "succes",
-                className: "btn-form-edit",
-                // onClick: deleteRecord
-              },
-              // _("i", { className: "icon-trash" }),
-              " ",
-              getLocMsg('start_approval')
-            ),
-
-          _(
+          false && _(
             Button,
             {
               className: "float-right btn-round-shadow hover-shake",
@@ -2144,15 +2313,88 @@ class XTabForm extends React.PureComponent {
             _("i", { className: "icon-options" })
           ),
           " ",
-          _(
+          this.props.cfg.commentFlag && _(
             Button,
             { className: "float-right btn-round-shadow mr-1", color: "light" },
             _("i", { className: "icon-bubbles" })
           ),
           " ",
-          _(XSingleUploadComponent, {
+          this.props.cfg.fileAttachFlag && _(XSingleUploadComponent, {
             cfg: this.props.cfg
           })
+          , _('br'),
+          this.props.cfg.approval && this.props.cfg.approval.stepDsc &&
+          _(
+            'span',
+            {style:{fontSize:"1rem"}
+            },
+// " step ",
+            _("b",null,this.props.cfg.approval.stepDsc)
+            ,"    "
+          ),
+          this.props.cfg.approval && this.props.cfg.approval.wait4start &&
+          _(
+            Button,
+            {
+              color: "success",
+              className: "btn-form-edit",
+              onClick: approvalAction(901)
+            },
+            _("i", { className: "icon-support" }),
+            " ",
+            getLocMsg('start_approval')
+          ),
+          this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          _(
+            Button,
+            {
+              color: "success",
+              className: "btn-form-edit",
+              onClick: approvalAction(1) // approve
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('approve')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.returnFlag &&
+          _(
+            Button,
+            {
+              color: "warning",
+              className: "btn-form-edit",
+              onClick: approvalAction(2) // return
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('return')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          _(
+            Button,
+            {
+              color: "secondary",
+              className: "btn-form-edit",
+              onClick: approvalAction(3) // reject
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('reject')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
+          _(
+            Button,
+            {
+              color: "light",
+              className: "btn-form-edit",
+              onClick: iwb.approvalLogs(this.props.cfg.approval.approvalRecordId) // reject
+            },
+            _("i", { className: "icon-eye" }),
+            " ",
+            getLocMsg('logs')
+          )
         ),
         _("hr"),
         formBody
@@ -2189,33 +2431,36 @@ class XTabForm extends React.PureComponent {
   }
 }
 /**
- * @description
- * Used for PopUp a Modal
- * it is singletone and you can use
- * @example
- * iwb.showModal(cfg);
- * iwb.closeModal
- * @param {Object} props -props of the Xmodal
+ * @description Used for PopUp a Modal it is singletone and you can use
+ * @example iwb.showModal(cfg); iwb.closeModal
+ * @param {Object}
+ *            props -props of the Xmodal
  */
 class XModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = { modal: false };
     /**
-     * @description
-     * Used to construct Modal (popup)
-     * @example
-     * iwb.showModal(cfg);
-     * iwb.closeModal
-     * @param {Object} cfg - Moadal Configuration
-     * @param {String} cfg.title - Moadal title
-     * @param {String} cfg.color - Moadal Color 'primary'
-     * @param {String} cfg.size - Moadal Size 'lg' 'md' 'sm'
-     * @param {Symbol} cfg.body - Moadal body React.Component
-     * @param {Object} cfg.style - Moadal style
-     * @param {Object} cfg.footer - Moadal Configuration
-     * @param {Object} cfg.modalBodyProps - Moadal Body Props to pass to the body of the modal
-     */
+	 * @description Used to construct Modal (popup)
+	 * @example iwb.showModal(cfg); iwb.closeModal
+	 * @param {Object}
+	 *            cfg - Moadal Configuration
+	 * @param {String}
+	 *            cfg.title - Moadal title
+	 * @param {String}
+	 *            cfg.color - Moadal Color 'primary'
+	 * @param {String}
+	 *            cfg.size - Moadal Size 'lg' 'md' 'sm'
+	 * @param {Symbol}
+	 *            cfg.body - Moadal body React.Component
+	 * @param {Object}
+	 *            cfg.style - Moadal style
+	 * @param {Object}
+	 *            cfg.footer - Moadal Configuration
+	 * @param {Object}
+	 *            cfg.modalBodyProps - Moadal Body Props to pass to the body of
+	 *            the modal
+	 */
     this.open = cfg => {
       this.setState({
         modal: true,
@@ -2231,9 +2476,8 @@ class XModal extends React.Component {
       return false;
     };
     /**
-     * @description
-     * Used to close the Modal (actually hide)
-     */
+	 * @description Used to close the Modal (actually hide)
+	 */
     this.close = () => this.setState({ modal: false });
     this.toggle = () => this.setState({ modal: !this.state.modal });
     iwb.showModal = this.open;
@@ -2276,18 +2520,18 @@ class XModal extends React.Component {
         _(ModalBody, modalBodyProps, body),
 
         // !footer && _(ModalFooter, null,
-        // 	_(Button, {
-        // 		className:'btn-form',
-        // 		color: 'teal',
-        // 		onClick: this.toggle
-        // 		},"KAYDET"),
-        // 	' ',
-        // 	_(Button, {
-        // 		className:'btn-form',
-        // 		color: "light",
-        // 		style:{border: ".5px solid #e6e6e6"},
-        // 		onClick: this.toggle
-        // 	}, "VAZGEÇ")
+        // _(Button, {
+        // className:'btn-form',
+        // color: 'teal',
+        // onClick: this.toggle
+        // },"KAYDET"),
+        // ' ',
+        // _(Button, {
+        // className:'btn-form',
+        // color: "light",
+        // style:{border: ".5px solid #e6e6e6"},
+        // onClick: this.toggle
+        // }, "VAZGEÇ")
         // ),
 
         footer && _(React.Fragment, null, footer)
@@ -2296,25 +2540,21 @@ class XModal extends React.Component {
   }
 }
 /**
- * @description
- * this component used to login after
- * session is timeout
+ * @description this component used to login after session is timeout
  */
 class XLoginDialog extends React.Component {
   constructor(props) {
     super(props);
     this.state = { modal: false, msg: false };
     /**
-     * @description
-     * Used to open Modal we made it GLOBAL
-     * @example
-     * iwb.showLoginDialog()
-     */
+	 * @description Used to open Modal we made it GLOBAL
+	 * @example iwb.showLoginDialog()
+	 */
     this.open = () => this.setState({ modal: true });
     iwb.showLoginDialog = this.open;
     /**
-     * Used To Login User
-     */
+	 * Used To Login User
+	 */
     this.login = () => {
       var self = this;
       var passWord = document.getElementById("id-password").value;
@@ -2436,16 +2676,21 @@ class XLoginDialog extends React.Component {
   }
 }
 /**
- * @description
- * used to open dropDown
- * make edit and delete from main and detail grid
- * when the Grid is not in edit mode
- * @param { Object } props - gets data of right click and crud
- * @param { Array } props.menuButtons - return array of Objects conf { text, handler, cls }
- * @param { Boolean } props.crudFlags.edit -ACL Edit Option
- * @param { Boolean } props.crudFlags.insert -ACL insert Option
- * @param { Boolean } props.crudFlags.remove -ACL Delete Option
- * @param { Array } props.rowData - data of the clicked Row
+ * @description used to open dropDown make edit and delete from main and detail
+ *              grid when the Grid is not in edit mode
+ * @param {
+ *            Object } props - gets data of right click and crud
+ * @param {
+ *            Array } props.menuButtons - return array of Objects conf { text,
+ *            handler, cls }
+ * @param {
+ *            Boolean } props.crudFlags.edit -ACL Edit Option
+ * @param {
+ *            Boolean } props.crudFlags.insert -ACL insert Option
+ * @param {
+ *            Boolean } props.crudFlags.remove -ACL Delete Option
+ * @param {
+ *            Array } props.rowData - data of the clicked Row
  */
 class XGridRowAction extends React.PureComponent {
   constructor(props) {
@@ -2551,8 +2796,7 @@ XGridRowAction.propTypes = {
   }),
 };
 /**
- * @deprecated
- * todo: not used yet
+ * @deprecated todo: not used yet
  */
 class XGridAction extends React.PureComponent {
   constructor(props) {
@@ -2569,7 +2813,8 @@ class XGridAction extends React.PureComponent {
     return _(
       Dropdown,
       { isOpen, toggle },
-      //			,_('i',{className:'icon-options-vertical column-action', onClick:qqq.toggleGridAction})
+      // ,_('i',{className:'icon-options-vertical column-action',
+		// onClick:qqq.toggleGridAction})
       _(
         DropdownToggle,
         {
@@ -2579,12 +2824,13 @@ class XGridAction extends React.PureComponent {
         },
         _("i", { className: "icon-grid", style: { fontSize: 17 } })
       ),
-      //			{tag:'i',className: "icon-grid", color||'danger'}
+      // {tag:'i',className: "icon-grid", color||'danger'}
       isOpen &&
         _(
           DropdownMenu,
           { className: isOpen ? "show" : "" },
-          //			,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
+          // ,_('div',{style:{padding: "7px 13px",background: "gray", color:
+			// "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
           _(
             DropdownItem,
             { ur: "123", onClick: false },
@@ -2614,34 +2860,58 @@ class XGridAction extends React.PureComponent {
             }),
             "REPORTS/BI"
           )
-          //			,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
+          // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
+			// marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
         )
     );
   }
 }
 /**
- * @description
- * it renders detail grid there is no search form
- * @param {Object} props - Input of the Grid Component
- * @param {Array} props.columns[] - Column conf List {name title width sort}
- * @param {Object} props.crudFlags - Grid Component {edit insert remove} options Used to render CRUD buttons and routes
- * @param {Number} props.crudFormId - crudFormId is used to make route to the form
- * @param {Number} props.crudTableId - crudTableId is id of sql table
- * @param {Number} props.defaultHeight - @deprecated defaultHeight is a height of the Grid
- * @param {Number} props.defaultWidth - @deprecated defaultWidth is width of the Grid
- * @param {Boolean} props.detailFlag - Am I detail grid?
- * @param {Boolean} props.editable - Used to Open Grid in EditingState Mode############
- * @param {Number} props.gridId - Id of the Detail grid
- * @param {String} props.keyField - Used to spesify primety Key name of the Grid
- * @param {String} props.name - Rendered name of the Grid Component
- * @param {Function} props.openTab - Used to open Form in new tab
- * @param {Function} props.pageSize - [0] by default
- * @param {Number} props.queryId - Query id of the grid
- * @param {Symbol} props._disableIntegratedGrouping - ['null'] Disable Grouping
- * @param {Symbol} props._disableIntegratedSorting - ['null'] Disable sorting
- * @param {Symbol} props._disableSearchPanel - ['null'] Disable search panel
- * @param {Symbol} props.multiselect - ['null'] Enambe multiselect option
- * @param {Symbol} props.showDetail - ['null'] detail grid used in nested detail grid
+ * @description it renders detail grid there is no search form
+ * @param {Object}
+ *            props - Input of the Grid Component
+ * @param {Array}
+ *            props.columns[] - Column conf List {name title width sort}
+ * @param {Object}
+ *            props.crudFlags - Grid Component {edit insert remove} options Used
+ *            to render CRUD buttons and routes
+ * @param {Number}
+ *            props.crudFormId - crudFormId is used to make route to the form
+ * @param {Number}
+ *            props.crudTableId - crudTableId is id of sql table
+ * @param {Number}
+ *            props.defaultHeight -
+ * @deprecated defaultHeight is a height of the Grid
+ * @param {Number}
+ *            props.defaultWidth -
+ * @deprecated defaultWidth is width of the Grid
+ * @param {Boolean}
+ *            props.detailFlag - Am I detail grid?
+ * @param {Boolean}
+ *            props.editable - Used to Open Grid in EditingState
+ *            Mode############
+ * @param {Number}
+ *            props.gridId - Id of the Detail grid
+ * @param {String}
+ *            props.keyField - Used to spesify primety Key name of the Grid
+ * @param {String}
+ *            props.name - Rendered name of the Grid Component
+ * @param {Function}
+ *            props.openTab - Used to open Form in new tab
+ * @param {Function}
+ *            props.pageSize - [0] by default
+ * @param {Number}
+ *            props.queryId - Query id of the grid
+ * @param {Symbol}
+ *            props._disableIntegratedGrouping - ['null'] Disable Grouping
+ * @param {Symbol}
+ *            props._disableIntegratedSorting - ['null'] Disable sorting
+ * @param {Symbol}
+ *            props._disableSearchPanel - ['null'] Disable search panel
+ * @param {Symbol}
+ *            props.multiselect - ['null'] Enambe multiselect option
+ * @param {Symbol}
+ *            props.showDetail - ['null'] detail grid used in nested detail grid
  */
 class XGrid extends GridCommon {
   constructor(props) {
@@ -2729,11 +2999,11 @@ class XGrid extends GridCommon {
           : [5, 10, 25, 100]
     };
     /**
-     * @overloading
-     * @description
-     * used to make request and fill the grid
-     * @param {boolean} force - to fill with up to date data
-     */
+	 * @overloading
+	 * @description used to make request and fill the grid
+	 * @param {boolean}
+	 *            force - to fill with up to date data
+	 */
     this.loadData = force => {
       if (this.props.rows) return;
       const queryString = this.queryString();
@@ -2798,7 +3068,7 @@ class XGrid extends GridCommon {
         _disableIntegratedSorting,
         _disableIntegratedGrouping
       },
-      //methods
+      // methods
       rowComponent,
       onOrderChange,
       onSortingChange,
@@ -2819,19 +3089,19 @@ class XGrid extends GridCommon {
         ),
       /** state multiselect */
       multiselect && _(_dxrg.SelectionState, null),
-      /**state search */
+      /** state search */
       !pageSize && _(_dxrg.SearchState, null),
-      /**Client filtering */
+      /** Client filtering */
       !_disableSearchPanel &&
         !pageSize &&
         rows.length > 1 &&
         _(_dxrg.IntegratedFiltering, null),
-      /**state grouping */
+      /** state grouping */
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
         _(_dxrg.GroupingState, null),
-      /**Enable UI grouping*/
+      /** Enable UI grouping */
 
       !_disableIntegratedGrouping &&
         !pageSize &&
@@ -2865,13 +3135,13 @@ class XGrid extends GridCommon {
       multiselect && _(_dxrg.IntegratedSelection, null),
       /** Enable Drag and Drop */
       _(_dxgrb.DragDropProvider, null),
-      /**UI table */
+      /** UI table */
       _(_dxgrb.Table, { columnExtensions, rowComponent }),
-      /**UI multiselect */
+      /** UI multiselect */
       multiselect && _(_dxgrb.TableSelection, { showSelectAll: multiselect }),
       /** UI ordering of the table */
       _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
-      /**UI column table resizer */
+      /** UI column table resizer */
       _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
       _(_dxgrb.TableHeaderRow, { showSortingControls: true }),
       /** UI detail Grid */
@@ -2881,7 +3151,7 @@ class XGrid extends GridCommon {
       /** Paging panel */
       rows.length > iwb.detailPageSize &&
         _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize }),
-      /**UI row Grouping */
+      /** UI row Grouping */
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
@@ -2898,7 +3168,7 @@ class XGrid extends GridCommon {
           changeSearchValue: ax => {
             if (iwb.debug) console.log("onValueChange", ax);
           }
-        }), //TODO
+        }), // TODO
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
@@ -2907,11 +3177,14 @@ class XGrid extends GridCommon {
   }
 }
 /**
- * @description
- * A functional component to glue button inside grid with its props
- * @param {Object} props - { id, onExecute }
- * @param {Number} props.id - index of the ComponentProps array
- * @param {Function} props.onExecute - a callback function to be executed when button is clicked
+ * @description A functional component to glue button inside grid with its props
+ * @param {Object}
+ *            props - { id, onExecute }
+ * @param {Number}
+ *            props.id - index of the ComponentProps array
+ * @param {Function}
+ *            props.onExecute - a callback function to be executed when button
+ *            is clicked
  */
 class Command extends React.PureComponent {
   render() {
@@ -2942,9 +3215,8 @@ class Command extends React.PureComponent {
   }
 }
 /**
- * @description
- * can be used to overload grid functionality
- * component for making GRIDROW Edit + Multiselect
+ * @description can be used to overload grid functionality component for making
+ *              GRIDROW Edit + Multiselect
  */
 class SelectableStubCell extends React.PureComponent {
   render() {
@@ -2979,27 +3251,51 @@ class SelectableStubCell extends React.PureComponent {
   }
 }
 /**
- * @description
- * used for sf grid in popup Modal
- * @param {Object} props - Input of the Grid Component
- * @param {Function} props.callback - used to send back selected data
- * @param {Array} props.columns[] - Column conf List {name title width sort}
- * @param {Boolean} props.crudFlags.edit - Grid Component {edit} options Used to render CRUD buttons and routes
- * @param {Number} props.defaultHeight - @deprecated defaultHeight is a height of the Grid
- * @param {Number} props.defaultWidth - @deprecated defaultWidth is width of the Grid
- * @param {Boolean} props.editable - Used to Open Grid in EditingState Mode############
- * @param {Number} props.gridId - Id of the grid grid
- * @param {String} props.gridReport -@deprecated usage
- * @param {String} props.keyField - Used to spesify primety Key name of the Grid
- * @param {String} props.name - Rendered name of the Grid Component
- * @param {Symbol} props.multiselect - ['null'] Enable multiselect option
- * @param {Function} props.pageSize - [10] by default
- * @param {Number} props.queryId - Query id of the grid
- * @param {Symbol} props.searchForm - Search form is generated from ServerSide and extens from XForm Component
- * @param {Object} props.selectRow - [{mode:"checkbox",clickToSelect: true}]Used to Edit and make Selectable
- * @param {Symbol} props._disableIntegratedGrouping - ['null'] Disable Grouping
- * @param {Symbol} props._disableIntegratedSorting - ['null'] Disable sorting
- * @param {Symbol} props._disableSearchPanel - ['null'] Disable search panel
+ * @description used for sf grid in popup Modal
+ * @param {Object}
+ *            props - Input of the Grid Component
+ * @param {Function}
+ *            props.callback - used to send back selected data
+ * @param {Array}
+ *            props.columns[] - Column conf List {name title width sort}
+ * @param {Boolean}
+ *            props.crudFlags.edit - Grid Component {edit} options Used to
+ *            render CRUD buttons and routes
+ * @param {Number}
+ *            props.defaultHeight -
+ * @deprecated defaultHeight is a height of the Grid
+ * @param {Number}
+ *            props.defaultWidth -
+ * @deprecated defaultWidth is width of the Grid
+ * @param {Boolean}
+ *            props.editable - Used to Open Grid in EditingState
+ *            Mode############
+ * @param {Number}
+ *            props.gridId - Id of the grid grid
+ * @param {String}
+ *            props.gridReport -@deprecated usage
+ * @param {String}
+ *            props.keyField - Used to spesify primety Key name of the Grid
+ * @param {String}
+ *            props.name - Rendered name of the Grid Component
+ * @param {Symbol}
+ *            props.multiselect - ['null'] Enable multiselect option
+ * @param {Function}
+ *            props.pageSize - [10] by default
+ * @param {Number}
+ *            props.queryId - Query id of the grid
+ * @param {Symbol}
+ *            props.searchForm - Search form is generated from ServerSide and
+ *            extens from XForm Component
+ * @param {Object}
+ *            props.selectRow - [{mode:"checkbox",clickToSelect: true}]Used to
+ *            Edit and make Selectable
+ * @param {Symbol}
+ *            props._disableIntegratedGrouping - ['null'] Disable Grouping
+ * @param {Symbol}
+ *            props._disableIntegratedSorting - ['null'] Disable sorting
+ * @param {Symbol}
+ *            props._disableSearchPanel - ['null'] Disable search panel
  */
 class XEditGridSF extends GridCommon {
   constructor(props) {
@@ -3051,7 +3347,7 @@ class XEditGridSF extends GridCommon {
                   case 15:
                   case 59:
                   case 9:
-                  case 10: //combos
+                  case 10: // combos
                     break;
                   default:
                     editor.style.textAlign = colLocal.align || "left";
@@ -3095,8 +3391,8 @@ class XEditGridSF extends GridCommon {
       };
     }
     /**
-     * used to get values of the grid
-     */
+	 * used to get values of the grid
+	 */
     this.getValues = () => {
       let {
         rows,
@@ -3120,7 +3416,7 @@ class XEditGridSF extends GridCommon {
       var searchFormData =
         this.props.searchForm &&
         iwb.getFormValues(document.getElementById("s-" + this.props.id));
-      //xsample_id to sample_id converter could be written as helper function
+      // xsample_id to sample_id converter could be written as helper function
       searchFormData &&
         Object.keys(searchFormData).forEach((key, index) => {
           if (key.charAt(0) === "x") {
@@ -3164,8 +3460,9 @@ class XEditGridSF extends GridCommon {
       );
     }
     /**
-     * @param {Boolean} force
-     */
+	 * @param {Boolean}
+	 *            force
+	 */
     this.loadData = force => {
       const queryString = this.props._url;
       const t_props = this.props;
@@ -3200,15 +3497,15 @@ class XEditGridSF extends GridCommon {
       if (!editor) return _(_dxgrb.TableEditRow.Cell, xprops);
 
       editor = Object.assign({}, editor);
-      if (!xprops.row._new) xprops.row._new = {}; //Object.assign({},xprops.row);
+      if (!xprops.row._new) xprops.row._new = {}; // Object.assign({},xprops.row);
       if (!xprops.row._new.hasOwnProperty(xprops.column.name))
         xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
       var keyFieldValue = (xprops.row._new && xprops.row._new[this.props.keyField])?xprops.row._new[this.props.keyField]:xprops.row[this.props.keyField]; 
       delete editor.defaultValue;
       switch (1 * editor._control) {
         case 3:
-        case 4: //number
-          editor.value = xprops.value || 0; //xprops.row._new[xprops.column.name];
+        case 4: // number
+          editor.value = xprops.value || 0; // xprops.row._new[xprops.column.name];
           editor.onValueChange = ({ value }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
@@ -3222,8 +3519,12 @@ class XEditGridSF extends GridCommon {
         case 15:
         case 59:
         case 9:
-        case 10: //combos
-          editor.value = xprops.row._new[xprops.column.name] || 0 || ""; //TODO. ilk edit ettigini aliyor
+        case 10: // combos
+          editor.value = xprops.row._new[xprops.column.name] || 0 || ""; // TODO.
+																			// ilk
+																			// edit
+																			// ettigini
+																			// aliyor
           editor.onChange = ({ id }) => {
             xprops.row._new[xprops.column.name] = id;
             xprops.onValueChange(id);
@@ -3235,7 +3536,7 @@ class XEditGridSF extends GridCommon {
             })
           };
           break;
-        case 5://checkbox
+        case 5:// checkbox
           editor.checked = +xprops.row._new[xprops.column.name];
           editor.onChange = ({ target: { checked } }) => {
             xprops.row._new[xprops.column.name] = checked;
@@ -3249,7 +3550,7 @@ class XEditGridSF extends GridCommon {
           };
         break;
         default:
-          editor.value = xprops.value || ""; //xprops.row._new[xprops.column.name];
+          editor.value = xprops.value || ""; // xprops.row._new[xprops.column.name];
           editor.onChange = ({ target: { value } }) => {
             xprops.row._new[xprops.column.name] = value;
             xprops.onValueChange(value);
@@ -3316,7 +3617,7 @@ class XEditGridSF extends GridCommon {
         _disableIntegratedSorting,
         _disableIntegratedGrouping
       },
-      //methods
+      // methods
       onOrderChange,
       onCommitChanges,
       onPageSizeChange,
@@ -3342,16 +3643,16 @@ class XEditGridSF extends GridCommon {
           onSelectionChange
         }),
       _(_dxrg.SearchState, null),
-      /**Client filtering //was used for panel search(@dependency) */
+      /** Client filtering //was used for panel search(@dependency) */
       !_disableSearchPanel && _(_dxrg.IntegratedFiltering, null),
-      /**state grouping */
+      /** state grouping */
       !_disableIntegratedGrouping && _(_dxrg.GroupingState, null),
-      /**Enable UI grouping*/
+      /** Enable UI grouping */
 
       !_disableIntegratedGrouping && _(_dxrg.IntegratedGrouping, null),
       /** state sorting */
       !_disableIntegratedSorting && _(_dxrg.IntegratedSorting, null),
-      /**state paging */
+      /** state paging */
 
       rows.length > iwb.detailPageSize &&
         _(
@@ -3387,7 +3688,8 @@ class XEditGridSF extends GridCommon {
       _(_dxgrb.TableHeaderRow, {
         showSortingControls: true
       }),
-      selectRow.mode === "checkbox" && _(SelectableStubCell, null), //select box
+      selectRow.mode === "checkbox" && _(SelectableStubCell, null), // select
+																	// box
 
       !viewMode &&
         _(_dxgrb.TableEditRow, {
@@ -3463,16 +3765,21 @@ class XEditGridSF extends GridCommon {
   }
 }
 /**
- * @description
- * {name, children, predicate, position}
- * used to extend template of the grid!
- * @param { object } param0
- * @param { string } param0.name - to find tample name
- * @param { Symbol } param0.children - React.Component
- * @param { Function } param0.predicate - is a function to deside where to render
- * @param { String } param0.position - ['before','after','',null] used to render before, after or override
- * @example
- * overloading template example located in XEditGrid render
+ * @description {name, children, predicate, position} used to extend template of
+ *              the grid!
+ * @param {
+ *            object } param0
+ * @param {
+ *            string } param0.name - to find tample name
+ * @param {
+ *            Symbol } param0.children - React.Component
+ * @param {
+ *            Function } param0.predicate - is a function to deside where to
+ *            render
+ * @param {
+ *            String } param0.position - ['before','after','',null] used to
+ *            render before, after or override
+ * @example overloading template example located in XEditGrid render
  */
 
 const extendGrid = ({ name, children, predicate, position }) => {
@@ -3499,15 +3806,16 @@ const extendGrid = ({ name, children, predicate, position }) => {
   );
 };
 /**
- * @description
- * {text,callback}
- * used for making popup dialog
- * @param {object} conf.text - body of the mesasge
- * @param {object} conf.title - title of the modal
- * @param {function} conf.callback - callback function
+ * @description {text,callback} used for making popup dialog
+ * @param {object}
+ *            conf.text - body of the mesasge
+ * @param {object}
+ *            conf.title - title of the modal
+ * @param {function}
+ *            conf.callback - callback function
  * @return {boolean} - retur true or false to the call back
- * @example
- * yesNoDialog({ text:"Are you Sure!", callback:(success)=>{ logic here }});
+ * @example yesNoDialog({ text:"Are you Sure!", callback:(success)=>{ logic here
+ *          }});
  */
 yesNoDialog = ({
   text = "Are You Sure?",
@@ -3554,9 +3862,7 @@ yesNoDialog = ({
   });
 };
 /**
- * @description
- * component for edit Detail Grid
- * mostly used for form + grid mode
+ * @description component for edit Detail Grid mostly used for form + grid mode
  */
 class XEditGrid extends GridCommon {
   constructor(props) {
@@ -3610,7 +3916,7 @@ class XEditGrid extends GridCommon {
                   case 15:
                   case 59:
                   case 9:
-                  case 10: //combos
+                  case 10: // combos
                     break;
                   default:
                     editor.style.textAlign = colLocal.align || "left";
@@ -3653,10 +3959,10 @@ class XEditGrid extends GridCommon {
             : [5, 10, 25, 100]
       };
     }
-    //methods
+    // methods
     /**
-     * used to get values of the grid
-     */
+	 * used to get values of the grid
+	 */
 
     this.getValues = () => {
       let { rows, addedRows, deletedRows, editingRowIds } = this.state;
@@ -3677,14 +3983,16 @@ class XEditGrid extends GridCommon {
       };
     };
     /**
-     * bind with parent Element
-     */
+	 * bind with parent Element
+	 */
     if (props.parentCt && props.parentCt.egrids)
       props.parentCt.egrids[props.gridId] = this;
     /**
-     * used to make data request to fill the frid with related data
-     * @param {boolean} force
-     */
+	 * used to make data request to fill the frid with related data
+	 * 
+	 * @param {boolean}
+	 *            force
+	 */
     this.loadData = force => {
       const queryString = this.props._url;
       const t_props = this.props;
@@ -3718,13 +4026,13 @@ class XEditGrid extends GridCommon {
       this.lastQuery = queryString;
     };
     /**
-     * used for import data from the popup with ne flag
-     */
+	 * used for import data from the popup with ne flag
+	 */
     this.BulkyImport = ({ searchFormData, inserted, deleted, _state }) => {
       const { rows, addedRows } = this.state;
       let tempRow = [];
       let max;
-      //find max tab_order from grid
+      // find max tab_order from grid
       if (
         (rows["0"] && rows["0"].tab_order) ||
         (addedRows["0"] && addedRows["0"].tab_order)
@@ -3740,7 +4048,7 @@ class XEditGrid extends GridCommon {
       if (max === "-Infinity" || +max === 0) {
         max = 10;
       }
-      //merge new imported data
+      // merge new imported data
       let pkInsert = this.state.pkInsert;
       inserted.forEach(data => {
         var merged = { ...searchFormData, ...data };
@@ -3752,12 +4060,12 @@ class XEditGrid extends GridCommon {
         tempRow.push(merged);
         max += 10;
       });
-      //Adds data to the grit from the popup
+      // Adds data to the grit from the popup
       this.setState({ addedRows: [...addedRows, ...tempRow], pkInsert });
     };
     /**
-     * to get all data from grid editing + noneEdited at current time
-     */
+	 * to get all data from grid editing + noneEdited at current time
+	 */
 
     this.getAllData = () => {
       let tempRowData = [];
@@ -3767,9 +4075,11 @@ class XEditGrid extends GridCommon {
       return tempRowData;
     };
     /**
-     * used for Cell Editing
-     * @param {Object} xprops
-     */
+	 * used for Cell Editing
+	 * 
+	 * @param {Object}
+	 *            xprops
+	 */
     this.EditCell = xprops => {
       var editor = this.editors[xprops.column.name];
       if (
@@ -3782,7 +4092,7 @@ class XEditGrid extends GridCommon {
         });
       if (!editor) return _(_dxgrb.TableEditRow.Cell, xprops);
       editor = Object.assign({}, editor);
-      if (!xprops.row._new) xprops.row._new = {}; //Object.assign({},xprops.row);
+      if (!xprops.row._new) xprops.row._new = {}; // Object.assign({},xprops.row);
       if (!xprops.row._new.hasOwnProperty(xprops.column.name))
         xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
       
@@ -3790,7 +4100,7 @@ class XEditGrid extends GridCommon {
       
       switch (1 * editor._control) {
         case 3:
-        case 4: //number
+        case 4: // number
           editor.value = (xprops.row && xprops.row._new && xprops.row._new[xprops.column.name])?xprops.row._new[xprops.column.name]:xprops.value;
           editor.onValueChange = ({ value }) => {
             xprops.row._new[xprops.column.name] = value;
@@ -3805,8 +4115,10 @@ class XEditGrid extends GridCommon {
         case 15:
         case 59:
         case 9:
-        case 10: //combos
-          editor.value = xprops.row._new[xprops.column.name]; //TODO. ilk edit ettigini aliyor
+        case 10: // combos
+          editor.value = xprops.row._new[xprops.column.name]; // TODO. ilk
+																// edit ettigini
+																// aliyor
           editor.onChange = ({ id }) => {
             xprops.row._new[xprops.column.name] = id;
             xprops.onValueChange(id);
@@ -3917,7 +4229,11 @@ class XEditGrid extends GridCommon {
       !_disableIntegratedSorting ? _(_dxrg.SortingState, null) : null,
       multiselect && _(_dxrg.SelectionState, null),
       _(_dxrg.SearchState, null),
-      !_disableSearchPanel ? _(_dxrg.IntegratedFiltering, null) : null, //was used for panel search(@dependency)
+      !_disableSearchPanel ? _(_dxrg.IntegratedFiltering, null) : null, // was
+																		// used
+																		// for
+																		// panel
+																		// search(@dependency)
       !_disableIntegratedGrouping ? _(_dxrg.GroupingState, null) : null,
       !_disableIntegratedGrouping ? _(_dxrg.IntegratedGrouping, null) : null,
       !_disableIntegratedSorting ? _(_dxrg.IntegratedSorting, null) : null,
@@ -4027,38 +4343,78 @@ class XEditGrid extends GridCommon {
   }
 }
 /**
- * @description
- * used for rendering master grid with search form in it
- * @param {Object} props - props of the grid
- * @param {Array} props.columns - props of the grid
- * @param {string} props.columns[].title - Ui title of the grid
- * @param {string} props.columns[].name - column name of the sql tale
- * @param {Boolean} props.columns[].sort - is it sortable column?
- * @param {Number} props.columns[].width - width of the column
- * @param {Function} props.columns[].formatter - a function to make own UI from the backend params (row,cell)
- * @param {Object} props.crudFlags - An object to make UI ACL {insert: true, edit: true, remove: true}
- * @param {Number} props.crudFormId - An Id of the Form
- * @param {Number} props.crudTableId - SQL table id
- * @param {Number} props.defaultHeight - @deprecated defaultHeight is a height of the Grid
- * @param {Number} props.defaultWidth - @deprecated defaultWidth is width of the Grid
- * @param {Array} props.detailGrids[] - ['false']=> no grid, Array of detail grids conf
- * @param {Object} props.detailGrids[].grid - detail grids props
- * @param {Object} props.detailGrids[].params - master detail connection Master primaty key name {xoffer_id: "offer_id"}
- * @param {Object} props.detailGrids[].pk - Master detail connection Detail primaty key name {toffer_detail_id: "offer_detail_id"}
- * @param {Number} props.gridId - Id of the grid
- * @param {string} props.gridReport - show or not show reporter tools
- * @param {string} props.keyField - PK of the table
- * @param {string} props.name - UI Name of the grid table
- * @param { Array } props.menuButtons - return array of Objects conf { text, handler, cls, ref }
- * @param {Number} props.pageSize - Number of rows in grid to show in one page
- * @param {Number} props.queryId - Query id of the Grid
- * @param {Symbol} props.searchForm - Search form is generated from ServerSide and extens from XForm Component
- * @param {String} props._url - ["ajaxQueryData?_renderer=react16&.t=tpi_1531758063549&.w=wpi_1531758063547&_qid=4220&_gid=3376&firstLimit=10"]
- * @param {function} props._timelineBadgeBtn - will work when the timelineBadge is clicked
- * @param {Number} props.forceRelaod - to find out weathet it is delated or not used to compare props with prevProps
- * @param {Boolean} props._hideTimelineBadgeBtn - to hide _hideTimelineBadgeBtn
- * @param {Array} props.extraButtons - Array of buttons in grid
- *
+ * @description used for rendering master grid with search form in it
+ * @param {Object}
+ *            props - props of the grid
+ * @param {Array}
+ *            props.columns - props of the grid
+ * @param {string}
+ *            props.columns[].title - Ui title of the grid
+ * @param {string}
+ *            props.columns[].name - column name of the sql tale
+ * @param {Boolean}
+ *            props.columns[].sort - is it sortable column?
+ * @param {Number}
+ *            props.columns[].width - width of the column
+ * @param {Function}
+ *            props.columns[].formatter - a function to make own UI from the
+ *            backend params (row,cell)
+ * @param {Object}
+ *            props.crudFlags - An object to make UI ACL {insert: true, edit:
+ *            true, remove: true}
+ * @param {Number}
+ *            props.crudFormId - An Id of the Form
+ * @param {Number}
+ *            props.crudTableId - SQL table id
+ * @param {Number}
+ *            props.defaultHeight -
+ * @deprecated defaultHeight is a height of the Grid
+ * @param {Number}
+ *            props.defaultWidth -
+ * @deprecated defaultWidth is width of the Grid
+ * @param {Array}
+ *            props.detailGrids[] - ['false']=> no grid, Array of detail grids
+ *            conf
+ * @param {Object}
+ *            props.detailGrids[].grid - detail grids props
+ * @param {Object}
+ *            props.detailGrids[].params - master detail connection Master
+ *            primaty key name {xoffer_id: "offer_id"}
+ * @param {Object}
+ *            props.detailGrids[].pk - Master detail connection Detail primaty
+ *            key name {toffer_detail_id: "offer_detail_id"}
+ * @param {Number}
+ *            props.gridId - Id of the grid
+ * @param {string}
+ *            props.gridReport - show or not show reporter tools
+ * @param {string}
+ *            props.keyField - PK of the table
+ * @param {string}
+ *            props.name - UI Name of the grid table
+ * @param {
+ *            Array } props.menuButtons - return array of Objects conf { text,
+ *            handler, cls, ref }
+ * @param {Number}
+ *            props.pageSize - Number of rows in grid to show in one page
+ * @param {Number}
+ *            props.queryId - Query id of the Grid
+ * @param {Symbol}
+ *            props.searchForm - Search form is generated from ServerSide and
+ *            extens from XForm Component
+ * @param {String}
+ *            props._url -
+ *            ["ajaxQueryData?_renderer=react16&.t=tpi_1531758063549&.w=wpi_1531758063547&_qid=4220&_gid=3376&firstLimit=10"]
+ * @param {function}
+ *            props._timelineBadgeBtn - will work when the timelineBadge is
+ *            clicked
+ * @param {Number}
+ *            props.forceRelaod - to find out weathet it is delated or not used
+ *            to compare props with prevProps
+ * @param {Boolean}
+ *            props._hideTimelineBadgeBtn - to hide _hideTimelineBadgeBtn
+ * @param {Array}
+ *            props.extraButtons - Array of buttons in grid
+ * 
  */
 class XMainGrid extends GridCommon {
   constructor(props) {
@@ -4157,16 +4513,17 @@ class XMainGrid extends GridCommon {
       this.state = state;
     }
     /**
-     * used to give click event to the detail timeLineBadge button
-     * (event,masterDridProps,detailGridProps,row)
-     */
+	 * used to give click event to the detail timeLineBadge button
+	 * (event,masterDridProps,detailGridProps,row)
+	 */
     this._timelineBadgeBtn = this.props._timelineBadgeBtn;
     /**
-     * @description
-     * A function to open and close detail grid
-     * @param {event} event - click event
-     * @param {Object} event.target - target object from clicked place
-     */
+	 * @description A function to open and close detail grid
+	 * @param {event}
+	 *            event - click event
+	 * @param {Object}
+	 *            event.target - target object from clicked place
+	 */
     this.toggleDetailGrid = ({ target }) => {
       var detailGridList = {};
       detailGridList[target.name] = target.checked;
@@ -4207,22 +4564,14 @@ class XMainGrid extends GridCommon {
                 )
               )
             ),
-         /*   _("div", { style: { height: 10 } }),
-            _("div", { className: "hr-text" }, _("h6", null, "Şablonlar")),
-            _(
-              Link,
-              { style: { padding: 2 }, to: "" },
-              _("i", { className: "icon-star" }),
-              " ",
-              " Yıllık Faturalar"
-            ),
-            _(
-              Link,
-              { style: { padding: 2, color: "#a0a0a0" }, to: "" },
-              _("i", { className: "icon-plus" }),
-              " ",
-              " Yeni Şablon Ekle"
-            ),*/
+         /*
+			 * _("div", { style: { height: 10 } }), _("div", { className:
+			 * "hr-text" }, _("h6", null, "Şablonlar")), _( Link, { style: {
+			 * padding: 2 }, to: "" }, _("i", { className: "icon-star" }), " ", "
+			 * Yıllık Faturalar" ), _( Link, { style: { padding: 2, color:
+			 * "#a0a0a0" }, to: "" }, _("i", { className: "icon-plus" }), " ", "
+			 * Yeni Şablon Ekle" ),
+			 */
             _("div", { style: { height: 20 } })
           ),
         detailGrids &&
@@ -4269,19 +4618,19 @@ class XMainGrid extends GridCommon {
       );
     }
     /**
-     * @description
-     * A function to search globally
-     * @param {Event} event - event from the global search
-     */
+	 * @description A function to search globally
+	 * @param {Event}
+	 *            event - event from the global search
+	 */
     this.onGlobalSearch = event =>
       this.loadData(true, {
         xsearch: event && event.target ? event.target.value : event
       });
     iwb.onGlobalSearch2 = this.onGlobalSearch;
     /**
-     * @description
-     * Is a function to toggle search form from the XMainGrid component and animata iconMagnifier
-     */
+	 * @description Is a function to toggle search form from the XMainGrid
+	 *              component and animata iconMagnifier
+	 */
     this.toggleSearch = () => {
       var searchFormDOM = document.getElementById("sf-" + this.props.id);
       if (searchFormDOM) {
@@ -4295,9 +4644,8 @@ class XMainGrid extends GridCommon {
       }
     };
     /**
-     * @description
-     * A function to open EXPORT menu in XModal
-     */
+	 * @description A function to open EXPORT menu in XModal
+	 */
     this.openBI = () => {
       let { props } = this;
       let { columnExtensions, order } = this.state;
@@ -4380,7 +4728,7 @@ class XMainGrid extends GridCommon {
                   ? "1200&xtable_id=" + props.crudTableId
                   : "2395&xquery_id=" + props.queryId),
               target: "_blank",
-              action: true /*, className:'list-group-item-danger2'*/
+              action: true /* , className:'list-group-item-danger2' */
             },
             _("i", { className: "float-right text-primary fa fa-th" }),
             " ",
@@ -4406,13 +4754,18 @@ class XMainGrid extends GridCommon {
       });
     };
     /**
-     * @description
-     * A function to render Details under Muster's row
-     * @param {Array} tempDetailGrids[] - array of detail grids conf
-     * @param {Object} tempDetailGrids[].grid - detail grids props
-     * @param {Object} tempDetailGrids[].params - master detail connection Master primaty key name {xoffer_id: "offer_id"}
-     * @param {Object} tempDetailGrids[].pk - Master detail connection Detail primaty key name {toffer_detail_id: "offer_detail_id"}
-     */
+	 * @description A function to render Details under Muster's row
+	 * @param {Array}
+	 *            tempDetailGrids[] - array of detail grids conf
+	 * @param {Object}
+	 *            tempDetailGrids[].grid - detail grids props
+	 * @param {Object}
+	 *            tempDetailGrids[].params - master detail connection Master
+	 *            primaty key name {xoffer_id: "offer_id"}
+	 * @param {Object}
+	 *            tempDetailGrids[].pk - Master detail connection Detail primaty
+	 *            key name {toffer_detail_id: "offer_detail_id"}
+	 */
     this.showDetail2 = tempDetailGrids => {
       var selfie = this;
       return row => {
@@ -4523,10 +4876,13 @@ class XMainGrid extends GridCommon {
                         }
                       })
                       /**
-                       * other inputs will be added when there will be need
-                       */
-                      // _('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},
-                      // 	_('i',{ className: "icon-arrow-up", style:{marginRight: '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
+						 * other inputs will be added when there will be need
+						 */
+                      // _('span',{className: "float-right",
+						// style:{marginTop:'-23px', marginRight:'15px'}},
+                      // _('i',{ className: "icon-arrow-up",
+						// style:{marginRight: '12px'}}),' ',_('i',{ className:
+						// "icon-close"}),' ')
                     ),
                     _(XGrid, {
                       responsive: true,
@@ -4539,9 +4895,9 @@ class XMainGrid extends GridCommon {
                     })
                   )
                 )
-              ); //push end
-            } //if end
-          } //for end
+              ); // push end
+            } // if end
+          } // for end
           return (
             rowSDetailGrids.length > 0 &&
             _("ul", {
@@ -4554,10 +4910,12 @@ class XMainGrid extends GridCommon {
       };
     };
     /**
-     * @overloading
-     * @param {Boolean} force - Get up to data data
-     * @param {object} params -[{xsearch:'searchValue'}] Params from Global Search
-     */
+	 * @overloading
+	 * @param {Boolean}
+	 *            force - Get up to data data
+	 * @param {object}
+	 *            params -[{xsearch:'searchValue'}] Params from Global Search
+	 */
     this.loadData = (force, params = {}) => {
       const queryString = this.queryString();
       if (!force && queryString === this.lastQuery) {
@@ -4668,25 +5026,25 @@ class XMainGrid extends GridCommon {
         !pageSize &&
         rows.length > 1 &&
         _(_dxrg.IntegratedFiltering, null),
-      /**state of the grouping */
+      /** state of the grouping */
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
         _(_dxrg.GroupingState, null),
-      /** ability to group like a tree*/
+      /** ability to group like a tree */
 
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
         _(_dxrg.IntegratedGrouping, null),
-      /**sorting wii be enabled when pageSize>0 and  row has more than one data */
+      /** sorting wii be enabled when pageSize>0 and row has more than one data */
       !_disableIntegratedSorting &&
         !pageSize &&
         rows.length > 1 &&
         _(_dxrg.IntegratedSorting, null),
       /** row detail state */
       showDetail ? _(_dxrg.RowDetailState, null) : null,
-      /**state paging */
+      /** state paging */
       rows.length > iwb.detailPageSize || pageSize > 1
         ? _(
             _dxrg.PagingState,
@@ -4696,13 +5054,13 @@ class XMainGrid extends GridCommon {
           )
         : null,
         multiselect && _(_dxrg.IntegratedSelection, null),
-      /** For remote paging*/
+      /** For remote paging */
       pageSize > 1 &&
         rows.length > 1 &&
         _(_dxrg.CustomPaging, { totalCount: totalCount }),
-      /**enable group drag drop */
+      /** enable group drag drop */
       _(_dxgrb.DragDropProvider, null),
-      /**ui table */
+      /** ui table */
       _(_dxgrb.Table, { columnExtensions, rowComponent }),
       /** multiselect */
       multiselect &&
@@ -4722,17 +5080,17 @@ class XMainGrid extends GridCommon {
             contentComponent: this.showDetail2(detailGrids)
           })
         : null,
-      /**UI show pagining */
+      /** UI show pagining */
       rows.length > iwb.detailPageSize || pageSize > 1
         ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize })
         : null,
-      /**UI table Grouping */
+      /** UI table Grouping */
       !_disableIntegratedGrouping && !pageSize && rows.length > 1
         ? _(_dxgrb.TableGroupRow, null)
         : null,
-      /**top of grit do render some buttons  */
+      /** top of grit do render some buttons */
       !pageSize && rows.length > 1 && _(_dxgrb.Toolbar, null),
-      /**ui search input */
+      /** ui search input */
       !pageSize &&
         rows.length > 1 &&
         !_disableSearchPanel &&
@@ -4829,7 +5187,11 @@ class XMainGrid extends GridCommon {
               prop.key = "Ikey" + index;
               return _(prop.$ || Input, { ...prop, $: undefined });
             }),
-          //					_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
+          // _(Button,{className:'float-right btn-round-shadow
+			// hover-shake',color:'danger',
+			// onClick:this.toggleSearch},_('i',{style:{transition: "transform
+			// .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':'
+			// rotate-90deg')}))
           this.props.gridReport &&
             _(
               Button,
@@ -4839,7 +5201,11 @@ class XMainGrid extends GridCommon {
                 onClick: this.openBI
               },
               _("i", { className: "icon-equalizer" })
-            ) //, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})		)
+            ) // , this.props.globalSearch && _(Input,{type:"text",
+				// className:"float-right form-control w-25",
+				// onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...",
+				// defaultValue:"", style:{marginTop: '-0.355rem',
+				// marginRight:'.4rem'}}) )
         ),
         grid
       )
@@ -4847,10 +5213,8 @@ class XMainGrid extends GridCommon {
   }
 }
 /**
- * @description
- * this component made for render complex ui
- * @example
- * form+grid, grid, form, form+form
+ * @description this component made for render complex ui
+ * @example form+grid, grid, form, form+form
  */
 class XPage extends React.PureComponent {
   constructor(props) {
@@ -4861,10 +5225,10 @@ class XPage extends React.PureComponent {
     this.state = { activeTab: "x" };
     this.tabs = (iwb.tabs[this.props.grid.id])?[...iwb.tabs[this.props.grid.id]]:[{ name: "x", icon:"icon-list", title: "Liste", value: props.grid }];
     /**
-     * @description
-     * a Function to toggle between tabs
-     * @param {Event} event - click event from tab
-     */
+	 * @description a Function to toggle between tabs
+	 * @param {Event}
+	 *            event - click event from tab
+	 */
     this.toggle = event => {
       var activeTab = event.target ? event.target.getAttribute("name") : event;
       if (this.state.activeTab !== activeTab) {
@@ -4895,19 +5259,27 @@ class XPage extends React.PureComponent {
       return stopToFetch;
     };
     /**
-     * @description
-     * A function responsible for opening tab getting component from the server and evaluating it on the page
-     * @param {String} action - ['1-&toffer_id=4'] EditForm satrts 1-* , InsertForm satrts 2-*
-     * @param {String} url - ['showForm?a=1&_fid=3988&twork_position_id=1']
-     * @param {Object} params - a varible wich holds request body params
-     * @param {Object} callAttributes - [{modal:false}] a variable used to pass params to a component which comes from the server
-     */
+	 * @description A function responsible for opening tab getting component
+	 *              from the server and evaluating it on the page
+	 * @param {String}
+	 *            action - ['1-&toffer_id=4'] EditForm satrts 1-* , InsertForm
+	 *            satrts 2-*
+	 * @param {String}
+	 *            url - ['showForm?a=1&_fid=3988&twork_position_id=1']
+	 * @param {Object}
+	 *            params - a varible wich holds request body params
+	 * @param {Object}
+	 *            callAttributes - [{modal:false}] a variable used to pass
+	 *            params to a component which comes from the server
+	 */
     this.openTab = (action, url, params, callAttributes) => {
       if (this.state.activeTab !== action) {
         if (this.isActionInTabList(action)) return;
         fetch(url, {
-            body: JSON.stringify(params || {}), // must match 'Content-Type' header
-            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            body: JSON.stringify(params || {}), // must match 'Content-Type'
+												// header
+            cache: "no-cache", // *default, no-cache, reload, force-cache,
+								// only-if-cached
             credentials: "same-origin", // include, same-origin, *omit
             headers: {
               "content-type": "application/json"
@@ -4933,7 +5305,7 @@ class XPage extends React.PureComponent {
                 var serverComponent = f(callAttributes || {}, this);
                 if (serverComponent) {
                   if (callAttributes && callAttributes.modal) {
-                    //console.log(callAttributes);
+                    // console.log(callAttributes);
                     iwb.showModal({
                       body: serverComponent,
                       size: "lg",
@@ -4969,11 +5341,10 @@ class XPage extends React.PureComponent {
     };
     iwb.openTab = this.openTab;
     /**
-     * @description
-     * A function responsible for closing tab and
-     * delating CurrentTab from the state of Xpage Component
-     * this function will be passed to whenever new tab is opened
-     */
+	 * @description A function responsible for closing tab and delating
+	 *              CurrentTab from the state of Xpage Component this function
+	 *              will be passed to whenever new tab is opened
+	 */
     this.closeTab = (event, forceRelaod = false) => {
       if (this.state.activeTab == "x") return;
       this.tabs = this.tabs && this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
@@ -4984,10 +5355,10 @@ class XPage extends React.PureComponent {
     };
     iwb.closeTab = this.closeTab;
     /**
-     * @description
-     * A function is used to open new FormTab
-     * @param {string} url
-     */
+	 * @description A function is used to open new FormTab
+	 * @param {string}
+	 *            url
+	 */
     this.openForm = (url, callAttributes = {}) => {
       if (url) this.openTab("1-" + Math.random(), url, {}, callAttributes);
       return false;
@@ -5059,17 +5430,24 @@ class XPage extends React.PureComponent {
   }
 }
 /**
- * @description
- * this component is mostly used for render menu page
- * You can set ti as a home page
- * @param {String} props.color - ["primary"] Color class of the card
- * @param {String} props.color2 - ["#2eadd3"] Color of the icon
- * @param {String} props.color3 - Fadein color of the card
- * @param {Object} props.node - MINI MENU data
- * @param {String} props.node.icon - ["icon-heart"] icon class of the menu
- * @param {String} props.node.name - ['Teklif/Talep Listesi'] name of the menu
- * @param {String} props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
- * @param {Boolean} props.node.visited - Visited?
+ * @description this component is mostly used for render menu page You can set
+ *              ti as a home page
+ * @param {String}
+ *            props.color - ["primary"] Color class of the card
+ * @param {String}
+ *            props.color2 - ["#2eadd3"] Color of the icon
+ * @param {String}
+ *            props.color3 - Fadein color of the card
+ * @param {Object}
+ *            props.node - MINI MENU data
+ * @param {String}
+ *            props.node.icon - ["icon-heart"] icon class of the menu
+ * @param {String}
+ *            props.node.name - ['Teklif/Talep Listesi'] name of the menu
+ * @param {String}
+ *            props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
+ * @param {Boolean}
+ *            props.node.visited - Visited?
  */
 class XCardMenu extends React.PureComponent {
   render() {
@@ -5131,14 +5509,19 @@ class XCardMenu extends React.PureComponent {
   }
 }
 /**
- * @description
- * it is used to list opened pages on the main page
- * @param {String} props.color - ['gray-700'] - color class of the Card
- * @param {Boolean} props.fadeOut - Card Animation
- * @param {Object} props.node - MINI MENU data
- * @param {String} props.node.icon - ["icon-heart"] icon class of the menu
- * @param {String} props.node.name - ['Teklif/Talep Listesi'] name of the menu
- * @param {String} props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
+ * @description it is used to list opened pages on the main page
+ * @param {String}
+ *            props.color - ['gray-700'] - color class of the Card
+ * @param {Boolean}
+ *            props.fadeOut - Card Animation
+ * @param {Object}
+ *            props.node - MINI MENU data
+ * @param {String}
+ *            props.node.icon - ["icon-heart"] icon class of the menu
+ * @param {String}
+ *            props.node.name - ['Teklif/Talep Listesi'] name of the menu
+ * @param {String}
+ *            props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
  */
 class XCardMiniMenu extends React.PureComponent {
   render() {
@@ -5178,13 +5561,16 @@ class XCardMiniMenu extends React.PureComponent {
   }
 }
 /**
- * @description
- * used to render left menu
- * it gets data from index.htm file (catche)
- * @param {String} props.path - [/iwb-home"] path of the current route
- * @param {String} props.node.icon - ["icon-heart"] icon class of the menu
- * @param {String} props.node.name - ['Teklif/Talep Listesi'] name of the menu
- * @param {String} props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
+ * @description used to render left menu it gets data from index.htm file
+ *              (catche)
+ * @param {String}
+ *            props.path - [/iwb-home"] path of the current route
+ * @param {String}
+ *            props.node.icon - ["icon-heart"] icon class of the menu
+ * @param {String}
+ *            props.node.name - ['Teklif/Talep Listesi'] name of the menu
+ * @param {String}
+ *            props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
  */
 class XMainNav extends React.PureComponent {
   constructor(props) {
@@ -5306,13 +5692,14 @@ class XMainNav extends React.PureComponent {
   }
 }
 /**
- * @description
- * it renders main part of the application
- * it contains XPage component of XCardMenu
- * role : component like a container
- * @param {Object} props.history - history object from react router
- * @param {Object} props.location - current location object from react router
- * @param {Object} props.match - same with location object from react router
+ * @description it renders main part of the application it contains XPage
+ *              component of XCardMenu role : component like a container
+ * @param {Object}
+ *            props.history - history object from react router
+ * @param {Object}
+ *            props.location - current location object from react router
+ * @param {Object}
+ *            props.match - same with location object from react router
  */
 class XMainPanel extends React.PureComponent {
   constructor(props) {
@@ -5320,14 +5707,14 @@ class XMainPanel extends React.PureComponent {
     super(props);
     this.state = { templateID: -1 };
     /**
-     * @description
-     * A function to load page from the server
-     */
+	 * @description A function to load page from the server
+	 */
     this.loadPage = () => {
       var templateID = this.templateID;
       if (!iwb["t-" + templateID]) {
         fetch("showPage?_tid=" + templateID, {
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          cache: "no-cache", // *default, no-cache, reload, force-cache,
+								// only-if-cached
           credentials: "same-origin", // include, same-origin, *omit
           headers: {
             "content-type": "application/json"
@@ -5446,8 +5833,7 @@ class XMainPanel extends React.PureComponent {
   }
 }
 /**
- * @description
- * Loading Component
+ * @description Loading Component
  */
 class XLoading extends React.Component {
   render() {
@@ -5459,18 +5845,19 @@ class XLoading extends React.Component {
   }
 }
 /**
- * @description
- * All the Forms will extend from this component
- * so all the props will come from the server side
+ * @description All the Forms will extend from this component so all the props
+ *              will come from the server side
  */
 class XForm extends React.Component {
   constructor(props) {
     super(props);
-    //methods
+    // methods
     /**
-     * sets the state with value of input
-     * @param {event} param0
-     */
+	 * sets the state with value of input
+	 * 
+	 * @param {event}
+	 *            param0
+	 */
     this.onChange = ({ target }) => {
       var { values } = this.state;
       if (target) {
@@ -5480,10 +5867,11 @@ class XForm extends React.Component {
       }
     };
     /**
-     * sets state for combo change
-     * else sets oprions of it after the request
-     * @param {String} inputName
-     */
+	 * sets state for combo change else sets oprions of it after the request
+	 * 
+	 * @param {String}
+	 *            inputName
+	 */
     this.onComboChange = inputName => {
       var self = this;
       return selectedOption => {
@@ -5491,7 +5879,7 @@ class XForm extends React.Component {
         var slectedOption_Id = selectedOption && selectedOption.id;
         values[inputName] = slectedOption_Id;
         var triggers = self.triggerz4ComboRemotes;
-        //used for remote @depricated
+        // used for remote @depricated
         if (triggers[inputName]) {
           triggers[inputName].map(trigger => {
             var nv = trigger.f(slectedOption_Id, null, values);
@@ -5515,9 +5903,11 @@ class XForm extends React.Component {
       };
     };
     /**
-     * sets state when low combo is entered
-     * @param {String} inputName
-     */
+	 * sets state when low combo is entered
+	 * 
+	 * @param {String}
+	 *            inputName
+	 */
     this.onLovComboChange = inputName => {
       var self = this;
       return selectedOptions => {
@@ -5533,9 +5923,11 @@ class XForm extends React.Component {
       };
     };
     /**
-     * sets state when number entered
-     * @param {String} dsc
-     */
+	 * sets state when number entered
+	 * 
+	 * @param {String}
+	 *            dsc
+	 */
     this.onNumberChange = inputName => {
       var self = this;
       return inputEvent => {
@@ -5546,13 +5938,18 @@ class XForm extends React.Component {
       };
     };
     /**
-     * sends post to the server
-     * @param {Object} cfg
-     */
+	 * sends post to the server
+	 * 
+	 * @param {Object}
+	 *            cfg
+	 */
     this.submit = cfg => {
       var values = { ...this.state.values };
       if (this.componentWillPost) {
-        /** componentWillPostResult = true || fase || {field_name : 'custom value'} */
+        /**
+		 * componentWillPostResult = true || fase || {field_name : 'custom
+		 * value'}
+		 */
         var componentWillPostResult = this.componentWillPost(values, cfg || {});
         if (!componentWillPostResult) return false;
         values = { ...values, ...componentWillPostResult };
@@ -5655,25 +6052,30 @@ class XForm extends React.Component {
       });
     };
     /**
-     * used to make form active tab and visible on the page
-     * @param {object} tab
-     */
+	 * used to make form active tab and visible on the page
+	 * 
+	 * @param {object}
+	 *            tab
+	 */
     this.toggleTab = tab => {
       if (this.state.activeTab !== tab) {
         this.setState({ activeTab: tab });
       }
     };
     /**
-     * returns form data from state
-     */
+	 * returns form data from state
+	 */
     this.getValues = () => {
       return { ...this.state.values };
     };
     /**
-     * used for date inputs
-     * @param {String} inputName
-     * @param {Boolean} isItDTTM
-     */
+	 * used for date inputs
+	 * 
+	 * @param {String}
+	 *            inputName
+	 * @param {Boolean}
+	 *            isItDTTM
+	 */
     this.onDateChange = (inputName, isItDTTM) => {
       var self = this;
       return selectedDate => {

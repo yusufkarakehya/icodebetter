@@ -2092,6 +2092,43 @@ class XTabForm extends React.PureComponent {
           })
       });
     };
+    this.approvalAction = action => {
+    	return (event) => {
+          event && event.preventDefault && event.preventDefault();
+          let { formId, pk } = this.props.cfg;
+          let pkz = "";
+          for (let key in pk) {
+            pkz += "&" + key + "=" + pk[key];
+          }
+          let url = "";
+          switch(action){
+          case	901://start approval
+        	  url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
+              yesNoDialog({
+                text: "Are you Sure to Start Approval?",
+                callback: success =>
+                  success &&
+                  iwb.request({
+                    url,params:{_adsc:'start approval'},
+                    successCallback: () => this.props.parentCt.closeTab(event, success)
+                  })
+              });
+              break;
+          default:
+        	  var p = prompt("Please enter comment", ["","Approve","Return","Reject"][action]);
+          	  if(p){
+	              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
+                  iwb.request({
+	                    url,params:{_adsc:p,_avno:this.props.cfg.approval.versionNo},
+	                    successCallback: () => this.props.parentCt.closeTab(event, true)
+	                    
+                  });
+          	  }
+          break;
+          }
+
+        };
+      }
   }
   render() {
     let {
@@ -2103,7 +2140,7 @@ class XTabForm extends React.PureComponent {
       state: { viewMode },
       //methods
       onSubmit,
-      deleteRecord,
+      deleteRecord,startApproval, approvalAction,
       toggleViewMode
     } = this;
 
@@ -2187,6 +2224,79 @@ class XTabForm extends React.PureComponent {
             Button,
             { className: "float-right btn-round-shadow mr-1", color: "light" },
             _("i", { className: "icon-paper-clip" })
+          )
+          , _('br'),
+          this.props.cfg.approval && this.props.cfg.approval.stepDsc &&
+          _(
+            'span',
+            {style:{fontSize:"1rem"}
+            },
+            " step ",
+            _("b",null,this.props.cfg.approval.stepDsc)
+            ,"    "
+          ),
+          this.props.cfg.approval && this.props.cfg.approval.wait4start &&
+          _(
+            Button,
+            {
+              color: "success",
+              className: "btn-form-edit",
+              onClick: approvalAction(901)
+            },
+            _("i", { className: "icon-support" }),
+            " ",
+            getLocMsg('start_approval')
+          ),
+          this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          _(
+            Button,
+            {
+              color: "success",
+              className: "btn-form-edit",
+              onClick: approvalAction(1) //approve
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('approve')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.returnFlag &&
+          _(
+            Button,
+            {
+              color: "warning",
+              className: "btn-form-edit",
+              onClick: approvalAction(2) //return
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('return')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          _(
+            Button,
+            {
+              color: "secondary",
+              className: "btn-form-edit",
+              onClick: approvalAction(3) //reject
+            },
+            _("i", { className: "icon-shield" }),
+            " ",
+            getLocMsg('reject')
+          ),
+          " "
+          ,this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
+          _(
+            Button,
+            {
+              color: "light",
+              className: "btn-form-edit",
+              onClick: iwb.approvalLogs(this.props.cfg.approval.approvalRecordId) //reject
+            },
+            _("i", { className: "icon-eye" }),
+            " ",
+            getLocMsg('logs')
           )
         ),
         _("hr"),
