@@ -1605,7 +1605,14 @@ public class UserUtil {
 			session.setAttribute(scdKey, scd);
 			return scd;
 		}
-		return (Map<String, Object>)session.getAttribute(scdKey);
+		
+		Map<String, Object> scd = (Map<String, Object>)session.getAttribute(scdKey);
+		if(!GenericUtil.safeEquals(pid, scd.get("projectId"))) {
+			throw new IWBException("session","No Session",0,null, "No valid session", null);
+		}
+		
+		
+		return scd;
 	}
 	public static String generateTokenFromScd(Map<String, Object> scd, int integrationObjectId, String ip, int validTimeMillis) {
 		String qq = ""+(System.currentTimeMillis()+validTimeMillis)+"-"+scd.get("customizationId")+"-"+scd.get("userId")+"-"+scd.get("roleId")+"-"+scd.get("userRoleId")+"-"+scd.get("userTip")+"-"+scd.get("locale")+"-"+integrationObjectId+"-"+ip;

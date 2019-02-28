@@ -96,9 +96,9 @@ public class AppController implements InitializingBean {
 	private	ViewAdapter	react16;
 	private	ViewAdapter	vue2;
 	private ViewMobileAdapter2 f7;
-	private static String manPicPath = null;
-	private static String womanPicPath = null;
-	private static String brokenPicPath = null;
+	public static String manPicPath = null;
+	public static String womanPicPath = null;
+	public static String brokenPicPath = null;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
