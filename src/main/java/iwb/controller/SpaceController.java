@@ -123,7 +123,7 @@ public class SpaceController implements InitializingBean {
 		return getViewAdapter(scd, request, ext3_4);
 	}
 
-	@RequestMapping("/dyn-res/*")
+	@RequestMapping("/*/dyn-res/*")
 	public ModelAndView hndDynResource(
 			HttpServletRequest request,
 			HttpServletResponse response)
@@ -672,8 +672,8 @@ public class SpaceController implements InitializingBean {
 		response.getWriter().close();
 
 	}
-
-	@RequestMapping("/*/ajaxFeed")
+/*
+	@RequestMapping("/ * /ajaxFeed")
 	public void hndAjaxFeed(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxFeed");
@@ -693,11 +693,11 @@ public class SpaceController implements InitializingBean {
 		response.getWriter().close();
 		if (FrameworkSetting.liveSyncRecord) {
 			UserUtil.getTableGridFormCellCachedKeys((String) scd.get("projectId"),
-					/* mainTable.getTableId() */ 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
-					request.getParameter(".w"), request.getParameter(".t"), /* grdOrFcId */ 919, null, true);
+					 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
+					request.getParameter(".w"), request.getParameter(".t"),  919, null, true);
 		}
 	}
-	
+	*/
 
 	@RequestMapping("/*/ajaxTsPortletData")
 	public void hndAjaxTsPortletData(HttpServletRequest request, HttpServletResponse response)
@@ -1215,7 +1215,7 @@ public class SpaceController implements InitializingBean {
 
 
 
-	@RequestMapping(value = "/multiupload.form", method = RequestMethod.POST)
+	@RequestMapping(value = "/*/multiupload.form", method = RequestMethod.POST)
 	@ResponseBody
 	public String multiFileUpload(@RequestParam("files") MultipartFile[] files,
 			@RequestParam("customizationId") Integer customizationId, @RequestParam("userId") Integer userId,
@@ -1298,7 +1298,7 @@ public class SpaceController implements InitializingBean {
 		return "{\"success\": false }";
 	}
 
-	@RequestMapping(value = "/upload.form", method = RequestMethod.POST)
+	@RequestMapping(value = "/*/upload.form", method = RequestMethod.POST)
 	@ResponseBody
 	public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("table_pk") String table_pk,
 			@RequestParam("table_id") Integer table_id, @RequestParam("profilePictureFlag") Integer profilePictureFlag,
@@ -1319,15 +1319,11 @@ public class SpaceController implements InitializingBean {
 		long fileId = new Date().getTime();
 		int totalBytesRead = (int) file.getSize();
 
-		W5FileAttachment fa = new W5FileAttachment();
+		W5FileAttachment fa = new W5FileAttachment(scd);
 		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;
 		try {
-			// fa.setFileComment(bean.getFile_comment());
-			fa.setCustomizationId(GenericUtil.uInt(scd.get("customizationId")));
-			// fa.setFileDisciplineId(GenericUtil.uInteger(bean.getFile_discipline_id()));
-			// fa.setFileTypeId(GenericUtil.uInteger(bean.getFile_type_id()));
 			if (ppicture) {
 				int maxFileSize = FrameworkCache.getAppSettingIntValue(0, "profile_picture_max_file_size", 51200);
 				if (maxFileSize < totalBytesRead)
@@ -1347,7 +1343,6 @@ public class SpaceController implements InitializingBean {
 			fa.setTableId(table_id);
 			fa.setTablePk(table_pk);
 			fa.setTabOrder((short) 1);
-			fa.setUploadUserId(GenericUtil.uInt(scd.get("userId")));
 			fa.setFileSize(totalBytesRead);
 			fa.setActiveFlag((short) 1);
 			try {

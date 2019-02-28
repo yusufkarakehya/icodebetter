@@ -1302,15 +1302,11 @@ public class PreviewController implements InitializingBean {
 		long fileId = new Date().getTime();
 		int totalBytesRead = (int) file.getSize();
 
-		W5FileAttachment fa = new W5FileAttachment();
+		W5FileAttachment fa = new W5FileAttachment(scd);
 		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;
 		try {
-			// fa.setFileComment(bean.getFile_comment());
-			fa.setCustomizationId(GenericUtil.uInt(scd.get("customizationId")));
-			// fa.setFileDisciplineId(GenericUtil.uInteger(bean.getFile_discipline_id()));
-			// fa.setFileTypeId(GenericUtil.uInteger(bean.getFile_type_id()));
 			if (ppicture) {
 				int maxFileSize = FrameworkCache.getAppSettingIntValue(0, "profile_picture_max_file_size", 51200);
 				if (maxFileSize < totalBytesRead)
@@ -1330,7 +1326,6 @@ public class PreviewController implements InitializingBean {
 			fa.setTableId(table_id);
 			fa.setTablePk(table_pk);
 			fa.setTabOrder((short) 1);
-			fa.setUploadUserId(GenericUtil.uInt(scd.get("userId")));
 			fa.setFileSize(totalBytesRead);
 			fa.setActiveFlag((short) 1);
 			try {

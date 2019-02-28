@@ -1904,7 +1904,7 @@ class XSingleUploadComponent extends React.Component {
     formData.append('table_id', this.props.cfg.crudTableId)
     formData.append('file', this.state.file)
     formData.append('profilePictureFlag', this.props.profilePictureFlag || 0)
-    fetch('/app/upload.form', {
+    fetch('upload.form', {
         method: 'POST',
         body: formData,
         cache: 'no-cache',
