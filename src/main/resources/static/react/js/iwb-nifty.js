@@ -2179,6 +2179,35 @@ class XTabForm extends React.PureComponent {
       } else alert("this.form not set");
       return false;
     };
+    this.onContSubmit = event => {
+        event && event.preventDefault && event.preventDefault();
+        var selfie = this;
+        if (this.form) {
+          this.form.submit({
+            callback: (json, cfg) => {
+              var url = "showForm";
+              if (json.outs) {
+                url += "?a=1&_fid=" + json.formId;
+                for (var key in json.outs)
+                  url += "&t" + key + "=" + json.outs[key];
+              } else {
+                url += cfg.url.substring("ajaxPostForm".length);
+              }
+              console.log(selfie.props);
+              selfie.props.callAttributes.callback &&
+              selfie.props.callAttributes.callback(json, cfg);
+              toastr.success(
+                "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
+                  url +
+                  "')\"></a>",
+                "Saved Successfully",
+                { timeOut: 3000 }
+              );
+            }
+          });
+        } else alert("this.form not set");
+        return false;
+      };
     /**
 	 * a function to delete current editing record
 	 * 
@@ -2251,7 +2280,7 @@ class XTabForm extends React.PureComponent {
       },
       state: { viewMode },
       // methods
-      onSubmit,
+      onSubmit, onContSubmit, 
       deleteRecord, approvalAction,
       toggleViewMode
     } = this;
@@ -2415,7 +2444,19 @@ class XTabForm extends React.PureComponent {
             "Save",
             " "
           ),
-          " ",
+          " ",this.props.cfg.contFlag && _(
+                  Button,
+                  {
+                    type: "submit",
+                    color: "secondary",
+                    className: "btn-form mr-1",
+                    onClick: onContSubmit
+                  },
+                  " ",
+                  "Save & Continue",
+                  " "
+                ),
+                " ",
           _(
             Button,
             {

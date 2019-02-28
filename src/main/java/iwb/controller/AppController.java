@@ -652,7 +652,7 @@ public class AppController implements InitializingBean {
 		boolean smsFlag = GenericUtil.uInt(result.getResultMap().get("smsFlag")) != 0;
 		int roleCount = GenericUtil.uInt(result.getResultMap().get("roleCount"));
 		String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),
-				FrameworkCache.getAppSettingStringValue(0, "locale"));
+				FrameworkCache.getAppSettingStringValue(0, "locale", "en"));
 		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)
 			errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
@@ -1316,7 +1316,7 @@ public class AppController implements InitializingBean {
 		scd.put("customizationId", cusId);
 		scd.put("path", "");
 		Locale blocale = request.getLocale();
-		scd.put("locale", "en");
+		scd.put("locale", FrameworkCache.getAppSettingStringValue(0, "locale", "en"));
 
 		int templateId = 1; // Login Page Template
 		if (FrameworkCache.getAppSettingIntValue(0, "mobile_flag") != 0) {
