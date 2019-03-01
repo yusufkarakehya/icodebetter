@@ -28,6 +28,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -121,7 +123,7 @@ public class SpaceController implements InitializingBean {
 		return getViewAdapter(scd, request, ext3_4);
 	}
 
-	@RequestMapping("/dyn-res/*")
+	@RequestMapping("/*/dyn-res/*")
 	public ModelAndView hndDynResource(
 			HttpServletRequest request,
 			HttpServletResponse response)
@@ -670,8 +672,8 @@ public class SpaceController implements InitializingBean {
 		response.getWriter().close();
 
 	}
-
-	@RequestMapping("/*/ajaxFeed")
+/*
+	@RequestMapping("/ * /ajaxFeed")
 	public void hndAjaxFeed(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxFeed");
@@ -691,11 +693,11 @@ public class SpaceController implements InitializingBean {
 		response.getWriter().close();
 		if (FrameworkSetting.liveSyncRecord) {
 			UserUtil.getTableGridFormCellCachedKeys((String) scd.get("projectId"),
-					/* mainTable.getTableId() */ 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
-					request.getParameter(".w"), request.getParameter(".t"), /* grdOrFcId */ 919, null, true);
+					 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
+					request.getParameter(".w"), request.getParameter(".t"),  919, null, true);
 		}
 	}
-	
+	*/
 
 	@RequestMapping("/*/ajaxTsPortletData")
 	public void hndAjaxTsPortletData(HttpServletRequest request, HttpServletResponse response)
@@ -1084,9 +1086,10 @@ public class SpaceController implements InitializingBean {
 		Map<String, Object> scd = null;
 		if (fileAttachmentId == 0) {
 			scd = UserUtil.getScd4PAppSpace(request);
-			String spi = request.getPathInfo();
-			if (spi.startsWith("/sf/pic") && spi.contains(".")) {
-				spi = spi.substring(7);
+			String spi = request.getRequestURI();
+			String startStr = "/space/" + scd.get("projectId") + "/sf/pic";
+			if (spi!=null && spi.startsWith(startStr) && spi.contains(".")) {
+				spi = spi.substring(startStr.length());
 				spi = spi.substring(0, spi.indexOf("."));
 				fileAttachmentId = -GenericUtil.uInt(spi);
 			}
@@ -1095,32 +1098,28 @@ public class SpaceController implements InitializingBean {
 		}
 		InputStream stream = null;
 		String filePath = null;
-		if (fileAttachmentId == -1000) { // default company logo
-			filePath = FrameworkCache.getAppSettingStringValue(scd, "file_local_path") + "/0/jasper/iworkbetter.png";
-			response.setContentType("image/png");
-		} else {
-			W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
-			if (fa == null) { // bulunamamis TODO
-				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
-						"Wrong Id: " + fileAttachmentId, null);
-			}
 
-			if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // bayan
-																					// veya
-																					// erkek
-																					// resmi
-				filePath = request.getRealPath("/images/custom/ppicture/default_"
-						+ (fa.getFileAttachmentId() == 2 ? "wo" : "") + "man_mini.png");
-			} else {
-				if (scd == null)scd = UserUtil.getScd4PAppSpace(request);
-				String customizationId = String
-						.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-				String file_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
-				filePath = file_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
-			}
-			if (request.getParameter("_ct") == null)
-				response.setContentType("image/jpeg");
+		W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
+		if (fa == null) { // bulunamamis TODO
+			throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
+					"Wrong Id: " + fileAttachmentId, null);
 		}
+
+		if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // bayan
+																				// veya
+																				// erkek
+																				// resmi
+			filePath = fa.getFileAttachmentId() == 2 ? AppController.womanPicPath : AppController.manPicPath;
+		} else {
+			if (scd == null)scd = UserUtil.getScd4PAppSpace(request);
+			String customizationId = String
+					.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
+			String file_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
+			filePath = file_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
+		}
+		if (request.getParameter("_ct") == null)
+			response.setContentType("image/jpeg");
+
 		ServletOutputStream out = response.getOutputStream();
 		try {
 			/*
@@ -1134,7 +1133,7 @@ public class SpaceController implements InitializingBean {
 				try {
 					stream = new FileInputStream(filePath);
 				} catch (Exception e0) {
-					stream = new FileInputStream(request.getRealPath("/images/custom/wv.png"));
+					stream = new FileInputStream(AppController.brokenPicPath);
 				}
 
 			// write the file to the file specified
@@ -1144,14 +1143,12 @@ public class SpaceController implements InitializingBean {
 				out.write(buffer, 0, bytesRead);
 			}
 		} catch (Exception e) {
-			if (FrameworkSetting.debug)
-				e.printStackTrace();
+//			if (FrameworkSetting.debug)e.printStackTrace();
 			// bus.logException(e.getMessage(),GenericUtil.uInt(scd.get("customizationId")),GenericUtil.uInt(scd.get("userRoleId")));
-			throw new IWBException("generic", "File Attacment", fileAttachmentId, "Unknown Exception",
-					e.getMessage(), e.getCause());
+			throw new IWBException("generic", "File Attachment", fileAttachmentId, "Unknown Exception",e.getMessage(), e);
 		} finally {
-			out.close();
-			stream.close();
+			if(out!=null)out.close();
+			if(stream!=null)stream.close();
 		}
 	}
 
@@ -1218,7 +1215,7 @@ public class SpaceController implements InitializingBean {
 
 
 
-	@RequestMapping(value = "/multiupload.form", method = RequestMethod.POST)
+	@RequestMapping(value = "/*/multiupload.form", method = RequestMethod.POST)
 	@ResponseBody
 	public String multiFileUpload(@RequestParam("files") MultipartFile[] files,
 			@RequestParam("customizationId") Integer customizationId, @RequestParam("userId") Integer userId,
@@ -1301,7 +1298,7 @@ public class SpaceController implements InitializingBean {
 		return "{\"success\": false }";
 	}
 
-	@RequestMapping(value = "/upload.form", method = RequestMethod.POST)
+	@RequestMapping(value = "/*/upload.form", method = RequestMethod.POST)
 	@ResponseBody
 	public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("table_pk") String table_pk,
 			@RequestParam("table_id") Integer table_id, @RequestParam("profilePictureFlag") Integer profilePictureFlag,
@@ -1322,15 +1319,11 @@ public class SpaceController implements InitializingBean {
 		long fileId = new Date().getTime();
 		int totalBytesRead = (int) file.getSize();
 
-		W5FileAttachment fa = new W5FileAttachment();
+		W5FileAttachment fa = new W5FileAttachment(scd);
 		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;
 		try {
-			// fa.setFileComment(bean.getFile_comment());
-			fa.setCustomizationId(GenericUtil.uInt(scd.get("customizationId")));
-			// fa.setFileDisciplineId(GenericUtil.uInteger(bean.getFile_discipline_id()));
-			// fa.setFileTypeId(GenericUtil.uInteger(bean.getFile_type_id()));
 			if (ppicture) {
 				int maxFileSize = FrameworkCache.getAppSettingIntValue(0, "profile_picture_max_file_size", 51200);
 				if (maxFileSize < totalBytesRead)
@@ -1350,7 +1343,6 @@ public class SpaceController implements InitializingBean {
 			fa.setTableId(table_id);
 			fa.setTablePk(table_pk);
 			fa.setTabOrder((short) 1);
-			fa.setUploadUserId(GenericUtil.uInt(scd.get("userId")));
 			fa.setFileSize(totalBytesRead);
 			fa.setActiveFlag((short) 1);
 			try {

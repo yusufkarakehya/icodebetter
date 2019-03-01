@@ -1064,9 +1064,10 @@ public class PreviewController implements InitializingBean {
 		if (fileAttachmentId == 0) {
 			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 			String spi = request.getRequestURI();
-			if (spi.contains("/sf/pic") && spi.contains(".")) {
-				spi = spi.substring(spi.indexOf("/sf/pic")+7);
-				spi = spi.substring(0,spi.indexOf("."));
+			String startStr = "/preview/" + scd.get("projectId") + "/sf/pic";
+			if (spi!=null && spi.startsWith(startStr) && spi.contains(".")) {
+				spi = spi.substring(startStr.length());
+				spi = spi.substring(0, spi.indexOf("."));
 				fileAttachmentId = -GenericUtil.uInt(spi);
 			}
 			if (fileAttachmentId == 0)
@@ -1074,32 +1075,27 @@ public class PreviewController implements InitializingBean {
 		}
 		InputStream stream = null;
 		String filePath = null;
-		if (fileAttachmentId == -1000) { // default company logo
-			filePath = FrameworkCache.getAppSettingStringValue(scd, "file_local_path") + "/0/jasper/iworkbetter.png";
-			response.setContentType("image/png");
-		} else {
-			W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
-			if (fa == null) { // bulunamamis TODO
-				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
-						"Wrong Id: " + fileAttachmentId, null);
-			}
 
-			if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // bayan
-																					// veya
-																					// erkek
-																					// resmi
-				filePath = request.getRealPath("/images/custom/ppicture/default_"
-						+ (fa.getFileAttachmentId() == 2 ? "wo" : "") + "man_mini.png");
-			} else {
-				if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-				String customizationId = String
-						.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-				String file_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
-				filePath = file_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
-			}
-			if (request.getParameter("_ct") == null)
-				response.setContentType("image/jpeg");
+		W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
+		if (fa == null) { // bulunamamis TODO
+			throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
+					"Wrong Id: " + fileAttachmentId, null);
 		}
+
+		if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // bayan
+																				// veya
+																				// erkek
+																				// resmi
+			filePath = fa.getFileAttachmentId() == 2 ? AppController.womanPicPath : AppController.manPicPath;
+		} else {
+			if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			String customizationId = String
+					.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
+			String file_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
+			filePath = file_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
+		}
+		if (request.getParameter("_ct") == null)
+			response.setContentType("image/jpeg");
 		ServletOutputStream out = response.getOutputStream();
 		try {
 			/*
@@ -1113,7 +1109,7 @@ public class PreviewController implements InitializingBean {
 				try {
 					stream = new FileInputStream(filePath);
 				} catch (Exception e0) {
-					stream = new FileInputStream(request.getRealPath("/images/custom/wv.png"));
+					stream = new FileInputStream(AppController.brokenPicPath);
 				}
 
 			// write the file to the file specified
@@ -1306,15 +1302,11 @@ public class PreviewController implements InitializingBean {
 		long fileId = new Date().getTime();
 		int totalBytesRead = (int) file.getSize();
 
-		W5FileAttachment fa = new W5FileAttachment();
+		W5FileAttachment fa = new W5FileAttachment(scd);
 		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;
 		try {
-			// fa.setFileComment(bean.getFile_comment());
-			fa.setCustomizationId(GenericUtil.uInt(scd.get("customizationId")));
-			// fa.setFileDisciplineId(GenericUtil.uInteger(bean.getFile_discipline_id()));
-			// fa.setFileTypeId(GenericUtil.uInteger(bean.getFile_type_id()));
 			if (ppicture) {
 				int maxFileSize = FrameworkCache.getAppSettingIntValue(0, "profile_picture_max_file_size", 51200);
 				if (maxFileSize < totalBytesRead)
@@ -1334,7 +1326,6 @@ public class PreviewController implements InitializingBean {
 			fa.setTableId(table_id);
 			fa.setTablePk(table_pk);
 			fa.setTabOrder((short) 1);
-			fa.setUploadUserId(GenericUtil.uInt(scd.get("userId")));
 			fa.setFileSize(totalBytesRead);
 			fa.setActiveFlag((short) 1);
 			try {

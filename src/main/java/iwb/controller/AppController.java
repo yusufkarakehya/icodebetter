@@ -96,9 +96,9 @@ public class AppController implements InitializingBean {
 	private	ViewAdapter	react16;
 	private	ViewAdapter	vue2;
 	private ViewMobileAdapter2 f7;
-	private static String manPicPath = null;
-	private static String womanPicPath = null;
-	private static String brokenPicPath = null;
+	public static String manPicPath = null;
+	public static String womanPicPath = null;
+	public static String brokenPicPath = null;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -652,7 +652,7 @@ public class AppController implements InitializingBean {
 		boolean smsFlag = GenericUtil.uInt(result.getResultMap().get("smsFlag")) != 0;
 		int roleCount = GenericUtil.uInt(result.getResultMap().get("roleCount"));
 		String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),
-				FrameworkCache.getAppSettingStringValue(0, "locale"));
+				FrameworkCache.getAppSettingStringValue(0, "locale", "en"));
 		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)
 			errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
@@ -1316,7 +1316,7 @@ public class AppController implements InitializingBean {
 		scd.put("customizationId", cusId);
 		scd.put("path", "");
 		Locale blocale = request.getLocale();
-		scd.put("locale", "en");
+		scd.put("locale", FrameworkCache.getAppSettingStringValue(0, "locale", "en"));
 
 		int templateId = 1; // Login Page Template
 		if (FrameworkCache.getAppSettingIntValue(0, "mobile_flag") != 0) {
@@ -1882,10 +1882,6 @@ public class AppController implements InitializingBean {
 						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
 				&& profilePictureFlag != null && profilePictureFlag != 0;
 		try {
-			// fa.setFileComment(bean.getFile_comment());
-			fa.setCustomizationId(GenericUtil.uInt(scd.get("customizationId")));
-			// fa.setFileDisciplineId(GenericUtil.uInteger(bean.getFile_discipline_id()));
-			// fa.setFileTypeId(GenericUtil.uInteger(bean.getFile_type_id()));
 			if (ppicture) {
 				int maxFileSize = FrameworkCache.getAppSettingIntValue(0, "profile_picture_max_file_size", 51200);
 				if (maxFileSize < totalBytesRead)
@@ -1905,7 +1901,6 @@ public class AppController implements InitializingBean {
 			fa.setTableId(table_id);
 			fa.setTablePk(table_pk);
 			fa.setTabOrder((short) 1);
-			fa.setUploadUserId(GenericUtil.uInt(scd.get("userId")));
 			fa.setFileSize(totalBytesRead);
 			fa.setActiveFlag((short) 1);
 			try {
