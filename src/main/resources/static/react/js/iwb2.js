@@ -2150,7 +2150,7 @@ class XTabForm extends React.PureComponent {
             	var cnv = json.conversionPreviews[ri];
             	iwb.openTab(
             	          "2-" + cnv._fid+'-'+cnv._cnvId,
-            	          "showForm?a=2&_fid="+cnv._fid+'&_cnvId='+cnv._cnvId+'&_cnvTblPk'+cnv._cnvTblPk,
+            	          "showForm?a=2&_fid="+cnv._fid+'&_cnvId='+cnv._cnvId+'&_cnvTblPk='+cnv._cnvTblPk,
             	          {},
             	          { modal: false }
             	        );
@@ -2159,7 +2159,7 @@ class XTabForm extends React.PureComponent {
             	var fsm = json.smsMailPreviews[ri];//[{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
             	iwb.openTab(
             	          "2-" + fsm.fsmId+'-'+fsm.tbPk,
-            	          'showForm?a=2&_fid=4903&_cnvId='+cnv._cnvId+'&_cnvTblPk'+cnv._cnvTblPk,
+            	          'showForm?a=2&_fid=5748&table_id='+fsm.tbId+'&table_pk='+fsm.tbPk+'&_fsmId='+fsm.fsmId,
             	          {},
             	          { modal: false }
             	        );

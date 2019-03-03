@@ -2070,6 +2070,7 @@ public class React16 implements ViewAdapter {
 			buf.append("type:'text'");
 		break; // 		
 
+		case	12://html editor
 		case	25://textarea(ozel tanimlama)
 		case	41://codemirror
 		case	11:
