@@ -628,7 +628,7 @@ public class React16 implements ViewAdapter {
 				}
 			}
 			
-			if (formResult.getApprovalRecord() != null) { // Burası Artık Onay Mekanizması başlamış
+			if (formResult.getApprovalRecord() != null && FrameworkCache.getWorkflow(formResult.getScd(), formResult.getApprovalRecord().getApprovalId())!=null) { // Burası Artık Onay Mekanizması başlamış
 				W5Workflow a = FrameworkCache.getWorkflow(formResult.getScd(), formResult.getApprovalRecord().getApprovalId());
 				if (formResult.getApprovalRecord().getApprovalStepId() == 901) {// kendisi start for approval yapacak
 					if ((a.getManualAppUserIds() == null
@@ -1074,6 +1074,10 @@ public class React16 implements ViewAdapter {
 			}
 			s.append("'");
 		}
+		
+		//if(!GenericUtil.isEmpty(formResult.getForm().get_conversionList()))s.append(",_cnvStr:!0");
+		//if(!GenericUtil.isEmpty(formResult.getForm().get_formSmsMailList()))s.append(",_smsStr:!0");
+		
 		s.append("},options:{},activeTab:false}");
 		//\nif(this.componentWillPost)this.componentWillPost=this.componentWillPost.bind(this);
 		Map<String, List<W5FormCell>> pcr = new HashMap();

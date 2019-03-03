@@ -1,5 +1,10 @@
 package iwb.dao.rdbms_impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.hibernate.jdbc.Work;
 import org.redisson.api.RMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -41,6 +47,7 @@ import iwb.domain.db.W5PageObject;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
+import iwb.domain.db.W5QueryFieldCreation;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
@@ -48,10 +55,12 @@ import iwb.domain.db.W5TableEvent;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFieldCalculated;
 import iwb.domain.db.W5TableParam;
+import iwb.domain.db.W5VcsObject;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5Ws;
 import iwb.domain.db.W5WsMethod;
+import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.db.W5WsServerMethodParam;
@@ -66,6 +75,7 @@ import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
+import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
@@ -1860,4 +1870,531 @@ public class MetadataLoaderDAO extends BaseDAO {
 				t.getProjectUuid(), t.getTableId(), dsc);
 	}
 	
+
+	public void organizeQueryFields(final Map<String, Object> scd, final int queryId, final short insertFlag) {
+		W5Project po = FrameworkCache.getProject(scd);
+
+		executeUpdateSQLQuery("set search_path=" + po.getRdbmsSchema());
+		final int userId = (Integer) scd.get("userId");
+		final List<W5QueryFieldCreation> updateList = new ArrayList<W5QueryFieldCreation>();
+		final List<W5QueryFieldCreation> insertList = new ArrayList<W5QueryFieldCreation>();
+
+		for (final W5Query query : (List<W5Query>) find("from W5Query t where t.queryId=? AND t.projectUuid=?", queryId,
+				po.getProjectUuid())) {
+			if (query.getQuerySourceTip() == 1376) {
+				organizeQueryFields4WSMethod(scd, query, insertFlag);
+				continue;
+			} else if (query.getQuerySourceTip() == 2709) {
+				organizeQueryFields4TSMeasurement(scd, query, insertFlag);
+				continue;
+			}
+			final Map<String, W5QueryFieldCreation> existField = new HashMap<String, W5QueryFieldCreation>();
+			final List<Object> sqlParams = new ArrayList();
+			List<W5QueryFieldCreation> existingQueryFields = find(
+					"from W5QueryFieldCreation t where t.queryId=? AND t.projectUuid=?", queryId, po.getProjectUuid());
+			for (W5QueryFieldCreation field : existingQueryFields) {
+				existField.put(field.getDsc().toLowerCase(FrameworkSetting.appLocale), field);
+			}
+
+			StringBuilder sql = new StringBuilder();
+			sql.append("select ").append(query.getSqlSelect());
+			sql.append(" from ").append(query.getSqlFrom());
+			if (query.getSqlWhere() != null && query.getSqlWhere().trim().length() > 0)
+				sql.append(" where ").append(query.getSqlWhere().trim());
+			if (query.getSqlGroupby() != null && query.getSqlGroupby().trim().length() > 0 && query.getQueryTip() != 9) // group
+																														// by
+																														// connect
+																														// olmayacak
+				sql.append(" group by ").append(query.getSqlGroupby().trim());
+			if (query.getSqlPostSelect() != null && query.getSqlPostSelect().trim().length() > 2) {
+				sql = new StringBuilder(sql.length() + 100).append("select z.*,").append(query.getSqlPostSelect())
+						.append(" from (").append(sql).append(") z");
+			}
+			Object[] oz = DBUtil.filterExt4SQL(sql.toString(), scd, null, null);
+			final String sqlStr = ((StringBuilder) oz[0]).toString();
+			if (oz[1] != null)
+				sqlParams.addAll((List) oz[1]);
+			else
+				for (int qi = 0; qi < sqlStr.length(); qi++)
+					if (sqlStr.charAt(qi) == '?')
+						sqlParams.add(null);
+
+			try {
+				getCurrentSession().doWork(new Work() {
+
+					public void execute(Connection conn) throws SQLException {
+						PreparedStatement stmt = null;
+						ResultSet rs = null;
+						stmt = conn.prepareStatement(sqlStr);
+						if (sqlParams.size() > 0)
+							applyParameters(stmt, sqlParams);
+						rs = stmt.executeQuery();
+						ResultSetMetaData meta = rs.getMetaData();
+						Map<String, W5TableField> fieldMap = new HashMap<String, W5TableField>();
+						W5Table t = FrameworkCache.getTable(scd, query.getMainTableId());
+						if (t != null)
+							for (W5TableField f : t.get_tableFieldList()) {
+								fieldMap.put(f.getDsc().toLowerCase(), f);
+							}
+
+						int columnNumber = meta.getColumnCount();
+						for (int i = 1, j = 0; i <= columnNumber; i++) {
+							String columnName = meta.getColumnName(i).toLowerCase(FrameworkSetting.appLocale);
+							if (insertFlag != 0 && existField.get(columnName) == null) { // eger
+																							// daha
+																							// onceden
+																							// boyle
+																							// tanimlanmis
+																							// bir
+																							// field
+																							// yoksa
+								W5QueryFieldCreation field = new W5QueryFieldCreation();
+								field.setDsc(columnName);
+								field.setCustomizationId((Integer) scd.get("customizationId"));
+								if (columnName.equals("insert_user_id") || columnName.equals("version_user_id"))
+									field.setPostProcessTip((short) 53);
+								field.setTabOrder((short) (i));
+								field.setQueryId(query.getQueryId());
+								field.setFieldTip((short) DBUtil.java2iwbType(meta.getColumnType(i)));
+								if (field.getFieldTip() == 4) {
+									// numeric değerde ondalık varsa tipi 3 yap
+									int sc = meta.getScale(i);
+									if (sc > 0)
+										field.setFieldTip((short) 3);
+								}
+								field.setInsertUserId(userId);
+								field.setVersionUserId(userId);
+								field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+								field.setProjectUuid((String) scd.get("projectId"));
+								field.setOprojectUuid((String) scd.get("projectId"));
+								if (fieldMap.containsKey(columnName.toLowerCase())) {
+									W5TableField tf = fieldMap.get(columnName.toLowerCase());
+									field.setMainTableFieldId(tf.getTableFieldId());
+									if (tf.getDefaultLookupTableId() > 0) {
+										switch (tf.getDefaultControlTip()) {
+										case 6:
+											field.setPostProcessTip((short) 10);
+											break; // combo static
+										case 8:
+										case 58:
+											field.setPostProcessTip((short) 11);
+											break; // lov-combo static
+										case 7:
+										case 10:
+											field.setPostProcessTip((short) 12);
+											break; // combo query
+										case 15:
+										case 59:
+											field.setPostProcessTip((short) 13);
+											break; // lov-combo query
+										case 51:
+										case 52:
+											field.setPostProcessTip(tf.getDefaultControlTip());
+											break; // combo static
+										}
+										if (tf.getDefaultControlTip() != 0)
+											field.setLookupQueryId(tf.getDefaultLookupTableId());
+									}
+								}
+								field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field",
+										(String) scd.get("projectId"), (Integer) scd.get("userId"),
+										(Integer) scd.get("customizationId")));
+								insertList.add(field);
+								j++;
+							} else if (existField.get(columnName) != null
+									&& (existField.get(columnName).getTabOrder() != i
+											|| (existField.get(columnName).getMainTableFieldId() == 0
+													&& fieldMap.containsKey(columnName.toLowerCase())))) {
+								W5QueryFieldCreation field = existField.get(columnName);
+								field.setTabOrder((short) (i));
+								field.setVersionUserId(userId);
+								field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+								if (field.getMainTableFieldId() == 0
+										&& fieldMap.containsKey(columnName.toLowerCase())) {
+									field.setMainTableFieldId(fieldMap.get(columnName.toLowerCase()).getTableFieldId());
+								}
+								updateList.add(field);
+							}
+							existField.remove(columnName);
+						}
+						rs.close();
+						stmt.close();
+						if (FrameworkSetting.hibernateCloseAfterWork)
+							conn.close();
+					}
+				});
+
+				for (W5QueryFieldCreation field : existField.values()) { // icinde
+																			// bulunmayanlari
+																			// negatif
+																			// olarak
+																			// koy
+					field.setTabOrder((short) -Math.abs(field.getTabOrder()));
+					field.setPostProcessTip((short) 99);
+					field.setVersionUserId(userId);
+					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+					updateList.add(field);
+				}
+			} catch (Exception e) {
+				if (FrameworkSetting.debug)
+					e.printStackTrace();
+				if (queryId != -1)
+					throw new IWBException("sql", "QueryField.Creation", queryId, sql.toString(), "Error Creating", e);
+			}
+		}
+		boolean vcs = FrameworkSetting.vcs;
+		if (insertFlag != 0 && insertList != null)
+			for (W5QueryFieldCreation field : insertList) {
+				saveObject(field);
+				if (vcs)
+					saveObject(new W5VcsObject(scd, 9, field.getQueryFieldId()));
+			}
+		for (W5QueryFieldCreation field : updateList) {
+			updateObject(field);
+			if (vcs)
+				dao.makeDirtyVcsObject(scd, 9, field.getQueryFieldId());
+		}
+	}
+	
+	public boolean organizeTable(Map<String, Object> scd, String fullTableName) {
+		if (FrameworkSetting.vcs && FrameworkSetting.vcsServer)
+			return false;
+		int customizationId = (Integer) scd.get("customizationId");
+		int userId = (Integer) scd.get("userId");
+		String projectUuid = (String) scd.get("projectId");
+		W5Project prj = FrameworkCache.getProject(projectUuid);
+		String schema = prj.getRdbmsSchema();
+		executeUpdateSQLQuery("set search_path=" + schema);
+
+		fullTableName = fullTableName.toLowerCase(FrameworkSetting.appLocale);
+		String tableName = fullTableName;
+		if (tableName.contains(".")) {
+			schema = tableName.substring(0, tableName.indexOf('.'));
+			tableName = tableName.substring(schema.length() + 1);
+		}
+		boolean vcs = FrameworkSetting.vcs;
+
+		int cnt = GenericUtil.uInt(executeSQLQuery(
+				"select count(1) from information_schema.tables qx where qx.table_name = ? and qx.table_schema = ?",
+				tableName, schema).get(0));
+		if (cnt == 0)
+			throw new IWBException("framework", "No Such Table to Define", 0, tableName, "No Such Table to Define",
+					null);
+
+		int tableId = 0;
+		List l = executeSQLQuery(
+				"select qx.table_id from iwb.w5_table qx where qx.dsc = ? and qx.customization_id = ? AND qx.project_uuid=?",
+				fullTableName, customizationId, projectUuid);
+		if (!GenericUtil.isEmpty(l)) {
+			tableId = GenericUtil.uInt(l.get(0));
+		}
+		if (tableId == 0) {
+			tableId = GenericUtil.getGlobalNextval("iwb.seq_table", projectUuid, userId, customizationId);
+			int rq = executeUpdateSQLQuery(
+					"insert into iwb.w5_table"
+							+ "(table_id, dsc, insert_user_id, version_user_id, customization_id, project_uuid, oproject_uuid, file_attachment_flag, make_comment_flag)values"
+							+ "(?       , ?  , ?             , ?              , ?               , ?           , ?            , 0                   , 0)",
+					tableId, tableName, userId, userId, customizationId, projectUuid, projectUuid);
+			if (vcs)
+				saveObject(new W5VcsObject(scd, 15, tableId));
+
+			String firstField = (String) executeSQLQuery(
+					"SELECT lower(qz.COLUMN_NAME) from information_schema.columns qz where qz.table_name = ? and qz.table_schema = ? and qz.ordinal_position=1",
+					tableName, schema).get(0);
+
+			int tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param", projectUuid, userId,
+					customizationId);
+			rq = executeUpdateSQLQuery(
+					"insert into iwb.w5_table_param "
+							+ "(table_param_id, table_id, dsc, expression_dsc, tab_order, param_tip, operator_tip, not_null_flag, source_tip, insert_user_id, version_user_id, project_uuid, customization_id, oproject_uuid)values"
+							+ "(?             , ?       , ?  , ?             , ?        , ?        , ?           , ?            , ?         , ?             , ?              , ?           , ?               , ?)",
+					tableParamId, tableId, "t" + firstField, firstField, 1, 4, 0, 1, 1, userId, userId, projectUuid,
+					customizationId, projectUuid);
+			if (vcs)
+				saveObject(new W5VcsObject(scd, 42, tableParamId));
+
+			cnt = GenericUtil.uInt(executeSQLQuery(
+					"SELECT count(1) from information_schema.columns qz where qz.table_name = ? and qz.table_schema = ? and lower(qz.COLUMN_NAME)='customization_id'",
+					tableName, schema).get(0));
+
+			if (cnt > 0) {
+				tableParamId = GenericUtil.getGlobalNextval("iwb.seq_table_param", projectUuid, userId,
+						customizationId);
+				rq = executeUpdateSQLQuery(
+						"insert into iwb.w5_table_param "
+								+ "(table_param_id, table_id, dsc, expression_dsc, tab_order, param_tip, operator_tip, not_null_flag, source_tip, insert_user_id, version_user_id, project_uuid, customization_id, oproject_uuid)values"
+								+ "(?             , ?       , ?  , ?             , ?        , ?        , ?           , ?            , ?         , ?             , ?              , ?           , ?               , ?)",
+						tableParamId, tableId, "customizationId", "customization_id", 2, 4, 0, 1, 2, userId, userId,
+						projectUuid, customizationId, projectUuid);
+				if (vcs)
+					saveObject(new W5VcsObject(scd, 42, tableParamId));
+			}
+		}
+
+		List p = new ArrayList();
+		p.add(tableId);
+		p.add(customizationId);
+		p.add(projectUuid);
+		p.add(tableName);
+		p.add(schema);
+		l = executeSQLQuery2Map("select x.*"
+				+ ", coalesce((select tf.table_field_id from iwb.w5_table_field tf where tf.table_id = ? and lower(tf.dsc) = x.column_name and tf.customization_id= ? AND tf.project_uuid=?),0) as table_field_id"
+				+ ", coalesce((SELECT w.system_type_id FROM iwb.sys_postgre_types w where w.dsc = x.DATA_TYPE),0) xlen"
+				+ ", coalesce((SELECT w.framework_type from iwb.sys_postgre_types w where w.dsc = x.DATA_TYPE),0) xtyp"
+				+ " from information_schema.columns x where x.table_name = ? and x.table_schema = ?", p);
+		for (Map m : (List<Map>) l) {
+			int tfId = GenericUtil.uInt(m.get("table_field_id"));
+			int xlen = GenericUtil.uInt(m.get("xlen"));
+			int xtyp = GenericUtil.uInt(m.get("xtyp"));
+			int tabOrder = GenericUtil.uInt(m.get("ordinal_position"));
+			if (tfId == 0) {
+				String fieldName = ((String) m.get("column_name")).toLowerCase(FrameworkSetting.appLocale);
+				int tableFieldId = GenericUtil.getGlobalNextval("iwb.seq_table_field", projectUuid, userId,
+						customizationId);
+				boolean sessField = fieldName.equals("customization_id") || fieldName.equals("project_uuid")
+						|| fieldName.equals("oproject_uuid");
+				int rq = executeUpdateSQLQuery(
+						"insert into iwb.w5_table_field "
+								+ "(table_field_id, table_id, dsc, field_tip, not_null_flag, max_length, tab_order, insert_user_id, version_user_id, customization_id, project_uuid, source_tip, default_value, can_update_flag, can_insert_flag, copy_source_tip, default_control_tip, default_lookup_table_id, oproject_uuid) values"
+								+ "(?             , ?       , ?  , ?        , ?            , ?         , ?        , ?             , ?              , ?               , ?           , ?         , ?            , ?              , ?              , ?              , ?                  , ?                      , ?)",
+						tableFieldId, tableId, fieldName,
+						fieldName.endsWith("_flag") ? 5
+								: (xtyp == 3 && GenericUtil.uInt(m.get("numeric_scale")) == 0 ? 4 : xtyp),
+						((String) m.get("is_nullable")).equals("YES") ? 0 : 1,
+						xlen == 0 ? 0 : (xlen == -1 ? GenericUtil.uInt(m.get("character_maximum_length")) : xlen),
+						tabOrder, userId, userId, customizationId, projectUuid, sessField ? 2 : (tabOrder == 1 ? 4 : 1),
+						fieldName.endsWith("_flag") ? "0"
+								: (fieldName.equals("customization_id") ? "customizationId"
+										: (tabOrder == 1 ? "nextval('seq_" + tableName + "')" : null)),
+						GenericUtil.hasPartInside2(
+								"customization_id,version_no,insert_user_id,insert_dttm,version_user_id,version_dttm",
+								fieldName) || tabOrder == 1 ? 0 : 1,
+						GenericUtil.hasPartInside2("version_no,insert_user_id,insert_dttm,version_user_id,version_dttm",
+								fieldName) ? 0 : 1,
+						sessField ? 2 : (tabOrder == 1 ? 4 : 6),
+						GenericUtil.hasPartInside2("insert_user_id,version_user_id", fieldName) ? 10 : 0,
+						GenericUtil.hasPartInside2("insert_user_id,version_user_id", fieldName) ? 336 : 0, projectUuid);
+				if (vcs)
+					saveObject(new W5VcsObject(scd, 16, tableFieldId));
+
+			} else {
+				int rq = executeUpdateSQLQuery(
+						"update iwb.w5_table_field " + " set tab_order       = ?, " + " version_user_id = ?, "
+								+ "version_dttm    = LOCALTIMESTAMP, " + " version_no      = version_no+1, "
+								+ " not_null_flag =  ?, " + " max_length =  ? "
+								+ " where table_field_id =  ? AND  project_uuid=?",
+						tabOrder, userId, ((String) m.get("is_nullable")).equals("YES") ? 0 : 1,
+						xlen == 0 ? 0 : (xlen == -1 ? GenericUtil.uInt(m.get("character_maximum_length")) : xlen), tfId,
+						projectUuid);
+				if (vcs)
+					dao.makeDirtyVcsObject(scd, 16, tfId);
+			}
+		}
+
+		int rq = executeUpdateSQLQuery(
+				"update iwb.w5_table_field " + "set tab_order       = -abs(tab_order), " + "version_user_id = ?, "
+						+ "version_dttm    = LOCALTIMESTAMP, " + "version_no      = version_no+1 "
+						+ "where table_id = ?  AND tab_order > 0  AND project_uuid=? "
+						+ " AND (lower(dsc) not in (SELECT lower(q.COLUMN_NAME) from information_schema.columns q where q.table_name = ? and q.table_schema = ?))",
+				userId, tableId, projectUuid, tableName, schema);
+
+		return true;
+	}
+	
+	public boolean organizeGlobalFunc(Map<String, Object> scd, String fullGlobalFuncName) {
+		if (FrameworkSetting.vcsServer)
+			throw new IWBException("vcs", "organizeGlobalFunc", 0, fullGlobalFuncName,
+					"VCS Server not allowed to organizeGlobalFunc", null);
+
+		int customizationId = (Integer) scd.get("customizationId");
+		int userId = (Integer) scd.get("userId");
+		String projectUuid = (String) scd.get("projectId");
+
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		String schema = po.getRdbmsSchema();
+		fullGlobalFuncName = fullGlobalFuncName.toLowerCase(FrameworkSetting.appLocale);
+		String dbFuncName = fullGlobalFuncName;
+		if (dbFuncName.contains(".")) {
+			schema = dbFuncName.substring(0, dbFuncName.indexOf('.'));
+			dbFuncName = dbFuncName.substring(schema.length() + 1);
+		}
+		boolean vcs = FrameworkSetting.vcs;
+
+		List l = executeSQLQuery(
+				"select qx.proname from pg_proc qx where qx.proname= ? and qx.pronamespace=(select q.oid from pg_namespace q where q.nspname=?)",
+				dbFuncName, schema);
+		if (GenericUtil.isEmpty(l))
+			throw new IWBException("framework", "No Such GlobalFunc to Define", 0, dbFuncName,
+					"No Such GlobalFunc to Define", null);
+		String params = l.get(0).toString();
+
+		int dbFuncId = 0;
+		l = executeSQLQuery(
+				"select qx.db_func_id from iwb.w5_db_func qx where qx.dsc = ? and qx.customization_id = ? AND qx.project_uuid=?",
+				fullGlobalFuncName, customizationId, projectUuid);
+		Map<String, Object> dbFuncParamMap = new HashMap();
+		if (!GenericUtil.isEmpty(l)) {
+			dbFuncId = GenericUtil.uInt(l.get(0));
+			List<Object[]> oldParams = executeSQLQuery(
+					"select qx.expression_dsc, qx.db_func_param_id from iwb.w5_db_func_param qx where qx.db_func_id = ? and qx.customization_id = ? order by qx.tab_order",
+					dbFuncId, customizationId);
+			int tabOrder = 1;
+			if (!GenericUtil.isEmpty(oldParams))
+				for (Object[] o : oldParams) {
+					dbFuncParamMap.put((String) o[0], GenericUtil.uInt(o[1]));
+				}
+		}
+
+		if (dbFuncId == 0) {
+			dbFuncId = GenericUtil.getGlobalNextval("iwb.seq_db_func", projectUuid, userId, customizationId);
+			int rq = executeUpdateSQLQuery(
+					"insert into iwb.w5_db_func"
+							+ "(db_func_id, dsc, insert_user_id, version_user_id, project_uuid, customization_id)values"
+							+ "(?         , ?  , ?        , ?             , ?              , ?                , ?           , ?)",
+					dbFuncId, schema + "." + dbFuncName, userId, userId, projectUuid, customizationId);
+			if (vcs)
+				saveObject(new W5VcsObject(scd, 20, dbFuncId));
+		}
+		params = params.toLowerCase(FrameworkSetting.appLocale).substring(1, params.length() - 1);
+		String[] arp = params.split(",");
+		for (int qi = 0; qi < arp.length; qi++) {
+			int dbFuncParamId = GenericUtil.uInt(dbFuncParamMap.get(arp[qi]));
+			if (dbFuncParamId == 0) { // boyle bir kayit yok
+				dbFuncParamId = GenericUtil.getGlobalNextval("iwb.seq_db_func_param", projectUuid, userId,
+						customizationId);
+				executeUpdateSQLQuery(
+						"insert into iwb.w5_db_func_param "
+								+ "(db_func_param_id, db_func_id, dsc, expression_dsc, param_tip, tab_order, insert_user_id, version_user_id, source_tip, default_value, not_null_flag, out_flag, project_uuid, customization_id )  values "
+								+ "( ?              , ?         , ?  , ?             , 1        , ?        , ?             , ?              , ?         , ?            , ?            , 0       , ?           , ? )",
+						dbFuncParamId, dbFuncId,
+						arp[qi].equals("puser_role_id") ? "userRoleId"
+								: (arp[qi].equals("plocale") ? "locale"
+										: (arp[qi].equals("ptrigger_action") ? "triggerAction"
+												: (dbFuncName.startsWith("pcrud_") && qi < 3
+														? "t" + arp[qi].substring(1) : arp[qi]))),
+						arp[qi], qi + 1, userId, userId,
+						arp[qi].equals("puser_role_id") || arp[qi].equals("locale") || arp[qi].equals("plocale") ? 2
+								: 1,
+						arp[qi].equals("puser_role_id") ? "userRoleId"
+								: (arp[qi].equals("plocale") ? "locale"
+										: (arp[qi].equals("ptrigger_action") ? "triggerAction" : null)),
+						arp[qi].equals("puser_role_id") || arp[qi].equals("plocale")
+								|| arp[qi].equals("ptrigger_action") || (dbFuncName.startsWith("pcrud_") && qi < 3) ? 1
+										: 0,
+						projectUuid, customizationId);
+				if (vcs)
+					saveObject(new W5VcsObject(scd, 21, dbFuncParamId));
+			} else { // var boyle bir kayit
+				executeUpdateSQLQuery(
+						"update iwb.w5_db_func_param set expression_dsc=?, tab_order = ?, version_user_id = ?, version_dttm    = current_timestamp, version_no      = version_no  + 1 "
+								+ "where db_func_param_id =  ? AND customization_id = ? ",
+						arp[qi], qi + 1, userId, dbFuncParamId, customizationId);
+				dbFuncParamMap.remove(arp[qi]);
+				dao.makeDirtyVcsObject(scd, 21, dbFuncParamId);
+			}
+		}
+		if (!dbFuncParamMap.isEmpty())
+			for (String k : dbFuncParamMap.keySet()) {
+				int dbFuncParamId = GenericUtil.uInt(dbFuncParamMap.get(k));
+				executeUpdateSQLQuery(
+						"update iwb.w5_db_func_param set expression_dsc=?, tab_order = -abs(tab_order), version_user_id = ?, version_dttm    = current_timestamp, version_no      = version_no  + 1 "
+								+ "where db_func_param_id =  ? AND customization_id = ? ",
+						k, userId, dbFuncParamId, customizationId);
+				dao.makeDirtyVcsObject(scd, 21, dbFuncParamId);
+			}
+		return true;
+	}
+	
+
+	private void organizeQueryFields4TSMeasurement(Map<String, Object> scd, final W5Query q, final short insertFlag) {
+		final Map<String, W5QueryFieldCreation> existField = new HashMap<String, W5QueryFieldCreation>();
+		final List<Object> sqlParams = new ArrayList();
+		String projectId = (String) scd.get("projectId");
+		List<W5QueryFieldCreation> existingQueryFields = find(
+				"from W5QueryFieldCreation t where t.queryId=? AND t.projectUuid=?", q.getQueryId());
+		for (W5QueryFieldCreation field : existingQueryFields) {
+			existField.put(field.getDsc().toLowerCase(FrameworkSetting.appLocale), field);
+		}
+	}
+	
+	private void organizeQueryFields4WSMethod(Map<String, Object> scd, final W5Query q, final short insertFlag) {
+		final List<W5QueryFieldCreation> updateList = new ArrayList<W5QueryFieldCreation>();
+		final List<W5QueryFieldCreation> insertList = new ArrayList<W5QueryFieldCreation>();
+		final Map<String, W5QueryFieldCreation> existField = new HashMap<String, W5QueryFieldCreation>();
+		final List<Object> sqlParams = new ArrayList();
+		String projectId = (String) scd.get("projectId");
+		List<W5QueryFieldCreation> existingQueryFields = find(
+				"from W5QueryFieldCreation t where t.queryId=? AND t.projectUuid=?", q.getQueryId(), projectId);
+		for (W5QueryFieldCreation field : existingQueryFields) {
+			existField.put(field.getDsc().toLowerCase(FrameworkSetting.appLocale), field);
+		}
+		if (q.getSqlSelect().equals("*")) {
+			W5WsMethodParam parentParam = (W5WsMethodParam) getCustomizedObject(
+					"from W5WsMethodParam p where p.outFlag=1 AND p.wsMethodId=? AND p.paramTip=10 AND p.projectUuid=?",
+					q.getMainTableId(), projectId, "Parent WSMethodParam");
+			List<W5WsMethodParam> outParams = find(
+					"from W5WsMethodParam p where p.outFlag=1 AND p.wsMethodId=? AND p.parentWsMethodParamId=? AND p.projectUuid=? order by p.tabOrder",
+					q.getMainTableId(), parentParam.getWsMethodParamId(), projectId);
+			int j = 0;
+			for (W5WsMethodParam wsmp : outParams) {
+				String columnName = wsmp.getDsc().toLowerCase(FrameworkSetting.appLocale);
+				if (insertFlag != 0 && existField.get(columnName) == null) {
+					W5QueryFieldCreation field = new W5QueryFieldCreation();
+					field.setDsc(columnName);
+					field.setTabOrder((short) (j + 1));
+					field.setQueryId(q.getQueryId());
+					field.setFieldTip(wsmp.getParamTip());
+					field.setInsertUserId((Integer) scd.get("userId"));
+					field.setVersionUserId((Integer) scd.get("userId"));
+					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+					field.setProjectUuid((String) scd.get("projectId"));
+					field.setOprojectUuid((String) scd.get("projectId"));
+					field.setMainTableFieldId(wsmp.getWsMethodParamId());
+					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", projectId,
+							(Integer) scd.get("userId"), (Integer) scd.get("customizationId")));
+					insertList.add(field);
+					j++;
+				}
+				existField.remove(columnName);
+			}
+		} else {
+			String[] lines = q.getSqlSelect().split("\n");
+			int j = 0;
+			for (String p : lines)
+				if (!GenericUtil.isEmpty(p)) {
+					String columnName = p.substring(0, p.indexOf(':'));
+					if (insertFlag != 0 && existField.get(columnName) == null) {
+						W5QueryFieldCreation field = new W5QueryFieldCreation();
+						field.setDsc(columnName);
+						field.setTabOrder((short) (j + 1));
+						field.setQueryId(q.getQueryId());
+						field.setFieldTip((short) 1);
+						field.setInsertUserId((Integer) scd.get("userId"));
+						field.setVersionUserId((Integer) scd.get("userId"));
+						field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+						field.setProjectUuid(projectId);
+						field.setOprojectUuid(projectId);
+						field.setMainTableFieldId(0);
+						field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field", projectId,
+								(Integer) scd.get("userId"), (Integer) scd.get("customizationId")));
+						insertList.add(field);
+						j++;
+					}
+					existField.remove(columnName);
+				}
+		}
+		boolean vcs = FrameworkSetting.vcs;
+		if (insertFlag != 0 && insertList != null)
+			for (W5QueryFieldCreation field : insertList) {
+				saveObject(field);
+				if (vcs)
+					saveObject(new W5VcsObject(scd, 9, field.getQueryFieldId()));
+			}
+		for (W5QueryFieldCreation field : updateList) {
+			updateObject(field);
+			if (vcs)
+				dao.makeDirtyVcsObject(scd, 9, field.getQueryFieldId());
+		}
+	}
+
 }

@@ -1024,19 +1024,20 @@ public class FrameworkService {
 	}
 
 	public boolean organizeTableFields(Map<String, Object> scd, String tableName) {
-		boolean b = dao.organizeTable(scd, tableName);
+		dao.checkTenant(scd);
+		boolean b = metaDataDao.organizeTable(scd, tableName);
 		FrameworkCache.clearPreloadCache(scd);
 		return b;
 	}
 
 	public void organizeQueryFields(Map<String, Object> scd, int queryId, short insertFlag) {
 		dao.checkTenant(scd);
-		dao.organizeQueryFields(scd, queryId, insertFlag);
+		metaDataDao.organizeQueryFields(scd, queryId, insertFlag);
 		FrameworkCache.clearPreloadCache(scd);
 	}
 
 	public boolean organizeDbFuncParams(Map<String, Object> scd, String dbFuncName) {
-		boolean b = dao.organizeGlobalFunc(scd, dbFuncName);
+		boolean b = metaDataDao.organizeGlobalFunc(scd, dbFuncName);
 		FrameworkCache.clearPreloadCache(scd);
 		return b;
 	}
@@ -1261,7 +1262,7 @@ public class FrameworkService {
 			throw new IWBException("framework", "Create Table&Seq", 0, createTableSql, e2.getMessage(), e2);
 		}
 
-		boolean b = dao.organizeTable(scd, fullTableName);
+		boolean b = metaDataDao.organizeTable(scd, fullTableName);
 		if (!b)
 			throw new IWBException("framework", "Define Table", 0, parameter, "Define Table", null);
 		if (webPageId != null) {
@@ -1377,7 +1378,7 @@ public class FrameworkService {
 		if (vcs)
 			dao.saveObject(new W5VcsObject(scd, 8, queryId));
 
-		dao.organizeQueryFields(scd, queryId, (short) 1);
+		metaDataDao.organizeQueryFields(scd, queryId, (short) 1);
 
 		if (webPageId != null) {
 			nt.put("_tmpStr", "Query Created");

@@ -66,7 +66,7 @@ public class ConversionEngine {
 						cnvSet.add(cnv.getConversionId());
 					}
 			String cnvStr = requestParams.get("_cnvStr");
-			if (cnvStr != null) {
+			if (!GenericUtil.isEmpty(cnvStr)) {
 				String[] arCnvStr = cnvStr.split(",");
 				if (arCnvStr != null && arCnvStr.length > 0)
 					for (String acs : arCnvStr) {
@@ -319,7 +319,7 @@ public class ConversionEngine {
 								if (result.containsKey("faultcode"))
 									throw new IWBException("rhino", "Conversion", c.getConversionId(),
 											wsm.get_ws().getDsc() + "." + wsm.getDsc(),
-											result.get("faulcode") + ": " + result.get("faultstring"), null);
+											result.get("faultcode") + ": " + result.get("faultstring"), null);
 								else {
 									if (formResult.getOutputFields() == null)
 										formResult.setOutputFields(new HashMap());

@@ -1066,3 +1066,11 @@ main.inbox > div.card-header {
 .tab-grid nav {
     border-right: 0 solid #d1d4d7;
 }
+.form-cnv{
+	border-left: 3px solid #03A9F4;
+    margin-left: -1rem;
+    margin-top: 1rem;
+    padding-left: .7rem;
+    font-size: 1.1rem;
+    color: #777;
+}

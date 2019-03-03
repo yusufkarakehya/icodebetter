@@ -204,7 +204,7 @@ public class NotificationEngine {
 				}
 			}
 			String smsStr = requestParams.get("_smsStr");
-			if (smsStr != null) {
+			if (!GenericUtil.isEmpty(smsStr)) {
 				String[] arSmsStr = requestParams.get("_smsStr").split(",");
 				if (arSmsStr != null && arSmsStr.length > 0)
 					for (String ass : arSmsStr) {

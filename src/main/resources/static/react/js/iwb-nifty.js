@@ -384,7 +384,7 @@ var iwb = {
 		event.preventDefault();
 		iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
 		if(j.data && j.data.length)iwb.showModal({
-	        title: "Approval Logs",
+	        title: "Workflow Logs",
 	        footer: false,
 	        color: "primary",
 	        size: "lg",
@@ -2109,6 +2109,59 @@ class XSingleUploadComponent extends React.Component {
     )
   }
 }
+
+class XFormConversion extends React.Component {
+	  constructor(props) {
+		    super(props);
+		    var s={}
+		    props.conversionForms.map( (i)=>s[i.xid]=i.checked);
+		    this.state = s;
+		    this.onClick= this.onClick.bind(this);
+	  }
+	  onClick(event) {
+		    var xid=event.target.getAttribute('xid');
+		    if(xid){
+		    	var s= {};
+		    	s[xid]=!this.state[xid];
+		    	this.setState(s);
+		    }
+	  }
+	  render() {
+		  return _('div',{}
+		  		  ,_('div',{className:'form-cnv'},'Conversions')
+				  ,_('div',{}, this.props.conversionForms.map( (i)=> {
+					  var pi={type:'checkbox', className:'switch-input',xid:i.xid, checked:this.state[i.xid]||false,onChange:this.onClick};
+					  return _(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-xs switch-3d switch-warning', style:{'margin-top':3}} , _(Input,pi),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}},_('b',null,[' [E-MAIL]',' [SMS]'][i.smsMailTip-1]), ' ' + i.text, i.previewFlag && _('i',null, ' (preview)')));
+				  })));
+	  }
+}
+
+class XFormSmsMailTemplate extends React.Component {
+	  constructor(props) {
+		    super(props);
+		    var s={}
+		    props.smsMailTemplates.map( (i)=>s[i.xid]=i.checked);
+		    this.state = s
+		    this.onClick= this.onClick.bind(this);
+	  }
+	  onClick(event) {
+		    var xid=event.target.getAttribute('xid');
+		    if(xid){
+		    	var s= {};
+		    	s[xid]=!this.state[xid];
+		    	this.setState(s);
+		    }
+	  }
+	  render() {
+		  return _('div',{}
+  		  ,_('div',{className:'form-cnv'},'SMS/Email Notifications')
+		  ,_('div',{}, this.props.smsMailTemplates.map( (i)=> {
+			  var pi={type:'checkbox', className:'switch-input',xid:i.xid, checked:this.state[i.xid]||false,onChange:this.onClick};
+			  return _(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-xs switch-3d switch-warning', style:{'margin-top':3}} , _(Input,pi),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}},_('b',null,[' [E-MAIL]',' [SMS]'][i.smsMailTip-1]), ' ' + i.text, i.previewFlag && _('i',null, ' (preview)')));
+		  })));
+	  }
+}
+
 /**
  * @description used to render tab and show active tab on the full XPage
  * @param {Object}
@@ -2309,8 +2362,7 @@ class XTabForm extends React.PureComponent {
                 onClick: toggleViewMode
               },
               _("i", { className: "icon-pencil" }),
-              " ",
-              getLocMsg('js_edit')
+              " "+getLocMsg('js_edit')
             ),
           " ",
           viewMode &&
@@ -2330,8 +2382,7 @@ class XTabForm extends React.PureComponent {
                 onClick: deleteRecord
               },
               _("i", { className: "icon-trash" }),
-              " ",
-              getLocMsg('delete')
+              " "+getLocMsg('delete')
             ),
           false && _(
             Button,
@@ -2377,7 +2428,7 @@ class XTabForm extends React.PureComponent {
           _(
             Button,
             {
-              color: "success",
+              color: "primary",
               className: "btn-form-edit",
               onClick: approvalAction(1) // approve
             },
@@ -2426,9 +2477,11 @@ class XTabForm extends React.PureComponent {
           )
         ),
         _("hr"),
-        formBody
+        formBody,
+        !viewMode && (this.props.cfg.conversionForms) && _(XFormConversion, {conversionForms:this.props.cfg.conversionForms}),
+        !viewMode && (this.props.cfg.smsMailTemplates) && _(XFormSmsMailTemplate, {smsMailTemplates:this.props.cfg.smsMailTemplates})
       ),
-      !viewMode &&
+      !this.props.cfg.viewMode && !viewMode &&
         _(
           CardFooter,
           { style: { padding: "1.1rem 1.25rem" } },
