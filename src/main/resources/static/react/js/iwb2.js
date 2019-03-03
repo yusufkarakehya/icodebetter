@@ -125,7 +125,13 @@ var iwb = {
   toastr: toastr,
   components :{},
   grids: {},
-  forms: {},
+  forms: {}, formConversions:{},formSmsMailTemplates:{},formBaseValues(id){
+	  var _smsStr=[], ss=iwb.formSmsMailTemplates[id];
+	  if(ss)for(var qi in ss)if(ss[qi])_smsStr.push(qi);
+	  var _cnvStr=[], cs=iwb.formConversions[id];
+	  if(cs)for(var qi in cs)if(cs[qi])_cnvStr.push(qi);
+	  return {_smsStr:_smsStr.join(','), _cnvStr:_cnvStr.join(',')}
+  },
   tabs:{},
   closeTab:null,
   debug: false,
@@ -2022,16 +2028,19 @@ class XFormConversion extends React.Component {
 	  constructor(props) {
 		    super(props);
 		    var s={}
-		    props.conversionForms.map( (i)=>s[i.xid]=i.checked);
+		    if(iwb.formConversions[props.id])s=iwb.conversionForms[props.id];
+		    else props.conversionForms.map( (i)=>s[i.xid]=i.checked);
 		    this.state = s;
 		    this.onClick= this.onClick.bind(this);
+		    iwb.formConversions[this.props.id] = s;
 	  }
 	  onClick(event) {
 		    var xid=event.target.getAttribute('xid');
 		    if(xid){
-		    	var s= {};
-		    	s[xid]=!this.state[xid];
+		    	var s= this.state;
+		    	s[xid]=!s[xid];
 		    	this.setState(s);
+			    iwb.formConversions[this.props.id] = s;
 		    }
 	  }
 	  render() {
@@ -2048,16 +2057,19 @@ class XFormSmsMailTemplate extends React.Component {
 	  constructor(props) {
 		    super(props);
 		    var s={}
-		    props.smsMailTemplates.map( (i)=>s[i.xid]=i.checked);
+		    if(iwb.formSmsMailTemplates[props.id])s=iwb.formSmsMailTemplates[props.id];
+		    else props.smsMailTemplates.map( (i)=>s[i.xid]=i.checked);
 		    this.state = s
 		    this.onClick= this.onClick.bind(this);
+		    iwb.formSmsMailTemplates[props.id] = s;
 	  }
 	  onClick(event) {
 		    var xid=event.target.getAttribute('xid');
 		    if(xid){
-		    	var s= {};
-		    	s[xid]=!this.state[xid];
+		    	var s= this.state;
+		    	s[xid]=!s[xid];
 		    	this.setState(s);
+			    iwb.formSmsMailTemplates[this.props.id] = s;
 		    }
 	  }
 	  render() {
@@ -2121,12 +2133,39 @@ class XTabForm extends React.PureComponent {
               "Saved Successfully",
               { timeOut: 3000 }
             );
+            if(json.msgs)for(var ri=0;ri<json.msgs.length;ri++){
+            	toastr.info(
+            			json.msgs[ri],
+                        "",
+                        { timeOut: 5000 }
+                      );	
+            }
             var { parentCt } = selfie.props;
             if (parentCt) {
               iwb.closeModal();
               iwb.closeTab();
               iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
             }
+            if(json.conversionPreviews)for(var ri=0;ri<json.conversionPreviews.length;ri++){
+            	var cnv = json.conversionPreviews[ri];
+            	iwb.openTab(
+            	          "2-" + cnv._fid+'-'+cnv._cnvId,
+            	          "showForm?a=2&_fid="+cnv._fid+'&_cnvId='+cnv._cnvId+'&_cnvTblPk'+cnv._cnvTblPk,
+            	          {},
+            	          { modal: false }
+            	        );
+            }
+            if(json.smsMailPreviews)for(var ri=0;ri<json.smsMailPreviews.length;ri++){
+            	var fsm = json.smsMailPreviews[ri];//[{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
+            	iwb.openTab(
+            	          "2-" + fsm.fsmId+'-'+fsm.tbPk,
+            	          'showForm?a=2&_fid=4903&_cnvId='+cnv._cnvId+'&_cnvTblPk'+cnv._cnvTblPk,
+            	          {},
+            	          { modal: false }
+            	        );
+            }
+            
+            	
           }
         });
       } else alert("this.form not set");
@@ -2378,8 +2417,8 @@ class XTabForm extends React.PureComponent {
         ),
         _("hr"),
         formBody,
-        !viewMode && (this.props.cfg.conversionForms) && _(XFormConversion, {conversionForms:this.props.cfg.conversionForms}),
-        !viewMode && (this.props.cfg.smsMailTemplates) && _(XFormSmsMailTemplate, {smsMailTemplates:this.props.cfg.smsMailTemplates})
+        !viewMode && (this.props.cfg.conversionForms) && _(XFormConversion, {id:this.props.cfg.id,conversionForms:this.props.cfg.conversionForms}),
+        !viewMode && (this.props.cfg.smsMailTemplates) && _(XFormSmsMailTemplate, {id:this.props.cfg.id,smsMailTemplates:this.props.cfg.smsMailTemplates})
       ),
       !viewMode &&
         _(
@@ -5992,7 +6031,9 @@ class XForm extends React.Component {
      * @param {Object} cfg
      */
     this.submit = cfg => {
-      var values = { ...this.state.values };
+//    	console.log('bb',this.props.parentCt.props.cfg.id)
+      var baseValues = iwb.formBaseValues(this.props.parentCt.props.cfg.id);  
+      var values = { ...baseValues,  ...this.state.values };
       if (this.componentWillPost) {
         /** componentWillPostResult = true || fase || {field_name : 'custom value'} */
         var componentWillPostResult = this.componentWillPost(values, cfg || {});

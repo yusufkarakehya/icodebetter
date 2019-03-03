@@ -387,11 +387,6 @@ public class React16 implements ViewAdapter {
 									.append(LocaleMsgCache.get2(
 											customizationId, xlocale,
 											fsm.getDsc()))
-									.append(fsm.getPreviewFlag() != 0 ? " ("
-											+ (LocaleMsgCache.get2(
-													customizationId, xlocale,
-													"with_preview")) + ")"
-											: "")
 									.append("\",\"checked\":")
 									.append(fsm.getSmsMailSentTip() == 1
 											|| fsm.getSmsMailSentTip() == 0)
@@ -457,13 +452,6 @@ public class React16 implements ViewAdapter {
 //										.append(fsm.getSmsMailTip() == 0 ? "[SMS] " : "["+ (LocaleMsgCache.get2(customizationId, xlocale, "email_upper")) + "] ")
 										.append(GenericUtil.stringToJS(fsm
 												.getDsc()))
-										.append(fsm.getPreviewFlag() != 0 ? " ("
-												+ (LocaleMsgCache
-														.get2(customizationId,
-																xlocale,
-																"with_preview"))
-												+ ")"
-												: "")
 										.append("\",\"checked\":")
 										.append(a != null
 												|| fsm.getSmsMailSentTip() == 1
@@ -583,6 +571,7 @@ public class React16 implements ViewAdapter {
 													|| fsm.getConversionTip() == 0);
 									if (fsm.getConversionTip() == 0)
 										s.append(",disabled:true");
+									s.append(",previewFlag:").append(fsm.getPreviewFlag() != 0 );
 									s.append("}");
 								}
 								if (isConvertedBefore
@@ -1940,35 +1929,6 @@ public class React16 implements ViewAdapter {
 					buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 				} else {
 					buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:null, _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), _(_").append(dsc).append(".$||Input,_").append(dsc).append("))");
-				}
-			}
-		}
-		buf.append(")");
-		return buf;
-	}
-	
-	private StringBuilder renderSearchFormModuleListOld(int customizationId,
-			String xlocale, String formUniqueId,
-			List<W5FormCellHelper> formCells, String xtype) {
-		StringBuilder buf = new StringBuilder();
-		// if(xtype!=null)buf.append("{frame:true,xtype:'").append(xtype).append("'");
-		if(xtype!=null)buf.append(xtype);
-		buf.append("_('div',null");// ,normalde Col olmasi lazim
-		for (int i = 0; i < formCells.size(); i++) {
-			W5FormCellHelper fc = formCells.get(i);
-			if (fc.getFormCell().getActiveFlag() == 0 || fc.getFormCell().getControlTip()==0)
-				continue;
-			if(fc.getFormCell().getControlTip() == 5){
-				buf.append(", _(FormGroup, null, _(Label, {className:'inputLabel', htmlFor:\"")
-				.append(fc.getFormCell().getDsc()).append("\"},_").append(fc.getFormCell().getDsc()).append(".props.label), _(Label,{ className: 'switch switch-3d switch-primary' }, _").append(fc.getFormCell().getDsc())
-				.append(",_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })))");
-			} else {
-				buf.append(", _(FormGroup, null, _(Label, {");//
-				if (fc.getFormCell().getControlTip() == 102) {// displayField4info
-					buf.append("}, \"").append(fc.getValue()).append("\"))");
-				} else {
-					buf.append("htmlFor:\"").append(fc.getFormCell().getDsc()).append("\"},_").append(fc.getFormCell().getDsc()).append(".props.label), _")
-					.append(fc.getFormCell().getDsc()).append(")");
 				}
 			}
 		}
@@ -5016,164 +4976,6 @@ columns:[
 		
 		return buf;
 	}
-
-	private StringBuilder serializeGetFormOld(W5FormResult formResult) {
-			Map<String, Object> scd = formResult.getScd();
-			StringBuilder s = new StringBuilder();
-			String xlocale = (String) scd.get("locale");
-			int customizationId = (Integer) scd.get("customizationId");
-			int userId = (Integer) scd.get("userId");
-			boolean mobile = GenericUtil.uInt(scd.get("mobile")) != 0;
-	
-			if (formResult.getUniqueId() == null)formResult.setUniqueId(GenericUtil.getNextId("fi2"));
-			W5Form f = formResult.getForm();
-			// s.append("var ").append(formResult.getForm().getDsc()).append("=");
-			String[] postFormStr = new String[] { "", "search_form",
-					"ajaxPostForm",
-					f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
-					"ajaxExecDbFunc", "", "", "", "" };
-			s.append("{\nconstructor(props, context){\nsuper(props, context);\nprops.parentCt.form=this;this.url='").append(postFormStr[f.getObjectTip()])
-				.append("';this.params=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
-				.append(";\nthis.egrids={};this.state=iwb.forms['").append(formResult.getUniqueId()).append("'] ||{errors:{},values:{");
-			
-			boolean b = false;
-			for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlTip()>0 && fc.getFormCell().getControlTip()<100) {
-				if (b)s.append(","); else b = true;
-				s.append(fc.getFormCell().getDsc()).append(":'");
-				String value = fc.getHiddenValue(); if(value == null) value =  fc.getValue();
-				if(!GenericUtil.isEmpty(value))switch(fc.getFormCell().getControlTip()){
-				case	2://date && 
-					s.append(GenericUtil.uDateStr(value));
-					break;
-				case	18://timestamp
-					if (!"0".equals(value) && value.length() <= 10)
-						value = GenericUtil.uDateStr(value) + " 00:00:00";
-					s.append("0".equals(value) ? GenericUtil.uFormatDateTime(new Date()) : value);			
-					break;
-				case	5://checkbox
-					s.setLength(s.length()-1);
-					s.append(GenericUtil.uInt(value)!=0);
-					continue;
-				default:
-					s.append(GenericUtil.stringToJS(value));
-					
-				}
-				s.append("'");
-			}
-			s.append("},options:{},activeTab:false}");
-			//\nif(this.componentWillPost)this.componentWillPost=this.componentWillPost.bind(this);
-			Map<String, List<W5FormCell>> pcr = new HashMap();
-			for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlTip()==9 && fc.getFormCell().getParentFormCellId()!=0 && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams())) {//combo remote
-				for (W5FormCellHelper rfc : formResult.getFormCellResults()) {
-					if (rfc.getFormCell().getFormCellId() == fc.getFormCell().getParentFormCellId()) {
-						W5FormCell pfc = rfc.getFormCell();
-						if (pfc.getControlTip() == 6 || pfc.getControlTip() == 7 || pfc.getControlTip() == 9 || pfc.getControlTip() == 10 || pfc.getControlTip() == 51) {
-							List<W5FormCell> lfc = pcr.get(pfc.getDsc());
-							if(lfc==null){
-								lfc= new ArrayList();
-								pcr.put(pfc.getDsc(), lfc);
-							}
-							lfc.add(fc.getFormCell());
-						}
-						break;
-					}
-				}
-				
-				
-			}
-			s.append("\nthis._id='").append(formResult.getUniqueId()).append("';this.triggerz4ComboRemotes={");
-			b = false;
-			for(String k:pcr.keySet()){
-				if(b)s.append(",");else b=true;
-				s.append(k).append(":[");
-				List<W5FormCell> lfc = pcr.get(k);
-				for(W5FormCell fc:lfc){
-					s.append("{n:'").append(fc.getDsc()).append("', f:function(ax,bx,cx){\n").append(fc.getLookupIncludedParams()).append("\n}},");
-				}
-				s.setLength(s.length()-1);
-				s.append("]");
-			} 
-			s.append("}");
-			
-			s.append("\nthis.onChange=this.onChange.bind(this);this.onComboChange=this.onComboChange.bind(this);this.onLovComboChange=this.onLovComboChange.bind(this);this.onNumberChange=this.onNumberChange.bind(this);this.submit=this.submit.bind(this);this.toggleTab=this.toggleTab.bind(this);this.getValues=this.getValues.bind(this);}");
-			s.append("\ntoggleTab(tab){if(this.state.activeTab!==tab)this.setState({activeTab:tab});}");
-			s.append("\ngetValues(){return Object.assign({}, this.state.values);}");//this.cfg={...}
-			s.append("\nsubmit(cfg){var p = Object.assign({}, this.state.values);if(this.componentWillPost){var r = this.componentWillPost(p, cfg||{});if(r===false)return false;p = Object.assign(p, r);}iwb.request({url:this.url+'?'+iwb.JSON2URI(this.params)+'_renderer=react16&.r='+Math.random(), params:p, self:this, errorCallback:(json)=>{var errors={};if(json.errorType)switch(json.errorType){case	'validation':toastr.error('Validation Errors');if(json.errors && json.errors.length)json.errors.map(function(o){errors[o.id]=o.msg;});if(json.error)iwb.showModal({title:'ERROR',footer:false, color:'danger', size:'sm', body:json.error});break;default:alert(json.errorType);} else alert(json);this.setState({errors:errors});return false;}, successCallback:(json, xcfg)=>{if(cfg.callback)cfg.callback(json,xcfg);}});}");//this.cfg={...}
-			s.append("\nonChange(e){var values=this.state.values;if(e.target){var o=e.target;values[o.name]=o.type=='checkbox'?o.checked:o.value;this.setState({values:values});}}");//this.cfg={...}
-			s.append("\nonComboChange(dsc){var self=this;return function(o){var values=self.state.values;var v=o && o.id;values[dsc]=v;var q=self.triggerz4ComboRemotes;if(q[dsc])q[dsc].map(function(zzz){var nv=zzz.f(v,null,values);if(nv)iwb.request({url:'ajaxQueryData?'+iwb.JSON2URI(nv)+'.r='+Math.random(), successCallback:function(r){var options=self.state.options;options[zzz.n]=r.data;self.setState({options:options});}});else{var options=self.state.options;options[zzz.n]=[];self.setState({options:options});}});self.setState({values:values});}}");//this.cfg={...}
-			s.append("\nonLovComboChange(dsc){var self=this;return function(o){var values=self.state.values;var v=[];if(o)o.map(function(q){v.push(q.id)});values[dsc]=v.join(',');self.setState({values:values});}}");//this.cfg={...}
-			s.append("\nonDateChange(dsc, dttm){var self=this;return function(o){var values=self.state.values;var v=o && o._d;values[dsc]=dttm ? fmtDateTime(v):fmtShortDate(v);self.setState({values:values});}}");//this.cfg={...}
-			s.append("\nonNumberChange(dsc){var self=this;return function(o){var values=self.state.values;var v=o && o.value;values[dsc]=v;self.setState({values:values});}}");//this.cfg={...}
-			s.append("\ncomponentDidMount(){var self=this, q=this.triggerz4ComboRemotes,values=this.state.values;for(var dsc in q)if(values[dsc])q[dsc].map(function(zzz){var nv=zzz.f(values[dsc],null,values);if(nv)iwb.request({url:'ajaxQueryData?'+iwb.JSON2URI(nv)+'.r='+Math.random(), successCallback:function(r){var options=self.state.options;options[zzz.n]=r.data;self.setState({options:options});}});else{}});}");
-			s.append("\ncomponentWillUnmount(){iwb.forms['").append(formResult.getUniqueId()).append("']=Object.assign({},this.state);}");
-	
-	//		if (liveSyncRecord)formResult.getRequestParams().put(".t", formResult.getUniqueId());
-			s.append("\n render(){\nvar mf=this, values=this.state.values, options=this.state.options, errors=this.state.errors, viewMode=this.props.viewMode;\n");
-	
-			
-			for (W5FormCellHelper fc : formResult.getFormCellResults())
-				if (fc.getFormCell().getActiveFlag() != 0) {
-					if (fc.getFormCell().getControlTip() != 102) {// label'dan farkli ise. label direk render edilirken koyuluyor
-						s.append("var _").append(fc.getFormCell().getDsc()).append("=").append(serializeFormCell(customizationId, xlocale,fc, formResult)).append(";\n");
-					} else {
-						fc.setValue(LocaleMsgCache.get2(customizationId, xlocale,
-								fc.getFormCell().getLocaleMsgKey()));
-					}
-				}
-	
-			s.append("\nvar __action__=").append(formResult.getAction()).append("\n");
-	
-			// 24 nolu form form edit form olduğu için onu çevirmesin.
-			String postCode = (formResult.getForm().get_renderTemplate() != null
-					&& formResult.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && formResult
-					.getFormId() != 24) ? GenericUtil.filterExt(
-					formResult.getForm().getJsCode(), scd,
-					formResult.getRequestParams(), null).toString() : formResult
-					.getForm().getJsCode();
-	
-			b = true;
-			if (postCode != null && postCode.length() > 10) {
-				if (postCode.charAt(0) == '!') {
-					postCode = postCode.substring(1);
-				} else
-					b = false;
-			} else
-				postCode = "";
-			if (!GenericUtil.isEmpty(postCode) && postCode.indexOf("Ext.")==-1) {
-				s.append("try{").append(postCode).append("\n}catch(e){");
-				s.append(FrameworkSetting.debug ? "if(confirm('ERROR form.JS!!! Throw? : ' + e.message))throw e;"
-						: "alert('System/Customization ERROR : ' + e.message)");
-				s.append("}\n");
-			}
-	
-			if(formResult.getForm().getObjectTip()==1){ //search ise
-				s.append(renderSearchFormModuleList(customizationId, xlocale,
-						formResult.getUniqueId(),
-						formResult.getFormCellResults(),
-						"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
-			} else switch (formResult.getForm().getRenderTip()) {
-			case 1:// fieldset
-				s.append(renderFormFieldset(formResult));
-				break;
-			case 2:// tabpanel
-				s.append(renderFormTabpanel(formResult));
-				break;
-			case 3:// tabpanel+border
-				s.append(renderFormTabpanel(formResult));
-//				s.append(renderFormTabpanelBorder(formResult));
-				break;
-			case 0:// temiz
-				s.append(renderFormModuleListTop(customizationId, xlocale,
-						formResult.getUniqueId(),
-						formResult.getFormCellResults(),
-						"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
-			}
-	
-	
-			s.append("\nreturn mf}}");
-	
-			return s;
-		}
 	
 
 }
