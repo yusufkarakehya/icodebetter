@@ -2399,7 +2399,7 @@ class XTabForm extends React.PureComponent {
                 onClick: toggleViewMode
               },
               _("i", { className: "icon-pencil" }),
-              " "+getLocMsg('js_edit')
+              " "+getLocMsg('edit')
             ),
           " ",
           viewMode &&
@@ -2525,7 +2525,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form mr-1",
               onClick: onSubmit
             },
-            " " + getLocMsg('js_save') + " "
+            " " + getLocMsg('save') + " "
 
           ),
           " ",this.props.cfg.contFlag && _(
@@ -2536,7 +2536,7 @@ class XTabForm extends React.PureComponent {
                     className: "btn-form mr-1",
                     onClick: onContSubmit
                   },
-                  " " + getLocMsg('js_save_and_cont') + " "
+                  " " + getLocMsg('save_and_cont') + " "
                 ),
                 " ",
           _(
@@ -2547,7 +2547,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form",
               onClick: iwb.closeTab
             },
-            getLocMsg('js_cancel')
+            getLocMsg('cancel')
           )
         )
     );
@@ -3861,7 +3861,7 @@ class XEditGridSF extends GridCommon {
               iwb.closeModal();
           }
         },
-        " " + getLocMsg('js_save') + " "
+        " " + getLocMsg('save') + " "
       ),
       " ",
       _(
@@ -3872,7 +3872,7 @@ class XEditGridSF extends GridCommon {
           style: { border: ".5px solid #e6e6e6" },
           onClick: iwb.closeModal
         },
-        " " + getLocMsg('js_cancel') + " "
+        " " + getLocMsg('cancel') + " "
       )
     );
 
@@ -3964,7 +3964,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        getLocMsg('js_tamam')
+        getLocMsg('tamam')
       ),
       " ",
       _(
@@ -3978,7 +3978,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        getLocMsg('js_cancel')
+        getLocMsg('cancel')
       )
     ),
     ...confg
@@ -4665,7 +4665,7 @@ class XMainGrid extends GridCommon {
             _(
               "div",
               { className: "hr-text" },
-              _("h6", null, getLocMsg('js_search_criteria'))
+              _("h6", null, getLocMsg('search_criteria'))
             ),
             _(
               "div",
@@ -4683,7 +4683,7 @@ class XMainGrid extends GridCommon {
                       this.loadData(true);
                     }
                   },
-                  getLocMsg('js_search')
+                  getLocMsg('search')
                 )
               )
             ),
@@ -4702,7 +4702,7 @@ class XMainGrid extends GridCommon {
           _(
             "div",
             { className: "hr-text", key: "hr-text" },
-            _("h6", null, getLocMsg('js_details'))
+            _("h6", null, getLocMsg('details'))
           ),
         detailGrids &&
           detailGrids.length > 1 &&
@@ -5284,7 +5284,7 @@ class XMainGrid extends GridCommon {
                 onClick: event => onOnNewRecord(event, this.props)
               },
               _("i", { className: "icon-plus" }),
-              ' '+ getLocMsg('js_new_record')
+              ' '+ getLocMsg('new_record')
             ),
             _('div',{className:"fgrow"},null),
 
@@ -5444,7 +5444,7 @@ class XPage extends React.PureComponent {
                     this.tabs.push({
                       name: action,
                       icon: plus ? "icon-plus" : "icon-doc",
-                      title: ' '+plus ? getLocMsg('js_new') : getLocMsg('js_edit'),
+                      title: ' '+plus ? getLocMsg('new') : getLocMsg('edit'),
                       value: serverComponent
                     });
                     this.setState({

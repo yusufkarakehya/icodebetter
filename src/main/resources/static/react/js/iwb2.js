@@ -2299,7 +2299,7 @@ class XTabForm extends React.PureComponent {
               },
               _("i", { className: "icon-pencil" }),
               " ",
-              getLocMsg('js_edit'),
+              getLocMsg('edit'),
             ),
           " ",
           viewMode &&
@@ -3807,7 +3807,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        getLocMsg('js_tamam')
+        getLocMsg('tamam')
       ),
       " ",
       _(
@@ -3821,7 +3821,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        getLocMsg('js_cancel')
+        getLocMsg('cancel')
       )
     ),
     ...confg
@@ -5222,7 +5222,7 @@ class XPage extends React.PureComponent {
                     this.tabs.push({
                       name: action,
                       icon: plus ? "icon-plus" : "icon-doc",
-                      title: ' '+plus ? getLocMsg('js_new') : getLocMsg('js_edit'),
+                      title: ' '+plus ? getLocMsg('new') : getLocMsg('edit'),
                       value: serverComponent
                     });
                     this.setState({
@@ -5231,11 +5231,11 @@ class XPage extends React.PureComponent {
                   }
                 }
               } else {
-                toastr.error(getLocMsg('js_no_result'), " Error");
+                toastr.error(getLocMsg('no_result'), " Error");
               }
             },
             error => {
-              toastr.error(error, getLocMsg('js_connection_error'));
+              toastr.error(error, getLocMsg('connection_error'));
             }
           );
       }
@@ -5430,7 +5430,7 @@ class XPage4Card extends React.PureComponent {
 	                    this.tabs.push({
 	                      name: action,
 	                      icon: plus ? "icon-plus" : "icon-doc",
-	                      title: ' '+plus ? getLocMsg('js_new') : getLocMsg('js_edit'),
+	                      title: ' '+plus ? getLocMsg('new') : getLocMsg('edit'),
 	                      value: serverComponent
 	                    });
 	                    this.setState({
