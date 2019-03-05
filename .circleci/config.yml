@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk
+      - image: oracle/graalvm-ce:1.0.0-rc11
     steps:
       - checkout
       - run: mvn clean compile jib:build
