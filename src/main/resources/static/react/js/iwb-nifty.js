@@ -126,7 +126,13 @@ var iwb = {
   toastr: toastr,
   components :{},
   grids: {},
-  forms: {},
+  forms: {}, formConversions:{},formSmsMailTemplates:{}, formBaseValues(id){
+	  var _smsStr=[], ss=iwb.formSmsMailTemplates[id];
+	  if(ss)for(var qi in ss)if(ss[qi])_smsStr.push(qi);
+	  var _cnvStr=[], cs=iwb.formConversions[id];
+	  if(cs)for(var qi in cs)if(cs[qi])_cnvStr.push(qi);
+	  return {_smsStr:_smsStr.join(','), _cnvStr:_cnvStr.join(',')}
+  },
   tabs:{},
   closeTab:null,
   debug: false,
@@ -384,7 +390,7 @@ var iwb = {
 		event.preventDefault();
 		iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
 		if(j.data && j.data.length)iwb.showModal({
-	        title: "Approval Logs",
+	        title: "Workflow Logs",
 	        footer: false,
 	        color: "primary",
 	        size: "lg",
@@ -2109,6 +2115,65 @@ class XSingleUploadComponent extends React.Component {
     )
   }
 }
+
+class XFormConversion extends React.Component {
+	  constructor(props) {
+		    super(props);
+		    var s={}
+		    if(iwb.formSmsMailTemplates[props.id])s=iwb.conversionForms[props.id];
+		    else props.conversionForms.map( (i)=>s[i.xid]=i.checked);
+		    this.state = s;
+		    this.onClick= this.onClick.bind(this);
+		    iwb.formConversions[this.props.id] = s;
+	  }
+	  onClick(event) {
+		    var xid=event.target.getAttribute('xid');
+		    if(xid){
+		    	var s= {};
+		    	s[xid]=!this.state[xid];
+		    	this.setState(s);
+		    }
+		    iwb.formConversions[this.props.id] = this.state;
+	  }
+	  render() {
+		  return _('div',{}
+		  		  ,_('div',{className:'form-cnv'},'Conversions')
+				  ,_('div',{}, this.props.conversionForms.map( (i)=> {
+					  var pi={type:'checkbox', className:'switch-input',xid:i.xid, checked:this.state[i.xid]||false,onChange:this.onClick};
+					  return _(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-xs switch-3d switch-warning', style:{'margin-top':3}} , _(Input,pi),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}},_('b',null,[' [E-MAIL]',' [SMS]'][i.smsMailTip-1]), ' ' + i.text, i.previewFlag && _('i',null, ' (preview)')));
+				  })));
+	  }
+}
+
+class XFormSmsMailTemplate extends React.Component {
+	  constructor(props) {
+		    super(props);
+		    var s={}
+		    if(iwb.formSmsMailTemplates[props.id])s=iwb.formSmsMailTemplates[props.id];
+		    else props.smsMailTemplates.map( (i)=>s[i.xid]=i.checked);
+		    this.state = s
+		    this.onClick= this.onClick.bind(this);
+		    iwb.formSmsMailTemplates[this.props.id] = s;
+	  }
+	  onClick(event) {
+		    var xid=event.target.getAttribute('xid');
+		    if(xid){
+		    	var s= {};
+		    	s[xid]=!this.state[xid];
+		    	this.setState(s);
+		    }
+		    iwb.formSmsMailTemplates[this.props.id] = this.state;
+	  }
+	  render() {
+		  return _('div',{}
+  		  ,_('div',{className:'form-cnv'},'SMS/Email Notifications')
+		  ,_('div',{}, this.props.smsMailTemplates.map( (i)=> {
+			  var pi={type:'checkbox', className:'switch-input',xid:i.xid, checked:this.state[i.xid]||false,onChange:this.onClick};
+			  return _(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-xs switch-3d switch-warning', style:{'margin-top':3}} , _(Input,pi),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}},_('b',null,[' [E-MAIL]',' [SMS]'][i.smsMailTip-1]), ' ' + i.text, i.previewFlag && _('i',null, ' (preview)')));
+		  })));
+	  }
+}
+
 /**
  * @description used to render tab and show active tab on the full XPage
  * @param {Object}
@@ -2168,11 +2233,36 @@ class XTabForm extends React.PureComponent {
               "Saved Successfully",
               { timeOut: 3000 }
             );
+            if(json.msgs)for(var ri=0;ri<json.msgs.length;ri++){
+            	toastr.info(
+            			json.msgs[ri],
+                        "",
+                        { timeOut: 5000 }
+                      );	
+            }
             var { parentCt } = selfie.props;
             if (parentCt) {
               iwb.closeModal();
               iwb.closeTab();
               iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
+            }
+            if(json.conversionPreviews)for(var ri=0;ri<json.conversionPreviews.length;ri++){
+            	var cnv = json.conversionPreviews[ri];
+            	iwb.openTab(
+            	          "2-" + cnv._fid+'-'+cnv._cnvId,
+            	          "showForm?a=2&_fid="+cnv._fid+'&_cnvId='+cnv._cnvId+'&_cnvTblPk'+cnv._cnvTblPk,
+            	          {},
+            	          { modal: false }
+            	        );
+            }
+            if(json.smsMailPreviews)for(var ri=0;ri<json.smsMailPreviews.length;ri++){
+            	var fsm = json.smsMailPreviews[ri];//[{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
+            	iwb.openTab(
+            	          "2-" + fsm.fsmId+'-'+fsm.tbPk,
+            	          'showForm?a=2&_fid=4903&_cnvId='+cnv._cnvId+'&_cnvTblPk'+cnv._cnvTblPk,
+            	          {},
+            	          { modal: false }
+            	        );
             }
           }
         });
@@ -2309,8 +2399,7 @@ class XTabForm extends React.PureComponent {
                 onClick: toggleViewMode
               },
               _("i", { className: "icon-pencil" }),
-              " ",
-              getLocMsg('js_edit')
+              " "+getLocMsg('js_edit')
             ),
           " ",
           viewMode &&
@@ -2330,8 +2419,7 @@ class XTabForm extends React.PureComponent {
                 onClick: deleteRecord
               },
               _("i", { className: "icon-trash" }),
-              " ",
-              getLocMsg('delete')
+              " "+getLocMsg('delete')
             ),
           false && _(
             Button,
@@ -2421,9 +2509,11 @@ class XTabForm extends React.PureComponent {
           )
         ),
         _("hr"),
-        formBody
+        formBody,
+        !viewMode && (this.props.cfg.conversionForms) && _(XFormConversion, {id:this.props.cfg.id,conversionForms:this.props.cfg.conversionForms}),
+        !viewMode && (this.props.cfg.smsMailTemplates) && _(XFormSmsMailTemplate, {id:this.props.cfg.id,smsMailTemplates:this.props.cfg.smsMailTemplates})
       ),
-      !viewMode &&
+      !this.props.cfg.viewMode && !viewMode &&
         _(
           CardFooter,
           { style: { padding: "1.1rem 1.25rem" } },
@@ -5977,7 +6067,8 @@ class XForm extends React.Component {
 	 *            cfg
 	 */
     this.submit = cfg => {
-      var values = { ...this.state.values };
+      var baseValues = iwb.formBaseValues(cfg.id);  
+      var values = {...baseValues ,...this.state.values };
       if (this.componentWillPost) {
         /**
 		 * componentWillPostResult = true || fase || {field_name : 'custom
