@@ -6393,7 +6393,6 @@ function approvalHtml(row){
       case 901:return 'Approval can be required';
       case 998:return _('a',{href:'#', className:'badge badge-pill badge-success',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Approved')
       case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Rejected')
-      default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? ': '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shield" }):null,' ' + row.pkpkpk_arf_qw_);
+      default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? '\n: '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shield" }):null,' ' + row.pkpkpk_arf_qw_);
     }
-    return 'x';
 }
