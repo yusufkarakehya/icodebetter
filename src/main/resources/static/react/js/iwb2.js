@@ -922,12 +922,12 @@ class GridCommon extends React.PureComponent {
 	 *            force - to fill with up to date data
 	 */
     this.loadData = force => {
-      if (this.props.rows) return;
+      if (this.props.rows || this.state.loading) return;
       const queryString = this.queryString();
       if (!force && queryString === this.lastQuery) {
         return;
       }
-      this.setState({ loading: true });
+      this.setState({ rows: [], loading: true });
       iwb.request({
         url: queryString,
         self: this,
@@ -3145,12 +3145,12 @@ class XGrid extends GridCommon {
 	 *            force - to fill with up to date data
 	 */
     this.loadData = force => {
-      if (this.props.rows) return;
+      if (this.props.rows || this.state.loading) return;
       const queryString = this.queryString();
       if (!force && queryString === this.lastQuery) {
         return;
       }
-      this.setState({ loading: true });
+      this.setState({rows: [], loading: true });
       iwb.request({
         url: queryString,
         self: this,
@@ -3593,7 +3593,7 @@ class XEditGridSF extends GridCommon {
                 style: { width: "100%", borderRadius: 2 },
                 onClick: () => this.loadData(true)
               },
-              "SEARCH"
+              getLocMsg("search")
             )
           )
         )
@@ -3604,9 +3604,10 @@ class XEditGridSF extends GridCommon {
 	 *            force
 	 */
     this.loadData = force => {
+    	if(this.state.loading)return;
       const queryString = this.props._url;
       const t_props = this.props;
-      this.setState({ loading: true });
+      this.setState({ loading: true, rows:[] });
       iwb.request({
         url: queryString,
         self: this,
@@ -4134,9 +4135,10 @@ class XEditGrid extends GridCommon {
 	 *            force
 	 */
     this.loadData = force => {
+    	if(this.state.loading)return;
       const queryString = this.props._url;
       const t_props = this.props;
-      this.setState({ loading: true });
+      this.setState({rows: [], loading: true });
       iwb.request({
         url: queryString,
         self: this,
@@ -4700,7 +4702,7 @@ class XMainGrid extends GridCommon {
                       this.loadData(true);
                     }
                   },
-                  "SEARCH"
+                  getLocMsg("search")
                 )
               )
             ),
@@ -4816,8 +4818,7 @@ class XMainGrid extends GridCommon {
               action: true
             },
             _("i", { className: "float-right text-success fa fa-file-excel" }),
-            " ",
-            "Export to Excel"
+            " Excel"
           ),
           _(
             ListGroupItem,
@@ -4828,8 +4829,7 @@ class XMainGrid extends GridCommon {
               action: true
             },
             _("i", { className: "float-right text-danger fa fa-file-pdf" }),
-            " ",
-            "Export to PDF"
+            " PDF"
           ),
           _(
             ListGroupItem,
@@ -4840,8 +4840,7 @@ class XMainGrid extends GridCommon {
               action: true
             },
             _("i", { className: "float-right text-secondary fa fa-file-alt" }),
-            " ",
-            "Export to CSV File"
+            " CSV"
           ),
           _(
             ListGroupItem,
@@ -4852,8 +4851,7 @@ class XMainGrid extends GridCommon {
               action: true
             },
             _("i", { className: "float-right text-secondary fa fa-file-word" }),
-            " ",
-            "Export to Text File"
+            " Text"
           ),
           _("hr"),
           _("b", null, "BI"),
@@ -5056,6 +5054,7 @@ class XMainGrid extends GridCommon {
 	 *            params -[{xsearch:'searchValue'}] Params from Global Search
 	 */
     this.loadData = (force, params = {}) => {
+    	if(this.state.loading)return;
       const queryString = this.queryString();
       if (!force && queryString === this.lastQuery) {
         return;
@@ -5064,20 +5063,20 @@ class XMainGrid extends GridCommon {
         ...{ params },
         ...(this.form ? this.form.getValues() : {})
       };
+      this.setState({loading:!0, rows:[], totalCount: 0})
       iwb.request({
         url: queryString,
         self: this,
         params:tempParams,
         successCallback: (result, cfg) => {
           cfg.self.setState({
-            rows: result.data,
+            rows: result.data, loading:false,
             totalCount: result.total_count
           });
         },
         errorCallback: (error, cfg) => {
           cfg.self.setState({
-            rows: [],
-            totalCount: 0
+            loading:false
           });
         }
       });
@@ -5142,7 +5141,7 @@ class XMainGrid extends GridCommon {
       onCurrentPageChange,
       onColumnWidthsChange
     } = this;
-
+console.log('rows',rows)
     let showDetail = detailGrids && detailGrids.length > 0;
     let grid = _(
       _dxgrb.Grid,
@@ -5234,7 +5233,7 @@ class XMainGrid extends GridCommon {
         rows.length > 1 &&
         !_disableSearchPanel &&
         _(_dxgrb.SearchPanel, {
-          messages: { searchPlaceholder: "Hızlı Arama..." },
+          messages: { searchPlaceholder: "Quick Search..." },
           changeSearchValue: ax => {
             if (iwb.debug) console.log("onValueChange", ax);
           }
