@@ -824,7 +824,7 @@ public class SpaceController implements InitializingBean {
 		String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
 //		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
-		int userRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
+		int userRoleId = GenericUtil.uInt(requestParams, ("userRoleId"), -GenericUtil.uInt(result.getResultMap().get("roleCount")));
 		response.setContentType("application/json");
 		scd = null;
 		if (success) { // basarili simdi sira diger islerde

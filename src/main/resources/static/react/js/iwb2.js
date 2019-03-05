@@ -4984,7 +4984,7 @@ class XMainGrid extends GridCommon {
               _("i", { id: "eq-" + this.props.id, className: "icon-magnifier" })
             ),
 
-          !searchForm &&
+//          !searchForm &&
             _(
               Button,
               {
@@ -5164,11 +5164,11 @@ class XPage extends React.PureComponent {
                   }
                 }
               } else {
-                toastr.error("Sonuc Gelmedi", " Error");
+                toastr.error(getLocMsg('js_no_result'), " Error");
               }
             },
             error => {
-              toastr.error(error, "Connection Error");
+              toastr.error(error, getLocMsg('js_connection_error'));
             }
           );
       }

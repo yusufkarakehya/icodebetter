@@ -2354,11 +2354,12 @@ class XTabForm extends React.PureComponent {
           , _('br'),
           this.props.cfg.approval && this.props.cfg.approval.stepDsc &&
           _(
-            'span',
+            'div',
             {style:{fontSize:"1rem"}
             },
+            _("i", { className: "icon-shield" }),
 // " step ",
-            _("b",null,this.props.cfg.approval.stepDsc)
+            _("span",null," " + this.props.cfg.approval.stepDsc)
             ,"    "
           ),
           this.props.cfg.approval && this.props.cfg.approval.wait4start &&
@@ -2370,20 +2371,17 @@ class XTabForm extends React.PureComponent {
               onClick: approvalAction(901)
             },
             _("i", { className: "icon-support" }),
-            " ",
-            getLocMsg('start_approval')
+            " " + getLocMsg('start_approval')
           ),
           this.props.cfg.approval && this.props.cfg.approval.versionNo &&
           _(
             Button,
             {
-              color: "success",
+              color: "primary",
               className: "btn-form-edit",
               onClick: approvalAction(1) // approve
             },
-            _("i", { className: "icon-shield" }),
-            " ",
-            getLocMsg('approve')
+            " "+ getLocMsg('approve')
           ),
           " "
           ,this.props.cfg.approval && this.props.cfg.approval.returnFlag &&
@@ -2394,22 +2392,19 @@ class XTabForm extends React.PureComponent {
               className: "btn-form-edit",
               onClick: approvalAction(2) // return
             },
-            _("i", { className: "icon-shield" }),
-            " ",
-            getLocMsg('return')
+            " " + getLocMsg('return')
           ),
           " "
           ,this.props.cfg.approval && this.props.cfg.approval.versionNo &&
           _(
             Button,
             {
-              color: "secondary",
+              color: "danger",
               className: "btn-form-edit",
               onClick: approvalAction(3) // reject
             },
-            _("i", { className: "icon-shield" }),
-            " ",
-            getLocMsg('reject')
+            
+            " " + getLocMsg('reject')
           ),
           " "
           ,this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
@@ -2440,9 +2435,8 @@ class XTabForm extends React.PureComponent {
               className: "btn-form mr-1",
               onClick: onSubmit
             },
-            " ",
-            "Save",
-            " "
+            " " + getLocMsg('js_save') + " "
+
           ),
           " ",this.props.cfg.contFlag && _(
                   Button,
@@ -2452,9 +2446,7 @@ class XTabForm extends React.PureComponent {
                     className: "btn-form mr-1",
                     onClick: onContSubmit
                   },
-                  " ",
-                  "Save & Continue",
-                  " "
+                  " " + getLocMsg('js_save_and_cont') + " "
                 ),
                 " ",
           _(
@@ -2465,7 +2457,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form",
               onClick: iwb.closeTab
             },
-            "Cancel"
+            getLocMsg('js_cancel')
           )
         )
     );
@@ -3779,7 +3771,7 @@ class XEditGridSF extends GridCommon {
               iwb.closeModal();
           }
         },
-        "Save"
+        " " + getLocMsg('js_save') + " "
       ),
       " ",
       _(
@@ -3790,7 +3782,7 @@ class XEditGridSF extends GridCommon {
           style: { border: ".5px solid #e6e6e6" },
           onClick: iwb.closeModal
         },
-        "Cancel"
+        " " + getLocMsg('js_cancel') + " "
       )
     );
 
@@ -4583,7 +4575,7 @@ class XMainGrid extends GridCommon {
             _(
               "div",
               { className: "hr-text" },
-              _("h6", null, "Seacrh Criteria")
+              _("h6", null, getLocMsg('js_search_criteria'))
             ),
             _(
               "div",
@@ -4601,7 +4593,7 @@ class XMainGrid extends GridCommon {
                       this.loadData(true);
                     }
                   },
-                  "SEARCH"
+                  getLocMsg('js_search')
                 )
               )
             ),
@@ -4620,7 +4612,7 @@ class XMainGrid extends GridCommon {
           _(
             "div",
             { className: "hr-text", key: "hr-text" },
-            _("h6", null, "DETAILS")
+            _("h6", null, getLocMsg('js_details'))
           ),
         detailGrids &&
           detailGrids.length > 1 &&
@@ -4719,7 +4711,7 @@ class XMainGrid extends GridCommon {
             },
             _("i", { className: "float-right text-success fa fa-file-excel" }),
             " ",
-            "Export to Excel"
+            "Excel"
           ),
           _(
             ListGroupItem,
@@ -4731,7 +4723,7 @@ class XMainGrid extends GridCommon {
             },
             _("i", { className: "float-right text-danger fa fa-file-pdf" }),
             " ",
-            "Export to PDF"
+            "PDF"
           ),
           _(
             ListGroupItem,
@@ -4743,7 +4735,7 @@ class XMainGrid extends GridCommon {
             },
             _("i", { className: "float-right text-secondary fa fa-file-alt" }),
             " ",
-            "Export to CSV File"
+            "CSV"
           ),
           _(
             ListGroupItem,
@@ -4755,7 +4747,7 @@ class XMainGrid extends GridCommon {
             },
             _("i", { className: "float-right text-secondary fa fa-file-word" }),
             " ",
-            "Export to Text File"
+            "Text"
           ),
           _("hr"),
           _("b", null, "BI"),
@@ -5178,7 +5170,7 @@ class XMainGrid extends GridCommon {
               _("i", { id: "eq-" + this.props.id, className: "icon-magnifier" })
             ),
 
-          !searchForm &&
+ //         !searchForm &&
             _(
               Button,
               {
@@ -5202,7 +5194,7 @@ class XMainGrid extends GridCommon {
                 onClick: event => onOnNewRecord(event, this.props)
               },
               _("i", { className: "icon-plus" }),
-              " NEW RECORD"
+              ' '+ getLocMsg('js_new_record')
             ),
             _('div',{className:"fgrow"},null),
 
