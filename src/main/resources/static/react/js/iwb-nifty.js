@@ -384,7 +384,7 @@ var iwb = {
     if (value == undefined || value == "") return iwb.emptyField;
     return _("b", { className: "form-control" }, value);
   },
-  approvalColorMap:{1:'primary',2:'warning',3:'danger',5:'success',901:'secondary'},
+  approvalColorMap:{1:'primary',2:'warning',3:'danger',5:'success',901:'secondary',998:'success',999:'danger'},
   approvalLogs: arid =>{
 	return (event) =>{
 		event.preventDefault();
@@ -2440,17 +2440,19 @@ class XTabForm extends React.PureComponent {
             cfg: this.props.cfg
           })
           , _('br'),
-          this.props.cfg.approval && this.props.cfg.approval.stepDsc &&
+          this.props.cfg.approval &&
           _(
             'div',
-            {style:{fontSize:"1rem"}
+            {style:{fontSize:"1rem", marginTop:5}
             },
             _("i", { className: "icon-shield" }),
 // " step ",
-            _("span",null," " + this.props.cfg.approval.stepDsc)
+            _("span",null," " + this.props.cfg.approval.dsc + (this.props.cfg.approval.stepDsc ? " > " + this.props.cfg.approval.stepDsc:''))
             ,"    "
+            , this.props.cfg.approval.status>997 && this.props.cfg.approval.status<1000 && _("span",{className:"badge badge-pill badge-"+iwb.approvalColorMap[this.props.cfg.approval.status]},
+            		this.props.cfg.approval.status==998?"approved":"rejected")
           ),
-          this.props.cfg.approval && this.props.cfg.approval.wait4start &&
+          this.props.cfg.approval && this.props.cfg.approval.status==901 &&
           _(
             Button,
             {
@@ -6383,4 +6385,15 @@ iwb.ajax.postForm=function(fid,action,params,callback){
 }
 iwb.ajax.execFunc=function(did,params,callback){
 	iwb.request({url:'ajaxExecDbFunc?_did='+did,params:params||{},successCallback:callback||false})
+}
+function approvalHtml(row){
+    // console.log('approvalHtml', row);
+    if(!row || !row.pkpkpk_arf_qw_)return '';
+    switch(1*row.pkpkpk_arf){
+      case 901:return 'Approval can be required';
+      case 998:return _('a',{href:'#', className:'badge badge-pill badge-success',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Approved')
+      case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Rejected')
+      default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? ': '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shield" }):null,' ' + row.pkpkpk_arf_qw_);
+    }
+    return 'x';
 }

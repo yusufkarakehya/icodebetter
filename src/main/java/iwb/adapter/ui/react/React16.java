@@ -642,8 +642,14 @@ public class React16 implements ViewAdapter {
 						s.append(",\n approval:{approvalRecordId:")
 								.append(formResult.getApprovalRecord()
 										.getApprovalRecordId())
-								.append(",wait4start:true,dynamic:")
-								.append(a.getApprovalFlowTip() == 3).append("}");
+								.append(",wait4start:true,status:901,dsc:\"")
+								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
+				} else if (formResult.getApprovalRecord().getApprovalStepId() > 997 && formResult.getApprovalRecord().getApprovalStepId() < 1000) {// rejected(999) or approved(998)
+					s.append(",\n approval:{approvalRecordId:")
+								.append(formResult.getApprovalRecord()
+										.getApprovalRecordId())
+								.append(",status:").append(formResult.getApprovalRecord().getApprovalStepId()).append(",dsc:\"")
+								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
 				} else if (GenericUtil.accessControl(scd, (short) 1, formResult
 						.getApprovalRecord().getApprovalRoles(), formResult
 						.getApprovalRecord().getApprovalUsers())) {
@@ -651,7 +657,7 @@ public class React16 implements ViewAdapter {
 							.getApprovalRecordId()).append(",versionNo:")
 					.append(formResult.getApprovalRecord().getVersionNo())
 					.append(",returnFlag:")
-					.append(formResult.getApprovalRecord().getReturnFlag() != 0);
+					.append(formResult.getApprovalRecord().getReturnFlag() != 0).append(",dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"");
 			W5WorkflowStep wfs = a.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId());
 			if(wfs.getOnApproveFormId()!=null)s.append(",approveFormId:").append(wfs.getOnApproveFormId());
 			if(wfs.getOnRejectFormId()!=null)s.append(",rejectFormId:").append(wfs.getOnRejectFormId());

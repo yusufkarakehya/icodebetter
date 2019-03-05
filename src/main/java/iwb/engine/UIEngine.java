@@ -564,24 +564,24 @@ public class UIEngine {
 			if (GenericUtil.uInt(formResult.getRequestParams().get("viewMode")) != 0)
 				formResult.setViewMode(true);
 
-			W5WorkflowStep approvalStep = null;
+			W5WorkflowStep workflowStep = null;
 			if (formResult.getForm().getObjectTip() == 2 && action == 1
 					&& /* formResult.getForm().get_sourceTable() */ FrameworkCache.getTable(scd,
 							formResult.getForm().getObjectId()) != null
 					&& formResult.getApprovalRecord() != null) {
-				W5Workflow approval = FrameworkCache.getWorkflow(projectId,
+				W5Workflow workflow = FrameworkCache.getWorkflow(projectId,
 						formResult.getApprovalRecord().getApprovalId());
-				if (approval != null) {
-					approvalStep = approval.get_approvalStepMap()
+				if (workflow != null) {
+					workflowStep = workflow.get_approvalStepMap()
 							.get(formResult.getApprovalRecord().getApprovalStepId()).getNewInstance();
-					if (approvalStep != null) {
-						boolean canCancel = GenericUtil.hasPartInside2(approval.getAfterFinUpdateUserIds(),
+					if (workflowStep != null) {
+						boolean canCancel = GenericUtil.hasPartInside2(workflow.getAfterFinUpdateUserIds(),
 								scd.get("userId")) && formResult.getApprovalRecord().getApprovalActionTip() == 5
 								&& formResult.getApprovalRecord().getApprovalStepId() == 998 ? true : false;
-						if (approvalStep.getApprovalStepId() != 901 && approvalStep.getUpdatableFields() == null
+						if (workflowStep.getApprovalStepId() != 901 && workflowStep.getUpdatableFields() == null
 								&& !canCancel)
 							formResult.setViewMode(true);
-						formResult.setApprovalStep(approvalStep);
+						formResult.setApprovalStep(workflowStep);
 					}
 				}
 			}
@@ -604,10 +604,10 @@ public class UIEngine {
 							&& !GenericUtil.hasPartInside(cr.getFormCell().getLookupIncludedParams(),
 									"" + formResult.getScd().get("userId")))
 							|| cr.getFormCell().getNrdTip() != 0 // readonly/disabled
-							|| (approvalStep != null
+							|| (workflowStep != null
 									&& cr.getFormCell()
 											.get_sourceObjectDetail() != null
-									&& !GenericUtil.hasPartInside(approvalStep.getUpdatableFields(),
+									&& !GenericUtil.hasPartInside(workflowStep.getUpdatableFields(),
 											"" + ((W5TableField) cr.getFormCell().get_sourceObjectDetail())
 													.getTableFieldId())) // approvalStepUpdatable
 																			// Table

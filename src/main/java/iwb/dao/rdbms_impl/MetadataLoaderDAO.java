@@ -1333,7 +1333,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			approvedStep.setDsc(ta.getApprovedMsg());// setDsc("onaylandi");
 			ta.get_approvalStepList().add(approvedStep);
 
-			if (ta.getOnRejectTip() == 1) {// make status rejected
+			if (true || ta.getOnRejectTip() == 1) {// make status rejected
 				W5WorkflowStep rejectedStep = new W5WorkflowStep();
 				rejectedStep.setApprovalStepId(999);
 				rejectedStep.setDsc(ta.getRejectedMsg());// setDsc("reddedildi");
