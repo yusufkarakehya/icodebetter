@@ -403,7 +403,7 @@ var iwb = {
                   },
                     // _('i',{className:'icon-speech'})
                   ),
-                  _('div',{className:'timeline-panel card-shadow'},
+                  _('div',{className:'timeline-panel'},
                     _('div',{className:'timeline-heading'},
                       _('h4',{className:'timeline-title'},
                         _('span', { className: 'float-right badge badge-pill badge-'+iwb.approvalColorMap[item.approval_action_tip] }, item.approval_action_tip_qw_),
@@ -488,6 +488,59 @@ var iwb = {
         case "validation":
           toastr.error(obj.errors.join("<br/>"), "Validation Error");
           break;
+        case "sql":case "rhino":case "framework":case "cache":case "vcs":
+	    	if (obj.error) {
+	            iwb.showModal({
+	              title: obj.objectType,
+	              footer: false,
+	              color: "danger",
+	              size: "lg",
+	              body: _(Media, {
+	                  body: true
+	                },
+	                obj.objectType && _(Media, {
+	                  heading: true
+	                }, obj.error),
+	
+	                _(ListGroup, {},
+	                  obj.icodebetter && obj.icodebetter.map((item, index) => {
+	                    return _(ListGroupItem, {},
+	                    	item && _(ListGroupItemText, {},
+	                    	_('b', {}, item.objectType||item.errorType||'x'),
+	                    	': ' + item.error,
+	                        _(Button, {
+	                            className: 'float-right btn btn-xs',
+	                            color:'info',
+	                            onClick: (e) => {
+	                              e.preventDefault();
+	                              iwb.copyToClipboard(item);
+	                            }
+	                          },
+	                          _('i', {
+	                            className: 'icon-docs'
+	                          }, '')
+	                        ),
+	                        _(Button, {
+	                            className: 'float-right btn btn-xs',
+	                            color:'primary',
+	                            onClick: (e) => {
+	                              e.preventDefault();
+	                              iwb.log(item);
+	                              toastr.success( "Use CTR + SHIFT + I to see the log content!", "Console Log", { timeOut: 3000 } );
+	                            }
+	                          },
+	                          _('i', {
+	                            className: 'icon-target'
+	                          }, '')
+	                        )
+	                      )
+	                    )
+	                  })
+	                )
+	              )
+	            });
+	          }        	
+        	break;
         default:
           toastr.error(
             obj.errorMsg || "Unknown ERROR",
@@ -6357,64 +6410,10 @@ class XForm extends React.Component {
                     body: json.error
                   });
                 }
-                break;
-                case "framework":
-                if (json.error) {
-                  iwb.showModal({
-                    title: json.error,
-                    footer: false,
-                    color: "danger",
-                    size: "lg",
-                    body: _(Media, {
-                        body: true
-                      },
-                      json.objectType && _(Media, {
-                        heading: true
-                      }, json.objectType),
-
-                      _(ListGroup, {},
-                        json.icodebetter && json.icodebetter.map((item, index) => {
-                          return _(ListGroupItem, {},
-                            _(ListGroupItemHeading, {},
-                              item.errorType,
-                              item && _(Button, {
-                                  className: 'float-right btn btn-xs',
-                                  color:'info',
-                                  onClick: (e) => {
-                                    e.preventDefault();
-                                    iwb.copyToClipboard(item);
-                                  }
-                                },
-                                _('i', {
-                                  className: 'icon-docs'
-                                }, '')
-                              ),
-                              item && _(Button, {
-                                  className: 'float-right btn btn-xs',
-                                  color:'primary',
-                                  onClick: (e) => {
-                                    e.preventDefault();
-                                    iwb.log(item);
-                                    toastr.success( "Use CTR + SHIFT + I to see the log content!", "Console Log", { timeOut: 3000 } );
-                                  }
-                                },
-                                _('i', {
-                                  className: 'icon-target'
-                                }, '')
-                              )
-                            ),
-                            _(ListGroupItemText, {},
-                              item && _('pre', {}, window.JSON.stringify(item, null, 2))
-                            )
-                          )
-                        })
-                      )
-                    )
-                  });
-                }
-                break;
-              default:
-                alert(json.errorType);
+                break; 
+             default:
+                iwb.requestErrorHandler(json);
+                return false;
             }
           else alert(json);
           this.setState({ errors });
