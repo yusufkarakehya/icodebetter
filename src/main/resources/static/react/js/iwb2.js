@@ -384,33 +384,51 @@ var iwb = {
   },
   approvalColorMap:{1:'primary',2:'warning',3:'danger',5:'success',901:'secondary',998:'success',999:'danger'},
   approvalLogs: arid =>{
-	return (event) =>{
-		event.preventDefault();
-		iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
-		if(j.data && j.data.length)iwb.showModal({
-	        title: "Workflow Logs",
-	        footer: false,
-	        color: "primary",
-	        size: "lg",
-	        body: _(
-	          ListGroup,
-	          { style: { fontSize: "1.0rem" }, children:j.data.map( item =>
-	          _(
-	  	            ListGroupItem,
-	  	            {
-	  	            },
-	  	            _("span", { className: "float-right badge badge-pill badge-"+iwb.approvalColorMap[item.approval_action_tip] }, item.approval_action_tip_qw_),
-	  	            " ",
-	  	            _("b",null,item.user_id_qw_)," ",
-	  	            item.step_dsc, " - ", _("i",{style:{color:'#aaa'}},item.log_dttm)
-	  	          )
-	          )}
-	        )
-	      });
-		else alert('no data');
-	}
-		);
-	}  
+    return (event) =>{
+      event.preventDefault();
+      iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
+      if(j.data && j.data.length)iwb.showModal({
+            title: getLocMsg('Workflow Logs'),
+            footer: false,
+            color: 'primary',
+            size: 'lg',
+            body: _('ul',{className:'timeline'},
+              j.data.map((item,index)=>{
+                return _('li',{className:'timeline-inverted'},
+                  _('div',{
+                    className:'timeline-badge bg-primary timeline-badge-icon',
+                    // style:{
+                    //   background:detailSpinnerColors2[index % detailSpinnerColors2.length]
+                    // }
+                  },
+                    // _('i',{className:'icon-speech'})
+                  ),
+                  _('div',{className:'timeline-panel card-shadow'},
+                    _('div',{className:'timeline-heading'},
+                      _('h4',{className:'timeline-title'},
+                        _('span', { className: 'float-right badge badge-pill badge-'+iwb.approvalColorMap[item.approval_action_tip] }, item.approval_action_tip_qw_),
+                        _('b',null,item.user_id_qw_),
+                        item.step_dsc
+                      ),
+                      _('p',{},
+                        _('small',{className:'text-muted'},
+                          _('i',{className:'icon-clock mx-1'}),
+                          item.log_dttm
+                        )
+                      )
+                    ),
+                    _('div',{className:'timeline-body'},
+                      item.comment && _('p',{}, item.comment)
+                    ),
+                  ),
+                )}
+              )
+            ) 
+          });
+      else alert('no data');
+    }
+      );
+    }  
   },
   request: cfg => {
     if (!window.fetch) {

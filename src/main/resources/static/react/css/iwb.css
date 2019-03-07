@@ -1074,3 +1074,20 @@ main.inbox > div.card-header {
     font-size: 1.1rem;
     color: #777;
 }
+/** modal timeline */
+.card-shadow {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12),
+        0 1px 2px rgba(0, 0, 0, 0.24);
+    transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+}
+
+.card-shadow:hover {
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+.timeline-badge-icon {   
+    left: 1.8em!important;
+    width: 1em!important;
+    height: 1em!important;
+    line-height: 1em!important;
+    top: 0.9em!important;
+}
