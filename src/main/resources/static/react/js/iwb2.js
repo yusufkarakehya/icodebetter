@@ -2136,7 +2136,7 @@ class XSingleUploadComponent extends React.Component {
         },
         _('i', {
           className: 'icon-paper-clip'
-        })
+        }),this.props.cfg.fileAttachCount ? ' '+this.props.cfg.fileAttachCount:''
       ),
       _(Reactstrap.UncontrolledPopover, {
           trigger: 'legacy',
@@ -2507,7 +2507,7 @@ class XTabForm extends React.PureComponent {
               getLocMsg('delete')
             ),
 
-          _(
+          false && _(
             Button,
             {
               className: "float-right btn-round-shadow hover-shake",
@@ -2516,7 +2516,7 @@ class XTabForm extends React.PureComponent {
             _("i", { className: "icon-options" })
           ),
           " ",
-          _(
+          this.props.cfg.commentFlag && _(
             Button,
             { className: "float-right btn-round-shadow mr-1", color: "light" },
             _("i", { className: "icon-bubbles" })
@@ -5531,7 +5531,7 @@ class XPage extends React.PureComponent {
                     this.tabs.push({
                       name: action,
                       icon: plus ? "icon-plus" : "icon-doc",
-                      title: ' '+plus ? getLocMsg('new') : getLocMsg('edit'),
+                      title: ' '+ getLocMsg(plus ? 'new':'edit'),
                       value: serverComponent
                     });
                     this.setState({
@@ -5746,7 +5746,7 @@ class XPage4Card extends React.PureComponent {
 	                    this.tabs.push({
 	                      name: action,
 	                      icon: plus ? "icon-plus" : "icon-doc",
-	                      title: ' '+plus ? getLocMsg('new') : getLocMsg('edit'),
+	                      title: ' '+ getLocMsg(plus ? 'new':'edit'),
 	                      value: serverComponent
 	                    });
 	                    this.setState({
