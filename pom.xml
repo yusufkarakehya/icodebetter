@@ -151,6 +151,18 @@
 				<configuration>
 					<executable>true</executable>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>0.9.7</version>
+				<configuration>
+					<from>
+						<image>
+							openjdk:8-jdk-alpine
+						</image>
+					</from>
+				</configuration>
 			</plugin>	
 		</plugins>
 	</build>

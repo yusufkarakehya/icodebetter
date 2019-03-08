@@ -5,5 +5,12 @@ jobs:
       - image: circleci/openjdk:8-jdk
     steps:
       - checkout
-      - run: mvn clean compile com.google.cloud.tools:jib-maven-plugin:0.9.7:build -Dimage=icodebetter/app_image -Djib.to.auth.username=icodebetter -Djib.to.auth.password=$ICB_HUB_PASSWORD
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Login to DockerHub
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run:
+          name: Build and push
+          command: mvn clean compile jib:build -Dimage=icodbetter/app_image
 
