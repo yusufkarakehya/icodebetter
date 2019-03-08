@@ -12,5 +12,5 @@ jobs:
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run:
           name: Build and push
-          command: mvn clean compile jib:build -Dimage=icodebetter/app_image
+          command: mvn clean compile jib:build -Dimage=icodebetter/graal_image
 
