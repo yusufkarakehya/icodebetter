@@ -5,5 +5,5 @@ jobs:
       - image: circleci/openjdk:8-jdk
     steps:
       - checkout
-      - run: mvn clean compile com.google.cloud.tools:jib-maven-plugin:0.9.7:build -Dimage=icodebetter/app_image -Djib.to.auth.username=icodebetter -Djib.to.auth.password=${ICB_HUB_PASSWORD}
+      - run: mvn clean compile jib:build
 
