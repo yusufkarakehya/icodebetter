@@ -162,18 +162,7 @@
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
 				<version>0.10.1</version>
-				<configuration>
-					<from>
-						<image>
-							icodebetter/base_graal
-						</image>
-					</from>
-					<container>
-						<ports>
-							<port>8080</port>
-						</ports>
-					</container>
-				</configuration>
+				
 			</plugin>	
 		</plugins>
 	</build>
