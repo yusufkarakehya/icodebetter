@@ -151,28 +151,7 @@
 				<configuration>
 					<executable>true</executable>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>0.9.7</version>
-				<configuration>
-					<to>
-						<image>
-							registry.hub.docker.com/icodebetter/app_image
-						</image>
-						<auth>
-							<username>icodebetter</username>
-							<password>${env.ICB_HUB_PASSWORD}</password>
-						</auth>
-					</to>
-					<container>
-						<ports>
-							<port>8080</port>
-						</ports>
-					</container>
-				</configuration>
-			</plugin>			
+			</plugin>	
 		</plugins>
 	</build>
 
