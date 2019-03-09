@@ -5068,13 +5068,13 @@ class XMainGrid extends GridCommon {
                       detailXGrid.extraButtons && detailXGrid.extraButtons.map((props, index) => {
                         if (props.type === "button") {
                           var {click,text,icon} = props;
-                          var cls = icon.split('|');
+                          var cls = icon ? icon.split('|'):[''];
                           return _(
                             Button, {
                               key: 'key' + index,
                               size: 'sm',
                               outline: true,
-                              className: 'btn-round-shadow hover-to-show-link ml-1 ' + cls[1],
+                              className: 'btn-round-shadow hover-to-show-link ml-1 ' + cls[cls.length>1? 1:0],
                               color: dgColors[index % dgColors.length],
                               onClick: event => click( event, detailXGrid, row.row )
                             },
