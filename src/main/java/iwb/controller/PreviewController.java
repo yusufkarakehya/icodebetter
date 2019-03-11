@@ -1281,7 +1281,7 @@ public class PreviewController implements InitializingBean {
 		return "{\"success\": false }";
 	}
 
-	@RequestMapping(value = "/upload.form", method = RequestMethod.POST)
+	@RequestMapping(value = "/*/upload.form", method = RequestMethod.POST)
 	@ResponseBody
 	public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("table_pk") String table_pk,
 			@RequestParam("table_id") Integer table_id, @RequestParam("profilePictureFlag") Integer profilePictureFlag,
@@ -1369,7 +1369,7 @@ public class PreviewController implements InitializingBean {
 
 	}
 
-	@RequestMapping(value = "/upload2.form", method = RequestMethod.POST)
+	@RequestMapping(value = "/*/upload2.form", method = RequestMethod.POST)
 	@ResponseBody
 	public String singleFileUpload4Webix(@RequestParam("upload") MultipartFile file, @RequestParam("table_pk") String table_pk,
 			@RequestParam("table_id") Integer table_id, @RequestParam("profilePictureFlag") Integer profilePictureFlag,

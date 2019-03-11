@@ -2,7 +2,15 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:11.0.1-jdk
     steps:
       - checkout
-      - run: mvn clean compile jib:build -Djib.to.auth.username=icodebetter -Djib.to.auth.password={tNpjzopjcL0HGAh9bO2Szebj4sEpbCMvZwPTrQbcqIc=}
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Login to DockerHub
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run:
+          name: Build and push
+          command: mvn clean compile jib:build -Dimage=icodebetter/graal_image
+
