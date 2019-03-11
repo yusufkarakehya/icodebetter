@@ -43,6 +43,7 @@ import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5SynchAfterPostHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.W5FormResult;
+import iwb.domain.result.W5GlobalFuncResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
@@ -1105,22 +1106,6 @@ public class CRUDEngine {
 									else
 										approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
 									break;
-								case 2: // hierarchical onay
-									int mngUserId = GenericUtil.uInt(scd.get("mngUserId"));
-									if (mngUserId != 0) {
-										approvalStep = new W5WorkflowStep();
-										approvalStep.setApprovalUsers("" + mngUserId);
-										approvalStep.setApprovalStepId(902);
-									} else { // direk duz approval kismine
-												// geciyor:TODO
-										if (approval.get_approvalStepList() != null
-												&& !approval.get_approvalStepList().isEmpty())
-											approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
-										else
-											approvalStep = null;
-									}
-
-									break;
 								}
 
 								break;
@@ -1215,11 +1200,8 @@ public class CRUDEngine {
 				Map<String, String> mz = new HashMap();
 				mz.put("ptable_id", "" + t.getTableId());
 				mz.put("ptable_pk", ptablePk);
-				// W5GlobalFuncResult dfr = executeFunc(scd, 690, mz,
-				// (short)2);//bu kaydin child
-				// kayitlari var mi? iwb.w5_table_field'daki default_control_tip
-				// ve
-				// default_lookup_table_id'ye bakiliyor
+				mz.put(".w", requestParams.get(".w"));
+				W5GlobalFuncResult dfr = scriptEngine.executeGlobalFunc(scd, 690, mz, (short)7);//control for any child records
 				if (ptablePk != null && appRecord == null) {
 					boolean b = dao.deleteTableRecord(formResult, paramSuffix);
 					if (!b)
