@@ -27,6 +27,7 @@ import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
+import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
@@ -51,7 +52,7 @@ public class RestController implements InitializingBean {
 	private ViewAdapter ext3_4 = new ExtJs3_4();
 	
 	@Autowired
-	private FrameworkService engine;
+	private FrameworkService service;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -70,13 +71,19 @@ public class RestController implements InitializingBean {
 			String token = (String)request.getParameter("tokenKey");
 			String projectId=u[2]; 
 			String serviceName=u[3];
-			String methodName=u[4]; 
-			if(methodName.equals("login")){
+			String methodName=u[4];
+			if(serviceName.equals("job")) {//project jobs
+				W5JobSchedule job = FrameworkCache.getJob(projectId, GenericUtil.uInt(methodName));
+				if(job != null) {
+					response.getWriter().write("{\"success\":"+ service.runJob(job) +"}"); // hersey duzgun
+					return;
+				}
+			} else if(methodName.equals("login")){
 				Map requestParams = GenericUtil.getParameterMap(request);
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
-				W5GlobalFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
+				W5GlobalFuncResult result = service.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
 				W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
 				List<W5GlobalFuncParam> arl = new ArrayList();
 				dfr.setGlobalFunc(new W5GlobalFunc());dfr.getGlobalFunc().set_dbFuncParamList(arl);
@@ -97,7 +104,7 @@ public class RestController implements InitializingBean {
 				int forceUserRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
 				if (roleCount < 0 || forceUserRoleId != 0) {
 					if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
-					Map<String, Object> scd = engine.userRoleSelect(userId, forceUserRoleId,
+					Map<String, Object> scd = service.userRoleSelect(userId, forceUserRoleId,
 							GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
 					if (scd == null){
 						response.getWriter().write("{\"success\":false}"); // bir hata var
@@ -163,7 +170,7 @@ public class RestController implements InitializingBean {
 			W5FormResult fr=null; 
 			switch(wsm.getObjectTip()){
 			case	0://show Record
-				fr = engine.getFormResult(scd, wsm.getObjectId(), 1, requestParams);
+				fr = service.getFormResult(scd, wsm.getObjectId(), 1, requestParams);
 				response.getWriter().write(ext3_4.serializeGetFormSimple(fr).toString());
 				response.getWriter().close();
 				break;
@@ -171,7 +178,7 @@ public class RestController implements InitializingBean {
 			case	2://insert Record by Form
 			case	3://delete Record by Form
 				if(FrameworkSetting.liveSyncRecord4WS)requestParams.put(".w","ws-server");
-				fr = engine.postForm4Table(scd, wsm.getObjectId(), wsm.getObjectTip(), requestParams, "");
+				fr = service.postForm4Table(scd, wsm.getObjectId(), wsm.getObjectTip(), requestParams, "");
 				response.getWriter().write(ext3_4.serializePostForm(fr).toString());
 				response.getWriter().close();		
 				if (FrameworkSetting.liveSyncRecord4WS && fr.getErrorMap().isEmpty()){
@@ -180,12 +187,12 @@ public class RestController implements InitializingBean {
 
 				break;
 			case	4://run Rhino
-				response.getWriter().write(ext3_4.serializeGlobalFunc(engine.executeFunc(scd, wsm.getObjectId(), requestParams
+				response.getWriter().write(ext3_4.serializeGlobalFunc(service.executeFunc(scd, wsm.getObjectId(), requestParams
 						, GenericUtil.hasPartInside2(wsm.getAccessSourceTypes(), "1") ? (short)1:(short)6)).toString());
 				response.getWriter().close();
 				break;
 			case	19: //run Query
-				W5QueryResult qr = engine.executeQuery(scd, wsm.getObjectId(), requestParams);
+				W5QueryResult qr = service.executeQuery(scd, wsm.getObjectId(), requestParams);
 				if(wsm.get_params()!=null){
 					List<W5QueryField> lqf = new ArrayList();
 					Map<String,W5QueryField> qfm = new HashMap();
@@ -228,7 +235,7 @@ public class RestController implements InitializingBean {
 				if(serviceName.endsWith(".wadl") || serviceName.endsWith(".WADL"))serviceName=serviceName.substring(0, serviceName.length()-5);
 			    W5WsServer wss = FrameworkCache.getWsServer(projectId, serviceName);
 				if(wss==null)throw new IWBException("rest","WS Not Found",0,serviceName, "WS Not Found", null);
-				Map<String, Object> wsmoMap = engine.getWsServerMethodObjects(wss);
+				Map<String, Object> wsmoMap = service.getWsServerMethodObjects(wss);
 				response.setContentType("text/xml");
 				response.getWriter().write(serializeRestWADL(wss, wsmoMap).toString());
 				return;
@@ -236,7 +243,7 @@ public class RestController implements InitializingBean {
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
-				W5GlobalFuncResult result = engine.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
+				W5GlobalFuncResult result = service.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
 				W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
 				List<W5GlobalFuncParam> arl = new ArrayList();
 				dfr.setGlobalFunc(new W5GlobalFunc());dfr.getGlobalFunc().set_dbFuncParamList(arl);
@@ -257,7 +264,7 @@ public class RestController implements InitializingBean {
 				int forceUserRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
 				if (roleCount < 0 || forceUserRoleId != 0) {
 					if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
-					Map<String, Object> scd = engine.userRoleSelect(userId, forceUserRoleId,
+					Map<String, Object> scd = service.userRoleSelect(userId, forceUserRoleId,
 							GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
 					if (scd == null){
 						response.getWriter().write("{\"success\":false}"); // bir hata var

@@ -899,11 +899,16 @@ public class MetadataLoaderDAO extends BaseDAO {
 		}
 	}
 
-	public void reloadJobsCache() {
+	public void reloadJobsCache(String projectId) {
 		// Job Schedule
 		try {
-			FrameworkCache.wJobs.clear();
-			FrameworkCache.wJobs.addAll(find("from W5JobSchedule x where x.activeFlag=1 and x.actionStartTip=1"));
+			Map<Integer, W5JobSchedule> mjobs = new HashMap();
+			for(W5JobSchedule j:(List<W5JobSchedule>)find("from W5JobSchedule x where x.activeFlag=1 and x.actionStartTip=1 AND x.projectUuid=?", projectId)) {
+				mjobs.put(j.getJobScheduleId(), j);
+			}
+			
+			FrameworkCache.wJobs.put(projectId, mjobs);
+		/*	FrameworkCache.wJobs.addAll(find("from W5JobSchedule x where x.activeFlag=1 and x.actionStartTip=1"));
 			for (W5JobSchedule data : FrameworkCache.wJobs) {
 				String userId = Integer.toString(data.getExecuteUserId());
 				String roleId = Integer.toString(data.getExecuteRoleId());
@@ -916,7 +921,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 					for (Map<String, Object> usr : res) {
 						data.set_userRoleId(GenericUtil.uInteger((String) usr.get("user_role_id")));
 					}
-			}
+			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1547,6 +1552,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				reloadWsServersCache(projectId);
 				reloadWsClientsCache(projectId);
 				reloadComponentCache(projectId);
+				reloadJobsCache(projectId);
 			}
 
 			FrameworkSetting.projectSystemStatus.put(projectId, 0); // working

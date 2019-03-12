@@ -79,7 +79,7 @@ public class FrameworkCache {
 //	final public static Map<String, List<Integer>> publishLookUps= new HashMap<String, List<Integer>>();
 	final public static Map<Integer, Map<Integer, String>> wRoles = new HashMap<Integer, Map<Integer, String>>();
 	final public static Map<String, List<Log5Feed>> wFeeds = new HashMap<String, List<Log5Feed>>();
-	final public static List<W5JobSchedule> wJobs= new ArrayList<W5JobSchedule>();
+	final public static Map<String, Map<Integer, W5JobSchedule>> wJobs= new HashMap<String, Map<Integer, W5JobSchedule>>();
 	final private static Map<String, Map<String, Long>> wQueuedReloadCache = new HashMap<String, Map<String, Long>>();
 //	final public static HashMap<String , List<Object> > lastUserAction=new HashMap<String, List<Object>>();
 	final public static Map<Integer, W5Customization> wCustomizationMap = new HashMap<Integer, W5Customization>();
@@ -669,6 +669,12 @@ public class FrameworkCache {
 			wGraalFuncs.put(p, m);
 		}
 		m.put(pk, func);		
+	}
+
+	public static W5JobSchedule getJob(String projectId, int jobId) {
+		Map<Integer, W5JobSchedule> m = wJobs.get(projectId);
+		if(m==null)return null;
+		return m.get(jobId);
 	}
 
 	

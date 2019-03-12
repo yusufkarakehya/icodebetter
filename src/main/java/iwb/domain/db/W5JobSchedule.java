@@ -40,14 +40,11 @@ public class W5JobSchedule implements java.io.Serializable {
 	private int todayAddDayValue;
 	private Timestamp lastRunTime;
 	private int _userRoleId;
-	private int customizationId;	
 
 	public W5JobSchedule() {
 	}
 
-	@SequenceGenerator(name = "SEX_JOB_SCHEDULE_ID", sequenceName = "SEQ_JOB_SCHEDULE_ID", allocationSize = 1)
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEX_JOB_SCHEDULE_ID")
 	@Column(name = "JOB_SCHEDULE_ID")
 	public int getJobScheduleId() {
 		return this.jobScheduleId;
@@ -265,15 +262,7 @@ public class W5JobSchedule implements java.io.Serializable {
 	public void set_userRoleId(int userRoleId) {
 		_userRoleId = userRoleId;
 	}
-	@Id
-	@Column(name = "CUSTOMIZATION_ID")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 	
 	@Column(name = "TODAY_FLAG")
 	public int getTodayFlag() {
@@ -293,5 +282,14 @@ public class W5JobSchedule implements java.io.Serializable {
 		this.todayAddDayValue = todayAddDayValue;
 	}
 	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
 
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 }
