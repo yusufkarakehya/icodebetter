@@ -65,7 +65,7 @@ public class FrameworkApplication {
 			TimerTask timerTask = new GenericTimer((TaskExecutor)appContext.getBean("taskExecutor"), (FrameworkService)appContext.getBean("frameworkService"));
 	        //running timer task as daemon thread
 	        Timer timer = new Timer(true);
-	        timer.scheduleAtFixedRate(timerTask, 0, 10*1000); //every minute
+	        timer.scheduleAtFixedRate(timerTask, 0, 60*1000); //every minute
 		}
 	}
 }

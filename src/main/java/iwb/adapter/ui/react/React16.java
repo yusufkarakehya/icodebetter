@@ -2086,7 +2086,7 @@ public class React16 implements ViewAdapter {
 		
 		case	71://file attachment
 			buf.append("type:'text'");
-			return buf;
+			break;
 		
 		default:			
 			buf.append("type:'text'");
