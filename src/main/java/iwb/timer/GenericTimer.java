@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
 import iwb.cache.FrameworkCache;
@@ -54,7 +52,7 @@ public class GenericTimer extends TimerTask {
 	}
 
 	public void run() {
-		System.out.println("timer.run");
+		System.out.println("Timer.Run");
 		checkJobs();
 		if(FrameworkSetting.workflow)checkWorkflowEscalations();
 	}
@@ -69,7 +67,7 @@ public class GenericTimer extends TimerTask {
 						if(GenericUtil.isEmpty(step.getOnEscalationCode())) {
 							W5WorkflowStep nextStep = w.get_approvalStepMap().get(step.getOnTimeLimitExceedStepId());
 							if(nextStep!=null) {
-				            	System.out.println("Update Escalations: " + w.getDsc());
+				            	System.out.println("Update Escalations: " + w.getDsc() + " / " + step.getDsc());
 								service.updateWorkflowEscalatedRecords(step, nextStep);
 							}
 						} else {
@@ -78,7 +76,7 @@ public class GenericTimer extends TimerTask {
 							taskExecutor.execute(new Runnable() {
 					            @Override
 					            public void run() {
-					            	System.out.println("Start Escalations: " + w.getDsc());
+					            	System.out.println("Update Escalation w/ code: " + w.getDsc() + " / " + step.getDsc() + " / " + record.getApprovalRecordId());
 					            	service.updateWorkflowEscalatedRecord(step, record);
 					            }
 					        });

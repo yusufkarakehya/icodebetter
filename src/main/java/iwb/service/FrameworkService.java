@@ -2198,57 +2198,14 @@ public class FrameworkService {
 	}
 
 	public void updateWorkflowEscalatedRecords(W5WorkflowStep step, W5WorkflowStep nextStep) {
-		List<W5WorkflowRecord> records = listWorkflowEscalatedRecords(step);
-		for(W5WorkflowRecord rec:records) {
-			rec.setApprovalStepId(nextStep.getApprovalStepId());
-			rec.setApprovalUsers(nextStep.getApprovalUsers());
-			rec.setApprovalRoles(nextStep.getApprovalRoles());
-			rec.setApprovalActionTip((short)4); //escalated
-			dao.updateObject(rec);
-			if(nextStep.getFinalStepFlag()==0 && nextStep.getTimeLimitFlag()!=0 && nextStep.getTimeLimitDuration()>0) {
-		    	List ll = dao.find("from W5WorkflowRecord t where t.approvalRecordId=? AND t.projectUuid=?", rec.getApprovalRecordId(), rec.getProjectUuid());
-		    	dao.executeUpdateSQLQuery("update iwb.w5_approval_record t set valid_until_dttm=current_timestamp + interval '"+nextStep.getTimeLimitDuration() + " " + new String[] {"minute","hour","day","week","month"}[nextStep.getTimeLimitDurationTip()-1]+"' where t.approval_record_id=? AND t.project_uuid=?"
-//		    			,nextStep.getTimeLimitDuration() + " " + new String[] {"minute","hour","day","week","month"}[nextStep.getTimeLimitDurationTip()-1]
-		    			, rec.getApprovalRecordId(), rec.getProjectUuid());
-			}
-			
-			Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
-			logRecord.setProjectUuid(step.getProjectUuid());
-		    logRecord.setUserId(1);//system
-		    logRecord.setApprovalRecordId(rec.getApprovalRecordId());
-		    logRecord.setApprovalStepId(step.getApprovalStepId());
-		    logRecord.setApprovalId(step.getApprovalId());
-		    logRecord.setDsc("escalation");
-		    logRecord.setApprovalActionTip((short) 4);
-		    dao.saveObject(logRecord);
-
-		}
-		
-//		dao.executeUpdateSQLQuery("update iwb.w5_approval_record set ", params)
-		
+		workflowEngine.updateWorkflowEscalatedRecords(step, nextStep);
 	}
 
 	public List<W5WorkflowRecord> listWorkflowEscalatedRecords(W5WorkflowStep step) {
-		return dao.find("from W5WorkflowRecord t where t.approvalId=? AND t.approvalStepId=? AND t.projectUuid=? AND t.validUntilDttm>current_timestamp"
-				, step.getApprovalId(), step.getApprovalStepId(), step.getProjectUuid());
+		return workflowEngine.listWorkflowEscalatedRecords(step);
 	}
 
 	public void updateWorkflowEscalatedRecord(W5WorkflowStep step, W5WorkflowRecord rec) {
-		/*rec.setApprovalStepId(nextStep.getApprovalStepId());
-		rec.setApprovalUsers(nextStep.getApprovalUsers());
-		rec.setApprovalRoles(nextStep.getApprovalRoles());
-		rec.setApprovalActionTip((short)997); //escalated
-		dao.updateObject(rec);
-		
-		Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
-		logRecord.setProjectUuid(step.getProjectUuid());
-	    logRecord.setUserId(1);//system
-	    logRecord.setApprovalRecordId(rec.getApprovalRecordId());
-	    logRecord.setApprovalStepId(step.getApprovalStepId());
-	    logRecord.setApprovalId(step.getApprovalId());
-	    logRecord.setDsc("escalation");
-	    logRecord.setApprovalActionTip((short) 997);
-	    dao.saveObject(logRecord);*/
-		
+		workflowEngine.updateWorkflowEscalatedRecord(step, rec);
 	}
 }
