@@ -74,7 +74,7 @@ public class RestController implements InitializingBean {
 			String methodName=u[4];
 			if(serviceName.equals("job")) {//project jobs
 				W5JobSchedule job = FrameworkCache.getJob(projectId, GenericUtil.uInt(methodName));
-				if(job != null) {
+				if(job != null && job.runCheck()) {
 					response.getWriter().write("{\"success\":"+ service.runJob(job) +"}"); // hersey duzgun
 					return;
 				}

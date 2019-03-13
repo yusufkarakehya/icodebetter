@@ -38,6 +38,7 @@ import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5GlobalNextval;
+import iwb.domain.db.Log5JobAction;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5FileAttachment;
@@ -678,96 +679,11 @@ public class FrameworkService {
 
 	public boolean runJob(W5JobSchedule job) {
 
-		Date dateNow = Calendar.getInstance().getTime();
-		Timestamp actionStartDttm = job.getActionStartDttm();					
-		Timestamp actionEndDttm = (job.getActionEndDttm()==null ? new Timestamp(dateNow.getTime()) : job.getActionEndDttm());					
-		Timestamp dt = new Timestamp(dateNow.getTime());
-		int frekans = job.getActionFrequency();					
-		
-		if (dt.compareTo(actionStartDttm)>0){ //başlangıç tarihi kontrol ediliyor
-			if (dt.compareTo(actionEndDttm)<=0){//bitiş tarihi kontrol ediliyor
-				if (frekans != 3){
-					//haftanın gÃ¼nleri içerisinde mi? kontrol ediliyor
-					String actionWeekDay = job.getActionWeekDays();					  
-					String weekday = Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == 1 ? 7 : Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-1);							 
-					if (actionWeekDay.indexOf(weekday)<0){
-						return false;
-					}
-				}
-				//aylar içerisinde mi? kontrol ediliyor
-				if(!GenericUtil.isEmpty(job.getActionMonths())){
-					String[] actionMonths = job.getActionMonths().split(",");
-					Arrays.sort(actionMonths);
-					String month = Integer.toString(Calendar.getInstance().get(Calendar.MONTH) + 1);				
-					if (Arrays.binarySearch(actionMonths,month)<0){
-						return false;
-					}
-				}
-			}
-			else{
-				return false;
-			}						
-		}
-		else{
-			return false;
-		}
-												
-		Timestamp lastRunTime = job.getlastRunTime();	
-		
-		if ((frekans == 2) || (frekans == 3) || (frekans == 4)){	//bir kez, aylık, gÃ¼nlÃ¼k
-			if (job.getRepeatTime() == null)
-				return false;			
-			Time nowTime = new Time(dateNow.getHours(), dateNow.getMinutes(), 0);
-			Time rtime = new Time(Integer.parseInt(job.getRepeatTime().substring(0,2)), Integer.parseInt(job.getRepeatTime().substring(3,5)), 0);
-								
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-			String tmpDate = sdf.format(dateNow);
-			try {
-				dateNow = sdf.parse(tmpDate);
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block e.printStackTrace();
-				
-			}
-			
-			if (frekans==3){ //aylık
-				//ayın kaçıncı gÃ¼nÃ¼ gönderilmesi gerektiği kontrol ediliyor.
-				String[] actionMonthsDays = job.getActionMonthsDays().split(",");
-				String day = Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
-				if (Arrays.binarySearch(actionMonthsDays,day)<0){
-					return false;
-				}												
-			}else if (frekans == 2){
-				if (lastRunTime != null) return false;
-			}
-			
-			if (lastRunTime != null){ 
-				int lastDay = lastRunTime.getDay();
-				int nowDay = dateNow.getDay();
-				if (nowDay == lastDay) return false; //bugÃ¼n zaten gönderilmiş
-			}	
-			if (!(nowTime.compareTo(rtime)>=0)) return false; 
-			
-		}					
-		else{ //sÃ¼rekli tekrar
-			int tekrarSuresi = job.getActionDelay();
-			if (tekrarSuresi == 0)
-				return false;	
-			if (lastRunTime != null){ 
-			    long diff = dt.getTime() - lastRunTime.getTime();
-			    long sure = (diff / (1000 * 60));
-			    
-			    if (sure<tekrarSuresi){
-			    	return false;
-			    }
-			}
-		}
 							
-		Date dateNow2 = Calendar.getInstance().getTime();
-		Timestamp dt2 = new Timestamp(dateNow2.getTime());
-		job.setlastRunTime(dt2);
-		updateObject(job);
-		
-		if (job.getActionTip()==3 && job.getActionDbFuncId()>0){//fonksiyon çalıştırılacak ise
+		job.set_running(true);
+		W5GlobalFuncResult res = null;
+		Log5JobAction logJob = new Log5JobAction(job.getJobScheduleId(), job.getProjectUuid());
+		try{//fonksiyon çalıştırılacak ise
 			Map<String, String> requestParams = new HashMap<String, String>();						
 			Map<String, Object> scd = new HashMap<String, Object>();
 			scd.put("projectId", job.getProjectUuid());
@@ -776,12 +692,20 @@ public class FrameworkService {
 			scd.put("roleId", job.getExecuteRoleId());
 			scd.put("userId", job.getExecuteUserId());
 			scd.put("administratorFlag",1);
-			W5GlobalFuncResult res=scriptEngine.executeGlobalFunc(scd, job.getActionDbFuncId(), requestParams , (short)7);						
+			res=scriptEngine.executeGlobalFunc(scd, job.getActionDbFuncId(), requestParams , (short)7);						
 			if (FrameworkSetting.debug && res.isSuccess()){
-				System.out.println("Scheduled function is executed (functionId=" + job.getActionDbFuncId() + ")");
+				System.out.println("Scheduled function is executed (funcId=" + job.getActionDbFuncId() + ")");
 			}
+		} catch(Exception e) {
+			if(FrameworkSetting.debug)e.printStackTrace();
+			logJob.setError(e.getMessage());
+			return false;
+		} finally {
+			job.set_running(false);
+			logJob.calcExecTime();
+			LogUtil.logObject(logJob);			
 		}
-		return true;
+		return res.isSuccess();
 	}
 
 

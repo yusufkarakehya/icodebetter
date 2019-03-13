@@ -904,24 +904,14 @@ public class MetadataLoaderDAO extends BaseDAO {
 		try {
 			Map<Integer, W5JobSchedule> mjobs = new HashMap();
 			for(W5JobSchedule j:(List<W5JobSchedule>)find("from W5JobSchedule x where x.activeFlag=1 and x.actionStartTip=1 AND x.projectUuid=?", projectId)) {
+				List<Object> res = executeSQLQuery(
+						"select r.user_role_id from iwb.w5_user u, iwb.w5_user_role r where u.project_uuid=r.project_uuid and u.user_id=r.user_id and u.user_id=? and r.role_id=? and r.project_uuid=?",
+						j.getExecuteUserId(), j.getExecuteRoleId(), projectId);
+				if (res != null)j.set_userRoleId(GenericUtil.uInt(res.get(0)));
 				mjobs.put(j.getJobScheduleId(), j);
 			}
 			
 			FrameworkCache.wJobs.put(projectId, mjobs);
-		/*	FrameworkCache.wJobs.addAll(find("from W5JobSchedule x where x.activeFlag=1 and x.actionStartTip=1"));
-			for (W5JobSchedule data : FrameworkCache.wJobs) {
-				String userId = Integer.toString(data.getExecuteUserId());
-				String roleId = Integer.toString(data.getExecuteRoleId());
-				int customization_id = data.getCustomizationId();
-				List<Map<String, Object>> res = executeSQLQuery2Map(
-						"select r.user_role_id, u.customization_id from iwb.w5_user u, iwb.w5_user_role r where u.customization_id=r.customization_id and u.user_id=r.user_id and u.user_id="
-								+ userId + " and r.role_id=" + roleId + " and r.customization_id=" + customization_id,
-						null);
-				if (res != null)
-					for (Map<String, Object> usr : res) {
-						data.set_userRoleId(GenericUtil.uInteger((String) usr.get("user_role_id")));
-					}
-			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

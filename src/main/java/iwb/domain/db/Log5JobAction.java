@@ -19,6 +19,7 @@ public class Log5JobAction implements Serializable, Log5Base{
 	private int jobScheduleId;
 	private String projectUuid;
 	private String error;
+	private long execTime;
 	
 	
 	public String toInfluxDB() {
@@ -29,6 +30,13 @@ public class Log5JobAction implements Serializable, Log5Base{
 	public Log5JobAction() {
 	}
 	
+
+	public Log5JobAction(int jobScheduleId, String projectUuid) {
+		super();
+		this.jobScheduleId = jobScheduleId;
+		this.projectUuid = projectUuid;
+		this.execTime = System.currentTimeMillis();
+	}
 
 	@SequenceGenerator(name="sex_log5_job_action",sequenceName="iwb.seq_log5_job_action",allocationSize=1)
 	@Id
@@ -67,6 +75,18 @@ public class Log5JobAction implements Serializable, Log5Base{
 	public void setError(String error) {
 		this.error = error;
 	}
+
+	@Column(name="exec_time")  
+	public long getExecTime() {
+		return execTime;
+	}
+
+	public void setExecTime(long execTime) {
+		this.execTime = execTime;
+	}
 	
+	public void calcExecTime() {
+		this.execTime = System.currentTimeMillis() - this.execTime;		
+	}
 	
 }
