@@ -2231,59 +2231,68 @@ class XTabForm extends React.PureComponent {
       event && event.preventDefault && event.preventDefault();
       var selfie = this;
       if (this.form) {
-        this.form.submit({
-          callback: (json, cfg) => {
-            var url = "showForm";
-            if (json.outs) {
-              url += "?a=1&_fid=" + json.formId;
-              for (var key in json.outs)
-                url += "&t" + key + "=" + json.outs[key];
-            } else {
-              url += cfg.url.substring("ajaxPostForm".length);
-            }
-            // console.log(selfie.props);
-            selfie.props.callAttributes.callback &&
-            selfie.props.callAttributes.callback(json, cfg);
-            toastr.success(
-              "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
+        iwb.loadingActive(() => {
+          this.form.submit({
+            callback: (json, cfg) => {
+              var url = "showForm";
+              if (json.outs) {
+                url += "?a=1&_fid=" + json.formId;
+                for (var key in json.outs)
+                  url += "&t" + key + "=" + json.outs[key];
+              } else {
+                url += cfg.url.substring("ajaxPostForm".length);
+              }
+              // console.log(selfie.props);
+              selfie.props.callAttributes.callback &&
+                selfie.props.callAttributes.callback(json, cfg);
+              toastr.success(
+                "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
                 url +
                 "')\"></a>",
-              "Saved Successfully",
-              { timeOut: 3000 }
-            );
-            if(json.msgs)for(var ri=0;ri<json.msgs.length;ri++){
-            	toastr.info(
-            			json.msgs[ri],
-                        "",
-                        { timeOut: 5000 }
-                      );	
+                "Saved Successfully", {
+                  timeOut: 3000
+                }
+              );
+              if (json.msgs)
+                for (var ri = 0; ri < json.msgs.length; ri++) {
+                  toastr.info(
+                    json.msgs[ri],
+                    "", {
+                      timeOut: 5000
+                    }
+                  );
+                }
+              var {
+                parentCt
+              } = selfie.props;
+              if (parentCt) {
+                iwb.closeModal();
+                iwb.closeTab();
+                iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
+              }
+              if (json.conversionPreviews)
+                for (var ri = 0; ri < json.conversionPreviews.length; ri++) {
+                  var cnv = json.conversionPreviews[ri];
+                  iwb.openTab(
+                    "2-" + cnv._fid + '-' + cnv._cnvId,
+                    "showForm?a=2&_fid=" + cnv._fid + '&_cnvId=' + cnv._cnvId + '&_cnvTblPk' + cnv._cnvTblPk, {}, {
+                      modal: false
+                    }
+                  );
+                }
+              if (json.smsMailPreviews)
+                for (var ri = 0; ri < json.smsMailPreviews.length; ri++) {
+                  var fsm = json.smsMailPreviews[ri]; //[{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
+                  iwb.openTab(
+                    "2-" + fsm.fsmId + '-' + fsm.tbPk,
+                    'showForm?a=2&_fid=4903&_cnvId=' + cnv._cnvId + '&_cnvTblPk' + cnv._cnvTblPk, {}, {
+                      modal: false
+                    }
+                  );
+                }
             }
-            var { parentCt } = selfie.props;
-            if (parentCt) {
-              iwb.closeModal();
-              iwb.closeTab();
-              iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
-            }
-            if(json.conversionPreviews)for(var ri=0;ri<json.conversionPreviews.length;ri++){
-            	var cnv = json.conversionPreviews[ri];
-            	iwb.openTab(
-            	          "2-" + cnv._fid+'-'+cnv._cnvId,
-            	          "showForm?a=2&_fid="+cnv._fid+'&_cnvId='+cnv._cnvId+'&_cnvTblPk'+cnv._cnvTblPk,
-            	          {},
-            	          { modal: false }
-            	        );
-            }
-            if(json.smsMailPreviews)for(var ri=0;ri<json.smsMailPreviews.length;ri++){
-            	var fsm = json.smsMailPreviews[ri];//[{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
-            	iwb.openTab(
-            	          "2-" + fsm.fsmId+'-'+fsm.tbPk,
-            	          'showForm?a=2&_fid=4903&_cnvId='+cnv._cnvId+'&_cnvTblPk'+cnv._cnvTblPk,
-            	          {},
-            	          { modal: false }
-            	        );
-            }
-          }
-        });
+          });
+        })
       } else alert("this.form not set");
       return false;
     };
@@ -5418,7 +5427,8 @@ class XPage extends React.PureComponent {
     this.openTab = (action, url, params, callAttributes) => {
       if (this.state.activeTab !== action) {
         if (this.isActionInTabList(action)) return;
-        fetch(url, {
+        iwb.loadingActive(()=>{
+          fetch(url, {
             body: JSON.stringify(params || {}), // must match 'Content-Type'
 												// header
             cache: "no-cache", // *default, no-cache, reload, force-cache,
@@ -5469,17 +5479,20 @@ class XPage extends React.PureComponent {
                     });
                     this.setState({
                       activeTab: action
-                    });
+                    },()=>iwb.loadingDeactive());
                   }
                 }
               } else {
+                iwb.loadingDeactive()
                 toastr.error("Sonuc Gelmedi", " Error");
               }
             },
             error => {
+              iwb.loadingDeactive()
               toastr.error(error, "Connection Error");
             }
           );
+        })
       }
     };
     iwb.openTab = this.openTab;
@@ -5987,6 +6000,47 @@ class XLoading extends React.Component {
     );
   }
 }
+class XLoadingSpinner extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      loading: false
+    }
+    this.loadingActive = (callback) => {
+      this.setState({
+        loading: true
+      },()=>{
+        callback && callback()
+      })
+    }
+    iwb.loadingActive = this.loadingActive
+    this.loadingDeactive = () => {
+      this.setState({
+        loading: false
+      })
+    }
+    iwb.loadingDeactive = this.loadingDeactive
+  }
+  render() {
+    return this.state.loading && _('div', {
+      style:{
+        opacity: '0.1'
+      },
+      className:'modal-backdrop show'
+    },
+      _(
+        "span", {
+          style: {
+            position: "fixed",
+            left: "48%",
+            top: "45%"
+          }
+        },
+        iwb.loading
+      )
+    )
+  }
+}
 /**
  * @description All the Forms will extend from this component so all the props
  *              will come from the server side
@@ -6108,6 +6162,7 @@ class XForm extends React.Component {
         params: values,
         self: this,
         errorCallback: json => {
+          iwb.loadingDeactive()
           var errors = {};
           if (json.errorType)
             switch (json.errorType) {
@@ -6191,6 +6246,7 @@ class XForm extends React.Component {
           return false;
         },
         successCallback: (json, xcfg) => {
+          iwb.loadingDeactive()
           if (cfg.callback) cfg.callback(json, xcfg);
         }
       });

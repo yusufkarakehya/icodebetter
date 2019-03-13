@@ -2291,10 +2291,11 @@ class XTabForm extends React.PureComponent {
 	 * @param {Event}
 	 *            event
 	 */
-    this.onSubmit = event => {
-      event && event.preventDefault && event.preventDefault();
-      var selfie = this;
-      if (this.form) {
+  this.onSubmit = event => {
+    event && event.preventDefault && event.preventDefault();
+    var selfie = this;
+    if (this.form) {
+      iwb.loadingActive(() => {
         this.form.submit({
           callback: (json, cfg) => {
             var url = "showForm";
@@ -2310,49 +2311,55 @@ class XTabForm extends React.PureComponent {
               selfie.props.callAttributes.callback(json, cfg);
             toastr.success(
               "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
-                url +
-                "')\"></a>",
-              "Saved Successfully",
-              { timeOut: 3000 }
+              url +
+              "')\"></a>",
+              "Saved Successfully", {
+                timeOut: 3000
+              }
             );
-            if(json.msgs)for(var ri=0;ri<json.msgs.length;ri++){
-            	toastr.info(
-            			json.msgs[ri],
-                        "",
-                        { timeOut: 5000 }
-                      );	
-            }
-            var { parentCt } = selfie.props;
+            if (json.msgs)
+              for (var ri = 0; ri < json.msgs.length; ri++) {
+                toastr.info(
+                  json.msgs[ri],
+                  "", {
+                    timeOut: 5000
+                  }
+                );
+              }
+            var {
+              parentCt
+            } = selfie.props;
             if (parentCt) {
               iwb.closeModal();
               iwb.closeTab();
               iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
             }
-            if(json.conversionPreviews)for(var ri=0;ri<json.conversionPreviews.length;ri++){
-            	var cnv = json.conversionPreviews[ri];
-            	iwb.openTab(
-            	          "2-" + cnv._fid+'-'+cnv._cnvId,
-            	          "showForm?a=2&_fid="+cnv._fid+'&_cnvId='+cnv._cnvId+'&_cnvTblPk='+cnv._cnvTblPk,
-            	          {},
-            	          { modal: false }
-            	        );
-            }
-            if(json.smsMailPreviews)for(var ri=0;ri<json.smsMailPreviews.length;ri++){
-            	var fsm = json.smsMailPreviews[ri];// [{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
-            	iwb.openTab(
-            	          "2-" + fsm.fsmId+'-'+fsm.tbPk,
-            	          'showForm?a=2&_fid=5748&table_id='+fsm.tbId+'&table_pk='+fsm.tbPk+'&_fsmId='+fsm.fsmId,
-            	          {},
-            	          { modal: false }
-            	        );
-            }
-            
-            	
+            if (json.conversionPreviews)
+              for (var ri = 0; ri < json.conversionPreviews.length; ri++) {
+                var cnv = json.conversionPreviews[ri];
+                iwb.openTab(
+                  "2-" + cnv._fid + '-' + cnv._cnvId,
+                  "showForm?a=2&_fid=" + cnv._fid + '&_cnvId=' + cnv._cnvId + '&_cnvTblPk' + cnv._cnvTblPk, {}, {
+                    modal: false
+                  }
+                );
+              }
+            if (json.smsMailPreviews)
+              for (var ri = 0; ri < json.smsMailPreviews.length; ri++) {
+                var fsm = json.smsMailPreviews[ri]; //[{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
+                iwb.openTab(
+                  "2-" + fsm.fsmId + '-' + fsm.tbPk,
+                  'showForm?a=2&_fid=4903&_cnvId=' + cnv._cnvId + '&_cnvTblPk' + cnv._cnvTblPk, {}, {
+                    modal: false
+                  }
+                );
+              }
           }
         });
-      } else alert("this.form not set");
-      return false;
-    };
+      })
+    } else alert("this.form not set");
+    return false;
+  };
     this.onContSubmit = event => {
         event && event.preventDefault && event.preventDefault();
         var selfie = this;
@@ -5484,7 +5491,8 @@ class XPage extends React.PureComponent {
     this.openTab = (action, url, params, callAttributes) => {
       if (this.state.activeTab !== action) {
         if (this.isActionInTabList(action)) return;
-        fetch(url, {
+        iwb.loadingActive(()=>{
+          fetch(url, {
             body: JSON.stringify(params || {}), // must match 'Content-Type'
 												// header
             cache: "no-cache", // *default, no-cache, reload, force-cache,
@@ -5536,17 +5544,20 @@ class XPage extends React.PureComponent {
                     });
                     this.setState({
                       activeTab: action
-                    });
+                    },()=>iwb.loadingDeactive());
                   }
                 }
               } else {
+                iwb.loadingDeactive()
                 toastr.error(getLocMsg('no_result'), " Error");
               }
             },
             error => {
+              iwb.loadingDeactive()
               toastr.error(error, getLocMsg('connection_error'));
             }
           );
+        })
       }
     };
     iwb.openTab = this.openTab;
@@ -6269,6 +6280,47 @@ class XLoading extends React.Component {
     );
   }
 }
+class XLoadingSpinner extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      loading: false
+    }
+    this.loadingActive = (callback) => {
+      this.setState({
+        loading: true
+      },()=>{
+        callback && callback()
+      })
+    }
+    iwb.loadingActive = this.loadingActive
+    this.loadingDeactive = () => {
+      this.setState({
+        loading: false
+      })
+    }
+    iwb.loadingDeactive = this.loadingDeactive
+  }
+  render() {
+    return this.state.loading && _('div', {
+      style:{
+        opacity: '0.1'
+      },
+      className:'modal-backdrop show'
+    },
+      _(
+        "span", {
+          style: {
+            position: "fixed",
+            left: "48%",
+            top: "45%"
+          }
+        },
+        iwb.loading
+      )
+    )
+  }
+}
 /**
  * @description All the Forms will extend from this component so all the props
  *              will come from the server side
@@ -6368,62 +6420,117 @@ class XForm extends React.Component {
 	 * @param {Object}
 	 *            cfg
 	 */
-    this.submit = cfg => {
-// console.log('bb',this.props.parentCt.props.cfg.id)
-      var baseValues = iwb.formBaseValues(this.props.parentCt.props.cfg.id);  
-      var values = { ...baseValues,  ...this.state.values };
-      if (this.componentWillPost) {
-        /**
-		 * componentWillPostResult = true || fase || {field_name : 'custom
-		 * value'}
-		 */
-        var componentWillPostResult = this.componentWillPost(values, cfg || {});
-        if (!componentWillPostResult) return false;
-        values = { ...values, ...componentWillPostResult };
+  this.submit = cfg => {
+    var baseValues = iwb.formBaseValues(cfg.id);  
+    var values = {...baseValues ,...this.state.values };
+    if (this.componentWillPost) {
+      /**
+   * componentWillPostResult = true || fase || {field_name : 'custom
+   * value'}
+   */
+      var componentWillPostResult = this.componentWillPost(values, cfg || {});
+      if (!componentWillPostResult) return false;
+      values = { ...values, ...componentWillPostResult };
+    }
+    iwb.request({
+      url:
+        this.url +
+        "?" +
+        iwb.JSON2URI(this.params) +
+        "_renderer=react16&.r=" +
+        Math.random(),
+      params: values,
+      self: this,
+      errorCallback: json => {
+        iwb.loadingDeactive()
+        var errors = {};
+        if (json.errorType)
+          switch (json.errorType) {
+            case "validation":
+              toastr.error("Validation Errors");
+              if (json.errors && json.errors.length) {
+                json.errors.map(oneError => {
+                  errors[oneError.id] = oneError.msg;
+                });
+              }
+              if (json.error) {
+                iwb.showModal({
+                  title: "ERROR",
+                  footer: false,
+                  color: "danger",
+                  size: "sm",
+                  body: json.error
+                });
+              }
+              break;
+            case "framework":
+              if (json.error) {
+                iwb.showModal({
+                  title: json.error,
+                  footer: false,
+                  color: "danger",
+                  size: "lg",
+                  body: _(Media, {
+                      body: true
+                    },
+                    json.objectType && _(Media, {
+                      heading: true
+                    }, json.objectType),
+
+                    _(ListGroup, {},
+                      json.icodebetter && json.icodebetter.map((item, index) => {
+                        return _(ListGroupItem, {},
+                          _(ListGroupItemHeading, {},
+                            item.errorType,
+                            item && _(Button, {
+                                className: 'float-right btn btn-xs',
+                                color:'info',
+                                onClick: (e) => {
+                                  e.preventDefault();
+                                  iwb.copyToClipboard(item);
+                                }
+                              },
+                              _('i', {
+                                className: 'icon-docs'
+                              }, '')
+                            ),
+                            item && _(Button, {
+                                className: 'float-right btn btn-xs',
+                                color:'primary',
+                                onClick: (e) => {
+                                  e.preventDefault();
+                                  iwb.log(item);
+                                  toastr.success( "Use CTR + SHIFT + I to see the log content!", "Console Log", { timeOut: 3000 } );
+                                }
+                              },
+                              _('i', {
+                                className: 'icon-target'
+                              }, '')
+                            )
+                          ),
+                          _(ListGroupItemText, {},
+                            item && _('pre', {}, window.JSON.stringify(item, null, 2))
+                          )
+                        )
+                      })
+                    )
+                  )
+                });
+              }
+              break;
+            default:
+              alert(json.errorType);
+          }
+        else alert(json);
+        this.setState({ errors });
+        return false;
+      },
+      successCallback: (json, xcfg) => {
+        iwb.loadingDeactive()
+        if (cfg.callback) cfg.callback(json, xcfg);
       }
-      iwb.request({
-        url:
-          this.url +
-          "?" +
-          iwb.JSON2URI(this.params) +
-          "_renderer=react16&.r=" +
-          Math.random(),
-        params: values,
-        self: this,
-        errorCallback: json => {
-          var errors = {};
-          if (json.errorType)
-            switch (json.errorType) {
-              case "validation":
-                toastr.error("Validation Errors");
-                if (json.errors && json.errors.length) {
-                  json.errors.map(oneError => {
-                    errors[oneError.id] = oneError.msg;
-                  });
-                }
-                if (json.error) {
-                  iwb.showModal({
-                    title: "ERROR",
-                    footer: false,
-                    color: "danger",
-                    size: "sm",
-                    body: json.error
-                  });
-                }
-                break; 
-             default:
-                iwb.requestErrorHandler(json);
-                return false;
-            }
-          else alert(json);
-          this.setState({ errors });
-          return false;
-        },
-        successCallback: (json, xcfg) => {
-          if (cfg.callback) cfg.callback(json, xcfg);
-        }
-      });
-    };
+    });
+  };
     /**
 	 * used to make form active tab and visible on the page
 	 * 
