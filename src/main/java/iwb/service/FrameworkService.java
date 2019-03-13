@@ -7,7 +7,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,10 +38,12 @@ import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5GlobalNextval;
+import iwb.domain.db.Log5JobAction;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5FormCell;
+import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5Table;
@@ -669,8 +677,35 @@ public class FrameworkService {
 		return formResult;
 	}
 
-	public synchronized void scheduledFrameworkCacheReload() {
+	public boolean runJob(W5JobSchedule job) {
 
+							
+		job.set_running(true);
+		W5GlobalFuncResult res = null;
+		Log5JobAction logJob = new Log5JobAction(job.getJobScheduleId(), job.getProjectUuid());
+		try{//fonksiyon çalıştırılacak ise
+			Map<String, String> requestParams = new HashMap<String, String>();						
+			Map<String, Object> scd = new HashMap<String, Object>();
+			scd.put("projectId", job.getProjectUuid());
+			scd.put("locale", job.getLocale());
+			scd.put("userRoleId", job.get_userRoleId());
+			scd.put("roleId", job.getExecuteRoleId());
+			scd.put("userId", job.getExecuteUserId());
+			scd.put("administratorFlag",1);
+			res=scriptEngine.executeGlobalFunc(scd, job.getActionDbFuncId(), requestParams , (short)7);						
+			if (FrameworkSetting.debug && res.isSuccess()){
+				System.out.println("Scheduled function is executed (funcId=" + job.getActionDbFuncId() + ")");
+			}
+		} catch(Exception e) {
+			if(FrameworkSetting.debug)e.printStackTrace();
+			logJob.setError(e.getMessage());
+			return false;
+		} finally {
+			job.set_running(false);
+			logJob.calcExecTime();
+			LogUtil.logObject(logJob);			
+		}
+		return res.isSuccess();
 	}
 
 

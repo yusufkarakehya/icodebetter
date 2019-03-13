@@ -1,6 +1,9 @@
 package iwb.domain.db;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +14,12 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Immutable;
+
+import iwb.util.GenericUtil;
+
 @Entity
+@Immutable
 @Table(name = "W5_JOB_SCHEDULE",schema="iwb")
 public class W5JobSchedule implements java.io.Serializable {
 	private int jobScheduleId;
@@ -38,16 +46,13 @@ public class W5JobSchedule implements java.io.Serializable {
 	private String locale;
 	private int todayFlag;
 	private int todayAddDayValue;
-	private Timestamp lastRunTime;
+	private boolean _running;
 	private int _userRoleId;
-	private int customizationId;	
 
 	public W5JobSchedule() {
 	}
 
-	@SequenceGenerator(name = "SEX_JOB_SCHEDULE_ID", sequenceName = "SEQ_JOB_SCHEDULE_ID", allocationSize = 1)
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEX_JOB_SCHEDULE_ID")
 	@Column(name = "JOB_SCHEDULE_ID")
 	public int getJobScheduleId() {
 		return this.jobScheduleId;
@@ -248,15 +253,6 @@ public class W5JobSchedule implements java.io.Serializable {
 		this.locale = locale;
 	}
 	
-	@Column(name = "LAST_RUN_TIME_DTTM")
-	public Timestamp getlastRunTime() {
-		return lastRunTime;
-	}
-
-	public void setlastRunTime(Timestamp lastRunTime) {
-		this.lastRunTime = lastRunTime;
-	}
-	
 	@Transient
 	public int get_userRoleId() {
 		return _userRoleId;
@@ -265,15 +261,7 @@ public class W5JobSchedule implements java.io.Serializable {
 	public void set_userRoleId(int userRoleId) {
 		_userRoleId = userRoleId;
 	}
-	@Id
-	@Column(name = "CUSTOMIZATION_ID")
-	public int getCustomizationId() {
-		return customizationId;
-	}
 
-	public void setCustomizationId(int customizationId) {
-		this.customizationId = customizationId;
-	}
 	
 	@Column(name = "TODAY_FLAG")
 	public int getTodayFlag() {
@@ -293,5 +281,65 @@ public class W5JobSchedule implements java.io.Serializable {
 		this.todayAddDayValue = todayAddDayValue;
 	}
 	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
+
+	@Transient
+	public boolean is_running() {
+		return _running;
+	}
+
+	public void set_running(boolean _running) {
+		this._running = _running;
+	}
+
+	public boolean runCheck() {
+		if(this._running)return false;
+		if(this.getActionTip()!=3 ||  this.getActionDbFuncId()==0)return false;//TODO : only run global func
+		
+		Date dateNow = Calendar.getInstance().getTime();
+		Timestamp actionStartDttm = this.getActionStartDttm();					
+		Timestamp actionEndDttm = (this.getActionEndDttm()==null ? new Timestamp(dateNow.getTime()) : this.getActionEndDttm());					
+		Timestamp dt = new Timestamp(dateNow.getTime());
+		int frekans = this.getActionFrequency();					
+		
+		if (dt.compareTo(actionStartDttm)>0){ //başlangıç tarihi kontrol ediliyor
+			if (dt.compareTo(actionEndDttm)<=0){//bitiş tarihi kontrol ediliyor
+				if (frekans != 3){
+					//haftanın gÃ¼nleri içerisinde mi? kontrol ediliyor
+					String actionWeekDay = this.getActionWeekDays();					  
+					String weekday = Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == 1 ? 7 : Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-1);							 
+					if (actionWeekDay.indexOf(weekday)<0){
+						return false;
+					}
+				}
+				//aylar içerisinde mi? kontrol ediliyor
+				if(!GenericUtil.isEmpty(this.getActionMonths())){
+					String[] actionMonths = this.getActionMonths().split(",");
+					Arrays.sort(actionMonths);
+					String month = Integer.toString(Calendar.getInstance().get(Calendar.MONTH) + 1);				
+					if (Arrays.binarySearch(actionMonths,month)<0){
+						return false;
+					}
+				}
+			}
+			else{
+				return false;
+			}						
+		}
+		else{
+			return false;
+		}
+		
+		return true;
+	}
 
 }

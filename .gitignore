@@ -22,13 +22,12 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-
+*.properties
 .classpath
 .project
 .settings
 build
 target
-src/main/resources/application.properties
 node_modules/
 .DS_Store
 src/.DS_Store

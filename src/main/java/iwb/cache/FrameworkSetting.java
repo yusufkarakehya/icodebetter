@@ -123,6 +123,7 @@ public class FrameworkSetting {
 	public static String log2mqQueue = "icodebetter-tsdb-exchange";
 
 
+	public static boolean localTimer = true;
 	
 	/**
      * This is your auth0 domain (tenant you have created when registering with auth0 - account name)
