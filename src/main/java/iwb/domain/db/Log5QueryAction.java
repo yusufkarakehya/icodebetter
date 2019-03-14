@@ -66,8 +66,7 @@ public class Log5QueryAction implements java.io.Serializable, Log5Base {
 		this.userId = (Integer)queryResult.getScd().get("userId");
 		this.startTime=System.currentTimeMillis();
 		this.processTime = -1;
-		if(queryResult.getScd().get("projectId")!=null)
-			this.projectUuid = (String)queryResult.getScd().get("projectId");
+		this.projectUuid = queryResult.getScd().get("projectId")!=null ? (String)queryResult.getScd().get("projectId"):"01234567890";
 	}
     @SequenceGenerator(name="sex_log_query_action",sequenceName="iwb.seq_log_query_action",allocationSize=1)
 	@Id
