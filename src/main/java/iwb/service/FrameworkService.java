@@ -705,7 +705,6 @@ public class FrameworkService {
 			return false;
 		} finally {
 			job.set_running(false);
-			logJob.calcExecTime();
 			LogUtil.logObject(logJob);			
 		}
 		return res.isSuccess();

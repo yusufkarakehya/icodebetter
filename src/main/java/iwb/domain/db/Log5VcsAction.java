@@ -24,7 +24,7 @@ public class Log5VcsAction implements Serializable, Log5Base{
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("vcs_action,project_uuid=").append(projectUuid).append(" user_id=").append(userId).append("i,action=").append(vcsActionTip).append("i,ip=\"").append(userIp).append("\"");
+		s.append("vcs_action,project_uuid=").append(projectUuid).append(" user_id=").append(userId).append(",action=").append(vcsActionTip).append(",ip=\"").append(userIp).append("\"");
 		return s.toString();
 	}
 

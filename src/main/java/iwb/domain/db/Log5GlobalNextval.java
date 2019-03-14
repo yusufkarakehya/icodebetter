@@ -14,7 +14,7 @@ public class Log5GlobalNextval implements Serializable, Log5Base{
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("global_nextval,project_uuid=").append(projectUuid).append(",seq=").append(seq).append(" user_id=").append(userId).append("i,customizationId=").append(customizationId).append("i,ip=\"").append(ip).append("\"");
+		s.append("global_nextval,project_uuid=").append(projectUuid).append(",seq=").append(seq).append(" user_id=").append(userId).append(",customizationId=").append(customizationId).append(",ip=\"").append(ip).append("\"");
 		return s.toString();
 	}
 
