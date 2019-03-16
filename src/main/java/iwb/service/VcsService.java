@@ -3600,7 +3600,12 @@ public class VcsService {
 		}
 		dao.executeUpdateSQLQuery("create table " + newSchemaName + ".w5_vcs_commit as select * from iwb.w5_vcs_commit where project_uuid=?",projectUuid);
 		dao.executeUpdateSQLQuery("create table " + newSchemaName + ".w5_vcs_object as select * from iwb.w5_vcs_object where project_uuid=?",projectUuid);
+
+		String newDbSchemaName = newSchemaName + "_db";
+//		dao.executeUpdateSQLQuery("create schema " + newDbSchemaName);
 		FrameworkSetting.projectSystemStatus.put(projectUuid, 0);
+		dao.executeUpdateSQLQuery("SELECT iwb.clone_schema(?, ?, TRUE)", po.getRdbmsSchema(), newDbSchemaName);
+
 		
 		return savePointId;
 		
