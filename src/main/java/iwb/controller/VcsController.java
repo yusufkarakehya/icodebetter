@@ -846,6 +846,42 @@ public class VcsController implements InitializingBean {
 		
 	}
 	
+	
+	@RequestMapping("/ajaxVCSProjectBack2SavePoint")
+	public void hndAjaxVCSProjectBack2SavePoint(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("ajaxVCSProjectBack2SavePoint"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+    	boolean b = vcsEngine.vcsProjectBack2SavePoint(scd, GenericUtil.uInt(request,"id"));
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();
+		
+	}
+	
+	
+	
+	@RequestMapping("/ajaxVCSProjectDeleteSavePoint")
+	public void hndAjaxVCSProjectDeleteSavePoint(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("ajaxVCSProjectDeleteSavePoint"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+    	boolean b = vcsEngine.vcsProjectDeleteSavePoint(scd, GenericUtil.uInt(request,"id"));
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();		
+	}
+	
 	@RequestMapping("/serverVCSProjectSavePoint")
 	public void hndServerVCSProjectSavePoint(
 			HttpServletRequest request,
