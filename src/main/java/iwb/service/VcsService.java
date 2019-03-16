@@ -3496,7 +3496,7 @@ public class VcsService {
 		
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid();
 		urlParameters+="&q=4536";
-		String url=po.getVcsUrl();
+		String url=FrameworkCache.getAppSettingStringValue(0, "vcs_url");//po.getVcsUrl();
 		if(!url.endsWith("/"))url+="/";
 		url+="serverVCSQueryResult";
 		return HttpUtil.send(url, urlParameters);
