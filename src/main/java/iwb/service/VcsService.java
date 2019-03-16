@@ -3564,6 +3564,49 @@ public class VcsService {
 
 		return null;
 	}
-	
+
+	public int vcsProjectCreateSavePoint(Map<String, Object> scd, String dsc) {
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		
+		int maxSavePoint = 0;
+		List<Object> listMaxSavePoint = dao.executeSQLQuery("select max(x.save_point_id) xx from iwb.w5_project_save_point x where project_uuid=?",projectUuid);
+		if(!GenericUtil.isEmpty(listMaxSavePoint)) {
+			maxSavePoint = GenericUtil.uInt(listMaxSavePoint.get(0));
+		}
+
+		int maxCommit = 0;
+		List<Object> listMaxCommitId = dao.executeSQLQuery("select max(x.vcs_commit_id) xx from iwb.w5_vcs_commit x where project_uuid=?",projectUuid);
+		if(!GenericUtil.isEmpty(listMaxCommitId)) {
+			maxCommit = GenericUtil.uInt(listMaxCommitId.get(0));
+		}
+		
+		List<W5Table> l = FrameworkCache.listVcsTables(null);
+		int savePointId = maxSavePoint + 1;
+		
+		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_project_save_point(save_point_id, project_uuid, dsc, vcs_commit_id, insert_user_id, version_user_id) " +
+		"VALUES (?, ?, ?, ?, ?, ?)", savePointId, projectUuid, dsc, maxCommit, scd.get("userId"), scd.get("userId"));
+
+		
+//		String newSchemaName = "iwb_"+projectUuid.replace('-','_') + "_sp_"+savePointId;
+		String newSchemaName = po.getRdbmsSchema() + "_sp_"+savePointId;
+		dao.executeUpdateSQLQuery("create schema " + newSchemaName);
+		for(W5Table t:l) {
+			String tableName = t.getDsc();
+			int ix = t.getDsc().indexOf(".");
+			String newTableName = newSchemaName + "." + (ix==-1 ? tableName: tableName.substring(ix+1));
+			dao.executeUpdateSQLQuery("create table " + newTableName + " as select * from " + tableName + " where project_uuid=?",projectUuid);
+		}
+		dao.executeUpdateSQLQuery("create table " + newSchemaName + ".w5_vcs_commit as select * from iwb.w5_vcs_commit where project_uuid=?",projectUuid);
+		dao.executeUpdateSQLQuery("create table " + newSchemaName + ".w5_vcs_object as select * from iwb.w5_vcs_object where project_uuid=?",projectUuid);
+		return savePointId;
+		
+	}
+	public int vcsServerProjectCreateSavePoint(String userName, String passWord, int customizationId, String projectId, String dsc) {
+		if(!FrameworkSetting.vcsServer)
+			throw new IWBException("vcs","vcsServerProjectCreateSavePoint",0,null, "Not a VCS Server to vcsServerProjectCreateSavePoint", null);
+		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
+		return vcsProjectCreateSavePoint(scd, dsc);
+	}
 
 }

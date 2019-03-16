@@ -677,6 +677,14 @@ public class FrameworkCache {
 		return m.get(jobId);
 	}
 
+	public static List<W5Table> listVcsTables(String projectId) {
+		List<W5Table> l = new ArrayList();
+		for(W5Table t:wTables.get(projectId!=null ? projectId: "067e6162-3b6f-4ae2-a221-2470b63dff00").values()) if(t.getVcsFlag()!=0){
+			l.add(t);
+		}
+		return l;
+	}
+
 	
 /*	public static W5TsPortlet getTsPortlet(Map<String, Object> customizationId, int porletId) {
 		int cid = getCustomizationId(customizationId);
