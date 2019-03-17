@@ -689,8 +689,10 @@ public class FrameworkService {
 		try{//fonksiyon çalıştırılacak ise
 			Map<String, String> requestParams = new HashMap<String, String>();						
 			Map<String, Object> scd = new HashMap<String, Object>();
+			W5Project po = FrameworkCache.getProject(job.getProjectUuid());
 			scd.put("projectId", job.getProjectUuid());
 			scd.put("locale", job.getLocale());
+			scd.put("customizationId", po.getCustomizationId());
 			scd.put("userRoleId", job.get_userRoleId());
 			scd.put("roleId", job.getExecuteRoleId());
 			scd.put("userId", job.getExecuteUserId());
