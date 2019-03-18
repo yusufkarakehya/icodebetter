@@ -3428,6 +3428,23 @@ class XForm extends React.Component {
       }
     };
     /**
+     * file upload function
+     */
+    this.onFileChange = () => (name, result, context) => {
+      var values = this.state.values;
+      var errors = this.state.errors;
+      if (result.success) {
+        values[name] = result.fileId
+        errors[name] = undefined;
+      } else {
+        errors[name] = result.error
+      }
+      this.setState({
+        errors,
+        values
+      })
+    }
+    /**
      * sets state for combo change
      * else sets oprions of it after the request
      * @param {String} inputName
@@ -3753,3 +3770,204 @@ iwb.ajax.postForm=function(fid,action,params,callback){
 iwb.ajax.execFunc=function(did,params,callback){
 	iwb.request({url:'ajaxExecDbFunc?_did='+did,params:params||{},successCallback:callback||false})
 }
+function fieldFileAttachment(row, cell) {
+  return row[cell] && 1 * row[cell]
+    ? _("a", { href:"dl/"+row[cell+"_qw_"]+"?_fai="+row[cell],target:"_blank"}, row[cell+"_qw_"])
+    : null;
+}
+class FileInput extends React.Component {
+	  constructor(props) {
+	    super(props)
+	    this.state = {
+	      canUpload: false,
+	      dragOver: false,
+	      file: null,
+	      fileUrl: props.fileId ? 'dl/' + props.fileName + '?_fai=' + props.fileId + '&.r=' + Math.random() : null,
+	      fileName: props.fileName || null,
+	    };
+	    this.onDrop = this.onDrop.bind(this);
+	    this.dragenter = this.dragenter.bind(this);
+	    this.dragleave = this.dragleave.bind(this);
+	    this.dragover = this.dragover.bind(this);
+	    this.onclick = this.onclick.bind(this);
+	    this.onchange = this.onchange.bind(this);
+	    this.uplaodFile = this.uplaodFile.bind(this);
+	    /** */
+	    this.downladLink = (url) => (e) => {
+	      e.preventDefault()
+	      e.stopPropagation()
+
+	      let link = document.createElement('a');
+	      link.href = url;
+	      document.body.appendChild(link);
+	      link.click();
+	      document.body.removeChild(link);
+	    }
+	  }
+	  componentWillMount() {
+	  }
+	  /** function to click input ref click */
+	  onclick(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.inpuRef.click();
+	  }
+	  /** used to disable opening file on new tab */
+	  dragover(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	  }
+	  /** used with css */
+	  dragleave(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.setState({
+	      dragOver: false
+	    });
+	  }
+	  /** when the file over drag area */
+	  dragenter(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.setState({
+	      dragOver: true
+	    });
+	  }
+	  /** when the file dproped over drop area */
+	  onDrop(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.setState({
+	      canUpload: true,
+	      dragOver: false,
+	      file: event.dataTransfer.files[0]
+	    }, () => {
+	      this.uplaodFile()
+	    })
+	  }
+	  /** when the file dproped over drop area */
+	  onchange(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.setState({
+	      canUpload: true,
+	      dragOver: false,
+	      file: event.target.files[0]
+	    }, () => {
+	      this.uplaodFile();
+	    })
+	  }
+	  /** uploader function */
+	  uplaodFile() {
+	    if (!this.state.file) {
+	      return;
+	    }
+	    let formData = new FormData()
+	    formData.append('table_pk', this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))
+	    formData.append('table_id', this.props.cfg.crudTableId)
+	    formData.append('file', this.state.file)
+	    formData.append('profilePictureFlag', this.props.profilePictureFlag || 0)
+	    fetch('upload.form', {
+	        method: 'POST',
+	        body: formData,
+	        cache: 'no-cache',
+	        credentials: 'same-origin',
+	        mode: 'cors',
+	        redirect: 'follow',
+	        referrer: 'no-referrer'
+	      })
+	      .then(response => response.status === 200 || response.status === 0 ? response.json() : Promise.reject(new Error(response.text() || response.statusText)))
+	      .then(
+	        result => {
+	          if (result.success) {
+	            toastr.success(getLocMsg('file_sucessfully_uploaded!'), getLocMsg('Success'), {
+	              timeOut: 3000
+	            });
+	            this.setState({
+	              canUpload: false,
+	              file: null,
+	              fileName: result.fileName,
+	              fileUrl: result.fileUrl,
+	            }, )
+	          } else {
+	            if (result.error) {
+	              toastr.error(result.error, result.errorType);
+	            }
+	          }
+	          this.props.onFileChange && this.props.onFileChange(this.props.name, result, this)
+	          return;
+	        },
+	        error => {
+	          toastr.error(error, getLocMsg('Error'));
+	        }
+	      )
+	  }
+	  render() {
+	    let defaultStyle = {
+	      height: '100%',
+	      width: '100%',
+	      position: 'absolute',
+	      top: '0',
+	      left: '0'
+	    }
+	    return _(React.Fragment, {},
+	      _('div', null,
+	        // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+	        _('input', {
+	          className: 'd-none',
+	          type: 'file',
+	          onChange: this.onchange,
+	          ref: input => this.inpuRef = input
+	        }),
+	        this.props.extraButtons && this.props.extraButtons
+	      ),
+	      _(CardBody, {},
+	        _('div', {
+	            className: 'mx-auto',
+	            style: {
+	              height: '200px',
+	              width: '200px',
+	              position: 'relative',
+	              border: this.state.dragOver ? '3px dashed #20a8d8' : '3px dashed #a4b7c1'
+	            }
+	          },
+	          _('div', {
+	            style: {
+	              ...defaultStyle,
+	              zIndex: '10',
+	              background: 'gray',
+	              cursor: 'pointer',
+	              opacity: this.state.canUpload ? '0' : '0.5',
+	            },
+	            className: 'rounded',
+	            onDrop: this.onDrop,
+	            onDragEnter: this.dragenter,
+	            onDragLeave: this.dragleave,
+	            onDragOver: this.dragover,
+	            onClick: this.onclick
+	          }),
+	          _('div', {
+	              style: {
+	                ...defaultStyle,
+	                display: 'flex'
+	              }
+	            },
+	            _(XPreviewFile, {
+	              file: this.state.file
+	            }))
+	        ),
+	        _('div', {
+	          className: 'clearfix'
+	        }),
+	        _(ListGroup, {},
+	          this.state.fileUrl && _(ListGroupItem, null,
+	            _('a', {
+	              onClick: this.downladLink(this.state.fileUrl),
+	              href: '#'
+	            }, this.state.fileName),
+	          )
+	        )
+	      )
+	    )
+	  }
+	}

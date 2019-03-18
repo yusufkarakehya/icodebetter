@@ -438,6 +438,17 @@ public class PostgreSQL extends BaseDAO {
 								break;
 							}
 						for (W5QueryField qf : queryResult.getQuery().get_queryFields())
+							if (qf.getPostProcessTip() == 71) { // fileAttach
+								sql2.append(",(select q.original_file_name from iwb.w5_file_attachment q where q.project_uuid='").append(queryResult.getScd().get("projectId")).append("' AND q.file_attachment_id=z.").append(qf.getDsc()).append("::integer) ").append(qf.getDsc()).append("_qw_ ");
+								W5QueryField field = new W5QueryField();
+								field.setDsc(qf.getDsc() + "_qw_"); field.setFieldTip((short)10);
+								field.setMainTableFieldId(qf.getMainTableFieldId());
+								if (queryResult.getPostProcessQueryFields() == null)
+									queryResult.setPostProcessQueryFields(new ArrayList());
+								queryResult.getPostProcessQueryFields().add(field);
+								
+							}
+						for (W5QueryField qf : queryResult.getQuery().get_queryFields())
 							if ((qf.getPostProcessTip() == 16 || qf.getPostProcessTip() == 17)
 									&& qf.getLookupQueryId() != 0) { // queryField'da
 																		// postProcessTip=lookupQuery
@@ -739,6 +750,8 @@ public class PostgreSQL extends BaseDAO {
 						if (conn != null)
 							conn.close();
 				}
+
+
 			});
 			// } catch(IWBException pe){error = pe.getMessage();throw pe;
 		} catch (Exception e) {
@@ -1003,6 +1016,13 @@ public class PostgreSQL extends BaseDAO {
 						rc.setExtraValuesMap(runSQLQuery2Map(
 								GenericUtil.filterExt(c.getInitialValue(), scd, requestParams, null).toString(), null,
 								null));
+					}
+					break;
+				case	71://file attachment
+					int fileId = GenericUtil.uInt(rc.getValue());
+					if(fileId!=0) {
+						List params = new ArrayList(); params.add(scd.get("projectId"));params.add(fileId);
+						rc.setExtraValuesMap(runSQLQuery2Map("select x.file_attachment_id id, x.original_file_name dsc from iwb.w5_file_attachment x where x.project_uuid=? AND x.file_attachment_id=?",params, null));
 					}
 					break;
 				case 60: // remote superboxselect

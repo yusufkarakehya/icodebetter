@@ -187,26 +187,26 @@ public class React16 implements ViewAdapter {
 		return buf;
 	}
 
-	public StringBuilder serializeShowForm(W5FormResult formResult) {
+	public StringBuilder serializeShowForm(W5FormResult fr) {
 		StringBuilder s = new StringBuilder();
-		s.append("var _page_tab_id='").append(formResult.getUniqueId())
+		s.append("var _page_tab_id='").append(fr.getUniqueId())
 				.append("';\n");
 		boolean liveSyncRecord = FrameworkSetting.liveSyncRecord
-				&& formResult != null && formResult.getForm() != null
-				&& formResult.getForm().getObjectTip() == 2
-				&& formResult.getAction() == 1;
+				&& fr != null && fr.getForm() != null
+				&& fr.getForm().getObjectTip() == 2
+				&& fr.getAction() == 1;
 
 			
-		if (GenericUtil.uInt(formResult.getRequestParams().get("a")) != 5 && formResult.getForm().getRenderTip() != 0) { // tabpanel ve icinde gridler varsa
-			for (W5FormModule m : formResult.getForm().get_moduleList())
-				if (GenericUtil.accessControl(formResult.getScd(),
+		if (GenericUtil.uInt(fr.getRequestParams().get("a")) != 5 && fr.getForm().getRenderTip() != 0) { // tabpanel ve icinde gridler varsa
+			for (W5FormModule m : fr.getForm().get_moduleList())
+				if (GenericUtil.accessControl(fr.getScd(),
 						m.getAccessViewTip(), m.getAccessViewRoles(),
 						m.getAccessViewUsers())) {
 					switch (m.getModuleTip()) {
 					case 4:// form
-						if (formResult.getModuleFormMap() == null)
+						if (fr.getModuleFormMap() == null)
 							break;
-						W5FormResult nfr = formResult.getModuleFormMap().get(
+						W5FormResult nfr = fr.getModuleFormMap().get(
 								m.getObjectId());
 						if (nfr == null)
 							return null;
@@ -215,14 +215,14 @@ public class React16 implements ViewAdapter {
 								.append(";\n");
 						break;
 					case 5:// grid
-						if (formResult.getModuleGridMap() == null)
+						if (fr.getModuleGridMap() == null)
 							return null;
 						if (m.getModuleViewTip() == 0
-								|| formResult.getAction() == m
+								|| fr.getAction() == m
 										.getModuleViewTip()) {
-							W5GridResult gridResult = formResult
+							W5GridResult gridResult = fr
 									.getModuleGridMap().get(m.getObjectId());
-							gridResult.setAction(formResult.getAction());
+							gridResult.setAction(fr.getAction());
 							W5Table mainTable = gridResult.getGrid() != null
 									&& gridResult.getGrid()
 											.get_defaultCrudForm() != null ? FrameworkCache
@@ -232,7 +232,7 @@ public class React16 implements ViewAdapter {
 							if (mainTable != null
 									&& (!GenericUtil
 											.accessControl(
-													formResult.getScd(),
+													fr.getScd(),
 													mainTable
 															.getAccessViewTip(),
 													mainTable
@@ -241,13 +241,13 @@ public class React16 implements ViewAdapter {
 															.getAccessViewUsers())))
 								gridResult = null;// hicbirsey
 							else {
-								gridResult.setViewReadOnlyMode(formResult
+								gridResult.setViewReadOnlyMode(fr
 										.isViewMode());
 								s.append("\n")
-										.append(formResult.getForm().get_renderTemplate()!=null && formResult.getForm().get_renderTemplate().getLocaleMsgFlag() != 0 ? GenericUtil
+										.append(fr.getForm().get_renderTemplate()!=null && fr.getForm().get_renderTemplate().getLocaleMsgFlag() != 0 ? GenericUtil
 												.filterExt(serializeGrid(gridResult).toString(),
-														formResult.getScd(),
-														formResult.getRequestParams(),
+														fr.getScd(),
+														fr.getRequestParams(),
 														null)
 												: serializeGrid(gridResult))
 										.append("\n");
@@ -265,17 +265,17 @@ public class React16 implements ViewAdapter {
 		
 		
 		
-		W5Form f = formResult.getForm();
+		W5Form f = fr.getForm();
 		
-		Map<String, Object> scd = formResult.getScd();
+		Map<String, Object> scd = fr.getScd();
 		String xlocale = (String) scd.get("locale");
 		int customizationId = (Integer) scd.get("customizationId");
 		int userId = (Integer) scd.get("userId");
 		
 		s.append("var cfgForm={formId: ")
-			.append(formResult.getFormId()).append(", a:").append(formResult.getAction())
-			.append(", name:'").append(LocaleMsgCache.get2(customizationId, xlocale, formResult.getForm().getLocaleMsgKey()))
-			.append("',\n id:'").append(formResult.getUniqueId()).append("', defaultWidth:").append(f.getDefaultWidth()).append(", defaultHeight:").append(f.getDefaultHeight());
+			.append(fr.getFormId()).append(", a:").append(fr.getAction())
+			.append(", name:'").append(LocaleMsgCache.get2(customizationId, xlocale, fr.getForm().getLocaleMsgKey()))
+			.append("',\n id:'").append(fr.getUniqueId()).append("', defaultWidth:").append(f.getDefaultWidth()).append(", defaultHeight:").append(f.getDefaultHeight());
 	
 	
 	
@@ -283,29 +283,29 @@ public class React16 implements ViewAdapter {
 		// form(table) fields
 		if (f.getObjectTip() == 2
 				&& FrameworkCache.getTable(scd, f.getObjectId()) != null) {
-			s.append(",\n renderTip:").append(formResult.getForm().getRenderTip());
+			s.append(",\n renderTip:").append(fr.getForm().getRenderTip());
 			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
-			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
+			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !fr.isViewMode();
 			// insert AND continue control
 			s.append(", crudTableId:").append(f.getObjectId());
-			if (formResult.getAction() == 2) { // insert
+			if (fr.getAction() == 2) { // insert
 				long tmpId = -GenericUtil.getNextTmpId();
 				s.append(", contFlag:").append(f.getContEntryFlag() != 0).append(",\n tmpId:").append(tmpId);
-				formResult.getRequestParams().put("_tmpId", "" + tmpId);
-			} else if (formResult.getAction() == 1) { // edit
-				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
+				fr.getRequestParams().put("_tmpId", "" + tmpId);
+			} else if (fr.getAction() == 1) { // edit
+				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(fr.getPkFields()));
 				if(t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers()))s.append(", deletable:!0");
 				if (false && liveSyncRecord) {
 					s.append(", liveSync:true");
-					String webPageId = formResult.getRequestParams().get(".w");
+					String webPageId = fr.getRequestParams().get(".w");
 					if (webPageId != null) {
 						String key = "";
-						for (String k : formResult.getPkFields().keySet())
+						for (String k : fr.getPkFields().keySet())
 							if (!k.startsWith("customization"))
-								key += "*" + formResult.getPkFields().get(k);
+								key += "*" + fr.getPkFields().get(k);
 						if (key.length() > 0) {
 							key = t.getTableId() + "-" + key.substring(1);
-							formResult.setLiveSyncKey(key);
+							fr.setLiveSyncKey(key);
 							List<Object> l = UserUtil
 									.syncGetListOfRecordEditUsers(
 											(String)scd.get("projectId"), key,
@@ -322,13 +322,13 @@ public class React16 implements ViewAdapter {
 			}
 	
 		
-			boolean mobile = GenericUtil.uInt(formResult.getScd().get("mobile")) != 0;
+			boolean mobile = GenericUtil.uInt(fr.getScd().get("mobile")) != 0;
 
 			if (FrameworkCache.getAppSettingIntValue(scd, "make_comment_flag") != 0
 					&& t.getMakeCommentFlag() != 0){
 				s.append(",\n commentFlag:true, commentCount:");
-				if(formResult.getCommentExtraInfo()!=null){
-					String[] ozc = formResult.getCommentExtraInfo().split(";");//commentCount;commentUserId;lastCommentDttm;viewUserIds-msg
+				if(fr.getCommentExtraInfo()!=null){
+					String[] ozc = fr.getCommentExtraInfo().split(";");//commentCount;commentUserId;lastCommentDttm;viewUserIds-msg
 					int ndx = ozc[3].indexOf('-');
 					s.append(ozc[0]).append(", commentExtra:{\"last_dttm\":\"").append(ozc[2])
 						.append("\",\"user_id\":").append(ozc[1])
@@ -336,18 +336,18 @@ public class React16 implements ViewAdapter {
 						.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userId+""))
 						.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
 						.append("\"}");
-				} else s.append(formResult.getCommentCount());
+				} else s.append(fr.getCommentCount());
 			}
 			if (FrameworkCache.getAppSettingIntValue(scd, "file_attachment_flag") != 0 && t.getFileAttachmentFlag() != 0
 					&& FrameworkCache.roleAccessControl(scd, 101))
-				s.append(",\n fileAttachFlag:true, fileAttachCount:").append(formResult.getFileAttachmentCount());
+				s.append(",\n fileAttachFlag:true, fileAttachCount:").append(fr.getFileAttachmentCount());
 			if (FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag") != 0
 					&& ((Integer) scd.get("userTip") != 3 && t.getAccessTips() != null))
-				s.append(",\n accessControlFlag:true, accessControlCount:").append(formResult.getAccessControlCount());
+				s.append(",\n accessControlFlag:true, accessControlCount:").append(fr.getAccessControlCount());
 	
-			if (formResult.isViewMode())s.append(",\n viewMode:true");
+			if (fr.isViewMode())s.append(",\n viewMode:true");
 	
-			if (!formResult.isViewMode() && f.get_formSmsMailList() != null
+			if (!fr.isViewMode() && f.get_formSmsMailList() != null
 					&& !f.get_formSmsMailList().isEmpty()) { // automatic sms isleri varsa
 				int cnt = 0;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
@@ -356,7 +356,7 @@ public class React16 implements ViewAdapter {
 									.getSmsMailTip() != 0 && FrameworkSetting.mail))
 							&& fsm.getAlarmFlag() == 0
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
-									formResult.getAction())
+									fr.getAction())
 							&& GenericUtil.hasPartInside2(fsm.getWebMobileTips(), mobile ? "2" : "1")) {
 						cnt++;
 					}
@@ -372,7 +372,7 @@ public class React16 implements ViewAdapter {
 								&& fsm.getAlarmFlag() == 0
 								&& GenericUtil.hasPartInside2(
 										fsm.getActionTips(),
-										formResult.getAction())
+										fr.getAction())
 								&& GenericUtil
 										.hasPartInside2(fsm.getWebMobileTips(),
 												mobile ? "2" : "1")) {
@@ -412,7 +412,7 @@ public class React16 implements ViewAdapter {
 								&& fsm.getAlarmFlag() != 0
 								&& GenericUtil.hasPartInside2(
 										fsm.getActionTips(),
-										formResult.getAction())
+										fr.getAction())
 								&& GenericUtil
 										.hasPartInside2(fsm.getWebMobileTips(),
 												mobile ? "2" : "1")) {
@@ -420,8 +420,8 @@ public class React16 implements ViewAdapter {
 						}
 					if (cnt > 0) {
 						Map<Integer, W5FormSmsMailAlarm> alarmMap = new HashMap();
-						if (!GenericUtil.isEmpty(formResult.getFormAlarmList()))
-							for (W5FormSmsMailAlarm a : formResult
+						if (!GenericUtil.isEmpty(fr.getFormAlarmList()))
+							for (W5FormSmsMailAlarm a : fr
 									.getFormAlarmList()) {
 								alarmMap.put(a.getFormSmsMailId(), a);
 							}
@@ -437,7 +437,7 @@ public class React16 implements ViewAdapter {
 									&& fsm.getAlarmFlag() != 0
 									&& GenericUtil.hasPartInside2(
 											fsm.getActionTips(),
-											formResult.getAction())
+											fr.getAction())
 									&& GenericUtil.hasPartInside2(fsm.getWebMobileTips(), mobile ? "2"
 											: "1")) {
 								W5FormSmsMailAlarm a = alarmMap.get(fsm
@@ -499,13 +499,13 @@ public class React16 implements ViewAdapter {
 				for (W5Conversion fsm : f.get_conversionList())
 					if (fsm.getConversionTip() != 3
 							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
-									formResult.getAction())) { // bu action ile
+									fr.getAction())) { // bu action ile
 																// ilgili var mi
 																// kayit
 						cnt++;
 					}
-				if (!formResult.isViewMode()
-						&& (cnt > 0 || !GenericUtil.isEmpty(formResult
+				if (!fr.isViewMode()
+						&& (cnt > 0 || !GenericUtil.isEmpty(fr
 								.getMapConvertedObject()))) {
 					s.append(",\nconversionCnt:")
 							.append(f.get_conversionList().size())
@@ -515,8 +515,8 @@ public class React16 implements ViewAdapter {
 						if ((fsm.getConversionTip() != 3/* invisible-checked */
 								&& GenericUtil.hasPartInside2(
 										fsm.getActionTips(),
-										formResult.getAction()) || (formResult
-								.getMapConvertedObject() != null && formResult
+										fr.getAction()) || (fr
+								.getMapConvertedObject() != null && fr
 								.getMapConvertedObject().containsKey(
 										fsm.getConversionId())))) {
 							W5Table dt = FrameworkCache.getTable(scd,
@@ -536,10 +536,10 @@ public class React16 implements ViewAdapter {
 									s.append("\n,");
 								else
 									b = true;
-								boolean isConvertedBefore = formResult
+								boolean isConvertedBefore = fr
 										.getAction() == 1
-										&& formResult.getMapConvertedObject() != null
-										&& formResult.getMapConvertedObject()
+										&& fr.getMapConvertedObject() != null
+										&& fr.getMapConvertedObject()
 												.containsKey(
 														fsm.getConversionId());
 								boolean check = false;
@@ -548,8 +548,8 @@ public class React16 implements ViewAdapter {
 										&& fsm.getConversionTip() != 3
 										&& GenericUtil.hasPartInside2(
 												fsm.getActionTips(),
-												formResult.getAction())) {
-									convertedObjects = formResult
+												fr.getAction())) {
+									convertedObjects = fr
 											.getMapConvertedObject().get(
 													fsm.getConversionId());
 									if (fsm.getMaxNumofConversion() == 0
@@ -617,19 +617,19 @@ public class React16 implements ViewAdapter {
 				}
 			}
 			
-			if (formResult.getApprovalRecord() != null && FrameworkCache.getWorkflow(formResult.getScd(), formResult.getApprovalRecord().getApprovalId())!=null) { // Burası Artık Onay Mekanizması başlamış
-				W5Workflow a = FrameworkCache.getWorkflow(formResult.getScd(), formResult.getApprovalRecord().getApprovalId());
-				if (formResult.getApprovalRecord().getApprovalStepId() == 901) {// kendisi start for approval yapacak
+			if (fr.getApprovalRecord() != null && FrameworkCache.getWorkflow(fr.getScd(), fr.getApprovalRecord().getApprovalId())!=null) { // Burası Artık Onay Mekanizması başlamış
+				W5Workflow a = FrameworkCache.getWorkflow(fr.getScd(), fr.getApprovalRecord().getApprovalId());
+				if (fr.getApprovalRecord().getApprovalStepId() == 901) {// kendisi start for approval yapacak
 					if ((a.getManualAppUserIds() == null
 							&& a.getManualAppRoleIds() == null
 							&& GenericUtil
-									.accessControl(scd, formResult
+									.accessControl(scd, fr
 											.getApprovalRecord()
 											.getApprovalActionTip() /*
 																	 * ??? Bu ne
 																	 */,
-											formResult.getApprovalRecord()
-													.getApprovalRoles(), formResult
+											fr.getApprovalRecord()
+													.getApprovalRoles(), fr
 													.getApprovalRecord()
 													.getApprovalUsers()) || (GenericUtil
 							.hasPartInside2(a.getManualAppRoleIds(),
@@ -640,33 +640,35 @@ public class React16 implements ViewAdapter {
 					)// TODO:Buraya tableUserIdField yetki kontrolü eklenecek
 						// (a.getManualAppTableFieldIds())
 						s.append(",\n approval:{approvalRecordId:")
-								.append(formResult.getApprovalRecord()
+								.append(fr.getApprovalRecord()
 										.getApprovalRecordId())
 								.append(",wait4start:true,status:901,dsc:\"")
 								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
-				} else if (formResult.getApprovalRecord().getApprovalStepId() > 997 && formResult.getApprovalRecord().getApprovalStepId() < 1000) {// rejected(999) or approved(998)
+				} else if (fr.getApprovalRecord().getApprovalStepId() > 997 && fr.getApprovalRecord().getApprovalStepId() < 1000) {// rejected(999) or approved(998)
 					s.append(",\n approval:{approvalRecordId:")
-								.append(formResult.getApprovalRecord()
+								.append(fr.getApprovalRecord()
 										.getApprovalRecordId())
-								.append(",status:").append(formResult.getApprovalRecord().getApprovalStepId()).append(",dsc:\"")
+								.append(",status:").append(fr.getApprovalRecord().getApprovalStepId()).append(",dsc:\"")
 								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
-				} else if (GenericUtil.accessControl(scd, (short) 1, formResult
-						.getApprovalRecord().getApprovalRoles(), formResult
+				} else if (GenericUtil.accessControl(scd, (short) 1, fr
+						.getApprovalRecord().getApprovalRoles(), fr
 						.getApprovalRecord().getApprovalUsers())) {
-					s.append(",\n approval:{approvalRecordId:").append(formResult.getApprovalRecord()
+					s.append(",\n approval:{approvalRecordId:").append(fr.getApprovalRecord()
 							.getApprovalRecordId()).append(",versionNo:")
-					.append(formResult.getApprovalRecord().getVersionNo())
+					.append(fr.getApprovalRecord().getVersionNo())
 					.append(",returnFlag:")
-					.append(formResult.getApprovalRecord().getReturnFlag() != 0).append(",dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"");
-			W5WorkflowStep wfs = a.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId());
-			if(wfs.getOnApproveFormId()!=null)s.append(",approveFormId:").append(wfs.getOnApproveFormId());
-			if(wfs.getOnRejectFormId()!=null)s.append(",rejectFormId:").append(wfs.getOnRejectFormId());
-			if(wfs.getOnReturnFormId()!=null)s.append(",returnFormId:").append(wfs.getOnReturnFormId());
-			s.append(",stepDsc:'")
-					.append(formResult.getApprovalStep() != null ? GenericUtil
-							.stringToJS(formResult.getApprovalStep()
-									.getDsc()) : "-")
-					.append("'}");
+					.append(fr.getApprovalRecord().getReturnFlag() != 0).append(",dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"");
+					W5WorkflowStep wfs = a.get_approvalStepMap().get(fr.getApprovalRecord().getApprovalStepId());
+					if(wfs.getOnApproveFormId()!=null)s.append(",approveFormId:").append(wfs.getOnApproveFormId());
+					if(wfs.getOnRejectFormId()!=null)s.append(",rejectFormId:").append(wfs.getOnRejectFormId());
+					if(wfs.getOnReturnFormId()!=null)s.append(",returnFormId:").append(wfs.getOnReturnFormId());
+					s.append(",stepDsc:'")
+							.append(fr.getApprovalStep() != null ? GenericUtil
+									.stringToJS(fr.getApprovalStep()
+											.getDsc()) : "-")
+							.append("'}");
+					if(wfs.getAccessDeleteTip()!=0 && GenericUtil.isEmpty(wfs.getAccessDeleteUserFields()) && !GenericUtil.accessControl(scd, wfs.getAccessDeleteTip(), wfs.getAccessDeleteRoles(), wfs.getAccessDeleteUsers()))s.append(", deletable:false");
+
 				}
 			} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
 						// yapılabilir mi ? Formun bağlı olduğu tablonun onay
@@ -682,9 +684,9 @@ public class React16 implements ViewAdapter {
 			}
 		}
 		boolean b = false;
-		if (!formResult.getOutputMessages().isEmpty()) {
+		if (!fr.getOutputMessages().isEmpty()) {
 			s.append(",\n\"msgs\":[");
-			for (String sx : formResult.getOutputMessages()) {
+			for (String sx : fr.getOutputMessages()) {
 				if (b)s.append("\n,");
 				else b = true;
 				s.append("'").append(GenericUtil.stringToJS(sx)).append("'");
@@ -696,29 +698,29 @@ public class React16 implements ViewAdapter {
 		if (f.get_toolbarItemList().size() > 0) { // extra buttonlari var mi yok
 													// mu?
 			StringBuilder buttons = serializeToolbarItems(scd,
-					f.get_toolbarItemList(), (formResult.getFormId() > 0 ? true
+					f.get_toolbarItemList(), (fr.getFormId() > 0 ? true
 							: false));
 			if (buttons.length() > 1) {
 				s.append(",\n extraButtons:[").append(buttons).append("]");
 			}
 		}
-		for (String sx : formResult.getOutputFields().keySet()) {
+		for (String sx : fr.getOutputFields().keySet()) {
 			s.append(",\n ").append(sx).append(":")
-					.append(formResult.getOutputFields().get(sx));// TODO:aslinda' liolması lazim
+					.append(fr.getOutputFields().get(sx));// TODO:aslinda' liolması lazim
 		}
-		s.append("};\nclass bodyForm extends XForm").append(serializeGetForm(formResult));
+		s.append("};\nclass bodyForm extends XForm").append(serializeGetForm(fr));
 
-		if (formResult.getForm().get_renderTemplate() != null && formResult.getForm().getRenderTemplateId()!=26) {
+		if (fr.getForm().get_renderTemplate() != null && fr.getForm().getRenderTemplateId()!=26) {
 				s.append("\n").append(
-					formResult.getForm().get_renderTemplate()
+					fr.getForm().get_renderTemplate()
 							.getLocaleMsgFlag() != 0 ? GenericUtil
-							.filterExt(formResult.getForm()
+							.filterExt(fr.getForm()
 									.get_renderTemplate().getCode(),
-									formResult.getScd(),
-									formResult.getRequestParams(), null)
-							: formResult.getForm().get_renderTemplate()
+									fr.getScd(),
+									fr.getRequestParams(), null)
+							: fr.getForm().get_renderTemplate()
 									.getCode());
-		} else if(formResult.getForm().getObjectTip()==2)
+		} else if(fr.getForm().getObjectTip()==2)
 			s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt, callAttributes:callAttributes});");
 		
 
@@ -2085,7 +2087,11 @@ public class React16 implements ViewAdapter {
 //		{ view:"label", label:'Fill the form below to access <br>the main datacore.'
 		
 		case	71://file attachment
-			buf.append("type:'text'");
+			buf.append("$:FileInput, parentCt: this, onFileChange: this.onFileChange(), cfg:cfgForm");
+			Map evm = cellResult.getExtraValuesMap();
+			if(!GenericUtil.isEmpty(evm)) {
+				buf.append(", fileId:").append(evm.get("id")).append(", fileName:\"").append(GenericUtil.stringToJS2((String)evm.get("dsc"))).append("\"");
+			}
 			break;
 		
 		default:			

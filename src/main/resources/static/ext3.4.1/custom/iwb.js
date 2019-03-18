@@ -207,6 +207,11 @@ function fileAttachmentHtml(x) {
     ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0>'
     : "";
 }
+function fieldFileAttachment(x) {
+	  return x
+	    ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0>'
+	    : "";
+}
 
 function fileAttachmentRenderer(a) {
   return function(ax, bx, cx) {
@@ -8438,3 +8443,4 @@ iwb.ajax.postForm=function(fid,action,params,callback){
 iwb.ajax.execFunc=function(did,params,callback){
 	iwb.request({url:'ajaxExecDbFunc?_did='+did,params:params||{},successCallback:callback||false})
 }
+

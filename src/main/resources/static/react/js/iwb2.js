@@ -355,6 +355,9 @@ var iwb = {
   },
   getFieldRawValue: (field, extraOptions) => {
     if (!field || !field.value) return iwb.emptyField;
+    if (field.$ === FileInput){
+    	return field.fileName ? _("a", { target:"_blank", style:{color: "#2196F3",fontWeight: "bold"}, href:"dl/"+field.fileName+"?_fai="+field.fileId,className: "form-control", disabled:true }, field.fileName) : iwb.emptyField;
+    }
     if (field.$ === MapInput) return _(field.$,{value:field.value, disabled:true});
     var options = extraOptions || field.options;
     if (!options || !options.length) {
@@ -543,7 +546,7 @@ var iwb = {
         	break;
         default:
           toastr.error(
-            obj.errorMsg || "Unknown ERROR",
+        	obj.error || obj.errorMsg || "Unknown ERROR",
             obj.errorType + " Error"
           );
       }
@@ -749,6 +752,11 @@ function fileAttachmentHtml(row, cell) {
   // TODO
   return row[cell] && 1 * row[cell]
     ? _("i", { className: "icon-paper-clip" })
+    : null;
+}
+function fieldFileAttachment(row, cell) {
+  return row[cell] && 1 * row[cell]
+    ? _("a", { href:"dl/"+row[cell+"_qw_"]+"?_fai="+row[cell],target:"_blank"}, row[cell+"_qw_"])
     : null;
 }
 function vcsHtml(row, cell) {
@@ -6480,7 +6488,7 @@ class XForm extends React.Component {
                 });
               }
               break;
-            case "framework":
+            case "framework": case "security": case "sql": case "rhino":
               if (json.error) {
                 iwb.showModal({
                   title: json.error,
@@ -6620,8 +6628,8 @@ class FileInput extends React.Component {
       canUpload: false,
       dragOver: false,
       file: null,
-      fileUrl: null,
-      fileName: null,
+      fileUrl: props.fileId ? 'dl/' + props.fileName + '?_fai=' + props.fileId + '&.r=' + Math.random() : null,
+      fileName: props.fileName || null,
     };
     this.onDrop = this.onDrop.bind(this);
     this.dragenter = this.dragenter.bind(this);
@@ -6643,21 +6651,6 @@ class FileInput extends React.Component {
     }
   }
   componentWillMount() {
-    if (this.props.value) {
-      iwb.request({
-        url: 'ajaxQueryData?_qid=61&xfile_attachment_id=' + this.props.value + '&.r=' + Math.random(),
-        successCallback: ({
-          data
-        }) => {
-          let fileItem = data.filter(item => item.file_attachment_id = this.props.value)[0]
-          let url = 'dl/' + fileItem.original_file_name + '?_fai=' + fileItem.file_attachment_id + '&.r=' + Math.random();
-          this.setState({
-            fileName: fileItem.original_file_name,
-            fileUrl: url
-          })
-        }
-      })
-    }
   }
   /** function to click input ref click */
   onclick(event) {
