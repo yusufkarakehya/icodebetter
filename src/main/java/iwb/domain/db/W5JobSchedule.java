@@ -1,6 +1,8 @@
 package iwb.domain.db;
 
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -46,6 +48,7 @@ public class W5JobSchedule implements java.io.Serializable {
 	private String locale;
 	private int todayFlag;
 	private int todayAddDayValue;
+	private long _lastRunTime;
 	private boolean _running;
 	private int _userRoleId;
 
@@ -299,6 +302,9 @@ public class W5JobSchedule implements java.io.Serializable {
 
 	public void set_running(boolean _running) {
 		this._running = _running;
+		if(_running) {
+			this._lastRunTime = System.currentTimeMillis();
+		}
 	}
 
 	public boolean runCheck() {
@@ -309,19 +315,19 @@ public class W5JobSchedule implements java.io.Serializable {
 		Timestamp actionStartDttm = this.getActionStartDttm();					
 		Timestamp actionEndDttm = (this.getActionEndDttm()==null ? new Timestamp(dateNow.getTime()) : this.getActionEndDttm());					
 		Timestamp dt = new Timestamp(dateNow.getTime());
-		int frekans = this.getActionFrequency();					
+		int frequency = this.getActionFrequency();					
 		
-		if (dt.compareTo(actionStartDttm)>0){ //başlangıç tarihi kontrol ediliyor
+		if (dt.compareTo(actionStartDttm)>0){ //başlangic tarihi kontrol ediliyor
 			if (dt.compareTo(actionEndDttm)<=0){//bitiş tarihi kontrol ediliyor
-				if (frekans != 3){
-					//haftanın gÃ¼nleri içerisinde mi? kontrol ediliyor
+				if (frequency != 3){
+					//haftanin gunleri icerisinde mi? kontrol ediliyor
 					String actionWeekDay = this.getActionWeekDays();					  
 					String weekday = Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == 1 ? 7 : Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-1);							 
 					if (actionWeekDay.indexOf(weekday)<0){
 						return false;
 					}
 				}
-				//aylar içerisinde mi? kontrol ediliyor
+				//aylar icerisinde mi? kontrol ediliyor
 				if(!GenericUtil.isEmpty(this.getActionMonths())){
 					String[] actionMonths = this.getActionMonths().split(",");
 					Arrays.sort(actionMonths);
@@ -337,6 +343,57 @@ public class W5JobSchedule implements java.io.Serializable {
 		}
 		else{
 			return false;
+		}
+		
+		long lastRunTime = this._lastRunTime;
+		long dateNow2 = System.currentTimeMillis();
+		
+		if ((frequency == 2) || (frequency == 3) || (frequency == 4)){	//once, monthly, daily
+			if (this.getRepeatTime() == null)
+				return false;			
+			//Time nowTime = new Time(dateNow.getHours(), dateNow.getMinutes(), 0);
+			long nowTime2 = dateNow2 % (24*60*60*1000);
+			//Time rTime = new Time(Integer.parseInt(this.getRepeatTime().substring(0,2)), Integer.parseInt(this.getRepeatTime().substring(3,5)), 0);
+			long rTime2 = GenericUtil.uInt(this.getRepeatTime().substring(0,2))*60*60*1000 + GenericUtil.uInt(this.getRepeatTime().substring(3,5))*60*1000;
+								
+			//SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			//String tmpDate = sdf.format(dateNow);
+			//dateNow = sdf.parse(tmpDate);
+			
+			if (frequency==3){ //monthly
+				//ayin kacinci gunu gönderilmesi gerektiği kontrol ediliyor.
+				String[] actionMonthsDays = this.getActionMonthsDays().split(",");
+				String day = Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+				if (Arrays.binarySearch(actionMonthsDays,day)<0){
+					return false;
+				}												
+			}else if (frequency == 2){//once
+				if (lastRunTime != 0) return false;
+			}
+			
+			if (lastRunTime != 0){ 
+				//int lastDay = lastRunTime.getDay();
+				//int nowDay = dateNow.getDay();
+				//if (nowDay == lastDay) return false; //bugun zaten gönderilmiş
+				if((int)(lastRunTime / (24*60*60*1000)) == (int)(dateNow2 / (24*60*60*1000)))return false;
+			}	
+			//if (!(nowTime.compareTo(rTime)>=0)) return false;
+			if (nowTime2 < rTime2) return false;
+			
+			
+		} else { //repeat always
+			int repeatTime = this.getActionDelay();
+			if (repeatTime == 0)
+				return false;	
+			if (lastRunTime != 0){ 
+//			    long diff = dt.getTime() - lastRunTime.getTime();
+			    long diff = dateNow2 - lastRunTime;
+			    long duration = (diff / (1000 * 60));//minute
+			    
+			    if (duration<repeatTime){
+			    	return false;
+			    }
+			}
 		}
 		
 		return true;

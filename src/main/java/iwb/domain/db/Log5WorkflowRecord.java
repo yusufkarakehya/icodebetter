@@ -96,5 +96,14 @@ public class Log5WorkflowRecord implements java.io.Serializable {
 		this.approvalActionTip = approvalActionTip;
 	}
     
-    
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
+
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 }

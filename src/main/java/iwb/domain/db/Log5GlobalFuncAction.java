@@ -28,13 +28,16 @@ public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 	private int dbFuncId;
 
 	private String dsc;
+	private String projectUuid;  
 	
 	private int processTime;
 	private long startTime;
 
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("global_func,func_id=").append(getDbFuncId()).append(" user_id=").append(getUserId()).append("i,duration=").append(getProcessTime()).append("i,sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+		s.append("func_action,func_id=").append(getDbFuncId());
+		if(projectUuid!=null)s.append(",project_uuid=").append(projectUuid);
+		s.append(" user_id=").append(getUserId()).append(",duration=").append(getProcessTime()).append(",sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
 		return s.toString();
 	}
 
@@ -55,7 +58,10 @@ public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 
 	public Log5GlobalFuncAction(W5GlobalFuncResult r) {
 		this.dbFuncId = r.getGlobalFuncId();
-		if(r.getScd()!=null && r.getScd().get("userId")!=null)this.userId = (Integer)r.getScd().get("userId");
+		if(r.getScd()!=null) {
+			if(r.getScd().get("userId")!=null)this.userId = (Integer)r.getScd().get("userId");
+			if(r.getScd().get("projectId")!=null)this.projectUuid = (String)r.getScd().get("projectId");
+		}
 		this.startTime=System.currentTimeMillis();
 		this.processTime = -1;
 	}

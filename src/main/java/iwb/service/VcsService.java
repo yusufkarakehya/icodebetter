@@ -3496,7 +3496,7 @@ public class VcsService {
 		
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid();
 		urlParameters+="&q=4536";
-		String url=po.getVcsUrl();
+		String url=FrameworkCache.getAppSettingStringValue(0, "vcs_url");//po.getVcsUrl();
 		if(!url.endsWith("/"))url+="/";
 		url+="serverVCSQueryResult";
 		return HttpUtil.send(url, urlParameters);
@@ -3564,6 +3564,96 @@ public class VcsService {
 
 		return null;
 	}
-	
 
+	public int vcsProjectCreateSavePoint(Map<String, Object> scd, String dsc) {
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		
+		int maxSavePoint = 0;
+		List<Object> listMaxSavePoint = dao.executeSQLQuery("select max(x.save_point_id) xx from iwb.w5_project_save_point x where project_uuid=?",projectUuid);
+		if(!GenericUtil.isEmpty(listMaxSavePoint)) {
+			maxSavePoint = GenericUtil.uInt(listMaxSavePoint.get(0));
+		}
+
+		int maxCommit = 0;
+		List<Object> listMaxCommitId = dao.executeSQLQuery("select max(x.vcs_commit_id) xx from iwb.w5_vcs_commit x where project_uuid=?",projectUuid);
+		if(!GenericUtil.isEmpty(listMaxCommitId)) {
+			maxCommit = GenericUtil.uInt(listMaxCommitId.get(0));
+		}
+		
+		List<W5Table> l = FrameworkCache.listVcsTables(null);
+		int savePointId = maxSavePoint + 1;
+		
+		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_project_save_point(save_point_id, project_uuid, dsc, vcs_commit_id, insert_user_id, version_user_id) " +
+		"VALUES (?, ?, ?, ?, ?, ?)", savePointId, projectUuid, dsc, maxCommit, scd.get("userId"), scd.get("userId"));
+
+		FrameworkSetting.projectSystemStatus.put(projectUuid, 1);
+
+//		String newSchemaName = "iwb_"+projectUuid.replace('-','_') + "_sp_"+savePointId;
+		String newSchemaName = po.getRdbmsSchema() + "_sp_"+savePointId;
+		dao.executeUpdateSQLQuery("create schema " + newSchemaName);
+		for(W5Table t:l) {
+			String tableName = t.getDsc();
+			int ix = t.getDsc().indexOf(".");
+			String newTableName = newSchemaName + "." + (ix==-1 ? tableName: tableName.substring(ix+1));
+			dao.executeUpdateSQLQuery("create table " + newTableName + " as select * from " + tableName + " where project_uuid=?",projectUuid);
+		}
+		dao.executeUpdateSQLQuery("create table " + newSchemaName + ".w5_vcs_commit as select * from iwb.w5_vcs_commit where project_uuid=?",projectUuid);
+		dao.executeUpdateSQLQuery("create table " + newSchemaName + ".w5_vcs_object as select * from iwb.w5_vcs_object where project_uuid=?",projectUuid);
+
+		String newDbSchemaName = newSchemaName + "_db";
+//		dao.executeUpdateSQLQuery("create schema " + newDbSchemaName);
+		FrameworkSetting.projectSystemStatus.put(projectUuid, 0);
+		dao.executeUpdateSQLQuery("SELECT iwb.clone_schema(?, ?, TRUE)", po.getRdbmsSchema(), newDbSchemaName);
+
+		
+		return savePointId;
+		
+	}
+	public int vcsServerProjectCreateSavePoint(String userName, String passWord, int customizationId, String projectId, String dsc) {
+		if(!FrameworkSetting.vcsServer)
+			throw new IWBException("vcs","vcsServerProjectCreateSavePoint",0,null, "Not a VCS Server to vcsServerProjectCreateSavePoint", null);
+		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
+		return vcsProjectCreateSavePoint(scd, dsc);
+	}
+	
+	public boolean vcsProjectBack2SavePoint(Map<String, Object> scd, int savePointId) {
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		int cnt = GenericUtil.uInt(dao.executeSQLQuery("select count(1) xx from iwb.w5_project_save_point x where project_uuid=? AND x.save_point_id=?", projectUuid, savePointId).get(0));
+		if(cnt==0)return false;
+		FrameworkSetting.projectSystemStatus.put(projectUuid, 1);
+
+		List<W5Table> l = dao.find("from W5Table t where t.projectUuid='067e6162-3b6f-4ae2-a221-2470b63dff00' and t.vcsFlag=1 order by t.tableId desc");
+		String newSchemaName = po.getRdbmsSchema() + "_sp_"+savePointId;
+		for(W5Table t:l) {
+			String tableName = t.getDsc();
+			int ix = t.getDsc().indexOf(".");
+			String newTableName = newSchemaName + "." + (ix==-1 ? tableName: tableName.substring(ix+1));
+			dao.executeUpdateSQLQuery("delete from " + tableName + " where project_uuid=?",projectUuid);
+			dao.executeUpdateSQLQuery("insert into " + tableName + " select * from " + newTableName  + " where project_uuid=?",projectUuid);
+		}
+		dao.executeUpdateSQLQuery("delete from iwb.w5_vcs_commit where project_uuid=?",projectUuid);
+		dao.executeUpdateSQLQuery("insert into iwb.w5_vcs_commit select * from " + newSchemaName  + ".w5_vcs_commit where project_uuid=?",projectUuid);
+		dao.executeUpdateSQLQuery("delete from iwb.w5_vcs_object where project_uuid=?",projectUuid);
+		dao.executeUpdateSQLQuery("insert into iwb.w5_vcs_object select * from " + newSchemaName  + ".w5_vcs_object where project_uuid=?",projectUuid);
+		FrameworkSetting.projectSystemStatus.put(projectUuid, 0);
+
+		return true;
+	}
+
+	
+	public boolean vcsProjectDeleteSavePoint(Map<String, Object> scd, int savePointId) {
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		int cnt = GenericUtil.uInt(dao.executeSQLQuery("select count(1) xx from iwb.w5_project_save_point x where x.project_uuid=? AND x.save_point_id=?", projectUuid, savePointId).get(0));
+		if(cnt==0)return false;
+		
+		String newSchemaName = po.getRdbmsSchema() + "_sp_"+savePointId;
+
+		dao.executeUpdateSQLQuery("drop schema " + newSchemaName + " cascade");
+		dao.executeUpdateSQLQuery("delete from iwb.w5_project_save_point x where project_uuid=? AND x.save_point_id=?", projectUuid, savePointId);		
+		
+		return true;
+	}
 }

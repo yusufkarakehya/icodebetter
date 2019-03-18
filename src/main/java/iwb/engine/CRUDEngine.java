@@ -403,6 +403,8 @@ public class CRUDEngine {
 								392 /* w5_approval_record */, "" + appRecord.getApprovalRecordId(),
 								(Integer) scd.get("userId"), requestParams.get(".w"), (short) 2));
 					Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
+					logRecord.setProjectUuid(appRecord.getProjectUuid());
+
 					logRecord.setApprovalActionTip((short) 0); // start,
 																// approve,
 																// return,
@@ -806,6 +808,8 @@ public class CRUDEngine {
 								392 /* w5_approval_record */, "" + appRecord.getApprovalRecordId(),
 								(Integer) scd.get("userId"), requestParams.get(".w"), (short) 1));
 					Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
+					logRecord.setProjectUuid(appRecord.getProjectUuid());
+
 					logRecord.setApprovalActionTip((short) 0); // start,
 																// approve,
 																// return,
@@ -1041,6 +1045,8 @@ public class CRUDEngine {
 					if (appRecord != null) { // eger bir approval sureci
 												// icindeyse
 						Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
+						logRecord.setProjectUuid(appRecord.getProjectUuid());
+
 						logRecord.setApprovalActionTip((short) 6); // start,
 																	// approve,
 																	// return,
@@ -1225,6 +1231,8 @@ public class CRUDEngine {
 									(Integer) scd.get("userId"), requestParams.get(".w"), (short) 1));
 
 						Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
+						logRecord.setProjectUuid(appRecord.getProjectUuid());
+
 						logRecord.setApprovalActionTip((short) 0); // start,
 																	// approve,
 																	// return,

@@ -10,6 +10,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import iwb.util.GenericUtil;
 
 @Entity
 @Table(name="log5_job_action",schema="iwb")
@@ -19,11 +22,14 @@ public class Log5JobAction implements Serializable, Log5Base{
 	private int jobScheduleId;
 	private String projectUuid;
 	private String error;
-	private long execTime;
+	private int processTime;
+	private long startTime;
 	
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
+		s.append("job_action,job_id=").append(jobScheduleId).append(",project_uuid=").append(projectUuid).append(" duration=").append(getProcessTime());
+		if(!GenericUtil.isEmpty(error))s.append(",error=\"").append(GenericUtil.stringToJS2(error)).append("\"");
 		return s.toString();
 	}
 	
@@ -35,7 +41,8 @@ public class Log5JobAction implements Serializable, Log5Base{
 		super();
 		this.jobScheduleId = jobScheduleId;
 		this.projectUuid = projectUuid;
-		this.execTime = System.currentTimeMillis();
+		this.startTime=System.currentTimeMillis();
+		this.processTime = -1;
 	}
 
 	@SequenceGenerator(name="sex_log5_job_action",sequenceName="iwb.seq_log5_job_action",allocationSize=1)
@@ -76,17 +83,25 @@ public class Log5JobAction implements Serializable, Log5Base{
 		this.error = error;
 	}
 
-	@Column(name="exec_time")  
-	public long getExecTime() {
-		return execTime;
+	@Column(name="process_time")  
+	public int getProcessTime() {
+		return processTime;
 	}
 
-	public void setExecTime(long execTime) {
-		this.execTime = execTime;
+	public void setProcessTime(int processTime) {
+		this.processTime = processTime;
+	}
+
+	public void calcProcessTime() {
+		this.processTime = (int)(System.currentTimeMillis() - this.startTime);
 	}
 	
-	public void calcExecTime() {
-		this.execTime = System.currentTimeMillis() - this.execTime;		
+	@Transient
+	public long getStartTime() {
+		return startTime;
 	}
-	
+
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
+	}
 }

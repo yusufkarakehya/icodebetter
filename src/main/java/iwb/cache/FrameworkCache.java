@@ -66,7 +66,7 @@ public class FrameworkCache {
 	final private static Map<String, Map<Integer, String>> wPageCss = new HashMap<String, Map<Integer, String>>();
 	final private static Map<String, Map<String, Object>> wGraalFuncs = new HashMap<String, Map<String, Object>>();
 
-	final private static Map<String, Map<Integer, W5Workflow>> wWorkflow = new HashMap<String,Map<Integer, W5Workflow>>();
+	final public static Map<String, Map<Integer, W5Workflow>> wWorkflows = new HashMap<String,Map<Integer, W5Workflow>>();
 	final private static List<W5Customization> wCustomization = new ArrayList<W5Customization>();
 	final private static Map<String, W5Project> wProjects = new HashMap<String, W5Project>(); //projectUuid
 
@@ -208,24 +208,24 @@ public class FrameworkCache {
 
 	public static W5Workflow getWorkflow(Object o, int approvalId) {
 		String projectId = getProjectId(o, "389."+approvalId);
-		if(!wWorkflow.containsKey(projectId)){
-			wWorkflow.put(projectId, new HashMap());
+		if(!wWorkflows.containsKey(projectId)){
+			wWorkflows.put(projectId, new HashMap());
 			return null;
 		} else
-			return wWorkflow.get(projectId).get(approvalId);
+			return wWorkflows.get(projectId).get(approvalId);
 	}
 
 	public static void addWorkflow(Object o, W5Workflow w) {
 		String projectId = getProjectId(o, "389."+w.getApprovalId());
-		if(!wWorkflow.containsKey(projectId)){
-			wWorkflow.put(projectId, new HashMap());
+		if(!wWorkflows.containsKey(projectId)){
+			wWorkflows.put(projectId, new HashMap());
 		} else
-		wWorkflow.get(projectId).put(w.getApprovalId(), w);
+		wWorkflows.get(projectId).put(w.getApprovalId(), w);
 	}
 	
 
 	public static void clearProjectWorkflows(String projectId) {
-		wWorkflow.put(projectId, new HashMap());
+		wWorkflows.put(projectId, new HashMap());
 
 	}
 	
@@ -675,6 +675,14 @@ public class FrameworkCache {
 		Map<Integer, W5JobSchedule> m = wJobs.get(projectId);
 		if(m==null)return null;
 		return m.get(jobId);
+	}
+
+	public static List<W5Table> listVcsTables(String projectId) {
+		List<W5Table> l = new ArrayList();
+		for(W5Table t:wTables.get(projectId!=null ? projectId: "067e6162-3b6f-4ae2-a221-2470b63dff00").values()) if(t.getVcsFlag()!=0){
+			l.add(t);
+		}
+		return l;
 	}
 
 	

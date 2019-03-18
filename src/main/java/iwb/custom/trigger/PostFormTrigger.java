@@ -38,7 +38,7 @@ public class PostFormTrigger {
 		}
 		W5Project prj = null;
 		if(formResult.getErrorMap()!=null && formResult.getErrorMap().isEmpty() && formResult.getForm()!=null
-				&& formResult.getScd()!=null && (Integer)formResult.getScd().get("customizationId")!=0 && (Integer)formResult.getScd().get("customizationId")!=140)switch(formResult.getForm().getObjectId()){
+				&& formResult.getScd()!=null && formResult.getScd().get("customizationId")!=null && (Integer)formResult.getScd().get("customizationId")!=0 && (Integer)formResult.getScd().get("customizationId")!=140)switch(formResult.getForm().getObjectId()){
 		case	15://table
 			prj = FrameworkCache.getProject(formResult.getScd());
 			if(formResult.getAction()==1 || formResult.getAction()==3){
@@ -234,7 +234,7 @@ public class PostFormTrigger {
 				int customizationId = GenericUtil.uInt(scd.get("ocustomizationId"));
 				String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
 				//validate from vcs server
-				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=?, customization_id=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project","http://81.214.24.77:8084/app/"), scd.get("userName"), "1", customizationId, newProjectId);
+				dao.executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_flag=1, vcs_url=?, vcs_user_name=?, vcs_password=?, customization_id=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project","http://www.promiscrm.com:8888/app/"), scd.get("userName"), "1", customizationId, newProjectId);
 				dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 				if(fr.getAction()==5){ //clone
 					Map<String, Object> newScd = new HashMap();

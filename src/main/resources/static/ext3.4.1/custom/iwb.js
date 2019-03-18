@@ -6765,17 +6765,25 @@ function fmtOnlineUser(j) {
   var str = '<table border=0 width=100% padding=0 style="margin-left:-1px;"';
   if (j.not_read_count > 0) str += " class='veliSelLightBlue'";
   str +=
-    '><tr><td width=24><img src="sf/pic' +
-    j.user_id +
-    '.png" ' +
-    (j.chat_status_tip
-      ? 'style="border-width: 3px;border-color:' +
-        usersBorderChat[j.chat_status_tip - 1] +
-        '" '
-      : "") +
-    ' class="ppic-mini"></td><td width=99%> <span>&nbsp; ';
+    '><tr><td width=24 >&nbsp;'+
+    '<span onclick="openChatWindow('+j.user_id+',\''+j.dsc+'\',true);">'+ 
+		'<img src="sf/pic' +
+		j.user_id +
+		'.png" ' +
+		(j.chat_status_tip
+		  ? 'style="border-width: 3px;border-color:' +
+		    usersBorderChat[j.chat_status_tip - 1] +
+		    '" '
+		  : "") +
+		' class="ppic-mini">'+
+    '</span>'+
+    '</td><td width=99%> <span onclick="openChatWindow('+j.user_id+',\''+j.dsc+'\',true);">&nbsp; ';
   if (j.dsc.length > 20) j.dsc = j.dsc.substring(0, 18) + "...";
-  str += j.dsc + "</span>";
+  str += j.dsc + "</span>"; 
+
+  if (_scd.customizationId > 1) // linkedin vs. 
+	  str += '<div class="x-tool x-tool-close" id="ext-gen0199" onclick="return removeProjectMember('+j.user_id+');">&nbsp;</div>';
+  
   if (j.not_read_count > 0)
     str +=
       '&nbsp; <span id="idChatNotRead_' +

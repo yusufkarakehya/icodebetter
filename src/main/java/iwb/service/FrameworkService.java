@@ -39,6 +39,7 @@ import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5GlobalNextval;
 import iwb.domain.db.Log5JobAction;
+import iwb.domain.db.Log5WorkflowRecord;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5FileAttachment;
@@ -55,6 +56,8 @@ import iwb.domain.db.W5Tutorial;
 import iwb.domain.db.W5UploadedImport;
 import iwb.domain.db.W5VcsCommit;
 import iwb.domain.db.W5VcsObject;
+import iwb.domain.db.W5WorkflowRecord;
+import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.helper.W5FormCellHelper;
@@ -686,8 +689,10 @@ public class FrameworkService {
 		try{//fonksiyon çalıştırılacak ise
 			Map<String, String> requestParams = new HashMap<String, String>();						
 			Map<String, Object> scd = new HashMap<String, Object>();
+			W5Project po = FrameworkCache.getProject(job.getProjectUuid());
 			scd.put("projectId", job.getProjectUuid());
 			scd.put("locale", job.getLocale());
+			scd.put("customizationId", po.getCustomizationId());
 			scd.put("userRoleId", job.get_userRoleId());
 			scd.put("roleId", job.getExecuteRoleId());
 			scd.put("userId", job.getExecuteUserId());
@@ -702,7 +707,6 @@ public class FrameworkService {
 			return false;
 		} finally {
 			job.set_running(false);
-			logJob.calcExecTime();
 			LogUtil.logObject(logJob);			
 		}
 		return res.isSuccess();
@@ -2192,5 +2196,17 @@ public class FrameworkService {
 
 	public String getServerDttm() {
 		return dao.executeSQLQuery("select to_char(current_timestamp,'dd/mm/yyyy hh24:mi:ss')").get(0).toString();
+	}
+
+	public void updateWorkflowEscalatedRecords(W5WorkflowStep step, W5WorkflowStep nextStep) {
+		workflowEngine.updateWorkflowEscalatedRecords(step, nextStep);
+	}
+
+	public List<W5WorkflowRecord> listWorkflowEscalatedRecords(W5WorkflowStep step) {
+		return workflowEngine.listWorkflowEscalatedRecords(step);
+	}
+
+	public void updateWorkflowEscalatedRecord(W5WorkflowStep step, W5WorkflowRecord rec) {
+		workflowEngine.updateWorkflowEscalatedRecord(step, rec);
 	}
 }

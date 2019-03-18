@@ -827,4 +827,78 @@ public class VcsController implements InitializingBean {
 		response.getWriter().close();
 		
 	}
+	
+	
+	@RequestMapping("/ajaxVCSProjectSavePoint")
+	public void hndAjaxVCSProjectSavePoint(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("ajaxVCSProjectSavePoint"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+    	int savePoint = vcsEngine.vcsProjectCreateSavePoint(scd, request.getParameter("dsc"));
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":true, \"savePointId\":"+savePoint+"}");
+		response.getWriter().close();
+		
+	}
+	
+	
+	@RequestMapping("/ajaxVCSProjectBack2SavePoint")
+	public void hndAjaxVCSProjectBack2SavePoint(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("ajaxVCSProjectBack2SavePoint"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+    	boolean b = vcsEngine.vcsProjectBack2SavePoint(scd, GenericUtil.uInt(request,"id"));
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();
+		
+	}
+	
+	
+	
+	@RequestMapping("/ajaxVCSProjectDeleteSavePoint")
+	public void hndAjaxVCSProjectDeleteSavePoint(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("ajaxVCSProjectDeleteSavePoint"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		//projectId, importedProjectId
+    	boolean b = vcsEngine.vcsProjectDeleteSavePoint(scd, GenericUtil.uInt(request,"id"));
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();		
+	}
+	
+	@RequestMapping("/serverVCSProjectSavePoint")
+	public void hndServerVCSProjectSavePoint(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		String userName = request.getParameter("u");
+		String passWord = request.getParameter("p");
+		int customizationId = GenericUtil.uInt(request, "c");
+		String projectId = request.getParameter("r");
+		String dsc = request.getParameter("dsc");
+		
+		logger.info("serverVCSProjectSavePoint("+projectId+")"); 
+		
+		int savePoint = vcsEngine.vcsServerProjectCreateSavePoint(userName, passWord, customizationId, projectId, dsc);
+
+		response.setContentType("application/json");
+		response.getWriter().write("{\"success\":true, \"savePointId\":"+savePoint+"}");
+		response.getWriter().close();
+	}
 }

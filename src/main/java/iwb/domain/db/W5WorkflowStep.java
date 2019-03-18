@@ -56,6 +56,12 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 	private short sendMailOnEnterStepFlag;
 	private short sendSmsOnEnterStepFlag;
 	
+	private short timeLimitFlag;
+	private int timeLimitDuration;
+	private int onTimeLimitExceedStepId;
+	private short timeLimitDurationTip;
+	private String onEscalationCode;
+	
 	
 	
 	@Column(name="approval_id")
@@ -327,6 +333,12 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 		a.accessDeleteUserFields=this.accessDeleteUserFields;
 		a.sendMailOnEnterStepFlag=this.sendMailOnEnterStepFlag;
 		a.sendSmsOnEnterStepFlag=this.sendSmsOnEnterStepFlag;
+		
+		a.timeLimitFlag=this.timeLimitFlag;
+		a.timeLimitDuration=this.timeLimitDuration;
+		a.onTimeLimitExceedStepId=this.onTimeLimitExceedStepId;
+		a.timeLimitDurationTip=this.timeLimitDurationTip;
+		a.onEscalationCode=this.onEscalationCode;
 		return a;
 	}
 
@@ -401,6 +413,42 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 	}
 	public void setOnRejectFormId(Integer onRejectFormId) {
 		this.onRejectFormId = onRejectFormId;
+	}
+
+	@Column(name="time_limit_flag")	
+	public short getTimeLimitFlag() {
+		return timeLimitFlag;
+	}
+	public void setTimeLimitFlag(short timeLimitFlag) {
+		this.timeLimitFlag = timeLimitFlag;
+	}
+	@Column(name="time_limit_duration")	
+	public int getTimeLimitDuration() {
+		return timeLimitDuration;
+	}
+	public void setTimeLimitDuration(int timeLimitDuration) {
+		this.timeLimitDuration = timeLimitDuration;
+	}
+	@Column(name="on_time_limit_exceed_step_id")	
+	public int getOnTimeLimitExceedStepId() {
+		return onTimeLimitExceedStepId;
+	}
+	public void setOnTimeLimitExceedStepId(int onTimeLimitExceedStepId) {
+		this.onTimeLimitExceedStepId = onTimeLimitExceedStepId;
+	}
+	@Column(name="time_limit_duration_tip")	
+	public short getTimeLimitDurationTip() {
+		return timeLimitDurationTip;
+	}
+	public void setTimeLimitDurationTip(short timeLimitDurationTip) {
+		this.timeLimitDurationTip = timeLimitDurationTip;
+	}
+	@Column(name="on_escalation_code")	
+	public String getOnEscalationCode() {
+		return onEscalationCode;
+	}
+	public void setOnEscalationCode(String onEscalationCode) {
+		this.onEscalationCode = onEscalationCode;
 	}
 
 }
