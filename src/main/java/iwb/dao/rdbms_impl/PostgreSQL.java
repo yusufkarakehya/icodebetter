@@ -1022,7 +1022,7 @@ public class PostgreSQL extends BaseDAO {
 					int fileId = GenericUtil.uInt(rc.getValue());
 					if(fileId!=0) {
 						List params = new ArrayList(); params.add(scd.get("projectId"));params.add(fileId);
-						rc.setExtraValuesMap(runSQLQuery2Map("select x.file_attachment_id id, x.original_file_name dsc from iwb.w5_file_attachment x where x.project_uuid=? AND x.file_attachment_id=?",params, null));
+						rc.setExtraValuesMap(runSQLQuery2Map("select x.file_attachment_id id, x.original_file_name dsc, x.file_size fsize from iwb.w5_file_attachment x where x.project_uuid=? AND x.file_attachment_id=?",params, null));
 					}
 					break;
 				case 60: // remote superboxselect

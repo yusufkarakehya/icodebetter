@@ -201,8 +201,9 @@ yesNoDialog = ({
   });
 };
 function disabledCheckBoxHtml(row, cell) {
-  //TODO
-  //		return _('img',{border:0,src:'../images/custom/'+(f ?'':'un')+'checked.gif'});
+  // TODO
+  // return _('img',{border:0,src:'../images/custom/'+(f
+	// ?'':'un')+'checked.gif'});
   return row[cell] && 1 * row[cell]
     ? _("i", {
         className: "fa fa-check",
@@ -213,15 +214,16 @@ function disabledCheckBoxHtml(row, cell) {
           borderRadius: 25
         }
       })
-    : null; // _('i',{className:'fa fa-check', style:{color: 'white',background: 'red', padding: 5, borderRadius: 25}});
+    : null; // _('i',{className:'fa fa-check', style:{color: 'white',background:
+			// 'red', padding: 5, borderRadius: 25}});
 }
 function gridUserRenderer(row, cell) {
-  //TODO
+  // TODO
   return row[cell + "_qw_"];
 }
 
 function gridQwRendererWithLink(t) {
-  //tableId
+  // tableId
   return function(row, cell) {
     return row[cell + "_qw_"];
   };
@@ -265,7 +267,7 @@ function editGridLovComboRenderer(cell, combo) {
 }
 
 function fileAttachmentHtml(row, cell) {
-  //TODO
+  // TODO
   return row[cell] && 1 * row[cell]
     ? _("i", { className: "icon-paper-clip" })
     : null;
@@ -324,32 +326,37 @@ iwb.emptyField = _(
   "(boş)"
 );
 iwb.getFieldRawValue = function(field, extraOptions) {
-  if (!field || !field.value) return iwb.emptyField;
-  var options = extraOptions || field.options;
-  if (!options || !options.length) {
-    var value = field.value;
-    if (typeof value == "undefined" || value == "") return iwb.emptyField;
-    return _("b", { className: "form-control" }, value);
-  }
-  var optionsMap = {};
-  options.map(function(o) {
-    optionsMap[o.id] = o.dsc;
-  });
-  if (field.multi) {
-    var value = [],
-      vs = field.value;
-    if (!Array.isArray(vs)) vs = vs.split(",");
-    vs.map(function(v) {
-      value.push(optionsMap[v]);
+    if (!field || !field.value) return iwb.emptyField;
+    if (field.$ === FileInput){
+    	return field.fileName ? _("a", { target:"_blank", style:{color: "#2196F3",fontWeight: "bold"}, href:"dl/"+field.fileName+"?_fai="+field.fileId,className: "form-control", disabled:true }, field.fileName, " ", field.fileSize && _("i",{style:{color: "#888",fontWeight: "normal"}}, "("+iwb.fmtFileSize(field.fileSize)+")")) : iwb.emptyField;
+    }
+// if (field.$ === MapInput) return _(field.$,{value:field.value,
+// disabled:true});
+    var options = extraOptions || field.options;
+    if (!options || !options.length) {
+      var value = (field.decimalScale)?Number(field.value).toFixed(field.decimalScale):field.value;
+      if (typeof value == "undefined" || value == "") return iwb.emptyField;
+      return _("b", { className: "form-control" }, value);
+    }
+    var optionsMap = {};
+    options.map(o => {
+      optionsMap[o.id] = o.dsc;
     });
-    if (!value.length) return iwb.emptyField;
-    return _("b", { className: "form-control" }, value.join(", "));
-  }
-  var value = field.value;
-  if (value.id) value = value.id;
-  value = optionsMap[value];
-  if (value == undefined || value == "") return iwb.emptyField;
-  return _("b", { className: "form-control" }, value);
+    if (field.multi) {
+      var value = [],
+        vs = field.value;
+      if (!Array.isArray(vs)) vs = vs.split(",");
+      vs.map(v => {
+        value.push(optionsMap[v]);
+      });
+      if (!value.length) return iwb.emptyField;
+      return _("b", { className: "form-control" }, value.join(", "));
+    }
+    var value = field.value;
+    if (value.id) value = value.id;
+    value = optionsMap[value];
+    if (value == undefined || value == "") return iwb.emptyField;
+    return _("b", { className: "form-control" }, value);
 };
 
 iwb.openForm = function(url) {
@@ -383,7 +390,8 @@ class XTabForm extends React.PureComponent {
           } else {
             url += cfg.url.substring("ajaxPostForm".length);
           }
-          //	    	var url = 'showForm?_renderer=react16&a=1&_fid='+props.crudFormId+pkz;
+          // var url =
+			// 'showForm?_renderer=react16&a=1&_fid='+props.crudFormId+pkz;
 
           toastr.success(
             "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
@@ -441,7 +449,7 @@ class XTabForm extends React.PureComponent {
     }
   render() {
     if (iwb.debugRender) console.log("XTabForm.render", this.props);
-//    console.log('this.props.cfg', this.props.cfg);
+// console.log('this.props.cfg', this.props.cfg);
     var cfg = this.props.cfg;
     var formBody = _(this.props.body, {
       parentCt: this,
@@ -461,7 +469,7 @@ class XTabForm extends React.PureComponent {
         _(
           "h3",
           { className: "form-header" },
-          /*_("i",{className:"icon-star form-icon"})," ",*/ this.props.cfg.name,
+          /* _("i",{className:"icon-star form-icon"})," ", */ this.props.cfg.name,
           " ",
           this.state.viewMode &&
             _(
@@ -507,14 +515,17 @@ class XTabForm extends React.PureComponent {
             _("i", { className: "icon-paper-clip" })
           )
           , _('br'),
-          this.props.cfg.approval && this.props.cfg.approval.stepDsc &&
+          this.props.cfg.approval &&
           _(
-            'span',
-            {style:{fontSize:"1rem"}
+            'div',
+            {style:{fontSize:"1rem", marginTop:5}
             },
+            _("i", { className: "icon-shuffle" }),
 // " step ",
-            _("b",null,this.props.cfg.approval.stepDsc)
+            _("span",null," " + this.props.cfg.approval.dsc + (this.props.cfg.approval.stepDsc ? " > " + this.props.cfg.approval.stepDsc:''))
             ,"    "
+            , this.props.cfg.approval.status>997 && this.props.cfg.approval.status<1000 && _("span",{className:"badge badge-pill badge-"+iwb.approvalColorMap[this.props.cfg.approval.status]},
+            		this.props.cfg.approval.status==998?"approved":"rejected")
           ),
           this.props.cfg.approval && this.props.cfg.approval.wait4start &&
           _(
@@ -522,7 +533,7 @@ class XTabForm extends React.PureComponent {
             {
               color: "success",
               className: "btn-form-edit",
-              onClick: this.approvalAction(901)
+              onClick: approvalAction(901)
             },
             _("i", { className: "icon-support" }),
             " ",
@@ -532,12 +543,10 @@ class XTabForm extends React.PureComponent {
           _(
             Button,
             {
-              color: "success",
+              color: "primary",
               className: "btn-form-edit",
-              onClick: this.approvalAction(1) // approve
+              onClick: approvalAction(1) // approve
             },
-            _("i", { className: "icon-shield" }),
-            " ",
             getLocMsg('approve')
           ),
           " "
@@ -547,10 +556,8 @@ class XTabForm extends React.PureComponent {
             {
               color: "warning",
               className: "btn-form-edit",
-              onClick: this.approvalAction(2) // return
+              onClick: approvalAction(2) // return
             },
-            _("i", { className: "icon-shield" }),
-            " ",
             getLocMsg('return')
           ),
           " "
@@ -558,12 +565,10 @@ class XTabForm extends React.PureComponent {
           _(
             Button,
             {
-              color: "secondary",
+              color: "danger",
               className: "btn-form-edit",
-              onClick: this.approvalAction(3) // reject
+              onClick: approvalAction(3) // reject
             },
-            _("i", { className: "icon-shield" }),
-            " ",
             getLocMsg('reject')
           ),
           " "
@@ -575,11 +580,14 @@ class XTabForm extends React.PureComponent {
               className: "btn-form-edit",
               onClick: iwb.approvalLogs(this.props.cfg.approval.approvalRecordId) // reject
             },
-            _("i", { className: "icon-eye" }),
-            " ",
             getLocMsg('logs')
           )
         ),
+        this.props.cfg.msgs && this.props.cfg.msgs.length && _("div",{style:{color:"#838383"}},this.props.cfg.msgs.map(qq=>_("div",null,
+                _("i", { className: "icon-flag" }),
+             // " step ",
+                         _("span",null," " + qq)
+        ))), 
         _("hr"),
         formBody
       ),
@@ -869,7 +877,8 @@ class XGridRowAction extends React.PureComponent {
     return _(
       Dropdown,
       { isOpen: this.state.isOpen, toggle: this.toggle },
-      //				,_('i',{className:'icon-options-vertical column-action', onClick:qqq.toggleGridAction})
+      // ,_('i',{className:'icon-options-vertical column-action',
+		// onClick:qqq.toggleGridAction})
       _(DropdownToggle, {
         tag: "i",
         className: "icon-options-vertical column-action"
@@ -878,7 +887,8 @@ class XGridRowAction extends React.PureComponent {
         _(
           DropdownMenu,
           { className: this.state.isOpen ? "show" : "" },
-          //				,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
+          // ,_('div',{style:{padding: "7px 13px",background: "gray", color:
+			// "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
           _(
             DropdownItem,
             { ur: "123", onClick: false },
@@ -907,7 +917,8 @@ class XGridRowAction extends React.PureComponent {
             }),
             "Sil"
           )
-          //				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
+          // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
+			// marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
         )
     );
   }
@@ -927,7 +938,8 @@ class XGridAction extends React.PureComponent {
     return _(
       Dropdown,
       { isOpen: this.state.isOpen, toggle: this.toggle },
-      //				,_('i',{className:'icon-options-vertical column-action', onClick:qqq.toggleGridAction})
+      // ,_('i',{className:'icon-options-vertical column-action',
+		// onClick:qqq.toggleGridAction})
       _(
         DropdownToggle,
         {
@@ -940,12 +952,13 @@ class XGridAction extends React.PureComponent {
         _("i", { className: "icon-grid", style: { fontSize: 17 } })
       ),
 
-      //{tag:'i',className: "icon-grid", color:this.props.color||'danger'}
+      // {tag:'i',className: "icon-grid", color:this.props.color||'danger'}
       this.state.isOpen &&
         _(
           DropdownMenu,
           { className: this.state.isOpen ? "show" : "" },
-          //				,_('div',{style:{padding: "7px 13px",background: "gray",  color: "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
+          // ,_('div',{style:{padding: "7px 13px",background: "gray", color:
+			// "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
           _(
             DropdownItem,
             { ur: "123", onClick: false },
@@ -975,7 +988,8 @@ class XGridAction extends React.PureComponent {
             }),
             "Raporlar/BI"
           )
-          //				,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5, marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
+          // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
+			// marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
         )
     );
   }
@@ -995,14 +1009,16 @@ class XGrid extends React.PureComponent {
       (props.crudFlags.edit || props.crudFlags.remove) &&
       iwb.gridActionColumn
     ) {
-      //		    	columns.push({name:'_qw_',title:'.',getCellValue:function(r){return _('i',{className:'icon-options-vertical column-action'})}});//this.toggleGridAction
+      // columns.push({name:'_qw_',title:'.',getCellValue:function(r){return
+		// _('i',{className:'icon-options-vertical
+		// column-action'})}});//this.toggleGridAction
       columns.push({
         name: "_qw_",
         title: ".",
         getCellValue: function(r) {
           return _(XGridRowAction, r);
         }
-      }); //this.toggleGridAction
+      }); // this.toggleGridAction
       tableColumnExtensions.push({
         columnName: "_qw_",
         width: 50,
@@ -1030,7 +1046,7 @@ class XGrid extends React.PureComponent {
           v.title = _("i", { className: "icon-social-github" });
           break;
       }
-      //if(c[qi].formatter)console.log('c[qi].formatter',c[qi].formatter)
+      // if(c[qi].formatter)console.log('c[qi].formatter',c[qi].formatter)
       if (c[qi].formatter) v.getCellValue = c[qi].formatter;
       columns.push(v);
       tableColumnExtensions.push({
@@ -1129,10 +1145,10 @@ class XGrid extends React.PureComponent {
   }
   loadData(force) {
     if (this.props.rows) return;
-    //		if(this.state.loading===true)return;
+    // if(this.state.loading===true)return;
     const queryString = this.queryString();
     if (!force && queryString === this.lastQuery) {
-      //	      this.setState({ loading: false });
+      // this.setState({ loading: false });
       return;
     }
     this.setState({ loading: true });
@@ -1221,7 +1237,7 @@ class XGrid extends React.PureComponent {
   }
   componentWillUnmount() {
     iwb.grids[this.props.id] = Object.assign({}, this.state);
-    //console.log('XGrid.componentWillUnmount', Object.assign({},this.state));
+    // console.log('XGrid.componentWillUnmount', Object.assign({},this.state));
   }
   render() {
     const {
@@ -1291,7 +1307,7 @@ class XGrid extends React.PureComponent {
       _(_dxgrb.Table, {
         columnExtensions: tableColumnExtensions,
         rowComponent: this.TableRow
-      }), //,cellComponent: Cell
+      }), // ,cellComponent: Cell
       _(_dxgrb.TableColumnReordering, {
         order: columnOrder,
         onOrderChange: this.onColumnOrderChange
@@ -1318,11 +1334,11 @@ class XGrid extends React.PureComponent {
               console.log("onValueChange", ax);
             }
           })
-        : null, //TODO
+        : null, // TODO
       !this.props.pageSize && rows.length > 1
         ? _(_dxgrb.GroupingPanel, { showSortingControls: true })
         : null
-      //		    		,loading && iwb.loading()
+      // ,loading && iwb.loading()
     );
   }
 }
@@ -1342,11 +1358,9 @@ const commandComponentProps = {
     hint: "Delete row",
     color: "text-danger"
   },
-  /*  commit: {
-    icon: 'check',
-    hint: 'Save changes',
-    color: 'text-success',
-  },*/
+  /*
+	 * commit: { icon: 'check', hint: 'Save changes', color: 'text-success', },
+	 */
   cancel: {
     icon: "x",
     hint: "Cancel changes",
@@ -1386,14 +1400,15 @@ const Command = ({ id, onExecute }) => {
 };
 
 iwb.prepareParams4grid = function(grid, prefix, values) {
-  //sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman _insertedItems,_deletedItems dikkate almamasi
+  // sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman
+	// _insertedItems,_deletedItems dikkate almamasi
   var dirtyCount = 0;
   var params = {};
   var items = values.deleted;
   var pk = grid._pk || grid.pk;
   if (items)
     for (var bjk = 0; bjk < items.length; bjk++) {
-      //deleted
+      // deleted
       dirtyCount++;
       for (var key in pk) {
         var val = pk[key];
@@ -1514,7 +1529,7 @@ class XEditGrid extends React.PureComponent {
                 case 15:
                 case 59:
                 case 9:
-                case 10: //combos
+                case 10: // combos
                   break;
                 default:
                   editor.style.textAlign = c[qi].align || "left";
@@ -1558,7 +1573,7 @@ class XEditGrid extends React.PureComponent {
         pkInsert: 0
       };
     }
-    //		this._pk4insert = 0; //state te olmasi lazim: TODO
+    // this._pk4insert = 0; //state te olmasi lazim: TODO
     this.onSortingChange = sorting => this.setState({ sorting });
     this.onCurrentPageChange = currentPage => this.setState({ currentPage });
     this.onPageSizeChange = this.onPageSizeChange.bind(this);
@@ -1633,7 +1648,8 @@ class XEditGrid extends React.PureComponent {
     this.EditCell = this.EditCell.bind(this);
     if (props.parentCt && props.parentCt.egrids)
       props.parentCt.egrids[props.gridId] = this;
-    //	    this.SimpleEditCell = (props) => {console.log('SimpleEditCell', props);return _(_dxgrb.TableEditRow.Cell, props);}
+    // this.SimpleEditCell = (props) => {console.log('SimpleEditCell',
+	// props);return _(_dxgrb.TableEditRow.Cell, props);}
   }
   componentDidMount() {
     if (!this.dontRefresh) this.loadData();
@@ -1657,14 +1673,14 @@ class XEditGrid extends React.PureComponent {
     if (!editor) return _(_dxgrb.TableEditRow.Cell, xprops);
 
     editor = Object.assign({}, editor);
-    if (!xprops.row._new) xprops.row._new = {}; //Object.assign({},xprops.row);
+    if (!xprops.row._new) xprops.row._new = {}; // Object.assign({},xprops.row);
     if (!xprops.row._new.hasOwnProperty(xprops.column.name))
       xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
     delete editor.defaultValue;
     switch (1 * editor._control) {
       case 3:
-      case 4: //number
-        editor.value = xprops.value; //xprops.row._new[xprops.column.name];
+      case 4: // number
+        editor.value = xprops.value; // xprops.row._new[xprops.column.name];
         editor.onValueChange = function(o) {
           xprops.row._new[xprops.column.name] = o.value;
           xprops.onValueChange(o.value);
@@ -1677,15 +1693,16 @@ class XEditGrid extends React.PureComponent {
       case 15:
       case 59:
       case 9:
-      case 10: //combos
-        editor.value = xprops.row._new[xprops.column.name]; //TODO. ilk edit ettigini aliyor
+      case 10: // combos
+        editor.value = xprops.row._new[xprops.column.name]; // TODO. ilk edit
+															// ettigini aliyor
         editor.onChange = function(o) {
           xprops.row._new[xprops.column.name] = o.id;
           xprops.onValueChange(o.id);
         };
         break;
       default:
-        editor.value = xprops.value; //xprops.row._new[xprops.column.name];
+        editor.value = xprops.value; // xprops.row._new[xprops.column.name];
         editor.onChange = function(o) {
           xprops.row._new[xprops.column.name] = o.target.value;
           xprops.onValueChange(o.target.value);
@@ -1751,10 +1768,10 @@ class XEditGrid extends React.PureComponent {
   }
   componentWillUnmount() {
     iwb.grids[this.props.id] = Object.assign({}, this.state);
-    //console.log('XGrid.componentWillUnmount', Object.assign({},this.state));
+    // console.log('XGrid.componentWillUnmount', Object.assign({},this.state));
   }
   render() {
-    //		  console.log('XEditGrid:render')
+    // console.log('XEditGrid:render')
     const {
       viewMode,
       rows,
@@ -1810,7 +1827,8 @@ class XEditGrid extends React.PureComponent {
           onCommitChanges: this.commitChanges
         }),
       _(_dxgrb.DragDropProvider, null),
-      _(_dxgrb.Table, { columnExtensions: tableColumnExtensions }), //,cellComponent: Cell
+      _(_dxgrb.Table, { columnExtensions: tableColumnExtensions }), // ,cellComponent:
+																	// Cell
       _(_dxgrb.TableColumnReordering, {
         order: columnOrder,
         onOrderChange: this.onColumnOrderChange
@@ -1856,10 +1874,13 @@ class XMainGrid extends React.PureComponent {
     } else {
       var columns = [],
         tableColumnExtensions = [];
-      /* if(iwb.gridActionColumn){
-			    	columns.push({name:'_qw_',title:'.',getCellValue:function(r){return _(XGridRowAction,r);}});
-			    	tableColumnExtensions.push({columnName:'_qw_',width:60, align:'right',sortingEnabled:false});
-			    }*/
+      /*
+		 * if(iwb.gridActionColumn){
+		 * columns.push({name:'_qw_',title:'.',getCellValue:function(r){return
+		 * _(XGridRowAction,r);}});
+		 * tableColumnExtensions.push({columnName:'_qw_',width:60,
+		 * align:'right',sortingEnabled:false}); }
+		 */
       var c = props.columns;
       for (var qi = 0; qi < c.length; qi++) {
         var v = { name: c[qi].name, title: c[qi].title };
@@ -1880,7 +1901,7 @@ class XMainGrid extends React.PureComponent {
             v.title = _("i", { className: "icon-social-github" });
             break;
         }
-        //if(c[qi].formatter)console.log('c[qi].formatter',c[qi].formatter)
+        // if(c[qi].formatter)console.log('c[qi].formatter',c[qi].formatter)
         if (c[qi].formatter) v.getCellValue = c[qi].formatter;
         columns.push(v);
         tableColumnExtensions.push({
@@ -1936,7 +1957,7 @@ class XMainGrid extends React.PureComponent {
       this.props.searchForm ||
       (this.props.detailGrids && this.props.detailGrids.length > 1)
     ) {
-      //hidden:!!this.props.grid.globalSearch
+      // hidden:!!this.props.grid.globalSearch
       var self = this;
       this.searchForm = _(
         Nav,
@@ -1969,10 +1990,13 @@ class XMainGrid extends React.PureComponent {
                 )
               ),
 
-              // 	,_('div',{style:{height:10}}),_('div',{className:'hr-text'},_('h6',null,'Şablonlar'))
-              // 	,_(Link,{style:{padding:2},to:''},_('i',{className:'icon-star'}),' ',' Yıllık Faturalar') //TODO
-              // 	,_(Link,{style:{padding:'2px'},to:''},_('i',{className:'icon-star'}),' ',' Ankara')
-              // 	,_(Link,{style:{padding:2,color:'#a0a0a0'},to:''},_('i',{className:'icon-plus'}),' ',' Yeni Şablon Ekle')
+              // ,_('div',{style:{height:10}}),_('div',{className:'hr-text'},_('h6',null,'Şablonlar'))
+              // ,_(Link,{style:{padding:2},to:''},_('i',{className:'icon-star'}),'
+				// ',' Yıllık Faturalar') //TODO
+              // ,_(Link,{style:{padding:'2px'},to:''},_('i',{className:'icon-star'}),'
+				// ',' Ankara')
+              // ,_(Link,{style:{padding:2,color:'#a0a0a0'},to:''},_('i',{className:'icon-plus'}),'
+				// ',' Yeni Şablon Ekle')
               _("div", { style: { height: 20 } })
             ]
           : null,
@@ -2031,10 +2055,11 @@ class XMainGrid extends React.PureComponent {
     return function(row) {
       if (row) {
         var r = [];
-        //					  console.log('dgs',dgs);
+        // console.log('dgs',dgs);
         for (var qi = 0; qi < dgs.length; qi++)
           if (dgs.length == 1 || xxx.state["dg-" + dgs[qi].grid.gridId]) {
-            var g2 = Object.assign({ pk: dgs[qi].pk || {} }, dgs[qi].grid); //buildParams2(obj.detailGrids[i].params, sel);
+            var g2 = Object.assign({ pk: dgs[qi].pk || {} }, dgs[qi].grid); // buildParams2(obj.detailGrids[i].params,
+																			// sel);
             if (g2._url) g2._url += buildParams2(dgs[qi].params, row.row);
             else g2.rows = row.row[g2.detailRowsFieldName];
             g2.detailFlag = true;
@@ -2042,7 +2067,7 @@ class XMainGrid extends React.PureComponent {
               _(
                 "li",
                 { key: qi, className: "timeline-inverted" },
-                //								  	_(XGridAction,{color:dgColors[qi%dgColors.length]}),
+                // _(XGridAction,{color:dgColors[qi%dgColors.length]}),
                 _(
                   "div",
                   {
@@ -2068,12 +2093,15 @@ class XMainGrid extends React.PureComponent {
                     _(
                       "h5",
                       {
-                        /*style:{paddingBottom: '10px'},*/ className:
+                        /* style:{paddingBottom: '10px'}, */ className:
                           "timeline-title"
                       },
                       g2.name
                     )
-                    //									,_('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},_('i',{ className: "icon-arrow-up", style:{marginRight: '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
+                    // ,_('span',{className: "float-right",
+					// style:{marginTop:'-23px', marginRight:'15px'}},_('i',{
+					// className: "icon-arrow-up", style:{marginRight:
+					// '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
                   ),
                   _(
                     XGrid,
@@ -2151,9 +2179,9 @@ class XMainGrid extends React.PureComponent {
     return queryString;
   }
   toggleSearch() {
-    /*			  var b = this.state.hideSF;
-			  this.setState({hideSF:!b});
-			  return false; */
+    /*
+	 * var b = this.state.hideSF; this.setState({hideSF:!b}); return false;
+	 */
     var sf = document.getElementById("sf-" + this.props.id);
     if (sf) {
       var eq = document.getElementById("eq-" + this.props.id);
@@ -2167,20 +2195,21 @@ class XMainGrid extends React.PureComponent {
     return false;
   }
   loadData(force, params) {
-    //			if(this.state.loading===true)return;
+    // if(this.state.loading===true)return;
     const queryString = this.queryString();
     if (!force && queryString === this.lastQuery) {
-      //    this.setState({ loading: false });
+      // this.setState({ loading: false });
       return;
     }
     this.setState({ loading: true });
-    //		    var params= Object.assign({},params||{},this.props.searchForm ? iwb.getFormValues(document.getElementById('fsf-'+this.props.id)):{});
+    // var params= Object.assign({},params||{},this.props.searchForm ?
+	// iwb.getFormValues(document.getElementById('fsf-'+this.props.id)):{});
     var params = Object.assign(
       {},
       params || {},
       this.form ? this.form.getValues() : {}
     );
-    //		    console.log(params);
+    // console.log(params);
     iwb.request({
       url: queryString,
       self: this,
@@ -2265,7 +2294,7 @@ class XMainGrid extends React.PureComponent {
     }
 
     iwb.grids[this.props.id] = state;
-    //console.log('XGrid.componentWillUnmount', Object.assign({},this.state));
+    // console.log('XGrid.componentWillUnmount', Object.assign({},this.state));
   }
   openBI() {
     var props = this.props,
@@ -2349,7 +2378,7 @@ class XMainGrid extends React.PureComponent {
                 ? "1200&xtable_id=" + props.crudTableId
                 : "2395&xquery_id=" + props.queryId),
             target: "_blank",
-            action: !0 /*, className:'list-group-item-danger2'*/
+            action: !0 /* , className:'list-group-item-danger2' */
           },
           _("i", { className: "float-right text-primary fa fa-th" }),
           " ",
@@ -2438,7 +2467,7 @@ class XMainGrid extends React.PureComponent {
       _(_dxgrb.Table, {
         columnExtensions: tableColumnExtensions,
         rowComponent: this.TableRow
-      }), //,cellComponent: Cell
+      }), // ,cellComponent: Cell
       _(_dxgrb.TableColumnReordering, {
         order: columnOrder,
         onOrderChange: this.onColumnOrderChange
@@ -2465,11 +2494,11 @@ class XMainGrid extends React.PureComponent {
               console.log("onValueChange", ax);
             }
           })
-        : null, //TODO
+        : null, // TODO
       !pageSize && rows.length > 1
         ? _(_dxgrb.GroupingPanel, { showSortingControls: true })
         : null
-      //			    		,loading && iwb.loading()
+      // ,loading && iwb.loading()
     );
 
     return _(
@@ -2529,7 +2558,11 @@ class XMainGrid extends React.PureComponent {
                 " NEW RECORD"
               )
             : null,
-          //										,_(Button,{className:'float-right btn-round-shadow hover-shake',color:'danger', onClick:this.toggleSearch},_('i',{style:{transition: "transform .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':' rotate-90deg')}))
+          // ,_(Button,{className:'float-right btn-round-shadow
+			// hover-shake',color:'danger',
+			// onClick:this.toggleSearch},_('i',{style:{transition: "transform
+			// .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':'
+			// rotate-90deg')}))
           _(
             Button,
             {
@@ -2539,12 +2572,16 @@ class XMainGrid extends React.PureComponent {
             },
             _("i", { className: "icon-equalizer" })
           )
-          //										, this.props.globalSearch && _(Input,{type:"text", className:"float-right form-control w-25", onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...", defaultValue:"", style:{marginTop: '-0.355rem', marginRight:'.4rem'}})
+          // , this.props.globalSearch && _(Input,{type:"text",
+			// className:"float-right form-control w-25",
+			// onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...",
+			// defaultValue:"", style:{marginTop: '-0.355rem',
+			// marginRight:'.4rem'}})
         ),
         g
       )
     );
-    //			        {loading && <Loading />}
+    // {loading && <Loading />}
   }
 }
 
@@ -2561,7 +2598,7 @@ class XPage extends React.Component {
     iwb.openForm = this.openForm;
 
     var oldPageState = iwb.pages[props.grid.id];
-    //	    console.log('oldPageState', oldPageState);
+    // console.log('oldPageState', oldPageState);
     if (oldPageState) {
       this.state = oldPageState;
       this.dontRefresh = true;
@@ -2594,7 +2631,7 @@ class XPage extends React.Component {
     var tabs = state.tabs;
     for (var qi = 1; qi < tabs.length; qi++)
       if (tabs[qi].k === tab) {
-        //			console.log('closeTab.found:'+qi+'/'+tab + '/' + tabs.length);
+        // console.log('closeTab.found:'+qi+'/'+tab + '/' + tabs.length);
         state.activeTab = "x";
         tabs.splice(qi, 1);
         state.tabs = tabs;
@@ -2609,7 +2646,8 @@ class XPage extends React.Component {
         var r = [];
         for (var qi = 0; qi < dgs.length; qi++)
           if (self.state["dg-" + dgs[qi].grid.gridId]) {
-            var g2 = Object.assign({ pk: dgs[qi].pk || {} }, dgs[qi].grid); //buildParams2(obj.detailGrids[i].params, sel);
+            var g2 = Object.assign({ pk: dgs[qi].pk || {} }, dgs[qi].grid); // buildParams2(obj.detailGrids[i].params,
+																			// sel);
             g2._url += buildParams2(dgs[qi].params, row.row);
             g2.detailFlag = true;
             r.push(
@@ -2633,12 +2671,15 @@ class XPage extends React.Component {
                     _(
                       "h5",
                       {
-                        /*style:{paddingBottom: '10px'},*/ className:
+                        /* style:{paddingBottom: '10px'}, */ className:
                           "timeline-title"
                       },
                       g2.name
                     )
-                    //								,_('span',{className: "float-right", style:{marginTop:'-23px', marginRight:'15px'}},_('i',{ className: "icon-arrow-up", style:{marginRight: '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
+                    // ,_('span',{className: "float-right",
+					// style:{marginTop:'-23px', marginRight:'15px'}},_('i',{
+					// className: "icon-arrow-up", style:{marginRight:
+					// '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
                   ),
                   _(
                     XGrid,
@@ -2662,7 +2703,7 @@ class XPage extends React.Component {
     };
   }
   openTab(action, url, params, callAttributes) {
-    //		 console.log('openTab.callAttributes', callAttributes)
+    // console.log('openTab.callAttributes', callAttributes)
     if (this.state.activeTab !== action) {
       var tabs = this.state.tabs;
       for (var qi = 1; qi < tabs.length; qi++)
@@ -2673,7 +2714,8 @@ class XPage extends React.Component {
 
       fetch(url, {
         body: JSON.stringify(params || {}), // must match 'Content-Type' header
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        cache: "no-cache", // *default, no-cache, reload, force-cache,
+							// only-if-cached
         credentials: "same-origin", // include, same-origin, *omit
         headers: {
           "content-type": "application/json"
@@ -2684,7 +2726,8 @@ class XPage extends React.Component {
         referrer: "no-referrer" // *client, no-referrer
       })
         .then(response => {
-          // status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
+          // status "0" to handle local files fetching (e.g. Cordova/Phonegap
+			// etc.)
           if (response.status === 200 || response.status === 0) {
             return response.text();
           } else {
@@ -2714,12 +2757,12 @@ class XPage extends React.Component {
               }
             } else {
               toastr.error("Sonuc Gelmedi", " Error");
-              //			        	alert('Hata! Sonuc Gelmedi');
+              // alert('Hata! Sonuc Gelmedi');
             }
           },
           error => {
             toastr.error(error, "Connection Error");
-            //		        	alert('Hata! ' + error);
+            // alert('Hata! ' + error);
           }
         );
     }
@@ -2731,7 +2774,7 @@ class XPage extends React.Component {
   componentWillUnmount() {
     iwb.killGlobalSearch();
     iwb.pages[this.props.grid.id] = Object.assign({}, this.state);
-    //		  console.log('XPage.componentWillUnmount', Object.assign({},this.state));
+    // console.log('XPage.componentWillUnmount', Object.assign({},this.state));
   }
   render() {
     if (iwb.debugRender) console.log("XPage.render");
@@ -2832,7 +2875,7 @@ class XCardMenu extends React.PureComponent {
         _(
           Card,
           {
-            //url:this.props.node.url,onClick:(e)=>{console.log(this.props.history);console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
+            // url:this.props.node.url,onClick:(e)=>{console.log(this.props.history);console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
             className: "card-menu text-white bg-" + this.props.color,
             style: this.props.fadeOut
               ? { opacity: 0, transform: "scale(.9)" }
@@ -2905,7 +2948,7 @@ class XCardMiniMenu extends React.PureComponent {
         _(
           Card,
           {
-            //url:this.props.node.url,onClick:(e)=>{console.log(this.props.history);console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
+            // url:this.props.node.url,onClick:(e)=>{console.log(this.props.history);console.log('this.props.router',this.props.router);this.props.history.push(this.props.node.url)},
             className: "card-mini-menu text-white bg-" + this.props.color,
             style: this.props.fadeOut
               ? { opacity: 0, transform: "scale(.9)" }
@@ -2946,7 +2989,7 @@ class XMainNav extends React.PureComponent {
   }
   componentDidUpdate() {
     console.log("XMainNav.componentDidUpdate");
-    //	if(this.state)this.setState({xsearch:''});
+    // if(this.state)this.setState({xsearch:''});
   }
   onGlobalSearch(v) {
     this.setState({ xsearch: v && v.target ? v.target.value : v });
@@ -3058,8 +3101,10 @@ class XMainPanel extends React.PureComponent {
     var t = this.t;
     if (!iwb["t-" + t]) {
       fetch("showPage?_tid=" + t, {
-        //			    body: JSON.stringify(cfg.params||{}), // must match 'Content-Type' header
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        // body: JSON.stringify(cfg.params||{}), // must match 'Content-Type'
+		// header
+        cache: "no-cache", // *default, no-cache, reload, force-cache,
+							// only-if-cached
         credentials: "same-origin", // include, same-origin, *omit
         headers: { "content-type": "application/json" },
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -3068,7 +3113,8 @@ class XMainPanel extends React.PureComponent {
         referrer: "no-referrer" // *client, no-referrer
       })
         .then(response => {
-          // status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
+          // status "0" to handle local files fetching (e.g. Cordova/Phonegap
+			// etc.)
           if (response.status === 200 || response.status === 0) {
             return response.text();
           } else {
@@ -3083,18 +3129,18 @@ class XMainPanel extends React.PureComponent {
               var r = f(false, this);
               if (r) {
                 r = _("div", { className: "animated fadeIn" }, r);
-                iwb["t-" + t] = r; //r;
+                iwb["t-" + t] = r; // r;
                 this.setState({ t: t });
                 iwb.nav.visitItem(this.props.match.path);
               }
             } else {
               toastr.error("No Result", " Error");
-              //		        	alert('Hata! Sonuc Gelmedi');
+              // alert('Hata! Sonuc Gelmedi');
             }
           },
           error => {
             toastr.error(error, "Connection Error");
-            //alert('ERROR! ' + error);
+            // alert('ERROR! ' + error);
           }
         );
     } else if (t != this.state.t) this.setState({ t: t });
@@ -3188,15 +3234,16 @@ iwb.requestErrorHandler = function(obj) {
         return iwb.showLoginDialog();
       case "validation":
         toastr.error(obj.errors.join("<br/>"), "Validation Error");
-        //	    	alert('ERROR Validation: ' + obj.errors.join('\n'));
+        // alert('ERROR Validation: ' + obj.errors.join('\n'));
         break;
       default:
     	top.ajaxErrorHandler(obj);
-      //	    	alert('ERROR['+obj.errorType+'] '+(obj.errorMsg || 'Bilinmeyen ERROR'));
+      // alert('ERROR['+obj.errorType+'] '+(obj.errorMsg || 'Bilinmeyen
+		// ERROR'));
     }
   } else {
-    //toastr.error(obj.errorMsg || "Unknown ERROR", "Request Error");
-    //		alert(obj.errorMsg || 'Bilinmeyen ERROR');
+    // toastr.error(obj.errorMsg || "Unknown ERROR", "Request Error");
+    // alert(obj.errorMsg || 'Bilinmeyen ERROR');
 	  top.ajaxErrorHandler(obj);
   }
 };
@@ -3213,7 +3260,8 @@ iwb.request = function(cfg) {
   }
   fetch(cfg.url, {
     body: JSON.stringify(cfg.params || {}), // must match 'Content-Type' header
-    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    cache: "no-cache", // *default, no-cache, reload, force-cache,
+						// only-if-cached
     credentials: "same-origin", // include, same-origin, *omit
     headers: {
       "content-type": "application/json"
@@ -3224,7 +3272,8 @@ iwb.request = function(cfg) {
     referrer: "no-referrer" // *client, no-referrer
   })
     .then(function(response) {
-      // status "0" to handle local files fetching (e.g. Cordova/Phonegap etc.)
+      // status "0" to handle local files fetching (e.g. Cordova/Phonegap
+		// etc.)
       if (response.status === 200 || response.status === 0) {
         return response.json();
       } else {
@@ -3251,7 +3300,7 @@ iwb.request = function(cfg) {
         )
           return;
         toastr.error(error || "Unknown ERROR", "Request Error");
-        //	    	alert('ERROR! ' + error);
+        // alert('ERROR! ' + error);
       }
     );
 };
@@ -3306,37 +3355,44 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
       }
     };
 
-  //<debug>
+  // <debug>
   // DelayedTask can be called with no function upfront
   if (fn) {
     call.$origFn = fn.$origFn || fn;
     call.$skipTimerCheck = call.$origFn.$skipTimerCheck;
   }
-  //</debug>
+  // </debug>
 
   cancelOnDelay = typeof cancelOnDelay === "boolean" ? cancelOnDelay : true;
 
   /**
-   * @property {Number} id
-   * The id of the currently pending invocation.  Will be set to `null` if there is no
-   * invocation pending.
-   */
+	 * @property {Number} id The id of the currently pending invocation. Will be
+	 *           set to `null` if there is no invocation pending.
+	 */
   me.id = null;
 
   /**
-   * @method delay
-   * By default, cancels any pending timeout and queues a new one.
-   *
-   * If the `cancelOnDelay` parameter was specified as `false` in the constructor, this does not cancel and
-   * reschedule, but just updates the call settings, `newDelay`, `newFn`, `newScope` or `newArgs`, whichever are passed.
-   *
-   * @param {Number} newDelay The milliseconds to delay. `-1` means schedule for the next animation frame if supported.
-   * @param {Function} [newFn] Overrides function passed to constructor
-   * @param {Object} [newScope] Overrides scope passed to constructor. Remember that if no scope
-   * is specified, `this` will refer to the browser window.
-   * @param {Array} [newArgs] Overrides args passed to constructor
-   * @return {Number} The timer id being used.
-   */
+	 * @method delay By default, cancels any pending timeout and queues a new
+	 *         one.
+	 * 
+	 * If the `cancelOnDelay` parameter was specified as `false` in the
+	 * constructor, this does not cancel and reschedule, but just updates the
+	 * call settings, `newDelay`, `newFn`, `newScope` or `newArgs`, whichever
+	 * are passed.
+	 * 
+	 * @param {Number}
+	 *            newDelay The milliseconds to delay. `-1` means schedule for
+	 *            the next animation frame if supported.
+	 * @param {Function}
+	 *            [newFn] Overrides function passed to constructor
+	 * @param {Object}
+	 *            [newScope] Overrides scope passed to constructor. Remember
+	 *            that if no scope is specified, `this` will refer to the
+	 *            browser window.
+	 * @param {Array}
+	 *            [newArgs] Overrides args passed to constructor
+	 * @return {Number} The timer id being used.
+	 */
   me.delay = function(newDelay, newFn, newScope, newArgs) {
     if (cancelOnDelay) {
       me.cancel();
@@ -3351,12 +3407,12 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
     args = newArgs || args;
     me.delayTime = delay;
 
-    //<debug>
+    // <debug>
     if (fn) {
       call.$origFn = fn.$origFn || fn;
       call.$skipTimerCheck = call.$origFn.$skipTimerCheck;
     }
-    //</debug>
+    // </debug>
 
     if (!me.id) {
       if (delay === -1) {
@@ -3370,8 +3426,8 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
   };
 
   /**
-   * Cancel the last queued timeout
-   */
+	 * Cancel the last queued timeout
+	 */
   me.cancel = function() {
     if (me.id) {
       if (me.delayTime === -1) {
@@ -3399,9 +3455,8 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
   };
 
   /**
-   * @private
-   * Cancel the timeout if it was set for the specified fn and scope.
-   */
+	 * @private Cancel the timeout if it was set for the specified fn and scope.
+	 */
   me.stop = function(stopFn, stopScope) {
     // This kludginess is here because Classic components use shared focus task
     // and we need to be sure the task's current timeout was set for that
@@ -3414,11 +3469,13 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
 class XForm extends React.Component {
   constructor(props) {
     super(props);
-    //methods
+    // methods
     /**
-     * sets the state with value of input
-     * @param {event} param0
-     */
+	 * sets the state with value of input
+	 * 
+	 * @param {event}
+	 *            param0
+	 */
     this.onChange = ({ target }) => {
       var { values } = this.state;
       if (target) {
@@ -3427,9 +3484,10 @@ class XForm extends React.Component {
         this.setState({ values });
       }
     };
+
     /**
-     * file upload function
-     */
+	 * file upload function
+	 */
     this.onFileChange = () => (name, result, context) => {
       var values = this.state.values;
       var errors = this.state.errors;
@@ -3445,10 +3503,11 @@ class XForm extends React.Component {
       })
     }
     /**
-     * sets state for combo change
-     * else sets oprions of it after the request
-     * @param {String} inputName
-     */
+	 * sets state for combo change else sets oprions of it after the request
+	 * 
+	 * @param {String}
+	 *            inputName
+	 */
     this.onComboChange = inputName => {
       var self = this;
       return selectedOption => {
@@ -3456,7 +3515,7 @@ class XForm extends React.Component {
         var slectedOption_Id = selectedOption && selectedOption.id;
         values[inputName] = slectedOption_Id;
         var triggers = self.triggerz4ComboRemotes;
-        //used for remote @depricated
+        // used for remote @depricated
         if (triggers[inputName]) {
           triggers[inputName].map(zzz => {
             var nv = zzz.f(slectedOption_Id, null, values);
@@ -3480,9 +3539,11 @@ class XForm extends React.Component {
       };
     };
     /**
-     * sets state when low combo is entered
-     * @param {String} inputName
-     */
+	 * sets state when low combo is entered
+	 * 
+	 * @param {String}
+	 *            inputName
+	 */
     this.onLovComboChange = inputName => {
       var self = this;
       return selectedOptions => {
@@ -3498,9 +3559,11 @@ class XForm extends React.Component {
       };
     };
     /**
-     * sets state when number entered
-     * @param {String} dsc
-     */
+	 * sets state when number entered
+	 * 
+	 * @param {String}
+	 *            dsc
+	 */
     this.onNumberChange = inputName => {
       var self = this;
       return inputEvent => {
@@ -3511,13 +3574,18 @@ class XForm extends React.Component {
       };
     };
     /**
-     * sends post to the server
-     * @param {Object} cfg
-     */
+	 * sends post to the server
+	 * 
+	 * @param {Object}
+	 *            cfg
+	 */
     this.submit = cfg => {
       var values = { ...this.state.values };
       if (this.componentWillPost) {
-        /** componentWillPostResult = true || fase || {field_name : 'custom value'} */
+        /**
+		 * componentWillPostResult = true || fase || {field_name : 'custom
+		 * value'}
+		 */
         var componentWillPostResult = this.componentWillPost(values, cfg || {});
         if (!componentWillPostResult) return false;
         values = { ...values, ...componentWillPostResult };
@@ -3567,25 +3635,30 @@ class XForm extends React.Component {
       });
     };
     /**
-     * used to make form active tab and visible on the page
-     * @param {object} tab
-     */
+	 * used to make form active tab and visible on the page
+	 * 
+	 * @param {object}
+	 *            tab
+	 */
     this.toggleTab = tab => {
       if (this.state.activeTab !== tab) {
         this.setState({ activeTab: tab });
       }
     };
     /**
-     * returns form data from state
-     */
+	 * returns form data from state
+	 */
     this.getValues = () => {
       return { ...this.state.values };
     };
     /**
-     * used for date inputs
-     * @param {String} inputName
-     * @param {Boolean} isItDTTM
-     */
+	 * used for date inputs
+	 * 
+	 * @param {String}
+	 *            inputName
+	 * @param {Boolean}
+	 *            isItDTTM
+	 */
     this.onDateChange = (inputName, isItDTTM) => {
       var self = this;
       return selectedDate => {
@@ -3775,6 +3848,7 @@ function fieldFileAttachment(row, cell) {
     ? _("a", { href:"dl/"+row[cell+"_qw_"]+"?_fai="+row[cell],target:"_blank"}, row[cell+"_qw_"])
     : null;
 }
+
 class FileInput extends React.Component {
 	  constructor(props) {
 	    super(props)
@@ -3912,7 +3986,8 @@ class FileInput extends React.Component {
 	    }
 	    return _(React.Fragment, {},
 	      _('div', null,
-	        // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+	        // this.state.file ? getLocMsg(this.state.file.name) :
+			// getLocMsg('File Upload'),
 	        _('input', {
 	          className: 'd-none',
 	          type: 'file',
@@ -3971,3 +4046,329 @@ class FileInput extends React.Component {
 	    )
 	  }
 	}
+const XPreviewFile = ({
+	  file
+	}) => {
+	  let type = file ? file.type : null;
+	  let style = {
+	    fontSize: '12em'
+	  };
+	  switch (type) {
+	    case 'image/png':
+	      return _('img', {
+	        src: URL.createObjectURL(file),
+	        className: 'img-fluid rounded'
+	      })
+	    case 'text/plain':
+	      return _('i', {
+	        style,
+	        className: 'fas fa-file-alt m-auto'
+	      })
+	    case 'application/pdf':
+	      return _('i', {
+	        style,
+	        className: 'fas fa-file-pdf m-auto'
+	      })
+	    default:
+	      return _('div', {className:'m-auto text-center'},
+	      file ? _('i',{className:'far fa-file',style}) : _('i',{className:'fas fa-upload',style}),
+	        _('br',null),
+	        getLocMsg(file ? 'undefined_type' : 'choose_file_or_drag_it_here')
+	      )
+	  }
+	}
+
+	class XListFiles extends React.Component {
+	  constructor(){
+	    super()
+	    this.state = {
+	      files:[]
+	    }
+	    this.getFileList = this.getFileList.bind(this)
+	    this.deleteItem = this.deleteItem.bind(this)
+	    this.downladLink = this.downladLink.bind(this)
+	  }
+	  /** run query to get data based on pk and id */
+	  getFileList(){
+	    iwb.request({
+	      url:'ajaxQueryData?_qid=61&xtable_id='+this.props.cfg.crudTableId+'&xtable_pk='+ (this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))+'&.r='+Math.random(),
+	      successCallback: ({data}) => {
+	        this.setState({
+	          files:data
+	        })
+	      }
+	    })
+	  }
+	  deleteItem(fileItem) {
+	    return (event) => {
+	      event.preventDefault();
+	      event.stopPropagation();
+	      /** deleteRequest */
+	      iwb.request({
+	        url: 'ajaxPostForm?a=3&_fid=1383&tfile_attachment_id='+fileItem.file_attachment_id,
+	        successCallback: (res) => {
+	          this.setState({
+	            files: this.state.files.filter(file => file.file_attachment_id != fileItem.file_attachment_id)
+	          })
+	        }
+	      })
+	    }
+	  }
+	  /** test */
+	  downladLink(fileItem) {
+	    let url = 'dl/'+fileItem.original_file_name+'?_fai='+fileItem.file_attachment_id+'&.r='+Math.random();
+	    return (event) => {
+	      event.preventDefault();
+	      event.stopPropagation();
+	      const link = document.createElement('a');
+	      link.href = url ;
+	      document.body.appendChild(link);
+	      link.click();
+	      document.body.removeChild(link);
+	    }
+	  }
+	  componentDidMount(){ this.getFileList() }
+	  render() {
+	    return _(
+	      ListGroup, {},
+	      this.state.files.map(fileItem => _(ListGroupItem, null,
+	        _('a', { onClick:this.downladLink(fileItem),href:'#' }, fileItem.original_file_name),
+	        _('i', {
+	          key: fileItem.file_attachment_id,
+	          onClick: this.deleteItem(fileItem),
+	          style:{ cursor: 'pointer' },
+	          className: 'icon-trash float-right text-danger'
+	        })
+	      ))
+	    )
+	  }
+	}
+	class XSingleUploadComponent extends React.Component {
+	  constructor() {
+	    super();
+	    this.state = {
+	      canUpload: false,
+	      dragOver: false,
+	      file: null
+	    };
+	    this.xListFilesRef = React.createRef();
+	    this.onDrop = this.onDrop.bind(this);
+	    this.dragenter = this.dragenter.bind(this);
+	    this.dragleave = this.dragleave.bind(this);
+	    this.dragover = this.dragover.bind(this);
+	    this.onDeleteFile = this.onDeleteFile.bind(this);
+	    this.onclick = this.onclick.bind(this);
+	    this.onchange = this.onchange.bind(this);
+	    this.uplaodFile = this.uplaodFile.bind(this);
+	  }
+	  /** function to click input ref click */
+	  onclick(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.inpuRef.click();
+	  }
+	  /** used to disable opening file on new tab */
+	  dragover(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	  }
+	  /** used with css */
+	  dragleave(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.setState({
+	      dragOver: false
+	    });
+	  }
+	  /** when the file over drag area */
+	  dragenter(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.setState({
+	      dragOver: true
+	    });
+	  }
+	  /** when the file dproped over drop area */
+	  onDrop(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.setState({
+	      canUpload: true,
+	      dragOver: false,
+	      file: event.dataTransfer.files[0]
+	    },()=>{
+	      this.uplaodFile()
+	    })
+	  }
+	  /** when the file dproped over drop area */
+	  onchange(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    this.setState({
+	      canUpload: true,
+	      dragOver: false,
+	      file: event.target.files[0]
+	    },()=>{
+	      this.uplaodFile();
+	    })
+	  }
+	  /** remove file from form state */
+	  onDeleteFile(event) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	    /** will reset to null currently uploaded file */
+	    this.setState({
+	      canUpload: false,
+	      file: null
+	    })
+	  }
+	  /** uploader function */
+	  uplaodFile() {
+	    // event.preventDefault();
+	    // event.stopPropagation();
+	    if (!this.state.file) {
+	      return;
+	    }
+	    let formData = new FormData()
+	    formData.append('table_pk', this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))
+	    formData.append('table_id', this.props.cfg.crudTableId)
+	    formData.append('file', this.state.file)
+	    formData.append('profilePictureFlag', this.props.profilePictureFlag || 0)
+	    fetch('upload.form', {
+	        method: 'POST',
+	        body: formData,
+	        cache: 'no-cache',
+	        credentials: 'same-origin',
+	        mode: 'cors',
+	        redirect: 'follow',
+	        referrer: 'no-referrer'
+	      })
+	      .then(response => response.status === 200 || response.status === 0 ? response.json() : Promise.reject(new Error(response.text() || response.statusText)))
+	      .then(
+	        result => {
+	          if (result.success) {
+	            toastr.success(getLocMsg('file_sucessfully_uploaded!'), getLocMsg('Success'), {
+	              timeOut: 3000
+	            });
+	            this.xListFilesRef.current.getFileList();
+	            this.setState({
+	              file: null,
+	              canUpload: false
+	            })
+
+	          } else {
+	            if (result.error) {
+	              toastr.error(result.error, result.errorType);
+	            }
+	            return;
+	          }
+	        },
+	        error => {
+	          toastr.error(error, getLocMsg('Error'));
+	        }
+	      )
+	  }
+	  render() {
+	    let defaultStyle = {
+	      height: '100%',
+	      width: '100%',
+	      position: 'absolute',
+	      top: '0',
+	      left: '0'
+	    }
+	    return _(React.Fragment, {},
+	      _(Button, {
+	          id: this.props.cfg.id,
+	          type: 'button',
+	          className: 'float-right btn-round-shadow mr-1',
+	          color: 'light'
+	        },
+	        _('i', {
+	          className: 'icon-paper-clip'
+	        }),this.props.cfg.fileAttachCount ? ' '+this.props.cfg.fileAttachCount:''
+	      ),
+	      _(Reactstrap.UncontrolledPopover, {
+	          trigger: 'legacy',
+	          placement: 'auto',
+	          target: this.props.cfg.id
+	        },
+	        _(PopoverHeader, null,
+	          this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+	          _('input', {
+	            className: 'd-none',
+	            type: 'file',
+	            onChange: this.onchange,
+	            ref: input => this.inpuRef = input
+	          }),
+	          this.props.extraButtons && this.props.extraButtons
+	        ),
+	        _(PopoverBody,
+	          null,
+	          _('div', {
+	              style: {
+	                height: '200px',
+	                width: '200px',
+	                position: 'relative',
+	                border: this.state.dragOver ? '3px dashed #20a8d8' : '3px dashed #a4b7c1'
+	              }
+	            },
+	            _('div', {
+	              style: {
+	                ...defaultStyle,
+	                zIndex: '10',
+	                background: 'gray',
+	                cursor: 'pointer',
+	                opacity: this.state.canUpload ? '0' : '0.5',
+	              },
+	              className: 'rounded',
+	              onDrop: this.onDrop,
+	              onDragEnter: this.dragenter,
+	              onDragLeave: this.dragleave,
+	              onDragOver: this.dragover,
+	              onClick: this.onclick
+	            }),
+	            _('div', {
+	                style: {
+	                  ...defaultStyle,
+	                  display: 'flex'
+	                }
+	              },
+	              _(XPreviewFile, {
+	                file: this.state.file
+	              }))
+	          ),
+	          _('div', {
+	            className: 'clearfix'
+	          }),
+	          _(XListFiles,{cfg: this.props.cfg, ref: this.xListFilesRef})
+	        )
+	      )
+	    )
+	  }
+	}
+function json2pk(j) {
+    for (var key in j)
+        if (key != "customizationId" && key != "projectId")
+            return j[key];
+    alert('Error: PK not found');
+    return false;
+}
+iwb.fmtFileSize=(a) => {
+  if (!a) return "-";
+  a *= 1;
+  var d = "B";
+  if (a > 1024) {
+    a = a / 1024;
+    d = "KB";
+  }
+  if (a > 1024) {
+    a = a / 1024;
+    d = "MB";
+  }
+  if (a > 1024) {
+    a = a / 1024;
+    d = "GB";
+  }
+  if (d != "B") a = Math.round(a * 10) / 10;
+  return a + " " + d;
+}

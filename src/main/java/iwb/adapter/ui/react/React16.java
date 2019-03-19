@@ -2090,7 +2090,7 @@ public class React16 implements ViewAdapter {
 			buf.append("$:FileInput, parentCt: this, onFileChange: this.onFileChange(), cfg:cfgForm");
 			Map evm = cellResult.getExtraValuesMap();
 			if(!GenericUtil.isEmpty(evm)) {
-				buf.append(", fileId:").append(evm.get("id")).append(", fileName:\"").append(GenericUtil.stringToJS2((String)evm.get("dsc"))).append("\"");
+				buf.append(", fileId:").append(evm.get("id")).append(", fileSize:").append(evm.get("fsize")).append(", fileName:\"").append(GenericUtil.stringToJS2((String)evm.get("dsc"))).append("\"");
 			}
 			break;
 		
