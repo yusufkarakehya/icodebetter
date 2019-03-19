@@ -53,10 +53,15 @@ public class AccessControlEngine {
 			if (!ll.isEmpty()) {
 				appRecord = ll.get(0);
 
-				if (appRecord.getApprovalStepId() > 0 && appRecord.getApprovalStepId() < 900) {
+				if (appRecord.getApprovalStepId() > 0 && appRecord.getApprovalStepId() != 998 && appRecord.getApprovalStepId() != 999) {
 					W5Workflow app = FrameworkCache.getWorkflow(scd, appRecord.getApprovalId());
-					if (app != null)
-						approvalStep = app.get_approvalStepMap().get(appRecord.getApprovalStepId()).getNewInstance();
+					if (app != null) {
+						approvalStep = app.get_approvalStepMap().get(appRecord.getApprovalStepId());
+						if(approvalStep!=null) {
+							approvalStep = approvalStep.getNewInstance();
+							formResult.setApprovalStep(approvalStep);
+						}
+					}
 				}
 			}
 		}
@@ -88,7 +93,7 @@ public class AccessControlEngine {
 					updatableUserFieldFlag = true;
 			}
 
-			if (appRecord != null && (appRecord.getApprovalStepId() < 900 || appRecord.getApprovalStepId() == 999)) { // eger
+			if (appRecord != null && (appRecord.getApprovalStepId() != 998 && appRecord.getApprovalStepId() != 999)) { // eger
 				// bir
 				// approval
 				// sureci
@@ -101,7 +106,7 @@ public class AccessControlEngine {
 						appRecord.getAccessViewUsers())
 						|| (approvalStep != null && ((!GenericUtil.accessControl(scd, approvalStep.getAccessUpdateTip(),
 								approvalStep.getAccessUpdateRoles(), approvalStep.getAccessUpdateUsers())
-								&& approvalStep.getAccessUpdateUserFields() == null)
+								/*&& approvalStep.getAccessUpdateUserFields() == null*/)
 								|| (approvalStep.getAccessUpdateUserFields() != null && dao.accessUserFieldControl(t,
 										approvalStep.getAccessUpdateUserFields(), scd, requestParams, paramSuffix))))) {
 					// if(appRecord.getApprovalStepId()!=1 ||

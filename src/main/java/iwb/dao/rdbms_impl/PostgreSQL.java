@@ -1253,6 +1253,9 @@ public class PostgreSQL extends BaseDAO {
 					if (!GenericUtil.isEmpty(tf.getRelatedSessionField())
 							&& GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField())) == 0)
 						continue;
+					if(formResult.getApprovalStep()!=null && !GenericUtil.isEmpty(formResult.getApprovalStep().getVisibleFields()) && !GenericUtil.hasPartInside2(formResult.getApprovalStep().getVisibleFields(), tf.getTableFieldId())) {
+						continue;
+					}
 
 					W5FormCellHelper result = new W5FormCellHelper(cell);
 					formResult.getFormCellResults().add(result);
@@ -1708,11 +1711,11 @@ public class PostgreSQL extends BaseDAO {
 				for (W5FormModule m : formResult.getForm().get_moduleList())
 					moduleMap.put(m.getFormModuleId(), m);
 		}
-		W5WorkflowStep approvalStep = null;
-		if (formResult.getApprovalRecord() != null) {
+		W5WorkflowStep approvalStep = formResult.getApprovalStep();
+/*		if (formResult.getApprovalRecord() != null) {
 			approvalStep = FrameworkCache.getWorkflow(scd, formResult.getApprovalRecord().getApprovalId())
 					.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId());
-		}
+		} */
 		boolean b = false;
 		boolean extendedFlag = false;
 		for (W5FormCell x : f.get_formCells())
@@ -1721,8 +1724,10 @@ public class PostgreSQL extends BaseDAO {
 				W5TableField tf = (W5TableField) x.get_sourceObjectDetail();
 				if (tf.getCanUpdateFlag() == 0 || tf.getTabOrder() < 1)
 					continue; // x.getCanUpdate()!=0
-				if (approvalStep != null && approvalStep.getUpdatableFields() != null
-						&& !GenericUtil.hasPartInside(approvalStep.getUpdatableFields(), "" + tf.getTableFieldId()))
+				if (approvalStep != null && ((approvalStep.getVisibleFields() != null
+						&& !GenericUtil.hasPartInside(approvalStep.getVisibleFields(), "" + tf.getTableFieldId())) ||
+						(approvalStep.getUpdatableFields() != null
+						&& !GenericUtil.hasPartInside(approvalStep.getUpdatableFields(), "" + tf.getTableFieldId()))))
 					continue;
 				if (tf.getAccessViewTip() != 0
 						&& !GenericUtil.accessControl(scd, tf.getAccessViewTip(), tf.getAccessViewRoles(),
@@ -1753,6 +1758,7 @@ public class PostgreSQL extends BaseDAO {
 				if (x.getControlTip() == 31 && GenericUtil.uInt(x.getLookupIncludedValues()) == 1
 						&& !GenericUtil.hasPartInside(x.getLookupIncludedParams(), "" + scd.get("userId")))
 					continue;
+				
 				Object psonuc = GenericUtil.prepareParam(tf, scd, formResult.getRequestParams(), x.getSourceTip(), null,
 						x.getNotNullFlag(), x.getDsc() + paramSuffix, x.getDefaultValue(), formResult.getErrorMap());
 

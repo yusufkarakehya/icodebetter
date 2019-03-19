@@ -2488,7 +2488,7 @@ class XTabForm extends React.PureComponent {
           } /* _("i",{className:"icon-star form-icon"})," ", */,
           name,
           " ",
-          viewMode &&
+          !this.props.cfg.viewMode && viewMode &&
             _(
               Button,
               {

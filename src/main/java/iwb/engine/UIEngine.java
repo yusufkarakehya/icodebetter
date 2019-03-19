@@ -564,16 +564,15 @@ public class UIEngine {
 			if (GenericUtil.uInt(formResult.getRequestParams().get("viewMode")) != 0)
 				formResult.setViewMode(true);
 
-			W5WorkflowStep workflowStep = null;
-			if (formResult.getForm().getObjectTip() == 2 && action == 1
-					&& /* formResult.getForm().get_sourceTable() */ FrameworkCache.getTable(scd,
+			W5WorkflowStep workflowStep = formResult.getApprovalStep();
+			/*if (formResult.getForm().getObjectTip() == 2 && action == 1
+					&& FrameworkCache.getTable(scd,
 							formResult.getForm().getObjectId()) != null
 					&& formResult.getApprovalRecord() != null) {
 				W5Workflow workflow = FrameworkCache.getWorkflow(projectId,
 						formResult.getApprovalRecord().getApprovalId());
 				if (workflow != null) {
-					workflowStep = workflow.get_approvalStepMap()
-							.get(formResult.getApprovalRecord().getApprovalStepId()).getNewInstance();
+					workflowStep = formResult.getApprovalStep();//workflow.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId()).getNewInstance();
 					if (workflowStep != null) {
 						boolean canCancel = GenericUtil.hasPartInside2(workflow.getAfterFinUpdateUserIds(),
 								scd.get("userId")) && formResult.getApprovalRecord().getApprovalActionTip() == 5
@@ -584,7 +583,7 @@ public class UIEngine {
 						formResult.setApprovalStep(workflowStep);
 					}
 				}
-			}
+			}*/
 			// normal/readonly/disabled show control/ozel kodlama
 			int updatableFieldsCount = 0;
 			for (W5FormCellHelper cr : formResult.getFormCellResults())

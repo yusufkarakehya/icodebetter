@@ -1966,7 +1966,9 @@ public class MetadataLoaderDAO extends BaseDAO {
 								if (fieldMap.containsKey(columnName.toLowerCase())) {
 									W5TableField tf = fieldMap.get(columnName.toLowerCase());
 									field.setMainTableFieldId(tf.getTableFieldId());
-									if (tf.getDefaultLookupTableId() > 0) {
+									if(tf.getDefaultControlTip()==71) {
+										field.setPostProcessTip(tf.getDefaultControlTip());
+									} else if (tf.getDefaultLookupTableId() > 0) {
 										switch (tf.getDefaultControlTip()) {
 										case 6:
 											field.setPostProcessTip((short) 10);
