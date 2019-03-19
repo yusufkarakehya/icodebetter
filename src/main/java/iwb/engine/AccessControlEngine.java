@@ -43,6 +43,7 @@ public class AccessControlEngine {
 		if (t == null)
 			return; // TODO
 
+		W5Workflow app = null;
 		W5WorkflowRecord appRecord = null;
 		W5WorkflowStep approvalStep = null;
 		if ((action == 1 || action == 3) && t.get_approvalMap() != null && !t.get_approvalMap().isEmpty()) {
@@ -52,9 +53,9 @@ public class AccessControlEngine {
 							.get(t.get_tableParamList().get(0).getDsc() + (paramSuffix != null ? paramSuffix : ""))));
 			if (!ll.isEmpty()) {
 				appRecord = ll.get(0);
+				app = FrameworkCache.getWorkflow(scd, appRecord.getApprovalId());
 
 				if (appRecord.getApprovalStepId() > 0 && appRecord.getApprovalStepId() != 998 && appRecord.getApprovalStepId() != 999) {
-					W5Workflow app = FrameworkCache.getWorkflow(scd, appRecord.getApprovalId());
 					if (app != null) {
 						approvalStep = app.get_approvalStepMap().get(appRecord.getApprovalStepId());
 						if(approvalStep!=null) {
@@ -93,15 +94,22 @@ public class AccessControlEngine {
 					updatableUserFieldFlag = true;
 			}
 
-			if (appRecord != null && (appRecord.getApprovalStepId() != 998 && appRecord.getApprovalStepId() != 999)) { // eger
+			if (appRecord != null) { // eger
 				// bir
 				// approval
 				// sureci
 				// icindeyse
-				if (appRecord.getApprovalStepId() == 999) {
+				if (appRecord.getApprovalStepId() == 999) {//rejected
 					formResult.getOutputMessages().add(
 							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_onay_kontrol_red_kayit_guncelleme"));
 					formResult.setViewMode(true);
+				} else if(appRecord.getApprovalStepId() == 998) {//approved
+					if(GenericUtil.isEmpty(app.getAfterFinUpdateUserIds()) || GenericUtil.hasPartInside2(app.getAfterFinUpdateUserIds(), scd.get("userId"))) {
+						formResult.getOutputMessages().add(
+								LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_onay_kontrol_red_kayit_guncelleme"));
+						formResult.setViewMode(true);
+					}
+					
 				} else if (!GenericUtil.accessControl(scd, appRecord.getAccessViewTip(), appRecord.getAccessViewRoles(),
 						appRecord.getAccessViewUsers())
 						|| (approvalStep != null && ((!GenericUtil.accessControl(scd, approvalStep.getAccessUpdateTip(),

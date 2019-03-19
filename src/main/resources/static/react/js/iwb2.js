@@ -2609,6 +2609,11 @@ class XTabForm extends React.PureComponent {
             getLocMsg('logs')
           )
         ),
+        this.props.cfg.msgs && this.props.cfg.msgs.length && _("div",{style:{color:"#838383"}},this.props.cfg.msgs.map(qq=>_("div",null,
+                _("i", { className: "icon-flag" }),
+             // " step ",
+                         _("span",null," " + qq)
+        ))), 
         _("hr"),
         formBody,
         !viewMode && (this.props.cfg.conversionForms) && _(XFormConversion, {id:this.props.cfg.id,conversionForms:this.props.cfg.conversionForms}),

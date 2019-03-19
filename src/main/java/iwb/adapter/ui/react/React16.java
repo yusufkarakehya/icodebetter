@@ -294,7 +294,7 @@ public class React16 implements ViewAdapter {
 				fr.getRequestParams().put("_tmpId", "" + tmpId);
 			} else if (fr.getAction() == 1) { // edit
 				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(fr.getPkFields()));
-				if(t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers()))s.append(", deletable:!0");
+				if(!fr.isViewMode() && (t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers())))s.append(", deletable:!0");
 				if (false && liveSyncRecord) {
 					s.append(", liveSync:true");
 					String webPageId = fr.getRequestParams().get(".w");
@@ -649,7 +649,7 @@ public class React16 implements ViewAdapter {
 								.append(fr.getApprovalRecord()
 										.getApprovalRecordId())
 								.append(",status:").append(fr.getApprovalRecord().getApprovalStepId()).append(",dsc:\"")
-								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
+								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}, deletable:false");
 				} else if (GenericUtil.accessControl(scd, (short) 1, fr
 						.getApprovalRecord().getApprovalRoles(), fr
 						.getApprovalRecord().getApprovalUsers())) {
