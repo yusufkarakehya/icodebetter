@@ -3996,7 +3996,7 @@ class FileInput extends React.Component {
 	        }),
 	        this.props.extraButtons && this.props.extraButtons
 	      ),
-	      _(CardBody, {},
+	      _("div", {},
 	        _('div', {
 	            className: 'mx-auto',
 	            style: {

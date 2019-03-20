@@ -28,6 +28,7 @@ import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5JobSchedule;
+import iwb.domain.db.W5Project;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
@@ -70,6 +71,10 @@ public class RestController implements InitializingBean {
 			String[] u = request.getRequestURI().replace('/', ',').split(",");
 			String token = (String)request.getParameter("tokenKey");
 			String projectId=u[2]; 
+			W5Project po = FrameworkCache.getProject(projectId);
+			if(po==null) {
+				throw new IWBException("ws","Invalid Project",0,null, "Invalid Project", null);
+			}
 			String serviceName=u[3];
 			String methodName=u[4];
 			if(serviceName.equals("job")) {//project jobs
@@ -151,8 +156,11 @@ public class RestController implements InitializingBean {
 			}
 			if(scd==null){
 				scd = new HashMap();
+				scd.put("userId",1);
+				scd.put("locale", FrameworkCache.getAppSettingStringValue(0, "locale", "en"));
 			}
 			scd.put("projectId", projectId);
+			scd.put("customizationId",po.getCustomizationId());
 			Map requestParams = null;
 
 			if(wsm.getDataAcceptTip()==2){//JSON
@@ -227,7 +235,11 @@ public class RestController implements InitializingBean {
 			String[] u = request.getRequestURI().replace('/', ',').split(",");
 			Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 			String token = requestParams.get("tokenKey");
-			String projectId=u[2]; 
+			String projectId=u[2];
+			W5Project po = FrameworkCache.getProject(projectId);
+			if(po==null) {
+				throw new IWBException("ws","Invalid Project",0,null, "Invalid Project", null);
+			}
 			String serviceName=u[3]; 
 			response.setContentType("application/json");
 
