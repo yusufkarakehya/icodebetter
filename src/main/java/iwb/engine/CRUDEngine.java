@@ -119,25 +119,26 @@ public class CRUDEngine {
 											"fw_guvenlik_tablo_kontrol_guncelleme"),
 							null);
 				}
+				/*
 				if (FrameworkSetting.workflow) {
 					appRecord = formResult.getApprovalRecord();
 					if (appRecord != null) {
 						approval = FrameworkCache.getWorkflow(scd, appRecord.getApprovalId()); // dao.loadObject(W5Workflow.class,
+						approvalStep = formResult.getApprovalStep();
 						// formResult.getApprovalRecord().getApprovalId());
 						boolean canCancel = GenericUtil.hasPartInside2(approval.getAfterFinUpdateUserIds(),
 								scd.get("userId")) && appRecord.getApprovalActionTip() == 5
 								&& appRecord.getApprovalStepId() == 998 ? true : false;
-						approvalStep = approval.get_approvalStepMap().get(appRecord.getApprovalStepId())
-								.getNewInstance();
+//						approvalStep = approval.get_approvalStepMap().get(appRecord.getApprovalStepId()).getNewInstance();
 						if (approvalStep != null && approvalStep.getApprovalStepId() != 901
 								&& approvalStep.getUpdatableFields() == null && !canCancel) {
 							throw new IWBException("security", "Form", formId, null,
 									LocaleMsgCache.get2(0, (String) scd.get("locale"),
 											"fw_onay_sureci_icerisinde_bu_kaydin_alanlarini_guncelleyemezsiniz"),
 									null);
-						}
+						} 
 					}
-				}
+				} */
 			}
 			boolean mobile = GenericUtil.uInt(formResult.getScd().get("mobile")) != 0;
 			int sourceStepId = -1;

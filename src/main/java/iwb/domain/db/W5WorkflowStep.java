@@ -35,6 +35,7 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 	private String onRejectStepSql;
 	private Integer onRejectFormId;
 	private short finalStepFlag;
+	private String visibleFields;
 	private String updatableFields;
 	private String dynamicRoleUserSql;
 	
@@ -339,6 +340,7 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 		a.onTimeLimitExceedStepId=this.onTimeLimitExceedStepId;
 		a.timeLimitDurationTip=this.timeLimitDurationTip;
 		a.onEscalationCode=this.onEscalationCode;
+		a.visibleFields=this.visibleFields;
 		return a;
 	}
 
@@ -449,6 +451,13 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 	}
 	public void setOnEscalationCode(String onEscalationCode) {
 		this.onEscalationCode = onEscalationCode;
+	}
+	@Column(name="visible_fields")	
+	public String getVisibleFields() {
+		return visibleFields;
+	}
+	public void setVisibleFields(String visibleFields) {
+		this.visibleFields = visibleFields;
 	}
 
 }

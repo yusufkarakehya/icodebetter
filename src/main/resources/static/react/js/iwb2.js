@@ -356,7 +356,7 @@ var iwb = {
   getFieldRawValue: (field, extraOptions) => {
     if (!field || !field.value) return iwb.emptyField;
     if (field.$ === FileInput){
-    	return field.fileName ? _("a", { target:"_blank", style:{color: "#2196F3",fontWeight: "bold"}, href:"dl/"+field.fileName+"?_fai="+field.fileId,className: "form-control", disabled:true }, field.fileName) : iwb.emptyField;
+    	return field.fileName ? _("a", { target:"_blank", style:{color: "#2196F3",fontWeight: "bold"}, href:"dl/"+field.fileName+"?_fai="+field.fileId,className: "form-control", disabled:true }, field.fileName, " ", field.fileSize && _("i",{style:{color: "#888",fontWeight: "normal"}}, "("+iwb.fmtFileSize(field.fileSize)+")")) : iwb.emptyField;
     }
     if (field.$ === MapInput) return _(field.$,{value:field.value, disabled:true});
     var options = extraOptions || field.options;
@@ -2488,7 +2488,7 @@ class XTabForm extends React.PureComponent {
           } /* _("i",{className:"icon-star form-icon"})," ", */,
           name,
           " ",
-          viewMode &&
+          !this.props.cfg.viewMode && viewMode &&
             _(
               Button,
               {
@@ -2609,6 +2609,11 @@ class XTabForm extends React.PureComponent {
             getLocMsg('logs')
           )
         ),
+        this.props.cfg.msgs && this.props.cfg.msgs.length && _("div",{style:{color:"#838383"}},this.props.cfg.msgs.map(qq=>_("div",null,
+                _("i", { className: "icon-flag" }),
+             // " step ",
+                         _("span",null," " + qq)
+        ))), 
         _("hr"),
         formBody,
         !viewMode && (this.props.cfg.conversionForms) && _(XFormConversion, {id:this.props.cfg.id,conversionForms:this.props.cfg.conversionForms}),
@@ -6767,7 +6772,7 @@ class FileInput extends React.Component {
         }),
         this.props.extraButtons && this.props.extraButtons
       ),
-      _(CardBody, {},
+      _("div", {},
         _('div', {
             className: 'mx-auto',
             style: {
@@ -6971,4 +6976,23 @@ function approvalHtml(row){
       case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Rejected')
       default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? '\n: '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shuffle" }):null,' ' + row.pkpkpk_arf_qw_);
     }
+}
+iwb.fmtFileSize=(a) => {
+  if (!a) return "-";
+  a *= 1;
+  var d = "B";
+  if (a > 1024) {
+    a = a / 1024;
+    d = "KB";
+  }
+  if (a > 1024) {
+    a = a / 1024;
+    d = "MB";
+  }
+  if (a > 1024) {
+    a = a / 1024;
+    d = "GB";
+  }
+  if (d != "B") a = Math.round(a * 10) / 10;
+  return a + " " + d;
 }

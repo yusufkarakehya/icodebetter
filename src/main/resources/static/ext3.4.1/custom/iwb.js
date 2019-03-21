@@ -1125,7 +1125,7 @@ function fnTblRecEdit(tid, tpk, b) {
             });
             recordInfoWindow.show();
           }
-        } else Ext.infoMsg.alert("error", "You can go back ;)");
+        } else Ext.infoMsg.msg("error", "You can go back ;)");
       }
     });
   }
@@ -4523,6 +4523,7 @@ function gridQwRenderer(field) {
 }
 function gridQwRendererWithLink(field, tbl_id) {
   return function(a, b, c) {
+	if(!_scd.customizationId)
     return c.data[field] != undefined
       ? '<a href=# onclick="return fnTblRecEdit(' +
           tbl_id +
@@ -4532,6 +4533,8 @@ function gridQwRendererWithLink(field, tbl_id) {
           c.data[field + "_qw_"] +
           "</a>"
       : "";
+          else
+        	  return c.data[field + "_qw_"];
   };
 }
 

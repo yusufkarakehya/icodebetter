@@ -184,7 +184,7 @@ public class GlobalScriptEngine {
 			params.add(parameterMap);
 
 			if (requestJson != null && requestJson instanceof JSONObject) {
-				params.add(requestJson);
+				params.add(GenericUtil.fromJSONObjectToMap((JSONObject)requestJson));
 			} else if (!GenericUtil.isEmpty(r.getGlobalFunc().get_dbFuncParamList())) {
 				for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
 					if (p1.getOutFlag() == 0) {

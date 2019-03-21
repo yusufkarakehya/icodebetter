@@ -1220,9 +1220,9 @@ public class FrameworkService {
 				s.append(controlTip == 6 || controlTip == 7 || controlTip == 10 || controlTip == 51 ? " integer"
 						: " character varying(256)");
 				break;
-			case 7:
-			case 10:
-			case 15:
+			case 7://query
+			case 10://autocomplete
+			case 15://multi selection
 			case 59:
 				if (GenericUtil.uInt(d.get("look_up_id")) > 0) {
 					int queryId = GenericUtil.uInt(d.get("look_up_id"));
@@ -1234,6 +1234,9 @@ public class FrameworkService {
 					throw new IWBException("framework", "Form+ Builder", 0, null, "QueryID not defined", null);
 				s.append(controlTip == 6 || controlTip == 7 || controlTip == 10 || controlTip == 51 ? " integer"
 						: " character varying(256)");
+				break;
+			case	71://file attachment
+				s.append(" integer");
 				break;
 
 			default:
