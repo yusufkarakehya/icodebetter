@@ -282,6 +282,12 @@ public class RESTEngine {
 						}
 					}
 				}
+				if (wsm.getPostUrlFlag() != 0) { // post_url_flag
+					String postUrl = (String) requestParams.get("_post_url");
+					if (!GenericUtil.isEmpty(postUrl))
+						url += postUrl;
+				}
+				
 				if (!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip() > 0) {
 					m = recursiveParams2Map(scd, 0, requestParams, wsm.get_params(), errorMap, reqPropMap);
 					if (!errorMap.isEmpty()) {
@@ -311,11 +317,6 @@ public class RESTEngine {
 						reqPropMap.put("Content-Type", "application/yaml;charset=UTF-8");
 						break;
 					}
-				}
-				if (wsm.getPostUrlFlag() != 0) { // post_url_flag
-					String postUrl = (String) requestParams.get("_post_url");
-					if (!GenericUtil.isEmpty(postUrl))
-						url += postUrl;
 				}
 
 				Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params);
