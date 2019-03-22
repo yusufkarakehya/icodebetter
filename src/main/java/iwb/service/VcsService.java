@@ -3746,6 +3746,7 @@ public class VcsService {
 		String vcsServer = FrameworkSetting.argMap.get("vcs_server");
 		if(GenericUtil.isEmpty(vcsServer))vcsServer="http://www.promiscrm.com:8888/app/";
 		dao.executeUpdateSQLQuery("update iwb.w5_project set vcs_url=?", vcsServer);
+		dao.executeUpdateSQLQuery("update iwb.w5_app_setting set val=? where dsc=in ('vcs_url','vcs_url_new_project')", vcsServer);
 
 		
 		long startTime = System.currentTimeMillis();
