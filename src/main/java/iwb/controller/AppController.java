@@ -113,6 +113,7 @@ public class AppController implements InitializingBean {
 		vue2 = new Vue2();
 	//	FrameworkCache.activeProjectsStr = "067e6162-3b6f-4ae2-a221-2470b63dff00,29a3d378-3c59-4b5c-8f60-5334e3729959";
 		if(FrameworkSetting.projectId!=null) {
+			vcsService.icbVCSUpdateSqlAndFields();
 			boolean b = vcsService.projectVCSUpdate("067e6162-3b6f-4ae2-a221-2470b63dff00");
 			if(b && FrameworkSetting.projectId!=null) {
 				vcsService.projectVCSUpdate(FrameworkSetting.projectId);
