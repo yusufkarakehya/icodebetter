@@ -57,6 +57,8 @@ public class FrameworkApplication {
 			if(logType!=null)FrameworkSetting.logType = GenericUtil.uInt(logType);
 			
 			if(FrameworkSetting.argMap.get("timer")!=null)FrameworkSetting.localTimer=true;
+			
+			if(FrameworkSetting.argMap.get("project")!=null)FrameworkSetting.projectId=FrameworkSetting.argMap.get("project");
 		}
 
 		ConfigurableApplicationContext appContext = SpringApplication.run(FrameworkApplication.class, args);

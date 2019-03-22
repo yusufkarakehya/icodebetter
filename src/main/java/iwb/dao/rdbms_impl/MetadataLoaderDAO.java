@@ -1184,6 +1184,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		List<W5Table> lt = (List<W5Table>) find("from W5Table t where t.projectUuid=? order by t.tableId", projectId);
 		for (W5Table t : lt) {
 			// t.set_cachedObjectMap(new HashMap());
+			t.set_tableFieldList(null);t.set_tableFieldMap(null);t.set_tableParamList(null);t.set_tableChildList(null);t.set_tableParamList(null);
 			tableMap.put(t.getTableId(), t);
 		}
 		List<W5TableField> tfl = (List<W5TableField>) find(
@@ -1292,7 +1293,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		// reloadTableFiltersCache(projectId);
 
-		reloadWorkflowCache(projectId);
 	}
 
 	public void reloadWorkflowCache(String projectId) {
@@ -1357,7 +1357,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		 */
 	}
 
-	private void reloadDeveloperEntityKeys() {
+	public void reloadDeveloperEntityKeys() {
 		Set<String> m = new HashSet();
 		m.add("20.1"); // login form
 		for (Object[] x : (List<Object[]>) executeSQLQuery(
@@ -1538,6 +1538,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			} else {
 				reloadLookUpCache(projectId);
 				reloadTablesCache(projectId);
+				reloadWorkflowCache(projectId);
 				// reloadTableAccessConditionSQLs(projectId);
 				reloadWsServersCache(projectId);
 				reloadWsClientsCache(projectId);

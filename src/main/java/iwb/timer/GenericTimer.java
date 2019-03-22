@@ -34,7 +34,7 @@ public class GenericTimer extends TimerTask {
 			W5Project po = FrameworkCache.getProject(projectId);
 			if(po!=null && (po.getCustomizationId()==0 || po.getCustomizationId()==140 || !FrameworkSetting.cloud)) {
 				Map<Integer, W5JobSchedule> miv = FrameworkCache.wJobs.get(projectId);
-				if(miv!=null)for(W5JobSchedule j:miv.values()) {
+				if(miv!=null)for(final W5JobSchedule j:miv.values()) {
 					if(j.runCheck()) { //
 						taskExecutor.execute(new Runnable() {
 				            @Override
@@ -62,8 +62,8 @@ public class GenericTimer extends TimerTask {
 			W5Project po = FrameworkCache.getProject(projectId);
 			if(po!=null && (po.getCustomizationId()==0 || po.getCustomizationId()==140 || !FrameworkSetting.cloud)) {
 				Map<Integer, W5Workflow> miw = FrameworkCache.wWorkflows.get(projectId);
-				if(miw!=null)for(W5Workflow w:miw.values()) if(w.get_approvalStepList()!=null) {
-					for(W5WorkflowStep step:w.get_approvalStepList())if(step.getTimeLimitFlag()!=0 && step.getTimeLimitDuration()>0){
+				if(miw!=null)for(final W5Workflow w:miw.values()) if(w.get_approvalStepList()!=null) {
+					for(final W5WorkflowStep step:w.get_approvalStepList())if(step.getTimeLimitFlag()!=0 && step.getTimeLimitDuration()>0){
 						if(GenericUtil.isEmpty(step.getOnEscalationCode())) {
 							W5WorkflowStep nextStep = w.get_approvalStepMap().get(step.getOnTimeLimitExceedStepId());
 							if(nextStep!=null) {
@@ -72,7 +72,7 @@ public class GenericTimer extends TimerTask {
 							}
 						} else {
 							List<W5WorkflowRecord> escalatedRecords = service.listWorkflowEscalatedRecords(step);
-							for(W5WorkflowRecord record:escalatedRecords)
+							for(final W5WorkflowRecord record:escalatedRecords)
 							taskExecutor.execute(new Runnable() {
 					            @Override
 					            public void run() {

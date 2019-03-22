@@ -244,7 +244,7 @@ public class GlobalScriptEngine {
 //			break;
 		case 11:// GraalJS
 			if (polyglot == null)
-				polyglot = Context.newBuilder().allowAllAccess(true).build();
+				polyglot = Context.newBuilder().allowAllAccess(true).allowIO(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
 			String lang = "js";
 			if (func == null)
