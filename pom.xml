@@ -93,11 +93,11 @@
 			<version>20160810</version>
 		</dependency>
 
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-			<version>1.4</version>
-		</dependency>
+		<!-- <dependency>-->
+			<!-- <groupId>javax.mail</groupId>-->
+			<!-- <artifactId>mail</artifactId>-->
+			<!-- <version>1.4</version>-->
+		<!-- </dependency>-->
 
 		<dependency>
 			<groupId>com.auth0</groupId>
@@ -136,6 +136,14 @@
 			<artifactId>js</artifactId>
 			<version>1.0.0-rc12</version>
 		</dependency>		
+		<!-- https://mvnrepository.com/artifact/com.sun.mail/javax.mail -->
+		
+		<dependency>
+		    <groupId>com.sun.mail</groupId>
+		   <artifactId>javax.mail</artifactId>
+		    <version>1.6.2</version>
+		</dependency>
+
 
 		
 	</dependencies>
