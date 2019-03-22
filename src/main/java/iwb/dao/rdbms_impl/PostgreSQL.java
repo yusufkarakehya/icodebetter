@@ -156,9 +156,9 @@ public class PostgreSQL extends BaseDAO {
 		return queryResult;
 	}
 
-	private void logTableRecord(W5FormResult fr, String paramSuffix) {
+	private void logTableRecord(final W5FormResult fr, String paramSuffix) {
 		W5Table t = FrameworkCache.getTable(fr.getScd(), fr.getForm().getObjectId());
-		StringBuilder sql = new StringBuilder();
+		final StringBuilder sql = new StringBuilder();
 		int userId = (Integer) fr.getScd().get("userId");
 		int action = fr.getAction();
 		String table = t.getDsc();
@@ -204,13 +204,13 @@ public class PostgreSQL extends BaseDAO {
 			logTable = logTable.substring(logTable.lastIndexOf('.') + 1);
 		}
 		Session session = getCurrentSession();
-		W5Project po = FrameworkCache.getProject(fr.getScd().get("projectId"));
+		final W5Project po = FrameworkCache.getProject(fr.getScd().get("projectId"));
 
 		sql.append("select count(*)  from information_schema.tables qx where lower(qx.table_name) = '")
 				.append(logTable.toLowerCase()).append("' and lower(qx.table_schema) = '")
 				.append(po.getRdbmsSchema()).append("_log'");
-		int count = GenericUtil.uInt(session.createSQLQuery(sql.toString()).uniqueResult());
-		int schemaCount = count== 0 ? GenericUtil.uInt(session.createSQLQuery("select count(1) from information_schema.schemata where schema_name='"+po.getRdbmsSchema()+ "_log'").uniqueResult()) : 1;
+		final int count = GenericUtil.uInt(session.createSQLQuery(sql.toString()).uniqueResult());
+		final int schemaCount = count== 0 ? GenericUtil.uInt(session.createSQLQuery("select count(1) from information_schema.schemata where schema_name='"+po.getRdbmsSchema()+ "_log'").uniqueResult()) : 1;
 
 		sql.setLength(0);
 		sql.append(" select nextval('iwb.seq_log') ").append(FieldDefinitions.tableFieldName_LogId).append(",")
@@ -221,7 +221,7 @@ public class PostgreSQL extends BaseDAO {
 
 		sql.append(" from ").append(table).append(" t");
 
-		List<Object> whereParams = new ArrayList<Object>(fr.getPkFields().size());
+		final List<Object> whereParams = new ArrayList<Object>(fr.getPkFields().size());
 
 		if (fr.getPkFields().size() > 0) {
 			sql.append(" where ");

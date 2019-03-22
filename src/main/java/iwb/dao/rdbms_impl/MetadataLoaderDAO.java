@@ -1292,7 +1292,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		// reloadTableFiltersCache(projectId);
 
-		reloadWorkflowCache(projectId);
 	}
 
 	public void reloadWorkflowCache(String projectId) {
@@ -1357,7 +1356,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		 */
 	}
 
-	private void reloadDeveloperEntityKeys() {
+	public void reloadDeveloperEntityKeys() {
 		Set<String> m = new HashSet();
 		m.add("20.1"); // login form
 		for (Object[] x : (List<Object[]>) executeSQLQuery(
@@ -1538,6 +1537,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			} else {
 				reloadLookUpCache(projectId);
 				reloadTablesCache(projectId);
+				reloadWorkflowCache(projectId);
 				// reloadTableAccessConditionSQLs(projectId);
 				reloadWsServersCache(projectId);
 				reloadWsClientsCache(projectId);
