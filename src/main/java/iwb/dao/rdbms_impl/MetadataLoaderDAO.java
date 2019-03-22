@@ -1184,6 +1184,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		List<W5Table> lt = (List<W5Table>) find("from W5Table t where t.projectUuid=? order by t.tableId", projectId);
 		for (W5Table t : lt) {
 			// t.set_cachedObjectMap(new HashMap());
+			t.set_tableFieldList(null);t.set_tableFieldMap(null);t.set_tableParamList(null);t.set_tableChildList(null);t.set_tableParamList(null);
 			tableMap.put(t.getTableId(), t);
 		}
 		List<W5TableField> tfl = (List<W5TableField>) find(
