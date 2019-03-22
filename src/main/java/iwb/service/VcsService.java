@@ -3743,10 +3743,12 @@ public class VcsService {
 		scd.put("customizationId", cusId);
 		scd.put("projectId", icbProjectId);
 		scd.put("userId", 1);scd.put("roleId", 0);scd.put("userRoleId", 1);
-		String vcsServer = FrameworkSetting.argMap.get("vcs_server");
-		if(GenericUtil.isEmpty(vcsServer))vcsServer="http://www.promiscrm.com:8888/app/";
-		dao.executeUpdateSQLQuery("update iwb.w5_project set vcs_url=?", vcsServer);
-		dao.executeUpdateSQLQuery("update iwb.w5_app_setting set val=? where dsc in ('vcs_url','vcs_url_new_project')", vcsServer);
+		if(icbProjectId.equals(projectId)) {
+			String vcsServer = FrameworkSetting.argMap.get("vcs_server");
+			if(GenericUtil.isEmpty(vcsServer))vcsServer="http://www.promiscrm.com:8888/app/";
+			dao.executeUpdateSQLQuery("update iwb.w5_project set vcs_url=?", vcsServer);
+			dao.executeUpdateSQLQuery("update iwb.w5_app_setting set val=? where dsc in ('vcs_url','vcs_url_new_project')", vcsServer);
+		}
 
 		
 		long startTime = System.currentTimeMillis();
@@ -3773,19 +3775,38 @@ public class VcsService {
 			
 	
 			W5QueryResult qr = vcsClientObjectsAll(scd);
-			StringBuilder tableKeys = new StringBuilder();
-			if(qr.getData()!=null)for(int qi=0;qi<qr.getData().size();qi++) if(GenericUtil.uInt(qr.getData().get(qi)[7])==1){//pull
-				//41.125995,41.125996
-				tableKeys.append(qr.getData().get(qi)[1]).append(".").append(qr.getData().get(qi)[3]).append(",");
-				
-			}
-			System.out.println("Keyz to update: " + tableKeys.toString());
-			if(tableKeys.length()>0) {
-				tableKeys.setLength(tableKeys.length() - 1);
-				vcsClientObjectPullMulti(scd, tableKeys.toString(), true);
+			if(qr.getData()!=null) {
+				StringBuilder tableKeys = new StringBuilder();
 				if(icbProjectId.equals(projectId)) {
-					metaDataDao.reloadTablesCache(projectId);
+					for(int qi=0;qi<qr.getData().size();qi++) if(GenericUtil.uInt(qr.getData().get(qi)[7])==1 && GenericUtil.uInt(qr.getData().get(qi)[1])==16){//pull && tableField
+							//41.125995,41.125996
+							tableKeys.append(qr.getData().get(qi)[1]).append(".").append(qr.getData().get(qi)[3]).append(",");
+						
+					}
+					System.out.println("Table Field Keyz to update: " + tableKeys.toString());
+					if(tableKeys.length()>0) {
+						tableKeys.setLength(tableKeys.length() - 1);
+						vcsClientObjectPullMulti(scd, tableKeys.toString(), true);
+						if(icbProjectId.equals(projectId)) {
+							metaDataDao.reloadTablesCache(projectId);
+						}
+					}
+					tableKeys = new StringBuilder();
 				}
+				for(int qi=0;qi<qr.getData().size();qi++) if(GenericUtil.uInt(qr.getData().get(qi)[7])==1 && (!icbProjectId.equals(projectId) || GenericUtil.uInt(qr.getData().get(qi)[1])!=16)){//pull && tableField
+					//41.125995,41.125996
+						tableKeys.append(qr.getData().get(qi)[1]).append(".").append(qr.getData().get(qi)[3]).append(",");
+					
+				}
+				System.out.println("Others Keyz to update: " + tableKeys.toString());
+				if(tableKeys.length()>0) {
+					tableKeys.setLength(tableKeys.length() - 1);
+					vcsClientObjectPullMulti(scd, tableKeys.toString(), true);
+					if(icbProjectId.equals(projectId)) {
+						metaDataDao.reloadTablesCache(projectId);
+					}
+				}
+
 			}
 			if(icbProjectId.equals(projectId)) {
 				metaDataDao.reloadDeveloperEntityKeys();
