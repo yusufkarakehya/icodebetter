@@ -3743,7 +3743,9 @@ public class VcsService {
 		scd.put("customizationId", cusId);
 		scd.put("projectId", icbProjectId);
 		scd.put("userId", 1);scd.put("roleId", 0);scd.put("userRoleId", 1);
-		
+		String vcsServer = FrameworkSetting.argMap.get("vcs_server");
+		if(GenericUtil.isEmpty(vcsServer))vcsServer="http://www.promiscrm.com:8888/app/";
+		dao.executeUpdateSQLQuery("update iwb.w5_project set vcs_url=?", vcsServer);
 
 		
 		long startTime = System.currentTimeMillis();
