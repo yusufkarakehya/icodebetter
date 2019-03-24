@@ -44,6 +44,12 @@ public class GraalScript {
 	}
 
 	public Object[] sqlQuery(String sql, Object jsRequestParams) {
+		if(jsRequestParams!=null) {
+			System.out.println("sqlQuery.jsRequestParams");
+			System.out.println(jsRequestParams);
+			System.out.println(jsRequestParams.getClass().getName());
+		}
+
 		Map m = fromGraalValue2Map(jsRequestParams);
 		if (GenericUtil.isEmpty(m) || !sql.contains("${"))
 			return sqlQuery(sql);
