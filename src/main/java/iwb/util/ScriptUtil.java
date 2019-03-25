@@ -77,7 +77,7 @@ public class ScriptUtil {
 			return rp;
 			
 		}
-		if(reqP instanceof String) {
+		if(!(reqP instanceof Map)) {
 			reqP = GenericUtil.fromJSONObjectToMap(new JSONObject(reqP.toString()));
 		}
 		if(reqP instanceof Map) {
