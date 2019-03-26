@@ -4326,7 +4326,7 @@ columns:[
 				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
 					W5Component c = (W5Component)i;
 					bufc.append("<script src=\"comp/").append(c.getComponentId()).append(".js?.x=\"></script>;\n");
-					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId()).append(".css?.x=\"/>;\n");
+					if(!GenericUtil.isEmpty(c.getCssCode()))bufc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId()).append(".css?.x=\"/>;\n");
 					
 				}
 				code = code.replace("${components}", bufc.toString());

@@ -163,7 +163,7 @@ public class RestController implements InitializingBean {
 			scd.put("customizationId",po.getCustomizationId());
 			Map requestParams = null;
 
-			if(wsm.getDataAcceptTip()==1){//JSON
+			if(wsm.getDataAcceptTip()==2){//JSON
 				JSONObject jo = HttpUtil.getJson(request);
 				requestParams = new HashMap();
 				if(jo!=null){
