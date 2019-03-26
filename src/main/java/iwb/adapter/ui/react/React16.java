@@ -4105,8 +4105,8 @@ columns:[
 			if (page.getTemplateTip() != 8) { // wizard degilse
 				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
 					W5Component c = (W5Component)i;
-					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(()=>iwb.import('comp/").append(c.getComponentId()).append(".js?.x='));");
-					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addCss('comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");");
+					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(()=>iwb.import('comp/").append(c.getComponentId()).append(".js?.x='));\n");
+					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addCss('comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");\n");
 					
 				}
 			}
@@ -4318,6 +4318,17 @@ columns:[
 				FrameworkCache.addPageCss(pr.getScd(), page.getTemplateId(), buf4.toString());
 				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"/app/dyn-res/"+page.getTemplateId()+".css?.x="+page.getVersionNo()+"\" />");
 
+			}
+			
+			if(page.getCode().contains("${components}")) {
+				StringBuilder bufc = new StringBuilder();
+
+				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
+					W5Component c = (W5Component)i;
+					bufc.append("<script src=\"comp/").append(c.getComponentId()).append(".js?.x=\"></script>;\n");
+					
+				}
+				code = code.replace("${components}", bufc.toString());
 			}
 			
 		}
