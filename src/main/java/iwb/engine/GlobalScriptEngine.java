@@ -631,13 +631,14 @@ public class GlobalScriptEngine {
 
 		// Context cx = Context.enter();
 		W5Query q = qr.getQuery();
+		boolean dynamicQuery = !GenericUtil.isEmpty(code);
 		String script = GenericUtil.uStrNvl(code, q.getSqlFrom());
 		List<Object> params = new ArrayList();
 
 		if (useNashorn) { // Nashorn
 			if (nashornEngine == null)
 				nashornEngine = new ScriptEngineManager().getEngineByName("nashorn");
-			Object nobj = FrameworkCache.getGraalFunc(qr.getScd(), "8." + qr.getQueryId());
+			Object nobj = dynamicQuery ? null : FrameworkCache.getGraalFunc(qr.getScd(), "8." + qr.getQueryId());
 			String qryName = null;
 			if (nobj == null)
 				try {
