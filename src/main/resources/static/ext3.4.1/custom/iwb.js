@@ -642,7 +642,7 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
   gridDetail.store.baseParams = null;
   if (params) gridDetail._params = params;
   var gs = gridMaster.getSelectionModel ?  gridMaster.getSelectionModel() : gridMaster;
-  gs.on("selectionchange", function(a, b, c) {
+  gs.on("selectionchange", gridDetail.onSelectionChange || function(a, b, c) {
     if (
       !gridDetail.initialConfig.onlyCommitBtn &&
       gridDetail.initialConfig.editMode

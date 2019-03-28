@@ -256,12 +256,12 @@ public class RESTEngine {
 				break;
 			case 2: // rest
 				String url = ws.getWsUrl();
-				if (url.indexOf("${") > -1) {// has special char
-					url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
-				}
 				if (!url.endsWith("/"))
 					url += "/";
 				url += GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
+				if (url.indexOf("${") > -1) {// has special char
+					url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
+				}
 				String params = null;
 				Map<String, String> reqPropMap = new HashMap();
 				reqPropMap.put("Content-Language", "tr-TR");
