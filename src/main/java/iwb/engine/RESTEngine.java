@@ -162,7 +162,9 @@ public class RESTEngine {
 				} else {
 					Object o = GenericUtil.prepareParam((W5Param) p, scd, requestParams, p.getSourceTip(), null,
 							p.getNotNullFlag(), null, null, errorMap, dao);
-					if (o != null && o.toString().length() > 0) {
+					if(p.getParamTip()==5) {//checkbox
+						m.put(p.getDsc(), GenericUtil.uInt(o)!=0);
+					} else if (o != null && o.toString().length() > 0) {
 						if (p.getCredentialsFlag() != 0)
 							reqPropMap.put(p.getDsc(), o.toString());
 						else {
