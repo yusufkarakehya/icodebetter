@@ -22,6 +22,7 @@ import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Email;
+import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
@@ -35,6 +36,7 @@ import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
+import iwb.domain.db.W5WsMethod;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.result.M5ListResult;
 import iwb.domain.result.W5CardResult;
@@ -85,6 +87,10 @@ public class UIEngine {
 	private ConversionEngine conversionEngine;
 
 	
+	@Lazy
+	@Autowired
+	private RESTEngine restEngine;
+
 	public W5FormResult getFormResultByQuery(Map<String, Object> scd, int formId, int queryId,
 			Map<String, String> requestParams) {
 		W5FormResult formResult = metaDataDao.getFormResult(scd, formId, 1, requestParams);
@@ -224,27 +230,28 @@ public class UIEngine {
 			}
 
 			GetFormTrigger.beforeGetForm(formResult);
-			if (formResult.getForm().getObjectTip() != 2)
+			W5Form f = formResult.getForm();
+			if (f.getObjectTip() != 2)
 				action = 2; // eger table degilse sadece initializeForm olabilir
 
-			if (formResult.getForm().getObjectTip() != 5
+			if (f.getObjectTip() != 5
 					&& action == 9 /* edit (if not insert) */) {
 				action = dao.checkIfRecordsExists(scd, requestParams, t) ? 1 : 2;
 			}
 
 			/* tableTrigger before Show start */
-			if (formResult.getForm().getObjectTip() == 2 && action != 3)
+			if (f.getObjectTip() == 2 && action != 3)
 				crudEngine.extFormTableEvent(formResult, new String[] { "_", "su", "si", "_", "_", "si" }[action], scd,
 						requestParams, t, null, null);
 			/* end of tableTrigger */
 
-			if (formResult.getForm().getObjectTip() != 5)
+			if (f.getObjectTip() != 5)
 				switch (action) {
 				case 5: // copy
 				case 1: // edit
-					if (formResult.getForm().getObjectTip() == 2 && action == 1) {
+					if (f.getObjectTip() == 2 && action == 1) {
 
-						if (!GenericUtil.isEmpty(formResult.getForm().get_conversionList())) { // conversion
+						if (!GenericUtil.isEmpty(f.get_conversionList())) { // conversion
 																								// olan
 																								// bir
 																								// form?
@@ -254,7 +261,7 @@ public class UIEngine {
 																								// olan
 							// covnerted objeleri bul
 							String inStr = "";
-							for (W5Conversion cnv : formResult.getForm().get_conversionList())
+							for (W5Conversion cnv : f.get_conversionList())
 								if (GenericUtil.hasPartInside2(cnv.getActionTips(), action)
 										|| cnv.getSynchOnUpdateFlag() != 0) { // synch
 																				// varsa
@@ -272,7 +279,7 @@ public class UIEngine {
 									List<W5ConvertedObject> orphanCol = new ArrayList();
 									for (W5ConvertedObject co : lco) {
 										int dstTableId = 0;
-										for (W5Conversion cnv : formResult.getForm().get_conversionList())
+										for (W5Conversion cnv : f.get_conversionList())
 											if (cnv.getConversionId() == co.getConversionId()) {
 												dstTableId = cnv.getDstTableId();
 												break;
@@ -296,8 +303,27 @@ public class UIEngine {
 								}
 							}
 						}
+						dao.loadFormTable(formResult);
+					} else if(f.getObjectTip() == 11){ //ws method
+						if (f.getSourceWsMethodId() != 0) {
+							W5WsMethod wsm = FrameworkCache.getWsMethod(scd, f.getSourceWsMethodId());
+							if(wsm!=null){
+								
+								Map r = restEngine.REST(scd, FrameworkCache.getWsClientById(scd, wsm.getWsId()).getDsc()+"."+wsm.getDsc(), requestParams);
+								if(r!=null){
+									List lfcr = new ArrayList();
+									formResult.setFormCellResults(lfcr);
+									for(W5FormCell cell:f.get_formCells())if(cell.getActiveFlag()!=0){
+										W5FormCellHelper result = new W5FormCellHelper(cell);
+										Object o = r.get(cell.getDsc());
+										if(o!=null)result.setValue(o.toString());
+										lfcr.add(result);
+									}
+		
+								}
+							}
+						}
 					}
-					dao.loadFormTable(formResult);
 
 					// eralp istedi, amaci freefieldlarda initial query deger
 					// verebilsin
@@ -357,14 +383,7 @@ public class UIEngine {
 							break;
 						}
 					for (W5FormCellHelper fcx : formResult.getFormCellResults())
-						if (fcx.getFormCell().getFormCellId() == 6060) { // mail
-																			// sifre
-																			// icin,
-																			// baska
-																			// seyler
-																			// icin
-																			// de
-																			// kullanilabilir
+						if (fcx.getFormCell().getFormCellId() == 6060) { // mail password
 							fcx.setValue("************");
 						}
 
@@ -490,7 +509,7 @@ public class UIEngine {
 							}
 						}
 					} else { // copy
-						if (formResult.getForm().getObjectTip() == 2)
+						if (f.getObjectTip() == 2)
 							for (W5FormCellHelper fcr : formResult.getFormCellResults())
 								if (fcr.getFormCell().get_sourceObjectDetail() != null)
 									switch (((W5TableField) fcr.getFormCell().get_sourceObjectDetail())
@@ -532,7 +551,7 @@ public class UIEngine {
 
 			// form cell lookup load
 			dao.loadFormCellLookups(formResult.getScd(), formResult.getFormCellResults(), formResult.getRequestParams(),
-					FrameworkSetting.liveSyncRecord && formResult.getForm().getObjectTip() == 2
+					FrameworkSetting.liveSyncRecord && f.getObjectTip() == 2
 							? formResult.getUniqueId() : null);
 
 			for (W5FormCellHelper cr : formResult.getFormCellResults())
@@ -565,9 +584,9 @@ public class UIEngine {
 				formResult.setViewMode(true);
 
 			W5WorkflowStep workflowStep = formResult.getApprovalStep();
-			/*if (formResult.getForm().getObjectTip() == 2 && action == 1
+			/*if (f.getObjectTip() == 2 && action == 1
 					&& FrameworkCache.getTable(scd,
-							formResult.getForm().getObjectId()) != null
+							f.getObjectId()) != null
 					&& formResult.getApprovalRecord() != null) {
 				W5Workflow workflow = FrameworkCache.getWorkflow(projectId,
 						formResult.getApprovalRecord().getApprovalId());
@@ -593,7 +612,7 @@ public class UIEngine {
 																		// ve
 																		// buttondan
 																		// baska
-					W5TableField tf = formResult.getForm().getObjectTip() == 2
+					W5TableField tf = f.getObjectTip() == 2
 							&& cr.getFormCell().get_sourceObjectDetail() instanceof W5TableField
 									? (W5TableField) cr.getFormCell().get_sourceObjectDetail() : null;
 					if (formResult.isViewMode() || cr.getHiddenValue() != null
@@ -611,7 +630,7 @@ public class UIEngine {
 													.getTableFieldId())) // approvalStepUpdatable
 																			// Table
 																			// Fields
-							|| (formResult.getForm().getObjectTip() == 2 && action == 1 && tf != null
+							|| (f.getObjectTip() == 2 && action == 1 && tf != null
 									&& (tf.getCanUpdateFlag() == 0 || (tf.getAccessUpdateTip() != 0
 											&& !GenericUtil.accessControl(scd, tf.getAccessUpdateTip(),
 													tf.getAccessUpdateRoles(), tf.getAccessUpdateUsers())
@@ -722,16 +741,16 @@ public class UIEngine {
 				} else
 					cr.setHiddenValue(null);
 
-			if (formResult.getForm().getObjectTip() == 2) { // table ise
+			if (f.getObjectTip() == 2) { // table ise
 				if (updatableFieldsCount == 0)
 					formResult.setViewMode(true);
 				if (action == 1) { // eidt mode'da ise
 					if (FrameworkSetting.alarm /* && !formResult.isViewMode() */
-							&& !GenericUtil.isEmpty(formResult.getForm().get_formSmsMailList())) { // readonly
+							&& !GenericUtil.isEmpty(f.get_formSmsMailList())) { // readonly
 																									// degil
 																									// ise
 						boolean alarm = false;
-						for (W5FormSmsMail i : formResult.getForm().get_formSmsMailList())
+						for (W5FormSmsMail i : f.get_formSmsMailList())
 							if (i.getAlarmFlag() != 0) {
 								alarm = true;
 								break;
@@ -739,7 +758,7 @@ public class UIEngine {
 						if (alarm) {
 							formResult.setFormAlarmList((List<W5FormSmsMailAlarm>) dao.find(
 									"from W5FormSmsMailAlarm a where a.projectUuid=? AND a.insertUserId=? AND a.tableId=? AND a.tablePk=? ",
-									projectId, scd.get("userId"), formResult.getForm().getObjectId(),
+									projectId, scd.get("userId"), f.getObjectId(),
 									GenericUtil.uInt(requestParams, t.get_tableParamList().get(0).getDsc())));
 						}
 					}

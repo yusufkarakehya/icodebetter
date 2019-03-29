@@ -2177,7 +2177,7 @@ public class AppController implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		logger.info("hndAjaxCallWs"); 
+		logger.info("hndAjaxOrganizeREST"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    
 		Map m =service.organizeREST(scd, request.getParameter("serviceName"));

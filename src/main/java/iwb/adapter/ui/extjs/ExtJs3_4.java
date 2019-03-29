@@ -689,7 +689,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		String[] postFormStr = new String[] { "", "search_form",
 				"ajaxPostForm",
 				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
-				"ajaxExecDbFunc" };
+				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,"ajaxCallWs?serviceName="};
 		s.append("{\n formId: ")
 				.append(fr.getFormId())
 				.append(", a:").append(fr.getAction()).append(", name:'")

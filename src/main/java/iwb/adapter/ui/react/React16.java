@@ -1042,7 +1042,7 @@ public class React16 implements ViewAdapter {
 		// s.append("var ").append(formResult.getForm().getDsc()).append("=");
 		String[] postFormStr = new String[] { "", "search_form", "ajaxPostForm",
 				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
-				"ajaxExecDbFunc", "", "", "", "" };
+				"ajaxExecDbFunc", null,null,"search_form", "search_form", null,"ajaxCallWs" };
 		s.append("{\nconstructor(props, context){\nsuper(props, context);\nprops.parentCt.form=this;this.url='").append(postFormStr[f.getObjectTip()])
 			.append("';this.params=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
 			.append(";\nthis.egrids={};this.state=iwb.forms['").append(formResult.getUniqueId()).append("'] ||{errors:{},values:{");

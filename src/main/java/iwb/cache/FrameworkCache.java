@@ -588,13 +588,18 @@ public class FrameworkCache {
 
 	public static W5WsServer getWsServer(Object o, String serviceName){
 		Map<String, W5WsServer> wssMap = wWsServers.get(getProjectId(o, null));
-		for(String sn:wssMap.keySet())if(serviceName.equals(sn))return wssMap.get(sn);
+		if(wssMap!=null)for(String sn:wssMap.keySet())if(serviceName.equals(sn))return wssMap.get(sn);
 		
 		return null;
 	}
 	public static W5Ws getWsClient(Object o, String serviceName){
-		Map<String, W5Ws> wssMap = wWsClients.get(getProjectId(o, null));
-		for(String sn:wssMap.keySet())if(serviceName.equals(sn))return wssMap.get(sn);
+		Map<String, W5Ws> wsMap = wWsClients.get(getProjectId(o, null));
+		if(wsMap!=null)for(String sn:wsMap.keySet())if(serviceName.equals(sn))return wsMap.get(sn);
+		return null;
+	}
+	public static W5Ws getWsClientById(Object o, int wsId){
+		Map<String, W5Ws> wsMap = wWsClients.get(getProjectId(o, null));
+		if(wsMap!=null)for(W5Ws ws:wsMap.values())if(ws.getWsId() == wsId)return ws;
 		return null;
 	}
 	

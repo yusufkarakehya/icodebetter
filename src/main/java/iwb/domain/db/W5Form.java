@@ -21,9 +21,10 @@ public class W5Form implements java.io.Serializable, W5Base {
 
 	private int formId;
 	
-	private short objectTip; // hangi tablodan geldigi: 2:table_id, 1:gridId, 3:dbFunc
+	private short objectTip; // 2:table_id, 1:gridId, 3:dbFunc
 
 	private int objectId; //gelen table'in PK'si
+	private int sourceWsMethodId; //source 4 get
 
 	private String dsc;
 
@@ -35,9 +36,9 @@ public class W5Form implements java.io.Serializable, W5Base {
 
 	private short tabOrder;
 
-	private short renderTip; // 0: duz, 1: fieldset, 2: tab 
+	private short renderTip; // 0: straight, 1: fieldset, 2: tab 
 	
-	private int renderTemplateId; // default olarak
+	private int renderTemplateId; // default
 
 	private short labelWidth;
 
@@ -317,6 +318,16 @@ public class W5Form implements java.io.Serializable, W5Base {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+	
+
+	@Column(name="source_ws_method_id")
+	public int getSourceWsMethodId() {
+		return sourceWsMethodId;
+	}
+
+	public void setSourceWsMethodId(int sourceWsMethodId) {
+		this.sourceWsMethodId = sourceWsMethodId;
 	}
 
 }
