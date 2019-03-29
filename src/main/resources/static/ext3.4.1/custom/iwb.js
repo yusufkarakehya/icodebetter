@@ -3918,13 +3918,20 @@ function ajaxErrorHandler(obj) {
       buttons: xbuttons
     });
     wndx.show();
-  } else
+  } else {
+	  var xid=_webPageId + '-'+Math.round(10000*Math.random());
+	  var pnl = new Ext.Panel({closable:true,border:false,autoScroll:!0,html:'<div style="width:100% !important;height:100% !important;font-size: 12px;" id="'+xid+'"></div>'});
+	  var w =new Ext.Window({modal:true,cls:'xerror2', title:(obj.errorType? ('<span style="font-size:1.2rem">'+obj.errorType+'</span> &nbsp; '): '')+(obj.error || "Unknown"), width: 600, height: 300, items:[pnl]})
+	  w.show();
+	  $('#'+xid).jsonViewer(obj, {});
+	  return;
     Ext.Msg.show({
       cls: "xerror",
       title: obj.errorType || getLocMsg("js_error"),
       msg: obj.error || "Unknown",
       icon: Ext.MessageBox.ERROR
     });
+  }
 }
 
 var lw = null;

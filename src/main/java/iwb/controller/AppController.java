@@ -2241,7 +2241,12 @@ public class AppController implements InitializingBean {
 	    
 		Map m =service.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		if(m!=null && !m.containsKey("success"))
-			m.put("success", true);
+			if(m.containsKey("exception")) {
+				m.put("success", false);
+				m.put("errorType", "rest");
+				
+			} else 
+				m.put("success", true);
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}
