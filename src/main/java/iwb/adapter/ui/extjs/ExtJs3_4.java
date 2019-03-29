@@ -689,7 +689,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		String[] postFormStr = new String[] { "", "search_form",
 				"ajaxPostForm",
 				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
-				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,"ajaxCallWs?serviceName="};
+				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId())};
 		s.append("{\n formId: ")
 				.append(fr.getFormId())
 				.append(", a:").append(fr.getAction()).append(", name:'")
@@ -1277,7 +1277,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				.append(FrameworkSetting.alignMap[fr.getForm()
 						.getLabelAlignTip()]).append("', labelWidth:")
 				.append(fr.getForm().getLabelWidth());
-		if(fr.getForm().getObjectTip()<5)s.append(",url:'")
+		if(fr.getForm().getObjectTip()<5 || fr.getForm().getObjectTip()==11)s.append(",url:'")
 				.append(postFormStr[fr.getForm().getObjectTip()])
 				.append("'");
 		s.append("}\n");

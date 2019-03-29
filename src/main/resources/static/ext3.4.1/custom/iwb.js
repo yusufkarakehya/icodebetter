@@ -8450,3 +8450,13 @@ iwb.ajax.REST=function(serviceName,params,callback){
 	iwb.request({url:'ajaxCallWs?serviceName='+serviceName,params:params||{},successCallback:callback||false})
 }
 
+iwb.ui.openForm=function(formId,action,params, reloadGrid, callback){
+	mainPanel.loadTab({successCallback:callback||false,
+        attributes: {
+          href: 'showForm?_fid='+formId+'&a='+action,
+          id: params && params.id ? params.id :false,
+          params: params||{},
+          _grid:reloadGrid||false
+        }
+      });
+}

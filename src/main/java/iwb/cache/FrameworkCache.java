@@ -603,6 +603,13 @@ public class FrameworkCache {
 		return null;
 	}
 	
+	public static String getServiceNameByMethodId(Object o, int wsMethodId) {
+		W5WsMethod wsm = getWsMethod(o, wsMethodId);
+		if(wsm!=null){
+			return FrameworkCache.getWsClientById(o, wsm.getWsId()).getDsc()+ "." + wsm.getDsc();
+		}
+		return null;
+	}
 	public static void setWsClientsMap(String o, Map m){
 		wWsClients.put(getProjectId(o, null), m);
 	}

@@ -661,7 +661,7 @@ public class GlobalScriptEngine {
 					sb.append("\nreturn result}");
 					script = sb.toString();
 					nashornEngine.eval(script);
-					FrameworkCache.addGraalFunc(qr.getScd(), "8." + qr.getQueryId(), qryName);
+					if(!dynamicQuery)FrameworkCache.addGraalFunc(qr.getScd(), "8." + qr.getQueryId(), qryName);
 				} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 					throw new IWBException("rhino", "NashornQuery.Compile", qr.getQueryId(), script,

@@ -231,7 +231,7 @@ public class UIEngine {
 
 			GetFormTrigger.beforeGetForm(formResult);
 			W5Form f = formResult.getForm();
-			if (f.getObjectTip() != 2)
+			if (f.getObjectTip() != 2 && (f.getObjectTip()!=11 || action == 0))
 				action = 2; // eger table degilse sadece initializeForm olabilir
 
 			if (f.getObjectTip() != 5
@@ -249,17 +249,9 @@ public class UIEngine {
 				switch (action) {
 				case 5: // copy
 				case 1: // edit
-					if (f.getObjectTip() == 2 && action == 1) {
-
-						if (!GenericUtil.isEmpty(f.get_conversionList())) { // conversion
-																								// olan
-																								// bir
-																								// form?
-																								// o
-																								// zaman
-																								// sync
-																								// olan
-							// covnerted objeleri bul
+					if (f.getObjectTip() == 2) {
+						if (action == 1 && !GenericUtil.isEmpty(f.get_conversionList())) { // conversion form, then sync
+							// covnerted objects find
 							String inStr = "";
 							for (W5Conversion cnv : f.get_conversionList())
 								if (GenericUtil.hasPartInside2(cnv.getActionTips(), action)
@@ -316,7 +308,14 @@ public class UIEngine {
 									for(W5FormCell cell:f.get_formCells())if(cell.getActiveFlag()!=0){
 										W5FormCellHelper result = new W5FormCellHelper(cell);
 										Object o = r.get(cell.getDsc());
-										if(o!=null)result.setValue(o.toString());
+										if(o!=null) {
+											if(cell.getControlTip()==5) {
+												if(o.toString()=="true" || o.toString()=="on" || o.toString()=="yes" || GenericUtil.uInt(o)!=0)
+													result.setValue("1");
+												else result.setValue("0");
+											} else
+												result.setValue(o.toString());
+										}
 										lfcr.add(result);
 									}
 		

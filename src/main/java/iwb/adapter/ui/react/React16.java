@@ -1040,9 +1040,10 @@ public class React16 implements ViewAdapter {
 		if (formResult.getUniqueId() == null)formResult.setUniqueId(GenericUtil.getNextId("fi2"));
 		W5Form f = formResult.getForm();
 		// s.append("var ").append(formResult.getForm().getDsc()).append("=");
-		String[] postFormStr = new String[] { "", "search_form", "ajaxPostForm",
+		String[] postFormStr = new String[] { "", "search_form",
+				"ajaxPostForm",
 				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
-				"ajaxExecDbFunc", null,null,"search_form", "search_form", null,"ajaxCallWs" };
+				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId())};
 		s.append("{\nconstructor(props, context){\nsuper(props, context);\nprops.parentCt.form=this;this.url='").append(postFormStr[f.getObjectTip()])
 			.append("';this.params=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
 			.append(";\nthis.egrids={};this.state=iwb.forms['").append(formResult.getUniqueId()).append("'] ||{errors:{},values:{");
