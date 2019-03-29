@@ -258,6 +258,9 @@ public class RESTEngine {
 				break;
 			case 2: // rest
 				String url = ws.getWsUrl();
+				if (url.indexOf("${") > -1) {// has special char
+					url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
+				}
 				if (!url.endsWith("/"))
 					url += "/";
 				url += GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
