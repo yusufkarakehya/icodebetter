@@ -70,6 +70,8 @@ Install [PostgreSQL](https://www.postgresql.org/download/) database and [Eclipse
 
 If you encounter an error while starting the project in eclipse, then do the following: 
 
+It could either be about java version or maven dependencies. If it's about java version, then following is the solution.
+
 Select the framework and press `Alt + Enter`
 
   <br>
@@ -89,4 +91,5 @@ If it is using 1.6 then change it to 1.8.
   <br>
 
 
+If it's about maven dependencies, then instead of installing dependencies in eclipse you should try to run `mvn install` from project root directory.
   
