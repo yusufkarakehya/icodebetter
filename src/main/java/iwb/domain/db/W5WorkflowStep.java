@@ -379,6 +379,11 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
     a.updatableFields = this.updatableFields;
     a.btnApproveLabel = this.btnApproveLabel;
     a.btnReturnLabel = this.btnReturnLabel;
+    
+    a.onApproveFormId = this.onApproveFormId;
+    a.onReturnFormId = this.onReturnFormId;
+    a.onRejectFormId = this.onRejectFormId;
+    
     return a;
   }
 

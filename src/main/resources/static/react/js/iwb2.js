@@ -401,7 +401,8 @@ var iwb = {
                   _('div',{
                     className:'timeline-badge bg-primary timeline-badge-icon',
                     // style:{
-                    //   background:detailSpinnerColors2[index % detailSpinnerColors2.length]
+                    // background:detailSpinnerColors2[index %
+					// detailSpinnerColors2.length]
                     // }
                   },
                     // _('i',{className:'icon-speech'})
@@ -2354,7 +2355,7 @@ class XTabForm extends React.PureComponent {
               }
             if (json.smsMailPreviews)
               for (var ri = 0; ri < json.smsMailPreviews.length; ri++) {
-                var fsm = json.smsMailPreviews[ri]; //[{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
+                var fsm = json.smsMailPreviews[ri]; // [{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
                 iwb.openTab(
                   "2-" + fsm.fsmId + '-' + fsm.tbPk,
                   'showForm?a=2&_fid=4903&_cnvId=' + cnv._cnvId + '&_cnvTblPk' + cnv._cnvTblPk, {}, {
@@ -2421,7 +2422,7 @@ class XTabForm extends React.PureComponent {
           })
       });
     };
-    this.approvalAction = action => {
+    this.approvalAction = (action, xformId) => {
     	return (event) => {
           event && event.preventDefault && event.preventDefault();
           let { formId, pk } = this.props.cfg;
@@ -2444,15 +2445,35 @@ class XTabForm extends React.PureComponent {
               });
               break;
           default:
-        	  var p = prompt("Please enter comment", ["","Approve","Return","Reject"][action]);
-          	  if(p){
-	              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
+              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
+          var strAction = ["","Approve","Return","Reject"][action];
+        	  // var p = prompt("Please enter comment",
+				// ["","Approve","Return","Reject"][action]);
+          	  // if(p){
+          if(xformId){
+        	  var formUrl = 'showForm?a=2&_fid=' + xformId + pkz;
+        	  iwb.openTab('1199', formUrl, {}, {
+                  modal: true,
+                  callback: (result) => {
+                	  iwb.request({
+  	                    url,params:{_adsc:strAction,_avno:this.props.cfg.approval.versionNo},
+  	                    successCallback: () => this.props.parentCt.closeTab(event, true)
+  	                    
+                    })
+                  }
+                })
+          } else
+	          yesNoDialog({
+	              text: "Are you Sure to "+strAction+"?",
+	              callback: success =>
+                  success &&
                   iwb.request({
-	                    url,params:{_adsc:p,_avno:this.props.cfg.approval.versionNo},
+	                    url,params:{_adsc:strAction,_avno:this.props.cfg.approval.versionNo},
 	                    successCallback: () => this.props.parentCt.closeTab(event, true)
 	                    
-                  });
-          	  }
+                  })
+	          });
+          	  // }
           break;
           }
 
@@ -2571,7 +2592,7 @@ class XTabForm extends React.PureComponent {
             {
               color: "primary",
               className: "btn-form-edit",
-              onClick: approvalAction(1) // approve
+              onClick: approvalAction(1, this.props.cfg.approval.approveFormId||false) // approve
             },
             this.props.cfg.approval.btnApproveLabel || getLocMsg('approve')
           ),
@@ -2582,7 +2603,7 @@ class XTabForm extends React.PureComponent {
             {
               color: "warning",
               className: "btn-form-edit",
-              onClick: approvalAction(2) // return
+              onClick: approvalAction(2, this.props.cfg.approval.returnFormId||false) // return
             },
             this.props.cfg.approval.btnReturnLabel || getLocMsg('return')
           ),
@@ -2593,7 +2614,7 @@ class XTabForm extends React.PureComponent {
             {
               color: "danger",
               className: "btn-form-edit",
-              onClick: approvalAction(3) // reject
+              onClick: approvalAction(3, this.props.cfg.approval.rejectFormId||false) // reject
             },
             iwb.btnApprovalRejectLabel || getLocMsg('reject')
           ),
@@ -2606,7 +2627,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form-edit",
               onClick: iwb.approvalLogs(this.props.cfg.approval.approvalRecordId) // reject
             },
-            iwb.btnApprovalLogsLabel || getLocMsg('logs')
+            iwb.btnApprovalLogsLabel || getLocMsg('workflow_logs')
           )
         ),
         this.props.cfg.msgs && this.props.cfg.msgs.length && _("div",{style:{color:"#838383"}},this.props.cfg.msgs.map(qq=>_("div",null,
@@ -4054,7 +4075,7 @@ const extendGrid = ({ name, children, predicate, position }) => {
  */
 yesNoDialog = ({
   text = "Are You Sure?",
-  title = "Are You Sure?",
+  title = "Confirmation",//"Are You Sure?",
   callback = alert('obj.callback is not a function'),
   ...confg
 }) => {
@@ -5324,8 +5345,9 @@ console.log('rows',rows)
           })
         : null,
       /** UI show pagining */
-      ( pageSize > 1) //rows.length > iwb.detailPageSize ||
-        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes  }) //|| iwb.detailPageSize
+      ( pageSize > 1) // rows.length > iwb.detailPageSize ||
+        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes  }) // ||
+															// iwb.detailPageSize
         : null,
       /** UI table Grouping */
       !_disableIntegratedGrouping && !pageSize && rows.length > 1
@@ -6376,8 +6398,8 @@ class XForm extends React.Component {
       }
     };
     /**
-     * file upload function
-     */
+	 * file upload function
+	 */
     this.onFileChange = () => (name, result, context) => {
       var values = this.state.values;
       var errors = this.state.errors;
@@ -6474,9 +6496,9 @@ class XForm extends React.Component {
     var values = {...baseValues ,...this.state.values };
     if (this.componentWillPost) {
       /**
-   * componentWillPostResult = true || fase || {field_name : 'custom
-   * value'}
-   */
+		 * componentWillPostResult = true || fase || {field_name : 'custom
+		 * value'}
+		 */
       var componentWillPostResult = this.componentWillPost(values, cfg || {});
       if (!componentWillPostResult) return false;
       values = { ...values, ...componentWillPostResult };
@@ -6782,7 +6804,8 @@ class FileInput extends React.Component {
     }
     return _(React.Fragment, {},
       _('div', null,
-        // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+        // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File
+		// Upload'),
         _('input', {
           className: 'd-none',
           type: 'file',
