@@ -2573,7 +2573,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form-edit",
               onClick: approvalAction(1) // approve
             },
-            getLocMsg('approve')
+            this.props.cfg.approval.btnApproveLabel || getLocMsg('approve')
           ),
           " "
           ,this.props.cfg.approval && this.props.cfg.approval.returnFlag &&
@@ -2584,7 +2584,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form-edit",
               onClick: approvalAction(2) // return
             },
-            getLocMsg('return')
+            this.props.cfg.approval.btnReturnLabel || getLocMsg('return')
           ),
           " "
           ,this.props.cfg.approval && this.props.cfg.approval.versionNo &&
