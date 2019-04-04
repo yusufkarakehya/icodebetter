@@ -5252,7 +5252,7 @@ class XMainGrid extends GridCommon {
       /** UI to show table row container */
       _(_dxgrb.TableHeaderRow, { showSortingControls: true }),
       /** tree support */
-      _(_dxgrb.TableTreeColumn, { for: tableTreeColumn }),
+      !!tree && _(_dxgrb.TableTreeColumn, { for: tableTreeColumn }),
       /** UI of the detail table */
       showDetail
         ? _(_dxgrb.TableRowDetail, {
