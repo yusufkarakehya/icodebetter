@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.graalvm.polyglot.Value;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -78,7 +79,12 @@ public class ScriptUtil {
 			
 		}
 		if(!(reqP instanceof Map)) {
-			reqP = GenericUtil.fromJSONObjectToMap(new JSONObject(reqP.toString()));
+			try {
+				reqP = GenericUtil.fromJSONObjectToMap(new JSONObject(reqP.toString()));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		if(reqP instanceof Map) {
 			Map jsRequestParams = (Map)reqP;
