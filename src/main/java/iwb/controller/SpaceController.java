@@ -1506,6 +1506,14 @@ public class SpaceController implements InitializingBean {
 	    Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
 	    
 		Map m =engine.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
+		if(m!=null && !m.containsKey("success"))
+			if(m.containsKey("exception")) {
+				m.put("success", false);
+				m.put("errorType", "rest");
+				
+			} else 
+				m.put("success", true);
+		
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}

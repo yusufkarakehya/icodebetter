@@ -1020,7 +1020,7 @@ public class Vue2 implements ViewAdapter {
 		String[] postFormStr = new String[] { "", "search_form",
 				"ajaxPostForm",
 				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
-				"ajaxExecDbFunc", "", "", "", "" };
+				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId())};
 		s.append("{\ndata(){\nreturn {manualValidation:false,params:").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams())).append(",xerrors:{},values:{");
 		
 		boolean b = false;

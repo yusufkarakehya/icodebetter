@@ -2177,7 +2177,7 @@ public class AppController implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		logger.info("hndAjaxCallWs"); 
+		logger.info("hndAjaxOrganizeREST"); 
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    
 		Map m =service.organizeREST(scd, request.getParameter("serviceName"));
@@ -2240,6 +2240,13 @@ public class AppController implements InitializingBean {
 	    Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 	    
 		Map m =service.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
+		if(m!=null && !m.containsKey("success"))
+			if(m.containsKey("exception")) {
+				m.put("success", false);
+				m.put("errorType", "rest");
+				
+			} else 
+				m.put("success", true);
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();		
 	}

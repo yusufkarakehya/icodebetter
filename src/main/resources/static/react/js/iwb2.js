@@ -6977,15 +6977,19 @@ iwb.ui.buildDashboard = function(o) {
   });
 };
 iwb.ajax={}
-iwb.ajax.query=function(qid,params,callback){
-	iwb.request({url:'ajaxQueryData?_qid='+qid,params:params||{},successCallback:callback||false})
+iwb.ajax.query=function(queryId,params,callback){
+	iwb.request({url:'ajaxQueryData?_qid='+queryId,params:params||{},successCallback:callback||false})
 }
-iwb.ajax.postForm=function(fid,action,params,callback){
-	iwb.request({url:'ajaxPostForm?_fid='+fid+'&a='+action,params:params||{},successCallback:callback||false})
+iwb.ajax.postForm=function(formId,action,params,callback){
+	iwb.request({url:'ajaxPostForm?_fid='+formId+'&a='+action,params:params||{},successCallback:callback||false})
 }
-iwb.ajax.execFunc=function(did,params,callback){
-	iwb.request({url:'ajaxExecDbFunc?_did='+did,params:params||{},successCallback:callback||false})
+iwb.ajax.execFunc=function(funcId,params,callback){
+	iwb.request({url:'ajaxExecDbFunc?_did='+funcId,params:params||{},successCallback:callback||false})
 }
+iwb.ajax.REST=function(serviceName,params,callback){
+	iwb.request({url:'ajaxCallWs?serviceName='+serviceName,params:params||{},successCallback:callback||false})
+}
+
 function approvalHtml(row){
     // console.log('approvalHtml', row);
     if(!row || !row.pkpkpk_arf_qw_)return '';

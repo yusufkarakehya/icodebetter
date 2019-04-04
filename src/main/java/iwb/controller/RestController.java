@@ -88,7 +88,10 @@ public class RestController implements InitializingBean {
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
-				W5GlobalFuncResult result = service.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
+				Map scd = new HashMap();
+				scd.put("customizationId", po.getCustomizationId());
+				scd.put("projectId", po.getProjectUuid());
+				W5GlobalFuncResult result = service.executeFunc(scd, po.getCustomizationId()==0 ? 1:1252, requestParams, (short) 7); // user Authenticate DbFunc:1
 				W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
 				List<W5GlobalFuncParam> arl = new ArrayList();
 				dfr.setGlobalFunc(new W5GlobalFunc());dfr.getGlobalFunc().set_dbFuncParamList(arl);
@@ -108,11 +111,15 @@ public class RestController implements InitializingBean {
 				int deviceType = GenericUtil.uInt(request.getParameter("deviceType"));
 				int forceUserRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
 				if (roleCount < 0 || forceUserRoleId != 0) {
+					if(po.getCustomizationId()==0) {
 					if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
-					Map<String, Object> scd = service.userRoleSelect(userId, forceUserRoleId,
+					scd = service.userRoleSelect(userId, forceUserRoleId,
 							GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
+					} else {
+						scd = service.userRoleSelect4App(po, userId, forceUserRoleId, null);
+					}
 					if (scd == null){
-						response.getWriter().write("{\"success\":false}"); // bir hata var
+						response.getWriter().write("{\"success\":false, \"msg\":\"no role found\"}"); // bir hata var
 						return;
 					}
 					scd.put("locale", xlocale);

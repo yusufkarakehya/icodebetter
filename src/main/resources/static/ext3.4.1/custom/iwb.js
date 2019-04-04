@@ -642,7 +642,7 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
   gridDetail.store.baseParams = null;
   if (params) gridDetail._params = params;
   var gs = gridMaster.getSelectionModel ?  gridMaster.getSelectionModel() : gridMaster;
-  gs.on("selectionchange", function(a, b, c) {
+  gs.on("selectionchange", gridDetail.onSelectionChange || function(a, b, c) {
     if (
       !gridDetail.initialConfig.onlyCommitBtn &&
       gridDetail.initialConfig.editMode
@@ -3918,13 +3918,20 @@ function ajaxErrorHandler(obj) {
       buttons: xbuttons
     });
     wndx.show();
-  } else
+  } else {
+	  var xid=_webPageId + '-'+Math.round(10000*Math.random());
+	  var pnl = new Ext.Panel({closable:true,border:false,autoScroll:!0,html:'<div style="width:100% !important;height:100% !important;font-size: 12px;" id="'+xid+'"></div>'});
+	  var w =new Ext.Window({modal:true,cls:'xerror2', title:(obj.errorType? ('<span style="font-size:1.2rem">'+obj.errorType+'</span> &nbsp; '): '')+(obj.error || "Unknown"), width: 600, height: 300, items:[pnl]})
+	  w.show();
+	  $('#'+xid).jsonViewer(obj, {});
+	  return;
     Ext.Msg.show({
       cls: "xerror",
       title: obj.errorType || getLocMsg("js_error"),
       msg: obj.error || "Unknown",
       icon: Ext.MessageBox.ERROR
     });
+  }
 }
 
 var lw = null;
@@ -8437,13 +8444,26 @@ iwb.getDate=function(x){//server DateTime OR parse(x)
 }
 
 iwb.ajax={}
-iwb.ajax.query=function(qid,params,callback){
-	iwb.request({url:'ajaxQueryData?_qid='+qid,params:params||{},successCallback:callback||false})
+iwb.ajax.query=function(queryId,params,callback){
+	iwb.request({url:'ajaxQueryData?_qid='+queryId,params:params||{},successCallback:callback||false})
 }
-iwb.ajax.postForm=function(fid,action,params,callback){
-	iwb.request({url:'ajaxPostForm?_fid='+fid+'&a='+action,params:params||{},successCallback:callback||false})
+iwb.ajax.postForm=function(formId,action,params,callback){
+	iwb.request({url:'ajaxPostForm?_fid='+formId+'&a='+action,params:params||{},successCallback:callback||false})
 }
-iwb.ajax.execFunc=function(did,params,callback){
-	iwb.request({url:'ajaxExecDbFunc?_did='+did,params:params||{},successCallback:callback||false})
+iwb.ajax.execFunc=function(funcId,params,callback){
+	iwb.request({url:'ajaxExecDbFunc?_did='+funcId,params:params||{},successCallback:callback||false})
+}
+iwb.ajax.REST=function(serviceName,params,callback){
+	iwb.request({url:'ajaxCallWs?serviceName='+serviceName,params:params||{},successCallback:callback||false})
 }
 
+iwb.ui.openForm=function(formId,action,params, reloadGrid, callback){
+	mainPanel.loadTab({successCallback:callback||false,
+        attributes: {
+          href: 'showForm?_fid='+formId+'&a='+action,
+          id: params && params.id ? params.id :false,
+          params: params||{},
+          _grid:reloadGrid||false
+        }
+      });
+}

@@ -1040,9 +1040,10 @@ public class React16 implements ViewAdapter {
 		if (formResult.getUniqueId() == null)formResult.setUniqueId(GenericUtil.getNextId("fi2"));
 		W5Form f = formResult.getForm();
 		// s.append("var ").append(formResult.getForm().getDsc()).append("=");
-		String[] postFormStr = new String[] { "", "search_form", "ajaxPostForm",
+		String[] postFormStr = new String[] { "", "search_form",
+				"ajaxPostForm",
 				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
-				"ajaxExecDbFunc", "", "", "", "" };
+				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId())};
 		s.append("{\nconstructor(props, context){\nsuper(props, context);\nprops.parentCt.form=this;this.url='").append(postFormStr[f.getObjectTip()])
 			.append("';this.params=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
 			.append(";\nthis.egrids={};this.state=iwb.forms['").append(formResult.getUniqueId()).append("'] ||{errors:{},values:{");
@@ -4105,8 +4106,8 @@ columns:[
 			if (page.getTemplateTip() != 8) { // wizard degilse
 				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
 					W5Component c = (W5Component)i;
-					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(()=>iwb.import('comp/").append(c.getComponentId()).append(".js?.x='));");
-					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addCss('comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");");
+					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(()=>iwb.import('comp/").append(c.getComponentId()).append(".js?.x='));\n");
+					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addCss('comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");\n");
 					
 				}
 			}
@@ -4318,6 +4319,18 @@ columns:[
 				FrameworkCache.addPageCss(pr.getScd(), page.getTemplateId(), buf4.toString());
 				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"/app/dyn-res/"+page.getTemplateId()+".css?.x="+page.getVersionNo()+"\" />");
 
+			}
+			
+			if(page.getCode().contains("${components}")) {
+				StringBuilder bufc = new StringBuilder();
+
+				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
+					W5Component c = (W5Component)i;
+					bufc.append("<script src=\"comp/").append(c.getComponentId()).append(".js?.x=\"></script>;\n");
+					if(!GenericUtil.isEmpty(c.getCssCode()))bufc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId()).append(".css?.x=\"/>;\n");
+					
+				}
+				code = code.replace("${components}", bufc.toString());
 			}
 			
 		}

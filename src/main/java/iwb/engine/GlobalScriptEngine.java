@@ -249,8 +249,13 @@ public class GlobalScriptEngine {
 //			throw new IWBException("rhino", "Graal R", 0, script,"R Not Implemented yet", null);
 //			break;
 		case 11:// GraalJS
-			if (polyglot == null)
+			if (polyglot == null) {
 				polyglot = Context.newBuilder().allowAllAccess(true).allowIO(true).build();
+				String rPre =FrameworkCache.getAppSettingStringValue(scd, "r_prerequisites");
+				if(!GenericUtil.isEmpty(rPre)) {
+					polyglot.eval("R", rPre);
+				}
+			}
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
 			String lang = "js";
 			if (func == null)
@@ -637,13 +642,14 @@ public class GlobalScriptEngine {
 
 		// Context cx = Context.enter();
 		W5Query q = qr.getQuery();
+		boolean dynamicQuery = !GenericUtil.isEmpty(code);
 		String script = GenericUtil.uStrNvl(code, q.getSqlFrom());
 		List<Object> params = new ArrayList();
 
 		if (useNashorn) { // Nashorn
 			if (nashornEngine == null)
 				nashornEngine = new ScriptEngineManager().getEngineByName("nashorn");
-			Object nobj = FrameworkCache.getGraalFunc(qr.getScd(), "8." + qr.getQueryId());
+			Object nobj = dynamicQuery ? null : FrameworkCache.getGraalFunc(qr.getScd(), "8." + qr.getQueryId());
 			String qryName = null;
 			if (nobj == null)
 				try {
@@ -661,7 +667,7 @@ public class GlobalScriptEngine {
 					sb.append("\nreturn result}");
 					script = sb.toString();
 					nashornEngine.eval(script);
-					FrameworkCache.addGraalFunc(qr.getScd(), "8." + qr.getQueryId(), qryName);
+					if(!dynamicQuery)FrameworkCache.addGraalFunc(qr.getScd(), "8." + qr.getQueryId(), qryName);
 				} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 					throw new IWBException("rhino", "NashornQuery.Compile", qr.getQueryId(), script,

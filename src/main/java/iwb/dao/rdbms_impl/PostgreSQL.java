@@ -197,8 +197,7 @@ public class PostgreSQL extends BaseDAO {
 			}
 			return;
 		}
-		
-		
+
 		String logTable = table;
 		if (logTable.contains(".")) {
 			logTable = logTable.substring(logTable.lastIndexOf('.') + 1);
@@ -207,10 +206,12 @@ public class PostgreSQL extends BaseDAO {
 		final W5Project po = FrameworkCache.getProject(fr.getScd().get("projectId"));
 
 		sql.append("select count(*)  from information_schema.tables qx where lower(qx.table_name) = '")
-				.append(logTable.toLowerCase()).append("' and lower(qx.table_schema) = '")
-				.append(po.getRdbmsSchema()).append("_log'");
+				.append(logTable.toLowerCase()).append("' and lower(qx.table_schema) = '").append(po.getRdbmsSchema())
+				.append("_log'");
 		final int count = GenericUtil.uInt(session.createSQLQuery(sql.toString()).uniqueResult());
-		final int schemaCount = count== 0 ? GenericUtil.uInt(session.createSQLQuery("select count(1) from information_schema.schemata where schema_name='"+po.getRdbmsSchema()+ "_log'").uniqueResult()) : 1;
+		final int schemaCount = count == 0 ? GenericUtil.uInt(session.createSQLQuery(
+				"select count(1) from information_schema.schemata where schema_name='" + po.getRdbmsSchema() + "_log'")
+				.uniqueResult()) : 1;
 
 		sql.setLength(0);
 		sql.append(" select nextval('iwb.seq_log') ").append(FieldDefinitions.tableFieldName_LogId).append(",")
@@ -242,8 +243,9 @@ public class PostgreSQL extends BaseDAO {
 
 			public void execute(Connection conn) throws SQLException {
 				try {
-					if(schemaCount==0) {
-						PreparedStatement s = conn.prepareStatement("CREATE SCHEMA "+po.getRdbmsSchema() + "_log AUTHORIZATION iwb");
+					if (schemaCount == 0) {
+						PreparedStatement s = conn
+								.prepareStatement("CREATE SCHEMA " + po.getRdbmsSchema() + "_log AUTHORIZATION iwb");
 						s.execute();
 						s.close();
 					}
@@ -255,9 +257,9 @@ public class PostgreSQL extends BaseDAO {
 						s.close();
 					} else {
 						Savepoint savepoint = conn.setSavepoint("spx-1");
-						PreparedStatement s = conn.prepareStatement("insert into " + po.getRdbmsSchema()
-								+ "_log." + FrameworkSetting.crudLogTablePrefix + flogTable
-								+ GenericUtil.replaceSql(sql.toString(), whereParams));
+						PreparedStatement s = conn.prepareStatement(
+								"insert into " + po.getRdbmsSchema() + "_log." + FrameworkSetting.crudLogTablePrefix
+										+ flogTable + GenericUtil.replaceSql(sql.toString(), whereParams));
 						try {
 							s.execute();
 							s.close();
@@ -266,10 +268,10 @@ public class PostgreSQL extends BaseDAO {
 								conn.rollback(savepoint);
 							}
 
-							s = conn.prepareStatement("alter table " + po.getRdbmsSchema() + "_log."
-									+ FrameworkSetting.crudLogTablePrefix + flogTable + " rename to lt5_"
-									+ fr.getForm().getObjectId() + "_"
-									+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()));
+							s = conn.prepareStatement(
+									"alter table " + po.getRdbmsSchema() + "_log." + FrameworkSetting.crudLogTablePrefix
+											+ flogTable + " rename to lt5_" + fr.getForm().getObjectId() + "_"
+											+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()));
 							s.execute();
 							s.close();
 
@@ -439,14 +441,19 @@ public class PostgreSQL extends BaseDAO {
 							}
 						for (W5QueryField qf : queryResult.getQuery().get_queryFields())
 							if (qf.getPostProcessTip() == 71) { // fileAttach
-								sql2.append(",(select q.original_file_name from iwb.w5_file_attachment q where q.project_uuid='").append(queryResult.getScd().get("projectId")).append("' AND q.file_attachment_id=z.").append(qf.getDsc()).append("::integer) ").append(qf.getDsc()).append("_qw_ ");
+								sql2.append(
+										",(select q.original_file_name from iwb.w5_file_attachment q where q.project_uuid='")
+										.append(queryResult.getScd().get("projectId"))
+										.append("' AND q.file_attachment_id=z.").append(qf.getDsc())
+										.append("::integer) ").append(qf.getDsc()).append("_qw_ ");
 								W5QueryField field = new W5QueryField();
-								field.setDsc(qf.getDsc() + "_qw_"); field.setFieldTip((short)10);
+								field.setDsc(qf.getDsc() + "_qw_");
+								field.setFieldTip((short) 10);
 								field.setMainTableFieldId(qf.getMainTableFieldId());
 								if (queryResult.getPostProcessQueryFields() == null)
 									queryResult.setPostProcessQueryFields(new ArrayList());
 								queryResult.getPostProcessQueryFields().add(field);
-								
+
 							}
 						for (W5QueryField qf : queryResult.getQuery().get_queryFields())
 							if ((qf.getPostProcessTip() == 16 || qf.getPostProcessTip() == 17)
@@ -751,7 +758,6 @@ public class PostgreSQL extends BaseDAO {
 							conn.close();
 				}
 
-
 			});
 			// } catch(IWBException pe){error = pe.getMessage();throw pe;
 		} catch (Exception e) {
@@ -1018,11 +1024,15 @@ public class PostgreSQL extends BaseDAO {
 								null));
 					}
 					break;
-				case	71://file attachment
+				case 71:// file attachment
 					int fileId = GenericUtil.uInt(rc.getValue());
-					if(fileId!=0) {
-						List params = new ArrayList(); params.add(scd.get("projectId"));params.add(fileId);
-						rc.setExtraValuesMap(runSQLQuery2Map("select x.file_attachment_id id, x.original_file_name dsc, x.file_size fsize from iwb.w5_file_attachment x where x.project_uuid=? AND x.file_attachment_id=?",params, null));
+					if (fileId != 0) {
+						List params = new ArrayList();
+						params.add(scd.get("projectId"));
+						params.add(fileId);
+						rc.setExtraValuesMap(runSQLQuery2Map(
+								"select x.file_attachment_id id, x.original_file_name dsc, x.file_size fsize from iwb.w5_file_attachment x where x.project_uuid=? AND x.file_attachment_id=?",
+								params, null));
 					}
 					break;
 				case 60: // remote superboxselect
@@ -1120,13 +1130,16 @@ public class PostgreSQL extends BaseDAO {
 						case 1376: // WS Method
 							W5WsMethod wsm = FrameworkCache.getWsMethod(projectId,
 									lookupQueryResult.getQuery().getMainTableId());
-							/*
-							 * if (wsm.get_params() == null) { wsm.set_params(
-							 * find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder"
-							 * , wsm.getWsMethodId(), projectId)); wsm.set_paramMap(new HashMap()); for
-							 * (W5WsMethodParam wsmp : wsm.get_params())
-							 * wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp); }
-							 */
+
+							if (wsm.get_params() == null) {
+								wsm.set_params(find(
+										"from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder",
+										wsm.getWsMethodId(), projectId));
+								wsm.set_paramMap(new HashMap());
+								for (W5WsMethodParam wsmp : wsm.get_params())
+									wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
+							}
+
 							W5WsMethodParam parentParam = null;
 							for (W5WsMethodParam px : wsm.get_params())
 								if (px.getOutFlag() != 0 && px.getParamTip() == 10) {
@@ -1253,7 +1266,10 @@ public class PostgreSQL extends BaseDAO {
 					if (!GenericUtil.isEmpty(tf.getRelatedSessionField())
 							&& GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField())) == 0)
 						continue;
-					if(formResult.getApprovalStep()!=null && !GenericUtil.isEmpty(formResult.getApprovalStep().getVisibleFields()) && !GenericUtil.hasPartInside2(formResult.getApprovalStep().getVisibleFields(), tf.getTableFieldId())) {
+					if (formResult.getApprovalStep() != null
+							&& !GenericUtil.isEmpty(formResult.getApprovalStep().getVisibleFields())
+							&& !GenericUtil.hasPartInside2(formResult.getApprovalStep().getVisibleFields(),
+									tf.getTableFieldId())) {
 						continue;
 					}
 
@@ -1712,10 +1728,13 @@ public class PostgreSQL extends BaseDAO {
 					moduleMap.put(m.getFormModuleId(), m);
 		}
 		W5WorkflowStep approvalStep = formResult.getApprovalStep();
-/*		if (formResult.getApprovalRecord() != null) {
-			approvalStep = FrameworkCache.getWorkflow(scd, formResult.getApprovalRecord().getApprovalId())
-					.get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId());
-		} */
+		/*
+		 * if (formResult.getApprovalRecord() != null) { approvalStep =
+		 * FrameworkCache.getWorkflow(scd,
+		 * formResult.getApprovalRecord().getApprovalId())
+		 * .get_approvalStepMap().get(formResult.getApprovalRecord().getApprovalStepId()
+		 * ); }
+		 */
 		boolean b = false;
 		boolean extendedFlag = false;
 		for (W5FormCell x : f.get_formCells())
@@ -1725,9 +1744,9 @@ public class PostgreSQL extends BaseDAO {
 				if (tf.getCanUpdateFlag() == 0 || tf.getTabOrder() < 1)
 					continue; // x.getCanUpdate()!=0
 				if (approvalStep != null && ((approvalStep.getVisibleFields() != null
-						&& !GenericUtil.hasPartInside(approvalStep.getVisibleFields(), "" + tf.getTableFieldId())) ||
-						(approvalStep.getUpdatableFields() != null
-						&& !GenericUtil.hasPartInside(approvalStep.getUpdatableFields(), "" + tf.getTableFieldId()))))
+						&& !GenericUtil.hasPartInside(approvalStep.getVisibleFields(), "" + tf.getTableFieldId()))
+						|| (approvalStep.getUpdatableFields() != null && !GenericUtil
+								.hasPartInside(approvalStep.getUpdatableFields(), "" + tf.getTableFieldId()))))
 					continue;
 				if (tf.getAccessViewTip() != 0
 						&& !GenericUtil.accessControl(scd, tf.getAccessViewTip(), tf.getAccessViewRoles(),
@@ -1758,7 +1777,7 @@ public class PostgreSQL extends BaseDAO {
 				if (x.getControlTip() == 31 && GenericUtil.uInt(x.getLookupIncludedValues()) == 1
 						&& !GenericUtil.hasPartInside(x.getLookupIncludedParams(), "" + scd.get("userId")))
 					continue;
-				
+
 				Object psonuc = GenericUtil.prepareParam(tf, scd, formResult.getRequestParams(), x.getSourceTip(), null,
 						x.getNotNullFlag(), x.getDsc() + paramSuffix, x.getDefaultValue(), formResult.getErrorMap());
 

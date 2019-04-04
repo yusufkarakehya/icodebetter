@@ -172,10 +172,12 @@ public class GraalScript {
 		return rp;
 	}
 
-	private Map<String, Object> fromGraalValue2Map2(Value jsRequestParams) {
+	private Map<String, Object> fromGraalValue2Map2(Object jsRequestParams2) {
 		Map<String, Object> rp = new HashMap<String, Object>();
-		if (jsRequestParams != null && !jsRequestParams.hasArrayElements()) {
-			for (String key:jsRequestParams.getMemberKeys()) 
+		if (jsRequestParams2 != null) {
+			if(jsRequestParams2 instanceof Value && !((Value)jsRequestParams2).hasArrayElements()) {
+				Value jsRequestParams = (Value)jsRequestParams2;
+				for (String key:jsRequestParams.getMemberKeys()) 
 					try {
 						Object o = jsRequestParams.getMember(key);
 						if (o != null) {
@@ -194,13 +196,14 @@ public class GraalScript {
 						}
 					} catch (Exception eq) {
 					}
+			} else rp = (Map)fromGraalValue2Map(jsRequestParams2);
 		}
 		if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
 			rp.put(".w", requestParams.get(".w"));
 		return rp;
 	}
 
-	public Object[] query(int queryId, Value jsRequestParams) {
+	public Object[] query(int queryId, Object jsRequestParams) {
 		scriptEngine.getDao().checkTenant(scd);
 		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromGraalValue2Map(jsRequestParams));//
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
@@ -275,7 +278,7 @@ public class GraalScript {
 			}
 	}
 
-	public Object execFunc(int dbFuncId, Value jsRequestParams) {
+	public Object execFunc(int dbFuncId, Object jsRequestParams) {
 		return execFunc(dbFuncId, jsRequestParams, true, null);
 	}
 
@@ -291,7 +294,7 @@ public class GraalScript {
 		return FrameworkCache.getAppSettingStringValue(scd, key);
 	}
 
-	public Object execFunc(int dbFuncId, Value jsRequestParams, boolean throwOnError, String throwMessage) {
+	public Object execFunc(int dbFuncId, Object jsRequestParams, boolean throwOnError, String throwMessage) {
 		W5GlobalFuncResult result = scriptEngine.executeGlobalFunc(scd, dbFuncId, fromGraalValue2Map(jsRequestParams), (short) 5);
 		if (throwOnError && !result.getErrorMap().isEmpty()) {
 			throw new IWBException("rhino", "GlobalFunc", dbFuncId, null,
@@ -315,7 +318,7 @@ public class GraalScript {
 		return scriptEngine.getDao().executeUpdateSQLQuery(sql, null);
 	}
 
-	public int sqlExecute(String sql, Value jsRequestParams) {
+	public int sqlExecute(String sql, Object jsRequestParams) {
 		if (scd != null && scd.get("customizationId") != null && (Integer) scd.get("customizationId") > 1) {
 			String sql2 = sql.toLowerCase(FrameworkSetting.appLocale);
 			if (DBUtil.checkTenantSQLSecurity(sql2)) {
@@ -330,20 +333,20 @@ public class GraalScript {
 		return scriptEngine.getDao().executeUpdateSQLQuery((String) oz[0], oz.length > 1 ? (List) oz[1] : null);
 	}
 
-	public W5FormResult postForm(int formId, int action, Value jsRequestParams) {
+	public W5FormResult postForm(int formId, int action, Object jsRequestParams) {
 		return postForm(formId, action, jsRequestParams, "", true, null);
 	}
 
-	public W5FormResult postForm(int formId, int action, Value jsRequestParams, String prefix) {
+	public W5FormResult postForm(int formId, int action, Object jsRequestParams, String prefix) {
 		return postForm(formId, action, jsRequestParams, prefix, true, null);
 	}
 
-	public W5FormResult postForm(int formId, int action, Value jsRequestParams, String prefix,
+	public W5FormResult postForm(int formId, int action, Object jsRequestParams, String prefix,
 			boolean throwOnError) {
 		return postForm(formId, action, jsRequestParams, prefix, throwOnError, null);
 	}
 
-	public W5FormResult postForm(int formId, int action, Value jsRequestParams, String prefix,
+	public W5FormResult postForm(int formId, int action, Object jsRequestParams, String prefix,
 			boolean throwOnError, String throwMessage) {
 
 		W5FormResult result = scriptEngine.getCrudEngine().postForm4Table(scd, formId, action, fromGraalValue2Map(jsRequestParams), prefix);
@@ -430,11 +433,11 @@ public class GraalScript {
 		return mo;
 	}
 
-	public Map REST(String serviceName, Value jsRequestParams) {
+	public Map REST(String serviceName, Object jsRequestParams) {
 		return REST(serviceName, jsRequestParams, true);
 	}
 
-	public Map REST(String serviceName, Value jsRequestParams, boolean throwFlag) {
+	public Map REST(String serviceName, Object jsRequestParams, boolean throwFlag) {
 		Map result = new HashMap();
 		result.put("success", true);
 		try {
