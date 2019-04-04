@@ -5257,7 +5257,7 @@ console.log('rows',rows)
         !!tree && _(_dxrg.TreeDataState),
         !!tree && _(_dxrg.CustomTreeData, {
           getChildRows: (row, rootRows) => {
-            const childRows = rootRows.filter(r => (r[treeParentKey] == (row ? row[keyField] : '')));
+            const childRows = rootRows.filter(r => (r[treeParentKey] == (row ? row[keyField] : '0')));
             return childRows.length ? childRows : null;
           }
         }),
