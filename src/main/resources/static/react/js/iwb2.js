@@ -2653,7 +2653,7 @@ class XTabForm extends React.PureComponent {
               color: "light",
               style: { border: ".5px solid #e6e6e6" },
               className: "btn-form",
-              onClick: iwb.closeTab
+              onClick: (this.props.callAttributes.modal)?iwb.closeModal:iwb.closeTab
             },
             "Cancel"
           )
