@@ -1007,7 +1007,7 @@ public class PostgreSQL extends BaseDAO {
 		String projectId = (String) scd.get("projectId");
 		// W5Customization cus =
 		// FrameworkCache.wCustomizationMap.get(customizationId);
-
+		checkTenant(scd);
 		for (W5FormCellHelper rc : formCellResults)
 			try {
 				W5FormCell c = rc.getFormCell();
@@ -3893,6 +3893,7 @@ public class PostgreSQL extends BaseDAO {
 		W5Query query = queryResult.getQuery();
 		W5Table mainTable = queryResult.getMainTable();
 		int customizationId = (Integer) queryResult.getScd().get("customizationId");
+		String projectId =(String) queryResult.getScd().get("projectId");
 		String pkFieldName = query.getQueryTip() == 9 ? query.get_queryFields().get(0).getDsc() : "pkpkpk_id";
 		if (FrameworkSetting.vcs && mainTable.getVcsFlag() != 0 /*
 																 * && query.getSqlSelect().startsWith("x.*")
@@ -3907,7 +3908,7 @@ public class PostgreSQL extends BaseDAO {
 			// sql2.append(",fnc_vcs_status(").append(customizationId).append(",'").append(queryResult.getScd().get("projectId")).append("',").append(query.getMainTableId()).append(",z.pkpkpk_id,").append(FrameworkUtil.getTableFields4VCS(mainTable,"z")).append(")
 			// ").append(FieldDefinitions.queryFieldName_Vcs).append(" ");
 			sql2.append(",iwb.fnc_vcs_status2(").append(customizationId).append(",'")
-					.append(queryResult.getScd().get("projectId")).append("',").append(query.getMainTableId())
+					.append(projectId).append("',").append(query.getMainTableId())
 					.append(",z.").append(pkFieldName).append(") ").append(FieldDefinitions.queryFieldName_Vcs)
 					.append(" ");
 			W5QueryField field = new W5QueryField();
@@ -3956,7 +3957,7 @@ public class PostgreSQL extends BaseDAO {
 				sql2.append(
 						",(select cx.comment_count||';'||cxx.comment_user_id||';'||to_char(cxx.comment_dttm,'dd/mm/yyyy hh24:mi:ss')||';'||cx.view_user_ids||'-'||cxx.dsc from iwb.w5_comment_summary cx, iwb.w5_comment cxx where cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.project_uuid='")
-						.append(queryResult.getScd().get("projectId")).append("'  AND cx.table_pk::int=z.")
+						.append(projectId).append("'  AND cx.table_pk::int=z.")
 						.append(pkFieldName)
 						.append(" AND cxx.customization_id=cx.customization_id AND cxx.comment_id=cx.last_comment_id) pkpkpk_cf ");
 				field.setPostProcessTip((short) 48); // extra code :
@@ -3964,7 +3965,7 @@ public class PostgreSQL extends BaseDAO {
 			} else {
 				sql2.append(",(select count(1) from iwb.w5_comment cx where cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.project_uuid='")
-						.append(queryResult.getScd().get("projectId")).append("'  AND cx.table_pk::int=z.")
+						.append(projectId).append("'  AND cx.table_pk::int=z.")
 						.append(pkFieldName).append(" limit 10) ").append(FieldDefinitions.queryFieldName_Comment)
 						.append(" ");
 			}
@@ -3977,8 +3978,8 @@ public class PostgreSQL extends BaseDAO {
 																													// Record
 			sql2.append(
 					",(select cx.approval_record_id||';'||cx.approval_id||';'||cx.approval_step_id||';'||coalesce(cx.approval_roles,'')||';'||coalesce(cx.approval_users,'') from iwb.w5_approval_record cx where cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=").append(customizationId)
-					.append(" AND cx.table_pk=z.").append(pkFieldName).append(" limit 1) ")
+					.append(query.getMainTableId()).append(" AND cx.project_uuid='").append(projectId)
+					.append("' AND cx.table_pk=z.").append(pkFieldName).append(" limit 1) ")
 					.append(FieldDefinitions.queryFieldName_Approval).append(" ");
 			W5QueryField field = new W5QueryField();
 			field.setDsc(FieldDefinitions.queryFieldName_Approval);
@@ -3986,8 +3987,8 @@ public class PostgreSQL extends BaseDAO {
 			queryResult.getPostProcessQueryFields().add(field);
 			if (FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "toplu_onay") != 0) {
 				sql2.append(",(select cx.version_no from iwb.w5_approval_record cx where cx.table_id=")
-						.append(query.getMainTableId()).append(" AND cx.customization_id=").append(customizationId)
-						.append(" AND cx.table_pk=z.").append(pkFieldName).append(" limit 1) ")
+						.append(query.getMainTableId()).append(" AND cx.project_uuid='").append(projectId)
+						.append("' AND cx.table_pk=z.").append(pkFieldName).append(" limit 1) ")
 						.append(FieldDefinitions.queryFieldName_ArVersionNo).append(" ");
 				field = new W5QueryField();
 				field.setDsc(FieldDefinitions.queryFieldName_ArVersionNo);
