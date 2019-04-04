@@ -657,11 +657,15 @@ public class React16 implements ViewAdapter {
 							.getApprovalRecordId()).append(",versionNo:")
 					.append(fr.getApprovalRecord().getVersionNo())
 					.append(",returnFlag:")
-					.append(fr.getApprovalRecord().getReturnFlag() != 0).append(",dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"");
+					.append(fr.getApprovalRecord().getReturnFlag() != 0).append(",dsc:\"")
+					.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"");
 					W5WorkflowStep wfs = a.get_approvalStepMap().get(fr.getApprovalRecord().getApprovalStepId());
 					if(wfs.getOnApproveFormId()!=null)s.append(",approveFormId:").append(wfs.getOnApproveFormId());
 					if(wfs.getOnRejectFormId()!=null)s.append(",rejectFormId:").append(wfs.getOnRejectFormId());
 					if(wfs.getOnReturnFormId()!=null)s.append(",returnFormId:").append(wfs.getOnReturnFormId());
+					s.append(",btnApproveLabel:\"").append(LocaleMsgCache.get2(scd, wfs.getBtnApproveLabel())).append("\"");
+					if((fr.getApprovalRecord().getReturnFlag() != 0))
+						s.append(",btnReturnLabel:\"").append(LocaleMsgCache.get2(scd, wfs.getBtnReturnLabel())).append("\"");
 					s.append(",stepDsc:'")
 							.append(fr.getApprovalStep() != null ? GenericUtil
 									.stringToJS(fr.getApprovalStep()
@@ -2501,6 +2505,12 @@ public class React16 implements ViewAdapter {
 				buf.append(", multiselect:true");
 		}
 		buf.append(",keyField:'").append(g.get_pkQueryField().getDsc()).append("'");
+		if(g.getTreeMasterFieldId() != 0) {
+			W5QueryField treeMasterField = g.get_queryFieldMap().get(g.getTreeMasterFieldId());
+			if(treeMasterField != null) {
+				buf.append(",tree:!0, treeParentKey:'parent_id', tableTreeColumn:'").append(treeMasterField.getDsc()).append("'");
+			}
+		}
 		
 		if (gridResult.getExtraOutMap() != null
 				&& !gridResult.getExtraOutMap().isEmpty()) {
