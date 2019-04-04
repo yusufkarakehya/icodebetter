@@ -2563,7 +2563,7 @@ class XTabForm extends React.PureComponent {
             },
             _("i", { className: "icon-support" }),
             " ",
-            getLocMsg('start_approval')
+            this.props.cfg.approval.btnStartApprovalLabel || getLocMsg('start_approval')
           ),
           this.props.cfg.approval && this.props.cfg.approval.versionNo &&
           _(
@@ -2595,10 +2595,10 @@ class XTabForm extends React.PureComponent {
               className: "btn-form-edit",
               onClick: approvalAction(3) // reject
             },
-            getLocMsg('reject')
+            iwb.btnApprovalRejectLabel || getLocMsg('reject')
           ),
           " "
-          ,this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
+          ,iwb.btnApprovalLogs4Form!==false && this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
           _(
             Button,
             {
@@ -2606,7 +2606,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form-edit",
               onClick: iwb.approvalLogs(this.props.cfg.approval.approvalRecordId) // reject
             },
-            getLocMsg('logs')
+            iwb.btnApprovalLogsLabel || getLocMsg('logs')
           )
         ),
         this.props.cfg.msgs && this.props.cfg.msgs.length && _("div",{style:{color:"#838383"}},this.props.cfg.msgs.map(qq=>_("div",null,

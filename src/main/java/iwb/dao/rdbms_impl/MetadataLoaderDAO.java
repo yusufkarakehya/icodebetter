@@ -1308,6 +1308,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		for (W5Workflow ta : al) {
 			FrameworkCache.addWorkflow(projectId, ta);
 			W5Table t = FrameworkCache.getTable(projectId, ta.getTableId());
+			if(t==null)continue;
 			if (t.get_approvalMap() == null) {
 				t.set_approvalMap(new HashMap<Short, W5Workflow>());
 			}

@@ -643,7 +643,8 @@ public class React16 implements ViewAdapter {
 								.append(fr.getApprovalRecord()
 										.getApprovalRecordId())
 								.append(",wait4start:true,status:901,dsc:\"")
-								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
+								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\",btnStartApprovalLabel:\"")
+								    								.append(LocaleMsgCache.get2(scd, a.getApprovalRequestMsg())).append("\"}");
 				} else if (fr.getApprovalRecord().getApprovalStepId() > 997 && fr.getApprovalRecord().getApprovalStepId() < 1000) {// rejected(999) or approved(998)
 					s.append(",\n approval:{approvalRecordId:")
 								.append(fr.getApprovalRecord()
