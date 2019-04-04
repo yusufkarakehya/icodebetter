@@ -2653,7 +2653,7 @@ class XTabForm extends React.PureComponent {
               color: "light",
               style: { border: ".5px solid #e6e6e6" },
               className: "btn-form",
-              onClick: iwb.closeTab
+              onClick: (this.props.callAttributes.modal)?iwb.closeModal:iwb.closeTab
             },
             "Cancel"
           )
@@ -5257,7 +5257,7 @@ console.log('rows',rows)
         !!tree && _(_dxrg.TreeDataState),
         !!tree && _(_dxrg.CustomTreeData, {
           getChildRows: (row, rootRows) => {
-            const childRows = rootRows.filter(r => (r[treeParentKey] == (row ? row[keyField] : '')));
+            const childRows = rootRows.filter(r => (r[treeParentKey] == (row ? row[keyField] : '0')));
             return childRows.length ? childRows : null;
           }
         }),
