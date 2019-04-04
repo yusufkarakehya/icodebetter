@@ -1091,3 +1091,7 @@ main.inbox > div.card-header {
     line-height: 1em!important;
     top: 0.9em!important;
 }
+.dx-g-bs4-toggle-button-hidden {
+    opacity: 0;
+    cursor: default;
+}

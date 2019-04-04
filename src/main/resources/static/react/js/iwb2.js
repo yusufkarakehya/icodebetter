@@ -2733,6 +2733,9 @@ class XModal extends React.Component {
         Modal,
         {
           keyboard: true,
+          onExit:()=>{
+            iwb.loadingDeactive();
+          },
           backdrop: footer !== false ? "static" : true,
           toggle: this.toggle,
           isOpen: modal,
@@ -4728,7 +4731,7 @@ class XMainGrid extends GridCommon {
         rows: [],
         sorting: [],
         totalCount: 0,
-        pageSize: props.pageSize || iwb.detailPageSize,
+        pageSize: props.pageSize,
         pageSizes:
           props.pageSize > 1
             ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
@@ -5211,14 +5214,17 @@ class XMainGrid extends GridCommon {
         columnExtensions
       },
       props: {
+        tree,
         keyField,
         crudFlags,
         detailGrids,
         multiselect,
         extraButtons,
+        treeParentKey,
+        tableTreeColumn,
         _disableSearchPanel,
         _disableIntegratedSorting,
-        _disableIntegratedGrouping
+        _disableIntegratedGrouping,
       },
       loadData,
       searchForm,
@@ -5247,6 +5253,13 @@ console.log('rows',rows)
         _(_dxrg.SelectionState, {
             selection,
             onSelectionChange
+        }),
+        !!tree && _(_dxrg.TreeDataState),
+        !!tree && _(_dxrg.CustomTreeData, {
+          getChildRows: (row, rootRows) => {
+            const childRows = rootRows.filter(r => (r[treeParentKey] == (row ? row[keyField] : '')));
+            return childRows.length ? childRows : null;
+          }
         }),
       /** pagesize > 0 will import search state */
       !pageSize ? _(_dxrg.SearchState, null) : null,
@@ -5301,8 +5314,9 @@ console.log('rows',rows)
       /** UI tablle resizing */
       _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
       /** UI to show table row container */
-
       _(_dxgrb.TableHeaderRow, { showSortingControls: true }),
+      /** tree support */
+      _(_dxgrb.TableTreeColumn, { for: tableTreeColumn }),
       /** UI of the detail table */
       showDetail
         ? _(_dxgrb.TableRowDetail, {
@@ -5310,8 +5324,8 @@ console.log('rows',rows)
           })
         : null,
       /** UI show pagining */
-      rows.length > iwb.detailPageSize || pageSize > 1
-        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize })
+      ( pageSize > 1) //rows.length > iwb.detailPageSize ||
+        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes  }) //|| iwb.detailPageSize
         : null,
       /** UI table Grouping */
       !_disableIntegratedGrouping && !pageSize && rows.length > 1
@@ -5440,6 +5454,11 @@ console.log('rows',rows)
       )
     );
   }
+}
+XMainGrid.defaultProps = {
+  tree:false,
+  treeParentKey: 'parent_id',
+  tableTreeColumn:'dsc'
 }
 /**
  * @description this component made for render complex ui

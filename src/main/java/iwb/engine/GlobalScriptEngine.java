@@ -13,6 +13,7 @@ import javax.script.ScriptEngineManager;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -184,7 +185,12 @@ public class GlobalScriptEngine {
 			params.add(parameterMap);
 
 			if (requestJson != null && requestJson instanceof JSONObject) {
-				params.add(GenericUtil.fromJSONObjectToMap((JSONObject)requestJson));
+				try {
+					params.add(GenericUtil.fromJSONObjectToMap((JSONObject)requestJson));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else if (!GenericUtil.isEmpty(r.getGlobalFunc().get_dbFuncParamList())) {
 				for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
 					if (p1.getOutFlag() == 0) {
