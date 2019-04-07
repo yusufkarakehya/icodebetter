@@ -391,7 +391,7 @@ var iwb = {
       event.preventDefault();
       iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
       if(j.data && j.data.length)iwb.showModal({
-            title: getLocMsg('Workflow Logs'),
+            title: getLocMsg('workflow_logs'),
             footer: false,
             color: 'primary',
             size: 'lg',
@@ -988,7 +988,7 @@ class GridCommon extends React.PureComponent {
       var pkz = buildParams2(pk, rowData);
       var url = "ajaxPostForm?a=3&_fid=" + crudFormId + pkz;
       yesNoDialog({
-        text: "Are you Sure!",
+        text: getLocMsg("are_you_sure"),
         callback: success => {
           if (success) {
             iwb.request({ url, successCallback: () => this.loadData(true) });
@@ -1088,7 +1088,7 @@ class GridCommon extends React.PureComponent {
       let { rows, deletedRows } = this.state;
       if (deleted && deleted.length) {
         yesNoDialog({
-          text: "Are you Sure!",
+          text: getLocMsg("are_you_sure"),
           callback: success => {
             if (success) {
               rows = rows.slice();
@@ -2107,7 +2107,7 @@ class XSingleUploadComponent extends React.Component {
       .then(
         result => {
           if (result.success) {
-            toastr.success(getLocMsg('file_sucessfully_uploaded!'), getLocMsg('Success'), {
+            toastr.success(getLocMsg('file_sucessfully_uploaded'), getLocMsg('success'), {
               timeOut: 3000
             });
             this.xListFilesRef.current.getFileList();
@@ -2124,7 +2124,7 @@ class XSingleUploadComponent extends React.Component {
           }
         },
         error => {
-          toastr.error(error, getLocMsg('Error'));
+          toastr.error(error, getLocMsg('error'));
         }
       )
   }
@@ -2153,7 +2153,7 @@ class XSingleUploadComponent extends React.Component {
           target: this.props.cfg.id
         },
         _(PopoverHeader, null,
-          this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+          this.state.file ? this.state.file.name : getLocMsg('File Upload'),
           _('input', {
             className: 'd-none',
             type: 'file',
@@ -2413,7 +2413,7 @@ class XTabForm extends React.PureComponent {
       }
       let url = "ajaxPostForm?a=3&_fid=" + formId + pkz;
       yesNoDialog({
-        text: "Are you Sure!",
+        text: getLocMsg("are_you_sure"),
         callback: success =>
           success &&
           iwb.request({
@@ -2435,7 +2435,7 @@ class XTabForm extends React.PureComponent {
           case	901:// start approval
         	  url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
               yesNoDialog({
-                text: "Are you Sure to Start Approval?",
+                text: getLocMsg("are_you_sure"),//"Are you Sure to Start Approval?",
                 callback: success =>
                   success &&
                   iwb.request({
@@ -2464,7 +2464,7 @@ class XTabForm extends React.PureComponent {
                 })
           } else
 	          yesNoDialog({
-	              text: "Are you Sure to "+strAction+"?",
+	              text: getLocMsg("are_you_sure"),//"Are you Sure to "+strAction+"?",
 	              callback: success =>
                   success &&
                   iwb.request({
@@ -2565,7 +2565,7 @@ class XTabForm extends React.PureComponent {
           this.props.cfg.approval &&
           _(
             'div',
-            {style:{fontSize:"1rem", marginTop:5}
+            {style:{fontSize:"1rem", marginTop:5, color: "#03A9F4", zoom: 1.2}
             },
             _("i", { className: "icon-shuffle" }),
 // " step ",
@@ -2653,7 +2653,7 @@ class XTabForm extends React.PureComponent {
               onClick: onSubmit
             },
             " ",
-            "Save",
+            getLocMsg("save"),
             " "
           )," ",this.props.cfg.contFlag && _(
                   Button,
@@ -2664,7 +2664,7 @@ class XTabForm extends React.PureComponent {
                     onClick: onContSubmit
                   },
                   " ",
-                  "Save & Continue",
+                  getLocMsg("save_and_coninue"),
                   " "
                 ),
           " ",
@@ -2676,7 +2676,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form",
               onClick: (this.props.callAttributes.modal)?iwb.closeModal:iwb.closeTab
             },
-            "Cancel"
+            getLocMsg("cancel")
           )
         )
     );
@@ -3098,7 +3098,7 @@ class XGridAction extends React.PureComponent {
                 color: "#777"
               }
             }),
-            "NEW RECORD"
+            getLocMsg("new_record")
           ),
           _("hr"),
           _(
@@ -3113,7 +3113,7 @@ class XGridAction extends React.PureComponent {
                 color: "#777"
               }
             }),
-            "REPORTS / BI"
+            getLocMsg("reports_bi")//"REPORTS / BI"
           )
           // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
 			// marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
@@ -4074,8 +4074,8 @@ const extendGrid = ({ name, children, predicate, position }) => {
  *          }});
  */
 yesNoDialog = ({
-  text = "Are You Sure?",
-  title = "Confirmation",//"Are You Sure?",
+  text = getLocMsg("are_you_sure"),//"Are You Sure?",
+  title = getLocMsg("confirmation"),//"Are You Sure?",
   callback = alert('obj.callback is not a function'),
   ...confg
 }) => {
@@ -4799,7 +4799,7 @@ class XMainGrid extends GridCommon {
             _(
               "div",
               { className: "hr-text" },
-              _("h6", null, "Search Criteria")
+              _("h6", null, getLocMsg("search_criteria"))
             ),
             _(
               "div",
@@ -4835,7 +4835,7 @@ class XMainGrid extends GridCommon {
           _(
             "div",
             { className: "hr-text", key: "hr-text" },
-            _("h6", null, "DETAIL RECORDS")
+            _("h6", null, getLocMsg("detail_records"))
           ),
         detailGrids &&
           detailGrids.length > 1 &&
@@ -5426,7 +5426,7 @@ console.log('rows',rows)
                 onClick: event => onOnNewRecord(event, this.props)
               },
               _("i", { className: "icon-plus" }),
-              " NEW RECORD"
+              " " +getLocMsg("new_record")
             ),
             _('div',{className:"fgrow"},null),
 
