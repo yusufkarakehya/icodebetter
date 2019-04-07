@@ -7017,7 +7017,7 @@ function approvalHtml(row){
     // console.log('approvalHtml', row);
     if(!row || !row.pkpkpk_arf_qw_)return '';
     switch(1*row.pkpkpk_arf){
-    case 901:case -901:return 'Start approval manually';
+    case 901:case -901:return iwb.labelStartApprovalManually || 'Start approval manually';
       case 998:return _('a',{href:'#', className:'badge badge-pill badge-success',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Approved')
       case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Rejected')
       default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? '\n: '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shuffle" }):null,' ' + row.pkpkpk_arf_qw_);

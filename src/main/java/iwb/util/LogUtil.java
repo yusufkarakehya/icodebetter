@@ -92,4 +92,20 @@ public class LogUtil {
 			}
 		}	
 	}
+
+	public static void activateInflux4Log() {
+		try {
+			Map m = new HashMap();
+			m.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+			String logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE+DATABASE+"+FrameworkSetting.log2tsdbDbName,"POST", m);
+			System.out.println("InfluxDB " + FrameworkSetting.log2tsdbDbName + " result: " + logStr);
+			logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Crud,"POST", m);
+			System.out.println("InfluxDB " + FrameworkSetting.log2tsdbDbName4Crud + " result: " + logStr);
+			logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Vcs,"POST", m);
+			System.out.println("InfluxDB " + FrameworkSetting.log2tsdbDbName4Vcs + " result: " + logStr);
+
+		}catch (Exception e) {
+		}
+		
+	}
 }

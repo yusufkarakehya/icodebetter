@@ -51,7 +51,8 @@ public class FrameworkApplication {
 			String influxdb = FrameworkSetting.argMap.get("influxdb");
 			if(influxdb!=null && !influxdb.equals("0")) {
 				FrameworkSetting.log2tsdb = true;
-				FrameworkSetting.log2tsdbUrl = influxdb.equals("1") ? "influxdb" : influxdb;
+				FrameworkSetting.log2tsdbUrl = influxdb.equals("1") ? "influxdb:8086" : influxdb;
+				if(!FrameworkSetting.log2tsdbUrl.startsWith("http"))FrameworkSetting.log2tsdbUrl = "http://"+FrameworkSetting.log2tsdbUrl;
 			}
 			String logType = FrameworkSetting.argMap.get("logType");
 			if(logType!=null)FrameworkSetting.logType = GenericUtil.uInt(logType);
