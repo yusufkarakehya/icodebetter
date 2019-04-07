@@ -850,7 +850,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		}
 
 		// extra islemler
-		if (FrameworkCache.getAppSettingIntValue(scd, "approval_flag") != 0 && !a.isEmpty()) { // table
+		if (FrameworkSetting.workflow && !a.isEmpty()) { // table
 																								// Record
 																								// Approvals
 			if (l.get_postProcessQueryFields() == null)

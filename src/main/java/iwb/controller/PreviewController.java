@@ -301,7 +301,7 @@ public class PreviewController implements InitializingBean {
 		logger.info("hndAjaxApproveRecord");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-		if (FrameworkCache.getAppSettingIntValue(scd, "approval_flag") == 0) {
+		if (!FrameworkSetting.workflow) {
 			response.setContentType("application/json");
 			response.getWriter().write("{\"success\":false}");
 			return;

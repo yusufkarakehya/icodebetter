@@ -2631,69 +2631,6 @@ public class PostgreSQL extends BaseDAO {
 		FrameworkCache.addProject(p);
 	}
 
-	public void setApplicationSettingsValues() {
-		FrameworkSetting.debug = FrameworkCache.getAppSettingIntValue(0, "debug") != 0;
-
-		// preload olmamasinin sebebi: approval'da herkesin farkli kayitlarinin
-		// gelmesi search formlarda
-		FrameworkSetting.monaco = FrameworkCache.getAppSettingIntValue(0, "monaco") != 0;
-		FrameworkSetting.mq = FrameworkCache.getAppSettingIntValue(0, "mq_flag") != 0;
-		// FrameworkSetting.preloadWEngine =
-		// FrameworkCache.getAppSettingIntValue(0, "preload_engine");
-		FrameworkSetting.chat = FrameworkCache.getAppSettingIntValue(0, "chat_flag") != 0;
-		// FrameworkSetting.allowMultiLogin =
-		// FrameworkCache.getAppSettingIntValue(0,
-		// "allow_multi_login_flag")!=0;
-		// FrameworkSetting.profilePicture =
-		// FrameworkCache.getAppSettingIntValue(0,
-		// "profile_picture_flag")!=0;
-		FrameworkSetting.alarm = FrameworkCache.getAppSettingIntValue(0, "alarm_flag") != 0;
-		FrameworkSetting.sms = FrameworkCache.getAppSettingIntValue(0, "sms_flag") != 0;
-		FrameworkSetting.mail = FrameworkCache.getAppSettingIntValue(0, "mail_flag") != 0;
-
-		FrameworkSetting.vcs = FrameworkCache.getAppSettingIntValue(0, "vcs_flag") != 0;
-		FrameworkSetting.vcsServer = FrameworkCache.getAppSettingIntValue(0, "vcs_server_flag") != 0;
-
-		// if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.clearPreloadCache();
-		// //TODO
-
-		FrameworkSetting.advancedSelectShowEmptyText = FrameworkCache.getAppSettingIntValue(0,
-				"advanced_select_show_empty_text") != 0;
-		FrameworkSetting.simpleSelectShowEmptyText = FrameworkCache.getAppSettingIntValue(0,
-				"simple_select_show_empty_text") != 0;
-		FrameworkSetting.cacheTimeoutRecord = FrameworkCache.getAppSettingIntValue(0, "cache_timeout_record") * 1000;
-		FrameworkSetting.crudLogSchema = FrameworkCache.getAppSettingStringValue(0, "log_crud_schema",
-				FrameworkSetting.crudLogSchema);
-		FrameworkSetting.mailSchema = FrameworkCache.getAppSettingStringValue(0, "mail_schema",
-				FrameworkSetting.mailSchema);
-		FrameworkSetting.asyncTimeout = FrameworkCache.getAppSettingIntValue(0, "async_timeout", 100);
-		//
-		// if(MVAUtil.appSettings.get("file_local_path")!=null)MVAUtil.localPath=MVAUtil.appSettings.get("file_local_path");
-
-		FrameworkSetting.onlineUsersAwayMinute = 1000 * 60
-				* FrameworkCache.getAppSettingIntValue(0, "online_users_away_minute", 3);
-		FrameworkSetting.onlineUsersLimitMinute = 1000 * 60
-				* FrameworkCache.getAppSettingIntValue(0, "online_users_limit_minute", 10);
-		FrameworkSetting.onlineUsersLimitMobileMinute = 1000 * 60
-				* FrameworkCache.getAppSettingIntValue(0, "online_users_limit_mobile_minute", 7 * 24 * 60); // 7
-																											// gun
-		FrameworkSetting.tableChildrenMaxRecordNumber = FrameworkCache.getAppSettingIntValue(0,
-				"table_children_max_record_number", 100);
-
-		FrameworkSetting.mailPassEncrypt = FrameworkCache.getAppSettingIntValue(0, "encrypt_mail_pass") != 0;
-
-		FrameworkSetting.mobilePush = FrameworkCache.getAppSettingIntValue(0, "mobile_push_flag") != 0;
-		FrameworkSetting.mobilePushProduction = FrameworkCache.getAppSettingIntValue(0,
-				"mobile_push_production_flag") != 0;
-
-		FrameworkSetting.workflow = FrameworkCache.getAppSettingIntValue(0, "approval_flag") != 0;
-		FrameworkSetting.liveSyncRecord = FrameworkCache.getAppSettingIntValue(0, "live_sync_record") != 0;
-
-		FrameworkSetting.lookupEditFormFlag = FrameworkCache.getAppSettingIntValue(0, "lookup_edit_form_flag") != 0;
-		// PromisSetting.replaceSqlSelectX =
-		// PromisCache.getAppSettingIntValue(0,
-		// "replace_sql_select_x")!=0;;
-	}
 
 	public void executeDbFunc(final W5GlobalFuncResult r, final String paramSuffix) {
 		Log5GlobalFuncAction action = new Log5GlobalFuncAction(r);
@@ -3971,7 +3908,7 @@ public class PostgreSQL extends BaseDAO {
 			}
 			queryResult.getPostProcessQueryFields().add(field);
 		}
-		if (FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "approval_flag") != 0
+		if (FrameworkSetting.workflow
 				&& mainTable.get_approvalMap() != null && !mainTable.get_approvalMap().isEmpty()
 				&& (queryResult.getQueryColMap() == null
 						|| queryResult.getQueryColMap().containsKey(FieldDefinitions.queryFieldName_Approval))) { // approval

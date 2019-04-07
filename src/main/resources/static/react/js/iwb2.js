@@ -3693,7 +3693,7 @@ class XEditGridSF extends GridCommon {
       this.searchForm = _(
         Nav,
         { style: {} },
-        _("div", { className: "hr-text" }, _("h6", null, "Search Criteria")),
+        _("div", { className: "hr-text" }, _("h6", null, getLocMsg("search_criteria"))),
         _(
           "div",
           { style: { zoom: ".9" }, className:"searchFormFields"  },

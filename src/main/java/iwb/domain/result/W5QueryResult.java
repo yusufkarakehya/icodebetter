@@ -956,7 +956,7 @@ public class W5QueryResult implements W5MetaResult{
 			}
 			
 			//approval icinde herhangi birinde varsa onu
-			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "approval_flag")!=0 && mainTable.get_hasApprovalViewControlFlag()!=0){
+			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
@@ -1433,7 +1433,7 @@ public class W5QueryResult implements W5MetaResult{
 			}
 			
 			//approval icinde herhangi birinde varsa onu
-			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "approval_flag")!=0 && mainTable.get_hasApprovalViewControlFlag()!=0){
+			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
@@ -1854,7 +1854,7 @@ public class W5QueryResult implements W5MetaResult{
 			}
 			
 			//approval icinde herhangi birinde varsa onu
-			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "approval_flag")!=0 && mainTable.get_hasApprovalViewControlFlag()!=0){
+			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
 					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
