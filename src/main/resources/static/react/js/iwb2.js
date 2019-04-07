@@ -2458,9 +2458,8 @@ class XTabForm extends React.PureComponent {
                   callback: (result) => {
                 	  if(!result.errorType && !result.error && !result.errors)iwb.request({
   	                    url,params:{_adsc:strAction,_avno:this.props.cfg.approval.versionNo},
-  	                    successCallback: () => this.props.parentCt.closeTab(event, true)
-  	                    
-                    })
+  	                    successCallback: () => this.props.parentCt.closeTab(event, true)  	                    
+                    }); else iwb.requestErrorHandler(result);
                   }
                 })
           } else
@@ -5580,7 +5579,7 @@ class XPage extends React.PureComponent {
                     // console.log(callAttributes);
                     iwb.showModal({
                       body: serverComponent,
-                      size: callAttributes.modalSıze || "lg",
+                      size: iwb.defaultModalSıze || "lg",
                       title: serverComponent.props && serverComponent.props.cfg ?
                         serverComponent.props.cfg.name :
                         "",
@@ -5798,7 +5797,7 @@ class XPage4Card extends React.PureComponent {
 	                    // console.log(callAttributes);
 	                    iwb.showModal({
 	                      body: serverComponent,
-	                      size: "lg",
+	                      size: iwb.defaultModalSize || "lg",
 	                      title: serverComponent.props && serverComponent.props.cfg ?
 	                        serverComponent.props.cfg.name :
 	                        "",
@@ -7021,7 +7020,7 @@ function approvalHtml(row){
     case 901:case -901:return iwb.label.startApprovalManually || 'Start approval manually';
       case 998:return _('a',{href:'#', className:'badge badge-pill badge-success',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},iwb.label.approved || getLocMsg('approved'))
       case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},iwb.label.rejected || getLocMsg('rejected'))
-      default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? '\n: '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shuffle" }):null,' ' + row.pkpkpk_arf_qw_);
+      default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? '\n: '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shuffle", style:1*row.pkpkpk_arf>0?{color:'red'}:null }):null,' ' + row.pkpkpk_arf_qw_);
     }
 }
 iwb.fmtFileSize=(a) => {
