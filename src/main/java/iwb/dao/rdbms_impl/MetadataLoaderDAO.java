@@ -275,7 +275,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				}
 			for (short actionTip : mam.keySet()) {
 				W5FormCell approvalCell = new W5FormCell();
-				approvalCell.setTabOrder((short) (990 + actionTip));
+				approvalCell.setTabOrder((short) (-actionTip));
 				approvalCell.setDsc("_approval_step_ids" + actionTip);
 				approvalCell.setControlTip((short) 15); // low-combo query
 				approvalCell.setLookupQueryId(606); // approval steps
@@ -285,7 +285,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				approvalCell.setInitialSourceTip((short) 10); // approvalStates
 				// approvalCell.setInitialValue(""+mam.get(actionTip).getApprovalId());//approvalId
 				approvalCell.setActiveFlag((short) 1);
-				form.get_formCells().add(/* maxFirstColumnTabOrder, */ approvalCell);
+				form.get_formCells().add(0,/* maxFirstColumnTabOrder, */ approvalCell);
 			}
 		}
 		return true;

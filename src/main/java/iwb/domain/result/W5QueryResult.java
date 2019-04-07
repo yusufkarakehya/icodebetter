@@ -959,13 +959,13 @@ public class W5QueryResult implements W5MetaResult{
 			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
+					.append(query.getMainTableId()).append(" AND cx.project_uuid=? AND cx.table_pk=x.").append(pkField)
 					.append(") OR exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
+					.append(query.getMainTableId()).append(" AND cx.project_uuid=? AND cx.table_pk=x.").append(pkField)
 					.append(" AND (cx.access_view_tip=0 OR (position(','||?||',' in ','||coalesce(cx.access_view_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_view_users,'-')||',')>0 )))) ");
 				
-				sqlParams.add(scd.get("customizationId"));
-				sqlParams.add(scd.get("customizationId"));
+				sqlParams.add(scd.get("projectId"));
+				sqlParams.add(scd.get("projectId"));
 				sqlParams.add(scd.get("roleId"));
 				sqlParams.add(scd.get("userId"));
 			}
@@ -977,9 +977,9 @@ public class W5QueryResult implements W5MetaResult{
 				if((approvalStepIds==null || approvalStepIds.length()==0) && mainTable.get_approvalMap().get((short)3)!=null)approvalStepIds = requestParams2.get("_approval_step_ids3");//delete icin
 				if(approvalStepIds!=null && approvalStepIds.length()>0){
 					if(sqlWhere.length()>0)sqlWhere.append(" AND");
-					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir::integer=rz.approval_step_id) ");
+					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.project_uuid=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir::integer=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
-					sqlParams.add(scd.get("customizationId"));
+					sqlParams.add(scd.get("projectId"));
 					sqlParams.add(query.getMainTableId());
 				}
 			}

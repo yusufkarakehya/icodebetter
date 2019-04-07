@@ -331,7 +331,7 @@ public class NashornScript {
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, reqMap, null);
 
 		scriptEngine.getDao().checkTenant(scd);
-		return scriptEngine.getDao().executeUpdateSQLQuery((String) oz[0], oz.length > 1 ? (List) oz[1] : null);
+		return scriptEngine.getDao().executeUpdateSQLQuery(oz[0].toString(), oz.length > 1 ? (List) oz[1] : null);
 	}
 
 	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams) {

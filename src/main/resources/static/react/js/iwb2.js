@@ -123,7 +123,7 @@ var _dxgrb = DXReactGridBootstrap4;
 var iwb = {
   toastr: toastr,
   components :{},
-  grids: {},
+  grids: {}, label:{},
   forms: {}, formConversions:{},formSmsMailTemplates:{},formBaseValues(id){
 	  var _smsStr=[], ss=iwb.formSmsMailTemplates[id];
 	  if(ss)for(var qi in ss)if(ss[qi])_smsStr.push(qi);
@@ -2451,11 +2451,12 @@ class XTabForm extends React.PureComponent {
 				// ["","Approve","Return","Reject"][action]);
           	  // if(p){
           if(xformId){
+//        	  console.log('this.props.cfg',this.props.cfg)
         	  var formUrl = 'showForm?a=2&_fid=' + xformId + pkz;
         	  iwb.openTab('1199', formUrl, {}, {
-                  modal: true,
+                  modal: true, modalSize : this.props.cfg.subModalSize || false,
                   callback: (result) => {
-                	  iwb.request({
+                	  if(!result.errorType && !result.error && !result.errors)iwb.request({
   	                    url,params:{_adsc:strAction,_avno:this.props.cfg.approval.versionNo},
   	                    successCallback: () => this.props.parentCt.closeTab(event, true)
   	                    
@@ -5579,7 +5580,7 @@ class XPage extends React.PureComponent {
                     // console.log(callAttributes);
                     iwb.showModal({
                       body: serverComponent,
-                      size: "lg",
+                      size: callAttributes.modalSıze || "lg",
                       title: serverComponent.props && serverComponent.props.cfg ?
                         serverComponent.props.cfg.name :
                         "",
@@ -7017,9 +7018,9 @@ function approvalHtml(row){
     // console.log('approvalHtml', row);
     if(!row || !row.pkpkpk_arf_qw_)return '';
     switch(1*row.pkpkpk_arf){
-    case 901:case -901:return iwb.labelStartApprovalManually || 'Start approval manually';
-      case 998:return _('a',{href:'#', className:'badge badge-pill badge-success',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Approved')
-      case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Rejected')
+    case 901:case -901:return iwb.label.startApprovalManually || 'Start approval manually';
+      case 998:return _('a',{href:'#', className:'badge badge-pill badge-success',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},iwb.label.approved || getLocMsg('approved'))
+      case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},iwb.label.rejected || getLocMsg('rejected'))
       default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? '\n: '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shuffle" }):null,' ' + row.pkpkpk_arf_qw_);
     }
 }

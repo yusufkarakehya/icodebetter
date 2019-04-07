@@ -125,7 +125,7 @@ var _dxgrb = DXReactGridBootstrap4;
 var iwb = {
   toastr: toastr,
   components :{},
-  grids: {},
+  grids: {}, label:{},
   forms: {}, formConversions:{},formSmsMailTemplates:{}, formBaseValues(id){
 	  var _smsStr=[], ss=iwb.formSmsMailTemplates[id];
 	  if(ss)for(var qi in ss)if(ss[qi])_smsStr.push(qi);

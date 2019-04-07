@@ -2061,6 +2061,9 @@ public class React16 implements ViewAdapter {
 					}
 					buf.append("}");
 				}
+				if(fc.getControlTip()==15 && cellResult.getLookupQueryResult().getQueryId()==606 && formResult!=null && formResult.getForm()!=null && formResult.getForm().getObjectTip()==1) {//workflow extra records
+					buf.append(",{dsc:'approved', id:998},{dsc:'rejected', id:999}");
+				}
 			}
 			buf.append("], clearable:").append(fc.getNotNullFlag()==0);
 			if(fc.getControlTip()==8 ||fc.getControlTip()==58 || fc.getControlTip()==15 ||fc.getControlTip()==59)buf.append(",multi:true,closeOnSelect:false");
