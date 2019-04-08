@@ -32,7 +32,7 @@ iwb.graphAmchart = function(dg, gid) {
 	            }
 	          }
 	        } else {
-	          var colors = [
+	          var colors = iwb.graphColors || [
 	            "#FF0F00",
 	            "#FF6600",
 	            "#FF9E01",

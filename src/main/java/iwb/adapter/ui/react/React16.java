@@ -667,6 +667,8 @@ public class React16 implements ViewAdapter {
 					s.append(",btnApproveLabel:\"").append(LocaleMsgCache.get2(scd, wfs.getBtnApproveLabel())).append("\"");
 					if((fr.getApprovalRecord().getReturnFlag() != 0))
 						s.append(",btnReturnLabel:\"").append(LocaleMsgCache.get2(scd, wfs.getBtnReturnLabel())).append("\"");
+					if(GenericUtil.safeEquals(wfs.getOnRejectStepSql(),"!"))
+						s.append(",reject:false");
 					s.append(",stepDsc:'")
 							.append(fr.getApprovalStep() != null ? GenericUtil
 									.stringToJS(fr.getApprovalStep()

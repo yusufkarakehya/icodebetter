@@ -1,6 +1,6 @@
 //array color name
 const dBGColors2 = [, , "#de9338", "#222", , , , ,];
-const dgColors = [
+let dgColors = [
   "warning",
   "secondary",
   "danger",
@@ -8,7 +8,7 @@ const dgColors = [
   "success",
   "info"
 ];
-const dgColors2 = [
+let dgColors2 = [
   "primary",
   "info",
   "secondary",
@@ -17,7 +17,7 @@ const dgColors2 = [
   "gray-400",
   "gray-700"
 ];
-const detailSpinnerColors2 = [
+let detailSpinnerColors2 = [
   "#187da0",
   "#2eadd3",
   "darkorange",
@@ -26,7 +26,7 @@ const detailSpinnerColors2 = [
   "#626a70",
   "#66767d"
 ];
-const dgColors3 = [
+let dgColors3 = [
   "gray-700",
   "danger",
   "gray-500",
@@ -2608,7 +2608,7 @@ class XTabForm extends React.PureComponent {
             this.props.cfg.approval.btnReturnLabel || getLocMsg('return')
           ),
           " "
-          ,this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          ,this.props.cfg.approval && this.props.cfg.approval.versionNo && this.props.cfg.approval.reject!==false &&
           _(
             Button,
             {
