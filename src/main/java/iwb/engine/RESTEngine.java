@@ -182,6 +182,12 @@ public class RESTEngine {
 		if (u.length < 2)
 			throw new IWBException("ws", "Wrong ServiceName", 0, null, "Call should be [serviceName].[methodName]",
 					null);
+		if(scd.isEmpty() && u[0].equals("LDAP")) {
+			scd.put("customizationId", 0);
+			scd.put("userId", 10);
+			scd.put("roleId", 0);
+			scd.put("projectId", "067e6162-3b6f-4ae2-a221-2470b63dff00");			
+		}
 		W5Ws ws = FrameworkCache.getWsClient(scd, u[0]);
 		if (ws == null)
 			throw new IWBException("ws", "Wrong ServiceName", 0, null, "Could find [" + u[0] + "]", null);
