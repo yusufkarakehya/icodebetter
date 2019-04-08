@@ -21,7 +21,8 @@ class Header extends React.Component {
   			}});
 	}
 	componentDidMount(){
-		document.getElementById('id-iwb-logo').innerHTML=iwb.logo+' <span>iCodeBetter</span>';
+		var logo = document.getElementById('id-iwb-logo');
+		if(logo)logo.innerHTML=iwb.logo+' <span>'+(iwb.logoLabel || 'iCodeBetter')+'</span>';
 	}
 	render() {
 		var self = this;
