@@ -68,7 +68,12 @@ public class GraalScript {
 	public void sleep(int millis) throws InterruptedException {
 		Thread.sleep(millis);
 	}
-
+	private Value fromJSONObjectToScriptObject(JSONObject o) {
+//		Value r = new Value();
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/*
 	public Value redisGetJSON(String host, String k) throws JSONException {
 
 		String v = RedisUtil.get(host, k);
@@ -79,11 +84,7 @@ public class GraalScript {
 		return null;
 	}
 
-	private Value fromJSONObjectToScriptObject(JSONObject o) {
-//		Value r = new Value();
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 	public String redisPut(String host, String k, Object v) {
 		if (v == null)
@@ -118,7 +119,7 @@ public class GraalScript {
 	public String redisInfo(String host, String section) {
 		return RedisUtil.info(host, section);
 	}
-
+*/
 	public String mqBasicPublish(String host, String queueName, String msg) {
 		Channel ch = MQUtil.getChannel4Queue(host, queueName);
 		if (ch == null)
