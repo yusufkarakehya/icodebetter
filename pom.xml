@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<name>framework</name>
-	<description>Demo project for Spring Boot</description>
+	<description>iCodeBetter Spring Boot Project</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -35,9 +35,9 @@
 		</dependency>
 		 <dependency> <groupId>org.springframework.session</groupId> <artifactId>spring-session</artifactId> 
 			</dependency> <dependency> <groupId>org.springframework.data</groupId> <artifactId>spring-data-redis</artifactId> 
-			</dependency> <dependency> <groupId>redis.clients</groupId> <artifactId>jedis</artifactId> 
+			</dependency> <!-- <dependency> <groupId>redis.clients</groupId> <artifactId>jedis</artifactId> 
 			<version>2.9.0</version> </dependency> <dependency> <groupId>io.lettuce</groupId> 
-			<artifactId>lettuce-core</artifactId> <version>5.0.5.RELEASE</version> </dependency>
+			<artifactId>lettuce-core</artifactId> <version>5.0.5.RELEASE</version> </dependency> -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
