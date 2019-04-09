@@ -2438,8 +2438,8 @@ class XTabForm extends React.PureComponent {
                 className: "btn-form-edit mx-1",
                 onClick: toggleViewMode
               },
-              _("i", { className: "icon-pencil" }),
-              " "+getLocMsg('edit')
+              _("i", { className: "icon-pencil mr-1" }),
+              getLocMsg('edit')
             ),
           viewMode &&
             _(
