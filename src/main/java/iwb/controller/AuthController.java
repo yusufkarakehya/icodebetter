@@ -90,7 +90,10 @@ public class AuthController {
       String issuer = "https://iwb.auth0.com/";
 
       Algorithm algorithm = Algorithm.HMAC256(clientSecret);
-      JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuer).build();
+      JWTVerifier verifier = JWT.require(algorithm)
+                              .withIssuer(issuer)
+                              .acceptLeeway(1) 
+                              .build();
       DecodedJWT jwt = verifier.verify(idToken);
 
       Map<String, Claim> claims = jwt.getClaims();
