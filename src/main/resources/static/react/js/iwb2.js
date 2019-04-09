@@ -3415,7 +3415,7 @@ class XGrid extends GridCommon {
       /** Enable Drag and Drop */
       _(_dxgrb.DragDropProvider, null),
       /** UI table */
-      _(_dxgrb.Table, { columnExtensions, rowComponent }),
+      _(_dxgrb.Table, { columnExtensions, rowComponent,  messages:{noData:getLocMsg('noData')} }),
       /** UI multiselect */
       multiselect && _(_dxgrb.TableSelection, { showSelectAll: multiselect }),
       /** UI ordering of the table */
@@ -3956,7 +3956,7 @@ class XEditGridSF extends GridCommon {
         }),
 
       _(_dxgrb.DragDropProvider, null),
-      _(_dxgrb.Table, { columnExtensions }),
+      _(_dxgrb.Table, { columnExtensions,  messages:{noData:getLocMsg('noData')}  }),
       multiselect &&
         _(_dxgrb.TableSelection, {
           showSelectAll: true
@@ -4544,7 +4544,7 @@ class XEditGrid extends GridCommon {
           onEditingRowIdsChange
         }),
       _(_dxgrb.DragDropProvider, null),
-      _(_dxgrb.Table, { columnExtensions }),
+      _(_dxgrb.Table, { columnExtensions,  messages:{noData:getLocMsg('noData')} }),
       multiselect &&
         _(_dxgrb.TableSelection, {
           showSelectAll: true
@@ -5348,7 +5348,7 @@ console.log('rows',rows)
       /** enable group drag drop */
       _(_dxgrb.DragDropProvider, null),
       /** ui table */
-      _(_dxgrb.Table, { columnExtensions, rowComponent }),
+      _(_dxgrb.Table, { columnExtensions, rowComponent,  messages:{noData:getLocMsg('noData')} }),
       /** multiselect */
       multiselect &&
         _(_dxgrb.TableSelection, {
