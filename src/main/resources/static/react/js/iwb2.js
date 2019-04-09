@@ -2482,10 +2482,9 @@ class XTabForm extends React.PureComponent {
       this.extrabuttonClicked = (props)=>(event)=>{
         event.preventDefault();
         event.stopPropagation();
-        debugger;
         let formData = this.form.getValues();
         let gridData = this.props.callAttributes && this.props.callAttributes.rowData
-        props.onClick(event,{gridData,formData},this)
+        props.click(event,{gridData,formData},this)
       }
     }
   render() {
@@ -2553,7 +2552,7 @@ class XTabForm extends React.PureComponent {
 
             /**custom_button */
             config.map((btnProps) => {
-              let cls = btnProps.cls.split('|');
+              let cls = btnProps.icon.split('|');
               return btnProps.viewMode == viewMode && _(btnProps.$ || Button, {
                   key: btnProps.text,
                   className: 'btn-form-edit mx-1 btn-success ' + cls[1],

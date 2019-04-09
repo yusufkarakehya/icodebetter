@@ -2397,10 +2397,9 @@ class XTabForm extends React.PureComponent {
     this.extrabuttonClicked = (props)=>(event)=>{
       event.preventDefault();
       event.stopPropagation();
-      debugger;
       let formData = this.form.getValues();
       let gridData = this.props.callAttributes && this.props.callAttributes.rowData
-      props.onClick(event,{gridData,formData},this)
+      props.click(event,{gridData,formData},this)
     }
   }
   
@@ -2409,7 +2408,7 @@ class XTabForm extends React.PureComponent {
       props: {
         body,
         parentCt: { closeTab },
-        cfg: { deletable, name }
+        cfg: { deletable, name, extraButtons }
       },
       state: { viewMode },
       // methods
@@ -2419,12 +2418,6 @@ class XTabForm extends React.PureComponent {
     } = this;
     let formBody = _(body, { parentCt: this, viewMode });
     if (!formBody) return null;
-    /** formbutton */
-    let config = [
-      { $: Button, onClick: (...a) => { debugger; alert() }, text: 'text2', cls: 'icon-trash', tabIndex:4, viewMode: true },
-      { $: Button, onClick: (...a) => { debugger; alert() }, text: 'text3', cls: 'icon-trash', tabIndex:2, viewMode: false },
-      { $: Button, onClick: (...a) => { debugger; alert() }, text: 'text4', cls: 'icon-trash', tabIndex:3, viewMode: true },
-    ];
     return _(
       Form,
       { onSubmit: event => event.preventDefault() },
@@ -2463,26 +2456,33 @@ class XTabForm extends React.PureComponent {
                 className: "btn-form-edit mx-1",
                 onClick: deleteRecord
               },
-              _("i", { className: "icon-trash" }),
-              " "+getLocMsg('delete')
+              _("i", { className: "icon-trash mr-1" }),
+                getLocMsg('delete')
             ),
-
-            /**custom_button */
-            config.map((btnProps) => {
-              let cls = btnProps.cls.split('|');
-              return btnProps.viewMode == viewMode && _(btnProps.$ || Button, {
-                  key: btnProps.text,
-                  className: 'btn-form-edit mx-1 btn-success ' + cls[1],
-                  onClick: this.extrabuttonClicked(btnProps)
-                },
-                _("span", {
-                  className: 'mr-1 ' + cls[0]
-                }),
-                getLocMsg(btnProps.text)
-              )
+            extraButtons && extraButtons.map((extraProps) => {
+              switch (extraProps.type) {
+                case 'button':
+                  let cls = extraProps.icon.split('|');
+                  return _(extraProps.$ || Button, {
+                      key: extraProps.text,
+                      className: 'btn-form-edit mx-1 btn-success ' + cls[1],
+                      onClick: this.extrabuttonClicked(extraProps)
+                    },
+                    _("span", {
+                      className: 'mr-1 ' + cls[0]
+                    }),
+                    getLocMsg(extraProps.text||'')
+                  )
+                case 'text':
+                    return _( FormGroup, {},
+                        _(Label, { className: 'inputLabel', htmlFor: extraProps.name },
+                        extraProps.label),
+                        _(extraProps.$ || Input, extraProps),
+                    )
+                default:
+                    return _( extraProps.$||'span',extraProps )
+              }
             }),
-
-
           false && _(
             Button,
             {
