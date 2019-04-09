@@ -905,7 +905,7 @@ class GridCommon extends React.PureComponent {
         "1-" + pkz,
         url + (modal ? "&_modal=1" : ""),
         {},
-        { modal: modal, openEditable }
+        { modal, openEditable, rowData }
       );
     };
     /**
@@ -2393,7 +2393,15 @@ class XTabForm extends React.PureComponent {
           }
 
         };
-      }
+    }
+    this.extrabuttonClicked = (props)=>(event)=>{
+      event.preventDefault();
+      event.stopPropagation();
+      debugger;
+      let formData = this.form.getValues();
+      let gridData = this.props.callAttributes && this.props.callAttributes.rowData
+      props.onClick(event,{gridData,formData},this)
+    }
   }
   
   render() {
@@ -2409,9 +2417,14 @@ class XTabForm extends React.PureComponent {
       deleteRecord, approvalAction,
       toggleViewMode
     } = this;
-
     let formBody = _(body, { parentCt: this, viewMode });
     if (!formBody) return null;
+    /** formbutton */
+    let config = [
+      { $: Button, onClick: (...a) => { debugger; alert() }, text: 'text2', cls: 'icon-trash', tabIndex:4, viewMode: true },
+      { $: Button, onClick: (...a) => { debugger; alert() }, text: 'text3', cls: 'icon-trash', tabIndex:2, viewMode: false },
+      { $: Button, onClick: (...a) => { debugger; alert() }, text: 'text4', cls: 'icon-trash', tabIndex:3, viewMode: true },
+    ];
     return _(
       Form,
       { onSubmit: event => event.preventDefault() },
@@ -2421,41 +2434,55 @@ class XTabForm extends React.PureComponent {
         _(
           "h3",
           {
-            className: "form-header"
+            className: "form-header mr-1"
           } /* _("i",{className:"icon-star form-icon"})," ", */,
           name,
-          " ",
           !this.props.cfg.viewMode && viewMode &&
             _(
               Button,
               {
                 color: "light",
-                className: "btn-form-edit",
+                className: "btn-form-edit mx-1",
                 onClick: toggleViewMode
               },
               _("i", { className: "icon-pencil" }),
               " "+getLocMsg('edit')
             ),
-          " ",
           viewMode &&
             _(
               Button,
-              { color: "light", className: "btn-form-edit", onClick: iwb.closeTab },
+              { color: "light", className: "btn-form-edit mx-1", onClick: iwb.closeTab },
               getLocMsg('close')
             ),
-          " ",
           viewMode &&
             deletable &&
             _(
               Button,
               {
                 color: "danger",
-                className: "btn-form-edit",
+                className: "btn-form-edit mx-1",
                 onClick: deleteRecord
               },
               _("i", { className: "icon-trash" }),
               " "+getLocMsg('delete')
             ),
+
+            /**custom_button */
+            config.map((btnProps) => {
+              let cls = btnProps.cls.split('|');
+              return btnProps.viewMode == viewMode && _(btnProps.$ || Button, {
+                  key: btnProps.text,
+                  className: 'btn-form-edit mx-1 btn-success ' + cls[1],
+                  onClick: this.extrabuttonClicked(btnProps)
+                },
+                _("span", {
+                  className: 'mr-1 ' + cls[0]
+                }),
+                getLocMsg(btnProps.text)
+              )
+            }),
+
+
           false && _(
             Button,
             {
