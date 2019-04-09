@@ -4842,17 +4842,25 @@ class XMainGrid extends GridCommon {
 	 * @description A function to open EXPORT menu in XModal
 	 */
     this.openBI = () => {
-      let { props } = this;
-      let { columnExtensions, order } = this.state;
+      let {
+        props
+      } = this;
+      let {
+        columnExtensions,
+        order
+      } = this.state;
       let cmap = {};
       let url = "grd/" + props.name + ".";
       let params = "?_gid=" + props.gridId + "&_columns=";
-      columnExtensions.map(({ columnName, width }) => {
+      columnExtensions.map(({
+        columnName,
+        width
+      }) => {
         cmap[columnName] = width;
       });
       order.map(
         columnName =>
-          (params += columnName + "," + (cmap[columnName] || 100) + ";")
+        (params += columnName + "," + (cmap[columnName] || 100) + ";")
       );
       iwb.showModal({
         title: "REPORTS / BI",
@@ -4860,89 +4868,90 @@ class XMainGrid extends GridCommon {
         color: "danger",
         size: "sm",
         body: _(
-          ListGroup,
-          { style: { fontSize: "1.0rem" } },
+          ListGroup, {
+            style: {
+              fontSize: "1.0rem"
+            }
+          },
           _("b", null, "Exports"),
           _(
-            ListGroupItem,
-            {
+            ListGroupItem, {
               tag: "a",
               href: url + "xls" + params,
               target: "_blank",
               action: true
             },
-            _("i", { className: "float-right text-success fa fa-file-excel" }),
-            " ",
+            _("i", {
+              className: "float-right text-success fa fa-file-excel"
+            }),
             "Excel"
           ),
           _(
-            ListGroupItem,
-            {
+            ListGroupItem, {
               tag: "a",
               href: url + "pdf" + params,
               target: "_blank",
               action: true
             },
-            _("i", { className: "float-right text-danger fa fa-file-pdf" }),
-            " ",
+            _("i", {
+              className: "float-right text-danger fa fa-file-pdf"
+            }),
             "PDF"
           ),
           _(
-            ListGroupItem,
-            {
+            ListGroupItem, {
               tag: "a",
               href: url + "csv" + params,
               target: "_blank",
               action: true
             },
-            _("i", { className: "float-right text-secondary fa fa-file-alt" }),
-            " ",
+            _("i", {
+              className: "float-right text-secondary fa fa-file-alt"
+            }),
             "CSV"
           ),
           _(
-            ListGroupItem,
-            {
+            ListGroupItem, {
               tag: "a",
               href: url + "txt" + params,
               target: "_blank",
               action: true
             },
-            _("i", { className: "float-right text-secondary fa fa-file-word" }),
-            " ",
+            _("i", {
+              className: "float-right text-secondary fa fa-file-word"
+            }),
             "Text"
           ),
           _("hr"),
           _("b", null, "BI"),
           _(
-            ListGroupItem,
-            {
+            ListGroupItem, {
               tag: "a",
-              href:
-                "showPage?_tid=" +
-                (props.crudTableId
-                  ? "1200&xtable_id=" + props.crudTableId
-                  : "2395&xquery_id=" + props.queryId),
+              href: "showPage?_tid=" +
+                (props.crudTableId ?
+                  "1200&xtable_id=" + props.crudTableId :
+                  "2395&xquery_id=" + props.queryId),
               target: "_blank",
               action: true /* , className:'list-group-item-danger2' */
             },
-            _("i", { className: "float-right text-primary fa fa-th" }),
-            " ",
+            _("i", {
+              className: "float-right text-primary fa fa-th"
+            }),
             "Pivot Table"
           ),
           _(
-            ListGroupItem,
-            {
+            ListGroupItem, {
               tag: "a",
-              href:
-                "showPage?_tid=" +
-                (props.crudTableId
-                  ? "784&xtable_id=" + props.crudTableId
-                  : "2413&xquery_id=" + props.queryId),
+              href: "showPage?_tid=" +
+                (props.crudTableId ?
+                  "784&xtable_id=" + props.crudTableId :
+                  "2413&xquery_id=" + props.queryId),
               target: "_blank",
               action: true
             },
-            _("i", { className: "float-right text-primary fa fa-table" }),
-            " ",
+            _("i", {
+              className: "float-right text-primary fa fa-table"
+            }),
             "Data List"
           )
         )
