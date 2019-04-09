@@ -3340,7 +3340,7 @@ class XGrid extends GridCommon {
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
-        _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')} })
     );
   }
 }
@@ -3888,7 +3888,7 @@ class XEditGridSF extends GridCommon {
           })
         : null,
       !_disableIntegratedGrouping
-        ? _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        ? _(_dxgrb.GroupingPanel, { showSortingControls: true,messages:{groupByColumn:getLocMsg('groupByColumn')}  })
         : null
     );
 
@@ -4505,7 +4505,7 @@ class XEditGrid extends GridCommon {
           })
         : null,
       !_disableIntegratedGrouping
-        ? _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        ? _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')}  })
         : null
     );
   }
@@ -5283,7 +5283,7 @@ class XMainGrid extends GridCommon {
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
-        _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')}  })
     );
 
     return _(
