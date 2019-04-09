@@ -120,7 +120,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 			form.set_toolbarItemList(
 					find("from W5ObjectToolbarItem t where t.objectTip=? AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-							(short) 15, fr.getFormId(), projectId));
+							(short) 40, fr.getFormId(), projectId));
 			form.set_formHintList(
 					find("from W5FormHint h where h.activeFlag=1 AND h.formId=? AND h.projectUuid=? order by h.tabOrder",
 							fr.getFormId(), projectId));
