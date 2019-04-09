@@ -301,7 +301,7 @@ public class PreviewController implements InitializingBean {
 		logger.info("hndAjaxApproveRecord");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-		if (FrameworkCache.getAppSettingIntValue(scd, "approval_flag") == 0) {
+		if (!FrameworkSetting.workflow) {
 			response.setContentType("application/json");
 			response.getWriter().write("{\"success\":false}");
 			return;
@@ -794,6 +794,9 @@ public class PreviewController implements InitializingBean {
 		String errorMsg = result.getResultMap().get("errorMsg");
 		int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
 		String xlocale = "en";//GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
+		if(po.getLocaleMsgKeyFlag()!=0 && !GenericUtil.isEmpty(po.getLocales())) {
+			xlocale = po.getLocales().split(",")[0];
+		}
 		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
 		int userRoleId = GenericUtil.uInt(requestParams, ("userRoleId"), -GenericUtil.uInt(result.getResultMap().get("roleCount")));
@@ -860,7 +863,11 @@ public class PreviewController implements InitializingBean {
 		scd.put("roleId", 1);
 		scd.put("customizationId", po.getCustomizationId());
 		scd.put("projectId", projectId);scd.put("projectName", po.getDsc());
-		scd.put("locale", "en");
+		String xlocale = "en";
+		if(po.getLocaleMsgKeyFlag()!=0 && !GenericUtil.isEmpty(po.getLocales())) {
+			xlocale = po.getLocales().split(",")[0];
+		}
+		scd.put("locale", xlocale);
 		scd.put("path", "../");
 
 		W5PageResult pageResult = engine.getPageResult(scd, po.getUiLoginTemplateId()==0?1:po.getUiLoginTemplateId(), GenericUtil.getParameterMap(request));

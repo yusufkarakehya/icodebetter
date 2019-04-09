@@ -1530,6 +1530,11 @@ public class UserUtil {
 					newScd.put("path", "../");
 					newScd.put("userTip",po.get_defaultUserTip());
 					newScd.put("sessionId", "nosession");
+					String xlocale = "en";//GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
+					if(po.getLocaleMsgKeyFlag()!=0 && !GenericUtil.isEmpty(po.getLocales())) {
+						xlocale = po.getLocales().split(",")[0];
+					}
+					newScd.put("locale", xlocale);
 					session.setAttribute(newScdKey, newScd);
 				}
 			}

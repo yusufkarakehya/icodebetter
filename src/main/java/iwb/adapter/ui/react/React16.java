@@ -643,7 +643,8 @@ public class React16 implements ViewAdapter {
 								.append(fr.getApprovalRecord()
 										.getApprovalRecordId())
 								.append(",wait4start:true,status:901,dsc:\"")
-								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
+								.append(LocaleMsgCache.get2(scd, a.getDsc())).append("\",btnStartApprovalLabel:\"")
+								    								.append(LocaleMsgCache.get2(scd, a.getApprovalRequestMsg())).append("\"}");
 				} else if (fr.getApprovalRecord().getApprovalStepId() > 997 && fr.getApprovalRecord().getApprovalStepId() < 1000) {// rejected(999) or approved(998)
 					s.append(",\n approval:{approvalRecordId:")
 								.append(fr.getApprovalRecord()
@@ -666,6 +667,8 @@ public class React16 implements ViewAdapter {
 					s.append(",btnApproveLabel:\"").append(LocaleMsgCache.get2(scd, wfs.getBtnApproveLabel())).append("\"");
 					if((fr.getApprovalRecord().getReturnFlag() != 0))
 						s.append(",btnReturnLabel:\"").append(LocaleMsgCache.get2(scd, wfs.getBtnReturnLabel())).append("\"");
+					if(GenericUtil.safeEquals(wfs.getOnRejectStepSql(),"!"))
+						s.append(",reject:false");
 					s.append(",stepDsc:'")
 							.append(fr.getApprovalStep() != null ? GenericUtil
 									.stringToJS(fr.getApprovalStep()
@@ -2059,6 +2062,9 @@ public class React16 implements ViewAdapter {
 								.append("'");
 					}
 					buf.append("}");
+				}
+				if(fc.getControlTip()==15 && cellResult.getLookupQueryResult().getQueryId()==606 && formResult!=null && formResult.getForm()!=null && formResult.getForm().getObjectTip()==1) {//workflow extra records
+					buf.append(",{dsc:'approved', id:998},{dsc:'rejected', id:999}");
 				}
 			}
 			buf.append("], clearable:").append(fc.getNotNullFlag()==0);

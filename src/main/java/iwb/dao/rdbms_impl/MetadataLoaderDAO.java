@@ -120,7 +120,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 			form.set_toolbarItemList(
 					find("from W5ObjectToolbarItem t where t.objectTip=? AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
-							(short) 15, fr.getFormId(), projectId));
+							(short) 40, fr.getFormId(), projectId));
 			form.set_formHintList(
 					find("from W5FormHint h where h.activeFlag=1 AND h.formId=? AND h.projectUuid=? order by h.tabOrder",
 							fr.getFormId(), projectId));
@@ -275,7 +275,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				}
 			for (short actionTip : mam.keySet()) {
 				W5FormCell approvalCell = new W5FormCell();
-				approvalCell.setTabOrder((short) (990 + actionTip));
+				approvalCell.setTabOrder((short) (-actionTip));
 				approvalCell.setDsc("_approval_step_ids" + actionTip);
 				approvalCell.setControlTip((short) 15); // low-combo query
 				approvalCell.setLookupQueryId(606); // approval steps
@@ -285,7 +285,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				approvalCell.setInitialSourceTip((short) 10); // approvalStates
 				// approvalCell.setInitialValue(""+mam.get(actionTip).getApprovalId());//approvalId
 				approvalCell.setActiveFlag((short) 1);
-				form.get_formCells().add(/* maxFirstColumnTabOrder, */ approvalCell);
+				form.get_formCells().add(0,/* maxFirstColumnTabOrder, */ approvalCell);
 			}
 		}
 		return true;
@@ -850,7 +850,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		}
 
 		// extra islemler
-		if (FrameworkCache.getAppSettingIntValue(scd, "approval_flag") != 0 && !a.isEmpty()) { // table
+		if (FrameworkSetting.workflow && !a.isEmpty()) { // table
 																								// Record
 																								// Approvals
 			if (l.get_postProcessQueryFields() == null)
@@ -1308,6 +1308,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		for (W5Workflow ta : al) {
 			FrameworkCache.addWorkflow(projectId, ta);
 			W5Table t = FrameworkCache.getTable(projectId, ta.getTableId());
+			if(t==null)continue;
 			if (t.get_approvalMap() == null) {
 				t.set_approvalMap(new HashMap<Short, W5Workflow>());
 			}

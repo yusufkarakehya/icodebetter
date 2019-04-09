@@ -1007,7 +1007,7 @@ public class PostgreSQL extends BaseDAO {
 		String projectId = (String) scd.get("projectId");
 		// W5Customization cus =
 		// FrameworkCache.wCustomizationMap.get(customizationId);
-
+		checkTenant(scd);
 		for (W5FormCellHelper rc : formCellResults)
 			try {
 				W5FormCell c = rc.getFormCell();
@@ -2631,69 +2631,6 @@ public class PostgreSQL extends BaseDAO {
 		FrameworkCache.addProject(p);
 	}
 
-	public void setApplicationSettingsValues() {
-		FrameworkSetting.debug = FrameworkCache.getAppSettingIntValue(0, "debug") != 0;
-
-		// preload olmamasinin sebebi: approval'da herkesin farkli kayitlarinin
-		// gelmesi search formlarda
-		FrameworkSetting.monaco = FrameworkCache.getAppSettingIntValue(0, "monaco") != 0;
-		FrameworkSetting.mq = FrameworkCache.getAppSettingIntValue(0, "mq_flag") != 0;
-		// FrameworkSetting.preloadWEngine =
-		// FrameworkCache.getAppSettingIntValue(0, "preload_engine");
-		FrameworkSetting.chat = FrameworkCache.getAppSettingIntValue(0, "chat_flag") != 0;
-		// FrameworkSetting.allowMultiLogin =
-		// FrameworkCache.getAppSettingIntValue(0,
-		// "allow_multi_login_flag")!=0;
-		// FrameworkSetting.profilePicture =
-		// FrameworkCache.getAppSettingIntValue(0,
-		// "profile_picture_flag")!=0;
-		FrameworkSetting.alarm = FrameworkCache.getAppSettingIntValue(0, "alarm_flag") != 0;
-		FrameworkSetting.sms = FrameworkCache.getAppSettingIntValue(0, "sms_flag") != 0;
-		FrameworkSetting.mail = FrameworkCache.getAppSettingIntValue(0, "mail_flag") != 0;
-
-		FrameworkSetting.vcs = FrameworkCache.getAppSettingIntValue(0, "vcs_flag") != 0;
-		FrameworkSetting.vcsServer = FrameworkCache.getAppSettingIntValue(0, "vcs_server_flag") != 0;
-
-		// if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.clearPreloadCache();
-		// //TODO
-
-		FrameworkSetting.advancedSelectShowEmptyText = FrameworkCache.getAppSettingIntValue(0,
-				"advanced_select_show_empty_text") != 0;
-		FrameworkSetting.simpleSelectShowEmptyText = FrameworkCache.getAppSettingIntValue(0,
-				"simple_select_show_empty_text") != 0;
-		FrameworkSetting.cacheTimeoutRecord = FrameworkCache.getAppSettingIntValue(0, "cache_timeout_record") * 1000;
-		FrameworkSetting.crudLogSchema = FrameworkCache.getAppSettingStringValue(0, "log_crud_schema",
-				FrameworkSetting.crudLogSchema);
-		FrameworkSetting.mailSchema = FrameworkCache.getAppSettingStringValue(0, "mail_schema",
-				FrameworkSetting.mailSchema);
-		FrameworkSetting.asyncTimeout = FrameworkCache.getAppSettingIntValue(0, "async_timeout", 100);
-		//
-		// if(MVAUtil.appSettings.get("file_local_path")!=null)MVAUtil.localPath=MVAUtil.appSettings.get("file_local_path");
-
-		FrameworkSetting.onlineUsersAwayMinute = 1000 * 60
-				* FrameworkCache.getAppSettingIntValue(0, "online_users_away_minute", 3);
-		FrameworkSetting.onlineUsersLimitMinute = 1000 * 60
-				* FrameworkCache.getAppSettingIntValue(0, "online_users_limit_minute", 10);
-		FrameworkSetting.onlineUsersLimitMobileMinute = 1000 * 60
-				* FrameworkCache.getAppSettingIntValue(0, "online_users_limit_mobile_minute", 7 * 24 * 60); // 7
-																											// gun
-		FrameworkSetting.tableChildrenMaxRecordNumber = FrameworkCache.getAppSettingIntValue(0,
-				"table_children_max_record_number", 100);
-
-		FrameworkSetting.mailPassEncrypt = FrameworkCache.getAppSettingIntValue(0, "encrypt_mail_pass") != 0;
-
-		FrameworkSetting.mobilePush = FrameworkCache.getAppSettingIntValue(0, "mobile_push_flag") != 0;
-		FrameworkSetting.mobilePushProduction = FrameworkCache.getAppSettingIntValue(0,
-				"mobile_push_production_flag") != 0;
-
-		FrameworkSetting.workflow = FrameworkCache.getAppSettingIntValue(0, "approval_flag") != 0;
-		FrameworkSetting.liveSyncRecord = FrameworkCache.getAppSettingIntValue(0, "live_sync_record") != 0;
-
-		FrameworkSetting.lookupEditFormFlag = FrameworkCache.getAppSettingIntValue(0, "lookup_edit_form_flag") != 0;
-		// PromisSetting.replaceSqlSelectX =
-		// PromisCache.getAppSettingIntValue(0,
-		// "replace_sql_select_x")!=0;;
-	}
 
 	public void executeDbFunc(final W5GlobalFuncResult r, final String paramSuffix) {
 		Log5GlobalFuncAction action = new Log5GlobalFuncAction(r);
@@ -3893,6 +3830,7 @@ public class PostgreSQL extends BaseDAO {
 		W5Query query = queryResult.getQuery();
 		W5Table mainTable = queryResult.getMainTable();
 		int customizationId = (Integer) queryResult.getScd().get("customizationId");
+		String projectId =(String) queryResult.getScd().get("projectId");
 		String pkFieldName = query.getQueryTip() == 9 ? query.get_queryFields().get(0).getDsc() : "pkpkpk_id";
 		if (FrameworkSetting.vcs && mainTable.getVcsFlag() != 0 /*
 																 * && query.getSqlSelect().startsWith("x.*")
@@ -3907,7 +3845,7 @@ public class PostgreSQL extends BaseDAO {
 			// sql2.append(",fnc_vcs_status(").append(customizationId).append(",'").append(queryResult.getScd().get("projectId")).append("',").append(query.getMainTableId()).append(",z.pkpkpk_id,").append(FrameworkUtil.getTableFields4VCS(mainTable,"z")).append(")
 			// ").append(FieldDefinitions.queryFieldName_Vcs).append(" ");
 			sql2.append(",iwb.fnc_vcs_status2(").append(customizationId).append(",'")
-					.append(queryResult.getScd().get("projectId")).append("',").append(query.getMainTableId())
+					.append(projectId).append("',").append(query.getMainTableId())
 					.append(",z.").append(pkFieldName).append(") ").append(FieldDefinitions.queryFieldName_Vcs)
 					.append(" ");
 			W5QueryField field = new W5QueryField();
@@ -3956,7 +3894,7 @@ public class PostgreSQL extends BaseDAO {
 				sql2.append(
 						",(select cx.comment_count||';'||cxx.comment_user_id||';'||to_char(cxx.comment_dttm,'dd/mm/yyyy hh24:mi:ss')||';'||cx.view_user_ids||'-'||cxx.dsc from iwb.w5_comment_summary cx, iwb.w5_comment cxx where cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.project_uuid='")
-						.append(queryResult.getScd().get("projectId")).append("'  AND cx.table_pk::int=z.")
+						.append(projectId).append("'  AND cx.table_pk::int=z.")
 						.append(pkFieldName)
 						.append(" AND cxx.customization_id=cx.customization_id AND cxx.comment_id=cx.last_comment_id) pkpkpk_cf ");
 				field.setPostProcessTip((short) 48); // extra code :
@@ -3964,21 +3902,21 @@ public class PostgreSQL extends BaseDAO {
 			} else {
 				sql2.append(",(select count(1) from iwb.w5_comment cx where cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.project_uuid='")
-						.append(queryResult.getScd().get("projectId")).append("'  AND cx.table_pk::int=z.")
+						.append(projectId).append("'  AND cx.table_pk::int=z.")
 						.append(pkFieldName).append(" limit 10) ").append(FieldDefinitions.queryFieldName_Comment)
 						.append(" ");
 			}
 			queryResult.getPostProcessQueryFields().add(field);
 		}
-		if (FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "approval_flag") != 0
+		if (FrameworkSetting.workflow
 				&& mainTable.get_approvalMap() != null && !mainTable.get_approvalMap().isEmpty()
 				&& (queryResult.getQueryColMap() == null
 						|| queryResult.getQueryColMap().containsKey(FieldDefinitions.queryFieldName_Approval))) { // approval
 																													// Record
 			sql2.append(
 					",(select cx.approval_record_id||';'||cx.approval_id||';'||cx.approval_step_id||';'||coalesce(cx.approval_roles,'')||';'||coalesce(cx.approval_users,'') from iwb.w5_approval_record cx where cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=").append(customizationId)
-					.append(" AND cx.table_pk=z.").append(pkFieldName).append(" limit 1) ")
+					.append(query.getMainTableId()).append(" AND cx.project_uuid='").append(projectId)
+					.append("' AND cx.table_pk=z.").append(pkFieldName).append(" limit 1) ")
 					.append(FieldDefinitions.queryFieldName_Approval).append(" ");
 			W5QueryField field = new W5QueryField();
 			field.setDsc(FieldDefinitions.queryFieldName_Approval);
@@ -3986,8 +3924,8 @@ public class PostgreSQL extends BaseDAO {
 			queryResult.getPostProcessQueryFields().add(field);
 			if (FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "toplu_onay") != 0) {
 				sql2.append(",(select cx.version_no from iwb.w5_approval_record cx where cx.table_id=")
-						.append(query.getMainTableId()).append(" AND cx.customization_id=").append(customizationId)
-						.append(" AND cx.table_pk=z.").append(pkFieldName).append(" limit 1) ")
+						.append(query.getMainTableId()).append(" AND cx.project_uuid='").append(projectId)
+						.append("' AND cx.table_pk=z.").append(pkFieldName).append(" limit 1) ")
 						.append(FieldDefinitions.queryFieldName_ArVersionNo).append(" ");
 				field = new W5QueryField();
 				field.setDsc(FieldDefinitions.queryFieldName_ArVersionNo);

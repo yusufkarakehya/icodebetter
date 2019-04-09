@@ -69,6 +69,13 @@ public class NashornScript {
 		Thread.sleep(millis);
 	}
 
+	private ScriptObjectMirror fromJSONObjectToScriptObject(JSONObject o) {
+//		ScriptObjectMirror r = new ScriptObjectMirror();
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/*
+
 	public ScriptObjectMirror redisGetJSON(String host, String k) throws JSONException {
 
 		String v = RedisUtil.get(host, k);
@@ -79,11 +86,6 @@ public class NashornScript {
 		return null;
 	}
 
-	private ScriptObjectMirror fromJSONObjectToScriptObject(JSONObject o) {
-//		ScriptObjectMirror r = new ScriptObjectMirror();
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public String redisPut(String host, String k, Object v) {
 		if (v == null)
@@ -130,7 +132,7 @@ public class NashornScript {
 			return e.getMessage();
 		}
 	}
-
+*/
 	public int mqQueueMsgCount(String host, String queueName) {
 		return MQUtil.getQueueMsgCount(host, queueName);
 	}
@@ -331,7 +333,7 @@ public class NashornScript {
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, reqMap, null);
 
 		scriptEngine.getDao().checkTenant(scd);
-		return scriptEngine.getDao().executeUpdateSQLQuery((String) oz[0], oz.length > 1 ? (List) oz[1] : null);
+		return scriptEngine.getDao().executeUpdateSQLQuery(oz[0].toString(), oz.length > 1 ? (List) oz[1] : null);
 	}
 
 	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams) {

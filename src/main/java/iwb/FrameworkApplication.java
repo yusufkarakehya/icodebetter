@@ -10,6 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+//import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 import iwb.cache.FrameworkSetting;
 import iwb.service.FrameworkService;
@@ -19,7 +20,7 @@ import iwb.util.GenericUtil;
 
 @SpringBootApplication
 @ServletComponentScan
-/*@EnableRedisHttpSession*/
+//@EnableRedisHttpSession
 public class FrameworkApplication {
 
 	@Bean
@@ -51,7 +52,8 @@ public class FrameworkApplication {
 			String influxdb = FrameworkSetting.argMap.get("influxdb");
 			if(influxdb!=null && !influxdb.equals("0")) {
 				FrameworkSetting.log2tsdb = true;
-				FrameworkSetting.log2tsdbUrl = influxdb.equals("1") ? "influxdb" : influxdb;
+				FrameworkSetting.log2tsdbUrl = influxdb.equals("1") ? "influxdb:8086" : influxdb;
+				if(!FrameworkSetting.log2tsdbUrl.startsWith("http"))FrameworkSetting.log2tsdbUrl = "http://"+FrameworkSetting.log2tsdbUrl;
 			}
 			String logType = FrameworkSetting.argMap.get("logType");
 			if(logType!=null)FrameworkSetting.logType = GenericUtil.uInt(logType);

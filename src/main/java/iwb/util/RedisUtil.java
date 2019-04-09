@@ -3,10 +3,10 @@ package iwb.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import redis.clients.jedis.Jedis;
+//import redis.clients.jedis.Jedis;
 
 public class RedisUtil {
-	private static Map<String, Jedis> redisHostMap = new HashMap<>(); 
+/*	private static Map<String, Jedis> redisHostMap = new HashMap<>(); 
 	
 	private String host = null;
 	private Jedis jedis = null;
@@ -69,11 +69,11 @@ public class RedisUtil {
 		return j.set(k, v);		
 	}
 	
-	/*
+	
 	public static String add(String host, String k, String v){
 		Jedis j = getConnection(host);
 		return j.(k, v);		
-	}*/
+	}
 	
 	public static long rpush(String host, String k, String v){
 		Jedis j = getConnection(host);
@@ -117,5 +117,5 @@ public class RedisUtil {
 			j.close();
 		}catch(Exception ee){}
 		redisHostMap.clear();
-	}
+	} */
 }

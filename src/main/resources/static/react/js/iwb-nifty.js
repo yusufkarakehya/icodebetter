@@ -125,7 +125,7 @@ var _dxgrb = DXReactGridBootstrap4;
 var iwb = {
   toastr: toastr,
   components :{},
-  grids: {},
+  grids: {}, label:{},
   forms: {}, formConversions:{},formSmsMailTemplates:{}, formBaseValues(id){
 	  var _smsStr=[], ss=iwb.formSmsMailTemplates[id];
 	  if(ss)for(var qi in ss)if(ss[qi])_smsStr.push(qi);
@@ -3367,7 +3367,7 @@ class XGrid extends GridCommon {
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
-        _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')} })
     );
   }
 }
@@ -3915,7 +3915,7 @@ class XEditGridSF extends GridCommon {
           })
         : null,
       !_disableIntegratedGrouping
-        ? _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        ? _(_dxgrb.GroupingPanel, { showSortingControls: true,messages:{groupByColumn:getLocMsg('groupByColumn')}  })
         : null
     );
 
@@ -4532,7 +4532,7 @@ class XEditGrid extends GridCommon {
           })
         : null,
       !_disableIntegratedGrouping
-        ? _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        ? _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')}  })
         : null
     );
   }
@@ -5310,7 +5310,7 @@ class XMainGrid extends GridCommon {
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
-        _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')}  })
     );
 
     return _(

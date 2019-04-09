@@ -43,6 +43,9 @@ public class W5Project  implements java.io.Serializable {
 	private int authenticationFuncId;
 	private int _defaultUserTip;
 	
+	private short localeMsgKeyFlag;
+	private String locales;
+
 	/*
 	  ui_web_frontend_tip smallint NOT NULL DEFAULT 1,
 	  ui_main_template_id integer NOT NULL DEFAULT 0,
@@ -236,6 +239,21 @@ public class W5Project  implements java.io.Serializable {
 	}
 	public void set_defaultUserTip(int _defaultUserTip) {
 		this._defaultUserTip = _defaultUserTip;
+	}
+
+	@Column(name="locale_msg_key_flag")
+	public short getLocaleMsgKeyFlag() {
+		return localeMsgKeyFlag;
+	}
+	public void setLocaleMsgKeyFlag(short localeMsgKeyFlag) {
+		this.localeMsgKeyFlag = localeMsgKeyFlag;
+	}
+	@Column(name="locales")
+	public String getLocales() {
+		return locales;
+	}
+	public void setLocales(String locales) {
+		this.locales = locales;
 	}
 
 }

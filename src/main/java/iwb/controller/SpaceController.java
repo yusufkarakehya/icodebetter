@@ -307,7 +307,7 @@ public class SpaceController implements InitializingBean {
 		logger.info("hndAjaxApproveRecord");
 
 		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
-		if (FrameworkCache.getAppSettingIntValue(scd, "approval_flag") == 0) {
+		if (!FrameworkSetting.workflow) {
 			response.setContentType("application/json");
 			response.getWriter().write("{\"success\":false}");
 			return;

@@ -1,6 +1,6 @@
 //array color name
 const dBGColors2 = [, , "#de9338", "#222", , , , ,];
-const dgColors = [
+let dgColors = [
   "warning",
   "secondary",
   "danger",
@@ -8,7 +8,7 @@ const dgColors = [
   "success",
   "info"
 ];
-const dgColors2 = [
+let dgColors2 = [
   "primary",
   "info",
   "secondary",
@@ -17,7 +17,7 @@ const dgColors2 = [
   "gray-400",
   "gray-700"
 ];
-const detailSpinnerColors2 = [
+let detailSpinnerColors2 = [
   "#187da0",
   "#2eadd3",
   "darkorange",
@@ -26,7 +26,7 @@ const detailSpinnerColors2 = [
   "#626a70",
   "#66767d"
 ];
-const dgColors3 = [
+let dgColors3 = [
   "gray-700",
   "danger",
   "gray-500",
@@ -123,7 +123,7 @@ var _dxgrb = DXReactGridBootstrap4;
 var iwb = {
   toastr: toastr,
   components :{},
-  grids: {},
+  grids: {}, label:{},
   forms: {}, formConversions:{},formSmsMailTemplates:{},formBaseValues(id){
 	  var _smsStr=[], ss=iwb.formSmsMailTemplates[id];
 	  if(ss)for(var qi in ss)if(ss[qi])_smsStr.push(qi);
@@ -391,7 +391,7 @@ var iwb = {
       event.preventDefault();
       iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
       if(j.data && j.data.length)iwb.showModal({
-            title: getLocMsg('Workflow Logs'),
+            title: getLocMsg('workflow_logs'),
             footer: false,
             color: 'primary',
             size: 'lg',
@@ -401,7 +401,8 @@ var iwb = {
                   _('div',{
                     className:'timeline-badge bg-primary timeline-badge-icon',
                     // style:{
-                    //   background:detailSpinnerColors2[index % detailSpinnerColors2.length]
+                    // background:detailSpinnerColors2[index %
+					// detailSpinnerColors2.length]
                     // }
                   },
                     // _('i',{className:'icon-speech'})
@@ -428,7 +429,7 @@ var iwb = {
               )
             ) 
           });
-      else alert('no data');
+      else toastr.info("no data to show",'warning');
     }
       );
     }  
@@ -987,7 +988,7 @@ class GridCommon extends React.PureComponent {
       var pkz = buildParams2(pk, rowData);
       var url = "ajaxPostForm?a=3&_fid=" + crudFormId + pkz;
       yesNoDialog({
-        text: "Are you Sure!",
+        text: getLocMsg("are_you_sure"),
         callback: success => {
           if (success) {
             iwb.request({ url, successCallback: () => this.loadData(true) });
@@ -1087,7 +1088,7 @@ class GridCommon extends React.PureComponent {
       let { rows, deletedRows } = this.state;
       if (deleted && deleted.length) {
         yesNoDialog({
-          text: "Are you Sure!",
+          text: getLocMsg("are_you_sure"),
           callback: success => {
             if (success) {
               rows = rows.slice();
@@ -2106,7 +2107,7 @@ class XSingleUploadComponent extends React.Component {
       .then(
         result => {
           if (result.success) {
-            toastr.success(getLocMsg('file_sucessfully_uploaded!'), getLocMsg('Success'), {
+            toastr.success(getLocMsg('file_sucessfully_uploaded'), getLocMsg('success'), {
               timeOut: 3000
             });
             this.xListFilesRef.current.getFileList();
@@ -2123,7 +2124,7 @@ class XSingleUploadComponent extends React.Component {
           }
         },
         error => {
-          toastr.error(error, getLocMsg('Error'));
+          toastr.error(error, getLocMsg('error'));
         }
       )
   }
@@ -2152,7 +2153,7 @@ class XSingleUploadComponent extends React.Component {
           target: this.props.cfg.id
         },
         _(PopoverHeader, null,
-          this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+          this.state.file ? this.state.file.name : getLocMsg('File Upload'),
           _('input', {
             className: 'd-none',
             type: 'file',
@@ -2354,7 +2355,7 @@ class XTabForm extends React.PureComponent {
               }
             if (json.smsMailPreviews)
               for (var ri = 0; ri < json.smsMailPreviews.length; ri++) {
-                var fsm = json.smsMailPreviews[ri]; //[{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
+                var fsm = json.smsMailPreviews[ri]; // [{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
                 iwb.openTab(
                   "2-" + fsm.fsmId + '-' + fsm.tbPk,
                   'showForm?a=2&_fid=4903&_cnvId=' + cnv._cnvId + '&_cnvTblPk' + cnv._cnvTblPk, {}, {
@@ -2412,7 +2413,7 @@ class XTabForm extends React.PureComponent {
       }
       let url = "ajaxPostForm?a=3&_fid=" + formId + pkz;
       yesNoDialog({
-        text: "Are you Sure!",
+        text: getLocMsg("are_you_sure"),
         callback: success =>
           success &&
           iwb.request({
@@ -2421,7 +2422,7 @@ class XTabForm extends React.PureComponent {
           })
       });
     };
-    this.approvalAction = action => {
+    this.approvalAction = (action, xformId) => {
     	return (event) => {
           event && event.preventDefault && event.preventDefault();
           let { formId, pk } = this.props.cfg;
@@ -2434,7 +2435,7 @@ class XTabForm extends React.PureComponent {
           case	901:// start approval
         	  url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
               yesNoDialog({
-                text: "Are you Sure to Start Approval?",
+                text: getLocMsg("are_you_sure"),//"Are you Sure to Start Approval?",
                 callback: success =>
                   success &&
                   iwb.request({
@@ -2444,15 +2445,35 @@ class XTabForm extends React.PureComponent {
               });
               break;
           default:
-        	  var p = prompt("Please enter comment", ["","Approve","Return","Reject"][action]);
-          	  if(p){
-	              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
+              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
+          var strAction = ["","Approve","Return","Reject"][action];
+        	  // var p = prompt("Please enter comment",
+				// ["","Approve","Return","Reject"][action]);
+          	  // if(p){
+          if(xformId){
+//        	  console.log('this.props.cfg',this.props.cfg)
+        	  var formUrl = 'showForm?a=2&_fid=' + xformId + pkz;
+        	  iwb.openTab('1199', formUrl, {}, {
+                  modal: true, modalSize : this.props.cfg.subModalSize || false,
+                  callback: (result) => {
+                	  if(!result.errorType && !result.error && !result.errors)iwb.request({
+  	                    url,params:{_adsc:strAction,_avno:this.props.cfg.approval.versionNo},
+  	                    successCallback: () => this.props.parentCt.closeTab(event, true)  	                    
+                    }); else iwb.requestErrorHandler(result);
+                  }
+                })
+          } else
+	          yesNoDialog({
+	              text: getLocMsg("are_you_sure"),//"Are you Sure to "+strAction+"?",
+	              callback: success =>
+                  success &&
                   iwb.request({
-	                    url,params:{_adsc:p,_avno:this.props.cfg.approval.versionNo},
+	                    url,params:{_adsc:strAction,_avno:this.props.cfg.approval.versionNo},
 	                    successCallback: () => this.props.parentCt.closeTab(event, true)
 	                    
-                  });
-          	  }
+                  })
+	          });
+          	  // }
           break;
           }
 
@@ -2568,7 +2589,7 @@ class XTabForm extends React.PureComponent {
           this.props.cfg.approval &&
           _(
             'div',
-            {style:{fontSize:"1rem", marginTop:5}
+            {style:{fontSize:"1rem", marginTop:5, color: "#03A9F4", zoom: 1.2}
             },
             _("i", { className: "icon-shuffle" }),
 // " step ",
@@ -2587,7 +2608,7 @@ class XTabForm extends React.PureComponent {
             },
             _("i", { className: "icon-support" }),
             " ",
-            getLocMsg('start_approval')
+            iwb.btnStartApprovalLabel || getLocMsg('start_approval')
           ),
           this.props.cfg.approval && this.props.cfg.approval.versionNo &&
           _(
@@ -2595,7 +2616,7 @@ class XTabForm extends React.PureComponent {
             {
               color: "primary",
               className: "btn-form-edit",
-              onClick: approvalAction(1) // approve
+              onClick: approvalAction(1, this.props.cfg.approval.approveFormId||false) // approve
             },
             this.props.cfg.approval.btnApproveLabel || getLocMsg('approve')
           ),
@@ -2606,23 +2627,23 @@ class XTabForm extends React.PureComponent {
             {
               color: "warning",
               className: "btn-form-edit",
-              onClick: approvalAction(2) // return
+              onClick: approvalAction(2, this.props.cfg.approval.returnFormId||false) // return
             },
             this.props.cfg.approval.btnReturnLabel || getLocMsg('return')
           ),
           " "
-          ,this.props.cfg.approval && this.props.cfg.approval.versionNo &&
+          ,this.props.cfg.approval && this.props.cfg.approval.versionNo && this.props.cfg.approval.reject!==false &&
           _(
             Button,
             {
               color: "danger",
               className: "btn-form-edit",
-              onClick: approvalAction(3) // reject
+              onClick: approvalAction(3, this.props.cfg.approval.rejectFormId||false) // reject
             },
-            getLocMsg('reject')
+            iwb.btnApprovalRejectLabel || getLocMsg('reject')
           ),
           " "
-          ,this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
+          ,iwb.btnApprovalLogs4Form!==false && this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
           _(
             Button,
             {
@@ -2630,7 +2651,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form-edit",
               onClick: iwb.approvalLogs(this.props.cfg.approval.approvalRecordId) // reject
             },
-            getLocMsg('logs')
+            iwb.btnApprovalLogsLabel || getLocMsg('workflow_logs')
           )
         ),
         this.props.cfg.msgs && this.props.cfg.msgs.length && _("div",{style:{color:"#838383"}},this.props.cfg.msgs.map(qq=>_("div",null,
@@ -2656,7 +2677,7 @@ class XTabForm extends React.PureComponent {
               onClick: onSubmit
             },
             " ",
-            "Save",
+            getLocMsg("save"),
             " "
           )," ",this.props.cfg.contFlag && _(
                   Button,
@@ -2667,7 +2688,7 @@ class XTabForm extends React.PureComponent {
                     onClick: onContSubmit
                   },
                   " ",
-                  "Save & Continue",
+                  getLocMsg("save_and_coninue"),
                   " "
                 ),
           " ",
@@ -2679,7 +2700,7 @@ class XTabForm extends React.PureComponent {
               className: "btn-form",
               onClick: (this.props.callAttributes.modal)?iwb.closeModal:iwb.closeTab
             },
-            "Cancel"
+            getLocMsg("cancel")
           )
         )
     );
@@ -3101,7 +3122,7 @@ class XGridAction extends React.PureComponent {
                 color: "#777"
               }
             }),
-            "NEW RECORD"
+            getLocMsg("new_record")
           ),
           _("hr"),
           _(
@@ -3116,7 +3137,7 @@ class XGridAction extends React.PureComponent {
                 color: "#777"
               }
             }),
-            "REPORTS / BI"
+            getLocMsg("reports_bi")//"REPORTS / BI"
           )
           // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
 			// marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
@@ -3430,7 +3451,7 @@ class XGrid extends GridCommon {
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
-        _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        _(_dxgrb.GroupingPanel, { showSortingControls: true,messages:{groupByColumn:getLocMsg('groupByColumn')}  })
     );
   }
 }
@@ -3696,7 +3717,7 @@ class XEditGridSF extends GridCommon {
       this.searchForm = _(
         Nav,
         { style: {} },
-        _("div", { className: "hr-text" }, _("h6", null, "Search Criteria")),
+        _("div", { className: "hr-text" }, _("h6", null, getLocMsg("search_criteria"))),
         _(
           "div",
           { style: { zoom: ".9" }, className:"searchFormFields"  },
@@ -3979,7 +4000,7 @@ class XEditGridSF extends GridCommon {
           })
         : null,
       !_disableIntegratedGrouping
-        ? _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        ? _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')}  })
         : null
     );
 
@@ -4077,8 +4098,8 @@ const extendGrid = ({ name, children, predicate, position }) => {
  *          }});
  */
 yesNoDialog = ({
-  text = "Are You Sure?",
-  title = "Are You Sure?",
+  text = getLocMsg("are_you_sure"),//"Are You Sure?",
+  title = getLocMsg("confirmation"),//"Are You Sure?",
   callback = alert('obj.callback is not a function'),
   ...confg
 }) => {
@@ -4597,7 +4618,7 @@ class XEditGrid extends GridCommon {
           })
         : null,
       !_disableIntegratedGrouping
-        ? _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        ? _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')}  })
         : null
     );
   }
@@ -4802,7 +4823,7 @@ class XMainGrid extends GridCommon {
             _(
               "div",
               { className: "hr-text" },
-              _("h6", null, "Search Criteria")
+              _("h6", null, getLocMsg("search_criteria"))
             ),
             _(
               "div",
@@ -4838,7 +4859,7 @@ class XMainGrid extends GridCommon {
           _(
             "div",
             { className: "hr-text", key: "hr-text" },
-            _("h6", null, "DETAIL RECORDS")
+            _("h6", null, getLocMsg("detail_records"))
           ),
         detailGrids &&
           detailGrids.length > 1 &&
@@ -5348,8 +5369,9 @@ console.log('rows',rows)
           })
         : null,
       /** UI show pagining */
-      ( pageSize > 1) //rows.length > iwb.detailPageSize ||
-        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes  }) //|| iwb.detailPageSize
+      ( pageSize > 1) // rows.length > iwb.detailPageSize ||
+        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes  }) // ||
+															// iwb.detailPageSize
         : null,
       /** UI table Grouping */
       !_disableIntegratedGrouping && !pageSize && rows.length > 1
@@ -5371,7 +5393,7 @@ console.log('rows',rows)
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
-        _(_dxgrb.GroupingPanel, { showSortingControls: true })
+        _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')}  })
     );
 
     return _(
@@ -5428,7 +5450,7 @@ console.log('rows',rows)
                 onClick: event => onOnNewRecord(event, this.props)
               },
               _("i", { className: "icon-plus" }),
-              " NEW RECORD"
+              " " +getLocMsg("new_record")
             ),
             _('div',{className:"fgrow"},null),
 
@@ -5581,7 +5603,7 @@ class XPage extends React.PureComponent {
                     // console.log(callAttributes);
                     iwb.showModal({
                       body: serverComponent,
-                      size: "lg",
+                      size: iwb.defaultModalSıze || "lg",
                       title: serverComponent.props && serverComponent.props.cfg ?
                         serverComponent.props.cfg.name :
                         "",
@@ -5799,7 +5821,7 @@ class XPage4Card extends React.PureComponent {
 	                    // console.log(callAttributes);
 	                    iwb.showModal({
 	                      body: serverComponent,
-	                      size: "lg",
+	                      size: iwb.defaultModalSize || "lg",
 	                      title: serverComponent.props && serverComponent.props.cfg ?
 	                        serverComponent.props.cfg.name :
 	                        "",
@@ -6400,8 +6422,8 @@ class XForm extends React.Component {
       }
     };
     /**
-     * file upload function
-     */
+	 * file upload function
+	 */
     this.onFileChange = () => (name, result, context) => {
       var values = this.state.values;
       var errors = this.state.errors;
@@ -6498,9 +6520,9 @@ class XForm extends React.Component {
     var values = {...baseValues ,...this.state.values };
     if (this.componentWillPost) {
       /**
-   * componentWillPostResult = true || fase || {field_name : 'custom
-   * value'}
-   */
+		 * componentWillPostResult = true || fase || {field_name : 'custom
+		 * value'}
+		 */
       var componentWillPostResult = this.componentWillPost(values, cfg || {});
       if (!componentWillPostResult) return false;
       values = { ...values, ...componentWillPostResult };
@@ -6806,7 +6828,8 @@ class FileInput extends React.Component {
     }
     return _(React.Fragment, {},
       _('div', null,
-        // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+        // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File
+		// Upload'),
         _('input', {
           className: 'd-none',
           type: 'file',
@@ -7018,10 +7041,10 @@ function approvalHtml(row){
     // console.log('approvalHtml', row);
     if(!row || !row.pkpkpk_arf_qw_)return '';
     switch(1*row.pkpkpk_arf){
-      case 901:return 'Approval can be required';
-      case 998:return _('a',{href:'#', className:'badge badge-pill badge-success',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Approved')
-      case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},'Rejected')
-      default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? '\n: '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shuffle" }):null,' ' + row.pkpkpk_arf_qw_);
+    case 901:case -901:return iwb.label.startApprovalManually || 'Start approval manually';
+      case 998:return _('a',{href:'#', className:'badge badge-pill badge-success',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},iwb.label.approved || getLocMsg('approved'))
+      case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},iwb.label.rejected || getLocMsg('rejected'))
+      default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? '\n: '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shuffle", style:1*row.pkpkpk_arf>0?{color:'red'}:null }):null,' ' + row.pkpkpk_arf_qw_);
     }
 }
 iwb.fmtFileSize=(a) => {

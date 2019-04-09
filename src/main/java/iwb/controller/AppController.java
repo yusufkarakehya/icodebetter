@@ -120,6 +120,8 @@ public class AppController implements InitializingBean {
 				if(po!=null)vcsService.projectVCSUpdate(FrameworkSetting.projectId);
 			}
 		}
+		if(FrameworkSetting.log2tsdb)LogUtil.activateInflux4Log();
+		if(FrameworkSetting.logType==2)LogUtil.activateMQ4Log();
 		
 		service.reloadCache(-1);
 		// if(PromisSetting.checkLicenseFlag)engine.checkLicences();
@@ -132,7 +134,6 @@ public class AppController implements InitializingBean {
 		} catch(Exception e){}
 //		RhinoScript.taskExecutor = this.taskExecutor;
 		//if(FrameworkSetting.mq)UserUtil.activateMQs();
-		if(FrameworkSetting.logType==2)LogUtil.activateMQ4Log();
 	}
         
 	private ViewAdapter getViewAdapter(Map<String, Object> scd, HttpServletRequest request, ViewAdapter defaultRenderer){
