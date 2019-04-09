@@ -10,7 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+//import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 import iwb.cache.FrameworkSetting;
 import iwb.service.FrameworkService;
@@ -20,7 +20,7 @@ import iwb.util.GenericUtil;
 
 @SpringBootApplication
 @ServletComponentScan
-@EnableRedisHttpSession
+//@EnableRedisHttpSession
 public class FrameworkApplication {
 
 	@Bean
