@@ -4823,7 +4823,7 @@ class XMainGrid extends GridCommon {
             _(
               "div",
               { className: "hr-text" },
-              _("h6", null, getLocMsg("search_criteria"))
+              _("h6", null, getLocMsg('search_criteria'))
             ),
             _(
               "div",
@@ -4841,16 +4841,17 @@ class XMainGrid extends GridCommon {
                       this.loadData(true);
                     }
                   },
-                  getLocMsg("search")
+                  getLocMsg('search')
                 )
               )
             ),
-            /*
-			 * _('div',{style:{height:10}}), _('div',{className:'hr-text'},
-			 * _('h6',null,'Şablonlar') ), _(Link,{style:{padding:2},to:''},
-			 * _('i',{className:'icon-star'}), ' ', ' Yıllık Faturalar' ),
-			 * _(Link,{style:{padding:2,color:'#a0a0a0'},to:''},
-			 * _('i',{className:'icon-plus'}), ' ', ' Yeni Şablon Ekle' ),
+         /*
+			 * _("div", { style: { height: 10 } }), _("div", { className:
+			 * "hr-text" }, _("h6", null, "Şablonlar")), _( Link, { style: {
+			 * padding: 2 }, to: "" }, _("i", { className: "icon-star" }), " ", "
+			 * Yıllık Faturalar" ), _( Link, { style: { padding: 2, color:
+			 * "#a0a0a0" }, to: "" }, _("i", { className: "icon-plus" }), " ", "
+			 * Yeni Şablon Ekle" ),
 			 */
             _("div", { style: { height: 20 } })
           ),
@@ -4859,7 +4860,7 @@ class XMainGrid extends GridCommon {
           _(
             "div",
             { className: "hr-text", key: "hr-text" },
-            _("h6", null, getLocMsg("detail_records"))
+            _("h6", null, getLocMsg('details'))
           ),
         detailGrids &&
           detailGrids.length > 1 &&
@@ -4926,122 +4927,122 @@ class XMainGrid extends GridCommon {
     /**
 	 * @description A function to open EXPORT menu in XModal
 	 */
-  this.openBI = () => {
-    let {
-      props
-    } = this;
-    let {
-      columnExtensions,
-      order
-    } = this.state;
-    let cmap = {};
-    let url = "grd/" + props.name + ".";
-    let params = "?_gid=" + props.gridId + "&_columns=";
-    columnExtensions.map(({
-      columnName,
-      width
-    }) => {
-      cmap[columnName] = width;
-    });
-    order.map(
-      columnName =>
-      (params += columnName + "," + (cmap[columnName] || 100) + ";")
-    );
-    iwb.showModal({
-      title: "REPORTS / BI",
-      footer: false,
-      color: "danger",
-      size: "sm",
-      body: _(
-        ListGroup, {
-          style: {
-            fontSize: "1.0rem"
-          }
-        },
-        _("b", null, "Exports"),
-        _(
-          ListGroupItem, {
-            tag: "a",
-            href: url + "xls" + params,
-            target: "_blank",
-            action: true
+    this.openBI = () => {
+      let {
+        props
+      } = this;
+      let {
+        columnExtensions,
+        order
+      } = this.state;
+      let cmap = {};
+      let url = "grd/" + props.name + ".";
+      let params = "?_gid=" + props.gridId + "&_columns=";
+      columnExtensions.map(({
+        columnName,
+        width
+      }) => {
+        cmap[columnName] = width;
+      });
+      order.map(
+        columnName =>
+        (params += columnName + "," + (cmap[columnName] || 100) + ";")
+      );
+      iwb.showModal({
+        title: "REPORTS / BI",
+        footer: false,
+        color: "danger",
+        size: "sm",
+        body: _(
+          ListGroup, {
+            style: {
+              fontSize: "1.0rem"
+            }
           },
-          _("i", {
-            className: "float-right text-success fa fa-file-excel"
-          }),
-          "Excel"
-        ),
-        _(
-          ListGroupItem, {
-            tag: "a",
-            href: url + "pdf" + params,
-            target: "_blank",
-            action: true
-          },
-          _("i", {
-            className: "float-right text-danger fa fa-file-pdf"
-          }),
-          "PDF"
-        ),
-        _(
-          ListGroupItem, {
-            tag: "a",
-            href: url + "csv" + params,
-            target: "_blank",
-            action: true
-          },
-          _("i", {
-            className: "float-right text-secondary fa fa-file-alt"
-          }),
-          "CSV"
-        ),
-        _(
-          ListGroupItem, {
-            tag: "a",
-            href: url + "txt" + params,
-            target: "_blank",
-            action: true
-          },
-          _("i", {
-            className: "float-right text-secondary fa fa-file-word"
-          }),
-          "Text"
-        ),
-        _("hr"),
-        _("b", null, "BI"),
-        _(
-          ListGroupItem, {
-            tag: "a",
-            href: "showPage?_tid=" +
-              (props.crudTableId ?
-                "1200&xtable_id=" + props.crudTableId :
-                "2395&xquery_id=" + props.queryId),
-            target: "_blank",
-            action: true /* , className:'list-group-item-danger2' */
-          },
-          _("i", {
-            className: "float-right text-primary fa fa-th"
-          }),
-          "Pivot Table"
-        ),
-        _(
-          ListGroupItem, {
-            tag: "a",
-            href: "showPage?_tid=" +
-              (props.crudTableId ?
-                "784&xtable_id=" + props.crudTableId :
-                "2413&xquery_id=" + props.queryId),
-            target: "_blank",
-            action: true
-          },
-          _("i", {
-            className: "float-right text-primary fa fa-table"
-          }),
-          "Data List"
+          _("b", null, "Exports"),
+          _(
+            ListGroupItem, {
+              tag: "a",
+              href: url + "xls" + params,
+              target: "_blank",
+              action: true
+            },
+            _("i", {
+              className: "float-right text-success fa fa-file-excel"
+            }),
+            "Excel"
+          ),
+          _(
+            ListGroupItem, {
+              tag: "a",
+              href: url + "pdf" + params,
+              target: "_blank",
+              action: true
+            },
+            _("i", {
+              className: "float-right text-danger fa fa-file-pdf"
+            }),
+            "PDF"
+          ),
+          _(
+            ListGroupItem, {
+              tag: "a",
+              href: url + "csv" + params,
+              target: "_blank",
+              action: true
+            },
+            _("i", {
+              className: "float-right text-secondary fa fa-file-alt"
+            }),
+            "CSV"
+          ),
+          _(
+            ListGroupItem, {
+              tag: "a",
+              href: url + "txt" + params,
+              target: "_blank",
+              action: true
+            },
+            _("i", {
+              className: "float-right text-secondary fa fa-file-word"
+            }),
+            "Text"
+          ),
+          _("hr"),
+          _("b", null, "BI"),
+          _(
+            ListGroupItem, {
+              tag: "a",
+              href: "showPage?_tid=" +
+                (props.crudTableId ?
+                  "1200&xtable_id=" + props.crudTableId :
+                  "2395&xquery_id=" + props.queryId),
+              target: "_blank",
+              action: true /* , className:'list-group-item-danger2' */
+            },
+            _("i", {
+              className: "float-right text-primary fa fa-th"
+            }),
+            "Pivot Table"
+          ),
+          _(
+            ListGroupItem, {
+              tag: "a",
+              href: "showPage?_tid=" +
+                (props.crudTableId ?
+                  "784&xtable_id=" + props.crudTableId :
+                  "2413&xquery_id=" + props.queryId),
+              target: "_blank",
+              action: true
+            },
+            _("i", {
+              className: "float-right text-primary fa fa-table"
+            }),
+            "Data List"
+          )
         )
-      )
-    });
-  };
+      });
+    };
     /**
 	 * @description A function to render Details under Muster's row
 	 * @param {Array}
@@ -5206,7 +5207,6 @@ class XMainGrid extends GridCommon {
 	 *            params -[{xsearch:'searchValue'}] Params from Global Search
 	 */
     this.loadData = (force, params = {}) => {
-    	if(this.state.loading)return;
       const queryString = this.queryString();
       if (!force && queryString === this.lastQuery) {
         return;
@@ -5215,20 +5215,20 @@ class XMainGrid extends GridCommon {
         ...{ params },
         ...(this.form ? this.form.getValues() : {})
       };
-      this.setState({loading:!0, rows:[], totalCount: 0})
       iwb.request({
         url: queryString,
         self: this,
         params:tempParams,
         successCallback: (result, cfg) => {
           cfg.self.setState({
-            rows: result.data, loading:false,
+            rows: result.data,
             totalCount: result.total_count
           });
         },
         errorCallback: (error, cfg) => {
           cfg.self.setState({
-            loading:false
+            rows: [],
+            totalCount: 0
           });
         }
       });
@@ -5296,7 +5296,7 @@ class XMainGrid extends GridCommon {
       onCurrentPageChange,
       onColumnWidthsChange
     } = this;
-console.log('rows',rows)
+
     let showDetail = detailGrids && detailGrids.length > 0;
     let grid = _(
       _dxgrb.Grid,
@@ -5382,9 +5382,8 @@ console.log('rows',rows)
           })
         : null,
       /** UI show pagining */
-      ( pageSize > 1) // rows.length > iwb.detailPageSize ||
-        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes  }) // ||
-															// iwb.detailPageSize
+      ( pageSize > 1) //rows.length > iwb.detailPageSize ||
+        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes  }) //|| iwb.detailPageSize
         : null,
       /** UI table Grouping */
       !_disableIntegratedGrouping && !pageSize && rows.length > 1
@@ -5439,7 +5438,7 @@ console.log('rows',rows)
               _("i", { id: "eq-" + this.props.id, className: "icon-magnifier" })
             ),
 
-// !searchForm &&
+ //         !searchForm &&
             _(
               Button,
               {
@@ -5463,7 +5462,7 @@ console.log('rows',rows)
                 onClick: event => onOnNewRecord(event, this.props)
               },
               _("i", { className: "icon-plus mr-1" }),
-              getLocMsg("new_record")
+              getLocMsg('new_record')
             ),
             _('div',{className:"fgrow"},null),
 
