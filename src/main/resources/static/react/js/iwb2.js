@@ -3137,7 +3137,7 @@ class XGridAction extends React.PureComponent {
                 color: "#777"
               }
             }),
-            getLocMsg("reports_bi")//"REPORTS / BI"
+            getLocMsg("reports_bi")
           )
           // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
 			// marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
@@ -5462,8 +5462,8 @@ console.log('rows',rows)
                 color: "primary",
                 onClick: event => onOnNewRecord(event, this.props)
               },
-              _("i", { className: "icon-plus" }),
-              " " +getLocMsg("new_record")
+              _("i", { className: "icon-plus mr-1" }),
+              getLocMsg("new_record")
             ),
             _('div',{className:"fgrow"},null),
 
