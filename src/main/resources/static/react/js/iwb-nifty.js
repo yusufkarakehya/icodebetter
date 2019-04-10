@@ -3359,7 +3359,7 @@ class XGrid extends GridCommon {
         !pageSize &&
         rows.length > 1 &&
         _(_dxgrb.SearchPanel, {
-          messages: { searchPlaceholder: "Hızlı Arama..." },
+          messages: { searchPlaceholder: getLocMsg('searchPlaceholder') },
           changeSearchValue: ax => {
             if (iwb.debug) console.log("onValueChange", ax);
           }
@@ -3911,7 +3911,7 @@ class XEditGridSF extends GridCommon {
         : null,
       !_disableSearchPanel
         ? _(_dxgrb.SearchPanel, {
-            messages: { searchPlaceholder: "Hızlı Arama..." }
+            messages: { searchPlaceholder: getLocMsg('searchPlaceholder') }
           })
         : null,
       !_disableIntegratedGrouping
@@ -4528,7 +4528,7 @@ class XEditGrid extends GridCommon {
         : null,
       !_disableSearchPanel
         ? _(_dxgrb.SearchPanel, {
-            messages: { searchPlaceholder: "Hızlı Arama..." }
+            messages: { searchPlaceholder: getLocMsg('searchPlaceholder')}
           })
         : null,
       !_disableIntegratedGrouping
@@ -5310,7 +5310,7 @@ class XMainGrid extends GridCommon {
         rows.length > 1 &&
         !_disableSearchPanel &&
         _(_dxgrb.SearchPanel, {
-          messages: { searchPlaceholder: "Hızlı Arama..." },
+          messages: { searchPlaceholder: getLocMsg('searchPlaceholder') },
           changeSearchValue: ax => {
             if (iwb.debug) console.log("onValueChange", ax);
           }
