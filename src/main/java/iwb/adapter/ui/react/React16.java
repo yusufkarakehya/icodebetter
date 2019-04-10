@@ -702,7 +702,7 @@ public class React16 implements ViewAdapter {
 		}
 	
 		
-		if (f.get_toolbarItemList().size() > 0) { // extra buttonlari var mi yok
+		if ((fr.getForm().getObjectTip()!=2 || fr.getAction()==1) && f.get_toolbarItemList().size() > 0) { // extra buttonlari var mi yok
 													// mu?
 			StringBuilder buttons = serializeToolbarItems(scd,
 					f.get_toolbarItemList(), (fr.getFormId() > 0 ? true
