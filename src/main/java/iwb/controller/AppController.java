@@ -116,8 +116,8 @@ public class AppController implements InitializingBean {
 			vcsService.icbVCSUpdateSqlAndFields();
 			boolean b = vcsService.projectVCSUpdate("067e6162-3b6f-4ae2-a221-2470b63dff00");
 			if(b && FrameworkSetting.projectId!=null) {
-				W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
-				if(po!=null)vcsService.projectVCSUpdate(FrameworkSetting.projectId);
+//				W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
+				if(FrameworkSetting.projectId.length()==36)vcsService.projectVCSUpdate(FrameworkSetting.projectId);
 			}
 		}
 		if(FrameworkSetting.log2tsdb)LogUtil.activateInflux4Log();
