@@ -5,7 +5,7 @@ iwb.graphAmchart = function(dg, gid) {
 	  if (1 * dg.graphTip >= 5) params._sfid = dg.stackedFieldId;
 	  iwb.request({
 	    url:
-	      "ajaxQueryData4StatTree?_gid=" +
+	      (dg.query? "ajaxQueryData4Stat?_gid=":"ajaxQueryData4StatTree?_gid=") +
 	      dg.gridId +
 	      "&_stat=" +
 	      dg.funcTip +
