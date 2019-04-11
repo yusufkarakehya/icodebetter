@@ -4388,6 +4388,7 @@ columns:[
 		if(gd.getStackedQueryField()!=0)buf.append(",stackedFieldId:").append(gd.getStackedQueryField());
 		if(gd.getDefaultHeight()!=0)buf.append(",height:").append(gd.getDefaultHeight());
 		if(gd.getLegendFlag()!=0)buf.append(",legend:true");
+		if(gd.getTableId()==0 || FrameworkCache.getTable(scd, gd.getTableId())==null)buf.append(",query:true");
 		buf.append("}");
 		return buf;
 	}
