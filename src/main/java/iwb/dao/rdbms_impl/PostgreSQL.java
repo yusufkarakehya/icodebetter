@@ -4749,7 +4749,7 @@ public class PostgreSQL extends BaseDAO {
 				}
 				result.put("lookUp", lm);
 			} else {
-				int maxLegend = GenericUtil.uInt(requestParams, "_max", 10);
+				int maxLegend = GenericUtil.uInt(requestParams, "_max", 30);
 				if (l.size() > maxLegend) { // TODO: temizlik
 					BigDecimal total = new BigDecimal(0);
 					String ids = "";
@@ -4806,6 +4806,13 @@ public class PostgreSQL extends BaseDAO {
 
 					break;
 				}
+			for (Map m : l) {
+				Object o2 = m.get("dsc");
+				if (o2 == null) {
+					
+					m.put("dsc", m.get("id"));
+				}
+			}
 			result.put("data", l);
 		}
 		return result;
