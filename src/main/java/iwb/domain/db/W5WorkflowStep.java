@@ -24,7 +24,6 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
   private String dsc;
   private String approvalRoles;
   private String approvalUsers;
-  private short updatableFlag;
   private int onApproveStepId;
   private Integer onApproveFormId;
   private String onApproveStepSql;
@@ -54,8 +53,6 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
   private String accessDeleteUsers;
   private String accessDeleteUserFields;
 
-  private short sendMailOnEnterStepFlag;
-  private short sendSmsOnEnterStepFlag;
 
   private short timeLimitFlag;
   private int timeLimitDuration;
@@ -112,14 +109,6 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
     this.approvalUsers = approvalUsers;
   }
 
-  @Column(name = "updatable_flag")
-  public short getUpdatableFlag() {
-    return updatableFlag;
-  }
-
-  public void setUpdatableFlag(short updatableFlag) {
-    this.updatableFlag = updatableFlag;
-  }
 
   @Column(name = "on_approve_step_id")
   public int getOnApproveStepId() {
@@ -292,23 +281,6 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
     this.onReturnStepSql = onReturnStepSql;
   }
 
-  @Column(name = "send_mail_on_enter_step_flag")
-  public short getSendMailOnEnterStepFlag() {
-    return sendMailOnEnterStepFlag;
-  }
-
-  public void setSendMailOnEnterStepFlag(short sendMailOnEnterStepFlag) {
-    this.sendMailOnEnterStepFlag = sendMailOnEnterStepFlag;
-  }
-
-  @Column(name = "send_sms_on_enter_step_flag")
-  public short getSendSmsOnEnterStepFlag() {
-    return sendSmsOnEnterStepFlag;
-  }
-
-  public void setSendSmsOnEnterStepFlag(short sendSmsOnEnterStepFlag) {
-    this.sendSmsOnEnterStepFlag = sendSmsOnEnterStepFlag;
-  }
 
   @Column(name = "access_view_user_fields")
   public String getAccessViewUserFields() {
@@ -346,7 +318,6 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
     a.dsc = this.dsc;
     a.approvalRoles = this.approvalRoles;
     a.approvalUsers = this.approvalUsers;
-    a.updatableFlag = this.updatableFlag;
     a.onApproveStepId = this.onApproveStepId;
     a.onApproveStepSql = this.onApproveStepSql;
     a.returnFlag = this.returnFlag;
@@ -367,8 +338,6 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
     a.accessDeleteRoles = this.accessDeleteRoles;
     a.accessDeleteUsers = this.accessDeleteUsers;
     a.accessDeleteUserFields = this.accessDeleteUserFields;
-    a.sendMailOnEnterStepFlag = this.sendMailOnEnterStepFlag;
-    a.sendSmsOnEnterStepFlag = this.sendSmsOnEnterStepFlag;
 
     a.timeLimitFlag = this.timeLimitFlag;
     a.timeLimitDuration = this.timeLimitDuration;
@@ -397,7 +366,6 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
         && GenericUtil.safeEquals(this.dsc, a.dsc)
         && GenericUtil.safeEquals(this.approvalRoles, a.approvalRoles)
         && GenericUtil.safeEquals(this.approvalUsers, a.approvalUsers)
-        && this.updatableFlag == a.updatableFlag
         && this.onApproveStepId == a.onApproveStepId
         && GenericUtil.safeEquals(this.onApproveStepSql, a.onApproveStepSql)
         && this.returnFlag == a.returnFlag
@@ -417,9 +385,7 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
         && this.accessDeleteTip == a.accessDeleteTip
         && GenericUtil.safeEquals(this.accessDeleteRoles, a.accessDeleteRoles)
         && GenericUtil.safeEquals(this.accessDeleteUsers, a.accessDeleteUsers)
-        && GenericUtil.safeEquals(this.accessDeleteUserFields, a.accessDeleteUserFields)
-        && this.sendMailOnEnterStepFlag == a.sendMailOnEnterStepFlag
-        && this.sendSmsOnEnterStepFlag == a.sendSmsOnEnterStepFlag;
+        && GenericUtil.safeEquals(this.accessDeleteUserFields, a.accessDeleteUserFields);
   }
 
   private String projectUuid;

@@ -297,8 +297,6 @@ public class WorkflowEngine {
 				ar.setApprovalStepId(999);
 				ar.setApprovalRoles(currentStep.getApprovalRoles());
 				ar.setApprovalUsers(currentStep.getApprovalUsers());
-				currentStep.setSendMailOnEnterStepFlag(a.getSendMailFlag());
-				currentStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
 			}
 
 			isFinished = true;
@@ -391,8 +389,7 @@ public class WorkflowEngine {
 						ar.setApprovalStepId(nextStep.getApprovalStepId()); // nextStep.getApprovalStepId() = 901
 																			// geliyor sorun
 						// yok
-						nextStep.setSendMailOnEnterStepFlag(a.getSendMailFlag());
-						nextStep.setSendSmsOnEnterStepFlag(a.getSendSmsFlag());
+						
 					} else {
 						logRecord.setApprovalActionTip((short) approvalAction);
 						ar.setReturnFlag(nextStep.getReturnFlag());
@@ -468,72 +465,9 @@ public class WorkflowEngine {
 
 		if (isFinished) { // Finished ise
 
-			if (approvalAction == 1)
-				mesaj = " '" + scd.get("completeName") + "' " + LocaleMsgCache.get2(0, xlocale, "approval_approved_by"); // Onaylandı
-																															// ise
-			else if (approvalAction == 3)
-				mesaj = " '" + scd.get("completeName") + "' " + LocaleMsgCache.get2(0, xlocale, "approval_rejected_by"); // reddedildi
-																															// ise
-			else if (approvalAction == 901)
-				mesaj = " '" + scd.get("completeName") + "' "
-						+ LocaleMsgCache.get2(0, xlocale, "approval_approved_by_901"); // dinamik onayda onaylayacak
-																						// kişi seçmeden onay
-			// istendiğinde ise
-			else
-				mesaj = " "; // Böyle bir durum olmaz aslında, bu kısma ya onaylanınca ya da reddedilince
-								// girer
-			// diye biliyorum
+			//Notification
 
-			// Onay işlemleri bittikten sonra kaydedene, onay sürecini başlatana ve son
-			// adımdaki rol ve
-			// userlara ve session da olmayan kişilere
-			List<Object[]> approvalUsers = dao.executeSQLQuery(
-					"select gu.gsm,gu.email,gu.user_id from iwb.w5_user gu where gu.customization_id=?::integer and gu.user_id <> ?::integer and "
-							+ "(gu.user_id in (select lar.user_id from iwb.log5_approval_record lar where (lar.approval_action_tip = 0 or lar.approval_action_tip = 901) and lar.approval_record_id = ?::integer) or "
-							+ "gu.user_id in (select ur.user_id from iwb.w5_user_role ur where ur.customization_id = ?::integer and ur.role_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x) and ((select u.user_tip from iwb.w5_role u where u.role_id = ur.role_id and u.customization_id = ur.customization_id) <> 3)) or "
-							+ "gu.user_id in (select x.satir::integer from iwb.tool_parse_numbers(?,\',\') x))",
-					scd.get("customizationId"), scd.get("userId"), ar.getApprovalRecordId(), scd.get("customizationId"),
-					ar.getApprovalRoles(), ar.getApprovalUsers());
-
-			if (approvalUsers != null) { // Bu kullanıcı listesi mevcutsa
-				for (Object[] liste : approvalUsers) {
-					if (liste[0] != null && liste[0].toString().length() > 5
-							&& currentStep.getSendSmsOnEnterStepFlag() != 0) { // sms gondermece, length kontrolü bazı
-																				// kullanıcılar için 0 girilmiş bunun
-						// için düz mantık
-						gsmList.add(liste[0].toString());
-					}
-
-					if (liste[1] != null && currentStep.getSendMailOnEnterStepFlag() != 0) { // mail adresi toplama
-																								// (hepsini topla
-																								// göndermek için
-																								// toplanıyor)
-						pemailList += "," + liste[1].toString();
-					}
-
-					if (liste[2] != null) { // user idler
-						notificationList.add(liste[2].toString());
-					}
-				}
-			}
-
-			// bu adımdan önce bu kayıtla ilgili işlem yapmış herkese notification
-			// gönder(işlenmi yapan
-			// hariç)
-			for (Integer notificationUserId : (List<Integer>) dao.find(
-					"select distinct r.userId from Log5WorkflowRecord r where r.approvalRecordId=? AND r.userId!=?",
-					ar.getApprovalRecordId(), userId)) {
-				notificationList.add(notificationUserId.toString());
-			}
-
-			/*
-			 * mailSubject = a.getDsc() + " (" + LocaleMsgCache.get2( scd,
-			 * a.get_approvalStepMap().get(ar.getApprovalStepId()).getNewInstance().getDsc()
-			 * ) + ")"; mailBody = ar.getDsc() + mesaj + (!GenericUtil.isEmpty((String)
-			 * parameterMap.get("_adsc")) ? "\n\n" + parameterMap.get("_adsc") : "");
-			 * 
-			 * messageBody = ar.getDsc() + mesaj;
-			 */
+		
 
 			ar.setFinishedFlag((short) 1);
 			ar.setApprovalRoles(null);
