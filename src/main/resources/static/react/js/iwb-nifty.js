@@ -2274,8 +2274,7 @@ class XTabForm extends React.PureComponent {
                 parentCt
               } = selfie.props;
               if (parentCt) {
-                iwb.closeModal();
-                iwb.closeTab();
+                !!selfie.props.callAttributes.modal?iwb.closeModal():iwb.closeTab();
                 iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
               }
               if (json.conversionPreviews)
