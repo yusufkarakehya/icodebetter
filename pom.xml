@@ -181,6 +181,9 @@
 						<ports>
 							<port>8080</port>
 						</ports>
+						<args>
+							<arg>project=1</arg>
+						</args>
 					</container>
 				</configuration>
 			</plugin>	
