@@ -36,7 +36,7 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
   private short finalStepFlag;
   private String visibleFields;
   private String updatableFields;
-  private String dynamicRoleUserSql;
+
 
   private short accessViewTip;
   private String accessViewRoles;
@@ -227,14 +227,6 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
     this.updatableFields = updatableFields;
   }
 
-  @Column(name = "dynamic_role_user_sql")
-  public String getDynamicRoleUserSql() {
-    return dynamicRoleUserSql;
-  }
-
-  public void setDynamicRoleUserSql(String dynamicRoleUserSql) {
-    this.dynamicRoleUserSql = dynamicRoleUserSql;
-  }
 
   @Column(name = "on_approve_step_sql")
   public String getOnApproveStepSql() {
@@ -325,7 +317,6 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
     a.onReturnStepSql = this.onReturnStepSql;
     a.onRejectStepSql = this.onRejectStepSql;
     a.finalStepFlag = this.finalStepFlag;
-    a.dynamicRoleUserSql = this.dynamicRoleUserSql;
     a.accessViewTip = this.accessViewTip;
     a.accessViewRoles = this.accessViewRoles;
     a.accessViewUsers = this.accessViewUsers;

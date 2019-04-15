@@ -415,23 +415,7 @@ public class WorkflowEngine {
 								ar.setApprovalRoles(nextStep.getApprovalRoles());
 								ar.setApprovalUsers(nextStep.getApprovalUsers());
 							}
-							if (nextStep != null && nextStep.getDynamicRoleUserSql() != null
-									&& nextStep.getDynamicRoleUserSql().length() > 10) { // calisacak
-								Map<String, Object> dynamicRoleUserSql = null;
-								dynamicRoleUserSql = dao.runSQLQuery2Map(nextStep.getDynamicRoleUserSql(), scd,
-										parameterMap, null);
-								// Ekstra Eklenecek Kullanıcı ve Roller varmı bu stepte
-								if (dynamicRoleUserSql != null && dynamicRoleUserSql.get("approval_users") != null)
-									ar.setApprovalUsers(ar.getApprovalUsers() == null
-											? (String) dynamicRoleUserSql.get("approval_users")
-											: GenericUtil.addUniqueValToStr(ar.getApprovalUsers(),
-													(String) dynamicRoleUserSql.get("approval_users"), ","));
-								if (dynamicRoleUserSql != null && dynamicRoleUserSql.get("approval_roles") != null)
-									ar.setApprovalRoles(ar.getApprovalRoles() == null
-											? (String) dynamicRoleUserSql.get("approval_roles")
-											: GenericUtil.addUniqueValToStr(ar.getApprovalUsers(),
-													(String) dynamicRoleUserSql.get("approval_roles"), ","));
-							}
+							
 						}
 					}
 					break;

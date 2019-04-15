@@ -785,6 +785,8 @@ public class PreviewController implements InitializingBean {
 		
 		Map<String, Object> scd = new HashMap<String, Object>();
 		scd.put("projectId", projectId);
+		scd.put("customizationId", po.getCustomizationId());
+		scd.put("userId", 0);scd.put("roleId", 0);scd.put("locale", "en");
 		W5GlobalFuncResult result = engine.executeFunc(scd, po.getAuthenticationFuncId(), requestParams, (short) 7); // user Authenticate DbFunc:1
 
 		/*
