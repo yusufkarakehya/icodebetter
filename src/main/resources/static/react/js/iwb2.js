@@ -6235,7 +6235,7 @@ class XMainPanel extends React.PureComponent {
 	 * @description A function to load page from the server
 	 */
     this.loadPage = () => {
-      var templateID = this.templateID;
+      var templateID = this.templxateID;
       if (!iwb["t-" + templateID]) {
         fetch("showPage?_tid=" + templateID, {
           cache: "no-cache", // *default, no-cache, reload, force-cache,
@@ -6264,7 +6264,7 @@ class XMainPanel extends React.PureComponent {
                 if (serverComponent) {
                   serverComponent = _(
                     "div",
-                    { className: "animated fadeIn" },
+                    { className: "animated fadeIn", id:templateID },
                     serverComponent
                   );
                   iwb["t-" + templateID] = serverComponent;
