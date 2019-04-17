@@ -6235,7 +6235,7 @@ class XMainPanel extends React.PureComponent {
 	 * @description A function to load page from the server
 	 */
     this.loadPage = () => {
-      var templateID = this.templxateID;
+      var templateID = this.templateID;
       if (!iwb["t-" + templateID]) {
         fetch("showPage?_tid=" + templateID, {
           cache: "no-cache", // *default, no-cache, reload, force-cache,
