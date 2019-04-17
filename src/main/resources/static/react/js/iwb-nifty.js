@@ -5962,7 +5962,7 @@ class XMainPanel extends React.PureComponent {
                 if (serverComponent) {
                   serverComponent = _(
                     "div",
-                    { className: "animated fadeIn", id:templateID },
+                    { className: "animated fadeIn", id:'page'+templateID },
                     serverComponent
                   );
                   iwb["t-" + templateID] = serverComponent;
