@@ -3127,7 +3127,7 @@ class XGridAction extends React.PureComponent {
           className: "timeline-badge hover-shake " + color,
           onClick: () => alert("hehey")
         },
-        _("i", { className: "icon-plus", style: { fontSize: 17 } })
+        _("i", { className: "fa fa-plus", style: { fontSize: 19 } })
       ),
       // {tag:'i',className: "icon-grid", color||'danger'}
       isOpen &&
@@ -5149,9 +5149,9 @@ class XMainGrid extends GridCommon {
                       }
                     },
                     _("i", {
-                      className: "icon-plus",
+                      className: "fa fa-plus",
                       style: {
-                        fontSize: 16
+                        fontSize: 19
                       },
                       dgindex: DGindex
                     })
