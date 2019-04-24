@@ -2090,6 +2090,7 @@ public class React16 implements ViewAdapter {
 		break; // 		
 
 		case	12://html editor
+			buf.append("$:XHTMLEditor, ");
 		case	25://textarea(ozel tanimlama)
 		case	41://codemirror
 		case	11:
@@ -2141,6 +2142,9 @@ public class React16 implements ViewAdapter {
 				break;
 			case	2:	case	18://case	22:
 				buf.append(",onChange:this.onDateChange('").append(fc.getDsc()).append("',").append(fc.getControlTip()==18).append(")");
+				break;
+			case	12:	//html editor:
+				buf.append(",onHtmlChange:this.onHtmlChange('").append(fc.getDsc()).append("')");
 				break;
 			default:
 				buf.append(",onChange:this.onChange");
