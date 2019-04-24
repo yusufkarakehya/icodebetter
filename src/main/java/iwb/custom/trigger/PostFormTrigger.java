@@ -36,11 +36,11 @@ public class PostFormTrigger {
 			}
 			break;
 		}
-		W5Project prj = null;
-		if(formResult.getErrorMap()!=null && formResult.getErrorMap().isEmpty() && formResult.getForm()!=null
-				&& formResult.getScd()!=null && formResult.getScd().get("customizationId")!=null && (Integer)formResult.getScd().get("customizationId")!=0 && (Integer)formResult.getScd().get("customizationId")!=140)switch(formResult.getForm().getObjectId()){
+		if(formResult.getScd()==null)return;
+		W5Project prj = FrameworkCache.getProject(formResult.getScd());
+		int customizationId = (Integer)formResult.getScd().get("customizationId");
+		if(formResult.getErrorMap()!=null && formResult.getErrorMap().isEmpty() && formResult.getForm()!=null)switch(formResult.getForm().getObjectId()){
 		case	15://table
-			prj = FrameworkCache.getProject(formResult.getScd());
 			if(formResult.getAction()==1 || formResult.getAction()==3){
 				List<Object> ll =  dao.executeSQLQuery("select lower(t.dsc) tdsc from iwb.w5_table t where t.table_id=? AND t.project_uuid=?"
 						, GenericUtil.uInt(formResult.getRequestParams(),"ttable_id"+prefix), prj.getProjectUuid());
@@ -53,7 +53,7 @@ public class PostFormTrigger {
 					case	3://delete
 						String dropTableSql = "drop table " + tableName;
 						
-						dao.executeUpdateSQLQuery(dropTableSql);
+						if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(dropTableSql);
 	
 						if(FrameworkSetting.vcs){
 							W5VcsCommit commit = new W5VcsCommit();
@@ -71,7 +71,7 @@ public class PostFormTrigger {
 						String newTableName = formResult.getRequestParams().get("dsc"+prefix);
 						if(newTableName!=null && !newTableName.toLowerCase().equals(tableName)){
 							String renameTableColumnSql = "alter table " + tableName + " RENAME TO " + newTableName;
-							dao.executeUpdateSQLQuery(renameTableColumnSql);
+							if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(renameTableColumnSql);
 		
 							if(FrameworkSetting.vcs){
 								W5VcsCommit commit = new W5VcsCommit();
@@ -92,7 +92,6 @@ public class PostFormTrigger {
 			}
 			break;
 		case	16://table_field
-			prj = FrameworkCache.getProject(formResult.getScd());
 			if(formResult.getAction()==1 || formResult.getAction()==3){
 				List<Object[]> ll =  dao.executeSQLQuery("select lower(tf.dsc), lower(t.dsc) tdsc from iwb.w5_table_field tf, iwb.w5_table t where tf.table_id=t.table_id AND tf.project_uuid=t.project_uuid AND tf.table_field_id=? AND tf.project_uuid=?"
 						, GenericUtil.uInt(formResult.getRequestParams(),"ttable_field_id"+prefix), prj.getProjectUuid());
@@ -105,7 +104,7 @@ public class PostFormTrigger {
 					case	3://delete
 						String dropTableColumnSql = "alter table " + tableName + " drop column " + tableFieldName;
 					
-						dao.executeUpdateSQLQuery(dropTableColumnSql);
+						if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(dropTableColumnSql);
 	
 						if(FrameworkSetting.vcs){
 							W5VcsCommit commit = new W5VcsCommit();
@@ -123,7 +122,7 @@ public class PostFormTrigger {
 						String newTableFieldName = formResult.getRequestParams().get("dsc"+prefix);
 						if(newTableFieldName!=null && !newTableFieldName.toLowerCase().equals(tableFieldName)){
 							String renameTableColumnSql = "alter table " + tableName + " RENAME " + tableFieldName + " TO " + newTableFieldName;
-							dao.executeUpdateSQLQuery(renameTableColumnSql);
+							if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(renameTableColumnSql);
 		
 							if(FrameworkSetting.vcs){
 								W5VcsCommit commit = new W5VcsCommit();
@@ -155,7 +154,7 @@ public class PostFormTrigger {
 //						int defaultControlType = GenericUtil.uInt(formResult.getRequestParams().get("default_control_tip"+prefix));
 						
 						String addTableColumnSql = "alter table " + tableName + " add column " + tableFieldName + " " + DBUtil.iwb2dbType(fieldType, GenericUtil.uInt(formResult.getRequestParams().get("max_length"+prefix)));
-						dao.executeUpdateSQLQuery(addTableColumnSql);
+						if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(addTableColumnSql);
 	
 						if(FrameworkSetting.vcs){
 							W5VcsCommit commit = new W5VcsCommit();

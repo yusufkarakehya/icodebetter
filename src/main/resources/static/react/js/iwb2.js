@@ -3100,7 +3100,7 @@ class XGridAction extends React.PureComponent {
           className: "timeline-badge hover-shake " + color,
           onClick: () => alert("hehey")
         },
-        _("i", { className: "icon-grid", style: { fontSize: 17 } })
+        _("i", { className: "icon-plus", style: { fontSize: 17 } })
       ),
       // {tag:'i',className: "icon-grid", color||'danger'}
       isOpen &&
@@ -4766,7 +4766,7 @@ class XMainGrid extends GridCommon {
           });
         });
       var state = {
-        columns,
+        columns, activeTab:props.detailGrids && props.detailGrids.length && props.detailGrids[0].gridId ? props.detailGrids[0].gridId:-1,
         order: columns.map(({ name }) => name),
         columnExtensions,
         columnWidths: columnExtensions.map(({ columnName, width }) => {
@@ -5120,9 +5120,9 @@ class XMainGrid extends GridCommon {
                       }
                     },
                     _("i", {
-                      className: "icon-grid",
+                      className: "icon-plus",
                       style: {
-                        fontSize: 17
+                        fontSize: 16
                       },
                       dgindex: DGindex
                     })
@@ -5198,6 +5198,128 @@ class XMainGrid extends GridCommon {
         }
       };
     };
+    
+    this.toggle = event => {
+      /*  var activeTab = event.target ? event.target.getAttribute("name") : event;
+        if (this.state.activeTab !== activeTab) {
+          var {
+            tabs
+          } = this;
+          tabs &&
+            tabs.forEach(tempTab => {
+              if (tempTab.name === activeTab) {
+                this.setState({
+                  activeTab
+                });
+                return true;
+              }
+            });
+        }*/
+        return false;
+      };
+    
+    this.showDetail3 = tempDetailGrids => {
+        var selfie = this;
+        return row => {
+        	console.log('ahmet',tempDetailGrids, row)
+//        	return _('div',null,'ahmet')
+          if (row) {
+        	  return _(Card,{}, _(
+        			            Nav,
+        			            { tabs: true},
+        			            tempDetailGrids.map(({grid, pk, params} ,index) => {
+        			              return _(
+        			                NavItem,
+        			                { key: "NavItem" + index },
+        			                _(
+        			                  NavLinkS,
+        			                  {
+        			                    className: classNames({
+        			                      active: this.state.activeTab === grid.gridId
+        			                    }),
+        			                    name:'g-'+grid.gridId,
+        			                    onClick: event => this.toggle(event)
+        			                  },
+        			                  grid.name
+        			                )
+        			              );
+        			            })
+        			          ),
+        			          _(TabContent, 
+    	            { activeTab: this.state.activeTab },
+    	            //_(TabPane, {tabId:this.state.activeTab}, 'ahmet')
+    	            tempDetailGrids.map(({grid, pk, params, detailGrids} ,index) => {
+    	            	var detailXGrid = {
+    	                        ...{
+    	                          pk:pk || {}
+    	                        },
+    	                        ...grid
+    	                      };
+    	                      if (detailXGrid._url)
+    	                        detailXGrid._url += buildParams2(
+    	                          params,
+    	                          row.row
+    	                        );
+    	                      else detailXGrid.rows = row.row[detailXGrid.detailRowsFieldName];
+    	                      detailXGrid.detailFlag = true;
+    	                      
+    	              return index==0 && _(
+    	                TabPane,
+    	                { key: "TabPane" + grid.gridId, tabId: this.state.activeTab },
+    	                _(XGrid, {
+    	                      responsive: true,
+    	                      openTab: selfie.props.openTab,
+    	                      showDetail: detailGrids ?
+    	                        selfie.showDetail3(
+    	                        		detailGrids
+    	                        ) : false,
+    	                      ...detailXGrid
+    	                    })
+    	              );
+    	            })
+    	          ));
+        	  
+        	  return _(Card,{}, 
+        			  _(
+        			            Nav,
+        			            { tabs: true},
+        			            this.tabs.map(({ name, icon, title }, index) => {
+        			              return _(
+        			                NavItem,
+        			                { key: "NavItem" + index },
+        			                _(
+        			                  NavLinkS,
+        			                  {
+        			                    className: classNames({
+        			                      active: this.state.activeTab === name
+        			                    }),
+        			                    name,
+        			                    onClick: event => this.toggle(event)
+        			                  },
+        			                  _("i", {
+        			                    className: icon,
+        			                    name,
+        			                    title,
+        			                    onClick: event => this.toggle(event)
+        			                  }),
+        			                  title && name != "x" && this.state.activeTab === name && title
+        			                )
+        			              );
+        			            })
+        			          ),
+        			  _(
+      	            TabContent, 
+      	            { activeTab: 'xx'},
+      	            _(TabPane,{ key: "xx", tabId: 'xx' },
+      	            		_('div',null,'somon')
+      	              )
+
+      	          ));
+          } else {
+            return null;
+          }
+        };
+      };
     /**
 	 * @overloading
 	 * @param {Boolean}
@@ -5525,9 +5647,10 @@ class XPage extends React.PureComponent {
   constructor(props) {
     if (iwb.debugConstructor && iwb.debug) console.log("XPage.constructor", props);
     super(props);
-    document.getElementById("id-breed").innerHTML = this.props.grid.name;
+    var breed = document.getElementById("id-breed");
+    if(breed)breed.innerHTML = this.props.grid.name;
     iwb.killGlobalSearch();
-    this.state = { activeTab: "x" };
+    this.state = { activeTab: "x", activeTab2: "x" };
     this.tabs = (iwb.tabs[this.props.grid.id])?[...iwb.tabs[this.props.grid.id]]:[{ name: "x", icon:"icon-list", title: "Liste", value: props.grid }];
     /**
 	 * @description a Function to toggle between tabs
