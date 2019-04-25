@@ -183,6 +183,7 @@
 						</ports>
 						<args>
 							<arg>project=b5ba4e0d-e300-4e63-8ba9-c5afbb4ed37e</arg>
+							<arg>vcs_server=http://10.252.101.71/app/</arg>
 						</args>
 					</container>
 				</configuration>
