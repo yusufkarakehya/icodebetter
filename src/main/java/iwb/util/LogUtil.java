@@ -1,8 +1,13 @@
 package iwb.util;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.rabbitmq.client.Channel;
 
@@ -38,7 +43,7 @@ public class LogUtil {
 				Map m = new HashMap();
 				m.put("Content-Type", "application/json");
 				String sq = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/write?db="+FrameworkSetting.log2tsdbDbName,s.toString(),"POST", m);
-				if(FrameworkSetting.debug && !GenericUtil.isEmpty(sq))System.out.println("log2tsdb response: "+sq);
+				//if(FrameworkSetting.debug && !GenericUtil.isEmpty(sq))System.out.println("log2tsdb response: "+sq);
 			}
 			errorCount = 0;
 		}catch (Exception e) {
@@ -48,6 +53,27 @@ public class LogUtil {
 			}
 		}
 	}
+	/*
+	public static String queryLog(String measName, String projectId, int start, int limit){
+		if(!FrameworkSetting.log2tsdb)return "";
+		try {
+			String influxQL = "select * from "+measName+" where project_uuid='"+projectId+"'";
+			if(start>0)influxQL+=" offset " + start;
+			if(limit>0)influxQL+=" limit " + limit;			
+			String sq = iquery( FrameworkSetting.log2tsdbUrl,FrameworkSetting.log2tsdbDbName,influxQL);
+			errorCount = 0;
+			return sq;
+		}catch (Exception e) {
+			errorCount++;
+			if(errorCount % 100 == 1){//TODO 100 defada bir birseyler yap
+				
+			}
+			return "";
+		}
+	}
+	*/
+	
+
 	
 	public static void logCrud(String str){
 		if(str==null)return;

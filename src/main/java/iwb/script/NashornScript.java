@@ -16,6 +16,7 @@ import com.rabbitmq.client.Channel;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
+import iwb.domain.db.Log5Console;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5FormResult;
@@ -25,6 +26,8 @@ import iwb.exception.IWBException;
 import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
+import iwb.util.InfluxUtil;
+import iwb.util.LogUtil;
 import iwb.util.MQUtil;
 import iwb.util.RedisUtil;
 import iwb.util.ScriptUtil;
@@ -120,7 +123,12 @@ public class NashornScript {
 	public String redisInfo(String host, String section) {
 		return RedisUtil.info(host, section);
 	}
-
+*/
+	public Object[]  influxQuery(String host, String dbName, String query) {
+		List l = InfluxUtil.query(host, dbName, query);
+		return GenericUtil.isEmpty(l) ? null : l.toArray();
+	}
+	
 	public String mqBasicPublish(String host, String queueName, String msg) {
 		Channel ch = MQUtil.getChannel4Queue(host, queueName);
 		if (ch == null)
@@ -132,7 +140,7 @@ public class NashornScript {
 			return e.getMessage();
 		}
 	}
-*/
+
 	public int mqQueueMsgCount(String host, String queueName) {
 		return MQUtil.getQueueMsgCount(host, queueName);
 	}
@@ -278,6 +286,7 @@ public class NashornScript {
 						(String) scd.get("sessionId"), (String) requestParams.get(".w"), m);
 			} catch (Exception e) {
 			}
+		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5Console(scd, s, level));
 	}
 
 	public Object execFunc(int dbFuncId, ScriptObjectMirror jsRequestParams) {

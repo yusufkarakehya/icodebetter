@@ -17,6 +17,7 @@ import com.rabbitmq.client.Channel;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
+import iwb.domain.db.Log5Console;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5FormResult;
@@ -26,6 +27,7 @@ import iwb.exception.IWBException;
 import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
+import iwb.util.LogUtil;
 import iwb.util.MQUtil;
 import iwb.util.RedisUtil;
 import iwb.util.ScriptUtil;
@@ -226,8 +228,7 @@ public class GraalScript {
 	}
 
 	public void console(Object oMsg, String title, String level) {
-		if (!FrameworkSetting.debug)
-			return;
+//		if (!FrameworkSetting.debug)return;
 		String s = "(null)";
 		if (oMsg != null) {
 			if (oMsg instanceof String)
@@ -260,8 +261,7 @@ public class GraalScript {
 				}
 			}
 		}
-		if (FrameworkSetting.debug)
-			System.out.println(s);
+		if (FrameworkSetting.debug)System.out.println(s);
 		if (scd != null && scd.containsKey("customizationId") && scd.containsKey("userId")
 				&& scd.containsKey("sessionId") && requestParams != null && requestParams.containsKey(".w"))
 			try {
@@ -277,6 +277,8 @@ public class GraalScript {
 						(String) scd.get("sessionId"), (String) requestParams.get(".w"), m);
 			} catch (Exception e) {
 			}
+		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5Console(scd, s, level));
+			
 	}
 
 	public Object execFunc(int dbFuncId, Object jsRequestParams) {
