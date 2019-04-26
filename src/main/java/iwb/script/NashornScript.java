@@ -125,6 +125,7 @@ public class NashornScript {
 	}
 */
 	public Object[]  influxQuery(String host, String dbName, String query) {
+		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
 		List l = InfluxUtil.query(host, dbName, query);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
