@@ -69,6 +69,23 @@ public class VcsController implements InitializingBean {
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
+	
+	
+	@RequestMapping("/ajaxVCSObjectPullColumn")
+	public void hndAjaxVCSObjectPullColumn(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+    	int tableId = GenericUtil.uInt(request, "t");
+    	int tablePk = GenericUtil.uInt(request, "k");
+    	String column = GenericUtil.uStrNvl(request, "c", "");
+		logger.info("hndAjaxVCSObjectPullColumn("+tableId+")"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+    	Map m = vcsEngine.vcsClientObjectPullColumn(scd, tableId, tablePk, column);
+    	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
+		response.getWriter().close();
+	}
 /*	
 	@RequestMapping("/ajaxCopyProject")
 	public void hndAjaxCopyProject(

@@ -4316,6 +4316,54 @@ public class PostgreSQL extends BaseDAO {
 
 		return true;
 	}
+	
+
+	public short updateVcsObjectColumn(Map<String, Object> scd, int tableId, int tablePk, String column, JSONObject o) { // TODO
+		// dao.updatePlainTableRecord(t, o, vo.getTablePk(), srvCommitUserId);
+		try {
+			W5Table t = FrameworkCache.getTable(scd, tableId);
+			StringBuilder s = new StringBuilder();
+			List p = new ArrayList();
+			s.append("update ").append(t.getDsc()).append(" x set ");
+			for (W5TableField f : t.get_tableFieldList())
+				if (f.getTabOrder() > 1 && (f.getDsc().equals(column) || f.getDsc().equals("version_dttm"))) {
+					if (f.getDsc().equals("version_dttm")) {
+						s.append(f.getDsc()).append("=iwb.fnc_sysdate(0),");
+						continue;
+					}
+					s.append(f.getDsc()).append("=?,");
+					try {
+						if (o.has(f.getDsc())) {
+							p.add(GenericUtil.getObjectByControl((String) o.get(f.getDsc()), f.getParamTip()));
+						} else
+							p.add(null);
+					} catch (JSONException e) {
+						throw new IWBException("vcs", "JSONException : saveVcsObject", t.getTableId(), f.getDsc(),
+								e.getMessage(), e);
+					}
+				}
+			s.setLength(s.length() - 1);
+			s.append(" where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
+			p.add(tablePk);
+			s.append(DBUtil.includeTenantProjectPostSQL(scd, t));
+
+			executeUpdateSQLQuery(s.toString(), p);
+			
+			s.setLength(0);p.clear();
+			s.append("select * from ").append(t.getDsc()).append(" x where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
+			p.add(tablePk);
+			s.append(DBUtil.includeTenantProjectPostSQL(scd, t));
+			Map<String, Object> m = runSQLQuery2Map(s.toString(), p, null);
+			for(String k:m.keySet()) if(!GenericUtil.hasPartInside("insert_user_id,insert_dttm,version_user_id,version_dttm,version_no,oproject_uuid,project_uuid,customization_uuid", k) && !GenericUtil.safeEquals2(m.get(k), o.get(k))){
+				return (short)1;
+			}
+			return (short)9;
+		} catch (Exception e) {
+			throw new IWBException("framework", "Update.VCSObjectColumn", tablePk, null, "[" + tableId + "," + tablePk + "] ",
+					e);
+		}
+
+	}
 
 	public String getTableRecordSummary(Map scd, int tableId, int tablePk, int maxLength) {
 		W5Table t = FrameworkCache.getTable(scd, tableId);

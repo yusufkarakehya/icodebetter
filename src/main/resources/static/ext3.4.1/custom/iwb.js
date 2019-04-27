@@ -3216,7 +3216,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       }
     });
   }
-  if (mainGrid.menuButtons/*  && mainGrid.gridId && !1*_app.toolbar_edit_btn */) {
+  if (mainGrid.menuButtons/* && mainGrid.gridId && !1*_app.toolbar_edit_btn */) {
     mainGridPanel.messageContextMenu = mainGrid.menuButtons;
     if(mainGrid.gridId)
     	mainGridPanel.on("rowcontextmenu", fnRightClick);
@@ -3548,7 +3548,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var detailPanel = new Ext.TabPanel(subTab);
   
   if(mainGrid.dataViewId){
-	  var xbuttons=[];//[' ',' ','-'];
+	  var xbuttons=[];// [' ',' ','-'];
 	  xbuttons.push(organizeButtons(mainButtons));
 	  xbuttons.push({iconCls:'icon-maximize', tooltip:'Maximize',handler:function(){
 		  var sfx = Ext.getCmp('sfx-'+obj.t);
@@ -3622,7 +3622,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 				  }
 				  xmenus.push(o);
 			  }
-			  //console.log('xmenus',xmenus);
+			  // console.log('xmenus',xmenus);
 	        new Ext.menu.Menu({cls:'sort-menu',
 	            enableScrolling: false,
 	            items: xmenus
@@ -3835,7 +3835,7 @@ function ajaxErrorHandler(obj) {
               );
             } // else if(sqlPos){
             if (iwb.errors[qi]){
-              //iwb.errors[qi] = oo.error;
+              // iwb.errors[qi] = oo.error;
               ss +=
                 " &nbsp; <a href=# onclick='showSQLError(iwb.errors[" +
                 (qi) +
@@ -6796,7 +6796,7 @@ function fmtOnlineUser(j) {
   if (j.dsc.length > 20) j.dsc = j.dsc.substring(0, 18) + "...";
   str += j.dsc + "</span>"; 
 
-  if (_scd.customizationId > 1) // linkedin vs. 
+  if (_scd.customizationId > 1) // linkedin vs.
 	  str += '<div class="x-tool x-tool-close" id="ext-gen0199" onclick="return removeProjectMember('+j.user_id+');">&nbsp;</div>';
   
   if (j.not_read_count > 0)
@@ -7023,7 +7023,7 @@ iwb.showValsDiffinMonaco = function (qi) {
 		Ext.infoMsg.msg("info", "Loading Monaco", 2);
 		require.config({ paths: { vs: "/monaco/min/vs" } });
 		require(["/monaco/min/vs/editor/editor.main"], function() {
-//			iwb.showValsDiffinMonaco(qi);
+// iwb.showValsDiffinMonaco(qi);
 		});
 		return;
 	}
@@ -7064,8 +7064,17 @@ iwb.showValsDiffinMonaco = function (qi) {
   win.show();
 
 }
-iwb.fnTblRecColumnVCSUpdate=function (tid, tpk, clmn) {
-	alert('todo: ' + tid + ' / ' + tpk  + ' / ' + clmn);
+iwb.fnTblRecColumnVCSUpdate=function (tid, tpk, clmn, i) {
+	if(confirm('Are you sure to Update Local Value')){
+//		alert('todo: ' + tid + ' / ' + tpk  + ' / ' + clmn);
+		iwb.request({
+  		  url: 'ajaxVCSObjectPullColumn', params: { t: tid, k: tpk, c: clmn }, successCallback: function (j) {
+	  	          Ext.infoMsg.msg('success', 'VCS Object Column Succesfully Pulled');
+	  	          var el = document.getElementById('vcs-col-'+i);
+	  	          if(el)el.outerHTML='';
+  		  }
+  	  }); 
+	}
 	return false;
 }
 iwb.fnTblRecVCSDiff = function (tid, tpk, a, dsc) {
@@ -7079,8 +7088,8 @@ iwb.fnTblRecVCSDiff = function (tid, tpk, a, dsc) {
         iwb.valsDiffData = j.data;
         var s = '<table width=100%><thead style="background:rgba(255,255,255,.2)"><tr><td width=10% style="padding: 5px;">field name</td><td width=45% style="padding: 5px;">local value</td><td width=45% style="padding: 5px;">remote value</td></tr></thead>';
         for (var qi = 0; qi < j.data.length; qi++)
-          if (j.data[qi].editor != 11 && j.data[qi].editor != 41) s += '<tr style="color: #ccc;"><td>' + j.data[qi].name + '</td><td>' + j.data[qi].local 
-          	+ '<a title="Update Local" href=# style="float:right" onclick="return iwb.fnTblRecColumnVCSUpdate('+tid+','+tpk+',\''+j.data[qi].name+'\')"><div style="width: 20px;height: 20px;    background-position: center; transform: rotate(90deg);" class="icon-vcs-pull">&nbsp;</div></a></td><td>' + j.data[qi].remote + '</td></tr>';
+          if (j.data[qi].editor != 11 && j.data[qi].editor != 41) s += '<tr style="color: #ccc;" id="vcs-col-'+qi+'"><td>' + j.data[qi].name + '</td><td>' + j.data[qi].local 
+          	+ '<a title="Update Local" href=# style="float:right" onclick="return iwb.fnTblRecColumnVCSUpdate('+tid+','+tpk+',\''+j.data[qi].name+'\','+qi+')"><div style="width: 20px;height: 20px;    background-position: center; transform: rotate(90deg);" class="icon-vcs-pull">&nbsp;</div></a></td><td>' + j.data[qi].remote + '</td></tr>';
           else s += '<tr style="color: #ccc;background:rgba(0,0,0,.2)"><td>' + j.data[qi].name + '</td><td align=center colspan=2><a href=# onclick="return iwb.showValsDiffinMonaco(' + qi + ')">show diff in editor</a></td></tr>';
         s += '</table>';
         var wndx = new Ext.Window({
@@ -7089,7 +7098,14 @@ iwb.fnTblRecVCSDiff = function (tid, tpk, a, dsc) {
           width: 800,
           autoHeight: true,
           html: s,
-          buttons: [{ text: 'Close', handler: function () { wndx.close(); } }]
+          buttons: [{ text: 'Force Pull', handler: function () {         	  
+	        	  if(confirm('Are you sure to Force Pull?'))iwb.request({
+	        		  url: 'ajaxVCSObjectPull', params: { t: tid, k: tpk, f: 1 }, successCallback: function (j) {
+			  	          Ext.infoMsg.msg('success', 'VCS Object Succesfully Pulled');
+			  	          wndx.close(); 
+	        		  }
+	        	  }); 
+	          } }, { text: 'Close', handler: function () { wndx.close(); } }]
         });
         wndx.show();
       } else if (j.lcl) fnTblRecEdit(tid, tpk);
@@ -7107,7 +7123,7 @@ function fncMnuVcs(xgrid) {
       iconCls: "icon-vcs-push",
       _grid: xgrid,
       handler: function(aq) {
-        var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
+        var sel = getSels(aq._grid);// ._gp.getSelectionModel().getSelections();
         if (sel && sel.length > 0) {
           var d = sel[0].data.pkpkpk_vcsf;
           if (d) {
@@ -7121,7 +7137,7 @@ function fncMnuVcs(xgrid) {
       iconCls: "icon-vcs-pull",
       _grid: xgrid,
       handler: function(aq) {
-        var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
+        var sel = getSels(aq._grid);// ._gp.getSelectionModel().getSelections();
         if (sel && sel.length > 0) {
           var d = sel[0].data.pkpkpk_vcsf;
           if (d) {
@@ -7135,7 +7151,7 @@ function fncMnuVcs(xgrid) {
         text: "Show Diff",
         _grid: xgrid,
         handler: function(aq) {
-          var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
+          var sel = getSels(aq._grid);// ._gp.getSelectionModel().getSelections();
           sel &&
             sel.length > 0 &&
             sel[0].data.pkpkpk_vcsf &&
@@ -7167,7 +7183,7 @@ function fncMnuVcs(xgrid) {
       text: "Add to VCS",
       _grid: xgrid,
       handler: function(aq) {
-        var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
+        var sel = getSels(aq._grid);// ._gp.getSelectionModel().getSelections();
         if (sel && sel.length > 0 && !sel[0].data.pkpkpk_vcsf) {
           promisRequest({
             url: "ajaxVCSObjectAction",
@@ -7184,7 +7200,7 @@ function fncMnuVcs(xgrid) {
         text: "Ignore",
         _grid: xgrid,
         handler: function(aq) {
-          var sel = getSels(aq._grid);//._gp.getSelectionModel().getSelections();
+          var sel = getSels(aq._grid);// ._gp.getSelectionModel().getSelections();
           sel &&
             sel.length > 0 &&
             sel[0].data.pkpkpk_vcsf &&
@@ -7887,7 +7903,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           }
           if (getForm.approval.approveFormId) {
             mainPanel.loadTab({attributes:{href:"showForm?a=2&_fid="+getForm.approval.approveFormId+"&_arid=" + getForm.approval.approvalRecordId, modalWindow: true}});
-//            mainPanel.closeModalWindow();
+// mainPanel.closeModalWindow();
             return;
           } else submitAndApproveTableRecord(1, getForm);
         }
@@ -8434,10 +8450,10 @@ iwb.addCss=function(cssCode,id){
 	Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
 }
 iwb.loadComponent=function(id){
-//	Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
+// Ext.util.CSS.createStyleSheet(cssCode,"iwb-tpl-"+id);
 }
 iwb.serverDttmDiff=0;
-iwb.getDate=function(x){//server DateTime OR parse(x)
+iwb.getDate=function(x){// server DateTime OR parse(x)
 	if(!x)return iwb.serverDateDiff ? new Date(new Date().getTime()+iwb.serverDateDiff): new Date();
 	if(x.length<=10)return Date.parseDate(x,"d/m/Y");
 	return Date.parseDate(x,"d/m/Y H:i:s");

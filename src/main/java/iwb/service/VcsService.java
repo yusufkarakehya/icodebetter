@@ -3848,4 +3848,74 @@ public class VcsService {
 		}
 		return true;
 	}
+	public Map vcsClientObjectPullColumn(Map<String, Object> scd, int tableId, int tablePk, String column) {
+		if(FrameworkSetting.vcsServer)
+			throw new IWBException("vcs","vcsClientObjectPullColumn",0,null, "VCS Server not allowed to vcsClientObjectPull", null);
+		int customizationId = (Integer)scd.get("customizationId");
+		String projectUuid = (String)scd.get("projectId");
+		
+		W5Project po = FrameworkCache.getProject(projectUuid);
+
+		W5Table t = FrameworkCache.getTable(projectUuid, tableId);
+		if(t.getVcsFlag()==0){
+			throw new IWBException("vcs","vcsClientObjectPullColumn", t.getTableId(), po.getProjectUuid()+"!="+projectUuid, "Not VCS Table2", null);
+		}
+		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&t="+tableId+"&k="+tablePk+"&r="+po.getProjectUuid();
+		
+		List lv = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid);
+		W5VcsObject vo = null;
+		Map result = new HashMap();
+		result.put("success", true);
+		if(!lv.isEmpty()){
+			vo = (W5VcsObject)lv.get(0);
+			if(vo.getVcsObjectStatusTip()==2){
+			//	throw new PromisException("vcs","vcsClientObjectPull", vo.getVcsCommitId(), null, "Object is New. Cannot be Pulled2", null);
+				result.put("error", "force");
+				result.put("error_msg", "Object is New. Cannot be Pulled2");
+				return result;
+			}
+			urlParameters+="&o="+vo.getVcsCommitId();
+		} else {
+			throw new IWBException("vcs","vcsClientObjectPullColumn",0,null, "VCS Object not found", null);
+		}
+
+		
+		String url=po.getVcsUrl();
+		if(!url.endsWith("/"))url+="/";
+		url+="serverVCSObjectPull";
+		String s = HttpUtil.send(url, urlParameters);
+		if(!GenericUtil.isEmpty(s)){
+			JSONObject json;
+			try {
+				json = new JSONObject(s);
+				if(json.get("success").toString().equals("true")){
+//					String sql =json.getString("sql");
+					int action = json.getInt("action");
+					if(action==3)
+						throw new IWBException("vcs","vcsClientObjectPullColumn",0,null, "VCS Object deleted", null);
+					JSONObject jo =json.getJSONObject("object");
+					int srvVcsCommitId = json.getInt("commit_id");
+					int srvCommitUserId = json.getInt("user_id");
+					
+					short vcsObjectStatusTip = dao.updateVcsObjectColumn(scd, tableId, tablePk, column, jo);
+
+					vo.setVcsObjectStatusTip(vcsObjectStatusTip);
+					if(vcsObjectStatusTip==9) {
+						vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, tableId, tablePk));
+						vo.setVersionNo((short)(vo.getVersionNo()+1));
+						vo.setVersionUserId(srvCommitUserId);
+						vo.setVcsCommitId(srvVcsCommitId);
+						vo.setVersionDttm(new Timestamp(new Date().getTime()));
+					}
+					dao.updateObject(vo);
+					
+					if(FrameworkSetting.log2tsdb)Log4Crud(po.getRdbmsSchema(), t, action, srvVcsCommitId, tablePk, jo);
+				} else
+					throw new IWBException("vcs","vcsClientObjectPull:server Error Response", t.getTableId(), s, json.has("error") ? json.getString("error"): json.toString(), null);
+			} catch (JSONException e){
+				throw new IWBException("vcs","vcsClientObjectPull:JSONException", t.getTableId(), s, "Error", e);
+			}
+		}
+		return result;
+	}
 }
