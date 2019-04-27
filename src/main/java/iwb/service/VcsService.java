@@ -1501,7 +1501,7 @@ public class VcsService {
 		int action=0;
 		switch(vo.getVcsObjectStatusTip()){
 		case 0:case	9:case	8://synch durumdaysa Push'a gerek yok (9:active synched, 8:deleted synched)
-			throw new IWBException("vcs","vcsClientObjectPush", tablePk, "vcsObjectStatusTip = " + vo.getVcsObjectStatusTip(), "Object Already Synched("+t.getDsc()+")", null);
+			if(!force)throw new IWBException("vcs","vcsClientObjectPush", tablePk, "vcsObjectStatusTip = " + vo.getVcsObjectStatusTip(), "Object Already Synched("+t.getDsc()+")", null);
 		default:
 			action = vo.getVcsObjectStatusTip();
 		}
@@ -3632,6 +3632,17 @@ public class VcsService {
 							o[3] = tf.getDefaultControlTip();
 							qr.getData().add(o);
 						}
+					}
+					if(qr.getData().size()==0) {//no conflict
+						List lv = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", t.getTableId(), GenericUtil.uInt(keyz[1]), customizationId, projectUuid);
+						if(lv.size()>0) {
+							W5VcsObject vo = (W5VcsObject)lv.get(0);
+							vo.setVcsObjectStatusTip((short)9);
+							vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd,  t.getTableId(), GenericUtil.uInt(keyz[1])));
+							vo.setVcsCommitId(json.getInt("commit_id"));
+							dao.updateObject(vo);
+						}
+						
 					}
 					return qr;
 				}

@@ -1099,7 +1099,7 @@ function fnTblRecEdit(tid, tpk, b) {
       }
     });
   } else {
-    promisRequest({
+	  iwb.request({
       url: "getTableRecordInfo",
       requestWaitMsg: true,
       params: { _tb_id: tid, _tb_pk: tpk },
@@ -1251,7 +1251,7 @@ function fnDataMoveUpDown(a, b) {
   }
 
   var sel = getSel(a._grid);
-  promisRequest({
+  iwb.request({
     url:
       "ajaxExecDbFunc?_did=701&ptable_id=" +
       a._grid.crudTableId +
@@ -1377,7 +1377,7 @@ function fnRowDelete(a, b) {
           }
         }
         if (href)
-          promisRequest({
+        	iwb.request({
             url: href,
             params: params,
             requestWaitMsg: true,
@@ -1419,7 +1419,7 @@ function fnRowDelete(a, b) {
         if (a._grid._postDelete) href += "&" + a._grid._postDelete;
       }
       if (href)
-        promisRequest({
+    	  iwb.request({
           url: href,
           successDs: a._grid.ds,
           requestWaitMsg: true,
@@ -1799,7 +1799,7 @@ function fnCommit(a) {
   if (dirtyCount > 0) {
     params._cnt = dirtyCount;
     Ext.infoMsg.confirm(getLocMsg("js_degisiklik_kayit_emin"), () => {
-      promisRequest({
+    	iwb.request({
         url: "ajaxPostEditGrid?_fid=" + a._grid.crudFormId,
         params: params,
         requestWaitMsg: true,
@@ -2279,7 +2279,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
             var pr = { _cnvId: aq.xid, _cnt: sels.length, form_id: aq._fid };
             for (var qi = 0; qi < sels.length; qi++)
               pr["srcTablePk" + (qi + 1)] = sels[qi].id;
-            promisRequest({
+            iwb.request({
               url: "ajaxPostEditGrid",
               params: pr,
               requestWaitMsg: true,
@@ -2703,7 +2703,7 @@ function addDefaultGridPersonalizationButtons(xbuttons, xgrid) {
               params.psfrm_visible_flag = fp.collapsed ? 0 : 1;
             }
 
-            promisRequest({
+            iwb.request({
               requestWaitMsg: true,
               url: "ajaxExecDbFunc?_did=648",
               params: params,
@@ -4318,7 +4318,7 @@ function promisRequest(rcfg) {
                 ) {
                   Ext.infoMsg.confirm(json.error, () => {
                     rcfg.params["_confirmId_" + json.objectId] = 1;
-                    promisRequest(rcfg);
+                    iwb.request(rcfg);
                   });
                 } else ajaxErrorHandler(json);
               }
@@ -4414,7 +4414,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
           });
         } else {
           p.xid = comboDetail.hiddenValue;
-          promisRequest({
+          iwb.request({
             url: "ajaxQueryData",
             params: p,
             successCallback: function(j2) {
@@ -4468,7 +4468,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
         });
       } else {
         p.xid = comboDetail.hiddenValue;
-        promisRequest({
+        iwb.request({
           url: "ajaxQueryData",
           params: p,
           successCallback: function(j2) {
@@ -4488,7 +4488,7 @@ function loadCombo(comboMaster, param, formAction) {
   if (typeof comboMaster == "undefined" || !param) return;
   if (typeof comboMaster.hiddenValue != "undefined") {
     if (comboMaster._controlTip == 101) {
-      promisRequest({
+    	iwb.request({
         url: "ajaxQueryData",
         params: param,
         successCallback: function(j2) {
@@ -4722,7 +4722,7 @@ function approveTableRecord(aa, a) {
         handler: function(ax, bx, cx) {
           var _dynamic_approval_users = win.items.items[0].items.items[0].getValue();
           var _comment = win.items.items[0].items.items[1].getValue();
-          promisRequest({
+          iwb.request({
             url: "ajaxApproveRecord",
             params: {
               _arid: rec_id,
@@ -7068,7 +7068,7 @@ iwb.fnTblRecColumnVCSUpdate=function (tid, tpk, clmn, i) {
 	if(confirm('Are you sure to Update Local Value')){
 //		alert('todo: ' + tid + ' / ' + tpk  + ' / ' + clmn);
 		iwb.request({
-  		  url: 'ajaxVCSObjectPullColumn', params: { t: tid, k: tpk, c: clmn }, successCallback: function (j) {
+  		  url: 'ajaxVCSObjectPullColumn', params: { t: tid, k: tpk, c: clmn }, requestWaitMsg: true, successCallback: function (j) {
 	  	          Ext.infoMsg.msg('success', 'VCS Object Column Succesfully Pulled');
 	  	          var el = document.getElementById('vcs-col-'+i);
 	  	          if(el)el.outerHTML='';
@@ -7078,7 +7078,7 @@ iwb.fnTblRecColumnVCSUpdate=function (tid, tpk, clmn, i) {
 	return false;
 }
 iwb.fnTblRecVCSDiff = function (tid, tpk, a, dsc) {
-  promisRequest({
+	iwb.request({
     url: 'ajaxVCSObjectConflicts', params: { k: tid + '.' + tpk }, requestWaitMsg: true, successCallback: function (j) {
       if (j.data) {
     	  if(!j.data.length){
@@ -7099,13 +7099,20 @@ iwb.fnTblRecVCSDiff = function (tid, tpk, a, dsc) {
           autoHeight: true,
           html: s,
           buttons: [{ text: 'Force Pull', handler: function () {         	  
-	        	  if(confirm('Are you sure to Force Pull?'))iwb.request({
-	        		  url: 'ajaxVCSObjectPull', params: { t: tid, k: tpk, f: 1 }, successCallback: function (j) {
-			  	          Ext.infoMsg.msg('success', 'VCS Object Succesfully Pulled');
-			  	          wndx.close(); 
-	        		  }
-	        	  }); 
-	          } }, { text: 'Close', handler: function () { wndx.close(); } }]
+        	  if(confirm('Are you sure to Force Pull?'))iwb.request({
+        		  url: 'ajaxVCSObjectPull', params: { t: tid, k: tpk, f: 1 }, successCallback: function (j) {
+		  	          Ext.infoMsg.msg('success', 'VCS Object Succesfully Pulled');
+		  	          wndx.close(); 
+        		  }
+        	  }); 
+          } }, { text: 'Force Push', handler: function () {         	  
+        	  if(confirm('Are you sure to Force Push?') && prompt('type push')=='push')iwb.request({
+        		  url: 'ajaxVCSObjectPush', params: { t: tid, k: tpk, f: 1 }, successCallback: function (j) {
+		  	          Ext.infoMsg.msg('success', 'VCS Object Succesfully Pushed');
+		  	          wndx.close(); 
+        		  }
+        	  }); 
+          } }, { text: 'Close', handler: function () { wndx.close(); } }]
         });
         wndx.show();
       } else if (j.lcl) fnTblRecEdit(tid, tpk);
