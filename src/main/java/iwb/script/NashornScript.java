@@ -130,6 +130,13 @@ public class NashornScript {
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 	
+	public Map  influxWrite(String host, String dbName, String query) {
+		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
+		String s = InfluxUtil.write(host, dbName, query);
+		if(GenericUtil.isEmpty(s))return null;
+		return GenericUtil.fromJSONObjectToMap(new JSONObject(s));
+	}
+	
 	public String mqBasicPublish(String host, String queueName, String msg) {
 		Channel ch = MQUtil.getChannel4Queue(host, queueName);
 		if (ch == null)
@@ -270,8 +277,7 @@ public class NashornScript {
 				}
 			}
 		}
-		if (FrameworkSetting.debug)
-			System.out.println(s);
+		if (FrameworkSetting.debug && !GenericUtil.isEmpty(s))System.out.println(GenericUtil.uStrMax(s, 100));
 		if (scd != null && scd.containsKey("customizationId") && scd.containsKey("userId")
 				&& scd.containsKey("sessionId") && requestParams != null && requestParams.containsKey(".w"))
 			try {

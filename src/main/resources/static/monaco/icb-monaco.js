@@ -124,8 +124,19 @@ var defineJSCompletionItemProvider = {
             kind: monaco.languages.CompletionItemKind.Function,
             documentation: "Console",
             detail: 'null',insertText:'$.console("Hellow World", "Warning", "warn")'
+        },{
+            label: '$.influxQuery',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Influx Query",
+            detail: 'null',insertText:'$.influxQuery("host", "dbName", "select X from Y where Z=1")'
         },
         {
+        	label: '$.influxWrite',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Influx Query",
+            detail: 'null',insertText:'$.influxWrite("host", "dbName", "meas_name,tag1=1 field1=2")'
+	    }
+/*        ,{
             label: '$.redisPut',
             kind: monaco.languages.CompletionItemKind.Function,
             documentation: "Redist PUT",
@@ -148,7 +159,7 @@ var defineJSCompletionItemProvider = {
 	        kind: monaco.languages.CompletionItemKind.Function,
 	        documentation: "RabbitMQ Publish",
 	        detail: 'null',insertText:'$.mqBasicPublish("host", "queueName", "msg")'
-	    }
+	    }*/
 	    
 	    
       ];

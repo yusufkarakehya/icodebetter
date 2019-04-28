@@ -7106,7 +7106,7 @@ iwb.fnTblRecVCSDiff = function (tid, tpk, a, dsc) {
         		  }
         	  }); 
           } }, { text: 'Force Push', handler: function () {         	  
-        	  if(confirm('Are you sure to Force Push?') && prompt('type push')=='push')iwb.request({
+        	  if(confirm('Are you sure to FORCE-PUSH to VCS Server?') && prompt('type push')=='push')iwb.request({
         		  url: 'ajaxVCSObjectPush', params: { t: tid, k: tpk, f: 1 }, successCallback: function (j) {
 		  	          Ext.infoMsg.msg('success', 'VCS Object Succesfully Pushed');
 		  	          wndx.close(); 

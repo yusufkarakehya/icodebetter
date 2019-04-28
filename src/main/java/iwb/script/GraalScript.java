@@ -27,6 +27,7 @@ import iwb.exception.IWBException;
 import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
+import iwb.util.InfluxUtil;
 import iwb.util.LogUtil;
 import iwb.util.MQUtil;
 import iwb.util.RedisUtil;
@@ -261,7 +262,7 @@ public class GraalScript {
 				}
 			}
 		}
-		if (FrameworkSetting.debug)System.out.println(s);
+		if (FrameworkSetting.debug && !GenericUtil.isEmpty(s))System.out.println(GenericUtil.uStrMax(s, 100));
 		if (scd != null && scd.containsKey("customizationId") && scd.containsKey("userId")
 				&& scd.containsKey("sessionId") && requestParams != null && requestParams.containsKey(".w"))
 			try {
@@ -485,4 +486,18 @@ public class GraalScript {
 		this.requestParams = requestParams;
 		this.scriptEngine = scriptEngine;
 	}
+	
+	public Object[]  influxQuery(String host, String dbName, String query) {
+		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
+		List l = InfluxUtil.query(host, dbName, query);
+		return GenericUtil.isEmpty(l) ? null : l.toArray();
+	}
+	
+	public Map  influxWrite(String host, String dbName, String query) {
+		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
+		String s = InfluxUtil.write(host, dbName, query);
+		if(GenericUtil.isEmpty(s))return null;
+		return GenericUtil.fromJSONObjectToMap(new JSONObject(s));
+	}
+
 }

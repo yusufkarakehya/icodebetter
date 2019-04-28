@@ -8,11 +8,22 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import iwb.cache.FrameworkSetting;
+import iwb.exception.IWBException;
+
 public class InfluxUtil {
 	public static List query(String url, String dbName, String influxQL){
-		String s = HttpUtil.send( url +"/query?db="+dbName,"q="+influxQL,"GET", null);
+		url +="/query";
+		boolean post = GenericUtil.isEmpty(dbName);
+		if(!post)url +="?db="+dbName;
+		String s = HttpUtil.send( url,"q="+influxQL,post ? "POST":"GET", null);
 		if(GenericUtil.isEmpty(s))return null;
 		JSONObject jo = new JSONObject(s);
+		if(post) {
+			if(jo.has("error"))
+				throw new IWBException("sql", "Influx.Query", 0, influxQL, jo.getString("error"), null);
+			return null;
+		}
 		if(jo.has("results")) {
 			JSONArray jr = jo.getJSONArray("results");
 			List<Map> r = new ArrayList<Map>();
@@ -38,4 +49,10 @@ public class InfluxUtil {
 		}
 		return null;
 	}
+	public static String write(String url, String dbName, String influxQL){
+		Map m = new HashMap();
+		m.put("Content-Type", "application/json");
+		return HttpUtil.send(url+"/write?db="+dbName,influxQL,"POST", m);
+	}
+
 }

@@ -989,11 +989,10 @@ public class PostgreSQL extends BaseDAO {
 	}
 
 	public void logGlobalFuncAction(Log5GlobalFuncAction action, W5GlobalFuncResult fr, String error) {
-		if (fr.getGlobalFunc().getLogLevelTip() == 0
-				|| FrameworkCache.getAppSettingIntValue(fr.getScd(), "log_db_func_action") == 0)
+		if (!FrameworkSetting.log2tsdb && (fr.getGlobalFunc().getLogLevelTip() == 0 || FrameworkCache.getAppSettingIntValue(fr.getScd(), "log_db_func_action") == 0))
 			return;
 		action.calcProcessTime();
-		if ((fr.getGlobalFunc().getLogLevelTip() == 1) || (fr.getGlobalFunc().getLogLevelTip() == 2
+		if (FrameworkSetting.log2tsdb  || (fr.getGlobalFunc().getLogLevelTip() == 1) || (fr.getGlobalFunc().getLogLevelTip() == 2
 				&& FrameworkCache.getAppSettingIntValue(fr.getScd(), "log_db_func_action") != 0 && FrameworkCache
 						.getAppSettingIntValue(fr.getScd(), "log_db_func_action_mintime") <= action.getProcessTime())) {
 			action.setDsc(GenericUtil.replaceSql(fr.getExecutedSql(), fr.getSqlParams()));

@@ -40,10 +40,7 @@ public class LogUtil {
 				//mqChannel.basicPublish("", FrameworkSetting.mqTsdbQueue, null, s.toString().getBytes());
 				mqChannel.basicPublish("", FrameworkSetting.log2mqQueue, null, s.toString().getBytes("UTF-8"));
 			} else { //Synchronized
-				Map m = new HashMap();
-				m.put("Content-Type", "application/json");
-				String sq = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/write?db="+FrameworkSetting.log2tsdbDbName,s.toString(),"POST", m);
-				//if(FrameworkSetting.debug && !GenericUtil.isEmpty(sq))System.out.println("log2tsdb response: "+sq);
+				InfluxUtil.write(FrameworkSetting.log2tsdbUrl, FrameworkSetting.log2tsdbDbName, s.toString());
 			}
 			errorCount = 0;
 		}catch (Exception e) {
@@ -106,9 +103,11 @@ public class LogUtil {
 				//mqChannel.basicPublish("", FrameworkSetting.mqTsdbQueue, null, s.toString().getBytes());
 				mqChannel.basicPublish("", FrameworkSetting.log2mqQueue, null, s.toString().getBytes("UTF-8"));
 			} else { //Synchronized
-				Map m = new HashMap();
-				m.put("Content-Type", "application/json");
-				HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/write?db="+FrameworkSetting.log2tsdbDbName4Vcs,s.toString(),"POST", m);
+//				Map m = new HashMap();
+//				m.put("Content-Type", "application/json");
+//				HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/write?db="+FrameworkSetting.log2tsdbDbName4Vcs,s.toString(),"POST", m);
+				InfluxUtil.write(FrameworkSetting.log2tsdbUrl, FrameworkSetting.log2tsdbDbName4Vcs, s.toString());
+
 			}
 			errorCount = 0;
 		}catch (Exception e) {
@@ -119,19 +118,23 @@ public class LogUtil {
 		}	
 	}
 
-	public static void activateInflux4Log() {
+	public static boolean activateInflux4Log() {
 		try {
-			Map m = new HashMap();
-			m.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-			String logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE+DATABASE+"+FrameworkSetting.log2tsdbDbName,"POST", m);
-			System.out.println("InfluxDB " + FrameworkSetting.log2tsdbDbName + " result: " + logStr);
-			logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Crud,"POST", m);
-			System.out.println("InfluxDB " + FrameworkSetting.log2tsdbDbName4Crud + " result: " + logStr);
-			logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Vcs,"POST", m);
-			System.out.println("InfluxDB " + FrameworkSetting.log2tsdbDbName4Vcs + " result: " + logStr);
+			Map m = new HashMap();m.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+//			String logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE+DATABASE+"+FrameworkSetting.log2tsdbDbName,"POST", m);
+			String logStr = "success"; 
+			InfluxUtil.query(FrameworkSetting.log2tsdbUrl, null, "CREATE DATABASE "+FrameworkSetting.log2tsdbDbName);
+			System.out.println("InfluxDB CREATE DATABASE " + FrameworkSetting.log2tsdbDbName + " result: " + logStr);
+//			logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Crud,"POST", m);
+//			InfluxUtil.query(FrameworkSetting.log2tsdbUrl, null, "CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Crud);
+			System.out.println("InfluxDB CREATE DATABASE " + FrameworkSetting.log2tsdbDbName4Crud + " result: " + logStr);
+//			logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Vcs,"POST", m);
+			InfluxUtil.query(FrameworkSetting.log2tsdbUrl, null, "CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Vcs);
+			System.out.println("InfluxDB CREATE DATABASE " + FrameworkSetting.log2tsdbDbName4Vcs + " result: " + logStr);
+			return true;
 
 		}catch (Exception e) {
-		}
-		
+			return true;
+		}		
 	}
 }
