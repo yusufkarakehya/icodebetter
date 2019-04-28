@@ -38,7 +38,7 @@ public class Log5WsMethodAction implements java.io.Serializable, Log5Base {
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("ws_method_action,project_uuid=").append(projectUuid).append(" user_id=").append(userId).append(",process_time=").append(processTime).append(",url=\"").append(GenericUtil.stringToJS2(url)).append("\",params=\"").append(GenericUtil.stringToJS2(params)).append("\",response=\"").append(GenericUtil.stringToJS2(response)).append("\"");
+		s.append("ws_method_action,ws_method_id=").append(wsMethodId).append(",project_uuid=").append(projectUuid).append(" user_id=").append(userId).append(",process_time=").append(processTime).append(",url=\"").append(GenericUtil.stringToJS2(url)).append("\",params=\"").append(GenericUtil.stringToJS2(params)).append("\",response=\"").append(GenericUtil.stringToJS2(response)).append("\"");
 		return s.toString();
 	}
 
