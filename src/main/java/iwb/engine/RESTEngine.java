@@ -134,8 +134,31 @@ public class RESTEngine {
 		for (W5WsMethodParam p : params)
 			if (p.getOutFlag() == 0 && p.getParentWsMethodParamId() == paramId) {
 				if (p.getParamTip() == 9 || p.getParamTip() == 8) { // object/json
-					m.put(p.getDsc(), recursiveParams2Map(scd, p.getWsMethodParamId(), requestParams.get(p.getDsc()),
-							params, errorMap, reqPropMap));
+					Object oo = recursiveParams2Map(scd, p.getWsMethodParamId(), requestParams.get(p.getDsc()),
+							params, errorMap, reqPropMap);
+					if(GenericUtil.isEmpty(oo) && p.getParamTip() == 8){
+						boolean bx = true;
+						for (W5WsMethodParam p2 : params)if (p2.getOutFlag() == 0 && p2.getParentWsMethodParamId() == p.getWsMethodParamId()){
+							bx = false;
+							break;
+						}
+						if(bx){
+							oo = requestParams.get(p.getDsc());
+							if (oo instanceof ScriptObjectMirror)
+								try {// TODO
+									oo = ScriptUtil.fromScriptObject2Map(oo);
+								} catch (Exception ee) {
+									return null;
+								}
+							else if (oo instanceof JSONObject)
+								try {// TODO
+									oo = GenericUtil.fromJSONObjectToMap((JSONObject) oo);
+								} catch (Exception ee) {
+									return null;
+								}
+						}
+					}
+					m.put(p.getDsc(), oo);
 				} else if (p.getParamTip() == 10) {// array
 					if (p.getSourceTip() == 0) { // constant ise altini da
 													// doldur
