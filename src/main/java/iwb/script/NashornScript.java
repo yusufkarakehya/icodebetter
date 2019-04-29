@@ -130,12 +130,54 @@ public class NashornScript {
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 	
-	public Map  influxWrite(String host, String dbName, String query) {
+	public Map  influxWriteRaw(String host, String dbName, String query) {
 		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
 		String s = InfluxUtil.write(host, dbName, query);
 		if(GenericUtil.isEmpty(s))return null;
 		return GenericUtil.fromJSONObjectToMap(new JSONObject(s));
 	}
+	
+	
+	public Map  influxWrite(String host, String dbName, String measName, Object tagMap, Object fieldMap) {
+		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
+		StringBuilder ss = new StringBuilder();
+		ss.append(measName);
+		if(tagMap instanceof ScriptObjectMirror) {
+			tagMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)tagMap);
+		}
+		if(tagMap instanceof Map) {
+			Map<String, Object> xtagMap = (Map)tagMap;
+			for (String key : xtagMap.keySet()) {
+				Object o = xtagMap.get(key);
+				if (o != null) {
+					ss.append(",").append(key).append("=").append(o);
+				}
+			}
+		}
+		ss.append(" ");
+		if(fieldMap instanceof ScriptObjectMirror) {
+			fieldMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)fieldMap);
+		}
+		if(fieldMap instanceof Map) {
+			Map<String, Object> xfieldMap = (Map)fieldMap;
+			for (String key : xfieldMap.keySet()) {
+				Object o = xfieldMap.get(key);
+				if (o != null) {
+					ss.append(key).append("=");
+					if(o instanceof Integer || o instanceof Long || o instanceof Short)ss.append(o).append("i");
+					else if(o instanceof Double || o instanceof Float)ss.append(o);
+					else ss.append("\"").append(GenericUtil.stringToJS2(o.toString())).append("\"");
+					ss.append(",");
+				}
+			}
+		}
+		if(ss.charAt(ss.length()-1)==',')ss.setLength(ss.length()-1);
+		
+		String s = InfluxUtil.write(host, dbName, ss.toString());
+		if(GenericUtil.isEmpty(s))return null;
+		return GenericUtil.fromJSONObjectToMap(new JSONObject(s));
+	}
+	
 	
 	public String mqBasicPublish(String host, String queueName, String msg) {
 		Channel ch = MQUtil.getChannel4Queue(host, queueName);

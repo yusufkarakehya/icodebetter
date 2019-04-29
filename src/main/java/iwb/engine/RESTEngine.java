@@ -148,13 +148,13 @@ public class RESTEngine {
 								try {// TODO
 									oo = ScriptUtil.fromScriptObject2Map(oo);
 								} catch (Exception ee) {
-									return null;
+//									return null;
 								}
 							else if (oo instanceof JSONObject)
 								try {// TODO
 									oo = GenericUtil.fromJSONObjectToMap((JSONObject) oo);
 								} catch (Exception ee) {
-									return null;
+//									return null;
 								}
 						}
 					}
@@ -174,12 +174,16 @@ public class RESTEngine {
 						if (!GenericUtil.isEmpty(res)) {
 							if (res instanceof String || res instanceof List)
 								m.put(p.getDsc(), res);
-							else
+							else {
 								try {
-									m.put(p.getDsc(), GenericUtil.fromJSONArrayToList(new JSONArray(res.toString())));
+									if(res instanceof ScriptObjectMirror)
+										m.put(p.getDsc(), ScriptUtil.fromScriptObject2List(res));
+									else
+										m.put(p.getDsc(), GenericUtil.fromJSONArrayToList(new JSONArray(res.toString())));
 								} catch (Exception ee) {
 									m.put(p.getDsc(), null);
 								}
+							}
 						}
 					}
 				} else {
