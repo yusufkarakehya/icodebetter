@@ -1,4 +1,3 @@
-//array color name
 const dBGColors2 = [, , "#de9338", "#222", , , , ,];
 let dgColors = [
   "warning",
@@ -7,15 +6,6 @@ let dgColors = [
   "primary",
   "success",
   "info"
-];
-let dgColors2 = [
-  "primary",
-  "info",
-  "secondary",
-  "gray-700",
-  "gray-500",
-  "gray-400",
-  "gray-700"
 ];
 let detailSpinnerColors2 = [
   "#187da0",
