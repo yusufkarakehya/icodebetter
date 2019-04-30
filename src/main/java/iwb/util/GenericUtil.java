@@ -2413,7 +2413,7 @@ public class GenericUtil {
 		// return null;
 		if (o == null)
 			return null;
-		List no = new ArrayList();
+		List no = new ArrayList(o.length());
 		for (int qi = 0; qi < o.length(); qi++) {
 			Object val = o.get(qi);
 			if (val == null) {

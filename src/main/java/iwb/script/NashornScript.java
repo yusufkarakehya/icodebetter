@@ -16,6 +16,7 @@ import com.rabbitmq.client.Channel;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
+import iwb.domain.db.Log5Console;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5FormResult;
@@ -25,6 +26,8 @@ import iwb.exception.IWBException;
 import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
+import iwb.util.InfluxUtil;
+import iwb.util.LogUtil;
 import iwb.util.MQUtil;
 import iwb.util.RedisUtil;
 import iwb.util.ScriptUtil;
@@ -120,7 +123,62 @@ public class NashornScript {
 	public String redisInfo(String host, String section) {
 		return RedisUtil.info(host, section);
 	}
-
+*/
+	public Object[]  influxQuery(String host, String dbName, String query) {
+		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
+		List l = InfluxUtil.query(host, dbName, query);
+		return GenericUtil.isEmpty(l) ? null : l.toArray();
+	}
+	
+	public Map  influxWriteRaw(String host, String dbName, String query) {
+		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
+		String s = InfluxUtil.write(host, dbName, query);
+		if(GenericUtil.isEmpty(s))return null;
+		return GenericUtil.fromJSONObjectToMap(new JSONObject(s));
+	}
+	
+	
+	public Map  influxWrite(String host, String dbName, String measName, Object tagMap, Object fieldMap) {
+		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
+		StringBuilder ss = new StringBuilder();
+		ss.append(measName);
+		if(tagMap instanceof ScriptObjectMirror) {
+			tagMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)tagMap);
+		}
+		if(tagMap instanceof Map) {
+			Map<String, Object> xtagMap = (Map)tagMap;
+			for (String key : xtagMap.keySet()) {
+				Object o = xtagMap.get(key);
+				if (o != null) {
+					ss.append(",").append(key).append("=").append(o);
+				}
+			}
+		}
+		ss.append(" ");
+		if(fieldMap instanceof ScriptObjectMirror) {
+			fieldMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)fieldMap);
+		}
+		if(fieldMap instanceof Map) {
+			Map<String, Object> xfieldMap = (Map)fieldMap;
+			for (String key : xfieldMap.keySet()) {
+				Object o = xfieldMap.get(key);
+				if (o != null) {
+					ss.append(key).append("=");
+					if(o instanceof Integer || o instanceof Long || o instanceof Short)ss.append(o).append("i");
+					else if(o instanceof Double || o instanceof Float)ss.append(o);
+					else ss.append("\"").append(GenericUtil.stringToJS2(o.toString())).append("\"");
+					ss.append(",");
+				}
+			}
+		}
+		if(ss.charAt(ss.length()-1)==',')ss.setLength(ss.length()-1);
+		
+		String s = InfluxUtil.write(host, dbName, ss.toString());
+		if(GenericUtil.isEmpty(s))return null;
+		return GenericUtil.fromJSONObjectToMap(new JSONObject(s));
+	}
+	
+	
 	public String mqBasicPublish(String host, String queueName, String msg) {
 		Channel ch = MQUtil.getChannel4Queue(host, queueName);
 		if (ch == null)
@@ -132,7 +190,7 @@ public class NashornScript {
 			return e.getMessage();
 		}
 	}
-*/
+
 	public int mqQueueMsgCount(String host, String queueName) {
 		return MQUtil.getQueueMsgCount(host, queueName);
 	}
@@ -261,8 +319,7 @@ public class NashornScript {
 				}
 			}
 		}
-		if (FrameworkSetting.debug)
-			System.out.println(s);
+		if (FrameworkSetting.debug && !GenericUtil.isEmpty(s))System.out.println(GenericUtil.uStrMax(s, 100));
 		if (scd != null && scd.containsKey("customizationId") && scd.containsKey("userId")
 				&& scd.containsKey("sessionId") && requestParams != null && requestParams.containsKey(".w"))
 			try {
@@ -278,6 +335,7 @@ public class NashornScript {
 						(String) scd.get("sessionId"), (String) requestParams.get(".w"), m);
 			} catch (Exception e) {
 			}
+		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5Console(scd, s, level));
 	}
 
 	public Object execFunc(int dbFuncId, ScriptObjectMirror jsRequestParams) {

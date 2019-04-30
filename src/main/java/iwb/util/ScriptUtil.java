@@ -44,10 +44,18 @@ public class ScriptUtil {
 		for (String key : jsRequestParams.keySet()) {
 			Object o = jsRequestParams.get(key);
 			if (o != null) {
-				String res = o.toString();
-				if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
-					res = res.substring(0, res.length() - 2);
-				rp.put(key, res);
+				if(o instanceof ScriptObjectMirror){
+					if(((ScriptObjectMirror)o).isArray())
+						rp.put(key, fromScriptObject2List(o));
+					else
+						rp.put(key, fromScriptObject2Map(o));
+					
+				} else {
+					String res = o.toString();
+					if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
+						res = res.substring(0, res.length() - 2);
+					rp.put(key, res);
+				}
 			}
 		}
 		return rp;

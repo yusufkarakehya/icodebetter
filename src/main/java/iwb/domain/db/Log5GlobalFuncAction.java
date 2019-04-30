@@ -29,6 +29,7 @@ public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 
 	private String dsc;
 	private String projectUuid;  
+	private String error;
 	
 	private int processTime;
 	private long startTime;
@@ -37,7 +38,8 @@ public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 		StringBuilder s=new StringBuilder();
 		s.append("func_action,func_id=").append(getDbFuncId());
 		if(projectUuid!=null)s.append(",project_uuid=").append(projectUuid);
-		s.append(" user_id=").append(getUserId()).append(",duration=").append(getProcessTime()).append(",sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+		s.append(" user_id=").append(getUserId()).append(",duration=").append(getProcessTime()).append(",code=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+		if(!GenericUtil.isEmpty(error))s.append(",error=\"").append(GenericUtil.stringToJS2(error)).append("\"");
 		return s.toString();
 	}
 
@@ -116,6 +118,17 @@ public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 
 	public void setStartTime(long startTime) {
 		this.startTime = startTime;
+	}
+
+
+	@Transient
+	public String getError() {
+		return error;
+	}
+
+
+	public void setError(String error) {
+		this.error = error;
 	}
 
 }
