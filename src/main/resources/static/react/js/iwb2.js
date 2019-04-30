@@ -138,20 +138,24 @@ var iwb = {
   debugConstructor: false,
   detailPageSize: 10,
   log: console.log.bind(window.console),
-  mem:(( isArrayEqual = (array1, array2) => array1.length === array2.length &&
-		  array1.every((value, index) => value === array2[index]) &&
-		  JSON.stringify(array1) === JSON.stringify(array2)
-		) => {
-		  let fnList = {}, resultList = {}, argList = {};
-		  return (resultFn, ...newArgs) => {
-		    let key = resultFn.toString().replace(/(\r\n\t|\n|\r\t|\s)/gm, "")+newArgs.toString().replace(/(,|\s)/gm, '');
-		    if ( key && fnList[key] && resultList[key] && isArrayEqual(argList[key], newArgs) ) { return resultList[key]; }
-		    argList[key] = newArgs;
-		    resultList[key] = resultFn.apply(this, newArgs);
-		    fnList[key] = resultFn;
-		    return resultList[key];
-		  };
-    })(),
+  mem: ((isArrayEqual = (array1, array2) => array1.length === array2.length &&
+    array1.every((value, index) => value === array2[index]) &&
+    JSON.stringify(array1) === JSON.stringify(array2)
+  ) => {
+    let fnList = {},
+      resultList = {},
+      argList = {};
+    return (resultFn, ...newArgs) => {
+      let key = resultFn.toString().replace(/(\r\n\t|\n|\r\t|\s)/gm, "") + newArgs.toString().replace(/(,|\s)/gm, '');
+      if (key && fnList[key] && resultList[key] && isArrayEqual(argList[key], newArgs)) {
+        return resultList[key];
+      }
+      argList[key] = newArgs;
+      resultList[key] = resultFn.apply(this, newArgs);
+      fnList[key] = resultFn;
+      return resultList[key];
+    };
+  })(),
   /**
 	 * A function to insert css classes into Dom
 	 * 
@@ -223,9 +227,7 @@ var iwb = {
         }
         componentWillMount() {
           loaderFunction
-            .then(result => this.setState({ ResultComponent: result.default || result})) // "es6"
-																							// default
-																							// export
+            .then(result => this.setState({ ResultComponent: result.default || result}))
             .catch((errorText) => this.setState({ error: true, errorText}))
         }
         render() {
@@ -372,67 +374,54 @@ var iwb = {
     if (field.multi) {
       var value = [],
         vs = field.value;
-      if (!Array.isArray(vs)) vs = vs.split(",");
+      if (!Array.isArray(vs)) vs = vs.split(',');
       vs.map(v => {
         value.push(optionsMap[v]);
       });
       if (!value.length) return iwb.emptyField;
-      return _("b", { className: "form-control" }, value.join(", "));
+      return _('b', { className: 'form-control' }, value.join(', '));
     }
     var value = field.value;
     if (value.id) value = value.id;
     value = optionsMap[value];
-    if (value == undefined || value == "") return iwb.emptyField;
-    return _("b", { className: "form-control" }, value);
+    if (value == undefined || value == '') return iwb.emptyField;
+    return _('b', { className: 'form-control' }, value);
   },
   approvalColorMap:{1:'primary',2:'warning',3:'danger',5:'success',901:'secondary',998:'success',999:'danger'},
-  approvalLogs: arid =>{
-    return (event) =>{
-      event.preventDefault();
-      iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
-      if(j.data && j.data.length)iwb.showModal({
-            title: getLocMsg('workflow_logs'),
-            footer: false,
-            color: 'primary',
-            size: 'lg',
-            body: _('ul',{className:'timeline'},
-              j.data.map((item,index)=>{
-                return _('li',{className:'timeline-inverted'},
-                  _('div',{
-                    className:'timeline-badge bg-primary timeline-badge-icon',
-                    // style:{
-                    // background:detailSpinnerColors2[index %
-					// detailSpinnerColors2.length]
-                    // }
-                  },
-                    // _('i',{className:'icon-speech'})
-                  ),
-                  _('div',{className:'timeline-panel'},
-                    _('div',{className:'timeline-heading'},
-                      _('h4',{className:'timeline-title'},
-                        _('span', { className: 'float-right badge badge-pill badge-'+iwb.approvalColorMap[item.approval_action_tip] }, item.approval_action_tip_qw_),
-                        _('b',null,item.user_id_qw_),
-                        item.step_dsc
-                      ),
-                      _('p',{},
-                        _('small',{className:'text-muted'},
-                          _('i',{className:'icon-clock mx-1'}),
-                          item.log_dttm
-                        )
-                      )
-                    ),
-                    _('div',{className:'timeline-body'},
-                      item.comment && _('p',{}, item.comment)
-                    ),
-                  ),
-                )}
-              )
-            ) 
-          });
-      else toastr.info("no data to show",'warning');
-    }
-      );
-    }  
+  approvalLogs: arid => (event) => {
+    event.preventDefault();
+    iwb.ajax.query(1667, {
+      xapproval_record_id: arid
+    }, (j) => {
+      if (j.data && j.data.length) iwb.showModal({
+        title: getLocMsg('workflow_logs'),
+        footer: false,
+        color: 'primary',
+        size: 'lg',
+        body: _('ul', { className: 'timeline' },
+          j.data.map(
+            (item) => _('li', { className: 'timeline-inverted' },
+              _('div', { className: 'timeline-badge bg-primary timeline-badge-icon' }),
+              _('div', { className: 'timeline-panel' },
+                _('div', { className: 'timeline-heading' },
+                  _('h4', { className: 'timeline-title' },
+                    _('span', { className: 'float-right badge badge-pill badge-' + iwb.approvalColorMap[item.approval_action_tip] }, item.approval_action_tip_qw_),
+                    _('b', null, item.user_id_qw_), item.step_dsc),
+                  _('p', {},
+                    _('small', { className: 'text-muted' },
+                      _('i', { className: 'icon-clock mx-1' }),
+                      item.log_dttm
+                    )
+                  )
+                ),
+                _('div', { className: 'timeline-body' }, item.comment && _('p', {}, item.comment)),
+              ),
+            )
+          )
+        )
+      });
+      else toastr.info("no data to show", 'warning');
+    });
   },
   request: cfg => {
     if (!window.fetch) {
@@ -680,30 +669,31 @@ var ajaxErrorHandler = iwb.requestErrorHandler;
   (iwb.loadPage = function(cfg) {});
 iwb.ui = {
   buildPanel: c => {
-	  if(c.grid){
-	    if (!c.grid.pk) c.grid.pk = c.pk || c._pk;
-	    if (!c.grid.detailGrids) c.grid.detailGrids = c.detailGrids || false;
-	    return _(XPage, c);
-	  } else if(c.card){
-	    if (!c.card.pk) c.card.pk = c.pk || c._pk;
-	    if (!c.card.detailGrids) c.card.detailGrids = c.detailGrids || false;
-	    return _(XPage4Card, c);
-	  }
+    if (c.grid) {
+      if (!c.grid.pk) c.grid.pk = c.pk || c._pk;
+      if (!c.grid.detailGrids) c.grid.detailGrids = c.detailGrids || false;
+      return _(XPage, c);
+    } else if (c.card) {
+      if (!c.card.pk) c.card.pk = c.pk || c._pk;
+      if (!c.card.detailGrids) c.card.detailGrids = c.detailGrids || false;
+      return _(XPage4Card, c);
+    }
   }
 };
+
 function disabledCheckBoxHtml(row, cell) {
-  return row[cell] && 1 * row[cell]
-    ? _("i", {
-        className: "fa fa-check",
-        style: {
-          color: "white",
-          background: "#4dbd74",
-          padding: 5,
-          borderRadius: 25
-        }
-      })
-    : null; // _('i',{className:'fa fa-check', style:{color: 'white',background:
-			// 'red', padding: 5, borderRadius: 25}});
+  return row[cell] && 1 * row[cell] ?
+    _("i", {
+      className: "fa fa-check",
+      style: {
+        color: "white",
+        background: "#4dbd74",
+        padding: 5,
+        borderRadius: 25
+      }
+    }) :
+    null; // _('i',{className:'fa fa-check', style:{color: 'white',background:
+  // 'red', padding: 5, borderRadius: 25}});
 }
 function gridUserRenderer(row, cell) {
   // TODO
@@ -1363,34 +1353,34 @@ class XMap extends React.PureComponent {
 	  }
 	}
 class MapInput extends React.PureComponent {
-    constructor(props) {
-      super(props);
-      let st = (props.stringifyResult && props.value)? JSON.parse(props.value):props.value;
-      this.state = {
-        zoom: st.zoom || 8,
-        maptype: st.maptype || "roadmap",
-        formatted_address: st.formatted_address || "",
-        place_id: st.place_id ||  "",
-        place_lat: st.place_lat||  "",
-        place_lng: st.place_lng ||  "",
-        mapOpen: false,
-      };
-	    this.popoverId = this.props.id
-	      ? "popoverId" + this.props.id
-	      : "popoverId" + Math.floor(Math.random() * 1000 + 1);
-	    /**
-		 * a function used to hide and open the map on the DOM
-		 */
-	    this.toggle = () => {
-	      this.setState(prevState => ({
-	        mapOpen: !prevState.mapOpen
-	      }));
-	    };
-	    /**
-		 * a function used to render info window content
-		 */
-	    this.getInfoWindowContent = () => {
-	      return `
+  constructor(props) {
+    super(props);
+    let st = (props.stringifyResult && props.value) ? JSON.parse(props.value) : props.value;
+    this.state = {
+      zoom: st.zoom || 8,
+      maptype: st.maptype || "roadmap",
+      formatted_address: st.formatted_address || "",
+      place_id: st.place_id || "",
+      place_lat: st.place_lat || "",
+      place_lng: st.place_lng || "",
+      mapOpen: false,
+    };
+    this.popoverId = this.props.id
+      ? "popoverId" + this.props.id
+      : "popoverId" + Math.floor(Math.random() * 1000 + 1);
+    /**
+   * a function used to hide and open the map on the DOM
+   */
+    this.toggle = () => {
+      this.setState(prevState => ({
+        mapOpen: !prevState.mapOpen
+      }));
+    };
+    /**
+   * a function used to render info window content
+   */
+    this.getInfoWindowContent = () => {
+      return `
 	            <div class="">
 	                <div class="card-body">
 	                    <h5 class="card-title text-center">
@@ -1399,201 +1389,201 @@ class MapInput extends React.PureComponent {
 	                </div>
 	            </div>
 	            `;
-	    };
-	    /**
-		 * it is a callback function which will work after imporing the google
-		 * script
-		 * 
-		 * @param {object}
-		 *            innerScope - state of the internal component
-		 */
-	    this.onMapLoad = innerScope => {
-	      innerScope.geocoder.geocode(
-	    	(this.state.place_id)?{'placeId':this.state.place_id}:{ latLng: innerScope.defPosition || undefined },
-	        (result, status) => {
-	          if (
-	            status === window.google.maps.GeocoderStatus.OK &&
-	            result.length > 0
-	          ) {
-	            let {
-	              place_id,
-	              formatted_address,
-	              geometry: { location }
-	            } = result[0];
-	            this.setState({
-	              place_id,
-	              formatted_address,
-	              place_lat: location.lat(),
-	              place_lng: location.lng()
-	            });
-	            innerScope.map.setCenter(location);
-	            innerScope.marker.setPosition(location);
-	            innerScope.infoWindow.setPosition(location);
-	            innerScope.inputNode.value = formatted_address;
-	            innerScope.infoWindow.setContent(`${formatted_address}`);
-	            innerScope.infoWindow.open(innerScope.map);
-	          }
-	        }
-	      );
-	      /** when the marker is clicked */
-	      innerScope.marker.addListener("click", event => {
-	        let location = innerScope.marker.getPosition();
-	        innerScope.inputNode.value = this.state.formatted_address;
-	        innerScope.infoWindow.setPosition(location);
-	        innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
-	        innerScope.infoWindow.open(innerScope.map);
-	      });
-	      /** after marker is left */
-	      innerScope.marker.addListener("dragend", event => {
-	        let dragedPoint = innerScope.marker.getPosition();
-	        innerScope.map.panTo(dragedPoint);
+    };
+    /**
+   * it is a callback function which will work after imporing the google
+   * script
+   * 
+   * @param {object}
+   *            innerScope - state of the internal component
+   */
+    this.onMapLoad = innerScope => {
+      innerScope.geocoder.geocode(
+        (this.state.place_id) ? { 'placeId': this.state.place_id } : { latLng: innerScope.defPosition || undefined },
+        (result, status) => {
+          if (
+            status === window.google.maps.GeocoderStatus.OK &&
+            result.length > 0
+          ) {
+            let {
+              place_id,
+              formatted_address,
+              geometry: { location }
+            } = result[0];
+            this.setState({
+              place_id,
+              formatted_address,
+              place_lat: location.lat(),
+              place_lng: location.lng()
+            });
+            innerScope.map.setCenter(location);
+            innerScope.marker.setPosition(location);
+            innerScope.infoWindow.setPosition(location);
+            innerScope.inputNode.value = formatted_address;
+            innerScope.infoWindow.setContent(`${formatted_address}`);
+            innerScope.infoWindow.open(innerScope.map);
+          }
+        }
+      );
+      /** when the marker is clicked */
+      innerScope.marker.addListener("click", event => {
+        let location = innerScope.marker.getPosition();
+        innerScope.inputNode.value = this.state.formatted_address;
+        innerScope.infoWindow.setPosition(location);
+        innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
+        innerScope.infoWindow.open(innerScope.map);
+      });
+      /** after marker is left */
+      innerScope.marker.addListener("dragend", event => {
+        let dragedPoint = innerScope.marker.getPosition();
+        innerScope.map.panTo(dragedPoint);
 
-	        innerScope.geocoder.geocode(
-	          { latLng: dragedPoint },
-	          (result, status) => {
-	            if (
-	              status === window.google.maps.GeocoderStatus.OK &&
-	              result.length > 0
-	            ) {
-	              let {
-	                place_id,
-	                formatted_address,
-	                geometry: { location }
-	              } = result[0];
-	              this.setState({
-	                place_id,
-	                formatted_address,
-	                place_lat: location.lat(),
-	                place_lng: location.lng()
-	              });
-	              innerScope.map.setCenter(location);
-	              innerScope.marker.setPosition(location);
-	              innerScope.inputNode.value = formatted_address;
-	              innerScope.infoWindow.setPosition(location);
-	              innerScope.infoWindow.setContent(
-	                `${this.getInfoWindowContent()}`
-	              );
-	              innerScope.infoWindow.open(innerScope.map);
-	            }
-	          }
-	        );
-	      });
-	      /** lisens for the place change */
-	      innerScope.autoComplete.addListener("place_changed", () => {
-	        let place = innerScope.autoComplete.getPlace();
-	        // return if the auto compleate is not selected from the drop down
-	        if (!place.geometry) return;
-	        let {
-	          place_id,
-	          formatted_address,
-	          geometry: { location }
-	        } = place;
-	        this.setState({
-	          place_id,
-	          formatted_address,
-	          place_lat: location.lat(),
-	          place_lng: location.lng()
-	        });
-	        // bring the selected place in view on the innerScope.map
-	        // innerScope.map.fitBounds(place.geometry.viewport);
-	        innerScope.map.setCenter(location);
-	        innerScope.marker.setPosition(location);
-	        innerScope.infoWindow.setPosition(location);
-	        innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
-	        innerScope.infoWindow.open(innerScope.map);
-	      });
+        innerScope.geocoder.geocode(
+          { latLng: dragedPoint },
+          (result, status) => {
+            if (
+              status === window.google.maps.GeocoderStatus.OK &&
+              result.length > 0
+            ) {
+              let {
+                place_id,
+                formatted_address,
+                geometry: { location }
+              } = result[0];
+              this.setState({
+                place_id,
+                formatted_address,
+                place_lat: location.lat(),
+                place_lng: location.lng()
+              });
+              innerScope.map.setCenter(location);
+              innerScope.marker.setPosition(location);
+              innerScope.inputNode.value = formatted_address;
+              innerScope.infoWindow.setPosition(location);
+              innerScope.infoWindow.setContent(
+                `${this.getInfoWindowContent()}`
+              );
+              innerScope.infoWindow.open(innerScope.map);
+            }
+          }
+        );
+      });
+      /** lisens for the place change */
+      innerScope.autoComplete.addListener("place_changed", () => {
+        let place = innerScope.autoComplete.getPlace();
+        // return if the auto compleate is not selected from the drop down
+        if (!place.geometry) return;
+        let {
+          place_id,
+          formatted_address,
+          geometry: { location }
+        } = place;
+        this.setState({
+          place_id,
+          formatted_address,
+          place_lat: location.lat(),
+          place_lng: location.lng()
+        });
+        // bring the selected place in view on the innerScope.map
+        // innerScope.map.fitBounds(place.geometry.viewport);
+        innerScope.map.setCenter(location);
+        innerScope.marker.setPosition(location);
+        innerScope.infoWindow.setPosition(location);
+        innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
+        innerScope.infoWindow.open(innerScope.map);
+      });
 
-	      innerScope.findMeOuter = position => {
-	        let pos = new window.google.maps.LatLng(
-	          position.coords.latitude,
-	          position.coords.longitude
-	        );
-	        innerScope.geocoder.geocode({ latLng: pos }, (result, status) => {
-	          if (
-	            status === window.google.maps.GeocoderStatus.OK &&
-	            result.length > 0
-	          ) {
-	            let {
-	              place_id,
-	              formatted_address,
-	              geometry: { location }
-	            } = result[0];
-	            this.setState({
-	              place_id,
-	              formatted_address,
-	              place_lat: location.lat(),
-	              place_lng: location.lng()
-	            });
-	            innerScope.map.setCenter(location);
-	            innerScope.marker.setPosition(location);
-	            innerScope.infoWindow.setPosition(location);
-	            innerScope.inputNode.value = formatted_address;
-	            innerScope.infoWindow.setContent(`${formatted_address}`);
-	            innerScope.infoWindow.open(innerScope.map);
-	          }
-	        });
-	      };
-	    };
-	    /**
-		 * a function used to give id of the table Row in db
-		 * 
-		 * @param {event}
-		 *            event
-		 */
-	    this.onClick = event => {
-	    	this.toggle();
-	    	if(!event)return;
-        event.preventDefault();
-	    	event.target = {...this.props , value: this.state, stringValue:JSON.stringify(this.state) }
-	    	this.props.onChange && this.props.onChange(event);	      
-	    };
-	  }
-	  render() {
-	    return React.createElement(
-	      React.Fragment,
-	      null,
-	      React.createElement(
-	        InputGroup,
-	        { type: "text", name: "name", id: this.popoverId},
-	        React.createElement(Input, {
-	          type: "text",
-	          value: this.state.formatted_address,
-	          readOnly: true,
-	          disabled:!!this.props.disabled
-	        }),
-	        React.createElement(
-	          InputGroupAddon,
-	          { addonType: "append" },
-	          React.createElement(
-	            Button,
-	            {
-	              className: "mr-1 btn-success",
-	              onClick: this.toggle,
-	              color: "success",
-	              disabled:!!this.props.disabled
-	            },
-	            React.createElement("i", { className: "icon-map" })
-	          )
-	        )
-	      ),
-	      React.createElement(
-	        Popover,
-	        {
-	          className: "gMapPopover",
-	          placement: "bottom-end",
-	          isOpen: this.state.mapOpen,
-	          target: this.popoverId,
-	          toggle: this.toggle
-	        },
-	        React.createElement(XMap, {
-	          apiKey: _app.map_api,
-	          onMapLoad: this.onMapLoad,
-	          onClick: this.onClick
-	        })
-	      )
-	    );
-	  }
-	}
+      innerScope.findMeOuter = position => {
+        let pos = new window.google.maps.LatLng(
+          position.coords.latitude,
+          position.coords.longitude
+        );
+        innerScope.geocoder.geocode({ latLng: pos }, (result, status) => {
+          if (
+            status === window.google.maps.GeocoderStatus.OK &&
+            result.length > 0
+          ) {
+            let {
+              place_id,
+              formatted_address,
+              geometry: { location }
+            } = result[0];
+            this.setState({
+              place_id,
+              formatted_address,
+              place_lat: location.lat(),
+              place_lng: location.lng()
+            });
+            innerScope.map.setCenter(location);
+            innerScope.marker.setPosition(location);
+            innerScope.infoWindow.setPosition(location);
+            innerScope.inputNode.value = formatted_address;
+            innerScope.infoWindow.setContent(`${formatted_address}`);
+            innerScope.infoWindow.open(innerScope.map);
+          }
+        });
+      };
+    };
+    /**
+   * a function used to give id of the table Row in db
+   * 
+   * @param {event}
+   *            event
+   */
+    this.onClick = event => {
+      this.toggle();
+      if (!event) return;
+      event.preventDefault();
+      event.target = { ...this.props, value: this.state, stringValue: JSON.stringify(this.state) }
+      this.props.onChange && this.props.onChange(event);
+    };
+  }
+  render() {
+    return React.createElement(
+      React.Fragment,
+      null,
+      React.createElement(
+        InputGroup,
+        { type: "text", name: "name", id: this.popoverId },
+        React.createElement(Input, {
+          type: "text",
+          value: this.state.formatted_address,
+          readOnly: true,
+          disabled: !!this.props.disabled
+        }),
+        React.createElement(
+          InputGroupAddon,
+          { addonType: "append" },
+          React.createElement(
+            Button,
+            {
+              className: "mr-1 btn-success",
+              onClick: this.toggle,
+              color: "success",
+              disabled: !!this.props.disabled
+            },
+            React.createElement("i", { className: "icon-map" })
+          )
+        )
+      ),
+      React.createElement(
+        Popover,
+        {
+          className: "gMapPopover",
+          placement: "bottom-end",
+          isOpen: this.state.mapOpen,
+          target: this.popoverId,
+          toggle: this.toggle
+        },
+        React.createElement(XMap, {
+          apiKey: _app.map_api,
+          onMapLoad: this.onMapLoad,
+          onClick: this.onClick
+        })
+      )
+    );
+  }
+}
 /**
  * A component to render Masonry layout
  * 
@@ -1907,7 +1897,7 @@ class XLazyScriptLoader extends React.PureComponent {
      PropTypes.string,
    ])
  };
- const XPreviewFile = ({
+const XPreviewFile = ({
   file
 }) => {
   let type = file ? file.type : null;
@@ -2153,7 +2143,7 @@ class XSingleUploadComponent extends React.Component {
           target: this.props.cfg.id
         },
         _(PopoverHeader, null,
-          this.state.file ? this.state.file.name : getLocMsg('File Upload'),
+          this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
           _('input', {
             className: 'd-none',
             type: 'file',
@@ -2207,64 +2197,64 @@ class XSingleUploadComponent extends React.Component {
   }
 }
 
-
 class XFormConversion extends React.Component {
-	  constructor(props) {
-		    super(props);
-		    var s={}
-		    if(iwb.formConversions[props.id])s=iwb.conversionForms[props.id];
-		    else props.conversionForms.map( (i)=>s[i.xid]=i.checked);
-		    this.state = s;
-		    this.onClick= this.onClick.bind(this);
-		    iwb.formConversions[this.props.id] = s;
-	  }
-	  onClick(event) {
-		    var xid=event.target.getAttribute('xid');
-		    if(xid){
-		    	var s= this.state;
-		    	s[xid]=!s[xid];
-		    	this.setState(s);
-			    iwb.formConversions[this.props.id] = s;
-		    }
-	  }
-	  render() {
-		  return _('div',{}
-		  		  ,_('div',{className:'form-cnv'},'Conversions')
-				  ,_('div',{}, this.props.conversionForms.map( (i)=> {
-					  var pi={type:'checkbox', className:'switch-input',xid:i.xid, checked:this.state[i.xid]||false,onChange:this.onClick};
-					  return _(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-xs switch-3d switch-warning', style:{'margin-top':3}} , _(Input,pi),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}},_('b',null,[' [E-MAIL]',' [SMS]'][i.smsMailTip-1]), ' ' + i.text, i.previewFlag && _('i',null, ' (preview)')));
-				  })));
-	  }
+  constructor(props) {
+    super(props);
+    var s = {}
+    if (iwb.formConversions[props.id]) s = iwb.conversionForms[props.id];
+    else props.conversionForms.map((i) => s[i.xid] = i.checked);
+    this.state = s;
+    this.onClick = this.onClick.bind(this);
+    iwb.formConversions[this.props.id] = s;
+  }
+  onClick(event) {
+    var xid = event.target.getAttribute('xid');
+    if (xid) {
+      var s = this.state;
+      s[xid] = !s[xid];
+      this.setState(s);
+      iwb.formConversions[this.props.id] = s;
+    }
+  }
+  render() {
+    return _('div', {}
+      , _('div', { className: 'form-cnv' }, 'Conversions')
+      , _('div', {}, this.props.conversionForms.map((i) => {
+        var pi = { type: 'checkbox', className: 'switch-input', xid: i.xid, checked: this.state[i.xid] || false, onChange: this.onClick };
+        return _(FormGroup, { style: { marginBottom: '0.3rem' } }, _(Label, { className: 'switch switch-xs switch-3d switch-warning', style: { 'margin-top': 3 } }, _(Input, pi), _('span', { className: 'switch-label' }), _('span', { className: 'switch-handle' })), _(Label, { style: { marginLeft: '1rem' } }, _('b', null, [' [E-MAIL]', ' [SMS]'][i.smsMailTip - 1]), ' ' + i.text, i.previewFlag && _('i', null, ' (preview)')));
+      })));
+  }
 }
 
 class XFormSmsMailTemplate extends React.Component {
-	  constructor(props) {
-		    super(props);
-		    var s={}
-		    if(iwb.formSmsMailTemplates[props.id])s=iwb.formSmsMailTemplates[props.id];
-		    else props.smsMailTemplates.map( (i)=>s[i.xid]=i.checked);
-		    this.state = s
-		    this.onClick= this.onClick.bind(this);
-		    iwb.formSmsMailTemplates[props.id] = s;
-	  }
-	  onClick(event) {
-		    var xid=event.target.getAttribute('xid');
-		    if(xid){
-		    	var s= this.state;
-		    	s[xid]=!s[xid];
-		    	this.setState(s);
-			    iwb.formSmsMailTemplates[this.props.id] = s;
-		    }
-	  }
-	  render() {
-		  return _('div',{}
-  		  ,_('div',{className:'form-cnv'},'SMS/Email Notifications')
-		  ,_('div',{}, this.props.smsMailTemplates.map( (i)=> {
-			  var pi={type:'checkbox', className:'switch-input',xid:i.xid, checked:this.state[i.xid]||false,onChange:this.onClick};
-			  return _(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-xs switch-3d switch-warning', style:{'margin-top':3}} , _(Input,pi),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}},_('b',null,[' [E-MAIL]',' [SMS]'][i.smsMailTip-1]), ' ' + i.text, i.previewFlag && _('i',null, ' (preview)')));
-		  })));
-	  }
+  constructor(props) {
+    super(props);
+    var s = {}
+    if (iwb.formSmsMailTemplates[props.id]) s = iwb.formSmsMailTemplates[props.id];
+    else props.smsMailTemplates.map((i) => s[i.xid] = i.checked);
+    this.state = s
+    this.onClick = this.onClick.bind(this);
+    iwb.formSmsMailTemplates[props.id] = s;
+  }
+  onClick(event) {
+    var xid = event.target.getAttribute('xid');
+    if (xid) {
+      var s = this.state;
+      s[xid] = !s[xid];
+      this.setState(s);
+      iwb.formSmsMailTemplates[this.props.id] = s;
+    }
+  }
+  render() {
+    return _('div', {}
+      , _('div', { className: 'form-cnv' }, 'SMS/Email Notifications')
+      , _('div', {}, this.props.smsMailTemplates.map((i) => {
+        var pi = { type: 'checkbox', className: 'switch-input', xid: i.xid, checked: this.state[i.xid] || false, onChange: this.onClick };
+        return _(FormGroup, { style: { marginBottom: '0.3rem' } }, _(Label, { className: 'switch switch-xs switch-3d switch-warning', style: { 'margin-top': 3 } }, _(Input, pi), _('span', { className: 'switch-label' }), _('span', { className: 'switch-handle' })), _(Label, { style: { marginLeft: '1rem' } }, _('b', null, [' [E-MAIL]', ' [SMS]'][i.smsMailTip - 1]), ' ' + i.text, i.previewFlag && _('i', null, ' (preview)')));
+      })));
+  }
 }
+
 /**
  * @description used to render tab and show active tab on the full XPage
  * @param {Object}
@@ -2422,70 +2412,71 @@ class XTabForm extends React.PureComponent {
       });
     };
     this.approvalAction = (action, xformId) => {
-    	return (event) => {
-          event && event.preventDefault && event.preventDefault();
-          let { formId, pk } = this.props.cfg;
-          let pkz = "";
-          for (let key in pk) {
-            pkz += "&" + key + "=" + pk[key];
-          }
-          let url = "";
-          switch(action){
-          case	901:// start approval
-        	  url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
+      return (event) => {
+        event && event.preventDefault && event.preventDefault();
+        let { formId, pk } = this.props.cfg;
+        let pkz = "";
+        for (let key in pk) {
+          pkz += "&" + key + "=" + pk[key];
+        }
+        let url = "";
+        switch (action) {
+          case 901:// start approval
+            url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
+            yesNoDialog({
+              text: getLocMsg("are_you_sure"),//"Are you Sure to Start Approval?",
+              callback: success =>
+                success &&
+                iwb.request({
+                  url, params: { _adsc: 'start approval' },
+                  successCallback: () => this.props.parentCt.closeTab(event, success)
+                })
+            });
+            break;
+          default:
+            url = "ajaxApproveRecord?_aa=" + action + "&_arid=" + this.props.cfg.approval.approvalRecordId;
+            var strAction = ["", "Approve", "Return", "Reject"][action];
+            // var p = prompt("Please enter comment",
+            // ["","Approve","Return","Reject"][action]);
+            // if(p){
+            if (xformId) {
+              //        	  console.log('this.props.cfg',this.props.cfg)
+              var formUrl = 'showForm?a=2&_fid=' + xformId + pkz;
+              iwb.openTab('1199', formUrl, {}, {
+                modal: true, modalSize: this.props.cfg.subModalSize || false,
+                callback: (result) => {
+                  if (!result.errorType && !result.error && !result.errors) iwb.request({
+                    url, params: { _adsc: strAction, _avno: this.props.cfg.approval.versionNo },
+                    successCallback: () => this.props.parentCt.closeTab(event, true)
+                  }); else iwb.requestErrorHandler(result);
+                }
+              })
+            } else
               yesNoDialog({
-                text: getLocMsg("are_you_sure"),//"Are you Sure to Start Approval?",
+                text: getLocMsg("are_you_sure"),//"Are you Sure to "+strAction+"?",
                 callback: success =>
                   success &&
                   iwb.request({
-                    url,params:{_adsc:'start approval'},
-                    successCallback: () => this.props.parentCt.closeTab(event, success)
+                    url, params: { _adsc: strAction, _avno: this.props.cfg.approval.versionNo },
+                    successCallback: () => this.props.parentCt.closeTab(event, true)
+
                   })
               });
-              break;
-          default:
-              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
-          var strAction = ["","Approve","Return","Reject"][action];
-        	  // var p = prompt("Please enter comment",
-				// ["","Approve","Return","Reject"][action]);
-          	  // if(p){
-          if(xformId){
-//        	  console.log('this.props.cfg',this.props.cfg)
-        	  var formUrl = 'showForm?a=2&_fid=' + xformId + pkz;
-        	  iwb.openTab('1199', formUrl, {}, {
-                  modal: true, modalSize : this.props.cfg.subModalSize || false,
-                  callback: (result) => {
-                	  if(!result.errorType && !result.error && !result.errors)iwb.request({
-  	                    url,params:{_adsc:strAction,_avno:this.props.cfg.approval.versionNo},
-  	                    successCallback: () => this.props.parentCt.closeTab(event, true)  	                    
-                    }); else iwb.requestErrorHandler(result);
-                  }
-                })
-          } else
-	          yesNoDialog({
-	              text: getLocMsg("are_you_sure"),//"Are you Sure to "+strAction+"?",
-	              callback: success =>
-                  success &&
-                  iwb.request({
-	                    url,params:{_adsc:strAction,_avno:this.props.cfg.approval.versionNo},
-	                    successCallback: () => this.props.parentCt.closeTab(event, true)
-	                    
-                  })
-	          });
-          	  // }
-          break;
-          }
+            // }
+            break;
+        }
 
-        };
-      }
-      this.extrabuttonClicked = (props)=>(event)=>{
-        event.preventDefault();
-        event.stopPropagation();
-        let formData = this.form.getValues();
-        let gridData = this.props.callAttributes && this.props.callAttributes.rowData
-        props.click(event,{gridData,formData},this)
-      }
+      };
     }
+    this.extrabuttonClicked = (props)=>(event)=>{
+      event.preventDefault();
+      event.stopPropagation();
+      let formData = this.form.getValues();
+      let gridData = this.props.callAttributes && this.props.callAttributes.rowData
+      props.click(event,{gridData,formData},this)
+    }
+  }
+
   render() {
     let {
       props: {
@@ -2985,19 +2976,21 @@ class XGridRowAction extends React.PureComponent {
     const {
       state: { isOpen },
       props: {
+        tag,
         rowData,
         parentCt,
+        className,
         menuButtons,
         onEditClick,
         onDeleteClick,
+        formSmsMailList,
         crudFlags: { edit, remove },
-        formSmsMailList
       },
       toggle
     } = this;
     return _(
       Dropdown,
-      { isOpen, toggle, className:this.props.className },
+      { isOpen, toggle, className, tag },
       _(DropdownToggle, {
         tag: "i",
         className: "icon-options-vertical column-action"
@@ -3081,6 +3074,7 @@ class XGridRowAction extends React.PureComponent {
   }
 }
 XGridRowAction.propTypes = {
+  tag: PropTypes.string,
   rowData:PropTypes.object,
   parentCt: PropTypes.obj,
   menuButtons:PropTypes.arrayOf(
@@ -3100,6 +3094,9 @@ XGridRowAction.propTypes = {
     remove: PropTypes.bool
   }),
 };
+XGridRowAction.defaultProps = {
+  tag:'span',
+}
 /**
  * @deprecated todo: not used yet
  */
@@ -3478,7 +3475,7 @@ class XGrid extends GridCommon {
       !_disableIntegratedGrouping &&
         !pageSize &&
         rows.length > 1 &&
-        _(_dxgrb.GroupingPanel, { showSortingControls: true,messages:{groupByColumn:getLocMsg('groupByColumn')}  })
+        _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')} })
     );
   }
 }
@@ -3492,70 +3489,51 @@ class XGrid extends GridCommon {
  *            props.onExecute - a callback function to be executed when button
  *            is clicked
  */
-class Command extends React.PureComponent {
-  render() {
-    var { id, onExecute } = this.props;
-    var ComponentProps = iwb.commandComponentProps[id];
-    return ComponentProps
-      ? _(
-          "button",
-          {
-            className: "btn btn-link",
-            style: { padding: "11px" },
-            onClick: onExecute,
-            title: ComponentProps.hint
-          },
-          _(
-            "span",
-            { className: ComponentProps.color || "undefined" },
-            ComponentProps.icon
-              ? _("i", {
-                  className: "oi oi-" + ComponentProps.icon,
-                  style: { marginRight: ComponentProps.text ? 5 : 0 }
-                })
-              : null,
-            ComponentProps.text
-          )
-        )
-      : null;
-  }
+const Command = ({ id, onExecute }) => {
+  var ComponentProps = iwb.commandComponentProps[id];
+  return !!Object.keys(ComponentProps||{}).length && _(Button, {
+      color:'link',
+      style: { padding: "11px" },
+      onClick: onExecute,
+      title: ComponentProps.hint,
+    },
+      _("span",
+        { className: ComponentProps.color || '' },
+        ComponentProps.icon && _("i", {
+            className: "oi oi-" + ComponentProps.icon,
+            style: { marginRight: ComponentProps.text ? 5 : 0 }
+          }),
+        ComponentProps.text
+      )
+    )
 }
 /**
  * @description can be used to overload grid functionality component for making
  *              GRIDROW Edit + Multiselect
  */
-class SelectableStubCell extends React.PureComponent {
-  render() {
-    return _(
-      Plugin,
-      null,
-      _(
-        Template,
-        {
-          name: "tableCell",
-          predicate: ({ tableRow, tableColumn }) => {
-            if (
-              tableRow.key !== "heading" &&
-              tableColumn.key === "select" &&
-              tableRow.type === "edit"
-            ) {
-              return true;
-            }
-          }
-        },
-        params =>
-          _(TemplateConnector, null, ({ selection }, { toggleSelection }) => {
-            return _(_dxgrb.TableSelection.Cell, {
-              row: params.tableRow.row,
-              selected: selection.indexOf(params.tableRow.rowId) !== -1,
-              onToggle: () =>
-                toggleSelection({ rowIds: [params.tableRow.rowId] })
-            });
-          })
-      )
-    );
-  }
-}
+const SelectableStubCell = () => _(Plugin, {},
+  _(Template,
+    {
+      name: "tableCell",
+      predicate: ({ tableRow, tableColumn }) => {
+        if (
+          tableRow.key !== "heading" &&
+          tableColumn.key === "select" &&
+          tableRow.type === "edit"
+        ) {
+          return true;
+        }
+      }
+    },
+    ({ tableRow }) => _(TemplateConnector, {},
+      ({ selection }, { toggleSelection }) => _(_dxgrb.TableSelection.Cell, {
+        row: tableRow.row,
+        selected: selection.indexOf(tableRow.rowId) !== -1,
+        onToggle: () => toggleSelection({ rowIds: [tableRow.rowId] })
+      })
+    )
+  )
+);
 /**
  * @description used for sf grid in popup Modal
  * @param {Object}
@@ -3770,7 +3748,7 @@ class XEditGridSF extends GridCommon {
 	 *            force
 	 */
     this.loadData = force => {
-    	if(this.state.loading)return;
+      if(this.state.loading)return;
       const queryString = this.props._url;
       const t_props = this.props;
       this.setState({ loading: true, rows:[] });
@@ -3807,7 +3785,7 @@ class XEditGridSF extends GridCommon {
       if (!xprops.row._new) xprops.row._new = {}; // Object.assign({},xprops.row);
       if (!xprops.row._new.hasOwnProperty(xprops.column.name))
         xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
-      var keyFieldValue = (xprops.row._new && xprops.row._new[this.props.keyField])?xprops.row._new[this.props.keyField]:xprops.row[this.props.keyField];      
+      var keyFieldValue = (xprops.row._new && xprops.row._new[this.props.keyField])?xprops.row._new[this.props.keyField]:xprops.row[this.props.keyField]; 
       delete editor.defaultValue;
       switch (1 * editor._control) {
         case 3:
@@ -3995,8 +3973,7 @@ class XEditGridSF extends GridCommon {
       _(_dxgrb.TableHeaderRow, {
         showSortingControls: true
       }),
-      selectRow.mode === "checkbox" && _(SelectableStubCell, null), // select
-																	// box
+      selectRow.mode === "checkbox" && _(SelectableStubCell),
 
       !viewMode &&
         _(_dxgrb.TableEditRow, {
@@ -4031,13 +4008,10 @@ class XEditGridSF extends GridCommon {
         : null
     );
 
-    var footer = _(
-      ModalFooter,
-      null,
-      _(
-        Button,
+    var footer = _(ModalFooter,{},
+      _(Button,
         {
-          className: "btn-form",
+          className: "btn-form px-1 mx-1",
           color: "teal",
           onClick: () => {
             this.onCommitChanges(this.state);
@@ -4045,18 +4019,16 @@ class XEditGridSF extends GridCommon {
               iwb.closeModal();
           }
         },
-        "Save"
+        getLocMsg('save')
       ),
-      " ",
-      _(
-        Button,
+      _(Button,
         {
-          className: "btn-form",
+          className: "btn-form px-1 mx-1",
           color: "light",
           style: { border: ".5px solid #e6e6e6" },
           onClick: iwb.closeModal
         },
-        "Cancel"
+        getLocMsg('cancel')
       )
     );
 
@@ -4125,8 +4097,8 @@ const extendGrid = ({ name, children, predicate, position }) => {
  *          }});
  */
 yesNoDialog = ({
-  text = getLocMsg("are_you_sure"),//"Are You Sure?",
-  title = getLocMsg("confirmation"),//"Are You Sure?",
+  text = getLocMsg("are_you_sure"),
+  title = getLocMsg("confirmation"),
   callback = alert('obj.callback is not a function'),
   ...confg
 }) => {
@@ -4301,7 +4273,7 @@ class XEditGrid extends GridCommon {
 	 *            force
 	 */
     this.loadData = force => {
-    	if(this.state.loading)return;
+      if(this.state.loading)return;
       const queryString = this.props._url;
       const t_props = this.props;
       this.setState({rows: [], loading: true });
@@ -4641,7 +4613,7 @@ class XEditGrid extends GridCommon {
         : null,
       !_disableSearchPanel
         ? _(_dxgrb.SearchPanel, {
-            messages: { searchPlaceholder: getLocMsg('searchPlaceholder') }
+            messages: { searchPlaceholder: getLocMsg('searchPlaceholder')}
           })
         : null,
       !_disableIntegratedGrouping
@@ -4649,6 +4621,142 @@ class XEditGrid extends GridCommon {
         : null
     );
   }
+}
+/**
+ * a Component to render item of toolbar
+*/
+const XToolbarItem = (props) => {
+  if (props.type === "button") {
+    let { icon } = props;
+    var cls = icon.split('|');
+    return _( Button,
+      {
+        id: "toolpin" + props.index,
+        key: "key" + props.index,
+        className: classNames("btn-round-shadow mx-1", cls[1]),
+        color: "success",
+        onClick: (e)=>{ props.click && props.click(e, props.grid, props) }
+      },
+      cls[0] && _("i", { className: cls[0] }),
+      props.text && props.text
+    );
+  }
+  props.autoComplete = "off";
+  props.key = "Ikey" + index;
+  return _(props.$ || Input, { ...props, $: undefined });
+}
+/**
+ * a Component to render tabular detail grid
+ * @param {*} props 
+ */
+const XShowDetailTabs = ({  row, currentDetailGrids, parentGrid, topParentGrid }) => {
+  const [activeTab, setActiveTab] = React.useState(currentDetailGrids[0].grid.gridId);
+  return _(Row, null,
+    _(Col, { className: 'border-0' },
+      _(Nav, { tabs: true },
+        (currentDetailGrids || []).map(
+          ({ grid }, index) => _(NavItem,
+            { key: "NavItem" + index },
+            _(NavLinkS, {
+              className: classNames({ active: activeTab === grid.gridId }),
+              onClick: () => { setActiveTab(grid.gridId) }
+            },
+              grid.name
+            )
+          )
+        )
+      ),
+      _(TabContent, { activeTab, className: 'shadow-none' },
+        (currentDetailGrids || []).map(
+          ({ grid, pk, params, detailGrids }) => {
+            var currentDetailGridProps = { ...{ pk: pk || {} }, ...grid };
+            if (currentDetailGridProps._url) {
+              currentDetailGridProps._url += buildParams2(params, row);
+            } else {
+              currentDetailGridProps.rows = row[currentDetailGridProps.detailRowsFieldName];
+            }
+            currentDetailGridProps.detailFlag = true;
+            var {extraButtons,crudFlags} = grid
+            return _(TabPane, { key: "TabPane" + grid.gridId, tabId: grid.gridId, className:'p-3' },
+              _(Row, {},
+                _(Col, { md: '12' },
+                  _(CardHeader,{},
+                    crudFlags && crudFlags.edit && _(Button,
+                      {
+                        className: "btn-round-shadow ml-1",
+                        color: "primary",
+                        onClick: event => topParentGrid.onOnNewRecord(event, grid, row)
+                      },
+                      _("i", { className: "icon-plus mr-1" }),
+                      getLocMsg('new_record')
+                    ),
+                    (extraButtons||[]).map((btn,index)=>_(XToolbarItem,{ ...btn, index, row, grid, parentGrid, parentCt:topParentGrid}))
+                  )
+                )
+              ),
+              _(XGrid, {
+                key: "XGrid" + grid.gridId,
+                responsive: true,
+                openTab: topParentGrid.props.openTab,
+                showDetail: detailGrids ? ((currentDetailGridProps._detailTab)?topParentGrid.showDetail3( detailGrids, currentDetailGridProps ):topParentGrid.showDetail2( detailGrids, currentDetailGridProps )) : false,
+                ...currentDetailGridProps
+              })
+            );
+          }
+        )
+      )
+    )
+  );
+}
+/**
+ *  a Component to render timebadge detail grid
+ * @param {*} props 
+ */
+const XShowDetailTimeline = ({ row, currentDetailGrids, parentGrid, topParentGrid }) => {
+  return _('ul', { className: 'timeline' },
+    (currentDetailGrids || []).map(
+      ({ grid, pk, params, detailGrids },index) => {
+        var currentDetailGridProps = { ...{ pk: pk || {} }, ...grid };
+        if (currentDetailGridProps._url) {
+          currentDetailGridProps._url += buildParams2(params, row);
+        } else {
+          currentDetailGridProps.rows = row[currentDetailGridProps.detailRowsFieldName];
+        }
+        currentDetailGridProps.detailFlag = true;
+        var addBtnClick = (currentDetailGridProps)=>(event) => {
+          if (grid._timelineBadgeBtn) {
+            return grid._timelineBadgeBtn( event, row, currentDetailGridProps, parentGrid, topParentGrid );
+          } 
+          topParentGrid.onOnNewRecord( event, currentDetailGridProps,row);
+        }
+        return _( "li", { key: "TimelinePane" + grid.gridId, className: "timeline-inverted" },
+          !currentDetailGridProps._hideTimelineBadgeBtn &&
+            _("div", { className: "timeline-badge hover-shake " + dgColors[index % dgColors.length],
+                onClick: addBtnClick(currentDetailGridProps),
+                style: { cursor: "pointer" }
+              },
+              _("i", { className: "fa fa-plus", style: {fontSize: 19 }})
+            ),
+
+            _("div", {className: "timeline-panel", ...(!!currentDetailGridProps._hideTimelineBadgeBtn ? { style: {left: "30px"}} : {}) },
+            _("div", { className: "timeline-heading mb-1"},
+              _("span", {className: "timeline-title pr-3 h5"}, currentDetailGridProps.name),
+              currentDetailGridProps.extraButtons && currentDetailGridProps.extraButtons.map(
+                (btn,index)=>_(XToolbarItem,{ ...btn, index, row, grid:currentDetailGridProps, parentGrid, parentCt:this})
+              )
+            ),
+            _(XGrid, {
+              key: "XGrid" + grid.gridId,
+              responsive: true,
+              openTab: topParentGrid.props.openTab,
+              showDetail: detailGrids ? ((currentDetailGridProps._detailTab)?topParentGrid.showDetail3( detailGrids, currentDetailGridProps ):topParentGrid.showDetail2( detailGrids, currentDetailGridProps )) : false,
+              ...currentDetailGridProps
+            })
+          )
+        )
+      }
+    )
+  )
 }
 /**
  * @description used for rendering master grid with search form in it
@@ -4762,40 +4870,49 @@ class XMainGrid extends GridCommon {
         });
       }
       var colTemp = props.columns;
-      colTemp &&
-        colTemp.map(colLocal => {
-          var title;
-          switch (colLocal.name) {
-            case "pkpkpk_faf":
-              title = _("i", { className: "icon-paper-clip" });
-              break;
-            case "pkpkpk_ms":
-              title = _("i", { className: "icon-envelope" });
-              break;
-            case "pkpkpk_cf":
-              title = _("i", { className: "icon-bubble" });
-              break;
-            case "pkpkpk_apf":
-              title = _("i", { className: "icon-picture" });
-              break;
-            case "pkpkpk_vcsf":
-              title = _("i", { className: "icon-social-github" });
-              break;
-          }
-          columns.push({
-            name: colLocal.name,
-            title: title || colLocal.title,
-            getCellValue: colLocal.formatter || undefined
-          });
-          columnExtensions.push({
-            columnName: colLocal.name,
-            align: colLocal.align || "left",
-            width: +colLocal.width,
-            sortingEnabled: !!colLocal.sort
-          });
+      colTemp && colTemp.map(colLocal => {
+        var title;
+        switch (colLocal.name) {
+          case "pkpkpk_faf":
+            title = _("i", {
+              className: "icon-paper-clip"
+            });
+            break;
+          case "pkpkpk_ms":
+            title = _("i", {
+              className: "icon-envelope"
+            });
+            break;
+          case "pkpkpk_cf":
+            title = _("i", {
+              className: "icon-bubble"
+            });
+            break;
+          case "pkpkpk_apf":
+            title = _("i", {
+              className: "icon-picture"
+            });
+            break;
+          case "pkpkpk_vcsf":
+            title = _("i", {
+              className: "icon-social-github"
+            });
+            break;
+        }
+        columns.push({
+          name: colLocal.name,
+          title: title || colLocal.title,
+          getCellValue: colLocal.formatter || undefined
         });
+        columnExtensions.push({
+          columnName: colLocal.name,
+          align: colLocal.align || "left",
+          width: +colLocal.width,
+          sortingEnabled: !!colLocal.sort
+        });
+      });
       var state = {
-        columns, activeTab:props.detailGrids && props.detailGrids.length && props.detailGrids[0].gridId ? props.detailGrids[0].gridId:-1,
+        columns,
         order: columns.map(({ name }) => name),
         columnExtensions,
         columnWidths: columnExtensions.map(({ columnName, width }) => {
@@ -4818,7 +4935,6 @@ class XMainGrid extends GridCommon {
         props.detailGrids.map(({ grid }, key) => {
           if (key < 2) state["dg-" + grid.gridId] = key < 2;
         });
-
       this.state = state;
     }
     /**
@@ -5071,285 +5187,26 @@ class XMainGrid extends GridCommon {
         )
       });
     };
+
     /**
 	 * @description A function to render Details under Muster's row
 	 * @param {Array}
-	 *            tempDetailGrids[] - array of detail grids conf
+	 *            currentDetailGrids[] - array of detail grids conf
 	 * @param {Object}
-	 *            tempDetailGrids[].grid - detail grids props
+	 *            currentDetailGrids[].grid - detail grids props
 	 * @param {Object}
-	 *            tempDetailGrids[].params - master detail connection Master
+	 *            currentDetailGrids[].params - master detail connection Master
 	 *            primaty key name {xoffer_id: "offer_id"}
 	 * @param {Object}
-	 *            tempDetailGrids[].pk - Master detail connection Detail primaty
+	 *            currentDetailGrids[].pk - Master detail connection Detail primaty
 	 *            key name {toffer_detail_id: "offer_detail_id"}
 	 */
-    this.showDetail2 = tempDetailGrids => {
-      var selfie = this;
-      return row => {
-        if (row) {
-          var rowSDetailGrids = [];
-          for (var DGindex = 0; DGindex < tempDetailGrids.length; DGindex++) {
-            if (
-              tempDetailGrids.length >= 1
-            ) {
-              var show = (selfie.state.hasOwnProperty('dg-' + tempDetailGrids[DGindex].grid.gridId)) ? selfie.state['dg-' + tempDetailGrids[DGindex].grid.gridId] : true;
-              var detailXGrid = {
-                ...{
-                  pk: tempDetailGrids[DGindex].pk || {}
-                },
-                ...tempDetailGrids[DGindex].grid
-              };
-              if (detailXGrid._url)
-                detailXGrid._url += buildParams2(
-                  tempDetailGrids[DGindex].params,
-                  row.row
-                );
-              else detailXGrid.rows = row.row[detailXGrid.detailRowsFieldName];
-              detailXGrid.detailFlag = true;
-              show && rowSDetailGrids.push(
-                _(
-                  "li", {
-                    key: DGindex,
-                    className: "timeline-inverted"
-                  },
-                  // _(XGridAction,{color:dgColors[DGindex%dgColors.length]}),
-                  !detailXGrid._hideTimelineBadgeBtn &&
-                  _(
-                    "div", {
-                      className: "timeline-badge hover-shake " +
-                        dgColors[DGindex % dgColors.length],
-                      dgindex: DGindex,
-                      onClick: event => {
-                        var DGindexDOM = +event.target.getAttribute("dgindex");
-                        if (iwb.debug)
-                          console.log(
-                            "dasss",
-                            DGindexDOM,
-                            tempDetailGrids[DGindexDOM].grid
-                          );
-                        if (!!selfie._timelineBadgeBtn) {
-                          selfie._timelineBadgeBtn(
-                            event,
-                            selfie.props,
-                            tempDetailGrids[DGindexDOM].grid,
-                            row.row,
-                            selfie
-                          );
-                        } else {
-                          selfie.onOnNewRecord(
-                            event,
-                            tempDetailGrids[DGindexDOM].grid,
-                            row.row
-                          );
-                        }
-                      },
-                      style: {
-                        cursor: "pointer"
-                      }
-                    },
-                    _("i", {
-                      className: "fa fa-plus",
-                      style: {
-                        fontSize: 19
-                      },
-                      dgindex: DGindex
-                    })
-                  ),
-                  _(
-                    "div", {
-                      className: "timeline-panel",
-                      ...(!!detailXGrid._hideTimelineBadgeBtn ? {
-                        style: {
-                          left: "30px"
-                        }
-                      } : {})
-                    },
-                    _(
-                      "div", {
-                        className: "timeline-heading mb-1"
-                      },
-                      _(
-                        "span", {
-                          className: "timeline-title pr-3 h5"
-                        },
-                        detailXGrid.name,
-                      ),
-                      detailXGrid.extraButtons && detailXGrid.extraButtons.map((props, index) => {
-                        if (props.type === "button") {
-                          var {click,text,icon} = props;
-                          var cls = icon ? icon.split('|'):[''];
-                          return _(
-                            Button, {
-                              key: 'key' + index,
-                              size: 'sm',
-                              outline: true,
-                              className: 'btn-round-shadow hover-to-show-link ml-1 ' + cls[cls.length>1? 1:0],
-                              color: dgColors[index % dgColors.length],
-                              onClick: event => click( event, detailXGrid, row.row )
-                            },
-                            cls[0] && _('i', { className: 'icon-' + cls[0] }),
-                            text && _('span', { className: 'hover-to-show'}, text)
-                          )
-                        }
-                      })
-                      /**
-						 * other inputs will be added when there will be need
-						 */
-                      // _('span',{className: "float-right",
-						// style:{marginTop:'-23px', marginRight:'15px'}},
-                      // _('i',{ className: "icon-arrow-up",
-						// style:{marginRight: '12px'}}),' ',_('i',{ className:
-						// "icon-close"}),' ')
-                    ),
-                    _(XGrid, {
-                      responsive: true,
-                      openTab: selfie.props.openTab,
-                      showDetail: tempDetailGrids[DGindex].detailGrids ?
-                        selfie.showDetail2(
-                          tempDetailGrids[DGindex].detailGrids
-                        ) : false,
-                      ...detailXGrid
-                    })
-                  )
-                )
-              ); // push end
-            } // if end
-          } // for end
-          return (
-            rowSDetailGrids.length > 0 &&
-            _("ul", {
-              className: "timeline"
-            }, rowSDetailGrids)
-          );
-        } else {
-          return null;
-        }
-      };
-    };
-    
-    this.toggle = event => {
-      /*  var activeTab = event.target ? event.target.getAttribute("name") : event;
-        if (this.state.activeTab !== activeTab) {
-          var {
-            tabs
-          } = this;
-          tabs &&
-            tabs.forEach(tempTab => {
-              if (tempTab.name === activeTab) {
-                this.setState({
-                  activeTab
-                });
-                return true;
-              }
-            });
-        }*/
-        return false;
-      };
-    
-    this.showDetail3 = tempDetailGrids => {
-        var selfie = this;
-        return row => {
-        	console.log('ahmet',tempDetailGrids, row)
-//        	return _('div',null,'ahmet')
-          if (row) {
-        	  return _(Card,{}, _(
-        			            Nav,
-        			            { tabs: true},
-        			            tempDetailGrids.map(({grid, pk, params} ,index) => {
-        			              return _(
-        			                NavItem,
-        			                { key: "NavItem" + index },
-        			                _(
-        			                  NavLinkS,
-        			                  {
-        			                    className: classNames({
-        			                      active: this.state.activeTab === grid.gridId
-        			                    }),
-        			                    name:'g-'+grid.gridId,
-        			                    onClick: event => this.toggle(event)
-        			                  },
-        			                  grid.name
-        			                )
-        			              );
-        			            })
-        			          ),
-        			          _(TabContent, 
-    	            { activeTab: this.state.activeTab },
-    	            //_(TabPane, {tabId:this.state.activeTab}, 'ahmet')
-    	            tempDetailGrids.map(({grid, pk, params, detailGrids} ,index) => {
-    	            	var detailXGrid = {
-    	                        ...{
-    	                          pk:pk || {}
-    	                        },
-    	                        ...grid
-    	                      };
-    	                      if (detailXGrid._url)
-    	                        detailXGrid._url += buildParams2(
-    	                          params,
-    	                          row.row
-    	                        );
-    	                      else detailXGrid.rows = row.row[detailXGrid.detailRowsFieldName];
-    	                      detailXGrid.detailFlag = true;
-    	                      
-    	              return index==0 && _(
-    	                TabPane,
-    	                { key: "TabPane" + grid.gridId, tabId: this.state.activeTab },
-    	                _(XGrid, {
-    	                      responsive: true,
-    	                      openTab: selfie.props.openTab,
-    	                      showDetail: detailGrids ?
-    	                        selfie.showDetail3(
-    	                        		detailGrids
-    	                        ) : false,
-    	                      ...detailXGrid
-    	                    })
-    	              );
-    	            })
-    	          ));
-        	  
-        	  return _(Card,{}, 
-        			  _(
-        			            Nav,
-        			            { tabs: true},
-        			            this.tabs.map(({ name, icon, title }, index) => {
-        			              return _(
-        			                NavItem,
-        			                { key: "NavItem" + index },
-        			                _(
-        			                  NavLinkS,
-        			                  {
-        			                    className: classNames({
-        			                      active: this.state.activeTab === name
-        			                    }),
-        			                    name,
-        			                    onClick: event => this.toggle(event)
-        			                  },
-        			                  _("i", {
-        			                    className: icon,
-        			                    name,
-        			                    title,
-        			                    onClick: event => this.toggle(event)
-        			                  }),
-        			                  title && name != "x" && this.state.activeTab === name && title
-        			                )
-        			              );
-        			            })
-        			          ),
-        			  _(
-      	            TabContent, 
-      	            { activeTab: 'xx'},
-      	            _(TabPane,{ key: "xx", tabId: 'xx' },
-      	            		_('div',null,'somon')
-      	              )
-
-      	          ));
-          } else {
-            return null;
-          }
-        };
-      };
-    /**
+  this.showDetail2 = (currentDetailGrids, parentGrid = this) => ({ row }) => (row) ? _(XShowDetailTimeline, { row, currentDetailGrids, parentGrid, topParentGrid: this }) : null;
+ /**
+   * tabular master detail layout
+   */
+  this.showDetail3 = (currentDetailGrids, parentGrid = this) => ({ row }) => (row) ? _(XShowDetailTabs, { row, currentDetailGrids, parentGrid, topParentGrid: this }) : null;
+  /**
 	 * @overloading
 	 * @param {Boolean}
 	 *            force - Get up to data data
@@ -5528,8 +5385,8 @@ class XMainGrid extends GridCommon {
       /** UI of the detail table */
       showDetail
         ? _(_dxgrb.TableRowDetail, {
-            contentComponent: this.showDetail2(detailGrids)
-          })
+          contentComponent: (this.props._detailTab) ? this.showDetail3(detailGrids) : this.showDetail2(detailGrids)
+        })
         : null,
       /** UI show pagining */
       ( pageSize > 1) //rows.length > iwb.detailPageSize ||
@@ -5558,8 +5415,7 @@ class XMainGrid extends GridCommon {
         _(_dxgrb.GroupingPanel, { showSortingControls: true, messages:{groupByColumn:getLocMsg('groupByColumn')}  })
     );
 
-    return _(
-      "div",
+    return _("div",
       { className: "tab-grid mb-4" },
       searchForm &&
         _(
@@ -5577,25 +5433,18 @@ class XMainGrid extends GridCommon {
           CardHeader,
           {},
           searchForm &&
-            _(
-              Button,
+            _(Button,
               {
-                className: "btn-round-shadow",
+                className: "btn-round-shadow ml-1",
                 color: "secondary",
-                style: { marginLeft: "5px" },
                 onClick: toggleSearch
               },
               _("i", { id: "eq-" + this.props.id, className: "icon-magnifier" })
             ),
-
- //         !searchForm &&
-            _(
-              Button,
-              {
-                className: "btn-round-shadow",
+            _(Button,{
+                className: "btn-round-shadow ml-1",
                 disabled: loading,
                 color: "secondary",
-                style: { marginLeft: "5px" },
                 onClick: event => loadData(true)
               },
               _("i", { className: "icon-refresh" })
@@ -5603,41 +5452,17 @@ class XMainGrid extends GridCommon {
 
           crudFlags &&
             crudFlags.insert &&
-            _(
-              Button,
+            _(Button,
               {
-                className: "btn-round-shadow",
-                style: { marginLeft: "5px" },
+                className: "btn-round-shadow ml-1",
                 color: "primary",
                 onClick: event => onOnNewRecord(event, this.props)
               },
               _("i", { className: "icon-plus mr-1" }),
               getLocMsg('new_record')
             ),
-            _('div',{className:"fgrow"},null),
-
-          extraButtons &&
-            extraButtons.map((prop, index) => {
-              if (prop.type === "button") {
-                let { icon } = prop;
-                var cls = icon.split('|');
-                return _(
-                  Button,
-                  {
-                    id: "toolpin" + index,
-                    key: "key" + index,
-                    className: classNames("btn-round-shadow mx-1", cls[1]),
-                    color: "success",
-                    onClick: prop.click && prop.click.bind(this)
-                  },
-                  cls[0] && _("i", { className: cls[0] }),
-                  prop.text && prop.text
-                );
-              }
-              prop.autoComplete = "off";
-              prop.key = "Ikey" + index;
-              return _(prop.$ || Input, { ...prop, $: undefined });
-            }),
+            _('div',{className:"fgrow"}),
+            extraButtons && extraButtons.map((btn,index)=>_(XToolbarItem,{ ...btn, index, row:null ,grid:this, parentCt:null})),
           // _(Button,{className:'float-right btn-round-shadow
 			// hover-shake',color:'danger',
 			// onClick:this.toggleSearch},_('i',{style:{transition: "transform
@@ -5647,7 +5472,7 @@ class XMainGrid extends GridCommon {
             _(
               Button,
               {
-                className: "float-right btn-round-shadow hover-shake",
+                className: "float-right btn-round-shadow hover-shake mx-1",
                 color: "danger",
                 onClick: this.openBI
               },
@@ -5859,7 +5684,7 @@ class XPage extends React.PureComponent {
                     onClick: event => this.toggle(event)
                   },
                   _("i", {
-                    className: icon,
+                    className: classNames('mr-1', icon),
                     name,
                     title,
                     onClick: event => this.toggle(event)
@@ -5893,219 +5718,219 @@ class XPage extends React.PureComponent {
 }
 
 class XPage4Card extends React.PureComponent {
-	  constructor(props) {
-	    if (iwb.debugConstructor && iwb.debug) console.log("XPage4Card.constructor", props);
-	    super(props);
-	    document.getElementById("id-breed").innerHTML = this.props.card.name;
-	    iwb.killGlobalSearch();
-	    this.state = { activeTab: "x" };
-	    this.tabs = (iwb.tabs[this.props.card.id])?[...iwb.tabs[this.props.card.id]]:[{ name: "x", icon:"icon-list", title: "Liste", value: props.card }];
-	    /**
-		 * @description a Function to toggle between tabs
-		 * @param {Event}
-		 *            event - click event from tab
-		 */
-	    this.toggle = event => {
-	      var activeTab = event.target ? event.target.getAttribute("name") : event;
-	      if (this.state.activeTab !== activeTab) {
-	        var {
-	          tabs
-	        } = this;
-	        tabs &&
-	          tabs.forEach(tempTab => {
-	            if (tempTab.name === activeTab) {
-	              this.setState({
-	                activeTab
-	              });
-	              return true;
-	            }
-	          });
-	      }
-	      return false;
-	    };
-	    this.isActionInTabList = action => {
-	      var stopToFetch = false;
-	      this.tabs &&
-	      this.tabs.forEach(tempTab => {
-	          if (tempTab.name === action) {
-	            this.toggle(action);
-	            stopToFetch = true;
-	          }
-	        });
-	      return stopToFetch;
-	    };
-	    /**
-		 * @description A function responsible for opening tab getting component
-		 *              from the server and evaluating it on the page
-		 * @param {String}
-		 *            action - ['1-&toffer_id=4'] EditForm satrts 1-* ,
-		 *            InsertForm satrts 2-*
-		 * @param {String}
-		 *            url - ['showForm?a=1&_fid=3988&twork_position_id=1']
-		 * @param {Object}
-		 *            params - a varible wich holds request body params
-		 * @param {Object}
-		 *            callAttributes - [{modal:false}] a variable used to pass
-		 *            params to a component which comes from the server
-		 */
-	    this.openTab = (action, url, params, callAttributes) => {
-	      if (this.state.activeTab !== action) {
-	        if (this.isActionInTabList(action)) return;
-	        fetch(url, {
-	            body: JSON.stringify(params || {}), // must match 'Content-Type'
-													// header
-	            cache: "no-cache", // *default, no-cache, reload, force-cache,
-									// only-if-cached
-	            credentials: "same-origin", // include, same-origin, *omit
-	            headers: {
-	              "content-type": "application/json"
-	            },
-	            method: "POST", // *GET, POST, PUT, DELETE, etc.
-	            mode: "cors", // no-cors, cors, *same-origin
-	            redirect: "follow", // *manual, follow, error
-	            referrer: "no-referrer" // *client, no-referrer
-	          })
-	          .then(
-	            response =>
-	            response.status === 200 || response.status === 0 ?
-	            response.text() :
-	            Promise.reject(
-	              new Error(response.text() || response.statusText)
-	            )
-	          )
-	          .then(
-	            result => {
-	              if (result) {
-	                var f;
-	                eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
-	                var serverComponent = f(callAttributes || {}, this);
-	                if (serverComponent) {
-	                  if (callAttributes && callAttributes.modal) {
-	                    // console.log(callAttributes);
-	                    iwb.showModal({
-	                      body: serverComponent,
-	                      size: iwb.defaultModalSize || "lg",
-	                      title: serverComponent.props && serverComponent.props.cfg ?
-	                        serverComponent.props.cfg.name :
-	                        "",
-	                      color: callAttributes.modalColor?callAttributes.modalColor:
-	                      "primary",
-	                      ...callAttributes.modalProps
-	                    });
-	                  } else {
-	                    var plus = action.substr(0, 1) == "2";
-	                    if (this.isActionInTabList(action)) return;
-	                    this.tabs.push({
-	                      name: action,
-	                      icon: plus ? "icon-plus" : "icon-doc",
-	                      title: ' '+ getLocMsg(plus ? 'new':'edit'),
-	                      value: serverComponent
-	                    });
-	                    this.setState({
-	                      activeTab: action
-	                    });
-	                  }
-	                }
-	              } else {
-	                toastr.error("Sonuc Gelmedi", " Error");
-	              }
-	            },
-	            error => {
-	              toastr.error(error, "Connection Error");
-	            }
-	          );
-	      }
-	    };
-	    iwb.openTab = this.openTab;
-	    /**
-		 * @description A function responsible for closing tab and delating
-		 *              CurrentTab from the state of Xpage Component this
-		 *              function will be passed to whenever new tab is opened
-		 */
-	    this.closeTab = (event, forceRelaod = false) => {
-	      if (this.state.activeTab == "x") return;
-	      this.tabs = this.tabs && this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
-	      if (forceRelaod) {
-	        this.tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
-	      }
-	      this.toggle("x");
-	    };
-	    iwb.closeTab = this.closeTab;
-	    /**
-		 * @description A function is used to open new FormTab
-		 * @param {string}
-		 *            url
-		 */
-	    this.openForm = (url, callAttributes = {}) => {
-	      if (url) this.openTab("1-" + Math.random(), url, {}, callAttributes);
-	      return false;
-	    };
-	    iwb.openForm = this.openForm;
-	  }
-	  componentWillUnmount() {
-	    iwb.killGlobalSearch();
-	    iwb.tabs[this.props.card.id] = [...this.tabs];
-	  }
-	  render() {
-	    if (iwb.debugRender) if (iwb.debug) console.log("XPage.render");
-	    return _(
-	      "div",
-	      {},
-	      _(
-	        Row,
-	        null,
-	        _(
-	          Col,
-	          { className: "mb-4" },
-	          _(
-	            Nav,
-	            { tabs: true, hidden: this.tabs.length == 1 },
-	            this.tabs.map(({ name, icon, title }, index) => {
-	              return _(
-	                NavItem,
-	                { key: "NavItem" + index },
-	                _(
-	                  NavLinkS,
-	                  {
-	                    className: classNames({
-	                      active: this.state.activeTab === name
-	                    }),
-	                    name,
-	                    onClick: event => this.toggle(event)
-	                  },
-	                  _("i", {
-	                    className: icon,
-	                    name,
-	                    title,
-	                    onClick: event => this.toggle(event)
-	                  }),
-	                  title && name != "x" && this.state.activeTab === name && title
-	                )
-	              );
-	            })
-	          ),
-	          _(
-	            TabContent,
-	            { activeTab: this.state.activeTab },
-	            this.tabs.map(({ name, value }, index) => {
-	              return _(
-	                TabPane,
-	                { key: "TabPane" + index, tabId: name },
-	                value.cardId
-	                  ? _(XMainCard, {
-	                      openTab: this.openTab,
-	                      closeTab: this.closeTab,
-	                      ...value
-	                    })
-	                  : value
-	              );
-	            })
-	          )
-	        )
-	      )
-	    );
-	  }
-	}
+  constructor(props) {
+    if (iwb.debugConstructor && iwb.debug) console.log("XPage4Card.constructor", props);
+    super(props);
+    document.getElementById("id-breed").innerHTML = this.props.card.name;
+    iwb.killGlobalSearch();
+    this.state = { activeTab: "x" };
+    this.tabs = (iwb.tabs[this.props.card.id]) ? [...iwb.tabs[this.props.card.id]] : [{ name: "x", icon: "icon-list", title: "Liste", value: props.card }];
+    /**
+   * @description a Function to toggle between tabs
+   * @param {Event}
+   *            event - click event from tab
+   */
+    this.toggle = event => {
+      var activeTab = event.target ? event.target.getAttribute("name") : event;
+      if (this.state.activeTab !== activeTab) {
+        var {
+          tabs
+        } = this;
+        tabs &&
+          tabs.forEach(tempTab => {
+            if (tempTab.name === activeTab) {
+              this.setState({
+                activeTab
+              });
+              return true;
+            }
+          });
+      }
+      return false;
+    };
+    this.isActionInTabList = action => {
+      var stopToFetch = false;
+      this.tabs &&
+        this.tabs.forEach(tempTab => {
+          if (tempTab.name === action) {
+            this.toggle(action);
+            stopToFetch = true;
+          }
+        });
+      return stopToFetch;
+    };
+    /**
+   * @description A function responsible for opening tab getting component
+   *              from the server and evaluating it on the page
+   * @param {String}
+   *            action - ['1-&toffer_id=4'] EditForm satrts 1-* ,
+   *            InsertForm satrts 2-*
+   * @param {String}
+   *            url - ['showForm?a=1&_fid=3988&twork_position_id=1']
+   * @param {Object}
+   *            params - a varible wich holds request body params
+   * @param {Object}
+   *            callAttributes - [{modal:false}] a variable used to pass
+   *            params to a component which comes from the server
+   */
+    this.openTab = (action, url, params, callAttributes) => {
+      if (this.state.activeTab !== action) {
+        if (this.isActionInTabList(action)) return;
+        fetch(url, {
+          body: JSON.stringify(params || {}), // must match 'Content-Type'
+          // header
+          cache: "no-cache", // *default, no-cache, reload, force-cache,
+          // only-if-cached
+          credentials: "same-origin", // include, same-origin, *omit
+          headers: {
+            "content-type": "application/json"
+          },
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          mode: "cors", // no-cors, cors, *same-origin
+          redirect: "follow", // *manual, follow, error
+          referrer: "no-referrer" // *client, no-referrer
+        })
+          .then(
+            response =>
+              response.status === 200 || response.status === 0 ?
+                response.text() :
+                Promise.reject(
+                  new Error(response.text() || response.statusText)
+                )
+          )
+          .then(
+            result => {
+              if (result) {
+                var f;
+                eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
+                var serverComponent = f(callAttributes || {}, this);
+                if (serverComponent) {
+                  if (callAttributes && callAttributes.modal) {
+                    // console.log(callAttributes);
+                    iwb.showModal({
+                      body: serverComponent,
+                      size: iwb.defaultModalSize || "lg",
+                      title: serverComponent.props && serverComponent.props.cfg ?
+                        serverComponent.props.cfg.name :
+                        "",
+                      color: callAttributes.modalColor ? callAttributes.modalColor :
+                        "primary",
+                      ...callAttributes.modalProps
+                    });
+                  } else {
+                    var plus = action.substr(0, 1) == "2";
+                    if (this.isActionInTabList(action)) return;
+                    this.tabs.push({
+                      name: action,
+                      icon: plus ? "icon-plus" : "icon-doc",
+                      title: ' ' + getLocMsg(plus ? 'new' : 'edit'),
+                      value: serverComponent
+                    });
+                    this.setState({
+                      activeTab: action
+                    });
+                  }
+                }
+              } else {
+                toastr.error("Sonuc Gelmedi", " Error");
+              }
+            },
+            error => {
+              toastr.error(error, "Connection Error");
+            }
+          );
+      }
+    };
+    iwb.openTab = this.openTab;
+    /**
+   * @description A function responsible for closing tab and delating
+   *              CurrentTab from the state of Xpage Component this
+   *              function will be passed to whenever new tab is opened
+   */
+    this.closeTab = (event, forceRelaod = false) => {
+      if (this.state.activeTab == "x") return;
+      this.tabs = this.tabs && this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
+      if (forceRelaod) {
+        this.tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
+      }
+      this.toggle("x");
+    };
+    iwb.closeTab = this.closeTab;
+    /**
+   * @description A function is used to open new FormTab
+   * @param {string}
+   *            url
+   */
+    this.openForm = (url, callAttributes = {}) => {
+      if (url) this.openTab("1-" + Math.random(), url, {}, callAttributes);
+      return false;
+    };
+    iwb.openForm = this.openForm;
+  }
+  componentWillUnmount() {
+    iwb.killGlobalSearch();
+    iwb.tabs[this.props.card.id] = [...this.tabs];
+  }
+  render() {
+    if (iwb.debugRender) if (iwb.debug) console.log("XPage.render");
+    return _(
+      "div",
+      {},
+      _(
+        Row,
+        null,
+        _(
+          Col,
+          { className: "mb-4" },
+          _(
+            Nav,
+            { tabs: true, hidden: this.tabs.length == 1 },
+            this.tabs.map(({ name, icon, title }, index) => {
+              return _(
+                NavItem,
+                { key: "NavItem" + index },
+                _(
+                  NavLinkS,
+                  {
+                    className: classNames({
+                      active: this.state.activeTab === name
+                    }),
+                    name,
+                    onClick: event => this.toggle(event)
+                  },
+                  _("i", {
+                    className: icon,
+                    name,
+                    title,
+                    onClick: event => this.toggle(event)
+                  }),
+                  title && name != "x" && this.state.activeTab === name && title
+                )
+              );
+            })
+          ),
+          _(
+            TabContent,
+            { activeTab: this.state.activeTab },
+            this.tabs.map(({ name, value }, index) => {
+              return _(
+                TabPane,
+                { key: "TabPane" + index, tabId: name },
+                value.cardId
+                  ? _(XMainCard, {
+                    openTab: this.openTab,
+                    closeTab: this.closeTab,
+                    ...value
+                  })
+                  : value
+              );
+            })
+          )
+        )
+      )
+    );
+  }
+}
 /**
  * @description this component is mostly used for render menu page You can set
  *              ti as a home page
@@ -6979,8 +6804,7 @@ class FileInput extends React.Component {
     }
     return _(React.Fragment, {},
       _('div', null,
-        // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File
-		// Upload'),
+        // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
         _('input', {
           className: 'd-none',
           type: 'file',
@@ -7039,6 +6863,7 @@ class FileInput extends React.Component {
     )
   }
 }
+
 class XGraph extends React.Component {
   constructor(props) {
     super(props);
@@ -7174,6 +6999,7 @@ iwb.ui.buildDashboard = function(o) {
     });
   });
 };
+
 iwb.ajax={}
 iwb.ajax.query=function(queryId,params,callback){
 	iwb.request({url:'ajaxQueryData?_qid='+queryId,params:params||{},successCallback:callback||false})
@@ -7188,15 +7014,15 @@ iwb.ajax.REST=function(serviceName,params,callback){
 	iwb.request({url:'ajaxCallWs?serviceName='+serviceName,params:params||{},successCallback:callback||false})
 }
 
-function approvalHtml(row){
-    // console.log('approvalHtml', row);
-    if(!row || !row.pkpkpk_arf_qw_)return '';
-    switch(1*row.pkpkpk_arf){
-    case 901:case -901:return iwb.label.startApprovalManually || 'Start approval manually';
-      case 998:return _('a',{href:'#', className:'badge badge-pill badge-success',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},iwb.label.approved || getLocMsg('approved'))
-      case -999:case 999:return _('a',{href:'#', className:'badge badge-pill badge-danger',onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},iwb.label.rejected || getLocMsg('rejected'))
-      default:return _('a',{href:'#', title:(row.app_user_ids_qw_ ? ': '+ row.app_user_ids_qw_:'')+ ' ' + (row.app_role_ids_qw_ ? '\n: '+ row.app_role_ids_qw_:''), onClick:iwb.approvalLogs(row.pkpkpk_arf_id)},1*row.pkpkpk_arf ? _("i", { className: "icon-shuffle", style:1*row.pkpkpk_arf>0?{color:'red'}:null }):null,' ' + row.pkpkpk_arf_qw_);
-    }
+function approvalHtml(row) {
+  // console.log('approvalHtml', row);
+  if (!row || !row.pkpkpk_arf_qw_) return '';
+  switch (1 * row.pkpkpk_arf) {
+    case 901: case -901: return iwb.label.startApprovalManually || 'Start approval manually';
+    case 998: return _('a', { href: '#', className: 'badge badge-pill badge-success', onClick: iwb.approvalLogs(row.pkpkpk_arf_id) }, iwb.label.approved || getLocMsg('approved'))
+    case -999: case 999: return _('a', { href: '#', className: 'badge badge-pill badge-danger', onClick: iwb.approvalLogs(row.pkpkpk_arf_id) }, iwb.label.rejected || getLocMsg('rejected'))
+    default: return _('a', { href: '#', title: (row.app_user_ids_qw_ ? ': ' + row.app_user_ids_qw_ : '') + ' ' + (row.app_role_ids_qw_ ? '\n: ' + row.app_role_ids_qw_ : ''), onClick: iwb.approvalLogs(row.pkpkpk_arf_id) }, 1 * row.pkpkpk_arf ? _("i", { className: "icon-shuffle", style: 1 * row.pkpkpk_arf > 0 ? { color: 'red' } : null }) : null, ' ' + row.pkpkpk_arf_qw_);
+  }
 }
 iwb.fmtFileSize=(a) => {
   if (!a) return "-";
