@@ -2201,59 +2201,59 @@ class XSingleUploadComponent extends React.Component {
 
 class XFormConversion extends React.Component {
   constructor(props) {
-      super(props);
-      var s={}
-      if(iwb.formConversions[props.id])s=iwb.conversionForms[props.id];
-      else props.conversionForms.map( (i)=>s[i.xid]=i.checked);
-      this.state = s;
-      this.onClick= this.onClick.bind(this);
-      iwb.formConversions[this.props.id] = s;
+    super(props);
+    var s = {}
+    if (iwb.formConversions[props.id]) s = iwb.conversionForms[props.id];
+    else props.conversionForms.map((i) => s[i.xid] = i.checked);
+    this.state = s;
+    this.onClick = this.onClick.bind(this);
+    iwb.formConversions[this.props.id] = s;
   }
   onClick(event) {
-      var xid=event.target.getAttribute('xid');
-      if(xid){
-        var s= this.state;
-        s[xid]=!s[xid];
-        this.setState(s);
-        iwb.formConversions[this.props.id] = s;
-      }
+    var xid = event.target.getAttribute('xid');
+    if (xid) {
+      var s = this.state;
+      s[xid] = !s[xid];
+      this.setState(s);
+      iwb.formConversions[this.props.id] = s;
+    }
   }
   render() {
-    return _('div',{}
-          ,_('div',{className:'form-cnv'},'Conversions')
-        ,_('div',{}, this.props.conversionForms.map( (i)=> {
-          var pi={type:'checkbox', className:'switch-input',xid:i.xid, checked:this.state[i.xid]||false,onChange:this.onClick};
-          return _(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-xs switch-3d switch-warning', style:{'margin-top':3}} , _(Input,pi),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}},_('b',null,[' [E-MAIL]',' [SMS]'][i.smsMailTip-1]), ' ' + i.text, i.previewFlag && _('i',null, ' (preview)')));
-        })));
+    return _('div', {}
+      , _('div', { className: 'form-cnv' }, 'Conversions')
+      , _('div', {}, this.props.conversionForms.map((i) => {
+        var pi = { type: 'checkbox', className: 'switch-input', xid: i.xid, checked: this.state[i.xid] || false, onChange: this.onClick };
+        return _(FormGroup, { style: { marginBottom: '0.3rem' } }, _(Label, { className: 'switch switch-xs switch-3d switch-warning', style: { 'margin-top': 3 } }, _(Input, pi), _('span', { className: 'switch-label' }), _('span', { className: 'switch-handle' })), _(Label, { style: { marginLeft: '1rem' } }, _('b', null, [' [E-MAIL]', ' [SMS]'][i.smsMailTip - 1]), ' ' + i.text, i.previewFlag && _('i', null, ' (preview)')));
+      })));
   }
 }
 
 class XFormSmsMailTemplate extends React.Component {
   constructor(props) {
-      super(props);
-      var s={}
-      if(iwb.formSmsMailTemplates[props.id])s=iwb.formSmsMailTemplates[props.id];
-      else props.smsMailTemplates.map( (i)=>s[i.xid]=i.checked);
-      this.state = s
-      this.onClick= this.onClick.bind(this);
-      iwb.formSmsMailTemplates[props.id] = s;
+    super(props);
+    var s = {}
+    if (iwb.formSmsMailTemplates[props.id]) s = iwb.formSmsMailTemplates[props.id];
+    else props.smsMailTemplates.map((i) => s[i.xid] = i.checked);
+    this.state = s
+    this.onClick = this.onClick.bind(this);
+    iwb.formSmsMailTemplates[props.id] = s;
   }
   onClick(event) {
-      var xid=event.target.getAttribute('xid');
-      if(xid){
-        var s= this.state;
-        s[xid]=!s[xid];
-        this.setState(s);
-        iwb.formSmsMailTemplates[this.props.id] = s;
-      }
+    var xid = event.target.getAttribute('xid');
+    if (xid) {
+      var s = this.state;
+      s[xid] = !s[xid];
+      this.setState(s);
+      iwb.formSmsMailTemplates[this.props.id] = s;
+    }
   }
   render() {
-    return _('div',{}
-      ,_('div',{className:'form-cnv'},'SMS/Email Notifications')
-    ,_('div',{}, this.props.smsMailTemplates.map( (i)=> {
-      var pi={type:'checkbox', className:'switch-input',xid:i.xid, checked:this.state[i.xid]||false,onChange:this.onClick};
-      return _(FormGroup, {style:{marginBottom:'0.3rem'}}, _(Label,{ className: 'switch switch-xs switch-3d switch-warning', style:{'margin-top':3}} , _(Input,pi),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'}},_('b',null,[' [E-MAIL]',' [SMS]'][i.smsMailTip-1]), ' ' + i.text, i.previewFlag && _('i',null, ' (preview)')));
-    })));
+    return _('div', {}
+      , _('div', { className: 'form-cnv' }, 'SMS/Email Notifications')
+      , _('div', {}, this.props.smsMailTemplates.map((i) => {
+        var pi = { type: 'checkbox', className: 'switch-input', xid: i.xid, checked: this.state[i.xid] || false, onChange: this.onClick };
+        return _(FormGroup, { style: { marginBottom: '0.3rem' } }, _(Label, { className: 'switch switch-xs switch-3d switch-warning', style: { 'margin-top': 3 } }, _(Input, pi), _('span', { className: 'switch-label' }), _('span', { className: 'switch-handle' })), _(Label, { style: { marginLeft: '1rem' } }, _('b', null, [' [E-MAIL]', ' [SMS]'][i.smsMailTip - 1]), ' ' + i.text, i.previewFlag && _('i', null, ' (preview)')));
+      })));
   }
 }
 
