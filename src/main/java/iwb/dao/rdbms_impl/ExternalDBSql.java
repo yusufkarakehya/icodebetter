@@ -124,6 +124,11 @@ public class ExternalDBSql {
 						sql2.append(" AND rx_rx_rx_qwq>?");
 					}
 					break;
+				case	3://ms sql server ROW_NUMBER() OVER ( ORDER BY OrderDate ) AS RowNum
+					sql2.append("select r.* from (select z.*, ROW_NUMBER() OVER ( ORDER BY null ) AS rx_rx_rx_qwq from (").append(queryResult.getExecutedSql()).append(") z) r where rx_rx_rx_qwq<=?");
+					if (queryResult.getStartRowNumber() > 0) {
+						sql2.append(" AND rx_rx_rx_qwq>?");
+					}
 				}
 
 			} else {
@@ -244,14 +249,13 @@ public class ExternalDBSql {
 	}
 
 	public ExternalDBSql() {
-		super();
-
+		if(!FrameworkSetting.externalDb)return;
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 		} catch (ClassNotFoundException e) {
 			System.out.println("Oracle Driver not found");
 		}
-		try {
+		if(false)try {
 			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 		} catch (ClassNotFoundException e) {
 			System.out.println("SQL Server Driver not found");
