@@ -578,10 +578,11 @@ public class W5QueryResult implements W5MetaResult{
     }
 
     public boolean	prepareQuery(Map<String, String> extraParams){
-    	switch(FrameworkSetting.rdbmsTip){
+    	if(query.getExternalDbId()==0)switch(FrameworkSetting.rdbmsTip){
     	case	0:return prepareQuery4Postgre(extraParams);
     	case	1:return prepareQuery4SqlServer(extraParams);
-    	}
+    	} else 
+    		prepareQuery4ExternalDb(extraParams);
     	return false;
     }
 	
@@ -2163,4 +2164,204 @@ public class W5QueryResult implements W5MetaResult{
 	public void setMainTsMeasurement(W5TsMeasurement mainTsMeasurement) {
 		this.mainTsMeasurement = mainTsMeasurement;
 	}
+	
+    private boolean	prepareQuery4ExternalDb(Map<String, String> extraParams){
+    	
+    	StringBuilder sql= new StringBuilder();
+		setSqlParams(new ArrayList<Object>());
+		Map<String,String>	requestParams2;
+		if(extraParams == null || extraParams.isEmpty()){
+			requestParams2 = requestParams;
+		}  else {
+			requestParams2 = new HashMap<String,String>();
+			requestParams2.putAll(requestParams);
+			requestParams2.putAll(extraParams);
+		}
+    	W5Query query = getQuery();
+    	sql.append(" from ");
+    	String sqlFrom = null;
+    	if(query.getSqlFrom().contains("${")){
+    		Object[] oz = DBUtil.filterExt4SQL(query.getSqlFrom(), scd, requestParams2, null);
+    		sqlFrom = ((StringBuilder)oz[0]).toString();
+			if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
+    	} else sqlFrom=query.getSqlFrom();
+    	
+   		sql.append(sqlFrom);
+    	
+    	StringBuilder sqlWhere= new StringBuilder();
+    	if(query.getSqlWhere()!=null){
+    		if(query.getSqlWhere().contains("${")){
+    			Object[] oz = DBUtil.filterExt4SQL(query.getSqlWhere(), scd, requestParams2, null);
+    			sqlWhere.append(oz[0]);
+    			if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
+    		} else
+    			sqlWhere.append(query.getSqlWhere());
+    	}
+
+		Locale xlocale = new Locale(FrameworkCache.getAppSettingStringValue(scd, "locale","en"));
+		List<W5QueryParam> pqs = null;
+		pqs=getQuery().get_queryParams();
+    	if(!GenericUtil.isEmpty(pqs))for(W5QueryParam p1 : pqs){
+			String pexpressionDsc = p1.getExpressionDsc();
+    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
+    			String value = requestParams2.get(p1.getDsc()); 
+    			if(value!=null && value.length()>0){
+	    			String[] pvalues = requestParams2.get(p1.getDsc()).split(",");
+	    			if(pvalues.length>0){
+	    				sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ")
+						.append(pexpressionDsc)
+						.append(FrameworkSetting.operatorMap[p1.getOperatorTip()])
+						.append(" ( ");
+						for(int	q1=0;q1<pvalues.length;q1++){
+							sqlWhere.append(q1==0 ? "?": " ,?");
+							sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamTip()));
+						}
+						sqlWhere.append(" ) ) ");
+	    			}
+    			}
+    		} else {
+				Object psonuc = GenericUtil.prepareParam((W5Param)p1, getScd(), getRequestParams(), (short)-1, extraParams, (short)0, null, null, getErrorMap());
+		
+				if(getErrorMap().size()==0 && psonuc!=null){ // artik hata yoksa
+					if(p1.getOperatorTip()!=10){ // normal operator ise
+						sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ")
+							.append(p1.getOperatorTip()>10 ? "lower("+pexpressionDsc+")" : pexpressionDsc)
+							.append(FrameworkSetting.operatorMap[p1.getOperatorTip()])
+							.append("? ) ");
+						if(p1.getOperatorTip()>10)psonuc=((String)psonuc).toLowerCase(xlocale) + "%";
+						if(p1.getOperatorTip()==13)psonuc="%" + psonuc;
+						sqlParams.add(psonuc);
+	
+					} else { //custom operator ise: ornegin "x.value_tip=? OR -1=?", kac adet ? varsa o kadar params a koyacaksin; eger pexpressionDsc numeric degerse o kadar koyacaksin
+						if(GenericUtil.uInt(pexpressionDsc)!=0){
+							for(int	q9=GenericUtil.uInt(pexpressionDsc);q9>0;q9--){
+								sqlParams.add(psonuc);
+							}
+						} else if(pexpressionDsc.contains("?")){
+							sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ");							
+							int q8=0;
+							for(int	q9=0;q9<pexpressionDsc.length();q9++)if(pexpressionDsc.charAt(q9)=='?'){
+								if(psonuc!=null && psonuc instanceof Object[]){ //eger aradarda veri gelirse
+									sqlParams.add(((Object[])psonuc)[q8++]);
+								} else
+									sqlParams.add(psonuc);
+							}
+							if(pexpressionDsc.contains("${")){//? işaretlerinden sonra başka bir parametre varsa
+								Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+								if(oz[0]!=null)pexpressionDsc = oz[0].toString();
+								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
+							}
+							sqlWhere.append(pexpressionDsc).append(" ) ");
+						} else if(pexpressionDsc.contains("${")){//bildigimiz ${req.xxx}
+							Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
+							sqlWhere.append("(").append(oz[0]).append(")");
+							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);							
+						} else {//napak inanak mi kanka
+							sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ")
+							.append(pexpressionDsc)
+							.append(" ) ");
+						}
+						
+					}
+				}
+    		}
+				 
+		}
+    	
+    	if(scd!=null && scd.get("_renderer")!=null && scd.get("_renderer").toString().startsWith("webix") && requestParams2!=null)for(String k:requestParams2.keySet())if(k.startsWith("filter[")&&k.endsWith("]")){
+    		Object paramValue = requestParams2.get(k);
+    		if(paramValue==null || paramValue.toString().length()==0)continue;
+    		String paramName = k.substring("filter[".length(), k.length()-1);
+    		for(W5QueryField qf:query.get_queryFields())if(qf.getDsc().equals(paramName))switch(qf.getFieldTip()){
+    		case	3:case	4://integer, double
+    			sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ");
+    			sqlWhere.append(paramName).append("= ? ) ");
+    			sqlParams.add(qf.getFieldTip()==3 ? GenericUtil.uInt(paramValue) : GenericUtil.uDouble(paramValue.toString()) );
+    			break;
+    		case	2://date:TODO
+    			break;
+    		case	5://boolean:TODO
+    			break;
+    		case	1://string
+    			sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ");
+    			if(qf.getPostProcessTip()!=11 && qf.getPostProcessTip()!=13){//multi degilse
+    				sqlWhere.append("lower(").append(paramName).append(") like ? ) ");
+    				sqlParams.add((paramValue.toString()).toLowerCase(xlocale) + "%");
+    			} else {
+    				sqlWhere.append("position(','||?||',' in ','||coalesce(").append(paramName).append(",'-')||',')>0) ");
+    				sqlParams.add(paramValue);    				
+    			}
+    			break;
+    		default://others
+    			
+    		}
+    		
+    	}
+
+    	
+		if(getErrorMap().size()>0)return false;
+
+
+
+		
+		if(sqlWhere.length()>0)sql.append(" where ").append(sqlWhere);
+   		setHasPaging(getFetchRowCount()!=0);
+   		if(!GenericUtil.isEmpty(query.getSqlGroupby())){
+   			if(query.getSqlSelect().contains("${")){
+   				if(query.getSqlGroupby()!=null && query.getSqlGroupby().length()>0){
+   		   			sql.append(" group by ");
+   					Object[] oz = DBUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);
+   					sql.append(oz[0]);
+   					if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
+   		   		}		
+   			}else{
+   				sql.append(" group by ").append(query.getSqlGroupby());
+   			}    		
+		}    	   	
+    	
+   		StringBuilder s = new StringBuilder("select ");
+   		String sqlSelect = query.getSqlSelect();
+
+   		
+   		if(GenericUtil.isEmpty(query.getSqlGroupby())){
+   			executedSqlFromParams = new ArrayList();
+   			executedSqlFromParams.addAll(sqlParams);
+   		}
+   		
+   		if(sqlSelect.contains("${")){
+	   		Object[] oz = DBUtil.filterExt4SQL(sqlSelect, scd, requestParams2, null);
+			s.append(oz[0]);
+			if(oz[1]!=null){
+				sqlParams.addAll(0,(List)oz[1]);
+			}
+   		} else {
+   			s.append(sqlSelect);
+   		}
+
+
+   		if(!GenericUtil.isEmpty(query.getSqlGroupby())){
+   			s.append(sql);
+   		} else {
+   			executedSqlFrom = sql.toString();
+   			s.append(sql);
+//   			s=sql;
+   		}
+
+	
+		if(getOrderBy()!=null && getOrderBy().length()>0){
+   			s.append(" order by ");
+   			String strOrder =getOrderBy();
+   			Object[] oz = DBUtil.filterExt4SQL(strOrder, scd, requestParams2, null);
+			s.append(oz[0]);
+			if(oz[1]!=null){
+			   		sqlParams.addAll((List)oz[1]);
+				
+			}
+   		}
+
+   		setExecutedSql(s.toString());
+
+    	return true;
+    }
 }

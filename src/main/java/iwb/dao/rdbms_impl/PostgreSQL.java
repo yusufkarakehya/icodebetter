@@ -101,6 +101,13 @@ public class PostgreSQL extends BaseDAO {
 	@Lazy
 	@Autowired
 	private GlobalScriptEngine scriptEngine;
+	
+	@Lazy
+	@Autowired
+	private ExternalDBSql externalDB;
+
+	
+
 
 	/*
 	 * public void setEngine(FrameworkEngine engine) { this.engine = engine; }
@@ -109,7 +116,7 @@ public class PostgreSQL extends BaseDAO {
 	public W5QueryResult executeQuery(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
 		W5QueryResult queryResult = metaDataDao.getQueryResult(scd, queryId);
 		if (queryId != 1 && queryId != 824 && queryResult.getMainTable() != null && (!FrameworkSetting.debug
-				|| (scd.get("roleId") != null && GenericUtil.uInt(scd.get("roleId")) != 0))) {
+				|| (scd.get("roleId") != null && GenericUtil.uInt(scd.get("roleId")) != 0)) && queryResult.getQuery().getExternalDbId()==0) {
 			W5Table t = queryResult.getMainTable();
 			if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 					t.getAccessViewRoles(), t.getAccessViewUsers())) {
@@ -139,19 +146,24 @@ public class PostgreSQL extends BaseDAO {
 			queryResult.prepareQuery(null);
 		}
 		if (queryResult.getErrorMap().isEmpty()) {
-			QueryTrigger.beforeExecuteQuery(queryResult, this);
 			queryResult.setFetchRowCount(
 					GenericUtil.uIntNvl(requestParams, "limit", GenericUtil.uInt(requestParams, "firstLimit")));
 			queryResult.setStartRowNumber(GenericUtil.uInt(requestParams, "start"));
-			runQuery(queryResult);
-			if (queryResult.getQuery().getShowParentRecordFlag() != 0 && queryResult.getData() != null) {
-				for (Object[] oz : queryResult.getData()) {
-					int tableId = GenericUtil.uInt(oz[queryResult.getQuery().get_tableIdTabOrder()]);
-					int tablePk = GenericUtil.uInt(oz[queryResult.getQuery().get_tablePkTabOrder()]);
-					oz[oz.length - 1] = findRecordParentRecords(scd, tableId, tablePk, 0, true);
+			
+			if(queryResult.getQuery().getExternalDbId()==0) {
+				QueryTrigger.beforeExecuteQuery(queryResult, this);
+				runQuery(queryResult);
+				if (queryResult.getQuery().getShowParentRecordFlag() != 0 && queryResult.getData() != null) {
+					for (Object[] oz : queryResult.getData()) {
+						int tableId = GenericUtil.uInt(oz[queryResult.getQuery().get_tableIdTabOrder()]);
+						int tablePk = GenericUtil.uInt(oz[queryResult.getQuery().get_tablePkTabOrder()]);
+						oz[oz.length - 1] = findRecordParentRecords(scd, tableId, tablePk, 0, true);
+					}
 				}
+				QueryTrigger.afterExecuteQuery(queryResult, this);
+			} else {
+				externalDB.runQuery(queryResult);
 			}
-			QueryTrigger.afterExecuteQuery(queryResult, this);
 		}
 		return queryResult;
 	}

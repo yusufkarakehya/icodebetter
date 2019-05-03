@@ -34,6 +34,7 @@ public class FrameworkSetting {
 	public static boolean sms=true;
 	public static boolean mail=true;
 	public static int functionTimeout=5000;
+	public static boolean externalDb=true;
 	
 //	public static boolean profilePicture=true;
 //	public static boolean allowMultiLogin=true;

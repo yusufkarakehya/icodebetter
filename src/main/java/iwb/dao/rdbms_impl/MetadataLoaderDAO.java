@@ -27,6 +27,7 @@ import iwb.domain.db.W5Card;
 import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5Customization;
+import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormModule;
@@ -82,10 +83,17 @@ import iwb.util.UserUtil;
 @Repository
 public class MetadataLoaderDAO extends BaseDAO {
 	private static Logger logger = Logger.getLogger(MetadataLoaderDAO.class);
+	
+	
 	@Lazy
 	@Autowired
 	private PostgreSQL dao;
 
+	
+	@Lazy
+	@Autowired
+	private ExternalDBSql externalDB;
+	
 	private RMap<String, RMap> redisGlobalMap = null;
 
 	private boolean loadForm(W5FormResult fr) {
@@ -916,6 +924,21 @@ public class MetadataLoaderDAO extends BaseDAO {
 			e.printStackTrace();
 		}
 	}
+	
+
+	public void reloadExternalDbsCache(String projectId) {
+		// Job Schedule
+		try {
+			Map<Integer, W5ExternalDb> myEDB = new HashMap();
+			for(W5ExternalDb j:(List<W5ExternalDb>)find("from W5ExternalDb x where x.activeFlag=1 and x.projectUuid=?", projectId)) {
+				myEDB.put(j.getExternalDbId(), j);
+			}
+			
+			FrameworkCache.wExternalDbs.put(projectId, myEDB);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void reloadLocaleMsgsCache2(int cid) {
 		String whereSql = cid != -1 ? (" where x.customization_id=" + cid) : "";
@@ -1539,12 +1562,13 @@ public class MetadataLoaderDAO extends BaseDAO {
 			} else {
 				reloadLookUpCache(projectId);
 				reloadTablesCache(projectId);
-				reloadWorkflowCache(projectId);
+				if(FrameworkSetting.workflow)reloadWorkflowCache(projectId);
 				// reloadTableAccessConditionSQLs(projectId);
 				reloadWsServersCache(projectId);
 				reloadWsClientsCache(projectId);
 				reloadComponentCache(projectId);
 				reloadJobsCache(projectId);
+				if(FrameworkSetting.externalDb)reloadExternalDbsCache(projectId);
 			}
 
 			FrameworkSetting.projectSystemStatus.put(projectId, 0); // working
@@ -1879,6 +1903,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		for (final W5Query query : (List<W5Query>) find("from W5Query t where t.queryId=? AND t.projectUuid=?", queryId,
 				po.getProjectUuid())) {
+
 			if (query.getQuerySourceTip() == 1376) {
 				organizeQueryFields4WSMethod(scd, query, insertFlag);
 				continue;
@@ -1896,17 +1921,22 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 			StringBuilder sql = new StringBuilder();
 			sql.append("select ").append(query.getSqlSelect());
-			sql.append(" from ").append(query.getSqlFrom());
-			if (query.getSqlWhere() != null && query.getSqlWhere().trim().length() > 0)
-				sql.append(" where ").append(query.getSqlWhere().trim());
-			if (query.getSqlGroupby() != null && query.getSqlGroupby().trim().length() > 0 && query.getQueryTip() != 9) // group
-																														// by
-																														// connect
-																														// olmayacak
-				sql.append(" group by ").append(query.getSqlGroupby().trim());
-			if (query.getSqlPostSelect() != null && query.getSqlPostSelect().trim().length() > 2) {
-				sql = new StringBuilder(sql.length() + 100).append("select z.*,").append(query.getSqlPostSelect())
-						.append(" from (").append(sql).append(") z");
+			sql.append(" from ");
+			if(query.getQuerySourceTip() == 0) { //JavaScript
+				sql.append("iwb.w5_table limit 1");
+			} else {
+				sql.append(query.getSqlFrom());
+				if (query.getSqlWhere() != null && query.getSqlWhere().trim().length() > 0)
+					sql.append(" where ").append(query.getSqlWhere().trim());
+				if (query.getSqlGroupby() != null && query.getSqlGroupby().trim().length() > 0 && query.getQueryTip() != 9) // group
+																															// by
+																															// connect
+																															// olmayacak
+					sql.append(" group by ").append(query.getSqlGroupby().trim());
+				if (query.getSqlPostSelect() != null && query.getSqlPostSelect().trim().length() > 2) {
+					sql = new StringBuilder(sql.length() + 100).append("select z.*,").append(query.getSqlPostSelect())
+							.append(" from (").append(sql).append(") z");
+				}
 			}
 			Object[] oz = DBUtil.filterExt4SQL(sql.toString(), scd, null, null);
 			final String sqlStr = ((StringBuilder) oz[0]).toString();
@@ -1916,9 +1946,12 @@ public class MetadataLoaderDAO extends BaseDAO {
 				for (int qi = 0; qi < sqlStr.length(); qi++)
 					if (sqlStr.charAt(qi) == '?')
 						sqlParams.add(null);
-
+			
 			try {
-				getCurrentSession().doWork(new Work() {
+				if(query.getExternalDbId()>0) {
+					externalDB.organizeQueryFields(scd, query, sqlStr, sqlParams, existField, updateList, insertList);
+					
+				} else getCurrentSession().doWork(new Work() {
 
 					public void execute(Connection conn) throws SQLException {
 						PreparedStatement stmt = null;
@@ -2024,11 +2057,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 					}
 				});
 
-				for (W5QueryFieldCreation field : existField.values()) { // icinde
-																			// bulunmayanlari
-																			// negatif
-																			// olarak
-																			// koy
+				for (W5QueryFieldCreation field : existField.values()) { // icinde bulunmayanlari negatif olarak koy
 					field.setTabOrder((short) -Math.abs(field.getTabOrder()));
 					field.setPostProcessTip((short) 99);
 					field.setVersionUserId(userId);

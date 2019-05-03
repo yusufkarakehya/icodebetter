@@ -14,6 +14,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.custom.trigger.QueryTrigger;
+import iwb.dao.rdbms_impl.ExternalDBSql;
 import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5GridColumn;
@@ -48,6 +49,10 @@ public class QueryEngine {
 	@Autowired
 	private GlobalScriptEngine scriptEngine;
 
+	@Lazy
+	@Autowired
+	private ExternalDBSql externalDB;
+	
 	public Map executeQuery4Stat(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
 		dao.checkTenant(scd);
 		return dao.executeQuery4Stat(scd, gridId, requestParams);
@@ -203,20 +208,24 @@ public class QueryEngine {
 				queryResult.prepareQuery(null);
 			}
 			if (queryResult.getErrorMap().isEmpty()) {
-				QueryTrigger.beforeExecuteQuery(queryResult, dao);
-				queryResult.setFetchRowCount(
-						GenericUtil.uIntNvl(requestParams, "limit", GenericUtil.uInt(requestParams, "firstLimit")));
+				queryResult.setFetchRowCount(GenericUtil.uIntNvl(requestParams, "limit", GenericUtil.uInt(requestParams, "firstLimit")));
 				queryResult.setStartRowNumber(GenericUtil.uInt(requestParams, "start"));
-				dao.runQuery(queryResult);
-				if (queryResult.getQuery().getShowParentRecordFlag() != 0 && queryResult.getData() != null) {
-					for (Object[] oz : queryResult.getData()) {
-						int tableId = GenericUtil.uInt(oz[queryResult.getQuery().get_tableIdTabOrder() - 1]);
-						int tablePk = GenericUtil.uInt(oz[queryResult.getQuery().get_tablePkTabOrder() - 1]);
-						if (tableId != 0 && tablePk != 0)
-							oz[oz.length - 1] = dao.findRecordParentRecords(scd, tableId, tablePk, 0, true);
+				if(queryResult.getQuery().getExternalDbId()==0) {
+					QueryTrigger.beforeExecuteQuery(queryResult, dao);
+					dao.runQuery(queryResult);
+					if (queryResult.getQuery().getShowParentRecordFlag() != 0 && queryResult.getData() != null) {
+						for (Object[] oz : queryResult.getData()) {
+							int tableId = GenericUtil.uInt(oz[queryResult.getQuery().get_tableIdTabOrder() - 1]);
+							int tablePk = GenericUtil.uInt(oz[queryResult.getQuery().get_tablePkTabOrder() - 1]);
+							if (tableId != 0 && tablePk != 0)
+								oz[oz.length - 1] = dao.findRecordParentRecords(scd, tableId, tablePk, 0, true);
+						}
 					}
+					QueryTrigger.afterExecuteQuery(queryResult, dao);
+				} else {
+					externalDB.runQuery(queryResult);
+
 				}
-				QueryTrigger.afterExecuteQuery(queryResult, dao);
 			}
 		}
 

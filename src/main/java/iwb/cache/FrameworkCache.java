@@ -19,6 +19,7 @@ import iwb.domain.db.W5Card;
 import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5Customization;
+import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5Grid;
@@ -70,8 +71,10 @@ public class FrameworkCache {
 	final private static List<W5Customization> wCustomization = new ArrayList<W5Customization>();
 	final private static Map<String, W5Project> wProjects = new HashMap<String, W5Project>(); //projectUuid
 
-	final private static Map<String, Map<Integer, W5TsPortlet>> wTsPortlets = new HashMap<String, Map<Integer, W5TsPortlet>>();
-	final private static Map<String, Map<Integer, W5TsMeasurement>> wTsMeasurements = new HashMap<String, Map<Integer, W5TsMeasurement>>();
+//	final private static Map<String, Map<Integer, W5TsPortlet>> wTsPortlets = new HashMap<String, Map<Integer, W5TsPortlet>>();
+//	final private static Map<String, Map<Integer, W5TsMeasurement>> wTsMeasurements = new HashMap<String, Map<Integer, W5TsMeasurement>>();
+
+	final public static Map<String, Map<Integer, W5ExternalDb>> wExternalDbs = new HashMap<String, Map<Integer, W5ExternalDb>>();
 
 	final public static Map<String, String> wExceptions = new HashMap<String, String>();
 	final public static Map<Integer, Map<String, String>> appSettings= new HashMap<Integer, Map<String, String>>();
