@@ -134,7 +134,13 @@ var defineJSCompletionItemProvider = {
         	label: '$.influxWrite',
             kind: monaco.languages.CompletionItemKind.Function,
             documentation: "Influx Query",
-            detail: 'null',insertText:'$.influxWrite("host", "dbName", "meas_name,tag1=1 field1=2")'
+            detail: 'null',insertText:'$.influxWrite("host", "dbName", "measName", {tags}, {fields})'
+	    },
+        {
+        	label: '$.influxWriteRaw',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Influx Query",
+            detail: 'null',insertText:'$.influxWriteRaw("host", "dbName", "meas_name,tag1=1 field1=2")'
 	    }
 /*        ,{
             label: '$.redisPut',
