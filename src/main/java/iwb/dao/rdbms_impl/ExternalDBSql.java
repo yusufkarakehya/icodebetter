@@ -2,7 +2,6 @@ package iwb.dao.rdbms_impl;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -84,7 +83,7 @@ public class ExternalDBSql {
 		ResultSet rs = null;
 		StringBuilder sql2 = new StringBuilder();
 		try {
-			con = DriverManager.getConnection(edb.getDbUrl(), edb.getDbUsername(), edb.getDbPassword());
+			con = edb.getConnection();
 			if (queryResult.getFetchRowCount() != 0) {
 				String countSQL = "select count(1) from (" + queryResult.getExecutedSql() + " ) x";
 				s = con.prepareStatement(countSQL);
@@ -273,7 +272,7 @@ public class ExternalDBSql {
 		ResultSet rs = null;
 		StringBuilder sql2 = new StringBuilder();
 		try {
-			con = DriverManager.getConnection(edb.getDbUrl(), edb.getDbUsername(), edb.getDbPassword());
+			con = edb.getConnection();
 			stmt = con.prepareStatement(sqlStr);
 			if (sqlParams.size() > 0)
 				applyParameters(stmt, sqlParams);
