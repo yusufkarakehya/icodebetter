@@ -159,6 +159,14 @@
 		</dependency>
 
 	</dependencies>
+	
+	<repositories>
+	    <repository>
+	      <id>circleci</id>
+	      <name>CircleCI Repository</name>
+	      <url>file://home/circleci/.m2/repository</url>
+	    </repository>
+	</repositories>
 
 	<build>
 		<plugins>
