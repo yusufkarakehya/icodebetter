@@ -937,7 +937,7 @@ class GridCommon extends React.PureComponent {
 	 *            rowData } param0.rowData - Data of the row where the Edit
 	 *            button or double click clicked
 	 */
-    this.onEditClick = ({ event, rowData, openEditable }) => {
+    this.onEditClick = ({ event, rowData, openEditable, ...props }) => {
       var { props } = this;
       var pkz = buildParams2(props.pk, rowData);
       var url = "showForm?a=1&_fid=" + props.crudFormId + pkz;
@@ -950,7 +950,7 @@ class GridCommon extends React.PureComponent {
         "1-" + pkz,
         url + (modal ? "&_modal=1" : ""),
         {},
-        { modal, openEditable, rowData }
+        { modal, openEditable, rowData, ...props }
       );
     };
     /**
@@ -1692,51 +1692,48 @@ class XMasonry extends React.Component {
   }
   render() {
     const masonryStyle = this.props
-    return React.createElement(
-      Row,
+    return _(Row,
       {
         className:`xMasonryRoot overflowY-auto scrollY`,
         ...this.props.root
       },
-      React.createElement(
-        "div",
+      _('div',
         { 
           className:'d-flex flex-row justify-content-center align-content-stretch flex-fill m-auto w-100',
           style: masonryStyle,
-          ref: "Masonry",
+          ref: 'Masonry',
           ...this.props.rootInner
         },
         this.mapChildren().map((col, ci) => {
-          return React.createElement(
+          return _(
             Col,
             { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
             col.map((child, i) => {
-              return React.createElement(
+              return _(
                 Card,
-                { key: i, className: "mt-2 mb-2" , ...this.props.item },
+                { key: i, className: 'mt-2 mb-2' , ...this.props.item },
                 child
               );
             })
           );
         })
       ),
-      React.createElement(
-        "div",
+      _('div',
         {
-          ref: "loadingRef",
+          ref: 'loadingRef',
           style: {
-            height: "10%",
-            width: "100%",
-            margin: "0px",
-            display: this.props.loadNext? "block" : "none"
+            height: '10%',
+            width: '100%',
+            margin: '0px',
+            display: this.props.loadNext? 'block' : 'none'
           }
         },
-        React.createElement(
-          "span",
-          { style: { display: this.state.loading ? "block" : "none" } },
+        _(
+          'span',
+          { style: { display: this.state.loading ? 'block' : 'none' } },
           this.props.loadingComponent
             ? this.props.loadingComponent()
-            : "Loading..."
+            : 'Loading...'
         )
       )
     );
@@ -4826,7 +4823,7 @@ class XMainGrid extends GridCommon {
   constructor(props) {
     super(props);
     var oldGridState = iwb.grids[props.id];
-    if (iwb.debug) console.log("XMainGrid", props.extraButtons);
+    if (iwb.debug) console.log("XMainGrid", props);
     if (oldGridState) {
       this.state = oldGridState;
       this.dontRefresh = true; // true-yuklemez, false-yukleme yapar
@@ -5046,17 +5043,10 @@ class XMainGrid extends GridCommon {
 	 * @description Is a function to toggle search form from the XMainGrid
 	 *              component and animata iconMagnifier
 	 */
-    this.toggleSearch = () => {
-      var searchFormDOM = document.getElementById("sf-" + this.props.id);
-      if (searchFormDOM) {
-        var iconMagnifier = document.getElementById("eq-" + this.props.id);
-        if (searchFormDOM.classList.contains("sf-hidden")) {
-          iconMagnifier.classList.add("rotate-90deg");
-        } else {
-          iconMagnifier.classList.remove("rotate-90deg");
-        }
-        searchFormDOM.classList.toggle("sf-hidden");
-      }
+    this.toggleSearch = (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      this.setState({ hideSF: !this.state.hideSF })
     };
     /**
 	 * @description A function to open EXPORT menu in XModal
@@ -5209,7 +5199,7 @@ class XMainGrid extends GridCommon {
         return;
       }
       var tempParams = {
-        ...{ params },
+        ...params,
         ...(this.form ? this.form.getValues() : {})
       };
       iwb.request({
@@ -5257,6 +5247,7 @@ class XMainGrid extends GridCommon {
       state: {
         rows,
         order,
+        hideSF,
         columns,
         sorting,
         loading,
@@ -5412,7 +5403,7 @@ class XMainGrid extends GridCommon {
           "nav",
           {
             id: "sf-" + this.props.id,
-            className: this.state.hideSF ? "sf-hidden" : ""
+            className: classNames({'sf-hidden':hideSF})
           },
           searchForm
         ),
@@ -5429,7 +5420,7 @@ class XMainGrid extends GridCommon {
                 color: "secondary",
                 onClick: toggleSearch
               },
-              _("i", { id: "eq-" + this.props.id, className: "icon-magnifier" })
+              _("i", { id: "eq-" + this.props.id, className: classNames('icon-magnifier ',{'rotate-90deg': !hideSF}) })
             ),
             _(Button,{
                 className: "btn-round-shadow ml-1",
@@ -5483,6 +5474,352 @@ XMainGrid.defaultProps = {
   treeParentKey: 'parent_id',
   tableTreeColumn:'dsc'
 }
+class XMainCard extends GridCommon{
+  constructor(props){
+    if (iwb.debug) console.log("XMainCard", props);
+    super(props)
+    this.state = {
+      totalCount: 0,
+      pageSize: props.pageSize,
+      pageSizes : props.pageSize > 1 ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] : [5, 10, 25, 100],
+      currentPage: 1,
+      hideSF: true,
+      loading: false,
+      cards:[]
+    }
+    let { searchForm, detailGrids } = this.props;
+    if (searchForm || (detailGrids && detailGrids.length > 1)) {
+      var self = this;
+      this.searchForm = _( Nav,{},
+        searchForm &&
+          _("span",{},
+            _("div", { className: "hr-text" },
+              _("h6", null, getLocMsg('search_criteria'))
+            ),
+            _("div", { style: { zoom: ".9"}, className:"searchFormFields" },
+              _(searchForm, { parentCt: this }),
+              _( "div",
+                { className: "form-group", style: { paddingTop: 10 } },
+                _( Button,
+                  { 
+                    color: "danger",
+                    style: { width: "100%", borderRadius: 2 },
+                    onClick: (event) => {
+                      event.preventDefault()
+                      event.stopPropagation()
+                      this.loadData(true);
+                    }
+                  },
+                  getLocMsg('search')
+                )
+              )
+            ),
+            _("div", { style: { height: 20 } })
+          ),
+        detailGrids &&
+          detailGrids.length > 1 &&
+          _(
+            "div",
+            { className: "hr-text", key: "hr-text" },
+            _("h6", null, getLocMsg('details'))
+          ),
+        detailGrids &&
+          detailGrids.length > 1 &&
+          detailGrids.map((detailGrid, key) => {
+            return _("div",{
+                key,
+                style: {
+                  padding: "3px 0px 2px 3px",
+                  color: "#6d7284",
+                  fontSize: ".9rem"
+                }
+              },
+              detailGrid.grid.name,
+              _("label", {
+                  className: "float-right switch switch-xs switch-3d switch-" + dgColors[key % dgColors.length] +" form-control-label"
+                },
+                _("input", {
+                  name: "dg-" + detailGrid.grid.gridId,
+                  type: "checkbox",
+                  className: "switch-input form-check-input",
+                  onChange: self.toggleDetailGrid,
+                  defaultChecked: self.state["dg-" + detailGrid.grid.gridId]
+                }),
+                _("span", { className: "switch-label" }),
+                _("span", { className: "switch-handle" })
+              )
+            );
+          })
+      );
+    }
+    /**
+     * @description prerpares url with query
+     * @example Used in XMainGrid and XGrid to make query inside loadData
+     * @returns {String}
+     */
+    this.queryString = () => {
+      const { pageSize, currentPage } = this.state;
+      let queryString = this.props._url + "&limit=" + pageSize +"&start=" + pageSize * (currentPage-1);
+      return queryString;
+    };
+    /** toogle search */
+    this.toggleSearch = (event)=>{
+      event.preventDefault()
+      event.stopPropagation()
+      this.setState({
+        hideSF:!this.state.hideSF
+      })
+    }
+    /** loadData */
+    this.loadData = force => {
+      if (this.props.cards || this.state.loading) return;
+      const queryString = this.queryString();
+      if (!force && queryString === this.lastQuery) {
+        return;
+      }
+      this.setState({ rows: [], loading: true });
+      iwb.request({
+        url: queryString,
+        self: this,
+        params:{...(this.form ? this.form.getValues() : {})},
+        successCallback: (result, cfg) => {
+          cfg.self.setState({
+            cards: result.data,
+            totalCount: result.total_count,
+            loading: false
+          });
+        },
+        errorCallback: (error, cfg) => {
+          cfg.self.setState({
+            cards: [],
+            totalCount: 0,
+            loading: false
+          });
+        }
+      });
+      this.lastQuery = queryString;
+    };
+    /**rightClick on the card */
+    this.RightClickComponent = props=>extraProps=>_(XGridRowAction,{...props, ...extraProps})
+  }
+  componentDidMount() {
+    if (!this.dontRefresh) this.loadData();
+    this.dontRefresh = false;
+  }
+  render(){
+    let {
+      state:{
+        cards,
+        hideSF,
+        loading,
+        pageSize,
+        pageSizes,
+        totalCount,
+        currentPage,
+      },
+      props:{
+        crudFlags,
+        breakPoints,
+        menuButtons,
+        extraButtons,
+        formSmsMailList,
+      },
+      loadData,
+      searchForm,
+      onEditClick,
+      toggleSearch,
+      onDeleteClick,
+      onOnNewRecord,
+    } = this;
+    return _("div", { className: "tab-grid mb-4" },
+    searchForm &&
+      _("nav",
+        {
+          id: "sf-" + this.props.cardId,
+          className: classNames({'sf-hidden':hideSF})
+        },
+        searchForm
+      ),
+    _("main",
+      { className: "inbox" },
+      _(CardHeader,
+        {},
+        searchForm &&
+          _(Button,
+            {
+              className: "btn-round-shadow ml-1",
+              color: "secondary",
+              onClick: toggleSearch
+            },
+            _("i", { id: "eq-" + this.props.cardId, className: classNames('icon-magnifier ',{'rotate-90deg': !hideSF}) })
+          ),
+          _(Button,{
+              className: "btn-round-shadow ml-1",
+              disabled: loading,
+              color: "secondary",
+              onClick: event => loadData(true)
+            },
+            _("i", { className: "icon-refresh" })
+          ),
+          crudFlags && crudFlags.insert && _(Button,
+            {
+              className: "btn-round-shadow ml-1",
+              color: "primary",
+              onClick: event => onOnNewRecord(event, this.props)
+            },
+            _("i", { className: "icon-plus mr-1" }),
+            getLocMsg('new_record')
+          ),
+          _('div',{className:"fgrow"}),
+          extraButtons && extraButtons.map((btn,index)=>_(XToolbarItem,{ ...btn, index, row:null ,grid:this, parentCt:null})),
+          // this.props.gridReport &&
+          // _( Button,
+          //   { className: "float-right btn-round-shadow hover-shake mx-1",
+          //     color: "danger",
+          //     onClick: this.openBI
+          //   },
+          //   _("i", { className: "icon-equalizer" })
+          // )
+      ),
+        _(XMasonry, {
+          breakPoints: breakPoints || [300, 500, 1000],
+          loadingComponent: () => _(XLoading, null),
+          // item: {
+          //   className: 'mt-2 mb-2 border-6px card-animated'
+          // },
+          rootInner: {
+            className: 'd-flex flex-row justify-content-center align-content-stretch flex-fill m-auto w-100 p-2'
+          }
+        },
+        cards.map(
+          (record, index) => {
+            return this.props.render({
+              ...record,
+              parentCt: this,
+              key: index,
+              index: index,
+              RightClickComponent: this.RightClickComponent({
+                rowData:record,
+                parentCt:this,
+                menuButtons,
+                formSmsMailList,
+                onEditClick ,
+                onDeleteClick,
+                crudFlags
+              })
+            })
+          }
+        )
+      ),
+      _('div',{className:'clearfix card-footer dx-g-bs4-paging-panel'},
+        _('div',{className:'d-inline-block'},
+          _(XItemPerPage,{pageSize, pageSizes, onChange:(pageSize)=>this.setState({pageSize,currentPage:1},()=>this.loadData(true))})
+        ),
+        _('div',{className:'float-right d-none d-sm-flex'},
+          _(XPagination,{ pageSize, currentPage, totalCount, onChange: currentPage => this.setState({currentPage},()=>this.loadData(true)) })
+        )
+      )
+    )
+  )}
+}
+const XPagination = ({pageSize = 10, currentPage, totalCount, onChange, ...props})=>{
+  var totalPages = Math.ceil(totalCount / pageSize);
+  var startPage, endPage;
+  if (totalPages <= 10) {
+      // less than 10 total pages so show all
+      startPage = 1;
+      endPage = totalPages;
+  } else {
+      // more than 10 total pages so calculate start and end pages
+      if (currentPage <= 6) {
+          startPage = 1;
+          endPage = 10;
+      } else if (currentPage + 4 >= totalPages) {
+          startPage = totalPages - 9;
+          endPage = totalPages;
+      } else {
+          startPage = currentPage - 5;
+          endPage = currentPage + 4;
+      }
+  }
+  var pages = [...Array((endPage + 1) - startPage).keys()].map(i => startPage + i);
+  let hndlClick = (currentPage)=>(event)=>{
+    event.preventDefault()
+    event.stopPropagation()
+    onChange(currentPage)
+  }
+  return _(Pagination, { "aria-label": getLocMsg('page_pagination'), className: 'm-0', ...props},
+    _(PaginationItem, { disabled: (currentPage == 1) },
+        _(PaginationLink, { previous: true, href: "#", onClick: hndlClick(currentPage - 1) })
+    ),
+    (pages || []).map(
+        (page, index) => _(PaginationItem, { active: currentPage === page, key: index },
+            _(PaginationLink, { href: "#", onClick: hndlClick(page) }, page)
+        )
+    ),
+    _(PaginationItem, { disabled: (currentPage >= totalPages) },
+        _(PaginationLink, { next: true, href: "#", onClick: hndlClick(currentPage + 1) })
+    ),
+  )
+}
+XPagination.propTypes = {
+  currentPage :PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string
+  ]),
+  pageSize:PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string
+  ]),
+  totalCount:PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string
+  ]),
+  onChange: PropTypes.func.isRequired,
+};
+const XItemPerPage = ({
+  pageSize,
+  onChange,
+  pageSizes,
+  ...props
+}) => {
+  let hndlClick = (number) => (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    number != pageSize && onChange && onChange(number);
+  }
+  return _(Pagination, {
+      "aria-label": getLocMsg('item_per_page'),
+      className: 'm-0',
+      ...props
+    },
+    pageSizes.map((number, index) => {
+      return _(PaginationItem, {
+          active: (number == pageSize || (pageSize==0 && number==25)) ? true : false,
+          key: number + index
+        },
+        _(PaginationLink, {
+          href: "#",
+          'aria-label': 'number:' + number,
+          onClick: hndlClick(number)
+        }, number)
+      )
+    })
+  )
+}
+XItemPerPage.defaultProps = {
+  pageSize: 0,
+  pageSizes: [5, 10, 25, 100],
+  onChange: () => console.warn('XItemPerPage')
+}
+XItemPerPage.propTypes = {
+  onChange: PropTypes.func,
+  pageSize: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string,
+  ]),
+  pageSizes: PropTypes.arrayOf(PropTypes.number)
+};
 /**
  * @description this component made for render complex ui
  * @example form+grid, grid, form, form+form
