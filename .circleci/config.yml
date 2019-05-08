@@ -8,9 +8,12 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
+          name: test
+          command: mvn install:install-file -Dfile=src/main/jib/custom_deps/ojdbc7.jar -DgroupId=com.oracle -DartifactId=ojdbc7 -Dversion=12.1.0 -Dpackaging=jar
+      - run:
           name: Login to DockerHub
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run:
           name: Build and push
-          command: mvn clean compile jib:build -Dimage=icodebetter/graal_image
+          command: mvn compile jib:build -Dimage=icodebetter/graal_image
 
