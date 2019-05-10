@@ -1170,7 +1170,7 @@ public class React16 implements ViewAdapter {
 			s.append("}\n");
 		}
 
-		if(formResult.getForm().getObjectTip()==1){ //search ise
+		if(formResult.getForm().getObjectTip()==1 | formResult.getForm().getObjectTip() == 8 ){ //search ise
 			s.append(renderSearchFormModuleList(customizationId, xlocale,
 					formResult.getUniqueId(),
 					formResult.getFormCellResults(),
@@ -2372,6 +2372,7 @@ public class React16 implements ViewAdapter {
 	}
 
 	public StringBuilder serializeCard(W5CardResult dataViewResult) {
+		Map<String, Object> scd = dataViewResult.getScd();
 		String xlocale = (String) dataViewResult.getScd().get("locale");
 		int customizationId = (Integer) dataViewResult.getScd().get(
 				"customizationId");
@@ -2396,8 +2397,36 @@ public class React16 implements ViewAdapter {
 			buf.append(", defaultWidth:").append(d.getDefaultWidth());
 		if (d.getDefaultHeight() != 0)
 			buf.append(", defaultHeight:").append(d.getDefaultHeight());
+		//azat card
+		if (d.get_defaultCrudForm() != null) {
+			W5Table t = FrameworkCache.getTable(scd, d.get_defaultCrudForm().getObjectId());
+			boolean insertFlag = GenericUtil.accessControl(scd,t.getAccessInsertTip(), t.getAccessInsertRoles(),t.getAccessInsertUsers());
+			buf.append(",\n crudFormId:")
+				.append(d.getDefaultCrudFormId())
+				.append(", crudTableId:")
+				.append(t.getTableId())
+				.append(", crudFlags:{insert:")
+				.append(insertFlag)
+				.append(",edit:")
+				.append(t.getAccessUpdateUserFields() != null
+						|| GenericUtil.accessControl(scd,
+								t.getAccessUpdateTip(),
+								t.getAccessUpdateRoles(),
+								t.getAccessUpdateUsers()))
+				.append(",remove:")
+				.append(t.getAccessDeleteUserFields() != null
+						|| GenericUtil.accessControl(scd,
+								t.getAccessDeleteTip(),
+								t.getAccessDeleteRoles(),
+								t.getAccessDeleteUsers()))
+				.append("}");
+		}
+		buf.append(",\n gridReport:").append(FrameworkCache.roleAccessControl(scd, 105));
+		if (d.get_crudTable()!= null) {
+		}
+		//azat card
 		if (dataViewResult.getSearchFormResult() != null) {
-			buf.append(",\n searchForm:").append(
+			buf.append(",\n searchForm: class extends XForm").append(
 					serializeGetForm(dataViewResult.getSearchFormResult()));
 		}
 		if (!GenericUtil.isEmpty(d.get_toolbarItemList())) { // extra buttonlari
