@@ -22,7 +22,6 @@ public class W5Query implements java.io.Serializable {
 
 	private int querySourceTip;
 	private int mainTableId;
-	private int externalDbId;
 
 	private String dsc;
 
@@ -275,14 +274,4 @@ public class W5Query implements java.io.Serializable {
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
 	}
-
-	@Column(name="external_db_id")
-	public int getExternalDbId() {
-		return externalDbId;
-	}
-
-	public void setExternalDbId(int externalDbId) {
-		this.externalDbId = externalDbId;
-	}
-	
 }

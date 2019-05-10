@@ -1948,7 +1948,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 						sqlParams.add(null);
 			
 			try {
-				if(query.getExternalDbId()>0) {
+				if(query.getQuerySourceTip()==4658) { //externalDB
 					externalDB.organizeQueryFields(scd, query, sqlStr, sqlParams, existField, updateList, insertList);
 					
 				} else getCurrentSession().doWork(new Work() {

@@ -116,7 +116,7 @@ public class PostgreSQL extends BaseDAO {
 	public W5QueryResult executeQuery(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
 		W5QueryResult queryResult = metaDataDao.getQueryResult(scd, queryId);
 		if (queryId != 1 && queryId != 824 && queryResult.getMainTable() != null && (!FrameworkSetting.debug
-				|| (scd.get("roleId") != null && GenericUtil.uInt(scd.get("roleId")) != 0)) && queryResult.getQuery().getExternalDbId()==0) {
+				|| (scd.get("roleId") != null && GenericUtil.uInt(scd.get("roleId")) != 0)) && queryResult.getQuery().getQuerySourceTip()!=4658) {
 			W5Table t = queryResult.getMainTable();
 			if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 					t.getAccessViewRoles(), t.getAccessViewUsers())) {
@@ -150,7 +150,7 @@ public class PostgreSQL extends BaseDAO {
 					GenericUtil.uIntNvl(requestParams, "limit", GenericUtil.uInt(requestParams, "firstLimit")));
 			queryResult.setStartRowNumber(GenericUtil.uInt(requestParams, "start"));
 			
-			if(queryResult.getQuery().getExternalDbId()==0) {
+			if(queryResult.getQuery().getQuerySourceTip()!=4658) {
 				QueryTrigger.beforeExecuteQuery(queryResult, this);
 				runQuery(queryResult);
 				if (queryResult.getQuery().getShowParentRecordFlag() != 0 && queryResult.getData() != null) {

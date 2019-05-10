@@ -77,7 +77,7 @@ public class ExternalDBSql {
 	public void runQuery(W5QueryResult queryResult) {
 		String projectId = (String) queryResult.getScd().get("projectId");
 		W5Query q = queryResult.getQuery();
-		W5ExternalDb edb = FrameworkCache.wExternalDbs.get(projectId).get(q.getExternalDbId());
+		W5ExternalDb edb = FrameworkCache.wExternalDbs.get(projectId).get(q.getMainTableId());
 		Connection con = null;
 		PreparedStatement s = null;
 		ResultSet rs = null;
@@ -266,7 +266,7 @@ public class ExternalDBSql {
 			List<W5QueryFieldCreation> insertList) {
 		String projectId = (String) scd.get("projectId");
 		int userId = (Integer) scd.get("userId");
-		W5ExternalDb edb = FrameworkCache.wExternalDbs.get(projectId).get(query.getExternalDbId());
+		W5ExternalDb edb = FrameworkCache.wExternalDbs.get(projectId).get(query.getMainTableId());
 		Connection con = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;

@@ -578,11 +578,12 @@ public class W5QueryResult implements W5MetaResult{
     }
 
     public boolean	prepareQuery(Map<String, String> extraParams){
-    	if(query.getExternalDbId()==0)switch(FrameworkSetting.rdbmsTip){
+    	if(query.getQuerySourceTip()!=4658)switch(FrameworkSetting.rdbmsTip){
     	case	0:return prepareQuery4Postgre(extraParams);
     	case	1:return prepareQuery4SqlServer(extraParams);
-    	} else 
+    	} else {
     		prepareQuery4ExternalDb(extraParams);
+    	}
     	return false;
     }
 	
@@ -2364,4 +2365,6 @@ public class W5QueryResult implements W5MetaResult{
 
     	return true;
     }
+    
+    
 }

@@ -210,7 +210,7 @@ public class QueryEngine {
 			if (queryResult.getErrorMap().isEmpty()) {
 				queryResult.setFetchRowCount(GenericUtil.uIntNvl(requestParams, "limit", GenericUtil.uInt(requestParams, "firstLimit")));
 				queryResult.setStartRowNumber(GenericUtil.uInt(requestParams, "start"));
-				if(queryResult.getQuery().getExternalDbId()==0) {
+				if(queryResult.getQuery().getQuerySourceTip()!=4658) {
 					QueryTrigger.beforeExecuteQuery(queryResult, dao);
 					dao.runQuery(queryResult);
 					if (queryResult.getQuery().getShowParentRecordFlag() != 0 && queryResult.getData() != null) {
