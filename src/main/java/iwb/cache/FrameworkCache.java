@@ -700,6 +700,11 @@ public class FrameworkCache {
 		return l;
 	}
 
+	public static W5ExternalDb getExternalDb(Object o, int externalDbId) {
+		String projectId = getProjectId(o, null);
+		return FrameworkCache.wExternalDbs.get(projectId).get(externalDbId);
+
+	}
 	
 /*	public static W5TsPortlet getTsPortlet(Map<String, Object> customizationId, int porletId) {
 		int cid = getCustomizationId(customizationId);

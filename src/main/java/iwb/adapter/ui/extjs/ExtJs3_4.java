@@ -6039,7 +6039,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		int customizationId = (Integer) qr.getScd().get("customizationId");
 		String xlocale = (String) qr.getScd().get("locale");
 		String userIdStr = qr.getScd().containsKey("userId") ? qr.getScd().get("userId").toString() : null;
-		List<Object[]> datas = qr.getData();
+		List datas = qr.getData();
 		StringBuilder buf = new StringBuilder();
 		buf.append("{\"success\":").append(qr.getErrorMap().isEmpty())
 				.append(",\"queryId\":").append(qr.getQueryId())
@@ -6048,9 +6048,12 @@ public class ExtJs3_4 implements ViewAdapter {
 		boolean dismissNull = qr.getRequestParams()!=null && GenericUtil.uInt(qr.getRequestParams(), "_dismissNull")!=0;
 		if (qr.getErrorMap().isEmpty()) {
 			buf.append(",\n\"data\":["); // ana
-			if (datas != null && datas.size() > 0) {
+			if (!GenericUtil.isEmpty(datas)) {
 				boolean bx = false;
-				for (Object[] o : datas) {
+				boolean isMap = (datas.get(0) instanceof Map);
+				
+				
+				for (Object o : datas) {
 					if (bx)
 						buf.append(",\n");
 					else
@@ -6058,7 +6061,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					buf.append("{"); // satir
 					boolean b = false;
 					for (W5QueryField f : qr.getNewQueryFields()) {
-						Object obj = o[f.getTabOrder() - 1];
+						Object obj = isMap ? ((Map)o).get(f.getDsc()) : ((Object[])o)[f.getTabOrder() - 1];
 						if(obj==null && dismissNull)continue;
 						if (b)
 							buf.append(",");
@@ -6290,12 +6293,11 @@ public class ExtJs3_4 implements ViewAdapter {
 						buf.append("\"");
 
 					}
-					if (qr.getQuery().getShowParentRecordFlag() != 0
-							&& o[o.length - 1] != null) {
+					if (qr.getQuery().getShowParentRecordFlag() != 0 && !isMap && ((Object[])o)[((Object[])o).length - 1] != null) {
 						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":")
 								.append(serializeTableHelperList(
 										qr.getScd(),
-										(List<W5TableRecordHelper>) o[o.length - 1]));
+										(List<W5TableRecordHelper>) ((Object[])o)[((Object[])o).length - 1]));
 					}
 					buf.append("}"); // satir
 				}

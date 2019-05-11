@@ -27,6 +27,7 @@ import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
+import iwb.util.InfluxUtil;
 
 @SuppressWarnings({ "unchecked", "unused" })
 @Component
@@ -73,11 +74,45 @@ public class ExternalDBSql {
 			i++;
 		}
 	}
+	
+	private void prepareInfluxQuery(W5QueryResult queryResult) {
+		String sql = GenericUtil.replaceSql(queryResult.getExecutedSql(), queryResult.getSqlParams());
+		
+		if(queryResult.getFetchRowCount() != 0) {
+			sql +=" limit "+ queryResult.getFetchRowCount();
+		}
+		
+		if (queryResult.getStartRowNumber() > 0) {
+			sql +=" offset " + queryResult.getStartRowNumber();
+		}
+		queryResult.setExecutedSql(sql);
+	}
 
 	public void runQuery(W5QueryResult queryResult) {
-		String projectId = (String) queryResult.getScd().get("projectId");
+//		String projectId = (String) queryResult.getScd().get("projectId");
 		W5Query q = queryResult.getQuery();
-		W5ExternalDb edb = FrameworkCache.wExternalDbs.get(projectId).get(q.getMainTableId());
+		W5ExternalDb edb = FrameworkCache.getExternalDb(queryResult.getScd(), q.getMainTableId());//FrameworkCache.wExternalDbs.get(projectId).get(q.getMainTableId());
+		if(edb.getLkpDbType()==11) { //influxDB
+			prepareInfluxQuery(queryResult);
+			String influxQL = queryResult.getExecutedSql();
+			String checkInfluxQL = influxQL.toLowerCase(FrameworkSetting.appLocale);
+			if(checkInfluxQL.contains("group") && checkInfluxQL.contains("time('")) {
+				int ix= checkInfluxQL.indexOf("time('");
+				int ex= checkInfluxQL.indexOf("')", ix + 6);
+				if(ix>-1 && ex>-1 && ex-ix>5 && ex-ix>5) {
+					String res = influxQL.substring(ix+6, ex);
+					influxQL = influxQL.substring(0,ix+5) + res + influxQL.substring(ex+1);
+					queryResult.setExecutedSql(influxQL);
+				} else 
+					throw new IWBException("sql", "External.InfluxQuery", queryResult.getQueryId(),
+							influxQL,
+							"[8," + queryResult.getQueryId() + "] " + queryResult.getQuery().getDsc() + ": time dimension not defined properly", null);
+			}
+			List l = InfluxUtil.query(edb.getDbUrl(), "icb_log", influxQL);
+			queryResult.setData(l);
+			queryResult.setNewQueryFields(q.get_queryFields());
+			return;
+		}
 		Connection con = null;
 		PreparedStatement s = null;
 		ResultSet rs = null;
@@ -109,8 +144,7 @@ public class ExternalDBSql {
 
 
 				switch (edb.getLkpDbType()) {
-				case 2:// postgre
-
+				case 2:// postgresql
 					sql2.append("select z.* from (").append(queryResult.getExecutedSql()).append(" limit ?");
 					if (queryResult.getStartRowNumber() > 0) {
 						sql2.append(" offset ?");
@@ -264,9 +298,9 @@ public class ExternalDBSql {
 	public void organizeQueryFields(Map<String, Object> scd, W5Query query, String sqlStr, List<Object> sqlParams,
 			Map<String, W5QueryFieldCreation> existField, List<W5QueryFieldCreation> updateList,
 			List<W5QueryFieldCreation> insertList) {
-		String projectId = (String) scd.get("projectId");
+//		String projectId = (String) scd.get("projectId");
 		int userId = (Integer) scd.get("userId");
-		W5ExternalDb edb = FrameworkCache.wExternalDbs.get(projectId).get(query.getMainTableId());
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, query.getMainTableId());//wExternalDbs.get(projectId).get(query.getMainTableId());
 		Connection con = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;

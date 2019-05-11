@@ -2309,7 +2309,7 @@ public class W5QueryResult implements W5MetaResult{
 		if(sqlWhere.length()>0)sql.append(" where ").append(sqlWhere);
    		setHasPaging(getFetchRowCount()!=0);
    		if(!GenericUtil.isEmpty(query.getSqlGroupby())){
-   			if(query.getSqlSelect().contains("${")){
+   			if(query.getSqlGroupby().contains("${")){
    				if(query.getSqlGroupby()!=null && query.getSqlGroupby().length()>0){
    		   			sql.append(" group by ");
    					Object[] oz = DBUtil.filterExt4SQL(query.getSqlGroupby(), scd, requestParams2, null);

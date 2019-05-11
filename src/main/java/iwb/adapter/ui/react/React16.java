@@ -3825,7 +3825,7 @@ columns:[
 		int customizationId = (Integer) qr.getScd().get("customizationId");
 		String xlocale = (String) qr.getScd().get("locale");
 		String userIdStr = qr.getScd().containsKey("userId") ? qr.getScd().get("userId").toString() : null;
-		List<Object[]> datas = qr.getData();
+		List datas = qr.getData();
 		StringBuilder buf = new StringBuilder();
 		boolean convertDateToStr = qr.getRequestParams()!=null && GenericUtil.uInt(qr.getRequestParams(), "_cdds")!=0; 
 		buf.append("{\"success\":").append(qr.getErrorMap().isEmpty())
@@ -3836,8 +3836,9 @@ columns:[
 			boolean dismissNull = qr.getRequestParams()!=null && qr.getRequestParams().containsKey("_dismissNull");
 			buf.append(",\n\"data\":["); // ana
 			if (datas != null && datas.size() > 0) {
+				boolean isMap = (datas.get(0) instanceof Map);
 				boolean bx = false;
-				for (Object[] o : datas) {
+				for (Object o : datas) {
 					if (bx)
 						buf.append(",\n");
 					else
@@ -3845,7 +3846,7 @@ columns:[
 					buf.append("{"); // satir
 					boolean b = false;
 					for (W5QueryField f : qr.getNewQueryFields()) {
-						Object obj = o[f.getTabOrder() - 1];
+						Object obj = isMap ? ((Map)o).get(f.getDsc()) : ((Object[])o)[f.getTabOrder() - 1];
 						if(obj==null && dismissNull)continue;
 						if (b)
 							buf.append(",");
@@ -4082,12 +4083,12 @@ columns:[
 
 					}
 					if (qr.getQuery().getShowParentRecordFlag() != 0
-							&& o[o.length - 1] != null) {
+							&& !isMap && ((Object[])o)[((Object[])o).length - 1] != null) {
 						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":")
 								.append(serializeTableHelperList(
 										customizationId,
 										xlocale,
-										(List<W5TableRecordHelper>) o[o.length - 1]));
+										(List<W5TableRecordHelper>) ((Object[])o)[((Object[])o).length - 1]));
 					}
 					buf.append("}"); // satir
 				}
