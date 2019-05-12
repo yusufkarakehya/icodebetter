@@ -1743,6 +1743,9 @@ public class MetadataLoaderDAO extends BaseDAO {
 				dl.set_menuItemList(
 						find("from W5ObjectMenuItem t where t.objectTip=1345 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
 								dl.getListId(), projectId));
+				
+				W5Query q2 = getQueryResult(mlr.getScd(), dl.getQueryId()).getQuery();
+				dl.set_query(q2);
 			}
 			if (!GenericUtil.isEmpty(ml.getOrderQueryFieldIds()))
 				ml.set_orderQueryFieldNames(
