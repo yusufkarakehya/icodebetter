@@ -414,7 +414,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 	}
 
 	public W5QueryResult getQueryResult(Map<String, Object> scd, int queryId) {
-		if (scd != null && scd.get("customizationId")!=null && (Integer) scd.get("customizationId") > 0)
+		if (scd != null && scd.get("customizationId")!=null && (Integer) scd.get("customizationId") > 0 && GenericUtil.uInt(scd.get("rbac"))!=0)
 			switch (queryId) { // tenant user and role conversion
 			case 43:
 				queryId = 4511;
