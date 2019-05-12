@@ -554,6 +554,7 @@ public class QueryEngine {
 			throw new IWBException("security", "Table", tableId, null,
 					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 		}
+		dao.checkTenant(scd);
 		return dao.executeQuery4DataList(scd, t, requestParams);
 	}
 	
@@ -569,6 +570,7 @@ public class QueryEngine {
 			throw new IWBException("security", "Table", tableId, null,
 					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"), null);
 		}
+		dao.checkTenant(scd);
 		return dao.executeQuery4Pivot(scd, t, requestParams);
 	}
 }
