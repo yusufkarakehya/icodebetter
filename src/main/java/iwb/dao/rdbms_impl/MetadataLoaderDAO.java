@@ -151,9 +151,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				break;
 			}
 
-		HashMap hlps = new HashMap();
-
-		if (form.getObjectTip() != 1 && form.getRenderTemplateId() != 0) { // grid(seachForm)
+		if (form.getObjectTip() != 1 && form.getRenderTemplateId() > 0) { // grid(seachForm)
 																			// degilse
 																			// ve
 																			// templateId
