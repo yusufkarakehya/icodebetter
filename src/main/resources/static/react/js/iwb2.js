@@ -1741,149 +1741,109 @@ class XMasonry extends React.Component {
 }
 /**
  * XAjaxQueryData - function is used to get data by giving guery id
- * 
- * @param {String}
- *            props.qui - query id that you want to get data from
- * @param {Function}
- *            props.middleMan
- * @param {Symbol}
- *            props.children
- * @example React.createElement(XAjaxQueryData,{},data=>{ return
- *          React.createElement(AnyComponent,{data}......) }
+ * @param {String} props.qui - query id that you want to get data from
+ * @param {Function} props.middleMan
+ * @param {Symbol} props.children
+ * @example 
+ * React.createElement(XAjaxQueryData,{},data=>{ return React.createElement(AnyComponent,{data}......) }
  */
-class XAjaxQueryData extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = { data: [] };
-    /** to get data from backend */
-    this.fetch = () => {
-      // todo: build url
-      let self = this;
-      iwb.request({
-        url: "ajaxQueryData?" + "_qid=" + this.props.qid,
-        successCallback: ({ data }) => {
-          self.setState({
-            data:
-              this.props.middleMan && typeof this.props.middleMan === "function"
-                ? this.props.middleMan(data)
-                : data
-          });
-        }
-      });
-    };
-  }
-  componentDidMount() {
-    this.fetch();
-  }
-  render() {
-    return _(
-      React.Fragment,
-      {},
-      this.props &&
-      this.props.children &&
-      typeof this.props.children === "function"
-        ? this.props.children(this.state.data)
-        : this.props.children
-    );
-  }
-}
+const XAjaxQueryData = ({ onSuccess = console.log , qid = -1, params = {}, url = null, children }) => {
+  const [data, setData] = React.useState([])
+  React.useEffect(() => {
+    iwb.request({
+      url: url || "ajaxQueryData?" + "_qid=" + qid,
+      params: params || {},
+      successCallback: ({ data }) => {
+        let result = (typeof onSuccess === "function") ? onSuccess(data) : data
+        setData(result)
+      },
+      errorCallback:(cfg)=>toastr.error( "AjaxQueryData ERROR", "AjaxQueryData", { timeOut: 3000 })
+    })
+  }, []);
+  return typeof children === "function" ? children(data) : children
+};
+XAjaxQueryData.propTypes = {
+  qid: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]).isRequired,
+  children: PropTypes.element.isRequired,
+  url: PropTypes.string,
+  params: PropTypes.object,
+  onSuccess: PropTypes.func,
+};
 /**
  * A function to load script from the CDN or filesystem and apply css
- * 
- * @param {String}
- *            props.css - query id that you want to get data from
- * @param {Array/String}
- *            props.loadjs - used to define which script to download see exapmle
- *            below
- * @param {Array/String}
- *            props.loadcss - used to define which css script to download see
- *            exapmle below
- * @param {Symbol}
- *            props.loading - conponent to show loading indicator while feching
- *            scripts from CDN or static file
- * @param {Symbol}
- *            props.children
- * @example _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`,
- *          loadjs:['CDN','CDN2']||'CDN' }, childNode )
+ * @param {String} props.css - query id that you want to get data from
+ * @param {Array/String} props.loadjs - used to define which script to download see exapmle below
+ * @param {Array/String} props.loadcss - used to define which css script to download see exapmle below
+ * @param {Symbol} props.loading - conponent to show loading indicator while feching scripts from CDN or static file
+ * @param {Symbol} props.children
+ * @example
+ * _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`,loadjs:['CDN','CDN2']||'CDN' }, childNode )
  */
-class XLazyScriptLoader extends React.PureComponent {
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: true
-        }
-        /**
-		 * a self invoking function to load js and css into Dom from source
-		 * {cdn,server,local.....}
-		 */
-        this.load = (() => {
-            // Function which returns a function:
-			// https://davidwalsh.name/javascript-functions
-            var _load = (tag) => {
-                return (src) => {
-                    // This promise will be used by Promise.all to determine
-					// success or failure
-                    return new Promise( (resolve, reject) => {
-                        let element = document.createElement(tag);
-                        let parent = 'body';
-                        let attr = 'src';
-                        // Important success and error for the promise
-                        element.onload = e => resolve(src);
-                        element.onerror = e => reject(src);
-                        // Need to set different attributes depending on tag
-						// type
-                        switch (tag) {
-                            case 'script':
-                                element.async = false;
-                                break;
-                            case 'link':
-                                element.type = 'text/css';
-                                element.rel = 'stylesheet';
-                                attr = 'href';
-                                parent = 'head';
-                                break;
-                            default:
-                        }
-                        // Inject into document to kick off loading
-                        element[attr] = src;
-                        window.document[parent].appendChild(element);
-                    });
-                };
-            }
-            return {
-                css: _load('link'),
-                js:  _load('script'),
-                img: _load('img')
-            }
-        })();
-    }
-    componentDidMount() {
-        let arrayProm = []
-        let {loadcss,loadjs, css} = this.props;
-        loadcss && arrayProm.push(...(loadcss.constructor === Array)?loadcss.map(item=>this.load.css(item)):[this.load.css(loadcss)]);
-        loadjs && arrayProm.push(...(loadjs.constructor === Array)?loadjs.map(item=>this.load.js(item)):[this.load.js(loadjs)]);
-        Promise.all(arrayProm).then(() => {
-            this.setState({ loading: false})
-        }).catch(() => {
-            console.error('Oh no, epic failure!');
-            alert('Oh no, epic failure!');
+const XLazyScriptLoader = ({ loadcss, loadjs, css, loading, children }) => {
+  const [fetching, setFetching] = React.useState(true)
+  const load = (() => {
+    var _load = (tag) => {
+      return (src) => {
+        return new Promise((resolve, reject) => {
+          let element = document.createElement(tag);
+          let parent = 'body';
+          let attr = 'src';
+          element.onload = e => resolve(src);
+          element.onerror = e => reject(src);
+          switch (tag) {
+            case 'script':
+              element.async = false;
+              break;
+            case 'link':
+              element.type = 'text/css';
+              element.rel = 'stylesheet';
+              attr = 'href';
+              parent = 'head';
+              break;
+            default:
+          }
+          element[attr] = src;
+          window.document[parent].appendChild(element);
         });
-        iwb.addCssString(css);
+      };
     }
-    render() {
-        return React.createElement(React.Fragment, {},(this.state.loading)?this.props.loading:this.props.children)
-    }
+    return { css: _load('link'), js: _load('script') }
+  })();
+  React.useEffect(() => {
+    /** componentDidMount */
+    let arrayProm = []
+    loadcss && arrayProm.push(...(loadcss.constructor === Array) ? loadcss.map(item => load.css(item)) : [load.css(loadcss)]);
+    loadjs && arrayProm.push(...(loadjs.constructor === Array) ? loadjs.map(item => load.js(item)) : [load.js(loadjs)]);
+    Promise.all(arrayProm).then(() => {
+      setFetching(false)
+    }).catch((err) => {
+      console.error('XLazyScriptLoader', err);
+    });
+    iwb.addCssString(css);
+  }, [])
+  return (fetching) ? loading : children
 }
- // Set default props
- XLazyScriptLoader.defaultProps = {
-   loading: "LOADING....",
- };
- XLazyScriptLoader.propTypes = {
-   loading: PropTypes.oneOfType([
-     PropTypes.func,
-     PropTypes.string,
-   ])
- };
+XLazyScriptLoader.defaultProps = {
+  loading: "LOADING....",
+};
+XLazyScriptLoader.propTypes = {
+  loading: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.string,
+  ]),
+  loadcss: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.string,
+  ]),
+  loadjs: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.string,
+  ]),
+  css: PropTypes.string
+};
 const XPreviewFile = ({
   file
 }) => {
@@ -4703,6 +4663,7 @@ const XShowDetailTimeline = ({ row, currentDetailGrids, parentGrid, topParentGri
   return _('ul', { className: 'timeline' },
     (currentDetailGrids || []).map(
       ({ grid, pk, params, detailGrids },index) => {
+        if(!parentGrid.state['dg-'+grid.gridId])return
         var currentDetailGridProps = { ...{ pk: pk || {} }, ...grid };
         if (currentDetailGridProps._url) {
           currentDetailGridProps._url += buildParams2(params, row);
@@ -4716,6 +4677,7 @@ const XShowDetailTimeline = ({ row, currentDetailGrids, parentGrid, topParentGri
           } 
           topParentGrid.onOnNewRecord( event, currentDetailGridProps,row);
         }
+
         return _( "li", { key: "TimelinePane" + grid.gridId, className: "timeline-inverted" },
           !currentDetailGridProps._hideTimelineBadgeBtn &&
             _("div", { className: "timeline-badge hover-shake " + dgColors[index % dgColors.length],
@@ -4936,11 +4898,7 @@ class XMainGrid extends GridCommon {
 	 * @param {Object}
 	 *            event.target - target object from clicked place
 	 */
-    this.toggleDetailGrid = ({ target }) => {
-      var detailGridList = {};
-      detailGridList[target.name] = target.checked;
-      this.setState(detailGridList);
-    };
+    this.toggleDetailGrid = ({ target }) => { this.setState({ ...this.state,[target.name]: target.checked}) };
     let { searchForm, detailGrids } = this.props;
     if (searchForm || (detailGrids && detailGrids.length > 1)) {
       var self = this;
@@ -4986,44 +4944,34 @@ class XMainGrid extends GridCommon {
 			 */
             _("div", { style: { height: 20 } })
           ),
-        detailGrids &&
+          !this.props._detailTab && detailGrids &&
           detailGrids.length > 1 &&
           _(
             "div",
             { className: "hr-text", key: "hr-text" },
             _("h6", null, getLocMsg('details'))
           ),
-        detailGrids &&
+          !this.props._detailTab && detailGrids &&
           detailGrids.length > 1 &&
           detailGrids.map((detailGrid, key) => {
-            return _(
-              "div",
-              {
-                key,
-                style: {
-                  padding: "3px 0px 2px 3px",
-                  color: "#6d7284",
-                  fontSize: ".9rem"
-                }
-              },
+            return _('div',{ key, className:'py-1 pr-0 pl-1 text-dark' },
               detailGrid.grid.name,
-              _(
-                "label",
+              _('label',
                 {
                   className:
-                    "float-right switch switch-xs switch-3d switch-" +
+                    'float-right switch switch-xs switch-3d switch-' +
                     dgColors[key % dgColors.length] +
-                    " form-control-label"
+                    ' form-control-label'
                 },
-                _("input", {
-                  name: "dg-" + detailGrid.grid.gridId,
-                  type: "checkbox",
-                  className: "switch-input form-check-input",
+                _('input', {
+                  name: 'dg-' + detailGrid.grid.gridId,
+                  type: 'checkbox',
+                  className: 'switch-input form-check-input',
                   onChange: self.toggleDetailGrid,
-                  defaultChecked: self.state["dg-" + detailGrid.grid.gridId]
+                  defaultChecked: self.state['dg-' + detailGrid.grid.gridId]
                 }),
-                _("span", { className: "switch-label" }),
-                _("span", { className: "switch-handle" })
+                _('span', { className: 'switch-label' }),
+                _('span', { className: 'switch-handle' })
               )
             );
           })

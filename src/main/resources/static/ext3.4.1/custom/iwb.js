@@ -4289,8 +4289,7 @@ function promisRequest(rcfg) {
           if (rcfg.successResponse) rcfg.successResponse(a, b, c);
           else
             try {
-              var json = JSON.parse(a.responseText);// eval("(" + a.responseText
-													// + ")");
+              var json = rcfg._eval? eval("(" + a.responseText + ")"): JSON.parse(a.responseText);// eval("(" + a.responseText + ")");
               if (json.success) {
                 if (rcfg.successDs) {
                   if (!rcfg.successDs.length) rcfg.successDs.reload();

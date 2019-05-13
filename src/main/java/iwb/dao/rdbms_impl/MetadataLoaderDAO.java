@@ -151,9 +151,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				break;
 			}
 
-		HashMap hlps = new HashMap();
-
-		if (form.getObjectTip() != 1 && form.getRenderTemplateId() != 0) { // grid(seachForm)
+		if (form.getObjectTip() != 1 && form.getRenderTemplateId() > 0) { // grid(seachForm)
 																			// degilse
 																			// ve
 																			// templateId
@@ -416,7 +414,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 	}
 
 	public W5QueryResult getQueryResult(Map<String, Object> scd, int queryId) {
-		if (scd != null && scd.get("customizationId")!=null && (Integer) scd.get("customizationId") > 0)
+		if (scd != null && scd.get("customizationId")!=null && (Integer) scd.get("customizationId") > 0 && GenericUtil.uInt(scd.get("rbac"))!=0)
 			switch (queryId) { // tenant user and role conversion
 			case 43:
 				queryId = 4511;
@@ -1745,6 +1743,9 @@ public class MetadataLoaderDAO extends BaseDAO {
 				dl.set_menuItemList(
 						find("from W5ObjectMenuItem t where t.objectTip=1345 AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
 								dl.getListId(), projectId));
+				
+				W5Query q2 = getQueryResult(mlr.getScd(), dl.getQueryId()).getQuery();
+				dl.set_query(q2);
 			}
 			if (!GenericUtil.isEmpty(ml.getOrderQueryFieldIds()))
 				ml.set_orderQueryFieldNames(

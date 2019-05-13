@@ -24,6 +24,7 @@ import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5ObjectMenuItem;
+import iwb.domain.db.W5ObjectToolbarItem;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5Workflow;
@@ -480,7 +481,7 @@ public class F7 implements ViewMobileAdapter2 {
 			if(l.getParentListId()!=0)s2.append("<a href=# class=\"back link icon-only\"><i class=\"icon f7-icons\">left_arrow</i></a>");
 			else s2.append("<a href=# class=\"open-panel link icon-only\"><i class=\"icon f7-icons\">bars</i></a>");
 			s2.append("</div><div class=\"center\">").append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey())).append("</div>");
-			if(l.getParentListId()==0)s2.append("<div class=\"right\"><a href=# id=\"idx-o-users-").append(l.getListId()).append("\" class=\"link icon-only\"><i class=\"icon material-icons\">forum<span id=\"idx-chat-badge\" class=\"badge bg-red\" style=\"display:none;\">1</span></i></a></div>");
+			//if(l.getParentListId()==0)s2.append("<div class=\"right\"><a href=# id=\"idx-o-users-").append(l.getListId()).append("\" class=\"link icon-only\"><i class=\"icon material-icons\">forum<span id=\"idx-chat-badge\" class=\"badge bg-red\" style=\"display:none;\">1</span></i></a></div>");
 			s2.append("</div></div>");
 			
 			StringBuilder s3= new StringBuilder();
@@ -1615,8 +1616,19 @@ public class F7 implements ViewMobileAdapter2 {
 		}
 		StringBuilder s2= new StringBuilder();
 		if(!GenericUtil.isEmpty(l.get_detailMLists())){
-			for(M5List d:l.get_detailMLists())s2.append("{icon:'list', text:'").append(LocaleMsgCache.get2(listResult.getScd(), d.getLocaleMsgKey()))
-			.append("',href:'showMList?_lid=").append(d.getListId()).append("&x").append(l.get_mainTable().get_tableFieldList().get(0).getDsc()).append("='},"); //TODO. parent'takine gore degil de, farkli olmasi gerekli
+			for(M5List d:l.get_detailMLists()) {
+				s2.append("{icon:'list', text:'").append(LocaleMsgCache.get2(listResult.getScd(), d.getLocaleMsgKey()))
+				.append("',href:'showMList?_lid=").append(d.getListId());
+				if(l.get_mainTable()!=null)
+					s2.append("&x").append(l.get_mainTable().get_tableFieldList().get(0).getDsc()).append("='},"); //TODO. parent'takine gore degil de, farkli olmasi gerekli
+				else if(d.get_query()!=null){
+					if(GenericUtil.isEmpty(d.get_query().get_queryParams()))
+						s2.append("&").append(d.get_query().get_queryFields().get(0).getDsc()).append("='},"); //TODO. parent'takine gore degil de, farkli olmasi gerekli
+					else
+						s2.append("&").append(d.get_query().get_queryParams().get(0).getDsc()).append("='},"); //TODO. parent'takine gore degil de, farkli olmasi gerekli
+				} else 
+					s2.append("&x").append(l.get_query().get_queryFields().get(0).getDsc()).append("='},"); //TODO. parent'takine gore degil de, farkli olmasi gerekli
+			}
 		}
 		
 		if(!GenericUtil.isEmpty(l.get_menuItemList())){
@@ -1643,7 +1655,7 @@ public class F7 implements ViewMobileAdapter2 {
 			if(l.getParentListId()!=0)s2.append("<a href=# class=\"back link icon-only\"><i class=\"icon f7-icons\">left_arrow</i></a>");
 			else s2.append("<a href=# class=\"open-panel link icon-only\"><i class=\"icon f7-icons\">bars</i></a>");
 			s2.append("</div><div class=\"center\">").append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey())).append("</div>");
-			if(l.getParentListId()==0)s2.append("<div class=\"right\"><a href=# id=\"idx-o-users-").append(l.getListId()).append("\" class=\"link icon-only\"><i class=\"icon f7-icons\">persons<span id=\"idx-chat-badge\" class=\"badge bg-red\" style=\"display:none;\">1</span></i></a></div>");
+			//if(l.getParentListId()==0)s2.append("<div class=\"right\"><a href=# id=\"idx-o-users-").append(l.getListId()).append("\" class=\"link icon-only\"><i class=\"icon f7-icons\">persons<span id=\"idx-chat-badge\" class=\"badge bg-red\" style=\"display:none;\">1</span></i></a></div>");
 			s2.append("</div></div>");
 			
 			StringBuilder s3= new StringBuilder();
@@ -1656,6 +1668,13 @@ public class F7 implements ViewMobileAdapter2 {
 			if(insertFlag){
 				s3.append("<a href=\"showMForm?a=2&_fid=").append(l.getDefaultCrudFormId()).append("\" class=\"item-link\" id=\"idx-insert-").append(l.getDefaultCrudFormId()).append("\" style=\"background-color:#4caf50;\"><i class=\"icon f7-icons\">add</i></a>");
 			}
+			
+			if(!GenericUtil.isEmpty(l.get_toolbarItemList())){
+				for(W5ObjectToolbarItem d:l.get_toolbarItemList())if(/*d.getItemTip()==1 && */!GenericUtil.isEmpty(d.getCode())){ //record ile ilgili
+					s3.append("<a href=\"").append(d.getCode()).append("\" class=\"item-link\" id=\"idx-xinsert-").append(d.getToolbarItemId()).append("\" style=\"background-color:#4caf50;\"><i class=\"icon f7-icons\">").append(GenericUtil.isEmpty(d.getImgIcon()) ? "bolt":d.getImgIcon()).append("</i></a>");
+				}
+			}
+			
 			if(s3.length()>0)
 				s2.append("<div class=\"speed-dial\"><a href=# class=\"floating-button\"><i class=\"icon\" style=\"width: 40px;height: 40px;background: white;border-radius: 50%;\"></i><i class=\"icon f7-icons\">close</i></a><div class=\"speed-dial-buttons\">").append(s3).append("</div></div>");  
 
