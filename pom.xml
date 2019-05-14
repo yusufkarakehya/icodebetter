@@ -200,6 +200,10 @@
 						<ports>
 							<port>8080</port>
 						</ports>
+						<jvmFlags>
+      							<jvmFlag>-Xdebug</jvmFlag>
+							<jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7777</jvmFlag>
+    						</jvmFlags>
 					</container>
 				</configuration>
 			</plugin>	
