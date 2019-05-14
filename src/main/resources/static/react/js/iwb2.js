@@ -944,7 +944,7 @@ class GridCommon extends React.PureComponent {
 	 *            rowData } param0.rowData - Data of the row where the Edit
 	 *            button or double click clicked
 	 */
-    this.onEditClick = ({ event, rowData, openEditable, ...props }) => {
+    this.onEditClick = ({ event, rowData, openEditable, ...extraProps }) => {
       var { props } = this;
       var pkz = buildParams2(props.pk, rowData);
       var url = "showForm?a=1&_fid=" + props.crudFormId + pkz;
@@ -957,7 +957,7 @@ class GridCommon extends React.PureComponent {
         "1-" + pkz,
         url + (modal ? "&_modal=1" : ""),
         {},
-        { modal, openEditable, rowData, ...props }
+        { modal, openEditable, rowData, ...props, ...extraProps }
       );
     };
     /**
