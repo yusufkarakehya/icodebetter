@@ -201,7 +201,7 @@
 							<port>8080</port>
 						</ports>
 						<args>
-							<arg>project=1<arg>
+							<arg>project=1</arg>
 						</args>
 						<jvmFlags>
       							<jvmFlag>-Xdebug</jvmFlag>
