@@ -250,7 +250,7 @@ public class GlobalScriptEngine {
 //			break;
 		case 11:// GraalJS
 			if (polyglot == null) {
-				polyglot = Context.newBuilder().allowAllAccess(true).allowIO(true).build();
+				polyglot = Context.newBuilder().option("inspect", "4242").option("inspect.Remote", "true").allowAllAccess(true).allowIO(true).build();
 				String rPre =FrameworkCache.getAppSettingStringValue(scd, "r_prerequisites");
 				if(!GenericUtil.isEmpty(rPre)) {
 					polyglot.eval("R", rPre);
