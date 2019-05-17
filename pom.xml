@@ -203,8 +203,7 @@
 							<port>8080</port>
 						</ports>
 						<jvmFlags> 
-							<jvmFlag>-Dpolyglot.inspect.Suspend=false</jvmFlag>
-							<jvmFlag>-Dpolyglot.inspect=0.0.0.0:9229</jvmFlag>
+							<jvmFlag>-Dpolyglot.inspect=9229</jvmFlag>
       							<jvmFlag>-Xdebug</jvmFlag>
 							<jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7777</jvmFlag>
     						</jvmFlags>
