@@ -249,8 +249,8 @@ public class GlobalScriptEngine {
 //			throw new IWBException("rhino", "Graal R", 0, script,"R Not Implemented yet", null);
 //			break;
 		case 11:// GraalJS
-			if (polyglot == null) try{
-				polyglot = Context.newBuilder().option("inspect", "4242").option("inspect.Remote", "true").allowAllAccess(true).allowIO(true).build();
+			if (polyglot == null) try{//"js"
+				polyglot = Context.newBuilder().option("debugger", "4242").option("debugger.Remote", "true").allowAllAccess(true).allowIO(true).build();
 				String rPre =FrameworkCache.getAppSettingStringValue(scd, "r_prerequisites");
 				if(!GenericUtil.isEmpty(rPre)) {
 					polyglot.eval("R", rPre);
