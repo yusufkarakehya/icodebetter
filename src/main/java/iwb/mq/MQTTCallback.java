@@ -15,6 +15,7 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 
 import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
 import iwb.domain.db.Log5Mq;
 import iwb.domain.db.W5Mq;
 import iwb.domain.db.W5MqCallback;
@@ -93,7 +94,7 @@ public class MQTTCallback implements MqttCallback {
 
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken token) {
-		System.out.println("Pub complete" + token.getMessageId());
+		if(FrameworkSetting.debug)System.out.println("Pub complete" + token.getMessageId());
 		
 	}
 	
@@ -128,9 +129,10 @@ public class MQTTCallback implements MqttCallback {
 				W5MqCallback c = mq.get_callbacks().get(qi);
 				mqClient.subscribe(c.getTopic(), qi);
 			}
+			if(FrameworkSetting.debug)System.out.println("Connected to MQTT Broker " + mq.getMqUrl() + " " + clientID);
 			return mqClient;
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(FrameworkSetting.debug)e.printStackTrace();
 		}
 		return null;
 	}
@@ -152,8 +154,7 @@ public class MQTTCallback implements MqttCallback {
     	message.setRetained(false);
 
     	// Publish the message
-    	System.out.println("Publishing to topic \"" + topic + "\" qos " + pubQoS);
-    	MqttDeliveryToken token = null;
+    	if(FrameworkSetting.debug)System.out.println("Publishing to topic \"" + topic + "\" qos " + pubQoS);
    		mqClient.publish(topic, message);
 	}
 	
