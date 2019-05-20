@@ -78,6 +78,7 @@ import iwb.service.VcsService;
 import iwb.timer.Action2Execute;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
+import iwb.util.MQUtil;
 import iwb.util.UserUtil;
 
 
@@ -133,7 +134,7 @@ public class AppController implements InitializingBean {
 			womanPicPath = new ClassPathResource("static/images/custom/ppicture/default_woman_mini.png").getFile().getPath();
 		} catch(Exception e){}
 //		RhinoScript.taskExecutor = this.taskExecutor;
-		//if(FrameworkSetting.mq)UserUtil.activateMQs();
+//		if(FrameworkSetting.mq)MQUtil.activateMQs(service, null);
 	}
         
 	private ViewAdapter getViewAdapter(Map<String, Object> scd, HttpServletRequest request, ViewAdapter defaultRenderer){
@@ -332,7 +333,7 @@ public class AppController implements InitializingBean {
 		response.setContentType("application/json");
 		String id = UUID.randomUUID().toString();
 		mockData.put(id, getViewAdapter(scd, request).serializeQueryData(queryResult).toString());
-		response.getWriter().write("{success:true, id:\""+id+"\"}");
+		response.getWriter().write("{\"success\":true, \"id\":\""+id+"\"}");
 		response.getWriter().close();
 	}
 	
@@ -1191,6 +1192,24 @@ public class AppController implements InitializingBean {
 					/* mainTable.getTableId() */ 671, (Integer) scd.get("userId"), (String) scd.get("sessionId"),
 					request.getParameter(".w"), request.getParameter(".t"), /* grdOrFcId */ 919, null, true);
 		}
+	}
+	
+
+	@RequestMapping("/ajaxActivateMq")
+	public void hndAjaxActivateMq(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		logger.info("hndAjaxActivateMq");
+
+		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+
+		response.setContentType("application/json");
+
+		if(FrameworkSetting.mq)MQUtil.activateMQs(service, (String)scd.get("projectId"), GenericUtil.uInt(request, "d")!=0);
+		
+		// response.setContentType("application/json");
+		response.getWriter().write("{\"success\":true}");
+		response.getWriter().close();
 	}
 	
 
