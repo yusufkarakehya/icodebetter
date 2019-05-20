@@ -223,13 +223,17 @@ public class AuthController {
     if (email != null && projectId != null) {
       inviteMap.put(projectId, email);
     }
-
+    
     String redirectUri =
         req.getScheme()
             + "://"
             + req.getServerName()
             + (req.getServerPort() != 80 ? ":" + req.getServerPort() : "")
             + "/auth/callback";
+    
+    if(req.getServerName() == "192.168.99.102"){
+      redirectUri = "http://212.83.166.197:38080/auth/callback";
+    }
     String authorizeUrl = buildAuthorizeUrl(req, redirectUri);
     res.getWriter().write(authorizeUrl);
     res.getWriter().close();
