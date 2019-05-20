@@ -15,11 +15,14 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 
 import iwb.cache.FrameworkCache;
+import iwb.domain.db.Log5Mq;
 import iwb.domain.db.W5Mq;
 import iwb.domain.db.W5MqCallback;
 import iwb.domain.db.W5Project;
+import iwb.exception.IWBException;
 import iwb.service.FrameworkService;
 import iwb.util.GenericUtil;
+import iwb.util.LogUtil;
 
 public class MQTTCallback implements MqttCallback {
 	final public static Map<String, Map<Integer, MQTTCallback>> callbacks = new HashMap<String, Map<Integer, MQTTCallback>>();
@@ -66,15 +69,26 @@ public class MQTTCallback implements MqttCallback {
 
 	@Override
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
+//		System.out.println(topic);
+		String msg = new String(message.getPayload());
+		Log5Mq lmq = new Log5Mq(mq.getProjectUuid(), mq.getMqId(), topic, msg);
 		if(!GenericUtil.isEmpty(mq.get_callbacks())) {
 			for(W5MqCallback c:mq.get_callbacks()) try{
 				Map requestMap = new HashMap();
 				requestMap.put("topic", topic);
-				requestMap.put("message", new String(message.getPayload()));
+				requestMap.put("message", msg);
 				service.executeFunc(scd, c.getFuncId(), requestMap, (short) 7);				
-			} catch(Exception ee) {}
+			} catch(Exception ee) {
+				lmq.setError(ee.getMessage());
+				if(ee instanceof IWBException) {
+					IWBException ie = (IWBException)ee;
+					System.out.println("MQ Error: " + topic + " : " + (GenericUtil.isEmpty(ie.getStack()) ? ie.getMessage() : ie.getStack().get(0).getMessage()));
+					
+				} else
+					System.out.println("MQ Error: " + topic + " : " + ee.getMessage());
+			}
 		}
-		
+		LogUtil.logObject(lmq);
 	}
 
 	@Override
@@ -149,8 +163,12 @@ public class MQTTCallback implements MqttCallback {
 		if(mqcMap!=null) {
 			mqc = mqcMap.get(mqId);
 			if(mqc!=null)mqc.send(topic, pubMsg);
-		}
+		}		
+	}
+	
+	public static void deactivate(String projectId) {
+		Map<Integer, MQTTCallback> mqcMap = callbacks.get(projectId);
+		if(mqcMap!=null) for(MQTTCallback cb:mqcMap.values())cb.disconnect();
 
-		
 	}
 }

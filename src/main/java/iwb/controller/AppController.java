@@ -1205,7 +1205,7 @@ public class AppController implements InitializingBean {
 
 		response.setContentType("application/json");
 
-		if(FrameworkSetting.mq)MQUtil.activateMQs(service, (String)scd.get("projectId"));
+		if(FrameworkSetting.mq)MQUtil.activateMQs(service, (String)scd.get("projectId"), GenericUtil.uInt(request, "d")!=0);
 		
 		// response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true}");

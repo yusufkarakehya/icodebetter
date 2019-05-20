@@ -97,12 +97,14 @@ public class MQUtil {
 		return 0;
 	}
 
-	public static void activateMQs(FrameworkService service, String projectId) {
+	public static void activateMQs(FrameworkService service, String projectId, boolean deactivate) {
 		// TODO Auto-generated method stub
 		
 		if(projectId==null)for(String pid:FrameworkCache.wMqs.keySet()) {
 			Map<Integer, W5Mq> mqMap = FrameworkCache.wMqs.get(pid); 
-			if(!GenericUtil.isEmpty(mqMap)) for(W5Mq mq:mqMap.values())switch(mq.getLkpMqType()){
+			if(!GenericUtil.isEmpty(mqMap)) if(deactivate) {
+				MQTTCallback.deactivate(pid);
+			} else for(W5Mq mq:mqMap.values())switch(mq.getLkpMqType()){
 			case	1://mqtt
 				MQTTCallback m = new MQTTCallback(mq, service);
 				break;
@@ -114,7 +116,9 @@ public class MQUtil {
 			
 		} else {
 			Map<Integer, W5Mq> mqMap = FrameworkCache.wMqs.get(projectId); 
-			if(!GenericUtil.isEmpty(mqMap)) for(W5Mq mq:mqMap.values())switch(mq.getLkpMqType()){
+			if(!GenericUtil.isEmpty(mqMap)) if(deactivate) {
+				MQTTCallback.deactivate(projectId);
+			} else  for(W5Mq mq:mqMap.values())switch(mq.getLkpMqType()){
 			case	1://mqtt
 				MQTTCallback m = new MQTTCallback(mq, service);
 				break;
