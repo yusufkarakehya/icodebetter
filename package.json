@@ -1,18 +1,51 @@
 {
   "name": "icodebetter",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "1.0.1",
   "dependencies": {
-    "prettier": "^1.14.2"
-  },
-  "devDependencies": {
-    "husky": "^0.14.3",
-    "lint-staged": "^7.2.2"
+    "@amcharts/amcharts4": "^4.4.6",
+    "@devexpress/dx-react-core": "^1.11.0",
+    "@devexpress/dx-react-grid": "^1.11.0",
+    "@devexpress/dx-react-grid-bootstrap4": "^1.11.0",
+    "@fortawesome/fontawesome-free": "^5.8.2",
+    "animate.css": "^3.7.0",
+    "bootstrap": "^4.3.1",
+    "classnames": "^2.2.6",
+    "draft-js": "^0.10.5",
+    "draftjs-to-html": "^0.8.4",
+    "jquery": "^3.4.1",
+    "moment": "^2.24.0",
+    "open-iconic": "^1.1.1",
+    "popper.js": "^1.15.0",
+    "prettier": "^1.14.2",
+    "prop-types": "^15.7.2",
+    "react-datetime": "^2.16.3",
+    "react-draft-wysiwyg": "^1.13.2",
+    "react-input-autosize": "^2.2.1",
+    "react-number-format": "^4.0.8",
+    "react-popper": "^1.3.3",
+    "react-redux": "^7.0.3",
+    "react-router-dom": "^5.0.0",
+    "react-select": "1.0.0",
+    "react-transition-group": "^4.0.1",
+    "reactstrap": "^8.0.0",
+    "redux": "^4.0.1",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.3.0",
+    "simple-line-icons": "^2.4.1",
+    "toastr": "^2.1.4"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "start": "//react-scripts start",
+    "build": "//react-scripts build",
+    "buildlib": "SET BABEL_ENV=production&& SET NODE_ENV=production&& babel src/lib --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,__snapshots__",
+    "roll": "SET BABEL_ENV=production&& SET NODE_ENV=production&& rollup -c core-rollup.config.js&& rollup -c nifty-rollup.config.js",
+    "nifty": "SET BABEL_ENV=production&& SET NODE_ENV=production&& rollup -c nifty-rollup.config.js -w",
+    "core": "SET BABEL_ENV=production&& SET NODE_ENV=production&& rollup -c core-rollup.config.js -w",
+    "watch": "concurrently \"npm:core\" \"npm:nifty\"",
+    "test": "//react-scripts test",
+    "eject": "//react-scripts eject",
+    "bundle": "//webpack --mode production"
   },
   "lint-staged": {
     "*.js": [
@@ -20,6 +53,66 @@
       "git add"
     ]
   },
-  "author": "",
-  "license": "ISC"
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      "defaults"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "peerDependencies": {
+    "react-scripts": "3.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/preset-env": "^7.4.3",
+    "babel-loader": "^8.0.5",
+    "concurrently": "^4.1.0",
+    "css-loader": "^2.1.1",
+    "cssnano": "^4.1.10",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.2.2",
+    "postcss-cssnext": "^3.1.0",
+    "postcss-nested": "^4.1.2",
+    "postcss-simple-vars": "^5.0.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "3.0.0",
+    "rollup": "^1.12.1",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-cpy": "^1.1.0",
+    "rollup-plugin-node-resolve": "^4.2.4",
+    "rollup-plugin-peer-deps-external": "^2.2.0",
+    "rollup-plugin-postcss": "^2.0.3",
+    "rollup-plugin-postcss-export": "^1.0.3",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-uglify": "^6.0.2",
+    "rollup-plugin-url": "^2.2.1",
+    "style-loader": "^0.23.1",
+    "webpack": "4.29.6",
+    "webpack-cli": "^3.3.1",
+    "webpack-dev-server": "3.2.1"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
+    ]
+  }
 }

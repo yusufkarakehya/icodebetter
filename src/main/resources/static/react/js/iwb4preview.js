@@ -1,4 +1,13 @@
 var iwb = {
+  addCssString: (css = "", id = Math.random()) => {
+    let style = document.createElement("style");
+    style.type = "text/css";
+    style.id = "iwb-tpl-" + id;
+    style.styleSheet
+      ? (style.styleSheet.cssText = css)
+      : style.appendChild(document.createTextNode(css));
+    document["head"].appendChild(style);
+  },
   sidebarToggle: function(e) {
     e.preventDefault();
     document.body.classList.toggle("sidebar-hidden");
@@ -16,37 +25,52 @@ var iwb = {
     e.preventDefault();
     if (iwb.asideToggleX) iwb.asideToggleX(e);
     else document.body.classList.toggle("aside-menu-hidden");
-  }
-  ,
-  approvalColorMap:{1:'primary',2:'warning',3:'danger',5:'success',901:'secondary'},
-  approvalLogs: arid =>{
-	return (event) =>{
-		event.preventDefault();
-		iwb.ajax.query(1667, {xapproval_record_id:arid}, (j)=>{
-		if(j.data && j.data.length)iwb.showModal({
-	        title: "Approval Logs",
-	        footer: false,
-	        color: "primary",
-	        size: "lg",
-	        body: _(
-	          ListGroup,
-	          { style: { fontSize: "1.0rem" }, children:j.data.map( item =>
-	          _(
-	  	            ListGroupItem,
-	  	            {
-	  	            },
-	  	            _("span", { className: "float-right badge badge-pill badge-"+iwb.approvalColorMap[item.approval_action_tip] }, item.approval_action_tip_qw_),
-	  	            " ",
-	  	            _("b",null,item.user_id_qw_)," ",
-	  	            item.step_dsc, " - ", _("i",{style:{color:'#aaa'}},item.log_dttm)
-	  	          )
-	          )}
-	        )
-	      });
-		else alert('no data');
-	}
-		);
-	}  
+  },
+  approvalColorMap: {
+    1: "primary",
+    2: "warning",
+    3: "danger",
+    5: "success",
+    901: "secondary"
+  },
+  approvalLogs: arid => {
+    return event => {
+      event.preventDefault();
+      iwb.ajax.query(1667, { xapproval_record_id: arid }, j => {
+        if (j.data && j.data.length)
+          iwb.showModal({
+            title: "Approval Logs",
+            footer: false,
+            color: "primary",
+            size: "lg",
+            body: _(ListGroup, {
+              style: { fontSize: "1.0rem" },
+              children: j.data.map(item =>
+                _(
+                  ListGroupItem,
+                  {},
+                  _(
+                    "span",
+                    {
+                      className:
+                        "float-right badge badge-pill badge-" +
+                        iwb.approvalColorMap[item.approval_action_tip]
+                    },
+                    item.approval_action_tip_qw_
+                  ),
+                  " ",
+                  _("b", null, item.user_id_qw_),
+                  " ",
+                  item.step_dsc,
+                  " - ",
+                  _("i", { style: { color: "#aaa" } }, item.log_dttm)
+                )
+              )
+            })
+          });
+        else alert("no data");
+      });
+    };
   }
 };
 iwb.logo =
@@ -143,7 +167,6 @@ const Popper = window.Popper;
 const findDOMNode = ReactDOM.findDOMNode;
 var _ = React.createElement;
 
-
 /**
  * @description {text,callback} used for making popup dialog
  * @param {object}
@@ -159,7 +182,7 @@ var _ = React.createElement;
 yesNoDialog = ({
   text = "Are You Sure?",
   title = "Are You Sure?",
-  callback = alert('obj.callback is not a function'),
+  callback = alert("obj.callback is not a function"),
   ...confg
 }) => {
   iwb.showModal({
@@ -180,7 +203,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        getLocMsg('js_tamam')
+        getLocMsg("js_tamam")
       ),
       " ",
       _(
@@ -194,7 +217,7 @@ yesNoDialog = ({
             iwb.closeModal();
           }
         },
-        getLocMsg('js_cancel')
+        getLocMsg("js_cancel")
       )
     ),
     ...confg
@@ -203,7 +226,7 @@ yesNoDialog = ({
 function disabledCheckBoxHtml(row, cell) {
   // TODO
   // return _('img',{border:0,src:'../images/custom/'+(f
-	// ?'':'un')+'checked.gif'});
+  // ?'':'un')+'checked.gif'});
   return row[cell] && 1 * row[cell]
     ? _("i", {
         className: "fa fa-check",
@@ -215,7 +238,7 @@ function disabledCheckBoxHtml(row, cell) {
         }
       })
     : null; // _('i',{className:'fa fa-check', style:{color: 'white',background:
-			// 'red', padding: 5, borderRadius: 25}});
+  // 'red', padding: 5, borderRadius: 25}});
 }
 function gridUserRenderer(row, cell) {
   // TODO
@@ -326,37 +349,58 @@ iwb.emptyField = _(
   "(boş)"
 );
 iwb.getFieldRawValue = function(field, extraOptions) {
-    if (!field || !field.value) return iwb.emptyField;
-    if (field.$ === FileInput){
-    	return field.fileName ? _("a", { target:"_blank", style:{color: "#2196F3",fontWeight: "bold"}, href:"dl/"+field.fileName+"?_fai="+field.fileId,className: "form-control", disabled:true }, field.fileName, " ", field.fileSize && _("i",{style:{color: "#888",fontWeight: "normal"}}, "("+iwb.fmtFileSize(field.fileSize)+")")) : iwb.emptyField;
-    }
-// if (field.$ === MapInput) return _(field.$,{value:field.value,
-// disabled:true});
-    var options = extraOptions || field.options;
-    if (!options || !options.length) {
-      var value = (field.decimalScale)?Number(field.value).toFixed(field.decimalScale):field.value;
-      if (typeof value == "undefined" || value == "") return iwb.emptyField;
-      return _("b", { className: "form-control" }, value);
-    }
-    var optionsMap = {};
-    options.map(o => {
-      optionsMap[o.id] = o.dsc;
-    });
-    if (field.multi) {
-      var value = [],
-        vs = field.value;
-      if (!Array.isArray(vs)) vs = vs.split(",");
-      vs.map(v => {
-        value.push(optionsMap[v]);
-      });
-      if (!value.length) return iwb.emptyField;
-      return _("b", { className: "form-control" }, value.join(", "));
-    }
-    var value = field.value;
-    if (value.id) value = value.id;
-    value = optionsMap[value];
-    if (value == undefined || value == "") return iwb.emptyField;
+  if (!field || !field.value) return iwb.emptyField;
+  if (field.$ === FileInput) {
+    return field.fileName
+      ? _(
+          "a",
+          {
+            target: "_blank",
+            style: { color: "#2196F3", fontWeight: "bold" },
+            href: "dl/" + field.fileName + "?_fai=" + field.fileId,
+            className: "form-control",
+            disabled: true
+          },
+          field.fileName,
+          " ",
+          field.fileSize &&
+            _(
+              "i",
+              { style: { color: "#888", fontWeight: "normal" } },
+              "(" + iwb.fmtFileSize(field.fileSize) + ")"
+            )
+        )
+      : iwb.emptyField;
+  }
+  // if (field.$ === MapInput) return _(field.$,{value:field.value,
+  // disabled:true});
+  var options = extraOptions || field.options;
+  if (!options || !options.length) {
+    var value = field.decimalScale
+      ? Number(field.value).toFixed(field.decimalScale)
+      : field.value;
+    if (typeof value == "undefined" || value == "") return iwb.emptyField;
     return _("b", { className: "form-control" }, value);
+  }
+  var optionsMap = {};
+  options.map(o => {
+    optionsMap[o.id] = o.dsc;
+  });
+  if (field.multi) {
+    var value = [],
+      vs = field.value;
+    if (!Array.isArray(vs)) vs = vs.split(",");
+    vs.map(v => {
+      value.push(optionsMap[v]);
+    });
+    if (!value.length) return iwb.emptyField;
+    return _("b", { className: "form-control" }, value.join(", "));
+  }
+  var value = field.value;
+  if (value.id) value = value.id;
+  value = optionsMap[value];
+  if (value == undefined || value == "") return iwb.emptyField;
+  return _("b", { className: "form-control" }, value);
 };
 
 iwb.openForm = function(url) {
@@ -391,7 +435,7 @@ class XTabForm extends React.PureComponent {
             url += cfg.url.substring("ajaxPostForm".length);
           }
           // var url =
-			// 'showForm?_renderer=react16&a=1&_fid='+props.crudFormId+pkz;
+          // 'showForm?_renderer=react16&a=1&_fid='+props.crudFormId+pkz;
 
           toastr.success(
             "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
@@ -410,46 +454,56 @@ class XTabForm extends React.PureComponent {
     else alert("this.form not set");
     return false;
   }
-  approvalAction(action){
-  	return (event) => {
-        event && event.preventDefault && event.preventDefault();
-        let { formId, pk } = this.props.cfg;
-        let pkz = "";
-        for (let key in pk) {
-          pkz += "&" + key + "=" + pk[key];
-        }
-        let url = "";
-        switch(action){
-        case	901:// start approval
-      	  url = "ajaxApproveRecord?_aa=901&_arid=" + this.props.cfg.approval.approvalRecordId;
-            yesNoDialog({
-              text: "Are you Sure to Start Approval?",
-              callback: success =>
-                success &&
-                iwb.request({
-                  url,params:{_adsc:'start approval'},
-                  successCallback: () => this.props.parentCt.closeTab(event, success)
-                })
-            });
-            break;
+  approvalAction(action) {
+    return event => {
+      event && event.preventDefault && event.preventDefault();
+      let { formId, pk } = this.props.cfg;
+      let pkz = "";
+      for (let key in pk) {
+        pkz += "&" + key + "=" + pk[key];
+      }
+      let url = "";
+      switch (action) {
+        case 901: // start approval
+          url =
+            "ajaxApproveRecord?_aa=901&_arid=" +
+            this.props.cfg.approval.approvalRecordId;
+          yesNoDialog({
+            text: "Are you Sure to Start Approval?",
+            callback: success =>
+              success &&
+              iwb.request({
+                url,
+                params: { _adsc: "start approval" },
+                successCallback: () =>
+                  this.props.parentCt.closeTab(event, success)
+              })
+          });
+          break;
         default:
-      	  var p = prompt("Please enter comment", ["","Approve","Return","Reject"][action]);
-        	  if(p){
-	              url = "ajaxApproveRecord?_aa="+action+"&_arid=" + this.props.cfg.approval.approvalRecordId;
-                iwb.request({
-	                    url,params:{_adsc:p,_avno:this.props.cfg.approval.versionNo},
-	                    successCallback: () => this.props.parentCt.closeTab(event, true)
-	                    
-                });
-        	  }
-        break;
-        }
-
-      };
-    }
+          var p = prompt(
+            "Please enter comment",
+            ["", "Approve", "Return", "Reject"][action]
+          );
+          if (p) {
+            url =
+              "ajaxApproveRecord?_aa=" +
+              action +
+              "&_arid=" +
+              this.props.cfg.approval.approvalRecordId;
+            iwb.request({
+              url,
+              params: { _adsc: p, _avno: this.props.cfg.approval.versionNo },
+              successCallback: () => this.props.parentCt.closeTab(event, true)
+            });
+          }
+          break;
+      }
+    };
+  }
   render() {
     if (iwb.debugRender) console.log("XTabForm.render", this.props);
-// console.log('this.props.cfg', this.props.cfg);
+    // console.log('this.props.cfg', this.props.cfg);
     var cfg = this.props.cfg;
     var formBody = _(this.props.body, {
       parentCt: this,
@@ -469,7 +523,8 @@ class XTabForm extends React.PureComponent {
         _(
           "h3",
           { className: "form-header" },
-          /* _("i",{className:"icon-star form-icon"})," ", */ this.props.cfg.name,
+          /* _("i",{className:"icon-star form-icon"})," ", */ this.props.cfg
+            .name,
           " ",
           this.state.viewMode &&
             _(
@@ -513,94 +568,166 @@ class XTabForm extends React.PureComponent {
             Button,
             { className: "float-right btn-round-shadow mr-1", color: "light" },
             _("i", { className: "icon-paper-clip" })
-          )
-          , _('br'),
+          ),
+          _("br"),
           this.props.cfg.approval &&
-          _(
-            'div',
-            {style:{fontSize:"1rem", marginTop:5}
-            },
-            _("i", { className: "icon-shuffle" }),
-// " step ",
-            _("span",null," " + this.props.cfg.approval.dsc + (this.props.cfg.approval.stepDsc ? " > " + this.props.cfg.approval.stepDsc:''))
-            ,"    "
-            , this.props.cfg.approval.status>997 && this.props.cfg.approval.status<1000 && _("span",{className:"badge badge-pill badge-"+iwb.approvalColorMap[this.props.cfg.approval.status]},
-            		this.props.cfg.approval.status==998?"approved":"rejected")
-          ),
-          this.props.cfg.approval && this.props.cfg.approval.wait4start &&
-          _(
-            Button,
-            {
-              color: "success",
-              className: "btn-form-edit",
-              onClick: approvalAction(901)
-            },
-            _("i", { className: "icon-support" }),
-            " ",
-            getLocMsg('start_approval')
-          ),
-          this.props.cfg.approval && this.props.cfg.approval.versionNo &&
-          _(
-            Button,
-            {
-              color: "primary",
-              className: "btn-form-edit",
-              onClick: approvalAction(1) // approve
-            },
-            getLocMsg('approve')
-          ),
-          " "
-          ,this.props.cfg.approval && this.props.cfg.approval.returnFlag &&
-          _(
-            Button,
-            {
-              color: "warning",
-              className: "btn-form-edit",
-              onClick: approvalAction(2) // return
-            },
-            getLocMsg('return')
-          ),
-          " "
-          ,this.props.cfg.approval && this.props.cfg.approval.versionNo &&
-          _(
-            Button,
-            {
-              color: "danger",
-              className: "btn-form-edit",
-              onClick: approvalAction(3) // reject
-            },
-            getLocMsg('reject')
-          ),
-          " "
-          ,this.props.cfg.approval && this.props.cfg.approval.approvalRecordId &&
-          _(
-            Button,
-            {
-              color: "light",
-              className: "btn-form-edit",
-              onClick: iwb.approvalLogs(this.props.cfg.approval.approvalRecordId) // reject
-            },
-            getLocMsg('logs')
-          )
+            _(
+              "div",
+              {
+                style: { fontSize: "1rem", marginTop: 5 }
+              },
+              _("i", { className: "icon-shuffle" }),
+              // " step ",
+              _(
+                "span",
+                null,
+                " " +
+                  this.props.cfg.approval.dsc +
+                  (this.props.cfg.approval.stepDsc
+                    ? " > " + this.props.cfg.approval.stepDsc
+                    : "")
+              ),
+              "    ",
+              this.props.cfg.approval.status > 997 &&
+                this.props.cfg.approval.status < 1000 &&
+                _(
+                  "span",
+                  {
+                    className:
+                      "badge badge-pill badge-" +
+                      iwb.approvalColorMap[this.props.cfg.approval.status]
+                  },
+                  this.props.cfg.approval.status == 998
+                    ? "approved"
+                    : "rejected"
+                )
+            ),
+          this.props.cfg.approval &&
+            this.props.cfg.approval.wait4start &&
+            _(
+              Button,
+              {
+                color: "success",
+                className: "btn-form-edit",
+                onClick: approvalAction(901)
+              },
+              _("i", { className: "icon-support" }),
+              " ",
+              getLocMsg("start_approval")
+            ),
+          this.props.cfg.approval &&
+            this.props.cfg.approval.versionNo &&
+            _(
+              Button,
+              {
+                color: "primary",
+                className: "btn-form-edit",
+                onClick: approvalAction(1) // approve
+              },
+              getLocMsg("approve")
+            ),
+          " ",
+          this.props.cfg.approval &&
+            this.props.cfg.approval.returnFlag &&
+            _(
+              Button,
+              {
+                color: "warning",
+                className: "btn-form-edit",
+                onClick: approvalAction(2) // return
+              },
+              getLocMsg("return")
+            ),
+          " ",
+          this.props.cfg.approval &&
+            this.props.cfg.approval.versionNo &&
+            _(
+              Button,
+              {
+                color: "danger",
+                className: "btn-form-edit",
+                onClick: approvalAction(3) // reject
+              },
+              getLocMsg("reject")
+            ),
+          " ",
+          this.props.cfg.approval &&
+            this.props.cfg.approval.approvalRecordId &&
+            _(
+              Button,
+              {
+                color: "light",
+                className: "btn-form-edit",
+                onClick: iwb.approvalLogs(
+                  this.props.cfg.approval.approvalRecordId
+                ) // reject
+              },
+              getLocMsg("logs")
+            )
         ),
-        this.props.cfg.msgs && this.props.cfg.msgs.length && _("div",{style:{color:"#838383"}},this.props.cfg.msgs.map(qq=>_("div",null,
+        this.props.cfg.msgs &&
+          this.props.cfg.msgs.length &&
+          _(
+            "div",
+            { style: { color: "#838383" } },
+            this.props.cfg.msgs.map(qq =>
+              _(
+                "div",
+                null,
                 _("i", { className: "icon-flag" }),
-             // " step ",
-                         _("span",null," " + qq)
-        ))), 
+                // " step ",
+                _("span", null, " " + qq)
+              )
+            )
+          ),
         _("hr"),
         formBody
       ),
-      cfg.conversionCnt && _(CardBlock,{}
-	  	  ,_('div',{className:'hr-text'},_('h6',null,'Conversions'))
-	      ,_(Row,null,cfg.conversionForms.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', checked:!!ox.checked, style:{width:40}}),ox.text)})
-	  )),
-      cfg.smsMailTemplateCnt && _(CardBlock,{}
-  	    ,_('div',{className:'hr-text'},_('h6',null,'SMS/EMail'))
-      	,_(Row,null,
-    		  cfg.smsMailTemplates.map((ox,i)=> {return _("div",{className:'col',key:i},_('input',{type:'checkbox', checked:!!ox.checked, style:{width:40}}),ox.text)})
-      )),
-      
+      cfg.conversionCnt &&
+        _(
+          CardBlock,
+          {},
+          _("div", { className: "hr-text" }, _("h6", null, "Conversions")),
+          _(
+            Row,
+            null,
+            cfg.conversionForms.map((ox, i) => {
+              return _(
+                "div",
+                { className: "col", key: i },
+                _("input", {
+                  type: "checkbox",
+                  checked: !!ox.checked,
+                  style: { width: 40 }
+                }),
+                ox.text
+              );
+            })
+          )
+        ),
+      cfg.smsMailTemplateCnt &&
+        _(
+          CardBlock,
+          {},
+          _("div", { className: "hr-text" }, _("h6", null, "SMS/EMail")),
+          _(
+            Row,
+            null,
+            cfg.smsMailTemplates.map((ox, i) => {
+              return _(
+                "div",
+                { className: "col", key: i },
+                _("input", {
+                  type: "checkbox",
+                  checked: !!ox.checked,
+                  style: { width: 40 }
+                }),
+                ox.text
+              );
+            })
+          )
+        ),
+
       !this.state.viewMode &&
         _(
           CardFooter,
@@ -878,7 +1005,7 @@ class XGridRowAction extends React.PureComponent {
       Dropdown,
       { isOpen: this.state.isOpen, toggle: this.toggle },
       // ,_('i',{className:'icon-options-vertical column-action',
-		// onClick:qqq.toggleGridAction})
+      // onClick:qqq.toggleGridAction})
       _(DropdownToggle, {
         tag: "i",
         className: "icon-options-vertical column-action"
@@ -888,7 +1015,7 @@ class XGridRowAction extends React.PureComponent {
           DropdownMenu,
           { className: this.state.isOpen ? "show" : "" },
           // ,_('div',{style:{padding: "7px 13px",background: "gray", color:
-			// "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
+          // "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
           _(
             DropdownItem,
             { ur: "123", onClick: false },
@@ -918,7 +1045,7 @@ class XGridRowAction extends React.PureComponent {
             "Sil"
           )
           // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
-			// marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
+          // marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
         )
     );
   }
@@ -939,7 +1066,7 @@ class XGridAction extends React.PureComponent {
       Dropdown,
       { isOpen: this.state.isOpen, toggle: this.toggle },
       // ,_('i',{className:'icon-options-vertical column-action',
-		// onClick:qqq.toggleGridAction})
+      // onClick:qqq.toggleGridAction})
       _(
         DropdownToggle,
         {
@@ -958,7 +1085,7 @@ class XGridAction extends React.PureComponent {
           DropdownMenu,
           { className: this.state.isOpen ? "show" : "" },
           // ,_('div',{style:{padding: "7px 13px",background: "gray", color:
-			// "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
+          // "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
           _(
             DropdownItem,
             { ur: "123", onClick: false },
@@ -989,7 +1116,7 @@ class XGridAction extends React.PureComponent {
             "Raporlar/BI"
           )
           // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
-			// marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
+          // marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
         )
     );
   }
@@ -997,8 +1124,10 @@ class XGridAction extends React.PureComponent {
 
 iwb.detailPageSize = 10;
 iwb.grids = {};
-var _dxgrb = window.DevExpress?DevExpress.DXReactGridBootstrap4:DXReactGridBootstrap4,
-  _dxrg = window.DevExpress?DevExpress.DXReactGrid:DXReactGrid; 
+var _dxgrb = window.DevExpress
+    ? DevExpress.DXReactGridBootstrap4
+    : DXReactGridBootstrap4,
+  _dxrg = window.DevExpress ? DevExpress.DXReactGrid : DXReactGrid;
 class XGrid extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -1010,8 +1139,8 @@ class XGrid extends React.PureComponent {
       iwb.gridActionColumn
     ) {
       // columns.push({name:'_qw_',title:'.',getCellValue:function(r){return
-		// _('i',{className:'icon-options-vertical
-		// column-action'})}});//this.toggleGridAction
+      // _('i',{className:'icon-options-vertical
+      // column-action'})}});//this.toggleGridAction
       columns.push({
         name: "_qw_",
         title: ".",
@@ -1401,7 +1530,7 @@ const Command = ({ id, onExecute }) => {
 
 iwb.prepareParams4grid = function(grid, prefix, values) {
   // sadece master-insert durumunda cagir. farki _postMap ve hic bir zaman
-	// _insertedItems,_deletedItems dikkate almamasi
+  // _insertedItems,_deletedItems dikkate almamasi
   var dirtyCount = 0;
   var params = {};
   var items = values.deleted;
@@ -1649,7 +1778,7 @@ class XEditGrid extends React.PureComponent {
     if (props.parentCt && props.parentCt.egrids)
       props.parentCt.egrids[props.gridId] = this;
     // this.SimpleEditCell = (props) => {console.log('SimpleEditCell',
-	// props);return _(_dxgrb.TableEditRow.Cell, props);}
+    // props);return _(_dxgrb.TableEditRow.Cell, props);}
   }
   componentDidMount() {
     if (!this.dontRefresh) this.loadData();
@@ -1695,7 +1824,7 @@ class XEditGrid extends React.PureComponent {
       case 9:
       case 10: // combos
         editor.value = xprops.row._new[xprops.column.name]; // TODO. ilk edit
-															// ettigini aliyor
+        // ettigini aliyor
         editor.onChange = function(o) {
           xprops.row._new[xprops.column.name] = o.id;
           xprops.onValueChange(o.id);
@@ -1828,7 +1957,7 @@ class XEditGrid extends React.PureComponent {
         }),
       _(_dxgrb.DragDropProvider, null),
       _(_dxgrb.Table, { columnExtensions: tableColumnExtensions }), // ,cellComponent:
-																	// Cell
+      // Cell
       _(_dxgrb.TableColumnReordering, {
         order: columnOrder,
         onOrderChange: this.onColumnOrderChange
@@ -1992,11 +2121,11 @@ class XMainGrid extends React.PureComponent {
 
               // ,_('div',{style:{height:10}}),_('div',{className:'hr-text'},_('h6',null,'Şablonlar'))
               // ,_(Link,{style:{padding:2},to:''},_('i',{className:'icon-star'}),'
-				// ',' Yıllık Faturalar') //TODO
+              // ',' Yıllık Faturalar') //TODO
               // ,_(Link,{style:{padding:'2px'},to:''},_('i',{className:'icon-star'}),'
-				// ',' Ankara')
+              // ',' Ankara')
               // ,_(Link,{style:{padding:2,color:'#a0a0a0'},to:''},_('i',{className:'icon-plus'}),'
-				// ',' Yeni Şablon Ekle')
+              // ',' Yeni Şablon Ekle')
               _("div", { style: { height: 20 } })
             ]
           : null,
@@ -2059,7 +2188,7 @@ class XMainGrid extends React.PureComponent {
         for (var qi = 0; qi < dgs.length; qi++)
           if (dgs.length == 1 || xxx.state["dg-" + dgs[qi].grid.gridId]) {
             var g2 = Object.assign({ pk: dgs[qi].pk || {} }, dgs[qi].grid); // buildParams2(obj.detailGrids[i].params,
-																			// sel);
+            // sel);
             if (g2._url) g2._url += buildParams2(dgs[qi].params, row.row);
             else g2.rows = row.row[g2.detailRowsFieldName];
             g2.detailFlag = true;
@@ -2099,9 +2228,9 @@ class XMainGrid extends React.PureComponent {
                       g2.name
                     )
                     // ,_('span',{className: "float-right",
-					// style:{marginTop:'-23px', marginRight:'15px'}},_('i',{
-					// className: "icon-arrow-up", style:{marginRight:
-					// '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
+                    // style:{marginTop:'-23px', marginRight:'15px'}},_('i',{
+                    // className: "icon-arrow-up", style:{marginRight:
+                    // '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
                   ),
                   _(
                     XGrid,
@@ -2203,7 +2332,7 @@ class XMainGrid extends React.PureComponent {
     }
     this.setState({ loading: true });
     // var params= Object.assign({},params||{},this.props.searchForm ?
-	// iwb.getFormValues(document.getElementById('fsf-'+this.props.id)):{});
+    // iwb.getFormValues(document.getElementById('fsf-'+this.props.id)):{});
     var params = Object.assign(
       {},
       params || {},
@@ -2559,10 +2688,10 @@ class XMainGrid extends React.PureComponent {
               )
             : null,
           // ,_(Button,{className:'float-right btn-round-shadow
-			// hover-shake',color:'danger',
-			// onClick:this.toggleSearch},_('i',{style:{transition: "transform
-			// .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':'
-			// rotate-90deg')}))
+          // hover-shake',color:'danger',
+          // onClick:this.toggleSearch},_('i',{style:{transition: "transform
+          // .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':'
+          // rotate-90deg')}))
           _(
             Button,
             {
@@ -2573,10 +2702,10 @@ class XMainGrid extends React.PureComponent {
             _("i", { className: "icon-equalizer" })
           )
           // , this.props.globalSearch && _(Input,{type:"text",
-			// className:"float-right form-control w-25",
-			// onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...",
-			// defaultValue:"", style:{marginTop: '-0.355rem',
-			// marginRight:'.4rem'}})
+          // className:"float-right form-control w-25",
+          // onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...",
+          // defaultValue:"", style:{marginTop: '-0.355rem',
+          // marginRight:'.4rem'}})
         ),
         g
       )
@@ -2647,7 +2776,7 @@ class XPage extends React.Component {
         for (var qi = 0; qi < dgs.length; qi++)
           if (self.state["dg-" + dgs[qi].grid.gridId]) {
             var g2 = Object.assign({ pk: dgs[qi].pk || {} }, dgs[qi].grid); // buildParams2(obj.detailGrids[i].params,
-																			// sel);
+            // sel);
             g2._url += buildParams2(dgs[qi].params, row.row);
             g2.detailFlag = true;
             r.push(
@@ -2677,9 +2806,9 @@ class XPage extends React.Component {
                       g2.name
                     )
                     // ,_('span',{className: "float-right",
-					// style:{marginTop:'-23px', marginRight:'15px'}},_('i',{
-					// className: "icon-arrow-up", style:{marginRight:
-					// '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
+                    // style:{marginTop:'-23px', marginRight:'15px'}},_('i',{
+                    // className: "icon-arrow-up", style:{marginRight:
+                    // '12px'}}),' ',_('i',{ className: "icon-close"}),' ')
                   ),
                   _(
                     XGrid,
@@ -2715,7 +2844,7 @@ class XPage extends React.Component {
       fetch(url, {
         body: JSON.stringify(params || {}), // must match 'Content-Type' header
         cache: "no-cache", // *default, no-cache, reload, force-cache,
-							// only-if-cached
+        // only-if-cached
         credentials: "same-origin", // include, same-origin, *omit
         headers: {
           "content-type": "application/json"
@@ -2727,7 +2856,7 @@ class XPage extends React.Component {
       })
         .then(response => {
           // status "0" to handle local files fetching (e.g. Cordova/Phonegap
-			// etc.)
+          // etc.)
           if (response.status === 200 || response.status === 0) {
             return response.text();
           } else {
@@ -3102,9 +3231,9 @@ class XMainPanel extends React.PureComponent {
     if (!iwb["t-" + t]) {
       fetch("showPage?_tid=" + t, {
         // body: JSON.stringify(cfg.params||{}), // must match 'Content-Type'
-		// header
+        // header
         cache: "no-cache", // *default, no-cache, reload, force-cache,
-							// only-if-cached
+        // only-if-cached
         credentials: "same-origin", // include, same-origin, *omit
         headers: { "content-type": "application/json" },
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -3114,7 +3243,7 @@ class XMainPanel extends React.PureComponent {
       })
         .then(response => {
           // status "0" to handle local files fetching (e.g. Cordova/Phonegap
-			// etc.)
+          // etc.)
           if (response.status === 200 || response.status === 0) {
             return response.text();
           } else {
@@ -3226,7 +3355,6 @@ class XLoading extends React.Component {
   }
 }
 
-
 iwb.requestErrorHandler = function(obj) {
   if (obj.errorType) {
     switch (obj.errorType) {
@@ -3237,14 +3365,14 @@ iwb.requestErrorHandler = function(obj) {
         // alert('ERROR Validation: ' + obj.errors.join('\n'));
         break;
       default:
-    	top.ajaxErrorHandler(obj);
+        top.ajaxErrorHandler(obj);
       // alert('ERROR['+obj.errorType+'] '+(obj.errorMsg || 'Bilinmeyen
-		// ERROR'));
+      // ERROR'));
     }
   } else {
     // toastr.error(obj.errorMsg || "Unknown ERROR", "Request Error");
     // alert(obj.errorMsg || 'Bilinmeyen ERROR');
-	  top.ajaxErrorHandler(obj);
+    top.ajaxErrorHandler(obj);
   }
 };
 var ajaxErrorHandler = iwb.requestErrorHandler;
@@ -3261,7 +3389,7 @@ iwb.request = function(cfg) {
   fetch(cfg.url, {
     body: JSON.stringify(cfg.params || {}), // must match 'Content-Type' header
     cache: "no-cache", // *default, no-cache, reload, force-cache,
-						// only-if-cached
+    // only-if-cached
     credentials: "same-origin", // include, same-origin, *omit
     headers: {
       "content-type": "application/json"
@@ -3273,7 +3401,7 @@ iwb.request = function(cfg) {
   })
     .then(function(response) {
       // status "0" to handle local files fetching (e.g. Cordova/Phonegap
-		// etc.)
+      // etc.)
       if (response.status === 200 || response.status === 0) {
         return response.json();
       } else {
@@ -3366,33 +3494,33 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
   cancelOnDelay = typeof cancelOnDelay === "boolean" ? cancelOnDelay : true;
 
   /**
-	 * @property {Number} id The id of the currently pending invocation. Will be
-	 *           set to `null` if there is no invocation pending.
-	 */
+   * @property {Number} id The id of the currently pending invocation. Will be
+   *           set to `null` if there is no invocation pending.
+   */
   me.id = null;
 
   /**
-	 * @method delay By default, cancels any pending timeout and queues a new
-	 *         one.
-	 * 
-	 * If the `cancelOnDelay` parameter was specified as `false` in the
-	 * constructor, this does not cancel and reschedule, but just updates the
-	 * call settings, `newDelay`, `newFn`, `newScope` or `newArgs`, whichever
-	 * are passed.
-	 * 
-	 * @param {Number}
-	 *            newDelay The milliseconds to delay. `-1` means schedule for
-	 *            the next animation frame if supported.
-	 * @param {Function}
-	 *            [newFn] Overrides function passed to constructor
-	 * @param {Object}
-	 *            [newScope] Overrides scope passed to constructor. Remember
-	 *            that if no scope is specified, `this` will refer to the
-	 *            browser window.
-	 * @param {Array}
-	 *            [newArgs] Overrides args passed to constructor
-	 * @return {Number} The timer id being used.
-	 */
+   * @method delay By default, cancels any pending timeout and queues a new
+   *         one.
+   *
+   * If the `cancelOnDelay` parameter was specified as `false` in the
+   * constructor, this does not cancel and reschedule, but just updates the
+   * call settings, `newDelay`, `newFn`, `newScope` or `newArgs`, whichever
+   * are passed.
+   *
+   * @param {Number}
+   *            newDelay The milliseconds to delay. `-1` means schedule for
+   *            the next animation frame if supported.
+   * @param {Function}
+   *            [newFn] Overrides function passed to constructor
+   * @param {Object}
+   *            [newScope] Overrides scope passed to constructor. Remember
+   *            that if no scope is specified, `this` will refer to the
+   *            browser window.
+   * @param {Array}
+   *            [newArgs] Overrides args passed to constructor
+   * @return {Number} The timer id being used.
+   */
   me.delay = function(newDelay, newFn, newScope, newArgs) {
     if (cancelOnDelay) {
       me.cancel();
@@ -3426,8 +3554,8 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
   };
 
   /**
-	 * Cancel the last queued timeout
-	 */
+   * Cancel the last queued timeout
+   */
   me.cancel = function() {
     if (me.id) {
       if (me.delayTime === -1) {
@@ -3455,8 +3583,8 @@ iwb.DelayedTask = function(fn, scope, args, cancelOnDelay, fireIdleEvent) {
   };
 
   /**
-	 * @private Cancel the timeout if it was set for the specified fn and scope.
-	 */
+   * @private Cancel the timeout if it was set for the specified fn and scope.
+   */
   me.stop = function(stopFn, stopScope) {
     // This kludginess is here because Classic components use shared focus task
     // and we need to be sure the task's current timeout was set for that
@@ -3471,11 +3599,11 @@ class XForm extends React.Component {
     super(props);
     // methods
     /**
-	 * sets the state with value of input
-	 * 
-	 * @param {event}
-	 *            param0
-	 */
+     * sets the state with value of input
+     *
+     * @param {event}
+     *            param0
+     */
     this.onChange = ({ target }) => {
       var { values } = this.state;
       if (target) {
@@ -3486,28 +3614,28 @@ class XForm extends React.Component {
     };
 
     /**
-	 * file upload function
-	 */
+     * file upload function
+     */
     this.onFileChange = () => (name, result, context) => {
       var values = this.state.values;
       var errors = this.state.errors;
       if (result.success) {
-        values[name] = result.fileId
+        values[name] = result.fileId;
         errors[name] = undefined;
       } else {
-        errors[name] = result.error
+        errors[name] = result.error;
       }
       this.setState({
         errors,
         values
-      })
-    }
+      });
+    };
     /**
-	 * sets state for combo change else sets oprions of it after the request
-	 * 
-	 * @param {String}
-	 *            inputName
-	 */
+     * sets state for combo change else sets oprions of it after the request
+     *
+     * @param {String}
+     *            inputName
+     */
     this.onComboChange = inputName => {
       var self = this;
       return selectedOption => {
@@ -3539,11 +3667,11 @@ class XForm extends React.Component {
       };
     };
     /**
-	 * sets state when low combo is entered
-	 * 
-	 * @param {String}
-	 *            inputName
-	 */
+     * sets state when low combo is entered
+     *
+     * @param {String}
+     *            inputName
+     */
     this.onLovComboChange = inputName => {
       var self = this;
       return selectedOptions => {
@@ -3559,11 +3687,11 @@ class XForm extends React.Component {
       };
     };
     /**
-	 * sets state when number entered
-	 * 
-	 * @param {String}
-	 *            dsc
-	 */
+     * sets state when number entered
+     *
+     * @param {String}
+     *            dsc
+     */
     this.onNumberChange = inputName => {
       var self = this;
       return inputEvent => {
@@ -3574,18 +3702,18 @@ class XForm extends React.Component {
       };
     };
     /**
-	 * sends post to the server
-	 * 
-	 * @param {Object}
-	 *            cfg
-	 */
+     * sends post to the server
+     *
+     * @param {Object}
+     *            cfg
+     */
     this.submit = cfg => {
       var values = { ...this.state.values };
       if (this.componentWillPost) {
         /**
-		 * componentWillPostResult = true || fase || {field_name : 'custom
-		 * value'}
-		 */
+         * componentWillPostResult = true || fase || {field_name : 'custom
+         * value'}
+         */
         var componentWillPostResult = this.componentWillPost(values, cfg || {});
         if (!componentWillPostResult) return false;
         values = { ...values, ...componentWillPostResult };
@@ -3595,7 +3723,9 @@ class XForm extends React.Component {
           this.url +
           "?" +
           iwb.JSON2URI(this.params) +
-          "_renderer=react16&.w="+_webPageId+"&.r=" +
+          "_renderer=react16&.w=" +
+          _webPageId +
+          "&.r=" +
           Math.random(),
         params: values,
         self: this,
@@ -3624,7 +3754,7 @@ class XForm extends React.Component {
                 top.ajaxErrorHandler(json);
             }
           else {
-              top.ajaxErrorHandler(json);
+            top.ajaxErrorHandler(json);
           }
           this.setState({ errors });
           return false;
@@ -3635,30 +3765,30 @@ class XForm extends React.Component {
       });
     };
     /**
-	 * used to make form active tab and visible on the page
-	 * 
-	 * @param {object}
-	 *            tab
-	 */
+     * used to make form active tab and visible on the page
+     *
+     * @param {object}
+     *            tab
+     */
     this.toggleTab = tab => {
       if (this.state.activeTab !== tab) {
         this.setState({ activeTab: tab });
       }
     };
     /**
-	 * returns form data from state
-	 */
+     * returns form data from state
+     */
     this.getValues = () => {
       return { ...this.state.values };
     };
     /**
-	 * used for date inputs
-	 * 
-	 * @param {String}
-	 *            inputName
-	 * @param {Boolean}
-	 *            isItDTTM
-	 */
+     * used for date inputs
+     *
+     * @param {String}
+     *            inputName
+     * @param {Boolean}
+     *            isItDTTM
+     */
     this.onDateChange = (inputName, isItDTTM) => {
       var self = this;
       return selectedDate => {
@@ -3833,527 +3963,661 @@ iwb.ui.buildDashboard = function(o) {
   });
 };
 
-iwb.ajax={}
-iwb.ajax.query=function(qid,params,callback){
-	iwb.request({url:'ajaxQueryData?_qid='+qid,params:params||{},successCallback:callback||false})
-}
-iwb.ajax.postForm=function(fid,action,params,callback){
-	iwb.request({url:'ajaxPostForm?_fid='+fid+'&a='+action,params:params||{},successCallback:callback||false})
-}
-iwb.ajax.execFunc=function(did,params,callback){
-	iwb.request({url:'ajaxExecDbFunc?_did='+did,params:params||{},successCallback:callback||false})
-}
+iwb.ajax = {};
+iwb.ajax.query = function(qid, params, callback) {
+  iwb.request({
+    url: "ajaxQueryData?_qid=" + qid,
+    params: params || {},
+    successCallback: callback || false
+  });
+};
+iwb.ajax.postForm = function(fid, action, params, callback) {
+  iwb.request({
+    url: "ajaxPostForm?_fid=" + fid + "&a=" + action,
+    params: params || {},
+    successCallback: callback || false
+  });
+};
+iwb.ajax.execFunc = function(did, params, callback) {
+  iwb.request({
+    url: "ajaxExecDbFunc?_did=" + did,
+    params: params || {},
+    successCallback: callback || false
+  });
+};
 function fieldFileAttachment(row, cell) {
   return row[cell] && 1 * row[cell]
-    ? _("a", { href:"dl/"+row[cell+"_qw_"]+"?_fai="+row[cell],target:"_blank"}, row[cell+"_qw_"])
+    ? _(
+        "a",
+        {
+          href: "dl/" + row[cell + "_qw_"] + "?_fai=" + row[cell],
+          target: "_blank"
+        },
+        row[cell + "_qw_"]
+      )
     : null;
 }
 
 class FileInput extends React.Component {
-	  constructor(props) {
-	    super(props)
-	    this.state = {
-	      canUpload: false,
-	      dragOver: false,
-	      file: null,
-	      fileUrl: props.fileId ? 'dl/' + props.fileName + '?_fai=' + props.fileId + '&.r=' + Math.random() : null,
-	      fileName: props.fileName || null,
-	    };
-	    this.onDrop = this.onDrop.bind(this);
-	    this.dragenter = this.dragenter.bind(this);
-	    this.dragleave = this.dragleave.bind(this);
-	    this.dragover = this.dragover.bind(this);
-	    this.onclick = this.onclick.bind(this);
-	    this.onchange = this.onchange.bind(this);
-	    this.uplaodFile = this.uplaodFile.bind(this);
-	    /** */
-	    this.downladLink = (url) => (e) => {
-	      e.preventDefault()
-	      e.stopPropagation()
+  constructor(props) {
+    super(props);
+    this.state = {
+      canUpload: false,
+      dragOver: false,
+      file: null,
+      fileUrl: props.fileId
+        ? "dl/" +
+          props.fileName +
+          "?_fai=" +
+          props.fileId +
+          "&.r=" +
+          Math.random()
+        : null,
+      fileName: props.fileName || null
+    };
+    this.onDrop = this.onDrop.bind(this);
+    this.dragenter = this.dragenter.bind(this);
+    this.dragleave = this.dragleave.bind(this);
+    this.dragover = this.dragover.bind(this);
+    this.onclick = this.onclick.bind(this);
+    this.onchange = this.onchange.bind(this);
+    this.uplaodFile = this.uplaodFile.bind(this);
+    /** */
+    this.downladLink = url => e => {
+      e.preventDefault();
+      e.stopPropagation();
 
-	      let link = document.createElement('a');
-	      link.href = url;
-	      document.body.appendChild(link);
-	      link.click();
-	      document.body.removeChild(link);
-	    }
-	  }
-	  componentWillMount() {
-	  }
-	  /** function to click input ref click */
-	  onclick(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.inpuRef.click();
-	  }
-	  /** used to disable opening file on new tab */
-	  dragover(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	  }
-	  /** used with css */
-	  dragleave(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.setState({
-	      dragOver: false
-	    });
-	  }
-	  /** when the file over drag area */
-	  dragenter(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.setState({
-	      dragOver: true
-	    });
-	  }
-	  /** when the file dproped over drop area */
-	  onDrop(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.setState({
-	      canUpload: true,
-	      dragOver: false,
-	      file: event.dataTransfer.files[0]
-	    }, () => {
-	      this.uplaodFile()
-	    })
-	  }
-	  /** when the file dproped over drop area */
-	  onchange(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.setState({
-	      canUpload: true,
-	      dragOver: false,
-	      file: event.target.files[0]
-	    }, () => {
-	      this.uplaodFile();
-	    })
-	  }
-	  /** uploader function */
-	  uplaodFile() {
-	    if (!this.state.file) {
-	      return;
-	    }
-	    let formData = new FormData()
-	    formData.append('table_pk', this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))
-	    formData.append('table_id', this.props.cfg.crudTableId)
-	    formData.append('file', this.state.file)
-	    formData.append('profilePictureFlag', this.props.profilePictureFlag || 0)
-	    fetch('upload.form', {
-	        method: 'POST',
-	        body: formData,
-	        cache: 'no-cache',
-	        credentials: 'same-origin',
-	        mode: 'cors',
-	        redirect: 'follow',
-	        referrer: 'no-referrer'
-	      })
-	      .then(response => response.status === 200 || response.status === 0 ? response.json() : Promise.reject(new Error(response.text() || response.statusText)))
-	      .then(
-	        result => {
-	          if (result.success) {
-	            toastr.success(getLocMsg('file_sucessfully_uploaded!'), getLocMsg('Success'), {
-	              timeOut: 3000
-	            });
-	            this.setState({
-	              canUpload: false,
-	              file: null,
-	              fileName: result.fileName,
-	              fileUrl: result.fileUrl,
-	            }, )
-	          } else {
-	            if (result.error) {
-	              toastr.error(result.error, result.errorType);
-	            }
-	          }
-	          this.props.onFileChange && this.props.onFileChange(this.props.name, result, this)
-	          return;
-	        },
-	        error => {
-	          toastr.error(error, getLocMsg('Error'));
-	        }
-	      )
-	  }
-	  render() {
-	    let defaultStyle = {
-	      height: '100%',
-	      width: '100%',
-	      position: 'absolute',
-	      top: '0',
-	      left: '0'
-	    }
-	    return _(React.Fragment, {},
-	      _('div', null,
-	        // this.state.file ? getLocMsg(this.state.file.name) :
-			// getLocMsg('File Upload'),
-	        _('input', {
-	          className: 'd-none',
-	          type: 'file',
-	          onChange: this.onchange,
-	          ref: input => this.inpuRef = input
-	        }),
-	        this.props.extraButtons && this.props.extraButtons
-	      ),
-	      _("div", {},
-	        _('div', {
-	            className: 'mx-auto',
-	            style: {
-	              height: '200px',
-	              width: '200px',
-	              position: 'relative',
-	              border: this.state.dragOver ? '3px dashed #20a8d8' : '3px dashed #a4b7c1'
-	            }
-	          },
-	          _('div', {
-	            style: {
-	              ...defaultStyle,
-	              zIndex: '10',
-	              background: 'gray',
-	              cursor: 'pointer',
-	              opacity: this.state.canUpload ? '0' : '0.5',
-	            },
-	            className: 'rounded',
-	            onDrop: this.onDrop,
-	            onDragEnter: this.dragenter,
-	            onDragLeave: this.dragleave,
-	            onDragOver: this.dragover,
-	            onClick: this.onclick
-	          }),
-	          _('div', {
-	              style: {
-	                ...defaultStyle,
-	                display: 'flex'
-	              }
-	            },
-	            _(XPreviewFile, {
-	              file: this.state.file
-	            }))
-	        ),
-	        _('div', {
-	          className: 'clearfix'
-	        }),
-	        _(ListGroup, {},
-	          this.state.fileUrl && _(ListGroupItem, null,
-	            _('a', {
-	              onClick: this.downladLink(this.state.fileUrl),
-	              href: '#'
-	            }, this.state.fileName),
-	          )
-	        )
-	      )
-	    )
-	  }
-	}
-const XPreviewFile = ({
-	  file
-	}) => {
-	  let type = file ? file.type : null;
-	  let style = {
-	    fontSize: '12em'
-	  };
-	  switch (type) {
-	    case 'image/png':
-	      return _('img', {
-	        src: URL.createObjectURL(file),
-	        className: 'img-fluid rounded'
-	      })
-	    case 'text/plain':
-	      return _('i', {
-	        style,
-	        className: 'fas fa-file-alt m-auto'
-	      })
-	    case 'application/pdf':
-	      return _('i', {
-	        style,
-	        className: 'fas fa-file-pdf m-auto'
-	      })
-	    default:
-	      return _('div', {className:'m-auto text-center'},
-	      file ? _('i',{className:'far fa-file',style}) : _('i',{className:'fas fa-upload',style}),
-	        _('br',null),
-	        getLocMsg(file ? 'undefined_type' : 'choose_file_or_drag_it_here')
-	      )
-	  }
-	}
-
-	class XListFiles extends React.Component {
-	  constructor(){
-	    super()
-	    this.state = {
-	      files:[]
-	    }
-	    this.getFileList = this.getFileList.bind(this)
-	    this.deleteItem = this.deleteItem.bind(this)
-	    this.downladLink = this.downladLink.bind(this)
-	  }
-	  /** run query to get data based on pk and id */
-	  getFileList(){
-	    iwb.request({
-	      url:'ajaxQueryData?_qid=61&xtable_id='+this.props.cfg.crudTableId+'&xtable_pk='+ (this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))+'&.r='+Math.random(),
-	      successCallback: ({data}) => {
-	        this.setState({
-	          files:data
-	        })
-	      }
-	    })
-	  }
-	  deleteItem(fileItem) {
-	    return (event) => {
-	      event.preventDefault();
-	      event.stopPropagation();
-	      /** deleteRequest */
-	      iwb.request({
-	        url: 'ajaxPostForm?a=3&_fid=1383&tfile_attachment_id='+fileItem.file_attachment_id,
-	        successCallback: (res) => {
-	          this.setState({
-	            files: this.state.files.filter(file => file.file_attachment_id != fileItem.file_attachment_id)
-	          })
-	        }
-	      })
-	    }
-	  }
-	  /** test */
-	  downladLink(fileItem) {
-	    let url = 'dl/'+fileItem.original_file_name+'?_fai='+fileItem.file_attachment_id+'&.r='+Math.random();
-	    return (event) => {
-	      event.preventDefault();
-	      event.stopPropagation();
-	      const link = document.createElement('a');
-	      link.href = url ;
-	      document.body.appendChild(link);
-	      link.click();
-	      document.body.removeChild(link);
-	    }
-	  }
-	  componentDidMount(){ this.getFileList() }
-	  render() {
-	    return _(
-	      ListGroup, {},
-	      this.state.files.map(fileItem => _(ListGroupItem, null,
-	        _('a', { onClick:this.downladLink(fileItem),href:'#' }, fileItem.original_file_name),
-	        _('i', {
-	          key: fileItem.file_attachment_id,
-	          onClick: this.deleteItem(fileItem),
-	          style:{ cursor: 'pointer' },
-	          className: 'icon-trash float-right text-danger'
-	        })
-	      ))
-	    )
-	  }
-	}
-	class XSingleUploadComponent extends React.Component {
-	  constructor() {
-	    super();
-	    this.state = {
-	      canUpload: false,
-	      dragOver: false,
-	      file: null
-	    };
-	    this.xListFilesRef = React.createRef();
-	    this.onDrop = this.onDrop.bind(this);
-	    this.dragenter = this.dragenter.bind(this);
-	    this.dragleave = this.dragleave.bind(this);
-	    this.dragover = this.dragover.bind(this);
-	    this.onDeleteFile = this.onDeleteFile.bind(this);
-	    this.onclick = this.onclick.bind(this);
-	    this.onchange = this.onchange.bind(this);
-	    this.uplaodFile = this.uplaodFile.bind(this);
-	  }
-	  /** function to click input ref click */
-	  onclick(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.inpuRef.click();
-	  }
-	  /** used to disable opening file on new tab */
-	  dragover(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	  }
-	  /** used with css */
-	  dragleave(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.setState({
-	      dragOver: false
-	    });
-	  }
-	  /** when the file over drag area */
-	  dragenter(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.setState({
-	      dragOver: true
-	    });
-	  }
-	  /** when the file dproped over drop area */
-	  onDrop(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.setState({
-	      canUpload: true,
-	      dragOver: false,
-	      file: event.dataTransfer.files[0]
-	    },()=>{
-	      this.uplaodFile()
-	    })
-	  }
-	  /** when the file dproped over drop area */
-	  onchange(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    this.setState({
-	      canUpload: true,
-	      dragOver: false,
-	      file: event.target.files[0]
-	    },()=>{
-	      this.uplaodFile();
-	    })
-	  }
-	  /** remove file from form state */
-	  onDeleteFile(event) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	    /** will reset to null currently uploaded file */
-	    this.setState({
-	      canUpload: false,
-	      file: null
-	    })
-	  }
-	  /** uploader function */
-	  uplaodFile() {
-	    // event.preventDefault();
-	    // event.stopPropagation();
-	    if (!this.state.file) {
-	      return;
-	    }
-	    let formData = new FormData()
-	    formData.append('table_pk', this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk))
-	    formData.append('table_id', this.props.cfg.crudTableId)
-	    formData.append('file', this.state.file)
-	    formData.append('profilePictureFlag', this.props.profilePictureFlag || 0)
-	    fetch('upload.form', {
-	        method: 'POST',
-	        body: formData,
-	        cache: 'no-cache',
-	        credentials: 'same-origin',
-	        mode: 'cors',
-	        redirect: 'follow',
-	        referrer: 'no-referrer'
-	      })
-	      .then(response => response.status === 200 || response.status === 0 ? response.json() : Promise.reject(new Error(response.text() || response.statusText)))
-	      .then(
-	        result => {
-	          if (result.success) {
-	            toastr.success(getLocMsg('file_sucessfully_uploaded!'), getLocMsg('Success'), {
-	              timeOut: 3000
-	            });
-	            this.xListFilesRef.current.getFileList();
-	            this.setState({
-	              file: null,
-	              canUpload: false
-	            })
-
-	          } else {
-	            if (result.error) {
-	              toastr.error(result.error, result.errorType);
-	            }
-	            return;
-	          }
-	        },
-	        error => {
-	          toastr.error(error, getLocMsg('Error'));
-	        }
-	      )
-	  }
-	  render() {
-	    let defaultStyle = {
-	      height: '100%',
-	      width: '100%',
-	      position: 'absolute',
-	      top: '0',
-	      left: '0'
-	    }
-	    return _(React.Fragment, {},
-	      _(Button, {
-	          id: this.props.cfg.id,
-	          type: 'button',
-	          className: 'float-right btn-round-shadow mr-1',
-	          color: 'light'
-	        },
-	        _('i', {
-	          className: 'icon-paper-clip'
-	        }),this.props.cfg.fileAttachCount ? ' '+this.props.cfg.fileAttachCount:''
-	      ),
-	      _(Reactstrap.UncontrolledPopover, {
-	          trigger: 'legacy',
-	          placement: 'auto',
-	          target: this.props.cfg.id
-	        },
-	        _(PopoverHeader, null,
-	          this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
-	          _('input', {
-	            className: 'd-none',
-	            type: 'file',
-	            onChange: this.onchange,
-	            ref: input => this.inpuRef = input
-	          }),
-	          this.props.extraButtons && this.props.extraButtons
-	        ),
-	        _(PopoverBody,
-	          null,
-	          _('div', {
-	              style: {
-	                height: '200px',
-	                width: '200px',
-	                position: 'relative',
-	                border: this.state.dragOver ? '3px dashed #20a8d8' : '3px dashed #a4b7c1'
-	              }
-	            },
-	            _('div', {
-	              style: {
-	                ...defaultStyle,
-	                zIndex: '10',
-	                background: 'gray',
-	                cursor: 'pointer',
-	                opacity: this.state.canUpload ? '0' : '0.5',
-	              },
-	              className: 'rounded',
-	              onDrop: this.onDrop,
-	              onDragEnter: this.dragenter,
-	              onDragLeave: this.dragleave,
-	              onDragOver: this.dragover,
-	              onClick: this.onclick
-	            }),
-	            _('div', {
-	                style: {
-	                  ...defaultStyle,
-	                  display: 'flex'
-	                }
-	              },
-	              _(XPreviewFile, {
-	                file: this.state.file
-	              }))
-	          ),
-	          _('div', {
-	            className: 'clearfix'
-	          }),
-	          _(XListFiles,{cfg: this.props.cfg, ref: this.xListFilesRef})
-	        )
-	      )
-	    )
-	  }
-	}
-function json2pk(j) {
-    for (var key in j)
-        if (key != "customizationId" && key != "projectId")
-            return j[key];
-    alert('Error: PK not found');
-    return false;
+      let link = document.createElement("a");
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+  }
+  componentWillMount() {}
+  /** function to click input ref click */
+  onclick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.inpuRef.click();
+  }
+  /** used to disable opening file on new tab */
+  dragover(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  /** used with css */
+  dragleave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      dragOver: false
+    });
+  }
+  /** when the file over drag area */
+  dragenter(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      dragOver: true
+    });
+  }
+  /** when the file dproped over drop area */
+  onDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState(
+      {
+        canUpload: true,
+        dragOver: false,
+        file: event.dataTransfer.files[0]
+      },
+      () => {
+        this.uplaodFile();
+      }
+    );
+  }
+  /** when the file dproped over drop area */
+  onchange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState(
+      {
+        canUpload: true,
+        dragOver: false,
+        file: event.target.files[0]
+      },
+      () => {
+        this.uplaodFile();
+      }
+    );
+  }
+  /** uploader function */
+  uplaodFile() {
+    if (!this.state.file) {
+      return;
+    }
+    let formData = new FormData();
+    formData.append(
+      "table_pk",
+      this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk)
+    );
+    formData.append("table_id", this.props.cfg.crudTableId);
+    formData.append("file", this.state.file);
+    formData.append("profilePictureFlag", this.props.profilePictureFlag || 0);
+    fetch("upload.form", {
+      method: "POST",
+      body: formData,
+      cache: "no-cache",
+      credentials: "same-origin",
+      mode: "cors",
+      redirect: "follow",
+      referrer: "no-referrer"
+    })
+      .then(
+        response =>
+          response.status === 200 || response.status === 0
+            ? response.json()
+            : Promise.reject(new Error(response.text() || response.statusText))
+      )
+      .then(
+        result => {
+          if (result.success) {
+            toastr.success(
+              getLocMsg("file_sucessfully_uploaded!"),
+              getLocMsg("Success"),
+              {
+                timeOut: 3000
+              }
+            );
+            this.setState({
+              canUpload: false,
+              file: null,
+              fileName: result.fileName,
+              fileUrl: result.fileUrl
+            });
+          } else {
+            if (result.error) {
+              toastr.error(result.error, result.errorType);
+            }
+          }
+          this.props.onFileChange &&
+            this.props.onFileChange(this.props.name, result, this);
+          return;
+        },
+        error => {
+          toastr.error(error, getLocMsg("Error"));
+        }
+      );
+  }
+  render() {
+    let defaultStyle = {
+      height: "100%",
+      width: "100%",
+      position: "absolute",
+      top: "0",
+      left: "0"
+    };
+    return _(
+      React.Fragment,
+      {},
+      _(
+        "div",
+        null,
+        // this.state.file ? getLocMsg(this.state.file.name) :
+        // getLocMsg('File Upload'),
+        _("input", {
+          className: "d-none",
+          type: "file",
+          onChange: this.onchange,
+          ref: input => (this.inpuRef = input)
+        }),
+        this.props.extraButtons && this.props.extraButtons
+      ),
+      _(
+        "div",
+        {},
+        _(
+          "div",
+          {
+            className: "mx-auto",
+            style: {
+              height: "200px",
+              width: "200px",
+              position: "relative",
+              border: this.state.dragOver
+                ? "3px dashed #20a8d8"
+                : "3px dashed #a4b7c1"
+            }
+          },
+          _("div", {
+            style: {
+              ...defaultStyle,
+              zIndex: "10",
+              background: "gray",
+              cursor: "pointer",
+              opacity: this.state.canUpload ? "0" : "0.5"
+            },
+            className: "rounded",
+            onDrop: this.onDrop,
+            onDragEnter: this.dragenter,
+            onDragLeave: this.dragleave,
+            onDragOver: this.dragover,
+            onClick: this.onclick
+          }),
+          _(
+            "div",
+            {
+              style: {
+                ...defaultStyle,
+                display: "flex"
+              }
+            },
+            _(XPreviewFile, {
+              file: this.state.file
+            })
+          )
+        ),
+        _("div", {
+          className: "clearfix"
+        }),
+        _(
+          ListGroup,
+          {},
+          this.state.fileUrl &&
+            _(
+              ListGroupItem,
+              null,
+              _(
+                "a",
+                {
+                  onClick: this.downladLink(this.state.fileUrl),
+                  href: "#"
+                },
+                this.state.fileName
+              )
+            )
+        )
+      )
+    );
+  }
 }
-iwb.fmtFileSize=(a) => {
+const XPreviewFile = ({ file }) => {
+  let type = file ? file.type : null;
+  let style = {
+    fontSize: "12em"
+  };
+  switch (type) {
+    case "image/png":
+      return _("img", {
+        src: URL.createObjectURL(file),
+        className: "img-fluid rounded"
+      });
+    case "text/plain":
+      return _("i", {
+        style,
+        className: "fas fa-file-alt m-auto"
+      });
+    case "application/pdf":
+      return _("i", {
+        style,
+        className: "fas fa-file-pdf m-auto"
+      });
+    default:
+      return _(
+        "div",
+        { className: "m-auto text-center" },
+        file
+          ? _("i", { className: "far fa-file", style })
+          : _("i", { className: "fas fa-upload", style }),
+        _("br", null),
+        getLocMsg(file ? "undefined_type" : "choose_file_or_drag_it_here")
+      );
+  }
+};
+
+class XListFiles extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      files: []
+    };
+    this.getFileList = this.getFileList.bind(this);
+    this.deleteItem = this.deleteItem.bind(this);
+    this.downladLink = this.downladLink.bind(this);
+  }
+  /** run query to get data based on pk and id */
+  getFileList() {
+    iwb.request({
+      url:
+        "ajaxQueryData?_qid=61&xtable_id=" +
+        this.props.cfg.crudTableId +
+        "&xtable_pk=" +
+        (this.props.cfg.tmpId
+          ? this.props.cfg.tmpId
+          : json2pk(this.props.cfg.pk)) +
+        "&.r=" +
+        Math.random(),
+      successCallback: ({ data }) => {
+        this.setState({
+          files: data
+        });
+      }
+    });
+  }
+  deleteItem(fileItem) {
+    return event => {
+      event.preventDefault();
+      event.stopPropagation();
+      /** deleteRequest */
+      iwb.request({
+        url:
+          "ajaxPostForm?a=3&_fid=1383&tfile_attachment_id=" +
+          fileItem.file_attachment_id,
+        successCallback: res => {
+          this.setState({
+            files: this.state.files.filter(
+              file => file.file_attachment_id != fileItem.file_attachment_id
+            )
+          });
+        }
+      });
+    };
+  }
+  /** test */
+  downladLink(fileItem) {
+    let url =
+      "dl/" +
+      fileItem.original_file_name +
+      "?_fai=" +
+      fileItem.file_attachment_id +
+      "&.r=" +
+      Math.random();
+    return event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const link = document.createElement("a");
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+  }
+  componentDidMount() {
+    this.getFileList();
+  }
+  render() {
+    return _(
+      ListGroup,
+      {},
+      this.state.files.map(fileItem =>
+        _(
+          ListGroupItem,
+          null,
+          _(
+            "a",
+            { onClick: this.downladLink(fileItem), href: "#" },
+            fileItem.original_file_name
+          ),
+          _("i", {
+            key: fileItem.file_attachment_id,
+            onClick: this.deleteItem(fileItem),
+            style: { cursor: "pointer" },
+            className: "icon-trash float-right text-danger"
+          })
+        )
+      )
+    );
+  }
+}
+class XSingleUploadComponent extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      canUpload: false,
+      dragOver: false,
+      file: null
+    };
+    this.xListFilesRef = React.createRef();
+    this.onDrop = this.onDrop.bind(this);
+    this.dragenter = this.dragenter.bind(this);
+    this.dragleave = this.dragleave.bind(this);
+    this.dragover = this.dragover.bind(this);
+    this.onDeleteFile = this.onDeleteFile.bind(this);
+    this.onclick = this.onclick.bind(this);
+    this.onchange = this.onchange.bind(this);
+    this.uplaodFile = this.uplaodFile.bind(this);
+  }
+  /** function to click input ref click */
+  onclick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.inpuRef.click();
+  }
+  /** used to disable opening file on new tab */
+  dragover(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  /** used with css */
+  dragleave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      dragOver: false
+    });
+  }
+  /** when the file over drag area */
+  dragenter(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState({
+      dragOver: true
+    });
+  }
+  /** when the file dproped over drop area */
+  onDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState(
+      {
+        canUpload: true,
+        dragOver: false,
+        file: event.dataTransfer.files[0]
+      },
+      () => {
+        this.uplaodFile();
+      }
+    );
+  }
+  /** when the file dproped over drop area */
+  onchange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.setState(
+      {
+        canUpload: true,
+        dragOver: false,
+        file: event.target.files[0]
+      },
+      () => {
+        this.uplaodFile();
+      }
+    );
+  }
+  /** remove file from form state */
+  onDeleteFile(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    /** will reset to null currently uploaded file */
+    this.setState({
+      canUpload: false,
+      file: null
+    });
+  }
+  /** uploader function */
+  uplaodFile() {
+    // event.preventDefault();
+    // event.stopPropagation();
+    if (!this.state.file) {
+      return;
+    }
+    let formData = new FormData();
+    formData.append(
+      "table_pk",
+      this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk)
+    );
+    formData.append("table_id", this.props.cfg.crudTableId);
+    formData.append("file", this.state.file);
+    formData.append("profilePictureFlag", this.props.profilePictureFlag || 0);
+    fetch("upload.form", {
+      method: "POST",
+      body: formData,
+      cache: "no-cache",
+      credentials: "same-origin",
+      mode: "cors",
+      redirect: "follow",
+      referrer: "no-referrer"
+    })
+      .then(
+        response =>
+          response.status === 200 || response.status === 0
+            ? response.json()
+            : Promise.reject(new Error(response.text() || response.statusText))
+      )
+      .then(
+        result => {
+          if (result.success) {
+            toastr.success(
+              getLocMsg("file_sucessfully_uploaded!"),
+              getLocMsg("Success"),
+              {
+                timeOut: 3000
+              }
+            );
+            this.xListFilesRef.current.getFileList();
+            this.setState({
+              file: null,
+              canUpload: false
+            });
+          } else {
+            if (result.error) {
+              toastr.error(result.error, result.errorType);
+            }
+            return;
+          }
+        },
+        error => {
+          toastr.error(error, getLocMsg("Error"));
+        }
+      );
+  }
+  render() {
+    let defaultStyle = {
+      height: "100%",
+      width: "100%",
+      position: "absolute",
+      top: "0",
+      left: "0"
+    };
+    return _(
+      React.Fragment,
+      {},
+      _(
+        Button,
+        {
+          id: this.props.cfg.id,
+          type: "button",
+          className: "float-right btn-round-shadow mr-1",
+          color: "light"
+        },
+        _("i", {
+          className: "icon-paper-clip"
+        }),
+        this.props.cfg.fileAttachCount
+          ? " " + this.props.cfg.fileAttachCount
+          : ""
+      ),
+      _(
+        Reactstrap.UncontrolledPopover,
+        {
+          trigger: "legacy",
+          placement: "auto",
+          target: this.props.cfg.id
+        },
+        _(
+          PopoverHeader,
+          null,
+          this.state.file
+            ? getLocMsg(this.state.file.name)
+            : getLocMsg("File Upload"),
+          _("input", {
+            className: "d-none",
+            type: "file",
+            onChange: this.onchange,
+            ref: input => (this.inpuRef = input)
+          }),
+          this.props.extraButtons && this.props.extraButtons
+        ),
+        _(
+          PopoverBody,
+          null,
+          _(
+            "div",
+            {
+              style: {
+                height: "200px",
+                width: "200px",
+                position: "relative",
+                border: this.state.dragOver
+                  ? "3px dashed #20a8d8"
+                  : "3px dashed #a4b7c1"
+              }
+            },
+            _("div", {
+              style: {
+                ...defaultStyle,
+                zIndex: "10",
+                background: "gray",
+                cursor: "pointer",
+                opacity: this.state.canUpload ? "0" : "0.5"
+              },
+              className: "rounded",
+              onDrop: this.onDrop,
+              onDragEnter: this.dragenter,
+              onDragLeave: this.dragleave,
+              onDragOver: this.dragover,
+              onClick: this.onclick
+            }),
+            _(
+              "div",
+              {
+                style: {
+                  ...defaultStyle,
+                  display: "flex"
+                }
+              },
+              _(XPreviewFile, {
+                file: this.state.file
+              })
+            )
+          ),
+          _("div", {
+            className: "clearfix"
+          }),
+          _(XListFiles, { cfg: this.props.cfg, ref: this.xListFilesRef })
+        )
+      )
+    );
+  }
+}
+function json2pk(j) {
+  for (var key in j)
+    if (key != "customizationId" && key != "projectId") return j[key];
+  alert("Error: PK not found");
+  return false;
+}
+iwb.fmtFileSize = a => {
   if (!a) return "-";
   a *= 1;
   var d = "B";
@@ -4371,4 +4635,4 @@ iwb.fmtFileSize=(a) => {
   }
   if (d != "B") a = Math.round(a * 10) / 10;
   return a + " " + d;
-}
+};
