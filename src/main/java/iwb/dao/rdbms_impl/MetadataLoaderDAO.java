@@ -42,6 +42,8 @@ import iwb.domain.db.W5ListBase;
 import iwb.domain.db.W5ListColumn;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
+import iwb.domain.db.W5Mq;
+import iwb.domain.db.W5MqCallback;
 import iwb.domain.db.W5ObjectToolbarItem;
 import iwb.domain.db.W5Page;
 import iwb.domain.db.W5PageObject;
@@ -937,6 +939,31 @@ public class MetadataLoaderDAO extends BaseDAO {
 			e.printStackTrace();
 		}
 	}
+	
+
+	public void reloadMqsCache(String projectId) {
+		// Job Schedule
+		try {
+			Map<Integer, W5Mq> myMq = new HashMap();
+			for(W5Mq j:(List<W5Mq>)find("from W5Mq x where x.activeFlag=1 and x.projectUuid=?", projectId)) {
+				myMq.put(j.getMqId(), j);
+			}
+			
+			FrameworkCache.wMqs.put(projectId, myMq);
+			
+			if(!myMq.isEmpty()) {
+				for(W5MqCallback j:(List<W5MqCallback>)find("from W5MqCallback x where x.activeFlag=1 and x.projectUuid=?", projectId)) {
+					W5Mq mq = myMq.get(j.getMqId());
+					if(mq!=null) {
+						if(mq.get_callbacks()==null)mq.set_callbacks(new ArrayList());
+						mq.get_callbacks().add(j);
+					}
+				}				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void reloadLocaleMsgsCache2(int cid) {
 		String whereSql = cid != -1 ? (" where x.customization_id=" + cid) : "";
@@ -1567,6 +1594,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 				reloadComponentCache(projectId);
 				reloadJobsCache(projectId);
 				if(FrameworkSetting.externalDb)reloadExternalDbsCache(projectId);
+				if(FrameworkSetting.mq)reloadMqsCache(projectId);
+				
 			}
 
 			FrameworkSetting.projectSystemStatus.put(projectId, 0); // working

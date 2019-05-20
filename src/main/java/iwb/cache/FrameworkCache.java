@@ -26,6 +26,7 @@ import iwb.domain.db.W5Grid;
 import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5List;
 import iwb.domain.db.W5LookUp;
+import iwb.domain.db.W5Mq;
 import iwb.domain.db.W5Page;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
@@ -40,6 +41,7 @@ import iwb.domain.db.W5Ws;
 import iwb.domain.db.W5WsMethod;
 import iwb.domain.db.W5WsServer;
 import iwb.exception.IWBException;
+import iwb.mq.MQTTCallback;
 import iwb.util.GenericUtil;
 
 public class FrameworkCache {
@@ -75,7 +77,9 @@ public class FrameworkCache {
 //	final private static Map<String, Map<Integer, W5TsMeasurement>> wTsMeasurements = new HashMap<String, Map<Integer, W5TsMeasurement>>();
 
 	final public static Map<String, Map<Integer, W5ExternalDb>> wExternalDbs = new HashMap<String, Map<Integer, W5ExternalDb>>();
+	final public static Map<String, Map<Integer, W5Mq>> wMqs = new HashMap<String, Map<Integer, W5Mq>>();
 
+	
 	final public static Map<String, String> wExceptions = new HashMap<String, String>();
 	final public static Map<Integer, Map<String, String>> appSettings= new HashMap<Integer, Map<String, String>>();
 	final public static List<String> publishAppSettings= new ArrayList<String>();
@@ -704,7 +708,14 @@ public class FrameworkCache {
 		String projectId = getProjectId(o, null);
 		return FrameworkCache.wExternalDbs.get(projectId).get(externalDbId);
 
+	}	
+
+	public static W5Mq getMq(Object o, int mqId) {
+		String projectId = getProjectId(o, null);
+		return FrameworkCache.wMqs.get(projectId).get(mqId);
 	}
+	
+	
 	
 /*	public static W5TsPortlet getTsPortlet(Map<String, Object> customizationId, int porletId) {
 		int cid = getCustomizationId(customizationId);

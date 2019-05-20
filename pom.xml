@@ -144,12 +144,14 @@
 			<artifactId>redisson</artifactId>
 			<version>3.9.1</version>
 		</dependency>
-
+		
+		<!-- https://mvnrepository.com/artifact/org.graalvm.js/js -->
 		<dependency>
-			<groupId>org.graalvm.js</groupId>
-			<artifactId>js</artifactId>
-			<version>1.0.0-rc12</version>
-		</dependency>		
+		    <groupId>org.graalvm.js</groupId>
+		    <artifactId>js</artifactId>
+		    <version>19.0.0</version>
+		</dependency>
+			
 		<!-- https://mvnrepository.com/artifact/com.sun.mail/javax.mail -->
 		
 		<dependency>
@@ -157,6 +159,14 @@
 		   <artifactId>javax.mail</artifactId>
 		    <version>1.6.2</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
+		<dependency>
+		    <groupId>org.eclipse.paho</groupId>
+		    <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+		    <version>1.2.1</version>
+		</dependency>
+
 
 	</dependencies>
 	
@@ -200,6 +210,11 @@
 						<ports>
 							<port>8080</port>
 						</ports>
+						<jvmFlags> 
+							<jvmFlag>-Dpolyglot.inspect=9229</jvmFlag>
+      							<jvmFlag>-Xdebug</jvmFlag>
+							<jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7777</jvmFlag>
+    						</jvmFlags>
 					</container>
 				</configuration>
 			</plugin>	

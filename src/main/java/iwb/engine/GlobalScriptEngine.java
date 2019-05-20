@@ -249,12 +249,15 @@ public class GlobalScriptEngine {
 //			throw new IWBException("rhino", "Graal R", 0, script,"R Not Implemented yet", null);
 //			break;
 		case 11:// GraalJS
-			if (polyglot == null) {
+			if (polyglot == null) try{//"js"
 				polyglot = Context.newBuilder().allowAllAccess(true).allowIO(true).build();
+				
 				String rPre =FrameworkCache.getAppSettingStringValue(scd, "r_prerequisites");
 				if(!GenericUtil.isEmpty(rPre)) {
 					polyglot.eval("R", rPre);
 				}
+			}catch(Exception ee) {
+				throw new IWBException("rhino", "GraalVM polyglot", 0, null,"GraalVM creation error", ee);
 			}
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "20." + globalFuncId);
 			String lang = "js";

@@ -163,23 +163,27 @@ var iwb = {
   },
   /**
 	 * a function used for react.lazy
-	 * 
-	 * @param {string}
-	 *            url - example '/comp/2/js'
+	 * @param {string} url - example '/comp/2/js'
 	 */
-  import: async (url) => {
+  import: (url) => {
     var loc = document.location.href;
     var xloc = loc.split('main.htm');
-    xloc[xloc.length-1]=url;
+    xloc[xloc.length - 1] = url;
     loc = xloc.join('');
-    if (Object.keys(iwb.components).indexOf(url) > 0) {
-      return iwb.components[url];
-    }
-    var imported = await import(loc);
-    iwb.components = { ...iwb.components,
-      [url]: imported
-    };
-    return imported;
+    return new Promise((resolve, reject) => {
+      if (Object.keys(iwb.components).indexOf(url) > 0) {
+        resolve(iwb.components[url])
+        return iwb.components[url]
+      }
+      return fetch(loc).then(res => res.text()).then(text => {
+        var result = new Function(text)();
+        iwb.components = { ...iwb.components, [url]: result };
+        resolve(result)
+      })
+    }).then((a) => {
+      a.default = a.default || a
+      return a;
+    })
   },
   /**
 	 * @param {string}
@@ -187,16 +191,19 @@ var iwb = {
 	 * @param {string}
 	 *            id - example '2' -id of the component
 	 */
-  addCss: async (url, id = Math.floor(Math.random() * 1000 + 1)) => {
-    let response = await fetch(url);
-    let cssText = await response.text();
-    if(document.getElementById(id)===null){
-      let element = document.createElement('style');
-      element.innerHTML = cssText;
-      element.id='style'+id
-      window.document.head.appendChild(element);
-    }
-    return cssText;
+  addCss: (url, id = Math.floor(Math.random() * 1000 + 1)) => {
+    fetch(url)
+    .then(response=>response.text())
+    .then(cssText=>{
+      if(document.getElementById(id)===null){
+        let element = document.createElement('style');
+        element.innerHTML = cssText;
+        element.id='style'+id
+        window.document.head.appendChild(element);
+      }
+      return cssText;
+    })
+    
   },
   /**
 	 * @param {string}
@@ -937,7 +944,7 @@ class GridCommon extends React.PureComponent {
 	 *            rowData } param0.rowData - Data of the row where the Edit
 	 *            button or double click clicked
 	 */
-    this.onEditClick = ({ event, rowData, openEditable, ...props }) => {
+    this.onEditClick = ({ event, rowData, openEditable, ...extraProps }) => {
       var { props } = this;
       var pkz = buildParams2(props.pk, rowData);
       var url = "showForm?a=1&_fid=" + props.crudFormId + pkz;
@@ -950,7 +957,7 @@ class GridCommon extends React.PureComponent {
         "1-" + pkz,
         url + (modal ? "&_modal=1" : ""),
         {},
-        { modal, openEditable, rowData, ...props }
+        { modal, openEditable, rowData, ...props, ...extraProps }
       );
     };
     /**
@@ -6514,11 +6521,10 @@ class XMainPanel extends React.PureComponent {
                 eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
                 var serverComponent = f(false, this);
                 if (serverComponent) {
-                  serverComponent = _(
-                    "div",
-                    { className: "animated fadeIn", id:'page'+templateID },
-                    serverComponent
-                  );
+                  serverComponent = _(React.Suspense, { fallback: _(XLoading, null) }, 
+                    _("div", { className: "animated fadeIn", id: 'page' + templateID },
+                      serverComponent
+                  ));
                   iwb["t-" + templateID] = serverComponent;
                   this.setState({ templateID });
                   iwb.nav.visitItem(this.props.match.path);

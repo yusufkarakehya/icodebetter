@@ -8,7 +8,12 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
+import iwb.domain.db.W5Mq;
+import iwb.domain.db.W5MqCallback;
+import iwb.mq.MQTTCallback;
+import iwb.service.FrameworkService;
 
 
 public class MQUtil {
@@ -90,6 +95,36 @@ public class MQUtil {
 			return dok.getMessageCount();
 		}
 		return 0;
+	}
+
+	public static void activateMQs(FrameworkService service, String projectId) {
+		// TODO Auto-generated method stub
+		
+		if(projectId==null)for(String pid:FrameworkCache.wMqs.keySet()) {
+			Map<Integer, W5Mq> mqMap = FrameworkCache.wMqs.get(pid); 
+			if(!GenericUtil.isEmpty(mqMap)) for(W5Mq mq:mqMap.values())switch(mq.getLkpMqType()){
+			case	1://mqtt
+				MQTTCallback m = new MQTTCallback(mq, service);
+				break;
+				
+			case	2://amq
+				break;
+				
+			}
+			
+		} else {
+			Map<Integer, W5Mq> mqMap = FrameworkCache.wMqs.get(projectId); 
+			if(!GenericUtil.isEmpty(mqMap)) for(W5Mq mq:mqMap.values())switch(mq.getLkpMqType()){
+			case	1://mqtt
+				MQTTCallback m = new MQTTCallback(mq, service);
+				break;
+				
+			case	2://amq
+				break;
+				
+			}
+		}
+		
 	}
 	
 }

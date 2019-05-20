@@ -2283,6 +2283,7 @@ public class VcsService {
 							String extraSql = o.getString("extra_sql");
 							if(!GenericUtil.isEmpty(extraSql)){
 								dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
+								if(FrameworkSetting.debug)System.out.println("Executing SQL: " +o.getInt("vcs_commit_id") + " : " + extraSql);
 								result+=dao.executeUpdateSQLQuery(extraSql);
 							}
 						}
