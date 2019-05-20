@@ -224,16 +224,23 @@ public class AuthController {
       inviteMap.put(projectId, email);
     }
     
-    String redirectUri =
+    /*String redirectUri =
+        req.getScheme()
+            + "://"
+            + req.getServerName()
+            + (req.getServerPort() != 80 ? ":" + req.getServerPort() : "")
+            + "/auth/callback";*/
+    
+    String redirectUri = FrameworkSetting.argMap.get("redirect_uri");
+    if(redirectUri == null){
+      redirectUri =
         req.getScheme()
             + "://"
             + req.getServerName()
             + (req.getServerPort() != 80 ? ":" + req.getServerPort() : "")
             + "/auth/callback";
-    
-    if(req.getServerName() == "192.168.99.102"){
-      redirectUri = "http://212.83.166.197:38080/auth/callback";
     }
+
     String authorizeUrl = buildAuthorizeUrl(req, redirectUri);
     res.getWriter().write(authorizeUrl);
     res.getWriter().close();
