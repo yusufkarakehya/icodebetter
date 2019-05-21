@@ -3772,7 +3772,8 @@ class XGrid extends GridCommon {
         multiselect,
         _disableSearchPanel,
         _disableIntegratedSorting,
-        _disableIntegratedGrouping
+        _disableIntegratedGrouping,
+        titleComponent
       },
       // methods
       rowComponent,
@@ -3853,7 +3854,10 @@ class XGrid extends GridCommon {
       _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
       /** UI column table resizer */
       _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
-      _(_dxgrb.TableHeaderRow, { showSortingControls: true }),
+      _(_dxgrb.TableHeaderRow, {
+        showSortingControls: true,
+        titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
+      }),
       /** UI detail Grid */
       showDetail
         ? _(_dxgrb.TableRowDetail, { contentComponent: showDetail })
@@ -4336,6 +4340,7 @@ class XEditGridSF extends GridCommon {
         crudFlags,
         multiselect,
         _importClicked,
+        titleComponent,
         _disableSearchPanel,
         _disableIntegratedSorting,
         _disableIntegratedGrouping
@@ -4412,7 +4417,8 @@ class XEditGridSF extends GridCommon {
       /** UI tablle resizing */
       _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
       _(_dxgrb.TableHeaderRow, {
-        showSortingControls: true
+        showSortingControls: true,
+        titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
       }),
       selectRow.mode === "checkbox" && _(SelectableStubCell),
 
@@ -4952,6 +4958,7 @@ class XEditGrid extends GridCommon {
         crudFlags,
         multiselect,
         _importClicked,
+        titleComponent,
         _disableSearchPanel,
         _disableIntegratedSorting,
         _disableIntegratedGrouping
@@ -5022,7 +5029,8 @@ class XEditGrid extends GridCommon {
       /** UI tablle resizing */
       _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
       _(_dxgrb.TableHeaderRow, {
-        showSortingControls: !_disableIntegratedSorting
+        showSortingControls: !_disableIntegratedSorting,
+        titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
       }),
       !viewMode &&
         _(_dxgrb.TableEditRow, {
@@ -5874,6 +5882,7 @@ class XMainGrid extends GridCommon {
         multiselect,
         extraButtons,
         treeParentKey,
+        titleComponent,
         tableTreeColumn,
         _disableSearchPanel,
         _disableIntegratedSorting,
@@ -5979,7 +5988,10 @@ class XMainGrid extends GridCommon {
       /** UI tablle resizing */
       _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
       /** UI to show table row container */
-      _(_dxgrb.TableHeaderRow, { showSortingControls: true }),
+      _(_dxgrb.TableHeaderRow, {
+        showSortingControls: true,
+        titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
+      }),
       /** tree support */
       !!tree && _(_dxgrb.TableTreeColumn, { for: tableTreeColumn }),
       /** UI of the detail table */
