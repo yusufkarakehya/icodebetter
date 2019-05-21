@@ -301,6 +301,45 @@ public class ExternalDBSql {
 //		String projectId = (String) scd.get("projectId");
 		int userId = (Integer) scd.get("userId");
 		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, query.getMainTableId());//wExternalDbs.get(projectId).get(query.getMainTableId());
+		if(edb.getLkpDbType()==11) {
+			String[] chunks = query.getSqlSelect().split(",");
+			int i = 1, j = 0;
+			for(String c:chunks) {
+				String[] s = c.trim().split(" ");
+				String columnName = s[s.length-1];
+				if (existField.get(columnName) == null) { // eger
+					W5QueryFieldCreation field = new W5QueryFieldCreation();
+					field.setDsc(columnName);
+					field.setCustomizationId((Integer) scd.get("customizationId"));
+					if (columnName.equals("insert_user_id") || columnName.equals("version_user_id"))
+						field.setPostProcessTip((short) 53);
+					field.setTabOrder((short) (i));
+					field.setQueryId(query.getQueryId());
+					field.setFieldTip((short) 1);
+					field.setInsertUserId(userId);
+					field.setVersionUserId(userId);
+					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+					field.setProjectUuid((String) scd.get("projectId"));
+					field.setOprojectUuid((String) scd.get("projectId"));
+
+					field.setQueryFieldId(
+							GenericUtil.getGlobalNextval("iwb.seq_query_field", (String) scd.get("projectId"),
+									(Integer) scd.get("userId"), (Integer) scd.get("customizationId")));
+					insertList.add(field);
+					j++; i++;
+				} else if (existField.get(columnName) != null && (existField.get(columnName).getTabOrder() != i)) {
+					W5QueryFieldCreation field = existField.get(columnName);
+					field.setTabOrder((short) (i));
+					field.setVersionUserId(userId);
+					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+					updateList.add(field);
+				}
+				existField.remove(columnName);
+				
+			}
+			return;
+		}
+		
 		Connection con = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;

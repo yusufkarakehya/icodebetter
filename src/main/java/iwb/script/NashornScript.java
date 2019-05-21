@@ -19,6 +19,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Console;
+import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5FormResult;
@@ -127,10 +128,22 @@ public class NashornScript {
 		return RedisUtil.info(host, section);
 	}
 */
+	
+	public Object[]  influxQuery(int externalDbId, String query) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		return influxQuery(edb.getDbUrl(), edb.getDefaultSchema(), query);
+	}
+	
+	
 	public Object[]  influxQuery(String host, String dbName, String query) {
 		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
 		List l = InfluxUtil.query(host, dbName, query);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
+	}
+	
+	public Map  influxWriteRaw(int externalDbId, String query) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		return influxWriteRaw(edb.getDbUrl(), edb.getDefaultSchema(), query);
 	}
 	
 	public Map  influxWriteRaw(String host, String dbName, String query) {
@@ -140,6 +153,10 @@ public class NashornScript {
 		return GenericUtil.fromJSONObjectToMap(new JSONObject(s));
 	}
 	
+	public Map  influxWrite(int externalDbId, String measName, Object tagMap, Object fieldMap) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		return influxWrite(edb.getDbUrl(), edb.getDefaultSchema(), measName, tagMap, fieldMap);
+	}
 	
 	public Map  influxWrite(String host, String dbName, String measName, Object tagMap, Object fieldMap) {
 		if(host.equals("1"))host=FrameworkSetting.log2tsdbUrl;
