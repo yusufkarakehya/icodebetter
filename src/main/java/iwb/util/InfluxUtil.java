@@ -16,7 +16,7 @@ public class InfluxUtil {
 		if(!url.endsWith("/"))url +="/";
 		url +="query";
 		boolean post = GenericUtil.isEmpty(dbName);
-		if(!post)url +="?db="+dbName;
+		if(!post && !dbName.equals("."))url +="?db="+dbName;
 		String s = HttpUtil.send( url,"q="+influxQL,post ? "POST":"GET", null);
 		if(GenericUtil.isEmpty(s))return null;
 		JSONObject jo = new JSONObject(s);
@@ -28,6 +28,9 @@ public class InfluxUtil {
 		if(jo.has("results")) {
 			JSONArray jr = jo.getJSONArray("results");
 			List<Map> r = new ArrayList<Map>();
+			if(jr.length()>0 && jr.getJSONObject(0).has("error"))
+				throw new IWBException("sql", "Influx.Query", 0, influxQL, jr.getJSONObject(0).getString("error"), null);
+			
 			for(int qi=0;qi<jr.length();qi++) try{
 				JSONObject js = jr.getJSONObject(qi);
 				if(js.has("series")) {

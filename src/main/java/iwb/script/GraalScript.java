@@ -24,6 +24,7 @@ import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.engine.GlobalScriptEngine;
 import iwb.exception.IWBException;
+import iwb.mq.MQTTCallback;
 import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
@@ -499,5 +500,16 @@ public class GraalScript {
 		if(GenericUtil.isEmpty(s))return null;
 		return GenericUtil.fromJSONObjectToMap(new JSONObject(s));
 	}
+	
+	public void mqttSend(int mqId, String topic, String message) {
+		try {
+			MQTTCallback.send((String)scd.get("projectId"), mqId, topic, message);
+		} catch (Exception e) {
+			if(FrameworkSetting.debug)e.printStackTrace();
+			throw new IWBException("framework", "mqqtSend", mqId, null, e.getMessage(),
+					e);
+		}
+	}
+	
 
 }

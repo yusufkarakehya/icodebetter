@@ -34,6 +34,8 @@ public class W5ExternalDb implements java.io.Serializable, W5Base{
 
 	private String dbPassword;
 
+	private String defaultSchema;
+
 	private short activeFlag;// //oracle, postgre, mssql
 	private int poolSize;// //oracle, postgre, mssql
 	 
@@ -141,4 +143,16 @@ public class W5ExternalDb implements java.io.Serializable, W5Base{
 		}
         return _hikariDS.getConnection();
     }
+
+	@Column(name="default_schema")
+	public String getDefaultSchema() {
+		return defaultSchema;
+	}
+
+	public void setDefaultSchema(String defaultSchema) {
+		this.defaultSchema = defaultSchema;
+	}
+	
+	
+	
 }
