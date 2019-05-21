@@ -58,6 +58,7 @@ import "simple-line-icons/css/simple-line-icons.css";
 /** Loaders */
 import * as loaders from "./Loaders";
 import "./css/timeline.css";
+import { Aside } from "./components/Aside";
 /** Exports to window object */
 export {
   React,
@@ -95,5 +96,6 @@ export {
   jQuery,
   jquery,
   toastr,
-  loaders
+  loaders,
+  Aside
 };

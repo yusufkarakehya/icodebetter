@@ -9,4 +9,6 @@ export let dgColors2 = [
   "gray-400",
   "gray-700"
 ];
+export * from "./components/Breadcrumb";
+export * from "./components/Header";
 export * from "./index";
