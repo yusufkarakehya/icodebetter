@@ -51,10 +51,15 @@ public class ScriptUtil {
 						rp.put(key, fromScriptObject2Map(o));
 					
 				} else {
-					String res = o.toString();
-					if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
-						res = res.substring(0, res.length() - 2);
-					rp.put(key, res);
+					if(o instanceof Double || o instanceof Float) {
+						rp.put(key, o);
+					} else if(o instanceof Integer || o instanceof Short) {
+						rp.put(key, o);
+					} else {
+						String res = o.toString();
+//						if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)res = res.substring(0, res.length() - 2);
+						rp.put(key, res);
+					}
 				}
 			}
 		}
