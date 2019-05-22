@@ -16,7 +16,6 @@
     "moment": "^2.24.0",
     "open-iconic": "^1.1.1",
     "popper.js": "^1.15.0",
-    "prettier": "^1.14.2",
     "prop-types": "^15.7.2",
     "react-datetime": "^2.16.3",
     "react-draft-wysiwyg": "^1.13.2",
@@ -35,7 +34,6 @@
     "toastr": "^2.1.4"
   },
   "scripts": {
-    "precommit": "lint-staged",
     "start": "//react-scripts start",
     "build": "//react-scripts build",
     "buildlib": "SET BABEL_ENV=production&& SET NODE_ENV=production&& babel src/lib --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,__snapshots__",
@@ -46,12 +44,6 @@
     "test": "//react-scripts test",
     "eject": "//react-scripts eject",
     "bundle": "//webpack --mode production"
-  },
-  "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ]
   },
   "eslintConfig": {
     "extends": "react-app"
