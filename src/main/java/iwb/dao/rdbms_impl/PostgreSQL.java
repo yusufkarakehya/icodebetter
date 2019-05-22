@@ -4027,6 +4027,45 @@ public class PostgreSQL extends BaseDAO {
 		}
 		return r;
 	}
+	
+
+	public void findRecordChildRecords4Copy(Map<String, String> tbMap, Map<String, Object> scd, int tableId, int tablePk) {
+		if(tbMap.containsKey(tableId+"."+tablePk))return;
+		
+		W5Table t = FrameworkCache.getTable(scd, tableId);
+		if (t == null)return;
+		
+		StringBuilder sql2=new StringBuilder();
+		
+		sql2.append("select o.vcs_commit_record_hash hh from iwb.w5_vcs_object o where o.table_id=").append(tableId)
+		.append(" AND o.table_pk=").append(tablePk)
+				.append(" AND o.project_uuid='").append(scd.get("projectId")).append("'");
+		List<Object> l2 = executeSQLQuery(sql2.toString());
+		if(l2==null)return;
+		tbMap.put(tableId+"."+tablePk, l2.get(0).toString());
+		
+		if(!GenericUtil.isEmpty(t.get_tableChildList()))for (W5TableChild tc : t.get_tableChildList()) {
+			W5Table ct = FrameworkCache.getTable(scd, tc.getRelatedTableId());
+			
+			StringBuilder sql = new StringBuilder();
+			sql.append("select x.").append(ct.get_tableFieldList().get(0).getDsc());
+			
+			sql.append(" id from ").append(ct.getDsc()).append(" x where x.")
+					.append(ct.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc()).append("=")
+					.append(tablePk);
+			if (tc.getRelatedStaticTableFieldId() != 0) {
+				sql.append(" AND x.").append(ct.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc())
+						.append("=").append(tc.getRelatedStaticTableFieldVal());
+			}
+			sql.append(DBUtil.includeTenantProjectPostSQL(scd, ct));
+
+			List<Object> l = executeSQLQuery(sql.toString());
+			if (!GenericUtil.isEmpty(l)) for(Object o:l){
+				findRecordChildRecords4Copy(tbMap, scd, tc.getRelatedTableId(), GenericUtil.uInt(o));
+			}
+		}
+	}
+
 
 	public boolean accessControlTable(Map<String, Object> scd, W5Table t, Integer tablePk) {
 		if (!GenericUtil.accessControlTable(scd, t))
@@ -6193,4 +6232,51 @@ public class PostgreSQL extends BaseDAO {
 						GenericUtil.uInt(m[4]) != 0, GenericUtil.uInt(m[5]));
 			}
 	}
+
+  public void copyTableRecord4VCS(Map<String, Object> scd, Map dstScd, int tableId, int tablePk) {
+		W5Table t = FrameworkCache.getTable(scd, tableId);
+		W5TableParam tp = t.get_tableParamList().get(0);
+		StringBuilder b = new StringBuilder();
+		b.append("insert into ").append(t.getDsc()).append("(");
+		StringBuilder b2 = new StringBuilder();
+		for(W5TableField tf:t.get_tableFieldList()) {
+			b.append(tf.getDsc()).append(",");
+			if(tf.getDsc().equals("customization_id")) {
+				b2.append(dstScd.get("customizationId"));
+			} else if(tf.getDsc().equals("version_dttm")) {
+				b2.append("current_timestamp");
+			} else if(GenericUtil.hasPartInside("project_uuid", tf.getDsc())) {
+				b2.append("'").append(dstScd.get("projectId")).append("'");
+			} else 
+				b2.append(tf.getDsc());
+			b2.append(",");
+			
+			
+		}
+		b.setLength(b.length()-1);b2.setLength(b2.length()-1);
+		
+		b.append(") select ").append(b2);
+		b.append(" from ").append(t.getDsc()).append(" where ").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=").append(tablePk)
+		.append(" AND project_uuid='").append(scd.get("projectId")).append("'");
+		
+
+
+		Session session = getCurrentSession();
+
+		try {
+			SQLQuery query = session.createSQLQuery(b.toString());
+			int res = query.executeUpdate();
+			if(res==1) {
+				saveObject(new W5VcsObject(dstScd, tableId, tablePk));
+			}
+		} catch (Exception e) {
+			if (FrameworkSetting.debug)
+				e.printStackTrace();
+			throw new IWBException("sql", "Copy Table Record", tableId, b.toString() + " --> " + tablePk,
+						"Error Copying Table to New Project", e);
+		} finally {
+			// session.close();
+		}
+    
+  }
 }
