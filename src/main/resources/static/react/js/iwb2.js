@@ -3540,7 +3540,7 @@ class XGridAction extends React.PureComponent {
             DropdownItem,
             { ur: "123", onClick: false },
             _("i", {
-              className: "icon-plus",
+              className: "fa fa-plus",
               style: {
                 marginRight: 5,
                 marginLeft: -2,
@@ -5149,7 +5149,7 @@ const XShowDetailTabs = ({
       { className: "border-0" },
       _(
         Nav,
-        { tabs: true },
+        { tabs: true, className:'detailTab-nav-tabs' },
         (currentDetailGrids || []).map(({ grid }, index) =>
           _(
             NavItem,
@@ -5157,7 +5157,7 @@ const XShowDetailTabs = ({
             _(
               NavLinkS,
               {
-                className: classNames({ active: activeTab === grid.gridId }),
+                className: classNames('detailTab-nav-link',{ active: activeTab === grid.gridId }),
                 onClick: () => {
                   setActiveTab(grid.gridId);
                 }
@@ -5195,7 +5195,7 @@ const XShowDetailTabs = ({
                 { md: "12" },
                 _(
                   CardHeader,
-                  {},
+                  {className:'pt-0 pb-1'},
                   crudFlags &&
                     crudFlags.edit &&
                     _(
@@ -5206,8 +5206,7 @@ const XShowDetailTabs = ({
                         onClick: event =>
                           topParentGrid.onOnNewRecord(event, grid, row)
                       },
-                      _("i", { className: "icon-plus mr-1" }),
-                      getLocMsg("new_record")
+                      _("i", { className: "fa fa-plus" }),
                     ),
                   (extraButtons || []).map((btn, index) =>
                     _(XToolbarItem, {
@@ -6049,7 +6048,7 @@ class XMainGrid extends GridCommon {
         { className: "inbox" },
         _(
           CardHeader,
-          {},
+          {className:'pt-0 pb-1'},
           searchForm &&
             _(
               Button,
@@ -6085,8 +6084,7 @@ class XMainGrid extends GridCommon {
                 color: "primary",
                 onClick: event => onOnNewRecord(event, this.props)
               },
-              _("i", { className: "icon-plus mr-1" }),
-              getLocMsg("new_record")
+              _("i", { className: "fa fa-plus" }),
             ),
           _("div", { className: "fgrow" }),
           extraButtons &&
@@ -6364,8 +6362,7 @@ class XMainCard extends GridCommon {
                 color: "primary",
                 onClick: event => onOnNewRecord(event, this.props)
               },
-              _("i", { className: "icon-plus mr-1" }),
-              getLocMsg("new_record")
+              _("i", { className: "fa fa-plus" }),
             ),
           _("div", { className: "fgrow" }),
           extraButtons &&
