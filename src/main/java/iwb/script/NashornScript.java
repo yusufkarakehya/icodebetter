@@ -163,7 +163,7 @@ public class NashornScript {
 		StringBuilder ss = new StringBuilder();
 		ss.append(measName);
 		if(tagMap instanceof ScriptObjectMirror) {
-			tagMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)tagMap);
+			tagMap = ScriptUtil.fromScriptObject2Map2((ScriptObjectMirror)tagMap);
 		}
 		if(tagMap instanceof Map) {
 			Map<String, Object> xtagMap = (Map)tagMap;
