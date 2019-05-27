@@ -3359,6 +3359,36 @@ public class VcsService {
 				
 		return result;
 	}
+	
+	public boolean vcsClientCopyObjects(Map<String, Object> scd, String dstProjectId, int tableId, int tablePk) {
+		W5Project srcPo = FrameworkCache.getProject(scd);
+		W5Project dstPo = FrameworkCache.getProject(dstProjectId);
+		W5Table t = FrameworkCache.getTable(scd, tableId);
+		if(dstPo==null || t==null || srcPo.getProjectUuid().equals(dstProjectId))return false;
+		Map dstScd = new HashMap();dstScd.putAll(scd);dstScd.put("projectId", dstProjectId);dstScd.put("customizationId", dstPo.getCustomizationId());
+
+		Map<String, String> srcMap = new HashMap();
+		dao.findRecordChildRecords4Copy(srcMap, scd, tableId, tablePk);
+
+		Map<String, String> dstMap = new HashMap();
+		dao.findRecordChildRecords4Copy(dstMap, dstScd, tableId, tablePk);
+		for(String keyz:srcMap.keySet()) {
+			String srcHash = srcMap.get(keyz);
+			String dstHash = dstMap.get(keyz);
+			if(GenericUtil.safeEquals(srcHash, dstHash))continue;
+			if(dstHash!=null)continue;//TODO
+			
+			int ix = keyz.indexOf('.');
+			int tt = GenericUtil.uInt(keyz.substring(0, ix));
+			int kk = GenericUtil.uInt(keyz.substring(ix+1));
+			
+			dao.copyTableRecord4VCS(scd, dstScd, tt, kk);
+			
+		}
+		
+		return true;
+		
+	}
 	//4147a129-06ad-4983-9b1c-8e88826454ac rbac project
 	public boolean vcsClientImportProject(Map<String, Object> scd, String projectId, String importedProjectId) {
 		Map<String, Object> newScd = new HashMap();

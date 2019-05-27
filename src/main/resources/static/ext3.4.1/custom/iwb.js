@@ -4289,7 +4289,11 @@ function promisRequest(rcfg) {
           if (rcfg.successResponse) rcfg.successResponse(a, b, c);
           else
             try {
-              var json = rcfg._eval? eval("(" + a.responseText + ")"): JSON.parse(a.responseText);// eval("(" + a.responseText + ")");
+              var json = rcfg._eval? eval("(" + a.responseText + ")"): JSON.parse(a.responseText);// eval("("
+																									// +
+																									// a.responseText
+																									// +
+																									// ")");
               if (json.success) {
                 if (rcfg.successDs) {
                   if (!rcfg.successDs.length) rcfg.successDs.reload();
@@ -7065,7 +7069,7 @@ iwb.showValsDiffinMonaco = function (qi) {
 }
 iwb.fnTblRecColumnVCSUpdate=function (tid, tpk, clmn, i) {
 	if(confirm('Are you sure to Update Local Value')){
-//		alert('todo: ' + tid + ' / ' + tpk  + ' / ' + clmn);
+// alert('todo: ' + tid + ' / ' + tpk + ' / ' + clmn);
 		iwb.request({
   		  url: 'ajaxVCSObjectPullColumn', params: { t: tid, k: tpk, c: clmn }, requestWaitMsg: true, successCallback: function (j) {
 	  	          Ext.infoMsg.msg('success', 'VCS Object Column Succesfully Pulled');
@@ -7221,7 +7225,51 @@ function fncMnuVcs(xgrid) {
               });
             });
         }
-      }
+      },'-',
+      {
+          text: "Copy to Another Project",
+          _grid: xgrid,
+          handler: function(aq) {
+            var sel = getSels(aq._grid);// ._gp.getSelectionModel().getSelections();
+            if(sel &&
+              sel.length > 0 &&
+              sel[0].data.pkpkpk_vcsf){
+            	iwb.ajax.query(2765,{},(jj)=>{
+            	    var cmbSt2=[];
+            	    var zz = jj.data;
+            	    if(zz.length)for(var qi=0;qi<zz.length;qi++)if(_scd.projectId!=zz[qi].id)cmbSt2.push([zz[qi].id, zz[qi].dsc]);
+            	    var cmbProject3 = new Ext.form.ComboBox({width:399, typeAhead: false, mode: 'local',triggerAction: 'all',selectOnFocus:true,forceSelection:true, store:cmbSt2, emptyText:'Select Project'});
+            	    var wx=new Ext.Window({
+            	        modal:true, shadow:false, border:false,
+            	        width:400,
+            	        autoHeight:true,
+            	        closeAction:'destroy',
+            	        title:'Copy to Project',
+
+            	        items: [cmbProject3],
+
+            	        buttons: [{
+            	            text: 'Copy',
+            	            handler: function(){
+            		
+            	            	var d = cmbProject3.getValue();
+				                if(d)promisRequest({
+				                  url: "ajaxCopyTableRecursive",
+				                  params: { d:d, t: aq._grid.crudTableId, k: sel[0].id, a: 3 },
+				                  successCallback: function(j) {
+				                    Ext.infoMsg.msg("success", "Copied");
+				                    iwb.reload(aq._grid);
+				                    wx.destroy();
+				                  }
+				                });
+            	            }}]
+            	    })
+            	    wx.show();
+
+            	});
+            }
+          }
+        }
   ];
 }
 

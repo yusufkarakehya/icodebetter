@@ -86,6 +86,20 @@ public class VcsController implements InitializingBean {
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
+	
+	@RequestMapping("/ajaxCopyTableRecursive")
+	public void hndAjaxCopyTableRecursive(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("hndAjaxCopyTableRecursive"); 
+		
+    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+    	String dstProjectId = request.getParameter("d");
+    	boolean b = vcsEngine.vcsClientCopyObjects(scd, dstProjectId, GenericUtil.uInt(request, "t"), GenericUtil.uInt(request, "k"));
+    	response.getWriter().write("{\"success\":"+b+"}");
+		response.getWriter().close();
+	}
 /*	
 	@RequestMapping("/ajaxCopyProject")
 	public void hndAjaxCopyProject(

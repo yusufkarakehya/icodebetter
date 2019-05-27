@@ -1294,31 +1294,29 @@ public class MetadataLoaderDAO extends BaseDAO {
 		lastTableId = -1;
 		List<W5TableChild> ltc = null, tpx = null;
 		for (W5TableChild tc : tcAll) {
+			W5Table tx = tableMap.get(tc.getTableId());
+			if (tx == null)
+				continue;
 			W5Table pr = tableMap.get(tc.getRelatedTableId());
 			if (pr == null)
 				continue;
-			if (lastTableId != tc.getTableId()) {
-				W5Table tx = tableMap.get(lastTableId == -1 ? tc.getTableId() : lastTableId);
-				if (tx != null) {
-					ltc = tx.get_tableChildList();
-					if (ltc == null) {
-						ltc = new ArrayList<W5TableChild>();
-						tx.set_tableChildList(ltc);
-					}
-				} else
-					continue;
-				lastTableId = tc.getTableId();
+
+			ltc = tx.get_tableChildList();
+			if (ltc == null) {
+				ltc = new ArrayList<W5TableChild>();
+				tx.set_tableChildList(ltc);
 			}
+
 			ltc.add(tc);
 
-			if (pr != null) {
-				tpx = pr.get_tableParentList();
-				if (tpx == null) {
-					tpx = new ArrayList<W5TableChild>();
-					pr.set_tableParentList(tpx);
-				}
-				tpx.add(tc);
+
+			tpx = pr.get_tableParentList();
+			if (tpx == null) {
+				tpx = new ArrayList<W5TableChild>();
+				pr.set_tableParentList(tpx);
 			}
+			tpx.add(tc);
+
 		}
 
 		FrameworkCache.setTableMap(projectId, tableMap);
