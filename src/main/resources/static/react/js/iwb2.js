@@ -105,7 +105,6 @@ var _dxgrb = DXReactGridBootstrap4;
  *              here and most used functions
  */
 iwb = {
-  loaders:loaders,
   toastr: toastr,
   components: {},
   grids: {},
