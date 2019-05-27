@@ -58,13 +58,16 @@ import "simple-line-icons/css/simple-line-icons.css";
 /** Loaders */
 import * as loaders from "./Loaders";
 import "./css/timeline.css";
-import { Aside } from "./components/Aside";
+import {
+  Aside
+} from "./components/Aside";
 import * as ReactDiffViewer from 'react-diff-viewer'
 /** Exports to window object */
 export {
   React,
   ReactDOM,
   XHTMLEditor,
+  ReactDiffViewer,
   draftJs,
   htmlToDraft,
   draftToHtml,
@@ -98,6 +101,5 @@ export {
   jquery,
   toastr,
   loaders,
-  Aside,
-  ReactDiffViewer
+  Aside
 };
