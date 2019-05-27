@@ -59,6 +59,7 @@ import "simple-line-icons/css/simple-line-icons.css";
 import * as loaders from "./Loaders";
 import "./css/timeline.css";
 import { Aside } from "./components/Aside";
+import * as ReactDiffViewer from 'react-diff-viewer'
 /** Exports to window object */
 export {
   React,
@@ -97,5 +98,6 @@ export {
   jquery,
   toastr,
   loaders,
-  Aside
+  Aside,
+  ReactDiffViewer
 };

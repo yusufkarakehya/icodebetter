@@ -105,6 +105,7 @@ var _dxgrb = DXReactGridBootstrap4;
  *              here and most used functions
  */
 iwb = {
+  loaders:loaders,
   toastr: toastr,
   components: {},
   grids: {},
@@ -7071,7 +7072,7 @@ class XCardMenu extends React.PureComponent {
                       borderRadius: "55px"
                     }
                   },
-                  loaders.puff(56, 56, this.props.color2)
+                  iwb.loaders.puff(56, 56, this.props.color2)
                 )
               : _("i", {
                   className:
