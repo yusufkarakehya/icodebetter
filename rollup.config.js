@@ -14,6 +14,12 @@ import cpy from "rollup-plugin-cpy";
 process.env.BABEL_ENV = 'production';
 process.env.NODE_ENV = 'production';
 // import svg from 'rollup-plugin-svg';
+var copyFonts = (params)=>{
+  return {
+    name:'rollup-plugin-copy-fonts',
+    generateBundle:cpy(params).onwrite
+  }
+}
 export default {
   input: ["src/react/lib/index.js"],
   output: {
@@ -35,7 +41,7 @@ export default {
       webfonts: "fonts"
     }),
     external(),
-    cpy({
+    copyFonts({
       // copy over all fonts files
       files: [
         "node_modules/**/*.ttf",
