@@ -141,7 +141,28 @@ var defineJSCompletionItemProvider = {
             kind: monaco.languages.CompletionItemKind.Function,
             documentation: "Influx Query",
             detail: 'null',insertText:'$.influxWriteRaw("host", "dbName", "meas_name,tag1=1 field1=2")'
-	    }
+	    },{
+            label: '$.redisClient',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "RedissonClient",
+            detail: 'null',insertText:'$.redisClient(externalDbId) //.getMap("initial-map") -> get("key"), put("key", value)'
+        },{
+            label: '$.mqttSend',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "MQQT Send",
+            detail: 'null',insertText:'$.mqttSend(mqId, "topic", "message")'
+        },{
+            label: '$.mongoDatabase',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Mongo Database",
+            detail: 'null',insertText:'$.mongoDatabase(externalDbId) // .getCollection("table-name") -> insert(mongoBasicDBObject), find(mongoBasicDBObject)'
+        },{
+            label: '$.mongoBasicDBObject',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "new Mongo BasicDBObject",
+            detail: 'null',insertText:'$.mongoBasicDBObject({values})'
+        }
+        
 /*        ,{
             label: '$.redisPut',
             kind: monaco.languages.CompletionItemKind.Function,

@@ -12,7 +12,10 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.redisson.api.RedissonClient;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoDatabase;
 import com.rabbitmq.client.Channel;
 
 import iwb.cache.FrameworkCache;
@@ -33,7 +36,6 @@ import iwb.util.GenericUtil;
 import iwb.util.InfluxUtil;
 import iwb.util.LogUtil;
 import iwb.util.MQUtil;
-import iwb.util.RedisUtil;
 import iwb.util.ScriptUtil;
 import iwb.util.UserUtil;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -60,75 +62,31 @@ public class NashornScript {
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
-	/*
-	 * public Object tsqlQuery(String sql, String dbName){ return
-	 * engine.executeInfluxQuery(scd, sql, dbName); } public void
-	 * tsqlInsert(String measurement, ScriptObjectMirror jsTags, ScriptObjectMirror
-	 * jsFields){ tsqlInsert(measurement, jsTags, jsFields, null); } public void
-	 * tsqlInsert(String measurement, ScriptObjectMirror jsTags, ScriptObjectMirror
-	 * jsFields, String date){ engine.insertInfluxRecord(scd, measurement,
-	 * fromNativeObject2Map2(jsTags, true), fromNativeObject2Map2(jsFields,
-	 * false), date); } public Object tsqlExecute(String sql, String dbName){
-	 * return null;//TODO }
-	 */
-
 	public void sleep(int millis) throws InterruptedException {
 		Thread.sleep(millis);
 	}
 
-	private ScriptObjectMirror fromJSONObjectToScriptObject(JSONObject o) {
-//		ScriptObjectMirror r = new ScriptObjectMirror();
-		// TODO Auto-generated method stub
-		return null;
+
+	public RedissonClient redisClient(int externalDbId) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		return edb.getRedissonClient();
 	}
-	/*
-
-	public ScriptObjectMirror redisGetJSON(String host, String k) throws JSONException {
-
-		String v = RedisUtil.get(host, k);
-		if (v != null) {
-			JSONObject o = new JSONObject(v);
-			return fromJSONObjectToScriptObject(o);
-		}
-		return null;
-	}
-
-
-	public String redisPut(String host, String k, Object v) {
-		if (v == null)
-			return RedisUtil.put(host, k, null);
-
-		if (v instanceof ScriptObjectMirror) {
-			ScriptObjectMirror so = (ScriptObjectMirror) v;
-			if(so.isArray()) {
-//				return RedisUtil.put(host, k, RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) v));
-				return "OK";//TODO
-			}
-			else {
-				return RedisUtil.put(host, k, GenericUtil.fromMapToJsonString2Recursive(so));
-			}
-		}
-
-		return RedisUtil.put(host, k, v.toString());
-	}
-
-	public String redisGet(String host, String k) {
-		return RedisUtil.get(host, k);
-	}
-
-	public long redisLlen(String host, String k) {
-		return RedisUtil.llen(host, k);
-	}
-
-	public void redisClose(String host) {
-		RedisUtil.close(host);
-	}
-
-	public String redisInfo(String host, String section) {
-		return RedisUtil.info(host, section);
-	}
-*/
 	
+
+	public MongoDatabase mongoDatabase(int externalDbId) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		return edb.getMongoDatabase();
+	}
+	
+
+	public BasicDBObject mongoBasicDBObject(Object jsRequestParams) {
+		Map m = fromScriptObject2Map((ScriptObjectMirror)jsRequestParams);
+		BasicDBObject o = new BasicDBObject();
+		if (GenericUtil.isEmpty(m)) return o;
+		for(Object key:m.keySet())o.put(key.toString(), m.get(key));
+		return o;
+	}
+
 	public Object[]  influxQuery(int externalDbId, String query) {
 		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
 		return influxQuery(edb.getDbUrl(), edb.getDefaultSchema(), query);

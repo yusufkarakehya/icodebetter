@@ -11,13 +11,16 @@ import java.util.Map;
 import org.graalvm.polyglot.Value;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.redisson.api.RedissonClient;
 
+import com.mongodb.client.MongoDatabase;
 import com.rabbitmq.client.Channel;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Console;
+import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5FormResult;
@@ -31,7 +34,6 @@ import iwb.util.GenericUtil;
 import iwb.util.InfluxUtil;
 import iwb.util.LogUtil;
 import iwb.util.MQUtil;
-import iwb.util.RedisUtil;
 import iwb.util.ScriptUtil;
 import iwb.util.UserUtil;
 
@@ -511,5 +513,16 @@ public class GraalScript {
 		}
 	}
 	
+	public RedissonClient redisClient(int externalDbId) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		return edb.getRedissonClient();
+	}
+	
 
+	public MongoDatabase mongoDatabase(int externalDbId) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		return edb.getMongoDatabase();
+	}
+	
+	
 }
