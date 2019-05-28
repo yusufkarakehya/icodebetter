@@ -155,12 +155,27 @@ var defineJSCompletionItemProvider = {
             label: '$.mongoDatabase',
             kind: monaco.languages.CompletionItemKind.Function,
             documentation: "Mongo Database",
-            detail: 'null',insertText:'$.mongoDatabase(externalDbId) // .getCollection("table-name") -> insert(mongoBasicDBObject), find(mongoBasicDBObject)'
+            detail: 'null',insertText:'$.mongoDatabase(externalDbId) // .getCollection("collection-name") -> insert(mongoBasicDBObject), find(mongoBasicDBObject)'
         },{
-            label: '$.mongoBasicDBObject',
+            label: '$.mongoQuery',
             kind: monaco.languages.CompletionItemKind.Function,
-            documentation: "new Mongo BasicDBObject",
-            detail: 'null',insertText:'$.mongoBasicDBObject({values})'
+            documentation: "Mongo Query",
+            detail: 'null',insertText:'$.mongoQuery(externalDbId, "collection-name" , {params})'
+        },{
+            label: '$.mongoInsert',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Mongo Insert",
+            detail: 'null',insertText:'$.mongoInsert(externalDbId, "collection-name" , {values})'
+        },{
+            label: '$.mongoUpdate',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Mongo Update",
+            detail: 'null',insertText:'$.mongoUpdate(externalDbId, "collection-name" , {values}, {params})'
+        },{
+            label: '$.mongoDelete',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Mongo Query",
+            detail: 'null',insertText:'$.mongoDelete(externalDbId, "collection-name" , {params})'
         }
         
 /*        ,{

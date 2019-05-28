@@ -5,9 +5,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.Document;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.json.JSONException;
@@ -15,6 +17,8 @@ import org.json.JSONObject;
 import org.redisson.api.RedissonClient;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.rabbitmq.client.Channel;
 
@@ -79,13 +83,48 @@ public class NashornScript {
 	}
 	
 
+	public Object[] mongoQuery(int externalDbId, String collectionName, Object... jsSearchParams) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		MongoCollection mc = edb.getMongoDatabase().getCollection(collectionName);
+		FindIterable iterDoc =  jsSearchParams.length==0 ? mc.find() : mc.find(mongoBasicDBObject(jsSearchParams[0]));
+		Iterator it = iterDoc.iterator();
+		if(!it.hasNext())return null;
+		List l = new ArrayList();
+		while(it.hasNext()) {
+			l.add(it.next());
+		}
+		return l.toArray();
+	}
+	
+
+	public void mongoInsert(int externalDbId, String collectionName, Object jsValues) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		MongoCollection mc = edb.getMongoDatabase().getCollection(collectionName);
+		mc.insertOne(new Document((Map)ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)jsValues)));
+	}
+	
+	public void mongoUpdate(int externalDbId, String collectionName, Object jsValues, Object jsKeys) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		MongoCollection mc = edb.getMongoDatabase().getCollection(collectionName);
+		mc.updateOne(mongoBasicDBObject(jsKeys), new Document((Map)ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)jsValues)));
+	}
+	
+	public void mongoDelete(int externalDbId, String collectionName, Object jsKeys) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		MongoCollection mc = edb.getMongoDatabase().getCollection(collectionName);
+		mc.deleteMany(mongoBasicDBObject(jsKeys));
+	}
+	
+
 	public BasicDBObject mongoBasicDBObject(Object jsRequestParams) {
-		Map m = fromScriptObject2Map((ScriptObjectMirror)jsRequestParams);
+		Map m = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)jsRequestParams);
 		BasicDBObject o = new BasicDBObject();
 		if (GenericUtil.isEmpty(m)) return o;
 		for(Object key:m.keySet())o.put(key.toString(), m.get(key));
 		return o;
 	}
+
+
 
 	public Object[]  influxQuery(int externalDbId, String query) {
 		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);

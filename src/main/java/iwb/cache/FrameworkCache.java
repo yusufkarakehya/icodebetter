@@ -706,7 +706,10 @@ public class FrameworkCache {
 
 	public static W5ExternalDb getExternalDb(Object o, int externalDbId) {
 		String projectId = getProjectId(o, null);
-		return FrameworkCache.wExternalDbs.get(projectId).get(externalDbId);
+		W5ExternalDb r = FrameworkCache.wExternalDbs.get(projectId).get(externalDbId);
+		if(r==null)
+			throw new IWBException("framework", "ExternalDb", externalDbId, null, "Wrong ExternalDBId: " + externalDbId, null);
+		return r;
 
 	}	
 
