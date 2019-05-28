@@ -18,10 +18,15 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.redisson.config.SingleServerConfig;
 
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoDatabase;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import iwb.cache.FrameworkSetting;
+import iwb.exception.IWBException;
 
 // Generated Feb 5, 2007 3:58:07 PM by Hibernate Tools 3.2.0.b9
 
@@ -51,6 +56,7 @@ public class W5ExternalDb implements java.io.Serializable, W5Base{
 //	private HikariConfig _hikariConfig;
 	private HikariDataSource _hikariDS;
 	private RedissonClient _redissonClient;
+	private MongoDatabase _mongoDb;
 	
 	@Id
 	@Column(name="project_uuid")
@@ -154,13 +160,27 @@ public class W5ExternalDb implements java.io.Serializable, W5Base{
 	
 	@Transient
 	public RedissonClient getRedissonClient(){
-		if(_redissonClient == null){
+		if(_redissonClient == null)try{
 			Config config = new Config();
 			SingleServerConfig ssc = config.useSingleServer().setAddress(getDbUrl()).setTimeout(100000);
 			if(poolSize>1)ssc.setConnectionMinimumIdleSize(poolSize/2).setConnectionPoolSize(poolSize);
 			_redissonClient = Redisson.create(config);
+		}catch(Exception e) {
+			throw new IWBException("framework", "ExternalDB", externalDbId, null, "Could not establish connection to Redis("+externalDbId+"): " + dbUrl,e);
+
 		}
 		return _redissonClient;
+	}
+	
+	@Transient
+	public MongoDatabase getMongoDatabase(){
+		if(_mongoDb == null)try{
+			MongoClient mongoClient  = new MongoClient( new MongoClientURI(getDbUrl()));
+			_mongoDb = mongoClient.getDatabase(defaultSchema);			
+		}catch(Exception e) {
+			throw new IWBException("framework", "ExternalDB", externalDbId, null, "Could not establish connection to Mongo("+externalDbId+"): " + dbUrl,e);
+		}
+		return _mongoDb;
 	}
 	
 	@Column(name="default_schema")

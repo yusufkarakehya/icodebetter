@@ -14,6 +14,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.redisson.api.RedissonClient;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoDatabase;
 import com.rabbitmq.client.Channel;
 
 import iwb.cache.FrameworkCache;
@@ -34,7 +36,6 @@ import iwb.util.GenericUtil;
 import iwb.util.InfluxUtil;
 import iwb.util.LogUtil;
 import iwb.util.MQUtil;
-import iwb.util.RedisUtil;
 import iwb.util.ScriptUtil;
 import iwb.util.UserUtil;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -66,40 +67,24 @@ public class NashornScript {
 	}
 
 
-	/*
-
-	public ScriptObjectMirror redisGetJSON(String host, String k) throws JSONException {
-
-		String v = RedisUtil.get(host, k);
-		if (v != null) {
-			JSONObject o = new JSONObject(v);
-			return fromJSONObjectToScriptObject(o);
-		}
-		return null;
-	}
-
-
-	public String redisPut(String host, String k, Object v) {
-		if (v == null)
-			return RedisUtil.put(host, k, null);
-
-		if (v instanceof ScriptObjectMirror) {
-			ScriptObjectMirror so = (ScriptObjectMirror) v;
-			if(so.isArray()) {
-//				return RedisUtil.put(host, k, RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) v));
-				return "OK";//TODO
-			}
-			else {
-				return RedisUtil.put(host, k, GenericUtil.fromMapToJsonString2Recursive(so));
-			}
-		}
-
-		return RedisUtil.put(host, k, v.toString());
-	}
-*/
 	public RedissonClient redisClient(int externalDbId) {
 		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
 		return edb.getRedissonClient();
+	}
+	
+
+	public MongoDatabase mongoDatabase(int externalDbId) {
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
+		return edb.getMongoDatabase();
+	}
+	
+
+	public BasicDBObject mongoBasicDBObject(Object jsRequestParams) {
+		Map m = fromScriptObject2Map((ScriptObjectMirror)jsRequestParams);
+		BasicDBObject o = new BasicDBObject();
+		if (GenericUtil.isEmpty(m)) return o;
+		for(Object key:m.keySet())o.put(key.toString(), m.get(key));
+		return o;
 	}
 
 	public Object[]  influxQuery(int externalDbId, String query) {

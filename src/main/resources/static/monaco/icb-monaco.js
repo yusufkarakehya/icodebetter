@@ -151,7 +151,18 @@ var defineJSCompletionItemProvider = {
             kind: monaco.languages.CompletionItemKind.Function,
             documentation: "MQQT Send",
             detail: 'null',insertText:'$.mqttSend(mqId, "topic", "message")'
+        },{
+            label: '$.mongoDatabase',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "Mongo Database",
+            detail: 'null',insertText:'$.mongoDatabase(externalDbId) // .getCollection("table-name") -> insert(mongoBasicDBObject), find(mongoBasicDBObject)'
+        },{
+            label: '$.mongoBasicDBObject',
+            kind: monaco.languages.CompletionItemKind.Function,
+            documentation: "new Mongo BasicDBObject",
+            detail: 'null',insertText:'$.mongoBasicDBObject({values})'
         }
+        
 /*        ,{
             label: '$.redisPut',
             kind: monaco.languages.CompletionItemKind.Function,
