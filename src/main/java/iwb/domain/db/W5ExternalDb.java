@@ -13,9 +13,15 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
+import iwb.cache.FrameworkSetting;
 
 // Generated Feb 5, 2007 3:58:07 PM by Hibernate Tools 3.2.0.b9
 
@@ -44,6 +50,7 @@ public class W5ExternalDb implements java.io.Serializable, W5Base{
 	
 //	private HikariConfig _hikariConfig;
 	private HikariDataSource _hikariDS;
+	private RedissonClient _redissonClient;
 	
 	@Id
 	@Column(name="project_uuid")
@@ -144,6 +151,18 @@ public class W5ExternalDb implements java.io.Serializable, W5Base{
         return _hikariDS.getConnection();
     }
 
+	
+	@Transient
+	public RedissonClient getRedissonClient(){
+		if(_redissonClient == null){
+			Config config = new Config();
+			SingleServerConfig ssc = config.useSingleServer().setAddress(getDbUrl()).setTimeout(100000);
+			if(poolSize>1)ssc.setConnectionMinimumIdleSize(poolSize/2).setConnectionPoolSize(poolSize);
+			_redissonClient = Redisson.create(config);
+		}
+		return _redissonClient;
+	}
+	
 	@Column(name="default_schema")
 	public String getDefaultSchema() {
 		return defaultSchema;
