@@ -3730,6 +3730,36 @@ function showSQLError(sql, xpos, err) {
   return false;
 }
 
+function showScriptError(sql, xlineNo, err) {
+	  var _code = new Ext.ux.form.Monaco({
+	    hideLabel: true,// id:'id-ahmet',
+	    language: "javascript",
+	    name: "code",
+	    anchor: "%100",
+	    height: "%100",
+	    value: sql
+	  });
+
+	  var wx = new Ext.Window({
+	    modal: true,
+	    closable: true,
+	    title: "Script Error" + (err ? ' &nbsp; <span style="color:red;font-size:.9em;">'+err.substr(0,100)+'</span>':''),
+	    width: 1000,
+	    height: 600,
+	    border: false,
+	    layout: "fit",
+	    items: [new Ext.FormPanel({ region: "center", items: [_code] })],
+	    buttons:[{text:'Close',handler:function(){
+	    	wx.destroy();
+	    }}]
+	  }).show();
+	  if(xlineNo)_code.editor.deltaDecorations([], [
+			{ range: new monaco.Range(xlineNo,1,xlineNo,1), options: { isWholeLine: true, linesDecorationsClassName: 'veliSelRed' }}
+		]);
+	  return false;
+	}
+
+
 function ajaxErrorHandler(obj) {
   if (obj.errorType && obj.errorType == "validation") {
     var msg = "<b>" + getLocMsg("js_field_validation") + "</b><ul>";
@@ -3820,14 +3850,14 @@ function ajaxErrorHandler(obj) {
             var lineNo = oo.error.substr(oo.error.indexOf("#{") + 2);
             lineNo = lineNo.substr(0, lineNo.length - 2);
             if (iwb.errors[qi])
-              ss +=
-                " &nbsp; <a href=# onclick='return mainPanel.loadTab({attributes:{id:\"idxwPre" +
-                qi +
-                '",href:"showForm?_fid=2643&a=2",params:{error_line:' +
-                lineNo +
-                ",irhino_script_code:iwb.errors[" +
-                qi +
-                ']).innerHTML}}});\' style="padding:1px 5px;background:white;color:#607D8B;border-radius:20px;">Code</a>';
+                ss +=
+                    " &nbsp; <a href=# onclick='showScriptError(iwb.errors[" +
+                    (qi) +
+                    "]," +
+                    lineNo +
+                    ",iwb.errors[" +
+                    (qi) +
+                    "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>Code</a>";
           } else {
             if (oo.error.indexOf("Position: ") > -1) {
               sqlPos = oo.error.substr(

@@ -86,7 +86,7 @@ public class NashornScript {
 	public Object[] mongoQuery(int externalDbId, String collectionName, Object... jsSearchParams) {
 		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
 		MongoCollection mc = edb.getMongoDatabase().getCollection(collectionName);
-		FindIterable iterDoc =  jsSearchParams.length==0 ? mc.find() : mc.find(mongoBasicDBObject(jsSearchParams[0]));
+		FindIterable iterDoc =  jsSearchParams.length==0 ? mc.find() : mc.find(new Document((Map)ScriptUtil.fromScriptObject2Map(jsSearchParams[0])));
 		Iterator it = iterDoc.iterator();
 		if(!it.hasNext())return null;
 		List l = new ArrayList();
@@ -100,30 +100,34 @@ public class NashornScript {
 	public void mongoInsert(int externalDbId, String collectionName, Object jsValues) {
 		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
 		MongoCollection mc = edb.getMongoDatabase().getCollection(collectionName);
-		mc.insertOne(new Document((Map)ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)jsValues)));
+		mc.insertOne(new Document((Map)ScriptUtil.fromScriptObject2Map(jsValues)));
 	}
 	
-	public void mongoUpdate(int externalDbId, String collectionName, Object jsValues, Object jsKeys) {
+	public void mongoUpdate(int externalDbId, String collectionName, Object jsValues, Object... jsKeys) {
 		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
 		MongoCollection mc = edb.getMongoDatabase().getCollection(collectionName);
-		mc.updateOne(mongoBasicDBObject(jsKeys), new Document((Map)ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)jsValues)));
+		Map values = (Map)ScriptUtil.fromScriptObject2Map(jsValues);
+		Map keys = null;
+		if(jsKeys.length==0) {
+			Object _id = values.get("_id");
+			if(_id==null)
+				throw new IWBException("framework", "MonguUpdate.PK", 0, null, "Keys not defined, at least _id must be given", null);
+			keys = new HashMap();
+			keys.put("_id",_id);
+			values.remove("_id");
+		} else keys = (Map)ScriptUtil.fromScriptObject2Map(jsKeys);
+		if(keys.containsKey("_id"))
+			mc.updateOne(new Document(keys), new Document(values));
+		else
+			mc.updateMany(new Document(keys), new Document(values));
 	}
 	
 	public void mongoDelete(int externalDbId, String collectionName, Object jsKeys) {
 		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
 		MongoCollection mc = edb.getMongoDatabase().getCollection(collectionName);
-		mc.deleteMany(mongoBasicDBObject(jsKeys));
+		mc.deleteMany(new Document((Map)ScriptUtil.fromScriptObject2Map(jsKeys)));
 	}
 	
-
-	public BasicDBObject mongoBasicDBObject(Object jsRequestParams) {
-		Map m = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)jsRequestParams);
-		BasicDBObject o = new BasicDBObject();
-		if (GenericUtil.isEmpty(m)) return o;
-		for(Object key:m.keySet())o.put(key.toString(), m.get(key));
-		return o;
-	}
-
 
 
 	public Object[]  influxQuery(int externalDbId, String query) {

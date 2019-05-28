@@ -34,6 +34,7 @@ public class ScriptUtil {
 	public static Map fromScriptObject2Map(Object reqP) {
 		Map<String, Object> rp = new HashMap<String, Object>();
 		if(reqP==null)return rp;
+		if(reqP instanceof Map)return (Map)reqP;
 		ScriptObjectMirror jsRequestParams = (ScriptObjectMirror)reqP;
 		if (jsRequestParams.isArray()) {
 			rp.put("rhino", fromScriptObject2List(jsRequestParams));
@@ -64,6 +65,7 @@ public class ScriptUtil {
 	public static List fromScriptObject2List2(Object reqL) {
 		List ll = new ArrayList();
 		if(reqL==null)return ll;
+		if(reqL instanceof List)return (List)reqL;
 		ScriptObjectMirror jsRequestParams = (ScriptObjectMirror)reqL;
 		for (Object oo : jsRequestParams.values()) {
 			if (oo == null)
@@ -91,6 +93,7 @@ public class ScriptUtil {
 	public static Map fromScriptObject2Map2(Object reqP) {
 		Map<String, Object> rp = new HashMap<String, Object>();
 		if(reqP==null)return rp;
+		if(reqP instanceof Map)return (Map)reqP;
 		ScriptObjectMirror jsRequestParams = (ScriptObjectMirror)reqP;
 		if (jsRequestParams.isArray()) {
 			rp.put("rhino", fromScriptObject2List2(jsRequestParams));
