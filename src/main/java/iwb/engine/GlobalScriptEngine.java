@@ -234,6 +234,7 @@ public class GlobalScriptEngine {
 			} catch (Exception ge) {
 				String msg = getErrorLineNumberAsMsg(ge);
 				dao.logGlobalFuncAction(action, r, error);
+				if(!script.startsWith("function "))script="function "+fncName+"($, _scd, _request /* and other params*/) {\n"+script+"\n}";
 				throw new IWBException("rhino", "NashornGlobalFunc.Run", r.getGlobalFuncId(), script,
 						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc() + msg, ge);
 			}
@@ -481,9 +482,10 @@ public class GlobalScriptEngine {
 					nashornEngine.eval(script);
 					FrameworkCache.addGraalFunc(scd, "1209." + ta.getTableTriggerId(), scrName);
 				} catch (Exception ge) {
+					String msgx = getErrorLineNumberAsMsg(ge);
 //				dao.logGlobalFuncAction(action, r, error);
 					throw new IWBException("rhino", "NashornTableEvent.Compile", ta.getTableTriggerId(), script,
-							"[1209," + ta.getTableTriggerId() + "] " + ta.getDsc(), ge);
+							"[1209," + ta.getTableTriggerId() + "] " + ta.getDsc() + msgx, ge);
 				}
 			else if (nobj instanceof String) {
 				scrName = nobj.toString();
@@ -502,8 +504,10 @@ public class GlobalScriptEngine {
 
 			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
+				String msgx = getErrorLineNumberAsMsg(ge);
+				if(!script.startsWith("function "))script="function "+scrName+"($, _scd, _request, triggerAction /* and other params*/) {\n"+script+"\n}";
 				throw new IWBException("rhino", "NashornTableEvent.Run", ta.getTableTriggerId(), script,
-						"[1209," + ta.getTableTriggerId() + "] " + ta.getDsc(), ge);
+						"[1209," + ta.getTableTriggerId() + "] " + ta.getDsc() + msgx, ge);
 			}
 
 		} else {
@@ -596,8 +600,9 @@ public class GlobalScriptEngine {
 					nashornEngine.eval(script);
 					FrameworkCache.addGraalFunc(scd, key, fncName);
 				} catch (Exception ge) {
+					String msg = getErrorLineNumberAsMsg(ge);
 //				dao.logGlobalFuncAction(action, r, error);
-					throw new IWBException("rhino", "NashornScript.Compile", 0, script, key, ge);
+					throw new IWBException("rhino", "NashornScript.Compile", 0, script, key + msg, ge);
 				}
 			else if (nobj instanceof String) {
 				fncName = nobj.toString();
@@ -610,8 +615,9 @@ public class GlobalScriptEngine {
 				return funcResult;
 
 			} catch (Exception ge) {
+				String msg = getErrorLineNumberAsMsg(ge);
 //				dao.logGlobalFuncAction(action, r, error);
-				throw new IWBException("rhino", "NashornScript.Run", 0, script, fncName, ge);
+				throw new IWBException("rhino", "NashornScript.Run", 0, script, fncName + msg, ge);
 			}
 
 		} else { // graal
@@ -677,9 +683,10 @@ public class GlobalScriptEngine {
 					if (!dynamicQuery)
 						FrameworkCache.addGraalFunc(qr.getScd(), "8." + qr.getQueryId(), qryName);
 				} catch (Exception ge) {
+					String msg = getErrorLineNumberAsMsg(ge);
 //				dao.logGlobalFuncAction(action, r, error);
 					throw new IWBException("rhino", "NashornQuery.Compile", qr.getQueryId(), script,
-							"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
+							"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc() + msg, ge);
 				}
 			else if (nobj instanceof String) {
 				qryName = nobj.toString();
@@ -809,9 +816,11 @@ public class GlobalScriptEngine {
 				}
 
 			} catch (Exception ge) {
+				String msg = getErrorLineNumberAsMsg(ge);
 //				dao.logGlobalFuncAction(action, r, error);
+				if(!script.startsWith("function "))script="function "+qryName+"($, _scd, _request /* and other params*/) {\n"+script+"\nreturn result}";
 				throw new IWBException("rhino", "NashornQuery.Run", qr.getQueryId(), script,
-						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
+						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc() + msg, ge);
 			}
 		} else {// graal
 			if (polyglot == null)
@@ -1088,7 +1097,7 @@ public class GlobalScriptEngine {
 		return result;
 	}
 
-	private String getErrorLineNumberAsMsg(Exception ge) {
+	private static String getErrorLineNumberAsMsg(Exception ge) {
 		String msg = ge.getMessage();
 		if (msg != null) {
 			for (Throwable prt = ge; prt != null; prt = prt.getCause()) {

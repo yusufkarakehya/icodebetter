@@ -3857,7 +3857,7 @@ function ajaxErrorHandler(obj) {
                     lineNo +
                     ",iwb.errors[" +
                     (qi) +
-                    "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>Code</a>";
+                    "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>Show Code</a>";
           } else {
             if (oo.error.indexOf("Position: ") > -1) {
               sqlPos = oo.error.substr(
@@ -3873,7 +3873,7 @@ function ajaxErrorHandler(obj) {
                 sqlPos +
                 ",iwb.errors[" +
                 (qi) +
-                "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>Code</a>";
+                "])' style='padding:1px 5px;background:white;color:green;border-radius:20px;'>Show Code</a>";
             // sqlPos=false;
             }
           }
