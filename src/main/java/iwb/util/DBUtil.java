@@ -32,7 +32,10 @@ public class DBUtil {
 			if(subStr.startsWith("scd.")){
 				if(scd!=null && scd.get(subStr.substring(4))!=null)o=scd.get(subStr.substring(4)).toString(); // session
 			} else if(subStr.startsWith("req.")){
-				if(requestParams!=null && requestParams.get(subStr.substring(4))!=null)o=requestParams.get(subStr.substring(4)).toString(); // request
+				if(requestParams!=null && requestParams.get(subStr.substring(4))!=null) {
+					Object oo=requestParams.get(subStr.substring(4)); // request
+					o=oo.toString();
+				}
 			} else if(subStr.startsWith("obj.")){
 				if(obj!=null && obj.get(subStr.substring(4))!=null)o=obj.get(subStr.substring(4)).toString(); // object
 			} else if(subStr.startsWith("app.")){

@@ -464,7 +464,7 @@ public class GlobalScriptEngine {
 				nashornEngine = new ScriptEngineManager().getEngineByName("nashorn");
 			Object nobj = FrameworkCache.getGraalFunc(scd, "1209." + ta.getTableTriggerId());
 
-			String scrName = null, script = null;
+			String scrName = null, script = ta.getTriggerCode();
 			if (nobj == null)
 				try {
 					scrName = "te_" + (scd != null && scd.get("projectId") != null
