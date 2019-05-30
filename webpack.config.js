@@ -42,7 +42,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebPackPlugin({
-      template: "./public/index.html",
+      template: "./public-react/index.html",
       filename: "./index.html"
     })
   ]
