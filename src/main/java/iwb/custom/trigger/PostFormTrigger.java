@@ -361,6 +361,7 @@ public class PostFormTrigger {
 		case    1168://form/cell/code_detail/form_sms_mail
 		case	1173://condition_group
 		case    1198://conversion,conversion_col,conversion_detail
+		case	1345://m5_list
 			FrameworkCache.clearPreloadCache(scd);
 		}
 		

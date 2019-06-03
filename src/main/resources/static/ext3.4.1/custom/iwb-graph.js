@@ -66,9 +66,7 @@ iwb.graph.treeInit=function(id, data) { //"diag-" + _page_tab_id
 	    	var xid='ww-' + thisEntity.key;
 	    	var w = Ext.getCmp(xid);
 	    	if(!w){
-	    		var wcfg = {id:xid,cls:'icb-opacity-hover',autoScroll:!0,title:thisEntity.object + ': ' +thisEntity.text, width: 500, height: 500, html:'<div style="width:100% !important;height:100% !important;font-size: 12px;" id="'+xid+'x"></div>'};
-	    		if(true || thisEntity.buttons)wcfg.tbar=[{text:'Kill',handler:function(){alert('TODO')}}];
-	    		w = new Ext.Window(wcfg)
+	    		w = new Ext.Window({id:xid,cls:'icb-opacity-hover',autoScroll:!0,title:thisEntity.object + ': ' +thisEntity.text, width: 500, height: 500, html:'<div style="width:100% !important;height:100% !important;font-size: 12px;" id="'+xid+'x"></div>'})
 	    		w.show();
 				$('#'+xid+'x').jsonViewer(thisEntity.json, { collapsedLevel: 1 });
 	    	}

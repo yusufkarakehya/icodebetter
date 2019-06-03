@@ -46,6 +46,7 @@ import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.ViewMobileAdapter2;
 import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.adapter.ui.f7.F7;
+import iwb.adapter.ui.f7.F7_4;
 import iwb.adapter.ui.react.React16;
 import iwb.adapter.ui.vue.Vue2;
 import iwb.adapter.ui.webix.Webix3_3;
