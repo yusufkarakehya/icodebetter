@@ -1,6 +1,5 @@
 .iwb-menu{
-	list-style: none;
-	padding:7px;
+	padding:3px;
 }
 
 .iwb-mmenu-icon {
@@ -8,6 +7,6 @@
 	width: 16px;
 }
 
-#idx-main-menu .item-title{
-	font-size:16px;
+a.item-link.panel-close .item-inner::before{
+	content:none !important;
 }

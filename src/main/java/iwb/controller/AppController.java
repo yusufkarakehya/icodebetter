@@ -110,7 +110,7 @@ public class AppController implements InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		ext3_4 = new ExtJs3_4();
 		webix3_3 = new Webix3_3();
-		f7 = new F7();
+		f7 = new F7_4();
 		react16 = new React16();
 		vue2 = new Vue2();
 	//	FrameworkCache.activeProjectsStr = "067e6162-3b6f-4ae2-a221-2470b63dff00,29a3d378-3c59-4b5c-8f60-5334e3729959";

@@ -11,12 +11,11 @@ var routes = [
 
 			      // App instance
 			      var app = router.app;
-			      iwb.request({url:'showMList',data:Object.assign(routeTo.query,routeTo.params), success:function(d){
+			      iwb.app.preloader.show();
+			      iwb.request({url:'showMList',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
 					var j = eval('('+d+')');
 					resolve({component:j})
-			    	  
-			      }})
-			      return;
+			      }});
 		    }
 			  
 		  },
@@ -24,62 +23,25 @@ var routes = [
 		  {
 		    path: '/showMForm',
 		    async: function (routeTo, routeFrom, resolve, reject) {
-		      // Router instance
-		      var router = this;
+			      // Router instance
+			      var router = this;
 
-		      // App instance
-		      var app = router.app;
-		      console.log(routeTo.query);
-alert('hoho')
-resolve({})
-		      return;
-		      // Show Preloader
-		      iwb.app.preloader.show();
-
-		      // User ID from request
-		      var userId = routeTo.params.userId;
-
-		      // Simulate Ajax Request
-		      setTimeout(function () {
-		        // We got user data from request
-		        var user = {
-		          firstName: 'Vladimir',
-		          lastName: 'Kharlampidi',
-		          about: 'Hello, i am creator of Framework7! Hope you like it!',
-		          links: [
-		            {
-		              title: 'Framework7 Website',
-		              url: 'http://framework7.io',
-		            },
-		            {
-		              title: 'Framework7 Forum',
-		              url: 'http://forum.framework7.io',
-		            },
-		          ]
-		        };
-		        // Hide Preloader
-		        iwb.app.preloader.hide();
-
-		        // Resolve route to load page
-		        resolve(
-		          {
-		            componentUrl: './pages/request-and-load.html',
-		          },
-		          {
-		            context: {
-		              user: user,
-		            }
-		          }
-		        );
-		      }, 1000);
+			      // App instance
+			      var app = router.app;
+			      iwb.request({url:'showMForm',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
+					var j = eval('('+d+')');
+					resolve({component:j});
+			      }});
 		    },
 		  },
 		  // Default route (404 page). MUST BE THE LAST
 		  {
 		    path: '(.*)',
-		    url: '/f7/pages/404.htm',
+		    url: '/f7/pages/404.htm'
 		  },
 		];
+
+
 
 var _scd={};
 var iwb={};
@@ -93,11 +55,14 @@ iwb.request=function(cfg){
 		iwb.checkSession(cfg);
 	} else if(cfg){
 		if(cfg.url){
+			if(cfg.preloader)iwb.app.preloader.show();
+
 			return iwb.app.request({
 	            url: iwb.serverUrl + cfg.url,
 	            method: 'GET', data: cfg.data || {},
 //	            dataType: cfg.dataType || 'json',
 	            success: function (j) {
+	            	if(cfg.preloader)iwb.app.preloader.hide();
 	            	if(iwb.debug){console.log('ajax-success: '+cfg.url);}
             		if(cfg.success)try{
             			cfg.success(j, cfg);
@@ -125,6 +90,7 @@ iwb.request=function(cfg){
 	    			}
 	            },
 	            error:function (j,err) {
+	            	if(cfg.preloader)iwb.app.preloader.hide();
 	            	if(iwb.debug && err){
 	               		iwb.app.dialog.alert(err + ': ' + cfg.url);
 	            	}
@@ -150,7 +116,7 @@ function recMenu(r, lvl){
 		'<div class="list accordion-list"><ul>'+recMenu(r[qi].children, lvl+1)+'</ul></div></div>';
 	} else {
 		var href=r[qi].href;
-		s+='<li class="accordion-item iwb-menu"><a href="'+href+'"'+ (href=='#' ? (' id="'+r[qi].id+'"'):'') +' class="item-content item-link close-panel'+(!lvl ? '  iwb-menu-murl':'')+'"><div class="item-inner">';
+		s+='<li class="accordion-item iwb-menu"><a href="/'+href+'"'+ (href=='#' ? (' id="'+r[qi].id+'"'):'') +' class="item-content item-link panel-close'+(!lvl ? '  iwb-menu-murl':'')+'"><div class="item-inner">';
 		s+='<div class="item-title">';
 		if(lvl && r[qi].icon)s+='<i class="f7-icons iwb-mmenu-icon">'+(r[qi].icon||'star')+'</i>&nbsp; ';
 //		else if(lvl)for(var ji=0;ji<lvl;ji++)s+=' &nbsp;';
@@ -230,11 +196,11 @@ iwb.showRecordMenu=function(json3, targetEl){
 	var lnk =[], href=false, pk=1;
 	if(json3.crudFlags){
 		if(json3.crudFlags.edit){
-			href='showMForm?a=1&_fid='+json3.crudFormId+'&'+json3.pkName+'='+pk+'&.r='+Math.random();
-			lnk.push('<li><a href="'+href+'" class="item-link item-content close-popover"><div class="item-inner" style="background-image:none;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;color: #027eff;">compose</i> &nbsp; Update</div></div></a></li>');
+			href='/showMForm?a=1&_fid='+json3.crudFormId+'&'+json3.pkName+'='+pk+'&.r='+Math.random();
+			lnk.push('<li><a href="'+href+'" class="item-link item-content popover-close"><div class="item-inner" style="background-image:none;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;color: #027eff;">compose</i> &nbsp; Update</div></div></a></li>');
 		}
 		if(json3.crudFlags.remove){
-			lnk.push('<li><a href="#" id="idx-confirm-delete-'+json3.crudFormId+'" class="item-link item-content close-popover"><div class="item-inner" style="background-image:none;color:red;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;">delete_round</i> &nbsp; Delete</div></div></a></li>');
+			lnk.push('<li><a href="#" id="idx-confirm-delete-'+json3.crudFormId+'" class="item-link item-content popover-close"><div class="item-inner" style="background-image:none;color:red;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;">delete_round</i> &nbsp; Delete</div></div></a></li>');
 		}
 	}
 	
@@ -246,7 +212,7 @@ iwb.showRecordMenu=function(json3, targetEl){
 			e1=' iwb-ab-'+json3.listId;
 			e2=' iwb-key="'+qi+'"';
 		}
-		var s='<li><a href="'+xhref+'" class="item-link item-content close-popover'+e1+'"'+e2+'><div class="item-inner"><div class="item-title">';
+		var s='<li><a href="'+xhref+'" class="item-link item-content popover-close'+e1+'"'+e2+'><div class="item-inner"><div class="item-title">';
 		if(bt.icon)s+='<i class="f7-icons" style="font-size: 17px;color: #027eff;">'+bt.icon+'</i> &nbsp '; 
 		s+=bt.text+'</div>';
 		if(bt.badge)s+='<div class="item-after">'+bt.badge+'</div>';
@@ -263,3 +229,84 @@ iwb.showRecordMenu=function(json3, targetEl){
 		}
 	}
 }
+Template7.registerHelper('iwb', function (key){
+	return iwb[key];
+});
+
+Template7.registerHelper('scd', function (key){
+	return _scd[key];
+});
+
+var daysOfTheWeek=['Pazar', 'Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+iwb.fmtDateAgo=function(dt){
+	if(!dt)return '';
+	var tnow = new Date().getTime();
+	var dt2=dt.toDate("dd/mm/yyyy hh:ii:ss");
+	var t = dt2.getTime();
+	if(t+30*1000>tnow)return 'Az Önce';//5 sn
+	if(t+2*60*1000>tnow)return 'Bir Dakika Önce';//1 dka
+	if(t+60*60*1000>tnow)return Math.round((tnow-t)/(60*1000)) + ' Dakika Önce';
+	if(t+24*60*60*1000>tnow)return Math.round((tnow-t)/(60*60*1000)) + ' Saat Önce';
+	if(t+2*24*60*60*1000>tnow)return 'Dün';
+	if(t+7*24*60*60*1000>tnow)return daysOfTheWeek[dt2.getDay()];//5dka
+	return dt.substr(0,10);
+}
+
+iwb.fmtDateAgo2=function(dt){
+	if(!dt)return '';
+	var tnow = new Date().getTime();
+	var dt2=dt.toDate("dd/mm/yyyy hh:ii:ss");
+	var t = dt2.getTime();
+	if(t+24*60*60*1000>tnow)return dt.substr(11,5);
+	return dt.substr(0,10);
+}
+
+function fmtDecimalNew(value,digit){
+	if(!value)return '0';
+	if(!digit)digit=2;	
+	var result = Math.round(value*Math.pow(10,digit))/Math.pow(10,digit)+'';
+	var s=1*result<0?1:0;
+	var x=result.split('.');
+	var x1=x[0],x2=x[1];
+	for(var i=x1.length-3;i>s;i-=3)x1=x1.substr(0,i)+('.')+x1.substr(i);
+	if(x2 && x2>0) return x1+(',')+x2;
+	return x1;	
+}
+
+iwb.fmtDistance=function(d){
+	if(!d || d<0)return '';
+	if(d<1000)return d + ' m';
+	d = d/1000;
+	return fmtDecimalNew(d,1)+ ' km';
+}
+
+
+Template7.registerHelper('ago', iwb.fmtDateAgo);
+Template7.registerHelper('ago2', iwb.fmtDateAgo2);
+Template7.registerHelper('dst', iwb.fmtDistance);
+
+String.prototype.toDate = function(format){
+	  var normalized      = this.replace(/[^a-zA-Z0-9]/g, '-');
+	  var normalizedFormat= format.toLowerCase().replace(/[^a-zA-Z0-9]/g, '-');
+	  var formatItems     = normalizedFormat.split('-');
+	  var dateItems       = normalized.split('-');
+
+	  var monthIndex  = formatItems.indexOf("mm");
+	  var dayIndex    = formatItems.indexOf("dd");
+	  var yearIndex   = formatItems.indexOf("yyyy");
+	  var hourIndex     = formatItems.indexOf("hh");
+	  var minutesIndex  = formatItems.indexOf("ii");
+	  var secondsIndex  = formatItems.indexOf("ss");
+
+	  var today = new Date();
+
+	  var year  = yearIndex>-1  ? dateItems[yearIndex]    : today.getFullYear();
+	  var month = monthIndex>-1 ? dateItems[monthIndex]-1 : today.getMonth()-1;
+	  var day   = dayIndex>-1   ? dateItems[dayIndex]     : today.getDate();
+
+	  var hour    = hourIndex>-1      ? dateItems[hourIndex]    : today.getHours();
+	  var minute  = minutesIndex>-1   ? dateItems[minutesIndex] : today.getMinutes();
+	  var second  = secondsIndex>-1   ? dateItems[secondsIndex] : today.getSeconds();
+
+	  return new Date(year,month,day,hour,minute,second);
+	};
