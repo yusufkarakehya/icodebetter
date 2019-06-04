@@ -413,7 +413,9 @@ public class F7_4 implements ViewMobileAdapter2 {
 			boolean searchBar = l.getDefaultPageRecordNumber()==0 && (l.getListTip()==1 || l.getListTip()==4); // && listResult.getSearchFormResult()==null
 			//StringBuilder s2= new StringBuilder();
 			StringBuilder s2 = new StringBuilder();
-			s2.append("<div class=\"page\" data-name=\"mlist-").append(l.getListId()).append("-view\">")
+			s2.append("<div class=\"page");
+			if(searchBar)s2.append(" page-with-subnavbar");
+			s2.append("\" data-name=\"mlist-").append(l.getListId()).append("-view\">")
 			.append("\n<div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"left\">");
 			
 			if(l.getParentListId()==0) {
@@ -422,19 +424,27 @@ public class F7_4 implements ViewMobileAdapter2 {
 			else s2.append("<a href=\"#\" class=\"link back\"> <i class=\"icon icon-back\"></i> <span class=\"if-not-md\">Back</span></a>");
 
 			
-			s2.append("</div>")
-			.append("<div class=\"title sliding\">").append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey())).append("</div><div class=\"title-large\"><div class=\"title-large-text\">")
-			.append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey())).append("</div></div>");
+			s2.append("</div>");
+
+
+			
+			s2.append("<div class=\"title").append(l.getParentListId()==0 ? " sliding":"").append("\">").append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey())).append("</div>");
+			if(listResult.getSearchFormResult()!=null){
+				s2.append("<div class=\"right\"><a href=# class=\"link icon-only\" @click=\"clickFilter\"><i class=\"icon material-icons md-only\">search</i></a></div>");
+			}
+			if(l.getParentListId()==0)s2.append("<div class=\"title-large\"><div class=\"title-large-text\">").append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey())).append("</div></div>");
 			if(searchBar){
 				s2.append("<div class=\"subnavbar\"><form class=\"searchbar\"><div class=\"searchbar-inner\"><div class=\"searchbar-input-wrap\"><input type=\"search\" placeholder=\"Search\"><i class=\"searchbar-icon\"></i><span class=\"input-clear-button\"></span></div><span class=\"searchbar-disable-button if-not-aurora\">Cancel</span></div></form></div>");
 			}
 			s2.append("</div></div>");
+			
+
 
 			StringBuilder s3= new StringBuilder();
 			if(!GenericUtil.isEmpty(l.get_orderQueryFieldNames())){
 				s3.append("<a href=# class=\"fab-label-button\" @click=\"clickSort\" id=\"idx-sort-").append(l.getListId()).append("\"><span><i class=\"icon material-icons\">sort</i></span><span class=\"fab-label\">Sort</span></a>");
 			}
-			if(listResult.getSearchFormResult()!=null){
+			if(false && listResult.getSearchFormResult()!=null){
 				s3.append("<a href=# class=\"fab-label-button\" @click=\"clickFilter\" id=\"idx-filter-").append(l.getListId()).append("\"><span><i class=\"icon material-icons\">search</i></span><span class=\"fab-label\">Search</span></a>");
 			}
 			if(l.getDefaultCrudFormId()!=0 && l.get_mainTable()!=null){
@@ -465,7 +475,7 @@ public class F7_4 implements ViewMobileAdapter2 {
 			}
 			
 			s2.append("<div class=\"list").append(searchBar ? " searchbar-found":"").append("\"><ul>");
-			s2.append(htmlDataCode);
+			if(!GenericUtil.isEmpty(htmlDataCode))s2.append(htmlDataCode);
 			s2.append("</ul></div>");
 			if(l.getDefaultPageRecordNumber()>0)s2.append("{{#if infiniteScroll}}<div class=\"preloader infinite-scroll-preloader\"></div>{{/if}}");
 
@@ -480,16 +490,21 @@ public class F7_4 implements ViewMobileAdapter2 {
 		buf.append("`");
 		
 		
-		buf.append(",\n data:function(){return {data:[],infiniteScroll:false, browseInfo:{startRow:0}}}");
-		buf.append(",\n on:{pageMounted:function(){console.log('xmounted');this.load(0);},pageInit: function (e, page) {var self=this;setTimeout(function(){self.ptr=iwb.app.ptr.get('.ptr-content');console.log('xpageInit',self.ptr);self.ptr.on('refresh',self.load);");
-		if(l.getDefaultPageRecordNumber()>0)buf.append("var ic=$$('.infinite-scroll-content');console.log('infinite-scroll-content', ic);if(ic && ic.length)iwb.app.on('infinite', function () {console.log('infinite-scroll-content2', this);this.load(this.browseInfo.startRow);});");
-		buf.append("},100);}},\n methods:{load:function(start){if(!start)start=0;console.log('xload',start);var self = this;iwb.request({url:'ajaxQueryData?_qid=")
-			.append(listResult.getList().getQueryId())
-			.append("', data:{");
+		buf.append(",\n data:function(){return {data:[],infiniteScroll:").append(l.getDefaultPageRecordNumber()>0).append(", browseInfo:{startRow:0}}}");
+		buf.append(",\n on:{pageDestroy:function(){console.log('DESTROYYY');if(this.ptr)this.ptr.destroy('#idx-page-content-").append(l.getListId()).append(".ptr-content');},pageMounted:function(){iwb.allowInfinite=!0;this.load(0);},pageInit: function (e, page) {var self=this;setTimeout(function(){self.ptr=iwb.app.ptr.get('#idx-page-content-").append(l.getListId()).append(".ptr-content');console.log('xpageInit',self.ptr);self.ptr.on('refresh',self.firstLoad);");
+		if(l.getDefaultPageRecordNumber()>0)buf.append("var ic=$$('#idx-page-content-").append(l.getListId()).append(".infinite-scroll-content');console.log('infinite-scroll-content', ic);if(ic && ic.length)iwb.app.on('infinite', function () {console.log('!iwb.allowInfinite',iwb.allowInfinite,self);if(!iwb.allowInfinite)return;iwb.allowInfinite=false;self.load(self.browseInfo.startRow,function(){iwb.allowInfinite=!0;});});");
+		buf.append("},100);}},\n methods:{firstLoad:function(){this.load(0);},load:function(start,callback){if(!start)start=0;console.log('xload',start);var self = this;iwb.request({url:'ajaxQueryData?_qid=").append(listResult.getList().getQueryId());
+		if(l.getParentListId()!=0) {
+			for(String key:listResult.getRequestParams().keySet()) if(key.startsWith("x")){
+				int val = GenericUtil.uInt(listResult.getRequestParams().get(key));
+				if(val>0)buf.append("&").append(key).append("=").append(val);
+			}
+		}
+		buf.append("', data:{");
 		if(l.getDefaultPageRecordNumber()>0)buf.append("start:start,limit:").append(l.getDefaultPageRecordNumber());
-		buf.append("}, success:function(d){var j=eval('('+d+')');");
-		if(l.getDefaultPageRecordNumber()>0)buf.append("var b=j.browseInfo;j.infiniteScroll=b.startRow+b.fetchCount<b.totalCount;if(b.fetchCount){b.startRow+=b.fetchCount;if(start){var data=self.data;console.log('data',self.data);data.push(self.data);j.data=data;}};");
-		buf.append("self.$setState(j);if(self.ptr)self.ptr.done()}});}, reload:function(){this.load(0);},clickMenu:function(ax,bx){console.log(this,ax,bx);iwb.showRecordMenu({me:ax");
+		buf.append("}, success:function(d){var j=eval('('+d+')');if(callback)callback();");
+		if(l.getDefaultPageRecordNumber()>0)buf.append("var b=j.browseInfo;j.infiniteScroll=b.startRow+b.fetchCount<b.totalCount;if(b.fetchCount){b.startRow+=b.fetchCount;if(start){j.data=self.data.concat(j.data);}};");
+		buf.append("self.$setState(j);if(self.ptr)self.ptr.done()}});}, reload:function(){this.load(0);},clickMenu:function(event){iwb.showRecordMenu({_event:event, _this:this");
 		if(l.getDefaultCrudFormId()!=0 && l.get_mainTable()!=null){
 			W5Table t = l.get_mainTable();
 			insertFlag = GenericUtil.accessControl(listResult.getScd(),
@@ -539,7 +554,7 @@ public class F7_4 implements ViewMobileAdapter2 {
 		
 		
 		
-		buf.append("}, ax.target);},clickSort:function(){alert('sort')},clickFilter:function(){alert('filter')}}");
+		buf.append("}, event.target);},clickSort:function(){alert('sort')},clickFilter:function(){alert('filter')}}");
 
 		String jsCode = listResult.getList().getJsCode();
 		if(false && !GenericUtil.isEmpty(jsCode)){

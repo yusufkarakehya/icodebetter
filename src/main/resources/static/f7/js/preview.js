@@ -50,7 +50,7 @@ iwb.serverUrl='';
 iwb.debug=true;
 
 iwb.request=function(cfg){
-	if(iwb.debug)console.log('iwb.request: ' + (cfg ? cfg.url:''));
+//	if(iwb.debug)console.log('iwb.request: ' + (cfg ? cfg.url:''));
 	if(!_scd){
 		iwb.checkSession(cfg);
 	} else if(cfg){
@@ -63,7 +63,7 @@ iwb.request=function(cfg){
 //	            dataType: cfg.dataType || 'json',
 	            success: function (j) {
 	            	if(cfg.preloader)iwb.app.preloader.hide();
-	            	if(iwb.debug){console.log('ajax-success: '+cfg.url);}
+//	            	if(iwb.debug){console.log('ajax-success: '+cfg.url);}
             		if(cfg.success)try{
             			cfg.success(j, cfg);
             		} catch(e){
@@ -192,8 +192,15 @@ $$('#my-login-screen .login-button').on('click', function () {
 iwb.prepareMainMenu();
 
 iwb.showRecordMenu=function(json3, targetEl){
-	console.log('dd',json3.me,$$(json3.me.target));
-	var lnk =[], href=false, pk=1;
+	console.log('dd',json3._event,$$(json3._event.target).attr('iwb-key'));
+	var tg=$$(json3._event.target);
+	var pk = tg.attr('iwb-key');
+	if(!pk){
+		tg = tg.parents('a');
+		if(tg.length)pk = tg.attr('iwb-key');
+	}
+	if(!pk)return;
+	var lnk =[], href=false;
 	if(json3.crudFlags){
 		if(json3.crudFlags.edit){
 			href='/showMForm?a=1&_fid='+json3.crudFormId+'&'+json3.pkName+'='+pk+'&.r='+Math.random();
