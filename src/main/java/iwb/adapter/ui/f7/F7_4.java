@@ -220,7 +220,7 @@ public class F7_4 implements ViewMobileAdapter {
 		}
 		buf.append("', data:{");
 		if(l.getDefaultPageRecordNumber()>0)buf.append("start:start,limit:").append(l.getDefaultPageRecordNumber());
-		buf.append("}, success:function(d){var j=eval('('+d+')');if(callback)callback();");
+		buf.append("}, success:function(j){if(callback)callback();");
 		if(l.getDefaultPageRecordNumber()>0)buf.append("var b=j.browseInfo;j.infiniteScroll=b.startRow+b.fetchCount<b.totalCount;if(b.fetchCount){b.startRow+=b.fetchCount;if(start){j.data=self.data.concat(j.data);}};");
 		buf.append("self.$setState(j);if(self.ptr)self.ptr.done()}});}, reload:function(){this.load(0);},clickMenu:function(event){iwb.showRecordMenu({_event:event, _this:this");
 		if(l.getDefaultCrudFormId()!=0 && l.get_mainTable()!=null){
@@ -413,7 +413,7 @@ public class F7_4 implements ViewMobileAdapter {
 		}
 		buf.append("', data:{");
 		if(l.getDefaultPageRecordNumber()>0)buf.append("start:start,limit:").append(l.getDefaultPageRecordNumber());
-		buf.append("}, success:function(d){var j=eval('('+d+')');if(callback)callback();");
+		buf.append("}, success:function(j){if(callback)callback();");
 		if(l.getDefaultPageRecordNumber()>0)buf.append("var b=j.browseInfo;j.infiniteScroll=b.startRow+b.fetchCount<b.totalCount;if(b.fetchCount){b.startRow+=b.fetchCount;if(start){j.data=self.data.concat(j.data);}};");
 		buf.append("self.$setState(j);if(self.ptr)self.ptr.done()}});}, reload:function(){this.load(0);},clickMenu:function(event){iwb.showRecordMenu({_event:event, _this:this");
 		if(l.getDefaultCrudFormId()!=0 && l.get_mainTable()!=null){
@@ -489,7 +489,7 @@ public class F7_4 implements ViewMobileAdapter {
 		s.append("{success:true, formId:").append(f.getFormId()).append(",\n name:'")
 			.append(LocaleMsgCache.get2(formResult.getScd(), f.getLocaleMsgKey()))
 			.append("'");
-		boolean liveSyncRecord = false, pictureFlag=false;
+		boolean pictureFlag=false;
 		
 		Map<Integer, List<W5FormCellHelper>> map = new HashMap<Integer, List<W5FormCellHelper>>();
 		map.put(0, new ArrayList<W5FormCellHelper>());
@@ -510,9 +510,7 @@ public class F7_4 implements ViewMobileAdapter {
 		
 		if (f.getObjectTip() == 2){
 			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
-			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
-			pictureFlag =FrameworkCache.getAppSettingIntValue(scd, "attach_picture_flag") != 0
-					&& t.getFileAttachmentFlag() != 0;
+			pictureFlag = t.getFileAttachmentFlag() != 0;
 			// insert AND continue control
 			s.append(",\n crudTableId:").append(f.getObjectId());
 			if (formResult.getAction() == 2) { // insert
@@ -524,29 +522,7 @@ public class F7_4 implements ViewMobileAdapter {
 				s.append(",id:'").append(formResult.getUniqueId()).append("',\n pk:")
 						.append(GenericUtil.fromMapToJsonString(formResult
 								.getPkFields()));
-				if (liveSyncRecord) {
-					s.append(",\n liveSync:true");
-					String webPageId = formResult.getRequestParams().get(".w");
-					if (webPageId != null) {
-						String key = "";
-						for (String k : formResult.getPkFields().keySet())
-							if (!k.startsWith("customization"))
-								key += "*" + formResult.getPkFields().get(k);
-						if (key.length() > 0) {
-							key = t.getTableId() + "-" + key.substring(1);
-							formResult.setLiveSyncKey(key);
-							List<Object> l = UserUtil
-									.syncGetListOfRecordEditUsers(
-											(String)scd.get("projectId"), key,
-											webPageId);
-							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
-								s.append(",\n liveSyncBy:")
-										.append(GenericUtil
-												.fromListToJsonString2Recursive((List) l));
-							}
-						}
-					}
-				}
+				
 
 			}
 //			if (pictureFlag)s.append(",\n pictureFlag:true, pictureCount:").append(formResult.getPictureCount());
@@ -767,7 +743,9 @@ public class F7_4 implements ViewMobileAdapter {
 		
 		if(jsCode.length()>0)
 			s.append(",\n on:{pageMounted:function(){\n").append(jsCode).append("\n}}");
-		s.append(",\n methods:{clickPhoto:function(){alert('photo');},clickSave:function(){alert('save'); console.log(iwb.app.formToData('#idx-form-").append(f.getFormId()).append("'));}}");
+		s.append(",\n methods:{clickPhoto:function(){alert('photo');},clickSave:function(){var self=this;var baseParams=")
+		.append(GenericUtil.fromMapToJsonString(formResult.getRequestParams())) 
+		.append(";if(self.componentWillPost)baseParams=self.componentWillPost(baseParams);if(baseParams!==false)iwb.submit('#idx-form-").append(f.getFormId()).append("',baseParams,function(j){self.$router.back({force:!0});});}}");
 /*		if(!GenericUtil.isEmpty(f.getJsCode())){
 			jsCode.append("\n").append(f.getJsCode()).append("\n");
 		}
@@ -858,10 +836,13 @@ public class F7_4 implements ViewMobileAdapter {
 		case    51: case 52://user defined combo, multi
 			boolean multi = fc.getControlTip()!=6 && fc.getControlTip()!=7 && fc.getControlTip()!=51;
 			StringBuilder resultText = new StringBuilder();
-			buf.append("<li id=\"id-formcell-").append(fc.getFormCellId()).append("\"><a href=#").append(multi ? "":" data-back-on-select=\"true\"").append(" class=\"item-link smart-select\"")
-				.append((cellResult.getLookupListValues() != null && cellResult.getLookupListValues().size()>40) || (cellResult.getLookupQueryResult() != null && cellResult.getLookupQueryResult().getData().size()>40) ? " data-virtual-list=\"true\"" : "")
-				.append(" data-searchbar=\"true\" data-searchbar-placeholder=\"Ara..\">")
-				.append("<select id=\"idx-formcell-").append(fc.getFormCellId()).append("\" name=\"").append(fc.getDsc()).append("\"").append(multi ? " multiple":"").append(">");
+			buf.append("<li id=\"id-formcell-").append(fc.getFormCellId()).append("\"><a href=#").append(multi ? "":" data-close-on-select=\"true\"").append(" class=\"item-link smart-select\"");
+			int len = cellResult.getLookupListValues() != null ? cellResult.getLookupListValues().size(): (cellResult.getLookupQueryResult() != null ? cellResult.getLookupQueryResult().getData().size() : 0);
+			if(len>100)buf.append(" data-virtual-list=\"true\"");
+			
+			if(len>10)buf.append(" data-open-in=\"popup\" data-searchbar=\"true\" data-searchbar-placeholder=\"Search..\"");
+			else buf.append(" data-open-in=\"popover\"");
+			buf.append("><select id=\"idx-formcell-").append(fc.getFormCellId()).append("\" name=\"").append(fc.getDsc()).append("\"").append(multi ? " multiple":"").append(">");
 			if(fc.getNotNullFlag()==0 && !multi)buf.append("<option value=\"\"></option>");
 			if (cellResult.getLookupListValues() != null) { //lookup static
 				for (W5Detay p : (List<W5Detay>) cellResult.getLookupListValues()) {
@@ -893,10 +874,10 @@ public class F7_4 implements ViewMobileAdapter {
 		case	9://combo-remote
 		case	16://lovcombo-remote
 			multi = fc.getControlTip()==16;
-			buf.append("<li id=\"id-formcell-").append(fc.getFormCellId()).append("\"><a href=#").append(multi ? "":" data-back-on-select=\"true\"").append(" class=\"item-link smart-select\"")
-				.append(" data-searchbar=\"true\" data-searchbar-placeholder=\"Ara..\">")
+			buf.append("<li id=\"id-formcell-").append(fc.getFormCellId()).append("\"><a href=#").append(multi ? "":" data-close-on-select=\"true\"").append(" class=\"item-link smart-select\"")
+				.append(" data-searchbar=\"true\" data-searchbar-placeholder=\"Search..\" data-open-in=\"popup\">")
 				.append("<select id=\"idx-formcell-").append(fc.getFormCellId()).append("\" name=\"").append(fc.getDsc()).append("\"").append(multi ? " multiple":"");
-			if(!GenericUtil.isEmpty(value))buf.append(" iwb-value=\"").append(value).append("\"");
+			if(!GenericUtil.isEmpty(value))buf.append(" data-value=\"").append(value).append("\"");
 			buf.append(">");
 			buf.append("</select><div class=\"item-content\"><div class=\"item-inner\"><div class=\"item-title label\"").append(notNull).append(">").append(fieldLabel).append("</div><div class=\"item-after\">");
 			buf.append("</div></div></div></a></li>");

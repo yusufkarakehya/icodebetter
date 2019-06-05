@@ -13,8 +13,9 @@ var routes = [
 			      var app = router.app;
 			      iwb.app.preloader.show();
 			      iwb.request({url:'showMList',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
-					var j = eval('('+d+')');
-					resolve({component:j})
+					//var j = eval('('+d+')');
+			    	  console.log('hh',d)
+					resolve({component:d})
 			      }});
 		    }
 			  
@@ -29,8 +30,9 @@ var routes = [
 			      // App instance
 			      var app = router.app;
 			      iwb.request({url:'showMForm',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
-					var j = eval('('+d+')');
-					resolve({component:j});
+					//var j = eval('('+d+')');
+			    	  
+					resolve({component:d});
 			      }});
 		    },
 		  },
@@ -49,6 +51,20 @@ var iwb={};
 iwb.serverUrl='';
 iwb.debug=true;
 
+iwb.submit=function(idForm, baseParams, callback){
+	iwb.request({url:'ajaxPostForm',preloader:!0,data:Object.assign(baseParams, iwb.app.form.convertToData(idForm)),method:'POST',success:function(j){
+		if(j.msgs)for(var qi=0;qi<j.msgs.length && qi<5;qi++){
+			iwb.app.toast.show({
+				  text: j.msgs[qi],closeButton: true
+				});
+		} else iwb.app.toast.create({
+			  text: 'done',
+			  closeTimeout: 2000,
+			});
+		if(callback)callback(j);
+	}});
+}
+
 iwb.request=function(cfg){
 //	if(iwb.debug)console.log('iwb.request: ' + (cfg ? cfg.url:''));
 	if(!_scd){
@@ -59,13 +75,20 @@ iwb.request=function(cfg){
 
 			return iwb.app.request({
 	            url: iwb.serverUrl + cfg.url,
-	            method: 'GET', data: cfg.data || {},
+	            method: cfg.method||'GET', data: cfg.data || {},
 //	            dataType: cfg.dataType || 'json',
-	            success: function (j) {
+	            success: function (d) {
 	            	if(cfg.preloader)iwb.app.preloader.hide();
-//	            	if(iwb.debug){console.log('ajax-success: '+cfg.url);}
-            		if(cfg.success)try{
-            			cfg.success(j, cfg);
+	            	var j = {};
+	            	try{
+	            		j = eval('('+d+')');
+	            	}catch(ee){
+	            		if(iwb.debug && confirm('iwb.request.eval Expception. Throw?'))throw e;
+	            		return;
+	            	}
+
+            		if(j.success)try{
+            			if(cfg.success)cfg.success(j, cfg);
             		} catch(e){
             			if(iwb.debug && confirm('iwb.request.success Expception. Throw?'))throw e;
 	            	} else if(cfg.error)try{
@@ -94,10 +117,11 @@ iwb.request=function(cfg){
 	            	if(iwb.debug && err){
 	               		iwb.app.dialog.alert(err + ': ' + cfg.url);
 	            	}
-	            	if(cfg.failure)cfg.failure(j, cfg, err);
+	            	if(cfg.failure)cfg.failure(j, cfg, err); 
+	            	else if(cfg.error)cfg.error(j, cfg, err);
 	            }
 	        });
-		} else if(cfg.callback)cfg.callback();
+		}
 	}
 	return false;
 }
@@ -128,8 +152,8 @@ function recMenu(r, lvl){
 iwb.prepareMainMenu=function(){
 	iwb.request({url:'ajaxQueryData?_qid='+ (_scd.mobileMenuQueryId || 1487)+'&.r='+Math.random(),dataType:'text',data:{_json:1, xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:_scd.userTip}, success:function(d){
 // if(iwb.debug){console.log('prepareMainMenu');console.log(d);}
-		var j = eval('('+d+')');
-		$$('#idx-main-menu').html(recMenu(j.data));
+//		var j = eval('('+d+')');
+		$$('#idx-main-menu').html(recMenu(d.data));
 	}}); 
 }
 
@@ -289,8 +313,10 @@ iwb.combo2combo = function(prt, cmb, fnc, action){
 	$$(prt).on('change',function(){
 		if(iwb.debug){console.log(prt+':event:change');};
 		var params = fnc($$(prt).val());
-		if(params)iwb.loadCombo(cmb, params);
-		else {
+		if(params){
+			$$(cmb.replace('idx-','id-')).show();
+			iwb.loadCombo(cmb, params);
+		} else {
 			$$(cmb).find('option').remove();//temizle once
 			if(true || params===false)$$(cmb.replace('idx-','id-')).hide();
 		}
@@ -298,68 +324,25 @@ iwb.combo2combo = function(prt, cmb, fnc, action){
 	$$(prt).trigger('change');
 }
 
-iwb.app.formToData = function (form) {
-    form = $$(form);
-    if (form.length !== 1) return false;
-
-    // Form data
-    var formData = {};
-
-    // Skip input types
-    var skipTypes = ['submit', 'image', 'button', 'file'];
-    var skipNames = [];
-    form.find('input, select, textarea').each(function () {
-        var input = $$(this);
-        var name = input.attr('name');
-        var type = input.attr('type');
-        var tag = this.nodeName.toLowerCase();
-        if (skipTypes.indexOf(type) >= 0) return;
-        if (skipNames.indexOf(name) >= 0 || !name) return;
-        if (tag === 'select' && input.prop('multiple')) {
-            skipNames.push(name);
-            formData[name] = [];
-            form.find('select[name="' + name + '"] option').each(function () {
-                if (this.selected) formData[name].push(this.value);
-            });
-        }
-        else {
-            switch (type) {
-                case 'checkbox' :
-                    skipNames.push(name);
-                    formData[name] = [];
-                    form.find('input[name="' + name + '"]').each(function () {
-                        if (this.checked) formData[name].push(this.value);
-                    });
-                    break;
-                case 'radio' :
-                    skipNames.push(name);
-                    form.find('input[name="' + name + '"]').each(function () {
-                        if (this.checked) formData[name] = this.value;
-                    });
-                    break;
-                default :
-                    formData[name] = input.val();
-                    break;
-            }
-        }
-    });
-    //form.trigger('formToJSON formToData form:todata', {formData: formData});
-
-    return formData;
-};
-
 iwb.loadCombo = function(cmb, params){
 	var ctrl = $$(cmb);
-	var selected=ctrl && ctrl.length ? ctrl[0].attributes['iwb-value'].value:'';
+
+	var selected=ctrl && ctrl.length ? ctrl.data('value'):'';
+
 	ctrl.find('option').remove();//temizle once
+	iwb.app.smartSelect.destroy(cmb);
 	iwb.request({url:'ajaxQueryData', data:params, success:function(j){
-		var data=j.data,res=[];
+		var data=j.data,res=[], s='';
+		
 		for(var qi=0;qi<data.length;qi++){
-			iwb.app.smartSelectAddOption(cmb, '<option value="'+data[qi].id+'"'+(data[qi].id==selected ? ' selected':'')+'>'+data[qi].dsc+'</option>');
+			s+='<option value="'+data[qi].id+'"'+(data[qi].id==selected ? ' selected':'')+'>'+data[qi].dsc+'</option>';
 			if(data[qi].id==selected)res.push(data[qi].dsc);
 		}
-		$$(cmb.replace('idx-','id-')).find('.item-after').text(res.join(', '));
-		$$(cmb.replace('idx-','id-')).show();
+		ctrl.append(s);
+		//console.log('as',selected, s);
+		iwb.app.smartSelect.create(cmb);
+		//$$(cmb.replace('idx-','id-')).find('.item-after').text(res.join(', '));
+		//$$(cmb.replace('idx-','id-')).show();
 	}});
 }
 
