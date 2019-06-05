@@ -10,3 +10,7 @@
 a.item-link.panel-close .item-inner::before{
 	content:none !important;
 }
+
+.card-content{
+	overflow:hidden;
+}

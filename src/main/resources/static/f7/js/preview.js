@@ -90,16 +90,20 @@ iwb.request=function(cfg){
 	    			case	'session':
 	    				iwb.reLogin(cfg);
 	    				return;
+	    			case	'confirm':
+	    				iwb.app.dialog.confirm(j.error,function(){var ncfg=Object.assign({},cfg);ncfg.data=Object.assign(ncfg.data,{confirmId:j.objectId});iwb.request(ncfg);});
+	    				return;
 	    			case	'validation':
-	    				var s='';
+	    				var s='';//<i class="icon material-icons color-red" style="font-size:16px">error</i> <b>Validation Errors</b><br/>';
 	    				if(j.errors)for(var qi=0;qi<j.errors.length && qi<3;qi++){
-	    					s+=j.errors[qi].dsc+': ' + j.errors[qi].msg +'<br/>';
+	    					s+='<i class="icon material-icons color-red" style="font-size:18px">error</i> &nbsp; <span style="color:orange;font-weight:bosld">'+ j.errors[qi].dsc+'</span> &nbsp; ' + j.errors[qi].msg +'<br/>';
 	    				} else s=j.error;
-	    				iwb.app.dialog.alert(iwb.strTrim(s, 200), j.errorType || 'iWB');
+	    				iwb.app.toast.create({position:'top',closeTimeout:6000,text:s}).open();
+	    				
 	    				return;
 	    			default:
 	    				if(cfg.error)cfg.error(j, cfg);
-	    				else iwb.showResponseError(j);
+	    				else iwb.app.toast.create({position:'top',closeButton:!0,text:j.error||'Unknown Error'}).open();
 	    				return;
 	    			}
 	            },
@@ -117,6 +121,39 @@ iwb.request=function(cfg){
 	return false;
 }
 
+iwb.orderList=function(j){
+	var bs=[{text:'Sorting...', label: true}], od=j.$options.props.orderNames;
+	for(var qi=0;qi<od.length;qi++){
+		var mm= od[qi];
+		var bq= j.sort && j.sort==mm.id;
+		
+		bs.push({text: (bq ? ('<b>'+mm.dsc+' ('+(j.dir=='ASC' ? 'Ascending':'Descending')+')</b>'):mm.dsc), onClick: function (d,e) {
+			if(iwb.debug){console.log('sort-action-click');console.log(d);console.log(e);}
+			if(!e.srcElement || !e.srcElement.innerText){
+				alert('olmadi');return;
+			}
+			var t=e.srcElement.innerText, qq=false;
+			for(var ji=0;ji<od.length;ji++)if(t.indexOf(od[ji].dsc)==0){
+				qq=od[ji];
+				break;
+			}
+			if(!qq){
+				alert('olmadi2');return;
+			}
+			var newSort=j.sort, newDir='ASC';
+			if(j.sort && j.sort==qq.id){
+				newDir= j.dir=='ASC' ? 'DESC':'ASC';
+			} else {
+				newSort=qq.id;
+			}
+			j.$setState({sort:newSort, dir:newDir, data:[], browseInfo:{startRow:0}});
+			setTimeout(function(){j.load(0)}, 100)
+           }
+		});
+	}
+	iwb.app.actions.create({ buttons: bs}).open();
+	
+}
 
 function recMenu(r, lvl){
 	if(!r || !r.length)return '';
@@ -164,8 +201,7 @@ iwb.formPhotoMenu=function(j){
            }
        }
    ]);
-	var ac=iwb.app.actions.create({ buttons: buttons});
-	ac.open();
+	iwb.app.actions.create({ buttons: buttons}).open();
 }
 
 iwb.takePhoto=function(){
@@ -177,9 +213,14 @@ iwb.photoBrowser=function(tid, pk){
 	iwb.request({url:'ajaxQueryData?_qid=806',data:{_tableId:tid,_tablePk:pk}, success:function(j){
 		if(j.data && j.data.length){
 			var photos=[];
-			for(var qi=0;qi<j.data.length;qi++)photos.push('sf/'+j.data[qi].dsc+'?_fai='+j.data[qi].id+'&.r='+ Math.random());
-			var p = iwb.app.photoBrowser.create({photos:photos, theme:'dark'});
-			p.open();
+			for(var qi=0;qi<j.data.length;qi++){
+				var s = j.data[qi].dsc.toLowerCase();
+				if(s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg'))photos.push('sf/'+j.data[qi].dsc+'?_fai='+j.data[qi].id+'&.r='+ Math.random());
+			}
+			if(photos.length){
+				var p = iwb.app.photoBrowser.create({photos:photos, theme:'dark'});
+				p.open();
+			} else iwb.app.dialog.alert('no photo found')
 		}
 	}});
 }
@@ -212,6 +253,10 @@ iwb.app = new Framework7({
         lastName: 'Doe',
       },
     };
+  },
+  dialog: {
+	    // set default title for all dialog shortcuts
+	    title: 'iCodeBetter',
   },
   // App routes
   routes: routes,
