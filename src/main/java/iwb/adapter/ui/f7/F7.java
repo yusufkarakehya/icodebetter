@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import iwb.adapter.ui.ViewMobileAdapter2;
+import iwb.adapter.ui.ViewMobileAdapter;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
@@ -37,7 +37,7 @@ import iwb.enums.FieldDefinitions;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
-public class F7 implements ViewMobileAdapter2 {
+public class F7 implements ViewMobileAdapter {
 	final private static String[] labelMap = new String[]{"info","warning","error"};
 	final private static String[] labelMapColor = new String[]{"rgba(33, 150, 243, 0.1)","rgba(255, 152, 0, 0.2);","rgba(255, 0, 0, 0.1);"};
 	private StringBuilder serializeTableHelperList(Map scd, List<W5TableRecordHelper> ltrh) {

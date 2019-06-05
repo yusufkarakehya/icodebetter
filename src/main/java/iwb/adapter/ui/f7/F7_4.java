@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import iwb.adapter.ui.ViewMobileAdapter2;
+import iwb.adapter.ui.ViewMobileAdapter;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
@@ -37,7 +37,7 @@ import iwb.enums.FieldDefinitions;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
-public class F7_4 implements ViewMobileAdapter2 {
+public class F7_4 implements ViewMobileAdapter {
 	final private static String[] labelMap = new String[]{"info","warning","error"};
 	final private static String[] labelMapColor = new String[]{"rgba(33, 150, 243, 0.1)","rgba(255, 152, 0, 0.2);","rgba(255, 0, 0, 0.1);"};
 	private StringBuilder serializeTableHelperList(Map scd, List<W5TableRecordHelper> ltrh) {
@@ -70,289 +70,6 @@ public class F7_4 implements ViewMobileAdapter2 {
 		buf.append("]");
 		return buf;
 	}
-	public StringBuilder serializeQueryData(W5QueryResult queryResult) {
-		if (queryResult.getQuery().getQueryTip() == 10)
-			return null;
-		if (queryResult.getQuery().getQueryTip() == 14)
-			return null;
-		int customizationId = (Integer) queryResult.getScd().get("customizationId");
-		String xlocale = (String) queryResult.getScd().get("locale");
-		String userIdStr = queryResult.getScd().containsKey("userId") ? queryResult.getScd().get("userId").toString() : null;
-		List<Object[]> datas = queryResult.getData();
-		StringBuilder buf = new StringBuilder();
-		buf.append("{\"success\":").append(queryResult.getErrorMap().isEmpty())
-				.append(",\"queryId\":").append(queryResult.getQueryId())
-				.append(",\"execDttm\":\"")
-				.append(GenericUtil.uFormatDateTime(new Date())).append("\"");
-		if (queryResult.getErrorMap().isEmpty()) {
-			buf.append(",\n\"data\":["); // ana
-			if (datas != null && datas.size() > 0) {
-				boolean bx = false;
-				for (Object[] o : datas) {
-					if (bx)
-						buf.append(",\n");
-					else
-						bx = true;
-					buf.append("{"); // satir
-					boolean b = false;
-					for (W5QueryField f : queryResult.getNewQueryFields()) {
-						if (b)
-							buf.append(",");
-						else
-							b = true;
-						if (f.getPostProcessTip() == 9)
-							buf.append("\"_");
-						else
-							buf.append("\"");
-						buf.append(f.getPostProcessTip() == 6 ? f.getDsc()
-								.substring(1) : f.getDsc());
-						Object obj = o[f.getTabOrder() - 1];
-						if (f.getFieldTip() == 5) {// boolean
-							buf.append("\":").append(GenericUtil.uInt(obj) != 0);
-							continue;
-						}
-						if (f.getFieldTip() == 6) {// auto
-							buf.append("\":");
-							if (obj == null || obj.toString().equals("0"))
-								buf.append("null");
-							else if (GenericUtil.uInt(obj) != 0)
-								buf.append(obj);
-							else
-								buf.append("\"").append(obj).append("\"");
-							continue;
-						}
-						buf.append("\":\"");
-						if (obj != null)
-							switch (f.getPostProcessTip()) { // queryField
-																// PostProcessTip
-							case 3:
-								buf.append(GenericUtil.onlyHTMLToJS(obj
-										.toString()));
-								break;
-							case 8:
-								buf.append(GenericUtil.stringToHtml2(obj));
-								break;
-							case 20: // user LookUp
-								buf.append(obj)
-										.append("\",\"")
-										.append(f.getDsc())
-										.append("_qw_\":\"")
-										.append(UserUtil.getUserName(GenericUtil.uInt(obj)));
-								break;
-							case 21: // users LookUp
-								String[] ids = ((String) obj).split(",");
-								if (ids.length > 0) {
-									String res = "";
-									for (String s : ids) {
-										res += ","
-												+ UserUtil.getUserName(GenericUtil.uInt(s));
-									}
-									buf.append(obj).append("\",\"")
-											.append(f.getDsc())
-											.append("_qw_\":\"")
-											.append(res.substring(1));
-								}
-								break;
-							case 53: // User LookUp Real Name
-								buf.append(obj)
-										.append("\",\"")
-										.append(f.getDsc())
-										.append("_qw_\":\"")
-										.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
-								break;
-							case 54: // Users LookUp Real Name
-								String[] ids11 = ((String) obj).split(",");
-								if (ids11.length > 0) {
-									String res = "";
-									for (String s : ids11) {
-										res += ","
-												+ UserUtil.getUserDsc(GenericUtil.uInt(s));
-									}
-									buf.append(obj).append("\",\"")
-											.append(f.getDsc())
-											.append("_qw_\":\"")
-											.append(res.substring(1));
-								}
-								break;
-							case 22:
-							case 23: // roles: TODO
-								buf.append(obj);
-								break;
-							case 1:// duz
-								buf.append(obj);
-								break;
-							case 2: // locale filtresinden gececek
-								buf.append(LocaleMsgCache.get2(
-										customizationId, xlocale,
-										obj.toString()));
-								break;
-							case 10:
-							case 11: // demek ki static lookup'li deger
-										// tutulacak
-								buf.append(GenericUtil.stringToJS2(obj
-										.toString()));
-								if (f.getLookupQueryId() == 0)
-									break;
-								W5LookUp lookUp = FrameworkCache.getLookUp(
-										customizationId, f.getLookupQueryId());
-								if (lookUp == null)
-									break;
-								buf.append("\",\"").append(f.getDsc())
-										.append("_qw_\":\"");
-								String[] objs = f.getPostProcessTip() == 11 ? ((String) obj)
-										.split(",") : new String[] { obj
-										.toString() };
-								boolean bz = false;
-								for (String q : objs) {
-									if (bz)
-										buf.append(", ");
-									else
-										bz = true;
-									W5LookUpDetay d = lookUp.get_detayMap()
-											.get(q);
-									if (d != null) {
-										String s = d.getDsc();
-										if (s != null) {
-											s = LocaleMsgCache.get2(
-														customizationId,
-														xlocale, s);
-											buf.append(GenericUtil
-													.stringToJS2(s));
-										}
-									} else {
-										buf.append("???: ").append(q);
-									}
-								}
-								break;
-							case 13:
-							case 12:// table Lookup
-								buf.append(GenericUtil.stringToJS2(obj
-										.toString()));
-								break;
-							case	48://comment extra info
-								String[] ozc = ((String) obj).split(";");//commentCount;commentUserId;lastCommentDttm;viewUserIds-msg
-								int ndx = ozc[3].indexOf('-');
-								buf.append(ozc[0]).append("\",\"").append(FieldDefinitions.queryFieldName_CommentExtra)
-									.append("\":{\"last_dttm\":\"").append(ozc[2])
-									.append("\",\"user_id\":").append(ozc[1])
-									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc(GenericUtil.uInt(ozc[1])))
-									.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userIdStr))
-									.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
-									.append("\"}");
-								continue;
-//								break;
-							case 49:// approval _qw_
-								String[] ozs = ((String) obj).split(";");
-								int appId = GenericUtil.uInt(ozs[1]);// approvalId:
-																	// kendisi
-																	// yetkili
-																	// ise + ,
-																	// aksi
-																	// halde -
-								int appStepId = GenericUtil.uInt(ozs[2]);// approvalStepId
-								if (appStepId != 998
-										&& !GenericUtil.accessControl(
-												queryResult.getScd(),
-												(short) 1,
-												ozs.length > 3 ? ozs[3] : null,
-												ozs.length > 4 ? ozs[4] : null))
-									buf.append("-");
-								buf.append(ozs[2]);
-								W5Workflow appr = FrameworkCache.getWorkflow(queryResult.getScd(),appId);
-								String appStepDsc = "";
-								if (appr != null
-										&& appr.get_approvalStepMap().get(
-												Math.abs(appStepId)) != null)
-									appStepDsc = appr.get_approvalStepMap()
-											.get(Math.abs(appStepId)).getDsc();
-
-								buf.append("\",\"pkpkpk_arf_id\":")
-										.append(ozs[0])
-										.append(",\"")
-										.append(f.getDsc())
-										.append("_qw_\":\"")
-										.append(LocaleMsgCache.get2(
-												customizationId, xlocale,
-												appStepDsc));
-								if (ozs.length > 3 && ozs[3] != null
-										&& ozs[3].length() > 0) {// roleIds
-									buf.append("\",\"app_role_ids_qw_\":\"");
-									String[] roleIds = ozs[3].split(",");
-									for (String rid : roleIds) {
-										buf.append(
-												FrameworkCache.wRoles.get(
-														customizationId).get(
-														GenericUtil.uInt(rid)) != null ? FrameworkCache.wRoles
-														.get(customizationId)
-														.get(GenericUtil
-																.uInt(rid))
-														: "null").append(", ");
-									}
-									buf.setLength(buf.length() - 2);
-								}
-								if (ozs.length > 4 && ozs[4] != null
-										&& ozs[4].length() > 0) {// userIds
-									buf.append("\",\"app_user_ids_qw_\":\"");
-									String[] userIds = ozs[4].split(",");
-									for (String uid : userIds) {
-										buf.append(
-												UserUtil.getUserDsc(GenericUtil.uInt(uid)))
-												.append(", ");
-									}
-									buf.setLength(buf.length() - 2);
-								}
-								break;
-							/*
-							 * case 49://approval _qw_ buf.append(obj); int
-							 * appStepId = PromisUtil.uInt(obj);
-							 * buf.append("\",\""
-							 * ).append(f.getDsc()).append("_qw_\":\""
-							 * ).append(PromisCache
-							 * .wApprovals.get(f.getLookupQueryId
-							 * ()).get_approvalStepMap
-							 * ().get(Math.abs(appStepId)).getDsc()); break;
-							 */
-						
-							default:
-								buf.append(GenericUtil.stringToJS2(obj
-										.toString()));
-							}
-						buf.append("\"");
-
-					}
-					if (queryResult.getQuery().getShowParentRecordFlag() != 0
-							&& o[o.length - 1] != null) {
-						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":")
-								.append(serializeTableHelperList(
-										queryResult.getScd(),
-										(List<W5TableRecordHelper>) o[o.length - 1]));
-					}
-					buf.append("}"); // satir
-				}
-			}
-			buf.append("],\n\"browseInfo\":{\"startRow\":")
-					.append(queryResult.getStartRowNumber())
-					.append(",\"fetchCount\":")
-					.append(queryResult.getFetchRowCount())
-					.append(",\"totalCount\":")
-					.append(queryResult.getResultRowCount()).append("}");
-			if (FrameworkSetting.debug && queryResult.getExecutedSql() != null) {
-				buf.append(",\n\"sql\":\"")
-						.append(GenericUtil.stringToJS2(GenericUtil.replaceSql(
-								queryResult.getExecutedSql(),
-								queryResult.getSqlParams()))).append("\"");
-			}
-			if (!GenericUtil.isEmpty(queryResult.getExtraOutMap()))
-				buf.append(",\n \"extraOutMap\":").append(
-						GenericUtil.fromMapToJsonString(queryResult
-								.getExtraOutMap()));
-		} else
-			buf.append(",\n\"errorType\":\"validation\",\n\"errors\":")
-					.append(serializeValidatonErrors(queryResult.getErrorMap(),
-							xlocale));
-
-		return buf.append("}");
-	}
 	public StringBuilder serializeValidatonErrors(Map<String, String> errorMap,
 			String locale) {
 		StringBuilder buf = new StringBuilder();
@@ -376,7 +93,201 @@ public class F7_4 implements ViewMobileAdapter2 {
 		return buf;
 	}
 	
+	
 	public	StringBuilder	serializeList(M5ListResult	listResult){
+		StringBuilder buf = new StringBuilder();
+		M5List l = listResult.getList();
+
+		String htmlDataCode=l.getHtmlDataCode();
+		if(htmlDataCode==null)htmlDataCode="";
+		htmlDataCode=htmlDataCode.replace("iwb-link-7 ", "iwb-link-"+l.getListId()+" ");
+
+		buf.append("{success:true, props:{listId:").append(l.getListId()).append(", listTip:").append(l.getListTip()==1 || l.getListTip()==4 ?1:l.getListTip()).append(",\n name:'")
+			.append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey())).append("'");
+	
+		if(l.getDefaultPageRecordNumber()>0)
+			buf.append(", pageSize: ").append(l.getDefaultPageRecordNumber());
+		if(!GenericUtil.isEmpty(l.get_orderQueryFieldNames())){
+			buf.append(",\n orderNames:[");
+			for(String f:l.get_orderQueryFieldNames()){
+				buf.append("{id:'").append(f).append("',dsc:'").append(LocaleMsgCache.get2(listResult.getScd(), f)).append("'},");
+			}
+			buf.setLength(buf.length()-1);
+			buf.append("]");
+		}
+
+		
+		boolean insertFlag = false;
+		
+		if(listResult.getSearchFormResult()!=null){
+			buf.append(",\n searchForm:").append(serializeGetForm(listResult.getSearchFormResult()));
+		}
+		
+		buf.append(",\n baseParams:").append(GenericUtil.fromMapToJsonString(listResult.getRequestParams()));
+		
+		buf.append("\n}, template:`");
+		if(GenericUtil.isEmpty(l.getHtmlPageCode())){
+			
+			boolean searchBar = l.getDefaultPageRecordNumber()==0 && (l.getListTip()==1 || l.getListTip()==4); // && listResult.getSearchFormResult()==null
+			//StringBuilder s2= new StringBuilder();
+			StringBuilder s2 = new StringBuilder();
+			s2.append("<div class=\"page");
+			if(searchBar)s2.append(" page-with-subnavbar");
+			s2.append("\" data-name=\"mlist-").append(l.getListId()).append("-view\">")
+			.append("\n<div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"left\">");
+			
+			if(l.getParentListId()==0) {
+				s2.append("<a href=\"#\" class=\"link icon-only panel-open\" data-panel=\"left\"><i class=\"icon f7-icons if-not-md\">menu</i><i class=\"icon material-icons if-md\">menu</i></a>");
+			}
+			else s2.append("<a href=\"#\" class=\"link back\"> <i class=\"icon icon-back\"></i> <span class=\"if-not-md\">Back</span></a>");
+
+			
+			s2.append("</div>");
+
+
+			
+			s2.append("<div class=\"title").append(l.getParentListId()==0 ? " sliding":"").append("\">").append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey())).append("</div>");
+			if(listResult.getSearchFormResult()!=null){
+				s2.append("<div class=\"right\"><a href=# class=\"link icon-only panel-open\" data-panel=\"right\" @click=\"clickFilter\"><i class=\"icon material-icons md-only\">search</i></a></div>");
+			}
+			if(l.getParentListId()==0)s2.append("<div class=\"title-large\"><div class=\"title-large-text\">").append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey())).append("</div></div>");
+			if(searchBar){
+				s2.append("<div class=\"subnavbar\"><form class=\"searchbar\"><div class=\"searchbar-inner\"><div class=\"searchbar-input-wrap\"><input type=\"search\" placeholder=\"Search\"><i class=\"searchbar-icon\"></i><span class=\"input-clear-button\"></span></div><span class=\"searchbar-disable-button if-not-aurora\">Cancel</span></div></form></div>");
+			}
+			s2.append("</div></div>");
+			
+
+
+			StringBuilder s3= new StringBuilder();
+			if(!GenericUtil.isEmpty(l.get_orderQueryFieldNames())){
+				s3.append("<a href=# class=\"fab-label-button\" @click=\"clickSort\" id=\"idx-sort-").append(l.getListId()).append("\"><span><i class=\"icon material-icons\">sort</i></span><span class=\"fab-label\">Sort</span></a>");
+			}
+			if(false && listResult.getSearchFormResult()!=null){
+				s3.append("<a href=# class=\"fab-label-button\" @click=\"clickFilter\" id=\"idx-filter-").append(l.getListId()).append("\"><span><i class=\"icon material-icons\">search</i></span><span class=\"fab-label\">Search</span></a>");
+			}
+			if(l.getDefaultCrudFormId()!=0 && l.get_mainTable()!=null){
+				W5Table t = l.get_mainTable();
+				insertFlag = GenericUtil.accessControl(listResult.getScd(),
+						t.getAccessInsertTip(), t.getAccessInsertRoles(),
+						t.getAccessInsertUsers());
+				
+			}
+			if(insertFlag){
+				s3.append("<a class=\"fab-label-button\" href=\"/showMForm?a=2&_fid=").append(l.getDefaultCrudFormId()).append("\" class=\"item-link\" id=\"idx-insert-").append(l.getDefaultCrudFormId()).append("\"><span><i class=\"icon material-icons\">add</i></span><span class=\"fab-label\">Add</span></a>");
+			}
+			if(s3.length()>0)
+				s2.append("\n<div class=\"fab fab-right-bottom\"><a href=\"#\"><i class=\"icon f7-icons if-not-md\">add</i><i class=\"icon f7-icons if-not-md\">close</i>\r\n" + 
+						"      <i class=\"icon material-icons md-only\">add</i><i class=\"icon material-icons md-only\">close</i>\r\n" + 
+						"    </a><div class=\"fab-buttons fab-buttons-top\">").append(s3).append("</div></div>");  
+
+
+		  
+			s2.append("\n<div id=\"idx-page-content-").append(l.getListId()).append("\" class=\"page-content ptr-content");
+//			if(l.getDefaultPageRecordNumber()>0)s2.append("{{#if infiniteScroll}} infinite-scroll-content infinite-scroll-top{{/if}}");
+//			if(l.getHideBarsOnScrollFlag()!=0)s2.append(" hide-bars-on-scroll");
+			s2.append("\">");
+			    
+			s2.append("<div class=\"ptr-preloader\"><div class=\"preloader\"></div><div class=\"ptr-arrow\"></div></div>");    
+			if(searchBar){
+				s2.append("<div class=\"searchbar-backdrop\"></div>");
+			}
+			
+			s2.append("<div class=\"list").append(searchBar ? " searchbar-found":"").append("\"><ul>");
+			if(!GenericUtil.isEmpty(htmlDataCode))s2.append(htmlDataCode);
+			s2.append("</ul></div>");
+			//if(l.getDefaultPageRecordNumber()>0)s2.append("{{#if infiniteScroll}}<div class=\"preloader infinite-scroll-preloader\"></div>{{/if}}");
+
+			if(searchBar)s2.append("<div class=\"block searchbar-not-found\"><div class=\"block-inner\">Nothing found</div></div>");
+			s2.append("</div></div>");
+			
+
+			buf.append(s2.toString());
+		} else {
+			buf.append(GenericUtil.filterExt(l.getHtmlPageCode().replace("${iwb-data}", htmlDataCode),listResult.getScd(), listResult.getRequestParams(),null).toString());
+		}
+		buf.append("`");
+		
+		
+		buf.append(",\n data:function(){return {data:[], browseInfo:{startRow:0}}}");
+		buf.append(",\n on:{pageDestroy:function(){console.log('DESTROYYY');if(this.ptr)this.ptr.destroy('#idx-page-content-").append(l.getListId()).append(".ptr-content');},pageMounted:function(){this.load(0);},pageInit: function (e, page) {var self=this;setTimeout(function(){self.ptr=iwb.app.ptr.get('#idx-page-content-").append(l.getListId()).append(".ptr-content');console.log('xpageInit',self.ptr);self.ptr.on('refresh',self.firstLoad);");
+		//if(l.getDefaultPageRecordNumber()>0)buf.append("var ic=$$('#idx-page-content-").append(l.getListId()).append(".infinite-scroll-content');console.log('infinite-scroll-content', ic);if(ic && ic.length)iwb.app.on('infinite', function () {console.log('!iwb.allowInfinite',iwb.allowInfinite,self);if(!iwb.allowInfinite)return;iwb.allowInfinite=false;self.load(self.browseInfo ? self.browseInfo.startRow:0,function(){iwb.allowInfinite=!0;});});");
+		buf.append("},100);}},\n methods:{firstLoad:function(){this.load(0);},load:function(start,callback){if(!start)start=0;console.log('xload',start);var self = this;iwb.request({url:'ajaxQueryData?_qid=").append(listResult.getList().getQueryId());
+		if(l.getParentListId()!=0) {
+			for(String key:listResult.getRequestParams().keySet()) if(key.startsWith("x")){
+				int val = GenericUtil.uInt(listResult.getRequestParams().get(key));
+				if(val>0)buf.append("&").append(key).append("=").append(val);
+			}
+		}
+		buf.append("', data:{");
+		if(l.getDefaultPageRecordNumber()>0)buf.append("start:start,limit:").append(l.getDefaultPageRecordNumber());
+		buf.append("}, success:function(d){var j=eval('('+d+')');if(callback)callback();");
+		if(l.getDefaultPageRecordNumber()>0)buf.append("var b=j.browseInfo;j.infiniteScroll=b.startRow+b.fetchCount<b.totalCount;if(b.fetchCount){b.startRow+=b.fetchCount;if(start){j.data=self.data.concat(j.data);}};");
+		buf.append("self.$setState(j);if(self.ptr)self.ptr.done()}});}, reload:function(){this.load(0);},clickMenu:function(event){iwb.showRecordMenu({_event:event, _this:this");
+		if(l.getDefaultCrudFormId()!=0 && l.get_mainTable()!=null){
+			W5Table t = l.get_mainTable();
+			insertFlag = GenericUtil.accessControl(listResult.getScd(),
+					t.getAccessInsertTip(), t.getAccessInsertRoles(),
+					t.getAccessInsertUsers());
+			buf.append(",\n crudFormId:")
+			.append(l.getDefaultCrudFormId())
+			.append(",\n crudTableId:")
+			.append(t.getTableId()).append(",\n pkName:'")
+			.append(t.get_tableParamList().get(0).getDsc())
+			.append("',\n crudFlags:{insert:")
+			.append(insertFlag)
+			.append(",edit:")
+			.append(t.getAccessUpdateUserFields() != null
+					|| GenericUtil.accessControl(listResult.getScd(),
+							t.getAccessUpdateTip(),
+							t.getAccessUpdateRoles(),
+							t.getAccessUpdateUsers()))
+			.append(",remove:")
+			.append(t.getAccessDeleteUserFields() != null
+					|| GenericUtil.accessControl(listResult.getScd(),
+							t.getAccessDeleteTip(),
+							t.getAccessDeleteRoles(),
+							t.getAccessDeleteUsers()));
+			buf.append("}");
+		}
+		
+		StringBuilder s2= new StringBuilder();
+		if(!GenericUtil.isEmpty(l.get_detailMLists())){
+			for(M5List d:l.get_detailMLists())s2.append("{icon:'list', text:'").append(LocaleMsgCache.get2(listResult.getScd(), d.getLocaleMsgKey()))
+			.append("',href:'/showMList?_lid=").append(d.getListId()).append("&x").append(l.get_mainTable().get_tableFieldList().get(0).getDsc()).append("='},"); //TODO. parent'takine gore degil de, farkli olmasi gerekli
+		}
+		
+		if(!GenericUtil.isEmpty(l.get_menuItemList())){
+			for(W5ObjectMenuItem d:l.get_menuItemList())if(d.getItemTip()==1 && !GenericUtil.isEmpty(d.getCode())){ //record ile ilgili
+				s2.append("{icon:'").append(d.getImgIcon()).append("', text:'").append(LocaleMsgCache.get2(listResult.getScd(), d.getLocaleMsgKey())).append("'");
+				if(d.getCode().charAt(0)!='!')s2.append(",click:function(ax,bx,cx){\n").append(d.getCode()).append("\n}");
+				else s2.append(",href:'").append(d.getCode().substring(1)).append("'");
+				s2.append("},");
+			}
+		}
+		
+		if(s2.length()>0){
+			s2.setLength(s2.length()-1);
+			buf.append("\n, recordButtons:[").append(s2).append("]");
+		}
+		
+		
+		
+		buf.append("}, event.target);},clickSort:function(){alert('sort')},clickFilter:function(){var sf=this.$options.props.searchForm.template;$$('#idx-search-panel').html(sf);}}");
+
+		String jsCode = listResult.getList().getJsCode();
+		if(false && !GenericUtil.isEmpty(jsCode)){
+			if(!jsCode.startsWith(","))buf.append(",");
+			buf.append(jsCode);
+		}
+
+		buf.append("}");
+		
+		return buf;
+	}
+
+	
+	
+	public	StringBuilder	serializeListOld(M5ListResult	listResult){
 		StringBuilder buf = new StringBuilder();
 		M5List l = listResult.getList();
 
@@ -492,7 +403,7 @@ public class F7_4 implements ViewMobileAdapter2 {
 		
 		buf.append(",\n data:function(){return {data:[],infiniteScroll:").append(l.getDefaultPageRecordNumber()>0).append(", browseInfo:{startRow:0}}}");
 		buf.append(",\n on:{pageDestroy:function(){console.log('DESTROYYY');if(this.ptr)this.ptr.destroy('#idx-page-content-").append(l.getListId()).append(".ptr-content');},pageMounted:function(){iwb.allowInfinite=!0;this.load(0);},pageInit: function (e, page) {var self=this;setTimeout(function(){self.ptr=iwb.app.ptr.get('#idx-page-content-").append(l.getListId()).append(".ptr-content');console.log('xpageInit',self.ptr);self.ptr.on('refresh',self.firstLoad);");
-		if(l.getDefaultPageRecordNumber()>0)buf.append("var ic=$$('#idx-page-content-").append(l.getListId()).append(".infinite-scroll-content');console.log('infinite-scroll-content', ic);if(ic && ic.length)iwb.app.on('infinite', function () {console.log('!iwb.allowInfinite',iwb.allowInfinite,self);if(!iwb.allowInfinite)return;iwb.allowInfinite=false;self.load(self.browseInfo.startRow,function(){iwb.allowInfinite=!0;});});");
+		if(l.getDefaultPageRecordNumber()>0)buf.append("var ic=$$('#idx-page-content-").append(l.getListId()).append(".infinite-scroll-content');console.log('infinite-scroll-content', ic);if(ic && ic.length)iwb.app.on('infinite', function () {console.log('!iwb.allowInfinite',iwb.allowInfinite,self);if(!iwb.allowInfinite)return;iwb.allowInfinite=false;self.load(self.browseInfo ? self.browseInfo.startRow:0,function(){iwb.allowInfinite=!0;});});");
 		buf.append("},100);}},\n methods:{firstLoad:function(){this.load(0);},load:function(start,callback){if(!start)start=0;console.log('xload',start);var self = this;iwb.request({url:'ajaxQueryData?_qid=").append(listResult.getList().getQueryId());
 		if(l.getParentListId()!=0) {
 			for(String key:listResult.getRequestParams().keySet()) if(key.startsWith("x")){
@@ -694,8 +605,8 @@ public class F7_4 implements ViewMobileAdapter2 {
 				.append("<div class=\"navbar-inner\"><div class=\"left\"><a href=\"#\" class=\"link back\"> <i class=\"icon icon-back\"></i> <span class=\"if-not-md\">Back</span></a></div><div class=\"center\">")
 				.append(formResult.getForm().getLocaleMsgKey()).append("</div><div class=\"right\">");
 			if(pictureFlag){
-				s.append("<a href=# id=\"idx-photo-").append(formResult.getFormId()).append("\" class=\"link\"><i class=\"icon f7-icons\">camera_fill<span id=\"idx-photo-badge-").append(formResult.getFormId()).append("\" class=\"badge bg-red\"");
-//				if(formResult.getPictureCount()>0)s.append(">").append(formResult.getPictureCount());else 
+				s.append("<a @click=\"clickPhoto\" href=# id=\"idx-photo-").append(formResult.getFormId()).append("\" class=\"link\"><i class=\"icon f7-icons\">camera_fill<span id=\"idx-photo-badge-").append(formResult.getFormId()).append("\" class=\"badge bg-red\"");
+				if(formResult.getFileAttachmentCount()>0)s.append(">").append(formResult.getFileAttachmentCount());else 
 				s.append(" style=\"display:none;\">1");
 				s.append("</span></i></a>");
 			}
@@ -729,7 +640,7 @@ public class F7_4 implements ViewMobileAdapter2 {
 					break;
 				case	10://autocomplete
 				case	61://autocomplete-multi
-					jsCode.append("iwb.app.autocomplete(iwb.apply({multiple:").append(fc.getFormCell().getControlTip()==61).append(", opener: $$('#idx-formcell-").append(fc.getFormCell().getFormCellId()).append("'), params:'_qid=").append(fc.getFormCell().getLookupQueryId());
+					jsCode.append("iwb.app.autocomplete.create(Object.assign({multiple:").append(fc.getFormCell().getControlTip()==61).append(", opener: $$('#idx-formcell-").append(fc.getFormCell().getFormCellId()).append("'), params:'_qid=").append(fc.getFormCell().getLookupQueryId());
 					if (fc.getFormCell().getLookupIncludedParams() != null && fc.getFormCell().getLookupIncludedParams().length() > 2)
 						jsCode.append("&").append(fc.getFormCell().getLookupIncludedParams());
 					jsCode.append("'}, ");
@@ -844,16 +755,20 @@ public class F7_4 implements ViewMobileAdapter2 {
 			s.append("</ul>");
 			if (!formResult.isViewMode()){//kaydet butonu
 				if(masterDetail) //master detail
-					s.append("<div class=\"block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-continue-").append(formResult.getFormId()).append("\">Next</a></p></div>");
+					s.append("<div class=\"block\"><p class=\"buttons-row\"><a href=# @click=\"clickSaveContinue\" class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-continue-").append(formResult.getFormId()).append("\">Next</a></p></div>");
 				else
-					s.append("<div class=\"block\"><p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-submit-").append(formResult.getFormId()).append("\">Save</a></p></div>");
+					s.append("<div class=\"block\"><p class=\"buttons-row\"><a href=# @click=\"clickSave\" class=\"button button-big button-fill button-raised color-blue\" id=\"iwb-submit-").append(formResult.getFormId()).append("\">Save</a></p></div>");
 			}
 			s.append("</form></div></div>");
 			
 		}
 //		for(W5FormCe){}
 		s.append("`");
-		if(!GenericUtil.isEmpty(f.getJsCode())){
+		
+		if(jsCode.length()>0)
+			s.append(",\n on:{pageMounted:function(){\n").append(jsCode).append("\n}}");
+		s.append(",\n methods:{clickPhoto:function(){alert('photo');},clickSave:function(){alert('save'); console.log(iwb.app.formToData('#idx-form-").append(f.getFormId()).append("'));}}");
+/*		if(!GenericUtil.isEmpty(f.getJsCode())){
 			jsCode.append("\n").append(f.getJsCode()).append("\n");
 		}
 		if(jsCode.length()>0){
@@ -863,7 +778,7 @@ public class F7_4 implements ViewMobileAdapter2 {
 		}
 
 		if(false && jsCode.length()>0)s.append(",\n init:function(callAttributes){\n")
-			.append(jsCode).append("\n}");
+			.append(jsCode).append("\n}"); */
 		s.append("}");
 		return s;
 	}

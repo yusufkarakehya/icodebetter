@@ -43,7 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import iwb.adapter.ui.ViewAdapter;
-import iwb.adapter.ui.ViewMobileAdapter2;
+import iwb.adapter.ui.ViewMobileAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.adapter.ui.f7.F7;
 import iwb.adapter.ui.f7.F7_4;
@@ -101,7 +101,7 @@ public class AppController implements InitializingBean {
 	private	ViewAdapter	webix3_3;
 	private	ViewAdapter	react16;
 	private	ViewAdapter	vue2;
-	private ViewMobileAdapter2 f7;
+	private ViewMobileAdapter f7;
 	public static String manPicPath = null;
 	public static String womanPicPath = null;
 	public static String brokenPicPath = null;

@@ -142,7 +142,7 @@ iwb.app = new Framework7({
   root: '#app', // App root element
   id: 'io.framework7.iwb', // App bundle ID
   name: 'Framework7', // App name
-  theme: 'md',// 'auto', // Automatic theme detection
+  theme: 'auto',// 'auto', // Automatic theme detection
   // App root data
   data: function () {
     return {
@@ -192,7 +192,6 @@ $$('#my-login-screen .login-button').on('click', function () {
 iwb.prepareMainMenu();
 
 iwb.showRecordMenu=function(json3, targetEl){
-	console.log('dd',json3._event,$$(json3._event.target).attr('iwb-key'));
 	var tg=$$(json3._event.target);
 	var pk = tg.attr('iwb-key');
 	if(!pk){
@@ -285,6 +284,83 @@ iwb.fmtDistance=function(d){
 	if(d<1000)return d + ' m';
 	d = d/1000;
 	return fmtDecimalNew(d,1)+ ' km';
+}
+iwb.combo2combo = function(prt, cmb, fnc, action){
+	$$(prt).on('change',function(){
+		if(iwb.debug){console.log(prt+':event:change');};
+		var params = fnc($$(prt).val());
+		if(params)iwb.loadCombo(cmb, params);
+		else {
+			$$(cmb).find('option').remove();//temizle once
+			if(true || params===false)$$(cmb.replace('idx-','id-')).hide();
+		}
+	});
+	$$(prt).trigger('change');
+}
+
+iwb.app.formToData = function (form) {
+    form = $$(form);
+    if (form.length !== 1) return false;
+
+    // Form data
+    var formData = {};
+
+    // Skip input types
+    var skipTypes = ['submit', 'image', 'button', 'file'];
+    var skipNames = [];
+    form.find('input, select, textarea').each(function () {
+        var input = $$(this);
+        var name = input.attr('name');
+        var type = input.attr('type');
+        var tag = this.nodeName.toLowerCase();
+        if (skipTypes.indexOf(type) >= 0) return;
+        if (skipNames.indexOf(name) >= 0 || !name) return;
+        if (tag === 'select' && input.prop('multiple')) {
+            skipNames.push(name);
+            formData[name] = [];
+            form.find('select[name="' + name + '"] option').each(function () {
+                if (this.selected) formData[name].push(this.value);
+            });
+        }
+        else {
+            switch (type) {
+                case 'checkbox' :
+                    skipNames.push(name);
+                    formData[name] = [];
+                    form.find('input[name="' + name + '"]').each(function () {
+                        if (this.checked) formData[name].push(this.value);
+                    });
+                    break;
+                case 'radio' :
+                    skipNames.push(name);
+                    form.find('input[name="' + name + '"]').each(function () {
+                        if (this.checked) formData[name] = this.value;
+                    });
+                    break;
+                default :
+                    formData[name] = input.val();
+                    break;
+            }
+        }
+    });
+    //form.trigger('formToJSON formToData form:todata', {formData: formData});
+
+    return formData;
+};
+
+iwb.loadCombo = function(cmb, params){
+	var ctrl = $$(cmb);
+	var selected=ctrl && ctrl.length ? ctrl[0].attributes['iwb-value'].value:'';
+	ctrl.find('option').remove();//temizle once
+	iwb.request({url:'ajaxQueryData', data:params, success:function(j){
+		var data=j.data,res=[];
+		for(var qi=0;qi<data.length;qi++){
+			iwb.app.smartSelectAddOption(cmb, '<option value="'+data[qi].id+'"'+(data[qi].id==selected ? ' selected':'')+'>'+data[qi].dsc+'</option>');
+			if(data[qi].id==selected)res.push(data[qi].dsc);
+		}
+		$$(cmb.replace('idx-','id-')).find('.item-after').text(res.join(', '));
+		$$(cmb.replace('idx-','id-')).show();
+	}});
 }
 
 
