@@ -32,6 +32,7 @@ import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.M5ListResult;
 import iwb.domain.result.W5FormResult;
+import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.enums.FieldDefinitions;
 import iwb.util.GenericUtil;
@@ -532,7 +533,9 @@ public class F7 implements ViewMobileAdapter {
 		
 		return buf;
 	}
-	
+	public	StringBuilder	serializePage(W5PageResult	pageResult) {
+		return null;
+	}
 	public	StringBuilder serializeGetForm(W5FormResult formResult){
 		int deviceType = GenericUtil.uInt(formResult.getScd().get("mobile")); 
 		if(deviceType!=2)return serializeGetFormiOS(formResult); //not android

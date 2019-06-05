@@ -6,32 +6,23 @@ var routes = [
 		  {
 		    path: '/showMList',
 		    async: function (routeTo, routeFrom, resolve, reject) {
-			      // Router instance
-			      var router = this;
-
-			      // App instance
-			      var app = router.app;
-			      iwb.app.preloader.show();
 			      iwb.request({url:'showMList',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
-					//var j = eval('('+d+')');
-			    	  console.log('hh',d)
 					resolve({component:d})
 			      }});
 		    }
-			  
 		  },
-		  
 		  {
 		    path: '/showMForm',
 		    async: function (routeTo, routeFrom, resolve, reject) {
-			      // Router instance
-			      var router = this;
-
-			      // App instance
-			      var app = router.app;
 			      iwb.request({url:'showMForm',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
-					//var j = eval('('+d+')');
-			    	  
+					resolve({component:d});
+			      }});
+		    },
+		  },
+		  {
+		    path: '/showMPage',
+		    async: function (routeTo, routeFrom, resolve, reject) {
+			      iwb.request({url:'showMPage',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
 					resolve({component:d});
 			      }});
 		    },
@@ -131,9 +122,7 @@ function recMenu(r, lvl){
 	if(!r || !r.length)return '';
 	var s='';
 	if(!lvl)lvl=0;
-	for(var qi=0;qi<r.length;qi++)if(r[qi].children){// submenu
-														// style="font-size:
-														// 13px;color:green;"
+	for(var qi=0;qi<r.length;qi++)if(r[qi].children){// submenu style="font-size: 13px;color:green;"
 		s+='<li class="accordion-item iwb-menu iwb-menu-folder"><a href="#" class="item-link item-content" ><div class="item-inner">';
 //		if(r[qi].icon)s+='<div class="item-media"><i class="f7-icons">'+r[qi].icon+'</i></div>';
 		s+='<div class="item-title">'+r[qi].text+'</div></div></a><div class="accordion-item-content iwb-menu-url">'+
@@ -151,13 +140,61 @@ function recMenu(r, lvl){
 
 iwb.prepareMainMenu=function(){
 	iwb.request({url:'ajaxQueryData?_qid='+ (_scd.mobileMenuQueryId || 1487)+'&.r='+Math.random(),dataType:'text',data:{_json:1, xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:_scd.userTip}, success:function(d){
-// if(iwb.debug){console.log('prepareMainMenu');console.log(d);}
-//		var j = eval('('+d+')');
 		$$('#idx-main-menu').html(recMenu(d.data));
 	}}); 
 }
+iwb.getPk=function(pk){
+	for(var k in pk)if(k!='customizationId' && k!='projectId' && k!='tenantId')return pk[k];
+	return -1;
+}
+
+iwb.formPhotoMenu=function(j){
+	console.log('formPhotoMenu', j);
+	var buttons=[];
+	//if(navigator.camera)
+	if(j.fileAttachCount)buttons.push([{ text: 'Photo Gallery (' + (j.fileAttachCount)+')' ,
+	   onClick: function () {
+		   iwb.photoBrowser(j.crudTableId, j.tmpId || iwb.getPk(j.pk));
+	   }}]);
+	buttons.push([{text: 'Camera', onClick: function () {
+        	   iwb.takePhoto(j.crudTableId, j.tmpId || iwb.getPk(j.pk), j);
+           }
+       },{text: 'Gallery', onClick: function () {
+        	   iwb.takePhoto(j.crudTableId, j.tmpId || iwb.getPk(j.pk), j, true);
+           }
+       }
+   ]);
+	var ac=iwb.app.actions.create({ buttons: buttons});
+	ac.open();
+}
+
+iwb.takePhoto=function(){
+	alert('TODO')
+}
 
 
+iwb.photoBrowser=function(tid, pk){
+	iwb.request({url:'ajaxQueryData?_qid=806',data:{_tableId:tid,_tablePk:pk}, success:function(j){
+		if(j.data && j.data.length){
+			var photos=[];
+			for(var qi=0;qi<j.data.length;qi++)photos.push('sf/'+j.data[qi].dsc+'?_fai='+j.data[qi].id+'&.r='+ Math.random());
+			var p = iwb.app.photoBrowser.create({photos:photos, theme:'dark'});
+			p.open();
+		}
+	}});
+}
+
+iwb.autoCompleteJson=function(postUrl){
+	return function(query, render){
+		if (query.length === 0) {
+	      render([]);
+	      return;
+	    }
+		iwb.request({url:'ajaxQueryData?_qid='+postUrl, success:function(j){
+			render(j.data);
+		}});
+	}
+}
 // Dom7
 var $$ = Dom7;
 
@@ -176,14 +213,13 @@ iwb.app = new Framework7({
       },
     };
   },
-  // App root methods
-  methods: {
-    helloWorld: function () {
-      app.dialog.alert('Hello World!');
-    },
-  },
   // App routes
   routes: routes,
+  methods:{
+	ahmet:function(){
+		alert('aaa')
+	}  
+  },
   on: {
     init: function () {
       var f7 = this;
@@ -215,12 +251,15 @@ $$('#my-login-screen .login-button').on('click', function () {
 
 iwb.prepareMainMenu();
 
+function iwbDeleteRecord(){
+	alert('oha')
+}
 iwb.showRecordMenu=function(json3, targetEl){
 	var tg=$$(json3._event.target);
-	var pk = tg.attr('iwb-key');
+	var pk = tg.data('pk');
 	if(!pk){
 		tg = tg.parents('a');
-		if(tg.length)pk = tg.attr('iwb-key');
+		if(tg.length)pk = tg.data('pk');
 	}
 	if(!pk)return;
 	var lnk =[], href=false;
@@ -230,7 +269,7 @@ iwb.showRecordMenu=function(json3, targetEl){
 			lnk.push('<li><a href="'+href+'" class="item-link item-content popover-close"><div class="item-inner" style="background-image:none;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;color: #027eff;">compose</i> &nbsp; Update</div></div></a></li>');
 		}
 		if(json3.crudFlags.remove){
-			lnk.push('<li><a href="#" id="idx-confirm-delete-'+json3.crudFormId+'" class="item-link item-content popover-close"><div class="item-inner" style="background-image:none;color:red;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;">delete_round</i> &nbsp; Delete</div></div></a></li>');
+			lnk.push('<li><a href="#" @click="ahmet" id="idx-confirm-delete-'+json3.crudFormId+'" class="item-link item-content popover-close"><div class="item-inner" style="background-image:none;color:red;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;">delete_round</i> &nbsp; Delete</div></div></a></li>');
 		}
 	}
 	

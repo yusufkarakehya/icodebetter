@@ -1513,6 +1513,25 @@ public class AppController implements InitializingBean {
 		response.getWriter().close();
 	}
 
+
+	@RequestMapping("/showMPage")
+	public void hndShowMPage(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		int templateId = GenericUtil.uInt(request, "_tid");
+		logger.info("hndShowMPage(" + templateId + ")");
+
+		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+
+		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+
+
+		if(pageResult.getPage().getTemplateTip()!=0)
+			response.setContentType("application/json");
+
+		response.getWriter().write(f7.serializePage(pageResult).toString());
+		response.getWriter().close();
+	}
 	
 	@RequestMapping("/grd/*")
 	public ModelAndView hndGridReport(HttpServletRequest request, HttpServletResponse response)

@@ -41,6 +41,7 @@ import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.ViewMobileAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.adapter.ui.f7.F7;
+import iwb.adapter.ui.f7.F7_4;
 import iwb.adapter.ui.react.React16;
 import iwb.adapter.ui.vue.Vue2;
 import iwb.adapter.ui.webix.Webix3_3;
@@ -76,7 +77,7 @@ public class PreviewController implements InitializingBean {
 	private static Logger logger = Logger.getLogger(PreviewController.class);
 
 	@Autowired
-	private FrameworkService engine;
+	private FrameworkService service;
 
 	@Autowired
 	private TaskExecutor taskExecutor;
@@ -91,7 +92,7 @@ public class PreviewController implements InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		ext3_4 = new ExtJs3_4();
 		webix3_3 = new Webix3_3();
-		f7 = new F7();
+		f7 = new F7_4();
 		react16 = new React16();
 		vue2 = new Vue2();
 	}
@@ -150,7 +151,7 @@ public class PreviewController implements InitializingBean {
 		int formCellId = GenericUtil.uInt(request, "_formCellId");
 		logger.info("hndAjaxFormCellCode(" + formCellId + ")");
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-		Map m = engine.getFormCellCode(scd, GenericUtil.getParameterMap(request), formCellId, 1);
+		Map m = service.getFormCellCode(scd, GenericUtil.getParameterMap(request), formCellId, 1);
 		// m.put("success", true);
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromMapToJsonString2(m));
@@ -178,7 +179,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		Map m = engine.executeQuery4Stat(scd, gridId, GenericUtil.getParameterMap(request));
+		Map m = service.executeQuery4Stat(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
@@ -191,7 +192,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		Map m = engine.executeQuery4StatTree(scd, gridId, GenericUtil.getParameterMap(request));
+		Map m = service.executeQuery4StatTree(scd, gridId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
@@ -239,7 +240,7 @@ public class PreviewController implements InitializingBean {
 					slou.put((Integer) scd.get("userId"), new Object[] { scd.get("userId") });
 					for (Object[] o : lou)
 						slou.put(GenericUtil.uInt(o[0]), o);
-					W5QueryResult allUsers = engine.executeQuery(scd, queryId, requestMap);
+					W5QueryResult allUsers = service.executeQuery(scd, queryId, requestMap);
 					for (Object[] o : allUsers.getData()) {
 						String msg = (String) o[6];
 						if (msg != null && msg.length() > 18) {
@@ -286,7 +287,7 @@ public class PreviewController implements InitializingBean {
 			}
 			
 		}
-		W5QueryResult queryResult = engine.executeQuery(scd, queryId, requestMap);
+		W5QueryResult queryResult = service.executeQuery(scd, queryId, requestMap);
 
 		response.setContentType("application/json");
 		response.getWriter().write(va.serializeQueryData(queryResult).toString());
@@ -314,7 +315,7 @@ public class PreviewController implements InitializingBean {
 
 		if (app_rec_ids == null) {
 			int approvalRecordId = GenericUtil.uInt(request, "_arid");
-			b = engine.approveRecord(scd, approvalRecordId, approvalAction, parameterMap);
+			b = service.approveRecord(scd, approvalRecordId, approvalAction, parameterMap);
 		} else {
 			String[] version_ids = request.getParameterValues("_avnos");
 			for (int i = 0; i < app_rec_ids.length; i++) {
@@ -325,7 +326,7 @@ public class PreviewController implements InitializingBean {
 																	// parametre
 																	// olarak
 																	// kullanılıyor
-				b = engine.approveRecord(scd, approvalRecordId, approvalAction, parameterMap);
+				b = service.approveRecord(scd, approvalRecordId, approvalAction, parameterMap);
 			}
 		}
 
@@ -386,7 +387,7 @@ public class PreviewController implements InitializingBean {
 		if (GenericUtil.uInt(scd.get("mobile")) == 2)
 			s = GenericUtil.encodeGetParamsToUTF8(s);// hack for android mobile app
 		m.put("msg", s.contains("\\") ? s.replace('\\', '/') : s);
-		W5FormResult formResult = engine.postForm4Table(scd, 1703, 2, m, "");
+		W5FormResult formResult = service.postForm4Table(scd, 1703, 2, m, "");
 
 		response.setContentType("application/json");
 		if (!GenericUtil.isEmpty(formResult.getErrorMap())) {
@@ -419,7 +420,7 @@ public class PreviewController implements InitializingBean {
 			response.getWriter().write("{\"success\":false}");
 			return;
 		}
-		int countLeft = engine.notifyChatMsgRead(scd, userId, msgId);
+		int countLeft = service.notifyChatMsgRead(scd, userId, msgId);
 
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true, \"countLeft\":" + countLeft + "}");
@@ -444,7 +445,7 @@ public class PreviewController implements InitializingBean {
 			JSONObject jo = HttpUtil.getJson(request);
 			requestMap.putAll(GenericUtil.fromJSONObjectToMap(jo));
 		}*/
-		W5FormResult formResult = engine.postForm4Table(scd, formId, action, requestMap, "");
+		W5FormResult formResult = service.postForm4Table(scd, formId, action, requestMap, "");
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
@@ -481,7 +482,7 @@ public class PreviewController implements InitializingBean {
 		response.setContentType("application/json");
 		Map cm = null;
 		if(FrameworkSetting.chat && !notSessionFlag && GenericUtil.uInt(request, "c")!=0){
-			cm = engine.getUserNotReadChatMap((Map)session.getAttribute("scd-dev"));
+			cm = service.getUserNotReadChatMap((Map)session.getAttribute("scd-dev"));
 		}
 		if(GenericUtil.uInt(request, "d")==0)
 			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
@@ -501,7 +502,7 @@ public class PreviewController implements InitializingBean {
 		response.setContentType("application/json");
 		int conversionCount = GenericUtil.uInt(request, "_ccnt");
 		if (conversionCount > 0) {
-			W5FormResult formResult = engine.postBulkConversionMulti(scd, conversionCount,
+			W5FormResult formResult = service.postBulkConversionMulti(scd, conversionCount,
 					GenericUtil.getParameterMap(request));
 
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
@@ -532,7 +533,7 @@ public class PreviewController implements InitializingBean {
 		int dirtyCount = GenericUtil.uInt(requestMap, "_cnt");
 		int formId = GenericUtil.uInt(requestMap, "_fid");
 		if (formId > 0) {
-			W5FormResult formResult = engine.postEditGrid4Table(scd, formId, dirtyCount,
+			W5FormResult formResult = service.postEditGrid4Table(scd, formId, dirtyCount,
 					requestMap, "", new HashSet<String>());
 			response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 			response.getWriter().close();
@@ -550,13 +551,13 @@ public class PreviewController implements InitializingBean {
 
 		} else if (formId < 0) { // negatifse direk -dbFuncId
 			// int dbFuncId= GenericUtil.uInt(request, "_did");
-			W5GlobalFuncResult dbFuncResult = engine.postEditGridGlobalFunc(scd, -formId, dirtyCount,
+			W5GlobalFuncResult dbFuncResult = service.postEditGridGlobalFunc(scd, -formId, dirtyCount,
 					requestMap, "");
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		} else {
 			int conversionId = GenericUtil.uInt(requestMap, "_cnvId");
 			if (conversionId > 0) {
-				W5FormResult formResult = engine.postBulkConversion(scd, conversionId, dirtyCount,
+				W5FormResult formResult = service.postBulkConversion(scd, conversionId, dirtyCount,
 						requestMap, "");
 				response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
 				response.getWriter().close();
@@ -586,7 +587,7 @@ public class PreviewController implements InitializingBean {
 
 		int formId = GenericUtil.uInt(request, "_fid");
 		int action = GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.bookmarkForm(scd, formId, action, GenericUtil.getParameterMap(request));
+		W5FormResult formResult = service.bookmarkForm(scd, formId, action, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"id\":" + formResult.getPkFields().get("id") + "}");
@@ -606,7 +607,7 @@ public class PreviewController implements InitializingBean {
 			dbFuncId = -GenericUtil.uInt(request, "_fid"); // +:dbFuncId,
 															// -:formId
 		}
-		W5GlobalFuncResult dbFuncResult = engine.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
+		W5GlobalFuncResult dbFuncResult = service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
 				(short) 1);
 
 		response.setContentType("application/json");
@@ -626,7 +627,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
+		W5FormResult formResult = service.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGetFormSimple(formResult).toString());
@@ -642,7 +643,7 @@ public class PreviewController implements InitializingBean {
 		int fcId = GenericUtil.uInt(request, "_fcid");
 		String webPageId = request.getParameter(".w");
 		String tabId = request.getParameter(".t");
-		W5FormCellHelper rc = engine.reloadFormCell(scd, fcId, webPageId, tabId);
+		W5FormCellHelper rc = service.reloadFormCell(scd, fcId, webPageId, tabId);
 		response.setContentType("application/json");
 		response.getWriter()
 				.write(ext3_4
@@ -658,7 +659,7 @@ public class PreviewController implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		int fccdId = GenericUtil.uInt(request, "_fccdid");
-		String result = engine.getFormCellCodeDetail(scd, GenericUtil.getParameterMap(request), fccdId);
+		String result = service.getFormCellCodeDetail(scd, GenericUtil.getParameterMap(request), fccdId);
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true,\"result\":\"" + result + "\"}");
 		response.getWriter().close();
@@ -701,7 +702,7 @@ public class PreviewController implements InitializingBean {
 		response.setContentType("application/json");
 
 		int porletId = GenericUtil.uInt(request, "_pid");
-		String s = engine.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
+		String s = service.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
 		response.getWriter().write(s);
 		response.getWriter().close();
 	}
@@ -716,7 +717,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
+		W5FormResult formResult = service.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeShowForm(formResult).toString());
@@ -733,7 +734,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		int action = GenericUtil.uInt(request, "a");
-		W5FormResult formResult = engine.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
+		W5FormResult formResult = service.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
 
 		response.getWriter().write(f7.serializeGetForm(formResult).toString());
 		response.getWriter().close();
@@ -787,7 +788,7 @@ public class PreviewController implements InitializingBean {
 		scd.put("projectId", projectId);
 		scd.put("customizationId", po.getCustomizationId());
 		scd.put("userId", 0);scd.put("roleId", 0);scd.put("locale", "en");
-		W5GlobalFuncResult result = engine.executeFunc(scd, po.getAuthenticationFuncId(), requestParams, (short) 7); // user Authenticate DbFunc:1
+		W5GlobalFuncResult result = service.executeFunc(scd, po.getAuthenticationFuncId(), requestParams, (short) 7); // user Authenticate DbFunc:1
 
 		/*
 		 * 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
@@ -805,7 +806,7 @@ public class PreviewController implements InitializingBean {
 		response.setContentType("application/json");
 		scd = null;
 		if (success) { // basarili simdi sira diger islerde
-			scd = engine.userRoleSelect4App(po, userId, userRoleId, null);
+			scd = service.userRoleSelect4App(po, userId, userRoleId, null);
 
 			if (scd == null) {
 				if (FrameworkSetting.debug)logger.info("empty scd");
@@ -872,7 +873,7 @@ public class PreviewController implements InitializingBean {
 		scd.put("locale", xlocale);
 		scd.put("path", "../");
 
-		W5PageResult pageResult = engine.getPageResult(scd, po.getUiLoginTemplateId()==0?1:po.getUiLoginTemplateId(), GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, po.getUiLoginTemplateId()==0?1:po.getUiLoginTemplateId(), GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -901,7 +902,7 @@ public class PreviewController implements InitializingBean {
 		
 																		// Page
 																		// Template
-		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -917,7 +918,7 @@ public class PreviewController implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
-		W5PageResult pageResult = engine.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
 		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
 		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
 		// amele
@@ -942,13 +943,8 @@ public class PreviewController implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
-		M5ListResult listResult = engine.getMListResult(scd, listId, GenericUtil.getParameterMap(request));
-		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
-		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
-		// amele
-		// throw new PromisException("security","Template",0,null, "Wrong
-		// Template Tip (must be page)", null);
-		// }
+		M5ListResult listResult = service.getMListResult(scd, listId, GenericUtil.getParameterMap(request));
+
 
 		response.setContentType("application/json");
 		response.getWriter().write(f7.serializeList(listResult).toString());
@@ -956,6 +952,24 @@ public class PreviewController implements InitializingBean {
 
 	}
 
+	@RequestMapping("/*/showMPage")
+	public void hndShowMPage(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		int templateId = GenericUtil.uInt(request, "_tid");
+		logger.info("hndShowMPage(" + templateId + ")");
+
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+
+		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+
+
+		if(pageResult.getPage().getTemplateTip()!=0)
+			response.setContentType("application/json");
+
+		response.getWriter().write(f7.serializePage(pageResult).toString());
+		response.getWriter().close();
+	}
 	
 	@RequestMapping("/*/grd/*")
 	public ModelAndView hndGridReport(HttpServletRequest request, HttpServletResponse response)
@@ -966,7 +980,7 @@ public class PreviewController implements InitializingBean {
 		int gridId = GenericUtil.uInt(request, "_gid");
 		String gridColumns = request.getParameter("_columns");
 
-		List<W5ReportCellHelper> list = engine.getGridReportResult(scd, gridId, gridColumns,
+		List<W5ReportCellHelper> list = service.getGridReportResult(scd, gridId, gridColumns,
 				GenericUtil.getParameterMap(request));
 		if (list != null) {
 			Map<String, Object> m = new HashMap<String, Object>();
@@ -976,7 +990,7 @@ public class PreviewController implements InitializingBean {
 			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
 				result = new ModelAndView(new RptExcelRenderer(), m);
 			else if (request.getRequestURI().indexOf(".pdf") != -1)
-				result = new ModelAndView(new RptPdfRenderer(engine.getCustomizationLogoFilePath(scd)), m);
+				result = new ModelAndView(new RptPdfRenderer(service.getCustomizationLogoFilePath(scd)), m);
 			else if (request.getRequestURI().indexOf(".csv") != -1) {
 				response.setContentType("application/octet-stream");
 				response.getWriter().print(GenericUtil.report2csv(list));
@@ -1011,7 +1025,7 @@ public class PreviewController implements InitializingBean {
 			file_path = local_path + "/0/jasper/iworkbetter.png";
 			response.setContentType("image/png");
 		} else {
-			W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
+			W5FileAttachment fa = service.loadFile(scd, fileAttachmentId);
 			if (fa == null) {
 				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
 						"Invalid Id: " + fileAttachmentId, null);
@@ -1047,7 +1061,7 @@ public class PreviewController implements InitializingBean {
 				ua.setTableId(44);
 				ua.setTablePk(fileAttachmentId);
 				ua.setUserIp(request.getRemoteAddr());
-				engine.saveObject(ua);
+				service.saveObject(ua);
 
 			}
 		} catch (Exception e) {
@@ -1085,7 +1099,7 @@ public class PreviewController implements InitializingBean {
 		InputStream stream = null;
 		String filePath = null;
 
-		W5FileAttachment fa = engine.loadFile(scd, fileAttachmentId);
+		W5FileAttachment fa = service.loadFile(scd, fileAttachmentId);
 		if (fa == null) { // bulunamamis TODO
 			throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
 					"Wrong Id: " + fileAttachmentId, null);
@@ -1149,7 +1163,7 @@ public class PreviewController implements InitializingBean {
 
 		int formId = GenericUtil.uInt(request, "_fid");
 		int queryId = GenericUtil.uInt(request, "_qid");
-		W5FormResult formResult = engine.getFormResultByQuery(scd, formId, queryId,
+		W5FormResult formResult = service.getFormResultByQuery(scd, formId, queryId,
 				GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
@@ -1168,7 +1182,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		int tableId = GenericUtil.uInt(request, "_tb_id");
 		int tablePk = GenericUtil.uInt(request, "_tb_pk");
-		W5TableRecordInfoResult r = engine.getTableRecordInfo(scd, tableId, tablePk);
+		W5TableRecordInfoResult r = service.getTableRecordInfo(scd, tableId, tablePk);
 		response.setContentType("application/json");
 		response.getWriter().write(r != null ? getViewAdapter(scd, request).serializeTableRecordInfo(r).toString() : "{\"success\":false}");
 		response.getWriter().close();
@@ -1182,7 +1196,7 @@ public class PreviewController implements InitializingBean {
 
 		List<W5BIGraphDashboard> l = null;
 		try{
-			l = engine.getGraphDashboards(scd);
+			l = service.getGraphDashboards(scd);
 		} catch (Exception e) {
 		}
 		
@@ -1242,7 +1256,7 @@ public class PreviewController implements InitializingBean {
 					fa.setFileSize(totalBytesRead);
 					fa.setActiveFlag((short) 1);
 					lfa.add(fa);
-					engine.saveObject(fa);
+					service.saveObject(fa);
 					String webPageId = request.getParameter(".w");
 					if (!GenericUtil.isEmpty(webPageId))
 						try {
@@ -1347,7 +1361,7 @@ public class PreviewController implements InitializingBean {
 			} catch (Exception e) {
 
 			}
-			engine.saveObject(fa);
+			service.saveObject(fa);
 			String webPageId = request.getParameter(".w");
 			if (!GenericUtil.isEmpty(webPageId)) {
 				Map m = new HashMap();
@@ -1439,7 +1453,7 @@ public class PreviewController implements InitializingBean {
 			} catch (Exception e) {
 
 			}
-			engine.saveObject(fa);
+			service.saveObject(fa);
 			String webPageId = request.getParameter(".w");
 			if (!GenericUtil.isEmpty(webPageId)) {
 				Map m = new HashMap();
@@ -1482,7 +1496,7 @@ public class PreviewController implements InitializingBean {
 
 		response.setContentType("application/json");
 		int smsMailId = GenericUtil.uInt(request, "_fsmid");
-		Map result = engine.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
+		Map result = service.sendFormSmsMail(scd, smsMailId, GenericUtil.getParameterMap(request));
 		response.getWriter().write(GenericUtil.fromMapToJsonString(result));
 		response.getWriter().close();
 
@@ -1498,7 +1512,7 @@ public class PreviewController implements InitializingBean {
 		logger.info("hndAjaxCallWs"); 
 	    Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 	    
-		Map m =engine.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
+		Map m =service.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		if(m!=null && !m.containsKey("success")) {
 			if(m.containsKey("exception")) {
 				m.put("success", false);
@@ -1528,7 +1542,7 @@ public class PreviewController implements InitializingBean {
 
 		int queryId= GenericUtil.uInt(request, "_qid");
 
-		Object o = engine.executeQuery4Debug(scd, queryId, GenericUtil.getParameterMap(request));
+		Object o = service.executeQuery4Debug(scd, queryId, GenericUtil.getParameterMap(request));
 		
 		response.setContentType("application/json");
 		if(o instanceof W5QueryResult)
@@ -1555,7 +1569,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4Pivot(scd, tableId, GenericUtil.getParameterMap(request))));
+		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(service.executeQuery4Pivot(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
 	}
 	
@@ -1568,7 +1582,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		response.setContentType("application/json");
-		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(engine.executeQuery4DataList(scd, tableId, GenericUtil.getParameterMap(request))));
+		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(service.executeQuery4DataList(scd, tableId, GenericUtil.getParameterMap(request))));
 		response.getWriter().close();
 	}
 	
