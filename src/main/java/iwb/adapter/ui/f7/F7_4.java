@@ -356,7 +356,7 @@ public class F7_4 implements ViewMobileAdapter {
     }
 
     buf.append(
-        "}, event.target);},clickSort:function(){iwb.orderList(this);},clickFilter:function(){var sf=this.$options.props.searchForm.template;$$('#idx-search-panel').html(sf);}}");
+        "}, event.target);},clickSort:function(){iwb.orderList(this);},clickFilter:function(){if(this.sf)return;this.sf=this.$options.props.searchForm;iwb.reloadLoadFunc=this.load;$$('#idx-search-panel').html(this.sf.template);}}");
 
     String jsCode = listResult.getList().getJsCode();
     if (false && !GenericUtil.isEmpty(jsCode)) {
@@ -758,7 +758,7 @@ public class F7_4 implements ViewMobileAdapter {
           .append("</div><div class=\"right\">");
       if (pictureFlag) {
         s.append(
-            "<a @click=\"clickPhoto\" href=# class=\"link\"><i class=\"icon f7-icons\">camera_fill<span class=\"badge color-red\"");
+            "<a @click=\"clickPhoto\" href=# class=\"link\"><i class=\"icon f7-icons\">camera_fill<span d=\"idx-photo-badge-").append(formResult.getFormId()).append("\" class=\"badge color-red\"");
         if (formResult.getFileAttachmentCount() > 0)
           s.append(">").append(formResult.getFileAttachmentCount());
         else s.append(" style=\"display:none;\">1");

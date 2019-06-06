@@ -204,10 +204,49 @@ iwb.formPhotoMenu=function(j){
 	iwb.app.actions.create({ buttons: buttons}).open();
 }
 
-iwb.takePhoto=function(){
-	alert('TODO')
+iwb.cameraClearCache=function() {
+	if(navigator.camera)navigator.camera.cleanup();
+}
+iwb.photoFail=function(message) {
+	iwb.app.preloader.hide();
+	iwb.app.dialog.alert('Photo Upload Error: ' + message);
 }
 
+iwb.takePhoto=function(tid,tpk, jsonX, fromAlbum, profilePictureFlag){
+	if(navigator.camera){
+		var options = Object.assign({ quality: 50, destinationType: Camera.DestinationType.FILE_URI}, jsonX.cameraOptions || {});
+		if(fromAlbum)options.sourceType=Camera.PictureSourceType.SAVEDPHOTOALBUM;
+		navigator.camera.getPicture(function(fileURI) {
+			 	var win = function (r) {
+			 		iwb.app.preloader.hide();
+				 	iwb.cameraClearCache();
+				 	if(jsonX.photoSuccess && jsonX.photoSuccess(r)===false)return;
+				 	iwb.app.toast.show({buttonClose:!0,position:'top',text: 'Photo Uploaded'});
+				 	var pc=(jsonX.fileAttachCount||0)+1;
+					var bd=$$('#idx-photo-badge-'+jsonX.formId);
+					if(bd.length){
+						if(pc>1)bd.html(pc);
+						else bd.show();
+					}
+			    }
+			 
+			    var fail = function (error) {
+			    	iwb.app.preloader.hide();
+				 	iwb.cameraClearCache();
+				 	iwb.app.dialog.alert('Unknown error!' + error);
+			    }
+			 
+			    var params = new FileUploadOptions();
+			    params.fileKey = "file";
+			    params.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
+			    params.mimeType = "image/jpeg";
+			    params.params = {table_id:tid, table_pk:tpk, profilePictureFlag:profilePictureFlag||0, file_type_id:-997}; // if we need to send parameters to the server request
+			    var ft = new FileTransfer();
+			    iwb.app.preloader.show();
+			    ft.upload(fileURI, encodeURI(iwb.serverUrl + 'upload.form'), win, fail, params);
+		}, iwb.photoFail, options);
+	} else iwb.app.dialog.alert('Camera Not Defined');
+}
 
 iwb.photoBrowser=function(tid, pk){
 	iwb.request({url:'ajaxQueryData?_qid=806',data:{_tableId:tid,_tablePk:pk}, success:function(j){
@@ -261,7 +300,7 @@ iwb.app = new Framework7({
   // App routes
   routes: routes,
   methods:{
-	ahmet:function(){
+	clickReload:function(){
 		alert('aaa')
 	}  
   },
@@ -272,10 +311,16 @@ iwb.app = new Framework7({
         // Init cordova APIs (see cordova-app.js)
         cordovaApp.init(f7);
       }
-    },
+	  	$$('#idx-reload').on('click', function(){
+			var fd=iwb.app.form.convertToData('#idx-reload-form');
+			console.log('bahar',fd);
+			iwb.reloadLoadFunc(0);
+		});
+    }
   }
 });
 
+iwb.reloadLoadFunc=null;
 // Init/Create main view
 var mainView = iwb.app.views.create('.view-main', {
   url: '/'
