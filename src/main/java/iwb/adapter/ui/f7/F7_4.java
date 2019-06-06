@@ -136,7 +136,7 @@ public class F7_4 implements ViewMobileAdapter {
       buf.append("]");
     }
 
-    boolean insertFlag = false;
+    boolean insertFlag = false, searchBar = false;
 
     if (listResult.getSearchFormResult() != null) {
       buf.append(",\n searchForm:").append(serializeGetForm(listResult.getSearchFormResult()));
@@ -148,7 +148,7 @@ public class F7_4 implements ViewMobileAdapter {
     buf.append("\n}, template:`");
     if (GenericUtil.isEmpty(l.getHtmlPageCode())) {
 
-      boolean searchBar =
+      searchBar =
           l.getDefaultPageRecordNumber() == 0
               && (l.getListTip() == 1
                   || l.getListTip() == 4); // && listResult.getSearchFormResult()==null
@@ -185,7 +185,7 @@ public class F7_4 implements ViewMobileAdapter {
             .append("</div></div>");
       if (searchBar) {
         s2.append(
-                "<div class=\"subnavbar\"><form class=\"searchbar\"><div class=\"searchbar-inner\"><div class=\"searchbar-input-wrap\"><input type=\"search\" placeholder=\"")
+                "<div class=\"subnavbar\"><form id=\"idx-searchbar-").append(l.getListId()).append("\" class=\"searchbar\"><div class=\"searchbar-inner\"><div class=\"searchbar-input-wrap\"><input type=\"search\" placeholder=\"")
             .append(LocaleMsgCache.get2(listResult.getScd(), "search"))
             .append(
                 "\"><i class=\"searchbar-icon\"></i><span class=\"input-clear-button\"></span></div><span class=\"searchbar-disable-button if-not-aurora\">Cancel</span></div></form></div>");
@@ -258,8 +258,9 @@ public class F7_4 implements ViewMobileAdapter {
     buf.append(",\n data:function(){return {sort:'',dir:'',data:[], browseInfo:{startRow:0}}}");
     buf.append(",\n on:{pageDestroy:function(){if(this.ptr)this.ptr.destroy('#idx-page-content-")
         .append(l.getListId())
-        .append(
-            ".ptr-content');},pageMounted:function(){this.load(0);},pageInit: function (e, page) {");
+        .append(".ptr-content');},pageMounted:function(){this.load(0);");
+    if(searchBar)buf.append("iwb.app.searchbar.create({el: '#idx-searchbar-").append(l.getListId()).append(".searchbar',searchContainer: '.list',searchIn: '.item-title'});");
+    buf.append("},pageInit: function (e, page) {");
     if (!GenericUtil.isEmpty(l.getJsCode())) {
       buf.append("\n").append(l.getJsCode()).append("\n");
     }

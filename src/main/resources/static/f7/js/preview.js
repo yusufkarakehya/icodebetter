@@ -323,7 +323,7 @@ iwb.app = new Framework7({
 iwb.reloadLoadFunc=null;
 // Init/Create main view
 var mainView = iwb.app.views.create('.view-main', {
-  url: '/'
+  url: '/showMPage?_tid=4297'
 });
 
 // Login Screen Demo
