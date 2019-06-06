@@ -121,8 +121,7 @@ public class F7_4 implements ViewMobileAdapter {
         .append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey()))
         .append("'");
 
-    if (l.getDefaultPageRecordNumber() > 0)
-      buf.append(", pageSize: ").append(l.getDefaultPageRecordNumber());
+//    if (l.getDefaultPageRecordNumber() > 0)buf.append(", pageSize: ").append(l.getDefaultPageRecordNumber());
     if (!GenericUtil.isEmpty(l.get_orderQueryFieldNames())) {
       buf.append(",\n orderNames:[");
       for (String f : l.get_orderQueryFieldNames()) {
@@ -231,6 +230,7 @@ public class F7_4 implements ViewMobileAdapter {
 
       s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
       if (!GenericUtil.isEmpty(htmlDataCode)) s2.append(htmlDataCode);
+      if (l.getDefaultPageRecordNumber() > 0) s2.append("\n{{#if infiniteScroll}}<div><p class=\"row\"><button @click=\"moreLoad\" class=\"button col\">more...</button></p><p class=\"row\"></p></div>{{/if}}");
       s2.append("</ul></div>");
       // if(l.getDefaultPageRecordNumber()>0)s2.append("{{#if infiniteScroll}}<div class=\"preloader
       // infinite-scroll-preloader\"></div>{{/if}}");
@@ -252,7 +252,7 @@ public class F7_4 implements ViewMobileAdapter {
     }
     buf.append("`");
     //state
-    buf.append(",\n data:function(){return {sort:'',dir:'',data:[], params:{}, baseParams:").append(GenericUtil.fromMapToJsonString(listResult.getRequestParams())).append(", browseInfo:{startRow:0}}}");
+    buf.append(",\n data:function(){return {sort:'',dir:'',data:[], infiniteScroll:false, params:{}, baseParams:").append(GenericUtil.fromMapToJsonString(listResult.getRequestParams())).append(", browseInfo:{startRow:0}}}");
     buf.append(",\n on:{pageDestroy:function(){if(this.ptr)this.ptr.destroy('#idx-page-content-")
         .append(l.getListId())
         .append(".ptr-content');},pageMounted:function(){this.load(0);");
@@ -267,7 +267,7 @@ public class F7_4 implements ViewMobileAdapter {
         if(l.getJsCode().charAt(0)!='{')buf.append("\ntry{").append(l.getJsCode()).append("\n}catch(e){if(iwb.debug && confirm('iwb.request.pageInit Exception. Throw?'))throw e;}");
         else buf.append("\nif(this.init)this.init();");
     }
-    buf.append("}},\n methods:{firstLoad:function(){this.load(0);},load:function(start,callback){if(!start)start=0;console.log('xload',start);var self = this;iwb.request({url:'ajaxQueryData?_qid=")
+    buf.append("}},\n methods:{firstLoad:function(){this.load(0);},moreLoad:function(){this.load(this.browseInfo.startRow);},load:function(start,callback,params){if(!start)start=0;var self = this;iwb.request({url:'ajaxQueryData?_qid=")
         .append(listResult.getList().getQueryId());
     if (l.getParentListId() != 0) {
       for (String key : listResult.getRequestParams().keySet())
@@ -276,10 +276,10 @@ public class F7_4 implements ViewMobileAdapter {
           if (val > 0) buf.append("&").append(key).append("=").append(val);
         }
     }
-    buf.append("', data:{sort:this.sort,dir:this.dir");
+    buf.append("', data:Object.assign({sort:this.sort,dir:this.dir");
     if (l.getDefaultPageRecordNumber() > 0)
       buf.append(",start:start,limit:").append(l.getDefaultPageRecordNumber());
-    buf.append("}, success:function(j){if(callback)callback();");
+    buf.append("},params||this.params), success:function(j){if(callback)callback();if(params)j.params=params;");
     if (l.getDefaultPageRecordNumber() > 0)
       buf.append(
           "var b=j.browseInfo;j.infiniteScroll=b.startRow+b.fetchCount<b.totalCount;if(b.fetchCount){b.startRow+=b.fetchCount;if(start){j.data=self.data.concat(j.data);}};");
@@ -371,7 +371,7 @@ public class F7_4 implements ViewMobileAdapter {
 
     return buf;
   }
-
+/*
   public StringBuilder serializeListOld(M5ListResult listResult) {
     StringBuilder buf = new StringBuilder();
     M5List l = listResult.getList();
@@ -551,7 +551,7 @@ public class F7_4 implements ViewMobileAdapter {
           .append(
               ".infinite-scroll-content');console.log('infinite-scroll-content', ic);if(ic && ic.length)iwb.app.on('infinite', function () {console.log('!iwb.allowInfinite',iwb.allowInfinite,self);if(!iwb.allowInfinite)return;iwb.allowInfinite=false;self.load(self.browseInfo ? self.browseInfo.startRow:0,function(){iwb.allowInfinite=!0;});});");
     buf.append(
-            "},100);}},\n methods:{firstLoad:function(){this.load(0);},load:function(start,callback){if(!start)start=0;console.log('xload',start);var self = this;iwb.request({url:'ajaxQueryData?_qid=")
+            "},100);}},\n methods:{firstLoad:function(){this.load(0);},load:function(start,callback,params){if(!start)start=0;var self = this;iwb.request({url:'ajaxQueryData?_qid=")
         .append(listResult.getList().getQueryId());
     if (l.getParentListId() != 0) {
       for (String key : listResult.getRequestParams().keySet())
@@ -560,10 +560,10 @@ public class F7_4 implements ViewMobileAdapter {
           if (val > 0) buf.append("&").append(key).append("=").append(val);
         }
     }
-    buf.append("', data:{");
+    buf.append("', data:Object.assign({");
     if (l.getDefaultPageRecordNumber() > 0)
       buf.append("start:start,limit:").append(l.getDefaultPageRecordNumber());
-    buf.append("}, success:function(j){if(callback)callback();");
+    buf.append("},params||{}),, success:function(j){if(callback)callback();if(params)j.params=params;");
     if (l.getDefaultPageRecordNumber() > 0)
       buf.append(
           "var b=j.browseInfo;j.infiniteScroll=b.startRow+b.fetchCount<b.totalCount;if(b.fetchCount){b.startRow+=b.fetchCount;if(start){j.data=self.data.concat(j.data);}};");
@@ -649,7 +649,7 @@ public class F7_4 implements ViewMobileAdapter {
 
     return buf;
   }
-
+*/
   public StringBuilder serializeGetForm(W5FormResult formResult) {
     W5Form f = formResult.getForm();
     Map scd = formResult.getScd();
@@ -748,9 +748,7 @@ public class F7_4 implements ViewMobileAdapter {
     //		buf.append(PromisUtil.filterExt(fc.getExtraDefinition(), formResult.getScd(),
     // formResult.getRequestParams(), o));
 
-    /*		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
-    	s.append(GenericUtil.stringToJS(GenericUtil.filterExt(f.getJsCode().substring(0, f.getJsCode().indexOf("${iwb-data}")),formResult.getScd(), formResult.getRequestParams(),null)));
-    } else */ if (f.getObjectTip() == 2) {
+    if (f.getObjectTip() == 2) {
       s.append("<div data-page=\"iwb-form-")
           .append(formResult.getFormId())
           .append("\" class=\"page\"><div class=\"navbar\">")
@@ -966,9 +964,7 @@ public class F7_4 implements ViewMobileAdapter {
       }
     }
 
-    /*		if(f.getRenderTip()==5 && !GenericUtil.isEmpty(f.getJsCode())){
-    	s.append(GenericUtil.stringToJS(f.getJsCode().substring(f.getJsCode().indexOf("${iwb-data}")+11)));
-    } else */ if (f.getObjectTip() == 2) {
+    if (f.getObjectTip() == 2) {
       s.append("</ul>");
       if (!formResult.isViewMode()) { // kaydet butonu
         if (masterDetail) // master detail
@@ -1022,17 +1018,7 @@ public class F7_4 implements ViewMobileAdapter {
 
       s.append("}");
     }
-    /*		if(!GenericUtil.isEmpty(f.getJsCode())){
-    	jsCode.append("\n").append(f.getJsCode()).append("\n");
-    }
-    if(jsCode.length()>0){
-    	StringBuilder  bx= new StringBuilder();
-    	bx.append("if(!callAttributes.json)callAttributes.json={};callAttributes.json.postInit=function(j){\n").append(jsCode).append("\n}\n;");
-    	jsCode = bx;
-    }
 
-    if(false && jsCode.length()>0)s.append(",\n init:function(callAttributes){\n")
-    	.append(jsCode).append("\n}"); */
     s.append("}");
     return s;
   }
