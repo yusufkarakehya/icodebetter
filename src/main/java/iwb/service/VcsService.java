@@ -112,7 +112,7 @@ public class VcsService {
 					int srvVcsCommitId = json.getInt("commit_id");
 					int srvCommitUserId = json.getInt("user_id");
 					
-					dao.saveVcsObject(scd, tableId, tablePk, action, jo);
+					dao.saveVcsObject(scd, tableId, tablePk, vo.getVcsObjectStatusTip()==3 ? 2:action, jo);
 
 					vo.setVcsObjectStatusTip((short)9);
 					vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, tableId, tablePk));
@@ -1111,9 +1111,9 @@ public class VcsService {
 			if(mt!=null){
 				List params = new ArrayList();
 				StringBuilder sql = new StringBuilder();
-				sql.append("select count(1) from iwb.w5_vcs_object v where v.project_uuid=? AND v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,2,9) AND not exists(select 1 from  ").append(mt.getDsc()).append(" m where m.project_uuid=? AND m.customization_id=? AND v.table_pk=m.")
+				sql.append("select count(1) from iwb.w5_vcs_object v where v.project_uuid=? AND v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,2,9) AND not exists(select 1 from  ").append(mt.getDsc()).append(" m where m.project_uuid=? AND v.table_pk=m.")//m.customization_id=? AND 
 					.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(")");
-				params.add(projectUuid);params.add(customizationId);params.add(tid);params.add(projectUuid);params.add(customizationId);
+				params.add(projectUuid);params.add(customizationId);params.add(tid);params.add(projectUuid);//params.add(customizationId);
 				int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
 				
 				if(cnt>0){
@@ -1180,7 +1180,7 @@ public class VcsService {
 			if(mt.getTableTip()!=0)continue;
 			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList()){
 				W5Table dt = FrameworkCache.getTable(projectUuid, tc.getRelatedTableId());
-				if(dt==null || dt.getTableTip()==0)continue;
+				if(dt==null || dt.getTableTip()==0 || dt.getVcsFlag()==0)continue;
 				if(mt.get_tableFieldMap().get(tc.getTableFieldId())==null || dt.get_tableFieldMap().get(tc.getRelatedTableFieldId())==null 
 						|| (tc.getRelatedStaticTableFieldId()!=0 && dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId())==null))continue;
 				List params = new ArrayList();
@@ -1189,7 +1189,7 @@ public class VcsService {
 					.append(dt.get_tableParamList().get(0).getExpressionDsc()).append(") AND exists(select 1 from ").append(mt.getDsc())
 					.append(" m where m.project_uuid=? AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
 				params.add(projectUuid);params.add(customizationId);params.add(tc.getRelatedTableId());params.add(projectUuid);
-				if(mt.get_tableParamList().size()>1){
+				if(mt.get_tableParamList().size()>1 && mt.get_tableParamList().get(1).getDsc().startsWith("custo")){
 					sql.append(" AND m.customization_id=?");
 					params.add(customizationId);
 				}
@@ -1198,7 +1198,7 @@ public class VcsService {
 					sql.append(" AND d.").append(dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal());
 					
 				}
-				if(dt.get_tableParamList().size()>1){
+				if(dt.get_tableParamList().size()>1 && dt.get_tableParamList().get(1).getDsc().startsWith("custo")){
 					sql.append(" AND d.customization_id=?");
 					params.add(customizationId);
 				}
@@ -1223,7 +1223,7 @@ public class VcsService {
 			if(mt.getTableTip()!=0)continue;
 			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList()){
 				W5Table dt = FrameworkCache.getTable(projectUuid, tc.getRelatedTableId());
-				if(dt==null || dt.getTableTip()==0)continue;
+				if(dt==null || dt.getTableTip()==0 || dt.getVcsFlag()==0)continue;
 				if(mt.get_tableFieldMap().get(tc.getTableFieldId())==null || dt.get_tableFieldMap().get(tc.getRelatedTableFieldId())==null 
 						|| (tc.getRelatedStaticTableFieldId()!=0 && dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId())==null))continue;
 
@@ -1233,7 +1233,7 @@ public class VcsService {
 					.append(dt.get_tableParamList().get(0).getExpressionDsc()).append(") AND exists(select 1 from ").append(mt.getDsc())
 					.append(" m where m.project_uuid=? AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
 				params.add(projectUuid);params.add(customizationId);params.add(tc.getRelatedTableId());params.add(projectUuid);
-				if(mt.get_tableParamList().size()>1){
+				if(mt.get_tableParamList().size()>1 && mt.get_tableParamList().get(1).getDsc().startsWith("custo")){
 					sql.append(" AND m.customization_id=?");
 					params.add(customizationId);
 				}
@@ -1242,7 +1242,7 @@ public class VcsService {
 					sql.append(" AND d.").append(dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal());
 					
 				}
-				if(dt.get_tableParamList().size()>1){
+				if(dt.get_tableParamList().size()>1 && dt.get_tableParamList().get(1).getDsc().startsWith("custo")){
 					sql.append(" AND d.customization_id=?");
 					params.add(customizationId);
 				}

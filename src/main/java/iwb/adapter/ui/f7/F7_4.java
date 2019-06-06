@@ -142,8 +142,7 @@ public class F7_4 implements ViewMobileAdapter {
       buf.append(",\n searchForm:").append(serializeGetForm(listResult.getSearchFormResult()));
     }
 
-    buf.append(",\n baseParams:")
-        .append(GenericUtil.fromMapToJsonString(listResult.getRequestParams()));
+//    buf.append(",\n baseParams:").append(GenericUtil.fromMapToJsonString(listResult.getRequestParams()));
 
     buf.append("\n}, template:`");
     if (GenericUtil.isEmpty(l.getHtmlPageCode())) {
@@ -177,7 +176,7 @@ public class F7_4 implements ViewMobileAdapter {
           .append("</div>");
       if (listResult.getSearchFormResult() != null) {
         s2.append(
-            "<div class=\"right\"><a href=# class=\"link icon-only panel-open\" data-panel=\"right\" @click=\"clickFilter\"><i class=\"icon material-icons md-only\">search</i></a></div>");
+            "<div class=\"right\"><a href=# class=\"link icon-only panel-open\" data-panel=\"right\" @click=\"clickFilter\"><i class=\"icon f7-icons if-not-md\">search</i><i class=\"icon material-icons if-md\">search</i></a></div>");
       }
       if (l.getParentListId() == 0)
         s2.append("<div class=\"title-large\"><div class=\"title-large-text\">")
@@ -206,9 +205,7 @@ public class F7_4 implements ViewMobileAdapter {
                 t.getAccessInsertUsers());
       }
       if (insertFlag) {
-        s3.append("<a class=\"fab-label-button\" href=\"/showMForm?a=2&_fid=")
-            .append(l.getDefaultCrudFormId())
-            .append("\" class=\"item-link\"><span><i class=\"icon material-icons\">add</i></span><span class=\"fab-label\">Add</span></a>");
+        s3.append("<a class=\"fab-label-button\" @click=\"clickNewRecord\" href=# class=\"item-link\"><span><i class=\"icon material-icons\">add</i></span><span class=\"fab-label\">Add</span></a>");
       }
       if (s3.length() > 0)
         s2.append(
@@ -254,24 +251,23 @@ public class F7_4 implements ViewMobileAdapter {
               .toString());
     }
     buf.append("`");
-
-    buf.append(",\n data:function(){return {sort:'',dir:'',data:[], browseInfo:{startRow:0}}}");
+    //state
+    buf.append(",\n data:function(){return {sort:'',dir:'',data:[], params:{}, baseParams:").append(GenericUtil.fromMapToJsonString(listResult.getRequestParams())).append(", browseInfo:{startRow:0}}}");
     buf.append(",\n on:{pageDestroy:function(){if(this.ptr)this.ptr.destroy('#idx-page-content-")
         .append(l.getListId())
         .append(".ptr-content');},pageMounted:function(){this.load(0);");
     if(searchBar)buf.append("iwb.app.searchbar.create({el: '#idx-searchbar-").append(l.getListId()).append(".searchbar',searchContainer: '.list',searchIn: '.item-title'});");
-    buf.append("},pageInit: function (e, page) {");
-    if (!GenericUtil.isEmpty(l.getJsCode())) {
-      buf.append("\n").append(l.getJsCode()).append("\n");
-    }
-    buf.append("var self=this;setTimeout(function(){self.ptr=iwb.app.ptr.get('#idx-page-content-")
+    buf.append("},pageInit: function (e, page) {var self=this;setTimeout(function(){self.ptr=iwb.app.ptr.get('#idx-page-content-")
         .append(l.getListId())
-        .append(
-            ".ptr-content');console.log('xpageInit',self.ptr);self.ptr.on('refresh',self.firstLoad);");
+        .append(".ptr-content');self.ptr.on('refresh',self.firstLoad);");
     // if(l.getDefaultPageRecordNumber()>0)buf.append("var
     // ic=$$('#idx-page-content-").append(l.getListId()).append(".infinite-scroll-content');console.log('infinite-scroll-content', ic);if(ic && ic.length)iwb.app.on('infinite', function () {console.log('!iwb.allowInfinite',iwb.allowInfinite,self);if(!iwb.allowInfinite)return;iwb.allowInfinite=false;self.load(self.browseInfo ? self.browseInfo.startRow:0,function(){iwb.allowInfinite=!0;});});");
-    buf.append(
-            "},100);}},\n methods:{firstLoad:function(){this.load(0);},load:function(start,callback){if(!start)start=0;console.log('xload',start);var self = this;iwb.request({url:'ajaxQueryData?_qid=")
+    buf.append("},100);");
+    if (!GenericUtil.isEmpty(l.getJsCode())) {
+        if(l.getJsCode().charAt(0)!='{')buf.append("\ntry{").append(l.getJsCode()).append("\n}catch(e){if(iwb.debug && confirm('iwb.request.pageInit Exception. Throw?'))throw e;}");
+        else buf.append("\nif(this.init)this.init();");
+    }
+    buf.append("}},\n methods:{firstLoad:function(){this.load(0);},load:function(start,callback){if(!start)start=0;console.log('xload',start);var self = this;iwb.request({url:'ajaxQueryData?_qid=")
         .append(listResult.getList().getQueryId());
     if (l.getParentListId() != 0) {
       for (String key : listResult.getRequestParams().keySet())
@@ -357,12 +353,18 @@ public class F7_4 implements ViewMobileAdapter {
     }
 
     buf.append(
-        "}, event.target);},clickSort:function(){iwb.orderList(this);},clickFilter:function(){if(this.sf)return;this.sf=this.$options.props.searchForm;iwb.reloadLoadFunc=this.load;$$('#idx-search-panel').html(this.sf.template);}}");
+        "}, event.target);},clickSort:function(){iwb.orderList(this);},clickFilter:function(){if(this.sf)return;this.sf=this.$options.props.searchForm;iwb.currentLoader=this.load;$$('#idx-search-panel').html(this.sf.template);}");
+    if(insertFlag) {
+    	buf.append(",\n clickNewRecord:function(){iwb.currentLoader=this.load;var url='/showMForm?a=2&_fid=").append(l.getDefaultCrudFormId())
+    		.append("';if(this._postInsert){url=this._postInsert(url, this);if(url===false)return;};this.$router.navigate(url)}");
+    }
+    buf.append("}");
 
-    String jsCode = listResult.getList().getJsCode();
-    if (false && !GenericUtil.isEmpty(jsCode)) {
-      if (!jsCode.startsWith(",")) buf.append(",");
-      buf.append(jsCode);
+    //custom methods if starts wih {init:function(){}....
+    if (!GenericUtil.isEmpty(l.getJsCode()) && l.getJsCode().charAt(0)=='{') {
+    	String jsCode = l.getJsCode().trim().substring(1);
+    	if(jsCode.endsWith("}"))jsCode=jsCode.substring(0, jsCode.length()-1);
+        buf.append(",\n").append(jsCode);
     }
 
     buf.append("}");
@@ -407,8 +409,7 @@ public class F7_4 implements ViewMobileAdapter {
       buf.append(",\n searchForm:").append(serializeGetForm(listResult.getSearchFormResult()));
     }
 
-    buf.append(",\n baseParams:")
-        .append(GenericUtil.fromMapToJsonString(listResult.getRequestParams()));
+//    buf.append(",\n baseParams:").append(GenericUtil.fromMapToJsonString(listResult.getRequestParams()));
 
     buf.append("\n}, template:`");
     if (GenericUtil.isEmpty(l.getHtmlPageCode())) {
@@ -442,7 +443,7 @@ public class F7_4 implements ViewMobileAdapter {
           .append("</div>");
       if (listResult.getSearchFormResult() != null) {
         s2.append(
-            "<div class=\"right\"><a href=# class=\"link icon-only\" @click=\"clickFilter\"><i class=\"icon material-icons md-only\">search</i></a></div>");
+            "<div class=\"right\"><a href=# class=\"link icon-only\" @click=\"clickFilter\"><i class=\"icon f7-icons if-not-md\">search</i><i class=\"icon material-icons if-md\">search</i></a></div>");
       }
       if (l.getParentListId() == 0)
         s2.append("<div class=\"title-large\"><div class=\"title-large-text\">")
@@ -987,7 +988,10 @@ public class F7_4 implements ViewMobileAdapter {
     if (jsCode.length() > 0) s.append("pageMounted:function(){\n").append(jsCode).append("\n},");
 
     if (!GenericUtil.isEmpty(f.getJsCode())) {
-      s.append("\n pageInit:function(){\n").append(f.getJsCode()).append("\n}");
+      s.append("\n pageInit:function(){");//.append(f.getJsCode()).append("\n}");
+      if(f.getJsCode().charAt(0)!='{')s.append("try{").append(f.getJsCode()).append("\n}catch(e){if(iwb.debug && confirm('iwb.request.pageInit Exception. Throw?'))throw e;}");
+      else s.append("\nif(this.init)this.init();");
+      s.append("\n}");
     }
 
     s.append("}");
@@ -1000,7 +1004,7 @@ public class F7_4 implements ViewMobileAdapter {
               .append(
                   ";if(self.componentWillPost){var r=self.componentWillPost(baseParams);if(r===false)return;baseParams=Object.assign(baseParams, r||{})};iwb.submit('#idx-form-")
               .append(f.getFormId())
-              .append("',baseParams,function(j){self.$router.back({force:!0});});}");
+              .append("',baseParams,function(j){var loader=self.$options.parentLoader;self.$router.back({force:!loader});if(loader)loader();});}");
         else
           s.append(
                   ",clickSaveContinue:function(){var self=this;if(!self.iwbSaveContinue){alert('self.iwbSaveContinue not defined');return;};var baseParams=")
@@ -1008,8 +1012,14 @@ public class F7_4 implements ViewMobileAdapter {
               .append(
                   ";if(self.componentWillPost)baseParams=self.componentWillPost(baseParams);if(baseParams!==false)iwb.submit('#idx-form-")
               .append(f.getFormId())
-              .append("',baseParams,function(j){self.$router.back({force:!0});});}");
+              .append("',baseParams,function(j){var loader=self.$options.parentLoader;self.$router.back({force:!loader});if(loader)loader();});}");
       }
+      if (!GenericUtil.isEmpty(f.getJsCode()) && f.getJsCode().charAt(0)=='{') {
+      	String jsCode2 = f.getJsCode().trim().substring(1);
+      	if(jsCode2.endsWith("}"))jsCode2 = jsCode2.substring(0, jsCode2.length()-1);
+          s.append(",\n").append(jsCode2);
+      }
+
       s.append("}");
     }
     /*		if(!GenericUtil.isEmpty(f.getJsCode())){
