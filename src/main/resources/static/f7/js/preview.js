@@ -1,13 +1,193 @@
 var routes = [
-	  {
-		    path: '/',
-		    url: './showPage?_tid=4296',
+	  {path: '/',content: ' iCodeBetter ',},
+	  {path: '/workspace',async: function (routeTo, routeFrom, resolve, reject) {
+		  	reject();
+		  	resolve({component:{template:`<div class="page">
+   {{#if backButton}}<div class="navbar">
+   <div class="navbar-inner">
+      <div class="left">
+        <a href="#" class="link back">
+          <i class="icon icon-back"></i>
+          <span class="if-not-md">Back</span>
+        </a>
+      </div>
+    </div>
+  </div>{{/if}}
+  <div class="page-content">
+    <div class="block">
+      <p>Welcome to iCodebetter Mobile Platform. Here you can test your mobile projects</p>
+    </div>
+    <div class="icb-expandable-cards">
+      <div class="card card-expandable">
+        <div class="card-content">
+          <div class="bg-color-red" style="height: 200px">
+            <div class="card-header text-color-white display-block">
+              Add Project
+              <br>
+              <small style="opacity: 0.7">By scanning square code</small>
+            </div>
+            <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
+              <i class="icon f7-icons">close_round_fill</i>
+            </a>
+          </div>
+          <div class="card-content-padding">
+            <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
+            <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
+            <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
+            <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
+            <p>
+              <a href="#" class="button button-fill button-round button-large card-close color-red">Close</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-expandable">
+        <div class="card-content">
+          <div class="bg-color-blue" style="height: 200px">
+            <div class="card-header text-color-white display-block">
+              Add Project
+              <br>
+              <small style="opacity: 0.7">Manually</small>
+            </div>
+            <a href="#" class="link card-close card-opened-fade-in color-black" style="position: absolute; right: 15px; top: 15px">
+              <i class="icon f7-icons">close_round_fill</i>
+            </a>
+          </div>
+          <div class="card-content-padding">
+            <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
+            <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
+            <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
+            <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
+            <p>
+              <a href="#" class="button button-fill button-round button-large card-close color-yellow text-color-black">Close</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`, style:`
+.card-expandable {
+    height: 110px;
+}
+.icb-expandable-cards .card-header img{
+	width:80px;position:absolute; border-radius:5px; right:40px; top:20px; opacity:.9;
+}
+.icb-expandable-cards .card-opened .card-header img{
+display:none;
+	width: 80%;
+    overflow: hidden;
+    position: relative;
+    left: 10%;
+}
+`,
+			data:function(){
+				return {
+					backButton: Object.assign(routeTo.query,routeTo.params).back||false
+				}
+			},
+	        on:{pageInit:function(){
+	          
+	        }},methods:{clickAddProject:function(){
+	        	alert('TODO');	        	  
+	        }}}});
 		  },
+	  },
+	  {path:'/login',async: function (routeTo, routeFrom, resolve, reject) {
+		  reject();
+		  resolve({component:{template:`
+			  <div class="page" data-name="icb-login"><div class="page-content login-screen-content" id="icb-login-screen">
+			  	<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>
+	            <div class="login-screen-title">Login</div>
+	            <div class="list">
+	              <ul>
+	                <li class="item-content item-input">
+	                  <div class="item-inner">
+	                    <div class="item-title item-label">Username</div>
+	                    <div class="item-input-wrap">
+	                      <input type="text" name="username" placeholder="Your username">
+	                    </div>
+	                  </div>
+	                </li>
+	                <li class="item-content item-input">
+	                  <div class="item-inner">
+	                    <div class="item-title item-label">Password</div>
+	                    <div class="item-input-wrap">
+	                      <input type="password" name="password" placeholder="Your password">
+	                    </div>
+	                  </div>
+	                </li>
+	              </ul>
+	            </div>
+	            <div class="list">
+	              <ul>
+	                <li>
+	                  <a href="#" @click="clickLogin" class="item-link list-button login-button">Sign In</a>
+	                </li>
+	              </ul>
+	              <div class="block-footer">iCodeBetter (c) 2019</div>
+	            </div>
+	          </div></div>`, 
+          on:{pageInit:function(){
+			  _scd = null;
+			  var ls = window.localStorage;
+			  if(ls){
+				  var reUserName = ls.getItem("userName");
+				  if(reUserName)$$('#icb-login-screen [name="username"]').val(reUserName);
+			  }
+          
+        }},methods:{clickLogin:function(){
+        	  var username = $$('#icb-login-screen [name="username"]').val();
+        	  var password = $$('#icb-login-screen [name="password"]').val();
+        	  if(username && password){
+        		  iwb.app.preloader.show();
+        		  Framework7.request({url:iwb.serverUrl + 'ajaxAuthenticateUser?d=1&c=1&_mobile=0&customizationId=0&locale=tr',
+    		    	data:{userName: username, passWord: password},dataType: 'json', 
+    		    	success:function(j){
+    		    		iwb.app.preloader.hide();
+    				if(j.success){
+    		    		if(!j.session){ //TODO. eger session gelmediyse, sikinti
+    		    			iwb.app.toast.show({text:j.errorMsg || j.error || 'Error ', closeTimeout: 3000});
+    		    			return;
+    		    		}
+    					  var ls = window.localStorage;
+    					  if(ls){
+    						  ls.setItem("userName", username);
+    						  ls.setItem("passWord", password);
+    					  }
+		    			//iwb.app.views.main.router.clearPreviousHistory();
+		    			iwb.home = false;
+			    		_scd=j.session;
+			    		setTimeout(function(){
+//	            			iwb.goHome();
+				    		iwb.prepareMainMenu();
+			    		}, 100);
+    		    	} else {
+		    			iwb.app.toast.show({text:j.errorMsg || j.error || 'Error ', closeTimeout: 3000});
+    		    	}
+    		    },error:function(){
+    		    	iwb.app.preloader.hide();
+    		    }});
+        	  }
+        }}}});
+	  }
+	  },
+	  {path: '/confirmDeleteRecord',async: function (routeTo, routeFrom, resolve, reject) {
+		  reject();
+		  iwb.app.dialog.confirm("Are you sure?", "Delete", function(){
+			  iwb.submit(false,Object.assign(routeTo.query,routeTo.params), function(d){
+				  iwb.currentLoader(0);
+			      });
+			  });
+	    }},
+	  
 		  {
 		    path: '/showMList',
 		    async: function (routeTo, routeFrom, resolve, reject) {
 			      iwb.request({url:'showMList',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
-					resolve({component:d})
+			    	  resolve({component:d})
 			      }});
 		    }
 		  },
@@ -15,7 +195,8 @@ var routes = [
 		    path: '/showMForm',
 		    async: function (routeTo, routeFrom, resolve, reject) {
 			      iwb.request({url:'showMForm',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
-					resolve({component:d});
+			    	  d.parentLoader=iwb.currentLoader;
+			    	  resolve({component:d});
 			      }});
 		    },
 		  },
@@ -36,14 +217,14 @@ var routes = [
 
 
 
-var _scd={};
+var _scd=null;
 var iwb={};
 
-iwb.serverUrl='';
+iwb.serverUrl='/app/';
 iwb.debug=true;
 
 iwb.submit=function(idForm, baseParams, callback){
-	iwb.request({url:'ajaxPostForm',preloader:!0,data:Object.assign(baseParams, iwb.app.form.convertToData(idForm)),method:'POST',success:function(j){
+	iwb.request({url:'ajaxPostForm',preloader:!0,data:Object.assign(baseParams, idForm ? iwb.app.form.convertToData(idForm):{}),method:'POST',success:function(j){
 		if(j.msgs)for(var qi=0;qi<j.msgs.length && qi<5;qi++){
 			iwb.app.toast.show({
 				  text: j.msgs[qi],closeButton: true
@@ -57,7 +238,6 @@ iwb.submit=function(idForm, baseParams, callback){
 }
 
 iwb.request=function(cfg){
-//	if(iwb.debug)console.log('iwb.request: ' + (cfg ? cfg.url:''));
 	if(!_scd){
 		iwb.checkSession(cfg);
 	} else if(cfg){
@@ -74,26 +254,28 @@ iwb.request=function(cfg){
 	            	try{
 	            		j = eval('('+d+')');
 	            	}catch(ee){
-	            		if(iwb.debug && confirm('iwb.request.eval Expception. Throw?'))throw e;
+	            		if(iwb.debug && confirm('iwb.request.Response Eval Exception. Throw?'))throw e;
 	            		return;
 	            	}
 
             		if(j.success)try{
             			if(cfg.success)cfg.success(j, cfg);
             		} catch(e){
-            			if(iwb.debug && confirm('iwb.request.success Expception. Throw?'))throw e;
+            			if(iwb.debug && confirm('iwb.request.Success Callback Exception. Throw?'))throw e;
 	            	} else if(cfg.error)try{
                 		cfg.error(j, cfg);
             		} catch(e){
-            			if(iwb.debug && confirm('iwb.request.success Expception. Throw?'))throw e;
+            			if(iwb.debug && confirm('iwb.request.Error Callback Exception. Throw?'))throw e;
             		} else switch(j.errorType){
 	    			case	'session':
+	    				if(cfg.error)cfg.error();
 	    				iwb.reLogin(cfg);
 	    				return;
 	    			case	'confirm':
-	    				iwb.app.dialog.confirm(j.error,function(){var ncfg=Object.assign({},cfg);ncfg.data=Object.assign(ncfg.data,{confirmId:j.objectId});iwb.request(ncfg);});
+	    				iwb.app.dialog.confirm(j.error,function(){var ncfg=Object.assign({},cfg);ncfg.data=Object.assign(ncfg.data,{confirmId:j.objectId});iwb.request(ncfg);}, cfg.error);
 	    				return;
 	    			case	'validation':
+	    				if(cfg.error)cfg.error();
 	    				var s='';//<i class="icon material-icons color-red" style="font-size:16px">error</i> <b>Validation Errors</b><br/>';
 	    				if(j.errors)for(var qi=0;qi<j.errors.length && qi<3;qi++){
 	    					s+='<i class="icon material-icons color-red" style="font-size:18px">error</i> &nbsp; <span style="color:orange;font-weight:bosld">'+ j.errors[qi].dsc+'</span> &nbsp; ' + j.errors[qi].msg +'<br/>';
@@ -102,6 +284,7 @@ iwb.request=function(cfg){
 	    				
 	    				return;
 	    			default:
+	    				console.log('uknown error',j)
 	    				if(cfg.error)cfg.error(j, cfg);
 	    				else iwb.app.toast.create({position:'top',closeButton:!0,text:j.error||'Unknown Error'}).open();
 	    				return;
@@ -130,7 +313,7 @@ iwb.orderList=function(j){
 		bs.push({text: (bq ? ('<b>'+mm.dsc+' ('+(j.dir=='ASC' ? 'Ascending':'Descending')+')</b>'):mm.dsc), onClick: function (d,e) {
 			if(iwb.debug){console.log('sort-action-click');console.log(d);console.log(e);}
 			if(!e.srcElement || !e.srcElement.innerText){
-				alert('olmadi');return;
+				iwb.app.dialog.alert('error1');return;
 			}
 			var t=e.srcElement.innerText, qq=false;
 			for(var ji=0;ji<od.length;ji++)if(t.indexOf(od[ji].dsc)==0){
@@ -138,7 +321,7 @@ iwb.orderList=function(j){
 				break;
 			}
 			if(!qq){
-				alert('olmadi2');return;
+				iwb.app.dialog.alert('error2');return;
 			}
 			var newSort=j.sort, newDir='ASC';
 			if(j.sort && j.sort==qq.id){
@@ -175,11 +358,6 @@ function recMenu(r, lvl){
 	return s;	
 }
 
-iwb.prepareMainMenu=function(){
-	iwb.request({url:'ajaxQueryData?_qid='+ (_scd.mobileMenuQueryId || 1487)+'&.r='+Math.random(),dataType:'text',data:{_json:1, xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:_scd.userTip}, success:function(d){
-		$$('#idx-main-menu').html(recMenu(d.data));
-	}}); 
-}
 iwb.getPk=function(pk){
 	for(var k in pk)if(k!='customizationId' && k!='projectId' && k!='tenantId')return pk[k];
 	return -1;
@@ -278,74 +456,15 @@ iwb.autoCompleteJson=function(postUrl){
 // Dom7
 var $$ = Dom7;
 
-// Framework7 App main instance
-iwb.app = new Framework7({
-  root: '#app', // App root element
-  id: 'io.framework7.iwb', // App bundle ID
-  name: 'Framework7', // App name
-  theme: 'auto',// 'auto', // Automatic theme detection
-  // App root data
-  data: function () {
-    return {
-      user: {
-        firstName: 'John',
-        lastName: 'Doe',
-      },
-    };
-  },
-  dialog: {
-	    // set default title for all dialog shortcuts
-	    title: 'iCodeBetter',
-  },
-  // App routes
-  routes: routes,
-  methods:{
-	clickReload:function(){
-		alert('aaa')
-	}  
-  },
-  on: {
-    init: function () {
-      var f7 = this;
-      if (f7.device.cordova) {
-        // Init cordova APIs (see cordova-app.js)
-        cordovaApp.init(f7);
-      }
-	  	$$('#idx-reload').on('click', function(){
-			var fd=iwb.app.form.convertToData('#idx-reload-form');
-			console.log('bahar',fd);
-			iwb.reloadLoadFunc(0);
-		});
-    }
-  }
-});
-
-iwb.reloadLoadFunc=null;
-// Init/Create main view
-var mainView = iwb.app.views.create('.view-main', {
-  url: '/showMPage?_tid=4297'
-});
-
-// Login Screen Demo
-$$('#my-login-screen .login-button').on('click', function () {
-  var username = $$('#my-login-screen [name="username"]').val();
-  var password = $$('#my-login-screen [name="password"]').val();
-
-  // Close login screen
-  iwb.app.loginScreen.close('#my-login-screen');
-
-  // Alert username and password
-  iwb.app.dialog.alert('Username: ' + username + '<br>Password: ' + password);
-});
 
 
-iwb.prepareMainMenu();
+iwb.currentLoader=null;
 
-function iwbDeleteRecord(){
-	alert('oha')
-}
+
+
 iwb.showRecordMenu=function(json3, targetEl){
 	var tg=$$(json3._event.target);
+	iwb.currentLoader=json3._this.load;
 	var pk = tg.data('pk');
 	if(!pk){
 		tg = tg.parents('a');
@@ -359,7 +478,8 @@ iwb.showRecordMenu=function(json3, targetEl){
 			lnk.push('<li><a href="'+href+'" class="item-link item-content popover-close"><div class="item-inner" style="background-image:none;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;color: #027eff;">compose</i> &nbsp; Update</div></div></a></li>');
 		}
 		if(json3.crudFlags.remove){
-			lnk.push('<li><a href="#" @click="ahmet" id="idx-confirm-delete-'+json3.crudFormId+'" class="item-link item-content popover-close"><div class="item-inner" style="background-image:none;color:red;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;">delete_round</i> &nbsp; Delete</div></div></a></li>');
+			href='/confirmDeleteRecord?a=3&_fid='+json3.crudFormId+'&'+json3.pkName+'='+pk+'&.r='+Math.random();
+			lnk.push('<li><a href="'+href+'" class="item-link item-content popover-close"><div class="item-inner" style="background-image:none;color:red;"><div class="item-title"><i class="f7-icons" style="font-size: 18px;">delete_round</i> &nbsp; Delete</div></div></a></li>');
 		}
 	}
 	
@@ -383,7 +503,7 @@ iwb.showRecordMenu=function(json3, targetEl){
 			var p=iwb.app.popover.create({content:'<div class="popover"><div class="popover-inner"><div class="list"><ul>'+lnk.join('')+'</ul></div></div></div>', targetEl:targetEl});
 			p.open();
 		} else  {
-			if(href)iwb.app.router.loadPage(href);
+			if(href)iwb.app.router.navigate(href);
 //			else json3.recordButtons[0].click(pk);
 		}
 	}
@@ -481,27 +601,162 @@ Template7.registerHelper('ago2', iwb.fmtDateAgo2);
 Template7.registerHelper('dst', iwb.fmtDistance);
 
 String.prototype.toDate = function(format){
-	  var normalized      = this.replace(/[^a-zA-Z0-9]/g, '-');
-	  var normalizedFormat= format.toLowerCase().replace(/[^a-zA-Z0-9]/g, '-');
-	  var formatItems     = normalizedFormat.split('-');
-	  var dateItems       = normalized.split('-');
+  var normalized      = this.replace(/[^a-zA-Z0-9]/g, '-');
+  var normalizedFormat= format.toLowerCase().replace(/[^a-zA-Z0-9]/g, '-');
+  var formatItems     = normalizedFormat.split('-');
+  var dateItems       = normalized.split('-');
 
-	  var monthIndex  = formatItems.indexOf("mm");
-	  var dayIndex    = formatItems.indexOf("dd");
-	  var yearIndex   = formatItems.indexOf("yyyy");
-	  var hourIndex     = formatItems.indexOf("hh");
-	  var minutesIndex  = formatItems.indexOf("ii");
-	  var secondsIndex  = formatItems.indexOf("ss");
+  var monthIndex  = formatItems.indexOf("mm");
+  var dayIndex    = formatItems.indexOf("dd");
+  var yearIndex   = formatItems.indexOf("yyyy");
+  var hourIndex     = formatItems.indexOf("hh");
+  var minutesIndex  = formatItems.indexOf("ii");
+  var secondsIndex  = formatItems.indexOf("ss");
 
-	  var today = new Date();
+  var today = new Date();
 
-	  var year  = yearIndex>-1  ? dateItems[yearIndex]    : today.getFullYear();
-	  var month = monthIndex>-1 ? dateItems[monthIndex]-1 : today.getMonth()-1;
-	  var day   = dayIndex>-1   ? dateItems[dayIndex]     : today.getDate();
+  var year  = yearIndex>-1  ? dateItems[yearIndex]    : today.getFullYear();
+  var month = monthIndex>-1 ? dateItems[monthIndex]-1 : today.getMonth()-1;
+  var day   = dayIndex>-1   ? dateItems[dayIndex]     : today.getDate();
 
-	  var hour    = hourIndex>-1      ? dateItems[hourIndex]    : today.getHours();
-	  var minute  = minutesIndex>-1   ? dateItems[minutesIndex] : today.getMinutes();
-	  var second  = secondsIndex>-1   ? dateItems[secondsIndex] : today.getSeconds();
+  var hour    = hourIndex>-1      ? dateItems[hourIndex]    : today.getHours();
+  var minute  = minutesIndex>-1   ? dateItems[minutesIndex] : today.getMinutes();
+  var second  = secondsIndex>-1   ? dateItems[secondsIndex] : today.getSeconds();
 
-	  return new Date(year,month,day,hour,minute,second);
-	};
+  return new Date(year,month,day,hour,minute,second);
+};
+
+iwb.prepareMainMenu=function(){
+	iwb.request({url:'ajaxQueryData?_qid=1487&.r='+Math.random(),dataType:'text',data:{_json:1,xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:0}, success:function(d){
+		$$('#idx-main-menu').html(recMenu(d.data));
+		iwb.goHome();
+	}}); 
+}
+iwb.home=false;
+iwb.goHome=function(){
+	iwb.app.views.main.router.navigate('/showMPage?_tid=4297');
+	iwb.home=!0;
+}
+
+iwb.openLoginScreen=function(reUserName){
+	var url='/login';
+	if(reUserName)url+='?u='+reUserName;
+	iwb.app.views.main.router.navigate(url);
+}
+
+iwb.reLogin=function(afterCfg){
+	var ls = window.localStorage;
+	if(ls){
+		var reUserName = ls.getItem("userName");
+		var rePassWord = ls.getItem("passWord"); 
+		if(reUserName && rePassWord){
+			iwb.app.preloader.show();
+			Framework7.request({url:iwb.serverUrl + 'ajaxAuthenticateUser?d=1&c=1&_mobile=0&_mobile_device_id='+iwb.deviceId+'&customizationId=0&locale=tr',
+		    	data:{userName:reUserName, passWord:rePassWord},dataType: 'json', 
+		    	success:function(j){
+		    		iwb.app.preloader.hide();
+					if(j.success){
+			    		if(!j.session){ //TODO. eger session gelmediyse, sikinti
+			    			iwb.openLoginScreen();
+			    			return;
+			    		}
+			    		if(!_scd || _scd.userId!=j.session.userId){//TODO burda butun ekranlar gemizlenecek
+			    			iwb.app.views.main.router.clearPreviousHistory();
+			    			iwb.home = false;
+				    		_scd=j.session;
+	            			iwb.goHome();
+			    		} else {
+				    		_scd=j.session;
+		            		if(afterCfg)iwb.request(afterCfg);//tekrar cagir
+			    		}
+			    	} else {
+		    			_scd = null;
+		    			iwb.openLoginScreen();
+	        			return;
+			    	}
+		    }, error:function(){
+      		  iwb.app.preloader.hide();
+      		  iwb.app.toast.show({
+				  text: 'Error Connecting ' + d ,closeButton: true, closeButtonText: 'Try Again'
+					  , on:{
+						  close:function(){
+							  iwb.reLogin(afterCfg);
+							  }
+					  }
+				});      		  
+		    }});
+			return;
+		}
+	}
+	iwb.openLoginScreen();
+}
+
+iwb.checkSession=function(afterCfg){
+    Framework7.request({
+        url: iwb.serverUrl + 'ajaxPing?d=1&c=1&.r=' + Math.random(),
+        method: 'POST', data: {},
+//        dataType: 'json',
+        success: function (d) {
+        	_scd = null;
+        	var j = eval('('+d+')');
+        	if(j.success && j.session){
+        		_scd=j.session;
+        		if(afterCfg)iwb.request(afterCfg);
+        	} else 
+        		iwb.reLogin(afterCfg);
+        }, error: function (d) {
+			iwb.app.toast.show({
+				  text: 'Error Connecting ' + d ,closeButton: true, closeButtonText: 'Try Again'
+					  , on:{
+						  close:function(){
+							  iwb.checkSession(afterCfg);
+						  }
+					  }
+				});
+        }
+    });
+}
+// Framework7 App main instance
+iwb.app = new Framework7({
+  root: '#app', // App root element
+  id: 'io.framework7.iwb', // App bundle ID
+  name: 'Framework7', // App name
+  theme: 'auto',// 'auto', // Automatic theme detection
+  // App root data
+  data: function () {
+    return {
+    };
+  },
+  dialog: {
+	    // set default title for all dialog shortcuts
+	    title: 'iCodeBetter',
+  },
+  // App routes
+  routes: routes,
+  methods:{
+	test:function(){
+		alert('test')
+	}  
+  },
+  on: {
+    init: function () {
+        var f7 = this;
+
+      if (f7.device.cordova) {
+        // Init cordova APIs (see cordova-app.js)
+        cordovaApp.init(f7);
+      }
+	  	$$('#idx-reload').on('click', function(){
+			var fd=iwb.app.form.convertToData('#idx-reload-form');
+			iwb.currentLoader(0,null,fd);
+		});
+	  	
+    }
+  }
+});
+//Init/Create main view
+var mainView = iwb.app.views.create('.view-main', {
+  url: '/'
+});
+
+iwb.prepareMainMenu();

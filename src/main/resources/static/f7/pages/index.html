@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+    
+  <meta name="theme-color" content="#007aff">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <title>iCodeBetter</title>
+  
+  <link rel="stylesheet" href="/f7/css/framework7.bundle.css">
+  <link rel="stylesheet" href="/f7/apex/apexcharts.css">
+  <link rel="stylesheet" href="/f7/css/icons.css">
+  <link rel="stylesheet" href="/f7/css/iwb.css">
+  
+  <script src="/f7/apex/apexcharts.js"></script>
+ 
+  <!-- built styles file will be auto injected -->
+</head>
+<body>
+  <div id="app">
+    <!-- Status bar overlay for fullscreen mode-->
+    <div class="statusbar"></div>
+    <!-- Left panel with cover effect-->
+    <div class="panel panel-left panel-cover theme-dark">
+      <div class="view">
+        <div class="page">
+          <div class="navbar">
+            <div class="navbar-inner">
+              <div class="title">Navigation Menu</div>
+            </div>
+          </div>
+          <div class="page-content">
+            <div class="list accordion-list">
+              <ul id="idx-main-menu">
+                        
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right panel with reveal effect-->
+    <div class="panel panel-right panel-reveal theme-dark">
+      <div class="view">
+        <div class="page">
+          <div class="navbar">
+            <div class="navbar-inner">
+              <div class="left"> &nbsp; Filters</div>
+
+              <div class="right"><a href="#" class="link icon-only panel-close" id="idx-reload"><i class="icon f7-icons if-not-md">refresh</i><i class="icon material-icons if-md">refresh</i></a></div>
+            </div>
+          </div>
+          <div class="page-content">
+            <form class="list accordion-list" id="idx-reload-form">
+                <ul id="idx-search-panel">
+                          
+                </ul>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Your main view, should have "view-main" class -->
+    <div class="view view-main view-init safe-areas" data-url="/"></div>
+
+   
+  </div>
+
+  <!-- built script files will be auto injected -->
+  <!-- Framework7 library -->
+  <script src="/f7/js/framework7.bundle.js"></script>
+
+
+  <!-- Your custom app scripts -->
+  <script src="/f7/js/preview.js"></script>  
+</body>
+</html>
