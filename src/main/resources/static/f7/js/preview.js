@@ -93,7 +93,7 @@ display:none;
 	        	alert('TODO');	        	  
 	        }}}});
 		  },
-	  },,
+	  },
 	  {path: '/about',async: function (routeTo, routeFrom, resolve, reject) {
 		  	resolve({component:{template:`<div class="page">
  <div class="navbar">
@@ -363,7 +363,7 @@ iwb.request=function(cfg){
 	            	var j = {};
 	            	try{
 	            		j = eval('('+d+')');
-	            	}catch(ee){
+	            	}catch(e){
 	            		if(iwb.debug && confirm('iwb.request.Response Eval Exception. Throw?'))throw e;
 	            		return;
 	            	}
@@ -627,6 +627,132 @@ iwb.showRecordMenu=function(json3, targetEl){
 	}
 }
 
+iwb.graph = function(dg, gid) {
+	  var newStat = 1 * dg.funcTip ? dg.funcFields : "";
+	  var params = {};
+	  if (newStat) params._ffids = newStat;
+	  if (1 * dg.graphTip >= 5) params._sfid = dg.stackedFieldId;
+      var series=[], labels=[], lookUps=[], chart =null;
+
+	  iwb.request({
+	    url:
+	      (dg.query? "ajaxQueryData4Stat?_gid=":"ajaxQueryData4StatTree?_gid=") +
+	      dg.gridId +
+	      "&_stat=" +
+	      dg.funcTip +
+	      "&_qfid=" +
+	      dg.groupBy +
+	      "&_dtt=" +
+	      dg.dtTip,
+	    data: Object.assign(params, dg.queryParams),
+	    success: function(j) {
+			var d= j.data;
+			if(!d || !d.length)return;
+	        
+			switch (1 * dg.graphTip) {
+	        case 6: //stacked area
+	        case 5: //stacked column
+	        	var l= j.lookUp;
+	        	for(var k in l)lookUps.push(k);
+	            if(!lookUps.length)return;
+	            d.map((z)=>{
+	                var data=[];
+	                lookUps.map((y)=>data.push(1*(z['xres_'+y]||0)));
+	                series.push({name:z.dsc, data:data});
+	            });
+	            lookUps.map((y)=>labels.push(l[y]||'-'));
+
+	            options = {
+	                chart: {
+	                    height: 50*d.length+50,
+	                    type: 'bar',
+	                    stacked: true,
+	                },
+	                plotOptions: {
+	                    bar: {horizontal: true},
+	                    
+	                },
+	                series: series,
+	                title: {
+	                    text: dg.name
+	                },
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {
+	                    title: {
+	                        text: undefined
+	                    },                
+	                }
+	            }
+	        	break;
+	        case 3://pie
+	            d.map((z)=>{
+	                series.push(1*z.xres);
+	                labels.push(z.dsc||'-');
+	            });
+	            var options = {
+	                title: {text: dg.name},
+	                chart: {type: 'donut'},
+	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : false
+	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
+	            }
+
+	        	break;
+	        case 1://column
+	        case 2://area
+	        	d.map((z)=>{
+	                series.push(1*z.xres);
+	                labels.push(z.dsc);
+	            });
+	            options = {
+	                title: {text: dg.name},
+	                chart: {
+	                    height:50*d.length+50,
+	                    type: 1 * dg.graphTip==1?'bar':'area',
+	                },
+	                plotOptions: {
+	                    bar: {
+	                        horizontal: 1 * dg.graphTip==1 //d.length>5
+	                    }
+	                },
+	                dataLabels:  1 * dg.graphTip==1 ? {
+	                    enabled: true,
+	                    textAnchor: 'start',
+	                    style: {
+	                        colors: ['#fff']
+	                    },
+	                    formatter: function(val, opt) {
+	                        return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+	                    },
+	                    offsetX: 0,
+	                    dropShadow: {
+	                      enabled: true
+	                    }
+	                }:{},
+	                series: [{
+	                    data: series
+	                }],
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {labels: {show: false}},
+	            }
+	        	break;
+			}
+
+			if(options){
+	            chart = new ApexCharts(
+	                document.querySelector(gid),
+	                options
+	            );
+	            chart.render();
+			}
+			
+	    }
+	  });
+}
+
 
 var daysOfTheWeek=['Sunday', 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 iwb.fmtDateAgo=function(dt){
@@ -652,7 +778,7 @@ iwb.fmtDateAgo2=function(dt){
 	return dt.substr(0,10);
 }
 
-function fmtDecimalNew(value,digit){
+function fmtDecimal(value,digit){
 	if(!value)return '0';
 	if(!digit)digit=2;	
 	var result = Math.round(value*Math.pow(10,digit))/Math.pow(10,digit)+'';
@@ -668,7 +794,7 @@ iwb.fmtDistance=function(d){
 	if(!d || d<0)return '';
 	if(d<1000)return d + ' m';
 	d = d/1000;
-	return fmtDecimalNew(d,1)+ ' km';
+	return fmtDecimal(d,1)+ ' km';
 }
 iwb.combo2combo = function(prt, cmb, fnc, action){
 	$$(prt).on('change',function(){
