@@ -1,76 +1,75 @@
 var routes = [
 	  {path: '/',content: ' iCodeBetter ',},
 	  {path: '/workspace',async: function (routeTo, routeFrom, resolve, reject) {
-		  	reject();
 		  	resolve({component:{template:`<div class="page">
-   {{#if backButton}}<div class="navbar">
-   <div class="navbar-inner">
-      <div class="left">
-        <a href="#" class="link back">
-          <i class="icon icon-back"></i>
-          <span class="if-not-md">Back</span>
-        </a>
-      </div>
+ {{#if backButton}}<div class="navbar">
+ <div class="navbar-inner">
+    <div class="left">
+      <a href="#" class="link back">
+        <i class="icon icon-back"></i>
+        <span class="if-not-md">Back</span>
+      </a>
     </div>
-  </div>{{/if}}
-  <div class="page-content">
-    <div class="block">
-      <p>Welcome to iCodebetter Mobile Platform. Here you can test your mobile projects</p>
-    </div>
-    <div class="icb-expandable-cards">
-      <div class="card card-expandable">
-        <div class="card-content">
-          <div class="bg-color-red" style="height: 200px">
-            <div class="card-header text-color-white display-block">
-              Add Project
-              <br>
-              <small style="opacity: 0.7">By scanning square code</small>
-            </div>
-            <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
-              <i class="icon f7-icons">close_round_fill</i>
-            </a>
+  </div>
+</div>{{/if}}
+<div class="page-content">
+  <div class="block">
+    <p>Welcome to iCodebetter Mobile Platform. Here you can test your mobile projects</p>
+  </div>
+  <div class="icb-expandable-cards">
+    <div class="card card-expandable">
+      <div class="card-content">
+        <div class="bg-color-red" style="height: 200px">
+          <div class="card-header text-color-white display-block">
+            Add Project
+            <br>
+            <small style="opacity: 0.7">By scanning square code</small>
           </div>
-          <div class="card-content-padding">
-            <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
-            <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
-            <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
-            <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
-            <p>
-              <a href="#" class="button button-fill button-round button-large card-close color-red">Close</a>
-            </p>
-          </div>
+          <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
+            <i class="icon f7-icons">close_round_fill</i>
+          </a>
+        </div>
+        <div class="card-content-padding">
+          <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
+          <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
+          <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
+          <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
+          <p>
+            <a href="#" class="button button-fill button-round button-large card-close color-red">Close</a>
+          </p>
         </div>
       </div>
+    </div>
 
-      <div class="card card-expandable">
-        <div class="card-content">
-          <div class="bg-color-blue" style="height: 200px">
-            <div class="card-header text-color-white display-block">
-              Add Project
-              <br>
-              <small style="opacity: 0.7">Manually</small>
-            </div>
-            <a href="#" class="link card-close card-opened-fade-in color-black" style="position: absolute; right: 15px; top: 15px">
-              <i class="icon f7-icons">close_round_fill</i>
-            </a>
+    <div class="card card-expandable">
+      <div class="card-content">
+        <div class="bg-color-blue" style="height: 200px">
+          <div class="card-header text-color-white display-block">
+            Add Project
+            <br>
+            <small style="opacity: 0.7">Manually</small>
           </div>
-          <div class="card-content-padding">
-            <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
-            <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
-            <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
-            <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
-            <p>
-              <a href="#" class="button button-fill button-round button-large card-close color-yellow text-color-black">Close</a>
-            </p>
-          </div>
+          <a href="#" class="link card-close card-opened-fade-in color-black" style="position: absolute; right: 15px; top: 15px">
+            <i class="icon f7-icons">close_round_fill</i>
+          </a>
+        </div>
+        <div class="card-content-padding">
+          <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
+          <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
+          <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
+          <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
+          <p>
+            <a href="#" class="button button-fill button-round button-large card-close color-yellow text-color-black">Close</a>
+          </p>
         </div>
       </div>
     </div>
   </div>
 </div>
+</div>
 `, style:`
 .card-expandable {
-    height: 110px;
+  height: 110px;
 }
 .icb-expandable-cards .card-header img{
 	width:80px;position:absolute; border-radius:5px; right:40px; top:20px; opacity:.9;
@@ -78,9 +77,103 @@ var routes = [
 .icb-expandable-cards .card-opened .card-header img{
 display:none;
 	width: 80%;
-    overflow: hidden;
-    position: relative;
-    left: 10%;
+  overflow: hidden;
+  position: relative;
+  left: 10%;
+}
+`,
+			data:function(){
+				return {
+					backButton: Object.assign(routeTo.query,routeTo.params).back||false
+				}
+			},
+	        on:{pageInit:function(){
+	          
+	        }},methods:{clickAddProject:function(){
+	        	alert('TODO');	        	  
+	        }}}});
+		  },
+	  },,
+	  {path: '/about',async: function (routeTo, routeFrom, resolve, reject) {
+		  	resolve({component:{template:`<div class="page">
+ <div class="navbar">
+ <div class="navbar-inner">
+    <div class="left">
+      <a href="#" class="link back">
+        <i class="icon icon-back"></i>
+        <span class="if-not-md">Back</span>
+      </a>
+    </div>
+  </div>
+</div>
+<div class="page-content">
+  <div class="block">
+    <p>About iCodebetter</p>
+  </div>
+  <div class="icb-expandable-cards">
+    <div class="card card-expandable">
+      <div class="card-content">
+        <div class="bg-color-red" style="height: 200px">
+          <div class="card-header text-color-white display-block">
+            iCodeBetter
+            <br>
+            <small style="opacity: 0.7">As a Low Code Platform</small>
+          </div>
+          <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
+            <i class="icon f7-icons">close_round_fill</i>
+          </a>
+        </div>
+        <div class="card-content-padding">
+          <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
+          <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
+          <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
+          <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
+          <p>
+            <a href="#" class="button button-fill button-round button-large card-close color-red">Close</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-expandable">
+      <div class="card-content">
+        <div class="bg-color-yellow" style="height: 200px">
+          <div class="card-header text-color-black display-block">
+            Credits
+            <br>
+            <small style="opacity: 0.7">Developers</small>
+          </div>
+          <a href="#" class="link card-close card-opened-fade-in color-black" style="position: absolute; right: 15px; top: 15px">
+            <i class="icon f7-icons">close_round_fill</i>
+          </a>
+        </div>
+        <div class="card-content-padding">
+          <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
+          <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
+          <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
+          <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
+          <p>
+            <a href="#" class="button button-fill button-round button-large card-close color-yellow text-color-black">Close</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+`, style:`
+.card-expandable {
+  height: 110px;
+}
+.icb-expandable-cards .card-header img{
+	width:80px;position:absolute; border-radius:5px; right:40px; top:20px; opacity:.9;
+}
+.icb-expandable-cards .card-opened .card-header img{
+display:none;
+	width: 80%;
+  overflow: hidden;
+  position: relative;
+  left: 10%;
 }
 `,
 			data:function(){
@@ -98,7 +191,23 @@ display:none;
 	  {path:'/login',async: function (routeTo, routeFrom, resolve, reject) {
 		  reject();
 		  resolve({component:{template:`
-			  <div class="page" data-name="icb-login"><div class="page-content login-screen-content" id="icb-login-screen">
+			<div class="page" data-name="icb-login">
+			  <div class="toolbar tabbar tabbar-labels toolbar-bottom">
+			    <div class="toolbar-inner">
+				  <a class="tab-link panel-close" href="/about">
+			      	<i class="icon f7-icons if-not-md">info_round</i>
+			        <i class="icon material-icons md-only">info</i>
+			        <span class="tabbar-label">About</span>
+			      </a>
+			      
+			      <a class="tab-link panel-close" href="/workspace">
+			      	<i class="icon f7-icons if-not-md">list</i>
+			        <i class="icon material-icons md-only">list</i>
+			        <span class="tabbar-label">Workspace</span>
+			      </a>
+			    </div>
+			  </div>  
+			  <div class="page-content login-screen-content" id="icb-login-screen">
 			  	<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>
 	            <div class="login-screen-title">Login</div>
 	            <div class="list">
@@ -516,7 +625,7 @@ Template7.registerHelper('scd', function (key){
 	return _scd[key];
 });
 
-var daysOfTheWeek=['Pazar', 'Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+var daysOfTheWeek=['Sunday', 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 iwb.fmtDateAgo=function(dt){
 	if(!dt)return '';
 	var tnow = new Date().getTime();
@@ -628,6 +737,11 @@ String.prototype.toDate = function(format){
 
 iwb.prepareMainMenu=function(){
 	iwb.request({url:'ajaxQueryData?_qid=1487&.r='+Math.random(),dataType:'text',data:{_json:1,xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:0}, success:function(d){
+		if(!d.data || !d.data.length){//no menu
+			iwb.openLoginScreen();
+			iwb.app.toast.create({position:'top',closeTimeout: 3000, text:'No menu defined for this app'}).open();
+			return;
+		}
 		$$('#idx-main-menu').html(recMenu(d.data));
 		iwb.goHome();
 	}}); 
@@ -638,10 +752,8 @@ iwb.goHome=function(){
 	iwb.home=!0;
 }
 
-iwb.openLoginScreen=function(reUserName){
-	var url='/login';
-	if(reUserName)url+='?u='+reUserName;
-	iwb.app.views.main.router.navigate(url);
+iwb.openLoginScreen=function(){
+	iwb.app.views.main.router.navigate('/login');
 }
 
 iwb.reLogin=function(afterCfg){
@@ -681,7 +793,7 @@ iwb.reLogin=function(afterCfg){
 					  , on:{
 						  close:function(){
 							  iwb.reLogin(afterCfg);
-							  }
+						  }
 					  }
 				});      		  
 		    }});
