@@ -1,5 +1,5 @@
 var routes = [
-	  {path: '/',content: ' iCodeBetter ',},
+//	  {path: '/',content: ' iCodeBetter ',},
 	  {path: '/workspace',async: function (routeTo, routeFrom, resolve, reject) {
 		  	reject();
 		  	resolve({component:{template:`<div class="page">
@@ -148,7 +148,8 @@ display:none;
     		    	success:function(j){
     		    		iwb.app.preloader.hide();
     				if(j.success){
-    		    		if(!j.session){ //TODO. eger session gelmediyse, sikinti
+    		    		if(!j.session){ // TODO. eger session gelmediyse,
+										// sikinti
     		    			iwb.app.toast.show({text:j.errorMsg || j.error || 'Error ', closeTimeout: 3000});
     		    			return;
     		    		}
@@ -157,11 +158,11 @@ display:none;
     						  ls.setItem("userName", username);
     						  ls.setItem("passWord", password);
     					  }
-		    			//iwb.app.views.main.router.clearPreviousHistory();
+		    			// iwb.app.views.main.router.clearPreviousHistory();
 		    			iwb.home = false;
 			    		_scd=j.session;
 			    		setTimeout(function(){
-//	            			iwb.goHome();
+// iwb.goHome();
 				    		iwb.prepareMainMenu();
 			    		}, 100);
     		    	} else {
@@ -247,7 +248,7 @@ iwb.request=function(cfg){
 			return iwb.app.request({
 	            url: iwb.serverUrl + cfg.url,
 	            method: cfg.method||'GET', data: cfg.data || {},
-//	            dataType: cfg.dataType || 'json',
+// dataType: cfg.dataType || 'json',
 	            success: function (d) {
 	            	if(cfg.preloader)iwb.app.preloader.hide();
 	            	var j = {};
@@ -276,7 +277,9 @@ iwb.request=function(cfg){
 	    				return;
 	    			case	'validation':
 	    				if(cfg.error)cfg.error();
-	    				var s='';//<i class="icon material-icons color-red" style="font-size:16px">error</i> <b>Validation Errors</b><br/>';
+	    				var s='';// <i class="icon material-icons color-red"
+									// style="font-size:16px">error</i>
+									// <b>Validation Errors</b><br/>';
 	    				if(j.errors)for(var qi=0;qi<j.errors.length && qi<3;qi++){
 	    					s+='<i class="icon material-icons color-red" style="font-size:18px">error</i> &nbsp; <span style="color:orange;font-weight:bosld">'+ j.errors[qi].dsc+'</span> &nbsp; ' + j.errors[qi].msg +'<br/>';
 	    				} else s=j.error;
@@ -342,9 +345,11 @@ function recMenu(r, lvl){
 	if(!r || !r.length)return '';
 	var s='';
 	if(!lvl)lvl=0;
-	for(var qi=0;qi<r.length;qi++)if(r[qi].children){// submenu style="font-size: 13px;color:green;"
+	for(var qi=0;qi<r.length;qi++)if(r[qi].children){// submenu
+														// style="font-size:
+														// 13px;color:green;"
 		s+='<li class="accordion-item iwb-menu iwb-menu-folder"><a href="#" class="item-link item-content" ><div class="item-inner">';
-//		if(r[qi].icon)s+='<div class="item-media"><i class="f7-icons">'+r[qi].icon+'</i></div>';
+// if(r[qi].icon)s+='<div class="item-media"><i class="f7-icons">'+r[qi].icon+'</i></div>';
 		s+='<div class="item-title">'+r[qi].text+'</div></div></a><div class="accordion-item-content iwb-menu-url">'+
 		'<div class="list accordion-list"><ul>'+recMenu(r[qi].children, lvl+1)+'</ul></div></div>';
 	} else {
@@ -352,7 +357,7 @@ function recMenu(r, lvl){
 		s+='<li class="accordion-item iwb-menu"><a href="/'+href+'"'+ (href=='#' ? (' id="'+r[qi].id+'"'):'') +' class="item-content item-link panel-close'+(!lvl ? '  iwb-menu-murl':'')+'"><div class="item-inner">';
 		s+='<div class="item-title">';
 		if(lvl && r[qi].icon)s+='<i class="f7-icons iwb-mmenu-icon">'+(r[qi].icon||'star')+'</i>&nbsp; ';
-//		else if(lvl)for(var ji=0;ji<lvl;ji++)s+=' &nbsp;';
+// else if(lvl)for(var ji=0;ji<lvl;ji++)s+=' &nbsp;';
 		s+=r[qi].text+'</div></div></a></li>';
 	}
 	return s;	
@@ -364,9 +369,8 @@ iwb.getPk=function(pk){
 }
 
 iwb.formPhotoMenu=function(j){
-	console.log('formPhotoMenu', j);
 	var buttons=[];
-	//if(navigator.camera)
+	// if(navigator.camera)
 	if(j.fileAttachCount)buttons.push([{ text: 'Photo Gallery (' + (j.fileAttachCount)+')' ,
 	   onClick: function () {
 		   iwb.photoBrowser(j.crudTableId, j.tmpId || iwb.getPk(j.pk));
@@ -418,7 +422,13 @@ iwb.takePhoto=function(tid,tpk, jsonX, fromAlbum, profilePictureFlag){
 			    params.fileKey = "file";
 			    params.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
 			    params.mimeType = "image/jpeg";
-			    params.params = {table_id:tid, table_pk:tpk, profilePictureFlag:profilePictureFlag||0, file_type_id:-997}; // if we need to send parameters to the server request
+			    params.params = {table_id:tid, table_pk:tpk, profilePictureFlag:profilePictureFlag||0, file_type_id:-997}; 
+			    // if we need to send
+																															// parameters
+																															// to
+																															// the
+																															// server
+																															// request
 			    var ft = new FileTransfer();
 			    iwb.app.preloader.show();
 			    ft.upload(fileURI, encodeURI(iwb.serverUrl + 'upload.form'), win, fail, params);
@@ -504,17 +514,10 @@ iwb.showRecordMenu=function(json3, targetEl){
 			p.open();
 		} else  {
 			if(href)iwb.app.router.navigate(href);
-//			else json3.recordButtons[0].click(pk);
 		}
 	}
 }
-Template7.registerHelper('iwb', function (key){
-	return iwb[key];
-});
 
-Template7.registerHelper('scd', function (key){
-	return _scd[key];
-});
 
 var daysOfTheWeek=['Pazar', 'Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
 iwb.fmtDateAgo=function(dt){
@@ -522,12 +525,12 @@ iwb.fmtDateAgo=function(dt){
 	var tnow = new Date().getTime();
 	var dt2=dt.toDate("dd/mm/yyyy hh:ii:ss");
 	var t = dt2.getTime();
-	if(t+30*1000>tnow)return 'Az Önce';//5 sn
-	if(t+2*60*1000>tnow)return 'Bir Dakika Önce';//1 dka
+	if(t+30*1000>tnow)return 'Az Önce';// 5 sn
+	if(t+2*60*1000>tnow)return 'Bir Dakika Önce';// 1 dka
 	if(t+60*60*1000>tnow)return Math.round((tnow-t)/(60*1000)) + ' Dakika Önce';
 	if(t+24*60*60*1000>tnow)return Math.round((tnow-t)/(60*60*1000)) + ' Saat Önce';
 	if(t+2*24*60*60*1000>tnow)return 'Dün';
-	if(t+7*24*60*60*1000>tnow)return daysOfTheWeek[dt2.getDay()];//5dka
+	if(t+7*24*60*60*1000>tnow)return daysOfTheWeek[dt2.getDay()];// 5dka
 	return dt.substr(0,10);
 }
 
@@ -566,7 +569,7 @@ iwb.combo2combo = function(prt, cmb, fnc, action){
 			$$(cmb.replace('idx-','id-')).show();
 			iwb.loadCombo(cmb, params);
 		} else {
-			$$(cmb).find('option').remove();//temizle once
+			$$(cmb).find('option').remove();// temizle once
 			if(true || params===false)$$(cmb.replace('idx-','id-')).hide();
 		}
 	});
@@ -578,7 +581,7 @@ iwb.loadCombo = function(cmb, params){
 
 	var selected=ctrl && ctrl.length ? ctrl.data('value'):'';
 
-	ctrl.find('option').remove();//temizle once
+	ctrl.find('option').remove();// temizle once
 	iwb.app.smartSelect.destroy(cmb);
 	iwb.request({url:'ajaxQueryData', data:params, success:function(j){
 		var data=j.data,res=[], s='';
@@ -588,10 +591,11 @@ iwb.loadCombo = function(cmb, params){
 			if(data[qi].id==selected)res.push(data[qi].dsc);
 		}
 		ctrl.append(s);
-		//console.log('as',selected, s);
+		// console.log('as',selected, s);
 		iwb.app.smartSelect.create(cmb);
-		//$$(cmb.replace('idx-','id-')).find('.item-after').text(res.join(', '));
-		//$$(cmb.replace('idx-','id-')).show();
+		// $$(cmb.replace('idx-','id-')).find('.item-after').text(res.join(',
+		// '));
+		// $$(cmb.replace('idx-','id-')).show();
 	}});
 }
 
@@ -599,6 +603,13 @@ iwb.loadCombo = function(cmb, params){
 Template7.registerHelper('ago', iwb.fmtDateAgo);
 Template7.registerHelper('ago2', iwb.fmtDateAgo2);
 Template7.registerHelper('dst', iwb.fmtDistance);
+Template7.registerHelper('iwb', function (key){
+	return iwb[key];
+});
+
+Template7.registerHelper('scd', function (key){
+	return _scd[key];
+});
 
 String.prototype.toDate = function(format){
   var normalized      = this.replace(/[^a-zA-Z0-9]/g, '-');
@@ -656,18 +667,23 @@ iwb.reLogin=function(afterCfg){
 		    	success:function(j){
 		    		iwb.app.preloader.hide();
 					if(j.success){
-			    		if(!j.session){ //TODO. eger session gelmediyse, sikinti
+			    		if(!j.session){ // TODO. eger session gelmediyse,
+										// sikinti
 			    			iwb.openLoginScreen();
 			    			return;
 			    		}
-			    		if(!_scd || _scd.userId!=j.session.userId){//TODO burda butun ekranlar gemizlenecek
+			    		if(!_scd || _scd.userId!=j.session.userId){// TODO
+																	// burda
+																	// butun
+																	// ekranlar
+																	// gemizlenecek
 			    			iwb.app.views.main.router.clearPreviousHistory();
 			    			iwb.home = false;
 				    		_scd=j.session;
 	            			iwb.goHome();
 			    		} else {
 				    		_scd=j.session;
-		            		if(afterCfg)iwb.request(afterCfg);//tekrar cagir
+		            		if(afterCfg)iwb.request(afterCfg);// tekrar cagir
 			    		}
 			    	} else {
 		    			_scd = null;
@@ -695,7 +711,7 @@ iwb.checkSession=function(afterCfg){
     Framework7.request({
         url: iwb.serverUrl + 'ajaxPing?d=1&c=1&.r=' + Math.random(),
         method: 'POST', data: {},
-//        dataType: 'json',
+// dataType: 'json',
         success: function (d) {
         	_scd = null;
         	var j = eval('('+d+')');
@@ -707,12 +723,12 @@ iwb.checkSession=function(afterCfg){
         }, error: function (d) {
 			iwb.app.toast.show({
 				  text: 'Error Connecting ' + d ,closeButton: true, closeButtonText: 'Try Again'
-					  , on:{
-						  close:function(){
-							  iwb.checkSession(afterCfg);
-						  }
+				  , on:{
+					  close:function(){
+						  iwb.checkSession(afterCfg);
 					  }
-				});
+				  }
+			});
         }
     });
 }
@@ -720,7 +736,7 @@ iwb.checkSession=function(afterCfg){
 iwb.app = new Framework7({
   root: '#app', // App root element
   id: 'io.framework7.iwb', // App bundle ID
-  name: 'Framework7', // App name
+  name: 'iCodeBetter F7', // App name
   theme: 'auto',// 'auto', // Automatic theme detection
   // App root data
   data: function () {
@@ -754,9 +770,10 @@ iwb.app = new Framework7({
     }
   }
 });
-//Init/Create main view
-var mainView = iwb.app.views.create('.view-main', {
-  url: '/'
-});
+// Init/Create main view
+var mainView = iwb.app.views.create('.view-main');
 
+iwb.checkWorkspace=function(){
+	
+}
 iwb.prepareMainMenu();
