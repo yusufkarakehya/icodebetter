@@ -1,5 +1,70 @@
 var routes = [
 //	  {path: '/',content: ' iCodeBetter ',},
+	  {path: '/home',async: function (routeTo, routeFrom, resolve, reject) {
+		  	resolve({component:{
+		  	    template: `<div class="page" data-name="home">
+		  	      <!-- Top Navbar -->
+		  	      <div class="navbar">
+		  	        <div class="navbar-inner">
+		  	          <div class="left">
+		  	            <a href="#" class="link icon-only panel-open" data-panel="left">
+		  	              <i class="icon f7-icons if-not-md">menu</i>
+		  	              <i class="icon material-icons if-md">menu</i>
+		  	            </a>
+		  	          </div>
+		  	          <div class="title">iCodeBetter</div>
+		  	        </div>
+		  	      </div>
+		  	      <!-- Toolbar-->
+		  	     
+		  	      <!-- Scrollable page content-->
+		  	      <div id="idx-page-content-home" class="page-content ptr-content">
+		  	    	<div class="ptr-preloader"><div class="preloader"></div><div class="ptr-arrow"></div></div>
+		  	  {{#each data}}
+		  	                  <div key="{{dashId}}" class="card">
+		  	                  	<div class="card-header">
+		  	                  		{{name}} {{#if listId}}<a href="/showMList?_lid={{listId}}"><i class="icon f7-icons">arrow_right</i></a>{{/if}}
+		  	                  	</div>
+		  	                  	<div class="card-content">
+		  	    					<div id="id-chart-{{dashId}}"></div>
+		  	    				</div>
+		  	                  </div>
+		  	  {{/each}}
+		  	      </div>
+		  	    </div>`
+		  	    ,methods:{reload:function(){
+		  	    	  var self=this;
+		  	          var data=this.data;
+	  	              if(data.length){
+  	                	  data.map((z)=>iwb.graph(z,'id-chart-'+z.dashId));
+  	                	  if(self.ptr)self.ptr.done()
+	  	              }
+		  	    }},data:function(){
+		  	        return {data:[]};
+		  	        },on:{
+		  	        	pageInit:function(){
+			  	    	  var self=this;
+			  	          iwb.request({url:'ajaxQueryData?_qid=6648',data:{xmobile_flag:1,sort:'mobile_tab_order'}, success:function(j){
+			  	              if(j.data.length){
+			  	                  self.$setState(j);
+					  	    	  setTimeout(function(){
+					  	    		  self.reload();
+					  	    	  },200);
+
+			  	              }
+			  	          }});
+			  	    	  setTimeout(function(){
+			  	    		  self.ptr=iwb.app.ptr.get('#idx-page-content-home.ptr-content');
+			  	    		  self.ptr.on('refresh',self.reload);
+			  	    	  },100);
+		  	        	}
+		  	      }
+		  	    
+		  	  }
+		  	});
+		  			  
+	  	}
+	  },
 	  {path: '/workspace',async: function (routeTo, routeFrom, resolve, reject) {
 		  	resolve({component:{template:`<div class="page">
  {{#if backButton}}<div class="navbar">
@@ -110,82 +175,16 @@ display:none;
   <div class="block">
     <p>About iCodebetter</p>
   </div>
-  <div class="icb-expandable-cards">
-    <div class="card card-expandable">
-      <div class="card-content">
-        <div class="bg-color-red" style="height: 200px">
-          <div class="card-header text-color-white display-block">
-            iCodeBetter
-            <br>
-            <small style="opacity: 0.7">As a Low Code Platform</small>
-          </div>
-          <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
-            <i class="icon f7-icons">close_round_fill</i>
-          </a>
-        </div>
-        <div class="card-content-padding">
-          <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
-          <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
-          <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
-          <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
-          <p>
-            <a href="#" class="button button-fill button-round button-large card-close color-red">Close</a>
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="card card-expandable">
-      <div class="card-content">
-        <div class="bg-color-yellow" style="height: 200px">
-          <div class="card-header text-color-black display-block">
-            Credits
-            <br>
-            <small style="opacity: 0.7">Developers</small>
-          </div>
-          <a href="#" class="link card-close card-opened-fade-in color-black" style="position: absolute; right: 15px; top: 15px">
-            <i class="icon f7-icons">close_round_fill</i>
-          </a>
-        </div>
-        <div class="card-content-padding">
-          <p>Framework7 - is a free and open source HTML mobile framework to develop hybrid mobile apps or web apps with iOS or Android (Material) native look and feel. It is also an indispensable prototyping apps tool to show working app prototype as soon as possible in case you need to. Framework7 is created by Vladimir Kharlampidi (iDangero.us).</p>
-          <p>The main approach of the Framework7 is to give you an opportunity to create iOS and Android (Material) apps with HTML, CSS and JavaScript easily and clear. Framework7 is full of freedom. It doesn't limit your imagination or offer ways of any solutions somehow. Framework7 gives you freedom!</p>
-          <p>Framework7 is not compatible with all platforms. It is focused only on iOS and Android (Material) to bring the best experience and simplicity.</p>
-          <p>Framework7 is definitely for you if you decide to build iOS and Android hybrid app (Cordova or PhoneGap) or web app that looks like and feels as great native iOS or Android (Material) apps.</p>
-          <p>
-            <a href="#" class="button button-fill button-round button-large card-close color-yellow text-color-black">Close</a>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 </div>
-`, style:`
-.card-expandable {
-  height: 110px;
-}
-.icb-expandable-cards .card-header img{
-	width:80px;position:absolute; border-radius:5px; right:40px; top:20px; opacity:.9;
-}
-.icb-expandable-cards .card-opened .card-header img{
-display:none;
-	width: 80%;
-  overflow: hidden;
-  position: relative;
-  left: 10%;
-}
 `,
 			data:function(){
-				return {
-					backButton: Object.assign(routeTo.query,routeTo.params).back||false
-				}
+				return {}
 			},
 	        on:{pageInit:function(){
 	          
-	        }},methods:{clickAddProject:function(){
-	        	alert('TODO');	        	  
-	        }}}});
+	        }},methods:{}
+	        }});
 		  },
 	  },
 	  {path:'/login',async: function (routeTo, routeFrom, resolve, reject) {
@@ -664,18 +663,18 @@ iwb.graph = function(dg, gid) {
 
 	            options = {
 	                chart: {
-	                    height: 50*d.length+50,
+	                	id:'apex-'+gid,
+	                    height: 40*d.length+20,
 	                    type: 'bar',
 	                    stacked: true,
+	                    toolbar: {show: false}
 	                },
 	                plotOptions: {
 	                    bar: {horizontal: true},
 	                    
 	                },
 	                series: series,
-	                title: {
-	                    text: dg.name
-	                },
+//	                title: {text: dg.name},
 	                xaxis: {
 	                    categories: labels,
 	                },
@@ -692,8 +691,8 @@ iwb.graph = function(dg, gid) {
 	                labels.push(z.dsc||'-');
 	            });
 	            var options = {
-	                title: {text: dg.name},
-	                chart: {type: 'donut'},
+//	                title: {text: dg.name},
+	                chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
 	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : false
 	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
 	            }
@@ -706,10 +705,12 @@ iwb.graph = function(dg, gid) {
 	                labels.push(z.dsc);
 	            });
 	            options = {
-	                title: {text: dg.name},
+//	                title: {text: dg.name},
 	                chart: {
-	                    height:50*d.length+50,
+	                	id:'apex-'+gid,
+	                    height:40*d.length+20,
 	                    type: 1 * dg.graphTip==1?'bar':'area',
+	                    toolbar: {show: false}
 	                },
 	                plotOptions: {
 	                    bar: {
@@ -743,7 +744,7 @@ iwb.graph = function(dg, gid) {
 
 			if(options){
 	            chart = new ApexCharts(
-	                document.querySelector(gid),
+	                document.getElementById(gid),
 	                options
 	            );
 	            chart.render();
@@ -885,7 +886,7 @@ iwb.prepareMainMenu=function(){
 }
 iwb.home=false;
 iwb.goHome=function(){
-	iwb.app.views.main.router.navigate('/showMPage?_tid=4297');
+	iwb.app.views.main.router.navigate('/home');
 	iwb.home=!0;
 }
 

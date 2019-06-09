@@ -4947,6 +4947,7 @@ public class PostgreSQL extends BaseDAO {
 																	// sum(queryField)
 		String tableFieldChain = requestParams.get("_qfid");
 		String funcFields = statType == 0 ? null : requestParams.get("_ffids");
+		if(statType!=0 && GenericUtil.safeEquals(funcFields,"0"))statType=0;
 		if (tableFieldChain.indexOf('-') > 0)
 			tableFieldChain = tableFieldChain.split("-")[1];
 		String tableFieldSQL = "";
