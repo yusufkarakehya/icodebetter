@@ -304,7 +304,7 @@ public class RESTEngine {
 				Map<String, String> reqPropMap = new HashMap();
 				reqPropMap.put("Content-Language", "tr-TR");
 				if (wsm.getHeaderAcceptTip() != null) {
-					reqPropMap.put("Accept", new String[] { "text/plain", "application/json", "application/xml" }[wsm
+					reqPropMap.put("Accept", new String[] { "text/plain", "application/json", "application/xml", "application/octet-stream" }[wsm
 							.getHeaderAcceptTip()]);
 				}
 				if (ws.getWssTip() == 1 && !GenericUtil.isEmpty(ws.getWssCredentials())) { // credentials
@@ -358,33 +358,40 @@ public class RESTEngine {
 				}
 
 				Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params);
-				String x = HttpUtil.send(url, params,
-						new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodTip()], reqPropMap);
-				if (!GenericUtil.isEmpty(x))
-					try {// System.out.println(x);
-						log.setResponse(x);
-						String xx = x.trim();
-						if (xx.length() > 0)
-							switch (xx.charAt(0)) {
-							case '{':
-								JSONObject jo = new JSONObject(x);
-								result.putAll(GenericUtil.fromJSONObjectToMap(jo));
-								break;
-							case '[':
-								JSONArray ja = new JSONArray(x);
-								result.put("data", GenericUtil.fromJSONArrayToList(ja));
-								break;
-							default:
-								if (x.indexOf('\r') > -1)
-									x = x.replace('\r', '\n');
-								result.put("data", x);
+				if (wsm.getHeaderAcceptTip() != null && wsm.getHeaderAcceptTip()==3) { //binary
+					byte[] x = HttpUtil.send4bin(url, params,
+							new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodTip()], reqPropMap);
+					result.put("data", x);
+
+				} else {				
+					String x = HttpUtil.send(url, params,
+							new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodTip()], reqPropMap);
+					if (!GenericUtil.isEmpty(x))
+						try {// System.out.println(x);
+							log.setResponse(x);
+							String xx = x.trim();
+							if (xx.length() > 0)
+								switch (xx.charAt(0)) {
+								case '{':
+									JSONObject jo = new JSONObject(x);
+									result.putAll(GenericUtil.fromJSONObjectToMap(jo));
+									break;
+								case '[':
+									JSONArray ja = new JSONArray(x);
+									result.put("data", GenericUtil.fromJSONArrayToList(ja));
+									break;
+								default:
+									if (x.indexOf('\r') > -1)
+										x = x.replace('\r', '\n');
+									result.put("data", x);
+								}
+							if (GenericUtil.uInt(requestParams.get("_iwb_cfg")) != 0) {
+								result.put("_iwb_cfg_rest_method", wsm);
 							}
-						if (GenericUtil.uInt(requestParams.get("_iwb_cfg")) != 0) {
-							result.put("_iwb_cfg_rest_method", wsm);
+						} catch (JSONException e) {
+							throw new RuntimeException(e);
 						}
-					} catch (JSONException e) {
-						throw new RuntimeException(e);
-					}
+				}
 				if (FrameworkSetting.log2tsdb) {
 					log.calcProcessTime();
 					LogUtil.logObject(log);

@@ -50,6 +50,8 @@ public class HttpUtil {
 
 			// Get Response
 			InputStream is = connection.getResponseCode()>=200 && connection.getResponseCode()<300 ? connection.getInputStream() : connection.getErrorStream();
+
+		
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
 			String line;
 			StringBuilder response = new StringBuilder();
@@ -59,6 +61,63 @@ public class HttpUtil {
 			}
 			rd.close();
 			return response.toString();
+
+
+		} catch (Exception e) {
+			if(FrameworkSetting.debug)e.printStackTrace();
+			 throw new IWBException(
+			          "framework",
+			          "HTTPUtil.send",
+			          0,
+			          null,
+			          targetURL + (urlParameters!=null ? "?"+urlParameters:""),
+			          e);
+			
+//			throw ne;
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
+		}
+	}
+	
+	public static byte[] send4bin(String targetURL, String urlParameters, String method, Map<String, String> reqPropMap) {
+		HttpURLConnection connection = null;
+		try {
+			URL url = new URL(targetURL);
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod(method);
+			if(GenericUtil.isEmpty(reqPropMap)){
+				connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
+				connection.setRequestProperty("Content-Language", "en-EN");
+			} else for(String key:reqPropMap.keySet()){
+				connection.setRequestProperty(key,reqPropMap.get(key));
+			}
+			connection.setUseCaches(false);
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+
+			// Send request
+			if(!GenericUtil.isEmpty(urlParameters)){
+				DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+				wr.write(urlParameters.getBytes("UTF-8"));
+				wr.flush();
+				wr.close();
+			}
+
+			// Get Response
+			InputStream is = connection.getResponseCode()>=200 && connection.getResponseCode()<300 ? connection.getInputStream() : connection.getErrorStream();
+			
+			
+			int maxLen = 32*1024*1024; //32mb
+			byte[] buffer = new byte[maxLen];
+		    int bytesRead, offset = 0;
+		    while ((bytesRead = is.read(buffer, offset, 1024)) != -1 && offset < maxLen-1024) {
+		        offset += bytesRead;
+		    }
+		    byte[] result = new byte[offset];
+			for(int qi=0;qi<offset;qi++)result[qi] = buffer[qi]; 
+		    return result;
 
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
