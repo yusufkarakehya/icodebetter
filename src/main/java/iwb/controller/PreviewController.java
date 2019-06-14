@@ -1513,13 +1513,21 @@ public class PreviewController implements InitializingBean {
 	    Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 	    
 		Map m =service.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
-		if(m!=null && !m.containsKey("success")) {
-			if(m.containsKey("exception")) {
-				m.put("success", false);
-				m.put("errorType", "rest");
-				
-			} else 
-				m.put("success", true);
+		if(m!=null) {
+			if(m.get("data")!=null && m.get("data") instanceof byte[]) {
+				response.setContentType("application/octet-stream");
+				byte[] r = (byte[])m.get("data");
+				response.getOutputStream().write(r, 0, r.length);
+				response.getOutputStream().close();
+				return;
+			} else if(!m.containsKey("success")) {
+				if(m.containsKey("exception")) {
+					m.put("success", false);
+					m.put("errorType", "rest");
+					
+				} else 
+					m.put("success", true);
+			}
 		}
 
 		response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
