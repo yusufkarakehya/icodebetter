@@ -169,15 +169,17 @@ public class F7_4 implements ViewMobileAdapter {
       s2.append("</div>");
 
       s2.append("<div class=\"title")
-          .append(l.getParentListId() == 0 ? " sliding" : "")
+//          .append(l.getParentListId() == 0 ? " sliding" : "")
           .append("\">")
           .append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey()))
+          .append(l.getParentListId() == 0 ?  "{{#if browseInfo.totalCount>1}}<span class=\"sub-title\">{{browseInfo.totalCount}} "
+            + LocaleMsgCache.get2(listResult.getScd(), "records") + "</span>{{/if}}":"")
           .append("</div>");
       if (listResult.getSearchFormResult() != null) {
         s2.append(
             "<div class=\"right\"><a href=# class=\"link icon-only panel-open\" data-panel=\"right\" @click=\"clickFilter\"><i class=\"icon f7-icons if-not-md\">search</i><i class=\"icon material-icons if-md\">search</i></a></div>");
       }
-      if (l.getParentListId() == 0)
+      if (false && l.getParentListId() == 0)
         s2.append("<div class=\"title-large\"><div class=\"title-large-text\">")
             .append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey()))
             .append("</div></div>");
@@ -252,7 +254,7 @@ public class F7_4 implements ViewMobileAdapter {
     }
     buf.append("`");
     //state
-    buf.append(",\n data:function(){return {sort:'',dir:'',data:[], infiniteScroll:false, params:{}, baseParams:").append(GenericUtil.fromMapToJsonString(listResult.getRequestParams())).append(", browseInfo:{startRow:0}}}");
+    buf.append(",\n data:function(){return {sort:'',dir:'',data:[], infiniteScroll:false, params:{}, baseParams:").append(GenericUtil.fromMapToJsonString(listResult.getRequestParams())).append(", browseInfo:{startRow:0, totalCount:0}}}");
     buf.append(",\n on:{pageDestroy:function(){if(this.ptr)this.ptr.destroy('#idx-page-content-")
         .append(l.getListId())
         .append(".ptr-content');},pageMounted:function(){this.load(0);");
