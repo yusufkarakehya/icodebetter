@@ -1,5 +1,6 @@
 import "./css/styles.alba.css";
 import "./css/iwb-nifty.css";
+import "./css/style.css";
 export let dgColors2 = [
   "orange",
   "primary",
