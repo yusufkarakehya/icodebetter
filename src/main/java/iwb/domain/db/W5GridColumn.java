@@ -298,5 +298,17 @@ public class W5GridColumn implements java.io.Serializable, W5Base {
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
 	}
+	
+	public W5GridColumn clone() {
+		W5GridColumn r = new W5GridColumn();
+		
+		r.setLocaleMsgKey(localeMsgKey);
+		r.setWidth(width);
+		r.setAlignTip(alignTip);		
+		return r;
+	}
+
+
+	
 		
 }

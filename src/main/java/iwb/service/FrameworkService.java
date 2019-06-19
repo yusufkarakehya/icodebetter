@@ -61,6 +61,7 @@ import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.helper.W5FormCellHelper;
+import iwb.domain.helper.W5GridReportHelper;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
@@ -2146,5 +2147,10 @@ public class FrameworkService {
 
 	public void updateWorkflowEscalatedRecord(W5WorkflowStep step, W5WorkflowRecord rec) {
 		workflowEngine.updateWorkflowEscalatedRecord(step, rec);
+	}
+
+	public W5GridReportHelper prepareGridReport(Map<String, Object> scd, int gridId, String gridColumns,
+			Map<String, String> requestParams) {
+		return queryEngine.prepareGridReport(scd, gridId, gridColumns, requestParams);
 	}
 }

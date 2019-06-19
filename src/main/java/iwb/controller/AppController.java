@@ -61,6 +61,7 @@ import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5SmsValidCode;
 import iwb.domain.helper.W5FormCellHelper;
+import iwb.domain.helper.W5GridReportHelper;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.helper.W5QueuedPushMessageHelper;
 import iwb.domain.helper.W5ReportCellHelper;
@@ -1542,17 +1543,23 @@ public class AppController implements InitializingBean {
 
 		int gridId = GenericUtil.uInt(request, "_gid");
 		String gridColumns = request.getParameter("_columns");
+		ModelAndView result = null;
 
+		boolean xls = request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt"));
+		if(false && xls) {
+			W5GridReportHelper grh = service.prepareGridReport(scd, gridId, gridColumns,
+					GenericUtil.getParameterMap(request));
+			
+			result = null;//TODO yryskul
+//			return result;
+		}
 		List<W5ReportCellHelper> list = service.getGridReportResult(scd, gridId, gridColumns,
 				GenericUtil.getParameterMap(request));
 		if (list != null) {
 			Map<String, Object> m = new HashMap<String, Object>();
 			m.put("report", list);
 			m.put("scd-dev", scd);
-			ModelAndView result = null;
-			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
-				result = new ModelAndView(new RptExcelRenderer(), m);
-			else if (request.getRequestURI().indexOf(".pdf") != -1)
+			if (request.getRequestURI().indexOf(".pdf") != -1)
 				result = new ModelAndView(new RptPdfRenderer(service.getCustomizationLogoFilePath(scd)), m);
 			else if (request.getRequestURI().indexOf(".csv") != -1) {
 				response.setContentType("application/octet-stream");
