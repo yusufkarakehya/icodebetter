@@ -26,6 +26,7 @@ import iwb.domain.db.W5Table;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WsMethod;
 import iwb.domain.db.W5WsMethodParam;
+import iwb.domain.helper.W5GridReportHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.W5GridResult;
 import iwb.domain.result.W5QueryResult;
@@ -572,5 +573,183 @@ public class QueryEngine {
 		}
 		dao.checkTenant(scd);
 		return dao.executeQuery4Pivot(scd, t, requestParams);
+	}
+	
+	
+	public W5GridReportHelper prepareGridReport(Map<String, Object> scd, int gridId, String gridColumns,
+			Map<String, String> requestParams) {
+		
+		W5GridReportHelper result = new W5GridReportHelper(gridId);
+		String xlocale = (String) scd.get("locale");
+		W5GridResult gridResult = metaDataDao.getGridResult(scd, gridId, requestParams, true);
+		int queryId = gridResult.getGrid().getQueryId();
+		requestParams.remove("firstLimit");
+		requestParams.remove("limit");
+		requestParams.remove("start");
+		requestParams.put("grid_report_flag", "1");
+		W5QueryResult queryResult = executeQuery(scd, queryId, requestParams);
+
+		if (queryResult.getErrorMap().isEmpty()) {
+			result.setRecordCount(queryResult.getData().size());
+			result.setReportName(LocaleMsgCache.get2(scd, gridResult.getGrid().getLocaleMsgKey()));
+
+
+
+			Map<String, W5QueryField> m1 = new HashMap<String, W5QueryField>();
+			for (W5QueryField f : queryResult.getNewQueryFields()) {
+				m1.put(f.getDsc(), f);
+			}
+			Map<Integer, W5GridColumn> m2 = new HashMap<Integer, W5GridColumn>();
+			int nxtTmp = -1;
+			for (W5GridColumn c : gridResult.getGrid().get_gridColumnList()) {
+				if (c.getQueryFieldId() == 0) {
+					c.setQueryFieldId(nxtTmp--);
+				}
+				m2.put(c.getQueryFieldId(), c);
+			}
+			String[] gcs = gridColumns.split(";");
+			List<W5GridColumn> l1 = new ArrayList<W5GridColumn>(gcs.length);
+
+			for (int g = 0; g < gcs.length; g++) {
+				String[] cs = gcs[g].split(",");
+
+				W5QueryField f = m1.get(cs[0]);
+				if (f != null) {
+					W5GridColumn c = m2.get(f.getQueryFieldId());
+					if(c!=null) {
+						if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) { // onay
+																							// varsa,raporda
+																							// gorunmesi
+																							// icin
+							c = new W5GridColumn();
+							c.setLocaleMsgKey("approval_status");
+							c.setAlignTip((short) 1);
+						} else 
+							c = c.clone();
+						c.setLocaleMsgKey(LocaleMsgCache.get2(scd, c.getLocaleMsgKey()));
+						c.setWidth((short) GenericUtil.uInt(cs[1]));
+						c.set_queryField(f);
+						
+						l1.add(c);
+					}
+				}
+			}
+			
+			result.setColumns(l1);
+
+			int customizationId = (Integer) scd.get("customizationId");
+			// startRow = gcs.length + 2;
+			
+			List<Map> data = new ArrayList<Map>();
+			result.setData(data);
+			for (int i = 0; i < queryResult.getData().size(); i++) {
+				Map row = new HashMap();
+				data.add(row);
+				for (W5GridColumn gc: l1) {
+					W5QueryField f =  gc.get_queryField();
+					if (f.getTabOrder() > 0) {
+						Object obj = queryResult.getData().get(i)[f.getTabOrder() - 1];
+						if (obj != null && f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {
+							String[] ozs = ((String) queryResult.getData().get(i)[f.getTabOrder() - 1]).split(";");
+							int appId = GenericUtil.uInt(ozs[1]); // approvalId:
+																	// kendisi
+																	// yetkili
+																	// ise + ,
+																	// aksi
+																	// halde -
+							int appStepId = GenericUtil.uInt(ozs[2]); // approvalStepId
+							W5Workflow appr = FrameworkCache.getWorkflow(scd, appId);
+							String appStepDsc = "";
+							if (appr != null
+									&& appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance() != null)
+								appStepDsc = appr.get_approvalStepMap().get(Math.abs(appStepId)).getNewInstance()
+										.getDsc();
+							obj = (LocaleMsgCache.get2(scd, appStepDsc));
+						}
+						String res = null;
+						if (obj != null) {
+							res = obj.toString();
+
+							if (f.getDsc().contains("_flag")) {
+								res = GenericUtil.uInt(res) != 0 ? "x" : "o";
+							} else {
+								switch (f.getPostProcessTip()) {
+								case 20:
+									res = UserUtil.getUserName(GenericUtil.uInt(obj));
+									break;
+								case 53:
+									res = UserUtil.getUserDsc(GenericUtil.uInt(obj));
+									break;
+								case 10:
+								case 11: // demek ki lookup'li deger tutulacak
+									W5LookUp lookUp = FrameworkCache.getLookUp(scd, f.getLookupQueryId());
+									if (lookUp != null) {
+										String[] ids = res.split(",");
+										res = "";
+										for (String sz : ids) {
+											res += ", ";
+											W5LookUpDetay d = lookUp.get_detayMap().get(sz);
+											if (d != null) {
+												String s = d.getDsc();
+												if (s != null) {
+													res += LocaleMsgCache.get2(scd, s);
+												}
+											} else if (d == null && f.getLookupQueryId() == 12) { // lookup
+																									// static
+																									// or
+																									// lookup
+																									// static(multi)
+																									// ve
+																									// empty
+												for (W5QueryField ff : queryResult.getNewQueryFields()) {
+													if (ff.getDsc().compareTo(f.getDsc() + "_qw_") == 0) {
+														res += queryResult.getData().get(i)[ff.getTabOrder() - 1];
+														break;
+													}
+												}
+											} else {
+												res += "???: " + sz;
+											}
+										}
+										if (res.length() > 0)
+											res = res.substring(1);
+									}
+									break;
+								case 12:
+									for (W5QueryField ff : queryResult.getNewQueryFields()) {
+										if (ff.getDsc().compareTo(f.getDsc() + "_qw_") == 0) {
+											res = queryResult.getData().get(i)[ff.getTabOrder() - 1] != null
+													? queryResult.getData().get(i)[ff.getTabOrder() - 1].toString()
+													: "";
+											break;
+										}
+									}
+									break;
+
+								default:
+									if (f.getFieldTip() == 3 || f.getFieldTip() == 4) {
+										row.put(f.getDsc(), obj);
+										continue;
+									}
+									for (W5QueryField ff : queryResult.getNewQueryFields()) {
+										if (ff.getDsc().compareTo(f.getDsc() + "_qw_") == 0) {
+											res = queryResult.getData().get(i)[ff.getTabOrder() - 1] != null
+													? queryResult.getData().get(i)[ff.getTabOrder() - 1].toString()
+													: "";
+											break;
+										}
+									}
+									break;
+								}
+							}
+						}
+						row.put(f.getDsc(), res);
+
+					}
+				}
+			}
+			return result;
+		}
+		return null;
 	}
 }
