@@ -6432,7 +6432,7 @@ class XMainCard extends GridCommon {
           ),
           _(
             "div",
-            { className: "float-right d-none d-sm-flex" },
+            { className: "float-right d-sm-flex" },
             _(XPagination, {
               pageSize,
               currentPage,
@@ -6482,7 +6482,7 @@ const XPagination = ({
   };
   return _(
     Pagination,
-    { "aria-label": getLocMsg("page_pagination"), className: "m-0", ...props },
+    { "aria-label": getLocMsg("page_pagination"), className: "m-0 p-0 p-sm-3",listClassName:'d-flex', ...props },
     _(
       PaginationItem,
       { disabled: currentPage == 1 },
@@ -6495,10 +6495,11 @@ const XPagination = ({
     (pages || []).map((page, index) =>
       _(
         PaginationItem,
-        { active: currentPage === page, key: index },
+        { active: currentPage === page, key: index, className:'d-none d-sm-flex' },
         _(PaginationLink, { href: "#", onClick: hndlClick(page) }, page)
       )
     ),
+    _('span',{className:'d-block d-sm-none pr-1'}),
     _(
       PaginationItem,
       { disabled: currentPage >= totalPages },
@@ -6526,7 +6527,7 @@ const XItemPerPage = ({ pageSize, onChange, pageSizes, ...props }) => {
     Pagination,
     {
       "aria-label": getLocMsg("item_per_page"),
-      className: "m-0",
+      className: "m-0 p-0 p-sm-3",
       ...props
     },
     pageSizes.map((number, index) => {
