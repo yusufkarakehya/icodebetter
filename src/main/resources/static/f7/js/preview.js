@@ -78,13 +78,13 @@ var routes = [
   </div>
 </div>{{/if}}
 <div class="page-content">
-  <div class="block">
-    <p>Welcome to iCodebetter Mobile Platform.</p>
+  <div class="block" style="text-align:center;">
+    <p>iCodeBetter Workspace.</p>
   </div>
   <div class="icb-expandable-cards">
     <div class="card card-expandable" id="idx-card-new-project">
       <div class="card-content">
-        <div class="bg-color-red" style="height: 200px">
+        <div class="bg-color-red">
           <div class="card-header text-color-white display-block" style="font-weight:500;">
             Add Project
             <br>
@@ -93,10 +93,10 @@ var routes = [
           <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
             <i class="icon f7-icons">close_round_fill</i>
           </a>
-  		  <div class="block">
-  			<p/> <br/> 
-	        <p class="row">
-	        <a href=# @click="clickSquareCode" class="col button button-fill color-black button-large ">Scan Square Code</a></p>
+  		  <div class="block" style="padding-top:10px; padding-bottom:12px">
+ 	        <p class="row">
+	        <a href=# @click="clickSquareCode" class="col button button-fill color-white button-large" style="color:var(--f7-theme-color-bg-color) !important">Scan Square Code</a></p>
+		  
 		  </div>
         </div>
         <div class="card-content-padding">
@@ -144,7 +144,7 @@ var routes = [
 			        </li>
 			    </ul>
 			    <div class="block">
-			    <p/> <p/> <br/>
+			    <br/>
 			        <p class="row">
 			        <a href=# @click="clickTest(-1)" class="col button button-big button-fill button-raised color-green">Test</a>
 			        <a href=# @click="clickNew" class="col button button-big button-fill button-raised color-blue">Save</a></p>
@@ -154,12 +154,12 @@ var routes = [
       </div>
     </div>
 
-    
+    <br/>
 
 {{#each projects}}
-	<div class="card card-expandable" key="{{id}}" id="idx-card-project-{{id}}">
+	<div class="card card-expandable" id="idx-card-project-{{id}}">
       <div class="card-content">
-        <div class="bg-color-blue" style="height: 200px">
+        <div class="bg-color-blue">
           <div class="card-header text-color-white display-block" style="font-weight:500;">
             {{name}}
             <br>
@@ -168,10 +168,9 @@ var routes = [
           <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
             <i class="icon f7-icons">close_round_fill</i>
           </a>
-  		  <div class="block">
-  			<p/> <br/> 
+  		  <div class="block" style="padding-top:10px; padding-bottom:12px">
 	        <p class="row">
-	        <a href=# @click="clickConnect({{id}})" class="col button button-fill color-black button-large ">Connect</a></p>
+	        <a href=# @click="clickConnect({{id}})" class="col button button-fill color-white button-large" style="color:var(--f7-theme-color-bg-color) !important">Connect</a></p>
 		  </div>
         </div>
         <div class="card-content-padding">
@@ -219,12 +218,14 @@ var routes = [
 			        </li>
 			    </ul>
 			    <div class="block">
-		  			<p/> <p/> <br/> 
-			        <p class="row">
+		  			<br/> 
+
+			        <p class="row"><a href=# @click="clickDelete({{id}})" class="col button button-big button-fill button-raised color-red">Delete</a>
 			        <a href=# @click="clickTest({{id}})" class="col button button-big button-fill button-raised color-green">Test</a>
-			        <a href=# @click="clickSave({{id}})" class="col button button-big button-fill button-raised color-blue">Save</a></p>
-		  			<p/> 
-			        <p class="row"><a href=# @click="clickDelete({{id}})" class="col button button-big button-fill button-raised color-red">Delete</a></p>
+			        </p>
+		  			<p class="row">
+		  			<a href=# @click="clickSave({{id}})" class="col button button-big button-fill button-raised color-blue">Save</a>
+			        </p>
 
 			    </div>
 			</form>        
@@ -238,22 +239,12 @@ var routes = [
 </div>
 `, style:`
 .card-expandable {
-  height: 100px;
-  box-shadow: 0 1px 10px #777
+  height: 90px;
+  box-shadow: 0 1px 10px #777;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
-.icb-expandable-cards .card-header img{
-	width:80px;position:absolute; border-radius:5px; right:40px; top:20px; opacity:.9;
-}
-.icb-expandable-cards .card-opened .card-header{
 
-}
-.icb-expandable-cards .card-opened .card-header img{
-	display:none;
-	width: 80%;
-	overflow: hidden;
-	position: relative;
-	left: 10%;
-}
 `,
 			data:function(){
 				return {
@@ -282,11 +273,12 @@ var routes = [
 		                method: 'POST', data: {},
 		        // dataType: 'json',
 		                success: function (d) {
+		                	debugger;
 		                	_scd=null;
 		        			iwb.serverUrl=f.url;
 		        			var ls = window.localStorage;
 		        			ls.setItem('userName', f.user_name||'');
-		        			ls.setItem('passWord', f.pass_name||'');			        			
+		        			ls.setItem('passWord', f.pass_word||'');			        			
 		        			iwb.app.card.close('#idx-card-project-'+id);
 		        			iwb.reLogin();
 		        			
@@ -765,7 +757,7 @@ iwb.photoBrowser=function(tid, pk){
 			var photos=[];
 			for(var qi=0;qi<j.data.length;qi++){
 				var s = j.data[qi].dsc.toLowerCase();
-				if(s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg'))photos.push('sf/'+j.data[qi].dsc+'?_fai='+j.data[qi].id+'&.r='+ Math.random());
+				if(s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg'))photos.push(iwb.serverUrl+'sf/'+j.data[qi].dsc+'?_fai='+j.data[qi].id+'&.r='+ Math.random());
 			}
 			if(photos.length){
 				var p = iwb.app.photoBrowser.create({photos:photos, theme:'dark'});
@@ -1126,19 +1118,15 @@ iwb.reLogin=function(afterCfg){
 			    			iwb.openLoginScreen();
 			    			return;
 			    		}
-			    		if(!_scd || _scd.userId!=j.session.userId){// TODO
-																	// burda
-																	// butun
-																	// ekranlar
-																	// gemizlenecek
+			    		if(!_scd || _scd.userId!=j.session.userId){
 			    			iwb.app.views.main.router.clearPreviousHistory();
 			    			iwb.home = false;
 				    		_scd=j.session;
-	            			iwb.goHome();
+	            			iwb.prepareMainMenu();
 			    		} else {
 				    		_scd=j.session;
 		            		if(afterCfg)iwb.request(afterCfg);// tekrar cagir
-		            		else iwb.goHome();
+		            		else iwb.prepareMainMenu();
 			    		}
 			    	} else {
 		    			_scd = null;
@@ -1232,4 +1220,4 @@ var mainView = iwb.app.views.create('.view-main');
 iwb.checkWorkspace=function(){
 	
 }
-iwb.prepareMainMenu();
+iwb.reLogin();
