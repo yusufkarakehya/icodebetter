@@ -277,7 +277,6 @@ var routes = [
 	        },clickConnect:function(id){
 	        	var self=this;
 				  	var f = iwb.app.form.convertToData('#idx-form-project-'+id);
-				  	alert(f.url)
 		        	Framework7.request({
 		                url: f.url + 'ajaxPing?d=1&c=1&.r=' + Math.random(),
 		                method: 'POST', data: {},
