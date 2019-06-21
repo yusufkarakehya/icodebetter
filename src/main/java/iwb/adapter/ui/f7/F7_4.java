@@ -1296,7 +1296,7 @@ public class F7_4 implements ViewMobileAdapter {
               .append(" name=\"")
               .append(fc.getDsc())
               .append("\"");
-          buf.append("/><i class=\"toggle-icon\"></i></label></div></div></li>");
+          buf.append("/><i class=\"toggle-icon\"></i></label></div></div></div></li>");
 
           return buf;
         } else {
