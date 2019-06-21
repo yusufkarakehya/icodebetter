@@ -203,6 +203,7 @@
       							<jvmFlag>-Xdebug</jvmFlag>
 							<jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7777</jvmFlag>
 						</jvmFlags>
+						<args>project=1</args>
 					</container>
 				</configuration>
 			</plugin>
