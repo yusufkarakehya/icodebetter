@@ -1,5 +1,5 @@
 var routes = [
-//	  {path: '/',content: ' iCodeBetter ',},
+// {path: '/',content: ' iCodeBetter ',},
 	  {path: '/home',async: function (routeTo, routeFrom, resolve, reject) {
 		  	resolve({component:{
 		  	    template: `<div class="page" data-name="home">
@@ -88,7 +88,7 @@ var routes = [
           <div class="card-header text-color-white display-block" style="font-weight:500;">
             Add Project
             <br>
-            <small style="opacity: 0.8;font-size:1rem;font-weight:400;">Manually or by scanning square code</small>
+            <small style="opacity: 0.8;font-size:1rem;font-weight:400;">Manually or by scanning QR code</small>
           </div>
           <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
             <i class="icon f7-icons">close_round_fill</i>
@@ -273,7 +273,6 @@ var routes = [
 		                method: 'POST', data: {},
 		        // dataType: 'json',
 		                success: function (d) {
-		                	debugger;
 		                	_scd=null;
 		        			iwb.serverUrl=f.url;
 		        			var ls = window.localStorage;
@@ -462,29 +461,28 @@ var routes = [
     		    	data:{userName: username, passWord: password},dataType: 'json', 
     		    	success:function(j){
     		    		iwb.app.preloader.hide();
-    				if(j.success){
-    		    		if(!j.session){ // TODO. eger session gelmediyse,
-										// sikinti
-    		    			iwb.app.toast.show({text:j.errorMsg || j.error || 'Error ', closeTimeout: 3000});
-    		    			return;
-    		    		}
-    					  var ls = window.localStorage;
-    					  if(ls){
+    		    		if(j.success){
+    		    			if(!j.session){
+	    		    			iwb.app.toast.show({text:j.errorMsg || j.error || 'Error ', closeTimeout: 3000});
+	    		    			return;
+	    		    		}
+    					    var ls = window.localStorage;
+    					    if(ls){
     						  ls.setItem("userName", username);
     						  ls.setItem("passWord", password);
-    					  }
-		    			// iwb.app.views.main.router.clearPreviousHistory();
-		    			iwb.home = false;
-			    		_scd=j.session;
-			    		setTimeout(function(){
-// iwb.goHome();
-				    		iwb.prepareMainMenu();
-			    		}, 100);
-    		    	} else {
-		    			iwb.app.toast.show({text:j.errorMsg || j.error || 'Error ', closeTimeout: 3000});
-    		    	}
-    		    },error:function(){
+    					    }
+			    			// iwb.app.views.main.router.clearPreviousHistory();
+			    			iwb.home = false;
+				    		_scd=j.session;
+				    		setTimeout(function(){
+					    		iwb.prepareMainMenu();
+				    		}, 100);
+	    		    	} else {
+			    			iwb.app.toast.show({text:j.errorMsg || j.error || 'Error ', closeTimeout: 3000});
+	    		    	}
+    		    },error:function(d){
     		    	iwb.app.preloader.hide();
+    		    	iwb.app.toast.show({text:'Connection Error<br/>'+d, closeTimeout: 2000});
     		    }});
         	  }
         }}}});
@@ -534,7 +532,7 @@ var routes = [
 
 
 var _scd=null;
-var iwb={};
+if(!window.iwb)window.iwb={};
 
 iwb.serverUrl='/app/';
 iwb.debug=true;
@@ -664,7 +662,8 @@ function recMenu(r, lvl){
 														// style="font-size:
 														// 13px;color:green;"
 		s+='<li class="accordion-item iwb-menu iwb-menu-folder"><a href="#" class="item-link item-content" ><div class="item-inner">';
-// if(r[qi].icon)s+='<div class="item-media"><i class="f7-icons">'+r[qi].icon+'</i></div>';
+// if(r[qi].icon)s+='<div class="item-media"><i
+// class="f7-icons">'+r[qi].icon+'</i></div>';
 		s+='<div class="item-title">'+r[qi].text+'</div></div></a><div class="accordion-item-content iwb-menu-url">'+
 		'<div class="list accordion-list"><ul>'+recMenu(r[qi].children, lvl+1)+'</ul></div></div>';
 	} else {
@@ -856,8 +855,8 @@ iwb.graph = function(dg, gid) {
 			if(!d || !d.length)return;
 	        
 			switch (1 * dg.graphTip) {
-	        case 6: //stacked area
-	        case 5: //stacked column
+	        case 6: // stacked area
+	        case 5: // stacked column
 	        	var l= j.lookUp;
 	        	for(var k in l)lookUps.push(k);
 	            if(!lookUps.length)return;
@@ -881,7 +880,7 @@ iwb.graph = function(dg, gid) {
 	                    
 	                },
 	                series: series,
-//	                title: {text: dg.name},
+// title: {text: dg.name},
 	                xaxis: {
 	                    categories: labels,
 	                },
@@ -892,27 +891,27 @@ iwb.graph = function(dg, gid) {
 	                }
 	            }
 	        	break;
-	        case 3://pie
+	        case 3:// pie
 	            d.map((z)=>{
 	                series.push(1*z.xres);
 	                labels.push(z.dsc||'-');
 	            });
 	            var options = {
-//	                title: {text: dg.name},
+// title: {text: dg.name},
 	                chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
 	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : false
 	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
 	            }
 
 	        	break;
-	        case 1://column
-	        case 2://area
+	        case 1:// column
+	        case 2:// area
 	        	d.map((z)=>{
 	                series.push(1*z.xres);
 	                labels.push(z.dsc);
 	            });
 	            options = {
-//	                title: {text: dg.name},
+// title: {text: dg.name},
 	                chart: {
 	                	id:'apex-'+gid,
 	                    height:40*d.length+20,
@@ -921,7 +920,7 @@ iwb.graph = function(dg, gid) {
 	                },
 	                plotOptions: {
 	                    bar: {
-	                        horizontal: 1 * dg.graphTip==1 //d.length>5
+	                        horizontal: 1 * dg.graphTip==1 // d.length>5
 	                    }
 	                },
 	                dataLabels:  1 * dg.graphTip==1 ? {
@@ -968,11 +967,11 @@ iwb.fmtDateAgo=function(dt){
 	var tnow = new Date().getTime();
 	var dt2=dt.toDate("dd/mm/yyyy hh:ii:ss");
 	var t = dt2.getTime();
-	if(t+30*1000>tnow)return 'Az Önce';// 5 sn
-	if(t+2*60*1000>tnow)return 'Bir Dakika Önce';// 1 dka
-	if(t+60*60*1000>tnow)return Math.round((tnow-t)/(60*1000)) + ' Dakika Önce';
-	if(t+24*60*60*1000>tnow)return Math.round((tnow-t)/(60*60*1000)) + ' Saat Önce';
-	if(t+2*24*60*60*1000>tnow)return 'Dün';
+	if(t+30*1000>tnow)return 'Seconds ago';//'Az Önce';// 5 sn
+	if(t+2*60*1000>tnow)return ' A minute ago';//'Bir Dakika Önce';// 1 dka
+	if(t+60*60*1000>tnow)return Math.round((tnow-t)/(60*1000)) + 'Minutes ago';//' Dakika Önce';
+	if(t+24*60*60*1000>tnow)return Math.round((tnow-t)/(60*60*1000)) + ' Hours ago';//' Saat Önce';
+	if(t+2*24*60*60*1000>tnow)return 'Yesterday';//'Dün';
 	if(t+7*24*60*60*1000>tnow)return daysOfTheWeek[dt2.getDay()];// 5dka
 	return dt.substr(0,10);
 }
@@ -1082,7 +1081,7 @@ String.prototype.toDate = function(format){
 
 iwb.prepareMainMenu=function(){
 	iwb.request({url:'ajaxQueryData?_qid=1487&.r='+Math.random(),dataType:'text',data:{_json:1,xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:0}, success:function(d){
-		if(!d.data || !d.data.length){//no menu
+		if(!d.data || !d.data.length){// no menu
 			iwb.openLoginScreen();
 			iwb.app.toast.create({position:'top',closeTimeout: 3000, text:'No menu defined for this app'}).open();
 			return;
@@ -1161,9 +1160,12 @@ iwb.checkSession=function(afterCfg){
         	var j = eval('('+d+')');
         	if(j.success && j.session){
         		_scd=j.session;
-        		if(afterCfg)iwb.request(afterCfg);
+        		if(afterCfg){
+        			iwb.request(afterCfg);
+        		} else
+        			iwb.prepareMainMenu();
         	} else 
-        		iwb.reLogin(afterCfg);
+        		iwb.reLogin(afterCfg||null);
         }, error: function (d) {
 			iwb.app.toast.show({
 				  text: 'Error Connecting ' + d ,closeButton: true, closeButtonText: 'Try Again'
@@ -1181,7 +1183,7 @@ iwb.app = new Framework7({
   root: '#app', // App root element
   id: 'io.framework7.iwb', // App bundle ID
   name: 'iCodeBetter F7', // App name
-  theme: 'auto',// 'auto', // Automatic theme detection
+  theme: iwb.theme || 'auto',// 'auto', // Automatic theme detection
   // App root data
   data: function () {
     return {
@@ -1220,4 +1222,4 @@ var mainView = iwb.app.views.create('.view-main');
 iwb.checkWorkspace=function(){
 	
 }
-iwb.reLogin();
+iwb.checkSession();

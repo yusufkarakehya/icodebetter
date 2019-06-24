@@ -782,65 +782,13 @@ header .phone {
 	background: #111;
 	border-radius: 55px;
 	box-shadow: 0px 0px 0px 2px #aaa;
-	top: -40px;
+	top: -28px;
 	left: 28%;
-	width: 320px;
-	height: 568px;
-	padding: 105px 25px;
-}
-
-header .phone.phone-android {
-	border-radius: 20px;
 	width: 360px;
-	padding: 60px 20px;
 	height: 640px;
-	margin-top: 9px;
+	padding: 7px;
 }
 
-header .phone:before {
-	content: '';
-	width: 60px;
-	height: 10px;
-	border-radius: 10px;
-	position: absolute;
-	left: 50%;
-	margin-left: -30px;
-	background: #333;
-	top: 50px;
-}
-
-header .phone:after {
-	content: '';
-	position: absolute;
-	width: 60px;
-	height: 60px;
-	left: 50%;
-	margin-left: -30px;
-	bottom: 20px;
-	border-radius: 100%;
-	box-sizing: border-box;
-	border: 5px solid #333;
-}
-
-header .phone .statusbar {
-	position: absolute;
-	width: 320px;
-	height: 20px;
-	background: url(../../f7/status-bar.png);
-	left: 50%;
-	margin-left: -160px;
-	top: 100px;
-	-webkit-background-size: 100% auto;
-	background-size: 100% auto;
-}
-
-header .phone.phone-android .statusbar {
-	width: 360px;
-	height: 25px;
-	background-image: url(../../f7/status-bar-android.png);
-	margin-left: -180px;
-	top: 60px;
-}
 
 header .phone .theme-switch {
 	position: absolute;
@@ -851,41 +799,12 @@ header .phone .theme-switch {
 }
 
 header .phone iframe {
-	width: 320px;
-	height: 548px;
+	height: 100%;
 	display: block;
 	width: 100%;
-	margin-top: 20px;
+	border-radius: 13px;
 }
 
-header .phone.phone-android iframe {
-	width: 360px;
-	height: 615px;
-	margin-top: 25px;
-}
-
-header .phone.phone-android:before {
-	width: 14px;
-	height: 14px;
-	border-radius: 50%;
-	position: absolute;
-	left: 50%;
-	margin-left: -7px;
-	background: #666;
-	top: 25px;
-}
-
-header .phone.phone-android:after {
-	content: '';
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	position: absolute;
-	left: 50px;
-	background: #444;
-	top: 30px;
-	margin-left: 0;
-}
 
 header .phone .theme-switch a.active,header .phone .theme-switch a:hover
 	{
