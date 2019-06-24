@@ -1,5 +1,6 @@
 import "./css/styles.root.css";
 import "./css/iwb.css";
+import "./css/style.css";
 export let dgColors2 = [
   "primary",
   "info",
