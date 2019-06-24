@@ -499,6 +499,18 @@ public class FrameworkService {
 		return m;
 	}
 
+
+	public Map<String, Object> userRoleSelect4App2(W5Project po, int userId, int userRoleId, Map rm) {
+		Map<String, Object> scd = new HashMap<String, Object>();
+		scd.put("userId", userId);
+		scd.put("userRoleId", userRoleId);
+		scd.put("customizationId", po.getCustomizationId());
+		scd.put("projectId", po.getProjectUuid());
+		Map<String, Object> m = executeQuery2Map(scd, po.getSessionQueryId(), rm); // mainSessionQuery
+		if (m == null)
+			return null;
+		return m;
+	}
 	public Map<String, Object> userSession4Auth(int userId, int customizationId) {
 		Map<String, Object> scd = new HashMap<String, Object>();
 		scd.put("userId", userId);

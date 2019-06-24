@@ -806,7 +806,7 @@ public class PreviewController implements InitializingBean {
 		response.setContentType("application/json");
 		scd = null;
 		if (success) { // basarili simdi sira diger islerde
-			scd = service.userRoleSelect4App(po, userId, userRoleId, null);
+			scd = service.userRoleSelect4App2(po, userId, userRoleId, result.getResultMap());
 
 			if (scd == null) {
 				if (FrameworkSetting.debug)logger.info("empty scd");

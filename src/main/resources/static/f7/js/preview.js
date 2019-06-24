@@ -550,7 +550,7 @@ iwb.photoBrowser=function(tid, pk){
 			var photos=[];
 			for(var qi=0;qi<j.data.length;qi++){
 				var s = j.data[qi].dsc.toLowerCase();
-				if(s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg'))photos.push('sf/'+j.data[qi].dsc+'?_fai='+j.data[qi].id+'&.r='+ Math.random());
+				if(s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg'))photos.push(iwb.serverUrl+'sf/'+j.data[qi].dsc+'?_fai='+j.data[qi].id+'&.r='+ Math.random());
 			}
 			if(photos.length){
 				var p = iwb.app.photoBrowser.create({photos:photos, theme:'dark'});
