@@ -482,7 +482,7 @@ public class PreviewController implements InitializingBean {
 		response.setContentType("application/json");
 		String pid = UserUtil.getProjectId(request, "preview");
 		W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
-
+// 
 		if(GenericUtil.uInt(request, "d")==0)
 			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
 		else {

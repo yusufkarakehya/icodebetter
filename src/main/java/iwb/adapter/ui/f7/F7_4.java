@@ -269,7 +269,7 @@ public class F7_4 implements ViewMobileAdapter {
         if(l.getJsCode().charAt(0)!='{')buf.append("\ntry{").append(l.getJsCode()).append("\n}catch(e){if(iwb.debug && confirm('iwb.request.pageInit Exception. Throw?'))throw e;}");
         else buf.append("\nif(this.init)this.init();");
     }
-    buf.append("}},\n methods:{firstLoad:function(){this.load(0);},moreLoad:function(){this.load(this.browseInfo.startRow);},load:function(start,callback,params){if(!start)start=0;var self = this;iwb.request({url:'ajaxQueryData?_qid=")
+    buf.append("}},\n methods:{firstLoad:function(){this.load(0);},moreLoad:function(){this.load(this.browseInfo.startRow);},load:function(start,callback,params){if(!start)start=0;var self = this;iwb.request({url:'ajaxQueryData?_renderer=ext3_4&_qid=")
         .append(listResult.getList().getQueryId());
     if (l.getParentListId() != 0) {
       for (String key : listResult.getRequestParams().keySet())
