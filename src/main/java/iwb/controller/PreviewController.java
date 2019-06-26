@@ -480,15 +480,14 @@ public class PreviewController implements InitializingBean {
 		boolean notSessionFlag = session == null || session.getAttribute("scd-dev") == null
 				|| ((HashMap<String, String>) session.getAttribute("scd-dev")).size() == 0;
 		response.setContentType("application/json");
-		Map cm = null;
-		if(FrameworkSetting.chat && !notSessionFlag && GenericUtil.uInt(request, "c")!=0){
-			cm = service.getUserNotReadChatMap((Map)session.getAttribute("scd-dev"));
-		}
+		String pid = UserUtil.getProjectId(request, "preview");
+		W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
+
 		if(GenericUtil.uInt(request, "d")==0)
-			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
+			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
 		else {
 			Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-			response.getWriter().write("{\"success\":true,\"session\":" + (scd==null ? "false":GenericUtil.fromMapToJsonString2Recursive(scd)) + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
+			response.getWriter().write("{\"success\":true,\"session\":" + (scd==null ? "false":GenericUtil.fromMapToJsonString2Recursive(scd)) + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
 		}
 		response.getWriter().close();
 	}
