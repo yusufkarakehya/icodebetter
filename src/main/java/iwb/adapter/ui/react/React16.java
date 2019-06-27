@@ -3032,7 +3032,7 @@ columns:[
 			for (W5GridColumn c : oldColumns)
 				if (c.get_queryField() != null) {
 					W5QueryField f = c.get_queryField();
-					W5TableField tf = f.getMainTableFieldId() > 0 ? viewTable
+					W5TableField tf = viewTable!=null && f.getMainTableFieldId() > 0 ? viewTable
 							.get_tableFieldMap().get(f.getMainTableFieldId())
 							: null;
 					if (tf != null) {

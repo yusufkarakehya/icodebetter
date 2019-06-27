@@ -476,19 +476,21 @@ public class PreviewController implements InitializingBean {
 	public void hndAjaxPing(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxPing");
-		HttpSession session = request.getSession(false);
-		boolean notSessionFlag = session == null || session.getAttribute("scd-dev") == null
-				|| ((HashMap<String, String>) session.getAttribute("scd-dev")).size() == 0;
-		response.setContentType("application/json");
-		Map cm = null;
-		if(FrameworkSetting.chat && !notSessionFlag && GenericUtil.uInt(request, "c")!=0){
-			cm = service.getUserNotReadChatMap((Map)session.getAttribute("scd-dev"));
+		
+		Map<String, Object> scd = null;
+		try {
+			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		} catch(Exception ee) {
+			scd = null;
 		}
+		response.setContentType("application/json");
+		String pid = UserUtil.getProjectId(request, "preview");
+		W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
+// 
 		if(GenericUtil.uInt(request, "d")==0)
-			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
+			response.getWriter().write("{\"success\":true,\"session\":" + (scd!=null) + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
 		else {
-			Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-			response.getWriter().write("{\"success\":true,\"session\":" + (scd==null ? "false":GenericUtil.fromMapToJsonString2Recursive(scd)) + (cm!=null ? ", \"newMsgCnt\":"+GenericUtil.fromMapToJsonString2Recursive(cm):"") + "}");
+			response.getWriter().write("{\"success\":true,\"session\":" + (scd==null ? "false":GenericUtil.fromMapToJsonString2Recursive(scd)) + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
 		}
 		response.getWriter().close();
 	}
@@ -806,7 +808,7 @@ public class PreviewController implements InitializingBean {
 		response.setContentType("application/json");
 		scd = null;
 		if (success) { // basarili simdi sira diger islerde
-			scd = service.userRoleSelect4App(po, userId, userRoleId, null);
+			scd = service.userRoleSelect4App2(po, userId, userRoleId, result.getResultMap());
 
 			if (scd == null) {
 				if (FrameworkSetting.debug)logger.info("empty scd");
