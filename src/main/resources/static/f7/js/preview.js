@@ -44,7 +44,7 @@ var routes = [
 		  	        },on:{
 		  	        	pageInit:function(){
 			  	    	  var self=this;
-			  	          iwb.request({url:'ajaxQueryData?_qid=6648',data:{xmobile_flag:1,sort:'mobile_tab_order'}, success:function(j){
+			  	          iwb.request({url:'ajaxQueryData?_renderer=ext3_4&&_qid=6648',data:{xmobile_flag:1,sort:'mobile_tab_order'}, success:function(j){
 			  	              if(j.data.length){
 			  	                  self.$setState(j);
 					  	    	  setTimeout(function(){
@@ -751,7 +751,7 @@ iwb.takePhoto=function(tid,tpk, jsonX, fromAlbum, profilePictureFlag){
 }
 
 iwb.photoBrowser=function(tid, pk){
-	iwb.request({url:'ajaxQueryData?_qid=806',data:{_tableId:tid,_tablePk:pk}, success:function(j){
+	iwb.request({url:'ajaxQueryData?_renderer=ext3_4&_qid=806',data:{_tableId:tid,_tablePk:pk}, success:function(j){
 		if(j.data && j.data.length){
 			var photos=[];
 			for(var qi=0;qi<j.data.length;qi++){
@@ -772,7 +772,7 @@ iwb.autoCompleteJson=function(postUrl){
 	      render([]);
 	      return;
 	    }
-		iwb.request({url:'ajaxQueryData?_qid='+postUrl, success:function(j){
+		iwb.request({url:'ajaxQueryData?_renderer=ext3_4&_qid='+postUrl, success:function(j){
 			render(j.data);
 		}});
 	}
@@ -827,7 +827,7 @@ iwb.showRecordMenu=function(json3, targetEl){
 			var p=iwb.app.popover.create({content:'<div class="popover"><div class="popover-inner"><div class="list"><ul>'+lnk.join('')+'</ul></div></div></div>', targetEl:targetEl});
 			p.open();
 		} else  {
-			if(href)iwb.app.router.navigate(href);
+			if(href)iwb.app.views.main.router.navigate(href);
 		}
 	}
 }
@@ -1025,7 +1025,7 @@ iwb.loadCombo = function(cmb, params){
 
 	ctrl.find('option').remove();// temizle once
 	iwb.app.smartSelect.destroy(cmb);
-	iwb.request({url:'ajaxQueryData', data:params, success:function(j){
+	iwb.request({url:'ajaxQueryData?_renderer=ext3_4', data:params, success:function(j){
 		var data=j.data,res=[], s='';
 		
 		for(var qi=0;qi<data.length;qi++){
@@ -1080,7 +1080,7 @@ String.prototype.toDate = function(format){
 };
 
 iwb.prepareMainMenu=function(){
-	iwb.request({url:'ajaxQueryData?_qid=1487&.r='+Math.random(),dataType:'text',data:{_json:1,xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:0}, success:function(d){
+	iwb.request({url:'ajaxQueryData?_renderer=ext3_4&_qid=1487&.r='+Math.random(),dataType:'text',data:{_json:1,xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:0}, success:function(d){
 		if(!d.data || !d.data.length){// no menu
 			iwb.openLoginScreen();
 			iwb.app.toast.create({position:'top',closeTimeout: 3000, text:'No menu defined for this app'}).open();

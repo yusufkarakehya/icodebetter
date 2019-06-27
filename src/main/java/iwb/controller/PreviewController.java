@@ -476,17 +476,20 @@ public class PreviewController implements InitializingBean {
 	public void hndAjaxPing(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxPing");
-		HttpSession session = request.getSession(false);
-		boolean notSessionFlag = session == null || session.getAttribute("scd-dev") == null
-				|| ((HashMap<String, String>) session.getAttribute("scd-dev")).size() == 0;
+		
+		Map<String, Object> scd = null;
+		try {
+			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		} catch(Exception ee) {
+			scd = null;
+		}
 		response.setContentType("application/json");
 		String pid = UserUtil.getProjectId(request, "preview");
 		W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
 // 
 		if(GenericUtil.uInt(request, "d")==0)
-			response.getWriter().write("{\"success\":true,\"session\":" + !notSessionFlag + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
+			response.getWriter().write("{\"success\":true,\"session\":" + (scd!=null) + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
 		else {
-			Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 			response.getWriter().write("{\"success\":true,\"session\":" + (scd==null ? "false":GenericUtil.fromMapToJsonString2Recursive(scd)) + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
 		}
 		response.getWriter().close();
