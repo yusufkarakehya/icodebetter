@@ -230,10 +230,12 @@ public class F7_4 implements ViewMobileAdapter {
         s2.append("<div class=\"searchbar-backdrop\"></div>");
       }
 
-      s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
-      if (!GenericUtil.isEmpty(htmlDataCode)) s2.append(htmlDataCode);
-      if (l.getDefaultPageRecordNumber() > 0) s2.append("\n{{#if infiniteScroll}}<div><p class=\"row\"><button @click=\"moreLoad\" class=\"button col\">more...</button></p><p class=\"row\"></p></div>{{/if}}");
-      s2.append("</ul></div>");
+      if (!GenericUtil.isEmpty(htmlDataCode)) {
+	      if(l.getListTip()==1)s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
+    	  s2.append(htmlDataCode);
+	      if (l.getDefaultPageRecordNumber() > 0) s2.append("\n{{#if infiniteScroll}}<div><p class=\"row\"><button @click=\"moreLoad\" class=\"button col\">more...</button></p><p class=\"row\"></p></div>{{/if}}");
+	      if(l.getListTip()==1)s2.append("</ul></div>");
+      }
       // if(l.getDefaultPageRecordNumber()>0)s2.append("{{#if infiniteScroll}}<div class=\"preloader
       // infinite-scroll-preloader\"></div>{{/if}}");
 

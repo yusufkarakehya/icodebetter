@@ -533,7 +533,6 @@ var routes = [
 
 var _scd=null;
 if(!window.iwb)window.iwb={};
-
 iwb.serverUrl='/app/';
 iwb.debug=true;
 
@@ -1080,7 +1079,7 @@ String.prototype.toDate = function(format){
 };
 
 iwb.prepareMainMenu=function(){
-	iwb.request({url:'ajaxQueryData?_qid=1487&.r='+Math.random(),dataType:'text',data:{_json:1,xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:0}, success:function(d){
+	iwb.request({url:'ajaxQueryData?_qid=1487&.r='+Math.random(),dataType:'text',data:{_json:1,xuser_tip:iwb.userTip||0}, success:function(d){
 		if(!d.data || !d.data.length){// no menu
 			iwb.openLoginScreen();
 			iwb.app.toast.create({position:'top',closeTimeout: 3000, text:'No menu defined for this app'}).open();
