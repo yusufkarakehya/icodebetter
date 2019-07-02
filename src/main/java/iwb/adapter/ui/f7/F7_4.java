@@ -396,20 +396,80 @@ public class F7_4 implements ViewMobileAdapter {
     }
     if(!GenericUtil.isEmpty(pageResult.getPageObjectList())) {
     	StringBuilder sb = new StringBuilder();
-    	for(Object o:pageResult.getPageObjectList()) {
-    		if(o instanceof W5BIGraphDashboard) {
-    			sb.append(serializeGraphDashboard((W5BIGraphDashboard)o, pageResult.getScd()));
-    		} else if(o instanceof M5ListResult) {
-    			sb.append(serializeList4Page((M5ListResult)o));
-    		} else if(o instanceof W5QueryResult) {
-    			sb.append(serializeQueryData((W5QueryResult)o));
-    		} else sb.append("{}");
-    		sb.append(",");
-    	}
-    	if(sb.length()>1) {
-    		sb.setLength(sb.length()-1);
+    	if(buf.indexOf("template:")==-1) {
+    		StringBuilder code = new StringBuilder(), data = new StringBuilder();
+    		data.append("_tid:").append(p.getTemplateId());
+    		code.append("methods:{clickMenu:function(){},clickLink:function(url){iwb.app.views.main.router.navigate(url);}},on:{pageInit:function(){var self=this;");
+    		sb.append(", template:`<div data-page=\"iwb-page-").append(p.getTemplateId()).append("\" class=\"page\"><div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"title\">")
+    			.append(LocaleMsgCache.get2(pageResult.getScd(),p.getDsc()))
+    			.append("</div><div class=\"right\"></div></div></div> <div class=\"page-content\">\n");
+    		boolean lastBadge = false;
+    		for(Object o:pageResult.getPageObjectList()) if(o!=null && !(o instanceof String)){	
+    			if(lastBadge && !(o instanceof W5QueryResult)) {
+    				sb.append("</div></div>");
+    				lastBadge = false;
+    			}
+    			if(o instanceof W5BIGraphDashboard) {
+    				W5BIGraphDashboard gd = (W5BIGraphDashboard)o;
+        			String pk = "o9_" + gd.getGraphDashboardId();
+        			sb.append("<div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),gd.getLocaleMsgKey()));
+    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+    				sb.append("</div><div class=\"card-content card-content-padding\" id=\"idx-obj-").append(pk).append("\"></div></div>");
+    				code.append("\niwb.graph(").append(serializeGraphDashboard(gd, pageResult.getScd())).append(",'idx-obj-").append(pk).append("');");
+	    		} else if(o instanceof M5ListResult) {
+	    			M5ListResult lr = (M5ListResult)o;
+        			String pk = "o11_" + lr.getListId();
+        			sb.append("<div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),lr.getList().getLocaleMsgKey()));
+    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+    				sb.append("</div><div class=\"card-content\" id=\"idx-obj-").append(pk).append("\">");
+					if(lr.getList().getListTip()<3)sb.append("<div class=\"list\"><ul>");
+					sb.append(lr.getList().getHtmlDataCode().replace("data}}","data_"+lr.getListId()+"}}"));
+					if(lr.getList().getListTip()<3)sb.append("</ul></div>");
+    				sb.append("</div></div>");
+    				data.append(", data_").append(lr.getListId()).append(":[]");
+    				code.append("\niwb.request({url:'ajaxQueryData?_qid=").append(lr.getList().getQueryId()).append("', success:function(jj){self.$setState({data_").append(lr.getListId()).append(":jj.data||[]})}});");
+	    		} else if(o instanceof W5QueryResult) {
+	    			W5QueryResult qr = (W5QueryResult)o;
+        			String pk = "o10_" + qr.getQueryId();
+    				if(!lastBadge) {
+    					sb.append("<div class=\"block\" style=\"padding-left: inherit; padding-right: inherit; margin-bottom: 0;\"><div class=\"row\">");
+    				}
+    				lastBadge = true;
+    				sb.append("{{#if ").append(pk).append("}}<div class=\"col-50\"><div");
+    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+    				sb.append(" class=\"card bg-color-{{#if ").append(pk).append(".bgcolor}}{{").append(pk).append(".bgcolor}}{{else}}blue{{/if}}\" style=\"color:{{#if ")
+    					.append(pk).append(".color}}{{").append(pk)
+    					.append(".color}}{{else}}white{{/if}} \"><div class=\"card-content\" style=\"padding:5px 10px; text-align:right;font-size:2rem; display: grid;\"><div style=\"text-align: left;font-size: 1rem;\">{{")
+    					.append(pk).append(".title}}</div><div>{{").append(pk).append(".val}}</div></div></div></div>{{/if}}\n");
+    				if(!GenericUtil.isEmpty(qr.getData())) {
+    					data.append(",").append(pk).append(":").append(serializeQueryData((W5QueryResult)o)).append(".data[0]");
+    				}
+	    		}
+    		}
+			if(lastBadge)sb.append("</div></div>");
+    		
+    		code.append("}}");
+    		sb.append("`,").append(code).append(", data:function(){return {").append(data).append("}}");
     		int ix = buf.lastIndexOf("}");
-            if (ix > -1) buf.insert(ix, ",items:[" + sb.toString() + "]");
+            if (ix > -1) buf.insert(ix, sb.toString());
+    	} else {
+    		sb.append(", items:[");
+	    	for(Object o:pageResult.getPageObjectList()) {
+	    		if(o instanceof W5BIGraphDashboard) {
+	    			sb.append(serializeGraphDashboard((W5BIGraphDashboard)o, pageResult.getScd()));
+	    		} else if(o instanceof M5ListResult) {
+	    			sb.append(serializeList4Page((M5ListResult)o));
+	    		} else if(o instanceof W5QueryResult) {
+	    			sb.append(serializeQueryData((W5QueryResult)o));
+	    		} else sb.append("{}");
+	    		sb.append(",");
+	    	}
+	    	if(sb.length()>1) {
+	    		sb.setLength(sb.length()-1);
+	    		sb.append("]");
+	    		int ix = buf.lastIndexOf("}");
+	            if (ix > -1) buf.insert(ix, sb.toString());
+	    	}
     	}
     	
     }
@@ -421,7 +481,16 @@ public class F7_4 implements ViewMobileAdapter {
 
     String htmlDataCode = l.getHtmlDataCode();
     if (htmlDataCode == null) htmlDataCode = ""; 
-    
+
+    buf.append("{listId:")
+    .append(l.getListId())
+    .append(", queryId:").append(l.getQueryId()).append(", name:'")
+    .append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey()))
+    .append("'");
+    buf.append("\n}, template:`");
+    buf.append(htmlDataCode.replace("data}}","data_"+listResult.getListId()+"}}").replace("@click","_dummy")).append("`");    
+    buf.append("}");
+
     return buf;
   }
 
