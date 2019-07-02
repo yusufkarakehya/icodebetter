@@ -967,6 +967,9 @@ public class UIEngine {
 					case 5: // dbFunc
 						obz = scriptEngine.executeGlobalFunc(scd, o.getObjectId(), requestParams, (short) 1);
 						break;
+					case 11: // Mobile List
+						obz = metaDataDao.getMListResult(scd, o.getObjectId(), requestParams, false);
+						break;
 					case 9: // graph dashboard
 						W5BIGraphDashboard obz2 = (W5BIGraphDashboard) dao.getCustomizedObject(
 								"from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?",
