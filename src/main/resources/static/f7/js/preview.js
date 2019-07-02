@@ -1032,11 +1032,7 @@ iwb.loadCombo = function(cmb, params){
 			if(data[qi].id==selected)res.push(data[qi].dsc);
 		}
 		ctrl.append(s);
-		// console.log('as',selected, s);
 		iwb.app.smartSelect.create(cmb);
-		// $$(cmb.replace('idx-','id-')).find('.item-after').text(res.join(',
-		// '));
-		// $$(cmb.replace('idx-','id-')).show();
 	}});
 }
 
@@ -1104,10 +1100,12 @@ iwb.reLogin=function(afterCfg){
 	if(ls){
 		var reUserName = ls.getItem("userName");
 		var rePassWord = ls.getItem("passWord"); 
+		var reCusId = ls.getItem("cusId")||0; 
+		var reLocale = ls.getItem("locale")||'en'; 
 		if(reUserName && rePassWord){
 			iwb.app.preloader.show();
-			Framework7.request({url:iwb.serverUrl + 'ajaxAuthenticateUser?d=1&c=1&_mobile=0&_mobile_device_id='+iwb.deviceId+'&customizationId=0&locale=tr',
-		    	data:{userName:reUserName, passWord:rePassWord},dataType: 'json', 
+			Framework7.request({url:iwb.serverUrl + 'ajaxAuthenticateUser?d=1&c=1&_mobile=0&_mobile_device_id='+iwb.deviceId,
+		    	data:{userName:reUserName, passWord:rePassWord, customizationId:reCusId, locale: reLocale},dataType: 'json', 
 		    	success:function(j){
 		    		iwb.app.preloader.hide();
 					if(j.success){
@@ -1196,7 +1194,6 @@ iwb.app = new Framework7({
   routes: routes,
   methods:{
 	test:function(){
-		alert('test')
 	}  
   },
   on: {
