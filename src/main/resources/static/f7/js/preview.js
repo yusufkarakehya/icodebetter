@@ -21,14 +21,14 @@ var routes = [
 		  	      <div id="idx-page-content-home" class="page-content ptr-content">
 		  	    	<div class="ptr-preloader"><div class="preloader"></div><div class="ptr-arrow"></div></div>
 				  	  {{#each data}}
-		                  <div key="{{dashId}}" class="card">
+		                  {{#if dashId}}<div key="{{dashId}}" class="card">
 		                  	<div class="card-header">
 		                  		{{name}} {{#if listId}}<a href="/showMList?_lid={{listId}}"><i class="icon f7-icons">arrow_right</i></a>{{/if}}
 		                  	</div>
 		                  	<div class="card-content">
 		    					<div id="id-chart-{{dashId}}"></div>
 		    				</div>
-		                  </div>
+		                  </div>{{/if}}
 				  	  {{/each}}
 		  	      </div>
 		  	    </div>`
@@ -1092,7 +1092,7 @@ iwb.prepareMainMenu=function(){
 }
 iwb.home=false;
 iwb.goHome=function(){
-	iwb.app.views.main.router.navigate('/home');
+	iwb.app.views.main.router.navigate(_scd && _scd.homePageId ? '/showMPage?_tid='+_scd.homePageId:'/home');
 	iwb.home=!0;
 }
 
