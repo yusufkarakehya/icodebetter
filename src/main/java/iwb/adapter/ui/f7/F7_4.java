@@ -830,7 +830,7 @@ public class F7_4 implements ViewMobileAdapter {
                           .append(cfc.getFormCell().getFormCellId())
                           .append("',function(ax,bx){\n")
                           .append(cfc.getFormCell().getLookupIncludedParams())
-                          .append("\n})));\n");
+                          .append("\n})});\n");
                       dependantCombo = true;
                       break;
                     default:
@@ -1012,6 +1012,7 @@ public class F7_4 implements ViewMobileAdapter {
               .append(f.getFormId())
               .append("',baseParams,function(j){var loader=self.$options.parentLoader;self.$router.back({force:!loader});if(loader)loader();});}");
       }
+      
       if (!GenericUtil.isEmpty(f.getJsCode()) && f.getJsCode().charAt(0)=='{') {
       	String jsCode2 = f.getJsCode().trim().substring(1);
       	if(jsCode2.endsWith("}"))jsCode2 = jsCode2.substring(0, jsCode2.length()-1);
