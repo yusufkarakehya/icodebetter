@@ -1954,8 +1954,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 				sql.append("iwb.w5_table limit 1");
 			} else {
 				sql.append(query.getSqlFrom());
-				if (query.getSqlWhere() != null && query.getSqlWhere().trim().length() > 0)
-					sql.append(" where ").append(query.getSqlWhere().trim());
+//				if (query.getSqlWhere() != null && query.getSqlWhere().trim().length() > 0)sql.append(" where ").append(query.getSqlWhere().trim());
+				sql.append(" where 1=2");//.append(query.getSqlWhere().trim());
 				if (query.getSqlGroupby() != null && query.getSqlGroupby().trim().length() > 0 && query.getQueryTip() != 9) // group
 																															// by
 																															// connect
