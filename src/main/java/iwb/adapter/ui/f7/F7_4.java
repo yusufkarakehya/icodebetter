@@ -422,9 +422,9 @@ public class F7_4 implements ViewMobileAdapter {
         			sb.append("<div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),lr.getList().getLocaleMsgKey()));
     				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
     				sb.append("</div><div class=\"card-content\" id=\"idx-obj-").append(pk).append("\">");
-					if(lr.getList().getListTip()<3)sb.append("<div class=\"list\"><ul>");
+					if(lr.getList().getListTip()==1 || lr.getList().getListTip()==4)sb.append("<div class=\"list\"><ul>");
 					sb.append(lr.getList().getHtmlDataCode().replace("data}}","data_"+lr.getListId()+"}}"));
-					if(lr.getList().getListTip()<3)sb.append("</ul></div>");
+					if(lr.getList().getListTip()==1 || lr.getList().getListTip()==4)sb.append("</ul></div>");
     				sb.append("</div></div>");
     				data.append(", data_").append(lr.getListId()).append(":[]");
     				code.append("\niwb.request({url:'ajaxQueryData?_qid=").append(lr.getList().getQueryId()).append("&limit=")
@@ -622,10 +622,10 @@ public class F7_4 implements ViewMobileAdapter {
       }
 
 
-      if(l.getListTip()<3)s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
+      if(l.getListTip()==1 || l.getListTip()==4)s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
       if (!GenericUtil.isEmpty(htmlDataCode)) s2.append(htmlDataCode);
       if (l.getDefaultPageRecordNumber() > 0) s2.append("\n{{#if infiniteScroll}}<div><p class=\"row\"><button @click=\"moreLoad\" class=\"button col\">more...</button></p><p class=\"row\"></p></div>{{/if}}");
-      if(l.getListTip()<3)s2.append("</ul></div>");
+      if(l.getListTip()==1 || l.getListTip()==4)s2.append("</ul></div>");
       // if(l.getDefaultPageRecordNumber()>0)s2.append("{{#if infiniteScroll}}<div class=\"preloader
       // infinite-scroll-preloader\"></div>{{/if}}");
 
