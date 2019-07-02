@@ -21,14 +21,14 @@ var routes = [
 		  	      <div id="idx-page-content-home" class="page-content ptr-content">
 		  	    	<div class="ptr-preloader"><div class="preloader"></div><div class="ptr-arrow"></div></div>
 				  	  {{#each data}}
-		                  <div key="{{dashId}}" class="card">
+		                  {{#if dashId}}<div key="{{dashId}}" class="card">
 		                  	<div class="card-header">
 		                  		{{name}} {{#if listId}}<a href="/showMList?_lid={{listId}}"><i class="icon f7-icons">arrow_right</i></a>{{/if}}
 		                  	</div>
 		                  	<div class="card-content">
 		    					<div id="id-chart-{{dashId}}"></div>
 		    				</div>
-		                  </div>
+		                  </div>{{/if}}
 				  	  {{/each}}
 		  	      </div>
 		  	    </div>`
@@ -533,7 +533,6 @@ var routes = [
 
 var _scd=null;
 if(!window.iwb)window.iwb={};
-
 iwb.serverUrl='/app/';
 iwb.debug=true;
 
@@ -1033,11 +1032,7 @@ iwb.loadCombo = function(cmb, params){
 			if(data[qi].id==selected)res.push(data[qi].dsc);
 		}
 		ctrl.append(s);
-		// console.log('as',selected, s);
 		iwb.app.smartSelect.create(cmb);
-		// $$(cmb.replace('idx-','id-')).find('.item-after').text(res.join(',
-		// '));
-		// $$(cmb.replace('idx-','id-')).show();
 	}});
 }
 
@@ -1092,7 +1087,7 @@ iwb.prepareMainMenu=function(){
 }
 iwb.home=false;
 iwb.goHome=function(){
-	iwb.app.views.main.router.navigate('/home');
+	iwb.app.views.main.router.navigate(_scd && _scd.homePageId ? '/showMPage?_tid='+_scd.homePageId:'/home');
 	iwb.home=!0;
 }
 
@@ -1105,10 +1100,12 @@ iwb.reLogin=function(afterCfg){
 	if(ls){
 		var reUserName = ls.getItem("userName");
 		var rePassWord = ls.getItem("passWord"); 
+		var reCusId = ls.getItem("cusId")||0; 
+		var reLocale = ls.getItem("locale")||'en'; 
 		if(reUserName && rePassWord){
 			iwb.app.preloader.show();
-			Framework7.request({url:iwb.serverUrl + 'ajaxAuthenticateUser?d=1&c=1&_mobile=0&_mobile_device_id='+iwb.deviceId+'&customizationId=0&locale=tr',
-		    	data:{userName:reUserName, passWord:rePassWord},dataType: 'json', 
+			Framework7.request({url:iwb.serverUrl + 'ajaxAuthenticateUser?d=1&c=1&_mobile=0&_mobile_device_id='+iwb.deviceId,
+		    	data:{userName:reUserName, passWord:rePassWord, customizationId:reCusId, locale: reLocale},dataType: 'json', 
 		    	success:function(j){
 		    		iwb.app.preloader.hide();
 					if(j.success){
@@ -1197,7 +1194,6 @@ iwb.app = new Framework7({
   routes: routes,
   methods:{
 	test:function(){
-		alert('test')
 	}  
   },
   on: {

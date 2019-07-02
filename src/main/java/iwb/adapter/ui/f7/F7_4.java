@@ -94,14 +94,403 @@ public class F7_4 implements ViewMobileAdapter {
     return buf;
   }
 
+  
+	private StringBuilder serializeQueryData(W5QueryResult qr) {
+		int customizationId = (Integer) qr.getScd().get("customizationId");
+		String xlocale = (String) qr.getScd().get("locale");
+		String userIdStr = qr.getScd().containsKey("userId") ? qr.getScd().get("userId").toString() : null;
+		List datas = qr.getData();
+		StringBuilder buf = new StringBuilder();
+		buf.append("{\"success\":").append(qr.getErrorMap().isEmpty())
+				.append(",\"queryId\":").append(qr.getQueryId())
+				.append(",\"execDttm\":\"")
+				.append(GenericUtil.uFormatDateTime(new Date())).append("\"");
+		boolean dismissNull = qr.getRequestParams()!=null && GenericUtil.uInt(qr.getRequestParams(), "_dismissNull")!=0;
+		if (qr.getErrorMap().isEmpty()) {
+			buf.append(",\n\"data\":["); // ana
+			if (!GenericUtil.isEmpty(datas)) {
+				boolean bx = false;
+				boolean isMap = (datas.get(0) instanceof Map);
+				
+				
+				for (Object o : datas) {
+					if (bx)
+						buf.append(",\n");
+					else
+						bx = true;
+					buf.append("{"); // satir
+					boolean b = false;
+					for (W5QueryField f : qr.getNewQueryFields()) {
+						Object obj = isMap ? ((Map)o).get(f.getDsc()) : ((Object[])o)[f.getTabOrder() - 1];
+						if(obj==null && dismissNull)continue;
+						if (b)
+							buf.append(",");
+						else
+							b = true;
+						if (f.getPostProcessTip() == 9)
+							buf.append("\"_");
+						else
+							buf.append("\"");
+						buf.append(f.getPostProcessTip() == 6 ? f.getDsc()
+								.substring(1) : f.getDsc());
+						if (f.getFieldTip() == 5) {// boolean
+							buf.append("\":").append(GenericUtil.uInt(obj) != 0);
+							continue;
+						}
+						if (f.getFieldTip() == 6) {// auto
+							buf.append("\":");
+							if (obj == null || obj.toString().equals("0"))
+								buf.append("null");
+							else if (GenericUtil.uInt(obj) != 0)
+								buf.append(obj);
+							else
+								buf.append("\"").append(obj).append("\"");
+							continue;
+						} else if(f.getFieldTip() == 8) {
+							buf.append("\":");
+							if (obj == null)buf.append("null");
+							else if(obj instanceof Map)buf.append(GenericUtil.fromMapToJsonString2Recursive((Map)obj));
+							else if(obj instanceof List)buf.append(GenericUtil.fromListToJsonString2Recursive((List)obj));
+							else buf.append(obj);
+							continue;
+						}
+						
+						buf.append("\":\"");
+						if (obj != null)
+							switch (f.getPostProcessTip()) { // queryField PostProcessTip
+							case	15://convert to []
+								buf.setLength(buf.length()-1);
+								buf.append("[").append(obj).append("]");
+								continue;
+							case 3:
+								buf.append(GenericUtil.onlyHTMLToJS(obj
+										.toString()));
+								break;
+							case 8:
+								buf.append(GenericUtil.stringToHtml2(obj));
+								break;
+							case 20: // user LookUp
+								buf.append(obj)
+										.append("\",\"")
+										.append(f.getDsc())
+										.append("_qw_\":\"")
+										.append(UserUtil.getUserName(GenericUtil.uInt(obj)));
+								break;
+							case 21: // users LookUp
+								String[] ids = ((String) obj).split(",");
+								if (ids.length > 0) {
+									String res = "";
+									for (String s : ids) {
+										res += ","+ UserUtil.getUserName(GenericUtil.uInt(s));
+									}
+									buf.append(obj).append("\",\"")
+											.append(f.getDsc())
+											.append("_qw_\":\"")
+											.append(res.substring(1));
+								}
+								break;
+							case 53: // User LookUp Real Name
+								buf.append(obj)
+										.append("\",\"")
+										.append(f.getDsc())
+										.append("_qw_\":\"")
+										.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
+								break;
+							case 54: // Users LookUp Real Name
+								String[] ids11 = ((String) obj).split(",");
+								if (ids11.length > 0) {
+									String res = "";
+									for (String s : ids11) {
+										res += ","+ UserUtil.getUserDsc(GenericUtil.uInt(s));
+									}
+									buf.append(obj).append("\",\"")
+											.append(f.getDsc())
+											.append("_qw_\":\"")
+											.append(res.substring(1));
+								}
+								break;
+							case 22:
+							case 23: // roles: TODO
+								buf.append(obj);
+								break;
+							case 1:// duz
+								buf.append(obj);
+								break;
+							case 2: // locale filtresinden gececek
+								buf.append(LocaleMsgCache.get2(
+										customizationId, xlocale,
+										obj.toString()));
+								break;
+							case 10:
+							case 11: // demek ki static lookup'li deger
+										// tutulacak
+								buf.append(GenericUtil.stringToJS2(obj
+										.toString()));
+								if (f.getLookupQueryId() == 0)
+									break;
+								W5LookUp lookUp = FrameworkCache.getLookUp(
+										qr.getScd(), f.getLookupQueryId());
+								if (lookUp == null)
+									break;
+								buf.append("\",\"").append(f.getDsc())
+										.append("_qw_\":\"");
+								String[] objs = f.getPostProcessTip() == 11 ? ((String) obj)
+										.split(",") : new String[] { obj
+										.toString() };
+								boolean bz = false;
+								if(lookUp.get_detayMap()!=null)for (String q : objs) {
+									if (bz)
+										buf.append(", ");
+									else
+										bz = true;
+									W5LookUpDetay d = lookUp.get_detayMap()
+											.get(q);
+									if (d != null) {
+										String s = d.getDsc();
+										if (s != null) {
+											s = LocaleMsgCache.get2(
+														customizationId,
+														xlocale, s);
+											buf.append(GenericUtil
+													.stringToJS2(s));
+										}
+									} else {
+										buf.append("???: ").append(q);
+									}
+								}
+								break;
+							case 13:
+							case 12:// table Lookup
+								buf.append(GenericUtil.stringToJS2(obj
+										.toString()));
+								break;
+							case	48://comment extra info
+								String[] ozc = ((String) obj).split(";");//commentCount;commentUserId;lastCommentDttm;viewUserIds-msg
+								int ndx = ozc[3].indexOf('-');
+								buf.append(ozc[0]).append("\",\"").append(FieldDefinitions.queryFieldName_CommentExtra)
+									.append("\":{\"last_dttm\":\"").append(ozc[2])
+									.append("\",\"user_id\":").append(ozc[1])
+									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
+									.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userIdStr))
+									.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
+									.append("\"}");
+								continue;
+//								break;
+							case 49:// approval _qw_
+								String[] ozs = ((String) obj).split(";");
+								int appId = GenericUtil.uInt(ozs[1]);// approvalId:
+																	// kendisi
+																	// yetkili
+																	// ise + ,
+																	// aksi
+																	// halde -
+								int appStepId = GenericUtil.uInt(ozs[2]);// approvalStepId
+								if (appStepId != 998
+										&& !GenericUtil.accessControl(
+												qr.getScd(),
+												(short) 1,
+												ozs.length > 3 ? ozs[3] : null,
+												ozs.length > 4 ? ozs[4] : null))
+									buf.append("-");
+								buf.append(ozs[2]);
+								W5Workflow appr = FrameworkCache.getWorkflow(qr.getScd(), appId);
+								String appStepDsc = "";
+								if (appr != null
+										&& appr.get_approvalStepMap().get(
+												Math.abs(appStepId)) != null)
+									appStepDsc = appr.get_approvalStepMap()
+											.get(Math.abs(appStepId)).getDsc();
+
+								buf.append("\",\"pkpkpk_arf_id\":")
+										.append(ozs[0])
+										.append(",\"")
+										.append(f.getDsc())
+										.append("_qw_\":\"")
+										.append(LocaleMsgCache.get2(
+												customizationId, xlocale,
+												appStepDsc));
+								if (ozs.length > 3 && ozs[3] != null
+										&& ozs[3].length() > 0) {// roleIds
+									buf.append("\",\"app_role_ids_qw_\":\"");
+									String[] roleIds = ozs[3].split(",");
+									Map<Integer, String> roles = FrameworkCache.wRoles.get(customizationId);
+									if(roles!=null)for (String rid : roleIds) {
+										buf.append(
+												roles.get(
+														GenericUtil.uInt(rid)) != null ? roles.get(GenericUtil
+																.uInt(rid))
+														: "null").append(", ");
+									} else buf.append("null, ");
+									buf.setLength(buf.length() - 2);
+								}
+								if (ozs.length > 4 && ozs[4] != null
+										&& ozs[4].length() > 0) {// userIds
+									buf.append("\",\"app_user_ids_qw_\":\"");
+									String[] userIds = ozs[4].split(",");
+									for (String uid : userIds) {
+										buf.append(
+												UserUtil.getUserDsc(GenericUtil.uInt(uid)))
+												.append(", ");
+									}
+									buf.setLength(buf.length() - 2);
+								}
+								break;
+							/*
+							 * case 49://approval _qw_ buf.append(obj); int
+							 * appStepId = PromisUtil.uInt(obj);
+							 * buf.append("\",\""
+							 * ).append(f.getDsc()).append("_qw_\":\""
+							 * ).append(PromisCache
+							 * .wApprovals.get(f.getLookupQueryId
+							 * ()).get_approvalStepMap
+							 * ().get(Math.abs(appStepId)).getDsc()); break;
+							 */
+							
+							default:
+								buf.append(GenericUtil.stringToJS2(obj
+										.toString()));
+							}
+						buf.append("\"");
+
+					}
+					if (qr.getQuery().getShowParentRecordFlag() != 0 && !isMap && ((Object[])o)[((Object[])o).length - 1] != null) {
+						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":")
+								.append(serializeTableHelperList(
+										qr.getScd(),
+										(List<W5TableRecordHelper>) ((Object[])o)[((Object[])o).length - 1]));
+					}
+					buf.append("}"); // satir
+				}
+			}
+			buf.append("],\n\"browseInfo\":{\"startRow\":")
+					.append(qr.getStartRowNumber())
+					.append(",\"fetchCount\":")
+					.append(qr.getFetchRowCount())
+					.append(",\"totalCount\":")
+					.append(qr.getResultRowCount()).append("}");
+			if (FrameworkSetting.debug && GenericUtil.uInt(qr.getScd().get("mobile"))==0 && qr.getExecutedSql() != null) {
+				buf.append(",\n\"sql\":\"")
+						.append(GenericUtil.stringToJS2(GenericUtil.replaceSql(
+								qr.getExecutedSql(),
+								qr.getSqlParams()))).append("\"");
+			}
+			if (!GenericUtil.isEmpty(qr.getExtraOutMap()))
+				buf.append(",\n \"extraOutMap\":").append(
+						GenericUtil.fromMapToJsonString2Recursive(qr
+								.getExtraOutMap()));
+		} else
+			buf.append(",\n\"errorType\":\"validation\",\n\"errors\":")
+					.append(serializeValidatonErrors(qr.getErrorMap(),
+							xlocale));
+
+		return buf.append("}");
+	}
+	
   public StringBuilder serializePage(W5PageResult pageResult) {
     StringBuilder buf = new StringBuilder();
     W5Page p = pageResult.getPage();
-    buf.append(p.getCode());
+    buf.append(GenericUtil.isEmpty(p.getCode()) ? "{\"success\":true}":p.getCode());
     if (!GenericUtil.isEmpty(p.getCssCode())) {
       int ix = buf.lastIndexOf("}");
       if (ix > -1) buf.insert(ix, ",style:`" + p.getCssCode() + "`");
     }
+    if(!GenericUtil.isEmpty(pageResult.getPageObjectList())) {
+    	StringBuilder sb = new StringBuilder();
+    	if(buf.indexOf("template:")==-1) {
+    		StringBuilder code = new StringBuilder(), data = new StringBuilder();
+    		data.append("_tid:").append(p.getTemplateId());
+    		code.append("methods:{clickMenu:function(){},clickLink:function(url){iwb.app.views.main.router.navigate(url);}},on:{pageInit:function(){var self=this;");
+    		sb.append(", template:`<div data-page=\"iwb-page-").append(p.getTemplateId()).append("\" class=\"page\"><div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"title\">")
+    			.append(LocaleMsgCache.get2(pageResult.getScd(),p.getDsc()))
+    			.append("</div><div class=\"right\"></div></div></div> <div class=\"page-content\">\n");
+    		boolean lastBadge = false;
+    		for(Object o:pageResult.getPageObjectList()) if(o!=null && !(o instanceof String)){	
+    			if(lastBadge && !(o instanceof W5QueryResult)) {
+    				sb.append("</div></div>");
+    				lastBadge = false;
+    			}
+    			if(o instanceof W5BIGraphDashboard) {
+    				W5BIGraphDashboard gd = (W5BIGraphDashboard)o;
+        			String pk = "o9_" + gd.getGraphDashboardId();
+        			sb.append("<div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),gd.getLocaleMsgKey()));
+    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+    				sb.append("</div><div class=\"card-content card-content-padding\" id=\"idx-obj-").append(pk).append("\"></div></div>");
+    				code.append("\niwb.graph(").append(serializeGraphDashboard(gd, pageResult.getScd())).append(",'idx-obj-").append(pk).append("');");
+	    		} else if(o instanceof M5ListResult) {
+	    			M5ListResult lr = (M5ListResult)o;
+        			String pk = "o11_" + lr.getListId();
+        			sb.append("<div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),lr.getList().getLocaleMsgKey()));
+    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+    				sb.append("</div><div class=\"card-content\" id=\"idx-obj-").append(pk).append("\">");
+					if(lr.getList().getListTip()<3)sb.append("<div class=\"list\"><ul>");
+					sb.append(lr.getList().getHtmlDataCode().replace("data}}","data_"+lr.getListId()+"}}"));
+					if(lr.getList().getListTip()<3)sb.append("</ul></div>");
+    				sb.append("</div></div>");
+    				data.append(", data_").append(lr.getListId()).append(":[]");
+    				code.append("\niwb.request({url:'ajaxQueryData?_qid=").append(lr.getList().getQueryId()).append("', success:function(jj){self.$setState({data_").append(lr.getListId()).append(":jj.data||[]})}});");
+	    		} else if(o instanceof W5QueryResult) {
+	    			W5QueryResult qr = (W5QueryResult)o;
+        			String pk = "o10_" + qr.getQueryId();
+    				if(!lastBadge) {
+    					sb.append("<div class=\"block\" style=\"padding-left: inherit; padding-right: inherit; margin-bottom: 0;\"><div class=\"row\">");
+    				}
+    				lastBadge = true;
+    				sb.append("{{#if ").append(pk).append("}}<div class=\"col-50\"><div");
+    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+    				sb.append(" class=\"card bg-color-{{#if ").append(pk).append(".bgcolor}}{{").append(pk).append(".bgcolor}}{{else}}blue{{/if}}\" style=\"color:{{#if ")
+    					.append(pk).append(".color}}{{").append(pk)
+    					.append(".color}}{{else}}white{{/if}} \"><div class=\"card-content\" style=\"padding:5px 10px; text-align:right;font-size:2rem; display: grid;\"><div style=\"text-align: left;font-size: 1rem;\">{{")
+    					.append(pk).append(".title}}</div><div>{{").append(pk).append(".val}}</div></div></div></div>{{/if}}\n");
+    				if(!GenericUtil.isEmpty(qr.getData())) {
+    					data.append(",").append(pk).append(":").append(serializeQueryData((W5QueryResult)o)).append(".data[0]");
+    				}
+	    		}
+    		}
+			if(lastBadge)sb.append("</div></div>");
+    		
+    		code.append("}}");
+    		sb.append("`,").append(code).append(", data:function(){return {").append(data).append("}}");
+    		int ix = buf.lastIndexOf("}");
+            if (ix > -1) buf.insert(ix, sb.toString());
+    	} else {
+    		sb.append(", items:[");
+	    	for(Object o:pageResult.getPageObjectList()) {
+	    		if(o instanceof W5BIGraphDashboard) {
+	    			sb.append(serializeGraphDashboard((W5BIGraphDashboard)o, pageResult.getScd()));
+	    		} else if(o instanceof M5ListResult) {
+	    			sb.append(serializeList4Page((M5ListResult)o));
+	    		} else if(o instanceof W5QueryResult) {
+	    			sb.append(serializeQueryData((W5QueryResult)o));
+	    		} else sb.append("{}");
+	    		sb.append(",");
+	    	}
+	    	if(sb.length()>1) {
+	    		sb.setLength(sb.length()-1);
+	    		sb.append("]");
+	    		int ix = buf.lastIndexOf("}");
+	            if (ix > -1) buf.insert(ix, sb.toString());
+	    	}
+    	}
+    	
+    }
+    return buf;
+  }
+  private StringBuilder serializeList4Page(M5ListResult listResult) {
+	StringBuilder buf = new StringBuilder();
+    M5List l = listResult.getList();
+
+    String htmlDataCode = l.getHtmlDataCode();
+    if (htmlDataCode == null) htmlDataCode = ""; 
+
+    buf.append("{listId:")
+    .append(l.getListId())
+    .append(", queryId:").append(l.getQueryId()).append(", name:'")
+    .append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey()))
+    .append("'");
+    buf.append("\n}, template:`");
+    buf.append(htmlDataCode.replace("data}}","data_"+listResult.getListId()+"}}").replace("@click","_dummy")).append("`");    
+    buf.append("}");
+
     return buf;
   }
 
@@ -230,10 +619,11 @@ public class F7_4 implements ViewMobileAdapter {
         s2.append("<div class=\"searchbar-backdrop\"></div>");
       }
 
-      s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
+
+      if(l.getListTip()<3)s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
       if (!GenericUtil.isEmpty(htmlDataCode)) s2.append(htmlDataCode);
       if (l.getDefaultPageRecordNumber() > 0) s2.append("\n{{#if infiniteScroll}}<div><p class=\"row\"><button @click=\"moreLoad\" class=\"button col\">more...</button></p><p class=\"row\"></p></div>{{/if}}");
-      s2.append("</ul></div>");
+      if(l.getListTip()<3)s2.append("</ul></div>");
       // if(l.getDefaultPageRecordNumber()>0)s2.append("{{#if infiniteScroll}}<div class=\"preloader
       // infinite-scroll-preloader\"></div>{{/if}}");
 
