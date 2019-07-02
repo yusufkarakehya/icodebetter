@@ -400,7 +400,7 @@ public class F7_4 implements ViewMobileAdapter {
     		StringBuilder code = new StringBuilder(), data = new StringBuilder();
     		data.append("_tid:").append(p.getTemplateId());
     		code.append("methods:{clickMenu:function(){},clickLink:function(url){iwb.app.views.main.router.navigate(url);}},on:{pageInit:function(){var self=this;");
-    		sb.append(", template:`<div data-page=\"iwb-page-").append(p.getTemplateId()).append("\" class=\"page\"><div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"title\">")
+    		sb.append(", template:`<div data-page=\"iwb-page-").append(p.getTemplateId()).append("\" class=\"page\"><div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"left\"><a href=\"#\" class=\"link icon-only panel-open\" data-panel=\"left\"><i class=\"icon f7-icons if-not-md\">menu</i><i class=\"icon material-icons if-md\">menu</i></a></div><div class=\"title\">")
     			.append(LocaleMsgCache.get2(pageResult.getScd(),p.getDsc()))
     			.append("</div><div class=\"right\"></div></div></div> <div class=\"page-content\">\n");
     		boolean lastBadge = false;
@@ -427,7 +427,9 @@ public class F7_4 implements ViewMobileAdapter {
 					if(lr.getList().getListTip()<3)sb.append("</ul></div>");
     				sb.append("</div></div>");
     				data.append(", data_").append(lr.getListId()).append(":[]");
-    				code.append("\niwb.request({url:'ajaxQueryData?_qid=").append(lr.getList().getQueryId()).append("', success:function(jj){self.$setState({data_").append(lr.getListId()).append(":jj.data||[]})}});");
+    				code.append("\niwb.request({url:'ajaxQueryData?_qid=").append(lr.getList().getQueryId()).append("&limit=")
+    					.append(lr.getList().getDefaultPageRecordNumber()>0 ? lr.getList().getDefaultPageRecordNumber():50)
+    					.append("', success:function(jj){self.$setState({data_").append(lr.getListId()).append(":jj.data||[]})}});");
 	    		} else if(o instanceof W5QueryResult) {
 	    			W5QueryResult qr = (W5QueryResult)o;
         			String pk = "o10_" + qr.getQueryId();
