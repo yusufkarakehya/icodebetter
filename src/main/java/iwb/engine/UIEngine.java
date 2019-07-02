@@ -808,7 +808,9 @@ public class UIEngine {
 			}
 
 			for (int i = 1; requestParams.containsKey("_gid" + i) || requestParams.containsKey("_fid" + i)
-					|| requestParams.containsKey("_dvid" + i) || requestParams.containsKey("_lvid" + i); i++) { // extra
+					|| requestParams.containsKey("_dvid" + i) || requestParams.containsKey("_lvid" + i)
+					|| requestParams.containsKey("_gdid" + i) || requestParams.containsKey("_mlid" + i)
+					|| requestParams.containsKey("_qid" + i); i++) { // extra
 																												// olarak
 																												// _gid1=12&_gid=2
 																												// gibi
@@ -826,9 +828,20 @@ public class UIEngine {
 					objectTip = -2;
 				}
 				if (objectId == 0) {
-					objectId = GenericUtil.uInt(requestParams.get("_lvid" + i)); // list
-																					// view
+					objectId = GenericUtil.uInt(requestParams.get("_lvid" + i)); // list view
 					objectTip = -7;
+				}
+				if (objectId == 0) {
+					objectId = GenericUtil.uInt(requestParams.get("_qid" + i)); // list view
+					objectTip = -4;
+				}
+				if (objectId == 0) {
+					objectId = GenericUtil.uInt(requestParams.get("_mlid" + i)); // list view
+					objectTip = -11;
+				}
+				if (objectId == 0) {
+					objectId = GenericUtil.uInt(requestParams.get("_gdid" + i)); // list view
+					objectTip = -9;
 				}
 				W5PageObject o = new W5PageObject();
 				o.setObjectTip(objectTip);
