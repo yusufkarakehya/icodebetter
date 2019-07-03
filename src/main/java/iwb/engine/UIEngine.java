@@ -980,7 +980,7 @@ public class UIEngine {
 						break;
 					case 10: // Badge
 					case 22: // Gauge
-						obz = queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
+						obz = metaDataDao.getQueryResult(scd, o.getObjectId());//queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
 						break;
 					case 5: // dbFunc
 						obz = scriptEngine.executeGlobalFunc(scd, o.getObjectId(), requestParams, (short) 1);

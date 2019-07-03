@@ -400,9 +400,9 @@ public class F7_4 implements ViewMobileAdapter {
     		StringBuilder code = new StringBuilder(), data = new StringBuilder();
     		data.append("_tid:").append(p.getTemplateId());
     		code.append("methods:{clickMenu:function(){},clickLink:function(url){iwb.app.views.main.router.navigate(url);}},on:{pageInit:function(){var self=this;");
-    		sb.append(", template:`<div data-page=\"iwb-page-").append(p.getTemplateId()).append("\" class=\"page\"><div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"left\"><a href=\"#\" class=\"link icon-only panel-open\" data-panel=\"left\"><i class=\"icon f7-icons if-not-md\">menu</i><i class=\"icon material-icons if-md\">menu</i></a></div><div class=\"title\">")
+    		sb.append(", template:`<div data-page=\"iwb-page-").append(p.getTemplateId()).append("\" class=\"page\">\n <div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"left\"><a href=\"#\" class=\"link icon-only panel-open\" data-panel=\"left\"><i class=\"icon f7-icons if-not-md\">menu</i><i class=\"icon material-icons if-md\">menu</i></a></div><div class=\"title\">")
     			.append(LocaleMsgCache.get2(pageResult.getScd(),p.getDsc()))
-    			.append("</div><div class=\"right\"></div></div></div> <div class=\"page-content\">\n");
+    			.append("</div><div class=\"right\"></div></div></div>\n <div class=\"page-content\">\n");
     		boolean lastBadge = false, lastGauge = false;
     		for(Object o:pageResult.getPageObjectList()) if(o!=null && !(o instanceof String)){	
     			if(lastBadge && (!(o instanceof W5QueryResult) || ((W5QueryResult)o).getQuery().getQueryTip()!=21)) {
@@ -416,14 +416,14 @@ public class F7_4 implements ViewMobileAdapter {
     			if(o instanceof W5BIGraphDashboard) {
     				W5BIGraphDashboard gd = (W5BIGraphDashboard)o;
         			String pk = "o9_" + gd.getGraphDashboardId();
-        			sb.append("<div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),gd.getLocaleMsgKey()));
+        			sb.append("\n  	<div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),gd.getLocaleMsgKey()));
     				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
     				sb.append("</div><div class=\"card-content card-content-padding\" id=\"idx-obj-").append(pk).append("\"></div></div>");
-    				code.append("\niwb.graph(").append(serializeGraphDashboard(gd, pageResult.getScd())).append(",'idx-obj-").append(pk).append("');");
+    				code.append("\n iwb.graph(").append(serializeGraphDashboard(gd, pageResult.getScd())).append(",'idx-obj-").append(pk).append("');");
 	    		} else if(o instanceof M5ListResult) {
 	    			M5ListResult lr = (M5ListResult)o;
         			String pk = "o11_" + lr.getListId();
-        			sb.append("<div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),lr.getList().getLocaleMsgKey()));
+        			sb.append("\n  <div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),lr.getList().getLocaleMsgKey()));
     				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
     				sb.append("</div><div class=\"card-content\" id=\"idx-obj-").append(pk).append("\">");
 					if(lr.getList().getListTip()==1 || lr.getList().getListTip()==4)sb.append("<div class=\"list\"><ul>");
@@ -440,7 +440,7 @@ public class F7_4 implements ViewMobileAdapter {
 	    			switch(qr.getQuery().getQueryTip()) {
 	    			case	21://badge
 	    				if(!lastBadge) {
-	    					sb.append("<div class=\"block\" style=\"padding-left: inherit; padding-right: inherit; margin-bottom: 0;\"><div class=\"row\">");
+	    					sb.append("\n  <div class=\"block\" style=\"padding-left: inherit; padding-right: inherit; margin-bottom: 0;\"><div class=\"row\">");
 	    				}
 	    				lastBadge = true;
 	    				sb.append("{{#if ").append(pk).append("}}<div class=\"col-50\"><div");
@@ -449,13 +449,10 @@ public class F7_4 implements ViewMobileAdapter {
 	    					.append(pk).append(".color}}{{").append(pk)
 	    					.append(".color}}{{else}}white{{/if}} \"><div class=\"card-content\" style=\"padding:5px 10px; text-align:right;font-size:2rem; display: grid;\"><div style=\"text-align: left;font-size: 1rem;\">{{")
 	    					.append(pk).append(".title}}</div><div>{{").append(pk).append(".val}}</div></div></div></div>{{/if}}\n");
-	    				if(!GenericUtil.isEmpty(qr.getData())) {
-	    					data.append(",").append(pk).append(":").append(serializeQueryData((W5QueryResult)o)).append(".data[0]");
-	    				}
     				break;
 	    			case	22://gauge
 	    				if(!lastGauge) {
-	    					sb.append("<div class=\"block block-strong\"><div class=\"row\">");
+	    					sb.append("\n  <div class=\"block block-strong\"><div class=\"row\">");
 	    				}
 	    				lastGauge = true;
 	    				sb.append("{{#if ").append(pk).append("}}<div class=\"col-50\"><div");
@@ -463,16 +460,14 @@ public class F7_4 implements ViewMobileAdapter {
 	    				sb.append(" class=\"gauge gauge-init\" data-type=\"{{#if ").append(pk).append(".xtype}}{{").append(pk).append(".xtype}}{{else}}semicircle{{/if}}\" data-value=\"{{").append(pk).append(".xval}}\" data-value-text=\"{{")
 	    					.append(pk).append(".val}}\" data-value-text-color=\"{{").append(pk).append(".color}}\" data-border-color=\"{{")
 	    					.append(pk).append(".color}}\" data-label-text=\"{{").append(pk).append(".title}}\"></div></div>{{/if}}\n");
-	    				if(!GenericUtil.isEmpty(qr.getData())) {
-	    					data.append(",").append(pk).append(":").append(serializeQueryData((W5QueryResult)o)).append(".data[0]");
-	    				}
 	    				break;
 	    			}
+    				code.append("\n iwb.request({url:'ajaxQueryData?_qid=").append(qr.getQuery().getQueryId()).append("', success:function(jj){self.$setState({").append(pk).append(":jj.data[0]||{}})}});");
 	    		}
     		}
 			if(lastBadge)sb.append("</div></div>");
 			else if(lastGauge)sb.append("</div></div>");
-    		
+			sb.append("\n\n </div>\n</div>");
     		code.append("}}");
     		sb.append("`,").append(code).append(", data:function(){return {").append(data).append("}}");
     		int ix = buf.lastIndexOf("}");
