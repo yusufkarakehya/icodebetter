@@ -403,11 +403,15 @@ public class F7_4 implements ViewMobileAdapter {
     		sb.append(", template:`<div data-page=\"iwb-page-").append(p.getTemplateId()).append("\" class=\"page\"><div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"left\"><a href=\"#\" class=\"link icon-only panel-open\" data-panel=\"left\"><i class=\"icon f7-icons if-not-md\">menu</i><i class=\"icon material-icons if-md\">menu</i></a></div><div class=\"title\">")
     			.append(LocaleMsgCache.get2(pageResult.getScd(),p.getDsc()))
     			.append("</div><div class=\"right\"></div></div></div> <div class=\"page-content\">\n");
-    		boolean lastBadge = false;
+    		boolean lastBadge = false, lastGauge = false;
     		for(Object o:pageResult.getPageObjectList()) if(o!=null && !(o instanceof String)){	
-    			if(lastBadge && !(o instanceof W5QueryResult)) {
+    			if(lastBadge && (!(o instanceof W5QueryResult) || ((W5QueryResult)o).getQuery().getQueryTip()!=21)) {
     				sb.append("</div></div>");
     				lastBadge = false;
+    			}
+    			if(lastGauge && (!(o instanceof W5QueryResult) || ((W5QueryResult)o).getQuery().getQueryTip()!=22)) {
+    				sb.append("</div></div>");
+    				lastGauge = false;
     			}
     			if(o instanceof W5BIGraphDashboard) {
     				W5BIGraphDashboard gd = (W5BIGraphDashboard)o;
@@ -432,23 +436,42 @@ public class F7_4 implements ViewMobileAdapter {
     					.append("', success:function(jj){self.$setState({data_").append(lr.getListId()).append(":jj.data||[]})}});");
 	    		} else if(o instanceof W5QueryResult) {
 	    			W5QueryResult qr = (W5QueryResult)o;
-        			String pk = "o10_" + qr.getQueryId();
-    				if(!lastBadge) {
-    					sb.append("<div class=\"block\" style=\"padding-left: inherit; padding-right: inherit; margin-bottom: 0;\"><div class=\"row\">");
-    				}
-    				lastBadge = true;
-    				sb.append("{{#if ").append(pk).append("}}<div class=\"col-50\"><div");
-    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
-    				sb.append(" class=\"card bg-color-{{#if ").append(pk).append(".bgcolor}}{{").append(pk).append(".bgcolor}}{{else}}blue{{/if}}\" style=\"color:{{#if ")
-    					.append(pk).append(".color}}{{").append(pk)
-    					.append(".color}}{{else}}white{{/if}} \"><div class=\"card-content\" style=\"padding:5px 10px; text-align:right;font-size:2rem; display: grid;\"><div style=\"text-align: left;font-size: 1rem;\">{{")
-    					.append(pk).append(".title}}</div><div>{{").append(pk).append(".val}}</div></div></div></div>{{/if}}\n");
-    				if(!GenericUtil.isEmpty(qr.getData())) {
-    					data.append(",").append(pk).append(":").append(serializeQueryData((W5QueryResult)o)).append(".data[0]");
-    				}
+        			String pk = "o"+qr.getQuery().getQueryTip()+"_" + qr.getQueryId();
+	    			switch(qr.getQuery().getQueryTip()) {
+	    			case	21://badge
+	    				if(!lastBadge) {
+	    					sb.append("<div class=\"block\" style=\"padding-left: inherit; padding-right: inherit; margin-bottom: 0;\"><div class=\"row\">");
+	    				}
+	    				lastBadge = true;
+	    				sb.append("{{#if ").append(pk).append("}}<div class=\"col-50\"><div");
+	    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+	    				sb.append(" class=\"card bg-color-{{#if ").append(pk).append(".bgcolor}}{{").append(pk).append(".bgcolor}}{{else}}blue{{/if}}\" style=\"color:{{#if ")
+	    					.append(pk).append(".color}}{{").append(pk)
+	    					.append(".color}}{{else}}white{{/if}} \"><div class=\"card-content\" style=\"padding:5px 10px; text-align:right;font-size:2rem; display: grid;\"><div style=\"text-align: left;font-size: 1rem;\">{{")
+	    					.append(pk).append(".title}}</div><div>{{").append(pk).append(".val}}</div></div></div></div>{{/if}}\n");
+	    				if(!GenericUtil.isEmpty(qr.getData())) {
+	    					data.append(",").append(pk).append(":").append(serializeQueryData((W5QueryResult)o)).append(".data[0]");
+	    				}
+    				break;
+	    			case	22://gauge
+	    				if(!lastGauge) {
+	    					sb.append("<div class=\"block block-strong\"><div class=\"row\">");
+	    				}
+	    				lastGauge = true;
+	    				sb.append("{{#if ").append(pk).append("}}<div class=\"col-50\"><div");
+	    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+	    				sb.append(" class=\"gauge gauge-init\" data-type=\"{{#if ").append(pk).append(".xtype}}{{").append(pk).append(".xtype}}{{else}}semicircle{{/if}}\" data-value=\"{{").append(pk).append(".xval}}\" data-value-text=\"{{")
+	    					.append(pk).append(".val}}\" data-value-text-color=\"{{").append(pk).append(".color}}\" data-border-color=\"{{")
+	    					.append(pk).append(".color}}\" data-label-text=\"{{").append(pk).append(".title}}\"></div></div>{{/if}}\n");
+	    				if(!GenericUtil.isEmpty(qr.getData())) {
+	    					data.append(",").append(pk).append(":").append(serializeQueryData((W5QueryResult)o)).append(".data[0]");
+	    				}
+	    				break;
+	    			}
 	    		}
     		}
 			if(lastBadge)sb.append("</div></div>");
+			else if(lastGauge)sb.append("</div></div>");
     		
     		code.append("}}");
     		sb.append("`,").append(code).append(", data:function(){return {").append(data).append("}}");
