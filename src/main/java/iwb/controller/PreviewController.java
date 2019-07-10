@@ -769,7 +769,15 @@ public class PreviewController implements InitializingBean {
 		logger.info("hndAjaxAuthenticateUser(" + request.getParameter("userName") + ")");
 		String projectId = UserUtil.getProjectId(request,"preview/");
 		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
-		if(po.getSessionQueryId()==0){
+		if(po.getSessionQueryId()==0)try{
+			Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			if(scd!=null)
+				response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun
+			else 
+				response.getWriter().write("{\"success\":true}");
+			response.getWriter().close();
+			return;
+		} catch (Exception e) {
 			response.getWriter().write("{\"success\":true}");
 			response.getWriter().close();
 			return;

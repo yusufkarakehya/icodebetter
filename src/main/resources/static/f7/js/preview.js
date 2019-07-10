@@ -372,7 +372,7 @@ var routes = [
 	            method: 'POST', data: {},
 	            // dataType: 'json',
 	            success: function (d) {
-	                _scd = null;
+	                _scd = d && d.dession ? d.dession: null;
 	                iwb.serverUrl = f.url;
 	                var ls = window.localStorage;
 	                ls.setItem('userName', f.user_name || '');
@@ -380,7 +380,11 @@ var routes = [
 	                if (iwb.iwb) ls.setItem('cusId', f.cusId || '0');
 	                iwb.app.card.close('#idx-card-project-' + id);
 	                document.body.className=f.theme||'';
-	                iwb.reLogin();
+	                if(_scd){
+		    			iwb.home = false;
+            			iwb.prepareMainMenu();
+	                } else
+	                	iwb.reLogin();
 	
 	            }, error: function (d) {
 	                iwb.app.toast.show({
