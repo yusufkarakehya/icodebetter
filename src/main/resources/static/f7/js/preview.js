@@ -370,9 +370,9 @@ var routes = [
 	        Framework7.request({
 	            url: f.url + 'ajaxPing?d=1&c=1&.r=' + Math.random(),
 	            method: 'POST', data: {},
-	            // dataType: 'json',
+	            dataType: 'json',
 	            success: function (d) {
-	                _scd = d && d.dession ? d.dession: null;
+	                _scd = d && d.session ? d.session: null;
 	                iwb.serverUrl = f.url;
 	                var ls = window.localStorage;
 	                ls.setItem('userName', f.user_name || '');

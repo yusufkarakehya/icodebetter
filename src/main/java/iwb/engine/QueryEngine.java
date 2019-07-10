@@ -388,6 +388,10 @@ public class QueryEngine {
 																			// row_tip,
 
 			Map<String, W5QueryField> m1 = new HashMap<String, W5QueryField>();
+			if(queryResult.getNewQueryFields()==null) {
+				queryResult.setNewQueryFields(new ArrayList());
+				queryResult.getNewQueryFields().addAll(queryResult.getQuery().get_queryFields());
+			}
 			for (W5QueryField f : queryResult.getNewQueryFields()) {
 				m1.put(f.getDsc(), f);
 			}
