@@ -3842,7 +3842,7 @@ public class PostgreSQL extends BaseDAO {
 		W5Table mainTable = queryResult.getMainTable();
 		int customizationId = (Integer) queryResult.getScd().get("customizationId");
 		String projectId =(String) queryResult.getScd().get("projectId");
-		String pkFieldName = query.getQueryTip() == 9 ? query.get_queryFields().get(0).getDsc() : "pkpkpk_id";
+		String pkFieldName = query.getQueryTip() == 9 || query.getQueryTip() == 21 || query.getQueryTip() == 22 ? query.get_queryFields().get(0).getDsc() : "pkpkpk_id";
 		if (FrameworkSetting.vcs && mainTable.getVcsFlag() != 0 /*
 																 * && query.getSqlSelect().startsWith("x.*")
 																 */) { // VCS
