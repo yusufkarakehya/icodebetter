@@ -105,6 +105,12 @@ background-color:inherit;
     transition: margin .2s;
 }
 
+.tab-grid summary{
+    flex:0 0 220px;
+    padding:1rem;
+    border-left:1px solid rgba(128,128,128,.1);
+}
+
 .tab-grid nav[hide], .tab-grid .sf-hidden{
     margin-left:-221px;
 }

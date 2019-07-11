@@ -1717,7 +1717,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 	}
 
 	public W5GlobalFuncResult getGlobalFuncResult(Map<String, Object> scd, int globalFuncId) {
-		String projectId = FrameworkCache.getProjectId(scd, "20." + globalFuncId);
+		String projectId = FrameworkCache.getProjectId(scd, globalFuncId < -1 ? ("40."+(-globalFuncId)):("20." + globalFuncId));
 		if (globalFuncId < -1) {
 			globalFuncId = (Integer) find(
 					"select t.objectId from W5Form t where t.objectTip in (3,4) AND t.projectUuid=? AND t.formId=?",

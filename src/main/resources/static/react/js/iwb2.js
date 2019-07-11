@@ -110,6 +110,7 @@ iwb = {
   grids: {},
   label: {},
   forms: {},
+  charts: {},
   formConversions: {},
   formSmsMailTemplates: {},
   formBaseValues(id) {
@@ -5661,6 +5662,10 @@ class XMainGrid extends GridCommon {
         columnName =>
           (params += columnName + "," + (cmap[columnName] || 100) + ";")
       );
+      if(this.form){
+    	  var vals = this.form.getValues()
+    	  if(vals)for(var k in vals)if(vals[k]!='')params +='&'+k+'='+vals[k];
+      }
       iwb.showModal({
         title: "REPORTS / BI",
         footer: false,
@@ -5825,6 +5830,109 @@ class XMainGrid extends GridCommon {
             rows: result.data,
             totalCount: result.total_count
           });
+          
+          if(cfg.self.props.gauges)cfg.self.props.gauges.map((ox)=>{        	  
+              iwb.request({
+                  url: 'ajaxQueryData?_qid='+ox+'&.r='+Math.random(),
+                  self: cfg.self,
+                  params: tempParams,
+                  successCallback: (result2, cfg2) => {
+                	  if(!result2.data.length)return;
+                	  var j = result2.data[0];
+                	   var options = {
+                			      chart: {
+                			        height: 260,
+                			        type: 'radialBar',
+                			      },
+                			      plotOptions: {
+                			        radialBar: {
+                			          startAngle: -135,
+                			          endAngle: 225,
+                			           hollow: {
+                			            margin: 0,
+                			            size: '70%',
+                			            background: '#fff',
+                			            image: undefined,
+                			            imageOffsetX: 0,
+                			            imageOffsetY: 0,
+                			            position: 'front',
+                			            dropShadow: {
+                			              enabled: true,
+                			              top: 0,
+                			              left: 0,
+                			              blur: 4,
+                			              opacity: 0.24
+                			            }
+                			          },
+                			      /*    track: {
+                			            background: '#fff',
+                			            strokeWidth: '67%',
+                			            margin: 0, // margin is in pixels
+                			            dropShadow: {
+                			              enabled: true,
+                			              top: -3,
+                			              left: 0,
+                			              blur: 4,
+                			              opacity: 0.35
+                			            }
+                			          },*/
+
+                			          dataLabels: {
+                			            showOn: 'always',
+                			            name: {
+                			              offsetY: -10,
+                			              show: true,
+                			              color: '#888',
+                			              fontSize: '17px'
+                			            },
+                			            value: {
+                			              formatter: function(val) {
+                			                return j.val;
+                			              },
+                			              color: '#111',
+                			              fontSize: '36px',
+                			              show: true,
+                			            }
+                			          }
+                			        }
+                			      },
+                			    /*  fill: {
+                			        type: 'gradient',
+                			        gradient: {
+                			          shade: 'dark',
+                			          type: 'horizontal',
+                			          shadeIntensity: 0.2,
+                			          gradientToColors: ['#ABE5A1'],
+                			          inverseColors: true,
+                			          opacityFrom: 1,
+                			          opacityTo: 1,
+                			          stops: [0, 100]
+                			        }
+                			      },*/
+//                			      colors: ['#f00'],
+                			      series: [100*j.xval],
+                			      stroke: {
+                			        lineCap: 'round'
+                			      },
+                			      labels: [j.title],
+
+                			    }
+
+                	   var xid = 'g-'+cfg2.self.props.id+'-'+ox;
+                	   if(iwb.charts[xid])iwb.charts[xid].destroy();
+              	        var chart = new ApexCharts(
+              	            document.getElementById(xid),
+              	            options
+              	        );
+              	        iwb.charts[xid] = chart;
+
+              	        chart.render();
+                  }
+              });
+
+          })
+          
+          
         },
         errorCallback: (error, cfg) => {
           cfg.self.setState({
@@ -6118,7 +6226,10 @@ class XMainGrid extends GridCommon {
           // marginRight:'.4rem'}}) )
         ),
         grid
-      )
+      ),
+      this.props.gauges && _('summary', {},this.props.gauges.map((ox)=>{
+    	  return _('div',{id:'g-'+this.props.id+'-'+ox},)
+      }))
     );
   }
 }
@@ -6654,8 +6765,7 @@ class XPage extends React.PureComponent {
             .then(
               result => {
                 if (result) {
-                  var f;
-                  eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
+                  var f = new Function('callAttributes', 'parentCt', result);
                   var serverComponent = f(callAttributes || {}, this);
                   if (serverComponent) {
                     if (callAttributes && callAttributes.modal) {
@@ -6880,8 +6990,7 @@ class XPage4Card extends React.PureComponent {
           .then(
             result => {
               if (result) {
-                var f;
-                eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
+                var f = new Function('callAttributes', 'parentCt', result);
                 var serverComponent = f(callAttributes || {}, this);
                 if (serverComponent) {
                   if (callAttributes && callAttributes.modal) {
@@ -7318,8 +7427,7 @@ class XMainPanel extends React.PureComponent {
           .then(
             result => {
               if (result) {
-                var f;
-                eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
+            	var f = new Function('callAttributes', 'parentCt', result);
                 var serverComponent = f(false, this);
                 if (serverComponent) {
                   serverComponent = _(
@@ -8059,7 +8167,7 @@ class XGraph extends React.Component {
   componentDidMount() {
     var dg = this.props.graph;
     var gid = "idG" + dg.graphId;
-    iwb.graphAmchart(dg, gid);
+    iwb.graph(dg, gid);
   }
   render() {
     return _("div", {
