@@ -5835,12 +5835,11 @@ class XMainGrid extends GridCommon {
         	  if(ox.graphId){
         		  if(!dashIgnore){
         		  var gox = ox;
-	        		  iwb.graph(ox, 'gr-'+cfg.self.props.id+'-'+ox.graphId, (xx)=>{
+	        		  iwb.graph(ox, 'gr-'+cfg.self.props.id+'-'+ox.graphId, (selValue)=>{
 	        			  var xgroupBy = gox.groupBy.split('.');
 	        			  var groupBy = 'x'+xgroupBy[xgroupBy.length-1];
 	        			  var xparams = {};
-	        			  var yx = xx[0];
-	        			  if(yx.length)xparams[groupBy] = yx[0];
+	        			  if(selValue!==false)xparams[groupBy] = selValue;
 	        			  this.loadData(!0, xparams, !0);
 	
 	        		  });
@@ -8324,9 +8323,11 @@ iwb.graph = function(dg, gid, callback) {
 				if(iwb.charts[xid])iwb.charts[xid].destroy();
 				if(callback)options.chart.events= {
 						dataPointSelection: function(event, chartContext, config) {
-							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length)
-								callback(config.selectedDataPoints);
+							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length){
+								var yx = config.selectedDataPoints[0];
+								callback(yx.length ? d[yx[0]].id : false);
 						    }
+						}
 				}
 	            var chart = new ApexCharts(
 	                document.getElementById(xid),

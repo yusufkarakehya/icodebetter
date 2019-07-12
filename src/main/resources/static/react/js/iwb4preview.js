@@ -197,9 +197,11 @@ iwb.graph = function(dg, gid, callback) {
 				if(iwb.charts[xid])iwb.charts[xid].destroy();
 				if(callback)options.chart.events= {
 						dataPointSelection: function(event, chartContext, config) {
-							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length)
-								callback(config.selectedDataPoints);
+							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length){
+								var yx = config.selectedDataPoints[0];
+								callback(yx.length ? d[yx[0]].id : false);
 						    }
+						}
 				}
 	            var chart = new ApexCharts(
 	                document.getElementById(xid),
