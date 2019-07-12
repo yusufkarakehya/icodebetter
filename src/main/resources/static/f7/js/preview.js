@@ -1107,7 +1107,7 @@ iwb.graph = function(dg, gid) {
 // title: {text: dg.name},
 	                chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
 	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : false
-	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
+	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val, 2);}}
 	            }
 
 	        	break;

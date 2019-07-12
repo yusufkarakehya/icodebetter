@@ -5812,14 +5812,14 @@ class XMainGrid extends GridCommon {
      * @param {object}
      *            params -[{xsearch:'searchValue'}] Params from Global Search
      */
-    this.loadData = (force, params = {}) => {
+    this.loadData = (force, params = {}, dashIgnore) => {
       const queryString = this.queryString();
       if (!force && queryString === this.lastQuery) {
         return;
       }
       var tempParams = {
-        ...params,
-        ...(this.form ? this.form.getValues() : {})
+        ...(this.form ? this.form.getValues() : {}),
+        ...params
       };
       iwb.request({
         url: queryString,
@@ -5831,8 +5831,21 @@ class XMainGrid extends GridCommon {
             totalCount: result.total_count
           });
           
-          if(cfg.self.props.gauges)cfg.self.props.gauges.map((ox)=>{        	  
-              iwb.request({
+          if(cfg.self.props.summary)cfg.self.props.summary.map((ox)=>{
+        	  if(ox.graphId){
+        		  if(!dashIgnore){
+        		  var gox = ox;
+	        		  iwb.graph(ox, 'gr-'+cfg.self.props.id+'-'+ox.graphId, (xx)=>{
+	        			  var xgroupBy = gox.groupBy.split('.');
+	        			  var groupBy = 'x'+xgroupBy[xgroupBy.length-1];
+	        			  var xparams = {};
+	        			  var yx = xx[0];
+	        			  if(yx.length)xparams[groupBy] = yx[0];
+	        			  this.loadData(!0, xparams, !0);
+	
+	        		  });
+        		  }
+        	  } else iwb.request({
                   url: 'ajaxQueryData?_qid='+ox+'&.r='+Math.random(),
                   self: cfg.self,
                   params: tempParams,
@@ -5918,7 +5931,7 @@ class XMainGrid extends GridCommon {
 
                 			    }
 
-                	   var xid = 'g-'+cfg2.self.props.id+'-'+ox;
+                	   var xid = 'ga-'+cfg2.self.props.id+'-'+ox;
                 	   if(iwb.charts[xid])iwb.charts[xid].destroy();
               	        var chart = new ApexCharts(
               	            document.getElementById(xid),
@@ -6227,8 +6240,8 @@ class XMainGrid extends GridCommon {
         ),
         grid
       ),
-      this.props.gauges && _('summary', {},this.props.gauges.map((ox)=>{
-    	  return _('div',{id:'g-'+this.props.id+'-'+ox},)
+      this.props.summary && _('summary', {},this.props.summary.map((ox)=>{
+    	  return _('div',{id:ox.graphId ? ('gr-'+this.props.id+'-'+ox.graphId):('ga-'+this.props.id+'-'+ox)},)
       }))
     );
   }
@@ -8175,6 +8188,156 @@ class XGraph extends React.Component {
       id: "idG" + this.props.graph.graphId
     });
   }
+}
+
+
+function fmtDecimal(value,digit){
+	if(!value)return '0';
+	if(!digit)digit=2;	
+	var result = Math.round(value*Math.pow(10,digit))/Math.pow(10,digit)+'';
+	var s=1*result<0?1:0;
+	var x=result.split('.');
+	var x1=x[0],x2=x[1];
+	for(var i=x1.length-3;i>s;i-=3)x1=x1.substr(0,i)+('.')+x1.substr(i);
+	if(x2 && x2>0) return x1+(',')+x2;
+	return x1;	
+}
+
+iwb.graph = function(dg, gid, callback) {
+	  var newStat = 1 * dg.funcTip ? dg.funcFields : "";
+	  var params = {};
+	  if (newStat) params._ffids = newStat;
+	  if (1 * dg.graphTip >= 5) params._sfid = dg.stackedFieldId;
+	  var series=[], labels=[], lookUps=[], chart =null;
+	  var xid = gid;
+	  iwb.request({
+	    url:
+	      (dg.query? "ajaxQueryData4Stat?_gid=":"ajaxQueryData4StatTree?_gid=") +
+	      dg.gridId +
+	      "&_stat=" +
+	      dg.funcTip +
+	      "&_qfid=" +
+	      dg.groupBy +
+	      "&_dtt=" +
+	      dg.dtTip,
+	    params: Object.assign(params, dg.queryParams),
+	    successCallback: function(j) {
+			var d= j.data;
+			if(!d || !d.length)return;
+			
+			switch (1 * dg.graphTip) {
+	        case 6: // stacked area
+	        case 5: // stacked column
+	        	var l= j.lookUp;
+	        	for(var k in l)lookUps.push(k);
+	            if(!lookUps.length)return;
+	            d.map((z)=>{
+	                var data=[];
+	                lookUps.map((y)=>data.push(1*(z['xres_'+y]||0)));
+	                series.push({name:z.dsc, data:data});
+	            });
+	            lookUps.map((y)=>labels.push(l[y]||'-'));
+
+	            options = {
+	                chart: {
+	                	id:'apex-'+gid,
+	                    height: 80*d.length+40,
+	                    type: 'bar',
+	                    stacked: true,
+	                    toolbar: {show: false}
+	                },
+	                plotOptions: {
+	                    bar: {horizontal: true},
+	                    
+	                },
+	                series: series,
+//title: {text: dg.name},
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {
+	                    title: {
+	                        text: undefined
+	                    },                
+	                }
+	            }
+	        	break;
+	        case 3:// pie
+	            d.map((z)=>{
+	                series.push(1*z.xres);
+	                labels.push(z.dsc||'-');
+	            });
+	            var options = {
+//title: {text: dg.name},
+	                chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
+	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : false
+	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
+	            }
+
+	        	break;
+	        case 1:// column
+	        case 2:// area
+	        	d.map((z)=>{
+	                series.push(1*z.xres);
+	                labels.push(z.dsc);
+	            });
+
+	            options = {
+//title: {text: dg.name},
+	                chart: {
+	                	id:'apex-'+gid,
+	                    height:50*d.length+30,
+	                    type: 1 * dg.graphTip==1?'bar':'area',
+	                    toolbar: {show: false}
+	                },
+	                plotOptions: {
+	                    bar: {
+	                        horizontal: 1 * dg.graphTip==1 // d.length>5
+	                    }
+	                },
+	                dataLabels:  1 * dg.graphTip==1 ? {
+	                    enabled: true,
+	                    textAnchor: 'start',
+	                    style: {
+	                        colors: ['#fff']
+	                    },
+	                    formatter: function(val, opt) {
+	                        return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+	                    },
+	                    offsetX: 0,
+	                    dropShadow: {
+	                      enabled: true
+	                    }
+	                }:{},
+	                series: [{
+	                    data: series
+	                }],
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {labels: {show: false}},
+	            }
+	        	break;
+			}
+
+			if(options){
+				if(iwb.charts[xid])iwb.charts[xid].destroy();
+				if(callback)options.chart.events= {
+						dataPointSelection: function(event, chartContext, config) {
+							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length)
+								callback(config.selectedDataPoints);
+						    }
+				}
+	            var chart = new ApexCharts(
+	                document.getElementById(xid),
+	                options
+	            );
+	            iwb.charts[xid]=chart;
+	            chart.render();
+			}
+			
+	    }
+	  });
 }
 
 iwb.createPortlet = function(o) {
