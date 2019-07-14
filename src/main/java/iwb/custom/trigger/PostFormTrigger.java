@@ -223,7 +223,7 @@ public class PostFormTrigger {
 			}
 			break;
 		case	1407://project
-			if((fr.getAction()==1 || fr.getAction()==3) && scd.containsKey("ocustomizationId") && GenericUtil.uInt(scd.get("ocustomizationId"))!=GenericUtil.uInt(scd.get("customizationId"))){
+			if((fr.getAction()==1 || fr.getAction()==3) && GenericUtil.uInt(scd.get("ocustomizationId"))!=0 && scd.containsKey("ocustomizationId") && GenericUtil.uInt(scd.get("ocustomizationId"))!=GenericUtil.uInt(scd.get("customizationId"))){
 				throw new IWBException("security","Project", 0, null, "Forbidden Command. Can not manipulate a project on another tenant.", null);
 			}
 			switch(fr.getAction()){
