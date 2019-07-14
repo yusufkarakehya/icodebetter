@@ -4227,8 +4227,8 @@ columns:[
 								if(o.getObjectTip()==1) {//grid
 									for (Object ix : pr.getPageObjectList()) if(ix!=null && ix instanceof W5GridResult && ((W5GridResult)ix).getGridId()==o.getObjectId()){
 										String grName = ((W5GridResult)ix).getGrid().getDsc();
-										buf.append("\n if(!").append(grName).append(".gauges)")
-											.append(grName).append(".gauges=[];\n ").append(grName).append(".gauges.push(").append(q.getQueryId()).append(");\n");
+										buf.append("\n if(!").append(grName).append(".summary)")
+											.append(grName).append(".summary=[];\n ").append(grName).append(".summary.push(").append(q.getQueryId()).append(");\n");
 										break;										
 									}
 									
@@ -4248,6 +4248,24 @@ columns:[
 								.append("=")
 								.append(serializeGraphDashboard(gd, pr.getScd()))
 								.append(";\n");
+						
+						W5PageObject orjPageObject = null;
+						for (W5PageObject o : page.get_pageObjectList())if(o.getObjectId()==gd.getGraphDashboardId() && o.getObjectTip()==9) {
+							orjPageObject = o;
+							break;
+						}
+						if(orjPageObject!=null && orjPageObject.getParentObjectId()!=0) for (W5PageObject o : page.get_pageObjectList())if(orjPageObject.getParentObjectId()==o.getTemplateObjectId()){
+							if(o.getObjectTip()==1) {//grid
+								for (Object ix : pr.getPageObjectList()) if(ix!=null && ix instanceof W5GridResult && ((W5GridResult)ix).getGridId()==o.getObjectId()){
+									String grName = ((W5GridResult)ix).getGrid().getDsc();
+									buf.append("\n if(!").append(grName).append(".summary)")
+										.append(grName).append(".summary=[];\n ").append(grName).append(".summary.push(graph").append(gd.getGraphDashboardId()).append(");\n");
+									break;										
+								}								
+							}
+							break;							
+						}
+						
 					} else if (i instanceof String) {
 						buf.append("\nvar ").append(i).append("={}");
 					}
