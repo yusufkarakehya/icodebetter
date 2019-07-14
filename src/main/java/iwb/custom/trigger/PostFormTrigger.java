@@ -251,11 +251,7 @@ public class PostFormTrigger {
 				break;
 			case	3://delete all metadata
 				String delProjectId = fr.getRequestParams().get("tproject_uuid").toLowerCase();
-				W5Project po = FrameworkCache.getProject(delProjectId);
-				if(po.getCustomizationId()==GenericUtil.uInt(scd.get("ocustomizationId")) && GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_project x where x.customization_id=?", po.getCustomizationId()).get(0))>1){
-					dao.deleteProjectMetadata(delProjectId);
-					dao.executeUpdateSQLQuery("DROP SCHEMA IF EXISTS "+po.getRdbmsSchema()+" CASCADE");					
-				}
+				dao.deleteProjectMetadataAndDB(delProjectId, false);
 //				FrameworkSetting.projectSystemStatus.remove(delProjectId);
 				break;
 			case	1:

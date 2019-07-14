@@ -120,7 +120,11 @@ public class AppController implements InitializingBean {
 			boolean b = vcsService.projectVCSUpdate("067e6162-3b6f-4ae2-a221-2470b63dff00");
 			if(b && FrameworkSetting.projectId!=null) {
 //				W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
-				if(FrameworkSetting.projectId.length()==36)vcsService.projectVCSUpdate(FrameworkSetting.projectId);
+				if(FrameworkSetting.projectId.length()==36) {
+					boolean clean = GenericUtil.uInt(FrameworkSetting.argMap.get("clean"))!=0;
+					if(clean)vcsService.deleteProject(FrameworkSetting.projectId);
+					vcsService.projectVCSUpdate(FrameworkSetting.projectId);
+				}
 			}
 		}
 		if(FrameworkSetting.log2tsdb)LogUtil.activateInflux4Log();

@@ -6197,13 +6197,13 @@ public class PostgreSQL extends BaseDAO {
 				"w5_table_param", "w5_form_cell", "w5_form", "w5_db_func_param", "w5_db_func", "w5_table_field",
 				"w5_table", "w5_look_up_detay", "w5_look_up", "w5_locale_msg", "w5_query_param", "w5_query_field",
 				"w5_query", "w5_grid", "w5_grid_column", "w5_vcs_object", "w5_vcs_commit", "w5_project_task",
-				"w5_project_invitation", "w5_project_related_project" };
-		List params = new ArrayList();
-		params.add(delProjectId);
+				"w5_project_invitation", "w5_project_related_project", 
+				"w5_test", "w5_k8s_server", "w5_k8s_deploy", "w5_k8s_deploy_step", "w5_docker_host", 
+				"w5_docker_deploy", "w5_docker_container", "w5_external_db", "w5_mq", "w5_mq_callback", "w5_job_schedule"};
 		for (int qi = 0; qi < tables.length; qi++)
-			executeUpdateSQLQuery("delete from iwb." + tables[qi] + " where project_uuid=?", params);
+			executeUpdateSQLQuery("delete from iwb." + tables[qi] + " where project_uuid=?", delProjectId);
 
-		executeUpdateSQLQuery("delete from iwb.w5_user_related_project where related_project_uuid=?", params);
+		executeUpdateSQLQuery("delete from iwb.w5_user_related_project where related_project_uuid=?", delProjectId);
 	}
 
 	public void checkTenant(Map<String, Object> scd) {
@@ -6280,4 +6280,17 @@ public class PostgreSQL extends BaseDAO {
 		}
     
   }
+
+	public void deleteProjectMetadataAndDB(String delProjectId, boolean force) {
+		W5Project po = FrameworkCache.getProject(delProjectId);
+		if(po==null) po = (W5Project)getCustomizedObject("from W5Project t where 1=? AND t.projectUuid=?", 1, delProjectId, null);
+		if(po!=null && (force || GenericUtil.uInt(executeSQLQuery("select count(1) from iwb.w5_project x where x.customization_id=?", po.getCustomizationId()).get(0))>1)){
+			deleteProjectMetadata(delProjectId);
+			if(force)executeUpdateSQLQuery("delete from iwb.w5_project where project_uuid=?",delProjectId);
+			executeUpdateSQLQuery("DROP SCHEMA IF EXISTS "+po.getRdbmsSchema()+" CASCADE");
+		} else if(po==null && force) {
+			deleteProjectMetadata(delProjectId);
+			executeUpdateSQLQuery("delete from iwb.w5_project where project_uuid=?",delProjectId);
+		}
+	}
 }
