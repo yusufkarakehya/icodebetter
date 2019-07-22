@@ -488,9 +488,9 @@ public class PreviewController implements InitializingBean {
 		W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
 // 
 		if(GenericUtil.uInt(request, "d")==0)
-			response.getWriter().write("{\"success\":true,\"session\":" + (scd!=null) + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
+			response.getWriter().write("{\"success\":true,\"version\":\"v2\",\"session\":" + (scd!=null) + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
 		else {
-			response.getWriter().write("{\"success\":true,\"session\":" + (scd==null ? "false":GenericUtil.fromMapToJsonString2Recursive(scd)) + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
+			response.getWriter().write("{\"success\":true,\"version\":\"v2\",\"session\":" + (scd==null ? "false":GenericUtil.fromMapToJsonString2Recursive(scd)) + (po!=null ? ", \"name\":\""+GenericUtil.stringToJS(po.getDsc())+"\"":"Default") + "}");
 		}
 		response.getWriter().close();
 	}
