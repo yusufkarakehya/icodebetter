@@ -106,7 +106,7 @@ background-color:inherit;
 }
 
 .tab-grid summary{
-    flex:0 0 220px;
+    flex:0 0 250px;
     padding:1rem;
     border-left:1px solid rgba(128,128,128,.1);
 }
