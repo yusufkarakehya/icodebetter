@@ -823,6 +823,26 @@ public class VcsController implements InitializingBean {
 	}
 	
 	
+	@RequestMapping("/serverVCSProjectFetch")
+	public void hndServerVCSProjectFetch(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException, JSONException {
+		logger.info("hndServerVCSSynchProject"); 
+		JSONObject jo = HttpUtil.getJson(request);
+		  
+		String userName = jo.getString("u")
+			   , passWord = jo.getString("p")
+					   , projectId = jo.getString("r"), newProjectId = jo.getString("nr");
+		int customizationId = jo.getInt("c");
+	Map m = vcsEngine.vcsServerProjectFetch(userName, passWord, customizationId, projectId, newProjectId);
+
+
+    	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
+		response.getWriter().close();		
+	}
+	
+	
 	@RequestMapping("/ajaxVCSDeleteSubProject")
 	public void hndAjaxVCSDeleteSubProject(
 			HttpServletRequest request,
