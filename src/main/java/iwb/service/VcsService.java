@@ -3969,4 +3969,32 @@ public class VcsService {
 	public void deleteProject(String projectId) {
 		dao.deleteProjectMetadataAndDB(projectId, true);
 	}
+  public Map vcsServerProjectFetch(
+      String userName,
+      String passWord,
+      int customizationId,
+      String projectId,
+      String newProjectId) {
+		if(!FrameworkSetting.vcsServer || customizationId!=0)
+			throw new IWBException("vcs","vcsServerProjectFetch",0,null, "Not a VCS Server to vcsServerProjectFetch", null);
+		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
+		W5Project po = FrameworkCache.getProject(newProjectId);
+		
+		Map result = new HashMap();
+		result.put("success", po!=null);
+		if(po==null) {
+			result.put("errorMsg", "Wrong ProjectID");
+			return result;
+		}
+		
+		Map requestParams = new HashMap();
+		requestParams.put("project_uuid", newProjectId);
+		requestParams.put("customization_id", po.getCustomizationId());
+		result.put("project", dao.runSQLQuery2Map("select * from iwb.w5_project p where p.project_uuid='${req.project_uuid}'"
+				, scd, requestParams, new HashMap()));
+		result.put("customization", dao.runSQLQuery2Map("select * from iwb.w5_customization p where p.customization_id=${req.customization_id}"
+				, scd, requestParams, new HashMap()));
+		
+		return result;
+  }
 }
