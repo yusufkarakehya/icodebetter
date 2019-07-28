@@ -938,7 +938,8 @@ var xtimeMap = {
 function fmtDateTimeAgo(dt2) {
   if (!dt2) return "";
   var tnow = new Date().getTime();
-  var t = moment(dt2,"DD/MM/YYYY HH:mm").toDate().getTime();
+  var dt3 = moment(dt2,"DD/MM/YYYY HH:mm").toDate();
+  var t = dt3.getTime();
   var xt = xtimeMap[_scd.locale] || {};
   if (t + 30 * 1000 > tnow) return xt[0]; // 'Az Önce';//5 sn
   if (t + 2 * 60 * 1000 > tnow) return xt[1]; // 'Bir Dakika Önce';//1 dka
@@ -948,7 +949,7 @@ function fmtDateTimeAgo(dt2) {
     return Math.round((tnow - t) / (60 * 60 * 1000)) + xt[3]; // ' Saat Önce';
   if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; // 'Dün';
   if (t + 7 * 24 * 60 * 60 * 1000 > tnow)
-    return daysOfTheWeek[_scd.locale][dt2.getDay()]; // 5dka
+    return daysOfTheWeek[_scd.locale][dt3.getDay()]; // 5dka
   return dt2.substr(0,10);
 }
 
