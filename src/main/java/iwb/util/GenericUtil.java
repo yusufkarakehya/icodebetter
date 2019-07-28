@@ -1422,6 +1422,7 @@ public class GenericUtil {
 			/* } */
 		}
 		res.put("_ServerURL_", request.getServerName());
+		res.put("_ClientURL_", request.getRemoteHost());
 
 		if (GenericUtil.safeEquals(request.getContentType(), "application/json")) {
 			try {
