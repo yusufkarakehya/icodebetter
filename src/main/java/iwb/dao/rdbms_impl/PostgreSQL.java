@@ -862,6 +862,8 @@ public class PostgreSQL extends BaseDAO {
 		switch (queryResult.getQuery().getQueryTip()) {
 		case 9:
 		case 10:
+		case 12:
+		case 13:
 			queryResult.prepareTreeQuery(null);
 			break;
 		case 15:
@@ -1185,6 +1187,7 @@ public class PostgreSQL extends BaseDAO {
 						paramMap.put("pmust_load_id", rc.getValue());
 					switch (lookupQueryResult.getQuery().getQueryTip()) {
 					case 12:
+					case 13:
 						lookupQueryResult.prepareTreeQuery(paramMap);
 						break; // lookup tree query
 					default:

@@ -459,18 +459,67 @@ function fmtShortDate(x) {
   return x ? moment(x).format("DD/MM/YYYY") : "";
 }
 
-function strShortDate(x) {
-  return x ? x.substr(0, 10) : "";
+
+function strShortDate(row,cell) {
+  return cell && row ? (row[cell] ? row[cell].substr(0, 10) : ""):(row ? row.substr(0, 10) : "");
 }
 function accessControlHtml() {
   return null;
 }
-function strDateTime(x) {
-  return x || "";
+function fmtDateTime(x,y) {
+  return x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
+}
+function fmtShortDate(x,y) {
+  return x ? moment(x).format("DD/MM/YYYY") : "";
+}
+function strDateTime(row,cell) {
+	return cell && row ? (row[cell] ? row[cell] : ""):(row ? row : "");
 }
 
-function strDateTimeAgo(x) {
-  return x || "";
+
+var daysOfTheWeek = {
+  tr: [
+    "Pazar",
+    "Pazartesi",
+    "Salı",
+    "Çarşamba",
+    "Perşembe",
+    "Cuma",
+    "Cumartesi"
+  ],
+  en: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ]
+};
+var xtimeMap = {
+  tr: ["az önce", "bir dakika önce", "dakika önce", "saat önce", "dün"],
+  en: ["seconds ago", "a minute ago", "minutes ago", "hours ago", "yesterday"]
+};
+function fmtDateTimeAgo(dt2) {
+  if (!dt2) return "";
+  var tnow = new Date().getTime();
+  var t = moment(dt2,"DD/MM/YYYY HH:mm").toDate().getTime();
+  var xt = xtimeMap[_scd.locale] || {};
+  if (t + 30 * 1000 > tnow) return xt[0]; // 'Az Önce';//5 sn
+  if (t + 2 * 60 * 1000 > tnow) return xt[1]; // 'Bir Dakika Önce';//1 dka
+  if (t + 60 * 60 * 1000 > tnow)
+    return Math.round((tnow - t) / (60 * 1000)) + xt[2]; // ' Dakika Önce';
+  if (t + 24 * 60 * 60 * 1000 > tnow)
+    return Math.round((tnow - t) / (60 * 60 * 1000)) + xt[3]; // ' Saat Önce';
+  if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; // 'Dün';
+  if (t + 7 * 24 * 60 * 60 * 1000 > tnow)
+    return daysOfTheWeek[_scd.locale][dt2.getDay()]; // 5dka
+  return dt2.substr(0,10);
+}
+
+function strDateTimeAgo(row, cell) {
+	return cell && row ? (row[cell] ? fmtDateTimeAgo(row[cell]) : ""):(row ? fmtDateTimeAgo(row) : "");
 }
 
 function getStrapSize(w) {

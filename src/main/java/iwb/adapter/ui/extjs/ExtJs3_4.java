@@ -4447,6 +4447,9 @@ public class ExtJs3_4 implements ViewAdapter {
 												// multi, 4:single + row
 												// expander, 5: single + detail
 												// dlg
+			case	0:buf.setLength(buf.length()-"new Ext.grid.".length());
+			buf.append("null;\n");
+			break;
 			case 3:
 				buf.append("CheckboxSelectionModel()\n");
 				break;

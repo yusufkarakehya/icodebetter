@@ -7305,7 +7305,7 @@ class XCardMiniMenu extends React.PureComponent {
           )
         )
       ),
-      _("h6", { style: { textAlign: "center" } }, name)
+      !fadeOut && _("h6", { style: { textAlign: "center" } }, name)
     );
   }
 }
@@ -7425,15 +7425,22 @@ class XMainNav extends React.PureComponent {
       _("div", { style: { height: "1.45rem" } }),
       _(
         Row,
-        { style: { maxWidth: "1300px" } },
+        { 
+        	style: { maxWidth: "1300px" } 
+        },
         node.children.map((tempNode, index) =>
-          _(XCardMenu, {
+          !iwb.mainMainSmall ?_(XCardMenu, {
             key: index,
             node: tempNode,
             color: dgColors2[index % dgColors2.length],
             color3: dBGColors2[index % dBGColors2.length],
             color2: detailSpinnerColors2[index % detailSpinnerColors2.length]
-          })
+          }):
+        _(XCardMiniMenu, {
+            key: index,
+            color: dgColors3[index % dgColors3.length],
+            node: tempNode
+          }) 
         )
       ),
       visitedList
@@ -7552,7 +7559,7 @@ class XMainPanel extends React.PureComponent {
                 Row,
                 { style: { maxWidth: "1300px" } },
                 ll.children.map((menuitem, index) => {
-                  return _(XCardMenu, {
+                  return !iwb.mainMainSmall ?_(XCardMenu, {
                     key: index,
                     node: menuitem,
                     fadeOut: menuitem.url != node.url,
@@ -7560,7 +7567,12 @@ class XMainPanel extends React.PureComponent {
                     color3: dBGColors2[index % dBGColors2.length],
                     color2:
                       detailSpinnerColors2[index % detailSpinnerColors2.length]
-                  });
+                  }):
+                  _(XCardMiniMenu, {
+                      key: index,fadeOut: menuitem.url != node.url,
+                      color: dgColors3[index % dgColors3.length],
+                      node: menuitem
+                    }) ;
                 })
               )
             );
