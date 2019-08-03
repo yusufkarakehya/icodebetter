@@ -10,11 +10,15 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
 
+import graphql.GraphQL;
+
 @Entity
 @Immutable
 @Table(name="w5_ws_server",schema="iwb")
 public class W5WsServer  implements java.io.Serializable {
 
+	private static final long serialVersionUID = 134252091872912873L;
+	
 	private int wsServerId;
 	private String dsc;
 	private String wsUrl;
@@ -26,6 +30,10 @@ public class W5WsServer  implements java.io.Serializable {
 	private String targetNamespace;
 	
 	private List<W5WsServerMethod> _methods;
+	private String _graphQLSchema;
+	private GraphQL _graphQLBuild;
+	
+	
 	
 	@Id
 	@Column(name="ws_server_id")
@@ -37,6 +45,10 @@ public class W5WsServer  implements java.io.Serializable {
 	}
 	
 	
+	public W5WsServer() {
+		super();
+		_graphQLSchema = null;
+	}
 	@Column(name="dsc")
 	public String getDsc() {
 		return dsc;
@@ -107,6 +119,21 @@ public class W5WsServer  implements java.io.Serializable {
 	}
 	public void setTargetNamespace(String targetNamespace) {
 		this.targetNamespace = targetNamespace;
+	}
+	
+	@Transient
+	public String get_graphQLSchema() {
+		return _graphQLSchema;
+	}
+	public void set_graphQLSchema(String _graphQLSchema) {
+		this._graphQLSchema = _graphQLSchema;
+	}
+	@Transient
+	public GraphQL get_graphQLBuild() {
+		return _graphQLBuild;
+	}
+	public void set_graphQLBuild(GraphQL _graphQLBuild) {
+		this._graphQLBuild = _graphQLBuild;
 	}
 	
 

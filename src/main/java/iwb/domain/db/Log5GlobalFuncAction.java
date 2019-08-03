@@ -20,6 +20,7 @@ import iwb.util.GenericUtil;
 @Entity
 @Table(name="log5_db_func_action",schema="iwb")
 public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
+	private static final long serialVersionUID = 1342520916422912873L;
 
 	private int logId;
 

@@ -16,7 +16,8 @@ import iwb.util.GenericUtil;
 @Entity
 @Table(name="log5_mq",schema="iwb")
 public class Log5Mq implements Serializable, Log5Base{
-	
+	private static final long serialVersionUID = 134200001872912873L;
+
 	private int logId;
 	private int mqId;
 	private String message;  

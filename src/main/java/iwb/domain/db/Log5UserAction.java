@@ -14,7 +14,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name="log5_user_action",schema="iwb")
 public class Log5UserAction implements Serializable, Log5Base{
-	
+	private static final long serialVersionUID = 134252091872911111L;
+
 	private int logId;
 	private int userId;
 	private int customizationId;  

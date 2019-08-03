@@ -22,6 +22,8 @@ import iwb.util.GenericUtil;
 @Table(name="log5_ws_method_action",schema="iwb")
 public class Log5WsMethodAction implements java.io.Serializable, Log5Base {
 
+	private static final long serialVersionUID = 134252346672912873L;
+
 	private int logId;
 
 	private int wsMethodId;

@@ -17,6 +17,7 @@ import iwb.util.GenericUtil;
 @Entity
 @Table(name="log5_query_action",schema="iwb")
 public class Log5QueryAction implements java.io.Serializable, Log5Base {
+	private static final long serialVersionUID = 134252091777912873L;
 
 	private int logId;
 

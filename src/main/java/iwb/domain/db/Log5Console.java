@@ -16,7 +16,8 @@ import iwb.util.GenericUtil;
 @Entity
 @Table(name="log5_console",schema="iwb")
 public class Log5Console implements Serializable, Log5Base{
-	
+	private static final long serialVersionUID = 134252091816162873L;
+
 	private int logId;
 	private int userId;
 	private int customizationId;  

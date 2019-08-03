@@ -21,6 +21,7 @@ import iwb.domain.helper.W5TableRecordHelper;
 @Entity
 @Table(name="w5_feed",schema="iwb")
 public class Log5Feed implements java.io.Serializable, Log5Base {
+	private static final long serialVersionUID = 134252091323212873L;
 
 	private int feedId;
 	

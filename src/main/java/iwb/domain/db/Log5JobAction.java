@@ -17,7 +17,8 @@ import iwb.util.GenericUtil;
 @Entity
 @Table(name="log5_job_action",schema="iwb")
 public class Log5JobAction implements Serializable, Log5Base{
-	
+	private static final long serialVersionUID = 131111091872912873L;
+
 	private int logId;
 	private int jobScheduleId;
 	private String projectUuid;

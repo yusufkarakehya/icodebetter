@@ -13,6 +13,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name="log5_approval_record",schema="iwb")
 public class Log5WorkflowRecord implements java.io.Serializable {
+	private static final long serialVersionUID = 134252999872912873L;
 
 	private int logId;
 	private int userId;

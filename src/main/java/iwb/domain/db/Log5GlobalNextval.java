@@ -5,7 +5,8 @@ import java.io.Serializable;
 import javax.persistence.Column;
 
 public class Log5GlobalNextval implements Serializable, Log5Base{
-	
+	private static final long serialVersionUID = 134252022222912873L;
+
 	private int userId;
 	private int customizationId;  
 	private String seq;  
