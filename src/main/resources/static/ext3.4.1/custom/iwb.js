@@ -1680,26 +1680,13 @@ function fnNewFileAttachment4ExternalUrl(a) {
 }
 
 function fnNewFileAttachment4Form(tid, tpk, not_image_flag) {
-  var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
-													// mi onu sorguluyor. (major
-													// ver, minor ver, revision
-													// no)
   var image_param = "";
   if (not_image_flag) {
     image_param = "&xnot_image_flag=1";
   }
-  if (hasReqestedVersion) {
-    // Acente/Bayi logolarının eklenmesi biraz farklı
-    var href =
-      "showForm?_fid=714&_did=447&table_id=" +
-      tid +
-      "&table_pk=" +
-      tpk +
-      image_param;
-  } else {
+
     var href =
       "showForm?a=2&_fid=43&table_id=" + tid + "&table_pk=" + tpk + image_param;
-  }
   mainPanel.loadTab({
     attributes: {
       modalWindow: true,
@@ -7822,16 +7809,9 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             fnNewFileAttachment4Form(a._f.crudTableId, table_pk.substring(1));
           }
         },
-        /*
-		 * { text: getLocMsg('js_daha_once_eklenmis_dosyalardan_ekle'), _f:
-		 * getForm, handler: function(a, b) { var getForm = a._f; var table_pk =
-		 * ''; if (getForm.a == 1) { for (var key in getForm.pk) if (key !=
-		 * 'customizationId') table_pk += "|" + getForm.pk[key]; } else table_pk =
-		 * "|" + getForm.tmpId; mainPanel.loadTab({ attributes: { _title_: 1,
-		 * modalWindow: true, href: 'showPage?_tid=259&_gid1=672', tableId:
-		 * a._f.crudTableId, tablePk: table_pk.substring(1) } }) } }, '-',
-		 */ {
-          text: "${related_files}",
+        
+		 {
+          text: getLocMsg("related_files"),
           _f: getForm,
           handler: function(a, b, c) {
             var getForm = a._f;
