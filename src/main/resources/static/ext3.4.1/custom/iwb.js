@@ -5142,7 +5142,7 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
                 _arid: frm.approval.approvalRecordId,
                 _aa: aa,
                 _adsc: _comment,
-                _avno: frm.approval.versionNo + 1,
+                _avno: frm.approval.versionNo,
                 _appUserIds: _dynamic_approval_users
               });
             } else {
