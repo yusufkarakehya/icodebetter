@@ -199,24 +199,24 @@ function disabledCheckBoxHtml(x) {
 }
 
 function accessControlHtml(x) {
-  return x ? '<img src="../images/custom/bullet_key.png" border=0>' : "";
+  return x ? '<img src="/images/custom/bullet_key.png" border=0>' : "";
 }
 
 function fileAttachmentHtml(x) {
   return x
-    ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0>'
+    ? '<img src="/images/custom/bullet_file_attach.png" border=0>'
     : "";
 }
 function fieldFileAttachment(x) {
 	  return x
-	    ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0>'
+	    ? '<img src="/images/custom/bullet_file_attach.png" border=0>'
 	    : "";
 }
 
 function fileAttachmentRenderer(a) {
   return function(ax, bx, cx) {
     return ax
-      ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
+      ? '<img src="/images/custom/bullet_file_attach.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
           a.name +
           "',href:'showPage?_tid=518&_gid1=458&_gid458_a=1',_pk:{tfile_attachment_id:'file_attachment_id'},baseParams:{xtable_id:" +
           a.crudTableId +
@@ -965,7 +965,7 @@ function renderTableRecordInfo(j) {
       j.commentCount;
   if (j.fileAttachFlag && j.fileAttachCount > 0)
     s +=
-      ' &nbsp; <img src="/ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> ' +
+      ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="İlişkili Dosyalar"> ' +
       j.fileAttachCount;
   if (j.accessControlFlag && j.accessControlCount > 0)
     s +=
@@ -1077,7 +1077,7 @@ function renderTableRecordInfo(j) {
         r.tcc;
     if (r.tfc)
       ss +=
-        ' &nbsp; <img src="/ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> ' +
+        ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="İlişkili Dosyalar"> ' +
         r.tfc;
 
     // if(r.dsc)ss+=(qi!=0 ? ': '+r.dsc:': <b>'+r.dsc+'</b>');// else ss+=':
