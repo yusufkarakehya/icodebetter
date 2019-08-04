@@ -327,7 +327,7 @@ function commentHtml(x) {
 function approvalHtml(x, y, z) {
   if (!x) return "";
   var str =
-    x > 0 ? '<img src="../images/custom/bullet_approval.gif" border=0> ' : "";
+    x > 0 ? '<img src="/images/custom/bullet_approval.gif" border=0> ' : "";
   str +=
     "<a href=# onclick=\"return mainPanel.loadTab({attributes:{modalWindow:true,href:'showPage?_tid=238&_gid1=530',baseParams:{xapproval_record_id:" +
     z.data.pkpkpk_arf_id +
