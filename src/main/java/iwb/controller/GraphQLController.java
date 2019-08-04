@@ -40,6 +40,8 @@ import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5JobSchedule;
+import iwb.domain.db.W5LookUp;
+import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
@@ -85,11 +87,12 @@ public class GraphQLController implements InitializingBean {
     		for(W5WsServerMethodParam wsmp:wsm.get_params()) if(wsmp.getOutFlag()==0){
     			params.append(wsmp.getDsc()).append(": ");
     			switch(wsmp.getParamTip()) {
+//    			case	5:params.append("Boolean");break;
     			case	4:params.append("Int");break;
     			case	3:params.append("Float");break;
     			default:params.append("String");break;
     			}
-    			if(wsmp.getNotNullFlag()!=0)params.append("!");
+    			if(wsmp.getNotNullFlag()!=0 && wsmp.getParamTip()!=5)params.append("!");
     			params.append(" ");
     		}
     		if(params.length()>0) {
@@ -102,7 +105,7 @@ public class GraphQLController implements InitializingBean {
     		for(W5WsServerMethodParam wsmp:wsm.get_params()) if(wsmp.getOutFlag()!=0 && wsmp.getParentWsMethodParamId()!=0){
     			helper.append(" ").append(wsmp.getDsc()).append(": ");
     			switch(wsmp.getParamTip()) {
-    			case	5:
+    			case	5:params.append("Boolean");break;
     			case	4:helper.append("Int");break;
     			case	3:helper.append("Float");break;
     			default:helper.append("String");break;
@@ -118,16 +121,16 @@ public class GraphQLController implements InitializingBean {
 		return sdl.toString();
 	}
 	
-	private DataFetcher<W5QueryResult> query(W5WsServerMethod wsm){
-         return new DataFetcher<W5QueryResult>() {
+	private DataFetcher<List<Map>> query(W5WsServerMethod wsm){
+         return new DataFetcher<List<Map>>() {
             @Override
-            public W5QueryResult get(DataFetchingEnvironment environment) {
+            public List<Map> get(DataFetchingEnvironment environment) {
             	Map<String, Object> scd = new HashMap();
             	Map<String, String> requestParams = new HashMap();
     			W5Project po = FrameworkCache.getProject(wsm.getProjectUuid());
     			scd.put("projectId", po.getProjectUuid());
     			scd.put("customizationId", po.getCustomizationId());
-    			scd.put("userId", -1);
+    			scd.put("userId", 0);
     			if(environment.getArguments()!=null)for(String k:environment.getArguments().keySet()) {
     				Object o = environment.getArguments().get(k);
     				if(o!=null)o = o.toString();
@@ -136,18 +139,50 @@ public class GraphQLController implements InitializingBean {
 
             	
 				W5QueryResult qr = service.executeQuery(scd, wsm.getObjectId(), requestParams);
-				if(wsm.get_params()!=null){
-					List<W5QueryField> lqf = new ArrayList();
-					Map<String,W5QueryField> qfm = new HashMap();
-					for(W5QueryField qf:qr.getQuery().get_queryFields()){
-						qfm.put(qf.getDsc(), qf);
+				if(GenericUtil.isEmpty(qr.getErrorMap())) {
+					if(wsm.get_params()!=null){
+						List<W5QueryField> lqf = new ArrayList();
+						Map<String,W5QueryField> qfm = new HashMap();
+						for(W5QueryField qf:qr.getQuery().get_queryFields()){
+							qfm.put(qf.getDsc(), qf);
+						}
+						for(W5WsServerMethodParam wsmp:wsm.get_params())if(wsmp.getOutFlag()!=0 && wsmp.getParamTip()!=10){
+							lqf.add(qfm.get(wsmp.getDsc()));
+						}
+						qr.setNewQueryFields(lqf);								
 					}
-					for(W5WsServerMethodParam wsmp:wsm.get_params())if(wsmp.getOutFlag()!=0 && wsmp.getParamTip()!=10){
-						lqf.add(qfm.get(wsmp.getDsc()));
+					List qdata = qr.getData();
+					List<Map> data = new ArrayList(qdata.size());
+					if(qr.getData().size()>0) {
+						boolean isMap = (qdata.get(0) instanceof Map);
+						for(Object o:qdata) {
+							Map mo = new HashMap();
+							for(W5QueryField f:qr.getNewQueryFields()) {
+								Object obj = isMap ? ((Map)o).get(f.getDsc()) : ((Object[])o)[f.getTabOrder() - 1];
+								if(obj==null)continue;
+								String fdsc = f.getDsc();
+								switch(f.getPostProcessTip()) {
+								case	9: fdsc = "_" + fdsc;break;
+								case	6: fdsc = fdsc.substring(1);break;
+								}
+								switch(f.getFieldTip()) {
+								case	5://boolean
+									mo.put(fdsc, GenericUtil.uInt(obj) != 0);break;
+								case	8://object/json
+									mo.put(fdsc, obj);break;
+								default:
+									mo.put(fdsc, obj);break;
+								}
+								
+							}
+							data.add(mo);
+							
+						}
 					}
-					qr.setNewQueryFields(lqf);								
+					return data;
+				} else { //error
+					throw new IWBException("validation", "Query", wsm.getObjectId(), GenericUtil.fromMapToJsonString2(qr.getErrorMap()), "Validation Error for Query", null);
 				}
-				return qr;
             }
         };
 	}
@@ -193,7 +228,7 @@ public class GraphQLController implements InitializingBean {
 
 			W5WsServer wss = FrameworkCache.getWsServer(projectId, graphQLName);
 			if(wss==null)
-				throw new IWBException("framework","WrongGraphQL",0,null, "Wrong Service: Should Be [GrapQLName]", null);
+				throw new IWBException("framework","WrongGraphQL",0,null, "Wrong Service: Should Be [GraphQLName]", null);
 			
 			if(GenericUtil.isEmpty(wss.get_graphQLSchema())) {
 				String sdl = generateSchema(wss);
@@ -249,8 +284,8 @@ public class GraphQLController implements InitializingBean {
 	}
 
 	private String serializeResult(Object data) {
-		if(data instanceof W5QueryResult) {
-			
+		if(data instanceof Map) {
+			return GenericUtil.fromMapToJsonString2Recursive((Map)data);
 		}
 		// TODO Auto-generated method stub
 		return "{success:false}";
