@@ -7923,25 +7923,25 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     // btn.push({text: '${onay_adimi}<br>'+getForm.approval.stepDsc});
     if (getForm.approval.wait4start) {
       btn.push({
-        text: "Start Approval",
+        text: "START APPROVAL",
         id: "dapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
 
-        iconCls: "app_req",
+        iconCls: "icon-request-approve",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(901, getForm, getForm.approval.dynamic);
         }
       });
     } else {
       btn.push({
-        text: "Approve",
+        text: "APPROVE",
         id: "aapp_" + getForm.id,
         tooltip: getForm.approval.stepDsc,
         iconAlign: "top",
         scale: "medium",
 // style: {margin: "0px 5px 0px 5px"},
-        iconCls: "iapprove",
+        iconCls: "icon-approve",
         handler: function(a, b, c) {
           if (!getForm.viewMode) {
             var r = null;
@@ -7974,30 +7974,30 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
       if (getForm.approval.returnFlag) {
         btn.push({
-          text: "Return",
+          text: "RETURN",
           id: "gbapp_" + getForm.id,
           iconAlign: "top",
           scale: "medium",
 // style: {margin: "0px 5px 0px 5px"},
-          iconCls: "ireturn",
+          iconCls: "icon-return",
           handler: function(a, b, c) {
             submitAndApproveTableRecord(2, getForm);
           }
         });
       }
       btn.push({
-        text: "Reject",
+        text: "REJECT",
         id: "rapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
 // style: {margin: "0px 5px 0px 5px"},
-        iconCls: "ireject",
+        iconCls: "icon-reject",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(3, getForm);
         }
       });
       btn.push({
-        text: "Approval Log",
+        text: "APPROVAL LOG",
         id: "lapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
