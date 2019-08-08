@@ -265,11 +265,11 @@ public class PostFormTrigger {
 		case	14://lookup,detay		
 			fr.getOutputMessages().add(msg);
 			int lookUpId = GenericUtil.uInt(fr.getOutputFields().get("look_up_id"+prefix));
-			if(lookUpId==0)lookUpId = GenericUtil.uInt(fr.getRequestParams().get("look_up_id"+prefix));
-			if(lookUpId==0)lookUpId = GenericUtil.uInt(fr.getRequestParams().get("tlook_up_id"+prefix));
+			if(lookUpId==0)lookUpId = GenericUtil.uInt((Object)fr.getRequestParams().get("look_up_id"+prefix));
+			if(lookUpId==0)lookUpId = GenericUtil.uInt((Object)fr.getRequestParams().get("tlook_up_id"+prefix));
 			if(fr.getForm().getObjectId()==14 && lookUpId==0){
-				int detayId = GenericUtil.uInt(fr.getRequestParams().get("tlook_up_detay_id"+prefix));
-				if(detayId==0)detayId=GenericUtil.uInt(fr.getOutputFields().get("look_up_detay_id"+prefix));
+				int detayId = GenericUtil.uInt((Object)fr.getRequestParams().get("tlook_up_detay_id"+prefix));
+				if(detayId==0)detayId=GenericUtil.uInt((Object)fr.getOutputFields().get("look_up_detay_id"+prefix));
 				if(detayId>0){
 					List qq = dao.executeSQLQuery("select x.look_up_id from iwb.w5_look_up_detay x where x.project_uuid=? AND x.look_up_detay_id=?", projectId, detayId);
 					if(!GenericUtil.isEmpty(qq))lookUpId = GenericUtil.uInt(qq.get(0));
