@@ -5159,13 +5159,14 @@ const XToolbarItem = props => {
       {
         id: "toolpin" + props.index,
         key: "key" + props.index,
-        className: classNames("btn-round-shadow mx-1", cls[1]),
-        color: "success",
+        className: classNames("btn-round-shadow mx-1", cls[1]||''),
+        color: "danger",
         onClick: e => {
           props.click && props.click(e, props.grid, props);
         }
       },
       cls[0] && _("i", { className: cls[0] }),
+      cls[0] && ' ',
       props.text && props.text
     );
   }

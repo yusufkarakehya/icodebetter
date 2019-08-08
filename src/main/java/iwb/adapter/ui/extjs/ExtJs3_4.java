@@ -4058,19 +4058,17 @@ public class ExtJs3_4 implements ViewAdapter {
 										toolbarItem.getCode())).append("\n}}");
 						itemCount++;
 					} else {
-						buttons.append("{")
-								.append(toolbarItem.getItemTip() == 0 ? "tooltip"
-										: "text")
-								.append(":'")
-								.append(LocaleMsgCache.get2(customizationId,
-										xlocale, toolbarItem.getLocaleMsgKey()))
+						String icon = "<i class=\"icon-"+(GenericUtil.isEmpty(toolbarItem.getImgIcon())? "energy":toolbarItem.getImgIcon())+"\"></i>";
+						buttons.append("{text:'")
+								.append(toolbarItem.getItemTip() == 0 ? icon : (GenericUtil.isEmpty(toolbarItem.getImgIcon()) ? "":(icon + " &nbsp;")) + LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
+								.append("', tooltip:'").append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
 								.append("', ref:'../")
 								.append(toolbarItem.getDsc())
-								.append("',")
+/*								.append("',")
 								.append(toolbarItem.getItemTip() == 0 ? "cls"
 										: "iconCls")
 								.append(":'")
-								.append(toolbarItem.getImgIcon())
+								.append(toolbarItem.getImgIcon())*/
 								.append("', activeOnSelection:")
 								.append(toolbarItem.getActiveOnSelectionFlag() != 0)
 								.append(", handler:function(a,b,c){\n")
