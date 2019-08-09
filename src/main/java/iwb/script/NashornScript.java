@@ -170,7 +170,7 @@ public class NashornScript {
 			Map<String, Object> xtagMap = (Map)tagMap;
 			for (String key : xtagMap.keySet()) {
 				Object o = xtagMap.get(key);
-				if (o != null) {
+				if (!GenericUtil.isEmpty(o)) {
 					ss.append(",").append(key).append("=").append(o);
 				}
 			}
@@ -183,7 +183,7 @@ public class NashornScript {
 			Map<String, Object> xfieldMap = (Map)fieldMap;
 			for (String key : xfieldMap.keySet()) {
 				Object o = xfieldMap.get(key);
-				if (o != null) {
+				if (!GenericUtil.isEmpty(o)) {
 					ss.append(key).append("=");
 					if(o instanceof Integer || o instanceof Long || o instanceof Short)ss.append(o).append("i");
 					else if(o instanceof Double || o instanceof Float)ss.append(o);

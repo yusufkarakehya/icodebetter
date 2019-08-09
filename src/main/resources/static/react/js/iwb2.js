@@ -122,6 +122,7 @@ iwb = {
     if (cs) for (var qi in cs) if (cs[qi]) _cnvStr.push(qi);
     return { _smsStr: _smsStr.join(","), _cnvStr: _cnvStr.join(",") };
   },
+  loadGrid: {},
   tabs: {},
   closeTab: null,
   debug: false,
@@ -5858,6 +5859,7 @@ class XMainGrid extends GridCommon {
      *            params -[{xsearch:'searchValue'}] Params from Global Search
      */
     this.loadData = (force, params = {}, dashIgnore) => {
+      if(!iwb.loadGrid[this.props.id])iwb.loadGrid[this.props.id]=this.loadData;
       const queryString = this.queryString();
       if (!force && queryString === this.lastQuery) {
         return;

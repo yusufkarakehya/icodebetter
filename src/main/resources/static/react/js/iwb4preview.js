@@ -26,6 +26,7 @@ var iwb = {
     if (iwb.asideToggleX) iwb.asideToggleX(e);
     else document.body.classList.toggle("aside-menu-hidden");
   },
+  loadGrid: {},
   approvalColorMap: {
     1: "primary",
     2: "warning",
@@ -1460,6 +1461,8 @@ class XGrid extends React.PureComponent {
     return queryString;
   }
   loadData(force) {
+      if(!iwb.loadGrid[this.props.id])iwb.loadGrid[this.props.id]=this.loadData;
+
     if (this.props.rows) return;
     // if(this.state.loading===true)return;
     const queryString = this.queryString();
@@ -2511,6 +2514,8 @@ class XMainGrid extends React.PureComponent {
     return false;
   }
   loadData(force, params) {
+      if(!iwb.loadGrid[this.props.id])iwb.loadGrid[this.props.id]=this.loadData;
+
     // if(this.state.loading===true)return;
     const queryString = this.queryString();
     if (!force && queryString === this.lastQuery) {
