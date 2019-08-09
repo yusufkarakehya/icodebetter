@@ -24,6 +24,7 @@ import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
+import iwb.domain.db.Log5Transaction;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
@@ -43,6 +44,7 @@ import iwb.exception.IWBException;
 import iwb.service.FrameworkService;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
+import iwb.util.LogUtil;
 import iwb.util.UserUtil;
 
 @Controller
@@ -86,6 +88,9 @@ public class RestController implements InitializingBean {
 			} else if(methodName.equals("login")){
 				Map requestParams = GenericUtil.getParameterMap(request);
 				requestParams.put("_remote_ip", request.getRemoteAddr());
+				String transactionId =  GenericUtil.getTransactionId();
+				requestParams.put("_trid_", transactionId);
+				if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(po.getProjectUuid(), "rest", transactionId), true);
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
 				Map scd = new HashMap();
@@ -181,7 +186,10 @@ public class RestController implements InitializingBean {
 				}
 			} else 
 				requestParams = GenericUtil.getParameterMap(request);
-			
+			String transactionId =  GenericUtil.getTransactionId();
+			requestParams.put("_trid_", transactionId);
+			if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(po.getProjectUuid(), "rest", transactionId), true);
+
 			W5FormResult fr=null; 
 			switch(wsm.getObjectTip()){
 			case	0://show Record

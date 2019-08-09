@@ -357,7 +357,7 @@ public class RESTEngine {
 					}
 				}
 
-				Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params);
+				Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params, (String)requestParams.get("_trid_"));
 				if (wsm.getHeaderAcceptTip() != null && wsm.getHeaderAcceptTip()==3) { //binary
 					byte[] x = HttpUtil.send4bin(url, params,
 							new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodTip()], reqPropMap);
@@ -394,7 +394,7 @@ public class RESTEngine {
 				}
 				if (FrameworkSetting.log2tsdb) {
 					log.calcProcessTime();
-					LogUtil.logObject(log);
+					LogUtil.logObject(log, false);
 				}
 				break;
 			}

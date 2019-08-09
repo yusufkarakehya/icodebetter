@@ -23,7 +23,7 @@ public class Log5UserAction implements Serializable, Log5Base{
 	private int tablePk;  
 	private short actionTip;  
 	private String userIp;  
-	
+
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();

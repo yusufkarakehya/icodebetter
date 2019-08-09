@@ -123,7 +123,7 @@ var defineJSCompletionItemProvider = {
             label: '$.console',
             kind: monaco.languages.CompletionItemKind.Function,
             documentation: "Console",
-            detail: 'null',insertText:'$.console("Hellow World", "Warning", "warn")'
+            detail: 'null',insertText:'$.console("Hello")'
         },{
             label: '$.influxQuery',
             kind: monaco.languages.CompletionItemKind.Function,

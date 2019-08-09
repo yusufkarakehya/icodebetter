@@ -15,7 +15,9 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 
 import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
 import iwb.domain.db.Log5Mq;
+import iwb.domain.db.Log5Transaction;
 import iwb.domain.db.W5Mq;
 import iwb.domain.db.W5MqCallback;
 import iwb.domain.db.W5Project;
@@ -72,13 +74,17 @@ public class MQTTCallback implements MqttCallback {
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
 //		System.out.println(topic);
 		String msg = new String(message.getPayload());
-		Log5Mq lmq = new Log5Mq(mq.getProjectUuid(), mq.getMqId(), topic, msg);
+		String transactionId =  GenericUtil.getTransactionId();
+		Log5Mq lmq = new Log5Mq(mq.getProjectUuid(), mq.getMqId(), topic, msg, transactionId);
 		if(!GenericUtil.isEmpty(mq.get_callbacks())) {
 			for(W5MqCallback c:mq.get_callbacks()) try{
 				Map requestMap = new HashMap();
+				if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(mq.getProjectUuid(), "mqtt", transactionId), false);
+				requestMap.put("_trid_", transactionId);
 				requestMap.put("topic", topic);
 				requestMap.put("message", msg);
-				service.executeFunc(scd, c.getFuncId(), requestMap, (short) 7);				
+				service.executeFunc(scd, c.getFuncId(), requestMap, (short) 7);
+				transactionId =  GenericUtil.getTransactionId();
 			} catch(Exception ee) {
 				lmq.setError(ee.getMessage());
 				if(ee instanceof IWBException) {
@@ -89,7 +95,7 @@ public class MQTTCallback implements MqttCallback {
 					System.out.println("MQ Error: " + topic + " : " + ee.getMessage());
 			}
 		}
-		LogUtil.logObject(lmq);
+		LogUtil.logObject(lmq, true);
 	}
 
 	@Override

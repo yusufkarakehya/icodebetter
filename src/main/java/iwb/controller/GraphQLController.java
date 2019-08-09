@@ -36,6 +36,7 @@ import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
+import iwb.domain.db.Log5Transaction;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5GlobalFunc;
 import iwb.domain.db.W5GlobalFuncParam;
@@ -57,6 +58,7 @@ import iwb.exception.IWBException;
 import iwb.service.FrameworkService;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
+import iwb.util.LogUtil;
 import iwb.util.UserUtil;
 
 @Controller
@@ -138,7 +140,11 @@ public class GraphQLController implements InitializingBean {
     			}
 
             	
-				W5QueryResult qr = service.executeQuery(scd, wsm.getObjectId(), requestParams);
+    			String transactionId =  GenericUtil.getTransactionId();
+    			requestParams.put("_trid_", transactionId);
+    			if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(po.getProjectUuid(), "graphql", transactionId), true);
+
+    			W5QueryResult qr = service.executeQuery(scd, wsm.getObjectId(), requestParams);
 				if(GenericUtil.isEmpty(qr.getErrorMap())) {
 					if(wsm.get_params()!=null){
 						List<W5QueryField> lqf = new ArrayList();

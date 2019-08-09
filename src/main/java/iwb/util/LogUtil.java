@@ -29,12 +29,12 @@ public class LogUtil {
 
 	}	
 	
-	public static void logObject(Log5Base o){
+	public static void logObject(Log5Base o, boolean withTime){
 		if(!FrameworkSetting.log2tsdb || o==null)return;
 		String str = o.toInfluxDB();
 		if(GenericUtil.isEmpty(str))return;
 		StringBuilder s=new StringBuilder(str);
-		s.append(" ").append(Instant.now().toEpochMilli()).append("000000");
+		if(withTime)s.append(" ").append(Instant.now().toEpochMilli()).append("000000");
 		try {
 			if(FrameworkSetting.logType==2){ //Asynchronized RabbitMQ
 				//mqChannel.basicPublish("", FrameworkSetting.mqTsdbQueue, null, s.toString().getBytes());
@@ -50,6 +50,7 @@ public class LogUtil {
 			}
 		}
 	}
+	
 	/*
 	public static String queryLog(String measName, String projectId, int start, int limit){
 		if(!FrameworkSetting.log2tsdb)return "";

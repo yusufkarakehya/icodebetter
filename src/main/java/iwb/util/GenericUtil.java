@@ -1423,6 +1423,8 @@ public class GenericUtil {
 		}
 		res.put("_ServerURL_", request.getServerName());
 		res.put("_ClientURL_", request.getRemoteHost());
+		String transactionId = (String)request.getAttribute("_trid_");
+		if(transactionId!=null)res.put("_trid_", transactionId);
 
 		if (GenericUtil.safeEquals(request.getContentType(), "application/json")) {
 			try {
@@ -2651,5 +2653,9 @@ public class GenericUtil {
 		return stringBuffer.toString();
 		} catch(Exception e) {}
 		return "error";
+	}
+
+	public static String getTransactionId() {
+		return UUID.randomUUID().toString();
 	}
 }

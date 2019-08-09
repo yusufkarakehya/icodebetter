@@ -1,5 +1,7 @@
 package iwb.domain.db;
 
+import java.time.Instant;
+
 // Generated Feb 4, 2007 3:49:13 PM by Hibernate Tools 3.2.0.b9
 
 import javax.persistence.Column;
@@ -27,6 +29,7 @@ public class Log5QueryAction implements java.io.Serializable, Log5Base {
 	private String projectUuid;  
 
 	private String dsc;
+	private	String transactionId;
 
 
 	private int processTime;
@@ -42,9 +45,11 @@ public class Log5QueryAction implements java.io.Serializable, Log5Base {
 		default:
 			s.append("xquery,query_id=").append(getQueryId());
 			if(projectUuid!=null)s.append(",project_uuid=").append(projectUuid);
-			s.append(" user_id=").append(getUserId()).append(",duration=").append(getProcessTime()).append(",sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+			s.append(" user_id=").append(getUserId()).append("i,duration=").append(getProcessTime()).append("i,sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
 
 		}
+		if(!GenericUtil.isEmpty(transactionId))s.append(",trid=\"").append(transactionId).append("\"");
+		s.append(" ").append(startTime).append("000000");
 		return s.toString();
 	}
 
@@ -59,15 +64,29 @@ public class Log5QueryAction implements java.io.Serializable, Log5Base {
 		this.dsc = dsc;
 	}
 	
-	public Log5QueryAction() {
+	
+	public Log5QueryAction(String transactionId, String dsc) {
+		super();
+		this.queryId = -999;
+		this.startTime=Instant.now().toEpochMilli();
+		this.dsc = dsc;
+		this.processTime = -1;
+		this.transactionId = transactionId;
 	}
 
-	public Log5QueryAction(W5QueryResult queryResult) {
-		this.queryId = queryResult.getQueryId();
-		this.userId = (Integer)queryResult.getScd().get("userId");
-		this.startTime=System.currentTimeMillis();
+
+
+	public Log5QueryAction() {
+
+	}
+
+	public Log5QueryAction(W5QueryResult r) {
+		this.queryId = r.getQueryId();
+		this.userId = (Integer)r.getScd().get("userId");
+		this.startTime=Instant.now().toEpochMilli();
 		this.processTime = -1;
-		this.projectUuid = queryResult.getScd().get("projectId")!=null ?(String)queryResult.getScd().get("projectId"):"0123456789";
+		this.projectUuid = r.getScd().get("projectId")!=null ?(String)r.getScd().get("projectId"):"0123456789";
+		this.transactionId =r.getRequestParams()!=null ? r.getRequestParams().get("_trid_"):null;
 	}
     @SequenceGenerator(name="sex_log_query_action",sequenceName="iwb.seq_log_query_action",allocationSize=1)
 	@Id
@@ -110,7 +129,7 @@ public class Log5QueryAction implements java.io.Serializable, Log5Base {
 	}
 
 	public void calcProcessTime() {
-		this.processTime = (int)(System.currentTimeMillis() - this.startTime);
+		this.processTime = (int)(Instant.now().toEpochMilli() - this.startTime);
 	}
 
 	@Transient

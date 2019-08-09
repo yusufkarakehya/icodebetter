@@ -146,7 +146,7 @@ public class MailUtil {
 			email.setStatus((short)0);//error
 			return e.getMessage()==null ? "unknown error" : e.getMessage();
 		} finally {
-			LogUtil.logObject(email);
+			LogUtil.logObject(email, true);
 		}
 		return null;
 	}

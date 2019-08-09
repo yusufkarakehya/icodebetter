@@ -1,5 +1,6 @@
 package iwb.domain.db;
 
+import java.time.Instant;
 import java.util.Map;
 
 // Generated Feb 4, 2007 3:49:13 PM by Hibernate Tools 3.2.0.b9
@@ -36,11 +37,14 @@ public class Log5WsMethodAction implements java.io.Serializable, Log5Base {
 	private int processTime;
 	private long startTime;
 	private String projectUuid;  
+	private	String transactionId;
 
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("ws_method_action,ws_method_id=").append(wsMethodId).append(",project_uuid=").append(projectUuid).append(" user_id=").append(userId).append(",process_time=").append(processTime).append(",url=\"").append(GenericUtil.stringToJS2(url)).append("\",params=\"").append(GenericUtil.stringToJS2(params)).append("\",response=\"").append(GenericUtil.stringToJS2(response)).append("\"");
+		s.append("ws_method_action,project_uuid=").append(projectUuid).append(" user_id=").append(userId).append("i,ws_method_id=").append(wsMethodId).append("i,process_time=").append(processTime).append("i,url=\"").append(GenericUtil.stringToJS2(url)).append("\",params=\"").append(GenericUtil.stringToJS2(params)).append("\",response=\"").append(GenericUtil.stringToJS2(response)).append("\"");
+		if(!GenericUtil.isEmpty(transactionId))s.append(",trid=\"").append(transactionId).append("\"");
+		s.append(" ").append(startTime).append("000000");
 		return s.toString();
 	}
 
@@ -85,7 +89,7 @@ public class Log5WsMethodAction implements java.io.Serializable, Log5Base {
 	}
 
 
-	public Log5WsMethodAction(Map<String, Object> scd, int wsMethodId, String url, String params) {
+	public Log5WsMethodAction(Map<String, Object> scd, int wsMethodId, String url, String params, String transactionId) {
 		this.wsMethodId = wsMethodId;
 		if(scd!=null){
 			this.userId = (Integer)scd.get("userId");
@@ -93,8 +97,9 @@ public class Log5WsMethodAction implements java.io.Serializable, Log5Base {
 		}
 		this.url = url;
 		this.params = params;
-		this.startTime=System.currentTimeMillis();
+		this.startTime=Instant.now().toEpochMilli();
 		this.processTime = -1;
+		this.transactionId = transactionId;
 	}
     @SequenceGenerator(name="sex_ws_method_action",sequenceName="iwb.seq_ws_method_action",allocationSize=1)
 	@Id
@@ -130,7 +135,7 @@ public class Log5WsMethodAction implements java.io.Serializable, Log5Base {
 
 
 	public void calcProcessTime() {
-		this.processTime = (int)(System.currentTimeMillis() - this.startTime);
+		this.processTime = (int)(Instant.now().toEpochMilli() - this.startTime);
 	}
 
 	@Column(name="project_uuid")
