@@ -17,9 +17,9 @@ public class Log5VisitedPage implements Log5Base {
 
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("visited_page,page_name=").append(getPageName());
+		s.append("visited_page");
 		if(getScd().get("projectId")!=null)s.append(",project_uuid=").append(getScd().get("projectId"));
-		s.append(" user_id=").append(getScd().get("userId")==null?0:(Integer)getScd().get("userId")).append("i,page_id=").append(getPageId()).append("i,duration=").append(getDuration()).append("i,ip=\"").append(getIp()).append("\"");
+		s.append(" page_name=\"").append(getPageName()).append("\",page_id=").append(getPageId()).append("i,user_id=").append(getScd().get("userId")==null?0:(Integer)getScd().get("userId")).append("i,duration=").append(getDuration()).append("i,ip=\"").append(getIp()).append("\"");
 		if(!GenericUtil.isEmpty(transactionId))s.append(",trid=\"").append(transactionId).append("\"");
 		s.append(" ").append(startTime).append("000000");
 		return s.toString();
