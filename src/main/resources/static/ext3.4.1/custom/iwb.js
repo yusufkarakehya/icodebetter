@@ -7328,6 +7328,7 @@ iwb.ui.buildPanel = buildPanel;
 
 iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   var extDef = getForm.render();
+  if(extDef===false)return false;
 
   var extraItems =
     !getForm.renderTip || getForm.renderTip != 3
