@@ -108,7 +108,9 @@ public class ExternalDBSql {
 							influxQL,
 							"[8," + queryResult.getQueryId() + "] " + queryResult.getQuery().getDsc() + ": time dimension not defined properly", null);
 			}
-			List l = InfluxUtil.query(edb.getDbUrl(), "icb_log", influxQL);
+			if(!influxQL.contains("limit") && queryResult.getRequestParams()!=null && GenericUtil.uInt(queryResult.getRequestParams(), "limit")>0)
+				influxQL+=" limit " + GenericUtil.uInt(queryResult.getRequestParams(), "limit");
+			List l = InfluxUtil.query(edb.getDbUrl(), edb.getDefaultSchema(), influxQL);
 			queryResult.setData(l);
 			queryResult.setNewQueryFields(q.get_queryFields());
 			return;
