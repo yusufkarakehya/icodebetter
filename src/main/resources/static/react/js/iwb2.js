@@ -8317,11 +8317,7 @@ iwb.graph = function(dg, gid, callback) {
 	                xaxis: {
 	                    categories: labels,
 	                },
-	                yaxis: {
-	                    title: {
-	                        text: undefined
-	                    },                
-	                }
+	                yaxis: {labels: {show: !!dg.legend}, axisTicks: {color: '#777'}},
 	            }
 	        	break;
 	        case 3:// pie
@@ -8340,7 +8336,7 @@ iwb.graph = function(dg, gid, callback) {
 	        case 2:// line
 	        	var colCount = newStat.split(',').length;
 	        	for(var qi=0;qi<colCount;qi++){
-	        		series.push({name:colCount>1 ? j.lookUps[qi] : ('Serie #' + (1+qi)), data:[]})
+	        		series.push({name:j.lookUps ? j.lookUps[qi] : ('Count'), data:[]})
 	        	}
 	        	d.map((z)=>{
 	        		for(var qi=0;qi<colCount;qi++){
@@ -8363,7 +8359,7 @@ iwb.graph = function(dg, gid, callback) {
 	                xaxis: {
 	                    categories: labels,
 	                },
-	                yaxis: {labels: {show: false}},
+	                yaxis: {labels: {show: !!dg.legend}},
 	            }
 	        	break;
 			}
