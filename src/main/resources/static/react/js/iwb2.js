@@ -8366,7 +8366,7 @@ iwb.graph = function(dg, gid, callback) {
 
 			if(options){
 		        options.theme= {
-		            mode: 'dark',
+//		            mode: 'dark',
 		            palette: iwb.graphPalette||'palette6',
 		          };
 		        options.chart.height = el.offsetHeight && el.offsetHeight>50 ?  el.offsetHeight-20 : el.offsetWidth/2;
