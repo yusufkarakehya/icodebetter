@@ -8261,13 +8261,18 @@ function fmtDecimal(value,digit){
 	return x1;	
 }
 
+
+iwb.apexCharts={}
 iwb.graph = function(dg, gid, callback) {
+	if(!dg.groupBy)return;
 	  var newStat = 1 * dg.funcTip ? dg.funcFields : "";
 	  var params = {};
 	  if (newStat) params._ffids = newStat;
 	  if (1 * dg.graphTip >= 5) params._sfid = dg.stackedFieldId;
 	  var series=[], labels=[], lookUps=[], chart =null;
 	  var xid = gid;
+	  var el = document.getElementById(gid);
+	  if(!el)return;
 	  iwb.request({
 	    url:
 	      (dg.query? "ajaxQueryData4Stat?_gid=":"ajaxQueryData4StatTree?_gid=") +
@@ -8282,7 +8287,6 @@ iwb.graph = function(dg, gid, callback) {
 	    successCallback: function(j) {
 			var d= j.data;
 			if(!d || !d.length)return;
-			
 			switch (1 * dg.graphTip) {
 	        case 6: // stacked area
 	        case 5: // stacked column
@@ -8299,13 +8303,13 @@ iwb.graph = function(dg, gid, callback) {
 	            options = {
 	                chart: {
 	                	id:'apex-'+gid,
-	                    height: 80*d.length+40,
+//	                    height: 80*d.length+40,
 	                    type: 'bar',
 	                    stacked: true,
 	                    toolbar: {show: false}
 	                },
 	                plotOptions: {
-	                    bar: {horizontal: true},
+//	                    bar: {horizontal: true},
 	                    
 	                },
 	                series: series,
@@ -8326,50 +8330,36 @@ iwb.graph = function(dg, gid, callback) {
 	                labels.push(z.dsc||'-');
 	            });
 	            var options = {
-//title: {text: dg.name},
-	                chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
-	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : false
+                    chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
+	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : {show:false}
 	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
 	            }
 
 	        	break;
 	        case 1:// column
-	        case 2:// area
+	        case 2:// line
+	        	var colCount = newStat.split(',').length;
+	        	for(var qi=0;qi<colCount;qi++){
+	        		series.push({name:colCount>1 ? j.lookUps[qi] : ('Serie #' + (1+qi)), data:[]})
+	        	}
 	        	d.map((z)=>{
-	                series.push(1*z.xres);
+	        		for(var qi=0;qi<colCount;qi++){
+	        			series[qi].data.push(1*z[qi?'xres'+(qi+1):'xres']);
+	        		}
 	                labels.push(z.dsc);
 	            });
 
 	            options = {
-//title: {text: dg.name},
 	                chart: {
 	                	id:'apex-'+gid,
-	                    height:50*d.length+30,
-	                    type: 1 * dg.graphTip==1?'bar':'area',
+//	                    height:document.getElementById()50*d.length+30,
+	                    type: 1 * dg.graphTip==1?'bar':'spline',
 	                    toolbar: {show: false}
 	                },
-	                plotOptions: {
-	                    bar: {
-	                        horizontal: 1 * dg.graphTip==1 // d.length>5
-	                    }
+	                stroke: 1 * dg.graphTip==1 ? {}:{
+	                    curve: 'smooth'
 	                },
-	                dataLabels:  1 * dg.graphTip==1 ? {
-	                    enabled: true,
-	                    textAnchor: 'start',
-	                    style: {
-	                        colors: ['#fff']
-	                    },
-	                    formatter: function(val, opt) {
-	                        return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
-	                    },
-	                    offsetX: 0,
-	                    dropShadow: {
-	                      enabled: true
-	                    }
-	                }:{},
-	                series: [{
-	                    data: series
-	                }],
+	                series: series,
 	                xaxis: {
 	                    categories: labels,
 	                },
@@ -8379,7 +8369,12 @@ iwb.graph = function(dg, gid, callback) {
 			}
 
 			if(options){
-				if(iwb.charts[xid])iwb.charts[xid].destroy();
+		        options.theme= {
+		            mode: 'dark',
+		            palette: iwb.graphPalette||'palette6',
+		          };
+		        options.chart.height = el.offsetHeight && el.offsetHeight>50 ?  el.offsetHeight-20 : el.offsetWidth/2;
+				if(iwb.apexCharts[xid])iwb.apexCharts[xid].destroy();
 				if(callback)options.chart.events= {
 						dataPointSelection: function(event, chartContext, config) {
 							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length){
@@ -8389,10 +8384,10 @@ iwb.graph = function(dg, gid, callback) {
 						}
 				}
 	            var chart = new ApexCharts(
-	                document.getElementById(xid),
+	                el,
 	                options
 	            );
-	            iwb.charts[xid]=chart;
+	            iwb.apexCharts[xid]=chart;
 	            chart.render();
 			}
 			

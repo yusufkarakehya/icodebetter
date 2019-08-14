@@ -4956,6 +4956,7 @@ public class PostgreSQL extends BaseDAO {
 		String tableFieldSQL = "";
 		List params = new ArrayList();
 		W5TableField tableField = null;
+		Map<String, String> lookUps = new HashMap();
 
 		if (tableFieldChain.startsWith("tbl.") || (tableFieldChain.startsWith("lnk.")
 				&& tableFieldChain.substring(4).replace(".", "&").split("&").length == 1)) { // direk
@@ -5099,6 +5100,8 @@ public class PostgreSQL extends BaseDAO {
 							.uInt(requestParams, "_dtt")])
 					+ "')";
 		}
+		Map result = new HashMap();
+		result.put("success", true);
 		switch (queryResult.getQuery().getQueryTip()) {
 		case 9:
 		case 10:
@@ -5115,6 +5118,7 @@ public class PostgreSQL extends BaseDAO {
 			if (!GenericUtil.isEmpty(stackField))
 				sql += stackField + " stack_id, ";
 			if (statType != 0) {
+				result.put("lookUps", lookUps);
 				String[] fq = funcFields.split(",");
 				int count = 0;
 				Set<Integer> fqs = new HashSet();
@@ -5128,8 +5132,9 @@ public class PostgreSQL extends BaseDAO {
 							throw new IWBException("framework", "Query", queryId, null,
 									LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_grid_stat_field_error"),
 									null);
-						count++;
 						W5TableFieldCalculated tcf = ltcf.get(0);
+						lookUps.put(count+"", LocaleMsgCache.get2(scd, tcf.getDsc()));
+						count++;
 						Object[] oo = DBUtil.filterExt4SQL(tcf.getSqlCode(), scd, requestParams, null);
 						// tableFieldSQL =
 						// oo[0].toString();//.put(tableFieldChain,
@@ -5146,14 +5151,16 @@ public class PostgreSQL extends BaseDAO {
 						fqs.add(isx);
 				}
 
-				for (W5QueryField o : queryResult.getQuery().get_queryFields())
+				for (W5QueryField o : queryResult.getQuery().get_queryFields()) {
 					if (fqs.contains(o.getQueryFieldId())) {
+						lookUps.put(count+"", LocaleMsgCache.get2(scd, o.getDsc()));
 						count++;
 						if (count > 1)
 							sql += "," + stats[statType] + "(" + o.getDsc() + ") xres" + count;
 						else
 							sql += stats[statType] + "(" + o.getDsc() + ") xres";
 					}
+				}
 
 				if (count == 0)
 					throw new IWBException("framework", "Query", queryId, null,
@@ -5168,8 +5175,6 @@ public class PostgreSQL extends BaseDAO {
 			sql += tableFieldSQL.startsWith("to_char(") ? " order by id" : " order by xres desc";
 			queryResult.setExecutedSql(sql);
 		}
-		Map result = new HashMap();
-		result.put("success", true);
 		if (queryResult.getErrorMap().isEmpty()) {
 			if (!params.isEmpty())
 				queryResult.getSqlParams().addAll(0, params);
