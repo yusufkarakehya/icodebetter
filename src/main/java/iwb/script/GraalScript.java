@@ -281,7 +281,7 @@ public class GraalScript {
 						(String) scd.get("sessionId"), (String) requestParams.get(".w"), m);
 			} catch (Exception e) {
 			}
-		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5Console(scd, s, level));
+		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5Console(scd, s, level, (String)requestParams.get("_trid_")), true);
 			
 	}
 

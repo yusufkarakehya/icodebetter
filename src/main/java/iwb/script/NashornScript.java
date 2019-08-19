@@ -26,6 +26,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Console;
+import iwb.domain.db.Log5QueryAction;
 import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
@@ -52,7 +53,12 @@ public class NashornScript {
 
 	public Object[] sqlQuery(String sql) {
 		scriptEngine.getDao().checkTenant(scd);
+		Log5QueryAction log = null;
+		if(FrameworkSetting.log2tsdb && requestParams.containsKey("_trid_")){
+			log = new Log5QueryAction(requestParams.get("_trid_"), sql);
+		}
 		List l = scriptEngine.getDao().executeSQLQuery2Map(sql, null);
+		if(log!=null)LogUtil.logObject(log, false);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
@@ -62,7 +68,12 @@ public class NashornScript {
 			return sqlQuery(sql);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, m, null);
 		scriptEngine.getDao().checkTenant(scd);
+		Log5QueryAction log = null;
+		if(FrameworkSetting.log2tsdb && requestParams.containsKey("_trid_")){
+			log = new Log5QueryAction(requestParams.get("_trid_"), sql);
+		}
 		List l = scriptEngine.getDao().executeSQLQuery2Map(oz[0].toString(), (List) oz[1]);
+		if(log!=null)LogUtil.logObject(log, false);
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
@@ -170,7 +181,7 @@ public class NashornScript {
 			Map<String, Object> xtagMap = (Map)tagMap;
 			for (String key : xtagMap.keySet()) {
 				Object o = xtagMap.get(key);
-				if (o != null) {
+				if (!GenericUtil.isEmpty(o)) {
 					ss.append(",").append(key).append("=").append(o);
 				}
 			}
@@ -183,7 +194,7 @@ public class NashornScript {
 			Map<String, Object> xfieldMap = (Map)fieldMap;
 			for (String key : xfieldMap.keySet()) {
 				Object o = xfieldMap.get(key);
-				if (o != null) {
+				if (!GenericUtil.isEmpty(o)) {
 					ss.append(key).append("=");
 					if(o instanceof Integer || o instanceof Long || o instanceof Short)ss.append(o).append("i");
 					else if(o instanceof Double || o instanceof Float)ss.append(o);
@@ -261,6 +272,8 @@ public class NashornScript {
 		Map<String, String> rp = ScriptUtil.fromScriptObject2Map(jsRequestParams);
 		if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
 			rp.put(".w", requestParams.get(".w"));
+		if(requestParams.containsKey("_trid_") && !rp.containsKey("_trid_") )
+			rp.put("_trid_", requestParams.get("_trid_"));
 		return rp;
 	}
 
@@ -292,6 +305,9 @@ public class NashornScript {
 		}
 		if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
 			rp.put(".w", requestParams.get(".w"));
+		if(requestParams.containsKey("_trid_") && !rp.containsKey("_trid_") )
+			rp.put("_trid_", requestParams.get("_trid_"));
+
 		return rp;
 	}
 
@@ -367,7 +383,7 @@ public class NashornScript {
 						(String) scd.get("sessionId"), (String) requestParams.get(".w"), m);
 			} catch (Exception e) {
 			}
-		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5Console(scd, s, level));
+		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5Console(scd, s, level, (String)requestParams.get("_trid_")), true);
 	}
 
 	public Object execFunc(int dbFuncId, ScriptObjectMirror jsRequestParams) {
@@ -407,7 +423,14 @@ public class NashornScript {
 		}
 
 		scriptEngine.getDao().checkTenant(scd);
-		return scriptEngine.getDao().executeUpdateSQLQuery(sql, null);
+		Log5QueryAction log = null;
+		if(FrameworkSetting.log2tsdb && requestParams.containsKey("_trid_")){
+			log = new Log5QueryAction(requestParams.get("_trid_"), sql);
+		}
+		
+		int result = scriptEngine.getDao().executeUpdateSQLQuery(sql, null);
+		if(log!=null)LogUtil.logObject(log, false);
+		return result;
 	}
 
 	public int sqlExecute(String sql, ScriptObjectMirror jsRequestParams) {
@@ -421,9 +444,14 @@ public class NashornScript {
 
 		Map<String, String> reqMap = fromScriptObject2Map(jsRequestParams);
 		Object[] oz = DBUtil.filterExt4SQL(sql, scd, reqMap, null);
-
+		Log5QueryAction log = null;
+		if(FrameworkSetting.log2tsdb && requestParams.containsKey("_trid_")){
+			log = new Log5QueryAction(requestParams.get("_trid_"), oz[0].toString());
+		}
 		scriptEngine.getDao().checkTenant(scd);
-		return scriptEngine.getDao().executeUpdateSQLQuery(oz[0].toString(), oz.length > 1 ? (List) oz[1] : null);
+		int result = scriptEngine.getDao().executeUpdateSQLQuery(oz[0].toString(), oz.length > 1 ? (List) oz[1] : null);
+		if(log!=null)LogUtil.logObject(log, false);
+		return result;
 	}
 
 	public W5FormResult postForm(int formId, int action, ScriptObjectMirror jsRequestParams) {
@@ -534,7 +562,8 @@ public class NashornScript {
 		Map result = new HashMap();
 		result.put("success", true);
 		try {
-			Map m = scriptEngine.getRestEngine().REST(scd, serviceName, fromScriptObject2Map2(jsRequestParams));
+			Map newReqMap = fromScriptObject2Map2(jsRequestParams);
+			Map m = scriptEngine.getRestEngine().REST(scd, serviceName, newReqMap);
 			if (m != null) {
 				if (m.containsKey("errorMsg")) {
 					if (throwFlag)

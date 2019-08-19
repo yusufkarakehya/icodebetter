@@ -862,6 +862,8 @@ public class PostgreSQL extends BaseDAO {
 		switch (queryResult.getQuery().getQueryTip()) {
 		case 9:
 		case 10:
+		case 12:
+		case 13:
 			queryResult.prepareTreeQuery(null);
 			break;
 		case 15:
@@ -1185,6 +1187,7 @@ public class PostgreSQL extends BaseDAO {
 						paramMap.put("pmust_load_id", rc.getValue());
 					switch (lookupQueryResult.getQuery().getQueryTip()) {
 					case 12:
+					case 13:
 						lookupQueryResult.prepareTreeQuery(paramMap);
 						break; // lookup tree query
 					default:
@@ -3842,7 +3845,7 @@ public class PostgreSQL extends BaseDAO {
 		W5Table mainTable = queryResult.getMainTable();
 		int customizationId = (Integer) queryResult.getScd().get("customizationId");
 		String projectId =(String) queryResult.getScd().get("projectId");
-		String pkFieldName = query.getQueryTip() == 9 ? query.get_queryFields().get(0).getDsc() : "pkpkpk_id";
+		String pkFieldName = query.getQueryTip() == 9 || query.getQueryTip() == 21 || query.getQueryTip() == 22 ? query.get_queryFields().get(0).getDsc() : "pkpkpk_id";
 		if (FrameworkSetting.vcs && mainTable.getVcsFlag() != 0 /*
 																 * && query.getSqlSelect().startsWith("x.*")
 																 */) { // VCS
@@ -4953,6 +4956,7 @@ public class PostgreSQL extends BaseDAO {
 		String tableFieldSQL = "";
 		List params = new ArrayList();
 		W5TableField tableField = null;
+		Map<String, String> lookUps = new HashMap();
 
 		if (tableFieldChain.startsWith("tbl.") || (tableFieldChain.startsWith("lnk.")
 				&& tableFieldChain.substring(4).replace(".", "&").split("&").length == 1)) { // direk
@@ -5096,6 +5100,8 @@ public class PostgreSQL extends BaseDAO {
 							.uInt(requestParams, "_dtt")])
 					+ "')";
 		}
+		Map result = new HashMap();
+		result.put("success", true);
 		switch (queryResult.getQuery().getQueryTip()) {
 		case 9:
 		case 10:
@@ -5112,6 +5118,7 @@ public class PostgreSQL extends BaseDAO {
 			if (!GenericUtil.isEmpty(stackField))
 				sql += stackField + " stack_id, ";
 			if (statType != 0) {
+				result.put("lookUps", lookUps);
 				String[] fq = funcFields.split(",");
 				int count = 0;
 				Set<Integer> fqs = new HashSet();
@@ -5125,8 +5132,9 @@ public class PostgreSQL extends BaseDAO {
 							throw new IWBException("framework", "Query", queryId, null,
 									LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_grid_stat_field_error"),
 									null);
-						count++;
 						W5TableFieldCalculated tcf = ltcf.get(0);
+						lookUps.put(count+"", LocaleMsgCache.get2(scd, tcf.getDsc()));
+						count++;
 						Object[] oo = DBUtil.filterExt4SQL(tcf.getSqlCode(), scd, requestParams, null);
 						// tableFieldSQL =
 						// oo[0].toString();//.put(tableFieldChain,
@@ -5143,14 +5151,16 @@ public class PostgreSQL extends BaseDAO {
 						fqs.add(isx);
 				}
 
-				for (W5QueryField o : queryResult.getQuery().get_queryFields())
+				for (W5QueryField o : queryResult.getQuery().get_queryFields()) {
 					if (fqs.contains(o.getQueryFieldId())) {
+						lookUps.put(count+"", LocaleMsgCache.get2(scd, o.getDsc()));
 						count++;
 						if (count > 1)
 							sql += "," + stats[statType] + "(" + o.getDsc() + ") xres" + count;
 						else
 							sql += stats[statType] + "(" + o.getDsc() + ") xres";
 					}
+				}
 
 				if (count == 0)
 					throw new IWBException("framework", "Query", queryId, null,
@@ -5165,8 +5175,6 @@ public class PostgreSQL extends BaseDAO {
 			sql += tableFieldSQL.startsWith("to_char(") ? " order by id" : " order by xres desc";
 			queryResult.setExecutedSql(sql);
 		}
-		Map result = new HashMap();
-		result.put("success", true);
 		if (queryResult.getErrorMap().isEmpty()) {
 			if (!params.isEmpty())
 				queryResult.getSqlParams().addAll(0, params);
@@ -6197,13 +6205,13 @@ public class PostgreSQL extends BaseDAO {
 				"w5_table_param", "w5_form_cell", "w5_form", "w5_db_func_param", "w5_db_func", "w5_table_field",
 				"w5_table", "w5_look_up_detay", "w5_look_up", "w5_locale_msg", "w5_query_param", "w5_query_field",
 				"w5_query", "w5_grid", "w5_grid_column", "w5_vcs_object", "w5_vcs_commit", "w5_project_task",
-				"w5_project_invitation", "w5_project_related_project" };
-		List params = new ArrayList();
-		params.add(delProjectId);
+				"w5_project_invitation", "w5_project_related_project", 
+				"w5_test", "w5_k8s_server", "w5_k8s_deploy", "w5_k8s_deploy_step", "w5_docker_host", 
+				"w5_docker_deploy", "w5_docker_container", "w5_external_db", "w5_mq", "w5_mq_callback", "w5_job_schedule"};
 		for (int qi = 0; qi < tables.length; qi++)
-			executeUpdateSQLQuery("delete from iwb." + tables[qi] + " where project_uuid=?", params);
+			executeUpdateSQLQuery("delete from iwb." + tables[qi] + " where project_uuid=?", delProjectId);
 
-		executeUpdateSQLQuery("delete from iwb.w5_user_related_project where related_project_uuid=?", params);
+		executeUpdateSQLQuery("delete from iwb.w5_user_related_project where related_project_uuid=?", delProjectId);
 	}
 
 	public void checkTenant(Map<String, Object> scd) {
@@ -6280,4 +6288,17 @@ public class PostgreSQL extends BaseDAO {
 		}
     
   }
+
+	public void deleteProjectMetadataAndDB(String delProjectId, boolean force) {
+		W5Project po = FrameworkCache.getProject(delProjectId);
+		if(po==null) po = (W5Project)getCustomizedObject("from W5Project t where 1=? AND t.projectUuid=?", 1, delProjectId, null);
+		if(po!=null && (force || GenericUtil.uInt(executeSQLQuery("select count(1) from iwb.w5_project x where x.customization_id=?", po.getCustomizationId()).get(0))>1)){
+			deleteProjectMetadata(delProjectId);
+			if(force)executeUpdateSQLQuery("delete from iwb.w5_project where project_uuid=?",delProjectId);
+			executeUpdateSQLQuery("DROP SCHEMA IF EXISTS "+po.getRdbmsSchema()+" CASCADE");
+		} else if(po==null && force) {
+			deleteProjectMetadata(delProjectId);
+			executeUpdateSQLQuery("delete from iwb.w5_project where project_uuid=?",delProjectId);
+		}
+	}
 }

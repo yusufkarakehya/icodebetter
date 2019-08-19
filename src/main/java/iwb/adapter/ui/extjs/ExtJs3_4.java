@@ -688,7 +688,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		// s.append("var ").append(formResult.getForm().getDsc()).append("=");
 		String[] postFormStr = new String[] { "", "search_form",
 				"ajaxPostForm",
-				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
+				/*f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : */"ajaxExecDbFunc",
 				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId())};
 		s.append("{\n formId: ")
 				.append(fr.getFormId())
@@ -4058,19 +4058,17 @@ public class ExtJs3_4 implements ViewAdapter {
 										toolbarItem.getCode())).append("\n}}");
 						itemCount++;
 					} else {
-						buttons.append("{")
-								.append(toolbarItem.getItemTip() == 0 ? "tooltip"
-										: "text")
-								.append(":'")
-								.append(LocaleMsgCache.get2(customizationId,
-										xlocale, toolbarItem.getLocaleMsgKey()))
+						String icon = "<i class=\"icon-"+(GenericUtil.isEmpty(toolbarItem.getImgIcon())? "energy":toolbarItem.getImgIcon())+"\"></i>";
+						buttons.append("{text:'")
+								.append(toolbarItem.getItemTip() == 0 ? icon : (GenericUtil.isEmpty(toolbarItem.getImgIcon()) ? "":(icon + " &nbsp;")) + LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
+								.append("', tooltip:'").append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
 								.append("', ref:'../")
 								.append(toolbarItem.getDsc())
-								.append("',")
+/*								.append("',")
 								.append(toolbarItem.getItemTip() == 0 ? "cls"
 										: "iconCls")
 								.append(":'")
-								.append(toolbarItem.getImgIcon())
+								.append(toolbarItem.getImgIcon())*/
 								.append("', activeOnSelection:")
 								.append(toolbarItem.getActiveOnSelectionFlag() != 0)
 								.append(", handler:function(a,b,c){\n")
@@ -4447,6 +4445,9 @@ public class ExtJs3_4 implements ViewAdapter {
 												// multi, 4:single + row
 												// expander, 5: single + detail
 												// dlg
+			case	0:buf.setLength(buf.length()-"new Ext.grid.".length());
+			buf.append("null;\n");
+			break;
 			case 3:
 				buf.append("CheckboxSelectionModel()\n");
 				break;

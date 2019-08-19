@@ -1,3 +1,8 @@
+if(!window.iwb)window.iwb={};
+iwb.serverUrl='/app/';
+iwb.debug=true;
+iwb.iwb=false;
+
 var routes = [
 // {path: '/',content: ' iCodeBetter ',},
 	  {path: '/home',async: function (routeTo, routeFrom, resolve, reject) {
@@ -21,14 +26,14 @@ var routes = [
 		  	      <div id="idx-page-content-home" class="page-content ptr-content">
 		  	    	<div class="ptr-preloader"><div class="preloader"></div><div class="ptr-arrow"></div></div>
 				  	  {{#each data}}
-		                  <div key="{{dashId}}" class="card">
+		                  {{#if dashId}}<div key="{{dashId}}" class="card">
 		                  	<div class="card-header">
 		                  		{{name}} {{#if listId}}<a href="/showMList?_lid={{listId}}"><i class="icon f7-icons">arrow_right</i></a>{{/if}}
 		                  	</div>
 		                  	<div class="card-content">
 		    					<div id="id-chart-{{dashId}}"></div>
 		    				</div>
-		                  </div>
+		                  </div>{{/if}}
 				  	  {{/each}}
 		  	      </div>
 		  	    </div>`
@@ -44,7 +49,7 @@ var routes = [
 		  	        },on:{
 		  	        	pageInit:function(){
 			  	    	  var self=this;
-			  	          iwb.request({url:'ajaxQueryData?_qid=6648',data:{xmobile_flag:1,sort:'mobile_tab_order'}, success:function(j){
+			  	          iwb.request({url:'ajaxQueryData?_renderer=ext3_4&&_qid=6648',data:{xmobile_flag:1,sort:'mobile_tab_order'}, success:function(j){
 			  	              if(j.data.length){
 			  	                  self.$setState(j);
 					  	    	  setTimeout(function(){
@@ -67,174 +72,245 @@ var routes = [
 	  },
 	  {path: '/workspace',async: function (routeTo, routeFrom, resolve, reject) {
 		  	resolve({component:{template:`<div class="page">
- {{#if backButton}}<div class="navbar">
- <div class="navbar-inner">
-    <div class="left">
-      <a href="#" class="link back">
-        <i class="icon icon-back"></i>
-        <span class="if-not-md">Back</span>
-      </a>
-    </div>
-  </div>
+{{#if backButton}}<div class="navbar">
+<div class="navbar-inner">
+   <div class="left">
+     <a href="#" class="link back">
+       <i class="icon icon-back"></i>
+       <span class="if-not-md">Back</span>
+     </a>
+   </div>
+ </div>
 </div>{{/if}}
 <div class="page-content">
-  <div class="block" style="text-align:center;">
-    <p>iCodeBetter Workspace.</p>
-  </div>
-  <div class="icb-expandable-cards">
-    <div class="card card-expandable" id="idx-card-new-project">
-      <div class="card-content">
-        <div class="bg-color-red">
-          <div class="card-header text-color-white display-block" style="font-weight:500;">
-            Add Project
-            <br>
-            <small style="opacity: 0.8;font-size:1rem;font-weight:400;">Manually or by scanning QR code</small>
-          </div>
-          <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
-            <i class="icon f7-icons">close_round_fill</i>
-          </a>
-  		  <div class="block" style="padding-top:10px; padding-bottom:12px">
- 	        <p class="row">
-	        <a href=# @click="clickSquareCode" class="col button button-fill color-white button-large" style="color:var(--f7-theme-color-bg-color) !important">Scan Square Code</a></p>
-		  
-		  </div>
-        </div>
-        <div class="card-content-padding">
-			<form class="list" id="idx-form-new-project">
-			    <ul>
-			        <li>
-			            <div class="item-content item-input item-input-outline">
-			                <div class="item-inner">
-			                    <div class="item-title item-floating-label">Name</div>
-			                    <div class="item-input-wrap">
-			                        <input type="text" name="name" value="Default" placeholder="">
-			                    </div>
-			                </div>
-			            </div>
-			        </li>
-			        <li>
-			            <div class="item-content item-input item-input-outline">
-			                <div class="item-inner">
-			                    <div class="item-title item-floating-label">URL</div>
-			                    <div class="item-input-wrap">
-			                        <input type="text" name="url" value="http://" placeholder="">
-			                    </div>
-			                </div>
-			            </div>
-			        </li>
-			        <li>
-			            <div class="item-content item-input item-input-outline">
-			                <div class="item-inner">
-			                    <div class="item-title item-floating-label">Username</div>
-			                    <div class="item-input-wrap">
-			                        <input type="text" name="user_name" value="" placeholder="">
-			                    </div>
-			                </div>
-			            </div>
-			        </li>
-			        <li>
-			            <div class="item-content item-input item-input-outline">
-			                <div class="item-inner">
-			                    <div class="item-title item-floating-label">Password</div>
-			                    <div class="item-input-wrap">
-			                        <input type="password" name="pass_word" value="" placeholder="">
-			                    </div>
-			                </div>
-			            </div>
-			        </li>
-			    </ul>
-			    <div class="block">
-			    <br/>
-			        <p class="row">
-			        <a href=# @click="clickTest(-1)" class="col button button-big button-fill button-raised color-green">Test</a>
-			        <a href=# @click="clickNew" class="col button button-big button-fill button-raised color-blue">Save</a></p>
-			    </div>
-			</form>        
-		</div>
-      </div>
-    </div>
+ <div class="block" style="text-align:center;">
+   <p>iCodeBetter Workspace.</p>
+ </div>
+ <div class="icb-expandable-cards">
+   <div class="card card-expandable" id="idx-card-new-project">
+     <div class="card-content">
+       <div class="bg-color-red">
+         <div class="card-header text-color-white display-block" style="font-weight:500;">
+           Add Project
+           <br>
+           <small style="opacity: 0.8;font-size:1rem;font-weight:400;">Manually or by scanning QR code</small>
+         </div>
+         <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
+           <i class="icon f7-icons">close_round_fill</i>
+         </a>
+ 	 <div class="block" style="padding-top:10px; padding-bottom:12px">
+       <p class="row">
+       <a href=# @click="clickSquareCode" class="col button button-fill color-white button-large" style="color:var(--f7-theme-color-bg-color) !important">Scan Square Code</a></p>
+ 
+ </div>
+       </div>
+       <div class="card-content-padding">
+<form class="list" id="idx-form-new-project">
+   <ul>
+       <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Name</div>
+                   <div class="item-input-wrap">
+                       <input type="text" name="name" value="Default" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>
+       <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">URL</div>
+                   <div class="item-input-wrap">
+                       <input type="text" name="url" value="http://" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>
+       {{#if ../iwb}}<li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Customization</div>
+                   <div class="item-input-wrap">
+                       <input type="text" name="cusId" value="" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>{{/if}}
+       <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Username</div>
+                   <div class="item-input-wrap">
+                       <input type="text" name="user_name" value="" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>
+       <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Password</div>
+                   <div class="item-input-wrap">
+                       <input type="password" name="pass_word" value="" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>
+       {{#if ../iwb}}<li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Language</div>
+                   <div class="item-input-wrap">
+                       <select name="locale">
+                 <option value="tr" selected>Turkce</option>
+                 <option value="en">English</option>
+              </select>
+                   </div>
+               </div>
+           </div>
+       </li>{{/if}}
+                   <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Theme</div>
+                   <div class="item-input-wrap">
+                       <select name="theme">
+                 <option value="" selected>Default</option>
+                 <option value="theme-dark">Dark</option>
+              </select>
+                   </div>
+               </div>
+           </div>
+       </li>
+   </ul>
+   <div class="block">
+       <p class="row">
+       <a href=# @click="clickTest(-1)" class="col button button-big button-fill button-raised color-green">Test</a>
+       <a href=# @click="clickNew" class="col button button-big button-fill button-raised color-blue">Save</a></p>
+   </div>
+</form>        
+</div>
+     </div>
+   </div>
 
-    <br/>
+   <br/>
 
 {{#each projects}}
-	<div class="card card-expandable" id="idx-card-project-{{id}}">
-      <div class="card-content">
-        <div class="bg-color-blue">
-          <div class="card-header text-color-white display-block" style="font-weight:500;">
-            {{name}}
-            <br>
-            <small style="opacity: 0.7;font-size:1rem;font-weight:400;">{{url}}</small><br/>
-          </div>
-          <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
-            <i class="icon f7-icons">close_round_fill</i>
-          </a>
-  		  <div class="block" style="padding-top:10px; padding-bottom:12px">
-	        <p class="row">
-	        <a href=# @click="clickConnect({{id}})" class="col button button-fill color-white button-large" style="color:var(--f7-theme-color-bg-color) !important">Connect</a></p>
-		  </div>
-        </div>
-        <div class="card-content-padding">
-			<form class="list" id="idx-form-project-{{id}}" data-pk="{{id}}">
-			    <ul>
-			        <li>
-			            <div class="item-content item-input item-input-outline">
-			                <div class="item-inner">
-			                    <div class="item-title item-floating-label">Name</div>
-			                    <div class="item-input-wrap">
-			                        <input type="text" name="name" value="{{name}}" placeholder="">
-			                    </div>
-			                </div>
-			            </div>
-			        </li>
-			        <li>
-			            <div class="item-content item-input item-input-outline">
-			                <div class="item-inner">
-			                    <div class="item-title item-floating-label">URL</div>
-			                    <div class="item-input-wrap">
-			                        <input type="text" name="url" value="{{url}}" placeholder="">
-			                    </div>
-			                </div>
-			            </div>
-			        </li>
-			        <li>
-			            <div class="item-content item-input item-input-outline">
-			                <div class="item-inner">
-			                    <div class="item-title item-floating-label">Username</div>
-			                    <div class="item-input-wrap">
-			                        <input type="text" name="user_name" autocomplete="off" value="{{user_name}}" placeholder="">
-			                    </div>
-			                </div>
-			            </div>
-			        </li>
-			        <li>
-			            <div class="item-content item-input item-input-outline">
-			                <div class="item-inner">
-			                    <div class="item-title item-floating-label">Password</div>
-			                    <div class="item-input-wrap">
-			                        <input type="password" name="pass_word" autocomplete="off" value="{{pass_word}}" placeholder="">
-			                    </div>
-			                </div>
-			            </div>
-			        </li>
-			    </ul>
-			    <div class="block">
-		  			<br/> 
+<div class="card card-expandable" id="idx-card-project-{{id}}">
+     <div class="card-content">
+       <div class="bg-color-blue">
+         <div class="card-header text-color-white display-block" style="font-weight:500;">
+           {{name}}
+           <br>
+           <small style="opacity: 0.7;font-size:1rem;font-weight:400;">{{url}}</small><br/>
+         </div>
+         <a href="#" class="link card-close card-opened-fade-in color-white" style="position: absolute; right: 15px; top: 15px">
+           <i class="icon f7-icons">close_round_fill</i>
+         </a>
+ 	 <div class="block" style="padding-top:10px; padding-bottom:12px">
+       <p class="row">
+       <a href=# @click="clickConnect({{id}})" class="col button button-fill color-white button-large" style="color:var(--f7-theme-color-bg-color) !important">Connect</a></p>
+ </div>
+       </div>
+       <div class="card-content-padding">
+<form class="list" id="idx-form-project-{{id}}" data-pk="{{id}}">
+   <ul>
+       <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Name</div>
+                   <div class="item-input-wrap">
+                       <input type="text" name="name" value="{{name}}" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>
+       <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">URL</div>
+                   <div class="item-input-wrap">
+                       <input type="text" name="url" value="{{url}}" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>
+       {{#if ../iwb}}<li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Customization</div>
+                   <div class="item-input-wrap">
+                       <input type="text" name="cusId" value="{{cusId}}" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>{{/if}}
+                   <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Username</div>
+                   <div class="item-input-wrap">
+                       <input type="text" name="user_name" autocomplete="off" value="{{user_name}}" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>
+       <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Password</div>
+                   <div class="item-input-wrap">
+                       <input type="password" name="pass_word" autocomplete="off" value="{{pass_word}}" placeholder="">
+                   </div>
+               </div>
+           </div>
+       </li>
+       {{#if ../iwb}}<li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Language</div>
+                   <div class="item-input-wrap">
+                       <select name="locale">
+                 <option value="tr" selected>Turkce</option>
+                 <option value="en">English</option>
+              </select>
+                   </div>
+               </div>
+           </div>
+       </li>{{/if}}
+                   <li>
+           <div class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                   <div class="item-title item-floating-label">Theme</div>
+                   <div class="item-input-wrap">
+                       <select name="theme">
+                 <option value="" selected>Default</option>
+                 <option value="theme-dark">Dark</option>
+              </select>
+                   </div>
+               </div>
+           </div>
+       </li>
+   </ul>
+   <div class="block">
+ 	<br/> 
 
-			        <p class="row"><a href=# @click="clickDelete({{id}})" class="col button button-big button-fill button-raised color-red">Delete</a>
-			        <a href=# @click="clickTest({{id}})" class="col button button-big button-fill button-raised color-green">Test</a>
-			        </p>
-		  			<p class="row">
-		  			<a href=# @click="clickSave({{id}})" class="col button button-big button-fill button-raised color-blue">Save</a>
-			        </p>
+       <p class="row"><a href=# @click="clickDelete({{id}})" class="col button button-big button-fill button-raised color-red">Delete</a>
+       <a href=# @click="clickTest({{id}})" class="col button button-big button-fill button-raised color-green">Test</a>
+       </p>
+ 	<p class="row">
+ 	<a href=# @click="clickSave({{id}})" class="col button button-big button-fill button-raised color-blue">Save</a>
+       </p>
 
-			    </div>
-			</form>        
-		</div>
-      </div>
-    </div>
+   </div>
+</form>        
+</div>
+     </div>
+   </div>
 {{/each}}
-    
-  </div>
+   
+ </div>
 </div>
 </div>
 `, style:`
@@ -246,124 +322,155 @@ var routes = [
 }
 
 `,
-			data:function(){
-				return {
-					backButton: Object.assign(routeTo.query,routeTo.params).back||false,
-					projects:[]
-				}
-			},
-
-	        on:{pageInit:function(){
-	        	var ls = window.localStorage;
-				  if(ls){
-					  var projects = ls.getItem('iwb-projects');
-					  if(!projects)projects = "[]";
-					  var p = JSON.parse(projects);
-					  this.$setState({projects:p})
-				  }
-	        }},
-	        
-	        methods:{clickSquareCode:function(){
-	        	alert('TODO');	        	  
-	        },clickConnect:function(id){
-	        	var self=this;
-				  	var f = iwb.app.form.convertToData('#idx-form-project-'+id);
-		        	Framework7.request({
-		                url: f.url + 'ajaxPing?d=1&c=1&.r=' + Math.random(),
-		                method: 'POST', data: {},
-		        // dataType: 'json',
-		                success: function (d) {
-		                	_scd=null;
-		        			iwb.serverUrl=f.url;
-		        			var ls = window.localStorage;
-		        			ls.setItem('userName', f.user_name||'');
-		        			ls.setItem('passWord', f.pass_word||'');			        			
-		        			iwb.app.card.close('#idx-card-project-'+id);
-		        			iwb.reLogin();
-		        			
-		                }, error: function (d) {
-		        			iwb.app.toast.show({
-		        				  text: 'Error Connecting. Check URL or Device Connection<br/>' + d ,closeTimeout: 3000
-		        			});
-		                }
-		            });	       
-	        },clickDelete:function(id){
-				var self = this;
-	        	var ls = window.localStorage;
-				  var p = this.projects;
-				  for(var qi=0;qi<p.length;qi++)if(id==1*p[qi].id){
-					  iwb.app.dialog.confirm("Are you sure?", "Delete", function(){
-						  p.splice(qi,1);
-						  console.log('aha',qi,p);
-						  ls.setItem('iwb-projects', JSON.stringify(p));
-						  iwb.app.card.close('#idx-card-project-'+id);
-						  setTimeout(function(){self.$setState({projects:p});},200);
-					  });
-					  break;
-				  }
-	        },clickTest:function(id){
-	        	var f = iwb.app.form.convertToData(id==-1 ? '#idx-form-new-project':('#idx-form-project-'+id));
-	        	if(!f.url){
-					  iwb.app.dialog.alert('Error: Url is mandatory');
-					  return;
-				}
-
-	        	Framework7.request({
-	                url: f.url + 'ajaxPing?d=1&c=1&.r=' + Math.random(),
-	                method: 'POST', data: {},
-	        // dataType: 'json',
-	                success: function (d) {
-	        			iwb.app.toast.show({
-	        				  text: 'Connection Done',closeTimeout: 2000
-	        			});           	
-	                }, error: function (d) {
-	        			iwb.app.toast.show({
-	        				  text: 'Error Connecting. Check URL or Device Connection<br/>' + d ,closeTimeout: 3000
-	        			});
-	                }
+	data: function () {
+	    return {
+	        backButton: Object.assign(routeTo.query, routeTo.params).back || false,
+	        projects: [],
+	        iwb: iwb.iwb || false
+	    }
+	},
+	
+	on: {
+	    pageInit: function () {
+	        var ls = window.localStorage;
+	        if (ls) {
+	            var projects = ls.getItem('iwb-projects');
+	            if (!projects) projects = "[]";
+	            var p = JSON.parse(projects);
+	            this.$setState({ projects: p })
+	        }
+	    }
+	},
+	
+	methods: {
+	    clickSquareCode: function () {
+	        cordova.plugins.barcodeScanner.scan(
+	            function (result) {
+	                //                                    alert("We got a barcode\n" +"Result: " + result.text + "\n");
+	                $$('#idx-form-new-project input[name="url"]').val(result.text);
+	                Framework7.request({
+	                    url: result.text + 'ajaxPing?.r=' + Math.random(),
+	                    data: {}, dataType: 'json',
+	                    success: function (j) {
+	                        if (j && j.name) $$('#idx-form-new-project input[name="name"]').val(j.name);
+	                    }, error: function (j) {
+	                        iwb.app.toast.show({
+	                            text: 'Connection Error', closeButton: !0
+	                        });
+	                    }
+	                });
+	            },
+	            function (error) {
+	                alert("Scanning failed: " + error);
 	            });
-	        	
-	        },clickSave:function(id){
-	        	var ls = window.localStorage;
-				  if(ls){
-					  var f = iwb.app.form.convertToData('#idx-form-project-'+id);
-					  if(!f.name || !f.url){
-						  iwb.app.dialog.alert('Error: Name & Url is mandatory');
-						  return;
-					  }
-					  var p = this.projects;
-					  for(var qi=0;qi<p.length;qi++)if(id==1*p[qi].id){
-						  id=1*p[qi].id;
-						  f.id=id;
-						  p[qi] = f;
-						  ls.setItem('iwb-projects', JSON.stringify(p));
-						  this.$setState({projects:p});
-						  iwb.app.card.close('#idx-card-project-'+id);
-					  }
-					  
-				  }
-	        },clickNew:function(){
-				  var ls = window.localStorage;
-				  if(ls){
-					  var f = iwb.app.form.convertToData('#idx-form-new-project');
-					  if(!f.name || !f.url){
-						  iwb.app.dialog.alert('Error: Name & Url is mandatory');
-						  return;
-					  }
-					  var p = this.projects;
-					  var id = 0;
-					  for(var qi=0;qi<p.length;qi++)if(id<1*p[qi].id)id=1*p[qi].id;
-					  f.id=id+1;
-					  p.push(f);
-					  ls.setItem('iwb-projects', JSON.stringify(p));
-					  this.$setState({projects:p});
-					  iwb.app.card.close('#idx-card-new-project');
-					  
-				  } else
-					  iwb.app.dialog.alert('Error: No local Storage');
-			}
-	        }}});
-		  },
+	        //alert('TODO');
+	    }, clickConnect: function (id) {
+	        var self = this;
+	        var f = iwb.app.form.convertToData('#idx-form-project-' + id);
+	        Framework7.request({
+	            url: f.url + 'ajaxPing?d=1&c=1&.r=' + Math.random(),
+	            method: 'POST', data: {},
+	            dataType: 'json',
+	            success: function (d) {
+	                _scd = d && d.session ? d.session: null;
+	                iwb.serverUrl = f.url;
+	                var ls = window.localStorage;
+	                ls.setItem('userName', f.user_name || '');
+	                ls.setItem('passWord', f.pass_word || '');
+	                if (iwb.iwb) ls.setItem('cusId', f.cusId || '0');
+	                iwb.app.card.close('#idx-card-project-' + id);
+	                document.body.className=f.theme||'';
+	                if(_scd){
+		    			iwb.home = false;
+            			iwb.prepareMainMenu();
+	                } else
+	                	iwb.reLogin();
+	
+	            }, error: function (d) {
+	                iwb.app.toast.show({
+	                    text: 'Error Connecting. Check URL or Device Connection<br/>' + d, closeTimeout: 3000
+	                });
+	            }
+	        });
+	    }, clickDelete: function (id) {
+	        var self = this;
+	        var ls = window.localStorage;
+	        var p = this.projects;
+	        for (var qi = 0; qi < p.length; qi++)if (id == 1 * p[qi].id) {
+	            iwb.app.dialog.confirm("Are you sure?", "Delete", function () {
+	                p.splice(qi, 1);
+	                //console.log('aha', qi, p);
+	                ls.setItem('iwb-projects', JSON.stringify(p));
+	                iwb.app.card.close('#idx-card-project-' + id);
+	                setTimeout(function () { self.$setState({ projects: p }); }, 200);
+	            });
+	            break;
+	        }
+	    }, clickTest: function (id) {
+	        var f = iwb.app.form.convertToData(id == -1 ? '#idx-form-new-project' : ('#idx-form-project-' + id));
+	        if (!f.url) {
+	            iwb.app.dialog.alert('Error: Url is mandatory');
+	            return;
+	        }
+	
+	        Framework7.request({
+	            url: f.url + 'ajaxPing?d=1&c=1&.r=' + Math.random(),
+	            method: 'POST', data: {},
+	            // dataType: 'json',
+	            success: function (d) {
+	                iwb.app.toast.show({
+	                    text: 'Connection Done', closeTimeout: 2000
+	                });
+	            }, error: function (d) {
+	                iwb.app.toast.show({
+	                    text: 'Error Connecting. Check URL or Device Connection<br/>' + d, closeTimeout: 3000
+	                });
+	            }
+	        });
+	
+	    }, clickSave: function (id) {
+	        var ls = window.localStorage;
+	        if (ls) {
+	            var f = iwb.app.form.convertToData('#idx-form-project-' + id);
+	            if (!f.name || !f.url) {
+	                iwb.app.dialog.alert('Error: Name & Url is mandatory');
+	                return;
+	            }
+	            var p = this.projects;
+	            for (var qi = 0; qi < p.length; qi++)if (id == 1 * p[qi].id) {
+	                id = 1 * p[qi].id;
+	                f.id = id;
+	                p[qi] = f;
+	                ls.setItem('iwb-projects', JSON.stringify(p));
+	                this.$setState({ projects: p });
+	                iwb.app.card.close('#idx-card-project-' + id);
+	            }
+	
+	        }
+	    }, clickNew: function () {
+	        var ls = window.localStorage;
+	        if (ls) {
+	            var f = iwb.app.form.convertToData('#idx-form-new-project');
+	            if (!f.name || !f.url) {
+	                iwb.app.dialog.alert('Error: Name & Url is mandatory');
+	                return;
+	            }
+	            var p = this.projects;
+	            var id = 0;
+	            for (var qi = 0; qi < p.length; qi++)if (id < 1 * p[qi].id) id = 1 * p[qi].id;
+	            f.id = id + 1;
+	            p.push(f);
+	            ls.setItem('iwb-projects', JSON.stringify(p));
+	            this.$setState({ projects: p });
+	            iwb.app.card.close('#idx-card-new-project');
+	
+	        } else
+	            iwb.app.dialog.alert('Error: No local Storage');
+	    }
+	}
+	}
+	});
+	},
 	  },
 	  {path: '/about',async: function (routeTo, routeFrom, resolve, reject) {
 		  	resolve({component:{template:`<div class="page">
@@ -532,10 +639,7 @@ var routes = [
 
 
 var _scd=null;
-if(!window.iwb)window.iwb={};
 
-iwb.serverUrl='/app/';
-iwb.debug=true;
 
 iwb.submit=function(idForm, baseParams, callback){
 	iwb.request({url:'ajaxPostForm',preloader:!0,data:Object.assign(baseParams, idForm ? iwb.app.form.convertToData(idForm):{}),method:'POST',success:function(j){
@@ -751,7 +855,7 @@ iwb.takePhoto=function(tid,tpk, jsonX, fromAlbum, profilePictureFlag){
 }
 
 iwb.photoBrowser=function(tid, pk){
-	iwb.request({url:'ajaxQueryData?_qid=806',data:{_tableId:tid,_tablePk:pk}, success:function(j){
+	iwb.request({url:'ajaxQueryData?_renderer=ext3_4&_qid=806',data:{_tableId:tid,_tablePk:pk}, success:function(j){
 		if(j.data && j.data.length){
 			var photos=[];
 			for(var qi=0;qi<j.data.length;qi++){
@@ -766,17 +870,120 @@ iwb.photoBrowser=function(tid, pk){
 	}});
 }
 
-iwb.autoCompleteJson=function(postUrl){
-	return function(query, render){
-		if (query.length === 0) {
-	      render([]);
-	      return;
-	    }
-		iwb.request({url:'ajaxQueryData?_qid='+postUrl, success:function(j){
-			render(j.data);
-		}});
-	}
+
+iwb.autoCompleteJson4AutocompleteMulti = function (queryId, initVal, opener, children) { //[{cmb:, fnc:}]
+    if (initVal) {
+    for(var i = 0; i < children.length; i++){
+    var params = children[i].fnc(initVal);
+            if (params){
+        iwb.loadCombo(children[i].cmb, params);
+        }  	
+        }
+    }
+
+    return {
+        openIn: 'popup', 
+        limit: 50,
+        valueProperty: 'id',
+        textProperty: 'dsc', 
+        preloader: true, 
+        closeOnSelect: true,
+        openerEl:opener,
+        //multiple:true,
+        source: function (query, render) {
+        var autocomplete = this;
+        var results = [];
+            if (query.length === 0) {
+                render(results);
+                return;
+            }
+            autocomplete.preloaderShow();
+            iwb.request({
+                url: 'ajaxQueryData?_qid=' + queryId,
+                data: {
+                    xdsc: query
+                },
+                success: function (j) {
+                    autocomplete.preloaderHide();
+                    render(j.data);
+                }, failure: function (j) {
+                    autocomplete.preloaderHide();
+                }
+            });
+        },
+        on:{
+        change: function (value) {
+        console.log(value);
+            var itemText = [],
+                inputValue = [];
+            for (var i = 0; i < value.length; i++) {
+                itemText.push(value[i].dsc);
+                inputValue.push(value[i].id);
+            }
+            $$(opener).find('.item-after').text(itemText.join(', '));
+            var val = inputValue.join(',');
+            $$(opener).find('input').val(val);
+            for(var i = 0; i < children.length; i++){
+            var xparams = children[i].fnc(val);
+                if (xparams) iwb.loadCombo(children[i].cmb, xparams);
+                else {
+                    $$(children[i].cmb).find('option').remove();
+                    //if (true || params === false) $$(children[i].cmb).hide();
+                }
+            }
+            
+        }
+        }
+    }
 }
+
+
+
+iwb.autoCompleteJson = function(queryId, opener){
+	return {
+	   openIn: 'popup',
+	   valueProperty: 'id', 
+	   textProperty: 'dsc', 
+	   preloader: true,
+	   closeOnSelect: true,
+	   limit:50,
+	   openerEl:opener,
+	   source: function (query, render) {
+	   	var autocomplete = this;
+	       var results = [];
+	       if (query.length === 0) {
+	           render(results);
+	           return;
+	       }
+	       autocomplete.preloaderShow();
+	       iwb.request({
+	           url: 'ajaxQueryData?_qid=' + queryId,
+	           data: {
+	               xdsc: query
+	           },
+	           success: function (j) {
+	               autocomplete.preloaderHide();
+	               render(j.data);
+	           }, failure: function (j) {
+	               autocomplete.preloaderHide();
+	           }
+	       });
+	   },
+	   on: {
+	   	change: function (value) {
+	   	console.log(value);
+	       var itemText = [],
+	           inputValue = [];
+	       for (var i = 0; i < value.length; i++) {
+	           itemText.push(value[i].dsc);
+	           inputValue.push(value[i].id);
+	       }
+	       $$(opener).find('.item-after').text(itemText.join(', '));
+	       $$(opener).find('input').val(inputValue.join(','));
+	   	}
+	   } 
+	}
+} 
 // Dom7
 var $$ = Dom7;
 
@@ -827,7 +1034,7 @@ iwb.showRecordMenu=function(json3, targetEl){
 			var p=iwb.app.popover.create({content:'<div class="popover"><div class="popover-inner"><div class="list"><ul>'+lnk.join('')+'</ul></div></div></div>', targetEl:targetEl});
 			p.open();
 		} else  {
-			if(href)iwb.app.router.navigate(href);
+			if(href)iwb.app.views.main.router.navigate(href);
 		}
 	}
 }
@@ -900,7 +1107,7 @@ iwb.graph = function(dg, gid) {
 // title: {text: dg.name},
 	                chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
 	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : false
-	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
+	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val, 2);}}
 	            }
 
 	        	break;
@@ -1025,7 +1232,7 @@ iwb.loadCombo = function(cmb, params){
 
 	ctrl.find('option').remove();// temizle once
 	iwb.app.smartSelect.destroy(cmb);
-	iwb.request({url:'ajaxQueryData', data:params, success:function(j){
+	iwb.request({url:'ajaxQueryData?_renderer=ext3_4', data:params, success:function(j){
 		var data=j.data,res=[], s='';
 		
 		for(var qi=0;qi<data.length;qi++){
@@ -1033,11 +1240,7 @@ iwb.loadCombo = function(cmb, params){
 			if(data[qi].id==selected)res.push(data[qi].dsc);
 		}
 		ctrl.append(s);
-		// console.log('as',selected, s);
 		iwb.app.smartSelect.create(cmb);
-		// $$(cmb.replace('idx-','id-')).find('.item-after').text(res.join(',
-		// '));
-		// $$(cmb.replace('idx-','id-')).show();
 	}});
 }
 
@@ -1080,7 +1283,7 @@ String.prototype.toDate = function(format){
 };
 
 iwb.prepareMainMenu=function(){
-	iwb.request({url:'ajaxQueryData?_qid=1487&.r='+Math.random(),dataType:'text',data:{_json:1,xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:0}, success:function(d){
+	iwb.request({url:'ajaxQueryData?_renderer=ext3_4&_qid=1487&.r='+Math.random(),dataType:'text',data:{_json:1,xuser_tip:typeof xuserTip!='undefined' && xuserTip ? xuserTip:0}, success:function(d){
 		if(!d.data || !d.data.length){// no menu
 			iwb.openLoginScreen();
 			iwb.app.toast.create({position:'top',closeTimeout: 3000, text:'No menu defined for this app'}).open();
@@ -1092,7 +1295,7 @@ iwb.prepareMainMenu=function(){
 }
 iwb.home=false;
 iwb.goHome=function(){
-	iwb.app.views.main.router.navigate('/home');
+	iwb.app.views.main.router.navigate(_scd && _scd.homePageId ? (1*_scd.homePageId>0 ? ('/showMPage?_tid='+_scd.homePageId):('/showMList?_lid='+(-1*_scd.homePageId))):'/home');
 	iwb.home=!0;
 }
 
@@ -1105,10 +1308,12 @@ iwb.reLogin=function(afterCfg){
 	if(ls){
 		var reUserName = ls.getItem("userName");
 		var rePassWord = ls.getItem("passWord"); 
+		var reCusId = ls.getItem("cusId")||0; 
+		var reLocale = ls.getItem("locale")||'en'; 
 		if(reUserName && rePassWord){
 			iwb.app.preloader.show();
-			Framework7.request({url:iwb.serverUrl + 'ajaxAuthenticateUser?d=1&c=1&_mobile=0&_mobile_device_id='+iwb.deviceId+'&customizationId=0&locale=tr',
-		    	data:{userName:reUserName, passWord:rePassWord},dataType: 'json', 
+			Framework7.request({url:iwb.serverUrl + 'ajaxAuthenticateUser?d=1&c=1&_mobile=0&_mobile_device_id='+iwb.deviceId,
+		    	data:{userName:reUserName, passWord:rePassWord, customizationId:reCusId, locale: reLocale},dataType: 'json', 
 		    	success:function(j){
 		    		iwb.app.preloader.hide();
 					if(j.success){
@@ -1197,7 +1402,6 @@ iwb.app = new Framework7({
   routes: routes,
   methods:{
 	test:function(){
-		alert('test')
 	}  
   },
   on: {

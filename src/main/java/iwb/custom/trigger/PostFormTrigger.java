@@ -223,7 +223,7 @@ public class PostFormTrigger {
 			}
 			break;
 		case	1407://project
-			if((fr.getAction()==1 || fr.getAction()==3) && scd.containsKey("ocustomizationId") && GenericUtil.uInt(scd.get("ocustomizationId"))!=GenericUtil.uInt(scd.get("customizationId"))){
+			if((fr.getAction()==1 || fr.getAction()==3) && GenericUtil.uInt(scd.get("ocustomizationId"))!=0 && scd.containsKey("ocustomizationId") && GenericUtil.uInt(scd.get("ocustomizationId"))!=GenericUtil.uInt(scd.get("customizationId"))){
 				throw new IWBException("security","Project", 0, null, "Forbidden Command. Can not manipulate a project on another tenant.", null);
 			}
 			switch(fr.getAction()){
@@ -251,11 +251,7 @@ public class PostFormTrigger {
 				break;
 			case	3://delete all metadata
 				String delProjectId = fr.getRequestParams().get("tproject_uuid").toLowerCase();
-				W5Project po = FrameworkCache.getProject(delProjectId);
-				if(po.getCustomizationId()==GenericUtil.uInt(scd.get("ocustomizationId")) && GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_project x where x.customization_id=?", po.getCustomizationId()).get(0))>1){
-					dao.deleteProjectMetadata(delProjectId);
-					dao.executeUpdateSQLQuery("DROP SCHEMA IF EXISTS "+po.getRdbmsSchema()+" CASCADE");					
-				}
+				dao.deleteProjectMetadataAndDB(delProjectId, false);
 //				FrameworkSetting.projectSystemStatus.remove(delProjectId);
 				break;
 			case	1:
@@ -269,11 +265,11 @@ public class PostFormTrigger {
 		case	14://lookup,detay		
 			fr.getOutputMessages().add(msg);
 			int lookUpId = GenericUtil.uInt(fr.getOutputFields().get("look_up_id"+prefix));
-			if(lookUpId==0)lookUpId = GenericUtil.uInt(fr.getRequestParams().get("look_up_id"+prefix));
-			if(lookUpId==0)lookUpId = GenericUtil.uInt(fr.getRequestParams().get("tlook_up_id"+prefix));
+			if(lookUpId==0)lookUpId = GenericUtil.uInt((Object)fr.getRequestParams().get("look_up_id"+prefix));
+			if(lookUpId==0)lookUpId = GenericUtil.uInt((Object)fr.getRequestParams().get("tlook_up_id"+prefix));
 			if(fr.getForm().getObjectId()==14 && lookUpId==0){
-				int detayId = GenericUtil.uInt(fr.getRequestParams().get("tlook_up_detay_id"+prefix));
-				if(detayId==0)detayId=GenericUtil.uInt(fr.getOutputFields().get("look_up_detay_id"+prefix));
+				int detayId = GenericUtil.uInt((Object)fr.getRequestParams().get("tlook_up_detay_id"+prefix));
+				if(detayId==0)detayId=GenericUtil.uInt((Object)fr.getOutputFields().get("look_up_detay_id"+prefix));
 				if(detayId>0){
 					List qq = dao.executeSQLQuery("select x.look_up_id from iwb.w5_look_up_detay x where x.project_uuid=? AND x.look_up_detay_id=?", projectId, detayId);
 					if(!GenericUtil.isEmpty(qq))lookUpId = GenericUtil.uInt(qq.get(0));

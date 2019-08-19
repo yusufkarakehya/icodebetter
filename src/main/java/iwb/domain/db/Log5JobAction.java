@@ -1,6 +1,7 @@
 package iwb.domain.db;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -17,19 +18,24 @@ import iwb.util.GenericUtil;
 @Entity
 @Table(name="log5_job_action",schema="iwb")
 public class Log5JobAction implements Serializable, Log5Base{
-	
+	private static final long serialVersionUID = 131111091872912873L;
+
 	private int logId;
 	private int jobScheduleId;
 	private String projectUuid;
 	private String error;
+	private	String transactionId;
+
 	private int processTime;
 	private long startTime;
 	
 	
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("job_action,job_id=").append(jobScheduleId).append(",project_uuid=").append(projectUuid).append(" duration=").append(getProcessTime());
+		s.append("job_action,job_id=").append(jobScheduleId).append(",project_uuid=").append(projectUuid).append(" duration=").append(getProcessTime()).append("i");
+		if(!GenericUtil.isEmpty(transactionId))s.append(",trid=\"").append(transactionId).append("\"");
 		if(!GenericUtil.isEmpty(error))s.append(",error=\"").append(GenericUtil.stringToJS2(error)).append("\"");
+		s.append(" ").append(startTime).append("000000");
 		return s.toString();
 	}
 	
@@ -37,12 +43,13 @@ public class Log5JobAction implements Serializable, Log5Base{
 	}
 	
 
-	public Log5JobAction(int jobScheduleId, String projectUuid) {
+	public Log5JobAction(int jobScheduleId, String projectUuid, String transactionId) {
 		super();
 		this.jobScheduleId = jobScheduleId;
 		this.projectUuid = projectUuid;
-		this.startTime=System.currentTimeMillis();
+		this.startTime=Instant.now().toEpochMilli();
 		this.processTime = -1;
+		this.transactionId = transactionId;
 	}
 
 	@SequenceGenerator(name="sex_log5_job_action",sequenceName="iwb.seq_log5_job_action",allocationSize=1)
@@ -93,7 +100,7 @@ public class Log5JobAction implements Serializable, Log5Base{
 	}
 
 	public void calcProcessTime() {
-		this.processTime = (int)(System.currentTimeMillis() - this.startTime);
+		this.processTime = (int)(Instant.now().toEpochMilli() - this.startTime);
 	}
 	
 	@Transient

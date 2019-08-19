@@ -538,7 +538,7 @@ try {
   Ext.form.LocaleMsgKey = Ext.extend(Ext.form.TwinTriggerField, {
     initComponent: function() {
       Ext.form.LocaleMsgKey.superclass.initComponent.call(this);
-      this.on(
+      if(false)this.on(
         "specialkey",
         function(f, e) {
           if (e.getKey() == e.ENTER) {

@@ -98,24 +98,6 @@ public class QueryEngine {
 		queryResult.setErrorMap(new HashMap());
 		queryResult.setRequestParams(requestParams);
 		switch (queryResult.getQuery().getQuerySourceTip()) {
-		case 2709: // TSDB (Influx)
-			/*
-			 * W5TsMeasurement tsm = getTsMeasurement(scd,
-			 * queryResult.getQuery().getMainTableId()); if (tsm != null &&
-			 * !GenericUtil.accessControl(scd, tsm.getAccessViewTip(),
-			 * tsm.getAccessViewRoles(), tsm.getAccessViewUsers())) { throw new
-			 * IWBException("security", "Query", queryId, null,
-			 * LocaleMsgCache.get2(0, (String) scd.get("locale"),
-			 * "fw_access_control_ts_measurement"), null); }
-			 * queryResult.setMainTsMeasurement(tsm);
-			 * queryResult.setFetchRowCount( GenericUtil.uIntNvl(requestParams,
-			 * "limit", GenericUtil.uInt(requestParams, "firstLimit")));
-			 * queryResult.setStartRowNumber(GenericUtil.uInt(requestParams,
-			 * "start"));
-			 */
-			// influxDao.runQuery(FrameworkCache.wProjects.get(scd.get("projectId")),
-			// queryResult);
-			break;
 		case 1376: // WS Method
 			W5WsMethod wsm = FrameworkCache.getWsMethod(scd, queryResult.getQuery().getMainTableId());
 			if (!FrameworkSetting.redisCache && wsm.get_params() == null) {
@@ -133,7 +115,7 @@ public class QueryEngine {
 					break;
 				}
 			Map<String, String> m2 = new HashMap();
-			if (requestParams.get("filter[value]") != null) {
+			if (requestParams.get("filter[value]") != null) {//webix filter
 				requestParams.put("xdsc", requestParams.get("filter[value]"));
 				requestParams.remove("filter[value]");
 			}
@@ -200,6 +182,8 @@ public class QueryEngine {
 			switch (queryResult.getQuery().getQueryTip()) {
 			case 9:
 			case 10:
+			case 12:
+			case 13:
 				queryResult.prepareTreeQuery(null);
 				break;
 			case 15:
@@ -388,6 +372,10 @@ public class QueryEngine {
 																			// row_tip,
 
 			Map<String, W5QueryField> m1 = new HashMap<String, W5QueryField>();
+			if(queryResult.getNewQueryFields()==null) {
+				queryResult.setNewQueryFields(new ArrayList());
+				queryResult.getNewQueryFields().addAll(queryResult.getQuery().get_queryFields());
+			}
 			for (W5QueryField f : queryResult.getNewQueryFields()) {
 				m1.put(f.getDsc(), f);
 			}

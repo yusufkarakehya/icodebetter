@@ -199,24 +199,24 @@ function disabledCheckBoxHtml(x) {
 }
 
 function accessControlHtml(x) {
-  return x ? '<img src="../images/custom/bullet_key.png" border=0>' : "";
+  return x ? '<img src="/images/custom/bullet_key.png" border=0>' : "";
 }
 
 function fileAttachmentHtml(x) {
   return x
-    ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0>'
+    ? '<img src="/images/custom/bullet_file_attach.png" border=0>'
     : "";
 }
 function fieldFileAttachment(x) {
 	  return x
-	    ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0>'
+	    ? '<img src="/images/custom/bullet_file_attach.png" border=0>'
 	    : "";
 }
 
 function fileAttachmentRenderer(a) {
   return function(ax, bx, cx) {
     return ax
-      ? '<img src="/ext3.4.1/custom/images/paperclip-16.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
+      ? '<img src="/images/custom/bullet_file_attach.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
           a.name +
           "',href:'showPage?_tid=518&_gid1=458&_gid458_a=1',_pk:{tfile_attachment_id:'file_attachment_id'},baseParams:{xtable_id:" +
           a.crudTableId +
@@ -327,7 +327,7 @@ function commentHtml(x) {
 function approvalHtml(x, y, z) {
   if (!x) return "";
   var str =
-    x > 0 ? '<img src="../images/custom/bullet_approval.gif" border=0> ' : "";
+    x > 0 ? '<img src="/images/custom/bullet_approval.gif" border=0> ' : "";
   str +=
     "<a href=# onclick=\"return mainPanel.loadTab({attributes:{modalWindow:true,href:'showPage?_tid=238&_gid1=530',baseParams:{xapproval_record_id:" +
     z.data.pkpkpk_arf_id +
@@ -965,7 +965,7 @@ function renderTableRecordInfo(j) {
       j.commentCount;
   if (j.fileAttachFlag && j.fileAttachCount > 0)
     s +=
-      ' &nbsp; <img src="/ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> ' +
+      ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="İlişkili Dosyalar"> ' +
       j.fileAttachCount;
   if (j.accessControlFlag && j.accessControlCount > 0)
     s +=
@@ -1077,7 +1077,7 @@ function renderTableRecordInfo(j) {
         r.tcc;
     if (r.tfc)
       ss +=
-        ' &nbsp; <img src="/ext3.4.1/custom/images/paperclip-16.png" title="İlişkili Dosyalar"> ' +
+        ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="İlişkili Dosyalar"> ' +
         r.tfc;
 
     // if(r.dsc)ss+=(qi!=0 ? ': '+r.dsc:': <b>'+r.dsc+'</b>');// else ss+=':
@@ -1680,26 +1680,13 @@ function fnNewFileAttachment4ExternalUrl(a) {
 }
 
 function fnNewFileAttachment4Form(tid, tpk, not_image_flag) {
-  var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
-													// mi onu sorguluyor. (major
-													// ver, minor ver, revision
-													// no)
   var image_param = "";
   if (not_image_flag) {
     image_param = "&xnot_image_flag=1";
   }
-  if (hasReqestedVersion) {
-    // Acente/Bayi logolarının eklenmesi biraz farklı
-    var href =
-      "showForm?_fid=714&_did=447&table_id=" +
-      tid +
-      "&table_pk=" +
-      tpk +
-      image_param;
-  } else {
+
     var href =
       "showForm?a=2&_fid=43&table_id=" + tid + "&table_pk=" + tpk + image_param;
-  }
   mainPanel.loadTab({
     attributes: {
       modalWindow: true,
@@ -5155,7 +5142,7 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
                 _arid: frm.approval.approvalRecordId,
                 _aa: aa,
                 _adsc: _comment,
-                _avno: frm.approval.versionNo + 1,
+                _avno: frm.approval.versionNo,
                 _appUserIds: _dynamic_approval_users
               });
             } else {
@@ -7341,6 +7328,7 @@ iwb.ui.buildPanel = buildPanel;
 
 iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   var extDef = getForm.render();
+  if(extDef===false)return false;
 
   var extraItems =
     !getForm.renderTip || getForm.renderTip != 3
@@ -7822,16 +7810,9 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             fnNewFileAttachment4Form(a._f.crudTableId, table_pk.substring(1));
           }
         },
-        /*
-		 * { text: getLocMsg('js_daha_once_eklenmis_dosyalardan_ekle'), _f:
-		 * getForm, handler: function(a, b) { var getForm = a._f; var table_pk =
-		 * ''; if (getForm.a == 1) { for (var key in getForm.pk) if (key !=
-		 * 'customizationId') table_pk += "|" + getForm.pk[key]; } else table_pk =
-		 * "|" + getForm.tmpId; mainPanel.loadTab({ attributes: { _title_: 1,
-		 * modalWindow: true, href: 'showPage?_tid=259&_gid1=672', tableId:
-		 * a._f.crudTableId, tablePk: table_pk.substring(1) } }) } }, '-',
-		 */ {
-          text: "${related_files}",
+        
+		 {
+          text: getLocMsg("related_files"),
           _f: getForm,
           handler: function(a, b, c) {
             var getForm = a._f;
@@ -7943,25 +7924,25 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     // btn.push({text: '${onay_adimi}<br>'+getForm.approval.stepDsc});
     if (getForm.approval.wait4start) {
       btn.push({
-        text: "Start Approval",
+        text: "START APPROVAL",
         id: "dapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
 
-        iconCls: "app_req",
+        iconCls: "icon-request-approve",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(901, getForm, getForm.approval.dynamic);
         }
       });
     } else {
       btn.push({
-        text: "Approve",
+        text: "APPROVE",
         id: "aapp_" + getForm.id,
         tooltip: getForm.approval.stepDsc,
         iconAlign: "top",
         scale: "medium",
 // style: {margin: "0px 5px 0px 5px"},
-        iconCls: "iapprove",
+        iconCls: "icon-approve",
         handler: function(a, b, c) {
           if (!getForm.viewMode) {
             var r = null;
@@ -7994,30 +7975,30 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
       if (getForm.approval.returnFlag) {
         btn.push({
-          text: "Return",
+          text: "RETURN",
           id: "gbapp_" + getForm.id,
           iconAlign: "top",
           scale: "medium",
 // style: {margin: "0px 5px 0px 5px"},
-          iconCls: "ireturn",
+          iconCls: "icon-return",
           handler: function(a, b, c) {
             submitAndApproveTableRecord(2, getForm);
           }
         });
       }
       btn.push({
-        text: "Reject",
+        text: "REJECT",
         id: "rapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
 // style: {margin: "0px 5px 0px 5px"},
-        iconCls: "ireject",
+        iconCls: "icon-reject",
         handler: function(a, b, c) {
           submitAndApproveTableRecord(3, getForm);
         }
       });
       btn.push({
-        text: "Approval Log",
+        text: "APPROVAL LOG",
         id: "lapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -8566,4 +8547,133 @@ iwb.ui.openForm=function(formId,action,params, reloadGrid, callback){
           _grid:reloadGrid||false
         }
       });
+}
+
+iwb.apexCharts={}
+iwb.apexGraph = function(dg, gid, callback) {
+	if(!dg.groupBy)return;
+	  var newStat = 1 * dg.funcTip ? dg.funcFields : "";
+	  var params = {};
+	  if (newStat) params._ffids = newStat;
+	  if (1 * dg.graphTip >= 5) params._sfid = dg.stackedFieldId;
+	  var series=[], labels=[], lookUps=[], chart =null;
+	  var xid = gid;
+	  var el = document.getElementById(gid);
+	  if(!el)return;
+	  iwb.request({
+	    url:
+	      (dg.query? "ajaxQueryData4Stat?_gid=":"ajaxQueryData4StatTree?_gid=") +
+	      dg.gridId +
+	      "&_stat=" +
+	      dg.funcTip +
+	      "&_qfid=" +
+	      dg.groupBy +
+	      "&_dtt=" +
+	      dg.dtTip,
+	    params: Object.assign(params, dg.queryParams),
+	    successCallback: function(j) {
+			var d= j.data;
+			if(!d || !d.length)return;
+			switch (1 * dg.graphTip) {
+	        case 6: // stacked area
+	        case 5: // stacked column
+	        	var l= j.lookUp;
+	        	for(var k in l)lookUps.push(k);
+	            if(!lookUps.length)return;
+	            d.map((z)=>{
+	                var data=[];
+	                lookUps.map((y)=>data.push(1*(z['xres_'+y]||0)));
+	                series.push({name:z.dsc, data:data});
+	            });
+	            lookUps.map((y)=>labels.push(l[y]||'-'));
+
+	            options = {
+	                chart: {
+	                	id:'apex-'+gid,
+//	                    height: 80*d.length+40,
+	                    type: 'bar',
+	                    stacked: true,
+	                    toolbar: {show: false}
+	                },
+	                plotOptions: {
+//	                    bar: {horizontal: true},
+	                    
+	                },
+	                series: series,
+//title: {text: dg.name},
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {labels: {show: !!dg.legend}, axisTicks: {color: '#777'}},
+	            }
+	        	break;
+	        case 3:// pie
+	            d.map((z)=>{
+	                series.push(1*z.xres);
+	                labels.push(z.dsc||'-');
+	            });
+	            var options = {
+                    chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
+	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : {show:false}
+	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
+	            }
+
+	        	break;
+	        case 1:// column
+	        case 2:// line
+	        	var colCount = newStat.split(',').length;
+	        	for(var qi=0;qi<colCount;qi++){
+	        		series.push({name:j.lookUps ? j.lookUps[qi] : ('Count'), data:[]})
+	        	}
+	        	d.map((z)=>{
+	        		for(var qi=0;qi<colCount;qi++){
+	        			series[qi].data.push(1*z[qi?'xres'+(qi+1):'xres']);
+	        		}
+	                labels.push(z.dsc);
+	            });
+
+	            options = {
+	                chart: {
+	                	id:'apex-'+gid,
+//	                    height:document.getElementById()50*d.length+30,
+	                    type: 1 * dg.graphTip==1?'bar':'spline',
+	                    toolbar: {show: false}
+	                },
+	                stroke: 1 * dg.graphTip==1 ? {}:{
+	                    curve: 'smooth'
+	                },
+	                series: series,
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {labels: {show: !!dg.legend}},
+	            }
+	        	break;
+			}
+
+			if(options){
+		        options.theme= {
+		            mode: 'dark',
+		            palette: iwb.graphPalette||'palette6',
+		          };
+		        options.chart.height = el.offsetHeight && el.offsetHeight>50 ?  el.offsetHeight-20 : el.offsetWidth/2;
+				if(iwb.apexCharts[xid])iwb.apexCharts[xid].destroy();
+				if(callback)options.chart.events= {
+						dataPointSelection: function(event, chartContext, config) {
+							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length){
+								var yx = config.selectedDataPoints[0];
+								callback(yx.length ? d[yx[0]].id : false);
+						    }
+						}
+				}
+	            var chart = new ApexCharts(
+	                el,
+	                options
+	            );
+	            iwb.apexCharts[xid]=chart;
+	            chart.render();
+			}
+			
+	    }
+	  });
 }

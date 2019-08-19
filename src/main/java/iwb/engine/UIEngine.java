@@ -808,7 +808,9 @@ public class UIEngine {
 			}
 
 			for (int i = 1; requestParams.containsKey("_gid" + i) || requestParams.containsKey("_fid" + i)
-					|| requestParams.containsKey("_dvid" + i) || requestParams.containsKey("_lvid" + i); i++) { // extra
+					|| requestParams.containsKey("_dvid" + i) || requestParams.containsKey("_lvid" + i)
+					|| requestParams.containsKey("_gdid" + i) || requestParams.containsKey("_mlid" + i)
+					|| requestParams.containsKey("_qid" + i) || requestParams.containsKey("_ggid" + i); i++) { // extra
 																												// olarak
 																												// _gid1=12&_gid=2
 																												// gibi
@@ -826,9 +828,24 @@ public class UIEngine {
 					objectTip = -2;
 				}
 				if (objectId == 0) {
-					objectId = GenericUtil.uInt(requestParams.get("_lvid" + i)); // list
-																					// view
+					objectId = GenericUtil.uInt(requestParams.get("_lvid" + i)); // list view
 					objectTip = -7;
+				}
+				if (objectId == 0) {
+					objectId = GenericUtil.uInt(requestParams.get("_qid" + i)); // query Result
+					objectTip = -4;
+				}
+				if (objectId == 0) {
+					objectId = GenericUtil.uInt(requestParams.get("_mlid" + i)); // mobile list view
+					objectTip = -11;
+				}
+				if (objectId == 0) {
+					objectId = GenericUtil.uInt(requestParams.get("_gdid" + i)); // graph dashboard
+					objectTip = -9;
+				}
+				if (objectId == 0) {
+					objectId = GenericUtil.uInt(requestParams.get("_ggid" + i)); // gauge view
+					objectTip = -22;
 				}
 				W5PageObject o = new W5PageObject();
 				o.setObjectTip(objectTip);
@@ -961,11 +978,15 @@ public class UIEngine {
 					case 8:// component
 						obz = FrameworkCache.getComponent(scd, o.getObjectId());//metaDataDao.loadComponent(scd, o.getObjectId(), new HashMap());
 						break;
-					case 10: // KPI Single Card
-						obz = queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
+					case 10: // Badge
+					case 22: // Gauge
+						obz = metaDataDao.getQueryResult(scd, o.getObjectId());//queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
 						break;
 					case 5: // dbFunc
 						obz = scriptEngine.executeGlobalFunc(scd, o.getObjectId(), requestParams, (short) 1);
+						break;
+					case 11: // Mobile List
+						obz = metaDataDao.getMListResult(scd, o.getObjectId(), requestParams, false);
 						break;
 					case 9: // graph dashboard
 						W5BIGraphDashboard obz2 = (W5BIGraphDashboard) dao.getCustomizedObject(

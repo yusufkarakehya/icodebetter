@@ -2,6 +2,7 @@ package iwb.filter;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.NestedServletException;
 
 import iwb.cache.FrameworkSetting;
+import iwb.domain.db.Log5Transaction;
 import iwb.domain.db.Log5VisitedPage;
 import iwb.exception.IWBException;
 import iwb.exception.Log5IWBException;
@@ -26,7 +28,7 @@ import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 
 @Component
-@WebFilter(urlPatterns = {"/app","/preview"})
+@WebFilter(urlPatterns = {"/app","/preview","/space"})
 public class AppFilter implements Filter {
 //	public static int	transactionCount = 0;
 	
@@ -47,16 +49,24 @@ public class AppFilter implements Filter {
 		}
 		String uri = ((HttpServletRequest) request).getRequestURI();
 		boolean jsonFlag = !uri.contains(".htm") && !uri.contains("/grd/") && !uri.contains("/rpt/") && !uri.contains("/jasper/") && !uri.contains("/dl/") && !uri.contains("ajaxXmlQueryData") && !uri.contains("validateLicense");
-		switch(FrameworkSetting.systemStatus){
+		if(uri.startsWith("/app") || uri.startsWith("/preview") || uri.startsWith("/space"))switch(FrameworkSetting.systemStatus){
 		case	0://working
+			Log5VisitedPage lvp = null;
 			try {
-				long startTime = System.currentTimeMillis();
-				filterChain.doFilter( request, response );
+				String transactionId =  GenericUtil.getTransactionId();
+				request.setAttribute("_trid_", transactionId);
+				Map scd = null;
 				if(FrameworkSetting.logType>0){
 					HttpSession session = ((HttpServletRequest)request).getSession(false);
-					Map scd = session!=null ? (Map)session.getAttribute("scd-dev"): null;
-					if(scd!=null)LogUtil.logObject(new Log5VisitedPage(scd, ((HttpServletRequest) request).getRequestURI(), 0, request.getRemoteAddr(), (int)(System.currentTimeMillis()-startTime)));
+					scd = session!=null ? (Map)session.getAttribute("scd-dev"): null;
+					if(scd!=null) {
+						String[] uuri = uri.split("/");
+						String newUri = uuri[uuri.length-1];
+						if(!newUri.equals("ajaxLiveSync"))LogUtil.logObject(new Log5Transaction((String)scd.get("projectId"), newUri, transactionId), true);
+						lvp = new Log5VisitedPage(scd, ((HttpServletRequest) request).getRequestURI(), 0, request.getRemoteAddr(), transactionId);
+					}
 				}
+				filterChain.doFilter( request, response );
 			} catch (NestedServletException e) {
 				if(FrameworkSetting.debug)e.printStackTrace();
 				response.setCharacterEncoding( "UTF-8" );
@@ -88,7 +98,7 @@ public class AppFilter implements Filter {
 					HttpSession session = ((HttpServletRequest)request).getSession(false);
 					Map scd = session!=null ? (Map)session.getAttribute("scd-dev"): null;
 					
-					LogUtil.logObject(new Log5IWBException(scd, ((HttpServletRequest) request).getRequestURI(), GenericUtil.getParameterMap((HttpServletRequest)request), request.getRemoteAddr(), iw));
+					LogUtil.logObject(new Log5IWBException(scd, ((HttpServletRequest) request).getRequestURI(), GenericUtil.getParameterMap((HttpServletRequest)request), request.getRemoteAddr(), iw), true);
 				}
 				
 				try{ response.getWriter().write(b.toString());
@@ -97,6 +107,11 @@ public class AppFilter implements Filter {
 				if(FrameworkSetting.debug)e.printStackTrace();
 				try{ response.getWriter().write("{\"success\":false,\n\"errorType\":\"framework\",\n\"error\":\"Unhandled2 -->"+GenericUtil.stringToJS2(e.getMessage()) + (FrameworkSetting.debug ? ("\",\n\"stack\":\""+GenericUtil.stringToJS2(ExceptionUtils.getFullStackTrace(e))) : "" )+"\"}");
 				} catch (Exception e2) {}
+			} finally {
+				if(FrameworkSetting.logType>0 && lvp!=null){
+					lvp.calcProcessTime();
+					LogUtil.logObject(lvp, false);
+				}				
 			}
 			break;
 		case 1://backup
@@ -107,7 +122,7 @@ public class AppFilter implements Filter {
 			if(jsonFlag)response.getWriter().write("{\"success\":false,\n\"errorType\":\"framework\",\n\"error\":\"System Suspended\"}");
 			else response.getWriter().write("<b>System Suspended</b>");
 			break;
-		}
+		} else filterChain.doFilter( request, response );
 	}
 	public void init(FilterConfig arg0) throws ServletException {
 	}

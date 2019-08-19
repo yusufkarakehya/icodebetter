@@ -39,6 +39,7 @@ import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5GlobalNextval;
 import iwb.domain.db.Log5JobAction;
+import iwb.domain.db.Log5Transaction;
 import iwb.domain.db.Log5WorkflowRecord;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
@@ -499,6 +500,18 @@ public class FrameworkService {
 		return m;
 	}
 
+
+	public Map<String, Object> userRoleSelect4App2(W5Project po, int userId, int userRoleId, Map rm) {
+		Map<String, Object> scd = new HashMap<String, Object>();
+		scd.put("userId", userId);
+		scd.put("userRoleId", userRoleId);
+		scd.put("customizationId", po.getCustomizationId());
+		scd.put("projectId", po.getProjectUuid());
+		Map<String, Object> m = executeQuery2Map(scd, po.getSessionQueryId(), rm); // mainSessionQuery
+		if (m == null)
+			return null;
+		return m;
+	}
 	public Map<String, Object> userSession4Auth(int userId, int customizationId) {
 		Map<String, Object> scd = new HashMap<String, Object>();
 		scd.put("userId", userId);
@@ -656,9 +669,14 @@ public class FrameworkService {
 
 		job.set_running(true);
 		W5GlobalFuncResult res = null;
-		Log5JobAction logJob = new Log5JobAction(job.getJobScheduleId(), job.getProjectUuid());
+		String transactionId =  GenericUtil.getTransactionId();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(job.getProjectUuid(), "job", transactionId), true);
+
+		Log5JobAction logJob = new Log5JobAction(job.getJobScheduleId(), job.getProjectUuid(), transactionId);
 		try {// fonksiyon çalıştırılacak ise
 			Map<String, String> requestParams = new HashMap<String, String>();
+			requestParams.put("_trid_", transactionId);
+
 			Map<String, Object> scd = new HashMap<String, Object>();
 			W5Project po = FrameworkCache.getProject(job.getProjectUuid());
 			scd.put("projectId", job.getProjectUuid());
@@ -679,7 +697,7 @@ public class FrameworkService {
 			return false;
 		} finally {
 			job.set_running(false);
-			LogUtil.logObject(logJob);
+			LogUtil.logObject(logJob, false);
 		}
 		return res.isSuccess();
 	}
@@ -1001,7 +1019,7 @@ public class FrameworkService {
 	public int getGlobalNextval(String id, String projectUuid, int userId, int customizationId, String remoteAddr) {
 
 		if (FrameworkSetting.log2tsdb) {
-			LogUtil.logObject(new Log5GlobalNextval(userId, customizationId, id, remoteAddr, projectUuid));
+			LogUtil.logObject(new Log5GlobalNextval(userId, customizationId, id, remoteAddr, projectUuid), true);
 		}
 
 		/*

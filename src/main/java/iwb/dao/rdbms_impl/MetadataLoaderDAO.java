@@ -1408,7 +1408,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		Set<String> m = new HashSet();
 		m.add("20.1"); // login form
 		for (Object[] x : (List<Object[]>) executeSQLQuery(
-				"select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345,3351)")) {
+				"select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345,3351,4658)")) {
 			List<Object> lo = executeSQLQuery("select t." + x[2] + " from " + x[1]
 					+ " t where t.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00'");
 			if (lo != null)
@@ -1621,6 +1621,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 	public void reloadWsServersCache(String projectId) {
 		List<W5WsServer> lt = (List<W5WsServer>) find("from W5WsServer t where t.projectUuid=?", projectId);
 		Map<String, W5WsServer> wssMap = new HashMap<String, W5WsServer>(lt.size() * 14 / 10);
+		W5Project po = FrameworkCache.getProject(projectId);
 		FrameworkCache.setWsServersMap(projectId, wssMap);
 		for (W5WsServer o : lt) {
 			wssMap.put(o.getWsUrl(), o);
@@ -1637,7 +1638,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 							projectId, wsm.getWsServerMethodId()));
 					if (wsm.get_params().isEmpty())
 						wsm.set_params(null);
-					else {
+					else if(po.getAuthenticationFuncId()!=0){
 						W5WsServerMethodParam tokenKey = new W5WsServerMethodParam(-998, "tokenKey", (short) 1);
 						tokenKey.setOutFlag((short) 0);
 						tokenKey.setNotNullFlag((short) 1);
@@ -1717,7 +1718,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 	}
 
 	public W5GlobalFuncResult getGlobalFuncResult(Map<String, Object> scd, int globalFuncId) {
-		String projectId = FrameworkCache.getProjectId(scd, "20." + globalFuncId);
+		String projectId = FrameworkCache.getProjectId(scd, globalFuncId < -1 ? ("40."+(-globalFuncId)):("20." + globalFuncId));
 		if (globalFuncId < -1) {
 			globalFuncId = (Integer) find(
 					"select t.objectId from W5Form t where t.objectTip in (3,4) AND t.projectUuid=? AND t.formId=?",
@@ -1954,8 +1955,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 				sql.append("iwb.w5_table limit 1");
 			} else {
 				sql.append(query.getSqlFrom());
-				if (query.getSqlWhere() != null && query.getSqlWhere().trim().length() > 0)
-					sql.append(" where ").append(query.getSqlWhere().trim());
+//				if (query.getSqlWhere() != null && query.getSqlWhere().trim().length() > 0)sql.append(" where ").append(query.getSqlWhere().trim());
+				sql.append(" where 1=2");//.append(query.getSqlWhere().trim());
 				if (query.getSqlGroupby() != null && query.getSqlGroupby().trim().length() > 0 && query.getQueryTip() != 9) // group
 																															// by
 																															// connect

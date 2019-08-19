@@ -34,6 +34,7 @@ public class Log5IWBException extends IWBException implements Log5Base {
 		if(!GenericUtil.isEmpty(getSql()))s.append("\",sql=\"").append(GenericUtil.stringToJS2(getSql()));
 		s.append("\",ip=\"").append(GenericUtil.isEmpty(remoteAddress)?"(null)":remoteAddress).append("\"");
 		s.append(",param_map=\"").append(GenericUtil.stringToJS2(GenericUtil.fromMapToJsonString2(parameterMap))).append("\"");
+		if(parameterMap.containsKey("_trid_"))s.append(",trid=\"").append(parameterMap.get("_trid_")).append("\"");
 		return s.toString();
 	}
 

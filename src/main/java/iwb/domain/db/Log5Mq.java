@@ -16,17 +16,19 @@ import iwb.util.GenericUtil;
 @Entity
 @Table(name="log5_mq",schema="iwb")
 public class Log5Mq implements Serializable, Log5Base{
-	
+	private static final long serialVersionUID = 134200001872912873L;
+
 	private int logId;
 	private int mqId;
 	private String message;  
 	private String topic;  
 	private String error;  
 	private String projectUuid;  
-	
+	private	String transactionId;
+
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("mq_action,project_uuid=").append(projectUuid).append(",mq_id=").append(mqId).append(" topic=\"").append(topic).append("\",message=\"").append(GenericUtil.stringToJS2(message)).append("\"");
+		s.append("mq_action,project_uuid=").append(projectUuid).append(",mq_id=").append(mqId).append(" topic=\"").append(topic).append("\",trid=\"").append(transactionId).append("\",message=\"").append(GenericUtil.stringToJS2(message)).append("\"");
 		if(!GenericUtil.isEmpty(error))
 			s.append(",message=\"").append(GenericUtil.stringToJS2(message)).append("\"");
 		return s.toString();	}
@@ -37,13 +39,14 @@ public class Log5Mq implements Serializable, Log5Base{
 	
 
 
-	public Log5Mq(String projectUuid, int mqId, String topic, String message) {
-    super();
-    this.mqId = mqId;
-    this.message = message;
-    this.topic = topic;
-    this.projectUuid = projectUuid;
-  }
+	public Log5Mq(String projectUuid, int mqId, String topic, String message, String transactionId) {
+	    super();
+	    this.mqId = mqId;
+	    this.message = message;
+	    this.topic = topic;
+	    this.projectUuid = projectUuid;
+		this.transactionId = transactionId;
+	  }
 
 
   @SequenceGenerator(name="sex_log5_mq",sequenceName="iwb.seq_log5_mq",allocationSize=1)

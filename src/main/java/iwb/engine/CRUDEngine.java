@@ -1282,7 +1282,7 @@ public class CRUDEngine {
 		 */
 		formResult.setQueuedActionList(queuedGlobalFuncList);
 		if (formResult.getOutputMessages() != null && formResult.getOutputMessages().isEmpty())
-			formResult.getOutputMessages().add("Toplam " + dirtyCount + " adet işlem gerçekleşti.");
+			formResult.getOutputMessages().add("Successfully accomplished " + dirtyCount + " actions.");
 		return formResult;
 	}
 

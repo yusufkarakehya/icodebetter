@@ -1,5 +1,6 @@
 package iwb.engine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,8 +11,10 @@ import org.springframework.stereotype.Component;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
+import iwb.dao.rdbms_impl.ExternalDBSql;
 import iwb.dao.rdbms_impl.MetadataLoaderDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
+import iwb.domain.db.W5Query;
 import iwb.domain.db.W5Table;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5QueryResult;
@@ -34,13 +37,61 @@ public class DebugEngine {
 	@Autowired
 	private GlobalScriptEngine scriptEngine;
 	
+	@Lazy
+	@Autowired
+	private ExternalDBSql externalDB;
+	
 	public Object executeQuery4Debug(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
-		W5QueryResult queryResult = queryId == -1 ? new W5QueryResult(-1) : metaDataDao.getQueryResult(scd, queryId);
+		W5QueryResult queryResult = queryId < 0 ? new W5QueryResult(queryId) : metaDataDao.getQueryResult(scd, queryId);
 
 		queryResult.setErrorMap(new HashMap());
 		queryResult.setScd(scd);
 		queryResult.setRequestParams(requestParams);
-		if (queryId == -1 || queryResult.getQuery().getQuerySourceTip() != 0) {
+		if( queryId == -11 || (queryResult.getQuery()!=null && queryResult.getQuery().getQuerySourceTip()==4658)) { //externalDB
+			W5Query q = new W5Query();
+			queryResult.setQuery(q);
+			q.setQuerySourceTip(4658);
+			q.setMainTableId(GenericUtil.uInt(requestParams, "external_db_id"));
+			q.setSqlSelect(requestParams.get("_sql_select"));
+			q.setSqlFrom(requestParams.get("_sql_from"));
+			q.setSqlWhere(requestParams.get("_sql_where"));
+			q.setSqlGroupby(requestParams.get("_sql_groupby"));
+			q.setSqlOrderby(requestParams.get("_sql_orderby"));
+			if(queryResult.getQuery()!=null) {
+				q.set_queryParams(queryResult.getQuery().get_queryParams());
+			}
+			queryResult.prepareQuery(null);
+			if (queryResult.getErrorMap().isEmpty()) {
+				externalDB.runQuery(queryResult);
+				Map m = new HashMap();
+				m.put("success", true);
+				m.put("data", queryResult.getData());
+				Map m2 = new HashMap();
+				m2.put("startRow", 0);
+				m2.put("fetchCount", queryResult.getData().size());
+				m2.put("totalCount", queryResult.getData().size());
+				m.put("browseInfo", m2);
+				List<Map> fields = new ArrayList<>();
+				if(queryResult.getData().size()>0) {
+					Object o = queryResult.getData().get(0);
+					if(o!=null) {
+						Map<String, Object> row = (Map)o;
+						for(String k:row.keySet()) {
+							Map mm = new HashMap();
+							mm.put("name", k);
+							fields.add(mm);
+						}
+						
+					}
+					
+					
+				}
+				m.put("fields", fields);
+				m.put("influxQL", queryResult.getExecutedSql());
+				return m;
+			}
+			
+		} else if (queryId == -1 || queryResult.getQuery().getQuerySourceTip() != 0) {
 			String orderBy = requestParams.get("sort");
 			if (GenericUtil.isEmpty(orderBy))
 				orderBy = requestParams.get("_sql_orderby");

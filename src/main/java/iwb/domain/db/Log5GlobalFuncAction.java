@@ -1,5 +1,7 @@
 package iwb.domain.db;
 
+import java.time.Instant;
+
 // Generated Feb 4, 2007 3:49:13 PM by Hibernate Tools 3.2.0.b9
 
 import javax.persistence.Column;
@@ -20,6 +22,7 @@ import iwb.util.GenericUtil;
 @Entity
 @Table(name="log5_db_func_action",schema="iwb")
 public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
+	private static final long serialVersionUID = 1342520916422912873L;
 
 	private int logId;
 
@@ -30,7 +33,8 @@ public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 	private String dsc;
 	private String projectUuid;  
 	private String error;
-	
+	private	String transactionId;
+
 	private int processTime;
 	private long startTime;
 
@@ -38,8 +42,10 @@ public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 		StringBuilder s=new StringBuilder();
 		s.append("func_action,func_id=").append(getDbFuncId());
 		if(projectUuid!=null)s.append(",project_uuid=").append(projectUuid);
-		s.append(" user_id=").append(getUserId()).append(",duration=").append(getProcessTime()).append(",code=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+		s.append(" user_id=").append(getUserId()).append("i,duration=").append(getProcessTime()).append("i,code=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+		if(!GenericUtil.isEmpty(transactionId))s.append(",trid=\"").append(transactionId).append("\"");
 		if(!GenericUtil.isEmpty(error))s.append(",error=\"").append(GenericUtil.stringToJS2(error)).append("\"");
+		s.append(" ").append(startTime).append("000000");
 		return s.toString();
 	}
 
@@ -64,7 +70,8 @@ public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 			if(r.getScd().get("userId")!=null)this.userId = (Integer)r.getScd().get("userId");
 			if(r.getScd().get("projectId")!=null)this.projectUuid = (String)r.getScd().get("projectId");
 		}
-		this.startTime=System.currentTimeMillis();
+		this.transactionId =r.getRequestParams()!=null ? r.getRequestParams().get("_trid_"):null;
+		this.startTime=Instant.now().toEpochMilli();
 		this.processTime = -1;
 	}
 
@@ -108,7 +115,7 @@ public class Log5GlobalFuncAction implements java.io.Serializable, Log5Base {
 	}
 
 	public void calcProcessTime() {
-		this.processTime = (int)(System.currentTimeMillis() - this.startTime);
+		this.processTime = (int)(Instant.now().toEpochMilli() - this.startTime);
 	}
 
 	@Transient

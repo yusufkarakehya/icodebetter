@@ -8,6 +8,7 @@ import javax.persistence.Table;
 
 @Table(name="log5_user_role_login",schema="iwb")
 public class Log5UserRoleLogin implements java.io.Serializable, Log5Base {
+	private static final long serialVersionUID = 134255555872912873L;
 
 	private int logId;
 

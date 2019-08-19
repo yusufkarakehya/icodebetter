@@ -110,6 +110,7 @@ iwb = {
   grids: {},
   label: {},
   forms: {},
+  charts: {},
   formConversions: {},
   formSmsMailTemplates: {},
   formBaseValues(id) {
@@ -121,6 +122,7 @@ iwb = {
     if (cs) for (var qi in cs) if (cs[qi]) _cnvStr.push(qi);
     return { _smsStr: _smsStr.join(","), _cnvStr: _cnvStr.join(",") };
   },
+  loadGrid: {},
   tabs: {},
   closeTab: null,
   debug: false,
@@ -893,23 +895,67 @@ function mailBoxRenderer(row, cell) {
     ? _("i", { className: "icon-envelope" })
     : null;
 }
-function strShortDate(x) {
-  return x ? x.substr(0, 10) : "";
+function strShortDate(row,cell) {
+  return cell && row ? (row[cell] ? row[cell].substr(0, 10) : ""):(row ? row.substr(0, 10) : "");
 }
 function accessControlHtml() {
   return null;
 }
-function fmtDateTime(x) {
+function fmtDateTime(x,y) {
   return x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
 }
-function fmtShortDate(x) {
+function fmtShortDate(x,y) {
   return x ? moment(x).format("DD/MM/YYYY") : "";
 }
-function strDateTime(x) {
-  return x || "";
+function strDateTime(row,cell) {
+	return cell && row ? (row[cell] ? row[cell] : ""):(row ? row : "");
 }
-function strDateTimeAgo(x) {
-  return x || "";
+
+
+var daysOfTheWeek = {
+  tr: [
+    "Pazar",
+    "Pazartesi",
+    "Salı",
+    "Çarşamba",
+    "Perşembe",
+    "Cuma",
+    "Cumartesi"
+  ],
+  en: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ]
+};
+var xtimeMap = {
+  tr: ["az önce", "bir dakika önce", "dakika önce", "saat önce", "dün"],
+  en: ["seconds ago", "a minute ago", "minutes ago", "hours ago", "yesterday"]
+};
+function fmtDateTimeAgo(dt2) {
+  if (!dt2) return "";
+  var tnow = new Date().getTime();
+  var dt3 = moment(dt2,"DD/MM/YYYY HH:mm").toDate();
+  var t = dt3.getTime();
+  var xt = xtimeMap[_scd.locale] || {};
+  if (t + 30 * 1000 > tnow) return xt[0]; // 'Az Önce';//5 sn
+  if (t + 2 * 60 * 1000 > tnow) return xt[1]; // 'Bir Dakika Önce';//1 dka
+  if (t + 60 * 60 * 1000 > tnow)
+    return Math.round((tnow - t) / (60 * 1000)) + xt[2]; // ' Dakika Önce';
+  if (t + 24 * 60 * 60 * 1000 > tnow)
+    return Math.round((tnow - t) / (60 * 60 * 1000)) + xt[3]; // ' Saat Önce';
+  if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; // 'Dün';
+  if (t + 7 * 24 * 60 * 60 * 1000 > tnow)
+    return daysOfTheWeek[_scd.locale][dt3.getDay()]; // 5dka
+  return dt2.substr(0,10);
+}
+
+function strDateTimeAgo(row, cell) {
+	return cell && row ? (row[cell] ? fmtDateTimeAgo(row[cell]) : ""):(row ? fmtDateTimeAgo(row) : "");
 }
 function getStrapSize(w) {
   if (w >= 700) return "lg";
@@ -5114,13 +5160,14 @@ const XToolbarItem = props => {
       {
         id: "toolpin" + props.index,
         key: "key" + props.index,
-        className: classNames("btn-round-shadow mx-1", cls[1]),
-        color: "success",
+        className: classNames("btn-round-shadow mx-1", cls[1]||''),
+        color: "danger",
         onClick: e => {
           props.click && props.click(e, props.grid, props);
         }
       },
       cls[0] && _("i", { className: cls[0] }),
+      cls[0] && ' ',
       props.text && props.text
     );
   }
@@ -5661,6 +5708,10 @@ class XMainGrid extends GridCommon {
         columnName =>
           (params += columnName + "," + (cmap[columnName] || 100) + ";")
       );
+      if(this.form){
+    	  var vals = this.form.getValues()
+    	  if(vals)for(var k in vals)if(vals[k]!='')params +='&'+k+'='+vals[k];
+      }
       iwb.showModal({
         title: "REPORTS / BI",
         footer: false,
@@ -5807,14 +5858,15 @@ class XMainGrid extends GridCommon {
      * @param {object}
      *            params -[{xsearch:'searchValue'}] Params from Global Search
      */
-    this.loadData = (force, params = {}) => {
+    this.loadData = (force, params = {}, dashIgnore) => {
+      if(!iwb.loadGrid[this.props.id])iwb.loadGrid[this.props.id]=this.loadData;
       const queryString = this.queryString();
       if (!force && queryString === this.lastQuery) {
         return;
       }
       var tempParams = {
-        ...params,
-        ...(this.form ? this.form.getValues() : {})
+        ...(this.form ? this.form.getValues() : {}),
+        ...params
       };
       iwb.request({
         url: queryString,
@@ -5825,6 +5877,121 @@ class XMainGrid extends GridCommon {
             rows: result.data,
             totalCount: result.total_count
           });
+          
+          if(cfg.self.props.summary)cfg.self.props.summary.map((ox)=>{
+        	  if(ox.graphId){
+        		  if(!dashIgnore){
+        		  var gox = ox;
+	        		  iwb.graph(ox, 'gr-'+cfg.self.props.id+'-'+ox.graphId, (selValue)=>{
+	        			  var xgroupBy = gox.groupBy.split('.');
+	        			  var groupBy = 'x'+xgroupBy[xgroupBy.length-1];
+	        			  var xparams = {};
+	        			  if(selValue!==false)xparams[groupBy] = selValue;
+	        			  this.loadData(!0, xparams, !0);
+	
+	        		  });
+        		  }
+        	  } else iwb.request({
+                  url: 'ajaxQueryData?_qid='+ox+'&.r='+Math.random(),
+                  self: cfg.self,
+                  params: tempParams,
+                  successCallback: (result2, cfg2) => {
+                	  if(!result2.data.length)return;
+                	  var j = result2.data[0];
+                	   var options = {
+                			      chart: {
+                			        height: 300,
+                			        type: 'radialBar',
+                			      },
+                			      plotOptions: {
+                			        radialBar: {
+                			          startAngle: -135,
+                			          endAngle: 225,
+                			           hollow: {
+                			            margin: 0,
+                			            size: '70%',
+                			            background: '#fff',
+                			            image: undefined,
+                			            imageOffsetX: 0,
+                			            imageOffsetY: 0,
+                			            position: 'front',
+                			            dropShadow: {
+                			              enabled: true,
+                			              top: 0,
+                			              left: 0,
+                			              blur: 4,
+                			              opacity: 0.24
+                			            }
+                			          },
+                			      /*    track: {
+                			            background: '#fff',
+                			            strokeWidth: '67%',
+                			            margin: 0, // margin is in pixels
+                			            dropShadow: {
+                			              enabled: true,
+                			              top: -3,
+                			              left: 0,
+                			              blur: 4,
+                			              opacity: 0.35
+                			            }
+                			          },*/
+
+                			          dataLabels: {
+                			            showOn: 'always',
+                			            name: {
+                			              offsetY: -10,
+                			              show: true,
+                			              color: '#888',
+                			              fontSize: '17px'
+                			            },
+                			            value: {
+                			              formatter: function(val) {
+                			                return j.val;
+                			              },
+                			              color: '#111',
+                			              fontSize: '36px',
+                			              show: true,
+                			            }
+                			          }
+                			        }
+                			      },
+                			    /*  fill: {
+                			        type: 'gradient',
+                			        gradient: {
+                			          shade: 'dark',
+                			          type: 'horizontal',
+                			          shadeIntensity: 0.2,
+                			          gradientToColors: ['#ABE5A1'],
+                			          inverseColors: true,
+                			          opacityFrom: 1,
+                			          opacityTo: 1,
+                			          stops: [0, 100]
+                			        }
+                			      },*/
+//                			      colors: ['#f00'],
+                			      series: [100*j.xval],
+                			      stroke: {
+                			        lineCap: 'round'
+                			      },
+                			      labels: [j.title],
+
+                			    }
+
+                	   var xid = 'ga-'+cfg2.self.props.id+'-'+ox;
+                	   if(iwb.charts[xid])iwb.charts[xid].destroy();
+              	        var chart = new ApexCharts(
+              	            document.getElementById(xid),
+              	            options
+              	        );
+              	        iwb.charts[xid] = chart;
+
+              	        chart.render();
+                  }
+              });
+
+          })
+          
+          
         },
         errorCallback: (error, cfg) => {
           cfg.self.setState({
@@ -6118,7 +6285,10 @@ class XMainGrid extends GridCommon {
           // marginRight:'.4rem'}}) )
         ),
         grid
-      )
+      ),
+      this.props.summary && _('summary', {},this.props.summary.map((ox)=>{
+    	  return _('div',{id:ox.graphId ? ('gr-'+this.props.id+'-'+ox.graphId):('ga-'+this.props.id+'-'+ox)},)
+      }))
     );
   }
 }
@@ -6654,8 +6824,7 @@ class XPage extends React.PureComponent {
             .then(
               result => {
                 if (result) {
-                  var f;
-                  eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
+                  var f = new Function('callAttributes', 'parentCt', result);
                   var serverComponent = f(callAttributes || {}, this);
                   if (serverComponent) {
                     if (callAttributes && callAttributes.modal) {
@@ -6880,8 +7049,7 @@ class XPage4Card extends React.PureComponent {
           .then(
             result => {
               if (result) {
-                var f;
-                eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
+                var f = new Function('callAttributes', 'parentCt', result);
                 var serverComponent = f(callAttributes || {}, this);
                 if (serverComponent) {
                   if (callAttributes && callAttributes.modal) {
@@ -7141,7 +7309,7 @@ class XCardMiniMenu extends React.PureComponent {
           )
         )
       ),
-      _("h6", { style: { textAlign: "center" } }, name)
+      !fadeOut && _("h6", { style: { textAlign: "center" } }, name)
     );
   }
 }
@@ -7261,15 +7429,22 @@ class XMainNav extends React.PureComponent {
       _("div", { style: { height: "1.45rem" } }),
       _(
         Row,
-        { style: { maxWidth: "1300px" } },
+        { 
+        	style: { maxWidth: "1300px" } 
+        },
         node.children.map((tempNode, index) =>
-          _(XCardMenu, {
+          !iwb.mainMainSmall ?_(XCardMenu, {
             key: index,
             node: tempNode,
             color: dgColors2[index % dgColors2.length],
             color3: dBGColors2[index % dBGColors2.length],
             color2: detailSpinnerColors2[index % detailSpinnerColors2.length]
-          })
+          }):
+        _(XCardMiniMenu, {
+            key: index,
+            color: dgColors3[index % dgColors3.length],
+            node: tempNode
+          }) 
         )
       ),
       visitedList
@@ -7318,8 +7493,7 @@ class XMainPanel extends React.PureComponent {
           .then(
             result => {
               if (result) {
-                var f;
-                eval("f=(callAttributes, parentCt)=>{\n" + result + "\n}");
+            	var f = new Function('callAttributes', 'parentCt', result);
                 var serverComponent = f(false, this);
                 if (serverComponent) {
                   serverComponent = _(
@@ -7389,7 +7563,7 @@ class XMainPanel extends React.PureComponent {
                 Row,
                 { style: { maxWidth: "1300px" } },
                 ll.children.map((menuitem, index) => {
-                  return _(XCardMenu, {
+                  return !iwb.mainMainSmall ?_(XCardMenu, {
                     key: index,
                     node: menuitem,
                     fadeOut: menuitem.url != node.url,
@@ -7397,7 +7571,12 @@ class XMainPanel extends React.PureComponent {
                     color3: dBGColors2[index % dBGColors2.length],
                     color2:
                       detailSpinnerColors2[index % detailSpinnerColors2.length]
-                  });
+                  }):
+                  _(XCardMiniMenu, {
+                      key: index,fadeOut: menuitem.url != node.url,
+                      color: dgColors3[index % dgColors3.length],
+                      node: menuitem
+                    }) ;
                 })
               )
             );
@@ -8059,7 +8238,7 @@ class XGraph extends React.Component {
   componentDidMount() {
     var dg = this.props.graph;
     var gid = "idG" + dg.graphId;
-    iwb.graphAmchart(dg, gid);
+    iwb.graph(dg, gid);
   }
   render() {
     return _("div", {
@@ -8067,6 +8246,149 @@ class XGraph extends React.Component {
       id: "idG" + this.props.graph.graphId
     });
   }
+}
+
+
+function fmtDecimal(value,digit){
+	if(!value)return '0';
+	if(!digit)digit=2;	
+	var result = Math.round(value*Math.pow(10,digit))/Math.pow(10,digit)+'';
+	var s=1*result<0?1:0;
+	var x=result.split('.');
+	var x1=x[0],x2=x[1];
+	for(var i=x1.length-3;i>s;i-=3)x1=x1.substr(0,i)+('.')+x1.substr(i);
+	if(x2 && x2>0) return x1+(',')+x2;
+	return x1;	
+}
+
+
+iwb.apexCharts={}
+iwb.graph = function(dg, gid, callback) {
+	if(!dg.groupBy)return;
+	  var newStat = 1 * dg.funcTip ? dg.funcFields : "";
+	  var params = {};
+	  if (newStat) params._ffids = newStat;
+	  if (1 * dg.graphTip >= 5) params._sfid = dg.stackedFieldId;
+	  var series=[], labels=[], lookUps=[], chart =null;
+	  var xid = gid;
+	  var el = document.getElementById(gid);
+	  if(!el)return;
+	  iwb.request({
+	    url:
+	      (dg.query? "ajaxQueryData4Stat?_gid=":"ajaxQueryData4StatTree?_gid=") +
+	      dg.gridId +
+	      "&_stat=" +
+	      dg.funcTip +
+	      "&_qfid=" +
+	      dg.groupBy +
+	      "&_dtt=" +
+	      dg.dtTip,
+	    params: Object.assign(params, dg.queryParams),
+	    successCallback: function(j) {
+			var d= j.data;
+			if(!d || !d.length)return;
+			switch (1 * dg.graphTip) {
+	        case 6: // stacked area
+	        case 5: // stacked column
+	        	var l= j.lookUp;
+	        	for(var k in l)lookUps.push(k);
+	            if(!lookUps.length)return;
+	            d.map((z)=>{
+	                var data=[];
+	                lookUps.map((y)=>data.push(1*(z['xres_'+y]||0)));
+	                series.push({name:z.dsc, data:data});
+	            });
+	            lookUps.map((y)=>labels.push(l[y]||'-'));
+
+	            options = {
+	                chart: {
+	                	id:'apex-'+gid,
+//	                    height: 80*d.length+40,
+	                    type: 'bar',
+	                    stacked: true,
+	                    toolbar: {show: false}
+	                },
+	                plotOptions: {
+//	                    bar: {horizontal: true},
+	                    
+	                },
+	                series: series,
+//title: {text: dg.name},
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {labels: {show: !!dg.legend}, axisTicks: {color: '#777'}},
+	            }
+	        	break;
+	        case 3:// pie
+	            d.map((z)=>{
+	                series.push(1*z.xres);
+	                labels.push(z.dsc||'-');
+	            });
+	            var options = {
+                    chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
+	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : {show:false}
+	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
+	            }
+
+	        	break;
+	        case 1:// column
+	        case 2:// line
+	        	var colCount = newStat.split(',').length;
+	        	for(var qi=0;qi<colCount;qi++){
+	        		series.push({name:j.lookUps ? j.lookUps[qi] : ('Count'), data:[]})
+	        	}
+	        	d.map((z)=>{
+	        		for(var qi=0;qi<colCount;qi++){
+	        			series[qi].data.push(1*z[qi?'xres'+(qi+1):'xres']);
+	        		}
+	                labels.push(z.dsc);
+	            });
+
+	            options = {
+	                chart: {
+	                	id:'apex-'+gid,
+//	                    height:document.getElementById()50*d.length+30,
+	                    type: 1 * dg.graphTip==1?'bar':'spline',
+	                    toolbar: {show: false}
+	                },
+	                stroke: 1 * dg.graphTip==1 ? {}:{
+	                    curve: 'smooth'
+	                },
+	                series: series,
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {labels: {show: !!dg.legend}},
+	            }
+	        	break;
+			}
+
+			if(options){
+		        options.theme= {
+//		            mode: 'dark',
+		            palette: iwb.graphPalette||'palette6',
+		          };
+		        options.chart.height = el.offsetHeight && el.offsetHeight>50 ?  el.offsetHeight-20 : el.offsetWidth/2;
+				if(iwb.apexCharts[xid])iwb.apexCharts[xid].destroy();
+				if(callback)options.chart.events= {
+						dataPointSelection: function(event, chartContext, config) {
+							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length){
+								var yx = config.selectedDataPoints[0];
+								callback(yx.length ? d[yx[0]].id : false);
+						    }
+						}
+				}
+	            var chart = new ApexCharts(
+	                el,
+	                options
+	            );
+	            iwb.apexCharts[xid]=chart;
+	            chart.render();
+			}
+			
+	    }
+	  });
 }
 
 iwb.createPortlet = function(o) {

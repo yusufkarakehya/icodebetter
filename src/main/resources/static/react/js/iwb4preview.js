@@ -26,6 +26,7 @@ var iwb = {
     if (iwb.asideToggleX) iwb.asideToggleX(e);
     else document.body.classList.toggle("aside-menu-hidden");
   },
+  loadGrid: {},
   approvalColorMap: {
     1: "primary",
     2: "warning",
@@ -76,6 +77,144 @@ var iwb = {
 iwb.logo =
   '<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300 202.576" class="white-logo standard-logo middle-content"><g id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429 -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43" fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0 -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065 -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003 -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79 -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956 -29.956,29.956c-15.521,0 -28.283,-11.804 -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896 -18.375,-17.896c-9.995,0 -18.086,7.971 -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816 -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17" d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021 -17.428,16.021s-16.624,-7.054 -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979 -18.384,-17.979s-18.139,8.014 -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021 -17.428,16.021c-9.176,0 -16.624,-7.054 -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978 -18.384,-17.978c-10.024,0 -18.139,8.014 -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722" fill="#bbb"></path></g></svg>';
 iwb.debug = true;
+iwb.graph = function(dg, gid, callback) {
+	  var newStat = 1 * dg.funcTip ? dg.funcFields : "";
+	  var params = {};
+	  if (newStat) params._ffids = newStat;
+	  if (1 * dg.graphTip >= 5) params._sfid = dg.stackedFieldId;
+	  var series=[], labels=[], lookUps=[], chart =null;
+	  var xid = gid;
+	  iwb.request({
+	    url:
+	      (dg.query? "ajaxQueryData4Stat?_gid=":"ajaxQueryData4StatTree?_gid=") +
+	      dg.gridId +
+	      "&_stat=" +
+	      dg.funcTip +
+	      "&_qfid=" +
+	      dg.groupBy +
+	      "&_dtt=" +
+	      dg.dtTip,
+	    params: Object.assign(params, dg.queryParams),
+	    successCallback: function(j) {
+			var d= j.data;
+			if(!d || !d.length)return;
+			
+			switch (1 * dg.graphTip) {
+	        case 6: // stacked area
+	        case 5: // stacked column
+	        	var l= j.lookUp;
+	        	for(var k in l)lookUps.push(k);
+	            if(!lookUps.length)return;
+	            d.map((z)=>{
+	                var data=[];
+	                lookUps.map((y)=>data.push(1*(z['xres_'+y]||0)));
+	                series.push({name:z.dsc, data:data});
+	            });
+	            lookUps.map((y)=>labels.push(l[y]||'-'));
+
+	            options = {
+	                chart: {
+	                	id:'apex-'+gid,
+	                    height: 80*d.length+40,
+	                    type: 'bar',
+	                    stacked: true,
+	                    toolbar: {show: false}
+	                },
+	                plotOptions: {
+	                    bar: {horizontal: true},
+	                    
+	                },
+	                series: series,
+//title: {text: dg.name},
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {
+	                    title: {
+	                        text: undefined
+	                    },                
+	                }
+	            }
+	        	break;
+	        case 3:// pie
+	            d.map((z)=>{
+	                series.push(1*z.xres);
+	                labels.push(z.dsc||'-');
+	            });
+	            var options = {
+//title: {text: dg.name},
+	                chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
+	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : false
+	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
+	            }
+
+	        	break;
+	        case 1:// column
+	        case 2:// area
+	        	d.map((z)=>{
+	                series.push(1*z.xres);
+	                labels.push(z.dsc);
+	            });
+
+	            options = {
+//title: {text: dg.name},
+	                chart: {
+	                	id:'apex-'+gid,
+	                    height:50*d.length+30,
+	                    type: 1 * dg.graphTip==1?'bar':'area',
+	                    toolbar: {show: false}
+	                },
+	                plotOptions: {
+	                    bar: {
+	                        horizontal: 1 * dg.graphTip==1 // d.length>5
+	                    }
+	                },
+	                dataLabels:  1 * dg.graphTip==1 ? {
+	                    enabled: true,
+	                    textAnchor: 'start',
+	                    style: {
+	                        colors: ['#fff']
+	                    },
+	                    formatter: function(val, opt) {
+	                        return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+	                    },
+	                    offsetX: 0,
+	                    dropShadow: {
+	                      enabled: true
+	                    }
+	                }:{},
+	                series: [{
+	                    data: series
+	                }],
+	                xaxis: {
+	                    categories: labels,
+	                },
+	                yaxis: {labels: {show: false}},
+	            }
+	        	break;
+			}
+
+			if(options){
+				if(iwb.charts[xid])iwb.charts[xid].destroy();
+				if(callback)options.chart.events= {
+						dataPointSelection: function(event, chartContext, config) {
+							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length){
+								var yx = config.selectedDataPoints[0];
+								callback(yx.length ? d[yx[0]].id : false);
+						    }
+						}
+				}
+	            var chart = new ApexCharts(
+	                document.getElementById(xid),
+	                options
+	            );
+	            iwb.charts[xid]=chart;
+	            chart.render();
+			}
+			
+	    }
+	  });
+}
 iwb.JSON2URI = function(j) {
   if (!j) return "";
   var s = "";
@@ -321,18 +460,67 @@ function fmtShortDate(x) {
   return x ? moment(x).format("DD/MM/YYYY") : "";
 }
 
-function strShortDate(x) {
-  return x ? x.substr(0, 10) : "";
+
+function strShortDate(row,cell) {
+  return cell && row ? (row[cell] ? row[cell].substr(0, 10) : ""):(row ? row.substr(0, 10) : "");
 }
 function accessControlHtml() {
   return null;
 }
-function strDateTime(x) {
-  return x || "";
+function fmtDateTime(x,y) {
+  return x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
+}
+function fmtShortDate(x,y) {
+  return x ? moment(x).format("DD/MM/YYYY") : "";
+}
+function strDateTime(row,cell) {
+	return cell && row ? (row[cell] ? row[cell] : ""):(row ? row : "");
 }
 
-function strDateTimeAgo(x) {
-  return x || "";
+
+var daysOfTheWeek = {
+  tr: [
+    "Pazar",
+    "Pazartesi",
+    "Salı",
+    "Çarşamba",
+    "Perşembe",
+    "Cuma",
+    "Cumartesi"
+  ],
+  en: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ]
+};
+var xtimeMap = {
+  tr: ["az önce", "bir dakika önce", "dakika önce", "saat önce", "dün"],
+  en: ["seconds ago", "a minute ago", "minutes ago", "hours ago", "yesterday"]
+};
+function fmtDateTimeAgo(dt2) {
+  if (!dt2) return "";
+  var tnow = new Date().getTime();
+  var t = moment(dt2,"DD/MM/YYYY HH:mm").toDate().getTime();
+  var xt = xtimeMap[_scd.locale] || {};
+  if (t + 30 * 1000 > tnow) return xt[0]; // 'Az Önce';//5 sn
+  if (t + 2 * 60 * 1000 > tnow) return xt[1]; // 'Bir Dakika Önce';//1 dka
+  if (t + 60 * 60 * 1000 > tnow)
+    return Math.round((tnow - t) / (60 * 1000)) + xt[2]; // ' Dakika Önce';
+  if (t + 24 * 60 * 60 * 1000 > tnow)
+    return Math.round((tnow - t) / (60 * 60 * 1000)) + xt[3]; // ' Saat Önce';
+  if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; // 'Dün';
+  if (t + 7 * 24 * 60 * 60 * 1000 > tnow)
+    return daysOfTheWeek[_scd.locale][dt2.getDay()]; // 5dka
+  return dt2.substr(0,10);
+}
+
+function strDateTimeAgo(row, cell) {
+	return cell && row ? (row[cell] ? fmtDateTimeAgo(row[cell]) : ""):(row ? fmtDateTimeAgo(row) : "");
 }
 
 function getStrapSize(w) {
@@ -1273,6 +1461,8 @@ class XGrid extends React.PureComponent {
     return queryString;
   }
   loadData(force) {
+      if(!iwb.loadGrid[this.props.id])iwb.loadGrid[this.props.id]=this.loadData;
+
     if (this.props.rows) return;
     // if(this.state.loading===true)return;
     const queryString = this.queryString();
@@ -2324,6 +2514,8 @@ class XMainGrid extends React.PureComponent {
     return false;
   }
   loadData(force, params) {
+      if(!iwb.loadGrid[this.props.id])iwb.loadGrid[this.props.id]=this.loadData;
+
     // if(this.state.loading===true)return;
     const queryString = this.queryString();
     if (!force && queryString === this.lastQuery) {

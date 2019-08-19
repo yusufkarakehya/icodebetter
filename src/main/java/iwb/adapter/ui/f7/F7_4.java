@@ -94,14 +94,429 @@ public class F7_4 implements ViewMobileAdapter {
     return buf;
   }
 
+  
+	private StringBuilder serializeQueryData(W5QueryResult qr) {
+		int customizationId = (Integer) qr.getScd().get("customizationId");
+		String xlocale = (String) qr.getScd().get("locale");
+		String userIdStr = qr.getScd().containsKey("userId") ? qr.getScd().get("userId").toString() : null;
+		List datas = qr.getData();
+		StringBuilder buf = new StringBuilder();
+		buf.append("{\"success\":").append(qr.getErrorMap().isEmpty())
+				.append(",\"queryId\":").append(qr.getQueryId())
+				.append(",\"execDttm\":\"")
+				.append(GenericUtil.uFormatDateTime(new Date())).append("\"");
+		boolean dismissNull = qr.getRequestParams()!=null && GenericUtil.uInt(qr.getRequestParams(), "_dismissNull")!=0;
+		if (qr.getErrorMap().isEmpty()) {
+			buf.append(",\n\"data\":["); // ana
+			if (!GenericUtil.isEmpty(datas)) {
+				boolean bx = false;
+				boolean isMap = (datas.get(0) instanceof Map);
+				
+				
+				for (Object o : datas) {
+					if (bx)
+						buf.append(",\n");
+					else
+						bx = true;
+					buf.append("{"); // satir
+					boolean b = false;
+					for (W5QueryField f : qr.getNewQueryFields()) {
+						Object obj = isMap ? ((Map)o).get(f.getDsc()) : ((Object[])o)[f.getTabOrder() - 1];
+						if(obj==null && dismissNull)continue;
+						if (b)
+							buf.append(",");
+						else
+							b = true;
+						if (f.getPostProcessTip() == 9)
+							buf.append("\"_");
+						else
+							buf.append("\"");
+						buf.append(f.getPostProcessTip() == 6 ? f.getDsc()
+								.substring(1) : f.getDsc());
+						if (f.getFieldTip() == 5) {// boolean
+							buf.append("\":").append(GenericUtil.uInt(obj) != 0);
+							continue;
+						}
+						if (f.getFieldTip() == 6) {// auto
+							buf.append("\":");
+							if (obj == null || obj.toString().equals("0"))
+								buf.append("null");
+							else if (GenericUtil.uInt(obj) != 0)
+								buf.append(obj);
+							else
+								buf.append("\"").append(obj).append("\"");
+							continue;
+						} else if(f.getFieldTip() == 8) {
+							buf.append("\":");
+							if (obj == null)buf.append("null");
+							else if(obj instanceof Map)buf.append(GenericUtil.fromMapToJsonString2Recursive((Map)obj));
+							else if(obj instanceof List)buf.append(GenericUtil.fromListToJsonString2Recursive((List)obj));
+							else buf.append(obj);
+							continue;
+						}
+						
+						buf.append("\":\"");
+						if (obj != null)
+							switch (f.getPostProcessTip()) { // queryField PostProcessTip
+							case	15://convert to []
+								buf.setLength(buf.length()-1);
+								buf.append("[").append(obj).append("]");
+								continue;
+							case 3:
+								buf.append(GenericUtil.onlyHTMLToJS(obj
+										.toString()));
+								break;
+							case 8:
+								buf.append(GenericUtil.stringToHtml2(obj));
+								break;
+							case 20: // user LookUp
+								buf.append(obj)
+										.append("\",\"")
+										.append(f.getDsc())
+										.append("_qw_\":\"")
+										.append(UserUtil.getUserName(GenericUtil.uInt(obj)));
+								break;
+							case 21: // users LookUp
+								String[] ids = ((String) obj).split(",");
+								if (ids.length > 0) {
+									String res = "";
+									for (String s : ids) {
+										res += ","+ UserUtil.getUserName(GenericUtil.uInt(s));
+									}
+									buf.append(obj).append("\",\"")
+											.append(f.getDsc())
+											.append("_qw_\":\"")
+											.append(res.substring(1));
+								}
+								break;
+							case 53: // User LookUp Real Name
+								buf.append(obj)
+										.append("\",\"")
+										.append(f.getDsc())
+										.append("_qw_\":\"")
+										.append(UserUtil.getUserDsc(GenericUtil.uInt(obj)));
+								break;
+							case 54: // Users LookUp Real Name
+								String[] ids11 = ((String) obj).split(",");
+								if (ids11.length > 0) {
+									String res = "";
+									for (String s : ids11) {
+										res += ","+ UserUtil.getUserDsc(GenericUtil.uInt(s));
+									}
+									buf.append(obj).append("\",\"")
+											.append(f.getDsc())
+											.append("_qw_\":\"")
+											.append(res.substring(1));
+								}
+								break;
+							case 22:
+							case 23: // roles: TODO
+								buf.append(obj);
+								break;
+							case 1:// duz
+								buf.append(obj);
+								break;
+							case 2: // locale filtresinden gececek
+								buf.append(LocaleMsgCache.get2(
+										customizationId, xlocale,
+										obj.toString()));
+								break;
+							case 10:
+							case 11: // demek ki static lookup'li deger
+										// tutulacak
+								buf.append(GenericUtil.stringToJS2(obj
+										.toString()));
+								if (f.getLookupQueryId() == 0)
+									break;
+								W5LookUp lookUp = FrameworkCache.getLookUp(
+										qr.getScd(), f.getLookupQueryId());
+								if (lookUp == null)
+									break;
+								buf.append("\",\"").append(f.getDsc())
+										.append("_qw_\":\"");
+								String[] objs = f.getPostProcessTip() == 11 ? ((String) obj)
+										.split(",") : new String[] { obj
+										.toString() };
+								boolean bz = false;
+								if(lookUp.get_detayMap()!=null)for (String q : objs) {
+									if (bz)
+										buf.append(", ");
+									else
+										bz = true;
+									W5LookUpDetay d = lookUp.get_detayMap()
+											.get(q);
+									if (d != null) {
+										String s = d.getDsc();
+										if (s != null) {
+											s = LocaleMsgCache.get2(
+														customizationId,
+														xlocale, s);
+											buf.append(GenericUtil
+													.stringToJS2(s));
+										}
+									} else {
+										buf.append("???: ").append(q);
+									}
+								}
+								break;
+							case 13:
+							case 12:// table Lookup
+								buf.append(GenericUtil.stringToJS2(obj
+										.toString()));
+								break;
+							case	48://comment extra info
+								String[] ozc = ((String) obj).split(";");//commentCount;commentUserId;lastCommentDttm;viewUserIds-msg
+								int ndx = ozc[3].indexOf('-');
+								buf.append(ozc[0]).append("\",\"").append(FieldDefinitions.queryFieldName_CommentExtra)
+									.append("\":{\"last_dttm\":\"").append(ozc[2])
+									.append("\",\"user_id\":").append(ozc[1])
+									.append(",\"user_dsc\":\"").append(UserUtil.getUserDsc( GenericUtil.uInt(ozc[1])))
+									.append("\",\"is_new\":").append(!GenericUtil.hasPartInside(ozc[3].substring(0,ndx), userIdStr))
+									.append(",\"msg\":\"").append(GenericUtil.stringToHtml(ozc[3].substring(ndx+1)))
+									.append("\"}");
+								continue;
+//								break;
+							case 49:// approval _qw_
+								String[] ozs = ((String) obj).split(";");
+								int appId = GenericUtil.uInt(ozs[1]);// approvalId:
+																	// kendisi
+																	// yetkili
+																	// ise + ,
+																	// aksi
+																	// halde -
+								int appStepId = GenericUtil.uInt(ozs[2]);// approvalStepId
+								if (appStepId != 998
+										&& !GenericUtil.accessControl(
+												qr.getScd(),
+												(short) 1,
+												ozs.length > 3 ? ozs[3] : null,
+												ozs.length > 4 ? ozs[4] : null))
+									buf.append("-");
+								buf.append(ozs[2]);
+								W5Workflow appr = FrameworkCache.getWorkflow(qr.getScd(), appId);
+								String appStepDsc = "";
+								if (appr != null
+										&& appr.get_approvalStepMap().get(
+												Math.abs(appStepId)) != null)
+									appStepDsc = appr.get_approvalStepMap()
+											.get(Math.abs(appStepId)).getDsc();
+
+								buf.append("\",\"pkpkpk_arf_id\":")
+										.append(ozs[0])
+										.append(",\"")
+										.append(f.getDsc())
+										.append("_qw_\":\"")
+										.append(LocaleMsgCache.get2(
+												customizationId, xlocale,
+												appStepDsc));
+								if (ozs.length > 3 && ozs[3] != null
+										&& ozs[3].length() > 0) {// roleIds
+									buf.append("\",\"app_role_ids_qw_\":\"");
+									String[] roleIds = ozs[3].split(",");
+									Map<Integer, String> roles = FrameworkCache.wRoles.get(customizationId);
+									if(roles!=null)for (String rid : roleIds) {
+										buf.append(
+												roles.get(
+														GenericUtil.uInt(rid)) != null ? roles.get(GenericUtil
+																.uInt(rid))
+														: "null").append(", ");
+									} else buf.append("null, ");
+									buf.setLength(buf.length() - 2);
+								}
+								if (ozs.length > 4 && ozs[4] != null
+										&& ozs[4].length() > 0) {// userIds
+									buf.append("\",\"app_user_ids_qw_\":\"");
+									String[] userIds = ozs[4].split(",");
+									for (String uid : userIds) {
+										buf.append(
+												UserUtil.getUserDsc(GenericUtil.uInt(uid)))
+												.append(", ");
+									}
+									buf.setLength(buf.length() - 2);
+								}
+								break;
+							/*
+							 * case 49://approval _qw_ buf.append(obj); int
+							 * appStepId = PromisUtil.uInt(obj);
+							 * buf.append("\",\""
+							 * ).append(f.getDsc()).append("_qw_\":\""
+							 * ).append(PromisCache
+							 * .wApprovals.get(f.getLookupQueryId
+							 * ()).get_approvalStepMap
+							 * ().get(Math.abs(appStepId)).getDsc()); break;
+							 */
+							
+							default:
+								buf.append(GenericUtil.stringToJS2(obj
+										.toString()));
+							}
+						buf.append("\"");
+
+					}
+					if (qr.getQuery().getShowParentRecordFlag() != 0 && !isMap && ((Object[])o)[((Object[])o).length - 1] != null) {
+						buf.append(",\"").append(FieldDefinitions.queryFieldName_HierarchicalData).append("\":")
+								.append(serializeTableHelperList(
+										qr.getScd(),
+										(List<W5TableRecordHelper>) ((Object[])o)[((Object[])o).length - 1]));
+					}
+					buf.append("}"); // satir
+				}
+			}
+			buf.append("],\n\"browseInfo\":{\"startRow\":")
+					.append(qr.getStartRowNumber())
+					.append(",\"fetchCount\":")
+					.append(qr.getFetchRowCount())
+					.append(",\"totalCount\":")
+					.append(qr.getResultRowCount()).append("}");
+			if (FrameworkSetting.debug && GenericUtil.uInt(qr.getScd().get("mobile"))==0 && qr.getExecutedSql() != null) {
+				buf.append(",\n\"sql\":\"")
+						.append(GenericUtil.stringToJS2(GenericUtil.replaceSql(
+								qr.getExecutedSql(),
+								qr.getSqlParams()))).append("\"");
+			}
+			if (!GenericUtil.isEmpty(qr.getExtraOutMap()))
+				buf.append(",\n \"extraOutMap\":").append(
+						GenericUtil.fromMapToJsonString2Recursive(qr
+								.getExtraOutMap()));
+		} else
+			buf.append(",\n\"errorType\":\"validation\",\n\"errors\":")
+					.append(serializeValidatonErrors(qr.getErrorMap(),
+							xlocale));
+
+		return buf.append("}");
+	}
+	
   public StringBuilder serializePage(W5PageResult pageResult) {
     StringBuilder buf = new StringBuilder();
     W5Page p = pageResult.getPage();
-    buf.append(p.getCode());
+    buf.append(GenericUtil.isEmpty(p.getCode()) ? "{\"success\":true}":p.getCode());
     if (!GenericUtil.isEmpty(p.getCssCode())) {
       int ix = buf.lastIndexOf("}");
       if (ix > -1) buf.insert(ix, ",style:`" + p.getCssCode() + "`");
     }
+    if(!GenericUtil.isEmpty(pageResult.getPageObjectList())) {
+    	StringBuilder sb = new StringBuilder();
+    	if(buf.indexOf("template:")==-1) {
+    		StringBuilder code = new StringBuilder(), data = new StringBuilder();
+    		data.append("_tid:").append(p.getTemplateId());
+    		code.append("on:{pageDestroy:function(){if(this.ptr)this.ptr.destroy('#idx-tpage-")
+    		.append(p.getTemplateId()).append("');},pageInit:function(){var self=this;setTimeout(function(){self.ptr=iwb.app.ptr.get('#idx-tpage-")
+    		.append(p.getTemplateId())
+    		.append(".ptr-content');self.ptr.on('refresh',self.reload);self.reload();},100);}},methods:{clickMenu:function(){},clickLink:function(url){iwb.app.views.main.router.navigate(url);},reload:function(){var self=this;\n");
+    		sb.append(", template:`<div data-page=\"iwb-page-").append(p.getTemplateId()).append("\" class=\"page\">\n <div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"left\"><a href=\"#\" class=\"link icon-only panel-open\" data-panel=\"left\"><i class=\"icon f7-icons if-not-md\">menu</i><i class=\"icon material-icons if-md\">menu</i></a></div><div class=\"title\">")
+    			.append(LocaleMsgCache.get2(pageResult.getScd(),p.getDsc()))
+    			.append("</div><div class=\"right\"></div></div></div>\n <div id=\"idx-tpage-").append(p.getTemplateId()).append("\" class=\"page-content ptr-content\">\n");
+    	    sb.append(
+    	              "<div class=\"ptr-preloader\"><div class=\"preloader\"></div><div class=\"ptr-arrow\"></div></div>");
+
+    		boolean lastBadge = false, lastGauge = false;
+    		for(Object o:pageResult.getPageObjectList()) if(o!=null && !(o instanceof String)){	
+    			if(lastBadge && (!(o instanceof W5QueryResult) || ((W5QueryResult)o).getQuery().getQueryTip()!=21)) {
+    				sb.append("</div></div>");
+    				lastBadge = false;
+    			}
+    			if(lastGauge && (!(o instanceof W5QueryResult) || ((W5QueryResult)o).getQuery().getQueryTip()!=22)) {
+    				sb.append("</div></div>");
+    				lastGauge = false;
+    			}
+    			if(o instanceof W5BIGraphDashboard) {
+    				W5BIGraphDashboard gd = (W5BIGraphDashboard)o;
+        			String pk = "o9_" + gd.getGraphDashboardId();
+        			sb.append("\n  	<div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),gd.getLocaleMsgKey()));
+    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+    				sb.append("</div><div class=\"card-content card-content-padding\" id=\"idx-obj-").append(pk).append("\"></div></div>");
+    				code.append("\n iwb.graph(").append(serializeGraphDashboard(gd, pageResult.getScd())).append(",'idx-obj-").append(pk).append("');");
+	    		} else if(o instanceof M5ListResult) {
+	    			M5ListResult lr = (M5ListResult)o;
+        			String pk = "o11_" + lr.getListId();
+        			sb.append("\n  <div class=\"card\"><div class=\"card-header\">").append(LocaleMsgCache.get2(pageResult.getScd(),lr.getList().getLocaleMsgKey()));
+    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+    				sb.append("</div><div class=\"card-content\" id=\"idx-obj-").append(pk).append("\">");
+					if(lr.getList().getListTip()==1 || lr.getList().getListTip()==4)sb.append("<div class=\"list\"><ul>");
+					sb.append(lr.getList().getHtmlDataCode().replace("data}}","data_"+lr.getListId()+"}}"));
+					if(lr.getList().getListTip()==1 || lr.getList().getListTip()==4)sb.append("</ul></div>");
+    				sb.append("</div></div>");
+    				data.append(", data_").append(lr.getListId()).append(":[]");
+    				code.append("\niwb.request({url:'ajaxQueryData?_qid=").append(lr.getList().getQueryId()).append("&limit=")
+    					.append(lr.getList().getDefaultPageRecordNumber()>0 ? lr.getList().getDefaultPageRecordNumber():50)
+    					.append("', success:function(jj){self.$setState({data_").append(lr.getListId()).append(":jj.data||[]})}});");
+	    		} else if(o instanceof W5QueryResult) {
+	    			W5QueryResult qr = (W5QueryResult)o;
+        			String pk = "o"+qr.getQuery().getQueryTip()+"_" + qr.getQueryId();
+	    			switch(qr.getQuery().getQueryTip()) {
+	    			case	21://badge
+	    				if(!lastBadge) {
+	    					sb.append("\n  <div class=\"block\" style=\"padding-left: inherit; padding-right: inherit; margin-bottom: 0;\"><div class=\"row\">");
+	    				}
+	    				lastBadge = true;
+	    				sb.append("{{#if ").append(pk).append("}}<div class=\"col-50\"><div");
+	    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+	    				sb.append(" class=\"card bg-color-{{#if ").append(pk).append(".bgcolor}}{{").append(pk).append(".bgcolor}}{{else}}blue{{/if}}\" style=\"color:{{#if ")
+	    					.append(pk).append(".color}}{{").append(pk)
+	    					.append(".color}}{{else}}white{{/if}} \"><div class=\"card-content\" style=\"padding:5px 10px; text-align:right;font-size:2rem; display: grid;\"><div style=\"text-align: left;font-size: 1rem;\">{{")
+	    					.append(pk).append(".title}}</div><div>{{").append(pk).append(".val}}</div></div></div></div>{{/if}}\n");
+    				break;
+	    			case	22://gauge
+	    				if(!lastGauge) {
+	    					sb.append("\n  <div class=\"block block-strong\"><div class=\"row\">");
+	    				}
+	    				lastGauge = true;
+	    				sb.append("{{#if ").append(pk).append("}}<div class=\"col-50\"><div");
+	    				if(false)sb.append(" @click=\"clickLink('showMList?_lid=1')\"");
+	    				sb.append(" class=\"gauge gauge-init\" data-type=\"{{#if ").append(pk).append(".xtype}}{{").append(pk).append(".xtype}}{{else}}semicircle{{/if}}\" data-value=\"{{").append(pk).append(".xval}}\" data-value-text=\"{{")
+	    					.append(pk).append(".val}}\" data-value-text-color=\"{{").append(pk).append(".color}}\" data-border-color=\"{{")
+	    					.append(pk).append(".color}}\" data-label-text=\"{{").append(pk).append(".title}}\"></div></div>{{/if}}\n");
+	    				break;
+	    			}
+    				code.append("\n iwb.request({url:'ajaxQueryData?_qid=").append(qr.getQuery().getQueryId()).append("', success:function(jj){self.$setState({").append(pk).append(":jj.data[0]||{}})}});");
+	    		}
+    		}
+			if(lastBadge)sb.append("</div></div>");
+			else if(lastGauge)sb.append("</div></div>");
+			sb.append("\n\n </div>\n</div>");
+    		code.append("\n if(self.ptr)self.ptr.done();}}");
+    		sb.append("`,").append(code).append(", data:function(){return {").append(data).append("}}");
+    		int ix = buf.lastIndexOf("}");
+            if (ix > -1) buf.insert(ix, sb.toString());
+    	} else {
+    		sb.append(", items:[");
+	    	for(Object o:pageResult.getPageObjectList()) {
+	    		if(o instanceof W5BIGraphDashboard) {
+	    			sb.append(serializeGraphDashboard((W5BIGraphDashboard)o, pageResult.getScd()));
+	    		} else if(o instanceof M5ListResult) {
+	    			sb.append(serializeList4Page((M5ListResult)o));
+	    		} else if(o instanceof W5QueryResult) {
+	    			sb.append(serializeQueryData((W5QueryResult)o));
+	    		} else sb.append("{}");
+	    		sb.append(",");
+	    	}
+	    	if(sb.length()>1) {
+	    		sb.setLength(sb.length()-1);
+	    		sb.append("]");
+	    		int ix = buf.lastIndexOf("}");
+	            if (ix > -1) buf.insert(ix, sb.toString());
+	    	}
+    	}
+    	
+    }
+    return buf;
+  }
+  private StringBuilder serializeList4Page(M5ListResult listResult) {
+	StringBuilder buf = new StringBuilder();
+    M5List l = listResult.getList();
+
+    String htmlDataCode = l.getHtmlDataCode();
+    if (htmlDataCode == null) htmlDataCode = ""; 
+
+    buf.append("{listId:")
+    .append(l.getListId())
+    .append(", queryId:").append(l.getQueryId()).append(", name:'")
+    .append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey()))
+    .append("'");
+    buf.append("\n}, template:`");
+    buf.append(htmlDataCode.replace("data}}","data_"+listResult.getListId()+"}}").replace("@click","_dummy")).append("`");    
+    buf.append("}");
+
     return buf;
   }
 
@@ -159,13 +574,16 @@ public class F7_4 implements ViewMobileAdapter {
           .append("-view\">")
           .append("\n<div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"left\">");
 
-      if (l.getParentListId() == 0) {
-        s2.append(
-            "<a href=\"#\" class=\"link icon-only panel-open\" data-panel=\"left\"><i class=\"icon f7-icons if-not-md\">menu</i><i class=\"icon material-icons if-md\">menu</i></a>");
-      } else
-        s2.append(
-            "<a href=\"#\" class=\"link back\"> <i class=\"icon icon-back\"></i> <span class=\"if-not-md\">Back</span></a>");
-
+      if (l.getParentListId() != 0 || GenericUtil.uInt(listResult.getRequestParams().get("_back"))!=0) {
+          s2.append(
+                  "<a href=\"#\" class=\"link back\"> <i class=\"icon icon-back\"></i> <span class=\"if-not-md\">")
+          .append(LocaleMsgCache.get2(listResult.getScd(), "back"))
+          .append("</span></a>");
+      } else {
+          s2.append(
+                  "<a href=\"#\" class=\"link icon-only panel-open\" data-panel=\"left\"><i class=\"icon f7-icons if-not-md\">menu</i><i class=\"icon material-icons if-md\">menu</i></a>");
+      }
+      
       s2.append("</div>");
 
       s2.append("<div class=\"title")
@@ -230,10 +648,11 @@ public class F7_4 implements ViewMobileAdapter {
         s2.append("<div class=\"searchbar-backdrop\"></div>");
       }
 
-      s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
+
+      if(l.getListTip()==1 || l.getListTip()==4)s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
       if (!GenericUtil.isEmpty(htmlDataCode)) s2.append(htmlDataCode);
       if (l.getDefaultPageRecordNumber() > 0) s2.append("\n{{#if infiniteScroll}}<div><p class=\"row\"><button @click=\"moreLoad\" class=\"button col\">more...</button></p><p class=\"row\"></p></div>{{/if}}");
-      s2.append("</ul></div>");
+      if(l.getListTip()==1 || l.getListTip()==4)s2.append("</ul></div>");
       // if(l.getDefaultPageRecordNumber()>0)s2.append("{{#if infiniteScroll}}<div class=\"preloader
       // infinite-scroll-preloader\"></div>{{/if}}");
 
@@ -269,7 +688,7 @@ public class F7_4 implements ViewMobileAdapter {
         if(l.getJsCode().charAt(0)!='{')buf.append("\ntry{").append(l.getJsCode()).append("\n}catch(e){if(iwb.debug && confirm('iwb.request.pageInit Exception. Throw?'))throw e;}");
         else buf.append("\nif(this.init)this.init();");
     }
-    buf.append("}},\n methods:{firstLoad:function(){this.load(0);},moreLoad:function(){this.load(this.browseInfo.startRow);},load:function(start,callback,params){if(!start)start=0;var self = this;iwb.request({url:'ajaxQueryData?_qid=")
+    buf.append("}},\n methods:{firstLoad:function(){this.load(0);},moreLoad:function(){this.load(this.browseInfo.startRow);},load:function(start,callback,params){if(!start)start=0;var self = this;iwb.request({url:'ajaxQueryData?_renderer=ext3_4&_qid=")
         .append(listResult.getList().getQueryId());
     if (l.getParentListId() != 0) {
       for (String key : listResult.getRequestParams().keySet())
@@ -363,295 +782,25 @@ public class F7_4 implements ViewMobileAdapter {
     buf.append("}");
 
     //custom methods if starts wih {init:function(){}....
-    if (!GenericUtil.isEmpty(l.getJsCode()) && l.getJsCode().charAt(0)=='{') {
+/*    if (!GenericUtil.isEmpty(l.getJsCode()) && l.getJsCode().charAt(0)=='{') {
     	String jsCode = l.getJsCode().trim().substring(1);
     	if(jsCode.endsWith("}"))jsCode=jsCode.substring(0, jsCode.length()-1);
         buf.append(",\n").append(jsCode);
-    }
+    } */
 
+    if (!GenericUtil.isEmpty(l.getJsCode()) && l.getJsCode().charAt(0)=='{') {
+    /*	String jsCode2 = f.getJsCode().trim().substring(1);
+    	if(jsCode2.endsWith("}")){
+    		jsCode2 = jsCode2.substring(0, jsCode2.length()-1);
+    	}*/
+      buf.append(",\n extended:").append(l.getJsCode());
+    }
+    
     buf.append("}");
 
     return buf;
   }
-/*
-  public StringBuilder serializeListOld(M5ListResult listResult) {
-    StringBuilder buf = new StringBuilder();
-    M5List l = listResult.getList();
 
-    String htmlDataCode = l.getHtmlDataCode();
-    if (htmlDataCode == null) htmlDataCode = "";
-    htmlDataCode = htmlDataCode.replace("iwb-link-7 ", "iwb-link-" + l.getListId() + " ");
-
-    buf.append("{success:true, props:{listId:")
-        .append(l.getListId())
-        .append(", listTip:")
-        .append(l.getListTip() == 1 || l.getListTip() == 4 ? 1 : l.getListTip())
-        .append(",\n name:'")
-        .append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey()))
-        .append("'");
-
-    if (l.getDefaultPageRecordNumber() > 0)
-      buf.append(", pageSize: ").append(l.getDefaultPageRecordNumber());
-    if (!GenericUtil.isEmpty(l.get_orderQueryFieldNames())) {
-      buf.append(",\n orderNames:[");
-      for (String f : l.get_orderQueryFieldNames()) {
-        buf.append("{id:'")
-            .append(f)
-            .append("',dsc:'")
-            .append(LocaleMsgCache.get2(listResult.getScd(), f))
-            .append("'},");
-      }
-      buf.setLength(buf.length() - 1);
-      buf.append("]");
-    }
-
-    boolean insertFlag = false;
-
-    if (false && listResult.getSearchFormResult() != null) {
-      buf.append(",\n searchForm:").append(serializeGetForm(listResult.getSearchFormResult()));
-    }
-
-//    buf.append(",\n baseParams:").append(GenericUtil.fromMapToJsonString(listResult.getRequestParams()));
-
-    buf.append("\n}, template:`");
-    if (GenericUtil.isEmpty(l.getHtmlPageCode())) {
-
-      boolean searchBar =
-          l.getDefaultPageRecordNumber() == 0
-              && (l.getListTip() == 1
-                  || l.getListTip() == 4); // && listResult.getSearchFormResult()==null
-      // StringBuilder s2= new StringBuilder();
-      StringBuilder s2 = new StringBuilder();
-      s2.append("<div class=\"page");
-      if (searchBar) s2.append(" page-with-subnavbar");
-      s2.append("\" data-name=\"mlist-")
-          .append(l.getListId())
-          .append("-view\">")
-          .append("\n<div class=\"navbar\"><div class=\"navbar-inner\"><div class=\"left\">");
-
-      if (l.getParentListId() == 0) {
-        s2.append(
-            "<a href=\"#\" class=\"link icon-only panel-open\" data-panel=\"left\"><i class=\"icon f7-icons if-not-md\">menu</i><i class=\"icon material-icons if-md\">menu</i></a>");
-      } else
-        s2.append(
-            "<a href=\"#\" class=\"link back\"> <i class=\"icon icon-back\"></i> <span class=\"if-not-md\">Back</span></a>");
-
-      s2.append("</div>");
-
-      s2.append("<div class=\"title")
-          .append(l.getParentListId() == 0 ? " sliding" : "")
-          .append("\">")
-          .append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey()))
-          .append("</div>");
-      if (listResult.getSearchFormResult() != null) {
-        s2.append(
-            "<div class=\"right\"><a href=# class=\"link icon-only\" @click=\"clickFilter\"><i class=\"icon f7-icons if-not-md\">search</i><i class=\"icon material-icons if-md\">search</i></a></div>");
-      }
-      if (l.getParentListId() == 0)
-        s2.append("<div class=\"title-large\"><div class=\"title-large-text\">")
-            .append(LocaleMsgCache.get2(listResult.getScd(), l.getLocaleMsgKey()))
-            .append("</div></div>");
-      if (searchBar) {
-        s2.append(
-                "<div class=\"subnavbar\"><form class=\"searchbar\"><div class=\"searchbar-inner\"><div class=\"searchbar-input-wrap\"><input type=\"search\" placeholder=\"")
-            .append(LocaleMsgCache.get2(listResult.getScd(), "search"))
-            .append(
-                "\"><i class=\"searchbar-icon\"></i><span class=\"input-clear-button\"></span></div><span class=\"searchbar-disable-button if-not-aurora\">Cancel</span></div></form></div>");
-      }
-      s2.append("</div></div>");
-
-      StringBuilder s3 = new StringBuilder();
-      if (!GenericUtil.isEmpty(l.get_orderQueryFieldNames())) {
-        s3.append("<a href=# class=\"fab-label-button\" @click=\"clickSort\" id=\"idx-sort-")
-            .append(l.getListId())
-            .append(
-                "\"><span><i class=\"icon material-icons\">sort</i></span><span class=\"fab-label\">Sort</span></a>");
-      }
-      if (false && listResult.getSearchFormResult() != null) {
-        s3.append("<a href=# class=\"fab-label-button\" @click=\"clickFilter\" id=\"idx-filter-")
-            .append(l.getListId())
-            .append(
-                "\"><span><i class=\"icon material-icons\">search</i></span><span class=\"fab-label\">Search</span></a>");
-      }
-      if (l.getDefaultCrudFormId() != 0 && l.get_mainTable() != null) {
-        W5Table t = l.get_mainTable();
-        insertFlag =
-            GenericUtil.accessControl(
-                listResult.getScd(),
-                t.getAccessInsertTip(),
-                t.getAccessInsertRoles(),
-                t.getAccessInsertUsers());
-      }
-      if (insertFlag) {
-        s3.append("<a class=\"fab-label-button\" href=\"/showMForm?a=2&_fid=")
-            .append(l.getDefaultCrudFormId())
-            .append("\" class=\"item-link\" id=\"idx-insert-")
-            .append(l.getDefaultCrudFormId())
-            .append(
-                "\"><span><i class=\"icon material-icons\">add</i></span><span class=\"fab-label\">Add</span></a>");
-      }
-      if (s3.length() > 0)
-        s2.append(
-                "\n<div class=\"fab fab-right-bottom\"><a href=\"#\"><i class=\"icon f7-icons if-not-md\">add</i><i class=\"icon f7-icons if-not-md\">close</i>\r\n"
-                    + "      <i class=\"icon material-icons md-only\">add</i><i class=\"icon material-icons md-only\">close</i>\r\n"
-                    + "    </a><div class=\"fab-buttons fab-buttons-top\">")
-            .append(s3)
-            .append("</div></div>");
-
-      s2.append("\n<div id=\"idx-page-content-")
-          .append(l.getListId())
-          .append("\" class=\"page-content ptr-content");
-      if (l.getDefaultPageRecordNumber() > 0)
-        s2.append("{{#if infiniteScroll}} infinite-scroll-content infinite-scroll-top{{/if}}");
-      //			if(l.getHideBarsOnScrollFlag()!=0)s2.append(" hide-bars-on-scroll");
-      s2.append("\">");
-
-      s2.append(
-          "<div class=\"ptr-preloader\"><div class=\"preloader\"></div><div class=\"ptr-arrow\"></div></div>");
-      if (searchBar) {
-        s2.append("<div class=\"searchbar-backdrop\"></div>");
-      }
-
-      s2.append("<div class=\"list").append(searchBar ? " searchbar-found" : "").append("\"><ul>");
-      if (!GenericUtil.isEmpty(htmlDataCode)) s2.append(htmlDataCode);
-      s2.append("</ul></div>");
-      if (l.getDefaultPageRecordNumber() > 0)
-        s2.append(
-            "{{#if infiniteScroll}}<div class=\"preloader infinite-scroll-preloader\"></div>{{/if}}");
-
-      if (searchBar)
-        s2.append(
-            "<div class=\"block searchbar-not-found\"><div class=\"block-inner\">Nothing found</div></div>");
-      s2.append("</div></div>");
-
-      buf.append(s2.toString());
-    } else {
-      buf.append(
-          GenericUtil.filterExt(
-                  l.getHtmlPageCode().replace("${iwb-data}", htmlDataCode),
-                  listResult.getScd(),
-                  listResult.getRequestParams(),
-                  null)
-              .toString());
-    }
-    buf.append("`");
-
-    buf.append(",\n data:function(){return {data:[],infiniteScroll:")
-        .append(l.getDefaultPageRecordNumber() > 0)
-        .append(", browseInfo:{startRow:0}}}");
-    buf.append(
-            ",\n on:{pageDestroy:function(){console.log('DESTROYYY');if(this.ptr)this.ptr.destroy('#idx-page-content-")
-        .append(l.getListId())
-        .append(
-            ".ptr-content');},pageMounted:function(){iwb.allowInfinite=!0;this.load(0);},pageInit: function (e, page) {var self=this;setTimeout(function(){self.ptr=iwb.app.ptr.get('#idx-page-content-")
-        .append(l.getListId())
-        .append(
-            ".ptr-content');console.log('xpageInit',self.ptr);self.ptr.on('refresh',self.firstLoad);");
-    if (l.getDefaultPageRecordNumber() > 0)
-      buf.append("var ic=$$('#idx-page-content-")
-          .append(l.getListId())
-          .append(
-              ".infinite-scroll-content');console.log('infinite-scroll-content', ic);if(ic && ic.length)iwb.app.on('infinite', function () {console.log('!iwb.allowInfinite',iwb.allowInfinite,self);if(!iwb.allowInfinite)return;iwb.allowInfinite=false;self.load(self.browseInfo ? self.browseInfo.startRow:0,function(){iwb.allowInfinite=!0;});});");
-    buf.append(
-            "},100);}},\n methods:{firstLoad:function(){this.load(0);},load:function(start,callback,params){if(!start)start=0;var self = this;iwb.request({url:'ajaxQueryData?_qid=")
-        .append(listResult.getList().getQueryId());
-    if (l.getParentListId() != 0) {
-      for (String key : listResult.getRequestParams().keySet())
-        if (key.startsWith("x")) {
-          int val = GenericUtil.uInt(listResult.getRequestParams().get(key));
-          if (val > 0) buf.append("&").append(key).append("=").append(val);
-        }
-    }
-    buf.append("', data:Object.assign({");
-    if (l.getDefaultPageRecordNumber() > 0)
-      buf.append("start:start,limit:").append(l.getDefaultPageRecordNumber());
-    buf.append("},params||{}),, success:function(j){if(callback)callback();if(params)j.params=params;");
-    if (l.getDefaultPageRecordNumber() > 0)
-      buf.append(
-          "var b=j.browseInfo;j.infiniteScroll=b.startRow+b.fetchCount<b.totalCount;if(b.fetchCount){b.startRow+=b.fetchCount;if(start){j.data=self.data.concat(j.data);}};");
-    buf.append(
-        "self.$setState(j);if(self.ptr)self.ptr.done()}});}, reload:function(){this.load(0);},clickMenu:function(event){iwb.showRecordMenu({_event:event, _this:this");
-    if (l.getDefaultCrudFormId() != 0 && l.get_mainTable() != null) {
-      W5Table t = l.get_mainTable();
-      insertFlag =
-          GenericUtil.accessControl(
-              listResult.getScd(),
-              t.getAccessInsertTip(),
-              t.getAccessInsertRoles(),
-              t.getAccessInsertUsers());
-      buf.append(",\n crudFormId:")
-          .append(l.getDefaultCrudFormId())
-          .append(",\n crudTableId:")
-          .append(t.getTableId())
-          .append(",\n pkName:'")
-          .append(t.get_tableParamList().get(0).getDsc())
-          .append("',\n crudFlags:{insert:")
-          .append(insertFlag)
-          .append(",edit:")
-          .append(
-              t.getAccessUpdateUserFields() != null
-                  || GenericUtil.accessControl(
-                      listResult.getScd(),
-                      t.getAccessUpdateTip(),
-                      t.getAccessUpdateRoles(),
-                      t.getAccessUpdateUsers()))
-          .append(",remove:")
-          .append(
-              t.getAccessDeleteUserFields() != null
-                  || GenericUtil.accessControl(
-                      listResult.getScd(),
-                      t.getAccessDeleteTip(),
-                      t.getAccessDeleteRoles(),
-                      t.getAccessDeleteUsers()));
-      buf.append("}");
-    }
-
-    StringBuilder s2 = new StringBuilder();
-    if (!GenericUtil.isEmpty(l.get_detailMLists())) {
-      for (M5List d : l.get_detailMLists())
-        s2.append("{icon:'list', text:'")
-            .append(LocaleMsgCache.get2(listResult.getScd(), d.getLocaleMsgKey()))
-            .append("',href:'/showMList?_lid=")
-            .append(d.getListId())
-            .append("&x")
-            .append(l.get_mainTable().get_tableFieldList().get(0).getDsc())
-            .append("='},"); // TODO. parent'takine gore degil de, farkli olmasi gerekli
-    }
-
-    if (!GenericUtil.isEmpty(l.get_menuItemList())) {
-      for (W5ObjectMenuItem d : l.get_menuItemList())
-        if (d.getItemTip() == 1 && !GenericUtil.isEmpty(d.getCode())) { // record ile ilgili
-          s2.append("{icon:'")
-              .append(d.getImgIcon())
-              .append("', text:'")
-              .append(LocaleMsgCache.get2(listResult.getScd(), d.getLocaleMsgKey()))
-              .append("'");
-          if (d.getCode().charAt(0) != '!')
-            s2.append(",click:function(ax,bx,cx){\n").append(d.getCode()).append("\n}");
-          else s2.append(",href:'").append(d.getCode().substring(1)).append("'");
-          s2.append("},");
-        }
-    }
-
-    if (s2.length() > 0) {
-      s2.setLength(s2.length() - 1);
-      buf.append("\n, recordButtons:[").append(s2).append("]");
-    }
-
-    buf.append(
-        "}, event.target);},clickSort:function(){alert('sort')},clickFilter:function(){alert('filter')}}");
-
-    String jsCode = listResult.getList().getJsCode();
-    if (false && !GenericUtil.isEmpty(jsCode)) {
-      if (!jsCode.startsWith(",")) buf.append(",");
-      buf.append(jsCode);
-    }
-
-    buf.append("}");
-
-    return buf;
-  }
-*/
   public StringBuilder serializeGetForm(W5FormResult formResult) {
     W5Form f = formResult.getForm();
     Map scd = formResult.getScd();
@@ -807,47 +956,50 @@ public class F7_4 implements ViewMobileAdapter {
             break;
           case 10: // autocomplete
           case 61: // autocomplete-multi
-            jsCode
-                .append(
-                    "iwb.app.autocomplete.create({openIn:'popup',preloader: true,valueProperty:'id',textProperty:'dsc',limit:1000,multiple:")
-                .append(fc.getFormCell().getControlTip() == 61)
-                .append(", inputEl: '#idx-formcell-")
-                .append(fc.getFormCell().getFormCellId())
-                .append("',source: ");
-            boolean dependantCombo = false;
-            for (W5FormCellHelper cfc : formResult.getFormCellResults()) {
-              if (cfc.getFormCell().getParentFormCellId() == fc.getFormCell().getFormCellId()) {
-                if (!GenericUtil.isEmpty(cfc.getFormCell().getLookupIncludedParams()))
-                  switch (cfc.getFormCell().getControlTip()) {
-                    case 9:
-                    case 16:
-                      jsCode
-                          .append("iwb.autoCompleteJson4Autocomplete(")
-                          .append(fc.getFormCell().getLookupQueryId())
-                          .append(",'")
-                          .append(GenericUtil.isEmpty(fc.getValue()) ? "" : fc.getValue())
-                          .append("','#idx-formcell-")
-                          .append(cfc.getFormCell().getFormCellId())
-                          .append("',function(ax,bx){\n")
-                          .append(cfc.getFormCell().getLookupIncludedParams())
-                          .append("\n})));\n");
-                      dependantCombo = true;
-                      break;
-                    default:
-                      // jsCode.append("{}));\n");
-
-                      break;
-                  }
-                break;
-              }
-            }
-            if (!dependantCombo) {
-              jsCode.append("iwb.autoCompleteJson('").append(fc.getFormCell().getLookupQueryId());
-              if (fc.getFormCell().getLookupIncludedParams() != null
-                  && fc.getFormCell().getLookupIncludedParams().length() > 2)
-                jsCode.append("&").append(fc.getFormCell().getLookupIncludedParams());
-              jsCode.append("')});\n");
-            }
+        	  jsCode
+	          	.append("iwb.app.autocomplete.create(");
+	          Map<Integer, String> multiRelatedComboMap = new HashMap();
+	          for (W5FormCellHelper cfc : formResult.getFormCellResults()) {
+	            if (cfc.getFormCell().getParentFormCellId() == fc.getFormCell().getFormCellId()) {
+	              if (!GenericUtil.isEmpty(cfc.getFormCell().getLookupIncludedParams()))
+	                switch (cfc.getFormCell().getControlTip()) {
+	                  case 9:
+	                  case 16:
+	                  	multiRelatedComboMap.put(cfc.getFormCell().getFormCellId(), cfc.getFormCell().getLookupIncludedParams());
+	                    break;
+	                  default:
+	                    // jsCode.append("{}));\n");
+	
+	                    break;
+	                }
+	            }
+	          }
+	          if(!multiRelatedComboMap.isEmpty()){
+	              jsCode
+	              .append("iwb.autoCompleteJson4AutocompleteMulti(")
+	              .append(fc.getFormCell().getLookupQueryId()) //queryId
+	              .append(",'")
+	              .append(GenericUtil.isEmpty(fc.getValue()) ? "" : fc.getValue()) //initVal
+	              .append("','#idx-formcell-") // initCombo
+	              .append(fc.getFormCell().getFormCellId())
+	              .append("',[");
+	              for(Integer childFormCellId:multiRelatedComboMap.keySet())
+	              	jsCode.append("{cmb:'#idx-formcell-")
+		                	.append(childFormCellId)
+		                	.append("',fnc:function(ax,bx){\n")
+		                	.append(multiRelatedComboMap.get(childFormCellId))
+		                .append("\n}},");
+	              jsCode.setLength(jsCode.length()-1);
+	              
+	              jsCode.append("]));\n");
+	
+	          } else {
+	            jsCode.append("iwb.autoCompleteJson('").append(fc.getFormCell().getLookupQueryId());
+	            if (fc.getFormCell().getLookupIncludedParams() != null
+	                && fc.getFormCell().getLookupIncludedParams().length() > 2)
+	              jsCode.append("&").append(fc.getFormCell().getLookupIncludedParams());
+	            jsCode.append("','#idx-formcell-").append(fc.getFormCell().getFormCellId()).append("'));\n");
+	          }
             break;
           case 9:
           case 16:
@@ -1012,10 +1164,18 @@ public class F7_4 implements ViewMobileAdapter {
               .append(f.getFormId())
               .append("',baseParams,function(j){var loader=self.$options.parentLoader;self.$router.back({force:!loader});if(loader)loader();});}");
       }
-      if (!GenericUtil.isEmpty(f.getJsCode()) && f.getJsCode().charAt(0)=='{') {
+      
+/*      if (!GenericUtil.isEmpty(f.getJsCode()) && f.getJsCode().charAt(0)=='{') {
       	String jsCode2 = f.getJsCode().trim().substring(1);
       	if(jsCode2.endsWith("}"))jsCode2 = jsCode2.substring(0, jsCode2.length()-1);
           s.append(",\n").append(jsCode2);
+      } */
+      if (!GenericUtil.isEmpty(f.getJsCode()) && f.getJsCode().charAt(0)=='{') {
+      /*	String jsCode2 = f.getJsCode().trim().substring(1);
+      	if(jsCode2.endsWith("}")){
+      		jsCode2 = jsCode2.substring(0, jsCode2.length()-1);
+      	}*/
+        s.append(",\n extended:").append(f.getJsCode());
       }
 
       s.append("}");
@@ -1024,9 +1184,308 @@ public class F7_4 implements ViewMobileAdapter {
     s.append("}");
     return s;
   }
+  
 
   @SuppressWarnings("unchecked")
   private StringBuilder serializeFormCell(
+      int customizationId, String xlocale, W5FormCellHelper cellResult, W5FormResult formResult) {
+    W5FormCell fc = cellResult.getFormCell();
+    String value = cellResult.getValue(); // bu ilerde hashmap ten gelebilir
+    // int customizationId =
+    // PromisUtil.uInt(formResult.getScd().get("customizationId"));
+    StringBuilder buf = new StringBuilder();
+
+    String fieldLabel = LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey());
+    String readOnly =
+        cellResult.getHiddenValue() != null ? " readonly style=\"background-color:#eee;\"" : "";
+    String notNull =
+        cellResult.getHiddenValue() == null && fc.getNotNullFlag() != 0
+            ? " style=\"color:red\""
+            : "";
+
+    if (!GenericUtil.isEmpty(fc.getExtraDefinition())) {
+      Map o = new HashMap();
+      o.put("value", value);
+      o.put("name", fc.getDsc());
+      o.put("label", fieldLabel);
+      o.put("readOnly", readOnly);
+      o.put("notNull", notNull);
+      buf.append(
+          GenericUtil.filterExt(
+              fc.getExtraDefinition(), formResult.getScd(), formResult.getRequestParams(), o));
+      return buf;
+    }
+    if ((fc.getControlTip() == 101
+        || cellResult.getHiddenValue()
+            != null) /* && (fc.getControlTip()!=9 && fc.getControlTip()!=16) */) { // readonly
+      buf.append("<li id=\"id-formcell-")
+          .append(fc.getFormCellId())
+          .append(
+              "\"><div class=\"item-content item-input item-input-outline\"><div class=\"item-inner\">")
+          .append("<div class=\"item-title item-floating-label\">")
+          .append(fieldLabel)
+          .append("</div>")
+          .append(
+              "<div class=\"item-input-wrap\"><input type=text readonly style=\"background-color:rgba(0,0,0,.07)\" value=\"")
+          .append(value)
+          .append("\"/>");
+      ;
+      buf.append("</div></div></div></li>");
+      return buf;
+    }
+
+    switch (fc.getControlTip()) {
+      case 102: // label
+        if (fc.getLookupQueryId() >= 10) {
+          buf.append("<li class=\"iwb-form-tab iwb-type-")
+              .append(fc.getLookupQueryId())
+              .append(
+                  "\"><div class=\"block-title\" style=\"text-transform: uppercase;text-align:center;\">")
+              .append(GenericUtil.uStrNvl(value, fieldLabel))
+              .append("</div></li>");
+        } else {
+          buf.append("<li><div class=\"block-title iwb-label-")
+              .append(fc.getLookupQueryId())
+              .append("\"><i class=\"icon material-icons\">")
+              .append(labelMap[fc.getLookupQueryId()])
+              .append("</i>&nbsp; ")
+              .append(GenericUtil.uStrNvl(value, fieldLabel))
+              .append("</div></li>");
+        }
+        break;
+      case 1:
+      case 3:
+      case 4:
+      case 21: // string, integer, double, localeMsgKey
+      case 19: // ozel string
+        buf.append("<li id=\"id-formcell-")
+            .append(fc.getFormCellId())
+            .append(
+                "\"><div class=\"item-content item-input item-input-outline\"><div class=\"item-inner\">")
+            .append("<div class=\"item-title item-floating-label\"")
+            .append(notNull)
+            .append(">")
+            .append(fieldLabel)
+            .append("</div>")
+            .append("<div class=\"item-input-wrap\"><input type=\"text\" name=\"")
+            .append(fc.getDsc())
+            .append("\"")
+            .append(readOnly);
+        if (!GenericUtil.isEmpty(value)) buf.append(" value=\"").append(value).append("\"");
+        buf.append(" placeholder=\"\">") // <span class="input-clear-button"></span>
+            .append("</div></div></div></li>");
+        return buf;
+      case 2: // date
+        buf.append("<li id=\"id-formcell-")
+            .append(fc.getFormCellId())
+            .append("\"><div class=\"item-content\"><div class=\"item-inner\">")
+            .append("<div class=\"item-title\">")
+            .append(fieldLabel)
+            .append("</div>")
+            .append("<div class=\"item-input\"><input type=\"text\" readonly name=\"")
+            .append(fc.getDsc())
+            .append("\"")
+            .append(" id=\"idx-formcell-")
+            .append(fc.getFormCellId())
+            .append("\"")
+            .append(readOnly);
+        if (!GenericUtil.isEmpty(value)) buf.append(" value=\"").append(value).append("\"");
+        buf.append(" placeholder=\"\">") // <span class="input-clear-button"></span>
+            .append("</div></div></div></li>");
+        return buf;
+      case 10: // autocomplete
+      case 61: // autocomplete-multi
+        buf.append("<li id=\"id-formcell-")
+            .append(fc.getFormCellId())
+            .append("\"><a href=# id=\"idx-formcell-")
+            .append(fc.getFormCellId())
+            .append("\" class=\"item-link item-content\"><input type=\"hidden\" name=\"")
+            .append(fc.getDsc())
+            .append("\"");
+        if (!GenericUtil.isEmpty(value)) buf.append(" value=\"").append(value).append("\"");
+        buf.append(
+                "><div class=\"item-inner\"><div class=\"item-title\">")
+            .append(fieldLabel)
+            .append("</div>")
+            .append("<div class=\"item-after\">");
+        if (value != null
+            && cellResult.getLookupQueryResult() != null
+            && cellResult.getLookupQueryResult().getData().size() > 0) {
+          Object[] oo = cellResult.getLookupQueryResult().getData().get(0);
+          buf.append(oo[0]);
+        }
+
+        buf.append("</div></div></a></li>");
+        return buf;
+      case 6:
+      case 7: // static, query combo
+      case 8:
+      case 15: // lov-static, lov-query combo
+      case 58:
+      case 59: // superbox lov-static, superbox lov-query combo
+      case 51:
+      case 52: // user defined combo, multi
+        boolean multi =
+            fc.getControlTip() != 6 && fc.getControlTip() != 7 && fc.getControlTip() != 51;
+        StringBuilder resultText = new StringBuilder();
+        buf.append("<li id=\"id-formcell-")
+            .append(fc.getFormCellId())
+            .append("\"><a href=#")
+            .append(multi ? "" : " data-close-on-select=\"true\"")
+            .append(" id=\"sid-formcell-")
+            .append(fc.getFormCellId())
+            .append("\"")
+            .append(" class=\"item-link smart-select smart-select-init\"");
+        int len =
+            cellResult.getLookupListValues() != null
+                ? cellResult.getLookupListValues().size()
+                : (cellResult.getLookupQueryResult() != null
+                    ? cellResult.getLookupQueryResult().getData().size()
+                    : 0);
+        if (len > 100) buf.append(" data-virtual-list=\"true\"");
+
+        if (len > 10)
+          buf.append(
+                  " data-open-in=\"popup\" data-searchbar=\"true\" data-searchbar-placeholder=\"")
+              .append(LocaleMsgCache.get2(formResult.getScd(), "search"))
+              .append("..\"");
+        else buf.append(" data-open-in=\"popover\"");
+        buf.append("><select id=\"idx-formcell-")
+            .append(fc.getFormCellId())
+            .append("\" name=\"")
+            .append(fc.getDsc())
+            .append("\"")
+            .append(multi ? " multiple" : "")
+            .append(">");
+        if (fc.getNotNullFlag() == 0 && !multi) buf.append("<option value=\"\"></option>");
+        if (cellResult.getLookupListValues() != null) { // lookup static
+          for (W5Detay p : (List<W5Detay>) cellResult.getLookupListValues()) {
+            buf.append("<option value=\"").append(p.getVal()).append("\"");
+            if ((!multi && GenericUtil.safeEquals(value, p.getVal()))
+                || (multi && GenericUtil.hasPartInside2(value, p.getVal()))) {
+              buf.append(" selected");
+              resultText
+                  .append(
+                      cellResult.getLocaleMsgFlag() != 0
+                          ? LocaleMsgCache.get2(customizationId, xlocale, p.getDsc())
+                          : p.getDsc())
+                  .append(", ");
+            }
+            buf.append(">")
+                .append(
+                    cellResult.getLocaleMsgFlag() != 0
+                        ? LocaleMsgCache.get2(customizationId, xlocale, p.getDsc())
+                        : p.getDsc())
+                .append("</option>");
+          }
+        } else if (cellResult.getLookupQueryResult() != null) { // QueryResult'tan geliyor
+          for (Object[] p : cellResult.getLookupQueryResult().getData()) {
+            buf.append("<option value=\"").append(p[1]).append("\"");
+            if ((!multi && GenericUtil.safeEquals(value, p[1]))
+                || (multi && GenericUtil.hasPartInside2(value, p[1]))) {
+              buf.append(" selected");
+              resultText.append(p[0]).append(", ");
+            }
+            buf.append(">").append(p[0]).append("</option>");
+          }
+        }
+        buf.append(
+                "</select><div class=\"item-content\"><div class=\"item-inner\"><div class=\"item-title label\"")
+            .append(notNull)
+            .append(">")
+            .append(fieldLabel)
+            .append("</div><div class=\"item-after\">");
+        if (resultText.length() > 0) {
+          resultText.setLength(resultText.length() - 2);
+          buf.append(resultText);
+        }
+        buf.append("</div></div></div></a></li>");
+        return buf;
+
+      case 9: // combo-remote
+      case 16: // lovcombo-remote
+        multi = fc.getControlTip() == 16;
+        buf.append("<li id=\"id-formcell-")
+            .append(fc.getFormCellId())
+            .append("\"><a href=#")
+            .append(multi ? "" : " data-close-on-select=\"true\"")
+            .append(" id=\"sid-formcell-")
+            .append(fc.getFormCellId())
+            .append("\"")
+            .append(" class=\"item-link smart-select smart-select-init\"")
+            .append(" data-searchbar=\"true\" data-searchbar-placeholder=\"")
+            .append(LocaleMsgCache.get2(formResult.getScd(), "search"))
+            .append("...\" data-open-in=\"popup\">")
+            .append("<select id=\"idx-formcell-")
+            .append(fc.getFormCellId())
+            .append("\" name=\"")
+            .append(fc.getDsc())
+            .append("\"")
+            .append(multi ? " multiple" : "");
+        if (!GenericUtil.isEmpty(value)) buf.append(" data-value=\"").append(value).append("\"");
+        buf.append(">");
+        buf.append(
+                "</select><div class=\"item-content\"><div class=\"item-inner\"><div class=\"item-title label\"")
+            .append(notNull)
+            .append(">")
+            .append(fieldLabel)
+            .append("</div><div class=\"item-after\">");
+        buf.append("</div></div></div></a></li>");
+        return buf;
+      case 11: // textarea
+      case 41:
+      case 25: // codemirror, ozel tanimlama textarea
+        buf.append("<li id=\"id-formcell-")
+            .append(fc.getFormCellId())
+            .append(
+                "\" class=\"align-top\"><div class=\"item-content item-input item-input-outline\"><div class=\"item-inner\"><div class=\"item-title item-floating-label\"")
+            .append(notNull)
+            .append(">")
+            .append(fieldLabel)
+            .append("</div><div class=\"item-input-wrap\"><textarea")
+            .append(readOnly)
+            .append(" name=\"")
+            .append(fc.getDsc())
+            .append("\" class=\"resizable\">")
+            .append(value != null ? value : "")
+            .append("</textarea></div></div></div></li>");
+        return buf;
+      case 5: // checkbox
+        if (fc.getLookupQueryId() == 0) {
+          buf.append("<li id=\"id-formcell-")
+              .append(fc.getFormCellId())
+              .append(
+                  "\"><div class=\"item-content\"><div class=\"item-inner\"><div class=\"item-title\">")
+              .append(fieldLabel)
+              .append(
+                  "</div><div class=\"item-after\"><label class=\"toggle toggle-init\"><input type=\"checkbox\"")
+              .append(GenericUtil.uInt(value) != 0 ? " checked" : "")
+              .append(" name=\"")
+              .append(fc.getDsc())
+              .append("\"");
+          buf.append("/><i class=\"toggle-icon\"></i></label></div></div></li>");
+
+          return buf;
+        } else {
+          buf.append(
+                  "<li style=\"top: 0px;\"><label class=\"label-checkbox item-content\"><input type=\"checkbox\" name=\"")
+              .append(fc.getDsc())
+              .append("\"")
+              .append(GenericUtil.uInt(value) != 0 ? " checked" : "")
+              .append(" value=")
+              .append(fc.getLookupQueryId())
+              .append(
+                  "><div class=\"item-media\"><i class=\"icon icon-form-checkbox\"></i></div><div class=\"item-inner\"><div class=\"item-title\" style=\"color: #757575;margin-top: 8px;font-size: 15px;\">")
+              .append(fieldLabel)
+              .append("</div></div></label></li>");
+          return buf;
+        }
+    }
+    return buf;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private StringBuilder serializeFormCellOld(
       int customizationId, String xlocale, W5FormCellHelper cellResult, W5FormResult formResult) {
     W5FormCell fc = cellResult.getFormCell();
     String value = cellResult.getValue(); // bu ilerde hashmap ten gelebilir

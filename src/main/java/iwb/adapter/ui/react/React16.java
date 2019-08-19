@@ -2193,8 +2193,7 @@ public class React16 implements ViewAdapter {
 					else if (toolbarItem.getObjectTip() == 15) {// form toolbar
 																// ise
 						buttons.append("{type:'icon' , value:'")
-								.append(LocaleMsgCache.get2(customizationId,
-										xlocale, toolbarItem.getLocaleMsgKey()))
+								.append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
 								.append("',");
 						if (mediumButtonSize)
 							buttons.append("iconAlign: 'top', scale:'medium', style:{margin: '0px 5px 0px 5px'},");
@@ -2207,8 +2206,8 @@ public class React16 implements ViewAdapter {
 						itemCount++;
 					} else {
 						buttons.append("{type:'button'");
-						if(!GenericUtil.isEmpty(toolbarItem.getImgIcon()))buttons.append(", icon:'").append(toolbarItem.getImgIcon()).append("'");
-						buttons.append(", text:'").append(LocaleMsgCache.get2(customizationId,xlocale, toolbarItem.getLocaleMsgKey()))
+						if(!GenericUtil.isEmpty(toolbarItem.getImgIcon()))buttons.append(", icon:'icon-").append(toolbarItem.getImgIcon()).append("'");
+						buttons.append(", text:'").append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
 								.append("', click:(a,b,c)=>{\n")
 								.append(LocaleMsgCache.filter2(
 										customizationId, xlocale,
@@ -3032,7 +3031,7 @@ columns:[
 			for (W5GridColumn c : oldColumns)
 				if (c.get_queryField() != null) {
 					W5QueryField f = c.get_queryField();
-					W5TableField tf = f.getMainTableFieldId() > 0 ? viewTable
+					W5TableField tf = viewTable!=null && f.getMainTableFieldId() > 0 ? viewTable
 							.get_tableFieldMap().get(f.getMainTableFieldId())
 							: null;
 					if (tf != null) {
@@ -3286,14 +3285,14 @@ columns:[
 						buf.append(", formatter:function(row){return row.").append(qds).append("_qw_;}");// browser renderer ise
 						qwRendererFlag = true;
 					}
-			} else if (qds.length() > 3 && qds.indexOf("_dt") == qds.length() - 3)
-				buf.append(", renderer:strShortDate");// browser renderer ise
-			else if (qds.length() > 5 && qds.indexOf("_dttm") == qds.length() - 5){
-				buf.append(", renderer:strDateTime").append(FrameworkCache.getAppSettingIntValue(0, "fmt_date_time_ago_flag")!=0 ?"Ago":"");// browser renderer ise
+			} else if (qds.length() > 3 && qds.endsWith("_dt"))
+				buf.append(", formatter:strShortDate");// browser formatter ise
+			else if (qds.length() > 5 && qds.endsWith("_dttm")){
+				buf.append(", formatter:strDateTime").append(FrameworkCache.getAppSettingIntValue(0, "fmt_date_time_ago_flag")!=0 ?"Ago":"");// browser formatter ise
 			} else if ((qds.length() > 5
 					&& qds.endsWith("_flag")) || (qds.length() > 3
 							&& qds.startsWith("is_"))) {
-				buf.append(", formatter:disabledCheckBoxHtml");// browser renderer ise
+				buf.append(", formatter:disabledCheckBoxHtml");// browser formatter ise
 				boolRendererFlag = true;
 			} else if (grid.get_queryFieldMapDsc().get(qds + "_qw_") != null) {
 				buf.append(", formatter:function(row){return row.").append(qds).append("_qw_;}");// browser renderer ise
@@ -4214,11 +4213,32 @@ columns:[
 										.getDsc()).append("=")
 								.append(serializeGlobalFunc((W5GlobalFuncResult) i))
 								.append("\n");
-					} else if (i instanceof W5QueryResult) {
-						buf.append("\nvar ")
-								.append(((W5QueryResult) i).getQuery().getDsc())
-								.append("=")
-								.append(serializeQueryData((W5QueryResult) i))
+					} else if (i instanceof W5QueryResult) { // query, badge&&gauge
+						W5Query q = ((W5QueryResult)i).getQuery();
+						if(q.getQueryTip()==22 || q.getQueryTip()==21) { //gauge && badge
+							//find the origin pageObject
+							W5PageObject orjPageObject = null;
+							for (W5PageObject o : page.get_pageObjectList())if(o.getObjectId()==q.getQueryId() && ((o.getObjectTip()==10 && q.getQueryTip()==21) || (o.getObjectTip()==22 && q.getQueryTip()==22))) {
+								orjPageObject = o;
+								break;
+							}
+							if(orjPageObject!=null && orjPageObject.getParentObjectId()!=0) for (W5PageObject o : page.get_pageObjectList())if(orjPageObject.getParentObjectId()==o.getTemplateObjectId()){
+								if(o.getObjectTip()==1) {//grid
+									for (Object ix : pr.getPageObjectList()) if(ix!=null && ix instanceof W5GridResult && ((W5GridResult)ix).getGridId()==o.getObjectId()){
+										String grName = ((W5GridResult)ix).getGrid().getDsc();
+										buf.append("\n if(!").append(grName).append(".summary)")
+											.append(grName).append(".summary=[];\n ").append(grName).append(".summary.push(").append(q.getQueryId()).append(");\n");
+										break;										
+									}
+									
+								}
+								break;
+								
+							}
+						} else //query
+							buf.append("\nvar ")
+							.append(((W5QueryResult) i).getQuery().getDsc())
+							.append("=").append(serializeQueryData((W5QueryResult) i))
 								.append("\n");
 					}  else if (i instanceof W5BIGraphDashboard) {
 						W5BIGraphDashboard gd = (W5BIGraphDashboard) i;
@@ -4227,6 +4247,24 @@ columns:[
 								.append("=")
 								.append(serializeGraphDashboard(gd, pr.getScd()))
 								.append(";\n");
+						
+						W5PageObject orjPageObject = null;
+						for (W5PageObject o : page.get_pageObjectList())if(o.getObjectId()==gd.getGraphDashboardId() && o.getObjectTip()==9) {
+							orjPageObject = o;
+							break;
+						}
+						if(orjPageObject!=null && orjPageObject.getParentObjectId()!=0) for (W5PageObject o : page.get_pageObjectList())if(orjPageObject.getParentObjectId()==o.getTemplateObjectId()){
+							if(o.getObjectTip()==1) {//grid
+								for (Object ix : pr.getPageObjectList()) if(ix!=null && ix instanceof W5GridResult && ((W5GridResult)ix).getGridId()==o.getObjectId()){
+									String grName = ((W5GridResult)ix).getGrid().getDsc();
+									buf.append("\n if(!").append(grName).append(".summary)")
+										.append(grName).append(".summary=[];\n ").append(grName).append(".summary.push(graph").append(gd.getGraphDashboardId()).append(");\n");
+									break;										
+								}								
+							}
+							break;							
+						}
+						
 					} else if (i instanceof String) {
 						buf.append("\nvar ").append(i).append("={}");
 					}

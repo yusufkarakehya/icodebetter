@@ -25,6 +25,7 @@ import iwb.util.GenericUtil;
 @Immutable
 @Table(name="w5_notification",schema="iwb")
 public class Log5Notification implements java.io.Serializable, Log5Base {
+	private static final long serialVersionUID = 134252033332912873L;
 
 	private int notificationId;
 	
