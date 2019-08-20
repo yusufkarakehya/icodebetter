@@ -25,6 +25,7 @@ public class W5WsMethod  implements java.io.Serializable {
 	private W5Ws _ws;
 	private short accessExecuteTip;
 	private	short paramSendTip;
+	private	short logLevelTip;
 	private	Short headerAcceptTip;
 	private String accessExecuteRoles;
 	private String accessExecuteUsers;
@@ -57,7 +58,13 @@ public class W5WsMethod  implements java.io.Serializable {
 		this.wsId = wsId;
 	}
 	
-	
+	@Column(name="log_level_tip")
+	public short getLogLevelTip() {
+		return logLevelTip;
+	}
+	public void setLogLevelTip(short logLevelTip) {
+		this.logLevelTip = logLevelTip;
+	}
 	@Column(name="dsc")
 	public String getDsc() {
 		return dsc;

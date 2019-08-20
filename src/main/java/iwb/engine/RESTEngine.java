@@ -368,7 +368,13 @@ public class RESTEngine {
 							new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodTip()], reqPropMap);
 					if (!GenericUtil.isEmpty(x))
 						try {// System.out.println(x);
-							log.setResponse(x);
+							if(wsm.getLogLevelTip()>0) {
+								if(wsm.getLogLevelTip()==2)log.setResponse(x);
+								else {
+									int maxLength = FrameworkCache.getAppSettingIntValue(0, "log_rest_response_max_length", 1000);
+									log.setResponse(x.length()>maxLength ? x.substring(0, maxLength)+"...": x);
+								}
+							}
 							String xx = x.trim();
 							if (xx.length() > 0)
 								switch (xx.charAt(0)) {
