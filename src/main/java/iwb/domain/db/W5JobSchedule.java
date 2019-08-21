@@ -46,6 +46,7 @@ public class W5JobSchedule implements java.io.Serializable {
 	private String reports;
 	private String repeatTime;
 	private String locale;
+	private int transactionalFlag;
 	private int todayFlag;
 	private int todayAddDayValue;
 	private long _lastRunTime;
@@ -397,6 +398,15 @@ public class W5JobSchedule implements java.io.Serializable {
 		}
 		
 		return true;
+	}
+
+	@Column(name="transactional_flag")
+	public int getTransactionalFlag() {
+		return transactionalFlag;
+	}
+
+	public void setTransactionalFlag(int transactionalFlag) {
+		this.transactionalFlag = transactionalFlag;
 	}
 
 }

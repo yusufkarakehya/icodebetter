@@ -66,7 +66,8 @@ public class FrameworkApplication {
 		ConfigurableApplicationContext appContext = SpringApplication.run(FrameworkApplication.class, args);
 		
 		if(FrameworkSetting.localTimer) {
-			TimerTask timerTask = new GenericTimer((TaskExecutor)appContext.getBean("taskExecutor"), (FrameworkService)appContext.getBean("frameworkService"));
+			TimerTask timerTask = new GenericTimer((TaskExecutor)appContext.getBean("taskExecutor")
+					, (FrameworkService)appContext.getBean("frameworkService"));
 	        //running timer task as daemon thread
 	        Timer timer = new Timer(true);
 	        timer.scheduleAtFixedRate(timerTask, 0, 60*1000); //every minute

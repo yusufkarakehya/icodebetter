@@ -76,7 +76,6 @@ import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
 import iwb.service.FrameworkService;
-import iwb.service.NonTransactionalService;
 import iwb.service.VcsService;
 import iwb.timer.Action2Execute;
 import iwb.util.GenericUtil;
@@ -99,8 +98,6 @@ public class AppController implements InitializingBean {
 	@Autowired
 	private TaskExecutor taskExecutor;
 	
-	@Autowired
-	private NonTransactionalService noTranService;
 
 	private ViewAdapter ext3_4;
 	private	ViewAdapter	webix3_3;
@@ -1122,7 +1119,7 @@ public class AppController implements InitializingBean {
 		} else {
 			W5GlobalFuncResult dbFuncResult = GenericUtil.uInt(request, "_notran")==0 ? 
 					service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1) 
-					: noTranService.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
+					: service.executeFuncNT(scd, dbFuncId, GenericUtil.getParameterMap(request),
 							(short) 1);; //request
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		}

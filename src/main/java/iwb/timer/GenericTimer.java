@@ -40,7 +40,8 @@ public class GenericTimer extends TimerTask {
 				            @Override
 				            public void run() {
 				            	System.out.println("Start Job: " + j.getDsc());
-				            	service.runJob(j);
+				            	if(j.getTransactionalFlag()!=0)service.runJob(j);
+				            	else service.runJobNT(j);
 				            }
 				        });
 					}

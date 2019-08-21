@@ -67,7 +67,6 @@ import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
 import iwb.service.FrameworkService;
-import iwb.service.NonTransactionalService;
 import iwb.timer.Action2Execute;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
@@ -79,9 +78,6 @@ public class PreviewController implements InitializingBean {
 
 	@Autowired
 	private FrameworkService service;
-	
-	@Autowired
-	private NonTransactionalService noTranService;
 	
 	
 
@@ -617,7 +613,7 @@ public class PreviewController implements InitializingBean {
 		}
 		W5GlobalFuncResult dbFuncResult = GenericUtil.uInt(request, "_notran")==0 ? service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
 				(short) 1): 
-					noTranService.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
+					service.executeFuncNT(scd, dbFuncId, GenericUtil.getParameterMap(request),
 							(short) 1);
 
 		response.setContentType("application/json");

@@ -8595,6 +8595,10 @@ iwb.apexGraph = function(dg, gid, callback) {
 	                    stacked: true,
 	                    toolbar: {show: false}
 	                },
+	                grid: {
+	                    show: true,
+	                    borderColor: '#3a3f49',
+	                  },
 	                plotOptions: {
 //	                    bar: {horizontal: true},
 	                    
@@ -8633,7 +8637,11 @@ iwb.apexGraph = function(dg, gid, callback) {
 	            });
 
 	            options = {
-	                chart: {
+                    grid: {
+                        show: true,
+                        borderColor: '#3a3f49',
+                      },
+                     chart: {
 	                	id:'apex-'+gid,
 //	                    height:document.getElementById()50*d.length+30,
 	                    type: 1 * dg.graphTip==1?'bar':'spline',
