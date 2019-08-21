@@ -699,21 +699,6 @@ public class SpaceController implements InitializingBean {
 	}
 	*/
 
-	@RequestMapping("/*/ajaxTsPortletData")
-	public void hndAjaxTsPortletData(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndAjaxTsPortletData");
-
-		Map<String, Object> scd = UserUtil.getScd4PAppSpace(request);
-
-		response.setContentType("application/json");
-
-		int porletId = GenericUtil.uInt(request, "_pid");
-		String s = engine.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
-		response.getWriter().write(s);
-		response.getWriter().close();
-	}
-
 
 	@RequestMapping("/*/showForm")
 	public void hndShowForm(HttpServletRequest request, HttpServletResponse response)

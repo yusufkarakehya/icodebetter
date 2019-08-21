@@ -51,8 +51,6 @@ import iwb.domain.db.W5Query;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5TsMeasurement;
-import iwb.domain.db.W5TsPortlet;
 import iwb.domain.db.W5Tutorial;
 import iwb.domain.db.W5UploadedImport;
 import iwb.domain.db.W5VcsCommit;
@@ -1808,77 +1806,9 @@ public class FrameworkService {
 		return restEngine.REST(scd, name, requestParams);
 	}
 
-	private W5TsMeasurement getTsMeasurement(Map<String, Object> scd, int measurementId) { // TODO
-		W5TsMeasurement m = null;
-		/*
-		 * if(FrameworkSetting.preloadWEngine==0 &&
-		 * (m=FrameworkCache.getTsMeasurement(scd,measurementId))==null){ m =
-		 * (W5TsMeasurement)dao.getCustomizedObject(
-		 * "from W5TsMeasurement t where t.measurementId=? AND t.customizationId=?" ,
-		 * measurementId, (Integer)scd.get("customizationId"), "TSMeasurement");
-		 * m.set_measurementFields(dao.find(
-		 * "from W5TsMeasurementField t where t.portletId=? AND t.customizationId=? order by t.tabOrder, t.portletObjectId"
-		 * , measurementId, (Integer)scd.get("customizationId")));
-		 * if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.wTsMeasurements.
-		 * get((Integer)scd.get("customizationId")).put(measurementId, m); }
-		 */
-		return m;
-	}
+	
 
-	public String getTsDashResult(Map<String, Object> scd, Map<String, String> requestParams, int porletId) { // TODO
-		W5TsPortlet p = null;
-		/*
-		 * if(FrameworkSetting.preloadWEngine==0 ||
-		 * (p=FrameworkCache.getTsPortlet(scd,porletId))==null){ p =
-		 * (W5TsPortlet)dao.getCustomizedObject(
-		 * "from W5TsPortlet t where t.portletId=? AND t.customizationId=?", porletId,
-		 * (Integer)scd.get("customizationId"), "TSPorlet");
-		 * p.set_portletObjects(dao.find(
-		 * "from W5TsPortletObject t where t.portletId=? AND t.customizationId=? order by t.tabOrder, t.portletObjectId"
-		 * , porletId, (Integer)scd.get("customizationId")));
-		 * if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.wTsPortlets.get(
-		 * (Integer)scd.get("customizationId")).put(porletId, p); } StringBuilder s =
-		 * new StringBuilder(); for(W5TsPortletObject
-		 * po:p.get_portletObjects())switch(po.getObjectTip()){ case 2709://measurement
-		 * po.set_sourceObject(getTsMeasurement(scd, po.getObjectId())); // Object o =
-		 * influxDao.runQuery(po.getExtraCode()); //
-		 * resultMap.put(po.getPortletObjectId(), o); break; case 8://query
-		 * po.set_sourceObject(dao.getQueryResult(scd, po.getObjectId())); break; }
-		 * switch(p.getCodeTip()){ case 1://A*B/C
-		 * s.append("\nfunction(){\n").append(p.getExtraCode()) .append(
-		 * "\nvar result=[];for(var qi=0;qi<)"); break; case 2:// function(A,B,C){}
-		 * s.append(p.getExtraCode()); break; case 3: s.append(p.getExtraCode()); break;
-		 * } return s.toString();
-		 */
-		return null;
-	}
-
-	public boolean copyTable2Tsdb(Map<String, Object> scd, int tableId, int measurementId) {
-		W5TsMeasurement tsm = getTsMeasurement(scd, measurementId);
-		if (!GenericUtil.accessControl(scd, tsm.getAccessViewTip(), tsm.getAccessViewRoles(),
-				tsm.getAccessViewUsers())) {
-			throw new IWBException("security", "W5TsMeasurement", measurementId, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_access_control_ts_measurement"), null);
-		}
-		if (tsm.getMeasurementObjectId() != 2 || tsm.getMeasurementObjectId() == 0)
-			throw new IWBException("framework", "W5TsMeasurement", measurementId, null, "Source Not RDB Table or X",
-					null);
-		W5Table t = FrameworkCache.getTable(scd, tableId);
-		W5TableField timeField = t.get_tableFieldMap().get(tsm.getMeasurementObjectId());
-		StringBuilder s = new StringBuilder();
-		s.append("SELECT x.").append(timeField.getDsc()).append(" xtime");
-		if (!GenericUtil.isEmpty(tsm.getTagCode()))
-			s.append(",").append(tsm.getTagCode());
-		if (!GenericUtil.isEmpty(tsm.getExtraCode()))
-			s.append(",").append(tsm.getExtraCode());
-		s.append(" from ").append(t.getDsc()).append(" x");
-		if (t.get_tableParamList().size() > 1 && t.get_tableParamList().get(1).getDsc().equals("customizationId"))
-			s.append(" WHERE x.customization_id=${scd.customizationId}");
-		Object[] oz = DBUtil.filterExt4SQL(s.toString(), scd, new HashMap(), null);
-		List<Map> lm = dao.executeSQLQuery2Map(oz[0].toString(), (List) oz[1]);
-
-		return false;
-	}
+	
 
 	public Map generateScdFromAuth(int socialCon, String token) {
 		List<Object[]> list = dao.executeSQLQuery(

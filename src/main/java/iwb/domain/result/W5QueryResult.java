@@ -18,7 +18,6 @@ import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFilter;
 import iwb.domain.db.W5TableParam;
-import iwb.domain.db.W5TsMeasurement;
 import iwb.enums.FieldDefinitions;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
@@ -44,7 +43,6 @@ public class W5QueryResult implements W5MetaResult{
 	private	Map<String, String>	errorMap;
 	private Map<String,String>	requestParams;
 	private W5Table mainTable;
-	private W5TsMeasurement mainTsMeasurement;
 	private	List<W5QueryField> newQueryFields;
 
 	private List<W5QueryField> postProcessQueryFields;
@@ -2158,13 +2156,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	return true;
 	    }
 
-	public W5TsMeasurement getMainTsMeasurement() {
-		return mainTsMeasurement;
-	}
 
-	public void setMainTsMeasurement(W5TsMeasurement mainTsMeasurement) {
-		this.mainTsMeasurement = mainTsMeasurement;
-	}
 	
     private boolean	prepareQuery4ExternalDb(Map<String, String> extraParams){
     	

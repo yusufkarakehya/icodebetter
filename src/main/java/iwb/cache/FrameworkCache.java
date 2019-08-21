@@ -34,8 +34,6 @@ import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableAccessConditionSql;
 import iwb.domain.db.W5TableEvent;
-import iwb.domain.db.W5TsMeasurement;
-import iwb.domain.db.W5TsPortlet;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5Ws;
 import iwb.domain.db.W5WsMethod;
