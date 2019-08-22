@@ -3786,8 +3786,8 @@ public class ExtJs3_4 implements ViewAdapter {
 					}
 				}
 				buf.append("]");
-				if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
 				if(dataCount>2)buf.append(",columns:2");
+				if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
 				buf.append("})");
 				return buf;
 				
