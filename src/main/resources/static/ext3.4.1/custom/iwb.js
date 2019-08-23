@@ -6324,8 +6324,25 @@ function checkIncludedLovCombo(search_ids, checked_ids) {
  */
 
 function getFieldValue(field) {
-  if (field)
-    return field._controlTip != 101 ? field.getValue() : field.hiddenValue;
+  if (field){
+	  if(field._controlTip == 101)return field.hiddenValue;
+	  if(field._checkbox){
+		  var r ='';
+		  
+		  if(field.items && field.items.keys){
+			  var kk = field.items.keys;
+			  for(var qi=0;qi<kk.length;qi++){
+				  var fl = Ext.getCmp(kk[qi]);
+				  if(fl.checked)r+=','+fl.inputValue;
+			  }
+		  }
+		  if(r)return r.substr(1);
+		  return null;
+
+		  
+	  } else return field.getValue();
+	  
+  }
   else return null;
 }
 
@@ -6338,6 +6355,7 @@ function setFieldValue(field, value) {
     }
   }
 }
+
 
 /*
  * Eğer displayfield ise event tetiklenmeyecek ama fonksiyon çalışacak,

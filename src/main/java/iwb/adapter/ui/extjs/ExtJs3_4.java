@@ -3057,7 +3057,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			if(formResult != null && fc.getParentFormCellId()==1) {
 				buf.append("CheckboxGroup({").append(uniqeId).append("_controlTip:")
 					.append(controlTip)
-					.append(",labelSeparator:'',columns: 2, fieldLabel: '")
+					.append(",_checkbox:!0, labelSeparator:'',columns: 2, fieldLabel: '")
 					.append(fieldLabel).append("',items: [");
 				
 				boolean b = false;
@@ -3714,7 +3714,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			if(formResult != null && fc.getParentFormCellId()==1) {
 				buf.append("RadioGroup({").append(uniqeId).append("_controlTip:")
 					.append(controlTip)
-					.append(",labelSeparator:'', fieldLabel: '")
+					.append(",_checkbox:!0, labelSeparator:'', fieldLabel: '")
 					.append(fieldLabel).append("',items: [");
 				
 				boolean b = false;

@@ -1649,9 +1649,9 @@ public class React16 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		String dsc = fc.getFormCell().getDsc();
 		if(fc.getFormCell().getControlTip() == 5){
-			buf.append(",\n_").append(dsc).append(" && _(FormGroup, {style:{marginBottom:'0.3rem', display: _").append(dsc).append(".hidden?'none':''}}, _(Label,{ className: 'switch switch-3d switch-'+(viewMode?'secondary':'primary') }, _(_").append(dsc)
-			.append(".$||Input,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'},htmlFor:\"")
-			.append(dsc).append("\"},_").append(dsc).append(".label))");
+			buf.append(",\n_").append(dsc).append(" && _(FormGroup, {style:{marginBottom:'0.3rem', display: _").append(dsc).append(".hidden?'none':''}}, _(Label, {style:{marginRight:'1rem'}, className:'inputLabel', htmlFor:\"")
+			.append(dsc).append("\"},_").append(dsc).append(".label), _(Label,{ className: 'switch switch-3d switch-'+(viewMode?'secondary':'primary') }, _(_").append(dsc)
+			.append(".$||Input,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })))");
 		} else {
 			if (fc.getFormCell().getControlTip() == 102) {// displayField4info
 				buf.append("\n,_('div', {style:{padding:'0.45rem .85rem', borderRadius:30}, className:'alert alert-").append(labelMap[fc.getFormCell().getLookupQueryId()]).append("'}, _('i',{className:'icon-info'}),' ','").append(GenericUtil.stringToJS(fc.getValue())).append("')");
@@ -2022,7 +2022,8 @@ public class React16 implements ViewAdapter {
 		case	7://combo query
 		case	15://lovcombo query
 		case	59://superbox lovcombo query
-			buf.append("$:Select, placeholder: getLocMsg('selectPlaceholder'), valueKey:'id',labelKey:'dsc',options:[");//static combo
+			buf.append("$:").append(formResult!=null && fc.getParentFormCellId()==1?"CheckboxGroup":"Select")
+				.append(", placeholder: getLocMsg('selectPlaceholder'), valueKey:'id',labelKey:'dsc',options:[");//static combo
 			if ((fc.getControlTip()==6 || fc.getControlTip()==8 ||fc.getControlTip()==58) && cellResult.getLookupListValues() != null) {
 				boolean b1=false;
 				

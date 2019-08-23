@@ -1129,6 +1129,7 @@ public class FrameworkService {
 		else
 			schema += ".";
 		String formName = main.getString("form_name");
+		String iconName = main.has("icon") ? main.getString("icon"):null;
 		tableName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(formName), "x").toLowerCase(en);
 		String gridName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(main.getString("grid_name")), "x")
 				.toLowerCase(en);
@@ -1631,8 +1632,8 @@ public class FrameworkService {
 					+ "tab_order, img_icon, url, version_no, insert_user_id, insert_dttm,"
 					+ "version_user_id, version_dttm, customization_id, access_view_tip, project_uuid, oproject_uuid)"
 					+ "VALUES (?, 0, ?, 4, ?, "
-					+ "coalesce((select max(q.tab_order) from iwb.w5_menu q where q.customization_id=? AND q.user_tip=?),0)+10, null, 'showPage?_tid='||?::text, 1, ?, current_timestamp, "
-					+ "?, current_timestamp, ?, 0, ?, ?)", menuId, userTip, gridName, customizationId, userTip,
+					+ "coalesce((select max(q.tab_order) from iwb.w5_menu q where q.customization_id=? AND q.user_tip=?),0)+10, ?, 'showPage?_tid='||?::text, 1, ?, current_timestamp, "
+					+ "?, current_timestamp, ?, 0, ?, ?)", menuId, userTip, gridName, customizationId, userTip, iconName,
 					templateId, userId, userId, customizationId, projectUuid, projectUuid);
 			if (vcs)
 				dao.saveObject(new W5VcsObject(scd, 65, menuId));
