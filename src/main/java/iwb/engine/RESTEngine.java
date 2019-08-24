@@ -114,14 +114,14 @@ public class RESTEngine {
 		if (GenericUtil.isEmpty(params))
 			return m;
 		Map requestParams = null;
-		if (reqP instanceof Map)
-			requestParams = (Map) reqP;
-		else if (reqP instanceof ScriptObjectMirror)
+		if (reqP instanceof ScriptObjectMirror)
 			try {// TODO
 				requestParams = ScriptUtil.fromScriptObject2Map(reqP);
 			} catch (Exception ee) {
 				return null;
 			}
+		else if (reqP instanceof Map)
+			requestParams = (Map) reqP;
 		else if (reqP instanceof JSONObject)
 			try {// TODO
 				requestParams = GenericUtil.fromJSONObjectToMap((JSONObject) reqP);
@@ -131,6 +131,7 @@ public class RESTEngine {
 		else
 			requestParams = new HashMap();
 
+		
 		for (W5WsMethodParam p : params)
 			if (p.getOutFlag() == 0 && p.getParentWsMethodParamId() == paramId) {
 				if (p.getParamTip() == 9 || p.getParamTip() == 8) { // object/json
