@@ -4373,8 +4373,8 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
   if (typeof comboMaster == "undefined" || typeof comboDetail == "undefined")
     return;
   if (typeof comboMaster.hiddenValue == "undefined") {
-    comboMaster.on("select", function(a, b, c) {
-      if (comboMaster.getValue() == "") {
+    comboMaster.on(comboMaster._checkbox?"change":"select", function(a, b, c) {
+      if (getFieldValue(comboMaster) == "") {
         comboDetail.clearValue();
         if (comboDetail.getStore()) comboDetail.getStore().removeAll();
         comboDetail.fireEvent("select");
@@ -4382,7 +4382,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
       }
       var p = null;
       if (typeof param == "function") {
-        p = param(comboMaster.getValue(), b);
+        p = param(getFieldValue(comboMaster), b);
         if (comboDetail._controlTip != 60) {
           if (!p) {
             if (p === false) comboDetail.hide();
@@ -4397,7 +4397,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
         }
       } else {
         p = {};
-        p[param] = comboMaster.getValue();
+        p[param] = getFieldValue(comboMaster);
       }
       if (p) {
         if (typeof comboDetail.hiddenValue == "undefined") {
@@ -4413,7 +4413,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
                   comboDetail.setValue(comboDetail._oldValue);
                   comboDetail._oldValue = null;
                 }
-              } else if ((ax && !ax.length) || comboMaster.getValue() == "") {
+              } else if ((ax && !ax.length) || getFieldValue(comboMaster) == "") {
                 comboDetail.clearValue();
               } else if (
                 ax &&
@@ -4450,9 +4450,9 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
         // Ext.infoMsg.alert(2);
       }
     });
-    if (comboMaster.getValue())
+    if (getFieldValue(comboMaster))
       comboDetail.on("afterrender", function(a, b) {
-        comboMaster.fireEvent("select");
+        comboMaster.fireEvent(comboMaster._checkbox?"change":"select");
       });
   } else {
     // master hiddenValue
@@ -6337,7 +6337,7 @@ function getFieldValue(field) {
 			  }
 		  }
 		  if(r)return r.substr(1);
-		  return null;
+		  return '';
 
 		  
 	  } else return field.getValue();
