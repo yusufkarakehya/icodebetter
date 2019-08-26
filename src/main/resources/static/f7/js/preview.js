@@ -1422,6 +1422,7 @@ iwb.app = new Framework7({
 });
 // Init/Create main view
 var mainView = iwb.app.views.create('.view-main');
+var searchFormView = iwb.app.views.create('#idq-sf');
 
 iwb.checkWorkspace=function(){
 	
