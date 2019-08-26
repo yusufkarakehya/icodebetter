@@ -43,9 +43,9 @@ public class Log5QueryAction implements java.io.Serializable, Log5Base {
 		case -998:s.append("sql_execute duration=").append(getProcessTime()).append(",sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
 			break;
 		default:
-			s.append("xquery,query_id=").append(getQueryId());
+			s.append("xquery");
 			if(projectUuid!=null)s.append(",project_uuid=").append(projectUuid);
-			s.append(" user_id=").append(getUserId()).append("i,duration=").append(getProcessTime()).append("i,sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
+			s.append(" query_id=").append(getQueryId()).append("i,user_id=").append(getUserId()).append("i,duration=").append(getProcessTime()).append("i,sql=\"").append(GenericUtil.stringToJS2(getDsc())).append("\"");
 
 		}
 		if(!GenericUtil.isEmpty(transactionId))s.append(",trid=\"").append(transactionId).append("\"");

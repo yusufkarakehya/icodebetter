@@ -69,7 +69,7 @@ public abstract class BaseDAO {
 
 	public void saveObject(Object o) {
 		if (o instanceof Log5Base && FrameworkSetting.log2tsdb)
-			LogUtil.logObject(((Log5Base) o), true);
+			LogUtil.logObject(((Log5Base) o), false);
 		else
 			getCurrentSession().save(o);
 	}
