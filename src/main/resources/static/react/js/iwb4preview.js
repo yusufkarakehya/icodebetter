@@ -306,6 +306,7 @@ const Popper = window.Popper;
 const findDOMNode = ReactDOM.findDOMNode;
 var _ = React.createElement;
 
+const CheckboxGroup = Select;
 /**
  * @description {text,callback} used for making popup dialog
  * @param {object}

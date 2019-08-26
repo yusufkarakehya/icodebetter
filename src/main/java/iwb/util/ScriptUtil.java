@@ -34,30 +34,33 @@ public class ScriptUtil {
 	public static Map fromScriptObject2Map(Object reqP) {
 		Map<String, Object> rp = new HashMap<String, Object>();
 		if(reqP==null)return rp;
-		if(reqP instanceof Map)return (Map)reqP;
-		ScriptObjectMirror jsRequestParams = (ScriptObjectMirror)reqP;
-		if (jsRequestParams.isArray()) {
-			rp.put("rhino", fromScriptObject2List(jsRequestParams));
-			return rp;
-
-		}
-
-		for (String key : jsRequestParams.keySet()) {
-			Object o = jsRequestParams.get(key);
-			if (o != null) {
-				if(o instanceof ScriptObjectMirror){
-					if(((ScriptObjectMirror)o).isArray())
-						rp.put(key, fromScriptObject2List(o));
-					else
-						rp.put(key, fromScriptObject2Map(o));
-					
-				} else {
-					String res = o.toString();
-					if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)res = res.substring(0, res.length() - 2);
-					rp.put(key, res);
+		if(reqP instanceof ScriptObjectMirror) {
+			ScriptObjectMirror jsRequestParams = (ScriptObjectMirror)reqP;
+			if (jsRequestParams.isArray()) {
+				rp.put("rhino", fromScriptObject2List(jsRequestParams));
+				return rp;
+	
+			}
+	
+			for (String key : jsRequestParams.keySet()) {
+				Object o = jsRequestParams.get(key);
+				if (o != null) {
+					if(o instanceof ScriptObjectMirror){
+						if(((ScriptObjectMirror)o).isArray())
+							rp.put(key, fromScriptObject2List(o));
+						else
+							rp.put(key, fromScriptObject2Map(o));
+						
+					} else {
+						String res = o.toString();
+						if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)res = res.substring(0, res.length() - 2);
+						rp.put(key, res);
+					}
 				}
 			}
 		}
+		else 		if(reqP instanceof Map)return (Map)reqP;
+
 		return rp;
 	}
 	

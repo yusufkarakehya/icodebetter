@@ -62,6 +62,7 @@ public class DebugEngine {
 			}
 			queryResult.prepareQuery(null);
 			if (queryResult.getErrorMap().isEmpty()) {
+				long startTime = System.currentTimeMillis();
 				externalDB.runQuery(queryResult);
 				Map m = new HashMap();
 				m.put("success", true);
@@ -71,6 +72,7 @@ public class DebugEngine {
 				m2.put("fetchCount", queryResult.getData().size());
 				m2.put("totalCount", queryResult.getData().size());
 				m.put("browseInfo", m2);
+				m.put("execTime", System.currentTimeMillis() - startTime);
 				List<Map> fields = new ArrayList<>();
 				if(queryResult.getData().size()>0) {
 					Object o = queryResult.getData().get(0);

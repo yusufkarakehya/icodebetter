@@ -123,7 +123,7 @@ public class GraphQLController implements InitializingBean {
 		return sdl.toString();
 	}
 	
-	private DataFetcher<List<Map>> query(W5WsServerMethod wsm){
+	private DataFetcher<List<Map>> query(final W5WsServerMethod wsm){
          return new DataFetcher<List<Map>>() {
             @Override
             public List<Map> get(DataFetchingEnvironment environment) {
@@ -193,15 +193,15 @@ public class GraphQLController implements InitializingBean {
         };
 	}
 
-    private RuntimeWiring buildWiring(W5WsServer wss) {
-  	
-		return newRuntimeWiring().type("Query", builder -> {
+    private RuntimeWiring buildWiring(final W5WsServer wss) {
+  	return null;
+	/*	return newRuntimeWiring().type("Query", builder -> {
 	    	for(W5WsServerMethod wsm:wss.get_methods()) if(wsm.getObjectTip()==19){//query
 	    		builder = builder.dataFetcher(wsm.getDsc(), query(wsm));
 	    	}
 			return builder;
-		}).build();
-    }
+		}).build(); */
+    } 
 
 
     

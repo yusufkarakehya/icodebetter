@@ -100,6 +100,8 @@ const TemplatePlaceholder = DXReactCore.TemplatePlaceholder;
 
 var _dxrg = DXReactGrid;
 var _dxgrb = DXReactGridBootstrap4;
+
+const CheckboxGroup = Select;
 /**
  * @description iwb object is MIXIN like object most of the configuration is
  *              here and most used functions

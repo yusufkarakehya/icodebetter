@@ -97,6 +97,7 @@ public class AppController implements InitializingBean {
 
 	@Autowired
 	private TaskExecutor taskExecutor;
+	
 
 	private ViewAdapter ext3_4;
 	private	ViewAdapter	webix3_3;
@@ -1116,7 +1117,10 @@ public class AppController implements InitializingBean {
 			service.organizeQueryFields(scd, GenericUtil.uInt(request,("queryId")), (short)GenericUtil.uInt(request,("insertFlag")));
 			response.getWriter().write("{\"success\":true}");
 		} else {
-			W5GlobalFuncResult dbFuncResult = service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1); //request
+			W5GlobalFuncResult dbFuncResult = GenericUtil.uInt(request, "_notran")==0 ? 
+					service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1) 
+					: service.executeFuncNT(scd, dbFuncId, GenericUtil.getParameterMap(request),
+							(short) 1);; //request
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		}
 
@@ -1218,22 +1222,6 @@ public class AppController implements InitializingBean {
 		response.getWriter().close();
 	}
 	
-
-	@RequestMapping("/ajaxTsPortletData")
-	public void hndAjaxTsPortletData(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		logger.info("hndAjaxTsPortletData");
-
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-
-		response.setContentType("application/json");
-
-		int porletId = GenericUtil.uInt(request, "_pid");
-		String s = service.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
-		response.getWriter().write(s);
-		response.getWriter().close();
-	}
 
 
 	@RequestMapping("/showForm")
@@ -2237,36 +2225,6 @@ public class AppController implements InitializingBean {
 		response.getWriter().close();		
 	}
 
-	@RequestMapping("/ajaxCopyTable2Tsdb")
-	public void hndAjaxCopyTable2Tsdb(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		int tableId = GenericUtil.uInt(request, "_tid");
-		int measurementId = GenericUtil.uInt(request, "_mid");
-		logger.info("hndAjaxCopyTable2Tsdb("+tableId+")"); 
-    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	boolean b = (Integer)scd.get("roleId")!=0 ? false : service.copyTable2Tsdb(scd, tableId, measurementId);
-		response.setContentType("application/json");
-		response.getWriter().write("{\"success\":"+b+"}");
-		response.getWriter().close();
-	}
-/*	@RequestMapping("/ajaxOrganizeDbFunc")
-	public void hndAjaxOrganizeDbFunc(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		String dbFuncName = request.getParameter("pdb_func_dsc");
-		logger.info("hndAjaxOrganizeDbFunc("+dbFuncName+")"); 
-    	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	boolean b = (Integer)scd.get("roleId")!=0 ? false : engine.organizeGlobalFunc(scd, dbFuncName);
-		response.setContentType("application/json");
-		response.getWriter().write("{\"success\":"+b+"}");
-		response.getWriter().close();
-	}
-*/	
 	
 	@RequestMapping("/ajaxBuildForm")
 	public void hndAjaxBuildForm(

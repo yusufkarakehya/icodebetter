@@ -4373,8 +4373,8 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
   if (typeof comboMaster == "undefined" || typeof comboDetail == "undefined")
     return;
   if (typeof comboMaster.hiddenValue == "undefined") {
-    comboMaster.on("select", function(a, b, c) {
-      if (comboMaster.getValue() == "") {
+    comboMaster.on(comboMaster._checkbox?"change":"select", function(a, b, c) {
+      if (getFieldValue(comboMaster) == "") {
         comboDetail.clearValue();
         if (comboDetail.getStore()) comboDetail.getStore().removeAll();
         comboDetail.fireEvent("select");
@@ -4382,7 +4382,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
       }
       var p = null;
       if (typeof param == "function") {
-        p = param(comboMaster.getValue(), b);
+        p = param(getFieldValue(comboMaster), b);
         if (comboDetail._controlTip != 60) {
           if (!p) {
             if (p === false) comboDetail.hide();
@@ -4397,7 +4397,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
         }
       } else {
         p = {};
-        p[param] = comboMaster.getValue();
+        p[param] = getFieldValue(comboMaster);
       }
       if (p) {
         if (typeof comboDetail.hiddenValue == "undefined") {
@@ -4413,7 +4413,7 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
                   comboDetail.setValue(comboDetail._oldValue);
                   comboDetail._oldValue = null;
                 }
-              } else if ((ax && !ax.length) || comboMaster.getValue() == "") {
+              } else if ((ax && !ax.length) || getFieldValue(comboMaster) == "") {
                 comboDetail.clearValue();
               } else if (
                 ax &&
@@ -4450,9 +4450,9 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
         // Ext.infoMsg.alert(2);
       }
     });
-    if (comboMaster.getValue())
+    if (getFieldValue(comboMaster))
       comboDetail.on("afterrender", function(a, b) {
-        comboMaster.fireEvent("select");
+        comboMaster.fireEvent(comboMaster._checkbox?"change":"select");
       });
   } else {
     // master hiddenValue
@@ -6324,8 +6324,25 @@ function checkIncludedLovCombo(search_ids, checked_ids) {
  */
 
 function getFieldValue(field) {
-  if (field)
-    return field._controlTip != 101 ? field.getValue() : field.hiddenValue;
+  if (field){
+	  if(field._controlTip == 101)return field.hiddenValue;
+	  if(field._checkbox){
+		  var r ='';
+		  
+		  if(field.items && field.items.keys){
+			  var kk = field.items.keys;
+			  for(var qi=0;qi<kk.length;qi++){
+				  var fl = Ext.getCmp(kk[qi]);
+				  if(fl.checked)r+=','+fl.inputValue;
+			  }
+		  }
+		  if(r)return r.substr(1);
+		  return '';
+
+		  
+	  } else return field.getValue();
+	  
+  }
   else return null;
 }
 
@@ -6338,6 +6355,7 @@ function setFieldValue(field, value) {
     }
   }
 }
+
 
 /*
  * Eğer displayfield ise event tetiklenmeyecek ama fonksiyon çalışacak,
@@ -8595,6 +8613,10 @@ iwb.apexGraph = function(dg, gid, callback) {
 	                    stacked: true,
 	                    toolbar: {show: false}
 	                },
+	                grid: {
+	                    show: true,
+	                    borderColor: '#3a3f49',
+	                  },
 	                plotOptions: {
 //	                    bar: {horizontal: true},
 	                    
@@ -8633,7 +8655,11 @@ iwb.apexGraph = function(dg, gid, callback) {
 	            });
 
 	            options = {
-	                chart: {
+                    grid: {
+                        show: true,
+                        borderColor: '#3a3f49',
+                      },
+                     chart: {
 	                	id:'apex-'+gid,
 //	                    height:document.getElementById()50*d.length+30,
 	                    type: 1 * dg.graphTip==1?'bar':'spline',

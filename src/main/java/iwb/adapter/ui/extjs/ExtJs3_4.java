@@ -2044,7 +2044,7 @@ public class ExtJs3_4 implements ViewAdapter {
 							columnBuf.setLength(0);
 						}
 						int columnWidth = Math.max(maxWidths[columnOrder], 200) + 150;
-						columnBuf.append("{layout:'form',border:false,minW:").append(columnWidth).append(",style:'min-width:").append(columnWidth).append("px;max-width:").append(150+columnWidth).append("px;',columnWidth:")
+						columnBuf.append("{layout:'form',border:false,minW:").append(columnWidth).append(",style:'min-width:").append(columnWidth).append("px;max-width:").append(250+columnWidth).append("px;',columnWidth:")
 								.append(1.0 / (lc + 1)).append(",items:[");
 						b = false;
 					}
@@ -3054,233 +3054,311 @@ public class ExtJs3_4 implements ViewAdapter {
 		case 15:
 		case 8:
 		case 52: // lovcombo-query(15:query+8:static), userdefined lov(52)
-			buf.setLength(0);
-			buf.append("new Ext.ux.form.");
-			if (formResult != null
-					&& fc.getDialogGridId() == 0
-					&& formResult.getForm() != null
-					&& formResult.getScd() != null
-					&& formResult.getForm().getObjectTip() == 2
-					&& FrameworkCache.getAppSettingIntValue(formResult.getScd(),
-							"combobox_add_flag") != 0
-					&& ((controlTip == 15
-							&& cellResult.getLookupQueryResult() != null
-							&& cellResult.getLookupQueryResult().getMainTable() != null
-							&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
-							&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
-							&& (GenericUtil.isEmpty(cellResult.getFormCell().getExtraDefinition()) || cellResult.getFormCell().getExtraDefinition().indexOf("noInsertForm")<0)
-							&& FrameworkCache.roleAccessControl(
-									formResult.getScd(),  2)
-							&& GenericUtil.accessControl(formResult.getScd(),
-									cellResult.getLookupQueryResult()
-											.getMainTable().getAccessViewTip(),
-									cellResult.getLookupQueryResult()
-											.getMainTable()
-											.getAccessViewRoles(), cellResult
-											.getLookupQueryResult()
-											.getMainTable()
-											.getAccessViewUsers()) && GenericUtil
-								.accessControl(formResult.getScd(), cellResult
-										.getLookupQueryResult().getMainTable()
-										.getAccessInsertTip(), cellResult
-										.getLookupQueryResult().getMainTable()
-										.getAccessInsertRoles(), cellResult
-										.getLookupQueryResult().getMainTable()
-										.getAccessInsertUsers()))
-							|| (controlTip == 8
-									&& cellResult.getLookupListValues() != null
-									&& ((Integer) formResult.getScd().get(
-											"roleId") == 0) && FrameworkCache
-										.roleAccessControl(
-												formResult.getScd(),
-												 107)) || (controlTip == 52 && FrameworkCache
-							.roleAccessControl(
-									formResult.getScd(),
-									 107)))) {
-				buf.append("Add");
-				fadd = true;
-			}
-			if (fc.getDialogGridId() != 0)
-				buf.append("Dialog");
-			buf.append("LovCombo({").append(uniqeId).append("_controlTip:")
+			if(formResult != null && fc.getParentFormCellId()==1) {
+				buf.append("CheckboxGroup({").append(uniqeId).append("_controlTip:")
 					.append(controlTip)
-					.append(",labelSeparator:'',fieldLabel: '")
-					.append(fieldLabel).append("',hiddenName: '")
-					.append(cellDsc).append("'");
-			if (fc.getExtraDefinition() != null
-					&& fc.getExtraDefinition().length() > 1) // ornegin
-																// ,tooltip:'ali'
-																// gibi
-				buf.append(fc.getExtraDefinition());
-			boolean b = false;
-			if (cellResult.getLookupListValues() != null) { // cell LookUp'tan
-															// geliyor
-				buf.append(",\nstore:new Ext.data.SimpleStore({id:0,fields: ['id', 'dsc'");
-				buf.append("],data : [");
-				for (W5Detay p : (List<W5Detay>) cellResult
-						.getLookupListValues()) {
-					if (b)
-						buf.append(",");
-					else
-						b = true;
-					buf.append("['")
-							.append(p.getVal())
-							.append("','")
-							.append(cellResult.getLocaleMsgFlag() != 0 ? LocaleMsgCache
-									.get2(customizationId, xlocale, p.getDsc())
-									.replaceAll(",", "-") : p.getDsc()
-									.replaceAll(",", "-")).append("'");
-					buf.append("]");
-				}
-			} else if (cellResult.getLookupQueryResult() != null) { // QueryResult'tan
-																	// geliyor
-				buf.append(",\nstore:new Ext.data.SimpleStore({id:1,\nfields:[");
-				b = false;
-				for (W5QueryField f : cellResult.getLookupQueryResult()
-						.getQuery().get_queryFields()) {
-					if (b)
-						buf.append(",");
-					else
-						b = true;
-					buf.append("{name:'").append(f.getDsc()).append("'");
-					if (f.getFieldTip() > 2)
-						buf.append(",type:'")
-								.append(FrameworkSetting.sortMap[f.getFieldTip()])
-								.append("'");
-					if (f.getFieldTip() == 2)
-						buf.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
-					// if(f.getPostProcessTip()>=10)buf.append("},{name:'").append(f.getDsc()).append("_qw_'");
-					buf.append("}");
-				}
-				buf.append("],\ndata:[");
-				b = false;
-				if (cellResult.getLookupQueryResult().getData() != null)
-					for (Object[] p : cellResult.getLookupQueryResult()
-							.getData()) {
+					.append(",_checkbox:!0, labelSeparator:'',columns: 2, fieldLabel: '")
+					.append(fieldLabel).append("',items: [");
+				
+				boolean b = false;
+				if (cellResult.getLookupListValues() != null) { // cell LookUp'tan
+					for (W5Detay p : (List<W5Detay>) cellResult
+							.getLookupListValues()) {
 						if (b)
 							buf.append(",");
 						else
 							b = true;
-						boolean bb = false;
-						buf.append("[");
-						for (W5QueryField f : cellResult.getLookupQueryResult()
-								.getQuery().get_queryFields()) {
-							Object z = p[f.getTabOrder() - 1];
-							if (bb)
+						buf.append("{inputValue:'")
+								.append(p.getVal())
+								.append("',name:'")
+								.append(fc.getDsc())
+								.append("',boxLabel:'")
+								.append(cellResult.getLocaleMsgFlag() != 0 ? LocaleMsgCache
+										.get2(customizationId, xlocale, p.getDsc())
+										.replaceAll(",", "-") : p.getDsc()
+										.replaceAll(",", "-")).append("'");
+						if(!GenericUtil.isEmpty(cellResult.getValue()) 
+								&& GenericUtil.hasPartInside2(cellResult.getValue(), p.getVal()))
+							buf.append(",checked:true");
+						buf.append("}");
+					}
+				} else if (cellResult.getLookupQueryResult() != null) { // QueryResult'tan
+					b = false;
+					if (cellResult.getLookupQueryResult().getData() != null)
+						for (Object[] p : cellResult.getLookupQueryResult().getData()) {
+							if (b)
 								buf.append(",");
 							else
-								bb = true;
-							if (z == null)
-								z = "";
-							buf.append("'")
-									.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
-											.get2(customizationId, xlocale,
-													z.toString()).replaceAll(
-													",", "-") : GenericUtil
-											.stringToJS(z.toString())
-											.replaceAll(",", "-")).append("'");
+								b = true;
+							boolean bb = false;
+							buf.append("{");
+							for (W5QueryField f : cellResult.getLookupQueryResult().getQuery().get_queryFields()) {
+								
+								Object z = p[f.getTabOrder() - 1];
+								if(z==null)continue;
+								
+
+
+								
+								if (bb)
+									buf.append(",");
+								else
+									bb = true;
+								if(f.getDsc().equals("dsc"))
+									buf.append("boxLabel:");
+								else if(f.getDsc().equals("id")) {
+									if(!GenericUtil.isEmpty(cellResult.getValue()) 
+											&& GenericUtil.hasPartInside2(cellResult.getValue(), z.toString()))
+										buf.append("checked:true,");
+									buf.append("inputValue:");
+								}
+
+								buf.append("'")
+										.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
+												.get2(customizationId, xlocale,
+														z.toString()).replaceAll(
+														",", "-") : GenericUtil
+												.stringToJS(z.toString())
+												.replaceAll(",", "-")).append("'");
+							}
+							buf.append("}");
 						}
+				}
+				buf.append("]");
+				if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
+				buf.append("})");
+				return buf;
+				
+				
+			} else {
+				buf.setLength(0);
+				buf.append("new Ext.ux.form.");
+				if (formResult != null
+						&& fc.getDialogGridId() == 0
+						&& formResult.getForm() != null
+						&& formResult.getScd() != null
+						&& formResult.getForm().getObjectTip() == 2
+						&& FrameworkCache.getAppSettingIntValue(formResult.getScd(),
+								"combobox_add_flag") != 0
+						&& ((controlTip == 15
+								&& cellResult.getLookupQueryResult() != null
+								&& cellResult.getLookupQueryResult().getMainTable() != null
+								&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
+								&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
+								&& (GenericUtil.isEmpty(cellResult.getFormCell().getExtraDefinition()) || cellResult.getFormCell().getExtraDefinition().indexOf("noInsertForm")<0)
+								&& FrameworkCache.roleAccessControl(
+										formResult.getScd(),  2)
+								&& GenericUtil.accessControl(formResult.getScd(),
+										cellResult.getLookupQueryResult()
+												.getMainTable().getAccessViewTip(),
+										cellResult.getLookupQueryResult()
+												.getMainTable()
+												.getAccessViewRoles(), cellResult
+												.getLookupQueryResult()
+												.getMainTable()
+												.getAccessViewUsers()) && GenericUtil
+									.accessControl(formResult.getScd(), cellResult
+											.getLookupQueryResult().getMainTable()
+											.getAccessInsertTip(), cellResult
+											.getLookupQueryResult().getMainTable()
+											.getAccessInsertRoles(), cellResult
+											.getLookupQueryResult().getMainTable()
+											.getAccessInsertUsers()))
+								|| (controlTip == 8
+										&& cellResult.getLookupListValues() != null
+										&& ((Integer) formResult.getScd().get(
+												"roleId") == 0) && FrameworkCache
+											.roleAccessControl(
+													formResult.getScd(),
+													 107)) || (controlTip == 52 && FrameworkCache
+								.roleAccessControl(
+										formResult.getScd(),
+										 107)))) {
+					buf.append("Add");
+					fadd = true;
+				}
+				if (fc.getDialogGridId() != 0)
+					buf.append("Dialog");
+				buf.append("LovCombo({").append(uniqeId).append("_controlTip:")
+						.append(controlTip)
+						.append(",labelSeparator:'',fieldLabel: '")
+						.append(fieldLabel).append("',hiddenName: '")
+						.append(cellDsc).append("'");
+				if (fc.getExtraDefinition() != null
+						&& fc.getExtraDefinition().length() > 1) // ornegin
+																	// ,tooltip:'ali'
+																	// gibi
+					buf.append(fc.getExtraDefinition());
+				boolean b = false;
+				if (cellResult.getLookupListValues() != null) { // cell LookUp'tan
+																// geliyor
+					buf.append(",\nstore:new Ext.data.SimpleStore({id:0,fields: ['id', 'dsc'");
+					buf.append("],data : [");
+					for (W5Detay p : (List<W5Detay>) cellResult
+							.getLookupListValues()) {
+						if (b)
+							buf.append(",");
+						else
+							b = true;
+						buf.append("['")
+								.append(p.getVal())
+								.append("','")
+								.append(cellResult.getLocaleMsgFlag() != 0 ? LocaleMsgCache
+										.get2(customizationId, xlocale, p.getDsc())
+										.replaceAll(",", "-") : p.getDsc()
+										.replaceAll(",", "-")).append("'");
 						buf.append("]");
 					}
-			}
-			buf.append("]})")
-					.append(",\nvalueField:'id',displayField:'dsc',hideOnSelect:false,mode: 'local',triggerAction: 'all'");
-			if (fc.getControlWidth() > 0)
-				buf.append(",width:").append(fc.getControlWidth());
-			if (value != null && value.length() > 0)
-				buf.append(",value:'").append(GenericUtil.stringToJS(value))
-						.append("'");
-			if (fc.getNrdTip() != 0)
-				buf.append(",disabled:true");
-			if (fc.getVtype() != null && fc.getVtype().length() > 0)
-				buf.append(",vtype:'").append(fc.getVtype()).append("'");
-			if (formResult != null && fc.getVtype() != null
-					&& fc.getVtype().length() > 0
-					&& fc.getVtype().compareTo("daterange") == 0) {
-				int priority = 1;
-				String parentFormCellDsc = "";
-				for (W5FormCell c : formResult.getForm().get_formCells()) {
-					if (c.getFormCellId() == fc.getParentFormCellId()) {
-						parentFormCellDsc = c.getDsc();
-						if (c.getTabOrder() == fc.getTabOrder()) {
-							if (c.getxOrder() < fc.getxOrder())
-								priority = 0;
-						} else {
-							if (c.getTabOrder() < fc.getTabOrder())
-								priority = 0;
+				} else if (cellResult.getLookupQueryResult() != null) { // QueryResult'tan
+																		// geliyor
+					buf.append(",\nstore:new Ext.data.SimpleStore({id:1,\nfields:[");
+					b = false;
+					for (W5QueryField f : cellResult.getLookupQueryResult()
+							.getQuery().get_queryFields()) {
+						if (b)
+							buf.append(",");
+						else
+							b = true;
+						buf.append("{name:'").append(f.getDsc()).append("'");
+						if (f.getFieldTip() > 2)
+							buf.append(",type:'")
+									.append(FrameworkSetting.sortMap[f.getFieldTip()])
+									.append("'");
+						if (f.getFieldTip() == 2)
+							buf.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
+						// if(f.getPostProcessTip()>=10)buf.append("},{name:'").append(f.getDsc()).append("_qw_'");
+						buf.append("}");
+					}
+					buf.append("],\ndata:[");
+					b = false;
+					if (cellResult.getLookupQueryResult().getData() != null)
+						for (Object[] p : cellResult.getLookupQueryResult()
+								.getData()) {
+							if (b)
+								buf.append(",");
+							else
+								b = true;
+							boolean bb = false;
+							buf.append("[");
+							for (W5QueryField f : cellResult.getLookupQueryResult()
+									.getQuery().get_queryFields()) {
+								Object z = p[f.getTabOrder() - 1];
+								if (bb)
+									buf.append(",");
+								else
+									bb = true;
+								if (z == null)
+									z = "";
+								buf.append("'")
+										.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
+												.get2(customizationId, xlocale,
+														z.toString()).replaceAll(
+														",", "-") : GenericUtil
+												.stringToJS(z.toString())
+												.replaceAll(",", "-")).append("'");
+							}
+							buf.append("]");
 						}
-						break;
+				}
+				buf.append("]})")
+						.append(",\nvalueField:'id',displayField:'dsc',hideOnSelect:false,mode: 'local',triggerAction: 'all'");
+				if (fc.getControlWidth() > 0)
+					buf.append(",width:").append(fc.getControlWidth());
+				if (value != null && value.length() > 0)
+					buf.append(",value:'").append(GenericUtil.stringToJS(value))
+							.append("'");
+				if (fc.getNrdTip() != 0)
+					buf.append(",disabled:true");
+				if (fc.getVtype() != null && fc.getVtype().length() > 0)
+					buf.append(",vtype:'").append(fc.getVtype()).append("'");
+				if (formResult != null && fc.getVtype() != null
+						&& fc.getVtype().length() > 0
+						&& fc.getVtype().compareTo("daterange") == 0) {
+					int priority = 1;
+					String parentFormCellDsc = "";
+					for (W5FormCell c : formResult.getForm().get_formCells()) {
+						if (c.getFormCellId() == fc.getParentFormCellId()) {
+							parentFormCellDsc = c.getDsc();
+							if (c.getTabOrder() == fc.getTabOrder()) {
+								if (c.getxOrder() < fc.getxOrder())
+									priority = 0;
+							} else {
+								if (c.getTabOrder() < fc.getTabOrder())
+									priority = 0;
+							}
+							break;
+						}
+					}
+					buf.append(",id:'")
+							.append(fc.getDsc() + formResult.getUniqueId())
+							.append("'");
+					if (priority == 1) {
+						buf.append(", endDateField:'")
+								.append(parentFormCellDsc
+										+ formResult.getUniqueId()).append("'");
+					} else {
+						buf.append(", startDateField:'")
+								.append(parentFormCellDsc
+										+ formResult.getUniqueId()).append("'");
 					}
 				}
-				buf.append(",id:'")
-						.append(fc.getDsc() + formResult.getUniqueId())
-						.append("'");
-				if (priority == 1) {
-					buf.append(", endDateField:'")
-							.append(parentFormCellDsc
-									+ formResult.getUniqueId()).append("'");
-				} else {
-					buf.append(", startDateField:'")
-							.append(parentFormCellDsc
-									+ formResult.getUniqueId()).append("'");
-				}
-			}
-			if (liveSyncStr != null)
-				buf.append(",listeners:{").append(liveSyncStr).append("}");
-			if (fadd
-					&& (fc.getExtraDefinition() == null || (fc
-							.getExtraDefinition() != null && fc
-							.getExtraDefinition().indexOf("onTrigger2Click") < 0))) {
-				buf.append(",onTrigger2Click:function(a,b,c){");
-				switch (controlTip) {
-				case 8:
+				if (liveSyncStr != null)
+					buf.append(",listeners:{").append(liveSyncStr).append("}");
+				if (fadd
+						&& (fc.getExtraDefinition() == null || (fc
+								.getExtraDefinition() != null && fc
+								.getExtraDefinition().indexOf("onTrigger2Click") < 0))) {
+					buf.append(",onTrigger2Click:function(a,b,c){");
+					switch (controlTip) {
+					case 8:
+						buf.append(
+								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
+								.append(fc.getLookupQueryId())
+								.append("&_fid=2190'}});");
+						break;
+					case 15:
+						buf.append(
+								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
+								.append(cellResult.getLookupQueryResult()
+										.getMainTable().getDefaultInsertFormId())
+								.append("'}});");
+						break;
+					case 52:
+						buf.append(
+								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
+								.append(fc.getLookupQueryId())
+								.append("&_fid=964'}});");
+						break;
+	
+					}
+					buf.append("}");
+				} else if (!fadd && fc.getDialogGridId() != 0) {
 					buf.append(
-							"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
-							.append(fc.getLookupQueryId())
-							.append("&_fid=2190'}});");
-					break;
-				case 15:
-					buf.append(
-							"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-							.append(cellResult.getLookupQueryResult()
-									.getMainTable().getDefaultInsertFormId())
-							.append("'}});");
-					break;
-				case 52:
-					buf.append(
-							"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
-							.append(fc.getLookupQueryId())
-							.append("&_fid=964'}});");
-					break;
-
-				}
-				buf.append("}");
-			} else if (!fadd && fc.getDialogGridId() != 0) {
-				buf.append(
-						",onTrigger2Click:function(a,b,c){mainPanel.loadTab({attributes:{modalWindow:true,href:'showPage?_tid=178&_gid1=")
-						.append(fc.getDialogGridId())
-						.append("',buttons:[{text:'Seç',handler:function(a,b){if(!a._grid || a._grid.getSelectionModel().getSelections().length == 0){alert('Önce birşeyler seçiniz');return;}\n var sels=a._grid.getSelectionModel().getSelections();var str='';for(var i=0;i<sels.length;i++){str+=sels[i].id+',';};str=str.substring(0,str.length-1);\n_")
-						.append(cellDsc)
-						.append(".setValue(str);_")
-						.append(cellDsc)
-						.append(".fireEvent('select');mainPanel.closeModalWindow();_")
-						.append(cellDsc).append(".store.reload({params:{xid:_")
-						.append(cellDsc)
-						.append(".getValue()},callback:function(x,y,z){_")
-						.append(cellDsc).append(".fireEvent('select',_")
-						.append(cellDsc).append(",{data:{id:_").append(cellDsc)
-						.append(".getValue()}},0);_").append(cellDsc)
-						.append(".setValue(_").append(cellDsc)
-						.append(".getValue());}});}}");
-				if (!notNull)
-					buf.append(
-							",{text:'Seçimi Temizle',handler:function(a,b){_")
+							",onTrigger2Click:function(a,b,c){mainPanel.loadTab({attributes:{modalWindow:true,href:'showPage?_tid=178&_gid1=")
+							.append(fc.getDialogGridId())
+							.append("',buttons:[{text:'Seç',handler:function(a,b){if(!a._grid || a._grid.getSelectionModel().getSelections().length == 0){alert('Önce birşeyler seçiniz');return;}\n var sels=a._grid.getSelectionModel().getSelections();var str='';for(var i=0;i<sels.length;i++){str+=sels[i].id+',';};str=str.substring(0,str.length-1);\n_")
 							.append(cellDsc)
-							.append(".setValue('');mainPanel.closeModalWindow();}}");
-				buf.append("],value:_").append(cellDsc)
-						.append(".getValue()}})}");
+							.append(".setValue(str);_")
+							.append(cellDsc)
+							.append(".fireEvent('select');mainPanel.closeModalWindow();_")
+							.append(cellDsc).append(".store.reload({params:{xid:_")
+							.append(cellDsc)
+							.append(".getValue()},callback:function(x,y,z){_")
+							.append(cellDsc).append(".fireEvent('select',_")
+							.append(cellDsc).append(",{data:{id:_").append(cellDsc)
+							.append(".getValue()}},0);_").append(cellDsc)
+							.append(".setValue(_").append(cellDsc)
+							.append(".getValue());}});}}");
+					if (!notNull)
+						buf.append(
+								",{text:'Seçimi Temizle',handler:function(a,b){_")
+								.append(cellDsc)
+								.append(".setValue('');mainPanel.closeModalWindow();}}");
+					buf.append("],value:_").append(cellDsc)
+							.append(".getValue()}})}");
+				}
+				return buf.append("})");
 			}
-			return buf.append("})");
 		case 58:
 		case 59: // SuperBoxSelect-query(59:query+58:static)
 			buf.setLength(0);
@@ -3633,250 +3711,333 @@ public class ExtJs3_4 implements ViewAdapter {
 			// (((WQueryParam)fc.get_sourceObject()).getOperatorTip()==8 ||
 			// ((WQueryParam)fc.get_sourceObject()).getOperatorTip()==9))return
 			// "''";
+			if(formResult != null && fc.getParentFormCellId()==1) {
+				buf.append("RadioGroup({").append(uniqeId).append("_controlTip:")
+					.append(controlTip)
+					.append(",_checkbox:!0, labelSeparator:'', fieldLabel: '")
+					.append(fieldLabel).append("',items: [");
+				
+				boolean b = false;
+				int dataCount = 0;
+				if (cellResult.getLookupListValues() != null) { // cell LookUp'tan
+					dataCount = ((List<W5Detay>) cellResult.getLookupListValues()).size();
+					for (W5Detay p : (List<W5Detay>) cellResult
+							.getLookupListValues()) {
+						if (b)
+							buf.append(",");
+						else
+							b = true;
+						buf.append("{inputValue:'")
+								.append(p.getVal())
+								.append("',name:'")
+								.append(fc.getDsc())
+								.append("',boxLabel:'")
+								.append(cellResult.getLocaleMsgFlag() != 0 ? LocaleMsgCache
+										.get2(customizationId, xlocale, p.getDsc())
+										.replaceAll(",", "-") : p.getDsc()
+										.replaceAll(",", "-")).append("'");
+						if(!GenericUtil.isEmpty(cellResult.getValue()) 
+								&& GenericUtil.hasPartInside2(cellResult.getValue(), p.getVal()))
+							buf.append(",checked:true");
+						buf.append("}");
+					}
+				} else if (cellResult.getLookupQueryResult() != null) { // QueryResult'tan
+					b = false;
+					if (cellResult.getLookupQueryResult().getData() != null) {
+						dataCount = cellResult.getLookupQueryResult().getData().size();
+						for (Object[] p : cellResult.getLookupQueryResult().getData()) {
+							if (b)
+								buf.append(",");
+							else
+								b = true;
+							boolean bb = false;
+							buf.append("{");
+							for (W5QueryField f : cellResult.getLookupQueryResult().getQuery().get_queryFields()) {
+								
+								Object z = p[f.getTabOrder() - 1];
+								if(z==null)continue;
+								
 
-			if (controlTip == 7 && fc.getDialogGridId() != 0)
-				buf.append("Dialog");
-			else {
-				if (!notNull)
-					buf.append("Clearable");
-				if (formResult != null
-						&& formResult.getForm() != null
-						&& formResult.getScd() != null
-						&& formResult.getForm().getObjectTip() == 2
-						&& FrameworkCache.getAppSettingIntValue(
-								formResult.getScd(), "combobox_add_flag") == 1
-						&& ((controlTip == 7
-								&& cellResult.getLookupQueryResult() != null
-								&& cellResult.getLookupQueryResult().getMainTable() != null
-								&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
-								&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
-								&& FrameworkCache.roleAccessControl(formResult.getScd(),2)
-								&& (GenericUtil.isEmpty(cellResult.getFormCell().getExtraDefinition()) || cellResult.getFormCell().getExtraDefinition().indexOf("noInsertForm")<0)
-								&& GenericUtil.accessControl(formResult.getScd(), 
-										cellResult.getLookupQueryResult().getMainTable().getAccessViewTip(), 
-										cellResult.getLookupQueryResult().getMainTable().getAccessViewRoles(),
-										cellResult.getLookupQueryResult().getMainTable().getAccessViewUsers()) 
-								&& GenericUtil.accessControl(formResult.getScd(),
-											cellResult.getLookupQueryResult().getMainTable().getAccessInsertTip(),
-											cellResult.getLookupQueryResult().getMainTable().getAccessInsertRoles(),
-											cellResult.getLookupQueryResult().getMainTable().getAccessInsertUsers()))
-								|| (controlTip == 6
-										&& cellResult.getLookupListValues() != null
-										&& ((Integer) formResult.getScd().get(
-												"roleId") == 0) 
-												&& FrameworkCache.roleAccessControl(formResult.getScd(), 107)) 
-													|| (controlTip == 51 && FrameworkCache.roleAccessControl(formResult.getScd(), 107)))) {
-					buf.append("Add");
-					fadd = true;
-				}
-			}
 
-			if(FrameworkSetting.lookupEditFormFlag && formResult!=null && formResult.getForm().getObjectTip()==2 && (controlTip == 7 ||  controlTip == 10 )
-					&& cellResult.getLookupQueryResult() != null
-					&& cellResult.getLookupQueryResult().getMainTable() != null && cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
-					&& (cellResult.getFormCell().getLookupEditFormId()!=0 || cellResult.getLookupQueryResult().getMainTable().getDefaultUpdateFormId()!=0)
-/*					&& PromisCache.roleAccessControl(formResult.getScd(), cellResult.getLookupQueryResult().getMainTable().getModuleId(), 1)
-					&& PromisUtil.accessControl(formResult.getScd(), 
-							cellResult.getLookupQueryResult().getMainTable().getAccessViewTip(), 
-							cellResult.getLookupQueryResult().getMainTable().getAccessViewRoles(),
-							cellResult.getLookupQueryResult().getMainTable().getAccessViewUsers()) 
-					&& PromisUtil.accessControl(formResult.getScd(),
-							cellResult.getLookupQueryResult().getMainTable().getAccessUpdateTip(),
-							cellResult.getLookupQueryResult().getMainTable().getAccessUpdateRoles(),
-							cellResult.getLookupQueryResult().getMainTable().getAccessUpdateUsers())*/){
-                // e.HOME, e.END, e.PAGE_UP, e.PAGE_DOWN,
-                // e.TAB, e.ESC, arrow keys: e.LEFT, e.RIGHT, e.UP, e.DOWN
-				W5Table t = cellResult.getLookupQueryResult().getMainTable();
-				if(t.getAccessUpdateUserFields()==null || GenericUtil.accessControl(formResult.getScd(), t.getAccessUpdateTip(), t.getAccessUpdateRoles(),t.getAccessUpdateUsers())){
-					int editFormId = cellResult.getFormCell().getLookupEditFormId()!=0 ? cellResult.getFormCell().getLookupEditFormId():t.getDefaultUpdateFormId();
-					String s ="specialkey: function(field, e){if (e.getKey() == e.ENTER) {if(field.getValue())mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=1&_fid="
-					+editFormId+"&_tb_id="+t.getTableId()+"&_tb_pk='+field.getValue()}});else alert(getLocMsg('js_once_birseyler_secmelisiniz'))}}";
-					liveSyncStr = (liveSyncStr!=null) ? s+","+liveSyncStr:s;
-					if(fieldLabel.endsWith("ctCls:'required")){
-						fieldLabel+="_edit_form";
-					} else {
-						fieldLabel += "',ctCls:'edit_form";
+								
+								if (bb)
+									buf.append(",");
+								else
+									bb = true;
+								if(f.getDsc().equals("dsc"))
+									buf.append("boxLabel:");
+								else if(f.getDsc().equals("id")) {
+									if(!GenericUtil.isEmpty(cellResult.getValue()) 
+											&& GenericUtil.hasPartInside2(cellResult.getValue(), z.toString()))
+										buf.append("checked:true,");
+									buf.append("inputValue:");
+								}
+
+								buf.append("'")
+										.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
+												.get2(customizationId, xlocale,
+														z.toString()).replaceAll(
+														",", "-") : GenericUtil
+												.stringToJS(z.toString())
+												.replaceAll(",", "-")).append("'");
+							}
+							buf.append("}");
+						}
 					}
 				}
-			}
-			
-			buf.append("ComboBox({").append(uniqeId).append("_controlTip:")
-					.append(controlTip)
-					.append(",labelSeparator:'',fieldLabel: '")
-					.append(fieldLabel).append("',hiddenName: '")
-					.append(cellDsc).append("'");
-			if (fc.getExtraDefinition() != null
-					&& fc.getExtraDefinition().length() > 1) // ornegin
-																// ,tooltip:'ali'
-																// gibi
-				buf.append(fc.getExtraDefinition());
-			else if (FrameworkSetting.simpleSelectShowEmptyText) {
-				buf.append(",emptyText:'")
-				.append(LocaleMsgCache.get2(0, xlocale,
-						"simple_select_something")).append("'");// Birşeyler
-																		// Yaz...
-			}
-			if (cellResult.getLookupListValues() != null) { // cell LookUp'tan
-															// geliyor
-				buf.append(",\nstore: new Ext.data.SimpleStore({id:0,fields:['id','dsc'");
+				buf.append("]");
+				if(dataCount>2)buf.append(",columns:2");
+				if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
+				buf.append("})");
+				return buf;
+				
+				
+			} else {
 
-				buf.append("],data:[");
-				b1 = false;
-				for (W5Detay p : (List<W5Detay>) cellResult
-						.getLookupListValues()) {
-					if (b1)
-						buf.append(",");
-					else
-						b1 = true;
-					buf.append("['")
-							.append(p.getVal())
-							.append("','")
-							.append(cellResult.getLocaleMsgFlag() != 0 ? LocaleMsgCache
-									.get2(customizationId, xlocale, p.getDsc())
-									: p.getDsc()).append("'");
-					
-					buf.append("]");
+				if (controlTip == 7 && fc.getDialogGridId() != 0)
+					buf.append("Dialog");
+				else {
+					if (!notNull)
+						buf.append("Clearable");
+					if (formResult != null
+							&& formResult.getForm() != null
+							&& formResult.getScd() != null
+							&& formResult.getForm().getObjectTip() == 2
+							&& FrameworkCache.getAppSettingIntValue(
+									formResult.getScd(), "combobox_add_flag") == 1
+							&& ((controlTip == 7
+									&& cellResult.getLookupQueryResult() != null
+									&& cellResult.getLookupQueryResult().getMainTable() != null
+									&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
+									&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
+									&& FrameworkCache.roleAccessControl(formResult.getScd(),2)
+									&& (GenericUtil.isEmpty(cellResult.getFormCell().getExtraDefinition()) || cellResult.getFormCell().getExtraDefinition().indexOf("noInsertForm")<0)
+									&& GenericUtil.accessControl(formResult.getScd(), 
+											cellResult.getLookupQueryResult().getMainTable().getAccessViewTip(), 
+											cellResult.getLookupQueryResult().getMainTable().getAccessViewRoles(),
+											cellResult.getLookupQueryResult().getMainTable().getAccessViewUsers()) 
+									&& GenericUtil.accessControl(formResult.getScd(),
+												cellResult.getLookupQueryResult().getMainTable().getAccessInsertTip(),
+												cellResult.getLookupQueryResult().getMainTable().getAccessInsertRoles(),
+												cellResult.getLookupQueryResult().getMainTable().getAccessInsertUsers()))
+									|| (controlTip == 6
+											&& cellResult.getLookupListValues() != null
+											&& ((Integer) formResult.getScd().get(
+													"roleId") == 0) 
+													&& FrameworkCache.roleAccessControl(formResult.getScd(), 107)) 
+														|| (controlTip == 51 && FrameworkCache.roleAccessControl(formResult.getScd(), 107)))) {
+						buf.append("Add");
+						fadd = true;
+					}
 				}
-				buf.append("]})");
-			} else if (cellResult.getLookupQueryResult() != null) { // QueryResult'tan
-																	// geliyor
-				buf.append(",\nstore: new Ext.data.SimpleStore({id:1,fields:[");
-				b1 = false;
-				for (W5QueryField f : cellResult.getLookupQueryResult()
-						.getQuery().get_queryFields()) {
-					if (b1)
-						buf.append(",");
-					else
-						b1 = true;
-					buf.append("{name:'").append(f.getDsc()).append("'");
-					if (f.getFieldTip() > 2)
-						buf.append(",type:'")
-								.append(FrameworkSetting.sortMap[f.getFieldTip()])
-								.append("'");
-					if (f.getFieldTip() == 2)
-						buf.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
-					// if(f.getPostProcessTip()>=10)buf.append("},{name:'").append(f.getDsc()).append("_qw_'");
-					buf.append("}");
+	
+				if(FrameworkSetting.lookupEditFormFlag && formResult!=null && formResult.getForm().getObjectTip()==2 && (controlTip == 7 ||  controlTip == 10 )
+						&& cellResult.getLookupQueryResult() != null
+						&& cellResult.getLookupQueryResult().getMainTable() != null && cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
+						&& (cellResult.getFormCell().getLookupEditFormId()!=0 || cellResult.getLookupQueryResult().getMainTable().getDefaultUpdateFormId()!=0)
+	/*					&& PromisCache.roleAccessControl(formResult.getScd(), cellResult.getLookupQueryResult().getMainTable().getModuleId(), 1)
+						&& PromisUtil.accessControl(formResult.getScd(), 
+								cellResult.getLookupQueryResult().getMainTable().getAccessViewTip(), 
+								cellResult.getLookupQueryResult().getMainTable().getAccessViewRoles(),
+								cellResult.getLookupQueryResult().getMainTable().getAccessViewUsers()) 
+						&& PromisUtil.accessControl(formResult.getScd(),
+								cellResult.getLookupQueryResult().getMainTable().getAccessUpdateTip(),
+								cellResult.getLookupQueryResult().getMainTable().getAccessUpdateRoles(),
+								cellResult.getLookupQueryResult().getMainTable().getAccessUpdateUsers())*/){
+	                // e.HOME, e.END, e.PAGE_UP, e.PAGE_DOWN,
+	                // e.TAB, e.ESC, arrow keys: e.LEFT, e.RIGHT, e.UP, e.DOWN
+					W5Table t = cellResult.getLookupQueryResult().getMainTable();
+					if(t.getAccessUpdateUserFields()==null || GenericUtil.accessControl(formResult.getScd(), t.getAccessUpdateTip(), t.getAccessUpdateRoles(),t.getAccessUpdateUsers())){
+						int editFormId = cellResult.getFormCell().getLookupEditFormId()!=0 ? cellResult.getFormCell().getLookupEditFormId():t.getDefaultUpdateFormId();
+						String s ="specialkey: function(field, e){if (e.getKey() == e.ENTER) {if(field.getValue())mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=1&_fid="
+						+editFormId+"&_tb_id="+t.getTableId()+"&_tb_pk='+field.getValue()}});else alert(getLocMsg('js_once_birseyler_secmelisiniz'))}}";
+						liveSyncStr = (liveSyncStr!=null) ? s+","+liveSyncStr:s;
+						if(fieldLabel.endsWith("ctCls:'required")){
+							fieldLabel+="_edit_form";
+						} else {
+							fieldLabel += "',ctCls:'edit_form";
+						}
+					}
 				}
-				buf.append("],data:[");
-				b1 = false;
-				if (cellResult.getLookupQueryResult().getData() != null)
-					for (Object[] p : cellResult.getLookupQueryResult()
-							.getData()) {
+				
+				buf.append("ComboBox({").append(uniqeId).append("_controlTip:")
+						.append(controlTip)
+						.append(",labelSeparator:'',fieldLabel: '")
+						.append(fieldLabel).append("',hiddenName: '")
+						.append(cellDsc).append("'");
+				if (fc.getExtraDefinition() != null
+						&& fc.getExtraDefinition().length() > 1) // ornegin
+																	// ,tooltip:'ali'
+																	// gibi
+					buf.append(fc.getExtraDefinition());
+				else if (FrameworkSetting.simpleSelectShowEmptyText) {
+					buf.append(",emptyText:'")
+					.append(LocaleMsgCache.get2(0, xlocale,
+							"simple_select_something")).append("'");// Birşeyler
+																			// Yaz...
+				}
+				if (cellResult.getLookupListValues() != null) { // cell LookUp'tan
+																// geliyor
+					buf.append(",\nstore: new Ext.data.SimpleStore({id:0,fields:['id','dsc'");
+	
+					buf.append("],data:[");
+					b1 = false;
+					for (W5Detay p : (List<W5Detay>) cellResult
+							.getLookupListValues()) {
 						if (b1)
 							buf.append(",");
 						else
 							b1 = true;
-						boolean bb = false;
-						buf.append("[");
-						for (W5QueryField f : cellResult.getLookupQueryResult()
-								.getQuery().get_queryFields()) {
-							Object z = p[f.getTabOrder() - 1];
-							if (bb)
-								buf.append(",");
-							else
-								bb = true;
-							if (z == null)
-								z = "";
-							buf.append("'")
-									.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
-											.get2(customizationId, xlocale,
-													z.toString()) : GenericUtil
-											.stringToJS(z.toString()))
-									.append("'");
-						}
+						buf.append("['")
+								.append(p.getVal())
+								.append("','")
+								.append(cellResult.getLocaleMsgFlag() != 0 ? LocaleMsgCache
+										.get2(customizationId, xlocale, p.getDsc())
+										: p.getDsc()).append("'");
+						
 						buf.append("]");
 					}
-				buf.append("]})");
-			}
-
-			buf.append(",\nvalueField:'id',displayField:'dsc',typeAhead: false,mode: 'local',triggerAction: 'all',selectOnFocus:true,forceSelection:true");
-			if (fc.getControlWidth() > 0)
-				buf.append(",width:").append(fc.getControlWidth());
-			if (value != null && value.length() > 0)
-				buf.append(",value:'").append(GenericUtil.stringToJS(value))
-						.append("'");
-			if (fc.getNrdTip() != 0)
-				buf.append(",disabled:true");
-			if (fc.getVtype() != null && fc.getVtype().length() > 0)
-				buf.append(",vtype:'").append(fc.getVtype()).append("'");
-			if (formResult != null && fc.getVtype() != null
-					&& fc.getVtype().length() > 0
-					&& fc.getVtype().compareTo("daterange") == 0) {
-				int priority = 1;
-				String parentFormCellDsc = "";
-				for (W5FormCell c : formResult.getForm().get_formCells()) {
-					if (c.getFormCellId() == fc.getParentFormCellId()) {
-						parentFormCellDsc = c.getDsc();
-						if (c.getTabOrder() == fc.getTabOrder()) {
-							if (c.getxOrder() < fc.getxOrder())
-								priority = 0;
-						} else {
-							if (c.getTabOrder() < fc.getTabOrder())
-								priority = 0;
+					buf.append("]})");
+				} else if (cellResult.getLookupQueryResult() != null) { // QueryResult'tan
+																		// geliyor
+					buf.append(",\nstore: new Ext.data.SimpleStore({id:1,fields:[");
+					b1 = false;
+					for (W5QueryField f : cellResult.getLookupQueryResult()
+							.getQuery().get_queryFields()) {
+						if (b1)
+							buf.append(",");
+						else
+							b1 = true;
+						buf.append("{name:'").append(f.getDsc()).append("'");
+						if (f.getFieldTip() > 2)
+							buf.append(",type:'")
+									.append(FrameworkSetting.sortMap[f.getFieldTip()])
+									.append("'");
+						if (f.getFieldTip() == 2)
+							buf.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
+						// if(f.getPostProcessTip()>=10)buf.append("},{name:'").append(f.getDsc()).append("_qw_'");
+						buf.append("}");
+					}
+					buf.append("],data:[");
+					b1 = false;
+					if (cellResult.getLookupQueryResult().getData() != null)
+						for (Object[] p : cellResult.getLookupQueryResult()
+								.getData()) {
+							if (b1)
+								buf.append(",");
+							else
+								b1 = true;
+							boolean bb = false;
+							buf.append("[");
+							for (W5QueryField f : cellResult.getLookupQueryResult()
+									.getQuery().get_queryFields()) {
+								Object z = p[f.getTabOrder() - 1];
+								if (bb)
+									buf.append(",");
+								else
+									bb = true;
+								if (z == null)
+									z = "";
+								buf.append("'")
+										.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
+												.get2(customizationId, xlocale,
+														z.toString()) : GenericUtil
+												.stringToJS(z.toString()))
+										.append("'");
+							}
+							buf.append("]");
 						}
-						break;
+					buf.append("]})");
+				}
+	
+				buf.append(",\nvalueField:'id',displayField:'dsc',typeAhead: false,mode: 'local',triggerAction: 'all',selectOnFocus:true,forceSelection:true");
+				if (fc.getControlWidth() > 0)
+					buf.append(",width:").append(fc.getControlWidth());
+				if (value != null && value.length() > 0)
+					buf.append(",value:'").append(GenericUtil.stringToJS(value))
+							.append("'");
+				if (fc.getNrdTip() != 0)
+					buf.append(",disabled:true");
+				if (fc.getVtype() != null && fc.getVtype().length() > 0)
+					buf.append(",vtype:'").append(fc.getVtype()).append("'");
+				if (formResult != null && fc.getVtype() != null
+						&& fc.getVtype().length() > 0
+						&& fc.getVtype().compareTo("daterange") == 0) {
+					int priority = 1;
+					String parentFormCellDsc = "";
+					for (W5FormCell c : formResult.getForm().get_formCells()) {
+						if (c.getFormCellId() == fc.getParentFormCellId()) {
+							parentFormCellDsc = c.getDsc();
+							if (c.getTabOrder() == fc.getTabOrder()) {
+								if (c.getxOrder() < fc.getxOrder())
+									priority = 0;
+							} else {
+								if (c.getTabOrder() < fc.getTabOrder())
+									priority = 0;
+							}
+							break;
+						}
+					}
+					buf.append(",id:'")
+							.append(fc.getDsc() + formResult.getUniqueId())
+							.append("'");
+					if (priority == 1) {
+						buf.append(", endDateField:'")
+								.append(parentFormCellDsc
+										+ formResult.getUniqueId()).append("'");
+					} else {
+						buf.append(", startDateField:'")
+								.append(parentFormCellDsc
+										+ formResult.getUniqueId()).append("'");
 					}
 				}
-				buf.append(",id:'")
-						.append(fc.getDsc() + formResult.getUniqueId())
-						.append("'");
-				if (priority == 1) {
-					buf.append(", endDateField:'")
-							.append(parentFormCellDsc
-									+ formResult.getUniqueId()).append("'");
-				} else {
-					buf.append(", startDateField:'")
-							.append(parentFormCellDsc
-									+ formResult.getUniqueId()).append("'");
+				if (notNull)
+					buf.append(",allowBlank:false");
+				if (controlTip == 7 && fc.getDialogGridId() != 0) {
+					buf.append(
+							",onTrigger2Click:function(a,b,c){mainPanel.loadTab({attributes:{modalWindow:true,href:'showPage?_tid=178&_gid1=")
+							.append(fc.getDialogGridId())
+							.append("',buttons:[{text:'Seç',handler:function(a,b){if(!a._grid || !a._grid.getSelectionModel().getSelected()){alert('Önce birşeyler seçiniz');return;}\n_")
+							.append(cellDsc)
+							.append(".setValue(a._grid.getSelectionModel().getSelected().id);_")
+							.append(cellDsc)
+							.append(".fireEvent('select');mainPanel.closeModalWindow();}}],value:_")
+							.append(cellDsc).append(".getValue()}})}");
+				} else if (fadd
+						&& (fc.getExtraDefinition() == null || (fc
+								.getExtraDefinition() != null && fc
+								.getExtraDefinition().indexOf(
+										"onTrigger" + (notNull ? "2" : "3")
+												+ "Click") < 1))) {
+					buf.append(",onTrigger").append(notNull ? 2 : 3)
+							.append("Click:function(a,b,c){");
+					switch (controlTip) {
+					case 6:
+						buf.append(
+								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
+								.append(fc.getLookupQueryId())
+								.append("&_fid=2190'}});");
+						break;
+					case 7:
+						buf.append(
+								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
+								.append(cellResult.getLookupQueryResult()
+										.getMainTable().getDefaultInsertFormId())
+								.append("'}});");
+						break;
+					case 51:
+						buf.append(
+								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
+								.append(fc.getLookupQueryId())
+								.append("&_fid=964'}});");
+						break;
+					}
+					buf.append("}");
 				}
+				if (liveSyncStr != null)//liveSyncRecord && 
+					buf.append(",listeners:{").append(liveSyncStr).append("}");
+				return buf.append("})");
 			}
-			if (notNull)
-				buf.append(",allowBlank:false");
-			if (controlTip == 7 && fc.getDialogGridId() != 0) {
-				buf.append(
-						",onTrigger2Click:function(a,b,c){mainPanel.loadTab({attributes:{modalWindow:true,href:'showPage?_tid=178&_gid1=")
-						.append(fc.getDialogGridId())
-						.append("',buttons:[{text:'Seç',handler:function(a,b){if(!a._grid || !a._grid.getSelectionModel().getSelected()){alert('Önce birşeyler seçiniz');return;}\n_")
-						.append(cellDsc)
-						.append(".setValue(a._grid.getSelectionModel().getSelected().id);_")
-						.append(cellDsc)
-						.append(".fireEvent('select');mainPanel.closeModalWindow();}}],value:_")
-						.append(cellDsc).append(".getValue()}})}");
-			} else if (fadd
-					&& (fc.getExtraDefinition() == null || (fc
-							.getExtraDefinition() != null && fc
-							.getExtraDefinition().indexOf(
-									"onTrigger" + (notNull ? "2" : "3")
-											+ "Click") < 1))) {
-				buf.append(",onTrigger").append(notNull ? 2 : 3)
-						.append("Click:function(a,b,c){");
-				switch (controlTip) {
-				case 6:
-					buf.append(
-							"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
-							.append(fc.getLookupQueryId())
-							.append("&_fid=2190'}});");
-					break;
-				case 7:
-					buf.append(
-							"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-							.append(cellResult.getLookupQueryResult()
-									.getMainTable().getDefaultInsertFormId())
-							.append("'}});");
-					break;
-				case 51:
-					buf.append(
-							"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
-							.append(fc.getLookupQueryId())
-							.append("&_fid=964'}});");
-					break;
-				}
-				buf.append("}");
-			}
-			if (liveSyncStr != null)//liveSyncRecord && 
-				buf.append(",listeners:{").append(liveSyncStr).append("}");
-			return buf.append("})");
 		}
 
 		buf.append("({selectOnFocus:true,fieldLabel: '").append(fieldLabel)

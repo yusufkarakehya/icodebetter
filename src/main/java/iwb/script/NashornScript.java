@@ -175,7 +175,7 @@ public class NashornScript {
 		StringBuilder ss = new StringBuilder();
 		ss.append(measName);
 		if(tagMap instanceof ScriptObjectMirror) {
-			tagMap = ScriptUtil.fromScriptObject2Map2((ScriptObjectMirror)tagMap);
+			tagMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)tagMap);
 		}
 		if(tagMap instanceof Map) {
 			Map<String, Object> xtagMap = (Map)tagMap;
@@ -188,7 +188,7 @@ public class NashornScript {
 		}
 		ss.append(" ");
 		if(fieldMap instanceof ScriptObjectMirror) {
-			fieldMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)fieldMap);
+			fieldMap = ScriptUtil.fromScriptObject2Map2((ScriptObjectMirror)fieldMap);
 		}
 		if(fieldMap instanceof Map) {
 			Map<String, Object> xfieldMap = (Map)fieldMap;

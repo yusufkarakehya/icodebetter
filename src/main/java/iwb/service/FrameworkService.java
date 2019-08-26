@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import iwb.cache.FrameworkCache;
@@ -51,8 +52,6 @@ import iwb.domain.db.W5Query;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5TsMeasurement;
-import iwb.domain.db.W5TsPortlet;
 import iwb.domain.db.W5Tutorial;
 import iwb.domain.db.W5UploadedImport;
 import iwb.domain.db.W5VcsCommit;
@@ -345,6 +344,14 @@ public class FrameworkService {
 	}
 
 	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int dbFuncId, Map<String, String> parameterMap,
+			short accessSourceType) {
+		return scriptEngine.executeGlobalFunc(scd, dbFuncId, parameterMap, accessSourceType);
+
+	}
+	
+
+	@Transactional(propagation=Propagation.NEVER)
+	public W5GlobalFuncResult executeFuncNT(Map<String, Object> scd, int dbFuncId, Map<String, String> parameterMap,
 			short accessSourceType) {
 		return scriptEngine.executeGlobalFunc(scd, dbFuncId, parameterMap, accessSourceType);
 
@@ -666,6 +673,45 @@ public class FrameworkService {
 	}
 
 	public boolean runJob(W5JobSchedule job) {
+
+		job.set_running(true);
+		W5GlobalFuncResult res = null;
+		String transactionId =  GenericUtil.getTransactionId();
+		if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(job.getProjectUuid(), "job", transactionId), true);
+
+		Log5JobAction logJob = new Log5JobAction(job.getJobScheduleId(), job.getProjectUuid(), transactionId);
+		try {// fonksiyon çalıştırılacak ise
+			Map<String, String> requestParams = new HashMap<String, String>();
+			requestParams.put("_trid_", transactionId);
+
+			Map<String, Object> scd = new HashMap<String, Object>();
+			W5Project po = FrameworkCache.getProject(job.getProjectUuid());
+			scd.put("projectId", job.getProjectUuid());
+			scd.put("locale", job.getLocale());
+			scd.put("customizationId", po.getCustomizationId());
+			scd.put("userRoleId", job.get_userRoleId());
+			scd.put("roleId", job.getExecuteRoleId());
+			scd.put("userId", job.getExecuteUserId());
+			scd.put("administratorFlag", 1);
+			res = scriptEngine.executeGlobalFunc(scd, job.getActionDbFuncId(), requestParams, (short) 7);
+			if (FrameworkSetting.debug && res.isSuccess()) {
+				System.out.println("Scheduled function is executed (funcId=" + job.getActionDbFuncId() + ")");
+			}
+		} catch (Exception e) {
+			if (FrameworkSetting.debug)
+				e.printStackTrace();
+			logJob.setError(e.getMessage());
+			return false;
+		} finally {
+			job.set_running(false);
+			LogUtil.logObject(logJob, false);
+		}
+		return res.isSuccess();
+	}
+	
+	
+	@Transactional(propagation=Propagation.NEVER)
+	public boolean runJobNT(W5JobSchedule job) {
 
 		job.set_running(true);
 		W5GlobalFuncResult res = null;
@@ -1083,6 +1129,7 @@ public class FrameworkService {
 		else
 			schema += ".";
 		String formName = main.getString("form_name");
+		String iconName = main.has("icon") ? main.getString("icon"):null;
 		tableName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(formName), "x").toLowerCase(en);
 		String gridName = GenericUtil.uStr2Alpha2(GenericUtil.uStr2English(main.getString("grid_name")), "x")
 				.toLowerCase(en);
@@ -1585,8 +1632,8 @@ public class FrameworkService {
 					+ "tab_order, img_icon, url, version_no, insert_user_id, insert_dttm,"
 					+ "version_user_id, version_dttm, customization_id, access_view_tip, project_uuid, oproject_uuid)"
 					+ "VALUES (?, 0, ?, 4, ?, "
-					+ "coalesce((select max(q.tab_order) from iwb.w5_menu q where q.customization_id=? AND q.user_tip=?),0)+10, null, 'showPage?_tid='||?::text, 1, ?, current_timestamp, "
-					+ "?, current_timestamp, ?, 0, ?, ?)", menuId, userTip, gridName, customizationId, userTip,
+					+ "coalesce((select max(q.tab_order) from iwb.w5_menu q where q.customization_id=? AND q.user_tip=?),0)+10, ?, 'showPage?_tid='||?::text, 1, ?, current_timestamp, "
+					+ "?, current_timestamp, ?, 0, ?, ?)", menuId, userTip, gridName, customizationId, userTip, iconName,
 					templateId, userId, userId, customizationId, projectUuid, projectUuid);
 			if (vcs)
 				dao.saveObject(new W5VcsObject(scd, 65, menuId));
@@ -1808,77 +1855,9 @@ public class FrameworkService {
 		return restEngine.REST(scd, name, requestParams);
 	}
 
-	private W5TsMeasurement getTsMeasurement(Map<String, Object> scd, int measurementId) { // TODO
-		W5TsMeasurement m = null;
-		/*
-		 * if(FrameworkSetting.preloadWEngine==0 &&
-		 * (m=FrameworkCache.getTsMeasurement(scd,measurementId))==null){ m =
-		 * (W5TsMeasurement)dao.getCustomizedObject(
-		 * "from W5TsMeasurement t where t.measurementId=? AND t.customizationId=?" ,
-		 * measurementId, (Integer)scd.get("customizationId"), "TSMeasurement");
-		 * m.set_measurementFields(dao.find(
-		 * "from W5TsMeasurementField t where t.portletId=? AND t.customizationId=? order by t.tabOrder, t.portletObjectId"
-		 * , measurementId, (Integer)scd.get("customizationId")));
-		 * if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.wTsMeasurements.
-		 * get((Integer)scd.get("customizationId")).put(measurementId, m); }
-		 */
-		return m;
-	}
+	
 
-	public String getTsDashResult(Map<String, Object> scd, Map<String, String> requestParams, int porletId) { // TODO
-		W5TsPortlet p = null;
-		/*
-		 * if(FrameworkSetting.preloadWEngine==0 ||
-		 * (p=FrameworkCache.getTsPortlet(scd,porletId))==null){ p =
-		 * (W5TsPortlet)dao.getCustomizedObject(
-		 * "from W5TsPortlet t where t.portletId=? AND t.customizationId=?", porletId,
-		 * (Integer)scd.get("customizationId"), "TSPorlet");
-		 * p.set_portletObjects(dao.find(
-		 * "from W5TsPortletObject t where t.portletId=? AND t.customizationId=? order by t.tabOrder, t.portletObjectId"
-		 * , porletId, (Integer)scd.get("customizationId")));
-		 * if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.wTsPortlets.get(
-		 * (Integer)scd.get("customizationId")).put(porletId, p); } StringBuilder s =
-		 * new StringBuilder(); for(W5TsPortletObject
-		 * po:p.get_portletObjects())switch(po.getObjectTip()){ case 2709://measurement
-		 * po.set_sourceObject(getTsMeasurement(scd, po.getObjectId())); // Object o =
-		 * influxDao.runQuery(po.getExtraCode()); //
-		 * resultMap.put(po.getPortletObjectId(), o); break; case 8://query
-		 * po.set_sourceObject(dao.getQueryResult(scd, po.getObjectId())); break; }
-		 * switch(p.getCodeTip()){ case 1://A*B/C
-		 * s.append("\nfunction(){\n").append(p.getExtraCode()) .append(
-		 * "\nvar result=[];for(var qi=0;qi<)"); break; case 2:// function(A,B,C){}
-		 * s.append(p.getExtraCode()); break; case 3: s.append(p.getExtraCode()); break;
-		 * } return s.toString();
-		 */
-		return null;
-	}
-
-	public boolean copyTable2Tsdb(Map<String, Object> scd, int tableId, int measurementId) {
-		W5TsMeasurement tsm = getTsMeasurement(scd, measurementId);
-		if (!GenericUtil.accessControl(scd, tsm.getAccessViewTip(), tsm.getAccessViewRoles(),
-				tsm.getAccessViewUsers())) {
-			throw new IWBException("security", "W5TsMeasurement", measurementId, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_access_control_ts_measurement"), null);
-		}
-		if (tsm.getMeasurementObjectId() != 2 || tsm.getMeasurementObjectId() == 0)
-			throw new IWBException("framework", "W5TsMeasurement", measurementId, null, "Source Not RDB Table or X",
-					null);
-		W5Table t = FrameworkCache.getTable(scd, tableId);
-		W5TableField timeField = t.get_tableFieldMap().get(tsm.getMeasurementObjectId());
-		StringBuilder s = new StringBuilder();
-		s.append("SELECT x.").append(timeField.getDsc()).append(" xtime");
-		if (!GenericUtil.isEmpty(tsm.getTagCode()))
-			s.append(",").append(tsm.getTagCode());
-		if (!GenericUtil.isEmpty(tsm.getExtraCode()))
-			s.append(",").append(tsm.getExtraCode());
-		s.append(" from ").append(t.getDsc()).append(" x");
-		if (t.get_tableParamList().size() > 1 && t.get_tableParamList().get(1).getDsc().equals("customizationId"))
-			s.append(" WHERE x.customization_id=${scd.customizationId}");
-		Object[] oz = DBUtil.filterExt4SQL(s.toString(), scd, new HashMap(), null);
-		List<Map> lm = dao.executeSQLQuery2Map(oz[0].toString(), (List) oz[1]);
-
-		return false;
-	}
+	
 
 	public Map generateScdFromAuth(int socialCon, String token) {
 		List<Object[]> list = dao.executeSQLQuery(

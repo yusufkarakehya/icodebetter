@@ -78,6 +78,8 @@ public class PreviewController implements InitializingBean {
 
 	@Autowired
 	private FrameworkService service;
+	
+	
 
 	@Autowired
 	private TaskExecutor taskExecutor;
@@ -609,8 +611,10 @@ public class PreviewController implements InitializingBean {
 			dbFuncId = -GenericUtil.uInt(request, "_fid"); // +:dbFuncId,
 															// -:formId
 		}
-		W5GlobalFuncResult dbFuncResult = service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
-				(short) 1);
+		W5GlobalFuncResult dbFuncResult = GenericUtil.uInt(request, "_notran")==0 ? service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
+				(short) 1): 
+					service.executeFuncNT(scd, dbFuncId, GenericUtil.getParameterMap(request),
+							(short) 1);
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
@@ -693,21 +697,6 @@ public class PreviewController implements InitializingBean {
 		}
 	}
 	
-
-	@RequestMapping("/*/ajaxTsPortletData")
-	public void hndAjaxTsPortletData(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndAjaxTsPortletData");
-
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-
-		response.setContentType("application/json");
-
-		int porletId = GenericUtil.uInt(request, "_pid");
-		String s = service.getTsDashResult(scd, GenericUtil.getParameterMap(request), porletId);
-		response.getWriter().write(s);
-		response.getWriter().close();
-	}
 
 
 	@RequestMapping("/*/showForm")
