@@ -11,6 +11,8 @@ import nested from "postcss-nested";
 import cssnext from "postcss-cssnext";
 import cssnano from "cssnano";
 import cpy from "rollup-plugin-cpy";
+import autoprefixer from 'autoprefixer';
+
 process.env.BABEL_ENV = 'production';
 process.env.NODE_ENV = 'production';
 // import svg from 'rollup-plugin-svg';
@@ -55,6 +57,7 @@ export default {
     }),
     postcss({
       plugins: [
+        autoprefixer(),
         simplevars(),
         nested(),
         cssnext({
