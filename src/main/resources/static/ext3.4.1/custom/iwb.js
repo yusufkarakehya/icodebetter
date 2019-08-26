@@ -3036,7 +3036,6 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var grdExtra = Ext.apply(
     {
       region: obj.region || (mainGrid.gridId?"north":"west"),cls:'iwb-grid-'+mainGrid.gridId,
-      bodyStyle: "border-top: 1px solid #18181a;",
       autoScroll: true,
       border: false
     },
@@ -3515,7 +3514,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 
   var _posId = window.localStorage.getItem('sub-tab-'+(mainGrid.gridId || mainGrid.dataViewId));
   var _posId2 = _posId ? parseInt(_posId) : 0;
-  if(!_posId2)_posId2=0;
+  if(!_posId2 || _posId2>=detailGridPanels.length)_posId2=0;
   var subTab = {
     region: "center",
     enableTabScroll: true,
