@@ -774,7 +774,7 @@ public class F7_4 implements ViewMobileAdapter {
     }
 
     buf.append(
-        "}, event.target);},clickSort:function(){iwb.orderList(this);},clickFilter:function(){if(this.sf)return;this.sf=this.$options.props.searchForm;iwb.currentLoader=this.load;$$('#idx-search-panel').html(this.sf.template);}");
+        "}, event.target);},clickSort:function(){iwb.orderList(this);},clickFilter:function(){if(this.sf)return;this.sf=this.$options.props.searchForm;iwb.currentLoader=this.load;$$('#idx-search-panel').html(this.sf.template);\nif(this.sf.on && this.sf.on.pageMounted){var xpageMounted=this.sf.on.pageMounted; setTimeout(()=>{xpageMounted()\n},200);}}");
     if(insertFlag) {
     	buf.append(",\n clickNewRecord:function(){iwb.currentLoader=this.load;var url='/showMForm?a=2&_fid=").append(l.getDefaultCrudFormId())
     		.append("';if(this._postInsert){url=this._postInsert(url, this);if(url===false)return;};this.$router.navigate(url)}");
@@ -1024,6 +1024,21 @@ public class F7_4 implements ViewMobileAdapter {
                 }
               }
             }
+            break;
+          case 6:
+          case 7: // static, query combo
+          case 8:
+          case 15: // lov-static, lov-query combo
+          case 58:
+          case 59: // superbox lov-static, superbox lov-query combo
+          case 51:
+          case 52: // user defined combo, multi
+        	  if(f.getObjectTip() == 10) {
+        		  jsCode
+  	          	.append("iwb.app.smartSelect.create({routableModals: false, closeOnSelect:!0, el: '#idx-formcell-")
+  	                .append(fc.getFormCell().getFormCellId())
+  	                .append("'});\n");
+        	  }
         }
       }
     }
