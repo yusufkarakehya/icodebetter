@@ -2044,7 +2044,7 @@ public class ExtJs3_4 implements ViewAdapter {
 							columnBuf.setLength(0);
 						}
 						int columnWidth = Math.max(maxWidths[columnOrder], 200) + 150;
-						columnBuf.append("{layout:'form',border:false,minW:").append(columnWidth).append(",style:'min-width:").append(columnWidth).append("px;max-width:").append(250+columnWidth).append("px;',columnWidth:")
+						columnBuf.append("{layout:'form',border:false,minW:").append(columnWidth).append(",style:'min-width:").append(columnWidth).append("px;max-width:").append(200+columnWidth).append("px;',columnWidth:")
 								.append(1.0 / (lc + 1)).append(",items:[");
 						b = false;
 					}
@@ -2603,7 +2603,7 @@ public class ExtJs3_4 implements ViewAdapter {
 																// gibi
 				buf.append(fc.getExtraDefinition());
 			return buf
-					.append(GenericUtil.uInt(fc.getLookupIncludedParams()) != 0 ? ",fieldLabel:'',boxLabel:'"
+					.append(GenericUtil.uInt(fc.getLookupIncludedParams()) != 0 || fc.getParentFormCellId()==2 ? ",fieldLabel:'',boxLabel:'"
 							: ",fieldLabel:'").append(fieldLabel)
 					.append("',name: '").append(cellDsc).append("'})");
 		case	25://edit-textarea (ozel kodlama)
@@ -3750,20 +3750,13 @@ public class ExtJs3_4 implements ViewAdapter {
 								buf.append(",");
 							else
 								b = true;
-							boolean bb = false;
-							buf.append("{");
+							buf.append("{name:'").append(fc.getDsc()).append("'");
 							for (W5QueryField f : cellResult.getLookupQueryResult().getQuery().get_queryFields()) {
 								
 								Object z = p[f.getTabOrder() - 1];
 								if(z==null)continue;
 								
-
-
-								
-								if (bb)
-									buf.append(",");
-								else
-									bb = true;
+								buf.append(",");
 								if(f.getDsc().equals("dsc"))
 									buf.append("boxLabel:");
 								else if(f.getDsc().equals("id")) {
