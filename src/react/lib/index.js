@@ -40,7 +40,7 @@ var classnames = classNames;
 /** Datetime */
 import "react-datetime/css/react-datetime.css";
 import Datetime from "react-datetime";
-import * as moment from "moment";
+import moment from "moment";
 /** NumberFormat */
 import NumberFormat from "react-number-format";
 // /** ReactRouterDOM */
