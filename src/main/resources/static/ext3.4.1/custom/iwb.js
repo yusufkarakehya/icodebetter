@@ -3903,7 +3903,17 @@ function ajaxErrorHandler(obj) {
         xbuttons.push({
           text: "Java StackTrace",
           handler: function() {
-            alert(obj.stack);
+        	  new Ext.Window({
+        	      modal: true,
+        	      title: "Java StackTrace",
+//        	      cls: "xerror",
+        	      width: 1100, height:600,
+//        	      autoHeight: !0,
+        	      html: '<textarea  style="font-family: monospace !important;width:99.7%; height:100%;color:#ccc; font-size: 12px;overflow: auto;background: #282b31;border: none;">'+
+        	      obj.stack+'</textarea>'
+//        	      buttons: xbuttons
+        	    }).show();
+//            alert(obj.stack);
           }
         });
     }
