@@ -1609,7 +1609,7 @@ function fnNewFileAttachmentMail(a) {
 }
 
 function fnNewFileAttachment(a) {
-  var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
+  var hasReqestedVersion = false; //|| DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
 													// mi onu sorguluyor. (major
 													// ver, minor ver, revision
 													// no)
