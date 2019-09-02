@@ -3792,7 +3792,7 @@ function ajaxErrorHandler(obj) {
       labelSeparator: "",
       hideLabel: !0,
       value:
-        '<span style="font-size:1.5em">' + (obj.error || "Unknown") + "</span>"
+        '<span style="font-size:1.5em">' + (obj.error ? obj.error.substr(0,150) : "Unknown") + "</span>"
     });
     if (false && obj.objectType) {
       items.push({
@@ -3903,7 +3903,17 @@ function ajaxErrorHandler(obj) {
         xbuttons.push({
           text: "Java StackTrace",
           handler: function() {
-            alert(obj.stack);
+        	  new Ext.Window({
+        	      modal: true,
+        	      title: "Java StackTrace",
+        	      cls: "xerror",
+        	      width: 1100, height:600,
+//        	      autoHeight: !0,
+        	      html: '<textarea  style="font-family: monospace !important;width:99.7%; height:100%;color:#ccc; font-size: 12px;overflow: auto;background: #282b31;border: none;">'+
+        	      obj.stack+'</textarea>'
+//        	      buttons: xbuttons
+        	    }).show();
+//            alert(obj.stack);
           }
         });
     }
@@ -7351,115 +7361,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     !getForm.renderTip || getForm.renderTip != 3
       ? extDef.items
       : extDef.items[0].items;
-  if (
-    _app.alarm_view_tip &&
-    1 * _app.alarm_view_tip == 1 &&
-    getForm.alarmTemplates &&
-    getForm.alarmTemplates.length > 0
-  ) {
-    var itx = [],
-      gals = getForm.alarmTemplates;
-    for (var qs = 0; qs < gals.length; qs++) {
-      itx.push(
-        new Ext.form.Checkbox({
-          labelSeparator: "",
-          _controlTip: 5,
-          value: 1,
-          checked: gals[qs].checked,
-          fieldLabel: "",
-          boxLabel: gals[qs].text,
-          id: "_alarm" + getForm.id + gals[qs].xid,
-          disabled: !!gals[qs].disabled
-        })
-      );
-      itx.push(
-        new Ext.ux.form.DateTime({
-          width: 200,
-          id: "_alarm_dttm" + getForm.id + gals[qs].xid,
-          disabled: !!gals[qs].disabled2,
-          value: gals[qs].value || ""
-        })
-      );
-    }
 
-    extraItems.splice(1, 0, {
-      xtype: "fieldset",
-      title: "${Alarms}",
-      id: "alm_" + getForm.id,
-      labelWidth: 100,
-      items: itx
-    });
-  }
-
-  if (
-    _app.form_sms_mail_view_tip &&
-    1 * _app.form_sms_mail_view_tip == 1 &&
-    getForm.smsMailTemplates &&
-    getForm.smsMailTemplates.length > 0
-  ) {
-    var itx = [],
-      gals = getForm.smsMailTemplates;
-    for (var qs = 0; qs < gals.length; qs++) {
-      itx.push(
-        new Ext.form.Checkbox({
-          labelSeparator: "",
-          _controlTip: 5,
-          value: 1,
-          checked: gals[qs].checked,
-          fieldLabel: "",
-          boxLabel: gals[qs].text,
-          id: "_frm_smsmail" + getForm.id + gals[qs].xid,
-          disabled: !!gals[qs].disabled
-        })
-      );
-    }
-    extraItems.splice(1, 0, {
-      xtype: "fieldset",
-      title: "${eposta_sms}",
-      id: "smt_" + getForm.id,
-      labelWidth: 100,
-      items: itx
-    });
-  }
-  if (
-    _app.conversion_view_tip &&
-    1 * _app.conversion_view_tip == 1 &&
-    getForm.conversionForms &&
-    getForm.conversionForms.length > 0
-  ) {
-    var itx = [],
-      gals = getForm.conversionForms;
-    for (var qs = 0, cnvc = 1; qs < gals.length; qs++) {
-      itx.push(
-        gals[qs].text
-          ? new Ext.form.Checkbox({
-              labelSeparator: "",
-              _controlTip: 5,
-              value: 1,
-              checked: gals[qs].checked,
-              fieldLabel: "",
-              boxLabel: gals[qs].text,
-              id: "_cnvrsn" + getForm.id + gals[qs].xid,
-              disabled: !!gals[qs].disabled
-            })
-          : new Ext.form.Label({
-              labelSeparator: "",
-              _controlTip: 102,
-              fieldLabel: gals[qs].lbl + "... #" + cnvc++,
-              html:
-                (gals[qs].sync ? '<i style="color:red">auto_update</i>' : "") +
-                renderParentRecords(gals[qs]._record)
-            })
-      );
-    }
-    extraItems.splice(1, 0, {
-      xtype: "fieldset",
-      title: "Conversion",
-      id: "cnv_" + getForm.id,
-      labelWidth: 100,
-      items: itx
-    });
-  }
 
   function form_extra_processes() {
     // form-sms-mail post process
@@ -7810,6 +7712,9 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       id: "af_" + getForm.id,
       iconAlign: "top",
       scale: "medium",
+      text:(getForm.fileAttachCount > 0
+              ? "<span style='color: white;background: #b78fff;padding: 1px 5px;border-radius: 20px;font-weight: 600;'>" + getForm.fileAttachCount + "</span>"
+                      : undefined),
 
       iconCls: "ifile_attach",
       menu: [

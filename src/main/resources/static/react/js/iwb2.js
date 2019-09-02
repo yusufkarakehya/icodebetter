@@ -3585,16 +3585,16 @@ class XGridRowAction extends React.PureComponent {
                 },
                 cls = ""
               }) => {
-                cls = cls.split("|");
+//                cls = cls.split("|");
                 return _(
                   DropdownItem,
                   {
                     key: text,
                     onClick: event =>
                       handler.call(this.state, event, rowData, parentCt),
-                    className: cls[1]
+//                    className: cls[1]
                   },
-                  _("span", { className: "mr-2 " + cls[0] }),
+                  _("span", { className: "mr-2 icon-" + cls }),
                   text
                 );
               }
@@ -5676,7 +5676,7 @@ class XMainGrid extends GridCommon {
             ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
             : [5, 10, 25, 100],
         currentPage: 0,
-        hideSF: true,
+        hideSF: !props.showSF,
         loading: false
       };
       props.detailGrids &&
@@ -6328,7 +6328,7 @@ class XMainGrid extends GridCommon {
           CardHeader,
           {className:'pt-0 pb-1'},
           searchForm &&
-            _(
+          !this.props.showSF && _(
               Button,
               {
                 className: "btn-round-shadow ml-1",
@@ -6342,7 +6342,7 @@ class XMainGrid extends GridCommon {
                 })
               })
             ),
-          _(
+          !this.props.showSF && _(
             Button,
             {
               className: "btn-round-shadow ml-1",

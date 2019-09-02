@@ -4075,6 +4075,8 @@ public class ExtJs3_4 implements ViewAdapter {
 		if (controlTip == 56) {
 			buf.append(",CKConfig: {customConfig : '../scripts/ext3.3/ckeditor/config.js'}");
 		}
+		if(controlTip==1)
+			buf.append(",cls:'x-icb-text'");
 
 		if (fc.getMaxLength()!=null && fc.getMaxLength() > 0)
 			buf.append(",maxLength:").append(fc.getMaxLength());
