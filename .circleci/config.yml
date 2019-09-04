@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  graal:
+  build:
     docker:
       - image: circleci/openjdk:11.0.1-jdk
     steps:
@@ -16,7 +16,7 @@ jobs:
       - run:
           name: Build and push graal image
           command: mvn compile jib:build -Dimage=icodebetter/graal_image
-  normal:
+  test:
     docker:
       - image: circleci/openjdk:11.0.1-jdk
     steps:
