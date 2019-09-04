@@ -2433,13 +2433,16 @@ public class AppController implements InitializingBean {
 			if (6020 < totalBytesRead) {
 				return "{ \"success\": false , \"msg\":\"" + LocaleMsgCache.get2(scd, "max_file_size") + " = 5KB\"}";
 			}
+			System.out.println("before cacertsfile");
 			final char sep = File.separatorChar;
 		    File dir = new File(System.getProperty("java.home") + sep + "lib" + sep + "security");
 		    File cacertsFile = new File(dir, "cacerts");
+		    System.out.println("after cacertsfile");
 		    
 			KeyStore ks = KeyStore.getInstance("JKS");
 			char[] pwdArray = "changeit".toCharArray();
 			ks.load(new FileInputStream(cacertsFile), pwdArray);
+			System.out.println("after load ks");
 			
 			String fileName = file.getOriginalFilename();
 			int dotIndex = fileName.indexOf('.');
@@ -2450,15 +2453,19 @@ public class AppController implements InitializingBean {
 				return "{ \"success\": false, \"msg\":"
 						+ "\"keystore contains this alias, please upload certificate file with different name\" }";
 			}
+			System.out.println("after alias contains");
 			InputStream inputStream =  new BufferedInputStream(file.getInputStream());
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
 			Certificate cert = cf.generateCertificate(inputStream);
+			System.out.println("after generate cert");
 			ks.setCertificateEntry(newAlias, cert);
+			System.out.println("after setting cert");
 			
 			OutputStream out = new FileOutputStream(cacertsFile);
 			ks.store(out, pwdArray);
 		    out.close();
 			
+		    System.out.println("after saving cacerts");
 		    return "{ \"success\": true}";
 				
 		}catch(Exception e) {
