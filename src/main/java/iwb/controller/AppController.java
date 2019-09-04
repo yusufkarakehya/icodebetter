@@ -2437,7 +2437,7 @@ public class AppController implements InitializingBean {
 			final char sep = File.separatorChar;
 		    File dir = new File(System.getProperty("java.home") + sep + "lib" + sep + "security");
 		    File cacertsFile = new File(dir, "cacerts");
-		    System.out.println("after cacertsfile");
+		    System.out.println(cacertsFile);
 		    
 			KeyStore ks = KeyStore.getInstance("JKS");
 			char[] pwdArray = "changeit".toCharArray();
@@ -2464,8 +2464,11 @@ public class AppController implements InitializingBean {
 			OutputStream out = new FileOutputStream(cacertsFile);
 			ks.store(out, pwdArray);
 		    out.close();
-			
-		    System.out.println("after saving cacerts");
+					    
+		    Certificate test = ks.getCertificate(newAlias);
+		    if(test != null) {
+		    	System.out.println("cert is saved.");
+		    }
 		    return "{ \"success\": true}";
 				
 		}catch(Exception e) {
