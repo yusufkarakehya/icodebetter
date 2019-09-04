@@ -8,10 +8,13 @@
  */
 package iwb.controller;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,6 +23,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -2408,5 +2416,58 @@ public class AppController implements InitializingBean {
     	}
 
 		response.getWriter().close();
-	}	
+	}
+	
+	@RequestMapping(value = "/addClusterCert", method = RequestMethod.POST)
+	public String hndAddClusterCertificate(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("addClusterCert");
+		
+		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
+		
+		long fileId = new Date().getTime();
+		int totalBytesRead = (int) file.getSize();
+		
+		try {			
+			if (6020 < totalBytesRead) {
+				return "{ \"success\": false , \"msg\":\"" + LocaleMsgCache.get2(scd, "max_file_size") + " = 5KB\"}";
+			}
+			final char sep = File.separatorChar;
+		    File dir = new File(System.getProperty("java.home") + sep + "lib" + sep + "security");
+		    File cacertsFile = new File(dir, "cacerts");
+		    
+			KeyStore ks = KeyStore.getInstance("JKS");
+			char[] pwdArray = "changeit".toCharArray();
+			ks.load(new FileInputStream(cacertsFile), pwdArray);
+			
+			String fileName = file.getOriginalFilename();
+			int dotIndex = fileName.indexOf('.');
+			String newAlias = fileName.substring(0, dotIndex);
+			boolean contains = ks.containsAlias(newAlias);
+			
+			if(contains) {
+				return "{ \"success\": false, \"msg\":"
+						+ "\"keystore contains this alias, please upload certificate file with different name\" }";
+			}
+			InputStream inputStream =  new BufferedInputStream(file.getInputStream());
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			Certificate cert = cf.generateCertificate(inputStream);
+			ks.setCertificateEntry(newAlias, cert);
+			
+			OutputStream out = new FileOutputStream(cacertsFile);
+			ks.store(out, pwdArray);
+		    out.close();
+			
+		    return "{ \"success\": true}";
+				
+		}catch(Exception e) {
+			if (true || FrameworkSetting.debug)
+				e.printStackTrace();
+			return "{ \"success\": false }";
+		}
+
+	}
+	
+	
 }
