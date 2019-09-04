@@ -15,7 +15,7 @@ jobs:
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run:
           name: Build and push graal image
-          command: mvn compile jib:build -Dimage=icodebetter/graal_image
+          command: mvn compile jib:build -Dimage=icodebetter/graal_image -Djib.useOnlyProjectCache=true
   from_jdk:
     docker:
       - image: circleci/openjdk:11.0.1-jdk
@@ -31,7 +31,7 @@ jobs:
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run:
           name: Build and push normal image
-          command: mvn compile jib:build -Djib.from.image=openjdk:alpine -Djib.to.image=docker.io/icodebetter/app_image 
+          command: mvn compile jib:build -Djib.from.image=openjdk:alpine -Djib.to.image=docker.io/icodebetter/app_image -Djib.useOnlyProjectCache=true
 
 workflows:
   version: 2
