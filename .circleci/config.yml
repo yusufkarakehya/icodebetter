@@ -16,7 +16,7 @@ jobs:
       - run:
           name: Build and push graal image
           command: mvn compile jib:build -Dimage=icodebetter/graal_image
-  test:
+  from_jdk:
     docker:
       - image: circleci/openjdk:11.0.1-jdk
     steps:
@@ -33,3 +33,9 @@ jobs:
           name: Build and push normal image
           command: mvn compile jib:build -Djib.from.image=openjdk:alpine -Djib.to.image=docker.io/icodebetter/app_image 
 
+workflows:
+  version: 2
+  build_both:
+    jobs:
+      - build
+      - from_jdk
