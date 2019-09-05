@@ -2419,6 +2419,7 @@ public class AppController implements InitializingBean {
 	}
 	
 	@RequestMapping(value = "/addClusterCert", method = RequestMethod.POST)
+	@ResponseBody
 	public String hndAddClusterCertificate(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("addClusterCert");
@@ -2459,8 +2460,7 @@ public class AppController implements InitializingBean {
 			ks.store(out, pwdArray);
 		    out.close();
 					    
-		    return "{ \"success\": true, \"fileId\": "+ newAlias + ", \"fileName\": \""
-			+ newAlias + "\"}";
+		    return "{ \"success\": true}";
 				
 		}catch(Exception e) {
 			if (true || FrameworkSetting.debug)
