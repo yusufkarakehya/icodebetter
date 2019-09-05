@@ -2459,7 +2459,8 @@ public class AppController implements InitializingBean {
 			ks.store(out, pwdArray);
 		    out.close();
 					    
-		    return "{ \"success\": true}";
+		    return "{ \"success\": true, \"fileId\": "+ newAlias + ", \"fileName\": \""
+			+ newAlias + "\"}";
 				
 		}catch(Exception e) {
 			if (true || FrameworkSetting.debug)
