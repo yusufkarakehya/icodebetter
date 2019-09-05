@@ -118,7 +118,7 @@
 } */
 .single-upload #files {
     overflow-y: scroll !important;
-    min-height: 320px;
+    min-height: 50px;
 }
 .single-upload .p-2 {
     padding: .5rem!important;
