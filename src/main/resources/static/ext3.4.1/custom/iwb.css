@@ -1218,3 +1218,11 @@ a.x-menu-item{
 .vcs-diff{
 	color:#ff9797 !important;
 }
+
+.file-count-badge{
+	color: white;
+	background: #b78fff;
+	padding: 1px 5px;
+	border-radius: 20px;
+	font-weight: 600;
+}

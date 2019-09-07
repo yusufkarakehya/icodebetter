@@ -1995,6 +1995,20 @@ public class GenericUtil {
 		}
 		return html.toString();
 	}
+	
+
+	public static String fromMapToHtmlString2(Map scd, Map s) {
+		if (s == null || s.isEmpty())
+			return "";
+		StringBuilder html = new StringBuilder();
+		boolean b = false;
+		for (Object q : s.keySet()) {
+			html.append("<li>");
+			Object o = s.get(q);
+			html.append("<b>").append(LocaleMsgCache.get2(scd, q.toString())).append("</b>:").append(o != null ? stringToJS(o.toString()) : "");
+		}
+		return html.toString();
+	}
 
 	public static boolean isEmpty(Object o) {
 		if (o == null)

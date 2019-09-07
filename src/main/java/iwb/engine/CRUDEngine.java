@@ -1222,10 +1222,9 @@ public class CRUDEngine {
 
 			if (!formResult.getErrorMap().isEmpty()) {
 				throw new IWBException("validation", "Form", formId, null,
-						"Detay Mazgal Veri Geçerliliği("
-								+ LocaleMsgCache.get2((Integer) scd.get("customizationId"), (String) scd.get("locale"),
-										formResult.getForm().getLocaleMsgKey())
-								+ "): " + GenericUtil.fromMapToJsonString(formResult.getErrorMap()),
+						"Detail Validation("
+								+ LocaleMsgCache.get2(scd,formResult.getForm().getLocaleMsgKey())
+								+ "): " + GenericUtil.fromMapToHtmlString2(formResult.getScd(), formResult.getErrorMap()),
 						null);
 			} else if (!GenericUtil.isEmpty(formResult.getOutputFields()))
 				for (String key : formResult.getOutputFields().keySet()) {

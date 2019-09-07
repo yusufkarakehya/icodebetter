@@ -950,27 +950,23 @@ var recordInfoWindow = null;
 function renderTableRecordInfo(j) {
   if (!j || !j.dsc) return false;
   var s = "<p>";
-  if (j.profile_picture_id) s += Ext.util.Format.getPic3Mini(j) + " &nbsp;";
+  s += "<img src='./sf/pic"+ j.insert_user_id+ ".png' style='vertical-align: bottom;' class='ppic-mini'> &nbsp;";
   s +=
-    '<a href=# style="font-size:16px;color:#95d847" onclick="return fnTblRecEdit(' +
+    '<a href=# style="font-size:26px;color:#b5b5b5" onclick="return fnTblRecEdit(' +
     j.tableId +
     "," +
     j.tablePk +
     ', true);">' +
     j.dsc +
-    "</a></p><table border=0 width=100%><tr><td width=70% valign=top>";
+    " &nbsp; <i style='color:#7dd7ff;' class='icon-share-alt'></i></a></p><table border=0 width=100%><tr><td width=70% valign=top>";
   if (j.commentFlag && j.commentCount > 0)
     s +=
       ' &nbsp; <img src="/ext3.4.1/custom/images/comments-16.png" title="Comments"> ' +
       j.commentCount;
   if (j.fileAttachFlag && j.fileAttachCount > 0)
     s +=
-      ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="İlişkili Dosyalar"> ' +
+      ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="Related Files"> ' +
       j.fileAttachCount;
-  if (j.accessControlFlag && j.accessControlCount > 0)
-    s +=
-      ' &nbsp; <img src="/ext3.4.1/custom/images/key-16.png" title="Kayıt Bazlı Güvenlik"> ' +
-      j.accessControlCount;
   s += "</td><td width=30% align=right valign=top>";
   if (j.formSmsMailCount)
     s +=
@@ -980,14 +976,14 @@ function renderTableRecordInfo(j) {
     s +=
       ' &nbsp; <img src="/ext3.4.1/custom/images/gear-16.png" title="Form Conversions"> ' +
       j.conversionCount;
-  s += "</td></tr></table><hr>";
+  s += "</td></tr></table>";
   var rs = j.parents;
   var ss = "";
   for (var qi = rs.length - 1; qi >= 0; qi--) {
     var r = rs[qi];
     if (qi != rs.length - 1) ss += "<br>";
     for (var zi = rs.length - 1; zi > qi; zi--) ss += " &nbsp; &nbsp;";
-    ss += "&gt " + (qi != 0 ? r.tdsc : "<b>" + r.tdsc + "</b>");
+    ss += "<span style='color:orange'>-</span> &nbsp;" + (qi != 0 ? r.tdsc : "<b>" + r.tdsc + "</b>");
     if (r.dsc) {
       var rdsc = r.dsc;
       if (rdsc.length > 300) rdsc = rdsc.substring(0, 297) + "...";
@@ -1003,50 +999,40 @@ function renderTableRecordInfo(j) {
           : ": " + rdsc; // else ss+=': (...)';
     }
   }
-  ss = '<div class="dfeed">' + ss + "</div>";
-  /*
-	 * rs=j.parents[0]; if(typeof rs.tcc!='undefined')ss+=' · ' + ('<a href=#
-	 * onclick="return fnTblRecComment('+j.tableId+','+j.tablePk+');">'+(!rs.tcc ?
-	 * 'Yorum Yap':('Yorumlar ('+rs.tcc+')'))+'</a>') if(typeof
-	 * rs.tfc!='undefined')ss+=' · ' + ('<a href=# onclick="return
-	 * fnNewFileAttachment4Form('+j.tableId+','+j.tablePk+');">'+(!rs.tfc ?
-	 * 'İlişkili Dosyalar':('İlişkili Dosyalar ('+rs.tfc+')'))+'</a>')
-	 */
+  ss = '<div class="dfeed" style="color: #b1b1b1;padding-left:16px;font-size: 13px;">' + ss + "</div>";
 
   s += ss + "<p><br>";
   if (j.insert_user_id) {
     s +=
-      '<span class="cfeed"> · <a href=# onclick="return openChatWindow(' +
+      '<span class="cfeed"> · Created by <a href=# onclick="return openChatWindow(' +
       j.insert_user_id +
       ",'" +
       j.insert_user_id_qw_ +
       "',true)\">" +
       j.insert_user_id_qw_ +
-      "</a> tarafindan " +
-      j.insert_dttm +
-      " tarihinde kayıt yapılmış";
+      "</a> @ " +
+      j.insert_dttm;
     if (j.version_no && j.version_no > 1)
       s +=
-        '<br> · <a href=# onclick="return openChatWindow(' +
+        '<br> · Last modified by <a href=# onclick="return openChatWindow(' +
         j.version_user_id +
         ",'" +
         j.version_user_id_qw_ +
         "',true)\">" +
         j.version_user_id_qw_ +
-        "</a> tarafindan " +
+        "</a> @ " +
         j.version_dttm +
-        " tarihinde son kez değiştirilmiş <br> · toplam " +
+        " <br> · " +
         j.version_no +
-        " kere değiştirilmiş</span><p>";
+        " times modified</span>";
   }
 
   rs = j.childs;
   if (!rs || !rs.length) return s;
-  ss = "<br><b>Details</b>";
+  ss = "<p><br><span style='color:#aaa;font-size:20px'>Details</span><div style='padding: 4px;font-size: 13px;'>";
   for (var qi = 0; qi < rs.length; qi++) {
     var r = rs[qi];
     ss +=
-      "<br> · " +
       (r.vtip
         ? '<a href=# id="idLinkRel_' +
           r.rel_id +
@@ -1064,25 +1050,27 @@ function renderTableRecordInfo(j) {
           r.tdsc +
           "</a>"
         : r.dsc) +
-      " (" +
+      " <span style='background: #F44336;padding: 1px 6px;border-radius: 20px;color: white;'>" +
       r.tc +
       (_app.table_children_max_record_number &&
       1 * r.tc == 1 * _app.table_children_max_record_number - 1
         ? "+"
         : "") +
-      " adet)";
+      "</span>";
     if (r.tcc)
       ss +=
         ' &nbsp; <img src="/ext3.4.1/custom/images/comments-16.png" title="Comments"> ' +
         r.tcc;
     if (r.tfc)
       ss +=
-        ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="İlişkili Dosyalar"> ' +
+        ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="Related Files"> ' +
         r.tfc;
 
+    ss+='<br>'
     // if(r.dsc)ss+=(qi!=0 ? ': '+r.dsc:': <b>'+r.dsc+'</b>');// else ss+=':
 	// (...)';
   }
+  s+='</div>'
   return s + ss;
 }
 
@@ -1110,16 +1098,16 @@ function fnTblRecEdit(tid, tpk, b) {
             // recordInfoWindow.destroy();
             recordInfoWindow.update(renderTableRecordInfo(j));
             recordInfoWindow.setTitle(j.parents[0].tdsc);
-            recordInfoWindow.setIconClass("icon-folder-explorer");
+//            recordInfoWindow.setIconClass("icon-folder-explorer");
           } else {
             recordInfoWindow = new Ext.Window({
               modal: true,
               shadow: false,
               title: j.parents[0].tdsc,
-              width: 500,
+              width: 600,
               autoHeight: true,
-              bodyStyle: "padding:3px;",
-              iconCls: "icon-folder-explorer",
+              bodyStyle: "padding:10px;",
+//              iconCls: "icon-folder-explorer",
               border: false,
               html: renderTableRecordInfo(j)
             });
@@ -3775,7 +3763,7 @@ function ajaxErrorHandler(obj) {
       msg += obj.error;
     }
     msg += "</ul>";
-    Ext.infoMsg.msg("error", msg);
+    Ext.infoMsg.msg("error", msg, 5);
   } else if (obj.errorType && obj.errorType == "session") showLoginDialog(obj);
   else if (obj.errorType && obj.errorType == "security")
     Ext.infoMsg.msg(
@@ -7726,7 +7714,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       iconAlign: "top",
       scale: "medium",
       text:(getForm.fileAttachCount > 0
-              ? "<span style='color: white;background: #b78fff;padding: 1px 5px;border-radius: 20px;font-weight: 600;'>" + getForm.fileAttachCount + "</span>"
+              ? "<span class='file-count-badge'>" + getForm.fileAttachCount + "</span>"
                       : undefined),
 
       iconCls: "ifile_attach",
@@ -8120,7 +8108,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
                 params: params,
                 successCallback: function() {
                   getForm._loaded = false;
-                  Ext.infoMsg.alert("success", "saved");
+                  Ext.infoMsg.msg("success", "Template Saved", 3);
                 }
               });
             }

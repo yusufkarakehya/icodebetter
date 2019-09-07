@@ -5287,9 +5287,9 @@ public class ExtJs3_4 implements ViewAdapter {
 						.get_tableFieldMap().get(f.getMainTableFieldId())
 						: null;
 				if (tf != null) {
-					if (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
+					if (!GenericUtil.accessControl4SessionField(scd, tf.getRelatedSessionField()) || (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
 							tf.getAccessViewTip(), tf.getAccessViewRoles(),
-							tf.getAccessViewUsers()))
+							tf.getAccessViewUsers())))
 						continue;// access control
 				}
 				List lq = map.get(c.getGridModuleId());
@@ -5336,9 +5336,9 @@ public class ExtJs3_4 implements ViewAdapter {
 							: null;
 					if (tf != null) {
 
-						if (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
+						if (!GenericUtil.accessControl4SessionField(scd, tf.getRelatedSessionField()) || (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
 								tf.getAccessViewTip(), tf.getAccessViewRoles(),
-								tf.getAccessViewUsers()))
+								tf.getAccessViewUsers())))
 							continue;// access control
 					}
 					newColumns.add(c);
