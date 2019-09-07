@@ -204,7 +204,7 @@ function accessControlHtml(x) {
 
 function fileAttachmentHtml(x) {
   return x
-    ? '<img src="/images/custom/bullet_file_attach.png" border=0>'
+    ? '<div class="ifile_attach"> &nbsp;</div>'
     : "";
 }
 function fieldFileAttachment(x) {
@@ -216,13 +216,13 @@ function fieldFileAttachment(x) {
 function fileAttachmentRenderer(a) {
   return function(ax, bx, cx) {
     return ax
-      ? '<img src="/images/custom/bullet_file_attach.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
+      ? '<div class="ifile_attach" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
           a.name +
           "',href:'showPage?_tid=518&_gid1=458&_gid458_a=1',_pk:{tfile_attachment_id:'file_attachment_id'},baseParams:{xtable_id:" +
           a.crudTableId +
           ", xtable_pk:" +
           cx.id +
-          '}}});">'
+          '}}});"> &nbsp;</div>'
       : "";
   };
 }
@@ -1609,10 +1609,6 @@ function fnNewFileAttachmentMail(a) {
 }
 
 function fnNewFileAttachment(a) {
-  var hasReqestedVersion = DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
-													// mi onu sorguluyor. (major
-													// ver, minor ver, revision
-													// no)
   var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
@@ -1624,22 +1620,14 @@ function fnNewFileAttachment(a) {
   }
   var table_pk = "";
   for (var key in a._grid._pk) table_pk += "|" + sel.data[a._grid._pk[key]];
-  if (hasReqestedVersion && a._grid.gridId * 1 != 1082) {
-    // Acente/Bayi logolarının eklenmesi biraz farklı
-    var href =
-      "showForm?_fid=714&_did=447&table_id=" +
-      a._grid.crudTableId +
-      "&table_pk=" +
-      table_pk.substring(1) +
-      image_param;
-  } else {
-    var href =
+
+   var href =
       "showForm?a=2&_fid=43&table_id=" +
       a._grid.crudTableId +
       "&table_pk=" +
       table_pk.substring(1) +
       image_param;
-  }
+
   mainPanel.loadTab({
     attributes: {
       modalWindow: true,
@@ -2344,6 +2332,30 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
             handler: fnNewFileAttachment
           },
           {
+              text: getLocMsg("related_files"),
+              _grid: xgrid,
+              handler: function(a, b, c) {
+                var xgrid = a._grid;
+                var sel = getSel(a._grid);
+                if(!sel)return;
+                var cfg = {
+                  attributes: {
+                    modalWindow: true,
+                    href: "showPage?_tid=518&_gid1=458",
+                    _pk: {
+                      tfile_attachment_id: "file_attachment_id"
+                    },
+                    baseParams: {
+                      xtable_id: xgrid.crudTableId,
+                      xtable_pk: sel.id
+                    }
+                  }
+                };
+               // cfg.attributes._title_ = getForm.name;
+                mainPanel.loadTab(cfg);
+              }
+          }
+         /* {
             text: getLocMsg("js_add_from_external_url"),
             _grid: xgrid,
             handler: fnNewFileAttachment4ExternalUrl
@@ -2362,7 +2374,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
                 }
               });
             }
-          }
+          }*/
         ]
       });
     } else {
@@ -3906,8 +3918,8 @@ function ajaxErrorHandler(obj) {
         	  new Ext.Window({
         	      modal: true,
         	      title: "Java StackTrace",
-        	      cls: "xerror",
-        	      width: 1100, height:600,
+//        	      cls: "xerror",
+        	      width: 900, height:600,
 //        	      autoHeight: !0,
         	      html: '<textarea  style="font-family: monospace !important;width:99.7%; height:100%;color:#ccc; font-size: 12px;overflow: auto;background: #282b31;border: none;">'+
         	      obj.stack+'</textarea>'
