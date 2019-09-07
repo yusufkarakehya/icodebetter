@@ -203,8 +203,7 @@ public class ExternalDBSql {
 								W5TableField tf = queryResult.getMainTable() != null && qf.getMainTableFieldId() > 0
 										? queryResult.getMainTable().get_tableFieldMap().get(qf.getMainTableFieldId())
 										: null;
-								if (tf == null || ((GenericUtil.isEmpty(tf.getRelatedSessionField())
-										|| GenericUtil.uInt(queryResult.getScd().get(tf.getRelatedSessionField())) != 0)
+								if (tf == null || (GenericUtil.accessControl4SessionField(queryResult.getScd(), tf.getRelatedSessionField())
 										&& (tf.getAccessViewUserFields() != null || GenericUtil.accessControl(
 												queryResult.getScd(), tf.getAccessViewTip(), tf.getAccessViewRoles(),
 												tf.getAccessViewUsers())))) { // access

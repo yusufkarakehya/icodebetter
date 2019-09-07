@@ -684,9 +684,7 @@ public class PostgreSQL extends BaseDAO {
 														? queryResult.getMainTable().get_tableFieldMap().get(
 																qf.getMainTableFieldId())
 														: null;
-										if (tf == null || ((GenericUtil.isEmpty(tf.getRelatedSessionField())
-												|| GenericUtil.uInt(
-														queryResult.getScd().get(tf.getRelatedSessionField())) != 0)
+										if (tf == null || (GenericUtil.accessControl4SessionField(queryResult.getScd(), tf.getRelatedSessionField())
 												&& (tf.getAccessViewUserFields() != null || GenericUtil.accessControl(
 														queryResult.getScd(), tf.getAccessViewTip(),
 														tf.getAccessViewRoles(), tf.getAccessViewUsers())))) { // access
@@ -1277,8 +1275,7 @@ public class PostgreSQL extends BaseDAO {
 												formResult.getRequestParams(), null))))
 							continue;
 					}
-					if (!GenericUtil.isEmpty(tf.getRelatedSessionField())
-							&& GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField())) == 0)
+					if (!GenericUtil.accessControl4SessionField(formResult.getScd(), tf.getRelatedSessionField()))
 						continue;
 					if (formResult.getApprovalStep() != null
 							&& !GenericUtil.isEmpty(formResult.getApprovalStep().getVisibleFields())
@@ -1658,8 +1655,7 @@ public class PostgreSQL extends BaseDAO {
 							if (!GenericUtil.accessControl(formResult.getScd(), tf.getAccessInsertTip(),
 									tf.getAccessInsertRoles(), tf.getAccessInsertUsers()))
 								continue; // access control
-							if (!GenericUtil.isEmpty(tf.getRelatedSessionField())
-									&& GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField())) == 0)
+							if (!GenericUtil.accessControl4SessionField(formResult.getScd(),tf.getRelatedSessionField()))
 								continue;
 						}
 					}
@@ -1775,8 +1771,7 @@ public class PostgreSQL extends BaseDAO {
 								tf.getAccessUpdateUserFields(), scd, formResult.getRequestParams(), paramSuffix)))
 					continue;
 
-				if (!GenericUtil.isEmpty(tf.getRelatedSessionField())
-						&& GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField())) == 0)
+				if (!GenericUtil.accessControl4SessionField(formResult.getScd(), tf.getRelatedSessionField()))
 					continue;
 
 				if (moduleMap != null && moduleMap.get(x.getFormModuleId()) != null) {
@@ -2343,8 +2338,7 @@ public class PostgreSQL extends BaseDAO {
 					continue; // access control
 
 				// related session field control
-				if (!GenericUtil.isEmpty(tf.getRelatedSessionField())
-						&& GenericUtil.uInt(formResult.getScd().get(tf.getRelatedSessionField())) == 0)
+				if (!GenericUtil.accessControl4SessionField(formResult.getScd(),tf.getRelatedSessionField()))
 					continue;
 
 				// module view control

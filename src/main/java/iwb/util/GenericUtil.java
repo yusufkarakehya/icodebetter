@@ -2658,4 +2658,16 @@ public class GenericUtil {
 	public static String getTransactionId() {
 		return UUID.randomUUID().toString();
 	}
+	
+	public static boolean accessControl4SessionField(Map<String, Object> scd, String relatedSessionField) {
+		if(isEmpty(relatedSessionField))return true;
+		boolean not = false;
+		if(relatedSessionField.charAt(0)=='!') {
+			not = true;
+			relatedSessionField = relatedSessionField.substring(1);
+		}
+		int val = relatedSessionField.startsWith("app.") ? FrameworkCache.getAppSettingIntValue(scd, relatedSessionField.substring(4)) : uInt(scd.get(relatedSessionField));
+		return not ? val==0 : val!=0;
+		
+	}
 }

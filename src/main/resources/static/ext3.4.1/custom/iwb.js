@@ -2952,7 +2952,7 @@ function addTab4GridWSearchForm(obj) {
           region: "north", autoHeight: true,anchor: "100%",
 // region: "west", width:300,
         cls:'iwb-search-form', // collapseMode: 'mini',
-        collapsible: true, animate: false, animCollapse: false, animFloat:false,
+        collapsible: !iwb.noCollapsibleSearchForm, animate: false, animCollapse: false, animFloat:false,
         title: mainGrid.name,
         border: false,
         // tools:searchFormTools,
@@ -3229,7 +3229,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		        region: "north",autoHeight: true, anchor: "100%",
 // region: "west", width:300,
 		        cls:'iwb-search-form',// collapseMode: 'mini',
-		        collapsible: true, animate: false, animCollapse: false, animFloat:false,
+		        collapsible: !iwb.noCollapsibleSearchForm, animate: false, animCollapse: false, animFloat:false,
 		        title: mainGrid.gridId ? mainGrid.name : 'Advanced Search',
 		        border: false,
 		        id: "sf_" + (obj.t || Math.random()),
@@ -3241,7 +3241,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		        }
 		      };
 	  if(mainGrid.dataViewId){
-		  sfCfg.collapsed=!0; sfCfg._grid=mainGrid; sfCfg.collapseMode= 'mini';
+		  sfCfg.collapsed=true; sfCfg._grid=mainGrid; sfCfg.collapseMode= 'mini';
 		  sfCfg.listeners={expand:function(ax,bx,cx){
 			  Ext.getCmp('sf-card-'+obj.t).hide();
 		  }, collapse:function(ax,bx,cx){
@@ -5935,7 +5935,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       region: "north",autoHeight: true, anchor: "100%",
 // region: "west", width:300,
       cls:'iwb-search-form', // collapseMode: 'mini',
-      collapsible: true, animate: false, animCollapse: false, animFloat:false,
+      collapsible: !iwb.noCollapsibleSearchForm, animate: false, animCollapse: false, animFloat:false,
       title: mainGrid.name,
       border: false,
       keys: {
