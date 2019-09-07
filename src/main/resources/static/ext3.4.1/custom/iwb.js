@@ -1609,6 +1609,7 @@ function fnNewFileAttachmentMail(a) {
 }
 
 function fnNewFileAttachment(a) {
+  var hasReqestedVersion = false; //|| DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
   var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
