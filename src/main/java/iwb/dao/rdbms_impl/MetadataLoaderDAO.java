@@ -882,7 +882,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			W5QueryField f = new W5QueryField();
 			f.setDsc(FieldDefinitions.queryFieldName_FileAttachment);
 			f.setFieldTip((short) 2); // file attachment
-			f.setTabOrder((short) 22); // aslinda width
+			f.setTabOrder((short) 35); // aslinda width
 			l.get_postProcessQueryFields().add(f);
 		}
 		if (FrameworkCache.getAppSettingIntValue(scd, "make_comment_flag") != 0 && t.getMakeCommentFlag() != 0) { // table
@@ -892,7 +892,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			W5QueryField f = new W5QueryField();
 			f.setDsc(FieldDefinitions.queryFieldName_Comment);
 			f.setFieldTip((short) 3); // comment
-			f.setTabOrder((short) 22); // aslinda width
+			f.setTabOrder((short) 35); // aslinda width
 			// if(PromisSetting.commentSummary)f.set
 			l.get_postProcessQueryFields().add(f);
 		}
@@ -902,7 +902,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			W5QueryField f = new W5QueryField();
 			f.setDsc(FieldDefinitions.queryFieldName_Vcs);
 			f.setFieldTip((short) 9); // vcs
-			f.setTabOrder((short) 32); // aslinda width
+			f.setTabOrder((short) 35); // aslinda width
 			l.get_postProcessQueryFields().add(f);
 		}
 	}

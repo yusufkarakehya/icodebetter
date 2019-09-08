@@ -216,13 +216,13 @@ function fieldFileAttachment(x) {
 function fileAttachmentRenderer(a) {
   return function(ax, bx, cx) {
     return ax
-      ? '<div class="ifile_attach" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
+      ? '<div style="background-position-x:center" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
           a.name +
           "',href:'showPage?_tid=518&_gid1=458&_gid458_a=1',_pk:{tfile_attachment_id:'file_attachment_id'},baseParams:{xtable_id:" +
           a.crudTableId +
           ", xtable_pk:" +
           cx.id +
-          '}}});"> &nbsp;</div>'
+          '}}});"> <span class="file-count-badge">'+ax+'</span></div>'
       : "";
   };
 }
@@ -2821,8 +2821,8 @@ function addTab4GridWSearchForm(obj) {
 
   var grdExtra = {
 // stripeRows: true,
-    region: "center", cls:'iwb-grid-'+mainGrid.gridId,
-    border: false,
+    region: "center", cls:'iwb-grid-'+mainGrid.gridId+ ' x-master-grid',
+    border: false, 
     clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
   };
   if (obj.t) mainGrid.id = obj.t + "-" + mainGrid.gridId;
@@ -3036,7 +3036,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 
   var grdExtra = Ext.apply(
     {
-      region: obj.region || (mainGrid.gridId?"north":"west"),cls:'iwb-grid-'+mainGrid.gridId,
+      region: obj.region || (mainGrid.gridId?"north":"west"),cls:'iwb-grid-'+mainGrid.gridId+ ' x-master-grid',
       autoScroll: true,
       border: false
     },
@@ -8247,7 +8247,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   }
 
   // manual form-conversion menu
-  if (1 * getForm.a == 1) {
+  if (false && 1 * getForm.a == 1) {
     var pk = null,
       toolButtons = [];
     for (var xi in getForm.pk)

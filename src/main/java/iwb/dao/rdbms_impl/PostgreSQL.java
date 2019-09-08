@@ -4081,7 +4081,7 @@ public class PostgreSQL extends BaseDAO {
 
 	public W5TableRecordInfoResult getTableRecordInfo(Map<String, Object> scd, int tableId, int tablePk) {
 		W5TableRecordInfoResult result = new W5TableRecordInfoResult(scd, tableId, tablePk);
-		;
+		checkTenant(scd);
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		if (t == null || !accessControlTable(scd, t, tablePk))
 			return null;
