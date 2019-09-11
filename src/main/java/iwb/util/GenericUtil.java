@@ -1615,7 +1615,7 @@ public class GenericUtil {
 		int paramIndex = 0;
 		for (int i = 0; i < sql.length(); i++)
 			if (sql.charAt(i) == '?') {
-				Object o = params.get(paramIndex++);
+				Object o = params!=null && params.size()>paramIndex? params.get(paramIndex++):null;
 				if (o == null)
 					b.append("null");
 				else if (o instanceof String)

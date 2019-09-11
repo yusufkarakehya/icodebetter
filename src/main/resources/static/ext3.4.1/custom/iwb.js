@@ -1775,7 +1775,7 @@ function fnCommit(a) {
             var str = "";
             if (j2.msgs) str = j2.msgs.join("<br>") + "<p>";
             if (j2.logErrors) str += prepareLogErrors(j2);
-            Ext.infoMsg.alert("info", str);
+            Ext.infoMsg.msg("success", str);
           }
         }
       });
@@ -3036,7 +3036,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 
   var grdExtra = Ext.apply(
     {
-      region: obj.region || (mainGrid.gridId?"north":"west"),cls:'iwb-grid-'+mainGrid.gridId+ ' x-master-grid',
+      region: obj.region || (mainGrid.gridId?"north":"west"),cls:'iwb-grid-'+mainGrid.gridId+ (!master_flag?' x-master-grid':''),
       autoScroll: true,
       border: false
     },
@@ -8040,7 +8040,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     if (getForm.commentFlag || getForm.fileAttachFlag) btn.push("-");
   }
 
-  btn.push({
+  if(!getForm.viewMode)btn.push({
 	tooltip: "Templates",
     id: "ttemp_" + getForm.id,
     iconAlign: "top",

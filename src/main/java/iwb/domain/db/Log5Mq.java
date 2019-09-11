@@ -28,7 +28,15 @@ public class Log5Mq implements Serializable, Log5Base{
 
 	public String toInfluxDB() {
 		StringBuilder s=new StringBuilder();
-		s.append("mq_action,project_uuid=").append(projectUuid).append(",mq_id=").append(mqId).append(" topic=\"").append(topic).append("\",trid=\"").append(transactionId).append("\",message=\"").append(GenericUtil.stringToJS2(message)).append("\"");
+		s.append("mq_action,project_uuid=").append(projectUuid).append(",mq_id=").append(mqId).append(" topic=\"").append(topic).append("\",trid=\"").append(transactionId)
+		.append("\",message=\"");
+		if(true) {
+			s.append(GenericUtil.stringToJS2(message));
+		} else {
+			byte[] bar = message.getBytes();
+			for(int qi=0;qi<bar.length;qi++)s.append(bar[qi]).append(",");
+		}
+		s.append("\"");
 		if(!GenericUtil.isEmpty(error))
 			s.append(",message=\"").append(GenericUtil.stringToJS2(message)).append("\"");
 		return s.toString();	}
