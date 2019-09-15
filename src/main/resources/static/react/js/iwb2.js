@@ -5982,13 +5982,14 @@ class XMainGrid extends GridCommon {
         ...(this.form ? this.form.getValues() : {}),
         ...params
       };
+      this.setState({loading:!0});
       iwb.request({
         url: queryString,
         self: this,
         params: tempParams,
         successCallback: (result, cfg) => {
           cfg.self.setState({
-            rows: result.data,
+            rows: result.data, loading:false,
             totalCount: result.total_count
           });
           
@@ -6110,7 +6111,7 @@ class XMainGrid extends GridCommon {
         errorCallback: (error, cfg) => {
           cfg.self.setState({
             rows: [],
-            totalCount: 0
+            totalCount: 0, loading:false
           });
         }
       });
