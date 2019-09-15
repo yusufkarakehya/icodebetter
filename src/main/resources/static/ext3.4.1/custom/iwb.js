@@ -8246,7 +8246,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   }
 
   // manual form-conversion menu
-  if (false && 1 * getForm.a == 1) {
+  if (1 * getForm.a == 1) {
     var pk = null,
       toolButtons = [];
     for (var xi in getForm.pk)
@@ -8255,11 +8255,11 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         break;
       }
 // btn.push("-", " ", " ", " ");
-    if (
+    if (false && (
       (getForm.manualConversionForms &&
         getForm.manualConversionForms.length > 0) ||
       (getForm.reportList && getForm.reportList.length > 0)
-    ) {
+    )) {
       toolButtons.push({
         text: "Record Info",
         /* iconCls:'icon-info', */
