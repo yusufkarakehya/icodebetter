@@ -113,6 +113,7 @@ public class ExternalDBSql {
 			List l = InfluxUtil.query(edb.getDbUrl(), edb.getDefaultSchema(), influxQL);
 			queryResult.setData(l);
 			queryResult.setNewQueryFields(q.get_queryFields());
+			queryResult.setResultRowCount(GenericUtil.isEmpty(l)  ? queryResult.getStartRowNumber():(queryResult.getStartRowNumber()+l.size()+1));
 			return;
 		}
 		Connection con = null;

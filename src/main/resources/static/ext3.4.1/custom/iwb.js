@@ -958,7 +958,7 @@ function renderTableRecordInfo(j) {
     j.tablePk +
     ', true);">' +
     j.dsc +
-    " &nbsp; <i style='color:#7dd7ff;' class='icon-share-alt'></i></a></p><table border=0 width=100%><tr><td width=70% valign=top>";
+    " &nbsp; <i style='color: #98bdcd;float: right;' class='icon-share-alt'></i></a></p><table border=0 width=100%><tr><td width=70% valign=top>";
   if (j.commentFlag && j.commentCount > 0)
     s +=
       ' &nbsp; <img src="/ext3.4.1/custom/images/comments-16.png" title="Comments"> ' +
@@ -968,11 +968,11 @@ function renderTableRecordInfo(j) {
       ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="Related Files"> ' +
       j.fileAttachCount;
   s += "</td><td width=30% align=right valign=top>";
-  if (j.formSmsMailCount)
+  if (false && j.formSmsMailCount)
     s +=
       ' &nbsp; <img src="/ext3.4.1/custom/images/email-16.png" title="EMail/SMS Notifications"> ' +
       j.formSmsMailCount;
-  if (j.conversionCount)
+  if (false && j.conversionCount)
     s +=
       ' &nbsp; <img src="/ext3.4.1/custom/images/gear-16.png" title="Form Conversions"> ' +
       j.conversionCount;
@@ -1104,7 +1104,7 @@ function fnTblRecEdit(tid, tpk, b) {
               modal: true,
               shadow: false,
               title: j.parents[0].tdsc,
-              width: 600,
+              width: 600, cls:'animated fadeIn',
               autoHeight: true,
               bodyStyle: "padding:10px;",
 //              iconCls: "icon-folder-explorer",
@@ -7704,22 +7704,8 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
 
   if (getForm.fileAttachFlag) {
 // btn.push("-");
-    btn.push({
-      tooltip:
-        "Files" +
-        (getForm.fileAttachCount > 0
-          ? " (" + getForm.fileAttachCount + ")"
-          : ""),
-      id: "af_" + getForm.id,
-      iconAlign: "top",
-      scale: "medium",
-      text:(getForm.fileAttachCount > 0
-              ? "<span class='file-count-badge'>" + getForm.fileAttachCount + "</span>"
-                      : undefined),
-
-      iconCls: "ifile_attach",
-      menu: [
-        {
+	  var xmenu=[];
+	  if(!getForm.viewMode)xmenu.push({
           text: getLocMsg("js_dosya_sisteminden_ekle"),
           _f: getForm,
           handler: function(a) {
@@ -7732,9 +7718,8 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             } else table_pk = "|" + getForm.tmpId;
             fnNewFileAttachment4Form(a._f.crudTableId, table_pk.substring(1));
           }
-        },
-        
-		 {
+        });
+	  xmenu.push({
           text: getLocMsg("related_files"),
           _f: getForm,
           handler: function(a, b, c) {
@@ -7761,8 +7746,22 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             cfg.attributes._title_ = getForm.name;
             mainPanel.loadTab(cfg);
           }
-        }
-      ]
+        });
+    btn.push({
+      tooltip:
+        "Files" +
+        (getForm.fileAttachCount > 0
+          ? " (" + getForm.fileAttachCount + ")"
+          : ""),
+      id: "af_" + getForm.id,
+      iconAlign: "top",
+      scale: "medium",
+      text:(getForm.fileAttachCount > 0
+              ? "<span class='file-count-badge'>" + getForm.fileAttachCount + "</span>"
+                      : undefined),
+
+      iconCls: "ifile_attach",
+      menu: xmenu
     });
   }
 

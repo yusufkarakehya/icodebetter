@@ -627,6 +627,7 @@ iwb = {
       toastr.error("Config missing", "ERROR!");
       return false;
     }
+    if(cfg.requestWaitMsg && iwb.loadingActive)iwb.loadingActive();
     fetch(cfg.url, {
       body: JSON.stringify(cfg.params || {}), // must match 'Content-Type'
       // header
@@ -642,11 +643,13 @@ iwb = {
       referrer: "no-referrer" // *client, no-referrer
     })
       .then(
-        response =>
-          response.status === 200 || response.status === 0
+        response =>{
+            if(cfg.requestWaitMsg && iwb.loadingDeactive)iwb.loadingDeactive();
+        	
+          return response.status === 200 || response.status === 0
             ? response.json()
             : Promise.reject(new Error(response.text() || response.statusText))
-      )
+        })
       .then(
         result => {
           if (cfg.callback && cfg.callback(result, cfg) === false) return;
@@ -6350,7 +6353,7 @@ class XMainGrid extends GridCommon {
               color: "secondary",
               onClick: event => loadData(true)
             },
-            _("i", { className: "icon-refresh" })
+            _("i", { className: "icon-refresh "+(this.state.loading?" infinite-rotate":"") })
           ),
 
           crudFlags &&
@@ -7583,6 +7586,7 @@ class XMainPanel extends React.PureComponent {
     this.loadPage = () => {
       var templateID = this.templateID;
       if (!iwb["t-" + templateID]) {
+    	//  if(iwb.loadingPageMask && iwb.loadingActivate)iwb.loadingActivate();
         fetch("showPage?_tid=" + templateID, {
           cache: "no-cache", // *default, no-cache, reload, force-cache,
           // only-if-cached
@@ -7596,11 +7600,12 @@ class XMainPanel extends React.PureComponent {
           referrer: "no-referrer" // *client, no-referrer
         })
           .then(
-            response =>
-              response.status === 200 || response.status === 0
+            response =>{
+          	  //if(iwb.loadingPageMask && iwb.loadingDectivate)iwb.loadingDeactivate();
+              return response.status === 200 || response.status === 0
                 ? response.text()
                 : Promise.reject(new Error(response.statusText))
-          )
+            })
           .then(
             result => {
               if (result) {
