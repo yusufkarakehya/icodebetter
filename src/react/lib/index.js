@@ -41,6 +41,10 @@ var classnames = classNames;
 import "react-datetime/css/react-datetime.css";
 import Datetime from "react-datetime";
 import moment from "moment";
+/** Dropdown tree */
+import DropdownTreeSelect from "react-dropdown-tree-select";
+import {XDropdownTreeSelect, XDropdownMultiTreeSelect, XDropdownMultiRemoteTreeSelect} from "./XDropdownTreeSelect";
+import 'react-dropdown-tree-select/dist/styles.css'
 /** NumberFormat */
 import NumberFormat from "react-number-format";
 // /** ReactRouterDOM */
@@ -101,5 +105,9 @@ export {
   jquery,
   toastr,
   loaders,
-  Aside
+  Aside,
+  DropdownTreeSelect,
+  XDropdownTreeSelect,
+  XDropdownMultiTreeSelect,
+  XDropdownMultiRemoteTreeSelect
 };
