@@ -1889,7 +1889,7 @@ public class ExtJs3_4 implements ViewAdapter {
 										.append("',height:")
 										.append(gridResult.getGrid()
 												.getDefaultHeight())
-										.append(",autoScroll:true,clicksToEdit: 1*_app.edit_grid_clicks_to_edit}))");
+										.append(",cls:'x-fieldset-grid', autoScroll:true,clicksToEdit: 1*_app.edit_grid_clicks_to_edit}))");
 							}
 							break;
 						default:
@@ -5287,9 +5287,9 @@ public class ExtJs3_4 implements ViewAdapter {
 						.get_tableFieldMap().get(f.getMainTableFieldId())
 						: null;
 				if (tf != null) {
-					if (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
+					if (!GenericUtil.accessControl4SessionField(scd, tf.getRelatedSessionField()) || (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
 							tf.getAccessViewTip(), tf.getAccessViewRoles(),
-							tf.getAccessViewUsers()))
+							tf.getAccessViewUsers())))
 						continue;// access control
 				}
 				List lq = map.get(c.getGridModuleId());
@@ -5336,9 +5336,9 @@ public class ExtJs3_4 implements ViewAdapter {
 							: null;
 					if (tf != null) {
 
-						if (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
+						if (!GenericUtil.accessControl4SessionField(scd, tf.getRelatedSessionField()) || (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
 								tf.getAccessViewTip(), tf.getAccessViewRoles(),
-								tf.getAccessViewUsers()))
+								tf.getAccessViewUsers())))
 							continue;// access control
 					}
 					newColumns.add(c);
@@ -5370,7 +5370,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					c.set_queryField(f);
 					c.setWidth(f.getTabOrder());
 					c.setAlignTip((short) 0);
-					c.setLocaleMsgKey(""); //<div class=\""+ FrameworkSetting.postQueryGridImgMap[f.getFieldTip()]+ "\"></div>
+					c.setLocaleMsgKey(f.getFieldTip()==2?"<div class=\"ifile_attach\" style=\"background-position-x:center;\" border=\"0\"> &nbsp;</div>":"&nbsp;"); //<div class=\""+ FrameworkSetting.postQueryGridImgMap[f.getFieldTip()]+ "\"></div>
 					c.setVisibleFlag((short) 1);
 					String renderer = postQueryMap[f.getFieldTip()];
 					c.setRenderer(renderer);

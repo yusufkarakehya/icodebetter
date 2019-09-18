@@ -169,6 +169,8 @@ public class UIEngine {
 			formResult = metaDataDao.getFormResult(scd, formId, action, requestParams);
 			dao.checkTenant(formResult.getScd());
 			formResult.setUniqueId(GenericUtil.getNextId("fi"));
+			if(GenericUtil.uInt(requestParams, "_viewMode")!=0)
+				formResult.setViewMode(true);
 			/*
 			 * if(requestParams.containsKey("_log5_log_id")){
 			 * if(!FrameworkCache.wTemplates.containsKey(scd.get(

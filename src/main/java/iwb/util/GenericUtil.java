@@ -1615,7 +1615,7 @@ public class GenericUtil {
 		int paramIndex = 0;
 		for (int i = 0; i < sql.length(); i++)
 			if (sql.charAt(i) == '?') {
-				Object o = params.get(paramIndex++);
+				Object o = params!=null && params.size()>paramIndex? params.get(paramIndex++):null;
 				if (o == null)
 					b.append("null");
 				else if (o instanceof String)
@@ -1992,6 +1992,20 @@ public class GenericUtil {
 				b = true;
 			Object o = s.get(q);
 			html.append("<b>").append(q).append("</b>:").append(o != null ? stringToJS(o.toString()) : "");
+		}
+		return html.toString();
+	}
+	
+
+	public static String fromMapToHtmlString2(Map scd, Map s) {
+		if (s == null || s.isEmpty())
+			return "";
+		StringBuilder html = new StringBuilder();
+		boolean b = false;
+		for (Object q : s.keySet()) {
+			html.append("<li>");
+			Object o = s.get(q);
+			html.append("<b>").append(LocaleMsgCache.get2(scd, q.toString())).append("</b>:").append(o != null ? stringToJS(o.toString()) : "");
 		}
 		return html.toString();
 	}
@@ -2657,5 +2671,17 @@ public class GenericUtil {
 
 	public static String getTransactionId() {
 		return UUID.randomUUID().toString();
+	}
+	
+	public static boolean accessControl4SessionField(Map<String, Object> scd, String relatedSessionField) {
+		if(isEmpty(relatedSessionField))return true;
+		boolean not = false;
+		if(relatedSessionField.charAt(0)=='!') {
+			not = true;
+			relatedSessionField = relatedSessionField.substring(1);
+		}
+		int val = relatedSessionField.startsWith("app.") ? FrameworkCache.getAppSettingIntValue(scd, relatedSessionField.substring(4)) : uInt(scd.get(relatedSessionField));
+		return not ? val==0 : val!=0;
+		
 	}
 }

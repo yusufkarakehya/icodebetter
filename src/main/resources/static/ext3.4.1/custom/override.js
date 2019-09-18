@@ -1101,15 +1101,16 @@ try {
       for (i = 0; i < l; i++) {
         if (!(f = it[i]).disabled && !f.isValid()) {
           f.ensureVisible();
-          result = result + f.fieldLabel + "<br>";
+          result += '<li>' + f.fieldLabel;
         }
       }
       if (l > 0)
-        Ext.Msg.show({
+/*        Ext.Msg.show({
           title: getLocMsg("js_alan_hatali_girilmistir"),
           msg: result,
           icon: Ext.MessageBox.ERROR
-        });
+        });*/
+    	  Ext.infoMsg.msg('error','<b>Validation Errors</b><br>'+result,4)
     }
   });
 } catch (eq) {

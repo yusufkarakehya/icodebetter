@@ -204,7 +204,7 @@ function accessControlHtml(x) {
 
 function fileAttachmentHtml(x) {
   return x
-    ? '<img src="/images/custom/bullet_file_attach.png" border=0>'
+    ? '<div class="ifile_attach"> &nbsp;</div>'
     : "";
 }
 function fieldFileAttachment(x) {
@@ -216,13 +216,13 @@ function fieldFileAttachment(x) {
 function fileAttachmentRenderer(a) {
   return function(ax, bx, cx) {
     return ax
-      ? '<img src="/images/custom/bullet_file_attach.png" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
+      ? '<div style="background-position-x:center" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
           a.name +
           "',href:'showPage?_tid=518&_gid1=458&_gid458_a=1',_pk:{tfile_attachment_id:'file_attachment_id'},baseParams:{xtable_id:" +
           a.crudTableId +
           ", xtable_pk:" +
           cx.id +
-          '}}});">'
+          '}}});"> <span class="file-count-badge">'+ax+'</span></div>'
       : "";
   };
 }
@@ -950,44 +950,40 @@ var recordInfoWindow = null;
 function renderTableRecordInfo(j) {
   if (!j || !j.dsc) return false;
   var s = "<p>";
-  if (j.profile_picture_id) s += Ext.util.Format.getPic3Mini(j) + " &nbsp;";
+  s += "<img src='./sf/pic"+ j.insert_user_id+ ".png' style='vertical-align: bottom;' class='ppic-mini'> &nbsp;";
   s +=
-    '<a href=# style="font-size:16px;color:#95d847" onclick="return fnTblRecEdit(' +
+    '<a href=# style="font-size:26px;color:#b5b5b5" onclick="return fnTblRecEdit(' +
     j.tableId +
     "," +
     j.tablePk +
     ', true);">' +
     j.dsc +
-    "</a></p><table border=0 width=100%><tr><td width=70% valign=top>";
+    " &nbsp; <i style='color: #98bdcd;float: right;' class='icon-share-alt'></i></a></p><table border=0 width=100%><tr><td width=70% valign=top>";
   if (j.commentFlag && j.commentCount > 0)
     s +=
       ' &nbsp; <img src="/ext3.4.1/custom/images/comments-16.png" title="Comments"> ' +
       j.commentCount;
   if (j.fileAttachFlag && j.fileAttachCount > 0)
     s +=
-      ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="İlişkili Dosyalar"> ' +
+      ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="Related Files"> ' +
       j.fileAttachCount;
-  if (j.accessControlFlag && j.accessControlCount > 0)
-    s +=
-      ' &nbsp; <img src="/ext3.4.1/custom/images/key-16.png" title="Kayıt Bazlı Güvenlik"> ' +
-      j.accessControlCount;
   s += "</td><td width=30% align=right valign=top>";
-  if (j.formSmsMailCount)
+  if (false && j.formSmsMailCount)
     s +=
       ' &nbsp; <img src="/ext3.4.1/custom/images/email-16.png" title="EMail/SMS Notifications"> ' +
       j.formSmsMailCount;
-  if (j.conversionCount)
+  if (false && j.conversionCount)
     s +=
       ' &nbsp; <img src="/ext3.4.1/custom/images/gear-16.png" title="Form Conversions"> ' +
       j.conversionCount;
-  s += "</td></tr></table><hr>";
+  s += "</td></tr></table>";
   var rs = j.parents;
   var ss = "";
   for (var qi = rs.length - 1; qi >= 0; qi--) {
     var r = rs[qi];
     if (qi != rs.length - 1) ss += "<br>";
     for (var zi = rs.length - 1; zi > qi; zi--) ss += " &nbsp; &nbsp;";
-    ss += "&gt " + (qi != 0 ? r.tdsc : "<b>" + r.tdsc + "</b>");
+    ss += "<span style='color:orange'>-</span> &nbsp;" + (qi != 0 ? r.tdsc : "<b>" + r.tdsc + "</b>");
     if (r.dsc) {
       var rdsc = r.dsc;
       if (rdsc.length > 300) rdsc = rdsc.substring(0, 297) + "...";
@@ -1003,50 +999,40 @@ function renderTableRecordInfo(j) {
           : ": " + rdsc; // else ss+=': (...)';
     }
   }
-  ss = '<div class="dfeed">' + ss + "</div>";
-  /*
-	 * rs=j.parents[0]; if(typeof rs.tcc!='undefined')ss+=' · ' + ('<a href=#
-	 * onclick="return fnTblRecComment('+j.tableId+','+j.tablePk+');">'+(!rs.tcc ?
-	 * 'Yorum Yap':('Yorumlar ('+rs.tcc+')'))+'</a>') if(typeof
-	 * rs.tfc!='undefined')ss+=' · ' + ('<a href=# onclick="return
-	 * fnNewFileAttachment4Form('+j.tableId+','+j.tablePk+');">'+(!rs.tfc ?
-	 * 'İlişkili Dosyalar':('İlişkili Dosyalar ('+rs.tfc+')'))+'</a>')
-	 */
+  ss = '<div class="dfeed" style="color: #b1b1b1;padding-left:16px;font-size: 13px;">' + ss + "</div>";
 
   s += ss + "<p><br>";
   if (j.insert_user_id) {
     s +=
-      '<span class="cfeed"> · <a href=# onclick="return openChatWindow(' +
+      '<span class="cfeed"> · Created by <a href=# onclick="return openChatWindow(' +
       j.insert_user_id +
       ",'" +
       j.insert_user_id_qw_ +
       "',true)\">" +
       j.insert_user_id_qw_ +
-      "</a> tarafindan " +
-      j.insert_dttm +
-      " tarihinde kayıt yapılmış";
+      "</a> @ " +
+      j.insert_dttm;
     if (j.version_no && j.version_no > 1)
       s +=
-        '<br> · <a href=# onclick="return openChatWindow(' +
+        '<br> · Last modified by <a href=# onclick="return openChatWindow(' +
         j.version_user_id +
         ",'" +
         j.version_user_id_qw_ +
         "',true)\">" +
         j.version_user_id_qw_ +
-        "</a> tarafindan " +
+        "</a> @ " +
         j.version_dttm +
-        " tarihinde son kez değiştirilmiş <br> · toplam " +
+        " <br> · " +
         j.version_no +
-        " kere değiştirilmiş</span><p>";
+        " times modified</span>";
   }
 
   rs = j.childs;
   if (!rs || !rs.length) return s;
-  ss = "<br><b>Details</b>";
+  ss = "<p><br><span style='color:#aaa;font-size:20px'>Details</span><div style='padding: 4px;font-size: 13px;'>";
   for (var qi = 0; qi < rs.length; qi++) {
     var r = rs[qi];
     ss +=
-      "<br> · " +
       (r.vtip
         ? '<a href=# id="idLinkRel_' +
           r.rel_id +
@@ -1064,25 +1050,27 @@ function renderTableRecordInfo(j) {
           r.tdsc +
           "</a>"
         : r.dsc) +
-      " (" +
+      " <span style='background: #F44336;padding: 1px 6px;border-radius: 20px;color: white;'>" +
       r.tc +
       (_app.table_children_max_record_number &&
       1 * r.tc == 1 * _app.table_children_max_record_number - 1
         ? "+"
         : "") +
-      " adet)";
+      "</span>";
     if (r.tcc)
       ss +=
         ' &nbsp; <img src="/ext3.4.1/custom/images/comments-16.png" title="Comments"> ' +
         r.tcc;
     if (r.tfc)
       ss +=
-        ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="İlişkili Dosyalar"> ' +
+        ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="Related Files"> ' +
         r.tfc;
 
+    ss+='<br>'
     // if(r.dsc)ss+=(qi!=0 ? ': '+r.dsc:': <b>'+r.dsc+'</b>');// else ss+=':
 	// (...)';
   }
+  s+='</div>'
   return s + ss;
 }
 
@@ -1110,16 +1098,16 @@ function fnTblRecEdit(tid, tpk, b) {
             // recordInfoWindow.destroy();
             recordInfoWindow.update(renderTableRecordInfo(j));
             recordInfoWindow.setTitle(j.parents[0].tdsc);
-            recordInfoWindow.setIconClass("icon-folder-explorer");
+//            recordInfoWindow.setIconClass("icon-folder-explorer");
           } else {
             recordInfoWindow = new Ext.Window({
               modal: true,
               shadow: false,
               title: j.parents[0].tdsc,
-              width: 500,
+              width: 600, cls:'animated fadeIn',
               autoHeight: true,
-              bodyStyle: "padding:3px;",
-              iconCls: "icon-folder-explorer",
+              bodyStyle: "padding:10px;",
+//              iconCls: "icon-folder-explorer",
               border: false,
               html: renderTableRecordInfo(j)
             });
@@ -1610,9 +1598,6 @@ function fnNewFileAttachmentMail(a) {
 
 function fnNewFileAttachment(a) {
   var hasReqestedVersion = false; //|| DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
-													// mi onu sorguluyor. (major
-													// ver, minor ver, revision
-													// no)
   var sel = getSel(a._grid);
   if (!sel) {
     Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
@@ -1624,22 +1609,14 @@ function fnNewFileAttachment(a) {
   }
   var table_pk = "";
   for (var key in a._grid._pk) table_pk += "|" + sel.data[a._grid._pk[key]];
-  if (hasReqestedVersion && a._grid.gridId * 1 != 1082) {
-    // Acente/Bayi logolarının eklenmesi biraz farklı
-    var href =
-      "showForm?_fid=714&_did=447&table_id=" +
-      a._grid.crudTableId +
-      "&table_pk=" +
-      table_pk.substring(1) +
-      image_param;
-  } else {
-    var href =
+
+   var href =
       "showForm?a=2&_fid=43&table_id=" +
       a._grid.crudTableId +
       "&table_pk=" +
       table_pk.substring(1) +
       image_param;
-  }
+
   mainPanel.loadTab({
     attributes: {
       modalWindow: true,
@@ -1798,7 +1775,7 @@ function fnCommit(a) {
             var str = "";
             if (j2.msgs) str = j2.msgs.join("<br>") + "<p>";
             if (j2.logErrors) str += prepareLogErrors(j2);
-            Ext.infoMsg.alert("info", str);
+            Ext.infoMsg.msg("success", str);
           }
         }
       });
@@ -2344,6 +2321,30 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
             handler: fnNewFileAttachment
           },
           {
+              text: getLocMsg("related_files"),
+              _grid: xgrid,
+              handler: function(a, b, c) {
+                var xgrid = a._grid;
+                var sel = getSel(a._grid);
+                if(!sel)return;
+                var cfg = {
+                  attributes: {
+                    modalWindow: true,
+                    href: "showPage?_tid=518&_gid1=458",
+                    _pk: {
+                      tfile_attachment_id: "file_attachment_id"
+                    },
+                    baseParams: {
+                      xtable_id: xgrid.crudTableId,
+                      xtable_pk: sel.id
+                    }
+                  }
+                };
+               // cfg.attributes._title_ = getForm.name;
+                mainPanel.loadTab(cfg);
+              }
+          }
+         /* {
             text: getLocMsg("js_add_from_external_url"),
             _grid: xgrid,
             handler: fnNewFileAttachment4ExternalUrl
@@ -2362,7 +2363,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
                 }
               });
             }
-          }
+          }*/
         ]
       });
     } else {
@@ -2820,8 +2821,8 @@ function addTab4GridWSearchForm(obj) {
 
   var grdExtra = {
 // stripeRows: true,
-    region: "center", cls:'iwb-grid-'+mainGrid.gridId,
-    border: false,
+    region: "center", cls:'iwb-grid-'+mainGrid.gridId+ ' x-master-grid',
+    border: false, 
     clicksToEdit: 1 * _app.edit_grid_clicks_to_edit
   };
   if (obj.t) mainGrid.id = obj.t + "-" + mainGrid.gridId;
@@ -2939,7 +2940,7 @@ function addTab4GridWSearchForm(obj) {
           region: "north", autoHeight: true,anchor: "100%",
 // region: "west", width:300,
         cls:'iwb-search-form', // collapseMode: 'mini',
-        collapsible: true, animate: false, animCollapse: false, animFloat:false,
+        collapsible: !iwb.noCollapsibleSearchForm, animate: false, animCollapse: false, animFloat:false,
         title: mainGrid.name,
         border: false,
         // tools:searchFormTools,
@@ -3035,7 +3036,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 
   var grdExtra = Ext.apply(
     {
-      region: obj.region || (mainGrid.gridId?"north":"west"),cls:'iwb-grid-'+mainGrid.gridId,
+      region: obj.region || (mainGrid.gridId?"north":"west"),cls:'iwb-grid-'+mainGrid.gridId+ (!master_flag?' x-master-grid':''),
       autoScroll: true,
       border: false
     },
@@ -3216,7 +3217,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		        region: "north",autoHeight: true, anchor: "100%",
 // region: "west", width:300,
 		        cls:'iwb-search-form',// collapseMode: 'mini',
-		        collapsible: true, animate: false, animCollapse: false, animFloat:false,
+		        collapsible: !iwb.noCollapsibleSearchForm, animate: false, animCollapse: false, animFloat:false,
 		        title: mainGrid.gridId ? mainGrid.name : 'Advanced Search',
 		        border: false,
 		        id: "sf_" + (obj.t || Math.random()),
@@ -3228,7 +3229,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		        }
 		      };
 	  if(mainGrid.dataViewId){
-		  sfCfg.collapsed=!0; sfCfg._grid=mainGrid; sfCfg.collapseMode= 'mini';
+		  sfCfg.collapsed=true; sfCfg._grid=mainGrid; sfCfg.collapseMode= 'mini';
 		  sfCfg.listeners={expand:function(ax,bx,cx){
 			  Ext.getCmp('sf-card-'+obj.t).hide();
 		  }, collapse:function(ax,bx,cx){
@@ -3762,7 +3763,7 @@ function ajaxErrorHandler(obj) {
       msg += obj.error;
     }
     msg += "</ul>";
-    Ext.infoMsg.msg("error", msg);
+    Ext.infoMsg.msg("error", msg, 5);
   } else if (obj.errorType && obj.errorType == "session") showLoginDialog(obj);
   else if (obj.errorType && obj.errorType == "security")
     Ext.infoMsg.msg(
@@ -3906,8 +3907,8 @@ function ajaxErrorHandler(obj) {
         	  new Ext.Window({
         	      modal: true,
         	      title: "Java StackTrace",
-        	      cls: "xerror",
-        	      width: 1100, height:600,
+//        	      cls: "xerror",
+        	      width: 900, height:600,
 //        	      autoHeight: !0,
         	      html: '<textarea  style="font-family: monospace !important;width:99.7%; height:100%;color:#ccc; font-size: 12px;overflow: auto;background: #282b31;border: none;">'+
         	      obj.stack+'</textarea>'
@@ -5922,7 +5923,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       region: "north",autoHeight: true, anchor: "100%",
 // region: "west", width:300,
       cls:'iwb-search-form', // collapseMode: 'mini',
-      collapsible: true, animate: false, animCollapse: false, animFloat:false,
+      collapsible: !iwb.noCollapsibleSearchForm, animate: false, animCollapse: false, animFloat:false,
       title: mainGrid.name,
       border: false,
       keys: {
@@ -7703,22 +7704,8 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
 
   if (getForm.fileAttachFlag) {
 // btn.push("-");
-    btn.push({
-      tooltip:
-        "Files" +
-        (getForm.fileAttachCount > 0
-          ? " (" + getForm.fileAttachCount + ")"
-          : ""),
-      id: "af_" + getForm.id,
-      iconAlign: "top",
-      scale: "medium",
-      text:(getForm.fileAttachCount > 0
-              ? "<span style='color: white;background: #b78fff;padding: 1px 5px;border-radius: 20px;font-weight: 600;'>" + getForm.fileAttachCount + "</span>"
-                      : undefined),
-
-      iconCls: "ifile_attach",
-      menu: [
-        {
+	  var xmenu=[];
+	  if(!getForm.viewMode)xmenu.push({
           text: getLocMsg("js_dosya_sisteminden_ekle"),
           _f: getForm,
           handler: function(a) {
@@ -7731,9 +7718,8 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             } else table_pk = "|" + getForm.tmpId;
             fnNewFileAttachment4Form(a._f.crudTableId, table_pk.substring(1));
           }
-        },
-        
-		 {
+        });
+	  xmenu.push({
           text: getLocMsg("related_files"),
           _f: getForm,
           handler: function(a, b, c) {
@@ -7760,8 +7746,22 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             cfg.attributes._title_ = getForm.name;
             mainPanel.loadTab(cfg);
           }
-        }
-      ]
+        });
+    btn.push({
+      tooltip:
+        "Files" +
+        (getForm.fileAttachCount > 0
+          ? " (" + getForm.fileAttachCount + ")"
+          : ""),
+      id: "af_" + getForm.id,
+      iconAlign: "top",
+      scale: "medium",
+      text:(getForm.fileAttachCount > 0
+              ? "<span class='file-count-badge'>" + getForm.fileAttachCount + "</span>"
+                      : undefined),
+
+      iconCls: "ifile_attach",
+      menu: xmenu
     });
   }
 
@@ -8039,7 +8039,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     if (getForm.commentFlag || getForm.fileAttachFlag) btn.push("-");
   }
 
-  btn.push({
+  if(!getForm.viewMode)btn.push({
 	tooltip: "Templates",
     id: "ttemp_" + getForm.id,
     iconAlign: "top",
@@ -8107,7 +8107,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
                 params: params,
                 successCallback: function() {
                   getForm._loaded = false;
-                  Ext.infoMsg.alert("success", "saved");
+                  Ext.infoMsg.msg("success", "Template Saved", 3);
                 }
               });
             }
@@ -8255,11 +8255,11 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         break;
       }
 // btn.push("-", " ", " ", " ");
-    if (
+    if (false && (
       (getForm.manualConversionForms &&
         getForm.manualConversionForms.length > 0) ||
       (getForm.reportList && getForm.reportList.length > 0)
-    ) {
+    )) {
       toolButtons.push({
         text: "Record Info",
         /* iconCls:'icon-info', */

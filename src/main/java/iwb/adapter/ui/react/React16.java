@@ -2297,7 +2297,7 @@ public class React16 implements ViewAdapter {
 							.append("', ref:'../").append(menuItem.getDsc())
 							.append("'");
 					if (!GenericUtil.isEmpty(menuItem.getImgIcon()))
-						buttons.append(",cls:'").append(menuItem.getImgIcon())
+						buttons.append(",cls:'icon-").append(menuItem.getImgIcon())
 								.append("'");
 					buttons.append(",handler:function(a,b,c){\n")
 							.append(menuItem.getCode()).append("\n}}");
