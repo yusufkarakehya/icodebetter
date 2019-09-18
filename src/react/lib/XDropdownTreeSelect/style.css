@@ -1,0 +1,63 @@
+   /* bootstrap-enbaled is a custom classname to increases the specificity of our styles. It can be anything. 
+   * The idea is that it is easy to extend/override builtin styles with very little effort.
+   */
+  .bootstrap-enbaled .dropdown-trigger {
+    border-radius: 0.25rem;
+  }
+  
+  .bootstrap-enbaled .dropdown-trigger > span:after {
+    font-size: 1rem;
+    color: #555;
+  }
+  .react-dropdown-tree-select .dropdown .dropdown-trigger.arrow.bottom:after,
+  .react-dropdown-tree-select .dropdown .dropdown-trigger.arrow.top:after {
+    color: #999!important;
+  }
+  
+  .radio-item, .checkbox-item {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+    height: 1rem;
+    width: 1rem;
+    transition: all 0.15s ease-out 0s;
+    background: #cbd1d8;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+  }
+  .radio-item:hover, .checkbox-item:hover {
+    background: #818a91;
+  }
+  .radio-item:checked, .checkbox-item:checked{
+    background: #20a8d8;
+    border-color: #1985ac;
+  }
+  .radio-item:checked::before, .checkbox-item:checked::before {
+    height: 1rem;
+    width: 1rem;
+    position: absolute;
+    content: '✔';
+    display: inline-block;
+    font-size: 1rem;
+    text-align: center;
+    line-height: 1rem;
+  }
+  .radio-item:checked::after, .checkbox-item::after {
+    -webkit-animation: click-wave 0.65s;
+    -moz-animation: click-wave 0.65s;
+    animation: click-wave 0.65s;
+    background: #40e0d0;
+    content: '';
+    display: block;
+    position: relative;
+    z-index: 100;
+  }
+  .radio-item {
+    border-radius: 50%;
+  }
+  .radio-item::after {
+    border-radius: 50%;
+  }
