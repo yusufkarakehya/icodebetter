@@ -7878,11 +7878,13 @@ class XForm extends React.Component {
     /**
      * sets state when html entered
      */
-    this.onHtmlChange = inputName => html => {
+    this.onHtmlChange = inputName => value => {
       var { values } = this.state;
-      values[inputName] = html;
+      values[inputName] = value;
       this.setState({ values });
     };
+    /** acts very simmilar */
+    this.onTreeSelectChange = this.onHtmlChange;
     /**
      * sends post to the server
      *
