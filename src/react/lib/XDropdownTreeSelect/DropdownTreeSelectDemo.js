@@ -1,9 +1,9 @@
 import React from 'react'
 import { XDropdownTreeSelect, XDropdownMultiTreeSelect, XDropdownTreeSelectResult } from './';
-import { Col, Form, FormGroup, Label, Input } from 'reactstrap';
-import "../css/styles.alba.css";
-import "../css/iwb-nifty.css";
-import "../css/style.css";
+import { Form, FormGroup, Label, Input } from 'reactstrap';
+// import "../css/styles.alba.css";
+// import "../css/iwb-nifty.css";
+// import "../css/style.css";
 var a = {
     label: 'searchme1',
     value: 'searchme1',

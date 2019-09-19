@@ -43,7 +43,7 @@ import Datetime from "react-datetime";
 import moment from "moment";
 /** Dropdown tree */
 import DropdownTreeSelect from "react-dropdown-tree-select";
-import {XDropdownTreeSelect, XDropdownMultiTreeSelect, XDropdownMultiRemoteTreeSelect} from "./XDropdownTreeSelect";
+import { XDropdownTreeSelect, XDropdownMultiTreeSelect, XDropdownMultiRemoteTreeSelect, XDropdownTreeSelectResult } from "./XDropdownTreeSelect";
 import 'react-dropdown-tree-select/dist/styles.css'
 /** NumberFormat */
 import NumberFormat from "react-number-format";
@@ -63,51 +63,52 @@ import "simple-line-icons/css/simple-line-icons.css";
 import * as loaders from "./Loaders";
 import "./css/timeline.css";
 import {
-  Aside
+    Aside
 } from "./components/Aside";
 import * as ReactDiffViewer from 'react-diff-viewer'
 /** Exports to window object */
 export {
-  React,
-  ReactDOM,
-  XHTMLEditor,
-  ReactDiffViewer,
-  draftJs,
-  htmlToDraft,
-  draftToHtml,
-  draftJsWzz,
-  styleInject,
-  Redux,
-  ReactRedux,
-  reduxLogger,
-  ReduxThunk,
-  DXCore,
-  DXGridCore,
-  DXReactCore,
-  DXReactGrid,
-  DXReactGridBootstrap4,
-  Reactstrap,
-  Popper,
-  ReactPopper,
-  ReactTransitionGroup,
-  ReactRouterDOM,
-  AutosizeInput,
-  classNames,
-  classnames,
-  Datetime,
-  moment,
-  NumberFormat,
-  PropTypes,
-  Select,
-  bootstrap,
-  $,
-  jQuery,
-  jquery,
-  toastr,
-  loaders,
-  Aside,
-  DropdownTreeSelect,
-  XDropdownTreeSelect,
-  XDropdownMultiTreeSelect,
-  XDropdownMultiRemoteTreeSelect
+    React,
+    ReactDOM,
+    XHTMLEditor,
+    ReactDiffViewer,
+    draftJs,
+    htmlToDraft,
+    draftToHtml,
+    draftJsWzz,
+    styleInject,
+    Redux,
+    ReactRedux,
+    reduxLogger,
+    ReduxThunk,
+    DXCore,
+    DXGridCore,
+    DXReactCore,
+    DXReactGrid,
+    DXReactGridBootstrap4,
+    Reactstrap,
+    Popper,
+    ReactPopper,
+    ReactTransitionGroup,
+    ReactRouterDOM,
+    AutosizeInput,
+    classNames,
+    classnames,
+    Datetime,
+    moment,
+    NumberFormat,
+    PropTypes,
+    Select,
+    bootstrap,
+    $,
+    jQuery,
+    jquery,
+    toastr,
+    loaders,
+    Aside,
+    DropdownTreeSelect,
+    XDropdownTreeSelect,
+    XDropdownMultiTreeSelect,
+    XDropdownMultiRemoteTreeSelect,
+    XDropdownTreeSelectResult
 };
