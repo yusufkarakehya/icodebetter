@@ -789,13 +789,13 @@ public class FrameworkService {
 			sqlWhere.append("AND x.").append(t.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc())
 					.append("=").append(tc.getRelatedStaticTableFieldVal());
 		if (t.get_tableParamList().size() > 1
-				&& t.get_tableParamList().get(1).getExpressionDsc().equals("customization_id"))
-			sqlWhere.append("AND x.customization_id=${scd.customizationId}");
+				&& t.get_tableParamList().get(1).getExpressionDsc().equals("project_uuid"))
+			sqlWhere.append("AND x.project_uuid='${scd.projectId}'");
 		q.setSqlWhere(sqlWhere.toString());
 		Map<String, String> requestParams = new HashMap();
 		requestParams.put("id", "" + tablePk);
 
-		q.set_queryFields(dao.find("from W5QueryField f where f.queryId=15 order by f.tabOrder")); // queryField'in
+		q.set_queryFields(dao.find("from W5QueryField f where f.queryId=15 AND f.projectUuid='067e6162-3b6f-4ae2-a221-2470b63dff00' order by f.tabOrder")); // queryField'in
 		// lookUp'i
 		q.set_queryParams(new ArrayList());
 
