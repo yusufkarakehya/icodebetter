@@ -38,6 +38,7 @@ import iwb.mq.MQTTCallback;
 import iwb.timer.Action2Execute;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
+import iwb.util.HttpUtil;
 import iwb.util.InfluxUtil;
 import iwb.util.LogUtil;
 import iwb.util.MQUtil;
@@ -587,8 +588,26 @@ public class NashornScript {
 		}
 		return result;
 	}
+	
+	public String download(String url) {
+		return download(url, null);
+		
+	}
 
-
+	public String download(String url, ScriptObjectMirror jsRequestParams) {
+		String params="";
+		if(jsRequestParams!=null) {
+			Map newReqMap = fromScriptObject2Map2(jsRequestParams);
+			if(!GenericUtil.isEmpty(newReqMap))for(Object k:newReqMap.keySet()) {
+				if(params.length()>0)params+="&";
+				params+=k+"="+newReqMap.get(k);
+			}
+			
+		}
+		String result = HttpUtil.send(url, params,
+				"GET", null);
+		return result;
+	}
 
 	public String formatDate(Object dt) {
 		if (dt == null)

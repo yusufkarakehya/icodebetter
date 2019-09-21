@@ -295,15 +295,16 @@ public class RESTEngine {
 				if (url.indexOf("${") > -1) {// has special char
 					url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
 				}
-				if (!url.endsWith("/"))
+				String methodUrl = GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
+				if (!url.endsWith("/") && !methodUrl.startsWith("/"))
 					url += "/";
-				url += GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
+				url += methodUrl;
 				if (url.indexOf("${") > -1) {// has special char
 					url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
 				}
 				String params = null;
 				Map<String, String> reqPropMap = new HashMap();
-				reqPropMap.put("Content-Language", "tr-TR");
+				reqPropMap.put("Content-Language", FrameworkCache.getAppSettingStringValue(scd, "rest_content_language", "tr-TR"));
 				if (wsm.getHeaderAcceptTip() != null) {
 					reqPropMap.put("Accept", new String[] { "text/plain", "application/json", "application/xml", "application/octet-stream" }[wsm
 							.getHeaderAcceptTip()]);
