@@ -1090,6 +1090,10 @@ public class CRUDEngine {
 				 * dbFuncResult.getResultMap()!=null)formResult.getOutputFields(
 				 * ).putAll(dbFuncResult.getResultMap()); }
 				 */
+				if (tla != null && action!=3)
+					extFormTableEvent(formResult, new String[] { "_", "xu", "xi", "_", "_", "xi" }[action], scd,
+							requestParams, t, requestParams.get(t.get_tableParamList().get(0).getDsc() + paramSuffix),
+							paramSuffix);
 				// approval
 				if (FrameworkSetting.workflow && GenericUtil.uInt(requestParams.get("_arid" + paramSuffix)) != 0) { // kaydet
 																													// ve
