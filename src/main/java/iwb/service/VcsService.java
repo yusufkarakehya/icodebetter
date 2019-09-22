@@ -1443,7 +1443,7 @@ public class VcsService {
 					qr.setResultRowCount(data.size());
 					return qr;
 				} else
-					throw new IWBException("vcs","vcsClientObjectsList:Server Error Response", 0, s, url, null);
+					throw new IWBException("vcs","vcsClientObjectsList:Server Error Response", 0, s, json.has("error")? "Server: " +json.getString("error"):url, null);
 					
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientObjectsList:JSONException", 0, s, "Error", e);
@@ -1464,6 +1464,9 @@ public class VcsService {
 				throw new IWBException("vcs","vcsServerObjectsList", t.getTableId(), t.getDsc(), "Not VCS Table2", null);
 			}
 		}
+		scd.put("projectId", projectId);
+		scd.put("oprojectId", projectId);
+
 		List<W5VcsObject> l = tableId == 0 ?
 				dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? order by t.tableId, t.tablePk", projectId, customizationId) :
 

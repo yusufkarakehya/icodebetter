@@ -49,7 +49,8 @@ public class HttpUtil {
 			}
 
 			// Get Response
-			InputStream is = connection.getResponseCode()>=200 && connection.getResponseCode()<300 ? connection.getInputStream() : connection.getErrorStream();
+			boolean success = connection.getResponseCode()>=200 && connection.getResponseCode()<300;
+			InputStream is = success ? connection.getInputStream() : connection.getErrorStream();
 
 		
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
@@ -60,6 +61,12 @@ public class HttpUtil {
 				response.append('\r');
 			}
 			rd.close();
+			if(!success) {
+				if(response.length()>0) {
+					if(response.charAt(0)=='{') 
+						response = response.insert(1, "\"_code_\":"+connection.getResponseCode()+",");
+				} else response.append("{\"_code_\":").append(connection.getResponseCode()).append("}");
+			}
 			return response.toString();
 
 

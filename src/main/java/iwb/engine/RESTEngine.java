@@ -299,6 +299,9 @@ public class RESTEngine {
 				if (!url.endsWith("/") && !methodUrl.startsWith("/"))
 					url += "/";
 				url += methodUrl;
+				if (url.indexOf("{") > -1 && url.indexOf("${") == -1) {
+					url = url.replace("{","${req.");					
+				}
 				if (url.indexOf("${") > -1) {// has special char
 					url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
 				}

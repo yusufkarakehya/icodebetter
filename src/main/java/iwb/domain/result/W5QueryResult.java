@@ -1150,48 +1150,49 @@ public class W5QueryResult implements W5MetaResult{
     		} else {
 				Object psonuc = GenericUtil.prepareParam((W5Param)p1, getScd(), getRequestParams(), (short)-1, extraParams, (short)0, null, null, getErrorMap());
 		
-				if(getErrorMap().size()==0 && psonuc!=null){ // artik hata yoksa
-					if(p1.getOperatorTip()!=10){ // normal operator ise
-						sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ")
-							.append(p1.getOperatorTip()>10 ? "lower("+pexpressionDsc+")" : pexpressionDsc)
-							.append(FrameworkSetting.operatorMap[p1.getOperatorTip()])
-							.append("? ) ");
-						if(p1.getOperatorTip()>10)psonuc=((String)psonuc).toLowerCase(xlocale) + "%";
-						if(p1.getOperatorTip()==13)psonuc="%" + psonuc;
-						sqlParams.add(psonuc);
-	
-					} else { //custom operator ise: ornegin "x.value_tip=? OR -1=?", kac adet ? varsa o kadar params a koyacaksin; eger pexpressionDsc numeric degerse o kadar koyacaksin
-						if(GenericUtil.uInt(pexpressionDsc)!=0){
-							for(int	q9=GenericUtil.uInt(pexpressionDsc);q9>0;q9--){
-								sqlParams.add(psonuc);
-							}
-						} else if(pexpressionDsc.contains("?")){
-							sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ");							
-							int q8=0;
-							for(int	q9=0;q9<pexpressionDsc.length();q9++)if(pexpressionDsc.charAt(q9)=='?'){
-								if(psonuc!=null && psonuc instanceof Object[]){ //eger aradarda veri gelirse
-									sqlParams.add(((Object[])psonuc)[q8++]);
-								} else
-									sqlParams.add(psonuc);
-							}
-							if(pexpressionDsc.contains("${")){//? işaretlerinden sonra başka bir parametre varsa
-								Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
-								if(oz[0]!=null)pexpressionDsc = oz[0].toString();
-								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-							}
-							sqlWhere.append(pexpressionDsc).append(" ) ");
-						} else if(pexpressionDsc.contains("${")){//bildigimiz ${req.xxx}
-							Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
-							if(sqlWhere.length()>0)sqlWhere.append(" AND ");
-							sqlWhere.append("(").append(oz[0]).append(")");
-							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);							
-						} else {//napak inanak mi kanka
-							sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ")
-							.append(pexpressionDsc)
-							.append(" ) ");
+				if(getErrorMap().size()==0 && psonuc!=null)switch(p1.getOperatorTip()){ // artik hata yoksa
+				case	99:break;
+				case 10: //custom operator ise: ornegin "x.value_tip=? OR -1=?", kac adet ? varsa o kadar params a koyacaksin; eger pexpressionDsc numeric degerse o kadar koyacaksin
+					if(GenericUtil.uInt(pexpressionDsc)!=0){
+						for(int	q9=GenericUtil.uInt(pexpressionDsc);q9>0;q9--){
+							sqlParams.add(psonuc);
 						}
-						
+					} else if(pexpressionDsc.contains("?")){
+						sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ");							
+						int q8=0;
+						for(int	q9=0;q9<pexpressionDsc.length();q9++)if(pexpressionDsc.charAt(q9)=='?'){
+							if(psonuc!=null && psonuc instanceof Object[]){ //eger aradarda veri gelirse
+								sqlParams.add(((Object[])psonuc)[q8++]);
+							} else
+								sqlParams.add(psonuc);
+						}
+						if(pexpressionDsc.contains("${")){//? işaretlerinden sonra başka bir parametre varsa
+							Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+							if(oz[0]!=null)pexpressionDsc = oz[0].toString();
+							if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
+						}
+						sqlWhere.append(pexpressionDsc).append(" ) ");
+					} else if(pexpressionDsc.contains("${")){//bildigimiz ${req.xxx}
+						Object[] oz = DBUtil.filterExt4SQL(pexpressionDsc, scd, requestParams2, null);
+						if(sqlWhere.length()>0)sqlWhere.append(" AND ");
+						sqlWhere.append("(").append(oz[0]).append(")");
+						if(oz[1]!=null)sqlParams.addAll((List)oz[1]);							
+					} else {//napak inanak mi kanka
+						sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ")
+						.append(pexpressionDsc)
+						.append(" ) ");
 					}
+					break;
+				default: // normal operator ise
+					sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ")
+						.append(p1.getOperatorTip()>10 ? "lower("+pexpressionDsc+")" : pexpressionDsc)
+						.append(FrameworkSetting.operatorMap[p1.getOperatorTip()])
+						.append("? ) ");
+					if(p1.getOperatorTip()>10)psonuc=((String)psonuc).toLowerCase(xlocale) + "%";
+					if(p1.getOperatorTip()==13)psonuc="%" + psonuc;
+					sqlParams.add(psonuc);
+
+						
 				}
     		}
 				 
