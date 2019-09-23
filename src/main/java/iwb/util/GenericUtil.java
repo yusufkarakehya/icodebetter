@@ -2543,8 +2543,13 @@ public class GenericUtil {
 			else
 				b = true;
 			Object o = s.get(q);
-			if (o != null)
+			if (o != null) {
+				if(o instanceof List) {
+					String ss =o.toString(); 
+					o = ss.substring(1,ss.length()-1);
+				}
 				html.append(q).append("=").append(o);
+			}
 		}
 		return html.toString();
 	}
