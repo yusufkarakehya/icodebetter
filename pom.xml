@@ -164,12 +164,12 @@
 			<artifactId>graphql-java</artifactId>
 			<version>2019-08-01T04-03-44-e9b53f6</version>
 		</dependency>
-		<dependency> 
+		<!--<dependency> 
 			<groupId>com.oracle</groupId> 
 			<artifactId>ojdbc7</artifactId> 
 			<version>12.1.0</version> 
 			<scope>runtime</scope> 
-		</dependency>
+		</dependency>-->
 	</dependencies>
 
 	<!--<repositories> <repository> <id>circleci</id> <name>CircleCI Repository</name> 
@@ -211,9 +211,9 @@
 							<jvmFlag>-Xdebug</jvmFlag>
 							<jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7777</jvmFlag>
 						</jvmFlags>
-						<args>
+						<!--<args>
 							<arg>project=1</arg> <arg>vcs_server=http://10.252.101.71/app/</arg> 
-						</args> 
+						</args> -->
 					</container>
 				</configuration>
 			</plugin>
