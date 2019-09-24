@@ -1559,7 +1559,7 @@ public class AppController implements InitializingBean {
 			Map<String, Object> m = new HashMap<String, Object>();
 			m.put("report", list);
 			m.put("scd-dev", scd);
-			ModelAndView result = null;
+			result = null;
 			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
 				result = new ModelAndView(new RptExcelRenderer(), m);
 			else if (request.getRequestURI().indexOf(".pdf") != -1)
