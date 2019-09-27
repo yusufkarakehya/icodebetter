@@ -1546,20 +1546,23 @@ public class AppController implements InitializingBean {
 		ModelAndView result = null;
 
 		boolean xls = request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt"));
-		if(false && xls) {
+		/*if(false && xls) {
 			W5GridReportHelper grh = service.prepareGridReport(scd, gridId, gridColumns,
 					GenericUtil.getParameterMap(request));
 			
 			result = null;//TODO yryskul
 //			return result;
-		}
+		}*/
 		List<W5ReportCellHelper> list = service.getGridReportResult(scd, gridId, gridColumns,
 				GenericUtil.getParameterMap(request));
 		if (list != null) {
 			Map<String, Object> m = new HashMap<String, Object>();
 			m.put("report", list);
 			m.put("scd-dev", scd);
-			if (request.getRequestURI().indexOf(".pdf") != -1)
+			result = null;
+			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
+				result = new ModelAndView(new RptExcelRenderer(), m);
+			else if (request.getRequestURI().indexOf(".pdf") != -1)
 				result = new ModelAndView(new RptPdfRenderer(service.getCustomizationLogoFilePath(scd)), m);
 			else if (request.getRequestURI().indexOf(".csv") != -1) {
 				response.setContentType("application/octet-stream");
@@ -1569,7 +1572,6 @@ public class AppController implements InitializingBean {
 				response.getWriter().print(GenericUtil.report2text(list));
 			}
 			return result;
-
 		} else {
 			response.getWriter().write("Hata");
 			response.getWriter().close();

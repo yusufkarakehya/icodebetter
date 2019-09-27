@@ -1,25 +1,25 @@
-const dBGColors2 = [, , "#de9338", "#222", , , , ,];
+const dBGColors2 = [, , "#de9338", "#222", , , , , ];
 let dgColors = ["warning", "secondary", "danger", "primary", "success", "info"];
 let detailSpinnerColors2 = [
-  "#187da0",
-  "#2eadd3",
-  "darkorange",
-  "#187da0",
-  "#4d6672",
-  "#626a70",
-  "#66767d"
+    "#187da0",
+    "#2eadd3",
+    "darkorange",
+    "#187da0",
+    "#4d6672",
+    "#626a70",
+    "#66767d"
 ];
 let dgColors3 = [
-  "gray-700",
-  "danger",
-  "gray-500",
-  "gray-400",
-  "gray-700",
-  "info",
-  "secondary",
-  "secondary",
-  "secondary",
-  "warning"
+    "gray-700",
+    "danger",
+    "gray-500",
+    "gray-400",
+    "gray-700",
+    "info",
+    "secondary",
+    "secondary",
+    "secondary",
+    "warning"
 ];
 // ReactRouterDOM for routing
 const Link = ReactRouterDOM.Link;
@@ -91,7 +91,7 @@ const findDOMNode = ReactDOM.findDOMNode;
 var _ = React.createElement;
 // DXReactCore imports
 const { DXReactCore, DXReactGrid, DXReactGridBootstrap4 } =
-  window.DevExpress !== undefined ? window.DevExpress : window;
+window.DevExpress !== undefined ? window.DevExpress : window;
 const Getter = DXReactCore.Getter;
 const Plugin = DXReactCore.Plugin;
 const Template = DXReactCore.Template;
@@ -107,1596 +107,1636 @@ const CheckboxGroup = Select;
  *              here and most used functions
  */
 iwb = {
-  toastr: toastr,
-  components: {},
-  grids: {},
-  label: {},
-  forms: {},
-  charts: {},
-  formConversions: {},
-  formSmsMailTemplates: {},
-  formBaseValues(id) {
-    var _smsStr = [],
-      ss = iwb.formSmsMailTemplates[id];
-    if (ss) for (var qi in ss) if (ss[qi]) _smsStr.push(qi);
-    var _cnvStr = [],
-      cs = iwb.formConversions[id];
-    if (cs) for (var qi in cs) if (cs[qi]) _cnvStr.push(qi);
-    return { _smsStr: _smsStr.join(","), _cnvStr: _cnvStr.join(",") };
-  },
-  loadGrid: {},
-  tabs: {},
-  closeTab: null,
-  debug: false,
-  debugRender: false,
-  debugConstructor: false,
-  detailPageSize: 10,
-  log: console.log.bind(window.console),
-  loaders: {
-    defaultWidth: 56, defaultHeight: 56, defaultFill: '#20a8d8',
-    tailSpin: function (width, height, fill) {
-      fill = fill || iwb.loaders.defaultFill;
-      width = width || iwb.loaders.defaultWidth; height = height || iwb.loaders.defaultHeight || width;
-      return _("svg", { width: width, height: height, viewBox: "0 0 38 38", xmlns: "http://www.w3.org/2000/svg" },
-        _("defs", null, _("linearGradient",
-          { x1: "8.042%", y1: "0%", x2: "65.682%", y2: "23.865%", id: "a" },
-          _("stop", { stopColor: fill, stopOpacity: "0", offset: "0%" }),
-          _("stop", { stopColor: fill, stopOpacity: ".631", offset: "63.146%" }),
-          _("stop", { stopColor: fill, offset: "100%" })
-        )
-        ),
-        _("g", { fill: "none", fillRule: "evenodd" },
-          _("g", { transform: "translate(1 1)" },
-            _("path", { d: "M36 18c0-9.94-8.06-18-18-18", id: "Oval-2", stroke: "url(#a)", strokeWidth: "2" },
-              _("animateTransform", {
-                attributeName: "transform", type: "rotate",
-                from: "0 18 18", to: "360 18 18",
-                dur: "0.9s", repeatCount: "indefinite"
-              })
-            ),
-            _("circle", { fill: fill, cx: "36", cy: "18", r: "1" },
-              _("animateTransform", {
-                attributeName: "transform", type: "rotate",
-                from: "0 18 18", to: "360 18 18",
-                dur: "0.9s", repeatCount: "indefinite"
-              })
-            )
-          )
-        )
-      );;
+    toastr: toastr,
+    components: {},
+    grids: {},
+    label: {},
+    forms: {},
+    charts: {},
+    formConversions: {},
+    formSmsMailTemplates: {},
+    formBaseValues(id) {
+        var _smsStr = [],
+            ss = iwb.formSmsMailTemplates[id];
+        if (ss)
+            for (var qi in ss)
+                if (ss[qi]) _smsStr.push(qi);
+        var _cnvStr = [],
+            cs = iwb.formConversions[id];
+        if (cs)
+            for (var qi in cs)
+                if (cs[qi]) _cnvStr.push(qi);
+        return { _smsStr: _smsStr.join(","), _cnvStr: _cnvStr.join(",") };
     },
-    ballTriangle: function (width, height, fill) {
-      fill = fill || iwb.loaders.defaultFill;
-      width = width || iwb.loaders.defaultWidth; height = height || iwb.loaders.defaultHeight || width;
-      return _("svg", { width: width, height: height, viewBox: "0 0 57 57", xmlns: "http://www.w3.org/2000/svg", stroke: fill || iwb.loaders.defaultFill },
-        _("g", { fill: "none", fillRule: "evenodd" },
-          _("g", { transform: "translate(1 1)", strokeWidth: "2" },
-            _("circle", { cx: "5", cy: "50", r: "5" },
-              _("animate", {
-                attributeName: "cy", begin: "0s", dur: "2.2s",
-                values: "50;5;50;50", calcMode: "linear", repeatCount: "indefinite"
-              }),
-              _("animate", {
-                attributeName: "cx", begin: "0s", dur: "2.2s",
-                values: "5;27;49;5", calcMode: "linear", repeatCount: "indefinite"
-              })
-            ),
-            _("circle", { cx: "27", cy: "5", r: "5" },
-              _("animate", {
-                attributeName: "cy", begin: "0s", dur: "2.2s",
-                from: "5", to: "5", values: "5;50;50;5", calcMode: "linear",
-                repeatCount: "indefinite"
-              }),
-              _("animate", {
-                attributeName: "cx", begin: "0s", dur: "2.2s",
-                from: "27", to: "27", values: "27;49;5;27",
-                calcMode: "linear", repeatCount: "indefinite"
-              })
-            ),
-            _("circle", { cx: "49", cy: "50", r: "5" },
-              _("animate", {
-                attributeName: "cy", begin: "0s", dur: "2.2s",
-                values: "50;50;5;50", calcMode: "linear", repeatCount: "indefinite"
-              }),
-              _("animate", {
-                attributeName: "cx", from: "49", to: "49",
-                begin: "0s", dur: "2.2s", values: "49;5;27;49",
-                calcMode: "linear", repeatCount: "indefinite"
-              })
-            )
-          )
-        )
-      );
-    },
-    puff: function (width, height, fill) {
-      fill = fill || iwb.loaders.defaultFill;
-      width = width || iwb.loaders.defaultWidth; height = height || iwb.loaders.defaultHeight || width;
-      return _("svg", { width: width, height: height, viewBox: "0 0 44 44", xmlns: "http://www.w3.org/2000/svg", stroke: fill || iwb.loaders.defaultFill },
-        _("g", { fill: "none", fillRule: "evenodd", strokeWidth: "2" },
-          _("circle", { cx: "22", cy: "22", r: "1" },
-            _("animate", {
-              attributeName: "r", begin: "0s", dur: "1.8s",
-              values: "1; 20", calcMode: "spline", keyTimes: "0; 1",
-              keySplines: "0.165, 0.84, 0.44, 1", repeatCount: "indefinite"
-            }),
-            _("animate", {
-              attributeName: "stroke-opacity", begin: "0s", dur: "1.8s",
-              values: "1; 0", calcMode: "spline", keyTimes: "0; 1",
-              keySplines: "0.3, 0.61, 0.355, 1", repeatCount: "indefinite"
-            })
-          ),
-          _("circle", { cx: "22", cy: "22", r: "1" },
-            _("animate", {
-              attributeName: "r", begin: "-0.9s", dur: "1.8s",
-              values: "1; 20", calcMode: "spline", keyTimes: "0; 1",
-              keySplines: "0.165, 0.84, 0.44, 1", repeatCount: "indefinite"
-            }),
-            _("animate", {
-              attributeName: "stroke-opacity", begin: "-0.9s", dur: "1.8s",
-              values: "1; 0", calcMode: "spline", keyTimes: "0; 1",
-              keySplines: "0.3, 0.61, 0.355, 1", repeatCount: "indefinite"
-            })
-          )
-        )
-      );
-    }
-  },
-  mem: ((
-    isArrayEqual = (array1, array2) =>
-      array1.length === array2.length &&
-      array1.every((value, index) => value === array2[index]) &&
-      JSON.stringify(array1) === JSON.stringify(array2)
-  ) => {
-    let fnList = {},
-      resultList = {},
-      argList = {};
-    return (resultFn, ...newArgs) => {
-      let key =
-        resultFn.toString().replace(/(\r\n\t|\n|\r\t|\s)/gm, "") +
-        newArgs.toString().replace(/(,|\s)/gm, "");
-      if (
-        key &&
-        fnList[key] &&
-        resultList[key] &&
-        isArrayEqual(argList[key], newArgs)
-      ) {
-        return resultList[key];
-      }
-      argList[key] = newArgs;
-      resultList[key] = resultFn.apply(this, newArgs);
-      fnList[key] = resultFn;
-      return resultList[key];
-    };
-  })(),
-  /**
-   * A function to insert css classes into Dom
-   *
-   * @param {string}
-   *            css - example '.aclass{display:none}'
-   * @param {string}
-   *            id - template id of the page not mandatory
-   */
-  addCssString: (css = "", id = Math.random()) => {
-    let style = document.createElement("style");
-    style.type = "text/css";
-    style.id = "iwb-tpl-" + id;
-    style.styleSheet
-      ? (style.styleSheet.cssText = css)
-      : style.appendChild(document.createTextNode(css));
-    document["head"].appendChild(style);
-  },
-  /**
-   * a function used for react.lazy
-   * @param {string} url - example '/comp/2/js'
-   */
-  import: url => {
-    var loc = document.location.href;
-    var xloc = loc.split("main.htm");
-    xloc[xloc.length - 1] = url;
-    loc = xloc.join("");
-    return new Promise((resolve, reject) => {
-      if (Object.keys(iwb.components).indexOf(url) > 0) {
-        resolve(iwb.components[url]);
-        return iwb.components[url];
-      }
-      return fetch(loc)
-        .then(res => res.text())
-        .then(text => {
-          var result = new Function(text)();
-          iwb.components = { ...iwb.components, [url]: result };
-          resolve(result);
-        });
-    }).then(a => {
-      a.default = a.default || a;
-      return a;
-    });
-  },
-  /**
-   * @param {string}
-   *            url - example '/comp/2/js'
-   * @param {string}
-   *            id - example '2' -id of the component
-   */
-  addCss: (url, id = Math.floor(Math.random() * 1000 + 1)) => {
-    fetch(url)
-      .then(response => response.text())
-      .then(cssText => {
-        if (document.getElementById(id) === null) {
-          let element = document.createElement("style");
-          element.innerHTML = cssText;
-          element.id = "style" + id;
-          window.document.head.appendChild(element);
-        }
-        return cssText;
-      });
-  },
-  /**
-   * @param {string}
-   *            id - example '2' -id of the component
-   */
-  removePageCss: id => {
-    let elem = document.getElementById("style" + id);
-    if (elem !== null) {
-      elem.parentNode.removeChild(elem);
-    }
-    return true;
-  },
-  loadable: loaderFunction =>
-    class AsyncComponent extends React.Component {
-      constructor(props) {
-        super(props);
-        this.state = { ResultComponent: null, error: false, errorText: "" };
-      }
-      componentWillMount() {
-        loaderFunction
-          .then(result =>
-            this.setState({ ResultComponent: result.default || result })
-          )
-          .catch(errorText => this.setState({ error: true, errorText }));
-      }
-      render() {
-        const { error, ResultComponent } = this.state;
-        return ResultComponent
-          ? _(ResultComponent, { ...this.props })
-          : error
-            ? _("span", { className: "alert alert-danger" })
-            : _(XLoading, null);
-      }
-    },
-  /**
-   * @description used for giving data for grid button
-   */
-  commandComponentProps: {
-    add: { icon: "plus", hint: "Create new row" },
-    edit: { icon: "pencil", hint: "Edit row", color: "text-warning" },
-    delete: { icon: "trash", hint: "Delete row", color: "text-danger" },
-    cancel: { icon: "x", hint: "Cancel changes", color: "text-danger" },
-    import: { icon: "target", hint: "Import" }
-  },
-  copyToClipboard: text => {
-    const el = document.createElement("textarea");
-    el.value = typeof text === "object" ? window.JSON.stringify(text) : text;
-    el.style.position = "absolute";
-    el.style.left = "-9999px";
-    el.setAttribute("readonly", "");
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand("copy");
-    document.body.removeChild(el);
-    toastr.success("Use CTR + V to paste the content!", "Copied Successfully", {
-      timeOut: 3000
-    });
-  },
-  // logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg"
-  // x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300
-  // 202.576" class="white-logo standard-logo middle-content"><g
-  // id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429
-  // -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179
-  // 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43"
-  // fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0
-  // -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065
-  // -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003
-  // -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79
-  // -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063
-  // 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055
-  // 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026
-  // 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956
-  // -29.956,29.956c-15.521,0 -28.283,-11.804
-  // -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896
-  // -18.375,-17.896c-9.995,0 -18.086,7.971
-  // -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85
-  // 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816
-  // -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17"
-  // d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021
-  // -17.428,16.021s-16.624,-7.054
-  // -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979
-  // -18.384,-17.979s-18.139,8.014
-  // -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021
-  // -17.428,16.021c-9.176,0 -16.624,-7.054
-  // -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978
-  // -18.384,-17.978c-10.024,0 -18.139,8.014
-  // -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849
-  // 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458
-  // 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759
-  // 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722"
-  // fill="#bbb"></path></g></svg>',
-  logo:
-    '<img src="/images/rabbit-head.png" border=0 style="vertical-align: top;width: 28px;margin-top: -4px;">',
-
-  detailSearch: () => false,
-  fmtShortDate: x => {
-    x ? moment(x).format("DD/MM/YYYY") : "";
-  },
-  fmtDateTime: x => {
-    x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
-  },
-  openForm: url => {
-    if (url) iwb.openTab("1-" + Math.random(), url);
-    return false;
-  },
-  sidebarToggle: e => {
-    e.preventDefault();
-    document.body.classList.toggle("sidebar-hidden");
-  },
-  sidebarMinimize: e => {
-    e.preventDefault();
-    document.body.classList.toggle("sidebar-minimized");
-    document.body.classList.toggle("brand-minimized");
-  },
-  mobileSidebarToggle: e => {
-    e.preventDefault();
-    document.body.classList.toggle("sidebar-mobile-show");
-  },
-  asideToggle: e => {
-    e.preventDefault();
-    if (iwb.asideToggleX) iwb.asideToggleX(e);
-    else document.body.classList.toggle("aside-menu-hidden");
-  },
-  /**
-   * used to remove Global search value
-   */
-  killGlobalSearch: () => {
-    iwb.onGlobalSearch2 = false;
-    var component = document.getElementById("id-global-search");
-    if (!component) return;
-    component.value = "";
-    component.classList.remove("global-search-active");
-  },
-  /**
-   * Converts JSON to URI
-   */
-  JSON2URI: json => {
-    if (!json) return "";
-    var resultString = "";
-    for (key in json)
-      resultString +=
-        encodeURIComponent(key) +
-        "=" +
-        (json[key] === null || json[key] === false
-          ? ""
-          : encodeURIComponent(json[key])) +
-        "&";
-    return resultString;
-  },
-  onGlobalSearch: v => {
-    var component = document.getElementById("id-global-search");
-    var cc = component.classList.contains("global-search-active");
-    if ((c.value && !cc) || (!c.value && cc))
-      c.classList.toggle("global-search-active");
-    if (iwb.onGlobalSearch2) iwb.onGlobalSearch2(v);
-  },
-  getFieldRawValue: (field, extraOptions) => {
-    if (!field || !field.value) return iwb.emptyField;
-    if (field.$ === FileInput) {
-      return field.fileName
-        ? _(
-            "a",
-            {
-              target: "_blank",
-              style: { color: "#2196F3", fontWeight: "bold" },
-              href: "dl/" + field.fileName + "?_fai=" + field.fileId,
-              className: "form-control",
-              disabled: true
-            },
-            field.fileName,
-            " ",
-            field.fileSize &&
-              _(
-                "i",
-                { style: { color: "#888", fontWeight: "normal" } },
-                "(" + iwb.fmtFileSize(field.fileSize) + ")"
-              )
-          )
-        : iwb.emptyField;
-    }
-    if (field.$ === MapInput)
-      return _(field.$, { value: field.value, disabled: true });
-    var options = extraOptions || field.options;
-    if (!options || !options.length) {
-      var value = field.decimalScale
-        ? Number(field.value).toFixed(field.decimalScale)
-        : field.value;
-      if (typeof value == "undefined" || value == "") return iwb.emptyField;
-      return _("b", { className: "form-control" }, value);
-    }
-    var optionsMap = {};
-    options.map(o => {
-      optionsMap[o.id] = o.dsc;
-    });
-    if (field.multi) {
-      var value = [],
-        vs = field.value;
-      if (!Array.isArray(vs)) vs = vs.split(",");
-      vs.map(v => {
-        value.push(optionsMap[v]);
-      });
-      if (!value.length) return iwb.emptyField;
-      return _("b", { className: "form-control" }, value.join(", "));
-    }
-    var value = field.value;
-    if (value.id) value = value.id;
-    value = optionsMap[value];
-    if (value == undefined || value == "") return iwb.emptyField;
-    return _("b", { className: "form-control" }, value);
-  },
-  approvalColorMap: {
-    1: "primary",
-    2: "warning",
-    3: "danger",
-    5: "success",
-    901: "secondary",
-    998: "success",
-    999: "danger"
-  },
-  approvalLogs: arid => event => {
-    event.preventDefault();
-    iwb.ajax.query(
-      1667,
-      {
-        xapproval_record_id: arid
-      },
-      j => {
-        if (j.data && j.data.length)
-          iwb.showModal({
-            title: getLocMsg("workflow_logs"),
-            footer: false,
-            color: "primary",
-            size: "lg",
-            body: _(
-              "ul",
-              { className: "timeline" },
-              j.data.map(item =>
-                _(
-                  "li",
-                  { className: "timeline-inverted" },
-                  _("div", {
-                    className: "timeline-badge bg-primary timeline-badge-icon"
-                  }),
-                  _(
-                    "div",
-                    { className: "timeline-panel" },
-                    _(
-                      "div",
-                      { className: "timeline-heading" },
-                      _(
-                        "h4",
-                        { className: "timeline-title" },
-                        _(
-                          "span",
-                          {
-                            className:
-                              "float-right badge badge-pill badge-" +
-                              iwb.approvalColorMap[item.approval_action_tip]
-                          },
-                          item.approval_action_tip_qw_
+    loadGrid: {},
+    tabs: {},
+    closeTab: null,
+    debug: false,
+    debugRender: false,
+    debugConstructor: false,
+    detailPageSize: 10,
+    log: console.log.bind(window.console),
+    loaders: {
+        defaultWidth: 56,
+        defaultHeight: 56,
+        defaultFill: '#20a8d8',
+        tailSpin: function(width, height, fill) {
+            fill = fill || iwb.loaders.defaultFill;
+            width = width || iwb.loaders.defaultWidth;
+            height = height || iwb.loaders.defaultHeight || width;
+            return _("svg", { width: width, height: height, viewBox: "0 0 38 38", xmlns: "http://www.w3.org/2000/svg" },
+                _("defs", null, _("linearGradient", { x1: "8.042%", y1: "0%", x2: "65.682%", y2: "23.865%", id: "a" },
+                    _("stop", { stopColor: fill, stopOpacity: "0", offset: "0%" }),
+                    _("stop", { stopColor: fill, stopOpacity: ".631", offset: "63.146%" }),
+                    _("stop", { stopColor: fill, offset: "100%" })
+                )),
+                _("g", { fill: "none", fillRule: "evenodd" },
+                    _("g", { transform: "translate(1 1)" },
+                        _("path", { d: "M36 18c0-9.94-8.06-18-18-18", id: "Oval-2", stroke: "url(#a)", strokeWidth: "2" },
+                            _("animateTransform", {
+                                attributeName: "transform",
+                                type: "rotate",
+                                from: "0 18 18",
+                                to: "360 18 18",
+                                dur: "0.9s",
+                                repeatCount: "indefinite"
+                            })
                         ),
-                        _("b", null, item.user_id_qw_),
-                        item.step_dsc
-                      ),
-                      _(
-                        "p",
-                        {},
-                        _(
-                          "small",
-                          { className: "text-muted" },
-                          _("i", { className: "icon-clock mx-1" }),
-                          item.log_dttm
+                        _("circle", { fill: fill, cx: "36", cy: "18", r: "1" },
+                            _("animateTransform", {
+                                attributeName: "transform",
+                                type: "rotate",
+                                from: "0 18 18",
+                                to: "360 18 18",
+                                dur: "0.9s",
+                                repeatCount: "indefinite"
+                            })
                         )
-                      )
-                    ),
-                    _(
-                      "div",
-                      { className: "timeline-body" },
-                      item.comment && _("p", {}, item.comment)
                     )
-                  )
                 )
-              )
-            )
-          });
-        else toastr.info("no data to show", "warning");
-      }
-    );
-  },
-  request: cfg => {
-    if (!window.fetch) {
-      toastr.error("window.fetch not supported", "ERROR! ");
-      return false;
-    }
-    if (!cfg || !cfg.url) {
-      toastr.error("Config missing", "ERROR!");
-      return false;
-    }
-    if(cfg.requestWaitMsg && iwb.loadingActive)iwb.loadingActive();
-    fetch(cfg.url, {
-      body: JSON.stringify(cfg.params || {}), // must match 'Content-Type'
-      // header
-      cache: "no-cache", // *default, no-cache, reload, force-cache,
-      // only-if-cached
-      credentials: "same-origin", // include, same-origin, *omit
-      headers: {
-        "content-type": "application/json"
-      },
-      method: "POST", // *GET, POST, PUT, DELETE, etc.
-      mode: "cors", // no-cors, cors, *same-origin
-      redirect: "follow", // *manual, follow, error
-      referrer: "no-referrer" // *client, no-referrer
-    })
-      .then(
-        response =>{
-            if(cfg.requestWaitMsg && iwb.loadingDeactive)iwb.loadingDeactive();
-        	
-          return response.status === 200 || response.status === 0
-            ? response.json()
-            : Promise.reject(new Error(response.text() || response.statusText))
-        })
-      .then(
-        result => {
-          if (cfg.callback && cfg.callback(result, cfg) === false) return;
-          if (result.success) {
-            if (cfg.successCallback) cfg.successCallback(result, cfg);
-          } else {
-            if (cfg.errorCallback && cfg.errorCallback(result, cfg) === false)
-              return;
-            iwb.requestErrorHandler(result);
-          }
+            );;
         },
-        error => {
-          if (
-            cfg.errorCallback &&
-            cfg.errorCallback({ error: error }, cfg) === false
-          )
-            return;
-          toastr.error(error || "Unknown ERROR", "Request Error");
-        }
-      );
-  },
-  requestErrorHandler: obj => {
-    if (obj.errorType) {
-      switch (obj.errorType) {
-        case "session":
-          return iwb.showLoginDialog();
-        case "validation":
-          toastr.error(obj.errors.join("<br/>"), "Validation Error");
-          break;
-        case "sql":
-        case "rhino":
-        case "framework":
-        case "cache":
-        case "vcs":
-          if (obj.error) {
-            iwb.showModal({
-              title: obj.objectType,
-              footer: false,
-              color: "danger",
-              size: "lg",
-              body: _(
-                Media,
-                {
-                  body: true
-                },
-                obj.objectType &&
-                  _(
-                    Media,
-                    {
-                      heading: true
-                    },
-                    obj.error
-                  ),
-
-                _(
-                  ListGroup,
-                  {},
-                  obj.icodebetter &&
-                    obj.icodebetter.map((item, index) => {
-                      return _(
-                        ListGroupItem,
-                        {},
-                        item &&
-                          _(
-                            ListGroupItemText,
-                            {},
-                            _(
-                              "b",
-                              {},
-                              item.objectType || item.errorType || "x"
-                            ),
-                            ": " + item.error,
-                            _(
-                              Button,
-                              {
-                                className: "float-right btn btn-xs",
-                                color: "info",
-                                onClick: e => {
-                                  e.preventDefault();
-                                  iwb.copyToClipboard(item);
-                                }
-                              },
-                              _(
-                                "i",
-                                {
-                                  className: "icon-docs"
-                                },
-                                ""
-                              )
-                            ),
-                            _(
-                              Button,
-                              {
-                                className: "float-right btn btn-xs",
-                                color: "primary",
-                                onClick: e => {
-                                  e.preventDefault();
-                                  iwb.log(item);
-                                  toastr.success(
-                                    "Use CTR + SHIFT + I to see the log content!",
-                                    "Console Log",
-                                    { timeOut: 3000 }
-                                  );
-                                }
-                              },
-                              _(
-                                "i",
-                                {
-                                  className: "icon-target"
-                                },
-                                ""
-                              )
-                            )
-                          )
-                      );
-                    })
+        ballTriangle: function(width, height, fill) {
+            fill = fill || iwb.loaders.defaultFill;
+            width = width || iwb.loaders.defaultWidth;
+            height = height || iwb.loaders.defaultHeight || width;
+            return _("svg", { width: width, height: height, viewBox: "0 0 57 57", xmlns: "http://www.w3.org/2000/svg", stroke: fill || iwb.loaders.defaultFill },
+                _("g", { fill: "none", fillRule: "evenodd" },
+                    _("g", { transform: "translate(1 1)", strokeWidth: "2" },
+                        _("circle", { cx: "5", cy: "50", r: "5" },
+                            _("animate", {
+                                attributeName: "cy",
+                                begin: "0s",
+                                dur: "2.2s",
+                                values: "50;5;50;50",
+                                calcMode: "linear",
+                                repeatCount: "indefinite"
+                            }),
+                            _("animate", {
+                                attributeName: "cx",
+                                begin: "0s",
+                                dur: "2.2s",
+                                values: "5;27;49;5",
+                                calcMode: "linear",
+                                repeatCount: "indefinite"
+                            })
+                        ),
+                        _("circle", { cx: "27", cy: "5", r: "5" },
+                            _("animate", {
+                                attributeName: "cy",
+                                begin: "0s",
+                                dur: "2.2s",
+                                from: "5",
+                                to: "5",
+                                values: "5;50;50;5",
+                                calcMode: "linear",
+                                repeatCount: "indefinite"
+                            }),
+                            _("animate", {
+                                attributeName: "cx",
+                                begin: "0s",
+                                dur: "2.2s",
+                                from: "27",
+                                to: "27",
+                                values: "27;49;5;27",
+                                calcMode: "linear",
+                                repeatCount: "indefinite"
+                            })
+                        ),
+                        _("circle", { cx: "49", cy: "50", r: "5" },
+                            _("animate", {
+                                attributeName: "cy",
+                                begin: "0s",
+                                dur: "2.2s",
+                                values: "50;50;5;50",
+                                calcMode: "linear",
+                                repeatCount: "indefinite"
+                            }),
+                            _("animate", {
+                                attributeName: "cx",
+                                from: "49",
+                                to: "49",
+                                begin: "0s",
+                                dur: "2.2s",
+                                values: "49;5;27;49",
+                                calcMode: "linear",
+                                repeatCount: "indefinite"
+                            })
+                        )
+                    )
                 )
-              )
+            );
+        },
+        puff: function(width, height, fill) {
+            fill = fill || iwb.loaders.defaultFill;
+            width = width || iwb.loaders.defaultWidth;
+            height = height || iwb.loaders.defaultHeight || width;
+            return _("svg", { width: width, height: height, viewBox: "0 0 44 44", xmlns: "http://www.w3.org/2000/svg", stroke: fill || iwb.loaders.defaultFill },
+                _("g", { fill: "none", fillRule: "evenodd", strokeWidth: "2" },
+                    _("circle", { cx: "22", cy: "22", r: "1" },
+                        _("animate", {
+                            attributeName: "r",
+                            begin: "0s",
+                            dur: "1.8s",
+                            values: "1; 20",
+                            calcMode: "spline",
+                            keyTimes: "0; 1",
+                            keySplines: "0.165, 0.84, 0.44, 1",
+                            repeatCount: "indefinite"
+                        }),
+                        _("animate", {
+                            attributeName: "stroke-opacity",
+                            begin: "0s",
+                            dur: "1.8s",
+                            values: "1; 0",
+                            calcMode: "spline",
+                            keyTimes: "0; 1",
+                            keySplines: "0.3, 0.61, 0.355, 1",
+                            repeatCount: "indefinite"
+                        })
+                    ),
+                    _("circle", { cx: "22", cy: "22", r: "1" },
+                        _("animate", {
+                            attributeName: "r",
+                            begin: "-0.9s",
+                            dur: "1.8s",
+                            values: "1; 20",
+                            calcMode: "spline",
+                            keyTimes: "0; 1",
+                            keySplines: "0.165, 0.84, 0.44, 1",
+                            repeatCount: "indefinite"
+                        }),
+                        _("animate", {
+                            attributeName: "stroke-opacity",
+                            begin: "-0.9s",
+                            dur: "1.8s",
+                            values: "1; 0",
+                            calcMode: "spline",
+                            keyTimes: "0; 1",
+                            keySplines: "0.3, 0.61, 0.355, 1",
+                            repeatCount: "indefinite"
+                        })
+                    )
+                )
+            );
+        }
+    },
+    mem: ((
+        isArrayEqual = (array1, array2) =>
+        array1.length === array2.length &&
+        array1.every((value, index) => value === array2[index]) &&
+        JSON.stringify(array1) === JSON.stringify(array2)
+    ) => {
+        let fnList = {},
+            resultList = {},
+            argList = {};
+        return (resultFn, ...newArgs) => {
+            let key =
+                resultFn.toString().replace(/(\r\n\t|\n|\r\t|\s)/gm, "") +
+                newArgs.toString().replace(/(,|\s)/gm, "");
+            if (
+                key &&
+                fnList[key] &&
+                resultList[key] &&
+                isArrayEqual(argList[key], newArgs)
+            ) {
+                return resultList[key];
+            }
+            argList[key] = newArgs;
+            resultList[key] = resultFn.apply(this, newArgs);
+            fnList[key] = resultFn;
+            return resultList[key];
+        };
+    })(),
+    /**
+     * A function to insert css classes into Dom
+     *
+     * @param {string}
+     *            css - example '.aclass{display:none}'
+     * @param {string}
+     *            id - template id of the page not mandatory
+     */
+    addCssString: (css = "", id = Math.random()) => {
+        let style = document.createElement("style");
+        style.type = "text/css";
+        style.id = "iwb-tpl-" + id;
+        style.styleSheet ?
+            (style.styleSheet.cssText = css) :
+            style.appendChild(document.createTextNode(css));
+        document["head"].appendChild(style);
+    },
+    /**
+     * a function used for react.lazy
+     * @param {string} url - example '/comp/2/js'
+     */
+    import: url => {
+        var loc = document.location.href;
+        var xloc = loc.split("main.htm");
+        xloc[xloc.length - 1] = url;
+        loc = xloc.join("");
+        return new Promise((resolve, reject) => {
+            if (Object.keys(iwb.components).indexOf(url) > 0) {
+                resolve(iwb.components[url]);
+                return iwb.components[url];
+            }
+            return fetch(loc)
+                .then(res => res.text())
+                .then(text => {
+                    var result = new Function(text)();
+                    iwb.components = {...iwb.components, [url]: result };
+                    resolve(result);
+                });
+        }).then(a => {
+            a.default = a.default || a;
+            return a;
+        });
+    },
+    /**
+     * @param {string}
+     *            url - example '/comp/2/js'
+     * @param {string}
+     *            id - example '2' -id of the component
+     */
+    addCss: (url, id = Math.floor(Math.random() * 1000 + 1)) => {
+        fetch(url)
+            .then(response => response.text())
+            .then(cssText => {
+                if (document.getElementById(id) === null) {
+                    let element = document.createElement("style");
+                    element.innerHTML = cssText;
+                    element.id = "style" + id;
+                    window.document.head.appendChild(element);
+                }
+                return cssText;
             });
-          }
-          break;
-        default:
-          toastr.error(
-            obj.error || obj.errorMsg || "Unknown ERROR",
-            obj.errorType + " Error"
-          );
-      }
-    } else {
-      toastr.error(obj.errorMsg || "Unknown ERROR", "Request Error");
-    }
-  },
-  getFormValues: formObj => {
-    if (!formObj || !formObj.elements) return {};
-    var elements = formObj.elements,
-      values = {};
-    for (var index = 0; index < elements.length; index++) {
-      if (elements[index].name)
-        switch (elements[index].type) {
-          case "checkbox":
-            values[elements[index].name] = elements[index].checked;
-            break;
-          case "hidden":
-            values[elements[index].name] =
-              values[elements[index].name] === undefined
-                ? elements[index].value
-                : values[elements[index].name] + "," + elements[index].value;
-            break;
-          default:
-            values[elements[index].name] = elements[index].value;
+    },
+    /**
+     * @param {string}
+     *            id - example '2' -id of the component
+     */
+    removePageCss: id => {
+        let elem = document.getElementById("style" + id);
+        if (elem !== null) {
+            elem.parentNode.removeChild(elem);
         }
-    }
-    return values;
-  },
-  /**
-   * @description sadece master-insert durumunda cagir. farki _postMap ve hic
-   *              bir zaman _insertedItems,_deletedItems dikkate almamasi
-   * @param {*}
-   *            grid
-   * @param {*}
-   *            prefix
-   * @param {*}
-   *            values
-   */
-  prepareParams4grid: (grid, prefix, values) => {
-    var dirtyCount = 0;
-    var params = {};
-    var items = values.deleted;
-    var pk = grid._pk || grid.pk;
-    if (items)
-      for (var bjk = 0; bjk < items.length; bjk++) {
-        // deleted
-        dirtyCount++;
-        for (var key in pk) {
-          var val = pk[key];
-          if (typeof val == "function") {
-            params[key + prefix + "." + dirtyCount] = val(items[bjk]);
-          } else {
-            params[key + prefix + "." + dirtyCount] =
-              val.charAt(0) == "!" ? val.substring(1) : items[bjk][val];
-          }
-        }
-        params["a" + prefix + "." + dirtyCount] = 3;
-      }
-    items = values.changed;
-    if (items)
-      for (var bjk = 0; bjk < items.length; bjk++) {
-        // edited
-        dirtyCount++;
-        params["a" + prefix + "." + dirtyCount] = 1;
-        var changes = items[bjk]._new;
-        for (var key in changes)
-          params[key + prefix + "." + dirtyCount] = changes[key];
-        if (grid._postMap)
-          for (var key in grid._postMap) {
-            var val = grid._postMap[key];
-            if (typeof val == "function") {
-              params[key + prefix + "." + dirtyCount] = val(changes);
-            } else {
-              params[key + prefix + "." + dirtyCount] =
-                val.charAt(0) == "!" ? val.substring(1) : changes[val];
+        return true;
+    },
+    loadable: loaderFunction =>
+        class AsyncComponent extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { ResultComponent: null, error: false, errorText: "" };
             }
-          }
-
-        for (var key in pk) {
-          var val = pk[key];
-          if (typeof val == "function") {
-            params[key + prefix + "." + dirtyCount] = val(items[bjk]);
-          } else {
-            params[key + prefix + "." + dirtyCount] =
-              val.charAt(0) == "!" ? val.substring(1) : items[bjk][val];
-          }
-        }
-      }
-    items = values.inserted;
-    if (items)
-      for (var bjk = 0; bjk < items.length; bjk++) {
-        dirtyCount++;
-        params["a" + prefix + "." + dirtyCount] = 2;
-        var changes = items[bjk]._new;
-        for (var key in changes)
-          params[key + prefix + "." + dirtyCount] = changes[key];
-
-        if (grid._postMap)
-          for (var key in grid._postMap) {
-            var val = grid._postMap[key];
-            if (typeof val == "function") {
-              params[key + prefix + "." + dirtyCount] = val(changes);
-            } else {
-              params[key + prefix + "." + dirtyCount] =
-                val.charAt(0) == "!" ? val.substring(1) : changes[val];
+            componentWillMount() {
+                loaderFunction
+                    .then(result =>
+                        this.setState({ ResultComponent: result.default || result })
+                    )
+                    .catch(errorText => this.setState({ error: true, errorText }));
             }
-          }
-        if (grid._postInsertParams) {
-          for (var key in grid._postInsertParams)
-            params[key + prefix + "." + dirtyCount] =
-              grid._postInsertParams[key];
+            render() {
+                const { error, ResultComponent } = this.state;
+                return ResultComponent ?
+                    _(ResultComponent, {...this.props }) :
+                    error ?
+                    _("span", { className: "alert alert-danger" }) :
+                    _(XLoading, null);
+            }
+        },
+    /**
+     * @description used for giving data for grid button
+     */
+    commandComponentProps: {
+        add: { icon: "plus", hint: "Create new row" },
+        edit: { icon: "pencil", hint: "Edit row", color: "text-warning" },
+        delete: { icon: "trash", hint: "Delete row", color: "text-danger" },
+        cancel: { icon: "x", hint: "Cancel changes", color: "text-danger" },
+        import: { icon: "target", hint: "Import" }
+    },
+    copyToClipboard: text => {
+        const el = document.createElement("textarea");
+        el.value = typeof text === "object" ? window.JSON.stringify(text) : text;
+        el.style.position = "absolute";
+        el.style.left = "-9999px";
+        el.setAttribute("readonly", "");
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+        toastr.success("Use CTR + V to paste the content!", "Copied Successfully", {
+            timeOut: 3000
+        });
+    },
+    // logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg"
+    // x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300
+    // 202.576" class="white-logo standard-logo middle-content"><g
+    // id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429
+    // -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179
+    // 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43"
+    // fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0
+    // -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065
+    // -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003
+    // -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79
+    // -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063
+    // 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055
+    // 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026
+    // 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956
+    // -29.956,29.956c-15.521,0 -28.283,-11.804
+    // -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896
+    // -18.375,-17.896c-9.995,0 -18.086,7.971
+    // -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85
+    // 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816
+    // -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17"
+    // d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021
+    // -17.428,16.021s-16.624,-7.054
+    // -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979
+    // -18.384,-17.979s-18.139,8.014
+    // -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021
+    // -17.428,16.021c-9.176,0 -16.624,-7.054
+    // -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978
+    // -18.384,-17.978c-10.024,0 -18.139,8.014
+    // -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849
+    // 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458
+    // 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759
+    // 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722"
+    // fill="#bbb"></path></g></svg>',
+    logo: '<img src="/images/rabbit-head.png" border=0 style="vertical-align: top;width: 28px;margin-top: -4px;">',
+
+    detailSearch: () => false,
+    fmtShortDate: x => {
+        x ? moment(x).format("DD/MM/YYYY") : "";
+    },
+    fmtDateTime: x => {
+        x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
+    },
+    openForm: url => {
+        if (url) iwb.openTab("1-" + Math.random(), url);
+        return false;
+    },
+    sidebarToggle: e => {
+        e.preventDefault();
+        document.body.classList.toggle("sidebar-hidden");
+    },
+    sidebarMinimize: e => {
+        e.preventDefault();
+        document.body.classList.toggle("sidebar-minimized");
+        document.body.classList.toggle("brand-minimized");
+    },
+    mobileSidebarToggle: e => {
+        e.preventDefault();
+        document.body.classList.toggle("sidebar-mobile-show");
+    },
+    asideToggle: e => {
+        e.preventDefault();
+        if (iwb.asideToggleX) iwb.asideToggleX(e);
+        else document.body.classList.toggle("aside-menu-hidden");
+    },
+    /**
+     * used to remove Global search value
+     */
+    killGlobalSearch: () => {
+        iwb.onGlobalSearch2 = false;
+        var component = document.getElementById("id-global-search");
+        if (!component) return;
+        component.value = "";
+        component.classList.remove("global-search-active");
+    },
+    /**
+     * Converts JSON to URI
+     */
+    JSON2URI: json => {
+        if (!json) return "";
+        var resultString = "";
+        for (key in json)
+            resultString +=
+            encodeURIComponent(key) +
+            "=" +
+            (json[key] === null || json[key] === false ?
+                "" :
+                encodeURIComponent(json[key])) +
+            "&";
+        return resultString;
+    },
+    onGlobalSearch: v => {
+        var component = document.getElementById("id-global-search");
+        var cc = component.classList.contains("global-search-active");
+        if ((c.value && !cc) || (!c.value && cc))
+            c.classList.toggle("global-search-active");
+        if (iwb.onGlobalSearch2) iwb.onGlobalSearch2(v);
+    },
+    getFieldRawValue: (field, extraOptions) => {
+        if (!field || !field.value) return iwb.emptyField;
+        if (field.$ === FileInput) {
+            return field.fileName ?
+                _(
+                    "a", {
+                        target: "_blank",
+                        style: { color: "#2196F3", fontWeight: "bold" },
+                        href: "dl/" + field.fileName + "?_fai=" + field.fileId,
+                        className: "form-control",
+                        disabled: true
+                    },
+                    field.fileName,
+                    " ",
+                    field.fileSize &&
+                    _(
+                        "i", { style: { color: "#888", fontWeight: "normal" } },
+                        "(" + iwb.fmtFileSize(field.fileSize) + ")"
+                    )
+                ) :
+                iwb.emptyField;
         }
-      }
-    if (dirtyCount > 0) {
-      params["_cnt" + prefix] = dirtyCount;
-      params["_fid" + prefix] = grid.crudFormId;
-      return params;
-    } else return {};
-  }
+        if (field.$ === MapInput)
+            return _(field.$, { value: field.value, disabled: true });
+        var options = extraOptions || field.options;
+        if (!options || !options.length) {
+            var value = field.decimalScale ?
+                Number(field.value).toFixed(field.decimalScale) :
+                field.value;
+            if (typeof value == "undefined" || value == "") return iwb.emptyField;
+            return _("b", { className: "form-control" }, value);
+        }
+        var optionsMap = {};
+        options.map(o => {
+            optionsMap[o.id] = o.dsc;
+        });
+        if (field.multi) {
+            var value = [],
+                vs = field.value;
+            if (!Array.isArray(vs)) vs = vs.split(",");
+            vs.map(v => {
+                value.push(optionsMap[v]);
+            });
+            if (!value.length) return iwb.emptyField;
+            return _("b", { className: "form-control" }, value.join(", "));
+        }
+        var value = field.value;
+        if (value.id) value = value.id;
+        value = optionsMap[value];
+        if (value == undefined || value == "") return iwb.emptyField;
+        return _("b", { className: "form-control" }, value);
+    },
+    approvalColorMap: {
+        1: "primary",
+        2: "warning",
+        3: "danger",
+        5: "success",
+        901: "secondary",
+        998: "success",
+        999: "danger"
+    },
+    approvalLogs: arid => event => {
+        event.preventDefault();
+        iwb.ajax.query(
+            1667, {
+                xapproval_record_id: arid
+            },
+            j => {
+                if (j.data && j.data.length)
+                    iwb.showModal({
+                        title: getLocMsg("workflow_logs"),
+                        footer: false,
+                        color: "primary",
+                        size: "lg",
+                        body: _(
+                            "ul", { className: "timeline" },
+                            j.data.map(item =>
+                                _(
+                                    "li", { className: "timeline-inverted" },
+                                    _("div", {
+                                        className: "timeline-badge bg-primary timeline-badge-icon"
+                                    }),
+                                    _(
+                                        "div", { className: "timeline-panel" },
+                                        _(
+                                            "div", { className: "timeline-heading" },
+                                            _(
+                                                "h4", { className: "timeline-title" },
+                                                _(
+                                                    "span", {
+                                                        className: "float-right badge badge-pill badge-" +
+                                                            iwb.approvalColorMap[item.approval_action_tip]
+                                                    },
+                                                    item.approval_action_tip_qw_
+                                                ),
+                                                _("b", null, item.user_id_qw_),
+                                                item.step_dsc
+                                            ),
+                                            _(
+                                                "p", {},
+                                                _(
+                                                    "small", { className: "text-muted" },
+                                                    _("i", { className: "icon-clock mx-1" }),
+                                                    item.log_dttm
+                                                )
+                                            )
+                                        ),
+                                        _(
+                                            "div", { className: "timeline-body" },
+                                            item.comment && _("p", {}, item.comment)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    });
+                else toastr.info("no data to show", "warning");
+            }
+        );
+    },
+    request: cfg => {
+        if (!window.fetch) {
+            toastr.error("window.fetch not supported", "ERROR! ");
+            return false;
+        }
+        if (!cfg || !cfg.url) {
+            toastr.error("Config missing", "ERROR!");
+            return false;
+        }
+        if (cfg.requestWaitMsg && iwb.loadingActive) iwb.loadingActive();
+        fetch(cfg.url, {
+                body: JSON.stringify(cfg.params || {}), // must match 'Content-Type'
+                // header
+                cache: "no-cache", // *default, no-cache, reload, force-cache,
+                // only-if-cached
+                credentials: "same-origin", // include, same-origin, *omit
+                headers: {
+                    "content-type": "application/json"
+                },
+                method: "POST", // *GET, POST, PUT, DELETE, etc.
+                mode: "cors", // no-cors, cors, *same-origin
+                redirect: "follow", // *manual, follow, error
+                referrer: "no-referrer" // *client, no-referrer
+            })
+            .then(
+                response => {
+                    if (cfg.requestWaitMsg && iwb.loadingDeactive) iwb.loadingDeactive();
+
+                    return response.status === 200 || response.status === 0 ?
+                        response.json() :
+                        Promise.reject(new Error(response.text() || response.statusText))
+                })
+            .then(
+                result => {
+                    if (cfg.callback && cfg.callback(result, cfg) === false) return;
+                    if (result.success) {
+                        if (cfg.successCallback) cfg.successCallback(result, cfg);
+                    } else {
+                        if (cfg.errorCallback && cfg.errorCallback(result, cfg) === false)
+                            return;
+                        iwb.requestErrorHandler(result);
+                    }
+                },
+                error => {
+                    if (
+                        cfg.errorCallback &&
+                        cfg.errorCallback({ error: error }, cfg) === false
+                    )
+                        return;
+                    toastr.error(error || "Unknown ERROR", "Request Error");
+                }
+            );
+    },
+    requestErrorHandler: obj => {
+        if (obj.errorType) {
+            switch (obj.errorType) {
+                case "session":
+                    return iwb.showLoginDialog();
+                case "validation":
+                    toastr.error(obj.errors.join("<br/>"), "Validation Error");
+                    break;
+                case "sql":
+                case "rhino":
+                case "framework":
+                case "cache":
+                case "vcs":
+                    if (obj.error) {
+                        iwb.showModal({
+                            title: obj.objectType,
+                            footer: false,
+                            color: "danger",
+                            size: "lg",
+                            body: _(
+                                Media, {
+                                    body: true
+                                },
+                                obj.objectType &&
+                                _(
+                                    Media, {
+                                        heading: true
+                                    },
+                                    obj.error
+                                ),
+
+                                _(
+                                    ListGroup, {},
+                                    obj.icodebetter &&
+                                    obj.icodebetter.map((item, index) => {
+                                        return _(
+                                            ListGroupItem, {},
+                                            item &&
+                                            _(
+                                                ListGroupItemText, {},
+                                                _(
+                                                    "b", {},
+                                                    item.objectType || item.errorType || "x"
+                                                ),
+                                                ": " + item.error,
+                                                _(
+                                                    Button, {
+                                                        className: "float-right btn btn-xs",
+                                                        color: "info",
+                                                        onClick: e => {
+                                                            e.preventDefault();
+                                                            iwb.copyToClipboard(item);
+                                                        }
+                                                    },
+                                                    _(
+                                                        "i", {
+                                                            className: "icon-docs"
+                                                        },
+                                                        ""
+                                                    )
+                                                ),
+                                                _(
+                                                    Button, {
+                                                        className: "float-right btn btn-xs",
+                                                        color: "primary",
+                                                        onClick: e => {
+                                                            e.preventDefault();
+                                                            iwb.log(item);
+                                                            toastr.success(
+                                                                "Use CTR + SHIFT + I to see the log content!",
+                                                                "Console Log", { timeOut: 3000 }
+                                                            );
+                                                        }
+                                                    },
+                                                    _(
+                                                        "i", {
+                                                            className: "icon-target"
+                                                        },
+                                                        ""
+                                                    )
+                                                )
+                                            )
+                                        );
+                                    })
+                                )
+                            )
+                        });
+                    }
+                    break;
+                default:
+                    toastr.error(
+                        obj.error || obj.errorMsg || "Unknown ERROR",
+                        obj.errorType + " Error"
+                    );
+            }
+        } else {
+            toastr.error(obj.errorMsg || "Unknown ERROR", "Request Error");
+        }
+    },
+    getFormValues: formObj => {
+        if (!formObj || !formObj.elements) return {};
+        var elements = formObj.elements,
+            values = {};
+        for (var index = 0; index < elements.length; index++) {
+            if (elements[index].name)
+                switch (elements[index].type) {
+                    case "checkbox":
+                        values[elements[index].name] = elements[index].checked;
+                        break;
+                    case "hidden":
+                        values[elements[index].name] =
+                            values[elements[index].name] === undefined ?
+                            elements[index].value :
+                            values[elements[index].name] + "," + elements[index].value;
+                        break;
+                    default:
+                        values[elements[index].name] = elements[index].value;
+                }
+        }
+        return values;
+    },
+    /**
+     * @description sadece master-insert durumunda cagir. farki _postMap ve hic
+     *              bir zaman _insertedItems,_deletedItems dikkate almamasi
+     * @param {*}
+     *            grid
+     * @param {*}
+     *            prefix
+     * @param {*}
+     *            values
+     */
+    prepareParams4grid: (grid, prefix, values) => {
+        var dirtyCount = 0;
+        var params = {};
+        var items = values.deleted;
+        var pk = grid._pk || grid.pk;
+        if (items)
+            for (var bjk = 0; bjk < items.length; bjk++) {
+                // deleted
+                dirtyCount++;
+                for (var key in pk) {
+                    var val = pk[key];
+                    if (typeof val == "function") {
+                        params[key + prefix + "." + dirtyCount] = val(items[bjk]);
+                    } else {
+                        params[key + prefix + "." + dirtyCount] =
+                            val.charAt(0) == "!" ? val.substring(1) : items[bjk][val];
+                    }
+                }
+                params["a" + prefix + "." + dirtyCount] = 3;
+            }
+        items = values.changed;
+        if (items)
+            for (var bjk = 0; bjk < items.length; bjk++) {
+                // edited
+                dirtyCount++;
+                params["a" + prefix + "." + dirtyCount] = 1;
+                var changes = items[bjk]._new;
+                for (var key in changes)
+                    params[key + prefix + "." + dirtyCount] = changes[key];
+                if (grid._postMap)
+                    for (var key in grid._postMap) {
+                        var val = grid._postMap[key];
+                        if (typeof val == "function") {
+                            params[key + prefix + "." + dirtyCount] = val(changes);
+                        } else {
+                            params[key + prefix + "." + dirtyCount] =
+                                val.charAt(0) == "!" ? val.substring(1) : changes[val];
+                        }
+                    }
+
+                for (var key in pk) {
+                    var val = pk[key];
+                    if (typeof val == "function") {
+                        params[key + prefix + "." + dirtyCount] = val(items[bjk]);
+                    } else {
+                        params[key + prefix + "." + dirtyCount] =
+                            val.charAt(0) == "!" ? val.substring(1) : items[bjk][val];
+                    }
+                }
+            }
+        items = values.inserted;
+        if (items)
+            for (var bjk = 0; bjk < items.length; bjk++) {
+                dirtyCount++;
+                params["a" + prefix + "." + dirtyCount] = 2;
+                var changes = items[bjk]._new;
+                for (var key in changes)
+                    params[key + prefix + "." + dirtyCount] = changes[key];
+
+                if (grid._postMap)
+                    for (var key in grid._postMap) {
+                        var val = grid._postMap[key];
+                        if (typeof val == "function") {
+                            params[key + prefix + "." + dirtyCount] = val(changes);
+                        } else {
+                            params[key + prefix + "." + dirtyCount] =
+                                val.charAt(0) == "!" ? val.substring(1) : changes[val];
+                        }
+                    }
+                if (grid._postInsertParams) {
+                    for (var key in grid._postInsertParams)
+                        params[key + prefix + "." + dirtyCount] =
+                        grid._postInsertParams[key];
+                }
+            }
+        if (dirtyCount > 0) {
+            params["_cnt" + prefix] = dirtyCount;
+            params["_fid" + prefix] = grid.crudFormId;
+            return params;
+        } else return {};
+    }
 };
 var ajaxErrorHandler = iwb.requestErrorHandler;
 (iwb.emptyField = _(
-  "i",
-  { className: "raw-field-empty" },
-  _("br"),
-  " ",
-  "(boş)"
+    "i", { className: "raw-field-empty" },
+    _("br"),
+    " ",
+    "(boş)"
 )),
-  (iwb.loadPage = function(cfg) {});
+(iwb.loadPage = function(cfg) {});
 iwb.ui = {
-  buildPanel: c => {
-    if (c.grid) {
-      if (!c.grid.pk) c.grid.pk = c.pk || c._pk;
-      if (!c.grid.detailGrids) c.grid.detailGrids = c.detailGrids || false;
-      return _(XPage, c);
-    } else if (c.card) {
-      if (!c.card.pk) c.card.pk = c.pk || c._pk;
-      if (!c.card.detailGrids) c.card.detailGrids = c.detailGrids || false;
-      return _(XPage4Card, c);
+    buildPanel: c => {
+        if (c.grid) {
+            if (!c.grid.pk) c.grid.pk = c.pk || c._pk;
+            if (!c.grid.detailGrids) c.grid.detailGrids = c.detailGrids || false;
+            return _(XPage, c);
+        } else if (c.card) {
+            if (!c.card.pk) c.card.pk = c.pk || c._pk;
+            if (!c.card.detailGrids) c.card.detailGrids = c.detailGrids || false;
+            return _(XPage4Card, c);
+        }
     }
-  }
 };
 
 function disabledCheckBoxHtml(row, cell) {
-  return row[cell] && 1 * row[cell]
-    ? _("i", {
-        className: "fa fa-check",
-        style: {
-          color: "white",
-          background: "#4dbd74",
-          padding: 5,
-          borderRadius: 25
-        }
-      })
-    : null; // _('i',{className:'fa fa-check', style:{color: 'white',background:
-  // 'red', padding: 5, borderRadius: 25}});
+    return row[cell] && 1 * row[cell] ?
+        _("i", {
+            className: "fa fa-check",
+            style: {
+                color: "white",
+                background: "#4dbd74",
+                padding: 5,
+                borderRadius: 25
+            }
+        }) :
+        null; // _('i',{className:'fa fa-check', style:{color: 'white',background:
+    // 'red', padding: 5, borderRadius: 25}});
 }
+
 function gridUserRenderer(row, cell) {
-  // TODO
-  return row[cell + "_qw_"];
-}
-function gridQwRendererWithLink(t) {
-  // tableId
-  return function(row, cell) {
+    // TODO
     return row[cell + "_qw_"];
-  };
 }
+
+function gridQwRendererWithLink(t) {
+    // tableId
+    return function(row, cell) {
+        return row[cell + "_qw_"];
+    };
+}
+
 function editGridComboRenderer(cell, combo) {
-  if (!combo || !combo.options)
+    if (!combo || !combo.options)
+        return function(row) {
+            return "?x?: " + row[cell];
+        };
+    var moptions = {};
+    combo.options.map(function(o) {
+        moptions[o.id] = o;
+    });
+    combo.moptions = moptions;
     return function(row) {
-      return "?x?: " + row[cell];
+        var c = row[cell];
+        if (!c) return "";
+        var o = combo.moptions[c];
+        return o ? o.dsc : "???: " + row[cell];
     };
-  var moptions = {};
-  combo.options.map(function(o) {
-    moptions[o.id] = o;
-  });
-  combo.moptions = moptions;
-  return function(row) {
-    var c = row[cell];
-    if (!c) return "";
-    var o = combo.moptions[c];
-    return o ? o.dsc : "???: " + row[cell];
-  };
 }
+
 function editGridLovComboRenderer(cell, combo) {
-  if (!combo || !combo.options)
-    return function(row) {
-      return "?x?: " + row[cell];
+    if (!combo || !combo.options)
+        return function(row) {
+            return "?x?: " + row[cell];
+        };
+    var moptions = {};
+    combo.options.map(option => {
+        moptions[option.id] = option;
+    });
+    combo.moptions = moptions;
+    return row => {
+        var tempCell = row[cell];
+        if (!tempCell) return "";
+        tempCell = tempCell.split(",");
+        return tempCell.map(opName => combo.moptions[opName]);
     };
-  var moptions = {};
-  combo.options.map(option => {
-    moptions[option.id] = option;
-  });
-  combo.moptions = moptions;
-  return row => {
-    var tempCell = row[cell];
-    if (!tempCell) return "";
-    tempCell = tempCell.split(",");
-    return tempCell.map(opName => combo.moptions[opName]);
-  };
 }
+
 function fileAttachmentHtml(row, cell) {
-  // TODO
-  return row[cell] && 1 * row[cell]
-    ? _("i", { className: "icon-paper-clip" })
-    : null;
+    // TODO
+    return row[cell] && 1 * row[cell] ?
+        _("i", { className: "icon-paper-clip" }) :
+        null;
 }
+
 function fieldFileAttachment(row, cell) {
-  return row[cell] && 1 * row[cell]
-    ? _(
-        "a",
-        {
-          href: "dl/" + row[cell + "_qw_"] + "?_fai=" + row[cell],
-          target: "_blank"
-        },
-        row[cell + "_qw_"]
-      )
-    : null;
+    return row[cell] && 1 * row[cell] ?
+        _(
+            "a", {
+                href: "dl/" + row[cell + "_qw_"] + "?_fai=" + row[cell],
+                target: "_blank"
+            },
+            row[cell + "_qw_"]
+        ) :
+        null;
 }
+
 function vcsHtml(row, cell) {
-  return row[cell] && 1 * row[cell]
-    ? _("i", { className: "icon-social-github" })
-    : null;
+    return row[cell] && 1 * row[cell] ?
+        _("i", { className: "icon-social-github" }) :
+        null;
 }
+
 function pictureHtml(row, cell) {
-  return row[cell] && 1 * row[cell]
-    ? _("i", { className: "icon-picture" })
-    : null;
+    return row[cell] && 1 * row[cell] ?
+        _("i", { className: "icon-picture" }) :
+        null;
 }
+
 function mailBoxRenderer(row, cell) {
-  return row[cell] && 1 * row[cell]
-    ? _("i", { className: "icon-envelope" })
-    : null;
+    return row[cell] && 1 * row[cell] ?
+        _("i", { className: "icon-envelope" }) :
+        null;
 }
-function strShortDate(row,cell) {
-  return cell && row ? (row[cell] ? row[cell].substr(0, 10) : ""):(row ? row.substr(0, 10) : "");
+
+function strShortDate(row, cell) {
+    return cell && row ? (row[cell] ? row[cell].substr(0, 10) : "") : (row ? row.substr(0, 10) : "");
 }
+
 function accessControlHtml() {
-  return null;
+    return null;
 }
-function fmtDateTime(x,y) {
-  return x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
+
+function fmtDateTime(x, y) {
+    return x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
 }
-function fmtShortDate(x,y) {
-  return x ? moment(x).format("DD/MM/YYYY") : "";
+
+function fmtShortDate(x, y) {
+    return x ? moment(x).format("DD/MM/YYYY") : "";
 }
-function strDateTime(row,cell) {
-	return cell && row ? (row[cell] ? row[cell] : ""):(row ? row : "");
+
+function strDateTime(row, cell) {
+    return cell && row ? (row[cell] ? row[cell] : "") : (row ? row : "");
 }
 
 
 var daysOfTheWeek = {
-  tr: [
-    "Pazar",
-    "Pazartesi",
-    "Salı",
-    "Çarşamba",
-    "Perşembe",
-    "Cuma",
-    "Cumartesi"
-  ],
-  en: [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
-  ]
+    tr: [
+        "Pazar",
+        "Pazartesi",
+        "Salı",
+        "Çarşamba",
+        "Perşembe",
+        "Cuma",
+        "Cumartesi"
+    ],
+    en: [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+    ]
 };
 var xtimeMap = {
-  tr: ["az önce", "bir dakika önce", "dakika önce", "saat önce", "dün"],
-  en: ["seconds ago", "a minute ago", "minutes ago", "hours ago", "yesterday"]
+    tr: ["az önce", "bir dakika önce", "dakika önce", "saat önce", "dün"],
+    en: ["seconds ago", "a minute ago", "minutes ago", "hours ago", "yesterday"]
 };
+
 function fmtDateTimeAgo(dt2) {
-  if (!dt2) return "";
-  var tnow = new Date().getTime();
-  var dt3 = moment(dt2,"DD/MM/YYYY HH:mm").toDate();
-  var t = dt3.getTime();
-  var xt = xtimeMap[_scd.locale] || {};
-  if (t + 30 * 1000 > tnow) return xt[0]; // 'Az Önce';//5 sn
-  if (t + 2 * 60 * 1000 > tnow) return xt[1]; // 'Bir Dakika Önce';//1 dka
-  if (t + 60 * 60 * 1000 > tnow)
-    return Math.round((tnow - t) / (60 * 1000)) + xt[2]; // ' Dakika Önce';
-  if (t + 24 * 60 * 60 * 1000 > tnow)
-    return Math.round((tnow - t) / (60 * 60 * 1000)) + xt[3]; // ' Saat Önce';
-  if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; // 'Dün';
-  if (t + 7 * 24 * 60 * 60 * 1000 > tnow)
-    return daysOfTheWeek[_scd.locale][dt3.getDay()]; // 5dka
-  return dt2.substr(0,10);
+    if (!dt2) return "";
+    var tnow = new Date().getTime();
+    var dt3 = moment(dt2, "DD/MM/YYYY HH:mm").toDate();
+    var t = dt3.getTime();
+    var xt = xtimeMap[_scd.locale] || {};
+    if (t + 30 * 1000 > tnow) return xt[0]; // 'Az Önce';//5 sn
+    if (t + 2 * 60 * 1000 > tnow) return xt[1]; // 'Bir Dakika Önce';//1 dka
+    if (t + 60 * 60 * 1000 > tnow)
+        return Math.round((tnow - t) / (60 * 1000)) + xt[2]; // ' Dakika Önce';
+    if (t + 24 * 60 * 60 * 1000 > tnow)
+        return Math.round((tnow - t) / (60 * 60 * 1000)) + xt[3]; // ' Saat Önce';
+    if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; // 'Dün';
+    if (t + 7 * 24 * 60 * 60 * 1000 > tnow)
+        return daysOfTheWeek[_scd.locale][dt3.getDay()]; // 5dka
+    return dt2.substr(0, 10);
 }
 
 function strDateTimeAgo(row, cell) {
-	return cell && row ? (row[cell] ? fmtDateTimeAgo(row[cell]) : ""):(row ? fmtDateTimeAgo(row) : "");
+    return cell && row ? (row[cell] ? fmtDateTimeAgo(row[cell]) : "") : (row ? fmtDateTimeAgo(row) : "");
 }
+
 function getStrapSize(w) {
-  if (w >= 700) return "lg";
-  if (w >= 400) return "md";
-  return "sm";
+    if (w >= 700) return "lg";
+    if (w >= 400) return "md";
+    return "sm";
 }
+
 function getMasterGridSel(a, sel) {
-  return sel;
+    return sel;
 }
+
 function buildParams2(params, map) {
-  var bp = "";
-  for (var key in params) {
-    var newKey = params[key];
-    if (typeof newKey == "function") {
-      bp += "&" + key + "=" + newKey(params);
-    } else if (newKey.charAt(0) == "!")
-      bp += "&" + key + "=" + newKey.substring(1);
-    else bp += "&" + key + "=" + map[params[key]];
-  }
-  return bp;
+    var bp = "";
+    for (var key in params) {
+        var newKey = params[key];
+        if (typeof newKey == "function") {
+            bp += "&" + key + "=" + newKey(params);
+        } else if (newKey.charAt(0) == "!")
+            bp += "&" + key + "=" + newKey.substring(1);
+        else bp += "&" + key + "=" + map[params[key]];
+    }
+    return bp;
 }
 /**
  * @description Grids common methods are located in this class
  */
 class GridCommon extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {};
-    this.lastQuery;
-    /**
-     * @description Used to set State of Grid with pagination number
-     * @param {Number}
-     *            currentPage - current page number
-     */
-    this.onCurrentPageChange = currentPage => this.setState({ currentPage });
-    /**
-     * @description Used to Set State of grid with Column width
-     * @param {String}
-     *            columnWidths[].columnName - name of the column
-     * @param {Number}
-     *            columnWidths[].width - width of the column
-     */
-    this.onColumnWidthsChange = columnWidths => this.setState({ columnWidths });
-    /**
-     * @description Used to Set State of Grid with column order
-     * @param {Array}
-     *            order - ["ColName1","ColName2",...]
-     */
-    this.onOrderChange = order => this.setState({ order });
-    /**
-     * @description Used to set Pagination row Nummber
-     * @param {Number}
-     *            pageSize - sets size of the number for
-     */
-    this.onPageSizeChange = pageSize => {
-      var { currentPage, totalCount } = this.state;
-      currentPage = Math.min(currentPage, Math.ceil(totalCount / pageSize) - 1);
-      this.setState({ pageSize, currentPage });
-    };
-    /**
-     * @description get selected array from grid
-     */
-    this.getSelected = () =>
-      this.state.rows.reduce((accumulator, row) => {
-        this.state.selection.includes(row[props.keyField])
-          ? accumulator.push(row)
-          : "";
-        return accumulator;
-      }, []);
-    // //////////////////////////////////////////------2-----////////////////////////////////////////
-    /**
-     * @description Used to Set Sorting state of Grid with column name
-     * @example Used only in XMainGrid and XGrid
-     * @param {String}
-     *            sorting
-     */
-    this.onSortingChange = sorting => this.setState({ sorting });
-    /**
-     * @description
-     *
-     * You can access every row data Also Used to Map Doulble click action to
-     * the row
-     * @example Used Only in XMainGrid and XGrid
-     * @param {Object}
-     *            tableRowData -
-     * @param {Symbol}
-     *            tableRowData.childeren -React.Components
-     * @param {Object}
-     *            tableRowData.row - Row Data
-     * @param {Object}
-     *            tableRowData.TableRow - {Current RowData,key,type,rowId}
-     */
-    this.rowComponent = tableRowData => {
-      var { openTab, crudFlags, pk, crudFormId } = this.props;
-      return _(
-        _dxgrb.Table.Row,
-        openTab && crudFlags && crudFlags.edit && pk && crudFormId
-          ? {
-              ...tableRowData,
-              ...{
-                onDoubleClick: event =>
-                  this.onEditClick({
-                    event,
-                    rowData: tableRowData.row,
-                    openEditable: false
-                  }),
-                style: { ...tableRowData.style, cursor: "pointer" }
-              }
-            }
-          : tableRowData
-      );
-    };
-    /**
-     * @description will open new page with
-     * @example Used in XMainGrid and XGrid
-     * @param {event}
-     *            event - Event from of the clicked buttuon
-     * @param {state/props}
-     *            grid -state of the grid
-     * @param {Array}
-     *            row - row data to pass into _postInsert
-     */
-    this.onOnNewRecord = (event, grid, row) => {
-      if (!grid) grid = this.props;
-      if (grid.crudFlags && grid.crudFlags.insert && this.props.openTab) {
-        var url = "showForm?a=2&_fid=" + grid.crudFormId;
-        if (grid._postInsert) {
-          url = grid._postInsert(row || {}, url, grid);
-          if (!url) return;
-        }
-        var modal = !!event.ctrlKey;
-        this.props.openTab(
-          "2-" + grid.gridId,
-          url + (modal ? "&_modal=1" : ""),
-          {},
-          { modal: modal }
-        );
-      }
-    };
-    /**
-     * @description prerpares url with query
-     * @example Used in XMainGrid and XGrid to make query inside loadData
-     * @returns {String}
-     */
-    this.queryString = () => {
-      const { sorting, pageSize, currentPage } = this.state;
-      let queryString =
-        this.props._url +
-        "&limit=" +
-        pageSize +
-        "&start=" +
-        pageSize * currentPage;
-      const columnSorting = sorting[0];
-      if (columnSorting) {
-        const sortingDirectionString =
-          columnSorting.direction === "desc" ? " desc" : "";
-        queryString +=
-          "&sort=" + columnSorting.columnName + sortingDirectionString;
-      }
-      return queryString;
-    };
-    /**
-     * @description Used to Edit and double click on the row
-     * @param {
-     *            Object } param0 - consist of two data evet and Rowdata
-     * @param {
-     *            Event } param0.event - Click event from the Edit button and
-     *            double click on the row
-     * @param {
-     *            rowData } param0.rowData - Data of the row where the Edit
-     *            button or double click clicked
-     */
-    this.onEditClick = ({ event, rowData, openEditable, ...extraProps }) => {
-      var { props } = this;
-      var pkz = buildParams2(props.pk, rowData);
-      var url = "showForm?a=1&_fid=" + props.crudFormId + pkz;
-      if (props._postUpdate) {
-        var url = this.props._postUpdate(rowData, url, props);
-        if (!url) return;
-      }
-      var modal = event.ctrlKey && !!event.ctrlKey;
-      props.openTab(
-        "1-" + pkz,
-        url + (modal ? "&_modal=1" : ""),
-        {},
-        { modal, openEditable, rowData, ...props, ...extraProps }
-      );
-    };
-    /**
-     * todo
-     *
-     * @param {Object}
-     *            param0 - event from delete button
-     * @param {Event}
-     *            param0.event - event from delete button
-     * @param {Array}
-     *            param0.rowData - data for the deleted Row
-     */
-    this.onDeleteClick = ({ event, rowData }) => {
-      var { pk, crudFormId } = this.props;
-      var pkz = buildParams2(pk, rowData);
-      var url = "ajaxPostForm?a=3&_fid=" + crudFormId + pkz;
-      yesNoDialog({
-        text: getLocMsg("are_you_sure"),
-        callback: success => {
-          if (success) {
-            iwb.request({ url, successCallback: () => this.loadData(true) });
-          }
-        }
-      });
-    };
-    /**
-     * @description used to make request and fill the grid
-     * @param {boolean}
-     *            force - to fill with up to date data
-     */
-    this.loadData = force => {
-      if (this.props.rows || this.state.loading) return;
-      const queryString = this.queryString();
-      if (!force && queryString === this.lastQuery) {
-        return;
-      }
-      this.setState({ rows: [], loading: true });
-      iwb.request({
-        url: queryString,
-        self: this,
-        params:
-          this.props.searchForm &&
-          iwb.getFormValues(document.getElementById(this.props.searchForm.id)),
-        successCallback: (result, cfg) => {
-          cfg.self.setState({
-            rows: result.data,
-            totalCount: result.total_count,
-            loading: false
-          });
-        },
-        errorCallback: (error, cfg) => {
-          cfg.self.setState({
-            rows: [],
-            totalCount: 0,
-            loading: false
-          });
-        }
-      });
-      this.lastQuery = queryString;
-    };
-    // ####################################EDit Grid Common
-    // ############################################
-    /**
-     * @param {Array}
-     *            editingRowIds - IDs of the Editing rows
-     */
-    this.onEditingRowIdsChange = editingRowIds =>
-      this.setState({ editingRowIds });
-    /**
-     * @description A function that returns a row change object depending on row
-     *              editor values. This function is called each time the row
-     *              editor’s value changes.
-     * @param {object}
-     *            addedRows - (row: any, columnName: string, value: string |
-     *            number)
-     */
-    this.onAddedRowsChange = addedRows => {
-      var newRecord = Object.assign({}, this.props.newRecord || {});
-      var pk = this.state.pkInsert;
-      --pk;
-      newRecord[this.props.keyField] = pk;
-      this.setState({
-        pk4Insert: pk,
-        addedRows: addedRows.map(
-          row => (Object.keys(row).length ? row : newRecord)
-        )
-      });
-    };
-    /**
-     * @description Handles adding or removing a row changes to/from the
-     *              rowChanges array.
-     * @param {Array}
-     *            rowChanges -(rowChanges: { [key: string]: any }) => void
-     */
-    this.onRowChangesChange = rowChanges => {
-      this.setState({ rowChanges });
-    };
-    /**
-     * @description Handles selection changes.
-     * @param {Array}
-     *            selection - (selection: Array<number | string>) => void
-     */
-    this.onSelectionChange = selection => {
-      this.setState({ selection });
-    };
-    /**
-     * Used to delete from the frontend
-     *
-     * @param {Array}
-     *            param0
-     * @param {Array}
-     *            param0.deleted
-     */
-    this.onCommitChanges = ({ deleted }) => {
-      let { rows, deletedRows } = this.state;
-      if (deleted && deleted.length) {
-        yesNoDialog({
-          text: getLocMsg("are_you_sure"),
-          callback: success => {
-            if (success) {
-              rows = rows.slice();
-              deleted.forEach(rowId => {
-                const index = rows.findIndex(
-                  row => row[this.props.keyField] === rowId
+        constructor(props) {
+            super(props);
+            this.state = {};
+            this.lastQuery;
+            /**
+             * @description Used to set State of Grid with pagination number
+             * @param {Number}
+             *            currentPage - current page number
+             */
+            this.onCurrentPageChange = currentPage => this.setState({ currentPage });
+            /**
+             * @description Used to Set State of grid with Column width
+             * @param {String}
+             *            columnWidths[].columnName - name of the column
+             * @param {Number}
+             *            columnWidths[].width - width of the column
+             */
+            this.onColumnWidthsChange = columnWidths => this.setState({ columnWidths });
+            /**
+             * @description Used to Set State of Grid with column order
+             * @param {Array}
+             *            order - ["ColName1","ColName2",...]
+             */
+            this.onOrderChange = order => this.setState({ order });
+            /**
+             * @description Used to set Pagination row Nummber
+             * @param {Number}
+             *            pageSize - sets size of the number for
+             */
+            this.onPageSizeChange = pageSize => {
+                var { currentPage, totalCount } = this.state;
+                currentPage = Math.min(currentPage, Math.ceil(totalCount / pageSize) - 1);
+                this.setState({ pageSize, currentPage });
+            };
+            /**
+             * @description get selected array from grid
+             */
+            this.getSelected = () =>
+                this.state.rows.reduce((accumulator, row) => {
+                    this.state.selection.includes(row[props.keyField]) ?
+                        accumulator.push(row) :
+                        "";
+                    return accumulator;
+                }, []);
+            // //////////////////////////////////////////------2-----////////////////////////////////////////
+            /**
+             * @description Used to Set Sorting state of Grid with column name
+             * @example Used only in XMainGrid and XGrid
+             * @param {String}
+             *            sorting
+             */
+            this.onSortingChange = sorting => this.setState({ sorting });
+            /**
+             * @description
+             *
+             * You can access every row data Also Used to Map Doulble click action to
+             * the row
+             * @example Used Only in XMainGrid and XGrid
+             * @param {Object}
+             *            tableRowData -
+             * @param {Symbol}
+             *            tableRowData.childeren -React.Components
+             * @param {Object}
+             *            tableRowData.row - Row Data
+             * @param {Object}
+             *            tableRowData.TableRow - {Current RowData,key,type,rowId}
+             */
+            this.rowComponent = tableRowData => {
+                var { openTab, crudFlags, pk, crudFormId } = this.props;
+                return _(
+                    _dxgrb.Table.Row,
+                    openTab && crudFlags && crudFlags.edit && pk && crudFormId ?
+                    {
+                        ...tableRowData,
+                        ... {
+                            onDoubleClick: event =>
+                                this.onEditClick({
+                                    event,
+                                    rowData: tableRowData.row,
+                                    openEditable: false
+                                }),
+                            style: {...tableRowData.style, cursor: "pointer" }
+                        }
+                    } :
+                    tableRowData
                 );
-                if (index > -1) {
-                  if (rowId > 0) {
-                    deletedRows.push(Object.assign({}, rows[index]));
-                  }
-                  rows.splice(index, 1);
+            };
+            /**
+             * @description will open new page with
+             * @example Used in XMainGrid and XGrid
+             * @param {event}
+             *            event - Event from of the clicked buttuon
+             * @param {state/props}
+             *            grid -state of the grid
+             * @param {Array}
+             *            row - row data to pass into _postInsert
+             */
+            this.onOnNewRecord = (event, grid, row) => {
+                if (!grid) grid = this.props;
+                if (grid.crudFlags && grid.crudFlags.insert && this.props.openTab) {
+                    var url = "showForm?a=2&_fid=" + grid.crudFormId;
+                    if (grid._postInsert) {
+                        url = grid._postInsert(row || {}, url, grid);
+                        if (!url) return;
+                    }
+                    var modal = !!event.ctrlKey;
+                    this.props.openTab(
+                        "2-" + grid.gridId,
+                        url + (modal ? "&_modal=1" : ""), {}, { modal: modal }
+                    );
                 }
-              });
-              this.setState({ rows, deletingRows: [], deletedRows });
-            }
-          }
-        });
-      }
-    };
-    /**
-     * @example push id to this.state.deletingRows then this.deleteRows();
-     */
-    this.deleteRows = () => {
-      const rows = this.state.rows.slice();
-      this.state.deletingRows.forEach(rowId => {
-        const index = rows.findIndex(row => row.id === rowId);
-        if (index > -1) {
-          rows.splice(index, 1);
+            };
+            /**
+             * @description prerpares url with query
+             * @example Used in XMainGrid and XGrid to make query inside loadData
+             * @returns {String}
+             */
+            this.queryString = () => {
+                const { sorting, pageSize, currentPage } = this.state;
+                let queryString =
+                    this.props._url +
+                    "&limit=" +
+                    pageSize +
+                    "&start=" +
+                    pageSize * currentPage;
+                const columnSorting = sorting[0];
+                if (columnSorting) {
+                    const sortingDirectionString =
+                        columnSorting.direction === "desc" ? " desc" : "";
+                    queryString +=
+                        "&sort=" + columnSorting.columnName + sortingDirectionString;
+                }
+                return queryString;
+            };
+            /**
+             * @description Used to Edit and double click on the row
+             * @param {
+             *            Object } param0 - consist of two data evet and Rowdata
+             * @param {
+             *            Event } param0.event - Click event from the Edit button and
+             *            double click on the row
+             * @param {
+             *            rowData } param0.rowData - Data of the row where the Edit
+             *            button or double click clicked
+             */
+            this.onEditClick = ({ event, rowData, openEditable, ...extraProps }) => {
+                var { props } = this;
+                var pkz = buildParams2(props.pk, rowData);
+                var url = "showForm?a=1&_fid=" + props.crudFormId + pkz;
+                if (props._postUpdate) {
+                    var url = this.props._postUpdate(rowData, url, props);
+                    if (!url) return;
+                }
+                var modal = event.ctrlKey && !!event.ctrlKey;
+                props.openTab(
+                    "1-" + pkz,
+                    url + (modal ? "&_modal=1" : ""), {}, { modal, openEditable, rowData, ...props, ...extraProps }
+                );
+            };
+            /**
+             * todo
+             *
+             * @param {Object}
+             *            param0 - event from delete button
+             * @param {Event}
+             *            param0.event - event from delete button
+             * @param {Array}
+             *            param0.rowData - data for the deleted Row
+             */
+            this.onDeleteClick = ({ event, rowData }) => {
+                var { pk, crudFormId } = this.props;
+                var pkz = buildParams2(pk, rowData);
+                var url = "ajaxPostForm?a=3&_fid=" + crudFormId + pkz;
+                yesNoDialog({
+                    text: getLocMsg("are_you_sure"),
+                    callback: success => {
+                        if (success) {
+                            iwb.request({ url, successCallback: () => this.loadData(true) });
+                        }
+                    }
+                });
+            };
+            /**
+             * @description used to make request and fill the grid
+             * @param {boolean}
+             *            force - to fill with up to date data
+             */
+            this.loadData = force => {
+                if (this.props.rows || this.state.loading) return;
+                const queryString = this.queryString();
+                if (!force && queryString === this.lastQuery) {
+                    return;
+                }
+                this.setState({ rows: [], loading: true });
+                iwb.request({
+                    url: queryString,
+                    self: this,
+                    params: this.props.searchForm &&
+                        iwb.getFormValues(document.getElementById(this.props.searchForm.id)),
+                    successCallback: (result, cfg) => {
+                        cfg.self.setState({
+                            rows: result.data,
+                            totalCount: result.total_count,
+                            loading: false
+                        });
+                    },
+                    errorCallback: (error, cfg) => {
+                        cfg.self.setState({
+                            rows: [],
+                            totalCount: 0,
+                            loading: false
+                        });
+                    }
+                });
+                this.lastQuery = queryString;
+            };
+            // ####################################EDit Grid Common
+            // ############################################
+            /**
+             * @param {Array}
+             *            editingRowIds - IDs of the Editing rows
+             */
+            this.onEditingRowIdsChange = editingRowIds =>
+                this.setState({ editingRowIds });
+            /**
+             * @description A function that returns a row change object depending on row
+             *              editor values. This function is called each time the row
+             *              editor’s value changes.
+             * @param {object}
+             *            addedRows - (row: any, columnName: string, value: string |
+             *            number)
+             */
+            this.onAddedRowsChange = addedRows => {
+                var newRecord = Object.assign({}, this.props.newRecord || {});
+                var pk = this.state.pkInsert;
+                --pk;
+                newRecord[this.props.keyField] = pk;
+                this.setState({
+                    pk4Insert: pk,
+                    addedRows: addedRows.map(
+                        row => (Object.keys(row).length ? row : newRecord)
+                    )
+                });
+            };
+            /**
+             * @description Handles adding or removing a row changes to/from the
+             *              rowChanges array.
+             * @param {Array}
+             *            rowChanges -(rowChanges: { [key: string]: any }) => void
+             */
+            this.onRowChangesChange = rowChanges => {
+                this.setState({ rowChanges });
+            };
+            /**
+             * @description Handles selection changes.
+             * @param {Array}
+             *            selection - (selection: Array<number | string>) => void
+             */
+            this.onSelectionChange = selection => {
+                this.setState({ selection });
+            };
+            /**
+             * Used to delete from the frontend
+             *
+             * @param {Array}
+             *            param0
+             * @param {Array}
+             *            param0.deleted
+             */
+            this.onCommitChanges = ({ deleted }) => {
+                let { rows, deletedRows } = this.state;
+                if (deleted && deleted.length) {
+                    yesNoDialog({
+                        text: getLocMsg("are_you_sure"),
+                        callback: success => {
+                            if (success) {
+                                rows = rows.slice();
+                                deleted.forEach(rowId => {
+                                    const index = rows.findIndex(
+                                        row => row[this.props.keyField] === rowId
+                                    );
+                                    if (index > -1) {
+                                        if (rowId > 0) {
+                                            deletedRows.push(Object.assign({}, rows[index]));
+                                        }
+                                        rows.splice(index, 1);
+                                    }
+                                });
+                                this.setState({ rows, deletingRows: [], deletedRows });
+                            }
+                        }
+                    });
+                }
+            };
+            /**
+             * @example push id to this.state.deletingRows then this.deleteRows();
+             */
+            this.deleteRows = () => {
+                const rows = this.state.rows.slice();
+                this.state.deletingRows.forEach(rowId => {
+                    const index = rows.findIndex(row => row.id === rowId);
+                    if (index > -1) {
+                        rows.splice(index, 1);
+                    }
+                });
+                this.setState({ rows, deletingRows: [] });
+            };
         }
-      });
-      this.setState({ rows, deletingRows: [] });
-    };
-  }
-}
-/**
- * helper componet for MapInput
- */
+    }
+    /**
+     * helper componet for MapInput
+     */
 class XMap extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    /**
-     * there is no state since if we provide state it will start rerendering
-     * itself
-     */
-    this.map;
-    this.script;
-    this.marker;
-    this.geocoder;
-    this.inputNode;
-    this.infoWindow;
-    this.autoComplete;
-    this.elementsWithListeners = [];
-    this.defPosition = { lat: 41.0082, lng: 28.9784 };
-    !props.apiKey && alert("GoogleMaps:::::::this.props.apiKey not provided");
-    this.id = "GoogleMaps" + Math.floor(Math.random() * 1000 + 1);
-    /*
-		 * runs on ofter scrip is loaded
-		 */
-    this.onScriptLoad = () => {
-      this.map = this.createMap(this.props.mapOpt || {});
-      this.marker = this.createMarker(this.props.markerOpt || {});
-      this.geocoder = this.createGeocoder(this.props.geocoderOpt || {});
-      this.infoWindow = this.createInfoWindow({
-        maxWidth: 300,
-        ...this.props.infoWindowOpt
-      });
-      this.autoComplete = this.createAutocomplete(
-        this.props.autocompleteOpt || undefined
-      );
-      this.props.onMapLoad && this.props.onMapLoad(this);
-      /** after all the map listeners is set */
-      this.elementsWithListeners.push(this.map);
-      this.elementsWithListeners.push(this.marker);
-      this.elementsWithListeners.push(this.script);
-      this.elementsWithListeners.push(this.geocoder);
-      this.elementsWithListeners.push(this.inputNode);
-      this.elementsWithListeners.push(this.infoWindow);
-      this.elementsWithListeners.push(this.autoComplete);
-    };
-    /**
-     * locate me on the map and used as if stetement for displaying button
-     * of geolocation
-     */
-    this.findMe = () => {
-      if (window.navigator.geolocation) {
-        window.navigator.geolocation.getCurrentPosition(this.findMeOuter);
-        return true;
-      } else {
-        return false;
-      }
-    };
-    /**
-     * A function to create Google Map object
-     *
-     * @param {Object}
-     *            opt
-     */
-    this.createMap = opt => {
-      let opt1 = {
-        center: this.defPosition,
-        zoom: 8
-      };
-      return new window.google.maps.Map(document.getElementById(this.id), {
-        ...opt1,
-        ...opt
-      });
-    };
-    /**
-     * A function return GMarker
-     */
-    this.createMarker = opt => {
-      let opt1 = {
-        position: this.defPosition,
-        draggable: true,
-        map: this.map,
-        title: "default title"
-      };
-      return new window.google.maps.Marker({ ...opt1, ...opt });
-    };
-    /**
-     * a function used to init geolocation
-     *
-     * @param {Object}
-     *            opt
-     */
-    this.createGeocoder = opt => {
-      let opt1 = {};
-      return new window.google.maps.Geocoder({ ...opt1, ...opt });
-    };
-    /**
-     * a function to create InfoWindow
-     *
-     * @param {Object}
-     *            opt
-     */
-    this.createInfoWindow = opt => {
-      let opt1 = {
-        content: `<div id="infoWindow" />`,
-        position: this.defPosition
-      };
-      return new window.google.maps.InfoWindow({ ...opt1, ...opt });
-    };
-    /**
-     * A function return Autocomplete
-     *
-     * @param {HTMLElement}
-     *            inputNode
-     */
-    this.createAutocomplete = (
-      inputNode = document.getElementById("pac-input")
-    ) => {
-      this.inputNode = inputNode;
-      return new window.google.maps.places.Autocomplete(inputNode);
-    };
-    /**
-     * function to remove listeners from the dom element
-     *
-     * @param {HTMLElement}
-     *            element
-     */
-    this.removeAllEventListenersFromElement = element => {
-      /**
-       * to find out if it is a dom object
-       */
-      if (element && element.cloneNode) {
-        let clone = element.cloneNode();
-        // move all child elements from the original to the clone
-        while (element.firstChild) {
-          clone.appendChild(element.lastChild);
+    constructor(props) {
+            super(props);
+            /**
+             * there is no state since if we provide state it will start rerendering
+             * itself
+             */
+            this.map;
+            this.script;
+            this.marker;
+            this.geocoder;
+            this.inputNode;
+            this.infoWindow;
+            this.autoComplete;
+            this.elementsWithListeners = [];
+            this.defPosition = { lat: 41.0082, lng: 28.9784 };
+            !props.apiKey && alert("GoogleMaps:::::::this.props.apiKey not provided");
+            this.id = "GoogleMaps" + Math.floor(Math.random() * 1000 + 1);
+            /*
+             * runs on ofter scrip is loaded
+             */
+            this.onScriptLoad = () => {
+                this.map = this.createMap(this.props.mapOpt || {});
+                this.marker = this.createMarker(this.props.markerOpt || {});
+                this.geocoder = this.createGeocoder(this.props.geocoderOpt || {});
+                this.infoWindow = this.createInfoWindow({
+                    maxWidth: 300,
+                    ...this.props.infoWindowOpt
+                });
+                this.autoComplete = this.createAutocomplete(
+                    this.props.autocompleteOpt || undefined
+                );
+                this.props.onMapLoad && this.props.onMapLoad(this);
+                /** after all the map listeners is set */
+                this.elementsWithListeners.push(this.map);
+                this.elementsWithListeners.push(this.marker);
+                this.elementsWithListeners.push(this.script);
+                this.elementsWithListeners.push(this.geocoder);
+                this.elementsWithListeners.push(this.inputNode);
+                this.elementsWithListeners.push(this.infoWindow);
+                this.elementsWithListeners.push(this.autoComplete);
+            };
+            /**
+             * locate me on the map and used as if stetement for displaying button
+             * of geolocation
+             */
+            this.findMe = () => {
+                if (window.navigator.geolocation) {
+                    window.navigator.geolocation.getCurrentPosition(this.findMeOuter);
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+            /**
+             * A function to create Google Map object
+             *
+             * @param {Object}
+             *            opt
+             */
+            this.createMap = opt => {
+                let opt1 = {
+                    center: this.defPosition,
+                    zoom: 8
+                };
+                return new window.google.maps.Map(document.getElementById(this.id), {
+                    ...opt1,
+                    ...opt
+                });
+            };
+            /**
+             * A function return GMarker
+             */
+            this.createMarker = opt => {
+                let opt1 = {
+                    position: this.defPosition,
+                    draggable: true,
+                    map: this.map,
+                    title: "default title"
+                };
+                return new window.google.maps.Marker({...opt1, ...opt });
+            };
+            /**
+             * a function used to init geolocation
+             *
+             * @param {Object}
+             *            opt
+             */
+            this.createGeocoder = opt => {
+                let opt1 = {};
+                return new window.google.maps.Geocoder({...opt1, ...opt });
+            };
+            /**
+             * a function to create InfoWindow
+             *
+             * @param {Object}
+             *            opt
+             */
+            this.createInfoWindow = opt => {
+                let opt1 = {
+                    content: `<div id="infoWindow" />`,
+                    position: this.defPosition
+                };
+                return new window.google.maps.InfoWindow({...opt1, ...opt });
+            };
+            /**
+             * A function return Autocomplete
+             *
+             * @param {HTMLElement}
+             *            inputNode
+             */
+            this.createAutocomplete = (
+                inputNode = document.getElementById("pac-input")
+            ) => {
+                this.inputNode = inputNode;
+                return new window.google.maps.places.Autocomplete(inputNode);
+            };
+            /**
+             * function to remove listeners from the dom element
+             *
+             * @param {HTMLElement}
+             *            element
+             */
+            this.removeAllEventListenersFromElement = element => {
+                /**
+                 * to find out if it is a dom object
+                 */
+                if (element && element.cloneNode) {
+                    let clone = element.cloneNode();
+                    // move all child elements from the original to the clone
+                    while (element.firstChild) {
+                        clone.appendChild(element.lastChild);
+                    }
+                    element.parentNode.replaceChild(clone, element);
+                }
+            };
+            /**
+             * A function to remove listeners from the array of obj
+             *
+             * @param {Array}
+             *            elements
+             */
+            this.removeAllEventListenersFromElements = (elements = []) => {
+                /** cheks if it is array */
+                elements &&
+                    typeof elements.length === "number" &&
+                    elements.length > 0 &&
+                    elements.map(this.removeAllEventListenersFromElement);
+            };
         }
-        element.parentNode.replaceChild(clone, element);
-      }
-    };
-    /**
-     * A function to remove listeners from the array of obj
-     *
-     * @param {Array}
-     *            elements
-     */
-    this.removeAllEventListenersFromElements = (elements = []) => {
-      /** cheks if it is array */
-      elements &&
-        typeof elements.length === "number" &&
-        elements.length > 0 &&
-        elements.map(this.removeAllEventListenersFromElement);
-    };
-  }
-  /**
-   * Used to load script to the body
-   */
-  componentDidMount() {
-    if (!window.google) {
-      this.script = document.createElement("script");
-      this.script.id = "script-" + this.id;
-      this.script.type = "text/javascript";
-      this.script.async = false;
-      this.script.src = `https://maps.googleapis.com/maps/api/js?key=${
+        /**
+         * Used to load script to the body
+         */
+    componentDidMount() {
+            if (!window.google) {
+                this.script = document.createElement("script");
+                this.script.id = "script-" + this.id;
+                this.script.type = "text/javascript";
+                this.script.async = false;
+                this.script.src = `https://maps.googleapis.com/maps/api/js?key=${
         this.props.apiKey
       }&libraries=places`;
-      var xscript = document.getElementsByTagName("script")[0];
-      xscript.parentNode.insertBefore(this.script, xscript);
-      // Below is important.
-      // We cannot access google.maps until it's finished loading
-      this.script.addEventListener("load", e => {
-        this.onScriptLoad();
-      });
-    } else {
-      this.onScriptLoad();
+                var xscript = document.getElementsByTagName("script")[0];
+                xscript.parentNode.insertBefore(this.script, xscript);
+                // Below is important.
+                // We cannot access google.maps until it's finished loading
+                this.script.addEventListener("load", e => {
+                    this.onScriptLoad();
+                });
+            } else {
+                this.onScriptLoad();
+            }
+        }
+        /**
+         * Used to delete all listeners and delete script from the body but all
+         * the google func will work
+         */
+    componentWillUnmount() {
+        this.removeAllEventListenersFromElements(this.elementsWithListeners);
     }
-  }
-  /**
-   * Used to delete all listeners and delete script from the body but all
-   * the google func will work
-   */
-  componentWillUnmount() {
-    this.removeAllEventListenersFromElements(this.elementsWithListeners);
-  }
-  render() {
-    return React.createElement(
-      React.Fragment,
-      null,
-      React.createElement(
-        PopoverHeader,
-        null,
-        React.createElement(
-          FormGroup,
-          null,
-          React.createElement(Label, { for: "exampleEmail" }, "Address"),
-          React.createElement(
-            "div",
-            {
-              style: { cursor: "pointer" },
-              className: "float-right",
-              onClick: () => {
-                this.props.onClick(false);
-              }
-            },
-            React.createElement("i", { className: "icon-close" })
-          ),
-          React.createElement(
-            InputGroup,
-            { type: "text", name: "name" },
+    render() {
+        return React.createElement(
+            React.Fragment,
+            null,
             React.createElement(
-              InputGroupAddon,
-              { hidden: !!this.findMe, addonType: "prepend" },
-              React.createElement(
-                Button,
-                {
-                  disabled: !!this.findMe,
-                  type: "submit",
-                  onClick: this.findMe
-                },
-                React.createElement("i", { className: "icon-location-pin" })
-              )
+                PopoverHeader,
+                null,
+                React.createElement(
+                    FormGroup,
+                    null,
+                    React.createElement(Label, { for: "exampleEmail" }, "Address"),
+                    React.createElement(
+                        "div", {
+                            style: { cursor: "pointer" },
+                            className: "float-right",
+                            onClick: () => {
+                                this.props.onClick(false);
+                            }
+                        },
+                        React.createElement("i", { className: "icon-close" })
+                    ),
+                    React.createElement(
+                        InputGroup, { type: "text", name: "name" },
+                        React.createElement(
+                            InputGroupAddon, { hidden: !!this.findMe, addonType: "prepend" },
+                            React.createElement(
+                                Button, {
+                                    disabled: !!this.findMe,
+                                    type: "submit",
+                                    onClick: this.findMe
+                                },
+                                React.createElement("i", { className: "icon-location-pin" })
+                            )
+                        ),
+                        React.createElement(Input, {
+                            id: "pac-input",
+                            type: "text",
+                            placeholder: "Enter a location"
+                        }),
+                        React.createElement(
+                            InputGroupAddon, { addonType: "append" },
+                            React.createElement(
+                                Button, {
+                                    type: "submit",
+                                    onClick: this.props.onClick,
+                                    className: "btn btn-success"
+                                },
+                                _("i", { className: "icon-pin" })
+                            )
+                        )
+                    )
+                )
             ),
-            React.createElement(Input, {
-              id: "pac-input",
-              type: "text",
-              placeholder: "Enter a location"
-            }),
             React.createElement(
-              InputGroupAddon,
-              { addonType: "append" },
-              React.createElement(
-                Button,
-                {
-                  type: "submit",
-                  onClick: this.props.onClick,
-                  className: "btn btn-success"
-                },
-                _("i", { className: "icon-pin" })
-              )
+                PopoverBody,
+                null,
+                React.createElement("div", {
+                    style: {
+                        width: this.props.width || 400,
+                        height: this.props.height || 400
+                    },
+                    id: this.id
+                })
             )
-          )
-        )
-      ),
-      React.createElement(
-        PopoverBody,
-        null,
-        React.createElement("div", {
-          style: {
-            width: this.props.width || 400,
-            height: this.props.height || 400
-          },
-          id: this.id
-        })
-      )
-    );
-  }
+        );
+    }
 }
 class MapInput extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    let st =
-      props.stringifyResult && props.value
-        ? JSON.parse(props.value)
-        : props.value;
-    this.state = {
-      zoom: st.zoom || 8,
-      maptype: st.maptype || "roadmap",
-      formatted_address: st.formatted_address || "",
-      place_id: st.place_id || "",
-      place_lat: st.place_lat || "",
-      place_lng: st.place_lng || "",
-      mapOpen: false
-    };
-    this.popoverId = this.props.id
-      ? "popoverId" + this.props.id
-      : "popoverId" + Math.floor(Math.random() * 1000 + 1);
-    /**
-     * a function used to hide and open the map on the DOM
-     */
-    this.toggle = () => {
-      this.setState(prevState => ({
-        mapOpen: !prevState.mapOpen
-      }));
-    };
-    /**
-     * a function used to render info window content
-     */
-    this.getInfoWindowContent = () => {
-      return `
+        constructor(props) {
+            super(props);
+            let st =
+                props.stringifyResult && props.value ?
+                JSON.parse(props.value) :
+                props.value;
+            this.state = {
+                zoom: st.zoom || 8,
+                maptype: st.maptype || "roadmap",
+                formatted_address: st.formatted_address || "",
+                place_id: st.place_id || "",
+                place_lat: st.place_lat || "",
+                place_lng: st.place_lng || "",
+                mapOpen: false
+            };
+            this.popoverId = this.props.id ?
+                "popoverId" + this.props.id :
+                "popoverId" + Math.floor(Math.random() * 1000 + 1);
+            /**
+             * a function used to hide and open the map on the DOM
+             */
+            this.toggle = () => {
+                this.setState(prevState => ({
+                    mapOpen: !prevState.mapOpen
+                }));
+            };
+            /**
+             * a function used to render info window content
+             */
+            this.getInfoWindowContent = () => {
+                return `
 	            <div class="">
 	                <div class="card-body">
 	                    <h5 class="card-title text-center">
@@ -1705,412 +1745,400 @@ class MapInput extends React.PureComponent {
 	                </div>
 	            </div>
 	            `;
-    };
-    /**
-     * it is a callback function which will work after imporing the google
-     * script
-     *
-     * @param {object}
-     *            innerScope - state of the internal component
-     */
-    this.onMapLoad = innerScope => {
-      innerScope.geocoder.geocode(
-        this.state.place_id
-          ? { placeId: this.state.place_id }
-          : { latLng: innerScope.defPosition || undefined },
-        (result, status) => {
-          if (
-            status === window.google.maps.GeocoderStatus.OK &&
-            result.length > 0
-          ) {
-            let {
-              place_id,
-              formatted_address,
-              geometry: { location }
-            } = result[0];
-            this.setState({
-              place_id,
-              formatted_address,
-              place_lat: location.lat(),
-              place_lng: location.lng()
-            });
-            innerScope.map.setCenter(location);
-            innerScope.marker.setPosition(location);
-            innerScope.infoWindow.setPosition(location);
-            innerScope.inputNode.value = formatted_address;
-            innerScope.infoWindow.setContent(`${formatted_address}`);
-            innerScope.infoWindow.open(innerScope.map);
-          }
+            };
+            /**
+             * it is a callback function which will work after imporing the google
+             * script
+             *
+             * @param {object}
+             *            innerScope - state of the internal component
+             */
+            this.onMapLoad = innerScope => {
+                innerScope.geocoder.geocode(
+                    this.state.place_id ?
+                    { placeId: this.state.place_id } :
+                    { latLng: innerScope.defPosition || undefined },
+                    (result, status) => {
+                        if (
+                            status === window.google.maps.GeocoderStatus.OK &&
+                            result.length > 0
+                        ) {
+                            let {
+                                place_id,
+                                formatted_address,
+                                geometry: { location }
+                            } = result[0];
+                            this.setState({
+                                place_id,
+                                formatted_address,
+                                place_lat: location.lat(),
+                                place_lng: location.lng()
+                            });
+                            innerScope.map.setCenter(location);
+                            innerScope.marker.setPosition(location);
+                            innerScope.infoWindow.setPosition(location);
+                            innerScope.inputNode.value = formatted_address;
+                            innerScope.infoWindow.setContent(`${formatted_address}`);
+                            innerScope.infoWindow.open(innerScope.map);
+                        }
+                    }
+                );
+                /** when the marker is clicked */
+                innerScope.marker.addListener("click", event => {
+                    let location = innerScope.marker.getPosition();
+                    innerScope.inputNode.value = this.state.formatted_address;
+                    innerScope.infoWindow.setPosition(location);
+                    innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
+                    innerScope.infoWindow.open(innerScope.map);
+                });
+                /** after marker is left */
+                innerScope.marker.addListener("dragend", event => {
+                    let dragedPoint = innerScope.marker.getPosition();
+                    innerScope.map.panTo(dragedPoint);
+
+                    innerScope.geocoder.geocode({ latLng: dragedPoint },
+                        (result, status) => {
+                            if (
+                                status === window.google.maps.GeocoderStatus.OK &&
+                                result.length > 0
+                            ) {
+                                let {
+                                    place_id,
+                                    formatted_address,
+                                    geometry: { location }
+                                } = result[0];
+                                this.setState({
+                                    place_id,
+                                    formatted_address,
+                                    place_lat: location.lat(),
+                                    place_lng: location.lng()
+                                });
+                                innerScope.map.setCenter(location);
+                                innerScope.marker.setPosition(location);
+                                innerScope.inputNode.value = formatted_address;
+                                innerScope.infoWindow.setPosition(location);
+                                innerScope.infoWindow.setContent(
+                                    `${this.getInfoWindowContent()}`
+                                );
+                                innerScope.infoWindow.open(innerScope.map);
+                            }
+                        }
+                    );
+                });
+                /** lisens for the place change */
+                innerScope.autoComplete.addListener("place_changed", () => {
+                    let place = innerScope.autoComplete.getPlace();
+                    // return if the auto compleate is not selected from the drop down
+                    if (!place.geometry) return;
+                    let {
+                        place_id,
+                        formatted_address,
+                        geometry: { location }
+                    } = place;
+                    this.setState({
+                        place_id,
+                        formatted_address,
+                        place_lat: location.lat(),
+                        place_lng: location.lng()
+                    });
+                    // bring the selected place in view on the innerScope.map
+                    // innerScope.map.fitBounds(place.geometry.viewport);
+                    innerScope.map.setCenter(location);
+                    innerScope.marker.setPosition(location);
+                    innerScope.infoWindow.setPosition(location);
+                    innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
+                    innerScope.infoWindow.open(innerScope.map);
+                });
+
+                innerScope.findMeOuter = position => {
+                    let pos = new window.google.maps.LatLng(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    );
+                    innerScope.geocoder.geocode({ latLng: pos }, (result, status) => {
+                        if (
+                            status === window.google.maps.GeocoderStatus.OK &&
+                            result.length > 0
+                        ) {
+                            let {
+                                place_id,
+                                formatted_address,
+                                geometry: { location }
+                            } = result[0];
+                            this.setState({
+                                place_id,
+                                formatted_address,
+                                place_lat: location.lat(),
+                                place_lng: location.lng()
+                            });
+                            innerScope.map.setCenter(location);
+                            innerScope.marker.setPosition(location);
+                            innerScope.infoWindow.setPosition(location);
+                            innerScope.inputNode.value = formatted_address;
+                            innerScope.infoWindow.setContent(`${formatted_address}`);
+                            innerScope.infoWindow.open(innerScope.map);
+                        }
+                    });
+                };
+            };
+            /**
+             * a function used to give id of the table Row in db
+             *
+             * @param {event}
+             *            event
+             */
+            this.onClick = event => {
+                this.toggle();
+                if (!event) return;
+                event.preventDefault();
+                event.target = {
+                    ...this.props,
+                    value: this.state,
+                    stringValue: JSON.stringify(this.state)
+                };
+                this.props.onChange && this.props.onChange(event);
+            };
         }
-      );
-      /** when the marker is clicked */
-      innerScope.marker.addListener("click", event => {
-        let location = innerScope.marker.getPosition();
-        innerScope.inputNode.value = this.state.formatted_address;
-        innerScope.infoWindow.setPosition(location);
-        innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
-        innerScope.infoWindow.open(innerScope.map);
-      });
-      /** after marker is left */
-      innerScope.marker.addListener("dragend", event => {
-        let dragedPoint = innerScope.marker.getPosition();
-        innerScope.map.panTo(dragedPoint);
-
-        innerScope.geocoder.geocode(
-          { latLng: dragedPoint },
-          (result, status) => {
-            if (
-              status === window.google.maps.GeocoderStatus.OK &&
-              result.length > 0
-            ) {
-              let {
-                place_id,
-                formatted_address,
-                geometry: { location }
-              } = result[0];
-              this.setState({
-                place_id,
-                formatted_address,
-                place_lat: location.lat(),
-                place_lng: location.lng()
-              });
-              innerScope.map.setCenter(location);
-              innerScope.marker.setPosition(location);
-              innerScope.inputNode.value = formatted_address;
-              innerScope.infoWindow.setPosition(location);
-              innerScope.infoWindow.setContent(
-                `${this.getInfoWindowContent()}`
-              );
-              innerScope.infoWindow.open(innerScope.map);
-            }
-          }
-        );
-      });
-      /** lisens for the place change */
-      innerScope.autoComplete.addListener("place_changed", () => {
-        let place = innerScope.autoComplete.getPlace();
-        // return if the auto compleate is not selected from the drop down
-        if (!place.geometry) return;
-        let {
-          place_id,
-          formatted_address,
-          geometry: { location }
-        } = place;
-        this.setState({
-          place_id,
-          formatted_address,
-          place_lat: location.lat(),
-          place_lng: location.lng()
-        });
-        // bring the selected place in view on the innerScope.map
-        // innerScope.map.fitBounds(place.geometry.viewport);
-        innerScope.map.setCenter(location);
-        innerScope.marker.setPosition(location);
-        innerScope.infoWindow.setPosition(location);
-        innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
-        innerScope.infoWindow.open(innerScope.map);
-      });
-
-      innerScope.findMeOuter = position => {
-        let pos = new window.google.maps.LatLng(
-          position.coords.latitude,
-          position.coords.longitude
-        );
-        innerScope.geocoder.geocode({ latLng: pos }, (result, status) => {
-          if (
-            status === window.google.maps.GeocoderStatus.OK &&
-            result.length > 0
-          ) {
-            let {
-              place_id,
-              formatted_address,
-              geometry: { location }
-            } = result[0];
-            this.setState({
-              place_id,
-              formatted_address,
-              place_lat: location.lat(),
-              place_lng: location.lng()
-            });
-            innerScope.map.setCenter(location);
-            innerScope.marker.setPosition(location);
-            innerScope.infoWindow.setPosition(location);
-            innerScope.inputNode.value = formatted_address;
-            innerScope.infoWindow.setContent(`${formatted_address}`);
-            innerScope.infoWindow.open(innerScope.map);
-          }
-        });
-      };
-    };
+        render() {
+            return React.createElement(
+                React.Fragment,
+                null,
+                React.createElement(
+                    InputGroup, { type: "text", name: "name", id: this.popoverId },
+                    React.createElement(Input, {
+                        type: "text",
+                        value: this.state.formatted_address,
+                        readOnly: true,
+                        disabled: !!this.props.disabled
+                    }),
+                    React.createElement(
+                        InputGroupAddon, { addonType: "append" },
+                        React.createElement(
+                            Button, {
+                                className: "mr-1 btn-success",
+                                onClick: this.toggle,
+                                color: "success",
+                                disabled: !!this.props.disabled
+                            },
+                            React.createElement("i", { className: "icon-map" })
+                        )
+                    )
+                ),
+                React.createElement(
+                    Popover, {
+                        className: "gMapPopover",
+                        placement: "bottom-end",
+                        isOpen: this.state.mapOpen,
+                        target: this.popoverId,
+                        toggle: this.toggle
+                    },
+                    React.createElement(XMap, {
+                        apiKey: _app.map_api,
+                        onMapLoad: this.onMapLoad,
+                        onClick: this.onClick
+                    })
+                )
+            );
+        }
+    }
     /**
-     * a function used to give id of the table Row in db
+     * A component to render Masonry layout
      *
-     * @param {event}
-     *            event
+     * @param {Object}
+     *            props.masonryRowStyle - style of the container
+     * @param {Object}
+     *            props.masonryStyle - style of the container
+     * @param {Object}
+     *            props.columnStyle - style of the column
+     * @example ```jsx <XMasonry loadingComponent = {()=>{return '***********you can
+     *          give loading component***********'}} breakPoints={[350, 500, 750]}
+     *          loadNext={({columns,totalItems}) => { {columns,totalItems} - use
+     *          this to construct url}} >{ this.state.photos.map((image, id) =>(
+     *          <img key={id} src={image}/> ) ) } </XMasonry> ```
      */
-    this.onClick = event => {
-      this.toggle();
-      if (!event) return;
-      event.preventDefault();
-      event.target = {
-        ...this.props,
-        value: this.state,
-        stringValue: JSON.stringify(this.state)
-      };
-      this.props.onChange && this.props.onChange(event);
-    };
-  }
-  render() {
-    return React.createElement(
-      React.Fragment,
-      null,
-      React.createElement(
-        InputGroup,
-        { type: "text", name: "name", id: this.popoverId },
-        React.createElement(Input, {
-          type: "text",
-          value: this.state.formatted_address,
-          readOnly: true,
-          disabled: !!this.props.disabled
-        }),
-        React.createElement(
-          InputGroupAddon,
-          { addonType: "append" },
-          React.createElement(
-            Button,
-            {
-              className: "mr-1 btn-success",
-              onClick: this.toggle,
-              color: "success",
-              disabled: !!this.props.disabled
-            },
-            React.createElement("i", { className: "icon-map" })
-          )
-        )
-      ),
-      React.createElement(
-        Popover,
-        {
-          className: "gMapPopover",
-          placement: "bottom-end",
-          isOpen: this.state.mapOpen,
-          target: this.popoverId,
-          toggle: this.toggle
-        },
-        React.createElement(XMap, {
-          apiKey: _app.map_api,
-          onMapLoad: this.onMapLoad,
-          onClick: this.onClick
-        })
-      )
-    );
-  }
-}
-/**
- * A component to render Masonry layout
- *
- * @param {Object}
- *            props.masonryRowStyle - style of the container
- * @param {Object}
- *            props.masonryStyle - style of the container
- * @param {Object}
- *            props.columnStyle - style of the column
- * @example ```jsx <XMasonry loadingComponent = {()=>{return '***********you can
- *          give loading component***********'}} breakPoints={[350, 500, 750]}
- *          loadNext={({columns,totalItems}) => { {columns,totalItems} - use
- *          this to construct url}} >{ this.state.photos.map((image, id) =>(
- *          <img key={id} src={image}/> ) ) } </XMasonry> ```
- */
 class XMasonry extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      columns: 1,
-      prevY: 0,
-      loading: false
-    };
-    /**
-     * a funntion used to calculate columns when resized
-     */
-    this.onResize = () => {
-      const columns = this.getColumns(this.refs.Masonry.offsetWidth);
-      if (columns !== this.state.columns) {
-        this.setState({ columns: columns });
-      }
-    };
-    /**
-     * a function used to calculate columns from this.props.breakPoints
-     *
-     * @param {Number}
-     *            width - width of the masonry component
-     */
-    this.getColumns = width => {
-      return (
-        this.props.breakPoints.reduceRight((p, c, i) => {
-          return c < width ? p : i;
-        }, this.props.breakPoints.length) + 1
-      );
-    };
-    /**
-     * a function used to calculate children according to column size
-     */
-    this.mapChildren = () => {
-      let col = [];
-      const numC = this.state.columns;
-      for (let i = 0; i < numC; i++) {
-        col.push([]);
-      }
-      return this.props.children.reduce((p, c, i) => {
-        p[i % numC].push(c);
-        return p;
-      }, col);
-    };
-    /**
-     * a function used to call loadNext method to make lazyLoading from the rest
-     *
-     * @param {*}
-     *            entities
-     * @param {*}
-     *            observer
-     */
-    this.handleObserver = (entities, observer) => {
-      const y = entities[0].boundingClientRect.y;
-      if (this.state.prevY > y) {
-        this.props.loadNext && this.setState({ loading: true });
-        this.props.loadNext &&
-          !this.props.loadNext({
-            columns: this.mapChildren().length,
-            totalItems: this.props.children.reduce((tot, ch) => tot + 1, 0)
-          }) &&
-          this.setState({ loading: false });
-      }
-      this.setState({ prevY: y });
-    };
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (
-      prevProps.children.length < this.props.children.length &&
-      this.props.loadNext
-    ) {
-      this.setState({ loading: false });
-    }
-    if (prevProps.breakPoints.length !== this.props.breakPoints.length) {
-      this.onResize();
-    }
-    return true;
-  }
-  componentDidMount() {
-    // initial resize
-    this.onResize();
-    // add listener for window object
-    window.addEventListener("resize", this.onResize, true);
-    if (this.props.loadNext) {
-      // Create an observer
-      this.observer = new IntersectionObserver(
-        this.handleObserver.bind(this), // callback
-        {
-          root: null, // Page as root
-          rootMargin: "0px",
-          threshold: 0.01
+        constructor(props) {
+            super(props);
+            this.state = {
+                columns: 1,
+                prevY: 0,
+                loading: false
+            };
+            /**
+             * a funntion used to calculate columns when resized
+             */
+            this.onResize = () => {
+                const columns = this.getColumns(this.refs.Masonry.offsetWidth);
+                if (columns !== this.state.columns) {
+                    this.setState({ columns: columns });
+                }
+            };
+            /**
+             * a function used to calculate columns from this.props.breakPoints
+             *
+             * @param {Number}
+             *            width - width of the masonry component
+             */
+            this.getColumns = width => {
+                return (
+                    this.props.breakPoints.reduceRight((p, c, i) => {
+                        return c < width ? p : i;
+                    }, this.props.breakPoints.length) + 1
+                );
+            };
+            /**
+             * a function used to calculate children according to column size
+             */
+            this.mapChildren = () => {
+                let col = [];
+                const numC = this.state.columns;
+                for (let i = 0; i < numC; i++) {
+                    col.push([]);
+                }
+                return this.props.children.reduce((p, c, i) => {
+                    p[i % numC].push(c);
+                    return p;
+                }, col);
+            };
+            /**
+             * a function used to call loadNext method to make lazyLoading from the rest
+             *
+             * @param {*}
+             *            entities
+             * @param {*}
+             *            observer
+             */
+            this.handleObserver = (entities, observer) => {
+                const y = entities[0].boundingClientRect.y;
+                if (this.state.prevY > y) {
+                    this.props.loadNext && this.setState({ loading: true });
+                    this.props.loadNext &&
+                        !this.props.loadNext({
+                            columns: this.mapChildren().length,
+                            totalItems: this.props.children.reduce((tot, ch) => tot + 1, 0)
+                        }) &&
+                        this.setState({ loading: false });
+                }
+                this.setState({ prevY: y });
+            };
         }
-      );
-      // Observ the `loadingRef`
-      this.observer.observe(this.refs.loadingRef);
+
+        componentDidUpdate(prevProps, prevState, snapshot) {
+            if (
+                prevProps.children.length < this.props.children.length &&
+                this.props.loadNext
+            ) {
+                this.setState({ loading: false });
+            }
+            if (prevProps.breakPoints.length !== this.props.breakPoints.length) {
+                this.onResize();
+            }
+            return true;
+        }
+        componentDidMount() {
+            // initial resize
+            this.onResize();
+            // add listener for window object
+            window.addEventListener("resize", this.onResize, true);
+            if (this.props.loadNext) {
+                // Create an observer
+                this.observer = new IntersectionObserver(
+                    this.handleObserver.bind(this), // callback
+                    {
+                        root: null, // Page as root
+                        rootMargin: "0px",
+                        threshold: 0.01
+                    }
+                );
+                // Observ the `loadingRef`
+                this.observer.observe(this.refs.loadingRef);
+            }
+        }
+        componentWillUnmount() {
+            window.removeEventListener("resize", this.onResize, true);
+        }
+        render() {
+            const masonryStyle = this.props;
+            return _(
+                Row, {
+                    className: `xMasonryRoot overflowY-auto scrollY`,
+                    ...this.props.root
+                },
+                _(
+                    "div", {
+                        className: "d-flex flex-row justify-content-center align-content-stretch flex-fill m-auto w-100",
+                        style: masonryStyle,
+                        ref: "Masonry",
+                        ...this.props.rootInner
+                    },
+                    this.mapChildren().map((col, ci) => {
+                        return _(
+                            Col, { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
+                            col.map((child, i) => {
+                                return _(
+                                    Card, { key: i, className: "mt-2 mb-2", ...this.props.item },
+                                    child
+                                );
+                            })
+                        );
+                    })
+                ),
+                _(
+                    "div", {
+                        ref: "loadingRef",
+                        style: {
+                            height: "10%",
+                            width: "100%",
+                            margin: "0px",
+                            display: this.props.loadNext ? "block" : "none"
+                        }
+                    },
+                    _(
+                        "span", { style: { display: this.state.loading ? "block" : "none" } },
+                        this.props.loadingComponent ?
+                        this.props.loadingComponent() :
+                        "Loading..."
+                    )
+                )
+            );
+        }
     }
-  }
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.onResize, true);
-  }
-  render() {
-    const masonryStyle = this.props;
-    return _(
-      Row,
-      {
-        className: `xMasonryRoot overflowY-auto scrollY`,
-        ...this.props.root
-      },
-      _(
-        "div",
-        {
-          className:
-            "d-flex flex-row justify-content-center align-content-stretch flex-fill m-auto w-100",
-          style: masonryStyle,
-          ref: "Masonry",
-          ...this.props.rootInner
-        },
-        this.mapChildren().map((col, ci) => {
-          return _(
-            Col,
-            { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
-            col.map((child, i) => {
-              return _(
-                Card,
-                { key: i, className: "mt-2 mb-2", ...this.props.item },
-                child
-              );
-            })
-          );
-        })
-      ),
-      _(
-        "div",
-        {
-          ref: "loadingRef",
-          style: {
-            height: "10%",
-            width: "100%",
-            margin: "0px",
-            display: this.props.loadNext ? "block" : "none"
-          }
-        },
-        _(
-          "span",
-          { style: { display: this.state.loading ? "block" : "none" } },
-          this.props.loadingComponent
-            ? this.props.loadingComponent()
-            : "Loading..."
-        )
-      )
-    );
-  }
-}
-/**
- * XAjaxQueryData - function is used to get data by giving guery id
- * @param {String} props.qui - query id that you want to get data from
- * @param {Function} props.middleMan
- * @param {Symbol} props.children
- * @example
- * React.createElement(XAjaxQueryData,{},data=>{ return React.createElement(AnyComponent,{data}......) }
- */
+    /**
+     * XAjaxQueryData - function is used to get data by giving guery id
+     * @param {String} props.qui - query id that you want to get data from
+     * @param {Function} props.middleMan
+     * @param {Symbol} props.children
+     * @example
+     * React.createElement(XAjaxQueryData,{},data=>{ return React.createElement(AnyComponent,{data}......) }
+     */
 const XAjaxQueryData = ({
-  onSuccess = console.log,
-  qid = -1,
-  params = {},
-  url = null,
-  children
+    onSuccess = console.log,
+    qid = -1,
+    params = {},
+    url = null,
+    children
 }) => {
-  const [data, setData] = React.useState([]);
-  React.useEffect(() => {
-    iwb.request({
-      url: url || "ajaxQueryData?" + "_qid=" + qid,
-      params: params || {},
-      successCallback: ({ data }) => {
-        let result = typeof onSuccess === "function" ? onSuccess(data) : data;
-        setData(result);
-      },
-      errorCallback: cfg =>
-        toastr.error("AjaxQueryData ERROR", "AjaxQueryData", { timeOut: 3000 })
-    });
-  }, []);
-  return typeof children === "function" ? children(data) : children;
+    const [data, setData] = React.useState([]);
+    React.useEffect(() => {
+        iwb.request({
+            url: url || "ajaxQueryData?" + "_qid=" + qid,
+            params: params || {},
+            successCallback: ({ data }) => {
+                let result = typeof onSuccess === "function" ? onSuccess(data) : data;
+                setData(result);
+            },
+            errorCallback: cfg =>
+                toastr.error("AjaxQueryData ERROR", "AjaxQueryData", { timeOut: 3000 })
+        });
+    }, []);
+    return typeof children === "function" ? children(data) : children;
 };
 XAjaxQueryData.propTypes = {
-  qid: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  children: PropTypes.element.isRequired,
-  url: PropTypes.string,
-  params: PropTypes.object,
-  onSuccess: PropTypes.func
+    qid: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    children: PropTypes.element.isRequired,
+    url: PropTypes.string,
+    params: PropTypes.object,
+    onSuccess: PropTypes.func
 };
 /**
  * A function to load script from the CDN or filesystem and apply css
@@ -2123,562 +2151,539 @@ XAjaxQueryData.propTypes = {
  * _(XLazyScriptLoader,{loading:React.createElement(CustomLoadingComponent,{options}),css:`.customClassName{color:red}`,loadjs:['CDN','CDN2']||'CDN' }, childNode )
  */
 const XLazyScriptLoader = ({ loadcss, loadjs, css, loading, children }) => {
-  const [fetching, setFetching] = React.useState(true);
-  const load = (() => {
-    var _load = tag => {
-      return src => {
-        return new Promise((resolve, reject) => {
-          let element = document.createElement(tag);
-          let parent = "body";
-          let attr = "src";
-          element.onload = e => resolve(src);
-          element.onerror = e => reject(src);
-          switch (tag) {
-            case "script":
-              element.async = false;
-              break;
-            case "link":
-              element.type = "text/css";
-              element.rel = "stylesheet";
-              attr = "href";
-              parent = "head";
-              break;
-            default:
-          }
-          element[attr] = src;
-          window.document[parent].appendChild(element);
-        });
-      };
-    };
-    return { css: _load("link"), js: _load("script") };
-  })();
-  React.useEffect(() => {
-    /** componentDidMount */
-    let arrayProm = [];
-    loadcss &&
-      arrayProm.push(
-        ...(loadcss.constructor === Array
-          ? loadcss.map(item => load.css(item))
-          : [load.css(loadcss)])
-      );
-    loadjs &&
-      arrayProm.push(
-        ...(loadjs.constructor === Array
-          ? loadjs.map(item => load.js(item))
-          : [load.js(loadjs)])
-      );
-    Promise.all(arrayProm)
-      .then(() => {
-        setFetching(false);
-      })
-      .catch(err => {
-        console.error("XLazyScriptLoader", err);
-      });
-    iwb.addCssString(css);
-  }, []);
-  return fetching ? loading : children;
+    const [fetching, setFetching] = React.useState(true);
+    const load = (() => {
+        var _load = tag => {
+            return src => {
+                return new Promise((resolve, reject) => {
+                    let element = document.createElement(tag);
+                    let parent = "body";
+                    let attr = "src";
+                    element.onload = e => resolve(src);
+                    element.onerror = e => reject(src);
+                    switch (tag) {
+                        case "script":
+                            element.async = false;
+                            break;
+                        case "link":
+                            element.type = "text/css";
+                            element.rel = "stylesheet";
+                            attr = "href";
+                            parent = "head";
+                            break;
+                        default:
+                    }
+                    element[attr] = src;
+                    window.document[parent].appendChild(element);
+                });
+            };
+        };
+        return { css: _load("link"), js: _load("script") };
+    })();
+    React.useEffect(() => {
+        /** componentDidMount */
+        let arrayProm = [];
+        loadcss &&
+            arrayProm.push(
+                ...(loadcss.constructor === Array ?
+                    loadcss.map(item => load.css(item)) :
+                    [load.css(loadcss)])
+            );
+        loadjs &&
+            arrayProm.push(
+                ...(loadjs.constructor === Array ?
+                    loadjs.map(item => load.js(item)) :
+                    [load.js(loadjs)])
+            );
+        Promise.all(arrayProm)
+            .then(() => {
+                setFetching(false);
+            })
+            .catch(err => {
+                console.error("XLazyScriptLoader", err);
+            });
+        iwb.addCssString(css);
+    }, []);
+    return fetching ? loading : children;
 };
 XLazyScriptLoader.defaultProps = {
-  loading: "LOADING...."
+    loading: "LOADING...."
 };
 XLazyScriptLoader.propTypes = {
-  loading: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  loadcss: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
-  loadjs: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
-  css: PropTypes.string
+    loading: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+    loadcss: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
+    loadjs: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
+    css: PropTypes.string
 };
 const XPreviewFile = ({ file }) => {
-  let type = file ? file.type : null;
-  let style = {
-    fontSize: "12em"
-  };
-  switch (type) {
-    case "image/png":
-      return _("img", {
-        src: URL.createObjectURL(file),
-        className: "img-fluid rounded"
-      });
-    case "text/plain":
-      return _("i", {
-        style,
-        className: "fas fa-file-alt m-auto"
-      });
-    case "application/pdf":
-      return _("i", {
-        style,
-        className: "fas fa-file-pdf m-auto"
-      });
-    default:
-      return _(
-        "div",
-        { className: "m-auto text-center" },
-        file
-          ? _("i", { className: "far fa-file", style })
-          : _("i", { className: "fas fa-upload", style }),
-        _("br", null),
-        getLocMsg(file ? "undefined_type" : "choose_file_or_drag_it_here")
-      );
-  }
+    let type = file ? file.type : null;
+    let style = {
+        fontSize: "12em"
+    };
+    switch (type) {
+        case "image/png":
+            return _("img", {
+                src: URL.createObjectURL(file),
+                className: "img-fluid rounded"
+            });
+        case "text/plain":
+            return _("i", {
+                style,
+                className: "fas fa-file-alt m-auto"
+            });
+        case "application/pdf":
+            return _("i", {
+                style,
+                className: "fas fa-file-pdf m-auto"
+            });
+        default:
+            return _(
+                "div", { className: "m-auto text-center" },
+                file ?
+                _("i", { className: "far fa-file", style }) :
+                _("i", { className: "fas fa-upload", style }),
+                _("br", null),
+                getLocMsg(file ? "undefined_type" : "choose_file_or_drag_it_here")
+            );
+    }
 };
 class XListFiles extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      files: []
-    };
-    this.getFileList = this.getFileList.bind(this);
-    this.deleteItem = this.deleteItem.bind(this);
-    this.downladLink = this.downladLink.bind(this);
-  }
-  /** run query to get data based on pk and id */
-  getFileList() {
-    iwb.request({
-      url:
-        "ajaxQueryData?_qid=61&xtable_id=" +
-        this.props.cfg.crudTableId +
-        "&xtable_pk=" +
-        (this.props.cfg.tmpId
-          ? this.props.cfg.tmpId
-          : json2pk(this.props.cfg.pk)) +
-        "&.r=" +
-        Math.random(),
-      successCallback: ({ data }) => {
-        this.setState({
-          files: data
-        });
-      }
-    });
-  }
-  deleteItem(fileItem) {
-    return event => {
-      event.preventDefault();
-      event.stopPropagation();
-      /** deleteRequest */
-      iwb.request({
-        url:
-          "ajaxPostForm?a=3&_fid=1383&tfile_attachment_id=" +
-          fileItem.file_attachment_id,
-        successCallback: res => {
-          this.setState({
-            files: this.state.files.filter(
-              file => file.file_attachment_id != fileItem.file_attachment_id
-            )
-          });
+    constructor() {
+            super();
+            this.state = {
+                files: []
+            };
+            this.getFileList = this.getFileList.bind(this);
+            this.deleteItem = this.deleteItem.bind(this);
+            this.downladLink = this.downladLink.bind(this);
         }
-      });
-    };
-  }
-  /** test */
-  downladLink(fileItem) {
-    let url =
-      "dl/" +
-      fileItem.original_file_name +
-      "?_fai=" +
-      fileItem.file_attachment_id +
-      "&.r=" +
-      Math.random();
-    return event => {
-      event.preventDefault();
-      event.stopPropagation();
-      const link = document.createElement("a");
-      link.href = url;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-  }
-  componentDidMount() {
-    this.getFileList();
-  }
-  render() {
-    return _(
-      ListGroup,
-      {},
-      this.state.files.map(fileItem =>
-        _(
-          ListGroupItem,
-          null,
-          _(
-            "a",
-            { onClick: this.downladLink(fileItem), href: "#" },
-            fileItem.original_file_name
-          ),
-          _("i", {
-            key: fileItem.file_attachment_id,
-            onClick: this.deleteItem(fileItem),
-            style: { cursor: "pointer" },
-            className: "icon-trash float-right text-danger"
-          })
-        )
-      )
-    );
-  }
+        /** run query to get data based on pk and id */
+    getFileList() {
+        iwb.request({
+            url: "ajaxQueryData?_qid=61&xtable_id=" +
+                this.props.cfg.crudTableId +
+                "&xtable_pk=" +
+                (this.props.cfg.tmpId ?
+                    this.props.cfg.tmpId :
+                    json2pk(this.props.cfg.pk)) +
+                "&.r=" +
+                Math.random(),
+            successCallback: ({ data }) => {
+                this.setState({
+                    files: data
+                });
+            }
+        });
+    }
+    deleteItem(fileItem) {
+            return event => {
+                event.preventDefault();
+                event.stopPropagation();
+                /** deleteRequest */
+                iwb.request({
+                    url: "ajaxPostForm?a=3&_fid=1383&tfile_attachment_id=" +
+                        fileItem.file_attachment_id,
+                    successCallback: res => {
+                        this.setState({
+                            files: this.state.files.filter(
+                                file => file.file_attachment_id != fileItem.file_attachment_id
+                            )
+                        });
+                    }
+                });
+            };
+        }
+        /** test */
+    downladLink(fileItem) {
+        let url =
+            "dl/" +
+            fileItem.original_file_name +
+            "?_fai=" +
+            fileItem.file_attachment_id +
+            "&.r=" +
+            Math.random();
+        return event => {
+            event.preventDefault();
+            event.stopPropagation();
+            const link = document.createElement("a");
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    }
+    componentDidMount() {
+        this.getFileList();
+    }
+    render() {
+        return _(
+            ListGroup, {},
+            this.state.files.map(fileItem =>
+                _(
+                    ListGroupItem,
+                    null,
+                    _(
+                        "a", { onClick: this.downladLink(fileItem), href: "#" },
+                        fileItem.original_file_name
+                    ),
+                    _("i", {
+                        key: fileItem.file_attachment_id,
+                        onClick: this.deleteItem(fileItem),
+                        style: { cursor: "pointer" },
+                        className: "icon-trash float-right text-danger"
+                    })
+                )
+            )
+        );
+    }
 }
 class XSingleUploadComponent extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      canUpload: false,
-      dragOver: false,
-      file: null
-    };
-    this.xListFilesRef = React.createRef();
-    this.onDrop = this.onDrop.bind(this);
-    this.dragenter = this.dragenter.bind(this);
-    this.dragleave = this.dragleave.bind(this);
-    this.dragover = this.dragover.bind(this);
-    this.onDeleteFile = this.onDeleteFile.bind(this);
-    this.onclick = this.onclick.bind(this);
-    this.onchange = this.onchange.bind(this);
-    this.uplaodFile = this.uplaodFile.bind(this);
-  }
-  /** function to click input ref click */
-  onclick(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.inpuRef.click();
-  }
-  /** used to disable opening file on new tab */
-  dragover(event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-  /** used with css */
-  dragleave(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.setState({
-      dragOver: false
-    });
-  }
-  /** when the file over drag area */
-  dragenter(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.setState({
-      dragOver: true
-    });
-  }
-  /** when the file dproped over drop area */
-  onDrop(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.setState(
-      {
-        canUpload: true,
-        dragOver: false,
-        file: event.dataTransfer.files[0]
-      },
-      () => {
-        this.uplaodFile();
-      }
-    );
-  }
-  /** when the file dproped over drop area */
-  onchange(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.setState(
-      {
-        canUpload: true,
-        dragOver: false,
-        file: event.target.files[0]
-      },
-      () => {
-        this.uplaodFile();
-      }
-    );
-  }
-  /** remove file from form state */
-  onDeleteFile(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    /** will reset to null currently uploaded file */
-    this.setState({
-      canUpload: false,
-      file: null
-    });
-  }
-  /** uploader function */
-  uplaodFile() {
-    // event.preventDefault();
-    // event.stopPropagation();
-    if (!this.state.file) {
-      return;
-    }
-    let formData = new FormData();
-    formData.append(
-      "table_pk",
-      this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk)
-    );
-    formData.append("table_id", this.props.cfg.crudTableId);
-    formData.append("file", this.state.file);
-    formData.append("profilePictureFlag", this.props.profilePictureFlag || 0);
-    fetch("upload.form", {
-      method: "POST",
-      body: formData,
-      cache: "no-cache",
-      credentials: "same-origin",
-      mode: "cors",
-      redirect: "follow",
-      referrer: "no-referrer"
-    })
-      .then(
-        response =>
-          response.status === 200 || response.status === 0
-            ? response.json()
-            : Promise.reject(new Error(response.text() || response.statusText))
-      )
-      .then(
-        result => {
-          if (result.success) {
-            toastr.success(
-              getLocMsg("file_sucessfully_uploaded"),
-              getLocMsg("success"),
-              {
-                timeOut: 3000
-              }
-            );
-            this.xListFilesRef.current.getFileList();
-            this.setState({
-              file: null,
-              canUpload: false
-            });
-          } else {
-            if (result.error) {
-              toastr.error(result.error, result.errorType);
-            }
-            return;
-          }
-        },
-        error => {
-          toastr.error(error, getLocMsg("error"));
+    constructor() {
+            super();
+            this.state = {
+                canUpload: false,
+                dragOver: false,
+                file: null
+            };
+            this.xListFilesRef = React.createRef();
+            this.onDrop = this.onDrop.bind(this);
+            this.dragenter = this.dragenter.bind(this);
+            this.dragleave = this.dragleave.bind(this);
+            this.dragover = this.dragover.bind(this);
+            this.onDeleteFile = this.onDeleteFile.bind(this);
+            this.onclick = this.onclick.bind(this);
+            this.onchange = this.onchange.bind(this);
+            this.uplaodFile = this.uplaodFile.bind(this);
         }
-      );
-  }
-  render() {
-    let defaultStyle = {
-      height: "100%",
-      width: "100%",
-      position: "absolute",
-      top: "0",
-      left: "0"
-    };
-    return _(
-      React.Fragment,
-      {},
-      _(
-        Button,
-        {
-          id: this.props.cfg.id,
-          type: "button",
-          className: "float-right btn-round-shadow mr-1",
-          color: "light"
-        },
-        _("i", {
-          className: "icon-paper-clip"
-        }),
-        this.props.cfg.fileAttachCount
-          ? " " + this.props.cfg.fileAttachCount
-          : ""
-      ),
-      _(
-        Reactstrap.UncontrolledPopover,
-        {
-          trigger: "legacy",
-          placement: "auto",
-          target: this.props.cfg.id
-        },
-        _(
-          PopoverHeader,
-          null,
-          this.state.file
-            ? getLocMsg(this.state.file.name)
-            : getLocMsg("File Upload"),
-          _("input", {
-            className: "d-none",
-            type: "file",
-            onChange: this.onchange,
-            ref: input => (this.inpuRef = input)
-          }),
-          this.props.extraButtons && this.props.extraButtons
-        ),
-        _(
-          PopoverBody,
-          null,
-          _(
-            "div",
-            {
-              style: {
-                height: "200px",
-                width: "200px",
-                position: "relative",
-                border: this.state.dragOver
-                  ? "3px dashed #20a8d8"
-                  : "3px dashed #a4b7c1"
-              }
-            },
-            _("div", {
-              style: {
-                ...defaultStyle,
-                zIndex: "10",
-                background: "gray",
-                cursor: "pointer",
-                opacity: this.state.canUpload ? "0" : "0.5"
-              },
-              className: "rounded",
-              onDrop: this.onDrop,
-              onDragEnter: this.dragenter,
-              onDragLeave: this.dragleave,
-              onDragOver: this.dragover,
-              onClick: this.onclick
-            }),
-            _(
-              "div",
-              {
-                style: {
-                  ...defaultStyle,
-                  display: "flex"
+        /** function to click input ref click */
+    onclick(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.inpuRef.click();
+        }
+        /** used to disable opening file on new tab */
+    dragover(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        /** used with css */
+    dragleave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({
+                dragOver: false
+            });
+        }
+        /** when the file over drag area */
+    dragenter(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({
+                dragOver: true
+            });
+        }
+        /** when the file dproped over drop area */
+    onDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({
+                    canUpload: true,
+                    dragOver: false,
+                    file: event.dataTransfer.files[0]
+                },
+                () => {
+                    this.uplaodFile();
                 }
-              },
-              _(XPreviewFile, {
-                file: this.state.file
-              })
+            );
+        }
+        /** when the file dproped over drop area */
+    onchange(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({
+                    canUpload: true,
+                    dragOver: false,
+                    file: event.target.files[0]
+                },
+                () => {
+                    this.uplaodFile();
+                }
+            );
+        }
+        /** remove file from form state */
+    onDeleteFile(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            /** will reset to null currently uploaded file */
+            this.setState({
+                canUpload: false,
+                file: null
+            });
+        }
+        /** uploader function */
+    uplaodFile() {
+        // event.preventDefault();
+        // event.stopPropagation();
+        if (!this.state.file) {
+            return;
+        }
+        let formData = new FormData();
+        formData.append(
+            "table_pk",
+            this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk)
+        );
+        formData.append("table_id", this.props.cfg.crudTableId);
+        formData.append("file", this.state.file);
+        formData.append("profilePictureFlag", this.props.profilePictureFlag || 0);
+        fetch("upload.form", {
+                method: "POST",
+                body: formData,
+                cache: "no-cache",
+                credentials: "same-origin",
+                mode: "cors",
+                redirect: "follow",
+                referrer: "no-referrer"
+            })
+            .then(
+                response =>
+                response.status === 200 || response.status === 0 ?
+                response.json() :
+                Promise.reject(new Error(response.text() || response.statusText))
             )
-          ),
-          _("div", {
-            className: "clearfix"
-          }),
-          _(XListFiles, { cfg: this.props.cfg, ref: this.xListFilesRef })
-        )
-      )
-    );
-  }
+            .then(
+                result => {
+                    if (result.success) {
+                        toastr.success(
+                            getLocMsg("file_sucessfully_uploaded"),
+                            getLocMsg("success"), {
+                                timeOut: 3000
+                            }
+                        );
+                        this.xListFilesRef.current.getFileList();
+                        this.setState({
+                            file: null,
+                            canUpload: false
+                        });
+                    } else {
+                        if (result.error) {
+                            toastr.error(result.error, result.errorType);
+                        }
+                        return;
+                    }
+                },
+                error => {
+                    toastr.error(error, getLocMsg("error"));
+                }
+            );
+    }
+    render() {
+        let defaultStyle = {
+            height: "100%",
+            width: "100%",
+            position: "absolute",
+            top: "0",
+            left: "0"
+        };
+        return _(
+            React.Fragment, {},
+            _(
+                Button, {
+                    id: this.props.cfg.id,
+                    type: "button",
+                    className: "float-right btn-round-shadow mr-1",
+                    color: "light"
+                },
+                _("i", {
+                    className: "icon-paper-clip"
+                }),
+                this.props.cfg.fileAttachCount ?
+                " " + this.props.cfg.fileAttachCount :
+                ""
+            ),
+            _(
+                Reactstrap.UncontrolledPopover, {
+                    trigger: "legacy",
+                    placement: "auto",
+                    target: this.props.cfg.id
+                },
+                _(
+                    PopoverHeader,
+                    null,
+                    this.state.file ?
+                    getLocMsg(this.state.file.name) :
+                    getLocMsg("File Upload"),
+                    _("input", {
+                        className: "d-none",
+                        type: "file",
+                        onChange: this.onchange,
+                        ref: input => (this.inpuRef = input)
+                    }),
+                    this.props.extraButtons && this.props.extraButtons
+                ),
+                _(
+                    PopoverBody,
+                    null,
+                    _(
+                        "div", {
+                            style: {
+                                height: "200px",
+                                width: "200px",
+                                position: "relative",
+                                border: this.state.dragOver ?
+                                    "3px dashed #20a8d8" :
+                                    "3px dashed #a4b7c1"
+                            }
+                        },
+                        _("div", {
+                            style: {
+                                ...defaultStyle,
+                                zIndex: "10",
+                                background: "gray",
+                                cursor: "pointer",
+                                opacity: this.state.canUpload ? "0" : "0.5"
+                            },
+                            className: "rounded",
+                            onDrop: this.onDrop,
+                            onDragEnter: this.dragenter,
+                            onDragLeave: this.dragleave,
+                            onDragOver: this.dragover,
+                            onClick: this.onclick
+                        }),
+                        _(
+                            "div", {
+                                style: {
+                                    ...defaultStyle,
+                                    display: "flex"
+                                }
+                            },
+                            _(XPreviewFile, {
+                                file: this.state.file
+                            })
+                        )
+                    ),
+                    _("div", {
+                        className: "clearfix"
+                    }),
+                    _(XListFiles, { cfg: this.props.cfg, ref: this.xListFilesRef })
+                )
+            )
+        );
+    }
 }
 
 class XFormConversion extends React.Component {
-  constructor(props) {
-    super(props);
-    var s = {};
-    if (iwb.formConversions[props.id]) s = iwb.conversionForms[props.id];
-    else props.conversionForms.map(i => (s[i.xid] = i.checked));
-    this.state = s;
-    this.onClick = this.onClick.bind(this);
-    iwb.formConversions[this.props.id] = s;
-  }
-  onClick(event) {
-    var xid = event.target.getAttribute("xid");
-    if (xid) {
-      var s = this.state;
-      s[xid] = !s[xid];
-      this.setState(s);
-      iwb.formConversions[this.props.id] = s;
+    constructor(props) {
+        super(props);
+        var s = {};
+        if (iwb.formConversions[props.id]) s = iwb.conversionForms[props.id];
+        else props.conversionForms.map(i => (s[i.xid] = i.checked));
+        this.state = s;
+        this.onClick = this.onClick.bind(this);
+        iwb.formConversions[this.props.id] = s;
     }
-  }
-  render() {
-    return _(
-      "div",
-      {},
-      _("div", { className: "form-cnv" }, "Conversions"),
-      _(
-        "div",
-        {},
-        this.props.conversionForms.map(i => {
-          var pi = {
-            type: "checkbox",
-            className: "switch-input",
-            xid: i.xid,
-            checked: this.state[i.xid] || false,
-            onChange: this.onClick
-          };
-          return _(
-            FormGroup,
-            { style: { marginBottom: "0.3rem" } },
+    onClick(event) {
+        var xid = event.target.getAttribute("xid");
+        if (xid) {
+            var s = this.state;
+            s[xid] = !s[xid];
+            this.setState(s);
+            iwb.formConversions[this.props.id] = s;
+        }
+    }
+    render() {
+        return _(
+            "div", {},
+            _("div", { className: "form-cnv" }, "Conversions"),
             _(
-              Label,
-              {
-                className: "switch switch-xs switch-3d switch-warning",
-                style: { "margin-top": 3 }
-              },
-              _(Input, pi),
-              _("span", { className: "switch-label" }),
-              _("span", { className: "switch-handle" })
-            ),
-            _(
-              Label,
-              { style: { marginLeft: "1rem" } },
-              _("b", null, [" [E-MAIL]", " [SMS]"][i.smsMailTip - 1]),
-              " " + i.text,
-              i.previewFlag && _("i", null, " (preview)")
+                "div", {},
+                this.props.conversionForms.map(i => {
+                    var pi = {
+                        type: "checkbox",
+                        className: "switch-input",
+                        xid: i.xid,
+                        checked: this.state[i.xid] || false,
+                        onChange: this.onClick
+                    };
+                    return _(
+                        FormGroup, { style: { marginBottom: "0.3rem" } },
+                        _(
+                            Label, {
+                                className: "switch switch-xs switch-3d switch-warning",
+                                style: { "margin-top": 3 }
+                            },
+                            _(Input, pi),
+                            _("span", { className: "switch-label" }),
+                            _("span", { className: "switch-handle" })
+                        ),
+                        _(
+                            Label, { style: { marginLeft: "1rem" } },
+                            _("b", null, [" [E-MAIL]", " [SMS]"][i.smsMailTip - 1]),
+                            " " + i.text,
+                            i.previewFlag && _("i", null, " (preview)")
+                        )
+                    );
+                })
             )
-          );
-        })
-      )
-    );
-  }
+        );
+    }
 }
 
 class XFormSmsMailTemplate extends React.Component {
-  constructor(props) {
-    super(props);
-    var s = {};
-    if (iwb.formSmsMailTemplates[props.id])
-      s = iwb.formSmsMailTemplates[props.id];
-    else props.smsMailTemplates.map(i => (s[i.xid] = i.checked));
-    this.state = s;
-    this.onClick = this.onClick.bind(this);
-    iwb.formSmsMailTemplates[props.id] = s;
-  }
-  onClick(event) {
-    var xid = event.target.getAttribute("xid");
-    if (xid) {
-      var s = this.state;
-      s[xid] = !s[xid];
-      this.setState(s);
-      iwb.formSmsMailTemplates[this.props.id] = s;
+    constructor(props) {
+        super(props);
+        var s = {};
+        if (iwb.formSmsMailTemplates[props.id])
+            s = iwb.formSmsMailTemplates[props.id];
+        else props.smsMailTemplates.map(i => (s[i.xid] = i.checked));
+        this.state = s;
+        this.onClick = this.onClick.bind(this);
+        iwb.formSmsMailTemplates[props.id] = s;
     }
-  }
-  render() {
-    return _(
-      "div",
-      {},
-      _("div", { className: "form-cnv" }, "SMS/Email Notifications"),
-      _(
-        "div",
-        {},
-        this.props.smsMailTemplates.map(i => {
-          var pi = {
-            type: "checkbox",
-            className: "switch-input",
-            xid: i.xid,
-            checked: this.state[i.xid] || false,
-            onChange: this.onClick
-          };
-          return _(
-            FormGroup,
-            { style: { marginBottom: "0.3rem" } },
+    onClick(event) {
+        var xid = event.target.getAttribute("xid");
+        if (xid) {
+            var s = this.state;
+            s[xid] = !s[xid];
+            this.setState(s);
+            iwb.formSmsMailTemplates[this.props.id] = s;
+        }
+    }
+    render() {
+        return _(
+            "div", {},
+            _("div", { className: "form-cnv" }, "SMS/Email Notifications"),
             _(
-              Label,
-              {
-                className: "switch switch-xs switch-3d switch-warning",
-                style: { "margin-top": 3 }
-              },
-              _(Input, pi),
-              _("span", { className: "switch-label" }),
-              _("span", { className: "switch-handle" })
-            ),
-            _(
-              Label,
-              { style: { marginLeft: "1rem" } },
-              _("b", null, [" [E-MAIL]", " [SMS]"][i.smsMailTip - 1]),
-              " " + i.text,
-              i.previewFlag && _("i", null, " (preview)")
+                "div", {},
+                this.props.smsMailTemplates.map(i => {
+                    var pi = {
+                        type: "checkbox",
+                        className: "switch-input",
+                        xid: i.xid,
+                        checked: this.state[i.xid] || false,
+                        onChange: this.onClick
+                    };
+                    return _(
+                        FormGroup, { style: { marginBottom: "0.3rem" } },
+                        _(
+                            Label, {
+                                className: "switch switch-xs switch-3d switch-warning",
+                                style: { "margin-top": 3 }
+                            },
+                            _(Input, pi),
+                            _("span", { className: "switch-label" }),
+                            _("span", { className: "switch-handle" })
+                        ),
+                        _(
+                            Label, { style: { marginLeft: "1rem" } },
+                            _("b", null, [" [E-MAIL]", " [SMS]"][i.smsMailTip - 1]),
+                            " " + i.text,
+                            i.previewFlag && _("i", null, " (preview)")
+                        )
+                    );
+                })
             )
-          );
-        })
-      )
-    );
-  }
+        );
+    }
 }
 
 /**
@@ -2696,1362 +2701,1294 @@ class XFormSmsMailTemplate extends React.Component {
  *            props.callAttributes.openEditable - open form in edit mode
  */
 class XTabForm extends React.PureComponent {
-  constructor(props) {
-    if (iwb.debug) console.log("XTabForm.constructor", props);
-    super(props);
-    this.state = {
-      viewMode:
-        this.props.callAttributes && this.props.callAttributes.openEditable
-          ? false
-          : this.props.cfg.a == 1
-    };
-    /**
-     * a function to make editable and non editable
-     */
-    this.toggleViewMode = () =>
-      this.setState({ viewMode: !this.state.viewMode });
-    /**
-     * a function to send form data
-     *
-     * @param {Event}
-     *            event
-     */
-    this.onSubmit = event => {
-      event && event.preventDefault && event.preventDefault();
-      var selfie = this;
-      if (this.form) {
-        iwb.loadingActive(() => {
-          this.form.submit({
-            callback: (json, cfg) => {
-              var url = "showForm";
-              if (json.outs) {
-                url += "?a=1&_fid=" + json.formId;
-                for (var key in json.outs)
-                  url += "&t" + key + "=" + json.outs[key];
-              } else {
-                url += cfg.url.substring("ajaxPostForm".length);
-              }
-              // console.log(selfie.props);
-              selfie.props.callAttributes.callback &&
-                selfie.props.callAttributes.callback(json, cfg);
-              toastr.success(
-                "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
-                  url +
-                  "')\"></a>",
-                "Saved Successfully",
-                {
-                  timeOut: 3000
+        constructor(props) {
+            if (iwb.debug) console.log("XTabForm.constructor", props);
+            super(props);
+            this.state = {
+                viewMode: this.props.callAttributes && this.props.callAttributes.openEditable ?
+                    false :
+                    this.props.cfg.a == 1
+            };
+            /**
+             * a function to make editable and non editable
+             */
+            this.toggleViewMode = () =>
+                this.setState({ viewMode: !this.state.viewMode });
+            /**
+             * a function to send form data
+             *
+             * @param {Event}
+             *            event
+             */
+            this.onSubmit = event => {
+                event && event.preventDefault && event.preventDefault();
+                var selfie = this;
+                if (this.form) {
+                    iwb.loadingActive(() => {
+                        this.form.submit({
+                            callback: (json, cfg) => {
+                                var url = "showForm";
+                                if (json.outs) {
+                                    url += "?a=1&_fid=" + json.formId;
+                                    for (var key in json.outs)
+                                        url += "&t" + key + "=" + json.outs[key];
+                                } else {
+                                    url += cfg.url.substring("ajaxPostForm".length);
+                                }
+                                // console.log(selfie.props);
+                                selfie.props.callAttributes.callback &&
+                                    selfie.props.callAttributes.callback(json, cfg);
+                                toastr.success(
+                                    "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
+                                    url +
+                                    "')\"></a>",
+                                    "Saved Successfully", {
+                                        timeOut: 3000
+                                    }
+                                );
+                                if (json.msgs)
+                                    for (var ri = 0; ri < json.msgs.length; ri++) {
+                                        toastr.info(json.msgs[ri], "", {
+                                            timeOut: 5000
+                                        });
+                                    }
+                                var { parentCt } = selfie.props;
+                                if (parentCt) {
+                                    !!selfie.props.callAttributes.modal ?
+                                        iwb.closeModal() :
+                                        iwb.closeTab();
+                                    iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
+                                }
+                                if (json.conversionPreviews)
+                                    for (var ri = 0; ri < json.conversionPreviews.length; ri++) {
+                                        var cnv = json.conversionPreviews[ri];
+                                        iwb.openTab(
+                                            "2-" + cnv._fid + "-" + cnv._cnvId,
+                                            "showForm?a=2&_fid=" +
+                                            cnv._fid +
+                                            "&_cnvId=" +
+                                            cnv._cnvId +
+                                            "&_cnvTblPk" +
+                                            cnv._cnvTblPk, {}, {
+                                                modal: false
+                                            }
+                                        );
+                                    }
+                                if (json.smsMailPreviews)
+                                    for (var ri = 0; ri < json.smsMailPreviews.length; ri++) {
+                                        var fsm = json.smsMailPreviews[ri]; // [{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
+                                        iwb.openTab(
+                                            "2-" + fsm.fsmId + "-" + fsm.tbPk,
+                                            "showForm?a=2&_fid=4903&_cnvId=" +
+                                            cnv._cnvId +
+                                            "&_cnvTblPk" +
+                                            cnv._cnvTblPk, {}, {
+                                                modal: false
+                                            }
+                                        );
+                                    }
+                            }
+                        });
+                    });
+                } else alert("this.form not set");
+                return false;
+            };
+            this.onContSubmit = event => {
+                event && event.preventDefault && event.preventDefault();
+                var selfie = this;
+                if (this.form) {
+                    this.form.submit({
+                        callback: (json, cfg) => {
+                            var url = "showForm";
+                            if (json.outs) {
+                                url += "?a=1&_fid=" + json.formId;
+                                for (var key in json.outs)
+                                    url += "&t" + key + "=" + json.outs[key];
+                            } else {
+                                url += cfg.url.substring("ajaxPostForm".length);
+                            }
+                            console.log(selfie.props);
+                            selfie.props.callAttributes.callback &&
+                                selfie.props.callAttributes.callback(json, cfg);
+                            toastr.success(
+                                "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
+                                url +
+                                "')\"></a>",
+                                "Saved Successfully", { timeOut: 3000 }
+                            );
+                        }
+                    });
+                } else alert("this.form not set");
+                return false;
+            };
+            /**
+             * a function to delete current editing record
+             *
+             * @param {event}
+             *            event
+             */
+            this.deleteRecord = event => {
+                event && event.preventDefault && event.preventDefault();
+                let { formId, pk } = this.props.cfg;
+                let pkz = "";
+                for (let key in pk) {
+                    pkz += "&" + key + "=" + pk[key];
                 }
-              );
-              if (json.msgs)
-                for (var ri = 0; ri < json.msgs.length; ri++) {
-                  toastr.info(json.msgs[ri], "", {
-                    timeOut: 5000
-                  });
-                }
-              var { parentCt } = selfie.props;
-              if (parentCt) {
-                !!selfie.props.callAttributes.modal
-                  ? iwb.closeModal()
-                  : iwb.closeTab();
-                iwb.onGlobalSearch2 && iwb.onGlobalSearch2("");
-              }
-              if (json.conversionPreviews)
-                for (var ri = 0; ri < json.conversionPreviews.length; ri++) {
-                  var cnv = json.conversionPreviews[ri];
-                  iwb.openTab(
-                    "2-" + cnv._fid + "-" + cnv._cnvId,
-                    "showForm?a=2&_fid=" +
-                      cnv._fid +
-                      "&_cnvId=" +
-                      cnv._cnvId +
-                      "&_cnvTblPk" +
-                      cnv._cnvTblPk,
-                    {},
-                    {
-                      modal: false
+                let url = "ajaxPostForm?a=3&_fid=" + formId + pkz;
+                yesNoDialog({
+                    text: getLocMsg("are_you_sure"),
+                    callback: success =>
+                        success &&
+                        iwb.request({
+                            url,
+                            successCallback: () => this.props.parentCt.closeTab(event, success)
+                        })
+                });
+            };
+            this.approvalAction = (action, xformId) => {
+                return event => {
+                    event && event.preventDefault && event.preventDefault();
+                    let { formId, pk } = this.props.cfg;
+                    let pkz = "";
+                    for (let key in pk) {
+                        pkz += "&" + key + "=" + pk[key];
                     }
-                  );
-                }
-              if (json.smsMailPreviews)
-                for (var ri = 0; ri < json.smsMailPreviews.length; ri++) {
-                  var fsm = json.smsMailPreviews[ri]; // [{"tbId":2783,"tbPk":43,"fsmId":424,"fsmTip":1}]
-                  iwb.openTab(
-                    "2-" + fsm.fsmId + "-" + fsm.tbPk,
-                    "showForm?a=2&_fid=4903&_cnvId=" +
-                      cnv._cnvId +
-                      "&_cnvTblPk" +
-                      cnv._cnvTblPk,
-                    {},
-                    {
-                      modal: false
+                    let url = "";
+                    switch (action) {
+                        case 901: // start approval
+                            url =
+                                "ajaxApproveRecord?_aa=901&_arid=" +
+                                this.props.cfg.approval.approvalRecordId;
+                            yesNoDialog({
+                                text: getLocMsg("are_you_sure"), //"Are you Sure to Start Approval?",
+                                callback: success =>
+                                    success &&
+                                    iwb.request({
+                                        url,
+                                        params: { _adsc: "start approval" },
+                                        successCallback: () =>
+                                            this.props.parentCt.closeTab(event, success)
+                                    })
+                            });
+                            break;
+                        default:
+                            url =
+                                "ajaxApproveRecord?_aa=" +
+                                action +
+                                "&_arid=" +
+                                this.props.cfg.approval.approvalRecordId;
+                            var strAction = ["", "Approve", "Return", "Reject"][action];
+                            // var p = prompt("Please enter comment",
+                            // ["","Approve","Return","Reject"][action]);
+                            // if(p){
+                            if (xformId) {
+                                //        	  console.log('this.props.cfg',this.props.cfg)
+                                var formUrl = "showForm?a=2&_fid=" + xformId + pkz;
+                                iwb.openTab(
+                                    "1199",
+                                    formUrl, {}, {
+                                        modal: true,
+                                        modalSize: this.props.cfg.subModalSize || false,
+                                        callback: result => {
+                                            if (!result.errorType && !result.error && !result.errors)
+                                                iwb.request({
+                                                    url,
+                                                    params: {
+                                                        _adsc: strAction,
+                                                        _avno: this.props.cfg.approval.versionNo
+                                                    },
+                                                    successCallback: () =>
+                                                        this.props.parentCt.closeTab(event, true)
+                                                });
+                                            else iwb.requestErrorHandler(result);
+                                        }
+                                    }
+                                );
+                            } else
+                                yesNoDialog({
+                                    text: getLocMsg("are_you_sure"), //"Are you Sure to "+strAction+"?",
+                                    callback: success =>
+                                        success &&
+                                        iwb.request({
+                                            url,
+                                            params: {
+                                                _adsc: strAction,
+                                                _avno: this.props.cfg.approval.versionNo
+                                            },
+                                            successCallback: () =>
+                                                this.props.parentCt.closeTab(event, true)
+                                        })
+                                });
+                            // }
+                            break;
                     }
-                  );
-                }
-            }
-          });
-        });
-      } else alert("this.form not set");
-      return false;
-    };
-    this.onContSubmit = event => {
-      event && event.preventDefault && event.preventDefault();
-      var selfie = this;
-      if (this.form) {
-        this.form.submit({
-          callback: (json, cfg) => {
-            var url = "showForm";
-            if (json.outs) {
-              url += "?a=1&_fid=" + json.formId;
-              for (var key in json.outs)
-                url += "&t" + key + "=" + json.outs[key];
-            } else {
-              url += cfg.url.substring("ajaxPostForm".length);
-            }
-            console.log(selfie.props);
-            selfie.props.callAttributes.callback &&
-              selfie.props.callAttributes.callback(json, cfg);
-            toastr.success(
-              "Click! To see saved item <a href=# onClick=\"return iwb.openForm('" +
-                url +
-                "')\"></a>",
-              "Saved Successfully",
-              { timeOut: 3000 }
-            );
-          }
-        });
-      } else alert("this.form not set");
-      return false;
-    };
-    /**
-     * a function to delete current editing record
-     *
-     * @param {event}
-     *            event
-     */
-    this.deleteRecord = event => {
-      event && event.preventDefault && event.preventDefault();
-      let { formId, pk } = this.props.cfg;
-      let pkz = "";
-      for (let key in pk) {
-        pkz += "&" + key + "=" + pk[key];
-      }
-      let url = "ajaxPostForm?a=3&_fid=" + formId + pkz;
-      yesNoDialog({
-        text: getLocMsg("are_you_sure"),
-        callback: success =>
-          success &&
-          iwb.request({
-            url,
-            successCallback: () => this.props.parentCt.closeTab(event, success)
-          })
-      });
-    };
-    this.approvalAction = (action, xformId) => {
-      return event => {
-        event && event.preventDefault && event.preventDefault();
-        let { formId, pk } = this.props.cfg;
-        let pkz = "";
-        for (let key in pk) {
-          pkz += "&" + key + "=" + pk[key];
+                };
+            };
+            this.extrabuttonClicked = props => event => {
+                event.preventDefault();
+                event.stopPropagation();
+                let formData = this.form.getValues();
+                let gridData =
+                    this.props.callAttributes && this.props.callAttributes.rowData;
+                props.click(event, { gridData, formData }, this);
+            };
         }
-        let url = "";
-        switch (action) {
-          case 901: // start approval
-            url =
-              "ajaxApproveRecord?_aa=901&_arid=" +
-              this.props.cfg.approval.approvalRecordId;
-            yesNoDialog({
-              text: getLocMsg("are_you_sure"), //"Are you Sure to Start Approval?",
-              callback: success =>
-                success &&
-                iwb.request({
-                  url,
-                  params: { _adsc: "start approval" },
-                  successCallback: () =>
-                    this.props.parentCt.closeTab(event, success)
-                })
-            });
-            break;
-          default:
-            url =
-              "ajaxApproveRecord?_aa=" +
-              action +
-              "&_arid=" +
-              this.props.cfg.approval.approvalRecordId;
-            var strAction = ["", "Approve", "Return", "Reject"][action];
-            // var p = prompt("Please enter comment",
-            // ["","Approve","Return","Reject"][action]);
-            // if(p){
-            if (xformId) {
-              //        	  console.log('this.props.cfg',this.props.cfg)
-              var formUrl = "showForm?a=2&_fid=" + xformId + pkz;
-              iwb.openTab(
-                "1199",
-                formUrl,
-                {},
-                {
-                  modal: true,
-                  modalSize: this.props.cfg.subModalSize || false,
-                  callback: result => {
-                    if (!result.errorType && !result.error && !result.errors)
-                      iwb.request({
-                        url,
-                        params: {
-                          _adsc: strAction,
-                          _avno: this.props.cfg.approval.versionNo
-                        },
-                        successCallback: () =>
-                          this.props.parentCt.closeTab(event, true)
-                      });
-                    else iwb.requestErrorHandler(result);
-                  }
-                }
-              );
-            } else
-              yesNoDialog({
-                text: getLocMsg("are_you_sure"), //"Are you Sure to "+strAction+"?",
-                callback: success =>
-                  success &&
-                  iwb.request({
-                    url,
-                    params: {
-                      _adsc: strAction,
-                      _avno: this.props.cfg.approval.versionNo
-                    },
-                    successCallback: () =>
-                      this.props.parentCt.closeTab(event, true)
-                  })
-              });
-            // }
-            break;
-        }
-      };
-    };
-    this.extrabuttonClicked = props => event => {
-      event.preventDefault();
-      event.stopPropagation();
-      let formData = this.form.getValues();
-      let gridData =
-        this.props.callAttributes && this.props.callAttributes.rowData;
-      props.click(event, { gridData, formData }, this);
-    };
-  }
 
-  render() {
-    let {
-      props: {
-        body,
-        parentCt: { closeTab },
-        cfg: { deletable, name, extraButtons }
-      },
-      state: { viewMode },
-      // methods
-      onSubmit,
-      onContSubmit,
-      deleteRecord,
-      approvalAction,
-      toggleViewMode
-    } = this;
-    let formBody = _(body, { parentCt: this, viewMode });
-    if (!formBody) return null;
-    return _(
-      Form,
-      { onSubmit: event => event.preventDefault() },
-      _(
-        CardBlock,
-        { className: "card-body" },
-        _(
-          "h3",
-          {
-            className: "form-header mr-1"
-          } /* _("i",{className:"icon-star form-icon"})," ", */,
-          name,
-          !this.props.cfg.viewMode &&
-            viewMode &&
-            _(
-              Button,
-              {
-                color: "light",
-                className: "btn-form-edit mx-1",
-                onClick: toggleViewMode
-              },
-              _("i", { className: "icon-pencil mr-1" }),
-              getLocMsg("edit")
-            ),
-          viewMode &&
-            _(
-              Button,
-              {
-                color: "light",
-                className: "btn-form-edit mx-1",
-                onClick: iwb.closeTab
-              },
-              getLocMsg("close")
-            ),
-          viewMode &&
-            deletable &&
-            _(
-              Button,
-              {
-                color: "danger",
-                className: "btn-form-edit mx-1",
-                onClick: deleteRecord
-              },
-              _("i", { className: "icon-trash mr-1" }),
-              getLocMsg("delete")
-            ),
-          extraButtons &&
-            extraButtons.map(extraProps => {
-              switch (extraProps.type) {
-                case "button":
-                  let cls = extraProps.icon.split("|");
-                  return _(
-                    extraProps.$ || Button,
-                    {
-                      key: extraProps.text,
-                      className: "btn-form-edit mx-1 btn-success " + cls[1],
-                      onClick: this.extrabuttonClicked(extraProps)
-                    },
-                    _("span", {
-                      className: "mr-1 " + cls[0]
-                    }),
-                    getLocMsg(extraProps.text || "")
-                  );
-                case "text":
-                  return _(
-                    FormGroup,
-                    {},
-                    _(
-                      Label,
-                      { className: "inputLabel", htmlFor: extraProps.name },
-                      extraProps.label
-                    ),
-                    _(extraProps.$ || Input, extraProps)
-                  );
-                default:
-                  return _(extraProps.$ || "span", extraProps);
-              }
-            }),
-          false &&
-            _(
-              Button,
-              {
-                className: "float-right btn-round-shadow hover-shake",
-                color: "danger"
-              },
-              _("i", { className: "icon-options" })
-            ),
-          " ",
-          this.props.cfg.commentFlag &&
-            _(
-              Button,
-              {
-                className: "float-right btn-round-shadow mr-1",
-                color: "light"
-              },
-              _("i", { className: "icon-bubbles" })
-            ),
-          " ",
-          this.props.cfg.fileAttachFlag &&
-            _(XSingleUploadComponent, {
-              cfg: this.props.cfg
-            }),
-          _("br"),
-          this.props.cfg.approval &&
-            _(
-              "div",
-              {
-                style: {
-                  fontSize: "1rem",
-                  marginTop: 5,
-                  color: "#03A9F4",
-                  zoom: 1.2
-                }
-              },
-              _("i", { className: "icon-shuffle" }),
-              // " step ",
-              _(
-                "span",
-                null,
-                " " +
-                  this.props.cfg.approval.dsc +
-                  (this.props.cfg.approval.stepDsc
-                    ? " > " + this.props.cfg.approval.stepDsc
-                    : "")
-              ),
-              "    ",
-              this.props.cfg.approval.status > 997 &&
-                this.props.cfg.approval.status < 1000 &&
+        render() {
+            let {
+                props: {
+                    body,
+                    parentCt: { closeTab },
+                    cfg: { deletable, name, extraButtons }
+                },
+                state: { viewMode },
+                // methods
+                onSubmit,
+                onContSubmit,
+                deleteRecord,
+                approvalAction,
+                toggleViewMode
+            } = this;
+            let formBody = _(body, { parentCt: this, viewMode });
+            if (!formBody) return null;
+            return _(
+                Form, { onSubmit: event => event.preventDefault() },
                 _(
-                  "span",
-                  {
-                    className:
-                      "badge badge-pill badge-" +
-                      iwb.approvalColorMap[this.props.cfg.approval.status]
-                  },
-                  this.props.cfg.approval.status == 998
-                    ? "approved"
-                    : "rejected"
+                    CardBlock, { className: "card-body" },
+                    _(
+                        "h3", {
+                            className: "form-header mr-1"
+                        } /* _("i",{className:"icon-star form-icon"})," ", */ ,
+                        name, !this.props.cfg.viewMode &&
+                        viewMode &&
+                        _(
+                            Button, {
+                                color: "light",
+                                className: "btn-form-edit mx-1",
+                                onClick: toggleViewMode
+                            },
+                            _("i", { className: "icon-pencil mr-1" }),
+                            getLocMsg("edit")
+                        ),
+                        viewMode &&
+                        _(
+                            Button, {
+                                color: "light",
+                                className: "btn-form-edit mx-1",
+                                onClick: iwb.closeTab
+                            },
+                            getLocMsg("close")
+                        ),
+                        viewMode &&
+                        deletable &&
+                        _(
+                            Button, {
+                                color: "danger",
+                                className: "btn-form-edit mx-1",
+                                onClick: deleteRecord
+                            },
+                            _("i", { className: "icon-trash mr-1" }),
+                            getLocMsg("delete")
+                        ),
+                        extraButtons &&
+                        extraButtons.map(extraProps => {
+                            switch (extraProps.type) {
+                                case "button":
+                                    let cls = extraProps.icon.split("|");
+                                    return _(
+                                        extraProps.$ || Button, {
+                                            key: extraProps.text,
+                                            className: "btn-form-edit mx-1 btn-success " + cls[1],
+                                            onClick: this.extrabuttonClicked(extraProps)
+                                        },
+                                        _("span", {
+                                            className: "mr-1 " + cls[0]
+                                        }),
+                                        getLocMsg(extraProps.text || "")
+                                    );
+                                case "text":
+                                    return _(
+                                        FormGroup, {},
+                                        _(
+                                            Label, { className: "inputLabel", htmlFor: extraProps.name },
+                                            extraProps.label
+                                        ),
+                                        _(extraProps.$ || Input, extraProps)
+                                    );
+                                default:
+                                    return _(extraProps.$ || "span", extraProps);
+                            }
+                        }),
+                        false &&
+                        _(
+                            Button, {
+                                className: "float-right btn-round-shadow hover-shake",
+                                color: "danger"
+                            },
+                            _("i", { className: "icon-options" })
+                        ),
+                        " ",
+                        this.props.cfg.commentFlag &&
+                        _(
+                            Button, {
+                                className: "float-right btn-round-shadow mr-1",
+                                color: "light"
+                            },
+                            _("i", { className: "icon-bubbles" })
+                        ),
+                        " ",
+                        this.props.cfg.fileAttachFlag &&
+                        _(XSingleUploadComponent, {
+                            cfg: this.props.cfg
+                        }),
+                        _("br"),
+                        this.props.cfg.approval &&
+                        _(
+                            "div", {
+                                style: {
+                                    fontSize: "1rem",
+                                    marginTop: 5,
+                                    color: "#03A9F4",
+                                    zoom: 1.2
+                                }
+                            },
+                            _("i", { className: "icon-shuffle" }),
+                            // " step ",
+                            _(
+                                "span",
+                                null,
+                                " " +
+                                this.props.cfg.approval.dsc +
+                                (this.props.cfg.approval.stepDsc ?
+                                    " > " + this.props.cfg.approval.stepDsc :
+                                    "")
+                            ),
+                            "    ",
+                            this.props.cfg.approval.status > 997 &&
+                            this.props.cfg.approval.status < 1000 &&
+                            _(
+                                "span", {
+                                    className: "badge badge-pill badge-" +
+                                        iwb.approvalColorMap[this.props.cfg.approval.status]
+                                },
+                                this.props.cfg.approval.status == 998 ?
+                                "approved" :
+                                "rejected"
+                            )
+                        ),
+                        this.props.cfg.approval &&
+                        this.props.cfg.approval.wait4start &&
+                        _(
+                            Button, {
+                                color: "success",
+                                className: "btn-form-edit",
+                                onClick: approvalAction(901)
+                            },
+                            _("i", { className: "icon-support" }),
+                            " ",
+                            iwb.btnStartApprovalLabel || getLocMsg("start_approval")
+                        ),
+                        this.props.cfg.approval &&
+                        this.props.cfg.approval.versionNo &&
+                        _(
+                            Button, {
+                                color: "primary",
+                                className: "btn-form-edit",
+                                onClick: approvalAction(
+                                        1,
+                                        this.props.cfg.approval.approveFormId || false
+                                    ) // approve
+                            },
+                            this.props.cfg.approval.btnApproveLabel || getLocMsg("approve")
+                        ),
+                        " ",
+                        this.props.cfg.approval &&
+                        this.props.cfg.approval.returnFlag &&
+                        _(
+                            Button, {
+                                color: "warning",
+                                className: "btn-form-edit",
+                                onClick: approvalAction(
+                                        2,
+                                        this.props.cfg.approval.returnFormId || false
+                                    ) // return
+                            },
+                            this.props.cfg.approval.btnReturnLabel || getLocMsg("return")
+                        ),
+                        " ",
+                        this.props.cfg.approval &&
+                        this.props.cfg.approval.versionNo &&
+                        this.props.cfg.approval.reject !== false &&
+                        _(
+                            Button, {
+                                color: "danger",
+                                className: "btn-form-edit",
+                                onClick: approvalAction(
+                                        3,
+                                        this.props.cfg.approval.rejectFormId || false
+                                    ) // reject
+                            },
+                            iwb.btnApprovalRejectLabel || getLocMsg("reject")
+                        ),
+                        " ",
+                        iwb.btnApprovalLogs4Form !== false &&
+                        this.props.cfg.approval &&
+                        this.props.cfg.approval.approvalRecordId &&
+                        _(
+                            Button, {
+                                color: "light",
+                                className: "btn-form-edit",
+                                onClick: iwb.approvalLogs(
+                                        this.props.cfg.approval.approvalRecordId
+                                    ) // reject
+                            },
+                            iwb.btnApprovalLogsLabel || getLocMsg("workflow_logs")
+                        )
+                    ),
+                    this.props.cfg.msgs &&
+                    this.props.cfg.msgs.length &&
+                    _(
+                        "div", { style: { color: "#838383" } },
+                        this.props.cfg.msgs.map(qq =>
+                            _(
+                                "div",
+                                null,
+                                _("i", { className: "icon-flag" }),
+                                // " step ",
+                                _("span", null, " " + qq)
+                            )
+                        )
+                    ),
+                    _("hr"),
+                    formBody, !viewMode &&
+                    this.props.cfg.conversionForms &&
+                    _(XFormConversion, {
+                        id: this.props.cfg.id,
+                        conversionForms: this.props.cfg.conversionForms
+                    }), !viewMode &&
+                    this.props.cfg.smsMailTemplates &&
+                    _(XFormSmsMailTemplate, {
+                        id: this.props.cfg.id,
+                        smsMailTemplates: this.props.cfg.smsMailTemplates
+                    })
+                ), !viewMode &&
+                _(
+                    CardFooter, { style: { padding: "1.1rem 1.25rem" } },
+                    _(
+                        Button, {
+                            type: "submit",
+                            color: "submit",
+                            className: "btn-form mr-1",
+                            onClick: onSubmit
+                        },
+                        " ",
+                        getLocMsg("save"),
+                        " "
+                    ),
+                    " ",
+                    this.props.cfg.contFlag &&
+                    _(
+                        Button, {
+                            type: "submit",
+                            color: "secondary",
+                            className: "btn-form mr-1",
+                            onClick: onContSubmit
+                        },
+                        " ",
+                        getLocMsg("save_and_coninue"),
+                        " "
+                    ),
+                    " ",
+                    _(
+                        Button, {
+                            color: "light",
+                            style: { border: ".5px solid #e6e6e6" },
+                            className: "btn-form",
+                            onClick: this.props.callAttributes.modal ?
+                                iwb.closeModal :
+                                iwb.closeTab
+                        },
+                        getLocMsg("cancel")
+                    )
                 )
-            ),
-          this.props.cfg.approval &&
-            this.props.cfg.approval.wait4start &&
-            _(
-              Button,
-              {
-                color: "success",
-                className: "btn-form-edit",
-                onClick: approvalAction(901)
-              },
-              _("i", { className: "icon-support" }),
-              " ",
-              iwb.btnStartApprovalLabel || getLocMsg("start_approval")
-            ),
-          this.props.cfg.approval &&
-            this.props.cfg.approval.versionNo &&
-            _(
-              Button,
-              {
-                color: "primary",
-                className: "btn-form-edit",
-                onClick: approvalAction(
-                  1,
-                  this.props.cfg.approval.approveFormId || false
-                ) // approve
-              },
-              this.props.cfg.approval.btnApproveLabel || getLocMsg("approve")
-            ),
-          " ",
-          this.props.cfg.approval &&
-            this.props.cfg.approval.returnFlag &&
-            _(
-              Button,
-              {
-                color: "warning",
-                className: "btn-form-edit",
-                onClick: approvalAction(
-                  2,
-                  this.props.cfg.approval.returnFormId || false
-                ) // return
-              },
-              this.props.cfg.approval.btnReturnLabel || getLocMsg("return")
-            ),
-          " ",
-          this.props.cfg.approval &&
-            this.props.cfg.approval.versionNo &&
-            this.props.cfg.approval.reject !== false &&
-            _(
-              Button,
-              {
-                color: "danger",
-                className: "btn-form-edit",
-                onClick: approvalAction(
-                  3,
-                  this.props.cfg.approval.rejectFormId || false
-                ) // reject
-              },
-              iwb.btnApprovalRejectLabel || getLocMsg("reject")
-            ),
-          " ",
-          iwb.btnApprovalLogs4Form !== false &&
-            this.props.cfg.approval &&
-            this.props.cfg.approval.approvalRecordId &&
-            _(
-              Button,
-              {
-                color: "light",
-                className: "btn-form-edit",
-                onClick: iwb.approvalLogs(
-                  this.props.cfg.approval.approvalRecordId
-                ) // reject
-              },
-              iwb.btnApprovalLogsLabel || getLocMsg("workflow_logs")
-            )
-        ),
-        this.props.cfg.msgs &&
-          this.props.cfg.msgs.length &&
-          _(
-            "div",
-            { style: { color: "#838383" } },
-            this.props.cfg.msgs.map(qq =>
-              _(
-                "div",
-                null,
-                _("i", { className: "icon-flag" }),
-                // " step ",
-                _("span", null, " " + qq)
-              )
-            )
-          ),
-        _("hr"),
-        formBody,
-        !viewMode &&
-          this.props.cfg.conversionForms &&
-          _(XFormConversion, {
-            id: this.props.cfg.id,
-            conversionForms: this.props.cfg.conversionForms
-          }),
-        !viewMode &&
-          this.props.cfg.smsMailTemplates &&
-          _(XFormSmsMailTemplate, {
-            id: this.props.cfg.id,
-            smsMailTemplates: this.props.cfg.smsMailTemplates
-          })
-      ),
-      !viewMode &&
-        _(
-          CardFooter,
-          { style: { padding: "1.1rem 1.25rem" } },
-          _(
-            Button,
-            {
-              type: "submit",
-              color: "submit",
-              className: "btn-form mr-1",
-              onClick: onSubmit
-            },
-            " ",
-            getLocMsg("save"),
-            " "
-          ),
-          " ",
-          this.props.cfg.contFlag &&
-            _(
-              Button,
-              {
-                type: "submit",
-                color: "secondary",
-                className: "btn-form mr-1",
-                onClick: onContSubmit
-              },
-              " ",
-              getLocMsg("save_and_coninue"),
-              " "
-            ),
-          " ",
-          _(
-            Button,
-            {
-              color: "light",
-              style: { border: ".5px solid #e6e6e6" },
-              className: "btn-form",
-              onClick: this.props.callAttributes.modal
-                ? iwb.closeModal
-                : iwb.closeTab
-            },
-            getLocMsg("cancel")
-          )
-        )
-    );
-  }
-}
-/**
- * @description Used for PopUp a Modal it is singletone and you can use
- * @example iwb.showModal(cfg); iwb.closeModal
- * @param {Object}
- *            props -props of the Xmodal
- */
-class XModal extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { modal: false };
+            );
+        }
+    }
     /**
-     * @description Used to construct Modal (popup)
+     * @description Used for PopUp a Modal it is singletone and you can use
      * @example iwb.showModal(cfg); iwb.closeModal
      * @param {Object}
-     *            cfg - Moadal Configuration
-     * @param {String}
-     *            cfg.title - Moadal title
-     * @param {String}
-     *            cfg.color - Moadal Color 'primary'
-     * @param {String}
-     *            cfg.size - Moadal Size 'lg' 'md' 'sm'
-     * @param {Symbol}
-     *            cfg.body - Moadal body React.Component
-     * @param {Object}
-     *            cfg.style - Moadal style
-     * @param {Object}
-     *            cfg.footer - Moadal Configuration
-     * @param {Object}
-     *            cfg.modalBodyProps - Moadal Body Props to pass to the body of
-     *            the modal
+     *            props -props of the Xmodal
      */
-    this.open = cfg => {
-      this.setState({
-        modal: true,
-        body: cfg.body,
-        style: cfg.style,
-        footer: cfg.footer,
-        size: cfg.size || "lg",
-        title: cfg.title || "Form",
-        color: cfg.color || "primary",
-        modalBodyProps: cfg.modalBodyProps || {},
-        props: cfg.props || {}
-      });
-      return false;
-    };
-    /**
-     * @description Used to close the Modal (actually hide)
-     */
-    this.close = () => this.setState({ modal: false });
-    this.toggle = () => this.setState({ modal: !this.state.modal });
-    iwb.showModal = this.open;
-    iwb.closeModal = this.close;
-  }
-
-  render() {
-    const {
-      modal,
-      footer,
-      size,
-      style,
-      color,
-      title,
-      modalBodyProps,
-      body,
-      props
-    } = this.state;
-    return (
-      modal &&
-      _(
-        Modal,
-        {
-          keyboard: true,
-          onExit: () => {
-            iwb.loadingDeactive();
-          },
-          backdrop: footer !== false ? "static" : true,
-          toggle: this.toggle,
-          isOpen: modal,
-          className: "modal-" + size + " primary",
-          style,
-          ...props
-        },
-        _(
-          ModalHeader,
-          {
-            toggle: this.toggle,
-            className: "bg-" + color
-          },
-          title
-        ),
-        _(ModalBody, modalBodyProps, body),
-
-        // !footer && _(ModalFooter, null,
-        // _(Button, {
-        // className:'btn-form',
-        // color: 'teal',
-        // onClick: this.toggle
-        // },"KAYDET"),
-        // ' ',
-        // _(Button, {
-        // className:'btn-form',
-        // color: "light",
-        // style:{border: ".5px solid #e6e6e6"},
-        // onClick: this.toggle
-        // }, "VAZGEÇ")
-        // ),
-
-        footer && _(React.Fragment, null, footer)
-      )
-    );
-  }
-}
-/**
- * @description this component used to login after session is timeout
- */
-class XLoginDialog extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { modal: false, msg: false };
-    /**
-     * @description Used to open Modal we made it GLOBAL
-     * @example iwb.showLoginDialog()
-     */
-    this.open = () => this.setState({ modal: true });
-    iwb.showLoginDialog = this.open;
-    /**
-     * Used To Login User
-     */
-    this.login = () => {
-      var self = this;
-      var passWord = document.getElementById("id-password").value;
-      if (!passWord) {
-        self.setState({ msg: "Önce Şifre Giriniz" });
-        return false;
-      }
-      iwb.request({
-        url:
-          "ajaxAuthenticateUser?userRoleId=" +
-          _scd.userRoleId +
-          "&locale=" +
-          _scd.locale +
-          (_scd.projectId ? "&projectId=" + _scd.projectId : ""),
-        params: {
-          customizationId: _scd.customizationId,
-          userName: _scd.userName,
-          passWord: passWord,
-          locale: _scd.locale
-        },
-        callback: response => {
-          if (response.success) {
-            if (!response.waitFor) {
-              if (response.session) {
-                _scd = response.session;
-              }
-              self.setState({ modal: false, msg: false });
-            } else {
-              self.setState({ msg: "TODO! " + response.waitFor });
-            }
-            return false;
-          } else {
-            self.setState({ msg: response.errorMsg });
-          }
-        },
-        errorCallback: j => {
-          this.setState({ msg: "Olmadi" });
+class XModal extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = { modal: false };
+            /**
+             * @description Used to construct Modal (popup)
+             * @example iwb.showModal(cfg); iwb.closeModal
+             * @param {Object}
+             *            cfg - Moadal Configuration
+             * @param {String}
+             *            cfg.title - Moadal title
+             * @param {String}
+             *            cfg.color - Moadal Color 'primary'
+             * @param {String}
+             *            cfg.size - Moadal Size 'lg' 'md' 'sm'
+             * @param {Symbol}
+             *            cfg.body - Moadal body React.Component
+             * @param {Object}
+             *            cfg.style - Moadal style
+             * @param {Object}
+             *            cfg.footer - Moadal Configuration
+             * @param {Object}
+             *            cfg.modalBodyProps - Moadal Body Props to pass to the body of
+             *            the modal
+             */
+            this.open = cfg => {
+                this.setState({
+                    modal: true,
+                    body: cfg.body,
+                    style: cfg.style,
+                    footer: cfg.footer,
+                    size: cfg.size || "lg",
+                    title: cfg.title || "Form",
+                    color: cfg.color || "primary",
+                    modalBodyProps: cfg.modalBodyProps || {},
+                    props: cfg.props || {}
+                });
+                return false;
+            };
+            /**
+             * @description Used to close the Modal (actually hide)
+             */
+            this.close = () => this.setState({ modal: false });
+            this.toggle = () => this.setState({ modal: !this.state.modal });
+            iwb.showModal = this.open;
+            iwb.closeModal = this.close;
         }
-      });
-    };
-  }
 
-  render() {
-    return _(
-      Modal,
-      {
-        centered: true,
-        keyboard: false,
-        backdrop: "static",
-        toggle: this.toggle,
-        isOpen: this.state.modal,
-        className: "modal-sm primary"
-      },
-      _(
-        ModalBody,
-        null,
-        _("h1", null, "Login"),
-        _(
-          "p",
-          {
-            className: "text-muted",
-            style: { color: this.state.msg ? "red !important" : "" }
-          },
-          this.state.msg || "Session Timeout"
-        ),
-        _(
-          InputGroup,
-          { className: "mb-3" },
-          _(
-            "div",
-            { className: "input-group-prepend" },
-            _(
-              "span",
-              { className: "input-group-text" },
-              _("i", { className: "icon-user" })
-            )
-          ),
-          _(Input, {
-            type: "text",
-            readOnly: true,
-            value: _scd.userName,
-            placeholder: "Username"
-          })
-        ),
-        _(
-          InputGroup,
-          { className: "mb-4" },
-          _(
-            "div",
-            { className: "input-group-prepend" },
-            _(
-              "span",
-              { className: "input-group-text" },
-              _("i", { className: "icon-lock" })
-            )
-          ),
-          _(Input, {
-            type: "password",
-            id: "id-password",
-            placeholder: "Password"
-          })
-        )
-      ),
-      _(
-        ModalFooter,
-        null,
-        _(Button, { color: "primary", onClick: this.login }, "Login"),
-        " ",
-        _(
-          Button,
-          {
-            color: "secondary",
-            onClick: () => (document.location = "login.htm?.r=" + Math.random())
-          },
-          "Exit"
-        )
-      )
-    );
-  }
-}
-/**
- * @description used to open dropDown make edit and delete from main and detail
- *              grid when the Grid is not in edit mode
- * @param {
- *            Object } props - gets data of right click and crud
- * @param {
- *            Array } props.menuButtons - return array of Objects conf { text,
- *            handler, cls }
- * @param {
- *            Boolean } props.crudFlags.edit -ACL Edit Option
- * @param {
- *            Boolean } props.crudFlags.insert -ACL insert Option
- * @param {
- *            Boolean } props.crudFlags.remove -ACL Delete Option
- * @param {
- *            Array } props.rowData - data of the clicked Row
- */
-class XGridRowAction extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    if (iwb.debug) console.log("XGridRowAction", props);
-    this.state = { isOpen: false };
-    this.toggle = event => {
-      event.preventDefault();
-      event.stopPropagation();
-      this.setState({ isOpen: !this.state.isOpen });
-    };
-  }
-  render() {
-    const {
-      state: { isOpen },
-      props: {
-        tag,
-        rowData,
-        parentCt,
-        className,
-        menuButtons,
-        onEditClick,
-        onDeleteClick,
-        formSmsMailList,
-        crudFlags: { edit, remove }
-      },
-      toggle
-    } = this;
-    return _(
-      Dropdown,
-      { isOpen, toggle, className, tag },
-      _(DropdownToggle, {
-        tag: "i",
-        className: "icon-options-vertical column-action"
-      }),
-      isOpen &&
-        _(
-          DropdownMenu,
-          { className: isOpen ? "show" : "", style: { fontSize: "small" } },
-          edit &&
-            _(
-              DropdownItem,
-              {
-                key: "123",
-                onClick: event => {
-                  onEditClick({ event, rowData, openEditable: true });
+        render() {
+            const {
+                modal,
+                footer,
+                size,
+                style,
+                color,
+                title,
+                modalBodyProps,
+                body,
+                props
+            } = this.state;
+            return (
+                modal &&
+                _(
+                    Modal, {
+                        keyboard: true,
+                        onExit: () => {
+                            iwb.loadingDeactive();
+                        },
+                        backdrop: footer !== false ? "static" : true,
+                        toggle: this.toggle,
+                        isOpen: modal,
+                        className: "modal-" + size + " primary",
+                        style,
+                        ...props
+                    },
+                    _(
+                        ModalHeader, {
+                            toggle: this.toggle,
+                            className: "bg-" + color
+                        },
+                        title
+                    ),
+                    _(ModalBody, modalBodyProps, body),
+
+                    // !footer && _(ModalFooter, null,
+                    // _(Button, {
+                    // className:'btn-form',
+                    // color: 'teal',
+                    // onClick: this.toggle
+                    // },"KAYDET"),
+                    // ' ',
+                    // _(Button, {
+                    // className:'btn-form',
+                    // color: "light",
+                    // style:{border: ".5px solid #e6e6e6"},
+                    // onClick: this.toggle
+                    // }, "VAZGEÇ")
+                    // ),
+
+                    footer && _(React.Fragment, null, footer)
+                )
+            );
+        }
+    }
+    /**
+     * @description this component used to login after session is timeout
+     */
+class XLoginDialog extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = { modal: false, msg: false };
+            /**
+             * @description Used to open Modal we made it GLOBAL
+             * @example iwb.showLoginDialog()
+             */
+            this.open = () => this.setState({ modal: true });
+            iwb.showLoginDialog = this.open;
+            /**
+             * Used To Login User
+             */
+            this.login = () => {
+                var self = this;
+                var passWord = document.getElementById("id-password").value;
+                if (!passWord) {
+                    self.setState({ msg: "Önce Şifre Giriniz" });
+                    return false;
                 }
-              },
-              _("span", { className: "mr-2 icon-pencil" }),
-              getLocMsg("edit")
-            ),
-          remove &&
-            _(
-              DropdownItem,
-              {
-                key: "1223",
-                onClick: event => {
-                  onDeleteClick({ event, rowData });
-                }
-              },
-              _("span", {
-                className: "mr-2 icon-minus text-danger"
-              }),
-              getLocMsg("delete")
-            ),
-          menuButtons &&
-            menuButtons.map(
-              ({
-                text = "ButtonTextWillBeHere",
-                handler = (event, rowData, parentCt) => {
-                  console.group();
-                  console.warn("No Render Method! event, rowData, parentCt ");
-                  console.table([
-                    { event: event, rowData: rowData, parentCt: parentCt }
-                  ]);
-                },
-                cls = ""
-              }) => {
-//                cls = cls.split("|");
-                return _(
-                  DropdownItem,
-                  {
-                    key: text,
-                    onClick: event =>
-                      handler.call(this.state, event, rowData, parentCt),
-//                    className: cls[1]
-                  },
-                  _("span", { className: "mr-2 icon-" + cls }),
-                  text
-                );
-              }
-            ),
-          /** mail buttonst */
-          formSmsMailList &&
-            formSmsMailList.map(
-              ({
-                text = "ButtonTextWillBeHere",
-                handler = (event, rowData, parentCt, rest) => {
-                  // iwb.openForm
-                  iwb.openTab(
-                    "1-" + Math.random(),
-                    "showForm?a=2&&_fid=5748",
-                    {},
-                    {
-                      modal: true
+                iwb.request({
+                    url: "ajaxAuthenticateUser?userRoleId=" +
+                        _scd.userRoleId +
+                        "&locale=" +
+                        _scd.locale +
+                        (_scd.projectId ? "&projectId=" + _scd.projectId : ""),
+                    params: {
+                        customizationId: _scd.customizationId,
+                        userName: _scd.userName,
+                        passWord: passWord,
+                        locale: _scd.locale
+                    },
+                    callback: response => {
+                        if (response.success) {
+                            if (!response.waitFor) {
+                                if (response.session) {
+                                    _scd = response.session;
+                                }
+                                self.setState({ modal: false, msg: false });
+                            } else {
+                                self.setState({ msg: "TODO! " + response.waitFor });
+                            }
+                            return false;
+                        } else {
+                            self.setState({ msg: response.errorMsg });
+                        }
+                    },
+                    errorCallback: j => {
+                        this.setState({ msg: "Olmadi" });
                     }
-                  );
+                });
+            };
+        }
+
+        render() {
+            return _(
+                Modal, {
+                    centered: true,
+                    keyboard: false,
+                    backdrop: "static",
+                    toggle: this.toggle,
+                    isOpen: this.state.modal,
+                    className: "modal-sm primary"
                 },
-                xid,
-                ...rest
-              }) => {
-                return _(
-                  DropdownItem,
-                  {
-                    key: xid,
-                    onClick: event =>
-                      handler.call(this.state, event, rowData, parentCt, rest)
-                  },
-                  _("span", { className: "mr-2 fas fa-at text-warning" }),
-                  text
-                );
-              }
+                _(
+                    ModalBody,
+                    null,
+                    _("h1", null, "Login"),
+                    _(
+                        "p", {
+                            className: "text-muted",
+                            style: { color: this.state.msg ? "red !important" : "" }
+                        },
+                        this.state.msg || "Session Timeout"
+                    ),
+                    _(
+                        InputGroup, { className: "mb-3" },
+                        _(
+                            "div", { className: "input-group-prepend" },
+                            _(
+                                "span", { className: "input-group-text" },
+                                _("i", { className: "icon-user" })
+                            )
+                        ),
+                        _(Input, {
+                            type: "text",
+                            readOnly: true,
+                            value: _scd.userName,
+                            placeholder: "Username"
+                        })
+                    ),
+                    _(
+                        InputGroup, { className: "mb-4" },
+                        _(
+                            "div", { className: "input-group-prepend" },
+                            _(
+                                "span", { className: "input-group-text" },
+                                _("i", { className: "icon-lock" })
+                            )
+                        ),
+                        _(Input, {
+                            type: "password",
+                            id: "id-password",
+                            placeholder: "Password"
+                        })
+                    )
+                ),
+                _(
+                    ModalFooter,
+                    null,
+                    _(Button, { color: "primary", onClick: this.login }, "Login"),
+                    " ",
+                    _(
+                        Button, {
+                            color: "secondary",
+                            onClick: () => (document.location = "login.htm?.r=" + Math.random())
+                        },
+                        "Exit"
+                    )
+                )
+            );
+        }
+    }
+    /**
+     * @description used to open dropDown make edit and delete from main and detail
+     *              grid when the Grid is not in edit mode
+     * @param {
+     *            Object } props - gets data of right click and crud
+     * @param {
+     *            Array } props.menuButtons - return array of Objects conf { text,
+     *            handler, cls }
+     * @param {
+     *            Boolean } props.crudFlags.edit -ACL Edit Option
+     * @param {
+     *            Boolean } props.crudFlags.insert -ACL insert Option
+     * @param {
+     *            Boolean } props.crudFlags.remove -ACL Delete Option
+     * @param {
+     *            Array } props.rowData - data of the clicked Row
+     */
+class XGridRowAction extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        if (iwb.debug) console.log("XGridRowAction", props);
+        this.state = { isOpen: false };
+        this.toggle = event => {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({ isOpen: !this.state.isOpen });
+        };
+    }
+    render() {
+        const {
+            state: { isOpen },
+            props: {
+                tag,
+                rowData,
+                parentCt,
+                className,
+                menuButtons,
+                onEditClick,
+                onDeleteClick,
+                formSmsMailList,
+                crudFlags: { edit, remove }
+            },
+            toggle
+        } = this;
+        return _(
+            Dropdown, { isOpen, toggle, className, tag },
+            _(DropdownToggle, {
+                tag: "i",
+                className: "icon-options-vertical column-action"
+            }),
+            isOpen &&
+            _(
+                DropdownMenu, { className: isOpen ? "show" : "", style: { fontSize: "small" } },
+                edit &&
+                _(
+                    DropdownItem, {
+                        key: "123",
+                        onClick: event => {
+                            onEditClick({ event, rowData, openEditable: true });
+                        }
+                    },
+                    _("span", { className: "mr-2 icon-pencil" }),
+                    getLocMsg("edit")
+                ),
+                remove &&
+                _(
+                    DropdownItem, {
+                        key: "1223",
+                        onClick: event => {
+                            onDeleteClick({ event, rowData });
+                        }
+                    },
+                    _("span", {
+                        className: "mr-2 icon-minus text-danger"
+                    }),
+                    getLocMsg("delete")
+                ),
+                menuButtons &&
+                menuButtons.map(
+                    ({
+                        text = "ButtonTextWillBeHere",
+                        handler = (event, rowData, parentCt) => {
+                            console.group();
+                            console.warn("No Render Method! event, rowData, parentCt ");
+                            console.table([
+                                { event: event, rowData: rowData, parentCt: parentCt }
+                            ]);
+                        },
+                        cls = ""
+                    }) => {
+                        //                cls = cls.split("|");
+                        return _(
+                            DropdownItem, {
+                                key: text,
+                                onClick: event =>
+                                    handler.call(this.state, event, rowData, parentCt),
+                                //                    className: cls[1]
+                            },
+                            _("span", { className: "mr-2 icon-" + cls }),
+                            text
+                        );
+                    }
+                ),
+                /** mail buttonst */
+                formSmsMailList &&
+                formSmsMailList.map(
+                    ({
+                        text = "ButtonTextWillBeHere",
+                        handler = (event, rowData, parentCt, rest) => {
+                            // iwb.openForm
+                            iwb.openTab(
+                                "1-" + Math.random(),
+                                "showForm?a=2&&_fid=5748", {}, {
+                                    modal: true
+                                }
+                            );
+                        },
+                        xid,
+                        ...rest
+                    }) => {
+                        return _(
+                            DropdownItem, {
+                                key: xid,
+                                onClick: event =>
+                                    handler.call(this.state, event, rowData, parentCt, rest)
+                            },
+                            _("span", { className: "mr-2 fas fa-at text-warning" }),
+                            text
+                        );
+                    }
+                )
+                /** mail buttonst */
             )
-          /** mail buttonst */
-        )
-    );
-  }
+        );
+    }
 }
 XGridRowAction.propTypes = {
-  tag: PropTypes.string,
-  rowData: PropTypes.object,
-  parentCt: PropTypes.obj,
-  menuButtons: PropTypes.arrayOf(
-    PropTypes.shape({
-      text: PropTypes.string,
-      handler: PropTypes.func,
-      cls: PropTypes.string
+    tag: PropTypes.string,
+    rowData: PropTypes.object,
+    parentCt: PropTypes.obj,
+    menuButtons: PropTypes.arrayOf(
+        PropTypes.shape({
+            text: PropTypes.string,
+            handler: PropTypes.func,
+            cls: PropTypes.string
+        })
+    ),
+    formSmsMailList: PropTypes.arrayOf(PropTypes.object),
+    onEditClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
+    crudFlags: PropTypes.shape({
+        edit: PropTypes.bool,
+        remove: PropTypes.bool
     })
-  ),
-  formSmsMailList: PropTypes.arrayOf(PropTypes.object),
-  onEditClick: PropTypes.func,
-  onDeleteClick: PropTypes.func,
-  crudFlags: PropTypes.shape({
-    edit: PropTypes.bool,
-    remove: PropTypes.bool
-  })
 };
 XGridRowAction.defaultProps = {
-  tag: "span"
+    tag: "span"
 };
 /**
  * @deprecated todo: not used yet
  */
 class XGridAction extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.toggle = () => this.setState({ isOpen: !this.state.isOpen });
-    this.state = { isOpen: false };
-  }
-  render() {
-    const {
-      state: { isOpen },
-      props: { color },
-      toggle
-    } = this;
-    return _(
-      Dropdown,
-      { isOpen, toggle },
-      // ,_('i',{className:'icon-options-vertical column-action',
-      // onClick:qqq.toggleGridAction})
-      _(
-        DropdownToggle,
-        {
-          tag: "div",
-          className: "timeline-badge hover-shake " + color,
-          onClick: () => alert("hehey")
-        },
-        _("i", { className: "fa fa-plus", style: { fontSize: 19 } })
-      ),
-      // {tag:'i',className: "icon-grid", color||'danger'}
-      isOpen &&
-        _(
-          DropdownMenu,
-          { className: isOpen ? "show" : "" },
-          // ,_('div',{style:{padding: "7px 13px",background: "gray", color:
-          // "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
-          _(
-            DropdownItem,
-            { ur: "123", onClick: false },
-            _("i", {
-              className: "fa fa-plus",
-              style: {
-                marginRight: 5,
-                marginLeft: -2,
-                fontSize: 12,
-                color: "#777"
-              }
-            }),
-            getLocMsg("new_record")
-          ),
-          _("hr"),
-          _(
-            DropdownItem,
-            { ur: "1223", onClick: false },
-            _("i", {
-              className: "icon-equalizer",
-              style: {
-                marginRight: 5,
-                marginLeft: -2,
-                fontSize: 12,
-                color: "#777"
-              }
-            }),
-            getLocMsg("reports_bi")
-          )
-          // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
-          // marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
-        )
-    );
-  }
-}
-/**
- * @description it renders detail grid there is no search form
- * @param {Object}
- *            props - Input of the Grid Component
- * @param {Array}
- *            props.columns[] - Column conf List {name title width sort}
- * @param {Object}
- *            props.crudFlags - Grid Component {edit insert remove} options Used
- *            to render CRUD buttons and routes
- * @param {Number}
- *            props.crudFormId - crudFormId is used to make route to the form
- * @param {Number}
- *            props.crudTableId - crudTableId is id of sql table
- * @param {Number}
- *            props.defaultHeight -
- * @deprecated defaultHeight is a height of the Grid
- * @param {Number}
- *            props.defaultWidth -
- * @deprecated defaultWidth is width of the Grid
- * @param {Boolean}
- *            props.detailFlag - Am I detail grid?
- * @param {Boolean}
- *            props.editable - Used to Open Grid in EditingState
- *            Mode############
- * @param {Number}
- *            props.gridId - Id of the Detail grid
- * @param {String}
- *            props.keyField - Used to spesify primety Key name of the Grid
- * @param {String}
- *            props.name - Rendered name of the Grid Component
- * @param {Function}
- *            props.openTab - Used to open Form in new tab
- * @param {Function}
- *            props.pageSize - [0] by default
- * @param {Number}
- *            props.queryId - Query id of the grid
- * @param {Symbol}
- *            props._disableIntegratedGrouping - ['null'] Disable Grouping
- * @param {Symbol}
- *            props._disableIntegratedSorting - ['null'] Disable sorting
- * @param {Symbol}
- *            props._disableSearchPanel - ['null'] Disable search panel
- * @param {Symbol}
- *            props.multiselect - ['null'] Enambe multiselect option
- * @param {Symbol}
- *            props.showDetail - ['null'] detail grid used in nested detail grid
- */
-class XGrid extends GridCommon {
-  constructor(props) {
-    super(props);
-    if (iwb.debug) console.log("XGrid", props);
-    var columns = [];
-    var columnExtensions = [];
-    const canIOpenActions =
-      (props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) ||
-      props.menuButtons;
-    if (canIOpenActions) {
-      columns.push({
-        name: "_qw_",
-        title: ".",
-        getCellValue: rowData => {
-          var { onEditClick, onDeleteClick } = this;
-          return _(XGridRowAction, {
-            ...{ rowData },
-            ...{ onEditClick, onDeleteClick },
-            ...{ crudFlags: props.crudFlags },
-            ...{ menuButtons: props.menuButtons },
-            ...{ formSmsMailList: props.formSmsMailList },
-            ...{ parentCt: this }
-          });
+        constructor(props) {
+            super(props);
+            this.toggle = () => this.setState({ isOpen: !this.state.isOpen });
+            this.state = { isOpen: false };
         }
-      });
-      columnExtensions.push({
-        columnName: "_qw_",
-        width: 50,
-        align: "right",
-        sortingEnabled: false
-      });
+        render() {
+            const {
+                state: { isOpen },
+                props: { color },
+                toggle
+            } = this;
+            return _(
+                Dropdown, { isOpen, toggle },
+                // ,_('i',{className:'icon-options-vertical column-action',
+                // onClick:qqq.toggleGridAction})
+                _(
+                    DropdownToggle, {
+                        tag: "div",
+                        className: "timeline-badge hover-shake " + color,
+                        onClick: () => alert("hehey")
+                    },
+                    _("i", { className: "fa fa-plus", style: { fontSize: 19 } })
+                ),
+                // {tag:'i',className: "icon-grid", color||'danger'}
+                isOpen &&
+                _(
+                    DropdownMenu, { className: isOpen ? "show" : "" },
+                    // ,_('div',{style:{padding: "7px 13px",background: "gray", color:
+                    // "darkorange", fontWeight: "500", fontSize:" 16px"}},'İşlemler')
+                    _(
+                        DropdownItem, { ur: "123", onClick: false },
+                        _("i", {
+                            className: "fa fa-plus",
+                            style: {
+                                marginRight: 5,
+                                marginLeft: -2,
+                                fontSize: 12,
+                                color: "#777"
+                            }
+                        }),
+                        getLocMsg("new_record")
+                    ),
+                    _("hr"),
+                    _(
+                        DropdownItem, { ur: "1223", onClick: false },
+                        _("i", {
+                            className: "icon-equalizer",
+                            style: {
+                                marginRight: 5,
+                                marginLeft: -2,
+                                fontSize: 12,
+                                color: "#777"
+                            }
+                        }),
+                        getLocMsg("reports_bi")
+                    )
+                    // ,_(DropdownItem,{ur:'1223',onClick:false},_('i',{className:'icon-drop',style:{marginRight:5,
+                    // marginLeft:-2, fontSize:12,color:'#777'}}),'Diğer İşlemler')
+                )
+            );
+        }
     }
-
-    var colTemp = props.columns;
-    colTemp &&
-      colTemp.map(colLocal => {
-        var title;
-        switch (colLocal.name) {
-          case "pkpkpk_faf":
-            title = _("i", { className: "icon-paper-clip" });
-            break;
-          case "pkpkpk_ms":
-            title = _("i", { className: "icon-envelope" });
-            break;
-          case "pkpkpk_cf":
-            title = _("i", { className: "icon-bubble" });
-            break;
-          case "pkpkpk_apf":
-            title = _("i", { className: "icon-picture" });
-            break;
-          case "pkpkpk_vcsf":
-            title = _("i", { className: "icon-social-github" });
-            break;
-        }
-        columns.push({
-          name: colLocal.name,
-          title: title || colLocal.title,
-          getCellValue: colLocal.formatter || undefined
-        });
-        columnExtensions.push({
-          width: +colLocal.width,
-          columnName: colLocal.name,
-          align: colLocal.align || "left",
-          sortingEnabled: !!colLocal.sort
-        });
-      });
-
-    this.state = {
-      columns,
-      sorting: [],
-      totalCount: 0,
-      currentPage: 0,
-      loading: false,
-      columnExtensions,
-      gridActionOpen: false,
-      rows: props.rows || [],
-      order: columns.map(({ name }) => name),
-      pageSize: props.pageSize || iwb.detailPageSize,
-      columnWidths: columnExtensions.map(({ columnName, width }) => {
-        return { columnName, width };
-      }),
-      pageSizes:
-        props.pageSize > 1
-          ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
-          : [5, 10, 25, 100]
-    };
     /**
-     * @overloading
-     * @description used to make request and fill the grid
-     * @param {boolean}
-     *            force - to fill with up to date data
+     * @description it renders detail grid there is no search form
+     * @param {Object}
+     *            props - Input of the Grid Component
+     * @param {Array}
+     *            props.columns[] - Column conf List {name title width sort}
+     * @param {Object}
+     *            props.crudFlags - Grid Component {edit insert remove} options Used
+     *            to render CRUD buttons and routes
+     * @param {Number}
+     *            props.crudFormId - crudFormId is used to make route to the form
+     * @param {Number}
+     *            props.crudTableId - crudTableId is id of sql table
+     * @param {Number}
+     *            props.defaultHeight -
+     * @deprecated defaultHeight is a height of the Grid
+     * @param {Number}
+     *            props.defaultWidth -
+     * @deprecated defaultWidth is width of the Grid
+     * @param {Boolean}
+     *            props.detailFlag - Am I detail grid?
+     * @param {Boolean}
+     *            props.editable - Used to Open Grid in EditingState
+     *            Mode############
+     * @param {Number}
+     *            props.gridId - Id of the Detail grid
+     * @param {String}
+     *            props.keyField - Used to spesify primety Key name of the Grid
+     * @param {String}
+     *            props.name - Rendered name of the Grid Component
+     * @param {Function}
+     *            props.openTab - Used to open Form in new tab
+     * @param {Function}
+     *            props.pageSize - [0] by default
+     * @param {Number}
+     *            props.queryId - Query id of the grid
+     * @param {Symbol}
+     *            props._disableIntegratedGrouping - ['null'] Disable Grouping
+     * @param {Symbol}
+     *            props._disableIntegratedSorting - ['null'] Disable sorting
+     * @param {Symbol}
+     *            props._disableSearchPanel - ['null'] Disable search panel
+     * @param {Symbol}
+     *            props.multiselect - ['null'] Enambe multiselect option
+     * @param {Symbol}
+     *            props.showDetail - ['null'] detail grid used in nested detail grid
      */
-    this.loadData = force => {
-      if (this.props.rows || this.state.loading) return;
-      const queryString = this.queryString();
-      if (!force && queryString === this.lastQuery) {
-        return;
-      }
-      this.setState({ rows: [], loading: true });
-      iwb.request({
-        url: queryString,
-        self: this,
-        params:
-          this.props.searchForm &&
-          iwb.getFormValues(document.getElementById(this.props.searchForm.id)),
-        successCallback: (result, cfg) => {
-          cfg.self.setState({
-            rows: result.data,
-            totalCount: result.total_count,
-            loading: false
-          });
-        },
-        errorCallback: (error, cfg) => {
-          cfg.self.setState({
-            rows: [],
-            totalCount: 0,
-            loading: false
-          });
+class XGrid extends GridCommon {
+    constructor(props) {
+        super(props);
+        if (iwb.debug) console.log("XGrid", props);
+        var columns = [];
+        var columnExtensions = [];
+        const canIOpenActions =
+            (props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) ||
+            props.menuButtons;
+        if (canIOpenActions) {
+            columns.push({
+                name: "_qw_",
+                title: ".",
+                getCellValue: rowData => {
+                    var { onEditClick, onDeleteClick } = this;
+                    return _(XGridRowAction, {
+                        ... { rowData },
+                        ... { onEditClick, onDeleteClick },
+                        ... { crudFlags: props.crudFlags },
+                        ... { menuButtons: props.menuButtons },
+                        ... { formSmsMailList: props.formSmsMailList },
+                        ... { parentCt: this }
+                    });
+                }
+            });
+            columnExtensions.push({
+                columnName: "_qw_",
+                width: 50,
+                align: "right",
+                sortingEnabled: false
+            });
         }
-      });
-      this.lastQuery = queryString;
-    };
-  }
-  componentDidMount() {
-    if (!this.dontRefresh) this.loadData();
-    this.dontRefresh = false;
-  }
-  componentDidUpdate() {
-    this.loadData();
-    this.dontRefresh = false;
-  }
-  componentWillUnmount() {
-    iwb.grids[this.props.id] = Object.assign({}, this.state);
-  }
-  render() {
-    const {
-      state: {
-        rows,
-        order,
-        columns,
-        sorting,
-        pageSize,
-        pageSizes,
-        totalCount,
-        currentPage,
-        columnWidths,
-        columnExtensions
-      },
-      props: {
-        keyField,
-        showDetail,
-        multiselect,
-        _disableSearchPanel,
-        _disableIntegratedSorting,
-        _disableIntegratedGrouping,
-        titleComponent
-      },
-      // methods
-      rowComponent,
-      onOrderChange,
-      onSortingChange,
-      onPageSizeChange,
-      onCurrentPageChange,
-      onColumnWidthsChange
-    } = this;
 
-    if (!rows || !rows.length) return null;
-    return _(
-      _dxgrb.Grid,
-      { rows, columns, getRowId: row => row[keyField] },
-      /** sorting */
-      !_disableIntegratedSorting &&
-        _(
-          _dxrg.SortingState,
-          !pageSize ? null : { sorting, onSortingChange, columnExtensions }
-        ),
-      /** state multiselect */
-      multiselect && _(_dxrg.SelectionState, null),
-      /** state search */
-      !pageSize && _(_dxrg.SearchState, null),
-      /** Client filtering */
-      !_disableSearchPanel &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxrg.IntegratedFiltering, null),
-      /** state grouping */
-      !_disableIntegratedGrouping &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxrg.GroupingState, null),
-      /** Enable UI grouping */
+        var colTemp = props.columns;
+        colTemp &&
+            colTemp.map(colLocal => {
+                var title;
+                switch (colLocal.name) {
+                    case "pkpkpk_faf":
+                        title = _("i", { className: "icon-paper-clip" });
+                        break;
+                    case "pkpkpk_ms":
+                        title = _("i", { className: "icon-envelope" });
+                        break;
+                    case "pkpkpk_cf":
+                        title = _("i", { className: "icon-bubble" });
+                        break;
+                    case "pkpkpk_apf":
+                        title = _("i", { className: "icon-picture" });
+                        break;
+                    case "pkpkpk_vcsf":
+                        title = _("i", { className: "icon-social-github" });
+                        break;
+                }
+                columns.push({
+                    name: colLocal.name,
+                    title: title || colLocal.title,
+                    getCellValue: colLocal.formatter || undefined
+                });
+                columnExtensions.push({
+                    width: +colLocal.width,
+                    columnName: colLocal.name,
+                    align: colLocal.align || "left",
+                    sortingEnabled: !!colLocal.sort
+                });
+            });
 
-      !_disableIntegratedGrouping &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxrg.IntegratedGrouping, null),
-      /** state sorting */
-      !_disableIntegratedSorting &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxrg.IntegratedSorting, null),
-      /** state detail grid */
-      showDetail && _(_dxrg.RowDetailState, null),
-      /** state paging */
+        this.state = {
+            columns,
+            sorting: [],
+            totalCount: 0,
+            currentPage: 0,
+            loading: false,
+            columnExtensions,
+            gridActionOpen: false,
+            rows: props.rows || [],
+            order: columns.map(({ name }) => name),
+            pageSize: props.pageSize || iwb.detailPageSize,
+            columnWidths: columnExtensions.map(({ columnName, width }) => {
+                return { columnName, width };
+            }),
+            pageSizes: props.pageSize > 1 ?
+                [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                [5, 10, 25, 100]
+        };
+        /**
+         * @overloading
+         * @description used to make request and fill the grid
+         * @param {boolean}
+         *            force - to fill with up to date data
+         */
+        this.loadData = force => {
+            if (this.props.rows || this.state.loading) return;
+            const queryString = this.queryString();
+            if (!force && queryString === this.lastQuery) {
+                return;
+            }
+            this.setState({ rows: [], loading: true });
+            iwb.request({
+                url: queryString,
+                self: this,
+                params: this.props.searchForm &&
+                    iwb.getFormValues(document.getElementById(this.props.searchForm.id)),
+                successCallback: (result, cfg) => {
+                    cfg.self.setState({
+                        rows: result.data,
+                        totalCount: result.total_count,
+                        loading: false
+                    });
+                },
+                errorCallback: (error, cfg) => {
+                    cfg.self.setState({
+                        rows: [],
+                        totalCount: 0,
+                        loading: false
+                    });
+                }
+            });
+            this.lastQuery = queryString;
+        };
+    }
+    componentDidMount() {
+        if (!this.dontRefresh) this.loadData();
+        this.dontRefresh = false;
+    }
+    componentDidUpdate() {
+        this.loadData();
+        this.dontRefresh = false;
+    }
+    componentWillUnmount() {
+        iwb.grids[this.props.id] = Object.assign({}, this.state);
+    }
+    render() {
+        const {
+            state: {
+                rows,
+                order,
+                columns,
+                sorting,
+                pageSize,
+                pageSizes,
+                totalCount,
+                currentPage,
+                columnWidths,
+                columnExtensions
+            },
+            props: {
+                keyField,
+                showDetail,
+                multiselect,
+                _disableSearchPanel,
+                _disableIntegratedSorting,
+                _disableIntegratedGrouping,
+                titleComponent
+            },
+            // methods
+            rowComponent,
+            onOrderChange,
+            onSortingChange,
+            onPageSizeChange,
+            onCurrentPageChange,
+            onColumnWidthsChange
+        } = this;
 
-      rows.length > iwb.detailPageSize || pageSize > 1
-        ? _(
-            _dxrg.PagingState,
-            pageSize > 1
-              ? { currentPage, pageSize, onCurrentPageChange, onPageSizeChange }
-              : {}
-          )
-        : null,
-      /** UI paging */
+        if (!rows || !rows.length) return null;
+        return _(
+            _dxgrb.Grid, { rows, columns, getRowId: row => row[keyField] },
+            /** sorting */
+            !_disableIntegratedSorting &&
+            _(
+                _dxrg.SortingState, !pageSize ? null : { sorting, onSortingChange, columnExtensions }
+            ),
+            /** state multiselect */
+            multiselect && _(_dxrg.SelectionState, null),
+            /** state search */
+            !pageSize && _(_dxrg.SearchState, null),
+            /** Client filtering */
+            !_disableSearchPanel &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxrg.IntegratedFiltering, null),
+            /** state grouping */
+            !_disableIntegratedGrouping &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxrg.GroupingState, null),
+            /** Enable UI grouping */
 
-      pageSize > 1 &&
-        rows.length > 1 &&
-        totalCount > iwb.detailPageSize &&
-        _(_dxrg.CustomPaging, { totalCount }),
-      /** multiselect */
+            !_disableIntegratedGrouping &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxrg.IntegratedGrouping, null),
+            /** state sorting */
+            !_disableIntegratedSorting &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxrg.IntegratedSorting, null),
+            /** state detail grid */
+            showDetail && _(_dxrg.RowDetailState, null),
+            /** state paging */
 
-      multiselect && _(_dxrg.IntegratedSelection, null),
-      /** Enable Drag and Drop */
-      _(_dxgrb.DragDropProvider, null),
-      /** UI table */
-      _(_dxgrb.Table, {
-        columnExtensions,
-        rowComponent,
-        messages: { noData: getLocMsg("noData") }
-      }),
-      /** UI multiselect */
-      multiselect && _(_dxgrb.TableSelection, { showSelectAll: multiselect }),
-      /** UI ordering of the table */
-      _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
-      /** UI column table resizer */
-      _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
-      _(_dxgrb.TableHeaderRow, {
-        showSortingControls: true,
-        titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
-      }),
-      /** UI detail Grid */
-      showDetail
-        ? _(_dxgrb.TableRowDetail, { contentComponent: showDetail })
-        : null,
-      /** Paging panel */
-      rows.length > iwb.detailPageSize &&
-        _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize }),
-      /** UI row Grouping */
-      !_disableIntegratedGrouping &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxgrb.TableGroupRow, null),
-      !_disableIntegratedGrouping ||
-        !_disableIntegratedSorting ||
-        !_disableSearchPanel ||
-        (!pageSize && rows.length > 1 && _(_dxgrb.Toolbar, null)),
-      !_disableSearchPanel &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxgrb.SearchPanel, {
-          messages: { searchPlaceholder: getLocMsg("searchPlaceholder") },
-          changeSearchValue: ax => {
-            if (iwb.debug) console.log("onValueChange", ax);
-          }
-        }), // TODO
-      !_disableIntegratedGrouping &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxgrb.GroupingPanel, {
-          showSortingControls: true,
-          messages: { groupByColumn: getLocMsg("groupByColumn") }
-        })
-    );
-  }
+            rows.length > iwb.detailPageSize || pageSize > 1 ?
+            _(
+                _dxrg.PagingState,
+                pageSize > 1 ?
+                { currentPage, pageSize, onCurrentPageChange, onPageSizeChange } :
+                {}
+            ) :
+            null,
+            /** UI paging */
+
+            pageSize > 1 &&
+            rows.length > 1 &&
+            totalCount > iwb.detailPageSize &&
+            _(_dxrg.CustomPaging, { totalCount }),
+            /** multiselect */
+
+            multiselect && _(_dxrg.IntegratedSelection, null),
+            /** Enable Drag and Drop */
+            _(_dxgrb.DragDropProvider, null),
+            /** UI table */
+            _(_dxgrb.Table, {
+                columnExtensions,
+                rowComponent,
+                messages: { noData: getLocMsg("noData") }
+            }),
+            /** UI multiselect */
+            multiselect && _(_dxgrb.TableSelection, { showSelectAll: multiselect }),
+            /** UI ordering of the table */
+            _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
+            /** UI column table resizer */
+            _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
+            _(_dxgrb.TableHeaderRow, {
+                showSortingControls: true,
+                titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
+            }),
+            /** UI detail Grid */
+            showDetail ?
+            _(_dxgrb.TableRowDetail, { contentComponent: showDetail }) :
+            null,
+            /** Paging panel */
+            rows.length > iwb.detailPageSize &&
+            _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize }),
+            /** UI row Grouping */
+            !_disableIntegratedGrouping &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxgrb.TableGroupRow, null), !_disableIntegratedGrouping ||
+            !_disableIntegratedSorting ||
+            !_disableSearchPanel ||
+            (!pageSize && rows.length > 1 && _(_dxgrb.Toolbar, null)), !_disableSearchPanel &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxgrb.SearchPanel, {
+                messages: { searchPlaceholder: getLocMsg("searchPlaceholder") },
+                changeSearchValue: ax => {
+                    if (iwb.debug) console.log("onValueChange", ax);
+                }
+            }), // TODO
+            !_disableIntegratedGrouping &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxgrb.GroupingPanel, {
+                showSortingControls: true,
+                messages: { groupByColumn: getLocMsg("groupByColumn") }
+            })
+        );
+    }
 }
 /**
  * @description A functional component to glue button inside grid with its props
@@ -4064,62 +4001,57 @@ class XGrid extends GridCommon {
  *            is clicked
  */
 const Command = ({ id, onExecute }) => {
-  var ComponentProps = iwb.commandComponentProps[id];
-  return (
-    !!Object.keys(ComponentProps || {}).length &&
-    _(
-      Button,
-      {
-        color: "link",
-        style: { padding: "11px" },
-        onClick: onExecute,
-        title: ComponentProps.hint
-      },
-      _(
-        "span",
-        { className: ComponentProps.color || "" },
-        ComponentProps.icon &&
-          _("i", {
-            className: "oi oi-" + ComponentProps.icon,
-            style: { marginRight: ComponentProps.text ? 5 : 0 }
-          }),
-        ComponentProps.text
-      )
-    )
-  );
+    var ComponentProps = iwb.commandComponentProps[id];
+    return (!!Object.keys(ComponentProps || {}).length &&
+        _(
+            Button, {
+                color: "link",
+                style: { padding: "11px" },
+                onClick: onExecute,
+                title: ComponentProps.hint
+            },
+            _(
+                "span", { className: ComponentProps.color || "" },
+                ComponentProps.icon &&
+                _("i", {
+                    className: "oi oi-" + ComponentProps.icon,
+                    style: { marginRight: ComponentProps.text ? 5 : 0 }
+                }),
+                ComponentProps.text
+            )
+        )
+    );
 };
 /**
  * @description can be used to overload grid functionality component for making
  *              GRIDROW Edit + Multiselect
  */
 const SelectableStubCell = () =>
-  _(
-    Plugin,
-    {},
     _(
-      Template,
-      {
-        name: "tableCell",
-        predicate: ({ tableRow, tableColumn }) => {
-          if (
-            tableRow.key !== "heading" &&
-            tableColumn.key === "select" &&
-            tableRow.type === "edit"
-          ) {
-            return true;
-          }
-        }
-      },
-      ({ tableRow }) =>
-        _(TemplateConnector, {}, ({ selection }, { toggleSelection }) =>
-          _(_dxgrb.TableSelection.Cell, {
-            row: tableRow.row,
-            selected: selection.indexOf(tableRow.rowId) !== -1,
-            onToggle: () => toggleSelection({ rowIds: [tableRow.rowId] })
-          })
+        Plugin, {},
+        _(
+            Template, {
+                name: "tableCell",
+                predicate: ({ tableRow, tableColumn }) => {
+                    if (
+                        tableRow.key !== "heading" &&
+                        tableColumn.key === "select" &&
+                        tableRow.type === "edit"
+                    ) {
+                        return true;
+                    }
+                }
+            },
+            ({ tableRow }) =>
+            _(TemplateConnector, {}, ({ selection }, { toggleSelection }) =>
+                _(_dxgrb.TableSelection.Cell, {
+                    row: tableRow.row,
+                    selected: selection.indexOf(tableRow.rowId) !== -1,
+                    onToggle: () => toggleSelection({ rowIds: [tableRow.rowId] })
+                })
+            )
         )
-    )
-  );
+    );
 /**
  * @description used for sf grid in popup Modal
  * @param {Object}
@@ -4168,494 +4100,474 @@ const SelectableStubCell = () =>
  *            props._disableSearchPanel - ['null'] Disable search panel
  */
 class XEditGridSF extends GridCommon {
-  constructor(props) {
-    if (iwb.debug) console.log("XEditGridSF.constructor", props);
-    super(props);
-    var oldGridState = iwb.grids[props.id];
-    if (iwb.debug) console.log("oldGridState", oldGridState);
-    if (oldGridState) {
-      this.editors = {};
-      this.dontRefresh = true;
-      this.state = oldGridState;
-      var colTemp = props.columns;
-      colTemp &&
-        colTemp.map(colLocal => {
-          if (colLocal.editor) {
-            this.editors[colLocal.name] = colLocal.editor;
-          }
-        });
-    } else {
-      var columns = [];
-      this.editors = {};
-      var columnExtensions = [];
-      var colTemp = props.columns;
-      colTemp &&
-        colTemp.map(colLocal => {
-          switch (colLocal.name) {
-            case "pkpkpk_faf":
-            case "pkpkpk_ms":
-            case "pkpkpk_cf":
-            case "pkpkpk_apf":
-            case "pkpkpk_vcsf":
-              break;
-            default:
-              columns.push({
-                name: colLocal.name,
-                title: colLocal.title,
-                getCellValue: colLocal.formatter || undefined
-              });
-              var editor = colLocal.editor || false;
-              if (editor) {
-                editor.autoComplete = "off";
-                if (!editor.style) editor.style = {};
-                editor.style.width = "100%";
-                switch (+editor._control) {
-                  case 6:
-                  case 8:
-                  case 58:
-                  case 7:
-                  case 15:
-                  case 59:
-                  case 9:
-                  case 10: // combos
-                    break;
-                  default:
-                    editor.style.textAlign = colLocal.align || "left";
+    constructor(props) {
+        if (iwb.debug) console.log("XEditGridSF.constructor", props);
+        super(props);
+        var oldGridState = iwb.grids[props.id];
+        if (iwb.debug) console.log("oldGridState", oldGridState);
+        if (oldGridState) {
+            this.editors = {};
+            this.dontRefresh = true;
+            this.state = oldGridState;
+            var colTemp = props.columns;
+            colTemp &&
+                colTemp.map(colLocal => {
+                    if (colLocal.editor) {
+                        this.editors[colLocal.name] = colLocal.editor;
+                    }
+                });
+        } else {
+            var columns = [];
+            this.editors = {};
+            var columnExtensions = [];
+            var colTemp = props.columns;
+            colTemp &&
+                colTemp.map(colLocal => {
+                    switch (colLocal.name) {
+                        case "pkpkpk_faf":
+                        case "pkpkpk_ms":
+                        case "pkpkpk_cf":
+                        case "pkpkpk_apf":
+                        case "pkpkpk_vcsf":
+                            break;
+                        default:
+                            columns.push({
+                                name: colLocal.name,
+                                title: colLocal.title,
+                                getCellValue: colLocal.formatter || undefined
+                            });
+                            var editor = colLocal.editor || false;
+                            if (editor) {
+                                editor.autoComplete = "off";
+                                if (!editor.style) editor.style = {};
+                                editor.style.width = "100%";
+                                switch (+editor._control) {
+                                    case 6:
+                                    case 8:
+                                    case 58:
+                                    case 7:
+                                    case 15:
+                                    case 59:
+                                    case 9:
+                                    case 10: // combos
+                                        break;
+                                    default:
+                                        editor.style.textAlign = colLocal.align || "left";
+                                }
+                                this.editors[colLocal.name] = editor;
+                            }
+                            columnExtensions.push({
+                                width: +colLocal.width,
+                                editingEnabled: !!editor,
+                                columnName: colLocal.name,
+                                align: colLocal.align || "left",
+                                sortingEnabled: !!colLocal.sort
+                            });
+                    }
+                });
+            this.state = {
+                columns,
+                rows: [],
+                pkInsert: 0,
+                sorting: [],
+                selection: [],
+                addedRows: [],
+                totalCount: 0,
+                deletedRows: [],
+                rowChanges: {},
+                loading: false,
+                currentPage: 0,
+                columnExtensions,
+                deletingRows: [],
+                editingRowIds: [],
+                order: columns.map(({ name }) => name),
+                pageSize: props.pageSize || iwb.detailPageSize,
+                viewMode: !props.editable && (props.viewMode || true),
+                columnWidths: columnExtensions.map(({ columnName, width }) => {
+                    return { columnName, width };
+                }),
+                pageSizes: props.pageSize > 1 ?
+                    [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                    [5, 10, 25, 100]
+            };
+        }
+        /**
+         * used to get values of the grid
+         */
+        this.getValues = () => {
+            let {
+                rows,
+                addedRows,
+                deletedRows,
+                editingRowIds,
+                selection
+            } = this.state;
+            let addedRowsTemp = addedRows;
+            rows = rows.slice();
+            selection.forEach(rowId => {
+                if (rowId > 0) {
+                    const index = rows.findIndex(
+                        row => row[this.props.keyField] === rowId
+                    );
+                    if (index > -1) {
+                        addedRowsTemp = [{...rows[index] }];
+                    }
                 }
-                this.editors[colLocal.name] = editor;
-              }
-              columnExtensions.push({
-                width: +colLocal.width,
-                editingEnabled: !!editor,
-                columnName: colLocal.name,
-                align: colLocal.align || "left",
-                sortingEnabled: !!colLocal.sort
-              });
-          }
-        });
-      this.state = {
-        columns,
-        rows: [],
-        pkInsert: 0,
-        sorting: [],
-        selection: [],
-        addedRows: [],
-        totalCount: 0,
-        deletedRows: [],
-        rowChanges: {},
-        loading: false,
-        currentPage: 0,
-        columnExtensions,
-        deletingRows: [],
-        editingRowIds: [],
-        order: columns.map(({ name }) => name),
-        pageSize: props.pageSize || iwb.detailPageSize,
-        viewMode: !props.editable && (props.viewMode || true),
-        columnWidths: columnExtensions.map(({ columnName, width }) => {
-          return { columnName, width };
-        }),
-        pageSizes:
-          props.pageSize > 1
-            ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
-            : [5, 10, 25, 100]
-      };
-    }
-    /**
-     * used to get values of the grid
-     */
-    this.getValues = () => {
-      let {
-        rows,
-        addedRows,
-        deletedRows,
-        editingRowIds,
-        selection
-      } = this.state;
-      let addedRowsTemp = addedRows;
-      rows = rows.slice();
-      selection.forEach(rowId => {
-        if (rowId > 0) {
-          const index = rows.findIndex(
-            row => row[this.props.keyField] === rowId
-          );
-          if (index > -1) {
-            addedRowsTemp = [{ ...rows[index] }];
-          }
+            });
+            var searchFormData =
+                this.props.searchForm &&
+                iwb.getFormValues(document.getElementById("s-" + this.props.id));
+            // xsample_id to sample_id converter could be written as helper function
+            searchFormData &&
+                Object.keys(searchFormData).forEach((key, index) => {
+                    if (key.charAt(0) === "x") {
+                        searchFormData[key.slice(1)] = searchFormData[key];
+                        delete searchFormData[key];
+                    }
+                });
+            return {
+                searchFormData,
+                inserted: addedRowsTemp,
+                deleted: deletedRows,
+                _state: this.state,
+                _this: this
+            };
+        };
+        if (props.parentCt && props.parentCt.egrids)
+            props.parentCt.egrids[props.gridId] = this;
+        if (this.props.searchForm) {
+            this.searchForm = _(
+                Nav, { style: {} },
+                _(
+                    "div", { className: "hr-text" },
+                    _("h6", null, getLocMsg("search_criteria"))
+                ),
+                _(
+                    "div", { style: { zoom: ".9" }, className: "searchFormFields" },
+                    _(this.props.searchForm, { parentCt: this }),
+                    _(
+                        "div", { className: "form-group", style: { paddingTop: 10 } },
+                        _(
+                            Button, {
+                                color: "danger",
+                                style: { width: "100%", borderRadius: 2 },
+                                onClick: () => this.loadData(true)
+                            },
+                            getLocMsg("search")
+                        )
+                    )
+                )
+            );
         }
-      });
-      var searchFormData =
-        this.props.searchForm &&
-        iwb.getFormValues(document.getElementById("s-" + this.props.id));
-      // xsample_id to sample_id converter could be written as helper function
-      searchFormData &&
-        Object.keys(searchFormData).forEach((key, index) => {
-          if (key.charAt(0) === "x") {
-            searchFormData[key.slice(1)] = searchFormData[key];
-            delete searchFormData[key];
-          }
-        });
-      return {
-        searchFormData,
-        inserted: addedRowsTemp,
-        deleted: deletedRows,
-        _state: this.state,
-        _this: this
-      };
-    };
-    if (props.parentCt && props.parentCt.egrids)
-      props.parentCt.egrids[props.gridId] = this;
-    if (this.props.searchForm) {
-      this.searchForm = _(
-        Nav,
-        { style: {} },
-        _(
-          "div",
-          { className: "hr-text" },
-          _("h6", null, getLocMsg("search_criteria"))
-        ),
-        _(
-          "div",
-          { style: { zoom: ".9" }, className: "searchFormFields" },
-          _(this.props.searchForm, { parentCt: this }),
-          _(
-            "div",
-            { className: "form-group", style: { paddingTop: 10 } },
+        /**
+         * @param {Boolean}
+         *            force
+         */
+        this.loadData = force => {
+            if (this.state.loading) return;
+            const queryString = this.props._url;
+            const t_props = this.props;
+            this.setState({ loading: true, rows: [] });
+            iwb.request({
+                url: queryString,
+                self: this,
+                params: this.props.searchForm &&
+                    iwb.getFormValues(document.getElementById("s-" + this.props.id)),
+                successCallback: (result, cfg) => {
+                    var state = {
+                        loading: false,
+                        rows: result.data,
+                        totalCount: result.total_count
+                    };
+                    state.editingRowIds = state.rows.map(row => row[t_props.keyField]);
+                    cfg.self.setState(state);
+                },
+                errorCallback: (error, cfg) => {
+                    cfg.self.setState({
+                        rows: [],
+                        totalCount: 0,
+                        loading: false
+                    });
+                }
+            });
+            this.lastQuery = queryString;
+        };
+        this.EditCell = xprops => {
+            var editor = this.editors[xprops.column.name];
+            if (!editor) return _(_dxgrb.TableEditRow.Cell, xprops);
+
+            editor = Object.assign({}, editor);
+            if (!xprops.row._new) xprops.row._new = {}; // Object.assign({},xprops.row);
+            if (!xprops.row._new.hasOwnProperty(xprops.column.name))
+                xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
+            var keyFieldValue =
+                xprops.row._new && xprops.row._new[this.props.keyField] ?
+                xprops.row._new[this.props.keyField] :
+                xprops.row[this.props.keyField];
+            delete editor.defaultValue;
+            switch (1 * editor._control) {
+                case 3:
+                case 4: // number
+                    editor.value = xprops.value || 0; // xprops.row._new[xprops.column.name];
+                    editor.onValueChange = ({ value }) => {
+                        xprops.row._new[xprops.column.name] = value;
+                        xprops.onValueChange(value);
+                        this.props.onValueChange &&
+                            this.props.onValueChange({
+                                inthis: this,
+                                keyFieldValue: keyFieldValue,
+                                inputName: xprops.column.name,
+                                inputValue: value
+                            });
+                    };
+                    break;
+                case 6:
+                case 8:
+                case 58:
+                case 7:
+                case 15:
+                case 59:
+                case 9:
+                case 10: // combos
+                    editor.value = xprops.row._new[xprops.column.name] || 0 || ""; // TODO.
+                    // ilk
+                    // edit
+                    // ettigini
+                    // aliyor
+                    editor.onChange = ({ id }) => {
+                        xprops.row._new[xprops.column.name] = id;
+                        xprops.onValueChange(id);
+                        this.props.onValueChange &&
+                            this.props.onValueChange({
+                                inthis: this,
+                                keyFieldValue,
+                                inputName: xprops.column.name,
+                                inputValue: id
+                            });
+                    };
+                    break;
+                case 5: // checkbox
+                    editor.checked = +xprops.row._new[xprops.column.name];
+                    editor.onChange = ({ target: { checked } }) => {
+                        xprops.row._new[xprops.column.name] = checked;
+                        xprops.onValueChange(checked);
+                        this.props.onValueChange &&
+                            this.props.onValueChange({
+                                inthis: this,
+                                keyFieldValue,
+                                inputName: xprops.column.name,
+                                inputValue: checked
+                            });
+                    };
+                    break;
+                default:
+                    editor.value = xprops.value || ""; // xprops.row._new[xprops.column.name];
+                    editor.onChange = ({ target: { value } }) => {
+                        xprops.row._new[xprops.column.name] = value;
+                        xprops.onValueChange(value);
+                        this.props.onValueChange &&
+                            this.props.onValueChange({
+                                inthis: this,
+                                keyFieldValue,
+                                inputName: xprops.column.name,
+                                inputValue: value
+                            });
+                    };
+                    break;
+            }
+            var cmp = Input;
+            if (editor.$) {
+                cmp = editor.$;
+                delete editor.$;
+            }
+            return _(
+                "td", { style: { verticalAlign: "middle", padding: 1 } },
+                _(cmp, editor)
+            );
+        };
+    }
+    componentDidMount() {
+        if (!this.dontRefresh) this.loadData();
+    }
+    componentDidUpdate() {
+        if (this.props.editable && this.props.viewMode != this.state.viewMode) {
+            this.setState({ viewMode: this.props.viewMode });
+        }
+    }
+    componentWillUnmount() {
+        iwb.grids[this.props.id] = Object.assign({}, this.state);
+    }
+    render() {
+        if (iwb.debug) console.log("XEditGrid:render");
+        const {
+            state: {
+                rows,
+                order,
+                loading,
+                sorting,
+                columns,
+                viewMode,
+                pageSize,
+                addedRows,
+                selection,
+                pageSizes,
+                rowChanges,
+                totalCount,
+                currentPage,
+                columnWidths,
+                editingRowIds,
+                columnExtensions
+            },
+            props: {
+                keyField,
+                selectRow,
+                crudFlags,
+                multiselect,
+                _importClicked,
+                titleComponent,
+                _disableSearchPanel,
+                _disableIntegratedSorting,
+                _disableIntegratedGrouping
+            },
+            // methods
+            onOrderChange,
+            onCommitChanges,
+            onPageSizeChange,
+            onAddedRowsChange,
+            onSelectionChange,
+            onRowChangesChange,
+            onCurrentPageChange,
+            onColumnWidthsChange,
+            onEditingRowIdsChange
+        } = this;
+        var g = _(
+            _dxgrb.Grid, {
+                rows,
+                columns,
+                getRowId: row => row[keyField]
+            }, !_disableIntegratedSorting ? _(_dxrg.SortingState, null) : null,
+
+            multiselect &&
+            _(_dxrg.SelectionState, {
+                selection,
+                onSelectionChange
+            }),
+            _(_dxrg.SearchState, null),
+            /** Client filtering //was used for panel search(@dependency) */
+            !_disableSearchPanel && _(_dxrg.IntegratedFiltering, null),
+            /** state grouping */
+            !_disableIntegratedGrouping && _(_dxrg.GroupingState, null),
+            /** Enable UI grouping */
+
+            !_disableIntegratedGrouping && _(_dxrg.IntegratedGrouping, null),
+            /** state sorting */
+            !_disableIntegratedSorting && _(_dxrg.IntegratedSorting, null),
+            /** state paging */
+
+            rows.length > iwb.detailPageSize &&
             _(
-              Button,
-              {
-                color: "danger",
-                style: { width: "100%", borderRadius: 2 },
-                onClick: () => this.loadData(true)
-              },
-              getLocMsg("search")
+                _dxrg.PagingState,
+                pageSize > 1 ?
+                { pageSize, currentPage, onCurrentPageChange, onPageSizeChange } :
+                {}
+            ),
+
+            multiselect && _(_dxrg.IntegratedSelection, null), !viewMode &&
+            _(_dxrg.EditingState, {
+                addedRows,
+                rowChanges,
+                editingRowIds,
+                onCommitChanges,
+                columnExtensions,
+                onAddedRowsChange,
+                onRowChangesChange,
+                onEditingRowIdsChange
+            }),
+
+            _(_dxgrb.DragDropProvider, null),
+            _(_dxgrb.Table, {
+                columnExtensions,
+                messages: { noData: getLocMsg("noData") }
+            }),
+            multiselect &&
+            _(_dxgrb.TableSelection, {
+                showSelectAll: true
+            }),
+            /** UI ordering of the table */
+            _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
+            /** UI tablle resizing */
+            _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
+            _(_dxgrb.TableHeaderRow, {
+                showSortingControls: true,
+                titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
+            }),
+            selectRow.mode === "checkbox" && _(SelectableStubCell),
+
+            !viewMode &&
+            _(_dxgrb.TableEditRow, {
+                cellComponent: this.EditCell
+            }),
+
+            !multiselect &&
+            !viewMode &&
+            _(_dxgrb.TableEditColumn, {
+                showAddCommand: crudFlags && crudFlags.insert,
+                showEditCommand: crudFlags && crudFlags.edit,
+                commandComponent: Command,
+                showDeleteCommand: crudFlags && crudFlags.remove
+            }),
+
+            rows.length > iwb.detailPageSize ?
+            _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize }) :
+            null, !_disableIntegratedGrouping ? _(_dxgrb.TableGroupRow, null) : null, !_disableIntegratedGrouping ||
+            !_disableIntegratedSorting ||
+            !_disableSearchPanel ?
+            _(_dxgrb.Toolbar, null) :
+            null, !_disableSearchPanel ?
+            _(_dxgrb.SearchPanel, {
+                messages: { searchPlaceholder: getLocMsg("searchPlaceholder") }
+            }) :
+            null, !_disableIntegratedGrouping ?
+            _(_dxgrb.GroupingPanel, {
+                showSortingControls: true,
+                messages: { groupByColumn: getLocMsg("groupByColumn") }
+            }) :
+            null
+        );
+
+        var footer = _(
+            ModalFooter, {},
+            _(
+                Button, {
+                    className: "btn-form px-1 mx-1",
+                    color: "teal",
+                    onClick: () => {
+                        this.onCommitChanges(this.state);
+                        if (this.props.callback(this.getValues()) === true)
+                            iwb.closeModal();
+                    }
+                },
+                getLocMsg("save")
+            ),
+            _(
+                Button, {
+                    className: "btn-form px-1 mx-1",
+                    color: "light",
+                    style: { border: ".5px solid #e6e6e6" },
+                    onClick: iwb.closeModal
+                },
+                getLocMsg("cancel")
             )
-          )
-        )
-      );
+        );
+
+        return _("div", { className: "tab-grid mb-4" }, [!!this.searchForm &&
+            _(
+                "nav", { id: "sf-" + this.props.id, key: "sf-" + this.props.id },
+                this.searchForm
+            ),
+            _("main", { className: "inbox", key: "inbox" }, g, footer)
+        ]);
     }
-    /**
-     * @param {Boolean}
-     *            force
-     */
-    this.loadData = force => {
-      if (this.state.loading) return;
-      const queryString = this.props._url;
-      const t_props = this.props;
-      this.setState({ loading: true, rows: [] });
-      iwb.request({
-        url: queryString,
-        self: this,
-        params:
-          this.props.searchForm &&
-          iwb.getFormValues(document.getElementById("s-" + this.props.id)),
-        successCallback: (result, cfg) => {
-          var state = {
-            loading: false,
-            rows: result.data,
-            totalCount: result.total_count
-          };
-          state.editingRowIds = state.rows.map(row => row[t_props.keyField]);
-          cfg.self.setState(state);
-        },
-        errorCallback: (error, cfg) => {
-          cfg.self.setState({
-            rows: [],
-            totalCount: 0,
-            loading: false
-          });
-        }
-      });
-      this.lastQuery = queryString;
-    };
-    this.EditCell = xprops => {
-      var editor = this.editors[xprops.column.name];
-      if (!editor) return _(_dxgrb.TableEditRow.Cell, xprops);
-
-      editor = Object.assign({}, editor);
-      if (!xprops.row._new) xprops.row._new = {}; // Object.assign({},xprops.row);
-      if (!xprops.row._new.hasOwnProperty(xprops.column.name))
-        xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
-      var keyFieldValue =
-        xprops.row._new && xprops.row._new[this.props.keyField]
-          ? xprops.row._new[this.props.keyField]
-          : xprops.row[this.props.keyField];
-      delete editor.defaultValue;
-      switch (1 * editor._control) {
-        case 3:
-        case 4: // number
-          editor.value = xprops.value || 0; // xprops.row._new[xprops.column.name];
-          editor.onValueChange = ({ value }) => {
-            xprops.row._new[xprops.column.name] = value;
-            xprops.onValueChange(value);
-            this.props.onValueChange &&
-              this.props.onValueChange({
-                inthis: this,
-                keyFieldValue: keyFieldValue,
-                inputName: xprops.column.name,
-                inputValue: value
-              });
-          };
-          break;
-        case 6:
-        case 8:
-        case 58:
-        case 7:
-        case 15:
-        case 59:
-        case 9:
-        case 10: // combos
-          editor.value = xprops.row._new[xprops.column.name] || 0 || ""; // TODO.
-          // ilk
-          // edit
-          // ettigini
-          // aliyor
-          editor.onChange = ({ id }) => {
-            xprops.row._new[xprops.column.name] = id;
-            xprops.onValueChange(id);
-            this.props.onValueChange &&
-              this.props.onValueChange({
-                inthis: this,
-                keyFieldValue,
-                inputName: xprops.column.name,
-                inputValue: id
-              });
-          };
-          break;
-        case 5: // checkbox
-          editor.checked = +xprops.row._new[xprops.column.name];
-          editor.onChange = ({ target: { checked } }) => {
-            xprops.row._new[xprops.column.name] = checked;
-            xprops.onValueChange(checked);
-            this.props.onValueChange &&
-              this.props.onValueChange({
-                inthis: this,
-                keyFieldValue,
-                inputName: xprops.column.name,
-                inputValue: checked
-              });
-          };
-          break;
-        default:
-          editor.value = xprops.value || ""; // xprops.row._new[xprops.column.name];
-          editor.onChange = ({ target: { value } }) => {
-            xprops.row._new[xprops.column.name] = value;
-            xprops.onValueChange(value);
-            this.props.onValueChange &&
-              this.props.onValueChange({
-                inthis: this,
-                keyFieldValue,
-                inputName: xprops.column.name,
-                inputValue: value
-              });
-          };
-          break;
-      }
-      var cmp = Input;
-      if (editor.$) {
-        cmp = editor.$;
-        delete editor.$;
-      }
-      return _(
-        "td",
-        { style: { verticalAlign: "middle", padding: 1 } },
-        _(cmp, editor)
-      );
-    };
-  }
-  componentDidMount() {
-    if (!this.dontRefresh) this.loadData();
-  }
-  componentDidUpdate() {
-    if (this.props.editable && this.props.viewMode != this.state.viewMode) {
-      this.setState({ viewMode: this.props.viewMode });
-    }
-  }
-  componentWillUnmount() {
-    iwb.grids[this.props.id] = Object.assign({}, this.state);
-  }
-  render() {
-    if (iwb.debug) console.log("XEditGrid:render");
-    const {
-      state: {
-        rows,
-        order,
-        loading,
-        sorting,
-        columns,
-        viewMode,
-        pageSize,
-        addedRows,
-        selection,
-        pageSizes,
-        rowChanges,
-        totalCount,
-        currentPage,
-        columnWidths,
-        editingRowIds,
-        columnExtensions
-      },
-      props: {
-        keyField,
-        selectRow,
-        crudFlags,
-        multiselect,
-        _importClicked,
-        titleComponent,
-        _disableSearchPanel,
-        _disableIntegratedSorting,
-        _disableIntegratedGrouping
-      },
-      // methods
-      onOrderChange,
-      onCommitChanges,
-      onPageSizeChange,
-      onAddedRowsChange,
-      onSelectionChange,
-      onRowChangesChange,
-      onCurrentPageChange,
-      onColumnWidthsChange,
-      onEditingRowIdsChange
-    } = this;
-    var g = _(
-      _dxgrb.Grid,
-      {
-        rows,
-        columns,
-        getRowId: row => row[keyField]
-      },
-      !_disableIntegratedSorting ? _(_dxrg.SortingState, null) : null,
-
-      multiselect &&
-        _(_dxrg.SelectionState, {
-          selection,
-          onSelectionChange
-        }),
-      _(_dxrg.SearchState, null),
-      /** Client filtering //was used for panel search(@dependency) */
-      !_disableSearchPanel && _(_dxrg.IntegratedFiltering, null),
-      /** state grouping */
-      !_disableIntegratedGrouping && _(_dxrg.GroupingState, null),
-      /** Enable UI grouping */
-
-      !_disableIntegratedGrouping && _(_dxrg.IntegratedGrouping, null),
-      /** state sorting */
-      !_disableIntegratedSorting && _(_dxrg.IntegratedSorting, null),
-      /** state paging */
-
-      rows.length > iwb.detailPageSize &&
-        _(
-          _dxrg.PagingState,
-          pageSize > 1
-            ? { pageSize, currentPage, onCurrentPageChange, onPageSizeChange }
-            : {}
-        ),
-
-      multiselect && _(_dxrg.IntegratedSelection, null),
-      !viewMode &&
-        _(_dxrg.EditingState, {
-          addedRows,
-          rowChanges,
-          editingRowIds,
-          onCommitChanges,
-          columnExtensions,
-          onAddedRowsChange,
-          onRowChangesChange,
-          onEditingRowIdsChange
-        }),
-
-      _(_dxgrb.DragDropProvider, null),
-      _(_dxgrb.Table, {
-        columnExtensions,
-        messages: { noData: getLocMsg("noData") }
-      }),
-      multiselect &&
-        _(_dxgrb.TableSelection, {
-          showSelectAll: true
-        }),
-      /** UI ordering of the table */
-      _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
-      /** UI tablle resizing */
-      _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
-      _(_dxgrb.TableHeaderRow, {
-        showSortingControls: true,
-        titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
-      }),
-      selectRow.mode === "checkbox" && _(SelectableStubCell),
-
-      !viewMode &&
-        _(_dxgrb.TableEditRow, {
-          cellComponent: this.EditCell
-        }),
-
-      !multiselect &&
-        !viewMode &&
-        _(_dxgrb.TableEditColumn, {
-          showAddCommand: crudFlags && crudFlags.insert,
-          showEditCommand: crudFlags && crudFlags.edit,
-          commandComponent: Command,
-          showDeleteCommand: crudFlags && crudFlags.remove
-        }),
-
-      rows.length > iwb.detailPageSize
-        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize })
-        : null,
-      !_disableIntegratedGrouping ? _(_dxgrb.TableGroupRow, null) : null,
-      !_disableIntegratedGrouping ||
-      !_disableIntegratedSorting ||
-      !_disableSearchPanel
-        ? _(_dxgrb.Toolbar, null)
-        : null,
-      !_disableSearchPanel
-        ? _(_dxgrb.SearchPanel, {
-            messages: { searchPlaceholder: getLocMsg("searchPlaceholder") }
-          })
-        : null,
-      !_disableIntegratedGrouping
-        ? _(_dxgrb.GroupingPanel, {
-            showSortingControls: true,
-            messages: { groupByColumn: getLocMsg("groupByColumn") }
-          })
-        : null
-    );
-
-    var footer = _(
-      ModalFooter,
-      {},
-      _(
-        Button,
-        {
-          className: "btn-form px-1 mx-1",
-          color: "teal",
-          onClick: () => {
-            this.onCommitChanges(this.state);
-            if (this.props.callback(this.getValues()) === true)
-              iwb.closeModal();
-          }
-        },
-        getLocMsg("save")
-      ),
-      _(
-        Button,
-        {
-          className: "btn-form px-1 mx-1",
-          color: "light",
-          style: { border: ".5px solid #e6e6e6" },
-          onClick: iwb.closeModal
-        },
-        getLocMsg("cancel")
-      )
-    );
-
-    return _("div", { className: "tab-grid mb-4" }, [
-      !!this.searchForm &&
-        _(
-          "nav",
-          { id: "sf-" + this.props.id, key: "sf-" + this.props.id },
-          this.searchForm
-        ),
-      _("main", { className: "inbox", key: "inbox" }, g, footer)
-    ]);
-  }
 }
 /**
  * @description {name, children, predicate, position} used to extend template of
@@ -4676,27 +4588,26 @@ class XEditGridSF extends GridCommon {
  */
 
 const extendGrid = ({ name, children, predicate, position }) => {
-  return _(
-    Plugin,
-    null,
-    _(
-      Template,
-      {
-        name,
-        predicate: rest => predicate(rest)
-      },
-      params => {
-        return _(
-          React.Fragment,
-          null,
-          position === "before" && children,
-          position && _(TemplatePlaceholder, null),
-          position === "after" && children,
-          position !== true && children
-        );
-      }
-    )
-  );
+    return _(
+        Plugin,
+        null,
+        _(
+            Template, {
+                name,
+                predicate: rest => predicate(rest)
+            },
+            params => {
+                return _(
+                    React.Fragment,
+                    null,
+                    position === "before" && children,
+                    position && _(TemplatePlaceholder, null),
+                    position === "after" && children,
+                    position !== true && children
+                );
+            }
+        )
+    );
 };
 /**
  * @description {text,callback} used for making popup dialog
@@ -4711,803 +4622,765 @@ const extendGrid = ({ name, children, predicate, position }) => {
  *          }});
  */
 yesNoDialog = ({
-  text = getLocMsg("are_you_sure"),
-  title = getLocMsg("confirmation"),
-  callback = alert("obj.callback is not a function"),
-  ...confg
-}) => {
-  iwb.showModal({
-    body: text,
-    size: "sm",
-    title: title,
-    color: "danger",
-    footer: _(
-      ModalFooter,
-      null,
-      _(
-        Button,
-        {
-          className: "btn-form",
-          color: "teal",
-          onClick: () => {
-            callback(true);
-            iwb.closeModal();
-          }
-        },
-        getLocMsg("tamam")
-      ),
-      " ",
-      _(
-        Button,
-        {
-          className: "btn-form",
-          color: "light",
-          style: { border: ".5px solid #e6e6e6" },
-          onClick: () => {
-            callback(false);
-            iwb.closeModal();
-          }
-        },
-        getLocMsg("cancel")
-      )
-    ),
+    text = getLocMsg("are_you_sure"),
+    title = getLocMsg("confirmation"),
+    callback = alert("obj.callback is not a function"),
     ...confg
-  });
+}) => {
+    iwb.showModal({
+        body: text,
+        size: "sm",
+        title: title,
+        color: "danger",
+        footer: _(
+            ModalFooter,
+            null,
+            _(
+                Button, {
+                    className: "btn-form",
+                    color: "teal",
+                    onClick: () => {
+                        callback(true);
+                        iwb.closeModal();
+                    }
+                },
+                getLocMsg("tamam")
+            ),
+            " ",
+            _(
+                Button, {
+                    className: "btn-form",
+                    color: "light",
+                    style: { border: ".5px solid #e6e6e6" },
+                    onClick: () => {
+                        callback(false);
+                        iwb.closeModal();
+                    }
+                },
+                getLocMsg("cancel")
+            )
+        ),
+        ...confg
+    });
 };
 /**
  * @description component for edit Detail Grid mostly used for form + grid mode
  */
 class XEditGrid extends GridCommon {
-  constructor(props) {
-    if (iwb.debug) console.log("XEditGrid.constructor", props);
-    super(props);
-    // state
-    var oldGridState = iwb.grids[props.id];
-    if (iwb.debug) console.log("oldGridState", oldGridState);
-    if (oldGridState) {
-      this.dontRefresh = true;
-      this.state = oldGridState;
-      var c = props.columns;
-      this.editors = {};
-      colTemp &&
-        colTemp.map(colLocal => {
-          if (colLocal.editor) {
-            this.editors[colLocal.name] = editor;
-          }
-        });
-    } else {
-      var columns = [],
-        columnExtensions = [];
-      var colTemp = props.columns;
-      this.editors = {};
-      colTemp &&
-        colTemp.map(colLocal => {
-          switch (colLocal.name) {
-            case "pkpkpk_faf":
-            case "pkpkpk_ms":
-            case "pkpkpk_cf":
-            case "pkpkpk_apf":
-            case "pkpkpk_vcsf":
-              break;
-            default:
-              columns.push({
-                name: colLocal.name,
-                title: colLocal.title,
-                getCellValue: colLocal.formatter || undefined
-              });
-              var editor = colLocal.editor || false;
-              if (editor) {
-                editor.autoComplete = "off";
-                if (!editor.style) editor.style = {};
-                editor.style.width = "100%";
-                editor.style.position = "inherit";
-                switch (+editor._control) {
-                  case 6:
-                  case 8:
-                  case 58:
-                  case 7:
-                  case 15:
-                  case 59:
-                  case 9:
-                  case 10: // combos
-                    break;
-                  default:
-                    editor.style.textAlign = colLocal.align || "left";
-                }
-                this.editors[colLocal.name] = editor;
-              }
-              columnExtensions.push({
-                width: +colLocal.width,
-                editingEnabled: !!editor,
-                columnName: colLocal.name,
-                align: colLocal.align || "left",
-                sortingEnabled: !!colLocal.sort
-              });
-          }
-        });
+    constructor(props) {
+        if (iwb.debug) console.log("XEditGrid.constructor", props);
+        super(props);
+        // state
+        var oldGridState = iwb.grids[props.id];
+        if (iwb.debug) console.log("oldGridState", oldGridState);
+        if (oldGridState) {
+            this.dontRefresh = true;
+            this.state = oldGridState;
+            var c = props.columns;
+            this.editors = {};
+            colTemp &&
+                colTemp.map(colLocal => {
+                    if (colLocal.editor) {
+                        this.editors[colLocal.name] = editor;
+                    }
+                });
+        } else {
+            var columns = [],
+                columnExtensions = [];
+            var colTemp = props.columns;
+            this.editors = {};
+            colTemp &&
+                colTemp.map(colLocal => {
+                    switch (colLocal.name) {
+                        case "pkpkpk_faf":
+                        case "pkpkpk_ms":
+                        case "pkpkpk_cf":
+                        case "pkpkpk_apf":
+                        case "pkpkpk_vcsf":
+                            break;
+                        default:
+                            columns.push({
+                                name: colLocal.name,
+                                title: colLocal.title,
+                                getCellValue: colLocal.formatter || undefined
+                            });
+                            var editor = colLocal.editor || false;
+                            if (editor) {
+                                editor.autoComplete = "off";
+                                if (!editor.style) editor.style = {};
+                                editor.style.width = "100%";
+                                editor.style.position = "inherit";
+                                switch (+editor._control) {
+                                    case 6:
+                                    case 8:
+                                    case 58:
+                                    case 7:
+                                    case 15:
+                                    case 59:
+                                    case 9:
+                                    case 10: // combos
+                                        break;
+                                    default:
+                                        editor.style.textAlign = colLocal.align || "left";
+                                }
+                                this.editors[colLocal.name] = editor;
+                            }
+                            columnExtensions.push({
+                                width: +colLocal.width,
+                                editingEnabled: !!editor,
+                                columnName: colLocal.name,
+                                align: colLocal.align || "left",
+                                sortingEnabled: !!colLocal.sort
+                            });
+                    }
+                });
 
-      this.state = {
-        columns,
-        rows: [],
-        pkInsert: 0,
-        sorting: [],
-        totalCount: 0,
-        addedRows: [],
-        rowChanges: {},
-        currentPage: 0,
-        deletedRows: [],
-        loading: false,
-        columnExtensions,
-        deletingRows: [],
-        editingRowIds: [],
-        order: columns.map(({ name }) => name),
-        pageSize: props.pageSize || iwb.detailPageSize,
-        viewMode: !props.editable && (props.viewMode || true),
-        columnWidths: columnExtensions.map(({ columnName, width }) => {
-          return { columnName, width };
-        }),
-        pageSizes:
-          props.pageSize > 1
-            ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
-            : [5, 10, 25, 100]
-      };
-    }
-    // methods
-    /**
-     * used to get values of the grid
-     */
-
-    this.getValues = () => {
-      let { rows, addedRows, deletedRows, editingRowIds } = this.state;
-      rows = rows.slice();
-      var changedRows = [];
-      editingRowIds.forEach(rowId => {
-        if (rowId > 0) {
-          const index = rows.findIndex(
-            row => row[this.props.keyField] === rowId
-          );
-          if (index > -1) changedRows.push(Object.assign({}, rows[index]));
-        }
-      });
-      return {
-        inserted: addedRows,
-        deleted: deletedRows,
-        changed: changedRows
-      };
-    };
-    /**
-     * bind with parent Element
-     */
-    if (props.parentCt && props.parentCt.egrids)
-      props.parentCt.egrids[props.gridId] = this;
-    /**
-     * used to make data request to fill the frid with related data
-     *
-     * @param {boolean}
-     *            force
-     */
-    this.loadData = force => {
-      if (this.state.loading) return;
-      const queryString = this.props._url;
-      const t_props = this.props;
-      this.setState({ rows: [], loading: true });
-      iwb.request({
-        url: queryString,
-        self: this,
-        params:
-          this.props.searchForm &&
-          iwb.getFormValues(document.getElementById("s-" + this.props.id)),
-        successCallback: (result, cfg) => {
-          var state = {
-            loading: false,
-            rows: result.data,
-            totalCount: result.total_count
-          };
-          if (t_props.multiselect) {
-            state.editingRowIds = state.rows.map(row => row[t_props.keyField]);
-          }
-          cfg.self.setState(state);
-          t_props.afterLoadData && t_props.afterLoadData(cfg.self);
-        },
-        errorCallback: (error, cfg) => {
-          cfg.self.setState({
-            rows: [],
-            totalCount: 0,
-            loading: false
-          });
-        }
-      });
-      this.lastQuery = queryString;
-    };
-    /**
-     * used for import data from the popup with ne flag
-     */
-    this.BulkyImport = ({ searchFormData, inserted, deleted, _state }) => {
-      const { rows, addedRows } = this.state;
-      let tempRow = [];
-      let max;
-      // find max tab_order from grid
-      if (
-        (rows["0"] && rows["0"].tab_order) ||
-        (addedRows["0"] && addedRows["0"].tab_order)
-      ) {
-        max =
-          Math.max(
-            ...rows.map(d => +d.tab_order),
-            ...addedRows.map(d => +d.tab_order)
-          ) + 10;
-      } else {
-        max = (rows.length + addedRows.length) * 10;
-      }
-      if (max === "-Infinity" || +max === 0) {
-        max = 10;
-      }
-      // merge new imported data
-      let pkInsert = this.state.pkInsert;
-      inserted.forEach(data => {
-        var merged = { ...searchFormData, ...data };
-        merged = { ...merged, ...merged._new };
-        merged.tab_order = max;
-        merged.max = max;
-        --pkInsert;
-        merged[this.props.keyField] = pkInsert;
-        tempRow.push(merged);
-        max += 10;
-      });
-      // Adds data to the grit from the popup
-      this.setState({ addedRows: [...addedRows, ...tempRow], pkInsert });
-    };
-    /**
-     * to get all data from grid editing + noneEdited at current time
-     */
-
-    this.getAllData = () => {
-      let tempRowData = [];
-      this.state.rows.forEach(data => {
-        tempRowData.push({ ...data, ...data._new });
-      });
-      return tempRowData;
-    };
-    /**
-     * used for Cell Editing
-     *
-     * @param {Object}
-     *            xprops
-     */
-    this.EditCell = xprops => {
-      var editor = this.editors[xprops.column.name];
-      if (
-        this.props.isCellEditable &&
-        this.props.isCellEditable(xprops.row, xprops.column.name) === false
-      )
-        return _(_dxgrb.TableEditRow.Cell, {
-          ...xprops,
-          ...{ editingEnabled: false }
-        });
-      if (!editor) return _(_dxgrb.TableEditRow.Cell, xprops);
-      editor = Object.assign({}, editor);
-      if (!xprops.row._new) xprops.row._new = {}; // Object.assign({},xprops.row);
-      if (!xprops.row._new.hasOwnProperty(xprops.column.name))
-        xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
-
-      var keyFieldValue =
-        xprops.row._new && xprops.row._new[this.props.keyField]
-          ? xprops.row._new[this.props.keyField]
-          : xprops.row[this.props.keyField];
-
-      switch (1 * editor._control) {
-        case 3:
-        case 4: // number
-          editor.value =
-            xprops.row && xprops.row._new && xprops.row._new[xprops.column.name]
-              ? xprops.row._new[xprops.column.name]
-              : xprops.value;
-          editor.onValueChange = ({ value }) => {
-            xprops.row._new[xprops.column.name] = value;
-            xprops.onValueChange(value);
-            this.props.onValueChange &&
-              this.props.onValueChange({
-                inthis: this,
-                keyFieldValue: keyFieldValue,
-                inputName: xprops.column.name,
-                inputValue: value
-              });
-          };
-          break;
-        case 6:
-        case 8:
-        case 58:
-        case 7:
-        case 15:
-        case 59:
-        case 9:
-        case 10: // combos
-          editor.value = xprops.row._new[xprops.column.name]; // TODO. ilk
-          // edit ettigini
-          // aliyor
-          editor.onChange = ({ id }) => {
-            xprops.row._new[xprops.column.name] = id;
-            xprops.onValueChange(id);
-            this.props.onValueChange &&
-              this.props.onValueChange({
-                inthis: this,
-                keyFieldValue,
-                inputName: xprops.column.name,
-                inputValue: id
-              });
-          };
-          break;
-        case 5:
-          editor.checked = +xprops.row._new[xprops.column.name];
-          editor.onChange = ({ target: { checked } }) => {
-            xprops.row._new[xprops.column.name] = checked;
-            xprops.onValueChange(checked);
-            this.props.onValueChange &&
-              this.props.onValueChange({
-                inthis: this,
-                keyFieldValue,
-                inputName: xprops.column.name,
-                inputValue: checked
-              });
-          };
-          break;
-        default:
-          editor.value =
-            xprops.row && xprops.row._new && xprops.row._new[xprops.column.name]
-              ? xprops.row._new[xprops.column.name]
-              : xprops.value;
-          editor.onChange = ({ target: { value } }) => {
-            xprops.row._new[xprops.column.name] = value;
-            xprops.onValueChange(value);
-            this.props.onValueChange &&
-              this.props.onValueChange({
-                inthis: this,
-                keyFieldValue,
-                inputName: xprops.column.name,
-                inputValue: value
-              });
-          };
-          break;
-      }
-      delete editor.defaultValue;
-      delete editor.defaultChecked;
-      var cmp = Input;
-      if (editor.$) {
-        cmp = editor.$;
-        delete editor.$;
-      }
-      return _(
-        "td",
-        { style: { verticalAlign: "middle", padding: 1 } },
-        _(cmp, editor)
-      );
-    };
-  }
-  componentDidMount() {
-    if (!this.dontRefresh) this.loadData();
-  }
-  componentDidUpdate() {
-    if (this.props.editable && this.props.viewMode != this.state.viewMode) {
-      this.setState({ viewMode: this.props.viewMode });
-    }
-  }
-  componentWillUnmount() {
-    iwb.grids[this.props.id] = Object.assign({}, this.state);
-  }
-  render() {
-    const {
-      state: {
-        rows,
-        order,
-        columns,
-        loading,
-        sorting,
-        pageSize,
-        viewMode,
-        pageSizes,
-        addedRows,
-        rowChanges,
-        totalCount,
-        currentPage,
-        columnWidths,
-        editingRowIds,
-        columnExtensions
-      },
-      props: {
-        keyField,
-        crudFlags,
-        multiselect,
-        _importClicked,
-        titleComponent,
-        _disableSearchPanel,
-        _disableIntegratedSorting,
-        _disableIntegratedGrouping
-      },
-      onOrderChange,
-      onCommitChanges,
-      onPageSizeChange,
-      onAddedRowsChange,
-      onRowChangesChange,
-      onCurrentPageChange,
-      onColumnWidthsChange,
-      onEditingRowIdsChange
-    } = this;
-    return _(
-      _dxgrb.Grid,
-      {
-        rows,
-        columns,
-        getRowId: row => row[keyField]
-      },
-      !_disableIntegratedSorting ? _(_dxrg.SortingState, null) : null,
-      multiselect && _(_dxrg.SelectionState, null),
-      _(_dxrg.SearchState, null),
-      !_disableSearchPanel ? _(_dxrg.IntegratedFiltering, null) : null, // was
-      // used
-      // for
-      // panel
-      // search(@dependency)
-      !_disableIntegratedGrouping ? _(_dxrg.GroupingState, null) : null,
-      !_disableIntegratedGrouping ? _(_dxrg.IntegratedGrouping, null) : null,
-      !_disableIntegratedSorting ? _(_dxrg.IntegratedSorting, null) : null,
-      rows.length > iwb.detailPageSize
-        ? _(
-            _dxrg.PagingState,
-            pageSize > 1
-              ? {
-                  pageSize,
-                  currentPage,
-                  onPageSizeChange,
-                  onCurrentPageChange
-                }
-              : {}
-          )
-        : null,
-      multiselect && _(_dxrg.IntegratedSelection, null),
-      !viewMode &&
-        _(_dxrg.EditingState, {
-          addedRows,
-          rowChanges,
-          editingRowIds,
-          onCommitChanges,
-          columnExtensions,
-          onAddedRowsChange,
-          onRowChangesChange,
-          onEditingRowIdsChange
-        }),
-      _(_dxgrb.DragDropProvider, null),
-      _(_dxgrb.Table, {
-        columnExtensions,
-        messages: { noData: getLocMsg("noData") }
-      }),
-      multiselect &&
-        _(_dxgrb.TableSelection, {
-          showSelectAll: true
-        }),
-      /** UI ordering of the table */
-      _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
-      /** UI tablle resizing */
-      _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
-      _(_dxgrb.TableHeaderRow, {
-        showSortingControls: !_disableIntegratedSorting,
-        titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
-      }),
-      !viewMode &&
-        _(_dxgrb.TableEditRow, {
-          cellComponent: this.EditCell
-        }),
-      !multiselect &&
-        !viewMode &&
-        _(_dxgrb.TableEditColumn, {
-          showAddCommand: crudFlags && crudFlags.insert,
-          showEditCommand: crudFlags && crudFlags.edit,
-          showDeleteCommand: crudFlags && crudFlags.remove,
-          commandComponent: Command
-        }),
-
-      _importClicked &&
-        _(
-          extendGrid,
-          {
-            name: "tableCell",
-            predicate: rest => {
-              if (
-                rest.tableRow.key === "heading" &&
-                rest.tableColumn.key === "editCommand" &&
-                rest.tableRow.type === "heading"
-              ) {
-                return true;
-              }
-            }
-          },
-          _(TemplateConnector, {}, (getters, actions) => {
-            return _(
-              _dxgrb.TableEditColumn.HeaderCell,
-              {},
-              crudFlags &&
-                crudFlags.insert &&
-                _(Command, {
-                  id: "add",
-                  onExecute: () => actions.addRow()
+            this.state = {
+                columns,
+                rows: [],
+                pkInsert: 0,
+                sorting: [],
+                totalCount: 0,
+                addedRows: [],
+                rowChanges: {},
+                currentPage: 0,
+                deletedRows: [],
+                loading: false,
+                columnExtensions,
+                deletingRows: [],
+                editingRowIds: [],
+                order: columns.map(({ name }) => name),
+                pageSize: props.pageSize || iwb.detailPageSize,
+                viewMode: !props.editable && (props.viewMode || true),
+                columnWidths: columnExtensions.map(({ columnName, width }) => {
+                    return { columnName, width };
                 }),
-              _importClicked &&
-                _(Command, {
-                  id: "import",
-                  onExecute: () => _importClicked()
-                })
-            );
-          })
-        ),
+                pageSizes: props.pageSize > 1 ?
+                    [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                    [5, 10, 25, 100]
+            };
+        }
+        // methods
+        /**
+         * used to get values of the grid
+         */
 
-      rows.length > iwb.detailPageSize
-        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize })
-        : null,
-      !_disableIntegratedGrouping ? _(_dxgrb.TableGroupRow, null) : null,
-      !_disableIntegratedGrouping ||
-      !_disableIntegratedSorting ||
-      !_disableSearchPanel
-        ? _(_dxgrb.Toolbar, null)
-        : null,
-      !_disableSearchPanel
-        ? _(_dxgrb.SearchPanel, {
-            messages: { searchPlaceholder: getLocMsg("searchPlaceholder") }
-          })
-        : null,
-      !_disableIntegratedGrouping
-        ? _(_dxgrb.GroupingPanel, {
-            showSortingControls: true,
-            messages: { groupByColumn: getLocMsg("groupByColumn") }
-          })
-        : null
-    );
-  }
+        this.getValues = () => {
+            let { rows, addedRows, deletedRows, editingRowIds } = this.state;
+            rows = rows.slice();
+            var changedRows = [];
+            editingRowIds.forEach(rowId => {
+                if (rowId > 0) {
+                    const index = rows.findIndex(
+                        row => row[this.props.keyField] === rowId
+                    );
+                    if (index > -1) changedRows.push(Object.assign({}, rows[index]));
+                }
+            });
+            return {
+                inserted: addedRows,
+                deleted: deletedRows,
+                changed: changedRows
+            };
+        };
+        /**
+         * bind with parent Element
+         */
+        if (props.parentCt && props.parentCt.egrids)
+            props.parentCt.egrids[props.gridId] = this;
+        /**
+         * used to make data request to fill the frid with related data
+         *
+         * @param {boolean}
+         *            force
+         */
+        this.loadData = force => {
+            if (this.state.loading) return;
+            const queryString = this.props._url;
+            const t_props = this.props;
+            this.setState({ rows: [], loading: true });
+            iwb.request({
+                url: queryString,
+                self: this,
+                params: this.props.searchForm &&
+                    iwb.getFormValues(document.getElementById("s-" + this.props.id)),
+                successCallback: (result, cfg) => {
+                    var state = {
+                        loading: false,
+                        rows: result.data,
+                        totalCount: result.total_count
+                    };
+                    if (t_props.multiselect) {
+                        state.editingRowIds = state.rows.map(row => row[t_props.keyField]);
+                    }
+                    cfg.self.setState(state);
+                    t_props.afterLoadData && t_props.afterLoadData(cfg.self);
+                },
+                errorCallback: (error, cfg) => {
+                    cfg.self.setState({
+                        rows: [],
+                        totalCount: 0,
+                        loading: false
+                    });
+                }
+            });
+            this.lastQuery = queryString;
+        };
+        /**
+         * used for import data from the popup with ne flag
+         */
+        this.BulkyImport = ({ searchFormData, inserted, deleted, _state }) => {
+            const { rows, addedRows } = this.state;
+            let tempRow = [];
+            let max;
+            // find max tab_order from grid
+            if (
+                (rows["0"] && rows["0"].tab_order) ||
+                (addedRows["0"] && addedRows["0"].tab_order)
+            ) {
+                max =
+                    Math.max(
+                        ...rows.map(d => +d.tab_order),
+                        ...addedRows.map(d => +d.tab_order)
+                    ) + 10;
+            } else {
+                max = (rows.length + addedRows.length) * 10;
+            }
+            if (max === "-Infinity" || +max === 0) {
+                max = 10;
+            }
+            // merge new imported data
+            let pkInsert = this.state.pkInsert;
+            inserted.forEach(data => {
+                var merged = {...searchFormData, ...data };
+                merged = {...merged, ...merged._new };
+                merged.tab_order = max;
+                merged.max = max;
+                --pkInsert;
+                merged[this.props.keyField] = pkInsert;
+                tempRow.push(merged);
+                max += 10;
+            });
+            // Adds data to the grit from the popup
+            this.setState({ addedRows: [...addedRows, ...tempRow], pkInsert });
+        };
+        /**
+         * to get all data from grid editing + noneEdited at current time
+         */
+
+        this.getAllData = () => {
+            let tempRowData = [];
+            this.state.rows.forEach(data => {
+                tempRowData.push({...data, ...data._new });
+            });
+            return tempRowData;
+        };
+        /**
+         * used for Cell Editing
+         *
+         * @param {Object}
+         *            xprops
+         */
+        this.EditCell = xprops => {
+            var editor = this.editors[xprops.column.name];
+            if (
+                this.props.isCellEditable &&
+                this.props.isCellEditable(xprops.row, xprops.column.name) === false
+            )
+                return _(_dxgrb.TableEditRow.Cell, {
+                    ...xprops,
+                    ... { editingEnabled: false }
+                });
+            if (!editor) return _(_dxgrb.TableEditRow.Cell, xprops);
+            editor = Object.assign({}, editor);
+            if (!xprops.row._new) xprops.row._new = {}; // Object.assign({},xprops.row);
+            if (!xprops.row._new.hasOwnProperty(xprops.column.name))
+                xprops.row._new[xprops.column.name] = xprops.row[xprops.column.name];
+
+            var keyFieldValue =
+                xprops.row._new && xprops.row._new[this.props.keyField] ?
+                xprops.row._new[this.props.keyField] :
+                xprops.row[this.props.keyField];
+
+            switch (1 * editor._control) {
+                case 3:
+                case 4: // number
+                    editor.value =
+                        xprops.row && xprops.row._new && xprops.row._new[xprops.column.name] ?
+                        xprops.row._new[xprops.column.name] :
+                        xprops.value;
+                    editor.onValueChange = ({ value }) => {
+                        xprops.row._new[xprops.column.name] = value;
+                        xprops.onValueChange(value);
+                        this.props.onValueChange &&
+                            this.props.onValueChange({
+                                inthis: this,
+                                keyFieldValue: keyFieldValue,
+                                inputName: xprops.column.name,
+                                inputValue: value
+                            });
+                    };
+                    break;
+                case 6:
+                case 8:
+                case 58:
+                case 7:
+                case 15:
+                case 59:
+                case 9:
+                case 10: // combos
+                    editor.value = xprops.row._new[xprops.column.name]; // TODO. ilk
+                    // edit ettigini
+                    // aliyor
+                    editor.onChange = ({ id }) => {
+                        xprops.row._new[xprops.column.name] = id;
+                        xprops.onValueChange(id);
+                        this.props.onValueChange &&
+                            this.props.onValueChange({
+                                inthis: this,
+                                keyFieldValue,
+                                inputName: xprops.column.name,
+                                inputValue: id
+                            });
+                    };
+                    break;
+                case 5:
+                    editor.checked = +xprops.row._new[xprops.column.name];
+                    editor.onChange = ({ target: { checked } }) => {
+                        xprops.row._new[xprops.column.name] = checked;
+                        xprops.onValueChange(checked);
+                        this.props.onValueChange &&
+                            this.props.onValueChange({
+                                inthis: this,
+                                keyFieldValue,
+                                inputName: xprops.column.name,
+                                inputValue: checked
+                            });
+                    };
+                    break;
+                default:
+                    editor.value =
+                        xprops.row && xprops.row._new && xprops.row._new[xprops.column.name] ?
+                        xprops.row._new[xprops.column.name] :
+                        xprops.value;
+                    editor.onChange = ({ target: { value } }) => {
+                        xprops.row._new[xprops.column.name] = value;
+                        xprops.onValueChange(value);
+                        this.props.onValueChange &&
+                            this.props.onValueChange({
+                                inthis: this,
+                                keyFieldValue,
+                                inputName: xprops.column.name,
+                                inputValue: value
+                            });
+                    };
+                    break;
+            }
+            delete editor.defaultValue;
+            delete editor.defaultChecked;
+            var cmp = Input;
+            if (editor.$) {
+                cmp = editor.$;
+                delete editor.$;
+            }
+            return _(
+                "td", { style: { verticalAlign: "middle", padding: 1 } },
+                _(cmp, editor)
+            );
+        };
+    }
+    componentDidMount() {
+        if (!this.dontRefresh) this.loadData();
+    }
+    componentDidUpdate() {
+        if (this.props.editable && this.props.viewMode != this.state.viewMode) {
+            this.setState({ viewMode: this.props.viewMode });
+        }
+    }
+    componentWillUnmount() {
+        iwb.grids[this.props.id] = Object.assign({}, this.state);
+    }
+    render() {
+        const {
+            state: {
+                rows,
+                order,
+                columns,
+                loading,
+                sorting,
+                pageSize,
+                viewMode,
+                pageSizes,
+                addedRows,
+                rowChanges,
+                totalCount,
+                currentPage,
+                columnWidths,
+                editingRowIds,
+                columnExtensions
+            },
+            props: {
+                keyField,
+                crudFlags,
+                multiselect,
+                _importClicked,
+                titleComponent,
+                _disableSearchPanel,
+                _disableIntegratedSorting,
+                _disableIntegratedGrouping
+            },
+            onOrderChange,
+            onCommitChanges,
+            onPageSizeChange,
+            onAddedRowsChange,
+            onRowChangesChange,
+            onCurrentPageChange,
+            onColumnWidthsChange,
+            onEditingRowIdsChange
+        } = this;
+        return _(
+            _dxgrb.Grid, {
+                rows,
+                columns,
+                getRowId: row => row[keyField]
+            }, !_disableIntegratedSorting ? _(_dxrg.SortingState, null) : null,
+            multiselect && _(_dxrg.SelectionState, null),
+            _(_dxrg.SearchState, null), !_disableSearchPanel ? _(_dxrg.IntegratedFiltering, null) : null, // was
+            // used
+            // for
+            // panel
+            // search(@dependency)
+            !_disableIntegratedGrouping ? _(_dxrg.GroupingState, null) : null, !_disableIntegratedGrouping ? _(_dxrg.IntegratedGrouping, null) : null, !_disableIntegratedSorting ? _(_dxrg.IntegratedSorting, null) : null,
+            rows.length > iwb.detailPageSize ?
+            _(
+                _dxrg.PagingState,
+                pageSize > 1 ?
+                {
+                    pageSize,
+                    currentPage,
+                    onPageSizeChange,
+                    onCurrentPageChange
+                } :
+                {}
+            ) :
+            null,
+            multiselect && _(_dxrg.IntegratedSelection, null), !viewMode &&
+            _(_dxrg.EditingState, {
+                addedRows,
+                rowChanges,
+                editingRowIds,
+                onCommitChanges,
+                columnExtensions,
+                onAddedRowsChange,
+                onRowChangesChange,
+                onEditingRowIdsChange
+            }),
+            _(_dxgrb.DragDropProvider, null),
+            _(_dxgrb.Table, {
+                columnExtensions,
+                messages: { noData: getLocMsg("noData") }
+            }),
+            multiselect &&
+            _(_dxgrb.TableSelection, {
+                showSelectAll: true
+            }),
+            /** UI ordering of the table */
+            _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
+            /** UI tablle resizing */
+            _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
+            _(_dxgrb.TableHeaderRow, {
+                showSortingControls: !_disableIntegratedSorting,
+                titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
+            }), !viewMode &&
+            _(_dxgrb.TableEditRow, {
+                cellComponent: this.EditCell
+            }), !multiselect &&
+            !viewMode &&
+            _(_dxgrb.TableEditColumn, {
+                showAddCommand: crudFlags && crudFlags.insert,
+                showEditCommand: crudFlags && crudFlags.edit,
+                showDeleteCommand: crudFlags && crudFlags.remove,
+                commandComponent: Command
+            }),
+
+            _importClicked &&
+            _(
+                extendGrid, {
+                    name: "tableCell",
+                    predicate: rest => {
+                        if (
+                            rest.tableRow.key === "heading" &&
+                            rest.tableColumn.key === "editCommand" &&
+                            rest.tableRow.type === "heading"
+                        ) {
+                            return true;
+                        }
+                    }
+                },
+                _(TemplateConnector, {}, (getters, actions) => {
+                    return _(
+                        _dxgrb.TableEditColumn.HeaderCell, {},
+                        crudFlags &&
+                        crudFlags.insert &&
+                        _(Command, {
+                            id: "add",
+                            onExecute: () => actions.addRow()
+                        }),
+                        _importClicked &&
+                        _(Command, {
+                            id: "import",
+                            onExecute: () => _importClicked()
+                        })
+                    );
+                })
+            ),
+
+            rows.length > iwb.detailPageSize ?
+            _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize }) :
+            null, !_disableIntegratedGrouping ? _(_dxgrb.TableGroupRow, null) : null, !_disableIntegratedGrouping ||
+            !_disableIntegratedSorting ||
+            !_disableSearchPanel ?
+            _(_dxgrb.Toolbar, null) :
+            null, !_disableSearchPanel ?
+            _(_dxgrb.SearchPanel, {
+                messages: { searchPlaceholder: getLocMsg("searchPlaceholder") }
+            }) :
+            null, !_disableIntegratedGrouping ?
+            _(_dxgrb.GroupingPanel, {
+                showSortingControls: true,
+                messages: { groupByColumn: getLocMsg("groupByColumn") }
+            }) :
+            null
+        );
+    }
 }
 /**
  * a Component to render item of toolbar
  */
 const XToolbarItem = props => {
-  if (props.type === "button") {
-    let { icon } = props;
-    var cls = icon.split("|");
-    return _(
-      Button,
-      {
-        id: "toolpin" + props.index,
-        key: "key" + props.index,
-        className: classNames("btn-round-shadow mx-1", cls[1]||''),
-        color: "danger",
-        onClick: e => {
-          props.click && props.click(e, props.grid, props);
-        }
-      },
-      cls[0] && _("i", { className: cls[0] }),
-      cls[0] && ' ',
-      props.text && props.text
-    );
-  }
-  props.autoComplete = "off";
-  props.key = "Ikey" + index;
-  return _(props.$ || Input, { ...props, $: undefined });
+    if (props.type === "button") {
+        let { icon } = props;
+        var cls = icon.split("|");
+        return _(
+            Button, {
+                id: "toolpin" + props.index,
+                key: "key" + props.index,
+                className: classNames("btn-round-shadow mx-1", cls[1] || ''),
+                color: "danger",
+                onClick: e => {
+                    props.click && props.click(e, props.grid, props);
+                }
+            },
+            cls[0] && _("i", { className: cls[0] }),
+            cls[0] && ' ',
+            props.text && props.text
+        );
+    }
+    props.autoComplete = "off";
+    props.key = "Ikey" + index;
+    return _(props.$ || Input, {...props, $: undefined });
 };
 /**
  * a Component to render tabular detail grid
  * @param {*} props
  */
 const XShowDetailTabs = ({
-  row,
-  currentDetailGrids,
-  parentGrid,
-  topParentGrid
+    row,
+    currentDetailGrids,
+    parentGrid,
+    topParentGrid
 }) => {
-  const [activeTab, setActiveTab] = React.useState(
-    currentDetailGrids[0].grid.gridId
-  );
-  return _(
-    Row,
-    null,
-    _(
-      Col,
-      { className: "border-0" },
-      _(
-        Nav,
-        { tabs: true, className:'detailTab-nav-tabs' },
-        (currentDetailGrids || []).map(({ grid }, index) =>
-          _(
-            NavItem,
-            { key: "NavItem" + index },
+    const [activeTab, setActiveTab] = React.useState(
+        currentDetailGrids[0].grid.gridId
+    );
+    return _(
+        Row,
+        null,
+        _(
+            Col, { className: "border-0" },
             _(
-              NavLinkS,
-              {
-                className: classNames('detailTab-nav-link',{ active: activeTab === grid.gridId }),
-                onClick: () => {
-                  setActiveTab(grid.gridId);
-                }
-              },
-              grid.name
-            )
-          )
-        )
-      ),
-      _(
-        TabContent,
-        { activeTab, className: "shadow-none" },
-        (currentDetailGrids || []).map(({ grid, pk, params, detailGrids }) => {
-          var currentDetailGridProps = { ...{ pk: pk || {} }, ...grid };
-          if (currentDetailGridProps._url) {
-            currentDetailGridProps._url += buildParams2(params, row);
-          } else {
-            currentDetailGridProps.rows =
-              row[currentDetailGridProps.detailRowsFieldName];
-          }
-          currentDetailGridProps.detailFlag = true;
-          var { extraButtons, crudFlags } = grid;
-          return _(
-            TabPane,
-            {
-              key: "TabPane" + grid.gridId,
-              tabId: grid.gridId,
-              className: "p-3"
-            },
-            _(
-              Row,
-              {},
-              _(
-                Col,
-                { md: "12" },
-                _(
-                  CardHeader,
-                  {className:'pt-0 pb-1'},
-                  crudFlags &&
-                    crudFlags.edit &&
+                Nav, { tabs: true, className: 'detailTab-nav-tabs' },
+                (currentDetailGrids || []).map(({ grid }, index) =>
                     _(
-                      Button,
-                      {
-                        className: "btn-round-shadow ml-1",
-                        color: "primary",
-                        onClick: event =>
-                          topParentGrid.onOnNewRecord(event, grid, row)
-                      },
-                      _("i", { className: "fa fa-plus" }),
-                    ),
-                  (extraButtons || []).map((btn, index) =>
-                    _(XToolbarItem, {
-                      ...btn,
-                      index,
-                      row,
-                      grid,
-                      parentGrid,
-                      parentCt: topParentGrid
-                    })
-                  )
+                        NavItem, { key: "NavItem" + index },
+                        _(
+                            NavLinkS, {
+                                className: classNames('detailTab-nav-link', { active: activeTab === grid.gridId }),
+                                onClick: () => {
+                                    setActiveTab(grid.gridId);
+                                }
+                            },
+                            grid.name
+                        )
+                    )
                 )
-              )
             ),
-            _(XGrid, {
-              key: "XGrid" + grid.gridId,
-              responsive: true,
-              openTab: topParentGrid.props.openTab,
-              showDetail: detailGrids
-                ? currentDetailGridProps._detailTab
-                  ? topParentGrid.showDetail3(
-                      detailGrids,
-                      currentDetailGridProps
-                    )
-                  : topParentGrid.showDetail2(
-                      detailGrids,
-                      currentDetailGridProps
-                    )
-                : false,
-              ...currentDetailGridProps
-            })
-          );
-        })
-      )
-    )
-  );
+            _(
+                TabContent, { activeTab, className: "shadow-none" },
+                (currentDetailGrids || []).map(({ grid, pk, params, detailGrids }) => {
+                    var currentDetailGridProps = {... { pk: pk || {} }, ...grid };
+                    if (currentDetailGridProps._url) {
+                        currentDetailGridProps._url += buildParams2(params, row);
+                    } else {
+                        currentDetailGridProps.rows =
+                            row[currentDetailGridProps.detailRowsFieldName];
+                    }
+                    currentDetailGridProps.detailFlag = true;
+                    var { extraButtons, crudFlags } = grid;
+                    return _(
+                        TabPane, {
+                            key: "TabPane" + grid.gridId,
+                            tabId: grid.gridId,
+                            className: "p-3"
+                        },
+                        _(
+                            Row, {},
+                            _(
+                                Col, { md: "12" },
+                                _(
+                                    CardHeader, { className: 'pt-0 pb-1' },
+                                    crudFlags &&
+                                    crudFlags.edit &&
+                                    _(
+                                        Button, {
+                                            className: "btn-round-shadow ml-1",
+                                            color: "primary",
+                                            onClick: event =>
+                                                topParentGrid.onOnNewRecord(event, grid, row)
+                                        },
+                                        _("i", { className: "fa fa-plus" }),
+                                    ),
+                                    (extraButtons || []).map((btn, index) =>
+                                        _(XToolbarItem, {
+                                            ...btn,
+                                            index,
+                                            row,
+                                            grid,
+                                            parentGrid,
+                                            parentCt: topParentGrid
+                                        })
+                                    )
+                                )
+                            )
+                        ),
+                        _(XGrid, {
+                            key: "XGrid" + grid.gridId,
+                            responsive: true,
+                            openTab: topParentGrid.props.openTab,
+                            showDetail: detailGrids ?
+                                currentDetailGridProps._detailTab ?
+                                topParentGrid.showDetail3(
+                                    detailGrids,
+                                    currentDetailGridProps
+                                ) :
+                                topParentGrid.showDetail2(
+                                    detailGrids,
+                                    currentDetailGridProps
+                                ) :
+                                false,
+                            ...currentDetailGridProps
+                        })
+                    );
+                })
+            )
+        )
+    );
 };
 /**
  *  a Component to render timebadge detail grid
  * @param {*} props
  */
 const XShowDetailTimeline = ({
-  row,
-  currentDetailGrids,
-  parentGrid,
-  topParentGrid
+    row,
+    currentDetailGrids,
+    parentGrid,
+    topParentGrid
 }) => {
-  return _(
-    "ul",
-    { className: "timeline" },
-    (currentDetailGrids || []).map(
-      ({ grid, pk, params, detailGrids }, index) => {
-        if (parentGrid.state["dg-" + grid.gridId] === false) return;
-        var currentDetailGridProps = { ...{ pk: pk || {} }, ...grid };
-        if (currentDetailGridProps._url) {
-          currentDetailGridProps._url += buildParams2(params, row);
-        } else {
-          currentDetailGridProps.rows =
-            row[currentDetailGridProps.detailRowsFieldName];
-        }
-        currentDetailGridProps.detailFlag = true;
-        var addBtnClick = currentDetailGridProps => event => {
-          if (grid._timelineBadgeBtn) {
-            return grid._timelineBadgeBtn(
-              event,
-              row,
-              currentDetailGridProps,
-              parentGrid,
-              topParentGrid
-            );
-          }
-          topParentGrid.onOnNewRecord(event, currentDetailGridProps, row);
-        };
+    return _(
+        "ul", { className: "timeline" },
+        (currentDetailGrids || []).map(
+            ({ grid, pk, params, detailGrids }, index) => {
+                if (parentGrid.state !== undefined && parentGrid.state["dg-" + grid.gridId] === false) return;
+                var currentDetailGridProps = {... { pk: pk || {} }, ...grid };
+                if (currentDetailGridProps._url) {
+                    currentDetailGridProps._url += buildParams2(params, row);
+                } else {
+                    currentDetailGridProps.rows =
+                        row[currentDetailGridProps.detailRowsFieldName];
+                }
+                currentDetailGridProps.detailFlag = true;
+                var addBtnClick = currentDetailGridProps => event => {
+                    if (grid._timelineBadgeBtn) {
+                        return grid._timelineBadgeBtn(
+                            event,
+                            row,
+                            currentDetailGridProps,
+                            parentGrid,
+                            topParentGrid
+                        );
+                    }
+                    topParentGrid.onOnNewRecord(event, currentDetailGridProps, row);
+                };
 
-        return _(
-          "li",
-          { key: "TimelinePane" + grid.gridId, className: "timeline-inverted" },
-          !currentDetailGridProps._hideTimelineBadgeBtn &&
-            _(
-              "div",
-              {
-                className:
-                  "timeline-badge hover-shake " +
-                  dgColors[index % dgColors.length],
-                onClick: addBtnClick(currentDetailGridProps),
-                style: { cursor: "pointer" }
-              },
-              _("i", { className: "fa fa-plus", style: { fontSize: 19 } })
-            ),
+                return _(
+                    "li", { key: "TimelinePane" + grid.gridId, className: "timeline-inverted" }, !currentDetailGridProps._hideTimelineBadgeBtn &&
+                    _(
+                        "div", {
+                            className: "timeline-badge hover-shake " +
+                                dgColors[index % dgColors.length],
+                            onClick: addBtnClick(currentDetailGridProps),
+                            style: { cursor: "pointer" }
+                        },
+                        _("i", { className: "fa fa-plus", style: { fontSize: 19 } })
+                    ),
 
-          _(
-            "div",
-            {
-              className: "timeline-panel",
-              ...(!!currentDetailGridProps._hideTimelineBadgeBtn
-                ? { style: { left: "30px" } }
-                : {})
-            },
-            _(
-              "div",
-              { className: "timeline-heading mb-1" },
-              _(
-                "span",
-                { className: "timeline-title pr-3 h5" },
-                currentDetailGridProps.name
-              ),
-              currentDetailGridProps.extraButtons &&
-                currentDetailGridProps.extraButtons.map((btn, index) =>
-                  _(XToolbarItem, {
-                    ...btn,
-                    index,
-                    row,
-                    grid: currentDetailGridProps,
-                    parentGrid,
-                    parentCt: this
-                  })
-                )
-            ),
-            _(XGrid, {
-              key: "XGrid" + grid.gridId,
-              responsive: true,
-              openTab: topParentGrid.props.openTab,
-              showDetail: detailGrids
-                ? currentDetailGridProps._detailTab
-                  ? topParentGrid.showDetail3(
-                      detailGrids,
-                      currentDetailGridProps
+                    _(
+                        "div", {
+                            className: "timeline-panel",
+                            ...(!!currentDetailGridProps._hideTimelineBadgeBtn ?
+                                { style: { left: "30px" } } :
+                                {})
+                        },
+                        _(
+                            "div", { className: "timeline-heading mb-1" },
+                            _(
+                                "span", { className: "timeline-title pr-3 h5" },
+                                currentDetailGridProps.name
+                            ),
+                            currentDetailGridProps.extraButtons &&
+                            currentDetailGridProps.extraButtons.map((btn, index) =>
+                                _(XToolbarItem, {
+                                    ...btn,
+                                    index,
+                                    row,
+                                    grid: currentDetailGridProps,
+                                    parentGrid,
+                                    parentCt: this
+                                })
+                            )
+                        ),
+                        _(XGrid, {
+                            key: "XGrid" + grid.gridId,
+                            responsive: true,
+                            openTab: topParentGrid.props.openTab,
+                            showDetail: detailGrids ?
+                                currentDetailGridProps._detailTab ?
+                                topParentGrid.showDetail3(
+                                    detailGrids,
+                                    currentDetailGridProps
+                                ) :
+                                topParentGrid.showDetail2(
+                                    detailGrids,
+                                    currentDetailGridProps
+                                ) :
+                                false,
+                            ...currentDetailGridProps
+                        })
                     )
-                  : topParentGrid.showDetail2(
-                      detailGrids,
-                      currentDetailGridProps
-                    )
-                : false,
-              ...currentDetailGridProps
-            })
-          )
-        );
-      }
-    )
-  );
+                );
+            }
+        )
+    );
 };
 /**
  * @description used for rendering master grid with search form in it
@@ -5584,3146 +5457,3017 @@ const XShowDetailTimeline = ({
  *
  */
 class XMainGrid extends GridCommon {
-  constructor(props) {
-    super(props);
-    var oldGridState = iwb.grids[props.id];
-    if (iwb.debug) console.log("XMainGrid", props);
-    if (oldGridState) {
-      this.state = oldGridState;
-      this.dontRefresh = true; // true-yuklemez, false-yukleme yapar
-    } else {
-      var columns = [],
-        columnExtensions = [];
-      const canIOpenActions =
-        (props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) ||
-        props.menuButtons;
-      if (canIOpenActions) {
-        columns.push({
-          name: "_qw_",
-          title: ".",
-          getCellValue: rowData => {
-            var { onEditClick, onDeleteClick } = this;
-            return _(XGridRowAction, {
-              ...{ rowData },
-              ...{ menuButtons: props.menuButtons },
-              ...{ formSmsMailList: props.formSmsMailList },
-              ...{ crudFlags: props.crudFlags },
-              ...{ onEditClick, onDeleteClick },
-              ...{ parentCt: this }
-            });
-          }
-        });
-        columnExtensions.push({
-          columnName: "_qw_",
-          width: 60,
-          align: "right",
-          sortingEnabled: false
-        });
-      }
-      var colTemp = props.columns;
-      colTemp &&
-        colTemp.map(colLocal => {
-          var title;
-          switch (colLocal.name) {
-            case "pkpkpk_faf":
-              title = _("i", {
-                className: "icon-paper-clip"
-              });
-              break;
-            case "pkpkpk_ms":
-              title = _("i", {
-                className: "icon-envelope"
-              });
-              break;
-            case "pkpkpk_cf":
-              title = _("i", {
-                className: "icon-bubble"
-              });
-              break;
-            case "pkpkpk_apf":
-              title = _("i", {
-                className: "icon-picture"
-              });
-              break;
-            case "pkpkpk_vcsf":
-              title = _("i", {
-                className: "icon-social-github"
-              });
-              break;
-          }
-          columns.push({
-            name: colLocal.name,
-            title: title || colLocal.title,
-            getCellValue: colLocal.formatter || undefined
-          });
-          columnExtensions.push({
-            columnName: colLocal.name,
-            align: colLocal.align || "left",
-            width: +colLocal.width,
-            sortingEnabled: !!colLocal.sort
-          });
-        });
-      var state = {
-        columns,
-        order: columns.map(({ name }) => name),
-        columnExtensions,
-        columnWidths: columnExtensions.map(({ columnName, width }) => {
-          return { columnName, width };
-        }),
-        rows: [],
-        sorting: [],
-        totalCount: 0,
-        pageSize: props.pageSize,
-        pageSizes:
-          props.pageSize > 1
-            ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
-            : [5, 10, 25, 100],
-        currentPage: 0,
-        hideSF: !props.showSF,
-        loading: false
-      };
-      props.detailGrids &&
-        props.detailGrids.length > 1 &&
-        props.detailGrids.map(({ grid }, key) => {
-          if (key < 2) state["dg-" + grid.gridId] = key < 2;
-        });
-      this.state = state;
-    }
-    /**
-     * used to give click event to the detail timeLineBadge button
-     * (event,masterDridProps,detailGridProps,row)
-     */
-    this._timelineBadgeBtn = this.props._timelineBadgeBtn;
-    /**
-     * @description A function to open and close detail grid
-     * @param {event}
-     *            event - click event
-     * @param {Object}
-     *            event.target - target object from clicked place
-     */
-    this.toggleDetailGrid = ({ target }) => {
-      this.setState({ ...this.state, [target.name]: target.checked });
-    };
-    let { searchForm, detailGrids } = this.props;
-    if (searchForm || (detailGrids && detailGrids.length > 1)) {
-      var self = this;
-      this.searchForm = _(
-        Nav,
-        { style: {} },
-        searchForm &&
-          _(
-            "span",
-            null,
-            _(
-              "div",
-              { className: "hr-text" },
-              _("h6", null, getLocMsg("search_criteria"))
-            ),
-            _(
-              "div",
-              { style: { zoom: ".9" }, className: "searchFormFields" },
-              _(searchForm, { parentCt: this }),
-              _(
-                "div",
-                { className: "form-group", style: { paddingTop: 10 } },
-                _(
-                  Button,
-                  {
-                    color: "danger",
-                    style: { width: "100%", borderRadius: 2 },
-                    onClick: () => {
-                      this.loadData(true);
+    constructor(props) {
+        super(props);
+        var oldGridState = iwb.grids[props.id];
+        if (iwb.debug) console.log("XMainGrid", props);
+        if (oldGridState) {
+            this.state = oldGridState;
+            this.dontRefresh = true; // true-yuklemez, false-yukleme yapar
+        } else {
+            var columns = [],
+                columnExtensions = [];
+            const canIOpenActions =
+                (props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) ||
+                props.menuButtons;
+            if (canIOpenActions) {
+                columns.push({
+                    name: "_qw_",
+                    title: ".",
+                    getCellValue: rowData => {
+                        var { onEditClick, onDeleteClick } = this;
+                        return _(XGridRowAction, {
+                            ... { rowData },
+                            ... { menuButtons: props.menuButtons },
+                            ... { formSmsMailList: props.formSmsMailList },
+                            ... { crudFlags: props.crudFlags },
+                            ... { onEditClick, onDeleteClick },
+                            ... { parentCt: this }
+                        });
                     }
-                  },
-                  getLocMsg("search")
-                )
-              )
-            ),
-            /*
-			 * _("div", { style: { height: 10 } }), _("div", { className:
-			 * "hr-text" }, _("h6", null, "Şablonlar")), _( Link, { style: {
-			 * padding: 2 }, to: "" }, _("i", { className: "icon-star" }), " ", "
-			 * Yıllık Faturalar" ), _( Link, { style: { padding: 2, color:
-			 * "#a0a0a0" }, to: "" }, _("i", { className: "icon-plus" }), " ", "
-			 * Yeni Şablon Ekle" ),
-			 */
-            _("div", { style: { height: 20 } })
-          ),
-        !this.props._detailTab &&
-          detailGrids &&
-          detailGrids.length > 1 &&
-          _(
-            "div",
-            { className: "hr-text", key: "hr-text" },
-            _("h6", null, getLocMsg("details"))
-          ),
-        !this.props._detailTab &&
-          detailGrids &&
-          detailGrids.length > 1 &&
-          detailGrids.map((detailGrid, key) => {
-            return _(
-              "div",
-              { key, className: "py-1 pr-0 pl-1 text-dark" },
-              detailGrid.grid.name,
-              _(
-                "label",
-                {
-                  className:
-                    "float-right switch switch-xs switch-3d switch-" +
-                    dgColors[key % dgColors.length] +
-                    " form-control-label"
-                },
-                _("input", {
-                  name: "dg-" + detailGrid.grid.gridId,
-                  type: "checkbox",
-                  className: "switch-input form-check-input",
-                  onChange: self.toggleDetailGrid,
-                  defaultChecked: self.state["dg-" + detailGrid.grid.gridId]
-                }),
-                _("span", { className: "switch-label" }),
-                _("span", { className: "switch-handle" })
-              )
-            );
-          })
-      );
-    }
-    /**
-     * @description A function to search globally
-     * @param {Event}
-     *            event - event from the global search
-     */
-    this.onGlobalSearch = event =>
-      this.loadData(true, {
-        xsearch: event && event.target ? event.target.value : event
-      });
-    iwb.onGlobalSearch2 = this.onGlobalSearch;
-    /**
-     * @description Is a function to toggle search form from the XMainGrid
-     *              component and animata iconMagnifier
-     */
-    this.toggleSearch = event => {
-      event.preventDefault();
-      event.stopPropagation();
-      this.setState({ hideSF: !this.state.hideSF });
-    };
-    /**
-     * @description A function to open EXPORT menu in XModal
-     */
-    this.openBI = () => {
-      let { props } = this;
-      let { columnExtensions, order } = this.state;
-      let cmap = {};
-      let url = "grd/" + props.name + ".";
-      let params = "?_gid=" + props.gridId + "&_columns=";
-      columnExtensions.map(({ columnName, width }) => {
-        cmap[columnName] = width;
-      });
-      order.map(
-        columnName =>
-          (params += columnName + "," + (cmap[columnName] || 100) + ";")
-      );
-      if(this.form){
-    	  var vals = this.form.getValues()
-    	  if(vals)for(var k in vals)if(vals[k]!='')params +='&'+k+'='+vals[k];
-      }
-      iwb.showModal({
-        title: "REPORTS / BI",
-        footer: false,
-        color: "danger",
-        size: "sm",
-        body: _(
-          ListGroup,
-          {
-            style: {
-              fontSize: "1.0rem"
+                });
+                columnExtensions.push({
+                    columnName: "_qw_",
+                    width: 60,
+                    align: "right",
+                    sortingEnabled: false
+                });
             }
-          },
-          _("b", null, "Exports"),
-          _(
-            ListGroupItem,
-            {
-              tag: "a",
-              href: url + "xls" + params,
-              target: "_blank",
-              action: true
-            },
-            _("i", {
-              className: "float-right text-success fa fa-file-excel"
-            }),
-            "Excel"
-          ),
-          _(
-            ListGroupItem,
-            {
-              tag: "a",
-              href: url + "pdf" + params,
-              target: "_blank",
-              action: true
-            },
-            _("i", {
-              className: "float-right text-danger fa fa-file-pdf"
-            }),
-            "PDF"
-          ),
-          _(
-            ListGroupItem,
-            {
-              tag: "a",
-              href: url + "csv" + params,
-              target: "_blank",
-              action: true
-            },
-            _("i", {
-              className: "float-right text-secondary fa fa-file-alt"
-            }),
-            "CSV"
-          ),
-          _(
-            ListGroupItem,
-            {
-              tag: "a",
-              href: url + "txt" + params,
-              target: "_blank",
-              action: true
-            },
-            _("i", {
-              className: "float-right text-secondary fa fa-file-word"
-            }),
-            "Text"
-          ),
-          _("hr"),
-          _("b", null, "BI"),
-          _(
-            ListGroupItem,
-            {
-              tag: "a",
-              href:
-                "showPage?_tid=" +
-                (props.crudTableId
-                  ? "1200&xtable_id=" + props.crudTableId
-                  : "2395&xquery_id=" + props.queryId),
-              target: "_blank",
-              action: true /* , className:'list-group-item-danger2' */
-            },
-            _("i", {
-              className: "float-right text-primary fa fa-th"
-            }),
-            "Pivot Table"
-          ),
-          _(
-            ListGroupItem,
-            {
-              tag: "a",
-              href:
-                "showPage?_tid=" +
-                (props.crudTableId
-                  ? "784&xtable_id=" + props.crudTableId
-                  : "2413&xquery_id=" + props.queryId),
-              target: "_blank",
-              action: true
-            },
-            _("i", {
-              className: "float-right text-primary fa fa-table"
-            }),
-            "Data List"
-          )
-        )
-      });
-    };
-
-    /**
-     * @description A function to render Details under Muster's row
-     * @param {Array}
-     *            currentDetailGrids[] - array of detail grids conf
-     * @param {Object}
-     *            currentDetailGrids[].grid - detail grids props
-     * @param {Object}
-     *            currentDetailGrids[].params - master detail connection Master
-     *            primaty key name {xoffer_id: "offer_id"}
-     * @param {Object}
-     *            currentDetailGrids[].pk - Master detail connection Detail primaty
-     *            key name {toffer_detail_id: "offer_detail_id"}
-     */
-    this.showDetail2 = (currentDetailGrids, parentGrid = this) => ({ row }) =>
-      row
-        ? _(XShowDetailTimeline, {
-            row,
-            currentDetailGrids,
-            parentGrid,
-            topParentGrid: this
-          })
-        : null;
-    /**
-     * tabular master detail layout
-     */
-    this.showDetail3 = (currentDetailGrids, parentGrid = this) => ({ row }) =>
-      row
-        ? _(XShowDetailTabs, {
-            row,
-            currentDetailGrids,
-            parentGrid,
-            topParentGrid: this
-          })
-        : null;
-    /**
-     * @overloading
-     * @param {Boolean}
-     *            force - Get up to data data
-     * @param {object}
-     *            params -[{xsearch:'searchValue'}] Params from Global Search
-     */
-    this.loadData = (force, params = {}, dashIgnore) => {
-      if(!iwb.loadGrid[this.props.id])iwb.loadGrid[this.props.id]=this.loadData;
-      const queryString = this.queryString();
-      if (!force && queryString === this.lastQuery) {
-        return;
-      }
-      var tempParams = {
-        ...(this.form ? this.form.getValues() : {}),
-        ...params
-      };
-      this.setState({loading:!0});
-      iwb.request({
-        url: queryString,
-        self: this,
-        params: tempParams,
-        successCallback: (result, cfg) => {
-          cfg.self.setState({
-            rows: result.data, loading:false,
-            totalCount: result.total_count
-          });
-          
-          if(cfg.self.props.summary)cfg.self.props.summary.map((ox)=>{
-        	  if(ox.graphId){
-        		  if(!dashIgnore){
-        		  var gox = ox;
-	        		  iwb.graph(ox, 'gr-'+cfg.self.props.id+'-'+ox.graphId, (selValue)=>{
-	        			  var xgroupBy = gox.groupBy.split('.');
-	        			  var groupBy = 'x'+xgroupBy[xgroupBy.length-1];
-	        			  var xparams = {};
-	        			  if(selValue!==false)xparams[groupBy] = selValue;
-	        			  this.loadData(!0, xparams, !0);
-	
-	        		  });
-        		  }
-        	  } else iwb.request({
-                  url: 'ajaxQueryData?_qid='+ox+'&.r='+Math.random(),
-                  self: cfg.self,
-                  params: tempParams,
-                  successCallback: (result2, cfg2) => {
-                	  if(!result2.data.length)return;
-                	  var j = result2.data[0];
-                	   var options = {
-                			      chart: {
-                			        height: 300,
-                			        type: 'radialBar',
-                			      },
-                			      plotOptions: {
-                			        radialBar: {
-                			          startAngle: -135,
-                			          endAngle: 225,
-                			           hollow: {
-                			            margin: 0,
-                			            size: '70%',
-                			            background: '#fff',
-                			            image: undefined,
-                			            imageOffsetX: 0,
-                			            imageOffsetY: 0,
-                			            position: 'front',
-                			            dropShadow: {
-                			              enabled: true,
-                			              top: 0,
-                			              left: 0,
-                			              blur: 4,
-                			              opacity: 0.24
-                			            }
-                			          },
-                			      /*    track: {
-                			            background: '#fff',
-                			            strokeWidth: '67%',
-                			            margin: 0, // margin is in pixels
-                			            dropShadow: {
-                			              enabled: true,
-                			              top: -3,
-                			              left: 0,
-                			              blur: 4,
-                			              opacity: 0.35
-                			            }
-                			          },*/
-
-                			          dataLabels: {
-                			            showOn: 'always',
-                			            name: {
-                			              offsetY: -10,
-                			              show: true,
-                			              color: '#888',
-                			              fontSize: '17px'
-                			            },
-                			            value: {
-                			              formatter: function(val) {
-                			                return j.val;
-                			              },
-                			              color: '#111',
-                			              fontSize: '36px',
-                			              show: true,
-                			            }
-                			          }
-                			        }
-                			      },
-                			    /*  fill: {
-                			        type: 'gradient',
-                			        gradient: {
-                			          shade: 'dark',
-                			          type: 'horizontal',
-                			          shadeIntensity: 0.2,
-                			          gradientToColors: ['#ABE5A1'],
-                			          inverseColors: true,
-                			          opacityFrom: 1,
-                			          opacityTo: 1,
-                			          stops: [0, 100]
-                			        }
-                			      },*/
-//                			      colors: ['#f00'],
-                			      series: [100*j.xval],
-                			      stroke: {
-                			        lineCap: 'round'
-                			      },
-                			      labels: [j.title],
-
-                			    }
-
-                	   var xid = 'ga-'+cfg2.self.props.id+'-'+ox;
-                	   if(iwb.charts[xid])iwb.charts[xid].destroy();
-              	        var chart = new ApexCharts(
-              	            document.getElementById(xid),
-              	            options
-              	        );
-              	        iwb.charts[xid] = chart;
-
-              	        chart.render();
-                  }
-              });
-
-          })
-          
-          
-        },
-        errorCallback: (error, cfg) => {
-          cfg.self.setState({
-            rows: [],
-            totalCount: 0, loading:false
-          });
+            var colTemp = props.columns;
+            colTemp &&
+                colTemp.map(colLocal => {
+                    var title;
+                    switch (colLocal.name) {
+                        case "pkpkpk_faf":
+                            title = _("i", {
+                                className: "icon-paper-clip"
+                            });
+                            break;
+                        case "pkpkpk_ms":
+                            title = _("i", {
+                                className: "icon-envelope"
+                            });
+                            break;
+                        case "pkpkpk_cf":
+                            title = _("i", {
+                                className: "icon-bubble"
+                            });
+                            break;
+                        case "pkpkpk_apf":
+                            title = _("i", {
+                                className: "icon-picture"
+                            });
+                            break;
+                        case "pkpkpk_vcsf":
+                            title = _("i", {
+                                className: "icon-social-github"
+                            });
+                            break;
+                    }
+                    columns.push({
+                        name: colLocal.name,
+                        title: title || colLocal.title,
+                        getCellValue: colLocal.formatter || undefined
+                    });
+                    columnExtensions.push({
+                        columnName: colLocal.name,
+                        align: colLocal.align || "left",
+                        width: +colLocal.width,
+                        sortingEnabled: !!colLocal.sort
+                    });
+                });
+            var state = {
+                columns,
+                order: columns.map(({ name }) => name),
+                columnExtensions,
+                columnWidths: columnExtensions.map(({ columnName, width }) => {
+                    return { columnName, width };
+                }),
+                rows: [],
+                sorting: [],
+                totalCount: 0,
+                pageSize: props.pageSize,
+                pageSizes: props.pageSize > 1 ?
+                    [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                    [5, 10, 25, 100],
+                currentPage: 0,
+                hideSF: !props.showSF,
+                loading: false
+            };
+            props.detailGrids &&
+                props.detailGrids.length > 1 &&
+                props.detailGrids.map(({ grid }, key) => {
+                    if (key < 2) state["dg-" + grid.gridId] = key < 2;
+                });
+            this.state = state;
         }
-      });
-      this.lastQuery = queryString;
-    };
-  }
-  componentDidMount() {
-    if (!this.dontRefresh) this.loadData();
-    this.dontRefresh = false;
-  }
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.props.forceRelaod !== prevProps.forceRelaod) {
-      this.loadData(true);
-    } else {
-      this.loadData();
-      this.dontRefresh = false;
-    }
-  }
-  componentWillUnmount() {
-    var state = Object.assign({}, this.state);
-    var sf = document.getElementById("sf-" + this.props.id);
-    if (sf) {
-      state.hideSF = sf.classList.contains("sf-hidden");
-    }
-    iwb.grids[this.props.id] = state;
-  }
-  render() {
-    const {
-      state: {
-        rows,
-        order,
-        hideSF,
-        columns,
-        sorting,
-        loading,
-        pageSize,
-        selection,
-        pageSizes,
-        totalCount,
-        currentPage,
-        columnWidths,
-        columnExtensions
-      },
-      props: {
-        tree,
-        keyField,
-        crudFlags,
-        detailGrids,
-        multiselect,
-        extraButtons,
-        treeParentKey,
-        titleComponent,
-        tableTreeColumn,
-        _disableSearchPanel,
-        _disableIntegratedSorting,
-        _disableIntegratedGrouping
-      },
-      loadData,
-      searchForm,
-      rowComponent,
-      toggleSearch,
-      onOrderChange,
-      onOnNewRecord,
-      onSortingChange,
-      onPageSizeChange,
-      onSelectionChange,
-      onCurrentPageChange,
-      onColumnWidthsChange
-    } = this;
-
-    let showDetail = detailGrids && detailGrids.length > 0;
-    let grid = _(
-      _dxgrb.Grid,
-      {
-        className: "maingrid",
-        rows: rows,
-        columns,
-        getRowId: row => row[keyField]
-      },
-      /** sorting state */
-      !_disableIntegratedSorting &&
-        _(
-          _dxrg.SortingState,
-          !pageSize ? null : { sorting, onSortingChange, columnExtensions }
-        ),
-      multiselect &&
-        _(_dxrg.SelectionState, {
-          selection,
-          onSelectionChange
-        }),
-      !!tree && _(_dxrg.TreeDataState),
-      !!tree &&
-        _(_dxrg.CustomTreeData, {
-          getChildRows: (row, rootRows) => {
-            const childRows = rootRows.filter(
-              r => r[treeParentKey] == (row ? row[keyField] : "0")
-            );
-            return childRows.length ? childRows : null;
-          }
-        }),
-      /** pagesize > 0 will import search state */
-      !pageSize ? _(_dxrg.SearchState, null) : null,
-      /** Client filtering */
-      !_disableSearchPanel &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxrg.IntegratedFiltering, null),
-      /** state of the grouping */
-      !_disableIntegratedGrouping &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxrg.GroupingState, null),
-      /** ability to group like a tree */
-
-      !_disableIntegratedGrouping &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxrg.IntegratedGrouping, null),
-      /** sorting wii be enabled when pageSize>0 and row has more than one data */
-      !_disableIntegratedSorting &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxrg.IntegratedSorting, null),
-      /** row detail state */
-      showDetail ? _(_dxrg.RowDetailState, null) : null,
-      /** state paging */
-      rows.length > iwb.detailPageSize || pageSize > 1
-        ? _(
-            _dxrg.PagingState,
-            pageSize > 1
-              ? { pageSize, currentPage, onPageSizeChange, onCurrentPageChange }
-              : {}
-          )
-        : null,
-      multiselect && _(_dxrg.IntegratedSelection, null),
-      /** For remote paging */
-      pageSize > 1 &&
-        rows.length > 1 &&
-        _(_dxrg.CustomPaging, { totalCount: totalCount }),
-      /** enable group drag drop */
-      _(_dxgrb.DragDropProvider, null),
-      /** ui table */
-      _(_dxgrb.Table, {
-        columnExtensions,
-        rowComponent,
-        messages: { noData: getLocMsg("noData") }
-      }),
-      /** multiselect */
-      multiselect &&
-        _(_dxgrb.TableSelection, {
-          showSelectAll: true
-        }),
-      /** UI ordering of the table */
-      _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
-      /** UI tablle resizing */
-      _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
-      /** UI to show table row container */
-      _(_dxgrb.TableHeaderRow, {
-        showSortingControls: true,
-        titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
-      }),
-      /** tree support */
-      !!tree && _(_dxgrb.TableTreeColumn, { for: tableTreeColumn }),
-      /** UI of the detail table */
-      showDetail
-        ? _(_dxgrb.TableRowDetail, {
-            contentComponent: this.props._detailTab
-              ? this.showDetail3(detailGrids)
-              : this.showDetail2(detailGrids)
-          })
-        : null,
-      /** UI show pagining */
-      pageSize > 1 //rows.length > iwb.detailPageSize ||
-        ? _(_dxgrb.PagingPanel, { pageSizes: pageSizes }) //|| iwb.detailPageSize
-        : null,
-      /** UI table Grouping */
-      !_disableIntegratedGrouping && !pageSize && rows.length > 1
-        ? _(_dxgrb.TableGroupRow, null)
-        : null,
-      /** top of grit do render some buttons */
-      !pageSize && rows.length > 1 && _(_dxgrb.Toolbar, null),
-      /** ui search input */
-      !pageSize &&
-        rows.length > 1 &&
-        !_disableSearchPanel &&
-        _(_dxgrb.SearchPanel, {
-          messages: { searchPlaceholder: getLocMsg("searchPlaceholder") },
-          changeSearchValue: ax => {
-            if (iwb.debug) console.log("onValueChange", ax);
-          }
-        }),
-      /** UI grouping panel */
-      !_disableIntegratedGrouping &&
-        !pageSize &&
-        rows.length > 1 &&
-        _(_dxgrb.GroupingPanel, {
-          showSortingControls: true,
-          messages: { groupByColumn: getLocMsg("groupByColumn") }
-        })
-    );
-
-    return _(
-      "div",
-      { className: "tab-grid mb-4" },
-      searchForm &&
-        _(
-          "nav",
-          {
-            id: "sf-" + this.props.id,
-            className: classNames({ "sf-hidden": hideSF })
-          },
-          searchForm
-        ),
-      _(
-        "main",
-        { className: "inbox" },
-        _(
-          CardHeader,
-          {className:'pt-0 pb-1'},
-          searchForm &&
-          !this.props.showSF && _(
-              Button,
-              {
-                className: "btn-round-shadow ml-1",
-                color: "secondary",
-                onClick: toggleSearch
-              },
-              _("i", {
-                id: "eq-" + this.props.id,
-                className: classNames("icon-magnifier ", {
-                  "rotate-90deg": !hideSF
+        /**
+         * used to give click event to the detail timeLineBadge button
+         * (event,masterDridProps,detailGridProps,row)
+         */
+        this._timelineBadgeBtn = this.props._timelineBadgeBtn;
+        /**
+         * @description A function to open and close detail grid
+         * @param {event}
+         *            event - click event
+         * @param {Object}
+         *            event.target - target object from clicked place
+         */
+        this.toggleDetailGrid = ({ target }) => {
+            this.setState({...this.state, [target.name]: target.checked });
+        };
+        let { searchForm, detailGrids } = this.props;
+        if (searchForm || (detailGrids && detailGrids.length > 1)) {
+            var self = this;
+            this.searchForm = _(
+                Nav, { style: {} },
+                searchForm &&
+                _(
+                    "span",
+                    null,
+                    _(
+                        "div", { className: "hr-text" },
+                        _("h6", null, getLocMsg("search_criteria"))
+                    ),
+                    _(
+                        "div", { style: { zoom: ".9" }, className: "searchFormFields" },
+                        _(searchForm, { parentCt: this }),
+                        _(
+                            "div", { className: "form-group", style: { paddingTop: 10 } },
+                            _(
+                                Button, {
+                                    color: "danger",
+                                    style: { width: "100%", borderRadius: 2 },
+                                    onClick: () => {
+                                        this.loadData(true);
+                                    }
+                                },
+                                getLocMsg("search")
+                            )
+                        )
+                    ),
+                    /*
+                     * _("div", { style: { height: 10 } }), _("div", { className:
+                     * "hr-text" }, _("h6", null, "Şablonlar")), _( Link, { style: {
+                     * padding: 2 }, to: "" }, _("i", { className: "icon-star" }), " ", "
+                     * Yıllık Faturalar" ), _( Link, { style: { padding: 2, color:
+                     * "#a0a0a0" }, to: "" }, _("i", { className: "icon-plus" }), " ", "
+                     * Yeni Şablon Ekle" ),
+                     */
+                    _("div", { style: { height: 20 } })
+                ), !this.props._detailTab &&
+                detailGrids &&
+                detailGrids.length > 1 &&
+                _(
+                    "div", { className: "hr-text", key: "hr-text" },
+                    _("h6", null, getLocMsg("details"))
+                ), !this.props._detailTab &&
+                detailGrids &&
+                detailGrids.length > 1 &&
+                detailGrids.map((detailGrid, key) => {
+                    return _(
+                        "div", { key, className: "py-1 pr-0 pl-1 text-dark" },
+                        detailGrid.grid.name,
+                        _(
+                            "label", {
+                                className: "float-right switch switch-xs switch-3d switch-" +
+                                    dgColors[key % dgColors.length] +
+                                    " form-control-label"
+                            },
+                            _("input", {
+                                name: "dg-" + detailGrid.grid.gridId,
+                                type: "checkbox",
+                                className: "switch-input form-check-input",
+                                onChange: self.toggleDetailGrid,
+                                defaultChecked: self.state["dg-" + detailGrid.grid.gridId]
+                            }),
+                            _("span", { className: "switch-label" }),
+                            _("span", { className: "switch-handle" })
+                        )
+                    );
                 })
-              })
-            ),
-          !this.props.showSF && _(
-            Button,
-            {
-              className: "btn-round-shadow ml-1",
-              disabled: loading,
-              color: "secondary",
-              onClick: event => loadData(true)
-            },
-            _("i", { className: "icon-refresh "+(this.state.loading?" infinite-rotate":"") })
-          ),
-
-          crudFlags &&
-            crudFlags.insert &&
-            _(
-              Button,
-              {
-                className: "btn-round-shadow ml-1",
-                color: "primary",
-                onClick: event => onOnNewRecord(event, this.props)
-              },
-              _("i", { className: "fa fa-plus" }),
-            ),
-          _("div", { className: "fgrow" }),
-          extraButtons &&
-            extraButtons.map((btn, index) =>
-              _(XToolbarItem, {
-                ...btn,
-                index,
-                row: null,
-                grid: this,
-                parentCt: null
-              })
-            ),
-          // _(Button,{className:'float-right btn-round-shadow
-          // hover-shake',color:'danger',
-          // onClick:this.toggleSearch},_('i',{style:{transition: "transform
-          // .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':'
-          // rotate-90deg')}))
-          this.props.gridReport &&
-            _(
-              Button,
-              {
-                className: "float-right btn-round-shadow hover-shake mx-1",
+            );
+        }
+        /**
+         * @description A function to search globally
+         * @param {Event}
+         *            event - event from the global search
+         */
+        this.onGlobalSearch = event =>
+            this.loadData(true, {
+                xsearch: event && event.target ? event.target.value : event
+            });
+        iwb.onGlobalSearch2 = this.onGlobalSearch;
+        /**
+         * @description Is a function to toggle search form from the XMainGrid
+         *              component and animata iconMagnifier
+         */
+        this.toggleSearch = event => {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({ hideSF: !this.state.hideSF });
+        };
+        /**
+         * @description A function to open EXPORT menu in XModal
+         */
+        this.openBI = () => {
+            let { props } = this;
+            let { columnExtensions, order } = this.state;
+            let cmap = {};
+            let url = "grd/" + props.name + ".";
+            let params = "?_gid=" + props.gridId + "&_columns=";
+            columnExtensions.map(({ columnName, width }) => {
+                cmap[columnName] = width;
+            });
+            order.map(
+                columnName =>
+                (params += columnName + "," + (cmap[columnName] || 100) + ";")
+            );
+            if (this.form) {
+                var vals = this.form.getValues()
+                if (vals)
+                    for (var k in vals)
+                        if (vals[k] != '') params += '&' + k + '=' + vals[k];
+            }
+            iwb.showModal({
+                title: "REPORTS / BI",
+                footer: false,
                 color: "danger",
-                onClick: this.openBI
-              },
-              _("i", { className: "icon-equalizer" })
-            ) // , this.props.globalSearch && _(Input,{type:"text",
-          // className:"float-right form-control w-25",
-          // onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...",
-          // defaultValue:"", style:{marginTop: '-0.355rem',
-          // marginRight:'.4rem'}}) )
-        ),
-        grid
-      ),
-      this.props.summary && _('summary', {},this.props.summary.map((ox)=>{
-    	  return _('div',{id:ox.graphId ? ('gr-'+this.props.id+'-'+ox.graphId):('ga-'+this.props.id+'-'+ox)},)
-      }))
-    );
-  }
+                size: "sm",
+                body: _(
+                    ListGroup, {
+                        style: {
+                            fontSize: "1.0rem"
+                        }
+                    },
+                    _("b", null, "Exports"),
+                    _(
+                        ListGroupItem, {
+                            tag: "a",
+                            href: url + "xls" + params,
+                            target: "_blank",
+                            action: true
+                        },
+                        _("i", {
+                            className: "float-right text-success fa fa-file-excel"
+                        }),
+                        "Excel"
+                    ),
+                    _(
+                        ListGroupItem, {
+                            tag: "a",
+                            href: url + "pdf" + params,
+                            target: "_blank",
+                            action: true
+                        },
+                        _("i", {
+                            className: "float-right text-danger fa fa-file-pdf"
+                        }),
+                        "PDF"
+                    ),
+                    _(
+                        ListGroupItem, {
+                            tag: "a",
+                            href: url + "csv" + params,
+                            target: "_blank",
+                            action: true
+                        },
+                        _("i", {
+                            className: "float-right text-secondary fa fa-file-alt"
+                        }),
+                        "CSV"
+                    ),
+                    _(
+                        ListGroupItem, {
+                            tag: "a",
+                            href: url + "txt" + params,
+                            target: "_blank",
+                            action: true
+                        },
+                        _("i", {
+                            className: "float-right text-secondary fa fa-file-word"
+                        }),
+                        "Text"
+                    ),
+                    _("hr"),
+                    _("b", null, "BI"),
+                    _(
+                        ListGroupItem, {
+                            tag: "a",
+                            href: "showPage?_tid=" +
+                                (props.crudTableId ?
+                                    "1200&xtable_id=" + props.crudTableId :
+                                    "2395&xquery_id=" + props.queryId),
+                            target: "_blank",
+                            action: true /* , className:'list-group-item-danger2' */
+                        },
+                        _("i", {
+                            className: "float-right text-primary fa fa-th"
+                        }),
+                        "Pivot Table"
+                    ),
+                    _(
+                        ListGroupItem, {
+                            tag: "a",
+                            href: "showPage?_tid=" +
+                                (props.crudTableId ?
+                                    "784&xtable_id=" + props.crudTableId :
+                                    "2413&xquery_id=" + props.queryId),
+                            target: "_blank",
+                            action: true
+                        },
+                        _("i", {
+                            className: "float-right text-primary fa fa-table"
+                        }),
+                        "Data List"
+                    )
+                )
+            });
+        };
+
+        /**
+         * @description A function to render Details under Muster's row
+         * @param {Array}
+         *            currentDetailGrids[] - array of detail grids conf
+         * @param {Object}
+         *            currentDetailGrids[].grid - detail grids props
+         * @param {Object}
+         *            currentDetailGrids[].params - master detail connection Master
+         *            primaty key name {xoffer_id: "offer_id"}
+         * @param {Object}
+         *            currentDetailGrids[].pk - Master detail connection Detail primaty
+         *            key name {toffer_detail_id: "offer_detail_id"}
+         */
+        this.showDetail2 = (currentDetailGrids, parentGrid = this) => ({ row }) =>
+            row ?
+            _(XShowDetailTimeline, {
+                row,
+                currentDetailGrids,
+                parentGrid,
+                topParentGrid: this
+            }) :
+            null;
+        /**
+         * tabular master detail layout
+         */
+        this.showDetail3 = (currentDetailGrids, parentGrid = this) => ({ row }) =>
+            row ?
+            _(XShowDetailTabs, {
+                row,
+                currentDetailGrids,
+                parentGrid,
+                topParentGrid: this
+            }) :
+            null;
+        /**
+         * @overloading
+         * @param {Boolean}
+         *            force - Get up to data data
+         * @param {object}
+         *            params -[{xsearch:'searchValue'}] Params from Global Search
+         */
+        this.loadData = (force, params = {}, dashIgnore) => {
+            if (!iwb.loadGrid[this.props.id]) iwb.loadGrid[this.props.id] = this.loadData;
+            const queryString = this.queryString();
+            if (!force && queryString === this.lastQuery) {
+                return;
+            }
+            var tempParams = {
+                ...(this.form ? this.form.getValues() : {}),
+                ...params
+            };
+            this.setState({ loading: !0 });
+            iwb.request({
+                url: queryString,
+                self: this,
+                params: tempParams,
+                successCallback: (result, cfg) => {
+                    cfg.self.setState({
+                        rows: result.data,
+                        loading: false,
+                        totalCount: result.total_count
+                    });
+
+                    if (cfg.self.props.summary) cfg.self.props.summary.map((ox) => {
+                        if (ox.graphId) {
+                            if (!dashIgnore) {
+                                var gox = ox;
+                                iwb.graph(ox, 'gr-' + cfg.self.props.id + '-' + ox.graphId, (selValue) => {
+                                    var xgroupBy = gox.groupBy.split('.');
+                                    var groupBy = 'x' + xgroupBy[xgroupBy.length - 1];
+                                    var xparams = {};
+                                    if (selValue !== false) xparams[groupBy] = selValue;
+                                    this.loadData(!0, xparams, !0);
+
+                                });
+                            }
+                        } else iwb.request({
+                            url: 'ajaxQueryData?_qid=' + ox + '&.r=' + Math.random(),
+                            self: cfg.self,
+                            params: tempParams,
+                            successCallback: (result2, cfg2) => {
+                                if (!result2.data.length) return;
+                                var j = result2.data[0];
+                                var options = {
+                                    chart: {
+                                        height: 300,
+                                        type: 'radialBar',
+                                    },
+                                    plotOptions: {
+                                        radialBar: {
+                                            startAngle: -135,
+                                            endAngle: 225,
+                                            hollow: {
+                                                margin: 0,
+                                                size: '70%',
+                                                background: '#fff',
+                                                image: undefined,
+                                                imageOffsetX: 0,
+                                                imageOffsetY: 0,
+                                                position: 'front',
+                                                dropShadow: {
+                                                    enabled: true,
+                                                    top: 0,
+                                                    left: 0,
+                                                    blur: 4,
+                                                    opacity: 0.24
+                                                }
+                                            },
+                                            /*    track: {
+                                                  background: '#fff',
+                                                  strokeWidth: '67%',
+                                                  margin: 0, // margin is in pixels
+                                                  dropShadow: {
+                                                    enabled: true,
+                                                    top: -3,
+                                                    left: 0,
+                                                    blur: 4,
+                                                    opacity: 0.35
+                                                  }
+                                                },*/
+
+                                            dataLabels: {
+                                                showOn: 'always',
+                                                name: {
+                                                    offsetY: -10,
+                                                    show: true,
+                                                    color: '#888',
+                                                    fontSize: '17px'
+                                                },
+                                                value: {
+                                                    formatter: function(val) {
+                                                        return j.val;
+                                                    },
+                                                    color: '#111',
+                                                    fontSize: '36px',
+                                                    show: true,
+                                                }
+                                            }
+                                        }
+                                    },
+                                    /*  fill: {
+                                        type: 'gradient',
+                                        gradient: {
+                                          shade: 'dark',
+                                          type: 'horizontal',
+                                          shadeIntensity: 0.2,
+                                          gradientToColors: ['#ABE5A1'],
+                                          inverseColors: true,
+                                          opacityFrom: 1,
+                                          opacityTo: 1,
+                                          stops: [0, 100]
+                                        }
+                                      },*/
+                                    //                			      colors: ['#f00'],
+                                    series: [100 * j.xval],
+                                    stroke: {
+                                        lineCap: 'round'
+                                    },
+                                    labels: [j.title],
+
+                                }
+
+                                var xid = 'ga-' + cfg2.self.props.id + '-' + ox;
+                                if (iwb.charts[xid]) iwb.charts[xid].destroy();
+                                var chart = new ApexCharts(
+                                    document.getElementById(xid),
+                                    options
+                                );
+                                iwb.charts[xid] = chart;
+
+                                chart.render();
+                            }
+                        });
+
+                    })
+
+
+                },
+                errorCallback: (error, cfg) => {
+                    cfg.self.setState({
+                        rows: [],
+                        totalCount: 0,
+                        loading: false
+                    });
+                }
+            });
+            this.lastQuery = queryString;
+        };
+    }
+    componentDidMount() {
+        if (!this.dontRefresh) this.loadData();
+        this.dontRefresh = false;
+    }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.forceRelaod !== prevProps.forceRelaod) {
+            this.loadData(true);
+        } else {
+            this.loadData();
+            this.dontRefresh = false;
+        }
+    }
+    componentWillUnmount() {
+        var state = Object.assign({}, this.state);
+        var sf = document.getElementById("sf-" + this.props.id);
+        if (sf) {
+            state.hideSF = sf.classList.contains("sf-hidden");
+        }
+        iwb.grids[this.props.id] = state;
+    }
+    render() {
+        const {
+            state: {
+                rows,
+                order,
+                hideSF,
+                columns,
+                sorting,
+                loading,
+                pageSize,
+                selection,
+                pageSizes,
+                totalCount,
+                currentPage,
+                columnWidths,
+                columnExtensions
+            },
+            props: {
+                tree,
+                keyField,
+                crudFlags,
+                detailGrids,
+                multiselect,
+                extraButtons,
+                treeParentKey,
+                titleComponent,
+                tableTreeColumn,
+                _disableSearchPanel,
+                _disableIntegratedSorting,
+                _disableIntegratedGrouping
+            },
+            loadData,
+            searchForm,
+            rowComponent,
+            toggleSearch,
+            onOrderChange,
+            onOnNewRecord,
+            onSortingChange,
+            onPageSizeChange,
+            onSelectionChange,
+            onCurrentPageChange,
+            onColumnWidthsChange
+        } = this;
+
+        let showDetail = detailGrids && detailGrids.length > 0;
+        let grid = _(
+            _dxgrb.Grid, {
+                className: "maingrid",
+                rows: rows,
+                columns,
+                getRowId: row => row[keyField]
+            },
+            /** sorting state */
+            !_disableIntegratedSorting &&
+            _(
+                _dxrg.SortingState, !pageSize ? null : { sorting, onSortingChange, columnExtensions }
+            ),
+            multiselect &&
+            _(_dxrg.SelectionState, {
+                selection,
+                onSelectionChange
+            }), !!tree && _(_dxrg.TreeDataState), !!tree &&
+            _(_dxrg.CustomTreeData, {
+                getChildRows: (row, rootRows) => {
+                    const childRows = rootRows.filter(
+                        r => r[treeParentKey] == (row ? row[keyField] : "0")
+                    );
+                    return childRows.length ? childRows : null;
+                }
+            }),
+            /** pagesize > 0 will import search state */
+            !pageSize ? _(_dxrg.SearchState, null) : null,
+            /** Client filtering */
+            !_disableSearchPanel &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxrg.IntegratedFiltering, null),
+            /** state of the grouping */
+            !_disableIntegratedGrouping &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxrg.GroupingState, null),
+            /** ability to group like a tree */
+
+            !_disableIntegratedGrouping &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxrg.IntegratedGrouping, null),
+            /** sorting wii be enabled when pageSize>0 and row has more than one data */
+            !_disableIntegratedSorting &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxrg.IntegratedSorting, null),
+            /** row detail state */
+            showDetail ? _(_dxrg.RowDetailState, null) : null,
+            /** state paging */
+            rows.length > iwb.detailPageSize || pageSize > 1 ?
+            _(
+                _dxrg.PagingState,
+                pageSize > 1 ?
+                { pageSize, currentPage, onPageSizeChange, onCurrentPageChange } :
+                {}
+            ) :
+            null,
+            multiselect && _(_dxrg.IntegratedSelection, null),
+            /** For remote paging */
+            pageSize > 1 &&
+            rows.length > 1 &&
+            _(_dxrg.CustomPaging, { totalCount: totalCount }),
+            /** enable group drag drop */
+            _(_dxgrb.DragDropProvider, null),
+            /** ui table */
+            _(_dxgrb.Table, {
+                columnExtensions,
+                rowComponent,
+                messages: { noData: getLocMsg("noData") }
+            }),
+            /** multiselect */
+            multiselect &&
+            _(_dxgrb.TableSelection, {
+                showSelectAll: true
+            }),
+            /** UI ordering of the table */
+            _(_dxgrb.TableColumnReordering, { order, onOrderChange }),
+            /** UI tablle resizing */
+            _(_dxgrb.TableColumnResizing, { columnWidths, onColumnWidthsChange }),
+            /** UI to show table row container */
+            _(_dxgrb.TableHeaderRow, {
+                showSortingControls: true,
+                titleComponent: titleComponent || _dxgrb.TableHeaderRow.Title
+            }),
+            /** tree support */
+            !!tree && _(_dxgrb.TableTreeColumn, { for: tableTreeColumn }),
+            /** UI of the detail table */
+            showDetail ?
+            _(_dxgrb.TableRowDetail, {
+                contentComponent: this.props._detailTab ?
+                    this.showDetail3(detailGrids) :
+                    this.showDetail2(detailGrids)
+            }) :
+            null,
+            /** UI show pagining */
+            pageSize > 1 //rows.length > iwb.detailPageSize ||
+            ?
+            _(_dxgrb.PagingPanel, { pageSizes: pageSizes }) //|| iwb.detailPageSize
+            :
+            null,
+            /** UI table Grouping */
+            !_disableIntegratedGrouping && !pageSize && rows.length > 1 ?
+            _(_dxgrb.TableGroupRow, null) :
+            null,
+            /** top of grit do render some buttons */
+            !pageSize && rows.length > 1 && _(_dxgrb.Toolbar, null),
+            /** ui search input */
+            !pageSize &&
+            rows.length > 1 &&
+            !_disableSearchPanel &&
+            _(_dxgrb.SearchPanel, {
+                messages: { searchPlaceholder: getLocMsg("searchPlaceholder") },
+                changeSearchValue: ax => {
+                    if (iwb.debug) console.log("onValueChange", ax);
+                }
+            }),
+            /** UI grouping panel */
+            !_disableIntegratedGrouping &&
+            !pageSize &&
+            rows.length > 1 &&
+            _(_dxgrb.GroupingPanel, {
+                showSortingControls: true,
+                messages: { groupByColumn: getLocMsg("groupByColumn") }
+            })
+        );
+
+        return _(
+            "div", { className: "tab-grid mb-4" },
+            searchForm &&
+            _(
+                "nav", {
+                    id: "sf-" + this.props.id,
+                    className: classNames({ "sf-hidden": hideSF })
+                },
+                searchForm
+            ),
+            _(
+                "main", { className: "inbox" },
+                _(
+                    CardHeader, { className: 'pt-0 pb-1' },
+                    searchForm &&
+                    !this.props.showSF && _(
+                        Button, {
+                            className: "btn-round-shadow ml-1",
+                            color: "secondary",
+                            onClick: toggleSearch
+                        },
+                        _("i", {
+                            id: "eq-" + this.props.id,
+                            className: classNames("icon-magnifier ", {
+                                "rotate-90deg": !hideSF
+                            })
+                        })
+                    ), !this.props.showSF && _(
+                        Button, {
+                            className: "btn-round-shadow ml-1",
+                            disabled: loading,
+                            color: "secondary",
+                            onClick: event => loadData(true)
+                        },
+                        _("i", { className: "icon-refresh " + (this.state.loading ? " infinite-rotate" : "") })
+                    ),
+
+                    crudFlags &&
+                    crudFlags.insert &&
+                    _(
+                        Button, {
+                            className: "btn-round-shadow ml-1",
+                            color: "primary",
+                            onClick: event => onOnNewRecord(event, this.props)
+                        },
+                        _("i", { className: "fa fa-plus" }),
+                    ),
+                    _("div", { className: "fgrow" }),
+                    extraButtons &&
+                    extraButtons.map((btn, index) =>
+                        _(XToolbarItem, {
+                            ...btn,
+                            index,
+                            row: null,
+                            grid: this,
+                            parentCt: null
+                        })
+                    ),
+                    // _(Button,{className:'float-right btn-round-shadow
+                    // hover-shake',color:'danger',
+                    // onClick:this.toggleSearch},_('i',{style:{transition: "transform
+                    // .2s"},id:'eq-'+this.props.id,className:'icon-equalizer'+(this.state.hideSF?'':'
+                    // rotate-90deg')}))
+                    this.props.gridReport &&
+                    _(
+                        Button, {
+                            className: "float-right btn-round-shadow hover-shake mx-1",
+                            color: "danger",
+                            onClick: this.openBI
+                        },
+                        _("i", { className: "icon-equalizer" })
+                    ) // , this.props.globalSearch && _(Input,{type:"text",
+                    // className:"float-right form-control w-25",
+                    // onChange:this.onGlobalSearch, placeholder:"Hızlı Arama...",
+                    // defaultValue:"", style:{marginTop: '-0.355rem',
+                    // marginRight:'.4rem'}}) )
+                ),
+                grid
+            ),
+            this.props.summary && _('summary', {}, this.props.summary.map((ox) => {
+                return _('div', { id: ox.graphId ? ('gr-' + this.props.id + '-' + ox.graphId) : ('ga-' + this.props.id + '-' + ox) }, )
+            }))
+        );
+    }
 }
 XMainGrid.defaultProps = {
-  tree: false,
-  treeParentKey: "parent_id",
-  tableTreeColumn: "dsc"
+    tree: false,
+    treeParentKey: "parent_id",
+    tableTreeColumn: "dsc"
 };
 class XMainCard extends GridCommon {
-  constructor(props) {
-    if (iwb.debug) console.log("XMainCard", props);
-    super(props);
-    this.state = {
-      totalCount: 0,
-      pageSize: props.pageSize,
-      pageSizes:
-        props.pageSize > 1
-          ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
-          : [5, 10, 25, 100],
-      currentPage: 1,
-      hideSF: true,
-      loading: false,
-      cards: []
-    };
-    let { searchForm, detailGrids } = this.props;
-    if (searchForm || (detailGrids && detailGrids.length > 1)) {
-      var self = this;
-      this.searchForm = _(
-        Nav,
-        {},
-        searchForm &&
-          _(
-            "span",
-            {},
-            _(
-              "div",
-              { className: "hr-text" },
-              _("h6", null, getLocMsg("search_criteria"))
-            ),
-            _(
-              "div",
-              { style: { zoom: ".9" }, className: "searchFormFields" },
-              _(searchForm, { parentCt: this }),
-              _(
-                "div",
-                { className: "form-group", style: { paddingTop: 10 } },
-                _(
-                  Button,
-                  {
-                    color: "danger",
-                    style: { width: "100%", borderRadius: 2 },
-                    onClick: event => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      this.loadData(true);
-                    }
-                  },
-                  getLocMsg("search")
-                )
-              )
-            ),
-            _("div", { style: { height: 20 } })
-          ),
-        detailGrids &&
-          detailGrids.length > 1 &&
-          _(
-            "div",
-            { className: "hr-text", key: "hr-text" },
-            _("h6", null, getLocMsg("details"))
-          ),
-        detailGrids &&
-          detailGrids.length > 1 &&
-          detailGrids.map((detailGrid, key) => {
-            return _(
-              "div",
-              {
-                key,
-                style: {
-                  padding: "3px 0px 2px 3px",
-                  color: "#6d7284",
-                  fontSize: ".9rem"
-                }
-              },
-              detailGrid.grid.name,
-              _(
-                "label",
-                {
-                  className:
-                    "float-right switch switch-xs switch-3d switch-" +
-                    dgColors[key % dgColors.length] +
-                    " form-control-label"
-                },
-                _("input", {
-                  name: "dg-" + detailGrid.grid.gridId,
-                  type: "checkbox",
-                  className: "switch-input form-check-input",
-                  onChange: self.toggleDetailGrid,
-                  defaultChecked: self.state["dg-" + detailGrid.grid.gridId]
-                }),
-                _("span", { className: "switch-label" }),
-                _("span", { className: "switch-handle" })
-              )
-            );
-          })
-      );
-    }
-    /**
-     * @description prerpares url with query
-     * @example Used in XMainGrid and XGrid to make query inside loadData
-     * @returns {String}
-     */
-    this.queryString = () => {
-      const { pageSize, currentPage } = this.state;
-      let queryString =
-        this.props._url +
-        "&limit=" +
-        pageSize +
-        "&start=" +
-        pageSize * (currentPage - 1);
-      return queryString;
-    };
-    /** toogle search */
-    this.toggleSearch = event => {
-      event.preventDefault();
-      event.stopPropagation();
-      this.setState({
-        hideSF: !this.state.hideSF
-      });
-    };
-    /** loadData */
-    this.loadData = force => {
-      if (this.props.cards || this.state.loading) return;
-      const queryString = this.queryString();
-      if (!force && queryString === this.lastQuery) {
-        return;
-      }
-      this.setState({ rows: [], loading: true });
-      iwb.request({
-        url: queryString,
-        self: this,
-        params: { ...(this.form ? this.form.getValues() : {}) },
-        successCallback: (result, cfg) => {
-          cfg.self.setState({
-            cards: result.data,
-            totalCount: result.total_count,
-            loading: false
-          });
-        },
-        errorCallback: (error, cfg) => {
-          cfg.self.setState({
-            cards: [],
+    constructor(props) {
+        if (iwb.debug) console.log("XMainCard", props);
+        super(props);
+        this.state = {
             totalCount: 0,
-            loading: false
-          });
-        }
-      });
-      this.lastQuery = queryString;
-    };
-    /**rightClick on the card */
-    this.RightClickComponent = props => extraProps =>
-      _(XGridRowAction, { ...props, ...extraProps });
-  }
-  componentDidMount() {
-    if (!this.dontRefresh) this.loadData();
-    this.dontRefresh = false;
-  }
-  render() {
-    let {
-      state: {
-        cards,
-        hideSF,
-        loading,
-        pageSize,
-        pageSizes,
-        totalCount,
-        currentPage
-      },
-      props: {
-        crudFlags,
-        breakPoints,
-        menuButtons,
-        extraButtons,
-        formSmsMailList
-      },
-      loadData,
-      searchForm,
-      onEditClick,
-      toggleSearch,
-      onDeleteClick,
-      onOnNewRecord
-    } = this;
-    return _(
-      "div",
-      { className: "tab-grid mb-4" },
-      searchForm &&
-        _(
-          "nav",
-          {
-            id: "sf-" + this.props.cardId,
-            className: classNames({ "sf-hidden": hideSF })
-          },
-          searchForm
-        ),
-      _(
-        "main",
-        { className: "inbox" },
-        _(
-          CardHeader,
-          {},
-          searchForm &&
-            _(
-              Button,
-              {
-                className: "btn-round-shadow ml-1",
-                color: "secondary",
-                onClick: toggleSearch
-              },
-              _("i", {
-                id: "eq-" + this.props.cardId,
-                className: classNames("icon-magnifier ", {
-                  "rotate-90deg": !hideSF
+            pageSize: props.pageSize,
+            pageSizes: props.pageSize > 1 ?
+                [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                [5, 10, 25, 100],
+            currentPage: 1,
+            hideSF: true,
+            loading: false,
+            cards: []
+        };
+        let { searchForm, detailGrids } = this.props;
+        if (searchForm || (detailGrids && detailGrids.length > 1)) {
+            var self = this;
+            this.searchForm = _(
+                Nav, {},
+                searchForm &&
+                _(
+                    "span", {},
+                    _(
+                        "div", { className: "hr-text" },
+                        _("h6", null, getLocMsg("search_criteria"))
+                    ),
+                    _(
+                        "div", { style: { zoom: ".9" }, className: "searchFormFields" },
+                        _(searchForm, { parentCt: this }),
+                        _(
+                            "div", { className: "form-group", style: { paddingTop: 10 } },
+                            _(
+                                Button, {
+                                    color: "danger",
+                                    style: { width: "100%", borderRadius: 2 },
+                                    onClick: event => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        this.loadData(true);
+                                    }
+                                },
+                                getLocMsg("search")
+                            )
+                        )
+                    ),
+                    _("div", { style: { height: 20 } })
+                ),
+                detailGrids &&
+                detailGrids.length > 1 &&
+                _(
+                    "div", { className: "hr-text", key: "hr-text" },
+                    _("h6", null, getLocMsg("details"))
+                ),
+                detailGrids &&
+                detailGrids.length > 1 &&
+                detailGrids.map((detailGrid, key) => {
+                    return _(
+                        "div", {
+                            key,
+                            style: {
+                                padding: "3px 0px 2px 3px",
+                                color: "#6d7284",
+                                fontSize: ".9rem"
+                            }
+                        },
+                        detailGrid.grid.name,
+                        _(
+                            "label", {
+                                className: "float-right switch switch-xs switch-3d switch-" +
+                                    dgColors[key % dgColors.length] +
+                                    " form-control-label"
+                            },
+                            _("input", {
+                                name: "dg-" + detailGrid.grid.gridId,
+                                type: "checkbox",
+                                className: "switch-input form-check-input",
+                                onChange: self.toggleDetailGrid,
+                                defaultChecked: self.state["dg-" + detailGrid.grid.gridId]
+                            }),
+                            _("span", { className: "switch-label" }),
+                            _("span", { className: "switch-handle" })
+                        )
+                    );
                 })
-              })
-            ),
-          _(
-            Button,
-            {
-              className: "btn-round-shadow ml-1",
-              disabled: loading,
-              color: "secondary",
-              onClick: event => loadData(true)
-            },
-            _("i", { className: "icon-refresh" })
-          ),
-          crudFlags &&
-            crudFlags.insert &&
-            _(
-              Button,
-              {
-                className: "btn-round-shadow ml-1",
-                color: "primary",
-                onClick: event => onOnNewRecord(event, this.props)
-              },
-              _("i", { className: "fa fa-plus" }),
-            ),
-          _("div", { className: "fgrow" }),
-          extraButtons &&
-            extraButtons.map((btn, index) =>
-              _(XToolbarItem, {
-                ...btn,
-                index,
-                row: null,
-                grid: this,
-                parentCt: null
-              })
-            )
-          // this.props.gridReport &&
-          // _( Button,
-          //   { className: "float-right btn-round-shadow hover-shake mx-1",
-          //     color: "danger",
-          //     onClick: this.openBI
-          //   },
-          //   _("i", { className: "icon-equalizer" })
-          // )
-        ),
-        _(
-          XMasonry,
-          {
-            breakPoints: breakPoints || [300, 500, 1000],
-            loadingComponent: () => _(XLoading, null),
-            // item: {
-            //   className: 'mt-2 mb-2 border-6px card-animated'
-            // },
-            rootInner: {
-              className:
-                "d-flex flex-row justify-content-center align-content-stretch flex-fill m-auto w-100 p-2"
-            }
-          },
-          cards.map((record, index) => {
-            return this.props.render({
-              ...record,
-              parentCt: this,
-              key: index,
-              index: index,
-              RightClickComponent: this.RightClickComponent({
-                rowData: record,
-                parentCt: this,
-                menuButtons,
-                formSmsMailList,
-                onEditClick,
-                onDeleteClick,
-                crudFlags
-              })
+            );
+        }
+        /**
+         * @description prerpares url with query
+         * @example Used in XMainGrid and XGrid to make query inside loadData
+         * @returns {String}
+         */
+        this.queryString = () => {
+            const { pageSize, currentPage } = this.state;
+            let queryString =
+                this.props._url +
+                "&limit=" +
+                pageSize +
+                "&start=" +
+                pageSize * (currentPage - 1);
+            return queryString;
+        };
+        /** toogle search */
+        this.toggleSearch = event => {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({
+                hideSF: !this.state.hideSF
             });
-          })
-        ),
-        _(
-          "div",
-          { className: "clearfix card-footer dx-g-bs4-paging-panel" },
-          _(
-            "div",
-            { className: "d-inline-block" },
-            _(XItemPerPage, {
-              pageSize,
-              pageSizes,
-              onChange: pageSize =>
-                this.setState({ pageSize, currentPage: 1 }, () =>
-                  this.loadData(true)
+        };
+        /** loadData */
+        this.loadData = force => {
+            if (this.props.cards || this.state.loading) return;
+            const queryString = this.queryString();
+            if (!force && queryString === this.lastQuery) {
+                return;
+            }
+            this.setState({ rows: [], loading: true });
+            iwb.request({
+                url: queryString,
+                self: this,
+                params: {...(this.form ? this.form.getValues() : {}) },
+                successCallback: (result, cfg) => {
+                    cfg.self.setState({
+                        cards: result.data,
+                        totalCount: result.total_count,
+                        loading: false
+                    });
+                },
+                errorCallback: (error, cfg) => {
+                    cfg.self.setState({
+                        cards: [],
+                        totalCount: 0,
+                        loading: false
+                    });
+                }
+            });
+            this.lastQuery = queryString;
+        };
+        /**rightClick on the card */
+        this.RightClickComponent = props => extraProps =>
+            _(XGridRowAction, {...props, ...extraProps });
+    }
+    componentDidMount() {
+        if (!this.dontRefresh) this.loadData();
+        this.dontRefresh = false;
+    }
+    render() {
+        let {
+            state: {
+                cards,
+                hideSF,
+                loading,
+                pageSize,
+                pageSizes,
+                totalCount,
+                currentPage
+            },
+            props: {
+                crudFlags,
+                breakPoints,
+                menuButtons,
+                extraButtons,
+                formSmsMailList
+            },
+            loadData,
+            searchForm,
+            onEditClick,
+            toggleSearch,
+            onDeleteClick,
+            onOnNewRecord
+        } = this;
+        return _(
+            "div", { className: "tab-grid mb-4" },
+            searchForm &&
+            _(
+                "nav", {
+                    id: "sf-" + this.props.cardId,
+                    className: classNames({ "sf-hidden": hideSF })
+                },
+                searchForm
+            ),
+            _(
+                "main", { className: "inbox" },
+                _(
+                    CardHeader, {},
+                    searchForm &&
+                    _(
+                        Button, {
+                            className: "btn-round-shadow ml-1",
+                            color: "secondary",
+                            onClick: toggleSearch
+                        },
+                        _("i", {
+                            id: "eq-" + this.props.cardId,
+                            className: classNames("icon-magnifier ", {
+                                "rotate-90deg": !hideSF
+                            })
+                        })
+                    ),
+                    _(
+                        Button, {
+                            className: "btn-round-shadow ml-1",
+                            disabled: loading,
+                            color: "secondary",
+                            onClick: event => loadData(true)
+                        },
+                        _("i", { className: "icon-refresh" })
+                    ),
+                    crudFlags &&
+                    crudFlags.insert &&
+                    _(
+                        Button, {
+                            className: "btn-round-shadow ml-1",
+                            color: "primary",
+                            onClick: event => onOnNewRecord(event, this.props)
+                        },
+                        _("i", { className: "fa fa-plus" }),
+                    ),
+                    _("div", { className: "fgrow" }),
+                    extraButtons &&
+                    extraButtons.map((btn, index) =>
+                        _(XToolbarItem, {
+                            ...btn,
+                            index,
+                            row: null,
+                            grid: this,
+                            parentCt: null
+                        })
+                    )
+                    // this.props.gridReport &&
+                    // _( Button,
+                    //   { className: "float-right btn-round-shadow hover-shake mx-1",
+                    //     color: "danger",
+                    //     onClick: this.openBI
+                    //   },
+                    //   _("i", { className: "icon-equalizer" })
+                    // )
+                ),
+                _(
+                    XMasonry, {
+                        breakPoints: breakPoints || [300, 500, 1000],
+                        loadingComponent: () => _(XLoading, null),
+                        // item: {
+                        //   className: 'mt-2 mb-2 border-6px card-animated'
+                        // },
+                        rootInner: {
+                            className: "d-flex flex-row justify-content-center align-content-stretch flex-fill m-auto w-100 p-2"
+                        }
+                    },
+                    cards.map((record, index) => {
+                        return this.props.render({
+                            ...record,
+                            parentCt: this,
+                            key: index,
+                            index: index,
+                            RightClickComponent: this.RightClickComponent({
+                                rowData: record,
+                                parentCt: this,
+                                menuButtons,
+                                formSmsMailList,
+                                onEditClick,
+                                onDeleteClick,
+                                crudFlags
+                            })
+                        });
+                    })
+                ),
+                _(
+                    "div", { className: "clearfix card-footer dx-g-bs4-paging-panel" },
+                    _(
+                        "div", { className: "d-inline-block" },
+                        _(XItemPerPage, {
+                            pageSize,
+                            pageSizes,
+                            onChange: pageSize =>
+                                this.setState({ pageSize, currentPage: 1 }, () =>
+                                    this.loadData(true)
+                                )
+                        })
+                    ),
+                    _(
+                        "div", { className: "float-right d-sm-flex" },
+                        _(XPagination, {
+                            pageSize,
+                            currentPage,
+                            totalCount,
+                            onChange: currentPage =>
+                                this.setState({ currentPage }, () => this.loadData(true))
+                        })
+                    )
                 )
-            })
-          ),
-          _(
-            "div",
-            { className: "float-right d-sm-flex" },
-            _(XPagination, {
-              pageSize,
-              currentPage,
-              totalCount,
-              onChange: currentPage =>
-                this.setState({ currentPage }, () => this.loadData(true))
-            })
-          )
-        )
-      )
-    );
-  }
+            )
+        );
+    }
 }
 const XPagination = ({
-  pageSize = 10,
-  currentPage,
-  totalCount,
-  onChange,
-  ...props
+    pageSize = 10,
+    currentPage,
+    totalCount,
+    onChange,
+    ...props
 }) => {
-  var totalPages = Math.ceil(totalCount / pageSize);
-  var startPage, endPage;
-  if (totalPages <= 10) {
-    // less than 10 total pages so show all
-    startPage = 1;
-    endPage = totalPages;
-  } else {
-    // more than 10 total pages so calculate start and end pages
-    if (currentPage <= 6) {
-      startPage = 1;
-      endPage = 10;
-    } else if (currentPage + 4 >= totalPages) {
-      startPage = totalPages - 9;
-      endPage = totalPages;
+    var totalPages = Math.ceil(totalCount / pageSize);
+    var startPage, endPage;
+    if (totalPages <= 10) {
+        // less than 10 total pages so show all
+        startPage = 1;
+        endPage = totalPages;
     } else {
-      startPage = currentPage - 5;
-      endPage = currentPage + 4;
+        // more than 10 total pages so calculate start and end pages
+        if (currentPage <= 6) {
+            startPage = 1;
+            endPage = 10;
+        } else if (currentPage + 4 >= totalPages) {
+            startPage = totalPages - 9;
+            endPage = totalPages;
+        } else {
+            startPage = currentPage - 5;
+            endPage = currentPage + 4;
+        }
     }
-  }
-  var pages = [...Array(endPage + 1 - startPage).keys()].map(
-    i => startPage + i
-  );
-  let hndlClick = currentPage => event => {
-    event.preventDefault();
-    event.stopPropagation();
-    onChange(currentPage);
-  };
-  return _(
-    Pagination,
-    { "aria-label": getLocMsg("page_pagination"), className: "m-0 p-0 p-sm-3",listClassName:'d-flex', ...props },
-    _(
-      PaginationItem,
-      { disabled: currentPage == 1 },
-      _(PaginationLink, {
-        previous: true,
-        href: "#",
-        onClick: hndlClick(currentPage - 1)
-      })
-    ),
-    (pages || []).map((page, index) =>
-      _(
-        PaginationItem,
-        { active: currentPage === page, key: index, className:'d-none d-sm-flex' },
-        _(PaginationLink, { href: "#", onClick: hndlClick(page) }, page)
-      )
-    ),
-    _('span',{className:'d-block d-sm-none pr-1'}),
-    _(
-      PaginationItem,
-      { disabled: currentPage >= totalPages },
-      _(PaginationLink, {
-        next: true,
-        href: "#",
-        onClick: hndlClick(currentPage + 1)
-      })
-    )
-  );
+    var pages = [...Array(endPage + 1 - startPage).keys()].map(
+        i => startPage + i
+    );
+    let hndlClick = currentPage => event => {
+        event.preventDefault();
+        event.stopPropagation();
+        onChange(currentPage);
+    };
+    return _(
+        Pagination, { "aria-label": getLocMsg("page_pagination"), className: "m-0 p-0 p-sm-3", listClassName: 'd-flex', ...props },
+        _(
+            PaginationItem, { disabled: currentPage == 1 },
+            _(PaginationLink, {
+                previous: true,
+                href: "#",
+                onClick: hndlClick(currentPage - 1)
+            })
+        ),
+        (pages || []).map((page, index) =>
+            _(
+                PaginationItem, { active: currentPage === page, key: index, className: 'd-none d-sm-flex' },
+                _(PaginationLink, { href: "#", onClick: hndlClick(page) }, page)
+            )
+        ),
+        _('span', { className: 'd-block d-sm-none pr-1' }),
+        _(
+            PaginationItem, { disabled: currentPage >= totalPages },
+            _(PaginationLink, {
+                next: true,
+                href: "#",
+                onClick: hndlClick(currentPage + 1)
+            })
+        )
+    );
 };
 XPagination.propTypes = {
-  currentPage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  pageSize: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  totalCount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  onChange: PropTypes.func.isRequired
+    currentPage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    pageSize: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    totalCount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    onChange: PropTypes.func.isRequired
 };
 const XItemPerPage = ({ pageSize, onChange, pageSizes, ...props }) => {
-  let hndlClick = number => event => {
-    event.preventDefault();
-    event.stopPropagation();
-    number != pageSize && onChange && onChange(number);
-  };
-  return _(
-    Pagination,
-    {
-      "aria-label": getLocMsg("item_per_page"),
-      className: "m-0 p-0 p-sm-3",
-      ...props
-    },
-    pageSizes.map((number, index) => {
-      return _(
-        PaginationItem,
-        {
-          active:
-            number == pageSize || (pageSize == 0 && number == 25)
-              ? true
-              : false,
-          key: number + index
+    let hndlClick = number => event => {
+        event.preventDefault();
+        event.stopPropagation();
+        number != pageSize && onChange && onChange(number);
+    };
+    return _(
+        Pagination, {
+            "aria-label": getLocMsg("item_per_page"),
+            className: "m-0 p-0 p-sm-3",
+            ...props
         },
-        _(
-          PaginationLink,
-          {
-            href: "#",
-            "aria-label": "number:" + number,
-            onClick: hndlClick(number)
-          },
-          number
-        )
-      );
-    })
-  );
+        pageSizes.map((number, index) => {
+            return _(
+                PaginationItem, {
+                    active: number == pageSize || (pageSize == 0 && number == 25) ?
+                        true :
+                        false,
+                    key: number + index
+                },
+                _(
+                    PaginationLink, {
+                        href: "#",
+                        "aria-label": "number:" + number,
+                        onClick: hndlClick(number)
+                    },
+                    number
+                )
+            );
+        })
+    );
 };
 XItemPerPage.defaultProps = {
-  pageSize: 0,
-  pageSizes: [5, 10, 25, 100],
-  onChange: () => console.warn("XItemPerPage")
+    pageSize: 0,
+    pageSizes: [5, 10, 25, 100],
+    onChange: () => console.warn("XItemPerPage")
 };
 XItemPerPage.propTypes = {
-  onChange: PropTypes.func,
-  pageSize: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  pageSizes: PropTypes.arrayOf(PropTypes.number)
+    onChange: PropTypes.func,
+    pageSize: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    pageSizes: PropTypes.arrayOf(PropTypes.number)
 };
 /**
  * @description this component made for render complex ui
  * @example form+grid, grid, form, form+form
  */
 class XPage extends React.PureComponent {
-  constructor(props) {
-    if (iwb.debugConstructor && iwb.debug)
-      console.log("XPage.constructor", props);
-    super(props);
-    var breed = document.getElementById("id-breed");
-    if (breed) breed.innerHTML = this.props.grid.name;
-    iwb.killGlobalSearch();
-    this.state = { activeTab: "x", activeTab2: "x" };
-    this.tabs = iwb.tabs[this.props.grid.id]
-      ? [...iwb.tabs[this.props.grid.id]]
-      : [{ name: "x", icon: "icon-list", title: "Liste", value: props.grid }];
-    /**
-     * @description a Function to toggle between tabs
-     * @param {Event}
-     *            event - click event from tab
-     */
-    this.toggle = event => {
-      var activeTab = event.target ? event.target.getAttribute("name") : event;
-      if (this.state.activeTab !== activeTab) {
-        var { tabs } = this;
-        tabs &&
-          tabs.forEach(tempTab => {
-            if (tempTab.name === activeTab) {
-              this.setState({
-                activeTab
-              });
-              return true;
+    constructor(props) {
+        if (iwb.debugConstructor && iwb.debug)
+            console.log("XPage.constructor", props);
+        super(props);
+        var breed = document.getElementById("id-breed");
+        if (breed) breed.innerHTML = this.props.grid.name;
+        iwb.killGlobalSearch();
+        this.state = { activeTab: "x", activeTab2: "x" };
+        this.tabs = iwb.tabs[this.props.grid.id] ?
+            [...iwb.tabs[this.props.grid.id]] :
+            [{ name: "x", icon: "icon-list", title: "Liste", value: props.grid }];
+        /**
+         * @description a Function to toggle between tabs
+         * @param {Event}
+         *            event - click event from tab
+         */
+        this.toggle = event => {
+            var activeTab = event.target ? event.target.getAttribute("name") : event;
+            if (this.state.activeTab !== activeTab) {
+                var { tabs } = this;
+                tabs &&
+                    tabs.forEach(tempTab => {
+                        if (tempTab.name === activeTab) {
+                            this.setState({
+                                activeTab
+                            });
+                            return true;
+                        }
+                    });
             }
-          });
-      }
-      return false;
-    };
-    this.isActionInTabList = action => {
-      var stopToFetch = false;
-      this.tabs &&
-        this.tabs.forEach(tempTab => {
-          if (tempTab.name === action) {
-            this.toggle(action);
-            stopToFetch = true;
-          }
-        });
-      return stopToFetch;
-    };
-    /**
-     * @description A function responsible for opening tab getting component
-     *              from the server and evaluating it on the page
-     * @param {String}
-     *            action - ['1-&toffer_id=4'] EditForm satrts 1-* , InsertForm
-     *            satrts 2-*
-     * @param {String}
-     *            url - ['showForm?a=1&_fid=3988&twork_position_id=1']
-     * @param {Object}
-     *            params - a varible wich holds request body params
-     * @param {Object}
-     *            callAttributes - [{modal:false}] a variable used to pass
-     *            params to a component which comes from the server
-     */
-    this.openTab = (action, url, params, callAttributes) => {
-      if (this.state.activeTab !== action) {
-        if (this.isActionInTabList(action)) return;
-        iwb.loadingActive(() => {
-          fetch(url, {
-            body: JSON.stringify(params || {}), // must match 'Content-Type'
-            // header
-            cache: "no-cache", // *default, no-cache, reload, force-cache,
-            // only-if-cached
-            credentials: "same-origin", // include, same-origin, *omit
-            headers: {
-              "content-type": "application/json"
-            },
-            method: "POST", // *GET, POST, PUT, DELETE, etc.
-            mode: "cors", // no-cors, cors, *same-origin
-            redirect: "follow", // *manual, follow, error
-            referrer: "no-referrer" // *client, no-referrer
-          })
-            .then(
-              response =>
-                response.status === 200 || response.status === 0
-                  ? response.text()
-                  : Promise.reject(
-                      new Error(response.text() || response.statusText)
-                    )
-            )
-            .then(
-              result => {
-                if (result) {
-                  var f = new Function('callAttributes', 'parentCt', result);
-                  var serverComponent = f(callAttributes || {}, this);
-                  if (serverComponent) {
-                    if (callAttributes && callAttributes.modal) {
-                      // console.log(callAttributes);
-                      iwb.showModal({
-                        body: serverComponent,
-                        size: iwb.defaultModalSıze || "lg",
-                        title:
-                          serverComponent.props && serverComponent.props.cfg
-                            ? serverComponent.props.cfg.name
-                            : "",
-                        color: callAttributes.modalColor
-                          ? callAttributes.modalColor
-                          : "primary",
-                        ...callAttributes.modalProps
-                      });
-                    } else {
-                      var plus = action.substr(0, 1) == "2";
-                      if (this.isActionInTabList(action)) return;
-                      this.tabs.push({
-                        name: action,
-                        icon: plus ? "icon-plus" : "icon-doc",
-                        title: " " + getLocMsg(plus ? "new" : "edit"),
-                        value: serverComponent
-                      });
-                      this.setState(
-                        {
-                          activeTab: action
-                        },
-                        () => iwb.loadingDeactive()
-                      );
+            return false;
+        };
+        this.isActionInTabList = action => {
+            var stopToFetch = false;
+            this.tabs &&
+                this.tabs.forEach(tempTab => {
+                    if (tempTab.name === action) {
+                        this.toggle(action);
+                        stopToFetch = true;
                     }
-                  }
-                } else {
-                  iwb.loadingDeactive();
-                  toastr.error(getLocMsg("no_result"), " Error");
-                }
-              },
-              error => {
-                iwb.loadingDeactive();
-                toastr.error(error, getLocMsg("connection_error"));
-              }
-            );
-        });
-      }
-    };
-    iwb.openTab = this.openTab;
-    /**
-     * @description A function responsible for closing tab and delating
-     *              CurrentTab from the state of Xpage Component this function
-     *              will be passed to whenever new tab is opened
-     */
-    this.closeTab = (event, forceRelaod = false) => {
-      if (this.state.activeTab == "x") return;
-      this.tabs =
-        this.tabs &&
-        this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
-      if (forceRelaod) {
-        this.tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
-      }
-      this.toggle("x");
-    };
-    iwb.closeTab = this.closeTab;
-    /**
-     * @description A function is used to open new FormTab
-     * @param {string}
-     *            url
-     */
-    this.openForm = (url, callAttributes = {}) => {
-      if (url) this.openTab("1-" + Math.random(), url, {}, callAttributes);
-      return false;
-    };
-    iwb.openForm = this.openForm;
-  }
-  componentWillUnmount() {
-    iwb.killGlobalSearch();
-    iwb.tabs[this.props.grid.id] = [...this.tabs];
-  }
-  render() {
-    if (iwb.debugRender) if (iwb.debug) console.log("XPage.render");
-    return _(
-      "div",
-      {},
-      _(
-        Row,
-        null,
-        _(
-          Col,
-          { className: "mb-4" },
-          _(
-            Nav,
-            { tabs: true, hidden: this.tabs.length == 1 },
-            this.tabs.map(({ name, icon, title }, index) => {
-              return _(
-                NavItem,
-                { key: "NavItem" + index },
+                });
+            return stopToFetch;
+        };
+        /**
+         * @description A function responsible for opening tab getting component
+         *              from the server and evaluating it on the page
+         * @param {String}
+         *            action - ['1-&toffer_id=4'] EditForm satrts 1-* , InsertForm
+         *            satrts 2-*
+         * @param {String}
+         *            url - ['showForm?a=1&_fid=3988&twork_position_id=1']
+         * @param {Object}
+         *            params - a varible wich holds request body params
+         * @param {Object}
+         *            callAttributes - [{modal:false}] a variable used to pass
+         *            params to a component which comes from the server
+         */
+        this.openTab = (action, url, params, callAttributes) => {
+            if (this.state.activeTab !== action) {
+                if (this.isActionInTabList(action)) return;
+                iwb.loadingActive(() => {
+                    fetch(url, {
+                            body: JSON.stringify(params || {}), // must match 'Content-Type'
+                            // header
+                            cache: "no-cache", // *default, no-cache, reload, force-cache,
+                            // only-if-cached
+                            credentials: "same-origin", // include, same-origin, *omit
+                            headers: {
+                                "content-type": "application/json"
+                            },
+                            method: "POST", // *GET, POST, PUT, DELETE, etc.
+                            mode: "cors", // no-cors, cors, *same-origin
+                            redirect: "follow", // *manual, follow, error
+                            referrer: "no-referrer" // *client, no-referrer
+                        })
+                        .then(
+                            response =>
+                            response.status === 200 || response.status === 0 ?
+                            response.text() :
+                            Promise.reject(
+                                new Error(response.text() || response.statusText)
+                            )
+                        )
+                        .then(
+                            result => {
+                                if (result) {
+                                    var f = new Function('callAttributes', 'parentCt', result);
+                                    var serverComponent = f(callAttributes || {}, this);
+                                    if (serverComponent) {
+                                        if (callAttributes && callAttributes.modal) {
+                                            // console.log(callAttributes);
+                                            iwb.showModal({
+                                                body: serverComponent,
+                                                size: iwb.defaultModalSıze || "lg",
+                                                title: serverComponent.props && serverComponent.props.cfg ?
+                                                    serverComponent.props.cfg.name :
+                                                    "",
+                                                color: callAttributes.modalColor ?
+                                                    callAttributes.modalColor :
+                                                    "primary",
+                                                ...callAttributes.modalProps
+                                            });
+                                        } else {
+                                            var plus = action.substr(0, 1) == "2";
+                                            if (this.isActionInTabList(action)) return;
+                                            this.tabs.push({
+                                                name: action,
+                                                icon: plus ? "icon-plus" : "icon-doc",
+                                                title: " " + getLocMsg(plus ? "new" : "edit"),
+                                                value: serverComponent
+                                            });
+                                            this.setState({
+                                                    activeTab: action
+                                                },
+                                                () => iwb.loadingDeactive()
+                                            );
+                                        }
+                                    }
+                                } else {
+                                    iwb.loadingDeactive();
+                                    toastr.error(getLocMsg("no_result"), " Error");
+                                }
+                            },
+                            error => {
+                                iwb.loadingDeactive();
+                                toastr.error(error, getLocMsg("connection_error"));
+                            }
+                        );
+                });
+            }
+        };
+        iwb.openTab = this.openTab;
+        /**
+         * @description A function responsible for closing tab and delating
+         *              CurrentTab from the state of Xpage Component this function
+         *              will be passed to whenever new tab is opened
+         */
+        this.closeTab = (event, forceRelaod = false) => {
+            if (this.state.activeTab == "x") return;
+            this.tabs =
+                this.tabs &&
+                this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
+            if (forceRelaod) {
+                this.tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
+            }
+            this.toggle("x");
+        };
+        iwb.closeTab = this.closeTab;
+        /**
+         * @description A function is used to open new FormTab
+         * @param {string}
+         *            url
+         */
+        this.openForm = (url, callAttributes = {}) => {
+            if (url) this.openTab("1-" + Math.random(), url, {}, callAttributes);
+            return false;
+        };
+        iwb.openForm = this.openForm;
+    }
+    componentWillUnmount() {
+        iwb.killGlobalSearch();
+        iwb.tabs[this.props.grid.id] = [...this.tabs];
+    }
+    render() {
+        if (iwb.debugRender)
+            if (iwb.debug) console.log("XPage.render");
+        return _(
+            "div", {},
+            _(
+                Row,
+                null,
                 _(
-                  NavLinkS,
-                  {
-                    className: classNames({
-                      active: this.state.activeTab === name
-                    }),
-                    name,
-                    onClick: event => this.toggle(event)
-                  },
-                  _("i", {
-                    className: classNames("mr-1", icon),
-                    name,
-                    title,
-                    onClick: event => this.toggle(event)
-                  }),
-                  title && name != "x" && this.state.activeTab === name && title
+                    Col, { className: "mb-4" },
+                    _(
+                        Nav, { tabs: true, hidden: this.tabs.length == 1 },
+                        this.tabs.map(({ name, icon, title }, index) => {
+                            return _(
+                                NavItem, { key: "NavItem" + index },
+                                _(
+                                    NavLinkS, {
+                                        className: classNames({
+                                            active: this.state.activeTab === name
+                                        }),
+                                        name,
+                                        onClick: event => this.toggle(event)
+                                    },
+                                    _("i", {
+                                        className: classNames("mr-1", icon),
+                                        name,
+                                        title,
+                                        onClick: event => this.toggle(event)
+                                    }),
+                                    title && name != "x" && this.state.activeTab === name && title
+                                )
+                            );
+                        })
+                    ),
+                    _(
+                        TabContent, { activeTab: this.state.activeTab },
+                        this.tabs.map(({ name, value }, index) => {
+                            return _(
+                                TabPane, { key: "TabPane" + index, tabId: name },
+                                value.gridId ?
+                                _(XMainGrid, {
+                                    openTab: this.openTab,
+                                    closeTab: this.closeTab,
+                                    ...value
+                                }) :
+                                value
+                            );
+                        })
+                    )
                 )
-              );
-            })
-          ),
-          _(
-            TabContent,
-            { activeTab: this.state.activeTab },
-            this.tabs.map(({ name, value }, index) => {
-              return _(
-                TabPane,
-                { key: "TabPane" + index, tabId: name },
-                value.gridId
-                  ? _(XMainGrid, {
-                      openTab: this.openTab,
-                      closeTab: this.closeTab,
-                      ...value
-                    })
-                  : value
-              );
-            })
-          )
-        )
-      )
-    );
-  }
+            )
+        );
+    }
 }
 
 class XPage4Card extends React.PureComponent {
-  constructor(props) {
-    if (iwb.debugConstructor && iwb.debug)
-      console.log("XPage4Card.constructor", props);
-    super(props);
-    document.getElementById("id-breed").innerHTML = this.props.card.name;
-    iwb.killGlobalSearch();
-    this.state = { activeTab: "x" };
-    this.tabs = iwb.tabs[this.props.card.id]
-      ? [...iwb.tabs[this.props.card.id]]
-      : [{ name: "x", icon: "icon-list", title: "Liste", value: props.card }];
-    /**
-     * @description a Function to toggle between tabs
-     * @param {Event}
-     *            event - click event from tab
-     */
-    this.toggle = event => {
-      var activeTab = event.target ? event.target.getAttribute("name") : event;
-      if (this.state.activeTab !== activeTab) {
-        var { tabs } = this;
-        tabs &&
-          tabs.forEach(tempTab => {
-            if (tempTab.name === activeTab) {
-              this.setState({
-                activeTab
-              });
-              return true;
-            }
-          });
-      }
-      return false;
-    };
-    this.isActionInTabList = action => {
-      var stopToFetch = false;
-      this.tabs &&
-        this.tabs.forEach(tempTab => {
-          if (tempTab.name === action) {
-            this.toggle(action);
-            stopToFetch = true;
-          }
-        });
-      return stopToFetch;
-    };
-    /**
-     * @description A function responsible for opening tab getting component
-     *              from the server and evaluating it on the page
-     * @param {String}
-     *            action - ['1-&toffer_id=4'] EditForm satrts 1-* ,
-     *            InsertForm satrts 2-*
-     * @param {String}
-     *            url - ['showForm?a=1&_fid=3988&twork_position_id=1']
-     * @param {Object}
-     *            params - a varible wich holds request body params
-     * @param {Object}
-     *            callAttributes - [{modal:false}] a variable used to pass
-     *            params to a component which comes from the server
-     */
-    this.openTab = (action, url, params, callAttributes) => {
-      if (this.state.activeTab !== action) {
-        if (this.isActionInTabList(action)) return;
-        fetch(url, {
-          body: JSON.stringify(params || {}), // must match 'Content-Type'
-          // header
-          cache: "no-cache", // *default, no-cache, reload, force-cache,
-          // only-if-cached
-          credentials: "same-origin", // include, same-origin, *omit
-          headers: {
-            "content-type": "application/json"
-          },
-          method: "POST", // *GET, POST, PUT, DELETE, etc.
-          mode: "cors", // no-cors, cors, *same-origin
-          redirect: "follow", // *manual, follow, error
-          referrer: "no-referrer" // *client, no-referrer
-        })
-          .then(
-            response =>
-              response.status === 200 || response.status === 0
-                ? response.text()
-                : Promise.reject(
-                    new Error(response.text() || response.statusText)
-                  )
-          )
-          .then(
-            result => {
-              if (result) {
-                var f = new Function('callAttributes', 'parentCt', result);
-                var serverComponent = f(callAttributes || {}, this);
-                if (serverComponent) {
-                  if (callAttributes && callAttributes.modal) {
-                    // console.log(callAttributes);
-                    iwb.showModal({
-                      body: serverComponent,
-                      size: iwb.defaultModalSize || "lg",
-                      title:
-                        serverComponent.props && serverComponent.props.cfg
-                          ? serverComponent.props.cfg.name
-                          : "",
-                      color: callAttributes.modalColor
-                        ? callAttributes.modalColor
-                        : "primary",
-                      ...callAttributes.modalProps
+        constructor(props) {
+            if (iwb.debugConstructor && iwb.debug)
+                console.log("XPage4Card.constructor", props);
+            super(props);
+            document.getElementById("id-breed").innerHTML = this.props.card.name;
+            iwb.killGlobalSearch();
+            this.state = { activeTab: "x" };
+            this.tabs = iwb.tabs[this.props.card.id] ?
+                [...iwb.tabs[this.props.card.id]] :
+                [{ name: "x", icon: "icon-list", title: "Liste", value: props.card }];
+            /**
+             * @description a Function to toggle between tabs
+             * @param {Event}
+             *            event - click event from tab
+             */
+            this.toggle = event => {
+                var activeTab = event.target ? event.target.getAttribute("name") : event;
+                if (this.state.activeTab !== activeTab) {
+                    var { tabs } = this;
+                    tabs &&
+                        tabs.forEach(tempTab => {
+                            if (tempTab.name === activeTab) {
+                                this.setState({
+                                    activeTab
+                                });
+                                return true;
+                            }
+                        });
+                }
+                return false;
+            };
+            this.isActionInTabList = action => {
+                var stopToFetch = false;
+                this.tabs &&
+                    this.tabs.forEach(tempTab => {
+                        if (tempTab.name === action) {
+                            this.toggle(action);
+                            stopToFetch = true;
+                        }
                     });
-                  } else {
-                    var plus = action.substr(0, 1) == "2";
+                return stopToFetch;
+            };
+            /**
+             * @description A function responsible for opening tab getting component
+             *              from the server and evaluating it on the page
+             * @param {String}
+             *            action - ['1-&toffer_id=4'] EditForm satrts 1-* ,
+             *            InsertForm satrts 2-*
+             * @param {String}
+             *            url - ['showForm?a=1&_fid=3988&twork_position_id=1']
+             * @param {Object}
+             *            params - a varible wich holds request body params
+             * @param {Object}
+             *            callAttributes - [{modal:false}] a variable used to pass
+             *            params to a component which comes from the server
+             */
+            this.openTab = (action, url, params, callAttributes) => {
+                if (this.state.activeTab !== action) {
                     if (this.isActionInTabList(action)) return;
-                    this.tabs.push({
-                      name: action,
-                      icon: plus ? "icon-plus" : "icon-doc",
-                      title: " " + getLocMsg(plus ? "new" : "edit"),
-                      value: serverComponent
-                    });
-                    this.setState({
-                      activeTab: action
-                    });
-                  }
+                    fetch(url, {
+                            body: JSON.stringify(params || {}), // must match 'Content-Type'
+                            // header
+                            cache: "no-cache", // *default, no-cache, reload, force-cache,
+                            // only-if-cached
+                            credentials: "same-origin", // include, same-origin, *omit
+                            headers: {
+                                "content-type": "application/json"
+                            },
+                            method: "POST", // *GET, POST, PUT, DELETE, etc.
+                            mode: "cors", // no-cors, cors, *same-origin
+                            redirect: "follow", // *manual, follow, error
+                            referrer: "no-referrer" // *client, no-referrer
+                        })
+                        .then(
+                            response =>
+                            response.status === 200 || response.status === 0 ?
+                            response.text() :
+                            Promise.reject(
+                                new Error(response.text() || response.statusText)
+                            )
+                        )
+                        .then(
+                            result => {
+                                if (result) {
+                                    var f = new Function('callAttributes', 'parentCt', result);
+                                    var serverComponent = f(callAttributes || {}, this);
+                                    if (serverComponent) {
+                                        if (callAttributes && callAttributes.modal) {
+                                            // console.log(callAttributes);
+                                            iwb.showModal({
+                                                body: serverComponent,
+                                                size: iwb.defaultModalSize || "lg",
+                                                title: serverComponent.props && serverComponent.props.cfg ?
+                                                    serverComponent.props.cfg.name :
+                                                    "",
+                                                color: callAttributes.modalColor ?
+                                                    callAttributes.modalColor :
+                                                    "primary",
+                                                ...callAttributes.modalProps
+                                            });
+                                        } else {
+                                            var plus = action.substr(0, 1) == "2";
+                                            if (this.isActionInTabList(action)) return;
+                                            this.tabs.push({
+                                                name: action,
+                                                icon: plus ? "icon-plus" : "icon-doc",
+                                                title: " " + getLocMsg(plus ? "new" : "edit"),
+                                                value: serverComponent
+                                            });
+                                            this.setState({
+                                                activeTab: action
+                                            });
+                                        }
+                                    }
+                                } else {
+                                    toastr.error("Sonuc Gelmedi", " Error");
+                                }
+                            },
+                            error => {
+                                toastr.error(error, "Connection Error");
+                            }
+                        );
                 }
-              } else {
-                toastr.error("Sonuc Gelmedi", " Error");
-              }
-            },
-            error => {
-              toastr.error(error, "Connection Error");
-            }
-          );
-      }
-    };
-    iwb.openTab = this.openTab;
-    /**
-     * @description A function responsible for closing tab and delating
-     *              CurrentTab from the state of Xpage Component this
-     *              function will be passed to whenever new tab is opened
-     */
-    this.closeTab = (event, forceRelaod = false) => {
-      if (this.state.activeTab == "x") return;
-      this.tabs =
-        this.tabs &&
-        this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
-      if (forceRelaod) {
-        this.tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
-      }
-      this.toggle("x");
-    };
-    iwb.closeTab = this.closeTab;
-    /**
-     * @description A function is used to open new FormTab
-     * @param {string}
-     *            url
-     */
-    this.openForm = (url, callAttributes = {}) => {
-      if (url) this.openTab("1-" + Math.random(), url, {}, callAttributes);
-      return false;
-    };
-    iwb.openForm = this.openForm;
-  }
-  componentWillUnmount() {
-    iwb.killGlobalSearch();
-    iwb.tabs[this.props.card.id] = [...this.tabs];
-  }
-  render() {
-    if (iwb.debugRender) if (iwb.debug) console.log("XPage.render");
-    return _(
-      "div",
-      {},
-      _(
-        Row,
-        null,
-        _(
-          Col,
-          { className: "mb-4" },
-          _(
-            Nav,
-            { tabs: true, hidden: this.tabs.length == 1 },
-            this.tabs.map(({ name, icon, title }, index) => {
-              return _(
-                NavItem,
-                { key: "NavItem" + index },
-                _(
-                  NavLinkS,
-                  {
-                    className: classNames({
-                      active: this.state.activeTab === name
-                    }),
-                    name,
-                    onClick: event => this.toggle(event)
-                  },
-                  _("i", {
-                    className: icon,
-                    name,
-                    title,
-                    onClick: event => this.toggle(event)
-                  }),
-                  title && name != "x" && this.state.activeTab === name && title
-                )
-              );
-            })
-          ),
-          _(
-            TabContent,
-            { activeTab: this.state.activeTab },
-            this.tabs.map(({ name, value }, index) => {
-              return _(
-                TabPane,
-                { key: "TabPane" + index, tabId: name },
-                value.cardId
-                  ? _(XMainCard, {
-                      openTab: this.openTab,
-                      closeTab: this.closeTab,
-                      ...value
-                    })
-                  : value
-              );
-            })
-          )
-        )
-      )
-    );
-  }
-}
-/**
- * @description this component is mostly used for render menu page You can set
- *              ti as a home page
- * @param {String}
- *            props.color - ["primary"] Color class of the card
- * @param {String}
- *            props.color2 - ["#2eadd3"] Color of the icon
- * @param {String}
- *            props.color3 - Fadein color of the card
- * @param {Object}
- *            props.node - MINI MENU data
- * @param {String}
- *            props.node.icon - ["icon-heart"] icon class of the menu
- * @param {String}
- *            props.node.name - ['Teklif/Talep Listesi'] name of the menu
- * @param {String}
- *            props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
- * @param {Boolean}
- *            props.node.visited - Visited?
- */
-class XCardMenu extends React.PureComponent {
-  render() {
-    return _(
-      Col,
-      { xs: "12", sm: "6", md: "6", lg: "6", xl: "4" },
-      _(
-        Link,
-        { to: this.props.node.url },
-        _(
-          Card,
-          {
-            className: "card-menu text-white bg-" + this.props.color,
-            style: this.props.fadeOut
-              ? { opacity: 0, transform: "scale(.9)" }
-              : this.props.fadeOut === false
-                ? { transform: "scale(1.1)" }
-                : {}
-          },
-          _("i", {
-            className: "big-icon " + (this.props.node.icon || "icon-settings"),
-            style: this.props.color3 ? { color: this.props.color3 } : {}
-          }),
-          _(
-            CardBlock,
-            { className: "pb-0" },
-            this.props.fadeOut === false
-              ? _(
-                  "div",
-                  {
-                    className: "float-right",
-                    style: {
-                      height: "56px",
-                      width: "56px",
-                      background: "white",
-                      padding: "0px",
-                      borderRadius: "55px"
-                    }
-                  },
-                  iwb.loaders.puff(56, 56, this.props.color2)
-                )
-              : _("i", {
-                  className:
-                    "float-right " + (this.props.node.icon || "icon-settings"),
-                  style: {
-                    fontSize: "30px",
-                    background: "white",
-                    padding: "13px",
-                    borderRadius: "55px",
-                    color: this.props.color2
-                  }
-                }),
-            _("h1", { className: "mb-0" }, this.props.node.name),
-            _("p", null, this.props.node.name + " ile ilgili işlemler")
-          )
-        )
-      )
-    );
-  }
-}
-/**
- * @description it is used to list opened pages on the main page
- * @param {String}
- *            props.color - ['gray-700'] - color class of the Card
- * @param {Boolean}
- *            props.fadeOut - Card Animation
- * @param {Object}
- *            props.node - MINI MENU data
- * @param {String}
- *            props.node.icon - ["icon-heart"] icon class of the menu
- * @param {String}
- *            props.node.name - ['Teklif/Talep Listesi'] name of the menu
- * @param {String}
- *            props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
- */
-class XCardMiniMenu extends React.PureComponent {
-  render() {
-    let {
-      color,
-      fadeOut,
-      node: { icon, name, url }
-    } = this.props;
-    return _(
-      Col,
-      { xs: "4", sm: "3", md: "2", lg: "2", xl: "1" },
-      _(
-        Link,
-        { to: url },
-        _(
-          Card,
-          {
-            className: "card-mini-menu text-white bg-" + color,
-            style: fadeOut
-              ? { opacity: 0, transform: "scale(.9)" }
-              : fadeOut === false
-                ? { transform: "scale(1.1)" }
-                : {}
-          },
-          _(
-            CardBlock,
-            { className: "pb-1", style: { textAlign: "center", padding: "0" } },
-            _("i", {
-              className: icon || "icon-settings",
-              style: { fontSize: "28px", padding: "12px", color: "white" }
-            })
-          )
-        )
-      ),
-      !fadeOut && _("h6", { style: { textAlign: "center" } }, name)
-    );
-  }
-}
-/**
- * @description used to render left menu it gets data from index.htm file
- *              (catche)
- * @param {String}
- *            props.path - [/iwb-home"] path of the current route
- * @param {String}
- *            props.node.icon - ["icon-heart"] icon class of the menu
- * @param {String}
- *            props.node.name - ['Teklif/Talep Listesi'] name of the menu
- * @param {String}
- *            props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
- */
-class XMainNav extends React.PureComponent {
-  constructor(props) {
-    if (iwb.debugConstructor)
-      if (iwb.debug) console.log("XMainNav.constructor", props);
-    super(props);
-    this.onGlobalSearch = inputValue =>
-      this.setState({
-        xsearch:
-          inputValue && inputValue.target ? inputValue.target.value : inputValue
-      });
-    iwb.onGlobalSearch2 = this.onGlobalSearch;
-    this.state = { xsearch: "" };
-  }
-  componentWillUnmount() {
-    if (iwb.debug) console.log("XMainNav.componentWillUnmount");
-    iwb.killGlobalSearch();
-  }
-  componentDidUpdate() {
-    if (iwb.debug) console.log("XMainNav.componentDidUpdate");
-  }
-  render() {
-    if (iwb.debug) console.log("this.state.xsearch", this.state.xsearch);
-    if (this.state.xsearch) {
-      var nodes = iwb.nav.findNodes(this.state.xsearch.toLowerCase(), {
-        name: "Home",
-        children: iwb.nav.items
-      });
-      if (iwb.debug) console.log("nodes", nodes);
-      if (!nodes || !nodes.length) return "Bulunamadı :(";
-      return _(
-        "div",
-        { className: "animated fadeIn" },
-        _("div", { style: { height: "1.45rem" } }),
-        "Arama Sonuçları",
-        _("hr", { style: { marginTop: "0.4rem" } }),
-        _(
-          Row,
-          { style: { maxWidth: "1300px" } },
-          nodes.map((node, visitedIndex) => {
-            return _(XCardMiniMenu, {
-              color: dgColors3[visitedIndex % dgColors3.length],
-              node
-            });
-          })
-        )
-      );
-    }
-    var path = this.props.path,
-      node = this.props.node;
-    var visitedList = false,
-      saggestedList = false;
-    if (path == "/" || path == "/iwb-home") {
-      (visitedList = []), (saggestedList = []);
-      var visitedIndex = 0,
-        saggestedIndex = 0;
-      for (var k in iwb.nav.visitedItems) {
-        var o = iwb.nav.visitedItems[k];
-        visitedList.push(
-          _(XCardMiniMenu, {
-            key: "xcardmini" + Math.random(),
-            color: dgColors3[visitedIndex % dgColors3.length],
-            node: o
-          })
-        );
-        visitedIndex++;
-        if (o.visitCnt > 2) {
-          saggestedList.push(
-            _(XCardMiniMenu, {
-              key: "xcardminivisit" + Math.random(),
-              color: dgColors2[saggestedIndex % dgColors2.length],
-              node: o
-            })
-          );
-          saggestedIndex++;
-        }
-      }
-      if (visitedIndex == 0) visitedList = false;
-      else {
-        visitedList = [
-          _("div", { key: "a1", style: { height: "1.5rem" } }),
-          "Açık Ekranlar",
-          _("hr", { key: "a2", style: { marginTop: "0.4rem" } }),
-          _(Row, { key: "a3", style: { maxWidth: "1300px" } }, visitedList)
-        ];
-        if (saggestedIndex > 0) {
-          if (saggestedList.length > 4) {
-            saggestedList.splice(4, 1000);
-          }
-          visitedList.push(
-            _("div", { style: { height: "1.5rem" } }),
-            "iWB Öneriler",
-            _("hr", { style: { marginTop: "0.4rem" } }),
-            _(Row, { style: { maxWidth: "1300px" } }, saggestedList)
-          );
-        }
-      }
-    }
-
-    return _(
-      "div",
-      { className: "animated fadeIn" },
-      _("div", { style: { height: "1.45rem" } }),
-      _(
-        Row,
-        { 
-        	style: { maxWidth: "1300px" } 
-        },
-        node.children.map((tempNode, index) =>
-          !iwb.mainMainSmall ?_(XCardMenu, {
-            key: index,
-            node: tempNode,
-            color: dgColors2[index % dgColors2.length],
-            color3: dBGColors2[index % dBGColors2.length],
-            color2: detailSpinnerColors2[index % detailSpinnerColors2.length]
-          }):
-        _(XCardMiniMenu, {
-            key: index,
-            color: dgColors3[index % dgColors3.length],
-            node: tempNode
-          }) 
-        )
-      ),
-      visitedList
-    );
-  }
-}
-/**
- * @description it renders main part of the application it contains XPage
- *              component of XCardMenu role : component like a container
- * @param {Object}
- *            props.history - history object from react router
- * @param {Object}
- *            props.location - current location object from react router
- * @param {Object}
- *            props.match - same with location object from react router
- */
-class XMainPanel extends React.PureComponent {
-  constructor(props) {
-    if (iwb.debugConstructor) console.log("XMainPanel.constructor", props);
-    super(props);
-    this.state = { templateID: -1 };
-    /**
-     * @description A function to load page from the server
-     */
-    this.loadPage = () => {
-      var templateID = this.templateID;
-      if (!iwb["t-" + templateID]) {
-    	//  if(iwb.loadingPageMask && iwb.loadingActivate)iwb.loadingActivate();
-        fetch("showPage?_tid=" + templateID, {
-          cache: "no-cache", // *default, no-cache, reload, force-cache,
-          // only-if-cached
-          credentials: "same-origin", // include, same-origin, *omit
-          headers: {
-            "content-type": "application/json"
-          },
-          method: "POST", // *GET, POST, PUT, DELETE, etc.
-          mode: "cors", // no-cors, cors, *same-origin
-          redirect: "follow", // *manual, follow, error
-          referrer: "no-referrer" // *client, no-referrer
-        })
-          .then(
-            response =>{
-          	  //if(iwb.loadingPageMask && iwb.loadingDectivate)iwb.loadingDeactivate();
-              return response.status === 200 || response.status === 0
-                ? response.text()
-                : Promise.reject(new Error(response.statusText))
-            })
-          .then(
-            result => {
-              if (result) {
-            	var f = new Function('callAttributes', 'parentCt', result);
-                var serverComponent = f(false, this);
-                if (serverComponent) {
-                  serverComponent = _(
-                    React.Suspense,
-                    { fallback: _(XLoading, null) },
-                    _(
-                      "div",
-                      { className: "animated fadeIn", id: "page" + templateID },
-                      serverComponent
-                    )
-                  );
-                  iwb["t-" + templateID] = serverComponent;
-                  this.setState({ templateID });
-                  iwb.nav.visitItem(this.props.match.path);
+            };
+            iwb.openTab = this.openTab;
+            /**
+             * @description A function responsible for closing tab and delating
+             *              CurrentTab from the state of Xpage Component this
+             *              function will be passed to whenever new tab is opened
+             */
+            this.closeTab = (event, forceRelaod = false) => {
+                if (this.state.activeTab == "x") return;
+                this.tabs =
+                    this.tabs &&
+                    this.tabs.filter(tempTab => tempTab.name !== this.state.activeTab);
+                if (forceRelaod) {
+                    this.tabs["0"].value.forceRelaod = Math.floor(Math.random() * 1000);
                 }
-              } else {
-                toastr.error("Sonuc Gelmedi", " Error");
-              }
-            },
-            error => {
-              toastr.error(error, "Connection Error");
-            }
-          );
-      } else if (templateID != this.state.templateID)
-        this.setState({ templateID });
-    };
-  }
-  componentDidMount() {
-    if (iwb.debug)
-      console.log("XMainPanel.componentDidMount", this.props.match.path);
-    if (!this.loading) this.loadPage();
-  }
-  componentDidUpdate() {
-    if (iwb.debug)
-      console.log("XMainPanel.componentDidUpdate", this.props.match.path);
-    if (!this.loading) this.loadPage();
-  }
-  componentDidCatch() {
-    if (iwb.debug) console.log("XMainPanel.componentDidCatch", this);
-  }
-  componentWillUnmount() {
-    if (iwb.debug)
-      console.log("XMainPanel.componentWillUnmount", this.props.match.path);
-  }
-  render() {
-    var { path } = this.props.match;
-    var children = { name: "Home", children: iwb.nav.items };
-    var node =
-      path == "/" || path == "/iwb-home"
-        ? children
-        : iwb.nav.findNode(path, children);
-    if (iwb.debug) console.log("XMainPanel:render:", path, node);
-    if (node) {
-      var showPageIndex = path.indexOf("showPage");
-      if (showPageIndex > -1) {
-        var templateID = 1 * path.substr(showPageIndex + "showPage".length);
-        this.templateID = templateID;
-        if (this.templateID != this.state.templateID) {
-          if (this.loading) {
-            var ll = this.loading;
-            this.loading = false;
+                this.toggle("x");
+            };
+            iwb.closeTab = this.closeTab;
+            /**
+             * @description A function is used to open new FormTab
+             * @param {string}
+             *            url
+             */
+            this.openForm = (url, callAttributes = {}) => {
+                if (url) this.openTab("1-" + Math.random(), url, {}, callAttributes);
+                return false;
+            };
+            iwb.openForm = this.openForm;
+        }
+        componentWillUnmount() {
+            iwb.killGlobalSearch();
+            iwb.tabs[this.props.card.id] = [...this.tabs];
+        }
+        render() {
+            if (iwb.debugRender)
+                if (iwb.debug) console.log("XPage.render");
             return _(
-              "div",
-              { className: "animated fadeIn" },
-              _("div", { style: { height: "1.45rem" } }),
-              _(
-                Row,
-                { style: { maxWidth: "1300px" } },
-                ll.children.map((menuitem, index) => {
-                  return !iwb.mainMainSmall ?_(XCardMenu, {
-                    key: index,
-                    node: menuitem,
-                    fadeOut: menuitem.url != node.url,
-                    color: dgColors2[index % dgColors2.length],
-                    color3: dBGColors2[index % dBGColors2.length],
-                    color2:
-                      detailSpinnerColors2[index % detailSpinnerColors2.length]
-                  }):
-                  _(XCardMiniMenu, {
-                      key: index,fadeOut: menuitem.url != node.url,
-                      color: dgColors3[index % dgColors3.length],
-                      node: menuitem
-                    }) ;
-                })
-              )
+                "div", {},
+                _(
+                    Row,
+                    null,
+                    _(
+                        Col, { className: "mb-4" },
+                        _(
+                            Nav, { tabs: true, hidden: this.tabs.length == 1 },
+                            this.tabs.map(({ name, icon, title }, index) => {
+                                return _(
+                                    NavItem, { key: "NavItem" + index },
+                                    _(
+                                        NavLinkS, {
+                                            className: classNames({
+                                                active: this.state.activeTab === name
+                                            }),
+                                            name,
+                                            onClick: event => this.toggle(event)
+                                        },
+                                        _("i", {
+                                            className: icon,
+                                            name,
+                                            title,
+                                            onClick: event => this.toggle(event)
+                                        }),
+                                        title && name != "x" && this.state.activeTab === name && title
+                                    )
+                                );
+                            })
+                        ),
+                        _(
+                            TabContent, { activeTab: this.state.activeTab },
+                            this.tabs.map(({ name, value }, index) => {
+                                return _(
+                                    TabPane, { key: "TabPane" + index, tabId: name },
+                                    value.cardId ?
+                                    _(XMainCard, {
+                                        openTab: this.openTab,
+                                        closeTab: this.closeTab,
+                                        ...value
+                                    }) :
+                                    value
+                                );
+                            })
+                        )
+                    )
+                )
             );
-          }
-          return _(XLoading, null);
         }
-        var visitedItems = iwb.nav.visitedItems[path];
-        if (visitedItems) visitedItems.visitCnt++;
-        return iwb["t-" + templateID];
-      } else {
-        var pageName = document.getElementById("id-breed");
-        if (pageName) {
-          pageName.innerHTML = node.name || "Home";
-        }
-        this.loading = node;
-        return _(XMainNav, { path, node });
-      }
-    } else {
-      this.loading = false;
-      return "ERROR! Wrong Page";
     }
-  }
-}
-/**
- * @description Loading Component
- */
+    /**
+     * @description this component is mostly used for render menu page You can set
+     *              ti as a home page
+     * @param {String}
+     *            props.color - ["primary"] Color class of the card
+     * @param {String}
+     *            props.color2 - ["#2eadd3"] Color of the icon
+     * @param {String}
+     *            props.color3 - Fadein color of the card
+     * @param {Object}
+     *            props.node - MINI MENU data
+     * @param {String}
+     *            props.node.icon - ["icon-heart"] icon class of the menu
+     * @param {String}
+     *            props.node.name - ['Teklif/Talep Listesi'] name of the menu
+     * @param {String}
+     *            props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
+     * @param {Boolean}
+     *            props.node.visited - Visited?
+     */
+class XCardMenu extends React.PureComponent {
+        render() {
+            return _(
+                Col, { xs: "12", sm: "6", md: "6", lg: "6", xl: "4" },
+                _(
+                    Link, { to: this.props.node.url },
+                    _(
+                        Card, {
+                            className: "card-menu text-white bg-" + this.props.color,
+                            style: this.props.fadeOut ?
+                                { opacity: 0, transform: "scale(.9)" } :
+                                this.props.fadeOut === false ?
+                                { transform: "scale(1.1)" } :
+                                {}
+                        },
+                        _("i", {
+                            className: "big-icon " + (this.props.node.icon || "icon-settings"),
+                            style: this.props.color3 ? { color: this.props.color3 } : {}
+                        }),
+                        _(
+                            CardBlock, { className: "pb-0" },
+                            this.props.fadeOut === false ?
+                            _(
+                                "div", {
+                                    className: "float-right",
+                                    style: {
+                                        height: "56px",
+                                        width: "56px",
+                                        background: "white",
+                                        padding: "0px",
+                                        borderRadius: "55px"
+                                    }
+                                },
+                                iwb.loaders.puff(56, 56, this.props.color2)
+                            ) :
+                            _("i", {
+                                className: "float-right " + (this.props.node.icon || "icon-settings"),
+                                style: {
+                                    fontSize: "30px",
+                                    background: "white",
+                                    padding: "13px",
+                                    borderRadius: "55px",
+                                    color: this.props.color2
+                                }
+                            }),
+                            _("h1", { className: "mb-0" }, this.props.node.name),
+                            _("p", null, this.props.node.name + " ile ilgili işlemler")
+                        )
+                    )
+                )
+            );
+        }
+    }
+    /**
+     * @description it is used to list opened pages on the main page
+     * @param {String}
+     *            props.color - ['gray-700'] - color class of the Card
+     * @param {Boolean}
+     *            props.fadeOut - Card Animation
+     * @param {Object}
+     *            props.node - MINI MENU data
+     * @param {String}
+     *            props.node.icon - ["icon-heart"] icon class of the menu
+     * @param {String}
+     *            props.node.name - ['Teklif/Talep Listesi'] name of the menu
+     * @param {String}
+     *            props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
+     */
+class XCardMiniMenu extends React.PureComponent {
+        render() {
+            let {
+                color,
+                fadeOut,
+                node: { icon, name, url }
+            } = this.props;
+            return _(
+                Col, { xs: "4", sm: "3", md: "2", lg: "2", xl: "1" },
+                _(
+                    Link, { to: url },
+                    _(
+                        Card, {
+                            className: "card-mini-menu text-white bg-" + color,
+                            style: fadeOut ?
+                                { opacity: 0, transform: "scale(.9)" } :
+                                fadeOut === false ?
+                                { transform: "scale(1.1)" } :
+                                {}
+                        },
+                        _(
+                            CardBlock, { className: "pb-1", style: { textAlign: "center", padding: "0" } },
+                            _("i", {
+                                className: icon || "icon-settings",
+                                style: { fontSize: "28px", padding: "12px", color: "white" }
+                            })
+                        )
+                    )
+                ), !fadeOut && _("h6", { style: { textAlign: "center" } }, name)
+            );
+        }
+    }
+    /**
+     * @description used to render left menu it gets data from index.htm file
+     *              (catche)
+     * @param {String}
+     *            props.path - [/iwb-home"] path of the current route
+     * @param {String}
+     *            props.node.icon - ["icon-heart"] icon class of the menu
+     * @param {String}
+     *            props.node.name - ['Teklif/Talep Listesi'] name of the menu
+     * @param {String}
+     *            props.node.url - ["/mnu_2477/showPage2352"] - URL of the router
+     */
+class XMainNav extends React.PureComponent {
+        constructor(props) {
+            if (iwb.debugConstructor)
+                if (iwb.debug) console.log("XMainNav.constructor", props);
+            super(props);
+            this.onGlobalSearch = inputValue =>
+                this.setState({
+                    xsearch: inputValue && inputValue.target ? inputValue.target.value : inputValue
+                });
+            iwb.onGlobalSearch2 = this.onGlobalSearch;
+            this.state = { xsearch: "" };
+        }
+        componentWillUnmount() {
+            if (iwb.debug) console.log("XMainNav.componentWillUnmount");
+            iwb.killGlobalSearch();
+        }
+        componentDidUpdate() {
+            if (iwb.debug) console.log("XMainNav.componentDidUpdate");
+        }
+        render() {
+            if (iwb.debug) console.log("this.state.xsearch", this.state.xsearch);
+            if (this.state.xsearch) {
+                var nodes = iwb.nav.findNodes(this.state.xsearch.toLowerCase(), {
+                    name: "Home",
+                    children: iwb.nav.items
+                });
+                if (iwb.debug) console.log("nodes", nodes);
+                if (!nodes || !nodes.length) return "Bulunamadı :(";
+                return _(
+                    "div", { className: "animated fadeIn" },
+                    _("div", { style: { height: "1.45rem" } }),
+                    "Arama Sonuçları",
+                    _("hr", { style: { marginTop: "0.4rem" } }),
+                    _(
+                        Row, { style: { maxWidth: "1300px" } },
+                        nodes.map((node, visitedIndex) => {
+                            return _(XCardMiniMenu, {
+                                color: dgColors3[visitedIndex % dgColors3.length],
+                                node
+                            });
+                        })
+                    )
+                );
+            }
+            var path = this.props.path,
+                node = this.props.node;
+            var visitedList = false,
+                saggestedList = false;
+            if (path == "/" || path == "/iwb-home") {
+                (visitedList = []), (saggestedList = []);
+                var visitedIndex = 0,
+                    saggestedIndex = 0;
+                for (var k in iwb.nav.visitedItems) {
+                    var o = iwb.nav.visitedItems[k];
+                    visitedList.push(
+                        _(XCardMiniMenu, {
+                            key: "xcardmini" + Math.random(),
+                            color: dgColors3[visitedIndex % dgColors3.length],
+                            node: o
+                        })
+                    );
+                    visitedIndex++;
+                    if (o.visitCnt > 2) {
+                        saggestedList.push(
+                            _(XCardMiniMenu, {
+                                key: "xcardminivisit" + Math.random(),
+                                color: dgColors2[saggestedIndex % dgColors2.length],
+                                node: o
+                            })
+                        );
+                        saggestedIndex++;
+                    }
+                }
+                if (visitedIndex == 0) visitedList = false;
+                else {
+                    visitedList = [
+                        _("div", { key: "a1", style: { height: "1.5rem" } }),
+                        "Açık Ekranlar",
+                        _("hr", { key: "a2", style: { marginTop: "0.4rem" } }),
+                        _(Row, { key: "a3", style: { maxWidth: "1300px" } }, visitedList)
+                    ];
+                    if (saggestedIndex > 0) {
+                        if (saggestedList.length > 4) {
+                            saggestedList.splice(4, 1000);
+                        }
+                        visitedList.push(
+                            _("div", { style: { height: "1.5rem" } }),
+                            "iWB Öneriler",
+                            _("hr", { style: { marginTop: "0.4rem" } }),
+                            _(Row, { style: { maxWidth: "1300px" } }, saggestedList)
+                        );
+                    }
+                }
+            }
+
+            return _(
+                "div", { className: "animated fadeIn" },
+                _("div", { style: { height: "1.45rem" } }),
+                _(
+                    Row, {
+                        style: { maxWidth: "1300px" }
+                    },
+                    node.children.map((tempNode, index) =>
+                        !iwb.mainMainSmall ? _(XCardMenu, {
+                            key: index,
+                            node: tempNode,
+                            color: dgColors2[index % dgColors2.length],
+                            color3: dBGColors2[index % dBGColors2.length],
+                            color2: detailSpinnerColors2[index % detailSpinnerColors2.length]
+                        }) :
+                        _(XCardMiniMenu, {
+                            key: index,
+                            color: dgColors3[index % dgColors3.length],
+                            node: tempNode
+                        })
+                    )
+                ),
+                visitedList
+            );
+        }
+    }
+    /**
+     * @description it renders main part of the application it contains XPage
+     *              component of XCardMenu role : component like a container
+     * @param {Object}
+     *            props.history - history object from react router
+     * @param {Object}
+     *            props.location - current location object from react router
+     * @param {Object}
+     *            props.match - same with location object from react router
+     */
+class XMainPanel extends React.PureComponent {
+        constructor(props) {
+            if (iwb.debugConstructor) console.log("XMainPanel.constructor", props);
+            super(props);
+            this.state = { templateID: -1 };
+            /**
+             * @description A function to load page from the server
+             */
+            this.loadPage = () => {
+                var templateID = this.templateID;
+                if (!iwb["t-" + templateID]) {
+                    //  if(iwb.loadingPageMask && iwb.loadingActivate)iwb.loadingActivate();
+                    fetch("showPage?_tid=" + templateID, {
+                            cache: "no-cache", // *default, no-cache, reload, force-cache,
+                            // only-if-cached
+                            credentials: "same-origin", // include, same-origin, *omit
+                            headers: {
+                                "content-type": "application/json"
+                            },
+                            method: "POST", // *GET, POST, PUT, DELETE, etc.
+                            mode: "cors", // no-cors, cors, *same-origin
+                            redirect: "follow", // *manual, follow, error
+                            referrer: "no-referrer" // *client, no-referrer
+                        })
+                        .then(
+                            response => {
+                                //if(iwb.loadingPageMask && iwb.loadingDectivate)iwb.loadingDeactivate();
+                                return response.status === 200 || response.status === 0 ?
+                                    response.text() :
+                                    Promise.reject(new Error(response.statusText))
+                            })
+                        .then(
+                            result => {
+                                if (result) {
+                                    var f = new Function('callAttributes', 'parentCt', result);
+                                    var serverComponent = f(false, this);
+                                    if (serverComponent) {
+                                        serverComponent = _(
+                                            React.Suspense, { fallback: _(XLoading, null) },
+                                            _(
+                                                "div", { className: "animated fadeIn", id: "page" + templateID },
+                                                serverComponent
+                                            )
+                                        );
+                                        iwb["t-" + templateID] = serverComponent;
+                                        this.setState({ templateID });
+                                        iwb.nav.visitItem(this.props.match.path);
+                                    }
+                                } else {
+                                    toastr.error("Sonuc Gelmedi", " Error");
+                                }
+                            },
+                            error => {
+                                toastr.error(error, "Connection Error");
+                            }
+                        );
+                } else if (templateID != this.state.templateID)
+                    this.setState({ templateID });
+            };
+        }
+        componentDidMount() {
+            if (iwb.debug)
+                console.log("XMainPanel.componentDidMount", this.props.match.path);
+            if (!this.loading) this.loadPage();
+        }
+        componentDidUpdate() {
+            if (iwb.debug)
+                console.log("XMainPanel.componentDidUpdate", this.props.match.path);
+            if (!this.loading) this.loadPage();
+        }
+        componentDidCatch() {
+            if (iwb.debug) console.log("XMainPanel.componentDidCatch", this);
+        }
+        componentWillUnmount() {
+            if (iwb.debug)
+                console.log("XMainPanel.componentWillUnmount", this.props.match.path);
+        }
+        render() {
+            var { path } = this.props.match;
+            var children = { name: "Home", children: iwb.nav.items };
+            var node =
+                path == "/" || path == "/iwb-home" ?
+                children :
+                iwb.nav.findNode(path, children);
+            if (iwb.debug) console.log("XMainPanel:render:", path, node);
+            if (node) {
+                var showPageIndex = path.indexOf("showPage");
+                if (showPageIndex > -1) {
+                    var templateID = 1 * path.substr(showPageIndex + "showPage".length);
+                    this.templateID = templateID;
+                    if (this.templateID != this.state.templateID) {
+                        if (this.loading) {
+                            var ll = this.loading;
+                            this.loading = false;
+                            return _(
+                                "div", { className: "animated fadeIn" },
+                                _("div", { style: { height: "1.45rem" } }),
+                                _(
+                                    Row, { style: { maxWidth: "1300px" } },
+                                    ll.children.map((menuitem, index) => {
+                                        return !iwb.mainMainSmall ? _(XCardMenu, {
+                                                key: index,
+                                                node: menuitem,
+                                                fadeOut: menuitem.url != node.url,
+                                                color: dgColors2[index % dgColors2.length],
+                                                color3: dBGColors2[index % dBGColors2.length],
+                                                color2: detailSpinnerColors2[index % detailSpinnerColors2.length]
+                                            }) :
+                                            _(XCardMiniMenu, {
+                                                key: index,
+                                                fadeOut: menuitem.url != node.url,
+                                                color: dgColors3[index % dgColors3.length],
+                                                node: menuitem
+                                            });
+                                    })
+                                )
+                            );
+                        }
+                        return _(XLoading, null);
+                    }
+                    var visitedItems = iwb.nav.visitedItems[path];
+                    if (visitedItems) visitedItems.visitCnt++;
+                    return iwb["t-" + templateID];
+                } else {
+                    var pageName = document.getElementById("id-breed");
+                    if (pageName) {
+                        pageName.innerHTML = node.name || "Home";
+                    }
+                    this.loading = node;
+                    return _(XMainNav, { path, node });
+                }
+            } else {
+                this.loading = false;
+                return "ERROR! Wrong Page";
+            }
+        }
+    }
+    /**
+     * @description Loading Component
+     */
 class XLoading extends React.Component {
-  render() {
-    return _(
-      "span",
-      { style: { position: "fixed", left: "48%", top: "45%" } },
-      iwb.loading
-    );
-  }
+    render() {
+        return _(
+            "span", { style: { position: "fixed", left: "48%", top: "45%" } },
+            iwb.loading
+        );
+    }
 }
 class XLoadingSpinner extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loading: false
-    };
-    this.loadingActive = callback => {
-      this.setState(
-        {
-          loading: true
-        },
-        () => {
-          callback && callback();
+        constructor(props) {
+            super(props);
+            this.state = {
+                loading: false
+            };
+            this.loadingActive = callback => {
+                this.setState({
+                        loading: true
+                    },
+                    () => {
+                        callback && callback();
+                    }
+                );
+            };
+            iwb.loadingActive = this.loadingActive;
+            this.loadingDeactive = () => {
+                this.setState({
+                    loading: false
+                });
+            };
+            iwb.loadingDeactive = this.loadingDeactive;
         }
-      );
-    };
-    iwb.loadingActive = this.loadingActive;
-    this.loadingDeactive = () => {
-      this.setState({
-        loading: false
-      });
-    };
-    iwb.loadingDeactive = this.loadingDeactive;
-  }
-  render() {
-    return (
-      this.state.loading &&
-      _(
-        "div",
-        {
-          style: {
-            opacity: "0.1"
-          },
-          className: "modal-backdrop show"
-        },
-        _(
-          "span",
-          {
-            style: {
-              position: "fixed",
-              left: "48%",
-              top: "45%"
-            }
-          },
-          iwb.loading
-        )
-      )
-    );
-  }
-}
-/**
- * @description All the Forms will extend from this component so all the props
- *              will come from the server side
- */
-class XForm extends React.Component {
-  constructor(props) {
-    super(props);
-    // methods
-    /**
-     * sets the state with value of input
-     *
-     * @param {event}
-     *            param0
-     */
-    this.onChange = ({ target }) => {
-      var { values } = this.state;
-      if (target) {
-        values[target.name] =
-          target.type == "checkbox" ? target.checked : target.value;
-        this.setState({ values });
-      }
-    };
-    /**
-     * file uploader function
-     */
-    this.onFileChange = () => (name, result, context) => {
-      var values = this.state.values;
-      var errors = this.state.errors;
-      if (result.success) {
-        values[name] = result.fileId;
-        errors[name] = undefined;
-      } else {
-        errors[name] = result.error;
-      }
-      this.setState({
-        errors,
-        values
-      });
-    };
-    /**
-     * sets state for combo change else sets oprions of it after the request
-     *
-     * @param {String}
-     *            inputName
-     */
-    this.onComboChange = inputName => selectedOption => {
-      var { values } = this.state;
-      var slectedOption_Id = selectedOption && selectedOption.id;
-      values[inputName] = slectedOption_Id;
-      var triggers = this.triggerz4ComboRemotes;
-      // used for remote @depricated
-      if (triggers[inputName]) {
-        triggers[inputName].map(trigger => {
-          var nv = trigger.f(slectedOption_Id, null, values);
-          var { options } = this.state;
-          if (nv) {
-            iwb.request({
-              url: "ajaxQueryData?" + iwb.JSON2URI(nv) + ".r=" + Math.random(),
-              successCallback: ({ data }) => {
-                options[trigger.n] = data;
-                this.setState({ options });
-              }
-            });
-          } else {
-            options[trigger.n] = [];
-            this.setState({ options });
-          }
-        });
-      }
-      this.setState({ values });
-    };
-
-    /**
-     * sets state when low combo is entered
-     *
-     * @param {String}
-     *            inputName
-     */
-    this.onLovComboChange = inputName => selectedOptions => {
-      var { values } = this.state;
-      var slectedOption_Ids = [];
-      if (selectedOptions) {
-        selectedOptions.map(selectedOption => {
-          slectedOption_Ids.push(selectedOption.id);
-        });
-      }
-      values[inputName] = slectedOption_Ids.join(",");
-      this.setState({ values });
-    };
-
-    /**
-     * sets state when number entered
-     *
-     * @param {String}
-     *            dsc
-     */
-    this.onNumberChange = inputName => inputEvent => {
-      var { values } = this.state;
-      var inputValue = inputEvent && inputEvent.value;
-      values[inputName] = inputValue;
-      this.setState({ values });
-    };
-    /**
-     * sets state when html entered
-     */
-    this.onHtmlChange = inputName => value => {
-      var { values } = this.state;
-      values[inputName] = value;
-      this.setState({ values });
-    };
-    /** acts very simmilar */
-    this.onTreeSelectChange = this.onHtmlChange;
-    /**
-     * sends post to the server
-     *
-     * @param {Object} cfg
-     */
-    this.submit = cfg => {
-      var baseValues = iwb.formBaseValues(cfg.id);
-      var values = { ...baseValues, ...this.state.values };
-      if (this.componentWillPost) {
-        /**
-         * componentWillPostResult = true || fase || {field_name : 'custom
-         * value'}
-         */
-        var componentWillPostResult = this.componentWillPost(values, cfg || {});
-        if (!componentWillPostResult) return false;
-        values = { ...values, ...componentWillPostResult };
-      }
-      iwb.request({
-        url:
-          this.url +
-          "?" +
-          iwb.JSON2URI(this.params) +
-          "_renderer=react16&.r=" +
-          Math.random(),
-        params: values,
-        self: this,
-        errorCallback: json => {
-          iwb.loadingDeactive();
-          var errors = {};
-          if (json.errorType)
-            switch (json.errorType) {
-              case "validation":
-                toastr.error("Validation Errors");
-                if (json.errors && json.errors.length) {
-                  json.errors.map(oneError => {
-                    errors[oneError.id] = oneError.msg;
-                  });
-                }
-                if (json.error) {
-                  iwb.showModal({
-                    title: "ERROR",
-                    footer: false,
-                    color: "danger",
-                    size: "sm",
-                    body: json.error
-                  });
-                }
-                break;
-              case "framework":
-              case "security":
-              case "sql":
-              case "rhino":
-                if (json.error) {
-                  iwb.showModal({
-                    title: json.error,
-                    footer: false,
-                    color: "danger",
-                    size: "lg",
-                    body: _(
-                      Media,
-                      {
-                        body: true
-                      },
-                      json.objectType &&
-                        _(
-                          Media,
-                          {
-                            heading: true
-                          },
-                          json.objectType
-                        ),
-
-                      _(
-                        ListGroup,
-                        {},
-                        json.icodebetter &&
-                          json.icodebetter.map((item, index) => {
-                            return _(
-                              ListGroupItem,
-                              {},
-                              _(
-                                ListGroupItemHeading,
-                                {},
-                                item.errorType,
-                                item &&
-                                  _(
-                                    Button,
-                                    {
-                                      className: "float-right btn btn-xs",
-                                      color: "info",
-                                      onClick: e => {
-                                        e.preventDefault();
-                                        iwb.copyToClipboard(item);
-                                      }
-                                    },
-                                    _(
-                                      "i",
-                                      {
-                                        className: "icon-docs"
-                                      },
-                                      ""
-                                    )
-                                  ),
-                                item &&
-                                  _(
-                                    Button,
-                                    {
-                                      className: "float-right btn btn-xs",
-                                      color: "primary",
-                                      onClick: e => {
-                                        e.preventDefault();
-                                        iwb.log(item);
-                                        toastr.success(
-                                          "Use CTR + SHIFT + I to see the log content!",
-                                          "Console Log",
-                                          { timeOut: 3000 }
-                                        );
-                                      }
-                                    },
-                                    _(
-                                      "i",
-                                      {
-                                        className: "icon-target"
-                                      },
-                                      ""
-                                    )
-                                  )
-                              ),
-                              _(
-                                ListGroupItemText,
-                                {},
-                                item &&
-                                  _(
-                                    "pre",
-                                    {},
-                                    window.JSON.stringify(item, null, 2)
-                                  )
-                              )
-                            );
-                          })
-                      )
+        render() {
+            return (
+                this.state.loading &&
+                _(
+                    "div", {
+                        style: {
+                            opacity: "0.1"
+                        },
+                        className: "modal-backdrop show"
+                    },
+                    _(
+                        "span", {
+                            style: {
+                                position: "fixed",
+                                left: "48%",
+                                top: "45%"
+                            }
+                        },
+                        iwb.loading
                     )
-                  });
-                }
-                break;
-              default:
-                alert(json.errorType);
-            }
-          else alert(json);
-          this.setState({ errors });
-          return false;
-        },
-        successCallback: (json, xcfg) => {
-          iwb.loadingDeactive();
-          if (cfg.callback) cfg.callback(json, xcfg);
-        }
-      });
-    };
-    /**
-     * used to make form active tab and visible on the page
-     *
-     * @param {object}
-     *            tab
-     */
-    this.toggleTab = tab => {
-      if (this.state.activeTab !== tab) {
-        this.setState({ activeTab: tab });
-      }
-    };
-    /**
-     * returns form data from state
-     */
-    this.getValues = () => ({ ...this.state.values });
-    /**
-     * used for date inputs
-     *
-     * @param {String} inputName
-     * @param {Boolean} isItDTTM
-     */
-    this.onDateChange = (inputName, isItDTTM) => selectedDate => {
-      var values = this.state.values;
-      var dateValue = selectedDate && selectedDate._d;
-      values[inputName] = isItDTTM
-        ? fmtDateTime(dateValue)
-        : fmtShortDate(dateValue);
-      this.setState({ values });
-    };
-  }
-  componentDidMount() {
-    var triggers = this.triggerz4ComboRemotes;
-    var { values } = this.state;
-    for (var trigger in triggers) {
-      if (values[trigger]) {
-        triggers[trigger].map(zzz => {
-          var nv = zzz.f(values[trigger], null, values);
-          if (nv)
-            iwb.request({
-              url: "ajaxQueryData?" + iwb.JSON2URI(nv) + ".r=" + Math.random(),
-              successCallback: ({ data }) => {
-                var { options } = this.state;
-                options[zzz.n] = data;
-                this.setState({ options });
-              }
-            });
-        });
-      }
-    }
-  }
-  componentWillUnmount() {
-    iwb.forms[this._id] = { ...this.state };
-  }
-}
-/**
- * File Input Component to upload file into system
- */
-class FileInput extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      canUpload: false,
-      dragOver: false,
-      file: null,
-      fileUrl: props.fileId
-        ? "dl/" +
-          props.fileName +
-          "?_fai=" +
-          props.fileId +
-          "&.r=" +
-          Math.random()
-        : null,
-      fileName: props.fileName || null
-    };
-    this.onDrop = this.onDrop.bind(this);
-    this.dragenter = this.dragenter.bind(this);
-    this.dragleave = this.dragleave.bind(this);
-    this.dragover = this.dragover.bind(this);
-    this.onclick = this.onclick.bind(this);
-    this.onchange = this.onchange.bind(this);
-    this.uplaodFile = this.uplaodFile.bind(this);
-    /** */
-    this.downladLink = url => e => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      let link = document.createElement("a");
-      link.href = url;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-  }
-  componentWillMount() {}
-  /** function to click input ref click */
-  onclick(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.inpuRef.click();
-  }
-  /** used to disable opening file on new tab */
-  dragover(event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-  /** used with css */
-  dragleave(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.setState({
-      dragOver: false
-    });
-  }
-  /** when the file over drag area */
-  dragenter(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.setState({
-      dragOver: true
-    });
-  }
-  /** when the file dproped over drop area */
-  onDrop(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.setState(
-      {
-        canUpload: true,
-        dragOver: false,
-        file: event.dataTransfer.files[0]
-      },
-      () => {
-        this.uplaodFile();
-      }
-    );
-  }
-  /** when the file dproped over drop area */
-  onchange(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.setState(
-      {
-        canUpload: true,
-        dragOver: false,
-        file: event.target.files[0]
-      },
-      () => {
-        this.uplaodFile();
-      }
-    );
-  }
-  /** uploader function */
-  uplaodFile() {
-    if (!this.state.file) {
-      return;
-    }
-    let formData = new FormData();
-    formData.append(
-      "table_pk",
-      this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk)
-    );
-    formData.append("table_id", this.props.cfg.crudTableId);
-    formData.append("file", this.state.file);
-    formData.append("profilePictureFlag", this.props.profilePictureFlag || 0);
-    fetch("upload.form", {
-      method: "POST",
-      body: formData,
-      cache: "no-cache",
-      credentials: "same-origin",
-      mode: "cors",
-      redirect: "follow",
-      referrer: "no-referrer"
-    })
-      .then(
-        response =>
-          response.status === 200 || response.status === 0
-            ? response.json()
-            : Promise.reject(new Error(response.text() || response.statusText))
-      )
-      .then(
-        result => {
-          if (result.success) {
-            toastr.success(
-              getLocMsg("file_sucessfully_uploaded!"),
-              getLocMsg("Success"),
-              {
-                timeOut: 3000
-              }
+                )
             );
-            this.setState({
-              canUpload: false,
-              file: null,
-              fileName: result.fileName,
-              fileUrl: result.fileUrl
-            });
-          } else {
-            if (result.error) {
-              toastr.error(result.error, result.errorType);
-            }
-          }
-          this.props.onFileChange &&
-            this.props.onFileChange(this.props.name, result, this);
-          return;
-        },
-        error => {
-          toastr.error(error, getLocMsg("Error"));
         }
-      );
-  }
-  render() {
-    let defaultStyle = {
-      height: "100%",
-      width: "100%",
-      position: "absolute",
-      top: "0",
-      left: "0"
-    };
-    return _(
-      React.Fragment,
-      {},
-      _(
-        "div",
-        null,
-        // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
-        _("input", {
-          className: "d-none",
-          type: "file",
-          onChange: this.onchange,
-          ref: input => (this.inpuRef = input)
-        }),
-        this.props.extraButtons && this.props.extraButtons
-      ),
-      _(
-        "div",
-        {},
-        _(
-          "div",
-          {
-            className: "mx-auto",
-            style: {
-              height: "200px",
-              width: "200px",
-              position: "relative",
-              border: this.state.dragOver
-                ? "3px dashed #20a8d8"
-                : "3px dashed #a4b7c1"
+    }
+    /**
+     * @description All the Forms will extend from this component so all the props
+     *              will come from the server side
+     */
+class XForm extends React.Component {
+        constructor(props) {
+            super(props);
+            // methods
+            /**
+             * sets the state with value of input
+             *
+             * @param {event}
+             *            param0
+             */
+            this.onChange = ({ target }) => {
+                var { values } = this.state;
+                if (target) {
+                    values[target.name] =
+                        target.type == "checkbox" ? target.checked : target.value;
+                    this.setState({ values });
+                }
+            };
+            /**
+             * file uploader function
+             */
+            this.onFileChange = () => (name, result, context) => {
+                var values = this.state.values;
+                var errors = this.state.errors;
+                if (result.success) {
+                    values[name] = result.fileId;
+                    errors[name] = undefined;
+                } else {
+                    errors[name] = result.error;
+                }
+                this.setState({
+                    errors,
+                    values
+                });
+            };
+            /**
+             * sets state for combo change else sets oprions of it after the request
+             *
+             * @param {String}
+             *            inputName
+             */
+            this.onComboChange = inputName => selectedOption => {
+                var { values } = this.state;
+                var slectedOption_Id = selectedOption && selectedOption.id;
+                values[inputName] = slectedOption_Id;
+                var triggers = this.triggerz4ComboRemotes;
+                // used for remote @depricated
+                if (triggers[inputName]) {
+                    triggers[inputName].map(trigger => {
+                        var nv = trigger.f(slectedOption_Id, null, values);
+                        var { options } = this.state;
+                        if (nv) {
+                            iwb.request({
+                                url: "ajaxQueryData?" + iwb.JSON2URI(nv) + ".r=" + Math.random(),
+                                successCallback: ({ data }) => {
+                                    options[trigger.n] = data;
+                                    this.setState({ options });
+                                }
+                            });
+                        } else {
+                            options[trigger.n] = [];
+                            this.setState({ options });
+                        }
+                    });
+                }
+                this.setState({ values });
+            };
+
+            /**
+             * sets state when low combo is entered
+             *
+             * @param {String}
+             *            inputName
+             */
+            this.onLovComboChange = inputName => selectedOptions => {
+                var { values } = this.state;
+                var slectedOption_Ids = [];
+                if (selectedOptions) {
+                    selectedOptions.map(selectedOption => {
+                        slectedOption_Ids.push(selectedOption.id);
+                    });
+                }
+                values[inputName] = slectedOption_Ids.join(",");
+                this.setState({ values });
+            };
+
+            /**
+             * sets state when number entered
+             *
+             * @param {String}
+             *            dsc
+             */
+            this.onNumberChange = inputName => inputEvent => {
+                var { values } = this.state;
+                var inputValue = inputEvent && inputEvent.value;
+                values[inputName] = inputValue;
+                this.setState({ values });
+            };
+            /**
+             * sets state when html entered
+             */
+            this.onHtmlChange = inputName => value => {
+                var { values } = this.state;
+                values[inputName] = value;
+                this.setState({ values });
+            };
+            /** acts very simmilar */
+            this.onTreeSelectChange = this.onHtmlChange;
+            /**
+             * sends post to the server
+             *
+             * @param {Object} cfg
+             */
+            this.submit = cfg => {
+                var baseValues = iwb.formBaseValues(cfg.id);
+                var values = {...baseValues, ...this.state.values };
+                if (this.componentWillPost) {
+                    /**
+                     * componentWillPostResult = true || fase || {field_name : 'custom
+                     * value'}
+                     */
+                    var componentWillPostResult = this.componentWillPost(values, cfg || {});
+                    if (!componentWillPostResult) return false;
+                    values = {...values, ...componentWillPostResult };
+                }
+                iwb.request({
+                    url: this.url +
+                        "?" +
+                        iwb.JSON2URI(this.params) +
+                        "_renderer=react16&.r=" +
+                        Math.random(),
+                    params: values,
+                    self: this,
+                    errorCallback: json => {
+                        iwb.loadingDeactive();
+                        var errors = {};
+                        if (json.errorType)
+                            switch (json.errorType) {
+                                case "validation":
+                                    toastr.error("Validation Errors");
+                                    if (json.errors && json.errors.length) {
+                                        json.errors.map(oneError => {
+                                            errors[oneError.id] = oneError.msg;
+                                        });
+                                    }
+                                    if (json.error) {
+                                        iwb.showModal({
+                                            title: "ERROR",
+                                            footer: false,
+                                            color: "danger",
+                                            size: "sm",
+                                            body: json.error
+                                        });
+                                    }
+                                    break;
+                                case "framework":
+                                case "security":
+                                case "sql":
+                                case "rhino":
+                                    if (json.error) {
+                                        iwb.showModal({
+                                            title: json.error,
+                                            footer: false,
+                                            color: "danger",
+                                            size: "lg",
+                                            body: _(
+                                                Media, {
+                                                    body: true
+                                                },
+                                                json.objectType &&
+                                                _(
+                                                    Media, {
+                                                        heading: true
+                                                    },
+                                                    json.objectType
+                                                ),
+
+                                                _(
+                                                    ListGroup, {},
+                                                    json.icodebetter &&
+                                                    json.icodebetter.map((item, index) => {
+                                                        return _(
+                                                            ListGroupItem, {},
+                                                            _(
+                                                                ListGroupItemHeading, {},
+                                                                item.errorType,
+                                                                item &&
+                                                                _(
+                                                                    Button, {
+                                                                        className: "float-right btn btn-xs",
+                                                                        color: "info",
+                                                                        onClick: e => {
+                                                                            e.preventDefault();
+                                                                            iwb.copyToClipboard(item);
+                                                                        }
+                                                                    },
+                                                                    _(
+                                                                        "i", {
+                                                                            className: "icon-docs"
+                                                                        },
+                                                                        ""
+                                                                    )
+                                                                ),
+                                                                item &&
+                                                                _(
+                                                                    Button, {
+                                                                        className: "float-right btn btn-xs",
+                                                                        color: "primary",
+                                                                        onClick: e => {
+                                                                            e.preventDefault();
+                                                                            iwb.log(item);
+                                                                            toastr.success(
+                                                                                "Use CTR + SHIFT + I to see the log content!",
+                                                                                "Console Log", { timeOut: 3000 }
+                                                                            );
+                                                                        }
+                                                                    },
+                                                                    _(
+                                                                        "i", {
+                                                                            className: "icon-target"
+                                                                        },
+                                                                        ""
+                                                                    )
+                                                                )
+                                                            ),
+                                                            _(
+                                                                ListGroupItemText, {},
+                                                                item &&
+                                                                _(
+                                                                    "pre", {},
+                                                                    window.JSON.stringify(item, null, 2)
+                                                                )
+                                                            )
+                                                        );
+                                                    })
+                                                )
+                                            )
+                                        });
+                                    }
+                                    break;
+                                default:
+                                    alert(json.errorType);
+                            }
+                        else alert(json);
+                        this.setState({ errors });
+                        return false;
+                    },
+                    successCallback: (json, xcfg) => {
+                        iwb.loadingDeactive();
+                        if (cfg.callback) cfg.callback(json, xcfg);
+                    }
+                });
+            };
+            /**
+             * used to make form active tab and visible on the page
+             *
+             * @param {object}
+             *            tab
+             */
+            this.toggleTab = tab => {
+                if (this.state.activeTab !== tab) {
+                    this.setState({ activeTab: tab });
+                }
+            };
+            /**
+             * returns form data from state
+             */
+            this.getValues = () => ({...this.state.values });
+            /**
+             * used for date inputs
+             *
+             * @param {String} inputName
+             * @param {Boolean} isItDTTM
+             */
+            this.onDateChange = (inputName, isItDTTM) => selectedDate => {
+                var values = this.state.values;
+                var dateValue = selectedDate && selectedDate._d;
+                values[inputName] = isItDTTM ?
+                    fmtDateTime(dateValue) :
+                    fmtShortDate(dateValue);
+                this.setState({ values });
+            };
+        }
+        componentDidMount() {
+            var triggers = this.triggerz4ComboRemotes;
+            var { values } = this.state;
+            for (var trigger in triggers) {
+                if (values[trigger]) {
+                    triggers[trigger].map(zzz => {
+                        var nv = zzz.f(values[trigger], null, values);
+                        if (nv)
+                            iwb.request({
+                                url: "ajaxQueryData?" + iwb.JSON2URI(nv) + ".r=" + Math.random(),
+                                successCallback: ({ data }) => {
+                                    var { options } = this.state;
+                                    options[zzz.n] = data;
+                                    this.setState({ options });
+                                }
+                            });
+                    });
+                }
             }
-          },
-          _("div", {
-            style: {
-              ...defaultStyle,
-              zIndex: "10",
-              background: "gray",
-              cursor: "pointer",
-              opacity: this.state.canUpload ? "0" : "0.5"
-            },
-            className: "rounded",
-            onDrop: this.onDrop,
-            onDragEnter: this.dragenter,
-            onDragLeave: this.dragleave,
-            onDragOver: this.dragover,
-            onClick: this.onclick
-          }),
-          _(
-            "div",
-            {
-              style: {
-                ...defaultStyle,
-                display: "flex"
-              }
-            },
-            _(XPreviewFile, {
-              file: this.state.file
-            })
-          )
-        ),
-        _("div", {
-          className: "clearfix"
-        }),
-        _(
-          ListGroup,
-          {},
-          this.state.fileUrl &&
-            _(
-              ListGroupItem,
-              null,
-              _(
-                "a",
-                {
-                  onClick: this.downladLink(this.state.fileUrl),
-                  href: "#"
+        }
+        componentWillUnmount() {
+            iwb.forms[this._id] = {...this.state };
+        }
+    }
+    /**
+     * File Input Component to upload file into system
+     */
+class FileInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            canUpload: false,
+            dragOver: false,
+            file: null,
+            fileUrl: props.fileId ?
+                "dl/" +
+                props.fileName +
+                "?_fai=" +
+                props.fileId +
+                "&.r=" +
+                Math.random() :
+                null,
+            fileName: props.fileName || null
+        };
+        this.onDrop = this.onDrop.bind(this);
+        this.dragenter = this.dragenter.bind(this);
+        this.dragleave = this.dragleave.bind(this);
+        this.dragover = this.dragover.bind(this);
+        this.onclick = this.onclick.bind(this);
+        this.onchange = this.onchange.bind(this);
+        this.uplaodFile = this.uplaodFile.bind(this);
+        /** */
+        this.downladLink = url => e => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            let link = document.createElement("a");
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    }
+    componentWillMount() {}
+        /** function to click input ref click */
+    onclick(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.inpuRef.click();
+        }
+        /** used to disable opening file on new tab */
+    dragover(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        /** used with css */
+    dragleave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({
+                dragOver: false
+            });
+        }
+        /** when the file over drag area */
+    dragenter(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({
+                dragOver: true
+            });
+        }
+        /** when the file dproped over drop area */
+    onDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({
+                    canUpload: true,
+                    dragOver: false,
+                    file: event.dataTransfer.files[0]
                 },
-                this.state.fileName
-              )
+                () => {
+                    this.uplaodFile();
+                }
+            );
+        }
+        /** when the file dproped over drop area */
+    onchange(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({
+                    canUpload: true,
+                    dragOver: false,
+                    file: event.target.files[0]
+                },
+                () => {
+                    this.uplaodFile();
+                }
+            );
+        }
+        /** uploader function */
+    uplaodFile() {
+        if (!this.state.file) {
+            return;
+        }
+        let formData = new FormData();
+        formData.append(
+            "table_pk",
+            this.props.cfg.tmpId ? this.props.cfg.tmpId : json2pk(this.props.cfg.pk)
+        );
+        formData.append("table_id", this.props.cfg.crudTableId);
+        formData.append("file", this.state.file);
+        formData.append("profilePictureFlag", this.props.profilePictureFlag || 0);
+        fetch("upload.form", {
+                method: "POST",
+                body: formData,
+                cache: "no-cache",
+                credentials: "same-origin",
+                mode: "cors",
+                redirect: "follow",
+                referrer: "no-referrer"
+            })
+            .then(
+                response =>
+                response.status === 200 || response.status === 0 ?
+                response.json() :
+                Promise.reject(new Error(response.text() || response.statusText))
             )
-        )
-      )
-    );
-  }
+            .then(
+                result => {
+                    if (result.success) {
+                        toastr.success(
+                            getLocMsg("file_sucessfully_uploaded!"),
+                            getLocMsg("Success"), {
+                                timeOut: 3000
+                            }
+                        );
+                        this.setState({
+                            canUpload: false,
+                            file: null,
+                            fileName: result.fileName,
+                            fileUrl: result.fileUrl
+                        });
+                    } else {
+                        if (result.error) {
+                            toastr.error(result.error, result.errorType);
+                        }
+                    }
+                    this.props.onFileChange &&
+                        this.props.onFileChange(this.props.name, result, this);
+                    return;
+                },
+                error => {
+                    toastr.error(error, getLocMsg("Error"));
+                }
+            );
+    }
+    render() {
+        let defaultStyle = {
+            height: "100%",
+            width: "100%",
+            position: "absolute",
+            top: "0",
+            left: "0"
+        };
+        return _(
+            React.Fragment, {},
+            _(
+                "div",
+                null,
+                // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
+                _("input", {
+                    className: "d-none",
+                    type: "file",
+                    onChange: this.onchange,
+                    ref: input => (this.inpuRef = input)
+                }),
+                this.props.extraButtons && this.props.extraButtons
+            ),
+            _(
+                "div", {},
+                _(
+                    "div", {
+                        className: "mx-auto",
+                        style: {
+                            height: "200px",
+                            width: "200px",
+                            position: "relative",
+                            border: this.state.dragOver ?
+                                "3px dashed #20a8d8" :
+                                "3px dashed #a4b7c1"
+                        }
+                    },
+                    _("div", {
+                        style: {
+                            ...defaultStyle,
+                            zIndex: "10",
+                            background: "gray",
+                            cursor: "pointer",
+                            opacity: this.state.canUpload ? "0" : "0.5"
+                        },
+                        className: "rounded",
+                        onDrop: this.onDrop,
+                        onDragEnter: this.dragenter,
+                        onDragLeave: this.dragleave,
+                        onDragOver: this.dragover,
+                        onClick: this.onclick
+                    }),
+                    _(
+                        "div", {
+                            style: {
+                                ...defaultStyle,
+                                display: "flex"
+                            }
+                        },
+                        _(XPreviewFile, {
+                            file: this.state.file
+                        })
+                    )
+                ),
+                _("div", {
+                    className: "clearfix"
+                }),
+                _(
+                    ListGroup, {},
+                    this.state.fileUrl &&
+                    _(
+                        ListGroupItem,
+                        null,
+                        _(
+                            "a", {
+                                onClick: this.downladLink(this.state.fileUrl),
+                                href: "#"
+                            },
+                            this.state.fileName
+                        )
+                    )
+                )
+            )
+        );
+    }
 }
 
 class XGraph extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  componentDidMount() {
-    var dg = this.props.graph;
-    var gid = "idG" + dg.graphId;
-    iwb.graph(dg, gid);
-  }
-  render() {
-    return _("div", {
-      style: { width: "100%", height: this.props.props.height || "20vw" },
-      id: "idG" + this.props.graph.graphId
-    });
-  }
+    constructor(props) {
+        super(props);
+    }
+    componentDidMount() {
+        var dg = this.props.graph;
+        var gid = "idG" + dg.graphId;
+        iwb.graph(dg, gid);
+    }
+    render() {
+        return _("div", {
+            style: { width: "100%", height: this.props.props.height || "20vw" },
+            id: "idG" + this.props.graph.graphId
+        });
+    }
 }
 
 
-function fmtDecimal(value,digit){
-	if(!value)return '0';
-	if(!digit)digit=2;	
-	var result = Math.round(value*Math.pow(10,digit))/Math.pow(10,digit)+'';
-	var s=1*result<0?1:0;
-	var x=result.split('.');
-	var x1=x[0],x2=x[1];
-	for(var i=x1.length-3;i>s;i-=3)x1=x1.substr(0,i)+('.')+x1.substr(i);
-	if(x2 && x2>0) return x1+(',')+x2;
-	return x1;	
+function fmtDecimal(value, digit) {
+    if (!value) return '0';
+    if (!digit) digit = 2;
+    var result = Math.round(value * Math.pow(10, digit)) / Math.pow(10, digit) + '';
+    var s = 1 * result < 0 ? 1 : 0;
+    var x = result.split('.');
+    var x1 = x[0],
+        x2 = x[1];
+    for (var i = x1.length - 3; i > s; i -= 3) x1 = x1.substr(0, i) + ('.') + x1.substr(i);
+    if (x2 && x2 > 0) return x1 + (',') + x2;
+    return x1;
 }
 
 
-iwb.apexCharts={}
+iwb.apexCharts = {}
 iwb.graph = function(dg, gid, callback) {
-	if(!dg.groupBy)return;
-	  var newStat = 1 * dg.funcTip ? dg.funcFields : "";
-	  var params = {};
-	  if (newStat) params._ffids = newStat;
-	  if (1 * dg.graphTip >= 5) params._sfid = dg.stackedFieldId;
-	  var series=[], labels=[], lookUps=[], chart =null;
-	  var xid = gid;
-	  var el = document.getElementById(gid);
-	  if(!el)return;
-	  iwb.request({
-	    url:
-	      (dg.query? "ajaxQueryData4Stat?_gid=":"ajaxQueryData4StatTree?_gid=") +
-	      dg.gridId +
-	      "&_stat=" +
-	      dg.funcTip +
-	      "&_qfid=" +
-	      dg.groupBy +
-	      "&_dtt=" +
-	      dg.dtTip,
-	    params: Object.assign(params, dg.queryParams),
-	    successCallback: function(j) {
-			var d= j.data;
-			if(!d || !d.length)return;
-			switch (1 * dg.graphTip) {
-	        case 6: // stacked area
-	        case 5: // stacked column
-	        	var l= j.lookUp;
-	        	for(var k in l)lookUps.push(k);
-	            if(!lookUps.length)return;
-	            d.map((z)=>{
-	                var data=[];
-	                lookUps.map((y)=>data.push(1*(z['xres_'+y]||0)));
-	                series.push({name:z.dsc, data:data});
-	            });
-	            lookUps.map((y)=>labels.push(l[y]||'-'));
+    if (!dg.groupBy) return;
+    var newStat = 1 * dg.funcTip ? dg.funcFields : "";
+    var params = {};
+    if (newStat) params._ffids = newStat;
+    if (1 * dg.graphTip >= 5) params._sfid = dg.stackedFieldId;
+    var series = [],
+        labels = [],
+        lookUps = [],
+        chart = null;
+    var xid = gid;
+    var el = document.getElementById(gid);
+    if (!el) return;
+    iwb.request({
+        url:
+            (dg.query ? "ajaxQueryData4Stat?_gid=" : "ajaxQueryData4StatTree?_gid=") +
+            dg.gridId +
+            "&_stat=" +
+            dg.funcTip +
+            "&_qfid=" +
+            dg.groupBy +
+            "&_dtt=" +
+            dg.dtTip,
+        params: Object.assign(params, dg.queryParams),
+        successCallback: function(j) {
+            var d = j.data;
+            if (!d || !d.length) return;
+            switch (1 * dg.graphTip) {
+                case 6: // stacked area
+                case 5: // stacked column
+                    var l = j.lookUp;
+                    for (var k in l) lookUps.push(k);
+                    if (!lookUps.length) return;
+                    d.map((z) => {
+                        var data = [];
+                        lookUps.map((y) => data.push(1 * (z['xres_' + y] || 0)));
+                        series.push({ name: z.dsc, data: data });
+                    });
+                    lookUps.map((y) => labels.push(l[y] || '-'));
 
-	            options = {
-	                chart: {
-	                	id:'apex-'+gid,
-//	                    height: 80*d.length+40,
-	                    type: 'bar',
-	                    stacked: true,
-	                    toolbar: {show: false}
-	                },
-	                plotOptions: {
-//	                    bar: {horizontal: true},
-	                    
-	                },
-	                series: series,
-//title: {text: dg.name},
-	                xaxis: {
-	                    categories: labels,
-	                },
-	                yaxis: {labels: {show: !!dg.legend}, axisTicks: {color: '#777'}},
-	            }
-	        	break;
-	        case 3:// pie
-	            d.map((z)=>{
-	                series.push(1*z.xres);
-	                labels.push(z.dsc||'-');
-	            });
-	            var options = {
-                    chart: {id:'apex-'+gid, type: 'donut', toolbar: {show: false}},
-	                series: series, labels: labels, legend: dg.legend ? {position:'bottom'} : {show:false}
-	                ,dataLabels: dg.legend ? {}:{formatter: function (val, opts) {return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val);}}
-	            }
+                    options = {
+                        chart: {
+                            id: 'apex-' + gid,
+                            //	                    height: 80*d.length+40,
+                            type: 'bar',
+                            stacked: true,
+                            toolbar: { show: false }
+                        },
+                        plotOptions: {
+                            //	                    bar: {horizontal: true},
 
-	        	break;
-	        case 1:// column
-	        case 2:// line
-	        	var colCount = newStat.split(',').length;
-	        	for(var qi=0;qi<colCount;qi++){
-	        		series.push({name:j.lookUps ? j.lookUps[qi] : ('Count'), data:[]})
-	        	}
-	        	d.map((z)=>{
-	        		for(var qi=0;qi<colCount;qi++){
-	        			series[qi].data.push(1*z[qi?'xres'+(qi+1):'xres']);
-	        		}
-	                labels.push(z.dsc);
-	            });
+                        },
+                        series: series,
+                        //title: {text: dg.name},
+                        xaxis: {
+                            categories: labels,
+                        },
+                        yaxis: { labels: { show: !!dg.legend }, axisTicks: { color: '#777' } },
+                    }
+                    break;
+                case 3: // pie
+                    d.map((z) => {
+                        series.push(1 * z.xres);
+                        labels.push(z.dsc || '-');
+                    });
+                    var options = {
+                        chart: { id: 'apex-' + gid, type: 'donut', toolbar: { show: false } },
+                        series: series,
+                        labels: labels,
+                        legend: dg.legend ? { position: 'bottom' } : { show: false },
+                        dataLabels: dg.legend ? {} : { formatter: function(val, opts) { return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val); } }
+                    }
 
-	            options = {
-	                chart: {
-	                	id:'apex-'+gid,
-//	                    height:document.getElementById()50*d.length+30,
-	                    type: 1 * dg.graphTip==1?'bar':'spline',
-	                    toolbar: {show: false}
-	                },
-	                stroke: 1 * dg.graphTip==1 ? {}:{
-	                    curve: 'smooth'
-	                },
-	                series: series,
-	                xaxis: {
-	                    categories: labels,
-	                },
-	                yaxis: {labels: {show: !!dg.legend}},
-	            }
-	        	break;
-			}
+                    break;
+                case 1: // column
+                case 2: // line
+                    var colCount = newStat.split(',').length;
+                    for (var qi = 0; qi < colCount; qi++) {
+                        series.push({ name: j.lookUps ? j.lookUps[qi] : ('Count'), data: [] })
+                    }
+                    d.map((z) => {
+                        for (var qi = 0; qi < colCount; qi++) {
+                            series[qi].data.push(1 * z[qi ? 'xres' + (qi + 1) : 'xres']);
+                        }
+                        labels.push(z.dsc);
+                    });
 
-			if(options){
-		        options.theme= {
-//		            mode: 'dark',
-		            palette: iwb.graphPalette||'palette6',
-		          };
-		        options.chart.height = el.offsetHeight && el.offsetHeight>50 ?  el.offsetHeight-20 : el.offsetWidth/2;
-				if(iwb.apexCharts[xid])iwb.apexCharts[xid].destroy();
-				if(callback)options.chart.events= {
-						dataPointSelection: function(event, chartContext, config) {
-							if(config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length){
-								var yx = config.selectedDataPoints[0];
-								callback(yx.length ? d[yx[0]].id : false);
-						    }
-						}
-				}
-	            var chart = new ApexCharts(
-	                el,
-	                options
-	            );
-	            iwb.apexCharts[xid]=chart;
-	            chart.render();
-			}
-			
-	    }
-	  });
+                    options = {
+                        chart: {
+                            id: 'apex-' + gid,
+                            //	                    height:document.getElementById()50*d.length+30,
+                            type: 1 * dg.graphTip == 1 ? 'bar' : 'spline',
+                            toolbar: { show: false }
+                        },
+                        stroke: 1 * dg.graphTip == 1 ? {} : {
+                            curve: 'smooth'
+                        },
+                        series: series,
+                        xaxis: {
+                            categories: labels,
+                        },
+                        yaxis: { labels: { show: !!dg.legend } },
+                    }
+                    break;
+            }
+
+            if (options) {
+                options.theme = {
+                    //		            mode: 'dark',
+                    palette: iwb.graphPalette || 'palette6',
+                };
+                options.chart.height = el.offsetHeight && el.offsetHeight > 50 ? el.offsetHeight - 20 : el.offsetWidth / 2;
+                if (iwb.apexCharts[xid]) iwb.apexCharts[xid].destroy();
+                if (callback) options.chart.events = {
+                    dataPointSelection: function(event, chartContext, config) {
+                        if (config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length) {
+                            var yx = config.selectedDataPoints[0];
+                            callback(yx.length ? d[yx[0]].id : false);
+                        }
+                    }
+                }
+                var chart = new ApexCharts(
+                    el,
+                    options
+                );
+                iwb.apexCharts[xid] = chart;
+                chart.render();
+            }
+
+        }
+    });
 }
 
 iwb.createPortlet = function(o) {
-  var name = o.graph || o.grid || o.card || o.query;
-  if (!name) return _("div", null, "not portlet");
-  if (o.query) {
-    var q = o.query.data;
-    if (!q || !q.length) return _("div", null, "not data");
-    q = q[0];
+    var name = o.graph || o.grid || o.card || o.query;
+    if (!name) return _("div", null, "not portlet");
+    if (o.query) {
+        var q = o.query.data;
+        if (!q || !q.length) return _("div", null, "not data");
+        q = q[0];
+        return _(
+            Card, {
+                className: "card-portlet text-white bg-" + (o.props.color || "primary")
+            },
+            _("i", { className: "big-icon " + (q.icon || "icon-settings") }),
+            _(
+                CardBlock, { className: "pb-0" },
+                _(
+                    "div", {
+                        className: "float-right",
+                        style: {
+                            fontSize: "30px",
+                            background: "white",
+                            padding: "0 13px",
+                            borderRadius: "55px",
+                            color: "darkorange"
+                        }
+                    },
+                    q.xvalue
+                ),
+                _("h1", { className: "mb-0" }, q.dsc),
+                _("div", { style: { height: "25px" } })
+            )
+        );
+    }
+    name = name.name;
+    var cmp = null;
+    if (o.graph) {
+        return _(
+            Card, {
+                className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+            },
+            _(
+                "h3", {
+                    className: "form-header",
+                    style: {
+                        fontSize: "1.5rem",
+                        padding: "10px 12px 0px",
+                        marginBottom: ".5rem"
+                    }
+                },
+                name,
+                _("i", { className: "portlet-refresh float-right icon-refresh" })
+            ),
+            _(XGraph, o)
+        );
+    } else if (o.grid) {
+        o.grid.crudFlags = false;
+        return _(
+            Card, {
+                className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+            },
+            _(
+                "h3", {
+                    className: "form-header",
+                    style: {
+                        fontSize: "1.5rem",
+                        padding: "10px 12px 0px",
+                        marginBottom: ".5rem"
+                    }
+                },
+                name,
+                _("i", { className: "portlet-refresh float-right icon-refresh" })
+            ),
+            _(XGrid, o.grid)
+        );
+    } else if (o.card) cmp = "Card";
+    else if (o.query) cmp = "KPI Card";
     return _(
-      Card,
-      {
-        className: "card-portlet text-white bg-" + (o.props.color || "primary")
-      },
-      _("i", { className: "big-icon " + (q.icon || "icon-settings") }),
-      _(
-        CardBlock,
-        { className: "pb-0" },
+        Card, {
+            className: "card-portlet text-white bg-" + o.props.color || "primary"
+        },
         _(
-          "div",
-          {
-            className: "float-right",
-            style: {
-              fontSize: "30px",
-              background: "white",
-              padding: "0 13px",
-              borderRadius: "55px",
-              color: "darkorange"
-            }
-          },
-          q.xvalue
-        ),
-        _("h1", { className: "mb-0" }, q.dsc),
-        _("div", { style: { height: "25px" } })
-      )
+            CardBlock, { className: "card-body" },
+            _(
+                "h3", {
+                    className: "form-header",
+                    style: { padding: "10px 12px 0px", marginBottom: ".5rem" }
+                },
+                name
+            ),
+            _("hr"),
+            cmp
+        )
     );
-  }
-  name = name.name;
-  var cmp = null;
-  if (o.graph) {
-    return _(
-      Card,
-      {
-        className:
-          "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
-      },
-      _(
-        "h3",
-        {
-          className: "form-header",
-          style: {
-            fontSize: "1.5rem",
-            padding: "10px 12px 0px",
-            marginBottom: ".5rem"
-          }
-        },
-        name,
-        _("i", { className: "portlet-refresh float-right icon-refresh" })
-      ),
-      _(XGraph, o)
-    );
-  } else if (o.grid) {
-    o.grid.crudFlags = false;
-    return _(
-      Card,
-      {
-        className:
-          "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
-      },
-      _(
-        "h3",
-        {
-          className: "form-header",
-          style: {
-            fontSize: "1.5rem",
-            padding: "10px 12px 0px",
-            marginBottom: ".5rem"
-          }
-        },
-        name,
-        _("i", { className: "portlet-refresh float-right icon-refresh" })
-      ),
-      _(XGrid, o.grid)
-    );
-  } else if (o.card) cmp = "Card";
-  else if (o.query) cmp = "KPI Card";
-  return _(
-    Card,
-    {
-      className: "card-portlet text-white bg-" + o.props.color || "primary"
-    },
-    _(
-      CardBlock,
-      { className: "card-body" },
-      _(
-        "h3",
-        {
-          className: "form-header",
-          style: { padding: "10px 12px 0px", marginBottom: ".5rem" }
-        },
-        name
-      ),
-      _("hr"),
-      cmp
-    )
-  );
 };
 
 iwb.ui.buildDashboard = function(o) {
-  if (!o || !o.rows || !o.rows.length)
-    return _("div", null, "No portlets defined");
-  return o.rows.map((rowItem, rowIndex) => {
-    return _(Row, {
-      key: rowIndex,
-      children: rowItem.map((colItem, colIndex) =>
-        _(Col, colItem.props, iwb.createPortlet(colItem))
-      )
+    if (!o || !o.rows || !o.rows.length)
+        return _("div", null, "No portlets defined");
+    return o.rows.map((rowItem, rowIndex) => {
+        return _(Row, {
+            key: rowIndex,
+            children: rowItem.map((colItem, colIndex) =>
+                _(Col, colItem.props, iwb.createPortlet(colItem))
+            )
+        });
     });
-  });
 };
 
 iwb.ajax = {};
 iwb.ajax.query = function(queryId, params, callback) {
-  iwb.request({
-    url: "ajaxQueryData?_qid=" + queryId,
-    params: params || {},
-    successCallback: callback || false
-  });
+    iwb.request({
+        url: "ajaxQueryData?_qid=" + queryId,
+        params: params || {},
+        successCallback: callback || false
+    });
 };
 iwb.ajax.postForm = function(formId, action, params, callback) {
-  iwb.request({
-    url: "ajaxPostForm?_fid=" + formId + "&a=" + action,
-    params: params || {},
-    successCallback: callback || false
-  });
+    iwb.request({
+        url: "ajaxPostForm?_fid=" + formId + "&a=" + action,
+        params: params || {},
+        successCallback: callback || false
+    });
 };
 iwb.ajax.execFunc = function(funcId, params, callback) {
-  iwb.request({
-    url: "ajaxExecDbFunc?_did=" + funcId,
-    params: params || {},
-    successCallback: callback || false
-  });
+    iwb.request({
+        url: "ajaxExecDbFunc?_did=" + funcId,
+        params: params || {},
+        successCallback: callback || false
+    });
 };
 iwb.ajax.REST = function(serviceName, params, callback) {
-  iwb.request({
-    url: "ajaxCallWs?serviceName=" + serviceName,
-    params: params || {},
-    successCallback: callback || false
-  });
+    iwb.request({
+        url: "ajaxCallWs?serviceName=" + serviceName,
+        params: params || {},
+        successCallback: callback || false
+    });
 };
 
 function approvalHtml(row) {
-  // console.log('approvalHtml', row);
-  if (!row || !row.pkpkpk_arf_qw_) return "";
-  switch (1 * row.pkpkpk_arf) {
-    case 901:
-    case -901:
-      return iwb.label.startApprovalManually || "Start approval manually";
-    case 998:
-      return _(
-        "a",
-        {
-          href: "#",
-          className: "badge badge-pill badge-success",
-          onClick: iwb.approvalLogs(row.pkpkpk_arf_id)
-        },
-        iwb.label.approved || getLocMsg("approved")
-      );
-    case -999:
-    case 999:
-      return _(
-        "a",
-        {
-          href: "#",
-          className: "badge badge-pill badge-danger",
-          onClick: iwb.approvalLogs(row.pkpkpk_arf_id)
-        },
-        iwb.label.rejected || getLocMsg("rejected")
-      );
-    default:
-      return _(
-        "a",
-        {
-          href: "#",
-          title:
-            (row.app_user_ids_qw_ ? ": " + row.app_user_ids_qw_ : "") +
-            " " +
-            (row.app_role_ids_qw_ ? "\n: " + row.app_role_ids_qw_ : ""),
-          onClick: iwb.approvalLogs(row.pkpkpk_arf_id)
-        },
-        1 * row.pkpkpk_arf
-          ? _("i", {
-              className: "icon-shuffle",
-              style: 1 * row.pkpkpk_arf > 0 ? { color: "red" } : null
-            })
-          : null,
-        " " + row.pkpkpk_arf_qw_
-      );
-  }
+    // console.log('approvalHtml', row);
+    if (!row || !row.pkpkpk_arf_qw_) return "";
+    switch (1 * row.pkpkpk_arf) {
+        case 901:
+        case -901:
+            return iwb.label.startApprovalManually || "Start approval manually";
+        case 998:
+            return _(
+                "a", {
+                    href: "#",
+                    className: "badge badge-pill badge-success",
+                    onClick: iwb.approvalLogs(row.pkpkpk_arf_id)
+                },
+                iwb.label.approved || getLocMsg("approved")
+            );
+        case -999:
+        case 999:
+            return _(
+                "a", {
+                    href: "#",
+                    className: "badge badge-pill badge-danger",
+                    onClick: iwb.approvalLogs(row.pkpkpk_arf_id)
+                },
+                iwb.label.rejected || getLocMsg("rejected")
+            );
+        default:
+            return _(
+                "a", {
+                    href: "#",
+                    title:
+                        (row.app_user_ids_qw_ ? ": " + row.app_user_ids_qw_ : "") +
+                        " " +
+                        (row.app_role_ids_qw_ ? "\n: " + row.app_role_ids_qw_ : ""),
+                    onClick: iwb.approvalLogs(row.pkpkpk_arf_id)
+                },
+                1 * row.pkpkpk_arf ?
+                _("i", {
+                    className: "icon-shuffle",
+                    style: 1 * row.pkpkpk_arf > 0 ? { color: "red" } : null
+                }) :
+                null,
+                " " + row.pkpkpk_arf_qw_
+            );
+    }
 }
 iwb.fmtFileSize = a => {
-  if (!a) return "-";
-  a *= 1;
-  var d = "B";
-  if (a > 1024) {
-    a = a / 1024;
-    d = "KB";
-  }
-  if (a > 1024) {
-    a = a / 1024;
-    d = "MB";
-  }
-  if (a > 1024) {
-    a = a / 1024;
-    d = "GB";
-  }
-  if (d != "B") a = Math.round(a * 10) / 10;
-  return a + " " + d;
+    if (!a) return "-";
+    a *= 1;
+    var d = "B";
+    if (a > 1024) {
+        a = a / 1024;
+        d = "KB";
+    }
+    if (a > 1024) {
+        a = a / 1024;
+        d = "MB";
+    }
+    if (a > 1024) {
+        a = a / 1024;
+        d = "GB";
+    }
+    if (d != "B") a = Math.round(a * 10) / 10;
+    return a + " " + d;
 };
