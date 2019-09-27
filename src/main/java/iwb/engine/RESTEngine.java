@@ -193,9 +193,9 @@ public class RESTEngine {
 					if(p.getParamTip()==5) {//checkbox
 						m.put(p.getDsc(), GenericUtil.uInt(o)!=0);
 					} else if (o != null && o.toString().length() > 0) {
-						if (p.getCredentialsFlag() != 0)
+						if (p.getCredentialsFlag() == 1)//header
 							reqPropMap.put(p.getDsc(), o.toString());
-						else {
+						else if (p.getCredentialsFlag() == 0){//request
 							m.put(p.getDsc(), o);
 						}
 					}
