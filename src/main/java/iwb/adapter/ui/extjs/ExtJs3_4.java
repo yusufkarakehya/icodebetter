@@ -2494,7 +2494,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			} else if (FrameworkSetting.advancedSelectShowEmptyText) {
 				buf.append(",emptyText:'")
 						.append(LocaleMsgCache.get2(0, xlocale,
-								"advanced_select_type_something")).append("'");// Birşeyler
+								"autocomplete_placeholder")).append("'");// Birşeyler
 																				// Yaz...
 			}
 			if (fc.getControlWidth() > 0)
@@ -3554,7 +3554,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			} else if (FrameworkSetting.advancedSelectShowEmptyText) {
 				buf.append(",emptyText:'")
 						.append(LocaleMsgCache.get2(0, xlocale,
-								"advanced_select_type_something")).append("'");// Birşeyler
+								"autocomplete_placeholder")).append("'");// Birşeyler
 																				// Yaz...
 			}
 			if (fc.getControlWidth() > 0)

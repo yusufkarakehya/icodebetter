@@ -2036,7 +2036,7 @@ public class Vue2 implements ViewAdapter {
 				Object[] oo = cellResult.getLookupQueryResult().getData().get(0);
 			}
 			
-			buf.append("$:'el-select', remote:true, filterable:!0, options:options.").append(fc.getDsc()).append("||[], placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "advanced_select_type_something"))
+			buf.append("$:'el-select', remote:true, filterable:!0, options:options.").append(fc.getDsc()).append("||[], placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder"))
 				.append("', remoteMethod:(query)=>{if(!query)callback();else iwb.request({url:'ajaxQueryData?_renderer=vue2&_qid=").append(fc.getLookupQueryId());
 			if(!GenericUtil.isEmpty(fc.getLookupIncludedParams()))buf.append("&").append(fc.getLookupIncludedParams());
 			buf.append("', params:{xdsc:query}, xxx:this, successCallback:function(result, cfg){cfg.xxx.options.").append(fc.getDsc()).append("=result.data;}});},clearable:").append(fc.getNotNullFlag()==0);

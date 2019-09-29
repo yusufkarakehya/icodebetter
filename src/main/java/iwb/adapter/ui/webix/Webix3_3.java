@@ -2400,7 +2400,7 @@ public class Webix3_3 implements ViewAdapter {
 //		{ view:"label", label:'Fill the form below to access <br>the main datacore.'
 		
 		case	10:
-			buf.append("combo', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "advanced_select_type_something")).append("', suggest:");
+			buf.append("combo', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder")).append("', suggest:");
 			if(fc.getDialogGridId()!=0 && cellResult.getExtraValuesMap()!=null && cellResult.getExtraValuesMap().containsKey("dialogGrid")){
 				W5GridResult gr = (W5GridResult)cellResult.getExtraValuesMap().get("dialogGrid");
 				String dsc = fc.getDsc()+"_"+gr.getGrid().getDsc();

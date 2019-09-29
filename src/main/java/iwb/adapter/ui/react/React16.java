@@ -2080,7 +2080,7 @@ public class React16 implements ViewAdapter {
 				Object[] oo = cellResult.getLookupQueryResult().getData().get(0);
 			}
 			
-			buf.append("$:Select.Async, isLoading:true, valueKey:'id', labelKey:'dsc', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "advanced_select_type_something"))
+			buf.append("$:Select.Async, isLoading:true, valueKey:'id', labelKey:'dsc', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder"))
 				.append("', loadOptions:function(input, callback){if(!input)callback();else iwb.request({url:'ajaxQueryData?_renderer=react16&_qid=").append(fc.getLookupQueryId());
 			if(!GenericUtil.isEmpty(fc.getLookupIncludedParams()))buf.append("&").append(fc.getLookupIncludedParams());
 			buf.append("', params:{xdsc:input}, successCallback:function(result, cfg){callback(null, {options: result.data,complete: false});}});},clearable:").append(fc.getNotNullFlag()==0);

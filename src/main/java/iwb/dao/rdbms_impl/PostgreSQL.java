@@ -2216,6 +2216,7 @@ public class PostgreSQL extends BaseDAO {
 	}
 
 	public Object[] listObjectCommentAndAttachUsers(Map<String, Object> scd, Map<String, String> requestParams) {
+		if(true)return null;
 		int tableId = GenericUtil.uInt(requestParams.get("table_id"));
 		int tablePk = GenericUtil.uInt(requestParams.get("table_pk"));
 		int customizationId = (Integer) scd.get("customizationId");
