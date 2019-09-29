@@ -1431,7 +1431,7 @@ public class PostgreSQL extends BaseDAO {
 						if (FrameworkCache.getAppSettingIntValue(formResult.getScd(), "file_attachment_flag") != 0
 								&& t.getFileAttachmentFlag() != 0) {
 							extraSql.append(
-									"(select count(1) cnt from iwb.w5_file_attachment x where x.customization_id=? AND x.table_id=? AND x.table_pk=?::text) file_attach_count");
+									"(select count(1) cnt from iwb.w5_file_attachment x where x.project_uuid=?::text AND x.table_id=?::integer AND x.table_pk=?::text) file_attach_count");
 							extrInfoSet.add("file_attach_count");
 							extraSqlCount++;
 						}
@@ -1439,7 +1439,7 @@ public class PostgreSQL extends BaseDAO {
 								&& t.getMakeCommentFlag() != 0) {
 							if (extraSql.length() > 10)
 								extraSql.append(",");
-							if (FrameworkCache.getAppSettingIntValue(formResult.getScd(),
+							if (false && FrameworkCache.getAppSettingIntValue(formResult.getScd(),
 									"make_comment_summary_flag") != 0) {
 								extraSql.append(
 										"(select cx.comment_count||';'||cxx.comment_user_id||';'||to_char(cxx.comment_dttm,'dd/mm/yyyy hh24:mi:ss')||';'||cx.view_user_ids||'-'||cxx.dsc from iwb.w5_comment_summary cx, iwb.w5_comment cxx where cx.customization_id=? AND cx.table_id=? AND cx.table_pk=?::text AND cxx.customization_id=cx.customization_id AND cxx.comment_id=cx.last_comment_id) comment_extra");
@@ -1447,7 +1447,7 @@ public class PostgreSQL extends BaseDAO {
 								extraSqlCount++;
 							} else {
 								extraSql.append(
-										"(select count(1) cnt from iwb.w5_comment x where x.project_uuid=? AND x.table_id=? AND x.table_pk=?) comment_count");
+										"(select count(1) cnt from iwb.w5_comment x where x.project_uuid=?::text AND x.table_id=?::integer AND x.table_pk=?::integer) comment_count");
 								extrInfoSet.add("comment_count");
 								extraSqlCount++;
 							}
@@ -1466,7 +1466,7 @@ public class PostgreSQL extends BaseDAO {
 							s = conn.prepareStatement(extraSql.append(" ").toString());
 							List<Object> params = new ArrayList(extraSqlCount * 3 + 1);
 							for (int qi = 0; qi < extraSqlCount; qi++) {
-								params.add(formResult.getScd().get("customizationId"));
+								params.add(formResult.getScd().get("projectId"));
 								params.add(t.getTableId());
 								params.add(pkField2);
 							}
@@ -3898,7 +3898,7 @@ public class PostgreSQL extends BaseDAO {
 			// cx.table_pk=z.").append(pkFieldName).append(") pkpkpk_cf ");
 			W5QueryField field = new W5QueryField();
 			field.setDsc(FieldDefinitions.queryFieldName_Comment);
-			if (FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "make_comment_summary_flag") != 0) {
+			if (false && FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "make_comment_summary_flag") != 0) {
 				sql2.append(
 						",(select cx.comment_count||';'||cxx.comment_user_id||';'||to_char(cxx.comment_dttm,'dd/mm/yyyy hh24:mi:ss')||';'||cx.view_user_ids||'-'||cxx.dsc from iwb.w5_comment_summary cx, iwb.w5_comment cxx where cx.table_id=")
 						.append(query.getMainTableId()).append(" AND cx.project_uuid='")

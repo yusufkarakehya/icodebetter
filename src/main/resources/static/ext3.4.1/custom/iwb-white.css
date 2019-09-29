@@ -1249,3 +1249,11 @@ a.x-menu-item{
 	border-radius: 20px;
 	font-weight: 600;
 }
+
+.comment-count-badge{
+	color: white;
+	background: #607d8b;
+	padding: 1px 5px;
+	border-radius: 20px;
+	font-weight: 600;
+}

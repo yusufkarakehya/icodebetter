@@ -7702,69 +7702,6 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     }
   });
 
-  if (getForm.fileAttachFlag) {
-// btn.push("-");
-	  var xmenu=[];
-	  if(!getForm.viewMode)xmenu.push({
-          text: getLocMsg("js_dosya_sisteminden_ekle"),
-          _f: getForm,
-          handler: function(a) {
-            var getForm = a._f;
-            var table_pk = "";
-            if (getForm.a == 1) {
-              for (var key in getForm.pk)
-                if (key != "customizationId" && key != "projectId")
-                  table_pk += "|" + getForm.pk[key];
-            } else table_pk = "|" + getForm.tmpId;
-            fnNewFileAttachment4Form(a._f.crudTableId, table_pk.substring(1));
-          }
-        });
-	  xmenu.push({
-          text: getLocMsg("related_files"),
-          _f: getForm,
-          handler: function(a, b, c) {
-            var getForm = a._f;
-            var table_pk = "";
-            if (getForm.a == 1) {
-              for (var key in getForm.pk)
-                if (key != "customizationId" && key != "projectId")
-                  table_pk += "|" + getForm.pk[key];
-            } else table_pk = "|" + getForm.tmpId;
-            var cfg = {
-              attributes: {
-                modalWindow: true,
-                href: "showPage?_tid=518&_gid1=458",
-                _pk: {
-                  tfile_attachment_id: "file_attachment_id"
-                },
-                baseParams: {
-                  xtable_id: getForm.crudTableId,
-                  xtable_pk: table_pk.substring(1)
-                }
-              }
-            };
-            cfg.attributes._title_ = getForm.name;
-            mainPanel.loadTab(cfg);
-          }
-        });
-    btn.push({
-      tooltip:
-        "Files" +
-        (getForm.fileAttachCount > 0
-          ? " (" + getForm.fileAttachCount + ")"
-          : ""),
-      id: "af_" + getForm.id,
-      iconAlign: "top",
-      scale: "medium",
-      text:(getForm.fileAttachCount > 0
-              ? "<span class='file-count-badge'>" + getForm.fileAttachCount + "</span>"
-                      : undefined),
-
-      iconCls: "ifile_attach",
-      menu: xmenu
-    });
-  }
-
   if (1 * getForm.a == 2 && getForm.manualStartDemand) {
     btn.push({
       text: "${kaydet_onay_baslatma_talebi}",
@@ -7948,25 +7885,87 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     btn.push(getForm.extraButtons);
   }
 
-  btn.push("->");
+  if (getForm.fileAttachFlag) {
+// btn.push("-");
+	  var xmenu=[];
+	  if(!getForm.viewMode)xmenu.push({
+          text: getLocMsg("js_attach_file"),
+          _f: getForm,
+          handler: function(a) {
+            var getForm = a._f;
+            var table_pk = "";
+            if (getForm.a == 1) {
+              for (var key in getForm.pk)
+                if (key != "customizationId" && key != "projectId")
+                  table_pk += "|" + getForm.pk[key];
+            } else table_pk = "|" + getForm.tmpId;
+            fnNewFileAttachment4Form(a._f.crudTableId, table_pk.substring(1));
+          }
+        });
+	  xmenu.push({
+          text: getLocMsg("related_files"),
+          _f: getForm,
+          handler: function(a, b, c) {
+            var getForm = a._f;
+            var table_pk = "";
+            if (getForm.a == 1) {
+              for (var key in getForm.pk)
+                if (key != "customizationId" && key != "projectId")
+                  table_pk += "|" + getForm.pk[key];
+            } else table_pk = "|" + getForm.tmpId;
+            var cfg = {
+              attributes: {
+                modalWindow: true,
+                href: "showPage?_tid=518&_gid1=458",
+                _pk: {
+                  tfile_attachment_id: "file_attachment_id"
+                },
+                baseParams: {
+                  xtable_id: getForm.crudTableId,
+                  xtable_pk: table_pk.substring(1)
+                }
+              }
+            };
+            cfg.attributes._title_ = getForm.name;
+            mainPanel.loadTab(cfg);
+          }
+        });
+    btn.push({
+      tooltip:
+        "Files" +
+        (getForm.fileAttachCount > 0
+          ? " (" + getForm.fileAttachCount + ")"
+          : ""),
+      id: "af_" + getForm.id,
+      iconAlign: "top",
+      scale: "medium",
+      text:(getForm.fileAttachCount > 0
+              ? "<span class='file-count-badge'>" + getForm.fileAttachCount + "</span>"
+                      : undefined),
+
+      iconCls: "ifile_attach",
+      menu: xmenu
+    });
+  }
 
   if (getForm.a == 1 || getForm.tmpId) {
+//	  debugger
     var xb = false;
     if (getForm.commentFlag) {
       if (xb) {
 // btn.push("-");
         xb = false;
       }
-      var txt2 =
-        "${comment}" +
-        (getForm.commentCount > 0 ? " (" + getForm.commentCount + ")" : "");
-      if (getForm.commentExtra && getForm.commentExtra.is_new)
-        txt2 = '<b class="dirtyColor">' + txt2 + "</b>";
+
+
       btn.push({
-    	tooltip: txt2,
+    	tooltip: 'Comments',
         id: "cd_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
+        text:(getForm.commentCount > 0
+                ? "<span class='comment-count-badge'>" + getForm.commentCount + "</span>"
+                        : undefined),
         listeners: {
           render: function(ax, bx, cx) {
             var axx = getForm.commentExtra;
@@ -7996,7 +7995,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
 // style: {margin: "0px 5px 0px 5px"},
         iconCls: "ibig_comment",
         handler: function(a, b, c) {
-          if (a._commentCount)
+/*          if (a._commentCount)
             a.setText("${comment} (" + a._commentCount + ")");
           else
             a.setText(
@@ -8004,7 +8003,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
                 (getForm.commentCount > 0
                   ? " (" + getForm.commentCount + ")"
                   : "")
-            );
+            );*/
           var table_pk = "";
           if (getForm.a == 1) {
             for (var key in getForm.pk) {
@@ -8036,8 +8035,10 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         }
       });
     }
-    if (getForm.commentFlag || getForm.fileAttachFlag) btn.push("-");
+//    if (getForm.commentFlag || getForm.fileAttachFlag) btn.push("-");
   }
+  btn.push("->");
+
 
   if(!getForm.viewMode)btn.push({
 	tooltip: "Templates",
