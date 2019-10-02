@@ -395,6 +395,7 @@ background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIHZlcnNpb249
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23bbb' %3E%3Cpath d='M22 3v13h-11.643l-4.357 3.105v-3.105h-4v-13h20zm2-2h-24v16.981h4v5.019l7-5.019h13v-16.981z'/%3E%3C/svg%3E");
     background-position-y: 0px !important;
     background-repeat: no-repeat;
+    background-size: contain;
 }
 
 .isave_new{
