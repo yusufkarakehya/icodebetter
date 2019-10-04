@@ -40,7 +40,6 @@ import org.springframework.web.servlet.ModelAndView;
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.ViewMobileAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_4;
-import iwb.adapter.ui.f7.F7;
 import iwb.adapter.ui.f7.F7_4;
 import iwb.adapter.ui.react.React16;
 import iwb.adapter.ui.vue.Vue2;

@@ -8,7 +8,6 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import iwb.cache.FrameworkSetting;
 import iwb.exception.IWBException;
 
 public class InfluxUtil {

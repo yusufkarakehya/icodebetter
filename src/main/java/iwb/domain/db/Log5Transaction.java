@@ -1,7 +1,6 @@
 package iwb.domain.db;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
