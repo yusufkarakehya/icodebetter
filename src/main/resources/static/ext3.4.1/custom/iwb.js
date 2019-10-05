@@ -528,15 +528,15 @@ function fmtTimeAgo(a) {
         a = Math.round(a / 24);
         d = getLocMsg("js_gun");
       } else if (a > 15) {
-        return getLocMsg("js_yaklasik_bir_gun");
+        return getLocMsg("approx_one_day");
       }
     } else if (a > 40) {
-      return getLocMsg("js_yaklasik_bir_saat");
+      return getLocMsg("approx_one_hour");
     }
   } else if (a > 40) {
-    return getLocMsg("js_yaklasik_bir_dakika");
+    return getLocMsg("approx_one_minute");
   }
-  return a + " " + d + " " + getLocMsg("js_ago");
+  return a + " " + d + " " + getLocMsg("time_ago");
 }
 
 function fmtShortDate(x) {
@@ -632,7 +632,7 @@ function gcx(w, h, r) {
 
 function openPopup(url, name, x, y, r) {
   var wh = window.open(url, name, gcx(x, y, r));
-  if (!wh) Ext.infoMsg.alert("info", getLocMsg("js_once_popup_engel_kaldir"));
+  if (!wh) Ext.infoMsg.alert("info", getLocMsg("remove_popup_blocker"));
   else wh.focus();
   return false;
 }
@@ -738,7 +738,7 @@ var searchFormTools = [
       if (!sf._menu) {
         var buttons = [
           {
-            text: getLocMsg("js_bu_ayarlari_kaydet"),
+            text: getLocMsg("save_settings"),
             iconCls: "icon-ekle",
             handler: function(a, b, c) {
               var p = prompt("Template Name", "");
@@ -757,7 +757,7 @@ var searchFormTools = [
             }
           },
           {
-            text: getLocMsg("js_kaydedilenleri_duzenle"),
+            text: getLocMsg("update_settings"),
             iconCls: "icon-duzenle",
             handler: function(a, b, c) {
               mainPanel.loadTab({
@@ -1160,12 +1160,12 @@ function fnRowBulkMail(a, b) {
 
 function fnRowEdit(a, b) {
   if (!a._grid.onlyCommitBtn && a._grid.editMode) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_yazma_modundan_cikmalisiniz"));
+    Ext.infoMsg.msg("warning", getLocMsg("exit_from_edit_mode"));
     return;
   }
   var sel = getSel(a._grid);
   if (!sel) {// a._grid.sm.hasSelection()
-    Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
 
@@ -1200,7 +1200,7 @@ function fnRowEdit(a, b) {
 function fnRowEdit4Log(a, b) {
 	  var sel = getSel(a._grid);
   if (!sel) {// a._grid.sm.hasSelection()
-    Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
   var href =
@@ -1234,7 +1234,7 @@ function fnRowEdit4Log(a, b) {
 
 function fnDataMoveUpDown(a, b) {
   if (!a._grid.onlyCommitBtn && a._grid.editMode) {
-    Ext.infoMsg.alert("info", getLocMsg("js_yazma_modundan_cikmalisiniz"));
+    Ext.infoMsg.alert("info", getLocMsg("exit_from_edit_mode"));
     return;
   }
 
@@ -1261,7 +1261,7 @@ function fnCardDblClick(a, b) {
 
 function fnRowInsert(a, b) {
   if (!a._grid.onlyCommitBtn && a._grid.editMode) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_yazma_modundan_cikmalisiniz"));
+    Ext.infoMsg.msg("warning", getLocMsg("exit_from_edit_mode"));
     return;
   }
   var sel = getSel(a._grid);
@@ -1288,7 +1288,7 @@ function fnRowInsert(a, b) {
 function fnRowCopy(a, b) {
   var sel = getSel(a._grid);
   if (!sel) {// a._grid.sm.hasSelection()
-    Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
 
@@ -1319,7 +1319,7 @@ function fnRowCopy(a, b) {
 }
 function fnRowDelete(a, b) {
   if (!getSel(a._grid)) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
   if (a._grid.multiSelect) {
@@ -1344,11 +1344,11 @@ function fnRowDelete(a, b) {
     }
 
     Ext.infoMsg.confirm(
-      getLocMsg("js_secili_kayitlari_silmek_emin") +
+      getLocMsg("confirm_delete") +
         " (" +
         sels.length +
         " " +
-        getLocMsg("js_kayit") +
+        getLocMsg("record") +
         ")",
       () => {
         var href = "ajaxPostEditGrid?_fid=" + a._grid.crudFormId;
@@ -1397,7 +1397,7 @@ function fnRowDelete(a, b) {
       }
       return;
     }
-    Ext.infoMsg.confirm(getLocMsg("js_secili_kayit_silmek_emin"), () => {
+    Ext.infoMsg.confirm(getLocMsg("confirm_delete"), () => {
       var href = "ajaxPostForm?a=3&_fid=" + a._grid.crudFormId;
       if (typeof a._grid._postDelete == "function") {
         href = a._grid._postDelete(sel, href, a); // null donerse acilmayacak
@@ -1486,7 +1486,7 @@ function fnExportGridData(b) {
 function fnGraphGridData(a) {
   var g = a._grid;
   if (g.ds.getTotalCount() == 0) {
-    Ext.infoMsg.alert("info", getLocMsg("js_no_data"));
+    Ext.infoMsg.alert("info", getLocMsg("no_data"));
     return;
   }
   mainPanel.loadTab({
@@ -1497,7 +1497,7 @@ function fnGraphGridData(a) {
 function fnGraphGridDataTree(a) {
   var g = a._grid;
   if (g.ds.getTotalCount() == 0) {
-    Ext.infoMsg.alert("info", getLocMsg("js_no_data"));
+    Ext.infoMsg.alert("info", getLocMsg("no_data"));
     return;
   }
   mainPanel.loadTab({
@@ -1524,7 +1524,7 @@ function fnExportGridDataWithDetail(b) {
       return false;
     }
     if (g.ds.getTotalCount() == 0) {
-      Ext.infoMsg.alert("info", getLocMsg("js_no_data"));
+      Ext.infoMsg.alert("info", getLocMsg("no_data"));
       return;
     }
     var cols = "";
@@ -1591,7 +1591,7 @@ function fnNewFileAttachmentMail(a) {
       href: href,
       _form: fp,
       iconCls: "icon-attachment",
-      title: "Dosya Ekle"
+      title: getLocMsg("attach_files")
     }
   });
 }
@@ -1600,7 +1600,7 @@ function fnNewFileAttachment(a) {
   var hasReqestedVersion = false; //|| DetectFlashVer(9, 0, 0); // Bu flash yüklü mü değil
   var sel = getSel(a._grid);
   if (!sel) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
   var image_param = "";
@@ -1632,7 +1632,7 @@ function fnNewFileAttachment(a) {
 function fnNewFileAttachment4ExternalUrl(a) {
   var sel = getSel(a._grid);
   if (!sel) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
   var table_pk = "";
@@ -1679,7 +1679,7 @@ function fnNewFileAttachment4Form(tid, tpk, not_image_flag) {
 function fnFileAttachmentList(a) {
   var sel = getSel(a._grid);
   if (!sel) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
   var table_pk = "";
@@ -1762,7 +1762,7 @@ function fnCommit(a) {
   }
   if (dirtyCount > 0) {
     params._cnt = dirtyCount;
-    Ext.infoMsg.confirm(getLocMsg("js_degisiklik_kayit_emin"), () => {
+    Ext.infoMsg.confirm(getLocMsg("confirm_update"), () => {
     	iwb.request({
         url: "ajaxPostEditGrid?_fid=" + a._grid.crudFormId,
         params: params,
@@ -1780,7 +1780,7 @@ function fnCommit(a) {
         }
       });
     });
-  } else Ext.infoMsg.msg("warning", getLocMsg("js_degisiklik_yok"));
+  } else Ext.infoMsg.msg("info", getLocMsg("no_change"));
 }
 
 function fnToggleEditMode(a) {
@@ -1903,7 +1903,7 @@ function fnRecordComments(a) {
   // TODO: daha duzgun bir chat interface'i yap
   var sel = getSel(a._grid);
   if (!sel) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_once_birseyler_secmelisiniz"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
   var table_pk = "";
@@ -1929,7 +1929,7 @@ function fnRecordComments(a) {
 function fnRecordPrivileges(a) {
   var sel = getSel(a._grid);
   if (!sel) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
   var cfg = {
@@ -1982,7 +1982,7 @@ function buildHelpWindow(cfg) {
 function fnShowLog4Update(a, b) {
   var sel = getSel(a._grid);
   if (!sel) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
   var paramz = { _vlm: 1 };
@@ -7472,7 +7472,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     var sv_btn_visible = extDef.baseParams.sv_btn_visible || 1;
     if (sv_btn_visible * 1 == 1) {
       var saveBtn = {
-        text: (1 * getForm.a == 1 ? "Update" : realAction == 5 ? "Copy" : "Save").toUpperCase(),// + '
+        text: getLocMsg((1 * getForm.a == 1 ? "update" : realAction == 5 ? "copy" : "save")),// + '
 																								// '+getForm.name,
         id: "sb_" + getForm.id,
         iconAlign: "top",
@@ -7889,7 +7889,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
 // btn.push("-");
 	  var xmenu=[];
 	  if(!getForm.viewMode)xmenu.push({
-          text: getLocMsg("js_attach_file"),
+          text: getLocMsg("attach_files"),
           _f: getForm,
           handler: function(a) {
             var getForm = a._f;
@@ -7959,7 +7959,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
 
 
       btn.push({
-    	tooltip: 'Comments',
+    	tooltip: getLocMsg('comments'),
         id: "cd_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -8041,7 +8041,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
 
 
   if(!getForm.viewMode)btn.push({
-	tooltip: "Templates",
+	tooltip: getLocMsg("templates"),
     id: "ttemp_" + getForm.id,
     iconAlign: "top",
     scale: "medium",
@@ -8096,7 +8096,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     menu: {
       items: [
         {
-          text: "Save these values",
+          text: getLocMsg("save"),
           iconCls: "icon-ekle",
           handler: function(a, b, c) {
             var p = prompt("Template Name", "");
@@ -8115,7 +8115,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           }
         },
         {
-          text: "Edit Templates",
+          text: getLocMsg("update"),
           iconCls: "icon-duzenle",
           handler: function(a, b, c) {
             mainPanel.loadTab({

@@ -2923,14 +2923,14 @@ public class VcsService {
 						String lmk = o.getString("k");
 						Object[] lo = lclMap.get(lmk);
 						List<String> vx = null;
-						if(lo!=null || (vx=dao.executeSQLQuery("select x.dsc from iwb.w5_locale_msg x where x.customization_id=? AND x.locale=? AND x.locale_msg_key=?", customizationId, lmk.substring(0,2), lmk.substring(2)))!=null){ //demek iki yerde de var
+						if(lo!=null || (vx=dao.executeSQLQuery("select x.dsc from iwb.w5_locale_msg x where x.customization_id=? AND project_uuid=? AND x.locale=? AND x.locale_msg_key=?", customizationId, projectUuid, lmk.substring(0,2), lmk.substring(2)))!=null){ //demek iki yerde de var
 							String lmv = o.getString("v");
 							if(!lmv.equals(vx==null ? (String)lo[1] : vx.get(0))){ //farkli ise
 								String lmt = o.getString("t");
 								if(vx!=null || lmt.compareTo((String)lo[2])>0){
 									String lcl = lmk.substring(0,2);
 									String key = lmk.substring(2);
-									dao.executeUpdateSQLQuery("update iwb.w5_locale_msg set dsc=?, version_no=version_no+1, version_dttm=to_timestamp(?,'yymmddhh24miss'), version_user_id=? where customization_id=? AND locale=? AND locale_msg_key=?", lmv, lmt, o.getInt("u"), customizationId, lcl, key);
+									dao.executeUpdateSQLQuery("update iwb.w5_locale_msg set dsc=?, version_no=version_no+1, version_dttm=to_timestamp(?,'yymmddhh24miss'), version_user_id=? where customization_id=? AND project_uuid=? AND locale=? AND locale_msg_key=?", lmv, lmt, o.getInt("u"), customizationId, projectUuid, lcl, key);
 								} else {
 									lo[3]=1;
 									toPush.add(lo);
@@ -2940,8 +2940,8 @@ public class VcsService {
 						} else { //insert edilecek local
 							String lcl = lmk.substring(0,2);
 							String key = lmk.substring(2);
-							dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_locale_msg(locale, locale_msg_key, dsc, version_no, version_user_id, version_dttm, insert_user_id, insert_dttm, publish_flag, customizabled_flag, customization_id, project_uuid) "
-									+ " VALUES (?, ?, ?, 1, ?, current_timestamp, ?, to_timestamp(?,'yymmddhh24miss'), 0, 1, ?, ?)", lcl, key, o.get("v"), o.getInt("u"), o.getInt("u"), o.getString("t"), customizationId, projectUuid);
+							dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_locale_msg(locale, locale_msg_key, dsc, version_no, version_user_id, version_dttm, insert_user_id, insert_dttm, publish_flag, customization_id, project_uuid) "
+									+ " VALUES (?, ?, ?, 1, ?, current_timestamp, ?, to_timestamp(?,'yymmddhh24miss'), 0, ?, ?)", lcl, key, o.get("v"), o.getInt("u"), o.getInt("u"), o.getString("t"), customizationId, projectUuid);
 						}
 						
 						
@@ -3020,13 +3020,11 @@ public class VcsService {
 			String key = o.getString("k");
 			String val = o.getString("v");
 			String tm = o.getString("t");
-			if(GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_locale_msg where locale=? AND locale_msg_key=? AND customization_id=?", lcl, key, customizationId).get(0))==0)
+			if(GenericUtil.uInt(dao.executeSQLQuery("select count(1) from iwb.w5_locale_msg where locale=? AND locale_msg_key=? AND customization_id=? AND project_uuid=?", lcl, key, customizationId, projectId).get(0))==0)
 				dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_locale_msg(locale, locale_msg_key, dsc, version_no, version_user_id, version_dttm, insert_user_id, insert_dttm, publish_flag, customization_id, project_uuid) "
 						+ " VALUES (?, ?, ?, 1, ?, current_timestamp, ?, to_timestamp(?,'yymmddhh24miss'), 0, ?, ?)", lcl, key, val, userId, userId, tm, customizationId, projectId);
 			else
-				dao.executeUpdateSQLQuery("update iwb.w5_locale_msg set dsc=?, version_no=version_no+1, version_dttm=to_timestamp(?,'yymmddhh24miss'), version_user_id=? where customization_id=? AND locale=? AND locale_msg_key=?", val, tm, userId, customizationId, lcl, key);
-			
-
+				dao.executeUpdateSQLQuery("update iwb.w5_locale_msg set dsc=?, version_no=version_no+1, version_dttm=to_timestamp(?,'yymmddhh24miss'), version_user_id=? where customization_id=? AND project_uuid=? AND locale=? AND locale_msg_key=?", val, tm, userId, customizationId, projectId, lcl, key);
 		}
 
 		return ja.length();
