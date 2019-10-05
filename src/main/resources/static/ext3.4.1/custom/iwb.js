@@ -100,7 +100,7 @@ function promisLoadException(a, b, c) {
   } else {
     // Ext.Msg.show({title:getLocMsg('js_info'),msg:
 	// getLocMsg('js_no_connection_error'),icon: Ext.MessageBox.WARNING})
-    showStatusText(getLocMsg("js_no_connection_error"), 3); // error
+    showStatusText(getLocMsg("connection_error"), 3); // error
   }
 }
 
@@ -337,13 +337,13 @@ function approvalHtml(x, y, z) {
     var bb = false;
     if (z.data.app_role_ids_qw_) {
       str +=
-        " [" + getLocMsg("js_roller") + ": " + z.data.app_role_ids_qw_ + "]";
+        " [" + getLocMsg("roles") + ": " + z.data.app_role_ids_qw_ + "]";
       bb = true;
     }
     if (z.data.app_user_ids_qw_) {
       if (bb) str += ",";
       str +=
-        " [" + getLocMsg("js_users") + ": " + z.data.app_user_ids_qw_ + "]";
+        " [" + getLocMsg("users") + ": " + z.data.app_user_ids_qw_ + "]";
     }
     str += '"';
   }
@@ -463,12 +463,12 @@ function getSels(m){
 
 function getGridSel(a) {
   if (!a || !a._grid) {
-    Ext.infoMsg.msg("error", getLocMsg("js_list_not_defined"));
+    Ext.infoMsg.msg("error", getLocMsg("list_not_defined"));
     return null;
   } else {
 	  var m = getSel(a._grid);
 	  if(!m){
-	    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
+	    Ext.infoMsg.msg("error", getLocMsg("select_something"));
 	    return null;
 	  }
     return m;
@@ -482,12 +482,12 @@ function getMasterGridSel(a) {
     !a._grid ||
     !a._grid._masterGrid
   ) {
-    Ext.infoMsg.msg("error", getLocMsg("js_master_list_not_defined"));
+    Ext.infoMsg.msg("error", getLocMsg("master_list_not_defined"));
     return null;
   } else {
 	  var m = getSel(a._grid._masterGrid);
 	  if(!m){
-	    Ext.infoMsg.msg("error", getLocMsg("js_select_something"));
+	    Ext.infoMsg.msg("error", getLocMsg("select_something"));
 	    return null;
 	  }
 	  return m;
@@ -841,7 +841,7 @@ function fnShowDetailDialog(a, b) {
     autoScroll: true,
     fbar: [
       {
-        text: getLocMsg("kapat"),
+        text: getLocMsg("close"),
         handler: function() {
           Ext.getCmp("grid_detail_dialog_id").close();
         }
@@ -928,7 +928,7 @@ function showTableChildList(e, vtip, vxid, mtid, mtpk, relId) {
         items.push("-");
         items.push({
           text:
-            getLocMsg("js_more") +
+            getLocMsg("more") +
             "....(Total " +
             j.browseInfo.totalCount +
             ")",
@@ -1456,7 +1456,7 @@ function fnExportGridData(b) {
   return function(a) {
     var g = a._grid;
     if (g.ds.getTotalCount() == 0) {
-      Ext.infoMsg.alert("info", getLocMsg("js_no_data"));
+      Ext.infoMsg.alert("info", getLocMsg("no_data"));
       return;
     }
     var cols = "";
@@ -1848,7 +1848,7 @@ function fnGridSetting(a) {
     };
   }
   cfg.attributes._title_ =
-    getLocMsg("js_mazgal_ayarlari") + " (" + a._grid.name + ")";
+    getLocMsg("grid_settings") + " (" + a._grid.name + ")";
   mainPanel.loadTab(cfg);
 }
 
@@ -1993,7 +1993,7 @@ function fnShowLog4Update(a, b) {
       _title_:
         getLocMsg("js_duzenle_kaydi") +
         ":" +
-        (sel.data.dsc || getLocMsg("js_kayit")),
+        (sel.data.dsc || getLocMsg("record")),
       modalWindow: true,
       _grid: a._grid,
       href: "showPage?_tid=298&_gid1=" + a._grid.gridId,
@@ -2018,7 +2018,7 @@ function addMoveUpDownButtons(xbuttons, xgrid) {
   if (xgrid.crudTableId) {
     if (xbuttons.length > 0) xbuttons.push("-");
     xbuttons.push({
-      tooltip: getLocMsg("js_yukari"),
+      tooltip: getLocMsg("up"),
       cls: "x-btn-icon x-grid-go-up",
       disabled: true,
       _activeOnSelection: true,
@@ -2027,7 +2027,7 @@ function addMoveUpDownButtons(xbuttons, xgrid) {
       handler: fnDataMoveUpDown
     });
     xbuttons.push({
-      tooltip: getLocMsg("js_asagi"),
+      tooltip: getLocMsg("down"),
       cls: "x-btn-icon x-grid-go-down",
       disabled: true,
       _activeOnSelection: true,
@@ -2316,7 +2316,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
         _grid: xgrid,
         menu: [
           {
-            text: getLocMsg("js_dosya_sisteminden_ekle"),
+            text: getLocMsg("attach_files"),
             _grid: xgrid,
             handler: fnNewFileAttachment
           },
@@ -2368,7 +2368,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
       });
     } else {
       xbuttons.push({
-        tooltip: getLocMsg("js_dosya_sisteminden_ekle"),
+        tooltip: getLocMsg("attach_files"),
         cls: "x-btn-icon x-grid-attachment",
         disabled: true,
         _activeOnSelection: true,
@@ -2400,7 +2400,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
     submenu = [];
     if (xgrid.btnApproveRequest) {
       submenu.push({
-        text: getLocMsg("onay_iste"),
+        text: getLocMsg("request_approval"),
         _grid: xgrid,
         handler: function(a, e) {
           var sels = getSels(a._grid);
@@ -2437,7 +2437,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
     }
 
     submenu.push({
-      text: getLocMsg("js_onayla"),
+      text: getLocMsg("approve"),
       _grid: xgrid,
       handler: function(a, e) {
         approveTableRecords(1, a);
@@ -2445,7 +2445,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
     });
 
     submenu.push({
-      text: getLocMsg("js_reddet"),
+      text: getLocMsg("reject"),
       _grid: xgrid,
       handler: function(a, e) {
         approveTableRecords(0, a);
@@ -2453,14 +2453,14 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
     });
 
     submenu.push({
-      text: getLocMsg("js_iade_et"),
+      text: getLocMsg("return"),
       _grid: xgrid,
       handler: function(a, e) {
         approveTableRecords(2, a);
       }
     });
     xgrid.menuButtons.push({
-      text: getLocMsg("onay"),
+      text: getLocMsg("approve"),
       iconCls: "icon-operation",
       menu: submenu
     });
@@ -2511,25 +2511,25 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
   }
   var xxmenu = [];
   xxmenu.push({
-    text: getLocMsg("js_pdfe_aktar"),
+    text: getLocMsg("pdf"),
     _activeOnSelection: false,
     _grid: xgrid,
     handler: fnExportGridData("pdf")
   });
   xxmenu.push({
-    text: getLocMsg("js_excele_aktar"),
+    text: getLocMsg("excel"),
     _activeOnSelection: false,
     _grid: xgrid,
     handler: fnExportGridData("xls")
   });
   xxmenu.push({
-    text: getLocMsg("js_convert_to_csv"),
+    text: getLocMsg("csv"),
     _activeOnSelection: false,
     _grid: xgrid,
     handler: fnExportGridData("csv")
   });
   xxmenu.push({
-    text: getLocMsg("js_convert_to_text"),
+    text: getLocMsg("text"),
     _activeOnSelection: false,
     _grid: xgrid,
     handler: fnExportGridData("txt")
@@ -2547,7 +2547,7 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
     xxmenu.push("-");
     if (xgrid.crudTableId) {
       xxmenu.push({
-        text: getLocMsg("js_graph"),
+        text: getLocMsg("graph"),
         _activeOnSelection: false,
         _grid: xgrid,
         handler: fnGraphGridDataTree
@@ -2593,7 +2593,7 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
 		// aq._grid.crudTableId, '_blank', 1200, 800, 1);}});
     } else {
       xxmenu.push({
-        text: getLocMsg("js_graph"),
+        text: getLocMsg("graph"),
         _activeOnSelection: false,
         _grid: xgrid,
         handler: fnGraphGridData
@@ -2731,7 +2731,7 @@ function addDefaultPrivilegeButtons(xbuttons, xgrid) {
       bx = false;
     if (_scd.customizationId == 0) {
       xxmenu.push({
-        text: getLocMsg("js_ayarlar"),
+        text: getLocMsg("settings"),
         cls: "x-btn-icon x-grid-setting",
         _activeOnSelection: false,
         _grid: xgrid,
@@ -2741,7 +2741,7 @@ function addDefaultPrivilegeButtons(xbuttons, xgrid) {
     }
     if (_scd.customizationId == 0) {
       xxmenu.push({
-        text: getLocMsg("js_yetkiler"),
+        text: getLocMsg("access_control"),
         cls: "x-btn-icon x-grid-privilege",
         _activeOnSelection: false,
         _grid: xgrid,
@@ -2793,7 +2793,7 @@ function addDefaultCommitButtons(xbuttons, xgrid) {
   if (xgrid.crudTableId)
     xbuttons.push({
       id: "btn_commit_" + xgrid.id,
-      tooltip: getLocMsg("js_commit"),
+      tooltip: getLocMsg("commit"),
       cls: "x-btn-icon x-grid-commit",
       disabled: !xgrid.editMode,
       _activeOnSelection: false,
@@ -2804,7 +2804,7 @@ function addDefaultCommitButtons(xbuttons, xgrid) {
   if (!xgrid.onlyCommitBtn)
     xbuttons.push({
       id: "btn_edit_mode_" + xgrid.id,
-      tooltip: getLocMsg("js_duzenle_modu"),
+      tooltip: getLocMsg("edit_mode"),
       cls: "x-btn-icon x-grid-startedit",
       _activeOnSelection: false,
       _grid: xgrid,
@@ -2832,7 +2832,7 @@ function addTab4GridWSearchForm(obj) {
     // refresh buttonu
     buttons.push({
       id: "btn_refresh_" + mainGrid.id,
-      tooltip: getLocMsg("js_refresh"),
+      tooltip: getLocMsg("refresh"),
       iconCls: "x-tbar-loading",
       _activeOnSelection: false,
       _grid: mainGrid,
@@ -3687,14 +3687,21 @@ function prepareLogErrors(obj) {
 }
 
 function showSQLError(sql, xpos, err) {
-  var _code = new Ext.ux.form.Monaco({
+  var _code = window.monaco ? new Ext.ux.form.Monaco({
     hideLabel: true,// id:'id-ahmet',
     language: "sql",
     name: "code",
     anchor: "%100",
     height: "%100",
     value: sql
-  });
+  }):  new Ext.form.TextArea({
+	    hideLabel: true,// id:'id-ahmet',
+	    language: "sql",
+	    name: "code",
+	    anchor: "%100",
+	    height: "%100",
+	    value: sql
+	  });
 
   var wx = new Ext.Window({
     modal: true,
@@ -3718,14 +3725,21 @@ function showSQLError(sql, xpos, err) {
 }
 
 function showScriptError(sql, xlineNo, err) {
-	  var _code = new Ext.ux.form.Monaco({
-	    hideLabel: true,// id:'id-ahmet',
-	    language: "javascript",
-	    name: "code",
-	    anchor: "%100",
-	    height: "%100",
-	    value: sql
-	  });
+	  var _code = window.monaco ? new Ext.ux.form.Monaco({
+		    hideLabel: true,// id:'id-ahmet',
+		    language: "javascript",
+		    name: "code",
+		    anchor: "%100",
+		    height: "%100",
+		    value: sql
+		  }): new Ext.form.TextArea({
+			    hideLabel: true,// id:'id-ahmet',
+			    language: "javascript",
+			    name: "code",
+			    anchor: "%100",
+			    height: "%100",
+			    value: sql
+			  });
 
 	  var wx = new Ext.Window({
 	    modal: true,
@@ -4649,7 +4663,7 @@ function approveTableRecord(aa, a) {
   var rec_id;
 
   if (!sel) {
-    Ext.infoMsg.msg("warning", getLocMsg("js_select_something"));
+    Ext.infoMsg.msg("warning", getLocMsg("select_something"));
     return;
   }
   if (aa == 2 && 1 * sel.data.return_flag == 0) {
@@ -7932,7 +7946,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         });
     btn.push({
       tooltip:
-        "Files" +
+        getLocMsg("files") +
         (getForm.fileAttachCount > 0
           ? " (" + getForm.fileAttachCount + ")"
           : ""),
