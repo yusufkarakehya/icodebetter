@@ -600,7 +600,7 @@ public class VcsService {
 						lclObjects = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? order by t.tableId, t.tablePk", projectUuid, customizationId) ;
 					} else {
 						if(!schema.endsWith("%"))schema+="%";
-						lclObjects = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? and exists(select 1 from W5Table q where q.customizationId=t.customizationId AND q.tableId=t.tableId AND q.dsc like ?) order by t.tableId, t.tablePk", projectUuid, customizationId,schema) ;
+						lclObjects = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? and exists(select 1 from W5Table q where q.projectUuid=t.projectUuid AND q.tableId=t.tableId AND q.dsc like ?) order by t.tableId, t.tablePk", projectUuid, customizationId,schema) ;
 					}
 					Map<String, W5VcsObject> srcMap = new HashMap();
 					for(W5VcsObject ox:lclObjects){
@@ -708,7 +708,7 @@ public class VcsService {
 					}
 					if(!srcMap.isEmpty())for(String k:srcMap.keySet()) {
 						W5VcsObject lclObj = srcMap.get(k);
-						if(lclObj.getVcsObjectStatusTip()!=8 && lclObj.getVcsObjectStatusTip()!=0){ //localde yeni eklenmis, server'da yok TODO
+						if(lclObj.getVcsObjectStatusTip()!=8 && lclObj.getVcsObjectStatusTip()!=0 && lclObj.getVcsObjectStatusTip()!=3){ //localde yeni eklenmis, server'da yok TODO
 							Object[] od = new Object[14];
 							od[0]=k;
 							String[] kx = k.replace('.', ',').split(",");
@@ -1876,8 +1876,8 @@ public class VcsService {
 				int tablePk = GenericUtil.uInt(pk[1]);
 				W5Table t = FrameworkCache.getTable(0, tableId);
 				if(t.getVcsFlag()!=0){ //master olanlar haric
-					List<W5VcsObject> l2 = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=?", 
-							tableId, tablePk, customizationId);
+					List<W5VcsObject> l2 = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=?", 
+							tableId, tablePk, projectId);
 					if(!l2.isEmpty()){
 						Map m2 = new HashMap();
 						m2.put("id", tableId + "." + tablePk);

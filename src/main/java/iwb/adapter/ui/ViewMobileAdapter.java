@@ -9,7 +9,6 @@ import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.result.M5ListResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5PageResult;
-import iwb.domain.result.W5QueryResult;
 
 public interface ViewMobileAdapter {
 //	public	StringBuilder serializeQueryData(W5QueryResult queryResult);

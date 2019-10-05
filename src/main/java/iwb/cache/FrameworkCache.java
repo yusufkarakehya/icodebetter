@@ -39,7 +39,6 @@ import iwb.domain.db.W5Ws;
 import iwb.domain.db.W5WsMethod;
 import iwb.domain.db.W5WsServer;
 import iwb.exception.IWBException;
-import iwb.mq.MQTTCallback;
 import iwb.util.GenericUtil;
 
 public class FrameworkCache {

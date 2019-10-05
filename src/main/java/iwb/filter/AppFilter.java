@@ -2,7 +2,6 @@ package iwb.filter;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;

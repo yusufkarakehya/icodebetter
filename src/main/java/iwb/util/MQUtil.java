@@ -11,7 +11,6 @@ import com.rabbitmq.client.ConnectionFactory;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.domain.db.W5Mq;
-import iwb.domain.db.W5MqCallback;
 import iwb.mq.MQTTCallback;
 import iwb.service.FrameworkService;
 

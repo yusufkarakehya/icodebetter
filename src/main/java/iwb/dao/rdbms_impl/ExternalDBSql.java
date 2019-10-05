@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +14,10 @@ import org.springframework.stereotype.Component;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
-import iwb.cache.LocaleMsgCache;
-import iwb.custom.trigger.QueryTrigger;
 import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryFieldCreation;
-import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;

@@ -10,13 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.redisson.api.RedissonClient;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;

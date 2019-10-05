@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.graalvm.polyglot.Value;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.redisson.api.RedissonClient;
 
