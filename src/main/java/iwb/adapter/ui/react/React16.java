@@ -2907,7 +2907,7 @@ public class React16 implements ViewAdapter {
 	 */
 	final public static String[] postQueryMap = new String[] {
 			"disabledCheckBoxHtml", "accessControlHtml",
-			"fileAttachmentHtml", "commentRenderer", "keywordHtml",
+			"fileAttachmentHtml", "commentHtml", "keywordHtml",
 			"approvalHtml", "mailBoxRenderer", "pictureHtml", "revisionHtml", "vcsHtml" };
 
 	private StringBuilder serializeListColumns(W5ListViewResult listResult) {

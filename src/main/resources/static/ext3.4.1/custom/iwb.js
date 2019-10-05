@@ -7795,7 +7795,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
     } else {
       btn.push({
-        text: "APPROVE",
+        text: getLocMsg("approve"),
         id: "aapp_" + getForm.id,
         tooltip: getForm.approval.stepDsc,
         iconAlign: "top",

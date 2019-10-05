@@ -4830,3 +4830,9 @@ iwb.fmtFileSize = a => {
   if (d != "B") a = Math.round(a * 10) / 10;
   return a + " " + d;
 };
+
+function commentHtml(row, cell){
+    return row[cell] && 1 * row[cell] ?
+            _("i", { className: "icon-bubble" }) :
+            null;
+}
