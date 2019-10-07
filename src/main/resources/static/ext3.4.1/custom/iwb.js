@@ -3699,7 +3699,7 @@ function showSQLError(sql, xpos, err) {
 	    language: "sql",
 	    name: "code",
 	    anchor: "%100",
-	    height: "%100",
+	    style: "height:500px",
 	    value: sql
 	  });
 
@@ -3737,7 +3737,7 @@ function showScriptError(sql, xlineNo, err) {
 			    language: "javascript",
 			    name: "code",
 			    anchor: "%100",
-			    height: "%100",
+			    style: "height:500px",
 			    value: sql
 			  });
 
@@ -8621,4 +8621,23 @@ iwb.apexGraph = function(dg, gid, callback) {
 			
 	    }
 	  });
+}
+iwb.hideGridColumn = function(gxx, id, visible){
+	if(gxx.id){
+		var myGrid = Ext.getCmp(gxx.id);
+		if(myGrid){
+			var colModel = myGrid.getColumnModel();
+			var ix = colModel.findColumnIndex(id);
+			if(ix>=0)colModel.setHidden(ix, !visible);
+			return;
+		}
+	}
+	if(gxx.columns && gxx.columns.length)gxx.columns.map((o)=>{
+		if(o.id==id)o.hidden=!visible;
+	});
+}
+iwb.refreshGrid = function(gridId){
+	if(!gridId)return;
+	var gxx = Ext.getCmp(gridId);
+	if(gxx && gxx.store)gxx.store.reload();
 }
