@@ -3119,7 +3119,7 @@ public class VcsService {
 			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid, "
 					+ " ui_web_frontend_tip, ui_main_template_id, session_query_id, authentication_func_id, ui_login_template_id, insert_user_id)"
 					+ " values (?,1,?, ?, ?,?,?,?, ?,"
-					+ "?, ?, ?, ?, ?, ?)", newProjectId, po.getDsc(), 0, schema, "http://www.promiscrm.com:8888/app/","app.store", "1", projectId
+					+ "?, ?, ?, ?, ?, ?)", newProjectId, po.getDsc(), 0, schema, "http://18.189.84.73/app/","app.store", "1", projectId
 					, po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId(), scd.get("userId"));
 			dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 		} else { 
