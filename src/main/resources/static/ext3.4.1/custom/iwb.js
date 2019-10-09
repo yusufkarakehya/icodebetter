@@ -2543,7 +2543,7 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
       handler: fnExportGridDataWithDetail("xls")
     });
   }
-  if (xgrid.ds && !xgrid.master_column_id) {
+  if (_app.bi_flag && 1*_app.bi_flag && xgrid.ds && !xgrid.master_column_id) {
     xxmenu.push("-");
     if (xgrid.crudTableId) {
       xxmenu.push({
@@ -4131,11 +4131,6 @@ function formSubmit(submitConfig) {
         for (var ix = 0; ix < myJson.smsMailPreviews.length; ix++) {
           var smp = myJson.smsMailPreviews[ix];
           var ss = "";
-          if (smp.tbId == 683)
-            // w5_customer_feedback
-            ss =
-              "&tcustomization_id=" +
-              submitConfig.extraParams.tcustomization_id;
           jsonQueue.push({
             attributes: {
               href:
@@ -4250,6 +4245,8 @@ function formSubmit(submitConfig) {
               [xg]
             );
           else iwb.reload(xg);
+        } else if (submitConfig._callAttributes._gridId) {
+        	iwb.refreshGrid(submitConfig._callAttributes._gridId);
         }
       }
     },
@@ -7040,7 +7037,11 @@ iwb.reload=function(g, p){
 	if(g.ds && g.ds.reload)g.ds.reload(p||{});
 	else if(g.store && g.store.reload)g.store.reload(p||{});
 }
-
+iwb.refreshGrid = function(gridId){
+	if(!gridId)return;
+	var gxx = Ext.getCmp(gridId);
+	if(gxx && gxx.store)gxx.store.reload();
+}
 function vcsPull(xgrid, tid, tpk) {
   var xparams = { t: tid, k: tpk };
   var xgrd = xgrid;
@@ -8635,9 +8636,4 @@ iwb.hideGridColumn = function(gxx, id, visible){
 	if(gxx.columns && gxx.columns.length)gxx.columns.map((o)=>{
 		if(o.id==id)o.hidden=!visible;
 	});
-}
-iwb.refreshGrid = function(gridId){
-	if(!gridId)return;
-	var gxx = Ext.getCmp(gridId);
-	if(gxx && gxx.store)gxx.store.reload();
 }
