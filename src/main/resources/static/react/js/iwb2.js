@@ -2905,6 +2905,7 @@ class XTabForm extends React.PureComponent {
                                     }
                                 );
                             } else
+                            	if(action!=3)
                                 yesNoDialog({
                                     text: getLocMsg("are_you_sure"), //"Are you Sure to "+strAction+"?",
                                     callback: success =>
@@ -2918,7 +2919,18 @@ class XTabForm extends React.PureComponent {
                                             successCallback: () =>
                                                 this.props.parentCt.closeTab(event, true)
                                         })
-                                });
+                                });else {
+                                	var rejectStr = prompt(getLocMsg("reject_reason"));
+                                	if(rejectStr)iwb.request({
+                                        url,
+                                        params: {
+                                            _adsc: rejectStr,
+                                            _avno: this.props.cfg.approval.versionNo
+                                        },
+                                        successCallback: () =>
+                                            this.props.parentCt.closeTab(event, true)
+                                    })
+                                }
                             // }
                             break;
                     }
@@ -3721,6 +3733,7 @@ class XGridAction extends React.PureComponent {
      * @param {Symbol}
      *            props.showDetail - ['null'] detail grid used in nested detail grid
      */
+
 class XGrid extends GridCommon {
     constructor(props) {
         super(props);
@@ -7680,7 +7693,10 @@ class XForm extends React.Component {
                      * value'}
                      */
                     var componentWillPostResult = this.componentWillPost(values, cfg || {});
-                    if (!componentWillPostResult) return false;
+                    if (!componentWillPostResult){
+                    	iwb.loadingDeactive();
+                    	return false;
+                    }
                     values = {...values, ...componentWillPostResult };
                 }
                 iwb.request({

@@ -4039,7 +4039,7 @@ public class PostgreSQL extends BaseDAO {
 		List<Object> l2 = executeSQLQuery(sql2.toString());
 		if(l2==null)return;
 		tbMap.put(tableId+"."+tablePk, l2.get(0).toString());
-		
+//		if(true)return;
 		if(!GenericUtil.isEmpty(t.get_tableChildList()))for (W5TableChild tc : t.get_tableChildList()) {
 			W5Table ct = FrameworkCache.getTable(scd, tc.getRelatedTableId());
 			
@@ -6238,6 +6238,13 @@ public class PostgreSQL extends BaseDAO {
   public void copyTableRecord4VCS(Map<String, Object> scd, Map dstScd, int tableId, int tablePk) {
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		W5TableParam tp = t.get_tableParamList().get(0);
+		StringBuilder preSql = new StringBuilder();
+		preSql.append("select count(1) qq from ").append(t.getDsc()).append(" x where x.")
+			.append(tp.getExpressionDsc()).append("=").append(tablePk).append(" AND x.project_uuid='")
+			.append(dstScd.get("projectId")).append("'");
+		Object oo = executeSQLQuery(preSql.toString()).get(0);
+		if(GenericUtil.uInt(oo)!=0)return;
+		
 		StringBuilder b = new StringBuilder();
 		b.append("insert into ").append(t.getDsc()).append("(");
 		StringBuilder b2 = new StringBuilder();

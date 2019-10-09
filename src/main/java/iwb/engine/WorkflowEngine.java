@@ -68,7 +68,7 @@ public class WorkflowEngine {
 					LocaleMsgCache.get2(0, xlocale, "approval_not_active"), null);
 		}
 		if (approvalAction != 901) {
-			if (versionNo != ar.getVersionNo()) {
+			if (false && versionNo != ar.getVersionNo()) {
 				throw new IWBException("security", "WorkflowRecord", approvalRecordId, null,
 						LocaleMsgCache.get2(0, xlocale, "approval_onay_kaydi_degismis"), null);
 			}
@@ -270,6 +270,26 @@ public class WorkflowEngine {
 			if (currentStep.getApprovalStepId() == 901) {
 				throw new IWBException("validation", "WorkflowRecord", approvalRecordId, null,
 						LocaleMsgCache.get2(0, xlocale, "approval_hatali_islem"), null);
+			}
+			if (currentStep.getOnRejectStepSql() != null) {
+				parameterMap.put("_tb_pk", "" + ar.getTablePk());
+				Object oz = scriptEngine.executeScript(scd, parameterMap, currentStep.getOnRejectStepSql(),
+						null, "wfs_" + currentStep.getApprovalStepId() + "_ass2");
+				if (oz != null) {
+					if (oz instanceof Boolean) {
+						if (!((Boolean) oz))
+							throw new IWBException("framework", "WorkflowRecord", approvalRecordId, null,
+									LocaleMsgCache.get2(0, xlocale, "reject_denied"), null);
+					} else
+						advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
+				}
+				/*
+				 * Object[] oz = DBUtil.filterExt4SQL( currentStep.getOnApproveStepSql(), scd,
+				 * parameterMap, null); advancedNextStepSqlResult = dao.runSQLQuery2Map(oz[0].
+				 * toString(), (List) oz[1], null); if
+				 * (advancedNextStepSqlResult.get("next_step_id") != null) nextStepId =
+				 * GenericUtil.uInt(advancedNextStepSqlResult.get("next_step_id"));
+				 */
 			}
 			mesaj = " '" + scd.get("completeName") + "' " + LocaleMsgCache.get2(0, xlocale, "approval_rejected_by");
 			if (a.getOnRejectTip() == 2) { // red olunca kaydi sil

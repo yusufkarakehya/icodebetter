@@ -1983,7 +1983,16 @@ public class React16 implements ViewAdapter {
 		if (fc.getControlTip() == 102)
 			return buf.append("$:'div', className:'alert alert-").append(labelMap[fc.getLookupQueryId()]).append("',children:[_('i',{className:'icon-info'}),' ','").append(GenericUtil.stringToJS(value)).append("']}");
 		else if ((fc.getControlTip() == 101 || cellResult.getHiddenValue() != null)/* && (fc.getControlTip()!=9 && fc.getControlTip()!=16) */) {
-			return buf.append("type:'text', readOnly:true, hiddenValue:'").append(GenericUtil.stringToJS(cellResult.getHiddenValue())).append("',label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("',disabled:true, value:'").append(GenericUtil.stringToJS(value)).append("'}");
+			buf.append("type:'text', readOnly:true, hiddenValue:'").append(GenericUtil.stringToJS(cellResult.getHiddenValue())).append("',label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("',disabled:true, value:'").append(GenericUtil.stringToJS(value)).append("'");
+			if(fc.get_sourceObjectDetail()==null && !GenericUtil.isEmpty(fc.getExtraDefinition())){
+				if(!fc.getExtraDefinition().startsWith(",")) {
+					buf.append(",");
+				}
+				buf.append(fc.getExtraDefinition());
+				
+			}
+			buf.append("}");
+			return buf;
 			
 		}
 
