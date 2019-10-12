@@ -218,7 +218,7 @@ function fileAttachmentRenderer(a) {
     return ax
       ? '<div style="background-position-x:center" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
           a.name +
-          "',href:'showPage?_tid=518&_gid1=458&_gid458_a=1',_pk:{tfile_attachment_id:'file_attachment_id'},baseParams:{xtable_id:" +
+          "',href:'showPage?_tid=238&_gid1=458&_gid458_a=1',_pk:{tfile_attachment_id:'file_attachment_id'},baseParams:{xtable_id:" +
           a.crudTableId +
           ", xtable_pk:" +
           cx.id +
@@ -364,7 +364,7 @@ function mailBoxRenderer(a) {
     return ax
       ? "<img src=\"../images/custom/bullet_mail.gif\" border=0 onclick=\"mainPanel.loadTab({attributes:{modalWindow:true, _iconCls:'icon-email', _title_:'" +
           a.name +
-          "',href:'showPage?_tid=518&_gid1=874',baseParams:{xtable_id:" +
+          "',href:'showPage?_tid=238&_gid1=874',baseParams:{xtable_id:" +
           a.crudTableId +
           ",xtable_pk:" +
           cx.id +
@@ -1687,7 +1687,7 @@ function fnFileAttachmentList(a) {
   var cfg = {
     attributes: {
       modalWindow: true,
-      href: "showPage?_tid=518&_gid1=458&_gid458_a=1",
+      href: "showPage?_tid=238&_gid1=458&_gid458_a=1",
       _pk: { tfile_attachment_id: "file_attachment_id" },
       baseParams: {
         xtable_id: a._grid.crudTableId,
@@ -2330,7 +2330,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
                 var cfg = {
                   attributes: {
                     modalWindow: true,
-                    href: "showPage?_tid=518&_gid1=458",
+                    href: "showPage?_tid=238&_gid1=458",
                     _pk: {
                       tfile_attachment_id: "file_attachment_id"
                     },
@@ -7931,7 +7931,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             var cfg = {
               attributes: {
                 modalWindow: true,
-                href: "showPage?_tid=518&_gid1=458",
+                href: "showPage?_tid=238&_gid1=458",
                 _pk: {
                   tfile_attachment_id: "file_attachment_id"
                 },

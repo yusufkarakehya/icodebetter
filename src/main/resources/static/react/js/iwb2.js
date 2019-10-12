@@ -568,6 +568,8 @@ iwb = {
         }
         if (field.$ === MapInput)
             return _(field.$, { value: field.value, disabled: true });
+        if (field.$ === XHTMLEditor)
+            return _(field.$, { value: field.value, disabled: true });
         var options = extraOptions || field.options;
         if (!options || !options.length) {
             var value = field.decimalScale ?
@@ -2705,7 +2707,7 @@ class XTabForm extends React.PureComponent {
             if (iwb.debug) console.log("XTabForm.constructor", props);
             super(props);
             this.state = {
-                viewMode: this.props.callAttributes && this.props.callAttributes.openEditable ?
+                viewMode: (_app.form_auto_edit && 1*_app.form_auto_edit) || (this.props.callAttributes && this.props.callAttributes.openEditable) ?
                     false :
                     this.props.cfg.a == 1
             };
