@@ -568,7 +568,7 @@ iwb = {
         }
         if (field.$ === MapInput)
             return _(field.$, { value: field.value, disabled: true });
-        if (field.$ === XHTMLEditor)
+        if (typeof XHTMLEditor!='undefined' && field.$ === XHTMLEditor)
             return _(field.$, { value: field.value, disabled: true });
         var options = extraOptions || field.options;
         if (!options || !options.length) {
@@ -2809,7 +2809,7 @@ class XTabForm extends React.PureComponent {
                             } else {
                                 url += cfg.url.substring("ajaxPostForm".length);
                             }
-                            console.log(selfie.props);
+                            //console.log(selfie.props);
                             selfie.props.callAttributes.callback &&
                                 selfie.props.callAttributes.callback(json, cfg);
                             toastr.success(
@@ -5249,17 +5249,17 @@ const XShowDetailTabs = ({
                             className: "p-3"
                         },
                         _(
-                            Row, {},
+                            'div', {style:{marginLeft:-20}},
                             _(
                                 Col, { md: "12" },
                                 _(
                                     CardHeader, { className: 'pt-0 pb-1' },
                                     crudFlags &&
-                                    crudFlags.edit &&
+                                    crudFlags.insert &&
                                     _(
                                         Button, {
                                             className: "btn-round-shadow ml-1",
-                                            color: "primary",
+                                            color: "secondary",
                                             onClick: event =>
                                                 topParentGrid.onOnNewRecord(event, grid, row)
                                         },
@@ -7503,7 +7503,7 @@ class XMainPanel extends React.PureComponent {
                         pageName.innerHTML = node.name || "Home";
                     }
                     this.loading = node;
-                    return _(XMainNav, { path, node });
+                    return _(iwb.XMainNav || XMainNav, { path, node });
                 }
             } else {
                 this.loading = false;
@@ -8139,10 +8139,11 @@ class XGraph extends React.Component {
 }
 
 
-function fmtDecimal(value, digit) {
+function fmtDecimal(value, digit,precision) {
     if (!value) return '0';
     if (!digit) digit = 2;
-    var result = Math.round(value * Math.pow(10, digit)) / Math.pow(10, digit) + '';
+    var result = Math.round(value * Math.pow(10, digit)) / Math.pow(10, digit);
+    result = Number.parseFloat(result).toFixed(precision) + '';
     var s = 1 * result < 0 ? 1 : 0;
     var x = result.split('.');
     var x1 = x[0],

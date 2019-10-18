@@ -11,14 +11,14 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
-import org.redisson.Redisson;
+/*import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.redisson.config.SingleServerConfig;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoDatabase; */
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -51,8 +51,8 @@ public class W5ExternalDb implements java.io.Serializable, W5Base{
 	
 //	private HikariConfig _hikariConfig;
 	private HikariDataSource _hikariDS;
-	private RedissonClient _redissonClient;
-	private MongoDatabase _mongoDb;
+//	private RedissonClient _redissonClient;
+//	private MongoDatabase _mongoDb;
 	
 	@Id
 	@Column(name="project_uuid")
@@ -152,7 +152,7 @@ public class W5ExternalDb implements java.io.Serializable, W5Base{
 		}
         return _hikariDS.getConnection();
     }
-
+/*
 	
 	@Transient
 	public RedissonClient getRedissonClient(){
@@ -177,7 +177,7 @@ public class W5ExternalDb implements java.io.Serializable, W5Base{
 			throw new IWBException("framework", "ExternalDB", externalDbId, null, "Could not establish connection to Mongo("+externalDbId+"): " + dbUrl,e);
 		}
 		return _mongoDb;
-	}
+	}*/
 	
 	@Column(name="default_schema")
 	public String getDefaultSchema() {

@@ -608,6 +608,16 @@ var routes = [
 	    path: '/showMList',
 	    async: function (routeTo, routeFrom, resolve, reject) {
 		      iwb.request({url:'showMList',preloader:!0,data:Object.assign(routeTo.query,routeTo.params), success:function(d){
+		    	  if (d.extended) {
+                      if (d.extended.methods) d.methods = Object.assign(d.methods || {}, d.extended.methods || {});
+                      if (d.extended.on) {
+                          if (!d.on) d.on = {};
+                          d._on = {};
+                          for (var k in d.extended.on) if (d.on[k]) d._on[k] = d.extended.on[k];
+                          else d.on[k] = d.extended.on[k];
+                      }
+                      delete d.extended;
+                  }
 		    	  resolve({component:d})
 		      }});
 	    }

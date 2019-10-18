@@ -8,14 +8,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.bson.Document;
 import org.json.JSONObject;
+
+/*
+import org.bson.Document;
 import org.redisson.api.RedissonClient;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoDatabase;*/
 import com.rabbitmq.client.Channel;
 
 import iwb.cache.FrameworkCache;
@@ -78,7 +79,7 @@ public class NashornScript {
 		Thread.sleep(millis);
 	}
 
-
+/*
 	public RedissonClient redisClient(int externalDbId) {
 		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
 		return edb.getRedissonClient();
@@ -135,7 +136,7 @@ public class NashornScript {
 		MongoCollection mc = edb.getMongoDatabase().getCollection(collectionName);
 		mc.deleteMany(new Document((Map)ScriptUtil.fromScriptObject2Map(jsKeys)));
 	}
-	
+	*/
 
 
 	public Object[]  influxQuery(int externalDbId, String query) {

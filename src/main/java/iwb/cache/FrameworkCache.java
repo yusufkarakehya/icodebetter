@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+/*
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
+import org.redisson.config.Config;*/
 
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.M5List;
@@ -658,7 +658,7 @@ public class FrameworkCache {
 		if(css==null)return "";
 		return css.getCode()==null ? "":css.getCode();
 	}
-
+/*
 	private static RedissonClient redissonClient = null;
 	
 	public static RedissonClient getRedissonClient(){
@@ -669,7 +669,7 @@ public class FrameworkCache {
 		}
 		return redissonClient;
 	}
-
+*/
 	public static Object getGraalFunc(Object o, String pk) {
 		String p = getProjectId(o, pk);
 		Map<String, Object> m = wGraalFuncs.get(p);

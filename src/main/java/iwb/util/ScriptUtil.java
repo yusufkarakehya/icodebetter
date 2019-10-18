@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.graalvm.polyglot.Value;
+//import org.graalvm.polyglot.Value;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -128,7 +128,7 @@ public class ScriptUtil {
 		}
 		return rp;
 	}
-
+/*
 	public static Map fromGraalValue2Map(Object reqP) {
 		Map<String, Object> rp = new HashMap<String, Object>();
 		if(reqP==null)return rp;
@@ -204,5 +204,5 @@ public class ScriptUtil {
 		}
 		return ll;
 	}
-
+*/
 }
