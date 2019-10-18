@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.graalvm.polyglot.Value;
 import org.json.JSONObject;
+/*import org.graalvm.polyglot.Value;
 import org.redisson.api.RedissonClient;
 
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoDatabase;*/
 import com.rabbitmq.client.Channel;
 
 import iwb.cache.FrameworkCache;
@@ -40,7 +40,7 @@ public class GraalScript {
 	Map<String, Object> scd;
 	Map<String, String> requestParams;
 	private GlobalScriptEngine scriptEngine;
-	
+	/*
 
 	public Object[] sqlQuery(String sql) {
 		scriptEngine.getDao().checkTenant(scd);
@@ -58,17 +58,7 @@ public class GraalScript {
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 
-	/*
-	 * public Object tsqlQuery(String sql, String dbName){ return
-	 * engine.executeInfluxQuery(scd, sql, dbName); } public void
-	 * tsqlInsert(String measurement, Value jsTags, Value
-	 * jsFields){ tsqlInsert(measurement, jsTags, jsFields, null); } public void
-	 * tsqlInsert(String measurement, Value jsTags, Value
-	 * jsFields, String date){ engine.insertInfluxRecord(scd, measurement,
-	 * fromNativeObject2Map2(jsTags, true), fromNativeObject2Map2(jsFields,
-	 * false), date); } public Object tsqlExecute(String sql, String dbName){
-	 * return null;//TODO }
-	 */
+
 
 	public void sleep(int millis) throws InterruptedException {
 		Thread.sleep(millis);
@@ -78,53 +68,7 @@ public class GraalScript {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	/*
-	public Value redisGetJSON(String host, String k) throws JSONException {
-
-		String v = RedisUtil.get(host, k);
-		if (v != null) {
-			JSONObject o = new JSONObject(v);
-			return fromJSONObjectToScriptObject(o);
-		}
-		return null;
-	}
-
 	
-
-	public String redisPut(String host, String k, Object v) {
-		if (v == null)
-			return RedisUtil.put(host, k, null);
-
-		if (v instanceof Value) {
-			Value so = (Value) v;
-			if(so.hasArrayElements()) {
-				return RedisUtil.put(host, k, so.toString());
-//				return "OK";//TODO
-			}
-			else {
-				return RedisUtil.put(host, k, so.toString());
-			}
-		}
-
-		return RedisUtil.put(host, k, v.toString());
-	}
-
-	public String redisGet(String host, String k) {
-		return RedisUtil.get(host, k);
-	}
-
-	public long redisLlen(String host, String k) {
-		return RedisUtil.llen(host, k);
-	}
-
-	public void redisClose(String host) {
-		RedisUtil.close(host);
-	}
-
-	public String redisInfo(String host, String section) {
-		return RedisUtil.info(host, section);
-	}
-*/
 	public String mqBasicPublish(String host, String queueName, String msg) {
 		Channel ch = MQUtil.getChannel4Queue(host, queueName);
 		if (ch == null)
@@ -511,17 +455,7 @@ public class GraalScript {
 					e);
 		}
 	}
-	
-	public RedissonClient redisClient(int externalDbId) {
-		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
-		return edb.getRedissonClient();
-	}
-	
-
-	public MongoDatabase mongoDatabase(int externalDbId) {
-		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, externalDbId);
-		return edb.getMongoDatabase();
-	}
+	*/
 	
 	
 }

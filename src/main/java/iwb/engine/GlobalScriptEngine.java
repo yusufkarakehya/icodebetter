@@ -11,8 +11,8 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.Value;
+//import org.graalvm.polyglot.Context;
+//import org.graalvm.polyglot.Value;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +103,7 @@ public class GlobalScriptEngine {
 	}
 
 	private ScriptEngine nashornEngine = null;
-	private Context polyglot = null;
+	//private Context polyglot = null;
 
 	public W5GlobalFuncResult executeGlobalFunc(Map<String, Object> scd, int globalFuncId,
 			Map<String, String> parameterMap, short accessSourceType) {
@@ -251,7 +251,7 @@ public class GlobalScriptEngine {
 //			throw new IWBException("rhino", "Graal R", 0, script,"R Not Implemented yet", null);
 //			break;
 		case 11:// GraalJS
-			if (polyglot == null)
+	/*		if (polyglot == null)
 				try {// "js"
 					polyglot = Context.newBuilder().allowAllAccess(true).allowIO(true).build();
 
@@ -369,13 +369,7 @@ public class GlobalScriptEngine {
 					Map<String, String> res = new HashMap<String, String>();
 					if (funcResult != null && funcResult instanceof Value) {
 						Map resultMap = ScriptUtil.fromGraalValue2Map((Value) funcResult);
-						/*
-						 * for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList()) if
-						 * (p1.getOutFlag() != 0 && resultMap.containsKey(p1.getDsc())) { Object em =
-						 * resultMap.get(p1.getDsc()); if (em != null) { String v = em.toString(); if
-						 * (p1.getParamTip() == 4 && v.endsWith(".0")) v = v.substring(0, v.length() -
-						 * 2); res.put(p1.getDsc(), v); } }
-						 */
+
 						r.setResultMap(resultMap);
 					} else
 						r.setResultMap(res);
@@ -386,7 +380,7 @@ public class GlobalScriptEngine {
 				throw new IWBException("rhino", "GraalGlobalFunc.Run." + lang, r.getGlobalFuncId(), script,
 						"[20," + r.getGlobalFuncId() + "] " + r.getGlobalFunc().getDsc(), ge);
 			}
-
+*/
 			break;
 		case 99: // DB
 			dao.executeDbFunc(r, "");
@@ -511,7 +505,7 @@ public class GlobalScriptEngine {
 			}
 
 		} else {
-			if (polyglot == null)
+/*			if (polyglot == null)
 				polyglot = Context.create();// newBuilder("js").allowHostAccess(true).build();
 
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, "1209." + ta.getTableTriggerId());
@@ -554,7 +548,7 @@ public class GlobalScriptEngine {
 //				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalTableEvent.Run", ta.getTableTriggerId(), script,
 						"[1209," + ta.getTableTriggerId() + "] " + ta.getDsc(), ge);
-			}
+			} */
 		}
 		if (msg != null) {
 //			short resultAction = ta.getLkpResultAction();
@@ -621,7 +615,7 @@ public class GlobalScriptEngine {
 			}
 
 		} else { // graal
-			if (polyglot == null)
+/*			if (polyglot == null)
 				polyglot = Context.create();// newBuilder("js").allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, key);
 			if (func == null)
@@ -647,7 +641,9 @@ public class GlobalScriptEngine {
 			} catch (Exception ge) {
 //				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalScript.Run", 0, script, key, ge);
-			}
+			}*/
+			return null;
+
 		}
 	}
 
@@ -823,7 +819,7 @@ public class GlobalScriptEngine {
 						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc() + msg, ge);
 			}
 		} else {// graal
-			if (polyglot == null)
+	/*		if (polyglot == null)
 				polyglot = Context.create();// newBuilder("js").allowHostAccess(true).build();
 			Value func = (Value) FrameworkCache.getGraalFunc(qr.getScd(), "8." + qr.getQueryId());
 			if (func == null)
@@ -975,7 +971,7 @@ public class GlobalScriptEngine {
 				throw new IWBException("rhino", "GraalQuery.Run", qr.getQueryId(), script,
 						"[8," + qr.getQueryId() + "] " + qr.getQuery().getDsc(), ge);
 			}
-
+*/
 		}
 	}
 
@@ -1243,7 +1239,7 @@ public class GlobalScriptEngine {
 			}
 
 		} else { // Graal
-			if (polyglot == null)
+/*			if (polyglot == null)
 				polyglot = Context.create();// newBuilder("js").allowHostAccess(true).build();
 
 			boolean hasOutParam = false;
@@ -1347,7 +1343,7 @@ public class GlobalScriptEngine {
 				else
 					throw new IWBException("rhino", "GraalDebug.Run", 0, script, "Graal Exception", ge);
 			}
-
+*/
 		}
 		r.setSuccess(true);
 		return r;
@@ -1502,7 +1498,7 @@ public class GlobalScriptEngine {
 						"[8," + qr.getQueryId() + "] " + (qr.getQuery() != null ? qr.getQuery().getDsc() : "") + msg, ge);
 			}
 		} else { // graal
-			if (polyglot == null)
+/*			if (polyglot == null)
 				polyglot = Context.create();// newBuilder("js").allowHostAccess(true).build();
 
 			Value func = null;
@@ -1635,13 +1631,13 @@ public class GlobalScriptEngine {
 //				dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalQueryDebug.Run", qr.getQueryId(), script,
 						"[8," + qr.getQueryId() + "] " + (qr.getQuery() != null ? qr.getQuery().getDsc() : ""), ge);
-			}
+			}*/
 		}
 		return m;
 	}
 
 	private static ScriptEngine snashornEngine = null;
-	private static Context spolyglot = null;
+//	private static Context spolyglot = null;
 
 	public static String executePrepareParam(String script, Map<String, Object> scd, Map<String, String> requestParams,
 			PostgreSQL dao) {
@@ -1682,7 +1678,7 @@ public class GlobalScriptEngine {
 				throw new IWBException("rhino", "NashornPrepareParam.Run", 0, script, fncName, ge);
 			}
 		} else {
-			if (spolyglot == null)
+/*			if (spolyglot == null)
 				spolyglot = Context.create();// newBuilder("js").allowHostAccess(true).build();
 
 			Value func = (Value) FrameworkCache.getGraalFunc(scd, key);
@@ -1710,7 +1706,7 @@ public class GlobalScriptEngine {
 			} catch (Exception ge) {
 				// dao.logGlobalFuncAction(action, r, error);
 				throw new IWBException("rhino", "GraalPrepareParam.Run", 0, script, "Error Run", ge);
-			}
+			}*/
 		}
 		return null;
 	}

@@ -602,7 +602,26 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxExecDbFunc");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = null;
+		short accessType = (short) 1;
+		if(request.getSession(false)!=null && request.getSession(false).getAttribute("scd-dev")!=null)
+			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		else {
+			scd = new HashMap();
+			String pid = UserUtil.getProjectId(request, "preview");
+			W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
+			scd.put("customizationId",po.getCustomizationId());scd.put("ocustomizationId",po.getCustomizationId());scd.put("userId",10);scd.put("completeName","XXX");
+			scd.put("projectId",po.getProjectUuid());scd.put("projectName", po.getDsc());scd.put("roleId",10);scd.put("roleDsc", "XXX Role");
+			scd.put("renderer", po.getUiWebFrontendTip());
+			scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
+			scd.put("mainTemplateId", po.getUiMainTemplateId());
+			scd.put("userName", "Demo User");
+			scd.put("email", "demo@icodebetter.com");scd.put("locale", "en");
+			scd.put("chat", 1);scd.put("chatStatusTip", 1);
+			scd.put("userTip",po.get_defaultUserTip());
+			scd.put("path", "../");
+			accessType = (short) 6;
+		}
 
 		int dbFuncId = GenericUtil.uInt(request, "_did"); // +:dbFuncId,
 															// -:formId
@@ -611,9 +630,9 @@ public class PreviewController implements InitializingBean {
 															// -:formId
 		}
 		W5GlobalFuncResult dbFuncResult = GenericUtil.uInt(request, "_notran")==0 ? service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
-				(short) 1): 
+				accessType): 
 					service.executeFuncNT(scd, dbFuncId, GenericUtil.getParameterMap(request),
-							(short) 1);
+							accessType);
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
@@ -782,10 +801,17 @@ public class PreviewController implements InitializingBean {
 			request.getSession(false).removeAttribute(scdKey);
 		}
 		
+		String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(po.getCustomizationId(), "locale", "en"));
+		if(po.getLocaleMsgKeyFlag()!=0 && !GenericUtil.isEmpty(po.getLocales())) {
+			String[] xlocales = po.getLocales().split(",");
+			if(xlocales.length==1)
+				xlocale = xlocales[0];
+		}
+		
 		Map<String, Object> scd = new HashMap<String, Object>();
 		scd.put("projectId", projectId);
 		scd.put("customizationId", po.getCustomizationId());
-		scd.put("userId", 0);scd.put("roleId", 0);scd.put("locale", "en");
+		scd.put("userId", 0);scd.put("roleId", 0);scd.put("locale", xlocale);
 		W5GlobalFuncResult result = service.executeFunc(scd, po.getAuthenticationFuncId(), requestParams, (short) 7); // user Authenticate DbFunc:1
 
 		/*
@@ -794,10 +820,7 @@ public class PreviewController implements InitializingBean {
 		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 		String errorMsg = result.getResultMap().get("errorMsg");
 		int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
-		String xlocale = "en";//GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
-		if(po.getLocaleMsgKeyFlag()!=0 && !GenericUtil.isEmpty(po.getLocales())) {
-			xlocale = po.getLocales().split(",")[0];
-		}
+
 		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
 		int userRoleId = GenericUtil.uInt(requestParams, ("userRoleId"), -GenericUtil.uInt(result.getResultMap().get("roleCount")));

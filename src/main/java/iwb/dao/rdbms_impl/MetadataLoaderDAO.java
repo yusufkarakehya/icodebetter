@@ -14,7 +14,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.jdbc.Work;
-import org.redisson.api.RMap;
+//import org.redisson.api.RMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
@@ -96,7 +96,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 	@Autowired
 	private ExternalDBSql externalDB;
 	
-	private RMap<String, RMap> redisGlobalMap = null;
+//	private RMap<String, RMap> redisGlobalMap = null;
 
 	private boolean loadForm(W5FormResult fr) {
 		// f.setForm((W5Form)loadObject(W5Form.class, f.getFormId()));
@@ -106,7 +106,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		W5Form form = null;
 		if (FrameworkSetting.redisCache) {
-			try {
+			/*try {
 				form = (W5Form) (redisGlobalMap.get(projectId + ":form:" + fr.getFormId()));// rformMap.get(fr.getFormId());
 				if (form != null && form.get_moduleList() == null) {
 					form.set_moduleList(new ArrayList());
@@ -114,7 +114,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				// }
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.Form", fr.getFormId(), null, "Loading Form from Redis", e);
-			}
+			}*/
 
 		} else {
 			form = (W5Form) getCustomizedObject("from W5Form t where t.formId=? and t.projectUuid=?", fr.getFormId(),
@@ -378,7 +378,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 	private void loadQuery(W5QueryResult qr, String projectId) {
 		W5Query query = null;
 		if (FrameworkSetting.redisCache) {
-			try {
+		/*	try {
 				// RMap<Integer, W5Query> rqueryMap =
 				// FrameworkCache.getRedissonClient().getMap(String.format("icb-cache2:%s:query",
 				// projectId));
@@ -389,7 +389,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.Query", qr.getQueryId(), null, "Loading Query from Redis",
 						e);
-			}
+			}*/
 		} else {
 			query = (W5Query) find("from W5Query t where t.queryId=? AND t.projectUuid=?", qr.getQueryId(), projectId)
 					.get(0); // ozel bir
@@ -463,7 +463,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		String projectId = FrameworkCache.getProjectId(pr.getScd(), "63." + pr.getTemplateId());
 		W5Page page = null;
 		if (FrameworkSetting.redisCache) {
-			try {
+	/*		try {
 				page = (W5Page) (redisGlobalMap.get(projectId + ":page:" + pr.getTemplateId()));// FrameworkCache.getRedissonClient().getMap(String.format("icb-cache4:%s:page",
 																								// projectId));
 				if (page != null && page.get_pageObjectList() == null) {
@@ -472,7 +472,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.Page", pr.getTemplateId(), null, "Loading Page from Redis",
 						e);
-			}
+			}*/
 		} else {
 
 			page = (W5Page) getCustomizedObject("from W5Page t where t.templateId=? and t.projectUuid=?",
@@ -538,12 +538,12 @@ public class MetadataLoaderDAO extends BaseDAO {
 		W5Card card = null;
 
 		if (FrameworkSetting.redisCache) {
-			try {
+		/*	try {
 				card = (W5Card) (redisGlobalMap.get(projectId + ":card:" + cr.getDataViewId()));// rcardMap.get(cr.getDataViewId());
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.Card", cr.getDataViewId(), null, "Loading Card from Redis",
 						e);
-			}
+			}*/
 		} else {
 			card = (W5Card) getCustomizedObject("from W5Card t where t.dataViewId=? and t.projectUuid=?",
 					cr.getDataViewId(), projectId, "Card"); // ozel bir client
@@ -678,7 +678,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		W5Grid grid = null;
 		if (FrameworkSetting.redisCache) {
-			try {
+		/*	try {
 				grid = (W5Grid) (redisGlobalMap.get(projectId + ":grid:" + gr.getGridId()));// FrameworkCache.getRedissonClient().getMap(String.format("icb-cache2:%s:grid",
 																							// projectId));
 				if(grid.getColumnRenderTip() == 1 && grid.get_gridModuleList() == null)
@@ -687,7 +687,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.Grid", gr.getGridId(), null, "Loading Grid from Redis", e);
 			}
-
+*/
 		} else {
 			grid = (W5Grid) getCustomizedObject("from W5Grid t where t.gridId=? and t.projectUuid=?", gr.getGridId(),
 					projectId, "Grid"); // ozel bir client icin varsa
@@ -1134,12 +1134,12 @@ public class MetadataLoaderDAO extends BaseDAO {
 		new HashMap<Integer, W5LookUp>();
 
 		if (FrameworkSetting.redisCache) {
-			try {
+		/*	try {
 				lookUpMap = (Map) ((Map) (redisGlobalMap.get(projectId))).get("lookUp");// FrameworkCache.getRedissonClient().getMap(String.format("icb-cache2:%s:lookUp",
 																						// projectId));
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.LookUps", 0, null, "Loading LookUps from Redis", e);
-			}
+			}*/
 		} else {
 			lookUpMap = new HashMap<Integer, W5LookUp>();
 			for (W5LookUp lookUp : (List<W5LookUp>) find("from W5LookUp t where t.projectUuid=? order by  t.lookUpId",
@@ -1421,8 +1421,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 	public void reloadFrameworkCaches(int customizationId) {
 		logger.info("Caching Started (users, jobs, localeMsgs, errorMsgs, appSettings, lookUps, tableParams)");
-		if (FrameworkSetting.redisCache && redisGlobalMap == null)
-			redisGlobalMap = FrameworkCache.getRedissonClient().getMap("icb-cache5");
+		//if (FrameworkSetting.redisCache && redisGlobalMap == null)redisGlobalMap = FrameworkCache.getRedissonClient().getMap("icb-cache5");
 		reloadErrorMessagesCache(customizationId);
 		// Application Settings
 		List<W5Project> lp = reloadProjectsCache(customizationId);
@@ -1495,7 +1494,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			// if(cid==-1 ||
 			// cid==0)reloadTableParamListChildListParentListCache();
 			if (FrameworkSetting.redisCache) {
-				Map xx = (Map) (redisGlobalMap.get(projectId));
+			/*	Map xx = (Map) (redisGlobalMap.get(projectId));
 
 				Map<String, W5LookUp> xlookUpMap = (Map) xx.get("lookUp");
 				Map<Integer, W5LookUp> lookUpMap = new HashMap();
@@ -1581,7 +1580,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 					for (String k : xconversionMap.keySet()) {
 						conversionMap.put(Integer.parseInt(k), xconversionMap.get(k));
 					}
-				FrameworkCache.setConversionMap(projectId, conversionMap);
+				FrameworkCache.setConversionMap(projectId, conversionMap);*/
 			} else {
 				reloadLookUpCache(projectId);
 				reloadTablesCache(projectId);
@@ -1651,7 +1650,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 	public void reloadWsClientsCache(String projectId) {
 		// if(true)return;
 		Map<String, W5Ws> wsMap = new HashMap();
-		if (FrameworkSetting.redisCache)
+		/*if (FrameworkSetting.redisCache)
 			try {
 				RMap<Integer, W5Ws> rwsMap = FrameworkCache.getRedissonClient()
 						.getMap(String.format("icb-cache2:%s:ws", projectId));
@@ -1670,7 +1669,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.Ws", 0, null, "Loading Ws from Redis", e);
 			}
-
+*/
 		if (wsMap.isEmpty()) {
 			List<W5Ws> l = find("from W5Ws x where x.projectUuid=?", projectId);
 			Map<Integer, W5Ws> mm = new HashMap();
@@ -1700,12 +1699,12 @@ public class MetadataLoaderDAO extends BaseDAO {
 		W5GlobalFunc func = null;
 
 		if (FrameworkSetting.redisCache){
-			try {
+/*			try {
 				func = (W5GlobalFunc) (redisGlobalMap.get(projectId + ":func:" + gfr.getGlobalFuncId()));// rfuncMap.get(gfr.getGlobalFuncId());
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.GlobalFunc", gfr.getGlobalFuncId(), null,
 						"Loading GlobalFunc from Redis", e);
-			}
+			}*/
 		} else {
 			func = ((W5GlobalFunc) getCustomizedObject("from W5GlobalFunc t where t.dbFuncId=? AND t.projectUuid=?",
 					gfr.getGlobalFuncId(), projectId, "GlobalFunc"));
@@ -1741,7 +1740,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		M5List ml = null;
 		if (FrameworkSetting.redisCache) {
-			try {
+/*			try {
 				RMap<Integer, M5List> rmlistMap = FrameworkCache.getRedissonClient()
 						.getMap(String.format("icb-cache2:%s:mlist", projectId));
 				if (rmlistMap != null) {// rgridMap.getName()
@@ -1750,7 +1749,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			} catch (Exception e) {
 				throw new IWBException("framework", "Redis.MobileList", mlr.getListId(), null,
 						"Loading MobileList from Redis", e);
-			}
+			} */
 		} else {
 			ml = (M5List) getCustomizedObject("from M5List t where t.listId=? and t.projectUuid=?", mlr.getListId(),
 					projectId, "MobileList"); // ozel bir client icin varsa
