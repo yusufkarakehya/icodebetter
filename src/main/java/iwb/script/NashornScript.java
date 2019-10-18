@@ -612,6 +612,10 @@ public class NashornScript {
 		return "--";
 	}
 
+	public Map sendFormSmsMail(int formSmsMailId, ScriptObjectMirror jsRequestParams) {
+		Map newReqMap = fromScriptObject2Map2(jsRequestParams);
+		return scriptEngine.getNotyEngine().sendFormSmsMail(scd, formSmsMailId, newReqMap);
+	}
 
 
 	public NashornScript(Map<String, Object> scd, Map<String, String> requestParams, GlobalScriptEngine scriptEngine) {

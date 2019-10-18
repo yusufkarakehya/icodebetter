@@ -82,6 +82,10 @@ public class GlobalScriptEngine {
 	@Autowired
 	private RESTEngine restEngine;
 
+	@Lazy
+	@Autowired
+	private NotificationEngine notyEngine;
+	
 	public PostgreSQL getDao() {
 		return dao;
 	}
@@ -101,6 +105,13 @@ public class GlobalScriptEngine {
 	public RESTEngine getRestEngine() {
 		return restEngine;
 	}
+	
+	
+	public NotificationEngine getNotyEngine() {
+		return notyEngine;
+	}
+
+
 
 	private ScriptEngine nashornEngine = null;
 	//private Context polyglot = null;
