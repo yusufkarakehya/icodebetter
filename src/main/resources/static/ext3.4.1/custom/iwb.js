@@ -7554,9 +7554,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
                       if (typeof r == "object") getForm._cfg.extraParams = r;
                       if (tblIds) {
                         if (getForm._cfg.extraParams)
-                          getForm._cfg.extraParams.tblIds = _copy_tbl_ids.substr(
-                            1
-                          );
+                          getForm._cfg.extraParams._copy_tbl_ids = tblIds.substr(1);
                         else
                           getForm._cfg.extraParams = {
                             _copy_tbl_ids: tblIds.substr(1)
@@ -8636,4 +8634,10 @@ iwb.hideGridColumn = function(gxx, id, visible){
 	if(gxx.columns && gxx.columns.length)gxx.columns.map((o)=>{
 		if(o.id==id)o.hidden=!visible;
 	});
+}
+
+iwb.changeFieldLabel=function(field, label){
+	if(!field)return;
+    if (field.label) field.label.dom.innerHTML = label; 
+    else field.fieldLabel = label;
 }

@@ -959,9 +959,9 @@ function disabledCheckBoxHtml(row, cell) {
         _("i", {
             className: "fa fa-check",
             style: {
-                color: "white",
-                background: "#4dbd74",
-                padding: 5,
+                color: "#44b848",border:"1px solid #a3dca5",
+                background: "#aeeac3",
+                padding: 5, fontSize:10,
                 borderRadius: 25
             }
         }) :
@@ -5180,8 +5180,8 @@ const XToolbarItem = props => {
             Button, {
                 id: "toolpin" + props.index,
                 key: "key" + props.index,
-                className: classNames("btn-round-shadow mx-1", cls[1] || ''),
-                color: "danger",
+                className: "btn-round-shadow mx-1",
+                color: "gray",
                 onClick: e => {
                     props.click && props.click(e, props.grid, props);
                 }
