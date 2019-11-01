@@ -1405,7 +1405,7 @@ class XGrid extends React.PureComponent {
       pageSize: props.pageSize || iwb.detailPageSize,
       pageSizes:
         props.pageSize > 1
-          ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
+          ? []//[parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
           : [5, 10, 25, 100],
       currentPage: 0,
       loading: false,
@@ -1897,7 +1897,7 @@ class XEditGrid extends React.PureComponent {
         pageSize: props.pageSize || iwb.detailPageSize,
         pageSizes:
           props.pageSize > 1
-            ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
+            ? []//[parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
             : [5, 10, 25, 100],
         currentPage: 0,
         loading: false,
@@ -2262,7 +2262,7 @@ class XMainGrid extends React.PureComponent {
         pageSize: props.pageSize || iwb.detailPageSize,
         pageSizes:
           props.pageSize > 1
-            ? [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
+            ? []//[parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize]
             : [5, 10, 25, 100],
         currentPage: 0,
         hideSF: true,
@@ -2861,7 +2861,7 @@ class XMainGrid extends React.PureComponent {
             _(
               Button,
               {
-                className: "btn-round-shadow",
+                className: "tlb-button mx-1",
                 color: "secondary",
                 onClick: this.toggleSearch
               },
@@ -2872,7 +2872,7 @@ class XMainGrid extends React.PureComponent {
             _(
               Button,
               {
-                className: "btn-round-shadow",
+                className: "tlb-button mx-1",
                 disabled: loading,
                 color: "secondary",
                 onClick: () => {
@@ -2886,7 +2886,7 @@ class XMainGrid extends React.PureComponent {
             ? _(
                 Button,
                 {
-                  className: "btn-round-shadow",
+                  className: "tlb-button",
                   color: "primary",
                   onClick: e => {
                     this.onOnNewRecord(e, this.props);
@@ -2904,8 +2904,8 @@ class XMainGrid extends React.PureComponent {
           _(
             Button,
             {
-              className: "float-right btn-round-shadow hover-shake",
-              color: "danger",
+              className: "float-right tlb-button",
+              color: "secondary", style:{color:"red"},
               onClick: this.openBI
             },
             _("i", { className: "icon-equalizer" })

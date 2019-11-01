@@ -8462,13 +8462,16 @@ iwb.getDate=function(x){// server DateTime OR parse(x)
 
 iwb.ajax={}
 iwb.ajax.query=function(queryId,params,callback){
-	iwb.request({url:'ajaxQueryData?_qid='+queryId,params:params||{},successCallback:callback||false})
+	params=params||{};
+	iwb.request({url:'ajaxQueryData?_qid='+queryId,params:params,requestWaitMsg:!!params._mask, successCallback:callback||false})
 }
 iwb.ajax.postForm=function(formId,action,params,callback){
-	iwb.request({url:'ajaxPostForm?_fid='+formId+'&a='+action,params:params||{},successCallback:callback||false})
+	params=params||{};
+	iwb.request({url:'ajaxPostForm?_fid='+formId+'&a='+action,params:params,requestWaitMsg:!!params._mask,successCallback:callback||false})
 }
 iwb.ajax.execFunc=function(funcId,params,callback){
-	iwb.request({url:'ajaxExecDbFunc?_did='+funcId,params:params||{},successCallback:callback||false})
+	params=params||{};
+	iwb.request({url:'ajaxExecDbFunc?_did='+funcId,params:params,requestWaitMsg:!!params._mask,successCallback:callback||false})
 }
 iwb.ajax.REST=function(serviceName,params,callback){
 	iwb.request({url:'ajaxCallWs?serviceName='+serviceName,params:params||{},successCallback:callback||false})

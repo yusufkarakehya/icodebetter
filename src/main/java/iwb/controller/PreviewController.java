@@ -604,11 +604,12 @@ public class PreviewController implements InitializingBean {
 
 		Map<String, Object> scd = null;
 		short accessType = (short) 1;
-		if(request.getSession(false)!=null && request.getSession(false).getAttribute("scd-dev")!=null)
+		String pid = UserUtil.getProjectId(request, "preview");
+		String newScdKey = "preview-"+pid;
+		if(request.getSession(false)!=null && request.getSession(false).getAttribute(newScdKey)!=null)
 			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		else {
 			scd = new HashMap();
-			String pid = UserUtil.getProjectId(request, "preview");
 			W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
 			scd.put("customizationId",po.getCustomizationId());scd.put("ocustomizationId",po.getCustomizationId());scd.put("userId",10);scd.put("completeName","XXX");
 			scd.put("projectId",po.getProjectUuid());scd.put("projectName", po.getDsc());scd.put("roleId",10);scd.put("roleDsc", "XXX Role");
