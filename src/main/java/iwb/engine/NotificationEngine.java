@@ -452,7 +452,7 @@ public class NotificationEngine {
 			W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, tableId,
 					GenericUtil.uInt(requestParams.get("table_pk")));
 			W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.getCustomizedObject(
-					"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?",
+					"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?) ",
 					(Integer) scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
 			// (W5ObjectMailSetting)dao.getCustomizedObject("from
 			// W5ObjectMailSetting w where

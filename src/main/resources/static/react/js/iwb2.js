@@ -959,9 +959,9 @@ function disabledCheckBoxHtml(row, cell) {
         _("i", {
             className: "fa fa-check",
             style: {
-                color: "white",
-                background: "#4dbd74",
-                padding: 5,
+                color: "#44b848",border:"1px solid #a3dca5",
+                background: "#aeeac3",
+                padding: 5, fontSize:10,
                 borderRadius: 25
             }
         }) :
@@ -3191,7 +3191,7 @@ class XTabForm extends React.PureComponent {
                     _(
                         Button, {
                             type: "submit",
-                            color: "submit",
+                            color: "primary",
                             className: "btn-form mr-1",
                             onClick: onSubmit
                         },
@@ -3818,7 +3818,7 @@ class XGrid extends GridCommon {
                 return { columnName, width };
             }),
             pageSizes: props.pageSize > 1 ?
-                [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                [] : //parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize
                 [5, 10, 25, 100]
         };
         /**
@@ -3960,7 +3960,7 @@ class XGrid extends GridCommon {
             _(_dxgrb.Table, {
                 columnExtensions,
                 rowComponent,
-                messages: { noData: getLocMsg("noData") }
+                messages: { noData: getLocMsg("no_data") }
             }),
             /** UI multiselect */
             multiselect && _(_dxgrb.TableSelection, { showSelectAll: multiselect }),
@@ -4202,7 +4202,7 @@ class XEditGridSF extends GridCommon {
                     return { columnName, width };
                 }),
                 pageSizes: props.pageSize > 1 ?
-                    [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                    [] ://parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize
                     [5, 10, 25, 100]
             };
         }
@@ -4502,7 +4502,7 @@ class XEditGridSF extends GridCommon {
             _(_dxgrb.DragDropProvider, null),
             _(_dxgrb.Table, {
                 columnExtensions,
-                messages: { noData: getLocMsg("noData") }
+                messages: { noData: getLocMsg("no_data") }
             }),
             multiselect &&
             _(_dxgrb.TableSelection, {
@@ -4771,7 +4771,7 @@ class XEditGrid extends GridCommon {
                     return { columnName, width };
                 }),
                 pageSizes: props.pageSize > 1 ?
-                    [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                    [] ://parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize
                     [5, 10, 25, 100]
             };
         }
@@ -5093,7 +5093,7 @@ class XEditGrid extends GridCommon {
             _(_dxgrb.DragDropProvider, null),
             _(_dxgrb.Table, {
                 columnExtensions,
-                messages: { noData: getLocMsg("noData") }
+                messages: { noData: getLocMsg("no_data") }
             }),
             multiselect &&
             _(_dxgrb.TableSelection, {
@@ -5180,8 +5180,8 @@ const XToolbarItem = props => {
             Button, {
                 id: "toolpin" + props.index,
                 key: "key" + props.index,
-                className: classNames("btn-round-shadow mx-1", cls[1] || ''),
-                color: "danger",
+                className: "tlb-button mx-1",
+                color: "gray",
                 onClick: e => {
                     props.click && props.click(e, props.grid, props);
                 }
@@ -5258,12 +5258,14 @@ const XShowDetailTabs = ({
                                     crudFlags.insert &&
                                     _(
                                         Button, {
-                                            className: "btn-round-shadow ml-1",
-                                            color: "secondary",
+                                        //    className: "tlb-button ml-1",
+                                            color: "primary",
                                             onClick: event =>
                                                 topParentGrid.onOnNewRecord(event, grid, row)
                                         },
                                         _("i", { className: "fa fa-plus" }),
+                                        //getLocMsg("new_record")
+                                        //_("i", { className: "icon-plus" }),
                                     ),
                                     (extraButtons || []).map((btn, index) =>
                                         _(XToolbarItem, {
@@ -5563,7 +5565,7 @@ class XMainGrid extends GridCommon {
                 totalCount: 0,
                 pageSize: props.pageSize,
                 pageSizes: props.pageSize > 1 ?
-                    [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                    [] ://parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize
                     [5, 10, 25, 100],
                 currentPage: 0,
                 hideSF: !props.showSF,
@@ -6124,7 +6126,7 @@ class XMainGrid extends GridCommon {
             _(_dxgrb.Table, {
                 columnExtensions,
                 rowComponent,
-                messages: { noData: getLocMsg("noData") }
+                messages: { noData: getLocMsg("no_data") }
             }),
             /** multiselect */
             multiselect &&
@@ -6195,11 +6197,11 @@ class XMainGrid extends GridCommon {
             _(
                 "main", { className: "inbox" },
                 _(
-                    CardHeader, { className: 'pt-0 pb-1' },
+                    CardHeader, { className: 'pb-1' },
                     searchForm &&
                     !this.props.showSF && _(
                         Button, {
-                            className: "btn-round-shadow ml-1",
+                            className: "tlb-button ml-1",
                             color: "secondary",
                             onClick: toggleSearch
                         },
@@ -6211,8 +6213,8 @@ class XMainGrid extends GridCommon {
                         })
                     ), !this.props.showSF && _(
                         Button, {
-                            className: "btn-round-shadow ml-1",
-                            disabled: loading,
+                            className: "tlb-button ml-1",
+                            disabled: loading, 
                             color: "secondary",
                             onClick: event => loadData(true)
                         },
@@ -6223,11 +6225,13 @@ class XMainGrid extends GridCommon {
                     crudFlags.insert &&
                     _(
                         Button, {
-                            className: "btn-round-shadow ml-1",
+                            className: "tlb-button ml-1",
                             color: "primary",
                             onClick: event => onOnNewRecord(event, this.props)
                         },
-                        _("i", { className: "fa fa-plus" }),
+                        //_("i", { className: "fa fa-plus" }),
+                        //"Yeni Kayit"
+                        getLocMsg("new_record")
                     ),
                     _("div", { className: "fgrow" }),
                     extraButtons &&
@@ -6248,8 +6252,8 @@ class XMainGrid extends GridCommon {
                     this.props.gridReport &&
                     _(
                         Button, {
-                            className: "float-right btn-round-shadow hover-shake mx-1",
-                            color: "danger",
+                            className: "float-right tlb-button mx-1",
+                            color: "secondary", style:{color:"red"},
                             onClick: this.openBI
                         },
                         _("i", { className: "icon-equalizer" })
@@ -6280,7 +6284,7 @@ class XMainCard extends GridCommon {
             totalCount: 0,
             pageSize: props.pageSize,
             pageSizes: props.pageSize > 1 ?
-                [parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize] :
+                [] ://parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize
                 [5, 10, 25, 100],
             currentPage: 1,
             hideSF: true,
@@ -6485,11 +6489,12 @@ class XMainCard extends GridCommon {
                     crudFlags.insert &&
                     _(
                         Button, {
-                            className: "btn-round-shadow ml-1",
+                            className: "tlb-button ml-1",
                             color: "primary",
                             onClick: event => onOnNewRecord(event, this.props)
                         },
-                        _("i", { className: "fa fa-plus" }),
+                       // _("i", { className: "fa fa-plus" }),
+                        getLocMsg("new_record")
                     ),
                     _("div", { className: "fgrow" }),
                     extraButtons &&

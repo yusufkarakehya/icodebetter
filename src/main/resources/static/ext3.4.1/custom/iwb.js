@@ -7554,9 +7554,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
                       if (typeof r == "object") getForm._cfg.extraParams = r;
                       if (tblIds) {
                         if (getForm._cfg.extraParams)
-                          getForm._cfg.extraParams.tblIds = _copy_tbl_ids.substr(
-                            1
-                          );
+                          getForm._cfg.extraParams._copy_tbl_ids = tblIds.substr(1);
                         else
                           getForm._cfg.extraParams = {
                             _copy_tbl_ids: tblIds.substr(1)
@@ -8464,13 +8462,16 @@ iwb.getDate=function(x){// server DateTime OR parse(x)
 
 iwb.ajax={}
 iwb.ajax.query=function(queryId,params,callback){
-	iwb.request({url:'ajaxQueryData?_qid='+queryId,params:params||{},successCallback:callback||false})
+	params=params||{};
+	iwb.request({url:'ajaxQueryData?_qid='+queryId,params:params,requestWaitMsg:!!params._mask, successCallback:callback||false})
 }
 iwb.ajax.postForm=function(formId,action,params,callback){
-	iwb.request({url:'ajaxPostForm?_fid='+formId+'&a='+action,params:params||{},successCallback:callback||false})
+	params=params||{};
+	iwb.request({url:'ajaxPostForm?_fid='+formId+'&a='+action,params:params,requestWaitMsg:!!params._mask,successCallback:callback||false})
 }
 iwb.ajax.execFunc=function(funcId,params,callback){
-	iwb.request({url:'ajaxExecDbFunc?_did='+funcId,params:params||{},successCallback:callback||false})
+	params=params||{};
+	iwb.request({url:'ajaxExecDbFunc?_did='+funcId,params:params,requestWaitMsg:!!params._mask,successCallback:callback||false})
 }
 iwb.ajax.REST=function(serviceName,params,callback){
 	iwb.request({url:'ajaxCallWs?serviceName='+serviceName,params:params||{},successCallback:callback||false})
@@ -8636,4 +8637,10 @@ iwb.hideGridColumn = function(gxx, id, visible){
 	if(gxx.columns && gxx.columns.length)gxx.columns.map((o)=>{
 		if(o.id==id)o.hidden=!visible;
 	});
+}
+
+iwb.changeFieldLabel=function(field, label){
+	if(!field)return;
+    if (field.label) field.label.dom.innerHTML = label; 
+    else field.fieldLabel = label;
 }

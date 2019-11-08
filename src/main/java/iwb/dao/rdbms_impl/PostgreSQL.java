@@ -2974,6 +2974,13 @@ public class PostgreSQL extends BaseDAO {
 				} else
 					requestParams.put(t.get_tableParamList().get(0).getDsc(), o.toString());
 				copyFormTable(formResult, schema, prefix, true);
+				if(t.getVcsFlag()!=0 && !GenericUtil.isEmpty(formResult.getOutputFields())) {
+					int tablePk2 = GenericUtil.uInt(formResult.getOutputFields().get(t.get_tableFieldList().get(0).getDsc()));
+					
+					W5VcsObject ivo = new W5VcsObject(scd, t.getTableId(), tablePk2);
+					saveObject(ivo);
+				}
+				
 				if (!GenericUtil.isEmpty(t.get_tableChildList())) {
 					if (!GenericUtil.isEmpty(formResult.getOutputFields()))
 						for (String k : formResult.getOutputFields().keySet()) {
@@ -2986,6 +2993,7 @@ public class PostgreSQL extends BaseDAO {
 						if (tc2.getCopyStrategyTip() == 1) {
 							copyFormTableDetail(formResult, tc2,
 									requestParams.get(t.get_tableFieldList().get(0).getDsc()), schema, prefix);
+							
 						}
 				}
 			}
