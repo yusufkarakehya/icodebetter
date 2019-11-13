@@ -1172,8 +1172,10 @@ public class CRUDEngine {
 						for (String k : formResult.getPkFields().keySet())
 							if (!k.startsWith("customization"))
 								key += "*" + formResult.getPkFields().get(k);
-						key = formResult.getForm().getObjectId() + "-" + key.substring(1);
-						formResult.setLiveSyncKey(key);
+						if(!GenericUtil.isEmpty(key)) {
+							key = formResult.getForm().getObjectId() + "-" + key.substring(1);
+							formResult.setLiveSyncKey(key);
+						}
 					}
 
 					// formResult.addSyncRecord(new
