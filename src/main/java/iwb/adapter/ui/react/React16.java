@@ -2034,7 +2034,7 @@ public class React16 implements ViewAdapter {
 		case	15://lovcombo query
 		case	59://superbox lovcombo query
 			buf.append("$:").append(formResult!=null && fc.getParentFormCellId()==1?"CheckboxGroup":"Select")
-				.append(", placeholder: getLocMsg('selectPlaceholder'), valueKey:'id',labelKey:'dsc',options:[");//static combo
+				.append(", placeholder: getLocMsg('select_placeholder'), valueKey:'id',labelKey:'dsc',options:[");//static combo
 			if ((fc.getControlTip()==6 || fc.getControlTip()==8 ||fc.getControlTip()==58) && cellResult.getLookupListValues() != null) {
 				boolean b1=false;
 				
@@ -2084,7 +2084,7 @@ public class React16 implements ViewAdapter {
 		break; 
 		
 		case	9://combo query remote
-			buf.append("$:Select, placeholder: getLocMsg('selectPlaceholder'), options:options.").append(fc.getDsc()).append("||[],valueKey:'id', labelKey:'dsc',clearable:").append(fc.getNotNullFlag()==0);
+			buf.append("$:Select, placeholder: getLocMsg('select_placeholder'), options:options.").append(fc.getDsc()).append("||[],valueKey:'id', labelKey:'dsc',clearable:").append(fc.getNotNullFlag()==0);
 			break;
 		case	10://advanced select: TODO ilk geldiginde oo loadOptions'ta atanacak
 			if (value != null && cellResult.getLookupQueryResult() != null && cellResult.getLookupQueryResult().getData().size() > 0) {

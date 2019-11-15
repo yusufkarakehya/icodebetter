@@ -83,6 +83,8 @@ const InputGroupButton = Reactstrap.InputGroupButton;
 const ListGroupItemText = Reactstrap.ListGroupItemText;
 const UncontrolledTooltip = Reactstrap.UncontrolledTooltip;
 const ListGroupItemHeading = Reactstrap.ListGroupItemHeading;
+const CustomInput =  Reactstrap.CustomInput;
+
 // FW Community Components
 const Select = window.Select;
 const Popper = window.Popper;
@@ -101,7 +103,7 @@ const TemplatePlaceholder = DXReactCore.TemplatePlaceholder;
 var _dxrg = DXReactGrid;
 var _dxgrb = DXReactGridBootstrap4;
 
-const CheckboxGroup = Select;
+
 /**
  * @description iwb object is MIXIN like object most of the configuration is
  *              here and most used functions
@@ -8500,4 +8502,36 @@ function commentHtml(row, cell){
     return row[cell] && 1 * row[cell] ?
             _("i", { className: "icon-bubble" }) :
             null;
+}
+
+
+class CheckboxGroup extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    componentDidMount() {
+    }
+    render() {
+    	var valMap={}
+    	if(typeof this.props.value!='undefined'){
+	    	if(!this.props.multi){
+	    		valMap[this.props.value]=!0;
+	    	} else {
+	    		this.props.value.map((o)=>valMap[o]=!0);
+	    	}
+    	}
+        return _("div", {
+            style: {padding:5},
+            
+        }, this.props.options.map((o) => {
+	        	return _('div',{}
+	            	,_('input',{type:this.props.multi?'checkbox':'radio', checked:valMap[o[this.props.valueKey]], onClick:(aq)=>{
+	            		this.props.onChange({id:aq.target.value});
+	            	},
+	            			name:this.props.name, value:o[this.props.valueKey]})
+		        	,' ', _('label',{style:{fontWeight:400,color:'#333'}}, o[this.props.labelKey]));
+        		}
+        	)
+        );
+    }
 }
