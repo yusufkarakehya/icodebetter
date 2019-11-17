@@ -138,6 +138,22 @@ iwb = {
     debugConstructor: false,
     detailPageSize: 10,
     log: console.log.bind(window.console),
+    delayedTask : function (fnc) {
+        var delayedTaskId = null;
+        return {
+            delay: (ms, params) => {
+                if (delayedTaskId) clearTimeout(delayedTaskId);
+                delayedTaskId = setTimeout(() => {
+                    delayedTaskId = null;
+                    fnc(params);
+                }, ms);
+            },
+            stop: () => {
+                if (delayedTaskId) clearTimeout(delayedTaskId);
+                delayedTaskId = null;
+            }
+        }
+    },
     loaders: {
         defaultWidth: 56,
         defaultHeight: 56,
@@ -2065,7 +2081,7 @@ class XMasonry extends React.Component {
             const masonryStyle = this.props;
             return _(
                 Row, {
-                    className: `xMasonryRoot overflowY-auto scrollY`,
+                    className: `xMasonryRoot overflowY-auto scrollY`, style:{marginTop:10},
                     ...this.props.root
                 },
                 _(
@@ -3992,7 +4008,7 @@ class XGrid extends GridCommon {
             !pageSize &&
             rows.length > 1 &&
             _(_dxgrb.SearchPanel, {
-                messages: { searchPlaceholder: getLocMsg("searchPlaceholder") },
+                messages: { searchPlaceholder: getLocMsg("search_placeholder") },
                 changeSearchValue: ax => {
                     if (iwb.debug) console.log("onValueChange", ax);
                 }
@@ -4542,7 +4558,7 @@ class XEditGridSF extends GridCommon {
             _(_dxgrb.Toolbar, null) :
             null, !_disableSearchPanel ?
             _(_dxgrb.SearchPanel, {
-                messages: { searchPlaceholder: getLocMsg("searchPlaceholder") }
+                messages: { searchPlaceholder: getLocMsg("search_placeholder") }
             }) :
             null, !_disableIntegratedGrouping ?
             _(_dxgrb.GroupingPanel, {
@@ -5160,7 +5176,7 @@ class XEditGrid extends GridCommon {
             _(_dxgrb.Toolbar, null) :
             null, !_disableSearchPanel ?
             _(_dxgrb.SearchPanel, {
-                messages: { searchPlaceholder: getLocMsg("searchPlaceholder") }
+                messages: { searchPlaceholder: getLocMsg("search_placeholder") }
             }) :
             null, !_disableIntegratedGrouping ?
             _(_dxgrb.GroupingPanel, {
@@ -6171,7 +6187,7 @@ class XMainGrid extends GridCommon {
             rows.length > 1 &&
             !_disableSearchPanel &&
             _(_dxgrb.SearchPanel, {
-                messages: { searchPlaceholder: getLocMsg("searchPlaceholder") },
+                messages: { searchPlaceholder: getLocMsg("search_placeholder") },
                 changeSearchValue: ax => {
                     if (iwb.debug) console.log("onValueChange", ax);
                 }
@@ -6289,9 +6305,10 @@ class XMainCard extends GridCommon {
                 [] ://parseInt(props.pageSize / 2), props.pageSize, 3 * props.pageSize
                 [5, 10, 25, 100],
             currentPage: 1,
-            hideSF: true,
+            hideSF: true, sort:'',dir:'',
             loading: false,
-            cards: []
+            cards: [],
+            xsearch:''
         };
         let { searchForm, detailGrids } = this.props;
         if (searchForm || (detailGrids && detailGrids.length > 1)) {
@@ -6371,13 +6388,16 @@ class XMainCard extends GridCommon {
          * @returns {String}
          */
         this.queryString = () => {
-            const { pageSize, currentPage } = this.state;
+            const { pageSize, currentPage, sort, dir } = this.state;
             let queryString =
                 this.props._url +
                 "&limit=" +
                 pageSize +
                 "&start=" +
                 pageSize * (currentPage - 1);
+            if(sort)queryString+='&sort='+sort;
+            if(dir)queryString+='&dir='+dir;
+            if(this.props.xsearch)queryString+='&'+this.props.xsearch+'='+(this.state.xsearch||'');
             return queryString;
         };
         /** toogle search */
@@ -6388,6 +6408,7 @@ class XMainCard extends GridCommon {
                 hideSF: !this.state.hideSF
             });
         };
+        
         /** loadData */
         this.loadData = force => {
             if (this.props.cards || this.state.loading) return;
@@ -6395,7 +6416,7 @@ class XMainCard extends GridCommon {
             if (!force && queryString === this.lastQuery) {
                 return;
             }
-            this.setState({ rows: [], loading: true });
+            this.setState({ xcards: [], loading: true });
             iwb.request({
                 url: queryString,
                 self: this,
@@ -6420,6 +6441,42 @@ class XMainCard extends GridCommon {
         /**rightClick on the card */
         this.RightClickComponent = props => extraProps =>
             _(XGridRowAction, {...props, ...extraProps });
+            
+        this.openOrderBy = ()=>{
+        	var self = this;
+        	iwb.showModal({
+                title: getLocMsg("sort"),
+                footer: false,
+                color: "primary",
+                size: "sm",
+                body: _(
+                    ListGroup, {
+                        style: {
+                            fontSize: "1.0rem"
+                        }
+                    },
+                    this.props.orderNames.map((o)=>_(
+                        ListGroupItem, {
+                            tag: o.id==self.state.sort ?"b" : "span",
+                            onClick:(oq)=>{
+                            	var dir="ASC";
+                            	if(self.state.sort == o.id && self.state.dir!="DESC")
+                            		dir="DESC";
+                            	self.setState({sort:o.id, dir:dir});
+                            	setTimeout(()=>self.loadData(!0),10);
+                            	iwb.closeModal();
+                            },style:{cursor:'pointer'}
+                        },
+                        o.dsc,
+                        (o.id==self.state.sort? _('icon',{style:{float:'right',fontSize: '1.4rem',color: '#999'}, className:self.state.dir=="DESC"?"icon-arrow-down-circle":"icon-arrow-up-circle"}):'')
+                    ))
+                )
+            });
+        }
+    }
+    shouldComponentUpdate(){
+//    	console.log('shouldComponentUpdate');
+    	return true;
     }
     componentDidMount() {
         if (!this.dontRefresh) this.loadData();
@@ -6467,7 +6524,7 @@ class XMainCard extends GridCommon {
                     searchForm &&
                     _(
                         Button, {
-                            className: "btn-round-shadow ml-1",
+                            className: "tlb-button ml-1",
                             color: "secondary",
                             onClick: toggleSearch
                         },
@@ -6480,7 +6537,7 @@ class XMainCard extends GridCommon {
                     ),
                     _(
                         Button, {
-                            className: "btn-round-shadow ml-1",
+                            className: "tlb-button ml-1",
                             disabled: loading,
                             color: "secondary",
                             onClick: event => loadData(true)
@@ -6498,7 +6555,6 @@ class XMainCard extends GridCommon {
                        // _("i", { className: "fa fa-plus" }),
                         getLocMsg("new_record")
                     ),
-                    _("div", { className: "fgrow" }),
                     extraButtons &&
                     extraButtons.map((btn, index) =>
                         _(XToolbarItem, {
@@ -6508,7 +6564,29 @@ class XMainCard extends GridCommon {
                             grid: this,
                             parentCt: null
                         })
-                    )
+                    ),
+                    _("div", { className: "fgrow" }),
+                    this.props.xsearch && _('input',{onChange:(ev)=>{
+                    	var xsearch = ev.target.value||'';
+                    	this.setState({xsearch:xsearch});
+                    	var self = this;
+                    	if(!this.delayedTask)this.delayedTask=new iwb.delayedTask(function(p){
+                    		self.loadData(!0);
+                    	});
+                    	this.delayedTask.delay(200, xsearch);
+                    	
+                    }, value:this.state.xsearch, type:"text", className:"form-control w-25 xcard1-search",placeholder:getLocMsg("search_placeholder")}),
+                    
+                    this.props.orderNames && _(
+                            Button, {
+                                className: "float-right tlb-button mx-1",
+                                color: "secondary", style:{color:"#607D8B"},
+                                onClick: this.openOrderBy, title:getLocMsg("sort")
+                            },
+                            _("i", { className: "icon-equalizer" })
+                        ),
+                    (this.props.pageSize || this.state.sort) && _('div',{ style:{position: 'absolute',right: 53,fontSize: '.8rem'
+                    ,color: '#999', top: 61}},this.props.pageSize>0 && (totalCount + ' records'+(this.state.sort?', ':'')),' ',this.state.sort && (getLocMsg('sort')+': '+this.state.sort+' '+ this.state.dir))
                     // this.props.gridReport &&
                     // _( Button,
                     //   { className: "float-right btn-round-shadow hover-shake mx-1",

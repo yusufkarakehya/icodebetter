@@ -1659,7 +1659,7 @@ public class React16 implements ViewAdapter {
 				buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 			} else {
 				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
-				if(FrameworkSetting.reactLabelRequired && fc.getFormCell().getNotNullFlag()!=0)buf.append(", \" \", _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
+				if(FrameworkSetting.reactLabelRequired && fc.getFormCell().getNotNullFlag()!=0 && fc.getFormCell().getNrdTip()==0)buf.append(", \" \", _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
 				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
 			}
 		}
@@ -2394,7 +2394,7 @@ public class React16 implements ViewAdapter {
 				.append("={cardId:")
 				.append(d.getDataViewId())
 				.append(",name:'")
-				.append(LocaleMsgCache.get2(customizationId, xlocale,
+				.append(LocaleMsgCache.get2(scd,
 						d.getLocaleMsgKey()))
 				.append("'")
 				.append(",_url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
@@ -2433,6 +2433,18 @@ public class React16 implements ViewAdapter {
 				.append("}");
 		}
 		buf.append(",\n gridReport:").append(FrameworkCache.roleAccessControl(scd, 105));
+	    if (!GenericUtil.isEmpty(d.get_orderQueryFieldNames())) {
+	        buf.append(",\n orderNames:[");
+	        for (String f : d.get_orderQueryFieldNames()) {
+	          buf.append("{id:'")
+	              .append(f)
+	              .append("',dsc:'")
+	              .append(LocaleMsgCache.get2(scd, f))
+	              .append("'},");
+	        }
+	        buf.setLength(buf.length() - 1);
+	        buf.append("]");
+	      }
 		if (d.get_crudTable()!= null) {
 		}
 		//azat card
