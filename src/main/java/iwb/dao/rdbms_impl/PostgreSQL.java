@@ -1265,11 +1265,11 @@ public class PostgreSQL extends BaseDAO {
 			if (cell.getObjectDetailId() != 0) {
 				W5TableField tf = ((W5TableField) cell.get_sourceObjectDetail());
 				if (tf != null && tf.getTabOrder() > 0) {
-					if (tf.getAccessViewTip() != 0 && tf.getAccessViewUserFields() != null) {
+					if (tf.getAccessViewTip() != 0/* && tf.getAccessViewUserFields() != null*/) {
 						if ((!GenericUtil.accessControl(formResult.getScd(), tf.getAccessViewTip(),
 								tf.getAccessViewRoles(), tf.getAccessViewUsers())
-								&& (!GenericUtil.isEmpty(tf.getAccessViewUserFields())
-										&& accessUserFieldControl(t, tf.getAccessViewUserFields(), formResult.getScd(),
+								&& (GenericUtil.isEmpty(tf.getAccessViewUserFields())
+										|| accessUserFieldControl(t, tf.getAccessViewUserFields(), formResult.getScd(),
 												formResult.getRequestParams(), null))))
 							continue;
 					}
