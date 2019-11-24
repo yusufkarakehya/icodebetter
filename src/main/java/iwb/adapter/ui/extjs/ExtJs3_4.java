@@ -2781,11 +2781,11 @@ public class ExtJs3_4 implements ViewAdapter {
 			buf.append("TextArea");
 			break;
 		case 12: // HtmlEditor
-			buf.append("HtmlEditor");
-			break;
+/*			buf.append("HtmlEditor");
+			break; */
 		case 56: // HtmlEditor_ck
 			buf.setLength(0);
-			buf.append("new Ext.ux.form.CKEditor");
+			buf.append("new Ext.ux.form.CKEditor5");
 			break;
 		case 16:// lovCombo-remote
 			buf.setLength(0);
