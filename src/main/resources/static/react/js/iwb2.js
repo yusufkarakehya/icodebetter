@@ -2081,7 +2081,7 @@ class XMasonry extends React.Component {
             const masonryStyle = this.props;
             return _(
                 Row, {
-                    className: `xMasonryRoot overflowY-auto scrollY`, style:{marginTop:10},
+                    className: `xMasonryRoot overflowY-auto scrollY`, 
                     ...this.props.root
                 },
                 _(
@@ -6585,8 +6585,6 @@ class XMainCard extends GridCommon {
                             },
                             _("i", { className: "icon-equalizer" })
                         ),
-                    (this.props.pageSize || this.state.sort) && _('div',{ style:{position: 'absolute',right: 53,fontSize: '.8rem'
-                    ,color: '#999', top: 61}},this.props.pageSize>0 && (totalCount + ' records'+(this.state.sort?', ':'')),' ',this.state.sort && (getLocMsg('sort')+': '+this.state.sort+' '+ this.state.dir))
                     // this.props.gridReport &&
                     // _( Button,
                     //   { className: "float-right btn-round-shadow hover-shake mx-1",
@@ -6596,6 +6594,16 @@ class XMainCard extends GridCommon {
                     //   _("i", { className: "icon-equalizer" })
                     // )
                 ),
+                (this.props.pageSize || this.state.sort) && _('div',{ style:{fontSize: '.8rem'
+                    ,color: '#999'}},
+                    _('span',{style:{float:'right'}},this.props.pageSize>0 && (totalCount + ' records'+(this.state.sort?', ':'')),' ',this.state.sort && (getLocMsg('sort')+': '+this.state.sort+' '+ this.state.dir))),
+                    _(XPagination, {
+                        pageSize,
+                        currentPage,
+                        totalCount,
+                        onChange: currentPage =>
+                            this.setState({ currentPage }, () => this.loadData(true))
+                    }),
                 _(
                     XMasonry, {
                         breakPoints: breakPoints || [300, 500, 1000],
@@ -6624,31 +6632,8 @@ class XMainCard extends GridCommon {
                             })
                         });
                     })
-                ),
-                _(
-                    "div", { className: "clearfix card-footer dx-g-bs4-paging-panel" },
-                    _(
-                        "div", { className: "d-inline-block" },
-                        _(XItemPerPage, {
-                            pageSize,
-                            pageSizes,
-                            onChange: pageSize =>
-                                this.setState({ pageSize, currentPage: 1 }, () =>
-                                    this.loadData(true)
-                                )
-                        })
-                    ),
-                    _(
-                        "div", { className: "float-right d-sm-flex" },
-                        _(XPagination, {
-                            pageSize,
-                            currentPage,
-                            totalCount,
-                            onChange: currentPage =>
-                                this.setState({ currentPage }, () => this.loadData(true))
-                        })
-                    )
                 )
+
             )
         );
     }
@@ -6688,7 +6673,7 @@ const XPagination = ({
         onChange(currentPage);
     };
     return _(
-        Pagination, { "aria-label": getLocMsg("page_pagination"), className: "m-0 p-0 p-sm-3", listClassName: 'd-flex', ...props },
+        Pagination, { ...props, className:"p-0",listClassName: 'd-flex' },
         _(
             PaginationItem, { disabled: currentPage == 1 },
             _(PaginationLink, {
@@ -6993,8 +6978,8 @@ class XPage4Card extends React.PureComponent {
             document.getElementById("id-breed").innerHTML = this.props.card.name;
             iwb.killGlobalSearch();
             this.state = { activeTab: "x" };
-            this.tabs = iwb.tabs[this.props.card.id] ?
-                [...iwb.tabs[this.props.card.id]] :
+            this.tabs = iwb.tabs[this.props.card.cardId] ?
+                [...iwb.tabs[this.props.card.cardId]] :
                 [{ name: "x", icon: "icon-list", title: "Liste", value: props.card }];
             /**
              * @description a Function to toggle between tabs
@@ -7140,7 +7125,7 @@ class XPage4Card extends React.PureComponent {
         }
         componentWillUnmount() {
             iwb.killGlobalSearch();
-            iwb.tabs[this.props.card.id] = [...this.tabs];
+            iwb.tabs[this.props.card.cardId] = [...this.tabs];
         }
         render() {
             if (iwb.debugRender)

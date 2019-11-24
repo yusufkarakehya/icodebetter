@@ -3066,15 +3066,19 @@ public class PostgreSQL extends BaseDAO {
 						sql.append(" dsc");
 				}
 				if (t.get_tableParentList() != null && t.get_tableParentList().size() > 0) {
-					sql.append(",x.");
 					tc = t.get_tableParentList().get(0);
-					sql.append(t.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc()).append(" ptable_pk");
-					if (tc.getRelatedStaticTableFieldId() != 0) {
-						sql.append(", x.").append(t.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc())
-								.append(" pobject_tip");
-						ptCount = 2; // multi:parent
-					} else
-						ptCount = 1; // single:parent
+					W5TableField tf2 = t.get_tableFieldMap().get(tc.getRelatedTableFieldId());
+					if(tf2!=null) {
+						sql.append(",x.");
+						sql.append(tf2.getDsc()).append(" ptable_pk");
+						if (tc.getRelatedStaticTableFieldId() != 0) {
+							sql.append(", x.").append(t.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc())
+									.append(" pobject_tip");
+							ptCount = 2; // multi:parent
+						} else
+							ptCount = 1; // single:parent
+					} else 
+						ptCount = 0;
 
 				} else
 					ptCount = 0;
