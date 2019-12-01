@@ -155,7 +155,7 @@ a:hover {
 
 /*.x-form-field, .x-combo-list-item, .x-form-item {font-size:14px;margin-bottom: 1px}*/
 .x-form .label {border: none; background: none; color: #000D1F}
-.required .x-form-text, .required textarea.x-form-field, div.x-grid3-hd-inner.required {border-left: 1px solid #d6202a !important;}
+/*.required .x-form-text, .required textarea.x-form-field, div.x-grid3-hd-inner.required {border-left: 1px solid #d6202a !important;}*/
 .edit_form .x-form-text {border-top: 1px solid orange !important}
 .required_edit_form .x-form-text, div.x-grid3-hd-inner.required {border-left: 1px solid red !important;border-top: 1px solid orange !important}
 
@@ -1053,7 +1053,7 @@ background: none;
 }
 .iwb-card-sub-header span {
     font-size: 20px;
-    color: #adadad;
+    color: #6f6f6f;
 }
 .iwb-card-sub-header span::before {
     content: '';
@@ -1252,7 +1252,7 @@ a.x-menu-item{
 
 .comment-count-badge{
 	color: white;
-	background: #607d8b;
+	background: #56add7;
 	padding: 1px 5px;
 	border-radius: 20px;
 	font-weight: 600;

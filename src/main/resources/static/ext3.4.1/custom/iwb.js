@@ -2828,7 +2828,7 @@ function addTab4GridWSearchForm(obj) {
   if (obj.t) mainGrid.id = obj.t + "-" + mainGrid.gridId;
 
   var buttons = [];
-  if (mainGrid.searchForm && !mainGrid.pageSize) {
+  if (!mainGrid.pageSize) {
     // refresh buttonu
     buttons.push({
       id: "btn_refresh_" + mainGrid.id,
@@ -2838,7 +2838,7 @@ function addTab4GridWSearchForm(obj) {
       _grid: mainGrid,
       handler: function(a) {
         iwb.reload(a._grid,{
-          params: a._grid._gp.store._formPanel.getForm().getValues()
+          params: a._grid._gp.store._formPanel?a._grid._gp.store._formPanel.getForm().getValues():{}
         });
       }
     });
@@ -2933,6 +2933,14 @@ function addTab4GridWSearchForm(obj) {
     });
   }
   var items = [];
+  
+  if (
+      mainGrid.crudFlags &&
+      mainGrid.crudFlags.edit &&
+      !mainGrid.crudFlags.nonEditDblClick /* && 1*_app.toolbar_edit_btn */
+    ) {
+      mainGridPanel.on("rowdblclick", fnRowEditDblClick);
+    }
   // ---search form
   if (mainGrid.searchForm) {
     searchFormPanel = new Ext.FormPanel(
@@ -2953,13 +2961,7 @@ function addTab4GridWSearchForm(obj) {
     );
 
     // --standart beforeload, ondbliclick, onrowcontextmenu
-    if (
-      mainGrid.crudFlags &&
-      mainGrid.crudFlags.edit &&
-      !mainGrid.crudFlags.nonEditDblClick /* && 1*_app.toolbar_edit_btn */
-    ) {
-      mainGridPanel.on("rowdblclick", fnRowEditDblClick);
-    }
+
 
     if (mainGrid.menuButtons /* && !1*_app.toolbar_edit_btn */) {
       mainGridPanel.messageContextMenu = mainGrid.menuButtons;
@@ -3324,6 +3326,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       return (a.grid.tabOrder || -1) - (b.grid.tabOrder || -1);
     }); // gridler template object sirasina gore geliyor.
   for (var i = 0; i < obj.detailGrids.length; i++) {
+	if (!obj.detailGrids[i])continue;
     if (obj.detailGrids[i].detailGrids) {
       // master/detail olacak
       if (!obj.detailGrids[i].grid.gridId) continue;
@@ -5951,7 +5954,8 @@ function addTab4DetailGridsWSearchForm(obj) {
   // detail tabs
   var detailGridPanels = [];
   for (var i = 0; i < obj.detailGrids.length; i++) {
-    if (obj.detailGrids[i].detailGrids) {
+	if (!obj.detailGrids[i])continue;
+	if (obj.detailGrids[i].detailGrids) {
       // master/detail olacak
       obj.detailGrids[0].grid.searchForm = undefined;
       var xmxm = addTab4GridWSearchFormWithDetailGrids(obj.detailGrids[i]);
@@ -7796,7 +7800,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     // btn.push({text: '${onay_adimi}<br>'+getForm.approval.stepDsc});
     if (getForm.approval.wait4start) {
       btn.push({
-        text: "START APPROVAL",
+        text: getForm.approval.btnStartApprovalLabel||getLocMsg("wf_manual_start"),
         id: "dapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -7806,9 +7810,9 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           submitAndApproveTableRecord(901, getForm, getForm.approval.dynamic);
         }
       });
-    } else {
+    } else if(getForm.approval.approvalRecordId){
       btn.push({
-        text: getLocMsg("approve"),
+        text: getForm.approval.stepDsc||getLocMsg("wf_approve"),
         id: "aapp_" + getForm.id,
         tooltip: getForm.approval.stepDsc,
         iconAlign: "top",
@@ -7847,7 +7851,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
       if (getForm.approval.returnFlag) {
         btn.push({
-          text: "RETURN",
+          text: getForm.approval.returnStepDsc||getLocMsg("wf_return"),
           id: "gbapp_" + getForm.id,
           iconAlign: "top",
           scale: "medium",
@@ -7859,7 +7863,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         });
       }
       btn.push({
-        text: "REJECT",
+        text: getForm.approval.rejectStepDsc||getLocMsg("wf_reject"),
         id: "rapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -7870,7 +7874,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         }
       });
       btn.push({
-        text: "APPROVAL LOG",
+        text: getLocMsg("wf_logs"),
         id: "lapp_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
@@ -7888,6 +7892,8 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           });
         }
       });
+    } else {//TODO write approval name somwehere
+    	
     }
   }
 
@@ -8351,13 +8357,13 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       var icn = "";
       switch (hints[qs].tip * 1) {
         case 1:
-          icn = "information";
+          icn = "information2";
           break;
         case 2:
-          icn = "warning";
+          icn = "warning2";
           break;
         case 3:
-          icn = "error";
+          icn = "error2";
           break;
       }
       var lbl = new Ext.form.Label({
@@ -8369,9 +8375,9 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         xtype: "fieldset",
         title: "",
         cls: "xform-hint",
-        labelWidth: 0,
+        labelWidth: 0,style:"padding:20px;",
         bodyStyle:
-          "padding:none !important;background-color:" + hints[qs].color + ";",
+          "padding:10px;border-radius:5px;background-color:#f8fdff;border:1px solid #b2ddff;",
         items: [lbl]
       });
     }

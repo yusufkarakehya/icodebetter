@@ -1,0 +1,37 @@
+@charset "utf-8";
+.x-superboxselect {position:relative; height: auto !important; min-height:18px;margin: 0px; overflow: hidden; padding:2px 2px 1px 2px; display:block; outline: none !important;}
+.x-superboxselect ul {overflow: hidden; cursor: text;}
+.x-superboxselect-display-btns {padding-right: 33px !important;}
+.x-superboxselect-btns {position: absolute; right: 0px; top: 0; overflow:hidden; padding:0px;}
+.x-superboxselect-btns div {float: left; width: 17px; height: 22px; margin-top: 0px;}
+.x-form-focus .x-superboxselect-btn-clear {background: url(/images/custom/clear-trigger.gif) no-repeat scroll left 0px;}
+.x-form-invalid .x-superboxselect-btn-clear {background: url(/images/custom/clear-trigger.gif) no-repeat scroll left 0px;}
+.x-superboxselect-btn-clear {background: url(/images/custom/clear-trigger.gif) no-repeat scroll left 0px;}
+.x-form-focus .x-superboxselect-btn-expand {background: url(/images/custom/trigger.gif) no-repeat scroll left 0px;}
+.x-form-invalid .x-superboxselect-btn-expand {background: url(/images/custom/trigger.gif) no-repeat scroll left 0px;}
+.x-superboxselect-btn-expand {background: url(/images/custom/trigger.gif) no-repeat scroll left 0px;}
+/*.x-superboxselect-btn-over {background-position: left -22px}*/
+.x-superboxselect-btn-hide {display:none;}
+.x-superboxselect li {float: left; margin-left:2px; margin-bottom:2px;padding: 0;line-height: 14px;}
+.x-superboxselect-stacked li {float: none !important;}
+.x-superboxselect-input input { border: none; outline: none; margin-top: 1px; margin-bottom: 1px;background: transparent;
+    color: #ddd;}
+body.ext-ie .x-superboxselect-input input {background: none; border: none; margin-top: 0px;}
+.x-superboxselect-item {position: relative;
+    border-radius: 3px;
+    border: 1px solid #7b9473;
+    background-color: #c8dbc8;
+    padding: 2px 15px 2px 4px !important;
+    color: #1e6336;
+    font-size: 12px;}
+body.ext-ie7 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em; padding: 2px 17px 4px 2px !important;}
+body.ext-ie6 .x-superboxselect-item {margin: 2px 1px 2px 1px; line-height: 1.2em; padding: 2px 19px 4px 2px !important;}
+.x-superboxselect-item-hover {    background: #e0f1de;
+    border: 1px solid #8cc98e;}
+.x-superboxselect-item-focus {border-color: #4caf50; background: #4caf50; color: #fff;}
+.x-superboxselect-item-close {background: url(/images/custom/clear-trigger.gif) no-repeat scroll left 0px; border: none; cursor: default; font-size: 1px; height: 16px;padding:0; position: absolute; right: 0px; top: 0px; width: 13px;display:block;cursor:pointer;}
+
+/*.x-superboxselect-item-close:hover, .x-superboxselect-item-close:active  { background-position: left -12px;}*/
+/*.x-superboxselect-item-focus .x-superboxselect-item-close{ background-position: left -24px}*/
+.x-item-disabled .x-superboxselect-item-close{ background-position: left -36px}
+.x-item-disabled .x-superboxselect-input input {background: none !important}

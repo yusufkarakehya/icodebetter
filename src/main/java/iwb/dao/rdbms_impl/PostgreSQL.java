@@ -2546,6 +2546,20 @@ public class PostgreSQL extends BaseDAO {
 						s2.executeUpdate();
 						s2.close();
 					}
+					
+
+					if (t.getTableId() != 44
+							&& FrameworkCache.getAppSettingIntValue(customizationId, "file_attachment_flag") != 0
+							&& t.getFileAttachmentFlag() != 0) {
+						PreparedStatement s2 = conn.prepareStatement(
+								"update iwb.w5_file_attachment set table_pk=?::text where project_uuid=? AND table_id=?::integer AND table_pk=?::text");
+						applyParameters(s2,
+								formResult.getOutputFields().get(t.get_tableParamList().get(0).getExpressionDsc()),
+								projectId, t.getTableId(),
+								formResult.getRequestParams().get("_tmpId"));
+						s2.executeUpdate();
+						s2.close();
+					}
 
 					/*
 					 * if(t.getTableId()!=370 &&
