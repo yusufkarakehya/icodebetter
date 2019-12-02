@@ -800,29 +800,29 @@ public class F7_4 implements ViewMobileAdapter {
     return buf;
   }
 
-  public StringBuilder serializeGetForm(W5FormResult formResult) {
-    W5Form f = formResult.getForm();
-    Map scd = formResult.getScd();
+  public StringBuilder serializeGetForm(W5FormResult fr) {
+    W5Form f = fr.getForm();
+    Map scd = fr.getScd();
     String xlocale = (String) scd.get("locale");
     int customizationId = (Integer) scd.get("customizationId");
     StringBuilder s = new StringBuilder();
     s.append("{success:true, props:{formId:")
         .append(f.getFormId())
         .append(",\n name:'")
-        .append(LocaleMsgCache.get2(formResult.getScd(), f.getLocaleMsgKey()))
+        .append(LocaleMsgCache.get2(fr.getScd(), f.getLocaleMsgKey()))
         .append("'");
     boolean pictureFlag = false;
 
     Map<Integer, List<W5FormCellHelper>> map = new HashMap<Integer, List<W5FormCellHelper>>();
     map.put(0, new ArrayList<W5FormCellHelper>());
-    if (formResult.getForm().get_moduleList() != null)
-      for (W5FormModule m : formResult.getForm().get_moduleList()) {
+    if (fr.getForm().get_moduleList() != null)
+      for (W5FormModule m : fr.getForm().get_moduleList()) {
         map.put(m.getFormModuleId(), new ArrayList<W5FormCellHelper>());
       }
     else {
-      formResult.getForm().set_moduleList(new ArrayList());
+      fr.getForm().set_moduleList(new ArrayList());
     }
-    for (W5FormCellHelper m : formResult.getFormCellResults())
+    for (W5FormCellHelper m : fr.getFormCellResults())
       if (m.getFormCell().getActiveFlag() != 0) {
         List<W5FormCellHelper> l = map.get(m.getFormCell().getFormModuleId());
         if (l == null) l = map.get(0);
@@ -836,37 +836,37 @@ public class F7_4 implements ViewMobileAdapter {
       pictureFlag = t.getFileAttachmentFlag() != 0;
       // insert AND continue control
       s.append(",\n crudTableId:").append(f.getObjectId());
-      if (formResult.getAction() == 2) { // insert
+      if (fr.getAction() == 2) { // insert
         long tmpId = -GenericUtil.getNextTmpId();
         s.append(",\n contFlag:")
             .append(f.getContEntryFlag() != 0)
             .append(",\n tmpId:")
             .append(tmpId);
-        formResult.getRequestParams().put("_tmpId", "" + tmpId);
-      } else if (formResult.getAction() == 1) { // edit
+        fr.getRequestParams().put("_tmpId", "" + tmpId);
+      } else if (fr.getAction() == 1) { // edit
         s.append(",id:'")
-            .append(formResult.getUniqueId())
+            .append(fr.getUniqueId())
             .append("',\n pk:")
-            .append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
+            .append(GenericUtil.fromMapToJsonString(fr.getPkFields()));
       }
       //			if (pictureFlag)s.append(",\n pictureFlag:true,
-      // pictureCount:").append(formResult.getPictureCount());
+      // pictureCount:").append(fr.getPictureCount());
       if (FrameworkCache.getAppSettingIntValue(scd, "file_attachment_flag") != 0
           && t.getFileAttachmentFlag() != 0
           && FrameworkCache.roleAccessControl(scd, 101))
         s.append(",\n fileAttachFlag:true, fileAttachCount:")
-            .append(formResult.getFileAttachmentCount());
+            .append(fr.getFileAttachmentCount());
       if (FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag") != 0
           && ((Integer) scd.get("userTip") != 3 && t.getAccessTips() != null))
         s.append(",\n accessControlFlag:true, accessControlCount:")
-            .append(formResult.getAccessControlCount());
-      if (!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap() != null) {
+            .append(fr.getAccessControlCount());
+      if (!GenericUtil.isEmpty(f.get_moduleList()) && fr.getModuleListMap() != null) {
         s.append(",\n subLists:[");
         boolean bq = false;
         for (W5FormModule fm : f.get_moduleList())
           if (fm.getModuleTip() == 10
-              && (fm.getModuleViewTip() == 0 || formResult.getAction() == fm.getModuleViewTip())) {
-            M5ListResult mlr = formResult.getModuleListMap().get(fm.getObjectId());
+              && (fm.getModuleViewTip() == 0 || fr.getAction() == fm.getModuleViewTip())) {
+            M5ListResult mlr = fr.getModuleListMap().get(fm.getObjectId());
             if (mlr == null) continue;
             if (bq) s.append("\n,");
             else bq = true;
@@ -878,12 +878,12 @@ public class F7_4 implements ViewMobileAdapter {
       }
     }
 
-    if (formResult.isViewMode()) s.append(",\n viewMode:true");
+    if (fr.isViewMode()) s.append(",\n viewMode:true");
 
-    if (!formResult.getOutputMessages().isEmpty()) {
+    if (!fr.getOutputMessages().isEmpty()) {
       s.append(",\n\"msgs\":[");
       boolean b = false;
-      for (String sx : formResult.getOutputMessages()) {
+      for (String sx : fr.getOutputMessages()) {
         if (b) s.append("\n,");
         else b = true;
         s.append("'").append(GenericUtil.stringToJS(sx)).append("'");
@@ -892,43 +892,119 @@ public class F7_4 implements ViewMobileAdapter {
     }
     StringBuilder jsCode = new StringBuilder();
     s.append(",\n baseParams:")
-        .append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
+        .append(GenericUtil.fromMapToJsonString(fr.getRequestParams()))
         .append("},\n template:`");
 
-    //		buf.append(PromisUtil.filterExt(fc.getExtraDefinition(), formResult.getScd(),
-    // formResult.getRequestParams(), o));
+    //		buf.append(PromisUtil.filterExt(fc.getExtraDefinition(), fr.getScd(),
+    // fr.getRequestParams(), o));
 
     if (f.getObjectTip() == 2) {
       s.append("<div data-page=\"iwb-form-")
-          .append(formResult.getFormId())
+          .append(fr.getFormId())
           .append("\" class=\"page\"><div class=\"navbar\">")
           .append(
               "<div class=\"navbar-inner\"><div class=\"left\"><a href=\"#\" class=\"link back\"> <i class=\"icon icon-back\"></i> <span class=\"if-not-md\">Back</span></a></div><div class=\"center\">")
-          .append(formResult.getForm().getLocaleMsgKey())
+          .append(fr.getForm().getLocaleMsgKey())
           .append("</div><div class=\"right\">");
       if (pictureFlag) {
         s.append(
-            "<a @click=\"clickPhoto\" href=# class=\"link\"><i class=\"icon f7-icons\">camera_fill<span d=\"idx-photo-badge-").append(formResult.getFormId()).append("\" class=\"badge color-red\"");
-        if (formResult.getFileAttachmentCount() > 0)
-          s.append(">").append(formResult.getFileAttachmentCount());
+            "<a @click=\"clickPhoto\" href=# class=\"link\"><i class=\"icon f7-icons\">camera_fill<span d=\"idx-photo-badge-").append(fr.getFormId()).append("\" class=\"badge color-red\"");
+        if (fr.getFileAttachmentCount() > 0)
+          s.append(">").append(fr.getFileAttachmentCount());
         else s.append(" style=\"display:none;\">1");
         s.append("</span></i></a>");
       }
       s.append("</div></div></div> <div class=\"page-content\"><form class=\"list\" id=\"idx-form-")
-          .append(formResult.getFormId())
-          .append("\"><ul>");
+          .append(fr.getFormId())
+          .append("\">");
+      if (fr.getApprovalRecord() != null) { // Approval Started
+			W5Workflow a = FrameworkCache.getWorkflow(fr.getScd(),fr.getApprovalRecord().getApprovalId());
+			if (fr.getApprovalRecord().getApprovalStepId() == 901) {// kendisi start for approval yapacak
+				if ((a.getManualAppUserIds() == null
+						&& a.getManualAppRoleIds() == null
+						&& GenericUtil
+								.accessControl(scd, fr
+										.getApprovalRecord()
+										.getApprovalActionTip() /*
+																 * ??? Bu ne
+																 */,
+										fr.getApprovalRecord()
+												.getApprovalRoles(), fr
+												.getApprovalRecord()
+												.getApprovalUsers()) || (GenericUtil
+						.hasPartInside2(a.getManualAppRoleIds(),
+								scd.get("roleId")) || GenericUtil
+						.hasPartInside2(a.getManualAppUserIds(),
+								scd.get("userId")))) // Burası daha güzel
+														// yazılabilir
+				)// TODO:Buraya tableUserIdField yetki kontrolü eklenecek
+		        s.append(
+				  "<div class=\"block\"><i class=\"icon f7-icons\" style=\"font-size: 17px;margin-top: -5px;\">bolt_fill</i> ")
+				  .append(LocaleMsgCache.get2(scd, a.getDsc()))
+				  .append("<p class=\"buttons-row\"><a href=# class=\"button button-big button-fill button-raised color-orange\">")
+				  .append(LocaleMsgCache.get2(scd, a.getApprovalRequestMsg()))
+				  .append("</a></p></div>");
+			} else if (GenericUtil.accessControl(scd, (short) 1, fr
+					.getApprovalRecord().getApprovalRoles(), fr
+					.getApprovalRecord().getApprovalUsers())) {
+				// TODO:buraya e-sign ile ilgili kontrol eklenecek. dinamik onay
+				// varsa approval değilse aprrovalstep kontrol edilecek
+		        s.append(
+				  "<div class=\"block\"><i class=\"icon f7-icons\" style=\"font-size: 17px;margin-top: -5px;\">bolt_fill</i> ")
+				  .append(LocaleMsgCache.get2(scd, a.getDsc()));
+				if(fr.getApprovalStep()!=null)s.append(" &gt ").append(LocaleMsgCache.get2(scd, fr.getApprovalStep().getDsc()));
+				s.append("<p class=\"buttons-row row\"><a href=# class=\"button button-large button-fill button-raised color-red\">")
+				  .append(LocaleMsgCache.get2(scd, "reject"))
+				  .append("</a>");
+				if(fr.getApprovalRecord().getReturnFlag() != 0)s.append("<a href=# class=\"button button-large button-fill button-raised color-gray\">")
+				  .append(LocaleMsgCache.get2(scd, fr.getApprovalStep()!=null ? fr.getApprovalStep().getBtnReturnLabel():"return"))
+				  .append("</a>");
+				  
+				s.append("<a href=# class=\"button button-large button-fill button-raised color-green\">")
+				  .append(LocaleMsgCache.get2(scd, fr.getApprovalStep()!=null ? fr.getApprovalStep().getBtnApproveLabel():"approve"))
+				  .append("</a>");
+				  
+				s.append("</p></div>");
+
+/*				  
+				s.append(",\n approval:{approvalRecordId:")
+						.append(fr.getApprovalRecord()
+								.getApprovalRecordId())
+						.append(",dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc()))
+						.append("\", versionNo:")
+						.append(fr.getApprovalRecord().getVersionNo())
+						.append(",returnFlag:")
+						.append(fr.getApprovalRecord().getReturnFlag() != 0);
+				W5WorkflowStep wfs = a.get_approvalStepMap().get(fr.getApprovalRecord().getApprovalStepId());
+				if(wfs.getOnApproveFormId()!=null)s.append(",approveFormId:").append(wfs.getOnApproveFormId());
+				if(wfs.getOnRejectFormId()!=null)s.append(",rejectFormId:").append(wfs.getOnRejectFormId());
+				if(wfs.getOnReturnFormId()!=null)s.append(",returnFormId:").append(wfs.getOnReturnFormId());
+				s.append(",stepDsc:\"")
+						.append(fr.getApprovalStep() != null ? fr.getApprovalStep().getDsc() : "-")
+						.append("\"}");*/
+			} else {
+		        s.append(
+				  "<div class=\"block\"><i class=\"icon f7-icons\" style=\"font-size: 17px;margin-top: -5px;\">bolt_fill</i> ")
+				  .append(LocaleMsgCache.get2(scd, a.getDsc()));
+				if(fr.getApprovalStep()!=null)s.append(" &gt ").append(LocaleMsgCache.get2(scd, fr.getApprovalStep().getDsc()));
+				s.append("</div>");
+			}
+		} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
+
+		}
+      s.append("<ul>");
     }
 
     //		    <div class="block-title">With Floating Labels</div>
     List<W5FormModule> ml = new ArrayList();
     boolean found = false;
-    for (W5FormModule m : formResult.getForm().get_moduleList())
+    for (W5FormModule m : fr.getForm().get_moduleList())
       if (m.getFormModuleId() == 0) {
         found = true;
         break;
       }
     if (!found) ml.add(new W5FormModule());
-    ml.addAll(formResult.getForm().get_moduleList());
+    ml.addAll(fr.getForm().get_moduleList());
 
     for (W5FormModule m : ml) {
       List<W5FormCellHelper> r = map.get(m.getFormModuleId());
@@ -941,11 +1017,11 @@ public class F7_4 implements ViewMobileAdapter {
         s.append(
             GenericUtil.stringToJS(
                 serializeFormCell(
-                    customizationId, xlocale, new W5FormCellHelper(fcx), formResult)));
+                    customizationId, xlocale, new W5FormCellHelper(fcx), fr)));
       }
       for (W5FormCellHelper fc : r) {
         s.append(
-            GenericUtil.stringToJS(serializeFormCell(customizationId, xlocale, fc, formResult)));
+            GenericUtil.stringToJS(serializeFormCell(customizationId, xlocale, fc, fr)));
         switch (fc.getFormCell().getControlTip()) {
           case 2: // date
             jsCode
@@ -958,7 +1034,7 @@ public class F7_4 implements ViewMobileAdapter {
         	  jsCode
 	          	.append("iwb.app.autocomplete.create(");
 	          Map<Integer, String> multiRelatedComboMap = new HashMap();
-	          for (W5FormCellHelper cfc : formResult.getFormCellResults()) {
+	          for (W5FormCellHelper cfc : fr.getFormCellResults()) {
 	            if (cfc.getFormCell().getParentFormCellId() == fc.getFormCell().getFormCellId()) {
 	              if (!GenericUtil.isEmpty(cfc.getFormCell().getLookupIncludedParams()))
 	                switch (cfc.getFormCell().getControlTip()) {
@@ -1002,10 +1078,10 @@ public class F7_4 implements ViewMobileAdapter {
             break;
           case 9:
           case 16:
-            if (formResult != null
+            if (fr != null
                 && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams())
                 && fc.getFormCell().getParentFormCellId() > 0) {
-              for (W5FormCellHelper rfc : formResult.getFormCellResults()) {
+              for (W5FormCellHelper rfc : fr.getFormCellResults()) {
                 if (rfc.getFormCell().getFormCellId() == fc.getFormCell().getParentFormCellId()) {
                   W5FormCell pfc = rfc.getFormCell();
                   if (pfc.getControlTip() == 6
@@ -1056,7 +1132,7 @@ public class F7_4 implements ViewMobileAdapter {
                     && FrameworkCache.getAppSettingIntValue(customizationId, "mail_flag") != 0))
             && fsm.getAlarmFlag() == 0
             && fsm.getPreviewFlag() == 0
-            && GenericUtil.hasPartInside2(fsm.getActionTips(), formResult.getAction())
+            && GenericUtil.hasPartInside2(fsm.getActionTips(), fr.getAction())
             && GenericUtil.hasPartInside2(fsm.getWebMobileTips(), "2")) {
           cnt++;
         }
@@ -1073,7 +1149,7 @@ public class F7_4 implements ViewMobileAdapter {
                       && FrameworkCache.getAppSettingIntValue(customizationId, "mail_flag") != 0))
               && fsm.getAlarmFlag() == 0
               && fsm.getPreviewFlag() == 0
-              && GenericUtil.hasPartInside2(fsm.getActionTips(), formResult.getAction())
+              && GenericUtil.hasPartInside2(fsm.getActionTips(), fr.getAction())
               && GenericUtil.hasPartInside2(fsm.getWebMobileTips(), "2")) {
             W5FormCell fcx = new W5FormCell();
             fcx.setControlTip((short) 5);
@@ -1096,7 +1172,7 @@ public class F7_4 implements ViewMobileAdapter {
             if (fsm.getSmsMailSentTip() == 1 || fsm.getSmsMailSentTip() == 0) fcr.setValue("1");
             s2.append(
                 GenericUtil.stringToJS(
-                    serializeFormCell(customizationId, xlocale, fcr, formResult)));
+                    serializeFormCell(customizationId, xlocale, fcr, fr)));
 
             /*if (b)s2.append("\n,");
             else b = true;
@@ -1127,14 +1203,14 @@ public class F7_4 implements ViewMobileAdapter {
         s.append(
             GenericUtil.stringToJS(
                 serializeFormCell(
-                    customizationId, xlocale, new W5FormCellHelper(fcx), formResult)));
+                    customizationId, xlocale, new W5FormCellHelper(fcx), fr)));
         s.append(s2);
       }
     }
 
     if (f.getObjectTip() == 2) {
       s.append("</ul>");
-      if (!formResult.isViewMode()) { // kaydet butonu
+      if (!fr.isViewMode()) { // kaydet butonu
         if (masterDetail) // master detail
         s.append(
               "<div class=\"block\"><p class=\"buttons-row\"><a href=# @click=\"clickSaveContinue\" class=\"button button-big button-fill button-raised color-blue\">Next</a></p></div>");
@@ -1161,10 +1237,10 @@ public class F7_4 implements ViewMobileAdapter {
     s.append("}");
     if (f.getObjectTip() == 2) {
       s.append(",\n methods:{clickPhoto:function(){iwb.formPhotoMenu(this.$options.props);}");
-      if (!formResult.isViewMode()) { // kaydet butonu
+      if (!fr.isViewMode()) { // kaydet butonu
         if (!masterDetail) // master detail
         s.append(",clickSave:function(){var self=this;var baseParams=")
-              .append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
+              .append(GenericUtil.fromMapToJsonString(fr.getRequestParams()))
               .append(
                   ";if(self.componentWillPost){var r=self.componentWillPost(baseParams);if(r===false)return;baseParams=Object.assign(baseParams, r||{})};iwb.submit('#idx-form-")
               .append(f.getFormId())
@@ -1172,7 +1248,7 @@ public class F7_4 implements ViewMobileAdapter {
         else
           s.append(
                   ",clickSaveContinue:function(){var self=this;if(!self.iwbSaveContinue){alert('self.iwbSaveContinue not defined');return;};var baseParams=")
-              .append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
+              .append(GenericUtil.fromMapToJsonString(fr.getRequestParams()))
               .append(
                   ";if(self.componentWillPost)baseParams=self.componentWillPost(baseParams);if(baseParams!==false)iwb.submit('#idx-form-")
               .append(f.getFormId())
@@ -1202,11 +1278,11 @@ public class F7_4 implements ViewMobileAdapter {
 
   @SuppressWarnings("unchecked")
   private StringBuilder serializeFormCell(
-      int customizationId, String xlocale, W5FormCellHelper cellResult, W5FormResult formResult) {
+      int customizationId, String xlocale, W5FormCellHelper cellResult, W5FormResult fr) {
     W5FormCell fc = cellResult.getFormCell();
     String value = cellResult.getValue(); // bu ilerde hashmap ten gelebilir
     // int customizationId =
-    // PromisUtil.uInt(formResult.getScd().get("customizationId"));
+    // PromisUtil.uInt(fr.getScd().get("customizationId"));
     StringBuilder buf = new StringBuilder();
 
     String fieldLabel = LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey());
@@ -1226,7 +1302,7 @@ public class F7_4 implements ViewMobileAdapter {
       o.put("notNull", notNull);
       buf.append(
           GenericUtil.filterExt(
-              fc.getExtraDefinition(), formResult.getScd(), formResult.getRequestParams(), o));
+              fc.getExtraDefinition(), fr.getScd(), fr.getRequestParams(), o));
       return buf;
     }
     if ((fc.getControlTip() == 101
@@ -1236,13 +1312,13 @@ public class F7_4 implements ViewMobileAdapter {
           .append(fc.getFormCellId())
           .append(
               "\"><div class=\"item-content item-input item-input-outline\"><div class=\"item-inner\">")
-          .append("<div class=\"item-title item-floating-label\">")
+          .append("<div class=\"item-title item-floating-label\" style=\"border: 1px solid rgba(0,0,0,.2);border-radius: 3px !important; padding: 1px 4px 2px;\">")
           .append(fieldLabel)
           .append("</div>")
           .append(
-              "<div class=\"item-input-wrap\"><input type=text readonly style=\"background-color:rgba(0,0,0,.07)\" value=\"")
-          .append(value)
-          .append("\"/>");
+              "<div class=\"item-input-wrap\"><input type=text readonly style=\"background-color:rgba(0,0,0,.04)\" value=\"");
+      if (!GenericUtil.isEmpty(value))buf.append(value);
+          buf.append("\"/>");
       ;
       buf.append("</div></div></div></li>");
       return buf;
@@ -1361,7 +1437,7 @@ public class F7_4 implements ViewMobileAdapter {
         if (len > 10)
           buf.append(
                   " data-open-in=\"popup\" data-searchbar=\"true\" data-searchbar-placeholder=\"")
-              .append(LocaleMsgCache.get2(formResult.getScd(), "search"))
+              .append(LocaleMsgCache.get2(fr.getScd(), "search"))
               .append("..\"");
         else buf.append(" data-open-in=\"popover\"");
         buf.append("><select id=\"idx-formcell-")
@@ -1428,7 +1504,7 @@ public class F7_4 implements ViewMobileAdapter {
             .append("\"")
             .append(" class=\"item-link smart-select smart-select-init\"")
             .append(" data-searchbar=\"true\" data-searchbar-placeholder=\"")
-            .append(LocaleMsgCache.get2(formResult.getScd(), "search"))
+            .append(LocaleMsgCache.get2(fr.getScd(), "search"))
             .append("...\" data-open-in=\"popup\">")
             .append("<select id=\"idx-formcell-")
             .append(fc.getFormCellId())
@@ -1500,11 +1576,11 @@ public class F7_4 implements ViewMobileAdapter {
   
   @SuppressWarnings("unchecked")
   private StringBuilder serializeFormCellOld(
-      int customizationId, String xlocale, W5FormCellHelper cellResult, W5FormResult formResult) {
+      int customizationId, String xlocale, W5FormCellHelper cellResult, W5FormResult fr) {
     W5FormCell fc = cellResult.getFormCell();
     String value = cellResult.getValue(); // bu ilerde hashmap ten gelebilir
     // int customizationId =
-    // PromisUtil.uInt(formResult.getScd().get("customizationId"));
+    // PromisUtil.uInt(fr.getScd().get("customizationId"));
     StringBuilder buf = new StringBuilder();
 
     String fieldLabel = LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey());
@@ -1524,7 +1600,7 @@ public class F7_4 implements ViewMobileAdapter {
       o.put("notNull", notNull);
       buf.append(
           GenericUtil.filterExt(
-              fc.getExtraDefinition(), formResult.getScd(), formResult.getRequestParams(), o));
+              fc.getExtraDefinition(), fr.getScd(), fr.getRequestParams(), o));
       return buf;
     }
     if ((fc.getControlTip() == 101
@@ -1656,7 +1732,7 @@ public class F7_4 implements ViewMobileAdapter {
         if (len > 10)
           buf.append(
                   " data-open-in=\"popup\" data-searchbar=\"true\" data-searchbar-placeholder=\"")
-              .append(LocaleMsgCache.get2(formResult.getScd(), "search"))
+              .append(LocaleMsgCache.get2(fr.getScd(), "search"))
               .append("..\"");
         else buf.append(" data-open-in=\"popover\"");
         buf.append("><select id=\"idx-formcell-")
@@ -1720,7 +1796,7 @@ public class F7_4 implements ViewMobileAdapter {
             .append(multi ? "" : " data-close-on-select=\"true\"")
             .append(" class=\"item-link smart-select\"")
             .append(" data-searchbar=\"true\" data-searchbar-placeholder=\"")
-            .append(LocaleMsgCache.get2(formResult.getScd(), "search"))
+            .append(LocaleMsgCache.get2(fr.getScd(), "search"))
             .append("...\" data-open-in=\"popup\">")
             .append("<select id=\"idx-formcell-")
             .append(fc.getFormCellId())
