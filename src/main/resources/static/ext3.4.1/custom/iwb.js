@@ -324,14 +324,25 @@ function commentHtml(x) {
   return x ? '<img src="../images/custom/bullet_comment.png" border=0>' : "";
 }
 
+iwb.showApprovalLogs=function(id){
+	return mainPanel.loadTab({
+	    attributes: {
+	      modalWindow: true,
+	      href: "showPage?_tid=259&_gid1=530", //238
+	      baseParams: {
+	        xapproval_record_id: id
+	      }
+	    }
+	});
+}
 function approvalHtml(x, y, z) {
   if (!x) return "";
   var str =
     x > 0 ? '<img src="/images/custom/bullet_approval.gif" border=0> ' : "";
   str +=
-    "<a href=# onclick=\"return mainPanel.loadTab({attributes:{modalWindow:true,href:'showPage?_tid=238&_gid1=530',baseParams:{xapproval_record_id:" +
+    "<a href=# onclick=\"return iwb.showApprovalLogs(" +
     z.data.pkpkpk_arf_id +
-    '}}})"';
+    ')"';
   if (z.data.app_role_ids_qw_ || z.data.app_user_ids_qw_) {
     str += ' title=":' + getLocMsg("js_onaylayacaklar");
     var bb = false;
@@ -4123,7 +4134,7 @@ function showLoginDialog(xobj) {
 function formSubmit(submitConfig) {
   var cfg = {
 // waitMsg: getLocMsg("js_please_wait"),
-    clientValidation: true,
+    clientValidation: typeof iwb.submitClientValidation != 'undefined' ? iwb.submitClientValidation:true,
     success: function(form, action) {
       iwb.mask();
       var myJson = JSON.parse(action.response.responseText);// eval("(" +
@@ -4767,7 +4778,7 @@ function approveTableRecord(aa, a) {
           var _dynamic_approval_users = win.items.items[0].items.items[0].getValue();
           var _comment = win.items.items[0].items.items[1].getValue();
           iwb.request({
-            url: "ajaxApproveRecord",
+            url: "ajaxApproveRecord",requestWaitMsg: true,
             params: {
               _arid: rec_id,
               _adsc: _comment,
@@ -5139,7 +5150,7 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
             prms._adsc = _comment;
             prms._avno = frm.approval.versionNo;
             promisRequest({
-              url: "ajaxApproveRecord",
+              url: "ajaxApproveRecord",requestWaitMsg: true,
               params: prms,
               successCallback: function(json) {
                 win.close();
@@ -7881,15 +7892,8 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
 // style: {margin: "0px 5px 0px 5px"},
         iconCls: "ilog",
         handler: function(a, b, c) {
-          mainPanel.loadTab({
-            attributes: {
-              modalWindow: true,
-              href: "showPage?_tid=259&_gid1=530",
-              baseParams: {
-                xapproval_record_id: getForm.approval.approvalRecordId
-              }
-            }
-          });
+        	iwb.showApprovalLogs(getForm.approval.approvalRecordId)
+
         }
       });
     } else {//TODO write approval name somwehere

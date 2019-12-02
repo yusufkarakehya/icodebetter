@@ -262,22 +262,8 @@ public class NotificationEngine {
 							// fileAttachments);
 							W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, t.getTableId(),
 									GenericUtil.uInt(ptablePk));
-							int ms = fsm.getMailSettingId() != 0 ? fsm.getMailSettingId()
-									: (Integer) scd.get("mailSettingId");
-							if (ms == 0)
-								ms = 1;
-							int cusId = ms != 1 ? (Integer) scd.get("customizationId") : 0;
-							W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.getCustomizedObject(
-									"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?",
-									fsm.getMailSettingId() != 0 ? fsm.getMailSettingId()
-											: (Integer) scd.get("mailSettingId"),
-									cusId, ms != 1 ? "MailSetting" : null);
-							if (oms == null) {
-								oms = (W5ObjectMailSetting) dao.getCustomizedObject(
-										"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", 1,
-										0, "SystemMailSetting");
-							}
-							email.set_oms(oms);
+
+							email.set_oms(findObjectMailSetting(scd, email.getMailSettingId()));
 							if (fsm.getAsyncFlag() != 0)
 								result.add(new W5QueuedActionHelper(email));
 							else
@@ -451,17 +437,8 @@ public class NotificationEngine {
 		} else { // email
 			W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, tableId,
 					GenericUtil.uInt(requestParams.get("table_pk")));
-			W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.getCustomizedObject(
-					"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId in (0,?) ",
-					(Integer) scd.get("mailSettingId"), scd.get("customizationId"), "MailSetting");
-			// (W5ObjectMailSetting)dao.getCustomizedObject("from
-			// W5ObjectMailSetting w where
-			// w.mailSettingId=? AND w.customizationId in (0,?)",
-			// (Integer)scd.get("mailSettingId"),
-			// (Integer)scd.get("customizationId"), "MailSetting");
-			// if(requestParams.get("pfile_attachment_ids")!=null)mq.put("pfile_attachment_ids",
-			// requestParams.get("pfile_attachment_ids"));
-			email.set_oms(oms);
+
+			email.set_oms(findObjectMailSetting(scd, email.getMailSettingId()));
 			String error = MailUtil.sendMail(scd, email);
 			if (GenericUtil.isEmpty(error)) {
 				r.put("success", true);
@@ -471,6 +448,25 @@ public class NotificationEngine {
 			}
 		}
 		return r;
+	}
+	
+	public W5ObjectMailSetting findObjectMailSetting(Map<String, Object> scd, int mailSettingId) {
+		int ms = mailSettingId != 0 ? mailSettingId
+				: GenericUtil.uInt(scd.get("mailSettingId"));
+		if (ms == 0)
+			ms = 1;
+		int cusId = ms != 1 ? (Integer) scd.get("customizationId") : 0;
+		W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.getCustomizedObject(
+				"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?",
+				mailSettingId != 0 ? mailSettingId
+						: GenericUtil.uInt(scd.get("mailSettingId")),
+				cusId, ms != 1 ? "MailSetting" : null);
+		if (oms == null) {
+			oms = (W5ObjectMailSetting) dao.getCustomizedObject(
+					"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", 1,
+					0, "SystemMailSetting");
+		}
+		return oms;
 	}
 	
 	public String sendMail(Map<String, Object> scd, W5Email email){

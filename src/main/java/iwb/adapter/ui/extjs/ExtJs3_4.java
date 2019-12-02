@@ -1213,13 +1213,12 @@ public class ExtJs3_4 implements ViewAdapter {
 				if(wfs.getOnApproveFormId()!=null)s.append(",approveFormId:").append(wfs.getOnApproveFormId());
 				if(wfs.getOnRejectFormId()!=null)s.append(",rejectFormId:").append(wfs.getOnRejectFormId());
 				if(wfs.getOnReturnFormId()!=null)s.append(",returnFormId:").append(wfs.getOnReturnFormId());
-				s.append(",stepDsc:'")
-						.append(fr.getApprovalStep() != null ? GenericUtil
-								.stringToJS(fr.getApprovalStep()
-										.getDsc()) : "-")
-						.append("'}");
+				s.append(",stepDsc:\"")
+						.append(fr.getApprovalStep() != null ? fr.getApprovalStep().getDsc() : "-")
+						.append("\"}");
 			} else {
-				s.append(",\n approval:{dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
+				s.append(",\n approval:{stepDsc:\"").append(fr.getApprovalStep() != null ? fr.getApprovalStep().getDsc() : "-")
+				.append("\", dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
 			}
 		} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
 					// yapılabilir mi ? Formun bağlı olduğu tablonun onay

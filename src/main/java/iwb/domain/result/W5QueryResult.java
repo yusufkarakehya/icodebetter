@@ -986,7 +986,7 @@ public class W5QueryResult implements W5MetaResult{
 			
 			
 			if(mainTable.get_tableFilterList()!=null)for(W5TableFilter tf:mainTable.get_tableFilterList())if(GenericUtil.accessControl(scd, (short)1, tf.getAccessFilterRoles(), tf.getAccessFilterUsers()) // role & user control 
-					|| (FrameworkCache.getAppSettingIntValue(scd, "dealer_flag")!=0 && GenericUtil.uInt(scd.get("userTip"))==3 && tf.getAccessFilterDealers()!=null && GenericUtil.hasPartInside2(tf.getAccessFilterDealers(), scd.get("unitId")))){ // b2b dealer control
+					){
 				String accessViewSql = tf.getAccessViewSql();
 				if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
 					Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
@@ -1464,7 +1464,7 @@ public class W5QueryResult implements W5MetaResult{
 			
 			
 			if(mainTable.get_tableFilterList()!=null)for(W5TableFilter tf:mainTable.get_tableFilterList())if(GenericUtil.accessControl(scd, (short)1, tf.getAccessFilterRoles(), tf.getAccessFilterUsers()) // role & user control 
-					|| (FrameworkCache.getAppSettingIntValue(scd, "dealer_flag")!=0 && GenericUtil.uInt(scd.get("userTip"))==3 && tf.getAccessFilterDealers()!=null && GenericUtil.hasPartInside2(tf.getAccessFilterDealers(), scd.get("unitId")))){ // b2b dealer control
+					){
 				String accessViewSql = tf.getAccessViewSql();
 				if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
 					Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
@@ -1885,7 +1885,7 @@ public class W5QueryResult implements W5MetaResult{
 		
 			
 			if(mainTable.get_tableFilterList()!=null)for(W5TableFilter tf:mainTable.get_tableFilterList())if(GenericUtil.accessControl(scd, (short)1, tf.getAccessFilterRoles(), tf.getAccessFilterUsers()) // role & user control 
-					|| (FrameworkCache.getAppSettingIntValue(scd, "dealer_flag")!=0 && GenericUtil.uInt(scd.get("userTip"))==3 && tf.getAccessFilterDealers()!=null && GenericUtil.hasPartInside2(tf.getAccessFilterDealers(), scd.get("unitId")))){ // b2b dealer control
+					){
 				String accessViewSql = tf.getAccessViewSql();
 				if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
 					Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);

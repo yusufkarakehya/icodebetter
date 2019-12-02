@@ -16,7 +16,10 @@ import iwb.cache.LocaleMsgCache;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5WorkflowRecord;
 import iwb.domain.db.W5Comment;
+import iwb.domain.db.W5Email;
 import iwb.domain.db.W5Form;
+import iwb.domain.db.W5FormSmsMail;
+import iwb.domain.db.W5ObjectMailSetting;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowRecord;
 import iwb.domain.db.W5WorkflowStep;
@@ -138,6 +141,8 @@ public class WorkflowEngine {
 
 			break;
 		case 1: // onay
+			if(!GenericUtil.isEmpty(currentStep.getOnApproveNotificationIds()))
+				notificationIds = currentStep.getOnApproveNotificationIds();
 			mesaj = " '" + scd.get("completeName") + "' "
 					+ LocaleMsgCache.get2(0, xlocale, "approval_presented_for_your_approval");
 			switch (a.getApprovalFlowTip()) {
@@ -219,6 +224,8 @@ public class WorkflowEngine {
 
 			break;
 		case 2: // iade: TODO . baska?
+			if(!GenericUtil.isEmpty(currentStep.getOnReturnNotificationIds()))
+				notificationIds = currentStep.getOnReturnNotificationIds();
 			if (currentStep.getApprovalStepId() == 901) {
 				throw new IWBException("validation", "WorkflowRecord", approvalRecordId, null,
 						LocaleMsgCache.get2(0, xlocale, "approval_wrong_action"), null);
@@ -272,6 +279,8 @@ public class WorkflowEngine {
 
 			break;
 		case 3: // red
+			if(!GenericUtil.isEmpty(currentStep.getOnRejectNotificationIds()))
+				notificationIds = currentStep.getOnRejectNotificationIds();
 			if (currentStep.getApprovalStepId() == 901) {
 				throw new IWBException("validation", "WorkflowRecord", approvalRecordId, null,
 						LocaleMsgCache.get2(0, xlocale, "approval_wrong_action"), null);
@@ -496,6 +505,39 @@ public class WorkflowEngine {
 			m.put(".e", "4");
 			UserUtil.liveSyncAction(scd, m); // (customizationId, table_id+"-"+table_pk, userId, webPageId, false);
 		}
+		if(!GenericUtil.isEmpty(notificationIds)) {
+			Map newParamMap = new HashMap();
+			newParamMap.putAll(parameterMap);
+			newParamMap.put("wf_name", a.getDsc());
+			newParamMap.put("wf_stepName", currentStep.getDsc());
+			if(nextStep!=null) {
+				newParamMap.put("wf_nextStepName", nextStep.getDsc());
+			}
+			if (!GenericUtil.isEmpty(parameterMap.get("_adsc"))) {
+				newParamMap.put("wf_actionComment", parameterMap.get("_adsc"));
+			}
+
+			String[] nids = notificationIds.split(",");
+			for(int qi=0;qi<nids.length;qi++) {
+				int notId = GenericUtil.uInt(nids[qi]);
+				if(notId>0) {
+					W5FormSmsMail fsm = (W5FormSmsMail)dao.getCustomizedObject("from W5FormSmsMail t where t.formSmsMailId=? AND t.projectUuid=?", notId, (String) scd.get("projectId"), null);
+					if(fsm!=null) {
+						if (!GenericUtil.isEmpty(fsm.getConditionSqlCode())) {
+							boolean conditionCheck = dao.conditionRecordExistsCheck(scd, newParamMap, ar.getTableId(), ar.getTablePk(), fsm.getConditionSqlCode());
+							if (!conditionCheck)
+								continue;
+						}
+						W5Email email = dao.interprateMailTemplate(fsm, scd, newParamMap, ar.getTableId(), ar.getTablePk());
+						if(email!=null) {
+							email.set_oms(notificationEngine.findObjectMailSetting(scd, email.getMailSettingId()));
+							notificationEngine.sendMail(scd, email);
+						}
+					}
+				}
+			}
+		}
+		
 		return result;
 	}
 
