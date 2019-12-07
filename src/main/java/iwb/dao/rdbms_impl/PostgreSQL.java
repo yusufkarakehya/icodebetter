@@ -2546,6 +2546,20 @@ public class PostgreSQL extends BaseDAO {
 						s2.executeUpdate();
 						s2.close();
 					}
+					
+
+					if (t.getTableId() != 44
+							&& FrameworkCache.getAppSettingIntValue(customizationId, "file_attachment_flag") != 0
+							&& t.getFileAttachmentFlag() != 0) {
+						PreparedStatement s2 = conn.prepareStatement(
+								"update iwb.w5_file_attachment set table_pk=?::text where project_uuid=? AND table_id=?::integer AND table_pk=?::text");
+						applyParameters(s2,
+								formResult.getOutputFields().get(t.get_tableParamList().get(0).getExpressionDsc()),
+								projectId, t.getTableId(),
+								formResult.getRequestParams().get("_tmpId"));
+						s2.executeUpdate();
+						s2.close();
+					}
 
 					/*
 					 * if(t.getTableId()!=370 &&
@@ -3066,15 +3080,19 @@ public class PostgreSQL extends BaseDAO {
 						sql.append(" dsc");
 				}
 				if (t.get_tableParentList() != null && t.get_tableParentList().size() > 0) {
-					sql.append(",x.");
 					tc = t.get_tableParentList().get(0);
-					sql.append(t.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc()).append(" ptable_pk");
-					if (tc.getRelatedStaticTableFieldId() != 0) {
-						sql.append(", x.").append(t.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc())
-								.append(" pobject_tip");
-						ptCount = 2; // multi:parent
-					} else
-						ptCount = 1; // single:parent
+					W5TableField tf2 = t.get_tableFieldMap().get(tc.getRelatedTableFieldId());
+					if(tf2!=null) {
+						sql.append(",x.");
+						sql.append(tf2.getDsc()).append(" ptable_pk");
+						if (tc.getRelatedStaticTableFieldId() != 0) {
+							sql.append(", x.").append(t.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc())
+									.append(" pobject_tip");
+							ptCount = 2; // multi:parent
+						} else
+							ptCount = 1; // single:parent
+					} else 
+						ptCount = 0;
 
 				} else
 					ptCount = 0;

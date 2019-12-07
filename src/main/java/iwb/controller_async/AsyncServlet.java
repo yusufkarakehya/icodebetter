@@ -37,7 +37,7 @@ public class AsyncServlet {
 				response.getWriter().write(e.toJsonString(null));
 				response.getWriter().close();
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				if(FrameworkSetting.debug)e1.printStackTrace();
 			}
 			return null;
 		}

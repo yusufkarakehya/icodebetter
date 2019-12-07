@@ -16,7 +16,10 @@ import iwb.cache.LocaleMsgCache;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5WorkflowRecord;
 import iwb.domain.db.W5Comment;
+import iwb.domain.db.W5Email;
 import iwb.domain.db.W5Form;
+import iwb.domain.db.W5FormSmsMail;
+import iwb.domain.db.W5ObjectMailSetting;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowRecord;
 import iwb.domain.db.W5WorkflowStep;
@@ -78,6 +81,7 @@ public class WorkflowEngine {
 			}
 		}
 		boolean isFinished = false;
+		String notificationIds = "";
 
 		W5WorkflowStep currentStep = a.get_approvalStepMap().get(ar.getApprovalStepId()).getNewInstance();
 
@@ -137,6 +141,8 @@ public class WorkflowEngine {
 
 			break;
 		case 1: // onay
+			if(!GenericUtil.isEmpty(currentStep.getOnApproveNotificationIds()))
+				notificationIds = currentStep.getOnApproveNotificationIds();
 			mesaj = " '" + scd.get("completeName") + "' "
 					+ LocaleMsgCache.get2(0, xlocale, "approval_presented_for_your_approval");
 			switch (a.getApprovalFlowTip()) {
@@ -171,7 +177,7 @@ public class WorkflowEngine {
 					int nextStepId = currentStep.getOnApproveStepId();
 					if (nextStepId == 0 && currentStep.getApprovalStepId() == 901) {
 						throw new IWBException("validation", "WorkflowRecord", approvalRecordId, null,
-								LocaleMsgCache.get2(0, xlocale, "approval_hatali_islem"), null);
+								LocaleMsgCache.get2(0, xlocale, "approval_wrong_action"), null);
 					}
 					if (currentStep.getOnApproveStepSql() != null) {
 						parameterMap.put("_tb_pk", "" + ar.getTablePk());
@@ -184,8 +190,11 @@ public class WorkflowEngine {
 											LocaleMsgCache.get2(0, xlocale, "approval_denied"), null);
 							} else if (oz instanceof Integer) {
 								nextStepId = (Integer) oz;
-							} else
+							} else {
 								advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
+								if(advancedNextStepSqlResult!=null && advancedNextStepSqlResult.get("nextStepId")!=null)
+									nextStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("nextStepId"));
+							}
 						}
 						/*
 						 * Object[] oz = DBUtil.filterExt4SQL( currentStep.getOnApproveStepSql(), scd,
@@ -195,7 +204,8 @@ public class WorkflowEngine {
 						 * GenericUtil.uInt(advancedNextStepSqlResult.get("next_step_id"));
 						 */
 					}
-					nextStep = a.get_approvalStepMap().get(nextStepId).getNewInstance();
+					nextStep = a.get_approvalStepMap().get(nextStepId);
+					nextStep = nextStep.getNewInstance();
 				} else
 					nextStep = null;
 				if (nextStep == null) {
@@ -214,9 +224,11 @@ public class WorkflowEngine {
 
 			break;
 		case 2: // iade: TODO . baska?
+			if(!GenericUtil.isEmpty(currentStep.getOnReturnNotificationIds()))
+				notificationIds = currentStep.getOnReturnNotificationIds();
 			if (currentStep.getApprovalStepId() == 901) {
 				throw new IWBException("validation", "WorkflowRecord", approvalRecordId, null,
-						LocaleMsgCache.get2(0, xlocale, "approval_hatali_islem"), null);
+						LocaleMsgCache.get2(0, xlocale, "approval_wrong_action"), null);
 			}
 			mesaj = " '" + scd.get("completeName") + "' "
 					+ LocaleMsgCache.get2(0, xlocale, "approval_were_returned_by");
@@ -267,9 +279,11 @@ public class WorkflowEngine {
 
 			break;
 		case 3: // red
+			if(!GenericUtil.isEmpty(currentStep.getOnRejectNotificationIds()))
+				notificationIds = currentStep.getOnRejectNotificationIds();
 			if (currentStep.getApprovalStepId() == 901) {
 				throw new IWBException("validation", "WorkflowRecord", approvalRecordId, null,
-						LocaleMsgCache.get2(0, xlocale, "approval_hatali_islem"), null);
+						LocaleMsgCache.get2(0, xlocale, "approval_wrong_action"), null);
 			}
 			if (currentStep.getOnRejectStepSql() != null) {
 				parameterMap.put("_tb_pk", "" + ar.getTablePk());
@@ -280,8 +294,9 @@ public class WorkflowEngine {
 						if (!((Boolean) oz))
 							throw new IWBException("framework", "WorkflowRecord", approvalRecordId, null,
 									LocaleMsgCache.get2(0, xlocale, "reject_denied"), null);
-					} else
+					} else { 
 						advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
+					}
 				}
 				/*
 				 * Object[] oz = DBUtil.filterExt4SQL( currentStep.getOnApproveStepSql(), scd,
@@ -297,7 +312,7 @@ public class WorkflowEngine {
 				// "promis_approval");
 				// //TODO:buna benzer birsey
 				List<Object[]> l = dao.find("select t.dsc, tp.expressionDsc " + "from W5Table t, W5TableParam tp "
-						+ "where t.customizationId=? AND t.tableId=? AND t.tableId=tp.tableId AND tp.tabOrder=1",
+						+ "where t.projectUuid=? AND tp.projectUuid=t.projectUuid AND t.tableId=? AND t.tableId=tp.tableId AND tp.tabOrder=1",
 						customizationId, a.getTableId());
 				String tableDsc = (l.get(0)[0]).toString();
 				String tablePkDsc = (l.get(0)[1]).toString();
@@ -320,7 +335,7 @@ public class WorkflowEngine {
 		case 0: // red
 			if (currentStep.getApprovalStepId() == 901) {
 				throw new IWBException("validation", "WorkflowRecord", approvalRecordId, null,
-						LocaleMsgCache.get2(0, xlocale, "approval_hatali_islem"), null);
+						LocaleMsgCache.get2(0, xlocale, "approval_wrong_action"), null);
 			}
 		}
 		Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
@@ -347,8 +362,8 @@ public class WorkflowEngine {
 						ar.setReturnFlag(nextStep.getReturnFlag());
 						ar.setApprovalActionTip((short) approvalAction);
 						if (advancedNextStepSqlResult != null
-								&& (advancedNextStepSqlResult.get("approval_roles") != null
-										|| advancedNextStepSqlResult.get("approval_users") != null)) {
+								&& (!GenericUtil.isEmpty(advancedNextStepSqlResult.get("approval_roles"))
+										|| !GenericUtil.isEmpty(advancedNextStepSqlResult.get("approval_users")))) {
 							ar.setApprovalRoles((String) advancedNextStepSqlResult.get("approval_roles"));
 							ar.setApprovalUsers((String) advancedNextStepSqlResult.get("approval_users"));
 						} else {
@@ -450,25 +465,8 @@ public class WorkflowEngine {
 		else
 			logRecord.setApprovalActionTip((short) approvalAction);
 
-		/*
-		 * Ekstra Bildirim SMS Mail Tip -> 0 SMS , 1 E-Mail, 2 Notification
-		 */
-
-		/* Ekstra bildirim sonu */
-
-		String pemailList = ""; // Email gönderilirken bu liste kullanılacak
-		String mailSubject = ""; // Email Subject
-		String mailBody = ""; // Email Body
-		List<String> gsmList = new ArrayList<String>(); // SMS gönderilirken bu liste kullanılacak
-		String messageBody = ""; // SMS Body
-		List<String> notificationList = new ArrayList<String>(); // Notification gönderilirken bu liste kullanılacak
 
 		if (isFinished) { // Finished ise
-
-			//Notification
-
-		
-
 			ar.setFinishedFlag((short) 1);
 			ar.setApprovalRoles(null);
 			ar.setApprovalUsers(null);
@@ -507,6 +505,39 @@ public class WorkflowEngine {
 			m.put(".e", "4");
 			UserUtil.liveSyncAction(scd, m); // (customizationId, table_id+"-"+table_pk, userId, webPageId, false);
 		}
+		if(!GenericUtil.isEmpty(notificationIds)) {
+			Map newParamMap = new HashMap();
+			newParamMap.putAll(parameterMap);
+			newParamMap.put("wf_name", a.getDsc());
+			newParamMap.put("wf_stepName", currentStep.getDsc());
+			if(nextStep!=null) {
+				newParamMap.put("wf_nextStepName", nextStep.getDsc());
+			}
+			if (!GenericUtil.isEmpty(parameterMap.get("_adsc"))) {
+				newParamMap.put("wf_actionComment", parameterMap.get("_adsc"));
+			}
+
+			String[] nids = notificationIds.split(",");
+			for(int qi=0;qi<nids.length;qi++) {
+				int notId = GenericUtil.uInt(nids[qi]);
+				if(notId>0) {
+					W5FormSmsMail fsm = (W5FormSmsMail)dao.getCustomizedObject("from W5FormSmsMail t where t.formSmsMailId=? AND t.projectUuid=?", notId, (String) scd.get("projectId"), null);
+					if(fsm!=null) {
+						if (!GenericUtil.isEmpty(fsm.getConditionSqlCode())) {
+							boolean conditionCheck = dao.conditionRecordExistsCheck(scd, newParamMap, ar.getTableId(), ar.getTablePk(), fsm.getConditionSqlCode());
+							if (!conditionCheck)
+								continue;
+						}
+						W5Email email = dao.interprateMailTemplate(fsm, scd, newParamMap, ar.getTableId(), ar.getTablePk());
+						if(email!=null) {
+							email.set_oms(notificationEngine.findObjectMailSetting(scd, email.getMailSettingId()));
+							notificationEngine.sendMail(scd, email);
+						}
+					}
+				}
+			}
+		}
+		
 		return result;
 	}
 

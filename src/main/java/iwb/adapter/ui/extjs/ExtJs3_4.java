@@ -1190,7 +1190,9 @@ public class ExtJs3_4 implements ViewAdapter {
 														// yazılabilir
 				)// TODO:Buraya tableUserIdField yetki kontrolü eklenecek
 					// (a.getManualAppTableFieldIds())
-					s.append(",\n approval:{approvalRecordId:")
+					s.append(",\n approval:{status:901,dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc()))
+					.append("\",btnStartApprovalLabel:\"").append(LocaleMsgCache.get2(scd, a.getApprovalRequestMsg()))
+					.append("\", approvalRecordId:")
 							.append(fr.getApprovalRecord()
 									.getApprovalRecordId())
 							.append(",wait4start:true}"); //").append(",dynamic:").append(a.getApprovalFlowTip() == 3).append("
@@ -1202,7 +1204,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				s.append(",\n approval:{approvalRecordId:")
 						.append(fr.getApprovalRecord()
 								.getApprovalRecordId())
-						.append(",versionNo:")
+						.append(",dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc()))
+						.append("\", versionNo:")
 						.append(fr.getApprovalRecord().getVersionNo())
 						.append(",returnFlag:")
 						.append(fr.getApprovalRecord().getReturnFlag() != 0);
@@ -1210,11 +1213,12 @@ public class ExtJs3_4 implements ViewAdapter {
 				if(wfs.getOnApproveFormId()!=null)s.append(",approveFormId:").append(wfs.getOnApproveFormId());
 				if(wfs.getOnRejectFormId()!=null)s.append(",rejectFormId:").append(wfs.getOnRejectFormId());
 				if(wfs.getOnReturnFormId()!=null)s.append(",returnFormId:").append(wfs.getOnReturnFormId());
-				s.append(",stepDsc:'")
-						.append(fr.getApprovalStep() != null ? GenericUtil
-								.stringToJS(fr.getApprovalStep()
-										.getDsc()) : "-")
-						.append("'}");
+				s.append(",stepDsc:\"")
+						.append(fr.getApprovalStep() != null ? fr.getApprovalStep().getDsc() : "-")
+						.append("\"}");
+			} else {
+				s.append(",\n approval:{stepDsc:\"").append(fr.getApprovalStep() != null ? fr.getApprovalStep().getDsc() : "-")
+				.append("\", dsc:\"").append(LocaleMsgCache.get2(scd, a.getDsc())).append("\"}");
 			}
 		} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
 					// yapılabilir mi ? Formun bağlı olduğu tablonun onay
@@ -2300,7 +2304,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		// if(notNull)fieldLabel+=" <span style=\"color:red;\">*</span>";
 		if (fc.getLocaleMsgKey() != null) {
 			if (notNull && fc.getControlTip() != 5 && fc.getControlTip() != 13)
-				fieldLabel += "',ctCls:'required";
+				fieldLabel += "<i class=\"label-required\"></i>',ctCls:'required";
 		} else {
 
 		}
@@ -3125,6 +3129,8 @@ public class ExtJs3_4 implements ViewAdapter {
 						}
 				}
 				buf.append("]");
+				if(!GenericUtil.isEmpty(cellResult.getValue()))
+					buf.append(",value:'").append(cellResult.getValue()).append("'");
 				if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
 				buf.append("})");
 				return buf;

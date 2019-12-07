@@ -62,6 +62,13 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
 
   private String btnApproveLabel;
   private String btnReturnLabel;
+  
+  private String approvalNotificationIds;
+  private String onApproveNotificationIds;
+  private String onReturnNotificationIds;
+  private String onRejectNotificationIds;
+  private String onEscalationNotificationIds;
+
 
   @Column(name = "approval_id")
   public int getApprovalId() {
@@ -344,6 +351,11 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
     a.onReturnFormId = this.onReturnFormId;
     a.onRejectFormId = this.onRejectFormId;
     
+    a.approvalNotificationIds = this.approvalNotificationIds;
+    a.onApproveNotificationIds = this.onApproveNotificationIds;
+    a.onReturnNotificationIds = this.onReturnNotificationIds;
+    a.onRejectNotificationIds = this.onRejectNotificationIds;
+    a.onEscalationNotificationIds = this.onEscalationNotificationIds;
     return a;
   }
 
@@ -489,6 +501,51 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
   public void setBtnReturnLabel(String btnReturnLabel) {
     this.btnReturnLabel = btnReturnLabel;
   }
+
+  	@Column(name = "approval_notification_ids")
+	public String getApprovalNotificationIds() {
+		return approvalNotificationIds;
+	}
+	
+	public void setApprovalNotificationIds(String approvalNotificationIds) {
+		this.approvalNotificationIds = approvalNotificationIds;
+	}
+	
+	@Column(name = "on_approve_notification_ids")
+	public String getOnApproveNotificationIds() {
+		return onApproveNotificationIds;
+	}
+	
+	public void setOnApproveNotificationIds(String onApproveNotificationIds) {
+		this.onApproveNotificationIds = onApproveNotificationIds;
+	}
+	
+	@Column(name = "on_return_notification_ids")
+	public String getOnReturnNotificationIds() {
+		return onReturnNotificationIds;
+	}
+	
+	public void setOnReturnNotificationIds(String onReturnNotificationIds) {
+		this.onReturnNotificationIds = onReturnNotificationIds;
+	}
+	
+	@Column(name = "on_reject_notification_ids")
+	public String getOnRejectNotificationIds() {
+		return onRejectNotificationIds;
+	}
+	
+	public void setOnRejectNotificationIds(String onRejectNotificationIds) {
+		this.onRejectNotificationIds = onRejectNotificationIds;
+	}
+	
+	@Column(name = "on_escalation_notification_ids")
+	public String getOnEscalationNotificationIds() {
+		return onEscalationNotificationIds;
+	}
+	
+	public void setOnEscalationNotificationIds(String onEscalationNotificationIds) {
+		this.onEscalationNotificationIds = onEscalationNotificationIds;
+	}
   
   
 }
