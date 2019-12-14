@@ -353,8 +353,8 @@ public class FrameworkService {
 	public W5FormResult bookmarkForm(Map<String, Object> scd, int formId, int action,
 			Map<String, String> parameterMap) {
 		W5FormResult formResult = metaDataDao.getFormResult(scd, formId, 2, parameterMap);
-		dao.bookmarkForm(parameterMap.get("_dsc"), action > 10 ? -formId : formId, (Integer) scd.get("userId"),
-				(Integer) scd.get("customizationId"), formResult);
+		dao.bookmarkForm(scd, parameterMap.get("_dsc"), action > 10 ? -formId : formId, (Integer) scd.get("userId"),
+				formResult);
 
 		return formResult;
 	}
