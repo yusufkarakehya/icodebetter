@@ -2633,7 +2633,7 @@ public class React16 implements ViewAdapter {
 		
 		String uniqueId = GenericUtil.getNextId("ng");
 		if(false)buf.append(",striped:true,hover:true,bordered:false,");
-		buf.append(",name:'").append(LocaleMsgCache.get2(customizationId, xlocale,
+		buf.append(",name:'").append(LocaleMsgCache.get2(scd,
 						g.getLocaleMsgKey())).append("',\n id:'").append(uniqueId).append("'");
 
 		
@@ -2679,6 +2679,11 @@ public class React16 implements ViewAdapter {
 				boolean insertFlag = GenericUtil.accessControl(scd,
 						t.getAccessInsertTip(), t.getAccessInsertRoles(),
 						t.getAccessInsertUsers());
+
+				if(FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+					buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
+					.append(LocaleMsgCache.get2(scd,g.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
+				
 				buf.append(",\n crudFormId:")
 						.append(g.getDefaultCrudFormId())
 						.append(", crudTableId:")

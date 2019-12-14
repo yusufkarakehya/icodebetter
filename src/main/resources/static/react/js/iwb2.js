@@ -3796,7 +3796,7 @@ class XGridAction extends React.PureComponent {
                         className: "timeline-badge hover-shake " + color,
                         onClick: () => alert("hehey")
                     },
-                    _("i", { className: "fa fa-plus", style: { fontSize: 19 } })
+                    _("i", { className: "fa fa-plus",  style: { fontSize: 19 } })
                 ),
                 // {tag:'i',className: "icon-grid", color||'danger'}
                 isOpen &&
@@ -4005,6 +4005,7 @@ class XGrid extends GridCommon {
             });
             this.lastQuery = queryString;
         };
+        if(props.registerLoad)props.registerLoad(this.loadData);
     }
     componentDidMount() {
         if (!this.dontRefresh) this.loadData();
@@ -5408,7 +5409,7 @@ const XShowDetailTabs = ({
                                     _(
                                         Button, {
                                         //    className: "tlb-button ml-1",
-                                            color: "primary",
+                                            color: "primary", title:grid.newRecordLabel || getLocMsg("new_record"),
                                             onClick: event =>
                                                 topParentGrid.onOnNewRecord(event, grid, row)
                                         },
@@ -6370,6 +6371,7 @@ class XMainGrid extends GridCommon {
                         },
                         _("i", { className: "icon-refresh " + (this.state.loading ? " infinite-rotate" : "") })
                     ),
+                    !!iwb.newRecordPositionRight && _("div", { className: "fgrow" }),
 
                     crudFlags &&
                     crudFlags.insert &&
@@ -6381,9 +6383,9 @@ class XMainGrid extends GridCommon {
                         },
                         //_("i", { className: "fa fa-plus" }),
                         //"Yeni Kayit"
-                        getLocMsg("new_record")
+                        this.props.newRecordLabel || getLocMsg("new_record")
                     ),
-                    _("div", { className: "fgrow" }),
+                    !iwb.newRecordPositionRight && _("div", { className: "fgrow" }),
                     extraButtons &&
                     extraButtons.map((btn, index) =>
                         _(XToolbarItem, {
@@ -8562,13 +8564,14 @@ class XPortletItem extends React.PureComponent {
 
         this.reloadItem = force => {
         	this.setState({counter:this.state.counter+1});
-        	if(this.state.reloadFnc)this.state.reloadFnc(!0);
-        	if(this.props.graph){
+        	if(this.reloadFnc)this.reloadFnc(!0);
+        	else if(this.props.graph){
                 var dg = this.props.graph;
                 var gid = "idG" + dg.graphId;
                 iwb.graph(dg, gid);
         	} 
         }
+        if(props.registerLoad)props.registerLoad(this.reloadItem);
     }
     
     componentDidMount() {
@@ -8651,7 +8654,9 @@ class XPortletItem extends React.PureComponent {
                     name,
                     _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
                 ),
-                _(XGrid, o.grid)
+                _(XGrid, {...o.grid, registerLoad:(fx)=>{
+            		if(fx)this.reloadFnc=fx;
+            	}})
             );
         } else if (o.card){ 
         	o.card.crudFlags = false;
@@ -8672,9 +8677,8 @@ class XPortletItem extends React.PureComponent {
                     _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
                 ),
                 _(XCardList, {...o.card, registerLoad:(fx)=>{
-                		if(fx)this.setState({reloadFnc:fx});
-                	}})
-                
+            		if(fx)this.reloadFnc=fx;
+               	}})
             );
         
         }
@@ -8684,14 +8688,57 @@ class XPortletItem extends React.PureComponent {
 }
 
 
+class XDashboard extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {counter:0};
+        this.reloadFncs={};
+
+        this.reloadAll = (xparams) => {
+        	this.setState({counter:this.state.counter+1});
+        	console.log(this.reloadFncs)
+        	for(var k in this.reloadFncs)this.reloadFncs[k](!0);
+        }
+    }
+
+    
+    render(){
+    	var o = this.props;
+        if (!o || !o.rows || !o.rows.length)
+            return iwb.debug ? _("div", null, "No portlets defined"): false;
+        return _('div',{},
+        		o.reload &&_(Row, {style:{marginTop: -35,marginBottom: 10}},_(Col, {xs:12},_(Button,{style:{float:'right'},color: "secondary",
+                    onClick: event => this.reloadAll()},getLocMsg('refresh_all')))),
+       		o.rows.map((rowItem, rowIndex) => {
+	            return _(Row, {
+	                key: "xp-"+rowIndex,
+	                children: rowItem.map((colItem, colIndex) =>
+	                    _(Col, colItem.props||{}, _(XPortletItem, {...colItem, registerLoad:(fx)=>{
+	                    	console.log(rowIndex)
+	                		if(fx){
+	                			var id = "xx-"+rowIndex;
+	                			if(colItem.graph)id="pgraph-"+colItem.graph.graphId;
+	                			else if(colItem.grid)id="pgrid-"+colItem.grid.gridId;
+	                			else if(colItem.card)id="pcard-"+colItem.card.cardId;
+	                			else if(colItem.query)id="pquery-"+colItem.query.queryId;
+	                			this.reloadFncs[id]=fx;
+	                		}
+	                   	}})) //iwb.createPortlet(colItem
+	                )
+	            });
+	        }));
+    }
+    
+}
+
 iwb.ui.buildDashboard = function(o) {
     if (!o || !o.rows || !o.rows.length)
-        return _("div", null, "No portlets defined");
+        return iwb.debug ? _("div", null, "No portlets defined"): false;
     return o.rows.map((rowItem, rowIndex) => {
         return _(Row, {
             key: rowIndex,
             children: rowItem.map((colItem, colIndex) =>
-                _(Col, colItem.props, _(XPortletItem, colItem)) //iwb.createPortlet(colItem
+                _(Col, colItem.props||{}, _(XPortletItem, colItem)) //iwb.createPortlet(colItem
             )
         });
     });
