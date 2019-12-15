@@ -3094,20 +3094,12 @@ public class ExtJs3_4 implements ViewAdapter {
 								buf.append(",");
 							else
 								b = true;
-							boolean bb = false;
-							buf.append("{");
+							buf.append("{name:'").append(fc.getDsc()).append("'");
 							for (W5QueryField f : cellResult.getLookupQueryResult().getQuery().get_queryFields()) {
 								
 								Object z = p[f.getTabOrder() - 1];
-								if(z==null)continue;
-								
-
-
-								
-								if (bb)
-									buf.append(",");
-								else
-									bb = true;
+								if(z==null)continue;								
+								buf.append(",");
 								if(f.getDsc().equals("dsc"))
 									buf.append("boxLabel:");
 								else if(f.getDsc().equals("id")) {

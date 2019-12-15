@@ -2411,6 +2411,10 @@ public class React16 implements ViewAdapter {
 		//azat card
 		if (d.get_defaultCrudForm() != null) {
 			W5Table t = FrameworkCache.getTable(scd, d.get_defaultCrudForm().getObjectId());
+			if(FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+				buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
+				.append(LocaleMsgCache.get2(scd,d.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
+			
 			boolean insertFlag = GenericUtil.accessControl(scd,t.getAccessInsertTip(), t.getAccessInsertRoles(),t.getAccessInsertUsers());
 			buf.append(",\n crudFormId:")
 				.append(d.getDefaultCrudFormId())

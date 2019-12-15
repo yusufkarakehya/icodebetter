@@ -741,7 +741,7 @@ class XTabForm extends React.PureComponent {
               },
               _("i", { className: "icon-pencil" }),
               " ",
-              "Düzenle"
+              "Edit"
             ),
           " ",
           this.state.viewMode &&
@@ -752,7 +752,7 @@ class XTabForm extends React.PureComponent {
                 className: "btn-form-edit",
                 onClick: this.props.parentCt.closeTab
               },
-              "Kapat"
+              "Close"
             ),
           _(
             Button,

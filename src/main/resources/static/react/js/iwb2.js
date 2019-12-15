@@ -6377,12 +6377,14 @@ class XMainGrid extends GridCommon {
                     crudFlags.insert &&
                     _(
                         Button, {
-                            className: "tlb-button ml-1",
+                            className: "tlb-button ml-1",style:iwb.newRecordPositionRight ? {borderRadius:50}:{},
                             color: "primary",
                             onClick: event => onOnNewRecord(event, this.props)
                         },
                         //_("i", { className: "fa fa-plus" }),
                         //"Yeni Kayit"
+                        !!iwb.newRecordPositionRight && _('i',{className:'fa fa-plus'}),
+                        !!iwb.newRecordPositionRight && ' ',
                         this.props.newRecordLabel || getLocMsg("new_record")
                     ),
                     !iwb.newRecordPositionRight && _("div", { className: "fgrow" }),
@@ -6711,7 +6713,7 @@ class XMainCard extends GridCommon {
 	                            onClick: event => onOnNewRecord(event, this.props)
 	                        },
 	                       // _("i", { className: "fa fa-plus" }),
-	                        getLocMsg("new_record")
+	                        this.props.newRecordLabel || getLocMsg("new_record")
 	                    ),
 	                    extraButtons &&
 	                    extraButtons.map((btn, index) =>
