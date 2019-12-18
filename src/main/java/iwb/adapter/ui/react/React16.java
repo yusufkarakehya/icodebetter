@@ -2158,6 +2158,9 @@ public class React16 implements ViewAdapter {
 			case	12:	//html editor:
 				buf.append(",onHtmlChange:this.onHtmlChange('").append(fc.getDsc()).append("')");
 				break;
+			case 22:
+				buf.append(",onChange:this.onTimeChange('").append(fc.getDsc()).append("')");
+				break;
 			default:
 				buf.append(",onChange:this.onChange");
 			}

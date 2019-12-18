@@ -8104,6 +8104,13 @@ class XForm extends React.Component {
                     fmtShortDate(dateValue);
                 this.setState({ values });
             };
+            this.onTimeChange = (inputName) => momentObject => {
+            	var time = momentObject.format("hh:mm");
+            	var values = this.state.values;
+            	values[inputName] = time;
+            	this.setState({values});
+            }
+            
         }
         componentDidMount() {
             var triggers = this.triggerz4ComboRemotes;
