@@ -2084,7 +2084,9 @@ public class React16 implements ViewAdapter {
 		break; 
 		
 		case	9://combo query remote
+		case	16://lovcombo query remote
 			buf.append("$:Select, placeholder: getLocMsg('select_placeholder'), options:options.").append(fc.getDsc()).append("||[],valueKey:'id', labelKey:'dsc',clearable:").append(fc.getNotNullFlag()==0);
+			if(fc.getControlTip()==16)buf.append(",multi:true");
 			break;
 		case	10://advanced select: TODO ilk geldiginde oo loadOptions'ta atanacak
 			if (value != null && cellResult.getLookupQueryResult() != null && cellResult.getLookupQueryResult().getData().size() > 0) {
