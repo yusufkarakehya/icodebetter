@@ -8105,7 +8105,10 @@ class XForm extends React.Component {
                 this.setState({ values });
             };
             this.onTimeChange = (inputName) => momentObject => {
-            	var time = momentObject.format("hh:mm");
+            	var time = momentObject;
+            	if(typeof(momentObject) !== "string"){
+            		time = momentObject.format("hh:mm");
+            	}
             	var values = this.state.values;
             	values[inputName] = time;
             	this.setState({values});
