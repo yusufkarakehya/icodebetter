@@ -2004,9 +2004,9 @@ public class React16 implements ViewAdapter {
 			else if(GenericUtil.safeEquals(fc.getVtype(), "url"))buf.append("'url'");
 			else buf.append("'text'");
 			break;//string
-		case	2:buf.append("$:Datetime, dateFormat:'DD/MM/YYYY',timeFormat:false, closeOnSelect:true");break; //TODO:date
-		case	18:buf.append("$:Datetime, dateFormat:'DD/MM/YYYY',timeFormat:'HH:mm'");break; //TODO:datetime
-		case	22:buf.append("$:Datetime, dateFormat:false,timeFormat:'HH:mm'");break; //TODO:time
+		case	2:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:false, closeOnSelect:true");break; //TODO:date
+		case	18:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:'HH:mm'");break; //TODO:datetime
+		case	22:buf.append("$:Datetime, dateFormat:false,className:'rdt-time', timeFormat:'HH:mm'");break; //TODO:time
 		case	3://double
 		case	4://integer
 			buf.append("$:NumberFormat,style:{textAlign:'right'},className:'form-control");

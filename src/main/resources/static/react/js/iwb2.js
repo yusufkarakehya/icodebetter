@@ -587,7 +587,7 @@ iwb = {
         if (field.$ === MapInput)
             return _(field.$, { value: field.value, disabled: true });
         if (typeof XHTMLEditor!='undefined' && field.$ === XHTMLEditor)
-            return _(field.$, { value: field.value, disabled: true });
+            return _('div',{style:{border:'1px solid gray', borderRadius:2, padding:3}, dangerouslySetInnerHTML:{__html:field.value}});//_(field.$, { value: field.value, disabled: true });
         var options = extraOptions || field.options;
         if (!options || !options.length) {
             var value = field.decimalScale ?
@@ -8529,12 +8529,12 @@ class XCardList  extends React.Component {
     constructor(props) {
         super(props);
         this.state = {rows: [], loading: false};
-        this.loadData = force => {
+        this.loadData = (force, params) => {
             if(force)this.setState({ rows: [], loading: true });
             iwb.request({
                 url: this.props._url,
                 self: this,
-                params: {},
+                params: params||{},
                 successCallback: (result, cfg) => {
                     cfg.self.setState({
                         rows: result.data,
@@ -8571,9 +8571,9 @@ class XPortletItem extends React.PureComponent {
         super(props);
         this.state = {counter:0};
 
-        this.reloadItem = force => {
+        this.reloadItem = (force, params) => {
         	this.setState({counter:this.state.counter+1});
-        	if(this.reloadFnc)this.reloadFnc(!0);
+        	if(this.reloadFnc)this.reloadFnc(!0, params);
         	else if(this.props.graph){
                 var dg = this.props.graph;
                 var gid = "idG" + dg.graphId;
@@ -8639,6 +8639,7 @@ class XPortletItem extends React.PureComponent {
                     },
                     name,
                     _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
+                    
                 ),
                 _("div", {
                     style: { width: "100%", height: o.props.height || "20vw" },
@@ -8683,7 +8684,16 @@ class XPortletItem extends React.PureComponent {
                         }
                     },
                     name,
-                    _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
+                    _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem }),
+                    this.props.filter && this.props.filter.items && 
+                    	_("select", { onChange:(e)=>{
+//                    		console.log(e.target.value);
+                    		var params ={}
+                    		params[this.props.filter.name] = e.target.value; 
+                    		this.reloadFnc(!0, params);	
+                    	}, name:this.props.filter.name
+                    		, style: {fontSize: 17, color: '#888', marginRight: 10, marginTop: 1, float: 'right'}},
+                    		this.props.filter.items.map(oo=>_('option',{value:oo.id},oo.dsc)))
                 ),
                 _(XCardList, {...o.card, registerLoad:(fx)=>{
             		if(fx)this.reloadFnc=fx;
@@ -8705,7 +8715,7 @@ class XDashboard extends React.PureComponent {
 
         this.reloadAll = (xparams) => {
         	this.setState({counter:this.state.counter+1});
-        	console.log(this.reloadFncs)
+//        	console.log(this.reloadFncs)
         	for(var k in this.reloadFncs)this.reloadFncs[k](!0);
         }
     }
@@ -8723,7 +8733,6 @@ class XDashboard extends React.PureComponent {
 	                key: "xp-"+rowIndex,
 	                children: rowItem.map((colItem, colIndex) =>
 	                    _(Col, colItem.props||{}, _(XPortletItem, {...colItem, registerLoad:(fx)=>{
-	                    	console.log(rowIndex)
 	                		if(fx){
 	                			var id = "xx-"+rowIndex;
 	                			if(colItem.graph)id="pgraph-"+colItem.graph.graphId;
