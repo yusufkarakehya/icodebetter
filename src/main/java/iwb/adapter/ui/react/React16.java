@@ -1086,7 +1086,7 @@ public class React16 implements ViewAdapter {
 		s.append("},options:{},activeTab:false}");
 		//\nif(this.componentWillPost)this.componentWillPost=this.componentWillPost.bind(this);
 		Map<String, List<W5FormCell>> pcr = new HashMap();
-		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlTip()==9 && fc.getFormCell().getParentFormCellId()!=0 && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams())) {//combo remote
+		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && (fc.getFormCell().getControlTip()==9 ||fc.getFormCell().getControlTip()==16) && fc.getFormCell().getParentFormCellId()!=0 && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams())) {//combo remote
 			for (W5FormCellHelper rfc : formResult.getFormCellResults()) {
 				if (rfc.getFormCell().getFormCellId() == fc.getFormCell().getParentFormCellId()) {
 					W5FormCell pfc = rfc.getFormCell();
@@ -2148,7 +2148,7 @@ public class React16 implements ViewAdapter {
 			case	9:	case	10:
 				buf.append(",onChange:this.onComboChange('").append(fc.getDsc()).append("')");
 				break;
-			case	8:	case	58: case	15:case	59://fc.getControlTip()==8 ||fc.getControlTip()==58 || fc.getControlTip()==15 ||fc.getControlTip()==59
+			case	8:	case	58: case	15:case 16:case	59://fc.getControlTip()==8 ||fc.getControlTip()==58 || fc.getControlTip()==15 ||fc.getControlTip()==59
 				buf.append(",onChange:this.onLovComboChange('").append(fc.getDsc()).append("')");
 				break;
 			case	3:	case	4:
