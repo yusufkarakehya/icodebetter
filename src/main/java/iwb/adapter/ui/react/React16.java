@@ -2006,7 +2006,7 @@ public class React16 implements ViewAdapter {
 			break;//string
 		case	2:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:false, closeOnSelect:true");break; //TODO:date
 		case	18:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:'HH:mm'");break; //TODO:datetime
-		case	22:buf.append("$:Datetime, dateFormat:false,className:'rdt-time', timeFormat:'HH:mm'");break; //TODO:time
+		case	22:buf.append("$:Datetime, dateFormat:false, className:'rdt-time', timeFormat:'HH:mm'");break; //TODO:time
 		case	3://double
 		case	4://integer
 			buf.append("$:NumberFormat,style:{textAlign:'right'},className:'form-control");
@@ -2126,7 +2126,7 @@ public class React16 implements ViewAdapter {
 		}
 		buf.append(",name:'").append(fc.getDsc()).append("'");//,id:'").append(fc.getDsc()).append("'");
 		
-		if(fc.getControlTip()!=3 && fc.getControlTip()!=4 && fc.getControlTip()!=5 && fc.getNotNullFlag()!=0)buf.append(",required:true, className:'xrequired'");
+		if(fc.getControlTip()!=3 && fc.getControlTip()!=4 && fc.getControlTip()!=5 && fc.getControlTip()!=22 && fc.getNotNullFlag()!=0)buf.append(",required:true, className:'xrequired'");
 		buf.append(", label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("'");
 
 		if(formResult!=null){ //FORM
