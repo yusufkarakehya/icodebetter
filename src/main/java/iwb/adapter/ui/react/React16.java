@@ -1659,7 +1659,7 @@ public class React16 implements ViewAdapter {
 				buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 			} else {
 				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
-				if(FrameworkSetting.reactLabelRequired && fc.getFormCell().getNotNullFlag()!=0 && fc.getFormCell().getNrdTip()==0)buf.append(", \" \", _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
+				if(FrameworkSetting.reactLabelRequired && fc.getFormCell().getNotNullFlag()!=0 && fc.getFormCell().getNrdTip()==0)buf.append(", \" \", !_").append(dsc).append(".readOnly && !viewMode && _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
 				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
 			}
 		}
@@ -2092,9 +2092,12 @@ public class React16 implements ViewAdapter {
 			if (value != null && cellResult.getLookupQueryResult() != null && cellResult.getLookupQueryResult().getData().size() > 0) {
 				Object[] oo = cellResult.getLookupQueryResult().getData().get(0);
 			}
-			
+			int maxRows = FrameworkCache.getAppSettingIntValue(0,
+					"advanced_select_max_rows");
+			if (maxRows == 0)
+				maxRows = 100;
 			buf.append("$:Select.Async, isLoading:true, valueKey:'id', labelKey:'dsc', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder"))
-				.append("', loadOptions:function(input, callback){if(!input)callback();else iwb.request({url:'ajaxQueryData?_renderer=react16&_qid=").append(fc.getLookupQueryId());
+				.append("', loadOptions:function(input, callback){if(!input)callback();else iwb.request({url:'ajaxQueryData?_renderer=react16&_qid=").append(fc.getLookupQueryId()).append("&limit=").append(maxRows);
 			if(!GenericUtil.isEmpty(fc.getLookupIncludedParams()))buf.append("&").append(fc.getLookupIncludedParams());
 			buf.append("', params:{xdsc:input}, successCallback:function(result, cfg){callback(null, {options: result.data,complete: false});}});},clearable:").append(fc.getNotNullFlag()==0);
 		break; // advanced select

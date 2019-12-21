@@ -1245,7 +1245,7 @@ class GridCommon extends React.PureComponent {
                                 this.onEditClick({
                                     event,
                                     rowData: tableRowData.row,
-                                    openEditable: false
+                                    openEditable: !!this.props.openEditable
                                 }),
                             style: {...tableRowData.style, cursor: "pointer" }
                         }
@@ -2984,7 +2984,7 @@ class XTabForm extends React.PureComponent {
             let formBody = _(body, { parentCt: this, viewMode });
             if (!formBody) return null;
             return _(
-                Form, { onSubmit: event => event.preventDefault() },
+                Form, { onSubmit: event => event.preventDefault(), className:viewMode?"xview-mode":"" },
                 _(
                     CardBlock, { className: "card-body" },
                     _(
@@ -4809,7 +4809,7 @@ yesNoDialog = ({
                         iwb.closeModal();
                     }
                 },
-                getLocMsg("tamam")
+                getLocMsg("ok")
             ),
             " ",
             _(
