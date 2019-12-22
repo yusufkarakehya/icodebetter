@@ -1774,16 +1774,32 @@ public class ExtJs3_4 implements ViewAdapter {
 			}
 		String formBodyStyle = FrameworkCache.getAppSettingStringValue(
 				formResult.getScd(), "form_body_style");
+		
 		StringBuilder buf = new StringBuilder();
 		buf.append("mf=Ext.apply(mf,{xtype:'form',border:false,\nitems:[");
-
 		boolean b = false;
+
+		boolean snFlag = FrameworkCache.getAppSettingIntValue(customizationId, "form_navigation_flag")!=0 && map.size()>3;
+		StringBuilder sn = new StringBuilder();
+		if(snFlag) {
+			sn.append("<nav class='secondary-navigation'><h3>")
+				.append(LocaleMsgCache.get2(formResult.getScd(), "table_of_contents"))
+				.append("</h3><ol>");
+			if (map.get(0).size() > 0)sn.append("<li><a href='#")
+			.append(formResult.getUniqueId())
+			.append("_fm_0'>")
+			.append(LocaleMsgCache.get2(formResult.getScd(), "top_of_form"))
+			.append("</a></li>");
+			buf.append("{xtype:'container',html:!mf._hideSecondaryNavigation ? mf._secondaryNavigation:''},");
+			b = true;
+		}
+
 		if (formResult.getUniqueId() == null)
 			formResult.setUniqueId(GenericUtil.getNextId("fi2"));
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleList(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), "{xtype:'fieldset'"
+					formResult.getUniqueId(), map.get(0), "{id:_page_tab_id+'_fm_0',xtype:'fieldset'"
 							+ (GenericUtil.isEmpty(formBodyStyle) ? ""
 									: ",bodyStyle:'" + formBodyStyle + "'")));
 			// (formBodyColor!=null ?
@@ -1791,6 +1807,9 @@ public class ExtJs3_4 implements ViewAdapter {
 			// : "")));
 			b = true;
 		}
+		//secondaryNavigation
+
+		
 		if (formResult.getForm().get_moduleList() != null)
 			for (W5FormModule m : formResult.getForm().get_moduleList())
 				if (m.getFormModuleId() != 0) {
@@ -1800,6 +1819,15 @@ public class ExtJs3_4 implements ViewAdapter {
 									m.getAccessViewTip(),
 									m.getAccessViewRoles(),
 									m.getAccessViewUsers())) {
+						if(snFlag) {
+							sn.append("<li><a href='#")
+							.append(formResult.getUniqueId())
+							.append("_fm_")
+							.append(m.getFormModuleId())
+							.append("'>")
+							.append(LocaleMsgCache.get2(formResult.getScd(), m.getLocaleMsgKey()))
+							.append("</a></li>");
+						}						
 						switch (m.getModuleTip()) {
 						case 4:// form
 							if (GenericUtil.uInt(formResult.getRequestParams()
@@ -1947,6 +1975,15 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append(s);
 			}
 			buf.append("];");
+		}
+		
+		if(snFlag) {
+			sn.append("</ol></nav>");
+			StringBuilder nbuf = new StringBuilder();
+			nbuf.append("\nmf._secondaryNavigation=\"").append(sn).append("\";\n").append(buf);
+			
+			buf = nbuf;
+			
 		}
 		return buf;
 	}

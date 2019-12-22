@@ -13,6 +13,12 @@ iwb.showLoginDialog = function() {
   alert("TODO: showLoginDialog");
   return false;
 };
+function commentRenderer(name){
+	return function(row, cell) {
+	  return '';
+	}
+}
+
 
 iwb.requestErrorHandler = function(obj) {
   if (obj.errorType) {

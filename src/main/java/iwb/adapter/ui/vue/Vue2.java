@@ -3745,11 +3745,11 @@ columns:[
 		List datas = queryResult.getData();
 		StringBuilder buf = new StringBuilder();
 		boolean convertDateToStr = queryResult.getRequestParams()!=null && GenericUtil.uInt(queryResult.getRequestParams(), "_cdds")!=0; 
-		buf.append("{\"success\":").append(queryResult.getErrorMap().isEmpty())
+		buf.append("{\"success\":").append(GenericUtil.isEmpty(queryResult.getErrorMap()))
 				.append(",\"queryId\":").append(queryResult.getQueryId())
 				.append(",\"execDttm\":\"")
 				.append(GenericUtil.uFormatDateTime(new Date())).append("\"");
-		if (queryResult.getErrorMap().isEmpty()) {
+		if (GenericUtil.isEmpty(queryResult.getErrorMap())) {
 			boolean dismissNull = queryResult.getRequestParams()!=null && queryResult.getRequestParams().containsKey("_dismissNull");
 			buf.append(",\n\"data\":["); // ana
 			if (datas != null && datas.size() > 0) {
