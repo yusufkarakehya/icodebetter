@@ -1779,7 +1779,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		buf.append("mf=Ext.apply(mf,{xtype:'form',border:false,\nitems:[");
 		boolean b = false;
 
-		boolean snFlag = FrameworkCache.getAppSettingIntValue(customizationId, "form_navigation_flag")!=0 && map.size()>3;
+		boolean snFlag = FrameworkCache.getAppSettingIntValue(customizationId, "form_navigation_flag")!=0 && map.size()>4 && formResult.getFormCellResults().size()>8;
 		StringBuilder sn = new StringBuilder();
 		if(snFlag) {
 			sn.append("<nav class='secondary-navigation'><h3>")
@@ -6518,6 +6518,63 @@ public class ExtJs3_4 implements ViewAdapter {
 		return buf.append("}");
 	}
 
+	private StringBuilder serializeLookUp(W5PageResult pr) {
+		StringBuilder buf2 = new StringBuilder();
+		boolean b = false;
+		if(!GenericUtil.isEmpty(pr.getRequestParams()) && !GenericUtil.isEmpty(pr.getRequestParams().get("_lookUps")))
+			b = true;
+		else if(!GenericUtil.isEmpty(pr.getPage().get_pageObjectList()))for(W5PageObject po :pr.getPage().get_pageObjectList()) if(po.getObjectTip()==6){
+			b = true;
+			break;			
+		}
+		if(b) {
+			Set<Integer> ls = new HashSet();
+			if(!GenericUtil.isEmpty(pr.getRequestParams())){
+				String lookUps = pr.getRequestParams().get("_lookUps");
+				if(!GenericUtil.isEmpty(lookUps)) {
+					String[] ids = lookUps.split(",");
+					for (String lookUpId : ids) {
+						ls.add(GenericUtil.uInt(lookUpId));
+					}
+				}
+			}
+			if(!GenericUtil.isEmpty(pr.getPage().get_pageObjectList()))for(W5PageObject po :pr.getPage().get_pageObjectList()) if(po.getObjectTip()==6){
+				ls.add(po.getObjectId());
+			}
+			if(!ls.isEmpty()) {
+				buf2.append("var _lookUps={");
+				boolean b2 = false;
+				for (Integer lookUpId : ls) {
+					W5LookUp lu = FrameworkCache.getLookUp(
+							pr.getScd(), lookUpId);
+					if(lu==null)continue;
+					if (b2)
+						buf2.append(",\n");
+					else
+						b2 = true;
+					buf2.append(lu.getDsc()).append(":[");
+					Map<String, String> tempMap = new HashMap<String, String>();
+					boolean b3=false;
+					for (W5LookUpDetay lud : lu.get_detayList()) if(lud.getActiveFlag()!=0){
+						if (b3)
+							buf2.append(", ");
+						else
+							b3 = true;
+						buf2.append("{\"").append(lud.getVal()).append("\":\"").append(LocaleMsgCache
+										.get2(pr.getScd(),lud.getDsc())).append("\"");
+						if(!GenericUtil.isEmpty(lud.getParentVal()))
+							buf2.append(",\"extra\":\"").append(lud.getParentVal()).append("\"");
+						buf2.append("}");
+						
+					}
+					buf2.append("]");
+				}
+				buf2.append("};\n");
+			}
+			
+		}
+		return buf2;
+	}
 
 	public StringBuilder serializeTemplate(W5PageResult pr) {
 		boolean replacePostJsCode = false;
@@ -6547,6 +6604,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append("var _page_tab_id='")
 						.append(GenericUtil.getNextId("tpi")).append("';\n");
 			}
+			buf.append(serializeLookUp(pr));
 
 			if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
 				buf.append("iwb.addCss(\"")
@@ -6696,38 +6754,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf2.append("};\n");
 			}
 */
-			String lookUps = pr.getRequestParams().get("_lookUps");
-			if(!GenericUtil.isEmpty(lookUps)) {
-				String[] ids = lookUps.split(",");
-				buf2.append("var _lookUps={");
-				boolean b2 = false;
-				for (String lookUpId : ids) {
-					W5LookUp lu = FrameworkCache.getLookUp(
-							pr.getScd(), GenericUtil.uInt(lookUpId));
-					if(lu==null)continue;
-					if (b2)
-						buf2.append(",\n");
-					else
-						b2 = true;
-					buf2.append(lu.getDsc()).append(":[");
-					Map<String, String> tempMap = new HashMap<String, String>();
-					boolean b3=false;
-					for (W5LookUpDetay lud : lu.get_detayList()) if(lud.getActiveFlag()!=0){
-						if (b3)
-							buf2.append(", ");
-						else
-							b3 = true;
-						buf2.append("{\"").append(lud.getVal()).append("\":\"").append(LocaleMsgCache
-										.get2(pr.getScd(),lud.getDsc())).append("\"");
-						if(!GenericUtil.isEmpty(lud.getParentVal()))
-							buf2.append(",\"extra\":\"").append(lud.getParentVal()).append("\"");
-						buf2.append("}");
-						
-					}
-					buf2.append("]");
-				}
-				buf2.append("};\n");
-			}
+			buf2.append(serializeLookUp(pr));
+
 			for (Object i : pr.getPageObjectList()) {
 				if (i instanceof W5GridResult) {
 					W5GridResult gr = (W5GridResult) i;
