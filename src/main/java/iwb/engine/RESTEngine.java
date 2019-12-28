@@ -27,6 +27,7 @@ import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.db.W5WsServerMethod;
 import iwb.exception.IWBException;
+import iwb.util.FtpUtil;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.LogUtil;
@@ -365,12 +366,16 @@ public class RESTEngine {
 
 				Log5WsMethodAction log = new Log5WsMethodAction(scd, wsm.getWsMethodId(), url, params, (String)requestParams.get("_trid_"));
 				if (wsm.getHeaderAcceptTip() != null && wsm.getHeaderAcceptTip()==3) { //binary
-					byte[] x = HttpUtil.send4bin(url, params,
+					byte[] x = url.startsWith("ftp")?
+							FtpUtil.send4bin(url):
+								HttpUtil.send4bin(url, params,
 							new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodTip()], reqPropMap);
 					result.put("data", x);
 
 				} else {				
-					String x = HttpUtil.send(url, params,
+					String x = url.startsWith("ftp")?
+							FtpUtil.send(url):
+							HttpUtil.send(url, params,
 							new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodTip()], reqPropMap);
 					if (!GenericUtil.isEmpty(x))
 						try {// System.out.println(x);

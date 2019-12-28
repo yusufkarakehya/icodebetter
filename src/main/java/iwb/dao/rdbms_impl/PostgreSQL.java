@@ -2779,12 +2779,13 @@ public class PostgreSQL extends BaseDAO {
 		 */
 	}
 
-	public void bookmarkForm(String dsc, int formId, int userId, int customizationId, W5FormResult formResult) {
+	public void bookmarkForm(Map<String, Object> scd, String dsc, int formId, int userId, W5FormResult formResult) {
 		W5FormValue formValue = new W5FormValue();
 		formValue.setFormId(formId);
 		formValue.setDsc(dsc);
 		formValue.setInsertUserId(userId);
-		formValue.setCustomizationId(customizationId);
+		formValue.setCustomizationId((Integer)scd.get("customizationId"));
+		formValue.setProjectUuid((String)scd.get("projectId"));
 		saveObject(formValue);
 
 		for (W5FormCell c : formResult.getForm().get_formCells())
@@ -2797,7 +2798,8 @@ public class PostgreSQL extends BaseDAO {
 					fvc.setVal(val);
 					fvc.setFormCellId(c.getFormCellId());
 					fvc.setFormValueId(formValue.getFormValueId());
-					fvc.setCustomizationId((Integer) formResult.getScd().get("customizationId"));
+					fvc.setCustomizationId((Integer) scd.get("customizationId"));
+					fvc.setProjectUuid((String)scd.get("projectId"));
 					saveObject(fvc);
 				}
 			}

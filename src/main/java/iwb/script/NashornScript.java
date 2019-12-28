@@ -25,6 +25,8 @@ import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5Console;
 import iwb.domain.db.Log5QueryAction;
 import iwb.domain.db.W5ExternalDb;
+import iwb.domain.db.W5LookUp;
+import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Table;
 import iwb.domain.helper.W5QueuedActionHelper;
 import iwb.domain.result.W5FormResult;
@@ -246,6 +248,15 @@ public class NashornScript {
 
 	public String getLocMsg(String key) {
 		return LocaleMsgCache.get2(scd, key);
+	}
+	
+	public String getLookUpDetayText(int lookUpId, String value) {
+		W5LookUp lookUp = FrameworkCache.getLookUp(scd, lookUpId);
+		if(lookUp==null)
+			throw new IWBException("rhino", "LookUp", lookUpId, null, "Wrong LookUpId",null);
+		W5LookUpDetay d = lookUp.get_detayMap().get(value);
+		if(d==null)return value+": ???";
+		return LocaleMsgCache.get2(scd, d.getDsc());
 	}
 
 	public String md5hash(String s) {

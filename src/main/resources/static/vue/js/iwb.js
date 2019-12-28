@@ -101,6 +101,11 @@ function gridUserRenderer(row, cell) {
   //TODO
   return row[cell + "_qw_"];
 }
+function commentRenderer(name){
+	return function(row, cell) {
+	  return '';
+	}
+}
 
 function gridQwRendererWithLink(t) {
   //tableId

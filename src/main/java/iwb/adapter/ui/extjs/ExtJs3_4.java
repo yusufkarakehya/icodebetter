@@ -1774,16 +1774,32 @@ public class ExtJs3_4 implements ViewAdapter {
 			}
 		String formBodyStyle = FrameworkCache.getAppSettingStringValue(
 				formResult.getScd(), "form_body_style");
+		
 		StringBuilder buf = new StringBuilder();
 		buf.append("mf=Ext.apply(mf,{xtype:'form',border:false,\nitems:[");
-
 		boolean b = false;
+
+		boolean snFlag = FrameworkCache.getAppSettingIntValue(customizationId, "form_navigation_flag")!=0 && map.size()>4 && formResult.getFormCellResults().size()>8;
+		StringBuilder sn = new StringBuilder();
+		if(snFlag) {
+			sn.append("<nav class='secondary-navigation'><h3>")
+				.append(LocaleMsgCache.get2(formResult.getScd(), "table_of_contents"))
+				.append("</h3><ol>");
+			if (map.get(0).size() > 0)sn.append("<li><a href='#")
+			.append(formResult.getUniqueId())
+			.append("_fm_0'>")
+			.append(LocaleMsgCache.get2(formResult.getScd(), "top_of_form"))
+			.append("</a></li>");
+			buf.append("{xtype:'container',html:!mf._hideSecondaryNavigation ? mf._secondaryNavigation:''},");
+			b = true;
+		}
+
 		if (formResult.getUniqueId() == null)
 			formResult.setUniqueId(GenericUtil.getNextId("fi2"));
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleList(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), "{xtype:'fieldset'"
+					formResult.getUniqueId(), map.get(0), "{id:_page_tab_id+'_fm_0',xtype:'fieldset'"
 							+ (GenericUtil.isEmpty(formBodyStyle) ? ""
 									: ",bodyStyle:'" + formBodyStyle + "'")));
 			// (formBodyColor!=null ?
@@ -1791,6 +1807,9 @@ public class ExtJs3_4 implements ViewAdapter {
 			// : "")));
 			b = true;
 		}
+		//secondaryNavigation
+
+		
 		if (formResult.getForm().get_moduleList() != null)
 			for (W5FormModule m : formResult.getForm().get_moduleList())
 				if (m.getFormModuleId() != 0) {
@@ -1800,6 +1819,15 @@ public class ExtJs3_4 implements ViewAdapter {
 									m.getAccessViewTip(),
 									m.getAccessViewRoles(),
 									m.getAccessViewUsers())) {
+						if(snFlag) {
+							sn.append("<li><a href='#")
+							.append(formResult.getUniqueId())
+							.append("_fm_")
+							.append(m.getFormModuleId())
+							.append("'>")
+							.append(LocaleMsgCache.get2(formResult.getScd(), m.getLocaleMsgKey()))
+							.append("</a></li>");
+						}						
 						switch (m.getModuleTip()) {
 						case 4:// form
 							if (GenericUtil.uInt(formResult.getRequestParams()
@@ -1947,6 +1975,15 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append(s);
 			}
 			buf.append("];");
+		}
+		
+		if(snFlag) {
+			sn.append("</ol></nav>");
+			StringBuilder nbuf = new StringBuilder();
+			nbuf.append("\nmf._secondaryNavigation=\"").append(sn).append("\";\n").append(buf);
+			
+			buf = nbuf;
+			
 		}
 		return buf;
 	}
@@ -3094,20 +3131,12 @@ public class ExtJs3_4 implements ViewAdapter {
 								buf.append(",");
 							else
 								b = true;
-							boolean bb = false;
-							buf.append("{");
+							buf.append("{name:'").append(fc.getDsc()).append("'");
 							for (W5QueryField f : cellResult.getLookupQueryResult().getQuery().get_queryFields()) {
 								
 								Object z = p[f.getTabOrder() - 1];
-								if(z==null)continue;
-								
-
-
-								
-								if (bb)
-									buf.append(",");
-								else
-									bb = true;
+								if(z==null)continue;								
+								buf.append(",");
 								if(f.getDsc().equals("dsc"))
 									buf.append("boxLabel:");
 								else if(f.getDsc().equals("id")) {
@@ -3786,6 +3815,9 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 				buf.append("]");
 				if(dataCount>2)buf.append(",columns:2");
+				if(!GenericUtil.isEmpty(cellResult.getValue()))buf.append(",value:'").append(GenericUtil.stringToJS(cellResult.getValue()))
+					.append("'");;
+						
 				if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
 				buf.append("})");
 				return buf;
@@ -4461,6 +4493,10 @@ public class ExtJs3_4 implements ViewAdapter {
 		}
 		if(c.get_defaultCrudForm()!=null) {
 			if(FrameworkSetting.vcs && c.get_crudTable().getVcsFlag()!=0)buf.append(",\n vcs:!0");
+			if(FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+				buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(cr.getScd(),"new_record_prefix"))
+				.append(LocaleMsgCache.get2(cr.getScd(),c.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
+
 			buf.append(",\n crudFormId:")
 			.append(c.getDefaultCrudFormId())
 			.append(serializeCrudFlags(cr.getScd(), c.get_crudTable(), false));
@@ -4808,6 +4844,11 @@ public class ExtJs3_4 implements ViewAdapter {
 						t.getAccessInsertTip(), t.getAccessInsertRoles(),
 						t.getAccessInsertUsers());
 				if(FrameworkSetting.vcs && t.getVcsFlag()!=0)buf.append(",\n vcs:!0");
+				
+				if(FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+					buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
+					.append(LocaleMsgCache.get2(scd,g.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
+
 				
 				buf.append(",\n crudFormId:")
 						.append(g.getDefaultCrudFormId())
@@ -6489,6 +6530,63 @@ public class ExtJs3_4 implements ViewAdapter {
 		return buf.append("}");
 	}
 
+	private StringBuilder serializeLookUp(W5PageResult pr) {
+		StringBuilder buf2 = new StringBuilder();
+		boolean b = false;
+		if(!GenericUtil.isEmpty(pr.getRequestParams()) && !GenericUtil.isEmpty(pr.getRequestParams().get("_lookUps")))
+			b = true;
+		else if(!GenericUtil.isEmpty(pr.getPage().get_pageObjectList()))for(W5PageObject po :pr.getPage().get_pageObjectList()) if(po.getObjectTip()==6){
+			b = true;
+			break;			
+		}
+		if(b) {
+			Set<Integer> ls = new HashSet();
+			if(!GenericUtil.isEmpty(pr.getRequestParams())){
+				String lookUps = pr.getRequestParams().get("_lookUps");
+				if(!GenericUtil.isEmpty(lookUps)) {
+					String[] ids = lookUps.split(",");
+					for (String lookUpId : ids) {
+						ls.add(GenericUtil.uInt(lookUpId));
+					}
+				}
+			}
+			if(!GenericUtil.isEmpty(pr.getPage().get_pageObjectList()))for(W5PageObject po :pr.getPage().get_pageObjectList()) if(po.getObjectTip()==6){
+				ls.add(po.getObjectId());
+			}
+			if(!ls.isEmpty()) {
+				buf2.append("var _lookUps={");
+				boolean b2 = false;
+				for (Integer lookUpId : ls) {
+					W5LookUp lu = FrameworkCache.getLookUp(
+							pr.getScd(), lookUpId);
+					if(lu==null)continue;
+					if (b2)
+						buf2.append(",\n");
+					else
+						b2 = true;
+					buf2.append(lu.getDsc()).append(":[");
+					Map<String, String> tempMap = new HashMap<String, String>();
+					boolean b3=false;
+					for (W5LookUpDetay lud : lu.get_detayList()) if(lud.getActiveFlag()!=0){
+						if (b3)
+							buf2.append(", ");
+						else
+							b3 = true;
+						buf2.append("{\"").append(lud.getVal()).append("\":\"").append(LocaleMsgCache
+										.get2(pr.getScd(),lud.getDsc())).append("\"");
+						if(!GenericUtil.isEmpty(lud.getParentVal()))
+							buf2.append(",\"extra\":\"").append(lud.getParentVal()).append("\"");
+						buf2.append("}");
+						
+					}
+					buf2.append("]");
+				}
+				buf2.append("};\n");
+			}
+			
+		}
+		return buf2;
+	}
 
 	public StringBuilder serializeTemplate(W5PageResult pr) {
 		boolean replacePostJsCode = false;
@@ -6518,6 +6616,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append("var _page_tab_id='")
 						.append(GenericUtil.getNextId("tpi")).append("';\n");
 			}
+			buf.append(serializeLookUp(pr));
 
 			if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
 				buf.append("iwb.addCss(\"")
@@ -6667,6 +6766,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf2.append("};\n");
 			}
 */
+			buf2.append(serializeLookUp(pr));
+
 			for (Object i : pr.getPageObjectList()) {
 				if (i instanceof W5GridResult) {
 					W5GridResult gr = (W5GridResult) i;

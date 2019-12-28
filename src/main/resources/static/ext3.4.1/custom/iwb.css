@@ -161,7 +161,9 @@ a:hover {
 
 /*.x-form-field, .x-combo-list-item, .x-form-item {font-size:14px;margin-bottom: 1px}*/
 .x-form .label {border: none; background: none; color: #000D1F}
-.required .x-form-text, .required textarea.x-form-field, div.x-grid3-hd-inner.required {border-left: 1px solid #d6202a !important;}
+.required .x-form-text, .required textarea.x-form-field, div.x-grid3-hd-inner.required {
+	/*border-left: 1px solid #d6202a !important;*/
+}
 .edit_form .x-form-text {border-top: 1px solid orange !important}
 .required_edit_form .x-form-text, div.x-grid3-hd-inner.required {border-left: 1px solid red !important;border-top: 1px solid orange !important}
 
@@ -921,7 +923,7 @@ header .phone .theme-switch a+a {
 }
 
 .ext-strict .x-form-text, .ext-strict .x-small-editor .x-form-text {
-    height: 25px !important;
+    height: 27px !important;
     border-width: 1px;
 }
 
@@ -938,18 +940,18 @@ header .phone .theme-switch a+a {
     margin-bottom: 6px;
 }
 .x-form-field-wrap .x-form-trigger {
-    background-image: url(/ext3.4.1/images/access/form/trigger.png);
+    background-image: url(/ext3.4.1/images/access/form/trigger2.png);
     margin-left:-1px;
 }
 .x-trigger-wrap-focus .x-form-trigger {
     border-bottom-color: #fd9c33;
 }
 .x-form-field-wrap .x-form-clear-trigger {
-    background-image: url(/ext3.4.1/images/access/form/clear-trigger.png) !important;
+    background-image: url(/ext3.4.1/images/access/form/clear-trigger2.png) !important;
 }
 .x-form-field-wrap .x-form-lang-trigger {
 	cursor:pointer;
-	background-image: url(images/trigger-i18n2.png);
+	background-image: url(images/trigger-i18n.png);
 }
 
 .x-form-field-wrap .x-form-add-trigger {
@@ -1101,7 +1103,7 @@ header .phone .theme-switch a+a {
     color: #ddd !important;
 }
 .x-form-field-wrap .x-form-trigger{
-	height:28px;
+	height:30px;
 }
 .x-small-editor .x-form-field-wrap .x-form-trigger {
     height: 29px;

@@ -56,5 +56,15 @@ public class W5FormValueCell implements java.io.Serializable {
 		this.customizationId = customizationId;
 	}
 
+	
+	private String projectUuid;
+	@Id
+	@Column(name="project_uuid")
+	public String getProjectUuid() {
+		return projectUuid;
+	}
 
+	public void setProjectUuid(String projectUuid) {
+		this.projectUuid = projectUuid;
+	}
 }

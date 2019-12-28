@@ -587,7 +587,7 @@ iwb = {
         if (field.$ === MapInput)
             return _(field.$, { value: field.value, disabled: true });
         if (typeof XHTMLEditor!='undefined' && field.$ === XHTMLEditor)
-            return _(field.$, { value: field.value, disabled: true });
+            return _('div',{style:{border:'1px solid gray', borderRadius:2, padding:3}, dangerouslySetInnerHTML:{__html:field.value}});//_(field.$, { value: field.value, disabled: true });
         var options = extraOptions || field.options;
         if (!options || !options.length) {
             var value = field.decimalScale ?
@@ -955,7 +955,7 @@ var ajaxErrorHandler = iwb.requestErrorHandler;
     "i", { className: "raw-field-empty" },
     _("br"),
     " ",
-    "(boş)"
+    "(empty)"
 )),
 (iwb.loadPage = function(cfg) {});
 iwb.ui = {
@@ -977,10 +977,10 @@ function disabledCheckBoxHtml(row, cell) {
         _("i", {
             className: "fa fa-check",
             style: {
-                color: "#44b848",border:"1px solid #a3dca5",
-                background: "#aeeac3",
-                padding: 5, fontSize:10,
-                borderRadius: 25
+                color: "#44b848",//border:"1px solid #a3dca5",
+//                background: "#aeeac3",
+                padding: 5, fontSize:14,
+//                borderRadius: 25
             }
         }) :
         null; // _('i',{className:'fa fa-check', style:{color: 'white',background:
@@ -1245,7 +1245,7 @@ class GridCommon extends React.PureComponent {
                                 this.onEditClick({
                                     event,
                                     rowData: tableRowData.row,
-                                    openEditable: false
+                                    openEditable: !!this.props.openEditable
                                 }),
                             style: {...tableRowData.style, cursor: "pointer" }
                         }
@@ -2326,7 +2326,7 @@ class XListFiles extends React.Component {
             event.preventDefault();
             event.stopPropagation();
             const link = document.createElement("a");
-            link.href = url;
+            link.href = url;link.target="_blank";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -2984,7 +2984,7 @@ class XTabForm extends React.PureComponent {
             let formBody = _(body, { parentCt: this, viewMode });
             if (!formBody) return null;
             return _(
-                Form, { onSubmit: event => event.preventDefault() },
+                Form, { onSubmit: event => event.preventDefault(), className:viewMode?"xview-mode":"" },
                 _(
                     CardBlock, { className: "card-body" },
                     _(
@@ -3640,6 +3640,137 @@ XGridRowAction.propTypes = {
 XGridRowAction.defaultProps = {
     tag: "span"
 };
+
+class XGridRowAction2 extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        if (iwb.debug) console.log("XGridRowAction2", props);
+        this.state = { isOpen: false };
+        this.toggle = event => {
+            event.preventDefault();
+            event.stopPropagation();
+            this.setState({ isOpen: !this.state.isOpen });
+        };
+    }
+    render() {
+        const {
+            state: { isOpen },
+            props: {
+                tag,
+                rowData,
+                parentCt,
+                className,
+                menuButtons,
+                onEditClick,
+                onDeleteClick,
+                formSmsMailList,
+                crudFlags: { edit, remove }
+            },
+            toggle
+        } = this;
+        return _(
+            'div', {  },
+             edit &&
+                _(
+                    Button, {title:getLocMsg("edit"),
+                        key: "123",color:'warning',
+                        onClick: event => {
+                            onEditClick({ event, rowData, openEditable: true });
+                        }
+                    },
+                    _("span", { className: "icon-pencil" })// text-warning
+                ),
+                remove &&
+                _(
+                		Button, {title:getLocMsg("delete"),
+                        key: "1223", color:'danger',
+                        onClick: event => {
+                            onDeleteClick({ event, rowData });
+                        }
+                    },
+                    _("span", {
+                        className: "icon-minus"//
+                    })
+                )/*,
+                menuButtons &&
+                menuButtons.map(
+                    ({
+                        text = "ButtonTextWillBeHere",
+                        handler = (event, rowData, parentCt) => {
+                            console.group();
+                            console.warn("No Render Method! event, rowData, parentCt ");
+                            console.table([
+                                { event: event, rowData: rowData, parentCt: parentCt }
+                            ]);
+                        },
+                        cls = ""
+                    }) => {
+                        //                cls = cls.split("|");
+                        return _(
+                            DropdownItem, {
+                                key: text,
+                                onClick: event =>
+                                    handler.call(this.state, event, rowData, parentCt),
+                                //                    className: cls[1]
+                            },
+                            _("span", { className: "mr-2 icon-" + cls }),
+                            text
+                        );
+                    }
+                ),
+                formSmsMailList &&
+                formSmsMailList.map(
+                    ({
+                        text = "ButtonTextWillBeHere",
+                        handler = (event, rowData, parentCt, rest) => {
+                            // iwb.openForm
+                            iwb.openTab(
+                                "1-" + Math.random(),
+                                "showForm?a=2&&_fid=5748", {}, {
+                                    modal: true
+                                }
+                            );
+                        },
+                        xid,
+                        ...rest
+                    }) => {
+                        return _(
+                            DropdownItem, {
+                                key: xid,
+                                onClick: event =>
+                                    handler.call(this.state, event, rowData, parentCt, rest)
+                            },
+                            _("span", { className: "mr-2 fas fa-at text-warning" }),
+                            text
+                        );
+                    }
+                )
+*/
+        );
+    }
+}
+XGridRowAction2.propTypes = {
+    tag: PropTypes.string,
+    rowData: PropTypes.object,
+    parentCt: PropTypes.obj,
+    menuButtons: PropTypes.arrayOf(
+        PropTypes.shape({
+            text: PropTypes.string,
+            handler: PropTypes.func,
+            cls: PropTypes.string
+        })
+    ),
+    formSmsMailList: PropTypes.arrayOf(PropTypes.object),
+    onEditClick: PropTypes.func,
+    onDeleteClick: PropTypes.func,
+    crudFlags: PropTypes.shape({
+        edit: PropTypes.bool,
+        remove: PropTypes.bool
+    })
+};
+XGridRowAction2.defaultProps = {
+    tag: "span"
+};
 /**
  * @deprecated todo: not used yet
  */
@@ -3665,7 +3796,7 @@ class XGridAction extends React.PureComponent {
                         className: "timeline-badge hover-shake " + color,
                         onClick: () => alert("hehey")
                     },
-                    _("i", { className: "fa fa-plus", style: { fontSize: 19 } })
+                    _("i", { className: "fa fa-plus",  style: { fontSize: 19 } })
                 ),
                 // {tag:'i',className: "icon-grid", color||'danger'}
                 isOpen &&
@@ -3763,29 +3894,7 @@ class XGrid extends GridCommon {
         const canIOpenActions =
             (props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) ||
             props.menuButtons;
-        if (canIOpenActions) {
-            columns.push({
-                name: "_qw_",
-                title: ".",
-                getCellValue: rowData => {
-                    var { onEditClick, onDeleteClick } = this;
-                    return _(XGridRowAction, {
-                        ... { rowData },
-                        ... { onEditClick, onDeleteClick },
-                        ... { crudFlags: props.crudFlags },
-                        ... { menuButtons: props.menuButtons },
-                        ... { formSmsMailList: props.formSmsMailList },
-                        ... { parentCt: this }
-                    });
-                }
-            });
-            columnExtensions.push({
-                columnName: "_qw_",
-                width: 50,
-                align: "right",
-                sortingEnabled: false
-            });
-        }
+        
 
         var colTemp = props.columns;
         colTemp &&
@@ -3820,7 +3929,29 @@ class XGrid extends GridCommon {
                     sortingEnabled: !!colLocal.sort
                 });
             });
-
+        if (canIOpenActions) {
+            columns.push({
+                name: "_qw_",
+                title: " ",
+                getCellValue: rowData => {
+                    var { onEditClick, onDeleteClick } = this;
+                    return _(XGridRowAction2, {
+                        ... { rowData },
+                        ... { onEditClick, onDeleteClick },
+                        ... { crudFlags: props.crudFlags },
+                        ... { menuButtons: props.menuButtons },
+                        ... { formSmsMailList: props.formSmsMailList },
+                        ... { parentCt: this }
+                    });
+                }
+            });
+            columnExtensions.push({
+                columnName: "_qw_",
+                width: 80,
+                align: "center",
+                sortingEnabled: false
+            });
+        }
         this.state = {
             columns,
             sorting: [],
@@ -3874,6 +4005,7 @@ class XGrid extends GridCommon {
             });
             this.lastQuery = queryString;
         };
+        if(props.registerLoad)props.registerLoad(this.loadData);
     }
     componentDidMount() {
         if (!this.dontRefresh) this.loadData();
@@ -4014,11 +4146,11 @@ class XGrid extends GridCommon {
                 }
             }), // TODO
             !_disableIntegratedGrouping &&
-            !pageSize &&
+            !multiselect && !pageSize &&
             rows.length > 1 &&
             _(_dxgrb.GroupingPanel, {
                 showSortingControls: true,
-                messages: { groupByColumn: getLocMsg("groupByColumn") }
+                messages: { groupByColumn: getLocMsg("group_by_column") }
             })
         );
     }
@@ -4563,7 +4695,7 @@ class XEditGridSF extends GridCommon {
             null, !_disableIntegratedGrouping ?
             _(_dxgrb.GroupingPanel, {
                 showSortingControls: true,
-                messages: { groupByColumn: getLocMsg("groupByColumn") }
+                messages: { groupByColumn: getLocMsg("group_by_column") }
             }) :
             null
         );
@@ -4677,7 +4809,7 @@ yesNoDialog = ({
                         iwb.closeModal();
                     }
                 },
-                getLocMsg("tamam")
+                getLocMsg("ok")
             ),
             " ",
             _(
@@ -5181,7 +5313,7 @@ class XEditGrid extends GridCommon {
             null, !_disableIntegratedGrouping ?
             _(_dxgrb.GroupingPanel, {
                 showSortingControls: true,
-                messages: { groupByColumn: getLocMsg("groupByColumn") }
+                messages: { groupByColumn: getLocMsg("group_by_column") }
             }) :
             null
         );
@@ -5277,7 +5409,7 @@ const XShowDetailTabs = ({
                                     _(
                                         Button, {
                                         //    className: "tlb-button ml-1",
-                                            color: "primary",
+                                            color: "primary", title:grid.newRecordLabel || getLocMsg("new_record"),
                                             onClick: event =>
                                                 topParentGrid.onOnNewRecord(event, grid, row)
                                         },
@@ -5505,29 +5637,7 @@ class XMainGrid extends GridCommon {
             const canIOpenActions =
                 (props.crudFlags && (props.crudFlags.edit || props.crudFlags.remove)) ||
                 props.menuButtons;
-            if (canIOpenActions) {
-                columns.push({
-                    name: "_qw_",
-                    title: ".",
-                    getCellValue: rowData => {
-                        var { onEditClick, onDeleteClick } = this;
-                        return _(XGridRowAction, {
-                            ... { rowData },
-                            ... { menuButtons: props.menuButtons },
-                            ... { formSmsMailList: props.formSmsMailList },
-                            ... { crudFlags: props.crudFlags },
-                            ... { onEditClick, onDeleteClick },
-                            ... { parentCt: this }
-                        });
-                    }
-                });
-                columnExtensions.push({
-                    columnName: "_qw_",
-                    width: 60,
-                    align: "right",
-                    sortingEnabled: false
-                });
-            }
+
             var colTemp = props.columns;
             colTemp &&
                 colTemp.map(colLocal => {
@@ -5571,6 +5681,29 @@ class XMainGrid extends GridCommon {
                         sortingEnabled: !!colLocal.sort
                     });
                 });
+            if (canIOpenActions) {
+                columns.push({
+                    name: "_qw_",
+                    title: ".",
+                    getCellValue: rowData => {
+                        var { onEditClick, onDeleteClick } = this;
+                        return _(XGridRowAction2, {
+                            ... { rowData },
+                            ... { menuButtons: props.menuButtons },
+                            ... { formSmsMailList: props.formSmsMailList },
+                            ... { crudFlags: props.crudFlags },
+                            ... { onEditClick, onDeleteClick },
+                            ... { parentCt: this }
+                        });
+                    }
+                });
+                columnExtensions.push({
+                    columnName: "_qw_",
+                    width: 80,
+                    align: "center",
+                    sortingEnabled: false
+                });
+            }
             var state = {
                 columns,
                 order: columns.map(({ name }) => name),
@@ -6194,11 +6327,11 @@ class XMainGrid extends GridCommon {
             }),
             /** UI grouping panel */
             !_disableIntegratedGrouping &&
-            !pageSize &&
+            !tree && !pageSize &&
             rows.length > 1 &&
             _(_dxgrb.GroupingPanel, {
                 showSortingControls: true,
-                messages: { groupByColumn: getLocMsg("groupByColumn") }
+                messages: { groupByColumn: getLocMsg("group_by_column") }
             })
         );
 
@@ -6238,20 +6371,23 @@ class XMainGrid extends GridCommon {
                         },
                         _("i", { className: "icon-refresh " + (this.state.loading ? " infinite-rotate" : "") })
                     ),
+                    !!iwb.newRecordPositionRight && _("div", { className: "fgrow" }),
 
                     crudFlags &&
                     crudFlags.insert &&
                     _(
                         Button, {
-                            className: "tlb-button ml-1",
+                            className: "tlb-button ml-1",style:iwb.newRecordPositionRight ? {borderRadius:50}:{},
                             color: "primary",
                             onClick: event => onOnNewRecord(event, this.props)
                         },
                         //_("i", { className: "fa fa-plus" }),
                         //"Yeni Kayit"
-                        getLocMsg("new_record")
+                        !!iwb.newRecordPositionRight && _('i',{className:'fa fa-plus'}),
+                        !!iwb.newRecordPositionRight && ' ',
+                        this.props.newRecordLabel || getLocMsg("new_record")
                     ),
-                    _("div", { className: "fgrow" }),
+                    !iwb.newRecordPositionRight && _("div", { className: "fgrow" }),
                     extraButtons &&
                     extraButtons.map((btn, index) =>
                         _(XToolbarItem, {
@@ -6308,7 +6444,9 @@ class XMainCard extends GridCommon {
             hideSF: true, sort:'',dir:'',
             loading: false,
             cards: [],
-            xsearch:''
+            breakPoints: props.breakPoints || [300, 500, 1000],
+            xsearch:'',
+            xtags:[]//name, value, label, className
         };
         let { searchForm, detailGrids } = this.props;
         if (searchForm || (detailGrids && detailGrids.length > 1)) {
@@ -6398,6 +6536,11 @@ class XMainCard extends GridCommon {
             if(sort)queryString+='&sort='+sort;
             if(dir)queryString+='&dir='+dir;
             if(this.props.xsearch)queryString+='&'+this.props.xsearch+'='+(this.state.xsearch||'');
+        	var xtags = this.state.xtags;
+            if(xtags.length){
+            	for(var qi=0;qi<xtags.length;qi++)
+            		queryString+='&'+xtags[qi].name+'='+(xtags[qi].value||'');
+            }
             return queryString;
         };
         /** toogle search */
@@ -6439,10 +6582,25 @@ class XMainCard extends GridCommon {
             this.lastQuery = queryString;
         };
         /**rightClick on the card */
-        this.RightClickComponent = props => extraProps =>
-            _(XGridRowAction, {...props, ...extraProps });
+        this.addTag = tag => {
+        	if(!tag || !tag.name)return;
+        	var xtags = this.state.xtags;
+        	for(var qi=0;qi<xtags.length;qi++){
+        		if(xtags[qi].name==tag.name && xtags[qi].value==tag.value)
+        			return;
+        	}
+        	xtags.push(tag)
+        	this.setState({xtags:xtags});
+        	setTimeout(()=>this.loadData(!0),100);
+        }
             
-        this.openOrderBy = ()=>{
+        /**rightClick on the card */
+        this.RightClickComponent = props => extraProps =>
+            _(XGridRowAction2, {...props, ...extraProps });
+            
+        this.openOrderBy = (e)=>{
+            e.preventDefault();
+            e.stopPropagation();
         	var self = this;
         	iwb.showModal({
                 title: getLocMsg("sort"),
@@ -6472,6 +6630,7 @@ class XMainCard extends GridCommon {
                     ))
                 )
             });
+        	return false;
         }
     }
     shouldComponentUpdate(){
@@ -6491,11 +6650,11 @@ class XMainCard extends GridCommon {
                 pageSize,
                 pageSizes,
                 totalCount,
+                breakPoints,
                 currentPage
             },
             props: {
-                crudFlags,
-                breakPoints,
+                crudFlags,                
                 menuButtons,
                 extraButtons,
                 formSmsMailList
@@ -6505,7 +6664,8 @@ class XMainCard extends GridCommon {
             onEditClick,
             toggleSearch,
             onDeleteClick,
-            onOnNewRecord
+            onOnNewRecord,
+            addTag
         } = this;
         return _(
             "div", { className: "tab-grid mb-4" },
@@ -6517,96 +6677,111 @@ class XMainCard extends GridCommon {
                 },
                 searchForm
             ),
-            _(
-                "main", { className: "inbox" },
-                _(
-                    CardHeader, {},
-                    searchForm &&
-                    _(
-                        Button, {
-                            className: "tlb-button ml-1",
-                            color: "secondary",
-                            onClick: toggleSearch
-                        },
-                        _("i", {
-                            id: "eq-" + this.props.cardId,
-                            className: classNames("icon-magnifier ", {
-                                "rotate-90deg": !hideSF
-                            })
-                        })
+            _("main", { className: "inbox" },
+                _('div',{className:"card-page-header"},
+	                _(
+	                    CardHeader, {},
+	                    searchForm &&
+	                    _(
+	                        Button, {
+	                            className: "tlb-button ml-1",
+	                            color: "secondary",
+	                            onClick: toggleSearch
+	                        },
+	                        _("i", {
+	                            id: "eq-" + this.props.cardId,
+	                            className: classNames("icon-magnifier ", {
+	                                "rotate-90deg": !hideSF
+	                            })
+	                        })
+	                    ),
+	                    _(
+	                        Button, {
+	                            className: "tlb-button ml-1",
+	                            disabled: loading,
+	                            color: "secondary",
+	                            onClick: event => loadData(true)
+	                        },
+	                        _("i", { className: "icon-refresh" })
+	                    ),
+	                    crudFlags &&
+	                    crudFlags.insert &&
+	                    _(
+	                        Button, {
+	                            className: "tlb-button ml-1",
+	                            color: "primary",
+	                            onClick: event => onOnNewRecord(event, this.props)
+	                        },
+	                       // _("i", { className: "fa fa-plus" }),
+	                        this.props.newRecordLabel || getLocMsg("new_record")
+	                    ),
+	                    extraButtons &&
+	                    extraButtons.map((btn, index) =>
+	                        _(XToolbarItem, {
+	                            ...btn,
+	                            index,
+	                            row: null,
+	                            grid: this,
+	                            parentCt: null
+	                        })
+	                    ),
+	                    this.props.xsearch && _('input',{style:{float:'right'},onChange:(ev)=>{
+	                    	var xsearch = ev.target.value||'';
+	                    	this.setState({xsearch:xsearch});
+	                    	var self = this;
+	                    	if(!this.delayedTask)this.delayedTask=new iwb.delayedTask(function(p){
+	                    		self.loadData(!0);
+	                    	});
+	                    	this.delayedTask.delay(200, xsearch);
+	                    	
+	                    }, value:this.state.xsearch, type:"text", className:"form-control w-25",placeholder:getLocMsg("search_placeholder")}),
+	                    
+	                    false && this.props.orderNames && _(
+	                            Button, {
+	                                className: "float-right tlb-button mx-1",
+	                                color: "secondary", style:{color:"#607D8B"},
+	                                onClick: this.openOrderBy, title:getLocMsg("sort")
+	                            },
+	                            _("i", { className: "icon-equalizer" })
+	                        ),
+	                    // this.props.gridReport &&
+	                    // _( Button,
+	                    //   { className: "float-right btn-round-shadow hover-shake mx-1",
+	                    //     color: "danger",
+	                    //     onClick: this.openBI
+	                    //   },
+	                    //   _("i", { className: "icon-equalizer" })
+	                    // )
+	                ),
+	                (this.props.pageSize || this.props.orderNames) && _('div',{ style:{fontSize: '.8rem'
+	                    ,color: '#999'}},
+	                    _('span',{style:{float:'right'}}
+	                    	,this.state.xtags.map(o=>_('div',{className:o.className||'badge badge-secondary'
+	                    		, style:{fontSize: '.8rem', borderRadius:20, marginRight: 12}},_('i', {className:'icon-close', style:{cursor:'pointer'}, onClick:(e)=>{
+	                            	var xtags = this.state.xtags;
+	                            	for(var qi=0;qi<xtags.length;qi++){
+	                            		if(xtags[qi].name==o.name && xtags[qi].value==o.value){
+	                            			xtags.splice(qi,1);
+	                            			this.setState({xtags:xtags});
+	                            			setTimeout(()=>this.loadData(!0),100);
+	                            			return;
+	                            		}
+	                            	} 
+	                            }}), ' ', o.label)), 
+	                    		this.props.pageSize>0 && (totalCount + ' records'+(this.props.orderNames?', ':''))
+	                    		,' ',this.props.orderNames && (getLocMsg('sort')+': '),
+	                    		this.props.orderNames && _('a',{href:'#', onClick:this.openOrderBy},(this.state.sort? (this.state.sort+' '+ this.state.dir):'(none)')))),
+	                    _(XPagination, {
+	                        pageSize,
+	                        currentPage,
+	                        totalCount,
+	                        onChange: currentPage =>
+	                            this.setState({ currentPage }, () => this.loadData(true))
+	                    }),
                     ),
-                    _(
-                        Button, {
-                            className: "tlb-button ml-1",
-                            disabled: loading,
-                            color: "secondary",
-                            onClick: event => loadData(true)
-                        },
-                        _("i", { className: "icon-refresh" })
-                    ),
-                    crudFlags &&
-                    crudFlags.insert &&
-                    _(
-                        Button, {
-                            className: "tlb-button ml-1",
-                            color: "primary",
-                            onClick: event => onOnNewRecord(event, this.props)
-                        },
-                       // _("i", { className: "fa fa-plus" }),
-                        getLocMsg("new_record")
-                    ),
-                    extraButtons &&
-                    extraButtons.map((btn, index) =>
-                        _(XToolbarItem, {
-                            ...btn,
-                            index,
-                            row: null,
-                            grid: this,
-                            parentCt: null
-                        })
-                    ),
-                    _("div", { className: "fgrow" }),
-                    this.props.xsearch && _('input',{onChange:(ev)=>{
-                    	var xsearch = ev.target.value||'';
-                    	this.setState({xsearch:xsearch});
-                    	var self = this;
-                    	if(!this.delayedTask)this.delayedTask=new iwb.delayedTask(function(p){
-                    		self.loadData(!0);
-                    	});
-                    	this.delayedTask.delay(200, xsearch);
-                    	
-                    }, value:this.state.xsearch, type:"text", className:"form-control w-25 xcard1-search",placeholder:getLocMsg("search_placeholder")}),
-                    
-                    this.props.orderNames && _(
-                            Button, {
-                                className: "float-right tlb-button mx-1",
-                                color: "secondary", style:{color:"#607D8B"},
-                                onClick: this.openOrderBy, title:getLocMsg("sort")
-                            },
-                            _("i", { className: "icon-equalizer" })
-                        ),
-                    // this.props.gridReport &&
-                    // _( Button,
-                    //   { className: "float-right btn-round-shadow hover-shake mx-1",
-                    //     color: "danger",
-                    //     onClick: this.openBI
-                    //   },
-                    //   _("i", { className: "icon-equalizer" })
-                    // )
-                ),
-                (this.props.pageSize || this.state.sort) && _('div',{ style:{fontSize: '.8rem'
-                    ,color: '#999'}},
-                    _('span',{style:{float:'right'}},this.props.pageSize>0 && (totalCount + ' records'+(this.state.sort?', ':'')),' ',this.state.sort && (getLocMsg('sort')+': '+this.state.sort+' '+ this.state.dir))),
-                    _(XPagination, {
-                        pageSize,
-                        currentPage,
-                        totalCount,
-                        onChange: currentPage =>
-                            this.setState({ currentPage }, () => this.loadData(true))
-                    }),
                 _(
                     XMasonry, {
-                        breakPoints: breakPoints || [300, 500, 1000],
+                        breakPoints: breakPoints,
                         loadingComponent: () => _(XLoading, null),
                         // item: {
                         //   className: 'mt-2 mb-2 border-6px card-animated'
@@ -6620,7 +6795,7 @@ class XMainCard extends GridCommon {
                             ...record,
                             parentCt: this,
                             key: index,
-                            index: index,
+                            index: index, addTag:addTag,
                             RightClickComponent: this.RightClickComponent({
                                 rowData: record,
                                 parentCt: this,
@@ -6629,6 +6804,7 @@ class XMainCard extends GridCommon {
                                 onEditClick,
                                 onDeleteClick,
                                 crudFlags
+                                
                             })
                         });
                     })
@@ -7928,6 +8104,16 @@ class XForm extends React.Component {
                     fmtShortDate(dateValue);
                 this.setState({ values });
             };
+            this.onTimeChange = (inputName) => momentObject => {
+            	var time = momentObject;
+            	if(typeof(momentObject) !== "string"){
+            		time = momentObject.format("hh:mm");
+            	}
+            	var values = this.state.values;
+            	values[inputName] = time;
+            	this.setState({values});
+            }
+            
         }
         componentDidMount() {
             var triggers = this.triggerz4ComboRemotes;
@@ -7986,7 +8172,7 @@ class FileInput extends React.Component {
             e.stopPropagation();
 
             let link = document.createElement("a");
-            link.href = url;
+            link.href = url; link.target="_blank";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -8080,8 +8266,8 @@ class FileInput extends React.Component {
                 result => {
                     if (result.success) {
                         toastr.success(
-                            getLocMsg("file_sucessfully_uploaded!"),
-                            getLocMsg("Success"), {
+                            getLocMsg("file_sucessfully_uploaded"),
+                            getLocMsg("success"), {
                                 timeOut: 3000
                             }
                         );
@@ -8101,7 +8287,7 @@ class FileInput extends React.Component {
                     return;
                 },
                 error => {
-                    toastr.error(error, getLocMsg("Error"));
+                    toastr.error(error, getLocMsg("error"));
                 }
             );
     }
@@ -8191,22 +8377,6 @@ class FileInput extends React.Component {
     }
 }
 
-class XGraph extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    componentDidMount() {
-        var dg = this.props.graph;
-        var gid = "idG" + dg.graphId;
-        iwb.graph(dg, gid);
-    }
-    render() {
-        return _("div", {
-            style: { width: "100%", height: this.props.props.height || "20vw" },
-            id: "idG" + this.props.graph.graphId
-        });
-    }
-}
 
 
 function fmtDecimal(value, digit,precision) {
@@ -8358,108 +8528,238 @@ iwb.graph = function(dg, gid, callback) {
     });
 }
 
-iwb.createPortlet = function(o) {
-    var name = o.graph || o.grid || o.card || o.query;
-    if (!name) return _("div", null, "not portlet");
-    if (o.query) {
-        var q = o.query.data;
-        if (!q || !q.length) return _("div", null, "not data");
-        q = q[0];
-        return _(
-            Card, {
-                className: "card-portlet text-white bg-" + (o.props.color || "primary")
-            },
-            _("i", { className: "big-icon " + (q.icon || "icon-settings") }),
-            _(
-                CardBlock, { className: "pb-0" },
+class XCardList  extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {rows: [], loading: false};
+        this.loadData = (force, params) => {
+            if(force)this.setState({ rows: [], loading: true });
+            iwb.request({
+                url: this.props._url,
+                self: this,
+                params: params||{},
+                successCallback: (result, cfg) => {
+                    cfg.self.setState({
+                        rows: result.data,
+                        totalCount: result.total_count,
+                        loading: false
+                    });
+                },
+                errorCallback: (error, cfg) => {
+                    cfg.self.setState({
+                        rows: [],
+                        totalCount: 0,
+                        loading: false
+                    });
+                }
+            });
+        }
+        if(props.registerLoad)props.registerLoad(this.loadData);
+    }
+    componentDidMount() {
+        this.loadData();
+    }
+    componentDidUpdate() {
+    }
+    render(){
+    	var rows = this.state.rows, fnc=this.props.render; 
+    
+    	return _('div', {}, rows.map(o => fnc(o)))
+    }
+}
+
+
+class XPortletItem extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {counter:0};
+
+        this.reloadItem = (force, params) => {
+        	this.setState({counter:this.state.counter+1});
+        	if(this.reloadFnc)this.reloadFnc(!0, params);
+        	else if(this.props.graph){
+                var dg = this.props.graph;
+                var gid = "idG" + dg.graphId;
+                iwb.graph(dg, gid);
+        	} 
+        }
+        if(props.registerLoad)props.registerLoad(this.reloadItem);
+    }
+    
+    componentDidMount() {
+    	this.reloadItem();
+    }
+    
+    render(){
+    	var o = this.props;
+        var name = o.graph || o.grid || o.card || o.query || o.component;
+        if (!name) return false;//_("div", null, "not portlet");
+        
+        if (o.query) {//badge
+            var q = o.query.data;
+            if (!q || !q.length) return _("div", null, "not data");
+            q = q[0];
+            return _(
+                Card, {
+                    className: "card-portlet text-white bg-" + (o.props.color || "primary")
+                },
+                _("i", { className: "big-icon " + (q.icon || "icon-settings") }),
                 _(
-                    "div", {
-                        className: "float-right",
+                    CardBlock, { className: "pb-0" },
+                    _(
+                        "div", {
+                            className: "float-right",
+                            style: {
+                                fontSize: "30px",
+                                background: "white",
+                                padding: "0 13px",
+                                borderRadius: "55px",
+                                color: "darkorange"
+                            }
+                        },
+                        q.xvalue
+                    ),
+                    _("h1", { className: "mb-0" }, q.dsc),
+                    _("div", { style: { height: "25px" } })
+                )
+            );
+        }
+        name = name.name;
+        var cmp = null;
+        if (o.graph) {
+            return _(
+                Card, {
+                    className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                },
+                _(
+                    "h3", {
+                        className: "form-header",
                         style: {
-                            fontSize: "30px",
-                            background: "white",
-                            padding: "0 13px",
-                            borderRadius: "55px",
-                            color: "darkorange"
+                            fontSize: "1.5rem",
+                            padding: "10px 12px 0px",
+                            marginBottom: ".5rem"
                         }
                     },
-                    q.xvalue
+                    name,
+                    _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
+                    
                 ),
-                _("h1", { className: "mb-0" }, q.dsc),
-                _("div", { style: { height: "25px" } })
-            )
-        );
+                _("div", {
+                    style: { width: "100%", height: o.props.height || "20vw" },
+                    id: "idG" + o.graph.graphId
+                })
+            );
+        } else if (o.grid) {
+            o.grid.crudFlags = false;
+            return _(
+                Card, {
+                    className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                },
+                _(
+                    "h3", {
+                        className: "form-header",
+                        style: {
+                            fontSize: "1.5rem",
+                            padding: "10px 12px 0px",
+                            marginBottom: ".5rem"
+                        }
+                    },
+                    name,
+                    _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
+                ),
+                _(XGrid, {...o.grid, registerLoad:(fx)=>{
+            		if(fx)this.reloadFnc=fx;
+            	}})
+            );
+        } else if (o.card){ 
+        	o.card.crudFlags = false;
+            return _(
+                Card, {
+                    className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                },
+                _(
+                    "h3", {
+                        className: "form-header",
+                        style: {
+                            fontSize: "1.5rem",
+                            padding: "10px 12px 0px",
+                            marginBottom: ".5rem"
+                        }
+                    },
+                    name,
+                    _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem }),
+                    this.props.filter && this.props.filter.items && 
+                    	_("select", { onChange:(e)=>{
+//                    		console.log(e.target.value);
+                    		var params ={}
+                    		params[this.props.filter.name] = e.target.value; 
+                    		this.reloadFnc(!0, params);	
+                    	}, name:this.props.filter.name
+                    		, style: {fontSize: 17, color: '#888', marginRight: 10, marginTop: 1, float: 'right'}},
+                    		this.props.filter.items.map(oo=>_('option',{value:oo.id},oo.dsc)))
+                ),
+                _(XCardList, {...o.card, registerLoad:(fx)=>{
+            		if(fx)this.reloadFnc=fx;
+               	}})
+            );
+        
+        }
+        else if (o.component) return o.component;
+        return false;
     }
-    name = name.name;
-    var cmp = null;
-    if (o.graph) {
-        return _(
-            Card, {
-                className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
-            },
-            _(
-                "h3", {
-                    className: "form-header",
-                    style: {
-                        fontSize: "1.5rem",
-                        padding: "10px 12px 0px",
-                        marginBottom: ".5rem"
-                    }
-                },
-                name,
-                _("i", { className: "portlet-refresh float-right icon-refresh" })
-            ),
-            _(XGraph, o)
-        );
-    } else if (o.grid) {
-        o.grid.crudFlags = false;
-        return _(
-            Card, {
-                className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
-            },
-            _(
-                "h3", {
-                    className: "form-header",
-                    style: {
-                        fontSize: "1.5rem",
-                        padding: "10px 12px 0px",
-                        marginBottom: ".5rem"
-                    }
-                },
-                name,
-                _("i", { className: "portlet-refresh float-right icon-refresh" })
-            ),
-            _(XGrid, o.grid)
-        );
-    } else if (o.card) cmp = "Card";
-    else if (o.query) cmp = "KPI Card";
-    return _(
-        Card, {
-            className: "card-portlet text-white bg-" + o.props.color || "primary"
-        },
-        _(
-            CardBlock, { className: "card-body" },
-            _(
-                "h3", {
-                    className: "form-header",
-                    style: { padding: "10px 12px 0px", marginBottom: ".5rem" }
-                },
-                name
-            ),
-            _("hr"),
-            cmp
-        )
-    );
-};
+}
+
+
+class XDashboard extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {counter:0};
+        this.reloadFncs={};
+
+        this.reloadAll = (xparams) => {
+        	this.setState({counter:this.state.counter+1});
+//        	console.log(this.reloadFncs)
+        	for(var k in this.reloadFncs)this.reloadFncs[k](!0);
+        }
+    }
+
+    
+    render(){
+    	var o = this.props;
+        if (!o || !o.rows || !o.rows.length)
+            return iwb.debug ? _("div", null, "No portlets defined"): false;
+        return _('div',{},
+        		o.reload &&_(Row, {style:{marginTop: -35,marginBottom: 10}},_(Col, {xs:12},_(Button,{style:{float:'right'},color: "secondary",
+                    onClick: event => this.reloadAll()},getLocMsg('refresh_all')))),
+       		o.rows.map((rowItem, rowIndex) => {
+	            return _(Row, {
+	                key: "xp-"+rowIndex,
+	                children: rowItem.map((colItem, colIndex) =>
+	                    _(Col, colItem.props||{}, _(XPortletItem, {...colItem, registerLoad:(fx)=>{
+	                		if(fx){
+	                			var id = "xx-"+rowIndex;
+	                			if(colItem.graph)id="pgraph-"+colItem.graph.graphId;
+	                			else if(colItem.grid)id="pgrid-"+colItem.grid.gridId;
+	                			else if(colItem.card)id="pcard-"+colItem.card.cardId;
+	                			else if(colItem.query)id="pquery-"+colItem.query.queryId;
+	                			this.reloadFncs[id]=fx;
+	                		}
+	                   	}})) //iwb.createPortlet(colItem
+	                )
+	            });
+	        }));
+    }
+    
+}
 
 iwb.ui.buildDashboard = function(o) {
     if (!o || !o.rows || !o.rows.length)
-        return _("div", null, "No portlets defined");
+        return iwb.debug ? _("div", null, "No portlets defined"): false;
     return o.rows.map((rowItem, rowIndex) => {
         return _(Row, {
             key: rowIndex,
             children: rowItem.map((colItem, colIndex) =>
-                _(Col, colItem.props, iwb.createPortlet(colItem))
+                _(Col, colItem.props||{}, _(XPortletItem, colItem)) //iwb.createPortlet(colItem
             )
         });
     });
@@ -8588,11 +8888,10 @@ class CheckboxGroup extends React.Component {
             
         }, this.props.options.map((o) => {
 	        	return _('div',{}
-	            	,_('input',{type:this.props.multi?'checkbox':'radio', checked:valMap[o[this.props.valueKey]], onClick:(aq)=>{
+	            	,_('input',{id:this.props.name+'_'+o[this.props.valueKey], type:this.props.multi?'checkbox':'radio', checked:valMap[o[this.props.valueKey]], onClick:(aq)=>{
 	            		this.props.onChange({id:aq.target.value});
-	            	},
-	            			name:this.props.name, value:o[this.props.valueKey]})
-		        	,' ', _('label',{style:{fontWeight:400,color:'#333'}}, o[this.props.labelKey]));
+	            	}, name:this.props.name, value:o[this.props.valueKey]})
+		        	,' ', _('label',{for:this.props.name+'_'+o[this.props.valueKey], style:{fontWeight:400,color:'#333'}}, o[this.props.labelKey]));
         		}
         	)
         );

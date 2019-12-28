@@ -1086,7 +1086,7 @@ public class React16 implements ViewAdapter {
 		s.append("},options:{},activeTab:false}");
 		//\nif(this.componentWillPost)this.componentWillPost=this.componentWillPost.bind(this);
 		Map<String, List<W5FormCell>> pcr = new HashMap();
-		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlTip()==9 && fc.getFormCell().getParentFormCellId()!=0 && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams())) {//combo remote
+		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && (fc.getFormCell().getControlTip()==9 ||fc.getFormCell().getControlTip()==16) && fc.getFormCell().getParentFormCellId()!=0 && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams())) {//combo remote
 			for (W5FormCellHelper rfc : formResult.getFormCellResults()) {
 				if (rfc.getFormCell().getFormCellId() == fc.getFormCell().getParentFormCellId()) {
 					W5FormCell pfc = rfc.getFormCell();
@@ -1659,7 +1659,7 @@ public class React16 implements ViewAdapter {
 				buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 			} else {
 				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
-				if(FrameworkSetting.reactLabelRequired && fc.getFormCell().getNotNullFlag()!=0 && fc.getFormCell().getNrdTip()==0)buf.append(", \" \", _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
+				if(FrameworkSetting.reactLabelRequired && fc.getFormCell().getNotNullFlag()!=0 && fc.getFormCell().getNrdTip()==0)buf.append(", \" \", !_").append(dsc).append(".readOnly && !viewMode && _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
 				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
 			}
 		}
@@ -2004,9 +2004,9 @@ public class React16 implements ViewAdapter {
 			else if(GenericUtil.safeEquals(fc.getVtype(), "url"))buf.append("'url'");
 			else buf.append("'text'");
 			break;//string
-		case	2:buf.append("$:Datetime, dateFormat:'DD/MM/YYYY',timeFormat:false, closeOnSelect:true");break; //TODO:date
-		case	18:buf.append("$:Datetime, dateFormat:'DD/MM/YYYY',timeFormat:'HH:mm'");break; //TODO:datetime
-		case	22:buf.append("$:Datetime, dateFormat:false,timeFormat:'HH:mm'");break; //TODO:time
+		case	2:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:false, closeOnSelect:true");break; //TODO:date
+		case	18:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:'HH:mm'");break; //TODO:datetime
+		case	22:buf.append("$:Datetime, dateFormat:false, className:'rdt-time', timeFormat:'H:mm'");break; //TODO:time
 		case	3://double
 		case	4://integer
 			buf.append("$:NumberFormat,style:{textAlign:'right'},className:'form-control");
@@ -2084,15 +2084,20 @@ public class React16 implements ViewAdapter {
 		break; 
 		
 		case	9://combo query remote
+		case	16://lovcombo query remote
 			buf.append("$:Select, placeholder: getLocMsg('select_placeholder'), options:options.").append(fc.getDsc()).append("||[],valueKey:'id', labelKey:'dsc',clearable:").append(fc.getNotNullFlag()==0);
+			if(fc.getControlTip()==16)buf.append(",multi:true");
 			break;
 		case	10://advanced select: TODO ilk geldiginde oo loadOptions'ta atanacak
 			if (value != null && cellResult.getLookupQueryResult() != null && cellResult.getLookupQueryResult().getData().size() > 0) {
 				Object[] oo = cellResult.getLookupQueryResult().getData().get(0);
 			}
-			
+			int maxRows = FrameworkCache.getAppSettingIntValue(0,
+					"advanced_select_max_rows");
+			if (maxRows == 0)
+				maxRows = 100;
 			buf.append("$:Select.Async, isLoading:true, valueKey:'id', labelKey:'dsc', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder"))
-				.append("', loadOptions:function(input, callback){if(!input)callback();else iwb.request({url:'ajaxQueryData?_renderer=react16&_qid=").append(fc.getLookupQueryId());
+				.append("', loadOptions:function(input, callback){if(!input)callback();else iwb.request({url:'ajaxQueryData?_renderer=react16&_qid=").append(fc.getLookupQueryId()).append("&limit=").append(maxRows);
 			if(!GenericUtil.isEmpty(fc.getLookupIncludedParams()))buf.append("&").append(fc.getLookupIncludedParams());
 			buf.append("', params:{xdsc:input}, successCallback:function(result, cfg){callback(null, {options: result.data,complete: false});}});},clearable:").append(fc.getNotNullFlag()==0);
 		break; // advanced select
@@ -2126,7 +2131,7 @@ public class React16 implements ViewAdapter {
 		}
 		buf.append(",name:'").append(fc.getDsc()).append("'");//,id:'").append(fc.getDsc()).append("'");
 		
-		if(fc.getControlTip()!=3 && fc.getControlTip()!=4 && fc.getControlTip()!=5 && fc.getNotNullFlag()!=0)buf.append(",required:true, className:'xrequired'");
+		if(fc.getControlTip()!=3 && fc.getControlTip()!=4 && fc.getControlTip()!=5 && fc.getControlTip()!=22 && fc.getNotNullFlag()!=0)buf.append(",required:true, className:'xrequired'");
 		buf.append(", label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("'");
 
 		if(formResult!=null){ //FORM
@@ -2146,7 +2151,7 @@ public class React16 implements ViewAdapter {
 			case	9:	case	10:
 				buf.append(",onChange:this.onComboChange('").append(fc.getDsc()).append("')");
 				break;
-			case	8:	case	58: case	15:case	59://fc.getControlTip()==8 ||fc.getControlTip()==58 || fc.getControlTip()==15 ||fc.getControlTip()==59
+			case	8:	case	58: case	15:case 16:case	59://fc.getControlTip()==8 ||fc.getControlTip()==58 || fc.getControlTip()==15 ||fc.getControlTip()==59
 				buf.append(",onChange:this.onLovComboChange('").append(fc.getDsc()).append("')");
 				break;
 			case	3:	case	4:
@@ -2157,6 +2162,9 @@ public class React16 implements ViewAdapter {
 				break;
 			case	12:	//html editor:
 				buf.append(",onHtmlChange:this.onHtmlChange('").append(fc.getDsc()).append("')");
+				break;
+			case 22:
+				buf.append(",onChange:this.onTimeChange('").append(fc.getDsc()).append("')");
 				break;
 			default:
 				buf.append(",onChange:this.onChange");
@@ -2411,6 +2419,10 @@ public class React16 implements ViewAdapter {
 		//azat card
 		if (d.get_defaultCrudForm() != null) {
 			W5Table t = FrameworkCache.getTable(scd, d.get_defaultCrudForm().getObjectId());
+			if(FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+				buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
+				.append(LocaleMsgCache.get2(scd,d.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
+			
 			boolean insertFlag = GenericUtil.accessControl(scd,t.getAccessInsertTip(), t.getAccessInsertRoles(),t.getAccessInsertUsers());
 			buf.append(",\n crudFormId:")
 				.append(d.getDefaultCrudFormId())
@@ -2633,7 +2645,7 @@ public class React16 implements ViewAdapter {
 		
 		String uniqueId = GenericUtil.getNextId("ng");
 		if(false)buf.append(",striped:true,hover:true,bordered:false,");
-		buf.append(",name:'").append(LocaleMsgCache.get2(customizationId, xlocale,
+		buf.append(",name:'").append(LocaleMsgCache.get2(scd,
 						g.getLocaleMsgKey())).append("',\n id:'").append(uniqueId).append("'");
 
 		
@@ -2679,6 +2691,11 @@ public class React16 implements ViewAdapter {
 				boolean insertFlag = GenericUtil.accessControl(scd,
 						t.getAccessInsertTip(), t.getAccessInsertRoles(),
 						t.getAccessInsertUsers());
+
+				if(FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+					buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
+					.append(LocaleMsgCache.get2(scd,g.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
+				
 				buf.append(",\n crudFormId:")
 						.append(g.getDefaultCrudFormId())
 						.append(", crudTableId:")
