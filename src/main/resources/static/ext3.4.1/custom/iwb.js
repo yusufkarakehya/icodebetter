@@ -2056,7 +2056,7 @@ function addDefaultCrudButtons(xbuttons, xgrid, modalflag) {
   if (xgrid.gridId && xgrid.crudFlags.insert) {
     var cfg = {
       id: "btn_add_" + xgrid.id,
-      tooltip: getLocMsg("js_new"),
+      tooltip: xgrid.newRecordLabel || getLocMsg("js_new"),
       cls: "x-btn-icon x-grid-new",
       ref: "../btnInsert",
       showModalWindowFlag: modalflag || false,
@@ -3633,7 +3633,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 		  if (mainGrid.crudFlags.insert) {
 			    var cfg = {
 			      id: "btn_add_" + mainGrid.id,
-			      tooltip: getLocMsg("js_new") + ' ' + (mainGrid._dscLabel || 'Record'),
+			      tooltip: mainGrid.newRecordLabel || (getLocMsg("js_new") + ' ' + (mainGrid._dscLabel || 'Record')),
 			      cls: "x-btn-icon x-grid-new",
 			      ref: "../btnInsert",
 			      showModalWindowFlag: false,
@@ -5836,7 +5836,7 @@ function prepareDetailGridCRUDButtons(grid, pk, toExtraButtonsFlag) {
   if (grid.crudFlags) {
     if (grid.crudFlags.insertEditMode) {
       buttons.push({
-        tooltip: getLocMsg("js_add"),
+        tooltip: grid.newRecordLabel || getLocMsg("js_add"),
         cls: "x-btn-icon x-grid-new",
         _grid: grid,
         handler: fnRowInsert2

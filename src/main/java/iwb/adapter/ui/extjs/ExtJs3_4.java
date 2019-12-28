@@ -3815,6 +3815,9 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 				buf.append("]");
 				if(dataCount>2)buf.append(",columns:2");
+				if(!GenericUtil.isEmpty(cellResult.getValue()))buf.append(",value:'").append(GenericUtil.stringToJS(cellResult.getValue()))
+					.append("'");;
+						
 				if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
 				buf.append("})");
 				return buf;
@@ -4490,6 +4493,10 @@ public class ExtJs3_4 implements ViewAdapter {
 		}
 		if(c.get_defaultCrudForm()!=null) {
 			if(FrameworkSetting.vcs && c.get_crudTable().getVcsFlag()!=0)buf.append(",\n vcs:!0");
+			if(FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+				buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(cr.getScd(),"new_record_prefix"))
+				.append(LocaleMsgCache.get2(cr.getScd(),c.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
+
 			buf.append(",\n crudFormId:")
 			.append(c.getDefaultCrudFormId())
 			.append(serializeCrudFlags(cr.getScd(), c.get_crudTable(), false));
@@ -4837,6 +4844,11 @@ public class ExtJs3_4 implements ViewAdapter {
 						t.getAccessInsertTip(), t.getAccessInsertRoles(),
 						t.getAccessInsertUsers());
 				if(FrameworkSetting.vcs && t.getVcsFlag()!=0)buf.append(",\n vcs:!0");
+				
+				if(FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+					buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
+					.append(LocaleMsgCache.get2(scd,g.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
+
 				
 				buf.append(",\n crudFormId:")
 						.append(g.getDefaultCrudFormId())
