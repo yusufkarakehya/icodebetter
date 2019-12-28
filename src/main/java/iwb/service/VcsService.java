@@ -244,6 +244,11 @@ public class VcsService {
 						Log4Crud(po.getRdbmsSchema(), t, action, srvVcsCommitId, tablePk, jo);
 					}
 
+				} else {
+					result.put("success", false);
+					result.put("error", s);
+					return result;
+					
 				}
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientObjectPullMulti:JSONException", 0, s, "Error", e);
@@ -308,9 +313,14 @@ public class VcsService {
 				s.append("select x.* from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 				s.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
 				List p= new ArrayList();p.add(tablePk);
-				Map mo =(Map)dao.executeSQLQuery2Map(s.toString(), p).get(0);
-				
-				m.put("object", mo);
+				List<Map> lm =dao.executeSQLQuery2Map(s.toString(), p);
+				if(!GenericUtil.isEmpty(lm)) {
+					Map mo =(Map)lm.get(0);
+					m.put("object", mo);
+				} else {
+					//m.put("object", new HashMap());
+					continue;
+				}
 				m.put("action", vcsCommitId==0 ? 2:1);
 			}
 		

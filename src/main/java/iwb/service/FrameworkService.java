@@ -10,10 +10,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
@@ -37,8 +39,11 @@ import iwb.domain.db.Log5JobAction;
 import iwb.domain.db.Log5Transaction;
 import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
+import iwb.domain.db.W5ExcelImport;
+import iwb.domain.db.W5ExcelImportSheet;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5FormCell;
+import iwb.domain.db.W5ExcelImportSheetData;
 import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
@@ -76,6 +81,7 @@ import iwb.engine.UIEngine;
 import iwb.engine.WorkflowEngine;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
+import iwb.util.ExcelUtil;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 import iwb.util.UserUtil;
@@ -2142,5 +2148,41 @@ public class FrameworkService {
 	public W5GridReportHelper prepareGridReport(Map<String, Object> scd, int gridId, String gridColumns,
 			Map<String, String> requestParams) {
 		return queryEngine.prepareGridReport(scd, gridId, gridColumns, requestParams);
+	}
+
+	public int saveExcelImport(Map<String, Object> scd, String fileName, String systemFileName, LinkedHashMap<String, List<HashMap<String, String>>> parsedData) {
+    	W5ExcelImport im = new W5ExcelImport();
+    	im.setProjectUuid((String)scd.get("projectId"));
+    	im.setDsc(fileName);
+    	im.setInsertUserId(GenericUtil.uInt(scd.get("userId")));
+    	im.setSystemFileName(systemFileName);
+    	dao.saveObject(im);
+    	short sheetNo = 1;
+    	for(Entry<String, List<HashMap<String, String>>> sheet : parsedData.entrySet())if(sheet.getValue()!=null && sheet.getValue().size()>0){
+        	W5ExcelImportSheet ims = new W5ExcelImportSheet();
+        	ims.setProjectUuid(im.getProjectUuid());
+        	ims.setDsc(sheet.getKey());
+        	ims.setTabOrder(sheetNo++);
+        	ims.setExcelImportId(im.getExcelImportId());
+        	dao.saveObject(ims); 	
+        	
+        	List<Object> toBeSaved = new ArrayList();
+
+    		for(int i=0; i<sheet.getValue().size(); i++){
+	    		W5ExcelImportSheetData imd = new W5ExcelImportSheetData();
+	    		imd.setRowNo(i+1);
+	    		imd.setExcelImportSheetId(ims.getExcelImportSheetId());
+	    		imd.setProjectUuid(im.getProjectUuid());
+	    		for(Entry<String, String> entryCols : sheet.getValue().get(i).entrySet()){
+	    			imd.setCell(entryCols.getKey(),entryCols.getValue());	
+	    		}
+	    		toBeSaved.add(imd);
+    		}
+    		if(toBeSaved.size()>0)for(Object o:toBeSaved) dao.saveObject(o);
+    	}
+
+    	return im.getExcelImportId();
+		
+		
 	}
 }

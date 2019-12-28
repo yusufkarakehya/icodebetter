@@ -22,10 +22,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -60,7 +62,9 @@ import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5UserAction;
 import iwb.domain.db.W5BIGraphDashboard;
+import iwb.domain.db.W5ExcelImport;
 import iwb.domain.db.W5FileAttachment;
+import iwb.domain.db.W5ExcelImportSheetData;
 import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
@@ -82,6 +86,7 @@ import iwb.report.RptPdfRenderer;
 import iwb.service.FrameworkService;
 import iwb.service.VcsService;
 import iwb.timer.Action2Execute;
+import iwb.util.ExcelUtil;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 import iwb.util.MQUtil;
@@ -2468,5 +2473,49 @@ public class AppController implements InitializingBean {
 
 	}
 	
+	@RequestMapping(value ="/excelImport", method = RequestMethod.POST)
+	@ResponseBody
+	public String fileImportHandler(
+		@RequestParam("file") MultipartFile file,
+		HttpServletRequest request,
+		HttpServletResponse response
+	)throws IOException{
+		logger.info("fileImportHandler");	
+		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+	    int excelImportId = 0;
+		try {
+			if(!file.isEmpty()){
+				String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
+						+ File.separator + scd.get("customizationId") + File.separator + "attachment";
+		
+				File dirPath = new File(path);
+			    if (!dirPath.exists()) {
+			    	if(!dirPath.mkdirs()) return "{ \"success\":false, \"msg\":\"wrong file path: "+path+"\"}";
+			    }
+			    // f.transferTo(new File(path + File.separator + fa.getSystemFileName()));
+			    String uploadedFilePath = path + File.separator + GenericUtil.strUTF2En(file.getOriginalFilename());
+			    String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1).toLowerCase();
+			    File tmpFile = new File(uploadedFilePath);
+			    file.transferTo(tmpFile);
+			    if(extension.compareTo("xls") == 0 || extension.compareTo("xlsx") == 0){
+			    	//// VeritabanÄ±na kaydetme bitti 
+			    	ExcelUtil p = new ExcelUtil(tmpFile.getPath());
+			    	// ilk veri hangi sheet olduÄŸu, sonraki hangi satÄ±r olduÄŸu
+			    	LinkedHashMap<String,List<HashMap<String,String>>> parsedData = p.parseExcel();			    	
+			    	
+			    	if(parsedData != null && parsedData.size() > 0){
+			    		excelImportId = service.saveExcelImport(scd, tmpFile.getName(), uploadedFilePath, parsedData);
+			    	}		    	
+			    }else if(extension.compareTo("csv") == 0){
+			    	
+			    }
+//			    tmpFile.delete();
+			}
+			return "{ \"success\": true , \"excelImportId\": "+excelImportId+", \"excel_import_id\":"+excelImportId+"}";
+		} catch (Exception e){
+			if(FrameworkSetting.debug)e.printStackTrace();
+			return "{ \"success\": false }";
+		}
+	}	
 	
 }
