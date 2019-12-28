@@ -5,10 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import org.graalvm.polyglot.Value;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 public class ScriptUtil {

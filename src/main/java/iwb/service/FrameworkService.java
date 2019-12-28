@@ -14,8 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
@@ -41,9 +41,8 @@ import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5ExcelImport;
 import iwb.domain.db.W5ExcelImportSheet;
-import iwb.domain.db.W5FileAttachment;
-import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5ExcelImportSheetData;
+import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
@@ -51,7 +50,6 @@ import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5Tutorial;
-import iwb.domain.db.W5UploadedImport;
 import iwb.domain.db.W5VcsCommit;
 import iwb.domain.db.W5VcsObject;
 import iwb.domain.db.W5WorkflowRecord;
@@ -81,7 +79,6 @@ import iwb.engine.UIEngine;
 import iwb.engine.WorkflowEngine;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
-import iwb.util.ExcelUtil;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 import iwb.util.UserUtil;
@@ -532,144 +529,6 @@ public class FrameworkService {
 		return workflowEngine.approveRecord(scd, approvalRecordId, approvalAction, parameterMap);
 	}
 
-	public W5FormResult importUploadedData(Map<String, Object> scd, int uploadedImportId,
-			Map<String, String> requestParams) {
-		W5UploadedImport ui = (W5UploadedImport) dao
-				.find("from W5UploadedImport t where t.customizationId=? and t.uploadedImportId=?",
-						scd.get("customizationId"), uploadedImportId)
-				.get(0);
-		W5FormResult formResult = metaDataDao.getFormResult(scd, ui.getFormId(), 2, requestParams);
-		W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
-		String locale = (String) scd.get("locale");
-		/*
-		 * if(t.getAccessViewTip()==0 && !PromisCache.roleAccessControl(scd, 0)){ throw
-		 * new PromisException("security","Module", 0, null,
-		 * "Modul Kontrol: Erişim kontrolünüz yok", null); }
-		 * if(!PromisUtil.accessControl(scd, t.getAccessViewTip(),
-		 * t.getAccessViewRoles(), t.getAccessViewUsers())){ throw new
-		 * PromisException("security","Form", ui.getFormId(), null,
-		 * PromisLocaleMsg.get2(0,(String)scd.get("locale"),
-		 * "fw_guvenlik_tablo_kontrol_goruntuleme"), null); }
-		 */
-		PostFormTrigger.beforePostForm(formResult, dao, "");
-
-		// accessControl4FormTable(formResult);
-		if (formResult.isViewMode()) {
-			throw new IWBException("security", "Form", ui.getFormId(), null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_guncelleme"), null);
-		}
-		List<Object[]> uicl = dao.find(
-				"select x.mappingType,x.importColumn,x.formCellId,x.defaultValue,y.dsc from W5UploadedImportCol x,W5FormCell y where y.customizationId=x.customizationId and y.customizationId=? AND y.formCellId=x.formCellId AND x.uploadedImportId=? order by y.tabOrder",
-				scd.get("customizationId"), uploadedImportId);
-		List<Object> sqlParams = new ArrayList();
-		String detailSql = "select x.row_no";
-		for (Object[] o : uicl) {
-			short mappingType = (Short) o[0];
-			String importColumn = (String) o[1];
-			int formCellId = (Integer) o[2];
-			String dsc = (String) o[4];
-			if (/* importColumn==null || */ dsc == null)
-				continue;
-			switch (mappingType) {
-			case 0: // constant
-				if (o[3] != null)
-					requestParams.put(dsc, (String) o[3]);
-				break;
-			case 1: // row-data
-				if (o[3] != null) {
-					detailSql += ", coalesce(x." + importColumn + ",?) " + dsc;
-					sqlParams.add(o[3]);
-				} else
-					detailSql += ", x." + importColumn + " " + dsc;
-				break;
-			case 2: // mapping
-				short cellControlTip = 0;
-				int cellLookupQueryId = 0;
-				for (W5FormCell c : formResult.getForm().get_formCells()) {
-					if (c.getFormCellId() == formCellId) {
-						cellControlTip = c.getControlTip();
-						cellLookupQueryId = c.getLookupQueryId();
-						break;
-					}
-				}
-				if (cellControlTip == 6) { // static lookup
-					detailSql += ", (select ld.val from iwb.w5_look_up_detay ld where ld.customization_id=x.customization_id and ld.look_up_id="
-							+ cellLookupQueryId + " and lower(iwb.fnc_locale_msg(ld.customization_id,ld.dsc,'" + locale
-							+ "'))=lower(x." + importColumn + "))" + dsc;
-				} else if (cellControlTip == 7 || cellControlTip == 9) { // lookup
-																			// query
-					W5QueryResult queryResult = metaDataDao.getQueryResult(scd, cellLookupQueryId);
-					if (queryResult.getMainTable() != null) {
-						boolean dscExists = false;
-						for (W5TableField f : queryResult.getMainTable().get_tableFieldList()) {
-							if (f.getDsc().equals("dsc")) {
-								dscExists = true;
-								break;
-							}
-						}
-						if (dscExists) {
-							String pk = queryResult.getMainTable().get_tableParamList().get(0).getExpressionDsc();
-							detailSql += ", (select d." + pk + " from " + queryResult.getMainTable().getDsc()
-									+ " d where d.customization_id=x.customization_id and lower(d.dsc)=lower(x."
-									+ importColumn + "))" + dsc;
-						} else
-							detailSql += ", x." + importColumn + " " + dsc;
-					}
-				} else {
-					/*
-					 * sqlParams.add(ui.getFileAttachmentId()); sqlParams.add(formCellId);
-					 * if(o[3]!=null){ detailSql+=
-					 * ", coalesce((select q.import_lookup_val from iwb.w5_uploaded_import_col_map q where q.customization_id=x.customization_id and q.file_attachment_id=? AND q.form_cell_id=? AND q.import_val=x."
-					 * +importColumn+"),?)" + dsc; sqlParams.add(o[3]); } else detailSql+=
-					 * ", (select q.import_lookup_val from iwb.w5_uploaded_import_col_map q where q.customization_id=x.customization_id and q.file_attachment_id=? AND q.form_cell_id=? AND q.import_val=x."
-					 * +importColumn+")" + dsc;
-					 */
-					if (o[3] != null) {
-						detailSql += ", x." + importColumn + " " + dsc;
-					}
-				}
-				break;
-			case 3: // auto-increment
-				detailSql += ", rownum " + dsc;
-				break;
-			}
-		}
-		detailSql += " from iwb.w5_uploaded_data x where x.customization_id=? and x.file_attachment_id=? and x.row_no>="
-				+ (ui.getStartRowNo() - 1);
-		if (ui.getEndRowNo() != null) {
-			detailSql += " and x.row_no<" + ui.getEndRowNo();
-		}
-		detailSql += " order by x.row_no";
-		sqlParams.add(scd.get("customizationId"));
-		sqlParams.add(ui.getFileAttachmentId());
-
-		if (FrameworkSetting.debug)
-			System.out.println("ERALP-XXX: " + GenericUtil.replaceSql(detailSql, sqlParams));
-		List<Map> rl = dao.executeSQLQuery2Map(detailSql, sqlParams);
-		int errorCount = 0, importedCount = 0;
-		if (rl != null)
-			for (Map m : rl) {
-				m.putAll(requestParams);
-				formResult.setRequestParams(m);
-				formResult.setErrorMap(new HashMap());
-				dao.insertFormTable(formResult, "");
-				if (!formResult.getErrorMap().isEmpty()) { // hata var
-					if (ui.getRowErrorStrategyTip() == 1) { // throw error
-						formResult.getErrorMap().put(" [SATIR_NO]", m.get("row_no").toString());
-						return formResult;
-					} else
-						errorCount++;
-				} else
-					importedCount++;
-			}
-		formResult.getOutputFields().put("errorCount", errorCount);
-		formResult.getOutputFields().put("importedCount", importedCount);
-		// if(true)throw new PromisException("security","Form", ui.getFormId(),
-		// null,
-		// PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_guvenlik_tablo_kontrol_goruntuleme"),
-		// null);
-		return formResult;
-	}
 
 	public boolean runJob(W5JobSchedule job) {
 

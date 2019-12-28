@@ -1,6 +1,5 @@
 package iwb.engine;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,6 @@ import iwb.domain.db.W5Comment;
 import iwb.domain.db.W5Email;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormSmsMail;
-import iwb.domain.db.W5ObjectMailSetting;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowRecord;
 import iwb.domain.db.W5WorkflowStep;

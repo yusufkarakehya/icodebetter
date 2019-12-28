@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -62,9 +61,7 @@ import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5UserAction;
 import iwb.domain.db.W5BIGraphDashboard;
-import iwb.domain.db.W5ExcelImport;
 import iwb.domain.db.W5FileAttachment;
-import iwb.domain.db.W5ExcelImportSheetData;
 import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
@@ -461,21 +458,6 @@ public class AppController implements InitializingBean {
 		response.getWriter().close();
 	}
 
-
-	@RequestMapping("/importUploadedData")
-	public void hndImportUploadedData(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndImportUploadedData");
-
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-
-		response.setContentType("application/json");
-		W5FormResult formResult = service.importUploadedData(scd, GenericUtil.uInt(request, "_ui"),
-				GenericUtil.getParameterMap(request));
-		response.getWriter().write(getViewAdapter(scd, request).serializePostForm(formResult).toString());
-		response.getWriter().close();
-
-	}
 	
 	@RequestMapping("/ajaxApproveRecord")
 	public void hndAjaxApproveRecord(HttpServletRequest request, HttpServletResponse response)

@@ -40,7 +40,6 @@ import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
-import iwb.script.GraalScript;
 import iwb.script.NashornScript;
 import iwb.util.GenericUtil;
 import iwb.util.ScriptUtil;
