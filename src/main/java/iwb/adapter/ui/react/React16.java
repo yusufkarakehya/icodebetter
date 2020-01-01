@@ -1083,7 +1083,16 @@ public class React16 implements ViewAdapter {
 		//if(!GenericUtil.isEmpty(formResult.getForm().get_conversionList()))s.append(",_cnvStr:!0");
 		//if(!GenericUtil.isEmpty(formResult.getForm().get_formSmsMailList()))s.append(",_smsStr:!0");
 		
-		s.append("},options:{},activeTab:false}");
+		s.append("},\noptions:{");
+		b = false;
+		for (W5FormCellHelper fc : formResult.getFormCellResults())if (!GenericUtil.isEmpty(fc.getValue()) && fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlTip()==10
+				&& fc.getLookupQueryResult() != null && !GenericUtil.isEmpty(fc.getLookupQueryResult().getData())) {
+			if (b)s.append(","); else b = true;
+			Object[] oo = fc.getLookupQueryResult().getData().get(0);
+			s.append(fc.getFormCell().getDsc()).append(":[{id:'").append(oo[1]).append("',dsc:'").append(GenericUtil.stringToJS2(oo[0].toString())).append("'}]");
+		}
+
+		s.append("},activeTab:false}");
 		//\nif(this.componentWillPost)this.componentWillPost=this.componentWillPost.bind(this);
 		Map<String, List<W5FormCell>> pcr = new HashMap();
 		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && (fc.getFormCell().getControlTip()==9 ||fc.getFormCell().getControlTip()==16) && fc.getFormCell().getParentFormCellId()!=0 && !GenericUtil.isEmpty(fc.getFormCell().getLookupIncludedParams())) {//combo remote
@@ -2089,17 +2098,15 @@ public class React16 implements ViewAdapter {
 			if(fc.getControlTip()==16)buf.append(",multi:true");
 			break;
 		case	10://advanced select: TODO ilk geldiginde oo loadOptions'ta atanacak
-			if (value != null && cellResult.getLookupQueryResult() != null && cellResult.getLookupQueryResult().getData().size() > 0) {
-				Object[] oo = cellResult.getLookupQueryResult().getData().get(0);
-			}
+
 			int maxRows = FrameworkCache.getAppSettingIntValue(0,
 					"advanced_select_max_rows");
 			if (maxRows == 0)
 				maxRows = 100;
-			buf.append("$:Select.Async, isLoading:true, valueKey:'id', labelKey:'dsc', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder"))
-				.append("', loadOptions:function(input, callback){if(!input)callback();else iwb.request({url:'ajaxQueryData?_renderer=react16&_qid=").append(fc.getLookupQueryId()).append("&limit=").append(maxRows);
+			buf.append("$:Select.Async, cacheOptions:!0,/*isLoading:!0, */defaultOptions:options.").append(fc.getDsc()).append("||[],valueKey:'id', labelKey:'dsc', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder"))
+				.append("', loadOptions:(input, callback)=>{var xself=this;if(!input)callback();else iwb.request({url:'ajaxQueryData?_renderer=react16&_qid=").append(fc.getLookupQueryId()).append("&limit=").append(maxRows);
 			if(!GenericUtil.isEmpty(fc.getLookupIncludedParams()))buf.append("&").append(fc.getLookupIncludedParams());
-			buf.append("', params:{xdsc:input}, successCallback:function(result, cfg){callback(null, {options: result.data,complete: false});}});},clearable:").append(fc.getNotNullFlag()==0);
+			buf.append("', params:{xdsc:input}, successCallback:function(result, cfg){var options=xself.state.options||{};options.").append(fc.getDsc()).append("=result.data;xself.setState({options});callback(null, {options: result.data,complete: false});}});},clearable:").append(fc.getNotNullFlag()==0);
 		break; // advanced select
 		case	23://treecombo(local)
 		case	26://lovtreecombo(local) TODO
@@ -2142,13 +2149,19 @@ public class React16 implements ViewAdapter {
 			case	5:
 					buf.append(",checked:values.").append(fc.getDsc()).append("||false");
 					break; 
-				default:buf.append(",value:values.").append(fc.getDsc()).append("||''");
+			case	10:
+				buf.append(", value: values.").append(fc.getDsc()).append("||''");
+				break;
+			default:buf.append(",value:values.").append(fc.getDsc()).append("||''");
 			}
 		//	if(true)buf.append(",on:{onChange:function(newv, oldv){this.validate();}}");
 			
 			switch(fc.getControlTip()){
 			case	6:	case	7:
-			case	9:	case	10:
+			case	9:	
+				buf.append(",onChange:this.onComboChange('").append(fc.getDsc()).append("')");
+				break;
+			case 10:
 				buf.append(",onChange:this.onComboChange('").append(fc.getDsc()).append("')");
 				break;
 			case	8:	case	58: case	15:case 16:case	59://fc.getControlTip()==8 ||fc.getControlTip()==58 || fc.getControlTip()==15 ||fc.getControlTip()==59

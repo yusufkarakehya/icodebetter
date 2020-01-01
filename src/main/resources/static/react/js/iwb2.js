@@ -7862,6 +7862,7 @@ class XForm extends React.Component {
              */
             this.onComboChange = inputName => selectedOption => {
                 var { values } = this.state;
+                debugger
                 var slectedOption_Id = selectedOption && selectedOption.id;
                 values[inputName] = slectedOption_Id;
                 var triggers = this.triggerz4ComboRemotes;

@@ -7630,7 +7630,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cc_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        iconCls: "isave_cont",
+//        iconCls: "isave_cont",
         handler: function(a, b, c) {
           if (
             !getForm._cfg.formPanel.getForm().isDirty() &&
@@ -7656,6 +7656,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           if (!getForm._cfg.callback)
             getForm._cfg.callback = function(js, conf) {
               if (js.success) Ext.infoMsg.msg("info", "${operation_completed}");
+              if(extDef._tab_order.getValue)extDef._tab_order.setValue(extDef._tab_order.getValue()+1)
             };
           getForm._cfg.dontClose = 1;
           getForm._cfg.extraParams = {};
@@ -7671,7 +7672,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         iconAlign: "top",
         scale: "medium",
 
-        iconCls: "isave_new",
+//        iconCls: "isave_new",
         handler: function(a, b, c) {
           var r = null;
           if (extDef.componentWillPost) {
@@ -7692,6 +7693,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           if (!getForm._cfg.callback)
             getForm._cfg.callback = function(js, conf) {
               if (js.success) Ext.infoMsg.msg("info", "${operation_completed}");
+              if(extDef._tab_order.getValue)extDef._tab_order.setValue(extDef._tab_order.getValue()+1)
             };
           getForm._cfg.dontClose = 1;
           getForm._cfg.resetValues = 1;

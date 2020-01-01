@@ -370,6 +370,8 @@ public class NashornScript {
 						s = GenericUtil.fromListToJsonString2Recursive(l);
 					} else if (oMsg instanceof Map) {
 						s = GenericUtil.fromMapToJsonString2Recursive((Map) oMsg);
+					} else if (oMsg instanceof JSONObject) {
+						s = GenericUtil.fromMapToJsonString2Recursive(GenericUtil.fromJSONObjectToMap((JSONObject)oMsg));
 					} else {
 						s = "Undefined Object Type: " + oMsg.toString();
 					}

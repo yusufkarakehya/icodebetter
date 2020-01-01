@@ -3521,7 +3521,45 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 			}
 			return buf.append("})");
+		case 62: // superboxselect-free-text
+			buf.setLength(0);
 
+			buf.append(" new Ext.ux.form.SuperBoxSelect({")
+					.append(uniqeId)
+					.append("_controlTip:")
+					.append(controlTip)
+					.append(",labelSeparator:'',fieldLabel: '")
+					.append(fieldLabel)
+					.append("',hiddenName: '")
+					.append(cellDsc)
+					.append("'");
+
+			buf.append(",allowAddNewData:true, \nstore: new Ext.data.SimpleStore({id:0,fields: ['dsc'],data : [");
+			if(!GenericUtil.isEmpty(value)) {
+				String[] values = value.split(",");
+				for(int qi=0;qi<values.length;qi++)
+					buf.append("['").append(GenericUtil.stringToJS(values[qi])).append("'],");
+				buf.setLength(buf.length()-1);
+				
+			}
+			buf.append("]}),valueField:'dsc',displayField:'dsc',hideOnSelect:false,triggerAction: 'all',typeAhead:false,mode:'local'");
+		
+			if (fc.getControlWidth() > 0)
+				buf.append(",width:").append(fc.getControlWidth());
+			if (value != null && value.length() > 0)
+				buf.append(",value:'").append(GenericUtil.stringToJS(value))
+						.append("'");
+			if (fc.getNrdTip() != 0)
+				buf.append(",disabled:true");
+			if (notNull)
+				buf.append(",allowBlank:false");
+			if (fc.getExtraDefinition() != null
+					&& fc.getExtraDefinition().length() > 1) // ornegin
+																// ,tooltip:'ali'
+																// gibi
+				buf.append(fc.getExtraDefinition());
+			//if (liveSyncStr != null)buf.append(",listeners:{").append(liveSyncStr).append("}");
+			return buf.append("})");
 		case 61: // superboxselect-combo-query-advanced
 			buf.setLength(0);
 			int maxRows1 = FrameworkCache.getAppSettingIntValue(0,
