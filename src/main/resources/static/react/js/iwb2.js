@@ -7862,7 +7862,6 @@ class XForm extends React.Component {
              */
             this.onComboChange = inputName => selectedOption => {
                 var { values } = this.state;
-                debugger
                 var slectedOption_Id = selectedOption && selectedOption.id;
                 values[inputName] = slectedOption_Id;
                 var triggers = this.triggerz4ComboRemotes;
@@ -8108,7 +8107,7 @@ class XForm extends React.Component {
             this.onTimeChange = (inputName) => momentObject => {
             	var time = momentObject;
             	if(typeof(momentObject) !== "string"){
-            		time = momentObject.format("hh:mm");
+            		time = momentObject.format("hh:mm a");
             	}
             	var values = this.state.values;
             	values[inputName] = time;

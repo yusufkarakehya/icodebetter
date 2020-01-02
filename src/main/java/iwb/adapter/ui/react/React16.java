@@ -1303,6 +1303,7 @@ public class React16 implements ViewAdapter {
 					buf.append("detailGrids:[");
 				}
 				buf.append("{grid:").append(gr.getGrid().getDsc());
+
 				if(gr.getGrid().get_crudTable()!=null){
 					W5Table t = gr.getGrid().get_crudTable();
 					buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
@@ -1313,6 +1314,11 @@ public class React16 implements ViewAdapter {
 						buf.append(",").append(gr.getTplObj().get_dstStaticQueryParamName()).append(":'!").append(gr.getTplObj().getDstStaticQueryParamVal()).append("'");
 					}
 					buf.append("}");
+				}
+				if(!GenericUtil.isEmpty(gr.getTplObj().getPostJsCode())) {
+					String s = gr.getTplObj().getPostJsCode();
+					if(s.charAt(0)!=',')buf.append(",");
+					buf.append(gr.getTplObj().getPostJsCode());
 				}
 				StringBuilder rbuf = recursiveTemplateObject(l, gr.getTplObj().getTemplateObjectId(), level+1);
 				if(rbuf!=null && rbuf.length()>0)
@@ -2015,7 +2021,7 @@ public class React16 implements ViewAdapter {
 			break;//string
 		case	2:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:false, closeOnSelect:true");break; //TODO:date
 		case	18:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:'HH:mm'");break; //TODO:datetime
-		case	22:buf.append("$:Datetime, dateFormat:false, className:'rdt-time', timeFormat:'H:mm'");break; //TODO:time
+		case	22:buf.append("$:Datetime, dateFormat:false, className:'rdt-time', timeFormat:'hh:mm a'");break; //TODO:time
 		case	3://double
 		case	4://integer
 			buf.append("$:NumberFormat,style:{textAlign:'right'},className:'form-control");
