@@ -1089,7 +1089,7 @@ public class React16 implements ViewAdapter {
 				&& fc.getLookupQueryResult() != null && !GenericUtil.isEmpty(fc.getLookupQueryResult().getData())) {
 			if (b)s.append(","); else b = true;
 			Object[] oo = fc.getLookupQueryResult().getData().get(0);
-			s.append(fc.getFormCell().getDsc()).append(":[{id:'").append(oo[1]).append("',dsc:'").append(GenericUtil.stringToJS2(oo[0].toString())).append("'}]");
+			s.append(fc.getFormCell().getDsc()).append(":[{id:'").append(oo[1]).append("',dsc:'").append(GenericUtil.stringToJS(oo[0].toString())).append("'}]");
 		}
 
 		s.append("},activeTab:false}");
@@ -1120,7 +1120,7 @@ public class React16 implements ViewAdapter {
 			s.append(k).append(":[");
 			List<W5FormCell> lfc = pcr.get(k);
 			for(W5FormCell fc:lfc){
-				s.append("{n:'").append(fc.getDsc()).append("', f:function(ax,bx,cx){\n").append(fc.getLookupIncludedParams()).append("\n}},");
+				s.append("{n:'").append(fc.getDsc()).append("', f:(ax,bx,cx)=>{\n").append(fc.getLookupIncludedParams()).append("\n}},");
 			}
 			s.setLength(s.length()-1);
 			s.append("]");
@@ -2032,7 +2032,7 @@ public class React16 implements ViewAdapter {
 				buf.append(",decimalScale:0");
 			break;//int
 		case	5:buf.append("type:'checkbox', className:'switch-input'");break;
-		case	100:buf.append("$:Button,color:'primary',onClick:function(ax){").append(fc.getDefaultValue()).append("},children:[");
+		case	100:buf.append("$:Button,color:'primary',onClick:(ax){").append(fc.getDefaultValue()).append("},children:[");
 				if(fc.getLocaleMsgKey().startsWith("icon-"))buf.append("_('i',{className:'").append(fc.getLocaleMsgKey()).append("'})]");
 				else buf.append("'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("']");
 				if(fc.getControlWidth()>0)buf.append(",width:").append(fc.getControlWidth());

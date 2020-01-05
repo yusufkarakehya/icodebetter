@@ -2375,29 +2375,43 @@ public class ExtJs3_4 implements ViewAdapter {
 		switch (controlTip) {
 		case 100:// button
 			buf.setLength(0);
-			buf.append("new Ext.Button({_controlTip:100,width:").append(
+			buf.append("new Ext.Button({_controlTip:100,cls:'x-btn-fc',width:").append(
 					fc.getControlWidth());
-			if (fieldLabel != null && !fieldLabel.equals("."))
-				buf.append(",text:'").append(fieldLabel).append("'");
-			if (cellResult.getExtraValuesMap() != null
-					&& cellResult.getExtraValuesMap().get("iconcls") != null)
-				buf.append(",iconCls:'")
-						.append(cellResult.getExtraValuesMap().get("iconcls"))
-						.append("'");
-			else if (fc.getLookupIncludedParams() != null
-					&& fc.getLookupIncludedParams().length() > 1)
-				buf.append(",iconCls:'").append(fc.getLookupIncludedParams())
-						.append("'");
-			if (cellResult.getExtraValuesMap() != null
-					&& cellResult.getExtraValuesMap().get("tooltip") != null)
-				buf.append(",tooltip:'")
-						.append(cellResult.getExtraValuesMap().get("tooltip"))
-						.append("'");
-			else if (fc.getLookupIncludedValues() != null
-					&& fc.getLookupIncludedValues().length() > 1)
-				buf.append(",tooltip:'")
-						.append(LocaleMsgCache.get2(customizationId, xlocale,
-								fc.getLookupIncludedValues())).append("'");
+			String text = "";
+			fieldLabel = fc.getLocaleMsgKey();
+			String icon = cellResult.getFormCell().getLookupIncludedParams();
+			Map evm = cellResult.getExtraValuesMap();
+			
+			if (evm != null) {
+				if (evm.get("xlabel") != null)
+					fieldLabel = evm.get("xlabel").toString();
+				if (evm.get("icon") != null)
+					icon = evm.get("icon").toString();
+				if (evm.get("value") != null)
+					buf.append(",_value:'").append(evm.get("value")).append("'");
+				if (evm.get("hidden") != null)
+					buf.append(",hidden:").append(GenericUtil.uInt(evm.get("hidden"))!=0);
+			}
+
+			if(!GenericUtil.isEmpty(icon)) {
+				if(!icon.startsWith("icon-"))icon="icon-"+icon;
+				text = "<i class=\""+icon+"\"></i>";
+				
+			}
+			if (fieldLabel.equals(".")) {
+				if(GenericUtil.isEmpty(text))text="&nbsp;";
+				buf.append(",text:'").append(text).append("'");
+			} else if(fieldLabel.startsWith(".")) {
+				if(GenericUtil.isEmpty(text))text="&nbsp;";
+				buf.append(",text:'").append(text).append("', tooltip:'")
+				.append(LocaleMsgCache.get2(customizationId, xlocale, fieldLabel.substring(1)))
+				.append("'");;
+			} else {
+				if(!GenericUtil.isEmpty(text))text+=" &nbsp; "+fieldLabel;
+				buf.append(",text:'").append(text).append("'");
+				
+			}
+
 
 			buf.append(",handler:function(a,b,c){\nvar result=")
 					.append(cellResult.getExtraValuesMap() != null ? GenericUtil

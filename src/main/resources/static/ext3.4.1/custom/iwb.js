@@ -4075,7 +4075,7 @@ function ajaxAuthenticateUser() {
 
 function showLoginDialog(xobj) {
   if (1 * _scd.customizationId > 0) {
-    document.location = "/app/index.html";
+    document.location = "login.htm?.r="+Math.random();
     return;
   }
   if (lw && lw.isVisible()) return;
@@ -4093,12 +4093,12 @@ function showLoginDialog(xobj) {
     buttonAlign: "center",
     buttons: [
       {
-        text: getLocMsg("js_giris"),
+        text: getLocMsg("login"),
         // iconCls: 'button-enter',
         handler: ajaxAuthenticateUser
       },
       {
-        text: getLocMsg("js_cikis"),
+        text: getLocMsg("exit"),
         // iconCls: 'button-exit',
         handler: function() {
           document.location = "login.htm?r=" + new Date().getTime();
