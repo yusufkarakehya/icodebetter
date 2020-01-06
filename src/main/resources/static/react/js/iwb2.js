@@ -2240,32 +2240,43 @@ const XPreviewFile = ({ file }) => {
     let style = {
         fontSize: "12em"
     };
-    switch (type) {
-        case "image/png":
-            return _("img", {
-                src: URL.createObjectURL(file),
-                className: "img-fluid rounded"
-            });
-        case "text/plain":
-            return _("i", {
-                style,
-                className: "fas fa-file-alt m-auto"
-            });
-        case "application/pdf":
-            return _("i", {
-                style,
-                className: "fas fa-file-pdf m-auto"
-            });
-        default:
-            return _(
-                "div", { className: "m-auto text-center" },
-                file ?
-                _("i", { className: "far fa-file", style }) :
-                _("i", { className: "fas fa-upload", style }),
-                _("br", null),
-                getLocMsg(file ? "undefined_type" : "choose_file_or_drag_it_here")
-            );
+    if(type == "image/png" || type == "image/jpeg" || type == "image/jpg" || type == "image/gif" ){
+    	return _("img", {
+            src: URL.createObjectURL(file),
+            className: "img-fluid rounded"
+        });
     }
+    if(type == "text/csv" || type == "text/plain"){
+    	return _("div", { className: "m-auto text-center" },
+        		_("i", {style,className: "fas fa-file-alt m-auto"}),
+    	        _("br", null),
+    	        file ? file.name : ""
+    	    );
+    }
+    if(type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+    	|| type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    		|| type == "application/vnd.ms-excel"){
+    	return _("div", { className: "m-auto text-center" },
+    		_("i", {style,className: "fas fa-file-alt m-auto"}),
+	        _("br", null),
+	        file ? file.name : ""
+	    );
+    }
+    if(type == "application/pdf"){
+    	return _("div", { className: "m-auto text-center" },
+        		_("i", {style,className: "fas fa-file-pdf m-auto"}),
+    	        _("br", null),
+    	        file ? file.name : ""
+    	    );
+    }
+    return _(
+            "div", { className: "m-auto text-center" },
+            file ?
+            _("i", { className: "far fa-file", style }) :
+            _("i", { className: "fas fa-upload", style }),
+            _("br", null),
+            getLocMsg(file ? "undefined_type" : "choose_file_or_drag_it_here")
+        );
 };
 class XListFiles extends React.Component {
     constructor() {
@@ -2373,7 +2384,7 @@ class XSingleUploadComponent extends React.Component {
             this.onDeleteFile = this.onDeleteFile.bind(this);
             this.onclick = this.onclick.bind(this);
             this.onchange = this.onchange.bind(this);
-            this.uplaodFile = this.uplaodFile.bind(this);
+            this.uploadFile = this.uploadFile.bind(this);
         }
         /** function to click input ref click */
     onclick(event) {
@@ -2412,7 +2423,7 @@ class XSingleUploadComponent extends React.Component {
                     file: event.dataTransfer.files[0]
                 },
                 () => {
-                    this.uplaodFile();
+                    this.uploadFile();
                 }
             );
         }
@@ -2426,7 +2437,7 @@ class XSingleUploadComponent extends React.Component {
                     file: event.target.files[0]
                 },
                 () => {
-                    this.uplaodFile();
+                    this.uploadFile();
                 }
             );
         }
@@ -2441,7 +2452,7 @@ class XSingleUploadComponent extends React.Component {
             });
         }
         /** uploader function */
-    uplaodFile() {
+    uploadFile() {
         // event.preventDefault();
         // event.stopPropagation();
         if (!this.state.file) {
@@ -8166,7 +8177,7 @@ class FileInput extends React.Component {
         this.dragover = this.dragover.bind(this);
         this.onclick = this.onclick.bind(this);
         this.onchange = this.onchange.bind(this);
-        this.uplaodFile = this.uplaodFile.bind(this);
+        this.uploadFile = this.uploadFile.bind(this);
         /** */
         this.downladLink = url => e => {
             e.preventDefault();
@@ -8217,7 +8228,7 @@ class FileInput extends React.Component {
                     file: event.dataTransfer.files[0]
                 },
                 () => {
-                    this.uplaodFile();
+                    this.uploadFile();
                 }
             );
         }
@@ -8231,12 +8242,12 @@ class FileInput extends React.Component {
                     file: event.target.files[0]
                 },
                 () => {
-                    this.uplaodFile();
+                    this.uploadFile();
                 }
             );
         }
         /** uploader function */
-    uplaodFile() {
+    uploadFile() {
         if (!this.state.file) {
             return;
         }
