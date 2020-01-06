@@ -42,6 +42,7 @@ import iwb.domain.db.W5Email;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
+import iwb.domain.db.W5FormCellProperty;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5FormValue;
@@ -1785,8 +1786,20 @@ public class PostgreSQL extends BaseDAO {
 						&& !GenericUtil.hasPartInside(x.getLookupIncludedParams(), "" + scd.get("userId")))
 					continue;
 
+				short notNullFlag = x.getNotNullFlag();
+				if(!GenericUtil.isEmpty(x.get_formCellPropertyList())) for(W5FormCellProperty fcp:x.get_formCellPropertyList())if(fcp.getLkpPropertyTip()==0){//required
+					notNullFlag = 0;
+					for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+						if(fc.getSourceTip()==1) {
+							String value = formResult.getRequestParams().get(fc.getDsc());
+							notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+						}
+						break;
+					}
+				}
+				
 				Object psonuc = GenericUtil.prepareParam(tf, scd, formResult.getRequestParams(), x.getSourceTip(), null,
-						x.getNotNullFlag(), x.getDsc() + paramSuffix, x.getDefaultValue(), formResult.getErrorMap());
+						notNullFlag, x.getDsc() + paramSuffix, x.getDefaultValue(), formResult.getErrorMap());
 
 				if (formResult.getErrorMap().isEmpty()) {
 					if (x.getFormCellId() == 6060 || x.getFormCellId() == 16327 || x.getFormCellId() == 16866) { // mail
@@ -2287,6 +2300,25 @@ public class PostgreSQL extends BaseDAO {
 		return extraUserIds.isEmpty() ? null : extraUserIds.toArray();
 	}
 
+	private boolean formElementProperty(short operatorTip, String elementValue, String value) {
+		switch(operatorTip) {
+		case -1://is Empty
+			return GenericUtil.isEmpty(value);
+		case -2://is not empty
+			return !GenericUtil.isEmpty(value);
+		case	8://in
+			if(GenericUtil.isEmpty(value))return false;
+			return GenericUtil.hasPartInside(value, elementValue);
+		case	9://not in
+			if(GenericUtil.isEmpty(value))return true;
+			return !GenericUtil.hasPartInside(value, elementValue);
+		case	0://equals
+			return GenericUtil.safeEquals(elementValue, value);
+		case	1://not equals
+			return !GenericUtil.safeEquals(elementValue, value);
+		}
+		return false;
+	}
 	public int insertFormTable(final W5FormResult formResult, final String paramSuffix) {
 		final W5Form f = formResult.getForm();
 		final String projectId = FrameworkCache.getProjectId(formResult.getScd(), "40." + formResult.getFormId());
@@ -2348,8 +2380,19 @@ public class PostgreSQL extends BaseDAO {
 						continue;
 				}
 
+				short notNullFlag = x.getNotNullFlag();
+				if(!GenericUtil.isEmpty(x.get_formCellPropertyList())) for(W5FormCellProperty fcp:x.get_formCellPropertyList())if(fcp.getLkpPropertyTip()==0){//required
+					notNullFlag = 0;
+					for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+						if(fc.getSourceTip()==1) {
+							String value = formResult.getRequestParams().get(fc.getDsc());
+							notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+						}
+						break;
+					}
+				}
 				Object psonuc = GenericUtil.prepareParam(tf, formResult.getScd(), formResult.getRequestParams(),
-						x.getSourceTip(), null, x.getNotNullFlag(), x.getDsc() + paramSuffix, x.getDefaultValue(),
+						x.getSourceTip(), null, notNullFlag, x.getDsc() + paramSuffix, x.getDefaultValue(),
 						formResult.getErrorMap());
 
 				if (formResult.getErrorMap().isEmpty()) {

@@ -22,6 +22,7 @@ import iwb.domain.db.W5ConvertedObject;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
+import iwb.domain.db.W5FormCellProperty;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5FormSmsMailAlarm;
@@ -1674,7 +1675,7 @@ public class React16 implements ViewAdapter {
 				buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 			} else {
 				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
-				if(FrameworkSetting.reactLabelRequired && fc.getFormCell().getNotNullFlag()!=0 && fc.getFormCell().getNrdTip()==0)buf.append(", \" \", !_").append(dsc).append(".readOnly && !viewMode && _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
+				if(FrameworkSetting.reactLabelRequired && /*fc.getFormCell().getNotNullFlag()!=0 && */fc.getFormCell().getNrdTip()==0)buf.append(", \" \", !_").append(dsc).append(".readOnly && !viewMode && _").append(dsc).append(".required && _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
 				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
 			}
 		}
@@ -1987,6 +1988,24 @@ public class React16 implements ViewAdapter {
 	}
 
 	@SuppressWarnings("unchecked")
+	private StringBuilder serializeFormCellProperty(W5FormCellHelper cellResult, W5FormResult formResult) {
+		StringBuilder buf = new StringBuilder();
+		if(!GenericUtil.isEmpty(cellResult.getFormCell().get_formCellPropertyList())) for(W5FormCellProperty fcp:cellResult.getFormCell().get_formCellPropertyList()){
+			buf.append(",").append(new String[] {"required:","hidden:!","readOnly:"}[fcp.getLkpPropertyTip()])
+				.append("iwb.formElementProperty(").append(fcp.getLkpOperatorTip()).append(", values.");
+			for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getFormCellId()==fcp.getRelatedFormCellId()) {
+				buf.append(fcr.getFormCell().getDsc());
+				if(fcp.getLkpOperatorTip()>=0 && fcr.getFormCell().getControlTip()!=5)buf.append(",'").append(GenericUtil.stringToJS(fcp.getVal())).append("'");
+				break;
+			}
+			buf.append(")");
+			
+		}
+		
+		return buf;
+	}
+	
+	@SuppressWarnings("unchecked")
 	private StringBuilder serializeFormCell(int customizationId,
 			String xlocale, W5FormCellHelper cellResult, W5FormResult formResult) {
 		W5FormCell fc = cellResult.getFormCell();
@@ -2025,7 +2044,7 @@ public class React16 implements ViewAdapter {
 		case	3://double
 		case	4://integer
 			buf.append("$:NumberFormat,style:{textAlign:'right'},className:'form-control");
-			if(fc.getNotNullFlag()!=0)buf.append(" xrequired',required:true");else buf.append("'");
+			if(fc.getNotNullFlag()!=0)buf.append("',required:true");else buf.append("'");
 			if(fc.getControlTip()==3)
 				buf.append(",thousandSeparator:',',decimalSeparator:'.',decimalScale:").append(fc.getLookupQueryId()==0?2:fc.getLookupQueryId());
 			else
@@ -2039,7 +2058,7 @@ public class React16 implements ViewAdapter {
 				if(!GenericUtil.isEmpty(fc.getExtraDefinition())){
 					buf.append(fc.getExtraDefinition());//button
 				}
-				return buf.append("}");
+				return buf.append(serializeFormCellProperty(cellResult, formResult)).append("}");
 
 		case	6://combo static
 		case	8:// lovcombo-static
@@ -2144,7 +2163,7 @@ public class React16 implements ViewAdapter {
 		}
 		buf.append(",name:'").append(fc.getDsc()).append("'");//,id:'").append(fc.getDsc()).append("'");
 		
-		if(fc.getControlTip()!=3 && fc.getControlTip()!=4 && fc.getControlTip()!=5 && fc.getControlTip()!=22 && fc.getNotNullFlag()!=0)buf.append(",required:true, className:'xrequired'");
+		if(fc.getControlTip()!=3 && fc.getControlTip()!=4 && fc.getControlTip()!=5 && fc.getControlTip()!=22 && fc.getNotNullFlag()!=0)buf.append(",required:true");
 		buf.append(", label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("'");
 
 		if(formResult!=null){ //FORM
@@ -2197,6 +2216,7 @@ public class React16 implements ViewAdapter {
 				default:buf.append(",defaultValue:'").append(GenericUtil.stringToJS(value)).append("'");
 			}
 		}
+		buf.append(serializeFormCellProperty(cellResult, formResult));
 		if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
 
 		buf.append("}");
