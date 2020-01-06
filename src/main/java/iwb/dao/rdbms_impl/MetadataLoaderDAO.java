@@ -30,6 +30,7 @@ import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
+import iwb.domain.db.W5FormCellProperty;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5GlobalFunc;
@@ -141,7 +142,9 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		fr.setForm(form);
 
-		for (W5FormCell fc : form.get_formCells())
+		Map<Integer, W5FormCell> formCellMap = new HashMap();
+		for (W5FormCell fc : form.get_formCells()) {
+			formCellMap.put(fc.getFormCellId(), fc);
 			switch (fc.getControlTip()) {
 			case 31: // code_list
 				if (GenericUtil.uInt(fc.getLookupIncludedParams()) == 0) {
@@ -152,6 +155,13 @@ public class MetadataLoaderDAO extends BaseDAO {
 									fc.getFormCellId(), projectId));
 				break;
 			}
+		}
+		List<W5FormCellProperty> lfcp = find("select t from W5FormCellProperty t, W5FormCell f where t.formCellId=f.formCellId AND f.projectUuid=t.projectUuid AND f.formId=? AND t.projectUuid=?",form.getFormId(), projectId);
+		for(W5FormCellProperty fcp:lfcp) {
+			W5FormCell fc = formCellMap.get(fcp.getFormCellId());
+			if(fc.get_formCellPropertyList()==null)fc.set_formCellPropertyList(new ArrayList());
+			fc.get_formCellPropertyList().add(fcp);
+		}
 
 		if (form.getObjectTip() != 1 && form.getRenderTemplateId() > 0) { // grid(seachForm)
 																			// degilse

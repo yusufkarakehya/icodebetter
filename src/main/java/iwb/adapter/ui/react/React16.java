@@ -1089,7 +1089,7 @@ public class React16 implements ViewAdapter {
 				&& fc.getLookupQueryResult() != null && !GenericUtil.isEmpty(fc.getLookupQueryResult().getData())) {
 			if (b)s.append(","); else b = true;
 			Object[] oo = fc.getLookupQueryResult().getData().get(0);
-			s.append(fc.getFormCell().getDsc()).append(":[{id:'").append(oo[1]).append("',dsc:'").append(GenericUtil.stringToJS2(oo[0].toString())).append("'}]");
+			s.append(fc.getFormCell().getDsc()).append(":[{id:'").append(oo[1]).append("',dsc:'").append(GenericUtil.stringToJS(oo[0].toString())).append("'}]");
 		}
 
 		s.append("},activeTab:false}");
@@ -1120,7 +1120,7 @@ public class React16 implements ViewAdapter {
 			s.append(k).append(":[");
 			List<W5FormCell> lfc = pcr.get(k);
 			for(W5FormCell fc:lfc){
-				s.append("{n:'").append(fc.getDsc()).append("', f:function(ax,bx,cx){\n").append(fc.getLookupIncludedParams()).append("\n}},");
+				s.append("{n:'").append(fc.getDsc()).append("', f:(ax,bx,cx)=>{\n").append(fc.getLookupIncludedParams()).append("\n}},");
 			}
 			s.setLength(s.length()-1);
 			s.append("]");
@@ -1303,6 +1303,7 @@ public class React16 implements ViewAdapter {
 					buf.append("detailGrids:[");
 				}
 				buf.append("{grid:").append(gr.getGrid().getDsc());
+
 				if(gr.getGrid().get_crudTable()!=null){
 					W5Table t = gr.getGrid().get_crudTable();
 					buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
@@ -1313,6 +1314,11 @@ public class React16 implements ViewAdapter {
 						buf.append(",").append(gr.getTplObj().get_dstStaticQueryParamName()).append(":'!").append(gr.getTplObj().getDstStaticQueryParamVal()).append("'");
 					}
 					buf.append("}");
+				}
+				if(!GenericUtil.isEmpty(gr.getTplObj().getPostJsCode())) {
+					String s = gr.getTplObj().getPostJsCode();
+					if(s.charAt(0)!=',')buf.append(",");
+					buf.append(gr.getTplObj().getPostJsCode());
 				}
 				StringBuilder rbuf = recursiveTemplateObject(l, gr.getTplObj().getTemplateObjectId(), level+1);
 				if(rbuf!=null && rbuf.length()>0)
@@ -2015,7 +2021,7 @@ public class React16 implements ViewAdapter {
 			break;//string
 		case	2:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:false, closeOnSelect:true");break; //TODO:date
 		case	18:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:'HH:mm'");break; //TODO:datetime
-		case	22:buf.append("$:Datetime, dateFormat:false, className:'rdt-time', timeFormat:'H:mm'");break; //TODO:time
+		case	22:buf.append("$:Datetime, dateFormat:false, className:'rdt-time', timeFormat:'hh:mm a'");break; //TODO:time
 		case	3://double
 		case	4://integer
 			buf.append("$:NumberFormat,style:{textAlign:'right'},className:'form-control");
@@ -2026,7 +2032,7 @@ public class React16 implements ViewAdapter {
 				buf.append(",decimalScale:0");
 			break;//int
 		case	5:buf.append("type:'checkbox', className:'switch-input'");break;
-		case	100:buf.append("$:Button,color:'primary',onClick:function(ax){").append(fc.getDefaultValue()).append("},children:[");
+		case	100:buf.append("$:Button,color:'primary',onClick:(ax){").append(fc.getDefaultValue()).append("},children:[");
 				if(fc.getLocaleMsgKey().startsWith("icon-"))buf.append("_('i',{className:'").append(fc.getLocaleMsgKey()).append("'})]");
 				else buf.append("'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("']");
 				if(fc.getControlWidth()>0)buf.append(",width:").append(fc.getControlWidth());

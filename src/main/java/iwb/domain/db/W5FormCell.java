@@ -51,6 +51,7 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 
 	private Object _sourceObjectDetail;
 	private List<W5FormCellCodeDetail> _formCellCodeDetailList;
+	private List<W5FormCellProperty> _formCellPropertyList;
 
 	@Id
 	@Column(name = "FORM_CELL_ID")
@@ -408,6 +409,15 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 
 	public void setOutFlag(short outFlag) {
 		this.outFlag = outFlag;
+	}
+
+	@Transient
+	public List<W5FormCellProperty> get_formCellPropertyList() {
+		return _formCellPropertyList;
+	}
+
+	public void set_formCellPropertyList(List<W5FormCellProperty> _formCellPropertyList) {
+		this._formCellPropertyList = _formCellPropertyList;
 	}
 
 }

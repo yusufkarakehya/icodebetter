@@ -3594,7 +3594,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	  var tbarItems;
 	  if(mainGrid.tbarItems)tbarItems=mainGrid.tbarItems;
 	  else {
-		  tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGrid._gp)}
+		  tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:getLocMsg('quick_search'),enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGrid._gp)}
 		  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -36*tbiNums-20}),'->'];
 		  if(mainGrid.searchForm)tbarItems.push({cls:'x-btn-icon x-grid-search', id:'sfb-card-'+obj.t, _sf:searchFormPanel, tooltip:'Advanced Search', handler:function(aq){
 			  if(!aq._sf.isVisible()){
@@ -4075,7 +4075,7 @@ function ajaxAuthenticateUser() {
 
 function showLoginDialog(xobj) {
   if (1 * _scd.customizationId > 0) {
-    document.location = "/app/index.html";
+    document.location = "login.htm?.r="+Math.random();
     return;
   }
   if (lw && lw.isVisible()) return;
@@ -4093,12 +4093,12 @@ function showLoginDialog(xobj) {
     buttonAlign: "center",
     buttons: [
       {
-        text: getLocMsg("js_giris"),
+        text: getLocMsg("login"),
         // iconCls: 'button-enter',
         handler: ajaxAuthenticateUser
       },
       {
-        text: getLocMsg("js_cikis"),
+        text: getLocMsg("exit"),
         // iconCls: 'button-exit',
         handler: function() {
           document.location = "login.htm?r=" + new Date().getTime();
