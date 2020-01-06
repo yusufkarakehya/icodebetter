@@ -1788,11 +1788,13 @@ public class PostgreSQL extends BaseDAO {
 
 				short notNullFlag = x.getNotNullFlag();
 				if(!GenericUtil.isEmpty(x.get_formCellPropertyList())) for(W5FormCellProperty fcp:x.get_formCellPropertyList())if(fcp.getLkpPropertyTip()==0){//required
-					notNullFlag = 0;
 					for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
-						if(fc.getSourceTip()==1) {
-							String value = formResult.getRequestParams().get(fc.getDsc());
-							notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+						if(fc.getActiveFlag()!=0) {
+							notNullFlag = 0;
+							if(fc.getSourceTip()==1) {
+								String value = formResult.getRequestParams().get(fc.getDsc());
+								notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+							}
 						}
 						break;
 					}

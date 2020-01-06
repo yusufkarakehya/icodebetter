@@ -22,6 +22,7 @@ import iwb.domain.db.W5CustomGridColumnRenderer;
 import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
+import iwb.domain.db.W5FormCellProperty;
 import iwb.domain.db.W5FormHint;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
@@ -672,6 +673,74 @@ public class ExtJs3_4 implements ViewAdapter {
 		s.append("]}");
 		return s;
 	}
+	
+	private String getPropertyMethodName(String dsc, short lkpPropertyTip, boolean b, String label) {
+		StringBuilder s =new StringBuilder();
+		switch(lkpPropertyTip) {
+		case	0://required
+			s.append("iwb.changeFieldLabel(_").append(dsc).append(",\"").append(label);
+			if(b)s.append("<i class='label-required'></i>");
+			s.append("\")");
+			return s.toString();
+		case	1://visible
+			s.append("_").append(dsc);
+			if(b)s.append(".show()");
+			else s.append(".hide()");
+			return s.toString();
+		case	2://readonly
+			s.append("_").append(dsc).append(".setReadOnly(").append(b).append(")");
+			return s.toString();
+		}
+		return "";		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private StringBuilder serializeFormCellProperty(W5FormCellHelper cellResult, W5FormResult formResult) {
+		StringBuilder buf = new StringBuilder();
+		for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getActiveFlag()!=0 && !GenericUtil.isEmpty(fcr.getFormCell().get_formCellPropertyList())) {
+			for(W5FormCellProperty fcp:fcr.getFormCell().get_formCellPropertyList()) if(cellResult.getFormCell().getFormCellId()==fcp.getRelatedFormCellId()) {
+				String dsc = cellResult.getFormCell().getDsc();
+				if(buf.length()==0) {
+					buf.append("\nmf._").append(dsc).append(".on('");
+					switch(cellResult.getFormCell().getControlTip()) {
+					case	5://checkbox
+						buf.append("check");break;
+					case	2://date
+					case	11://timestamp
+						buf.append("select");break;
+					case	6://static lookup
+					case	8://multi slu
+					case	7://lu query
+					case	15://multi lu query
+						if(cellResult.getFormCell().getParentFormCellId()!=1) {
+							buf.append("select");
+							break;
+						}
+					default:
+						buf.append("change");
+					}
+					buf.append("', ()=>onChange_").append(dsc).append("());\nfunction onChange_").append(dsc).append("(){var ax = getFieldValue(_").append(dsc).append(");\n");
+				}
+				String localMsg = fcp.getLkpPropertyTip()!=0 ? "":LocaleMsgCache.get2(formResult.getScd(), fcr.getFormCell().getLocaleMsgKey());
+				if(cellResult.getFormCell().getControlTip()==5) {//checkbox
+					if(fcp.getLkpPropertyTip()!=0)
+						buf.append("if(").append(fcp.getLkpOperatorTip()==0?"!":"").append("ax)").append(getPropertyMethodName(fcr.getFormCell().getDsc(), fcp.getLkpPropertyTip(), true, "")).
+							append("; else ").append(getPropertyMethodName(fcr.getFormCell().getDsc(), fcp.getLkpPropertyTip(), false, ""));
+				} else if(fcp.getLkpOperatorTip()<0){//isEmpty
+					buf.append("if(").append(fcp.getLkpOperatorTip()==-2?"!":"").append("(ax=='' || typeof ax=='undefined'))").append(getPropertyMethodName(fcr.getFormCell().getDsc(), fcp.getLkpPropertyTip(), true, localMsg)).
+					append("; else ").append(getPropertyMethodName(fcr.getFormCell().getDsc(), fcp.getLkpPropertyTip(), false, localMsg));
+				} else buf.append("if(iwb.formElementProperty(").append(fcp.getLkpOperatorTip()).append(", ax, '")
+					.append(GenericUtil.stringToJS(fcp.getVal())).append("'))").append(getPropertyMethodName(fcr.getFormCell().getDsc(), fcp.getLkpPropertyTip(), true, localMsg)).
+				append("; else ").append(getPropertyMethodName(fcr.getFormCell().getDsc(), fcp.getLkpPropertyTip(), false, localMsg));
+				
+				buf.append("\n");
+			}
+			
+		}
+
+		if(buf.length()>0)buf.append("\n};\nonChange_").append(cellResult.getFormCell().getDsc()).append("();\n");
+		return buf;
+	}
 
 	private StringBuilder serializeGetForm(W5FormResult fr) {
 		Map<String, Object> scd = fr.getScd();
@@ -1299,6 +1368,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			s.append(serializeGrid(gr)).append("\n");
 		}
 
+		StringBuilder s2 =new StringBuilder();
 		for (W5FormCellHelper fc : fr.getFormCellResults())
 			if (fc.getFormCell().getActiveFlag() != 0) {
 				if (fc.getFormCell().getControlTip() != 102) {// label'dan
@@ -1315,6 +1385,7 @@ public class ExtJs3_4 implements ViewAdapter {
 							.append("=")
 							.append(serializeFormCell(customizationId, xlocale,
 									fc, fr)).append("\n");
+					s2.append(serializeFormCellProperty(fc, fr));
 					// if(fc.getFormCell().getControlTip()==24)s.append("_").append(fc.getFormCell().getDsc()).append(".treePanel.getRootNode().expand();\n");
 				} else {
 					fc.setValue(LocaleMsgCache.get2(customizationId, xlocale,
@@ -1322,8 +1393,9 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 			}
 
-		s.append("\nvar __action__=")
-				.append(fr.getAction()).append(";\n");
+		s.append("\nvar __action__=").append(fr.getAction()).append(";\n");
+		s.append(s2);
+		
 		if(scd==null || scd.get("roleId")==null || ((Integer)scd.get("roleId")!=0 || GenericUtil.uInt(fr.getRequestParams(),"_preview")==0)){
 			// 24 nolu form form edit form olduğu için onu çevirmesin.
 			String postCode = (fr.getForm().get_renderTemplate() != null && fr.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && fr

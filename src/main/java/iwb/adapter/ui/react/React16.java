@@ -1991,14 +1991,16 @@ public class React16 implements ViewAdapter {
 	private StringBuilder serializeFormCellProperty(W5FormCellHelper cellResult, W5FormResult formResult) {
 		StringBuilder buf = new StringBuilder();
 		if(!GenericUtil.isEmpty(cellResult.getFormCell().get_formCellPropertyList())) for(W5FormCellProperty fcp:cellResult.getFormCell().get_formCellPropertyList()){
-			buf.append(",").append(new String[] {"required:","hidden:!","readOnly:"}[fcp.getLkpPropertyTip()])
-				.append("iwb.formElementProperty(").append(fcp.getLkpOperatorTip()).append(", values.");
 			for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getFormCellId()==fcp.getRelatedFormCellId()) {
-				buf.append(fcr.getFormCell().getDsc());
-				if(fcp.getLkpOperatorTip()>=0 && fcr.getFormCell().getControlTip()!=5)buf.append(",'").append(GenericUtil.stringToJS(fcp.getVal())).append("'");
-				break;
+				if(fcr.getFormCell().getActiveFlag()!=0) {
+					buf.append(",").append(new String[] {"required:","hidden:!","readOnly:"}[fcp.getLkpPropertyTip()])
+					.append("iwb.formElementProperty(").append(fcp.getLkpOperatorTip()).append(", values.");
+					buf.append(fcr.getFormCell().getDsc());
+					if(fcp.getLkpOperatorTip()>=0 && fcr.getFormCell().getControlTip()!=5)buf.append(",'").append(GenericUtil.stringToJS(fcp.getVal())).append("'");
+					buf.append(")");
+					break;
+				}
 			}
-			buf.append(")");
 			
 		}
 		

@@ -6364,12 +6364,13 @@ function getFieldValue(field) {
 	  if(field._controlTip == 101)return field.hiddenValue;
 	  if(field._checkbox){
 		  var r ='';
-		  
-		  if(field.items && field.items.keys){
-			  var kk = field.items.keys;
-			  for(var qi=0;qi<kk.length;qi++){
-				  var fl = Ext.getCmp(kk[qi]);
-				  if(fl.checked)r+=','+fl.inputValue;
+		  if(field.items){
+			  if(field.items.items){
+				  var kk = field.items.items;
+				  for(var qi=0;qi<kk.length;qi++){
+					  var fl = kk[qi];//Ext.getCmp(kk[qi]);
+					  if(fl.checked)r+=','+fl.inputValue;
+				  }
 			  }
 		  }
 		  if(r)return r.substr(1);
@@ -8654,4 +8655,40 @@ iwb.changeFieldLabel=function(field, label){
 	if(!field)return;
     if (field.label) field.label.dom.innerHTML = label; 
     else field.fieldLabel = label;
+}
+
+
+iwb.hasPartInside=function(all,sub){
+	if(typeof all=='undefined')return false;
+	if((''+all).length==0)return false;
+	if((','+all+',').indexOf(','+sub+',')==-1)return false;
+	return true;
+}
+iwb.safeEquals= function(v1, v2){
+	if(v1==='' || (typeof v1=='undefined')){
+		return (v2==='' || (typeof v2=='undefined'));
+	} else if(v2==='' || (typeof v2=='undefined'))return false;
+	return v1==v2;
+}
+
+iwb.formElementProperty = function(opr, elementValue, value){
+	switch(1*opr){
+	case -1://is Empty
+		return value==='' || (typeof value=='undefined');
+	case -2://is not empty
+		return !(value==='' || (typeof value=='undefined'));
+	case	8://in
+		if(value==='' || (typeof value=='undefined'))return false;
+		return iwb.hasPartInside(value, elementValue);
+	case	9://not in
+		if(value==='' || (typeof value=='undefined'))return true;
+		return !iwb.hasPartInside(value, elementValue);
+	case	0://equals
+		return iwb.safeEquals(elementValue, value);
+	case	1://not equals
+		return !iwb.safeEquals(elementValue, value);
+		
+	}
+	return false;
+	
 }
