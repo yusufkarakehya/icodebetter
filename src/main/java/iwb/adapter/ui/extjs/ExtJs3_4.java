@@ -1851,7 +1851,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		buf.append("mf=Ext.apply(mf,{xtype:'form',border:false,\nitems:[");
 		boolean b = false;
 
-		boolean snFlag = FrameworkCache.getAppSettingIntValue(customizationId, "form_navigation_flag")!=0 && map.size()>4 && formResult.getFormCellResults().size()>8;
+		boolean snFlag = FrameworkCache.getAppSettingIntValue(customizationId, "form_navigation_flag")!=0 && map.size()>5 && formResult.getFormCellResults().size()>10;
 		StringBuilder sn = new StringBuilder();
 		if(snFlag) {
 			sn.append("<nav class='secondary-navigation'><h3>")
