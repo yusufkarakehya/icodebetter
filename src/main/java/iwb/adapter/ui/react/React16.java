@@ -2086,30 +2086,32 @@ public class React16 implements ViewAdapter {
 									: p.getDsc()).append("'");
 					buf.append("}");
 				}
-			} else if ((fc.getControlTip()==7 || fc.getControlTip()==15 ||fc.getControlTip()==59) && cellResult.getLookupQueryResult().getData() != null){
-				boolean b1 = false;
-				for (Object[] p : cellResult.getLookupQueryResult().getData()) {
-					if (b1)
-						buf.append(",");
-					else
-						b1 = true;
-					boolean bb = false;
-					buf.append("{");
-					for (W5QueryField f : cellResult.getLookupQueryResult().getQuery().get_queryFields()) {
-						Object z = p[f.getTabOrder() - 1];
-						if (bb)
+			} else if ((fc.getControlTip()==7 || fc.getControlTip()==15 ||fc.getControlTip()==59)){
+				if(cellResult.getLookupQueryResult()!=null && cellResult.getLookupQueryResult().getData() != null) {
+					boolean b1 = false;
+					for (Object[] p : cellResult.getLookupQueryResult().getData()) {
+						if (b1)
 							buf.append(",");
 						else
-							bb = true;
-						if (z == null)z = "";
-						buf.append(f.getDsc()).append(":'")
-								.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
-										.get2(customizationId, xlocale,
-												z.toString()) : GenericUtil
-										.stringToJS(z.toString()))
-								.append("'");
+							b1 = true;
+						boolean bb = false;
+						buf.append("{");
+						for (W5QueryField f : cellResult.getLookupQueryResult().getQuery().get_queryFields()) {
+							Object z = p[f.getTabOrder() - 1];
+							if (bb)
+								buf.append(",");
+							else
+								bb = true;
+							if (z == null)z = "";
+							buf.append(f.getDsc()).append(":'")
+									.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
+											.get2(customizationId, xlocale,
+													z.toString()) : GenericUtil
+											.stringToJS(z.toString()))
+									.append("'");
+						}
+						buf.append("}");
 					}
-					buf.append("}");
 				}
 				if(fc.getControlTip()==15 && cellResult.getLookupQueryResult().getQueryId()==606 && formResult!=null && formResult.getForm()!=null && formResult.getForm().getObjectTip()==1) {//workflow extra records
 					buf.append(",{dsc:'approved', id:998},{dsc:'rejected', id:999}");

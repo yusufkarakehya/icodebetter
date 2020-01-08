@@ -1620,7 +1620,7 @@ public class UserUtil {
 		return scd;
 	}
 	public static String generateTokenFromScd(Map<String, Object> scd, int integrationObjectId, String ip, int validTimeMillis) {
-		String qq = ""+(System.currentTimeMillis()+validTimeMillis)+"-"+scd.get("customizationId")+"-"+scd.get("userId")+"-"+scd.get("roleId")+"-"+scd.get("userRoleId")+"-"+scd.get("userTip")+"-"+scd.get("locale")+"-"+integrationObjectId+"-"+ip;
+		String qq = ""+(System.currentTimeMillis()+validTimeMillis)+"-"+(scd.get("customizationId")!=null ?scd.get("customizationId"):0) +"-"+scd.get("userId")+"-"+scd.get("roleId")+"-"+scd.get("userRoleId")+"-"+scd.get("userTip")+"-"+scd.get("locale")+"-"+integrationObjectId+"-"+ip;
 		int checksum = 0;
 		for(int i=0;i<qq.length();i++)checksum+=qq.charAt(i);
 		qq = GenericUtil.PRMEncrypt(checksum + "-"+qq);
