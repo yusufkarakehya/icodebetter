@@ -177,13 +177,12 @@ public class RestController implements InitializingBean {
 
 			if(wsm.getDataAcceptTip()==2){//JSON
 				JSONObject jo = HttpUtil.getJson(request);
+				if(jo==null)jo = new JSONObject("{}");
 				requestParams = new HashMap();
-				if(jo!=null){
-					if(wsm.getObjectTip()==4)
-						requestParams.put("_json", jo);
-					else
-						requestParams.putAll(GenericUtil.fromJSONObjectToMap(jo));
-				}
+				if(wsm.getObjectTip()==4)
+					requestParams.put("_json", jo);
+				else
+					requestParams.putAll(GenericUtil.fromJSONObjectToMap(jo));
 			} else 
 				requestParams = GenericUtil.getParameterMap(request);
 			String transactionId =  GenericUtil.getTransactionId();
