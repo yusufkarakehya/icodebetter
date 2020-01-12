@@ -6371,7 +6371,14 @@ function getFieldValue(field) {
 					  var fl = kk[qi];//Ext.getCmp(kk[qi]);
 					  if(fl.checked)r+=','+fl.inputValue;
 				  }
+			  } else if(field.items.length){//note rendered yet
+				  var kk = field.items;
+				  for(var qi=0;qi<kk.length;qi++){
+					  var fl = kk[qi];//Ext.getCmp(kk[qi]);
+					  if(fl.checked)r+=','+fl.inputValue;
+				  }
 			  }
+
 		  }
 		  if(r)return r.substr(1);
 		  return '';
@@ -8671,6 +8678,15 @@ iwb.safeEquals= function(v1, v2){
 	return v1==v2;
 }
 
+iwb.hasPartInside2=function(all,sub){
+	if(typeof all=='undefined' || typeof sub=='undefined')return false;
+	if((''+all).length==0 || (''+sub).length==0)return false;
+	var sub2 = (''+sub).split(',');
+	for(var qi=0;qi<sub2.length;qi++)
+		if((','+all+',').indexOf(','+sub2[qi]+',')!=-1)return true;
+	return false;
+}
+
 iwb.formElementProperty = function(opr, elementValue, value){
 	switch(1*opr){
 	case -1://is Empty
@@ -8679,10 +8695,10 @@ iwb.formElementProperty = function(opr, elementValue, value){
 		return !(value==='' || (typeof value=='undefined'));
 	case	8://in
 		if(value==='' || (typeof value=='undefined'))return false;
-		return iwb.hasPartInside(value, elementValue);
+		return iwb.hasPartInside2(value, elementValue);
 	case	9://not in
 		if(value==='' || (typeof value=='undefined'))return true;
-		return !iwb.hasPartInside(value, elementValue);
+		return !iwb.hasPartInside2(value, elementValue);
 	case	0://equals
 		return iwb.safeEquals(elementValue, value);
 	case	1://not equals

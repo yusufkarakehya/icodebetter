@@ -2310,10 +2310,10 @@ public class PostgreSQL extends BaseDAO {
 			return !GenericUtil.isEmpty(value);
 		case	8://in
 			if(GenericUtil.isEmpty(value))return false;
-			return GenericUtil.hasPartInside(value, elementValue);
+			return GenericUtil.hasPartInside2b(value, elementValue);
 		case	9://not in
 			if(GenericUtil.isEmpty(value))return true;
-			return !GenericUtil.hasPartInside(value, elementValue);
+			return !GenericUtil.hasPartInside2b(value, elementValue);
 		case	0://equals
 			return GenericUtil.safeEquals(elementValue, value);
 		case	1://not equals

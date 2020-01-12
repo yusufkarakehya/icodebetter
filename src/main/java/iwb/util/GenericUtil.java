@@ -1393,6 +1393,19 @@ public class GenericUtil {
 		return all.contains(z);
 	}
 
+
+	public static boolean hasPartInside2b(String all, Object sub) {
+		if (all == null || all.length() == 0)
+			return false;
+		String z = sub == null ? null : sub.toString();
+		if (z == null || z.length() == 0)
+			return false;
+		String[] sub2 = z.split(",");
+		all = "," + all + ",";
+		for(int qi=0;qi<sub2.length;qi++)
+			if(all.contains("," + sub2[qi] + ","))return true;
+		return false;
+	}
 	public static String toCsv(List<String[]> list) {
 		String res = "";
 		for (String[] arr : list) {
