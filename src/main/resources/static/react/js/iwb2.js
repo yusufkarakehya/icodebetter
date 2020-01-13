@@ -5307,7 +5307,6 @@ class XEditGrid extends GridCommon {
 const XToolbarItem = props => {
     if (props.type === "button") {
         let { icon } = props;
-        var cls = icon.split("|");
         return _(
             Button, {
                 id: "toolpin" + props.index,
@@ -5318,9 +5317,9 @@ const XToolbarItem = props => {
                     props.click && props.click(e, props.grid, props);
                 }
             },
-            cls[0] && _("i", { className: cls[0] }),
-            cls[0] && ' ',
-            props.text && props.text
+            icon && _("i", { className: icon }),
+            icon && ' ',
+            props.text
         );
     }
     props.autoComplete = "off";
@@ -7945,12 +7944,16 @@ class XForm extends React.Component {
                         if (json.errorType)
                             switch (json.errorType) {
                                 case "validation":
-                                    toastr.error("Validation Errors");
+                                	var errMsg = getLocMsg("validation_errors");
                                     if (json.errors && json.errors.length) {
                                         json.errors.map(oneError => {
                                             errors[oneError.id] = oneError.msg;
+                                            errMsg+='<li>'+(oneError.dsc||oneError.id)+ ': ' + oneError.msg+'</li>';
                                         });
+                                        
                                     }
+                                    toastr.error(errMsg);
+                                    	
                                     if (json.error) {
                                         iwb.showModal({
                                             title: "ERROR",
@@ -8055,6 +8058,7 @@ class XForm extends React.Component {
                     },
                     successCallback: (json, xcfg) => {
                         iwb.loadingDeactive();
+                        this.setState({errors:{}});
                         if (cfg.callback) cfg.callback(json, xcfg);
                     }
                 });

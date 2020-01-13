@@ -1804,6 +1804,12 @@ public class PostgreSQL extends BaseDAO {
 						notNullFlag, x.getDsc() + paramSuffix, x.getDefaultValue(), formResult.getErrorMap());
 
 				if (formResult.getErrorMap().isEmpty()) {
+					if(psonuc!=null && x.getVtype()!=null) {
+						if(!GenericUtil.validateVtype(psonuc.toString(), x.getVtype())) {
+							formResult.getErrorMap().put(x.getDsc(), LocaleMsgCache.get2(formResult.getScd(), "invalid_"+x.getVtype()));
+							continue;
+						}
+					}
 					if (x.getFormCellId() == 6060 || x.getFormCellId() == 16327 || x.getFormCellId() == 16866) { // mail
 																													// sifre
 																													// icin
@@ -2398,6 +2404,12 @@ public class PostgreSQL extends BaseDAO {
 						formResult.getErrorMap());
 
 				if (formResult.getErrorMap().isEmpty()) {
+					if(psonuc!=null && x.getVtype()!=null) {
+						if(!GenericUtil.validateVtype(psonuc.toString(), x.getVtype())) {
+							formResult.getErrorMap().put(x.getDsc(), LocaleMsgCache.get2(formResult.getScd(), "invalid_"+x.getVtype()));
+							continue;
+						}
+					}
 					if (b) {
 						sql.append(" , ");
 						postSql.append(" , ");

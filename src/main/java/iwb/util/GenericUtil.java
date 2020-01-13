@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.DatatypeFactory;
@@ -2701,5 +2702,17 @@ public class GenericUtil {
 		int val = relatedSessionField.startsWith("app.") ? FrameworkCache.getAppSettingIntValue(scd, relatedSessionField.substring(4)) : uInt(scd.get(relatedSessionField));
 		return not ? val==0 : val!=0;
 		
+	}
+
+	private static Pattern emailPattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+	private static Pattern urlPattern = Pattern.compile("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+	private static Pattern ibanPattern = Pattern.compile("\b[A-Z]{2}[0-9]{2}(?:[ ]?[0-9]{4}){4}(?!(?:[ ]?[0-9]){3})(?:[ ]?[0-9]{1,2})?\b"); 
+	
+	public static boolean validateVtype(String str, String vType) {
+		if(isEmpty(vType))return true;
+		if(vType.equals("email"))return emailPattern.matcher(str).find();
+		if(vType.equals("url"))return urlPattern.matcher(str).matches();
+		if(vType.equals("iban"))return ibanPattern.matcher(str).matches();
+		return true;
 	}
 }
