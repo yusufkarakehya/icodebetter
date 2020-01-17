@@ -1588,7 +1588,9 @@ public class AppController implements InitializingBean {
 			}
 			ServletOutputStream out = response.getOutputStream();
 			file_path = local_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
-
+			if(FrameworkSetting.argMap.get("multipart_location")!=null) {
+				file_path = FrameworkSetting.argMap.get("multipart_location") + "/"+ file_path;
+			}
 			if (fa.getFileTypeId() == null || fa.getFileTypeId() != -999)
 				response.setContentType("application/octet-stream");
 			else {
