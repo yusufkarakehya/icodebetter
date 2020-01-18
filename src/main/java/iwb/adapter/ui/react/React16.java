@@ -65,6 +65,8 @@ import iwb.util.UserUtil;
 public class React16 implements ViewAdapter {
 	final public static String[] labelMap = new String[]{"info","warning","danger"};
 	final public static String[] filterMap = new String[]{"","serverFilter","dateRangeFilter","numberFilter","numberFilter","numberFilter"};
+	final public static String[] dateFormatMulti = new String[] {"DD/MM/YYYY","MM/DD/YYYY"};
+	
 	public StringBuilder serializeValidatonErrors(Map<String, String> errorMap,
 			String locale) {
 		StringBuilder buf = new StringBuilder();
@@ -2044,8 +2046,8 @@ public class React16 implements ViewAdapter {
 			else if(GenericUtil.safeEquals(fc.getVtype(), "url"))buf.append("'url'");
 			else buf.append("'text'");
 			break;//string
-		case	2:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:false, closeOnSelect:true");break; //TODO:date
-		case	18:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", "DD/MM/YYYY")).append("',timeFormat:'HH:mm'");break; //TODO:datetime
+		case	2:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',timeFormat:false, closeOnSelect:true");break; //TODO:date
+		case	18:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',timeFormat:'HH:mm'");break; //TODO:datetime
 		case	22:buf.append("$:Datetime, dateFormat:false, className:'rdt-time', timeFormat:'hh:mm a'");break; //TODO:time
 		case	3://double
 		case	4://integer
@@ -4390,6 +4392,7 @@ columns:[
 			buf2.append("var _scd=")
 					.append(GenericUtil.fromMapToJsonString(pr
 							.getScd())).append(";\n");
+			buf2.append("iwb.dateFormat = '").append(dateFormatMulti[GenericUtil.uInt(pr.getScd().get("date_format"))]).append("';\n");
 			Map<String, String> publishedAppSetting = new HashMap<String, String>();
 			for (String key : FrameworkCache.publishAppSettings) {
 				publishedAppSetting.put(

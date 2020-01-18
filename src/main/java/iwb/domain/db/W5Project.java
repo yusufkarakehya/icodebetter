@@ -42,6 +42,7 @@ public class W5Project  implements java.io.Serializable {
 	private int sessionQueryId;
 	private int authenticationFuncId;
 	private int _defaultUserTip;
+	private short lkpDateFormat;
 	
 	private short localeMsgKeyFlag;
 	private String locales;
@@ -254,6 +255,13 @@ public class W5Project  implements java.io.Serializable {
 	}
 	public void setLocales(String locales) {
 		this.locales = locales;
+	}
+	@Column(name="lkp_date_format")
+	public short getLkpDateFormat() {
+		return lkpDateFormat;
+	}
+	public void setLkpDateFormat(short lkpDateFormat) {
+		this.lkpDateFormat = lkpDateFormat;
 	}
 
 }

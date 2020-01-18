@@ -109,6 +109,7 @@ var _dxgrb = DXReactGridBootstrap4;
  *              here and most used functions
  */
 iwb = {
+	dateFormat: 'DD/MM/YYYY',
     toastr: toastr,
     components: {},
     grids: {},
@@ -470,10 +471,10 @@ iwb = {
 
     detailSearch: () => false,
     fmtShortDate: x => {
-        x ? moment(x).format("DD/MM/YYYY") : "";
+        x ? moment(x).format(iwb.dateFormat) : "";
     },
     fmtDateTime: x => {
-        x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
+        x ? moment(x).format(iwb.dateFormat+" HH:mm") : "";
     },
     openForm: url => {
         if (url) iwb.openTab("1-" + Math.random(), url);
@@ -1049,11 +1050,11 @@ function accessControlHtml() {
 }
 
 function fmtDateTime(x, y) {
-    return x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
+    return x ? moment(x).format(iwb.dateFormat + " HH:mm") : "";
 }
 
 function fmtShortDate(x, y) {
-    return x ? moment(x).format("DD/MM/YYYY") : "";
+    return x ? moment(x).format(iwb.dateFormat) : "";
 }
 
 function strDateTime(row, cell) {
@@ -1089,7 +1090,7 @@ var xtimeMap = {
 function fmtDateTimeAgo(dt2) {
     if (!dt2) return "";
     var tnow = new Date().getTime();
-    var dt3 = moment(dt2, "DD/MM/YYYY HH:mm").toDate();
+    var dt3 = moment(dt2, iwb.dateFormat + " HH:mm").toDate();
     var t = dt3.getTime();
     var xt = xtimeMap[_scd.locale] || {};
     if (t + 30 * 1000 > tnow) return xt[0]; // 'Az Önce';//5 sn

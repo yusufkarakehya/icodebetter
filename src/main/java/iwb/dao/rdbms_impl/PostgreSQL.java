@@ -660,10 +660,12 @@ public class PostgreSQL extends BaseDAO {
 						}
 					}
 					List<W5QueryField> newQueryFields = null;
+					int dateFormat = 0;
 					while (rs.next() /*
 										 * && (maxFetchedCount==0 || totalFetchedCount<maxFetchedCount )
 										 */) {
 						if (newQueryFields == null) {
+							if(queryResult.getScd()!=null)dateFormat = GenericUtil.uInt(queryResult.getScd().get("date_format"));
 							newQueryFields = new ArrayList(queryResult.getQuery().get_queryFields().size()
 									+ (queryResult.getPostProcessQueryFields() != null
 											? queryResult.getPostProcessQueryFields().size()
@@ -723,7 +725,7 @@ public class PostgreSQL extends BaseDAO {
 											try {
 												obj = (queryResult.getQuery().getQueryTip() == 2
 														&& field.getFieldTip() == 2) ? (java.sql.Timestamp) obj
-																: GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
+																: GenericUtil.uFormatDateTime((java.sql.Timestamp) obj, dateFormat);
 											} catch (Exception e) {
 												obj = "java.sql.Timestamp";
 											}
@@ -732,7 +734,7 @@ public class PostgreSQL extends BaseDAO {
 												obj = (queryResult.getQuery().getQueryTip() == 2
 														&& field.getFieldTip() == 2) ? rs.getTimestamp(field.getDsc())
 																: GenericUtil.uFormatDateTime(
-																		rs.getTimestamp(field.getDsc()));
+																		rs.getTimestamp(field.getDsc()), dateFormat);
 											} catch (Exception e) {
 												obj = "java.sql.Date";
 											}
@@ -1332,6 +1334,7 @@ public class PostgreSQL extends BaseDAO {
 		}
 
 		final Object pkField2 = pkField;
+		final int dateFormat = formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0;
 		try {
 			getCurrentSession().doWork(new Work() {
 
@@ -1352,7 +1355,7 @@ public class PostgreSQL extends BaseDAO {
 									obj = (Boolean) obj ? 1 : 0;
 								} else if (tf.getFieldTip() == 2 && obj instanceof java.sql.Timestamp) {
 									try {
-										obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
+										obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj, dateFormat);
 									} catch (Exception e) {
 									}
 								} else if (tf.getFieldTip() == 2 && obj instanceof java.sql.Date) {
@@ -1362,9 +1365,9 @@ public class PostgreSQL extends BaseDAO {
 											obj = rs.getTimestamp(
 													((W5TableField) cellResult.getFormCell().get_sourceObjectDetail())
 															.getDsc());
-											obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
+											obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj, dateFormat);
 										} else // date
-											obj = GenericUtil.uFormatDate((java.util.Date) obj);
+											obj = GenericUtil.uFormatDate((java.util.Date) obj, dateFormat);
 									} catch (Exception e) {
 									}
 								}
@@ -1740,7 +1743,7 @@ public class PostgreSQL extends BaseDAO {
 				for (W5FormModule m : formResult.getForm().get_moduleList())
 					moduleMap.put(m.getFormModuleId(), m);
 		}
-		W5WorkflowStep approvalStep = formResult.getApprovalStep();
+		W5WorkflowStep workflowStep = formResult.getApprovalStep();
 		/*
 		 * if (formResult.getApprovalRecord() != null) { approvalStep =
 		 * FrameworkCache.getWorkflow(scd,
@@ -1756,10 +1759,10 @@ public class PostgreSQL extends BaseDAO {
 				W5TableField tf = (W5TableField) x.get_sourceObjectDetail();
 				if (tf.getCanUpdateFlag() == 0 || tf.getTabOrder() < 1)
 					continue; // x.getCanUpdate()!=0
-				if (approvalStep != null && ((approvalStep.getVisibleFields() != null
-						&& !GenericUtil.hasPartInside(approvalStep.getVisibleFields(), "" + tf.getTableFieldId()))
-						|| (approvalStep.getUpdatableFields() != null && !GenericUtil
-								.hasPartInside(approvalStep.getUpdatableFields(), "" + tf.getTableFieldId()))))
+				if (workflowStep != null && ((workflowStep.getVisibleFields() != null
+						&& !GenericUtil.hasPartInside(workflowStep.getVisibleFields(), "" + tf.getTableFieldId()))
+						|| (workflowStep.getUpdatableFields() != null && !GenericUtil
+								.hasPartInside(workflowStep.getUpdatableFields(), "" + tf.getTableFieldId()))))
 					continue;
 				if (tf.getAccessViewTip() != 0
 						&& !GenericUtil.accessControl(scd, tf.getAccessViewTip(), tf.getAccessViewRoles(),

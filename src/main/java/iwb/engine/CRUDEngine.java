@@ -101,9 +101,9 @@ public class CRUDEngine {
 			W5Table t = FrameworkCache.getTable(projectId, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
 
 			String schema = null;
-			W5Workflow approval = null;
-			W5WorkflowRecord appRecord = null;
-			W5WorkflowStep approvalStep = null;
+			W5Workflow workflow = null;
+			W5WorkflowRecord workflowRecord = null;
+			W5WorkflowStep workflowStep = null;
 			boolean accessControlSelfFlag = true; // kendisi VEYA kendisi+master
 			if (accessControlSelfFlag) {
 				int outCnt = formResult.getOutputMessages().size();
@@ -168,7 +168,7 @@ public class CRUDEngine {
 				}
 				if (FrameworkSetting.workflow && accessControlSelfFlag) {
 
-					if (appRecord == null && t.get_approvalMap() != null) { // su
+					if (workflowRecord == null && t.get_approvalMap() != null) { // su
 																			// anda
 																			// bir
 																			// onay
@@ -180,86 +180,83 @@ public class CRUDEngine {
 																			// var
 																			// mi
 																			// bunda?
-						approval = t.get_approvalMap().get((short) 1); // action=1
+						workflow = t.get_approvalMap().get((short) 1); // action=1
 																		// for
 																		// update
 
-						if (approval != null && approval.getActiveFlag() != 0) { // update
-																					// approval
-																					// mekanizmasi
-																					// var
+						if (workflow != null && workflow.getActiveFlag() != 0) { // update workflow
 							Map<String, Object> advancedStepSqlResult = null;
-							if (approval.getAdvancedBeginSql() != null
-									&& approval.getAdvancedBeginSql().length() > 10) { // calisacak
-								advancedStepSqlResult = dao.runSQLQuery2Map(approval.getAdvancedBeginSql(), scd,
+							if (workflow.getAdvancedBeginSql() != null
+									&& workflow.getAdvancedBeginSql().length() > 10) { // calisacak
+								advancedStepSqlResult = dao.runSQLQuery2Map(workflow.getAdvancedBeginSql(), scd,
 										requestParams, null);
 								// donen bir cevap var, aktive_flag deger olarak
 								// var ve onun degeri 0 ise o zaman
 								// girmeyecek
 								if (advancedStepSqlResult != null && advancedStepSqlResult.get("active_flag") != null
 										&& GenericUtil.uInt(advancedStepSqlResult.get("active_flag")) == 0) { // girmeyecek
-									approval = null; // approval olmayacak
+									workflow = null; // approval olmayacak
 								}
 							}
-							if (approval != null) { // eger approval olacaksa
-								approvalStep = null;
-								if (approval.getApprovalFlowTip() == 0) { // simple
-									approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
+							if (workflow != null) { // has workflow?
+								workflowStep = null;
+								if (workflow.getApprovalFlowTip() == 0) { // simple
+									workflowStep = workflow.get_approvalStepList().get(0).getNewInstance();
 								} else { // complex
 									if (advancedStepSqlResult != null
 											&& advancedStepSqlResult.get("approval_step_id") != null
 											&& GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id")) != 0)
-										approvalStep = approval.get_approvalStepMap()
+										workflowStep = workflow.get_approvalStepMap()
 												.get(GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id")));
 									else
-										approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
+										workflowStep = workflow.get_approvalStepList().get(0).getNewInstance();
 								}
-								if (approvalStep != null) { // step hazir
-									appRecord = new W5WorkflowRecord(scd, approvalStep.getApprovalStepId(),
-											approval.getApprovalId(), formResult.getForm().getObjectId(), (short) 0,
-											approvalStep.getReturnFlag());
+								if (workflowStep != null) { // step hazir
+									workflowRecord = new W5WorkflowRecord(scd, workflowStep.getApprovalStepId(),
+											workflow.getApprovalId(), formResult.getForm().getObjectId(), (short) 0,
+											workflowStep.getReturnFlag());
 									boolean bau = advancedStepSqlResult != null
 											&& advancedStepSqlResult.get("approval_users") != null;
-									appRecord
+									workflowRecord
 											.setApprovalUsers(bau ? (String) advancedStepSqlResult.get("approval_users")
-													: approvalStep.getApprovalUsers());
-									appRecord
+													: workflowStep.getApprovalUsers());
+									workflowRecord
 											.setApprovalRoles(bau ? (String) advancedStepSqlResult.get("approval_roles")
-													: approvalStep.getApprovalRoles());
+													: workflowStep.getApprovalRoles());
 									boolean bavt = advancedStepSqlResult != null
 											&& advancedStepSqlResult.get("access_view_tip") != null;
-									appRecord
+									workflowRecord
 											.setAccessViewTip(bavt
 													? (short) GenericUtil
 															.uInt(advancedStepSqlResult.get("access_view_tip"))
-													: approvalStep.getAccessViewTip());
-									appRecord.setAccessViewRoles(
+													: workflowStep.getAccessViewTip());
+									workflowRecord.setAccessViewRoles(
 											bavt ? (String) advancedStepSqlResult.get("access_view_roles")
-													: approvalStep.getAccessViewRoles());
-									appRecord.setAccessViewUsers(
+													: workflowStep.getAccessViewRoles());
+									workflowRecord.setAccessViewUsers(
 											bavt ? (String) advancedStepSqlResult.get("access_view_users")
-													: approvalStep.getAccessViewUsers());
-									if (appRecord.getAccessViewTip() != 0 && !GenericUtil
-											.hasPartInside2(appRecord.getAccessViewUsers(), scd.get("userId"))) // goruntuleme
+													: workflowStep.getAccessViewUsers());
+									if (workflowRecord.getAccessViewTip() != 0 && !GenericUtil
+											.hasPartInside2(workflowRecord.getAccessViewUsers(), scd.get("userId"))) // goruntuleme
 																												// kisiti
 																												// var
 																												// ve
 																												// kendisi
 																												// goremiyorsa,
 										// kendisini de ekle
-										appRecord.setAccessViewUsers(appRecord.getAccessViewUsers() != null
-												? appRecord.getAccessViewUsers() + "," + scd.get("userId")
+										workflowRecord.setAccessViewUsers(workflowRecord.getAccessViewUsers() != null
+												? workflowRecord.getAccessViewUsers() + "," + scd.get("userId")
 												: scd.get("userId").toString());
 								} else {
-									throw new IWBException("framework", "Workflow", approval.getApprovalId(), null,
+									throw new IWBException("framework", "Workflow", workflow.getApprovalId(), null,
 											LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_hatali_onay_tanimi"),
 											null);
 								}
 							}
 						}
 
-						if (approval == null) {
-							approval = t.get_approvalMap().get((short) 2); // action=2
+						if (workflow == null) {
+							workflow = t.get_approvalMap().get((short) 2); // action=2
 																			// insert
 																			// mode
 																			// ile
@@ -269,12 +266,12 @@ public class CRUDEngine {
 																			// şov
 																			// tabii
 							// düzeltilmesi lazım
-							if (approval != null && approval.getApprovalRequestTip() == 2
-									&& approval.getManualDemandStartAppFlag() == 0)
-								approval = null;
+							if (workflow != null && workflow.getApprovalRequestTip() == 2
+									&& workflow.getManualDemandStartAppFlag() == 0)
+								workflow = null;
 						}
 
-						if (appRecord == null && t.get_approvalMap() != null
+						if (workflowRecord == null && t.get_approvalMap() != null
 								&& formResult.getRequestParams().get("_aa") != null
 								&& GenericUtil.uInt(formResult.getRequestParams().get("_aa")) == -1) { // Insertle
 																										// ilgili
@@ -288,69 +285,69 @@ public class CRUDEngine {
 																										// artık
 							// 901'e giriyor
 							Map<String, Object> advancedStepSqlResult = null;
-							if (approval.getAdvancedBeginSql() != null
-									&& approval.getAdvancedBeginSql().length() > 10) {
-								Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams,
+							if (workflow.getAdvancedBeginSql() != null
+									&& workflow.getAdvancedBeginSql().length() > 10) {
+								Object[] oz = DBUtil.filterExt4SQL(workflow.getAdvancedBeginSql(), scd, requestParams,
 										null);
 								advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
 								if (advancedStepSqlResult != null) {
 									if (advancedStepSqlResult.get("active_flag") != null
 											&& GenericUtil.uInt(advancedStepSqlResult.get("active_flag")) == 0)
-										approval = null;
+										workflow = null;
 									else {
-										approvalStep = new W5WorkflowStep();
-										approvalStep.setApprovalUsers("" + (Integer) scd.get("userId"));
-										approvalStep.setApprovalStepId(901);
+										workflowStep = new W5WorkflowStep();
+										workflowStep.setApprovalUsers("" + (Integer) scd.get("userId"));
+										workflowStep.setApprovalStepId(901);
 									}
 									if (advancedStepSqlResult.get("error_msg") != null)
-										throw new IWBException("security", "Workflow", approval.getApprovalId(), null,
+										throw new IWBException("security", "Workflow", workflow.getApprovalId(), null,
 												(String) advancedStepSqlResult.get("error_msg"), null);
 								}
 							} else {
-								approvalStep = new W5WorkflowStep();
-								approvalStep.setApprovalRoles(approval.getManualAppRoleIds());
-								approvalStep.setApprovalUsers(approval.getManualAppUserIds());
-								if (approval.getManualAppTableFieldIds() != null) {
-								} else if (approvalStep.getApprovalUsers() == null)
-									approvalStep.setApprovalUsers("" + (Integer) scd.get("userId"));
+								workflowStep = new W5WorkflowStep();
+								workflowStep.setApprovalRoles(workflow.getManualAppRoleIds());
+								workflowStep.setApprovalUsers(workflow.getManualAppUserIds());
+								if (workflow.getManualAppTableFieldIds() != null) {
+								} else if (workflowStep.getApprovalUsers() == null)
+									workflowStep.setApprovalUsers("" + (Integer) scd.get("userId"));
 
-								approvalStep.setApprovalStepId(901);
+								workflowStep.setApprovalStepId(901);
 							}
 
-							if (approvalStep != null) { // step hazir
-								appRecord = new W5WorkflowRecord(scd, approvalStep.getApprovalStepId(),
-										approval.getApprovalId(), formResult.getForm().getObjectId(), (short) 0,
-										approvalStep.getReturnFlag());
-								appRecord.setApprovalUsers(advancedStepSqlResult != null
+							if (workflowStep != null) { // step hazir
+								workflowRecord = new W5WorkflowRecord(scd, workflowStep.getApprovalStepId(),
+										workflow.getApprovalId(), formResult.getForm().getObjectId(), (short) 0,
+										workflowStep.getReturnFlag());
+								workflowRecord.setApprovalUsers(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("approval_users") != null
 												? (String) advancedStepSqlResult.get("approval_users")
-												: approvalStep.getApprovalUsers());
-								appRecord.setApprovalRoles(advancedStepSqlResult != null
+												: workflowStep.getApprovalUsers());
+								workflowRecord.setApprovalRoles(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("approval_roles") != null
 												? (String) advancedStepSqlResult.get("approval_roles")
-												: approvalStep.getApprovalRoles());
-								appRecord.setAccessViewTip(advancedStepSqlResult != null
+												: workflowStep.getApprovalRoles());
+								workflowRecord.setAccessViewTip(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("access_view_tip") != null
 												? (short) GenericUtil.uInt(advancedStepSqlResult.get("access_view_tip"))
-												: approvalStep.getAccessViewTip());
-								appRecord.setAccessViewRoles(advancedStepSqlResult != null
+												: workflowStep.getAccessViewTip());
+								workflowRecord.setAccessViewRoles(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("access_view_roles") != null
 												? (String) advancedStepSqlResult.get("access_view_roles")
-												: approvalStep.getAccessViewRoles());
-								appRecord.setAccessViewUsers(advancedStepSqlResult != null
+												: workflowStep.getAccessViewRoles());
+								workflowRecord.setAccessViewUsers(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("access_view_users") != null
 												? (String) advancedStepSqlResult.get("access_view_users")
-												: approvalStep.getAccessViewUsers());
-								if (appRecord.getAccessViewTip() != 0 && !GenericUtil
-										.hasPartInside2(appRecord.getAccessViewUsers(), scd.get("userId"))) // goruntuleme
+												: workflowStep.getAccessViewUsers());
+								if (workflowRecord.getAccessViewTip() != 0 && !GenericUtil
+										.hasPartInside2(workflowRecord.getAccessViewUsers(), scd.get("userId"))) // goruntuleme
 																											// kisiti
 																											// var
 																											// ve
 																											// kendisi
 																											// goremiyorsa,
 									// kendisini de ekle
-									appRecord.setAccessViewUsers(appRecord.getAccessViewUsers() != null
-											? appRecord.getAccessViewUsers() + "," + scd.get("userId")
+									workflowRecord.setAccessViewUsers(workflowRecord.getAccessViewUsers() != null
+											? workflowRecord.getAccessViewUsers() + "," + scd.get("userId")
 											: scd.get("userId").toString());
 							} else {
 								throw new IWBException("framework", "Workflow", formId, null,
@@ -359,19 +356,19 @@ public class CRUDEngine {
 							}
 						}
 					} else {
-						if (appRecord != null) {
+						if (workflowRecord != null) {
 							String noUpdateVersionNo = FrameworkCache.getAppSettingStringValue(scd,
 									"approval_no_update_version_no");
 							if (GenericUtil.isEmpty(noUpdateVersionNo)
 									|| !GenericUtil.hasPartInside(noUpdateVersionNo, "" + t.getTableId())) {
-								appRecord.setVersionNo(appRecord.getVersionNo() + 1);
-								dao.updateObject(appRecord);
+								workflowRecord.setVersionNo(workflowRecord.getVersionNo() + 1);
+								dao.updateObject(workflowRecord);
 							}
 							if (FrameworkSetting.liveSyncRecord)
 								formResult.addSyncRecord(new W5SynchAfterPostHelper((String) scd.get("projectId"),
-										392 /* w5_approval_record */, "" + appRecord.getApprovalRecordId(),
+										392 /* w5_approval_record */, "" + workflowRecord.getApprovalRecordId(),
 										(Integer) scd.get("userId"), requestParams.get(".w"), (short) 1));
-							appRecord = null; // bu kaydedilmeyecek
+							workflowRecord = null; // bu kaydedilmeyecek
 						}
 					}
 				}
@@ -383,7 +380,7 @@ public class CRUDEngine {
 				// t.getTableId(),GenericUtil.uInt(ptablePk));//caching icin
 
 				if (FrameworkSetting.workflow && accessControlSelfFlag && formResult.getErrorMap().isEmpty()
-						&& appRecord != null) { // aproval baslanmis
+						&& workflowRecord != null) { // aproval baslanmis
 					int tablePk = GenericUtil.uInt(formResult.getOutputFields()
 							.get(/* formResult.getForm().get_sourceTable() */ FrameworkCache
 									.getTable(scd, formResult.getForm().getObjectId()).get_tableFieldList().get(0)
@@ -391,16 +388,16 @@ public class CRUDEngine {
 					if (tablePk == 0) {
 						tablePk = GenericUtil.uInt(ptablePk);
 					}
-					appRecord.setTablePk(tablePk);
+					workflowRecord.setTablePk(tablePk);
 					String summaryText = dao.getSummaryText4Record(scd, t.getTableId(), tablePk);
-					appRecord.setDsc(GenericUtil.uStrMax(summaryText, 512));
-					dao.saveObject(appRecord);
+					workflowRecord.setDsc(GenericUtil.uStrMax(summaryText, 512));
+					dao.saveObject(workflowRecord);
 					if (FrameworkSetting.liveSyncRecord)
 						formResult.addSyncRecord(new W5SynchAfterPostHelper((String) scd.get("projectId"),
-								392 /* w5_approval_record */, "" + appRecord.getApprovalRecordId(),
+								392 /* w5_approval_record */, "" + workflowRecord.getApprovalRecordId(),
 								(Integer) scd.get("userId"), requestParams.get(".w"), (short) 2));
 					Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
-					logRecord.setProjectUuid(appRecord.getProjectUuid());
+					logRecord.setProjectUuid(workflowRecord.getProjectUuid());
 
 					logRecord.setApprovalActionTip((short) 0); // start,
 																// approve,
@@ -409,9 +406,9 @@ public class CRUDEngine {
 																// time_limit_cont
 																// ,final_approve
 					logRecord.setUserId((Integer) scd.get("userId"));
-					logRecord.setApprovalRecordId(appRecord.getApprovalRecordId());
+					logRecord.setApprovalRecordId(workflowRecord.getApprovalRecordId());
 					logRecord.setApprovalStepId(sourceStepId);
-					logRecord.setApprovalId(appRecord.getApprovalId());
+					logRecord.setApprovalId(workflowRecord.getApprovalId());
 					dao.saveObject(logRecord);
 					formResult.getOutputMessages()
 							.add(t.get_approvalMap().get((short) 2).getDsc() + " "
@@ -431,27 +428,27 @@ public class CRUDEngine {
 																											// var
 																											// mi
 																											// bunda?
-					approval = t.get_approvalMap().get((short) 2); // action=2
+					workflow = t.get_approvalMap().get((short) 2); // action=2
 																	// for
 																	// insert
-					if (approval != null && approval.getActiveFlag() != 0 && approval.getApprovalRequestTip() >= 1) { // insert
+					if (workflow != null && workflow.getActiveFlag() != 0 && workflow.getApprovalRequestTip() >= 1) { // insert
 																														// approval
 																														// mekanizmasi
 																														// var
 																														// ve
 																														// automatic
 						Map<String, Object> advancedStepSqlResult = null;
-						switch (approval.getApprovalRequestTip()) { // eger
+						switch (workflow.getApprovalRequestTip()) { // eger
 																	// approval
 																	// olacaksa
 						case 1: // automatic approval
-							if (approval.getAdvancedBeginSql() != null
-									&& approval.getAdvancedBeginSql().trim().length() > 2) { // calisacak
+							if (workflow.getAdvancedBeginSql() != null
+									&& workflow.getAdvancedBeginSql().trim().length() > 2) { // calisacak
 								
-								Object oz = scriptEngine.executeScript(scd, requestParams, approval.getAdvancedBeginSql(), null, "wf_"+approval.getApprovalId()+"_abs");
+								Object oz = scriptEngine.executeScript(scd, requestParams, workflow.getAdvancedBeginSql(), null, "wf_"+workflow.getApprovalId()+"_abs");
 								if(oz!=null) {
 									if(oz instanceof Boolean) {
-										if(!((Boolean)oz))approval=null;
+										if(!((Boolean)oz))workflow=null;
 									} else
 										advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
 								}
@@ -462,20 +459,20 @@ public class CRUDEngine {
 								// zaman girmeyecek
 
 							}
-							approvalStep = null;
-							if(approval!=null)switch (approval.getApprovalFlowTip()) { // simple
+							workflowStep = null;
+							if(workflow!=null)switch (workflow.getApprovalFlowTip()) { // simple
 							case 0: // basit onay
-								approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
+								workflowStep = workflow.get_approvalStepList().get(0).getNewInstance();
 								break;
 							case 1: // complex onay
 								if (advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("approval_step_id") != null
 										&& GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id")) != 0)
-									approvalStep = approval.get_approvalStepMap()
+									workflowStep = workflow.get_approvalStepMap()
 											.get(GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id")))
 											.getNewInstance();
 								else
-									approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
+									workflowStep = workflow.get_approvalStepList().get(0).getNewInstance();
 								break;
 						/*	case 2: // hierarchical onay DEPRECATED
 								int mngUserId = GenericUtil.uInt(scd.get("mngUserId"));
@@ -499,8 +496,8 @@ public class CRUDEngine {
 
 							break;
 						case 2: // manual after action
-							if (approval.getManualDemandStartAppFlag() == 0
-									|| (approval.getManualDemandStartAppFlag() == 1
+							if (workflow.getManualDemandStartAppFlag() == 0
+									|| (workflow.getManualDemandStartAppFlag() == 1
 											&& GenericUtil.uInt(formResult.getRequestParams().get("_aa")) == -1)) { // Eğer
 																													// onay
 																													// mekanizması
@@ -546,12 +543,12 @@ public class CRUDEngine {
 													null, (String) advancedStepSqlResult.get("error_msg"), null);
 									}
 								} */
-								if(approvalStep==null) {
-									approvalStep = new W5WorkflowStep();
+								if(workflowStep==null) {
+									workflowStep = new W5WorkflowStep();
 									// if(approval.getDynamicStepFlag()!=0))
-									approvalStep.setApprovalRoles(approval.getManualAppRoleIds());
-									approvalStep.setApprovalUsers(approval.getManualAppUserIds());
-									if (approval.getManualAppTableFieldIds() != null) { // TODO:
+									workflowStep.setApprovalRoles(workflow.getManualAppRoleIds());
+									workflowStep.setApprovalUsers(workflow.getManualAppUserIds());
+									if (workflow.getManualAppTableFieldIds() != null) { // TODO:
 																						// burda
 																						// fieldlardan
 																						// userlar
@@ -566,11 +563,11 @@ public class CRUDEngine {
 										// approval.getManualAppTableFieldIds(),
 										// scd,
 										// o.toString());
-									} else if (approvalStep.getApprovalUsers() == null) // TODO:
+									} else if (workflowStep.getApprovalUsers() == null) // TODO:
 																						// yanlis
-										approvalStep.setApprovalUsers("" + (Integer) scd.get("userId"));
+										workflowStep.setApprovalUsers("" + (Integer) scd.get("userId"));
 
-									approvalStep.setApprovalStepId(901); // wait
+									workflowStep.setApprovalStepId(901); // wait
 																			// for
 																			// starting
 																			// approval
@@ -578,57 +575,57 @@ public class CRUDEngine {
 							}
 							break;
 						}
-						if (approval != null && (approval.getManualDemandStartAppFlag() == 0
-								|| (approval.getManualDemandStartAppFlag() == 1
+						if (workflow != null && (workflow.getManualDemandStartAppFlag() == 0
+								|| (workflow.getManualDemandStartAppFlag() == 1
 										&& GenericUtil.uInt(formResult.getRequestParams().get("_aa")) == -1))) { // Onay
 																													// Mek
 																													// Başlat
-							if (approvalStep != null) { // step hazir
+							if (workflowStep != null) { // step hazir
 								// if(approval.getApprovalStrategyTip()==0)schema
 								// =
 								// FrameworkCache.getAppSettingStringValue(scd,
 								// "approval_schema");
-								appRecord = new W5WorkflowRecord((String) scd.get("projectId"));
-								appRecord.setApprovalId(approval.getApprovalId());
-								appRecord.setApprovalStepId(approvalStep.getApprovalStepId());
-								appRecord.setApprovalActionTip((short) 0); // start,approve,return,reject,time_limit_exceed
-								appRecord.setTableId(formResult.getForm().getObjectId());
-								appRecord.setReturnFlag(approvalStep.getReturnFlag());
-								appRecord.setApprovalUsers(advancedStepSqlResult != null
+								workflowRecord = new W5WorkflowRecord((String) scd.get("projectId"));
+								workflowRecord.setApprovalId(workflow.getApprovalId());
+								workflowRecord.setApprovalStepId(workflowStep.getApprovalStepId());
+								workflowRecord.setApprovalActionTip((short) 0); // start,approve,return,reject,time_limit_exceed
+								workflowRecord.setTableId(formResult.getForm().getObjectId());
+								workflowRecord.setReturnFlag(workflowStep.getReturnFlag());
+								workflowRecord.setApprovalUsers(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("approval_users") != null
 												? (String) advancedStepSqlResult.get("approval_users")
-												: approvalStep.getApprovalUsers());
-								appRecord.setApprovalRoles(advancedStepSqlResult != null
+												: workflowStep.getApprovalUsers());
+								workflowRecord.setApprovalRoles(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("approval_roles") != null
 												? (String) advancedStepSqlResult.get("approval_roles")
-												: approvalStep.getApprovalRoles());
-								appRecord.setAccessViewTip(advancedStepSqlResult != null
+												: workflowStep.getApprovalRoles());
+								workflowRecord.setAccessViewTip(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("access_view_tip") != null
 												? (short) GenericUtil.uInt(advancedStepSqlResult.get("access_view_tip"))
-												: approvalStep.getAccessViewTip());
-								appRecord.setAccessViewRoles(advancedStepSqlResult != null
+												: workflowStep.getAccessViewTip());
+								workflowRecord.setAccessViewRoles(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("access_view_roles") != null
 												? (String) advancedStepSqlResult.get("access_view_roles")
-												: approvalStep.getAccessViewRoles());
-								appRecord.setAccessViewUsers(advancedStepSqlResult != null
+												: workflowStep.getAccessViewRoles());
+								workflowRecord.setAccessViewUsers(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("access_view_users") != null
 												? (String) advancedStepSqlResult.get("access_view_users")
-												: approvalStep.getAccessViewUsers());
-								if (appRecord.getAccessViewTip() != 0 && !GenericUtil
-										.hasPartInside2(appRecord.getAccessViewUsers(), scd.get("userId"))) // goruntuleme
+												: workflowStep.getAccessViewUsers());
+								if (workflowRecord.getAccessViewTip() != 0 && !GenericUtil
+										.hasPartInside2(workflowRecord.getAccessViewUsers(), scd.get("userId"))) // goruntuleme
 																											// kisiti
 																											// var
 																											// ve
 																											// kendisi
 																											// goremiyorsa,
 									// kendisini de ekle
-									appRecord.setAccessViewUsers(appRecord.getAccessViewUsers() != null
-											? appRecord.getAccessViewUsers() + "," + scd.get("userId")
+									workflowRecord.setAccessViewUsers(workflowRecord.getAccessViewUsers() != null
+											? workflowRecord.getAccessViewUsers() + "," + scd.get("userId")
 											: scd.get("userId").toString());
-								appRecord.setInsertUserId((Integer) scd.get("userId"));
-								appRecord.setVersionUserId((Integer) scd.get("userId"));
+								workflowRecord.setInsertUserId((Integer) scd.get("userId"));
+								workflowRecord.setVersionUserId((Integer) scd.get("userId"));
 								// appRecord.setCustomizationId((Integer)scd.get("customizationId"));
-								appRecord.setHierarchicalLevel(0);
+								workflowRecord.setHierarchicalLevel(0);
 							} else {
 								throw new IWBException("framework", "Workflow", formId, null,
 										LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_hatali_onay_tanimi"),
@@ -664,21 +661,21 @@ public class CRUDEngine {
 				}
 
 				if (FrameworkSetting.workflow && accessControlSelfFlag && formResult.getErrorMap().isEmpty()
-						&& appRecord != null) { // aproval baslanmis
+						&& workflowRecord != null) { // aproval baslanmis
 					int tablePk = GenericUtil.uInt(formResult.getOutputFields()
 							.get(/* formResult.getForm().get_sourceTable() */ FrameworkCache
 									.getTable(scd, formResult.getForm().getObjectId()).get_tableFieldList().get(0)
 									.getDsc()));
-					appRecord.setTablePk(tablePk);
+					workflowRecord.setTablePk(tablePk);
 					String summaryText = dao.getSummaryText4Record(scd, t.getTableId(), tablePk);
-					appRecord.setDsc(summaryText);
-					dao.saveObject(appRecord);
+					workflowRecord.setDsc(summaryText);
+					dao.saveObject(workflowRecord);
 					if (FrameworkSetting.liveSyncRecord)
 						formResult.addSyncRecord(new W5SynchAfterPostHelper((String) scd.get("projectId"),
-								392 /* w5_approval_record */, "" + appRecord.getApprovalRecordId(),
+								392 /* w5_approval_record */, "" + workflowRecord.getApprovalRecordId(),
 								(Integer) scd.get("userId"), requestParams.get(".w"), (short) 1));
 					Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
-					logRecord.setProjectUuid(appRecord.getProjectUuid());
+					logRecord.setProjectUuid(workflowRecord.getProjectUuid());
 
 					logRecord.setApprovalActionTip((short) 0); // start,
 																// approve,
@@ -688,12 +685,12 @@ public class CRUDEngine {
 																// ,final_approve,
 																// deleted
 					logRecord.setUserId((Integer) scd.get("userId"));
-					logRecord.setApprovalRecordId(appRecord.getApprovalRecordId());
+					logRecord.setApprovalRecordId(workflowRecord.getApprovalRecordId());
 					logRecord.setApprovalStepId(sourceStepId);
-					logRecord.setApprovalId(appRecord.getApprovalId());
+					logRecord.setApprovalId(workflowRecord.getApprovalId());
 					dao.saveObject(logRecord);
 
-					approval = t.get_approvalMap().get((short) 2); // action=1
+					workflow = t.get_approvalMap().get((short) 2); // action=1
 																	// for
 																	// update
 					String appRecordUserList = null;
@@ -715,7 +712,7 @@ public class CRUDEngine {
 
 					
 
-					if (appRecord.getApprovalStepId() != 901)
+					if (workflowRecord.getApprovalStepId() != 901)
 						formResult.getOutputMessages()
 								.add(t.get_approvalMap().get((short) 2).getDsc() + ", "
 										+ LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_onaya_sunulmustur")
@@ -735,10 +732,10 @@ public class CRUDEngine {
 							dao.getTableRecordSummary(scd, t.getTableId(), GenericUtil.uInt(ptablePk), 32));
 				}
 				if (FrameworkSetting.workflow && accessControlSelfFlag) {
-					if (appRecord != null) { // eger bir approval sureci
+					if (workflowRecord != null) { // eger bir approval sureci
 												// icindeyse
 						Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
-						logRecord.setProjectUuid(appRecord.getProjectUuid());
+						logRecord.setProjectUuid(workflowRecord.getProjectUuid());
 
 						logRecord.setApprovalActionTip((short) 6); // start,
 																	// approve,
@@ -748,34 +745,34 @@ public class CRUDEngine {
 																	// ,final_approve,
 																	// deleted
 						logRecord.setUserId((Integer) scd.get("userId"));
-						logRecord.setApprovalRecordId(appRecord.getApprovalRecordId());
-						logRecord.setApprovalStepId(appRecord.getApprovalStepId());
-						logRecord.setApprovalId(appRecord.getApprovalId());
+						logRecord.setApprovalRecordId(workflowRecord.getApprovalRecordId());
+						logRecord.setApprovalStepId(workflowRecord.getApprovalStepId());
+						logRecord.setApprovalId(workflowRecord.getApprovalId());
 						dao.saveObject(logRecord);
-						dao.removeObject(appRecord); // TODO:aslinda bir de loga
+						dao.removeObject(workflowRecord); // TODO:aslinda bir de loga
 														// atmali bunu
-						appRecord = null;
+						workflowRecord = null;
 					} else if (t.get_approvalMap() != null) { // onay
 																// mekanizmasi
 																// var mi bunda?
-						approval = t.get_approvalMap().get((short) 3); // action=2
+						workflow = t.get_approvalMap().get((short) 3); // action=2
 																		// for
 																		// delete
-						if (approval != null && approval.getActiveFlag() != 0
-								&& approval.getApprovalRequestTip() >= 1) { // insert
+						if (workflow != null && workflow.getActiveFlag() != 0
+								&& workflow.getApprovalRequestTip() >= 1) { // insert
 																			// approval
 																			// mekanizmasi
 																			// var
 																			// ve
 																			// automatic
 							Map<String, Object> advancedStepSqlResult = null;
-							switch (approval.getApprovalRequestTip()) { // eger
+							switch (workflow.getApprovalRequestTip()) { // eger
 																		// approval
 																		// olacaksa
 							case 1: // automatic approval
-								if (approval.getAdvancedBeginSql() != null
-										&& approval.getAdvancedBeginSql().length() > 10) { // calisacak
-									Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd,
+								if (workflow.getAdvancedBeginSql() != null
+										&& workflow.getAdvancedBeginSql().length() > 10) { // calisacak
+									Object[] oz = DBUtil.filterExt4SQL(workflow.getAdvancedBeginSql(), scd,
 											requestParams, null);
 									advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
 									// donen bir cevap var, aktive_flag deger
@@ -784,72 +781,72 @@ public class CRUDEngine {
 									if (advancedStepSqlResult != null) {
 										if (advancedStepSqlResult.get("active_flag") != null
 												&& GenericUtil.uInt(advancedStepSqlResult.get("active_flag")) == 0) // girmeyecek
-											approval = null; // approval
+											workflow = null; // approval
 																// olmayacak
 										if (advancedStepSqlResult.get("error_msg") != null) // girmeyecek
-											throw new IWBException("security", "Workflow", approval.getApprovalId(),
+											throw new IWBException("security", "Workflow", workflow.getApprovalId(),
 													null, (String) advancedStepSqlResult.get("error_msg"), null);
 									}
 								}
-								approvalStep = null;
-								switch (approval.getApprovalFlowTip()) { // simple
+								workflowStep = null;
+								switch (workflow.getApprovalFlowTip()) { // simple
 								case 0: // basit onay
-									approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
+									workflowStep = workflow.get_approvalStepList().get(0).getNewInstance();
 									break;
 								case 1: // complex onay
 									if (advancedStepSqlResult != null
 											&& advancedStepSqlResult.get("approval_step_id") != null
 											&& GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id")) != 0)
-										approvalStep = approval.get_approvalStepMap()
+										workflowStep = workflow.get_approvalStepMap()
 												.get(GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id")));
 									else
-										approvalStep = approval.get_approvalStepList().get(0).getNewInstance();
+										workflowStep = workflow.get_approvalStepList().get(0).getNewInstance();
 									break;
 								}
 
 								break;
 							}
 
-							if (approvalStep != null) { // step hazir
-								appRecord = new W5WorkflowRecord();
-								appRecord.setApprovalId(approval.getApprovalId());
-								appRecord.setApprovalStepId(approvalStep.getApprovalStepId());
-								appRecord.setApprovalActionTip((short) 0); // start,approve,return,reject,time_limit_exceed
-								appRecord.setTableId(formResult.getForm().getObjectId());
-								appRecord.setReturnFlag(approvalStep.getReturnFlag());
-								appRecord.setApprovalUsers(advancedStepSqlResult != null
+							if (workflowStep != null) { // step hazir
+								workflowRecord = new W5WorkflowRecord();
+								workflowRecord.setApprovalId(workflow.getApprovalId());
+								workflowRecord.setApprovalStepId(workflowStep.getApprovalStepId());
+								workflowRecord.setApprovalActionTip((short) 0); // start,approve,return,reject,time_limit_exceed
+								workflowRecord.setTableId(formResult.getForm().getObjectId());
+								workflowRecord.setReturnFlag(workflowStep.getReturnFlag());
+								workflowRecord.setApprovalUsers(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("approval_users") != null
 												? (String) advancedStepSqlResult.get("approval_users")
-												: approvalStep.getApprovalUsers());
-								appRecord.setApprovalRoles(advancedStepSqlResult != null
+												: workflowStep.getApprovalUsers());
+								workflowRecord.setApprovalRoles(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("approval_roles") != null
 												? (String) advancedStepSqlResult.get("approval_roles")
-												: approvalStep.getApprovalRoles());
-								appRecord.setAccessViewTip(advancedStepSqlResult != null
+												: workflowStep.getApprovalRoles());
+								workflowRecord.setAccessViewTip(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("access_view_tip") != null
 												? (short) GenericUtil.uInt(advancedStepSqlResult.get("access_view_tip"))
-												: approvalStep.getAccessViewTip());
-								appRecord.setAccessViewRoles(advancedStepSqlResult != null
+												: workflowStep.getAccessViewTip());
+								workflowRecord.setAccessViewRoles(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("access_view_roles") != null
 												? (String) advancedStepSqlResult.get("access_view_roles")
-												: approvalStep.getAccessViewRoles());
-								appRecord.setAccessViewUsers(advancedStepSqlResult != null
+												: workflowStep.getAccessViewRoles());
+								workflowRecord.setAccessViewUsers(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("access_view_users") != null
 												? (String) advancedStepSqlResult.get("access_view_users")
-												: approvalStep.getAccessViewUsers());
-								if (appRecord.getAccessViewTip() != 0 && !GenericUtil
-										.hasPartInside2(appRecord.getAccessViewUsers(), scd.get("userId"))) // goruntuleme
+												: workflowStep.getAccessViewUsers());
+								if (workflowRecord.getAccessViewTip() != 0 && !GenericUtil
+										.hasPartInside2(workflowRecord.getAccessViewUsers(), scd.get("userId"))) // goruntuleme
 																											// kisiti
 																											// var
 																											// ve
 																											// kendisi
 																											// goremiyorsa,
 									// kendisini de ekle
-									appRecord.setAccessViewUsers(appRecord.getAccessViewUsers() != null
-											? appRecord.getAccessViewUsers() + "," + scd.get("userId")
+									workflowRecord.setAccessViewUsers(workflowRecord.getAccessViewUsers() != null
+											? workflowRecord.getAccessViewUsers() + "," + scd.get("userId")
 											: scd.get("userId").toString());
-								appRecord.setInsertUserId((Integer) scd.get("userId"));
-								appRecord.setVersionUserId((Integer) scd.get("userId"));
+								workflowRecord.setInsertUserId((Integer) scd.get("userId"));
+								workflowRecord.setVersionUserId((Integer) scd.get("userId"));
 								// appRecord.setCustomizationId((Integer)scd.get("customizationId"));
 							} else {
 								throw new IWBException("framework", "Workflow", formId, null,
@@ -860,7 +857,7 @@ public class CRUDEngine {
 					}
 				}
 
-				if (appRecord == null && FrameworkSetting.feed && t.getShowFeedTip() != 0
+				if (workflowRecord == null && FrameworkSetting.feed && t.getShowFeedTip() != 0
 						&& (t.getTableId() != 671 && t.getTableId() != 329 && t.getTableId() != 44)) { // TODO:
 																										// delete
 																										// icin
@@ -901,7 +898,7 @@ public class CRUDEngine {
 				mz.put("ptable_pk", ptablePk);
 				mz.put(".w", requestParams.get(".w"));
 				W5GlobalFuncResult dfr = scriptEngine.executeGlobalFunc(scd, 690, mz, (short)7);//control for any child records
-				if (ptablePk != null && appRecord == null) {
+				if (ptablePk != null && workflowRecord == null) {
 					boolean b = dao.deleteTableRecord(formResult, paramSuffix);
 					if (!b)
 						formResult.getOutputMessages().add(LocaleMsgCache.get2(scd, "record_not_found"));
@@ -911,20 +908,20 @@ public class CRUDEngine {
 					// t.getTableId(),GenericUtil.uInt(requestParams.get(t.get_tableParamList().get(0).getDsc()+paramSuffix)));//caching
 					// icin
 
-					if (FrameworkSetting.workflow && appRecord != null) { // aproval
+					if (FrameworkSetting.workflow && workflowRecord != null) { // aproval
 																			// baslanmis
 						int tablePk = GenericUtil.uInt(ptablePk);
-						appRecord.setTablePk(tablePk);
+						workflowRecord.setTablePk(tablePk);
 						String summaryText = dao.getSummaryText4Record(scd, t.getTableId(), tablePk);
-						appRecord.setDsc(summaryText);
-						dao.saveObject(appRecord);
+						workflowRecord.setDsc(summaryText);
+						dao.saveObject(workflowRecord);
 						if (FrameworkSetting.liveSyncRecord)
 							formResult.addSyncRecord(new W5SynchAfterPostHelper((String) scd.get("projectId"),
-									392 /* w5_approval_record */, "" + appRecord.getApprovalRecordId(),
+									392 /* w5_approval_record */, "" + workflowRecord.getApprovalRecordId(),
 									(Integer) scd.get("userId"), requestParams.get(".w"), (short) 1));
 
 						Log5WorkflowRecord logRecord = new Log5WorkflowRecord();
-						logRecord.setProjectUuid(appRecord.getProjectUuid());
+						logRecord.setProjectUuid(workflowRecord.getProjectUuid());
 
 						logRecord.setApprovalActionTip((short) 0); // start,
 																	// approve,
@@ -934,12 +931,12 @@ public class CRUDEngine {
 																	// ,final_approve,
 																	// deleted
 						logRecord.setUserId((Integer) scd.get("userId"));
-						logRecord.setApprovalRecordId(appRecord.getApprovalRecordId());
+						logRecord.setApprovalRecordId(workflowRecord.getApprovalRecordId());
 						logRecord.setApprovalStepId(sourceStepId);
-						logRecord.setApprovalId(appRecord.getApprovalId());
+						logRecord.setApprovalId(workflowRecord.getApprovalId());
 						dao.saveObject(logRecord);
 
-						approval = t.get_approvalMap().get((short) 3); // action=3
+						workflow = t.get_approvalMap().get((short) 3); // action=3
 																		// for
 																		// delete
 						String appRecordUserList = null;
@@ -948,7 +945,7 @@ public class CRUDEngine {
 
 						//TODO Notification
 
-						if (appRecord.getApprovalStepId() != 901)
+						if (workflowRecord.getApprovalStepId() != 901)
 							formResult.getOutputMessages()
 									.add(t.get_approvalMap().get((short) 3).getDsc() + ", "
 											+ LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_onaya_sunulmustur")
@@ -1406,13 +1403,7 @@ public class CRUDEngine {
 				}
 		}
 		if ((action == 1 || action == 3) && FrameworkSetting.liveSyncRecord) { // TODO
-																				// edit
-																				// eden
-																				// diger
-																				// kullanicilara
-																				// bildirilmesi
-																				// gerekiyor,
-																				// boyle
+																				
 			// bir kaydın guncellendigi/sildigi ve user'in kapattigi
 			String webPageId = requestParams.get(".w");
 			String tabId = requestParams.get(".t ");

@@ -851,6 +851,7 @@ public class PreviewController implements InitializingBean {
 				scd.put("mainTemplateId", po.getUiMainTemplateId());
 				scd.put("sessionId", session.getId());
 				scd.put("path", "../");
+				if(!scd.containsKey("date_format"))scd.put("date_format", po.getLkpDateFormat());
 				session.setAttribute(scdKey, scd);
 
 //				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) 0, request.getParameter(".w"));

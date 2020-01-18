@@ -69,13 +69,9 @@ public class GenericUtil {
 
 	public static final String dtCh = "/";
 	public static final String dateFormat = "dd" + dtCh + "MM" + dtCh + "yyyy";
+	public static final String[] dateFormatMulti = new String[] {"dd" + dtCh + "MM" + dtCh + "yyyy", "MM" + dtCh + "dd" + dtCh + "yyyy"};
 	private static final String strIndex = "0123456789+-" + dtCh;
 
-	public static final int promis_STRING = 1;
-	public static final int promis_DATE = 2;
-	public static final int promis_DOUBLE = 3;
-	public static final int promis_INTEGER = 4;
-	public static final int promis_BOOLEAN = 5;
 
 	public static String orderStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	static int orderLen = orderStr.length();
@@ -262,6 +258,29 @@ public class GenericUtil {
 		return null;
 	}
 
+
+	public static Date uDate(String x, int dateFormat) {
+		if (x == null || x.trim().length() == 0)
+			return null;
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat].concat(" HH:mm:ss")).parse(x);
+		} catch (Exception e) {
+		}
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat].concat(" HH:mm")).parse(x);
+		} catch (Exception e) {
+		}
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat]).parse(x);
+		} catch (Exception e) {
+		}
+		try {
+			return new SimpleDateFormat("yyyy-MM-dd").parse(x);
+		} catch (Exception e) {
+		}
+		return null;
+	}
+	
 	public static Date uDateTm(String x) {
 		if (x == null || x.trim().length() == 0)
 			return null;
@@ -551,6 +570,16 @@ public class GenericUtil {
 		}
 	}
 
+
+	public static String uFormatDate(Date x, int dateFormat) {
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat]).format(x);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	
 	public static String uFormatDate(java.sql.Date x) {
 		try {
 			return new SimpleDateFormat(dateFormat).format(x).concat(" 00:00:00");
@@ -559,6 +588,15 @@ public class GenericUtil {
 		}
 	}
 
+	
+	public static String uFormatDate(java.sql.Date x, int dateFormat) {
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat]).format(x).concat(" 00:00:00");
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	public static String uFormatDateSade(java.sql.Date x) {
 		try {
 			return new SimpleDateFormat(dateFormat).format(x);
@@ -591,6 +629,15 @@ public class GenericUtil {
 		}
 	}
 
+
+	public static String uFormatDateTime(java.sql.Timestamp x, int dateFormat) {
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat].concat(" HH:mm:ss")).format(x);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	public static String uFormatDateOnlyTime(Date x) {
 		try {
 			return new SimpleDateFormat("HH:mm").format(x);
@@ -680,21 +727,6 @@ public class GenericUtil {
 		}
 	}
 
-	public static Object valueFromString(String x, int promisType) {
-		switch (promisType) {
-		case promis_STRING:
-			return x;
-		case promis_DATE:
-			return GenericUtil.uDate(x);
-		case promis_DOUBLE:
-			return GenericUtil.uDouble(x);
-		case promis_INTEGER:
-			return GenericUtil.uInteger(x);
-		case promis_BOOLEAN:
-			return GenericUtil.uCheckBox(x);
-		}
-		return null;
-	}
 
 	public static String stringToHtml(Object x) {
 		if (x == null)
@@ -970,7 +1002,7 @@ public class GenericUtil {
 			else
 				b = true;
 			Object o = s.get(q);
-			if (o != null && (o instanceof Integer || o instanceof Double || o instanceof BigDecimal))
+			if (o != null && (o instanceof Integer || o instanceof Short || o instanceof Long || o instanceof Double || o instanceof BigDecimal))
 				html.append("\"").append(q).append("\":").append(o != null ? o : "");
 			else
 				html.append("\"").append(q).append("\":\"").append(o != null ? stringToJS2(o.toString()) : "")
@@ -1549,7 +1581,7 @@ public class GenericUtil {
 		if (pvalue == null || pvalue.trim().length() == 0)
 			pvalue = defaultValue;
 
-		Object psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamTip());
+		Object psonuc = param.getParamTip()==2 && scd!=null && pvalue!=null ? GenericUtil.uDate(pvalue, uInt(scd.get("date_format"))): GenericUtil.getObjectByTip(pvalue, param.getParamTip());
 		if (notNullFlag != 0 && psonuc == null) { // not null
 			hasError = true;
 			errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_not_null")); 
@@ -1724,24 +1756,6 @@ public class GenericUtil {
 			tmp.replace(bit, bit, prefix); // getMsgHTML de olabilirdi
 		}
 		return tmp;
-	}
-
-	public static String fromPromisType2OrclType(W5Param p) {
-		short maxLen = p.getMaxLength() == null ? 0 : p.getMaxLength();
-		short minLen = p.getMinLength() == null ? 0 : p.getMinLength();
-		switch (p.getParamTip()) {
-		case promis_STRING:
-			return maxLen > 4000 ? "CLOB" : "VARCHAR2(" + maxLen + ")";
-		case promis_DATE:
-			return "DATE";
-		case promis_DOUBLE:
-			return "NUMBER(" + (maxLen > 0 ? maxLen : 18) + (minLen > 0 ? "," + minLen : ",2") + ")";
-		case promis_INTEGER:
-			return "NUMBER(" + (maxLen == 0 ? 10 : maxLen) + ")";
-		case promis_BOOLEAN:
-			return "NUMBER(1)";
-		}
-		return null;
 	}
 
 
