@@ -7845,13 +7845,13 @@ class XForm extends React.Component {
              */
             this.onComboChange = inputName => selectedOption => {
                 var { values } = this.state;
-                var slectedOption_Id = selectedOption && selectedOption.id;
-                values[inputName] = slectedOption_Id;
+                var selectedOptionId = selectedOption && selectedOption.id;
+                values[inputName] = selectedOptionId;
                 var triggers = this.triggerz4ComboRemotes;
                 // used for remote @depricated
                 if (triggers[inputName]) {
                     triggers[inputName].map(trigger => {
-                        var nv = trigger.f(slectedOption_Id, null, values);
+                        var nv = trigger.f(selectedOptionId, null, values);
                         var { options } = this.state;
                         if (nv) {
                             iwb.request({
@@ -8965,4 +8965,11 @@ function openPopup(url, name, x, y, r) {
   if (!wh) toastr.error(getLocMsg("remove_popup_blocker"));
   else wh.focus();
   return false;
+}
+
+iwb.findAsyncValue = function(value, options){
+	if(!value || !options || !options.length)return '';
+	for(var qi=0;qi<options.length;qi++)if(options[qi].id==value)return options[qi];
+	return '';
+	
 }

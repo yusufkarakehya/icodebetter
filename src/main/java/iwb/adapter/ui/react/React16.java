@@ -2183,7 +2183,7 @@ public class React16 implements ViewAdapter {
 					buf.append(",checked:values.").append(fc.getDsc()).append("||false");
 					break; 
 			case	10:
-				buf.append(", value: values.").append(fc.getDsc()).append("||''");
+				buf.append(", value: values.").append(fc.getDsc()).append(" ? iwb.findAsyncValue(values.").append(fc.getDsc()).append(",options.").append(fc.getDsc()).append("):''");
 				break;
 			default:buf.append(",value:values.").append(fc.getDsc()).append("||''");
 			}
