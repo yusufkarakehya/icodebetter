@@ -695,10 +695,10 @@ public class ExtJs3_4 implements ViewAdapter {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private StringBuilder serializeFormCellProperty(W5FormCellHelper cellResult, W5FormResult formResult) {
+	private StringBuilder serializeFormCellDependencies(W5FormCellHelper cellResult, W5FormResult formResult) {
 		StringBuilder buf = new StringBuilder();
-		for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getActiveFlag()!=0 && !GenericUtil.isEmpty(fcr.getFormCell().get_formCellPropertyList())) {
-			for(W5FormCellProperty fcp:fcr.getFormCell().get_formCellPropertyList()) if(cellResult.getFormCell().getFormCellId()==fcp.getRelatedFormCellId()) {
+		for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getActiveFlag()!=0) {
+			if(!GenericUtil.isEmpty(fcr.getFormCell().get_formCellPropertyList()))for(W5FormCellProperty fcp:fcr.getFormCell().get_formCellPropertyList()) if(cellResult.getFormCell().getFormCellId()==fcp.getRelatedFormCellId()) {
 				String dsc = cellResult.getFormCell().getDsc();
 				if(buf.length()==0) {
 					buf.append("\nmf._").append(dsc).append(".on('");
@@ -734,6 +734,15 @@ public class ExtJs3_4 implements ViewAdapter {
 				append("; else ").append(getPropertyMethodName(fcr.getFormCell().getDsc(), fcp.getLkpPropertyTip(), false, localMsg));
 				
 				buf.append("\n");
+			}
+			if(fcr.getFormCell().getControlTip()==2 && fcr.getFormCell().getParentFormCellId()==cellResult.getFormCell().getFormCellId()) { //date and dependant
+				String dsc = cellResult.getFormCell().getDsc();
+				if(buf.length()==0) {
+					buf.append("\nmf._").append(dsc).append(".on('select', ()=>onChange_").append(dsc).append("());\nfunction onChange_").append(dsc).append("(){var ax = getFieldValue(_").append(dsc).append(");\n");
+				}
+				
+				buf.append("mf._").append(fcr.getFormCell().getDsc()).append(".setMinValue(ax?ax:'');\n");
+				
 			}
 			
 		}
@@ -1371,12 +1380,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		StringBuilder s2 =new StringBuilder();
 		for (W5FormCellHelper fc : fr.getFormCellResults())
 			if (fc.getFormCell().getActiveFlag() != 0) {
-				if (fc.getFormCell().getControlTip() != 102) {// label'dan
-																// farkli ise.
-																// label direk
-																// render
-																// edilirken
-																// koyuluyor
+				if (fc.getFormCell().getControlTip() != 102) {// only if it is not label
 					s.append("var _")
 							.append(fc.getFormCell().getDsc())
 							.append("=")
@@ -1385,7 +1389,7 @@ public class ExtJs3_4 implements ViewAdapter {
 							.append("=")
 							.append(serializeFormCell(customizationId, xlocale,
 									fc, fr)).append("\n");
-					s2.append(serializeFormCellProperty(fc, fr));
+					s2.append(serializeFormCellDependencies(fc, fr));
 					// if(fc.getFormCell().getControlTip()==24)s.append("_").append(fc.getFormCell().getDsc()).append(".treePanel.getRootNode().expand();\n");
 				} else {
 					fc.setValue(LocaleMsgCache.get2(customizationId, xlocale,
@@ -5700,7 +5704,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		}
 */
 		StringBuilder bufFilters = new StringBuilder(); // grid filtreleri ilgili kolonları tutacak
-		if(FrameworkCache.getAppSettingIntValue(scd, "grid_graph_marker")!=0){
+		if(false && FrameworkCache.getAppSettingIntValue(scd, "grid_graph_marker")!=0){
 			if (b)buf.append(",\n");
 			buf.append("{header: '',dataIndex:'grid_graph_marker', width:20, hidden:true, renderer:gridGraphMarkerRenderer(").append(grid.getDsc()).append(")}");
 			b = true;

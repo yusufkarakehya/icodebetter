@@ -7878,16 +7878,32 @@ class XForm extends React.Component {
              */
             this.onLovComboChange = inputName => selectedOptions => {
                 var { values } = this.state;
-                var slectedOption_Ids = [];
+                var selectedOptionIds = [];
                 if (selectedOptions) {
                     selectedOptions.map(selectedOption => {
-                        slectedOption_Ids.push(selectedOption.id);
+                    	selectedOptionIds.push(selectedOption.id);
                     });
                 }
-                values[inputName] = slectedOption_Ids.join(",");
+                values[inputName] = selectedOptionIds.join(",");
                 this.setState({ values });
             };
 
+            this.onCheckboxGroupChange = inputName => actionOption => {
+                var { values } = this.state;
+                var selectedOptionIds = values[inputName] ? values[inputName].split(','):[];
+                if (actionOption.checked) {//add
+                	selectedOptionIds.push(actionOption.id);
+                } else { //remove
+                	var ar = []
+                	selectedOptionIds.map(o=>{
+                		if(o!=actionOption.id)ar.push(o);
+                	});
+                	selectedOptionIds = ar;
+                	
+                }
+                values[inputName] = selectedOptionIds.join(",");
+                this.setState({ values });
+            };
             /**
              * sets state when number entered
              *
@@ -8877,7 +8893,7 @@ class CheckboxGroup extends React.Component {
         }, this.props.options.map((o) => {
 	        	return _('div',{}
 	            	,_('input',{id:this.props.name+'_'+o[this.props.valueKey], type:this.props.multi?'checkbox':'radio', checked:valMap[o[this.props.valueKey]], onClick:(aq)=>{
-	            		this.props.onChange({id:aq.target.value});
+	            		this.props.onChange({id:aq.target.value, checked:aq.target.checked});
 	            	}, name:this.props.name, value:o[this.props.valueKey]})
 		        	,' ', _('label',{for:this.props.name+'_'+o[this.props.valueKey], style:{fontWeight:400,color:'#333'}}, o[this.props.labelKey]));
         		}
@@ -8893,7 +8909,7 @@ iwb.hasPartInside=function(all,sub){
 	return true;
 }
 iwb.safeEquals= function(v1, v2){
-	if(v1==='' || (typeof v1=='undefined')){
+	if(v1==='' || v1===false || (typeof v1=='undefined')){
 		return (v2==='' || (typeof v2=='undefined'));
 	} else if(v2==='' || (typeof v2=='undefined'))return false;
 	return v1==v2;
@@ -8902,9 +8918,9 @@ iwb.safeEquals= function(v1, v2){
 iwb.formElementProperty = function(opr, elementValue, value){
 	switch(1*opr){
 	case -1://is Empty
-		return value==='' || (typeof value=='undefined');
+		return elementValue==='' || elementValue===null || (typeof elementValue=='undefined');
 	case -2://is not empty
-		return !(value==='' || (typeof value=='undefined'));
+		return !(elementValue==='' || elementValue===null || (typeof elementValue=='undefined'));
 	case	8://in
 		if(value==='' || (typeof value=='undefined'))return false;
 		return iwb.hasPartInside(value, elementValue);

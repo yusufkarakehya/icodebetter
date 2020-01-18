@@ -2000,8 +2000,12 @@ public class React16 implements ViewAdapter {
 					buf.append(")");
 					break;
 				}
+			}			
+		}
+		if(cellResult.getFormCell().getControlTip()==2 && cellResult.getFormCell().getParentFormCellId()!=0 && cellResult.getFormCell().getParentFormCellId()!=cellResult.getFormCell().getFormCellId()) {
+			for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getFormCellId()==cellResult.getFormCell().getParentFormCellId()) {
+				buf.append(",isValidDate:(current)=> {return values.").append(fcr.getFormCell().getDsc()).append(" ? current.isSameOrAfter(values.").append(fcr.getFormCell().getDsc()).append("):true}");
 			}
-			
 		}
 		
 		return buf;
@@ -2194,7 +2198,7 @@ public class React16 implements ViewAdapter {
 				buf.append(",onChange:this.onComboChange('").append(fc.getDsc()).append("')");
 				break;
 			case	8:	case	58: case	15:case 16:case	59://fc.getControlTip()==8 ||fc.getControlTip()==58 || fc.getControlTip()==15 ||fc.getControlTip()==59
-				buf.append(",onChange:this.onLovComboChange('").append(fc.getDsc()).append("')");
+				buf.append(",onChange:this.").append(fc.getParentFormCellId()==1?"onCheckboxGroupChange":"onLovComboChange").append("('").append(fc.getDsc()).append("')");
 				break;
 			case	3:	case	4:
 				buf.append(",onValueChange:this.onNumberChange('").append(fc.getDsc()).append("')");

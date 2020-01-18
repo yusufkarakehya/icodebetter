@@ -401,11 +401,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 						e);
 			}*/
 		} else {
-			query = (W5Query) find("from W5Query t where t.queryId=? AND t.projectUuid=?", qr.getQueryId(), projectId)
-					.get(0); // ozel bir
-								// client
-								// icin
-								// varsa
+			query = (W5Query) getCustomizedObject("from W5Query t where t.queryId=? AND t.projectUuid=?", qr.getQueryId(), projectId, "Query");
+			
 			query.set_queryFields(
 					find("from W5QueryField t where t.queryId=? AND t.tabOrder>0 AND t.postProcessTip!=99 AND t.projectUuid=? order by t.tabOrder",
 							qr.getQueryId(), projectId));

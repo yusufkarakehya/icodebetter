@@ -1057,6 +1057,8 @@ public class PostgreSQL extends BaseDAO {
 				case 58: // superboxselect
 				case 8: // lovcombo static
 				case 6: // eger static combobox ise listeyi load et
+					if(c.getLookupQueryId()==0)
+						throw new IWBException("framework", "LookUp", 0, null, "LookUp Static not defined for FormElement ["+c.getDsc()+"]", null);
 					W5LookUp lookUp = FrameworkCache.getLookUp(scd, c.getLookupQueryId(), "Form(" + c.getFormId() + ")."
 							+ c.getDsc() + "-> LookUp not found: " + c.getLookupQueryId());
 					rc.setLocaleMsgFlag((short) 1);
@@ -1120,6 +1122,8 @@ public class PostgreSQL extends BaseDAO {
 				case 24:
 				case 26:
 				case 55: // tree combo and treepanel
+					if(c.getLookupQueryId()==0)
+						throw new IWBException("framework", "Query", 0, null, "LookUp Query not defined for FormElement ["+c.getDsc()+"]", null);
 					String includedParams = GenericUtil.filterExt(c.getLookupIncludedParams(), scd, requestParams, null)
 							.toString();
 					if (includedParams != null && includedParams.length() > 2) {

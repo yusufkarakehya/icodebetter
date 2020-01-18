@@ -8690,9 +8690,9 @@ iwb.hasPartInside2=function(all,sub){
 iwb.formElementProperty = function(opr, elementValue, value){
 	switch(1*opr){
 	case -1://is Empty
-		return value==='' || (typeof value=='undefined');
+		return elementValue==='' || elementValue===null || (typeof elementValue=='undefined');
 	case -2://is not empty
-		return !(value==='' || (typeof value=='undefined'));
+		return !(elementValue==='' || elementValue===null || (typeof elementValue=='undefined'));
 	case	8://in
 		if(value==='' || (typeof value=='undefined'))return false;
 		return iwb.hasPartInside2(value, elementValue);
