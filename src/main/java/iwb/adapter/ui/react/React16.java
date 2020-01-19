@@ -65,7 +65,7 @@ import iwb.util.UserUtil;
 public class React16 implements ViewAdapter {
 	final public static String[] labelMap = new String[]{"info","warning","danger"};
 	final public static String[] filterMap = new String[]{"","serverFilter","dateRangeFilter","numberFilter","numberFilter","numberFilter"};
-	final public static String[] dateFormatMulti = new String[] {"DD/MM/YYYY","MM/DD/YYYY"};
+	final public static String[] dateFormatMulti = new String[] {"DD/MM/YYYY","MM/DD/YYYY","YYYY/MM/DD"};
 	
 	public StringBuilder serializeValidatonErrors(Map<String, String> errorMap,
 			String locale) {
@@ -2006,7 +2006,7 @@ public class React16 implements ViewAdapter {
 		}
 		if(cellResult.getFormCell().getControlTip()==2 && cellResult.getFormCell().getParentFormCellId()!=0 && cellResult.getFormCell().getParentFormCellId()!=cellResult.getFormCell().getFormCellId()) {
 			for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getFormCellId()==cellResult.getFormCell().getParentFormCellId()) {
-				buf.append(",isValidDate:(current)=> {return values.").append(fcr.getFormCell().getDsc()).append(" ? current.isSameOrAfter(values.").append(fcr.getFormCell().getDsc()).append("):true}");
+				buf.append(",isValidDate:(current)=> {return values.").append(fcr.getFormCell().getDsc()).append(" ? current.isSameOrAfter(moment(values.").append(fcr.getFormCell().getDsc()).append(",iwb.dateFormat)):true}");
 			}
 		}
 		

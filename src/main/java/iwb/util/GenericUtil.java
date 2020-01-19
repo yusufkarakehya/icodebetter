@@ -69,7 +69,7 @@ public class GenericUtil {
 
 	public static final String dtCh = "/";
 	public static final String dateFormat = "dd" + dtCh + "MM" + dtCh + "yyyy";
-	public static final String[] dateFormatMulti = new String[] {"dd" + dtCh + "MM" + dtCh + "yyyy", "MM" + dtCh + "dd" + dtCh + "yyyy"};
+	public static final String[] dateFormatMulti = new String[] {"dd" + dtCh + "MM" + dtCh + "yyyy", "MM" + dtCh + "dd" + dtCh + "yyyy", "yyyy"  + dtCh + "MM" + dtCh + "dd" };
 	private static final String strIndex = "0123456789+-" + dtCh;
 
 
@@ -286,6 +286,17 @@ public class GenericUtil {
 			return null;
 		try {
 			return new SimpleDateFormat(dateFormat.concat(" HH:mm")).parse(x);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+
+	public static Date uDateTm(String x, int dateFormat) {
+		if (x == null || x.trim().length() == 0)
+			return null;
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat].concat(" HH:mm")).parse(x);
 		} catch (Exception e) {
 			return null;
 		}
@@ -1581,7 +1592,15 @@ public class GenericUtil {
 		if (pvalue == null || pvalue.trim().length() == 0)
 			pvalue = defaultValue;
 
-		Object psonuc = param.getParamTip()==2 && scd!=null && pvalue!=null ? GenericUtil.uDate(pvalue, uInt(scd.get("date_format"))): GenericUtil.getObjectByTip(pvalue, param.getParamTip());
+		Object psonuc = null;
+		switch(param.getParamTip()) {
+		case 2: if(scd!=null && pvalue!=null) {
+			psonuc = GenericUtil.uDate(pvalue, uInt(scd.get("date_format")));
+			break;
+		}
+		default:
+			psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamTip());
+		}
 		if (notNullFlag != 0 && psonuc == null) { // not null
 			hasError = true;
 			errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_not_null")); 
@@ -1591,7 +1610,7 @@ public class GenericUtil {
 				if (param.getParamTip() == 5) {
 					psonuc = GenericUtil.uInt(psonuc) != 0;
 				} else {
-					psonuc = GenericUtil.uDateTm(pvalue);
+					psonuc = GenericUtil.uDateTm(pvalue, scd!=null ? uInt(scd.get("date_format")): 0);
 				}
 			}
 		}

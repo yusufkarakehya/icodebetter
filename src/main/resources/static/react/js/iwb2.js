@@ -7947,7 +7947,7 @@ class XForm extends React.Component {
                     }
                     values = {...values, ...componentWillPostResult };
                 }
-                iwb.request({
+                var requestConfig={
                     url: this.url +
                         "?" +
                         iwb.JSON2URI(this.params) +
@@ -7960,6 +7960,17 @@ class XForm extends React.Component {
                         var errors = {};
                         if (json.errorType)
                             switch (json.errorType) {
+                            	case	"confirm":
+                            		yesNoDialog({
+                                        text: json.error,
+                                        callback: success => {
+                                            if (success) {
+                                            	requestConfig.params['_confirmId_'+json.objectId]=1;
+                                    			iwb.request(requestConfig);
+                                            }
+                                        }
+                                    });
+                            		break;
                                 case "validation":
                                 	var errMsg = getLocMsg("validation_errors");
                                     if (json.errors && json.errors.length) {
@@ -8078,7 +8089,8 @@ class XForm extends React.Component {
                         this.setState({errors:{}});
                         if (cfg.callback) cfg.callback(json, xcfg);
                     }
-                });
+                }
+                iwb.request(requestConfig);
             };
             /**
              * used to make form active tab and visible on the page

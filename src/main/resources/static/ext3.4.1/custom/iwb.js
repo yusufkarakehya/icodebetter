@@ -551,23 +551,23 @@ function fmtTimeAgo(a) {
 }
 
 function fmtShortDate(x) {
-  return x ? (x.dateFormat ? x.dateFormat("d/m/Y") : x) : "";
+  return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat) : x) : "";
 }
 
 function fmtDateTime(x) {
-  return x ? (x.dateFormat ? x.dateFormat("d/m/Y H:i:s") : x) : "";
+  return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat+" H:i:s") : x) : "";
 }
 
 function fmtDateTimeWithDay(x, addsec) {
   if (addsec) {
-    return x ? (x.dateFormat ? x.dateFormat("d/m/Y H:i:s D") : x) : "";
+    return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat+" H:i:s D") : x) : "";
   } else {
-    return x ? (x.dateFormat ? x.dateFormat("d/m/Y H:i D") : x) : "";
+    return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat+" H:i D") : x) : "";
   }
 }
 
 function fmtDateTimeWithDay2(x) {
-  return x ? (x.dateFormat ? x.dateFormat("d/m/Y H:i:s D") : x) : "";
+  return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat+" H:i:s D") : x) : "";
 }
 
 var daysOfTheWeek = {
@@ -608,7 +608,7 @@ function fmtDateTimeAgo(dt2) {
   if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; // 'Dün';
   if (t + 7 * 24 * 60 * 60 * 1000 > tnow)
     return daysOfTheWeek[_scd.locale][dt2.getDay()]; // 5dka
-  return dt2.dateFormat("d/m/Y");
+  return dt2.dateFormat(iwb.dateFormat);
 }
 
 function buildParams(params, map) {
@@ -8475,8 +8475,8 @@ iwb.loadComponent=function(id){
 iwb.serverDttmDiff=0;
 iwb.getDate=function(x){// server DateTime OR parse(x)
 	if(!x)return iwb.serverDateDiff ? new Date(new Date().getTime()+iwb.serverDateDiff): new Date();
-	if(x.length<=10)return Date.parseDate(x,"d/m/Y");
-	return Date.parseDate(x,"d/m/Y H:i:s");
+	if(x.length<=10)return Date.parseDate(x,iwb.dateFormat);
+	return Date.parseDate(x,iwb.dateFormat+" H:i:s");
 }
 
 iwb.ajax={}

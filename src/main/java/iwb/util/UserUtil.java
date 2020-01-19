@@ -1798,6 +1798,7 @@ public class UserUtil {
 	public static boolean syncTabActivate(String projectId, int userId, String sessionId, String webPageId, String tabId, long currentTime) {
 		if(userId==0 ||  webPageId==null || tabId==null)return false;
 		CachedUserBean3 cub = getCachedUserBean(userId);
+		if(cub==null)return false;
 		
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null)return false;

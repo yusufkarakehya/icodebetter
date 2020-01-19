@@ -69,6 +69,8 @@ import iwb.util.HtmlFilter;
 import iwb.util.UserUtil;
 
 public class ExtJs3_4 implements ViewAdapter {
+	final public static String[] dateFormatMulti = new String[] {"d/m/Y","m/d/Y","Y/m/d"};
+
 	public StringBuilder serializeValidatonErrors(Map<String, String> errorMap,
 			String locale) {
 		StringBuilder buf = new StringBuilder();
@@ -3350,7 +3352,7 @@ public class ExtJs3_4 implements ViewAdapter {
 									.append(FrameworkSetting.sortMap[f.getFieldTip()])
 									.append("'");
 						if (f.getFieldTip() == 2)
-							buf.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
+							buf.append(",type:'date',dateFormat:'").append(dateFormatMulti[formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]).append(" h:i:s'");
 						// if(f.getPostProcessTip()>=10)buf.append("},{name:'").append(f.getDsc()).append("_qw_'");
 						buf.append("}");
 					}
@@ -3396,37 +3398,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					buf.append(",disabled:true");
 				if (fc.getVtype() != null && fc.getVtype().length() > 0)
 					buf.append(",vtype:'").append(fc.getVtype()).append("'");
-				if (formResult != null && fc.getVtype() != null
-						&& fc.getVtype().length() > 0
-						&& fc.getVtype().compareTo("daterange") == 0) {
-					int priority = 1;
-					String parentFormCellDsc = "";
-					for (W5FormCell c : formResult.getForm().get_formCells()) {
-						if (c.getFormCellId() == fc.getParentFormCellId()) {
-							parentFormCellDsc = c.getDsc();
-							if (c.getTabOrder() == fc.getTabOrder()) {
-								if (c.getxOrder() < fc.getxOrder())
-									priority = 0;
-							} else {
-								if (c.getTabOrder() < fc.getTabOrder())
-									priority = 0;
-							}
-							break;
-						}
-					}
-					buf.append(",id:'")
-							.append(fc.getDsc() + formResult.getUniqueId())
-							.append("'");
-					if (priority == 1) {
-						buf.append(", endDateField:'")
-								.append(parentFormCellDsc
-										+ formResult.getUniqueId()).append("'");
-					} else {
-						buf.append(", startDateField:'")
-								.append(parentFormCellDsc
-										+ formResult.getUniqueId()).append("'");
-					}
-				}
+				
 				if (liveSyncStr != null)
 					buf.append(",listeners:{").append(liveSyncStr).append("}");
 				if (fadd
@@ -3533,7 +3505,7 @@ public class ExtJs3_4 implements ViewAdapter {
 								.append(FrameworkSetting.sortMap[f.getFieldTip()])
 								.append("'");
 					if (f.getFieldTip() == 2)
-						buf.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
+						buf.append(",type:'date',dateFormat:'").append(dateFormatMulti[formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]).append(" h:i:s'");
 					// if(f.getPostProcessTip()>=10)buf.append("},{name:'").append(f.getDsc()).append("_qw_'");
 					buf.append("}");
 				}
@@ -3579,37 +3551,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append(",disabled:true");
 			if (fc.getVtype() != null && fc.getVtype().length() > 0)
 				buf.append(",vtype:'").append(fc.getVtype()).append("'");
-			if (formResult != null && fc.getVtype() != null
-					&& fc.getVtype().length() > 0
-					&& fc.getVtype().compareTo("daterange") == 0) {
-				int priority = 1;
-				String parentFormCellDsc = "";
-				for (W5FormCell c : formResult.getForm().get_formCells()) {
-					if (c.getFormCellId() == fc.getParentFormCellId()) {
-						parentFormCellDsc = c.getDsc();
-						if (c.getTabOrder() == fc.getTabOrder()) {
-							if (c.getxOrder() < fc.getxOrder())
-								priority = 0;
-						} else {
-							if (c.getTabOrder() < fc.getTabOrder())
-								priority = 0;
-						}
-						break;
-					}
-				}
-				buf.append(",id:'")
-						.append(fc.getDsc() + formResult.getUniqueId())
-						.append("'");
-				if (priority == 1) {
-					buf.append(", endDateField:'")
-							.append(parentFormCellDsc
-									+ formResult.getUniqueId()).append("'");
-				} else {
-					buf.append(", startDateField:'")
-							.append(parentFormCellDsc
-									+ formResult.getUniqueId()).append("'");
-				}
-			}
+			
 			return buf.append("})");
 		case 62: // superboxselect-free-text
 			buf.setLength(0);
@@ -4073,7 +4015,7 @@ public class ExtJs3_4 implements ViewAdapter {
 									.append(FrameworkSetting.sortMap[f.getFieldTip()])
 									.append("'");
 						if (f.getFieldTip() == 2)
-							buf.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
+							buf.append(",type:'date',dateFormat:'").append(dateFormatMulti[formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]).append(" h:i:s'");
 						// if(f.getPostProcessTip()>=10)buf.append("},{name:'").append(f.getDsc()).append("_qw_'");
 						buf.append("}");
 					}
@@ -4119,37 +4061,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					buf.append(",disabled:true");
 				if (fc.getVtype() != null && fc.getVtype().length() > 0)
 					buf.append(",vtype:'").append(fc.getVtype()).append("'");
-				if (formResult != null && fc.getVtype() != null
-						&& fc.getVtype().length() > 0
-						&& fc.getVtype().compareTo("daterange") == 0) {
-					int priority = 1;
-					String parentFormCellDsc = "";
-					for (W5FormCell c : formResult.getForm().get_formCells()) {
-						if (c.getFormCellId() == fc.getParentFormCellId()) {
-							parentFormCellDsc = c.getDsc();
-							if (c.getTabOrder() == fc.getTabOrder()) {
-								if (c.getxOrder() < fc.getxOrder())
-									priority = 0;
-							} else {
-								if (c.getTabOrder() < fc.getTabOrder())
-									priority = 0;
-							}
-							break;
-						}
-					}
-					buf.append(",id:'")
-							.append(fc.getDsc() + formResult.getUniqueId())
-							.append("'");
-					if (priority == 1) {
-						buf.append(", endDateField:'")
-								.append(parentFormCellDsc
-										+ formResult.getUniqueId()).append("'");
-					} else {
-						buf.append(", startDateField:'")
-								.append(parentFormCellDsc
-										+ formResult.getUniqueId()).append("'");
-					}
-				}
+				
 				if (notNull)
 					buf.append(",allowBlank:false");
 				if (controlTip == 7 && fc.getDialogGridId() != 0) {
@@ -4212,37 +4124,49 @@ public class ExtJs3_4 implements ViewAdapter {
 
 		if (fc.get_sourceObjectDetail() != null)
 			buf.append(",allowBlank:").append(!notNull);
-		if (controlTip == 4)
+		
+		switch(controlTip) {
+		case 2://date
+			buf.append(",format: '").append(dateFormatMulti[formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]).append("'");
+			break;
+		case 18://timestamp
+			String frmt = dateFormatMulti[formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]; 
+			buf.append(",dateFormat: '").append(frmt).append("', hiddenFormat:'").append(frmt).append(" H:i:s'");
+			break;
+	
+		case 4:
 			buf.append(",style: 'text-align: right',decimalPrecision:0");
+			break;
 		/*
 		 * if(controlTip==3 && fc.getLookupQueryId()>0 &&
 		 * fc.getLookupQueryId()<10 ){
 		 * buf.append(",decimalPrecision:").append(fc.getLookupQueryId()); }
 		 */
-		if (controlTip == 3) {//double
+		case 3://double
 			if (fc.getLookupQueryId() > 0 && fc.getLookupQueryId() < 13) {
 				buf.append(",style: 'text-align: right',decimalPrecision:")
 						.append(fc.getLookupQueryId());
 			} else {
 				buf.append(",style: 'text-align: right',decimalPrecision:8"); // grid form cell * EditDouble ise decimal precision default 2 değil 8 olsun.
 			}
-		}
+		break;
 		
-		if (controlTip == 33) {//money
+		case 33://money
 			if (fc.getLookupQueryId() > 0 && fc.getLookupQueryId() < 13) {
 				buf.append(",alwaysDisplayDecimals: true,decimalPrecision:")
 						.append(fc.getLookupQueryId());
 			} else {
 				buf.append(",alwaysDisplayDecimals: true,decimalPrecision:2"); // grid form cell * EditDouble ise decimal precision default 2 değil 8 olsun.
 			}
-		}
+		break;		
 		
-		
-		if (controlTip == 56) {
+		case 56:
 			buf.append(",CKConfig: {customConfig : '../scripts/ext3.3/ckeditor/config.js'}");
-		}
-		if(controlTip==1)
+		break;
+		
+		case 1:
 			buf.append(",cls:'x-icb-text'");
+		}
 
 		if (fc.getMaxLength()!=null && fc.getMaxLength() > 0)
 			buf.append(",maxLength:").append(fc.getMaxLength());
@@ -4278,36 +4202,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			}
 		if (fc.getVtype() != null && fc.getVtype().length() > 0)
 			buf.append(",vtype:'").append(fc.getVtype()).append("'");
-		if (formResult != null && fc.getVtype() != null
-				&& fc.getVtype().length() > 0
-				&& fc.getVtype().compareTo("daterange") == 0) {
-			int priority = 1;
-			String parentFormCellDsc = "";
-			for (W5FormCell c : formResult.getForm().get_formCells()) {
-				if (c.getFormCellId() == fc.getParentFormCellId()) {
-					parentFormCellDsc = c.getDsc();
-					if (c.getTabOrder() == fc.getTabOrder()) {
-						if (c.getxOrder() < fc.getxOrder())
-							priority = 0;
-					} else {
-						if (c.getTabOrder() < fc.getTabOrder())
-							priority = 0;
-					}
-					break;
-				}
-			}
-			buf.append(",id:'").append(fc.getDsc() + formResult.getUniqueId())
-					.append("'");
-			if (priority == 1) {
-				buf.append(", endDateField:'")
-						.append(parentFormCellDsc + formResult.getUniqueId())
-						.append("'");
-			} else {
-				buf.append(", startDateField:'")
-						.append(parentFormCellDsc + formResult.getUniqueId())
-						.append("'");
-			}
-		}
+		
 		if (controlTip == 11)
 			buf.append(",grow:true,preventScrollbars:true");
 		if (controlTip == 17)
@@ -5208,7 +5103,7 @@ public class ExtJs3_4 implements ViewAdapter {
 						.append(FrameworkSetting.sortMap[f.getParamTip()])
 						.append("'");
 			if (f.getParamTip() == 2)
-				html.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
+				html.append(",type:'date',dateFormat:'").append(dateFormatMulti[scd!=null ? GenericUtil.uInt(scd.get("date_format")):0]).append(" h:i:s'");
 
 			html.append("}");
 			
@@ -5256,7 +5151,7 @@ public class ExtJs3_4 implements ViewAdapter {
 						.append(FrameworkSetting.sortMap[f.getFieldTip()])
 						.append("'");
 			if (f.getFieldTip() == 2)
-				html.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
+				html.append(",type:'date',dateFormat:'").append(dateFormatMulti[scd!=null ? GenericUtil.uInt(scd.get("date_format")):0]).append(" h:i:s'");
 
 			if (f.getPostProcessTip() >= 10 && f.getPostProcessTip() <90)
 				html.append("},{name:'").append(f.getDsc()).append("_qw_'");
@@ -5279,7 +5174,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		switch (processTip) {
 		case 1:// log
 			html.append(",\n{name:'").append(FieldDefinitions.tableFieldName_LogId).append("'},{name:'")
-			.append(FieldDefinitions.tableFieldName_LogDateTime).append("',type:'date',dateFormat:'d/m/Y h:i:s'},\n{name:'").append(FieldDefinitions.tableFieldName_LogUserId).append("',type:'int'},{name:'").append(FieldDefinitions.tableFieldName_LogUserId).append("_qw_'}");
+			.append(FieldDefinitions.tableFieldName_LogDateTime).append("',type:'date',dateFormat:'").append(dateFormatMulti[scd!=null ? GenericUtil.uInt(scd.get("date_format")):0]).append(" h:i:s'},\n{name:'").append(FieldDefinitions.tableFieldName_LogUserId).append("',type:'int'},{name:'").append(FieldDefinitions.tableFieldName_LogUserId).append("_qw_'}");
 			break;
 		case 2:// parentRecord
 			html.append(",\n{name:'").append(FieldDefinitions.queryFieldName_HierarchicalData).append("'}");
@@ -6854,6 +6749,8 @@ public class ExtJs3_4 implements ViewAdapter {
 			buf2.append("var _scd=")
 					.append(GenericUtil.fromMapToJsonString(pr
 							.getScd())).append(";\n");
+			buf2.append("iwb.dateFormat = '").append(dateFormatMulti[GenericUtil.uInt(pr.getScd().get("date_format"))]).append("';\n");
+		
 			Map<String, String> publishedAppSetting = new HashMap<String, String>();
 			for (String key : FrameworkCache.publishAppSettings) {
 				publishedAppSetting.put(
