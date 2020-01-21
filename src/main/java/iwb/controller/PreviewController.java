@@ -771,6 +771,55 @@ public class PreviewController implements InitializingBean {
 		else response.getWriter().write("{\"success\":true}");
 	}
 	
+	@RequestMapping("/*/ajaxSelectUserRole")
+	public void hndAjaxSelectUserRole(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		logger.info("hndAjaxSelectUserRole");
+		HttpSession session = request.getSession(false);
+		response.setContentType("application/json");
+		String projectId = UserUtil.getProjectId(request, "preview/");
+		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
+		String scdKey = "preview-"+projectId;
+		int deviceType = GenericUtil.uInt(request.getParameter("_mobile")); //0.web, 1.iphone, 2.android, 3. mobile-web
+		if (session == null || (session.getAttribute("userId") == null && session.getAttribute(scdKey) == null)) { // problem
+			response.getWriter().write("{\"success\":false}"); // tekrar ana login  sayfasina gidecek
+			if (session != null)
+				session.removeAttribute("scd-dev");
+		} else {
+			int userId = GenericUtil.uInt(session.getAttribute(scdKey) == null ? session.getAttribute("userId")
+					: ((Map) session.getAttribute(scdKey)).get("userId"));
+			Map<String, Object> oldScd = (Map<String, Object>)session.getAttribute(scdKey); 
+			Map<String, Object> scd = service.userRoleSelect4App2(po, userId, GenericUtil.uInt(request, "userRoleId"), new HashMap());
+			if (scd == null) {
+				response.getWriter().write("{\"success\":false}"); // bir hata
+																	// var
+				session.removeAttribute(scdKey);
+			} else {
+				scd.put("locale", oldScd == null ? session.getAttribute("locale"): oldScd.get("locale"));
+				session.removeAttribute(scdKey);
+				session = request.getSession(true);
+				scd.put("sessionId", session.getId());
+				if(deviceType!=0){
+					scd.put("mobile", deviceType);
+					scd.put("mobileDeviceId", request.getParameter("_mobile_device_id"));
+				}
+				
+				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
+				scd.put("customizationId", po.getCustomizationId());
+				scd.put("ocustomizationId", po.getCustomizationId());
+				scd.put("projectId", po.getProjectUuid());scd.put("projectName", po.getDsc());
+				scd.put("mainTemplateId", po.getUiMainTemplateId());
+				scd.put("sessionId", session.getId());
+				scd.put("path", "../");
+				if(!scd.containsKey("date_format"))scd.put("date_format", po.getLkpDateFormat());
+				session.setAttribute(scdKey, scd);
+				response.getWriter().write("{\"success\":true, \"session\":"+GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun
+				response.getWriter().write("}");
+			}
+		}
+		response.getWriter().close();
+	}
+	
 	@RequestMapping("/*/ajaxAuthenticateUser")
 	public void hndAjaxAuthenticateUser(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -824,7 +873,7 @@ public class PreviewController implements InitializingBean {
 
 		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
-		int userRoleId = GenericUtil.uInt(requestParams, ("userRoleId"), -GenericUtil.uInt(result.getResultMap().get("roleCount")));
+		int userRoleId = GenericUtil.uInt(requestParams, "userRoleId");
 		response.setContentType("application/json");
 		scd = null;
 		if (success) { // basarili simdi sira diger islerde
