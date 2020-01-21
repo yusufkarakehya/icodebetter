@@ -12,9 +12,11 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -34,6 +36,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.json.JSONException;
@@ -2491,7 +2496,22 @@ public class AppController implements InitializingBean {
 			    		excelImportId = service.saveExcelImport(scd, tmpFile.getName(), uploadedFilePath, parsedData);
 			    	}		    	
 			    }else if(extension.compareTo("csv") == 0){
-			    	
+			    	Reader in = new FileReader(tmpFile.getPath());
+			    	CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT);
+			    	LinkedHashMap<String,List<HashMap<String,String>>> parsedData = new LinkedHashMap();
+			    	List<HashMap<String,String>> sheet = new ArrayList();
+			    	parsedData.put("Sheet 1", sheet);
+			    	String[] keyz = new String[] {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+			    			,"AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL","AM","AN","AO","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ"};
+			    	for (CSVRecord record : parser.getRecords()) {
+			    		HashMap<String, String> m = new HashMap();
+			    		sheet.add(m);
+			    		for(int qi = 0; qi<record.size();qi++) {
+			    			m.put(keyz[qi], record.get(qi));			    			
+			    		}
+			        }
+		    		excelImportId = service.saveExcelImport(scd, tmpFile.getName(), uploadedFilePath, parsedData);
+			    	 
 			    }
 //			    tmpFile.delete();
 			}
