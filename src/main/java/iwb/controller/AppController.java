@@ -1575,7 +1575,7 @@ public class AppController implements InitializingBean {
 
 		int fileAttachmentId = GenericUtil.uInt(request, "_fai");
 		String customizationId = String.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-		String local_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
+		String local_path = FrameworkCache.getAppSettingStringValue(0, "file_local_path");
 		String file_path = "";
 		if (fileAttachmentId == -1000) { // default company logo
 			file_path = local_path + "/0/jasper/iworkbetter.png";
@@ -1827,7 +1827,7 @@ public class AppController implements InitializingBean {
 		
 		logger.info("multiFileUpload");
 		// Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-		String path = FrameworkCache.getAppSettingStringValue(customizationId, "file_local_path") + File.separator
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator
 				+ customizationId + File.separator + "attachment";
 
 		File dirPath = new File(path);
@@ -1913,7 +1913,7 @@ public class AppController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
-		String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
 				+ File.separator + scd.get("customizationId") + File.separator + "attachment";
 
 		File dirPath = new File(path);
@@ -2002,7 +2002,7 @@ public class AppController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
-		String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
 				+ File.separator + scd.get("customizationId") + File.separator + "attachment";
 
 		File dirPath = new File(path);
@@ -2469,7 +2469,7 @@ public class AppController implements InitializingBean {
 	    int excelImportId = 0;
 		try {
 			if(!file.isEmpty()){
-				String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
+				String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
 						+ File.separator + scd.get("customizationId") + File.separator + "attachment";
 		
 				File dirPath = new File(path);

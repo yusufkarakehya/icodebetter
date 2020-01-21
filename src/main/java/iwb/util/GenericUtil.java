@@ -2737,12 +2737,16 @@ public class GenericUtil {
 		
 	}
 
+	private static Pattern alphaPattern = Pattern.compile("^[a-zA-Z]*$");
+	private static Pattern alphanumPattern = Pattern.compile("^[a-zA-Z0-9_]*$");
 	private static Pattern emailPattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 	private static Pattern urlPattern = Pattern.compile("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
 	private static Pattern ibanPattern = Pattern.compile("\b[A-Z]{2}[0-9]{2}(?:[ ]?[0-9]{4}){4}(?!(?:[ ]?[0-9]){3})(?:[ ]?[0-9]{1,2})?\b"); 
 	
 	public static boolean validateVtype(String str, String vType) {
 		if(isEmpty(vType))return true;
+		if(vType.equals("alpha"))return alphaPattern.matcher(str).find();
+		if(vType.equals("alphanum"))return alphanumPattern.matcher(str).find();
 		if(vType.equals("email"))return emailPattern.matcher(str).find();
 		if(vType.equals("url"))return urlPattern.matcher(str).matches();
 		if(vType.equals("iban"))return ibanPattern.matcher(str).matches();

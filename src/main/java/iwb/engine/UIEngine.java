@@ -441,11 +441,9 @@ public class UIEngine {
 									convb = true;
 									formResult.getOutputMessages()
 											.add(LocaleMsgCache.get2(scd, "fw_converted_from")
-													+ " <b><a href=# onclick=\"return mainPanel.loadTab({attributes:{href:'showForm?a=1&_tb_id="
-													+ mq.get("_cnv_src_tbl_id") + "&_tb_pk=" + mq.get("_cnv_src_tbl_pk")
-													+ "&_fid=" + mq.get("_cnv_src_frm_id") + "'}})\">" + mq
+													+ " : " + mq
 															.get("_cnv_record")
-													+ "</a></b> --> " + LocaleMsgCache.get2(scd,
+													+ " --> " + LocaleMsgCache.get2(scd,
 															mq.get("_cnv_name").toString() + " --> ?"));
 								}
 							}
@@ -484,9 +482,7 @@ public class UIEngine {
 							}
 							formResult.getOutputMessages()
 									.add(LocaleMsgCache.get2(scd, "fw_mail_converted_from")
-											+ " <b><a href=# onclick=\"return mainPanel.loadTab({attributes:{href:'showForm?a=1&_tb_id="
-											+ fsmTableId + "&_tb_pk=" + fsmTablePk + "&_fid=" + fsmFrmId + "'}})\">"
-											+ dao.getSummaryText4Record(scd, fsmTableId, fsmTablePk) + "</a></b> --> "
+											+ " : " + dao.getSummaryText4Record(scd, fsmTableId, fsmTablePk) + " --> "
 											+ fsm.getDsc());
 						} else if (requestParams.containsKey("_iqid")) {
 							mq = queryEngine.executeQuery2Map(scd, GenericUtil.uInt(requestParams, "_iqid"), requestParams);
