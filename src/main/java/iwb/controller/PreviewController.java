@@ -804,7 +804,8 @@ public class PreviewController implements InitializingBean {
 					scd.put("mobileDeviceId", request.getParameter("_mobile_device_id"));
 				}
 				
-				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
+				scd.put("renderer", po.getUiWebFrontendTip());
+				scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
 				scd.put("customizationId", po.getCustomizationId());
 				scd.put("ocustomizationId", po.getCustomizationId());
 				scd.put("projectId", po.getProjectUuid());scd.put("projectName", po.getDsc());
