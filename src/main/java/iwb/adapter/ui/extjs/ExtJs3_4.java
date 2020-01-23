@@ -1352,8 +1352,8 @@ public class ExtJs3_4 implements ViewAdapter {
 			fr.getRequestParams().put(".t", fr.getUniqueId());
 		s.append(",\n render:function(){\nvar mf={_formId:").append(
 				fr.getFormId());
-		if (liveSyncRecord)
-			s.append(",id:'").append(fr.getUniqueId()).append("'");
+//		if (liveSyncRecord)
+		s.append(",id:'").append(fr.getUniqueId()).append("'");
 		s.append(",baseParams:")
 				.append(GenericUtil.fromMapToJsonString(fr
 						.getRequestParams()))
@@ -2292,6 +2292,8 @@ public class ExtJs3_4 implements ViewAdapter {
 					&& fc.getExtraDefinition().length() > 1) {
 				buf.append(fc.getExtraDefinition());
 			}
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			return buf.append("})");
 		}
 		if ((fc.getControlTip() == 101 || cellResult.getHiddenValue() != null)/* && (fc.getControlTip()!=9 && fc.getControlTip()!=16) */) {
@@ -2409,6 +2411,8 @@ public class ExtJs3_4 implements ViewAdapter {
 					}
 				}
 			}
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			return buf.append("})");
 		}
 		// f.get_formCellHelp().get(xlocale).get(fc.getFormCellId()) TODO:eralp
@@ -2490,6 +2494,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				
 			}
 
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 
 			buf.append(",handler:function(a,b,c){\nvar result=")
 					.append(cellResult.getExtraValuesMap() != null ? GenericUtil
@@ -2589,6 +2595,8 @@ public class ExtJs3_4 implements ViewAdapter {
 			buf.append("',")
 					.append(serializeQueryReader(cellResult.getLookupQueryResult().getQuery().get_queryFields(), "id", null, 0, null, null))
 					.append(",listeners:{loadexception:promisLoadException}}),\nvalueField:'id',displayField:'dsc',typeAhead:false,mode:'remote',triggerAction:'query',queryParam:'xdsc',selectOnFocus:true");
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			if (fc.getExtraDefinition() != null && fc.getExtraDefinition().length() > 1) // ornegin,minChars:10 olabilir
 				buf.append(fc.getExtraDefinition());
 			else {
@@ -2728,6 +2736,8 @@ public class ExtJs3_4 implements ViewAdapter {
 			buf.append(
 					"Checkbox({labelSeparator:'',_controlTip:5,value:1,checked:")
 					.append(GenericUtil.uInt(value) != 0);
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			if (GenericUtil.uInt(fc.getLookupIncludedParams()) == 0)
 				buf.append(",width:").append(fc.getControlWidth());
 			if (fc.getExtraDefinition() != null
@@ -2753,6 +2763,8 @@ public class ExtJs3_4 implements ViewAdapter {
 						.append("',root:'data',totalProperty:'browseInfo.totalCount',id:'dsc',fields:[{name:'dsc'}],listeners:{loadexception:promisLoadException}})")
 						.append(",displayField:'dsc',forceSelection:false,typeAhead: false, loadingText: '").append(LocaleMsgCache.get2(customizationId, xlocale, "searching")).append("...',hideTrigger:true,queryParam:'xdsc',name:'")
 						.append(cellDsc).append("'");
+				if(formResult!=null && formResult.getUniqueId()!=null)
+					buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 				if (value != null && value.length() > 0)
 					buf.append(",value:'").append(GenericUtil.stringToJS(value))
 							.append("'");
@@ -2942,6 +2954,8 @@ public class ExtJs3_4 implements ViewAdapter {
 									.get_queryFields(), "id", null, 0,
 									null, null))
 					.append(",listeners:{loadexception:promisLoadException}}),\nvalueField:'id',displayField:'dsc',mode: 'local',triggerAction: 'all'");
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			if (fc.getControlWidth() > 0)
 				buf.append(",width:").append(fc.getControlWidth());
 			if (value != null && value.length() > 0) {
@@ -3011,6 +3025,8 @@ public class ExtJs3_4 implements ViewAdapter {
 									.get_queryFields(), "id", null, 0,
 									null, null))
 					.append(",listeners:{loadexception:promisLoadException}}),\nvalueField:'id',displayField:'dsc',mode:'local',queryParam:'xdsc'");
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			if (fc.getControlWidth() > 0)
 				buf.append(",width:").append(fc.getControlWidth());
 			if (value != null && value.length() > 0) {
@@ -3093,6 +3109,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							.get_queryFields(), "id", null, 0,
 							null, null))
 			.append(",listeners:{loadexception:promisLoadException}}),\nvalueField:'id',displayField:'dsc',typeAhead: false,mode: 'local',triggerAction: 'all',selectOnFocus:true");
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			if (fc.getControlWidth() > 0)
 				buf.append(",width:").append(fc.getControlWidth());
 			if (value != null && value.length() > 0)
@@ -3253,6 +3271,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				if(!GenericUtil.isEmpty(cellResult.getValue()))
 					buf.append(",value:'").append(cellResult.getValue()).append("'");
 				if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
+				if(formResult!=null && formResult.getUniqueId()!=null)
+					buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 				buf.append("})");
 				return buf;
 				
@@ -3454,6 +3474,8 @@ public class ExtJs3_4 implements ViewAdapter {
 					buf.append("],value:_").append(cellDsc)
 							.append(".getValue()}})}");
 				}
+				if(formResult!=null && formResult.getUniqueId()!=null)
+					buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 				return buf.append("})");
 			}
 		case 58:
@@ -3552,6 +3574,8 @@ public class ExtJs3_4 implements ViewAdapter {
 			if (fc.getVtype() != null && fc.getVtype().length() > 0)
 				buf.append(",vtype:'").append(fc.getVtype()).append("'");
 			
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			return buf.append("})");
 		case 62: // superboxselect-free-text
 			buf.setLength(0);
@@ -3591,6 +3615,8 @@ public class ExtJs3_4 implements ViewAdapter {
 																// gibi
 				buf.append(fc.getExtraDefinition());
 			//if (liveSyncStr != null)buf.append(",listeners:{").append(liveSyncStr).append("}");
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			return buf.append("})");
 		case 61: // superboxselect-combo-query-advanced
 			buf.setLength(0);
@@ -3673,6 +3699,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append(",allowBlank:false");
 			if (liveSyncStr != null)
 				buf.append(",listeners:{").append(liveSyncStr).append("}");
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			return buf.append("})");
 		case	26:// lov-treecombo (query lookup) local WRONG TODO
 		case	23:// treecombo (query lookup) local
@@ -3713,6 +3741,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append(fc.getExtraDefinition());
 			if (liveSyncStr != null)
 				buf.append(",listeners:{").append(liveSyncStr).append("}");
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			return buf.append("})");
 		case	71://file upload
 			buf.setLength(0);
@@ -3721,6 +3751,8 @@ public class ExtJs3_4 implements ViewAdapter {
 			if (fc.getNrdTip() != 0)buf.append(",disabled:true");
 			if (notNull)buf.append(",allowBlank:false");
 			if (fc.getExtraDefinition() != null && fc.getExtraDefinition().length() > 1)buf.append(fc.getExtraDefinition());
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			return buf.append("})");
 		case 24:// treecombo (query lookup) remote
 			buf.setLength(0);
@@ -3771,6 +3803,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append(fc.getExtraDefinition());
 			if (liveSyncStr != null)
 				buf.append(",listeners:{").append(liveSyncStr).append("}");
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			return buf.append("})");
 		case 55: // TreePanel
 			buf = new StringBuilder();
@@ -3807,6 +3841,8 @@ public class ExtJs3_4 implements ViewAdapter {
 			}
 			if (liveSyncStr != null)
 				buf.append(",listeners:{").append(liveSyncStr).append("}");
+			if(formResult!=null && formResult.getUniqueId()!=null)
+				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 			return buf.append("}})");
 		case 6:// combobox (static lookup) local
 		case 7:// combobox (query lookup) local
@@ -3889,6 +3925,8 @@ public class ExtJs3_4 implements ViewAdapter {
 					.append("'");;
 						
 				if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
+				if(formResult!=null && formResult.getUniqueId()!=null)
+					buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 				buf.append("})");
 				return buf;
 				
@@ -4107,6 +4145,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 				if (liveSyncStr != null)//liveSyncRecord && 
 					buf.append(",listeners:{").append(liveSyncStr).append("}");
+				if(formResult!=null && formResult.getUniqueId()!=null)
+					buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 				return buf.append("})");
 			}
 		}
@@ -4229,6 +4269,8 @@ public class ExtJs3_4 implements ViewAdapter {
 				buf.append(liveSyncStr, ix, ix);
 			}
 		}
+		if(formResult!=null && formResult.getUniqueId()!=null)
+			buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
 		return buf.append(",labelSeparator:'',_controlTip:").append(controlTip)
 				.append("})");
 	}

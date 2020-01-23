@@ -4439,32 +4439,36 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
           comboDetail.store.baseParams = p;
           comboDetail.store.reload({
             callback: function(ax) {
-              if (
-                typeof comboDetail._controlTip != "undefined" &&
-                (comboDetail._controlTip == 16 || comboDetail._controlTip == 60)
-              ) {
-                // lovcombo-remote
-                if (comboDetail._oldValue && comboDetail._oldValue != null) {
-                  comboDetail.setValue(comboDetail._oldValue);
-                  comboDetail._oldValue = null;
-                }
-              } else if ((ax && !ax.length) || getFieldValue(comboMaster) == "") {
-                comboDetail.clearValue();
-              } else if (
-                ax &&
-                ax.length == 1 &&
-                (comboDetail.getValue() == ax[0].id || formAction == 2) &&
-                !comboDetail._notAutoSet
-              ) {
-                comboDetail.setValue(ax[0].id);
-              } else if (ax && ax.length > 1 && comboDetail.getValue()) {
-                if (comboDetail.store.getById(comboDetail.getValue())) {
-                  comboDetail.setValue(comboDetail.getValue());
-                } else {
-                  comboDetail.clearValue();
-                }
-              }
-              if (comboDetail.getValue()) comboDetail.fireEvent("select");
+            	try{
+	              if (
+	                typeof comboDetail._controlTip != "undefined" &&
+	                (comboDetail._controlTip == 16 || comboDetail._controlTip == 60)
+	              ) {
+	                // lovcombo-remote
+	                if (comboDetail._oldValue && comboDetail._oldValue != null) {
+	                  comboDetail.setValue(comboDetail._oldValue);
+	                  comboDetail._oldValue = null;
+	                }
+	              } else if ((ax && !ax.length) || getFieldValue(comboMaster) == "") {
+	                comboDetail.clearValue();
+	              } else if (
+	                ax &&
+	                ax.length == 1 &&
+	                (comboDetail.getValue() == ax[0].id || formAction == 2) &&
+	                !comboDetail._notAutoSet
+	              ) {
+	                comboDetail.setValue(ax[0].id);
+	              } else if (ax && ax.length > 1 && comboDetail.getValue()) {
+	                if (comboDetail.store.getById(comboDetail.getValue())) {
+	                  comboDetail.setValue(comboDetail.getValue());
+	                } else {
+	                  comboDetail.clearValue();
+	                }
+	              }
+	              if (comboDetail.getValue()) comboDetail.fireEvent("select");
+            	} catch(ee){
+            		Ext.infoMsg.msg('error',"ComboDetail.Load error: " + ee)
+            	}
             }
           });
         } else {
