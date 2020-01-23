@@ -1677,6 +1677,7 @@ public class React16 implements ViewAdapter {
 				buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 			} else {
 				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
+				buf.append(", \" \", _").append(dsc).append(".hint && _(\"span\",{className:\"xlabel-hint\", title:_").append(dsc).append(".hint},_(\"i\",{className:\"icon-question\"}))");
 				if(FrameworkSetting.reactLabelRequired && /*fc.getFormCell().getNotNullFlag()!=0 && */fc.getFormCell().getNrdTip()==0)buf.append(", \" \", !_").append(dsc).append(".readOnly && !viewMode && _").append(dsc).append(".required && _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
 				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
 			}
@@ -1993,13 +1994,16 @@ public class React16 implements ViewAdapter {
 	private StringBuilder serializeFormCellProperty(W5FormCellHelper cellResult, W5FormResult formResult) {
 		StringBuilder buf = new StringBuilder();
 		if(!GenericUtil.isEmpty(cellResult.getFormCell().get_formCellPropertyList())) for(W5FormCellProperty fcp:cellResult.getFormCell().get_formCellPropertyList()){
-			for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getFormCellId()==fcp.getRelatedFormCellId()) {
-				if(fcr.getFormCell().getActiveFlag()!=0) {
-					buf.append(",").append(new String[] {"required:","hidden:!","readOnly:"}[fcp.getLkpPropertyTip()])
-					.append("iwb.formElementProperty(").append(fcp.getLkpOperatorTip()).append(", values.");
-					buf.append(fcr.getFormCell().getDsc());
-					if(fcp.getLkpOperatorTip()>=0 && fcr.getFormCell().getControlTip()!=5)buf.append(",'").append(GenericUtil.stringToJS(fcp.getVal())).append("'");
-					buf.append(")");
+			if(fcp.getLkpPropertyTip()==3) {
+				buf.append(",hint:'").append(GenericUtil.stringToJS(fcp.getVal())).append("'");				
+			} else  for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getFormCellId()==fcp.getRelatedFormCellId()) {
+				if(fcr.getFormCell().getActiveFlag()!=0 && fcp.getLkpPropertyTip()!=3) {
+					buf.append(",").append(new String[] {"required:","hidden:!","readOnly:"}[fcp.getLkpPropertyTip()]);
+						buf.append("iwb.formElementProperty(").append(fcp.getLkpOperatorTip()).append(", values.");
+						buf.append(fcr.getFormCell().getDsc());
+						if(fcp.getLkpOperatorTip()>=0 && fcr.getFormCell().getControlTip()!=5)buf.append(",'").append(GenericUtil.stringToJS(fcp.getVal())).append("'");
+						buf.append(")");
+					
 					break;
 				}
 			}			
