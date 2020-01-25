@@ -975,6 +975,7 @@ public class UIEngine {
 					case 8:// component
 						obz = FrameworkCache.getComponent(scd, o.getObjectId());//metaDataDao.loadComponent(scd, o.getObjectId(), new HashMap());
 						break;
+					case 15: // Graph Query
 					case 10: // Badge
 					case 22: // Gauge
 						obz = metaDataDao.getQueryResult(scd, o.getObjectId());//queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
@@ -985,6 +986,9 @@ public class UIEngine {
 					case 11: // Mobile List
 						obz = metaDataDao.getMListResult(scd, o.getObjectId(), requestParams, false);
 						break;
+					case 31: // Page
+						obz = metaDataDao.getPageResult(scd, o.getObjectId());
+						break;
 					case 9: // graph dashboard
 						W5BIGraphDashboard obz2 = (W5BIGraphDashboard) dao.getCustomizedObject(
 								"from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?",
@@ -994,8 +998,9 @@ public class UIEngine {
 						} else {
 							obz = "graph" + o.getObjectId();
 						}
+						break;
 					}
-					if (pr.getPage().getTemplateTip() != 9 && objectCount == 0) { // daha
+					if (pr.getPage().getTemplateTip() <= 2 && objectCount == 0) { // daha
 																					// ilk
 																					// objede
 																					// sorun

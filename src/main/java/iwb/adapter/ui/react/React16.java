@@ -2382,64 +2382,7 @@ public class React16 implements ViewAdapter {
 	
 	public StringBuilder serializeGridRecordCreate(W5GridResult gridResult) {
 		StringBuilder html = new StringBuilder();
-		if(true)return html; 
-		html.append(",\n record:Ext.data.Record.create([");
-		boolean b = false;
-		for (W5GridColumn gc : (List<W5GridColumn>) gridResult.getGrid()
-				.get_gridColumnList())
-			if (gc.get_formCell() != null) {
-				if (b)
-					html.append(",\n");
-				else
-					b = true;
-				html.append("{name: '").append(gc.get_queryField().getDsc())
-						.append("'");
-				if (gc.get_queryField().getFieldTip() > 2)
-					html.append(",type:'")
-							.append(FrameworkSetting.sortMap[gc.get_queryField()
-									.getFieldTip()]).append("'");
-				html.append("}");
-			}
-		html.append("]),\n initRecord:{");
-		b = false;
-		for (W5GridColumn gc : (List<W5GridColumn>) gridResult.getGrid()
-				.get_gridColumnList())
-			if (gc.get_formCell() != null) {
-				Object obz = null;
-				switch (gc.get_formCell().getInitialSourceTip()) {
-				case 0:// yok-sabit
-					obz = gc.get_formCell().getInitialValue();
-					break;
-				case 1:// request
-					obz = gridResult.getRequestParams().get(
-							gc.get_formCell().getInitialValue());
-					break;
-				case 2:
-					Object o = gridResult.getScd().get(
-							gc.get_formCell().getInitialValue());
-					obz = o == null ? null : o.toString();
-					break;
-				case 3:// app_setting
-					obz = FrameworkCache.getAppSettingStringValue(gridResult
-							.getScd(), gc.get_formCell().getInitialValue());
-					break;
-				case 4:// SQL TODO
-						// runSQLQuery2Map(PromisUtil.filterExt(cell.getInitialValue(),
-						// scd, requestParams).toString(), null, null);
-					break;
-				case 5:// CustomJS(Rhino) TODO
-					break;
-				}
-				if (obz != null) {
-					if (b)
-						html.append(",\n");
-					else
-						b = true;
-					html.append(gc.get_queryField().getDsc()).append(":'")
-							.append(obz).append("'");
-				}
-			}
-		html.append("}");
+		
 		return html;
 	}
 
@@ -2544,70 +2487,8 @@ public class React16 implements ViewAdapter {
 	}
 
 	public StringBuilder serializeListView(W5ListViewResult listViewResult) {
-		String xlocale = (String) listViewResult.getScd().get("locale");
-		int customizationId = (Integer) listViewResult.getScd().get(
-				"customizationId");
-		W5List d = listViewResult.getListView();
 		StringBuilder buf = new StringBuilder();
-		buf.append("var ")
-				.append(d.getDsc())
-				.append("={listId:")
-				.append(d.getListId())
-				.append(",name:'")
-				.append(LocaleMsgCache.get2(customizationId, xlocale,
-						d.getLocaleMsgKey()))
-				.append("'")
-				.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
-				.append(d.getQueryId()).append("&_lvid=").append(d.getListId());
-
-		if (d.getDefaultPageRecordNumber() != 0)
-			buf.append("&firstLimit=").append(d.getDefaultPageRecordNumber())
-					.append("',remoteSort:true,");
-		else
-			buf.append("',");
-		buf.append(
-				serializeQueryReader(d.get_query().get_queryFields(), d
-						.get_pkQueryField().getDsc(), null, null, 0, d
-						.get_mainTable(), listViewResult.getScd())).append(
-				",listeners:{loadexception:promisLoadException}})");
-		if (d.getDefaultWidth() != 0)
-			buf.append(", defaultWidth:").append(d.getDefaultWidth());
-		if (d.getDefaultHeight() != 0)
-			buf.append(", defaultHeight:").append(d.getDefaultHeight());
-		switch (d.getSelectionTip()) {
-		// case 0:buf.append(",\n singleSelect:false");break;
-		case 1:
-			buf.append(",\n singleSelect:true");
-			break;
-		case 2:
-			buf.append(",\n multiSelect:true");
-			break;
-		}
-
-		if (d.getDefaultPageRecordNumber() != 0)
-			buf.append(",\n pageSize:").append(d.getDefaultPageRecordNumber());
-		if (!GenericUtil.isEmpty(d.get_toolbarItemList())) { // extra buttonlari
-															// var mi yok mu?
-			StringBuilder buttons = serializeToolbarItems(
-					listViewResult.getScd(), d.get_toolbarItemList(), false);
-			if (buttons != null && buttons.length() > 1) {
-				buf.append(",\n extraButtons:[").append(buttons).append("]");
-			}
-		}
-		// buf.append(",\n tpl:'<tpl for=\".\">").append(PromisUtil.stringToJS(d.getTemplateCode())).append("</tpl>',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
-		// buf.append(",\n tpl:'").append(PromisUtil.stringToJS(d.getTemplateCode())).append("',\nautoScroll:true,overClass:'x-view-over',itemSelector:'table.grid_detay'};\n");
-		buf.append("}\n");
-		if (!GenericUtil.isEmpty(d.getJsCode())) {
-			buf.append("\ntry{")
-					.append(GenericUtil.filterExt(d.getJsCode(),
-							listViewResult.getScd(),
-							listViewResult.getRequestParams(), null))
-					.append("\n}catch(e){")
-					.append(FrameworkSetting.debug ? "if(confirm('ERROR listView.JS!!! Throw? : ' + e.message))throw e;"
-							: "alert('System/Customization ERROR : ' + e.message)");
-			buf.append("}\n");
-		}
-		buf.append(serializeListColumns(listViewResult));
+		buf.append("\n//TODO serializeListView");
 
 		return buf;
 	}
@@ -2865,28 +2746,16 @@ public class React16 implements ViewAdapter {
 	}
 
 	private StringBuilder serializeQueryReader(
-			List<W5QueryField> queryFieldList, String id,
-			List<W5TableField> extendedTableFields,
-			List<W5QueryField> postProcessQueryFieldList, int processTip,
-			W5Table t, Map scd) {
+			List<W5QueryField> queryFieldList, Map scd) {
 		StringBuilder html = new StringBuilder();
-		html.append("root:'data',totalProperty:'browseInfo.totalCount',id:'")
-				.append(id).append("',fields:[");
+		html.append(",fields:[");
 		boolean b = false;
 		for (W5QueryField f : queryFieldList) {
-			if (f.getMainTableFieldId() != 0 && t != null && scd != null) {
-				W5TableField tf = t.get_tableFieldMap().get(
-						f.getMainTableFieldId());
-				if (tf != null
-						&& (
-						(tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(scd, tf.getAccessViewTip(), tf.getAccessViewRoles(), tf.getAccessViewUsers()))))
-					continue;
-			}
 			if (b)
 				html.append(",\n");
 			else
 				b = true;
-			html.append("{name:'");
+			html.append("{id:'");
 			switch (f.getPostProcessTip()) {
 			case 9:
 				html.append("_").append(f.getDsc());
@@ -2897,59 +2766,10 @@ public class React16 implements ViewAdapter {
 			default:
 				html.append(f.getDsc());
 			}
-			html.append("'");
-			if (f.getFieldTip() > 2)
-				html.append(",type:'")
-						.append(FrameworkSetting.sortMap[f.getFieldTip()])
-						.append("'");
-			if (f.getFieldTip() == 2)
-				html.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
-
-			if (f.getPostProcessTip() >= 10)
-				html.append("},{name:'").append(f.getDsc()).append("_qw_'");
+			html.append("', name:'").append(GenericUtil.stringToJS(LocaleMsgCache.get2(scd, f.getDsc()))).append("'");
 			html.append("}");
 		}
-		if (!GenericUtil.isEmpty(extendedTableFields))
-			for (W5TableField f : extendedTableFields) {
-				if (scd != null
-						&& !GenericUtil.accessControl(scd, f.getAccessViewTip(),
-								f.getAccessViewRoles(), f.getAccessViewUsers()))
-					continue;
-				html.append(",\n{name:'");
-				html.append(f.getDsc()).append("'");
-				if (f.getFieldTip() > 2)
-					html.append(",type:'")
-							.append(FrameworkSetting.sortMap[f.getFieldTip()])
-							.append("'");
-				if (f.getFieldTip() == 2)
-					html.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
-				if (f.getDefaultLookupTableId() > 0)
-					html.append("},{name:'").append(f.getDsc()).append("_qw_'");
-				html.append("}");
-			}
-		if (!GenericUtil.isEmpty(postProcessQueryFieldList))
-			for (W5QueryField f : postProcessQueryFieldList) {
-				html.append(",\n{name:'").append(f.getDsc()).append("',type:'int'}");
-				
-				if(f.getDsc().equals(FieldDefinitions.queryFieldName_Comment) && FrameworkCache.getAppSettingIntValue(scd, "make_comment_summary_flag")!=0)
-					html.append(",{name:'").append(FieldDefinitions.queryFieldName_CommentExtra).append("'}");
-				if (f.getPostProcessTip() > 0)
-					html.append(",{name:'").append(f.getDsc()).append("_qw_'}");
-				if (f.getPostProcessTip() == 49)
-					html.append(",{name:'pkpkpk_arf_id',type:'int'},{name:'app_role_ids_qw_'},{name:'app_user_ids_qw_'}");
-			}
-		switch (processTip) {
-		case 1:// log
-			html.append(",\n{name:'").append(FieldDefinitions.tableFieldName_LogId).append("'},{name:'")
-			.append(FieldDefinitions.tableFieldName_LogDateTime).append("',type:'date',dateFormat:'d/m/Y h:i:s'},\n{name:'").append(FieldDefinitions.tableFieldName_LogUserId).append("',type:'int'},{name:'").append(FieldDefinitions.tableFieldName_LogUserId).append("_qw_'}");
-			break;
-		case 2:// parentRecord
-			html.append(",\n{name:'").append(FieldDefinitions.queryFieldName_HierarchicalData).append("'}");
-			break;
-		}
-		/*
-		 * if(id.equals("xrow_id")){ }
-		 */
+
 		html.append("]");
 
 		return html;
@@ -4222,40 +4042,40 @@ columns:[
 			// notification Control
 			// masterRecord Control
 			
-			if (pr.getMasterRecordList() != null
-					&& !pr.getMasterRecordList().isEmpty())
-				buf.append("\n_mrl=")
-						.append(serializeTableHelperList(customizationId,
-								xlocale, pr.getMasterRecordList()))
-						.append(";\n");
-			// request
-			buf.append("var _request=")
-					.append(GenericUtil.fromMapToJsonString(pr
-							.getRequestParams())).append("\n");
-			if (pr.getRequestParams().get("_tabId") != null)
-				buf.append("var _page_tab_id='")
-						.append(pr.getRequestParams().get("_tabId"))
-						.append("';\n");
-			else {
-				buf.append("var _page_tab_id='")
-						.append(GenericUtil.getNextId("tpi")).append("';\n");
+			if(pr.getRequestParams()!=null) {
+				if (pr.getMasterRecordList() != null
+						&& !pr.getMasterRecordList().isEmpty())
+					buf.append("\n_mrl=")
+							.append(serializeTableHelperList(customizationId,
+									xlocale, pr.getMasterRecordList()))
+							.append(";\n");
+				// request
+				buf.append("var _request=")
+						.append(GenericUtil.fromMapToJsonString(pr
+								.getRequestParams())).append("\n");
+				if (pr.getRequestParams().get("_tabId") != null)
+					buf.append("var _page_tab_id='")
+							.append(pr.getRequestParams().get("_tabId"))
+							.append("';\n");
+				else {
+					buf.append("var _page_tab_id='")
+							.append(GenericUtil.getNextId("tpi")).append("';\n");
+				}
+				
+				if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
+					buf.append("iwb.addCssString(\"")
+					.append(GenericUtil.stringToJS2(pr.getPage().getCssCode().trim())).append("\",").append(pr.getTemplateId()).append(");\n");
+				}
 			}
 			
-			if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
-				buf.append("iwb.addCssString(\"")
-				.append(GenericUtil.stringToJS2(pr.getPage().getCssCode().trim())).append("\",").append(pr.getTemplateId()).append(");\n");
-			}
-			
-			if (page.getTemplateTip() != 8) { // wizard degilse
+			if(pr.getPageObjectList()!=null) { // has detail list
 				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
 					W5Component c = (W5Component)i;
 					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(()=>iwb.import('comp/").append(c.getComponentId()).append(".js?.x='));\n");
 					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addCss('comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");\n");
 					
 				}
-			}
 
-			if (page.getTemplateTip() != 8) { // wizard degilse
 				int customObjectCount = 1, tabOrder = 1;
 				for (Object i : pr.getPageObjectList()) {
 					if (i instanceof W5GridResult) { // objectTip=1
@@ -4303,33 +4123,46 @@ columns:[
 						}
 					} else if (i instanceof W5GlobalFuncResult) {
 						buf.append("\nvar ")
-								.append(((W5GlobalFuncResult) i).getGlobalFunc()
-										.getDsc()).append("=")
-								.append(serializeGlobalFunc((W5GlobalFuncResult) i))
-								.append("\n");
+						.append(((W5GlobalFuncResult) i).getGlobalFunc()
+								.getDsc()).append("=")
+						.append(serializeGlobalFunc((W5GlobalFuncResult) i))
+						.append("\n");
+					}else if (i instanceof W5PageResult) {
+						buf.append("\nvar ")
+						.append(((W5PageResult) i).getPage()
+								.getDsc()).append("=function(props2){\n")
+						.append(serializeTemplate((W5PageResult) i))
+						.append("\n}\n");
 					} else if (i instanceof W5QueryResult) { // query, badge&&gauge
 						W5Query q = ((W5QueryResult)i).getQuery();
+						W5PageObject orjPageObject = null;
+						for (W5PageObject o : page.get_pageObjectList())if(o.getObjectId()==q.getQueryId()) {
+							orjPageObject = o;
+							break;
+						}
 						if(q.getQueryTip()==22 || q.getQueryTip()==21) { //gauge && badge
-							//find the origin pageObject
-							W5PageObject orjPageObject = null;
-							for (W5PageObject o : page.get_pageObjectList())if(o.getObjectId()==q.getQueryId() && ((o.getObjectTip()==10 && q.getQueryTip()==21) || (o.getObjectTip()==22 && q.getQueryTip()==22))) {
-								orjPageObject = o;
-								break;
-							}
-							if(orjPageObject!=null && orjPageObject.getParentObjectId()!=0) for (W5PageObject o : page.get_pageObjectList())if(orjPageObject.getParentObjectId()==o.getTemplateObjectId()){
-								if(o.getObjectTip()==1) {//grid
-									for (Object ix : pr.getPageObjectList()) if(ix!=null && ix instanceof W5GridResult && ((W5GridResult)ix).getGridId()==o.getObjectId()){
-										String grName = ((W5GridResult)ix).getGrid().getDsc();
-										buf.append("\n if(!").append(grName).append(".summary)")
-											.append(grName).append(".summary=[];\n ").append(grName).append(".summary.push(").append(q.getQueryId()).append(");\n");
-										break;										
+							if(pr.getPage().getTemplateTip()==2) {//page
+								//find the origin pageObject
+								if(orjPageObject!=null && orjPageObject.getParentObjectId()!=0) for (W5PageObject o : page.get_pageObjectList())if(orjPageObject.getParentObjectId()==o.getTemplateObjectId()){
+									if(o.getObjectTip()==1) {//grid
+										for (Object ix : pr.getPageObjectList()) if(ix!=null && ix instanceof W5GridResult && ((W5GridResult)ix).getGridId()==o.getObjectId()){
+											String grName = ((W5GridResult)ix).getGrid().getDsc();
+											buf.append("\n if(!").append(grName).append(".summary)")
+												.append(grName).append(".summary=[];\n ").append(grName).append(".summary.push(").append(q.getQueryId()).append(");\n");
+											break;										
+										}
+										
 									}
+									break;
 									
 								}
-								break;
-								
 							}
-						} else //query
+						} else if(q.getQueryTip()==15) { //Graph Query 
+							buf.append("\nvar ")
+							.append(q.getDsc())
+							.append("={name:'").append(GenericUtil.stringToJS(LocaleMsgCache.get2(pr.getScd(), q.getDsc()))).append("', graphTip:").append(orjPageObject.getParentObjectId()).append(",queryId:").append(q.getQueryId()).append(serializeQueryReader(q.get_queryFields(), pr.getScd()))
+								.append("}\n");
+						} else //queryResult
 							buf.append("\nvar ")
 							.append(((W5QueryResult) i).getQuery().getDsc())
 							.append("=").append(serializeQueryData((W5QueryResult) i))
@@ -4364,23 +4197,8 @@ columns:[
 					}
 					buf.append("\n");
 				}
-			} else { // wizard
-				buf.append("\nvar templateObjects=[");
-				boolean b = false;
-				for (W5PageObject o : page.get_pageObjectList()) {
-					if (b)
-						buf.append(",\n");
-					else
-						b = true;
-					buf.append("{\"objTip\":").append(o.getObjectTip())
-							.append(",\"objId\":").append(o.getObjectId());
-					if (!GenericUtil.isEmpty(o.getPostJsCode()))
-						buf.append(",").append(o.getPostJsCode()); // ornek
-																	// ,"url":"showFormByQuery","extraParam":"&_qid=1&asdsa"
-					buf.append("}");
-				}
-				buf.append("\n]");
 			}
+			
 			if (replacePostJsCode) {
 
 			} else
@@ -4582,8 +4400,25 @@ columns:[
 				}
 			} else if(o instanceof W5QueryResult){
 				W5QueryResult qr = (W5QueryResult)o;
-				rbuf.append("{query:").append(qr.getQuery().getDsc());
 				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==qr.getQueryId()){
+					po = po2;
+					break;
+				}
+				switch(po.getObjectTip()) {
+				case 15:
+					rbuf.append("{gquery:").append(qr.getQuery().getDsc());
+					break;
+				case 21://badge
+					rbuf.append("{query:").append(qr.getQuery().getDsc());
+					break;
+				case 22://gauge
+					rbuf.append("{gauge:").append(qr.getQuery().getQueryId());
+					break;
+				}
+			}else if(o instanceof W5PageResult){
+				W5PageResult pr2 = (W5PageResult)o;
+				rbuf.append("{page:").append(pr2.getPage().getDsc());
+				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==pr2.getTemplateId()){
 					po = po2;
 					break;
 				}

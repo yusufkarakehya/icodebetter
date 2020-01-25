@@ -6045,19 +6045,6 @@ class XMainGrid extends GridCommon {
                                                     opacity: 0.24
                                                 }
                                             },
-                                            /*    track: {
-                                                  background: '#fff',
-                                                  strokeWidth: '67%',
-                                                  margin: 0, // margin is in pixels
-                                                  dropShadow: {
-                                                    enabled: true,
-                                                    top: -3,
-                                                    left: 0,
-                                                    blur: 4,
-                                                    opacity: 0.35
-                                                  }
-                                                },*/
-
                                             dataLabels: {
                                                 showOn: 'always',
                                                 name: {
@@ -6077,20 +6064,6 @@ class XMainGrid extends GridCommon {
                                             }
                                         }
                                     },
-                                    /*  fill: {
-                                        type: 'gradient',
-                                        gradient: {
-                                          shade: 'dark',
-                                          type: 'horizontal',
-                                          shadeIntensity: 0.2,
-                                          gradientToColors: ['#ABE5A1'],
-                                          inverseColors: true,
-                                          opacityFrom: 1,
-                                          opacityTo: 1,
-                                          stops: [0, 100]
-                                        }
-                                      },*/
-                                    //                			      colors: ['#f00'],
                                     series: [100 * j.xval],
                                     stroke: {
                                         lineCap: 'round'
@@ -8545,6 +8518,200 @@ iwb.graph = function(dg, gid, callback) {
     });
 }
 
+iwb.radialBar = function(qid, gid, params){
+	iwb.request({
+        url: 'ajaxQueryData?_qid=' + qid + '&.r=' + Math.random(),
+        params: params||{},
+        successCallback: (result2) => {
+            if (!result2.data.length) return;
+            var j = result2.data[0];
+            var options = {
+            chart: {
+//                height: 300,
+                type: 'radialBar',
+            },
+            plotOptions: {
+                radialBar: {
+                    startAngle: -135,
+                    endAngle: 225,
+                    hollow: {
+                        margin: 0,
+                        size: '70%',
+                        background: '#fff',
+                        image: undefined,
+                        imageOffsetX: 0,
+                        imageOffsetY: 0,
+                        position: 'front',
+                        dropShadow: {
+                            enabled: true,
+                            top: 0,
+                            left: 0,
+                            blur: 4,
+                            opacity: 0.24
+                        }
+                    },
+                    dataLabels: {
+                        showOn: 'always',
+                        name: {
+                            offsetY: -10,
+                            show: true,
+                            color: '#888',
+                            fontSize: '17px'
+                        },
+                        value: {
+                            formatter: function(val) {
+                                return j.val;
+                            },
+                            color: '#111',
+                            fontSize: '36px',
+                            show: true,
+                        }
+                    }
+                }
+            },
+            series: [100 * j.xval],
+            stroke: {
+                lineCap: 'round'
+            },
+            labels: [j.title],
+
+        }
+
+        var xid = gid;
+        if (iwb.charts[xid]) iwb.charts[xid].destroy();
+        var chart = new ApexCharts(
+            document.getElementById(xid),
+            options
+        );
+        iwb.charts[xid] = chart;
+
+        chart.render();
+        }
+	});
+}
+iwb.graphQuery = function(dg, gid, params, callback) {
+    var series = [],
+        labels = [],
+        lookUps = [],
+        chart = null;
+    var xid = gid;
+    var el = document.getElementById(gid);
+    if (!el) return;
+    iwb.request({
+        url:
+            "ajaxQueryData?_qid=" +dg.queryId,
+        params: params||{},
+        successCallback: function(j) {
+            var d = j.data;
+            if (!d || !d.length) return;
+            switch (1 * dg.graphTip) {
+                case 6: // stacked area
+                case 5: // stacked column
+                    var colCount = dg.fields.length;
+                    for (var qi = 1; qi < colCount; qi++) {
+                        series.push({ name: dg.fields[qi].name, data: [] })
+                    }
+                    d.map((z) => {
+                        for (var qi = 1; qi < colCount; qi++) {
+                            series[qi-1].data.push(1 * z[dg.fields[qi].id]);
+                        }
+                        labels.push(z.dsc);
+                    });
+                    
+                    options = {
+                        chart: {
+                            id: 'apex-' + gid,
+                            //	                    height: 80*d.length+40,
+                            type: dg.graphTip==5?'bar':'area',
+                            stacked: true,
+                            toolbar: { show: false }
+                        },
+                        plotOptions: {
+                            //	                    bar: {horizontal: true},
+
+                        },
+                        series: series,
+                        stroke:dg.graphTip==5?{}:{curve:'smooth'},
+                        //title: {text: dg.name},
+                        xaxis: {
+                            categories: labels,
+                        },
+                        yaxis: { labels: { show: !!dg.legend }, axisTicks: { color: '#777' } },
+                    }
+                    break;
+                case 3: // pie
+                    d.map((z) => {
+                        series.push(1 * z[dg.fields[1].id]);
+                        labels.push(z.dsc || '-');
+                    });
+                    var options = {
+                        chart: { id: 'apex-' + gid, type: 'donut', toolbar: { show: false } },
+                        series: series,
+                        labels: labels,
+                        legend: dg.legend ? { position: 'bottom' } : { show: false },
+                        dataLabels: dg.legend ? {} : { formatter: function(val, opts) { return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val); } }
+                    }
+
+                    break;
+                case 1: // column
+                case 2: // line
+                    var colCount = dg.fields.length;
+                    for (var qi = 1; qi < colCount; qi++) {
+                        series.push({ name: dg.fields[qi].name, data: [] })
+                    }
+                    d.map((z) => {
+                        for (var qi = 1; qi < colCount; qi++) {
+                            series[qi-1].data.push(1 * z[dg.fields[qi].id]);
+                        }
+                        labels.push(z.dsc);
+                    });
+
+                    options = {
+                        chart: {
+                            id: 'apex-' + gid,
+                            //	                    height:document.getElementById()50*d.length+30,
+                            type: 1 * dg.graphTip == 1 ? 'bar' : 'area',
+                            toolbar: { show: false }
+                        },
+                        stroke: 1 * dg.graphTip == 1 ? {} : {
+                            curve: 'smooth'
+                        },
+                        series: series,
+                        xaxis: {
+                            categories: labels,
+                        },
+                        yaxis: { labels: { show: !!dg.legend } },
+                    }
+                    break;
+            }
+
+            if (options) {
+                options.theme = {
+                    //		            mode: 'dark',
+                    palette: iwb.graphPalette || 'palette6',
+                };
+                options.chart.height = el.offsetHeight && el.offsetHeight > 50 ? el.offsetHeight - 20 : el.offsetWidth / 2;
+                if (iwb.apexCharts[xid]) iwb.apexCharts[xid].destroy();
+                if (callback) options.chart.events = {
+                    dataPointSelection: function(event, chartContext, config) {
+                        if (config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length) {
+                            var yx = config.selectedDataPoints[0];
+                            callback(yx.length ? d[yx[0]].id : false);
+                        }
+                    }
+                }
+                var chart = new ApexCharts(
+                    el,
+                    options
+                );
+                iwb.apexCharts[xid] = chart;
+                chart.render();
+            }
+
+        }
+    });
+}
+
 class XCardList  extends React.Component {
     constructor(props) {
         super(props);
@@ -8598,6 +8765,14 @@ class XPortletItem extends React.PureComponent {
                 var dg = this.props.graph;
                 var gid = "idG" + dg.graphId;
                 iwb.graph(dg, gid);
+        	} else if(this.props.gquery){
+                var dg = this.props.gquery;
+                var gid = "idGQ" + dg.queryId;
+                iwb.graphQuery(dg, gid, params||{});
+        	} else if(this.props.gauge){
+                var dg = this.props.gauge;
+                var gid = "idGA" + dg;
+                iwb.radialBar(dg, gid, params||{});
         	} 
         }
         if(props.registerLoad)props.registerLoad(this.reloadItem);
@@ -8609,7 +8784,7 @@ class XPortletItem extends React.PureComponent {
     
     render(){
     	var o = this.props;
-        var name = o.graph || o.grid || o.card || o.query || o.component;
+        var name = o.graph || o.grid || o.card || o.query || o.gquery || o.component || o.page || o.gauge;
         if (!name) return false;//_("div", null, "not portlet");
         
         if (o.query) {//badge
@@ -8688,6 +8863,29 @@ class XPortletItem extends React.PureComponent {
             		if(fx)this.reloadFnc=fx;
             	}})
             );
+        } else if (o.gquery) {
+        		return _(
+                    Card, {
+                        className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                    },
+                    _(
+                        "h3", {
+                            className: "form-header",
+                            style: {
+                                fontSize: "1.5rem",
+                                padding: "10px 12px 0px",
+                                marginBottom: ".5rem"
+                            }
+                        },
+                        name,
+                        _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
+                        
+                    ),
+                    _("div", {
+                        style: { width: "100%", height: o.props.height || "20vw" },
+                        id: "idGQ" + o.gquery.queryId
+                    })
+                );
         } else if (o.card){ 
         	o.card.crudFlags = false;
             return _(
@@ -8719,6 +8917,23 @@ class XPortletItem extends React.PureComponent {
             		if(fx)this.reloadFnc=fx;
                	}})
             );
+        
+        } else if (o.page){ 
+            return _(
+                    Card, {
+                        className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                    },o.page());
+        
+        } else if (o.gauge){ 
+            return _(
+                Card, {
+                    className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                },
+	                _("div", {
+	                    style: { width: "100%", height: o.props.height || "20vw" },
+	                    id: "idGA" + o.gauge
+	                })
+                );
         
         }
         else if (o.component) return o.component;

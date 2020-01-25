@@ -1092,7 +1092,7 @@ public class PreviewController implements InitializingBean {
 
 		int fileAttachmentId = GenericUtil.uInt(request, "_fai");
 		String customizationId = String.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-		String local_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
+		String local_path = FrameworkCache.getAppSettingStringValue(0, "file_local_path");
 		String file_path = "";
 		if (fileAttachmentId == -1000) { // default company logo
 			file_path = local_path + "/0/jasper/iworkbetter.png";
@@ -1189,7 +1189,7 @@ public class PreviewController implements InitializingBean {
 			if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 			String customizationId = String
 					.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-			String file_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
+			String file_path = FrameworkCache.getAppSettingStringValue(0, "file_local_path");
 			filePath = file_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
 		}
 		if (request.getParameter("_ct") == null)
@@ -1304,7 +1304,7 @@ public class PreviewController implements InitializingBean {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.info("multiFileUpload");
 		// Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-		String path = FrameworkCache.getAppSettingStringValue(customizationId, "file_local_path") + File.separator
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator
 				+ customizationId + File.separator + "attachment";
 
 		File dirPath = new File(path);
@@ -1389,7 +1389,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
-		String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
 				+ File.separator + scd.get("customizationId") + File.separator + "attachment";
 
 		File dirPath = new File(path);
@@ -1477,7 +1477,7 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
-		String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
 				+ File.separator + scd.get("customizationId") + File.separator + "attachment";
 
 		File dirPath = new File(path);

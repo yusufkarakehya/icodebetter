@@ -122,7 +122,7 @@ public class LogUtil {
 			InfluxUtil.query(FrameworkSetting.log2tsdbUrl, null, "CREATE DATABASE "+FrameworkSetting.log2tsdbDbName);
 			System.out.println("InfluxDB CREATE DATABASE " + FrameworkSetting.log2tsdbDbName + " result: " + logStr);
 //			logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Crud,"POST", m);
-//			InfluxUtil.query(FrameworkSetting.log2tsdbUrl, null, "CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Crud);
+			InfluxUtil.query(FrameworkSetting.log2tsdbUrl, null, "CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Crud);
 			System.out.println("InfluxDB CREATE DATABASE " + FrameworkSetting.log2tsdbDbName4Crud + " result: " + logStr);
 //			logStr = HttpUtil.send(FrameworkSetting.log2tsdbUrl+"/query","q=CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Vcs,"POST", m);
 			InfluxUtil.query(FrameworkSetting.log2tsdbUrl, null, "CREATE DATABASE "+FrameworkSetting.log2tsdbDbName4Vcs);
