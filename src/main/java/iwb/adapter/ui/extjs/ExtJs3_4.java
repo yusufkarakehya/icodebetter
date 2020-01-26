@@ -1433,6 +1433,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		}
 		switch (fr.getForm().getRenderTip()) {
 		case 1:// fieldset
+		case	4://wizard
 			s.append(renderFormFieldset(fr));
 			break;
 		case 2:// tabpanel

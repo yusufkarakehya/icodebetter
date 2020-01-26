@@ -194,10 +194,6 @@ public class React16 implements ViewAdapter {
 		StringBuilder s = new StringBuilder();
 		s.append("var _page_tab_id='").append(fr.getUniqueId())
 				.append("';\n");
-		boolean liveSyncRecord = FrameworkSetting.liveSyncRecord
-				&& fr != null && fr.getForm() != null
-				&& fr.getForm().getObjectTip() == 2
-				&& fr.getAction() == 1;
 
 			
 		if (GenericUtil.uInt(fr.getRequestParams().get("a")) != 5 && fr.getForm().getRenderTip() != 0) { // tabpanel ve icinde gridler varsa
@@ -254,21 +250,17 @@ public class React16 implements ViewAdapter {
 														null)
 												: serializeGrid(gridResult))
 										.append("\n");
-								if (liveSyncRecord) {// TODO
-
-								}
 							}
 						}
 					}
 				}
 		}
 
-		
-		
-		
-		
-		
 		W5Form f = fr.getForm();
+		
+		if(f.getRenderTip()==4 && fr.getAction()==2) {//wizard and insert
+			return serializeForm4SurveyJS(fr);			
+		}
 		
 		Map<String, Object> scd = fr.getScd();
 		String xlocale = (String) scd.get("locale");
@@ -288,7 +280,6 @@ public class React16 implements ViewAdapter {
 				&& FrameworkCache.getTable(scd, f.getObjectId()) != null) {
 			s.append(",\n renderTip:").append(fr.getForm().getRenderTip());
 			W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
-			liveSyncRecord = FrameworkSetting.liveSyncRecord && t.getLiveSyncFlag() != 0 && !fr.isViewMode();
 			// insert AND continue control
 			s.append(", crudTableId:").append(f.getObjectId());
 			if (fr.getAction() == 2) { // insert
@@ -298,30 +289,7 @@ public class React16 implements ViewAdapter {
 			} else if (fr.getAction() == 1) { // edit
 				s.append(",\n pk:").append(GenericUtil.fromMapToJsonString(fr.getPkFields()));
 				if(!fr.isViewMode() && (t.getAccessDeleteTip()==0 || !GenericUtil.isEmpty(t.getAccessDeleteUserFields()) || GenericUtil.accessControl(scd, t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers())))s.append(", deletable:!0");
-				if (false && liveSyncRecord) {
-					s.append(", liveSync:true");
-					String webPageId = fr.getRequestParams().get(".w");
-					if (webPageId != null) {
-						String key = "";
-						for (String k : fr.getPkFields().keySet())
-							if (!k.startsWith("customization"))
-								key += "*" + fr.getPkFields().get(k);
-						if (key.length() > 0) {
-							key = t.getTableId() + "-" + key.substring(1);
-							fr.setLiveSyncKey(key);
-							List<Object> l = UserUtil
-									.syncGetListOfRecordEditUsers(
-											(String)scd.get("projectId"), key,
-											webPageId);
-							if (!GenericUtil.isEmpty(l)) {// buna duyurulacak
-								s.append(",\n liveSyncBy:")
-										.append(GenericUtil
-												.fromListToJsonString2Recursive((List) l));
-							}
-						}
-					}
-				}
-	
+				
 			}
 	
 		
@@ -1189,6 +1157,7 @@ public class React16 implements ViewAdapter {
 					"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
 		} else switch (formResult.getForm().getRenderTip()) {
 		case 1:// fieldset
+		case	4://wizard
 			s.append(renderFormFieldset(formResult));
 			break;
 		case 2:// tabpanel
@@ -2015,6 +1984,222 @@ public class React16 implements ViewAdapter {
 		}
 		
 		return buf;
+	}
+
+	@SuppressWarnings("unchecked")
+	private StringBuilder serializeFormModule4SurveyJS(W5FormResult formResult, List<W5FormCellHelper> lfc) {
+		StringBuilder buf = new StringBuilder();
+		Map scd = formResult.getScd();
+		buf.append("{questions:[");
+		boolean b = false;
+		for(W5FormCellHelper fc:lfc) {
+			if(b)buf.append(",");
+			else b = true;
+			buf.append(serializeFormCell4SurveyJS(fc, formResult));
+		}
+		return buf.append("]}");
+		
+	}
+	@SuppressWarnings("unchecked")
+	private StringBuilder serializeForm4SurveyJS(W5FormResult formResult) {
+		StringBuilder buf = new StringBuilder();
+		Map scd = formResult.getScd();
+		W5Form f = formResult.getForm();
+		Map<Integer, List<W5FormCellHelper>> map = new HashMap<Integer, List<W5FormCellHelper>>();
+		map.put(0, new ArrayList<W5FormCellHelper>());
+		if (formResult.getForm().get_moduleList() != null)
+			for (W5FormModule m : formResult.getForm().get_moduleList()) {
+				map.put(m.getFormModuleId(), new ArrayList<W5FormCellHelper>());
+			}
+		for (W5FormCellHelper m : formResult.getFormCellResults())
+			if (m.getFormCell().getActiveFlag() != 0) {
+				List<W5FormCellHelper> l = map.get(m.getFormCell()
+						.getFormModuleId());
+				if (l == null)
+					l = map.get(0);
+				l.add(m);
+			}
+		
+		buf.append("\nvar __action__=").append(formResult.getAction()).append("\n");
+
+
+		buf.append("var surveyJson = {title: '").append(LocaleMsgCache.get2(scd, f.getLocaleMsgKey()))
+		.append("',showProgressBar: 'top',pages: [");
+		
+		if (map.get(0).size() > 0) {
+			buf.append(serializeFormModule4SurveyJS(formResult, map.get(0))).append("\n,");
+		}
+		if (formResult.getForm().get_moduleList() != null)
+			for (W5FormModule m : formResult.getForm().get_moduleList())
+				if (m.getFormModuleId() != 0) {
+					if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
+							.getModuleViewTip()) 
+							&& GenericUtil.accessControl(formResult.getScd(),
+									m.getAccessViewTip(),
+									m.getAccessViewRoles(),
+									m.getAccessViewUsers())) {
+						switch (m.getModuleTip()) {
+						case	0:
+							if(!GenericUtil.isEmpty(map.get(m.getFormModuleId())))
+								buf.append(serializeFormModule4SurveyJS(formResult, map.get(m.getFormModuleId()))).append("\n,");
+						
+						}
+					}
+				}
+		if(buf.charAt(buf.length()-1)==',')buf.setLength(buf.length()-1);
+		buf.append("]}");
+		
+
+		// 24 nolu form form edit form olduğu için onu çevirmesin.
+		String postCode = (formResult.getForm().get_renderTemplate() != null
+				&& formResult.getForm().get_renderTemplate().getLocaleMsgFlag() == 1 && formResult
+				.getFormId() != 24) ? GenericUtil.filterExt(
+				formResult.getForm().getJsCode(), scd,
+				formResult.getRequestParams(), null).toString() : formResult
+				.getForm().getJsCode();
+
+		boolean b = true;
+		if (postCode != null && postCode.length() > 10) {
+			if (postCode.charAt(0) == '!') {
+				postCode = postCode.substring(1);
+			} else
+				b = false;
+		} else
+			postCode = "";
+		
+		if (!GenericUtil.isEmpty(postCode) && postCode.indexOf("Ext.")==-1) {
+			buf.append("\ntry{").append(postCode).append("\n}catch(e){");
+			buf.append(FrameworkSetting.debug ? "if(confirm('ERROR Survey.JS!!! Throw? : ' + e.message))throw e;"
+					: "alert('System/Customization ERROR : ' + e.message)");
+			buf.append("}\n");
+		}
+
+        
+		buf.append("\nvar survey=new Survey.Model(surveyJson);survey.locale='").append(scd.get("locale"))
+		.append("';survey.onComplete.add((xresult)=>iwb.postSurveyJs(").append(f.getFormId()).append(",__action__,xresult.data")
+		.append("));return _(CardBody,{},_(Survey.Survey,{model:survey}))");
+		
+		return buf;
+	}
+
+	@SuppressWarnings("unchecked")
+	private StringBuilder serializeFormCell4SurveyJS(W5FormCellHelper cellResult, W5FormResult formResult) {
+		StringBuilder buf = new StringBuilder();
+		W5FormCell fc = cellResult.getFormCell();
+		String value = cellResult.getValue(); // bu ilerde hashmap ten gelebilir
+		if (fc.getControlTip() == 0 || fc.getControlTip() == 100 || fc.getControlTip() == 102 || fc.getControlTip() == 101 || cellResult.getHiddenValue() != null)return buf.append("null");
+		
+		buf.append("{name:'").append(fc.getDsc()).append("', title:'").append(LocaleMsgCache.get2(formResult.getScd(), fc.getLocaleMsgKey())).append("'");
+		if(fc.getNotNullFlag()!=0)buf.append(",isRequired:true");
+		switch(fc.getControlTip()){
+			case	1:buf.append(",type:'text'");
+				if(GenericUtil.safeEquals(fc.getVtype(), "email"))buf.append(",inputType:'email'");
+				else if(GenericUtil.safeEquals(fc.getVtype(), "url"))buf.append(",inputType:'url'");
+			break;//string
+			case	2:buf.append(",type:'text',inputType:'date'");break; //TODO:date
+			case	18:buf.append(",type:'text',inputType:'datetime'");break; //TODO:datetime
+			case	22:buf.append(",type:'text',inputType:'time'");break; //TODO:time
+			case	3://double
+			case	4://integer
+				buf.append(",type:'text',inputType:'number'");
+				break;
+			case	5:buf.append(",type:'checkbox'");break;
+
+		
+			case	6://combo static
+			case	8:// lovcombo-static
+			case	58:// superbox lovcombo-static
+		
+			case	7://combo query
+			case	15://lovcombo query
+			case	59://superbox lovcombo query
+				buf.append(",type:'");
+				if(fc.getControlTip()<8)
+					buf.append("radiogroup");//formResult!=null && fc.getParentFormCellId()==1?"radiogroup":"dropdown"
+				else
+					buf.append("checkbox");
+				buf.append("', choices:[");//static combo
+				if ((fc.getControlTip()==6 || fc.getControlTip()==8 ||fc.getControlTip()==58) && cellResult.getLookupListValues() != null) {
+					boolean b1=false;
+					
+					for (W5Detay p : (List<W5Detay>) cellResult
+							.getLookupListValues()) {
+						if (b1)
+							buf.append(",");
+						else
+							b1 = true;
+						buf.append("{value:'").append(p.getVal()).append("',text:'")
+								.append(cellResult.getLocaleMsgFlag() != 0 ? LocaleMsgCache
+										.get2(formResult.getScd(), p.getDsc())
+										: p.getDsc()).append("'");
+						buf.append("}");
+					}
+				} else if ((fc.getControlTip()==7 || fc.getControlTip()==15 ||fc.getControlTip()==59)){
+					if(cellResult.getLookupQueryResult()!=null && cellResult.getLookupQueryResult().getData() != null) {
+						boolean b1 = false;
+						for (Object[] p : cellResult.getLookupQueryResult().getData()) {
+							if (b1)
+								buf.append(",");
+							else
+								b1 = true;
+							boolean bb = false;
+							buf.append("{");
+							for (W5QueryField f : cellResult.getLookupQueryResult().getQuery().get_queryFields()) {
+								Object z = p[f.getTabOrder() - 1];
+								if (bb)
+									buf.append(",");
+								else
+									bb = true;
+								if (z == null)z = "";
+								buf.append(f.getDsc().equals("id")?"value":(f.getDsc().equals("dsc")?"text":f.getDsc())).append(":'")
+										.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
+												.get2(formResult.getScd(),
+														z.toString()) : GenericUtil
+												.stringToJS(z.toString()))
+										.append("'");
+							}
+							buf.append("}");
+						}
+					}
+				}
+				buf.append("]");
+			break; 
+			
+			case	9://combo query remote
+			case	16://lovcombo query remote
+				buf.append(",type:'text'");
+				break;
+			case	10://advanced select: TODO ilk geldiginde oo loadOptions'ta atanacak
+		
+				buf.append(",type:'text'");
+			break; // advanced select
+
+			case	23://treecombo(local)
+			case	26://lovtreecombo(local) TODO
+				buf.append(",type:'text'");
+			break; // 		
+		
+			case	12://html editor
+				buf.append(",type:'text'");
+			case	25://textarea(ozel tanimlama)
+			case	41://codemirror
+			case	11:
+				buf.append(",type:'comment', rows:3");
+				break; // textarea
+		//	{ view:"label", label:'Fill the form below to access <br>the main datacore.'
+			
+			case	71://file attachment
+				buf.append(",type:'text'");
+				break;
+			
+			default:			
+				buf.append(",type:'text'");
+				break;
+		}
+
+		
+		buf.append("}");
+		return buf;		
 	}
 	
 	@SuppressWarnings("unchecked")

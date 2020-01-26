@@ -8670,7 +8670,7 @@ iwb.graphQuery = function(dg, gid, params, callback) {
                         chart: {
                             id: 'apex-' + gid,
                             //	                    height:document.getElementById()50*d.length+30,
-                            type: 1 * dg.graphTip == 1 ? 'bar' : 'area',
+                            type: 1 * dg.graphTip == 1 ? 'bar' : 'line',
                             toolbar: { show: false }
                         },
                         stroke: 1 * dg.graphTip == 1 ? {} : {
@@ -9167,6 +9167,18 @@ iwb.formElementProperty = function(opr, elementValue, value){
 iwb.hideColumn= function(columns,name){
 	columns.map(o => {
 		if(o.name == name)o.hidden=true; 
+	})
+}
+
+iwb.postSurveyJs=(formId, action, params)=>{
+	iwb.ajax.postForm(formId, action, params, ()=>{
+		toastr.success(
+            "",
+            "Saved Successfully", {
+                timeOut: 3000
+            }
+        );
+		iwb.closeTab()
 	})
 }
 
