@@ -117,11 +117,11 @@ public class RestController implements InitializingBean {
 				int forceUserRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
 				if (roleCount < 0 || forceUserRoleId != 0) {
 					if(po.getCustomizationId()==0) {
-					if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
-					scd = service.userRoleSelect(userId, forceUserRoleId,
+						if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
+						scd = service.userRoleSelect(userId, forceUserRoleId,
 							GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
 					} else {
-						scd = service.userRoleSelect4App(po, userId, forceUserRoleId, null);
+						scd = service.userRoleSelect4App2(po, userId, forceUserRoleId, result.getResultMap());
 					}
 					if (scd == null){
 						response.getWriter().write("{\"success\":false, \"msg\":\"no role found\"}"); // bir hata var
