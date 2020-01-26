@@ -8615,7 +8615,7 @@ iwb.graphQuery = function(dg, gid, params, callback) {
                         for (var qi = 1; qi < colCount; qi++) {
                             series[qi-1].data.push(1 * z[dg.fields[qi].id]);
                         }
-                        labels.push(z.dsc);
+                        labels.push(z[(dg.fields[0].id+'_qw_')]||z[dg.fields[0].id]|| '-');
                     });
                     
                     options = {
@@ -8642,7 +8642,7 @@ iwb.graphQuery = function(dg, gid, params, callback) {
                 case 3: // pie
                     d.map((z) => {
                         series.push(1 * z[dg.fields[1].id]);
-                        labels.push(z.dsc || '-');
+                        labels.push(z[(dg.fields[0].id+'_qw_')]||z[dg.fields[0].id]|| '-');
                     });
                     var options = {
                         chart: { id: 'apex-' + gid, type: 'donut', toolbar: { show: false } },
@@ -8663,7 +8663,7 @@ iwb.graphQuery = function(dg, gid, params, callback) {
                         for (var qi = 1; qi < colCount; qi++) {
                             series[qi-1].data.push(1 * z[dg.fields[qi].id]);
                         }
-                        labels.push(z.dsc);
+                        labels.push(z[(dg.fields[0].id+'_qw_')]||z[dg.fields[0].id]|| '-');
                     });
 
                     options = {
@@ -8974,6 +8974,8 @@ class XDashboard extends React.PureComponent {
 	                			else if(colItem.grid)id="pgrid-"+colItem.grid.gridId;
 	                			else if(colItem.card)id="pcard-"+colItem.card.cardId;
 	                			else if(colItem.query)id="pquery-"+colItem.query.queryId;
+	                			else if(colItem.gquery)id="pgquery-"+colItem.gquery.queryId;
+	                			else if(colItem.gauge)id="pgauge-"+colItem.gauge;
 	                			this.reloadFncs[id]=fx;
 	                		}
 	                   	}})) //iwb.createPortlet(colItem

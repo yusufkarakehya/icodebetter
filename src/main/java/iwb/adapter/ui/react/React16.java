@@ -4566,7 +4566,7 @@ columns:[
 	private Object renderDashboardObject(W5PageResult pr) {
 		StringBuilder buf = new StringBuilder();
 		if(GenericUtil.isEmpty(pr.getPageObjectList()))return buf;
-		buf.append("return iwb.ui.buildDashboard({t:_page_tab_id, rows:[");
+		buf.append("return _(XDashboard,{t:_page_tab_id, rows:[");
 		int rowId=-1;
 		for(Object o:pr.getPageObjectList())if(o!=null){
 			W5PageObject po = null;
