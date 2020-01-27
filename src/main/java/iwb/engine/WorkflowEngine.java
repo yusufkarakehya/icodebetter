@@ -18,6 +18,7 @@ import iwb.domain.db.W5Comment;
 import iwb.domain.db.W5Email;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormSmsMail;
+import iwb.domain.db.W5Table;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowRecord;
 import iwb.domain.db.W5WorkflowStep;
@@ -170,42 +171,37 @@ public class WorkflowEngine {
 			case 3: // dynamic onay
 			case 2: // hierarchical
 			case 1: // complex onay
-
-				if (currentStep.getFinalStepFlag() == 0) {
-					int nextStepId = currentStep.getOnApproveStepId();
+				int nextStepId = 0;
+				if (!GenericUtil.isEmpty(currentStep.getOnApproveStepSql())) {
+					parameterMap.put("_tb_pk", "" + ar.getTablePk());
+					Object oz = scriptEngine.executeScript(scd, parameterMap, currentStep.getOnApproveStepSql(),
+							null, "wfs_" + currentStep.getApprovalStepSeqId() + "_ass");
+					if (oz != null) {
+						if (oz instanceof Boolean) {
+							if (!((Boolean) oz))
+								throw new IWBException("framework", "WorkflowRecord", approvalRecordId, null,
+										LocaleMsgCache.get2(0, xlocale, "approval_denied"), null);
+						} else if (oz instanceof Integer) {
+							nextStepId = (Integer) oz;
+						} else {
+							advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
+							if(advancedNextStepSqlResult!=null && advancedNextStepSqlResult.get("nextStepId")!=null)
+								nextStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("nextStepId"));
+						}
+					}
+				}
+				if (currentStep.getFinalStepFlag() == 0 && (advancedNextStepSqlResult==null || GenericUtil.uInt(advancedNextStepSqlResult.get("finished_flag"))==0) ) {
+					if(nextStepId==0)nextStepId = currentStep.getOnApproveStepId();
 					if (nextStepId == 0 && currentStep.getApprovalStepId() == 901) {
 						throw new IWBException("validation", "WorkflowRecord", approvalRecordId, null,
 								LocaleMsgCache.get2(0, xlocale, "approval_wrong_action"), null);
 					}
-					if (currentStep.getOnApproveStepSql() != null) {
-						parameterMap.put("_tb_pk", "" + ar.getTablePk());
-						Object oz = scriptEngine.executeScript(scd, parameterMap, currentStep.getOnApproveStepSql(),
-								null, "wfs_" + nextStepId + "_ass");
-						if (oz != null) {
-							if (oz instanceof Boolean) {
-								if (!((Boolean) oz))
-									throw new IWBException("framework", "WorkflowRecord", approvalRecordId, null,
-											LocaleMsgCache.get2(0, xlocale, "approval_denied"), null);
-							} else if (oz instanceof Integer) {
-								nextStepId = (Integer) oz;
-							} else {
-								advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
-								if(advancedNextStepSqlResult!=null && advancedNextStepSqlResult.get("nextStepId")!=null)
-									nextStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("nextStepId"));
-							}
-						}
-						/*
-						 * Object[] oz = DBUtil.filterExt4SQL( currentStep.getOnApproveStepSql(), scd,
-						 * parameterMap, null); advancedNextStepSqlResult = dao.runSQLQuery2Map(oz[0].
-						 * toString(), (List) oz[1], null); if
-						 * (advancedNextStepSqlResult.get("next_step_id") != null) nextStepId =
-						 * GenericUtil.uInt(advancedNextStepSqlResult.get("next_step_id"));
-						 */
-					}
+
 					nextStep = a.get_approvalStepMap().get(nextStepId);
 					nextStep = nextStep.getNewInstance();
-				} else
+				} else {
 					nextStep = null;
+				}
 				if (nextStep == null) {
 					isFinished = true;
 					ar.setApprovalActionTip((short) 5); // bitti(onaylandi)
@@ -309,17 +305,17 @@ public class WorkflowEngine {
 				// dao.copyTableRecord(a.getTableId(), ar.getTablePk() ,"promis",
 				// "promis_approval");
 				// //TODO:buna benzer birsey
-				List<Object[]> l = dao.find("select t.dsc, tp.expressionDsc " + "from W5Table t, W5TableParam tp "
-						+ "where t.projectUuid=? AND tp.projectUuid=t.projectUuid AND t.tableId=? AND t.tableId=tp.tableId AND tp.tabOrder=1",
-						customizationId, a.getTableId());
-				String tableDsc = (l.get(0)[0]).toString();
-				String tablePkDsc = (l.get(0)[1]).toString();
-				int recordCound = dao.executeUpdateSQLQuery(
-						"delete from " + tableDsc + " x where x.customization_id=? and x." + tablePkDsc + "=?",
-						customizationId, ar.getTablePk());
-				if (recordCound != 1) {
-					throw new IWBException("validation", "Workflow Delete record", approvalRecordId, null,
-							"Wrong number of delete record = " + recordCound, null);
+				W5Table t = FrameworkCache.getTable(scd, a.getTableId());
+				String tableDsc = t.getDsc();
+				String tablePkDsc = t.get_tableParamList().get(0).getExpressionDsc();
+				if(t.get_tableParamList().size()==1) {
+					int recordCound = dao.executeUpdateSQLQuery(
+							"delete from " + tableDsc + " x where x." + tablePkDsc + "=?",
+							ar.getTablePk());
+					if (recordCound != 1) {
+						throw new IWBException("validation", "Workflow Delete record", approvalRecordId, null,
+								"Wrong number of delete record = " + recordCound, null);
+				}
 				}
 			} else { // "rejected" olarak isaretle. approve_record kaydi duracak. approve_step_id:999
 				// olacak. finished olacak

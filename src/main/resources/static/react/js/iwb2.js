@@ -712,7 +712,7 @@ iwb = {
                 case "session":
                     return iwb.showLoginDialog();
                 case "validation":
-                    toastr.error(obj.errors.join("<br/>"), "Validation Error");
+                    toastr.error(obj.errors.join("<br/>"), "Validation Error",{ timeOut: 7000 });
                     break;
                 case "sql":
                 case "rhino":
@@ -7953,7 +7953,7 @@ class XForm extends React.Component {
                                         });
                                         
                                     }
-                                    toastr.error(errMsg);
+                                    toastr.error(errMsg,{ timeOut: 7000 });
                                     	
                                     if (json.error) {
                                         iwb.showModal({
@@ -9180,7 +9180,7 @@ iwb.postSurveyJs=(formId, action, params)=>{
                 timeOut: 3000
             }
         );
-		iwb.closeTab()
+		iwb.closeTab({}, !0);
 	})
 }
 

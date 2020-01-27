@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import iwb.adapter.ui.ViewAdapter;
+import iwb.adapter.ui.surveyjs.SurveyJS;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
@@ -252,6 +253,12 @@ public class ExtJs3_4 implements ViewAdapter {
 		StringBuilder s = new StringBuilder();
 		s.append("var _page_tab_id='").append(formResult.getUniqueId())
 				.append("';\n");
+		
+		if(formResult.getForm().getRenderTip()==4 && formResult.getAction()==2) {//wizard and insert
+			return SurveyJS.serializeForm4SurveyJS(formResult, 1);//extjs			
+		}
+		
+
 		boolean liveSyncRecord = FrameworkSetting.liveSyncRecord
 				&& formResult != null && formResult.getForm() != null
 				&& formResult.getForm().getObjectTip() == 2

@@ -1800,6 +1800,9 @@ public class PostgreSQL extends BaseDAO {
 							notNullFlag = 0;
 							if(fc.getSourceTip()==1) {
 								String value = formResult.getRequestParams().get(fc.getDsc());
+								if(fc.getControlTip()==5) {
+									notNullFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+								} else
 								notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
 							}
 						}
@@ -2401,7 +2404,10 @@ public class PostgreSQL extends BaseDAO {
 					for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
 						if(fc.getSourceTip()==1) {
 							String value = formResult.getRequestParams().get(fc.getDsc());
-							notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+							if(fc.getControlTip()==5) {
+								notNullFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+							} else
+								notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
 						}
 						break;
 					}
