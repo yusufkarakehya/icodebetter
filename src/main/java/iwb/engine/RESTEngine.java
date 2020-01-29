@@ -342,14 +342,14 @@ public class RESTEngine {
 					case 1: // form
 					case 3: // form as post_url
 						params = GenericUtil.fromMapToURI(m);
-//						if (wsm.getParamSendTip() == 3) {
-//							if (!GenericUtil.isEmpty(params)) {
-//								if (url.indexOf('?') == -1)
-//									url += "?";
-//								url += params;
-//							}
-//							params = null;
-//						}
+						if (wsm.getParamSendTip() == 3) {
+							if (!GenericUtil.isEmpty(params)) {
+								if (url.indexOf('?') == -1)
+									url += "?";
+								url += params;
+							}
+							params = null;
+						}
 						reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
 						break;
 					case 2: // json
