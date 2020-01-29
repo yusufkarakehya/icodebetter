@@ -207,7 +207,7 @@ public class UIEngine {
 								m.getAccessViewRoles(), m.getAccessViewUsers())) { // form
 							if (m.getModuleViewTip() == 0 || (m.getModuleViewTip() == 1 && action == 1)
 									|| (m.getModuleViewTip() == 2 && action == 2)) {
-								int newAction = GenericUtil.uInt(requestParams.get("a" + m.getTabOrder()));
+								int newAction = m.getModuleTip() == 3 ? 2 : GenericUtil.uInt(requestParams.get("a" + m.getTabOrder()));
 								if (newAction == 0)
 									newAction = action;
 								if (formResult.getModuleFormMap() == null)

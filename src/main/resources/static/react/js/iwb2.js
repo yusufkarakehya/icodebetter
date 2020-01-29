@@ -9188,7 +9188,14 @@ iwb.postSurveyJs=(formId, action, params)=>{
 				}
 			}			
 		} else {
-			params2[k] = o && Array.isArray(o) ? o.join(',') : o;
+			if(o && Array.isArray(o)){
+				if(o.length && o[0].content){
+					params2[k] = o[0].content.substr(o[0].content.lastIndexOf('=')+1);
+				} else 
+					params2[k] = o.join(','); 
+					
+			} else 
+				params2[k] =  o;
 		}
 	}
 	iwb.ajax.postForm(formId, action, params2, ()=>{
@@ -9200,6 +9207,32 @@ iwb.postSurveyJs=(formId, action, params)=>{
         );
 		iwb.closeTab({}, !0);
 	})
+}
+
+iwb.fileUploadSurveyJs=(tableId, tablePk, survey, options)=>{
+	//debugger
+	var formData = new FormData();
+    options
+        .files
+        .forEach(function (file) {
+            formData.append("file", file);
+            formData.append("table_id", tableId);
+            formData.append("table_pk", tablePk);
+            formData.append("profilePictureFlag", 0);
+        });
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.open("POST", "upload.form"); // https://surveyjs.io/api/MySurveys/uploadFiles
+    xhr.onload = function () {
+        var data = xhr.response;
+        options.callback("success", options.files.map(file => {
+            return {
+                file: file,
+                content: data.fileUrl
+            };
+        }));
+    };
+    xhr.send(formData);
 }
 
 function gcx(w, h, r) {

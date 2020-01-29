@@ -171,7 +171,9 @@ public class SurveyJS {
 
         
 		buf.append("\nvar survey=new Survey.Model(surveyJson);survey.locale='").append(scd.get("locale"))
-		.append("';survey.onComplete.add((xresult)=>iwb.postSurveyJs(").append(f.getFormId()).append(",__action__,xresult.data,()=>{}));\n");
+		.append("';\nsurvey.onComplete.add((xresult)=>iwb.postSurveyJs(").append(f.getFormId()).append(",__action__,xresult.data,()=>{}));\n")
+		.append("survey.onUploadFiles.add((survey, options)=>iwb.fileUploadSurveyJs(").append(f.getObjectId()).append(",").append(-GenericUtil.getNextTmpId())
+		.append(",survey, options,()=>{}));\n");
 		
 		if(renderer==5)//react
 			buf.append("return _(CardBody,{},_(Survey.Survey,{model:survey}))");
@@ -305,7 +307,7 @@ public class SurveyJS {
 		//	{ view:"label", label:'Fill the form below to access <br>the main datacore.'
 			
 			case	71://file attachment
-				buf.append("text'");
+				buf.append("file', imageHeight:200, storeDataAsText: false");
 				break;
 			
 			default:			
