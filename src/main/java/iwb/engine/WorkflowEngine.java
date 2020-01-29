@@ -124,10 +124,12 @@ public class WorkflowEngine {
 						&& GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id")) != 0) {
 					nextStep = a.get_approvalStepMap()
 							.get(GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id"))).getNewInstance();
-					// if(advancedStepSqlResult.get("approval_users") !=
-					// null)nextStep.setApprovalUsers(advancedStepSqlResult.get("approval_users").toString());
-					// if(advancedStepSqlResult.get("approval_roles") !=
-					// null)nextStep.setApprovalRoles(advancedStepSqlResult.get("approval_roles").toString());
+					if(nextStep!=null){
+						if(!GenericUtil.isEmpty(advancedStepSqlResult.get("approval_users")))
+							nextStep.setApprovalUsers(advancedStepSqlResult.get("approval_users").toString());
+						if(!GenericUtil.isEmpty(advancedStepSqlResult.get("approval_roles")))
+							nextStep.setApprovalRoles(advancedStepSqlResult.get("approval_roles").toString());
+					   }
 				} else {
 					nextStep = a.get_approvalStepList().get(0).getNewInstance();
 				}
