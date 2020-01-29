@@ -9173,7 +9173,25 @@ iwb.hideColumn= function(columns,name){
 }
 
 iwb.postSurveyJs=(formId, action, params)=>{
-	iwb.ajax.postForm(formId, action, params, ()=>{
+	var params2 = {_mask:!0}, fid = 0;
+	for(var k in params){
+		var o = params[k];
+		if(k.startsWith('_form_')){
+			fid++;
+			params2['_fid'+fid] = k.substr('_form_'.length);
+			params2['_cnt'+fid] = o.length;
+			for(var qi=0;qi<o.length;qi++){
+				var cell = o[qi];
+				params2['a'+fid+'.'+(qi+1)] = 2;
+				for(var kk in cell){
+					params2[kk+fid+'.'+(qi+1)] = cell[kk];
+				}
+			}			
+		} else {
+			params2[k] = o && Array.isArray(o) ? o.join(',') : o;
+		}
+	}
+	iwb.ajax.postForm(formId, action, params2, ()=>{
 		toastr.success(
             "",
             "Saved Successfully", {

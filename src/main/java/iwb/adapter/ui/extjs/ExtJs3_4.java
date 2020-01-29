@@ -4175,10 +4175,10 @@ public class ExtJs3_4 implements ViewAdapter {
 		
 		switch(controlTip) {
 		case 2://date
-			buf.append(",format: '").append(dateFormatMulti[formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]).append("'");
+			buf.append(",format: '").append(dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]).append("'");
 			break;
 		case 18://timestamp
-			String frmt = dateFormatMulti[formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]; 
+			String frmt = dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]; 
 			buf.append(",dateFormat: '").append(frmt).append("', hiddenFormat:'").append(frmt).append(" H:i:s'");
 			break;
 	

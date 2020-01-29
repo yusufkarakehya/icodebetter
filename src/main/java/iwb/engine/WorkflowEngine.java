@@ -101,7 +101,7 @@ public class WorkflowEngine {
 						LocaleMsgCache.get2(0, xlocale, "approval_onay_talebi_onceden_yapilmis"), null);
 			Map<String, Object> advancedStepSqlResult = null;
 			if (a.getAdvancedBeginSql() != null && a.getAdvancedBeginSql().length() > 10) { // calisacak
-
+				parameterMap.put("_tb_pk", "" + ar.getTablePk());
 				Object oz = scriptEngine.executeScript(scd, parameterMap, a.getAdvancedBeginSql(), null,
 						"wf_" + a.getApprovalId() + "_abs");
 				if (oz != null) {
@@ -120,19 +120,21 @@ public class WorkflowEngine {
 				nextStep = a.get_approvalStepList().get(0).getNewInstance();
 				break;
 			case 1: // complex onay
-				if (advancedStepSqlResult != null && advancedStepSqlResult.get("approval_step_id") != null
+				if (advancedStepSqlResult != null
 						&& GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id")) != 0) {
 					nextStep = a.get_approvalStepMap()
 							.get(GenericUtil.uInt(advancedStepSqlResult.get("approval_step_id"))).getNewInstance();
-					if(nextStep!=null){
-						if(!GenericUtil.isEmpty(advancedStepSqlResult.get("approval_users")))
-							nextStep.setApprovalUsers(advancedStepSqlResult.get("approval_users").toString());
-						if(!GenericUtil.isEmpty(advancedStepSqlResult.get("approval_roles")))
-							nextStep.setApprovalRoles(advancedStepSqlResult.get("approval_roles").toString());
-					   }
 				} else {
 					nextStep = a.get_approvalStepList().get(0).getNewInstance();
 				}
+				if(nextStep!=null && advancedStepSqlResult!=null &&
+						(!GenericUtil.isEmpty(advancedStepSqlResult.get("approval_users")) || !GenericUtil.isEmpty(advancedStepSqlResult.get("approval_roles")))){
+					Object o = advancedStepSqlResult.get("approval_users");
+					nextStep.setApprovalUsers(o!=null ? o.toString():"");
+					o = advancedStepSqlResult.get("approval_roles");
+					nextStep.setApprovalRoles(o!=null ? o.toString():"");
+				}
+
 				break;
 			case 2: // hierarchical onay //deprecated
 				break;

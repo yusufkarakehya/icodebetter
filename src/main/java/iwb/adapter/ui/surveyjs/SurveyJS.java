@@ -72,15 +72,17 @@ public class SurveyJS {
 		return buf;
 	}
 	@SuppressWarnings("unchecked")
-	private static StringBuilder serializeFormModule4SurveyJS(W5FormResult formResult, List<W5FormCellHelper> lfc) {
+	private static StringBuilder serializeFormModule4FormCells(W5FormResult formResult, List<W5FormCellHelper> lfc) {
 		StringBuilder buf = new StringBuilder();
 		Map scd = formResult.getScd();
 		buf.append("{questions:[");
 		boolean b = false;
 		for(W5FormCellHelper fc:lfc) {
+			Object o = serializeFormCell4SurveyJS(fc, formResult, false);
+			if(o==null)continue;
 			if(b)buf.append(",");
 			else b = true;
-			buf.append(serializeFormCell4SurveyJS(fc, formResult));
+			buf.append(o);
 		}
 		return buf.append("]}");
 		
@@ -112,7 +114,7 @@ public class SurveyJS {
 		.append("',showProgressBar: 'top',pages: [");
 		
 		if (map.get(0).size() > 0) {
-			buf.append(serializeFormModule4SurveyJS(formResult, map.get(0))).append("\n,");
+			buf.append(serializeFormModule4FormCells(formResult, map.get(0))).append("\n,");
 		}
 		if (formResult.getForm().get_moduleList() != null)
 			for (W5FormModule m : formResult.getForm().get_moduleList())
@@ -126,7 +128,15 @@ public class SurveyJS {
 						switch (m.getModuleTip()) {
 						case	0:
 							if(!GenericUtil.isEmpty(map.get(m.getFormModuleId())))
-								buf.append(serializeFormModule4SurveyJS(formResult, map.get(m.getFormModuleId()))).append("\n,");
+								buf.append(serializeFormModule4FormCells(formResult, map.get(m.getFormModuleId()))).append("\n,");
+							break;
+						case	3:
+							W5FormResult dfr = formResult.getModuleFormMap().get(m.getObjectId());
+							if(dfr!=null) {
+								buf.append(serializeFormModule4FormResult(formResult, dfr)).append("\n,");
+							}
+							
+							break;
 						
 						}
 					}
@@ -171,30 +181,45 @@ public class SurveyJS {
 		return buf;
 	}
 
+	private static StringBuilder serializeFormModule4FormResult(W5FormResult formResult, W5FormResult dfr) {
+		StringBuilder buf = new StringBuilder();
+		Map scd = formResult.getScd();
+		W5Form df = dfr.getForm();
+		buf.append("{questions:[{type: 'matrixdynamic',title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey()))
+		.append("', rowCount: 1, minRowCount: 1, name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', expression: '{rowIndex}'}");
+		for(W5FormCellHelper fc:dfr.getFormCellResults()) {
+			Object o = serializeFormCell4SurveyJS(fc, formResult, true);
+			if(o!=null)buf.append(",").append(o);
+		}
+		return buf.append("]}]}");
+	}
 	@SuppressWarnings("unchecked")
-	private static StringBuilder serializeFormCell4SurveyJS(W5FormCellHelper cellResult, W5FormResult formResult) {
+	private static StringBuilder serializeFormCell4SurveyJS(W5FormCellHelper cellResult, W5FormResult formResult, boolean forMatrix) {
 		StringBuilder buf = new StringBuilder();
 		W5FormCell fc = cellResult.getFormCell();
 		String value = cellResult.getValue(); // bu ilerde hashmap ten gelebilir
-		if (fc.getControlTip() == 0 || fc.getControlTip() == 100 || fc.getControlTip() == 102 || fc.getControlTip() == 101 || cellResult.getHiddenValue() != null)return buf.append("null");
+		if (fc.getControlTip() == 0 || fc.getControlTip() == 100 || fc.getControlTip() == 102 || fc.getControlTip() == 101 || cellResult.getHiddenValue() != null)return null;
 		
 		buf.append("{name:'").append(fc.getDsc()).append("', title:'").append(LocaleMsgCache.get2(formResult.getScd(), fc.getLocaleMsgKey())).append("'");
 		if(fc.getNotNullFlag()!=0)buf.append(",isRequired:true");
 		buf.append(serializeFormCellProperty4SurveyJs(cellResult, formResult));
 		
+		buf.append(",").append(!forMatrix ? "type":"cellType").append(":'");
+		
+		
 		switch(fc.getControlTip()){
-			case	1:buf.append(",type:'text'");
+			case	1:buf.append("text'");
 				if(GenericUtil.safeEquals(fc.getVtype(), "email"))buf.append(",inputType:'email',validators: [{type: 'email'}]");
 				else if(GenericUtil.safeEquals(fc.getVtype(), "url"))buf.append(",inputType:'url',validators: [{type: 'url'}]");
 			break;//string
-			case	2:buf.append(",type:'text',inputType:'date'");break; //TODO:date
-			case	18:buf.append(",type:'text',inputType:'datetime'");break; //TODO:datetime
-			case	22:buf.append(",type:'text',inputType:'time'");break; //TODO:time
+			case	2:buf.append("text',inputType:'date'");break; //TODO:date
+			case	18:buf.append("text',inputType:'datetime'");break; //TODO:datetime
+			case	22:buf.append("text',inputType:'time'");break; //TODO:time
 			case	3://double
 			case	4://integer
-				buf.append(",type:'text',inputType:'number'");
+				buf.append("text',inputType:'number'");
 				break;
-			case	5:buf.append(",type:'boolean'");break;
+			case	5:buf.append("boolean'");break;
 
 		
 			case	6://combo static
@@ -204,9 +229,9 @@ public class SurveyJS {
 			case	7://combo query
 			case	15://lovcombo query
 			case	59://superbox lovcombo query
-				buf.append(",type:'");
+				buf.append("");
 				if(fc.getControlTip()<8)
-					buf.append("radiogroup");//formResult!=null && fc.getParentFormCellId()==1?"radiogroup":"dropdown"
+					buf.append(!forMatrix ? "radiogroup":"dropdown");//formResult!=null && fc.getParentFormCellId()==1?"radiogroup":"dropdown"
 				else
 					buf.append("checkbox");
 				buf.append("', choices:[");//static combo
@@ -258,33 +283,33 @@ public class SurveyJS {
 			
 			case	9://combo query remote
 			case	16://lovcombo query remote
-				buf.append(",type:'text'");
+				buf.append("text'");
 				break;
 			case	10://advanced select: TODO ilk geldiginde oo loadOptions'ta atanacak
 		
-				buf.append(",type:'text'");
+				buf.append("text'");
 			break; // advanced select
 
 			case	23://treecombo(local)
 			case	26://lovtreecombo(local) TODO
-				buf.append(",type:'text'");
+				buf.append("text'");
 			break; // 		
 		
 			case	12://html editor
-				buf.append(",type:'text'");
+				buf.append("text'");
 			case	25://textarea(ozel tanimlama)
 			case	41://codemirror
 			case	11:
-				buf.append(",type:'comment', rows:3");
+				buf.append("comment', rows:3");
 				break; // textarea
 		//	{ view:"label", label:'Fill the form below to access <br>the main datacore.'
 			
 			case	71://file attachment
-				buf.append(",type:'text'");
+				buf.append("text'");
 				break;
 			
 			default:			
-				buf.append(",type:'text'");
+				buf.append("text'");
 				break;
 		}
 

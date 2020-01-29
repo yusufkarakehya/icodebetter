@@ -4219,7 +4219,7 @@ function formSubmit(submitConfig) {
         _app.show_info_msg &&
         1 * _app.show_info_msg != 0
       )
-        Ext.infoMsg.msg("success", getLocMsg("js_islem_basariyla_tamamlandi"));
+        Ext.infoMsg.msg("success", getLocMsg("operation_successful"));
       if (submitConfig.callback) {
         if (submitConfig.callback(myJson, submitConfig) === false) return;
       }
@@ -8711,4 +8711,29 @@ iwb.formElementProperty = function(opr, elementValue, value){
 	}
 	return false;
 	
+}
+
+iwb.postSurveyJs=(formId, action, params)=>{
+	var params2 = {_mask:!0}, fid = 0;
+	for(var k in params){
+		var o = params[k];
+		if(k.startsWith('_form_')){
+			fid++;
+			params2['_fid'+fid] = k.substr('_form_'.length);
+			params2['_cnt'+fid] = o.length;
+			for(var qi=0;qi<o.length;qi++){
+				var cell = o[qi];
+				params2['a'+fid+'.'+(qi+1)] = 2;
+				for(var kk in cell){
+					params2[kk+fid+'.'+(qi+1)] = cell[kk];
+				}
+			}			
+		} else {
+			params2[k] = o && Array.isArray(o) ? o.join(',') : o;
+		}
+	}
+	iwb.ajax.postForm(formId, action, params2, (j)=>{
+		Ext.infoMsg.msg("success", getLocMsg("operation_successful"));
+		mainPanel.remove(mainPanel.getActiveTab());
+	})
 }

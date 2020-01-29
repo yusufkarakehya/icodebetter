@@ -203,7 +203,7 @@ public class UIEngine {
 					acEngine.accessControl4FormTable(formResult, null);
 				if (formResult.getForm().get_moduleList() != null) {
 					for (W5FormModule m : formResult.getForm().get_moduleList())
-						if (m.getModuleTip() == 4 && GenericUtil.accessControl(scd, m.getAccessViewTip(),
+						if ((m.getModuleTip() == 4 || m.getModuleTip() == 3) && GenericUtil.accessControl(scd, m.getAccessViewTip(),
 								m.getAccessViewRoles(), m.getAccessViewUsers())) { // form
 							if (m.getModuleViewTip() == 0 || (m.getModuleViewTip() == 1 && action == 1)
 									|| (m.getModuleViewTip() == 2 && action == 2)) {
