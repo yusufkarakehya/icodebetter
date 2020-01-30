@@ -6992,7 +6992,7 @@ class XPage extends React.PureComponent {
                                             if (this.isActionInTabList(action)) return;
                                             this.tabs.push({
                                                 name: action,
-                                                icon: plus ? "icon-plus" : "icon-doc",
+                                                icon: plus ? "icon-plus" : "icon-note",
                                                 title: " " + getLocMsg(plus ? "new" : "edit"),
                                                 value: serverComponent
                                             });

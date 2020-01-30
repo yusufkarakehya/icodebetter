@@ -11,6 +11,7 @@ import iwb.domain.db.W5Detay;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormCellProperty;
+import iwb.domain.db.W5FormHint;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.helper.W5FormCellHelper;
@@ -111,7 +112,22 @@ public class SurveyJS {
 
 
 		buf.append("var surveyJson = {title: '").append(LocaleMsgCache.get2(scd, f.getLocaleMsgKey()))
-		.append("',showProgressBar: 'top',pages: [");
+		.append("'");
+		if (f.get_formHintList() != null) {
+			String xlocale = formResult.getScd().get("locale").toString(); 
+			boolean b = false;
+			for (W5FormHint sx : f.get_formHintList())
+				if (sx.getLocale().equals(xlocale)
+						&& (sx.getActionTips().contains(
+								"" + formResult.getAction())
+								|| formResult.getForm().getObjectTip() == 3 || formResult
+								.getForm().getObjectTip() == 4)) {
+					buf.append(", description:'").append(GenericUtil.stringToJS(sx.getDsc()))
+							.append("'");
+					break;
+				}
+		}
+		buf.append(",showProgressBar: 'top',pages: [");
 		
 		if (map.get(0).size() > 0) {
 			buf.append(serializeFormModule4FormCells(formResult, map.get(0))).append("\n,");
@@ -176,7 +192,7 @@ public class SurveyJS {
 		.append(",survey, options,()=>{}));\n");
 		
 		if(renderer==5)//react
-			buf.append("return _(CardBody,{},_(Survey.Survey,{model:survey}))");
+			buf.append("return _(CardBody,{},_('i',{style:{float:'right',fontSize: '1.5rem', color: '#999', marginTop: 11, cursor:'pointer'},onClick:()=>iwb.closeTab(), className:'icon-close'}), _(Survey.Survey,{model:survey}))");
 		else //extjs
 			buf.append("return new Ext.Panel({closable:!0, title:'").append(LocaleMsgCache.get2(formResult.getScd(), formResult.getForm().getLocaleMsgKey())).append("',html:'<div id=\"surveyElement-' + _page_tab_id + '\" style=\"width:100%;height:100%;overflow:auto\"></div>',listeners:{afterrender:()=>$('#surveyElement-' + _page_tab_id).Survey({ model: survey })}})");
 		
