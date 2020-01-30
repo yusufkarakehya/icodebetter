@@ -259,8 +259,9 @@ public class React16 implements ViewAdapter {
 
 		W5Form f = fr.getForm();
 		
-		if(f.getRenderTip()==4 && fr.getAction()==2) {//wizard and insert
-			return SurveyJS.serializeForm4SurveyJS(fr, 5);//react			
+		if(f.getRenderTip()==4) {//wizard and insert
+			return SurveyJS.serializeForm4SurveyJS(fr, 5)
+					.append("return _(CardBody,{},_('i',{style:{float:'right',fontSize: '1.5rem', color: '#999', marginTop: 11, cursor:'pointer'},onClick:()=>iwb.closeTab(), className:'icon-close'}), _(Survey.Survey,{model:survey}))");//react			
 		}
 		
 		Map<String, Object> scd = fr.getScd();

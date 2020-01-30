@@ -1,6 +1,7 @@
 package iwb.adapter.ui.surveyjs;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,14 +109,45 @@ public class SurveyJS {
 				l.add(m);
 			}
 		
-		buf.append("\nvar __action__=").append(formResult.getAction()).append("\n");
-
+		buf.append("\nvar __action__=").append(formResult.getAction())
+			.append(", surveyData={\n");
+		boolean b = false;
+		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlTip()>0 && fc.getFormCell().getControlTip()<100) {
+			if (b)buf.append("\n,"); else b = true;
+			buf.append(fc.getFormCell().getDsc()).append(":'");
+			String value = fc.getHiddenValue(); if(value == null) value =  fc.getValue();
+			if(!GenericUtil.isEmpty(value))switch(fc.getFormCell().getControlTip()){
+			case 71://file attachment
+				buf.setLength(buf.length()-1);
+				String fileName = GenericUtil.stringToJS(fc.getExtraValuesMap().get("dsc").toString());
+				buf.append("[{name:'").append(fileName).append("', content:'sf/").append(fileName).append("?_fai=").append(value).append("'}]");
+				continue;
+			case	2://date && 
+				buf.append(GenericUtil.uDateStr(value));
+				break;
+			case	18://timestamp
+				if (!"0".equals(value) && value.length() <= 10)
+					value = GenericUtil.uDateStr(value) + " 00:00:00";
+				buf.append("0".equals(value) ? GenericUtil.uFormatDateTime(new Date()) : value);			
+				break;
+			case	5://checkbox
+				buf.setLength(buf.length()-1);
+				buf.append(GenericUtil.uInt(value)!=0);
+				continue;
+			default:
+				buf.append(GenericUtil.stringToJS(value));
+				
+			}
+			buf.append("'");
+		}
+		buf.append("};\n");
+		
 
 		buf.append("var surveyJson = {title: '").append(LocaleMsgCache.get2(scd, f.getLocaleMsgKey()))
 		.append("'");
 		if (f.get_formHintList() != null) {
 			String xlocale = formResult.getScd().get("locale").toString(); 
-			boolean b = false;
+			b = false;
 			for (W5FormHint sx : f.get_formHintList())
 				if (sx.getLocale().equals(xlocale)
 						&& (sx.getActionTips().contains(
@@ -158,7 +190,7 @@ public class SurveyJS {
 					}
 				}
 		if(buf.charAt(buf.length()-1)==',')buf.setLength(buf.length()-1);
-		buf.append("]}");
+		buf.append("]};\n");
 		
 
 		// 24 nolu form form edit form olduğu için onu çevirmesin.
@@ -169,7 +201,7 @@ public class SurveyJS {
 				formResult.getRequestParams(), null).toString() : formResult
 				.getForm().getJsCode();
 
-		boolean b = true;
+		b = true;
 		if (postCode != null && postCode.length() > 10) {
 			if (postCode.charAt(0) == '!') {
 				postCode = postCode.substring(1);
@@ -186,16 +218,12 @@ public class SurveyJS {
 		}
 
         
-		buf.append("\nvar survey=new Survey.Model(surveyJson);survey.locale='").append(scd.get("locale"))
-		.append("';\nsurvey.onComplete.add((xresult)=>iwb.postSurveyJs(").append(f.getFormId()).append(",__action__,xresult.data,()=>{}));\n")
-		.append("survey.onUploadFiles.add((survey, options)=>iwb.fileUploadSurveyJs(").append(f.getObjectId()).append(",").append(-GenericUtil.getNextTmpId())
+		buf.append("\nvar survey=new Survey.Model(surveyJson);survey.data=surveyData;survey.locale='").append(scd.get("locale"))
+		.append("';\nsurvey.onComplete.add((xresult)=>iwb.postSurveyJs(").append(f.getFormId()).append(",__action__,xresult.data");
+		if(formResult.getAction()==1)buf.append(",").append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
+		buf.append("));\nsurvey.onUploadFiles.add((survey, options)=>iwb.fileUploadSurveyJs(").append(f.getObjectId()).append(",").append(-GenericUtil.getNextTmpId())
 		.append(",survey, options,()=>{}));\n");
-		
-		if(renderer==5)//react
-			buf.append("return _(CardBody,{},_('i',{style:{float:'right',fontSize: '1.5rem', color: '#999', marginTop: 11, cursor:'pointer'},onClick:()=>iwb.closeTab(), className:'icon-close'}), _(Survey.Survey,{model:survey}))");
-		else //extjs
-			buf.append("return new Ext.Panel({closable:!0, title:'").append(LocaleMsgCache.get2(formResult.getScd(), formResult.getForm().getLocaleMsgKey())).append("',html:'<div id=\"surveyElement-' + _page_tab_id + '\" style=\"width:100%;height:100%;overflow:auto\"></div>',listeners:{afterrender:()=>$('#surveyElement-' + _page_tab_id).Survey({ model: survey })}})");
-		
+			
 		return buf;
 	}
 
@@ -216,10 +244,11 @@ public class SurveyJS {
 		StringBuilder buf = new StringBuilder();
 		W5FormCell fc = cellResult.getFormCell();
 		String value = cellResult.getValue(); // bu ilerde hashmap ten gelebilir
-		if (fc.getControlTip() == 0 || fc.getControlTip() == 100 || fc.getControlTip() == 102 || fc.getControlTip() == 101 || cellResult.getHiddenValue() != null)return null;
+		if (fc.getControlTip() == 0 || fc.getControlTip() == 100 || fc.getControlTip() == 102 || fc.getControlTip() == 101)return null;
 		
 		buf.append("{name:'").append(fc.getDsc()).append("', title:'").append(LocaleMsgCache.get2(formResult.getScd(), fc.getLocaleMsgKey())).append("'");
 		if(fc.getNotNullFlag()!=0)buf.append(",isRequired:true");
+		if(fc.getNrdTip()!=0  || cellResult.getHiddenValue() != null)buf.append(",readOnly:!0");
 		buf.append(serializeFormCellProperty4SurveyJs(cellResult, formResult));
 		
 		buf.append(",").append(!forMatrix ? "type":"cellType").append(":'");

@@ -254,8 +254,8 @@ public class ExtJs3_4 implements ViewAdapter {
 		s.append("var _page_tab_id='").append(formResult.getUniqueId())
 				.append("';\n");
 		
-		if(formResult.getForm().getRenderTip()==4 && formResult.getAction()==2) {//wizard and insert
-			return SurveyJS.serializeForm4SurveyJS(formResult, 1);//extjs			
+		if(formResult.getForm().getRenderTip()==4) {//wizard and insert
+			return SurveyJS.serializeForm4SurveyJS(formResult, 1).append("return new Ext.Panel({closable:!0, title:'").append(LocaleMsgCache.get2(formResult.getScd(), formResult.getForm().getLocaleMsgKey())).append("',html:'<div id=\"surveyElement-' + _page_tab_id + '\" style=\"width:100%;height:100%;overflow:auto\"></div>',listeners:{afterrender:()=>$('#surveyElement-' + _page_tab_id).Survey({ model: survey })}})");//extjs			
 		}
 		
 

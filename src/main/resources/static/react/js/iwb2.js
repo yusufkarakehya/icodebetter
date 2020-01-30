@@ -9172,8 +9172,11 @@ iwb.hideColumn= function(columns,name){
 	})
 }
 
-iwb.postSurveyJs=(formId, action, params)=>{
+iwb.postSurveyJs=(formId, action, params, masterParams)=>{
+	console.log(params)
 	var params2 = {_mask:!0}, fid = 0;
+	if(masterParams)for(var kk in masterParams)
+		params2[kk] = masterParams[kk];
 	for(var k in params){
 		var o = params[k];
 		if(k.startsWith('_form_')){
@@ -9186,6 +9189,8 @@ iwb.postSurveyJs=(formId, action, params)=>{
 				for(var kk in cell){
 					params2[kk+fid+'.'+(qi+1)] = cell[kk];
 				}
+				if(masterParams)for(var kk in masterParams)
+					params2[kk.substr(1)+fid+'.'+(qi+1)] = masterParams[kk];
 			}			
 		} else {
 			if(o && Array.isArray(o)){
@@ -9211,6 +9216,7 @@ iwb.postSurveyJs=(formId, action, params)=>{
 
 iwb.fileUploadSurveyJs=(tableId, tablePk, survey, options)=>{
 	//debugger
+	console.log(options)
 	var formData = new FormData();
     options
         .files
