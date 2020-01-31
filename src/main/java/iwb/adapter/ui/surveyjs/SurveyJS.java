@@ -74,10 +74,12 @@ public class SurveyJS {
 		return buf;
 	}
 	@SuppressWarnings("unchecked")
-	private static StringBuilder serializeFormModule4FormCells(W5FormResult formResult, List<W5FormCellHelper> lfc) {
+	private static StringBuilder serializeFormModule4FormCells(W5FormResult formResult, List<W5FormCellHelper> lfc, String pageTitle) {
 		StringBuilder buf = new StringBuilder();
 		Map scd = formResult.getScd();
-		buf.append("{questions:[");
+		buf.append("{");
+		if(!GenericUtil.isEmpty(pageTitle))buf.append("title:'").append(GenericUtil.stringToJS(pageTitle)).append("',");
+		buf.append("questions:[");
 		boolean b = false;
 		for(W5FormCellHelper fc:lfc) {
 			Object o = serializeFormCell4SurveyJS(fc, formResult, false);
@@ -140,6 +142,12 @@ public class SurveyJS {
 			}
 			buf.append("'");
 		}
+		if(formResult.getAction()==1 && formResult.getForm().get_moduleList()!=null)for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3) {
+			W5FormResult dfr = formResult.getModuleFormMap().get(m.getObjectId());
+			List list = (List)dfr.getOutputFields().get("list"); 
+			if(list!=null)buf.append(",_form_").append(dfr.getForm().getFormId()).append(":").append(GenericUtil.fromListToJsonString2Recursive(list));
+			
+		}
 		buf.append("};\n");
 		
 
@@ -147,13 +155,8 @@ public class SurveyJS {
 		.append("'");
 		if (f.get_formHintList() != null) {
 			String xlocale = formResult.getScd().get("locale").toString(); 
-			b = false;
 			for (W5FormHint sx : f.get_formHintList())
-				if (sx.getLocale().equals(xlocale)
-						&& (sx.getActionTips().contains(
-								"" + formResult.getAction())
-								|| formResult.getForm().getObjectTip() == 3 || formResult
-								.getForm().getObjectTip() == 4)) {
+				if (sx.getLocale().equals(xlocale) && sx.getActionTips().contains("" + formResult.getAction())) {
 					buf.append(", description:'").append(GenericUtil.stringToJS(sx.getDsc()))
 							.append("'");
 					break;
@@ -162,7 +165,7 @@ public class SurveyJS {
 		buf.append(",showProgressBar: 'top',pages: [");
 		
 		if (map.get(0).size() > 0) {
-			buf.append(serializeFormModule4FormCells(formResult, map.get(0))).append("\n,");
+			buf.append(serializeFormModule4FormCells(formResult, map.get(0),null)).append("\n,");
 		}
 		if (formResult.getForm().get_moduleList() != null)
 			for (W5FormModule m : formResult.getForm().get_moduleList())
@@ -173,19 +176,26 @@ public class SurveyJS {
 									m.getAccessViewTip(),
 									m.getAccessViewRoles(),
 									m.getAccessViewUsers())) {
+						W5FormResult dfr = null;
 						switch (m.getModuleTip()) {
 						case	0:
-							if(!GenericUtil.isEmpty(map.get(m.getFormModuleId())))
-								buf.append(serializeFormModule4FormCells(formResult, map.get(m.getFormModuleId()))).append("\n,");
+							if(!GenericUtil.isEmpty(map.get(m.getFormModuleId()))) {					
+								buf.append(serializeFormModule4FormCells(formResult, map.get(m.getFormModuleId()), LocaleMsgCache.get2(scd, m.getLocaleMsgKey()))).append("\n,");
+							}
 							break;
-						case	3:
-							W5FormResult dfr = formResult.getModuleFormMap().get(m.getObjectId());
+						case	3://multi form
+							dfr = formResult.getModuleFormMap().get(m.getObjectId());
 							if(dfr!=null) {
 								buf.append(serializeFormModule4FormResult(formResult, dfr)).append("\n,");
 							}
 							
 							break;
-						
+						case	4://single form
+							dfr = formResult.getModuleFormMap().get(m.getObjectId());
+							if(dfr!=null) {
+								buf.append(serializeFormModule4FormCells(formResult, dfr.getFormCellResults(), LocaleMsgCache.get2(scd, dfr.getForm().getLocaleMsgKey()))).append("\n,");
+							}
+							break;
 						}
 					}
 				}
@@ -219,7 +229,7 @@ public class SurveyJS {
 
         
 		buf.append("\nvar survey=new Survey.Model(surveyJson);survey.data=surveyData;survey.locale='").append(scd.get("locale"))
-		.append("';\nsurvey.onComplete.add((xresult)=>iwb.postSurveyJs(").append(f.getFormId()).append(",__action__,xresult.data");
+		.append("';\nsurvey.onComplete.add((xresult)=>iwb.postSurveyJs(").append(f.getFormId()).append(",__action__, xresult.data, surveyData");
 		if(formResult.getAction()==1)buf.append(",").append(GenericUtil.fromMapToJsonString(formResult.getPkFields()));
 		buf.append("));\nsurvey.onUploadFiles.add((survey, options)=>iwb.fileUploadSurveyJs(").append(f.getObjectId()).append(",").append(-GenericUtil.getNextTmpId())
 		.append(",survey, options,()=>{}));\n");
@@ -232,7 +242,12 @@ public class SurveyJS {
 		Map scd = formResult.getScd();
 		W5Form df = dfr.getForm();
 		buf.append("{questions:[{type: 'matrixdynamic',title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey()))
-		.append("', rowCount: 1, minRowCount: 1, name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', expression: '{rowIndex}'}");
+			.append("'");
+		for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3 && m.getObjectId()==df.getFormId()) {
+			buf.append(",minRowCount:").append(m.getMinRow());
+			if(m.getMaxRow()>0)buf.append(",maxRowCount:").append(m.getMaxRow());
+		}
+		buf.append(", name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', readOnly:!0, width:45, expression: '{rowIndex}'}");
 		for(W5FormCellHelper fc:dfr.getFormCellResults()) {
 			Object o = serializeFormCell4SurveyJS(fc, formResult, true);
 			if(o!=null)buf.append(",").append(o);
@@ -262,8 +277,19 @@ public class SurveyJS {
 			case	2:buf.append("text',inputType:'date'");break; //TODO:date
 			case	18:buf.append("text',inputType:'datetime'");break; //TODO:datetime
 			case	22:buf.append("text',inputType:'time'");break; //TODO:time
-			case	3://double
 			case	4://integer
+				switch(fc.getLookupQueryId()) {
+				case 2://rating
+					buf.append("rating'");
+					break;
+				case 1://range
+					buf.append("text',inputType:'range'");
+					break;
+				default:
+					buf.append("text',inputType:'number'");
+				}
+				break;
+			case	3://double
 				buf.append("text',inputType:'number'");
 				break;
 			case	5:buf.append("boolean'");break;
@@ -360,6 +386,10 @@ public class SurveyJS {
 				break;
 		}
 
+		if(!GenericUtil.isEmpty(fc.getExtraDefinition())) {
+			if(!fc.getExtraDefinition().startsWith(","))buf.append(",");
+			buf.append(fc.getExtraDefinition());			
+		}
 		
 		buf.append("}");
 		return buf;		

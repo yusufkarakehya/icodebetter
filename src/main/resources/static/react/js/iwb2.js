@@ -9172,8 +9172,8 @@ iwb.hideColumn= function(columns,name){
 	})
 }
 
-iwb.postSurveyJs=(formId, action, params, masterParams)=>{
-	console.log(params)
+iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
+//	console.log(params)
 	var params2 = {_mask:!0}, fid = 0;
 	if(masterParams)for(var kk in masterParams)
 		params2[kk] = masterParams[kk];
@@ -9182,16 +9182,53 @@ iwb.postSurveyJs=(formId, action, params, masterParams)=>{
 		if(k.startsWith('_form_')){
 			fid++;
 			params2['_fid'+fid] = k.substr('_form_'.length);
-			params2['_cnt'+fid] = o.length;
-			for(var qi=0;qi<o.length;qi++){
-				var cell = o[qi];
-				params2['a'+fid+'.'+(qi+1)] = 2;
-				for(var kk in cell){
-					params2[kk+fid+'.'+(qi+1)] = cell[kk];
+			if(action==2 || !surveyData[k] || !surveyData[k].length){
+				params2['_cnt'+fid] = o.length;
+				for(var qi=0;qi<o.length;qi++){
+					var cell = o[qi];
+					params2['a'+fid+'.'+(qi+1)] = 2;
+					for(var kk in cell){
+						params2[kk+fid+'.'+(qi+1)] = cell[kk];
+					}
+					if(masterParams)for(var kk in masterParams)
+						params2[kk.substr(1)+fid+'.'+(qi+1)] = masterParams[kk];
+				}			
+			} else {//update
+				var s = surveyData[k], cnt = 0, pkFieldName='';
+				var sm = {}
+				s.map(scell => {
+					for(var sk in scell)if(sk.startsWith('_id_')){
+						sm[scell[sk]]=scell;
+						pkFieldName = sk.substr('_id_'.length);
+					}
+				});
+				
+				for(var qi=0;qi<o.length;qi++){//for each fresh data
+					var cell = o[qi];
+					cnt++;
+					params2['a'+fid+'.'+cnt] = 2;
+					for(var kk in cell)if(kk.startsWith('_id_')){
+						params2['a'+fid+'.'+cnt] = 1;
+						params2['t'+pkFieldName+fid+'.'+cnt] = cell[kk];
+						delete sm[cell[kk]];
+					} else {
+						params2[kk+fid+'.'+(qi+1)] = cell[kk];
+					}
+					if(masterParams)for(var kk in masterParams)
+						params2[kk.substr(1)+fid+'.'+cnt] = masterParams[kk];
 				}
-				if(masterParams)for(var kk in masterParams)
-					params2[kk.substr(1)+fid+'.'+(qi+1)] = masterParams[kk];
-			}			
+				for(var sk in sm){
+					cnt++;
+					params2['a'+fid+'.'+cnt] = 3;
+					params2['t'+pkFieldName+fid+'.'+cnt] = sk;
+				}
+				if(cnt)
+					params2['_cnt'+fid] = cnt;
+				else {
+					delete params2['_fid'+fid];
+					fid--;
+				}
+			}
 		} else {
 			if(o && Array.isArray(o)){
 				if(o.length && o[0].content){

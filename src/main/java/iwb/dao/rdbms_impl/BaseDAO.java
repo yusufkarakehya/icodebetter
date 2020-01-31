@@ -44,7 +44,7 @@ public abstract class BaseDAO {
 		if (list.size() == 0) {
 			if (onErrorMsg == null)
 				return null;
-			throw new IWBException("framework", onErrorMsg, objectId, null, "Wrong ID: " + onErrorMsg, null);
+			throw new IWBException("framework", onErrorMsg, objectId, null, "Wrong " + onErrorMsg + " ID: " + objectId, null);
 		} else
 			return list.get(0);
 	}

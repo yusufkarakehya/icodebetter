@@ -33,7 +33,9 @@ import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5PageObject;
 import iwb.domain.db.W5Table;
+import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
+import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5WsMethod;
 import iwb.domain.helper.W5FormCellHelper;
@@ -212,8 +214,43 @@ public class UIEngine {
 									newAction = action;
 								if (formResult.getModuleFormMap() == null)
 									formResult.setModuleFormMap(new HashMap());
-								formResult.getModuleFormMap().put(m.getObjectId(),
-										getFormResult(scd, m.getObjectId(), newAction, requestParams));
+								W5FormResult dfr = getFormResult(scd, m.getObjectId(), newAction, requestParams);
+								formResult.getModuleFormMap().put(m.getObjectId(), dfr);
+								if(action==1 && m.getModuleTip() == 3 && !GenericUtil.isEmpty(t.get_tableChildList())) {//TODO: load detail records for form
+									for(W5TableChild tc:t.get_tableChildList()) if(tc.getRelatedTableId() == dfr.getForm().getObjectId()){
+										W5Table dt = FrameworkCache.getTable(scd, tc.getRelatedTableId());
+										StringBuilder sql = new StringBuilder();
+										String pkFieldName = dt.get_tableFieldList().get(0).getDsc();
+										sql.append("select x.").append(pkFieldName);
+										for(W5FormCell fc2:dfr.getForm().get_formCells()) if(fc2.getActiveFlag()!=0 && fc2.getControlTip()>0 && fc2.getControlTip()<90 && fc2.get_sourceObjectDetail()!=null){
+											W5TableField tf2 = (W5TableField)fc2.get_sourceObjectDetail();
+											if(tf2.getTabOrder()!=1)sql.append(", x.").append(tf2.getDsc());											
+										}
+										sql.append(" from ").append(dt.getDsc()).append(" x where x.");
+										sql.append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc()).append("=?");
+										if(tc.getRelatedStaticTableFieldId()!=0 && tc.getRelatedStaticTableFieldVal()!=0)
+											sql.append(" AND ").append(dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal());
+										List params = new ArrayList();
+										params.add(GenericUtil.uInt(requestParams.get(t.get_tableParamList().get(0).getDsc())));
+										if(dt.get_tableParamList().size()>0)for(W5TableParam tp2:dt.get_tableParamList())if(tp2.getSourceTip()==2) {
+											sql.append(" AND x.").append(tp2.getExpressionDsc()).append("=?");
+											params.add(scd.get(tp2.getDsc()));
+										}
+										sql.append(" order by 1");
+
+										List<Map> list = dao.executeSQLQuery2Map(sql.toString(), params);
+										if(!GenericUtil.isEmpty(list)) {
+											for(Map m2:list) {//converting PK to specialField 
+												m2.put("_id_"+pkFieldName, m2.get(pkFieldName));
+												m2.remove(pkFieldName);
+											}
+											if(dfr.getOutputFields()==null)dfr.setOutputFields(new HashMap());
+											dfr.getOutputFields().put("list", list);
+										}
+
+									}
+										
+								}
 							}
 						}
 				}
