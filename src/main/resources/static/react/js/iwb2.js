@@ -9175,8 +9175,7 @@ iwb.hideColumn= function(columns,name){
 iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 //	console.log(params)
 	var params2 = {_mask:!0}, fid = 0;
-	if(masterParams)for(var kk in masterParams)
-		params2[kk] = masterParams[kk];
+	if(masterParams)for(var kk in masterParams)params2[kk] = masterParams[kk];
 	for(var k in params){
 		var o = params[k];
 		if(k.startsWith('_form_')){
@@ -9238,6 +9237,20 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 					
 			} else 
 				params2[k] =  o;
+		}
+	}
+	if(action==1)for(var k in surveyData)if(k.startsWith('_form_') && surveyData[k] && surveyData[k].length && 
+			(!params[k] || !params[k].length)){
+		var o = surveyData[k];
+		fid++;
+		params2['_fid'+fid] = k.substr('_form_'.length);
+		params2['_cnt'+fid] = o.length;
+		for(var qi=0;qi<o.length;qi++){
+			var cell = o[qi];
+			params2['a'+fid+'.'+(qi+1)] = 3;
+			for(var kk in cell)if(kk.startsWith('_id_')){
+				params2['t'+kk.substr('_id_'.length)+fid+'.'+(qi+1)] = cell[kk];
+			}
 		}
 	}
 	iwb.ajax.postForm(formId, action, params2, ()=>{

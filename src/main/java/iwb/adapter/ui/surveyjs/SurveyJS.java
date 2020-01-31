@@ -245,9 +245,15 @@ public class SurveyJS {
 			.append("'");
 		for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3 && m.getObjectId()==df.getFormId()) {
 			buf.append(",minRowCount:").append(m.getMinRow());
+			if(formResult.getAction()==2)buf.append(",rowCount:").append(m.getMinRow()==0?1:m.getMinRow());
+			else {
+				List l = (List)dfr.getOutputFields().get("list");
+				buf.append(",rowCount:").append(GenericUtil.isEmpty(l)?m.getMinRow():Math.max(m.getMinRow(),l.size()));				
+			}
 			if(m.getMaxRow()>0)buf.append(",maxRowCount:").append(m.getMaxRow());
+			break;
 		}
-		buf.append(", name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', readOnly:!0, width:45, expression: '{rowIndex}'}");
+		buf.append(", name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', readOnly:!0, css:'ali',width:45, expression: '{rowIndex}'}");
 		for(W5FormCellHelper fc:dfr.getFormCellResults()) {
 			Object o = serializeFormCell4SurveyJS(fc, formResult, true);
 			if(o!=null)buf.append(",").append(o);
