@@ -4010,7 +4010,7 @@ columns:[
 		int customizationId = (Integer) pr.getScd().get(
 				"customizationId");
 		String xlocale = (String) pr.getScd().get("locale");
-		if (page.getTemplateTip() != 0) { // html degilse
+		if (page.getTemplateTip() != 0) { // not html 
 			// notification Control
 			// masterRecord Control
 			
@@ -4175,7 +4175,7 @@ columns:[
 
 			} else
 				code = page.getCode();
-		} else {
+		} else {//html
 			StringBuilder buf2 = new StringBuilder();
 			buf2.append("var _webPageId='").append(GenericUtil.getNextId("wpi"))
 					.append("';\nvar _page_tab_id='")
@@ -4198,29 +4198,6 @@ columns:[
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))
 					.append(";\n");
 
-/*			if (!FrameworkCache.publishLookUps.isEmpty()) {
-				buf2.append("var _lookups={");
-				boolean b2 = false;
-				for (Integer lookUpId : FrameworkCache.publishLookUps) {
-					W5LookUp lu = FrameworkCache.getLookUp(
-							templateResult.getScd(), lookUpId);
-					if(lu==null)continue;
-					if (b2)
-						buf2.append(",\n");
-					else
-						b2 = true;
-					buf2.append(lu.getDsc()).append(":");
-					Map<String, String> tempMap = new HashMap<String, String>();
-					for (W5LookUpDetay lud : lu.get_detayList())
-						tempMap.put(
-								lud.getVal(),
-								LocaleMsgCache
-										.get2(customizationId, xlocale,
-												lud.getDsc()));
-					buf2.append(GenericUtil.fromMapToJsonString(tempMap));
-				}
-				buf2.append("};\n");
-			}*/
 			int customObjectCount=1;
 			for (Object i : pr.getPageObjectList()) {
 				if (i instanceof W5GridResult) {
@@ -4263,6 +4240,11 @@ columns:[
 							.append(";\n");
 				} else if (i instanceof String) {
 					buf2.append("\nvar ").append(i).append("={};");
+				} else if(i instanceof W5PageResult) {
+					W5PageResult pr2 = (W5PageResult)i;
+					buf2.append("\nvar myDashboard=function(xprops){\n")
+					.append(serializeTemplate(pr2))
+					.append("\n};\n");
 				}
 				buf2.append("\n");
 			}

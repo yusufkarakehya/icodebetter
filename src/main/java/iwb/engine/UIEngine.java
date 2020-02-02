@@ -821,7 +821,7 @@ public class UIEngine {
 			templateObjectListExt.addAll(pr.getPage().get_pageObjectList());
 
 			requestParams.put("_dont_throw", "1");
-			if (pageId == 238) { // Record Bazlı yetkilendirme gridi
+			if (pageId == 238) { // Record based privilge 
 				int objectId = GenericUtil.uInt(requestParams.get("_gid1"));
 				if (objectId == 477) {
 					W5Table t = FrameworkCache.getTable(scd, GenericUtil.uInt(requestParams.get("crud_table_id")));
@@ -886,174 +886,180 @@ public class UIEngine {
 				o.setObjectId(objectId);
 				templateObjectListExt.add(o);
 			}
+			
+			if(pr.getPage().getTemplateTip()==0 && scd!=null && GenericUtil.uInt(scd.get("dashboardPageId"))!=0) {//html
+				W5PageObject o = new W5PageObject();
+				o.setObjectTip((short)-31);
+				o.setObjectId(GenericUtil.uInt(scd.get("dashboardPageId")));
+				templateObjectListExt.add(o);
+			}
 
 			int objectCount = 0;
-			if (pr.getPage().getTemplateTip() != 8) { // wizard'dan farkli ise
-				for (W5PageObject o : templateObjectListExt) {
-					boolean accessControl = debugAndDeveloper ? true
-							: GenericUtil.accessControl(scd, o.getAccessViewTip(), o.getAccessViewRoles(),
-									o.getAccessViewUsers());
-					Object obz = null;
-					W5Table mainTable = null;
-					switch (Math.abs(o.getObjectTip())) {
-					case 1: // grid
-						W5GridResult gridResult = metaDataDao.getGridResult(scd, o.getObjectId(), requestParams,
-								pageId == 298 /* || objectCount!=0 */);
-						if (pageId == 298) { // log template
-							gridResult.setViewLogMode(true);
-						}
-						if (o.getObjectTip() < 0) {
-							if (GenericUtil.uInt(requestParams, "_gid" + gridResult.getGridId() + "_a") != 0)
-								gridResult.setAction(
-										GenericUtil.uInt(requestParams, "_gid" + gridResult.getGridId() + "_a"));
-							gridResult.setGridId(-gridResult.getGridId());
-						}
-						mainTable = gridResult.getGrid() != null && gridResult.getGrid().get_query() != null
-								? FrameworkCache.getTable(scd, gridResult.getGrid().get_query().getMainTableId())
-								: null;
-						if (!debugAndDeveloper && mainTable != null
-								&& (((mainTable.getAccessTips() == null || mainTable.getAccessTips().indexOf("0") == -1)
-										&& mainTable.getAccessViewUserFields() == null
-										&& !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(),
-												mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers()))))
-							obz = gridResult.getGrid().getDsc();
-						else {
-							if (GenericUtil.uInt(requestParams, "_viewMode") != 0)
-								gridResult.setViewReadOnlyMode(true);
-							else if (GenericUtil.uInt(requestParams, "_viewMode" + o.getObjectId()) != 0)
-								gridResult.setViewReadOnlyMode(true);
-							obz = accessControl ? gridResult : gridResult.getGrid().getDsc();
-						}
-						if (obz instanceof W5GridResult) {
-							Map m = new HashMap();
-							gridResult.setTplObj(o);
-							gridResult.setExtraOutMap(m);
-							m.put("tplId", o.getTemplateId());
-							m.put("tplObjId", o.getTemplateObjectId());
-						}
-						break;
-					case 2: // card view
-						W5CardResult cardResult = metaDataDao.getCardResult(scd, o.getObjectId(), requestParams,
-								objectCount != 0);
-						if (o.getObjectTip() < 0)
-							cardResult.setDataViewId(-cardResult.getDataViewId());
-						mainTable = cardResult.getCard() != null && cardResult.getCard().get_query() != null
-								? FrameworkCache.getTable(scd, cardResult.getCard().get_query().getMainTableId())
-								: null;
-						if (!debugAndDeveloper && mainTable != null
-								&& (((mainTable.getAccessTips() == null || mainTable.getAccessTips().indexOf("0") == -1)
-										&& mainTable.getAccessViewUserFields() == null
-										&& !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(),
-												mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers()))))
-							obz = cardResult.getCard().getDsc();
-						else {
-							obz = accessControl ? cardResult : cardResult.getCard().getDsc();
-						}
-						if (obz instanceof W5CardResult) {
-							Map m = new HashMap();
-							cardResult.setTplObj(o);
-							cardResult.setExtraOutMap(m);
-							m.put("tplId", o.getTemplateId());
-							m.put("tplObjId", o.getTemplateObjectId());
-						}
-						break;
-					case 7: // list view
-						W5ListViewResult listViewResult = metaDataDao.getListViewResult(scd, o.getObjectId(), requestParams,
-								objectCount != 0);
-						if (o.getObjectTip() < 0)
-							listViewResult.setListId(-listViewResult.getListId());
-						mainTable = listViewResult.getListView() != null
-								&& listViewResult.getListView().get_query() != null
-										? FrameworkCache.getTable(scd,
-												listViewResult.getListView().get_query().getMainTableId())
-										: null;
-						if (!debugAndDeveloper && mainTable != null
-								&& (((mainTable.getAccessTips() == null || mainTable.getAccessTips().indexOf("0") == -1)
-										&& mainTable.getAccessViewUserFields() == null
-										&& !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(),
-												mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers()))))
-							obz = listViewResult.getListView().getDsc();
-						else {
-							obz = accessControl ? listViewResult : listViewResult.getListView().getDsc();
-						}
-						break;
-					case 3: // form
-						W5FormResult formResult = getFormResult(scd, o.getObjectId(),
-								requestParams.get("a") != null ? GenericUtil.uInt(requestParams, "a") : 2,
-								requestParams);
-						if (o.getObjectTip() < 0)
-							formResult.setFormId(-formResult.getFormId());
-						formResult.setObjectTip(o.getObjectTip()); // render
-																	// icin
-																	// gerekecek
-						/*
-						 * if(PromisSetting.moduleAccessControl!=0 &&
-						 * formResult.getForm()!=null &&
-						 * formResult.getForm().get_sourceTable()!=null &&
-						 * !PromisCache.roleAccessControl(scd,
-						 * formResult.getForm().get_sourceTable().getModuleId())
-						 * ) obz = formResult.getForm().getDsc(); else
-						 */
-						obz = accessControl ? formResult : formResult.getForm().getDsc();
-						break;
-					case 4: // query
-						Map paramMap = new HashMap();
-						paramMap.putAll(requestParams);
-						if (!GenericUtil.isEmpty(o.getPostJsCode())) {
-							String[] ar1 = o.getPostJsCode().split("&");
-							for (int it4 = 0; it4 < ar1.length; it4++) {
-								String[] ar2 = ar1[it4].split("=");
-								if (ar2.length == 2 && ar2[0] != null && ar2[1] != null)
-									paramMap.put(ar2[0], ar2[1]);
-							}
-						}
-						obz = queryEngine.executeQuery(scd, o.getObjectId(), paramMap);
-						break;
-					case 8:// component
-						obz = FrameworkCache.getComponent(scd, o.getObjectId());//metaDataDao.loadComponent(scd, o.getObjectId(), new HashMap());
-						break;
-					case 15: // Graph Query
-					case 10: // Badge
-					case 22: // Gauge
-						obz = metaDataDao.getQueryResult(scd, o.getObjectId());//queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
-						break;
-					case 5: // dbFunc
-						obz = scriptEngine.executeGlobalFunc(scd, o.getObjectId(), requestParams, (short) 1);
-						break;
-					case 11: // Mobile List
-						obz = metaDataDao.getMListResult(scd, o.getObjectId(), requestParams, false);
-						break;
-					case 31: // Page
-						obz = metaDataDao.getPageResult(scd, o.getObjectId());
-						break;
-					case 9: // graph dashboard
-						W5BIGraphDashboard obz2 = (W5BIGraphDashboard) dao.getCustomizedObject(
-								"from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?",
-								o.getObjectId(), scd.get("projectId"), null);
-						if (accessControl) {
-							obz = obz2;
-						} else {
-							obz = "graph" + o.getObjectId();
-						}
-						break;
+			for (W5PageObject o : templateObjectListExt) {
+				boolean accessControl = debugAndDeveloper ? true
+						: GenericUtil.accessControl(scd, o.getAccessViewTip(), o.getAccessViewRoles(),
+								o.getAccessViewUsers());
+				Object obz = null;
+				W5Table mainTable = null;
+				switch (Math.abs(o.getObjectTip())) {
+				case 1: // grid
+					W5GridResult gridResult = metaDataDao.getGridResult(scd, o.getObjectId(), requestParams,
+							pageId == 298 /* || objectCount!=0 */);
+					if (pageId == 298) { // log template
+						gridResult.setViewLogMode(true);
 					}
-					if (pr.getPage().getTemplateTip() <= 2 && objectCount == 0) { // daha
-																					// ilk
-																					// objede
-																					// sorun
-																					// varsa
-																					// exception
-																					// ver
-						if (obz instanceof String)
-							throw new IWBException("security", "Module", o.getObjectId(), null,
-									"Role Access Control(Page Object)", null);
-
+					if (o.getObjectTip() < 0) {
+						if (GenericUtil.uInt(requestParams, "_gid" + gridResult.getGridId() + "_a") != 0)
+							gridResult.setAction(
+									GenericUtil.uInt(requestParams, "_gid" + gridResult.getGridId() + "_a"));
+						gridResult.setGridId(-gridResult.getGridId());
 					}
-					if (obz != null)
-						pr.getPageObjectList().add(obz);
-					objectCount++;
+					mainTable = gridResult.getGrid() != null && gridResult.getGrid().get_query() != null
+							? FrameworkCache.getTable(scd, gridResult.getGrid().get_query().getMainTableId())
+							: null;
+					if (!debugAndDeveloper && mainTable != null
+							&& (((mainTable.getAccessTips() == null || mainTable.getAccessTips().indexOf("0") == -1)
+									&& mainTable.getAccessViewUserFields() == null
+									&& !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(),
+											mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers()))))
+						obz = gridResult.getGrid().getDsc();
+					else {
+						if (GenericUtil.uInt(requestParams, "_viewMode") != 0)
+							gridResult.setViewReadOnlyMode(true);
+						else if (GenericUtil.uInt(requestParams, "_viewMode" + o.getObjectId()) != 0)
+							gridResult.setViewReadOnlyMode(true);
+						obz = accessControl ? gridResult : gridResult.getGrid().getDsc();
+					}
+					if (obz instanceof W5GridResult) {
+						Map m = new HashMap();
+						gridResult.setTplObj(o);
+						gridResult.setExtraOutMap(m);
+						m.put("tplId", o.getTemplateId());
+						m.put("tplObjId", o.getTemplateObjectId());
+					}
+					break;
+				case 2: // card view
+					W5CardResult cardResult = metaDataDao.getCardResult(scd, o.getObjectId(), requestParams,
+							objectCount != 0);
+					if (o.getObjectTip() < 0)
+						cardResult.setDataViewId(-cardResult.getDataViewId());
+					mainTable = cardResult.getCard() != null && cardResult.getCard().get_query() != null
+							? FrameworkCache.getTable(scd, cardResult.getCard().get_query().getMainTableId())
+							: null;
+					if (!debugAndDeveloper && mainTable != null
+							&& (((mainTable.getAccessTips() == null || mainTable.getAccessTips().indexOf("0") == -1)
+									&& mainTable.getAccessViewUserFields() == null
+									&& !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(),
+											mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers()))))
+						obz = cardResult.getCard().getDsc();
+					else {
+						obz = accessControl ? cardResult : cardResult.getCard().getDsc();
+					}
+					if (obz instanceof W5CardResult) {
+						Map m = new HashMap();
+						cardResult.setTplObj(o);
+						cardResult.setExtraOutMap(m);
+						m.put("tplId", o.getTemplateId());
+						m.put("tplObjId", o.getTemplateObjectId());
+					}
+					break;
+				case 7: // list view
+					W5ListViewResult listViewResult = metaDataDao.getListViewResult(scd, o.getObjectId(), requestParams,
+							objectCount != 0);
+					if (o.getObjectTip() < 0)
+						listViewResult.setListId(-listViewResult.getListId());
+					mainTable = listViewResult.getListView() != null
+							&& listViewResult.getListView().get_query() != null
+									? FrameworkCache.getTable(scd,
+											listViewResult.getListView().get_query().getMainTableId())
+									: null;
+					if (!debugAndDeveloper && mainTable != null
+							&& (((mainTable.getAccessTips() == null || mainTable.getAccessTips().indexOf("0") == -1)
+									&& mainTable.getAccessViewUserFields() == null
+									&& !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(),
+											mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers()))))
+						obz = listViewResult.getListView().getDsc();
+					else {
+						obz = accessControl ? listViewResult : listViewResult.getListView().getDsc();
+					}
+					break;
+				case 3: // form
+					W5FormResult formResult = getFormResult(scd, o.getObjectId(),
+							requestParams.get("a") != null ? GenericUtil.uInt(requestParams, "a") : 2,
+							requestParams);
+					if (o.getObjectTip() < 0)
+						formResult.setFormId(-formResult.getFormId());
+					formResult.setObjectTip(o.getObjectTip()); // render
+																// icin
+																// gerekecek
+					/*
+					 * if(PromisSetting.moduleAccessControl!=0 &&
+					 * formResult.getForm()!=null &&
+					 * formResult.getForm().get_sourceTable()!=null &&
+					 * !PromisCache.roleAccessControl(scd,
+					 * formResult.getForm().get_sourceTable().getModuleId())
+					 * ) obz = formResult.getForm().getDsc(); else
+					 */
+					obz = accessControl ? formResult : formResult.getForm().getDsc();
+					break;
+				case 4: // query
+					Map paramMap = new HashMap();
+					paramMap.putAll(requestParams);
+					if (!GenericUtil.isEmpty(o.getPostJsCode())) {
+						String[] ar1 = o.getPostJsCode().split("&");
+						for (int it4 = 0; it4 < ar1.length; it4++) {
+							String[] ar2 = ar1[it4].split("=");
+							if (ar2.length == 2 && ar2[0] != null && ar2[1] != null)
+								paramMap.put(ar2[0], ar2[1]);
+						}
+					}
+					obz = queryEngine.executeQuery(scd, o.getObjectId(), paramMap);
+					break;
+				case 8:// component
+					obz = FrameworkCache.getComponent(scd, o.getObjectId());//metaDataDao.loadComponent(scd, o.getObjectId(), new HashMap());
+					break;
+				case 15: // Graph Query
+				case 10: // Badge
+				case 22: // Gauge
+					obz = metaDataDao.getQueryResult(scd, o.getObjectId());//queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
+					break;
+				case 5: // dbFunc
+					obz = scriptEngine.executeGlobalFunc(scd, o.getObjectId(), requestParams, (short) 1);
+					break;
+				case 11: // Mobile List
+					obz = metaDataDao.getMListResult(scd, o.getObjectId(), requestParams, false);
+					break;
+				case 31: // Page
+					obz = pr.getPage().getTemplateTip()==0? getPageResult(scd, o.getObjectId(), new HashMap()):metaDataDao.getPageResult(scd, o.getObjectId());
+					break;
+				case 9: // graph dashboard
+					W5BIGraphDashboard obz2 = (W5BIGraphDashboard) dao.getCustomizedObject(
+							"from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?",
+							o.getObjectId(), scd.get("projectId"), null);
+					if (accessControl) {
+						obz = obz2;
+					} else {
+						obz = "graph" + o.getObjectId();
+					}
+					break;
 				}
+				if (pr.getPage().getTemplateTip() <= 2 && objectCount == 0) { // daha
+																				// ilk
+																				// objede
+																				// sorun
+																				// varsa
+																				// exception
+																				// ver
+					if (obz instanceof String)
+						throw new IWBException("security", "Module", o.getObjectId(), null,
+								"Role Access Control(Page Object)", null);
+
+				}
+				if (obz != null)
+					pr.getPageObjectList().add(obz);
+				objectCount++;
 			}
+			
 			if ((Integer) scd.get("customizationId") == 1 && GenericUtil.uInt(scd.get("mainTemplateId")) == pageId) {
 				List<Object> params = new ArrayList();
 				params.add(scd.get("projectId"));

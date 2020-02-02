@@ -6728,7 +6728,7 @@ class XMainCard extends GridCommon {
 	                    		this.props.pageSize>0 && (totalCount + ' records'+(this.props.orderNames?', ':''))
 	                    		,' ',this.props.orderNames && (getLocMsg('sort')+': '),
 	                    		this.props.orderNames && _('a',{href:'#', onClick:this.openOrderBy},(this.state.sort? (this.state.sort+' '+ this.state.dir):'(none)')))),
-	                    _(XPagination, {
+	                 this.props.pageSize && _(XPagination, {
 	                        pageSize,
 	                        currentPage,
 	                        totalCount,
@@ -7209,7 +7209,7 @@ class XPage4Card extends React.PureComponent {
                                             if (this.isActionInTabList(action)) return;
                                             this.tabs.push({
                                                 name: action,
-                                                icon: plus ? "icon-plus" : "icon-doc",
+                                                icon: plus ? "icon-plus" : "icon-note",
                                                 title: " " + getLocMsg(plus ? "new" : "edit"),
                                                 value: serverComponent
                                             });
@@ -9265,7 +9265,7 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 }
 
 iwb.fileUploadSurveyJs=(tableId, tablePk, survey, options)=>{
-	//debugger
+	debugger
 	console.log(options)
 	var formData = new FormData();
     options

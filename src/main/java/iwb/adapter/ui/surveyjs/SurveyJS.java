@@ -52,11 +52,11 @@ public class SurveyJS {
 						case 8: case 9://contains , not contains
 							if(fcr.getFormCell().getControlTip()==8 || fcr.getFormCell().getControlTip()==15) {//multi
 								if(fcp.getLkpOperatorTip()==9)buf.append("not ");
-								buf.append(" contains '").append(fcp.getVal()).append("'");
+								buf.append(" contains '").append(fcp.getVal().split(",")[0]).append("'");
 							
 							} else {
 								if(fcp.getLkpOperatorTip()==9)buf.append("!");
-								buf.append("='").append(fcp.getVal()).append("'");
+								buf.append("='").append(fcp.getVal().split(",")[0]).append("'");
 							}
 //							buf.append(FrameworkSetting.operatorMap[fcp.getLkpOperatorTip()]).append(" ").append(fcp.getVal());
 							break;
@@ -253,7 +253,7 @@ public class SurveyJS {
 			if(m.getMaxRow()>0)buf.append(",maxRowCount:").append(m.getMaxRow());
 			break;
 		}
-		buf.append(", name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', readOnly:!0, css:'ali',width:45, expression: '{rowIndex}'}");
+		buf.append(", name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', readOnly:!0, style:'background:red',maxWidth:'45px', expression: '{rowIndex}'}");
 		for(W5FormCellHelper fc:dfr.getFormCellResults()) {
 			Object o = serializeFormCell4SurveyJS(fc, formResult, true);
 			if(o!=null)buf.append(",").append(o);
@@ -384,7 +384,7 @@ public class SurveyJS {
 		//	{ view:"label", label:'Fill the form below to access <br>the main datacore.'
 			
 			case	71://file attachment
-				buf.append("file', imageHeight:200, storeDataAsText: false");
+				buf.append("file', imageHeight:150, storeDataAsText: false");
 				break;
 			
 			default:			
