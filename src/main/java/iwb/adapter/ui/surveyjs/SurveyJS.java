@@ -136,6 +136,14 @@ public class SurveyJS {
 				buf.setLength(buf.length()-1);
 				buf.append(GenericUtil.uInt(value)!=0);
 				continue;
+			case 8: case 15://multi select
+				String[] xx = value.split(",");
+				buf.setLength(buf.length()-1);
+				buf.append("[");
+				for(String qq:xx)buf.append("'").append(qq).append("',");
+				buf.setLength(buf.length()-1);
+				buf.append("]");
+				continue;
 			default:
 				buf.append(GenericUtil.stringToJS(value));
 				
