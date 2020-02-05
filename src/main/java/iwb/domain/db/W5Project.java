@@ -256,7 +256,8 @@ public class W5Project  implements java.io.Serializable {
 	public void setLocales(String locales) {
 		this.locales = locales;
 	}
-	@Column(name="lkp_date_format")
+	//@Column(name="lkp_date_format")
+	@Transient
 	public short getLkpDateFormat() {
 		return lkpDateFormat;
 	}
