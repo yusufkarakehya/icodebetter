@@ -26,7 +26,7 @@ public class PostFormTrigger {
 		if(formResult.getErrorMap()!=null && formResult.getErrorMap().isEmpty())switch(formResult.getFormId()){
 		case	2491://SQL Script
 			String sql = formResult.getRequestParams().get("extra_sql");
-			if(FrameworkSetting.cloud && !GenericUtil.isEmpty(sql) && (Integer)formResult.getScd().get("customizationId")>1 && DBUtil.checkTenantSQLSecurity(sql)) {
+			if(FrameworkSetting.cloud && !GenericUtil.isEmpty(sql) && ((Integer)formResult.getScd().get("customizationId")==0 || (Integer)formResult.getScd().get("customizationId")==1095) && DBUtil.checkTenantSQLSecurity(sql)) {
 				throw new IWBException("security","SQL", 0, null, "Suspicious Command! Download the platform and feel free to run all the commands ;)", null);
 			}
 			if(GenericUtil.uCheckBox(formResult.getRequestParams().get("orun_local_flag"))!=0){

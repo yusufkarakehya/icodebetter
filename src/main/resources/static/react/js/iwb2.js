@@ -9172,6 +9172,17 @@ iwb.hideColumn= function(columns,name){
 	})
 }
 
+function extractSurveyJsResult(o){
+	if(o && Array.isArray(o)){
+		if(o.length && o[0].content){
+			return o[0].content.substr(o[0].content.lastIndexOf('=')+1);
+		} else 
+			return o.join(','); 
+			
+	} else 
+		return o;
+}
+
 iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 //	console.log(params)
 	var params2 = {_mask:!0}, fid = 0;
@@ -9187,7 +9198,7 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 					var cell = o[qi];
 					params2['a'+fid+'.'+(qi+1)] = 2;
 					for(var kk in cell){
-						params2[kk+fid+'.'+(qi+1)] = cell[kk];
+						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
 					}
 					if(masterParams)for(var kk in masterParams)
 						params2[kk.substr(1)+fid+'.'+(qi+1)] = masterParams[kk];
@@ -9211,7 +9222,7 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 						params2['t'+pkFieldName+fid+'.'+cnt] = cell[kk];
 						delete sm[cell[kk]];
 					} else {
-						params2[kk+fid+'.'+(qi+1)] = cell[kk];
+						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
 					}
 					if(masterParams)for(var kk in masterParams)
 						params2[kk.substr(1)+fid+'.'+cnt] = masterParams[kk];
@@ -9229,14 +9240,7 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 				}
 			}
 		} else {
-			if(o && Array.isArray(o)){
-				if(o.length && o[0].content){
-					params2[k] = o[0].content.substr(o[0].content.lastIndexOf('=')+1);
-				} else 
-					params2[k] = o.join(','); 
-					
-			} else 
-				params2[k] =  o;
+			params2[k] =  extractSurveyJsResult(o);
 		}
 	}
 	if(action==1)for(var k in surveyData)if(k.startsWith('_form_') && surveyData[k] && surveyData[k].length && 

@@ -194,7 +194,10 @@ public class SurveyJS {
 						case	3://multi form
 							dfr = formResult.getModuleFormMap().get(m.getObjectId());
 							if(dfr!=null) {
-								buf.append(serializeFormModule4FormResult(formResult, dfr)).append("\n,");
+								buf.append(
+										dfr.getForm().getRenderTip()==2?//tabPanel means panel
+										serializeFormModule4FormResultPanel(formResult, dfr):
+										serializeFormModule4FormResultList(formResult, dfr)).append("\n,");
 							}
 							
 							break;
@@ -245,11 +248,12 @@ public class SurveyJS {
 		return buf;
 	}
 
-	private static StringBuilder serializeFormModule4FormResult(W5FormResult formResult, W5FormResult dfr) {
+	private static StringBuilder serializeFormModule4FormResultList(W5FormResult formResult, W5FormResult dfr) {
 		StringBuilder buf = new StringBuilder();
 		Map scd = formResult.getScd();
 		W5Form df = dfr.getForm();
-		buf.append("{questions:[{type: 'matrixdynamic',title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey()))
+		buf.append("{questions:[{type: 'matrixdynamic', removeRowText:'").append(LocaleMsgCache.get2(scd, "remove")) 
+			.append("', addRowText:'").append(LocaleMsgCache.get2(scd, "add")).append("',title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey()))
 			.append("'");
 		for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3 && m.getObjectId()==df.getFormId()) {
 			buf.append(",minRowCount:").append(m.getMinRow());
@@ -268,6 +272,39 @@ public class SurveyJS {
 		}
 		return buf.append("]}]}");
 	}
+	
+
+	private static StringBuilder serializeFormModule4FormResultPanel(W5FormResult formResult, W5FormResult dfr) {
+		StringBuilder buf = new StringBuilder();
+		Map scd = formResult.getScd();
+		W5Form df = dfr.getForm();
+		buf.append("{questions:[{type: 'paneldynamic', 	panelRemoveText:'").append(LocaleMsgCache.get2(scd, "remove"))
+		.append("', panelAddText:'").append(LocaleMsgCache.get2(scd, "add")).append("',renderMode:'list', title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey()))
+			.append("'");
+		for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3 && m.getObjectId()==df.getFormId()) {
+			buf.append(",minPanelCount:").append(m.getMinRow());
+			if(formResult.getAction()==2)buf.append(",rowCount:").append(m.getMinRow()==0?1:m.getMinRow());
+			else {
+				List l = (List)dfr.getOutputFields().get("list");
+				buf.append(",panelCount:").append(GenericUtil.isEmpty(l)?m.getMinRow():Math.max(m.getMinRow(),l.size()));				
+			}
+			if(m.getMaxRow()>0)buf.append(",minPanelCount:").append(m.getMaxRow());
+			break;
+		}
+		buf.append(", name:'_form_").append(df.getFormId()).append("', templateElements:[");
+		boolean b = false;
+		for(W5FormCellHelper fc:dfr.getFormCellResults()) {
+			Object o = serializeFormCell4SurveyJS(fc, formResult, false);
+			if(o!=null) {
+				if(b)buf.append(",");
+				else b = true;
+				buf.append(o);
+				
+			}
+		}
+		return buf.append("]}]}");
+	}
+	
 	@SuppressWarnings("unchecked")
 	private static StringBuilder serializeFormCell4SurveyJS(W5FormCellHelper cellResult, W5FormResult formResult, boolean forMatrix) {
 		StringBuilder buf = new StringBuilder();
