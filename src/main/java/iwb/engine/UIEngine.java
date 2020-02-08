@@ -224,7 +224,11 @@ public class UIEngine {
 										sql.append("select x.").append(pkFieldName);
 										for(W5FormCell fc2:dfr.getForm().get_formCells()) if(fc2.getActiveFlag()!=0 && fc2.getControlTip()>0 && fc2.getControlTip()<90 && fc2.get_sourceObjectDetail()!=null){
 											W5TableField tf2 = (W5TableField)fc2.get_sourceObjectDetail();
-											if(tf2.getTabOrder()!=1)sql.append(", x.").append(tf2.getDsc());											
+											if(tf2.getTabOrder()!=1)sql.append(", x.").append(tf2.getDsc());
+											if(fc2.getControlTip()==71) {//file
+												sql.append(", (select a.original_file_name from iwb.w5_file_attachment a where a.project_uuid='").append(scd.get("projectId")).append("' AND a.file_attachment_id=x.").append(tf2.getDsc()).append(") ").append(tf2.getDsc()).append("_qw_");
+												
+											}
 										}
 										sql.append(" from ").append(dt.getDsc()).append(" x where x.");
 										sql.append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc()).append("=?");

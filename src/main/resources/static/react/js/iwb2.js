@@ -9201,7 +9201,7 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
 					}
 					if(masterParams)for(var kk in masterParams)
-						params2[kk.substr(1)+fid+'.'+(qi+1)] = masterParams[kk];
+						params2[kk.substr(1)+fid+'.'+(qi+1)] = extractSurveyJsResult(masterParams[kk]);
 				}			
 			} else {//update
 				var s = surveyData[k], cnt = 0, pkFieldName='';
@@ -9225,7 +9225,7 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
 					}
 					if(masterParams)for(var kk in masterParams)
-						params2[kk.substr(1)+fid+'.'+cnt] = masterParams[kk];
+						params2[kk.substr(1)+fid+'.'+cnt] = extractSurveyJsResult(masterParams[kk]);
 				}
 				for(var sk in sm){
 					cnt++;
@@ -9269,8 +9269,6 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 }
 
 iwb.fileUploadSurveyJs=(tableId, tablePk, survey, options)=>{
-	debugger
-	console.log(options)
 	var formData = new FormData();
     options
         .files

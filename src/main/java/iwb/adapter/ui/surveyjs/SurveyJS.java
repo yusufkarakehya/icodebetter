@@ -81,16 +81,23 @@ public class SurveyJS {
 		if(!GenericUtil.isEmpty(pageTitle))buf.append("title:'").append(GenericUtil.stringToJS(pageTitle)).append("',");
 		buf.append("questions:[");
 		boolean b = false;
+		short lastTabOrder = -1;
 		for(W5FormCellHelper fc:lfc) {
-			Object o = serializeFormCell4SurveyJS(fc, formResult, false);
+			Object o = serializeFormCell(fc, formResult, false);
 			if(o==null)continue;
 			if(b)buf.append(",");
 			else b = true;
 			buf.append(o);
+			if(fc.getFormCell().getTabOrder() == lastTabOrder) {
+				buf.setLength(buf.length()-1);
+				buf.append(", startWithNewLine:false}");
+			} else lastTabOrder = fc.getFormCell().getTabOrder();
 		}
 		return buf.append("]}");
 		
 	}
+	
+	
 	@SuppressWarnings("unchecked")
 	public static StringBuilder serializeForm4SurveyJS(W5FormResult formResult, int renderer) { //1:extjs, 5:react
 		StringBuilder buf = new StringBuilder();
@@ -153,7 +160,21 @@ public class SurveyJS {
 		if(formResult.getAction()==1 && formResult.getForm().get_moduleList()!=null)for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3) {
 			W5FormResult dfr = formResult.getModuleFormMap().get(m.getObjectId());
 			List list = (List)dfr.getOutputFields().get("list"); 
-			if(list!=null)buf.append(",_form_").append(dfr.getForm().getFormId()).append(":").append(GenericUtil.fromListToJsonString2Recursive(list));
+			if(list!=null) for(W5FormCellHelper fcr:dfr.getFormCellResults())if(fcr.getFormCell().getControlTip()==71){
+				for(Map mm : (List<Map>)list) {
+					String fileName = (String)mm.get(fcr.getFormCell().getDsc()+"_qw_");
+					if(GenericUtil.isEmpty(fileName))fileName="noFound";
+					Map mm2 = new HashMap();
+					mm2.put("name", fileName);
+					mm2.put("content","sf/"+fileName+"?_fai="+mm.get(fcr.getFormCell().getDsc()));
+					List lm2 = new ArrayList();
+					lm2.add(mm2);
+					mm.put(fcr.getFormCell().getDsc(), lm2);
+				}
+				
+			}
+			buf.append(",_form_").append(dfr.getForm().getFormId()).append(":")
+				.append(list!=null ? GenericUtil.fromListToJsonString2Recursive(list): "[]");
 			
 		}
 		buf.append("};\n");
@@ -253,8 +274,9 @@ public class SurveyJS {
 		Map scd = formResult.getScd();
 		W5Form df = dfr.getForm();
 		buf.append("{questions:[{type: 'matrixdynamic', removeRowText:'").append(LocaleMsgCache.get2(scd, "remove")) 
-			.append("', addRowText:'").append(LocaleMsgCache.get2(scd, "add")).append("',title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey()))
-			.append("'");
+			.append("', addRowText:'").append(LocaleMsgCache.get2(scd, "add")).append("'");
+		if(!df.getLocaleMsgKey().equals("."))buf.append(", title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey())).append("'");
+
 		for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3 && m.getObjectId()==df.getFormId()) {
 			buf.append(",minRowCount:").append(m.getMinRow());
 			if(formResult.getAction()==2)buf.append(",rowCount:").append(m.getMinRow()==0?1:m.getMinRow());
@@ -267,7 +289,7 @@ public class SurveyJS {
 		}
 		buf.append(", name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', readOnly:!0, style:'background:red',maxWidth:'45px', expression: '{rowIndex}'}");
 		for(W5FormCellHelper fc:dfr.getFormCellResults()) {
-			Object o = serializeFormCell4SurveyJS(fc, formResult, true);
+			Object o = serializeFormCell(fc, formResult, true);
 			if(o!=null)buf.append(",").append(o);
 		}
 		return buf.append("]}]}");
@@ -279,8 +301,8 @@ public class SurveyJS {
 		Map scd = formResult.getScd();
 		W5Form df = dfr.getForm();
 		buf.append("{questions:[{type: 'paneldynamic', 	panelRemoveText:'").append(LocaleMsgCache.get2(scd, "remove"))
-		.append("', panelAddText:'").append(LocaleMsgCache.get2(scd, "add")).append("',renderMode:'list', title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey()))
-			.append("'");
+		.append("', panelAddText:'").append(LocaleMsgCache.get2(scd, "add")).append("',renderMode:'list'");
+		if(!df.getLocaleMsgKey().equals("."))buf.append(", title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey())).append("'");
 		for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3 && m.getObjectId()==df.getFormId()) {
 			buf.append(",minPanelCount:").append(m.getMinRow());
 			if(formResult.getAction()==2)buf.append(",rowCount:").append(m.getMinRow()==0?1:m.getMinRow());
@@ -293,26 +315,33 @@ public class SurveyJS {
 		}
 		buf.append(", name:'_form_").append(df.getFormId()).append("', templateElements:[");
 		boolean b = false;
+		short lastTabOrder = -1;
 		for(W5FormCellHelper fc:dfr.getFormCellResults()) {
-			Object o = serializeFormCell4SurveyJS(fc, formResult, false);
+			Object o = serializeFormCell(fc, formResult, false);
 			if(o!=null) {
 				if(b)buf.append(",");
 				else b = true;
 				buf.append(o);
 				
+				if(fc.getFormCell().getTabOrder() == lastTabOrder) {
+					buf.setLength(buf.length()-1);
+					buf.append(", startWithNewLine:false}");
+				} else lastTabOrder = fc.getFormCell().getTabOrder();
 			}
 		}
 		return buf.append("]}]}");
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static StringBuilder serializeFormCell4SurveyJS(W5FormCellHelper cellResult, W5FormResult formResult, boolean forMatrix) {
+	private static StringBuilder serializeFormCell(W5FormCellHelper cellResult, W5FormResult formResult, boolean forMatrix) {
 		StringBuilder buf = new StringBuilder();
 		W5FormCell fc = cellResult.getFormCell();
 		String value = cellResult.getValue(); // bu ilerde hashmap ten gelebilir
 		if (fc.getControlTip() == 0 || fc.getControlTip() == 100 || fc.getControlTip() == 102 || fc.getControlTip() == 101)return null;
 		
-		buf.append("{name:'").append(fc.getDsc()).append("', title:'").append(LocaleMsgCache.get2(formResult.getScd(), fc.getLocaleMsgKey())).append("'");
+		buf.append("{name:'").append(fc.getDsc()).append("'");
+		if(!fc.getLocaleMsgKey().equals("."))buf.append(", title:'").append(LocaleMsgCache.get2(formResult.getScd(), fc.getLocaleMsgKey())).append("'");
+		else buf.append(", titleLocation:'hidden'");
 		if(fc.getNotNullFlag()!=0)buf.append(",isRequired:true");
 		if(fc.getNrdTip()!=0  || cellResult.getHiddenValue() != null)buf.append(",readOnly:!0");
 		buf.append(serializeFormCellProperty4SurveyJs(cellResult, formResult));
