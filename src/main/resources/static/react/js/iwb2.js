@@ -3861,6 +3861,7 @@ class XGrid extends GridCommon {
     constructor(props) {
         super(props);
         if (iwb.debug) console.log("XGrid", props);
+//        if(props.setCmp)props.setCmp(this);
         var columns = [];
         var columnExtensions = [];
         const canIOpenActions =
@@ -5400,7 +5401,7 @@ const XShowDetailTabs = ({
                                 )
                             )
                         ),
-                        _(XGrid, Object.assign({}, {
+                        _(XGrid, Object.assign({
                             key: "XGrid" + grid.gridId,
                             responsive: true,
                             openTab: topParentGrid.props.openTab,
@@ -5438,7 +5439,7 @@ const XShowDetailTimeline = ({
         (currentDetailGrids || []).map(
             ({ grid, pk, params, detailGrids }, index) => {
                 if (parentGrid.state !== undefined && parentGrid.state["dg-" + grid.gridId] === false) return;
-                var currentDetailGridProps = Object.assign({}, { pk: pk || {} }, grid );
+                var currentDetailGridProps = Object.assign({ pk: pk || {} }, grid );
                 if (currentDetailGridProps._url) {
                     currentDetailGridProps._url += buildParams2(params, row);
                 } else {
@@ -5472,7 +5473,7 @@ const XShowDetailTimeline = ({
                     ),
 
                     _(
-                        "div", Object.assign({},{
+                        "div", Object.assign({
                             className: "timeline-panel"},
                             !!currentDetailGridProps._hideTimelineBadgeBtn ?
                                 { style: { left: "30px" } } :
@@ -5495,7 +5496,7 @@ const XShowDetailTimeline = ({
                                 }))
                             )
                         ),
-                        _(XGrid, Object.assign({}, {
+                        _(XGrid, Object.assign({
                             key: "XGrid" + grid.gridId,
                             responsive: true,
                             openTab: topParentGrid.props.openTab,
@@ -5597,6 +5598,7 @@ class XMainGrid extends GridCommon {
         super(props);
         var oldGridState = iwb.grids[props.id];
         if (iwb.debug) console.log("XMainGrid", props);
+        if(props.setCmp)props.setCmp(this);
         if (oldGridState) {
             this.state = oldGridState;
             this.dontRefresh = true; // true-yuklemez, false-yukleme yapar
@@ -5658,7 +5660,7 @@ class XMainGrid extends GridCommon {
                     title: ".",
                     getCellValue: rowData => {
                         var { onEditClick, onDeleteClick } = this;
-                        return _(XGridRowAction2, Object.assign({},
+                        return _(XGridRowAction2, Object.assign(
                         		{ rowData, menuButtons: props.menuButtons
                         		,formSmsMailList: props.formSmsMailList, crudFlags: props.crudFlags
                         		,onEditClick, onDeleteClick,
@@ -6373,6 +6375,7 @@ class XMainCard extends GridCommon {
     constructor(props) {
         if (iwb.debug) console.log("XMainCard", props);
         super(props);
+        if(props.setCmp)props.setCmp(this);
         this.state = {
             totalCount: 0,
             pageSize: props.pageSize,
@@ -6822,7 +6825,7 @@ const XItemPerPage = (props) => {
         number != pageSize && onChange && onChange(number);
     };
     return _(
-        Pagination, Object.assign({},{
+        Pagination, Object.assign({
             "aria-label": getLocMsg("item_per_page"),
             className: "m-0 p-0 p-sm-3"},
             props
@@ -6953,7 +6956,7 @@ class XPage extends React.PureComponent {
                                     if (serverComponent) {
                                         if (callAttributes && callAttributes.modal) {
                                             // console.log(callAttributes);
-                                            iwb.showModal(Object.assign({}, {
+                                            iwb.showModal(Object.assign({
                                                 body: serverComponent,
                                                 size: iwb.defaultModalSıze || "lg",
                                                 title: serverComponent.props && serverComponent.props.cfg ?
@@ -7065,7 +7068,7 @@ class XPage extends React.PureComponent {
                             return _(
                                 TabPane, { key: "TabPane" + index, tabId: name },
                                 value.gridId ?
-                                _(XMainGrid, Object.assign({}, {
+                                _(XMainGrid, Object.assign({
                                     openTab: this.openTab,
                                     closeTab: this.closeTab,
                                 },value
@@ -7170,7 +7173,7 @@ class XPage4Card extends React.PureComponent {
                                     if (serverComponent) {
                                         if (callAttributes && callAttributes.modal) {
                                             // console.log(callAttributes);
-                                            iwb.showModal(Object.assign({}, {
+                                            iwb.showModal(Object.assign({
                                                 body: serverComponent,
                                                 size: iwb.defaultModalSize || "lg",
                                                 title: serverComponent.props && serverComponent.props.cfg ?
@@ -7277,7 +7280,7 @@ class XPage4Card extends React.PureComponent {
                                 return _(
                                     TabPane, { key: "TabPane" + index, tabId: name },
                                     value.cardId ?
-                                    _(XMainCard, Object.assign({}, {
+                                    _(XMainCard, Object.assign({
                                         openTab: this.openTab,
                                         closeTab: this.closeTab,
                                     },value
@@ -8691,6 +8694,7 @@ class XCardList  extends React.Component {
     constructor(props) {
         super(props);
         this.state = {rows: [], loading: false};
+        if(props.setCmp)props.setCmp(this);
         this.loadData = (force, params) => {
             if(force)this.setState({ rows: [], loading: true });
             iwb.request({

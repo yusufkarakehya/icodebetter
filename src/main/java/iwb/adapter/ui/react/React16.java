@@ -2372,7 +2372,8 @@ public class React16 implements ViewAdapter {
 				.append(",name:'")
 				.append(LocaleMsgCache.get2(scd,
 						d.getLocaleMsgKey()))
-				.append("'")
+				.append("',setCmp:(o)=> {")
+				.append(d.getDsc()).append(".cmp = o;}")
 				.append(",_url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
 				.append(d.getQueryId()).append("&_dvid=")
 				.append(d.getDataViewId());
@@ -2479,7 +2480,8 @@ public class React16 implements ViewAdapter {
 		if(dsc==null)dsc=g.getDsc();
 		
 		buf.append("var ").append(dsc).append(" = {gridId:")
-				.append(g.getGridId()).append(",queryId:").append(g.getQueryId());
+				.append(g.getGridId()).append(",queryId:").append(g.getQueryId()).append(",setCmp:(o)=> {")
+				.append(dsc).append(".cmp = o;}");
 		if (!gridResult.isViewLogMode() && g.getSelectionModeTip()!=0){
 			if(g.getSelectionModeTip()==2 || g.getSelectionModeTip()==3)
 				buf.append(", multiselect:true");
