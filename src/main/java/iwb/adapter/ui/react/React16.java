@@ -4374,10 +4374,10 @@ columns:[
 					break;
 				}
 				switch(po.getObjectTip()) {
-				case 15:
+				case 15://graphic from raw query
 					rbuf.append("{gquery:").append(qr.getQuery().getDsc());
 					break;
-				case 21://badge
+				case 10://badge
 					rbuf.append("{query:").append(qr.getQuery().getDsc());
 					break;
 				case 22://gauge
