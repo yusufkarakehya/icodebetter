@@ -3803,7 +3803,7 @@ columns:[
 								buf.append(GenericUtil.onlyHTMLToJS(obj.toString()));
 								break;
 							case 5://decryption
-								buf.append(GenericUtil.stringToJS2(EncryptionUtil.decrypt(obj.toString())));
+								buf.append(GenericUtil.stringToJS2(EncryptionUtil.decrypt(obj.toString(), f.getLookupQueryId())));
 								break;
 							case 8:
 								buf.append(GenericUtil.stringToHtml2(obj));

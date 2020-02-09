@@ -8,14 +8,18 @@ import java.util.Base64;
  
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 
 import iwb.cache.FrameworkCache;
 
 public class EncryptionUtil {
-	private static SecretKeySpec secretKey = null;
+	private static SecretKeySpec secretKey4AES = null;
+	private static SecretKey secretKey4DES = null;
     private static byte[] key;
  
-    public static void setKey(String myKey) 
+    public static void setKey4AES(String myKey) 
     {
         MessageDigest sha = null;
         try {
@@ -23,7 +27,7 @@ public class EncryptionUtil {
             sha = MessageDigest.getInstance("SHA-1");
             key = sha.digest(key);
             key = Arrays.copyOf(key, 16); 
-            secretKey = new SecretKeySpec(key, "AES");
+            secretKey4AES = new SecretKeySpec(key, "AES");
         } 
         catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -32,14 +36,27 @@ public class EncryptionUtil {
             e.printStackTrace();
         }
     }
+    
+    public static void setKey4DES(String myKey) 
+    {
+        try {
+        	DESKeySpec dks = new DESKeySpec(myKey.getBytes("UTF-8"));
+    		SecretKeyFactory skf = SecretKeyFactory.getInstance("DES");
+    		secretKey4DES = skf.generateSecret(dks);
+        } 
+        catch (Throwable e) {
+			e.printStackTrace();
+        } 
+    }
+    
  
-    public static String encrypt(String strToEncrypt) 
+    public static String encryptAES(String strToEncrypt) 
     {
         try
         {
-            if(secretKey==null)setKey(FrameworkCache.getAppSettingStringValue(0, "aes_secret_key", "code2rox"));
+            if(secretKey4AES==null)setKey4AES(FrameworkCache.getAppSettingStringValue(0, "aes_secret_key", "code2rox"));
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey4AES);
             return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
         } 
         catch (Exception e) 
@@ -49,13 +66,14 @@ public class EncryptionUtil {
         return null;
     }
  
-    public static String decrypt(String strToDecrypt) 
+   
+    public static String decryptAES(String strToDecrypt) 
     {
         try
         {
-        	if(secretKey==null)setKey(FrameworkCache.getAppSettingStringValue(0, "aes_secret_key", "code2rox"));
+        	if(secretKey4AES==null)setKey4AES(FrameworkCache.getAppSettingStringValue(0, "aes_secret_key", "code2rox"));
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey4AES);
             return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
         } 
         catch (Exception e) 
@@ -63,5 +81,56 @@ public class EncryptionUtil {
             System.out.println("Error while decrypting: " + e.toString());
         }
         return null;
+    }
+    
+    
+
+    
+    public static String encryptDES(String strToEncrypt) 
+    {
+        try
+        {
+            if(secretKey4DES==null)setKey4DES(FrameworkCache.getAppSettingStringValue(0, "des_secret_key", "code2rox"));
+            Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey4DES);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+    }
+    
+
+    public static String decryptDES(String strToDecrypt) 
+    {
+        try
+        {
+        	if(secretKey4DES==null)setKey4DES(FrameworkCache.getAppSettingStringValue(0, "des_secret_key", "code2rox"));
+            Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey4DES);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+    
+    public static String encrypt(String strToEncrypt, int encryptionType) {
+    	switch(encryptionType) {
+    	case 1:return decryptAES(strToEncrypt);
+    	case 2:return decryptDES(strToEncrypt);
+    	default: return decryptAES(strToEncrypt);
+    	}    
+    }
+    public static String decrypt(String strToDecrypt, int encryptionType) {
+    	switch(encryptionType) {
+    	case 1:return decryptAES(strToDecrypt);
+    	case 2:return decryptDES(strToDecrypt);
+    	default: return decryptAES(strToDecrypt);
+    	}    	
     }
 }

@@ -1361,7 +1361,7 @@ public class PostgreSQL extends BaseDAO {
 							W5TableField tf = (W5TableField) cellResult.getFormCell().get_sourceObjectDetail();
 							Object obj = rs.getObject((tf).getDsc());
 							if (obj != null) {
-								if(tf.getLkpEncryptionType()!=0)obj = EncryptionUtil.decrypt(obj.toString());
+								if(tf.getLkpEncryptionType()!=0)obj = EncryptionUtil.decrypt(obj.toString(), tf.getLkpEncryptionType());
 
 								if (tf.getFieldTip() == 5 && obj instanceof Boolean) {
 									obj = (Boolean) obj ? 1 : 0;
@@ -1872,7 +1872,7 @@ public class PostgreSQL extends BaseDAO {
 						b = true;
 					sql.append(tf.getDsc()).append(" = ? ");
 					if(psonuc==null || tf.getLkpEncryptionType()==0)updateParams.add(psonuc);
-					else updateParams.add(EncryptionUtil.encrypt(psonuc.toString()));
+					else updateParams.add(EncryptionUtil.encrypt(psonuc.toString(), tf.getLkpEncryptionType()));
 					usedFields.add(tf.getDsc());
 				}
 			}
@@ -2490,7 +2490,7 @@ public class PostgreSQL extends BaseDAO {
 							postSql.append(" ? ");
 							//insertParams.add(psonuc);
 							if(psonuc==null || tf.getLkpEncryptionType()==0)insertParams.add(psonuc);
-							else insertParams.add(EncryptionUtil.encrypt(psonuc.toString()));
+							else insertParams.add(EncryptionUtil.encrypt(psonuc.toString(), tf.getLkpEncryptionType()));
 							paramCount++;
 						}
 					}

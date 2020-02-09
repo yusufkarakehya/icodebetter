@@ -6427,7 +6427,7 @@ public class ExtJs3_4 implements ViewAdapter {
 								}
 								break;
 							case 5://decryption
-								buf.append(GenericUtil.stringToJS2(EncryptionUtil.decrypt(obj.toString())));
+								buf.append(GenericUtil.stringToJS2(EncryptionUtil.decrypt(obj.toString(), f.getLookupQueryId())));
 								break;
 							case 3:
 								buf.append(GenericUtil.onlyHTMLToJS(obj
