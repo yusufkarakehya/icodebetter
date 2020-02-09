@@ -6346,6 +6346,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				.append(",\"execDttm\":\"")
 				.append(GenericUtil.uFormatDateTime(new Date())).append("\"");
 		boolean dismissNull = qr.getRequestParams()!=null && GenericUtil.uInt(qr.getRequestParams(), "_dismissNull")!=0;
+		W5Table t = null;
 		if (qr.getErrorMap().isEmpty()) {
 			buf.append(",\n\"data\":["); // ana
 			if (!GenericUtil.isEmpty(datas)) {
@@ -6403,6 +6404,16 @@ public class ExtJs3_4 implements ViewAdapter {
 								buf.append("[").append(obj).append("]");
 								continue;
 							case	4://data masking
+								if(f.getMainTableFieldId()>0 && qr.getQuery().getMainTableId()>0 && qr.getQuery().getQuerySourceTip()==15) {
+									if(t == null) t = FrameworkCache.getTable(qr.getScd(), qr.getQuery().getMainTableId());
+									W5TableField tf = t.get_tableFieldMap().get(f.getMainTableFieldId());
+									if(tf!=null && tf.getAccessMaskTip()>0 && GenericUtil.isEmpty(tf.getAccessMaskUserFields()) 
+											&& GenericUtil.accessControl(qr.getScd(), tf.getAccessMaskTip(), tf.getAccessMaskRoles(), tf.getAccessMaskUsers())) {
+										buf.append(GenericUtil.stringToJS2(obj
+												.toString()));
+										break;
+									}
+								}
 								String strMask = FrameworkCache.getAppSettingStringValue(0, "data_mask", "**********");
 								String sobj = obj.toString();
 								if(sobj.length()==0) sobj = "x";

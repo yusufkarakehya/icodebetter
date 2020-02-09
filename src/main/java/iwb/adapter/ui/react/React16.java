@@ -3720,6 +3720,7 @@ columns:[
 				.append(",\"queryId\":").append(qr.getQueryId())
 				.append(",\"execDttm\":\"")
 				.append(GenericUtil.uFormatDateTime(new Date())).append("\"");
+		W5Table t = null;
 		if (qr.getErrorMap().isEmpty()) {
 			boolean dismissNull = qr.getRequestParams()!=null && qr.getRequestParams().containsKey("_dismissNull");
 			buf.append(",\n\"data\":["); // ana
@@ -3775,9 +3776,20 @@ columns:[
 							switch (f.getPostProcessTip()) { // queryField
 																// PostProcessTip
 							case	4://data masking
+								if(f.getMainTableFieldId()>0 && qr.getQuery().getMainTableId()>0 && qr.getQuery().getQuerySourceTip()==15) {
+									if(t == null) t = FrameworkCache.getTable(qr.getScd(), qr.getQuery().getMainTableId());
+									W5TableField tf = t.get_tableFieldMap().get(f.getMainTableFieldId());
+									if(tf!=null && tf.getAccessMaskTip()>0 && GenericUtil.isEmpty(tf.getAccessMaskUserFields()) 
+											&& GenericUtil.accessControl(qr.getScd(), tf.getAccessMaskTip(), tf.getAccessMaskRoles(), tf.getAccessMaskUsers())) {
+										buf.append(GenericUtil.stringToJS2(obj
+												.toString()));
+										break;
+									}
+								}
 								String strMask = FrameworkCache.getAppSettingStringValue(0, "data_mask", "**********");
 								String sobj = obj.toString();
 								if(sobj.length()==0) sobj = "x";
+								
 								switch(f.getLookupQueryId()) {
 								case	1://full
 									buf.append(strMask);break;

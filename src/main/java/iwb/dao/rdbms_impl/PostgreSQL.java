@@ -1383,7 +1383,7 @@ public class PostgreSQL extends BaseDAO {
 									} catch (Exception e) {
 									}
 								}
-								cellResult.setValue(obj.toString());
+								if (obj != null)cellResult.setValue(obj.toString());
 							}
 							if (tf.getAccessMaskTip() != 0
 									&& !GenericUtil.accessControl(formResult.getScd(), tf.getAccessMaskTip(), tf.getAccessMaskRoles(),
