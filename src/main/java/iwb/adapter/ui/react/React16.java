@@ -3773,6 +3773,19 @@ columns:[
 						if (obj != null)
 							switch (f.getPostProcessTip()) { // queryField
 																// PostProcessTip
+							case	4://data masking
+								String strMask = FrameworkCache.getAppSettingStringValue(0, "data_mask", "**********");
+								String sobj = obj.toString();
+								if(sobj.length()==0) sobj = "x";
+								switch(f.getLookupQueryId()) {
+								case	1://full
+									buf.append(strMask);break;
+								case	2://beginning
+									buf.append(sobj.charAt(0)).append(strMask.substring(1));break;
+								case	3://beg + end
+									buf.append(sobj.charAt(0)).append(strMask.substring(2)).append(sobj.charAt(sobj.length()-1));break;
+								}
+								break;
 							case 3:
 								buf.append(GenericUtil.onlyHTMLToJS(obj
 										.toString()));

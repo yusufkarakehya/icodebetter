@@ -1373,6 +1373,24 @@ public class PostgreSQL extends BaseDAO {
 								}
 								cellResult.setValue(obj.toString());
 							}
+							if (tf.getAccessMaskTip() != 0
+									&& !GenericUtil.accessControl(formResult.getScd(), tf.getAccessMaskTip(), tf.getAccessMaskRoles(),
+											tf.getAccessMaskUsers())
+									&& (GenericUtil.isEmpty(tf.getAccessMaskUserFields()) || accessUserFieldControl(t,
+											tf.getAccessMaskUserFields(), formResult.getScd(), formResult.getRequestParams(), null))) {
+								cellResult.setHiddenValue("*");
+								String strMask = FrameworkCache.getAppSettingStringValue(0, "data_mask", "**********");
+								String sobj = cellResult.getValue();
+								if(GenericUtil.isEmpty(sobj)) sobj = "x";
+								switch(tf.getAccessMaskTip()) {
+								case	1://full
+									cellResult.setValue(strMask);break;
+								case	2://beginning
+									cellResult.setValue(sobj.charAt(0)+strMask.substring(1));break;
+								case	3://beg + end
+									cellResult.setValue(sobj.charAt(0)+strMask.substring(2)+sobj.charAt(sobj.length()-1));break;
+								}
+							}
 						} else if (cellResult.getFormCell().getControlTip() == 101) {
 							switch (cellResult.getFormCell().getInitialSourceTip()) {
 							case 0: // yok-sabit
@@ -1777,6 +1795,13 @@ public class PostgreSQL extends BaseDAO {
 								tf.getAccessUpdateUserFields(), scd, formResult.getRequestParams(), paramSuffix)))
 					continue;
 
+				if (tf.getAccessMaskTip() != 0
+						&& !GenericUtil.accessControl(scd, tf.getAccessMaskTip(), tf.getAccessMaskRoles(),
+								tf.getAccessMaskUsers())
+						&& (GenericUtil.isEmpty(tf.getAccessMaskUserFields()) || accessUserFieldControl(t,
+								tf.getAccessMaskUserFields(), scd, formResult.getRequestParams(), paramSuffix)))
+					continue;
+				
 				if (!GenericUtil.accessControl4SessionField(formResult.getScd(), tf.getRelatedSessionField()))
 					continue;
 
