@@ -65,6 +65,7 @@ import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
+import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
 import iwb.util.HtmlFilter;
 import iwb.util.UserUtil;
@@ -6413,6 +6414,9 @@ public class ExtJs3_4 implements ViewAdapter {
 								case	3://beg + end
 									buf.append(sobj.charAt(0)).append(strMask.substring(2)).append(sobj.charAt(sobj.length()-1));break;
 								}
+								break;
+							case 5://decryption
+								buf.append(GenericUtil.stringToJS2(EncryptionUtil.decrypt(obj.toString())));
 								break;
 							case 3:
 								buf.append(GenericUtil.onlyHTMLToJS(obj

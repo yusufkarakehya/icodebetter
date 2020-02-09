@@ -60,6 +60,7 @@ import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
+import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
@@ -3787,8 +3788,10 @@ columns:[
 								}
 								break;
 							case 3:
-								buf.append(GenericUtil.onlyHTMLToJS(obj
-										.toString()));
+								buf.append(GenericUtil.onlyHTMLToJS(obj.toString()));
+								break;
+							case 5://decryption
+								buf.append(GenericUtil.stringToJS2(EncryptionUtil.decrypt(obj.toString())));
 								break;
 							case 8:
 								buf.append(GenericUtil.stringToHtml2(obj));
@@ -4143,7 +4146,9 @@ columns:[
 									break;
 									
 								}
-							}
+							} else buf.append("\nvar ")
+							.append(((W5QueryResult) i).getQuery().getDsc())
+							.append("=").append(serializeQueryData((W5QueryResult) i));
 						} else if(q.getQueryTip()==15) { //Graph Query 
 							buf.append("\nvar ")
 							.append(q.getDsc())
