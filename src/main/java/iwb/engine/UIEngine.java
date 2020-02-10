@@ -1009,6 +1009,7 @@ public class UIEngine {
 					obz = accessControl ? formResult : formResult.getForm().getDsc();
 					break;
 				case 4: // query
+				case	10:					
 					Map paramMap = new HashMap();
 					paramMap.putAll(requestParams);
 					if (!GenericUtil.isEmpty(o.getPostJsCode())) {
@@ -1025,7 +1026,7 @@ public class UIEngine {
 					obz = FrameworkCache.getComponent(scd, o.getObjectId());//metaDataDao.loadComponent(scd, o.getObjectId(), new HashMap());
 					break;
 				case 15: // Graph Query
-				case 10: // Badge
+//				case 10: // Badge
 				case 22: // Gauge
 					obz = metaDataDao.getQueryResult(scd, o.getObjectId());//queryEngine.executeQuery(scd, o.getObjectId(), new HashMap());
 					break;
