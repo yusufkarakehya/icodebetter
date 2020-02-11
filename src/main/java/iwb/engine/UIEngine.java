@@ -99,6 +99,7 @@ public class UIEngine {
 		if (formId != 1622)
 			formResult.getForm().get_moduleList().clear(); // TODO: neden
 															// yapilmis???
+		formResult.setUniqueId(GenericUtil.getNextId("xfi"));
 
 		W5QueryResult queryResult = queryEngine.executeQuery(scd, queryId, requestParams);
 		formResult.setFormCellResults(new ArrayList<W5FormCellHelper>(queryResult.getData().size()));
@@ -108,6 +109,7 @@ public class UIEngine {
 			W5FormCellHelper result = GenericUtil.getFormCellResultByQueryRecord(d);
 			if (result.getFormCell().getTabOrder() == 0)
 				result.getFormCell().setTabOrder(tabOrder);
+			result.getFormCell().setFormCellId(-tabOrder);
 			tabOrder++;
 			formResult.getFormCellResults().add(result);
 		}

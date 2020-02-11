@@ -8626,7 +8626,7 @@ iwb.graphQuery = function(dg, gid, params, callback) {
                         chart: { id: 'apex-' + gid, type: 'donut', toolbar: { show: false } },
                         series: series,
                         labels: labels,
-                        legend: dg.legend ? { position: 'bottom' } : { show: false },
+                        legend: dg.legend ? { position: dg.legend===true?'bottom':dg.legend } : { show: false },
                         dataLabels: dg.legend ? {} : { formatter: function(val, opts) { return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val); } }
                     }
 
@@ -8747,7 +8747,7 @@ class XPortletItem extends React.PureComponent {
         	} else if(this.props.gquery){
                 var dg = this.props.gquery;
                 var gid = "idGQ" + dg.queryId;
-                iwb.graphQuery(dg, gid, params||{});
+                iwb.graphQuery(Object.assign({}, dg, this.props.props||{}), gid, params||{});
         	} else if(this.props.gauge){
                 var dg = this.props.gauge;
                 var gid = "idGA" + dg;
