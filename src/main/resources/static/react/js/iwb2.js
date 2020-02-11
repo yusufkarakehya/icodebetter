@@ -8432,7 +8432,7 @@ iwb.graph = function(dg, gid, callback) {
                         chart: { id: 'apex-' + gid, type: 'donut', toolbar: { show: false } },
                         series: series,
                         labels: labels,
-                        legend: dg.legend ? { position: 'bottom' } : { show: false },
+                        legend: dg.legend ? { position: dg.legend===true?'bottom':dg.legend } : { show: false },
                         dataLabels: dg.legend ? {} : { formatter: function(val, opts) { return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val); } }
                     }
 
