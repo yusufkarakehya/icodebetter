@@ -8714,11 +8714,21 @@ iwb.formElementProperty = function(opr, elementValue, value){
 }
 
 
+function extractSurveyJsResult(o){
+	if(o && Array.isArray(o)){
+		if(o.length && o[0].content){
+			return o[0].content.substr(o[0].content.lastIndexOf('=')+1);
+		} else 
+			return o.join(','); 
+			
+	} else 
+		return o;
+}
+
 iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 //	console.log(params)
 	var params2 = {_mask:!0}, fid = 0;
-	if(masterParams)for(var kk in masterParams)
-		params2[kk] = masterParams[kk];
+	if(masterParams)for(var kk in masterParams)params2[kk] = masterParams[kk];
 	for(var k in params){
 		var o = params[k];
 		if(k.startsWith('_form_')){
@@ -8730,10 +8740,10 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 					var cell = o[qi];
 					params2['a'+fid+'.'+(qi+1)] = 2;
 					for(var kk in cell){
-						params2[kk+fid+'.'+(qi+1)] = cell[kk];
+						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
 					}
 					if(masterParams)for(var kk in masterParams)
-						params2[kk.substr(1)+fid+'.'+(qi+1)] = masterParams[kk];
+						params2[kk.substr(1)+fid+'.'+(qi+1)] = extractSurveyJsResult(masterParams[kk]);
 				}			
 			} else {//update
 				var s = surveyData[k], cnt = 0, pkFieldName='';
@@ -8754,10 +8764,10 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 						params2['t'+pkFieldName+fid+'.'+cnt] = cell[kk];
 						delete sm[cell[kk]];
 					} else {
-						params2[kk+fid+'.'+(qi+1)] = cell[kk];
+						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
 					}
 					if(masterParams)for(var kk in masterParams)
-						params2[kk.substr(1)+fid+'.'+cnt] = masterParams[kk];
+						params2[kk.substr(1)+fid+'.'+cnt] = extractSurveyJsResult(masterParams[kk]);
 				}
 				for(var sk in sm){
 					cnt++;
@@ -8772,26 +8782,30 @@ iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
 				}
 			}
 		} else {
-			if(o && Array.isArray(o)){
-				if(o.length && o[0].content){
-					params2[k] = o[0].content.substr(o[0].content.lastIndexOf('=')+1);
-				} else 
-					params2[k] = o.join(','); 
-					
-			} else 
-				params2[k] =  o;
+			params2[k] =  extractSurveyJsResult(o);
 		}
 	}
-
-	iwb.ajax.postForm(formId, action, params2, (j)=>{
+	if(action==1)for(var k in surveyData)if(k.startsWith('_form_') && surveyData[k] && surveyData[k].length && 
+			(!params[k] || !params[k].length)){
+		var o = surveyData[k];
+		fid++;
+		params2['_fid'+fid] = k.substr('_form_'.length);
+		params2['_cnt'+fid] = o.length;
+		for(var qi=0;qi<o.length;qi++){
+			var cell = o[qi];
+			params2['a'+fid+'.'+(qi+1)] = 3;
+			for(var kk in cell)if(kk.startsWith('_id_')){
+				params2['t'+kk.substr('_id_'.length)+fid+'.'+(qi+1)] = cell[kk];
+			}
+		}
+	}
+	iwb.ajax.postForm(formId, action, params2, ()=>{
 		Ext.infoMsg.msg("success", getLocMsg("operation_successful"));
 		mainPanel.remove(mainPanel.getActiveTab());
-	});
+	})
 }
 
-
 iwb.fileUploadSurveyJs=(tableId, tablePk, survey, options)=>{
-	//debugger
 	var formData = new FormData();
     options
         .files

@@ -276,7 +276,13 @@ public class SurveyJS {
 		buf.append("{questions:[{type: 'matrixdynamic', removeRowText:'").append(LocaleMsgCache.get2(scd, "remove")) 
 			.append("', addRowText:'").append(LocaleMsgCache.get2(scd, "add")).append("'");
 		if(!df.getLocaleMsgKey().equals("."))buf.append(", title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey())).append("'");
-
+		if(df.get_formHintList()!=null)for (W5FormHint sx : df.get_formHintList()) {
+			if (sx.getLocale().equals((String)scd.get("locale")) && sx.getActionTips().contains("" + formResult.getAction())) {
+				buf.append(", description:'").append(GenericUtil.stringToJS(sx.getDsc()))
+						.append("'");
+				break;
+			}
+		}
 		for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3 && m.getObjectId()==df.getFormId()) {
 			buf.append(",minRowCount:").append(m.getMinRow());
 			if(formResult.getAction()==2)buf.append(",rowCount:").append(m.getMinRow()==0?1:m.getMinRow());
@@ -287,7 +293,7 @@ public class SurveyJS {
 			if(m.getMaxRow()>0)buf.append(",maxRowCount:").append(m.getMaxRow());
 			break;
 		}
-		buf.append(", name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', readOnly:!0, style:'background:red',maxWidth:'45px', expression: '{rowIndex}'}");
+		buf.append(", name:'_form_").append(df.getFormId()).append("', columns:[{name: 'id',title: '#', cellType: 'expression', readOnly:!0,maxWidth:'45px', expression: '{rowIndex}'}");
 		for(W5FormCellHelper fc:dfr.getFormCellResults()) {
 			Object o = serializeFormCell(fc, formResult, true);
 			if(o!=null)buf.append(",").append(o);
@@ -302,6 +308,14 @@ public class SurveyJS {
 		W5Form df = dfr.getForm();
 		buf.append("{questions:[{type: 'paneldynamic', 	panelRemoveText:'").append(LocaleMsgCache.get2(scd, "remove"))
 		.append("', panelAddText:'").append(LocaleMsgCache.get2(scd, "add")).append("',renderMode:'list'");
+		
+		if(df.get_formHintList()!=null)for (W5FormHint sx : df.get_formHintList()) {
+			if (sx.getLocale().equals((String)scd.get("locale")) && sx.getActionTips().contains("" + formResult.getAction())) {
+				buf.append(", description:'").append(GenericUtil.stringToJS(sx.getDsc()))
+						.append("'");
+				break;
+			}
+		}
 		if(!df.getLocaleMsgKey().equals("."))buf.append(", title:'").append(LocaleMsgCache.get2(scd, df.getLocaleMsgKey())).append("'");
 		for(W5FormModule m:formResult.getForm().get_moduleList())if(m.getModuleTip()==3 && m.getObjectId()==df.getFormId()) {
 			buf.append(",minPanelCount:").append(m.getMinRow());
