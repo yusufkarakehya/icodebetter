@@ -350,15 +350,15 @@ public class RESTEngine {
 							}
 							params = null;
 						}
-						reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
 						break;
 					case 2: // json
 						params = GenericUtil.fromMapToJsonString2Recursive(m);
-						reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
+						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
 						break;
 					case 6:// yaml
 						params = GenericUtil.fromMapToYamlString2Recursive(m, 0);
-						reqPropMap.put("Content-Type", "application/yaml;charset=UTF-8");
+						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/yaml;charset=UTF-8");
 						break;
 					}
 				}

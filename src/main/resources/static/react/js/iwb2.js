@@ -3965,6 +3965,7 @@ class XGrid extends GridCommon {
                 params: this.props.searchForm &&
                     iwb.getFormValues(document.getElementById(this.props.searchForm.id)),
                 successCallback: (result, cfg) => {
+                	if(cfg.self.props.onLoad && cfg.self.props.onLoad(result, cfg)===false)return;
                     cfg.self.setState({
                         rows: result.data,
                         totalCount: result.total_count,
@@ -4415,6 +4416,7 @@ class XEditGridSF extends GridCommon {
                 params: this.props.searchForm &&
                     iwb.getFormValues(document.getElementById("s-" + this.props.id)),
                 successCallback: (result, cfg) => {
+                	if(cfg.self.props.onLoad && cfg.self.props.onLoad(result, cfg)===false)return;
                     var state = {
                         loading: false,
                         rows: result.data,
@@ -4944,6 +4946,7 @@ class XEditGrid extends GridCommon {
                 params: this.props.searchForm &&
                     iwb.getFormValues(document.getElementById("s-" + this.props.id)),
                 successCallback: (result, cfg) => {
+                	if(cfg.self.props.onLoad && cfg.self.props.onLoad(result, cfg)===false)return;
                     var state = {
                         loading: false,
                         rows: result.data,
@@ -5974,11 +5977,13 @@ class XMainGrid extends GridCommon {
             var tempParams = Object.assign({}, (this.form ? this.form.getValues() : {}),
                 params);
             this.setState({ loading: !0 });
+            var self = this;
             iwb.request({
                 url: queryString,
                 self: this,
                 params: tempParams,
                 successCallback: (result, cfg) => {
+                	if(cfg.self.props.onLoad && cfg.self.props.onLoad(result, cfg)===false)return;
                     cfg.self.setState({
                         rows: result.data,
                         loading: false,
@@ -8702,6 +8707,7 @@ class XCardList  extends React.Component {
                 self: this,
                 params: params||{},
                 successCallback: (result, cfg) => {
+                	if(this.props.onLoad && this.props.onLoad(result, cfg)===false)return;
                     cfg.self.setState({
                         rows: result.data,
                         totalCount: result.total_count,

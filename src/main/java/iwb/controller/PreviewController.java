@@ -1104,7 +1104,11 @@ public class PreviewController implements InitializingBean {
 						"Invalid Id: " + fileAttachmentId, null);
 			}
 			ServletOutputStream out = response.getOutputStream();
-			file_path = local_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
+			file_path = fa.getSystemFileName();
+			if(!file_path.contains(File.separator))
+				file_path = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator + customizationId 
+				+ File.separator + "attachment" + File.separator + file_path;
+			
 			if(FrameworkSetting.argMap.get("multipart_location")!=null) {
 				file_path = FrameworkSetting.argMap.get("multipart_location") + "/"+ file_path;
 			}
@@ -1187,10 +1191,16 @@ public class PreviewController implements InitializingBean {
 			filePath = fa.getFileAttachmentId() == 2 ? AppController.womanPicPath : AppController.manPicPath;
 		} else {
 			if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-			String customizationId = String
-					.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-			String file_path = FrameworkCache.getAppSettingStringValue(0, "file_local_path");
-			filePath = file_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
+			
+			
+			String customizationId = String.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
+
+			if(!fa.getSystemFileName().contains(File.separator))
+				filePath = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator + customizationId 
+				+ File.separator + "attachment" + File.separator + fa.getSystemFileName();
+			else 
+				filePath = fa.getSystemFileName();
+			
 		}
 		if (request.getParameter("_ct") == null)
 			response.setContentType("image/jpeg");
@@ -1389,8 +1399,9 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
-		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
-				+ File.separator + scd.get("customizationId") + File.separator + "attachment";
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path");
+		if(scd.containsKey("ulpath"))path+=File.separator + scd.get("ulpath");
+		else path += File.separator + scd.get("customizationId") + File.separator + "attachment";
 
 		File dirPath = new File(path);
 		if (!dirPath.exists()) {
@@ -1418,7 +1429,7 @@ public class PreviewController implements InitializingBean {
 							+ Math.round(maxFileSize / 1024) + " KB\"}";
 				fa.setFileTypeId(-998);// company picture upload etti
 			}
-			fa.setSystemFileName(fileId + "." + GenericUtil.strUTF2En(file.getOriginalFilename()));
+			fa.setSystemFileName((scd.containsKey("ulpath")? path + File.separator:"")+fileId + "." + GenericUtil.strUTF2En(file.getOriginalFilename()));
 			file.transferTo(new File(path + File.separator + fa.getSystemFileName()));
 			fa.setOrijinalFileName(file.getOriginalFilename());
 			fa.setTableId(table_id);
