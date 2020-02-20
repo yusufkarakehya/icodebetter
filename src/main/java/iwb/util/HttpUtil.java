@@ -41,12 +41,12 @@ public class HttpUtil {
 			connection.setDoOutput(true);
 
 			// Send request
-//			if(!GenericUtil.isEmpty(urlParameters)){
+			if(!GenericUtil.isEmpty(urlParameters)){
 				DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
 				wr.write((GenericUtil.isEmpty(urlParameters) ? "":urlParameters).getBytes("UTF-8"));
 				wr.flush();
 				wr.close();
-//			}
+			}
 
 			// Get Response
 			boolean success = connection.getResponseCode()>=200 && connection.getResponseCode()<300;

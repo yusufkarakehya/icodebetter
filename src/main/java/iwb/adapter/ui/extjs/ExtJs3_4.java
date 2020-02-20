@@ -6403,7 +6403,11 @@ public class ExtJs3_4 implements ViewAdapter {
 								buf.setLength(buf.length()-1);
 								buf.append("[").append(obj).append("]");
 								continue;
+							case 14://dcfryption + data maskng
+								obj = EncryptionUtil.decrypt(obj.toString(), f.getLookupQueryId());
+								if(obj==null)obj="";
 							case	4://data masking
+								int maskType = f.getLookupQueryId();
 								if(f.getMainTableFieldId()>0 && qr.getQuery().getMainTableId()>0 && qr.getQuery().getQuerySourceTip()==15) {
 									if(t == null) t = FrameworkCache.getTable(qr.getScd(), qr.getQuery().getMainTableId());
 									W5TableField tf = t.get_tableFieldMap().get(f.getMainTableFieldId());
@@ -6413,11 +6417,13 @@ public class ExtJs3_4 implements ViewAdapter {
 												.toString()));
 										break;
 									}
+									if(tf!=null && f.getPostProcessTip()==14)maskType = tf.getAccessMaskTip();
 								}
 								String strMask = FrameworkCache.getAppSettingStringValue(0, "data_mask", "**********");
 								String sobj = obj.toString();
 								if(sobj.length()==0) sobj = "x";
-								switch(f.getLookupQueryId()) {
+								
+								switch(maskType) {
 								case	1://full
 									buf.append(strMask);break;
 								case	2://beginning

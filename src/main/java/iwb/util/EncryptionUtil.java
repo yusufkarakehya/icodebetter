@@ -121,9 +121,9 @@ public class EncryptionUtil {
     
     public static String encrypt(String strToEncrypt, int encryptionType) {
     	switch(encryptionType) {
-    	case 1:return decryptAES(strToEncrypt);
-    	case 2:return decryptDES(strToEncrypt);
-    	default: return decryptAES(strToEncrypt);
+    	case 1:return encryptAES(strToEncrypt);
+    	case 2:return encryptDES(strToEncrypt);
+    	default: return encryptAES(strToEncrypt);
     	}    
     }
     public static String decrypt(String strToDecrypt, int encryptionType) {

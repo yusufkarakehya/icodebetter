@@ -698,6 +698,8 @@ public class PostgreSQL extends BaseDAO {
 												if(tf.getLkpEncryptionType()!=0) {
 													qf.setPostProcessTip((short)5);
 													qf.setLookupQueryId(tf.getLkpEncryptionType());
+													if(tf.getAccessMaskTip()>0)
+														qf.setPostProcessTip((short)14);
 												} else if(tf.getAccessMaskTip()>0) {
 													qf.setPostProcessTip((short)4);
 													qf.setLookupQueryId(tf.getAccessMaskTip());
@@ -1872,7 +1874,8 @@ public class PostgreSQL extends BaseDAO {
 						b = true;
 					sql.append(tf.getDsc()).append(" = ? ");
 					if(psonuc==null || tf.getLkpEncryptionType()==0)updateParams.add(psonuc);
-					else updateParams.add(EncryptionUtil.encrypt(psonuc.toString(), tf.getLkpEncryptionType()));
+					else 
+						updateParams.add(EncryptionUtil.encrypt(psonuc.toString(), tf.getLkpEncryptionType()));
 					usedFields.add(tf.getDsc());
 				}
 			}
