@@ -230,12 +230,11 @@
 							<!--<jvmFlag>-Xdebug</jvmFlag>
 							<jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7777</jvmFlag>-->
 						</jvmFlags>
-						<args>
+						<!--<args>
 							<arg>project=1</arg>
-							<arg>vcs_server=http://34.68.231.169/app/</arg>
 							<arg>--spring.config.location=file:/config/application.properties</arg>
 							<arg>influxdb=http://influxdb:8086</arg>
-						</args>
+						</args>-->
 					</container>
 				</configuration>
 			</plugin>
