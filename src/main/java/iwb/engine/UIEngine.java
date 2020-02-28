@@ -1039,7 +1039,8 @@ public class UIEngine {
 					obz = metaDataDao.getMListResult(scd, o.getObjectId(), requestParams, false);
 					break;
 				case 31: // Page
-					obz = pr.getPage().getTemplateTip()==0? getPageResult(scd, o.getObjectId(), new HashMap()):metaDataDao.getPageResult(scd, o.getObjectId());
+//					obz = pr.getPage().getTemplateTip()==0? getPageResult(scd, o.getObjectId(), new HashMap()):metaDataDao.getPageResult(scd, o.getObjectId());
+					obz = getPageResult(scd, o.getObjectId(), new HashMap());
 					break;
 				case 9: // graph dashboard
 					W5BIGraphDashboard obz2 = (W5BIGraphDashboard) dao.getCustomizedObject(

@@ -332,7 +332,7 @@ public class RESTEngine {
 						url += postUrl;
 				}
 				
-				if (!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip() > 0) {
+				if (!GenericUtil.isEmpty(wsm.get_params())/* && wsm.getParamSendTip() > 0*/) {
 					m = recursiveParams2Map(scd, 0, requestParams, wsm.get_params(), errorMap, reqPropMap);
 					if (!errorMap.isEmpty()) {
 						throw new IWBException("validation", "WS Method Call", wsm.getWsId(), null,

@@ -52,15 +52,19 @@ public class HttpUtil {
 			boolean success = connection.getResponseCode()>=200 && connection.getResponseCode()<300;
 			InputStream is = success ? connection.getInputStream() : connection.getErrorStream();
 
-		
-			BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
-			String line;
 			StringBuilder response = new StringBuilder();
-			while ((line = rd.readLine()) != null) {
-				response.append(line);
-				response.append('\r');
+			if(is!=null) {
+				BufferedReader rd = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+				String line;
+				
+				while ((line = rd.readLine()) != null) {
+					response.append(line);
+					response.append('\r');
+				}
+				rd.close();
+			} else {
+				response.append("ERROR CODE: ").append(connection.getResponseCode());
 			}
-			rd.close();
 			if(!success) {
 				if(response.length()>0) {
 					if(response.charAt(0)=='{') 
