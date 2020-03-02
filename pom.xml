@@ -226,7 +226,7 @@
 							<port>8080</port>
 						</ports>
 						<jvmFlags>		
-							<jvmFlag>-Xmx8g</jvmFlag>
+							<jvmFlag>-Xmx12g</jvmFlag>
 							<!--<jvmFlag>-Xdebug</jvmFlag>
 							<jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7777</jvmFlag>-->
 						</jvmFlags>
