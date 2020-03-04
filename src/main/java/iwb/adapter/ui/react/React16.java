@@ -1638,7 +1638,7 @@ public class React16 implements ViewAdapter {
 	private StringBuilder renderFormCellWithLabelTop(W5FormCellHelper fc){
 		StringBuilder buf = new StringBuilder();
 		String dsc = fc.getFormCell().getDsc();
-		if(fc.getFormCell().getControlTip() == 5){
+		if(fc.getFormCell().getControlTip() == 5){//checkbox
 			buf.append(",\n_").append(dsc).append(" && _(FormGroup, {style:{marginBottom:'0.3rem', display: _").append(dsc).append(".hidden?'none':''}}, _(Label, {style:{marginRight:'1rem'}, className:'inputLabel', htmlFor:\"")
 			.append(dsc).append("\"},_").append(dsc).append(".label), _(Label,{ className: 'switch switch-3d switch-'+(viewMode?'secondary':'primary') }, _(_").append(dsc)
 			.append(".$||Input,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })))");
@@ -2493,6 +2493,11 @@ public class React16 implements ViewAdapter {
 			if(treeMasterField != null) {
 				buf.append(",tree:!0, treeParentKey:'parent_id', tableTreeColumn:'").append(treeMasterField.getDsc()).append("'");
 			}
+		} else if(g.getGroupingFieldId()!=0) {
+			W5QueryField groupingField = g.get_queryFieldMap().get(g.getGroupingFieldId());
+			if(groupingField != null) {
+				buf.append(",groupColumn:'").append(groupingField.getDsc()).append("'");
+			}
 		}
 		
 		if (gridResult.getExtraOutMap() != null
@@ -2601,7 +2606,7 @@ public class React16 implements ViewAdapter {
 						t.getAccessInsertTip(), t.getAccessInsertRoles(),
 						t.getAccessInsertUsers());
 
-				if(FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+				if(true || FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
 					buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
 					.append(LocaleMsgCache.get2(scd,g.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
 				

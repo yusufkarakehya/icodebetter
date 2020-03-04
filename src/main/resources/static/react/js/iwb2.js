@@ -4013,6 +4013,7 @@ class XGrid extends GridCommon {
                 keyField,
                 showDetail,
                 multiselect,
+                groupColumn,
                 _disableSearchPanel,
                 _disableIntegratedSorting,
                 _disableIntegratedGrouping,
@@ -4045,15 +4046,15 @@ class XGrid extends GridCommon {
             rows.length > 1 &&
             _(_dxrg.IntegratedFiltering, null),
             /** state grouping */
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
-            _(_dxrg.GroupingState, null),
+            rows.length > 1)) &&
+            _(_dxrg.GroupingState, groupColumn ? {defaultGrouping:[{ columnName: groupColumn }]}:{}),
             /** Enable UI grouping */
 
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
+            rows.length > 1)) &&
             _(_dxrg.IntegratedGrouping, null),
             /** state sorting */
             !_disableIntegratedSorting &&
@@ -4107,13 +4108,13 @@ class XGrid extends GridCommon {
             rows.length > iwb.detailPageSize &&
             _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize }),
             /** UI row Grouping */
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
-            _(_dxgrb.TableGroupRow, null), !_disableIntegratedGrouping ||
+            rows.length > 1)) &&
+            _(_dxgrb.TableGroupRow, null), (groupColumn || (!_disableIntegratedGrouping ||
             !_disableIntegratedSorting ||
             !_disableSearchPanel ||
-            (!pageSize && rows.length > 1 && _(_dxgrb.Toolbar, null)), !_disableSearchPanel &&
+            (!pageSize && rows.length > 1))) && _(_dxgrb.Toolbar, null), !_disableSearchPanel &&
             !pageSize &&
             rows.length > 1 &&
             _(_dxgrb.SearchPanel, {
@@ -4122,9 +4123,9 @@ class XGrid extends GridCommon {
                     if (iwb.debug) console.log("onValueChange", ax);
                 }
             }), // TODO
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !multiselect && !pageSize &&
-            rows.length > 1 &&
+            rows.length > 1)) &&
             _(_dxgrb.GroupingPanel, {
                 showSortingControls: true,
                 messages: { groupByColumn: getLocMsg("group_by_column") }
@@ -6136,6 +6137,7 @@ class XMainGrid extends GridCommon {
                 treeParentKey,
                 titleComponent,
                 tableTreeColumn,
+                groupColumn,
                 _disableSearchPanel,
                 _disableIntegratedSorting,
                 _disableIntegratedGrouping
@@ -6187,15 +6189,15 @@ class XMainGrid extends GridCommon {
             rows.length > 1 &&
             _(_dxrg.IntegratedFiltering, null),
             /** state of the grouping */
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
-            _(_dxrg.GroupingState, null),
+            rows.length > 1)) &&
+            _(_dxrg.GroupingState, groupColumn ? {defaultGrouping:[{ columnName: groupColumn }]}:{}),
             /** ability to group like a tree */
 
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
+            rows.length > 1)) &&
             _(_dxrg.IntegratedGrouping, null),
             /** sorting wii be enabled when pageSize>0 and row has more than one data */
             !_disableIntegratedSorting &&
@@ -6257,11 +6259,11 @@ class XMainGrid extends GridCommon {
             :
             null,
             /** UI table Grouping */
-            !_disableIntegratedGrouping && !pageSize && rows.length > 1 ?
+            (groupColumn || (!_disableIntegratedGrouping && !pageSize && rows.length > 1)) ?
             _(_dxgrb.TableGroupRow, null) :
             null,
             /** top of grit do render some buttons */
-            !pageSize && rows.length > 1 && _(_dxgrb.Toolbar, null),
+            (groupColumn || (!pageSize && rows.length > 1)) && _(_dxgrb.Toolbar, null),
             /** ui search input */
             !pageSize &&
             rows.length > 1 &&
@@ -6273,9 +6275,9 @@ class XMainGrid extends GridCommon {
                 }
             }),
             /** UI grouping panel */
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !tree && !pageSize &&
-            rows.length > 1 &&
+            rows.length > 1)) &&
             _(_dxgrb.GroupingPanel, {
                 showSortingControls: true,
                 messages: { groupByColumn: getLocMsg("group_by_column") }
@@ -7774,9 +7776,11 @@ class XForm extends React.Component {
             this.onChange = ({ target }) => {
                 var { values } = this.state;
                 if (target) {
+                	var oldVal = values[target.name];
                     values[target.name] =
                         target.type == "checkbox" ? target.checked : target.value;
                     this.setState({ values });
+                    if(target._onChange)target._onChange(values[target.name], oldVal, values);
                 }
             };
             /**
@@ -7827,6 +7831,8 @@ class XForm extends React.Component {
                     });
                 }
                 this.setState({ values });
+//                if(target._onChange)target._onChange(values[target.name], oldVal, values);
+
             };
 
             /**
