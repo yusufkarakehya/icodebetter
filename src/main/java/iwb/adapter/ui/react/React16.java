@@ -680,7 +680,7 @@ public class React16 implements ViewAdapter {
 													// mu?
 			StringBuilder buttons = serializeToolbarItems(scd,
 					f.get_toolbarItemList(), (fr.getFormId() > 0 ? true
-							: false));
+							: false), null);
 			if (buttons.length() > 1) {
 				s.append(",\n extraButtons:[").append(buttons).append("]");
 			}
@@ -2212,7 +2212,7 @@ public class React16 implements ViewAdapter {
 	}
 
 	private StringBuilder serializeToolbarItems(Map scd,
-			List<W5ObjectToolbarItem> items, boolean mediumButtonSize) {
+			List<W5ObjectToolbarItem> items, boolean mediumButtonSize, Map lookupMap) {
 		if (items == null || items.size() == 0)
 			return null;
 		String xlocale = (String) scd.get("locale");
@@ -2292,6 +2292,10 @@ public class React16 implements ViewAdapter {
 							dl.add(e);
 						}
 						cellResult.setLookupListValues(dl);
+					} else if(lookupMap!=null && (toolbarItem.getItemTip() == 7
+							|| toolbarItem.getItemTip() == 15)) {
+						cellResult.setLookupQueryResult((W5QueryResult)lookupMap.get("_tlb_"+toolbarItem.getToolbarItemId()));
+						
 					}
 					buttons.append(serializeFormCell(customizationId, xlocale,
 							cellResult, null));
@@ -2437,7 +2441,7 @@ public class React16 implements ViewAdapter {
 		if (!GenericUtil.isEmpty(d.get_toolbarItemList())) { // extra buttonlari
 															// var mi yok mu?
 			StringBuilder buttons = serializeToolbarItems(
-					dataViewResult.getScd(), d.get_toolbarItemList(), false);
+					dataViewResult.getScd(), d.get_toolbarItemList(), false, null);
 			if (buttons != null && buttons.length() > 1) {
 				buf.append(",\n extraButtons:[").append(buttons).append("]");
 			}
@@ -2684,7 +2688,7 @@ public class React16 implements ViewAdapter {
 																// var mi yok
 																// mu?
 				StringBuilder buttons = serializeToolbarItems(scd,
-						g.get_toolbarItemList(), false);
+						g.get_toolbarItemList(), false, gridResult.getExtraOutMap());
 				if (buttons != null && buttons.length() > 1) {
 					buf.append(",\n extraButtons:[")
 							.append(LocaleMsgCache.filter2(customizationId,

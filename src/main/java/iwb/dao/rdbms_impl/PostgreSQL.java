@@ -6442,4 +6442,209 @@ public class PostgreSQL extends BaseDAO {
 			executeUpdateSQLQuery("delete from iwb.w5_project where project_uuid=?",delProjectId);
 		}
 	}
+
+	public Map insertTableJSON(Map<String, Object> scd, int tableId, Map requestParams) {
+		W5Table t = FrameworkCache.getTable(scd, tableId);
+		if (!GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
+			throw new IWBException("security", "Module", 0, null,
+					LocaleMsgCache.get2(scd, "fw_access_control_view"), null);
+		}
+		if (!GenericUtil.accessControl(scd, t.getAccessInsertTip(), t.getAccessInsertRoles(), t.getAccessInsertUsers())){
+			throw new IWBException("security", "Module", 0, null,
+					LocaleMsgCache.get2(scd, "fw_access_control_insert"), null);
+		}
+		
+		
+		final StringBuilder sql = new StringBuilder(), postSql = new StringBuilder();
+		sql.append("insert into ");
+		sql.append(t.getDsc()).append(" ( ");
+		postSql.append(" values (");
+		final List<Object> insertParams = new ArrayList<Object>();
+		boolean b = false;
+		int paramCount = 0;
+		final Map<Integer, String> calculatedParams = new HashMap<Integer, String>();
+		final Map<Integer, String> calculatedParamNames = new HashMap<Integer, String>();
+		Set<String> usedFields = new HashSet<String>();
+
+		Map errorMap = new HashMap();
+		Map outMap = new HashMap();
+
+	
+		for (W5TableField p1 : t.get_tableFieldList()) {
+			if(!requestParams.containsKey(p1.getDsc()) && p1.getSourceTip()==1)continue;
+			if(requestParams.containsKey(p1.getDsc())) {
+				Object psonuc = requestParams.get(p1.getDsc());
+				if (b) {
+					sql.append(" , ");
+					postSql.append(" , ");
+				} else
+					b = true;
+				usedFields.add(p1.getDsc());
+				sql.append(p1.getDsc());
+				
+				postSql.append(" ? ");
+				//insertParams.add(psonuc);
+				if(psonuc==null || p1.getLkpEncryptionType()==0) {
+					if(psonuc!=null)switch(p1.getFieldTip()) {
+					case 2: if(scd!=null && psonuc!=null) {
+						psonuc = GenericUtil.uDate(psonuc.toString(), GenericUtil.uInt(scd.get("date_format")));
+						break;
+					}
+					default:
+						psonuc = GenericUtil.getObjectByTip(psonuc.toString(), p1.getFieldTip());
+					}
+					insertParams.add(psonuc);
+				} else 
+					insertParams.add(EncryptionUtil.encrypt(psonuc.toString(), p1.getLkpEncryptionType()));
+				paramCount++;
+				
+			} else switch (p1.getSourceTip()) {
+			case 4: // SQL calculated Fieldlar icin
+				if (b) {
+					sql.append(" , ");
+					postSql.append(" , ");
+				} else
+					b = true;
+				usedFields.add(p1.getDsc());
+				sql.append(p1.getDsc());
+				calculatedParams.put(paramCount, GenericUtil
+						.filterExt(p1.getDefaultValue(), scd, requestParams, null)
+						.toString());
+				calculatedParamNames.put(paramCount, p1.getDsc());
+				postSql.append(" ? ");
+				insertParams.add(null);
+				paramCount++;
+				break;
+			case 5:// javascript
+			case 2: // session
+				Object psonuc = GenericUtil.prepareParam(p1, scd, requestParams,
+						(short) -1, null, (short) 0, null, null, errorMap);
+				if (psonuc != null) {
+					if (b) {
+						sql.append(" , ");
+						postSql.append(" , ");
+					} else
+						b = true;
+					usedFields.add(p1.getDsc());
+					sql.append(p1.getDsc());
+					postSql.append(" ? ");
+					insertParams.add(psonuc);
+					paramCount++;
+				}
+
+				break;
+			case 9: // UUID
+				Object psonuc2 = GenericUtil.prepareParam(p1, scd, requestParams,
+						(short) -1, null, (short) 0, null, null, errorMap);
+				if (psonuc2 != null) {
+					if (b) {
+						sql.append(" , ");
+						postSql.append(" , ");
+					} else
+						b = true;
+					usedFields.add(p1.getDsc());
+					sql.append(p1.getDsc());
+					postSql.append(" ? ");
+					insertParams.add(psonuc2);
+					paramCount++;
+
+					outMap.put(p1.getDsc(), psonuc2);
+				}
+
+				break;
+			case 8: // Global Nextval
+				Object psonuc3 = GenericUtil.prepareParam(p1, scd, requestParams,
+						(short) -1, null, (short) 0, null, null, errorMap);
+				if (psonuc3 != null) {
+					if (b) {
+						sql.append(" , ");
+						postSql.append(" , ");
+					} else
+						b = true;
+					usedFields.add(p1.getDsc());
+					sql.append(p1.getDsc());
+					postSql.append(" ? ");
+					insertParams.add(psonuc3);
+					paramCount++;
+
+					outMap.put(p1.getDsc(), psonuc3);
+				}
+
+				break;
+			}
+		}
+
+
+
+		if (usedFields.isEmpty()) { // sorun var
+			throw new IWBException("validation", "Table Insert", tableId, null, "No Used Fields", null);
+		}
+
+
+
+		sql.append(" ) ").append(postSql).append(")");
+		
+		
+		try {
+
+			getCurrentSession().doReturningWork(new ReturningWork<Integer>() {
+
+				public Integer execute(Connection conn) throws SQLException {
+					PreparedStatement s = null;
+					int count = 0;
+					for (Integer o : calculatedParams.keySet()) { // calculated
+																	// ve output
+																	// edilecek
+																	// parametreler
+																	// hesaplaniyor
+						// once
+						String seq = calculatedParams.get(o);
+						if (seq.endsWith(".nextval"))
+							seq = "nextval('" + seq.substring(0, seq.length() - 8) + "')";
+						s = conn.prepareStatement("select " + seq + " "); // from
+																			// dual
+						ResultSet rs = s.executeQuery();
+						rs.next();
+						Object paramOut = rs.getObject(1);
+						if (paramOut != null) {
+							if (paramOut instanceof java.sql.Timestamp) {
+								try {
+									paramOut = (java.sql.Timestamp) paramOut;
+								} catch (Exception e) {
+									paramOut = "java.sql.Timestamp";
+								}
+							} else if (paramOut instanceof java.sql.Date) {
+								try {
+									paramOut = rs.getTimestamp(1);
+								} catch (Exception e) {
+									paramOut = "java.sql.Date";
+								}
+							}
+						}
+
+						rs.close();
+						s.close();
+						insertParams.set(o, paramOut);
+						outMap.put(calculatedParamNames.get(o), paramOut);
+					}
+					s = conn.prepareStatement(sql.toString());
+					applyParameters(s, insertParams);
+					count = s.executeUpdate();
+					s.close();
+
+					if (FrameworkSetting.hibernateCloseAfterWork)
+						conn.close();
+
+					return count;
+				}
+			});
+
+		} catch (Exception e) {
+			throw new IWBException("sql", "Table.Insert", tableId,
+					GenericUtil.replaceSql(sql.toString(), insertParams), "Error Inserting", e);
+		} finally {
+			// session.close();
+		}
+		return outMap;
+	}
 }

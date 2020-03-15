@@ -320,6 +320,36 @@ public class NashornScript {
 		return rp;
 	}
 
+
+	private Map<String, Object> fromScriptObject2Map3(ScriptObjectMirror jsRequestParams) {
+		Map<String, Object> rp = new HashMap<String, Object>();
+		if (jsRequestParams != null && !jsRequestParams.isArray()) {
+			for (String key:jsRequestParams.keySet()) 
+					try {
+						Object o = jsRequestParams.get(key);
+						if (o != null) {
+							String res = o.toString();
+							if (res.length() > 0)
+								switch (res.charAt(0)) {
+								case '{':
+								case '[':
+									if(o instanceof ScriptObjectMirror && ((ScriptObjectMirror)o).isArray()) {
+										rp.put(key, ScriptUtil.fromScriptObject2List((ScriptObjectMirror)o));
+									} else
+										rp.put(key, o);
+									break;
+								default:
+									if (res.endsWith(".0") && GenericUtil.uInt(res.substring(0, res.length() - 2)) > 0)
+										res = res.substring(0, res.length() - 2);
+									rp.put(key, res);
+								}
+						} else 
+							rp.put(key, null);
+					} catch (Exception eq) {
+					}
+		}
+		return rp;
+	}
 	public Object[] query(int queryId, ScriptObjectMirror jsRequestParams) {
 		scriptEngine.getDao().checkTenant(scd);
 		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromScriptObject2Map(jsRequestParams));//
@@ -495,17 +525,44 @@ public class NashornScript {
 		}
 		return result;
 	}
-
-	public Map getTableJSON(String tableDsc, String tablePk) {
-		List<Integer> l = (List<Integer>) scriptEngine.getDao().find(
-				"select t.tableId from W5Table t where t.dsc=? AND t.customizationId in (0,?) order by t.customizationId desc",
-				tableDsc, scd.get("customizationId"));
-		if (l.isEmpty())
-			throw new IWBException("rhino", "getTableJSON", 0, tableDsc, "table_not_found", null);
-
-		return getTableJSON(l.get(0), tablePk, 0);
+	private Map<String, Integer> tableNameMap = null;
+	private int getTableId(String tableDsc) {
+		int tableId = 0;
+		if(tableNameMap!=null && tableNameMap.containsKey(tableDsc))
+			tableId = tableNameMap.get(tableDsc);
+		else {
+			List<Integer> l = (List<Integer>) scriptEngine.getDao().find(
+					"select t.tableId from W5Table t where t.dsc=? AND t.projectUuid=?",
+					tableDsc, scd.get("projectId"));
+			if (l.isEmpty()) {
+				if((Integer)scd.get("customizationId")!=0 && tableDsc.startsWith("iwb.")) {
+					l = (List<Integer>) scriptEngine.getDao().find(
+							"select t.tableId from W5Table t where t.dsc=? AND t.customizationId=0",
+							tableDsc);
+				} else
+					throw new IWBException("rhino", "getTableJSON", 0, tableDsc, "table_not_found", null);
+	
+			}
+			tableId = l.get(0);
+			if(tableNameMap==null)tableNameMap = new HashMap();
+			tableNameMap.put(tableDsc, tableId);
+		}
+		return tableId;
 	}
 
+	public Map getTableJSON(String tableDsc, String tablePk) {
+
+		return getTableJSON(getTableId(tableDsc), tablePk, 0);
+	}
+
+	public Map insertTableJSON(String tableDsc, ScriptObjectMirror jsRequestParams) {
+		int tableId = getTableId(tableDsc);
+		scriptEngine.getDao().checkTenant(scd);
+		return scriptEngine.getDao().insertTableJSON(scd, tableId, fromScriptObject2Map3(jsRequestParams));
+	}
+
+
+	
 	public Map getTableJSON(int tableId, String tablePk, int forAction) {
 		return getTableJSON(tableId, tablePk, forAction, false, null);
 	}

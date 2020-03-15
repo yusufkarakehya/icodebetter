@@ -672,6 +672,23 @@ public class MetadataLoaderDAO extends BaseDAO {
 			if (!gridResult.getFormCellResultMap().isEmpty())
 				dao.loadFormCellLookups(gridResult.getScd(), new ArrayList(gridResult.getFormCellResultMap().values()),
 						gridResult.getRequestParams(), null);
+			
+			if(!GenericUtil.isEmpty(gridResult.getGrid().get_toolbarItemList()))for(W5ObjectToolbarItem ti:gridResult.getGrid().get_toolbarItemList()) {
+				if((ti.getItemTip()==7 || ti.getItemTip()==15)&& ti.getLookupQueryId()>0) {
+				
+					W5QueryResult lookupQueryResult = getQueryResult(scd, ti.getLookupQueryId());
+					lookupQueryResult.setErrorMap(new HashMap());
+					lookupQueryResult.setRequestParams(requestParams);
+					lookupQueryResult.setOrderBy(lookupQueryResult.getQuery().getSqlOrderby());
+					lookupQueryResult.prepareQuery(null);
+					if (lookupQueryResult.getErrorMap().isEmpty()) {
+						dao.runQuery(lookupQueryResult);
+						if(gridResult.getExtraOutMap()==null)gridResult.setExtraOutMap(new HashMap());
+						gridResult.getExtraOutMap().put("_tlb_"+ti.getToolbarItemId(), lookupQueryResult);
+					}
+
+				}
+			}
 
 			return gridResult;
 		} catch (Exception e) {

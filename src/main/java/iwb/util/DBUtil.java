@@ -41,13 +41,16 @@ public class DBUtil {
 			} else if(subStr.startsWith("app.")){
 				o = FrameworkCache.getAppSettingStringValue(scd, subStr.substring(4));
 			} else {
-				o = LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"), subStr); // getMsgHTML de olabilirdi
+				//o = LocaleMsgCache.get2((Integer)scd.get("customizationId"),(String)scd.get("locale"), subStr); // getMsgHTML de olabilirdi
+				if(requestParams!=null && requestParams.get(subStr)!=null) {
+					Object oo=requestParams.get(subStr); // request
+					o=oo.toString();
+				}
 			}
-			if(bas>0 &&  sql.charAt(bas-1)=='\'' && bit<sql.length()-1 && sql.charAt(bit+1)=='\''){ // bu string'tir
+			if(bas>0 &&  sql.charAt(bas-1)=='\'' && bit<sql.length()-1 && sql.charAt(bit+1)=='\''){ // string'tir
 				params.add(o);bas--;
 				sql.replace(bas, bit+2, "?");
-			} else try{ //sayidir
-				
+			} else try{ //number				
 				params.add(o==null || o.length()==0 ? null : new BigDecimal(o));
 				sql.replace(bas, bit+1, "?");
 			} catch (Exception e){

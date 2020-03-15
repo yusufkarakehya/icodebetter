@@ -939,7 +939,8 @@ public class UIEngine {
 						obz = accessControl ? gridResult : gridResult.getGrid().getDsc();
 					}
 					if (obz instanceof W5GridResult) {
-						Map m = new HashMap();
+						if(gridResult.getExtraOutMap()==null)gridResult.setExtraOutMap(new HashMap());
+						Map m = gridResult.getExtraOutMap();
 						gridResult.setTplObj(o);
 						gridResult.setExtraOutMap(m);
 						m.put("tplId", o.getTemplateId());
