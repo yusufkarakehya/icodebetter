@@ -3035,9 +3035,16 @@ function fnCardSearchListener(card){
 	return function(ax,e){
 		if(!ax._delay){
 			ax._delay = new Ext.util.DelayedTask(function() {
-				if(!card.store.baseParams)card.store.baseParams={};
-				card.store.baseParams.xdsc=ax.getValue();
-				card.store.reload();
+				if(card.pageSize){
+					if(!card.store.baseParams)card.store.baseParams={};
+					card.store.baseParams.xdsc=ax.getValue();
+					card.store.reload();
+				} else if(card.fnSearch){
+					card.fnSearch(ax.getValue())
+				} else {
+					if(!ax.getValue())card.store.clearFilter();
+					else card.store.filter(card._filterField, ax.getValue(), true);
+				}
 			});
 		}
 		ax._delay.delay(200);

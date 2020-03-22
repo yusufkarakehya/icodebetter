@@ -32,7 +32,7 @@ public class GenericTimer extends TimerTask {
 	private void checkJobs(){
 		for(String projectId:FrameworkCache.wJobs.keySet()) {
 			W5Project po = FrameworkCache.getProject(projectId);
-			if(po!=null && (po.getCustomizationId()==0 || po.getCustomizationId()==140 || !FrameworkSetting.cloud)) {
+			if(po!=null && (po.getCustomizationId()==0 || /*po.getCustomizationId()==140 || */!FrameworkSetting.cloud)) {
 				Map<Integer, W5JobSchedule> miv = FrameworkCache.wJobs.get(projectId);
 				if(miv!=null)for(final W5JobSchedule j:miv.values()) {
 					if(j.runCheck()) { //
@@ -61,7 +61,7 @@ public class GenericTimer extends TimerTask {
 	private void checkWorkflowEscalations() {
 		for(String projectId:FrameworkCache.wWorkflows.keySet()) {
 			W5Project po = FrameworkCache.getProject(projectId);
-			if(po!=null && (po.getCustomizationId()==0 || po.getCustomizationId()==140 || !FrameworkSetting.cloud)) {
+			if(po!=null && (po.getCustomizationId()==0 || /*po.getCustomizationId()==140 || */!FrameworkSetting.cloud)) {
 				Map<Integer, W5Workflow> miw = FrameworkCache.wWorkflows.get(projectId);
 				if(miw!=null)for(final W5Workflow w:miw.values()) if(w.get_approvalStepList()!=null) {
 					for(final W5WorkflowStep step:w.get_approvalStepList())if(step.getTimeLimitFlag()!=0 && step.getTimeLimitDuration()>0){

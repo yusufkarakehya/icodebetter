@@ -1432,7 +1432,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		Set<String> m = new HashSet();
 		m.add("20.1"); // login form
 		for (Object[] x : (List<Object[]>) executeSQLQuery(
-				"select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345,3351,4658)")) {
+				"select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345,3351,4658,1376)")) {
 			List<Object> lo = executeSQLQuery("select t." + x[2] + " from " + x[1]
 					+ " t where t.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00'");
 			if (lo != null)

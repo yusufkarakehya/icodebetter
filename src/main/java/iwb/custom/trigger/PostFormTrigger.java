@@ -53,7 +53,7 @@ public class PostFormTrigger {
 					case	3://delete
 						String dropTableSql = "drop table " + tableName;
 						
-						if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(dropTableSql);
+						if(customizationId!=0/* && customizationId!=140*/)dao.executeUpdateSQLQuery(dropTableSql);
 	
 						if(FrameworkSetting.vcs){
 							W5VcsCommit commit = new W5VcsCommit();
@@ -71,7 +71,7 @@ public class PostFormTrigger {
 						String newTableName = formResult.getRequestParams().get("dsc"+prefix);
 						if(newTableName!=null && !newTableName.toLowerCase().equals(tableName)){
 							String renameTableColumnSql = "alter table " + tableName + " RENAME TO " + newTableName;
-							if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(renameTableColumnSql);
+							if(customizationId!=0/* && customizationId!=140*/)dao.executeUpdateSQLQuery(renameTableColumnSql);
 		
 							if(FrameworkSetting.vcs){
 								W5VcsCommit commit = new W5VcsCommit();
@@ -104,7 +104,7 @@ public class PostFormTrigger {
 					case	3://delete
 						String dropTableColumnSql = "alter table " + tableName + " drop column " + tableFieldName;
 					
-						if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(dropTableColumnSql);
+						if(customizationId!=0/* && customizationId!=140*/)dao.executeUpdateSQLQuery(dropTableColumnSql);
 	
 						if(FrameworkSetting.vcs){
 							W5VcsCommit commit = new W5VcsCommit();
@@ -122,7 +122,7 @@ public class PostFormTrigger {
 						String newTableFieldName = formResult.getRequestParams().get("dsc"+prefix);
 						if(newTableFieldName!=null && !newTableFieldName.toLowerCase().equals(tableFieldName)){
 							String renameTableColumnSql = "alter table " + tableName + " RENAME " + tableFieldName + " TO " + newTableFieldName;
-							if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(renameTableColumnSql);
+							if(customizationId!=0/* && customizationId!=140*/)dao.executeUpdateSQLQuery(renameTableColumnSql);
 		
 							if(FrameworkSetting.vcs){
 								W5VcsCommit commit = new W5VcsCommit();
@@ -154,7 +154,7 @@ public class PostFormTrigger {
 //						int defaultControlType = GenericUtil.uInt(formResult.getRequestParams().get("default_control_tip"+prefix));
 						
 						String addTableColumnSql = "alter table " + tableName + " add column " + tableFieldName + " " + DBUtil.iwb2dbType(fieldType, GenericUtil.uInt(formResult.getRequestParams().get("max_length"+prefix)));
-						if(customizationId!=0 && customizationId!=140)dao.executeUpdateSQLQuery(addTableColumnSql);
+						if(customizationId!=0/* && customizationId!=140*/)dao.executeUpdateSQLQuery(addTableColumnSql);
 	
 						if(FrameworkSetting.vcs){
 							W5VcsCommit commit = new W5VcsCommit();

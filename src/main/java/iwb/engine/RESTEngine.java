@@ -218,8 +218,18 @@ public class RESTEngine {
 			scd.put("projectId", "067e6162-3b6f-4ae2-a221-2470b63dff00");			
 		}
 		W5Ws ws = FrameworkCache.getWsClient(scd, u[0]);
-		if (ws == null)
-			throw new IWBException("ws", "Wrong ServiceName", 0, null, "Could find [" + u[0] + "]", null);
+		if (ws == null) {
+			if(!GenericUtil.safeEquals(scd.get("projectId"),"067e6162-3b6f-4ae2-a221-2470b63dff00")) {
+				Map newScd = new HashMap();
+				newScd.putAll(scd);
+				newScd.put("projectId", "067e6162-3b6f-4ae2-a221-2470b63dff00");
+				newScd.put("customizationId", 0);
+				ws = FrameworkCache.getWsClient(newScd, u[0]);
+				
+			}
+			if(ws ==null)
+				throw new IWBException("ws", "Wrong ServiceName", 0, null, "Could find [" + u[0] + "]", null);
+		}
 		W5WsMethod wsm = null;
 		for (W5WsMethod twm : ws.get_methods())
 			if (twm.getDsc().equals(u[1])) {
@@ -296,10 +306,12 @@ public class RESTEngine {
 				if (url.indexOf("${") > -1) {// has special char
 					url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
 				}
-				String methodUrl = GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
-				if (!url.endsWith("/") && !methodUrl.startsWith("/"))
-					url += "/";
-				url += methodUrl;
+				if(!GenericUtil.safeEquals(wsm.getRealDsc(),".")) {//if . dont add it
+					String methodUrl = GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
+					if (!url.endsWith("/") && !methodUrl.startsWith("/"))
+						url += "/";
+					url += methodUrl;
+				}
 				if (url.indexOf("{") > -1 && url.indexOf("${") == -1) {
 					url = url.replace("{","${req.");					
 				}

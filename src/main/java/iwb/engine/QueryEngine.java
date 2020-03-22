@@ -103,7 +103,7 @@ public class QueryEngine {
 			if (!FrameworkSetting.redisCache && wsm.get_params() == null) {
 				wsm.set_params(
 						dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder",
-								wsm.getWsMethodId(), (String) scd.get("projectId")));
+								wsm.getWsMethodId(), wsm.getProjectUuid()));
 				wsm.set_paramMap(new HashMap());
 				for (W5WsMethodParam wsmp : wsm.get_params())
 					wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);

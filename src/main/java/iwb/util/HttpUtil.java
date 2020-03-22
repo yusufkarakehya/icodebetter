@@ -41,7 +41,7 @@ public class HttpUtil {
 			connection.setDoOutput(true);
 
 			// Send request
-			if(!GenericUtil.isEmpty(urlParameters)){
+			if(!GenericUtil.isEmpty(urlParameters) || method.equals("POST")){
 				DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
 				wr.write((GenericUtil.isEmpty(urlParameters) ? "":urlParameters).getBytes("UTF-8"));
 				wr.flush();
