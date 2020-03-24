@@ -701,7 +701,7 @@ public class React16 implements ViewAdapter {
 									fr.getRequestParams(), null)
 							: fr.getForm().get_renderTemplate()
 									.getCode());
-		} else if(fr.getForm().getObjectTip()==2)
+		} else if(true || fr.getForm().getObjectTip()==2)
 			s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt, callAttributes:callAttributes});");
 		
 
@@ -1024,7 +1024,7 @@ public class React16 implements ViewAdapter {
 		String[] postFormStr = new String[] { "", "search_form",
 				"ajaxPostForm",
 				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
-				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId())};
+				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+(f.getObjectTip() == 11 ? FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId()):"")+"&"};
 		s.append("{\nconstructor(props, context){\nsuper(props, context);\nprops.parentCt.form=this;this.url='").append(postFormStr[f.getObjectTip()])
 			.append("';this.params=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
 			.append(";\nthis.egrids={};this.state=iwb.forms['").append(formResult.getUniqueId()).append("'] ||{errors:{},values:{");
@@ -2322,33 +2322,16 @@ public class React16 implements ViewAdapter {
 					buttons.append(",");
 				else
 					b = true;
-				if (menuItem.getDsc().equals("-"))
-					buttons.append("'-'");
-				else {
-
-					/*
-					 * Burası Bu şekilde değiştirilecek
-					 * buttons.append("{text:'")
-					 * .append(PromisLocaleMsg.get2(customizationId, xlocale,
-					 * menuItem
-					 * .getLocaleMsgKey())).append("', ref:'../").append(
-					 * menuItem.getDsc()).append("'");
-					 * if(!PromisUtil.isEmpty(menuItem
-					 * .getImgIcon()))buttons.append
-					 * (",iconCls:'").append(menuItem.getImgIcon()).append("'");
-					 * buttons.append(",handler:function(a,b,c){\n")
-					 * .append(menuItem.getCode()).append("\n}}"); itemCount++;
-					 */
+				if (!menuItem.getDsc().equals("-")){
 
 					buttons.append("{text:'")
 							.append(LocaleMsgCache.get2(customizationId,
 									xlocale, menuItem.getLocaleMsgKey()))
-							.append("', ref:'../").append(menuItem.getDsc())
 							.append("'");
 					if (!GenericUtil.isEmpty(menuItem.getImgIcon()))
-						buttons.append(",cls:'icon-").append(menuItem.getImgIcon())
+						buttons.append(",icon:'icon-").append(menuItem.getImgIcon())
 								.append("'");
-					buttons.append(",handler:function(a,b,c){\n")
+					buttons.append(",onClick:function(a,b,c){\n")
 							.append(menuItem.getCode()).append("\n}}");
 					itemCount++;
 				}
@@ -2602,84 +2585,89 @@ public class React16 implements ViewAdapter {
 		
 		if (!gridResult.isViewLogMode()) {
 
-			if (g.get_defaultCrudForm() != null) { // insert ve delete
-													// buttonlari var mi yok mu?
-				W5Table t = FrameworkCache.getTable(scd, g.get_defaultCrudForm()
-						.getObjectId());// g.get_defaultCrudForm().get_sourceTable();
-				boolean insertFlag = GenericUtil.accessControl(scd,
-						t.getAccessInsertTip(), t.getAccessInsertRoles(),
-						t.getAccessInsertUsers());
-
-				if(true || FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
-					buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
-					.append(LocaleMsgCache.get2(scd,g.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
-				
-				buf.append(",\n crudFormId:")
-						.append(g.getDefaultCrudFormId())
-						.append(", crudTableId:")
-						.append(t.getTableId())
-						.append(", crudFlags:{insert:")
-						.append(insertFlag)
-						.append(",edit:")
-						.append(t.getAccessUpdateUserFields() != null
-								|| GenericUtil.accessControl(scd,
-										t.getAccessUpdateTip(),
-										t.getAccessUpdateRoles(),
-										t.getAccessUpdateUsers()))
-						.append(",remove:")
-						.append(t.getAccessDeleteUserFields() != null
-								|| GenericUtil.accessControl(scd,
-										t.getAccessDeleteTip(),
-										t.getAccessDeleteRoles(),
-										t.getAccessDeleteUsers()));
-				if (g.getInsertEditModeFlag() != 0 && insertFlag)
-					buf.append(",insertEditMode:true");
-				if (insertFlag) {
-					if (t.getCopyTip() == 1)
-						buf.append(",xcopy:true");
-					else if (t.getCopyTip() == 2)
-						buf.append(",ximport:true");
-				}
-				// if(PromisCache.getAppSettingIntValue(scd, "revision_flag")!=0
-				// && t.getRevisionFlag()!=0)buf.append(",xrevision:true");
-				buf.append("}");
-				if ((t.getDoUpdateLogFlag() != 0 || t.getDoDeleteLogFlag() != 0)
-						&& FrameworkCache.roleAccessControl(scd,
-								108))
-					buf.append(",\n logFlags:{edit:")
-							.append(t.getDoUpdateLogFlag() != 0)
-							.append(",remove:")
-							.append(t.getDoDeleteLogFlag() != 0).append("}");
-
-				if (g.getInsertEditModeFlag() != 0 && insertFlag)
-					buf.append(serializeGridRecordCreate(gridResult));
-				// if(g.get_defaultCrudForm().get_sourceTable().getFileAttachmentFlag()!=0)
-				int tableId = t.getTableId();
-				if (tableId != 0 && scd != null) {
-					if (FrameworkCache.getAppSettingIntValue(customizationId,
-							"row_based_security_flag") != 0
-							&& (Integer) scd.get("userTip") != 3
-							&& t.getAccessTips() != null
-							&& t.getAccessTips().length() > 0)
-						buf.append(",\n accessControlFlag:true");
-					if (FrameworkCache.getAppSettingIntValue(customizationId,
-							"file_attachment_flag") != 0
-							&& t.getFileAttachmentFlag() != 0
-							&& FrameworkCache.roleAccessControl(scd,
-									101)
-							&& FrameworkCache.roleAccessControl(scd,
-									 102))
-						buf.append(",\n fileAttachFlag:true");
-					if (FrameworkCache.getAppSettingIntValue(customizationId,
-							"make_comment_flag") != 0
-							&& t.getMakeCommentFlag() != 0
-							&& FrameworkCache.roleAccessControl(scd,
-									 103))
-						buf.append(",\n makeCommentFlag:true");
+			if (g.get_defaultCrudForm() != null) { // insert update delete buttons
+				if(g.get_defaultCrudForm().getObjectTip()==2) { //table
+					W5Table t = FrameworkCache.getTable(scd, g.get_defaultCrudForm()
+							.getObjectId());// g.get_defaultCrudForm().get_sourceTable();
+					boolean insertFlag = GenericUtil.accessControl(scd,
+							t.getAccessInsertTip(), t.getAccessInsertRoles(),
+							t.getAccessInsertUsers());
+	
+					if(true || FrameworkCache.getAppSettingIntValue(customizationId, "new_record_label_flag")!=0)
+						buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
+						.append(LocaleMsgCache.get2(scd,g.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
 					
-				
-//					if (FrameworkCache.roleAccessControl(scd,  11))buf.append(",\n bulkUpdateFlag:true");
-//					if (FrameworkCache.roleAccessControl(scd, 104))buf.append(",\n bulkEmailFlag:true");
+					buf.append(",\n crudFormId:")
+							.append(g.getDefaultCrudFormId())
+							.append(", crudTableId:")
+							.append(t.getTableId())
+							.append(", crudFlags:{insert:")
+							.append(insertFlag)
+							.append(",edit:")
+							.append(t.getAccessUpdateUserFields() != null
+									|| GenericUtil.accessControl(scd,
+											t.getAccessUpdateTip(),
+											t.getAccessUpdateRoles(),
+											t.getAccessUpdateUsers()))
+							.append(",remove:")
+							.append(t.getAccessDeleteUserFields() != null
+									|| GenericUtil.accessControl(scd,
+											t.getAccessDeleteTip(),
+											t.getAccessDeleteRoles(),
+											t.getAccessDeleteUsers()));
+					if (g.getInsertEditModeFlag() != 0 && insertFlag)
+						buf.append(",insertEditMode:true");
+					if (insertFlag) {
+						if (t.getCopyTip() == 1)
+							buf.append(",xcopy:true");
+						else if (t.getCopyTip() == 2)
+							buf.append(",ximport:true");
+					}
+					// if(PromisCache.getAppSettingIntValue(scd, "revision_flag")!=0
+					// && t.getRevisionFlag()!=0)buf.append(",xrevision:true");
+					buf.append("}");
+					if ((t.getDoUpdateLogFlag() != 0 || t.getDoDeleteLogFlag() != 0)
+							&& FrameworkCache.roleAccessControl(scd,
+									108))
+						buf.append(",\n logFlags:{edit:")
+								.append(t.getDoUpdateLogFlag() != 0)
+								.append(",remove:")
+								.append(t.getDoDeleteLogFlag() != 0).append("}");
+	
+					if (g.getInsertEditModeFlag() != 0 && insertFlag)
+						buf.append(serializeGridRecordCreate(gridResult));
+					// if(g.get_defaultCrudForm().get_sourceTable().getFileAttachmentFlag()!=0)
+					int tableId = t.getTableId();
+					if (tableId != 0 && scd != null) {
+						if (FrameworkCache.getAppSettingIntValue(customizationId,
+								"row_based_security_flag") != 0
+								&& (Integer) scd.get("userTip") != 3
+								&& t.getAccessTips() != null
+								&& t.getAccessTips().length() > 0)
+							buf.append(",\n accessControlFlag:true");
+						if (FrameworkCache.getAppSettingIntValue(customizationId,
+								"file_attachment_flag") != 0
+								&& t.getFileAttachmentFlag() != 0
+								&& FrameworkCache.roleAccessControl(scd,
+										101)
+								&& FrameworkCache.roleAccessControl(scd,
+										 102))
+							buf.append(",\n fileAttachFlag:true");
+						if (FrameworkCache.getAppSettingIntValue(customizationId,
+								"make_comment_flag") != 0
+								&& t.getMakeCommentFlag() != 0
+								&& FrameworkCache.roleAccessControl(scd,
+										 103))
+							buf.append(",\n makeCommentFlag:true");
+						
+					
+	//					if (FrameworkCache.roleAccessControl(scd,  11))buf.append(",\n bulkUpdateFlag:true");
+	//					if (FrameworkCache.roleAccessControl(scd, 104))buf.append(",\n bulkEmailFlag:true");
+					}
+				} else {
+					buf.append(",\n crudFormId:")
+					.append(g.getDefaultCrudFormId())
+					.append(", crudFlags:{insert:!0}");
 				}
 			}
 

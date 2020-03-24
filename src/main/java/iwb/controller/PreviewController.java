@@ -1600,6 +1600,9 @@ public class PreviewController implements InitializingBean {
 	    
 		Map m =service.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		if(m!=null) {
+			if(m.containsKey("_code_") && GenericUtil.uInt(m.get("_code_"))>200) {
+				throw new IWBException("framework","REST",0,null, m.containsKey("error") ? m.get("error").toString():m.toString(), null);
+			}
 			if(m.get("data")!=null && m.get("data") instanceof byte[]) {
 				response.setContentType("application/octet-stream");
 				byte[] r = (byte[])m.get("data");

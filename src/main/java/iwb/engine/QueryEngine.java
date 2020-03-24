@@ -127,8 +127,8 @@ public class QueryEngine {
 			rc.append("function _x_(x){\nreturn {").append(queryResult.getQuery().getSqlSelect())
 					.append("\n}}\nvar result=[], q=$.REST('").append(wsm.get_ws().getDsc() + "." + wsm.getDsc())
 					.append("',").append(GenericUtil.fromMapToJsonString2(m2))
-					.append(");\nif(q && q.get('success')){q=q.get('").append(parentParam.getDsc())
-					.append("');for(var i=0;i<q.size();i++)result.push(_x_(q.get(i)));}");
+					.append(");\nif(q && q.get('success')){var q2=q.get('").append(parentParam.getDsc())
+					.append("');if(q2)for(var i=0;i<q2.size();i++)result.push(_x_(q2.get(i)));}");
 			scriptEngine.executeQueryAsScript(queryResult, rc.toString());
 			break;
 

@@ -1833,28 +1833,50 @@ public class PostgreSQL extends BaseDAO {
 					continue;
 
 				short notNullFlag = x.getNotNullFlag();
-				if(!GenericUtil.isEmpty(x.get_formCellPropertyList())) for(W5FormCellProperty fcp:x.get_formCellPropertyList())if(fcp.getLkpPropertyTip()==0){//required
-					for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
-						if(fc.getActiveFlag()!=0) {
-							notNullFlag = 0;
-							if(fc.getSourceTip()==1) {
-								String value = formResult.getRequestParams().get(fc.getDsc());
-								if(fc.getControlTip()==5) {
-									notNullFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
-								} else
-								notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+				if(!GenericUtil.isEmpty(x.get_formCellPropertyList())) for(W5FormCellProperty fcp:x.get_formCellPropertyList()) {
+					if(fcp.getLkpPropertyTip()==0){//required
+						for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+							if(fc.getActiveFlag()!=0) {
+								notNullFlag = 0;
+								if(fc.getSourceTip()==1) {
+									String value = formResult.getRequestParams().get(fc.getDsc());
+									if(fc.getControlTip()==5) {
+										notNullFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+									} else
+									notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+								}
 							}
+							break;
 						}
-						break;
 					}
+					if(notNullFlag==0 && fcp.getLkpPropertyTip()==1 && fcp.getOtherSetValueFlag()!=0){//visible
+						for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+							if(fc.getActiveFlag()!=0) {
+								short visibleFlag = 0;
+								if(fc.getSourceTip()==1) {
+									String value = formResult.getRequestParams().get(fc.getDsc());
+									if(fc.getControlTip()==5) {
+										visibleFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+									} else
+										visibleFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+								}
+								
+								if(visibleFlag==0) { //not visible
+									formResult.getRequestParams().put(x.getDsc() + paramSuffix, fcp.getOtherValue());
+								}
+							}
+							break;
+						}
+					}
+
 				}
 				
-				Object psonuc = GenericUtil.prepareParam(tf, scd, formResult.getRequestParams(), x.getSourceTip(), null,
+				Object presult = GenericUtil.prepareParam(tf, scd, formResult.getRequestParams(), x.getSourceTip(), null,
 						notNullFlag, x.getDsc() + paramSuffix, x.getDefaultValue(), formResult.getErrorMap());
 
 				if (formResult.getErrorMap().isEmpty()) {
-					if(psonuc!=null && x.getVtype()!=null) {
-						if(!GenericUtil.validateVtype(psonuc.toString(), x.getVtype())) {
+					if(presult!=null && x.getVtype()!=null) {
+						if(!GenericUtil.validateVtype(presult.toString(), x.getVtype())) {
 							formResult.getErrorMap().put(x.getDsc(), LocaleMsgCache.get2(formResult.getScd(), "invalid_"+x.getVtype()));
 							continue;
 						}
@@ -1862,10 +1884,10 @@ public class PostgreSQL extends BaseDAO {
 					if (x.getFormCellId() == 6060 || x.getFormCellId() == 16327 || x.getFormCellId() == 16866) { // mail
 																													// sifre
 																													// icin
-						if (psonuc != null && psonuc.toString().startsWith("****"))
+						if (presult != null && presult.toString().startsWith("****"))
 							continue;
 						if (FrameworkSetting.mailPassEncrypt)
-							psonuc = GenericUtil.PRMEncrypt(psonuc.toString());
+							presult = GenericUtil.PRMEncrypt(presult.toString());
 					}
 
 					if (b)
@@ -1873,9 +1895,9 @@ public class PostgreSQL extends BaseDAO {
 					else
 						b = true;
 					sql.append(tf.getDsc()).append(" = ? ");
-					if(psonuc==null || tf.getLkpEncryptionType()==0)updateParams.add(psonuc);
+					if(presult==null || tf.getLkpEncryptionType()==0)updateParams.add(presult);
 					else 
-						updateParams.add(EncryptionUtil.encrypt(psonuc.toString(), tf.getLkpEncryptionType()));
+						updateParams.add(EncryptionUtil.encrypt(presult.toString(), tf.getLkpEncryptionType()));
 					usedFields.add(tf.getDsc());
 				}
 			}
@@ -2440,17 +2462,38 @@ public class PostgreSQL extends BaseDAO {
 				}
 
 				short notNullFlag = x.getNotNullFlag();
-				if(!GenericUtil.isEmpty(x.get_formCellPropertyList())) for(W5FormCellProperty fcp:x.get_formCellPropertyList())if(fcp.getLkpPropertyTip()==0){//required
-					notNullFlag = 0;
-					for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
-						if(fc.getSourceTip()==1) {
-							String value = formResult.getRequestParams().get(fc.getDsc());
-							if(fc.getControlTip()==5) {
-								notNullFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
-							} else
-								notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+				if(!GenericUtil.isEmpty(x.get_formCellPropertyList())) for(W5FormCellProperty fcp:x.get_formCellPropertyList()) {
+					if(fcp.getLkpPropertyTip()==0){//required
+						notNullFlag = 0;
+						for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+							if(fc.getSourceTip()==1) {
+								String value = formResult.getRequestParams().get(fc.getDsc());
+								if(fc.getControlTip()==5) {
+									notNullFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+								} else
+									notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+							}
+							break;
 						}
-						break;
+					}
+					if(notNullFlag==0 && fcp.getLkpPropertyTip()==1 && fcp.getOtherSetValueFlag()!=0){//visible
+						for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+							if(fc.getActiveFlag()!=0) {
+								short visibleFlag = 0;
+								if(fc.getSourceTip()==1) {
+									String value = formResult.getRequestParams().get(fc.getDsc());
+									if(fc.getControlTip()==5) {
+										visibleFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+									} else
+										visibleFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+								}
+								
+								if(visibleFlag==0) { //not visible
+									formResult.getRequestParams().put(x.getDsc() + paramSuffix, fcp.getOtherValue());
+								}
+							}
+							break;
+						}
 					}
 				}
 				Object psonuc = GenericUtil.prepareParam(tf, formResult.getScd(), formResult.getRequestParams(),

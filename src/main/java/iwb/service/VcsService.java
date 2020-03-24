@@ -1852,7 +1852,7 @@ public class VcsService {
 
 			}
 			
-			if(FrameworkSetting.log2tsdb)for(int qi=0;qi<ja.length();qi++){
+			if(FrameworkSetting.log2tsdb && po!=null)for(int qi=0;qi<ja.length();qi++){
 				JSONObject o = ja.getJSONObject(qi);				
 				int action = o.getInt("a");
 				int tableId = o.getInt("t");

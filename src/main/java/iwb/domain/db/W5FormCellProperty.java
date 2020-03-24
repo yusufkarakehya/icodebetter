@@ -24,7 +24,8 @@ public class W5FormCellProperty implements java.io.Serializable, W5Base {
 	private String val;
 	private short lkpPropertyTip;
 	private short lkpOperatorTip;
-
+	private short otherSetValueFlag;
+	private String otherValue;
 
 	@Id
 	@Column(name = "FORM_CELL_PROPERTY_ID")
@@ -107,6 +108,25 @@ public class W5FormCellProperty implements java.io.Serializable, W5Base {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+
+	@Column(name="other_set_value_flag")
+	public short getOtherSetValueFlag() {
+		return otherSetValueFlag;
+	}
+
+	public void setOtherSetValueFlag(short otherSetValueFlag) {
+		this.otherSetValueFlag = otherSetValueFlag;
+	}
+
+	
+	@Column(name="other_value")
+	public String getOtherValue() {
+		return otherValue;
+	}
+
+	public void setOtherValue(String otherValue) {
+		this.otherValue = otherValue;
 	}
 
 

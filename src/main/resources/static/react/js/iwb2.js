@@ -719,7 +719,7 @@ iwb = {
                 case "framework":
                 case "cache":
                 case "vcs":
-                    if (obj.error) {
+                    if (obj.error || obj.objectType) {
                         iwb.showModal({
                             title: obj.objectType,
                             footer: false,
@@ -734,7 +734,7 @@ iwb = {
                                     Media, {
                                         heading: true
                                     },
-                                    obj.error
+                                    obj.error || obj.objectType
                                 ),
 
                                 _(
@@ -7611,15 +7611,29 @@ class XMainPanel extends React.PureComponent {
                                         iwb["t-" + templateID] = serverComponent;
                                         this.setState({ templateID });
                                         iwb.nav.visitItem(this.props.match.path);
+                                    } else {
+                                    	serverComponent = _(
+                                                React.Suspense, { fallback: _(XLoading, null) },
+                                                _(
+                                                    "div", { className: "animated fadeIn", id: "page" + templateID },
+                                                    'Error'
+                                                )
+                                            );
+                                            iwb["t-" + templateID] = 'Error';
+                                            this.setState({ templateID });
+                                            iwb.nav.visitItem(this.props.match.path);
                                     }
                                 } else {
-                                    toastr.error("Sonuc Gelmedi", " Error");
+                                    toastr.error("No Data", " Error");
                                 }
                             },
                             error => {
                                 toastr.error(error, "Connection Error");
                             }
-                        );
+                        ).catch( error=>{
+                            toastr.error(error, "Connection Error");
+                        	
+                        });
                 } else if (templateID != this.state.templateID)
                     this.setState({ templateID });
             };

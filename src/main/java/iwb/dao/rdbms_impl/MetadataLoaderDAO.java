@@ -835,14 +835,14 @@ public class MetadataLoaderDAO extends BaseDAO {
 		if (grid.getDefaultCrudFormId() != 0) {
 			W5Form defaultCrudForm = getFormResult(gr.getScd(), grid.getDefaultCrudFormId(), 2, gr.getRequestParams())
 					.getForm();
+			grid.set_defaultCrudForm(defaultCrudForm);
 
-			if (defaultCrudForm != null) {
+			if (defaultCrudForm != null && defaultCrudForm.getObjectTip()==2) {
 				// defaultCrudForm.set_sourceTable(PromisCache.getTable(customizationId,
 				// defaultCrudForm.getObjectId()));
 				W5Table t = FrameworkCache.getTable(projectId, defaultCrudForm.getObjectId()); // PromisCache.getTable(f.getScd(),
 																								// f.getForm().getObjectId())
 				grid.set_crudTable(t);
-				grid.set_defaultCrudForm(defaultCrudForm);
 
 				List<W5FormSmsMail> xcrudFormSmsList = defaultCrudForm.get_formSmsMailList();
 				if(xcrudFormSmsList!=null){
