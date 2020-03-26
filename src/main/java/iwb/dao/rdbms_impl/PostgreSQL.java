@@ -42,6 +42,7 @@ import iwb.domain.db.W5Email;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
+import iwb.domain.db.W5FormCellProperty;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5FormValue;
@@ -79,6 +80,7 @@ import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
 import iwb.service.FrameworkService;
 import iwb.util.DBUtil;
+import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 import iwb.util.MailUtil;
@@ -659,10 +661,12 @@ public class PostgreSQL extends BaseDAO {
 						}
 					}
 					List<W5QueryField> newQueryFields = null;
+					int dateFormat = 0;
 					while (rs.next() /*
 										 * && (maxFetchedCount==0 || totalFetchedCount<maxFetchedCount )
 										 */) {
 						if (newQueryFields == null) {
+							if(queryResult.getScd()!=null)dateFormat = GenericUtil.uInt(queryResult.getScd().get("date_format"));
 							newQueryFields = new ArrayList(queryResult.getQuery().get_queryFields().size()
 									+ (queryResult.getPostProcessQueryFields() != null
 											? queryResult.getPostProcessQueryFields().size()
@@ -690,6 +694,17 @@ public class PostgreSQL extends BaseDAO {
 											newQueryFields.add(qf);
 											if (maxTabOrder < qf.getTabOrder())
 												maxTabOrder = qf.getTabOrder();
+											if(tf!=null && qf.getPostProcessTip()==0) {
+												if(tf.getLkpEncryptionType()!=0) {
+													qf.setPostProcessTip((short)5);
+													qf.setLookupQueryId(tf.getLkpEncryptionType());
+													if(tf.getAccessMaskTip()>0)
+														qf.setPostProcessTip((short)14);
+												} else if(tf.getAccessMaskTip()>0) {
+													qf.setPostProcessTip((short)4);
+													qf.setLookupQueryId(tf.getAccessMaskTip());
+												}
+											}
 										}
 									}
 							}
@@ -722,7 +737,7 @@ public class PostgreSQL extends BaseDAO {
 											try {
 												obj = (queryResult.getQuery().getQueryTip() == 2
 														&& field.getFieldTip() == 2) ? (java.sql.Timestamp) obj
-																: GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
+																: GenericUtil.uFormatDateTime((java.sql.Timestamp) obj, dateFormat);
 											} catch (Exception e) {
 												obj = "java.sql.Timestamp";
 											}
@@ -731,7 +746,7 @@ public class PostgreSQL extends BaseDAO {
 												obj = (queryResult.getQuery().getQueryTip() == 2
 														&& field.getFieldTip() == 2) ? rs.getTimestamp(field.getDsc())
 																: GenericUtil.uFormatDateTime(
-																		rs.getTimestamp(field.getDsc()));
+																		rs.getTimestamp(field.getDsc()), dateFormat);
 											} catch (Exception e) {
 												obj = "java.sql.Date";
 											}
@@ -1056,6 +1071,8 @@ public class PostgreSQL extends BaseDAO {
 				case 58: // superboxselect
 				case 8: // lovcombo static
 				case 6: // eger static combobox ise listeyi load et
+					if(c.getLookupQueryId()==0)
+						throw new IWBException("framework", "LookUp", 0, null, "LookUp Static not defined for FormElement ["+c.getDsc()+"]", null);
 					W5LookUp lookUp = FrameworkCache.getLookUp(scd, c.getLookupQueryId(), "Form(" + c.getFormId() + ")."
 							+ c.getDsc() + "-> LookUp not found: " + c.getLookupQueryId());
 					rc.setLocaleMsgFlag((short) 1);
@@ -1119,6 +1136,8 @@ public class PostgreSQL extends BaseDAO {
 				case 24:
 				case 26:
 				case 55: // tree combo and treepanel
+					if(c.getLookupQueryId()==0)
+						throw new IWBException("framework", "Query", 0, null, "LookUp Query not defined for FormElement ["+c.getDsc()+"]", null);
 					String includedParams = GenericUtil.filterExt(c.getLookupIncludedParams(), scd, requestParams, null)
 							.toString();
 					if (includedParams != null && includedParams.length() > 2) {
@@ -1327,6 +1346,7 @@ public class PostgreSQL extends BaseDAO {
 		}
 
 		final Object pkField2 = pkField;
+		final int dateFormat = formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0;
 		try {
 			getCurrentSession().doWork(new Work() {
 
@@ -1343,11 +1363,13 @@ public class PostgreSQL extends BaseDAO {
 							W5TableField tf = (W5TableField) cellResult.getFormCell().get_sourceObjectDetail();
 							Object obj = rs.getObject((tf).getDsc());
 							if (obj != null) {
+								if(tf.getLkpEncryptionType()!=0)obj = EncryptionUtil.decrypt(obj.toString(), tf.getLkpEncryptionType());
+
 								if (tf.getFieldTip() == 5 && obj instanceof Boolean) {
 									obj = (Boolean) obj ? 1 : 0;
 								} else if (tf.getFieldTip() == 2 && obj instanceof java.sql.Timestamp) {
 									try {
-										obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
+										obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj, dateFormat);
 									} catch (Exception e) {
 									}
 								} else if (tf.getFieldTip() == 2 && obj instanceof java.sql.Date) {
@@ -1357,13 +1379,31 @@ public class PostgreSQL extends BaseDAO {
 											obj = rs.getTimestamp(
 													((W5TableField) cellResult.getFormCell().get_sourceObjectDetail())
 															.getDsc());
-											obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj);
+											obj = GenericUtil.uFormatDateTime((java.sql.Timestamp) obj, dateFormat);
 										} else // date
-											obj = GenericUtil.uFormatDate((java.util.Date) obj);
+											obj = GenericUtil.uFormatDate((java.util.Date) obj, dateFormat);
 									} catch (Exception e) {
 									}
 								}
-								cellResult.setValue(obj.toString());
+								if (obj != null)cellResult.setValue(obj.toString());
+							}
+							if (tf.getAccessMaskTip() != 0
+									&& !GenericUtil.accessControl(formResult.getScd(), tf.getAccessMaskTip(), tf.getAccessMaskRoles(),
+											tf.getAccessMaskUsers())
+									&& (GenericUtil.isEmpty(tf.getAccessMaskUserFields()) || accessUserFieldControl(t,
+											tf.getAccessMaskUserFields(), formResult.getScd(), formResult.getRequestParams(), null))) {
+								cellResult.setHiddenValue("*");
+								String strMask = FrameworkCache.getAppSettingStringValue(0, "data_mask", "**********");
+								String sobj = cellResult.getValue();
+								if(GenericUtil.isEmpty(sobj)) sobj = "x";
+								switch(tf.getAccessMaskTip()) {
+								case	1://full
+									cellResult.setValue(strMask);break;
+								case	2://beginning
+									cellResult.setValue(sobj.charAt(0)+strMask.substring(1));break;
+								case	3://beg + end
+									cellResult.setValue(sobj.charAt(0)+strMask.substring(2)+sobj.charAt(sobj.length()-1));break;
+								}
 							}
 						} else if (cellResult.getFormCell().getControlTip() == 101) {
 							switch (cellResult.getFormCell().getInitialSourceTip()) {
@@ -1735,7 +1775,7 @@ public class PostgreSQL extends BaseDAO {
 				for (W5FormModule m : formResult.getForm().get_moduleList())
 					moduleMap.put(m.getFormModuleId(), m);
 		}
-		W5WorkflowStep approvalStep = formResult.getApprovalStep();
+		W5WorkflowStep workflowStep = formResult.getApprovalStep();
 		/*
 		 * if (formResult.getApprovalRecord() != null) { approvalStep =
 		 * FrameworkCache.getWorkflow(scd,
@@ -1751,10 +1791,10 @@ public class PostgreSQL extends BaseDAO {
 				W5TableField tf = (W5TableField) x.get_sourceObjectDetail();
 				if (tf.getCanUpdateFlag() == 0 || tf.getTabOrder() < 1)
 					continue; // x.getCanUpdate()!=0
-				if (approvalStep != null && ((approvalStep.getVisibleFields() != null
-						&& !GenericUtil.hasPartInside(approvalStep.getVisibleFields(), "" + tf.getTableFieldId()))
-						|| (approvalStep.getUpdatableFields() != null && !GenericUtil
-								.hasPartInside(approvalStep.getUpdatableFields(), "" + tf.getTableFieldId()))))
+				if (workflowStep != null && ((workflowStep.getVisibleFields() != null
+						&& !GenericUtil.hasPartInside(workflowStep.getVisibleFields(), "" + tf.getTableFieldId()))
+						|| (workflowStep.getUpdatableFields() != null && !GenericUtil
+								.hasPartInside(workflowStep.getUpdatableFields(), "" + tf.getTableFieldId()))))
 					continue;
 				if (tf.getAccessViewTip() != 0
 						&& !GenericUtil.accessControl(scd, tf.getAccessViewTip(), tf.getAccessViewRoles(),
@@ -1769,6 +1809,13 @@ public class PostgreSQL extends BaseDAO {
 								tf.getAccessUpdateUserFields(), scd, formResult.getRequestParams(), paramSuffix)))
 					continue;
 
+				if (tf.getAccessMaskTip() != 0
+						&& !GenericUtil.accessControl(scd, tf.getAccessMaskTip(), tf.getAccessMaskRoles(),
+								tf.getAccessMaskUsers())
+						&& (GenericUtil.isEmpty(tf.getAccessMaskUserFields()) || accessUserFieldControl(t,
+								tf.getAccessMaskUserFields(), scd, formResult.getRequestParams(), paramSuffix)))
+					continue;
+				
 				if (!GenericUtil.accessControl4SessionField(formResult.getScd(), tf.getRelatedSessionField()))
 					continue;
 
@@ -1785,17 +1832,62 @@ public class PostgreSQL extends BaseDAO {
 						&& !GenericUtil.hasPartInside(x.getLookupIncludedParams(), "" + scd.get("userId")))
 					continue;
 
-				Object psonuc = GenericUtil.prepareParam(tf, scd, formResult.getRequestParams(), x.getSourceTip(), null,
-						x.getNotNullFlag(), x.getDsc() + paramSuffix, x.getDefaultValue(), formResult.getErrorMap());
+				short notNullFlag = x.getNotNullFlag();
+				if(!GenericUtil.isEmpty(x.get_formCellPropertyList())) for(W5FormCellProperty fcp:x.get_formCellPropertyList()) {
+					if(fcp.getLkpPropertyTip()==0){//required
+						for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+							if(fc.getActiveFlag()!=0) {
+								notNullFlag = 0;
+								if(fc.getSourceTip()==1) {
+									String value = formResult.getRequestParams().get(fc.getDsc());
+									if(fc.getControlTip()==5) {
+										notNullFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+									} else
+									notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+								}
+							}
+							break;
+						}
+					}
+					if(notNullFlag==0 && fcp.getLkpPropertyTip()==1 && fcp.getOtherSetValueFlag()!=0){//visible
+						for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+							if(fc.getActiveFlag()!=0) {
+								short visibleFlag = 0;
+								if(fc.getSourceTip()==1) {
+									String value = formResult.getRequestParams().get(fc.getDsc());
+									if(fc.getControlTip()==5) {
+										visibleFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+									} else
+										visibleFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+								}
+								
+								if(visibleFlag==0) { //not visible
+									formResult.getRequestParams().put(x.getDsc() + paramSuffix, fcp.getOtherValue());
+								}
+							}
+							break;
+						}
+					}
+
+				}
+				
+				Object presult = GenericUtil.prepareParam(tf, scd, formResult.getRequestParams(), x.getSourceTip(), null,
+						notNullFlag, x.getDsc() + paramSuffix, x.getDefaultValue(), formResult.getErrorMap());
 
 				if (formResult.getErrorMap().isEmpty()) {
+					if(presult!=null && x.getVtype()!=null) {
+						if(!GenericUtil.validateVtype(presult.toString(), x.getVtype())) {
+							formResult.getErrorMap().put(x.getDsc(), LocaleMsgCache.get2(formResult.getScd(), "invalid_"+x.getVtype()));
+							continue;
+						}
+					}
 					if (x.getFormCellId() == 6060 || x.getFormCellId() == 16327 || x.getFormCellId() == 16866) { // mail
 																													// sifre
 																													// icin
-						if (psonuc != null && psonuc.toString().startsWith("****"))
+						if (presult != null && presult.toString().startsWith("****"))
 							continue;
 						if (FrameworkSetting.mailPassEncrypt)
-							psonuc = GenericUtil.PRMEncrypt(psonuc.toString());
+							presult = GenericUtil.PRMEncrypt(presult.toString());
 					}
 
 					if (b)
@@ -1803,7 +1895,9 @@ public class PostgreSQL extends BaseDAO {
 					else
 						b = true;
 					sql.append(tf.getDsc()).append(" = ? ");
-					updateParams.add(psonuc);
+					if(presult==null || tf.getLkpEncryptionType()==0)updateParams.add(presult);
+					else 
+						updateParams.add(EncryptionUtil.encrypt(presult.toString(), tf.getLkpEncryptionType()));
 					usedFields.add(tf.getDsc());
 				}
 			}
@@ -2287,6 +2381,25 @@ public class PostgreSQL extends BaseDAO {
 		return extraUserIds.isEmpty() ? null : extraUserIds.toArray();
 	}
 
+	private boolean formElementProperty(short operatorTip, String elementValue, String value) {
+		switch(operatorTip) {
+		case -1://is Empty
+			return GenericUtil.isEmpty(value);
+		case -2://is not empty
+			return !GenericUtil.isEmpty(value);
+		case	8://in
+			if(GenericUtil.isEmpty(value))return false;
+			return GenericUtil.hasPartInside2b(value, elementValue);
+		case	9://not in
+			if(GenericUtil.isEmpty(value))return true;
+			return !GenericUtil.hasPartInside2b(value, elementValue);
+		case	0://equals
+			return GenericUtil.safeEquals(elementValue, value);
+		case	1://not equals
+			return !GenericUtil.safeEquals(elementValue, value);
+		}
+		return false;
+	}
 	public int insertFormTable(final W5FormResult formResult, final String paramSuffix) {
 		final W5Form f = formResult.getForm();
 		final String projectId = FrameworkCache.getProjectId(formResult.getScd(), "40." + formResult.getFormId());
@@ -2348,11 +2461,52 @@ public class PostgreSQL extends BaseDAO {
 						continue;
 				}
 
+				short notNullFlag = x.getNotNullFlag();
+				if(!GenericUtil.isEmpty(x.get_formCellPropertyList())) for(W5FormCellProperty fcp:x.get_formCellPropertyList()) {
+					if(fcp.getLkpPropertyTip()==0){//required
+						notNullFlag = 0;
+						for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+							if(fc.getSourceTip()==1) {
+								String value = formResult.getRequestParams().get(fc.getDsc());
+								if(fc.getControlTip()==5) {
+									notNullFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+								} else
+									notNullFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+							}
+							break;
+						}
+					}
+					if(notNullFlag==0 && fcp.getLkpPropertyTip()==1 && fcp.getOtherSetValueFlag()!=0){//visible
+						for(W5FormCell fc:f.get_formCells())if(fc.getFormCellId() == fcp.getRelatedFormCellId()) {
+							if(fc.getActiveFlag()!=0) {
+								short visibleFlag = 0;
+								if(fc.getSourceTip()==1) {
+									String value = formResult.getRequestParams().get(fc.getDsc());
+									if(fc.getControlTip()==5) {
+										visibleFlag = (short)(fcp.getLkpOperatorTip() == GenericUtil.uCheckBox(value) ? 1:0);
+									} else
+										visibleFlag = (short)(formElementProperty(fcp.getLkpOperatorTip(), value, fcp.getVal()) ? 1:0);
+								}
+								
+								if(visibleFlag==0) { //not visible
+									formResult.getRequestParams().put(x.getDsc() + paramSuffix, fcp.getOtherValue());
+								}
+							}
+							break;
+						}
+					}
+				}
 				Object psonuc = GenericUtil.prepareParam(tf, formResult.getScd(), formResult.getRequestParams(),
-						x.getSourceTip(), null, x.getNotNullFlag(), x.getDsc() + paramSuffix, x.getDefaultValue(),
+						x.getSourceTip(), null, notNullFlag, x.getDsc() + paramSuffix, x.getDefaultValue(),
 						formResult.getErrorMap());
 
 				if (formResult.getErrorMap().isEmpty()) {
+					if(psonuc!=null && x.getVtype()!=null) {
+						if(!GenericUtil.validateVtype(psonuc.toString(), x.getVtype())) {
+							formResult.getErrorMap().put(x.getDsc(), LocaleMsgCache.get2(formResult.getScd(), "invalid_"+x.getVtype()));
+							continue;
+						}
+					}
 					if (b) {
 						sql.append(" , ");
 						postSql.append(" , ");
@@ -2380,7 +2534,9 @@ public class PostgreSQL extends BaseDAO {
 							postSql.append(" ( ").append(psonuc).append(" ) ");
 						} else {
 							postSql.append(" ? ");
-							insertParams.add(psonuc);
+							//insertParams.add(psonuc);
+							if(psonuc==null || tf.getLkpEncryptionType()==0)insertParams.add(psonuc);
+							else insertParams.add(EncryptionUtil.encrypt(psonuc.toString(), tf.getLkpEncryptionType()));
 							paramCount++;
 						}
 					}
@@ -6328,5 +6484,210 @@ public class PostgreSQL extends BaseDAO {
 			deleteProjectMetadata(delProjectId);
 			executeUpdateSQLQuery("delete from iwb.w5_project where project_uuid=?",delProjectId);
 		}
+	}
+
+	public Map insertTableJSON(Map<String, Object> scd, int tableId, Map requestParams) {
+		W5Table t = FrameworkCache.getTable(scd, tableId);
+		if (!GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(), t.getAccessViewUsers())){
+			throw new IWBException("security", "Module", 0, null,
+					LocaleMsgCache.get2(scd, "fw_access_control_view"), null);
+		}
+		if (!GenericUtil.accessControl(scd, t.getAccessInsertTip(), t.getAccessInsertRoles(), t.getAccessInsertUsers())){
+			throw new IWBException("security", "Module", 0, null,
+					LocaleMsgCache.get2(scd, "fw_access_control_insert"), null);
+		}
+		
+		
+		final StringBuilder sql = new StringBuilder(), postSql = new StringBuilder();
+		sql.append("insert into ");
+		sql.append(t.getDsc()).append(" ( ");
+		postSql.append(" values (");
+		final List<Object> insertParams = new ArrayList<Object>();
+		boolean b = false;
+		int paramCount = 0;
+		final Map<Integer, String> calculatedParams = new HashMap<Integer, String>();
+		final Map<Integer, String> calculatedParamNames = new HashMap<Integer, String>();
+		Set<String> usedFields = new HashSet<String>();
+
+		Map errorMap = new HashMap();
+		Map outMap = new HashMap();
+
+	
+		for (W5TableField p1 : t.get_tableFieldList()) {
+			if(!requestParams.containsKey(p1.getDsc()) && p1.getSourceTip()==1)continue;
+			if(requestParams.containsKey(p1.getDsc())) {
+				Object psonuc = requestParams.get(p1.getDsc());
+				if (b) {
+					sql.append(" , ");
+					postSql.append(" , ");
+				} else
+					b = true;
+				usedFields.add(p1.getDsc());
+				sql.append(p1.getDsc());
+				
+				postSql.append(" ? ");
+				//insertParams.add(psonuc);
+				if(psonuc==null || p1.getLkpEncryptionType()==0) {
+					if(psonuc!=null)switch(p1.getFieldTip()) {
+					case 2: if(scd!=null && psonuc!=null) {
+						psonuc = GenericUtil.uDate(psonuc.toString(), GenericUtil.uInt(scd.get("date_format")));
+						break;
+					}
+					default:
+						psonuc = GenericUtil.getObjectByTip(psonuc.toString(), p1.getFieldTip());
+					}
+					insertParams.add(psonuc);
+				} else 
+					insertParams.add(EncryptionUtil.encrypt(psonuc.toString(), p1.getLkpEncryptionType()));
+				paramCount++;
+				
+			} else switch (p1.getSourceTip()) {
+			case 4: // SQL calculated Fieldlar icin
+				if (b) {
+					sql.append(" , ");
+					postSql.append(" , ");
+				} else
+					b = true;
+				usedFields.add(p1.getDsc());
+				sql.append(p1.getDsc());
+				calculatedParams.put(paramCount, GenericUtil
+						.filterExt(p1.getDefaultValue(), scd, requestParams, null)
+						.toString());
+				calculatedParamNames.put(paramCount, p1.getDsc());
+				postSql.append(" ? ");
+				insertParams.add(null);
+				paramCount++;
+				break;
+			case 5:// javascript
+			case 2: // session
+				Object psonuc = GenericUtil.prepareParam(p1, scd, requestParams,
+						(short) -1, null, (short) 0, null, null, errorMap);
+				if (psonuc != null) {
+					if (b) {
+						sql.append(" , ");
+						postSql.append(" , ");
+					} else
+						b = true;
+					usedFields.add(p1.getDsc());
+					sql.append(p1.getDsc());
+					postSql.append(" ? ");
+					insertParams.add(psonuc);
+					paramCount++;
+				}
+
+				break;
+			case 9: // UUID
+				Object psonuc2 = GenericUtil.prepareParam(p1, scd, requestParams,
+						(short) -1, null, (short) 0, null, null, errorMap);
+				if (psonuc2 != null) {
+					if (b) {
+						sql.append(" , ");
+						postSql.append(" , ");
+					} else
+						b = true;
+					usedFields.add(p1.getDsc());
+					sql.append(p1.getDsc());
+					postSql.append(" ? ");
+					insertParams.add(psonuc2);
+					paramCount++;
+
+					outMap.put(p1.getDsc(), psonuc2);
+				}
+
+				break;
+			case 8: // Global Nextval
+				Object psonuc3 = GenericUtil.prepareParam(p1, scd, requestParams,
+						(short) -1, null, (short) 0, null, null, errorMap);
+				if (psonuc3 != null) {
+					if (b) {
+						sql.append(" , ");
+						postSql.append(" , ");
+					} else
+						b = true;
+					usedFields.add(p1.getDsc());
+					sql.append(p1.getDsc());
+					postSql.append(" ? ");
+					insertParams.add(psonuc3);
+					paramCount++;
+
+					outMap.put(p1.getDsc(), psonuc3);
+				}
+
+				break;
+			}
+		}
+
+
+
+		if (usedFields.isEmpty()) { // sorun var
+			throw new IWBException("validation", "Table Insert", tableId, null, "No Used Fields", null);
+		}
+
+
+
+		sql.append(" ) ").append(postSql).append(")");
+		
+		
+		try {
+
+			getCurrentSession().doReturningWork(new ReturningWork<Integer>() {
+
+				public Integer execute(Connection conn) throws SQLException {
+					PreparedStatement s = null;
+					int count = 0;
+					for (Integer o : calculatedParams.keySet()) { // calculated
+																	// ve output
+																	// edilecek
+																	// parametreler
+																	// hesaplaniyor
+						// once
+						String seq = calculatedParams.get(o);
+						if (seq.endsWith(".nextval"))
+							seq = "nextval('" + seq.substring(0, seq.length() - 8) + "')";
+						s = conn.prepareStatement("select " + seq + " "); // from
+																			// dual
+						ResultSet rs = s.executeQuery();
+						rs.next();
+						Object paramOut = rs.getObject(1);
+						if (paramOut != null) {
+							if (paramOut instanceof java.sql.Timestamp) {
+								try {
+									paramOut = (java.sql.Timestamp) paramOut;
+								} catch (Exception e) {
+									paramOut = "java.sql.Timestamp";
+								}
+							} else if (paramOut instanceof java.sql.Date) {
+								try {
+									paramOut = rs.getTimestamp(1);
+								} catch (Exception e) {
+									paramOut = "java.sql.Date";
+								}
+							}
+						}
+
+						rs.close();
+						s.close();
+						insertParams.set(o, paramOut);
+						outMap.put(calculatedParamNames.get(o), paramOut);
+					}
+					s = conn.prepareStatement(sql.toString());
+					applyParameters(s, insertParams);
+					count = s.executeUpdate();
+					s.close();
+
+					if (FrameworkSetting.hibernateCloseAfterWork)
+						conn.close();
+
+					return count;
+				}
+			});
+
+		} catch (Exception e) {
+			throw new IWBException("sql", "Table.Insert", tableId,
+					GenericUtil.replaceSql(sql.toString(), insertParams), "Error Inserting", e);
+		} finally {
+			// session.close();
+		}
+		return outMap;
 	}
 }

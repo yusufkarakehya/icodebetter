@@ -218,8 +218,18 @@ public class RESTEngine {
 			scd.put("projectId", "067e6162-3b6f-4ae2-a221-2470b63dff00");			
 		}
 		W5Ws ws = FrameworkCache.getWsClient(scd, u[0]);
-		if (ws == null)
-			throw new IWBException("ws", "Wrong ServiceName", 0, null, "Could find [" + u[0] + "]", null);
+		if (ws == null) {
+			if(!GenericUtil.safeEquals(scd.get("projectId"),"067e6162-3b6f-4ae2-a221-2470b63dff00")) {
+				Map newScd = new HashMap();
+				newScd.putAll(scd);
+				newScd.put("projectId", "067e6162-3b6f-4ae2-a221-2470b63dff00");
+				newScd.put("customizationId", 0);
+				ws = FrameworkCache.getWsClient(newScd, u[0]);
+				
+			}
+			if(ws ==null)
+				throw new IWBException("ws", "Wrong ServiceName", 0, null, "Could find [" + u[0] + "]", null);
+		}
 		W5WsMethod wsm = null;
 		for (W5WsMethod twm : ws.get_methods())
 			if (twm.getDsc().equals(u[1])) {
@@ -296,10 +306,12 @@ public class RESTEngine {
 				if (url.indexOf("${") > -1) {// has special char
 					url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
 				}
-				String methodUrl = GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
-				if (!url.endsWith("/") && !methodUrl.startsWith("/"))
-					url += "/";
-				url += methodUrl;
+				if(!GenericUtil.safeEquals(wsm.getRealDsc(),".")) {//if . dont add it
+					String methodUrl = GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
+					if (!url.endsWith("/") && !methodUrl.startsWith("/"))
+						url += "/";
+					url += methodUrl;
+				}
 				if (url.indexOf("{") > -1 && url.indexOf("${") == -1) {
 					url = url.replace("{","${req.");					
 				}
@@ -332,7 +344,7 @@ public class RESTEngine {
 						url += postUrl;
 				}
 				
-				if (!GenericUtil.isEmpty(wsm.get_params()) && wsm.getParamSendTip() > 0) {
+				if (!GenericUtil.isEmpty(wsm.get_params())/* && wsm.getParamSendTip() > 0*/) {
 					m = recursiveParams2Map(scd, 0, requestParams, wsm.get_params(), errorMap, reqPropMap);
 					if (!errorMap.isEmpty()) {
 						throw new IWBException("validation", "WS Method Call", wsm.getWsId(), null,
@@ -350,15 +362,15 @@ public class RESTEngine {
 							}
 							params = null;
 						}
-						reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
 						break;
 					case 2: // json
 						params = GenericUtil.fromMapToJsonString2Recursive(m);
-						reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
+						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
 						break;
 					case 6:// yaml
 						params = GenericUtil.fromMapToYamlString2Recursive(m, 0);
-						reqPropMap.put("Content-Type", "application/yaml;charset=UTF-8");
+						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/yaml;charset=UTF-8");
 						break;
 					}
 				}

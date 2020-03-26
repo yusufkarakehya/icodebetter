@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.DatatypeFactory;
@@ -68,13 +69,9 @@ public class GenericUtil {
 
 	public static final String dtCh = "/";
 	public static final String dateFormat = "dd" + dtCh + "MM" + dtCh + "yyyy";
+	public static final String[] dateFormatMulti = new String[] {"dd" + dtCh + "MM" + dtCh + "yyyy", "MM" + dtCh + "dd" + dtCh + "yyyy", "yyyy"  + dtCh + "MM" + dtCh + "dd" };
 	private static final String strIndex = "0123456789+-" + dtCh;
 
-	public static final int promis_STRING = 1;
-	public static final int promis_DATE = 2;
-	public static final int promis_DOUBLE = 3;
-	public static final int promis_INTEGER = 4;
-	public static final int promis_BOOLEAN = 5;
 
 	public static String orderStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	static int orderLen = orderStr.length();
@@ -261,11 +258,45 @@ public class GenericUtil {
 		return null;
 	}
 
+
+	public static Date uDate(String x, int dateFormat) {
+		if (x == null || x.trim().length() == 0)
+			return null;
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat].concat(" HH:mm:ss")).parse(x);
+		} catch (Exception e) {
+		}
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat].concat(" HH:mm")).parse(x);
+		} catch (Exception e) {
+		}
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat]).parse(x);
+		} catch (Exception e) {
+		}
+		try {
+			return new SimpleDateFormat("yyyy-MM-dd").parse(x);
+		} catch (Exception e) {
+		}
+		return null;
+	}
+	
 	public static Date uDateTm(String x) {
 		if (x == null || x.trim().length() == 0)
 			return null;
 		try {
 			return new SimpleDateFormat(dateFormat.concat(" HH:mm")).parse(x);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+
+	public static Date uDateTm(String x, int dateFormat) {
+		if (x == null || x.trim().length() == 0)
+			return null;
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat].concat(" HH:mm")).parse(x);
 		} catch (Exception e) {
 			return null;
 		}
@@ -550,6 +581,16 @@ public class GenericUtil {
 		}
 	}
 
+
+	public static String uFormatDate(Date x, int dateFormat) {
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat]).format(x);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	
 	public static String uFormatDate(java.sql.Date x) {
 		try {
 			return new SimpleDateFormat(dateFormat).format(x).concat(" 00:00:00");
@@ -558,6 +599,15 @@ public class GenericUtil {
 		}
 	}
 
+	
+	public static String uFormatDate(java.sql.Date x, int dateFormat) {
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat]).format(x).concat(" 00:00:00");
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	public static String uFormatDateSade(java.sql.Date x) {
 		try {
 			return new SimpleDateFormat(dateFormat).format(x);
@@ -590,6 +640,15 @@ public class GenericUtil {
 		}
 	}
 
+
+	public static String uFormatDateTime(java.sql.Timestamp x, int dateFormat) {
+		try {
+			return new SimpleDateFormat(dateFormatMulti[dateFormat].concat(" HH:mm:ss")).format(x);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	public static String uFormatDateOnlyTime(Date x) {
 		try {
 			return new SimpleDateFormat("HH:mm").format(x);
@@ -679,21 +738,6 @@ public class GenericUtil {
 		}
 	}
 
-	public static Object valueFromString(String x, int promisType) {
-		switch (promisType) {
-		case promis_STRING:
-			return x;
-		case promis_DATE:
-			return GenericUtil.uDate(x);
-		case promis_DOUBLE:
-			return GenericUtil.uDouble(x);
-		case promis_INTEGER:
-			return GenericUtil.uInteger(x);
-		case promis_BOOLEAN:
-			return GenericUtil.uCheckBox(x);
-		}
-		return null;
-	}
 
 	public static String stringToHtml(Object x) {
 		if (x == null)
@@ -969,7 +1013,7 @@ public class GenericUtil {
 			else
 				b = true;
 			Object o = s.get(q);
-			if (o != null && (o instanceof Integer || o instanceof Double || o instanceof BigDecimal))
+			if (o != null && (o instanceof Integer || o instanceof Short || o instanceof Long || o instanceof Double || o instanceof BigDecimal))
 				html.append("\"").append(q).append("\":").append(o != null ? o : "");
 			else
 				html.append("\"").append(q).append("\":\"").append(o != null ? stringToJS2(o.toString()) : "")
@@ -1393,6 +1437,19 @@ public class GenericUtil {
 		return all.contains(z);
 	}
 
+
+	public static boolean hasPartInside2b(String all, Object sub) {
+		if (all == null || all.length() == 0)
+			return false;
+		String z = sub == null ? null : sub.toString();
+		if (z == null || z.length() == 0)
+			return false;
+		String[] sub2 = z.split(",");
+		all = "," + all + ",";
+		for(int qi=0;qi<sub2.length;qi++)
+			if(all.contains("," + sub2[qi] + ","))return true;
+		return false;
+	}
 	public static String toCsv(List<String[]> list) {
 		String res = "";
 		for (String[] arr : list) {
@@ -1535,7 +1592,15 @@ public class GenericUtil {
 		if (pvalue == null || pvalue.trim().length() == 0)
 			pvalue = defaultValue;
 
-		Object psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamTip());
+		Object psonuc = null;
+		switch(param.getParamTip()) {
+		case 2: if(scd!=null && pvalue!=null) {
+			psonuc = GenericUtil.uDate(pvalue, uInt(scd.get("date_format")));
+			break;
+		}
+		default:
+			psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamTip());
+		}
 		if (notNullFlag != 0 && psonuc == null) { // not null
 			hasError = true;
 			errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_not_null")); 
@@ -1545,7 +1610,7 @@ public class GenericUtil {
 				if (param.getParamTip() == 5) {
 					psonuc = GenericUtil.uInt(psonuc) != 0;
 				} else {
-					psonuc = GenericUtil.uDateTm(pvalue);
+					psonuc = GenericUtil.uDateTm(pvalue, scd!=null ? uInt(scd.get("date_format")): 0);
 				}
 			}
 		}
@@ -1710,24 +1775,6 @@ public class GenericUtil {
 			tmp.replace(bit, bit, prefix); // getMsgHTML de olabilirdi
 		}
 		return tmp;
-	}
-
-	public static String fromPromisType2OrclType(W5Param p) {
-		short maxLen = p.getMaxLength() == null ? 0 : p.getMaxLength();
-		short minLen = p.getMinLength() == null ? 0 : p.getMinLength();
-		switch (p.getParamTip()) {
-		case promis_STRING:
-			return maxLen > 4000 ? "CLOB" : "VARCHAR2(" + maxLen + ")";
-		case promis_DATE:
-			return "DATE";
-		case promis_DOUBLE:
-			return "NUMBER(" + (maxLen > 0 ? maxLen : 18) + (minLen > 0 ? "," + minLen : ",2") + ")";
-		case promis_INTEGER:
-			return "NUMBER(" + (maxLen == 0 ? 10 : maxLen) + ")";
-		case promis_BOOLEAN:
-			return "NUMBER(1)";
-		}
-		return null;
 	}
 
 
@@ -2688,5 +2735,21 @@ public class GenericUtil {
 		int val = relatedSessionField.startsWith("app.") ? FrameworkCache.getAppSettingIntValue(scd, relatedSessionField.substring(4)) : uInt(scd.get(relatedSessionField));
 		return not ? val==0 : val!=0;
 		
+	}
+
+	private static Pattern alphaPattern = Pattern.compile("^[a-zA-Z]*$");
+	private static Pattern alphanumPattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+	private static Pattern emailPattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+	private static Pattern urlPattern = Pattern.compile("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+	private static Pattern ibanPattern = Pattern.compile("\b[A-Z]{2}[0-9]{2}(?:[ ]?[0-9]{4}){4}(?!(?:[ ]?[0-9]){3})(?:[ ]?[0-9]{1,2})?\b"); 
+	
+	public static boolean validateVtype(String str, String vType) {
+		if(isEmpty(vType))return true;
+		if(vType.equals("alpha"))return alphaPattern.matcher(str).find();
+		if(vType.equals("alphanum"))return alphanumPattern.matcher(str).find();
+		if(vType.equals("email"))return emailPattern.matcher(str).find();
+		if(vType.equals("url"))return urlPattern.matcher(str).matches();
+		if(vType.equals("iban"))return ibanPattern.matcher(str).matches();
+		return true;
 	}
 }

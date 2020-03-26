@@ -12,9 +12,11 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -34,6 +36,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.json.JSONException;
@@ -1575,7 +1580,7 @@ public class AppController implements InitializingBean {
 
 		int fileAttachmentId = GenericUtil.uInt(request, "_fai");
 		String customizationId = String.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-		String local_path = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
+		String local_path = FrameworkCache.getAppSettingStringValue(0, "file_local_path");
 		String file_path = "";
 		if (fileAttachmentId == -1000) { // default company logo
 			file_path = local_path + "/0/jasper/iworkbetter.png";
@@ -1588,7 +1593,9 @@ public class AppController implements InitializingBean {
 			}
 			ServletOutputStream out = response.getOutputStream();
 			file_path = local_path + "/" + customizationId + "/attachment/" + fa.getSystemFileName();
-
+			if(FrameworkSetting.argMap.get("multipart_location")!=null) {
+				file_path = FrameworkSetting.argMap.get("multipart_location") + "/"+ file_path;
+			}
 			if (fa.getFileTypeId() == null || fa.getFileTypeId() != -999)
 				response.setContentType("application/octet-stream");
 			else {
@@ -1825,7 +1832,7 @@ public class AppController implements InitializingBean {
 		
 		logger.info("multiFileUpload");
 		// Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-		String path = FrameworkCache.getAppSettingStringValue(customizationId, "file_local_path") + File.separator
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator
 				+ customizationId + File.separator + "attachment";
 
 		File dirPath = new File(path);
@@ -1911,7 +1918,7 @@ public class AppController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
-		String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
 				+ File.separator + scd.get("customizationId") + File.separator + "attachment";
 
 		File dirPath = new File(path);
@@ -2000,7 +2007,7 @@ public class AppController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
-		String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
+		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
 				+ File.separator + scd.get("customizationId") + File.separator + "attachment";
 
 		File dirPath = new File(path);
@@ -2467,7 +2474,7 @@ public class AppController implements InitializingBean {
 	    int excelImportId = 0;
 		try {
 			if(!file.isEmpty()){
-				String path = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), "file_local_path")
+				String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
 						+ File.separator + scd.get("customizationId") + File.separator + "attachment";
 		
 				File dirPath = new File(path);
@@ -2489,7 +2496,22 @@ public class AppController implements InitializingBean {
 			    		excelImportId = service.saveExcelImport(scd, tmpFile.getName(), uploadedFilePath, parsedData);
 			    	}		    	
 			    }else if(extension.compareTo("csv") == 0){
-			    	
+			    	Reader in = new FileReader(tmpFile.getPath());
+			    	CSVParser parser = CSVParser.parse(in, CSVFormat.DEFAULT);
+			    	LinkedHashMap<String,List<HashMap<String,String>>> parsedData = new LinkedHashMap();
+			    	List<HashMap<String,String>> sheet = new ArrayList();
+			    	parsedData.put("Sheet 1", sheet);
+			    	String[] keyz = new String[] {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+			    			,"AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL","AM","AN","AO","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ"};
+			    	for (CSVRecord record : parser.getRecords()) {
+			    		HashMap<String, String> m = new HashMap();
+			    		sheet.add(m);
+			    		for(int qi = 0; qi<record.size();qi++) {
+			    			m.put(keyz[qi], record.get(qi));			    			
+			    		}
+			        }
+		    		excelImportId = service.saveExcelImport(scd, tmpFile.getName(), uploadedFilePath, parsedData);
+			    	 
 			    }
 //			    tmpFile.delete();
 			}

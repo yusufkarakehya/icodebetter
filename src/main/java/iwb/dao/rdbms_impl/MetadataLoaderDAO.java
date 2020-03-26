@@ -30,6 +30,7 @@ import iwb.domain.db.W5Customization;
 import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
+import iwb.domain.db.W5FormCellProperty;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5GlobalFunc;
@@ -141,7 +142,9 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		fr.setForm(form);
 
-		for (W5FormCell fc : form.get_formCells())
+		Map<Integer, W5FormCell> formCellMap = new HashMap();
+		for (W5FormCell fc : form.get_formCells()) {
+			formCellMap.put(fc.getFormCellId(), fc);
 			switch (fc.getControlTip()) {
 			case 31: // code_list
 				if (GenericUtil.uInt(fc.getLookupIncludedParams()) == 0) {
@@ -152,6 +155,13 @@ public class MetadataLoaderDAO extends BaseDAO {
 									fc.getFormCellId(), projectId));
 				break;
 			}
+		}
+		List<W5FormCellProperty> lfcp = find("select t from W5FormCellProperty t, W5FormCell f where t.formCellId=f.formCellId AND f.projectUuid=t.projectUuid AND f.formId=? AND t.projectUuid=?",form.getFormId(), projectId);
+		for(W5FormCellProperty fcp:lfcp) {
+			W5FormCell fc = formCellMap.get(fcp.getFormCellId());
+			if(fc.get_formCellPropertyList()==null)fc.set_formCellPropertyList(new ArrayList());
+			fc.get_formCellPropertyList().add(fcp);
+		}
 
 		if (form.getObjectTip() != 1 && form.getRenderTemplateId() > 0) { // grid(seachForm)
 																			// degilse
@@ -391,11 +401,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 						e);
 			}*/
 		} else {
-			query = (W5Query) find("from W5Query t where t.queryId=? AND t.projectUuid=?", qr.getQueryId(), projectId)
-					.get(0); // ozel bir
-								// client
-								// icin
-								// varsa
+			query = (W5Query) getCustomizedObject("from W5Query t where t.queryId=? AND t.projectUuid=?", qr.getQueryId(), projectId, "Query");
+			
 			query.set_queryFields(
 					find("from W5QueryField t where t.queryId=? AND t.tabOrder>0 AND t.postProcessTip!=99 AND t.projectUuid=? order by t.tabOrder",
 							qr.getQueryId(), projectId));
@@ -665,6 +672,23 @@ public class MetadataLoaderDAO extends BaseDAO {
 			if (!gridResult.getFormCellResultMap().isEmpty())
 				dao.loadFormCellLookups(gridResult.getScd(), new ArrayList(gridResult.getFormCellResultMap().values()),
 						gridResult.getRequestParams(), null);
+			
+			if(!GenericUtil.isEmpty(gridResult.getGrid().get_toolbarItemList()))for(W5ObjectToolbarItem ti:gridResult.getGrid().get_toolbarItemList()) {
+				if((ti.getItemTip()==7 || ti.getItemTip()==15)&& ti.getLookupQueryId()>0) {
+				
+					W5QueryResult lookupQueryResult = getQueryResult(scd, ti.getLookupQueryId());
+					lookupQueryResult.setErrorMap(new HashMap());
+					lookupQueryResult.setRequestParams(requestParams);
+					lookupQueryResult.setOrderBy(lookupQueryResult.getQuery().getSqlOrderby());
+					lookupQueryResult.prepareQuery(null);
+					if (lookupQueryResult.getErrorMap().isEmpty()) {
+						dao.runQuery(lookupQueryResult);
+						if(gridResult.getExtraOutMap()==null)gridResult.setExtraOutMap(new HashMap());
+						gridResult.getExtraOutMap().put("_tlb_"+ti.getToolbarItemId(), lookupQueryResult);
+					}
+
+				}
+			}
 
 			return gridResult;
 		} catch (Exception e) {
@@ -811,14 +835,14 @@ public class MetadataLoaderDAO extends BaseDAO {
 		if (grid.getDefaultCrudFormId() != 0) {
 			W5Form defaultCrudForm = getFormResult(gr.getScd(), grid.getDefaultCrudFormId(), 2, gr.getRequestParams())
 					.getForm();
+			grid.set_defaultCrudForm(defaultCrudForm);
 
-			if (defaultCrudForm != null) {
+			if (defaultCrudForm != null && defaultCrudForm.getObjectTip()==2) {
 				// defaultCrudForm.set_sourceTable(PromisCache.getTable(customizationId,
 				// defaultCrudForm.getObjectId()));
 				W5Table t = FrameworkCache.getTable(projectId, defaultCrudForm.getObjectId()); // PromisCache.getTable(f.getScd(),
 																								// f.getForm().getObjectId())
 				grid.set_crudTable(t);
-				grid.set_defaultCrudForm(defaultCrudForm);
 
 				List<W5FormSmsMail> xcrudFormSmsList = defaultCrudForm.get_formSmsMailList();
 				if(xcrudFormSmsList!=null){
@@ -1408,7 +1432,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 		Set<String> m = new HashSet();
 		m.add("20.1"); // login form
 		for (Object[] x : (List<Object[]>) executeSQLQuery(
-				"select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345,3351,4658)")) {
+				"select x.table_id, x.dsc, (select tp.expression_dsc from iwb.w5_table_param tp where tp.table_id=x.table_id AND x.project_uuid=tp.project_uuid AND tp.tab_order=1) tp_dsc from iwb.w5_table x where x.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00' AND x.vcs_flag=1 AND x.table_id in (4,5,8,9,10,13,14,15,16,20,40,41,42,63,64,230,231,254,707,930,936,1345,3351,4658,1376)")) {
 			List<Object> lo = executeSQLQuery("select t." + x[2] + " from " + x[1]
 					+ " t where t.project_uuid='067e6162-3b6f-4ae2-a221-2470b63dff00'");
 			if (lo != null)

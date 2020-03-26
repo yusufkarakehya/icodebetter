@@ -117,11 +117,11 @@ public class RestController implements InitializingBean {
 				int forceUserRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
 				if (roleCount < 0 || forceUserRoleId != 0) {
 					if(po.getCustomizationId()==0) {
-					if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
-					scd = service.userRoleSelect(userId, forceUserRoleId,
+						if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
+						scd = service.userRoleSelect(userId, forceUserRoleId,
 							GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
 					} else {
-						scd = service.userRoleSelect4App(po, userId, forceUserRoleId, null);
+						scd = service.userRoleSelect4App2(po, userId, forceUserRoleId, result.getResultMap());
 					}
 					if (scd == null){
 						response.getWriter().write("{\"success\":false, \"msg\":\"no role found\"}"); // bir hata var
@@ -177,13 +177,12 @@ public class RestController implements InitializingBean {
 
 			if(wsm.getDataAcceptTip()==2){//JSON
 				JSONObject jo = HttpUtil.getJson(request);
+				if(jo==null)jo = new JSONObject("{}");
 				requestParams = new HashMap();
-				if(jo!=null){
-					if(wsm.getObjectTip()==4)
-						requestParams.put("_json", jo);
-					else
-						requestParams.putAll(GenericUtil.fromJSONObjectToMap(jo));
-				}
+				if(wsm.getObjectTip()==4)
+					requestParams.put("_json", jo);
+				else
+					requestParams.putAll(GenericUtil.fromJSONObjectToMap(jo));
 			} else 
 				requestParams = GenericUtil.getParameterMap(request);
 			String transactionId =  GenericUtil.getTransactionId();

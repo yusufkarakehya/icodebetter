@@ -109,6 +109,7 @@ var _dxgrb = DXReactGridBootstrap4;
  *              here and most used functions
  */
 iwb = {
+	dateFormat: 'DD/MM/YYYY',
     toastr: toastr,
     components: {},
     grids: {},
@@ -381,7 +382,7 @@ iwb = {
                 .then(res => res.text())
                 .then(text => {
                     var result = new Function(text)();
-                    iwb.components = {...iwb.components, [url]: result };
+                    iwb.components = Object.assign({},iwb.components, {[url]: result});//{...iwb.components, [url]: result };
                     resolve(result);
                 });
         }).then(a => {
@@ -435,7 +436,7 @@ iwb = {
             render() {
                 const { error, ResultComponent } = this.state;
                 return ResultComponent ?
-                    _(ResultComponent, {...this.props }) :
+                    _(ResultComponent, Object.assign({},this.props)) :
                     error ?
                     _("span", { className: "alert alert-danger" }) :
                     _(XLoading, null);
@@ -465,47 +466,15 @@ iwb = {
             timeOut: 3000
         });
     },
-    // logo:'<svg width="32" height="22" xmlns="http://www.w3.org/2000/svg"
-    // x="0px" y="0px" viewBox="0 0 300 202.576" enable-background="new 0 0 300
-    // 202.576" class="white-logo standard-logo middle-content"><g
-    // id="svg_14"><path id="svg_15" d="m46.536,31.08c0,10.178 -8.251,18.429
-    // -18.429,18.429c-10.179,0 -18.429,-8.251 -18.429,-18.429c0,-10.179
-    // 8.25,-18.43 18.429,-18.43c10.177,0 18.429,8.251 18.429,18.43"
-    // fill="darkorange"></path><path id="svg_16" d="m220.043,62.603c-0.859,0
-    // -1.696,0.082 -2.542,0.128c-0.222,-0.007 -0.429,-0.065
-    // -0.654,-0.065c-0.674,0 -1.314,0.128 -1.969,0.198c-0.032,0.003
-    // -0.064,0.003 -0.096,0.005l0,0.005c-9.241,1.04 -16.451,8.79
-    // -16.451,18.309c0,9.555 7.263,17.326 16.554,18.319c0,0.03 0,0.063
-    // 0,0.094c0.482,0.027 0.953,0.035 1.428,0.05c0.182,0.006 0.351,0.055
-    // 0.534,0.055c0.088,0 0.17,-0.025 0.258,-0.026c0.96,0.02 1.927,0.026
-    // 2.938,0.026c16.543,0 29.956,13.021 29.956,29.564c0,16.545 -13.412,29.956
-    // -29.956,29.956c-15.521,0 -28.283,-11.804
-    // -29.803,-26.924l0,-107.75l-0.054,0c-0.289,-9.926 -8.379,-17.896
-    // -18.375,-17.896c-9.995,0 -18.086,7.971
-    // -18.375,17.896l-0.053,0l0,118.529c0,10.175 11.796,52.85
-    // 66.661,52.85c36.815,0 66.661,-29.846 66.661,-66.662c-0.001,-36.816
-    // -29.847,-66.661 -66.662,-66.661" fill="#20a8d8"></path><path id="svg_17"
-    // d="m153.381,143.076l-0.049,0c-0.805,8.967 -8.252,16.021
-    // -17.428,16.021s-16.624,-7.054
-    // -17.428,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.245,-9.965 -8.36,-17.979
-    // -18.384,-17.979s-18.139,8.014
-    // -18.384,17.979l-0.045,0l0,66.298l-0.05,0c-0.805,8.967 -8.252,16.021
-    // -17.428,16.021c-9.176,0 -16.624,-7.054
-    // -17.429,-16.021l-0.048,0l0,-66.298l-0.045,0c-0.246,-9.965 -8.361,-17.978
-    // -18.384,-17.978c-10.024,0 -18.139,8.014
-    // -18.384,17.979l-0.046,0l0,66.298c0.836,29.321 24.811,52.849
-    // 54.335,52.849c13.79,0 26.33,-5.178 35.906,-13.636c9.577,8.458
-    // 22.116,13.636 35.906,13.636c14.604,0 27.85,-5.759
-    // 37.61,-15.128c-15.765,-13.32 -20.132,-31.532 -20.132,-37.722"
-    // fill="#bbb"></path></g></svg>',
+  
     logo: '<img src="/images/rabbit-head.png" border=0 style="vertical-align: top;width: 28px;margin-top: -4px;">',
 
     detailSearch: () => false,
     fmtShortDate: x => {
-        x ? moment(x).format("DD/MM/YYYY") : "";
+        x ? moment(x).format(iwb.dateFormat) : "";
     },
     fmtDateTime: x => {
-        x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
+        x ? moment(x).format(iwb.dateFormat+" HH:mm") : "";
     },
     openForm: url => {
         if (url) iwb.openTab("1-" + Math.random(), url);
@@ -743,14 +712,14 @@ iwb = {
                 case "session":
                     return iwb.showLoginDialog();
                 case "validation":
-                    toastr.error(obj.errors.join("<br/>"), "Validation Error");
+                    toastr.error(obj.errors.join("<br/>"), "Validation Error",{ timeOut: 7000 });
                     break;
                 case "sql":
                 case "rhino":
                 case "framework":
                 case "cache":
                 case "vcs":
-                    if (obj.error) {
+                    if (obj.error || obj.objectType) {
                         iwb.showModal({
                             title: obj.objectType,
                             footer: false,
@@ -765,7 +734,7 @@ iwb = {
                                     Media, {
                                         heading: true
                                     },
-                                    obj.error
+                                    obj.error || obj.objectType
                                 ),
 
                                 _(
@@ -1081,11 +1050,11 @@ function accessControlHtml() {
 }
 
 function fmtDateTime(x, y) {
-    return x ? moment(x).format("DD/MM/YYYY HH:mm") : "";
+    return x ? moment(x).format(iwb.dateFormat + " HH:mm") : "";
 }
 
 function fmtShortDate(x, y) {
-    return x ? moment(x).format("DD/MM/YYYY") : "";
+    return x ? moment(x).format(iwb.dateFormat) : "";
 }
 
 function strDateTime(row, cell) {
@@ -1121,7 +1090,7 @@ var xtimeMap = {
 function fmtDateTimeAgo(dt2) {
     if (!dt2) return "";
     var tnow = new Date().getTime();
-    var dt3 = moment(dt2, "DD/MM/YYYY HH:mm").toDate();
+    var dt3 = moment(dt2, iwb.dateFormat + " HH:mm").toDate();
     var t = dt3.getTime();
     var xt = xtimeMap[_scd.locale] || {};
     if (t + 30 * 1000 > tnow) return xt[0]; // 'Az Önce';//5 sn
@@ -1238,18 +1207,17 @@ class GridCommon extends React.PureComponent {
                 return _(
                     _dxgrb.Table.Row,
                     openTab && crudFlags && crudFlags.edit && pk && crudFormId ?
-                    {
-                        ...tableRowData,
-                        ... {
+                    Object.assign({},tableRowData,
+                        {
                             onDoubleClick: event =>
                                 this.onEditClick({
                                     event,
                                     rowData: tableRowData.row,
                                     openEditable: !!this.props.openEditable
                                 }),
-                            style: {...tableRowData.style, cursor: "pointer" }
+                            style: Object.assign({},tableRowData.style, {cursor: "pointer" })
                         }
-                    } :
+                    ) :
                     tableRowData
                 );
             };
@@ -1311,7 +1279,8 @@ class GridCommon extends React.PureComponent {
              *            rowData } param0.rowData - Data of the row where the Edit
              *            button or double click clicked
              */
-            this.onEditClick = ({ event, rowData, openEditable, ...extraProps }) => {
+            this.onEditClick = ( extraProps ) => {
+            	var { event, rowData, openEditable} = extraProps;
                 var { props } = this;
                 var pkz = buildParams2(props.pk, rowData);
                 var url = "showForm?a=1&_fid=" + props.crudFormId + pkz;
@@ -1322,7 +1291,7 @@ class GridCommon extends React.PureComponent {
                 var modal = event.ctrlKey && !!event.ctrlKey;
                 props.openTab(
                     "1-" + pkz,
-                    url + (modal ? "&_modal=1" : ""), {}, { modal, openEditable, rowData, ...props, ...extraProps }
+                    url + (modal ? "&_modal=1" : ""), {}, Object.assign({},{ modal, openEditable, rowData}, props, extraProps )
                 );
             };
             /**
@@ -1503,10 +1472,10 @@ class XMap extends React.PureComponent {
                 this.map = this.createMap(this.props.mapOpt || {});
                 this.marker = this.createMarker(this.props.markerOpt || {});
                 this.geocoder = this.createGeocoder(this.props.geocoderOpt || {});
-                this.infoWindow = this.createInfoWindow({
-                    maxWidth: 300,
-                    ...this.props.infoWindowOpt
-                });
+                this.infoWindow = this.createInfoWindow(Object.assign({},{
+                    maxWidth: 300},
+                    this.props.infoWindowOpt
+                ));
                 this.autoComplete = this.createAutocomplete(
                     this.props.autocompleteOpt || undefined
                 );
@@ -1543,10 +1512,7 @@ class XMap extends React.PureComponent {
                     center: this.defPosition,
                     zoom: 8
                 };
-                return new window.google.maps.Map(document.getElementById(this.id), {
-                    ...opt1,
-                    ...opt
-                });
+                return new window.google.maps.Map(document.getElementById(this.id), Object.assign({},opt1,opt));
             };
             /**
              * A function return GMarker
@@ -1558,7 +1524,7 @@ class XMap extends React.PureComponent {
                     map: this.map,
                     title: "default title"
                 };
-                return new window.google.maps.Marker({...opt1, ...opt });
+                return new window.google.maps.Marker(Object.assign({},opt1, opt ));
             };
             /**
              * a function used to init geolocation
@@ -1568,7 +1534,7 @@ class XMap extends React.PureComponent {
              */
             this.createGeocoder = opt => {
                 let opt1 = {};
-                return new window.google.maps.Geocoder({...opt1, ...opt });
+                return new window.google.maps.Geocoder(Object.assign({},opt1, opt ));
             };
             /**
              * a function to create InfoWindow
@@ -1581,7 +1547,7 @@ class XMap extends React.PureComponent {
                     content: `<div id="infoWindow" />`,
                     position: this.defPosition
                 };
-                return new window.google.maps.InfoWindow({...opt1, ...opt });
+                return new window.google.maps.InfoWindow(Object.assign({},opt1, opt ));
             };
             /**
              * A function return Autocomplete
@@ -1911,11 +1877,10 @@ class MapInput extends React.PureComponent {
                 this.toggle();
                 if (!event) return;
                 event.preventDefault();
-                event.target = {
-                    ...this.props,
-                    value: this.state,
-                    stringValue: JSON.stringify(this.state)
-                };
+                event.target = Object.assign({},this.props,
+                    {value: this.state,
+                    stringValue: JSON.stringify(this.state)}
+                );
                 this.props.onChange && this.props.onChange(event);
             };
         }
@@ -2080,23 +2045,23 @@ class XMasonry extends React.Component {
         render() {
             const masonryStyle = this.props;
             return _(
-                Row, {
-                    className: `xMasonryRoot overflowY-auto scrollY`, 
-                    ...this.props.root
-                },
+                Row, Object.assign({},{
+                    className: 'xMasonryRoot overflowY-auto scrollY'}, 
+                    this.props.root
+                ),
                 _(
-                    "div", {
+                    "div", Object.assign({},{
                         className: "d-flex flex-row justify-content-center align-content-stretch flex-fill m-auto w-100",
                         style: masonryStyle,
-                        ref: "Masonry",
-                        ...this.props.rootInner
-                    },
+                        ref: "Masonry"}
+                        ,this.props.rootInner
+                    ),
                     this.mapChildren().map((col, ci) => {
                         return _(
                             Col, { className: "pr-2 pl-2", style: this.props.columnStyle, key: ci },
                             col.map((child, i) => {
                                 return _(
-                                    Card, { key: i, className: "mt-2 mb-2", ...this.props.item },
+                                    Card, Object.assign({},{ key: i, className: "mt-2 mb-2"}, this.props.item ),
                                     child
                                 );
                             })
@@ -2240,32 +2205,43 @@ const XPreviewFile = ({ file }) => {
     let style = {
         fontSize: "12em"
     };
-    switch (type) {
-        case "image/png":
-            return _("img", {
-                src: URL.createObjectURL(file),
-                className: "img-fluid rounded"
-            });
-        case "text/plain":
-            return _("i", {
-                style,
-                className: "fas fa-file-alt m-auto"
-            });
-        case "application/pdf":
-            return _("i", {
-                style,
-                className: "fas fa-file-pdf m-auto"
-            });
-        default:
-            return _(
-                "div", { className: "m-auto text-center" },
-                file ?
-                _("i", { className: "far fa-file", style }) :
-                _("i", { className: "fas fa-upload", style }),
-                _("br", null),
-                getLocMsg(file ? "undefined_type" : "choose_file_or_drag_it_here")
-            );
+    if(type == "image/png" || type == "image/jpeg" || type == "image/jpg" || type == "image/gif" ){
+    	return _("img", {
+            src: URL.createObjectURL(file),
+            className: "img-fluid rounded"
+        });
     }
+    if(type == "text/csv" || type == "text/plain"){
+    	return _("div", { className: "m-auto text-center" },
+        		_("i", {style,className: "fas fa-file-alt m-auto"}),
+    	        _("br", null),
+    	        file ? file.name : ""
+    	    );
+    }
+    if(type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+    	|| type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    		|| type == "application/vnd.ms-excel"){
+    	return _("div", { className: "m-auto text-center" },
+    		_("i", {style,className: "fas fa-file-alt m-auto"}),
+	        _("br", null),
+	        file ? file.name : ""
+	    );
+    }
+    if(type == "application/pdf"){
+    	return _("div", { className: "m-auto text-center" },
+        		_("i", {style,className: "fas fa-file-pdf m-auto"}),
+    	        _("br", null),
+    	        file ? file.name : ""
+    	    );
+    }
+    return _(
+            "div", { className: "m-auto text-center" },
+            file ?
+            _("i", { className: "far fa-file", style }) :
+            _("i", { className: "fas fa-upload", style }),
+            _("br", null),
+            getLocMsg(file ? "undefined_type" : "choose_file_or_drag_it_here")
+        );
 };
 class XListFiles extends React.Component {
     constructor() {
@@ -2373,7 +2349,7 @@ class XSingleUploadComponent extends React.Component {
             this.onDeleteFile = this.onDeleteFile.bind(this);
             this.onclick = this.onclick.bind(this);
             this.onchange = this.onchange.bind(this);
-            this.uplaodFile = this.uplaodFile.bind(this);
+            this.uploadFile = this.uploadFile.bind(this);
         }
         /** function to click input ref click */
     onclick(event) {
@@ -2412,7 +2388,7 @@ class XSingleUploadComponent extends React.Component {
                     file: event.dataTransfer.files[0]
                 },
                 () => {
-                    this.uplaodFile();
+                    this.uploadFile();
                 }
             );
         }
@@ -2426,7 +2402,7 @@ class XSingleUploadComponent extends React.Component {
                     file: event.target.files[0]
                 },
                 () => {
-                    this.uplaodFile();
+                    this.uploadFile();
                 }
             );
         }
@@ -2441,7 +2417,7 @@ class XSingleUploadComponent extends React.Component {
             });
         }
         /** uploader function */
-    uplaodFile() {
+    uploadFile() {
         // event.preventDefault();
         // event.stopPropagation();
         if (!this.state.file) {
@@ -2555,13 +2531,12 @@ class XSingleUploadComponent extends React.Component {
                             }
                         },
                         _("div", {
-                            style: {
-                                ...defaultStyle,
-                                zIndex: "10",
+                            style: Object.assign({},defaultStyle,
+                                {zIndex: "10",
                                 background: "gray",
                                 cursor: "pointer",
                                 opacity: this.state.canUpload ? "0" : "0.5"
-                            },
+                            }),
                             className: "rounded",
                             onDrop: this.onDrop,
                             onDragEnter: this.dragenter,
@@ -2571,10 +2546,9 @@ class XSingleUploadComponent extends React.Component {
                         }),
                         _(
                             "div", {
-                                style: {
-                                    ...defaultStyle,
-                                    display: "flex"
-                                }
+                                style: Object.assign({},defaultStyle,
+                                    {display: "flex"
+                                })
                             },
                             _(XPreviewFile, {
                                 file: this.state.file
@@ -3315,7 +3289,7 @@ class XModal extends React.Component {
             return (
                 modal &&
                 _(
-                    Modal, {
+                    Modal, Object.assign({},{
                         keyboard: true,
                         onExit: () => {
                             iwb.loadingDeactive();
@@ -3324,9 +3298,9 @@ class XModal extends React.Component {
                         toggle: this.toggle,
                         isOpen: modal,
                         className: "modal-" + size + " primary",
-                        style,
-                        ...props
-                    },
+                        style},
+                        props
+                    ),
                     _(
                         ModalHeader, {
                             toggle: this.toggle,
@@ -3588,20 +3562,18 @@ class XGridRowAction extends React.PureComponent {
                 /** mail buttonst */
                 formSmsMailList &&
                 formSmsMailList.map(
-                    ({
-                        text = "ButtonTextWillBeHere",
-                        handler = (event, rowData, parentCt, rest) => {
-                            // iwb.openForm
-                            iwb.openTab(
-                                "1-" + Math.random(),
-                                "showForm?a=2&&_fid=5748", {}, {
-                                    modal: true
-                                }
-                            );
-                        },
-                        xid,
-                        ...rest
-                    }) => {
+                    (rest) => {
+                    	var text = rest.text || "ButtonTextWillBeHere";
+                        var handler = rest.handler || ((event, rowData, parentCt, rest) => {
+                                // iwb.openForm
+                                iwb.openTab(
+                                    "1-" + Math.random(),
+                                    "showForm?a=2&&_fid=5748", {}, {
+                                        modal: true
+                                    }
+                                );
+                            });
+                        var xid = rest.xid; 
                         return _(
                             DropdownItem, {
                                 key: xid,
@@ -3889,6 +3861,7 @@ class XGrid extends GridCommon {
     constructor(props) {
         super(props);
         if (iwb.debug) console.log("XGrid", props);
+//        if(props.setCmp)props.setCmp(this);
         var columns = [];
         var columnExtensions = [];
         const canIOpenActions =
@@ -3899,35 +3872,38 @@ class XGrid extends GridCommon {
         var colTemp = props.columns;
         colTemp &&
             colTemp.map(colLocal => {
-                var title;
-                switch (colLocal.name) {
-                    case "pkpkpk_faf":
-                        title = _("i", { className: "icon-paper-clip" });
-                        break;
-                    case "pkpkpk_ms":
-                        title = _("i", { className: "icon-envelope" });
-                        break;
-                    case "pkpkpk_cf":
-                        title = _("i", { className: "icon-bubble" });
-                        break;
-                    case "pkpkpk_apf":
-                        title = _("i", { className: "icon-picture" });
-                        break;
-                    case "pkpkpk_vcsf":
-                        title = _("i", { className: "icon-social-github" });
-                        break;
-                }
-                columns.push({
-                    name: colLocal.name,
-                    title: title || colLocal.title,
-                    getCellValue: colLocal.formatter || undefined
-                });
-                columnExtensions.push({
-                    width: +colLocal.width,
-                    columnName: colLocal.name,
-                    align: colLocal.align || "left",
-                    sortingEnabled: !!colLocal.sort
-                });
+            	if(!colLocal.hidden){
+	                var title;
+	                switch (colLocal.name) {
+	                    case "pkpkpk_faf":
+	                        title = _("i", { className: "icon-paper-clip" });
+	                        break;
+	                    case "pkpkpk_ms":
+	                        title = _("i", { className: "icon-envelope" });
+	                        break;
+	                    case "pkpkpk_cf":
+	                        title = _("i", { className: "icon-bubble" });
+	                        break;
+	                    case "pkpkpk_apf":
+	                        title = _("i", { className: "icon-picture" });
+	                        break;
+	                    case "pkpkpk_vcsf":
+	                        title = _("i", { className: "icon-social-github" });
+	                        break;
+	                }
+	
+	                columns.push({
+	                    name: colLocal.name,
+	                    title: title || colLocal.title,
+	                    getCellValue: colLocal.formatter || undefined
+	                });
+	                columnExtensions.push({
+	                    width: +colLocal.width,
+	                    columnName: colLocal.name,
+	                    align: colLocal.align || "left",
+	                    sortingEnabled: !!colLocal.sort
+	                });
+            	}
             });
         if (canIOpenActions) {
             columns.push({
@@ -3935,14 +3911,14 @@ class XGrid extends GridCommon {
                 title: " ",
                 getCellValue: rowData => {
                     var { onEditClick, onDeleteClick } = this;
-                    return _(XGridRowAction2, {
-                        ... { rowData },
-                        ... { onEditClick, onDeleteClick },
-                        ... { crudFlags: props.crudFlags },
-                        ... { menuButtons: props.menuButtons },
-                        ... { formSmsMailList: props.formSmsMailList },
-                        ... { parentCt: this }
-                    });
+                    return _(XGridRowAction2, Object.assign({},
+                        { rowData },
+                        { onEditClick, onDeleteClick },
+                        { crudFlags: props.crudFlags },
+                        { menuButtons: props.menuButtons },
+                        { formSmsMailList: props.formSmsMailList },
+                        { parentCt: this }
+                    ));
                 }
             });
             columnExtensions.push({
@@ -3989,6 +3965,7 @@ class XGrid extends GridCommon {
                 params: this.props.searchForm &&
                     iwb.getFormValues(document.getElementById(this.props.searchForm.id)),
                 successCallback: (result, cfg) => {
+                	if(cfg.self.props.onLoad && cfg.self.props.onLoad(result, cfg)===false)return;
                     cfg.self.setState({
                         rows: result.data,
                         totalCount: result.total_count,
@@ -4036,6 +4013,7 @@ class XGrid extends GridCommon {
                 keyField,
                 showDetail,
                 multiselect,
+                groupColumn,
                 _disableSearchPanel,
                 _disableIntegratedSorting,
                 _disableIntegratedGrouping,
@@ -4068,15 +4046,15 @@ class XGrid extends GridCommon {
             rows.length > 1 &&
             _(_dxrg.IntegratedFiltering, null),
             /** state grouping */
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
-            _(_dxrg.GroupingState, null),
+            rows.length > 1)) &&
+            _(_dxrg.GroupingState, groupColumn ? {defaultGrouping:[{ columnName: groupColumn }]}:{}),
             /** Enable UI grouping */
 
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
+            rows.length > 1)) &&
             _(_dxrg.IntegratedGrouping, null),
             /** state sorting */
             !_disableIntegratedSorting &&
@@ -4130,13 +4108,13 @@ class XGrid extends GridCommon {
             rows.length > iwb.detailPageSize &&
             _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize }),
             /** UI row Grouping */
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
-            _(_dxgrb.TableGroupRow, null), !_disableIntegratedGrouping ||
+            rows.length > 1)) &&
+            _(_dxgrb.TableGroupRow, null), (groupColumn || (!_disableIntegratedGrouping ||
             !_disableIntegratedSorting ||
             !_disableSearchPanel ||
-            (!pageSize && rows.length > 1 && _(_dxgrb.Toolbar, null)), !_disableSearchPanel &&
+            (!pageSize && rows.length > 1))) && _(_dxgrb.Toolbar, null), !_disableSearchPanel &&
             !pageSize &&
             rows.length > 1 &&
             _(_dxgrb.SearchPanel, {
@@ -4145,9 +4123,9 @@ class XGrid extends GridCommon {
                     if (iwb.debug) console.log("onValueChange", ax);
                 }
             }), // TODO
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !multiselect && !pageSize &&
-            rows.length > 1 &&
+            rows.length > 1)) &&
             _(_dxgrb.GroupingPanel, {
                 showSortingControls: true,
                 messages: { groupByColumn: getLocMsg("group_by_column") }
@@ -4375,7 +4353,7 @@ class XEditGridSF extends GridCommon {
                         row => row[this.props.keyField] === rowId
                     );
                     if (index > -1) {
-                        addedRowsTemp = [{...rows[index] }];
+                        addedRowsTemp = [Object.assign({},rows[index] )];
                     }
                 }
             });
@@ -4439,6 +4417,7 @@ class XEditGridSF extends GridCommon {
                 params: this.props.searchForm &&
                     iwb.getFormValues(document.getElementById("s-" + this.props.id)),
                 successCallback: (result, cfg) => {
+                	if(cfg.self.props.onLoad && cfg.self.props.onLoad(result, cfg)===false)return;
                     var state = {
                         loading: false,
                         rows: result.data,
@@ -4786,13 +4765,11 @@ const extendGrid = ({ name, children, predicate, position }) => {
  * @example yesNoDialog({ text:"Are you Sure!", callback:(success)=>{ logic here
  *          }});
  */
-yesNoDialog = ({
-    text = getLocMsg("are_you_sure"),
-    title = getLocMsg("confirmation"),
-    callback = alert("obj.callback is not a function"),
-    ...confg
-}) => {
-    iwb.showModal({
+yesNoDialog = (confg) => {
+	var text = confg.text || getLocMsg("are_you_sure");
+	var title = confg.title || getLocMsg("confirmation");
+	var callback = confg.callback || (()=>alert("obj.callback is not a function"));
+    iwb.showModal(Object.assign({},{
         body: text,
         size: "sm",
         title: title,
@@ -4825,8 +4802,8 @@ yesNoDialog = ({
                 getLocMsg("cancel")
             )
         ),
-        ...confg
-    });
+        
+    },confg));
 };
 /**
  * @description component for edit Detail Grid mostly used for form + grid mode
@@ -4970,6 +4947,7 @@ class XEditGrid extends GridCommon {
                 params: this.props.searchForm &&
                     iwb.getFormValues(document.getElementById("s-" + this.props.id)),
                 successCallback: (result, cfg) => {
+                	if(cfg.self.props.onLoad && cfg.self.props.onLoad(result, cfg)===false)return;
                     var state = {
                         loading: false,
                         rows: result.data,
@@ -5017,8 +4995,8 @@ class XEditGrid extends GridCommon {
             // merge new imported data
             let pkInsert = this.state.pkInsert;
             inserted.forEach(data => {
-                var merged = {...searchFormData, ...data };
-                merged = {...merged, ...merged._new };
+                var merged = Object.assign({}, searchFormData, data );
+                merged = Object.assign({}, merged, merged._new );
                 merged.tab_order = max;
                 merged.max = max;
                 --pkInsert;
@@ -5036,7 +5014,7 @@ class XEditGrid extends GridCommon {
         this.getAllData = () => {
             let tempRowData = [];
             this.state.rows.forEach(data => {
-                tempRowData.push({...data, ...data._new });
+                tempRowData.push(Object.assign({}, data, data._new ));
             });
             return tempRowData;
         };
@@ -5052,10 +5030,9 @@ class XEditGrid extends GridCommon {
                 this.props.isCellEditable &&
                 this.props.isCellEditable(xprops.row, xprops.column.name) === false
             )
-                return _(_dxgrb.TableEditRow.Cell, {
-                    ...xprops,
-                    ... { editingEnabled: false }
-                });
+                return _(_dxgrb.TableEditRow.Cell, Object.assign({}, xprops,
+                    { editingEnabled: false }
+                ));
             if (!editor) return _(_dxgrb.TableEditRow.Cell, xprops);
             editor = Object.assign({}, editor);
             if (!xprops.row._new) xprops.row._new = {}; // Object.assign({},xprops.row);
@@ -5325,7 +5302,6 @@ class XEditGrid extends GridCommon {
 const XToolbarItem = props => {
     if (props.type === "button") {
         let { icon } = props;
-        var cls = icon.split("|");
         return _(
             Button, {
                 id: "toolpin" + props.index,
@@ -5336,14 +5312,14 @@ const XToolbarItem = props => {
                     props.click && props.click(e, props.grid, props);
                 }
             },
-            cls[0] && _("i", { className: cls[0] }),
-            cls[0] && ' ',
-            props.text && props.text
+            icon && _("i", { className: icon }),
+            icon && ' ',
+            props.text
         );
     }
     props.autoComplete = "off";
-    props.key = "Ikey" + index;
-    return _(props.$ || Input, {...props, $: undefined });
+    props.key = "Ikey" + props.index;
+    return _(props.$ || Input, Object.assign({}, props, {$: undefined }));
 };
 /**
  * a Component to render tabular detail grid
@@ -5383,7 +5359,7 @@ const XShowDetailTabs = ({
             _(
                 TabContent, { activeTab, className: "shadow-none" },
                 (currentDetailGrids || []).map(({ grid, pk, params, detailGrids }) => {
-                    var currentDetailGridProps = {... { pk: pk || {} }, ...grid };
+                    var currentDetailGridProps = Object.assign({},  { pk: pk || {} }, grid );
                     if (currentDetailGridProps._url) {
                         currentDetailGridProps._url += buildParams2(params, row);
                     } else {
@@ -5418,19 +5394,18 @@ const XShowDetailTabs = ({
                                         //_("i", { className: "icon-plus" }),
                                     ),
                                     (extraButtons || []).map((btn, index) =>
-                                        _(XToolbarItem, {
-                                            ...btn,
-                                            index,
+                                        _(XToolbarItem, Object.assign({}, btn,
+                                            {index,
                                             row,
                                             grid,
                                             parentGrid,
                                             parentCt: topParentGrid
-                                        })
+                                        }))
                                     )
                                 )
                             )
                         ),
-                        _(XGrid, {
+                        _(XGrid, Object.assign({
                             key: "XGrid" + grid.gridId,
                             responsive: true,
                             openTab: topParentGrid.props.openTab,
@@ -5445,8 +5420,8 @@ const XShowDetailTabs = ({
                                     currentDetailGridProps
                                 ) :
                                 false,
-                            ...currentDetailGridProps
-                        })
+                        },currentDetailGridProps
+                        ))
                     );
                 })
             )
@@ -5468,7 +5443,7 @@ const XShowDetailTimeline = ({
         (currentDetailGrids || []).map(
             ({ grid, pk, params, detailGrids }, index) => {
                 if (parentGrid.state !== undefined && parentGrid.state["dg-" + grid.gridId] === false) return;
-                var currentDetailGridProps = {... { pk: pk || {} }, ...grid };
+                var currentDetailGridProps = Object.assign({ pk: pk || {} }, grid );
                 if (currentDetailGridProps._url) {
                     currentDetailGridProps._url += buildParams2(params, row);
                 } else {
@@ -5502,12 +5477,12 @@ const XShowDetailTimeline = ({
                     ),
 
                     _(
-                        "div", {
-                            className: "timeline-panel",
-                            ...(!!currentDetailGridProps._hideTimelineBadgeBtn ?
+                        "div", Object.assign({
+                            className: "timeline-panel"},
+                            !!currentDetailGridProps._hideTimelineBadgeBtn ?
                                 { style: { left: "30px" } } :
-                                {})
-                        },
+                                {}
+                        ),
                         _(
                             "div", { className: "timeline-heading mb-1" },
                             _(
@@ -5516,17 +5491,16 @@ const XShowDetailTimeline = ({
                             ),
                             currentDetailGridProps.extraButtons &&
                             currentDetailGridProps.extraButtons.map((btn, index) =>
-                                _(XToolbarItem, {
-                                    ...btn,
-                                    index,
+                                _(XToolbarItem, Object.assign({}, btn,
+                                    {index,
                                     row,
                                     grid: currentDetailGridProps,
                                     parentGrid,
                                     parentCt: this
-                                })
+                                }))
                             )
                         ),
-                        _(XGrid, {
+                        _(XGrid, Object.assign({
                             key: "XGrid" + grid.gridId,
                             responsive: true,
                             openTab: topParentGrid.props.openTab,
@@ -5541,8 +5515,8 @@ const XShowDetailTimeline = ({
                                     currentDetailGridProps
                                 ) :
                                 false,
-                            ...currentDetailGridProps
-                        })
+                        },currentDetailGridProps
+                        ))
                     )
                 );
             }
@@ -5628,6 +5602,7 @@ class XMainGrid extends GridCommon {
         super(props);
         var oldGridState = iwb.grids[props.id];
         if (iwb.debug) console.log("XMainGrid", props);
+        if(props.setCmp)props.setCmp(this);
         if (oldGridState) {
             this.state = oldGridState;
             this.dontRefresh = true; // true-yuklemez, false-yukleme yapar
@@ -5641,45 +5616,47 @@ class XMainGrid extends GridCommon {
             var colTemp = props.columns;
             colTemp &&
                 colTemp.map(colLocal => {
-                    var title;
-                    switch (colLocal.name) {
-                        case "pkpkpk_faf":
-                            title = _("i", {
-                                className: "icon-paper-clip"
-                            });
-                            break;
-                        case "pkpkpk_ms":
-                            title = _("i", {
-                                className: "icon-envelope"
-                            });
-                            break;
-                        case "pkpkpk_cf":
-                            title = _("i", {
-                                className: "icon-bubble"
-                            });
-                            break;
-                        case "pkpkpk_apf":
-                            title = _("i", {
-                                className: "icon-picture"
-                            });
-                            break;
-                        case "pkpkpk_vcsf":
-                            title = _("i", {
-                                className: "icon-social-github"
-                            });
-                            break;
-                    }
-                    columns.push({
-                        name: colLocal.name,
-                        title: title || colLocal.title,
-                        getCellValue: colLocal.formatter || undefined
-                    });
-                    columnExtensions.push({
-                        columnName: colLocal.name,
-                        align: colLocal.align || "left",
-                        width: +colLocal.width,
-                        sortingEnabled: !!colLocal.sort
-                    });
+                	if(!colLocal.hidden){
+	                    var title;
+	                    switch (colLocal.name) {
+	                        case "pkpkpk_faf":
+	                            title = _("i", {
+	                                className: "icon-paper-clip"
+	                            });
+	                            break;
+	                        case "pkpkpk_ms":
+	                            title = _("i", {
+	                                className: "icon-envelope"
+	                            });
+	                            break;
+	                        case "pkpkpk_cf":
+	                            title = _("i", {
+	                                className: "icon-bubble"
+	                            });
+	                            break;
+	                        case "pkpkpk_apf":
+	                            title = _("i", {
+	                                className: "icon-picture"
+	                            });
+	                            break;
+	                        case "pkpkpk_vcsf":
+	                            title = _("i", {
+	                                className: "icon-social-github"
+	                            });
+	                            break;
+	                    }
+	                    columns.push({
+	                        name: colLocal.name,
+	                        title: title || colLocal.title,
+	                        getCellValue: colLocal.formatter || undefined
+	                    });
+	                    columnExtensions.push({
+	                        columnName: colLocal.name,
+	                        align: colLocal.align || "left",
+	                        width: +colLocal.width,
+	                        sortingEnabled: !!colLocal.sort
+	                    });
+                	}
                 });
             if (canIOpenActions) {
                 columns.push({
@@ -5687,14 +5664,12 @@ class XMainGrid extends GridCommon {
                     title: ".",
                     getCellValue: rowData => {
                         var { onEditClick, onDeleteClick } = this;
-                        return _(XGridRowAction2, {
-                            ... { rowData },
-                            ... { menuButtons: props.menuButtons },
-                            ... { formSmsMailList: props.formSmsMailList },
-                            ... { crudFlags: props.crudFlags },
-                            ... { onEditClick, onDeleteClick },
-                            ... { parentCt: this }
-                        });
+                        return _(XGridRowAction2, Object.assign(
+                        		{ rowData, menuButtons: props.menuButtons
+                        		,formSmsMailList: props.formSmsMailList, crudFlags: props.crudFlags
+                        		,onEditClick, onDeleteClick,
+                        		parentCt: this }
+                        ));
                     }
                 });
                 columnExtensions.push({
@@ -5742,7 +5717,7 @@ class XMainGrid extends GridCommon {
          *            event.target - target object from clicked place
          */
         this.toggleDetailGrid = ({ target }) => {
-            this.setState({...this.state, [target.name]: target.checked });
+            this.setState(Object.assign({}, this.state, {[target.name]: target.checked }));
         };
         let { searchForm, detailGrids } = this.props;
         if (searchForm || (detailGrids && detailGrids.length > 1)) {
@@ -6000,16 +5975,16 @@ class XMainGrid extends GridCommon {
             if (!force && queryString === this.lastQuery) {
                 return;
             }
-            var tempParams = {
-                ...(this.form ? this.form.getValues() : {}),
-                ...params
-            };
+            var tempParams = Object.assign({}, (this.form ? this.form.getValues() : {}),
+                params);
             this.setState({ loading: !0 });
+            var self = this;
             iwb.request({
                 url: queryString,
                 self: this,
                 params: tempParams,
                 successCallback: (result, cfg) => {
+                	if(cfg.self.props.onLoad && cfg.self.props.onLoad(result, cfg)===false)return;
                     cfg.self.setState({
                         rows: result.data,
                         loading: false,
@@ -6061,19 +6036,6 @@ class XMainGrid extends GridCommon {
                                                     opacity: 0.24
                                                 }
                                             },
-                                            /*    track: {
-                                                  background: '#fff',
-                                                  strokeWidth: '67%',
-                                                  margin: 0, // margin is in pixels
-                                                  dropShadow: {
-                                                    enabled: true,
-                                                    top: -3,
-                                                    left: 0,
-                                                    blur: 4,
-                                                    opacity: 0.35
-                                                  }
-                                                },*/
-
                                             dataLabels: {
                                                 showOn: 'always',
                                                 name: {
@@ -6093,20 +6055,6 @@ class XMainGrid extends GridCommon {
                                             }
                                         }
                                     },
-                                    /*  fill: {
-                                        type: 'gradient',
-                                        gradient: {
-                                          shade: 'dark',
-                                          type: 'horizontal',
-                                          shadeIntensity: 0.2,
-                                          gradientToColors: ['#ABE5A1'],
-                                          inverseColors: true,
-                                          opacityFrom: 1,
-                                          opacityTo: 1,
-                                          stops: [0, 100]
-                                        }
-                                      },*/
-                                    //                			      colors: ['#f00'],
                                     series: [100 * j.xval],
                                     stroke: {
                                         lineCap: 'round'
@@ -6189,6 +6137,7 @@ class XMainGrid extends GridCommon {
                 treeParentKey,
                 titleComponent,
                 tableTreeColumn,
+                groupColumn,
                 _disableSearchPanel,
                 _disableIntegratedSorting,
                 _disableIntegratedGrouping
@@ -6240,15 +6189,15 @@ class XMainGrid extends GridCommon {
             rows.length > 1 &&
             _(_dxrg.IntegratedFiltering, null),
             /** state of the grouping */
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
-            _(_dxrg.GroupingState, null),
+            rows.length > 1)) &&
+            _(_dxrg.GroupingState, groupColumn ? {defaultGrouping:[{ columnName: groupColumn }]}:{}),
             /** ability to group like a tree */
 
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1 &&
+            rows.length > 1)) &&
             _(_dxrg.IntegratedGrouping, null),
             /** sorting wii be enabled when pageSize>0 and row has more than one data */
             !_disableIntegratedSorting &&
@@ -6310,11 +6259,11 @@ class XMainGrid extends GridCommon {
             :
             null,
             /** UI table Grouping */
-            !_disableIntegratedGrouping && !pageSize && rows.length > 1 ?
+            (groupColumn || (!_disableIntegratedGrouping && !pageSize && rows.length > 1)) ?
             _(_dxgrb.TableGroupRow, null) :
             null,
             /** top of grit do render some buttons */
-            !pageSize && rows.length > 1 && _(_dxgrb.Toolbar, null),
+            (groupColumn || (!pageSize && rows.length > 1)) && _(_dxgrb.Toolbar, null),
             /** ui search input */
             !pageSize &&
             rows.length > 1 &&
@@ -6326,9 +6275,9 @@ class XMainGrid extends GridCommon {
                 }
             }),
             /** UI grouping panel */
-            !_disableIntegratedGrouping &&
+            (groupColumn || (!_disableIntegratedGrouping &&
             !tree && !pageSize &&
-            rows.length > 1 &&
+            rows.length > 1)) &&
             _(_dxgrb.GroupingPanel, {
                 showSortingControls: true,
                 messages: { groupByColumn: getLocMsg("group_by_column") }
@@ -6390,13 +6339,12 @@ class XMainGrid extends GridCommon {
                     !iwb.newRecordPositionRight && _("div", { className: "fgrow" }),
                     extraButtons &&
                     extraButtons.map((btn, index) =>
-                        _(XToolbarItem, {
-                            ...btn,
-                            index,
+                        _(XToolbarItem, Object.assign({}, btn,
+                            {index,
                             row: null,
                             grid: this,
                             parentCt: null
-                        })
+                        }))
                     ),
                     // _(Button,{className:'float-right btn-round-shadow
                     // hover-shake',color:'danger',
@@ -6434,6 +6382,7 @@ class XMainCard extends GridCommon {
     constructor(props) {
         if (iwb.debug) console.log("XMainCard", props);
         super(props);
+        if(props.setCmp)props.setCmp(this);
         this.state = {
             totalCount: 0,
             pageSize: props.pageSize,
@@ -6563,7 +6512,7 @@ class XMainCard extends GridCommon {
             iwb.request({
                 url: queryString,
                 self: this,
-                params: {...(this.form ? this.form.getValues() : {}) },
+                params: Object.assign({}, (this.form ? this.form.getValues() : {}) ),
                 successCallback: (result, cfg) => {
                     cfg.self.setState({
                         cards: result.data,
@@ -6596,7 +6545,7 @@ class XMainCard extends GridCommon {
             
         /**rightClick on the card */
         this.RightClickComponent = props => extraProps =>
-            _(XGridRowAction2, {...props, ...extraProps });
+            _(XGridRowAction2, Object.assign({}, props, extraProps ));
             
         this.openOrderBy = (e)=>{
             e.preventDefault();
@@ -6717,13 +6666,12 @@ class XMainCard extends GridCommon {
 	                    ),
 	                    extraButtons &&
 	                    extraButtons.map((btn, index) =>
-	                        _(XToolbarItem, {
-	                            ...btn,
-	                            index,
+	                        _(XToolbarItem, Object.assign({}, btn,
+	                            {index,
 	                            row: null,
 	                            grid: this,
 	                            parentCt: null
-	                        })
+	                        }))
 	                    ),
 	                    this.props.xsearch && _('input',{style:{float:'right'},onChange:(ev)=>{
 	                    	var xsearch = ev.target.value||'';
@@ -6771,7 +6719,7 @@ class XMainCard extends GridCommon {
 	                    		this.props.pageSize>0 && (totalCount + ' records'+(this.props.orderNames?', ':''))
 	                    		,' ',this.props.orderNames && (getLocMsg('sort')+': '),
 	                    		this.props.orderNames && _('a',{href:'#', onClick:this.openOrderBy},(this.state.sort? (this.state.sort+' '+ this.state.dir):'(none)')))),
-	                    _(XPagination, {
+	                 this.props.pageSize && _(XPagination, {
 	                        pageSize,
 	                        currentPage,
 	                        totalCount,
@@ -6791,9 +6739,8 @@ class XMainCard extends GridCommon {
                         }
                     },
                     cards.map((record, index) => {
-                        return this.props.render({
-                            ...record,
-                            parentCt: this,
+                        return this.props.render(Object.assign({}, record,
+                            {parentCt: this,
                             key: index,
                             index: index, addTag:addTag,
                             RightClickComponent: this.RightClickComponent({
@@ -6806,7 +6753,7 @@ class XMainCard extends GridCommon {
                                 crudFlags
                                 
                             })
-                        });
+                        }));
                     })
                 )
 
@@ -6814,13 +6761,9 @@ class XMainCard extends GridCommon {
         );
     }
 }
-const XPagination = ({
-    pageSize = 10,
-    currentPage,
-    totalCount,
-    onChange,
-    ...props
-}) => {
+const XPagination = (props) => {
+	var pageSize = props.pageSize || 10;
+    var {currentPage, totalCount, onChange} = props;
     var totalPages = Math.ceil(totalCount / pageSize);
     var startPage, endPage;
     if (totalPages <= 10) {
@@ -6849,7 +6792,7 @@ const XPagination = ({
         onChange(currentPage);
     };
     return _(
-        Pagination, { ...props, className:"p-0",listClassName: 'd-flex' },
+        Pagination, Object.assign({}, props, {className:"p-0",listClassName: 'd-flex' }),
         _(
             PaginationItem, { disabled: currentPage == 1 },
             _(PaginationLink, {
@@ -6881,18 +6824,19 @@ XPagination.propTypes = {
     totalCount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     onChange: PropTypes.func.isRequired
 };
-const XItemPerPage = ({ pageSize, onChange, pageSizes, ...props }) => {
+const XItemPerPage = (props) => {
+	var { pageSize, onChange, pageSizes } = props;
     let hndlClick = number => event => {
         event.preventDefault();
         event.stopPropagation();
         number != pageSize && onChange && onChange(number);
     };
     return _(
-        Pagination, {
+        Pagination, Object.assign({
             "aria-label": getLocMsg("item_per_page"),
-            className: "m-0 p-0 p-sm-3",
-            ...props
-        },
+            className: "m-0 p-0 p-sm-3"},
+            props
+        ),
         pageSizes.map((number, index) => {
             return _(
                 PaginationItem, {
@@ -7019,7 +6963,7 @@ class XPage extends React.PureComponent {
                                     if (serverComponent) {
                                         if (callAttributes && callAttributes.modal) {
                                             // console.log(callAttributes);
-                                            iwb.showModal({
+                                            iwb.showModal(Object.assign({
                                                 body: serverComponent,
                                                 size: iwb.defaultModalSıze || "lg",
                                                 title: serverComponent.props && serverComponent.props.cfg ?
@@ -7028,14 +6972,14 @@ class XPage extends React.PureComponent {
                                                 color: callAttributes.modalColor ?
                                                     callAttributes.modalColor :
                                                     "primary",
-                                                ...callAttributes.modalProps
-                                            });
+                                            },callAttributes.modalProps
+                                            ));
                                         } else {
                                             var plus = action.substr(0, 1) == "2";
                                             if (this.isActionInTabList(action)) return;
                                             this.tabs.push({
                                                 name: action,
-                                                icon: plus ? "icon-plus" : "icon-doc",
+                                                icon: plus ? "icon-plus" : "icon-note",
                                                 title: " " + getLocMsg(plus ? "new" : "edit"),
                                                 value: serverComponent
                                             });
@@ -7131,11 +7075,11 @@ class XPage extends React.PureComponent {
                             return _(
                                 TabPane, { key: "TabPane" + index, tabId: name },
                                 value.gridId ?
-                                _(XMainGrid, {
+                                _(XMainGrid, Object.assign({
                                     openTab: this.openTab,
                                     closeTab: this.closeTab,
-                                    ...value
-                                }) :
+                                },value
+                                )) :
                                 value
                             );
                         })
@@ -7236,7 +7180,7 @@ class XPage4Card extends React.PureComponent {
                                     if (serverComponent) {
                                         if (callAttributes && callAttributes.modal) {
                                             // console.log(callAttributes);
-                                            iwb.showModal({
+                                            iwb.showModal(Object.assign({
                                                 body: serverComponent,
                                                 size: iwb.defaultModalSize || "lg",
                                                 title: serverComponent.props && serverComponent.props.cfg ?
@@ -7245,14 +7189,14 @@ class XPage4Card extends React.PureComponent {
                                                 color: callAttributes.modalColor ?
                                                     callAttributes.modalColor :
                                                     "primary",
-                                                ...callAttributes.modalProps
-                                            });
+                                            }, callAttributes.modalProps
+                                            ));
                                         } else {
                                             var plus = action.substr(0, 1) == "2";
                                             if (this.isActionInTabList(action)) return;
                                             this.tabs.push({
                                                 name: action,
-                                                icon: plus ? "icon-plus" : "icon-doc",
+                                                icon: plus ? "icon-plus" : "icon-note",
                                                 title: " " + getLocMsg(plus ? "new" : "edit"),
                                                 value: serverComponent
                                             });
@@ -7343,11 +7287,11 @@ class XPage4Card extends React.PureComponent {
                                 return _(
                                     TabPane, { key: "TabPane" + index, tabId: name },
                                     value.cardId ?
-                                    _(XMainCard, {
+                                    _(XMainCard, Object.assign({
                                         openTab: this.openTab,
                                         closeTab: this.closeTab,
-                                        ...value
-                                    }) :
+                                    },value
+                                    )) :
                                     value
                                 );
                             })
@@ -7667,15 +7611,29 @@ class XMainPanel extends React.PureComponent {
                                         iwb["t-" + templateID] = serverComponent;
                                         this.setState({ templateID });
                                         iwb.nav.visitItem(this.props.match.path);
+                                    } else {
+                                    	serverComponent = _(
+                                                React.Suspense, { fallback: _(XLoading, null) },
+                                                _(
+                                                    "div", { className: "animated fadeIn", id: "page" + templateID },
+                                                    'Error'
+                                                )
+                                            );
+                                            iwb["t-" + templateID] = 'Error';
+                                            this.setState({ templateID });
+                                            iwb.nav.visitItem(this.props.match.path);
                                     }
                                 } else {
-                                    toastr.error("Sonuc Gelmedi", " Error");
+                                    toastr.error("No Data", " Error");
                                 }
                             },
                             error => {
                                 toastr.error(error, "Connection Error");
                             }
-                        );
+                        ).catch( error=>{
+                            toastr.error(error, "Connection Error");
+                        	
+                        });
                 } else if (templateID != this.state.templateID)
                     this.setState({ templateID });
             };
@@ -7832,9 +7790,11 @@ class XForm extends React.Component {
             this.onChange = ({ target }) => {
                 var { values } = this.state;
                 if (target) {
+                	var oldVal = values[target.name];
                     values[target.name] =
                         target.type == "checkbox" ? target.checked : target.value;
                     this.setState({ values });
+                    if(target._onChange)target._onChange(values[target.name], oldVal, values);
                 }
             };
             /**
@@ -7862,13 +7822,13 @@ class XForm extends React.Component {
              */
             this.onComboChange = inputName => selectedOption => {
                 var { values } = this.state;
-                var slectedOption_Id = selectedOption && selectedOption.id;
-                values[inputName] = slectedOption_Id;
+                var selectedOptionId = selectedOption && selectedOption.id;
+                values[inputName] = selectedOptionId;
                 var triggers = this.triggerz4ComboRemotes;
                 // used for remote @depricated
                 if (triggers[inputName]) {
                     triggers[inputName].map(trigger => {
-                        var nv = trigger.f(slectedOption_Id, null, values);
+                        var nv = trigger.f(selectedOptionId, null, values);
                         var { options } = this.state;
                         if (nv) {
                             iwb.request({
@@ -7885,6 +7845,8 @@ class XForm extends React.Component {
                     });
                 }
                 this.setState({ values });
+//                if(target._onChange)target._onChange(values[target.name], oldVal, values);
+
             };
 
             /**
@@ -7895,16 +7857,32 @@ class XForm extends React.Component {
              */
             this.onLovComboChange = inputName => selectedOptions => {
                 var { values } = this.state;
-                var slectedOption_Ids = [];
+                var selectedOptionIds = [];
                 if (selectedOptions) {
                     selectedOptions.map(selectedOption => {
-                        slectedOption_Ids.push(selectedOption.id);
+                    	selectedOptionIds.push(selectedOption.id);
                     });
                 }
-                values[inputName] = slectedOption_Ids.join(",");
+                values[inputName] = selectedOptionIds.join(",");
                 this.setState({ values });
             };
 
+            this.onCheckboxGroupChange = inputName => actionOption => {
+                var { values } = this.state;
+                var selectedOptionIds = values[inputName] ? values[inputName].split(','):[];
+                if (actionOption.checked) {//add
+                	selectedOptionIds.push(actionOption.id);
+                } else { //remove
+                	var ar = []
+                	selectedOptionIds.map(o=>{
+                		if(o!=actionOption.id)ar.push(o);
+                	});
+                	selectedOptionIds = ar;
+                	
+                }
+                values[inputName] = selectedOptionIds.join(",");
+                this.setState({ values });
+            };
             /**
              * sets state when number entered
              *
@@ -7934,7 +7912,7 @@ class XForm extends React.Component {
              */
             this.submit = cfg => {
                 var baseValues = iwb.formBaseValues(cfg.id);
-                var values = {...baseValues, ...this.state.values };
+                var values = Object.assign({}, baseValues, this.state.values );
                 if (this.componentWillPost) {
                     /**
                      * componentWillPostResult = true || fase || {field_name : 'custom
@@ -7945,9 +7923,9 @@ class XForm extends React.Component {
                     	iwb.loadingDeactive();
                     	return false;
                     }
-                    values = {...values, ...componentWillPostResult };
+                    values = Object.assign({}, values, componentWillPostResult );
                 }
-                iwb.request({
+                var requestConfig={
                     url: this.url +
                         "?" +
                         iwb.JSON2URI(this.params) +
@@ -7960,13 +7938,28 @@ class XForm extends React.Component {
                         var errors = {};
                         if (json.errorType)
                             switch (json.errorType) {
+                            	case	"confirm":
+                            		yesNoDialog({
+                                        text: json.error,
+                                        callback: success => {
+                                            if (success) {
+                                            	requestConfig.params['_confirmId_'+json.objectId]=1;
+                                    			iwb.request(requestConfig);
+                                            }
+                                        }
+                                    });
+                            		break;
                                 case "validation":
-                                    toastr.error("Validation Errors");
+                                	var errMsg = getLocMsg("validation_errors");
                                     if (json.errors && json.errors.length) {
                                         json.errors.map(oneError => {
                                             errors[oneError.id] = oneError.msg;
+                                            errMsg+='<li>'+(oneError.dsc||oneError.id)+ ': ' + oneError.msg+'</li>';
                                         });
+                                        
                                     }
+                                    toastr.error(errMsg,{ timeOut: 7000 });
+                                    	
                                     if (json.error) {
                                         iwb.showModal({
                                             title: "ERROR",
@@ -8071,9 +8064,11 @@ class XForm extends React.Component {
                     },
                     successCallback: (json, xcfg) => {
                         iwb.loadingDeactive();
+                        this.setState({errors:{}});
                         if (cfg.callback) cfg.callback(json, xcfg);
                     }
-                });
+                }
+                iwb.request(requestConfig);
             };
             /**
              * used to make form active tab and visible on the page
@@ -8089,7 +8084,7 @@ class XForm extends React.Component {
             /**
              * returns form data from state
              */
-            this.getValues = () => ({...this.state.values });
+            this.getValues = () => Object.assign({}, this.state.values );
             /**
              * used for date inputs
              *
@@ -8107,7 +8102,7 @@ class XForm extends React.Component {
             this.onTimeChange = (inputName) => momentObject => {
             	var time = momentObject;
             	if(typeof(momentObject) !== "string"){
-            		time = momentObject.format("hh:mm");
+            		time = momentObject.format("hh:mm a");
             	}
             	var values = this.state.values;
             	values[inputName] = time;
@@ -8136,7 +8131,7 @@ class XForm extends React.Component {
             }
         }
         componentWillUnmount() {
-            iwb.forms[this._id] = {...this.state };
+            iwb.forms[this._id] = Object.assign({}, this.state );
         }
     }
     /**
@@ -8165,7 +8160,7 @@ class FileInput extends React.Component {
         this.dragover = this.dragover.bind(this);
         this.onclick = this.onclick.bind(this);
         this.onchange = this.onchange.bind(this);
-        this.uplaodFile = this.uplaodFile.bind(this);
+        this.uploadFile = this.uploadFile.bind(this);
         /** */
         this.downladLink = url => e => {
             e.preventDefault();
@@ -8216,7 +8211,7 @@ class FileInput extends React.Component {
                     file: event.dataTransfer.files[0]
                 },
                 () => {
-                    this.uplaodFile();
+                    this.uploadFile();
                 }
             );
         }
@@ -8230,12 +8225,12 @@ class FileInput extends React.Component {
                     file: event.target.files[0]
                 },
                 () => {
-                    this.uplaodFile();
+                    this.uploadFile();
                 }
             );
         }
         /** uploader function */
-    uplaodFile() {
+    uploadFile() {
         if (!this.state.file) {
             return;
         }
@@ -8328,13 +8323,12 @@ class FileInput extends React.Component {
                         }
                     },
                     _("div", {
-                        style: {
-                            ...defaultStyle,
-                            zIndex: "10",
+                        style: Object.assign({}, defaultStyle,
+                            {zIndex: "10",
                             background: "gray",
                             cursor: "pointer",
                             opacity: this.state.canUpload ? "0" : "0.5"
-                        },
+                        }),
                         className: "rounded",
                         onDrop: this.onDrop,
                         onDragEnter: this.dragenter,
@@ -8344,10 +8338,9 @@ class FileInput extends React.Component {
                     }),
                     _(
                         "div", {
-                            style: {
-                                ...defaultStyle,
-                                display: "flex"
-                            }
+                            style: Object.assign({}, defaultStyle,
+                                {display: "flex"
+                            })
                         },
                         _(XPreviewFile, {
                             file: this.state.file
@@ -8464,7 +8457,7 @@ iwb.graph = function(dg, gid, callback) {
                         chart: { id: 'apex-' + gid, type: 'donut', toolbar: { show: false } },
                         series: series,
                         labels: labels,
-                        legend: dg.legend ? { position: 'bottom' } : { show: false },
+                        legend: dg.legend ? { position: dg.legend===true?'bottom':dg.legend } : { show: false },
                         dataLabels: dg.legend ? {} : { formatter: function(val, opts) { return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val); } }
                     }
 
@@ -8528,10 +8521,205 @@ iwb.graph = function(dg, gid, callback) {
     });
 }
 
+iwb.radialBar = function(qid, gid, params){
+	iwb.request({
+        url: 'ajaxQueryData?_qid=' + qid + '&.r=' + Math.random(),
+        params: params||{},
+        successCallback: (result2) => {
+            if (!result2.data.length) return;
+            var j = result2.data[0];
+            var options = {
+            chart: {
+//                height: 300,
+                type: 'radialBar',
+            },
+            plotOptions: {
+                radialBar: {
+                    startAngle: -135,
+                    endAngle: 225,
+                    hollow: {
+                        margin: 0,
+                        size: '70%',
+                        background: '#fff',
+                        image: undefined,
+                        imageOffsetX: 0,
+                        imageOffsetY: 0,
+                        position: 'front',
+                        dropShadow: {
+                            enabled: true,
+                            top: 0,
+                            left: 0,
+                            blur: 4,
+                            opacity: 0.24
+                        }
+                    },
+                    dataLabels: {
+                        showOn: 'always',
+                        name: {
+                            offsetY: -10,
+                            show: true,
+                            color: '#888',
+                            fontSize: '17px'
+                        },
+                        value: {
+                            formatter: function(val) {
+                                return j.val;
+                            },
+                            color: '#111',
+                            fontSize: '36px',
+                            show: true,
+                        }
+                    }
+                }
+            },
+            series: [100 * j.xval],
+            stroke: {
+                lineCap: 'round'
+            },
+            labels: [j.title],
+
+        }
+
+        var xid = gid;
+        if (iwb.charts[xid]) iwb.charts[xid].destroy();
+        var chart = new ApexCharts(
+            document.getElementById(xid),
+            options
+        );
+        iwb.charts[xid] = chart;
+
+        chart.render();
+        }
+	});
+}
+iwb.graphQuery = function(dg, gid, params, callback) {
+    var series = [],
+        labels = [],
+        lookUps = [],
+        chart = null;
+    var xid = gid;
+    var el = document.getElementById(gid);
+    if (!el) return;
+    iwb.request({
+        url:
+            "ajaxQueryData?_qid=" +dg.queryId,
+        params: params||{},
+        successCallback: function(j) {
+            var d = j.data;
+            if (!d || !d.length) return;
+            switch (1 * dg.graphTip) {
+                case 6: // stacked area
+                case 5: // stacked column
+                    var colCount = dg.fields.length;
+                    for (var qi = 1; qi < colCount; qi++) {
+                        series.push({ name: dg.fields[qi].name, data: [] })
+                    }
+                    d.map((z) => {
+                        for (var qi = 1; qi < colCount; qi++) {
+                            series[qi-1].data.push(1 * z[dg.fields[qi].id]);
+                        }
+                        labels.push(z[(dg.fields[0].id+'_qw_')]||z[dg.fields[0].id]|| '-');
+                    });
+                    
+                    options = {
+                        chart: {
+                            id: 'apex-' + gid,
+                            //	                    height: 80*d.length+40,
+                            type: dg.graphTip==5?'bar':'area',
+                            stacked: true,
+                            toolbar: { show: false }
+                        },
+                        plotOptions: {
+                            //	                    bar: {horizontal: true},
+
+                        },
+                        series: series,
+                        stroke:dg.graphTip==5?{}:{curve:'smooth'},
+                        //title: {text: dg.name},
+                        xaxis: {
+                            categories: labels,
+                        },
+                        yaxis: { labels: { show: !!dg.legend }, axisTicks: { color: '#777' } },
+                    }
+                    break;
+                case 3: // pie
+                    d.map((z) => {
+                        series.push(1 * z[dg.fields[1].id]);
+                        labels.push(z[(dg.fields[0].id+'_qw_')]||z[dg.fields[0].id]|| '-');
+                    });
+                    var options = {
+                        chart: { id: 'apex-' + gid, type: 'donut', toolbar: { show: false } },
+                        series: series,
+                        labels: labels,
+                        legend: dg.legend ? { position: dg.legend===true?'bottom':dg.legend } : { show: false },
+                        dataLabels: dg.legend ? {} : { formatter: function(val, opts) { return labels[opts.seriesIndex] + ' - ' + fmtDecimal(val); } }
+                    }
+
+                    break;
+                case 1: // column
+                case 2: // line
+                    var colCount = dg.fields.length;
+                    for (var qi = 1; qi < colCount; qi++) {
+                        series.push({ name: dg.fields[qi].name, data: [] })
+                    }
+                    d.map((z) => {
+                        for (var qi = 1; qi < colCount; qi++) {
+                            series[qi-1].data.push(1 * z[dg.fields[qi].id]);
+                        }
+                        labels.push(z[(dg.fields[0].id+'_qw_')]||z[dg.fields[0].id]|| '-');
+                    });
+
+                    options = {
+                        chart: {
+                            id: 'apex-' + gid,
+                            //	                    height:document.getElementById()50*d.length+30,
+                            type: 1 * dg.graphTip == 1 ? 'bar' : 'line',
+                            toolbar: { show: false }
+                        },
+                        stroke: 1 * dg.graphTip == 1 ? {} : {
+                            curve: 'smooth'
+                        },
+                        series: series,
+                        xaxis: {
+                            categories: labels,
+                        },
+                        yaxis: { labels: { show: !!dg.legend } },
+                    }
+                    break;
+            }
+
+            if (options) {
+                options.theme = {
+                    //		            mode: 'dark',
+                    palette: iwb.graphPalette || 'palette6',
+                };
+                options.chart.height = el.offsetHeight && el.offsetHeight > 50 ? el.offsetHeight - 20 : el.offsetWidth / 2;
+                if (iwb.apexCharts[xid]) iwb.apexCharts[xid].destroy();
+                if (callback) options.chart.events = {
+                    dataPointSelection: function(event, chartContext, config) {
+                        if (config.selectedDataPoints && config.selectedDataPoints && config.selectedDataPoints.length) {
+                            var yx = config.selectedDataPoints[0];
+                            callback(yx.length ? d[yx[0]].id : false);
+                        }
+                    }
+                }
+                var chart = new ApexCharts(
+                    el,
+                    options
+                );
+                iwb.apexCharts[xid] = chart;
+                chart.render();
+            }
+
+        }
+    });
+}
+
 class XCardList  extends React.Component {
     constructor(props) {
         super(props);
         this.state = {rows: [], loading: false};
+        if(props.setCmp)props.setCmp(this);
         this.loadData = (force, params) => {
             if(force)this.setState({ rows: [], loading: true });
             iwb.request({
@@ -8539,6 +8727,7 @@ class XCardList  extends React.Component {
                 self: this,
                 params: params||{},
                 successCallback: (result, cfg) => {
+                	if(this.props.onLoad && this.props.onLoad(result, cfg)===false)return;
                     cfg.self.setState({
                         rows: result.data,
                         totalCount: result.total_count,
@@ -8581,6 +8770,14 @@ class XPortletItem extends React.PureComponent {
                 var dg = this.props.graph;
                 var gid = "idG" + dg.graphId;
                 iwb.graph(dg, gid);
+        	} else if(this.props.gquery){
+                var dg = this.props.gquery;
+                var gid = "idGQ" + dg.queryId;
+                iwb.graphQuery(Object.assign({}, dg, this.props.props||{}), gid, params||{});
+        	} else if(this.props.gauge){
+                var dg = this.props.gauge;
+                var gid = "idGA" + dg;
+                iwb.radialBar(dg, gid, params||{});
         	} 
         }
         if(props.registerLoad)props.registerLoad(this.reloadItem);
@@ -8592,7 +8789,7 @@ class XPortletItem extends React.PureComponent {
     
     render(){
     	var o = this.props;
-        var name = o.graph || o.grid || o.card || o.query || o.component;
+        var name = o.graph || o.grid || o.card || o.query || o.gquery || o.component || o.page || o.gauge;
         if (!name) return false;//_("div", null, "not portlet");
         
         if (o.query) {//badge
@@ -8667,10 +8864,33 @@ class XPortletItem extends React.PureComponent {
                     name,
                     _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
                 ),
-                _(XGrid, {...o.grid, registerLoad:(fx)=>{
+                _(XGrid, Object.assign({}, o.grid, {registerLoad:(fx)=>{
             		if(fx)this.reloadFnc=fx;
-            	}})
+            	}}))
             );
+        } else if (o.gquery) {
+        		return _(
+                    Card, {
+                        className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                    },
+                    _(
+                        "h3", {
+                            className: "form-header",
+                            style: {
+                                fontSize: "1.5rem",
+                                padding: "10px 12px 0px",
+                                marginBottom: ".5rem"
+                            }
+                        },
+                        name,
+                        _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
+                        
+                    ),
+                    _("div", {
+                        style: { width: "100%", height: o.props.height || "20vw" },
+                        id: "idGQ" + o.gquery.queryId
+                    })
+                );
         } else if (o.card){ 
         	o.card.crudFlags = false;
             return _(
@@ -8698,10 +8918,27 @@ class XPortletItem extends React.PureComponent {
                     		, style: {fontSize: 17, color: '#888', marginRight: 10, marginTop: 1, float: 'right'}},
                     		this.props.filter.items.map(oo=>_('option',{value:oo.id},oo.dsc)))
                 ),
-                _(XCardList, {...o.card, registerLoad:(fx)=>{
+                _(XCardList, Object.assign({}, o.card, {registerLoad:(fx)=>{
             		if(fx)this.reloadFnc=fx;
-               	}})
+               	}}))
             );
+        
+        } else if (o.page){ 
+            return _(
+                    Card, {
+                        className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                    },o.page());
+        
+        } else if (o.gauge){ 
+            return _(
+                Card, {
+                    className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                },
+	                _("div", {
+	                    style: { width: "100%", height: o.props.height || "20vw" },
+	                    id: "idGA" + o.gauge
+	                })
+                );
         
         }
         else if (o.component) return o.component;
@@ -8735,16 +8972,18 @@ class XDashboard extends React.PureComponent {
 	            return _(Row, {
 	                key: "xp-"+rowIndex,
 	                children: rowItem.map((colItem, colIndex) =>
-	                    _(Col, colItem.props||{}, _(XPortletItem, {...colItem, registerLoad:(fx)=>{
+	                    _(Col, colItem.props||{}, _(XPortletItem, Object.assign({}, colItem, {registerLoad:(fx)=>{
 	                		if(fx){
 	                			var id = "xx-"+rowIndex;
 	                			if(colItem.graph)id="pgraph-"+colItem.graph.graphId;
 	                			else if(colItem.grid)id="pgrid-"+colItem.grid.gridId;
 	                			else if(colItem.card)id="pcard-"+colItem.card.cardId;
 	                			else if(colItem.query)id="pquery-"+colItem.query.queryId;
+	                			else if(colItem.gquery)id="pgquery-"+colItem.gquery.queryId;
+	                			else if(colItem.gauge)id="pgauge-"+colItem.gauge;
 	                			this.reloadFncs[id]=fx;
 	                		}
-	                   	}})) //iwb.createPortlet(colItem
+	                   	}}))) //iwb.createPortlet(colItem
 	                )
 	            });
 	        }));
@@ -8889,11 +9128,204 @@ class CheckboxGroup extends React.Component {
         }, this.props.options.map((o) => {
 	        	return _('div',{}
 	            	,_('input',{id:this.props.name+'_'+o[this.props.valueKey], type:this.props.multi?'checkbox':'radio', checked:valMap[o[this.props.valueKey]], onClick:(aq)=>{
-	            		this.props.onChange({id:aq.target.value});
+	            		this.props.onChange({id:aq.target.value, checked:aq.target.checked});
 	            	}, name:this.props.name, value:o[this.props.valueKey]})
 		        	,' ', _('label',{for:this.props.name+'_'+o[this.props.valueKey], style:{fontWeight:400,color:'#333'}}, o[this.props.labelKey]));
         		}
         	)
         );
     }
+}
+
+iwb.hasPartInside=function(all,sub){
+	if(typeof all=='undefined')return false;
+	if((''+all).length==0)return false;
+	if((','+all+',').indexOf(','+sub+',')==-1)return false;
+	return true;
+}
+iwb.safeEquals= function(v1, v2){
+	if(v1==='' || v1===false || (typeof v1=='undefined')){
+		return (v2==='' || (typeof v2=='undefined'));
+	} else if(v2==='' || (typeof v2=='undefined'))return false;
+	return v1==v2;
+}
+
+iwb.formElementProperty = function(opr, elementValue, value){
+	switch(1*opr){
+	case -1://is Empty
+		return elementValue==='' || elementValue===null || (typeof elementValue=='undefined');
+	case -2://is not empty
+		return !(elementValue==='' || elementValue===null || (typeof elementValue=='undefined'));
+	case	8://in
+		if(value==='' || (typeof value=='undefined'))return false;
+		return iwb.hasPartInside(value, elementValue);
+	case	9://not in
+		if(value==='' || (typeof value=='undefined'))return true;
+		return !iwb.hasPartInside(value, elementValue);
+	case	0://equals
+		return iwb.safeEquals(elementValue, value);
+	case	1://not equals
+		return !iwb.safeEquals(elementValue, value);
+		
+	}
+	return false;
+	
+}
+iwb.hideColumn= function(columns,name){
+	columns.map(o => {
+		if(o.name == name)o.hidden=true; 
+	})
+}
+
+function extractSurveyJsResult(o){
+	if(o && Array.isArray(o)){
+		if(o.length && o[0].content){
+			return o[0].content.substr(o[0].content.lastIndexOf('=')+1);
+		} else 
+			return o.join(','); 
+			
+	} else 
+		return o;
+}
+
+iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
+//	console.log(params)
+	var params2 = {_mask:!0}, fid = 0;
+	if(masterParams)for(var kk in masterParams)params2[kk] = masterParams[kk];
+	for(var k in params){
+		var o = params[k];
+		if(k.startsWith('_form_')){
+			fid++;
+			params2['_fid'+fid] = k.substr('_form_'.length);
+			if(action==2 || !surveyData[k] || !surveyData[k].length){
+				params2['_cnt'+fid] = o.length;
+				for(var qi=0;qi<o.length;qi++){
+					var cell = o[qi];
+					params2['a'+fid+'.'+(qi+1)] = 2;
+					for(var kk in cell){
+						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
+					}
+					if(masterParams)for(var kk in masterParams)
+						params2[kk.substr(1)+fid+'.'+(qi+1)] = extractSurveyJsResult(masterParams[kk]);
+				}			
+			} else {//update
+				var s = surveyData[k], cnt = 0, pkFieldName='';
+				var sm = {}
+				s.map(scell => {
+					for(var sk in scell)if(sk.startsWith('_id_')){
+						sm[scell[sk]]=scell;
+						pkFieldName = sk.substr('_id_'.length);
+					}
+				});
+				
+				for(var qi=0;qi<o.length;qi++){//for each fresh data
+					var cell = o[qi];
+					cnt++;
+					params2['a'+fid+'.'+cnt] = 2;
+					for(var kk in cell)if(kk.startsWith('_id_')){
+						params2['a'+fid+'.'+cnt] = 1;
+						params2['t'+pkFieldName+fid+'.'+cnt] = cell[kk];
+						delete sm[cell[kk]];
+					} else {
+						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
+					}
+					if(masterParams)for(var kk in masterParams)
+						params2[kk.substr(1)+fid+'.'+cnt] = extractSurveyJsResult(masterParams[kk]);
+				}
+				for(var sk in sm){
+					cnt++;
+					params2['a'+fid+'.'+cnt] = 3;
+					params2['t'+pkFieldName+fid+'.'+cnt] = sk;
+				}
+				if(cnt)
+					params2['_cnt'+fid] = cnt;
+				else {
+					delete params2['_fid'+fid];
+					fid--;
+				}
+			}
+		} else {
+			params2[k] =  extractSurveyJsResult(o);
+		}
+	}
+	if(action==1)for(var k in surveyData)if(k.startsWith('_form_') && surveyData[k] && surveyData[k].length && 
+			(!params[k] || !params[k].length)){
+		var o = surveyData[k];
+		fid++;
+		params2['_fid'+fid] = k.substr('_form_'.length);
+		params2['_cnt'+fid] = o.length;
+		for(var qi=0;qi<o.length;qi++){
+			var cell = o[qi];
+			params2['a'+fid+'.'+(qi+1)] = 3;
+			for(var kk in cell)if(kk.startsWith('_id_')){
+				params2['t'+kk.substr('_id_'.length)+fid+'.'+(qi+1)] = cell[kk];
+			}
+		}
+	}
+	iwb.ajax.postForm(formId, action, params2, ()=>{
+		toastr.success(
+            "",
+            "Saved Successfully", {
+                timeOut: 3000
+            }
+        );
+		iwb.closeTab({}, !0);
+	})
+}
+
+iwb.fileUploadSurveyJs=(tableId, tablePk, survey, options)=>{
+	var formData = new FormData();
+    options
+        .files
+        .forEach(function (file) {
+            formData.append("file", file);
+            formData.append("table_id", tableId);
+            formData.append("table_pk", tablePk);
+            formData.append("profilePictureFlag", 0);
+        });
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.open("POST", "upload.form"); // https://surveyjs.io/api/MySurveys/uploadFiles
+    xhr.onload = function () {
+        var data = xhr.response;
+        options.callback("success", options.files.map(file => {
+            return {
+                file: file,
+                content: data.fileUrl
+            };
+        }));
+    };
+    xhr.send(formData);
+}
+
+function gcx(w, h, r) {
+  var l = (screen.width - w) / 2;
+  var t = (screen.height - h) / 2;
+  r = r ? 1 : 0;
+  return (
+    "toolbar=0,scrollbars=0,location=0,status=1,menubar=0,resizable=" +
+    r +
+    ",width=" +
+    w +
+    ",height=" +
+    h +
+    ",left=" +
+    l +
+    ",top=" +
+    t
+  );
+}
+
+function openPopup(url, name, x, y, r) {
+  var wh = window.open(url, name, gcx(x, y, r));
+  if (!wh) toastr.error(getLocMsg("remove_popup_blocker"));
+  else wh.focus();
+  return false;
+}
+
+iwb.findAsyncValue = function(value, options){
+	if(!value || !options || !options.length)return '';
+	for(var qi=0;qi<options.length;qi++)if(options[qi].id==value)return options[qi];
+	return '';
+	
 }

@@ -828,14 +828,21 @@ Ext.ux.form.SuperBoxSelect = Ext.extend(Ext.ux.form.SuperBoxSelect,Ext.form.Comb
         }
         
         var val = this.el.dom.value, it, ctrl = e.ctrlKey;
+        //veli
+        if(val !== "" && this.allowAddNewData && e.getKey()==188){//comma
+        	e.stopEvent();
+        	this.addItem({dsc:val}, true);
+        	return true;
+        }
         if(this.itemDelimiterKey.indexOf(e.getKey()) !== -1){
             e.stopEvent();
             if (val !== "") {
                 if (ctrl || !this.isExpanded())  {  //ctrl+enter for new items
-                    this.view.clearSelections();
+                    /*this.view.clearSelections();
                     this.collapse();
                     this.setRawValue('');
-                    this.fireEvent('newitem', this, val);
+                    this.fireEvent('newitem', this, val);*/
+                	this.addItem({dsc:val}, true)
                 }
                 else {
                     this.onViewClick();

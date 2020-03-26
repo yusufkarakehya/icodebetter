@@ -64,9 +64,17 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 	private String accessUpdateUsers;
 	private String accessUpdateUserFields;
 	
+	private short accessMaskTip;
+	private String accessMaskRoles;
+	private String accessMaskUsers;
+	private String accessMaskUserFields;
+	
 	private int defaultLookupTableId;
 	private short defaultControlTip;
 	private String relatedSessionField;
+	
+	private short lkpEncryptionType;
+
 	
 	public W5TableField() {
 	}
@@ -400,6 +408,51 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 
 	public void setRelatedSessionField(String relatedSessionField) {
 		this.relatedSessionField = relatedSessionField;
+	}
+
+	@Column(name="access_mask_tip")
+	public short getAccessMaskTip() {
+		return accessMaskTip;
+	}
+
+	public void setAccessMaskTip(short accessMaskTip) {
+		this.accessMaskTip = accessMaskTip;
+	}
+
+	@Column(name="access_mask_roles")
+	public String getAccessMaskRoles() {
+		return accessMaskRoles;
+	}
+
+	public void setAccessMaskRoles(String accessMaskRoles) {
+		this.accessMaskRoles = accessMaskRoles;
+	}
+
+	@Column(name="access_mask_users")
+	public String getAccessMaskUsers() {
+		return accessMaskUsers;
+	}
+
+	public void setAccessMaskUsers(String accessMaskUsers) {
+		this.accessMaskUsers = accessMaskUsers;
+	}
+
+	@Column(name="access_mask_user_fields")
+	public String getAccessMaskUserFields() {
+		return accessMaskUserFields;
+	}
+
+	public void setAccessMaskUserFields(String accessMaskUserFields) {
+		this.accessMaskUserFields = accessMaskUserFields;
+	}
+
+	@Column(name="lkp_encryption_type")
+	public short getLkpEncryptionType() {
+		return lkpEncryptionType;
+	}
+
+	public void setLkpEncryptionType(short lkpEncryptionType) {
+		this.lkpEncryptionType = lkpEncryptionType;
 	}
 	
 }

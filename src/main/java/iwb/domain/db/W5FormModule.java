@@ -24,6 +24,8 @@ public class W5FormModule implements java.io.Serializable, W5Base {
 	private short accessViewTip;
 	private String accessViewRoles;
 	private String accessViewUsers;
+	private int minRow;
+	private int maxRow;
 	
 	
 	
@@ -146,6 +148,21 @@ public class W5FormModule implements java.io.Serializable, W5Base {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+	
+	@Column(name="min_row")
+	public int getMinRow() {
+		return minRow;
+	}
+	public void setMinRow(int minRow) {
+		this.minRow = minRow;
+	}
+	@Column(name="max_row")
+	public int getMaxRow() {
+		return maxRow;
+	}
+	public void setMaxRow(int maxRow) {
+		this.maxRow = maxRow;
 	}
 	
 }

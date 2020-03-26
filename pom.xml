@@ -110,6 +110,12 @@
 			<artifactId>json</artifactId>
 			<version>20160810</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-csv</artifactId>
+		    <version>1.7</version>
+		</dependency>
 
 		<!-- <dependency> -->
 		<!-- <groupId>javax.mail</groupId> -->
@@ -219,9 +225,10 @@
 						<ports>
 							<port>8080</port>
 						</ports>
-						<jvmFlags>
-							<jvmFlag>-Xdebug</jvmFlag>
-							<jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7777</jvmFlag>
+						<jvmFlags>		
+							<jvmFlag>-Xmx12g</jvmFlag>
+							<!--<jvmFlag>-Xdebug</jvmFlag>
+							<jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7777</jvmFlag>-->
 						</jvmFlags>
 						<!--<args>
 							<arg>project=1</arg> <arg>vcs_server=http://10.252.101.71/app/</arg> 

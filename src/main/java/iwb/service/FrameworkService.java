@@ -510,7 +510,10 @@ public class FrameworkService {
 		scd.put("userRoleId", userRoleId);
 		scd.put("customizationId", po.getCustomizationId());
 		scd.put("projectId", po.getProjectUuid());
-		Map<String, Object> m = executeQuery2Map(scd, po.getSessionQueryId(), rm); // mainSessionQuery
+		int sessionQueryId = po.getSessionQueryId();
+		if(rm!=null && GenericUtil.uInt(rm.get("sessionQueryId"))!=0)
+			sessionQueryId =  GenericUtil.uInt(rm.get("sessionQueryId"));
+		Map<String, Object> m = executeQuery2Map(scd, sessionQueryId, rm); // mainSessionQuery
 		if (m == null)
 			return null;
 		return m;

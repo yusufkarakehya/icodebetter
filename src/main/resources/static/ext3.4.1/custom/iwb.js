@@ -551,23 +551,23 @@ function fmtTimeAgo(a) {
 }
 
 function fmtShortDate(x) {
-  return x ? (x.dateFormat ? x.dateFormat("d/m/Y") : x) : "";
+  return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat) : x) : "";
 }
 
 function fmtDateTime(x) {
-  return x ? (x.dateFormat ? x.dateFormat("d/m/Y H:i:s") : x) : "";
+  return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat+" H:i:s") : x) : "";
 }
 
 function fmtDateTimeWithDay(x, addsec) {
   if (addsec) {
-    return x ? (x.dateFormat ? x.dateFormat("d/m/Y H:i:s D") : x) : "";
+    return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat+" H:i:s D") : x) : "";
   } else {
-    return x ? (x.dateFormat ? x.dateFormat("d/m/Y H:i D") : x) : "";
+    return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat+" H:i D") : x) : "";
   }
 }
 
 function fmtDateTimeWithDay2(x) {
-  return x ? (x.dateFormat ? x.dateFormat("d/m/Y H:i:s D") : x) : "";
+  return x ? (x.dateFormat ? x.dateFormat(iwb.dateFormat+" H:i:s D") : x) : "";
 }
 
 var daysOfTheWeek = {
@@ -608,7 +608,7 @@ function fmtDateTimeAgo(dt2) {
   if (t + 2 * 24 * 60 * 60 * 1000 > tnow) return xt[4]; // 'Dün';
   if (t + 7 * 24 * 60 * 60 * 1000 > tnow)
     return daysOfTheWeek[_scd.locale][dt2.getDay()]; // 5dka
-  return dt2.dateFormat("d/m/Y");
+  return dt2.dateFormat(iwb.dateFormat);
 }
 
 function buildParams(params, map) {
@@ -3035,9 +3035,16 @@ function fnCardSearchListener(card){
 	return function(ax,e){
 		if(!ax._delay){
 			ax._delay = new Ext.util.DelayedTask(function() {
-				if(!card.store.baseParams)card.store.baseParams={};
-				card.store.baseParams.xdsc=ax.getValue();
-				card.store.reload();
+				if(card.pageSize){
+					if(!card.store.baseParams)card.store.baseParams={};
+					card.store.baseParams.xdsc=ax.getValue();
+					card.store.reload();
+				} else if(card.fnSearch){
+					card.fnSearch(ax.getValue())
+				} else {
+					if(!ax.getValue())card.store.clearFilter();
+					else card.store.filter(card._filterField, ax.getValue(), true);
+				}
 			});
 		}
 		ax._delay.delay(200);
@@ -3594,7 +3601,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 	  var tbarItems;
 	  if(mainGrid.tbarItems)tbarItems=mainGrid.tbarItems;
 	  else {
-		  tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:'Quick Search...',enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGrid._gp)}
+		  tbarItems = [new Ext.form.TextField({id:'sf-card-'+obj.t,emptyText:getLocMsg('quick_search'),enableKeyEvents:!0,listeners:{keyup:fnCardSearchListener(mainGrid._gp)}
 		  , style:'font-size:20px !important;padding:7px 7px 7px 14px;border:0;',width:cardWidth -36*tbiNums-20}),'->'];
 		  if(mainGrid.searchForm)tbarItems.push({cls:'x-btn-icon x-grid-search', id:'sfb-card-'+obj.t, _sf:searchFormPanel, tooltip:'Advanced Search', handler:function(aq){
 			  if(!aq._sf.isVisible()){
@@ -4075,7 +4082,7 @@ function ajaxAuthenticateUser() {
 
 function showLoginDialog(xobj) {
   if (1 * _scd.customizationId > 0) {
-    document.location = "/app/index.html";
+    document.location = "login.htm?.r="+Math.random();
     return;
   }
   if (lw && lw.isVisible()) return;
@@ -4093,12 +4100,12 @@ function showLoginDialog(xobj) {
     buttonAlign: "center",
     buttons: [
       {
-        text: getLocMsg("js_giris"),
+        text: getLocMsg("login"),
         // iconCls: 'button-enter',
         handler: ajaxAuthenticateUser
       },
       {
-        text: getLocMsg("js_cikis"),
+        text: getLocMsg("exit"),
         // iconCls: 'button-exit',
         handler: function() {
           document.location = "login.htm?r=" + new Date().getTime();
@@ -4219,7 +4226,7 @@ function formSubmit(submitConfig) {
         _app.show_info_msg &&
         1 * _app.show_info_msg != 0
       )
-        Ext.infoMsg.msg("success", getLocMsg("js_islem_basariyla_tamamlandi"));
+        Ext.infoMsg.msg("success", getLocMsg("operation_successful"));
       if (submitConfig.callback) {
         if (submitConfig.callback(myJson, submitConfig) === false) return;
       }
@@ -4439,32 +4446,36 @@ function combo2combo(comboMaster, comboDetail, param, formAction) {
           comboDetail.store.baseParams = p;
           comboDetail.store.reload({
             callback: function(ax) {
-              if (
-                typeof comboDetail._controlTip != "undefined" &&
-                (comboDetail._controlTip == 16 || comboDetail._controlTip == 60)
-              ) {
-                // lovcombo-remote
-                if (comboDetail._oldValue && comboDetail._oldValue != null) {
-                  comboDetail.setValue(comboDetail._oldValue);
-                  comboDetail._oldValue = null;
-                }
-              } else if ((ax && !ax.length) || getFieldValue(comboMaster) == "") {
-                comboDetail.clearValue();
-              } else if (
-                ax &&
-                ax.length == 1 &&
-                (comboDetail.getValue() == ax[0].id || formAction == 2) &&
-                !comboDetail._notAutoSet
-              ) {
-                comboDetail.setValue(ax[0].id);
-              } else if (ax && ax.length > 1 && comboDetail.getValue()) {
-                if (comboDetail.store.getById(comboDetail.getValue())) {
-                  comboDetail.setValue(comboDetail.getValue());
-                } else {
-                  comboDetail.clearValue();
-                }
-              }
-              if (comboDetail.getValue()) comboDetail.fireEvent("select");
+            	try{
+	              if (
+	                typeof comboDetail._controlTip != "undefined" &&
+	                (comboDetail._controlTip == 16 || comboDetail._controlTip == 60)
+	              ) {
+	                // lovcombo-remote
+	                if (comboDetail._oldValue && comboDetail._oldValue != null) {
+	                  comboDetail.setValue(comboDetail._oldValue);
+	                  comboDetail._oldValue = null;
+	                }
+	              } else if ((ax && !ax.length) || getFieldValue(comboMaster) == "") {
+	                comboDetail.clearValue();
+	              } else if (
+	                ax &&
+	                ax.length == 1 &&
+	                (comboDetail.getValue() == ax[0].id || formAction == 2) &&
+	                !comboDetail._notAutoSet
+	              ) {
+	                comboDetail.setValue(ax[0].id);
+	              } else if (ax && ax.length > 1 && comboDetail.getValue()) {
+	                if (comboDetail.store.getById(comboDetail.getValue())) {
+	                  comboDetail.setValue(comboDetail.getValue());
+	                } else {
+	                  comboDetail.clearValue();
+	                }
+	              }
+	              if (comboDetail.getValue()) comboDetail.fireEvent("select");
+            	} catch(ee){
+            		Ext.infoMsg.msg('error',"ComboDetail.Load error: " + ee)
+            	}
             }
           });
         } else {
@@ -6364,13 +6375,21 @@ function getFieldValue(field) {
 	  if(field._controlTip == 101)return field.hiddenValue;
 	  if(field._checkbox){
 		  var r ='';
-		  
-		  if(field.items && field.items.keys){
-			  var kk = field.items.keys;
-			  for(var qi=0;qi<kk.length;qi++){
-				  var fl = Ext.getCmp(kk[qi]);
-				  if(fl.checked)r+=','+fl.inputValue;
+		  if(field.items){
+			  if(field.items.items){
+				  var kk = field.items.items;
+				  for(var qi=0;qi<kk.length;qi++){
+					  var fl = kk[qi];//Ext.getCmp(kk[qi]);
+					  if(fl.checked)r+=','+fl.inputValue;
+				  }
+			  } else if(field.items.length){//note rendered yet
+				  var kk = field.items;
+				  for(var qi=0;qi<kk.length;qi++){
+					  var fl = kk[qi];//Ext.getCmp(kk[qi]);
+					  if(fl.checked)r+=','+fl.inputValue;
+				  }
 			  }
+
 		  }
 		  if(r)return r.substr(1);
 		  return '';
@@ -7630,7 +7649,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "cc_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-        iconCls: "isave_cont",
+//        iconCls: "isave_cont",
         handler: function(a, b, c) {
           if (
             !getForm._cfg.formPanel.getForm().isDirty() &&
@@ -7656,6 +7675,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           if (!getForm._cfg.callback)
             getForm._cfg.callback = function(js, conf) {
               if (js.success) Ext.infoMsg.msg("info", "${operation_completed}");
+              if(extDef._tab_order.getValue)extDef._tab_order.setValue(extDef._tab_order.getValue()+1)
             };
           getForm._cfg.dontClose = 1;
           getForm._cfg.extraParams = {};
@@ -7671,7 +7691,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         iconAlign: "top",
         scale: "medium",
 
-        iconCls: "isave_new",
+//        iconCls: "isave_new",
         handler: function(a, b, c) {
           var r = null;
           if (extDef.componentWillPost) {
@@ -7692,6 +7712,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           if (!getForm._cfg.callback)
             getForm._cfg.callback = function(js, conf) {
               if (js.success) Ext.infoMsg.msg("info", "${operation_completed}");
+              if(extDef._tab_order.getValue)extDef._tab_order.setValue(extDef._tab_order.getValue()+1)
             };
           getForm._cfg.dontClose = 1;
           getForm._cfg.resetValues = 1;
@@ -8465,8 +8486,8 @@ iwb.loadComponent=function(id){
 iwb.serverDttmDiff=0;
 iwb.getDate=function(x){// server DateTime OR parse(x)
 	if(!x)return iwb.serverDateDiff ? new Date(new Date().getTime()+iwb.serverDateDiff): new Date();
-	if(x.length<=10)return Date.parseDate(x,"d/m/Y");
-	return Date.parseDate(x,"d/m/Y H:i:s");
+	if(x.length<=10)return Date.parseDate(x,iwb.dateFormat);
+	return Date.parseDate(x,iwb.dateFormat+" H:i:s");
 }
 
 iwb.ajax={}
@@ -8652,4 +8673,166 @@ iwb.changeFieldLabel=function(field, label){
 	if(!field)return;
     if (field.label) field.label.dom.innerHTML = label; 
     else field.fieldLabel = label;
+}
+
+
+iwb.hasPartInside=function(all,sub){
+	if(typeof all=='undefined')return false;
+	if((''+all).length==0)return false;
+	if((','+all+',').indexOf(','+sub+',')==-1)return false;
+	return true;
+}
+iwb.safeEquals= function(v1, v2){
+	if(v1==='' || (typeof v1=='undefined')){
+		return (v2==='' || (typeof v2=='undefined'));
+	} else if(v2==='' || (typeof v2=='undefined'))return false;
+	return v1==v2;
+}
+
+iwb.hasPartInside2=function(all,sub){
+	if(typeof all=='undefined' || typeof sub=='undefined')return false;
+	if((''+all).length==0 || (''+sub).length==0)return false;
+	var sub2 = (''+sub).split(',');
+	for(var qi=0;qi<sub2.length;qi++)
+		if((','+all+',').indexOf(','+sub2[qi]+',')!=-1)return true;
+	return false;
+}
+
+iwb.formElementProperty = function(opr, elementValue, value){
+	switch(1*opr){
+	case -1://is Empty
+		return elementValue==='' || elementValue===null || (typeof elementValue=='undefined');
+	case -2://is not empty
+		return !(elementValue==='' || elementValue===null || (typeof elementValue=='undefined'));
+	case	8://in
+		if(value==='' || (typeof value=='undefined'))return false;
+		return iwb.hasPartInside2(value, elementValue);
+	case	9://not in
+		if(value==='' || (typeof value=='undefined'))return true;
+		return !iwb.hasPartInside2(value, elementValue);
+	case	0://equals
+		return iwb.safeEquals(elementValue, value);
+	case	1://not equals
+		return !iwb.safeEquals(elementValue, value);
+		
+	}
+	return false;
+	
+}
+
+
+function extractSurveyJsResult(o){
+	if(o && Array.isArray(o)){
+		if(o.length && o[0].content){
+			return o[0].content.substr(o[0].content.lastIndexOf('=')+1);
+		} else 
+			return o.join(','); 
+			
+	} else 
+		return o;
+}
+
+iwb.postSurveyJs=(formId, action, params, surveyData, masterParams)=>{
+//	console.log(params)
+	var params2 = {_mask:!0}, fid = 0;
+	if(masterParams)for(var kk in masterParams)params2[kk] = masterParams[kk];
+	for(var k in params){
+		var o = params[k];
+		if(k.startsWith('_form_')){
+			fid++;
+			params2['_fid'+fid] = k.substr('_form_'.length);
+			if(action==2 || !surveyData[k] || !surveyData[k].length){
+				params2['_cnt'+fid] = o.length;
+				for(var qi=0;qi<o.length;qi++){
+					var cell = o[qi];
+					params2['a'+fid+'.'+(qi+1)] = 2;
+					for(var kk in cell){
+						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
+					}
+					if(masterParams)for(var kk in masterParams)
+						params2[kk.substr(1)+fid+'.'+(qi+1)] = extractSurveyJsResult(masterParams[kk]);
+				}			
+			} else {//update
+				var s = surveyData[k], cnt = 0, pkFieldName='';
+				var sm = {}
+				s.map(scell => {
+					for(var sk in scell)if(sk.startsWith('_id_')){
+						sm[scell[sk]]=scell;
+						pkFieldName = sk.substr('_id_'.length);
+					}
+				});
+				
+				for(var qi=0;qi<o.length;qi++){//for each fresh data
+					var cell = o[qi];
+					cnt++;
+					params2['a'+fid+'.'+cnt] = 2;
+					for(var kk in cell)if(kk.startsWith('_id_')){
+						params2['a'+fid+'.'+cnt] = 1;
+						params2['t'+pkFieldName+fid+'.'+cnt] = cell[kk];
+						delete sm[cell[kk]];
+					} else {
+						params2[kk+fid+'.'+(qi+1)] = extractSurveyJsResult(cell[kk]);
+					}
+					if(masterParams)for(var kk in masterParams)
+						params2[kk.substr(1)+fid+'.'+cnt] = extractSurveyJsResult(masterParams[kk]);
+				}
+				for(var sk in sm){
+					cnt++;
+					params2['a'+fid+'.'+cnt] = 3;
+					params2['t'+pkFieldName+fid+'.'+cnt] = sk;
+				}
+				if(cnt)
+					params2['_cnt'+fid] = cnt;
+				else {
+					delete params2['_fid'+fid];
+					fid--;
+				}
+			}
+		} else {
+			params2[k] =  extractSurveyJsResult(o);
+		}
+	}
+	if(action==1)for(var k in surveyData)if(k.startsWith('_form_') && surveyData[k] && surveyData[k].length && 
+			(!params[k] || !params[k].length)){
+		var o = surveyData[k];
+		fid++;
+		params2['_fid'+fid] = k.substr('_form_'.length);
+		params2['_cnt'+fid] = o.length;
+		for(var qi=0;qi<o.length;qi++){
+			var cell = o[qi];
+			params2['a'+fid+'.'+(qi+1)] = 3;
+			for(var kk in cell)if(kk.startsWith('_id_')){
+				params2['t'+kk.substr('_id_'.length)+fid+'.'+(qi+1)] = cell[kk];
+			}
+		}
+	}
+	iwb.ajax.postForm(formId, action, params2, ()=>{
+		Ext.infoMsg.msg("success", getLocMsg("operation_successful"));
+		mainPanel.remove(mainPanel.getActiveTab());
+	})
+}
+
+iwb.fileUploadSurveyJs=(tableId, tablePk, survey, options)=>{
+	var formData = new FormData();
+    options
+        .files
+        .forEach(function (file) {
+            formData.append("file", file);
+            formData.append("table_id", tableId);
+            formData.append("table_pk", tablePk);
+            formData.append("profilePictureFlag", 0);
+        });
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.open("POST", "upload.form"); // https://surveyjs.io/api/MySurveys/uploadFiles
+    xhr.onload = function () {
+        var data = xhr.response;
+        options.callback("success", options.files.map(file => {
+            return {
+                file: file,
+                content: data.fileUrl
+            };
+        }));
+    };
+    xhr.send(formData);
 }
