@@ -1118,7 +1118,7 @@ public class VcsService {
 		List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where ((q.customization_id=? AND q.project_uuid=?) OR (q.customization_id=0 AND q.project_uuid = '067e6162-3b6f-4ae2-a221-2470b63dff00')) AND q.vcs_flag=1 order by q.table_id", customizationId, projectUuid); //sadece master tablolar
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
-			if(mt!=null){
+			if(mt!=null && !GenericUtil.isEmpty(mt.get_tableParamList()) && !GenericUtil.isEmpty(mt.get_tableFieldList())){
 				List params = new ArrayList();
 				StringBuilder sql = new StringBuilder();
 				sql.append("select count(1) from iwb.w5_vcs_object v where v.project_uuid=? AND v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,2,9) AND not exists(select 1 from  ").append(mt.getDsc()).append(" m where m.project_uuid=? AND v.table_pk=m.")//m.customization_id=? AND 
@@ -1141,6 +1141,7 @@ public class VcsService {
 		
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
+			if(GenericUtil.isEmpty(mt.get_tableParamList()) || GenericUtil.isEmpty(mt.get_tableFieldList()))continue;
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
 			sql.append("select count(1) from ").append(mt.getDsc())
@@ -1164,6 +1165,7 @@ public class VcsService {
 		
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
+			if(GenericUtil.isEmpty(mt.get_tableParamList()) || GenericUtil.isEmpty(mt.get_tableFieldList()))continue;
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
 			sql.append("select count(1) from ").append(mt.getDsc())
@@ -1188,6 +1190,7 @@ public class VcsService {
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
 			if(mt.getTableTip()!=0)continue;
+			if(GenericUtil.isEmpty(mt.get_tableParamList()) || GenericUtil.isEmpty(mt.get_tableFieldList()))continue;
 			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList()){
 				W5Table dt = FrameworkCache.getTable(projectUuid, tc.getRelatedTableId());
 				if(dt==null || dt.getTableTip()==0 || dt.getVcsFlag()==0)continue;
