@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -1754,7 +1755,7 @@ public class GenericUtil {
 			} else if (subStr.startsWith("app.")) {
 				replaced = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), subStr.substring(4));
 			} else {
-				replaced = LocaleMsgCache.get2((Integer) scd.get("customizationId"), (String) scd.get("locale"),
+				replaced = LocaleMsgCache.get2(scd,
 						subStr); // getMsgHTML de olabilirdi
 			}
 			if (replaced != null)
@@ -1763,6 +1764,42 @@ public class GenericUtil {
 		return tmp;
 	}
 
+	public static StringBuilder filterURI(String code, Map<String, Object> scd, Map<String, String> requestParams,
+			Map<String, Object> obj) {
+		StringBuilder tmp = new StringBuilder();
+		if (code == null || code.length() == 0)
+			return tmp;
+		tmp.append(code);
+		for (int bas = tmp.indexOf("${"); bas > -1; bas = tmp.indexOf("${", bas + 2)) try{
+			int bit = tmp.indexOf("}", bas + 2);
+			String subStr = tmp.substring(bas + 2, bit);
+			String replaced = null;
+			if (subStr.startsWith("scd.")) {
+				replaced = scd != null && scd.get(subStr.substring(4)) != null ? scd.get(subStr.substring(4)).toString()
+						: "null"; // getMsgHTML de olabilirdi
+			} else if (subStr.startsWith("req.")) {
+				replaced = requestParams != null && requestParams.get(subStr.substring(4)) != null
+						? requestParams.get(subStr.substring(4)) : "null"; // getMsgHTML
+																			// de
+																			// olabilirdi
+			} else if (subStr.startsWith("obj.")) {
+				replaced = obj != null && obj.get(subStr.substring(4)) != null ? obj.get(subStr.substring(4)).toString()
+						: "null"; // getMsgHTML de olabilirdi
+			} else if (subStr.startsWith("app.")) {
+				replaced = FrameworkCache.getAppSettingStringValue(scd.get("customizationId"), subStr.substring(4));
+			} else {
+				replaced = replaced = requestParams != null && requestParams.get(subStr) != null
+						? requestParams.get(subStr) : "null"; // getMsgHTML de olabilirdi
+			}
+			if (replaced != null)
+				tmp.replace(bas, bit + 1, URLEncoder.encode(replaced, "UTF-8")); // getMsgHTML de olabilirdi
+		} catch (Exception ee) {
+			throw new IWBException("framework", "filterURI", 0,
+					"FilterURI Exception: " + ee.getMessage(), null, ee);
+		}
+		return tmp;
+	}
+	
 	public static StringBuilder filterExtWithPrefix(String code, String prefix) {
 		StringBuilder tmp = new StringBuilder();
 		if (code == null || code.length() == 0)
@@ -2584,7 +2621,7 @@ public class GenericUtil {
 			return "";
 		StringBuilder html = new StringBuilder();
 		boolean b = false;
-		for (Object q : s.keySet()) {
+		for (Object q : s.keySet()) try{
 			if (b)
 				html.append("&");
 			else
@@ -2595,9 +2632,9 @@ public class GenericUtil {
 					String ss =o.toString(); 
 					o = ss.substring(1,ss.length()-1);
 				}
-				html.append(q).append("=").append(o);
+				html.append(q).append("=").append(URLEncoder.encode(o.toString(),"UTF-8"));
 			}
-		}
+		} catch(Exception ee) {}
 		return html.toString();
 	}
 

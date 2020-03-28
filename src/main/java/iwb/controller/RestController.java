@@ -265,6 +265,13 @@ public class RestController implements InitializingBean {
 				response.setContentType("text/xml");
 				response.getWriter().write(serializeRestWADL(wss, wsmoMap).toString());
 				return;
+			} else if(serviceName.endsWith(".json") || serviceName.endsWith(".JSON")){
+				if(serviceName.endsWith(".json") || serviceName.endsWith(".JSON"))serviceName=serviceName.substring(0, serviceName.length()-5);
+			    W5WsServer wss = FrameworkCache.getWsServer(projectId, serviceName);
+				if(wss==null)throw new IWBException("rest","WS Not Found",0,serviceName, "WS Not Found", null);
+				Map<String, Object> wsmoMap = service.getWsServerMethodObjects(wss);
+				response.getWriter().write(serializeRestSwagger(wss, wsmoMap).toString());
+				return;
 			} else if(serviceName.equals("login")){
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
@@ -461,5 +468,94 @@ public class RestController implements InitializingBean {
 		buf.append("\n</resource></resources></application>");
 		
 		return buf;
+	}
+	
+
+	public	StringBuilder serializeRestSwagger(W5WsServer ws, Map<String, Object> wsmoMap){
+		String[] elementTypes = new String[]{"string","string","string","float","integer","boolean","string","number","object","object","array"};
+
+		StringBuilder buf = new StringBuilder();
+		buf.append("{\"swagger\": \"2.0\",\"paths\": {");
+		boolean b = false;
+		for(W5WsServerMethod wsm:ws.get_methods()){
+			List<W5WsServerMethodParam> lwsmp = new ArrayList();
+			if(wsm.getObjectTip()!=4 || wsm.getObjectId()!=3){
+				W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, "tokenKey", (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
+				lwsmp.add(tokenKey);
+			}
+			if(b)buf.append(","); else b = true;
+			buf.append("\n\"").append(wsm.getDsc()).append("\":{ \"get\":{\"produces\": [\"application/json\"],\"parameters\": [");
+//			buf.append("\n<method name=\"").append(wsm.getObjectTip()<19 ? "POST":"GET").append("\" id=\"").append(wsm.getDsc()).append("\">");
+			
+			W5Table t = null;
+			Object o = wsmoMap.get(wsm.getDsc());
+			if(o==null){//TODO ne yapilabilir?
+				buf.append("]}}");
+				continue;
+			} else if(o instanceof String ){//TODO ne yapilabilir?
+				buf.append("]}}");
+				continue;
+			}else switch(wsm.getObjectTip()){
+			case	0:case 1:case 2:case 3:
+				W5FormResult fr=(W5FormResult)o;
+				lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
+				t = FrameworkCache.getTable(ws.getProjectUuid(), fr.getForm().getObjectId());
+				if(wsm.getObjectTip()!=2)for(W5TableParam tp:t.get_tableParamList())if(tp.getSourceTip()==1)lwsmp.add(new W5WsServerMethodParam(tp, (short)(wsm.getObjectTip()==2 ? 1:0),wsm.getObjectTip()==2?-999:0));
+				if(wsm.getObjectTip()!=3)for(W5FormCell fc:fr.getForm().get_formCells())if(fc.getActiveFlag()!=0 && fc.get_sourceObjectDetail()!=null){
+					lwsmp.add(new W5WsServerMethodParam(fc, (short)(wsm.getObjectTip()==0 ? 1:0), wsm.getObjectTip()==0 ? -999:0));
+				}
+				W5WsServerMethodParam outMsg =new W5WsServerMethodParam(-999, "outMsg", (short)1);outMsg.setParentWsMethodParamId(-999);
+				lwsmp.add(outMsg);
+				break;
+			case	4:
+				W5GlobalFuncResult dfr=(W5GlobalFuncResult)o;
+				for(W5GlobalFuncParam dfp:dfr.getGlobalFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1 && dfp.getOutFlag()!=0){
+					lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
+					break;
+				}
+				for(W5GlobalFuncParam dfp:dfr.getGlobalFunc().get_dbFuncParamList())if(dfp.getSourceTip()==1){
+					lwsmp.add(new W5WsServerMethodParam(dfp, dfp.getOutFlag(), dfp.getOutFlag()==0 ? 0:-999));
+				}
+				break;
+			case	19:
+				W5QueryResult qr=(W5QueryResult)o;
+				lwsmp.add(new W5WsServerMethodParam(-999, "data", (short)10));
+				if(qr.getQuery().getMainTableId()!=0)t = FrameworkCache.getTable(ws.getProjectUuid(), qr.getQuery().getMainTableId());
+				for(W5QueryParam qp:qr.getQuery().get_queryParams())if(qp.getSourceTip()==1){
+					lwsmp.add(new W5WsServerMethodParam(qp, (short)0, 0));
+				}
+				for(W5QueryField qf:qr.getQuery().get_queryFields()){
+					lwsmp.add(new W5WsServerMethodParam(qf, (short)1, -999));
+				}
+				break;
+				
+			
+			}
+			wsm.set_params(lwsmp);
+		
+//			buf.append("\n<request>");
+			for(W5WsServerMethodParam wsmp:wsm.get_params())if(wsmp.getOutFlag()==0 && wsmp.getParentWsMethodParamId()==0){
+				buf.append("\n{\"in\":\"query\"").append(wsmp.getNotNullFlag()==0 ? "":" ,\"required\":true").append(",\"name\":\"")
+				.append(wsmp.getDsc()).append("\",\"type\":\"");
+				buf.append(elementTypes[wsmp.getParamTip()]);
+				buf.append("\"},");
+			}
+			if(buf.charAt(buf.length()-1)==',')buf.setLength(buf.length()-1);
+			buf.append("]");
+			
+			buf.append("\n,\"responses\":{\"200\":{\"schema\":{\"type\":\"object\",\"properties\":{");
+			for(W5WsServerMethodParam wsmp:wsm.get_params())if(wsmp.getOutFlag()!=0 && wsmp.getParentWsMethodParamId()==0){
+//				buf.append("\n{\"name\":\"")
+				buf.append("\"").append(wsmp.getDsc()).append("\":{\"type\":\"");
+				buf.append(elementTypes[wsmp.getParamTip()]);
+				buf.append("\"},");
+			}
+			if(buf.charAt(buf.length()-1)==',')buf.setLength(buf.length()-1);
+			buf.append("}}}}}}");
+		}
+		buf.append("}}");
+		return buf;
+		
+
 	}
 }
