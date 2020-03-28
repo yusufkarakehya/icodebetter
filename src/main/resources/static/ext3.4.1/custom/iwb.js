@@ -2843,6 +2843,8 @@ function exportToGSheet(a, url){
 							if(url.indexOf('#gid=')>-1){
 								url = url.split('#gid=')[0]+'#gid='+mj.result.pout_sheet_id;
 							} else url += '#gid='+mj.result.pout_sheet_id;
+							if(url.indexOf('&rm=minimal')==-1)
+								url+='&rm=minimal';
 							var px = new Ext.Panel({
 							  closable: !0, title: '<i class="icon-social-google"></i> Google Sheet'  , id: pid2
 							  , html: '<iframe style="border:none;width:100%;height:100%" src="' + url + '"></iframe>'
