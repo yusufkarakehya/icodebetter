@@ -270,7 +270,7 @@ public class RestController implements InitializingBean {
 			    W5WsServer wss = FrameworkCache.getWsServer(projectId, serviceName);
 				if(wss==null)throw new IWBException("rest","WS Not Found",0,serviceName, "WS Not Found", null);
 				Map<String, Object> wsmoMap = service.getWsServerMethodObjects(wss);
-				response.getWriter().write(serializeRestSwagger2(wss, wsmoMap).toString());
+				response.getWriter().write(serializeRestSwagger(wss, wsmoMap).toString());
 				return;
 			} else if(serviceName.equals("login")){
 				requestParams.put("_remote_ip", request.getRemoteAddr());
@@ -471,7 +471,7 @@ public class RestController implements InitializingBean {
 	}
 	
 
-	public	StringBuilder serializeRestSwagger2(W5WsServer ws, Map<String, Object> wsmoMap){
+	public	StringBuilder serializeRestSwagger(W5WsServer ws, Map<String, Object> wsmoMap){
 		String[] elementTypes = new String[]{"string","string","string","float","integer","boolean","string","number","object","object","array"};
 
 		StringBuilder buf = new StringBuilder();

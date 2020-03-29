@@ -1,6 +1,7 @@
 package iwb.engine;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -191,13 +192,15 @@ public class RESTEngine {
 				} else {
 					Object o = GenericUtil.prepareParam((W5Param) p, scd, requestParams, p.getSourceTip(), null,
 							p.getNotNullFlag(), null, null, errorMap, dao);
-					if(p.getParamTip()==5) {//checkbox
-						m.put(p.getDsc(), GenericUtil.uInt(o)!=0);
-					} else if (o != null && o.toString().length() > 0) {
-						if (p.getCredentialsFlag() == 1)//header
-							reqPropMap.put(p.getDsc(), o.toString());
-						else if (p.getCredentialsFlag() == 0){//request
-							m.put(p.getDsc(), o);
+					if(errorMap.isEmpty()) {
+						if(p.getParamTip()==5) {//checkbox
+							m.put(p.getDsc(), GenericUtil.uInt(o)!=0);
+						} else if (o != null && o.toString().length() > 0) {
+	/*						if (p.getCredentialsFlag() == 1)//header
+								reqPropMap.put(p.getDsc(), o.toString());
+							else if (p.getCredentialsFlag() == 0){//request*/
+								m.put(p.getDsc(), o);
+	//						}
 						}
 					}
 				}
@@ -316,7 +319,7 @@ public class RESTEngine {
 					url = url.replace("{","${req.");					
 				}
 				if (url.indexOf("${") > -1) {// has special char
-					url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
+					url = GenericUtil.filterURI(url, scd, requestParams, null).toString();
 				}
 				String params = null;
 				Map<String, String> reqPropMap = new HashMap();
@@ -351,20 +354,59 @@ public class RESTEngine {
 								"Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
 					}
 					switch (wsm.getParamSendTip()) {
-					case 1: // form
 					case 3: // form as post_url
 						params = GenericUtil.fromMapToURI(m);
-						if (wsm.getParamSendTip() == 3) {
-							if (!GenericUtil.isEmpty(params)) {
-								if (url.indexOf('?') == -1)
-									url += "?";
-								url += params;
-							}
-							params = null;
+						if (!GenericUtil.isEmpty(params)) {
+							if (url.indexOf('?') == -1)
+								url += "?";
+							url += params;
 						}
+						params = null;
+						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+						break;
+					case 1: // form
+						for(W5WsMethodParam px:wsm.get_params()) if(px.getOutFlag()==0 && px.getParentWsMethodParamId()==0 && m.containsKey(px.getDsc()))switch(px.getCredentialsFlag()){// clean
+						case	0://query
+							if(!GenericUtil.isEmpty(m.get(px.getDsc()))) {
+								if(!url.contains("?"))url+="?";
+								else url+="&";
+								url+=px.getDsc()+"=" + URLEncoder.encode(m.get(px.getDsc()).toString(), "UTF-8");
+							}
+							m.remove(px.getDsc());
+							break;
+						case	1://header
+							if(!GenericUtil.isEmpty(m.get(px.getDsc())))reqPropMap.put(px.getDsc(), m.get(px.getDsc()).toString());
+							m.remove(px.getDsc());
+							break;
+						case	2://path
+							m.remove(px.getDsc());
+							break;
+						}
+						params = GenericUtil.fromMapToURI(m);
+
 						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
 						break;
 					case 2: // json
+						for(W5WsMethodParam px:wsm.get_params()) if(px.getOutFlag()==0 && px.getParentWsMethodParamId()==0 && m.containsKey(px.getDsc()))switch(px.getCredentialsFlag()){// clean
+						case	0://query
+							if(!GenericUtil.isEmpty(m.get(px.getDsc()))) {
+								if(!url.contains("?"))url+="?";
+								else url+="&";
+								url+=px.getDsc()+"=" + URLEncoder.encode(m.get(px.getDsc()).toString(), "UTF-8");
+							}
+							m.remove(px.getDsc());
+							break;
+						case	1://header
+							if(!GenericUtil.isEmpty(m.get(px.getDsc())))reqPropMap.put(px.getDsc(), m.get(px.getDsc()).toString());
+							m.remove(px.getDsc());
+							break;
+						case	2://path
+							m.remove(px.getDsc());
+							break;
+							
+							
+						}
+						
 						params = GenericUtil.fromMapToJsonString2Recursive(m);
 						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
 						break;

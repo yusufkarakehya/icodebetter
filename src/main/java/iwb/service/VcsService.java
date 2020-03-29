@@ -3554,7 +3554,7 @@ public class VcsService {
 						if(dao.executeSQLQuery("select 1 from iwb.w5_project x where x.project_uuid=?", newProjectId)==null) {
 							dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid, ui_web_frontend_tip, ui_main_template_id, ui_login_template_id, session_query_id, authentication_func_id)"
 									+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", prj.getString("project_uuid"), cusId, prj.getString("dsc"), GenericUtil.getSafeObject(prj,"access_users"),prj.getString("rdbms_schema"),GenericUtil.getSafeObject(prj,"vcs_url"),GenericUtil.getSafeObject(prj,"vcs_user_name"), GenericUtil.getSafeObject(prj,"vcs_password"), prj.getString("oproject_uuid"), 
-									GenericUtil.uInt(prj,"ui_web_frontend_tip"), GenericUtil.uInt(prj,"ui_main_template_id"), GenericUtil.uInt(prj,"ui_login_template_id"), GenericUtil.uInt(prj,"session_query_id"), GenericUtil.uInt(prj,"authentication_func_id"));
+									GenericUtil.uInt(prj,"ui_web_frontend_tip"), 2307/*GenericUtil.uInt(prj,"ui_main_template_id")*/, 2590/*GenericUtil.uInt(prj,"ui_login_template_id")*/, 4514/*GenericUtil.uInt(prj,"session_query_id")*/, 1252/*GenericUtil.uInt(prj,"authentication_func_id")*/);
 							if(!prj.getString("rdbms_schema").equals("iwb"))dao.executeUpdateSQLQuery("drop schema if exists "+prj.getString("rdbms_schema")+ " cascade");
 							dao.executeUpdateSQLQuery("create schema "+prj.getString("rdbms_schema") + " AUTHORIZATION iwb");
 							FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, prj.getString("project_uuid")).get(0));

@@ -1681,7 +1681,7 @@ function fnNewFileAttachment4Form(tid, tpk, not_image_flag) {
       id: tid + "xf",
       href: href,
       iconCls: "icon-attachment",
-      title: "Dosya Ekle"
+      title: "Attach File"
     }
   });
   return false;
@@ -2241,6 +2241,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
             for (var qi = 0; qi < sels.length; qi++)
               mainPanel.loadTab({
                 attributes: {
+                  __grid:xgrid,
                   href:
                     "showForm?a=2&_fid=" +
                     aq._fid +
@@ -2355,26 +2356,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
                 mainPanel.loadTab(cfg);
               }
           }
-         /* {
-            text: getLocMsg("js_add_from_external_url"),
-            _grid: xgrid,
-            handler: fnNewFileAttachment4ExternalUrl
-          },
-          {
-            text: getLocMsg("js_daha_once_eklenmis_dosyalardan_ekle"),
-            _grid: xgrid,
-            handler: function(a, b) {
-              mainPanel.loadTab({
-                attributes: {
-                  _title_: xgrid.name,
-                  modalWindow: true,
-                  href: "showPage?_tid=238&_gid1=672",
-                  tableId: a._grid.crudTableId,
-                  tablePk: getSel(a._grid).id
-                }
-              });
-            }
-          }*/
+        
         ]
       });
     } else {
@@ -2823,8 +2805,81 @@ function addDefaultCommitButtons(xbuttons, xgrid) {
       enableToggle: true,
       toggleHandler: fnToggleEditMode
     });
+  if(xgrid.gsheet || (_app.grid2gsheet && 1*_app.grid2gsheet))xbuttons.push('-',{
+      id: "btn_gsheet_" + xgrid.id,
+      text: '<i class="icon-social-google"></i>',
+      tooltip:'Export to Google Spreadsheet',
+      cls: "x-btn-no-icon",
+      _activeOnSelection: false,
+      _grid: xgrid,
+      ref: "../btnGSheet",
+      handler: xgrid.fnGSheet || fnGSheet
+    });
 }
 
+function exportToGSheet(a, url){
+    var g = a._grid;
+    if (g.ds.getTotalCount() == 0) {
+        Ext.infoMsg.alert("info", getLocMsg("no_data"));
+        return;
+    }
+    
+
+
+    var cols = "";
+    for (var z = 0; z < g.columns.length; z++) {
+      if (!g.columns[z].hidden && g.columns[z].dataIndex)
+        cols += ";" + g.columns[z].dataIndex + "," + g.columns[z].width;
+    }
+	iwb.ajax.execFunc(1962, Object.assign({_columns:cols.substr(1), _url:url, _gridId:a._grid.gridId, _access_token:_scd.googleAccessToken}, a._grid.ds.baseParams||{}),
+			(mj)=>{
+				if(mj.result){
+					if(mj.result.pout_error){
+						Ext.infoMsg.msg("error", mj.result.pout_error);
+					} else {
+						_scd.googleSheetUrl = url;
+						var pid2 = 'px-'+_scd.googleAccessToken;
+						if(!Ext.getCmp(pid2)){
+							if(url.indexOf('#gid=')>-1){
+								url = url.split('#gid=')[0]+'#gid='+mj.result.pout_sheet_id;
+							} else url += '#gid='+mj.result.pout_sheet_id;
+							if(url.indexOf('&rm=minimal')==-1)
+								url+='&rm=minimal';
+							var px = new Ext.Panel({
+							  closable: !0, title: '<i class="icon-social-google"></i> Google Sheet'  , id: pid2
+							  , html: '<iframe style="border:none;width:100%;height:100%" src="' + url + '"></iframe>'
+							});
+							mainPanel.add(px); 
+						}
+	
+						mainPanel.setActiveTab(pid2);
+					}
+					//mainPanel.loadTab({attributes:{href:'showPage?_tid=1201', id:_scd.googleAccessToken ,url:url, title:g.name}})
+				}
+			});
+}
+
+function fnGSheet(a){
+	var gwin2= null;
+	iwb.googleAuth2 = (waccess_token) => {
+	    _scd.googleAccessToken = waccess_token;
+	    gwin2.destroy(); gwin2 = null;
+	    exportToGSheet(a, gsu);
+	}
+	
+	var gsu = prompt('Enter the Google Spreadsheet URL', _scd.googleSheetUrl||'');
+	if(!gsu)return;
+
+	if(!_scd.googleAccessToken){
+		var xwid = 'id-xx-' + _webPageId;
+		gwin2 = new Ext.Window({ id: xwid, modal:!0, title: 'Google Authentication', closable: !0, width: 500, height: 180, 
+            html: '<iframe style="border:none; width:100%;" src="showPage?_tid=1202&callback=googleAuth2">' });
+        gwin2.show();
+	} else {
+		exportToGSheet(a,gsu)
+	}
+	
+}
 function addTab4GridWSearchForm(obj) {
   var mainGrid = obj.grid,
     searchFormPanel = null;

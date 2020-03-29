@@ -350,9 +350,13 @@ public class NashornScript {
 		}
 		return rp;
 	}
-	public Object[] query(int queryId, ScriptObjectMirror jsRequestParams) {
+	public Object[] query(int queryId, Object jsRequestParams) {
 		scriptEngine.getDao().checkTenant(scd);
-		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, fromScriptObject2Map(jsRequestParams));//
+		Map requestMap =null;
+		if(jsRequestParams==null)requestMap = new HashMap();
+		else if(jsRequestParams instanceof ScriptObjectMirror) requestMap = fromScriptObject2Map((ScriptObjectMirror)jsRequestParams);
+		else if(jsRequestParams instanceof Map) requestMap = (Map)jsRequestParams;
+		List l = scriptEngine.getDao().runQuery2Map(scd, queryId, requestMap);//
 		return GenericUtil.isEmpty(l) ? null : l.toArray();
 	}
 

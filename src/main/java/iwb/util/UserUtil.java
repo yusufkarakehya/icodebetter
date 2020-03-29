@@ -986,8 +986,10 @@ public class UserUtil {
 		}		
 		
 		CachedUserBean3 cub = getCachedUserBean(userId);
+		if(cub==null)return result;
 		
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
+		
 		if(sessionId==null || cub.getSyncSessionMap()==null){
 			onlineUserLogout(userId, sessionId);
 			return result;
