@@ -3901,9 +3901,9 @@ public class VcsService {
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_related_project(user_id, related_project_uuid)select u.user_id,? from iwb.w5_user u where u.user_id=10 AND not exists(select 1 from iwb.w5_user_related_project q where q.user_id=u.user_id AND related_project_uuid=?)", projectId, projectId);
 				List<Object[]> res = dao.executeSQLQuery("select sum(case when t.table_id=3108 then 1 else 0 end) cnt_role, sum(case when t.table_id=3109 then 1 else 0 end) cnt_user_role from iwb.w5_table t where t.project_uuid=? AND t.table_id in (3108, 3109)", projectId);
 				if(!GenericUtil.isEmpty(res) && GenericUtil.uInt(res.get(0)[0])>0) {
-					dao.executeUpdateSQLQuery("insert into x_role(role_id, role_name, role_group_id, active_flag)values(99998, 'First Role', (select u.user_tip from iwb.w5_user_tip u where u.user_tip!=122  AND u.project_uuid=? limit 1),1)", projectId);
+					dao.executeUpdateSQLQuery("insert into x_role(role_id, role_name, role_group_id)values(99998, 'First Role', (select u.user_tip from iwb.w5_user_tip u where u.user_tip!=122  AND u.project_uuid=? limit 1))", projectId);
 					if(GenericUtil.uInt(res.get(0)[1])>0)
-						dao.executeUpdateSQLQuery("update x_user_role set role_id=99998 where user_id=99999 and role_id=99999", projectId);
+						dao.executeUpdateSQLQuery("update x_user_role set role_id=99998 where user_id=99999 and role_id=99999");
 				} else {
 					dao.executeUpdateSQLQuery("update iwb.w5_project p set session_query_id=0, authentication_func_id=0, ui_login_template_id=0 where p.project_uuid=?", projectId);
 				}
