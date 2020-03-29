@@ -6362,8 +6362,8 @@ public class PostgreSQL extends BaseDAO {
 	}
 
 	public void deleteProjectMetadata(String delProjectId) {
-		String[] tables = new String[] { "w5_table_access_control", "w5_ts_measurement_tag", "w5_ts_portlet_object",
-				"w5_ts_portlet", "w5_ts_measurement_field", "w5_ts_measurement", "w5_ws_look_up_detay", "w5_ws_look_up",
+		String[] tables = new String[] { "w5_table_access_control", "w5_form_cell_property", 
+				"w5_ws_look_up_detay", "w5_ws_look_up","w5_ws_model","w5_ws_model_param",
 				"m5_list_template", "w5_ws_server_token", "w5_ws_server_method_param", "w5_ws_server_method",
 				"w5_ws_server", "w5_ws_method_param", "w5_ws_method", "w5_ws", "m5_list", "w5_tutorial",
 				"w5_tutorial_user", "w5_table_access_condition_sql", "w5_table_trigger", "w5_form_hint",

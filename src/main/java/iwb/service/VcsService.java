@@ -1118,7 +1118,7 @@ public class VcsService {
 		List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where ((q.customization_id=? AND q.project_uuid=?) OR (q.customization_id=0 AND q.project_uuid = '067e6162-3b6f-4ae2-a221-2470b63dff00')) AND q.vcs_flag=1 order by q.table_id", customizationId, projectUuid); //sadece master tablolar
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
-			if(mt!=null){
+			if(mt!=null && !GenericUtil.isEmpty(mt.get_tableParamList())){
 				List params = new ArrayList();
 				StringBuilder sql = new StringBuilder();
 				sql.append("select count(1) from iwb.w5_vcs_object v where v.project_uuid=? AND v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,2,9) AND not exists(select 1 from  ").append(mt.getDsc()).append(" m where m.project_uuid=? AND v.table_pk=m.")//m.customization_id=? AND 
@@ -1141,6 +1141,7 @@ public class VcsService {
 		
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
+			if(mt==null || GenericUtil.isEmpty(mt.get_tableParamList()))continue;
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
 			sql.append("select count(1) from ").append(mt.getDsc())
@@ -1164,6 +1165,7 @@ public class VcsService {
 		
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
+			if(mt==null || GenericUtil.isEmpty(mt.get_tableParamList()))continue;
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
 			sql.append("select count(1) from ").append(mt.getDsc())
@@ -3896,6 +3898,14 @@ public class VcsService {
 				metaDataDao.reloadDeveloperEntityKeys();
 			} else {
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_related_project(user_id, related_project_uuid)select u.user_id,? from iwb.w5_user u where u.user_id=10 AND not exists(select 1 from iwb.w5_user_related_project q where q.user_id=u.user_id AND related_project_uuid=?)", projectId, projectId);
+				List<Object[]> res = dao.executeSQLQuery("select sum(case when t.table_id=3108 then 1 else 0 end) cnt_role, sum(case when t.table_id=3109 then 1 else 0 end) cnt_user_role from iwb.w5_table t where t.project_uuid=? AND t.table_id in (3108, 3109)", projectId);
+				if(!GenericUtil.isEmpty(res) && GenericUtil.uInt(res.get(0)[0])>0) {
+					dao.executeUpdateSQLQuery("insert into x_role(role_id, role_name, role_group_id, active_flag)values(99998, 'First Role', (select u.user_tip from iwb.w5_user_tip u where u.user_tip!=122  AND u.project_uuid=? limit 1),1)", projectId);
+					if(GenericUtil.uInt(res.get(0)[1])>0)
+						dao.executeUpdateSQLQuery("update x_user_role set role_id=99998 where user_id=99999 and role_id=99999", projectId);
+				} else {
+					dao.executeUpdateSQLQuery("update iwb.w5_project p set session_query_id=0, authentication_func_id=0, ui_login_template_id=0 where p.project_uuid=?", projectId);
+				}
 			}
 			
 			System.out.println("End: projectVCSUpdate("+(System.currentTimeMillis() - startTime)+")");
