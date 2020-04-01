@@ -1394,7 +1394,7 @@ class GridCommon extends React.PureComponent {
              *            selection - (selection: Array<number | string>) => void
              */
             this.onSelectionChange = selection => {
-                this.setState({ selection });
+                this.setState({ selection }, ()=> this.props.onSelectionChange && this.props.onSelectionChange(selection));
             };
             /**
              * Used to delete from the frontend

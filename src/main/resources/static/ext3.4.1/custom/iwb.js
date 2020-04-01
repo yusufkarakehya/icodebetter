@@ -2624,6 +2624,17 @@ function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
       });
     }
   }
+  
+  if(xgrid.gsheet || (_app.grid2gsheet && 1*_app.grid2gsheet))xxmenu.push('-',{
+      id: "btn_gsheet_" + xgrid.id,
+      text: '<i class="icon-social-google"></i>Sheet',
+      tooltip:'Export to Google Spreadsheet',
+      cls: "x-btn-no-icon",
+      _activeOnSelection: false,
+      _grid: xgrid,
+      ref: "../btnGSheet",
+      handler: xgrid.fnGSheet || fnGSheet
+  });
   xbuttons.push({
     id: "btn_reports_" + xgrid.id,
     // tooltip: getLocMsg("reports"),
@@ -2805,21 +2816,11 @@ function addDefaultCommitButtons(xbuttons, xgrid) {
       enableToggle: true,
       toggleHandler: fnToggleEditMode
     });
-  if(xgrid.gsheet || (_app.grid2gsheet && 1*_app.grid2gsheet))xbuttons.push('-',{
-      id: "btn_gsheet_" + xgrid.id,
-      text: '<i class="icon-social-google"></i>',
-      tooltip:'Export to Google Spreadsheet',
-      cls: "x-btn-no-icon",
-      _activeOnSelection: false,
-      _grid: xgrid,
-      ref: "../btnGSheet",
-      handler: xgrid.fnGSheet || fnGSheet
-    });
 }
 
 function exportToGSheet(a, url){
     var g = a._grid;
-    if (g.ds.getTotalCount() == 0) {
+    if (false && g.ds.getTotalCount() == 0) {
         Ext.infoMsg.alert("info", getLocMsg("no_data"));
         return;
     }
@@ -2836,6 +2837,9 @@ function exportToGSheet(a, url){
 				if(mj.result){
 					if(mj.result.pout_error){
 						Ext.infoMsg.msg("error", mj.result.pout_error);
+						_scd.googleAccessToken = null;
+						Ext.infoMsg.msg("success", "Try again please");
+
 					} else {
 						_scd.googleSheetUrl = url;
 						var pid2 = 'px-'+_scd.googleAccessToken;
