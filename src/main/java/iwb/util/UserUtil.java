@@ -1725,6 +1725,7 @@ public class UserUtil {
 			String projectId, int userId, String sessionId, String webPageId, String tabId) {
 		if(userId==0 ||  webPageId==null || tabId==null)return false;
 		CachedUserBean3 cub = getCachedUserBean(userId);
+		if(cub==null)return false;
 		Map<Integer, Map<String, SyncTabMapHelper3>> tableMap = gridSyncMap3.get(projectId);
 		if(sessionId==null)sessionId = cub.findSessionIdFromWebPageId(webPageId);
 		if(sessionId==null)return false;

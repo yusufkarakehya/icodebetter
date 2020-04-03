@@ -344,7 +344,7 @@ function approvalHtml(x, y, z) {
     z.data.pkpkpk_arf_id +
     ')"';
   if (z.data.app_role_ids_qw_ || z.data.app_user_ids_qw_) {
-    str += ' title=":' + getLocMsg("js_onaylayacaklar");
+    str += ' title=":' + getLocMsg("approvals");
     var bb = false;
     if (z.data.app_role_ids_qw_) {
       str +=
@@ -2832,7 +2832,7 @@ function exportToGSheet(a, url){
       if (!g.columns[z].hidden && g.columns[z].dataIndex)
         cols += ";" + g.columns[z].dataIndex + "," + g.columns[z].width;
     }
-	iwb.ajax.execFunc(1962, Object.assign({_columns:cols.substr(1), _url:url, _gridId:a._grid.gridId, _access_token:_scd.googleAccessToken}, a._grid.ds.baseParams||{}),
+	iwb.ajax.execFunc(1962, Object.assign({_mask:!0, _columns:cols.substr(1), _url:url, _gridId:a._grid.gridId, _access_token:_scd.googleAccessToken}, a._grid.ds.baseParams||{}),
 			(mj)=>{
 				if(mj.result){
 					if(mj.result.pout_error){
@@ -2850,6 +2850,8 @@ function exportToGSheet(a, url){
 							if(url.indexOf('&rm=minimal')==-1)
 								url+='&rm=minimal';
 							var px = new Ext.Panel({
+					/*			tbar:[{text:'Refresh', _result: mj.result, id:'tb-'+_webPageId+a._grid.gridId,handler:()=>
+								{alert('TODO')}}],*/
 							  closable: !0, title: '<i class="icon-social-google"></i> Google Sheet'  , id: pid2
 							  , html: '<iframe style="border:none;width:100%;height:100%" src="' + url + '"></iframe>'
 							});
@@ -3461,7 +3463,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       if (detailGrid.hasFilter) {
         if (buttons.length > 0) buttons.push("-");
         buttons.push({
-          // tooltip: getLocMsg("js_filtreyi_kaldir"),
+          // tooltip: getLocMsg("remove_filter"),
           cls: "x-btn-icon x-grid-funnel",
           _grid: detailGrid,
           handler: fnClearFilters
@@ -4280,7 +4282,7 @@ function formSubmit(submitConfig) {
       } /*
 		 * else if(1*_app.mail_send_background_flag!=0 && myJson.outs &&
 		 * myJson.outs.thread_id){ //DEPRECATED
-		 * Ext.infoMsg.msg(getLocMsg('js_tamam,getLocMsg('js_eposta_gonderiliyor+'...'); }
+		 * Ext.infoMsg.msg(getLocMsg('ok,getLocMsg('js_eposta_gonderiliyor+'...'); }
 		 */ else if (
         _app.show_info_msg &&
         1 * _app.show_info_msg != 0
@@ -4427,7 +4429,7 @@ function promisRequest(rcfg) {
                 else if (_app.show_info_msg && 1 * _app.show_info_msg != 0) {
                   Ext.infoMsg.msg(
                     "success",
-                    getLocMsg("js_islem_basariyla_tamamlandi")
+                    getLocMsg("operation_successful")
                   );
                 }
               } else {
@@ -4762,14 +4764,14 @@ function approveTableRecord(aa, a) {
     rec_id = sel.data.pkpkpk_arf_id;
   }
 
-  var onayMap = [
+  var approveMap = [
     "",
-    getLocMsg("js_onayla"),
-    getLocMsg("js_iade_et"),
-    getLocMsg("js_reddet")
+    getLocMsg("approve"),
+    getLocMsg("return"),
+    getLocMsg("reject")
   ];
-  onayMap[901] = getLocMsg("js_onayi_baslat");
-  var caption = onayMap[aa] + " (" + sel.data.dsc + ")";
+  approveMap[901] = getLocMsg("start_approval");
+  var caption = approveMap[aa] + " (" + sel.data.dsc + ")";
   var e_sign_flag = sel.data.e_sign_flag;
 
   if (1 * e_sign_flag == 1 && aa * 1 == 1) {
@@ -4785,32 +4787,7 @@ function approveTableRecord(aa, a) {
   }
 
   var urlek = "";
-  var dynamix = sel.data.approval_flow_tip * 1 == 3 && aa == 901 ? true : false;
-  if (dynamix)
-    urlek = "&xapp_record_id4user_ids=" + sel.data.approval_record_id;
-  var lvcombo = new Ext.ux.form.LovCombo({
-    labelSeparator: "",
-    fieldLabel: getLocMsg("dynamic_step_user_ids"),
-    hiddenName: "approve_user_ids",
-    store: new Ext.data.JsonStore({
-      url: "ajaxQueryData?_qid=585" + urlek,
-      root: "data",
-      totalProperty: "browseInfo.totalCount",
-      id: "id",
-      autoLoad: true,
-      fields: [{ name: "dsc" }, { name: "id", type: "int" }],
-      listeners: { loadexception: promisLoadException }
-    }),
-    valueField: "id",
-    displayField: "dsc",
-    mode: "local",
-    triggerAction: "all",
-    anchor: "100%"
-  });
 
-  if (!dynamix) {
-    lvcombo.setVisible(false);
-  }
 
   var cform = new Ext.form.FormPanel({
     baseCls: "x-plain",
@@ -4820,10 +4797,9 @@ function approveTableRecord(aa, a) {
     labelAlign: "top",
 
     items: [
-      lvcombo,
       {
         xtype: "textarea",
-        fieldLabel: getLocMsg("js_yorumunuzu_girin"),
+        fieldLabel: getLocMsg("enter_comment"),
         name: "_comment",
         anchor: "100% -5" // anchor width by percentage and height by raw
 							// adjustment
@@ -4843,10 +4819,10 @@ function approveTableRecord(aa, a) {
     items: cform,
     buttons: [
       {
-        text: getLocMsg("js_tamam"),
+        text: getLocMsg("ok"),
         handler: function(ax, bx, cx) {
-          var _dynamic_approval_users = win.items.items[0].items.items[0].getValue();
-          var _comment = win.items.items[0].items.items[1].getValue();
+//          var _dynamic_approval_users = win.items.items[0].items.items[0].getValue();
+          var _comment = win.items.items[0].items.items[0].getValue();
           iwb.request({
             url: "ajaxApproveRecord",requestWaitMsg: true,
             params: {
@@ -4854,7 +4830,7 @@ function approveTableRecord(aa, a) {
               _adsc: _comment,
               _aa: aa,
               _avno: sel.data.ar_version_no || sel.data.version_no,
-              _appUserIds: _dynamic_approval_users
+//              _appUserIds: _dynamic_approval_users
             },
             successDs: a._grid.ds,
             successCallback:
@@ -4864,7 +4840,7 @@ function approveTableRecord(aa, a) {
                     win.close();
                     Ext.infoMsg.alert(
                       "info",
-                      getLocMsg("js_onay_sureci_baslamistir"),
+                      getLocMsg("approval_started"),
                       "info"
                     );
                   }
@@ -4872,7 +4848,7 @@ function approveTableRecord(aa, a) {
         }
       },
       {
-        text: getLocMsg("js_iptal"),
+        text: getLocMsg("cancel"),
         handler: function() {
           win.close();
         }
@@ -4888,7 +4864,7 @@ function approveTableRecords(aa, a) {
   if (sels.length == 0) {
     Ext.Msg.show({
       title: getLocMsg("error"),
-      msg: getLocMsg("js_once_birseyler_secmelisiniz"),
+      msg: getLocMsg("select_something"),
       icon: Ext.MessageBox.ERROR
     });
     return;
@@ -4896,7 +4872,6 @@ function approveTableRecords(aa, a) {
   var tek_kayit = sels.length == 1 ? true : false;
   var sel_ids = [];
   var urlek = "";
-  var dynamix = false;
   var vers = [];
   var step = 0;
   var rec_id;
@@ -4937,7 +4912,7 @@ function approveTableRecords(aa, a) {
     if (step_id * 1 == 998) {
       Ext.Msg.show({
         title: getLocMsg("error"),
-        msg: getLocMsg("js_kayit_onaylanmis"),
+        msg: getLocMsg("record_already_approved"),
         icon: Ext.MessageBox.ERROR
       });
       return;
@@ -4974,69 +4949,23 @@ function approveTableRecords(aa, a) {
       });
       return;
     }
-    var e_sign_flag = sels[i].data.e_sign_flag || 0;
-    if (1 * e_sign_flag == 1 && aa * 1 == 1 && tek_kayit == false) {
-      //
-      Ext.Msg.show({
-        title: getLocMsg("error"),
-        msg: getLocMsg("js_e_imza_onay_tek_kayit_secilmeli"),
-        icon: Ext.MessageBox.ERROR
-      });
-      return;
-    }
-    dynamix =
-      sels[0].data.approval_flow_tip * 1 == 3 && aa == 901 ? true : false;
-    if (dynamix == true && tek_kayit == false) {
-      Ext.Msg.show({
-        title: getLocMsg("error"),
-        msg: getLocMsg("js_dinamik_onay_tek_kayit_secilmeli"),
-        icon: Ext.MessageBox.ERROR
-      });
-      return;
-    }
-    if (dynamix) urlek = "&xapp_record_id4user_ids=" + rec_id;
+
     if (rec_id * 1 > 0) {
       sel_ids.push(rec_id);
       vers.push(sels[i].data.ar_version_no || sels[i].data.version_no);
     }
   }
-  var onayMap = [
+  var approveMap = [
     "",
-    getLocMsg("js_onayla"),
-    getLocMsg("js_iade_et"),
-    getLocMsg("js_reddet")
+    getLocMsg("approve"),
+    getLocMsg("return"),
+    getLocMsg("reject")
   ];
-  onayMap[901] = getLocMsg("js_onayi_baslat");
-  var caption = onayMap[aa];
+  approveMap[901] = getLocMsg("start_approval");
+  var caption = approveMap[aa];
 
   if (sel_ids.length == 0) return;
 
-  var lvcombo = new Ext.ux.form.LovCombo({
-    labelSeparator: "",
-    fieldLabel: getLocMsg("dynamic_step_user_ids"),
-    hiddenName: "approve_user_ids",
-    store:
-      dynamix == true
-        ? new Ext.data.JsonStore({
-            url: "ajaxQueryData?_qid=585" + urlek,
-            root: "data",
-            totalProperty: "browseInfo.totalCount",
-            id: "id",
-            autoLoad: true,
-            fields: [{ name: "dsc" }, { name: "id", type: "int" }],
-            listeners: { loadexception: promisLoadException }
-          })
-        : null,
-    valueField: "id",
-    displayField: "dsc",
-    mode: "local",
-    triggerAction: "all",
-    anchor: "100%"
-  });
-
-  if (!dynamix) {
-    lvcombo.setVisible(false);
-  }
 
   var cform = new Ext.form.FormPanel({
     baseCls: "x-plain",
@@ -5046,10 +4975,10 @@ function approveTableRecords(aa, a) {
     labelAlign: "top",
 
     items: [
-      lvcombo,
+
       {
         xtype: "textarea",
-        fieldLabel: getLocMsg("js_yorumunuzu_girin"),
+        fieldLabel: getLocMsg("enter_comment"),
         name: "_comment",
         anchor: "100% -5" // anchor width by percentage and height by raw
 							// adjustment
@@ -5069,13 +4998,9 @@ function approveTableRecords(aa, a) {
     items: cform,
     buttons: [
       {
-        text: getLocMsg("js_tamam"),
+        text: getLocMsg("ok"),
         handler: function(ax, bx, cx) {
-          var _dynamic_approval_users =
-            dynamix == true
-              ? win.items.items[0].items.items[0].getValue()
-              : null;
-          var _comment = win.items.items[0].items.items[1].getValue();
+          var _comment = win.items.items[0].items.items[0].getValue();
           /*
 			 * promisRequest({ url: 'ajaxApproveRecord',
 			 * params:{_arids:sel_ids,_adsc:_comment,_aa:aa, _avnos:vers,
@@ -5096,11 +5021,7 @@ function approveTableRecords(aa, a) {
             "&" +
             "_aa" +
             "=" +
-            encodeURIComponent(aa) +
-            "&" +
-            "_appUserIds" +
-            "=" +
-            encodeURIComponent(_dynamic_approval_users);
+            encodeURIComponent(aa);
 
           Ext.Msg.wait("", getLocMsg("js_please_wait"));
           var request = promisManuelAjaxObject();
@@ -5119,13 +5040,13 @@ function approveTableRecords(aa, a) {
             iwb.reload(a._grid);
             Ext.infoMsg.msg(
               "success",
-              getLocMsg("js_islem_basariyla_tamamlandi")
+              getLocMsg("operation_successful")
             );
           } else ajaxErrorHandler(json);
         }
       },
       {
-        text: getLocMsg("js_iptal"),
+        text: getLocMsg("cancel"),
         handler: function() {
           win.close();
         }
@@ -5135,44 +5056,19 @@ function approveTableRecords(aa, a) {
   win.show(this);
 }
 
-function submitAndApproveTableRecord(aa, frm, dynamix) {
+function submitAndApproveTableRecord(aa, frm) {
   var caption = null;
   if (aa != null) {
     caption = [
       "",
-      getLocMsg("js_onayla"),
-      getLocMsg("js_iade_et"),
-      getLocMsg("js_reddet")
+      getLocMsg("approve"),
+      getLocMsg("return"),
+      getLocMsg("reject")
     ][aa];
   } else {
     caption = getLocMsg("js_onay_mek_baslat");
   }
   var urlek = "";
-  if (dynamix)
-    urlek = "&xapp_record_id4user_ids=" + frm.approval.approvalRecordId;
-  var lvcombo = new Ext.ux.form.LovCombo({
-    labelSeparator: "",
-    fieldLabel: getLocMsg("dynamic_step_user_ids"),
-    hiddenName: "approve_user_ids",
-    store: new Ext.data.JsonStore({
-      url: "ajaxQueryData?_qid=585" + urlek,
-      root: "data",
-      totalProperty: "browseInfo.totalCount",
-      id: "id",
-      autoLoad: true,
-      fields: [{ name: "dsc" }, { name: "id", type: "int" }],
-      listeners: { loadexception: promisLoadException }
-    }),
-    valueField: "id",
-    displayField: "dsc",
-    mode: "local",
-    triggerAction: "all",
-    anchor: "100%"
-  });
-
-  if (!dynamix) {
-    lvcombo.setVisible(false);
-  }
 
   var cform = new Ext.form.FormPanel({
     baseCls: "x-plain",
@@ -5182,10 +5078,9 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
     labelAlign: "top",
 
     items: [
-      lvcombo,
       {
         xtype: "textarea",
-        fieldLabel: getLocMsg("js_yorumunuzu_girin"),
+        fieldLabel: getLocMsg("enter_comment"),
         name: "_comment",
         anchor: "100% -5" // anchor width by percentage and height by raw
 							// adjustment
@@ -5204,10 +5099,9 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
     items: cform,
     buttons: [
       {
-        text: getLocMsg("js_tamam"),
+        text: getLocMsg("ok"),
         handler: function(ax, bx, cx) {
-          var _dynamic_approval_users = win.items.items[0].items.items[0].getValue();
-          var _comment = win.items.items[0].items.items[1].getValue();
+          var _comment = win.items.items[0].items.items[0].getValue();
           if (
             (aa == 1 &&
               (!_app.form_approval_save_flag ||
@@ -5248,7 +5142,7 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
                 _aa: aa,
                 _adsc: _comment,
                 _avno: frm.approval.versionNo,
-                _appUserIds: _dynamic_approval_users
+//                _appUserIds: _dynamic_approval_users
               });
             } else {
               frm._cfg.extraParams = Ext.apply(frm._cfg.extraParams || {}, {
@@ -5262,7 +5156,7 @@ function submitAndApproveTableRecord(aa, frm, dynamix) {
         }
       },
       {
-        text: getLocMsg("js_iptal"),
+        text: getLocMsg("cancel"),
         handler: function() {
           win.close();
         }
@@ -5613,7 +5507,7 @@ function addTab4Portal(obj) {
       if (detailGrid.hasFilter) {
         if (buttons.length > 0) buttons.push("-");
         buttons.push({
-          tooltip: getLocMsg("js_filtreyi_kaldir"),
+          tooltip: getLocMsg("remove_filter"),
           cls: "x-btn-icon x-grid-funnel",
           _grid: detailGrid,
           handler: fnClearFilters
@@ -6083,7 +5977,7 @@ function addTab4DetailGridsWSearchForm(obj) {
       if (detailGrid.hasFilter) {
         if (buttons.length > 0) buttons.push("-");
         buttons.push({
-          tooltip: getLocMsg("js_filtreyi_kaldir"),
+          tooltip: getLocMsg("remove_filter"),
           cls: "x-btn-icon x-grid-funnel",
           _grid: detailGrid,
           handler: fnClearFilters
@@ -7733,7 +7627,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           }
           if (!getForm._cfg.callback)
             getForm._cfg.callback = function(js, conf) {
-              if (js.success) Ext.infoMsg.msg("info", "${operation_completed}");
+              if (js.success) Ext.infoMsg.msg("info", "${operation_successful}");
               if(extDef._tab_order.getValue)extDef._tab_order.setValue(extDef._tab_order.getValue()+1)
             };
           getForm._cfg.dontClose = 1;
@@ -7770,7 +7664,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           }
           if (!getForm._cfg.callback)
             getForm._cfg.callback = function(js, conf) {
-              if (js.success) Ext.infoMsg.msg("info", "${operation_completed}");
+              if (js.success) Ext.infoMsg.msg("info", "${operation_successful}");
               if(extDef._tab_order.getValue)extDef._tab_order.setValue(extDef._tab_order.getValue()+1)
             };
           getForm._cfg.dontClose = 1;

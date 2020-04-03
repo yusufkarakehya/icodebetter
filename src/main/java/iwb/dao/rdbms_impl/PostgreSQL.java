@@ -396,18 +396,31 @@ public class PostgreSQL extends BaseDAO {
 					PreparedStatement s = null;
 					ResultSet rs = null;
 					Set<String> errorFieldSet = new HashSet();
+					Map<String, Object> aggResultMap = query.get_aggQueryFields()!=null ? new HashMap():null;
+					
 					if (queryResult.getFetchRowCount() != 0) {
 						if (false && !GenericUtil.isEmpty(queryResult.getExecutedSqlFrom())) {
 							s = conn.prepareStatement("select count(1) " + queryResult.getExecutedSqlFrom());
 							applyParameters(s, queryResult.getExecutedSqlFromParams());
 						} else {
-							s = conn.prepareStatement("select count(1) from (" + queryResult.getExecutedSql() + " ) x");
+							StringBuilder aggSql = new StringBuilder();
+							aggSql.append("select count(1) cnt");
+							
+							if(query.get_aggQueryFields()!=null)for(W5QueryField f:query.get_aggQueryFields()){
+								aggSql.append(", sum(").append(f.getDsc()).append(") code2agg_sum_").append(f.getDsc());
+							}
+							aggSql.append(" from (").append(queryResult.getExecutedSql()).append(") x");
+							
+							s = conn.prepareStatement(aggSql.toString());
 							applyParameters(s, queryResult.getSqlParams());
 						}
 						rs = s.executeQuery();
 						rs.next();
 
 						int resultRowCount = rs.getBigDecimal(1).intValue();
+						if(query.get_aggQueryFields()!=null)for(int qi=0;qi<query.get_aggQueryFields().size();qi++){
+							aggResultMap.put(query.get_aggQueryFields().get(qi).getDsc(), rs.getObject(qi+2));
+						}
 						rs.close();
 						s.close();
 						if (resultRowCount < queryResult.getStartRowNumber()) {
@@ -506,6 +519,29 @@ public class PostgreSQL extends BaseDAO {
 						sql2.append(") z");
 
 					} else {
+						if(query.get_aggQueryFields()!=null) {//aggregation Map
+							StringBuilder aggSql = new StringBuilder();
+							aggSql.append("select 1 cnt");
+							
+							for(W5QueryField f:query.get_aggQueryFields()){
+								aggSql.append(", sum(").append(f.getDsc()).append(") code2agg_sum_").append(f.getDsc());
+							}
+							aggSql.append(" from (").append(queryResult.getExecutedSql()).append(") x");
+							
+							s = conn.prepareStatement(aggSql.toString());
+							applyParameters(s, queryResult.getSqlParams());
+							
+							rs = s.executeQuery();
+							rs.next();
+		
+//							int resultRowCount = rs.getBigDecimal(1).intValue();
+							if(query.get_aggQueryFields()!=null)for(int qi=0;qi<query.get_aggQueryFields().size();qi++){
+								aggResultMap.put(query.get_aggQueryFields().get(qi).getDsc(), rs.getObject(qi+2));
+							}
+							rs.close();
+							s.close();
+						}
+						
 						if (queryResult.getPostProcessQueryFields() != null && mainTable != null
 								&& queryResult.getViewLogModeTip() == 0) {
 							sql2.append("select z.*"); //
@@ -771,6 +807,10 @@ public class PostgreSQL extends BaseDAO {
 						queryResult.setResultRowCount(resultData.size());
 					}
 					queryResult.setData(resultData);
+					if(aggResultMap!=null) {
+						if(queryResult.getExtraOutMap()==null)queryResult.setExtraOutMap(aggResultMap);
+						else queryResult.getExtraOutMap().putAll(aggResultMap);
+					}
 
 					if (rs != null)
 						rs.close();

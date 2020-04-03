@@ -51,7 +51,7 @@ public class W5Query implements java.io.Serializable {
 	
 	private List<W5QueryField> _queryFields;
 	private	List<W5QueryParam> _queryParams;
-	private String[] _returnAliases;
+	private List<W5QueryField> _aggQueryFields;
 
 
 
@@ -191,14 +191,7 @@ public class W5Query implements java.io.Serializable {
 		this.logLevelTip = logLevelTip;
 	}
 	
-	@Transient
-	public String[] get_returnAliases() {
-		return _returnAliases;
-	}
 
-	public void set_returnAliases(String[] returnAliases) {
-		_returnAliases = returnAliases;
-	}
 
 
 	@Column(name="query_tip")
@@ -274,4 +267,14 @@ public class W5Query implements java.io.Serializable {
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
 	}
+
+	@Transient
+	public List<W5QueryField> get_aggQueryFields() {
+		return _aggQueryFields;
+	}
+
+	public void set_aggQueryFields(List<W5QueryField> _aggQueryFields) {
+		this._aggQueryFields = _aggQueryFields;
+	}
+	
 }

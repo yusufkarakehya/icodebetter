@@ -2220,88 +2220,85 @@ public class React16 implements ViewAdapter {
 		StringBuilder buttons = new StringBuilder();
 		boolean b = false;
 		int itemCount = 0;
-		for (W5ObjectToolbarItem toolbarItem : items)
-			if (GenericUtil.accessControl(scd, toolbarItem.getAccessViewTip(),
-					toolbarItem.getAccessViewRoles(),
-					toolbarItem.getAccessViewUsers())) {
-				if (b)
-					buttons.append(",");
-				else
-					b = true;
-				if (toolbarItem.getItemTip() == 0
-						|| toolbarItem.getItemTip() == 100) { // yok(0): button
-																// +
-																// tooltip;button(100)
-																// icon+text
-					if (toolbarItem.getDsc().equals("-"))buttons.append("{ $template:'Spacer' }"); else 
-					if (toolbarItem.getDsc().equals("->"))
-						buttons.append("{}");
-					else if (toolbarItem.getObjectTip() == 15) {// form toolbar
-																// ise
-						buttons.append("{type:'icon' , value:'")
-								.append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
-								.append("',");
-						if (mediumButtonSize)
-							buttons.append("iconAlign: 'top', scale:'medium', style:{margin: '0px 5px 0px 5px'},");
-						buttons.append("iconCls:'")
-								.append(toolbarItem.getImgIcon())
-								.append("', click:(a,b,c)=>{\n")
-								.append(LocaleMsgCache.filter2(
-										customizationId, xlocale,
-										toolbarItem.getCode())).append("\n}}");
-						itemCount++;
-					} else {
-						buttons.append("{type:'button'");
-						if(!GenericUtil.isEmpty(toolbarItem.getImgIcon()))buttons.append(", icon:'icon-").append(toolbarItem.getImgIcon()).append("'");
-						buttons.append(", text:'").append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
-								.append("', click:(a,b,c)=>{\n")
-								.append(LocaleMsgCache.filter2(
-										customizationId, xlocale,
-										toolbarItem.getCode())).append("\n}}");
-						itemCount++;
-					}
-				} else { // controlTip
-					W5FormCell cell = new W5FormCell();
-					cell.setControlTip(toolbarItem.getItemTip());
-					cell.setLookupQueryId(toolbarItem.getLookupQueryId());
-					cell.setLocaleMsgKey(toolbarItem.getLocaleMsgKey());
-					cell.setDsc(toolbarItem.getDsc());
-					cell.setNotNullFlag((short) 1);
-					cell.setExtraDefinition(",tooltip:'"
-							+ LocaleMsgCache.get2(customizationId, xlocale,
-									toolbarItem.getLocaleMsgKey())
-							+ "',ref:'../" + toolbarItem.getDsc() + "'");
-					if (toolbarItem.getCode() != null
-							&& toolbarItem.getCode().length() > 2)
-						cell.setExtraDefinition(cell.getExtraDefinition() + ","
-								+ toolbarItem.getCode());
-					W5FormCellHelper cellResult = new W5FormCellHelper(cell);
-					if (toolbarItem.getItemTip() == 6
-							|| toolbarItem.getItemTip() == 8
-							|| toolbarItem.getItemTip() == 14) {
-						W5LookUp lu = FrameworkCache.getLookUp(scd,
-								toolbarItem.getLookupQueryId());
-
-						List<W5LookUpDetay> dl = new ArrayList<W5LookUpDetay>(
-								lu.get_detayList().size());
-						for (W5LookUpDetay dx : lu.get_detayList()) {
-							W5LookUpDetay e = new W5LookUpDetay();
-							e.setVal(dx.getVal());
-							e.setDsc(LocaleMsgCache.get2(customizationId,
-									xlocale, dx.getDsc()));
-							dl.add(e);
-						}
-						cellResult.setLookupListValues(dl);
-					} else if(lookupMap!=null && (toolbarItem.getItemTip() == 7
-							|| toolbarItem.getItemTip() == 15)) {
-						cellResult.setLookupQueryResult((W5QueryResult)lookupMap.get("_tlb_"+toolbarItem.getToolbarItemId()));
-						
-					}
-					buttons.append(serializeFormCell(customizationId, xlocale,
-							cellResult, null));
+		for (W5ObjectToolbarItem toolbarItem : items)if (GenericUtil.accessControl(scd, toolbarItem.getAccessViewTip(),
+				toolbarItem.getAccessViewRoles(),
+				toolbarItem.getAccessViewUsers())) {
+			if (b)
+				buttons.append(",");
+			else
+				b = true;
+			if (toolbarItem.getItemTip() == 0
+					|| toolbarItem.getItemTip() == 100) { // yok(0): button
+															// +
+															// tooltip;button(100)
+															// icon+text
+			//	if (toolbarItem.getDsc().equals("-"))buttons.append("{ $template:'Spacer' }"); else 
+			//	if (toolbarItem.getDsc().equals("->"))buttons.append("{}"); else 
+				if (toolbarItem.getObjectTip() == 15) {// form toolbar
+					buttons.append("{type:'icon' , value:'")
+							.append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
+							.append("',");
+					if (mediumButtonSize)
+						buttons.append("iconAlign: 'top', scale:'medium', style:{margin: '0px 5px 0px 5px'},");
+					buttons.append("iconCls:'")
+							.append(toolbarItem.getImgIcon())
+							.append("', click:(a,b,c)=>{\n")
+							.append(LocaleMsgCache.filter2(
+									customizationId, xlocale,
+									toolbarItem.getCode())).append("\n}}");
+					itemCount++;
+				} else {
+					buttons.append("{type:'button'");
+					if(!GenericUtil.isEmpty(toolbarItem.getImgIcon()))buttons.append(", icon:'icon-").append(toolbarItem.getImgIcon()).append("'");
+					buttons.append(", text:'").append(LocaleMsgCache.get2(scd, toolbarItem.getLocaleMsgKey()))
+							.append("', click:(a,b,c)=>{\n")
+							.append(LocaleMsgCache.filter2(
+									customizationId, xlocale,
+									toolbarItem.getCode())).append("\n}}");
 					itemCount++;
 				}
+			} else { // controlTip
+				W5FormCell cell = new W5FormCell();
+				cell.setControlTip(toolbarItem.getItemTip());
+				cell.setLookupQueryId(toolbarItem.getLookupQueryId());
+				cell.setLocaleMsgKey(toolbarItem.getLocaleMsgKey());
+				cell.setDsc(toolbarItem.getDsc());
+				cell.setNotNullFlag((short) 1);
+				cell.setExtraDefinition(",tooltip:'"
+						+ LocaleMsgCache.get2(customizationId, xlocale,
+								toolbarItem.getLocaleMsgKey())
+						+ "',ref:'../" + toolbarItem.getDsc() + "'");
+				if (toolbarItem.getCode() != null
+						&& toolbarItem.getCode().length() > 2)
+					cell.setExtraDefinition(cell.getExtraDefinition() + ","
+							+ toolbarItem.getCode());
+				W5FormCellHelper cellResult = new W5FormCellHelper(cell);
+				if (toolbarItem.getItemTip() == 6
+						|| toolbarItem.getItemTip() == 8
+						|| toolbarItem.getItemTip() == 14) {
+					W5LookUp lu = FrameworkCache.getLookUp(scd,
+							toolbarItem.getLookupQueryId());
+
+					List<W5LookUpDetay> dl = new ArrayList<W5LookUpDetay>(
+							lu.get_detayList().size());
+					for (W5LookUpDetay dx : lu.get_detayList()) {
+						W5LookUpDetay e = new W5LookUpDetay();
+						e.setVal(dx.getVal());
+						e.setDsc(LocaleMsgCache.get2(customizationId,
+								xlocale, dx.getDsc()));
+						dl.add(e);
+					}
+					cellResult.setLookupListValues(dl);
+				} else if(lookupMap!=null && (toolbarItem.getItemTip() == 7
+						|| toolbarItem.getItemTip() == 15)) {
+					cellResult.setLookupQueryResult((W5QueryResult)lookupMap.get("_tlb_"+toolbarItem.getToolbarItemId()));
+					
+				}
+				buttons.append(serializeFormCell(customizationId, xlocale,
+						cellResult, null));
+				itemCount++;
 			}
+		}
 		return itemCount > 0 ? buttons : null;
 	}
 
@@ -2495,8 +2492,7 @@ public class React16 implements ViewAdapter {
 		}
 
 			
-		if (false && FrameworkSetting.liveSyncRecord && g.get_viewTable() != null && g.get_viewTable().getLiveSyncFlag() != 0)
-			buf.append(",\n liveSync:true");
+
 		if (g.getDefaultWidth() != 0)
 			buf.append(", defaultWidth:").append(g.getDefaultWidth());
 		if (gridResult.isViewLogMode())
@@ -2511,8 +2507,15 @@ public class React16 implements ViewAdapter {
 
 			buf.append(",\n gridReport:").append(FrameworkCache.roleAccessControl(scd, 105));
 		}
-//		buf.append(",\n loading:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
-		
+		buf.append(",\n displayInfo:").append(g.getDefaultPageRecordNumber()>0);
+		if(q.get_aggQueryFields()!=null) {
+			buf.append(",\n displayAgg:[");
+			for(W5QueryField f:q.get_aggQueryFields())
+				buf.append("{id:'").append(f.getDsc()).append("', f:(x)=> _('span',{},'")
+				.append(LocaleMsgCache.get2(scd, f.getDsc())).append(" ', _('span',{style:{borderRadius:100, background:'rgba(228, 242, 251, 0.8)', padding:'2px 5px'}},fmtDecimal(x,2,2)))},");
+			buf.setLength(buf.length()-1);
+			buf.append("]");
+		}
 
 		if (!GenericUtil.isEmpty(g.get_crudFormSmsMailList())) {
 			buf.append(",\n formSmsMailList:[");
@@ -4119,8 +4122,8 @@ columns:[
 					} else if (i instanceof W5FormResult) {// objectTip=3
 						W5FormResult fr = (W5FormResult) i;
 						if (Math.abs(fr.getObjectTip()) == 3) { // form
-							buf.append("\nvar ").append(fr.getForm().getDsc())
-									.append("= class bodyForm extends XForm").append(serializeGetForm(fr));
+							buf.append("\nclass ").append(fr.getForm().getDsc())
+									.append(" extends XForm").append(serializeGetForm(fr));
 						}
 						if (fr.getFormId() < 0) {
 							buf.append("\nvar _form")

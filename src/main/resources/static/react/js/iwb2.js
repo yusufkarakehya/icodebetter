@@ -1393,8 +1393,18 @@ class GridCommon extends React.PureComponent {
              * @param {Array}
              *            selection - (selection: Array<number | string>) => void
              */
-            this.onSelectionChange = selection => {
-                this.setState({ selection }, ()=> this.props.onSelectionChange && this.props.onSelectionChange(selection));
+            this.onSelectionChange = (selection,aqq) => {
+
+                this.setState({ selection });
+            	if(this.props.onSelectionChange){
+            		var sels = this.state.rows.reduce((accumulator, row) => {
+            			selection.includes(row[this.props.keyField]) ?
+                            accumulator.push(row) :
+                            "";
+                        return accumulator;
+                    }, []);
+            		this.props.onSelectionChange(sels);
+            	}
             };
             /**
              * Used to delete from the frontend
@@ -2514,7 +2524,7 @@ class XSingleUploadComponent extends React.Component {
                         onChange: this.onchange,
                         ref: input => (this.inpuRef = input)
                     }),
-                    this.props.extraButtons && this.props.extraButtons
+                    this.props.extraButtons
                 ),
                 _(
                     PopoverBody,
@@ -3000,15 +3010,15 @@ class XTabForm extends React.PureComponent {
                         extraButtons.map(extraProps => {
                             switch (extraProps.type) {
                                 case "button":
-                                    let cls = extraProps.icon.split("|");
+                                    let cls = extraProps.icon;
                                     return _(
                                         extraProps.$ || Button, {
                                             key: extraProps.text,
-                                            className: "btn-form-edit mx-1 btn-success " + cls[1],
+                                            className: "btn-form-edit mx-1 btn-success ",
                                             onClick: this.extrabuttonClicked(extraProps)
                                         },
-                                        _("span", {
-                                            className: "mr-1 " + cls[0]
+                                        cls && _("span", {
+                                            className: "mr-1 " + cls
                                         }),
                                         getLocMsg(extraProps.text || "")
                                     );
@@ -5989,6 +5999,7 @@ class XMainGrid extends GridCommon {
                         rows: result.data,
                         loading: false,
                         totalCount: result.total_count
+                        , extraOutMap: result.extraOutMap||{}
                     });
 
                     if (cfg.self.props.summary) cfg.self.props.summary.map((ox) => {
@@ -6083,7 +6094,7 @@ class XMainGrid extends GridCommon {
                     cfg.self.setState({
                         rows: [],
                         totalCount: 0,
-                        loading: false
+                        loading: false, extraOutMap:{}
                     });
                 }
             });
@@ -6122,7 +6133,7 @@ class XMainGrid extends GridCommon {
                 pageSize,
                 selection,
                 pageSizes,
-                totalCount,
+                totalCount, extraOutMap,
                 currentPage,
                 columnWidths,
                 columnExtensions
@@ -6137,7 +6148,7 @@ class XMainGrid extends GridCommon {
                 treeParentKey,
                 titleComponent,
                 tableTreeColumn,
-                groupColumn,
+                groupColumn, displayInfo, displayAgg,
                 _disableSearchPanel,
                 _disableIntegratedSorting,
                 _disableIntegratedGrouping
@@ -6320,6 +6331,11 @@ class XMainGrid extends GridCommon {
                         },
                         _("i", { className: "icon-refresh " + (this.state.loading ? " infinite-rotate" : "") })
                     ),
+                    displayInfo && this.state.totalCount>0 && _('div',{style:{padding:6}}, getLocMsg("total"),' ', _('span',{style:{borderRadius:100, background:'rgba(206, 243, 213, 0.8)', padding:'2px 5px'}},this.state.totalCount), ' ', getLocMsg("records")),
+                    displayAgg && this.state.totalCount>0 && _('div',{style:{display: 'inline-flex'}}, displayAgg.map(oo=> {
+                    	return _('div',{style:{padding:5, marginLeft:10, borderBottom: '1px solid #e8e8e8'}},oo.f(extraOutMap[oo.id]));
+                    	})),
+                    
                     !!iwb.newRecordPositionRight && _("div", { className: "fgrow" }),
 
                     crudFlags &&
