@@ -408,6 +408,12 @@ public class MetadataLoaderDAO extends BaseDAO {
 							qr.getQueryId(), projectId));
 			query.set_queryParams(find("from W5QueryParam t where t.queryId=? AND t.projectUuid=? order by t.tabOrder",
 					qr.getQueryId(), projectId));
+			
+			for(W5QueryField f:query.get_queryFields())if(f.getPostProcessTip()==31 && (f.getFieldTip()==3 || f.getFieldTip()==4)) {
+				if(query.get_aggQueryFields()==null)query.set_aggQueryFields(new ArrayList());
+				query.get_aggQueryFields().add(f);
+			}
+
 
 		}
 		qr.setQuery(query);

@@ -4800,6 +4800,16 @@ public class ExtJs3_4 implements ViewAdapter {
 		}
 		buf.append(", loadMask:!0, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
 		
+		if(q.get_aggQueryFields()!=null) {
+			buf.append(",\n displayAgg:[");
+			for(W5QueryField f:q.get_aggQueryFields())
+				buf.append("{id:'").append(f.getDsc()).append("', f:(x)=> '<span style=\"border-bottom: 1px dotted #E91E63;margin-left:40px;\">")
+				.append(LocaleMsgCache.get2(scd, f.getDsc())).append(" :  <b>'+fmtDecimal(x,2,2)+'</b></span>'},");
+			buf.setLength(buf.length()-1);
+			buf.append("]");
+		}
+		
+		
 		if(FrameworkCache.getAppSettingIntValue(customizationId, "toplu_onay") == 1 && g.get_workflow() != null){
 			buf.append(",\n approveBulk:true");
 			if(g.get_workflow().getApprovalRequestTip() == 2){ // Onay manuel mi başlatılacak ?

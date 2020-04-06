@@ -127,7 +127,7 @@ public class AppController implements InitializingBean {
 		react16 = new React16();
 		vue2 = new Vue2();
 	//	FrameworkCache.activeProjectsStr = "067e6162-3b6f-4ae2-a221-2470b63dff00,29a3d378-3c59-4b5c-8f60-5334e3729959";
-		if(FrameworkSetting.projectId!=null) {
+	/*	if(FrameworkSetting.projectId!=null) {
 			vcsService.icbVCSUpdateSqlAndFields();
 			boolean b = vcsService.projectVCSUpdate("067e6162-3b6f-4ae2-a221-2470b63dff00");
 			if(b && FrameworkSetting.projectId!=null) {
@@ -146,6 +146,8 @@ public class AppController implements InitializingBean {
 		// if(PromisSetting.checkLicenseFlag)engine.checkLicences();
 		// dao.organizeAudit();
 		//service.setJVMProperties(0);
+		 
+		 */
 		try{
 			manPicPath = new ClassPathResource("static/ext3.4.1/custom/images/man-64.png").getFile().getPath();
 			brokenPicPath = new ClassPathResource("static/ext3.4.1/custom/images/broken-64.png").getFile().getPath();
@@ -2281,7 +2283,7 @@ public class AppController implements InitializingBean {
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		int roleId =(Integer)scd.get("roleId");
-		if(roleId!=0){
+		if(roleId!=0 && !FrameworkSetting.debug){
 			throw new IWBException("security","Developer",0,null, "You Have to Be Developer TO Run this", null);
 		}
 
@@ -2342,7 +2344,7 @@ public class AppController implements InitializingBean {
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 		int roleId =(Integer)scd.get("roleId");
-		if(roleId!=0){
+		if(roleId!=0 && !FrameworkSetting.debug){
 			throw new IWBException("security","Developer",0,null, "You Have to Be Developer TO Run this", null);
 		}
 
