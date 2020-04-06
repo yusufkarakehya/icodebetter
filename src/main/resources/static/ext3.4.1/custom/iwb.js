@@ -3512,6 +3512,25 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       addDefaultSpecialButtons(buttons, detailGrid);
       addGridExtraButtons(buttons, detailGrid);
 
+      if(detailGrid.displayAgg){
+    	  buttons.push({id:'grid-summary-'+detailGrid.id, xtype:'displayfield', value:''});
+    	  var ds = (detailGrid.store || detailGrid.ds);
+    	  ds._displayAgg = detailGrid.displayAgg;
+    	  ds._id = detailGrid.id;
+    	  ds.on("load", function(a) {
+      		 var m = a.reader.jsonData.extraOutMap;
+      		 var s = "";
+      		 if(m){
+      			 a._displayAgg.map(o=>{
+      				 var xx = o.f(m[o.id]); 
+      				if(xx)s+=xx; 
+      			 });
+      		 }
+  			 var d =document.getElementById('grid-summary-'+a._id); 
+  			 if(d)d.innerHTML= s;
+      	 });
+      }
+
       if (detailGrid.menuButtons) {
         for (var j = 0; j < detailGrid.menuButtons.length; j++) {
           detailGrid.menuButtons[j]._grid = detailGrid;
