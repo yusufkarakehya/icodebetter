@@ -2753,7 +2753,7 @@ function addDefaultPrivilegeButtons(xbuttons, xgrid) {
       });
       bx = true;
     }
-    if (xgrid.crudTableId) {
+    if (false && xgrid.crudTableId) {
       if (bx) xxmenu.push("-");
       else bx = true;
       xxmenu.push({
@@ -2842,6 +2842,7 @@ function exportToGSheet(a, url){
 
 					} else {
 						_scd.googleSheetUrl = url;
+						localStorage.setItem('googleSheetUrl', url);
 						var pid2 = 'px-'+_scd.googleAccessToken;
 						if(!Ext.getCmp(pid2)){
 							if(url.indexOf('#gid=')>-1){
@@ -2873,7 +2874,7 @@ function fnGSheet(a){
 	    exportToGSheet(a, gsu);
 	}
 	
-	var gsu = prompt('Enter the Google Spreadsheet URL', _scd.googleSheetUrl||'');
+	var gsu = prompt('Enter the Google Spreadsheet URL', _scd.googleSheetUrl||localStorage.getItem('googleSheetUrl')||'');
 	if(!gsu)return;
 
 	if(!_scd.googleAccessToken){
@@ -3032,6 +3033,7 @@ function addTab4GridWSearchForm(obj) {
       })
     );
 
+
     // --standart beforeload, ondbliclick, onrowcontextmenu
 
 
@@ -3059,6 +3061,23 @@ function addTab4GridWSearchForm(obj) {
         }
       }
     });
+    if(mainGrid.displayAgg){
+    	searchFormPanel.on('afterrender',(aq)=>{
+    		aq.add(new Ext.Panel({ html: '<span id="top-summary-'+mainGrid.id+'" style="padding: 10px 0 10px 88px;"></span>', autoWidth: true, height:40, border: true }));
+    	});
+    	 mainGridPanel.store.on("load", function(a) {
+    		 var m = a.reader.jsonData.extraOutMap;
+    		 if(m){
+        		 var s = "";
+    			 mainGrid.displayAgg.map(o=>{
+    				 var xx = o.f(m[o.id]); 
+    				if(xx)s+=xx; 
+    			 });
+    			 var d =document.getElementById('top-summary-'+mainGrid.id); 
+    			 d.innerHTML= s;
+    		 }
+    	 });
+    }
     items.push(searchFormPanel);
   }
 
@@ -3323,6 +3342,24 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     searchFormPanel = (mainGrid.searchForm.fp = new Ext.FormPanel(
       Ext.apply(mainGrid.searchForm.render(), sfCfg)
     ));
+    
+    if(mainGrid.displayAgg){
+    	searchFormPanel.on('afterrender',(aq)=>{
+    		aq.add(new Ext.Panel({ html: '<span id="top-summary-'+mainGrid.id+'" style="padding: 10px 0 10px 48px;"></span>', autoWidth: true, height:40, border: true }));
+    	});
+    	 mainGridPanel.store.on("load", function(a) {
+    		 var m = a.reader.jsonData.extraOutMap;
+    		 if(m){
+        		 var s = "";
+    			 mainGrid.displayAgg.map(o=>{
+    				 var xx = o.f(m[o.id]); 
+    				if(xx)s+=xx; 
+    			 });
+    			 var d =document.getElementById('top-summary-'+mainGrid.id); 
+    			 d.innerHTML= s;
+    		 }
+    	 });
+    }
     mainGridPanel.store._formPanel = searchFormPanel;
   }
 
@@ -8138,7 +8175,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     var menuItems = [];
     if (_scd.administratorFlag) {
       menuItems.push({
-        text: "Field Settings",
+        text: getLocMsg("settings"),
         handler: function(a, b, c) {
           mainPanel.loadTab({
             attributes: {
@@ -8230,7 +8267,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
       });
     }
     btn.push({
-      tooltip: "Settings",
+      tooltip: getLocMsg("settings"),
       id: "fs_" + getForm.id,
       iconAlign: "top",
       scale: "medium",

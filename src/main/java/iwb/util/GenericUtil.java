@@ -1033,7 +1033,7 @@ public class GenericUtil {
 		html.append("{");
 		for (Object q : s.keySet()) {
 			if (b)
-				html.append("\n,");
+				html.append(",");//\n
 			else
 				b = true;
 			Object o = s.get(q);
@@ -1078,7 +1078,7 @@ public class GenericUtil {
 		html.append("[");
 		for (Object o : s) {
 			if (b)
-				html.append("\n,");
+				html.append(",");//\n
 			else
 				b = true;
 			if (o == null)
@@ -1115,7 +1115,7 @@ public class GenericUtil {
 		html.append("{");
 		for (Object q : s.keySet()) {
 			if (b)
-				html.append("\n,");
+				html.append(",");//\n
 			else
 				b = true;
 			Object o = s.get(q);

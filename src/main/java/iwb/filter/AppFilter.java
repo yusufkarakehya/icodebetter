@@ -67,7 +67,10 @@ public class AppFilter implements Filter {
 				}
 				filterChain.doFilter( request, response );
 			} catch (NestedServletException e) {
-				if(FrameworkSetting.debug)e.printStackTrace();
+				if(FrameworkSetting.debug) {
+					if(e.getMessage().contains("session"))System.out.println("No session: " + ((HttpServletRequest)request).getRequestURI());
+					else e.printStackTrace();				
+				}
 				response.setCharacterEncoding( "UTF-8" );
 				response.setContentType("text/html");
 				Exception te = e;
