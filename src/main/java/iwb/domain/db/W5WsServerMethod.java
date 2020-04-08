@@ -36,6 +36,7 @@ public class W5WsServerMethod  implements java.io.Serializable {
 		this.dsc = dsc;
 		this.objectTip = objectTip;
 		this.objectId = objectId;
+		this.dataAcceptTip = (short)1;
 	}
 	public W5WsServerMethod() {
 		super();

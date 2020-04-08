@@ -353,8 +353,28 @@ public class RESTEngine {
 						throw new IWBException("validation", "WS Method Call", wsm.getWsId(), null,
 								"Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
 					}
+					for(W5WsMethodParam px:wsm.get_params()) if(px.getOutFlag()==0 && px.getParentWsMethodParamId()==0 && m.containsKey(px.getDsc()))switch(px.getCredentialsFlag()){// clean
+					case	0://query
+						if(!GenericUtil.isEmpty(m.get(px.getDsc()))) {
+							if(!url.contains("?"))url+="?";
+							else url+="&";
+							url+=px.getDsc()+"=" + URLEncoder.encode(m.get(px.getDsc()).toString(), "UTF-8");
+						}
+						m.remove(px.getDsc());
+						break;
+					case	1://header
+						if(!GenericUtil.isEmpty(m.get(px.getDsc())))reqPropMap.put(px.getDsc(), m.get(px.getDsc()).toString());
+						m.remove(px.getDsc());
+						break;
+					case	2://path
+						m.remove(px.getDsc());
+						break;
+						
+						
+					}
+					
 					switch (wsm.getParamSendTip()) {
-					case 3: // form as post_url
+					case 3: // form as post_url : deprecated, use form(1) instead
 						params = GenericUtil.fromMapToURI(m);
 						if (!GenericUtil.isEmpty(params)) {
 							if (url.indexOf('?') == -1)
@@ -365,48 +385,11 @@ public class RESTEngine {
 						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
 						break;
 					case 1: // form
-						for(W5WsMethodParam px:wsm.get_params()) if(px.getOutFlag()==0 && px.getParentWsMethodParamId()==0 && m.containsKey(px.getDsc()))switch(px.getCredentialsFlag()){// clean
-						case	0://query
-							if(!GenericUtil.isEmpty(m.get(px.getDsc()))) {
-								if(!url.contains("?"))url+="?";
-								else url+="&";
-								url+=px.getDsc()+"=" + URLEncoder.encode(m.get(px.getDsc()).toString(), "UTF-8");
-							}
-							m.remove(px.getDsc());
-							break;
-						case	1://header
-							if(!GenericUtil.isEmpty(m.get(px.getDsc())))reqPropMap.put(px.getDsc(), m.get(px.getDsc()).toString());
-							m.remove(px.getDsc());
-							break;
-						case	2://path
-							m.remove(px.getDsc());
-							break;
-						}
 						params = GenericUtil.fromMapToURI(m);
 
 						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
 						break;
 					case 2: // json
-						for(W5WsMethodParam px:wsm.get_params()) if(px.getOutFlag()==0 && px.getParentWsMethodParamId()==0 && m.containsKey(px.getDsc()))switch(px.getCredentialsFlag()){// clean
-						case	0://query
-							if(!GenericUtil.isEmpty(m.get(px.getDsc()))) {
-								if(!url.contains("?"))url+="?";
-								else url+="&";
-								url+=px.getDsc()+"=" + URLEncoder.encode(m.get(px.getDsc()).toString(), "UTF-8");
-							}
-							m.remove(px.getDsc());
-							break;
-						case	1://header
-							if(!GenericUtil.isEmpty(m.get(px.getDsc())))reqPropMap.put(px.getDsc(), m.get(px.getDsc()).toString());
-							m.remove(px.getDsc());
-							break;
-						case	2://path
-							m.remove(px.getDsc());
-							break;
-							
-							
-						}
-						
 						params = GenericUtil.fromMapToJsonString2Recursive(m);
 						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
 						break;

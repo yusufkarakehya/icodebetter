@@ -92,11 +92,11 @@ public class RestController implements InitializingBean {
 				String transactionId =  GenericUtil.getTransactionId();
 				requestParams.put("_trid_", transactionId);
 				if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(po.getProjectUuid(), "rest", transactionId), true);
-				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
 				Map scd = new HashMap();
 				scd.put("customizationId", po.getCustomizationId());
 				scd.put("projectId", po.getProjectUuid());
+				scd.put("locale", xlocale);
 				W5GlobalFuncResult result = service.executeFunc(scd, po.getCustomizationId()==0 ? 1:1252, requestParams, (short) 7); // user Authenticate DbFunc:1
 				W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
 				List<W5GlobalFuncParam> arl = new ArrayList();
@@ -114,13 +114,12 @@ public class RestController implements InitializingBean {
 				
 				int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
 				int roleCount = GenericUtil.uInt(result.getResultMap().get("roleCount"));
-				int deviceType = GenericUtil.uInt(request.getParameter("deviceType"));
 				int forceUserRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
 				if (roleCount < 0 || forceUserRoleId != 0) {
 					if(po.getCustomizationId()==0) {
 						if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
 						scd = service.userRoleSelect(userId, forceUserRoleId,
-							GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
+							GenericUtil.uInt(requestParams.get("customizationId")), null, null);
 					} else {
 						scd = service.userRoleSelect4App2(po, userId, forceUserRoleId, result.getResultMap());
 					}
@@ -129,11 +128,6 @@ public class RestController implements InitializingBean {
 						return;
 					}
 					scd.put("locale", xlocale);
-					if (false && deviceType != 0) {
-						scd.put("mobileDeviceId", request.getParameter("deviceId"));
-						scd.put("mobile", deviceType);
-						UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), null, (short) deviceType, request.getParameter("deviceId"));
-					}
 					String tokenKey = EncryptionUtil.encryptAES(GenericUtil.fromMapToJsonString2Recursive(scd));
 					dfr.getResultMap().put("tokenKey", tokenKey);
 					response.getWriter().write("{\"success\":true,\"token\":\""+tokenKey+"\",\"session\":" + GenericUtil.fromMapToJsonString2(scd)+"}"); // hersey duzgun
@@ -235,7 +229,7 @@ public class RestController implements InitializingBean {
 				throw new IWBException("ws","TODO",0,null, "Methods Not Implemented", null);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(FrameworkSetting.debug)e.printStackTrace();
 			response.getWriter().write("{\"error\":\""+GenericUtil.stringToJS(e.getMessage())+"\"}");
 //			response.getWriter().write(new IWBException("framework","REST Def",0,null, "Error", e).toJsonString(request.getRequestURI()));
 		}
@@ -268,59 +262,7 @@ public class RestController implements InitializingBean {
 				Map<String, Object> wsmoMap = service.getWsServerMethodObjects(wss);
 				response.getWriter().write(serializeRestSwagger(wss, wsmoMap).toString());
 				return;
-			} else if(serviceName.equals("login")){
-				requestParams.put("_remote_ip", request.getRemoteAddr());
-				requestParams.put("_mobile", ""+GenericUtil.uInt(requestParams, "deviceType", 0));
-				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
-				W5GlobalFuncResult result = service.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
-				W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
-				List<W5GlobalFuncParam> arl = new ArrayList();
-				dfr.setGlobalFunc(new W5GlobalFunc());dfr.getGlobalFunc().set_dbFuncParamList(arl);
-				arl.add(new W5GlobalFuncParam("tokenKey"));arl.add(new W5GlobalFuncParam("errorMsg"));
-//				W5WsServerMethod wsm = wss.get_methods().get(0);
-				// 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
-				boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
-				boolean expireFlag = GenericUtil.uInt(result.getResultMap().get("expireFlag")) != 0;
-				if (!success || expireFlag){
-					String errorMsg = LocaleMsgCache.get2(0, xlocale, expireFlag ? "pass_expired":result.getResultMap().get("errorMsg"));
-					response.getWriter().write("{\"success\":false,\"error\":\"" + GenericUtil.stringToJS2(errorMsg) + "\"}");
-					return;
-				}
-				
-				int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
-				int roleCount = GenericUtil.uInt(result.getResultMap().get("roleCount"));
-				int deviceType = GenericUtil.uInt(request.getParameter("deviceType"));
-				int forceUserRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
-				if (roleCount < 0 || forceUserRoleId != 0) {
-					if (forceUserRoleId == 0)forceUserRoleId = -roleCount;
-					Map<String, Object> scd = service.userRoleSelect(userId, forceUserRoleId,
-							GenericUtil.uInt(requestParams.get("customizationId")), null, deviceType != 0 ? request.getParameter("deviceId") : null);
-					if (scd == null){
-						response.getWriter().write("{\"success\":false}"); // bir hata var
-						return;
-					}
-					scd.put("locale", xlocale);
-					if (deviceType != 0) {
-						scd.put("mobileDeviceId", request.getParameter("deviceId"));
-						scd.put("mobile", deviceType);
-						UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), null, (short) deviceType, request.getParameter("deviceId"));
-					}
-					String tokenKey = EncryptionUtil.encryptAES(GenericUtil.fromMapToJsonString2Recursive(scd));
-					dfr.getResultMap().put("tokenKey", tokenKey);
-					response.getWriter().write("{\"success\":true,\"token\":\""+tokenKey+"\",\"session\":" + GenericUtil.fromMapToJsonString2(scd)+"}"); // hersey duzgun
-					
-//					response.getWriter().write("{\"success\":true,\"token\":\""+UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000)+"\",\"session\":" + GenericUtil.fromMapToJsonString2(scd)+"}"); // hersey duzgun
-	
-					return;
-	
-				} else {
-					dfr.getResultMap().put("errorMsg", "Too many roles. Use [forceUserRoleId]");
-					response.getWriter().write("{\"success\":false,\"error\":\"Too many roles. Use [forceUserRoleId]\"}");
-					return;
-				}
-
-	//		} else if(u[0].equals("selectUserRole")){
-			} else if(serviceName.equals("ping")){
+			}  else if(serviceName.equals("ping")){
 				response.getWriter().write("{\"success\":true,\"session\":" + !(GenericUtil.isEmpty(token)) + "}");
 				return;
 			}
@@ -350,7 +292,14 @@ public class RestController implements InitializingBean {
 			case	2:case 4:methodType = "post";break;//insert, globalFunc
 			case	3:methodType = "delete";break;//update
 			}
-			buf.append("\n\"").append(wsm.getDsc()).append("\":{ \"").append(methodType).append("\":{\"produces\": [\"application/json\"],\"parameters\": [");
+			String consumes = "application/json";
+			switch(wsm.getDataAcceptTip()){
+			case	1:case 3:consumes = "application/x-www-form-urlencoded";break;
+//			case	2:consumes = "application/json";
+			case	6:consumes = "application/x-yaml";break;
+			}
+			buf.append("\n\"").append(wsm.getDsc()).append("\":{ \"").append(methodType).append("\":{\"produces\": [\"application/json\"],\"consumes\":[\"")
+				.append(consumes).append("\"],\"parameters\": [");
 //			buf.append("\n<method name=\"").append(wsm.getObjectTip()<19 ? "POST":"GET").append("\" id=\"").append(wsm.getDsc()).append("\">");
 			
 			W5Table t = null;
@@ -378,8 +327,7 @@ public class RestController implements InitializingBean {
 				for(W5GlobalFuncParam dfp:dfr.getGlobalFunc().get_dbFuncParamList())if(dfp.getOutFlag()!=0){
 					lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
 					
-					definitions.append("\"").append(wsm.getDsc()).append("Result\":{\"type\":\"object\",\"properties\":{\"result\":{\"$ref\":\"#/definitions/");
-					definitions.append(wsm.getDsc()).append("ResultDetail\"}}}\n,\"").append(wsm.getDsc()).append("ResultDetail\":{\"type\":\"object\",\"properties\":{");
+					definitions.append("\"").append(wsm.getDsc()).append("Result\":{\"type\":\"object\",\"properties\":{");
 					for(W5GlobalFuncParam dfp2:dfr.getGlobalFunc().get_dbFuncParamList())if(dfp2.getOutFlag()!=0){
 							definitions.append("\"").append(dfp2.getDsc()).append("\":{\"type\":\"")
 								.append(elementTypes[dfp2.getParamTip()]).append("\"},");
@@ -431,7 +379,7 @@ public class RestController implements InitializingBean {
 		
 //			buf.append("\n<request>");
 			for(W5WsServerMethodParam wsmp:wsm.get_params())if(wsmp.getOutFlag()==0 && wsmp.getParentWsMethodParamId()==0){
-				buf.append("\n{\"in\":\"query\"").append(wsmp.getNotNullFlag()==0 ? "":" ,\"required\":true").append(",\"name\":\"")
+				buf.append("\n{\"in\":\"formData\"").append(wsmp.getNotNullFlag()==0 ? "":" ,\"required\":true").append(",\"name\":\"")
 				.append(wsmp.getDsc()).append("\",\"type\":\"");
 				buf.append(elementTypes[wsmp.getParamTip()]);
 				buf.append("\"},");
