@@ -17,6 +17,7 @@ import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPMessage;
 
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -38,6 +39,7 @@ import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.exception.IWBException;
 import iwb.service.FrameworkService;
+import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
@@ -148,7 +150,7 @@ public class SoapController implements InitializingBean {
 							scd.put("mobile", deviceType);
 							UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), null, (short) deviceType, request.getParameter("deviceId"));
 						}
-						dfr.getResultMap().put("tokenKey", UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000));
+						dfr.getResultMap().put("tokenKey", EncryptionUtil.encryptAES(GenericUtil.fromMapToJsonString2Recursive(scd)));
 						response.getWriter().write(soap.serializeDbFunc(wsm, dfr).toString());
 
 //						response.getWriter().write("{\"success\":true,\"token\":\""+UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000)+"\",\"session\":" + GenericUtil.fromMapToJsonString2(scd)+"}"); // hersey duzgun
@@ -163,7 +165,7 @@ public class SoapController implements InitializingBean {
 				} else if(methodName.equals("logout")){
 				} else {
 					W5FormResult fr=null; 
-					Map<String, Object> scd = GenericUtil.isEmpty(requestParams.get("tokenKey")) ? null : UserUtil.getScdFromToken(requestParams.get("tokenKey"), "");
+					Map<String, Object> scd = GenericUtil.isEmpty(requestParams.get("tokenKey")) ? null : GenericUtil.fromJSONObjectToMap(new JSONObject(EncryptionUtil.decryptAES(requestParams.get("tokenKey"))));
 					if(GenericUtil.isEmpty(scd)){
 						throw new IWBException("session","No Session",0,null, "No valid token", null);
 					}

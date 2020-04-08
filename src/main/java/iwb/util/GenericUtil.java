@@ -2142,67 +2142,7 @@ public class GenericUtil {
 		return true;
 	}
 
-	public static String PRMEncStr = "besiktascanimfedaolsunsana";
 
-	public static String PRMEncrypt(String s) {
-		if (s == null || s.length() == 0)
-			return "";
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < s.length(); i++) {
-			char ch = s.charAt(i);
-
-			int o = 0;
-			if (ch >= 'A' && ch <= 'Z') {
-				o = ch - 'A';
-			} else if (ch >= 'a' && ch <= 'z') {
-				o = ch - 'a';
-			} else if (ch >= '0' && ch <= '9') {
-				o = ch - '0';
-			}
-			o += (GenericUtil.PRMEncStr.charAt(i % (GenericUtil.PRMEncStr.length())) - 'a');
-
-			char ch2 = ch;
-			if (ch >= 'A' && ch <= 'Z') {
-				ch2 = (char) ((o % (1 + 'Z' - 'A')) + 'A');
-			} else if (ch >= 'a' && ch <= 'z') {
-				ch2 = (char) ((o % (1 + 'z' - 'a')) + 'a');
-			} else if (ch >= '0' && ch <= '9') {
-				ch2 = (char) ((o % 10) + '0');
-			}
-			sb.append(ch2);
-		}
-		return sb.toString();
-	}
-
-	public static String PRMDecrypt(String s) {
-		if (s == null || s.length() == 0)
-			return "";
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < s.length(); i++) {
-			char ch = s.charAt(i);
-
-			int o = 0;
-			if (ch >= 'A' && ch <= 'Z') {
-				o = ch - 'A';
-			} else if (ch >= 'a' && ch <= 'z') {
-				o = ch - 'a';
-			} else if (ch >= '0' && ch <= '9') {
-				o = ch - '0';
-			}
-			o -= (GenericUtil.PRMEncStr.charAt(i % (GenericUtil.PRMEncStr.length())) - 'a');
-
-			char ch2 = ch;
-			if (ch >= 'A' && ch <= 'Z') {
-				ch2 = (char) (((1 + 'Z' - 'A' + o) % (1 + 'Z' - 'A')) + 'A');
-			} else if (ch >= 'a' && ch <= 'z') {
-				ch2 = (char) (((1 + 'z' - 'a' + o) % (1 + 'z' - 'a')) + 'a');
-			} else if (ch >= '0' && ch <= '9') {
-				ch2 = (char) (((100 + o) % 10) + '0');
-			}
-			sb.append(ch2);
-		}
-		return sb.toString();
-	}
 
 	public static class ResultMessage {
 
@@ -2503,6 +2443,8 @@ public class GenericUtil {
 				no.put(key, fromJSONObjectToMap((JSONObject) val));
 			} else if (val instanceof JSONArray) {
 				no.put(key, fromJSONArrayToList((JSONArray) val));
+			} else if(val instanceof Integer || val instanceof Float || val instanceof Double) {
+				no.put(key, val);
 			} else
 				no.put(key, val.toString());
 		}

@@ -42,6 +42,7 @@ import iwb.domain.db.W5WsServerMethodParam;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
 import iwb.service.FrameworkService;
+import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.LogUtil;
@@ -246,7 +247,7 @@ public class GraphQLController implements InitializingBean {
 			}
 			
 			Map<String, Object> scd = null;
-			scd = GenericUtil.isEmpty(token) ? null : UserUtil.getScdFromToken(token, "");
+			scd = GenericUtil.isEmpty(token) ? null : GenericUtil.fromJSONObjectToMap(new JSONObject(EncryptionUtil.decryptAES(token)));
 			
 			if(scd==null){
 				scd = new HashMap();

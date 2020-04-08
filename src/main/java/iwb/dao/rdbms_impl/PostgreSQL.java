@@ -1926,8 +1926,8 @@ public class PostgreSQL extends BaseDAO {
 																													// icin
 						if (presult != null && presult.toString().startsWith("****"))
 							continue;
-						if (FrameworkSetting.mailPassEncrypt)
-							presult = GenericUtil.PRMEncrypt(presult.toString());
+						/*if (FrameworkSetting.mailPassEncrypt)
+							presult = GenericUtil.PRMEncrypt(presult.toString());*/
 					}
 
 					if (b)

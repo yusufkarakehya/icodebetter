@@ -88,6 +88,7 @@ import iwb.report.RptPdfRenderer;
 import iwb.service.FrameworkService;
 import iwb.service.VcsService;
 import iwb.timer.Action2Execute;
+import iwb.util.EncryptionUtil;
 import iwb.util.ExcelUtil;
 import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
@@ -786,8 +787,8 @@ public class AppController implements InitializingBean {
 				response.getWriter().write(",\"newMsgCnt\":"+ GenericUtil.fromMapToJsonString2Recursive(service.getUserNotReadChatMap(scd)));
 			}
 			if (genToken && scd != null)
-				response.getWriter().write(",\"promis_token\":\""
-						+ UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000) + "\"");
+				response.getWriter().write(",\"tokenKey\":\""
+						+ EncryptionUtil.encryptAES(GenericUtil.fromMapToJsonString2Recursive(scd)) + "\"");
 			response.getWriter().write("}");
 		} else {
 			response.getWriter().write("{\"success\":false,\"errorMsg\":\"" + errorMsg + "\"}");

@@ -1679,37 +1679,8 @@ public class FrameworkService {
 	}
 
 	public Map<String, Object> getWsServerMethodObjects(W5WsServer wss) {
-		Map<String, Object> wsmoMap = new HashMap();
-		Map scd = new HashMap();
-		scd.put("projectId", wss.getProjectUuid());
-		for (W5WsServerMethod wsm : wss.get_methods())
-			try {
-				switch (wsm.getObjectTip()) {
-				case 0:
-				case 1:
-				case 2:
-				case 3: // form
-					wsmoMap.put(wsm.getDsc(), metaDataDao.getFormResult(scd, wsm.getObjectId(),
-							wsm.getObjectTip() == 0 ? 1 : wsm.getObjectTip(), new HashMap()));
-					break;
-				case 4:
-					wsmoMap.put(wsm.getDsc(), metaDataDao.getGlobalFuncResult(scd, wsm.getObjectId()));
-					break;
-				case 19:
-					wsmoMap.put(wsm.getDsc(), metaDataDao.getQueryResult(scd, wsm.getObjectId()));
-					break;
-				case 31:
-				case 32:
-				case 33:
-					wsmoMap.put(wsm.getDsc(), FrameworkCache.getWorkflow(scd, wsm.getObjectId()));
-					break;
-				default:
-					wsmoMap.put(wsm.getDsc(), "Wrong ObjectTip");
-				}
-			} catch (Exception e) {
-				wsmoMap.put(wsm.getDsc(), "Invalid Object");
-			}
-		return wsmoMap;
+		return restEngine.getWsServerMethodObjects(wss);
+
 	}
 
 	public Map REST(Map<String, Object> scd, String name, Map requestParams) throws IOException {
