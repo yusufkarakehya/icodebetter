@@ -1087,9 +1087,7 @@ public class UIEngine {
 
 	public W5FormCellHelper reloadFormCell(Map<String, Object> scd, int fcId, String webPageId, String tabId) {
 		String projectId = FrameworkCache.getProjectId(scd, null);
-		int customizationId = (Integer) scd.get("customizationId");
-		// W5Customization cus =
-		// FrameworkCache.wCustomizationMap.get(customizationId);
+
 		int userId = (Integer) scd.get("userId");
 		W5FormCell c = (W5FormCell) dao.getCustomizedObject(
 				"from W5FormCell fc where fc.formCellId=? AND fc.projectUuid=?", fcId, projectId, null);
@@ -1170,6 +1168,7 @@ public class UIEngine {
 				}
 			}
 
+			dao.checkTenant(scd);
 			W5QueryResult lookupQueryResult = metaDataDao.getQueryResult(scd, c.getLookupQueryId());
 			lookupQueryResult.setErrorMap(new HashMap());
 			lookupQueryResult.setRequestParams(requestParams);

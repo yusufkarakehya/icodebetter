@@ -2391,18 +2391,6 @@ public class ExtJs3_4 implements ViewAdapter {
 					}
 				}
 			default:
-				/*
-				 * if(value!=null && value!="" && fc.getControlTip()==8){
-				 * //Readonly veya Disabled olan DisplayField degelerinin
-				 * gorunmesi icin. value=""; String[]
-				 * arr=cellResult.getValue().split(","); for (int sindex =
-				 * 0;sindex<arr.length ;sindex++){ int
-				 * no=PromisUtil.getIndexNo(arr[sindex],
-				 * cellResult.getLookupListValues()); W5LookUpDetay
-				 * ld=(W5LookUpDetay)cellResult.getLookupListValues().get(no);
-				 * value+=PromisLocaleMsg.get(xlocale,ld.getDsc())+" , "; }
-				 * value=value.substring(0, value.length()-2); }
-				 */
 				buf.append("<b>").append(GenericUtil.stringToHtml(value))
 						.append("</b>");
 			}
@@ -2550,7 +2538,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					&& ((cellResult.getLookupQueryResult() != null
 							&& cellResult.getLookupQueryResult().getMainTable() != null
 							&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
-							&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
+							&& fc.getLookupEditFormId() != 0
 							&& FrameworkCache.roleAccessControl(
 									formResult.getScd(), 2)
 							&& GenericUtil.accessControl(formResult.getScd(),
@@ -2685,9 +2673,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							.getExtraDefinition().indexOf("onTrigger2Click") < 0))) {
 				buf.append(",onTrigger2Click:function(a,b,c){");
 				buf.append(
-						"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-						.append(cellResult.getLookupQueryResult()
-								.getMainTable().getDefaultInsertFormId())
+						"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&_fid=")
+						.append(fc.getLookupEditFormId())
 						.append("'}});");
 				buf.append("}");
 			} else if (fadd
@@ -2697,9 +2684,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							.getExtraDefinition().indexOf("onTrigger3Click") < 0))) {
 				buf.append(",onTrigger3Click:function(a,b,c){");
 				buf.append(
-						"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-						.append(cellResult.getLookupQueryResult()
-								.getMainTable().getDefaultInsertFormId())
+						"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&_fid=")
+						.append(fc.getLookupEditFormId())
 						.append("'}});");
 				buf.append("}");
 			}
@@ -3213,14 +3199,13 @@ public class ExtJs3_4 implements ViewAdapter {
 									+ "', msg: '"
 									+ LocaleMsgCache
 											.get2(customizationId, xlocale,
-													"error_once_ust_kayit_secilmelidir")
+													"error_parent_record_must_be_selected")
 											.replaceAll(",", "-")
 									+ "', icon: Ext.MessageBox.ERROR});return false;};\n");
 				buf.append("mainPanel.loadTab({attributes:{id:'tb_gwt")
 						.append(fc.getDialogGridId())
 						.append("',href:'showForm?a=2&_fid=")
-						.append(cellResult.getLookupQueryResult()
-								.getMainTable().getDefaultInsertFormId());
+						.append(fc.getLookupEditFormId());
 				if (pfc != null)
 					buf.append("&i").append(pfc.getDsc()).append("='+(_")
 							.append(pfc.getDsc()).append(".hiddenValue || _")
@@ -3321,7 +3306,7 @@ public class ExtJs3_4 implements ViewAdapter {
 								&& cellResult.getLookupQueryResult() != null
 								&& cellResult.getLookupQueryResult().getMainTable() != null
 								&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
-								&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
+								&& fc.getLookupEditFormId()!=0
 								&& (GenericUtil.isEmpty(cellResult.getFormCell().getExtraDefinition()) || cellResult.getFormCell().getExtraDefinition().indexOf("noInsertForm")<0)
 								&& FrameworkCache.roleAccessControl(
 										formResult.getScd(),  2)
@@ -3459,20 +3444,19 @@ public class ExtJs3_4 implements ViewAdapter {
 					switch (controlTip) {
 					case 8:
 						buf.append(
-								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
+								"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&look_up_id=")
 								.append(fc.getLookupQueryId())
 								.append("&_fid=2190'}});");
 						break;
 					case 15:
 						buf.append(
-								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-								.append(cellResult.getLookupQueryResult()
-										.getMainTable().getDefaultInsertFormId())
+								"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(", modalWindow:true,href:'showForm?a=2&_fid=")
+								.append(fc.getLookupEditFormId())
 								.append("'}});");
 						break;
 					case 52:
 						buf.append(
-								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
+								"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&look_up_id=")
 								.append(fc.getLookupQueryId())
 								.append("&_fid=964'}});");
 						break;
@@ -3979,7 +3963,7 @@ public class ExtJs3_4 implements ViewAdapter {
 									&& cellResult.getLookupQueryResult() != null
 									&& cellResult.getLookupQueryResult().getMainTable() != null
 									&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
-									&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
+									&& fc.getLookupEditFormId()!=0
 									&& FrameworkCache.roleAccessControl(formResult.getScd(),2)
 									&& (GenericUtil.isEmpty(cellResult.getFormCell().getExtraDefinition()) || cellResult.getFormCell().getExtraDefinition().indexOf("noInsertForm")<0)
 									&& GenericUtil.accessControl(formResult.getScd(), 
@@ -4036,15 +4020,12 @@ public class ExtJs3_4 implements ViewAdapter {
 						.append(fieldLabel).append("',hiddenName: '")
 						.append(cellDsc).append("'");
 				if (fc.getExtraDefinition() != null
-						&& fc.getExtraDefinition().length() > 1) // ornegin
-																	// ,tooltip:'ali'
-																	// gibi
+						&& fc.getExtraDefinition().length() > 1) 
 					buf.append(fc.getExtraDefinition());
 				else if (FrameworkSetting.simpleSelectShowEmptyText) {
 					buf.append(",emptyText:'")
 					.append(LocaleMsgCache.get2(0, xlocale,
-							"simple_select_something")).append("'");// Birşeyler
-																			// Yaz...
+							"simple_select_something")).append("'");// type something
 				}
 				if (cellResult.getLookupListValues() != null) { // cell LookUp'tan
 																// geliyor
@@ -4160,9 +4141,8 @@ public class ExtJs3_4 implements ViewAdapter {
 						break;
 					case 7:
 						buf.append(
-								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-								.append(cellResult.getLookupQueryResult()
-										.getMainTable().getDefaultInsertFormId())
+								"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&_fid=")
+								.append(fc.getLookupEditFormId())
 								.append("'}});");
 						break;
 					case 51:

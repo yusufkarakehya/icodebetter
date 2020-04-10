@@ -4383,6 +4383,8 @@ function formSubmit(submitConfig) {
               [xg]
             );
           else iwb.reload(xg);
+        } else if (submitConfig._callAttributes._formCell) {
+        	iwb.refreshFormCell(submitConfig._callAttributes._formCell);
         } else if (submitConfig._callAttributes._gridId) {
         	iwb.refreshGrid(submitConfig._callAttributes._gridId);
         }
@@ -6687,6 +6689,24 @@ function syncMaptoStr(t, m, reload) {
   }
   if (m.timeDif) str += ", " + fmtTimeAgo(m.timeDif) + " önce.";
   return !!reload || m.userId != _scd.userId ? str : null;
+}
+
+iwb.refreshFormCell = (fc)=>{
+    if(fc.id){
+    	var xx =fc.id.split('-'); 
+    	if(xx.length==2){
+    		var oldValue = fc.getValue();
+    		promisRequest({
+	        url: "ajaxReloadFormCell?.t=" + xx[0] + "&_fcid=" + xx[1],
+	        requestWaitMsg: false,
+	        successCallback: function(json) {
+	          fc.store.removeAll();
+	          fc.store.loadData(json.data);
+	          fc.setValue(oldValue);
+	        }
+	      });
+    	} else Ext.infoMsg.msg('error','refreshFormCell Error');
+    }
 }
 
 function showNotifications(t) {

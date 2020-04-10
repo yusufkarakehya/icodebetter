@@ -3871,7 +3871,7 @@ class XGrid extends GridCommon {
     constructor(props) {
         super(props);
         if (iwb.debug) console.log("XGrid", props);
-//        if(props.setCmp)props.setCmp(this);
+        if(props.setCmp)props.setCmp(this);
         var columns = [];
         var columnExtensions = [];
         const canIOpenActions =
@@ -3968,12 +3968,13 @@ class XGrid extends GridCommon {
             if (!force && queryString === this.lastQuery) {
                 return;
             }
-            this.setState({ rows: [], loading: true });
+            this.setState({ /*rows: [], */loading: true });
+            var params = this.props.searchForm && iwb.getFormValues(document.getElementById(this.props.searchForm.id));
+            if(this.props.beforeLoad && this.props.beforeLoad(this, params)===false)return;
             iwb.request({
                 url: queryString,
                 self: this,
-                params: this.props.searchForm &&
-                    iwb.getFormValues(document.getElementById(this.props.searchForm.id)),
+                params: params,
                 successCallback: (result, cfg) => {
                 	if(cfg.self.props.onLoad && cfg.self.props.onLoad(result, cfg)===false)return;
                     cfg.self.setState({
@@ -4008,7 +4009,7 @@ class XGrid extends GridCommon {
     render() {
         const {
             state: {
-                rows,
+                rows, loading,
                 order,
                 columns,
                 sorting,
@@ -4022,7 +4023,7 @@ class XGrid extends GridCommon {
             props: {
                 keyField,
                 showDetail,
-                multiselect,
+                multiselect, extraButtons,
                 groupColumn,
                 _disableSearchPanel,
                 _disableIntegratedSorting,
@@ -4040,7 +4041,7 @@ class XGrid extends GridCommon {
 
         if (!rows || !rows.length) return null;
         return _(
-            _dxgrb.Grid, { rows, columns, getRowId: row => row[keyField] },
+            _dxgrb.Grid, { style:{opacity:loading?.5:1},rows, columns, getRowId: row => row[keyField] },
             /** sorting */
             !_disableIntegratedSorting &&
             _(
@@ -4118,13 +4119,12 @@ class XGrid extends GridCommon {
             rows.length > iwb.detailPageSize &&
             _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize }),
             /** UI row Grouping */
-            (groupColumn || (!_disableIntegratedGrouping &&
+            !_disableIntegratedGrouping &&
             !pageSize &&
-            rows.length > 1)) &&
-            _(_dxgrb.TableGroupRow, null), (groupColumn || (!_disableIntegratedGrouping ||
-            !_disableIntegratedSorting ||
-            !_disableSearchPanel ||
-            (!pageSize && rows.length > 1))) && _(_dxgrb.Toolbar, null), !_disableSearchPanel &&
+            _(_dxgrb.TableGroupRow, null), (extraButtons || (!pageSize && !_disableIntegratedGrouping &&
+//            !_disableIntegratedSorting ||
+//            !_disableSearchPanel ||
+            rows.length > 0)) && _(_dxgrb.Toolbar, null), !_disableSearchPanel &&
             !pageSize &&
             rows.length > 1 &&
             _(_dxgrb.SearchPanel, {
@@ -5987,6 +5987,8 @@ class XMainGrid extends GridCommon {
             }
             var tempParams = Object.assign({}, (this.form ? this.form.getValues() : {}),
                 params);
+            if(this.props.beforeLoad && this.props.beforeLoad(this, tempParams)===false)return;
+            
             this.setState({ loading: !0 });
             var self = this;
             iwb.request({

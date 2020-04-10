@@ -2481,8 +2481,8 @@ public class React16 implements ViewAdapter {
 			W5QueryField groupingField = g.get_queryFieldMap().get(g.getGroupingFieldId());
 			if(groupingField != null) {
 				buf.append(",groupColumn:'").append(groupingField.getDsc()).append("'");
-			}
-		}
+			} else buf.append(",_disableIntegratedGrouping:!0");
+		} else buf.append(",_disableIntegratedGrouping:!0");
 		
 		if (gridResult.getExtraOutMap() != null
 				&& !gridResult.getExtraOutMap().isEmpty()) {
