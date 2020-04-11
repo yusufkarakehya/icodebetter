@@ -1120,7 +1120,7 @@ public class PostgreSQL extends BaseDAO {
 							"13." + lookUp.getLookUpId())
 									? lookUp.get_detayList()
 									: (List<W5LookUpDetay>) find(
-											"from W5LookUpDetay t where t.projectUuid=? AND t.lookUpId=?0 order by t.tabOrder",
+											"from W5LookUpDetay t where t.projectUuid=?0 AND t.lookUpId=?1 order by t.tabOrder",
 											projectId, c.getLookupQueryId());
 
 					List<W5LookUpDetay> newList = null;
@@ -2393,16 +2393,7 @@ public class PostgreSQL extends BaseDAO {
 				}
 			}
 		}
-		/*
-		 * TODO List<Object> newCommentUsers = executeSQLQuery(
-		 * "select distinct c.comment_user_id from iwb.w5_comment c where c.customization_id=? and c.table_id=? AND c.table_pk=? AND not exists(select 1 from iwb.w5_notification n where n.customization_id=c.customization_id and n.active_flag=1 AND n.notification_tip=1 AND n.table_id=c.table_id AND n.table_pk=c.table_pk AND n.user_id=c.comment_user_id)"
-		 * , customizationId,tableId, tablePk); if(newCommentUsers!=null)for(Object
-		 * o:newCommentUsers){ extraUserIds.add(PromisUtil.uInt(o)); } List<Object>
-		 * newAttachUsers = executeSQLQuery(
-		 * "select distinct c.upload_user_id from iwb.w5_file_attachment c where c.customization_id=? and c.table_id=? AND c.table_pk=? AND not exists(select 1 from iwb.w5_notification n where n.customization_id=c.customization_id and n.active_flag=1 AND n.notification_tip=2 AND n.table_id=c.table_id AND n.table_pk=c.table_pk AND n.user_id=c.upload_user_id)"
-		 * , customizationId,tableId, tablePk); if(newAttachUsers!=null)for(Object
-		 * o:newAttachUsers){ extraUserIds.add(PromisUtil.uInt(o)); }
-		 */
+
 		extraUserIds.remove(sessionUserId);
 		return extraUserIds.isEmpty() ? null : extraUserIds.toArray();
 	}
@@ -6396,7 +6387,7 @@ public class PostgreSQL extends BaseDAO {
 
 	public void deleteProjectMetadataAndDB(String delProjectId, boolean force) {
 		W5Project po = FrameworkCache.getProject(delProjectId);
-		if(po==null) po = (W5Project)getCustomizedObject("from W5Project t where 1=? AND t.projectUuid=?", 1, delProjectId, null);
+		if(po==null) po = (W5Project)getCustomizedObject("from W5Project t where 1=?0 AND t.projectUuid=?1", 1, delProjectId, null);
 		if(po!=null && (force || GenericUtil.uInt(executeSQLQuery("select count(1) from iwb.w5_project x where x.customization_id=?", po.getCustomizationId()).get(0))>1)){
 			deleteProjectMetadata(delProjectId);
 			if(force)executeUpdateSQLQuery("delete from iwb.w5_project where project_uuid=?",delProjectId);

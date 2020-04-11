@@ -3425,7 +3425,7 @@ public class VcsService {
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid), npo = null;
 		if(!GenericUtil.isEmpty(newProjectId)){
-			npo = (W5Project)dao.getCustomizedObject("from W5Project t where 1=? AND t.projectUuid=?", 1, newProjectId, null);
+			npo = (W5Project)dao.getCustomizedObject("from W5Project t where 1=?0 AND t.projectUuid=?1", 1, newProjectId, null);
 			if(npo!=null){
 				if(npo.getCustomizationId()!=customizationId){
 					if(customizationId==0) { //ifdeveloper access to everything
@@ -3494,7 +3494,7 @@ public class VcsService {
 		int customizationId = (Integer)scd.get("ocustomizationId");
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid), npo = null;
-		npo = (W5Project)dao.getCustomizedObject("from W5Project t where 1=? AND t.projectUuid=?", 1, newProjectId, null);
+		npo = (W5Project)dao.getCustomizedObject("from W5Project t where 1=?0 AND t.projectUuid=?1", 1, newProjectId, null);
 		if(npo!=null){
 			return result;
 		}
@@ -3535,7 +3535,7 @@ public class VcsService {
 									GenericUtil.uInt(prj,"ui_web_frontend_tip"), 2307/*GenericUtil.uInt(prj,"ui_main_template_id")*/, 2590/*GenericUtil.uInt(prj,"ui_login_template_id")*/, 4514/*GenericUtil.uInt(prj,"session_query_id")*/, 1252/*GenericUtil.uInt(prj,"authentication_func_id")*/);
 							if(!prj.getString("rdbms_schema").equals("iwb"))dao.executeUpdateSQLQuery("drop schema if exists "+prj.getString("rdbms_schema")+ " cascade");
 							dao.executeUpdateSQLQuery("create schema "+prj.getString("rdbms_schema") + " AUTHORIZATION iwb");
-							FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", cusId, prj.getString("project_uuid")).get(0));
+							FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=?0 AND t.projectUuid=?1", cusId, prj.getString("project_uuid")).get(0));
 							FrameworkSetting.projectSystemStatus.put(prj.getString("project_uuid"), 0);
 						}
 						
@@ -3572,7 +3572,7 @@ public class VcsService {
 					dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
 							+ " values (?,?,?, ?, ?,?,?,?, ?)", prj.getString("project_uuid"), customizationId, prj.getString("dsc"), GenericUtil.getSafeObject(prj,"access_users"),prj.getString("rdbms_schema"),GenericUtil.getSafeObject(prj,"vcs_url"),GenericUtil.getSafeObject(prj,"vcs_user_name"), GenericUtil.getSafeObject(prj,"vcs_password"), prj.getString("oproject_uuid"));
 					if(customizationId==0)dao.executeUpdateSQLQuery("create schema "+prj.getString("rdbms_schema") + " AUTHORIZATION iwb");
-					FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=? AND t.projectUuid=?", customizationId, prj.getString("project_uuid")).get(0));
+					FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=?0 AND t.projectUuid=?1", customizationId, prj.getString("project_uuid")).get(0));
 					FrameworkSetting.projectSystemStatus.put(prj.getString("project_uuid"), 0);
 				}
 			}
@@ -3658,7 +3658,7 @@ public class VcsService {
 						}
 					}
 					if(qr.getData().size()==0) {//no conflict
-						List lv = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", t.getTableId(), GenericUtil.uInt(keyz[1]), customizationId, projectUuid);
+						List lv = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", t.getTableId(), GenericUtil.uInt(keyz[1]), customizationId, projectUuid);
 						if(lv.size()>0) {
 							W5VcsObject vo = (W5VcsObject)lv.get(0);
 							vo.setVcsObjectStatusTip((short)9);
@@ -3909,7 +3909,7 @@ public class VcsService {
 		}
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&t="+tableId+"&k="+tablePk+"&r="+po.getProjectUuid();
 		
-		List lv = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid);
+		List lv = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", tableId, tablePk, customizationId, projectUuid);
 		W5VcsObject vo = null;
 		Map result = new HashMap();
 		result.put("success", true);
