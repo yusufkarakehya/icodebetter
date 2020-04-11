@@ -43,7 +43,7 @@ import iwb.domain.result.W5GlobalFuncResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
-import iwb.util.ScriptUtil;
+import iwb.util.NashornUtil;
 import iwb.util.UserUtil;
 
 @Component
@@ -442,7 +442,7 @@ public class CRUDEngine {
 									if(oz instanceof Boolean) {
 										if(!((Boolean)oz))workflow=null;
 									} else
-										advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
+										advancedStepSqlResult = NashornUtil.fromScriptObject2Map(oz); 
 								}
 							}
 							workflowStep = null;
@@ -1072,14 +1072,6 @@ public class CRUDEngine {
 				}
 			}
 
-			if (false && !GenericUtil.isEmpty(formResult
-					.getMapWidgetCount()) /*
-											 * && !PromisUtil.isEmpty(request.
-											 * getParameter("_promis_token"))
-											 */) {
-				UserUtil.publishWidgetStatus(scd, formResult.getMapWidgetCount());
-			}
-
 			return result;
 		} catch (Exception e) {
 			throw new IWBException("framework", "postForm", formResult.getFormId(), null,
@@ -1246,9 +1238,7 @@ public class CRUDEngine {
 		// değerler bir kez daha gönderiliyordu.
 		if (mainFormResult.getForm().get_moduleList() != null) {
 			for (W5FormModule m : mainFormResult.getForm().get_moduleList())
-				if (m.getModuleTip() == 4 && GenericUtil.accessControl(scd, m.getAccessViewTip(),
-						m.getAccessViewRoles(), m.getAccessViewUsers())) { // form
-																			// imis
+				if (m.getModuleTip() == 4) { // form
 					if (m.getModuleViewTip() == 0 || (m.getModuleViewTip() == 1 && action == 1)
 							|| (m.getModuleViewTip() == 2 && action == 2)) {
 						int newAction = GenericUtil.uInt(requestParams.get("a" + m.getTabOrder()));

@@ -102,7 +102,7 @@ public class QueryEngine {
 			W5WsMethod wsm = FrameworkCache.getWsMethod(scd, queryResult.getQuery().getMainTableId());
 			if (!FrameworkSetting.redisCache && wsm.get_params() == null) {
 				wsm.set_params(
-						dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder",
+						dao.find("from W5WsMethodParam t where t.wsMethodId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 								wsm.getWsMethodId(), wsm.getProjectUuid()));
 				wsm.set_paramMap(new HashMap());
 				for (W5WsMethodParam wsmp : wsm.get_params())
@@ -234,7 +234,7 @@ public class QueryEngine {
 									lookupQueryResult.getQuery().getMainTableId());
 							if (!FrameworkSetting.redisCache && wsm.get_params() == null) {
 								wsm.set_params(dao.find(
-										"from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder",
+										"from W5WsMethodParam t where t.wsMethodId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 										wsm.getWsMethodId(), (String) scd.get("projectId")));
 								wsm.set_paramMap(new HashMap());
 								for (W5WsMethodParam wsmp : wsm.get_params())

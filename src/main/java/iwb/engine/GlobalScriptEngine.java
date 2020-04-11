@@ -42,7 +42,7 @@ import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
 import iwb.script.NashornScript;
 import iwb.util.GenericUtil;
-import iwb.util.ScriptUtil;
+import iwb.util.NashornUtil;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 @Component
@@ -226,7 +226,7 @@ public class GlobalScriptEngine {
 					// JSONObject jo=new JSONObject();
 					Map<String, String> res = new HashMap<String, String>();
 					if (funcResult != null && funcResult instanceof ScriptObjectMirror) {
-						Map resultMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror) funcResult);
+						Map resultMap = NashornUtil.fromScriptObject2Map((ScriptObjectMirror) funcResult);
 						for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
 							if (p1.getOutFlag() != 0 && resultMap.containsKey(p1.getDsc())) {
 								Object em = resultMap.get(p1.getDsc());
@@ -727,7 +727,7 @@ public class GlobalScriptEngine {
 					if (!result.isArray()) { // result and extraOutMap:TODO
 						if (result.containsKey("extraOutMap"))
 							qr.setExtraOutMap(
-									ScriptUtil.fromScriptObject2Map((ScriptObjectMirror) result.get("extraOutMap")));
+									NashornUtil.fromScriptObject2Map((ScriptObjectMirror) result.get("extraOutMap")));
 
 						if (result.containsKey("data"))
 							result = (ScriptObjectMirror) result.get("data");
@@ -795,10 +795,10 @@ public class GlobalScriptEngine {
 											ScriptObjectMirror no2 = (ScriptObjectMirror) o2;
 											if (no2.isArray()) {
 												o[qf.getTabOrder() - 1] = GenericUtil.fromListToJsonString2Recursive(
-														ScriptUtil.fromScriptObject2List(no2));
+														NashornUtil.fromScriptObject2List(no2));
 											} else {
 												o[qf.getTabOrder() - 1] = GenericUtil.fromMapToJsonString2Recursive(
-														ScriptUtil.fromScriptObject2Map(no2));
+														NashornUtil.fromScriptObject2Map(no2));
 											}
 
 										} else if (o2 instanceof Map)
@@ -989,13 +989,7 @@ public class GlobalScriptEngine {
 
 		W5WsMethod wsm = FrameworkCache.getWsMethod(queryResult.getScd(), queryResult.getQuery().getMainTableId());
 		Map<String, Object> scd = queryResult.getScd();
-		/*
-		 * if (wsm.get_params() == null) { wsm.set_params(
-		 * find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder"
-		 * , wsm.getWsMethodId(), scd.get("projectIdId"))); wsm.set_paramMap(new
-		 * HashMap()); for (W5WsMethodParam wsmp : wsm.get_params())
-		 * wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp); }
-		 */
+
 		W5WsMethodParam parentParam = null;
 		for (W5WsMethodParam px : wsm.get_params())
 			if (px.getOutFlag() != 0 && px.getParamTip() == 10) {
@@ -1221,7 +1215,7 @@ public class GlobalScriptEngine {
 					// JSONObject jo=new JSONObject();
 					Map<String, String> res = new HashMap<String, String>();
 					if (funcResult != null && funcResult instanceof ScriptObjectMirror) {
-						Map resultMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror) funcResult);
+						Map resultMap = NashornUtil.fromScriptObject2Map((ScriptObjectMirror) funcResult);
 						r.setResultMap(resultMap);
 						if (false)
 							for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
@@ -1432,7 +1426,7 @@ public class GlobalScriptEngine {
 					if (!result.isArray()) { // result and extraOutMap:TODO
 						if (result.containsKey("extraOutMap"))
 							qr.setExtraOutMap(
-									ScriptUtil.fromScriptObject2Map((ScriptObjectMirror) result.get("extraOutMap")));
+									NashornUtil.fromScriptObject2Map((ScriptObjectMirror) result.get("extraOutMap")));
 
 						if (result.containsKey("data"))
 							result = (ScriptObjectMirror) result.get("data");

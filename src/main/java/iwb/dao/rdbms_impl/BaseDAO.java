@@ -142,7 +142,7 @@ public abstract class BaseDAO {
 		if (sqlParams == null) {
 			return query;
 		}
-		int i = 0;
+		int i = 1;
 		for (Object o : sqlParams) {
 			if (o instanceof Integer) {
 				query = query.setInteger(i, ((Integer) o).intValue());

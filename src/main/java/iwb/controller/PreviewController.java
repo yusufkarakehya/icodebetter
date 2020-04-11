@@ -146,19 +146,6 @@ public class PreviewController implements InitializingBean {
 		
 	}
 
-	@RequestMapping("/*/ajaxFormCellCode")
-	public void hndAjaxFormCellCode(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		int formCellId = GenericUtil.uInt(request, "_formCellId");
-		logger.info("hndAjaxFormCellCode(" + formCellId + ")");
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-		Map m = service.getFormCellCode(scd, GenericUtil.getParameterMap(request), formCellId, 1);
-		// m.put("success", true);
-		response.setContentType("application/json");
-		response.getWriter().write(GenericUtil.fromMapToJsonString2(m));
-		response.getWriter().close();
-	}
-
 	@RequestMapping("/*/ajaxChangeChatStatus")
 	public void hndAjaxChangeChatStatus(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -675,20 +662,6 @@ public class PreviewController implements InitializingBean {
 						.serializeFormCellStore(rc, (Integer) scd.get("customizationId"), (String) scd.get("locale"))
 						.toString());
 		response.getWriter().close();
-	}
-
-	@RequestMapping("/*/ajaxGetFormCellCodeDetail")
-	public void hndAjaxGetFormCellCodeDetail(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndAjaxGetFormCellCodeDetail");
-
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-		int fccdId = GenericUtil.uInt(request, "_fccdid");
-		String result = service.getFormCellCodeDetail(scd, GenericUtil.getParameterMap(request), fccdId);
-		response.setContentType("application/json");
-		response.getWriter().write("{\"success\":true,\"result\":\"" + result + "\"}");
-		response.getWriter().close();
-
 	}
 
 	@RequestMapping("/*/ajaxFeed")
@@ -1467,14 +1440,7 @@ public class PreviewController implements InitializingBean {
 			if (true || FrameworkSetting.debug)
 				e.printStackTrace();
 			return "{ \"success\": false }";
-		} /*
-			 * finally { // transferTo yüzünden zaten hep exceptiona düşüyor.
-			 * try {
-			 * if(file.getInputStream()!=null)file.getInputStream().close(); }
-			 * catch (Exception e2) {
-			 * if(PromisSetting.debug)e2.printStackTrace(); } //
-			 * response.getWriter().close(); }
-			 */
+		} 
 
 	}
 

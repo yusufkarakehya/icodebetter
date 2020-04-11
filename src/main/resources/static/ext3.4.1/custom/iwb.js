@@ -979,14 +979,7 @@ function renderTableRecordInfo(j) {
       ' &nbsp; <img src="/images/custom/bullet_file_attach.png" title="Related Files"> ' +
       j.fileAttachCount;
   s += "</td><td width=30% align=right valign=top>";
-  if (false && j.formSmsMailCount)
-    s +=
-      ' &nbsp; <img src="/ext3.4.1/custom/images/email-16.png" title="EMail/SMS Notifications"> ' +
-      j.formSmsMailCount;
-  if (false && j.conversionCount)
-    s +=
-      ' &nbsp; <img src="/ext3.4.1/custom/images/gear-16.png" title="Form Conversions"> ' +
-      j.conversionCount;
+
   s += "</td></tr></table>";
   var rs = j.parents;
   var ss = "";
@@ -1060,7 +1053,7 @@ function renderTableRecordInfo(j) {
           ');return false;">' +
           r.tdsc +
           "</a>"
-        : r.dsc) +
+        : r.tdsc) +
       " <span style='background: #F44336;padding: 1px 6px;border-radius: 20px;color: white;'>" +
       r.tc +
       (_app.table_children_max_record_number &&

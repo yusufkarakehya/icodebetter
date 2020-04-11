@@ -42,7 +42,6 @@ import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5Tutorial;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.helper.W5CommentHelper;
@@ -57,7 +56,6 @@ import iwb.domain.result.W5ListViewResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
 import iwb.util.EncryptionUtil;
@@ -199,10 +197,7 @@ public class React16 implements ViewAdapter {
 
 			
 		if (GenericUtil.uInt(fr.getRequestParams().get("a")) != 5 && fr.getForm().getRenderTip() != 0) { // tabpanel ve icinde gridler varsa
-			for (W5FormModule m : fr.getForm().get_moduleList())
-				if (GenericUtil.accessControl(fr.getScd(),
-						m.getAccessViewTip(), m.getAccessViewRoles(),
-						m.getAccessViewUsers())) {
+			for (W5FormModule m : fr.getForm().get_moduleList()){
 					switch (m.getModuleTip()) {
 					case 4:// form
 						if (fr.getModuleFormMap() == null)
@@ -1216,7 +1211,7 @@ public class React16 implements ViewAdapter {
 			for (W5FormModule m : formResult.getForm().get_moduleList())
 				if (m.getFormModuleId() != 0) {
 					if ((m.getModuleViewTip() == 0 || formResult.getAction() == m.getModuleViewTip()) 
-							&& GenericUtil.accessControl(formResult.getScd(),m.getAccessViewTip(),m.getAccessViewRoles(),m.getAccessViewUsers())) {
+							) {
 						switch (m.getModuleTip()) {
 						case	4:break;//form 
 						case	5://grid
@@ -1425,10 +1420,7 @@ public class React16 implements ViewAdapter {
 		for (W5FormModule m : formResult.getForm().get_moduleList())
 			if (m.getFormModuleId() != 0) {
 				if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
-						.getModuleViewTip())
-						&& GenericUtil.accessControl(formResult.getScd(),
-								m.getAccessViewTip(), m.getAccessViewRoles(),
-								m.getAccessViewUsers())) {
+						.getModuleViewTip())) {
 					switch (m.getModuleTip()) {
 					case 4:// form
 						if (GenericUtil.uInt(formResult.getRequestParams().get(
@@ -1595,11 +1587,7 @@ public class React16 implements ViewAdapter {
 			for (W5FormModule m : formResult.getForm().get_moduleList())
 				if (m.getFormModuleId() != 0) {
 					if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
-							.getModuleViewTip()) 
-							&& GenericUtil.accessControl(formResult.getScd(),
-									m.getAccessViewTip(),
-									m.getAccessViewRoles(),
-									m.getAccessViewUsers())) {
+							.getModuleViewTip()) ) {
 						switch (m.getModuleTip()) {
 						case	4: break;
 						case 5://grid
@@ -4969,48 +4957,6 @@ columns:[
 				}
 			}
 		return s;
-	}
-
-	
-	public StringBuilder serializeShowTutorial(W5TutorialResult tutorialResult){
-		StringBuilder buf = new StringBuilder();
-		W5Tutorial tut = tutorialResult.getTutorial();
-		buf.append("var _request=").append(GenericUtil.fromMapToJsonString(tutorialResult.getRequestParams())).append("\n");
-		buf.append("var tutorialId=").append(tut.getTutorialId()).append(";\n")
-			.append("var dsc='").append(GenericUtil.stringToJS(tut.getDsc())).append("';\n")
-			.append("var relMenuId=").append(tut.getMenuId()).append(";\n")
-			.append("var status=").append(tutorialResult.getTutorialUserStatus()).append(";\n")
-			.append("var closeTabs=").append(tut.getCloseTabsBeforeBeginFlag()!=0).append(";\n")
-			.append("var doneCount=").append(tutorialResult.getDoneTutorials()!=null ? tutorialResult.getDoneTutorials().size():0).append(";\n");
-
-		if(!GenericUtil.isEmpty(tut.getIntroductionHtml()))
-			buf.append("var introHtml='").append(GenericUtil.stringToJS(GenericUtil.filterExt(tut.getIntroductionHtml(), tutorialResult.getScd(), tutorialResult.getRequestParams(), null))).append("';\n");
-		if(!GenericUtil.isEmpty(tutorialResult.getRequiredTutorialList())){
-			StringBuilder buf2 = new StringBuilder();
-			for(W5Tutorial t:tutorialResult.getRequiredTutorialList()){
-				if(!tutorialResult.getDoneTutorials().contains(t.getTutorialId()) && FrameworkCache.roleAccessControl(tutorialResult.getScd(), 0))buf2.append("{dsc:'").append(GenericUtil.stringToJS(t.getDsc())).append("',id:").append(t.getTutorialId()).append("},");
-			}
-			if(buf2.length()>0){
-				buf.append("var requiredTutorials=[").append(buf2).replace(buf.length()-1, buf.length(), "];\n");
-			}
-		}
-		if(!GenericUtil.isEmpty(tutorialResult.getRecommendedTutorialList())){
-			StringBuilder buf2 = new StringBuilder();
-			for(W5Tutorial t:tutorialResult.getRecommendedTutorialList()){
-				if(/*!tutorialResult.getDoneTutorials().contains(t.getTutorialId()) && */FrameworkCache.roleAccessControl(tutorialResult.getScd(), 0))buf2.append("{dsc:'").append(GenericUtil.stringToJS(t.getDsc())).append("',id:").append(t.getTutorialId()).append("},");
-			}
-			if(buf2.length()>0){
-				buf.append("var recommendedTutorials=[").append(buf2).replace(buf.length()-1, buf.length(), "];\n");
-			}
-		}
-		
-		if(tut.getCode()!=null)
-			buf.append(tut.getCode()).append("\n");
-		
-		if(tut.get_renderTemplate()!=null)
-			buf.append(tut.get_renderTemplate().getCode());
-		
-		return buf;
 	}
 	
 

@@ -27,7 +27,7 @@ import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 
 @Component
-@WebFilter(urlPatterns = {"/app","/preview","/space"})
+@WebFilter(urlPatterns = {"/app","/preview"})
 public class AppFilter implements Filter {
 //	public static int	transactionCount = 0;
 	

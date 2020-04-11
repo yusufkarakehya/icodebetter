@@ -46,7 +46,6 @@ import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.LogUtil;
-import iwb.util.UserUtil;
 
 @Controller
 @RequestMapping("/graphql")

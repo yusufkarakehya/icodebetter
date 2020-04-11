@@ -280,7 +280,7 @@ public class ExternalDBSql {
 	}
 
 	public ExternalDBSql() {
-		if(!FrameworkSetting.externalDb)return;
+		if(true || !FrameworkSetting.externalDb)return;
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 		} catch (ClassNotFoundException e) {

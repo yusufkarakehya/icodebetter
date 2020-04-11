@@ -30,14 +30,11 @@ import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5Workflow;
 import iwb.domain.helper.W5QueuedActionHelper;
-import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.engine.GlobalScriptEngine;
-import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
 import iwb.mq.MQTTCallback;
 import iwb.timer.Action2Execute;
@@ -48,7 +45,7 @@ import iwb.util.HttpUtil;
 import iwb.util.InfluxUtil;
 import iwb.util.LogUtil;
 import iwb.util.MQUtil;
-import iwb.util.ScriptUtil;
+import iwb.util.NashornUtil;
 import iwb.util.UserUtil;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
@@ -182,7 +179,7 @@ public class NashornScript {
 		StringBuilder ss = new StringBuilder();
 		ss.append(measName);
 		if(tagMap instanceof ScriptObjectMirror) {
-			tagMap = ScriptUtil.fromScriptObject2Map((ScriptObjectMirror)tagMap);
+			tagMap = NashornUtil.fromScriptObject2Map((ScriptObjectMirror)tagMap);
 		}
 		if(tagMap instanceof Map) {
 			Map<String, Object> xtagMap = (Map)tagMap;
@@ -195,7 +192,7 @@ public class NashornScript {
 		}
 		ss.append(" ");
 		if(fieldMap instanceof ScriptObjectMirror) {
-			fieldMap = ScriptUtil.fromScriptObject2Map2((ScriptObjectMirror)fieldMap);
+			fieldMap = NashornUtil.fromScriptObject2Map2((ScriptObjectMirror)fieldMap);
 		}
 		if(fieldMap instanceof Map) {
 			Map<String, Object> xfieldMap = (Map)fieldMap;
@@ -293,7 +290,7 @@ public class NashornScript {
 	}
 
 	private Map<String, String> fromScriptObject2Map(ScriptObjectMirror jsRequestParams) {
-		Map<String, String> rp = ScriptUtil.fromScriptObject2Map(jsRequestParams);
+		Map<String, String> rp = NashornUtil.fromScriptObject2Map(jsRequestParams);
 		if (requestParams.containsKey(".w") && !rp.containsKey(".w"))
 			rp.put(".w", requestParams.get(".w"));
 		if(requestParams.containsKey("_trid_") && !rp.containsKey("_trid_") )
@@ -314,7 +311,7 @@ public class NashornScript {
 								case '{':
 								case '[':
 									if(o instanceof ScriptObjectMirror && ((ScriptObjectMirror)o).isArray()) {
-										rp.put(key, ScriptUtil.fromScriptObject2List((ScriptObjectMirror)o));
+										rp.put(key, NashornUtil.fromScriptObject2List((ScriptObjectMirror)o));
 									} else
 										rp.put(key, o);
 									break;
@@ -349,7 +346,7 @@ public class NashornScript {
 								case '{':
 								case '[':
 									if(o instanceof ScriptObjectMirror && ((ScriptObjectMirror)o).isArray()) {
-										rp.put(key, ScriptUtil.fromScriptObject2List((ScriptObjectMirror)o));
+										rp.put(key, NashornUtil.fromScriptObject2List((ScriptObjectMirror)o));
 									} else
 										rp.put(key, o);
 									break;
@@ -701,12 +698,12 @@ public class NashornScript {
 			tableId = tableNameMap.get(tableDsc);
 		else {
 			List<Integer> l = (List<Integer>) scriptEngine.getDao().find(
-					"select t.tableId from W5Table t where t.dsc=? AND t.projectUuid=?",
+					"select t.tableId from W5Table t where t.dsc=?0 AND t.projectUuid=?1",
 					tableDsc, scd.get("projectId"));
 			if (l.isEmpty()) {
 				if((Integer)scd.get("customizationId")!=0 && tableDsc.startsWith("iwb.")) {
 					l = (List<Integer>) scriptEngine.getDao().find(
-							"select t.tableId from W5Table t where t.dsc=? AND t.customizationId=0",
+							"select t.tableId from W5Table t where t.dsc=?0 AND t.customizationId=0",
 							tableDsc);
 				} else
 					throw new IWBException("rhino", "getTableJSON", 0, tableDsc, "table_not_found", null);

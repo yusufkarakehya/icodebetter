@@ -31,7 +31,7 @@ import iwb.util.FtpUtil;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.LogUtil;
-import iwb.util.ScriptUtil;
+import iwb.util.NashornUtil;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 
@@ -90,7 +90,7 @@ public class RESTEngine {
 			requestList = (List) reqL;
 		else if (reqL instanceof ScriptObjectMirror)
 			try {
-				requestList = ScriptUtil.fromScriptObject2List(reqL);
+				requestList = NashornUtil.fromScriptObject2List(reqL);
 			} catch (Exception ee) {
 			}
 		else if (reqL instanceof JSONArray)
@@ -118,7 +118,7 @@ public class RESTEngine {
 		Map requestParams = null;
 		if (reqP instanceof ScriptObjectMirror)
 			try {// TODO
-				requestParams = ScriptUtil.fromScriptObject2Map(reqP);
+				requestParams = NashornUtil.fromScriptObject2Map(reqP);
 			} catch (Exception ee) {
 				return null;
 			}
@@ -149,7 +149,7 @@ public class RESTEngine {
 							oo = requestParams.get(p.getDsc());
 							if (oo instanceof ScriptObjectMirror)
 								try {// TODO
-									oo = ScriptUtil.fromScriptObject2Map(oo);
+									oo = NashornUtil.fromScriptObject2Map(oo);
 								} catch (Exception ee) {
 //									return null;
 								}
@@ -180,7 +180,7 @@ public class RESTEngine {
 							else {
 								try {
 									if(res instanceof ScriptObjectMirror)
-										m.put(p.getDsc(), ScriptUtil.fromScriptObject2List(res));
+										m.put(p.getDsc(), NashornUtil.fromScriptObject2List(res));
 									else
 										m.put(p.getDsc(), GenericUtil.fromJSONArrayToList(new JSONArray(res.toString())));
 								} catch (Exception ee) {
@@ -252,7 +252,7 @@ public class RESTEngine {
 			String projectId = (String) scd.get("projectId");
 			if (wsm.get_params() == null) {
 				wsm.set_params(
-						dao.find("from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder",
+						dao.find("from W5WsMethodParam t where t.wsMethodId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 								wsm.getWsMethodId(), projectId));
 				wsm.set_paramMap(new HashMap());
 				for (W5WsMethodParam wsmp : wsm.get_params())
@@ -273,7 +273,7 @@ public class RESTEngine {
 					W5WsMethod loginMethod = FrameworkCache.getWsMethod(scd, ws.getWssLoginMethodId());
 					if (loginMethod.get_params() == null) {
 						loginMethod.set_params(dao.find(
-								"from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder",
+								"from W5WsMethodParam t where t.wsMethodId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 								loginMethod.getWsMethodId(), projectId));
 						loginMethod.set_paramMap(new HashMap());
 						for (W5WsMethodParam wsmp : loginMethod.get_params())
