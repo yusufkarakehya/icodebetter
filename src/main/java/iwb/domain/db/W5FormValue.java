@@ -16,6 +16,10 @@ import org.hibernate.annotations.Immutable;
 @Table(name="w5_form_value",schema="iwb")
 public class W5FormValue implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 18182038646400L;
 	private int formId;
 	private int formValueId;
 	private int insertUserId;
@@ -82,4 +86,14 @@ public class W5FormValue implements java.io.Serializable {
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
 	}
+	
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5FormValue))return false;
+		W5FormValue c = (W5FormValue)o;
+		return c!=null && c.getFormValueId()==getFormValueId() && c.getProjectUuid().equals(projectUuid);
+	}
+	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*getFormValueId();
+	}	
 }

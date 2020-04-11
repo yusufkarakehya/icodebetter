@@ -730,10 +730,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 			grid.set_menuItemList(
 					find("from W5ObjectMenuItem t where t.objectTip=? AND t.objectId=? AND t.projectUuid=? order by t.tabOrder",
 							(short) 5, gr.getGridId(), projectId));
-			if (grid.getColumnRenderTip() != 0)
-				grid.set_gridModuleList(
-						find("from W5GridModule t where t.gridId=? AND t.projectUuid=? order by t.tabOrder",
-								gr.getGridId(), projectId));
+
 
 			Integer searchFormId = (Integer) getCustomizedObject(
 					"select t.formId from W5Form t where t.objectTip=1 and t.objectId=? AND t.projectUuid=?",
@@ -1025,16 +1022,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 		 */
 	}
 
-	public void reloadTableAccessConditionSQLs(String projectId) { // TODO
-		FrameworkCache.wAccessConditionSqlMap.clear();
-		/*
-		 * try{ List<W5TableAccessConditionSql> l = find(
-		 * "from W5TableAccessConditionSql t"); for(W5TableAccessConditionSql
-		 * s:l){
-		 * FrameworkCache.wAccessConditionSqlMap.put(s.getAccessConditionSqlId()
-		 * , s); } } catch (Exception e){}
-		 */
-	}
 
 	public void reloadApplicationSettingsCache(int cid) {
 		if (cid == -1)

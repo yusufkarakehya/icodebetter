@@ -18,6 +18,11 @@ import org.hibernate.annotations.Immutable;
 @Table(name="w5_query",schema="iwb")
 public class W5Query implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1123543123L;
+
 	private int queryId;
 
 	private int querySourceTip;
@@ -276,5 +281,15 @@ public class W5Query implements java.io.Serializable {
 	public void set_aggQueryFields(List<W5QueryField> _aggQueryFields) {
 		this._aggQueryFields = _aggQueryFields;
 	}
+
 	
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5Query))return false;
+		W5Query c = (W5Query)o;
+		return c!=null && c.getQueryId()==getQueryId() && c.getProjectUuid().equals(projectUuid);
+	}
+	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*getQueryId();
+	}	
 }

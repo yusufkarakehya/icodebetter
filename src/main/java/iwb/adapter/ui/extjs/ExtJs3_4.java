@@ -31,7 +31,6 @@ import iwb.domain.db.W5FormSmsMailAlarm;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5Grid;
 import iwb.domain.db.W5GridColumn;
-import iwb.domain.db.W5GridModule;
 import iwb.domain.db.W5List;
 import iwb.domain.db.W5ListColumn;
 import iwb.domain.db.W5LookUp;
@@ -5407,76 +5406,21 @@ public class ExtJs3_4 implements ViewAdapter {
 
 		List<W5GridColumn> newColumns = new ArrayList();
 		StringBuilder bufGrdColumnGroups = new StringBuilder();
-		if (grid.getColumnRenderTip() == 1) { // column grouping olacak
-
-			Map<Integer, List<W5GridColumn>> map = new HashMap<Integer, List<W5GridColumn>>();
-			map.put(0, new ArrayList());
-			for (W5GridModule m : grid.get_gridModuleList()) {
-				map.put(m.getGridModuleId(), new ArrayList());
-			}
-			for (W5GridColumn c : oldColumns) {
+		for (W5GridColumn c : oldColumns)
+			if (c.get_queryField() != null) {
 				W5QueryField f = c.get_queryField();
-				W5TableField tf = f.getMainTableFieldId() > 0 ? viewTable
+				W5TableField tf = viewTable!=null && f.getMainTableFieldId() > 0 ? viewTable
 						.get_tableFieldMap().get(f.getMainTableFieldId())
 						: null;
 				if (tf != null) {
+
 					if (!GenericUtil.accessControl4SessionField(scd, tf.getRelatedSessionField()) || (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
 							tf.getAccessViewTip(), tf.getAccessViewRoles(),
 							tf.getAccessViewUsers())))
 						continue;// access control
 				}
-				List lq = map.get(c.getGridModuleId());
-				if (lq == null)
-					lq = map.get(0);
-				if (lq != null)
-					lq.add(c);
-			}
-
-			int initColSpan = grid.getSelectionModeTip() == 3 ? 1 : 0;
-			bufGrdColumnGroups.append("[");
-			if (map.get(0).size() > 0) {
-				bufGrdColumnGroups.append("{header: '', colspan: ")
-						.append(initColSpan + map.get(0).size())
-						.append(", align: 'center'}");
-				newColumns.addAll(map.get(0));
-				initColSpan = 0;
-			}
-
-			for (W5GridModule m : grid.get_gridModuleList()) {
-				if (map.get(m.getGridModuleId()).size() > 0) {
-					if (bufGrdColumnGroups.length() > 2)
-						bufGrdColumnGroups.append(",\n");
-					bufGrdColumnGroups
-							.append("{header: '")
-							.append(LocaleMsgCache.get2(scd, m.getLocaleMsgKey()))
-							.append("', colspan: ")
-							.append(initColSpan
-									+ map.get(m.getGridModuleId()).size())
-							.append(", align: 'center'}");
-					newColumns.addAll(map.get(m.getGridModuleId()));
-					initColSpan = 0;
-				}
-			}
-			bufGrdColumnGroups.append("]");
-
-			// buf.append("\n").append(grid.getDsc()).append(".plugins=new Ext.ux.grid.ColumnHeaderGroup({rows:[continentGroupRow]})");
-		} else { // duz rendering
-			for (W5GridColumn c : oldColumns)
-				if (c.get_queryField() != null) {
-					W5QueryField f = c.get_queryField();
-					W5TableField tf = viewTable!=null && f.getMainTableFieldId() > 0 ? viewTable
-							.get_tableFieldMap().get(f.getMainTableFieldId())
-							: null;
-					if (tf != null) {
-
-						if (!GenericUtil.accessControl4SessionField(scd, tf.getRelatedSessionField()) || (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
-								tf.getAccessViewTip(), tf.getAccessViewRoles(),
-								tf.getAccessViewUsers())))
-							continue;// access control
-					}
-					newColumns.add(c);
-				}			
-		}
+				newColumns.add(c);
+			}			
 		if (!gridResult.isViewLogMode() && grid.get_postProcessQueryFields() != null && (gridResult.getRequestParams()==null || GenericUtil.uInt(gridResult.getRequestParams(), "_no_post_process_fields")==0)) {
 			boolean gridPostProcessColumnFirst = FrameworkCache.getAppSettingIntValue(scd,"grid_post_process_column_first")!=0;
 			boolean gridPostProcessCommentFirst = FrameworkCache.getAppSettingIntValue(scd,"grid_post_process_comment_first")!=0;

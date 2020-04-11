@@ -22,6 +22,11 @@ import iwb.util.GenericUtil;
 @Table(name="w5_table_field",schema="iwb")
 public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 133333233L;
+
 	private int tableFieldId;
 
 	private int tableId;
@@ -454,5 +459,14 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 	public void setLkpEncryptionType(short lkpEncryptionType) {
 		this.lkpEncryptionType = lkpEncryptionType;
 	}
+
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5TableField))return false;
+		W5TableField c = (W5TableField)o;
+		return c!=null && c.getTableFieldId()==tableFieldId && c.getProjectUuid().equals(projectUuid);
+	}
 	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*tableFieldId;
+	}	
 }

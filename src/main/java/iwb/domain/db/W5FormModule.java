@@ -14,6 +14,10 @@ import org.hibernate.annotations.Immutable;
 @Table(name="w5_form_module",schema="iwb")
 public class W5FormModule implements java.io.Serializable, W5Base {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 100231238127L;
 	private int formModuleId;
 	private int formId;
 	private String localeMsgKey;
@@ -164,5 +168,14 @@ public class W5FormModule implements java.io.Serializable, W5Base {
 	public void setMaxRow(int maxRow) {
 		this.maxRow = maxRow;
 	}
+
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5FormModule))return false;
+		W5FormModule c = (W5FormModule)o;
+		return c!=null && c.getFormModuleId()==getFormModuleId() && c.getProjectUuid().equals(projectUuid);
+	}
 	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*getFormModuleId();
+	}	
 }

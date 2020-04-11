@@ -14,6 +14,8 @@ import org.hibernate.annotations.Immutable;
 @Table(name="w5_project",schema="iwb")
 public class W5Project  implements java.io.Serializable {
 
+
+	private static final long serialVersionUID = 98981231241231L;
 	private String projectUuid;
 	private int customizationId;
 

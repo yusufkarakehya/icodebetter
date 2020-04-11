@@ -23,6 +23,10 @@ import iwb.util.GenericUtil;
 @Table(name="w5_table",schema="iwb")
 public class W5Table implements java.io.Serializable, W5Base {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 132324122L;
 	private int tableId;
 	private int customizationId;
 	private String dsc;
@@ -622,4 +626,13 @@ public class W5Table implements java.io.Serializable, W5Base {
 		this.customizationId = customizationId;
 	}
 
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5Table))return false;
+		W5Table c = (W5Table)o;
+		return c!=null && c.getTableId()==tableId && c.getProjectUuid().equals(projectUuid);
+	}
+	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*tableId;
+	}	
 }

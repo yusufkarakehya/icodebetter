@@ -420,4 +420,14 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 		this._formCellPropertyList = _formCellPropertyList;
 	}
 
+
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5FormCell))return false;
+		W5FormCell c = (W5FormCell)o;
+		return c!=null && c.getFormCellId()==formCellId && c.getProjectUuid().equals(projectUuid);
+	}
+	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*formCellId;
+	}
 }
