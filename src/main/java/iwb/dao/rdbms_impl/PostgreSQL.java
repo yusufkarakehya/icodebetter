@@ -3573,7 +3573,7 @@ public class PostgreSQL extends BaseDAO {
 		sql.append("select ");
 		int field_cnt = 1;
 		List<W5TableFieldCalculated> ltfc = find(
-				"from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? order by t.tabOrder",
+				"from W5TableFieldCalculated t where t.projectUuid=?0  AND t.tableId=?1 order by t.tabOrder",
 				FrameworkCache.getProjectId(scd.get("projectId"), "15." + tableId), tableId);
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		for (int bas = tmp.indexOf("${"); bas >= 0; bas = tmp.indexOf("${", bas + 2)) {
@@ -4017,28 +4017,7 @@ public class PostgreSQL extends BaseDAO {
 		return m == null || m.isEmpty();
 	}
 
-	public List getRecordPictures(Map<String, Object> scd, int tableId, String tablePk) {
-		List<Object[]> l = executeSQLQuery(
-				"select x.file_attachment_id from iwb.w5_file_attachment x where x.customization_Id=? and x.table_Id=? and x.table_pk=? and exists(select 1 from gen_file_type tt where tt.customization_id=x.customization_id and tt.image_flag=1 and tt.file_type_id=x.file_type_id)",
-				scd.get("customizationId"), tableId, tablePk);
-		List<W5FileAttachment> fa = new ArrayList<W5FileAttachment>();
-		if (l != null)
-			for (Object o : l)
-				fa.addAll(find("from W5FileAttachment t where t.customizationId=? and t.fileAttachmentId=?",
-						scd.get("customizationId"), GenericUtil.uInt(o)));
-		return fa;
-	}
 
-	public List<Object[]> getFileType(Map<String, Object> scd, int image_flag) {
-		List params = new ArrayList<Object>();
-		params.add(scd.get("customizationId"));
-		params.add(image_flag);
-		params.add(image_flag);
-		List l = executeSQLQuery2Map(
-				"select x.dsc dsc,x.file_type_id id from gen_file_type x where x.customization_id = ? and (x.image_flag = ? or ? is null)",
-				params);
-		return l;
-	}
 
 	public boolean conditionRecordExistsCheck(Map<String, Object> scd, Map<String, String> requestParams, int tableId,
 			int tablePk, String conditionSqlCode) {

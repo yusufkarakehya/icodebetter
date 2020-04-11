@@ -69,7 +69,7 @@ public class VcsService {
 		}
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&t="+tableId+"&k="+tablePk+"&r="+po.getProjectUuid();
 		
-		List lv = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid);
+		List lv = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", tableId, tablePk, customizationId, projectUuid);
 		W5VcsObject vo = null;
 		Map result = new HashMap();
 		result.put("success", true);
@@ -168,7 +168,7 @@ public class VcsService {
 			}
 			keyz.append(",").append(k);
 			int tablePk = GenericUtil.uInt(tableKey[1]);
-			List lv = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid);
+			List lv = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", tableId, tablePk, customizationId, projectUuid);
 			W5VcsObject vo = null;
 			if(!lv.isEmpty()){
 				vo = (W5VcsObject)lv.get(0);
@@ -293,7 +293,7 @@ public class VcsService {
 			Map m = new HashMap();
 				
 			int tablePk=GenericUtil.uInt(tableKey[1]);
-			List l = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", 
+			List l = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", 
 					tableId, tablePk, customizationId, projectId);
 			if(GenericUtil.isEmpty(l))
 				throw new IWBException("vcs","vcsServerObjectPull", t.getTableId(), "Not Found", "Not VCS Object2", null);
@@ -354,14 +354,14 @@ public class VcsService {
 			throw new IWBException("vcs","vcsServerObjectPull", t.getTableId(), "Not VCS Table", "Not VCS Table2", null);
 		}
 		
-		List<W5VcsCommit> lc = dao.find("from W5VcsCommit t where t.projectUuid=? AND t.vcsCommitId>? order by t.vcsCommitId", projectId, vcsCommitId);
+		List<W5VcsCommit> lc = dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId>?1 order by t.vcsCommitId", projectId, vcsCommitId);
 		if(false && GenericUtil.isEmpty(lc)){ //TODO
 			throw new IWBException("vcs","No Update for Specified Commit",vcsCommitId, "Not Found", "tralala", null);
 		}
 		
 		Map m = new HashMap();
 			
-		List l = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", 
+		List l = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2 AND t.customizationId=?3", 
 				tableId, tablePk, projectId, customizationId);
 		if(GenericUtil.isEmpty(l))
 			throw new IWBException("vcs","vcsServerObjectPull", t.getTableId(), "Not Found", "Not VCS Object2", null);
@@ -440,7 +440,7 @@ public class VcsService {
 				if(json.get("success").toString().equals("true")){
 					JSONObject srvTables =json.getJSONObject("list");
 					List<W5VcsObject> lclObjects = null;
-					lclObjects = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? order by t.tableId, t.tablePk", projectUuid, customizationId) ;
+					lclObjects = dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 order by t.tableId, t.tablePk", projectUuid, customizationId) ;
 					Map<String, W5VcsObject> srcMap = new HashMap();
 					for(W5VcsObject ox:lclObjects){
 						srcMap.put(ox.getTableId()+"."+ox.getTablePk(), ox);
@@ -607,10 +607,10 @@ public class VcsService {
 					JSONObject srvTables =json.getJSONObject("list");
 					List<W5VcsObject> lclObjects = null;
 					if(GenericUtil.isEmpty(schema)){
-						lclObjects = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? order by t.tableId, t.tablePk", projectUuid, customizationId) ;
+						lclObjects = dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 order by t.tableId, t.tablePk", projectUuid, customizationId) ;
 					} else {
 						if(!schema.endsWith("%"))schema+="%";
-						lclObjects = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? and exists(select 1 from W5Table q where q.projectUuid=t.projectUuid AND q.tableId=t.tableId AND q.dsc like ?) order by t.tableId, t.tablePk", projectUuid, customizationId,schema) ;
+						lclObjects = dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 and exists(select 1 from W5Table q where q.projectUuid=t.projectUuid AND q.tableId=t.tableId AND q.dsc like ?) order by t.tableId, t.tablePk", projectUuid, customizationId,schema) ;
 					}
 					Map<String, W5VcsObject> srcMap = new HashMap();
 					for(W5VcsObject ox:lclObjects){
@@ -2272,9 +2272,9 @@ public class VcsService {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
-		if(po==null) po = (W5Project)dao.getCustomizedObject("from W5Project t where 1=? AND t.projectUuid=?", 1, projectUuid, null);
+		if(po==null) po = (W5Project)dao.getCustomizedObject("from W5Project t where 1=?0 AND t.projectUuid=?1", 1, projectUuid, null);
 
-		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", projectUuid);
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectUuid);
 		int lastCommitId = 0;
 		if(lm.isEmpty() || lm.get(0)==null)lastCommitId = 0;
 		else lastCommitId = (Integer)lm.get(0);
@@ -2337,7 +2337,7 @@ public class VcsService {
 		commit.setCommitUserId((Integer)scd.get("userId"));
 		commit.setRunLocalFlag((short)1);
 
-		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", po.getProjectUuid());
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", po.getProjectUuid());
 		int lastCommitId = 0;
 		if(lm.isEmpty() || lm.get(0)==null)lastCommitId = 0;
 		else lastCommitId = (Integer)lm.get(0);
@@ -2369,7 +2369,7 @@ public class VcsService {
 		
 //		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid()+"&s="+GenericUtil.uUrlEncode(sql)+"&comment="+GenericUtil.uUrlEncode(comment);
 
-		W5VcsCommit co = (W5VcsCommit)dao.find("from W5VcsCommit c where c.projectUuid=? AND c.vcsCommitId=?", projectUuid, commitId).get(0);
+		W5VcsCommit co = (W5VcsCommit)dao.find("from W5VcsCommit c where c.projectUuid=?0 AND c.vcsCommitId=?1", projectUuid, commitId).get(0);
 
 		JSONObject params = new JSONObject(); 
 		params.put("u", po.getVcsUserName());params.put("p", po.getVcsPassword());params.put("c", customizationId);
@@ -2735,7 +2735,7 @@ public class VcsService {
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
 
-		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", po.getProjectUuid());
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", po.getProjectUuid());
 		int lastCommitId = 0;
 		W5VcsCommit commit = new W5VcsCommit();
 		if(lm.isEmpty() || lm.get(0)==null)lastCommitId = 0;
@@ -2789,7 +2789,7 @@ public class VcsService {
 				json = new JSONObject(s);
 				if(json.get("success").toString().equals("true")){
 					JSONObject srvTables =json.getJSONObject("list");
-					List<W5VcsObject> lclObjects = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? order by t.tableId, t.tablePk", projectUuid, customizationId) ;
+					List<W5VcsObject> lclObjects = dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 order by t.tableId, t.tablePk", projectUuid, customizationId) ;
 					Map<String, W5VcsObject> srcMap = new HashMap();
 					for(W5VcsObject ox:lclObjects){
 						srcMap.put(ox.getTableId()+"."+ox.getTablePk(), ox);
@@ -3098,7 +3098,7 @@ public class VcsService {
 			List<Map> tList = dao.executeSQLQuery2Map("select t.* from iwb.w5_user_tip t where t.customization_id=?", params);
 			map.put("userTips", tList);
 			
-			FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
+			FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?0", cusId).get(0));
 			dao.addProject2Cache(projectId);
 			FrameworkSetting.projectSystemStatus.put(projectId, 0);
 			//Map cache = FrameworkCache.reloadCacheQueue();

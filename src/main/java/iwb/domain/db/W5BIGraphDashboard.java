@@ -13,7 +13,12 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_bi_graph_dashboard",schema="iwb")
 public class W5BIGraphDashboard implements java.io.Serializable, W5Base {
-/*
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1547635L;
+
+	/*
  * graph_dashboard_id integer NOT NULL,
   project_uuid character varying(36) NOT NULL DEFAULT '067e6162-3b6f-4ae2-a221-2470b63dff00'::character varying,
   customization_id integer NOT NULL DEFAULT 0,

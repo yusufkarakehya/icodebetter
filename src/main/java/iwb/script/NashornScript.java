@@ -701,12 +701,12 @@ public class NashornScript {
 			tableId = tableNameMap.get(tableDsc);
 		else {
 			List<Integer> l = (List<Integer>) scriptEngine.getDao().find(
-					"select t.tableId from W5Table t where t.dsc=? AND t.projectUuid=?",
+					"select t.tableId from W5Table t where t.dsc=?0 AND t.projectUuid=?1",
 					tableDsc, scd.get("projectId"));
 			if (l.isEmpty()) {
 				if((Integer)scd.get("customizationId")!=0 && tableDsc.startsWith("iwb.")) {
 					l = (List<Integer>) scriptEngine.getDao().find(
-							"select t.tableId from W5Table t where t.dsc=? AND t.customizationId=0",
+							"select t.tableId from W5Table t where t.dsc=?0 AND t.customizationId=0",
 							tableDsc);
 				} else
 					throw new IWBException("rhino", "getTableJSON", 0, tableDsc, "table_not_found", null);

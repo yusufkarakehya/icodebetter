@@ -307,8 +307,8 @@ public class UIEngine {
 								}
 							if (inStr.length() > 1) {
 								List<W5ConvertedObject> lco = dao.find(
-										"from W5ConvertedObject x where x.projectUuid=? AND x.conversionId in ("
-												+ inStr.substring(1) + ") and x.srcTablePk=?",
+										"from W5ConvertedObject x where x.projectUuid=?0 AND x.conversionId in ("
+												+ inStr.substring(1) + ") and x.srcTablePk=?1",
 										projectId,
 										GenericUtil.uInt(requestParams, t.get_tableParamList().get(0).getDsc()));
 								if (!lco.isEmpty()) {
@@ -445,7 +445,7 @@ public class UIEngine {
 							if (conversionId != 0 && conversionTablePk != 0) {
 								String prjId = FrameworkCache.getProjectId(scd, "707." + conversionId);
 								W5Conversion c = (W5Conversion) dao.getCustomizedObject(
-										"from W5Conversion t where t.conversionId=? AND t.projectUuid=?", conversionId,
+										"from W5Conversion t where t.conversionId=?0  AND t.projectUuid=?1", conversionId,
 										prjId, "Conversion");
 								if (c == null || c.getDstFormId() != formResult.getFormId()) {
 									throw new IWBException("framework", "Conversion", conversionId, null,
@@ -454,7 +454,7 @@ public class UIEngine {
 								}
 								if (c.getMaxNumofConversion() > 0) {
 									List l = dao.find(
-											"select 1 from W5ConvertedObject c where c.conversionId=? AND c.projectUuid=? AND c.srcTablePk=?",
+											"select 1 from W5ConvertedObject c where c.conversionId=?0  AND c.projectUuid=?1 AND c.srcTablePk=?2",
 											conversionId, scd.get("projectId"), conversionTablePk);
 									if (l.size() >= c.getMaxNumofConversion()) {
 										throw new IWBException("framework", "Conversion", conversionId, null,
@@ -472,7 +472,7 @@ public class UIEngine {
 																						// etmek
 																						// lazim
 									List l = dao.find(
-											"select 1 from W5WorkflowRecord c where c.projectUuid=? AND c.finishedFlag=0 AND c.tableId=? AND c.tablePk=?",
+											"select 1 from W5WorkflowRecord c where c.projectUuid=?0  AND c.finishedFlag=0 AND c.tableId=?1 AND c.tablePk=?2",
 											scd.get("projectId"), c.getSrcTableId(), conversionTablePk);
 									if (!l.isEmpty()) {
 										throw new IWBException("framework", "Conversion", conversionId, null,
@@ -798,7 +798,7 @@ public class UIEngine {
 							}
 						if (alarm) {
 							formResult.setFormAlarmList((List<W5FormSmsMailAlarm>) dao.find(
-									"from W5FormSmsMailAlarm a where a.projectUuid=? AND a.insertUserId=? AND a.tableId=? AND a.tablePk=? ",
+									"from W5FormSmsMailAlarm a where a.projectUuid=?0  AND a.insertUserId=?1 AND a.tableId=?2 AND a.tablePk=?3 ",
 									projectId, scd.get("userId"), f.getObjectId(),
 									GenericUtil.uInt(requestParams, t.get_tableParamList().get(0).getDsc())));
 						}
@@ -1045,7 +1045,7 @@ public class UIEngine {
 					break;
 				case 9: // graph dashboard
 					W5BIGraphDashboard obz2 = (W5BIGraphDashboard) dao.getCustomizedObject(
-							"from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?",
+							"from W5BIGraphDashboard t where t.graphDashboardId=?0  AND t.projectUuid=?1",
 							o.getObjectId(), scd.get("projectId"), null);
 					if (accessControl) {
 						obz = obz2;
@@ -1092,7 +1092,7 @@ public class UIEngine {
 		// FrameworkCache.wCustomizationMap.get(customizationId);
 		int userId = (Integer) scd.get("userId");
 		W5FormCell c = (W5FormCell) dao.getCustomizedObject(
-				"from W5FormCell fc where fc.formCellId=? AND fc.projectUuid=?", fcId, projectId, null);
+				"from W5FormCell fc where fc.formCellId=?0  AND fc.projectUuid=?1", fcId, projectId, null);
 		if (c == null)
 			return null;
 		W5FormCellHelper rc = new W5FormCellHelper(c);
@@ -1107,7 +1107,7 @@ public class UIEngine {
 			requestParams = UserUtil.getTableGridFormCellReqParams(projectId, -c.getLookupQueryId(), userId,
 					(String) scd.get("sessionId"), webPageId, tabId, -fcId);
 			List<W5LookUpDetay> oldList = (List<W5LookUpDetay>) dao.find(
-					"from W5LookUpDetay t where t.projectUuid=? AND t.lookUpId=? order by t.tabOrder", projectId,
+					"from W5LookUpDetay t where t.projectUuid=?0  AND t.lookUpId=?1 order by t.tabOrder", projectId,
 					c.getLookupQueryId());
 
 			List<W5LookUpDetay> newList = null;
