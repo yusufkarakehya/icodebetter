@@ -307,10 +307,10 @@ public class FrameworkService {
 		if (fa != null) { // bununla ilgili islemler
 			if (checkAccessRecordControlViolation(scd, 0, fa.getTableId(), fa.getTablePk())) {
 				throw new IWBException("security", "FileAttachment", fa.getFileAttachmentId(), null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_dosya_yetki"), null);
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_file_authorization"), null);
 			} else if (fa.getCustomizationId() != GenericUtil.uInt(scd.get("customizationId"))) {
 				throw new IWBException("security", "File Attachment", fa.getFileAttachmentId(), null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_dosya_yetki"), null);
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_file_authorization"), null);
 			}
 		}
 		return fa;
@@ -487,7 +487,7 @@ public class FrameworkService {
 		W5Table mt = FrameworkCache.getTable(scd, tableId); // master table
 		if (!GenericUtil.accessControlTable(scd, mt))
 			throw new IWBException("security", "Module", 0, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_modul_control"), null);
 		if (relId == 0 || GenericUtil.isEmpty(mt.get_tableChildList()))
 			throw new IWBException("security", "Table", tableId, null, "wrong relationId or no children data", null);
 		W5TableChild tc = null;
@@ -617,20 +617,7 @@ public class FrameworkService {
 		return user;
 	}
 
-	/*
-	 * public String fileToBase64Code(Map<String, Object> scd, int
-	 * fileAttachmentId){ FileInputStream stream = null; String code=""; try{
-	 * W5FileAttachment fa = loadFile(scd, fileAttachmentId); if(fa==null){ return
-	 * ""; } String customizationId=String.valueOf(
-	 * (scd.get("customizationId")==null) ? 0 : scd.get("customizationId")); String
-	 * file_path=FrameworkCache.getAppSettingStringValue(scd, "file_local_path");
-	 * File file = new File(file_path + "/" + customizationId + "/attachment/"+
-	 * fa.getSystemFileName()); byte[] fileData = new byte[(int) file.length()];
-	 * stream = new FileInputStream(file); stream.read(fileData); code =
-	 * Base64.encodeBase64String(fileData); } catch (Exception e) {
-	 * if(FrameworkSetting.debug)e.printStackTrace(); } finally { if (stream!=null)
-	 * try {stream.close(); }catch (IOException e) {} } return code; }
-	 */
+
 	public String getCustomizationLogoFilePath(Map<String, Object> scd) {
 		// firma logosu
 		String fileLocalPath = FrameworkCache.getAppSettingStringValue(scd, "file_local_path");

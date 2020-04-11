@@ -89,7 +89,7 @@ public class RptExcelRenderer extends AbstractXlsView {
 				}
 			}
 			if (sheetList.size()==0){
-				Sheet sheet = wb.createSheet("IWorkBetter");
+				Sheet sheet = wb.createSheet("Code2");
 				sheetList.add(sheet);								
 			}
 			sheetIndex = sheetList.size()-1;
@@ -266,7 +266,7 @@ public class RptExcelRenderer extends AbstractXlsView {
 				}
 			}
 			if (sheetList.size()==0){
-				Sheet sheet = wb.createSheet("IWorkBetter");
+				Sheet sheet = wb.createSheet("Code2");
 				sheetList.add(sheet);								
 			}
 			sheetIndex = sheetList.size()-1;
