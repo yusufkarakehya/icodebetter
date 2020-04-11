@@ -1017,7 +1017,7 @@ public class CRUDEngine {
 						int conversionId = GenericUtil.uInt(requestParams.get("_cnvId"));
 						int conversionTablePk = GenericUtil.uInt(requestParams.get("_cnvTblPk"));
 						List<W5Conversion> lcnv = dao.find(
-								"from W5Conversion x where x.conversionId=? AND x.projectUuid=?", conversionId,
+								"from W5Conversion x where x.conversionId=?0 AND x.projectUuid=?1", conversionId,
 								(String) scd.get("projectId"));
 						if (lcnv.size() == 1 && lcnv.get(0).getDstFormId() == formId) { // bu
 																						// form'a
@@ -1289,7 +1289,7 @@ public class CRUDEngine {
 			break;
 		case 1: // update
 		case 3: // delete
-			List l = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=?",
+			List l = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2",
 					t.getTableId(), tablePk, scd.get("projectId"));
 			if (l.isEmpty())
 				break;

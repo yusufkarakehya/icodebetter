@@ -570,16 +570,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 				}
 		}
 
-		/*
-		 * if (query == null) { query = new W5Query(); List<W5QueryField>
-		 * queryFields = find(
-		 * "from W5QueryField t where t.queryId=? and t.projectUuid=? order by t.tabOrder"
-		 * , card.getQueryId(), projectId); card.set_query(query);
-		 * query.set_queryFields(queryFields); // dataReader icin gerekli
-		 * query.setMainTableId( (Integer) find(
-		 * "select t.mainTableId from W5Query t where t.queryId=? and t.projectUuid=?"
-		 * , card.getQueryId(), projectId).get(0)); } else
-		 */
 		card.set_query(query);
 
 		card.set_crudTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
@@ -746,16 +736,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		W5Query query = getQueryResult(gr.getScd(), grid.getQueryId()).getQuery();
 
-		/*
-		 * if (query == null) { query = new W5Query(); List<W5QueryField>
-		 * queryFields = find(
-		 * "from W5QueryField t where t.projectUuid=? AND t.queryId=? order by t.tabOrder"
-		 * , projectId, grid.getQueryId()); grid.set_query(query);
-		 * query.set_queryFields(queryFields); // dataReader icin gerekli
-		 * query.setMainTableId((Integer) getCustomizedObject(
-		 * "select t.mainTableId from W5Query t where t.queryId=? AND t.projectUuid=?"
-		 * , grid.getQueryId(), projectId, null)); } else
-		 */
+
 		grid.set_query(query);
 
 		grid.set_viewTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
@@ -839,7 +820,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 						crudFormSmsList.add(x);
 					}
 					grid.set_crudFormSmsMailList(crudFormSmsList);
-					//grid.set_crudFormSmsMailList(find("from W5FormSmsMail t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.formId=? AND t.projectUuid=? order by t.tabOrder",grid.getDefaultCrudFormId(), projectId));
 				}
 				
 				List<W5Conversion> xcrudFormConversionList = defaultCrudForm.get_conversionList();
@@ -849,7 +829,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 						crudFormConversionList.add(x);
 					}
 					grid.set_crudFormConversionList(crudFormConversionList);
-//					grid.set_crudFormConversionList(find("from W5Conversion t where t.activeFlag=1 AND t.actionTips like '%0%' AND t.srcFormId=? AND t.projectUuid=? order by t.tabOrder",grid.getDefaultCrudFormId(), projectId));
 				}
 				
 				if (GenericUtil.isEmpty(grid.get_crudFormSmsMailList()))
@@ -1191,40 +1170,8 @@ public class MetadataLoaderDAO extends BaseDAO {
 			}
 	}
 
-	/*
-	 * public void reloadConversionsCache(String projectId) { Map<Integer,
-	 * W5Conversion> conversionMap = new HashMap<Integer, W5Conversion>();
-	 * 
-	 * if (FrameworkSetting.redisCache) { try { RMap<Integer, W5Conversion>
-	 * rconversionMap = FrameworkCache.getRedissonClient()
-	 * .getMap(String.format("icb-cache2:%s:conversion", projectId)); if
-	 * (rconversionMap != null) {// rgridMap.getName() for (Integer key :
-	 * rconversionMap.keySet()) { W5Conversion cnv = rconversionMap.get(key);
-	 * 
-	 * W5Table t = FrameworkCache.getTable(projectId, cnv.getSrcTableId()); if
-	 * (t != null) { conversionMap.put(cnv.getConversionId(), cnv); if
-	 * (t.get_tableConversionList() != null) t.set_tableConversionList(new
-	 * ArrayList()); t.get_tableConversionList().add(cnv);
-	 * cnv.set_conversionColMap(new HashMap()); for (W5ConversionCol cnvCol :
-	 * cnv.get_conversionColList()) {
-	 * cnv.get_conversionColMap().put(cnvCol.getConversionColId(), cnvCol); } }
-	 * } } } catch (Exception e) { throw new IWBException("framework",
-	 * "Redis.Conversions", 0, null, "Loading Conversions from Redis", e); } }
-	 * 
-	 * if (conversionMap.isEmpty()) { List<W5Conversion> cnvAll =
-	 * (List<W5Conversion>) find("from W5Conversion t where t.projectUuid=?",
-	 * projectId); for (W5Conversion cnv : cnvAll) { W5Table t =
-	 * FrameworkCache.getTable(projectId, cnv.getSrcTableId()); if (t != null) {
-	 * conversionMap.put(cnv.getConversionId(), cnv); if
-	 * (t.get_tableConversionList() != null) t.set_tableConversionList(new
-	 * ArrayList()); t.get_tableConversionList().add(cnv);
-	 * cnv.set_conversionColList((List<W5ConversionCol>) find(
-	 * "from W5ConversionCol t where t.conversionId=? AND t.projectUuid=? order by t.conversionId, t.tabOrder"
-	 * , cnv.getConversionId(), projectId)); cnv.set_conversionColMap(new
-	 * HashMap()); for (W5ConversionCol cnvCol : cnv.get_conversionColList()) {
-	 * cnv.get_conversionColMap().put(cnvCol.getConversionColId(), cnvCol); } }
-	 * } } FrameworkCache.setConversionMap(projectId, conversionMap); }
-	 */
+
+
 	public void reloadTablesCache(String projectId) {
 		// if (PromisCache.wTables.get(customizationId)!=null)
 		// PromisCache.wTables.get(customizationId).clear();

@@ -383,28 +383,6 @@ public class VcsService {
 			m.put("action", vcsCommitId==0 ? 2:1);
 		}
 	
-		/*
-		Map scd = new HashMap(); scd.put("customizationId", customizationId);scd.put("projectId", projectId);
-		List<W5TableChildHelper> detailObjects = dao.findRecordChildRecords(scd, tableId, tablePk);
-		if(!GenericUtil.isEmpty(detailObjects)){
-			List<Map> lx = new ArrayList();
-			for(W5TableChildHelper ch:detailObjects){
-				W5Table dt = FrameworkCache.getTable(customizationId, ch.getTableChild().getTableId());
-				if(dt.getVcsFlag()==0)continue;
-				List lq = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", 
-						dt.getTableId(), ch.get, projectId, customizationId);
-				if(GenericUtil.isEmpty(lq))continue;
-				
-				StringBuilder s2 = new StringBuilder();
-				s2.append("select x.* from ").append(dt.getDsc()).append(" x where x.").append(dt.get_tableFieldMap().get).append("=?");
-				if(dt.get_tableParamList().size()>1)s2.append(" AND x.customization_id=").append(customizationId);
-				List p2= new ArrayList();p2.add(tablePk);
-				Map mo2 =(Map)dao.executeSQLQuery2Map(s2.toString(), p2).get(0);
-				Map m2 = new HashMap();
-				m2.put("tableId", dt.getTableId());
-				m2.put("object", mo2);
-			}
-		} */
 		
 		List sqls = new ArrayList();
 		for(W5VcsCommit vc:lc)if(!GenericUtil.isEmpty(vc.getExtraSql())){
@@ -1300,7 +1278,7 @@ public class VcsService {
 				json = new JSONObject(s);
 				if(json.get("success").toString().equals("true")){
 					JSONArray srvObjects =json.getJSONArray("list");
-					List<W5VcsObject> lclObjects = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? AND t.tableId=? order by t.tablePk", projectUuid, customizationId, tableId) ;
+					List<W5VcsObject> lclObjects = dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 AND t.tableId=?2 order by t.tablePk", projectUuid, customizationId, tableId) ;
 					Map<Integer, W5VcsObject> srcMap = new HashMap();
 					for(W5VcsObject ox:lclObjects){
 						srcMap.put(ox.getTablePk(), ox);
@@ -1481,9 +1459,9 @@ public class VcsService {
 		scd.put("oprojectId", projectId);
 
 		List<W5VcsObject> l = tableId == 0 ?
-				dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? order by t.tableId, t.tablePk", projectId, customizationId) :
+				dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 order by t.tableId, t.tablePk", projectId, customizationId) :
 
-					dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? AND t.tableId=? order by t.tablePk", projectId, customizationId, tableId);
+					dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 AND t.tableId=?2 order by t.tablePk", projectId, customizationId, tableId);
 		Map m = new HashMap();
 		m.put("success", true);
 		List<Map> l2= new ArrayList();
@@ -1513,7 +1491,7 @@ public class VcsService {
 		}
 		
 		
-		W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid).get(0);
+		W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", tableId, tablePk, customizationId, projectUuid).get(0);
 		int action=0;
 		switch(vo.getVcsObjectStatusTip()){
 		case 0:case	9:case	8://synch durumdaysa Push'a gerek yok (9:active synched, 8:deleted synched)
@@ -1574,7 +1552,7 @@ public class VcsService {
 		}
 		
 			
-		List l = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", 
+		List l = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2 AND t.customizationId=?3", 
 				tableId, tablePk, projectId, customizationId);
 		if(action == 1 && GenericUtil.isEmpty(l))
 			throw new IWBException("vcs","vcsServerObjectPush", t.getTableId(), "Not Found", "Not VCS Object2", null);
@@ -1589,7 +1567,7 @@ public class VcsService {
 			throw new IWBException("vcs","vcsServerObjectPush", t.getTableId(), "Conflicts", "Conflicts for Specified Object2", null);
 		
 		o.setVcsObjectStatusTip((short)(action==3 ? 8:9));
-		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", projectId);
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectId);
 		W5VcsCommit commit = new W5VcsCommit();
 		if(lm.isEmpty() || lm.get(0)==null)commit.setVcsCommitId(1);
 		else commit.setVcsCommitId((Integer)lm.get(0)+1);
@@ -1686,7 +1664,7 @@ public class VcsService {
 		JSONArray jlo = new JSONArray();
 		for(String k:arTablePks){
 			int tablePk = GenericUtil.uInt(k);
-			W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid).get(0);
+			W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", tableId, tablePk, customizationId, projectUuid).get(0);
 			if(vo.getVcsObjectStatusTip()==9 || vo.getVcsObjectStatusTip()==8 || vo.getVcsObjectStatusTip()==0){//synch durumdaysa Push'a gerek yok
 				if(onSynchErrorThrow)throw new IWBException("vcs","vcsClientObjectPushMulti", vo.getVcsObjectId(), null, "Object Already Synched2", null);
 				else continue;
@@ -1748,7 +1726,7 @@ public class VcsService {
 			throw new IWBException("vcs","vcsServerObjectPushMulti", t.getTableId(), null, "Not VCS Table2", null);
 		}
 		
-		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", projectId);
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectId);
 		W5VcsCommit commit = new W5VcsCommit();
 		if(lm.isEmpty() || lm.get(0)==null)commit.setVcsCommitId(1);
 		else commit.setVcsCommitId((Integer)lm.get(0)+1);
@@ -1763,7 +1741,7 @@ public class VcsService {
 				if(action!=3 && !jo.has("o"))continue;
 				
 				int tablePk = jo.getInt("k");
-				List l = action!=2 ? dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", 
+				List l = action!=2 ? dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2 AND t.customizationId=?3", 
 						tableId, tablePk, projectId, customizationId) : null;
 				if(action != 2 && GenericUtil.isEmpty(l))
 					throw new IWBException("vcs","vcsServerObjectPushMulti", t.getTableId(), "Not Found", "Not VCS Object2", null);
@@ -1811,7 +1789,7 @@ public class VcsService {
 		Map scd = vcsServerAuthenticate(userName, passWord, customizationId, projectId);
 		W5Project po = FrameworkCache.getProject(projectId);
 		
-		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", projectId);
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectId);
 		W5VcsCommit commit = new W5VcsCommit();
 		if(lm.isEmpty() || lm.get(0)==null)commit.setVcsCommitId(1);
 		else commit.setVcsCommitId((Integer)lm.get(0)+1);
@@ -1827,7 +1805,7 @@ public class VcsService {
 
 				int tablePk = jo.getInt("k");
 				int tableId = jo.getInt("t");
-				List l = action!=2 ? dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=? AND t.customizationId=?", 
+				List l = action!=2 ? dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2 AND t.customizationId=?3", 
 						tableId, tablePk, projectId, customizationId) : null;
 				if(action != 2 && GenericUtil.isEmpty(l))
 					throw new IWBException("vcs","vcsServerObjectPushAll", tableId, "Not Found", "Not VCS Object2", null);
@@ -1889,7 +1867,7 @@ public class VcsService {
 				int tablePk = GenericUtil.uInt(pk[1]);
 				W5Table t = FrameworkCache.getTable(0, tableId);
 				if(t.getVcsFlag()!=0){ //master olanlar haric
-					List<W5VcsObject> l2 = dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=?", 
+					List<W5VcsObject> l2 = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2", 
 							tableId, tablePk, projectId);
 					if(!l2.isEmpty()){
 						Map m2 = new HashMap();
@@ -1930,10 +1908,10 @@ public class VcsService {
 
 		List<W5VcsObject> l = null;
 		if(GenericUtil.isEmpty(schema)){
-			l = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? order by t.tableId, t.vcsCommitId, t.tablePk", projectId, customizationId);
+			l = dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 order by t.tableId, t.vcsCommitId, t.tablePk", projectId, customizationId);
 		} else {
 			if(!schema.endsWith("%"))schema+="%";
-			l = dao.find("from W5VcsObject t where t.projectUuid=? AND t.customizationId=? and exists(select 1 from W5Table q where q.customizationId=t.customizationId AND q.tableId=t.tableId AND q.dsc like ?) order by t.tableId, t.vcsCommitId, t.tablePk", projectId, customizationId,schema) ;
+			l = dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 and exists(select 1 from W5Table q where q.customizationId=t.customizationId AND q.tableId=t.tableId AND q.dsc like ?2) order by t.tableId, t.vcsCommitId, t.tablePk", projectId, customizationId,schema) ;
 		}
 		Map m = new HashMap();
 		m.put("success", true);
@@ -2025,7 +2003,7 @@ public class VcsService {
 				continue;
 			}
 			int tablePk=GenericUtil.uInt(tableKey[1]);
-			W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.customizationId=? AND t.projectUuid=?", tableId, tablePk, customizationId, projectUuid).get(0);
+			W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", tableId, tablePk, customizationId, projectUuid).get(0);
 			if(vo.getVcsObjectStatusTip()==9 || vo.getVcsObjectStatusTip()==8 || vo.getVcsObjectStatusTip()==0){//synch durumdaysa Push'a gerek yok
 				if(onSynchErrorThrow)throw new IWBException("vcs","vcsClientObjectPushAll", vo.getVcsObjectId(), null, "Object Already Synched2", null);	else 
 					continue;

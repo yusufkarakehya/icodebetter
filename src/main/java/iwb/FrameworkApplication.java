@@ -3,6 +3,7 @@ package iwb;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
@@ -36,6 +37,9 @@ public class FrameworkApplication {
 	
 	
 	public static void main(String[] args) {
+		
+		//PropertyConfigurator.configure("./log4j.properties");
+		
 		if(args!=null && args.length>0) {
 			for(int qi=0;qi<args.length;qi++){
 

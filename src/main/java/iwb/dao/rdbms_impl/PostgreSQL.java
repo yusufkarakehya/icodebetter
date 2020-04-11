@@ -121,7 +121,7 @@ public class PostgreSQL extends BaseDAO {
 			if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 					t.getAccessViewRoles(), t.getAccessViewUsers())) {
 				throw new IWBException("security", "Query", queryId, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"),
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_table_control_view"),
 						null);
 			}
 		}
@@ -860,7 +860,7 @@ public class PostgreSQL extends BaseDAO {
 			if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 					t.getAccessViewRoles(), t.getAccessViewUsers())) {
 				throw new IWBException("security", "Query", queryId, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"),
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_table_control_view"),
 						null);
 			}
 		}
@@ -1120,7 +1120,7 @@ public class PostgreSQL extends BaseDAO {
 							"13." + lookUp.getLookUpId())
 									? lookUp.get_detayList()
 									: (List<W5LookUpDetay>) find(
-											"from W5LookUpDetay t where t.projectUuid=? AND t.lookUpId=? order by t.tabOrder",
+											"from W5LookUpDetay t where t.projectUuid=? AND t.lookUpId=?0 order by t.tabOrder",
 											projectId, c.getLookupQueryId());
 
 					List<W5LookUpDetay> newList = null;
@@ -4553,7 +4553,7 @@ public class PostgreSQL extends BaseDAO {
 		if (FrameworkSetting.vcsServer)
 			throw new IWBException("vcs", "makeDirtyVcsObject", tableId, null,
 					"VCS Server not allowed to make Dirt VCS Object", null);
-		List l = find("from W5VcsObject t where t.tableId=? AND t.tablePk=? AND t.projectUuid=?", tableId, tablePk,
+		List l = find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2", tableId, tablePk,
 				scd.get("projectId"));
 		if (!l.isEmpty()) {
 			W5VcsObject o = (W5VcsObject) l.get(0);
@@ -4787,12 +4787,12 @@ public class PostgreSQL extends BaseDAO {
 
 			if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 				throw new IWBException("security", "Module", 0, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_modul_control"), null);
 			}
 			if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 					t.getAccessViewRoles(), t.getAccessViewUsers())) {
 				throw new IWBException("security", "Query", queryId, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"),
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_table_control_view"),
 						null);
 			}
 		}
@@ -5038,12 +5038,12 @@ public class PostgreSQL extends BaseDAO {
 				|| (scd.get("roleId") != null && GenericUtil.uInt(scd.get("roleId")) != 0))) {
 			if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 				throw new IWBException("security", "Module", 0, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_modul_control"), null);
 			}
 			if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 					t.getAccessViewRoles(), t.getAccessViewUsers())) {
 				throw new IWBException("security", "Query", queryId, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"),
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_table_control_view"),
 						null);
 			}
 		}
@@ -5094,7 +5094,7 @@ public class PostgreSQL extends BaseDAO {
 			String newSubStr = tableFieldChain.substring(4);
 			boolean fieldFound = false;
 			List<W5TableFieldCalculated> ltcf = find(
-					"from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? AND t.dsc=?", projectId,
+					"from W5TableFieldCalculated t where t.projectUuid=?0 AND t.tableId=?1 AND t.dsc=?2", projectId,
 					t.getTableId(), newSubStr);
 			if (ltcf.isEmpty())
 				throw new IWBException("framework", "Query", queryId, null,
@@ -5235,7 +5235,7 @@ public class PostgreSQL extends BaseDAO {
 					int isx = GenericUtil.uInt(s);
 					if (isx < 0) {
 						List<W5TableFieldCalculated> ltcf = find(
-								"from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? AND t.tableFieldCalculatedId=?",
+								"from W5TableFieldCalculated t where t.projectUuid=?0 AND t.tableId=?1 AND t.tableFieldCalculatedId=?2",
 								projectId, t.getTableId(), -isx);
 						if (ltcf.isEmpty())
 							throw new IWBException("framework", "Query", queryId, null,
@@ -5245,9 +5245,6 @@ public class PostgreSQL extends BaseDAO {
 						lookUps.put(count+"", LocaleMsgCache.get2(scd, tcf.getDsc()));
 						count++;
 						Object[] oo = DBUtil.filterExt4SQL(tcf.getSqlCode(), scd, requestParams, null);
-						// tableFieldSQL =
-						// oo[0].toString();//.put(tableFieldChain,
-						// o.toString());
 						if (oo.length > 1)
 							params.addAll((List) oo[1]);
 
@@ -5424,7 +5421,7 @@ public class PostgreSQL extends BaseDAO {
 			if (c.startsWith("clc.")) {
 				String c2 = c.substring(4);
 				List<W5TableFieldCalculated> l = find(
-						"from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? AND t.dsc=?",
+						"from W5TableFieldCalculated t where t.projectUuid=?0 AND t.tableId=?1 AND t.dsc=?2",
 						t.getProjectUuid(), t.getTableId(), c2);
 				if (!l.isEmpty()) {
 					sql.append("(").append(l.get(0).getSqlCode()).append(")");
@@ -5490,7 +5487,7 @@ public class PostgreSQL extends BaseDAO {
 							continue;
 						}
 						List<W5TableFieldCalculated> l = find(
-								"from W5TableFieldCalculated t where t.projectUuid=? AND t.tableId=? AND t.dsc=?",
+								"from W5TableFieldCalculated t where t.projectUuid=?0 AND t.tableId=?1 AND t.dsc=?2",
 								t.getProjectUuid(), detT.getTableId(), sss[isss]);
 						if (!l.isEmpty()) {
 							newSub.append("SELECT ").append("sum" /* valMap.get(c) */).append("((")
@@ -5744,15 +5741,7 @@ public class PostgreSQL extends BaseDAO {
 
 	public List executeQuery4Pivot(Map<String, Object> scd, W5Table t, Map<String, String> requestParams) {
 
-		/*
-		 * W5Query q = new W5Query(); q.setMainTableId(tableId); q.setSqlFrom(t.getDsc()
-		 * + " x");
-		 * 
-		 * W5QueryResult queryResult = new W5QueryResult(-1);
-		 * 
-		 * queryResult.setErrorMap(new HashMap());queryResult.setScd(scd);
-		 * queryResult.setRequestParams(requestParams);
-		 */
+
 		StringBuilder sql = new StringBuilder();
 		String dateFormat = GenericUtil.uStrNvl(requestParams.get("dtFmt"), "yyyy");
 		sql.append("SELECT ");
@@ -6297,13 +6286,13 @@ public class PostgreSQL extends BaseDAO {
 		String[] tables = new String[] { "w5_table_access_control", "w5_form_cell_property", 
 				"w5_ws_look_up_detay", "w5_ws_look_up","w5_ws_model","w5_ws_model_param",
 				"m5_list_template", "w5_ws_server_token", "w5_ws_server_method_param", "w5_ws_server_method",
-				"w5_ws_server", "w5_ws_method_param", "w5_ws_method", "w5_ws", "m5_list", "w5_tutorial",
-				"w5_tutorial_user", "w5_table_access_condition_sql", "w5_table_trigger", "w5_form_hint",
+				"w5_ws_server", "w5_ws_method_param", "w5_ws_method", "w5_ws", "m5_list", 
+				"w5_table_access_condition_sql", "w5_table_trigger", "w5_form_hint",
 				"w5_form_sms_mail_alarm", "w5_table_field_calculated", "w5_doc", "w5_list_column", "w5_list",
 				"w5_data_view", "w5_converted_object", "w5_form_sms_mail", "w5_custom_grid_column_condtion",
-				"w5_custom_grid_column_renderer", "w5_table_filter", "w5_conversion_col", "w5_conversion", "w5_feed",
-				"w5_uploaded_data", "w5_uploaded_import_col_map", "w5_uploaded_import_col", "w5_uploaded_import",
-				"w5_table_child", "w5_form_cell_code_detail", "w5_help", "w5_bi_graph_dashboard", "w5_mobile_device",
+				"w5_custom_grid_column_renderer", "w5_conversion_col", "w5_conversion", "w5_feed",
+				"w5_excel_import_sheet_data", "w5_excel_import_sheet_map", "w5_excel_import_sheet", "w5_excel_import",
+				"w5_table_child", "w5_help", "w5_bi_graph_dashboard", "w5_mobile_device",
 				"w5_approval_record", "w5_approval_step", "w5_approval", "w5_jasper_report", "w5_access_control",
 				"w5_user_tip", "w5_role"
 				// ,"w5_user"

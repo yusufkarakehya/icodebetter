@@ -94,8 +94,8 @@ public class ConversionEngine {
 
 				if (inStr.length() > 1) {
 					List<W5ConvertedObject> lco = dao.find(
-							"from W5ConvertedObject x where x.projectUuid=? AND x.conversionId in ("
-									+ inStr.substring(1) + ") and x.srcTablePk=?",
+							"from W5ConvertedObject x where x.projectUuid=?0 AND x.conversionId in ("
+									+ inStr.substring(1) + ") and x.srcTablePk=?1",
 							scd.get("projectId"),
 							GenericUtil.uInt(requestParams, t.get_tableParamList().get(0).getDsc() + prefix));
 					if (!lco.isEmpty()) {
@@ -298,7 +298,7 @@ public class ConversionEngine {
 						W5WsMethod wsm = FrameworkCache.getWsMethod(scd, c.getDstTableId());
 						if (wsm.get_params() == null) {
 							wsm.set_params(dao.find(
-									"from W5WsMethodParam t where t.wsMethodId=? AND t.projectUuid=? order by t.tabOrder",
+									"from W5WsMethodParam t where t.wsMethodId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 									wsm.getWsMethodId(), (String) scd.get("projectId")));
 						}
 
@@ -366,7 +366,7 @@ public class ConversionEngine {
 			cnv = FrameworkCache.getConversion(scd, conversionId);
 			if(!FrameworkSetting.redisCache && cnv == null){
 				cnv = (W5Conversion) dao.getCustomizedObject(
-					"from W5Conversion t where t.conversionId=? AND t.projectUuid=?", conversionId, projectId, null);
+					"from W5Conversion t where t.conversionId=?0 AND t.projectUuid=?1", conversionId, projectId, null);
 			}
 			if (cnv == null || GenericUtil.isEmpty(cnv.getActionTips()) || cnv.getActiveFlag() == 0)
 				throw new IWBException("validation", "Conversion", conversionId, null,
