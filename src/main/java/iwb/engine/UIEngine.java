@@ -206,9 +206,8 @@ public class UIEngine {
 				if (accessControlSelfFlag)
 					acEngine.accessControl4FormTable(formResult, null);
 				if (formResult.getForm().get_moduleList() != null) {
-					for (W5FormModule m : formResult.getForm().get_moduleList()) if(GenericUtil.accessControl(scd, m.getAccessViewTip(),
-							m.getAccessViewRoles(), m.getAccessViewUsers()) && (m.getModuleViewTip() == 0 || (m.getModuleViewTip() == 1 && action == 1)
-									|| (m.getModuleViewTip() == 2 && action == 2)))switch(m.getModuleTip()){
+					for (W5FormModule m : formResult.getForm().get_moduleList()) if(m.getModuleViewTip() == 0 || m.getModuleViewTip() == action)
+						switch(m.getModuleTip()){
 						case	3://form
 						case	4://multi form
 							int newAction = m.getModuleTip() == 3 ? 2 : GenericUtil.uInt(requestParams.get("a" + m.getTabOrder()));
@@ -1087,9 +1086,7 @@ public class UIEngine {
 
 	public W5FormCellHelper reloadFormCell(Map<String, Object> scd, int fcId, String webPageId, String tabId) {
 		String projectId = FrameworkCache.getProjectId(scd, null);
-		int customizationId = (Integer) scd.get("customizationId");
-		// W5Customization cus =
-		// FrameworkCache.wCustomizationMap.get(customizationId);
+
 		int userId = (Integer) scd.get("userId");
 		W5FormCell c = (W5FormCell) dao.getCustomizedObject(
 				"from W5FormCell fc where fc.formCellId=?0  AND fc.projectUuid=?1", fcId, projectId, null);
@@ -1170,6 +1167,7 @@ public class UIEngine {
 				}
 			}
 
+			dao.checkTenant(scd);
 			W5QueryResult lookupQueryResult = metaDataDao.getQueryResult(scd, c.getLookupQueryId());
 			lookupQueryResult.setErrorMap(new HashMap());
 			lookupQueryResult.setRequestParams(requestParams);

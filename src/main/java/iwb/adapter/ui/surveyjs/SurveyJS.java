@@ -200,11 +200,7 @@ public class SurveyJS {
 			for (W5FormModule m : formResult.getForm().get_moduleList())
 				if (m.getFormModuleId() != 0) {
 					if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
-							.getModuleViewTip()) 
-							&& GenericUtil.accessControl(formResult.getScd(),
-									m.getAccessViewTip(),
-									m.getAccessViewRoles(),
-									m.getAccessViewUsers())) {
+							.getModuleViewTip()) ) {
 						W5FormResult dfr = null;
 						switch (m.getModuleTip()) {
 						case	0:

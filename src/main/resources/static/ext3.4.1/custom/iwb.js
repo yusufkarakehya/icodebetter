@@ -2494,7 +2494,7 @@ function addGridExtraButtons(xbuttons, xgrid) {
   }
   if (toolbar_menu.length != 0) xgrid.extraButtons.push(toolbar_menu);
 
-  xbuttons = xbuttons.concat(xgrid.extraButtons);
+  xbuttons.push(xgrid.extraButtons);
 }
 
 function addDefaultReportButtons(xbuttons, xgrid, showMasterDetailReport) {
@@ -3511,7 +3511,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
  // if (detailGrid.moveUpDown) addMoveUpDownButtons(buttons, detailGrid);
       addDefaultSpecialButtons(buttons, detailGrid);
       addGridExtraButtons(buttons, detailGrid);
-      
+
       if(detailGrid.displayAgg){
     	  buttons.push({id:'grid-summary-'+detailGrid.id, xtype:'displayfield', value:''});
     	  var ds = (detailGrid.store || detailGrid.ds);
@@ -4383,6 +4383,8 @@ function formSubmit(submitConfig) {
               [xg]
             );
           else iwb.reload(xg);
+        } else if (submitConfig._callAttributes._formCell) {
+        	iwb.refreshFormCell(submitConfig._callAttributes._formCell);
         } else if (submitConfig._callAttributes._gridId) {
         	iwb.refreshGrid(submitConfig._callAttributes._gridId);
         }
@@ -6687,6 +6689,24 @@ function syncMaptoStr(t, m, reload) {
   }
   if (m.timeDif) str += ", " + fmtTimeAgo(m.timeDif) + " önce.";
   return !!reload || m.userId != _scd.userId ? str : null;
+}
+
+iwb.refreshFormCell = (fc)=>{
+    if(fc.id){
+    	var xx =fc.id.split('-'); 
+    	if(xx.length==2){
+    		var oldValue = fc.getValue();
+    		promisRequest({
+	        url: "ajaxReloadFormCell?.t=" + xx[0] + "&_fcid=" + xx[1],
+	        requestWaitMsg: false,
+	        successCallback: function(json) {
+	          fc.store.removeAll();
+	          fc.store.loadData(json.data);
+	          fc.setValue(oldValue);
+	        }
+	      });
+    	} else Ext.infoMsg.msg('error','refreshFormCell Error');
+    }
 }
 
 function showNotifications(t) {

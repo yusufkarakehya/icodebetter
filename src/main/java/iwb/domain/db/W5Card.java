@@ -17,7 +17,8 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_data_view",schema="iwb")
 public class W5Card implements java.io.Serializable, W5Base, W5ListBase {
-	private static final long serialVersionUID = 1143214213421L;
+
+	private static final long serialVersionUID = 1435135123L;
 
 	private int dataViewId;
 

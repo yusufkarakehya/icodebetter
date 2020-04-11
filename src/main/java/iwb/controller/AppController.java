@@ -81,16 +81,15 @@ import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TutorialResult;
 import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
 import iwb.service.FrameworkService;
 import iwb.service.VcsService;
 import iwb.timer.Action2Execute;
+import iwb.util.EncryptionUtil;
 import iwb.util.ExcelUtil;
 import iwb.util.GenericUtil;
-import iwb.util.LogUtil;
 import iwb.util.MQUtil;
 import iwb.util.UserUtil;
 
@@ -244,49 +243,7 @@ public class AppController implements InitializingBean {
 		response.getWriter().close();
 	}
 
-	@RequestMapping("/ajaxForgotPass")
-	public void hndAjaxForgotPass(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
 
-		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
-		requestParams.put("_remote_ip", request.getRemoteAddr());
-		if (request.getSession(false) != null && request.getSession(false).getAttribute("securityWordId") != null)
-			requestParams.put("securityWordId", request.getSession(false).getAttribute("securityWordId").toString());
-
-		if (request.getSession(false) != null) {
-			request.getSession(false).removeAttribute("scd-dev");
-		}
-		;
-
-		Locale blocale = request.getLocale();
-		Map m = new HashMap();
-		m.put("customizationId", 0);
-		String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),
-				getDefaultLanguage(m, blocale.getLanguage()));
-		m.put("locale", xlocale);
-
-		response.setContentType("application/json");
-		Map<String, String> res = service.sendMailForgotPassword(m, requestParams);
-		StringBuilder b = new StringBuilder();
-		b.append("{\"success\": " + (res.get("success").equals("1") == true ? "true" : "false") + ",\n").append(
-				"\"msg\":\"" + (res.get("msg") != null ? LocaleMsgCache.get2(0, xlocale, res.get("msg")) : "") + "\"}");
-		response.getWriter().write(b.toString());
-
-		response.getWriter().close();
-	}
-
-	@RequestMapping("/ajaxFormCellCode")
-	public void hndAjaxFormCellCode(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		int formCellId = GenericUtil.uInt(request, "_formCellId");
-		logger.info("hndAjaxFormCellCode(" + formCellId + ")");
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-		Map m = service.getFormCellCode(scd, GenericUtil.getParameterMap(request), formCellId, 1);
-		// m.put("success", true);
-		response.setContentType("application/json");
-		response.getWriter().write(GenericUtil.fromMapToJsonString2(m));
-		response.getWriter().close();
-	}
 
 	@RequestMapping("/ajaxChangeChatStatus")
 	public void hndAjaxChangeChatStatus(HttpServletRequest request, HttpServletResponse response)
@@ -786,8 +743,8 @@ public class AppController implements InitializingBean {
 				response.getWriter().write(",\"newMsgCnt\":"+ GenericUtil.fromMapToJsonString2Recursive(service.getUserNotReadChatMap(scd)));
 			}
 			if (genToken && scd != null)
-				response.getWriter().write(",\"promis_token\":\""
-						+ UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000) + "\"");
+				response.getWriter().write(",\"tokenKey\":\""
+						+ EncryptionUtil.encryptAES(GenericUtil.fromMapToJsonString2Recursive(scd)) + "\"");
 			response.getWriter().write("}");
 		} else {
 			response.getWriter().write("{\"success\":false,\"errorMsg\":\"" + errorMsg + "\"}");
@@ -1162,19 +1119,7 @@ public class AppController implements InitializingBean {
 		response.getWriter().close();
 	}
 
-	@RequestMapping("/ajaxGetFormCellCodeDetail")
-	public void hndAjaxGetFormCellCodeDetail(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		logger.info("hndAjaxGetFormCellCodeDetail");
 
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-		int fccdId = GenericUtil.uInt(request, "_fccdid");
-		String result = service.getFormCellCodeDetail(scd, GenericUtil.getParameterMap(request), fccdId);
-		response.setContentType("application/json");
-		response.getWriter().write("{\"success\":true,\"result\":\"" + result + "\"}");
-		response.getWriter().close();
-	}
 
 	@RequestMapping("/ajaxFeed")
 	public void hndAjaxFeed(HttpServletRequest request, HttpServletResponse response)
@@ -1256,26 +1201,7 @@ public class AppController implements InitializingBean {
 		response.getWriter().close();
 	}
 
-	@RequestMapping("/showTutorial")
-	public void hndShowTutorial(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		int tutorialId = GenericUtil.uInt(request, "_ttid");
-		logger.info("showTutorial(" + tutorialId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-
-		W5TutorialResult tutorialResult = service.getTutorialResult(scd, tutorialId,
-				GenericUtil.getParameterMap(request));
-
-		response.setContentType("application/json");
-		if (GenericUtil.uInt(scd.get("mobile")) != 0) {
-			response.getWriter().write("{\"success\":false}");
-		} else {
-			response.getWriter().write(getViewAdapter(scd, request).serializeShowTutorial(tutorialResult).toString());
-		}
-		response.getWriter().close();
-	}
 
 	@RequestMapping("/ajaxLogoutUser")
 	public void hndAjaxLogoutUser(HttpServletRequest request, HttpServletResponse response)

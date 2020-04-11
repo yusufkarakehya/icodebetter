@@ -420,13 +420,16 @@ public class NotificationEngine {
 		W5FormSmsMail fsm = (W5FormSmsMail) dao.getCustomizedObject(
 				"from W5FormSmsMail t where t.formSmsMailId=? AND t.projectUuid=?", formSmsMailId, projectId,
 				"FormSmsMail");
-		W5Form f = (W5Form) dao.getCustomizedObject("from W5Form t where t.formId=? AND t.projectUuid=?",
-				fsm.getFormId(), projectId, "Form");
-		int tableId = f.getObjectId();
-		W5Table t = FrameworkCache.getTable(scd, tableId);
-		if (!FrameworkCache.roleAccessControl(scd, 0)) {
-			throw new IWBException("security", "Module", 0, null,
-					"No Authorization for SMS/Email. Please contact Administrator", null);
+		int tableId = 0;
+		if(fsm.getFormId()> 0) {
+			W5Form f = (W5Form) dao.getCustomizedObject("from W5Form t where t.formId=? AND t.projectUuid=?",
+					fsm.getFormId(), projectId, "Form");
+			tableId = f.getObjectId();
+			W5Table t = FrameworkCache.getTable(scd, tableId);
+			if (!FrameworkCache.roleAccessControl(scd, 0)) {
+				throw new IWBException("security", "Module", 0, null,
+						"No Authorization for SMS/Email. Please contact Administrator", null);
+			}
 		}
 
 		Map r = new HashMap();

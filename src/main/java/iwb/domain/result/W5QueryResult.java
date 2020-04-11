@@ -16,7 +16,6 @@ import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5TableFilter;
 import iwb.domain.db.W5TableParam;
 import iwb.enums.FieldDefinitions;
 import iwb.util.DBUtil;
@@ -988,19 +987,7 @@ public class W5QueryResult implements W5MetaResult{
 				}
 			}
 			
-			
-			if(mainTable.get_tableFilterList()!=null)for(W5TableFilter tf:mainTable.get_tableFilterList())if(GenericUtil.accessControl(scd, (short)1, tf.getAccessFilterRoles(), tf.getAccessFilterUsers()) // role & user control 
-					){
-				String accessViewSql = tf.getAccessViewSql();
-				if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-					Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
-					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
-					sqlWhere.append("(").append(oz[0]).append(")");
-					if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-				}
-				
-				
-			}
+
 			
 		}
 
@@ -1467,18 +1454,7 @@ public class W5QueryResult implements W5MetaResult{
 			}
 			
 			
-			if(mainTable.get_tableFilterList()!=null)for(W5TableFilter tf:mainTable.get_tableFilterList())if(GenericUtil.accessControl(scd, (short)1, tf.getAccessFilterRoles(), tf.getAccessFilterUsers()) // role & user control 
-					){
-				String accessViewSql = tf.getAccessViewSql();
-				if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-					Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
-					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
-					sqlWhere.append("(").append(oz[0]).append(")");
-					if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-				}
-				
-				
-			}
+
 		}
 
 		
@@ -1887,19 +1863,7 @@ public class W5QueryResult implements W5MetaResult{
 				}
 			}
 		
-			
-			if(mainTable.get_tableFilterList()!=null)for(W5TableFilter tf:mainTable.get_tableFilterList())if(GenericUtil.accessControl(scd, (short)1, tf.getAccessFilterRoles(), tf.getAccessFilterUsers()) // role & user control 
-					){
-				String accessViewSql = tf.getAccessViewSql();
-				if(accessViewSql!=null){//! var ise yetki yok demek ki && !accessViewSql.equals("!")
-					Object[] oz = DBUtil.filterExt4SQL(accessViewSql, scd, requestParams2, null);
-					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
-					sqlWhere.append("(").append(oz[0]).append(")");
-					if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-				}
-				
-				
-			}
+
 			
 		}
 

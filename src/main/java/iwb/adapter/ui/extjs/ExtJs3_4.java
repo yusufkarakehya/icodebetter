@@ -31,7 +31,6 @@ import iwb.domain.db.W5FormSmsMailAlarm;
 import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5Grid;
 import iwb.domain.db.W5GridColumn;
-import iwb.domain.db.W5GridModule;
 import iwb.domain.db.W5List;
 import iwb.domain.db.W5ListColumn;
 import iwb.domain.db.W5LookUp;
@@ -45,7 +44,6 @@ import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5Tutorial;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5WsMethod;
@@ -62,7 +60,6 @@ import iwb.domain.result.W5ListViewResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TutorialResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
 import iwb.util.EncryptionUtil;
@@ -268,10 +265,7 @@ public class ExtJs3_4 implements ViewAdapter {
 				&& formResult.getForm().getRenderTip() != 0) { // tabpanel ve
 																// icinde
 																// gridler varsa
-			for (W5FormModule m : formResult.getForm().get_moduleList())
-				if (GenericUtil.accessControl(formResult.getScd(),
-						m.getAccessViewTip(), m.getAccessViewRoles(),
-						m.getAccessViewUsers())) {
+			for (W5FormModule m : formResult.getForm().get_moduleList()) {
 					switch (m.getModuleTip()) {
 					case 4:// form
 						if (formResult.getModuleFormMap() == null)
@@ -1412,11 +1406,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		if (f.getObjectTip()==2 && f.get_moduleList() != null)
 			for (W5FormModule m : f.get_moduleList())
 				if (m.getFormModuleId() != 0 && m.getModuleTip()==5 && (m.getModuleViewTip() == 0 || fr.getAction() == m
-							.getModuleViewTip())
-							&& GenericUtil.accessControl(fr.getScd(),
-									m.getAccessViewTip(),
-									m.getAccessViewRoles(),
-									m.getAccessViewUsers())) {
+							.getModuleViewTip())) {
 					W5Table t = FrameworkCache.getTable(scd, f.getObjectId());
 					if(t!=null && !GenericUtil.isEmpty(t.get_tableChildList()) && 
 							(GenericUtil.isEmpty(fr.getForm().getJsCode()) || (!fr.getForm().getJsCode().contains("prepareDetailGridCRUDButtons") && !fr.getForm().getJsCode().contains("mf.componentWillPost")))) {
@@ -1527,10 +1517,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		for (W5FormModule m : formResult.getForm().get_moduleList())
 			if (m.getFormModuleId() != 0) {
 				if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
-						.getModuleViewTip())
-						&& GenericUtil.accessControl(formResult.getScd(),
-								m.getAccessViewTip(), m.getAccessViewRoles(),
-								m.getAccessViewUsers())) {
+						.getModuleViewTip())) {
 					switch (m.getModuleTip()) {
 					case 4:// form
 						if (GenericUtil.uInt(formResult.getRequestParams().get(
@@ -1713,10 +1700,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		for (W5FormModule m : formResult.getForm().get_moduleList())
 			if (m.getFormModuleId() != 0) {
 				if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
-						.getModuleViewTip())
-						&& GenericUtil.accessControl(formResult.getScd(),
-								m.getAccessViewTip(), m.getAccessViewRoles(),
-								m.getAccessViewUsers())) {
+						.getModuleViewTip())) {
 					switch (m.getModuleTip()) {
 					case 4:// form
 						if (GenericUtil.uInt(formResult.getRequestParams().get(
@@ -1921,11 +1905,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			for (W5FormModule m : formResult.getForm().get_moduleList())
 				if (m.getFormModuleId() != 0) {
 					if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
-							.getModuleViewTip())
-							&& GenericUtil.accessControl(formResult.getScd(),
-									m.getAccessViewTip(),
-									m.getAccessViewRoles(),
-									m.getAccessViewUsers())) {
+							.getModuleViewTip())) {
 						if(snFlag) {
 							sn.append("<li><a href='#")
 							.append(formResult.getUniqueId())
@@ -2391,18 +2371,6 @@ public class ExtJs3_4 implements ViewAdapter {
 					}
 				}
 			default:
-				/*
-				 * if(value!=null && value!="" && fc.getControlTip()==8){
-				 * //Readonly veya Disabled olan DisplayField degelerinin
-				 * gorunmesi icin. value=""; String[]
-				 * arr=cellResult.getValue().split(","); for (int sindex =
-				 * 0;sindex<arr.length ;sindex++){ int
-				 * no=PromisUtil.getIndexNo(arr[sindex],
-				 * cellResult.getLookupListValues()); W5LookUpDetay
-				 * ld=(W5LookUpDetay)cellResult.getLookupListValues().get(no);
-				 * value+=PromisLocaleMsg.get(xlocale,ld.getDsc())+" , "; }
-				 * value=value.substring(0, value.length()-2); }
-				 */
 				buf.append("<b>").append(GenericUtil.stringToHtml(value))
 						.append("</b>");
 			}
@@ -2550,7 +2518,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					&& ((cellResult.getLookupQueryResult() != null
 							&& cellResult.getLookupQueryResult().getMainTable() != null
 							&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
-							&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
+							&& fc.getLookupEditFormId() != 0
 							&& FrameworkCache.roleAccessControl(
 									formResult.getScd(), 2)
 							&& GenericUtil.accessControl(formResult.getScd(),
@@ -2685,9 +2653,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							.getExtraDefinition().indexOf("onTrigger2Click") < 0))) {
 				buf.append(",onTrigger2Click:function(a,b,c){");
 				buf.append(
-						"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-						.append(cellResult.getLookupQueryResult()
-								.getMainTable().getDefaultInsertFormId())
+						"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&_fid=")
+						.append(fc.getLookupEditFormId())
 						.append("'}});");
 				buf.append("}");
 			} else if (fadd
@@ -2697,9 +2664,8 @@ public class ExtJs3_4 implements ViewAdapter {
 							.getExtraDefinition().indexOf("onTrigger3Click") < 0))) {
 				buf.append(",onTrigger3Click:function(a,b,c){");
 				buf.append(
-						"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-						.append(cellResult.getLookupQueryResult()
-								.getMainTable().getDefaultInsertFormId())
+						"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&_fid=")
+						.append(fc.getLookupEditFormId())
 						.append("'}});");
 				buf.append("}");
 			}
@@ -3213,14 +3179,13 @@ public class ExtJs3_4 implements ViewAdapter {
 									+ "', msg: '"
 									+ LocaleMsgCache
 											.get2(customizationId, xlocale,
-													"error_once_ust_kayit_secilmelidir")
+													"error_parent_record_must_be_selected")
 											.replaceAll(",", "-")
 									+ "', icon: Ext.MessageBox.ERROR});return false;};\n");
 				buf.append("mainPanel.loadTab({attributes:{id:'tb_gwt")
 						.append(fc.getDialogGridId())
 						.append("',href:'showForm?a=2&_fid=")
-						.append(cellResult.getLookupQueryResult()
-								.getMainTable().getDefaultInsertFormId());
+						.append(fc.getLookupEditFormId());
 				if (pfc != null)
 					buf.append("&i").append(pfc.getDsc()).append("='+(_")
 							.append(pfc.getDsc()).append(".hiddenValue || _")
@@ -3321,7 +3286,7 @@ public class ExtJs3_4 implements ViewAdapter {
 								&& cellResult.getLookupQueryResult() != null
 								&& cellResult.getLookupQueryResult().getMainTable() != null
 								&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
-								&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
+								&& fc.getLookupEditFormId()!=0
 								&& (GenericUtil.isEmpty(cellResult.getFormCell().getExtraDefinition()) || cellResult.getFormCell().getExtraDefinition().indexOf("noInsertForm")<0)
 								&& FrameworkCache.roleAccessControl(
 										formResult.getScd(),  2)
@@ -3459,20 +3424,19 @@ public class ExtJs3_4 implements ViewAdapter {
 					switch (controlTip) {
 					case 8:
 						buf.append(
-								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
+								"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&look_up_id=")
 								.append(fc.getLookupQueryId())
 								.append("&_fid=2190'}});");
 						break;
 					case 15:
 						buf.append(
-								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-								.append(cellResult.getLookupQueryResult()
-										.getMainTable().getDefaultInsertFormId())
+								"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(", modalWindow:true,href:'showForm?a=2&_fid=")
+								.append(fc.getLookupEditFormId())
 								.append("'}});");
 						break;
 					case 52:
 						buf.append(
-								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&look_up_id=")
+								"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&look_up_id=")
 								.append(fc.getLookupQueryId())
 								.append("&_fid=964'}});");
 						break;
@@ -3979,7 +3943,7 @@ public class ExtJs3_4 implements ViewAdapter {
 									&& cellResult.getLookupQueryResult() != null
 									&& cellResult.getLookupQueryResult().getMainTable() != null
 									&& cellResult.getLookupQueryResult().getMainTable().getTableId() != 336 /*w5_user*/
-									&& cellResult.getLookupQueryResult().getMainTable().getDefaultInsertFormId() != 0
+									&& fc.getLookupEditFormId()!=0
 									&& FrameworkCache.roleAccessControl(formResult.getScd(),2)
 									&& (GenericUtil.isEmpty(cellResult.getFormCell().getExtraDefinition()) || cellResult.getFormCell().getExtraDefinition().indexOf("noInsertForm")<0)
 									&& GenericUtil.accessControl(formResult.getScd(), 
@@ -4036,15 +4000,12 @@ public class ExtJs3_4 implements ViewAdapter {
 						.append(fieldLabel).append("',hiddenName: '")
 						.append(cellDsc).append("'");
 				if (fc.getExtraDefinition() != null
-						&& fc.getExtraDefinition().length() > 1) // ornegin
-																	// ,tooltip:'ali'
-																	// gibi
+						&& fc.getExtraDefinition().length() > 1) 
 					buf.append(fc.getExtraDefinition());
 				else if (FrameworkSetting.simpleSelectShowEmptyText) {
 					buf.append(",emptyText:'")
 					.append(LocaleMsgCache.get2(0, xlocale,
-							"simple_select_something")).append("'");// Birşeyler
-																			// Yaz...
+							"simple_select_something")).append("'");// type something
 				}
 				if (cellResult.getLookupListValues() != null) { // cell LookUp'tan
 																// geliyor
@@ -4160,9 +4121,8 @@ public class ExtJs3_4 implements ViewAdapter {
 						break;
 					case 7:
 						buf.append(
-								"mainPanel.loadTab({attributes:{modalWindow:true,href:'showForm?a=2&_fid=")
-								.append(cellResult.getLookupQueryResult()
-										.getMainTable().getDefaultInsertFormId())
+								"mainPanel.loadTab({attributes:{_formCell:mf._").append(fc.getDsc()).append(",modalWindow:true,href:'showForm?a=2&_fid=")
+								.append(fc.getLookupEditFormId())
 								.append("'}});");
 						break;
 					case 51:
@@ -5427,76 +5387,21 @@ public class ExtJs3_4 implements ViewAdapter {
 
 		List<W5GridColumn> newColumns = new ArrayList();
 		StringBuilder bufGrdColumnGroups = new StringBuilder();
-		if (grid.getColumnRenderTip() == 1) { // column grouping olacak
-
-			Map<Integer, List<W5GridColumn>> map = new HashMap<Integer, List<W5GridColumn>>();
-			map.put(0, new ArrayList());
-			for (W5GridModule m : grid.get_gridModuleList()) {
-				map.put(m.getGridModuleId(), new ArrayList());
-			}
-			for (W5GridColumn c : oldColumns) {
+		for (W5GridColumn c : oldColumns)
+			if (c.get_queryField() != null) {
 				W5QueryField f = c.get_queryField();
-				W5TableField tf = f.getMainTableFieldId() > 0 ? viewTable
+				W5TableField tf = viewTable!=null && f.getMainTableFieldId() > 0 ? viewTable
 						.get_tableFieldMap().get(f.getMainTableFieldId())
 						: null;
 				if (tf != null) {
+
 					if (!GenericUtil.accessControl4SessionField(scd, tf.getRelatedSessionField()) || (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
 							tf.getAccessViewTip(), tf.getAccessViewRoles(),
 							tf.getAccessViewUsers())))
 						continue;// access control
 				}
-				List lq = map.get(c.getGridModuleId());
-				if (lq == null)
-					lq = map.get(0);
-				if (lq != null)
-					lq.add(c);
-			}
-
-			int initColSpan = grid.getSelectionModeTip() == 3 ? 1 : 0;
-			bufGrdColumnGroups.append("[");
-			if (map.get(0).size() > 0) {
-				bufGrdColumnGroups.append("{header: '', colspan: ")
-						.append(initColSpan + map.get(0).size())
-						.append(", align: 'center'}");
-				newColumns.addAll(map.get(0));
-				initColSpan = 0;
-			}
-
-			for (W5GridModule m : grid.get_gridModuleList()) {
-				if (map.get(m.getGridModuleId()).size() > 0) {
-					if (bufGrdColumnGroups.length() > 2)
-						bufGrdColumnGroups.append(",\n");
-					bufGrdColumnGroups
-							.append("{header: '")
-							.append(LocaleMsgCache.get2(scd, m.getLocaleMsgKey()))
-							.append("', colspan: ")
-							.append(initColSpan
-									+ map.get(m.getGridModuleId()).size())
-							.append(", align: 'center'}");
-					newColumns.addAll(map.get(m.getGridModuleId()));
-					initColSpan = 0;
-				}
-			}
-			bufGrdColumnGroups.append("]");
-
-			// buf.append("\n").append(grid.getDsc()).append(".plugins=new Ext.ux.grid.ColumnHeaderGroup({rows:[continentGroupRow]})");
-		} else { // duz rendering
-			for (W5GridColumn c : oldColumns)
-				if (c.get_queryField() != null) {
-					W5QueryField f = c.get_queryField();
-					W5TableField tf = viewTable!=null && f.getMainTableFieldId() > 0 ? viewTable
-							.get_tableFieldMap().get(f.getMainTableFieldId())
-							: null;
-					if (tf != null) {
-
-						if (!GenericUtil.accessControl4SessionField(scd, tf.getRelatedSessionField()) || (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
-								tf.getAccessViewTip(), tf.getAccessViewRoles(),
-								tf.getAccessViewUsers())))
-							continue;// access control
-					}
-					newColumns.add(c);
-				}			
-		}
+				newColumns.add(c);
+			}			
 		if (!gridResult.isViewLogMode() && grid.get_postProcessQueryFields() != null && (gridResult.getRequestParams()==null || GenericUtil.uInt(gridResult.getRequestParams(), "_no_post_process_fields")==0)) {
 			boolean gridPostProcessColumnFirst = FrameworkCache.getAppSettingIntValue(scd,"grid_post_process_column_first")!=0;
 			boolean gridPostProcessCommentFirst = FrameworkCache.getAppSettingIntValue(scd,"grid_post_process_comment_first")!=0;
@@ -7595,47 +7500,6 @@ public class ExtJs3_4 implements ViewAdapter {
 				}
 			}
 		return s;
-	}
-
-	public StringBuilder serializeShowTutorial(W5TutorialResult tutorialResult){
-		StringBuilder buf = new StringBuilder();
-		W5Tutorial tut = tutorialResult.getTutorial();
-		buf.append("var _request=").append(GenericUtil.fromMapToJsonString(tutorialResult.getRequestParams())).append("\n");
-		buf.append("var tutorialId=").append(tut.getTutorialId()).append(";\n")
-			.append("var dsc='").append(GenericUtil.stringToJS(tut.getDsc())).append("';\n")
-			.append("var relMenuId=").append(tut.getMenuId()).append(";\n")
-			.append("var status=").append(tutorialResult.getTutorialUserStatus()).append(";\n")
-			.append("var closeTabs=").append(tut.getCloseTabsBeforeBeginFlag()!=0).append(";\n")
-			.append("var doneCount=").append(tutorialResult.getDoneTutorials()!=null ? tutorialResult.getDoneTutorials().size():0).append(";\n");
-
-		if(!GenericUtil.isEmpty(tut.getIntroductionHtml()))
-			buf.append("var introHtml='").append(GenericUtil.stringToJS(GenericUtil.filterExt(tut.getIntroductionHtml(), tutorialResult.getScd(), tutorialResult.getRequestParams(), null))).append("';\n");
-		if(!GenericUtil.isEmpty(tutorialResult.getRequiredTutorialList())){
-			StringBuilder buf2 = new StringBuilder();
-			for(W5Tutorial t:tutorialResult.getRequiredTutorialList()){
-				if(!tutorialResult.getDoneTutorials().contains(t.getTutorialId()) && FrameworkCache.roleAccessControl(tutorialResult.getScd(),  0))buf2.append("{dsc:'").append(GenericUtil.stringToJS(t.getDsc())).append("',id:").append(t.getTutorialId()).append("},");
-			}
-			if(buf2.length()>0){
-				buf.append("var requiredTutorials=[").append(buf2).replace(buf.length()-1, buf.length(), "];\n");
-			}
-		}
-		if(!GenericUtil.isEmpty(tutorialResult.getRecommendedTutorialList())){
-			StringBuilder buf2 = new StringBuilder();
-			for(W5Tutorial t:tutorialResult.getRecommendedTutorialList()){
-				if(/*!tutorialResult.getDoneTutorials().contains(t.getTutorialId()) && */FrameworkCache.roleAccessControl(tutorialResult.getScd(),  0))buf2.append("{dsc:'").append(GenericUtil.stringToJS(t.getDsc())).append("',id:").append(t.getTutorialId()).append("},");
-			}
-			if(buf2.length()>0){
-				buf.append("var recommendedTutorials=[").append(buf2).replace(buf.length()-1, buf.length(), "];\n");
-			}
-		}
-		
-		if(tut.getCode()!=null)
-			buf.append(tut.getCode()).append("\n");
-		
-		if(tut.get_renderTemplate()!=null)
-			buf.append(tut.get_renderTemplate().getCode());
-		
-		return buf;
 	}
 
 	public StringBuilder serializeTreeQueryDataNewNotWorking(W5QueryResult qr) {

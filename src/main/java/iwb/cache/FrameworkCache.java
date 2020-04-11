@@ -32,7 +32,6 @@ import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5Table;
-import iwb.domain.db.W5TableAccessConditionSql;
 import iwb.domain.db.W5TableEvent;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5Ws;
@@ -92,7 +91,6 @@ public class FrameworkCache {
 	final private static Set<String> wDevEntityKeys = new HashSet<String>();
 
 	public static List<W5QueryField> cachedOnlineQueryFields = null;
-	public static Map<String, Map<Integer,W5TableAccessConditionSql>> wAccessConditionSqlMap = new HashMap<String, Map<Integer,W5TableAccessConditionSql>>();
 	
 	
 	final public static Map<String, Date> wRequestUrls= new HashMap<String, Date>();

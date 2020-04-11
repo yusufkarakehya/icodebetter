@@ -2194,7 +2194,7 @@ public class VcsService {
 			dao.executeUpdateSQLQuery(sql);
 		}
 		
-		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", projectId);
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectId);
 		W5VcsCommit commit = new W5VcsCommit();
 		if(lm.isEmpty() || lm.get(0)==null)commit.setVcsCommitId(1);
 		else commit.setVcsCommitId((Integer)lm.get(0)+1);
@@ -2212,7 +2212,7 @@ public class VcsService {
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
 
-		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?", po.getProjectUuid());
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", po.getProjectUuid());
 		int lastCommitId = 0;
 		if(lm.isEmpty() || lm.get(0)==null)lastCommitId = 0;
 		else lastCommitId = (Integer)lm.get(0);

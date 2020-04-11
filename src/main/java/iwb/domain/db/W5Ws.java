@@ -19,6 +19,10 @@ import org.hibernate.annotations.Immutable;
 @Table(name="w5_ws",schema="iwb")
 public class W5Ws  implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 213123123451L;
 	private int wsId;
 	private String dsc;
 	private String wsUrl;
@@ -235,4 +239,13 @@ public class W5Ws  implements java.io.Serializable {
 		this.wssCredentials = wssCredentials;
 	}
 	
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5Ws))return false;
+		W5Ws c = (W5Ws)o;
+		return c!=null && c.getWsId()==getWsId() && c.getProjectUuid().equals(projectUuid);
+	}
+	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*getWsId();
+	}	
 }

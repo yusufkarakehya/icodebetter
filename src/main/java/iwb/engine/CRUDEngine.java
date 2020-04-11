@@ -43,7 +43,7 @@ import iwb.domain.result.W5GlobalFuncResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
-import iwb.util.ScriptUtil;
+import iwb.util.NashornUtil;
 import iwb.util.UserUtil;
 
 @Component
@@ -112,7 +112,7 @@ public class CRUDEngine {
 					throw new IWBException("security", "Form", formId, null,
 							formResult.getOutputMessages().size() > outCnt ? formResult.getOutputMessages().get(outCnt)
 									: LocaleMsgCache.get2(0, (String) scd.get("locale"),
-											"fw_guvenlik_tablo_kontrol_guncelleme"),
+											"fw_security_table_control_update"),
 							null);
 				}
 				/*
@@ -343,7 +343,7 @@ public class CRUDEngine {
 											: scd.get("userId").toString());
 							} else {
 								throw new IWBException("framework", "Workflow", formId, null,
-										LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_hatali_onay_tanimi"),
+										LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_error_workflow_definition"),
 										null);
 							}
 						}
@@ -404,7 +404,7 @@ public class CRUDEngine {
 					dao.saveObject(logRecord);
 					formResult.getOutputMessages()
 							.add(t.get_approvalMap().get((short) 2).getDsc() + " "
-									+ LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_onaya_sunulmustur") + " ("
+									+ LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_workflow_started") + " ("
 									+ summaryText + ")");
 
 					// Mail ve SMS işlemleri _aa=-1 gelirse //
@@ -442,14 +442,8 @@ public class CRUDEngine {
 									if(oz instanceof Boolean) {
 										if(!((Boolean)oz))workflow=null;
 									} else
-										advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz); 
+										advancedStepSqlResult = NashornUtil.fromScriptObject2Map(oz); 
 								}
-//								Object[] oz = DBUtil.filterExt4SQL(approval.getAdvancedBeginSql(), scd, requestParams, null);
-//								advancedStepSqlResult = dao.runSQLQuery2Map(oz[0].toString(), (List) oz[1], null);
-								// donen bir cevap var, aktive_flag deger olarak
-								// var ve onun degeri 0 ise o
-								// zaman girmeyecek
-
 							}
 							workflowStep = null;
 							if(workflow!=null)switch (workflow.getApprovalFlowTip()) { // simple
@@ -553,7 +547,7 @@ public class CRUDEngine {
 								workflowRecord.setHierarchicalLevel(0);
 							} else {
 								throw new IWBException("framework", "Workflow", formId, null,
-										LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_hatali_onay_tanimi"),
+										LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_error_workflow_definition"),
 										null);
 							}
 						}
@@ -640,7 +634,7 @@ public class CRUDEngine {
 					if (workflowRecord.getApprovalStepId() != 901)
 						formResult.getOutputMessages()
 								.add(t.get_approvalMap().get((short) 2).getDsc() + ", "
-										+ LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_onaya_sunulmustur")
+										+ LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_workflow_started")
 										+ " (" + summaryText + ")");
 					else
 						formResult.getOutputMessages()
@@ -775,7 +769,7 @@ public class CRUDEngine {
 								// appRecord.setCustomizationId((Integer)scd.get("customizationId"));
 							} else {
 								throw new IWBException("framework", "Workflow", formId, null,
-										LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_hatali_onay_tanimi"),
+										LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_error_workflow_definition"),
 										null);
 							}
 						}
@@ -873,26 +867,15 @@ public class CRUDEngine {
 						if (workflowRecord.getApprovalStepId() != 901)
 							formResult.getOutputMessages()
 									.add(t.get_approvalMap().get((short) 3).getDsc() + ", "
-											+ LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_onaya_sunulmustur")
+											+ LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_workflow_started")
 											+ " (" + summaryText + ")");
 						else
 							formResult.getOutputMessages()
 									.add(t.get_approvalMap().get((short) 2).getDsc() + ", "
-											+ LocaleMsgCache.get2(0, (String) scd.get("locale"),
+											+ LocaleMsgCache.get2(scd,
 													"islemlerinizi_tamamlayip_manuel_olarak_onay_surecini_baslatabilirsiniz")
 									+ " (" + summaryText + ")");
 					}
-
-					// TODO dao.executeUpdateSQLQuery("delete from
-					// iwb.w5_converted_object co where
-					// co.customization_id=? AND co.DST_TABLE_PK=? AND
-					// exists(select 1 from
-					// iwb.w5_conversion c where
-					// c.customization_id=co.customization_id AND
-					// c.DST_TABLE_ID=?
-					// AND co.conversion_id=c.conversion_id)",
-					// scd.get("customizationId"), ptablePk,
-					// t.getTableId());
 				}
 
 				break;
@@ -1089,14 +1072,6 @@ public class CRUDEngine {
 				}
 			}
 
-			if (false && !GenericUtil.isEmpty(formResult
-					.getMapWidgetCount()) /*
-											 * && !PromisUtil.isEmpty(request.
-											 * getParameter("_promis_token"))
-											 */) {
-				UserUtil.publishWidgetStatus(scd, formResult.getMapWidgetCount());
-			}
-
 			return result;
 		} catch (Exception e) {
 			throw new IWBException("framework", "postForm", formResult.getFormId(), null,
@@ -1113,12 +1088,12 @@ public class CRUDEngine {
 		W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
 		if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 			throw new IWBException("security", "Module", 0, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_modul_control"), null);
 		}
 		if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 				t.getAccessViewRoles(), t.getAccessViewUsers())) {
 			throw new IWBException("security", "Form", formId, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_table_control_view"), null);
 		}
 		Map<String, Object> tmpOutputFields = new HashMap<String, Object>();
 		for (int id = 1; id <= dirtyCount; id++) {
@@ -1246,12 +1221,12 @@ public class CRUDEngine {
 		if (t.getAccessViewTip() == 0
 				&& (!FrameworkCache.roleAccessControl(scd, 0) || !FrameworkCache.roleAccessControl(scd, action))) {
 			throw new IWBException("security", "Module", 0, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_modul_control"), null);
 		}
 		if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 				t.getAccessViewRoles(), t.getAccessViewUsers())) {
 			throw new IWBException("security", "Form", formId, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_table_control_view"), null);
 		}
 		Set<String> checkedParentRecords = new HashSet<String>();
 		mainFormResult.setQueuedActionList(postForm4Table(mainFormResult, prefix, checkedParentRecords));
@@ -1263,9 +1238,7 @@ public class CRUDEngine {
 		// değerler bir kez daha gönderiliyordu.
 		if (mainFormResult.getForm().get_moduleList() != null) {
 			for (W5FormModule m : mainFormResult.getForm().get_moduleList())
-				if (m.getModuleTip() == 4 && GenericUtil.accessControl(scd, m.getAccessViewTip(),
-						m.getAccessViewRoles(), m.getAccessViewUsers())) { // form
-																			// imis
+				if (m.getModuleTip() == 4) { // form
 					if (m.getModuleViewTip() == 0 || (m.getModuleViewTip() == 1 && action == 1)
 							|| (m.getModuleViewTip() == 2 && action == 2)) {
 						int newAction = GenericUtil.uInt(requestParams.get("a" + m.getTabOrder()));

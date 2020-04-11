@@ -25,7 +25,7 @@ import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.result.W5FormResult;
 import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
-import iwb.util.ScriptUtil;
+import iwb.util.NashornUtil;
 import iwb.util.UserUtil;
 
 @Component
@@ -110,7 +110,7 @@ public class WorkflowEngine {
 							throw new IWBException("validation", "WorkflowRecord", approvalRecordId, null,
 									LocaleMsgCache.get2(0, xlocale, "approval_request_denied"), null);
 					} else
-						advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
+						advancedStepSqlResult = NashornUtil.fromScriptObject2Map(oz);
 				}
 
 			}
@@ -188,7 +188,7 @@ public class WorkflowEngine {
 						} else if (oz instanceof Integer) {
 							nextStepId = (Integer) oz;
 						} else {
-							advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
+							advancedNextStepSqlResult = NashornUtil.fromScriptObject2Map(oz);
 							if(advancedNextStepSqlResult!=null && advancedNextStepSqlResult.get("nextStepId")!=null)
 								nextStepId = GenericUtil.uInt(advancedNextStepSqlResult.get("nextStepId"));
 						}
@@ -263,7 +263,7 @@ public class WorkflowEngine {
 						} else if (oz instanceof Integer) {
 							returnStepId = (Integer) oz;
 						} else
-							advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
+							advancedNextStepSqlResult = NashornUtil.fromScriptObject2Map(oz);
 					}
 				}
 				nextStep = a.get_approvalStepMap().get(returnStepId).getNewInstance();
@@ -293,7 +293,7 @@ public class WorkflowEngine {
 							throw new IWBException("framework", "WorkflowRecord", approvalRecordId, null,
 									LocaleMsgCache.get2(0, xlocale, "reject_denied"), null);
 					} else { 
-						advancedNextStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
+						advancedNextStepSqlResult = NashornUtil.fromScriptObject2Map(oz);
 					}
 				}
 				/*
@@ -394,7 +394,7 @@ public class WorkflowEngine {
 										if (!((Boolean) oz))
 											ar.setApprovalUsers(String.valueOf(ar.getInsertUserId()));
 									} else
-										advancedStepSqlResult = ScriptUtil.fromScriptObject2Map(oz);
+										advancedStepSqlResult = NashornUtil.fromScriptObject2Map(oz);
 								}
 								// advancedStepSqlResult = dao.runSQLQuery2Map(a.getAdvancedBeginSql(), scd,
 								// parameterMap, null);

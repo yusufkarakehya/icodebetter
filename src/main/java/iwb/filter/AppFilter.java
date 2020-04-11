@@ -27,7 +27,7 @@ import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 
 @Component
-@WebFilter(urlPatterns = {"/app","/preview","/space"})
+@WebFilter(urlPatterns = {"/app","/preview"})
 public class AppFilter implements Filter {
 //	public static int	transactionCount = 0;
 	
@@ -48,7 +48,7 @@ public class AppFilter implements Filter {
 		}
 		String uri = ((HttpServletRequest) request).getRequestURI();
 		boolean jsonFlag = !uri.contains(".htm") && !uri.contains("/grd/") && !uri.contains("/rpt/") && !uri.contains("/jasper/") && !uri.contains("/dl/") && !uri.contains("ajaxXmlQueryData") && !uri.contains("validateLicense");
-		if(uri.startsWith("/app") || uri.startsWith("/preview") || uri.startsWith("/space"))switch(FrameworkSetting.systemStatus){
+		switch(FrameworkSetting.systemStatus){
 		case	0://working
 			Log5VisitedPage lvp = null;
 			try {
@@ -72,7 +72,7 @@ public class AppFilter implements Filter {
 					else e.printStackTrace();				
 				}
 				response.setCharacterEncoding( "UTF-8" );
-				response.setContentType("text/html");
+				response.setContentType(jsonFlag ? "application/json" : "text/html");
 				Exception te = e;
 				IWBException iw = null; 
 				while(te.getCause()!=null && te.getCause() instanceof Exception){
@@ -124,7 +124,8 @@ public class AppFilter implements Filter {
 			if(jsonFlag)response.getWriter().write("{\"success\":false,\n\"errorType\":\"framework\",\n\"error\":\"System Suspended\"}");
 			else response.getWriter().write("<b>System Suspended</b>");
 			break;
-		} else filterChain.doFilter( request, response );
+		}
+		//else filterChain.doFilter( request, response );
 	}
 	public void init(FilterConfig arg0) throws ServletException {
 	}

@@ -15,6 +15,9 @@ import org.hibernate.annotations.Immutable;
 @Table(name="w5_query_param",schema="iwb")
 public class W5QueryParam implements java.io.Serializable, W5Param {
 
+	private static final long serialVersionUID = 12226666333L;
+
+
 	private int queryParamId;
 	
 	
@@ -198,4 +201,13 @@ public class W5QueryParam implements java.io.Serializable, W5Param {
 		this.projectUuid = projectUuid;
 	}
 	
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5QueryParam))return false;
+		W5QueryParam c = (W5QueryParam)o;
+		return c!=null && c.getQueryParamId()==getQueryParamId() && c.getProjectUuid().equals(projectUuid);
+	}
+	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*getQueryParamId();
+	}
 }

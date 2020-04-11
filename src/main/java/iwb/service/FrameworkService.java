@@ -49,13 +49,11 @@ import iwb.domain.db.W5Query;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5Tutorial;
 import iwb.domain.db.W5VcsCommit;
 import iwb.domain.db.W5VcsObject;
 import iwb.domain.db.W5WorkflowRecord;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5WsServer;
-import iwb.domain.db.W5WsServerMethod;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5GridReportHelper;
 import iwb.domain.helper.W5QueuedActionHelper;
@@ -66,7 +64,6 @@ import iwb.domain.result.W5GlobalFuncResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.domain.result.W5TutorialResult;
 import iwb.engine.AccessControlEngine;
 import iwb.engine.CRUDEngine;
 import iwb.engine.ConversionEngine;
@@ -176,86 +173,7 @@ public class FrameworkService {
 		return crudEngine.postForm4Table(formResult, paramSuffix, checkedParentRecords);
 	}
 
-	public Map<String, Object> getFormCellCode(Map<String, Object> scd, Map<String, String> requestParams,
-			int formCellId, int count) {
-		/*
-		 * int formId = (Integer)dao.getCustomizedObject(
-		 * "select t.formId from W5FormCell t where t.formCellId=? AND t.customizationId=?"
-		 * , formCellId, (Integer)scd.get("customizationId"),"FormElement");
-		 * W5FormResult formResult = dao.getFormResult(scd, formId, 2, requestParams);
-		 * for(W5FormCell
-		 * fc:formResult.getForm().get_formCells())if(fc.getFormCellId()== formCellId){
-		 * if(GenericUtil.uInt(fc.getLookupIncludedParams())==0)break; String res="";
-		 * Map m = new HashMap(); m.put("success", true); for(W5FormCellCodeDetail
-		 * fccd:fc.get_formCellCodeDetailList())switch(fccd.getCodeTip()){ case
-		 * 1:res+=fccd.getCodeLength()>0 ?
-		 * GenericUtil.lPad(fccd.getDefaultValue(),fccd.getCodeLength(),fccd.
-		 * getFillCharacter()) : fccd.getDefaultValue();break; //sabit case 2://
-		 * manuel(klavyeden) case 5:// manuel(combo) case 7:// keyword(combo)
-		 * m.put("msg", LocaleMsgCache.get2(scd, "js_manual_entry")); return m; case
-		 * 3://Otomatik Map<String, Object> qmz = dao.runSQLQuery2Map(
-		 * "select iwb.fnc_form_cell_code_detail_auto(${scd.customizationId},"
-		 * +fccd.getFormCellCodeDetailId()+",'"+res+"') dsc from dual", scd,
-		 * requestParams, null); if(!GenericUtil.isEmpty(qmz)){ String val =
-		 * qmz.values().toArray()[0].toString(); res+= fccd.getCodeLength()>0 ?
-		 * GenericUtil.lPad(val,fccd.getCodeLength(),fccd.getFillCharacter()) : val; }
-		 * else throw new IWBException("validation","FormElement", formCellId, null,
-		 * "FormElementCode: wrong automatic definition", null); break; case
-		 * 4://Formul/Advanced/SQL String sql = fccd.getDefaultValue();
-		 * switch(fccd.getSourceFcQueryFieldId()){ case 1:case 2:case 3: String[]
-		 * qrs=new String[]{"yy","yymm","yymmdd"}; sql="select to_char(current_date,'"
-		 * +qrs[fccd.getSourceFcQueryFieldId()-1]+"')"; default: Map<String, Object> qm
-		 * = dao.runSQLQuery2Map(sql, scd, requestParams, null);
-		 * if(!GenericUtil.isEmpty(qm)){ String val =
-		 * qm.values().toArray()[0].toString(); res+=fccd.getCodeLength()>0 ?
-		 * GenericUtil.lPad(val,fccd.getCodeLength(),fccd.getFillCharacter()) : val; }
-		 * else throw new IWBException("validation","FormElement", formCellId, null,
-		 * "FormElementCode: wrong SQL code 4 (Formul/Advanced)", null); } break; case
-		 * 6://formdan(combo) String fdsc=null; if(fccd.getSourceFcQueryFieldId()!=0){
-		 * List<String> lqf = (List<String>)dao.find(
-		 * "select qf.dsc from W5QueryField qf where qf.queryFieldId=?"
-		 * ,fccd.getSourceFcQueryFieldId()); if(GenericUtil.isEmpty(lqf)) return m;
-		 * //TODO: not implemented (query'yi calistirip ordaki degeri almak lazim)
-		 * fdsc=lqf.get(0); } boolean notFound=true; for(W5FormCell
-		 * fc2:formResult.getForm().get_formCells())if(fc2.getFormCellId()==fccd
-		 * .getSourceFormCellId()){ String sfcv = requestParams.get(fc2.getDsc());
-		 * if(GenericUtil.isEmpty(sfcv)){ m.put("msg", LocaleMsgCache.get2(scd,
-		 * fc2.getLocaleMsgKey()) + LocaleMsgCache.get2(scd, "js_value_not_set"));
-		 * return m; } if(fdsc==null) res+=fccd.getCodeLength()>0 ?
-		 * GenericUtil.lPad(sfcv,fccd.getCodeLength(),fccd.getFillCharacter()) : sfcv;
-		 * else switch(fc2.getControlTip()){ case 7:case 10: Map m2 = new HashMap(); //
-		 * m2.put("_qid", ""+fc2.getLookupQueryId()); m2.put("xid", sfcv); W5QueryResult
-		 * qr2 = executeQuery(scd, fc2.getLookupQueryId(), m2);
-		 * if(GenericUtil.isEmpty(qr2.getErrorMap()) &&
-		 * !GenericUtil.isEmpty(qr2.getData())){ List<Object[]> l3 = qr2.getData(); int
-		 * rTabOrder = -1, iTabOrder = -1; for(W5QueryField
-		 * qq:qr2.getNewQueryFields())if(qq.getDsc().equals(fdsc)){
-		 * rTabOrder=qq.getTabOrder(); if(iTabOrder!=-1)break; } else
-		 * if(qq.getDsc().equals("id")){ iTabOrder=qq.getTabOrder();
-		 * if(rTabOrder!=-1)break; } if(rTabOrder == -1 || iTabOrder ==-1){ throw new
-		 * IWBException("validation","FormElement", formCellId, null,
-		 * "FormElementCode: wrong SourceFormCell definition(Formdan/Combo) init (rTabOrder="
-		 * +rTabOrder+",iTabOrder="+iTabOrder+")", null); } boolean found = false;
-		 * for(Object[] o2:l3)if(o2[iTabOrder-1].toString().equals(sfcv)){
-		 * res+=fccd.getCodeLength()>0 ?
-		 * GenericUtil.lPad(o2[rTabOrder-1].toString(),fccd.getCodeLength(),fccd
-		 * .getFillCharacter()) : o2[rTabOrder-1].toString(); found = true; break; }
-		 * if(!found){ throw new IWBException("validation","FormElement", formCellId,
-		 * null, "FormElementCode: (Formdan/Combo) value note found (rTabOrder="
-		 * +rTabOrder+",iTabOrder="+iTabOrder+")", null); } } else return m; break; case
-		 * 9: throw new IWBException("validation","FormElement", formCellId, null,
-		 * "FormElementCode: wrong SourceFormCell definiton (Formdan/Combo) is remote" ,
-		 * null); default: res+=fccd.getCodeLength()>0 ?
-		 * GenericUtil.lPad(sfcv,fccd.getCodeLength(),fccd.getFillCharacter()) : sfcv; }
-		 * notFound = false; break; } if(notFound) throw new
-		 * IWBException("validation","FormElement", formCellId, null,
-		 * "FormElementCode: wrong SourceFormCell (Formdan/Combo)", null); break; }
-		 * m.put("result", res); return m; } throw new
-		 * IWBException("validation","FormElement", formCellId, null,
-		 * "FormElementCode: wrong FormCellId", null);
-		 */
-		return null;
-	}
+
 
 	public W5FormResult postForm4Table(Map<String, Object> scd, int formId, int action,
 			Map<String, String> requestParams, String prefix) {
@@ -278,66 +196,11 @@ public class FrameworkService {
 
 	}
 
-	/*
-	 * public QueryResult executeInfluxQuery(Map<String, Object> scd, String sql,
-	 * String dbName){ return
-	 * influxDao.runQuery(FrameworkCache.wProjects.get((String)scd.get(
-	 * "projectId")), sql, dbName); } public void insertInfluxRecord(Map<String,
-	 * Object> scd, String measurement, Map<String, Object> tags, Map<String,
-	 * Object> fields, String date){
-	 * influxDao.insert(FrameworkCache.wProjects.get((String)scd.get("projectId" )),
-	 * measurement, tags, fields, date); }
-	 */
 
 	public W5PageResult getPageResult(Map<String, Object> scd, int pageId, Map<String, String> requestParams) {
 		return uiEngine.getPageResult(scd, pageId, requestParams);
 	}
 
-	public void sendMail(Map<String, Object> scd, String mailTo, String mailCc, String mailBcc, String subject,
-			String body, String fileIds) {
-		/*
-		 * List<W5FileAttachment> fileAttachments = null; String fas =
-		 * parameterMap.get("pfile_attachment_ids"); if(fas!=null && fas.length()>0){
-		 * String[] q = fas.split(","); if(q.length>0){
-		 * parameterMap.put("pfile_attachment_ids", fas); Object[] ps = new
-		 * Object[q.length+1]; String sql =
-		 * "from W5FileAttachment t where t.customizationId=? and  t.fileAttachmentId in ("
-		 * ; int i = 1; ps[0]=scd.get("customizationId"); for(String s:q){ ps[i++] =
-		 * GenericUtil.uInt(s); sql+="?,"; } fileAttachments =
-		 * dao.find(sql.substring(0,sql.length()-1)+")", ps); } } W5ObjectMailSetting
-		 * oms = (W5ObjectMailSetting) dao.find(
-		 * "from W5ObjectMailSetting t where t.customizationId=? and t.mailSettingId=?"
-		 * , (Integer)scd.get("customizationId"),GenericUtil.uInt((Object)
-		 * parameterMap.get("pmail_setting_id"))).get(0); if(oms!=null){ W5Email email=
-		 * new W5Email(parameterMap.get("pmail_to"),parameterMap.get("pmail_cc"),
-		 * parameterMap.get("pmail_bcc"),parameterMap.get("pmail_subject"),
-		 * parameterMap.get("pmail_body"), parameterMap.get("pmail_keep_body_original"),
-		 * fileAttachments); result = MailUtil.sendMail(scd, oms, email);
-		 * if(result!=null){ //basarisiz, queue'ye at parameterMap.put("perror_msg",
-		 * result); } } if(FrameworkCache.getAppSettingIntValue(scd, "feed_flag")!=0 &&
-		 * result==null)try{ W5Feed feed = new W5Feed(scd);
-		 * feed.setFeedTip((short)(dbFuncId==-631 ? 22:21)); //sms:mail
-		 * feed.setTableId(GenericUtil.uInt(parameterMap.get("_tableId")));feed.
-		 * setTablePk(GenericUtil.uInt(parameterMap.get("_tablePk")));
-		 * if(dbFuncId!=-631){ List lx = new ArrayList();
-		 * lx.add(scd.get("customizationId"));lx.add(GenericUtil.uInt((Object)
-		 * parameterMap.get("pmail_setting_id"))); Map mx = dao.runSQLQuery2Map(
-		 * "select cx.ACCESS_ROLES, cx.ACCESS_USERS from iwb.w5_access_control cx where cx.ACCESS_TIP=0 AND cx.customization_id=? AND cx.table_id=48 AND cx.table_pk=?"
-		 * , lx,null); if(mx!=null && !mx.isEmpty())feed.set_viewAccessControl(new
-		 * W5AccessControlHelper((String)mx.get("access_roles"),(String)mx.get(
-		 * "access_users"))); }
-		 * feed.set_tableRecordList(dao.findRecordParentRecords(scd,feed.
-		 * getTableId(),feed.getTablePk(), 0, true));
-		 * if(feed.get_tableRecordList()!=null && feed.get_tableRecordList().size()>0){
-		 * feed.set_commentCount(feed.get_tableRecordList().get(0). getCommentCount());
-		 * if(feed.get_viewAccessControl()==null &&
-		 * feed.get_tableRecordList().get(0).getViewAccessControl()!=null){
-		 * feed.set_viewAccessControl(feed.get_tableRecordList().get(0).
-		 * getViewAccessControl()); } } saveObject(feed); FrameworkCache.addFeed(scd,
-		 * feed, true); } catch(Exception e){}
-		 *
-		 */
-	}
 
 	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int dbFuncId, Map<String, String> parameterMap,
 			short accessSourceType) {
@@ -430,7 +293,7 @@ public class FrameworkService {
 		}
 		if (fileAttachmentId <= 0)
 			return null;
-		List<W5FileAttachment> fal = dao.find("from W5FileAttachment t where t.fileAttachmentId=?", fileAttachmentId);
+		List<W5FileAttachment> fal = dao.find("from W5FileAttachment t where t.fileAttachmentId=?0", fileAttachmentId);
 		if (GenericUtil.isEmpty(fal))
 			return null;
 		W5FileAttachment fa = fal.get(0);
@@ -685,24 +548,7 @@ public class FrameworkService {
 		return qr;
 	}
 
-	public String getFormCellCodeDetail(Map<String, Object> scd, Map<String, String> requestParams, int fccdId) {
-		/*
-		 * W5FormCellCodeDetail fccd = (W5FormCellCodeDetail)dao.getCustomizedObject(
-		 * "from W5FormCellCodeDetail t where t.formCellCodeDetailId=? AND t.customizationId=?"
-		 * , fccdId, (Integer)scd.get("customizationId"), null); if(fccd==null ||
-		 * fccd.getCodeTip()!=4)return ""; String sql = fccd.getDefaultValue();
-		 * switch(fccd.getSourceFcQueryFieldId()){ case 1:case 2:case 3: String[]
-		 * qrs=new String[]{"yy","yymm","yymmdd"}; sql="select to_char(current_date,'"
-		 * +qrs[fccd.getSourceFcQueryFieldId()-1]+"')"; default: Map<String, Object> qm
-		 * = dao.runSQLQuery2Map(sql, scd, requestParams, null);
-		 * if(!GenericUtil.isEmpty(qm)){ String val =
-		 * qm.values().toArray()[0].toString(); return fccd.getCodeLength()>0 ?
-		 * GenericUtil.lPad(val,fccd.getCodeLength(),fccd.getFillCharacter()) : val; }
-		 * else throw new IWBException("validation","FormElement", fccd.getFormCellId(),
-		 * null, "FormElementCode: wrong SQL code 4 (Formul/Advanced)", null); }
-		 */
-		return "";
-	}
+
 
 	public void checkAlarms(Map<String, Object> scd) {
 		if (true)
@@ -793,40 +639,6 @@ public class FrameworkService {
 		return logoFilePath;
 	}
 
-	public Map<String, String> sendMailForgotPassword(Map<String, Object> scd, Map<String, String> requestParams) {
-		return null;
-		/*
-		 * Map<String, String> res = new HashMap<String, String>(); res.put("success",
-		 * "0"); res.put("msg", ""); try{ String email = requestParams.get("email");
-		 * String pcustomization_id = requestParams.get("pcustomization_id"); if
-		 * (!GenericUtil.isEmpty(email)){ List<Object[]> userList = dao.executeSQLQuery(
-		 * "select u.user_id, u.user_name, u.customization_id from iwb.w5_user u where u.email=? and (? is null or u.customization_id=?)"
-		 * , email, pcustomization_id, pcustomization_id); if (userList!=null &&
-		 * !userList.isEmpty()){ requestParams.put("pcustomization_id",
-		 * userList.get(0)[2].toString()); requestParams.put("puser_id",
-		 * userList.get(0)[0].toString()); requestParams.put("table_pk",
-		 * userList.get(0)[0].toString()); }else{ res.put("msg",
-		 * "mail_not_found_in_system"); return res; } } try{ W5GlobalFuncResult result =
-		 * executeFunc(scd, 2, requestParams, (short)4); // user forgot pass
-		 * if(result.isSuccess() && !GenericUtil.isEmpty(result.getResultMap()) &&
-		 * (GenericUtil.uInt(result.getResultMap().get("pout_user_id"))!=0)){
-		 * res.put("success", "1"); //tanımlanmış mail varsa mail-sms gönderiliyor try{
-		 * W5FormSmsMail fsm = (W5FormSmsMail)dao.getCustomizedObject(
-		 * "from W5FormSmsMail t where t.activeFlag=1 and t.formId=? AND t.customizationId=?"
-		 * , 576, (Integer)scd.get("customizationId"), null); if (fsm!=null){
-		 * requestParams.put("table_id","336"); sendFormSmsMail(scd,
-		 * fsm.getFormSmsMailId(), requestParams); res.put("msg", "email_success");
-		 * }else{ res.put("msg", "mail_sms_setting_not_found"); } }catch(Exception e){
-		 * if(FrameworkSetting.debug)e.printStackTrace(); res.put("msg",
-		 * FrameworkSetting.debug? e.getMessage() : "mail_sending_error"); return res; }
-		 * }else{ res.put("msg", "forgot_pass_no_such_user"); } }catch(Exception e){
-		 * if(FrameworkSetting.debug)e.printStackTrace(); res.put("msg",
-		 * FrameworkSetting.debug? e.getMessage() : "error"); return res; }
-		 * }catch(Exception e){ if(FrameworkSetting.debug)e.printStackTrace(); } return
-		 * res;
-		 */
-	}
-
 	public void sendSms(int customizationId, int userId, String phoneNumber, String message, int tableId, int tablePk) {
 		Map<String, String> smsMap = new HashMap<String, String>();
 		smsMap.put("customizationId", customizationId + "");
@@ -858,40 +670,6 @@ public class FrameworkService {
 
 	public Map sendFormSmsMail(Map<String, Object> scd, int formSmsMailId, Map<String, String> requestParams) {
 		return notificationEngine.sendFormSmsMail(scd, formSmsMailId, requestParams);
-	}
-
-	public W5TutorialResult getTutorialResult(Map<String, Object> scd, int tutorialId,
-			Map<String, String> requestParams) { // TODO
-
-		W5Tutorial tutorial = (W5Tutorial) dao.getObject(W5Tutorial.class, tutorialId);
-		if (!FrameworkCache.roleAccessControl(scd, 0))
-			throw new IWBException("security", "Module", tutorial.getModuleId(), null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
-
-		W5TutorialResult tr = new W5TutorialResult();
-		/*
-		 * tr.setTutorial(tutorial); tr.setScd(scd); tr.setRequestParams(requestParams);
-		 * List<Object> listOfDoneTutorials = dao.executeSQLQuery(
-		 * "select u.tutorial_id from iwb.w5_tutorial_user u where u.user_id=? AND u.customization_id=? AND u.FINISHED_FLAG=1"
-		 * , scd.get("userId"),scd.get("customizationId")); tr.setDoneTutorials(new
-		 * HashSet<Integer>()); if(listOfDoneTutorials!=null)for(Object
-		 * o:listOfDoneTutorials){ tr.getDoneTutorials().add(GenericUtil.uInt(o)); }
-		 * List<Object> listOfTutorial = dao.executeSQLQuery(
-		 * "select u.FINISHED_FLAG from iwb.w5_tutorial_user u where u.user_id=? AND u.tutorial_id=? AND u.customization_id=?"
-		 * , scd.get("userId"),tutorialId, scd.get("customizationId"));
-		 * if(GenericUtil.isEmpty(listOfTutorial)){//0:daha kayit yok, 1. var ve
-		 * bitmemmis, 2. var ve bitmis tr.setTutorialUserStatus((short)0); } else
-		 * tr.setTutorialUserStatus((short)(1 +
-		 * GenericUtil.uInt(listOfTutorial.get(0))));
-		 * if(!GenericUtil.isEmpty(tutorial.getRecommendedTutorialIds()))
-		 * tr.setRecommendedTutorialList(dao.find(
-		 * "from W5Tutorial t where t.tutorialId in ("
-		 * +tutorial.getRecommendedTutorialIds()+")"));
-		 * tutorial.set_renderTemplate((W5Page)dao.getCustomizedObject(
-		 * "from W5Template t where t.templateId=? AND t.customizationId=?",
-		 * tutorial.getRenderTemplateId(), 0, null));
-		 */
-		return tr;
 	}
 
 	public boolean changeActiveProject(Map<String, Object> scd, String projectUuid) {
@@ -1309,13 +1087,7 @@ public class FrameworkService {
 		dao.executeUpdateSQLQuery("set search_path=iwb");
 
 		List llo = dao.find("from W5QueryFieldCreation t where queryFieldId<?", 500);
-		// dao.getHibernateTemplate().flush();
-		// XGRID_ID := nextval('seq_grid');
-		// List lw = dao.executeSQLQuery("select min(qf.query_field_id) from
-		// iwb.w5_query_field qf
-		// where qf.query_id=? AND qf.customization_id=? AND qf.project_uuid=?",
-		// queryId,
-		// customizationId, projectUuid);
+
 		int gridId = GenericUtil.getGlobalNextval("iwb.seq_grid", projectUuid, userId, customizationId); // 1000000+GenericUtil.uInt(dao.executeSQLQuery("select
 		// nextval('seq_grid')").get(0));
 		dao.executeUpdateSQLQuery("INSERT INTO iwb.w5_grid("
@@ -1645,7 +1417,7 @@ public class FrameworkService {
 			if (id < 0)
 				id = -id;
 			W5BIGraphDashboard gd = (W5BIGraphDashboard) dao.getCustomizedObject(
-					"from W5BIGraphDashboard t where t.graphDashboardId=? AND t.projectUuid=?", id,
+					"from W5BIGraphDashboard t where t.graphDashboardId=?0 AND t.projectUuid=?1", id,
 					(String) scd.get("projectId"), "GraphDashBoard");
 			if (gd != null)
 				l.add(gd);
@@ -1679,37 +1451,8 @@ public class FrameworkService {
 	}
 
 	public Map<String, Object> getWsServerMethodObjects(W5WsServer wss) {
-		Map<String, Object> wsmoMap = new HashMap();
-		Map scd = new HashMap();
-		scd.put("projectId", wss.getProjectUuid());
-		for (W5WsServerMethod wsm : wss.get_methods())
-			try {
-				switch (wsm.getObjectTip()) {
-				case 0:
-				case 1:
-				case 2:
-				case 3: // form
-					wsmoMap.put(wsm.getDsc(), metaDataDao.getFormResult(scd, wsm.getObjectId(),
-							wsm.getObjectTip() == 0 ? 1 : wsm.getObjectTip(), new HashMap()));
-					break;
-				case 4:
-					wsmoMap.put(wsm.getDsc(), metaDataDao.getGlobalFuncResult(scd, wsm.getObjectId()));
-					break;
-				case 19:
-					wsmoMap.put(wsm.getDsc(), metaDataDao.getQueryResult(scd, wsm.getObjectId()));
-					break;
-				case 31:
-				case 32:
-				case 33:
-					wsmoMap.put(wsm.getDsc(), FrameworkCache.getWorkflow(scd, wsm.getObjectId()));
-					break;
-				default:
-					wsmoMap.put(wsm.getDsc(), "Wrong ObjectTip");
-				}
-			} catch (Exception e) {
-				wsmoMap.put(wsm.getDsc(), "Invalid Object");
-			}
-		return wsmoMap;
+		return restEngine.getWsServerMethodObjects(wss);
+
 	}
 
 	public Map REST(Map<String, Object> scd, String name, Map requestParams) throws IOException {
@@ -1741,12 +1484,12 @@ public class FrameworkService {
 
 	public void saveCredentials(int cusId, int userId, String picUrl, String fullName, int socialNet, String email,
 			String nickName, List<Map> projects, List<Map> userTips) {
-		if (dao.find("select 1 from W5Customization t where t.customizationId=?", cusId).isEmpty())
+		if (dao.find("select 1 from W5Customization t where t.customizationId=?0", cusId).isEmpty())
 			dao.executeUpdateSQLQuery(
 					"insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId,
 					socialNet, nickName.replace('.', '_').replace('-', '_'));
 		FrameworkCache.wCustomizationMap.put(cusId,
-				(W5Customization) dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
+				(W5Customization) dao.find("from W5Customization t where t.customizationId=?0", cusId).get(0));
 
 		FrameworkSetting.projectSystemStatus.put(projects.get(0).get("project_uuid").toString(), 0);
 		if (GenericUtil.isEmpty(dao.executeSQLQuery("select 1 from iwb.w5_user u where u.user_id=?", userId))) {
@@ -1819,7 +1562,7 @@ public class FrameworkService {
 	public void saveImage(String imageUrl, int userId, int cusId, String projectUuid) {
 		try {
 			List lf = dao.find(
-					"select t.fileAttachmentId from W5FileAttachment t where t.tableId=336 AND t.fileTypeId=-999 AND t.tablePk=? AND t.customizationId=? AND t.orijinalFileName=?",
+					"select t.fileAttachmentId from W5FileAttachment t where t.tableId=336 AND t.fileTypeId=-999 AND t.tablePk=?0 AND t.customizationId=?1 AND t.orijinalFileName=?2",
 					"" + userId, cusId, imageUrl);
 			if (!lf.isEmpty()) {
 				if (UserUtil.getUserProfilePicture(userId) == (Integer) lf.get(0))

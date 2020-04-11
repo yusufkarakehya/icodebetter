@@ -111,7 +111,7 @@ public class DebugEngine {
 						&& !sqlFrom2.contains("(")) {
 					String[] ss = sqlFrom2.split(" ");
 					if (ss.length < 3) {
-						List l = dao.find("select t.tableId from W5Table t where t.projectUuid=? AND t.dsc=?",
+						List l = dao.find("select t.tableId from W5Table t where t.projectUuid=?0 AND t.dsc=?1",
 								scd.get("projectId"), ss[0]);
 						if (!l.isEmpty())
 							t = FrameworkCache.getTable(scd, (Integer) l.get(0));

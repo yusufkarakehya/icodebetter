@@ -1,8 +1,5 @@
 package iwb.domain.db;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,13 +8,15 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
 
-import iwb.util.GenericUtil;
-
 @Entity
 @Immutable
 @Table(name = "W5_FORM_CELL_PROPERTY",schema="iwb")
 public class W5FormCellProperty implements java.io.Serializable, W5Base {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 129834567825321L;
 	private int formCellProperyId;
 	private int formCellId;
 	private int relatedFormCellId;
@@ -129,5 +128,14 @@ public class W5FormCellProperty implements java.io.Serializable, W5Base {
 		this.otherValue = otherValue;
 	}
 
-
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5FormCellProperty))return false;
+		W5FormCellProperty c = (W5FormCellProperty)o;
+		return c!=null && c.getFormCellProperyId()==getFormCellProperyId() && c.getProjectUuid().equals(projectUuid);
+	}
+	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*getFormCellProperyId();
+	}	
+	
 }
