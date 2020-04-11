@@ -1290,7 +1290,7 @@ public class GenericUtil {
 
 	public static int uIntNvl(Map<String, String> requestParams, String x, int y) {
 		Object o = requestParams.get(x);
-		if (x == null || x.toString().length() == 0)
+		if (o == null || o.toString().length() == 0)
 			return y;
 		return uInt(o);
 	}

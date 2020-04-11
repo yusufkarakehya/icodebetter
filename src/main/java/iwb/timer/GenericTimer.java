@@ -53,6 +53,7 @@ public class GenericTimer extends TimerTask {
 	}
 
 	public void run() {
+		if(FrameworkSetting.systemStatus!=0)return;
 		System.out.println("Timer.Run");
 		checkJobs();
 		if(FrameworkSetting.workflow)checkWorkflowEscalations();
