@@ -68,7 +68,7 @@ public class NotificationEngine {
 			if (alarm) {
 				alMap = new HashMap();
 				List<W5FormSmsMailAlarm> l = (List<W5FormSmsMailAlarm>) dao.find(
-						"from W5FormSmsMailAlarm a where a.projectUuid=? AND a.insertUserId=? AND a.tableId=? AND a.tablePk=? ",
+						"from W5FormSmsMailAlarm a where a.projectUuid=?0 AND a.insertUserId=?1 AND a.tableId=?2 AND a.tablePk=?3 ",
 						scd.get("projectId"), scd.get("userId"), formResult.getForm().getObjectId(),
 						GenericUtil.uInt(ptablePk));
 				for (W5FormSmsMailAlarm a : l) {
@@ -418,11 +418,11 @@ public class NotificationEngine {
 	public Map sendFormSmsMail(Map<String, Object> scd, int formSmsMailId, Map<String, String> requestParams) {
 		String projectId = FrameworkCache.getProjectId(scd, null);
 		W5FormSmsMail fsm = (W5FormSmsMail) dao.getCustomizedObject(
-				"from W5FormSmsMail t where t.formSmsMailId=? AND t.projectUuid=?", formSmsMailId, projectId,
+				"from W5FormSmsMail t where t.formSmsMailId=?0 AND t.projectUuid=?1", formSmsMailId, projectId,
 				"FormSmsMail");
 		int tableId = 0;
 		if(fsm.getFormId()> 0) {
-			W5Form f = (W5Form) dao.getCustomizedObject("from W5Form t where t.formId=? AND t.projectUuid=?",
+			W5Form f = (W5Form) dao.getCustomizedObject("from W5Form t where t.formId=?0 AND t.projectUuid=?1",
 					fsm.getFormId(), projectId, "Form");
 			tableId = f.getObjectId();
 			W5Table t = FrameworkCache.getTable(scd, tableId);
@@ -460,13 +460,13 @@ public class NotificationEngine {
 			ms = 1;
 		int cusId = ms != 1 ? (Integer) scd.get("customizationId") : 0;
 		W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.getCustomizedObject(
-				"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?",
+				"from W5ObjectMailSetting w where w.mailSettingId=?0 AND w.customizationId=?1",
 				mailSettingId != 0 ? mailSettingId
 						: GenericUtil.uInt(scd.get("mailSettingId")),
 				cusId, ms != 1 ? "MailSetting" : null);
 		if (oms == null) {
 			oms = (W5ObjectMailSetting) dao.getCustomizedObject(
-					"from W5ObjectMailSetting w where w.mailSettingId=? AND w.customizationId=?", 1,
+					"from W5ObjectMailSetting w where w.mailSettingId=?0 AND w.customizationId=?1", 1,
 					0, "SystemMailSetting");
 		}
 		return oms;
