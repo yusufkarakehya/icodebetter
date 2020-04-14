@@ -3239,7 +3239,7 @@ public class VcsService {
 			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
 					+ " values (?,?,?, ?, ?,?,?,?, ?)", newProjectId, 1, "App on Store", schema, vcsUrl,"app.store", "1", projectId);
 			//dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
-			npo =  (W5Project)dao.find("from W5Project w where w.projectUuid=?", newProjectId).get(0);
+			npo =  (W5Project)dao.find("from W5Project w where w.projectUuid=?0", newProjectId).get(0);
 		} else {
 			Object[] oo = ll2.get(0);
 			int projectStatus= GenericUtil.uInt(oo[2]);

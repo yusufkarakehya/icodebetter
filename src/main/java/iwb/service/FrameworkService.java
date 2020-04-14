@@ -1510,6 +1510,7 @@ public class FrameworkService {
 
 			dao.addProject2Cache(projectId);
 			FrameworkSetting.projectSystemStatus.put(projectId, 0);
+			break;
 		}
 
 		for (Map t : userTips) {
