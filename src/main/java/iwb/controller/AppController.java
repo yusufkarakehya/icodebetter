@@ -693,13 +693,7 @@ public class AppController implements InitializingBean {
 					scd.put("locale", session.getAttribute("locale"));
 					session.removeAttribute("scd-dev");
 					session = request.getSession(true);
-					if (FrameworkCache.getAppSettingIntValue(0, "interactive_tutorial_flag") != 0) {
-						String ws = (String) scd.get("widgetIds");
-						if (ws == null)
-							scd.put("widgetIds", "10");
-						else if (!GenericUtil.hasPartInside(ws, "10"))
-							scd.put("widgetIds", ws + ",10");
-					}
+
 					if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
 					scd.put("sessionId", session.getId());
 					session.setAttribute("scd-dev", scd);

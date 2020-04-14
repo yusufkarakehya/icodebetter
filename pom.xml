@@ -152,11 +152,10 @@
 
 
 		<!-- https://mvnrepository.com/artifact/com.sun.mail/javax.mail -->
-
 		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
-			<version>1.6.2</version>
+		    <groupId>com.sun.mail</groupId>
+		    <artifactId>smtp</artifactId>
+		    <version>1.6.5</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
