@@ -3252,7 +3252,7 @@ public class VcsService {
 		if(npo==null)
 			throw new IWBException("vcs","serverPublish2AppStore", 0, projectId, "Project Not Found", null);
 		
-		List<W5VcsCommit> sqlCommits = dao.find("from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=? AND t.vcsCommitId>? order by t.vcsCommitId", projectId, smaxSqlCommit);
+		List<W5VcsCommit> sqlCommits = dao.find("from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=?0 AND t.vcsCommitId>?1 order by t.vcsCommitId", projectId, smaxSqlCommit);
 		for(W5VcsCommit o:sqlCommits)dao.saveObject(o.newInstance(newProjectId));
 		
 		dao.executeUpdateSQLQuery("delete from iwb.w5_vcs_object x where x.project_uuid=? AND x.customization_id=1 AND not exists(select 1 from iwb.w5_vcs_object z where z.project_uuid=? AND z.customization_id=? AND z.table_id=x.table_id AND z.table_pk=x.table_pk AND z.vcs_commit_id=x.vcs_commit_id)", newProjectId, projectId, customizationId);
