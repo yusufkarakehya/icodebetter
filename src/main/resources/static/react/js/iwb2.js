@@ -4076,7 +4076,7 @@ class XGrid extends GridCommon {
             showDetail && _(_dxrg.RowDetailState, null),
             /** state paging */
 
-            rows.length > iwb.detailPageSize || pageSize > 1 ?
+            rows.length > iwb.detailPageSize && pageSize > 1 ?
             _(
                 _dxrg.PagingState,
                 pageSize > 1 ?
@@ -4087,8 +4087,7 @@ class XGrid extends GridCommon {
             /** UI paging */
 
             pageSize > 1 &&
-            rows.length > 1 &&
-            totalCount > iwb.detailPageSize &&
+            rows.length > iwb.detailPageSize &&
             _(_dxrg.CustomPaging, { totalCount }),
             /** multiselect */
 
@@ -4096,7 +4095,7 @@ class XGrid extends GridCommon {
             /** Enable Drag and Drop */
             _(_dxgrb.DragDropProvider, null),
             /** UI table */
-            _(_dxgrb.Table, {
+            _(this.props._virtual ? _dxgrb.VirtualTable : _dxgrb.Table, {
                 columnExtensions,
                 rowComponent,
                 messages: { noData: getLocMsg("no_data") }
@@ -4116,15 +4115,16 @@ class XGrid extends GridCommon {
             _(_dxgrb.TableRowDetail, { contentComponent: showDetail }) :
             null,
             /** Paging panel */
-            rows.length > iwb.detailPageSize &&
+            rows.length > iwb.detailPageSize && pageSize>1 &&
             _(_dxgrb.PagingPanel, { pageSizes: pageSizes || iwb.detailPageSize }),
             /** UI row Grouping */
             !_disableIntegratedGrouping &&
             !pageSize &&
-            _(_dxgrb.TableGroupRow, null), (extraButtons || (!pageSize && !_disableIntegratedGrouping &&
+            _(_dxgrb.TableGroupRow, null), (groupColumn || (!pageSize && !_disableIntegratedGrouping &&
 //            !_disableIntegratedSorting ||
 //            !_disableSearchPanel ||
-            rows.length > 0)) && _(_dxgrb.Toolbar, null), !_disableSearchPanel &&
+            rows.length > 0)) && _(_dxgrb.Toolbar, null), 
+            /*!_disableSearchPanel &&
             !pageSize &&
             rows.length > 1 &&
             _(_dxgrb.SearchPanel, {
@@ -4132,7 +4132,7 @@ class XGrid extends GridCommon {
                 changeSearchValue: ax => {
                     if (iwb.debug) console.log("onValueChange", ax);
                 }
-            }), // TODO
+            }), */// TODO
             (groupColumn || (!_disableIntegratedGrouping &&
             !multiselect && !pageSize &&
             rows.length > 1)) &&
@@ -8880,7 +8880,10 @@ class XPortletItem extends React.PureComponent {
                         }
                     },
                     name,
-                    _("i", { className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem })
+                    _("i", { style:{cursor:'pointer'}, className: "portlet-refresh float-right icon-refresh", onClick:this.reloadItem }),
+	                (o.grid.extraButtons || []).map((btn, index) =>
+	                	_("i", { style:{cursor:'pointer', marginRight:5}, title:btn.text, className: "portlet-refresh float-right "+(btn.icon||'icon-heart'), onClick:btn.click })
+	                )
                 ),
                 _(XGrid, Object.assign({}, o.grid, {registerLoad:(fx)=>{
             		if(fx)this.reloadFnc=fx;

@@ -1466,18 +1466,10 @@ public class GenericUtil {
 		Map<String, String[]> m = request.getParameterMap();
 		Map<String, String> res = new HashMap<String, String>();
 		for (Map.Entry<String, String[]> e : m.entrySet()) {
-			/*
-			 * String paramName = e.getKey(); String[] paramValues =
-			 * e.getValue(); if (e.getValue() instanceof String)
-			 * res.put(e.getKey(),(String)e.getValue()); else if
-			 * (((String[])e.getValue()).length==1)
-			 * res.put(e.getKey(),((String[])e.getValue())[0]); else{
-			 */
 			String resx = "";
 			for (String s : (String[]) e.getValue())
 				resx += "," + s;
 			res.put(e.getKey(), resx.substring(1));
-			/* } */
 		}
 		res.put("_ServerURL_", request.getServerName());
 		res.put("_ClientURL_", request.getRemoteHost());
@@ -1487,8 +1479,14 @@ public class GenericUtil {
 		if (GenericUtil.safeEquals(request.getContentType(), "application/json")) {
 			try {
 				JSONObject jo = HttpUtil.getJson(request);
-				if (jo != null)
-					res.putAll(GenericUtil.fromJSONObjectToMap(jo));
+				if (jo != null) {
+					Map<String, Object> res2 = GenericUtil.fromJSONObjectToMap(jo);
+					if(!GenericUtil.isEmpty(res2)) for(String k:res2.keySet()){
+						Object v = res2.get(k);
+						res.put(k, v!=null ? v.toString():null);
+					}
+					
+				}
 			} catch (JSONException e) {
 				throw new RuntimeException(e);
 			}

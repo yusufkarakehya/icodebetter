@@ -1073,7 +1073,7 @@ public class FrameworkService {
 
 		dao.executeUpdateSQLQuery("set search_path=iwb");
 
-		List llo = dao.find("from W5QueryFieldCreation t where queryFieldId<?", 500);
+		List llo = dao.find("from W5QueryFieldCreation t where queryFieldId<?0", 500);
 
 		int gridId = GenericUtil.getGlobalNextval("iwb.seq_grid", projectUuid, userId, customizationId); // 1000000+GenericUtil.uInt(dao.executeSQLQuery("select
 		// nextval('seq_grid')").get(0));

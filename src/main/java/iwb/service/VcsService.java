@@ -2302,7 +2302,7 @@ public class VcsService {
 
 		dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
 		
-		if(customizationId==0){// security:only for customization 0
+		if(customizationId==0 || FrameworkCache.getAppSettingIntValue(0, "run_global_sql")!=0){// security:only for customization 0
 			dao.executeUpdateSQLQuery(sql); 
 		}
 		
@@ -3571,7 +3571,7 @@ public class VcsService {
 				if(srvPrj==null){ //insert here
 					dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
 							+ " values (?,?,?, ?, ?,?,?,?, ?)", prj.getString("project_uuid"), customizationId, prj.getString("dsc"), GenericUtil.getSafeObject(prj,"access_users"),prj.getString("rdbms_schema"),GenericUtil.getSafeObject(prj,"vcs_url"),GenericUtil.getSafeObject(prj,"vcs_user_name"), GenericUtil.getSafeObject(prj,"vcs_password"), prj.getString("oproject_uuid"));
-					if(customizationId==0)dao.executeUpdateSQLQuery("create schema "+prj.getString("rdbms_schema") + " AUTHORIZATION iwb");
+					if(customizationId==0 || FrameworkCache.getAppSettingIntValue(0, "run_global_sql")!=0)dao.executeUpdateSQLQuery("create schema "+prj.getString("rdbms_schema") + " AUTHORIZATION iwb");
 					FrameworkCache.addProject((W5Project)dao.find("from W5Project t where t.customizationId=?0 AND t.projectUuid=?1", customizationId, prj.getString("project_uuid")).get(0));
 					FrameworkSetting.projectSystemStatus.put(prj.getString("project_uuid"), 0);
 				}
