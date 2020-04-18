@@ -588,8 +588,8 @@ public class VcsController implements InitializingBean {
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
     
 		logger.info("hndAjaxVVCSClientSQLCommitsFetchAndRun"); 
-		
-    	int cnt = vcsEngine.vcsClientSqlCommitsFetchAndRun(scd);
+		int maxCount = GenericUtil.uInt(request, "maxCount");
+    	int cnt = vcsEngine.vcsClientSqlCommitsFetchAndRun(scd, maxCount);
 
     	response.getWriter().write("{\"success\":true, \"cnt\":"+cnt+"}");
 		response.getWriter().close();	

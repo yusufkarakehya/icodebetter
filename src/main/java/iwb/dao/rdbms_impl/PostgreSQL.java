@@ -6282,7 +6282,7 @@ public class PostgreSQL extends BaseDAO {
 				"w5_form_sms_mail_alarm", "w5_table_field_calculated", "w5_doc", "w5_list_column", "w5_list",
 				"w5_data_view", "w5_converted_object", "w5_form_sms_mail", "w5_custom_grid_column_condtion",
 				"w5_custom_grid_column_renderer", "w5_conversion_col", "w5_conversion", "w5_feed",
-				"w5_excel_import_sheet_data", "w5_excel_import_sheet_map", "w5_excel_import_sheet", "w5_excel_import",
+				"w5_excel_import_sheet_data", "w5_excel_import_sheet", "w5_excel_import",
 				"w5_table_child", "w5_help", "w5_bi_graph_dashboard", "w5_mobile_device",
 				"w5_approval_record", "w5_approval_step", "w5_approval", "w5_jasper_report", "w5_access_control",
 				"w5_user_tip", "w5_role"

@@ -2244,7 +2244,7 @@ public class VcsService {
 	}
 
 
-	synchronized public int vcsClientSqlCommitsFetchAndRun(Map<String, Object> scd) {
+	synchronized public int vcsClientSqlCommitsFetchAndRun(Map<String, Object> scd, int maxCount) {
 		if(FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun",0,null, "VCS Server not allowed to vcsClientSqlCommitsFetchAndRun", null);
 		int customizationId = (Integer)scd.get("customizationId");
@@ -2264,13 +2264,14 @@ public class VcsService {
 		String s = HttpUtil.send(url, urlParameters);
 		
 		int result = 0;
+		
 		if(!GenericUtil.isEmpty(s)){
 			JSONObject json;
 			try {
 				json = new JSONObject(s);
 				if(json.get("success").toString().equals("true")){
 					JSONArray ar = json.getJSONArray("data");
-					for(int qi=0;qi<ar.length();qi++){
+					for(int qi=0;qi<ar.length() && (maxCount==0 || qi<maxCount);qi++){
 						JSONObject o = ar.getJSONObject(ar.length()-1-qi);
 						if(o.has("extra_sql")){
 							String extraSql = o.getString("extra_sql");
@@ -3792,7 +3793,7 @@ public class VcsService {
 			scd.put("customizationId", cusId);
 
 
-			vcsClientSqlCommitsFetchAndRun(scd);
+			vcsClientSqlCommitsFetchAndRun(scd, 0);
 			
 			// Application Settings
 			metaDataDao.reloadTablesCache(icbProjectId);
@@ -3853,7 +3854,7 @@ public class VcsService {
 			scd.put("customizationId", cusId);
 
 
-			vcsClientSqlCommitsFetchAndRun(scd);
+			vcsClientSqlCommitsFetchAndRun(scd, 0);
 			
 			// Application Settings
 			metaDataDao.reloadTablesCache(projectId);
