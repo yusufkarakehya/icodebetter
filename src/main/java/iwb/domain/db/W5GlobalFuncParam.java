@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
 
@@ -198,5 +199,11 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param {
 	
 	public int hashCode() {
 		return projectUuid.hashCode() + 100*getDbFuncParamId();
+	}
+	
+	
+	@Transient
+	public int getParentId() {
+		return 0;
 	}
 }

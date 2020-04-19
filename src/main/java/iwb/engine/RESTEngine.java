@@ -390,7 +390,7 @@ public class RESTEngine {
 						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
 						break;
 					case 2: // json
-						params = GenericUtil.fromMapToJsonString2Recursive(m);
+						params = GenericUtil.fromMapToJsonString2Recursive(m, wsm.get_params(), 0);
 						if(!reqPropMap.containsKey("Content-Type"))reqPropMap.put("Content-Type", "application/json;charset=UTF-8");
 						break;
 					case 6:// yaml

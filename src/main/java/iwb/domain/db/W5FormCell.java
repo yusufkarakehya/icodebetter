@@ -420,4 +420,9 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	public int hashCode() {
 		return projectUuid.hashCode() + 100*formCellId;
 	}
+	
+	@Transient
+	public int getParentId() {
+		return 0;
+	}
 }

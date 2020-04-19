@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
 
@@ -190,5 +191,11 @@ public class W5WsMethodParam  implements java.io.Serializable, W5Param {
 	
 	public int hashCode() {
 		return projectUuid.hashCode() + 100*getWsMethodParamId();
+	}
+	
+	@Transient
+	public int getParentId() {
+		return parentWsMethodParamId;
 	}	
+	
 }

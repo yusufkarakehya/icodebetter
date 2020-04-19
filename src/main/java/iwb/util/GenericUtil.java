@@ -59,6 +59,7 @@ import iwb.domain.db.W5Param;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableParam;
+import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5ReportCellHelper;
 import iwb.engine.GlobalScriptEngine;
@@ -1146,6 +1147,76 @@ public class GenericUtil {
 		return html.toString();
 	}
 
+	@SuppressWarnings("unchecked")
+	public static String fromMapToJsonString2Recursive(Map<String, Object> s, List<W5WsMethodParam> params, int parentId) {
+		if (s == null || s.isEmpty())
+			return "{}";
+		if(GenericUtil.isEmpty(params))return fromMapToJsonString2Recursive(s);
+		StringBuilder html = new StringBuilder();
+		boolean b = false;
+		html.append("{");
+		for (W5WsMethodParam p:params)if(p.getOutFlag()==0 && p.getParentId()==parentId) {
+			String q = p.getDsc();			
+			if (b)
+				html.append(",");//\n
+			else
+				b = true;
+			Object o = s.get(q);
+			
+			if (o == null)
+				html.append("\"").append(q).append("\":\"\"");
+			else if (o instanceof JSONObject) {
+				if(p.getParamTip()==8 || p.getParamTip()==9)
+					html.append("\"").append(q).append("\":").append(((JSONObject) o).toString());
+				else 
+					html.append("\"").append(q).append("\":null");
+			} else if (o instanceof JSONArray) {
+				if(p.getParamTip()==10)
+					html.append("\"").append(q).append("\":").append(((JSONArray) o).toString());
+				else 
+					html.append("\"").append(q).append("\":null");
+			} else if (o instanceof Map) {
+				if(p.getParamTip()==8 || p.getParamTip()==9)
+					html.append("\"").append(q).append("\":")
+						.append(fromMapToJsonString2Recursive((Map<String, Object>) o, params, p.getWsMethodParamId()));
+				else 
+					html.append("\"").append(q).append("\":null");
+			} else if (o instanceof List) {
+				if(p.getParamTip()==10)
+					html.append("\"").append(q).append("\":").append(fromListToJsonString2Recursive((List<Object>) o));
+				else 
+					html.append("\"").append(q).append("\":null");
+			} else {
+				html.append("\"").append(q).append("\":");
+				switch(p.getParamTip()) {
+				case	4://integer
+					html.append(GenericUtil.uInt(o));break;
+				case	3://float
+					if(o instanceof Float)html.append(o);
+					else if(o instanceof Double)html.append(o);
+					else if(o instanceof BigDecimal)html.append(o);
+					else html.append(GenericUtil.uFloat(o.toString()));
+					break;
+				case	5://boolean
+					if(o instanceof Boolean)html.append(o);
+					else html.append(GenericUtil.uInt(o)!=0 || o.toString().toLowerCase().equals("true"));
+					break;
+				default:
+					html.append("\"").append(stringToJS2(o.toString())).append("\"");
+					
+				}
+			}
+			/*else if (o instanceof NativeObject)
+				html.append("\"").append(q).append("\":")
+						.append(RhinoUtil.fromNativeObjectToJsonString2Recursive((NativeObject) o));
+			else if (o instanceof NativeArray) {
+				html.append("\"").append(q).append("\":")
+						.append(RhinoUtil.fromNativeArrayToJsonString2Recursive((NativeArray) o));
+			}*/
+		}
+		html.append("}");
+		return html.toString();
+	}
 	public static String uCepTel(String source) {
 		StringBuilder sb = new StringBuilder();
 		int n = source == null ? 0 : source.length();

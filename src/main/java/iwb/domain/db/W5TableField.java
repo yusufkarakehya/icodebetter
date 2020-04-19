@@ -468,5 +468,11 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 	
 	public int hashCode() {
 		return projectUuid.hashCode() + 100*tableFieldId;
-	}	
+	}
+	
+	
+	@Transient
+	public int getParentId() {
+		return 0;
+	}
 }

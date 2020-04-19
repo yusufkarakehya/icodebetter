@@ -180,4 +180,9 @@ public class W5QueryField implements java.io.Serializable, W5Param {
 		return projectUuid.hashCode() + 100*getQueryFieldId();
 	}	
 	
+	
+	@Transient
+	public int getParentId() {
+		return 0;
+	}
 }
