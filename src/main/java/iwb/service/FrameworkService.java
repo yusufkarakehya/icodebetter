@@ -131,6 +131,7 @@ public class FrameworkService {
 	@Autowired
 	private DebugEngine debugEngine;
 
+	@Transactional(propagation=Propagation.NEVER)
 	public synchronized void reloadCache(int cid) {
 		try {
 			if (cid == -1)

@@ -1369,7 +1369,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 	}
 
 	public void reloadFrameworkCaches(int customizationId) {
-		logger.info("Caching Started (users, jobs, localeMsgs, errorMsgs, appSettings, lookUps, tableParams)");
 		//if (FrameworkSetting.redisCache && redisGlobalMap == null)redisGlobalMap = FrameworkCache.getRedissonClient().getMap("icb-cache5");
 		reloadErrorMessagesCache(customizationId);
 		// Application Settings
@@ -1417,7 +1416,6 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 	public void reloadProjectCaches(String projectId) {
 		try {
-			logger.info("Caching Started (users, jobs, localeMsgs, errorMsgs, appSettings, lookUps, tableParams)");
 			FrameworkSetting.projectSystemStatus.put(projectId, 2); // suspended
 			logger.info("Caching project = " + projectId);
 
