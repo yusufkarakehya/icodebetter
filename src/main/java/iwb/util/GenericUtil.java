@@ -1155,7 +1155,7 @@ public class GenericUtil {
 		StringBuilder html = new StringBuilder();
 		boolean b = false;
 		html.append("{");
-		for (W5WsMethodParam p:params)if(p.getOutFlag()==0 && p.getParentId()==parentId && s.containsKey(p.getDsc()) && p.getCredentialsFlag()>3) {
+		for (W5WsMethodParam p:params)if(p.getOutFlag()==0 && p.getParentId()==parentId && s.containsKey(p.getDsc()) && p.getCredentialsFlag()>=3) {
 			String q = p.getDsc();			
 			if (b)
 				html.append(",");//\n
