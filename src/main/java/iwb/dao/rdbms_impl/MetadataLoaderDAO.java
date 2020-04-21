@@ -1068,6 +1068,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 
 		FrameworkSetting.vcs = FrameworkCache.getAppSettingIntValue(0, "vcs_flag") != 0;
 		FrameworkSetting.vcsServer = FrameworkCache.getAppSettingIntValue(0, "vcs_server_flag") != 0;
+		FrameworkSetting.vcsServerClient = FrameworkCache.getAppSettingIntValue(0, "vcs_server_client_flag") != 0;
 
 		// if(FrameworkSetting.preloadWEngine!=0)FrameworkCache.clearPreloadCache();
 		// //TODO
