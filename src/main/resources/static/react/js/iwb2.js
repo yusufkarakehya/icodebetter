@@ -4039,9 +4039,9 @@ class XGrid extends GridCommon {
             onColumnWidthsChange
         } = this;
 
-        if (!rows || !rows.length) return null;
+        if (!this.props._showAlways && (!rows || !rows.length)) return null;
         return _(
-            _dxgrb.Grid, { style:{opacity:loading?.5:1, ...(this.props.style||{})},rows, columns, getRowId: row => row[keyField] },
+            _dxgrb.Grid, { style:{opacity:loading?.5:1}, rows, columns, getRowId: row => row[keyField] },
             /** sorting */
             !_disableIntegratedSorting &&
             _(
@@ -8869,7 +8869,7 @@ class XPortletItem extends React.PureComponent {
             o.grid.crudFlags = false;
             return _(
                 Card, {
-                    className: "card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
+                    className: "xportlet-grid-"+o.grid.gridId+" card-portlet " + (o.props.color ? "bg-" + o.props.color : "")
                 },
                 _(
                     "h3", {

@@ -1337,7 +1337,7 @@ public class MetadataLoaderDAO extends BaseDAO {
 				}
 				ta.get_approvalStepMap().put(step.getApprovalStepId(), step);
 			}
-			getCurrentSession().flush();
+//			getCurrentSession().flush();
 		}
 	}
 

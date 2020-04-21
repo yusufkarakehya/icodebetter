@@ -54,7 +54,7 @@ public class WorkflowEngine {
 		int userId = (Integer) scd.get("userId");
 		int versionNo = GenericUtil.uInt(parameterMap.get("_avno"));
 		W5WorkflowRecord ar = (W5WorkflowRecord) dao.getCustomizedObject(
-				"from W5WorkflowRecord t where t.approvalRecordId=? AND t.projectUuid=?", approvalRecordId,
+				"from W5WorkflowRecord t where t.approvalRecordId=?0 AND t.projectUuid=?1", approvalRecordId,
 				scd.get("projectId"), "Workflow Record not Found");
 		String mesaj = "";
 		String xlocale = (String) scd.get("locale");
@@ -519,7 +519,7 @@ public class WorkflowEngine {
 			for(int qi=0;qi<nids.length;qi++) {
 				int notId = GenericUtil.uInt(nids[qi]);
 				if(notId>0) {
-					W5FormSmsMail fsm = (W5FormSmsMail)dao.getCustomizedObject("from W5FormSmsMail t where t.formSmsMailId=? AND t.projectUuid=?", notId, (String) scd.get("projectId"), null);
+					W5FormSmsMail fsm = (W5FormSmsMail)dao.getCustomizedObject("from W5FormSmsMail t where t.formSmsMailId=?0 AND t.projectUuid=?1", notId, (String) scd.get("projectId"), null);
 					if(fsm!=null) {
 						if (!GenericUtil.isEmpty(fsm.getConditionSqlCode())) {
 							boolean conditionCheck = dao.conditionRecordExistsCheck(scd, newParamMap, ar.getTableId(), ar.getTablePk(), fsm.getConditionSqlCode());
@@ -541,7 +541,7 @@ public class WorkflowEngine {
 
 	public void updateEscalationSettings(W5WorkflowRecord rec, W5WorkflowStep step) {
 		if (step.getTimeLimitFlag() != 0 && step.getTimeLimitDuration() > 0) {
-			List ll = dao.find("from W5WorkflowRecord t where t.approvalRecordId=? AND t.projectUuid=?",
+			List ll = dao.find("from W5WorkflowRecord t where t.approvalRecordId=?0 AND t.projectUuid=?1",
 					rec.getApprovalRecordId(), rec.getProjectUuid());
 			dao.executeUpdateSQLQuery(
 					"update iwb.w5_approval_record t set valid_until_dttm=current_timestamp + interval '"
@@ -600,7 +600,7 @@ public class WorkflowEngine {
 
 	public List<W5WorkflowRecord> listWorkflowEscalatedRecords(W5WorkflowStep step) {
 		return dao.find(
-				"from W5WorkflowRecord t where t.approvalId=? AND t.approvalStepId=? AND t.projectUuid=? AND t.validUntilDttm>current_timestamp",
+				"from W5WorkflowRecord t where t.approvalId=?0 AND t.approvalStepId=?1 AND t.projectUuid=?2 AND t.validUntilDttm>current_timestamp",
 				step.getApprovalId(), step.getApprovalStepId(), step.getProjectUuid());
 	}
 
