@@ -56,7 +56,7 @@ public class VcsService {
 	private MetadataLoaderDAO metaDataDao;
 
 	synchronized public Map vcsClientObjectPull(Map<String, Object> scd, int tableId, int tablePk, boolean force) {
-		if(FrameworkSetting.vcsServer)
+		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
 			throw new IWBException("vcs","vcsClientObjectPull",0,null, "VCS Server not allowed to vcsClientObjectPull", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
@@ -142,7 +142,7 @@ public class VcsService {
 	}
 	
 	synchronized public Map vcsClientObjectPullMulti(Map<String, Object> scd, String tableKeys, boolean force) {
-		if(FrameworkSetting.vcsServer)
+		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
 			throw new IWBException("vcs","vcsClientObjectPullMulti",0,null, "VCS Server not allowed to vcsClientObjectPullMulti", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
@@ -2243,9 +2243,50 @@ public class VcsService {
 		return queryResult;
 	}
 
+	synchronized public int vcsClientSqlCommitsFirstSkip(Map<String, Object> scd) {
+		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
+			throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun",0,null, "VCS Server not allowed to vcsClientSqlCommitsFetchAndRun", null);
+		int customizationId = (Integer)scd.get("customizationId");
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		if(po==null) po = (W5Project)dao.getCustomizedObject("from W5Project t where 1=?0 AND t.projectUuid=?1", 1, projectUuid, null);
+
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectUuid);
+		int lastCommitId = 0;
+		if(lm.isEmpty() || lm.get(0)==null)lastCommitId = 0;
+		else lastCommitId = (Integer)lm.get(0);
+		
+		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid()+"&q=2770&l="+lastCommitId;
+		String url=po.getVcsUrl();
+		if(!url.endsWith("/"))url+="/";
+		url+="serverVCSQueryResult";
+		String s = HttpUtil.send(url, urlParameters);
+		
+		int result = 0;
+		
+		if(!GenericUtil.isEmpty(s)){
+			JSONObject json;
+			try {
+				json = new JSONObject(s);
+				if(json.get("success").toString().equals("true")){
+					JSONArray ar = json.getJSONArray("data");
+					for(int qi=0;qi<1;qi++){
+						JSONObject o = ar.getJSONObject(ar.length()-1-qi);
+
+						dao.saveObject(new W5VcsCommit(o));
+					}
+				} else
+					throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
+			} catch (IWBException e){
+				throw e;
+			} catch (JSONException e){
+				throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun:JSONException", 0, s, "Error", e);
+			}
+		}
+		return result;	}
 
 	synchronized public int vcsClientSqlCommitsFetchAndRun(Map<String, Object> scd, int maxCount) {
-		if(FrameworkSetting.vcsServer)
+		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
 			throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun",0,null, "VCS Server not allowed to vcsClientSqlCommitsFetchAndRun", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
@@ -2433,7 +2474,7 @@ public class VcsService {
 
 
 	public int vcsClientObjectAction(Map<String, Object> scd, int tableId, int tablePk, int action) {
-		if(FrameworkSetting.vcsServer)
+		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
 			throw new IWBException("vcs","vcsClientObjectAction",0,null, "VCS Server not allowed to vcsClientObjectAction", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
@@ -3897,7 +3938,7 @@ public class VcsService {
 		return true;
 	}
 	public Map vcsClientObjectPullColumn(Map<String, Object> scd, int tableId, int tablePk, String column) {
-		if(FrameworkSetting.vcsServer)
+		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
 			throw new IWBException("vcs","vcsClientObjectPullColumn",0,null, "VCS Server not allowed to vcsClientObjectPull", null);
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");

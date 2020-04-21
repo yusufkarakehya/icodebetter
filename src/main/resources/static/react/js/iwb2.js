@@ -4028,7 +4028,7 @@ class XGrid extends GridCommon {
                 _disableSearchPanel,
                 _disableIntegratedSorting,
                 _disableIntegratedGrouping,
-                titleComponent
+                titleComponent, filterColumns
             },
             // methods
             rowComponent,
@@ -4041,7 +4041,7 @@ class XGrid extends GridCommon {
 
         if (!rows || !rows.length) return null;
         return _(
-            _dxgrb.Grid, { style:{opacity:loading?.5:1},rows, columns, getRowId: row => row[keyField] },
+            _dxgrb.Grid, { style:{opacity:loading?.5:1, ...(this.props.style||{})},rows, columns, getRowId: row => row[keyField] },
             /** sorting */
             !_disableIntegratedSorting &&
             _(
@@ -4090,10 +4090,11 @@ class XGrid extends GridCommon {
             rows.length > iwb.detailPageSize &&
             _(_dxrg.CustomPaging, { totalCount }),
             /** multiselect */
-
             multiselect && _(_dxrg.IntegratedSelection, null),
             /** Enable Drag and Drop */
             _(_dxgrb.DragDropProvider, null),
+            
+//            filterColumns && _(_dxgrb.FilteringState, {defaultFilters:filterColumns),
             /** UI table */
             _(this.props._virtual ? _dxgrb.VirtualTable : _dxgrb.Table, {
                 columnExtensions,
