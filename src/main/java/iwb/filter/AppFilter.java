@@ -55,14 +55,30 @@ public class AppFilter implements Filter {
 				String transactionId =  GenericUtil.getTransactionId();
 				request.setAttribute("_trid_", transactionId);
 				Map scd = null;
-				if(FrameworkSetting.logType>0){
+				if(FrameworkSetting.logType>0 && (uri.contains("/app/") || uri.contains("/preview/"))){
 					HttpSession session = ((HttpServletRequest)request).getSession(false);
 					scd = session!=null ? (Map)session.getAttribute("scd-dev"): null;
 					if(scd!=null) {
 						String[] uuri = uri.split("/");
-						String newUri = uuri[uuri.length-1];
-						if(!newUri.equals("ajaxLiveSync"))LogUtil.logObject(new Log5Transaction((String)scd.get("projectId"), newUri, transactionId), true);
-						lvp = new Log5VisitedPage(scd, ((HttpServletRequest) request).getRequestURI(), 0, request.getRemoteAddr(), transactionId);
+						
+						if(uuri.length>1) {
+							String newUri = uuri[uuri.length-1];
+							if(!newUri.equals("ajaxLiveSync")) {
+								LogUtil.logObject(new Log5Transaction((String)scd.get("projectId"), newUri, transactionId), true);
+
+								int pageId = 0;
+								if(newUri.equals("ajaxQueryData"))pageId=GenericUtil.uInt((HttpServletRequest) request, "_qid");
+								else if(newUri.equals("ajaxExecDbFunc"))pageId=GenericUtil.uInt((HttpServletRequest) request, "_did");
+								else if(newUri.equals("showForm") || uri.equals("ajaxPostForm"))pageId=GenericUtil.uInt((HttpServletRequest) request, "_fid");
+								else if(newUri.equals("showPage"))pageId=GenericUtil.uInt((HttpServletRequest) request, "_tid");
+								else if(newUri.startsWith("pic") && newUri.endsWith(".png")) {
+									pageId=GenericUtil.uInt(newUri.substring(3,newUri.length()-4));
+									newUri = "showPic";
+								}
+								lvp = new Log5VisitedPage(scd, newUri, pageId, request.getRemoteAddr(), transactionId);
+								
+							}
+						}
 					}
 				}
 				filterChain.doFilter( request, response );

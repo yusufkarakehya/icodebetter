@@ -211,7 +211,6 @@ public class AuthController {
   }
 
   @RequestMapping("/login")
-  @ResponseBody
   protected void login(final HttpServletRequest req, HttpServletResponse res) throws IOException {
     if (FrameworkSetting.projectId != null && FrameworkSetting.projectId.length() == 36) {
       res.getWriter().write("/preview/" + FrameworkSetting.projectId + "/main.htm");

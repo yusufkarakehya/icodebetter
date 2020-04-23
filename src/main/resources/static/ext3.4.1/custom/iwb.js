@@ -4124,50 +4124,14 @@ function ajaxAuthenticateUser() {
       success: function(o, resp) {
         iwb.mask();
         if (resp.result.success) {
-          if (resp.result.smsFlag) {
-            Ext.MessageBox.prompt("SMS Doğrulama", "Mobil Onay Kodu", function(
-              btn,
-              text
-            ) {
-              if (btn == "ok") {
-                Ext.Ajax.request({
-                  url:
-                    "ajaxSmsCodeValidation?smsCodeValidId=" +
-                    resp.result.smsValidationId +
-                    "&smsCode=" +
-                    text,
-                  success: function(result, request) {
-                    var resp = JSON.parse(result.responseText);// eval("(" +
-																// result.responseText
-																// + ")");
-                    if (resp.success) {
-                      lw.destroy();
-                      hideStatusText();
-                      refreshGridsAfterRelogin();
-                      longPollTask.delay(0);
-                    } else {
-                      Ext.Msg.show({
-                        title: getLocMsg("error"),
-                        msg: "Hatalı SMS Kodu",
-                        icon: Ext.MessageBox.ERROR
-                      });
-                    }
-                  }
-                });
-              }
-            });
-          } else {
-            lw.destroy();
-            hideStatusText();
-            refreshGridsAfterRelogin();
-            longPollTask.delay(0);
-          }
-          // if(typeof onlineUsersGridPanel!='undefined' &&
-			// onlineUsersGridPanel)reloadOnlineUsers();
+           lw.destroy();
+           hideStatusText();
+           refreshGridsAfterRelogin();
+           longPollTask.delay(0);
         } else {
           Ext.infoMsg.alert(
             "error",
-            resp.errorMsg || getLocMsg("js_yanlis_kullanici_adi_sifre")
+            resp.errorMsg || getLocMsg("js_wrong_user_password")
           );
         }
       },
@@ -4181,7 +4145,7 @@ function ajaxAuthenticateUser() {
         } else {
           Ext.infoMsg.alert(
             "error",
-            resp.error || getLocMsg("js_verileri_kontrol"),
+            resp.error || getLocMsg("js_check_data"),
             "error"
           );
         }

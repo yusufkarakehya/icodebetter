@@ -2,8 +2,7 @@
 <!DOCTYPE html><html><head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Code2</title>
-	<script type="text/javascript" src="../ext3.4.1/adapter/ext/ext-base.js"></script>
-	<script type="text/javascript" src="../ext3.4.1/ext-all.js"></script>
+    <script type="text/javascript" src="/enjoyhint/jquery-1.11.1.min.js"></script>
 <script type="text/javascript">
 function redirectAuth() {
 
@@ -15,17 +14,18 @@ function redirectAuth() {
 		//console.log("projectid ", projectUuid);
 		var mail = both.replace(projectUuid, "");
 		//console.log("email ", mail);
-		Ext.Ajax.request({
-			url: '../auth/login',
-			params: {
+		$.ajax({
+			url: '/auth/login',
+			data: {
 				email: mail,
 				projectId: projectUuid
 			},
-			method: 'GET',
-			success: function (result, request) {
-				window.location.href = result.responseText;
+			type: 'GET', dataType:'text',
+			success: function (result) {
+				window.location.href = result;
 			},
-			failure: function (result, request) {
+			failure: function (result) {
+				alert('Error: ' + result)
 			}
 		});
 }
