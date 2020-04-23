@@ -265,33 +265,5 @@ public class AuthController {
     res.sendRedirect(redirectOnFail);
   }
 
-  @RequestMapping("/slack")
-  @ResponseBody
-  protected void redirectSlackUser(final HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
-    try {
-      JSONObject params = new JSONObject();
-      params.put("method", "GET");
-      String token = "xoxp-400071414103-400355743638-409628283425-24e403d0ed1b842f10bcdb28c5ed9434";
-      Map<String, Object> scd = UserUtil.getScd(req, "scd-dev", true);
-      String email = (String) scd.get("email");
-      String url =
-          "https://slack.com/api/users.lookupByEmail?token="
-              + token
-              + "&email="
-              + email
-              + "&pretty=1";
-      String response = HttpUtil.sendJson(url, params);
-      String isMember = "http://icodebetter.slack.com";
-      String newMember = "http://icodebetter.herokuapp.com";
-      if (!GenericUtil.isEmpty(response)) {
-        res.sendRedirect(isMember);
-      } else {
-        res.sendRedirect(newMember);
-      }
-
-    } catch (JSONException e) {
-      throw new RuntimeException();
-    }
-  }
+  
 }
