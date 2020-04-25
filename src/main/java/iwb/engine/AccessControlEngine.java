@@ -145,31 +145,7 @@ public class AccessControlEngine {
 					formResult.setViewMode(true);
 				}
 
-				if (t.getAccessTips() != null && t.getAccessTips().indexOf("0") > -1) { // kayit
-					// bazli
-					// control
-					// var
-					if (checkAccessRecordControlViolation(scd, 0, t.getTableId(),
-							requestParams.get(t.get_tableParamList().get(0).getDsc()))) {
-						throw new IWBException("security", "Form", formId, null, LocaleMsgCache.get2(0,
-								(String) scd.get("locale"), "fw_access_record_based_control_view"), null);
-					}
-				}
-				if (t.getAccessTips() != null && t.getAccessTips().indexOf("1") > -1) { // kayit
-					// bazli
-					// control
-					// var
-					if (checkAccessRecordControlViolation(scd, 1, t.getTableId(),
-							requestParams.get(t.get_tableParamList().get(0).getDsc()))) {
-						// throw new PromisException("security","Form", formId,
-						// null, "Kayıt Bazlı control:
-						// Güncelleyemezsiniz", null);
-
-						formResult.getOutputMessages().add(LocaleMsgCache.get2(0, (String) scd.get("locale"),
-								"fw_access_record_based_control_update"));
-						formResult.setViewMode(true);
-					}
-				}
+				
 				formResult.setApprovalRecord(appRecord);
 			}
 			break;
@@ -229,35 +205,12 @@ public class AccessControlEngine {
 					 * "fw_access_tablo_control_delete"), null); }
 					 */
 
-				// kayit bazli control var
-				if (t.getAccessTips() != null && t.getAccessTips().indexOf("0") > -1) { // show
-					if (checkAccessRecordControlViolation(scd, 0, t.getTableId(),
-							requestParams.get(t.get_tableParamList().get(0).getDsc()))) {
-						throw new IWBException("security", "Form", formId, null, LocaleMsgCache.get2(0,
-								(String) scd.get("locale"), "fw_access_record_based_control_view"), null);
-					}
-				}
-				if (t.getAccessTips() != null && t.getAccessTips().indexOf("3") > -1) { // delete
-					if (checkAccessRecordControlViolation(scd, 3, t.getTableId(),
-							requestParams.get(t.get_tableParamList().get(0).getDsc()))) {
-						throw new IWBException("security", "Form", formId, null, LocaleMsgCache.get2(0,
-								(String) scd.get("locale"), "fw_access_record_based_control_delete"), null);
-					}
-				}
+
 			}
 		}
 		formResult.setApprovalRecord(appRecord);
 	}
 
-	public boolean checkAccessRecordControlViolation(Map<String, Object> scd, int accessTip, int tableId,
-			String tablePk) {
-		Map<String, String> rm = new HashMap<String, String>();
-		rm.put("xaccess_tip", "" + accessTip);
-		rm.put("xtable_id", "" + tableId);
-		rm.put("xtable_pk", tablePk);
-		Map m = queryEngine.executeQuery2Map(scd, 588, rm);
-		return (m != null && !GenericUtil.accessControl(scd, (short) accessTip, (String) m.get("access_roles"),
-				(String) m.get("access_users")));
-	}
+
 	
 }

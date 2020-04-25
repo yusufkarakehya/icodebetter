@@ -424,9 +424,7 @@ public class GlobalScriptEngine {
 		if (!GenericUtil.isEmpty(globalFuncResult.getGlobalFunc().getAccessSourceTypes())
 				&& !GenericUtil.hasPartInside2(globalFuncResult.getGlobalFunc().getAccessSourceTypes(), 1))
 			throw new IWBException("security", "GlobalFunc", globalFuncId, null, "Access Restrict Type Control", null);
-		if (acEngine.checkAccessRecordControlViolation(scd, 4, 20, "" + globalFuncId))
-			throw new IWBException("security", "GlobalFunc Execute", globalFuncId, null, "Access Execute Control",
-					null);
+
 
 		globalFuncResult.setErrorMap(new HashMap());
 		globalFuncResult.setRequestParams(requestParams);
