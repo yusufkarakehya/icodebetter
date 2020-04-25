@@ -1171,11 +1171,11 @@ public class VcsService {
 		
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
-			if(mt.getTableTip()!=0)continue;
+			if(mt==null || mt.get_tableFieldMap()==null || mt.getTableTip()!=0)continue;
 			if(GenericUtil.isEmpty(mt.get_tableParamList()) || GenericUtil.isEmpty(mt.get_tableFieldList()))continue;
-			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList()){
+			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList())try{
 				W5Table dt = FrameworkCache.getTable(projectUuid, tc.getRelatedTableId());
-				if(dt==null || dt.getTableTip()==0 || dt.getVcsFlag()==0)continue;
+				if(dt==null || dt.get_tableFieldMap()==null || dt.getTableTip()==0 || dt.getVcsFlag()==0)continue;
 				if(mt.get_tableFieldMap().get(tc.getTableFieldId())==null || dt.get_tableFieldMap().get(tc.getRelatedTableFieldId())==null 
 						|| (tc.getRelatedStaticTableFieldId()!=0 && dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId())==null))continue;
 				List params = new ArrayList();
@@ -1209,6 +1209,8 @@ public class VcsService {
 					o[4] = 4;
 					data.add(o);
 				}
+			} catch(Exception e) {
+				if(FrameworkSetting.debug)e.printStackTrace();
 			}
 			
 		}
@@ -1216,7 +1218,7 @@ public class VcsService {
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
 			if(mt.getTableTip()!=0)continue;
-			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList()){
+			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList())try{
 				W5Table dt = FrameworkCache.getTable(projectUuid, tc.getRelatedTableId());
 				if(dt==null || dt.getTableTip()==0 || dt.getVcsFlag()==0)continue;
 				if(mt.get_tableFieldMap().get(tc.getTableFieldId())==null || dt.get_tableFieldMap().get(tc.getRelatedTableFieldId())==null 
@@ -1253,6 +1255,8 @@ public class VcsService {
 					o[4] = 5;
 					data.add(o);
 				}
+			}catch(Exception e) {
+				if(FrameworkSetting.debug)e.printStackTrace();
 			}
 			
 		}

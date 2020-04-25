@@ -149,16 +149,6 @@ public class FrameworkService {
 		}
 	}
 
-	private boolean checkAccessRecordControlViolation(Map<String, Object> scd, int accessTip, int tableId,
-			String tablePk) {
-		Map<String, String> rm = new HashMap<String, String>();
-		rm.put("xaccess_tip", "" + accessTip);
-		rm.put("xtable_id", "" + tableId);
-		rm.put("xtable_pk", tablePk);
-		Map m = executeQuery2Map(scd, 588, rm);
-		return (m != null && !GenericUtil.accessControl(scd, (short) accessTip, (String) m.get("access_roles"),
-				(String) m.get("access_users")));
-	}
 
 	public W5FormResult getFormResultByQuery(Map<String, Object> scd, int formId, int queryId,
 			Map<String, String> requestParams) {
@@ -298,10 +288,7 @@ public class FrameworkService {
 		// return null;
 		// }
 		if (fa != null) { // bununla ilgili islemler
-			if (checkAccessRecordControlViolation(scd, 0, fa.getTableId(), fa.getTablePk())) {
-				throw new IWBException("security", "FileAttachment", fa.getFileAttachmentId(), null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_file_authorization"), null);
-			} else if (fa.getCustomizationId() != GenericUtil.uInt(scd.get("customizationId"))) {
+			if (fa.getCustomizationId() != GenericUtil.uInt(scd.get("customizationId"))) {
 				throw new IWBException("security", "File Attachment", fa.getFileAttachmentId(), null,
 						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_file_authorization"), null);
 			}

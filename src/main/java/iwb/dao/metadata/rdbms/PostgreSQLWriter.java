@@ -59,21 +59,21 @@ public class PostgreSQLWriter extends BaseDAO {
 	private CRUDEngine crudEngine;
 	
 	public void deleteProjectMetadata(String delProjectId) {
-		String[] tables = new String[] { "w5_table_access_control", "w5_form_cell_property", 
+		String[] tables = new String[] { "w5_access_delegation", "w5_form_cell_property", 
 				"w5_ws_look_up_detay", "w5_ws_look_up","w5_ws_model","w5_ws_model_param",
 				"m5_list_template", "w5_ws_server_token", "w5_ws_server_method_param", "w5_ws_server_method",
 				"w5_ws_server", "w5_ws_method_param", "w5_ws_method", "w5_ws", "m5_list", 
-				"w5_table_access_condition_sql", "w5_table_trigger", "w5_form_hint",
-				"w5_form_sms_mail_alarm", "w5_table_field_calculated", "w5_doc", "w5_list_column", "w5_list",
+				"w5_table_trigger", "w5_form_hint",
+				"w5_form_sms_mail_alarm", "w5_table_field_calculated", "w5_list_column", "w5_list",
 				"w5_data_view", "w5_converted_object", "w5_form_sms_mail", "w5_custom_grid_column_condtion",
 				"w5_custom_grid_column_renderer", "w5_conversion_col", "w5_conversion", "w5_feed",
 				"w5_excel_import_sheet_data", "w5_excel_import_sheet", "w5_excel_import",
-				"w5_table_child", "w5_help", "w5_bi_graph_dashboard", "w5_mobile_device",
-				"w5_approval_record", "w5_approval_step", "w5_approval", "w5_jasper_report", "w5_access_control",
+				"w5_table_child", "w5_bi_graph_dashboard", "w5_mobile_device",
+				"w5_approval_record", "w5_approval_step", "w5_approval", "w5_jasper_report",
 				"w5_user_tip", "w5_role"
 				// ,"w5_user"
-				, "w5_login_rule_detail", "w5_login_rule", "w5_user_role", "w5_jasper_object", "w5_jasper",
-				"w5_comment", "w5_form_value_cell", "w5_form_value", "w5_object_menu_item", "w5_grid_module",
+				, "w5_user_role", "w5_jasper_object", "w5_jasper",
+				"w5_comment", "w5_form_value_cell", "w5_form_value", "w5_object_menu_item", 
 				"w5_form_module", "w5_object_toolbar_item", "w5_exception_filter", "w5_xform_builder_detail",
 				"w5_xform_builder", "w5_component", "m5_menu", "w5_menu", "w5_template_object", "w5_template", "w5_sms",
 				"w5_table_param", "w5_form_cell", "w5_form", "w5_db_func_param", "w5_db_func", "w5_table_field",

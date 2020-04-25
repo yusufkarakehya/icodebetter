@@ -268,20 +268,7 @@ public class W5QueryResult implements W5MetaResult{
 			
 			switch(tabOrderCount){
 			case	0://WHERE
-				if(mainTable!=null && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd.get("customizationId"), "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
-					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
-					String pkField = query.get_queryFields().get(0).getDsc();
-					sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-						.append(") OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-						.append(" AND (position(','||?||',' in ','||coalesce(cx.access_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
-					
-					sqlParams.add(scd.get("customizationId"));
-					sqlParams.add(scd.get("customizationId"));
-					sqlParams.add(scd.get("roleId"));
-					sqlParams.add(scd.get("userId"));
-				}
+
 			//	sql.append(" WHERE level<=").append(PromisCache.getAppSettingIntValue(scd, "max_tree_query_level")); //cok dalmamasi icin
 				sqlParentWhere.append(sqlWhere);sqlParentParams.addAll(sqlParams);
 				sqlJoinOnWhere.append(sqlWhere);sqlJoinOnParams.addAll(sqlParams);
@@ -461,20 +448,6 @@ public class W5QueryResult implements W5MetaResult{
 			
 			switch(tabOrderCount){
 			case	0://WHERE
-				if(mainTable!=null && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd.get("customizationId"), "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
-					if(sqlWhere.length()>0)sqlWhere.append(" AND ");
-					String pkField = query.get_queryFields().get(0).getDsc();
-					sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-						.append(") OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-						.append(" AND (position(','||?||',' in ','||coalesce(cx.access_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
-					
-					sqlParams.add(scd.get("customizationId"));
-					sqlParams.add(scd.get("customizationId"));
-					sqlParams.add(scd.get("roleId"));
-					sqlParams.add(scd.get("userId"));
-				}
 			//	sql.append(" WHERE level<=").append(PromisCache.getAppSettingIntValue(scd, "max_tree_query_level")); //cok dalmamasi icin
 				sqlParentWhere.append(sqlWhere);sqlParentParams.addAll(sqlParams);
 				sqlJoinOnWhere.append(sqlWhere);sqlJoinOnParams.addAll(sqlParams);
@@ -846,119 +819,9 @@ public class W5QueryResult implements W5MetaResult{
 			String pkField = mainTable.get_tableFieldList().get(0).getDsc();
 			boolean accessControlSelfFlag = true;
 			//record based privilege
-			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd, "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
-				if(sqlWhere.length()>0)sqlWhere.append(" AND");
-				boolean ufFlag=false;
-				if(mainTable.getAccessViewTip()!=0 && mainTable.getAccessViewUserFields()!=null 
-						&& (mainTable.getAccessViewRoles()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewRoles(), scd.get("roleId").toString()))
-						&& (mainTable.getAccessViewUsers()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewUsers(), scd.get("userId").toString()))
-				){
-					String[] fieldIdz = mainTable.getAccessViewUserFields().split(",");
-					sqlWhere.append("(("); 
-					boolean bq=false;
-					for(String s:fieldIdz){
-						if(s.charAt(0)=='*'){
-							/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
-							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
-							if(accessConditionSql!=null){
-								Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
-					    		sqlFrom = ((StringBuilder)oz[0]).toString();
-								if(bq)sqlWhere.append(" OR ");else bq=true;
-								sqlWhere.append(oz[0]);
-								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-							}*/							
-							continue;
-						}
-						if(s.charAt(0)=='!'){
-							/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
-							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
-							if(accessConditionSql!=null){
-								W5Table t2 = FrameworkCache.getTable(scd, accessConditionSql.getTableId());
-								if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-									for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==mainTable.getTableId()){
-										StringBuilder sql2 = new StringBuilder();
-										if(tc.getRelatedStaticTableFieldId()>0){
-											sql2.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-										}
-										sql2.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=${scd.customizationId} AND ").append(accessConditionSql.getConditionCode().replace("x.", "hq.")).append(" AND hq.")
-										.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-										if(tc.getRelatedStaticTableFieldId()>0){
-											sql2.append(")");
-										}
-										sql2.append(")");
-										
-										Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
-							    		sqlFrom = ((StringBuilder)oz[0]).toString();
-										if(bq)sqlWhere.append(" OR ");else bq=true;
-										sqlWhere.append(oz[0]);
-										if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-										break;
-									}
-								}
-							}*/							
-							continue;
-						}
-						int tableFieldId = GenericUtil.uInt(s);
-						boolean hrc = false;
-						if(tableFieldId<0){
-							hrc = true;
-							tableFieldId=-tableFieldId;
-						}
-						W5TableField tf = mainTable.get_tableFieldMap().get(tableFieldId);
-						if(tf!=null){
-							if(bq)sqlWhere.append(" OR ");else bq=true;
-							if(hrc){
-								sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
-								sqlParams.add(scd.get("customizationId"));
-							} else {
-								sqlWhere.append("x.").append(tf.getDsc()).append("=?");
-							}
-							sqlParams.add(scd.get("userId"));
-						} else {//TODO
-/*							Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
-							if(tbId!=null){
-								W5Table t2 = FrameworkCache.getTable(mainTable.getCustomizationId(), tbId);
-								if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-									W5TableField tf2 = t2.get_tableFieldMap().get(tableFieldId);
-									for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==mainTable.getTableId()){
-										if(bq)sqlWhere.append(" OR ");else bq=true;
-										if(tc.getRelatedStaticTableFieldId()>0){
-											sqlWhere.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-										}
-										sqlWhere.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=? AND hq.").append(tf2.getDsc()).append("=?").append(" AND hq.")
-										.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-										if(tc.getRelatedStaticTableFieldId()>0){
-											sqlWhere.append(")");
-										}
-										sqlWhere.append(")");
-										sqlParams.add(scd.get("customizationId"));
-										sqlParams.add(scd.get("userId"));
-										break;
-									}
-								}
-							}*/
-						}
-					}
-					sqlWhere.append(") AND");
-					ufFlag=true;
-				}
-				
-
-				sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-					.append(")");
-				if(ufFlag)sqlWhere.append(")");
-				sqlWhere.append(" OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-					.append(" AND (position(','||?||',' in ','||coalesce(cx.access_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
-				
-				sqlParams.add(scd.get("customizationId"));
-				sqlParams.add(scd.get("customizationId"));
-				sqlParams.add(scd.get("roleId"));
-				sqlParams.add(scd.get("userId"));
-			}
 			
-			//approval icinde herhangi birinde varsa onu
+			
+			//workflow row based security
 			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
@@ -1312,119 +1175,9 @@ public class W5QueryResult implements W5MetaResult{
 			String pkField = mainTable.get_tableFieldList().get(0).getDsc();
 			boolean accessControlSelfFlag = true;
 			//record based privilege
-			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd, "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
-				if(sqlWhere.length()>0)sqlWhere.append(" AND");
-				boolean ufFlag=false;
-				if(mainTable.getAccessViewTip()!=0 && mainTable.getAccessViewUserFields()!=null 
-						&& (mainTable.getAccessViewRoles()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewRoles(), scd.get("roleId").toString()))
-						&& (mainTable.getAccessViewUsers()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewUsers(), scd.get("userId").toString()))
-				){
-					String[] fieldIdz = mainTable.getAccessViewUserFields().split(",");
-					sqlWhere.append("(("); 
-					boolean bq=false;
-					for(String s:fieldIdz){
-						if(s.charAt(0)=='*'){
-							/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
-							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
-							if(accessConditionSql!=null){
-								Object[] oz = DBUtil.filterExt4SQL(accessConditionSql.getConditionCode(), scd, requestParams2, null);
-					    		sqlFrom = ((StringBuilder)oz[0]).toString();
-								if(bq)sqlWhere.append(" OR ");else bq=true;
-								sqlWhere.append(oz[0]);
-								if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-							}	*/						
-							continue;
-						}
-						if(s.charAt(0)=='!'){
-							/*int accessConditionSqlId = GenericUtil.uInt(s.substring(1));
-							W5TableAccessConditionSql accessConditionSql = FrameworkCache.wAccessConditionSqlMap.get(accessConditionSqlId);
-							if(accessConditionSql!=null){
-								W5Table t2 = FrameworkCache.getTable(scd, accessConditionSql.getTableId());
-								if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-									for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==mainTable.getTableId()){
-										StringBuilder sql2 = new StringBuilder();
-										if(tc.getRelatedStaticTableFieldId()>0){
-											sql2.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-										}
-										sql2.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=${scd.customizationId} AND ").append(accessConditionSql.getConditionCode().replace("x.", "hq.")).append(" AND hq.")
-										.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-										if(tc.getRelatedStaticTableFieldId()>0){
-											sql2.append(")");
-										}
-										sql2.append(")");
-										
-										Object[] oz = DBUtil.filterExt4SQL(sql2.toString(), scd, requestParams2, null);
-							    		sqlFrom = ((StringBuilder)oz[0]).toString();
-										if(bq)sqlWhere.append(" OR ");else bq=true;
-										sqlWhere.append(oz[0]);
-										if(oz[1]!=null)sqlParams.addAll((List)oz[1]);
-										break;
-									}
-								}
-							}*/							
-							continue;
-						}
-						int tableFieldId = GenericUtil.uInt(s);
-						boolean hrc = false;
-						if(tableFieldId<0){
-							hrc = true;
-							tableFieldId=-tableFieldId;
-						}
-						W5TableField tf = mainTable.get_tableFieldMap().get(tableFieldId);
-						if(tf!=null){
-							if(bq)sqlWhere.append(" OR ");else bq=true;
-							if(hrc){
-								sqlWhere.append("exists(select 1 from iwb.w5_user_hrc_map hq where hq.customization_id=? AND hq.user_id=? AND hq.parent_user_id=x.").append(tf.getDsc()).append(")");
-								sqlParams.add(scd.get("customizationId"));
-							} else {
-								sqlWhere.append("x.").append(tf.getDsc()).append("=?");
-							}
-							sqlParams.add(scd.get("userId"));
-						} else {//TODO
-/*							Integer tbId = FrameworkCache.wTableFieldMap.get(tableFieldId);
-							if(tbId!=null){
-								W5Table t2 = FrameworkCache.getTable(mainTable.getCustomizationId(), tbId);
-								if(t2!=null && !GenericUtil.isEmpty(t2.get_tableChildList())){
-									W5TableField tf2 = t2.get_tableFieldMap().get(tableFieldId);
-									for(W5TableChild tc:t2.get_tableChildList())if(tc.getRelatedTableId()==mainTable.getTableId()){
-										if(bq)sqlWhere.append(" OR ");else bq=true;
-										if(tc.getRelatedStaticTableFieldId()>0){
-											sqlWhere.append("(x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal()).append(" AND ");
-										}
-										sqlWhere.append("exists(select 1 from ").append(t2.getDsc()).append(" hq where hq.customization_id=? AND hq.").append(tf2.getDsc()).append("=?").append(" AND hq.")
-										.append(t2.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(mainTable.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-										if(tc.getRelatedStaticTableFieldId()>0){
-											sqlWhere.append(")");
-										}
-										sqlWhere.append(")");
-										sqlParams.add(scd.get("customizationId"));
-										sqlParams.add(scd.get("userId"));
-										break;
-									}
-								}
-							}*/
-						}
-					}
-					sqlWhere.append(") AND");
-					ufFlag=true;
-				}
-				
-
-				sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-					.append(")");
-				if(ufFlag)sqlWhere.append(")");
-				sqlWhere.append(" OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-					.append(" AND (charindex(','||str(?)||',' , ','||coalesce(cx.access_roles,'-')||',')>0 OR charindex(','||str(?)||',' , ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
-				
-				sqlParams.add(scd.get("customizationId"));
-				sqlParams.add(scd.get("customizationId"));
-				sqlParams.add(scd.get("roleId"));
-				sqlParams.add(scd.get("userId"));
-			}
 			
-			//approval icinde herhangi birinde varsa onu
+			
+			//workflow based row security
 			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
@@ -1781,58 +1534,7 @@ public class W5QueryResult implements W5MetaResult{
 			String pkField = mainTable.get_tableFieldList().get(0).getDsc();
 			boolean accessControlSelfFlag = true;
 			//record based privilege
-			if(accessControlSelfFlag && FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag")!=0 && mainTable.getAccessTips()!=null && mainTable.getAccessTips().indexOf("0")>-1 && (FrameworkCache.getAppSettingIntValue(scd, "record_security_admin_see_all")!=0)){ // bu query'de record access control'u var ve admin yetkisi yok
-				if(sqlWhere.length()>0)sqlWhere.append(" AND");
-				boolean ufFlag=false;
-				if(mainTable.getAccessViewTip()!=0 && mainTable.getAccessViewUserFields()!=null 
-						&& (mainTable.getAccessViewRoles()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewRoles(), scd.get("roleId").toString()))
-						&& (mainTable.getAccessViewUsers()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewUsers(), scd.get("userId").toString()))
-				){
-					String[] fieldIdz = mainTable.getAccessViewUserFields().split(",");
-					sqlWhere.append("(("); 
-					boolean bq=false;
-					for(String s:fieldIdz){
-						W5TableField tf = mainTable.get_tableFieldMap().get(GenericUtil.uInt(s));
-						if(tf!=null){
-							if(bq)sqlWhere.append(" OR ");else bq=true;
-							sqlWhere.append("x.").append(tf.getDsc()).append("=?");
-							sqlParams.add(scd.get("userId"));
-						}
-					}
-					sqlWhere.append(") AND");
-					ufFlag=true;
-				}
-				
-				if(false){//TODO: simdilik daha yavas calistigi tespit edildi, o yuzden vazgecildi
-					String auditSchema = FrameworkCache.getAppSettingStringValue(0, "audit_schema");
-					if(auditSchema==null)auditSchema="promis_audit";
-					sqlWhere.append(" (not exists(select 1 from ").append(auditSchema).append(".").append(mainTable.getDsc()).append(" cx where ");//cx.").append(pkField)
-					StringBuilder s2 = new StringBuilder();
-					for(W5TableParam tp:mainTable.get_tableParamList())s2.append("cx.").append(tp.getExpressionDsc()).append("=x.").append(tp.getExpressionDsc()).append(" AND ");
-					s2.setLength(s2.length()-4);
-					sqlWhere.append(s2).append(")");
-							
-					if(ufFlag)sqlWhere.append(")");
-					sqlWhere.append(" OR exists(select 1 from ").append(auditSchema).append(".").append(mainTable.getDsc()).append(" cx where ").append(s2)
-					.append(" AND ((cx.USER_OBJECT_TIP=0 AND cx.object_id=?) OR (cx.USER_OBJECT_TIP=1 AND cx.object_id=?))))");
-					
-					sqlParams.add(scd.get("roleId"));
-					sqlParams.add(scd.get("userId"));
-				} else {
-					sqlWhere.append(" (not exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-						.append(")");
-					if(ufFlag)sqlWhere.append(")");
-					sqlWhere.append(" OR exists(select 1 from iwb.w5_access_control cx where cx.access_tip=0 AND cx.table_id=")
-						.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
-						.append(" AND (position(','||?||',' in ','||coalesce(cx.access_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_users,'-')||',')>0 ))) ");
-					
-					sqlParams.add(scd.get("customizationId"));
-					sqlParams.add(scd.get("customizationId"));
-					sqlParams.add(scd.get("roleId"));
-					sqlParams.add(scd.get("userId"));
-				}
-			}
+			
 			
 			//approval icinde herhangi birinde varsa onu
 			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){

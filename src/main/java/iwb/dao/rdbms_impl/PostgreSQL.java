@@ -3160,11 +3160,7 @@ public class PostgreSQL extends BaseDAO {
 				if (accessControlFlag)
 					sql.append(", ac.access_roles, ac.access_users");
 				sql.append(" from ").append(t.getDsc()).append(" x");
-				if (accessControlFlag)
-					sql.append(" left outer join iwb.w5_access_control ac on ac.ACCESS_TIP=0 AND ac.table_id=")
-							.append(t.getTableId())
-							.append(" AND ac.customization_id=${scd.customizationId} AND cast(ac.table_pk as int8)=x.")
-							.append(t.get_tableParamList().get(0).getExpressionDsc());
+
 				sql.append(" where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=${req.")
 						.append(t.get_tableParamList().get(0).getDsc()).append("}");
 				sql.append(DBUtil.includeTenantProjectPostSQL(scd, t));
@@ -3890,18 +3886,7 @@ public class PostgreSQL extends BaseDAO {
 			field.setDsc(FieldDefinitions.queryFieldName_Vcs);
 			queryResult.getPostProcessQueryFields().add(field);
 		}
-		if (FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "row_based_security_flag") != 0
-				&& mainTable.getAccessTips() != null && mainTable.getAccessTips().indexOf("0") > -1
-				&& (queryResult.getQueryColMap() == null || queryResult.getQueryColMap()
-						.containsKey(FieldDefinitions.queryFieldName_RowBasedSecurity))) {
-			sql2.append(",(select 1 from iwb.w5_access_control cx where cx.table_id=").append(query.getMainTableId())
-					.append(" AND cx.customization_id=").append(customizationId).append(" AND cx.table_pk=z.")
-					.append(pkFieldName).append(" limit 1) ").append(FieldDefinitions.queryFieldName_RowBasedSecurity)
-					.append(" ");
-			W5QueryField field = new W5QueryField();
-			field.setDsc(FieldDefinitions.queryFieldName_RowBasedSecurity);
-			queryResult.getPostProcessQueryFields().add(field);
-		}
+		
 		if (FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "file_attachment_flag") != 0
 				&& mainTable.getFileAttachmentFlag() != 0 && FrameworkCache.roleAccessControl(queryResult.getScd(), 101)
 				&& (queryResult.getQueryColMap() == null
