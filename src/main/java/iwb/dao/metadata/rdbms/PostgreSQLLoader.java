@@ -2098,15 +2098,14 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 				cusId);
 		if(!oms.isEmpty())return oms.get(0);
 		
-		if (oms == null) {
-			if(ms != 1) {
-				throw new IWBException("framework", "MailSetting", mailSettingId, null, "Wrong MailSetting ID: " + mailSettingId, null);
-			}
-			oms = find("from W5ObjectMailSetting w where w.mailSettingId=1 AND w.customizationId=0");
-			if(oms.isEmpty()) {
-				throw new IWBException("framework", "MailSetting", 1, null, "Wrong MailSetting ID: " + 1, null);
-			}
+		if(ms != 1) {
+			throw new IWBException("framework", "MailSetting", mailSettingId, null, "Wrong MailSetting ID: " + mailSettingId, null);
 		}
+		oms = find("from W5ObjectMailSetting w where w.mailSettingId=1 AND w.customizationId=0");
+		if(oms.isEmpty()) {
+			throw new IWBException("framework", "MailSetting", 1, null, "Wrong MailSetting ID: " + 1, null);
+		}
+
 		return oms.get(0);
 	}
 	
