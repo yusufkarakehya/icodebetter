@@ -32,8 +32,6 @@ public class W5Query implements java.io.Serializable {
 
 	private String sqlSelect;
 	
-	private String sqlPostSelect;
-
 	private String sqlFrom;
 
 	private String sqlWhere;
@@ -235,14 +233,7 @@ public class W5Query implements java.io.Serializable {
 	public void set_tablePkTabOrder(short tablePkTabOrder) {
 		_tablePkTabOrder = tablePkTabOrder;
 	}
-	@Column(name="sql_post_select")
-	public String getSqlPostSelect() {
-		return sqlPostSelect;
-	}
 
-	public void setSqlPostSelect(String sqlPostSelect) {
-		this.sqlPostSelect = sqlPostSelect;
-	}
 	@Column(name="data_fill_direction_tip")
 	public short getDataFillDirectionTip() {
 		return dataFillDirectionTip;

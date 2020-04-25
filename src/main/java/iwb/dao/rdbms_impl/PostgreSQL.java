@@ -432,20 +432,6 @@ public class PostgreSQL extends BaseDAO {
 							queryResult.getSqlParams().add(queryResult.getStartRowNumber());
 
 						sql2.append("select z.*");
-						if (query.getSqlPostSelect() != null && query.getSqlPostSelect().trim().length() > 2) {
-							if (query.getSqlPostSelect().contains("${")) {
-								Object[] oz = DBUtil.filterExt4SQL(query.getSqlPostSelect(), queryResult.getScd(),
-										queryResult.getRequestParams(), null);
-								sql2.append(", ").append(oz[0]);
-								if (oz[1] != null) {
-									queryResult.getSqlParams().addAll(0, (List) oz[1]);
-									paramIndex.getAndAdd(((List) oz[1]).size());
-								}
-
-							} else
-								sql2.append(", ").append(query.getSqlPostSelect());
-							sql2.append(" ");
-						}
 						if (queryResult.getPostProcessQueryFields() != null && mainTable != null
 								&& queryResult.getViewLogModeTip() == 0) {
 							addPostQueryFields(queryResult, sql2, paramIndex);
@@ -541,23 +527,6 @@ public class PostgreSQL extends BaseDAO {
 						if (queryResult.getPostProcessQueryFields() != null && mainTable != null
 								&& queryResult.getViewLogModeTip() == 0) {
 							sql2.append("select z.*"); //
-							if (query.getSqlPostSelect() != null && query.getSqlPostSelect().trim().length() > 2) {
-								if (query.getSqlPostSelect().contains("${")) {
-									Object[] oz = DBUtil.filterExt4SQL(query.getSqlPostSelect(), queryResult.getScd(),
-											queryResult.getRequestParams(), null);
-									sql2.append(", ").append(oz[0]);
-									if (oz[1] != null) {
-										queryResult.getSqlParams().addAll(0, (List) oz[1]);
-										paramIndex.getAndAdd(((List) oz[1]).size());
-									}
-								} else
-									sql2.append(", ").append(query.getSqlPostSelect());
-								if (queryResult.getQueryColMap() != null)
-									for (W5QueryField qf : queryResult.getQuery().get_queryFields())
-										if (qf.getPostProcessTip() == 99) {
-											queryResult.getQueryColMap().put(qf.getDsc(), qf);
-										}
-							}
 							addPostQueryFields(queryResult, sql2, paramIndex);
 
 							for (W5QueryField qf : queryResult.getQuery().get_queryFields())
@@ -606,16 +575,6 @@ public class PostgreSQL extends BaseDAO {
 
 						} else {
 							sql2.append("select z.*");
-							if (query.getSqlPostSelect() != null && query.getSqlPostSelect().trim().length() > 2) {
-								if (query.getSqlPostSelect().contains("${")) {
-									Object[] oz = DBUtil.filterExt4SQL(query.getSqlPostSelect(), queryResult.getScd(),
-											queryResult.getRequestParams(), null);
-									sql2.append(", ").append(oz[0]);
-									if (oz[1] != null)
-										queryResult.getSqlParams().addAll(0, (List) oz[1]);
-								} else
-									sql2.append(", ").append(query.getSqlPostSelect());
-							}
 							for (W5QueryField qf : queryResult.getQuery().get_queryFields())
 								if (qf.getPostProcessTip() == 12 && qf.getLookupQueryId() != 0) { // queryField'da
 																									// postProcessTip=lookupTable

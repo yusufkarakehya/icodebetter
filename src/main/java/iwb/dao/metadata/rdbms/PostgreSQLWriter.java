@@ -412,10 +412,7 @@ public class PostgreSQLWriter extends BaseDAO {
 														// connect
 														// olmayacak
 					sql.append(" group by ").append(query.getSqlGroupby().trim());
-				if (query.getSqlPostSelect() != null && query.getSqlPostSelect().trim().length() > 2) {
-					sql = new StringBuilder(sql.length() + 100).append("select z.*,").append(query.getSqlPostSelect())
-							.append(" from (").append(sql).append(") z");
-				}
+
 			}
 			Object[] oz = DBUtil.filterExt4SQL(sql.toString(), scd, null, null);
 			final String sqlStr = ((StringBuilder) oz[0]).toString();
