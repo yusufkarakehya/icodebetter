@@ -36,7 +36,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 	private short doUpdateLogFlag;
 	private short doDeleteLogFlag;
 
-	private String accessTips;
 	private short vcsFlag;
 
 	private short accessViewTip;
@@ -58,11 +57,7 @@ public class W5Table implements java.io.Serializable, W5Base {
 	private String accessDeleteUsers;
 	private String accessDeleteUserFields;
 
-	private short accessPermissionTip;
-	private String accessPermissionRoles;
-	private String accessPermissionUsers;
-	private String accessPermissionUserFields;
-	
+
 	private String accessSourceTypes;
 
 	private short makeCommentFlag;
@@ -152,16 +147,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 
 	public void set_tableParamList(List<W5TableParam> tableParamList) {
 		_tableParamList = tableParamList;
-	}
-
-
-	@Column(name="access_tips")
-	public String getAccessTips() {
-		return accessTips;
-	}
-
-	public void setAccessTips(String accessTips) {
-		this.accessTips = accessTips;
 	}
 	
 
@@ -281,41 +266,6 @@ public class W5Table implements java.io.Serializable, W5Base {
 		this.accessDeleteUserFields = accessDeleteUserFields;
 	}
 
-	@Column(name="access_permission_tip")
-	public short getAccessPermissionTip() {
-		return accessPermissionTip;
-	}
-
-	public void setAccessPermissionTip(short accessPermissionTip) {
-		this.accessPermissionTip = accessPermissionTip;
-	}
-
-	@Column(name="access_permission_roles")
-	public String getAccessPermissionRoles() {
-		return accessPermissionRoles;
-	}
-
-	public void setAccessPermissionRoles(String accessPermissionRoles) {
-		this.accessPermissionRoles = accessPermissionRoles;
-	}
-
-	@Column(name="access_permission_users")
-	public String getAccessPermissionUsers() {
-		return accessPermissionUsers;
-	}
-
-	public void setAccessPermissionUsers(String accessPermissionUsers) {
-		this.accessPermissionUsers = accessPermissionUsers;
-	}
-
-	@Column(name="access_permission_user_fields")
-	public String getAccessPermissionUserFields() {
-		return accessPermissionUserFields;
-	}
-
-	public void setAccessPermissionUserFields(String accessPermissionUserFields) {
-		this.accessPermissionUserFields = accessPermissionUserFields;
-	}
 
 
 	@Transient
@@ -483,16 +433,12 @@ public class W5Table implements java.io.Serializable, W5Base {
 			this.doUpdateLogFlag==t.getDoUpdateLogFlag() &&
 			this.doDeleteLogFlag==t.getDoDeleteLogFlag() &&
 	
-	
-	
-			GenericUtil.safeEquals(this.accessTips,t.getAccessTips()) &&
-			
 			this.accessViewTip==t.getAccessViewTip() &&
 			GenericUtil.safeEquals(this.accessViewRoles,t.getAccessViewRoles()) &&
 			GenericUtil.safeEquals(this.accessViewUsers,t.getAccessViewUsers()) &&
 			GenericUtil.safeEquals(this.accessViewUserFields,t.getAccessViewUserFields()) &&
 			
-			this.accessInsertTip==t.getAccessInsertTip() && //0:kisitlama yok, 1:var
+			this.accessInsertTip==t.getAccessInsertTip() && //0:no restriction
 			GenericUtil.safeEquals(this.accessInsertRoles,t.getAccessInsertRoles()) &&
 			GenericUtil.safeEquals(this.accessInsertUsers,t.getAccessInsertUsers()) &&
 			
@@ -506,10 +452,7 @@ public class W5Table implements java.io.Serializable, W5Base {
 			GenericUtil.safeEquals(this.accessDeleteUsers,t.getAccessDeleteUsers()) &&
 			GenericUtil.safeEquals(this.accessDeleteUserFields,t.getAccessDeleteUserFields()) &&
 	
-			this.accessPermissionTip==t.getAccessPermissionTip() &&
-			GenericUtil.safeEquals(this.accessPermissionRoles,t.getAccessPermissionRoles()) &&
-			GenericUtil.safeEquals(this.accessPermissionUsers,t.getAccessPermissionUsers()) &&
-			GenericUtil.safeEquals(this.accessPermissionUserFields,t.getAccessPermissionUserFields()) &&
+			
 	
 			this.makeCommentFlag==t.getMakeCommentFlag() &&
 			this.defaultUpdateFormId==t.getDefaultUpdateFormId() &&

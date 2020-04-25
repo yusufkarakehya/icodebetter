@@ -617,11 +617,7 @@ public class F7 implements ViewMobileAdapter {
 					&& FrameworkCache.roleAccessControl(scd, 101))
 				s.append(",\n fileAttachFlag:true, fileAttachCount:").append(
 						formResult.getFileAttachmentCount());
-			if (FrameworkCache.getAppSettingIntValue(scd,
-					"row_based_security_flag") != 0
-					&& ((Integer) scd.get("userTip") != 3 && t.getAccessTips() != null))
-				s.append(",\n accessControlFlag:true, accessControlCount:")
-						.append(formResult.getAccessControlCount());
+
 			if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null){
 				s.append(",\n subLists:[");
 				boolean bq = false;
@@ -1302,11 +1298,7 @@ public class F7 implements ViewMobileAdapter {
 					&& FrameworkCache.roleAccessControl(scd, 101))
 				s.append(",\n fileAttachFlag:true, fileAttachCount:").append(
 						formResult.getFileAttachmentCount());
-			if (FrameworkCache.getAppSettingIntValue(scd,
-					"row_based_security_flag") != 0
-					&& ((Integer) scd.get("userTip") != 3 && t.getAccessTips() != null))
-				s.append(",\n accessControlFlag:true, accessControlCount:")
-						.append(formResult.getAccessControlCount());
+
 			if(!GenericUtil.isEmpty(f.get_moduleList()) && formResult.getModuleListMap()!=null){
 				s.append(",\n subLists:[");
 				boolean bq = false;

@@ -821,25 +821,6 @@ public class UIEngine {
 			templateObjectListExt.addAll(pr.getPage().get_pageObjectList());
 
 			requestParams.put("_dont_throw", "1");
-			if (pageId == 238) { // Record based privilge 
-				int objectId = GenericUtil.uInt(requestParams.get("_gid1"));
-				if (objectId == 477) {
-					W5Table t = FrameworkCache.getTable(scd, GenericUtil.uInt(requestParams.get("crud_table_id")));
-					if (t.getAccessPermissionUserFields() != null)
-						requestParams.put(t.get_tableParamList().get(0).getDsc(), requestParams.get("_table_pk"));
-					// Kontrol atanmışsa ve kullanıcının yetkisi yoksa
-					if (t.getAccessPermissionTip() == 1
-							&& !GenericUtil.accessControl(scd, t.getAccessPermissionTip(), t.getAccessPermissionRoles(),
-									t.getAccessPermissionUsers())
-							&& (t.getAccessPermissionUserFields() == null || dao.accessUserFieldControl(t,
-									t.getAccessPermissionUserFields(), scd, requestParams, null))) {
-						throw new IWBException("security", "Table",
-								GenericUtil.uInt(requestParams.get("crud_table_id")), null,
-								LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_yetkilendirme_yetkisi"),
-								null);
-					}
-				}
-			}
 
 			for (int i = 1; requestParams.containsKey("_gid" + i) || requestParams.containsKey("_fid" + i)
 					|| requestParams.containsKey("_dvid" + i) || requestParams.containsKey("_lvid" + i)
@@ -857,8 +838,7 @@ public class UIEngine {
 					objectTip = -3;
 				}
 				if (objectId == 0) {
-					objectId = GenericUtil.uInt(requestParams.get("_dvid" + i)); // data
-																					// view
+					objectId = GenericUtil.uInt(requestParams.get("_dvid" + i)); // card
 					objectTip = -2;
 				}
 				if (objectId == 0) {
@@ -918,8 +898,7 @@ public class UIEngine {
 							? FrameworkCache.getTable(scd, gridResult.getGrid().get_query().getMainTableId())
 							: null;
 					if (!debugAndDeveloper && mainTable != null
-							&& (((mainTable.getAccessTips() == null || mainTable.getAccessTips().indexOf("0") == -1)
-									&& mainTable.getAccessViewUserFields() == null
+							&& ((mainTable.getAccessViewUserFields() == null
 									&& !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(),
 											mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers()))))
 						obz = gridResult.getGrid().getDsc();
@@ -948,8 +927,7 @@ public class UIEngine {
 							? FrameworkCache.getTable(scd, cardResult.getCard().get_query().getMainTableId())
 							: null;
 					if (!debugAndDeveloper && mainTable != null
-							&& (((mainTable.getAccessTips() == null || mainTable.getAccessTips().indexOf("0") == -1)
-									&& mainTable.getAccessViewUserFields() == null
+							&& ((mainTable.getAccessViewUserFields() == null
 									&& !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(),
 											mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers()))))
 						obz = cardResult.getCard().getDsc();
@@ -975,8 +953,7 @@ public class UIEngine {
 											listViewResult.getListView().get_query().getMainTableId())
 									: null;
 					if (!debugAndDeveloper && mainTable != null
-							&& (((mainTable.getAccessTips() == null || mainTable.getAccessTips().indexOf("0") == -1)
-									&& mainTable.getAccessViewUserFields() == null
+							&& (( mainTable.getAccessViewUserFields() == null
 									&& !GenericUtil.accessControl(scd, mainTable.getAccessViewTip(),
 											mainTable.getAccessViewRoles(), mainTable.getAccessViewUsers()))))
 						obz = listViewResult.getListView().getDsc();
@@ -1046,13 +1023,7 @@ public class UIEngine {
 					}
 					break;
 				}
-				if (pr.getPage().getTemplateTip() <= 2 && objectCount == 0) { // daha
-																				// ilk
-																				// objede
-																				// sorun
-																				// varsa
-																				// exception
-																				// ver
+				if (pr.getPage().getTemplateTip() <= 2 && objectCount == 0) { // throw exception for the first object
 					if (obz instanceof String)
 						throw new IWBException("security", "Module", o.getObjectId(), null,
 								"Role Access Control(Page Object)", null);

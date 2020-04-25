@@ -523,20 +523,6 @@ public class FrameworkCache {
 
 
 
-
-	synchronized private	static void reorganizeFeedList(List<Log5Feed> lx){
-		if(lx.size()>FrameworkSetting.feedMaxDepth){
-			List<Log5Feed> lx2 = new ArrayList<Log5Feed>(FrameworkSetting.feedMaxDepth+10);
-			for(Log5Feed f:lx)if(f!=null)lx2.add(f);//aradaki null'lari atiyor
-			if(lx2.size()>lx.size()/2){
-				lx.clear();
-				lx.addAll(lx2.subList(lx2.size() - lx.size()/2, lx2.size()));
-			} else {
-				lx.clear();
-				lx.addAll(lx2);
-			}
-		}
-	}
 	public static boolean addFeed(Map scd,  Log5Feed feed, boolean publish){
 	/*	List<Log5Feed> lx = wFeeds.get((Integer)scd.get("customizationId"));
 		if(lx==null){

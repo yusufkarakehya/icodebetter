@@ -723,7 +723,6 @@ public class W5QueryResult implements W5MetaResult{
 		if(mainTable!=null && mainTable.getAccessViewTip()!=0 && !GenericUtil.isEmpty(mainTable.getAccessViewUserFields()) 
 				&& (mainTable.getAccessViewRoles()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewRoles(), scd.get("roleId").toString()))
 				&& (mainTable.getAccessViewUsers()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewUsers(), scd.get("userId").toString()))
-				&& (mainTable.getAccessTips()==null || mainTable.getAccessTips().indexOf("0")==-1)//record based yetkilendirme yok
 		){
 			String[] fieldIdz = mainTable.getAccessViewUserFields().split(",");
 			sqlWhere.append(sqlWhere.length()>0 ? " AND (":" ("); 
@@ -1079,7 +1078,6 @@ public class W5QueryResult implements W5MetaResult{
 		if(mainTable!=null && mainTable.getAccessViewTip()!=0 && !GenericUtil.isEmpty(mainTable.getAccessViewUserFields()) 
 				&& (mainTable.getAccessViewRoles()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewRoles(), scd.get("roleId").toString()))
 				&& (mainTable.getAccessViewUsers()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewUsers(), scd.get("userId").toString()))
-				&& (mainTable.getAccessTips()==null || mainTable.getAccessTips().indexOf("0")==-1)//record based yetkilendirme yok
 		){
 			String[] fieldIdz = mainTable.getAccessViewUserFields().split(",");
 			sqlWhere.append(sqlWhere.length()>0 ? " AND (":" ("); 
@@ -1514,7 +1512,6 @@ public class W5QueryResult implements W5MetaResult{
 		if(mainTable!=null && mainTable.getAccessViewTip()!=0 && mainTable.getAccessViewUserFields()!=null 
 				&& (mainTable.getAccessViewRoles()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewRoles(), scd.get("roleId").toString()))
 				&& (mainTable.getAccessViewUsers()==null || !GenericUtil.hasPartInside(mainTable.getAccessViewUsers(), scd.get("userId").toString()))
-				&& (mainTable.getAccessTips()==null || mainTable.getAccessTips().indexOf("0")==-1)//record based yetkilendirme yok
 		){
 			String[] fieldIdz = mainTable.getAccessViewUserFields().split(",");
 			sqlWhere.append(sqlWhere.length()>0 ? " AND (":" ("); 

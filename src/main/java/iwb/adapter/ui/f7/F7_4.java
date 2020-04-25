@@ -856,10 +856,6 @@ public class F7_4 implements ViewMobileAdapter {
           && FrameworkCache.roleAccessControl(scd, 101))
         s.append(",\n fileAttachFlag:true, fileAttachCount:")
             .append(fr.getFileAttachmentCount());
-      if (FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag") != 0
-          && ((Integer) scd.get("userTip") != 3 && t.getAccessTips() != null))
-        s.append(",\n accessControlFlag:true, accessControlCount:")
-            .append(fr.getAccessControlCount());
       if (!GenericUtil.isEmpty(f.get_moduleList()) && fr.getModuleListMap() != null) {
         s.append(",\n subLists:[");
         boolean bq = false;

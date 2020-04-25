@@ -310,9 +310,6 @@ public class React16 implements ViewAdapter {
 			if (FrameworkCache.getAppSettingIntValue(scd, "file_attachment_flag") != 0 && t.getFileAttachmentFlag() != 0
 					&& FrameworkCache.roleAccessControl(scd, 101))
 				s.append(",\n fileAttachFlag:true, fileAttachCount:").append(fr.getFileAttachmentCount());
-			if (FrameworkCache.getAppSettingIntValue(scd, "row_based_security_flag") != 0
-					&& ((Integer) scd.get("userTip") != 3 && t.getAccessTips() != null))
-				s.append(",\n accessControlFlag:true, accessControlCount:").append(fr.getAccessControlCount());
 	
 			if (fr.isViewMode())s.append(",\n viewMode:true");
 	
@@ -2630,12 +2627,7 @@ public class React16 implements ViewAdapter {
 					// if(g.get_defaultCrudForm().get_sourceTable().getFileAttachmentFlag()!=0)
 					int tableId = t.getTableId();
 					if (tableId != 0 && scd != null) {
-						if (FrameworkCache.getAppSettingIntValue(customizationId,
-								"row_based_security_flag") != 0
-								&& (Integer) scd.get("userTip") != 3
-								&& t.getAccessTips() != null
-								&& t.getAccessTips().length() > 0)
-							buf.append(",\n accessControlFlag:true");
+
 						if (FrameworkCache.getAppSettingIntValue(customizationId,
 								"file_attachment_flag") != 0
 								&& t.getFileAttachmentFlag() != 0
@@ -2652,8 +2644,6 @@ public class React16 implements ViewAdapter {
 							buf.append(",\n makeCommentFlag:true");
 						
 					
-	//					if (FrameworkCache.roleAccessControl(scd,  11))buf.append(",\n bulkUpdateFlag:true");
-	//					if (FrameworkCache.roleAccessControl(scd, 104))buf.append(",\n bulkEmailFlag:true");
 					}
 				} else {
 					buf.append(",\n crudFormId:")

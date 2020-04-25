@@ -3083,7 +3083,6 @@ public class PostgreSQL extends BaseDAO {
 			} else if (!GenericUtil.isEmpty(t.get_tableParamList())) {
 				requestParams.put(t.get_tableParamList().get(0).getDsc(), "" + tablePk);
 				StringBuilder sql = new StringBuilder(512);
-				boolean accessControlFlag = false;
 				sql.append("select ");
 				if (t.getSummaryRecordSql() == null) // bir tane degeriini
 														// koyacagiz
@@ -3114,10 +3113,7 @@ public class PostgreSQL extends BaseDAO {
 					sql.append(", (select count(1) from iwb.w5_comment cx where cx.table_id=").append(t.getTableId())
 							.append(" AND cx.project_uuid='${scd.projectId}' AND cx.table_pk=x.")
 							.append(t.get_tableParamList().get(0).getExpressionDsc()).append(") pcomment_count ");
-				if (t.getAccessTips() != null && GenericUtil.hasPartInside2(t.getAccessTips(), "0"))
-					accessControlFlag = true;
-				if (accessControlFlag)
-					sql.append(", ac.access_roles, ac.access_users");
+
 				sql.append(" from ").append(t.getDsc()).append(" x");
 
 				sql.append(" where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=${req.")
@@ -3131,9 +3127,6 @@ public class PostgreSQL extends BaseDAO {
 				l.add(trh);
 
 				if (m != null) {
-					if (accessControlFlag)
-						trh.setViewAccessControl(new W5AccessControlHelper((String) m.get("access_roles"),
-								(String) m.get("access_users")));
 					if (m.size() == 1) {
 						Object o = m.values().iterator().next();
 						if (o != null)
@@ -4026,8 +4019,7 @@ public class PostgreSQL extends BaseDAO {
 		if (!GenericUtil.accessControlTable(scd, t))
 			return false;
 		if (tablePk != null && (!GenericUtil.isEmpty(t.get_approvalMap()) || (t.getAccessViewTip() != 0
-				&& ((t.getAccessTips() != null && GenericUtil.hasPartInside2(t.getAccessTips(), "0")
-						|| !GenericUtil.isEmpty(t.getAccessViewUserFields())))))) { // TODO
+				))) { // TODO
 																					// :
 																					// ekstra
 																					// record
