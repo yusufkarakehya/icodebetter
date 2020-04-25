@@ -32,7 +32,6 @@ public class W5Conversion implements java.io.Serializable {
 	private int srcFormId;
 	private int dstFormId;
 	private short rowErrorStrategyTip;
-	private short includeFileAttachmentFlag;
 	private short previewFlag;
 	private short synchOnUpdateFlag;
 	private short conversionTip;
@@ -96,13 +95,6 @@ public class W5Conversion implements java.io.Serializable {
 		_conversionColMap = conversionColMap;
 	}
 
-	@Column(name="include_file_attachment_flag")
-	public short getIncludeFileAttachmentFlag() {
-		return includeFileAttachmentFlag;
-	}
-	public void setIncludeFileAttachmentFlag(short includeFileAttachmentFlag) {
-		this.includeFileAttachmentFlag = includeFileAttachmentFlag;
-	}
 	@Column(name="preview_flag")
 	public short getPreviewFlag() {
 		return previewFlag;
@@ -189,7 +181,6 @@ public class W5Conversion implements java.io.Serializable {
 			this.srcFormId == c.getSrcFormId() &&
 			this.dstFormId == c.getDstFormId() &&
 			this.rowErrorStrategyTip == c.getRowErrorStrategyTip() &&
-			this.includeFileAttachmentFlag == c.getIncludeFileAttachmentFlag() &&
 			this.previewFlag == c.getPreviewFlag() &&
 			this.synchOnUpdateFlag == c.getSynchOnUpdateFlag() &&
 			this.conversionTip == c.getConversionTip() &&

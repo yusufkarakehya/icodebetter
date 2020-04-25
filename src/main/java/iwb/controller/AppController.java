@@ -1473,7 +1473,7 @@ public class AppController implements InitializingBean {
 			if (request.getRequestURI().indexOf(".xls") != -1 || "xls".equals(request.getParameter("_fmt")))
 				result = new ModelAndView(new RptExcelRenderer(), m);
 			else if (request.getRequestURI().indexOf(".pdf") != -1)
-				result = new ModelAndView(new RptPdfRenderer(service.getCustomizationLogoFilePath(scd)), m);
+				result = new ModelAndView(new RptPdfRenderer(null), m);
 			else if (request.getRequestURI().indexOf(".csv") != -1) {
 				response.setContentType("application/octet-stream");
 				response.getWriter().print(GenericUtil.report2csv(list));
@@ -1585,7 +1585,10 @@ public class AppController implements InitializingBean {
 		String filePath = null;
 		W5FileAttachment fa = service.loadFile(scd, fileAttachmentId);
 		if (fa == null) { // bulunamamis TODO
-			throw new IWBException("validation", "File Attachment", fileAttachmentId, null, "Wrong Id: " + fileAttachmentId, null);
+			System.out.println("Wrong File Id: " + fileAttachmentId);
+			//throw new IWBException("validation", "File Attachment", fileAttachmentId, null, "Wrong Id: " + fileAttachmentId, null);
+			fa = new W5FileAttachment(scd);
+			fa.setFileAttachmentId(1);
 		}
 
 		if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // man / woman default picture
@@ -1692,34 +1695,6 @@ public class AppController implements InitializingBean {
 		response.getWriter().close();
 	}
 	
-	@RequestMapping("/getGraphDashboards")
-	public void hndGetGraphDashboards(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		logger.info("hndGetGraphDashboards");
-		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-
-		List<W5BIGraphDashboard> l = service.getGraphDashboards(scd);
-		if(GenericUtil.isEmpty(l)){
-			response.getWriter().write("{\"success\":true,\"data\":[]}");
-		} else {
-			StringBuilder s = new StringBuilder();
-			s.append("{\"success\":true,\"data\":[");
-			boolean b = false;
-			for(W5BIGraphDashboard gd:l){
-				if(b)s.append(","); else b=true;
-				s.append(f7.serializeGraphDashboard(gd, scd));
-			}
-			s.append("]}");
-
-			response.getWriter().write(s.toString());
-			
-		}
-		response.getWriter().close();
-	}
-
-
-
 	@RequestMapping("/ajaxGetLoginLang")
 	public void hndGetLoginLang(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {

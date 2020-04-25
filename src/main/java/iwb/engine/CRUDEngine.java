@@ -1,9 +1,7 @@
 package iwb.engine;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,8 +18,8 @@ import org.springframework.stereotype.Component;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
-import iwb.custom.trigger.PostFormTrigger;
-import iwb.dao.rdbms_impl.MetadataLoaderDAO;
+import iwb.dao.metadata.MetadataLoader;
+import iwb.dao.metadata.rdbms.PostgreSQLWriter;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5WorkflowRecord;
@@ -31,7 +29,6 @@ import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableEvent;
-import iwb.domain.db.W5VcsObject;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowRecord;
 import iwb.domain.db.W5WorkflowStep;
@@ -44,7 +41,6 @@ import iwb.exception.IWBException;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
 import iwb.util.NashornUtil;
-import iwb.util.UserUtil;
 
 @Component
 public class CRUDEngine {
@@ -54,8 +50,12 @@ public class CRUDEngine {
 
 	@Lazy
 	@Autowired
-	private MetadataLoaderDAO metaDataDao;
+	private MetadataLoader metadataLoader;
 
+	@Lazy
+	@Autowired
+	private PostgreSQLWriter metadataWriter;
+	
 	@Lazy
 	@Autowired
 	private ConversionEngine conversionEngine;
@@ -94,7 +94,7 @@ public class CRUDEngine {
 			Map<String, Object> scd = formResult.getScd();
 			Map<String, String> requestParams = formResult.getRequestParams();
 
-			PostFormTrigger.beforePostForm(formResult, dao, paramSuffix);
+			metadataWriter.beforePostForm(formResult, dao, paramSuffix);
 			boolean dev = scd.get("roleId") != null && (Integer) scd.get("roleId") == 0
 					&& GenericUtil.uInt(requestParams, "_dev") != 0;
 			String projectId = dev ? FrameworkSetting.devUuid : (String) scd.get("projectId");
@@ -1006,7 +1006,7 @@ public class CRUDEngine {
 				/* end of sms/mail customized templates */
 
 				/* vcs control */
-				extFormVcsControl(formResult, action, scd, requestParams, t, ptablePk);
+				if(t.getVcsFlag()!=0)metadataWriter.extFormVcsControl(formResult, action, scd, requestParams, t, ptablePk);
 				/* end of vcs */
 
 				if (action == 2) { // conversion time
@@ -1016,34 +1016,20 @@ public class CRUDEngine {
 																			// burda
 						int conversionId = GenericUtil.uInt(requestParams.get("_cnvId"));
 						int conversionTablePk = GenericUtil.uInt(requestParams.get("_cnvTblPk"));
-						List<W5Conversion> lcnv = dao.find(
-								"from W5Conversion x where x.conversionId=?0 AND x.projectUuid=?1", conversionId,
-								(String) scd.get("projectId"));
-						if (lcnv.size() == 1 && lcnv.get(0).getDstFormId() == formId) { // bu
-																						// form'a
-																						// aitmis
-																						// conversion
-							W5Conversion cnv = lcnv.get(0);
+						W5Conversion cnv = (W5Conversion)metadataLoader.getMetadataObject("W5Conversion","conversionId", conversionId,
+								(String) scd.get("projectId"), null);
+						if (cnv!=null && cnv.getDstFormId() == formId) { // validation for Destination Conversion form
 							W5ConvertedObject co = new W5ConvertedObject(scd, conversionId, conversionTablePk,
 									GenericUtil.uInt(ptablePk));
 							dao.saveObject(co);
-							if (cnv.getIncludeFileAttachmentFlag() != 0) {
-								dao.executeUpdateSQLQuery("{call pcopy_file_attach( ?, ? , ?, ?, ?); }",
-										(Integer) scd.get("userRoleId"), cnv.getSrcTableId(), conversionTablePk,
-										cnv.getDstTableId(), GenericUtil.uInt(ptablePk));
-							}
 							if (!GenericUtil.isEmpty(cnv.getRhinoCode())) {
 								scriptEngine.executeScript(scd, requestParams, cnv.getRhinoCode(), null, "707r"+cnv.getConversionId());
 							}
 						}
 					}
 				}
-
-				/* feed */
-//				extFormFeed(formResult, scd, requestParams, t, ptablePk, feed, feedTableId, feedTablePk);
-				/* end of feed */
 			}
-			PostFormTrigger.afterPostForm(formResult, dao, paramSuffix);
+			metadataWriter.afterPostForm(formResult, paramSuffix);
 
 			if (FrameworkSetting.liveSyncRecord && formResult.getErrorMap().isEmpty() && formResult.getForm() != null
 					&& formResult.getForm().getObjectTip() == 2) {
@@ -1084,7 +1070,7 @@ public class CRUDEngine {
 			Map<String, String> requestParams, String prefix, Set<String> checkedParentRecords) {
 		List<W5QueuedActionHelper> queuedGlobalFuncList = new ArrayList<W5QueuedActionHelper>();
 
-		W5FormResult formResult = metaDataDao.getFormResult(scd, formId, 2, requestParams);
+		W5FormResult formResult = metadataLoader.getFormResult(scd, formId, 2, requestParams);
 		W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
 		if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 			throw new IWBException("security", "Module", 0, null,
@@ -1214,7 +1200,7 @@ public class CRUDEngine {
 			action = 1;
 			requestParams.put("a", "1");
 		}
-		W5FormResult mainFormResult = metaDataDao.getFormResult(scd, formId, action, requestParams);
+		W5FormResult mainFormResult = metadataLoader.getFormResult(scd, formId, action, requestParams);
 		boolean dev = scd.get("roleId") != null && (Integer) scd.get("roleId") == 0
 				&& GenericUtil.uInt(requestParams, "_dev") != 0;
 		W5Table t = FrameworkCache.getTable(scd, mainFormResult.getForm().getObjectId()); // mainFormResult.getForm().get_sourceTable();
@@ -1244,7 +1230,7 @@ public class CRUDEngine {
 						int newAction = GenericUtil.uInt(requestParams.get("a" + m.getTabOrder()));
 						if (newAction == 0)
 							newAction = action;
-						W5FormResult subFormResult = metaDataDao.getFormResult(scd, m.getObjectId(), newAction, requestParams);
+						W5FormResult subFormResult = metadataLoader.getFormResult(scd, m.getObjectId(), newAction, requestParams);
 						t = FrameworkCache.getTable(scd, mainFormResult.getForm().getObjectId()); // mainFormResult.getForm().get_sourceTable();
 						if ((t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0))
 								|| (!GenericUtil.accessControl(scd, t.getAccessViewTip(), t.getAccessViewRoles(),
@@ -1274,54 +1260,6 @@ public class CRUDEngine {
 		return mainFormResult;
 	}
 
-	private void extFormVcsControl(W5FormResult formResult, int action, Map<String, Object> scd,
-			Map<String, String> requestParams, W5Table t, String ptablePk) {
-		if (!FrameworkSetting.vcs || t.getVcsFlag() == 0)
-			return;
-		int tablePk = GenericUtil.uInt(ptablePk);
-		if (tablePk == 0)
-			return;
-		switch (action) {
-		case 5: // copy
-		case 2: // insert
-			W5VcsObject ivo = new W5VcsObject(scd, t.getTableId(), tablePk);
-			dao.saveObject(ivo);
-			break;
-		case 1: // update
-		case 3: // delete
-			List l = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2",
-					t.getTableId(), tablePk, scd.get("projectId"));
-			if (l.isEmpty())
-				break;
-			W5VcsObject vo = (W5VcsObject) l.get(0);
-			vo.setVersionDttm(new Timestamp(new Date().getTime()));
-			vo.setVersionUserId((Integer) scd.get("userId"));
-			switch (vo.getVcsObjectStatusTip()) { // zaten insert ise
-			case 0:// ignored
-			case 2: // insert: direk sil
-			case 3: // zaten silinmisse boyle birsey olmamali
-				if (action == 3) {
-					dao.removeObject(vo);
-				}
-				if (vo.getVcsObjectStatusTip() == 3)
-					formResult.getOutputMessages().add("VCS WARNING: Already Deleted VCS Object????");
-				break;
-
-			case 1:
-			case 9: // synched ve/veya edit durumunda ise
-				if (action == 3) { // delete edilidliyse
-					vo.setVcsObjectStatusTip((short) 3);
-					vo.setVcsCommitRecordHash(requestParams.get("_iwb_vcs_dsc").toString());
-				} else { // update edildise simdi
-					String newHash = dao.getObjectVcsHash(scd, t.getTableId(), tablePk);
-					vo.setVcsObjectStatusTip((short) (vo.getVcsCommitRecordHash().equals(newHash) ? 9 : 1));
-				}
-				dao.updateObject(vo);
-				break;
-			}
-			break;
-		}
-	}
 	
 	public W5FormResult postFormAsJson(Map<String, Object> scd, int mainFormId, int action, JSONObject mainFormData,
 			int detailFormId, JSONArray detailFormData) {

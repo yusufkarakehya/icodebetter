@@ -22,8 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
-import iwb.custom.trigger.QueryTrigger;
-import iwb.dao.rdbms_impl.MetadataLoaderDAO;
+import iwb.dao.metadata.MetadataLoader;
+import iwb.dao.metadata.rdbms.PostgreSQLWriter;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5VcsAction;
 import iwb.domain.db.W5Customization;
@@ -53,7 +53,13 @@ public class VcsService {
 
 	@Lazy
 	@Autowired
-	private MetadataLoaderDAO metaDataDao;
+	private MetadataLoader metadataLoader;
+	
+
+	@Lazy
+	@Autowired
+	private PostgreSQLWriter metadataWriter;
+	
 
 	synchronized public Map vcsClientObjectPull(Map<String, Object> scd, int tableId, int tablePk, boolean force) {
 		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
@@ -112,10 +118,10 @@ public class VcsService {
 					int srvVcsCommitId = json.getInt("commit_id");
 					int srvCommitUserId = json.getInt("user_id");
 					
-					dao.saveVcsObject(scd, tableId, tablePk, vo.getVcsObjectStatusTip()==3 ? 2:action, jo);
+					metadataWriter.saveVcsObject(scd, tableId, tablePk, vo.getVcsObjectStatusTip()==3 ? 2:action, jo);
 
 					vo.setVcsObjectStatusTip((short)9);
-					vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, tableId, tablePk));
+					vo.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, tableId, tablePk));
 					
 					if(vo.getVcsObjectId()==0){
 						vo.setVcsCommitId(srvVcsCommitId);
@@ -137,9 +143,7 @@ public class VcsService {
 		}
 		return result;
 	}
-	private void LogPullAction(){
-		
-	}
+
 	
 	synchronized public Map vcsClientObjectPullMulti(Map<String, Object> scd, String tableKeys, boolean force) {
 		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
@@ -216,10 +220,10 @@ public class VcsService {
 						int tableId = o.getInt("table_id");
 						int tablePk = o.getInt("table_pk");
 
-						dao.saveVcsObject(scd, tableId, tablePk, action, jo);
+						metadataWriter.saveVcsObject(scd, tableId, tablePk, action, jo);
 						W5VcsObject vo = voMap.get(tableId + "." + tablePk);
 						vo.setVcsObjectStatusTip((short)9);
-						vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, tableId, tablePk));
+						vo.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, tableId, tablePk));
 						
 						if(vo.getVcsObjectId()==0){
 							vo.setVcsCommitId(srvVcsCommitId);
@@ -424,7 +428,7 @@ public class VcsService {
 						srcMap.put(ox.getTableId()+"."+ox.getTablePk(), ox);
 					}
 					
-					W5QueryResult qr = metaDataDao.getQueryResult(scd, 148);
+					W5QueryResult qr = metadataLoader.getQueryResult(scd, 148);
 					qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 					List<Object[]> data = new ArrayList();
 					Iterator keyz = srvTables.keys();
@@ -595,7 +599,7 @@ public class VcsService {
 						srcMap.put(ox.getTableId()+"."+ox.getTablePk(), ox);
 					}
 					
-					W5QueryResult qr = metaDataDao.getQueryResult(scd, 148);
+					W5QueryResult qr = metadataLoader.getQueryResult(scd, 148);
 					qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 					List<Object[]> data = new ArrayList();
 					Iterator keyz = srvTables.keys();
@@ -1089,7 +1093,7 @@ public class VcsService {
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
 
-		W5QueryResult qr = metaDataDao.getQueryResult(scd, 161);
+		W5QueryResult qr = metadataLoader.getQueryResult(scd, 161);
 		qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 		List<Object[]> data = new ArrayList();qr.setData(data);
 		int id = 0;
@@ -1290,7 +1294,7 @@ public class VcsService {
 					List summaryParams = (List)res[1];summaryParams.add(0);
 					String ssql=((StringBuilder)res[0]).toString();
 					
-					W5QueryResult qr = metaDataDao.getQueryResult(scd, 2766);
+					W5QueryResult qr = metadataLoader.getQueryResult(scd, 2766);
 					qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 					List<Object[]> data = new ArrayList();
 					for(int qi=0;qi<srvObjects.length();qi++){
@@ -1528,7 +1532,7 @@ public class VcsService {
 					vo.setVersionUserId((Integer)scd.get("userId"));
 					vo.setVcsCommitId(srvVcsCommitId);					
 					vo.setVcsObjectStatusTip((short)(vo.getVcsObjectStatusTip()==3 ? 8:9));//8:synched deleted, 9:synched updated/inserted
-					vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, t.getTableId(), vo.getTablePk()));
+					vo.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, t.getTableId(), vo.getTablePk()));
 					dao.updateObject(vo);
 					return srvVcsCommitId; 
 				} else
@@ -1578,7 +1582,7 @@ public class VcsService {
 			o.setVcsObjectStatusTip((short)8);
 		} else 
 			o.setVcsObjectStatusTip((short)9);
-		dao.saveVcsObject(scd, tableId, tablePk, action, jo);
+		metadataWriter.saveVcsObject(scd, tableId, tablePk, action, jo);
 		o.setVcsCommitId(commit.getVcsCommitId());
 		if(o.getVcsObjectId()==0)
 			dao.saveObject(o);
@@ -1591,7 +1595,7 @@ public class VcsService {
 	}
 
 	private	Map vcsServerAuthenticate(String userName, String passWord, int customizationId, String projectUuid){//TODO:
-		List<Object[]> l = dao.executeSQLQuery("select x.user_id,(select r.user_role_id from iwb.w5_user_role r where r.customization_id=x.customization_id AND r.user_id=x.user_id AND r.role_id=0) user_role_id from iwb.w5_user x where x.customization_id=?::integer AND x.user_name=?::text AND x.pass_word=iwb.md5hash(x.user_name||?::text)", customizationId, userName, passWord);
+		List<Object[]> l = dao.executeSQLQuery("select x.user_id,(select r.user_role_id from iwb.w5_user_role r where r.customization_id=x.customization_id AND r.user_id=x.user_id AND r.role_id=0) user_role_id from iwb.w5_user x where x.customization_id=?::integer AND x.user_name=?::text AND x.pass_word=?::text", customizationId, userName, GenericUtil.getMd5Hash(userName+passWord));
 		if(GenericUtil.isEmpty(l))
 			throw new IWBException("vcs","vcsServerAuthenticate", 0, null, "NoUser or Wrong Password", null);
 		Map scd = new HashMap();
@@ -1702,7 +1706,7 @@ public class VcsService {
 						vo.setVersionUserId((Integer)scd.get("userId"));
 						vo.setVcsCommitId(srvVcsCommitId);					
 						vo.setVcsObjectStatusTip((short)(vo.getVcsObjectStatusTip()==3 ? 8:9));//8:synched deleted, 9:synched updated/inserted
-						vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, t.getTableId(), vo.getTablePk()));
+						vo.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, t.getTableId(), vo.getTablePk()));
 						dao.updateObject(vo);	
 					}
 					return srvVcsCommitId;
@@ -1758,9 +1762,9 @@ public class VcsService {
 				o.setVcsObjectStatusTip((short)(action==3 ? 8:9));
 				if(action==3)
 					o.setVcsCommitRecordHash(dao.getTableRecordSummary(scd, tableId, tablePk, 32));
-				dao.saveVcsObject(scd, tableId, tablePk, action, action==3 ? null : jo.getJSONObject("o"));
+				metadataWriter.saveVcsObject(scd, tableId, tablePk, action, action==3 ? null : jo.getJSONObject("o"));
 				if(action!=3)
-					o.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, tableId, tablePk));
+					o.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, tableId, tablePk));
 				o.setVcsCommitId(commit.getVcsCommitId());
 				if(o.getVcsObjectId()==0)
 					dao.saveObject(o);
@@ -1822,9 +1826,9 @@ public class VcsService {
 				o.setVcsObjectStatusTip((short)(action==3 ? 8:9));
 				if(action==3)
 					o.setVcsCommitRecordHash(dao.getTableRecordSummary(scd, tableId, tablePk, 32));
-				dao.saveVcsObject(scd, tableId, tablePk, action, action==3 ? null : jo.getJSONObject("o"));
+				metadataWriter.saveVcsObject(scd, tableId, tablePk, action, action==3 ? null : jo.getJSONObject("o"));
 				if(action!=3)
-					o.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, tableId, tablePk));
+					o.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, tableId, tablePk));
 				o.setVcsCommitId(commit.getVcsCommitId());
 				if(o.getVcsObjectId()==0)
 					dao.saveObject(o);
@@ -2040,7 +2044,7 @@ public class VcsService {
 						vo.setVersionUserId((Integer)scd.get("userId"));
 						vo.setVcsCommitId(srvVcsCommitId);					
 						vo.setVcsObjectStatusTip((short)(vo.getVcsObjectStatusTip()==3 ? 8:9));//8:synched deleted, 9:synched updated/inserted
-						vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, vo.getTableId(), vo.getTablePk()));
+						vo.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, vo.getTableId(), vo.getTablePk()));
 						dao.updateObject(vo);	
 					}
 					return srvVcsCommitId;
@@ -2091,7 +2095,7 @@ public class VcsService {
 						mlc.put("2."+o.get("dsc"), (String)o.get("src_md5hash"));
 					}
 					
-					W5QueryResult qr = metaDataDao.getQueryResult(scd, 2768);
+					W5QueryResult qr = metadataLoader.getQueryResult(scd, 2768);
 					qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 					List data = new ArrayList();
 					for(int qi=0;qi<ar.length();qi++) {
@@ -2212,7 +2216,7 @@ public class VcsService {
 	}
 
 	public W5QueryResult runQuery(Map scd, int queryId, Map<String,String>  requestParams) {
-		W5QueryResult queryResult = metaDataDao.getQueryResult(scd,queryId);
+		W5QueryResult queryResult = metadataLoader.getQueryResult(scd,queryId);
 
 /*		StringBuilder tmpx = new StringBuilder("ali baba ${obj.dsc} ve 40 haramiler ${lnk.pk_query_field_id.dsc} olmus");
 		dao.interprateTemplate(scd, 5,1294, tmpx, true); */
@@ -2227,7 +2231,6 @@ public class VcsService {
 		default:queryResult.prepareQuery(null);
 		}
 		if(queryResult.getErrorMap().isEmpty()){
-			QueryTrigger.beforeExecuteQuery(queryResult, dao);
 	        queryResult.setFetchRowCount(GenericUtil.uIntNvl(requestParams, "limit", GenericUtil.uInt(requestParams,"firstLimit")));
 	        queryResult.setStartRowNumber(GenericUtil.uInt(requestParams,"start"));
         	dao.runQuery(queryResult);
@@ -2238,7 +2241,6 @@ public class VcsService {
         			if(tableId!=0 && tablePk!=0)oz[oz.length-1]=dao.findRecordParentRecords(scd, tableId, tablePk, 0, true);
         		}
         	}
-	    	QueryTrigger.afterExecuteQuery(queryResult, dao);
 		}
 		return queryResult;
 	}
@@ -2249,7 +2251,7 @@ public class VcsService {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
-		if(po==null) po = (W5Project)dao.getCustomizedObject("from W5Project t where 1=?0 AND t.projectUuid=?1", 1, projectUuid, null);
+		if(po==null) po = metadataLoader.loadProject(projectUuid);
 
 		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectUuid);
 		int lastCommitId = 0;
@@ -2291,7 +2293,7 @@ public class VcsService {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
-		if(po==null) po = (W5Project)dao.getCustomizedObject("from W5Project t where 1=?0 AND t.projectUuid=?1", 1, projectUuid, null);
+		if(po==null) po = metadataLoader.loadProject(projectUuid);
 
 		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectUuid);
 		int lastCommitId = 0;
@@ -3091,7 +3093,7 @@ public class VcsService {
 
 			String vcsUrl = FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project");
 			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
-					+ " values (?,?,?, ?, ?, ?,?,iwb.md5hash(?),?)", projectId, cusId, "Project Name #1", ""+userId,schema,vcsUrl,nickName, nickName+"1", projectId);
+					+ " values (?,?,?, ?, ?, ?,?,?,?)", projectId, cusId, "Project Name #1", ""+userId,schema,vcsUrl,nickName, GenericUtil.getMd5Hash(nickName+1), projectId);
 			dao.executeUpdateSQLQuery("create schema "+schema + " AUTHORIZATION iwb");
 			int userTip = GenericUtil.getGlobalNextval("iwb.seq_user_tip", projectId, 0, cusId);
 			dao.executeUpdateSQLQuery("insert into iwb.w5_user_tip(user_tip, dsc, customization_id, project_uuid, oproject_uuid, web_frontend_tip, default_main_template_id) values (?,?,?, ?, ?, 1, 1145)", userTip, "Role Group #1", cusId, projectId, projectId);
@@ -3102,9 +3104,9 @@ public class VcsService {
 
 //			dao.executeUpdateSQLQuery("insert into iwb.w5_role(role_id, customization_id, dsc, user_tip, project_uuid) values (0,?,?,?,?)", cusId, "Role 1", userTip, projectId);
 			
-			dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,iwb.md5hash(?),?,?,?,?,?,?)", 
+			dao.executeUpdateSQLQuery("insert into iwb.w5_user(user_id, customization_id, user_name, email, pass_word, user_status, dsc,login_rule_id, lkp_auth_external_source, auth_external_id, project_uuid) values (?,?,?,?,?,?,?,?,?,?,?)", 
 
-					userId, cusId, nickName, email, nickName+1, 1, nickName, 1 , socialCon, email,projectId);
+					userId, cusId, nickName, email, GenericUtil.getMd5Hash(nickName+1), 1, nickName, 1 , socialCon, email,projectId);
 //			int userRoleId = GenericUtil.getGlobalNextval("iwb.seq_user_role", projectId, 0, cusId);
 //			dao.executeUpdateSQLQuery("insert into iwb.w5_user_role(user_role_id, user_id, role_id, customization_id,unit_id, project_uuid) values(?, ?, 0, ?,?, ?)",userRoleId, userId, cusId,0,projectId);
 
@@ -3119,7 +3121,7 @@ public class VcsService {
 			map.put("userTips", tList);
 			
 			FrameworkCache.wCustomizationMap.put(cusId, (W5Customization)dao.find("from W5Customization t where t.customizationId=?0", cusId).get(0));
-			dao.addProject2Cache(projectId);
+			metadataLoader.addProject2Cache(projectId);
 			FrameworkSetting.projectSystemStatus.put(projectId, 0);
 			//Map cache = FrameworkCache.reloadCacheQueue();
 		}
@@ -3163,8 +3165,8 @@ public class VcsService {
 					, po.getDsc(), po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId(),
 					newProjectId);
 		}
-		dao.copyProject(scd, newProjectId, 1);
-		dao.addProject2Cache(newProjectId);
+		metadataWriter.copyProject(scd, newProjectId, 1);
+		metadataLoader.addProject2Cache(newProjectId);
 		FrameworkSetting.projectSystemStatus.put(newProjectId, 0);
 		return true;
 /*
@@ -3386,7 +3388,7 @@ public class VcsService {
 
 		*/
 		if(GenericUtil.isEmpty(ll2)){
-			dao.addProject2Cache(npo.getProjectUuid());
+			metadataLoader.addProject2Cache(npo.getProjectUuid());
 			FrameworkSetting.projectSystemStatus.put(npo.getProjectUuid(), 0);
 		}
 				
@@ -3426,12 +3428,12 @@ public class VcsService {
 	public boolean vcsClientImportProject(Map<String, Object> scd, String projectId, String importedProjectId) {
 		Map<String, Object> newScd = new HashMap();
 		newScd.putAll(scd);newScd.put("projectId", importedProjectId);
-		boolean b = dao.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
+		boolean b = metadataWriter.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
 		if(b){
 			if(importedProjectId.equals("4147a129-06ad-4983-9b1c-8e88826454ac")){
 				dao.executeUpdateSQLQuery("update iwb.w5_project set ui_login_template_id=2590, session_query_id=4514,authentication_func_id=1252 where project_uuid=?", projectId);
-				dao.addProject2Cache(projectId);
-				metaDataDao.reloadProjectCaches(projectId);
+				metadataLoader.addProject2Cache(projectId);
+				metadataLoader.reloadProjectCaches(projectId);
 				List<Object[]> zz= dao.executeSQLQuery("select (select p.role_group_id from x_role p where p.role_group_id!=122) x1,(select max(t.user_tip) from iwb.w5_user_tip t where t.user_tip!=122 AND t.project_uuid=?) x2", projectId);
 				if(GenericUtil.uInt(zz.get(0)[0])==0){
 					int roleId = GenericUtil.uInt(dao.executeSQLQuery("select nextval('seq_role')").get(0));
@@ -3452,8 +3454,8 @@ public class VcsService {
 		if(b==null){
 			if(subProjectId.equals("4147a129-06ad-4983-9b1c-8e88826454ac")){
 				dao.executeUpdateSQLQuery("update iwb.w5_project set ui_login_template_id=0, session_query_id=0,authentication_func_id=0 where project_uuid=?", projectId);
-				dao.addProject2Cache(projectId);
-				metaDataDao.reloadProjectCaches(projectId);				
+				metadataLoader.addProject2Cache(projectId);
+				metadataLoader.reloadProjectCaches(projectId);				
 			}
 			
 		}
@@ -3467,7 +3469,7 @@ public class VcsService {
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid), npo = null;
 		if(!GenericUtil.isEmpty(newProjectId)){
-			npo = (W5Project)dao.getCustomizedObject("from W5Project t where 1=?0 AND t.projectUuid=?1", 1, newProjectId, null);
+			npo = metadataLoader.loadProject(newProjectId);
 			if(npo!=null){
 				if(npo.getCustomizationId()!=customizationId){
 					if(customizationId==0) { //ifdeveloper access to everything
@@ -3536,7 +3538,7 @@ public class VcsService {
 		int customizationId = (Integer)scd.get("ocustomizationId");
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid), npo = null;
-		npo = (W5Project)dao.getCustomizedObject("from W5Project t where 1=?0 AND t.projectUuid=?1", 1, newProjectId, null);
+		npo = metadataLoader.loadProject(newProjectId);
 		if(npo!=null){
 			return result;
 		}
@@ -3704,7 +3706,7 @@ public class VcsService {
 						if(lv.size()>0) {
 							W5VcsObject vo = (W5VcsObject)lv.get(0);
 							vo.setVcsObjectStatusTip((short)9);
-							vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd,  t.getTableId(), GenericUtil.uInt(keyz[1])));
+							vo.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd,  t.getTableId(), GenericUtil.uInt(keyz[1])));
 							vo.setVcsCommitId(json.getInt("commit_id"));
 							dao.updateObject(vo);
 						}
@@ -3829,7 +3831,7 @@ public class VcsService {
 		long startTime = System.currentTimeMillis();
 		try {
 			System.out.println("Start: icbVCSUpdateSqlAndFields: " + icbProjectId);
-			List<W5Project> lp = metaDataDao.reloadProjectsCache(cusId);
+			List<W5Project> lp = metadataLoader.reloadProjectsCache(cusId);
 			scd.put("ocustomizationId", cusId);
 			scd.put("customizationId", cusId);
 
@@ -3837,7 +3839,7 @@ public class VcsService {
 			vcsClientSqlCommitsFetchAndRun(scd, 0);
 			
 			// Application Settings
-			metaDataDao.reloadTablesCache(icbProjectId);
+			metadataLoader.reloadTablesCache(icbProjectId);
 			
 	
 			W5QueryResult qr = vcsClientObjectsAll(scd);
@@ -3879,7 +3881,7 @@ public class VcsService {
 		long startTime = System.currentTimeMillis();
 		try {
 			System.out.println("Start: projectVCSUpdate: " + projectId);
-			List<W5Project> lp = metaDataDao.reloadProjectsCache(cusId);
+			List<W5Project> lp = metadataLoader.reloadProjectsCache(cusId);
 			if(!icbProjectId.equals(projectId)) {
 				List lcusId = dao.executeSQLQuery("select x.customization_id from iwb.w5_project x where x.project_uuid=?", projectId); 
 				if(lcusId==null) {
@@ -3889,7 +3891,7 @@ public class VcsService {
 				} else
 					cusId= GenericUtil.uInt(lcusId.get(0));
 				scd.put("projectId", projectId);
-				lp = metaDataDao.reloadProjectsCache(cusId);
+				lp = metadataLoader.reloadProjectsCache(cusId);
 			}
 			scd.put("ocustomizationId", cusId);
 			scd.put("customizationId", cusId);
@@ -3898,7 +3900,7 @@ public class VcsService {
 			vcsClientSqlCommitsFetchAndRun(scd, 0);
 			
 			// Application Settings
-			metaDataDao.reloadTablesCache(projectId);
+			metadataLoader.reloadTablesCache(projectId);
 			
 			W5QueryResult qr = vcsClientObjectsAll(scd);
 			if(qr.getData()!=null) {
@@ -3916,7 +3918,7 @@ public class VcsService {
 
 			}
 			if(icbProjectId.equals(projectId)) {
-				metaDataDao.reloadDeveloperEntityKeys();
+				metadataLoader.reloadDeveloperEntityKeys();
 			} else {
 				dao.executeUpdateSQLQuery("insert into iwb.w5_user_related_project(user_id, related_project_uuid)select u.user_id,? from iwb.w5_user u where u.user_id=10 AND not exists(select 1 from iwb.w5_user_related_project q where q.user_id=u.user_id AND related_project_uuid=?)", projectId, projectId);
 				List<Object[]> res = dao.executeSQLQuery("select sum(case when t.table_id=3108 then 1 else 0 end) cnt_role, sum(case when t.table_id=3109 then 1 else 0 end) cnt_user_role from iwb.w5_table t where t.project_uuid=? AND t.table_id in (3108, 3109)", projectId);
@@ -3990,7 +3992,7 @@ public class VcsService {
 
 					vo.setVcsObjectStatusTip(vcsObjectStatusTip);
 					if(vcsObjectStatusTip==9) {
-						vo.setVcsCommitRecordHash(dao.getObjectVcsHash(scd, tableId, tablePk));
+						vo.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, tableId, tablePk));
 						vo.setVersionNo((short)(vo.getVersionNo()+1));
 						vo.setVersionUserId(srvCommitUserId);
 						vo.setVcsCommitId(srvVcsCommitId);
@@ -4007,10 +4009,12 @@ public class VcsService {
 		}
 		return result;
 	}
+	
 	public void deleteProject(String projectId) {
-		dao.deleteProjectMetadataAndDB(projectId, true);
+		metadataWriter.deleteProjectMetadataAndDB(projectId, true);
 	}
-  public Map vcsServerProjectFetch(
+	
+	public Map vcsServerProjectFetch(
       String userName,
       String passWord,
       int customizationId,

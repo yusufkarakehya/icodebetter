@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
+import iwb.dao.metadata.MetadataLoader;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5WorkflowRecord;
 import iwb.domain.db.W5Comment;
@@ -30,6 +31,11 @@ import iwb.util.UserUtil;
 
 @Component
 public class WorkflowEngine {
+	
+	@Lazy
+	@Autowired
+	private MetadataLoader metadataLoader;
+	
 	@Lazy
 	@Autowired
 	private PostgreSQL dao;
@@ -53,8 +59,8 @@ public class WorkflowEngine {
 		int customizationId = (Integer) scd.get("customizationId");
 		int userId = (Integer) scd.get("userId");
 		int versionNo = GenericUtil.uInt(parameterMap.get("_avno"));
-		W5WorkflowRecord ar = (W5WorkflowRecord) dao.getCustomizedObject(
-				"from W5WorkflowRecord t where t.approvalRecordId=?0 AND t.projectUuid=?1", approvalRecordId,
+		W5WorkflowRecord ar = (W5WorkflowRecord) metadataLoader.getMetadataObject(
+				"W5WorkflowRecord t","approvalRecordId", approvalRecordId,
 				scd.get("projectId"), "Workflow Record not Found");
 		String mesaj = "";
 		String xlocale = (String) scd.get("locale");
@@ -519,7 +525,7 @@ public class WorkflowEngine {
 			for(int qi=0;qi<nids.length;qi++) {
 				int notId = GenericUtil.uInt(nids[qi]);
 				if(notId>0) {
-					W5FormSmsMail fsm = (W5FormSmsMail)dao.getCustomizedObject("from W5FormSmsMail t where t.formSmsMailId=?0 AND t.projectUuid=?1", notId, (String) scd.get("projectId"), null);
+					W5FormSmsMail fsm = (W5FormSmsMail)metadataLoader.getMetadataObject("W5FormSmsMail","formSmsMailId", notId, (String) scd.get("projectId"), null);
 					if(fsm!=null) {
 						if (!GenericUtil.isEmpty(fsm.getConditionSqlCode())) {
 							boolean conditionCheck = dao.conditionRecordExistsCheck(scd, newParamMap, ar.getTableId(), ar.getTablePk(), fsm.getConditionSqlCode());
@@ -541,8 +547,6 @@ public class WorkflowEngine {
 
 	public void updateEscalationSettings(W5WorkflowRecord rec, W5WorkflowStep step) {
 		if (step.getTimeLimitFlag() != 0 && step.getTimeLimitDuration() > 0) {
-			List ll = dao.find("from W5WorkflowRecord t where t.approvalRecordId=?0 AND t.projectUuid=?1",
-					rec.getApprovalRecordId(), rec.getProjectUuid());
 			dao.executeUpdateSQLQuery(
 					"update iwb.w5_approval_record t set valid_until_dttm=current_timestamp + interval '"
 							+ step.getTimeLimitDuration() + " "
@@ -555,20 +559,6 @@ public class WorkflowEngine {
 		}
 	}
 
-	private int approvalStepListControl(List<W5WorkflowStep> stepList) {
-		int r = -1;
-		int i = 0;
-		if (stepList != null && !stepList.isEmpty()) {
-			for (W5WorkflowStep s : stepList) {
-				if (s.getApprovalStepId() < 901) {
-					r = i;
-					break;
-				}
-				i++;
-			}
-		}
-		return r;
-	}
 
 	public void updateWorkflowEscalatedRecords(W5WorkflowStep step, W5WorkflowStep nextStep) {
 		List<W5WorkflowRecord> records = listWorkflowEscalatedRecords(step);

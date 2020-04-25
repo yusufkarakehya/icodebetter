@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
-import iwb.dao.rdbms_impl.MetadataLoaderDAO;
+import iwb.dao.metadata.MetadataLoader;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConversionCol;
@@ -38,7 +38,7 @@ public class ConversionEngine {
 
 	@Lazy
 	@Autowired
-	private MetadataLoaderDAO metaDataDao;
+	private MetadataLoader metadataLoader;
 
 	@Lazy
 	@Autowired
@@ -157,7 +157,7 @@ public class ConversionEngine {
 											W5Table dt = FrameworkCache.getTable(scd, c.getDstTableId());
 											m.put(dt.get_tableParamList().get(0).getDsc() + prefix2,
 													"" + co.getDstTablePk());
-											W5FormResult dstFormResult = metaDataDao.getFormResult(scd, c.getDstFormId(), 1, m);
+											W5FormResult dstFormResult = metadataLoader.getFormResult(scd, c.getDstFormId(), 1, m);
 											Map<String, Object> mq = interprateConversionTemplate(c, dstFormResult,
 													GenericUtil.uInt(ptablePk), false, true);
 											if (GenericUtil.isEmpty(mq)) {
@@ -225,7 +225,7 @@ public class ConversionEngine {
 							continue;
 						} else {
 							m.put("a", "2");
-							W5FormResult dstFormResult = metaDataDao.getFormResult(scd, c.getDstFormId(), 2, requestParams);
+							W5FormResult dstFormResult = metadataLoader.getFormResult(scd, c.getDstFormId(), 2, requestParams);
 							Map mq = interprateConversionTemplate(c, dstFormResult, GenericUtil.uInt(ptablePk),
 									false, false);
 							if (GenericUtil.isEmpty(mq)) {
@@ -296,7 +296,7 @@ public class ConversionEngine {
 						}
 
 						W5WsMethod wsm = FrameworkCache.getWsMethod(scd, c.getDstTableId());
-						if (wsm.get_params() == null) {
+						if (wsm.get_params() == null) {//TODO
 							wsm.set_params(dao.find(
 									"from W5WsMethodParam t where t.wsMethodId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 									wsm.getWsMethodId(), (String) scd.get("projectId")));
@@ -365,8 +365,8 @@ public class ConversionEngine {
 				projectId = FrameworkCache.getProjectId(scd, "707." + conversionId);
 			cnv = FrameworkCache.getConversion(scd, conversionId);
 			if(!FrameworkSetting.redisCache && cnv == null){
-				cnv = (W5Conversion) dao.getCustomizedObject(
-					"from W5Conversion t where t.conversionId=?0 AND t.projectUuid=?1", conversionId, projectId, null);
+				cnv = (W5Conversion) metadataLoader.getMetadataObject(
+					"W5Conversion","conversionId", conversionId, projectId, null);
 			}
 			if (cnv == null || GenericUtil.isEmpty(cnv.getActionTips()) || cnv.getActiveFlag() == 0)
 				throw new IWBException("validation", "Conversion", conversionId, null,
@@ -376,7 +376,7 @@ public class ConversionEngine {
 			if (GenericUtil.hasPartInside2(cnv.getActionTips(), 0)) { // manual
 																		// conversion
 				int srcFormId = cnv.getSrcFormId();
-				W5FormResult formResult = metaDataDao.getFormResult(scd, srcFormId, 2, requestParams);
+				W5FormResult formResult = metadataLoader.getFormResult(scd, srcFormId, 2, requestParams);
 				W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
 				int convertedCount = 0, errorConversionCount = 0;
 				for (int id = 1; id <= dirtyCount; id++) {
@@ -436,7 +436,7 @@ public class ConversionEngine {
 				List<W5QueuedActionHelper> queuedGlobalFuncList = new ArrayList<W5QueuedActionHelper>();
 
 				int dstFormId = cnv.getDstFormId();
-				W5FormResult formResult = metaDataDao.getFormResult(scd, dstFormId, 2, requestParams);
+				W5FormResult formResult = metadataLoader.getFormResult(scd, dstFormId, 2, requestParams);
 				W5Table t = FrameworkCache.getTable(scd, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
 				if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 					throw new IWBException("security", "Module", 0, null,
@@ -506,7 +506,7 @@ public class ConversionEngine {
 		Map<String, String> requestParams = new HashMap();
 		requestParams.putAll(dstFormResult.getRequestParams());
 		requestParams.put("_conversion_table_pk", "" + conversionTablePk);
-		W5FormResult srcFormResult = metaDataDao.getFormResult(scd, c.getSrcFormId(), 2, requestParams);
+		W5FormResult srcFormResult = metadataLoader.getFormResult(scd, c.getSrcFormId(), 2, requestParams);
 		W5Form sf = srcFormResult.getForm();
 		W5Form df = dstFormResult.getForm();
 		int conversionTableId = sf.getObjectId();

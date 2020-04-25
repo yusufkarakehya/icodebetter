@@ -23,7 +23,7 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.custom.trigger.GlobalFuncTrigger;
-import iwb.dao.rdbms_impl.MetadataLoaderDAO;
+import iwb.dao.metadata.MetadataLoader;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5GlobalFuncAction;
 import iwb.domain.db.W5GlobalFuncParam;
@@ -55,7 +55,7 @@ public class GlobalScriptEngine {
 
 	@Lazy
 	@Autowired
-	private MetadataLoaderDAO metaDataDao;
+	private MetadataLoader metadataLoader;
 
 	@Lazy
 	@Autowired
@@ -118,7 +118,7 @@ public class GlobalScriptEngine {
 	public W5GlobalFuncResult executeGlobalFunc(Map<String, Object> scd, int globalFuncId,
 			Map<String, String> parameterMap, short accessSourceType) {
 
-		W5GlobalFuncResult r = metaDataDao.getGlobalFuncResult(scd, globalFuncId);
+		W5GlobalFuncResult r = metadataLoader.getGlobalFuncResult(scd, globalFuncId);
 		if (!GenericUtil.isEmpty(r.getGlobalFunc().getAccessSourceTypes())
 				&& !GenericUtil.hasPartInside2(r.getGlobalFunc().getAccessSourceTypes(), accessSourceType))
 			throw new IWBException("security", "GlobalFunc", globalFuncId, null, "Access Source Type Control", null);
@@ -420,7 +420,7 @@ public class GlobalScriptEngine {
 	public W5GlobalFuncResult postEditGridGlobalFunc(Map<String, Object> scd, int globalFuncId, int dirtyCount,
 			Map<String, String> requestParams, String paramSuffix) {
 
-		W5GlobalFuncResult globalFuncResult = metaDataDao.getGlobalFuncResult(scd, globalFuncId);
+		W5GlobalFuncResult globalFuncResult = metadataLoader.getGlobalFuncResult(scd, globalFuncId);
 		if (!GenericUtil.isEmpty(globalFuncResult.getGlobalFunc().getAccessSourceTypes())
 				&& !GenericUtil.hasPartInside2(globalFuncResult.getGlobalFunc().getAccessSourceTypes(), 1))
 			throw new IWBException("security", "GlobalFunc", globalFuncId, null, "Access Restrict Type Control", null);
@@ -752,7 +752,7 @@ public class GlobalScriptEngine {
 					for (W5QueryField qf : q.get_queryFields())
 						if ((qf.getPostProcessTip() == 16 || qf.getPostProcessTip() == 17)
 								&& qf.getLookupQueryId() != 0) {
-							W5QueryResult queryFieldLookupQueryResult = metaDataDao.getQueryResult(qr.getScd(),
+							W5QueryResult queryFieldLookupQueryResult = metadataLoader.getQueryResult(qr.getScd(),
 									qf.getLookupQueryId());
 							if (queryFieldLookupQueryResult != null && queryFieldLookupQueryResult.getQuery() != null) {
 								W5QueryField field = new W5QueryField();
@@ -1124,7 +1124,7 @@ public class GlobalScriptEngine {
 	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int dbFuncId,
 			Map<String, String> parameterMap) {
 		W5GlobalFuncResult r = dbFuncId == -1 ? new W5GlobalFuncResult(-1)
-				: metaDataDao.getGlobalFuncResult(scd, dbFuncId);
+				: metadataLoader.getGlobalFuncResult(scd, dbFuncId);
 		r.setScd(scd);
 		dao.checkTenant(scd);
 		r.setErrorMap(new HashMap());

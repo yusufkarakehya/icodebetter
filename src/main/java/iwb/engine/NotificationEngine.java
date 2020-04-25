@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
+import iwb.dao.metadata.MetadataLoader;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.Log5Feed;
 import iwb.domain.db.W5Email;
@@ -40,6 +41,11 @@ public class NotificationEngine {
 	@Autowired
 	private PostgreSQL dao;
 
+
+	@Lazy
+	@Autowired
+	private MetadataLoader metadataLoader;
+	
 	public void sendSms(int customizationId, int userId, String phoneNumber, String message, int tableId, int tablePk) {
 		Map<String, String> smsMap = new HashMap<String, String>();
 		smsMap.put("customizationId", customizationId + "");
@@ -417,12 +423,12 @@ public class NotificationEngine {
 
 	public Map sendFormSmsMail(Map<String, Object> scd, int formSmsMailId, Map<String, String> requestParams) {
 		String projectId = FrameworkCache.getProjectId(scd, null);
-		W5FormSmsMail fsm = (W5FormSmsMail) dao.getCustomizedObject(
-				"from W5FormSmsMail t where t.formSmsMailId=?0 AND t.projectUuid=?1", formSmsMailId, projectId,
+		W5FormSmsMail fsm = (W5FormSmsMail) metadataLoader.getMetadataObject(
+				"W5FormSmsMail","formSmsMailId", formSmsMailId, projectId,
 				"FormSmsMail");
 		int tableId = 0;
 		if(fsm.getFormId()> 0) {
-			W5Form f = (W5Form) dao.getCustomizedObject("from W5Form t where t.formId=?0 AND t.projectUuid=?1",
+			W5Form f = (W5Form) metadataLoader.getMetadataObject("W5Form","formId",
 					fsm.getFormId(), projectId, "Form");
 			tableId = f.getObjectId();
 			W5Table t = FrameworkCache.getTable(scd, tableId);
@@ -454,22 +460,7 @@ public class NotificationEngine {
 	}
 	
 	public W5ObjectMailSetting findObjectMailSetting(Map<String, Object> scd, int mailSettingId) {
-		int ms = mailSettingId != 0 ? mailSettingId
-				: GenericUtil.uInt(scd.get("mailSettingId"));
-		if (ms == 0)
-			ms = 1;
-		int cusId = ms != 1 ? (Integer) scd.get("customizationId") : 0;
-		W5ObjectMailSetting oms = (W5ObjectMailSetting) dao.getCustomizedObject(
-				"from W5ObjectMailSetting w where w.mailSettingId=?0 AND w.customizationId=?1",
-				mailSettingId != 0 ? mailSettingId
-						: GenericUtil.uInt(scd.get("mailSettingId")),
-				cusId, ms != 1 ? "MailSetting" : null);
-		if (oms == null) {
-			oms = (W5ObjectMailSetting) dao.getCustomizedObject(
-					"from W5ObjectMailSetting w where w.mailSettingId=?0 AND w.customizationId=?1", 1,
-					0, "SystemMailSetting");
-		}
-		return oms;
+		return metadataLoader.findObjectMailSetting(scd, mailSettingId);
 	}
 	
 	public String sendMail(Map<String, Object> scd, W5Email email){

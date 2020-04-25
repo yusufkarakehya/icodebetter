@@ -625,7 +625,7 @@ public class NashornScript {
 			String sql2 = sql.toLowerCase(FrameworkSetting.appLocale);
 			if (DBUtil.checkTenantSQLSecurity(sql2)) {
 				throw new IWBException("security", "SQL", 0, null,
-						"Forbidden Command2. Please contact iCodeBetter team ;)", null);
+						"Forbidden Command2. Please contact Code2 team ;)", null);
 			}
 		}
 
@@ -645,7 +645,7 @@ public class NashornScript {
 			String sql2 = sql.toLowerCase(FrameworkSetting.appLocale);
 			if (DBUtil.checkTenantSQLSecurity(sql2)) {
 				throw new IWBException("security", "SQL", 0, null,
-						"Forbidden Command2. Please contact iCodeBetter team ;)", null);
+						"Forbidden Command2. Please contact Code2 team ;)", null);
 			}
 		}
 

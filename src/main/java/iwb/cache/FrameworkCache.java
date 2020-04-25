@@ -712,6 +712,13 @@ public class FrameworkCache {
 		String projectId = getProjectId(o, null);
 		return FrameworkCache.wMqs.get(projectId).get(mqId);
 	}
+
+	public static Integer findTableIdByName(String tableName, String projectId) {
+		Map<Integer, W5Table> tableMap = wTables.get(projectId);
+		if(tableMap==null)return null;
+		for(W5Table t:tableMap.values())if(t.getDsc().equals(tableName))return t.getTableId();
+		return null;
+	}
 	
 	
 	
