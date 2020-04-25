@@ -404,7 +404,7 @@ public class VcsService {
 	}
 
 
-	public W5QueryResult vcsClientObjectsAll(Map<String, Object> scd) {
+	public W5QueryResult vcsClientObjectsAll(Map<String, Object> scd, boolean silent) {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
@@ -495,8 +495,10 @@ public class VcsService {
 									od[4]=-srvCommitId;
 									od[5]=-lclObj.getVcsCommitId();//local vcsCommitId(-,-)
 									summaryParams.set(summaryParams.size()-1, srvPk);
-									List ll = dao.executeSQLQuery2(ssql, summaryParams);
-									od[6]=GenericUtil.isEmpty(ll) ? "Record Not Found!!" : ll.get(0);//recordSummary
+									if(!silent) {
+										List ll = dao.executeSQLQuery2(ssql, summaryParams);
+										od[6]=GenericUtil.isEmpty(ll) ? "Record Not Found!!" : ll.get(0);//recordSummary
+									}
 									od[7]=lclObj.getVcsCommitId()==srvCommitId ? 2:3;//push:conflict
 								} else if(lclObj.getVcsObjectStatusTip()==9){ //localde synched, serverda edit edilmis
 									if(srvCommitId==lclObj.getVcsCommitId()){
@@ -506,8 +508,10 @@ public class VcsService {
 //									od[4]=srvCommitId;//karsi taraf degismis(+,+)
 									od[5]=lclObj.getVcsCommitId();//local vcsCommitId: karsi tarfta yeniyse NULL
 									summaryParams.set(summaryParams.size()-1, srvPk);
-									List ll = dao.executeSQLQuery2(ssql, summaryParams);
-									od[6]=GenericUtil.isEmpty(ll) ? "Record Not Found!!" : ll.get(0);//recordSummary
+									if(!silent) {
+										List ll = dao.executeSQLQuery2(ssql, summaryParams);
+										od[6]=GenericUtil.isEmpty(ll) ? "Record Not Found!!" : ll.get(0);//recordSummary
+									}
 									od[7]=1;//pull				
 								} else {
 									od[6]="Error: Probably ID Conflicts";//recordSummary
@@ -541,7 +545,7 @@ public class VcsService {
 							od[4]=0;//server vcsCommitId (0,+)
 							od[5]=lclObj.getVcsCommitId();//local vcsCommitId
 							//summaryParams.set(summaryParams.size()-1, k);
-							od[6]=tx!=null?dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0):"";
+							od[6]=!silent && tx!=null?dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0):"";
 							od[7]=2;//push
 							data.add(od);
 							
@@ -3846,7 +3850,7 @@ public class VcsService {
 			metadataLoader.reloadTablesCache(icbProjectId);
 			
 	
-			W5QueryResult qr = vcsClientObjectsAll(scd);
+			W5QueryResult qr = vcsClientObjectsAll(scd, true);
 			if(qr.getData()!=null) {
 				StringBuilder tableKeys = new StringBuilder();
 				for(int qi=0;qi<qr.getData().size();qi++) if(GenericUtil.uInt(qr.getData().get(qi)[7])==1 && GenericUtil.uInt(qr.getData().get(qi)[1])==16){//pull && tableField
@@ -3906,7 +3910,7 @@ public class VcsService {
 			// Application Settings
 			metadataLoader.reloadTablesCache(projectId);
 			
-			W5QueryResult qr = vcsClientObjectsAll(scd);
+			W5QueryResult qr = vcsClientObjectsAll(scd, true);
 			if(qr.getData()!=null) {
 				StringBuilder tableKeys = new StringBuilder();
 				for(int qi=0;qi<qr.getData().size();qi++) if(GenericUtil.uInt(qr.getData().get(qi)[7])==1){//pull && tableField

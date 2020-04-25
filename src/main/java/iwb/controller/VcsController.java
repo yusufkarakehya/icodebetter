@@ -209,7 +209,7 @@ public class VcsController implements InitializingBean {
 		logger.info("hndAjaxVCSObjectsAll"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	W5QueryResult qr= vcsEngine.vcsClientObjectsAll(scd);
+    	W5QueryResult qr= vcsEngine.vcsClientObjectsAll(scd, false);
     	response.getWriter().write(getViewAdapter(scd, request).serializeQueryData(qr).toString());
 		response.getWriter().close();
 	}
