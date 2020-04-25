@@ -1115,10 +1115,10 @@ public class PostgreSQLWriter extends BaseDAO {
 				+ "query_id, dsc, main_table_id, sql_select, sql_from, sql_where,"
 				+ "sql_groupby, sql_orderby, query_tip, log_level_tip, version_no,"
 				+ "insert_user_id, insert_dttm, version_user_id, version_dttm,"
-				+ "show_parent_record_flag, sql_post_select,"
+				+ "show_parent_record_flag, "
 				+ "data_fill_direction_tip, opt_query_field_ids, opt_tip, project_uuid,oproject_uuid, customization_id)"
 				+ "select ?, 'qry_'||XFORM_BUILDER.form_name||'1', XFORM_BUILDER.table_id, 'x.*', (select t.dsc from iwb.w5_table t where t.table_id=XFORM_BUILDER.table_id AND t.customization_id=?)||' x', null,"
-				+ "null, 1, 1, 1, 1," + "?, current_timestamp, ?, current_timestamp, " + "0,  null,"
+				+ "null, 1, 1, 1, 1," + "?, current_timestamp, ?, current_timestamp, 0,"
 				+ "0, null, 0, XFORM_BUILDER.project_uuid,XFORM_BUILDER.project_uuid, XFORM_BUILDER.customization_id from iwb.w5_xform_builder XFORM_BUILDER where XFORM_BUILDER.xform_builder_id=?",
 				queryId, customizationId, userId, userId, xformBuilderId);
 		if (vcs)

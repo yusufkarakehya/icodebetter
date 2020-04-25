@@ -47,8 +47,6 @@ public class FrameworkSetting {
 	public static boolean workflow=true;
 //	public static boolean cacheObject = false;
 	public static boolean hibernateCloseAfterWork=false;
-	public static Set<Integer> dealerTableIds=new HashSet<Integer>();
-	public static Set<Integer> dealerDetailTableIds=new HashSet<Integer>();
 	public static int logMemoryAction=0;
 	final public static String[] operatorMap = new String[]{"=","!=","<",">","<=",">="," like "," not like "," in ", " not in "," (custom) "," like "," not like "," like "};
 	final public static String[] typeMap = new String[]{"-Yok-","varchar","date","double","int","int"};
@@ -63,7 +61,7 @@ public class FrameworkSetting {
 	public static int optimizerCount=0;
 	public static boolean advancedSelectShowEmptyText=true;
 	public static boolean simpleSelectShowEmptyText=true;
-	public static String mailSchema="promis_mail";
+//	public static String mailSchema="promis_mail";
 	public static String crudLogSchema="promis_log";
 	public static String crudLogTablePrefix="";
 	public static String revisionLogTablePrefix="rev_";

@@ -1155,8 +1155,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		FrameworkSetting.cacheTimeoutRecord = FrameworkCache.getAppSettingIntValue(0, "cache_timeout_record") * 1000;
 		FrameworkSetting.crudLogSchema = FrameworkCache.getAppSettingStringValue(0, "log_crud_schema",
 				FrameworkSetting.crudLogSchema);
-		FrameworkSetting.mailSchema = FrameworkCache.getAppSettingStringValue(0, "mail_schema",
-				FrameworkSetting.mailSchema);
+
 		FrameworkSetting.asyncTimeout = FrameworkCache.getAppSettingIntValue(0, "async_timeout", 100);
 		//
 		// if(MVAUtil.appSettings.get("file_local_path")!=null)MVAUtil.localPath=MVAUtil.appSettings.get("file_local_path");

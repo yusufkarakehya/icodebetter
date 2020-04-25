@@ -177,5 +177,14 @@ public class W5QueryFieldCreation implements java.io.Serializable {
 	public void setOprojectUuid(String oprojectUuid) {
 		this.oprojectUuid = oprojectUuid;
 	}
+
+	public boolean equals(Object o) {
+		if(o==null || !(o instanceof W5QueryField))return false;
+		W5QueryField c = (W5QueryField)o;
+		return c!=null && c.getQueryFieldId()==getQueryFieldId() && c.getProjectUuid().equals(projectUuid);
+	}
 	
+	public int hashCode() {
+		return projectUuid.hashCode() + 100*getQueryFieldId();
+	}	
 }

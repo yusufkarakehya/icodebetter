@@ -2973,11 +2973,7 @@ public class Webix3_3 implements ViewAdapter {
 									103))
 						buf.append(",\n makeCommentFlag:true");
 				
-					if (FrameworkCache.getAppSettingIntValue(customizationId,
-							"dealer_flag") != 0
-							&& FrameworkSetting.dealerTableIds.contains(t
-									.getTableId()))
-						buf.append(",\n accessDealerControlFlag:true");
+
 					if (FrameworkCache.roleAccessControl(scd, 11))
 						buf.append(",\n bulkUpdateFlag:true");
 					if (FrameworkCache
