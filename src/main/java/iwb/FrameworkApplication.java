@@ -1,5 +1,6 @@
 package iwb;
 
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -54,19 +55,31 @@ public class FrameworkApplication {
 				}
 			}
 		
-			String influxdb = FrameworkSetting.argMap.get("influxdb");
-			if(influxdb!=null && !influxdb.equals("0")) {
-				FrameworkSetting.log2tsdb = true;
-				FrameworkSetting.log2tsdbUrl = influxdb.equals("1") ? "influxdb:8086" : influxdb;
-				if(!FrameworkSetting.log2tsdbUrl.startsWith("http"))FrameworkSetting.log2tsdbUrl = "http://"+FrameworkSetting.log2tsdbUrl;
-			}
-			String logType = FrameworkSetting.argMap.get("logType");
-			if(logType!=null)FrameworkSetting.logType = GenericUtil.uInt(logType);
 			
-			if(FrameworkSetting.argMap.get("timer")!=null)FrameworkSetting.localTimer=true;
-			
-			if(FrameworkSetting.argMap.get("project")!=null)FrameworkSetting.projectId=FrameworkSetting.argMap.get("project");
 		}
+		
+		Map<String, String> envMap = System.getenv();
+		if(envMap!=null) {
+			if(envMap.get("influxdb")!=null)FrameworkSetting.argMap.put("influxdb",envMap.get("influxdb"));
+			if(envMap.get("logType")!=null)FrameworkSetting.argMap.put("logType",envMap.get("logType"));
+			if(envMap.get("project")!=null)FrameworkSetting.argMap.put("project",envMap.get("project"));
+		}
+		
+		
+		String influxdb = FrameworkSetting.argMap.get("influxdb");
+		if(influxdb!=null && !influxdb.equals("0")) {
+			FrameworkSetting.log2tsdb = true;
+			FrameworkSetting.log2tsdbUrl = influxdb.equals("1") ? "influxdb:8086" : influxdb;
+			if(!FrameworkSetting.log2tsdbUrl.startsWith("http"))FrameworkSetting.log2tsdbUrl = "http://"+FrameworkSetting.log2tsdbUrl;
+			FrameworkSetting.argMap.put("influxdb", FrameworkSetting.log2tsdbUrl);
+		}
+		String logType = FrameworkSetting.argMap.get("logType");
+		if(logType!=null)FrameworkSetting.logType = GenericUtil.uInt(logType);
+		
+		if(FrameworkSetting.argMap.get("timer")!=null)FrameworkSetting.localTimer=true;
+		
+		if(FrameworkSetting.argMap.get("project")!=null)FrameworkSetting.projectId=FrameworkSetting.argMap.get("project");
+		
 
 		ConfigurableApplicationContext appContext = SpringApplication.run(FrameworkApplication.class, args);
 		
