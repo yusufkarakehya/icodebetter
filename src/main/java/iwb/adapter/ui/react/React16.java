@@ -3086,6 +3086,7 @@ columns:[
 			}
 			boolean qwRendererFlag = false;
 			boolean boolRendererFlag = false;
+			if(c.getFilterFlag()!=0)buf.append(", filter:!0");
 			buf.append(", name: '").append(qds).append("'");
 			if(c.getSortableFlag() != 0 && c.get_queryField().getPostProcessTip() != 101){
 					buf.append(", sort:true");
