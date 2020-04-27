@@ -127,12 +127,12 @@ public class MetadataImport {
 				}
 				m.get_tableParamList().add(d);
 			}
-/*			if(tableEvents!=null)for(W5TableEvent d:tableEvents) if(m.getTableId()==d.getTableId()){
-				if(m.get_tableEventList()==null) {
-					m.set_tableParamList(new ArrayList<W5TableParam>());
+			if(tableChilds!=null)for(W5TableChild d:tableChilds) if(m.getTableId()==d.getTableId()){
+				if(m.get_tableChildList()==null) {
+					m.set_tableChildList(new ArrayList<W5TableChild>());
 				}
-				m.get_tableParamList().add(d);
-			}*/
+				m.get_tableChildList().add(d);
+			}
 		}
 		
 		List<W5Ws> wss = jsonArray2java(j, ("wss"), W5Ws.class);
