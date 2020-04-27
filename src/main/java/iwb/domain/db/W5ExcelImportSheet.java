@@ -11,7 +11,7 @@ import javax.persistence.Transient;
 
 
 @Entity
-@Table(name="iwb.w5_excel_import_sheet")
+@Table(name="w5_excel_import_sheet", schema="iwb")
 public class W5ExcelImportSheet implements java.io.Serializable {
 
 	/**
