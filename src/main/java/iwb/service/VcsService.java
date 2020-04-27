@@ -1506,7 +1506,7 @@ public class VcsService {
 		}
 		
 		
-		W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", tableId, tablePk, customizationId, projectUuid).get(0);
+		W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2", tableId, tablePk, projectUuid).get(0);
 		int action=0;
 		switch(vo.getVcsObjectStatusTip()){
 		case 0:case	9:case	8://synch durumdaysa Push'a gerek yok (9:active synched, 8:deleted synched)
@@ -3578,7 +3578,7 @@ public class VcsService {
 							dao.executeUpdateSQLQuery("insert into iwb.w5_customization(customization_id, dsc, sub_domain) values (?,?,?)", cusId,
 									cus.getString("dsc"), cus.getString("sub_domain"));
 							FrameworkCache.wCustomizationMap.put(cusId,
-									(W5Customization) dao.find("from W5Customization t where t.customizationId=?", cusId).get(0));
+									(W5Customization) dao.find("from W5Customization t where t.customizationId=?0", cusId).get(0));
 
 						}
 

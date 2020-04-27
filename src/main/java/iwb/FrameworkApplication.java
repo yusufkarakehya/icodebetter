@@ -60,9 +60,9 @@ public class FrameworkApplication {
 		
 		Map<String, String> envMap = System.getenv();
 		if(envMap!=null) {
-			if(envMap.get("influxdb")!=null)FrameworkSetting.argMap.put("influxdb",envMap.get("influxdb"));
+			if(envMap.get("INFLUXDB")!=null)FrameworkSetting.argMap.put("influxdb",envMap.get("INFLUXDB"));
 			if(envMap.get("logType")!=null)FrameworkSetting.argMap.put("logType",envMap.get("logType"));
-			if(envMap.get("project")!=null)FrameworkSetting.argMap.put("project",envMap.get("project"));
+			if(envMap.get("PROJECT")!=null)FrameworkSetting.argMap.put("project",envMap.get("PROJECT"));
 		}
 		
 		
