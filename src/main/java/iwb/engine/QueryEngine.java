@@ -99,14 +99,6 @@ public class QueryEngine {
 		switch (queryResult.getQuery().getQuerySourceTip()) {
 		case 1376: // WS Method
 			W5WsMethod wsm = FrameworkCache.getWsMethod(scd, queryResult.getQuery().getMainTableId());
-			if (!FrameworkSetting.redisCache && wsm.get_params() == null) {
-				wsm.set_params(
-						metadataLoader.findWsMethodParams(wsm.getWsMethodId(), wsm.getProjectUuid())
-						);
-				wsm.set_paramMap(new HashMap());
-				for (W5WsMethodParam wsmp : wsm.get_params())
-					wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
-			}
 			W5WsMethodParam parentParam = null;
 			for (W5WsMethodParam px : wsm.get_params())
 				if (px.getOutFlag() != 0 && px.getParamTip() == 10) {
@@ -220,12 +212,6 @@ public class QueryEngine {
 						case 1376: // WS Method
 							W5WsMethod wsm = FrameworkCache.getWsMethod(scd,
 									lookupQueryResult.getQuery().getMainTableId());
-							if (!FrameworkSetting.redisCache && wsm.get_params() == null) {
-								wsm.set_params(metadataLoader.findWsMethodParams(wsm.getWsMethodId(), wsm.getProjectUuid()));
-								wsm.set_paramMap(new HashMap());
-								for (W5WsMethodParam wsmp : wsm.get_params())
-									wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
-							}
 							W5WsMethodParam parentParam = null;
 							for (W5WsMethodParam px : wsm.get_params())
 								if (px.getOutFlag() != 0 && px.getParamTip() == 10) {

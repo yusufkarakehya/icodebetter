@@ -18,24 +18,46 @@ import iwb.domain.db.M5List;
 import iwb.domain.db.W5Card;
 import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
+import iwb.domain.db.W5ConversionCol;
+import iwb.domain.db.W5CustomGridColumnCondition;
+import iwb.domain.db.W5CustomGridColumnRenderer;
 import iwb.domain.db.W5Customization;
+import iwb.domain.db.W5Exception;
 import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Form;
+import iwb.domain.db.W5FormCell;
+import iwb.domain.db.W5FormCellProperty;
+import iwb.domain.db.W5FormHint;
+import iwb.domain.db.W5FormModule;
+import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5GlobalFunc;
+import iwb.domain.db.W5GlobalFuncParam;
 import iwb.domain.db.W5Grid;
+import iwb.domain.db.W5GridColumn;
 import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5List;
 import iwb.domain.db.W5LookUp;
+import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Mq;
+import iwb.domain.db.W5ObjectMenuItem;
+import iwb.domain.db.W5ObjectToolbarItem;
 import iwb.domain.db.W5Page;
+import iwb.domain.db.W5PageObject;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
+import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
+import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableEvent;
+import iwb.domain.db.W5TableField;
+import iwb.domain.db.W5TableFieldCalculated;
+import iwb.domain.db.W5TableParam;
 import iwb.domain.db.W5Workflow;
+import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5Ws;
 import iwb.domain.db.W5WsMethod;
+import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.db.W5WsServer;
 import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
@@ -166,7 +188,7 @@ public class FrameworkCache {
 	
 	public static W5Table getTable(Object o, int tableId){
 		String projectId = getProjectId(o, "15."+tableId);
-		if(false && FrameworkSetting.debug && FrameworkCache.hasQueuedReloadCache(projectId,"15."+tableId)){
+		if(false && FrameworkSetting.debug && hasQueuedReloadCache(projectId,"15."+tableId)){
 			Integer status = FrameworkSetting.projectSystemStatus.get(projectId);
 			if(status!=null && status==0)throw new IWBException("cache","Table",tableId, null, "Cache not reloaded. Please Reload Cache", null);
 		}
@@ -435,7 +457,7 @@ public class FrameworkCache {
 	
 	public static W5LookUp getLookUp(Object o, int lookUpId){
 		String projectId = getProjectId(o, "13."+lookUpId);
-		if(FrameworkSetting.debug && FrameworkCache.hasQueuedReloadCache(projectId,"13."+lookUpId))
+		if(FrameworkSetting.debug && hasQueuedReloadCache(projectId,"13."+lookUpId))
 			throw new IWBException("cache","LookUp",lookUpId, null, "Cache not reloaded. Please Reload Cache", null);
 		Map<Integer,W5LookUp> map = wLookUps.get(projectId);
 		if(map==null)map = wLookUps.get(FrameworkSetting.devUuid);
@@ -471,7 +493,7 @@ public class FrameworkCache {
 	
 	public static W5LookUp getLookUp(Object o, int lookUpId, String onNotFoundThrowMsg){
 		String projectId = getProjectId(o, "13."+lookUpId);
-		if(FrameworkSetting.debug && FrameworkCache.hasQueuedReloadCache(projectId,"13."+lookUpId))
+		if(FrameworkSetting.debug && hasQueuedReloadCache(projectId,"13."+lookUpId))
 			throw new Error("LookUp Cache not reloaded. Please Reload Cache");
 		Map<Integer,W5LookUp> map = wLookUps.get(projectId);
 		if(map==null)map = wLookUps.get(0);
@@ -529,7 +551,7 @@ public class FrameworkCache {
 			lx = new ArrayList<Log5Feed>(FrameworkSetting.feedMaxDepth+10);
 			wFeeds.put((Integer)scd.get("customizationId"), lx);
 		}
-		int maxDerinlik = FrameworkCache.getAppSettingIntValue(scd, "feed_control_depth");
+		int maxDerinlik = getAppSettingIntValue(scd, "feed_control_depth");
 		for(int qi=lx.size()-1;qi>=0 && maxDerinlik>0;maxDerinlik--,qi--){//bir onceki feedlerle iliskisi belirleniyor
 			Log5Feed lfeed =lx.get(qi); 
 			if(lfeed==null)continue;
@@ -594,7 +616,7 @@ public class FrameworkCache {
 	public static String getServiceNameByMethodId(Object o, int wsMethodId) {
 		W5WsMethod wsm = getWsMethod(o, wsMethodId);
 		if(wsm!=null){
-			return FrameworkCache.getWsClientById(o, wsm.getWsId()).getDsc()+ "." + wsm.getDsc();
+			return getWsClientById(o, wsm.getWsId()).getDsc()+ "." + wsm.getDsc();
 		}
 		return null;
 	}
@@ -679,7 +701,7 @@ public class FrameworkCache {
 
 	public static List<W5Table> listVcsTables(String projectId) {
 		List<W5Table> l = new ArrayList();
-		for(W5Table t:wTables.get(projectId!=null ? projectId: "067e6162-3b6f-4ae2-a221-2470b63dff00").values()) if(t.getVcsFlag()!=0){
+		for(W5Table t:wTables.get(projectId!=null ? projectId: FrameworkSetting.devUuid).values()) if(t.getVcsFlag()!=0){
 			l.add(t);
 		}
 		return l;
@@ -687,7 +709,7 @@ public class FrameworkCache {
 
 	public static W5ExternalDb getExternalDb(Object o, int externalDbId) {
 		String projectId = getProjectId(o, "4658."+externalDbId);
-		W5ExternalDb r = FrameworkCache.wExternalDbs.get(projectId).get(externalDbId);
+		W5ExternalDb r = wExternalDbs.get(projectId).get(externalDbId);
 		if(r==null)
 			throw new IWBException("framework", "ExternalDb", externalDbId, null, "Wrong ExternalDBId: " + externalDbId, null);
 		return r;
@@ -696,7 +718,7 @@ public class FrameworkCache {
 
 	public static W5Mq getMq(Object o, int mqId) {
 		String projectId = getProjectId(o, null);
-		return FrameworkCache.wMqs.get(projectId).get(mqId);
+		return wMqs.get(projectId).get(mqId);
 	}
 
 	public static Integer findTableIdByName(String tableName, String projectId) {
@@ -730,5 +752,292 @@ public class FrameworkCache {
 		} else
 			return wTsMeasurements.get(cid).get(measurementId);
 	}*/
+	
+
+	public static void addTables2Cache(String projectId, List<W5Table> tables,
+			List<W5TableField> tableFields,
+			List<W5TableParam> tableParams,
+			List<W5TableEvent> tableEvents,
+			List<W5TableFieldCalculated> tableFieldCalculateds,
+			List<W5TableChild> tableChilds
+			) {
+
+		// if (PromisCache.wTables.get(customizationId)!=null)
+		// PromisCache.wTables.get(customizationId).clear();
+		Map<Integer, W5Table> tableMap =  new HashMap<Integer, W5Table>();
+		
+		if(tables!=null)for (W5Table t : tables) {
+			// t.set_cachedObjectMap(new HashMap());
+			t.set_tableFieldList(null);
+			t.set_tableFieldMap(null);
+			t.set_tableParamList(null);
+			t.set_tableChildList(null);
+			t.set_tableParamList(null);
+			tableMap.put(t.getTableId(), t);
+		}
+		W5Table t = null;
+		if(tableFields!=null)for (W5TableField tf : tableFields) {
+			if (t == null || tf.getTableId() != t.getTableId())
+				t = tableMap.get(tf.getTableId()); // tableMap.get(tf.getTableId());
+			if (t != null) {
+				if (t.get_tableFieldList() == null) {
+					t.set_tableFieldList(new ArrayList<W5TableField>());
+					t.set_tableFieldMap(new HashMap<Integer, W5TableField>());
+					/*
+					 * t.set_tableParamList(tableParamListMap .get
+					 * (tf.getTableId())); t.set_tableChildList(tableChildListMap
+					 * .get (tf.getTableId())); t.set_tableParentList(
+					 * tableParentListMap. get(tf.getTableId()));
+					 */
+				}
+				t.get_tableFieldList().add(tf);
+				t.get_tableFieldMap().put(tf.getTableFieldId(), tf);
+			}
+		}
+
+		// Map<Integer, List<W5TableParam>> tplMap = new HashMap<Integer,
+		// List<W5TableParam>>();
+		int lastTableId = -1;
+		List<W5TableParam> x = null;
+		if(tableParams!=null)for (W5TableParam tp : tableParams) {
+			if (lastTableId != tp.getTableId()) {
+				if (x != null) {
+					W5Table tx = tableMap.get(lastTableId);
+					if (tx != null)
+						tx.set_tableParamList(x);
+					// tableParamListMap.put(lastTableId, x);
+				}
+				x = new ArrayList();
+				lastTableId = tp.getTableId();
+			}
+			x.add(tp);
+		}
+		if (x != null) {
+			W5Table tx = tableMap.get(lastTableId);
+			if (tx != null)
+				tx.set_tableParamList(x);
+		}
+
+		// Map<Integer, List<W5TableChild>> tcMap = new HashMap<Integer,
+		// List<W5TableChild>>();//copy
+		// Map<Integer, List<W5TableChild>> tpMap = new HashMap<Integer,
+		// List<W5TableChild>>();//watch,feed
+		lastTableId = -1;
+		List<W5TableChild> ltc = null, tpx = null;
+		if(tableChilds!=null)for (W5TableChild tc : tableChilds) {
+			W5Table tx = tableMap.get(tc.getTableId());
+			if (tx == null)
+				continue;
+			W5Table pr = tableMap.get(tc.getRelatedTableId());
+			if (pr == null)
+				continue;
+
+			ltc = tx.get_tableChildList();
+			if (ltc == null) {
+				ltc = new ArrayList<W5TableChild>();
+				tx.set_tableChildList(ltc);
+			}
+
+			ltc.add(tc);
+
+			tpx = pr.get_tableParentList();
+			if (tpx == null) {
+				tpx = new ArrayList<W5TableChild>();
+				pr.set_tableParentList(tpx);
+			}
+			tpx.add(tc);
+
+		}
+
+		setTableMap(projectId, tableMap);
+
+		Map<Integer, List<W5TableEvent>> tableEventMap = new HashMap<Integer, List<W5TableEvent>>();
+		if(tableEvents!=null)for (W5TableEvent r : tableEvents) {
+			List<W5TableEvent> l2 = tableEventMap.get(r.getTableId());
+			if (l2 == null) {
+				l2 = new ArrayList();
+				tableEventMap.put(r.getTableId(), l2);
+			}
+			l2.add(r);
+		}
+		setTableEventMap(projectId, tableEventMap);
+	}
+
+	public static void addLookUps2Cache(String projectId, List<W5LookUp> lookUps, List<W5LookUpDetay> lookUpDetays) {
+		Map<Integer, W5LookUp> lookUpMap = new HashMap<Integer, W5LookUp>();
+
+
+		/*
+		 * try { lookUpMap = (Map) ((Map)
+		 * (redisGlobalMap.get(projectId))).get("lookUp");//
+		 * getRedissonClient().getMap(String.format(
+		 * "icb-cache2:%s:lookUp", // projectId)); } catch (Exception e) { throw new
+		 * IWBException("framework", "Redis.LookUps", 0, null,
+		 * "Loading LookUps from Redis", e); }
+		 */
+		if(lookUps!=null)for (W5LookUp lookUp : lookUps) {
+			lookUp.set_detayList(new ArrayList());
+			lookUp.set_detayMap(new HashMap());
+			lookUpMap.put(lookUp.getLookUpId(), lookUp);
+		}
+	
+		if(lookUpDetays!=null)for (W5LookUpDetay lookUpDetay : lookUpDetays) {
+			W5LookUp lookUp = lookUpMap.get(lookUpDetay.getLookUpId());
+			if (lookUp == null)
+				continue;
+			lookUp.get_detayList().add(lookUpDetay);
+			lookUp.get_detayMap().put(lookUpDetay.getVal(), lookUpDetay);
+		}
+		setLookUpMap(projectId, lookUpMap);
+	}
+
+	public static void addWss2Cache(String projectId, List<W5Ws> wss, List<W5WsMethod> wsMethods, List<W5WsMethodParam> wsMethodParams) {
+		Map<String, W5Ws> wsMap = new HashMap();
+		Map<Integer, W5Ws> wsMapById = new HashMap();
+		if(wss!=null)for (W5Ws w : wss) {
+			wsMapById.put(w.getWsId(), w);
+			wsMap.put(w.getDsc(), w);
+		}
+		setWsClientsMap(projectId, wsMap);
+
+		Map<Integer, W5WsMethod> methodMap = new HashMap();
+		if(wsMethods!=null)for (W5WsMethod m : wsMethods) {
+			W5Ws c = wsMapById.get(m.getWsId());
+			if (c != null) {
+				methodMap.put(m.getWsMethodId(), m);
+				m.set_ws(c);
+				if (c.get_methods() == null)
+					c.set_methods(new ArrayList());
+				addWsMethod(projectId, m);
+				c.get_methods().add(m);
+				m.set_params(new ArrayList());
+				m.set_paramMap(new HashMap());
+			}
+		}
+
+		if(wsMethodParams!=null)for (W5WsMethodParam mp : wsMethodParams) {
+			W5WsMethod c = methodMap.get(mp.getWsMethodId());
+			if (c != null) {
+				c.get_params().add(mp);
+				c.get_paramMap().put(mp.getWsMethodParamId(), mp);
+			}
+		}
+
+	}
+
+	public static void addFuncs2Cache(String projectId, List<W5GlobalFunc> funcs, List<W5GlobalFuncParam> funcParams) {
+		
+		Map<Integer, W5GlobalFunc> mm = new HashMap();
+		
+		if(funcs!=null)for(W5GlobalFunc m:funcs) {
+			mm.put(m.getDbFuncId(), m);
+			m.set_dbFuncParamList(new ArrayList());
+		}
+		if(funcParams!=null)for(W5GlobalFuncParam d:funcParams) {
+			W5GlobalFunc m = mm.get(d.getDbFuncId());
+			if(m!=null) {
+				m.get_dbFuncParamList().add(d);
+			}			
+		}		
+		wGlobalFuncs.put(projectId, mm);		
+	}
+
+	public static void addQueries2Cache(String projectId, List<W5Query> queries, List<W5QueryField> queryFields,
+			List<W5QueryParam> queryParams) {
+		Map<Integer, W5Query> mm = new HashMap();
+		
+		if(queries!=null)for(W5Query m:queries) {
+			mm.put(m.getQueryId(), m);
+			m.set_queryFields(new ArrayList());
+			m.set_queryParams(new ArrayList());
+		}
+		
+		if(queryFields!=null)for(W5QueryField d:queryFields) {
+			W5Query m = mm.get(d.getQueryId());
+			if(m!=null) {
+				m.get_queryFields().add(d);
+			}
+			if (d.getPostProcessTip() == 31 && (d.getFieldTip() == 3 || d.getFieldTip() == 4)) {
+				if (m.get_aggQueryFields() == null)
+					m.set_aggQueryFields(new ArrayList());
+				m.get_aggQueryFields().add(d);
+			}
+		}
+		
+		if(queryParams!=null)for(W5QueryParam d:queryParams) {
+			W5Query m = mm.get(d.getQueryId());
+			if(m!=null) {
+				m.get_queryParams().add(d);
+			}			
+		}
+		
+		if(queries!=null)for(W5Query query:queries)if (query.getShowParentRecordFlag() != 0)
+			for (W5QueryField field : query.get_queryFields()) {
+				if (field.getDsc().equals("table_id"))
+					query.set_tableIdTabOrder(field.getTabOrder());
+				if (field.getDsc().equals("table_pk"))
+					query.set_tablePkTabOrder(field.getTabOrder());
+
+			}
+		
+		wQueries.put(projectId, mm);
+		
+	}
+
+	public static void addForms2Cache(String projectId, List<W5Form> forms, List<W5FormCell> formCells,
+			List<W5FormModule> formModules, List<W5FormCellProperty> formCellProperties,
+			List<W5FormSmsMail> formSmsMails, List<W5FormHint> formHints, List<W5ObjectToolbarItem> toolbarItems) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void addGrids2Cache(String projectId, List<W5Grid> grids, List<W5GridColumn> gridColumns,
+			List<W5CustomGridColumnCondition> gridColumnCustomConditions,
+			List<W5CustomGridColumnRenderer> gridColumnCustomRenderers, List<W5ObjectToolbarItem> toolbarItems, List<W5ObjectMenuItem> menuItems) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void addWorkflows2Cache(String projectId, List<W5Workflow> workflows,
+			List<W5WorkflowStep> workflowSteps) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void addConversions2Cache(String projectId, List<W5Conversion> conversions,
+			List<W5ConversionCol> conversionCols) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void addPages2Cache(String projectId, List<W5Page> pages, List<W5PageObject> pageObjects) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void addCards2Cache(String projectId, List<W5Card> cards) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void addMobileLists2Cache(String projectId, List<M5List> mobileLists) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void addExternalDbs2Cache(String projectId, List<W5ExternalDb> externalDbs) {
+		Map<Integer, W5ExternalDb> myEDB = new HashMap();
+		if(externalDbs!=null)for (W5ExternalDb j : externalDbs) {
+			myEDB.put(j.getExternalDbId(), j);
+		}
+
+		wExternalDbs.put(projectId, myEDB);
+		
+	}
+
+	public static void addExceptions2Cache(String projectId, List<W5Exception> exceptions) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

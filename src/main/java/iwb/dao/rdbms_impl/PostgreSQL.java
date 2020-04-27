@@ -1150,13 +1150,6 @@ public class PostgreSQL extends BaseDAO {
 							W5WsMethod wsm = FrameworkCache.getWsMethod(projectId,
 									lookupQueryResult.getQuery().getMainTableId());
 
-							if (wsm.get_params() == null) {
-								wsm.set_params(metaDataDao.findWsMethodParams(wsm.getWsMethodId(), projectId));
-								wsm.set_paramMap(new HashMap());
-								for (W5WsMethodParam wsmp : wsm.get_params())
-									wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
-							}
-
 							W5WsMethodParam parentParam = null;
 							for (W5WsMethodParam px : wsm.get_params())
 								if (px.getOutFlag() != 0 && px.getParamTip() == 10) {
@@ -6191,7 +6184,7 @@ public class PostgreSQL extends BaseDAO {
 		Map<String, String> requestParams = new HashMap();
 		requestParams.put("id", "" + tablePk);
 
-		q.set_queryFields(find("from W5QueryField f where f.queryId=15 AND f.projectUuid='067e6162-3b6f-4ae2-a221-2470b63dff00' order by f.tabOrder")); // queryField'in
+		q.set_queryFields(find("from W5QueryField f where f.queryId=15 AND f.projectUuid='"+FrameworkSetting.devUuid+"' order by f.tabOrder")); // queryField'in
 		// lookUp'i
 		q.set_queryParams(new ArrayList());
 

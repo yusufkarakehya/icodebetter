@@ -732,7 +732,7 @@ public class FrameworkService {
 			fa.setActiveFlag((short) 1);
 			fa.setTableId(336);
 			fa.setTablePk("" + userId);
-			fa.setProjectUuid(projectUuid == null ? "067e6162-3b6f-4ae2-a221-2470b63dff00" : projectUuid);
+			fa.setProjectUuid(projectUuid == null ? FrameworkSetting.devUuid : projectUuid);
 			saveObject(fa);
 
 		} catch (Exception io) {

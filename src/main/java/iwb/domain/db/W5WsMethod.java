@@ -24,6 +24,7 @@ public class W5WsMethod  implements java.io.Serializable, W5Base {
 	private short callMethodTip;
 	private short postUrlFlag;
 	private W5Ws _ws;
+	private short activeFlag;
 	private short accessExecuteTip;
 	private	short paramSendTip;
 	private	short logLevelTip;
@@ -179,5 +180,14 @@ public class W5WsMethod  implements java.io.Serializable, W5Base {
 	public boolean safeEquals(W5Base q) {
 
 			return false;
+	}
+	
+	
+	@Column(name="active_flag")
+	public short getActiveFlag() {
+		return activeFlag;
+	}
+	public void setActiveFlag(short activeFlag) {
+		this.activeFlag = activeFlag;
 	}
 }

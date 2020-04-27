@@ -21,6 +21,7 @@ import iwb.adapter.metadata.MetadataExport;
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.cache.FrameworkCache;
+import iwb.cache.FrameworkSetting;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
 import iwb.service.VcsService;
@@ -393,7 +394,7 @@ public class VcsController implements InitializingBean {
 			   , passWord = jo.getString("p")
 			   , projectId = jo.getString("r");
 		
-		if(projectId.equals("067e6162-3b6f-4ae2-a221-2470b63dff00") && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
+		if(projectId.equals(FrameworkSetting.devUuid) && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
 			throw new IWBException("vcs","Code2 Server Error", 0, null, "Empty Project Name", null);
 
 		
@@ -466,7 +467,7 @@ public class VcsController implements InitializingBean {
 			, customizationId = jo.getInt("c");
 		String comment = GenericUtil.uStr(jo, "comment");
 		
-		if(projectId.equals("067e6162-3b6f-4ae2-a221-2470b63dff00") && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
+		if(projectId.equals(FrameworkSetting.devUuid) && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
 			throw new IWBException("vcs","Code2 Server Error", 0, null, "Empty Project Name", null);
 
 		
@@ -493,7 +494,7 @@ public class VcsController implements InitializingBean {
 			   , projectId = jo.getString("r");
 		int customizationId = jo.getInt("c");
 
-		if(projectId.equals("067e6162-3b6f-4ae2-a221-2470b63dff00") && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
+		if(projectId.equals(FrameworkSetting.devUuid) && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
 			throw new IWBException("vcs","Code2 Server Error", 0, null, "Empty Project Name", null);
 
 		
@@ -572,7 +573,7 @@ public class VcsController implements InitializingBean {
 		int customizationId = GenericUtil.uInt(request, "c");
 		String projectId = request.getParameter("r");
 		logger.info("hndServerSQLCommit("+projectId+")"); 
-		if(projectId.equals("067e6162-3b6f-4ae2-a221-2470b63dff00") && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
+		if(projectId.equals(FrameworkSetting.devUuid) && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
 			throw new IWBException("vcs","Code2 Server Error", 0, null, "Empty Project Name", null);
 
     	Map m = vcsEngine.vcsServerSQLCommit(userName, passWord, customizationId, projectId, request.getParameter("s"),request.getParameter("comment"));
@@ -674,7 +675,7 @@ public class VcsController implements InitializingBean {
 				   , projectId = jo.getString("r");
 			int customizationId = jo.getInt("c");
 		
-		if(projectId.equals("067e6162-3b6f-4ae2-a221-2470b63dff00") && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
+		if(projectId.equals(FrameworkSetting.devUuid) && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
 			throw new IWBException("vcs","Code2 Server Error", 0, null, "Empty Project Name", null);
 
 		String sql = jo.getString("s");
@@ -774,7 +775,7 @@ public class VcsController implements InitializingBean {
 			   , projectId = jo.getString("r");
 		int customizationId = jo.getInt("c");
 
-		if(projectId.equals("067e6162-3b6f-4ae2-a221-2470b63dff00") && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
+		if(projectId.equals(FrameworkSetting.devUuid) && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
 			throw new IWBException("vcs","Code2 Server Error", 0, null, "Empty Project Name", null);
 
 		
@@ -983,7 +984,7 @@ public class VcsController implements InitializingBean {
 		String projectId = request.getParameter("r");
 		String dsc = request.getParameter("dsc");
 		
-		if(projectId.equals("067e6162-3b6f-4ae2-a221-2470b63dff00") && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
+		if(projectId.equals(FrameworkSetting.devUuid) && !GenericUtil.hasPartInside(FrameworkCache.getAppSettingStringValue(0, "vcs_allowed_ips"), request.getRemoteAddr()))
 			throw new IWBException("vcs","Code2 Server Error", 0, null, "Empty Project Name", null);
 
 		
@@ -1002,8 +1003,9 @@ public class VcsController implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
+		String projectId = request.getParameter(".p");
 		response.setContentType("application/json");
-		response.getWriter().write(new MetadataExport().toJson(vcsEngine.getProjectMetadata(request.getParameter(".p"))));
+		response.getWriter().write(new MetadataExport().toJson(vcsEngine.getProjectMetadata(projectId)));
 		
 		response.getWriter().close();		
 	}

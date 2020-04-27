@@ -97,7 +97,7 @@ public class FrameworkApplication {
 		
 		if(FrameworkSetting.projectId!=null) {
 			vcsService.icbVCSUpdateSqlAndFields();
-			boolean b = vcsService.projectVCSUpdate("067e6162-3b6f-4ae2-a221-2470b63dff00");
+			boolean b = vcsService.projectVCSUpdate(FrameworkSetting.devUuid);
 			if(b && FrameworkSetting.projectId!=null) {
 //				W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
 				if(FrameworkSetting.projectId.length()==36) {

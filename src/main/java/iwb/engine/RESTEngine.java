@@ -218,14 +218,14 @@ public class RESTEngine {
 			scd.put("customizationId", 0);
 			scd.put("userId", 10);
 			scd.put("roleId", 0);
-			scd.put("projectId", "067e6162-3b6f-4ae2-a221-2470b63dff00");			
+			scd.put("projectId", FrameworkSetting.devUuid);			
 		}
 		W5Ws ws = FrameworkCache.getWsClient(scd, u[0]);
 		if (ws == null) {
-			if(!GenericUtil.safeEquals(scd.get("projectId"),"067e6162-3b6f-4ae2-a221-2470b63dff00")) {
+			if(!GenericUtil.safeEquals(scd.get("projectId"),FrameworkSetting.devUuid)) {
 				Map newScd = new HashMap();
 				newScd.putAll(scd);
-				newScd.put("projectId", "067e6162-3b6f-4ae2-a221-2470b63dff00");
+				newScd.put("projectId", FrameworkSetting.devUuid);
 				newScd.put("customizationId", 0);
 				ws = FrameworkCache.getWsClient(newScd, u[0]);
 				
@@ -250,13 +250,7 @@ public class RESTEngine {
 		}
 		try {
 			String projectId = (String) scd.get("projectId");
-			if (wsm.get_params() == null) {
-				wsm.set_params(
-						metadataLoader.findWsMethodParams(wsm.getWsMethodId(), wsm.getProjectUuid()));
-				wsm.set_paramMap(new HashMap());
-				for (W5WsMethodParam wsmp : wsm.get_params())
-					wsm.get_paramMap().put(wsmp.getWsMethodParamId(), wsmp);
-			}
+
 			String tokenKey = null;
 			Map m = new HashMap();
 			Map errorMap = new HashMap();

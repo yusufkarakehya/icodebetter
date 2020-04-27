@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import iwb.cache.FrameworkSetting;
+import iwb.domain.db.W5Project;
 
 public class MetadataExport {
 	
@@ -37,6 +38,7 @@ public class MetadataExport {
 	public String toJson(Map<String, Object> m) {
 		StringBuilder s = new StringBuilder();
 		s.append("{");
+		String projectId = null;
 		
 		boolean b = false;
 		for(String k:m.keySet()) {
@@ -51,12 +53,18 @@ public class MetadataExport {
 					ss = ar.toString();
 					
 				}
-			} else 
+			} else {
 				ss = java2json(o).toString();
+				if(o instanceof W5Project) {
+					projectId = ((W5Project)o).getProjectUuid();
+				}
+			}
 			if(ss == null || ss.length()==0)continue;
 			if(b)s.append(",\n"); else b=true;
 			s.append("\"").append(k).append("\":").append(ss);
 		}
+		if(projectId!=null)
+			s.append(",\n\"projectId\":\"").append(projectId).append("\"");
 		s.append("\n}");
 		return s.toString();
 	}

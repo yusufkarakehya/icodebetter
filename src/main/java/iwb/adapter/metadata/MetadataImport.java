@@ -7,12 +7,15 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.domain.db.M5List;
+import iwb.domain.db.M5Menu;
 import iwb.domain.db.W5Card;
 import iwb.domain.db.W5Conversion;
 import iwb.domain.db.W5ConversionCol;
@@ -32,6 +35,7 @@ import iwb.domain.db.W5Grid;
 import iwb.domain.db.W5GridColumn;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
+import iwb.domain.db.W5Menu;
 import iwb.domain.db.W5ObjectMenuItem;
 import iwb.domain.db.W5ObjectToolbarItem;
 import iwb.domain.db.W5Page;
@@ -40,6 +44,7 @@ import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
+import iwb.domain.db.W5RoleGroup;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableEvent;
@@ -88,23 +93,27 @@ public class MetadataImport {
 		return l;
 	}
 	
+
+	
 	public boolean fromJson(String s) {
+		long startTime = System.currentTimeMillis();
 		JSONObject j = new JSONObject(s);
 
+		String projectId = j.getString("projectId");
 		W5Project po = (W5Project)json2java(j.getJSONObject("project"), W5Project.class);
+		po.setProjectUuid(projectId);
 
+		List<W5RoleGroup> roleGroups = jsonArray2java(j, ("roleGroups"), W5RoleGroup.class);
+		if(roleGroups!=null)for(W5RoleGroup rg:roleGroups)if(rg.getActiveFlag()!=0 && rg.getUserTip()!=122) {
+			po.set_defaultUserTip(rg.getUserTip());
+			break;
+		}
+		FrameworkCache.addProject(po);
+		
+		
 		List<W5LookUp> lookUps = jsonArray2java(j, ("lookUps"), W5LookUp.class);
 		List<W5LookUpDetay> lookUpDetays = jsonArray2java(j, ("lookUpDetays"), W5LookUpDetay.class);
-		if(lookUps!=null)for(W5LookUp m:lookUps) {
-			if(lookUpDetays!=null)for(W5LookUpDetay d:lookUpDetays) if(m.getLookUpId()==d.getLookUpId()){
-				if(m.get_detayList()==null) {
-					m.set_detayList(new ArrayList<W5LookUpDetay>());
-					m.set_detayMap(new HashMap<String, W5LookUpDetay>());
-				}
-				m.get_detayList().add(d);
-				m.get_detayMap().put(d.getVal(), d);
-			}		
-		}
+		FrameworkCache.addLookUps2Cache(projectId, lookUps, lookUpDetays);
 		
 		List<W5Table> tables = jsonArray2java(j, ("tables"), W5Table.class);
 		List<W5TableField> tableFields = jsonArray2java(j, ("tableFields"), W5TableField.class);
@@ -112,98 +121,70 @@ public class MetadataImport {
 		List<W5TableEvent> tableEvents = jsonArray2java(j, ("tableEvents"), W5TableEvent.class);
 		List<W5TableFieldCalculated> tableFieldCalculateds = jsonArray2java(j, ("tableFieldCalculateds"), W5TableFieldCalculated.class);
 		List<W5TableChild> tableChilds = jsonArray2java(j, ("tableChilds"), W5TableChild.class);
-		if(tables!=null)for(W5Table m:tables) {
-			if(tableFields!=null)for(W5TableField d:tableFields) if(m.getTableId()==d.getTableId()){
-				if(m.get_tableFieldList()==null) {
-					m.set_tableFieldList(new ArrayList<W5TableField>());
-					m.set_tableFieldMap(new HashMap<Integer, W5TableField>());
-				}
-				m.get_tableFieldList().add(d);
-				m.get_tableFieldMap().put(d.getTableFieldId(), d);
-			}		
-			if(tableParams!=null)for(W5TableParam d:tableParams) if(m.getTableId()==d.getTableId()){
-				if(m.get_tableParamList()==null) {
-					m.set_tableParamList(new ArrayList<W5TableParam>());
-				}
-				m.get_tableParamList().add(d);
-			}
-			if(tableChilds!=null)for(W5TableChild d:tableChilds) if(m.getTableId()==d.getTableId()){
-				if(m.get_tableChildList()==null) {
-					m.set_tableChildList(new ArrayList<W5TableChild>());
-				}
-				m.get_tableChildList().add(d);
-			}
-		}
+		FrameworkCache.addTables2Cache(projectId, tables, tableFields, tableParams, tableEvents, tableFieldCalculateds, tableChilds);
 		
 		List<W5Ws> wss = jsonArray2java(j, ("wss"), W5Ws.class);
 		List<W5WsMethod> wsMethods = jsonArray2java(j, ("wsMethods"), W5WsMethod.class);
 		List<W5WsMethodParam> wsMethodParams = jsonArray2java(j, ("wsMethodParams"), W5WsMethodParam.class);
-		if(wss!=null)for(W5Ws m:wss) {
-			if(wsMethods!=null)for(W5WsMethod d:wsMethods) if(m.getWsId()==d.getWsId()){
-				if(m.get_methods()==null) {
-					m.set_methods(new ArrayList<W5WsMethod>());
-				}
-				m.get_methods().add(d);
-				if(wsMethodParams!=null)for(W5WsMethodParam d2:wsMethodParams) if(d.getWsMethodId()==d2.getWsMethodId()){
-					if(d.get_params()==null) {
-						d.set_params(new ArrayList<W5WsMethodParam>());
-						d.set_paramMap(new HashMap<Integer, W5WsMethodParam>());
-					}
-					d.get_params().add(d2);
-					d.get_paramMap().put(d2.getWsMethodParamId(), d2);
-				}		
-			}		
-		}
+		FrameworkCache.addWss2Cache(projectId, wss, wsMethods, wsMethodParams);
 		
 		List<W5GlobalFunc> funcs = jsonArray2java(j, ("funcs"), W5GlobalFunc.class);
 		List<W5GlobalFuncParam> funcParams = jsonArray2java(j, ("funcParams"), W5GlobalFuncParam.class);
-		if(funcs!=null)for(W5GlobalFunc m:funcs) {
-			if(funcParams!=null)for(W5GlobalFuncParam d:funcParams) if(m.getDbFuncId()==d.getDbFuncId()){
-				if(m.get_dbFuncParamList()==null) {
-					m.set_dbFuncParamList(new ArrayList<W5GlobalFuncParam>());
-				}
-				m.get_dbFuncParamList().add(d);
-			}		
-		}
+		FrameworkCache.addFuncs2Cache(projectId, funcs, funcParams);
 		
 		List<W5Query> queries = jsonArray2java(j, ("queries"), W5Query.class);
 		List<W5QueryField> queryFields = jsonArray2java(j, ("queryFields"), W5QueryField.class);
 		List<W5QueryParam> queryParams = jsonArray2java(j, ("queryParams"), W5QueryParam.class);
-		
+		FrameworkCache.addQueries2Cache(projectId, queries, queryFields, queryParams);
+
+		List<W5ObjectToolbarItem> toolbarItems = jsonArray2java(j, ("toolbarItems"), W5ObjectToolbarItem.class);
+		List<W5ObjectMenuItem> menuItems = jsonArray2java(j, ("menuItems"), W5ObjectMenuItem.class);
+
 		List<W5Form> forms = jsonArray2java(j, ("forms"), W5Form.class);
 		List<W5FormCell> formCells = jsonArray2java(j, ("formCells"), W5FormCell.class);
 		List<W5FormModule> formModules = jsonArray2java(j, ("formModules"), W5FormModule.class);
 		List<W5FormCellProperty> formCellProperties = jsonArray2java(j, ("formCellProperties"), W5FormCellProperty.class);
 		List<W5FormSmsMail> formSmsMails = jsonArray2java(j, ("formSmsMails"), W5FormSmsMail.class);
 		List<W5FormHint> formHints = jsonArray2java(j, ("formHints"), W5FormHint.class);
+		FrameworkCache.addForms2Cache(projectId, forms, formCells, formModules, formCellProperties, formSmsMails, formHints, toolbarItems);
 		
 		List<W5Grid> grids = jsonArray2java(j, ("grids"), W5Grid.class);
 		List<W5GridColumn> gridColumns = jsonArray2java(j, ("gridColumns"), W5GridColumn.class);
 		List<W5CustomGridColumnCondition> gridColumnCustomConditions = jsonArray2java(j, ("gridColumnCustomConditions"), W5CustomGridColumnCondition.class);
 		List<W5CustomGridColumnRenderer> gridColumnCustomRenderers = jsonArray2java(j, ("gridColumnCustomRenderers"), W5CustomGridColumnRenderer.class);
+		FrameworkCache.addGrids2Cache(projectId, grids, gridColumns, gridColumnCustomConditions, gridColumnCustomRenderers, toolbarItems, menuItems);
 
 		List<M5List> mobileLists = jsonArray2java(j, ("mobileLists"), M5List.class);
+		FrameworkCache.addMobileLists2Cache(projectId, mobileLists);
 		
 		List<W5Card> cards = jsonArray2java(j, ("cards"), W5Card.class);
+		FrameworkCache.addCards2Cache(projectId, cards);
 		
-		List<W5ObjectMenuItem> menuItems = jsonArray2java(j, ("menuItems"), W5ObjectMenuItem.class);
-		List<W5ObjectToolbarItem> toolbarItems = jsonArray2java(j, ("toolbarItems"), W5ObjectToolbarItem.class);
-
 		List<W5Workflow> workflows = jsonArray2java(j, ("workflows"), W5Workflow.class);
 		List<W5WorkflowStep> workflowSteps = jsonArray2java(j, ("workflowSteps"), W5WorkflowStep.class);
+		FrameworkCache.addWorkflows2Cache(projectId, workflows, workflowSteps);
 
 		List<W5Conversion> conversions = jsonArray2java(j, ("conversions"), W5Conversion.class);
 		List<W5ConversionCol> conversionCols = jsonArray2java(j, ("conversionCols"), W5ConversionCol.class);
+		FrameworkCache.addConversions2Cache(projectId, conversions, conversionCols);
 		
 		List<W5Page> pages = jsonArray2java(j, ("pages"), W5Page.class);
 		List<W5PageObject> pageObjects = jsonArray2java(j, ("pageObjects"), W5PageObject.class);
+		FrameworkCache.addPages2Cache(projectId, pages, pageObjects);
 
-//		List<W5Menu> menus"), W5Menu.class);
+		List<W5Menu> menus = jsonArray2java(j, ("menus"), W5Menu.class);
+		List<M5Menu> mmenus = jsonArray2java(j, ("mmenus"), M5Menu.class);
+
 //		List<M5Menu> mmenus"), M5Menu.class);
 
 		List<W5ExternalDb> externalDbs = jsonArray2java(j, ("externalDbs"), W5ExternalDb.class);
+		FrameworkCache.addExternalDbs2Cache(projectId, externalDbs);
+
 		List<W5Exception> exceptions = jsonArray2java(j, ("exceptions"), W5Exception.class);
+		FrameworkCache.addExceptions2Cache(projectId, exceptions);
+		System.out.println("Imported " + projectId + " in " + (System.currentTimeMillis()-startTime) + "ms");
 		return true;		
 	}
-
+	
+	
 }

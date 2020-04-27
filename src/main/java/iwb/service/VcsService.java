@@ -1104,7 +1104,7 @@ public class VcsService {
 		qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 		List<Object[]> data = new ArrayList();qr.setData(data);
 		int id = 0;
-		List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where ((q.customization_id=? AND q.project_uuid=?) OR (q.customization_id=0 AND q.project_uuid = '067e6162-3b6f-4ae2-a221-2470b63dff00')) AND q.vcs_flag=1 order by q.table_id", customizationId, projectUuid); //sadece master tablolar
+		List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where ((q.customization_id=? AND q.project_uuid=?) OR (q.customization_id=0 AND q.project_uuid = '" + FrameworkSetting.devUuid + "')) AND q.vcs_flag=1 order by q.table_id", customizationId, projectUuid); //sadece master tablolar
 		if(ps!=null)for(Integer tid:ps){
 			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
 			if(mt!=null && !GenericUtil.isEmpty(mt.get_tableParamList())){
@@ -1960,7 +1960,7 @@ public class VcsService {
 
 		int count =0;
 		if(tableId==-1){
-			List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where q.vcs_flag=1 AND q.project_uuid in (?,'067e6162-3b6f-4ae2-a221-2470b63dff00')", projectUuid);
+			List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where q.vcs_flag=1 AND q.project_uuid in (?,'" + FrameworkSetting.devUuid + "')", projectUuid);
 			if(ps!=null)for(Integer tid:ps){
 				W5Table t = FrameworkCache.getTable(projectUuid, tid);
 				String sql ="from iwb.w5_vcs_object where vcs_object_status_tip in (1,2,9) "
@@ -3792,7 +3792,7 @@ public class VcsService {
 		if(cnt==0)return false;
 		FrameworkSetting.projectSystemStatus.put(projectUuid, 1);
 
-		List<W5Table> l = dao.find("from W5Table t where t.projectUuid='067e6162-3b6f-4ae2-a221-2470b63dff00' and t.vcsFlag=1 order by t.tableId desc");
+		List<W5Table> l = dao.find("from W5Table t where t.projectUuid='" + FrameworkSetting.devUuid + "' and t.vcsFlag=1 order by t.tableId desc");
 		String newSchemaName = po.getRdbmsSchema() + "_sp_"+savePointId;
 		for(W5Table t:l) {
 			String tableName = t.getDsc();
@@ -3827,7 +3827,7 @@ public class VcsService {
 	
 	public boolean icbVCSUpdateSqlAndFields() {
 		int cusId = 0;
-		String icbProjectId = "067e6162-3b6f-4ae2-a221-2470b63dff00";
+		String icbProjectId = FrameworkSetting.devUuid;
 		Map scd = new HashMap();
 		scd.put("ocustomizationId", 0);
 		scd.put("customizationId", cusId);
@@ -3881,7 +3881,7 @@ public class VcsService {
 	
 	public boolean projectVCSUpdate(String projectId) {
 		int cusId = 0;
-		String icbProjectId = "067e6162-3b6f-4ae2-a221-2470b63dff00";
+		String icbProjectId = FrameworkSetting.devUuid;
 		Map scd = new HashMap();
 		scd.put("ocustomizationId", 0);
 		scd.put("customizationId", cusId);
