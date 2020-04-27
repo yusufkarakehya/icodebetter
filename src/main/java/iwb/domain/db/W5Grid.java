@@ -82,6 +82,15 @@ public class W5Grid implements java.io.Serializable, W5Base, W5ListBase {
 	private int rowColorFxQueryFieldId;
 	private W5Workflow _approval;
 	
+
+	public String toJson() {
+		StringBuilder s = new StringBuilder();
+		s.append("{\"gridId\":").append(gridId);
+		s.append("}");
+		return s.toString();
+	}
+	
+	
 	@Id
 	@Column(name="grid_id")
 	public int getGridId() {

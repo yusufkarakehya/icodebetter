@@ -14,7 +14,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_db_func",schema="iwb")
-public class W5GlobalFunc implements java.io.Serializable {
+public class W5GlobalFunc implements java.io.Serializable, W5Base {
 
 	/**
 	 * 
@@ -39,6 +39,8 @@ public class W5GlobalFunc implements java.io.Serializable {
 	
 	private List<W5GlobalFuncParam> _dbFuncParamList;
 
+
+	
 	
 	@Column(name="log_level_tip")	
 	public short getLogLevelTip() {
@@ -165,4 +167,9 @@ public class W5GlobalFunc implements java.io.Serializable {
 	public int hashCode() {
 		return projectUuid.hashCode() + 100*getDbFuncId();
 	}
+
+	public boolean safeEquals(W5Base q) {
+		return false;
+	}
+	
 }

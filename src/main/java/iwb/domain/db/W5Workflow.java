@@ -17,7 +17,7 @@ import iwb.util.GenericUtil;
 @Entity
 @Immutable
 @Table(name="w5_approval", schema="iwb")
-public class W5Workflow implements java.io.Serializable {
+public class W5Workflow implements java.io.Serializable, W5Base {
 
 	/**
 	 * 

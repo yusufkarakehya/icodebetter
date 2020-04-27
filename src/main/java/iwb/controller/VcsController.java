@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import iwb.adapter.metadata.MetadataExport;
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.cache.FrameworkCache;
@@ -993,5 +994,29 @@ public class VcsController implements InitializingBean {
 		response.setContentType("application/json");
 		response.getWriter().write("{\"success\":true, \"savePointId\":"+savePoint+"}");
 		response.getWriter().close();
+	}
+	
+
+	@RequestMapping("/exportProject")
+	public void hndExportProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		response.setContentType("application/json");
+		response.getWriter().write(new MetadataExport().toJson(vcsEngine.getProjectMetadata(request.getParameter(".p"))));
+		
+		response.getWriter().close();		
+	}
+	
+	@RequestMapping("/importProject")
+	public void hndImportProject(
+			HttpServletRequest request,
+			HttpServletResponse response)
+			throws ServletException, IOException {
+		response.setContentType("application/json");
+		vcsEngine.importProjectMetadata("http://localhost:8080/app/exportProject?.p="+request.getParameter(".p"));
+		response.getWriter().write("{success:true}");
+		
+		response.getWriter().close();		
 	}
 }

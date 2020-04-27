@@ -17,7 +17,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_db_func_param",schema="iwb")
-public class W5GlobalFuncParam implements java.io.Serializable, W5Param {
+public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base {
 
 	/**
 	 * 
@@ -49,6 +49,8 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param {
 	private short sourceTip;
 
 	private short outFlag;
+	
+	
 	
 	@Column(name="out_flag")
 	public short getOutFlag() {
@@ -206,4 +208,9 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param {
 	public int getParentId() {
 		return 0;
 	}
+	
+	public boolean safeEquals(W5Base q) {
+		return false;
+	}
+	
 }

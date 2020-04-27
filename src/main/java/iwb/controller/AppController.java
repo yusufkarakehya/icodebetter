@@ -54,6 +54,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import iwb.adapter.metadata.MetadataExport;
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.ViewMobileAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_4;
@@ -191,6 +192,8 @@ public class AppController implements InitializingBean {
 		response.getWriter().write("{\"success\":"+b+", \"customizationId\":"+scd.get("customizationId")+",\"scd\":"+GenericUtil.fromMapToJsonString2Recursive(scd)+"}");
 		response.getWriter().close();		
 	}
+	
+	
 	
 	
 	@RequestMapping("/ajaxChangeProjectStatus")

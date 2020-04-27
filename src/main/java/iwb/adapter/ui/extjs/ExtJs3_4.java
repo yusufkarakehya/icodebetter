@@ -2901,6 +2901,9 @@ public class ExtJs3_4 implements ViewAdapter {
 			buf.append("TimeField");
 			break;
 		case 3:// edit-double
+			buf.setLength(0);
+			buf.append("new Ext.ux.NumericField");
+			break;			
 		case 4:// edit-integer
 			buf.append("NumberField");
 			break;

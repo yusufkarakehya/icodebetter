@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
 
@@ -16,7 +17,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_table_child",schema="iwb")
-public class W5TableChild implements java.io.Serializable {
+public class W5TableChild implements java.io.Serializable, W5Base {
 
 
 	private static final long serialVersionUID = 8385485198231L;
@@ -134,5 +135,12 @@ public class W5TableChild implements java.io.Serializable {
 	
 	public int hashCode() {
 		return projectUuid.hashCode() + 100*tableChildId;
-	}	
+	}
+	
+
+	@Transient
+	public boolean safeEquals(W5Base q) {
+
+			return false;
+	}
 }

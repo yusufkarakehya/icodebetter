@@ -61,6 +61,7 @@ public class W5Card implements java.io.Serializable, W5Base, W5ListBase {
 	private List<W5QueryField> _postProcessQueryFields;
 	private W5Workflow _approval;
 
+
 	
 	@Id
 	@Column(name="data_view_id")

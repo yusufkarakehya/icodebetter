@@ -14,7 +14,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_query_param",schema="iwb")
-public class W5QueryParam implements java.io.Serializable, W5Param {
+public class W5QueryParam implements java.io.Serializable, W5Param, W5Base {
 
 	private static final long serialVersionUID = 12226666333L;
 
@@ -218,5 +218,10 @@ public class W5QueryParam implements java.io.Serializable, W5Param {
 		return 0;
 	}
 	
-	
+
+	@Transient
+	public boolean safeEquals(W5Base q) {
+
+			return false;
+	}	
 }

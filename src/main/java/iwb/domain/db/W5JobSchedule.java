@@ -18,7 +18,7 @@ import iwb.util.GenericUtil;
 @Entity
 @Immutable
 @Table(name = "W5_JOB_SCHEDULE",schema="iwb")
-public class W5JobSchedule implements java.io.Serializable {
+public class W5JobSchedule implements java.io.Serializable, W5Base {
 	/**
 	 * 
 	 */
@@ -417,5 +417,11 @@ public class W5JobSchedule implements java.io.Serializable {
 	
 	public int hashCode() {
 		return projectUuid.hashCode() + 100*getJobScheduleId();
+	}
+
+	@Transient
+	public boolean safeEquals(W5Base q) {
+
+			return false;
 	}
 }

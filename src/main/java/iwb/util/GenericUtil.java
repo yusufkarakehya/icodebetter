@@ -157,27 +157,20 @@ public class GenericUtil {
 		if (x == null || x.trim().length() == 0)
 			return null;
 		try {
-			return Double.valueOf(x);
+			return x.contains(",") ? Double.valueOf(x.replaceAll(",", "")): Double.valueOf(x);
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	public static double udouble(String x) {
-		if (x == null || x.trim().length() == 0)
-			return 0;
-		try {
-			return Double.parseDouble(x);
-		} catch (Exception e) {
-			return 0;
-		}
-	}
 
 	public static BigDecimal uBigDecimal2(Object x) {
 		if (x == null || x.toString().trim().length() == 0)
 			return null;
-		if (x instanceof String)
-			return uBigDecimal((String) x);
+		if (x instanceof String) {
+			String s = (String)x;
+			return  s.contains(",") ? uBigDecimal(s.replaceAll(",", "")):uBigDecimal(s);
+		}
 		if (x instanceof Double)
 			return new BigDecimal((Double) x);
 		if (x instanceof Integer)
@@ -541,7 +534,7 @@ public class GenericUtil {
 		if (x == null || x.trim().length() == 0)
 			return null;
 		try {
-			return Float.valueOf(x);
+			return  x.contains(",") ? Float.valueOf(x.replaceAll(",", "")):Float.valueOf(x);
 		} catch (Exception e) {
 			return null;
 		}

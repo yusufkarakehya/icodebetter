@@ -50,6 +50,8 @@ public class W5FormSmsMail implements java.io.Serializable, W5Base {
 	private String conditionSqlCode;
 	
 
+
+	
 	@Column(name="form_id")
 	public int getFormId() {
 		return formId;

@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
+import org.json.JSONObject;
 
 // Generated Feb 5, 2007 3:58:07 PM by Hibernate Tools 3.2.0.b9
 
@@ -43,6 +44,7 @@ public class M5List implements java.io.Serializable, W5Base, W5ListBase {
 	private	String htmlPageCode;	
 	private	String htmlDataCode;	
 	private	String jsCode;	
+	private String orderQueryFieldIds;
 
 	private W5QueryField	_pkQueryField;
 	private	W5Table _mainTable;
@@ -56,7 +58,6 @@ public class M5List implements java.io.Serializable, W5Base, W5ListBase {
 	private List<W5QueryField> _postProcessQueryFields;
 	private W5Workflow _approval;
 
-	private String orderQueryFieldIds;
 	
 	@Id
 	@Column(name="list_id")
@@ -299,4 +300,7 @@ public class M5List implements java.io.Serializable, W5Base, W5ListBase {
 	public int hashCode() {
 		return projectUuid.hashCode() + 100*getListId();
 	}
+	
+
+	
 }

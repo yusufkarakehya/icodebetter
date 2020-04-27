@@ -13,7 +13,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name="w5_ws_method_param",schema="iwb")
-public class W5WsMethodParam  implements java.io.Serializable, W5Param {
+public class W5WsMethodParam  implements java.io.Serializable, W5Param, W5Base {
 
 	/**
 	 * 
@@ -197,5 +197,11 @@ public class W5WsMethodParam  implements java.io.Serializable, W5Param {
 	public int getParentId() {
 		return parentWsMethodParamId;
 	}	
-	
+
+
+	@Transient
+	public boolean safeEquals(W5Base q) {
+
+			return false;
+	}
 }

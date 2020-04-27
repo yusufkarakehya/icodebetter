@@ -26,13 +26,15 @@ public class W5FormCellProperty implements java.io.Serializable, W5Base {
 	private short otherSetValueFlag;
 	private String otherValue;
 
+
+	
 	@Id
 	@Column(name = "FORM_CELL_PROPERTY_ID")
-	public int getFormCellProperyId() {
+	public int getFormCellPropertyId() {
 		return formCellProperyId;
 	}
 
-	public void setFormCellProperyId(int formCellProperyId) {
+	public void setFormCellPropertyId(int formCellProperyId) {
 		this.formCellProperyId = formCellProperyId;
 	}
 
@@ -131,11 +133,11 @@ public class W5FormCellProperty implements java.io.Serializable, W5Base {
 	public boolean equals(Object o) {
 		if(o==null || !(o instanceof W5FormCellProperty))return false;
 		W5FormCellProperty c = (W5FormCellProperty)o;
-		return c!=null && c.getFormCellProperyId()==getFormCellProperyId() && c.getProjectUuid().equals(projectUuid);
+		return c!=null && c.getFormCellPropertyId()==getFormCellPropertyId() && c.getProjectUuid().equals(projectUuid);
 	}
 	
 	public int hashCode() {
-		return projectUuid.hashCode() + 100*getFormCellProperyId();
+		return projectUuid.hashCode() + 100*getFormCellPropertyId();
 	}	
 	
 }

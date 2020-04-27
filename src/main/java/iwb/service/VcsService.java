@@ -18,8 +18,10 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import iwb.adapter.metadata.MetadataImport;
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.dao.metadata.MetadataLoader;
@@ -39,6 +41,7 @@ import iwb.domain.helper.W5TableRecordHelper;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
 import iwb.util.DBUtil;
+import iwb.util.FtpUtil;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
 import iwb.util.LogUtil;
@@ -4050,4 +4053,22 @@ public class VcsService {
 		
 		return result;
   }
+	
+	@Transactional(propagation=Propagation.NEVER)
+	public Map<String, Object> getProjectMetadata(String projectId){
+		return metadataLoader.getProjectMetadata(projectId);
+	}
+	
+	public boolean importProjectMetadata(String url){
+		String s = null;
+		if(url.startsWith("http"))
+			s = HttpUtil.send(url, "");
+		else if(url.startsWith("ftp"))
+			s = FtpUtil.send(url);
+		else {//file
+			s = "{}";
+		}
+ 
+		return new MetadataImport().fromJson(s);
+	}
 }

@@ -32,6 +32,8 @@ public class W5FormHint implements java.io.Serializable, W5Base {
 	private String actionTips;
 	private short activeFlag;
 
+
+	
 	@Column(name="form_id")
 	public int getFormId() {
 		return formId;

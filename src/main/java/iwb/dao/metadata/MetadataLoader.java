@@ -220,5 +220,8 @@ public interface MetadataLoader {
 	public boolean changeActiveProject(Map<String, Object> scd, String projectUuid);
 	
 	public int getGlobalNextval(String id);
+	
+	public Map<String, Object> getProjectMetadata(String projectId);
+
 
 }

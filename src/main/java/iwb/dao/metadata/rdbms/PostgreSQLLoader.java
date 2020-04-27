@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
@@ -24,11 +26,16 @@ import iwb.domain.db.M5List;
 import iwb.domain.db.W5Card;
 import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
+import iwb.domain.db.W5ConversionCol;
+import iwb.domain.db.W5CustomGridColumnCondition;
+import iwb.domain.db.W5CustomGridColumnRenderer;
 import iwb.domain.db.W5Customization;
+import iwb.domain.db.W5Exception;
 import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormCellProperty;
+import iwb.domain.db.W5FormHint;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5GlobalFunc;
@@ -44,6 +51,7 @@ import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Mq;
 import iwb.domain.db.W5MqCallback;
 import iwb.domain.db.W5ObjectMailSetting;
+import iwb.domain.db.W5ObjectMenuItem;
 import iwb.domain.db.W5ObjectToolbarItem;
 import iwb.domain.db.W5Page;
 import iwb.domain.db.W5PageObject;
@@ -2205,4 +2213,74 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 
 		return GenericUtil.uInt(l.get(0));
 	}
+	
+	public Map<String, Object> getProjectMetadata(String projectId){
+		W5Project po = FrameworkCache.getProject(projectId);
+		Map<String, Object> m = new HashMap();
+		m.put("project", po);
+		
+		m.put("vcsCommits", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId>0 AND length(t.extraSql)>2 order by t.vcsCommitId", projectId));
+		m.put("vcsCommits2", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId<0 AND t.runLocalFlag>0 AND length(t.extraSql)>2 order by -t.vcsCommitId", projectId));
+
+		
+		m.put("lookUps", dao.find("from W5LookUp t where t.projectUuid=?0 order by t.lookUpId", projectId));
+		m.put("lookUpDetays", dao.find("from W5LookUpDetay t where t.projectUuid=?0 order by t.lookUpId, t.tabOrder", projectId));
+		
+		m.put("tables", dao.find("from W5Table t where t.projectUuid=?0 order by t.tableId", projectId));
+		m.put("tableFields", dao.find("from W5TableField t where t.projectUuid=?0 order by t.tableId, t.tabOrder", projectId));
+		m.put("tableParams", dao.find("from W5TableParam t where t.projectUuid=?0 order by t.tableId, t.tabOrder", projectId));
+		m.put("tableEvents", dao.find("from W5TableEvent t where t.projectUuid=?0 order by t.tableId, t.tabOrder", projectId));
+		m.put("tableFieldCalculateds", dao.find("from W5TableFieldCalculated t where t.projectUuid=?0 order by t.tableId, t.tabOrder", projectId));
+		m.put("tableChilds", dao.find("from W5TableChild t where t.projectUuid=?0 order by t.tableId, t.tableChildId", projectId));
+		
+		m.put("wss", dao.find("from W5Ws t where t.projectUuid=?0 order by t.wsId", projectId));
+		m.put("wsMethods", dao.find("from W5WsMethod t where t.projectUuid=?0 order by t.wsId", projectId));
+		m.put("wsMethodParams", dao.find("from W5WsMethodParam t where t.projectUuid=?0 order by t.wsMethodId, t.parentWsMethodParamId, t.tabOrder", projectId));
+		
+		m.put("funcs", dao.find("from W5GlobalFunc t where t.projectUuid=?0 order by t.dbFuncId", projectId));
+		m.put("funcParams", dao.find("from W5GlobalFuncParam t where t.projectUuid=?0 order by t.dbFuncId, t.tabOrder", projectId));
+
+		m.put("queries", dao.find("from W5Query t where t.projectUuid=?0 order by t.queryId", projectId));
+		m.put("queryFields", dao.find("from W5QueryField t where t.projectUuid=?0 order by t.queryId, t.tabOrder", projectId));
+		m.put("queryParams", dao.find("from W5QueryParam t where t.projectUuid=?0 order by t.queryId, t.tabOrder", projectId));
+		
+		m.put("forms", dao.find("from W5Form t where t.projectUuid=?0 order by t.formId", projectId));
+		m.put("formCells", dao.find("from W5FormCell t where t.projectUuid=?0 order by t.formId, t.tabOrder", projectId));
+		m.put("formModules", dao.find("from W5FormModule t where t.projectUuid=?0 order by t.formId, t.tabOrder", projectId));
+		m.put("formCellProperties", dao.find("from W5FormCellProperty t where t.projectUuid=?0 order by t.formCellId, t.formCellPropertyId", projectId));
+		m.put("formSmsMails", dao.find("from W5FormSmsMail t where t.projectUuid=?0 order by t.formId, t.tabOrder", projectId));
+		m.put("formHints", dao.find("from W5FormHint t where t.projectUuid=?0 order by t.formId, t.tabOrder", projectId));
+		
+		m.put("grids", dao.find("from W5Grid t where t.projectUuid=?0 order by t.gridId", projectId));
+		m.put("gridColumns", dao.find("from W5GridColumn t where t.projectUuid=?0 order by t.gridId, t.tabOrder", projectId));
+		m.put("gridColumnCustomConditions", dao.find("from W5CustomGridColumnCondition t where t.projectUuid=?0 order by t.gridId, t.tabOrder", projectId));
+		m.put("gridColumnCustomRenderers", dao.find("from W5CustomGridColumnRenderer t where t.projectUuid=?0 order by t.gridId, t.customGridColumnRendererId", projectId));
+
+		m.put("mobileLists", dao.find("from M5List t where t.projectUuid=?0 order by t.listId", projectId));
+		
+		m.put("cards", dao.find("from W5Card t where t.projectUuid=?0 order by t.dataViewId", projectId));
+		
+		m.put("menuItems", dao.find("from W5ObjectMenuItem t where t.projectUuid=?0 order by t.objectTip, t.objectId, t.tabOrder", projectId));
+		m.put("toolbarItems", dao.find("from W5ObjectToolbarItem t where t.projectUuid=?0 order by t.objectTip, t.objectId, t.tabOrder", projectId));
+
+		m.put("workflows", dao.find("from W5Workflow t where t.projectUuid=?0 order by t.approvalId", projectId));
+		m.put("workflowSteps", dao.find("from W5WorkflowStep t where t.projectUuid=?0 order by t.approvalId, t.approvalStepId", projectId));
+
+		m.put("conversions", dao.find("from W5Conversion t where t.projectUuid=?0 order by t.conversionId", projectId));
+		m.put("conversionCols", dao.find("from W5ConversionCol t where t.projectUuid=?0 order by t.conversionId, t.tabOrder", projectId));
+		
+		m.put("pages", dao.find("from W5Page t where t.projectUuid=?0 order by t.templateId", projectId));
+		m.put("pageObjects", dao.find("from W5PageObject t where t.projectUuid=?0 order by t.templateId, t.tabOrder", projectId));
+
+//		List<W5Menu> menus", dao.find("from W5Menu t where t.projectUuid=?0", projectId));
+//		List<M5Menu> mmenus", dao.find("from M5Menu t where t.projectUuid=?0", projectId));
+
+		m.put("externalDbs", dao.find("from W5ExternalDb t where t.projectUuid=?0", projectId));
+		m.put("exceptions", dao.find("from W5Exception t where t.projectUuid=?0", projectId));
+		
+
+		return m;
+
+	}
+
 }

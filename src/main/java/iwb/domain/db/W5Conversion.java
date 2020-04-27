@@ -19,7 +19,7 @@ import iwb.util.GenericUtil;
 @Entity
 @Immutable
 @Table(name="w5_conversion",schema="iwb")
-public class W5Conversion implements java.io.Serializable {
+public class W5Conversion implements java.io.Serializable, W5Base {
 
 	/**
 	 * 
@@ -47,6 +47,8 @@ public class W5Conversion implements java.io.Serializable {
 	
 	private	List<W5ConversionCol> _conversionColList;
 	private	Map<Integer,W5ConversionCol> _conversionColMap;
+	
+
 	
 	@Id
 	@Column(name="conversion_id")
