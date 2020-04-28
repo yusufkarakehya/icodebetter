@@ -60,7 +60,7 @@ public class WorkflowEngine {
 		int userId = (Integer) scd.get("userId");
 		int versionNo = GenericUtil.uInt(parameterMap.get("_avno"));
 		W5WorkflowRecord ar = (W5WorkflowRecord) metadataLoader.getMetadataObject(
-				"W5WorkflowRecord t","approvalRecordId", approvalRecordId,
+				"W5WorkflowRecord","approvalRecordId", approvalRecordId,
 				scd.get("projectId"), "Workflow Record not Found");
 		String mesaj = "";
 		String xlocale = (String) scd.get("locale");
