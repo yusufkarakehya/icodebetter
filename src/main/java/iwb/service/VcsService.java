@@ -4072,7 +4072,7 @@ public class VcsService {
 		else {//file
 			s = "{}";
 		}
-		System.out.println("Downloaded Metadata from [" + url + "] in " + (System.currentTimeMillis()-startTime) + "ms");
+		System.out.println("Downloaded Metadata from [" + url + "] in " + (System.currentTimeMillis()-startTime) + "ms, " + (s!=null ? s.length():0) + " bytes");
  
 		return new MetadataImport().fromJson(s);
 	}

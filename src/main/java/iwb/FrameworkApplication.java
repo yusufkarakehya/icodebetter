@@ -88,8 +88,10 @@ public class FrameworkApplication {
 		VcsService vcsService = (VcsService)appContext.getBean("vcsService");
 		
 		if(GenericUtil.uInt(FrameworkSetting.argMap.get("metadata"))!=0) {
-			vcsService.importProjectMetadata("http://localhost:8080/app/exportProject?.p=" + (FrameworkSetting.projectId!=null ? FrameworkSetting.projectId: FrameworkSetting.devUuid));
 			FrameworkSetting.systemStatus=0;
+			String projectId = (FrameworkSetting.projectId!=null ? FrameworkSetting.projectId: FrameworkSetting.devUuid);
+			vcsService.importProjectMetadata("http://localhost:8080/app/exportProject?.p=" + projectId);
+			FrameworkSetting.projectSystemStatus.put(projectId, 0);
 		} else {
 			if(FrameworkSetting.localTimer) {
 				TimerTask timerTask = new GenericTimer((TaskExecutor)appContext.getBean("taskExecutor")

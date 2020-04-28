@@ -9,14 +9,15 @@ import org.json.JSONObject;
 
 import iwb.cache.FrameworkSetting;
 import iwb.domain.db.W5Project;
+import iwb.util.GenericUtil;
 
 public class MetadataExport {
 	
 	private JSONObject java2json(Object o) {
 		JSONObject j = new JSONObject();
 		Class c = o.getClass();
-		for(Method m:c.getMethods()) if(m.getName().startsWith("get") && !m.getName().startsWith("getClass") && !m.getName().startsWith("get_") && !m.getName().equals("getProjectUuid")
-				 && !m.getName().equals("getCustomizationId"))try{
+		for(Method m:c.getMethods()) if(m.getName().length()>3 && m.getName().startsWith("get") && !m.getName().startsWith("getClass") && !m.getName().startsWith("get_") && !m.getName().equals("getProjectUuid")
+				 && !m.getName().equals("getCustomizationId") && m.getParameterCount()==0)try{
 			String mname = m.getName();
 			mname = mname.substring(3,4).toLowerCase(FrameworkSetting.appLocale) + mname.substring(4);
 			Object oo = m.invoke(o);
@@ -53,6 +54,8 @@ public class MetadataExport {
 					ss = ar.toString();
 					
 				}
+			} else if(o instanceof Map){
+				ss = GenericUtil.fromMapToJsonString2((Map)o);
 			} else {
 				ss = java2json(o).toString();
 				if(o instanceof W5Project) {

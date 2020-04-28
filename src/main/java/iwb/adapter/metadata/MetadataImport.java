@@ -114,14 +114,13 @@ public class MetadataImport {
 		Map<String, String> appSettings = jsonArray2map(j, ("appSettings"));
 		FrameworkCache.addAppSettings2Cache(po.getCustomizationId(), appSettings);
 		
-		if(j.has("localeMsgs")) {
-			JSONObject localeMsgs = j.getJSONObject("localeMsgs");
-			for(String locale : localeMsgs.keySet()){
-				Map<String, String> res = jsonArray2map(localeMsgs, locale);
+		if(po.getLocaleMsgKeyFlag()!=0) for(String locale:po.getLocales().split(",")){
+			if(j.has("localeMsgs_"+locale)) {
+				Map<String, String> res  = jsonArray2map(j, "localeMsgs_"+locale);
 				LocaleMsgCache.addLocaleMsgs2Cache(po.getCustomizationId(), locale, res);
-			}
-		} else 
-			LocaleMsgCache.addLocaleMsgs2Cache(po.getCustomizationId(), "en", null);
+			} else 
+				LocaleMsgCache.addLocaleMsgs2Cache(po.getCustomizationId(), "en", new HashMap());
+		}
 		
 		
 		
@@ -161,18 +160,20 @@ public class MetadataImport {
 		List<W5FormSmsMail> formSmsMails = jsonArray2java(j, ("formSmsMails"), W5FormSmsMail.class);
 		List<W5FormHint> formHints = jsonArray2java(j, ("formHints"), W5FormHint.class);
 		FrameworkCache.addForms2Cache(projectId, forms, formCells, formModules, formCellProperties, formSmsMails, formHints, toolbarItems);
+
 		
 		List<W5Grid> grids = jsonArray2java(j, ("grids"), W5Grid.class);
 		List<W5GridColumn> gridColumns = jsonArray2java(j, ("gridColumns"), W5GridColumn.class);
 		List<W5CustomGridColumnCondition> gridColumnCustomConditions = jsonArray2java(j, ("gridColumnCustomConditions"), W5CustomGridColumnCondition.class);
 		List<W5CustomGridColumnRenderer> gridColumnCustomRenderers = jsonArray2java(j, ("gridColumnCustomRenderers"), W5CustomGridColumnRenderer.class);
-		FrameworkCache.addGrids2Cache(projectId, grids, gridColumns, gridColumnCustomConditions, gridColumnCustomRenderers, toolbarItems, menuItems);
+		FrameworkCache.addGrids2Cache(projectId, grids, gridColumns, gridColumnCustomConditions, gridColumnCustomRenderers, toolbarItems, menuItems, formCells);
+
 
 		List<M5List> mobileLists = jsonArray2java(j, ("mobileLists"), M5List.class);
 		FrameworkCache.addMobileLists2Cache(projectId, mobileLists);
 		
 		List<W5Card> cards = jsonArray2java(j, ("cards"), W5Card.class);
-		FrameworkCache.addCards2Cache(projectId, cards);
+		FrameworkCache.addCards2Cache(projectId, cards, toolbarItems, menuItems);
 		
 		List<W5Workflow> workflows = jsonArray2java(j, ("workflows"), W5Workflow.class);
 		List<W5WorkflowStep> workflowSteps = jsonArray2java(j, ("workflowSteps"), W5WorkflowStep.class);

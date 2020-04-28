@@ -94,8 +94,6 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		// int customizationId = (Integer)f.getScd().get("customizationId");
 		String projectId = FrameworkCache.getProjectId(fr.getScd(), "40." + fr.getFormId());
 
-		W5Form form = null;
-		if (FrameworkSetting.redisCache) {
 			/*
 			 * try { form = (W5Form) (redisGlobalMap.get(projectId + ":form:" +
 			 * fr.getFormId()));// rformMap.get(fr.getFormId()); if (form != null &&
@@ -104,30 +102,28 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			 * fr.getFormId(), null, "Loading Form from Redis", e); }
 			 */
 
-		} else {
-			form = (W5Form) getMetadataObject("W5Form","formId", fr.getFormId(),
+		W5Form form = (W5Form) getMetadataObject("W5Form","formId", fr.getFormId(),
 					projectId, "Form"); // ozel bir client icin varsa
 
-			form.set_formCells(find(
-					"from W5FormCell t where t.formId=?0 AND t.projectUuid=?1 order by t.tabOrder, t.xOrder, t.dsc",
-					fr.getFormId(), projectId));
-			if (form.getRenderTip() != 0) { // eger baska turlu render
-											// edilecekse
-				form.set_moduleList(
-						find("from W5FormModule t where t.formId=?0 AND t.projectUuid=?1 order by t.tabOrder",
-								form.getFormId(), projectId));
-			}
-
-			form.set_toolbarItemList(find(
-					"from W5ObjectToolbarItem t where t.objectTip=?0 AND t.objectId=?1 AND t.projectUuid=?2 order by t.tabOrder",
-					(short) 40, fr.getFormId(), projectId));
-			form.set_formHintList(find(
-					"from W5FormHint h where h.activeFlag=1 AND h.formId=?0 AND h.projectUuid=?1 order by h.tabOrder",
-					fr.getFormId(), projectId));
-			if (form.get_formHintList().isEmpty())
-				form.set_formHintList(null);
-
+		form.set_formCells(find(
+				"from W5FormCell t where t.formId=?0 AND t.projectUuid=?1 order by t.tabOrder, t.xOrder, t.dsc",
+				fr.getFormId(), projectId));
+		if (form.getRenderTip() != 0) { // eger baska turlu render
+										// edilecekse
+			form.set_moduleList(
+					find("from W5FormModule t where t.formId=?0 AND t.projectUuid=?1 order by t.tabOrder",
+							form.getFormId(), projectId));
 		}
+
+		form.set_toolbarItemList(find(
+				"from W5ObjectToolbarItem t where t.objectTip=?0 AND t.objectId=?1 AND t.projectUuid=?2 order by t.tabOrder",
+				(short) 40, fr.getFormId(), projectId));
+		form.set_formHintList(find(
+				"from W5FormHint h where h.activeFlag=1 AND h.formId=?0 AND h.projectUuid=?1 order by h.tabOrder",
+				fr.getFormId(), projectId));
+		if (form.get_formHintList().isEmpty())
+			form.set_formHintList(null);
+
 
 		fr.setForm(form);
 
@@ -145,11 +141,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			fc.get_formCellPropertyList().add(fcp);
 		}
 
-		if (form.getObjectTip() != 1 && form.getRenderTemplateId() > 0) { // grid(seachForm)
-																			// degilse
-																			// ve
-																			// templateId
-																			// varsa
+		if (form.getObjectTip() != 1 && form.getRenderTemplateId() > 0) { //  if not grid(seachForm)
 			W5Page page = getPageResult(fr.getScd(), form.getRenderTemplateId()).getPage();
 			form.set_renderTemplate(page);
 		}
@@ -158,9 +150,6 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		switch (form.getObjectTip()) {
 		case 6: // conversion icin
 			W5Conversion c = FrameworkCache.getConversion(projectId, form.getObjectId());
-			W5Table srct = FrameworkCache.getTable(projectId, c.getSrcTableId());
-			W5Table dstt = FrameworkCache.getTable(projectId, c.getDstTableId());
-			// f.getForm().set_sourceTable(dstt);
 			for (W5FormCell fc : form.get_formCells())
 				if (fc.getObjectDetailId() != 0) {
 					fc.set_sourceObjectDetail(c.get_conversionColMap().get(fc.getObjectDetailId()));
@@ -242,27 +231,6 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 				}
 		}
 
-		// StringBuilder autoExtraJSConstructor = new StringBuilder();
-		for (W5FormCell fc : form.get_formCells())
-			switch (fc.getControlTip()) {
-			case 99: // grid
-				W5GridResult gridResult = new W5GridResult(fc.getLookupQueryId());
-				gridResult.setRequestParams(fr.getRequestParams());
-				gridResult.setScd(fr.getScd());
-
-				W5Grid g = FrameworkCache.getGrid(projectId, fc.getLookupQueryId());
-				if (g != null) {
-					gridResult.setGrid(g);
-				} else {
-					loadGrid(gridResult);
-					g = gridResult.getGrid();
-					FrameworkCache.addGrid(projectId, g);
-				}
-				fc.set_sourceObjectDetail(g);
-				break;
-			case 31: // code_list: deprecated
-				break;
-			}
 
 		if (mam != null && !mam.isEmpty()) { // map of ApprovalManagement
 			int maxFirstColumnTabOrder = 0;
@@ -1996,10 +1964,11 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 	}
 	
 	public Map<String, Object> getProjectMetadata(String projectId){
-		W5Project po = FrameworkCache.getProject(projectId);
+		W5Project po = (W5Project)dao.find("from W5Project t where t.projectUuid=?0", projectId).get(0);
 		Map<String, Object> m = new HashMap();
 		m.put("project", po);
 		m.put("roleGroups", dao.find("from W5RoleGroup t where t.projectUuid=?0 order by t.userTip", projectId));
+		
 		
 		List<Object[]> appSettingList = (List<Object[]>) executeSQLQuery("select dsc, val from iwb.w5_app_setting where customization_id=?", po.getCustomizationId());
 		if(appSettingList!=null) {
@@ -2009,6 +1978,16 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			m.put("appSettings", mm);
 		}
 
+		if(po.getLocaleMsgKeyFlag()!=0) for(String locale:po.getLocales().split(",")){
+			List<Object[]> localeMsgs = (List<Object[]>) executeSQLQuery("select locale_msg_key, dsc from iwb.w5_locale_msg where customization_id=? AND locale=?", po.getCustomizationId(), locale);
+			if(localeMsgs!=null) {
+				Map mm = new HashMap();
+				for(Object[] oo:localeMsgs)
+					mm.put(oo[0], oo[1]);
+				m.put("localeMsgs_"+locale, mm);
+			}
+		}
+		
 		
 		m.put("vcsCommits", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId>0 AND length(t.extraSql)>2 order by t.vcsCommitId", projectId));
 		m.put("vcsCommits2", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId<0 AND t.runLocalFlag>0 AND length(t.extraSql)>2 order by -t.vcsCommitId", projectId));

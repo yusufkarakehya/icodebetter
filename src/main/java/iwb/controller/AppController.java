@@ -619,9 +619,11 @@ public class AppController implements InitializingBean {
 		if (request.getSession(false) != null) {
 			request.getSession(false).removeAttribute("scd-dev");
 		}
-		;
-		W5GlobalFuncResult result = service.executeFunc(new HashMap(), 1, requestParams, (short) 7); // user Authenticate DbFunc:1
 
+		Map<String, Object> scd = new HashMap();
+		scd.put("projectId", FrameworkSetting.devUuid);
+		W5GlobalFuncResult result = service.executeFunc(scd, 1, requestParams, (short) 7); // user Authenticate DbFunc:1
+		scd = null;
 		/*
 		 * 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
 		 */
@@ -639,7 +641,6 @@ public class AppController implements InitializingBean {
 		int forceUserRoleId = GenericUtil.uInt(requestParams.get("userRoleId"));
 		response.setContentType("application/json");
 		boolean genToken = GenericUtil.uInt(request, "generate_token") != 0;
-		Map<String, Object> scd = null;
 		if (success) { // basarili simdi sira diger islerde
 			HttpSession session = request.getSession(true);
 			session.setAttribute("locale", xlocale);
@@ -1262,6 +1263,7 @@ public class AppController implements InitializingBean {
 		Map<String, Object> scd = new HashMap();
 		scd.put("userId", 1);
 		scd.put("customizationId", cusId);
+		scd.put("projectId", FrameworkSetting.devUuid);
 		scd.put("path", "");
 		Locale blocale = request.getLocale();
 		scd.put("locale", FrameworkCache.getAppSettingStringValue(0, "locale", "en"));

@@ -1158,6 +1158,7 @@ public class UserUtil {
 	//	if(chatStatusTip==0)return false;
 
 		CachedUserBean3 cub = getCachedUserBean(userId);
+		if(cub==null)return false;
 
 		if(deviceType!=0){
 			if(GenericUtil.isEmpty(mobileDeviceId))
