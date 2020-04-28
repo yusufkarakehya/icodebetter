@@ -56,6 +56,7 @@ import iwb.domain.db.W5TableEvent;
 import iwb.domain.db.W5TableField;
 import iwb.domain.db.W5TableFieldCalculated;
 import iwb.domain.db.W5TableParam;
+import iwb.domain.db.W5VcsCommit;
 import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5Ws;
@@ -1076,9 +1077,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 	public void setApplicationSettingsValues() {
 		FrameworkSetting.debug = FrameworkCache.getAppSettingIntValue(0, "debug") != 0;
 
-		// preload olmamasinin sebebi: approval'da herkesin farkli kayitlarinin
-		// gelmesi search formlarda
-		FrameworkSetting.monaco = FrameworkCache.getAppSettingIntValue(0, "monaco") != 0;
+
 		FrameworkSetting.mq = FrameworkCache.getAppSettingIntValue(0, "mq_flag") != 0;
 		// FrameworkSetting.preloadWEngine =
 		// FrameworkCache.getAppSettingIntValue(0, "preload_engine");
@@ -1964,7 +1963,11 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 	}
 	
 	public Map<String, Object> getProjectMetadata(String projectId){
-		W5Project po = (W5Project)dao.find("from W5Project t where t.projectUuid=?0", projectId).get(0);
+		List<W5Project> lpo = dao.find("from W5Project t where t.projectUuid=?0", projectId);
+		if(lpo.isEmpty()) 
+			throw new IWBException("framework", "Project", 0, null,
+					"Project not Found: " + projectId, null);
+		W5Project po = (W5Project)lpo.get(0);
 		Map<String, Object> m = new HashMap();
 		m.put("project", po);
 		m.put("roleGroups", dao.find("from W5RoleGroup t where t.projectUuid=?0 order by t.userTip", projectId));
@@ -1988,9 +1991,23 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			}
 		}
 		
-		
-		m.put("vcsCommits", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId>0 AND length(t.extraSql)>2 order by t.vcsCommitId", projectId));
-		m.put("vcsCommits2", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId<0 AND t.runLocalFlag>0 AND length(t.extraSql)>2 order by -t.vcsCommitId", projectId));
+		if(projectId.equals(FrameworkSetting.devUuid)) { //just tables, funcs and sequences
+			StringBuilder ddl = new StringBuilder();
+			for(Object o:dao.executeSQLQuery("select * from iwb.generate_create_table_statement('"+po.getRdbmsSchema()+"',null) ")) {
+				ddl.append(o).append("\n");
+			}
+			List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectId);
+			W5VcsCommit commit = new W5VcsCommit();
+			commit.setVcsCommitId((Integer)lm.get(0));
+			commit.setExtraSql(ddl.toString());
+			commit.setComment("initial DDL");
+			List vcsCommits = new ArrayList();
+			vcsCommits.add(commit);
+			m.put("vcsCommits", vcsCommits);
+		} else {
+			m.put("vcsCommits", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId>0 AND length(t.extraSql)>2 order by t.vcsCommitId", projectId));
+			m.put("vcsCommits2", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId<0 AND t.runLocalFlag>0 AND length(t.extraSql)>2 order by -t.vcsCommitId", projectId));
+		}
 
 		
 		m.put("lookUps", dao.find("from W5LookUp t where t.projectUuid=?0 order by t.lookUpId", projectId));

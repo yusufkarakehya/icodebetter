@@ -105,6 +105,7 @@ public class MetadataImport {
 		po.setProjectUuid(projectId);
 
 		List<W5RoleGroup> roleGroups = jsonArray2java(j, ("roleGroups"), W5RoleGroup.class);
+		FrameworkCache.addRoleGroups2Cache(projectId, roleGroups);
 		if(roleGroups!=null)for(W5RoleGroup rg:roleGroups)if(rg.getActiveFlag()!=0 && rg.getUserTip()!=122) {
 			po.set_defaultUserTip(rg.getUserTip());
 			break;
@@ -188,6 +189,8 @@ public class MetadataImport {
 		FrameworkCache.addPages2Cache(projectId, pages, pageObjects);
 
 		List<W5Menu> menus = jsonArray2java(j, ("menus"), W5Menu.class);
+		FrameworkCache.addMenus2Cache(projectId, menus);
+		
 		List<M5Menu> mmenus = jsonArray2java(j, ("mmenus"), M5Menu.class);
 
 //		List<M5Menu> mmenus"), M5Menu.class);

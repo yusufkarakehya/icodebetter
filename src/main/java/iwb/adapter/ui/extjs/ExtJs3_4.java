@@ -2913,8 +2913,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			break;
 		case 41:// edit js - codemirror
 			buf.setLength(0);
-			if(FrameworkSetting.monaco)buf.append("new Ext.ux.form.Monaco");
-			else buf.append("new Ext.ux.form.CodeMirror");
+			buf.append("new Ext.ux.form.Monaco");
 			break;
 		case 11: // textarea
 			buf.append("TextArea");

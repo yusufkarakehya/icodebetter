@@ -38,6 +38,7 @@ import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5List;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
+import iwb.domain.db.W5Menu;
 import iwb.domain.db.W5Mq;
 import iwb.domain.db.W5ObjectMenuItem;
 import iwb.domain.db.W5ObjectToolbarItem;
@@ -47,6 +48,7 @@ import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
+import iwb.domain.db.W5RoleGroup;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableChild;
 import iwb.domain.db.W5TableEvent;
@@ -79,11 +81,8 @@ public class FrameworkCache {
 
 	final private static Map<String, Map<Integer, W5Table>> wTables = new HashMap<String, Map<Integer, W5Table>>();
 	final private static Map<String, Map<Integer, List<W5TableEvent>>> wTableEvents = new HashMap<String, Map<Integer,List<W5TableEvent>>>();	
-/*	final private static Map<String, Map<Integer, Integer>> wTableFieldMap = new HashMap<String, Map<Integer, Integer>>();
-	final private static Map<String, List<W5TableParam>> tableParamListMap = new HashMap<String, List<W5TableParam>>();
-	final private static Map<String, List<W5TableChild>> tableChildListMap = new HashMap<String, List<W5TableChild>>();//copy
-	final private static Map<String, List<W5TableChild>> tableParentListMap = new HashMap<String, List<W5TableChild>>();//watch,feed
-*/
+	final private static Map<String, List<W5RoleGroup>> wRoleGroups = new HashMap<String, List<W5RoleGroup>>();
+
 	
 	final private static Map<String, Map<Integer, String>> wPageCss = new HashMap<String, Map<Integer, String>>();
 	final private static Map<String, Map<String, Object>> wGraalFuncs = new HashMap<String, Map<String, Object>>();
@@ -92,8 +91,8 @@ public class FrameworkCache {
 	final private static List<W5Customization> wCustomization = new ArrayList<W5Customization>();
 	final private static Map<String, W5Project> wProjects = new HashMap<String, W5Project>(); //projectUuid
 
-//	final private static Map<String, Map<Integer, W5TsPortlet>> wTsPortlets = new HashMap<String, Map<Integer, W5TsPortlet>>();
-//	final private static Map<String, Map<Integer, W5TsMeasurement>> wTsMeasurements = new HashMap<String, Map<Integer, W5TsMeasurement>>();
+	final private static Map<String, Map<Integer, List>> wMenus = new HashMap<String, Map<Integer, List>>();
+
 
 	final public static Map<String, Map<Integer, W5ExternalDb>> wExternalDbs = new HashMap<String, Map<Integer, W5ExternalDb>>();
 	final public static Map<String, Map<Integer, W5Mq>> wMqs = new HashMap<String, Map<Integer, W5Mq>>();
@@ -116,7 +115,6 @@ public class FrameworkCache {
 	public static List<W5QueryField> cachedOnlineQueryFields = null;
 	
 	
-	final public static Map<String, Date> wRequestUrls= new HashMap<String, Date>();
 	final public static Map<String, Map<Integer,Set<String>>> wValidateLookupMap= new HashMap<String, Map<Integer,Set<String>>>();
 	
 	final private static Map<String, Map<String, W5WsServer>> wWsServers = new HashMap<String, Map<String, W5WsServer>>(); //wsId
@@ -574,28 +572,6 @@ public class FrameworkCache {
 	}
 //	final public static Map<DeferredResult<List>, Integer> wLongPollRequests = new HashMap<DeferredResult<List>, Integer>(); //customizationId
 
-	public static boolean requestUrlsControl(String remoteIpAdr){
-		Calendar cal = Calendar.getInstance(); // creates calendar
-	    cal.setTime(new Date()); 
-	    cal.add(Calendar.HOUR_OF_DAY, 1); // adds one hour
-	    Date dt = cal.getTime();	    
-			
-	    //1 saati dolduran elemanlar temizleniyor 
-		for (Object key : wRequestUrls.keySet()) {
-			Date dt2 = wRequestUrls.get(key);
-			if (dt2.compareTo(dt)>0){
-				wRequestUrls.remove(key);
-			}			
-		}
-		
-		//server ip listede varmı?
-		for (Object key : wRequestUrls.keySet()) {					
-			if (key.toString().equals(remoteIpAdr)){
-				return false;
-			}						
-		}		
-		return true;
-	}
 
 	public static W5WsServer getWsServer(Object o, String serviceName){
 		Map<String, W5WsServer> wssMap = wWsServers.get(getProjectId(o, null));
@@ -1479,6 +1455,43 @@ public class FrameworkCache {
 	public static void addAppSettings2Cache(int customizationId, Map<String, String> appSettings2) {
 		if(appSettings2 ==null)appSettings2 = new HashMap();
 		appSettings.put(customizationId, appSettings2);		
+	}
+
+	public static void addMenus2Cache(String projectId, List<W5Menu> menus) {
+		Map<Integer, List> mm = new HashMap();
+		List<W5RoleGroup> roleGroups = wRoleGroups.get(projectId);
+		if(menus!=null && roleGroups!=null) {
+			Map<Integer, W5Menu> menuMap = new HashMap();
+			for(W5Menu m : menus)menuMap.put(m.getMenuId(), m);
+			
+			if(roleGroups!=null) {
+				for(W5RoleGroup rg:roleGroups) {
+					mm.put(rg.getUserTip(), new ArrayList());
+				}
+			}
+			for(W5Menu m : menus) {
+				List lm = mm.get(m.getUserTip());
+				if(lm!=null) {
+					if(m.getParentMenuId()==0)
+						lm.add(m);
+					else {
+						W5Menu pm = menuMap.get(m.getParentMenuId());
+						if(pm!=null) {
+							if(pm.get_children()==null)pm.set_children(new ArrayList());
+							pm.get_children().add(m);
+						}
+					}
+				}
+			}
+		}
+		
+		wMenus.put(projectId, mm);
+		
+	}
+
+	public static void addRoleGroups2Cache(String projectId, List<W5RoleGroup> roleGroups) {
+		if(roleGroups!=null)wRoleGroups.put(projectId, roleGroups);
+		
 	}
 
 }

@@ -1,10 +1,15 @@
 package iwb.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -998,16 +1003,43 @@ public class VcsController implements InitializingBean {
 	}
 	
 
-	@RequestMapping("/exportProject")
+	@RequestMapping("/export/*")
 	public void hndExportProject(
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		String projectId = request.getParameter(".p");
-		response.setContentType("application/json");
-		response.getWriter().write(new MetadataExport().toJson(vcsEngine.getProjectMetadata(projectId)));
+		String uri = request.getRequestURI();
+		String prefix = "export/";
+		int ix = uri.indexOf(prefix);
+		String fileName = null;
+		if(ix>-1){
+			fileName = uri.substring(ix+prefix.length());
+		}
+		String projectId = fileName;
+		if(fileName.indexOf('.')>-1) {
+			projectId = projectId.substring(0,fileName.indexOf('.'));
+		}
 		
-		response.getWriter().close();		
+		String str = new MetadataExport().toJson(vcsEngine.getProjectMetadata(projectId));
+
+		if(fileName.toLowerCase(FrameworkSetting.appLocale).endsWith("zip")) {
+			response.setContentType("application/octet-stream");
+			ServletOutputStream out = response.getOutputStream();
+			try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+	            try (GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+	                gzipOutputStream.write(str.getBytes(StandardCharsets.UTF_8));
+	            }
+	            out.write(byteArrayOutputStream.toByteArray());
+	        } catch(IOException e) {
+	            throw new RuntimeException("Failed to zip content", e);
+	        } finally {
+	        	out.close();
+	        }
+		} else {
+			response.setContentType("application/json");
+			response.getWriter().write(str);
+			response.getWriter().close();		
+		}
 	}
 	
 	@RequestMapping("/importProject")

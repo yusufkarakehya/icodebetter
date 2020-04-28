@@ -1,5 +1,7 @@
 package iwb.domain.db;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -35,6 +37,7 @@ public class W5Menu implements java.io.Serializable {
 	private String accessViewRoles;
 	private String accessViewUsers;
 
+	private List<W5Menu> _children;
 	
 	
 	private String projectUuid;
@@ -161,6 +164,15 @@ public class W5Menu implements java.io.Serializable {
 
 	public boolean safeEquals(W5Base q) {
 		return false;
+	}
+
+	@Transient
+	public List<W5Menu> get_children() {
+		return _children;
+	}
+
+	public void set_children(List<W5Menu> _children) {
+		this._children = _children;
 	}
 	
 
