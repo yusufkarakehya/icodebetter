@@ -482,8 +482,6 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 	private void loadPage(W5PageResult pr) {
 
 		String projectId = FrameworkCache.getProjectId(pr.getScd(), "63." + pr.getTemplateId());
-		W5Page page = null;
-		if (FrameworkSetting.redisCache) {
 			/*
 			 * try { page = (W5Page) (redisGlobalMap.get(projectId + ":page:" +
 			 * pr.getTemplateId()));//
@@ -493,40 +491,38 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			 * IWBException("framework", "Redis.Page", pr.getTemplateId(), null,
 			 * "Loading Page from Redis", e); }
 			 */
-		} else {
 
-			page = (W5Page) getMetadataObject("W5Page","templateId",
-					pr.getTemplateId(), projectId, "Page"); // ozel bir client
-															// icin
-															// varsa
-			page.set_pageObjectList(find(
-					"from W5PageObject t where t.activeFlag=1 AND t.templateId=?0 AND t.projectUuid=?1 order by t.tabOrder",
-					pr.getTemplateId(), projectId));
+		W5Page page = (W5Page) getMetadataObject("W5Page","templateId",
+					pr.getTemplateId(), projectId, "Page"); 
+		
+		page.set_pageObjectList(find(
+				"from W5PageObject t where t.activeFlag=1 AND t.templateId=?0 AND t.projectUuid=?1 order by t.tabOrder",
+				pr.getTemplateId(), projectId));
 
-			for (W5PageObject to : page.get_pageObjectList())
-				if (to.getSrcQueryFieldId() != null && to.getDstQueryParamId() != null) {
-					List p = new ArrayList();
+		for (W5PageObject to : page.get_pageObjectList())
+			if (to.getSrcQueryFieldId() != null && to.getDstQueryParamId() != null) {
+				List p = new ArrayList();
+				p.add(projectId);
+				p.add(to.getSrcQueryFieldId());
+				p.add(projectId);
+				p.add(to.getDstQueryParamId());
+				String sql = "select (select f1.dsc from iwb.w5_query_field f1 where f1.project_uuid=? AND f1.query_field_id=?) f_dsc, "
+						+ "(select p1.dsc from iwb.w5_query_param p1 where p1.project_uuid=? AND p1.query_param_id=?) p_dsc";
+				if (to.getDstStaticQueryParamId() != null && !GenericUtil.isEmpty(to.getDstStaticQueryParamVal())) {
 					p.add(projectId);
-					p.add(to.getSrcQueryFieldId());
-					p.add(projectId);
-					p.add(to.getDstQueryParamId());
-					String sql = "select (select f1.dsc from iwb.w5_query_field f1 where f1.project_uuid=? AND f1.query_field_id=?) f_dsc, "
-							+ "(select p1.dsc from iwb.w5_query_param p1 where p1.project_uuid=? AND p1.query_param_id=?) p_dsc";
-					if (to.getDstStaticQueryParamId() != null && !GenericUtil.isEmpty(to.getDstStaticQueryParamVal())) {
-						p.add(projectId);
-						p.add(to.getDstStaticQueryParamId());
-						sql += ",(select p1.dsc from iwb.w5_query_param p1 where p1.project_uuid=? AND p1.query_param_id=?) ps_dsc";
-					}
-					List l = executeSQLQuery2Map(sql, p);
-					if (!GenericUtil.isEmpty(l)) {
-						Map m = (Map) l.get(0);
-						to.set_srcQueryFieldName((String) m.get("f_dsc"));
-						to.set_dstQueryParamName((String) m.get("p_dsc"));
-						if (m.containsKey("ps_dsc"))
-							to.set_dstStaticQueryParamName((String) m.get("ps_dsc"));
-					}
+					p.add(to.getDstStaticQueryParamId());
+					sql += ",(select p1.dsc from iwb.w5_query_param p1 where p1.project_uuid=? AND p1.query_param_id=?) ps_dsc";
 				}
-		}
+				List l = executeSQLQuery2Map(sql, p);
+				if (!GenericUtil.isEmpty(l)) {
+					Map m = (Map) l.get(0);
+					to.set_srcQueryFieldName((String) m.get("f_dsc"));
+					to.set_dstQueryParamName((String) m.get("p_dsc"));
+					if (m.containsKey("ps_dsc"))
+						to.set_dstStaticQueryParamName((String) m.get("ps_dsc"));
+				}
+			}
+
 		pr.setPage(page);
 
 	}
@@ -2005,6 +2001,15 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		m.put("project", po);
 		m.put("roleGroups", dao.find("from W5RoleGroup t where t.projectUuid=?0 order by t.userTip", projectId));
 		
+		List<Object[]> appSettingList = (List<Object[]>) executeSQLQuery("select dsc, val from iwb.w5_app_setting where customization_id=?", po.getCustomizationId());
+		if(appSettingList!=null) {
+			Map mm = new HashMap();
+			for(Object[] oo:appSettingList)
+				mm.put(oo[0], oo[1]);
+			m.put("appSettings", mm);
+		}
+
+		
 		m.put("vcsCommits", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId>0 AND length(t.extraSql)>2 order by t.vcsCommitId", projectId));
 		m.put("vcsCommits2", dao.find("from W5VcsCommit t where t.projectUuid=?0 AND t.vcsCommitId<0 AND t.runLocalFlag>0 AND length(t.extraSql)>2 order by -t.vcsCommitId", projectId));
 
@@ -2056,7 +2061,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		m.put("conversionCols", dao.find("from W5ConversionCol t where t.projectUuid=?0 order by t.conversionId, t.tabOrder", projectId));
 		
 		m.put("pages", dao.find("from W5Page t where t.projectUuid=?0 order by t.templateId", projectId));
-		m.put("pageObjects", dao.find("from W5PageObject t where t.projectUuid=?0 order by t.templateId, t.tabOrder", projectId));
+		m.put("pageObjects", dao.find("from W5PageObject t where t.activeFlag=1 AND t.projectUuid=?0 order by t.templateId, t.tabOrder", projectId));
 
 		m.put("menus", dao.find("from W5Menu t where t.projectUuid=?0 order by t.userTip, t.parentMenuId, t.tabOrder", projectId));
 		m.put("mmenus", dao.find("from M5Menu t where t.projectUuid=?0 order by t.userTip, t.parentMenuId, t.tabOrder", projectId));

@@ -4060,6 +4060,7 @@ public class VcsService {
 	}
 	
 	public boolean importProjectMetadata(String url){
+		long startTime = System.currentTimeMillis();
 		String s = null;
 		if(url.startsWith("http"))
 			s = HttpUtil.send(url, "");
@@ -4068,6 +4069,7 @@ public class VcsService {
 		else {//file
 			s = "{}";
 		}
+		System.out.println("Downloaded Metadata from [" + url + "] in " + (System.currentTimeMillis()-startTime) + "ms");
  
 		return new MetadataImport().fromJson(s);
 	}

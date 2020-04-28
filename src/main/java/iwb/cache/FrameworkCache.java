@@ -987,7 +987,43 @@ public class FrameworkCache {
 	public static void addForms2Cache(String projectId, List<W5Form> forms, List<W5FormCell> formCells,
 			List<W5FormModule> formModules, List<W5FormCellProperty> formCellProperties,
 			List<W5FormSmsMail> formSmsMails, List<W5FormHint> formHints, List<W5ObjectToolbarItem> toolbarItems) {
-		// TODO Auto-generated method stub
+		Map<Integer, W5Form> mm = new HashMap();
+		/*
+		if(forms!=null)for(W5Form m:forms) {
+			mm.put(m.getFormId(), m);
+			m.set_queryFields(new ArrayList());
+			m.set_queryParams(new ArrayList());
+		}
+		
+		if(queryFields!=null)for(W5QueryField d:queryFields) {
+			W5Form m = mm.get(d.getQueryId());
+			if(m!=null) {
+				m.get_queryFields().add(d);
+			}
+			if (d.getPostProcessTip() == 31 && (d.getFieldTip() == 3 || d.getFieldTip() == 4)) {
+				if (m.get_aggQueryFields() == null)
+					m.set_aggQueryFields(new ArrayList());
+				m.get_aggQueryFields().add(d);
+			}
+		}
+		
+		if(queryParams!=null)for(W5QueryParam d:queryParams) {
+			W5Form m = mm.get(d.getQueryId());
+			if(m!=null) {
+				m.get_queryParams().add(d);
+			}			
+		}
+		
+		if(queries!=null)for(W5Query query:queries)if (query.getShowParentRecordFlag() != 0)
+			for (W5QueryField field : query.get_queryFields()) {
+				if (field.getDsc().equals("table_id"))
+					query.set_tableIdTabOrder(field.getTabOrder());
+				if (field.getDsc().equals("table_pk"))
+					query.set_tablePkTabOrder(field.getTabOrder());
+
+			}
+		*/
+		wForms.put(projectId, mm);
 		
 	}
 
@@ -1011,7 +1047,21 @@ public class FrameworkCache {
 	}
 
 	public static void addPages2Cache(String projectId, List<W5Page> pages, List<W5PageObject> pageObjects) {
-		// TODO Auto-generated method stub
+		Map<Integer, W5Page> mm = new HashMap();
+		
+		if(pages!=null)for(W5Page m:pages) {
+			mm.put(m.getTemplateId(), m);
+			m.set_pageObjectList(new ArrayList());
+		}
+		
+		if(pageObjects!=null)for(W5PageObject d:pageObjects) {
+			W5Page m = mm.get(d.getTemplateId());
+			if(m!=null) {
+				m.get_pageObjectList().add(d);
+			}
+		}
+		
+		wTemplates.put(projectId, mm);
 		
 	}
 
@@ -1038,6 +1088,11 @@ public class FrameworkCache {
 	public static void addExceptions2Cache(String projectId, List<W5Exception> exceptions) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public static void addAppSettings2Cache(int customizationId, Map<String, String> appSettings2) {
+		if(appSettings2 ==null)appSettings2 = new HashMap();
+		appSettings.put(customizationId, appSettings2);		
 	}
 
 }

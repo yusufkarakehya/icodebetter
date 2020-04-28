@@ -87,29 +87,35 @@ public class FrameworkApplication {
 		FrameworkService service = (FrameworkService)appContext.getBean("frameworkService");
 		VcsService vcsService = (VcsService)appContext.getBean("vcsService");
 		
-		if(FrameworkSetting.localTimer) {
-			TimerTask timerTask = new GenericTimer((TaskExecutor)appContext.getBean("taskExecutor")
-					, service);
-	        //running timer task as daemon thread
-	        Timer timer = new Timer(true);
-	        timer.scheduleAtFixedRate(timerTask, 0, 60*1000); //every minute
-		}
-		
-		if(FrameworkSetting.projectId!=null) {
-			vcsService.icbVCSUpdateSqlAndFields();
-			boolean b = vcsService.projectVCSUpdate(FrameworkSetting.devUuid);
-			if(b && FrameworkSetting.projectId!=null) {
-//				W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
-				if(FrameworkSetting.projectId.length()==36) {
-					boolean clean = GenericUtil.uInt(FrameworkSetting.argMap.get("clean"))!=0;
-					if(clean)vcsService.deleteProject(FrameworkSetting.projectId);
-					vcsService.projectVCSUpdate(FrameworkSetting.projectId);
+		if(GenericUtil.uInt(FrameworkSetting.argMap.get("metadata"))!=0) {
+			vcsService.importProjectMetadata("http://localhost:8080/app/exportProject?.p=" + (FrameworkSetting.projectId!=null ? FrameworkSetting.projectId: FrameworkSetting.devUuid));
+			FrameworkSetting.systemStatus=0;
+		} else {
+			if(FrameworkSetting.localTimer) {
+				TimerTask timerTask = new GenericTimer((TaskExecutor)appContext.getBean("taskExecutor")
+						, service);
+		        //running timer task as daemon thread
+		        Timer timer = new Timer(true);
+		        timer.scheduleAtFixedRate(timerTask, 0, 60*1000); //every minute
+			}
+			
+			if(FrameworkSetting.projectId!=null) {
+				vcsService.icbVCSUpdateSqlAndFields();
+				boolean b = vcsService.projectVCSUpdate(FrameworkSetting.devUuid);
+				if(b && FrameworkSetting.projectId!=null) {
+	//				W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
+					if(FrameworkSetting.projectId.length()==36) {
+						boolean clean = GenericUtil.uInt(FrameworkSetting.argMap.get("clean"))!=0;
+						if(clean)vcsService.deleteProject(FrameworkSetting.projectId);
+						vcsService.projectVCSUpdate(FrameworkSetting.projectId);
+					}
 				}
 			}
+			service.reloadCache(-1);
 		}
 		if(FrameworkSetting.log2tsdb)LogUtil.activateInflux4Log();
 		if(FrameworkSetting.logType==2)LogUtil.activateMQ4Log();
 		
-		service.reloadCache(-1);
+
 	}
 }

@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
+import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.M5List;
 import iwb.domain.db.M5Menu;
 import iwb.domain.db.W5Card;
@@ -110,6 +111,19 @@ public class MetadataImport {
 		}
 		FrameworkCache.addProject(po);
 		
+		Map<String, String> appSettings = jsonArray2map(j, ("appSettings"));
+		FrameworkCache.addAppSettings2Cache(po.getCustomizationId(), appSettings);
+		
+		if(j.has("localeMsgs")) {
+			JSONObject localeMsgs = j.getJSONObject("localeMsgs");
+			for(String locale : localeMsgs.keySet()){
+				Map<String, String> res = jsonArray2map(localeMsgs, locale);
+				LocaleMsgCache.addLocaleMsgs2Cache(po.getCustomizationId(), locale, res);
+			}
+		} else 
+			LocaleMsgCache.addLocaleMsgs2Cache(po.getCustomizationId(), "en", null);
+		
+		
 		
 		List<W5LookUp> lookUps = jsonArray2java(j, ("lookUps"), W5LookUp.class);
 		List<W5LookUpDetay> lookUpDetays = jsonArray2java(j, ("lookUpDetays"), W5LookUpDetay.class);
@@ -184,6 +198,15 @@ public class MetadataImport {
 		FrameworkCache.addExceptions2Cache(projectId, exceptions);
 		System.out.println("Imported " + projectId + " in " + (System.currentTimeMillis()-startTime) + "ms");
 		return true;		
+	}
+
+	private Map<String, String> jsonArray2map(JSONObject j, String key) {
+		if(!j.has(key))return null;
+		JSONObject ar = j.getJSONObject(key);
+		Map m = new HashMap();
+		for(String k:ar.keySet())
+			m.put(k, ar.get(k));
+		return m;
 	}
 	
 	
