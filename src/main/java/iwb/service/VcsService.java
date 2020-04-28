@@ -3935,7 +3935,7 @@ public class VcsService {
 				List<Object[]> res = dao.executeSQLQuery("select sum(case when t.table_id=3108 then 1 else 0 end) cnt_role, sum(case when t.table_id=3109 then 1 else 0 end) cnt_user_role from iwb.w5_table t where t.project_uuid=? AND t.table_id in (3108, 3109)", projectId);
 				if(!GenericUtil.isEmpty(res) && GenericUtil.uInt(res.get(0)[0])>0) {
 					W5Project po = FrameworkCache.getProject(projectId);
-					if(po!=null) {
+					if(po!=null && GenericUtil.uInt(dao.executeSQLQuery("select count(1) xx from "+po.getRdbmsSchema()+".x_role x where x.role_id=99998").get(0))==0) {
 						dao.executeUpdateSQLQuery("insert into "+po.getRdbmsSchema()+".x_role(role_id, role_name, role_group_id)values(99998, 'First Role', (select u.user_tip from iwb.w5_user_tip u where u.user_tip!=122  AND u.project_uuid=? limit 1))", projectId);
 						if(GenericUtil.uInt(res.get(0)[1])>0)
 							dao.executeUpdateSQLQuery("update "+po.getRdbmsSchema()+".x_user_role set role_id=99998 where user_id=99999 and role_id=99999");
