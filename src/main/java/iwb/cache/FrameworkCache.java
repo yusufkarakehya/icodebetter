@@ -1476,7 +1476,8 @@ public class FrameworkCache {
 			for(W5Menu m : menus) {
 				List lm = mm.get(m.getUserTip());
 				if(lm!=null) {
-					if(m.getParentMenuId()==0)
+					lm.add(m);
+				/*	if(m.getParentMenuId()==0)
 						lm.add(m);
 					else {
 						W5Menu pm = menuMap.get(m.getParentMenuId());
@@ -1484,7 +1485,7 @@ public class FrameworkCache {
 							if(pm.get_children()==null)pm.set_children(new ArrayList());
 							pm.get_children().add(m);
 						}
-					}
+					}*/
 				}
 			}
 		}
