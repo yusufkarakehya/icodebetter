@@ -198,6 +198,7 @@ public class GraphQLController implements InitializingBean {
 			throws ServletException, IOException{
 		request.setCharacterEncoding( "UTF-8" );
 		response.setCharacterEncoding( "UTF-8" );
+		Map<String, Object> scd = null;
 		try {
 			Map requestParams = GenericUtil.getParameterMap(request);
 			String[] u = request.getRequestURI().replace('/', ',').split(",");
@@ -245,7 +246,6 @@ public class GraphQLController implements InitializingBean {
 				return;
 			}
 			
-			Map<String, Object> scd = null;
 			scd = GenericUtil.isEmpty(token) ? null : GenericUtil.fromJSONObjectToMap(new JSONObject(EncryptionUtil.decryptAES(token)));
 			
 			if(scd==null){
@@ -272,7 +272,7 @@ public class GraphQLController implements InitializingBean {
 			response.getWriter().close();
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
-			response.getWriter().write(new IWBException("framework","GraphQL Def",0,null, "Error", e).toJsonString(request.getRequestURI()));
+			response.getWriter().write(new IWBException("framework","GraphQL Def",0,null, "Error", e).toJsonString(request.getRequestURI(), scd));
 		}
 	}
 

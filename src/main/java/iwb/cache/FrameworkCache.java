@@ -99,7 +99,7 @@ public class FrameworkCache {
 	final public static Map<String, Map<Integer, W5Mq>> wMqs = new HashMap<String, Map<Integer, W5Mq>>();
 
 	
-	final public static Map<String, String> wExceptions = new HashMap<String, String>();
+	final public static Map<String, List<W5Exception>> wExceptions = new HashMap<String, List<W5Exception>>();
 	final public static Map<Integer, Map<String, String>> appSettings= new HashMap<Integer, Map<String, String>>();
 	final public static List<String> publishAppSettings= new ArrayList<String>();
 //	final public static Map<String, List<Integer>> publishLookUps= new HashMap<String, List<Integer>>();
@@ -1513,6 +1513,14 @@ public class FrameworkCache {
 			qr.getData().add(new Object[] {"mnu_"+m.getMenuId(), m.getLocaleMsgKey(), m.getNodeTip()==4?m.getUrl():"", "", m.getImgIcon(), m.getTabOrder(), m.getMenuId(), "mnu_"+m.getParentMenuId()});
 		}
 		return qr;
+	}
+	
+
+	public static String getExceptionMessage(Object o, String exceptionMessage) {
+		String projectId = o == null ? FrameworkSetting.devUuid : getProjectId(o, "-");
+		List<W5Exception> l = wExceptions.get(projectId);
+		if(l!=null)for(W5Exception e:l)if(exceptionMessage.contains(e.getExceptionMessage()))return e.getUserMessage();
+		return exceptionMessage;
 	}
 
 }

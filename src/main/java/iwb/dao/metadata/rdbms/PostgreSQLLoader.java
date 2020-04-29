@@ -988,8 +988,10 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 	}
 
 
-	private void reloadErrorMessagesCache(int customizationId) { // TODO
-		FrameworkCache.wExceptions.clear();
+	private void reloadErrorMessagesCache(String projectId) { // TODO
+//		FrameworkCache.wExceptions.clear();
+		FrameworkCache.wExceptions.put(projectId, dao.find("from W5Exception t where t.projectUuid=?0", projectId));
+		
 		/*
 		 * List l = executeSQLQuery(
 		 * "select exc_code, locale_msg_key from iwb.w5_exception_filter order by exc_id"
@@ -1307,8 +1309,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 	@Override
 	public void reloadFrameworkCaches(int customizationId) {
 		// if (FrameworkSetting.redisCache && redisGlobalMap == null)redisGlobalMap =
-		// FrameworkCache.getRedissonClient().getMap("icb-cache5");
-		reloadErrorMessagesCache(customizationId);
+
 		// Application Settings
 		List<W5Project> lp = reloadProjectsCache(customizationId);
 
@@ -1460,6 +1461,8 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 					reloadExternalDbsCache(projectId);
 				if (FrameworkSetting.mq)
 					reloadMqsCache(projectId);
+				// FrameworkCache.getRedissonClient().getMap("icb-cache5");
+				reloadErrorMessagesCache(projectId);
 
 			}
 

@@ -23,7 +23,6 @@ public interface ViewAdapter {
 	public	StringBuilder serializeListView(W5ListViewResult	listViewResult);
 	public 	StringBuilder serializeGlobalFunc(W5GlobalFuncResult globalFuncResult);
 	public	StringBuilder serializeFeeds(Map<String, Object> scd, int platestFeedIndex, int pfeedTip, int proleId, int puserId, int pmoduleId);
-	public 	StringBuilder serializeException(Map<String, Object> scd, IWBException ex);
 	public StringBuilder serializeTableRecordInfo(W5TableRecordInfoResult tableRecordInfoResult);
 	public	StringBuilder serializeGetFormSimple(W5FormResult formResult);
 	public StringBuilder serializeFormCellStore(W5FormCellHelper rc, int customizationId, String locale);

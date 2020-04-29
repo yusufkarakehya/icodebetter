@@ -240,7 +240,7 @@ public class RestController implements InitializingBean {
 			HttpServletRequest request,
 			HttpServletResponse response)
 			throws ServletException, IOException {
-		logger.info("hndRESTWadl:"+request.getRequestURI());
+		logger.info("hndRESTRoot:"+request.getRequestURI());
 		request.setCharacterEncoding( "UTF-8" );
 		response.setCharacterEncoding( "UTF-8" );
 		try {
@@ -268,7 +268,7 @@ public class RestController implements InitializingBean {
 			}
 			response.getWriter().write("{\"success\":false,\"error\":\"Wrong Request\"}");
 		} catch (Exception e) {
-			response.getWriter().write(new IWBException("framework","WADL Def",0,null, "Error", e).toJsonString(request.getRequestURI()));
+			response.getWriter().write(new IWBException("framework","WADL Def",0,null, "Error", e).toJsonString(request.getRequestURI(), null));
 		}
 	}
 
