@@ -2027,9 +2027,9 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		m.put("funcs", dao.find("from W5GlobalFunc t where t.projectUuid=?0 order by t.dbFuncId", projectId));
 		m.put("funcParams", dao.find("from W5GlobalFuncParam t where t.projectUuid=?0 order by t.dbFuncId, t.tabOrder", projectId));
 
-		m.put("queries", dao.find("from W5Query t where t.projectUuid=?0 order by t.queryId", projectId));
-		m.put("queryFields", dao.find("from W5QueryField t where t.projectUuid=?0 order by t.queryId, t.tabOrder", projectId));
-		m.put("queryParams", dao.find("from W5QueryParam t where t.projectUuid=?0 order by t.queryId, t.tabOrder", projectId));
+		m.put("queries", dao.find("from W5Query t where t.projectUuid=?0 or (t.queryId=2822 AND t.projectUuid=?1) order by t.queryId", projectId, FrameworkSetting.devUuid));
+		m.put("queryFields", dao.find("from W5QueryField t where t.projectUuid=?0 or (t.queryId=2822 AND t.projectUuid=?1) order by t.queryId, t.tabOrder", projectId, FrameworkSetting.devUuid));
+		m.put("queryParams", dao.find("from W5QueryParam t where t.projectUuid=?0 or (t.queryId=2822 AND t.projectUuid=?1) order by t.queryId, t.tabOrder", projectId, FrameworkSetting.devUuid));
 		
 		m.put("forms", dao.find("from W5Form t where t.projectUuid=?0 order by t.formId", projectId));
 		m.put("formCells", dao.find("from W5FormCell t where t.activeFlag=1 and t.projectUuid=?0 order by t.formId, t.tabOrder", projectId));
