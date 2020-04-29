@@ -115,13 +115,15 @@ public class MetadataImport {
 		Map<String, String> appSettings = jsonArray2map(j, ("appSettings"));
 		FrameworkCache.addAppSettings2Cache(po.getCustomizationId(), appSettings);
 		
+		LocaleMsgCache.addLocaleMsgs2Cache(0, "en", new HashMap());
 		if(po.getLocaleMsgKeyFlag()!=0) for(String locale:po.getLocales().split(",")){
 			if(j.has("localeMsgs_"+locale)) {
 				Map<String, String> res  = jsonArray2map(j, "localeMsgs_"+locale);
 				LocaleMsgCache.addLocaleMsgs2Cache(po.getCustomizationId(), locale, res);
 			} else 
 				LocaleMsgCache.addLocaleMsgs2Cache(po.getCustomizationId(), "en", new HashMap());
-		}
+		} else 
+			LocaleMsgCache.addLocaleMsgs2Cache(po.getCustomizationId(), "en", new HashMap());
 		
 		
 		

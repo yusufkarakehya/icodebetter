@@ -90,8 +90,9 @@ public class FrameworkApplication {
 		if(GenericUtil.uInt(FrameworkSetting.argMap.get("metadata"))!=0) {
 			FrameworkSetting.systemStatus=0;
 			if(FrameworkSetting.projectId == null) FrameworkSetting.projectId = FrameworkSetting.devUuid;
-			vcsService.importProjectMetadata("classpath:projects/"+FrameworkSetting.projectId+".zip");//"http://localhost:8080/app/export/" + FrameworkSetting.projectId + ".zip"
+			vcsService.importProjectMetadata("http://code2.io/app/export/" + FrameworkSetting.projectId + ".zip");//"classpath:projects/"+FrameworkSetting.projectId+".zip"
 			FrameworkSetting.projectSystemStatus.put(FrameworkSetting.projectId, 0);
+			FrameworkSetting.metadata = true;
 		} else {
 			if(FrameworkSetting.localTimer) {
 				TimerTask timerTask = new GenericTimer((TaskExecutor)appContext.getBean("taskExecutor")

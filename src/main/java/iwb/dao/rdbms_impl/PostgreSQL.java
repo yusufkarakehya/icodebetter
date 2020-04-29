@@ -5884,16 +5884,16 @@ public class PostgreSQL extends BaseDAO {
 							+ (customizationId >= 0 ? (" where x.customization_id=" + customizationId + "") : ""));
 		} else {
 			W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
-			l = (List<Object[]>) executeSQLQuery(
+			if(FrameworkCache.getTable(FrameworkSetting.projectId, 3107)!=null)l = (List<Object[]>) executeSQLQuery(
 					"select 0 customization_id, x.user_id, x.user_name, x.full_name dsc, 1 allow_multi_login_flag, 1 profile_picture_id from "
 					+ po.getRdbmsSchema() + ".x_user x");
 			
 		}
-		if (l != null)
-			for (Object[] m : l) {
-				UserUtil.addUserWithProfilePicutre(GenericUtil.uInt(m[1]), (String) m[2], (String) m[3],
-						GenericUtil.uInt(m[4]) != 0, GenericUtil.uInt(m[5]));
-			}
+		UserUtil.addUserWithProfilePicutre(0, "code2", "code2", true, 1);
+		if (l != null)for (Object[] m : l) {
+			UserUtil.addUserWithProfilePicutre(GenericUtil.uInt(m[1]), (String) m[2], (String) m[3],
+					GenericUtil.uInt(m[4]) != 0, GenericUtil.uInt(m[5]));
+		}		
 	}
 
   public void copyTableRecord4VCS(Map<String, Object> scd, Map dstScd, int tableId, int tablePk) {

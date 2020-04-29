@@ -62,6 +62,7 @@ import iwb.domain.db.W5WsMethod;
 import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.db.W5WsServer;
 import iwb.domain.result.W5GridResult;
+import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
 
@@ -1049,7 +1050,7 @@ public class FrameworkCache {
 				}
 				if (FrameworkSetting.sms || FrameworkSetting.mail) {
 					form.set_formSmsMailList(new ArrayList());
-					for(W5FormSmsMail fsm:formSmsMails)if(fsm.getFormId()==form.getFormId())
+					if(formSmsMails!=null)for(W5FormSmsMail fsm:formSmsMails)if(fsm.getFormId()==form.getFormId())
 						form.get_formSmsMailList().add(fsm);
 					if (GenericUtil.isEmpty(form.get_formSmsMailList()))
 						form.set_formSmsMailList(null);
@@ -1198,6 +1199,8 @@ public class FrameworkCache {
 	
 			W5Query query = getQuery(projectId, grid.getQueryId());
 	
+			if(query==null)continue;
+			
 			grid.set_query(query);
 	
 			grid.set_viewTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
@@ -1222,6 +1225,7 @@ public class FrameworkCache {
 			if (grid.get_pkQueryField() == null) {
 				if (false && FrameworkSetting.debug)
 					throw new IWBException("framework", "Grid", grid.getGridId(), null, "Grid PK Missing", null);
+				if(GenericUtil.isEmpty(query.get_queryFields()))continue;
 				grid.set_pkQueryField(query.get_queryFields().get(0));
 			}
 			grid.set_groupingField(fieldMap.get(grid.getGroupingFieldId()));
@@ -1492,6 +1496,23 @@ public class FrameworkCache {
 	public static void addRoleGroups2Cache(String projectId, List<W5RoleGroup> roleGroups) {
 		if(roleGroups!=null)wRoleGroups.put(projectId, roleGroups);
 		
+	}
+	
+
+	public static Object getQueryResult4Menu(Map<String, Object> scd) {
+		W5Project po = getProject(scd);
+		W5Query q = getQuery(po.getProjectUuid(), 2822);
+		
+		W5QueryResult qr = new W5QueryResult(2822);
+		qr.setNewQueryFields(q.get_queryFields());
+		qr.setQuery(q); qr.setErrorMap(new HashMap());qr.setRequestParams(new HashMap());
+		qr.setScd(scd);
+		qr.setData(new ArrayList());
+		List<W5Menu> menus = wMenus.get(po.getProjectUuid()).get(po.get_defaultUserTip());
+		if(menus!=null)for(W5Menu m:menus) {
+			qr.getData().add(new Object[] {"mnu_"+m.getMenuId(), m.getLocaleMsgKey(), m.getNodeTip()==4?m.getUrl():"", "", m.getImgIcon(), m.getTabOrder(), m.getMenuId(), "mnu_"+m.getParentMenuId()});
+		}
+		return qr;
 	}
 
 }

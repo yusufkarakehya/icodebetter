@@ -981,18 +981,22 @@ public class UIEngine {
 					obz = accessControl ? formResult : formResult.getForm().getDsc();
 					break;
 				case 4: // query
-				case	10:					
-					Map paramMap = new HashMap();
-					paramMap.putAll(requestParams);
-					if (!GenericUtil.isEmpty(o.getPostJsCode())) {
-						String[] ar1 = o.getPostJsCode().split("&");
-						for (int it4 = 0; it4 < ar1.length; it4++) {
-							String[] ar2 = ar1[it4].split("=");
-							if (ar2.length == 2 && ar2[0] != null && ar2[1] != null)
-								paramMap.put(ar2[0], ar2[1]);
+				case	10:
+					if(FrameworkSetting.metadata && pr.getPage().getTemplateTip()==0 && o.getObjectId()==2822) { //prepare menu from cache
+						obz = FrameworkCache.getQueryResult4Menu(scd);
+					} else {
+						Map paramMap = new HashMap();
+						paramMap.putAll(requestParams);
+						if (!GenericUtil.isEmpty(o.getPostJsCode())) {
+							String[] ar1 = o.getPostJsCode().split("&");
+							for (int it4 = 0; it4 < ar1.length; it4++) {
+								String[] ar2 = ar1[it4].split("=");
+								if (ar2.length == 2 && ar2[0] != null && ar2[1] != null)
+									paramMap.put(ar2[0], ar2[1]);
+							}
 						}
+						obz = queryEngine.executeQuery(scd, o.getObjectId(), paramMap);
 					}
-					obz = queryEngine.executeQuery(scd, o.getObjectId(), paramMap);
 					break;
 				case 8:// component
 					obz = FrameworkCache.getComponent(scd, o.getObjectId());//metaDataDao.loadComponent(scd, o.getObjectId(), new HashMap());

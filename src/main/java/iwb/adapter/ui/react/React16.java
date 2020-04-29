@@ -4281,7 +4281,7 @@ columns:[
 					buf4.append(page.getCssCode()).append("\n");
 				}
 				W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
-				for (W5LookUpDetay d : c.get_detayList()) {
+				if(c!=null)for (W5LookUpDetay d : c.get_detayList()) {
 					buf4.append(".bgColor")
 							.append(d.getVal().replace("#", ""))
 							.append("{background-color:")

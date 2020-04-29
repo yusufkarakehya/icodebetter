@@ -149,5 +149,6 @@ public class FrameworkSetting {
 	public static String redisHost = "localhost";//"35.226.30.186"; //
 	
 	public static boolean reactLabelRequired = true;
+	public static boolean metadata = false;
 
 }
