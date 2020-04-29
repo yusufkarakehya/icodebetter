@@ -1520,7 +1520,13 @@ public class FrameworkCache {
 	public static String getExceptionMessage(Object o, String exceptionMessage) {
 		String projectId = o == null ? FrameworkSetting.devUuid : getProjectId(o, "-");
 		List<W5Exception> l = wExceptions.get(projectId);
-		if(l!=null)for(W5Exception e:l)if(exceptionMessage.contains(e.getExceptionMessage()))return e.getUserMessage();
+		if(l!=null) {
+			String locale = null;
+			if(o!=null && o instanceof Map)locale = (String)(((Map)o).get("locale"));
+			if(locale==null)locale =  "en";
+			for(W5Exception e:l)if(e.getLocale().equals(locale) && exceptionMessage.contains(e.getExceptionMessage()))
+				return e.getUserMessage();
+		}
 		return exceptionMessage;
 	}
 

@@ -990,7 +990,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 
 	private void reloadErrorMessagesCache(String projectId) { // TODO
 //		FrameworkCache.wExceptions.clear();
-		FrameworkCache.wExceptions.put(projectId, dao.find("from W5Exception t where t.projectUuid=?0", projectId));
+		FrameworkCache.wExceptions.put(projectId, dao.find("from W5Exception t where t.projectUuid=?0 order by t.tabOrder", projectId));
 		
 		/*
 		 * List l = executeSQLQuery(
@@ -2066,7 +2066,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		m.put("mmenus", dao.find("from M5Menu t where t.projectUuid=?0 order by t.userTip, t.parentMenuId, t.tabOrder", projectId));
 
 		m.put("externalDbs", dao.find("from W5ExternalDb t where t.activeFlag=1 and t.projectUuid=?0", projectId));
-		m.put("exceptions", dao.find("from W5Exception t where t.projectUuid=?0", projectId));
+		m.put("exceptions", dao.find("from W5Exception t where t.projectUuid=?0 order by t.tabOrder", projectId));
 		
 
 		return m;
