@@ -9361,3 +9361,27 @@ iwb.findAsyncValue = function(value, options){
 	return '';
 	
 }
+
+var app={
+        datasources:{}, 
+        widgets:{}, 
+        pages:{}, 
+        showPage:(page)=>{
+            alert('TODO');
+        },
+        user:{
+            
+        },
+        addDatasource:(name, ds)=>{
+            console.log(name, ds)
+        },
+        addWidget:(name, ds)=>{
+            console.log(name, ds)
+        },
+        addPage:(name, ds)=>{
+            console.log(name, ds)
+        },
+        addScripts:(name, ds)=>{
+            console.log(ds)
+        },
+    }

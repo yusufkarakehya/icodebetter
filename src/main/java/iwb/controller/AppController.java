@@ -1656,7 +1656,7 @@ public class AppController implements InitializingBean {
     	if(uri.endsWith(".css")){
     		uri = uri.substring(uri.lastIndexOf('/')+1);
     		uri = uri.substring(0, uri.length()-4);
-        	String css = FrameworkCache.getPageCss(scd, GenericUtil.uInt(uri));
+        	String css = FrameworkCache.getPageResource(scd, uri);
         	if(css!=null){
         		response.setContentType("text/css; charset=UTF-8");
         		response.getWriter().write(css);
@@ -2439,6 +2439,10 @@ public class AppController implements InitializingBean {
 	)throws IOException{
 		logger.info("appMakerImportHandler");	
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		W5Project po = FrameworkCache.getProject(scd);
+		if(po.getUiWebFrontendTip()!=8)
+			return "{ \"success\": false, \"error\":\"To Import AppMaker project, the FrontendUI of the project must be GReact16\" }";
+			
 		try {
 			if(!file.isEmpty()){
 				String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")

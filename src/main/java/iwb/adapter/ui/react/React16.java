@@ -4287,8 +4287,8 @@ columns:[
 							.append("{background-color:")
 							.append(d.getVal()).append(";}\n");
 				}
-				FrameworkCache.addPageCss(pr.getScd(), page.getTemplateId(), buf4.toString());
-				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"dyn-res/"+page.getTemplateId()+".css?.x="+page.getVersionNo()+"\" />");
+				FrameworkCache.addPageResource(pr.getScd(), "css-"+page.getTemplateId(), buf4.toString());
+				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"dyn-res/css-"+page.getTemplateId()+".css?.x="+page.getVersionNo()+"\" />");
 
 			}
 			

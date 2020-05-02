@@ -138,10 +138,18 @@ public class PreviewController implements InitializingBean {
     	if(uri.endsWith(".css")){
     		uri = uri.substring(uri.lastIndexOf('/')+1);
     		uri = uri.substring(0, uri.length()-4);
-        	String css = FrameworkCache.getPageCss(scd, GenericUtil.uInt(uri));
+        	String css = FrameworkCache.getPageResource(scd, uri);
         	if(css!=null){
         		response.setContentType("text/css; charset=UTF-8");
         		response.getWriter().write(css);
+        	}
+    	} else if(uri.endsWith(".js")){
+    		uri = uri.substring(uri.lastIndexOf('/')+1);
+    		uri = uri.substring(0, uri.length()-3);
+        	String js = FrameworkCache.getPageResource(scd, uri);
+        	if(js!=null){
+        		response.setContentType("text/javascript; charset=UTF-8");
+        		response.getWriter().write(js);
         	}
     	}
 //    	int pageId =  ;

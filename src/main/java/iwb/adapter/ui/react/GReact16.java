@@ -4021,10 +4021,12 @@ columns:[
 		StringBuilder buf = new StringBuilder();
 		StringBuilder postBuf = new StringBuilder();
 		String code = null;
-		int customizationId = (Integer) pr.getScd().get(
-				"customizationId");
+		int customizationId = (Integer) pr.getScd().get("customizationId");
 		String xlocale = (String) pr.getScd().get("locale");
-		if (page.getTemplateTip() != 0) { // not html 
+		if (page.getTemplateTip() == 11) { // google App Maker page
+			code = "return app.showPage(\""+page.getDsc()+"\");";
+			
+		} else  if (page.getTemplateTip() != 0) { // not html 
 			// notification Control
 			// masterRecord Control
 			
@@ -4048,10 +4050,7 @@ columns:[
 							.append(GenericUtil.getNextId("tpi")).append("';\n");
 				}
 				
-				if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
-					buf.append("iwb.addCssString(\"")
-					.append(GenericUtil.stringToJS2(pr.getPage().getCssCode().trim())).append("\",").append(pr.getTemplateId()).append(");\n");
-				}
+
 			}
 			
 			if(pr.getPageObjectList()!=null) { // has detail list
@@ -4259,6 +4258,8 @@ columns:[
 				}
 				buf2.append("\n");
 			}
+
+			
 			StringBuilder buf3 = new StringBuilder();
 			buf3.append("var _localeMsg=")
 					.append(GenericUtil.fromMapToJsonString(LocaleMsgCache
@@ -4282,22 +4283,32 @@ columns:[
 							.append("{background-color:")
 							.append(d.getVal()).append(";}\n");
 				}
-				FrameworkCache.addPageCss(pr.getScd(), page.getTemplateId(), buf4.toString());
-				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"dyn-res/"+page.getTemplateId()+".css?.x="+page.getVersionNo()+"\" />");
+				FrameworkCache.addPageResource(pr.getScd(), "css-"+page.getTemplateId(), buf4.toString());
+				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"dyn-res/css-"+page.getTemplateId()+".css?.x="+page.getVersionNo()+"\" />");
 
 			}
 			
 			if(page.getCode().contains("${components}")) {
 				StringBuilder bufc = new StringBuilder();
-
-				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
-					W5Component c = (W5Component)i;
-					bufc.append("<script src=\"comp/").append(c.getComponentId()).append(".js?.x=\"></script>;\n");
-					if(!GenericUtil.isEmpty(c.getCssCode()))bufc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId()).append(".css?.x=\"/>;\n");
-					
+				bufc.append("//Code2 AppMaker dynamic components\n");
+				Map<Integer, W5Query> qm = FrameworkCache.wQueries.get((String)pr.getScd().get("projectId"));
+				for(W5Query q:qm.values()) if(!GenericUtil.isEmpty((q.getTag()))){
+					bufc.append("\napp.addDatasource('").append(q.getDsc()).append("',{key:\"").append(q.getTag()).append("\",queryId:").append(q.getQueryId()).append(serializeQueryReader(q.get_queryFields(), pr.getScd())).append("});");;
 				}
-				code = code.replace("${components}", bufc.toString());
+				
+				Map<Integer, W5Page> pm = FrameworkCache.wTemplates.get((String)pr.getScd().get("projectId"));
+				for(W5Page p:pm.values())if(p.getTemplateTip()==11 && !GenericUtil.isEmpty(p.getCode())) {
+					bufc.append("\napp.addPage('").append(p.getDsc()).append("',{key:\"").append(p.getTag()).append("\", pageId:").append(p.getTemplateId()).append(",\njson:").append(p.getCode()).append("});");
+					if(!GenericUtil.isEmpty(p.getCssCode())) {
+						bufc.append("\napp.addScripts('").append(p.getDsc()).append("',{key:\"").append(p.getTag()).append("\", pageId:").append(p.getTemplateId()).append(",\nscripts:()=>{\n").append(p.getCssCode()).append("\n}});");
+					}
+				}
+				
+
+				FrameworkCache.addPageResource(pr.getScd(), "js-"+page.getTemplateId(), bufc.toString());
+				code = code.replace("${components}", "<script src=\"dyn-res/js-"+page.getTemplateId()+".js?.x="+page.getVersionNo()+"\" />");
 			}
+			
 			
 		}
 		/*
