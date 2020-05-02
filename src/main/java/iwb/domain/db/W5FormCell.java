@@ -28,7 +28,7 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	private short xOrder;
 	private int formModuleId;
 	private short controlWidth;
-	private Short maxLength;
+	private Integer maxLength;
 	private short nrdTip;
 	private int lookupQueryId;
 	private int dialogGridId;
@@ -127,11 +127,11 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	}
 
 	@Column(name = "MAX_LENGTH")
-	public Short getMaxLength() {
+	public Integer getMaxLength() {
 		return maxLength;
 	}
 
-	public void setMaxLength(Short maxLength) {
+	public void setMaxLength(Integer maxLength) {
 		this.maxLength = maxLength;
 	}
 

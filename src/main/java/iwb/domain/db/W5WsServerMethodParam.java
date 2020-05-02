@@ -30,7 +30,7 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param, W5
 	private	BigDecimal	maxValue;
 	
 	private	Short	minLength;
-	private	Short	maxLength;
+	private	Integer	maxLength;
 	private int parentWsMethodParamId;
 
 	public W5WsServerMethodParam() {
@@ -141,12 +141,12 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param, W5
 	}
 
 	@Column(name="max_length")
-	public Short getMaxLength() {
+	public Integer getMaxLength() {
 		return maxLength;
 	}
 
 
-	public void setMaxLength(Short maxLength) {
+	public void setMaxLength(Integer maxLength) {
 		this.maxLength = maxLength;
 	}
 	@Column(name="source_tip")

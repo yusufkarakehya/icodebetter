@@ -9,6 +9,7 @@
 package iwb.controller;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,11 +18,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -29,6 +34,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -54,7 +61,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import iwb.adapter.metadata.MetadataExport;
 import iwb.adapter.ui.ViewAdapter;
 import iwb.adapter.ui.ViewMobileAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_4;
@@ -66,7 +72,6 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5UserAction;
-import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5Project;
@@ -86,7 +91,7 @@ import iwb.exception.IWBException;
 import iwb.report.RptExcelRenderer;
 import iwb.report.RptPdfRenderer;
 import iwb.service.FrameworkService;
-import iwb.service.VcsService;
+import iwb.service.ImportService;
 import iwb.timer.Action2Execute;
 import iwb.util.EncryptionUtil;
 import iwb.util.ExcelUtil;
@@ -102,9 +107,10 @@ public class AppController implements InitializingBean {
 
 	@Autowired
 	private FrameworkService service;
-	
+
+
 	@Autowired
-	private VcsService vcsService;
+	private ImportService importService;
 
 	@Autowired
 	private TaskExecutor taskExecutor;
@@ -2395,7 +2401,7 @@ public class AppController implements InitializingBean {
 			    	LinkedHashMap<String,List<HashMap<String,String>>> parsedData = p.parseExcel();			    	
 			    	
 			    	if(parsedData != null && parsedData.size() > 0){
-			    		excelImportId = service.saveExcelImport(scd, tmpFile.getName(), uploadedFilePath, parsedData);
+			    		excelImportId = importService.saveExcelImport(scd, tmpFile.getName(), uploadedFilePath, parsedData);
 			    	}		    	
 			    }else if(extension.compareTo("csv") == 0){
 			    	Reader in = new FileReader(tmpFile.getPath());
@@ -2412,7 +2418,7 @@ public class AppController implements InitializingBean {
 			    			m.put(keyz[qi], record.get(qi));			    			
 			    		}
 			        }
-		    		excelImportId = service.saveExcelImport(scd, tmpFile.getName(), uploadedFilePath, parsedData);
+		    		excelImportId = importService.saveExcelImport(scd, tmpFile.getName(), uploadedFilePath, parsedData);
 			    	 
 			    }
 //			    tmpFile.delete();
@@ -2421,6 +2427,86 @@ public class AppController implements InitializingBean {
 		} catch (Exception e){
 			if(FrameworkSetting.debug)e.printStackTrace();
 			return "{ \"success\": false }";
+		}
+	}	
+	
+	@RequestMapping(value ="/appMakerImport", method = RequestMethod.POST)
+	@ResponseBody
+	public String appMakerHandler(
+		@RequestParam("file") MultipartFile file,
+		HttpServletRequest request,
+		HttpServletResponse response
+	)throws IOException{
+		logger.info("appMakerImportHandler");	
+		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
+		try {
+			if(!file.isEmpty()){
+				String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
+						+ File.separator + scd.get("customizationId") + File.separator + "attachment";
+		
+				File dirPath = new File(path);
+			    if (!dirPath.exists()) {
+			    	if(!dirPath.mkdirs()) return "{ \"success\":false, \"msg\":\"wrong file path: "+path+"\"}";
+			    }
+			    // f.transferTo(new File(path + File.separator + fa.getSystemFileName()));
+			    String uploadedFilePath = path + File.separator + GenericUtil.strUTF2En(file.getOriginalFilename());
+			    String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1).toLowerCase();
+			    File tmpFile = new File(uploadedFilePath);
+			    file.transferTo(tmpFile);
+			    if(extension.compareTo("zip") == 0)try(ZipFile zfile = new ZipFile(tmpFile.getPath())){
+			    	Map m = new HashMap();
+		            FileSystem fileSystem = FileSystems.getDefault();
+		            //Get file entries
+		            Enumeration<? extends ZipEntry> entries = zfile.entries();
+		             
+		            Map<String, String> scriptHelper = new HashMap();
+		             
+		            //Iterate over entries
+		            while (entries.hasMoreElements()) 
+		            {
+		                ZipEntry entry = entries.nextElement();
+		                //If directory then create a new directory in uncompressed folder
+
+	                    InputStream inputStream = zfile.getInputStream(entry);
+
+	                    ByteArrayOutputStream result = new ByteArrayOutputStream();
+	                    byte[] buffer = new byte[1024];
+	                    int length;
+	                    while ((length = inputStream.read(buffer)) != -1) {
+	                        result.write(buffer, 0, length);
+	                    }
+	                    String fname = entry.getName().toLowerCase(FrameworkSetting.appLocale);
+	                    String body = result.toString(StandardCharsets.UTF_8.name());
+	                    if(!fname.contains("scripts/"))
+	                    	importService.importAppMaker(scd, 
+	                    			fname.lastIndexOf('.')>-1? entry.getName().substring(0, entry.getName().lastIndexOf('.')):entry.getName(), 
+	                    					body, null);
+	                    else {
+	                    	String fileName = fname.substring("scripts/".length());
+	                    	fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+	                    	if(scriptHelper.containsKey(fileName)) {
+	                    		boolean b = fname.endsWith(".json");
+	                    		String body2 = scriptHelper.get(fileName);
+		                    	importService.importAppMaker(scd, entry.getName(), b?body:body2, !b?body:body2);
+	                    	} else
+	                    		scriptHelper.put(fileName, body);
+	                    	
+	                    }
+//	                    m.put(entry.getName(), result.toString(StandardCharsets.UTF_8.name()));
+//	                    System.out.println(result.toString(StandardCharsets.UTF_8.name()));
+
+		            }
+		        }
+		        catch(IOException e)
+		        {
+		            e.printStackTrace();
+		        }
+//			    tmpFile.delete();
+			}
+			return "{ \"success\": true }";
+		} catch (Exception e){
+			if(FrameworkSetting.debug)e.printStackTrace();
+			return "{ \"success\": false, \"error\":\""+e.getMessage()+"\" }";
 		}
 	}	
 	

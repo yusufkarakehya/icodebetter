@@ -42,6 +42,8 @@ public class W5Page implements java.io.Serializable, W5Base {
 	private String code;
 	private String cssCode;
 	private int versionNo;
+	private String tag;
+	
 
 	private List<W5PageObject> _pageObjectList;
 	
@@ -173,6 +175,15 @@ public class W5Page implements java.io.Serializable, W5Base {
 	@Column(name="version_no")
 	public int getVersionNo() {
 		return versionNo;
+	}
+	
+	@Column(name="tag")
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 
 	public void setVersionNo(int versionNo) {

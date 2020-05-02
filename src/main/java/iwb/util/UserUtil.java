@@ -862,6 +862,7 @@ public class UserUtil {
 
 	public	static SyncWebPageMapHelper3 addDeferredResult(String projectId, int userId, String sessionId, String webPageId, String activeTabId, Map scd, W5DeferredResult dr){
 		CachedUserBean3 cub = getCachedUserBean(userId);
+		if(cub==null)return null;
 		if(cub.getSyncSessionMap()==null)cub.setSyncSessionMap(new HashMap());
 		boolean mobile = scd.containsKey("mobile");
 		if(mobile){

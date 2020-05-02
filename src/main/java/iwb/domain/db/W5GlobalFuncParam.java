@@ -40,7 +40,7 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base 
 
 	private Short minLength;
 
-	private Short maxLength;
+	private Integer maxLength;
 
 	private BigDecimal minValue;
 
@@ -130,11 +130,11 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base 
 	}
 
 	@Column(name="max_length")
-	public Short getMaxLength() {
+	public Integer getMaxLength() {
 		return this.maxLength;
 	}
 
-	public void setMaxLength(Short maxLength) {
+	public void setMaxLength(Integer maxLength) {
 		this.maxLength = maxLength;
 	}
 

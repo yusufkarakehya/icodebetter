@@ -24,7 +24,7 @@ public interface W5Param  {
 
 	public Short getMinLength();
 	
-	public Short getMaxLength();
+	public Integer getMaxLength();
 	
 	public short getTabOrder();
 	
