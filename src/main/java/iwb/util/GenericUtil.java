@@ -2653,7 +2653,7 @@ public class GenericUtil {
 	}
 
 	public static String getRenderer(Object renderer) {
-		return new String[] { "0", "ext3_4", "webix3_3", "open1_4", "webix4_2", "react16", "vue2" }[uInt(renderer)];
+		return new String[] { "0", "ext3_4", "webix3_3", "open1_4", "webix4_2", "react16", "vue2", "f7", "greact16" }[uInt(renderer)];
 	}
 
 	public static String fromMapToYamlString2Recursive(Map s, int level) {// TODO

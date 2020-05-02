@@ -857,41 +857,6 @@ public class FrameworkService {
 		return queryEngine.prepareGridReport(scd, gridId, gridColumns, requestParams);
 	}
 
-	public int saveExcelImport(Map<String, Object> scd, String fileName, String systemFileName, LinkedHashMap<String, List<HashMap<String, String>>> parsedData) {
-    	W5ExcelImport im = new W5ExcelImport();
-    	im.setProjectUuid((String)scd.get("projectId"));
-    	im.setDsc(fileName);
-    	im.setInsertUserId(GenericUtil.uInt(scd.get("userId")));
-    	im.setSystemFileName(systemFileName);
-    	dao.saveObject(im);
-    	short sheetNo = 1;
-    	for(Entry<String, List<HashMap<String, String>>> sheet : parsedData.entrySet())if(sheet.getValue()!=null && sheet.getValue().size()>0){
-        	W5ExcelImportSheet ims = new W5ExcelImportSheet();
-        	ims.setProjectUuid(im.getProjectUuid());
-        	ims.setDsc(sheet.getKey());
-        	ims.setTabOrder(sheetNo++);
-        	ims.setExcelImportId(im.getExcelImportId());
-        	dao.saveObject(ims); 	
-        	
-        	List<Object> toBeSaved = new ArrayList();
-
-    		for(int i=0; i<sheet.getValue().size(); i++){
-	    		W5ExcelImportSheetData imd = new W5ExcelImportSheetData();
-	    		imd.setRowNo(i+1);
-	    		imd.setExcelImportSheetId(ims.getExcelImportSheetId());
-	    		imd.setProjectUuid(im.getProjectUuid());
-	    		for(Entry<String, String> entryCols : sheet.getValue().get(i).entrySet()){
-	    			imd.setCell(entryCols.getKey(),entryCols.getValue());	
-	    		}
-	    		toBeSaved.add(imd);
-    		}
-    		if(toBeSaved.size()>0)for(Object o:toBeSaved) dao.saveObject(o);
-    	}
-
-    	return im.getExcelImportId();
-		
-		
-	}
 
 	public int buildForm(Map<String, Object> scd, String parameter) {
 		return metadataWriter.buildForm(scd, parameter);

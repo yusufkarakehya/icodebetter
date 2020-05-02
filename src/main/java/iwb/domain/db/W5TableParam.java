@@ -46,7 +46,7 @@ public class W5TableParam  implements java.io.Serializable, W5Param, W5Base {
 	private	BigDecimal	maxValue;
 	
 	private	Short	minLength;
-	private	Short	maxLength;
+	private	Integer	maxLength;
 	
 	
 	public W5TableParam() {
@@ -148,11 +148,11 @@ public class W5TableParam  implements java.io.Serializable, W5Param, W5Base {
 	}
 
 	@Column(name="max_length")
-	public Short getMaxLength() {
+	public Integer getMaxLength() {
 		return maxLength;
 	}
 
-	public void setMaxLength(Short maxLength) {
+	public void setMaxLength(Integer maxLength) {
 		this.maxLength = maxLength;
 	}
 

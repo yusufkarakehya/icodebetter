@@ -1528,32 +1528,34 @@ public class PostgreSQLWriter extends BaseDAO {
 						break;
 					}
 				}
-			} else {//insert
+			} else if(false){//insert
 				String tableFieldName = formResult.getRequestParams().get("dsc"+prefix);
 				if(!GenericUtil.isEmpty(tableFieldName)){
 					List<Object> ll =  executeSQLQuery("select lower(t.dsc) tdsc from iwb.w5_table t where t.table_id=? AND t.project_uuid=?"
 							, GenericUtil.uInt(formResult.getRequestParams(),"table_id"+prefix), prj.getProjectUuid());
-					String tableName = ll.get(0).toString();
-					if(tableName.indexOf('.')>0)tableName = tableName.substring(tableName.indexOf('.')+1);
-					int cntField = GenericUtil.uInt(executeSQLQuery("SELECT count(1) from information_schema.columns qz where lower(qz.COLUMN_NAME)=? AND lower(qz.table_name) = ? and qz.table_schema = ?"
-							, tableFieldName, tableName, prj.getRdbmsSchema()).get(0));
-					if(cntField==0){
-						int fieldType = GenericUtil.uInt(formResult.getRequestParams().get("field_tip"+prefix));
-//						int defaultControlType = GenericUtil.uInt(formResult.getRequestParams().get("default_control_tip"+prefix));
-						
-						String addTableColumnSql = "alter table " + tableName + " add column " + tableFieldName + " " + DBUtil.iwb2dbType(fieldType, GenericUtil.uInt(formResult.getRequestParams().get("max_length"+prefix)));
-						if(customizationId!=0/* && customizationId!=140*/)executeUpdateSQLQuery(addTableColumnSql);
-	
-						if(FrameworkSetting.vcs){
-							W5VcsCommit commit = new W5VcsCommit();
-							commit.setCommitTip((short)2);
-							commit.setExtraSql(addTableColumnSql);
-							commit.setProjectUuid(prj.getProjectUuid());
-							commit.setComment("AutoAddColumn Scripts for TableField: " + tableName + "." + tableFieldName);
-							commit.setCommitUserId((Integer)formResult.getScd().get("userId"));
-							Object oi = executeSQLQuery("select nextval('iwb.seq_vcs_commit')").get(0);
-							commit.setVcsCommitId(-GenericUtil.uInt(oi));commit.setRunLocalFlag((short)1);
-							saveObject(commit);
+					if(!GenericUtil.isEmpty(ll)) {
+						String tableName = ll.get(0).toString();
+						if(tableName.indexOf('.')>0)tableName = tableName.substring(tableName.indexOf('.')+1);
+						int cntField = GenericUtil.uInt(executeSQLQuery("SELECT count(1) from information_schema.columns qz where lower(qz.COLUMN_NAME)=? AND lower(qz.table_name) = ? and qz.table_schema = ?"
+								, tableFieldName, tableName, prj.getRdbmsSchema()).get(0));
+						if(cntField==0){
+							int fieldType = GenericUtil.uInt(formResult.getRequestParams().get("field_tip"+prefix));
+	//						int defaultControlType = GenericUtil.uInt(formResult.getRequestParams().get("default_control_tip"+prefix));
+							
+							String addTableColumnSql = "alter table " + tableName + " add column " + tableFieldName + " " + DBUtil.iwb2dbType(fieldType, GenericUtil.uInt(formResult.getRequestParams().get("max_length"+prefix)));
+							if(customizationId!=0/* && customizationId!=140*/)executeUpdateSQLQuery(addTableColumnSql);
+		
+							if(FrameworkSetting.vcs){
+								W5VcsCommit commit = new W5VcsCommit();
+								commit.setCommitTip((short)2);
+								commit.setExtraSql(addTableColumnSql);
+								commit.setProjectUuid(prj.getProjectUuid());
+								commit.setComment("AutoAddColumn Scripts for TableField: " + tableName + "." + tableFieldName);
+								commit.setCommitUserId((Integer)formResult.getScd().get("userId"));
+								Object oi = executeSQLQuery("select nextval('iwb.seq_vcs_commit')").get(0);
+								commit.setVcsCommitId(-GenericUtil.uInt(oi));commit.setRunLocalFlag((short)1);
+								saveObject(commit);
+							}
 						}
 					}
 				}

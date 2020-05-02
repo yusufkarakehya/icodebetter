@@ -99,8 +99,9 @@ public class AsyncServlet {
 	    });
 
 	    Object o = UserUtil.addDeferredResult(rpid, userId, request.getSession().getId(), webPageId, activeTabId, scd, deferredResult);
+
 	    
-	    if(FrameworkSetting.liveSyncRecord && !GenericUtil.isEmpty(webPageId)){
+	    if(o!=null && FrameworkSetting.liveSyncRecord && !GenericUtil.isEmpty(webPageId)){
 	    	int	cnt =  GenericUtil.uInt(request, ".c");
 	    	long now = System.currentTimeMillis();
 	    	for(int i=0;i<cnt;i++){

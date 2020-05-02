@@ -156,7 +156,7 @@ public class W5QueryField implements java.io.Serializable, W5Param, W5Base {
 
 
 	@Transient
-	public Short getMaxLength(){
+	public Integer getMaxLength(){
 		return 0;
 	}
 	private String projectUuid;

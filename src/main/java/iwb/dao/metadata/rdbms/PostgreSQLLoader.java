@@ -20,14 +20,20 @@ import iwb.dao.metadata.MetadataLoader;
 import iwb.dao.rdbms_impl.BaseDAO;
 import iwb.dao.rdbms_impl.PostgreSQL;
 import iwb.domain.db.M5List;
+import iwb.domain.db.M5Menu;
 import iwb.domain.db.W5Card;
 import iwb.domain.db.W5Component;
 import iwb.domain.db.W5Conversion;
+import iwb.domain.db.W5ConversionCol;
+import iwb.domain.db.W5CustomGridColumnCondition;
+import iwb.domain.db.W5CustomGridColumnRenderer;
 import iwb.domain.db.W5Customization;
+import iwb.domain.db.W5Exception;
 import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormCell;
 import iwb.domain.db.W5FormCellProperty;
+import iwb.domain.db.W5FormHint;
 import iwb.domain.db.W5FormModule;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5GlobalFunc;
@@ -40,9 +46,11 @@ import iwb.domain.db.W5ListBase;
 import iwb.domain.db.W5ListColumn;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
+import iwb.domain.db.W5Menu;
 import iwb.domain.db.W5Mq;
 import iwb.domain.db.W5MqCallback;
 import iwb.domain.db.W5ObjectMailSetting;
+import iwb.domain.db.W5ObjectMenuItem;
 import iwb.domain.db.W5ObjectToolbarItem;
 import iwb.domain.db.W5Page;
 import iwb.domain.db.W5PageObject;
@@ -1389,82 +1397,27 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			// Table Params
 			// if(cid==-1 ||
 			// cid==0)reloadTableParamListChildListParentListCache();
-			if (FrameworkSetting.redisCache) {
-				/*
-				 * Map xx = (Map) (redisGlobalMap.get(projectId));
-				 * 
-				 * Map<String, W5LookUp> xlookUpMap = (Map) xx.get("lookUp"); Map<Integer,
-				 * W5LookUp> lookUpMap = new HashMap(); if (xlookUpMap != null) for (String k :
-				 * xlookUpMap.keySet()) { lookUpMap.put(Integer.parseInt(k), xlookUpMap.get(k));
-				 * } FrameworkCache.setLookUpMap(projectId, lookUpMap);
-				 * 
-				 * Map<String, W5Table> xtableMap = (Map) xx.get("table"); Map<Integer, W5Table>
-				 * tableMap = new HashMap(); if (xtableMap != null) for (String k :
-				 * xtableMap.keySet()) { tableMap.put(Integer.parseInt(k), xtableMap.get(k));
-				 * 
-				 * } FrameworkCache.setTableMap(projectId, tableMap);
-				 * 
-				 * Map<String, List<W5TableEvent>> xtableEventMap = (Map) xx.get("tableEvent");
-				 * Map<Integer, List<W5TableEvent>> tableEventMap = new HashMap(); if
-				 * (xtableEventMap != null) for (String k : xtableEventMap.keySet()) {
-				 * tableEventMap.put(Integer.parseInt(k), xtableEventMap.get(k));
-				 * 
-				 * } FrameworkCache.setTableEventMap(projectId, tableEventMap);
-				 * 
-				 * Map<String, W5Ws> xwsMap = (Map) xx.get("ws"); Map<String, W5Ws> wsMap = new
-				 * HashMap(); if (xwsMap != null) { for (String key : xwsMap.keySet()) { W5Ws ws
-				 * = xwsMap.get(key); wsMap.put(ws.getDsc(), ws); if (ws.get_methods() == null)
-				 * ws.set_methods(new ArrayList()); else for (W5WsMethod wsm : ws.get_methods())
-				 * FrameworkCache.addWsMethod(projectId, wsm); }
-				 * FrameworkCache.setWsClientsMap(projectId, wsMap); }
-				 * 
-				 * Map<String, W5WsServer> xwssMap = (Map) xx.get("wss"); Map<String,
-				 * W5WsServer> wssMap = new HashMap(); if (xwssMap != null) { for (String key :
-				 * xwssMap.keySet()) { W5WsServer wss = xwssMap.get(key);
-				 * wssMap.put(wss.getWsUrl(), wss); if (wss.get_methods() == null)
-				 * wss.set_methods(new ArrayList());
-				 * 
-				 * wss.get_methods().add(0, new W5WsServerMethod("login", (short) 4, 3)); //
-				 * o.get_methods().add(1,new W5WsServerMethod("logout", (short)4, // 5)); for
-				 * (W5WsServerMethod wsm : wss.get_methods()) if (wsm.getObjectTip() == 19) { //
-				 * QueryResult if (wsm.get_params().isEmpty()) wsm.set_params(null); else {
-				 * W5WsServerMethodParam tokenKey = new W5WsServerMethodParam(-998, "tokenKey",
-				 * (short) 1); tokenKey.setOutFlag((short) 0); tokenKey.setNotNullFlag((short)
-				 * 1); wsm.get_params().add(0, tokenKey); } }
-				 * 
-				 * } FrameworkCache.setWsServersMap(projectId, wssMap); }
-				 * 
-				 * Map<String, W5Component> xcomponentMap = (Map) xx.get("component");
-				 * Map<Integer, W5Component> componentMap = new HashMap(); if (xcomponentMap !=
-				 * null) for (String k : xcomponentMap.keySet()) {
-				 * componentMap.put(Integer.parseInt(k), xcomponentMap.get(k));
-				 * 
-				 * } FrameworkCache.setComponentMap(projectId, componentMap);
-				 * 
-				 * Map<String, W5Conversion> xconversionMap = (Map) xx.get("conversion");
-				 * Map<Integer, W5Conversion> conversionMap = new HashMap(); if (xconversionMap
-				 * != null) for (String k : xconversionMap.keySet()) {
-				 * conversionMap.put(Integer.parseInt(k), xconversionMap.get(k)); }
-				 * FrameworkCache.setConversionMap(projectId, conversionMap);
-				 */
-			} else {
-				reloadLookUpCache(projectId);
-				reloadTablesCache(projectId);
-				if (FrameworkSetting.workflow)
-					reloadWorkflowCache(projectId);
-				// reloadTableAccessConditionSQLs(projectId);
-				reloadWsServersCache(projectId);
-				reloadWsClientsCache(projectId);
-				reloadComponentCache(projectId);
-				reloadJobsCache(projectId);
-				if (FrameworkSetting.externalDb)
-					reloadExternalDbsCache(projectId);
-				if (FrameworkSetting.mq)
-					reloadMqsCache(projectId);
-				// FrameworkCache.getRedissonClient().getMap("icb-cache5");
-				reloadErrorMessagesCache(projectId);
 
+			reloadLookUpCache(projectId);
+			reloadTablesCache(projectId);
+			if (FrameworkSetting.workflow)
+				reloadWorkflowCache(projectId);
+			// reloadTableAccessConditionSQLs(projectId);
+			reloadWsServersCache(projectId);
+			reloadWsClientsCache(projectId);
+			reloadComponentCache(projectId);
+			reloadJobsCache(projectId);
+			if (FrameworkSetting.externalDb)
+				reloadExternalDbsCache(projectId);
+			if (FrameworkSetting.mq)
+				reloadMqsCache(projectId);
+			// FrameworkCache.getRedissonClient().getMap("icb-cache5");
+			reloadErrorMessagesCache(projectId);
+			W5Project po = FrameworkCache.getProject(projectId);
+			if(po.getUiWebFrontendTip()==8) {//google AppMaker React
+				reloadChacheLevel2(projectId);
 			}
+
 
 			FrameworkSetting.projectSystemStatus.put(projectId, 0); // working
 			FrameworkCache.clearReloadCache(projectId);
@@ -1477,6 +1430,48 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		}
 
 		logger.info("Cache Loaded.");
+	}
+
+	private void reloadChacheLevel2(String projectId) {
+	
+		List menuItems = dao.find("from W5ObjectMenuItem t where t.projectUuid=?0 order by t.objectTip, t.objectId, t.tabOrder", projectId);
+		List toolbarItems = dao.find("from W5ObjectToolbarItem t where t.projectUuid=?0 order by t.objectTip, t.objectId, t.tabOrder", projectId);
+
+		FrameworkCache.addFuncs2Cache(projectId, dao.find("from W5GlobalFunc t where t.projectUuid=?0 order by t.dbFuncId", projectId), 
+				dao.find("from W5GlobalFuncParam t where t.projectUuid=?0 order by t.dbFuncId, t.tabOrder", projectId));
+		
+		FrameworkCache.addQueries2Cache(projectId, dao.find("from W5Query t where t.projectUuid=?0 or (t.queryId=2822 AND t.projectUuid=?1) order by t.queryId", projectId, FrameworkSetting.devUuid), 
+				dao.find("from W5QueryField t where t.projectUuid=?0 or (t.queryId=2822 AND t.projectUuid=?1) order by t.queryId, t.tabOrder", projectId, FrameworkSetting.devUuid), 
+				dao.find("from W5QueryParam t where t.projectUuid=?0 or (t.queryId=2822 AND t.projectUuid=?1) order by t.queryId, t.tabOrder", projectId, FrameworkSetting.devUuid));
+
+		List formCells = dao.find("from W5FormCell t where t.activeFlag=1 and t.projectUuid=?0 order by t.formId, t.tabOrder", projectId);
+		FrameworkCache.addForms2Cache(projectId, dao.find("from W5Form t where t.projectUuid=?0 order by t.formId", projectId), 
+				formCells, 
+				dao.find("from W5FormModule t where t.projectUuid=?0 order by t.formId, t.tabOrder", projectId), 
+				dao.find("from W5FormCellProperty t where t.projectUuid=?0 order by t.formCellId, t.formCellPropertyId", projectId), 
+				dao.find("from W5FormCellProperty t where t.projectUuid=?0 order by t.formCellId, t.formCellPropertyId", projectId), 
+				dao.find("from W5FormSmsMail t where t.activeFlag=1 and t.projectUuid=?0 order by t.formId, t.tabOrder", projectId), 
+				toolbarItems);
+
+		
+		FrameworkCache.addGrids2Cache(projectId, dao.find("from W5Grid t where t.projectUuid=?0 order by t.gridId", projectId), 
+				dao.find("from W5GridColumn t where t.projectUuid=?0 order by t.gridId, t.tabOrder", projectId), 
+				dao.find("from W5CustomGridColumnCondition t where t.projectUuid=?0 order by t.gridId, t.tabOrder", projectId), 
+				dao.find("from W5CustomGridColumnRenderer t where t.projectUuid=?0 order by t.gridId, t.customGridColumnRendererId", projectId), toolbarItems, menuItems, formCells);
+
+
+		FrameworkCache.addMobileLists2Cache(projectId, dao.find("from M5List t where t.projectUuid=?0 order by t.listId", projectId));
+		
+		FrameworkCache.addCards2Cache(projectId, dao.find("from W5Card t where t.projectUuid=?0 order by t.dataViewId", projectId), toolbarItems, menuItems);
+		
+
+		FrameworkCache.addConversions2Cache(projectId, dao.find("from W5Conversion t where t.activeFlag=1 and t.projectUuid=?0 order by t.conversionId", projectId), 
+				dao.find("from W5ConversionCol t where t.projectUuid=?0 order by t.conversionId, t.tabOrder", projectId));
+		
+		FrameworkCache.addPages2Cache(projectId, dao.find("from W5Page t where t.projectUuid=?0 order by t.templateId", projectId), 
+				dao.find("from W5PageObject t where t.activeFlag=1 AND t.projectUuid=?0 order by t.templateId, t.tabOrder", projectId));
+
+		
 	}
 
 	private void reloadComponentCache(String projectId) {
