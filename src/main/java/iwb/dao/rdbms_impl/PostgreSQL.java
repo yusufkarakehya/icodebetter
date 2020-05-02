@@ -90,7 +90,7 @@ public class PostgreSQL extends BaseDAO {
 
 	@Lazy
 	@Autowired
-	private MetadataLoader metaDataDao;
+	private MetadataLoader metadataLoader;
 
 	private static Logger logger = Logger.getLogger(PostgreSQL.class);
 	@Autowired
@@ -112,7 +112,7 @@ public class PostgreSQL extends BaseDAO {
 	 */
 
 	public W5QueryResult executeQuery(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
-		W5QueryResult queryResult = metaDataDao.getQueryResult(scd, queryId);
+		W5QueryResult queryResult = metadataLoader.getQueryResult(scd, queryId);
 		if (queryId != 1 && queryId != 824 && queryResult.getMainTable() != null && (!FrameworkSetting.debug
 				|| (scd.get("roleId") != null && GenericUtil.uInt(scd.get("roleId")) != 0)) && queryResult.getQuery().getQuerySourceTip()!=4658) {
 			W5Table t = queryResult.getMainTable();
@@ -468,7 +468,7 @@ public class PostgreSQL extends BaseDAO {
 																		// postProcessTip=lookupQuery
 																		// olanlar
 																		// saptaniyor
-								W5QueryResult queryFieldLookupQueryResult = metaDataDao
+								W5QueryResult queryFieldLookupQueryResult = metadataLoader
 										.getQueryResult(queryResult.getScd(), qf.getLookupQueryId());
 								if (queryFieldLookupQueryResult != null
 										&& queryFieldLookupQueryResult.getQuery() != null) {
@@ -545,7 +545,7 @@ public class PostgreSQL extends BaseDAO {
 																			// postProcessTip=lookupQuery
 																			// olanlar
 									// saptaniyor
-									W5QueryResult queryFieldLookupQueryResult = metaDataDao
+									W5QueryResult queryFieldLookupQueryResult = metadataLoader
 											.getQueryResult(queryResult.getScd(), qf.getLookupQueryId());
 									if (queryFieldLookupQueryResult != null
 											&& queryFieldLookupQueryResult.getQuery() != null) {
@@ -588,7 +588,7 @@ public class PostgreSQL extends BaseDAO {
 																									// postProcessTip=lookupQuery
 																									// olanlar
 									// saptaniyor
-									W5QueryResult queryFieldLookupQueryResult = metaDataDao
+									W5QueryResult queryFieldLookupQueryResult = metadataLoader
 											.getQueryResult(queryResult.getScd(), qf.getLookupQueryId());
 									if (queryFieldLookupQueryResult != null
 											&& queryFieldLookupQueryResult.getQuery() != null) {
@@ -800,7 +800,7 @@ public class PostgreSQL extends BaseDAO {
 	}
 
 	public List runQuery2Map(Map<String, Object> scd, int queryId, Map<String, String> requestParams) {
-		W5QueryResult queryResult = metaDataDao.getQueryResult(scd, queryId);
+		W5QueryResult queryResult = metadataLoader.getQueryResult(scd, queryId);
 		queryResult.setErrorMap(new HashMap());
 		queryResult.setRequestParams(requestParams);
 
@@ -1055,7 +1055,7 @@ public class PostgreSQL extends BaseDAO {
 				case 60: // remote superboxselect
 				case 16: // remote query
 				case 9: // remote query
-					rc.setLookupQueryResult(metaDataDao.getQueryResult(scd, c.getLookupQueryId()));
+					rc.setLookupQueryResult(metadataLoader.getQueryResult(scd, c.getLookupQueryId()));
 					// c.set_lookupListCount(c.getLookupQueryId()); // Fake:
 					// Normalde Query Id tutulur, ama
 					// su anda kac adet column tutuyor
@@ -1072,7 +1072,7 @@ public class PostgreSQL extends BaseDAO {
 					List<W5LookUpDetay> oldList = !FrameworkCache.hasQueuedReloadCache(projectId,
 							"13." + lookUp.getLookUpId())
 									? lookUp.get_detayList()
-									: metaDataDao.findLookUpDetay(c.getLookupQueryId(), projectId);
+									: metadataLoader.findLookUpDetay(c.getLookupQueryId(), projectId);
 
 					List<W5LookUpDetay> newList = null;
 					if (includedValues != null && includedValues.length() > 0) {
@@ -1140,7 +1140,7 @@ public class PostgreSQL extends BaseDAO {
 						}
 					}
 
-					W5QueryResult lookupQueryResult = metaDataDao.getQueryResult(scd, c.getLookupQueryId());
+					W5QueryResult lookupQueryResult = metadataLoader.getQueryResult(scd, c.getLookupQueryId());
 					lookupQueryResult.setErrorMap(new HashMap());
 					lookupQueryResult.setRequestParams(requestParams);
 					lookupQueryResult.setOrderBy(lookupQueryResult.getQuery().getSqlOrderby());
@@ -1196,7 +1196,7 @@ public class PostgreSQL extends BaseDAO {
 							if (rc.getExtraValuesMap() == null)
 								rc.setExtraValuesMap(new HashMap());
 							rc.getExtraValuesMap().put("dialogGrid",
-									metaDataDao.getGridResult(scd, c.getDialogGridId(), requestParams, true));
+									metadataLoader.getGridResult(scd, c.getDialogGridId(), requestParams, true));
 						}
 
 						if (c.getControlTip() == 10 && GenericUtil.isEmpty(rc.getValue()))
@@ -1635,11 +1635,11 @@ public class PostgreSQL extends BaseDAO {
 			t = FrameworkCache.getTable(projectId, form.getObjectId());
 			break; // table
 		case 1:// grid
-			W5Grid g = metaDataDao.getGridResult(formResult.getScd(), form.getObjectId(), new HashMap(), true)
+			W5Grid g = metadataLoader.getGridResult(formResult.getScd(), form.getObjectId(), new HashMap(), true)
 					.getGrid();
 
 			if (g != null) {
-				W5Query q = metaDataDao.getQueryResult(formResult.getScd(), g.getQueryId()).getQuery();
+				W5Query q = metadataLoader.getQueryResult(formResult.getScd(), g.getQueryId()).getQuery();
 				if (q != null)
 					t = FrameworkCache.getTable(projectId, q.getMainTableId()); // grid
 			}
@@ -2905,7 +2905,7 @@ public class PostgreSQL extends BaseDAO {
 		Map<String, String> requestParams = new HashMap();
 		requestParams.putAll(masterFormResult.getRequestParams());
 		W5Table mt = FrameworkCache.getTable(scd, masterFormResult.getForm().getObjectId()); // .get_sourceTable();
-		W5FormResult formResult = metaDataDao.getFormResult(scd, t.getDefaultUpdateFormId(), 2, requestParams);
+		W5FormResult formResult = metadataLoader.getFormResult(scd, t.getDefaultUpdateFormId(), 2, requestParams);
 		if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 			// throw new PromisException("security","Module", 0, null, "Modul
 			// Kontrol: Erişim kontrolünüz
@@ -3178,7 +3178,7 @@ public class PostgreSQL extends BaseDAO {
 		StringBuilder sql = new StringBuilder();
 		List<Object> params = new ArrayList();
 		sql.append("select ");
-		List<W5TableFieldCalculated> ltfc = metaDataDao.findTableCalcFields((String)scd.get("projectId"), tableId);
+		List<W5TableFieldCalculated> ltfc = metadataLoader.findTableCalcFields((String)scd.get("projectId"), tableId);
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		for (int bas = tmp1.indexOf("${"); bas >= 0; bas = tmp1.indexOf("${", bas + 2)) {
 			int bit = tmp1.indexOf("}", bas + 2);
@@ -3361,7 +3361,7 @@ public class PostgreSQL extends BaseDAO {
 		List<Object> params = new ArrayList();
 		sql.append("select ");
 		int field_cnt = 1;
-		List<W5TableFieldCalculated> ltfc = metaDataDao.findTableCalcFields(
+		List<W5TableFieldCalculated> ltfc = metadataLoader.findTableCalcFields(
 				FrameworkCache.getProjectId(scd.get("projectId"), "15." + tableId), tableId);
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		for (int bas = tmp.indexOf("${"); bas >= 0; bas = tmp.indexOf("${", bas + 2)) {
@@ -4486,9 +4486,9 @@ public class PostgreSQL extends BaseDAO {
 	public Map executeQuery4Stat(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
 
 		int customizationId = (Integer) scd.get("customizationId");
-		int queryId = gridId > 0 ? metaDataDao.getGridResult(scd, gridId, requestParams, false).getGrid().getQueryId()
+		int queryId = gridId > 0 ? metadataLoader.getGridResult(scd, gridId, requestParams, false).getGrid().getQueryId()
 				: -gridId;
-		W5QueryResult queryResult = metaDataDao.getQueryResult(scd, queryId);
+		W5QueryResult queryResult = metadataLoader.getQueryResult(scd, queryId);
 		queryResult.setErrorMap(new HashMap());
 		queryResult.setRequestParams(requestParams);
 		if (queryResult.getQuery().getQuerySourceTip() == 1376)
@@ -4744,8 +4744,8 @@ public class PostgreSQL extends BaseDAO {
 	public Map executeQuery4StatTree(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
 
 		String projectId = (String) scd.get("projectId");
-		int queryId = metaDataDao.getGridResult(scd, gridId, requestParams, false).getGrid().getQueryId();
-		W5QueryResult queryResult = metaDataDao.getQueryResult(scd, queryId);
+		int queryId = metadataLoader.getGridResult(scd, gridId, requestParams, false).getGrid().getQueryId();
+		W5QueryResult queryResult = metadataLoader.getQueryResult(scd, queryId);
 		W5Table t = queryResult.getMainTable();
 		if (queryId != 1 && queryId != 824 && queryResult.getMainTable() != null && (!FrameworkSetting.debug
 				|| (scd.get("roleId") != null && GenericUtil.uInt(scd.get("roleId")) != 0))) {
@@ -4804,7 +4804,7 @@ public class PostgreSQL extends BaseDAO {
 		} else if (tableFieldChain.startsWith("clc.")) { // calculated field
 			String newSubStr = tableFieldChain.substring(4);
 			boolean fieldFound = false;
-			List<W5TableFieldCalculated> ltcf = metaDataDao.findTableCalcFieldByName(projectId,
+			List<W5TableFieldCalculated> ltcf = metadataLoader.findTableCalcFieldByName(projectId,
 					t.getTableId(), newSubStr);
 			if (ltcf.isEmpty())
 				throw new IWBException("framework", "Query", queryId, null,
@@ -4936,7 +4936,7 @@ public class PostgreSQL extends BaseDAO {
 				for (String s : fq) {
 					int isx = GenericUtil.uInt(s);
 					if (isx < 0) {
-						W5TableFieldCalculated tcf = (W5TableFieldCalculated)metaDataDao.getMetadataObject("W5TableFieldCalculated", "tableFieldCalculatedId", -isx, projectId, "TableFieldCalculated");
+						W5TableFieldCalculated tcf = (W5TableFieldCalculated)metadataLoader.getMetadataObject("W5TableFieldCalculated", "tableFieldCalculatedId", -isx, projectId, "TableFieldCalculated");
 						lookUps.put(count+"", LocaleMsgCache.get2(scd, tcf.getDsc()));
 						count++;
 						Object[] oo = DBUtil.filterExt4SQL(tcf.getSqlCode(), scd, requestParams, null);
@@ -5106,7 +5106,7 @@ public class PostgreSQL extends BaseDAO {
 
 			if (c.startsWith("clc.")) {
 				String c2 = c.substring(4);
-				List<W5TableFieldCalculated> l = metaDataDao.findTableCalcFieldByName(
+				List<W5TableFieldCalculated> l = metadataLoader.findTableCalcFieldByName(
 						t.getProjectUuid(), t.getTableId(), c2);
 				if (!l.isEmpty()) {
 					sql.append("(").append(l.get(0).getSqlCode()).append(")");
@@ -5171,7 +5171,7 @@ public class PostgreSQL extends BaseDAO {
 							errorMap.put(c, "Calculated Field wrong definition");
 							continue;
 						}
-						List<W5TableFieldCalculated> l = metaDataDao.findTableCalcFieldByName(
+						List<W5TableFieldCalculated> l = metadataLoader.findTableCalcFieldByName(
 								t.getProjectUuid(), detT.getTableId(), sss[isss]);
 						if (!l.isEmpty()) {
 							newSub.append("SELECT ").append("sum" /* valMap.get(c) */).append("((")
@@ -5468,7 +5468,7 @@ public class PostgreSQL extends BaseDAO {
 
 			if (c.startsWith("clc.")) {
 				String c2 = c.substring(4);
-				List<W5TableFieldCalculated> l = metaDataDao.findTableCalcFieldByName(t.getProjectUuid(), t.getTableId(), c2);
+				List<W5TableFieldCalculated> l = metadataLoader.findTableCalcFieldByName(t.getProjectUuid(), t.getTableId(), c2);
 				if (!l.isEmpty()) {
 					sql.append("(").append(l.get(0).getSqlCode()).append(")");
 					iwfField++;
@@ -5535,7 +5535,7 @@ public class PostgreSQL extends BaseDAO {
 							errorMap.put(c, "Calculated Field wrong definition");
 							continue;
 						}
-						List<W5TableFieldCalculated> l = metaDataDao.findTableCalcFieldByName(detT.getProjectUuid(), detT.getTableId(), sss[isss]);
+						List<W5TableFieldCalculated> l = metadataLoader.findTableCalcFieldByName(detT.getProjectUuid(), detT.getTableId(), sss[isss]);
 						if (!l.isEmpty()) {
 							newSub.append("SELECT ").append(valMap.get(c)).append("((")
 									.append(l.get(0).getSqlCode().replaceAll("x.", "z" + isss + ".")).append(")) from ")
