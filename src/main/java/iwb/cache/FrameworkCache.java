@@ -69,7 +69,7 @@ import iwb.util.GenericUtil;
 public class FrameworkCache {
 
 	final private static Map<String, Map<Integer,W5LookUp>> wLookUps = new HashMap<String, Map<Integer,W5LookUp>>(); //customizationId
-	final private static Map<String, Map<Integer, W5Query>> wQueries = new HashMap<String, Map<Integer, W5Query>>();
+	final public static Map<String, Map<Integer, W5Query>> wQueries = new HashMap<String, Map<Integer, W5Query>>();
 	final private static Map<String, Map<Integer, W5Conversion>> wConversions = new HashMap<String, Map<Integer, W5Conversion>>();
 	final private static Map<String, Map<Integer, W5Grid>> wGrids = new HashMap<String, Map<Integer, W5Grid>>();
 	final private static Map<String, Map<Integer, W5List>> wListViews = new HashMap<String, Map<Integer, W5List>>();
@@ -77,7 +77,7 @@ public class FrameworkCache {
 	final private static Map<String, Map<Integer, W5Card>> wCards = new HashMap<String, Map<Integer, W5Card>>();
 	final private static Map<String, Map<Integer, W5Form>> wForms = new HashMap<String, Map<Integer, W5Form>>();
 	final private static Map<String, Map<Integer, W5GlobalFunc>> wGlobalFuncs = new HashMap<String, Map<Integer, W5GlobalFunc>>();
-	final private static Map<String, Map<Integer, W5Page>> wTemplates = new HashMap<String, Map<Integer, W5Page>>();
+	final public static Map<String, Map<Integer, W5Page>> wTemplates = new HashMap<String, Map<Integer, W5Page>>();
 	final private static Map<String, Map<Integer, W5Component>> wComponents = new HashMap<String, Map<Integer, W5Component>>();
 
 	final private static Map<String, Map<Integer, W5Table>> wTables = new HashMap<String, Map<Integer, W5Table>>();
@@ -85,7 +85,7 @@ public class FrameworkCache {
 	final private static Map<String, List<W5RoleGroup>> wRoleGroups = new HashMap<String, List<W5RoleGroup>>();
 
 	
-	final private static Map<String, Map<Integer, String>> wPageCss = new HashMap<String, Map<Integer, String>>();
+	final private static Map<String, Map<String, String>> wPageDynResource = new HashMap<String, Map<String, String>>();
 	final private static Map<String, Map<String, Object>> wGraalFuncs = new HashMap<String, Map<String, Object>>();
 
 	final public static Map<String, Map<Integer, W5Workflow>> wWorkflows = new HashMap<String,Map<Integer, W5Workflow>>();
@@ -605,23 +605,23 @@ public class FrameworkCache {
 	public static void setWsServersMap(String o, Map m){
 		wWsServers.put(getProjectId(o, null), m);
 	}
-	public static void addPageCss(Object o, int pageId, String css){
-		String p = getProjectId(o,"63."+pageId);
-		Map<Integer, String> m = wPageCss.get(p);
+	public static void addPageResource(Object o, String key, String res){
+		String p = getProjectId(o, null);
+		Map<String, String> m = wPageDynResource.get(p);
 		if(m==null){
 			m = new HashMap();
-			wPageCss.put(p, m);
+			wPageDynResource.put(p, m);
 		}
-		m.put(pageId, css);
+		m.put(key, res);
 	}
 
-	public static String getPageCss(Object o, int pageId){
-		String p = getProjectId(o,"63."+pageId);
-		Map<Integer, String> m = wPageCss.get(p);
+	public static String getPageResource(Object o, String key){
+		String p = getProjectId(o,null);
+		Map<String, String> m = wPageDynResource.get(p);
 		if(m==null)return "";
-		String css = m.get(pageId);
-		if(css==null)return "";
-		return css;
+		String res = m.get(key);
+		if(res==null)return "";
+		return res;
 	}
 
 	

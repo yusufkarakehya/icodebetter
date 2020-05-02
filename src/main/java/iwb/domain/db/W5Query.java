@@ -55,6 +55,7 @@ public class W5Query implements java.io.Serializable, W5Base {
 	private List<W5QueryField> _queryFields;
 	private	List<W5QueryParam> _queryParams;
 	private List<W5QueryField> _aggQueryFields;
+	private String tag;
 
 
 
@@ -262,6 +263,16 @@ public class W5Query implements java.io.Serializable, W5Base {
 
 	public void setProjectUuid(String projectUuid) {
 		this.projectUuid = projectUuid;
+	}
+
+	
+	@Column(name="tag")
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 
 	@Transient
