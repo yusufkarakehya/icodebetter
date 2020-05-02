@@ -7603,65 +7603,28 @@ class XMainPanel extends React.PureComponent {
             this.loadPage = () => {
                 var templateID = this.templateID;
                 if (!iwb["t-" + templateID]) {
-                    //  if(iwb.loadingPageMask && iwb.loadingActivate)iwb.loadingActivate();
-                    fetch("showPage?_tid=" + templateID, {
-                            cache: "no-cache", // *default, no-cache, reload, force-cache,
-                            // only-if-cached
-                            credentials: "same-origin", // include, same-origin, *omit
-                            headers: {
-                                "content-type": "application/json"
-                            },
-                            method: "POST", // *GET, POST, PUT, DELETE, etc.
-                            mode: "cors", // no-cors, cors, *same-origin
-                            redirect: "follow", // *manual, follow, error
-                            referrer: "no-referrer" // *client, no-referrer
-                        })
-                        .then(
-                            response => {
-                                //if(iwb.loadingPageMask && iwb.loadingDectivate)iwb.loadingDeactivate();
-                                return response.status === 200 || response.status === 0 ?
-                                    response.text() :
-                                    Promise.reject(new Error(response.statusText))
-                            })
-                        .then(
-                            result => {
-                                if (result) {
-                                    var f = new Function('callAttributes', 'parentCt', result);
-                                    var serverComponent = f(false, this);
-                                    if (serverComponent) {
-                                        serverComponent = _(
-                                            React.Suspense, { fallback: _(XLoading, null) },
-                                            _(
-                                                "div", { className: "animated fadeIn", id: "page" + templateID },
-                                                serverComponent
-                                            )
-                                        );
-                                        iwb["t-" + templateID] = serverComponent;
-                                        this.setState({ templateID });
-                                        iwb.nav.visitItem(this.props.match.path);
-                                    } else {
-                                    	serverComponent = _(
-                                                React.Suspense, { fallback: _(XLoading, null) },
-                                                _(
-                                                    "div", { className: "animated fadeIn", id: "page" + templateID },
-                                                    'Error'
-                                                )
-                                            );
-                                            iwb["t-" + templateID] = 'Error';
-                                            this.setState({ templateID });
-                                            iwb.nav.visitItem(this.props.match.path);
-                                    }
-                                } else {
-                                    toastr.error("No Data", " Error");
-                                }
-                            },
-                            error => {
-                                toastr.error(error, "Connection Error");
-                            }
-                        ).catch( error=>{
-                            toastr.error(error, "Connection Error");
-                        	
-                        });
+                    var serverComponent = app.showPage(templateID);
+                    if (serverComponent) {
+                        serverComponent = 
+                            _(
+                                "div", { className: "animated fadeIn", id: "page" + templateID },
+                                serverComponent
+                            );
+                        iwb["t-" + templateID] = serverComponent;
+                        this.setState({ templateID });
+                        iwb.nav.visitItem(this.props.match.path);
+                    } else {
+                    	serverComponent = _(
+                                React.Suspense, { fallback: _(XLoading, null) },
+                                _(
+                                    "div", { className: "animated fadeIn", id: "page" + templateID },
+                                    'Error'
+                                )
+                            );
+                            iwb["t-" + templateID] = 'Error';
+                            this.setState({ templateID });
+                            iwb.nav.visitItem(this.props.match.path);
+                    }
                 } else if (templateID != this.state.templateID)
                     this.setState({ templateID });
             };
