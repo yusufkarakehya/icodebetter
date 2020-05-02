@@ -4306,7 +4306,7 @@ columns:[
 				
 
 				FrameworkCache.addPageResource(pr.getScd(), "js-"+page.getTemplateId(), bufc.toString());
-				code = code.replace("${components}", "<script src=\"dyn-res/js-"+page.getTemplateId()+".js?.x="+page.getVersionNo()+"\" />");
+				code = code.replace("${components}", "<script type=\"text/javascript\" src=\"dyn-res/js-"+page.getTemplateId()+".js?.x="+page.getVersionNo()+"\" ></script>");
 			}
 			
 			
