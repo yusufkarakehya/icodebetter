@@ -3059,16 +3059,17 @@ function addTab4GridWSearchForm(obj) {
     		aq.add(new Ext.Panel({ html: '<span id="top-summary-'+mainGrid.id+'" style="padding: 10px 0 10px 88px;"></span>', autoWidth: true, height:40, border: true }));
     	});
     	 mainGridPanel.store.on("load", function(a) {
+			 var d =document.getElementById('top-summary-'+mainGrid.id);
+			 if(!d)return;
     		 var m = a.reader.jsonData.extraOutMap;
+    		 var s = "";
     		 if(m){
-        		 var s = "";
     			 mainGrid.displayAgg.map(o=>{
     				 var xx = o.f(m[o.id]); 
     				if(xx)s+=xx; 
     			 });
-    			 var d =document.getElementById('top-summary-'+mainGrid.id); 
-    			 d.innerHTML= s;
     		 }
+			 d.innerHTML= s;
     	 });
     }
     items.push(searchFormPanel);
@@ -3341,16 +3342,17 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     		aq.add(new Ext.Panel({ html: '<span id="top-summary-'+mainGrid.id+'" style="padding: 10px 0 10px 48px;"></span>', autoWidth: true, height:40, border: true }));
     	});
     	 mainGridPanel.store.on("load", function(a) {
+			 var d =document.getElementById('top-summary-'+mainGrid.id);
+			 if(!d)return;
     		 var m = a.reader.jsonData.extraOutMap;
+    		 var s = "";
     		 if(m){
-        		 var s = "";
     			 mainGrid.displayAgg.map(o=>{
     				 var xx = o.f(m[o.id]); 
     				if(xx)s+=xx; 
     			 });
-    			 var d =document.getElementById('top-summary-'+mainGrid.id); 
-    			 d.innerHTML= s;
     		 }
+			 d.innerHTML= s;
     	 });
     }
     mainGridPanel.store._formPanel = searchFormPanel;
@@ -3511,6 +3513,8 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
     	  ds._displayAgg = detailGrid.displayAgg;
     	  ds._id = detailGrid.id;
     	  ds.on("load", function(a) {
+   			 var d =document.getElementById('grid-summary-'+a._id);
+   			 if(!d)return;
       		 var m = a.reader.jsonData.extraOutMap;
       		 var s = "";
       		 if(m){
@@ -3519,8 +3523,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
       				if(xx)s+=xx; 
       			 });
       		 }
-  			 var d =document.getElementById('grid-summary-'+a._id); 
-  			 if(d)d.innerHTML= s;
+  			 d.innerHTML= s;
       	 });
       }
 
