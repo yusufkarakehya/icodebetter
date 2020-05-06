@@ -84,6 +84,7 @@ import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
+import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
@@ -1415,7 +1416,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			reloadErrorMessagesCache(projectId);
 			W5Project po = FrameworkCache.getProject(projectId);
 			if(po.getUiWebFrontendTip()==8) {//google AppMaker React
-				reloadChacheLevel2(projectId);
+				reloadCacheLevel2(projectId);
 			}
 
 
@@ -1432,7 +1433,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		logger.info("Cache Loaded.");
 	}
 
-	private void reloadChacheLevel2(String projectId) {
+	private void reloadCacheLevel2(String projectId) {
 	
 		List menuItems = dao.find("from W5ObjectMenuItem t where t.projectUuid=?0 order by t.objectTip, t.objectId, t.tabOrder", projectId);
 		List toolbarItems = dao.find("from W5ObjectToolbarItem t where t.projectUuid=?0 order by t.objectTip, t.objectId, t.tabOrder", projectId);
@@ -1449,8 +1450,8 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 				formCells, 
 				dao.find("from W5FormModule t where t.projectUuid=?0 order by t.formId, t.tabOrder", projectId), 
 				dao.find("from W5FormCellProperty t where t.projectUuid=?0 order by t.formCellId, t.formCellPropertyId", projectId), 
-				dao.find("from W5FormCellProperty t where t.projectUuid=?0 order by t.formCellId, t.formCellPropertyId", projectId), 
 				dao.find("from W5FormSmsMail t where t.activeFlag=1 and t.projectUuid=?0 order by t.formId, t.tabOrder", projectId), 
+				dao.find("from W5FormHint t where t.activeFlag=1 and t.projectUuid=?0 order by t.formId, t.tabOrder", projectId), 
 				toolbarItems);
 
 		
@@ -1855,12 +1856,20 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		if (ms == 0)
 			ms = 1;
 		int cusId = ms != 1 ? (Integer) scd.get("customizationId") : 0;
+		if(mailSettingId==0) mailSettingId = GenericUtil.uInt(scd.get("mailSettingId"));
 		List<W5ObjectMailSetting> oms = find(
-				"from W5ObjectMailSetting w where w.mailSettingId=?0 AND w.customizationId=?1",
-				mailSettingId != 0 ? mailSettingId
-						: GenericUtil.uInt(scd.get("mailSettingId")),
+				"from W5ObjectMailSetting w where w.customizationId=?0 order by w.mailSettingId",
 				cusId);
-		if(!oms.isEmpty())return oms.get(0);
+		W5ObjectMailSetting r = null; 
+		if(!oms.isEmpty()) {
+			if(mailSettingId!=0)for(W5ObjectMailSetting o:oms)if(o.getMailSettingId()==mailSettingId) {
+				r = o;
+				break;
+			}
+			if(r==null)r = oms.get(0);
+			r.setOutboxServerPassWord(EncryptionUtil.decryptAES(r.getOutboxServerPassWord()));
+			return r;
+		}
 		
 		if(ms != 1) {
 			throw new IWBException("framework", "MailSetting", mailSettingId, null, "Wrong MailSetting ID: " + mailSettingId, null);
@@ -1869,8 +1878,10 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		if(oms.isEmpty()) {
 			throw new IWBException("framework", "MailSetting", 1, null, "Wrong MailSetting ID: " + 1, null);
 		}
-
-		return oms.get(0);
+		
+		r = oms.get(0);
+		r.setOutboxServerPassWord(EncryptionUtil.decryptAES(r.getOutboxServerPassWord()));
+		return r;
 	}
 	
 	

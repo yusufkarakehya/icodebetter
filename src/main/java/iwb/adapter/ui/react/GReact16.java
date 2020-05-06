@@ -2008,6 +2008,7 @@ public class GReact16 implements ViewAdapter {
 			else if(GenericUtil.safeEquals(fc.getVtype(), "url"))buf.append("'url'");
 			else buf.append("'text'");
 			break;//string
+		case	42:buf.append("type:'password'");break;
 		case	2:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',timeFormat:false, closeOnSelect:true");break; //TODO:date
 		case	18:buf.append("$:Datetime, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',timeFormat:'HH:mm'");break; //TODO:datetime
 		case	22:buf.append("$:Datetime, dateFormat:false, className:'rdt-time', timeFormat:'hh:mm a'");break; //TODO:time

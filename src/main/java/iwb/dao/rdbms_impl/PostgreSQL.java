@@ -1588,6 +1588,7 @@ public class PostgreSQL extends BaseDAO {
 			int fsmTableId, int fsmTablePk) {
 
 		W5Email email = new W5Email();
+		email.setMailSettingId(fsm.getMailSettingId());
 		String mailTo = fsm.getSmsMailTo();
 		if (mailTo != null && mailTo.contains("${")) {
 			StringBuilder tmp1 = new StringBuilder(mailTo);
@@ -1803,6 +1804,8 @@ public class PostgreSQL extends BaseDAO {
 					continue;
 				if (x.getControlTip() == 31 && GenericUtil.uInt(x.getLookupIncludedValues()) == 1
 						&& !GenericUtil.hasPartInside(x.getLookupIncludedParams(), "" + scd.get("userId")))
+					continue;
+				if(x.getControlTip()==42 && GenericUtil.safeEquals(FrameworkSetting.defaultPasswordMask, formResult.getRequestParams().get(x.getDsc())))
 					continue;
 
 				short notNullFlag = x.getNotNullFlag();

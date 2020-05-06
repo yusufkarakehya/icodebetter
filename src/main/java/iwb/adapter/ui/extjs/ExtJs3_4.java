@@ -2452,6 +2452,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			buf.setLength(0);
 			buf.append("new Ext.Button({_controlTip:100,cls:'x-btn-fc',width:").append(
 					fc.getControlWidth());
+			if(fc.getxOrder()==1)buf.append(",style:'margin-left:").append(formResult != null && formResult.getForm() != null?formResult.getForm().getLabelWidth()+5:175).append("px;margin-bottom:10px'");
 			String text = "";
 			fieldLabel = fc.getLocaleMsgKey();
 			String icon = cellResult.getFormCell().getLookupIncludedParams();
@@ -2873,6 +2874,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					buf.append(",listeners:{").append(liveSyncStr).append("}");
 				return buf.append("})");
 			}
+		case 42:// passWord
 		case 21:// localeMsgKey
 		case 1:// edit-string
 			if (controlTip == 21
@@ -4189,12 +4191,16 @@ public class ExtJs3_4 implements ViewAdapter {
 			}
 		break;		
 		
-		case 56:
-			buf.append(",CKConfig: {customConfig : '../scripts/ext3.3/ckeditor/config.js'}");
+		case 56://deprecated
+			buf.append(",CKConfig: {customConfig : '/scripts/ext3.3/ckeditor/config.js'}");
 		break;
 		
-		case 1:
+		case 1://text
 			buf.append(",cls:'x-icb-text'");
+			break;
+		case 42://password
+			buf.append(",inputType:'password'");
+			break;
 		}
 
 		if (fc.getMaxLength()!=null && fc.getMaxLength() > 0)
@@ -4224,6 +4230,10 @@ public class ExtJs3_4 implements ViewAdapter {
 			case 2:// date field
 				buf.append(",value:'").append(GenericUtil.uDateStr(value))
 						.append("'");
+				break;
+			case	42://password
+				buf.append(",value:'").append(FrameworkSetting.defaultPasswordMask)
+				.append("'");
 				break;
 			default:
 				buf.append(",value:'").append(GenericUtil.stringToJS(value))

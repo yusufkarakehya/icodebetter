@@ -1164,7 +1164,7 @@ public class PreviewController implements InitializingBean {
 		InputStream stream = null;
 		String filePath = null;
 
-		W5FileAttachment fa = service.loadFile(scd, fileAttachmentId);
+		W5FileAttachment fa = fileAttachmentId>0?service.loadFile(scd, fileAttachmentId):null;
 		if (fa == null) { // bulunamamis TODO
 			throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
 					"Wrong Id: " + fileAttachmentId, null);

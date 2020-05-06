@@ -269,7 +269,7 @@ public class NotificationEngine {
 							W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, t.getTableId(),
 									GenericUtil.uInt(ptablePk));
 
-							email.set_oms(findObjectMailSetting(scd, email.getMailSettingId()));
+							email.set_oms(metadataLoader.findObjectMailSetting(scd, email.getMailSettingId()));
 							if (fsm.getAsyncFlag() != 0)
 								result.add(new W5QueuedActionHelper(email));
 							else
@@ -427,11 +427,12 @@ public class NotificationEngine {
 				"W5FormSmsMail","formSmsMailId", formSmsMailId, projectId,
 				"FormSmsMail");
 		int tableId = 0;
+		W5Table t = null;
 		if(fsm.getFormId()> 0) {
 			W5Form f = (W5Form) metadataLoader.getMetadataObject("W5Form","formId",
 					fsm.getFormId(), projectId, "Form");
 			tableId = f.getObjectId();
-			W5Table t = FrameworkCache.getTable(scd, tableId);
+			t = FrameworkCache.getTable(scd, tableId);
 			if (!FrameworkCache.roleAccessControl(scd, 0)) {
 				throw new IWBException("security", "Module", 0, null,
 						"No Authorization for SMS/Email. Please contact Administrator", null);
@@ -444,10 +445,11 @@ public class NotificationEngine {
 			r.put("error", "SMS Adapter Not Defined");
 			return r;
 		} else { // email
-			W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, tableId,
-					GenericUtil.uInt(requestParams.get("table_pk")));
+			int tablePk = GenericUtil.uInt(requestParams.get(t.get_tableFieldList().get(0).getDsc()));
+			if(tablePk==0)tablePk = GenericUtil.uInt(requestParams.get("table_pk"));
+			W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, tableId,tablePk);
 
-			email.set_oms(findObjectMailSetting(scd, email.getMailSettingId()));
+			email.set_oms(metadataLoader.findObjectMailSetting(scd, email.getMailSettingId()));
 			String error = MailUtil.sendMail(scd, email);
 			if (GenericUtil.isEmpty(error)) {
 				r.put("success", true);
@@ -458,10 +460,7 @@ public class NotificationEngine {
 		}
 		return r;
 	}
-	
-	public W5ObjectMailSetting findObjectMailSetting(Map<String, Object> scd, int mailSettingId) {
-		return metadataLoader.findObjectMailSetting(scd, mailSettingId);
-	}
+
 	
 	public String sendMail(Map<String, Object> scd, W5Email email){
 		return MailUtil.sendMail(scd, email);
