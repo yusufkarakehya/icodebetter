@@ -554,14 +554,16 @@ public class VcsService {
 							int tableId = GenericUtil.uInt(kx[0]);
 							od[1]=tableId;
 							W5Table tx = FrameworkCache.getTable(projectUuid, tableId); 
-							od[2]=tx!=null?tx.getDsc():"Table Not Found";
-							od[3]=GenericUtil.uInt(kx[1]);
-							od[4]=0;//server vcsCommitId (0,+)
-							od[5]=lclObj.getVcsCommitId();//local vcsCommitId
-							//summaryParams.set(summaryParams.size()-1, k);
-							od[6]=!silent && tx!=null?dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0):"";
-							od[7]=2;//push
-							data.add(od);
+							if(tx!=null) {
+								od[2]=tx.getDsc();
+								od[3]=GenericUtil.uInt(kx[1]);
+								od[4]=0;//server vcsCommitId (0,+)
+								od[5]=lclObj.getVcsCommitId();//local vcsCommitId
+								//summaryParams.set(summaryParams.size()-1, k);
+								od[6]=!silent && tx!=null?dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0):"";
+								od[7]=2;//push
+								data.add(od);
+							}
 							
 						}
 					}
@@ -725,15 +727,16 @@ public class VcsService {
 							int tableId = GenericUtil.uInt(kx[0]);
 							od[1]=tableId;
 							W5Table tx = FrameworkCache.getTable(projectUuid, tableId); 
-							od[2]=tx!=null?tx.getDsc():"Table Not Found";
-							od[3]=GenericUtil.uInt(kx[1]);
-							od[4]=0;//server vcsCommitId (0,+)
-							od[5]=lclObj.getVcsCommitId();//local vcsCommitId
-							//summaryParams.set(summaryParams.size()-1, k);
-							od[6]=tx!=null?dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0):"";
-							od[7]=2;//push
-							data.add(od);
-							
+							if(tx!=null) {
+								od[2]=tx.getDsc();
+								od[3]=GenericUtil.uInt(kx[1]);
+								od[4]=0;//server vcsCommitId (0,+)
+								od[5]=lclObj.getVcsCommitId();//local vcsCommitId
+								//summaryParams.set(summaryParams.size()-1, k);
+								od[6]=dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0);
+								od[7]=2;//push
+								data.add(od);
+							}							
 						}
 					}
 

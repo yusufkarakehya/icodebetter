@@ -837,8 +837,10 @@ public class NashornScript {
 			}
 			
 		}
+		Map<String, String> reqPropMap = new HashMap();
+		reqPropMap.put("Content-Language", "en-EN");
 		String result = HttpUtil.send(url, params,
-				"GET", null);
+				"GET", reqPropMap);
 		return result;
 	}
 

@@ -39,7 +39,7 @@ public class W5Exception implements java.io.Serializable, W5Base {
 		this.exceptionId = exceptionId;
 	}
 
-	@Column(name="exception_id")
+	@Column(name="exception_message")
 	public String getExceptionMessage() {
 		return exceptionMessage;
 	}

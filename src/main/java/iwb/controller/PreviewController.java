@@ -1163,19 +1163,17 @@ public class PreviewController implements InitializingBean {
 		}
 		InputStream stream = null;
 		String filePath = null;
+		
 
-		W5FileAttachment fa = fileAttachmentId>0?service.loadFile(scd, fileAttachmentId):null;
-		if (fa == null) { // bulunamamis TODO
-			throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
-					"Wrong Id: " + fileAttachmentId, null);
-		}
-
-		if (fa.getFileAttachmentId() == 1 || fa.getFileAttachmentId() == 2) { // bayan
-																				// veya
-																				// erkek
-																				// resmi
-			filePath = fa.getFileAttachmentId() == 2 ? AppController.womanPicPath : AppController.manPicPath;
+		if (fileAttachmentId == 1 || fileAttachmentId == 2) { // male or female
+			filePath = fileAttachmentId == 2 ? AppController.womanPicPath : AppController.manPicPath;
 		} else {
+			W5FileAttachment fa = fileAttachmentId>0?service.loadFile(scd, fileAttachmentId):null;
+			if (fa == null) { // not found TODO
+				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
+						"Wrong Id: " + fileAttachmentId, null);
+			}
+
 			if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 			
 			
