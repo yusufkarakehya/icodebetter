@@ -25,8 +25,8 @@ public class W5Query implements java.io.Serializable, W5Base {
 
 	private int queryId;
 
-	private int querySourceTip;
-	private int mainTableId;
+	private int querySourceType;
+	private int sourceObjectId;
 
 	private String dsc;
 
@@ -42,12 +42,12 @@ public class W5Query implements java.io.Serializable, W5Base {
 
 	private String projectUuid;
 
-	private short queryTip;
+	private short queryType;
 
-	private short logLevelTip;
+	private short logLevelType;
 
 	private short showParentRecordFlag;
-	private short dataFillDirectionTip;
+	private short dataFillDirectionType;
 
 	private	short	_tableIdTabOrder;
 	private	short	_tablePkTabOrder;
@@ -69,8 +69,8 @@ public class W5Query implements java.io.Serializable, W5Base {
 
 
 	@Column(name="log_level_tip")
-	public short getLogLevelTip() {
-		return logLevelTip;
+	public short getLogLevelType() {
+		return logLevelType;
 	}
 
 
@@ -118,8 +118,8 @@ public class W5Query implements java.io.Serializable, W5Base {
 
 
 	@Column(name="main_table_id")
-	public int getMainTableId() {
-		return mainTableId;
+	public int getSourceObjectId() {
+		return sourceObjectId;
 	}
 
 	@Transient
@@ -153,8 +153,8 @@ public class W5Query implements java.io.Serializable, W5Base {
 
 
 
-	public void setMainTableId(int mainTableId) {
-		this.mainTableId = mainTableId;
+	public void setSourceObjectId(int sourceObjectId) {
+		this.sourceObjectId = sourceObjectId;
 	}
 
 
@@ -191,20 +191,20 @@ public class W5Query implements java.io.Serializable, W5Base {
 
 
 
-	public void setLogLevelTip(short logLevelTip) {
-		this.logLevelTip = logLevelTip;
+	public void setLogLevelType(short logLevelType) {
+		this.logLevelType = logLevelType;
 	}
 	
 
 
 
 	@Column(name="query_tip")
-	public short getQueryTip() {
-		return queryTip;
+	public short getQueryType() {
+		return queryType;
 	}
 
-	public void setQueryTip(short queryTip) {
-		this.queryTip = queryTip;
+	public void setQueryType(short queryType) {
+		this.queryType = queryType;
 	}
 
 
@@ -236,23 +236,23 @@ public class W5Query implements java.io.Serializable, W5Base {
 	}
 
 	@Column(name="data_fill_direction_tip")
-	public short getDataFillDirectionTip() {
-		return dataFillDirectionTip;
+	public short getDataFillDirectionType() {
+		return dataFillDirectionType;
 	}
-	public void setDataFillDirectionTip(short dataFillDirectionTip) {
-		this.dataFillDirectionTip = dataFillDirectionTip;
+	public void setDataFillDirectionType(short dataFillDirectionType) {
+		this.dataFillDirectionType = dataFillDirectionType;
 	}
 
 
 
 
 	@Column(name="query_source_tip")
-	public int getQuerySourceTip() {
-		return querySourceTip;
+	public int getQuerySourceType() {
+		return querySourceType;
 	}
 
-	public void setQuerySourceTip(int querySourceTip) {
-		this.querySourceTip = querySourceTip;
+	public void setQuerySourceType(int querySourceType) {
+		this.querySourceType = querySourceType;
 	}
 
 	@Column(name="project_uuid")

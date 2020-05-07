@@ -4159,7 +4159,8 @@ function ajaxAuthenticateUser() {
 
 function showLoginDialog(xobj) {
   if (1 * _scd.customizationId > 0) {
-    document.location = "login.htm?.r="+Math.random();
+//    document.location = "login.htm?.r="+Math.random();
+    document.location = "/index.html?.r="+Math.random();
     return;
   }
   if (lw && lw.isVisible()) return;

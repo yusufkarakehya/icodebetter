@@ -1532,7 +1532,7 @@ public class UserUtil {
 					newScd.put("_renderer", GenericUtil.getRenderer(deviceType));
 					newScd.put("mainTemplateId", po.getUiMainTemplateId());
 					newScd.put("path", "../");
-					newScd.put("userTip",po.get_defaultUserTip());
+					newScd.put("userTip",po.get_defaultRoleGroupId());
 					newScd.put("sessionId", "nosession");
 					String xlocale = "en";//GenericUtil.uStrNvl(request.getParameter("locale"), FrameworkCache.getAppSettingStringValue(0, "locale"));
 					if(po.getLocaleMsgKeyFlag()!=0 && !GenericUtil.isEmpty(po.getLocales())) {
@@ -1554,7 +1554,7 @@ public class UserUtil {
 			newScd.put("userName", "Demo User");
 			newScd.put("email", "demo@icodebetter.com");newScd.put("locale", "en");
 			newScd.put("chat", 1);newScd.put("chatStatusTip", 1);
-			newScd.put("userTip",po.get_defaultUserTip());
+			newScd.put("userTip",po.get_defaultRoleGroupId());
 			newScd.put("path", "../");
 			if(session==null)session = request.getSession(true);
 			newScd.put("sessionId", "nosession");
@@ -1607,7 +1607,7 @@ public class UserUtil {
 			scd.put("renderer", po.getUiWebFrontendTip());
 			scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 			scd.put("mainTemplateId", po.getUiMainTemplateId());
-			scd.put("userTip",po.get_defaultUserTip());
+			scd.put("userTip",po.get_defaultRoleGroupId());
 			scd.put("path", "../");
 			if(session==null)session = request.getSession(true);
 			scd.put("sessionId", "nosession");

@@ -52,13 +52,13 @@ public class RESTEngine {
 		scd.put("projectId", wss.getProjectUuid());
 		for (W5WsServerMethod wsm : wss.get_methods())
 			try {
-				switch (wsm.getObjectTip()) {
+				switch (wsm.getObjectType()) {
 				case 0:
 				case 1:
 				case 2:
 				case 3: // form
 					wsmoMap.put(wsm.getDsc(), metadataLoader.getFormResult(scd, wsm.getObjectId(),
-							wsm.getObjectTip() == 0 ? 1 : wsm.getObjectTip(), new HashMap()));
+							wsm.getObjectType() == 0 ? 1 : wsm.getObjectType(), new HashMap()));
 					break;
 				case 4:
 					wsmoMap.put(wsm.getDsc(), metadataLoader.getGlobalFuncResult(scd, wsm.getObjectId()));
@@ -136,10 +136,10 @@ public class RESTEngine {
 		
 		for (W5WsMethodParam p : params)
 			if (p.getOutFlag() == 0 && p.getParentWsMethodParamId() == paramId) {
-				if (p.getParamTip() == 9 || p.getParamTip() == 8) { // object/json
+				if (p.getParamType() == 9 || p.getParamType() == 8) { // object/json
 					Object oo = recursiveParams2Map(scd, p.getWsMethodParamId(), requestParams.get(p.getDsc()),
 							params, errorMap, reqPropMap);
-					if(GenericUtil.isEmpty(oo) && p.getParamTip() == 8){
+					if(GenericUtil.isEmpty(oo) && p.getParamType() == 8){
 						boolean bx = true;
 						for (W5WsMethodParam p2 : params)if (p2.getOutFlag() == 0 && p2.getParentWsMethodParamId() == p.getWsMethodParamId()){
 							bx = false;
@@ -162,8 +162,8 @@ public class RESTEngine {
 						}
 					}
 					m.put(p.getDsc(), oo);
-				} else if (p.getParamTip() == 10) {// array
-					if (p.getSourceTip() == 0) { // constant ise altini da
+				} else if (p.getParamType() == 10) {// array
+					if (p.getSourceType() == 0) { // constant ise altini da
 													// doldur
 						m.put(p.getDsc(),
 								recursiveParams2List(scd, p.getWsMethodParamId(), requestParams.get(p.getDsc()), params,
@@ -190,10 +190,10 @@ public class RESTEngine {
 						}
 					}
 				} else {
-					Object o = GenericUtil.prepareParam((W5Param) p, scd, requestParams, p.getSourceTip(), null,
+					Object o = GenericUtil.prepareParam((W5Param) p, scd, requestParams, p.getSourceType(), null,
 							p.getNotNullFlag(), null, null, errorMap, dao);
 					if(errorMap.isEmpty()) {
-						if(p.getParamTip()==5) {//checkbox
+						if(p.getParamType()==5) {//checkbox
 							m.put(p.getDsc(), GenericUtil.uInt(o)!=0);
 						} else if (o != null && o.toString().length() > 0) {
 	/*						if (p.getCredentialsFlag() == 1)//header
@@ -444,7 +444,7 @@ public class RESTEngine {
 						p.setDsc("data");
 						p.setOutFlag((short) 1);
 						p.setProjectUuid(scd.get("projectId").toString());
-						p.setParamTip((short) 10);
+						p.setParamType((short) 10);
 						p.setTabOrder((short) 100);
 						dao.saveObject(p);
 						dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
@@ -466,7 +466,7 @@ public class RESTEngine {
 							p.setDsc(key);
 							p.setOutFlag((short) 1);
 							p.setProjectUuid(scd.get("projectId").toString());
-							p.setParamTip((short) 10);
+							p.setParamType((short) 10);
 							p.setTabOrder((short) 100);
 							dao.saveObject(p);
 							dao.saveObject(new W5VcsObject(scd, 1377, p.getWsMethodParamId()));
@@ -489,11 +489,11 @@ public class RESTEngine {
 									p2.setDsc(key);
 									p2.setOutFlag((short) 1);
 									p2.setProjectUuid(scd.get("projectId").toString());
-									p2.setParamTip((short) 1);
+									p2.setParamType((short) 1);
 									if (om.get(key) != null && om.get(key) instanceof List)
-										p2.setParamTip((short) 10);
+										p2.setParamType((short) 10);
 									if (om.get(key) != null && om.get(key) instanceof Map)
-										p2.setParamTip((short) 9);
+										p2.setParamType((short) 9);
 									p2.setTabOrder(tabOrder);
 									tabOrder += 10;
 									dao.saveObject(p2);
@@ -514,9 +514,9 @@ public class RESTEngine {
 												p22.setDsc(key2);
 												p22.setOutFlag((short) 1);
 												p22.setProjectUuid(scd.get("projectId").toString());
-												p22.setParamTip((short) 1);
+												p22.setParamType((short) 1);
 												if (om2.get(key2) != null && om2.get(key2) instanceof List)
-													p22.setParamTip((short) 10);
+													p22.setParamType((short) 10);
 												p22.setTabOrder(tabOrder2);
 												tabOrder2 += 10;
 												dao.saveObject(p22);

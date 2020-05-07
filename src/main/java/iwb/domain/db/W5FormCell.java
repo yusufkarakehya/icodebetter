@@ -23,19 +23,19 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	private String dsc;
 	private String localeMsgKey;
 	private String vtype;
-	private short controlTip;
+	private short controlType;
 	private short tabOrder;
 	private short xOrder;
 	private int formModuleId;
 	private short controlWidth;
 	private Integer maxLength;
-	private short nrdTip;
+	private short nrdType;//[n]ormal, [r]eadOnly, [d]isabled
 	private int lookupQueryId;
 	private int dialogGridId;
 	private int lookupEditFormId;
-	private short sourceTip;
+	private short sourceType;
 	private String defaultValue;
-	private short initialSourceTip;
+	private short initialSourceType;
 	private String initialValue;
 	private String extraDefinition;
 	private short outFlag;
@@ -100,12 +100,12 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	}
 
 	@Column(name = "CONTROL_TIP")
-	public short getControlTip() {
-		return controlTip;
+	public short getControlType() {
+		return controlType;
 	}
 
-	public void setControlTip(short controlTip) {
-		this.controlTip = controlTip;
+	public void setControlType(short controlType) {
+		this.controlType = controlType;
 	}
 
 	@Column(name = "TAB_ORDER")
@@ -136,12 +136,12 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	}
 
 	@Column(name = "NRD_TIP")
-	public short getNrdTip() {
-		return nrdTip;
+	public short getNrdType() {
+		return nrdType;
 	}
 
-	public void setNrdTip(short nrdTip) {
-		this.nrdTip = nrdTip;
+	public void setNrdType(short nrdType) {
+		this.nrdType = nrdType;
 	}
 
 	@Column(name = "LOOKUP_QUERY_ID")
@@ -154,12 +154,12 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	}
 
 	@Column(name = "SOURCE_TIP")
-	public short getSourceTip() {
-		return sourceTip;
+	public short getSourceType() {
+		return sourceType;
 	}
 
-	public void setSourceTip(short sourceTip) {
-		this.sourceTip = sourceTip;
+	public void setSourceType(short sourceType) {
+		this.sourceType = sourceType;
 	}
 
 	@Column(name = "DEFAULT_VALUE")
@@ -172,12 +172,12 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 	}
 
 	@Column(name = "INITIAL_SOURCE_TIP")
-	public short getInitialSourceTip() {
-		return initialSourceTip;
+	public short getInitialSourceType() {
+		return initialSourceType;
 	}
 
-	public void setInitialSourceTip(short initialSourceTip) {
-		this.initialSourceTip = initialSourceTip;
+	public void setInitialSourceType(short initialSourceType) {
+		this.initialSourceType = initialSourceType;
 	}
 
 	@Column(name = "INITIAL_VALUE")
@@ -319,19 +319,19 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 				&& GenericUtil.safeEquals(this.localeMsgKey,
 						fc.getLocaleMsgKey())
 				&& GenericUtil.safeEquals(this.vtype, fc.getVtype())
-				&& this.controlTip == fc.getControlTip()
+				&& this.controlType == fc.getControlType()
 				&& this.tabOrder == fc.getTabOrder()
 				&& this.xOrder == fc.getxOrder()
 				&& this.formModuleId == fc.getFormModuleId()
 				&& this.controlWidth == fc.getControlWidth()
 				&& this.maxLength == fc.getMaxLength()
-				&& this.nrdTip == fc.getNrdTip()
+				&& this.nrdType == fc.getNrdType()
 				&& this.lookupQueryId == fc.getLookupQueryId()
 				&& this.dialogGridId == fc.getDialogGridId()
-				&& this.sourceTip == fc.getSourceTip()
+				&& this.sourceType == fc.getSourceType()
 				&& GenericUtil.safeEquals(this.defaultValue,
 						fc.getDefaultValue())
-				&& this.initialSourceTip == fc.getInitialSourceTip()
+				&& this.initialSourceType == fc.getInitialSourceType()
 				&& GenericUtil.safeEquals(this.initialValue,
 						fc.getInitialValue())
 				&& GenericUtil.safeEquals(this.extraDefinition,
@@ -374,11 +374,11 @@ public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
 		return null;
 	}
 	@Transient
-	public short getParamTip(){
+	public short getParamType(){
 		if(_sourceObjectDetail!=null){
-			if(_sourceObjectDetail instanceof W5TableField)return ((W5TableField)_sourceObjectDetail).getFieldTip();
-			if(_sourceObjectDetail instanceof W5QueryParam)return ((W5QueryParam)_sourceObjectDetail).getParamTip();
-			if(_sourceObjectDetail instanceof W5GlobalFuncParam)return ((W5GlobalFuncParam)_sourceObjectDetail).getParamTip();
+			if(_sourceObjectDetail instanceof W5TableField)return ((W5TableField)_sourceObjectDetail).getFieldType();
+			if(_sourceObjectDetail instanceof W5QueryParam)return ((W5QueryParam)_sourceObjectDetail).getParamType();
+			if(_sourceObjectDetail instanceof W5GlobalFuncParam)return ((W5GlobalFuncParam)_sourceObjectDetail).getParamType();
 		}
 		return 0;
 	}

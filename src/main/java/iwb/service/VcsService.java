@@ -2250,7 +2250,7 @@ public class VcsService {
 		
 //		queryResult.setOrderBy(PromisUtil.uStrNvl(requestParams.get(PromisUtil.uStrNvl(PromisSetting.appSettings.get("sql_sort"),"sort")), queryResult.getQuery().getSqlOrderby()));
 		queryResult.setOrderBy(queryResult.getQuery().getSqlOrderby());		
-		switch(queryResult.getQuery().getQueryTip()){
+		switch(queryResult.getQuery().getQueryType()){
 		case	9:case	10:queryResult.prepareTreeQuery(null);break;
 		case	15:queryResult.prepareDataViewQuery(null);break;
 		default:queryResult.prepareQuery(null);

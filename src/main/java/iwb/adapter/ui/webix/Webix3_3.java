@@ -127,7 +127,7 @@ public class Webix3_3 implements ViewAdapter {
 						if (z == null)
 							z = "";
 						buf.append("\"")
-								.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
+								.append(f.getPostProcessType() == 2 ? LocaleMsgCache
 										.get2(customizationId, locale,
 												z.toString()).replaceAll(",",
 												"-") : GenericUtil.stringToJS2(
@@ -246,9 +246,9 @@ public class Webix3_3 implements ViewAdapter {
 				.append("';\n");
 		boolean liveSyncRecord = FrameworkSetting.liveSyncRecord
 				&& formResult != null && formResult.getForm() != null
-				&& formResult.getForm().getObjectTip() == 2
+				&& formResult.getForm().getObjectType() == 2
 				&& formResult.getAction() == 1;
-		for(W5FormCellHelper fc:formResult.getFormCellResults())if((fc.getFormCell().getControlTip()==7 || fc.getFormCell().getControlTip()==10 || fc.getFormCell().getControlTip()==23 ) && fc.getFormCell().getDialogGridId()>0 && fc.getExtraValuesMap()!=null){
+		for(W5FormCellHelper fc:formResult.getFormCellResults())if((fc.getFormCell().getControlType()==7 || fc.getFormCell().getControlType()==10 || fc.getFormCell().getControlType()==23 ) && fc.getFormCell().getDialogGridId()>0 && fc.getExtraValuesMap()!=null){
 			W5GridResult gridResult = (W5GridResult)fc.getExtraValuesMap().get("dialogGrid");
 			if(gridResult!=null){
 				gridResult.setViewReadOnlyMode(true);
@@ -257,9 +257,9 @@ public class Webix3_3 implements ViewAdapter {
 			}
 		}
 			
-		if (GenericUtil.uInt(formResult.getRequestParams().get("a")) != 5 && formResult.getForm().getRenderTip() != 0) { // tabpanel ve icinde gridler varsa
+		if (GenericUtil.uInt(formResult.getRequestParams().get("a")) != 5 && formResult.getForm().getRenderType() != 0) { // tabpanel ve icinde gridler varsa
 			for (W5FormModule m : formResult.getForm().get_moduleList()){
-					switch (m.getModuleTip()) {
+					switch (m.getModuleType()) {
 					case 4:// form
 						if (formResult.getModuleFormMap() == null)
 							break;
@@ -274,9 +274,9 @@ public class Webix3_3 implements ViewAdapter {
 					case 5:// grid
 						if (formResult.getModuleGridMap() == null)
 							return null;
-						if (m.getModuleViewTip() == 0
+						if (m.getModuleViewType() == 0
 								|| formResult.getAction() == m
-										.getModuleViewTip()) {
+										.getModuleViewType()) {
 							W5GridResult gridResult = formResult
 									.getModuleGridMap().get(m.getObjectId());
 							gridResult.setAction(formResult.getAction());
@@ -347,7 +347,7 @@ public class Webix3_3 implements ViewAdapter {
 									formResult.getRequestParams(), null)
 							: formResult.getForm().get_renderTemplate()
 									.getCode());
-		} else if(formResult.getForm().getObjectTip()==2){
+		} else if(formResult.getForm().getObjectType()==2){
 			s.append("\nreturn iwb.ui.buildCRUDForm(getForm, callAttributes);\n");
 		}
 
@@ -366,7 +366,7 @@ public class Webix3_3 implements ViewAdapter {
 				.append(formResult.getFormId()).append(", \"a\":")
 				.append(formResult.getAction());
 		W5Table t = null;
-		if (f.getObjectTip() == 2) {
+		if (f.getObjectType() == 2) {
 			t = FrameworkCache.getTable(customizationId, f.getObjectId());
 			if (FrameworkCache.getAppSettingIntValue(formResult.getScd(),
 					"file_attachment_flag") != 0
@@ -385,12 +385,12 @@ public class Webix3_3 implements ViewAdapter {
 															// varsa
 			int cnt = 0;
 			for (W5FormSmsMail fsm : f.get_formSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
+				if (((fsm.getSmsMailType() == 0 && FrameworkSetting.sms && FrameworkCache
 						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
+						.getSmsMailType() != 0 && FrameworkSetting.mail && FrameworkCache
 						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
 						&& fsm.getAlarmFlag() == 0
-						&& GenericUtil.hasPartInside2(fsm.getActionTips(),
+						&& GenericUtil.hasPartInside2(fsm.getActionTypes(),
 								formResult.getAction())
 						&& GenericUtil.hasPartInside2(fsm.getWebMobileTips(),
 								mobile ? "2" : "1")) {
@@ -401,12 +401,12 @@ public class Webix3_3 implements ViewAdapter {
 						.append(",\n\"smsMailTemplates\":[");
 				boolean b = false;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
-					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
+					if (((fsm.getSmsMailType() == 0 && FrameworkSetting.sms && FrameworkCache
 							.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-							.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
+							.getSmsMailType() != 0 && FrameworkSetting.mail && FrameworkCache
 							.getAppSettingIntValue(customizationId, "mail_flag") != 0))
 							&& fsm.getAlarmFlag() == 0
-							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
+							&& GenericUtil.hasPartInside2(fsm.getActionTypes(),
 									formResult.getAction())
 							&& GenericUtil.hasPartInside2(
 									fsm.getWebMobileTips(), mobile ? "2" : "1")) {
@@ -417,7 +417,7 @@ public class Webix3_3 implements ViewAdapter {
 						s.append("{\"xid\":")
 								.append(fsm.getFormSmsMailId())
 								.append(",\"text\":\"")
-								.append(fsm.getSmsMailTip() == 0 ? "[SMS] "
+								.append(fsm.getSmsMailType() == 0 ? "[SMS] "
 										: "["
 												+ (LocaleMsgCache.get2(
 														customizationId,
@@ -430,13 +430,13 @@ public class Webix3_3 implements ViewAdapter {
 												customizationId, xlocale,
 												"with_preview")) + ")" : "")
 								.append("\",\"checked\":")
-								.append(fsm.getSmsMailSentTip() == 1
-										|| fsm.getSmsMailSentTip() == 0)
+								.append(fsm.getSmsMailSentType() == 1
+										|| fsm.getSmsMailSentType() == 0)
 								.append(",\"smsMailTip\":")
-								.append(fsm.getSmsMailTip())
+								.append(fsm.getSmsMailType())
 								.append(",\"previewFlag\":")
 								.append(fsm.getPreviewFlag() != 0);
-						if (fsm.getSmsMailSentTip() == 0)
+						if (fsm.getSmsMailSentType() == 0)
 							s.append(",\"disabled\":true");
 						s.append("}");
 					}
@@ -445,12 +445,12 @@ public class Webix3_3 implements ViewAdapter {
 
 			cnt = 0;
 			for (W5FormSmsMail fsm : f.get_formSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
+				if (((fsm.getSmsMailType() == 0 && FrameworkSetting.sms && FrameworkCache
 						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
+						.getSmsMailType() != 0 && FrameworkSetting.mail && FrameworkCache
 						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
 						&& fsm.getAlarmFlag() != 0
-						&& GenericUtil.hasPartInside2(fsm.getActionTips(),
+						&& GenericUtil.hasPartInside2(fsm.getActionTypes(),
 								formResult.getAction())
 						&& GenericUtil.hasPartInside2(fsm.getWebMobileTips(),
 								mobile ? "2" : "1")) {
@@ -466,12 +466,12 @@ public class Webix3_3 implements ViewAdapter {
 						.append(",\n\"alarmTemplates\":[");
 				boolean b = false;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
-					if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
+					if (((fsm.getSmsMailType() == 0 && FrameworkSetting.sms && FrameworkCache
 							.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-							.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
+							.getSmsMailType() != 0 && FrameworkSetting.mail && FrameworkCache
 							.getAppSettingIntValue(customizationId, "mail_flag") != 0))
 							&& fsm.getAlarmFlag() != 0
-							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
+							&& GenericUtil.hasPartInside2(fsm.getActionTypes(),
 									formResult.getAction())
 							&& GenericUtil.hasPartInside2(
 									fsm.getWebMobileTips(), mobile ? "2" : "1")) {
@@ -484,7 +484,7 @@ public class Webix3_3 implements ViewAdapter {
 						s.append("{\"xid\":")
 								.append(fsm.getFormSmsMailId())
 								.append(",\"text\":\"")
-								.append(fsm.getSmsMailTip() == 0 ? "[SMS] "
+								.append(fsm.getSmsMailType() == 0 ? "[SMS] "
 										: "["
 												+ (LocaleMsgCache.get2(
 														customizationId,
@@ -497,14 +497,14 @@ public class Webix3_3 implements ViewAdapter {
 												"with_preview")) + ")" : "")
 								.append("\",\"checked\":")
 								.append(a != null
-										|| fsm.getSmsMailSentTip() == 1
-										|| fsm.getSmsMailSentTip() == 0)
+										|| fsm.getSmsMailSentType() == 1
+										|| fsm.getSmsMailSentType() == 0)
 								.append(",\"smsMailTip\":")
-								.append(fsm.getSmsMailTip());
+								.append(fsm.getSmsMailType());
 						s.append(",\"previewFlag\":").append(
 								fsm.getPreviewFlag() != 0);
 						if ((a != null && a.getStatus() != 1)
-								|| fsm.getSmsMailSentTip() == 0)
+								|| fsm.getSmsMailSentType() == 0)
 							s.append(",\"disabled\":true");
 						// s.append(",\"menu\":[");
 						// s.append("new Ext.ux.form.DateTime({\"width\":200");
@@ -566,8 +566,8 @@ public class Webix3_3 implements ViewAdapter {
 		boolean b = false, bb;
 		for (W5FormCellHelper fc : formResult.getFormCellResults())
 			if (fc.getFormCell().getActiveFlag() != 0
-					&& fc.getFormCell().getControlTip() != 102) {
-				if (fc.getFormCell().getControlTip() != 102) {// label'dan
+					&& fc.getFormCell().getControlType() != 102) {
+				if (fc.getFormCell().getControlType() != 102) {// label'dan
 																// farkli ise.
 																// label direk
 																// render
@@ -594,7 +594,7 @@ public class Webix3_3 implements ViewAdapter {
 								"\"");
 					} else
 						s.append("\"");
-					switch (fc.getFormCell().getControlTip()) {
+					switch (fc.getFormCell().getControlType()) {
 					case 10:// advanced select
 						if (!GenericUtil.isEmpty(fc.getValue())
 								&& fc.getLookupQueryResult() != null
@@ -652,7 +652,7 @@ public class Webix3_3 implements ViewAdapter {
 									if (z == null)
 										z = "";
 									s.append("\"")
-											.append(qf.getPostProcessTip() == 2 ? LocaleMsgCache
+											.append(qf.getPostProcessType() == 2 ? LocaleMsgCache
 													.get2(customizationId,
 															xlocale,
 															z.toString())
@@ -686,7 +686,7 @@ public class Webix3_3 implements ViewAdapter {
 		// s.append("var ").append(formResult.getForm().getDsc()).append("=");
 		String[] postFormStr = new String[] { "", "search_form",
 				"ajaxPostForm",
-				f.getObjectTip() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
+				f.getObjectType() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
 				"ajaxExecDbFunc", "", "", "", "" };
 		s.append("{ formId: ").append(formResult.getFormId())
 				.append(", a:").append(formResult.getAction()).append(", name:'")
@@ -700,8 +700,8 @@ public class Webix3_3 implements ViewAdapter {
 				if (sx.getLocale().equals(xlocale)
 						&& (sx.getActionTips().contains(
 								"" + formResult.getAction())
-								|| formResult.getForm().getObjectTip() == 3 || formResult
-								.getForm().getObjectTip() == 4)) {
+								|| formResult.getForm().getObjectType() == 3 || formResult
+								.getForm().getObjectType() == 4)) {
 					if (b)
 						s.append("\n,");
 					else {
@@ -720,10 +720,10 @@ public class Webix3_3 implements ViewAdapter {
 
 		boolean liveSyncRecord = false;
 		// form(table) fields
-		if (f.getObjectTip() == 2
+		if (f.getObjectType() == 2
 				&& FrameworkCache.getTable(customizationId, f.getObjectId()) != null) {
 			s.append(",\n renderTip:").append(
-					formResult.getForm().getRenderTip());
+					formResult.getForm().getRenderType());
 			W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
 			liveSyncRecord = FrameworkSetting.liveSyncRecord
 					&& t.getLiveSyncFlag() != 0 && !formResult.isViewMode();
@@ -848,15 +848,15 @@ public class Webix3_3 implements ViewAdapter {
 																// isleri varsa
 				int cnt = 0;
 				for (W5FormSmsMail fsm : f.get_formSmsMailList())
-					if (fsm.getSmsMailSentTip() != 3
-							&& ((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
+					if (fsm.getSmsMailSentType() != 3
+							&& ((fsm.getSmsMailType() == 0 && FrameworkSetting.sms && FrameworkCache
 									.getAppSettingIntValue(customizationId,
 											"sms_flag") != 0) || (fsm
-									.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
+									.getSmsMailType() != 0 && FrameworkSetting.mail && FrameworkCache
 									.getAppSettingIntValue(customizationId,
 											"mail_flag") != 0))
 							&& fsm.getAlarmFlag() == 0
-							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
+							&& GenericUtil.hasPartInside2(fsm.getActionTypes(),
 									formResult.getAction())
 							&& GenericUtil.hasPartInside2(
 									fsm.getWebMobileTips(), mobile ? "2" : "1")) {
@@ -867,18 +867,18 @@ public class Webix3_3 implements ViewAdapter {
 							.append(",\n\"smsMailTemplates\":[");
 					boolean b = false;
 					for (W5FormSmsMail fsm : f.get_formSmsMailList())
-						if (fsm.getSmsMailSentTip() != 3
-								&& ((fsm.getSmsMailTip() == 0
+						if (fsm.getSmsMailSentType() != 3
+								&& ((fsm.getSmsMailType() == 0
 										&& FrameworkSetting.sms && FrameworkCache
 										.getAppSettingIntValue(customizationId,
 												"sms_flag") != 0) || (fsm
-										.getSmsMailTip() != 0
+										.getSmsMailType() != 0
 										&& FrameworkSetting.mail && FrameworkCache
 										.getAppSettingIntValue(customizationId,
 												"mail_flag") != 0))
 								&& fsm.getAlarmFlag() == 0
 								&& GenericUtil.hasPartInside2(
-										fsm.getActionTips(),
+										fsm.getActionTypes(),
 										formResult.getAction())
 								&& GenericUtil
 										.hasPartInside2(fsm.getWebMobileTips(),
@@ -890,7 +890,7 @@ public class Webix3_3 implements ViewAdapter {
 							s.append("{\"xid\":")
 									.append(fsm.getFormSmsMailId())
 									.append(",\"text\":\"")
-									.append(fsm.getSmsMailTip() == 0 ? "[<b>SMS</b>] "
+									.append(fsm.getSmsMailType() == 0 ? "[<b>SMS</b>] "
 											: "[<b>"
 													+ (LocaleMsgCache.get2(
 															customizationId,
@@ -906,13 +906,13 @@ public class Webix3_3 implements ViewAdapter {
 													"with_preview")) + "</i>)"
 											: "")
 									.append("\",\"checked\":")
-									.append(fsm.getSmsMailSentTip() == 1
-											|| fsm.getSmsMailSentTip() == 0)
+									.append(fsm.getSmsMailSentType() == 1
+											|| fsm.getSmsMailSentType() == 0)
 									.append(",\"smsMailTip\":")
-									.append(fsm.getSmsMailTip())
+									.append(fsm.getSmsMailType())
 									.append(",\"previewFlag\":")
 									.append(fsm.getPreviewFlag() != 0);
-							if (fsm.getSmsMailSentTip() == 0)
+							if (fsm.getSmsMailSentType() == 0)
 								s.append(",\"disabled\":true");
 							s.append("}");
 						}
@@ -922,18 +922,18 @@ public class Webix3_3 implements ViewAdapter {
 				if (FrameworkSetting.alarm) {
 					cnt = 0;
 					for (W5FormSmsMail fsm : f.get_formSmsMailList())
-						if (fsm.getSmsMailSentTip() != 3
-								&& ((fsm.getSmsMailTip() == 0
+						if (fsm.getSmsMailSentType() != 3
+								&& ((fsm.getSmsMailType() == 0
 										&& FrameworkSetting.sms && FrameworkCache
 										.getAppSettingIntValue(customizationId,
 												"sms_flag") != 0) || (fsm
-										.getSmsMailTip() != 0
+										.getSmsMailType() != 0
 										&& FrameworkSetting.mail && FrameworkCache
 										.getAppSettingIntValue(customizationId,
 												"mail_flag") != 0))
 								&& fsm.getAlarmFlag() != 0
 								&& GenericUtil.hasPartInside2(
-										fsm.getActionTips(),
+										fsm.getActionTypes(),
 										formResult.getAction())
 								&& GenericUtil
 										.hasPartInside2(fsm.getWebMobileTips(),
@@ -951,19 +951,19 @@ public class Webix3_3 implements ViewAdapter {
 								.append(",\n\"alarmTemplates\":[");
 						boolean b = false;
 						for (W5FormSmsMail fsm : f.get_formSmsMailList())
-							if (fsm.getSmsMailSentTip() != 3
-									&& ((fsm.getSmsMailTip() == 0
+							if (fsm.getSmsMailSentType() != 3
+									&& ((fsm.getSmsMailType() == 0
 											&& FrameworkSetting.sms && FrameworkCache
 											.getAppSettingIntValue(
 													customizationId, "sms_flag") != 0) || (fsm
-											.getSmsMailTip() != 0
+											.getSmsMailType() != 0
 											&& FrameworkSetting.mail && FrameworkCache
 											.getAppSettingIntValue(
 													customizationId,
 													"mail_flag") != 0))
 									&& fsm.getAlarmFlag() != 0
 									&& GenericUtil.hasPartInside2(
-											fsm.getActionTips(),
+											fsm.getActionTypes(),
 											formResult.getAction())
 									&& GenericUtil.hasPartInside2(fsm
 											.getWebMobileTips(), mobile ? "2"
@@ -977,7 +977,7 @@ public class Webix3_3 implements ViewAdapter {
 								s.append("{\"xid\":")
 										.append(fsm.getFormSmsMailId())
 										.append(",\"text\":\"")
-										.append(fsm.getSmsMailTip() == 0 ? "[<b>SMS</b>] "
+										.append(fsm.getSmsMailType() == 0 ? "[<b>SMS</b>] "
 												: "[<b>"
 														+ (LocaleMsgCache
 																.get2(customizationId,
@@ -995,14 +995,14 @@ public class Webix3_3 implements ViewAdapter {
 												: "")
 										.append("\",\"checked\":")
 										.append(a != null
-												|| fsm.getSmsMailSentTip() == 1
-												|| fsm.getSmsMailSentTip() == 0)
+												|| fsm.getSmsMailSentType() == 1
+												|| fsm.getSmsMailSentType() == 0)
 										.append(",\"smsMailTip\":")
-										.append(fsm.getSmsMailTip());
+										.append(fsm.getSmsMailType());
 								s.append(",\"previewFlag\":").append(
 										fsm.getPreviewFlag() != 0);
 								if ((a != null && a.getStatus() != 1)
-										|| fsm.getSmsMailSentTip() == 0)
+										|| fsm.getSmsMailSentType() == 0)
 									s.append(",\"disabled\":true");
 								// s.append(",\"menu\":[");
 								// s.append("new Ext.ux.form.DateTime({\"width\":200");
@@ -1040,8 +1040,8 @@ public class Webix3_3 implements ViewAdapter {
 					&& !f.get_conversionList().isEmpty()) {
 				int cnt = 0;
 				for (W5Conversion fsm : f.get_conversionList())
-					if (fsm.getConversionTip() != 3
-							&& GenericUtil.hasPartInside2(fsm.getActionTips(),
+					if (fsm.getConversionType() != 3
+							&& GenericUtil.hasPartInside2(fsm.getActionTypes(),
 									formResult.getAction())) { // bu action ile
 																// ilgili var mi
 																// kayit
@@ -1055,9 +1055,9 @@ public class Webix3_3 implements ViewAdapter {
 							.append(",\nconversionForms:[");
 					boolean b = false;
 					for (W5Conversion fsm : f.get_conversionList())
-						if ((fsm.getConversionTip() != 3/* invisible-checked */
+						if ((fsm.getConversionType() != 3/* invisible-checked */
 								&& GenericUtil.hasPartInside2(
-										fsm.getActionTips(),
+										fsm.getActionTypes(),
 										formResult.getAction()) || (formResult
 								.getMapConvertedObject() != null && formResult
 								.getMapConvertedObject().containsKey(
@@ -1088,9 +1088,9 @@ public class Webix3_3 implements ViewAdapter {
 								boolean check = false;
 								List<W5ConvertedObject> convertedObjects = null;
 								if (isConvertedBefore
-										&& fsm.getConversionTip() != 3
+										&& fsm.getConversionType() != 3
 										&& GenericUtil.hasPartInside2(
-												fsm.getActionTips(),
+												fsm.getActionTypes(),
 												formResult.getAction())) {
 									convertedObjects = formResult
 											.getMapConvertedObject().get(
@@ -1118,9 +1118,9 @@ public class Webix3_3 implements ViewAdapter {
 													: "")
 													: "")
 											.append("\",checked:")
-											.append(fsm.getConversionTip() == 1
-													|| fsm.getConversionTip() == 0);
-									if (fsm.getConversionTip() == 0)
+											.append(fsm.getConversionType() == 1
+													|| fsm.getConversionType() == 0);
+									if (fsm.getConversionType() == 0)
 										s.append(",disabled:true");
 									s.append("}");
 								}
@@ -1154,7 +1154,7 @@ public class Webix3_3 implements ViewAdapter {
 
 				cnt = 0;
 				for (W5Conversion fsm : f.get_conversionList())
-					if (GenericUtil.hasPartInside2(fsm.getActionTips(), 0)) { // manuel
+					if (GenericUtil.hasPartInside2(fsm.getActionTypes(), 0)) { // manuel
 																				// icin
 																				// var
 																				// mi
@@ -1300,14 +1300,14 @@ public class Webix3_3 implements ViewAdapter {
 		s.append(",baseParams:")
 				.append(GenericUtil.fromMapToJsonString(formResult
 						.getRequestParams()));
-		if(formResult.getForm().getLabelAlignTip()>0)s
+		if(formResult.getForm().getLabelAlignType()>0)s
 				.append(",\nlabelAlign:'")
-				.append(FrameworkSetting.alignMap[formResult.getForm().getLabelAlignTip()]).append("',\nlabelWidth:")
+				.append(FrameworkSetting.alignMap[formResult.getForm().getLabelAlignType()]).append("',\nlabelWidth:")
 				.append(4*formResult.getForm().getLabelWidth()/3);
 		else 
 			s.append(", elementsConfig: {labelPosition: \"top\",labelWidth:").append(4*formResult.getForm().getLabelWidth()/3).append("}");
 		s.append(",_url:'")
-				.append(postFormStr[formResult.getForm().getObjectTip()])
+				.append(postFormStr[formResult.getForm().getObjectType()])
 				.append("'}\n");
 		/*
 		 * if(PromisSetting.liveSyncRecord && formResult!=null &&
@@ -1318,7 +1318,7 @@ public class Webix3_3 implements ViewAdapter {
 		 */
 		
 		
-		for(W5FormCell fc:formResult.getForm().get_formCells())if(fc.getControlTip()==99 && fc.get_sourceObjectDetail()!=null){//grid is
+		for(W5FormCell fc:formResult.getForm().get_formCells())if(fc.getControlType()==99 && fc.get_sourceObjectDetail()!=null){//grid is
 /*			W5Grid g = (W5Grid)fc.get_sourceObjectDetail();
 			W5GridResult gr = new W5GridResult(g.getGridId());
 			gr.setRequestParams(formResult.getRequestParams());gr.setScd(formResult.getScd());gr.setFormCellResultMap(new HashMap());
@@ -1334,7 +1334,7 @@ public class Webix3_3 implements ViewAdapter {
 
 		for (W5FormCellHelper fc : formResult.getFormCellResults())
 			if (fc.getFormCell().getActiveFlag() != 0) {
-				if (fc.getFormCell().getControlTip() != 102) {// label'dan
+				if (fc.getFormCell().getControlType() != 102) {// label'dan
 																// farkli ise.
 																// label direk
 																// render
@@ -1378,15 +1378,15 @@ public class Webix3_3 implements ViewAdapter {
 			s.append("}\n");
 		}
 
-		if(formResult.getForm().getObjectTip()==1){
+		if(formResult.getForm().getObjectType()==1){
 			s.append(renderFormModuleList(customizationId, xlocale,
 					formResult.getUniqueId(),
 					formResult.getFormCellResults(),
 					"mf=iwb.apply(mf,{view:'form', elements:["
-					 +(formResult.getForm().getLabelAlignTip()>0 ? "{type:'section',template:'<b style=\"color:#f00\">Arama Kriterleri</b>'},":"")+"{"));
+					 +(formResult.getForm().getLabelAlignType()>0 ? "{type:'section',template:'<b style=\"color:#f00\">Arama Kriterleri</b>'},":"")+"{"));
 //				if(formResult.getForm().getLabelAlignTip()==0)s.append("},{},{view:'toolbar',paddingX: 5,paddingY: 5,height: 40, elements: [{view:'button', tooltip:'Reload', type: 'icon', icon: 'reload', value:'Reload'}]");
 			s.append("}]});\n");// "+				(formBodyColor!=null ? ",bodyStyle:'background-color:
-		} else switch (formResult.getForm().getRenderTip()) {
+		} else switch (formResult.getForm().getRenderType()) {
 		case 1:// fieldset
 			s.append(renderFormFieldset(formResult));
 			break;
@@ -1435,7 +1435,7 @@ public class Webix3_3 implements ViewAdapter {
 		List<String> extendedForms = new ArrayList();
 		StringBuilder buf = new StringBuilder();
 		buf.append("mf=iwb.apply(mf,{view:'form',elementsConfig: {labelAlign:'")
-				.append(FrameworkSetting.alignMap[formResult.getForm().getLabelAlignTip()]).append("',labelWidth: ").append(4*formResult.getForm().getLabelWidth()/3).append("}, elements:[{id:\"resp-").append(formResult.getUniqueId()).append("\",rows:[");
+				.append(FrameworkSetting.alignMap[formResult.getForm().getLabelAlignType()]).append("',labelWidth: ").append(4*formResult.getForm().getLabelWidth()/3).append("}, elements:[{id:\"resp-").append(formResult.getUniqueId()).append("\",rows:[");
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleList(customizationId, xlocale,
 					formResult.getUniqueId(), map.get(0), "{"))
@@ -1449,9 +1449,9 @@ public class Webix3_3 implements ViewAdapter {
 		StringBuilder buf2 = new StringBuilder();
 		for (W5FormModule m : formResult.getForm().get_moduleList())
 			if (m.getFormModuleId() != 0) {
-				if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
-						.getModuleViewTip())) {
-					switch (m.getModuleTip()) {
+				if ((m.getModuleViewType() == 0 || formResult.getAction() == m
+						.getModuleViewType())) {
+					switch (m.getModuleType()) {
 					case	4: break;
 /*					case 4:// form
 						if (GenericUtil.uInt(formResult.getRequestParams().get(
@@ -1572,7 +1572,7 @@ public class Webix3_3 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		for(Object o:l)if(o instanceof W5GridResult){
 			W5GridResult gr = (W5GridResult)o;
-			if(gr.getTplObj().getTemplateObjectId()!=parentObjectId && gr.getTplObj().getParentObjectId()==parentObjectId){
+			if(gr.getTplObj().getPageObjectId()!=parentObjectId && gr.getTplObj().getParentObjectId()==parentObjectId){
 				if(buf.length()==0){
 					if(level>1)buf.append("region:'west',");
 					buf.append("detailGrids:[");
@@ -1589,14 +1589,14 @@ public class Webix3_3 implements ViewAdapter {
 					}
 					buf.append("}");
 				}
-				StringBuilder rbuf = recursiveTemplateObject(l, gr.getTplObj().getTemplateObjectId(), level+1);
+				StringBuilder rbuf = recursiveTemplateObject(l, gr.getTplObj().getPageObjectId(), level+1);
 				if(rbuf!=null && rbuf.length()>0)
 					buf.append(",").append(rbuf);
 				buf.append("},");
 			}
 		} else if(o instanceof W5CardResult){
 			W5CardResult gr = (W5CardResult)o;
-			if(gr.getTplObj().getTemplateObjectId()!=parentObjectId && gr.getTplObj().getParentObjectId()==parentObjectId){
+			if(gr.getTplObj().getPageObjectId()!=parentObjectId && gr.getTplObj().getParentObjectId()==parentObjectId){
 				if(buf.length()==0){
 					buf.append("detailGrids:[");
 				}
@@ -1612,7 +1612,7 @@ public class Webix3_3 implements ViewAdapter {
 					}
 					buf.append("}");
 				}
-				StringBuilder rbuf = recursiveTemplateObject(l, gr.getTplObj().getTemplateObjectId(), level+1);
+				StringBuilder rbuf = recursiveTemplateObject(l, gr.getTplObj().getPageObjectId(), level+1);
 				if(rbuf!=null && rbuf.length()>0)buf.append(",").append(rbuf);
 				buf.append("},");
 			}
@@ -1645,7 +1645,7 @@ public class Webix3_3 implements ViewAdapter {
 			buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
 		}
 		if(pr.getPageObjectList().size()>1){
-			StringBuilder rbuf = recursiveTemplateObject(pr.getPageObjectList(), ((W5GridResult)pr.getPageObjectList().get(0)).getTplObj().getTemplateObjectId(), 1);
+			StringBuilder rbuf = recursiveTemplateObject(pr.getPageObjectList(), ((W5GridResult)pr.getPageObjectList().get(0)).getTplObj().getPageObjectId(), 1);
 			if(rbuf!=null && rbuf.length()>0)
 				buf.append(",").append(rbuf);
 			
@@ -1719,9 +1719,9 @@ public class Webix3_3 implements ViewAdapter {
 																																		// bodyStyle:'padding:10px'},
 		for (W5FormModule m : formResult.getForm().get_moduleList())
 			if (m.getFormModuleId() != 0) {
-				if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
-						.getModuleViewTip())) {
-					switch (m.getModuleTip()) {
+				if ((m.getModuleViewType() == 0 || formResult.getAction() == m
+						.getModuleViewType())) {
+					switch (m.getModuleType()) {
 					case 4:// form
 						if (GenericUtil.uInt(formResult.getRequestParams().get(
 								"a")) == 5)
@@ -1875,7 +1875,7 @@ public class Webix3_3 implements ViewAdapter {
 			}
 		StringBuilder buf = new StringBuilder();
 		buf.append("mf=iwb.apply(mf,{view:'form',elementsConfig: {labelAlign:'")
-				.append(FrameworkSetting.alignMap[formResult.getForm().getLabelAlignTip()]).append("',labelWidth: ").append(4*formResult.getForm().getLabelWidth()/3).append("},\nelements:[{id:\"resp-").append(formResult.getUniqueId()).append("\",rows:[");
+				.append(FrameworkSetting.alignMap[formResult.getForm().getLabelAlignType()]).append("',labelWidth: ").append(4*formResult.getForm().getLabelWidth()/3).append("},\nelements:[{id:\"resp-").append(formResult.getUniqueId()).append("\",rows:[");
 
 		boolean b = false;
 		if (formResult.getUniqueId() == null)
@@ -1890,9 +1890,9 @@ public class Webix3_3 implements ViewAdapter {
 		if (formResult.getForm().get_moduleList() != null)
 			for (W5FormModule m : formResult.getForm().get_moduleList())
 				if (m.getFormModuleId() != 0) {
-					if ((m.getModuleViewTip() == 0 || formResult.getAction() == m
-							.getModuleViewTip())) {
-						switch (m.getModuleTip()) {
+					if ((m.getModuleViewType() == 0 || formResult.getAction() == m
+							.getModuleViewType())) {
+						switch (m.getModuleType()) {
 						case	4: case 5:break;
 						
 /*						case 4:// form
@@ -2042,17 +2042,17 @@ public class Webix3_3 implements ViewAdapter {
 				W5FormCellHelper fc = formCells.get(i);
 				if (fc.getFormCell().getActiveFlag() == 0)
 					continue;
-				if (fc.getFormCell().getControlTip() == 102) {// displayField4info
+				if (fc.getFormCell().getControlType() == 102) {// displayField4info
 					if (b)
 						buf.append(",");
 					else
 						b = true;
 					buf.append(serializeFormCell(customizationId, xlocale, fc,
 							null));
-				} else if (fc.getFormCell().getControlTip() != 0) {
+				} else if (fc.getFormCell().getControlType() != 0) {
 					if (i < formCells.size() - 1
 							&& formCells.get(i + 1).getFormCell()
-									.getControlTip() != 0
+									.getControlType() != 0
 							&& formCells.get(i + 1).getFormCell()
 									.getActiveFlag() != 0
 							&& formCells.get(i + 1).getFormCell().getTabOrder() == fc
@@ -2067,7 +2067,7 @@ public class Webix3_3 implements ViewAdapter {
 								"{cols: [_").append(fc.getFormCell().getDsc());
 						while (i < formCells.size() - 1
 								&& formCells.get(i + 1).getFormCell()
-										.getControlTip() != 0
+										.getControlType() != 0
 								&& formCells.get(i + 1).getFormCell()
 										.getTabOrder() == fc.getFormCell()
 										.getTabOrder()) {
@@ -2097,7 +2097,7 @@ public class Webix3_3 implements ViewAdapter {
 				W5FormCellHelper fc = formCells.get(i);
 				if (fc.getFormCell().getActiveFlag() == 0)
 					continue;
-				if (fc.getFormCell().getControlTip() != 0) {
+				if (fc.getFormCell().getControlType() != 0) {
 					if (fc.getFormCell().getTabOrder() / 1000 != order) {
 						order = fc.getFormCell().getTabOrder() / 1000;
 						if (columnBuf.length() > 0) {
@@ -2110,7 +2110,7 @@ public class Webix3_3 implements ViewAdapter {
 					}
 					if (i < formCells.size() - 1
 							&& formCells.get(i + 1).getFormCell()
-									.getControlTip() != 0
+									.getControlType() != 0
 							&& formCells.get(i + 1).getFormCell()
 									.getActiveFlag() != 0
 							&& formCells.get(i + 1).getFormCell().getTabOrder() == fc
@@ -2129,7 +2129,7 @@ public class Webix3_3 implements ViewAdapter {
 							columnBuf.append(fc.getFormCell().getExtraDefinition());
 						}*/
 						
-						if (fc.getFormCell().getControlTip() == 102)// displayField4info
+						if (fc.getFormCell().getControlType() == 102)// displayField4info
 							columnBuf.append(serializeFormCell(0, "tr", fc,
 									null));
 						else
@@ -2137,7 +2137,7 @@ public class Webix3_3 implements ViewAdapter {
 									fc.getFormCell().getDsc());
 						while (i < formCells.size() - 1
 								&& formCells.get(i + 1).getFormCell()
-										.getControlTip() != 0
+										.getControlType() != 0
 								&& formCells.get(i + 1).getFormCell()
 										.getActiveFlag() != 0
 								&& formCells.get(i + 1).getFormCell()
@@ -2146,7 +2146,7 @@ public class Webix3_3 implements ViewAdapter {
 							i++;
 							W5FormCellHelper fc2 = formCells.get(i);
 							// if(!fc2.getFormCell().getLocaleMsgKey().equals("."))buf.append(",{width:100, xtype: 'displayfield', value: _").append(fc2.getFormCell().getDsc()).append(".fieldLabel}");
-							if (fc2.getFormCell().getControlTip() == 102)// displayField4info
+							if (fc2.getFormCell().getControlType() == 102)// displayField4info
 								columnBuf.append(",").append(
 										serializeFormCell(customizationId,
 												xlocale, fc2, null));
@@ -2160,7 +2160,7 @@ public class Webix3_3 implements ViewAdapter {
 							columnBuf.append(",");
 						else
 							b = true;
-						if (fc.getFormCell().getControlTip() == 102)// displayField4info
+						if (fc.getFormCell().getControlType() == 102)// displayField4info
 							columnBuf.append(serializeFormCell(customizationId,
 									xlocale, fc, null));
 						else
@@ -2183,7 +2183,7 @@ public class Webix3_3 implements ViewAdapter {
 																		// olacak
 		if (moduleExtraInfo != null && !moduleExtraInfo.equals(key)) {
 			W5FormCell fc = new W5FormCell();
-			fc.setControlTip((short) 102);// displayField4info
+			fc.setControlType((short) 102);// displayField4info
 			fc.setTabOrder((short) -1);
 			fce = new W5FormCellHelper(fc);
 			fce.setValue(moduleExtraInfo);
@@ -2202,14 +2202,14 @@ public class Webix3_3 implements ViewAdapter {
 		
 		buf.append("{view:'");
 		
-		if (fc.getControlTip() == 102)
+		if (fc.getControlType() == 102)
 			return buf.append("label', label:'<span class=\"webix_icon icon fa-").append(labelMap[fc.getLookupQueryId()]).append("\"></span>").append(value).append("'}");
-		else if ((fc.getControlTip() == 101 || cellResult.getHiddenValue() != null)/* && (fc.getControlTip()!=9 && fc.getControlTip()!=16) */) {
+		else if ((fc.getControlType() == 101 || cellResult.getHiddenValue() != null)/* && (fc.getControlTip()!=9 && fc.getControlTip()!=16) */) {
 			return buf.append("text', hiddenValue:'").append(GenericUtil.stringToJS(cellResult.getHiddenValue())).append("',label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("',disabled:true, value:'").append(GenericUtil.stringToJS(value)).append("'}");
 			
 		}
 
-		switch(fc.getControlTip()){
+		switch(fc.getControlType()){
 		case	1:buf.append("text'");break;
 		case	2:buf.append("datepicker', /*stringResult:true,*/format:webix.Date.dateToStr('%d/%m/%Y')");break;
 		case	18:buf.append("datepicker', /*stringResult:true, */format:webix.Date.dateToStr('%d/%m/%Y %H:%i:%s'),timepicker:true");break;//timestamp
@@ -2282,7 +2282,7 @@ public class Webix3_3 implements ViewAdapter {
 					if (z == null)
 						z = "";
 					buf.append(f.getDsc().equals("dsc")?"value":f.getDsc()).append(":'")
-							.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
+							.append(f.getPostProcessType() == 2 ? LocaleMsgCache
 									.get2(customizationId, xlocale,
 											z.toString()) : GenericUtil
 									.stringToJS(z.toString()))
@@ -2295,9 +2295,9 @@ public class Webix3_3 implements ViewAdapter {
 		break; 
 		case	23://treecombo(local)
 		case	26://lovtreecombo(local)
-			if(fc.getControlTip()==26)buf.append("multi");
+			if(fc.getControlType()==26)buf.append("multi");
 			buf.append("combo',suggest:{");//combo query
-			if(fc.getControlTip()==23 && fc.getDialogGridId()!=0 && cellResult.getExtraValuesMap()!=null && cellResult.getExtraValuesMap().containsKey("dialogGrid")){
+			if(fc.getControlType()==23 && fc.getDialogGridId()!=0 && cellResult.getExtraValuesMap()!=null && cellResult.getExtraValuesMap().containsKey("dialogGrid")){
 				W5GridResult gr = (W5GridResult)cellResult.getExtraValuesMap().get("dialogGrid");
 				String dsc = fc.getDsc()+"_"+gr.getGrid().getDsc();
 				buf.append("view:'combo-dt-suggest',fitMaster:false, height:").append(gr.getGrid().getDefaultHeight()+(gr.getGrid().getDefaultPageRecordNumber()>0?42:0)).append(",body:{view:'layout',rows:[iwb.apply(").append(dsc).append(",{url:").append(dsc)
@@ -2334,7 +2334,7 @@ public class Webix3_3 implements ViewAdapter {
 						if (z == null)
 							z = "";
 						buf.append(f.getDsc().equals("dsc")?"value":f.getDsc()).append(":'")
-								.append(f.getPostProcessTip() == 2 ? LocaleMsgCache
+								.append(f.getPostProcessType() == 2 ? LocaleMsgCache
 										.get2(customizationId, xlocale,
 												z.toString()) : GenericUtil
 										.stringToJS(z.toString()))
@@ -2354,11 +2354,11 @@ public class Webix3_3 implements ViewAdapter {
 					if (rfc.getFormCell().getFormCellId() == fc
 							.getParentFormCellId()) {
 						W5FormCell pfc = rfc.getFormCell();
-						if (pfc.getControlTip() == 6
-								|| pfc.getControlTip() == 7
-								|| pfc.getControlTip() == 9
-								|| pfc.getControlTip() == 10
-								|| pfc.getControlTip() == 51) {
+						if (pfc.getControlType() == 6
+								|| pfc.getControlType() == 7
+								|| pfc.getControlType() == 9
+								|| pfc.getControlType() == 10
+								|| pfc.getControlType() == 51) {
 							buf.append(
 									",on:{onAfterRender:function(){combo2combo(_")
 									.append(pfc.getDsc()).append(",_")
@@ -2414,11 +2414,11 @@ public class Webix3_3 implements ViewAdapter {
 		if(fc.getNotNullFlag()!=0)buf.append(",required:true");
 		buf.append(", label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("'");
 //		if(fc.getControlWidth()>0)buf.append(",inputWidth:").append(fc.getControlWidth()+(formResult!=null && formResult.getForm()!=null ? formResult.getForm().getLabelWidth() : 150));
-		if(fc.getControlWidth()>0 && fc.getControlTip()!=5){
+		if(fc.getControlWidth()>0 && fc.getControlType()!=5){
 			buf.append(",inputWidth:").append(4*fc.getControlWidth()/3).append(",minWidth:").append(4*(fc.getControlWidth()+(formResult!=null && formResult.getForm()!=null ? formResult.getForm().getLabelWidth() : 100))/3);
 		}
 	
-		if(!GenericUtil.isEmpty(value))switch(fc.getControlTip()){
+		if(!GenericUtil.isEmpty(value))switch(fc.getControlType()){
 			case	2://date && 
 				buf.append(",value:'").append(GenericUtil.uDateStr(value)).append("'");
 				break;
@@ -2433,7 +2433,7 @@ public class Webix3_3 implements ViewAdapter {
 			default:buf.append(",value:'").append(GenericUtil.stringToJS(value)).append("'");
 		}
 	//	if(true)buf.append(",on:{onChange:function(newv, oldv){this.validate();}}");
-		if(fc.getControlTip()!=100 && !GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
+		if(fc.getControlType()!=100 && !GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
 		buf.append("}");
 		return buf;
 	}
@@ -2455,15 +2455,15 @@ public class Webix3_3 implements ViewAdapter {
 					buttons.append(",");
 				else
 					b = true;
-				if (toolbarItem.getItemTip() == 0
-						|| toolbarItem.getItemTip() == 100) { // yok(0): button
+				if (toolbarItem.getControlType() == 0
+						|| toolbarItem.getControlType() == 100) { // yok(0): button
 																// +
 																// tooltip;button(100)
 																// icon+text
 					if (toolbarItem.getDsc().equals("-"))buttons.append("{ $template:'Spacer' }"); else 
 					if (toolbarItem.getDsc().equals("->"))
 						buttons.append("{}");
-					else if (toolbarItem.getObjectTip() == 15) {// form toolbar
+					else if (toolbarItem.getObjectType() == 15) {// form toolbar
 																// ise
 						buttons.append("{view:'button', value:'")
 								.append(LocaleMsgCache.get2(customizationId,
@@ -2490,7 +2490,7 @@ public class Webix3_3 implements ViewAdapter {
 					}
 				} else { // controlTip
 					W5FormCell cell = new W5FormCell();
-					cell.setControlTip(toolbarItem.getItemTip());
+					cell.setControlType(toolbarItem.getControlType());
 					cell.setLookupQueryId(toolbarItem.getLookupQueryId());
 					cell.setLocaleMsgKey(toolbarItem.getLocaleMsgKey());
 					cell.setDsc(toolbarItem.getDsc());
@@ -2504,9 +2504,9 @@ public class Webix3_3 implements ViewAdapter {
 						cell.setExtraDefinition(cell.getExtraDefinition() + ","
 								+ toolbarItem.getCode());
 					W5FormCellHelper cellResult = new W5FormCellHelper(cell);
-					if (toolbarItem.getItemTip() == 6
-							|| toolbarItem.getItemTip() == 8
-							|| toolbarItem.getItemTip() == 14) {
+					if (toolbarItem.getControlType() == 6
+							|| toolbarItem.getControlType() == 8
+							|| toolbarItem.getControlType() == 14) {
 						W5LookUp lu = FrameworkCache.getLookUp(scd,
 								toolbarItem.getLookupQueryId());
 						List<W5LookUpDetay> dl = new ArrayList<W5LookUpDetay>(
@@ -2594,10 +2594,10 @@ public class Webix3_3 implements ViewAdapter {
 					b = true;
 				html.append("{name: '").append(gc.get_queryField().getDsc())
 						.append("'");
-				if (gc.get_queryField().getFieldTip() > 2)
+				if (gc.get_queryField().getFieldType() > 2)
 					html.append(",type:'")
 							.append(FrameworkSetting.sortMap[gc.get_queryField()
-									.getFieldTip()]).append("'");
+									.getFieldType()]).append("'");
 				html.append("}");
 			}
 		html.append("]),\n initRecord:{");
@@ -2606,7 +2606,7 @@ public class Webix3_3 implements ViewAdapter {
 				.get_gridColumnList())
 			if (gc.get_formCell() != null) {
 				Object obz = null;
-				switch (gc.get_formCell().getInitialSourceTip()) {
+				switch (gc.get_formCell().getInitialSourceType()) {
 				case 0:// yok-sabit
 					obz = gc.get_formCell().getInitialValue();
 					break;
@@ -2785,9 +2785,9 @@ public class Webix3_3 implements ViewAdapter {
 		
 		buf.append("var ").append(dsc).append(" = {view:'").append(g.getTreeMasterFieldId()>0 ? "treetable":"datatable").append("',gridId:")
 				.append(g.getGridId()).append(",queryId:").append(g.getQueryId());
-		if (!gridResult.isViewLogMode() && g.getSelectionModeTip()!=0){
+		if (!gridResult.isViewLogMode() && g.getSelectionModeType()!=0){
 			buf.append(", select:'row'");
-			if(g.getSelectionModeTip()==2 || g.getSelectionModeTip()==3)
+			if(g.getSelectionModeType()==2 || g.getSelectionModeType()==3)
 				buf.append(", multiselect:true");
 		}
 		buf.append(",idField:'").append(g.get_pkQueryField().getDsc()).append("'");
@@ -2809,7 +2809,7 @@ public class Webix3_3 implements ViewAdapter {
 					FrameworkCache.getAppSettingIntValue(scd,
 							"log_default_grid_height"));
 		else {
-			if (g.getSelectionModeTip() == 2 || g.getSelectionModeTip() == 3) // multi Select
+			if (g.getSelectionModeType() == 2 || g.getSelectionModeType() == 3) // multi Select
 				buf.append(",\n multiSelect:true");
 /*			else if (g.getSelectionModeTip() == 5 && g.get_detailView() != null) // promis.js'de
 																					// halledilmek
@@ -2833,9 +2833,9 @@ public class Webix3_3 implements ViewAdapter {
 			buf.append(",\n formSmsMailList:[");
 			boolean b = false;
 			for (W5FormSmsMail fsm : g.get_crudFormSmsMailList())
-				if (((fsm.getSmsMailTip() == 0 && FrameworkSetting.sms && FrameworkCache
+				if (((fsm.getSmsMailType() == 0 && FrameworkSetting.sms && FrameworkCache
 						.getAppSettingIntValue(customizationId, "sms_flag") != 0) || (fsm
-						.getSmsMailTip() != 0 && FrameworkSetting.mail && FrameworkCache
+						.getSmsMailType() != 0 && FrameworkSetting.mail && FrameworkCache
 						.getAppSettingIntValue(customizationId, "mail_flag") != 0))
 						&& fsm.getAlarmFlag() == 0
 						&& GenericUtil.hasPartInside2(fsm.getWebMobileTips(),
@@ -2848,7 +2848,7 @@ public class Webix3_3 implements ViewAdapter {
 					buf.append("{xid:")
 							.append(fsm.getFormSmsMailId())
 							.append(",text:\"")
-							.append(fsm.getSmsMailTip() == 0 ? "[<b>SMS</b>] "
+							.append(fsm.getSmsMailType() == 0 ? "[<b>SMS</b>] "
 									: "[<b>"
 											+ (LocaleMsgCache.get2(
 													customizationId, xlocale,
@@ -2856,7 +2856,7 @@ public class Webix3_3 implements ViewAdapter {
 							.append(GenericUtil.stringToJS(LocaleMsgCache.get2(
 									customizationId, xlocale, fsm.getDsc())))
 							.append("\",smsMailTip:")
-							.append(fsm.getSmsMailTip()).append("}");
+							.append(fsm.getSmsMailType()).append("}");
 				}
 			buf.append("]");
 		}
@@ -3037,7 +3037,7 @@ public class Webix3_3 implements ViewAdapter {
 			else
 				b = true;
 			html.append("{name:'");
-			switch (f.getPostProcessTip()) {
+			switch (f.getPostProcessType()) {
 			case 9:
 				html.append("_").append(f.getDsc());
 				break;
@@ -3048,14 +3048,14 @@ public class Webix3_3 implements ViewAdapter {
 				html.append(f.getDsc());
 			}
 			html.append("'");
-			if (f.getFieldTip() > 2)
+			if (f.getFieldType() > 2)
 				html.append(",type:'")
-						.append(FrameworkSetting.sortMap[f.getFieldTip()])
+						.append(FrameworkSetting.sortMap[f.getFieldType()])
 						.append("'");
-			if (f.getFieldTip() == 2)
+			if (f.getFieldType() == 2)
 				html.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
 
-			if (f.getPostProcessTip() >= 10)
+			if (f.getPostProcessType() >= 10)
 				html.append("},{name:'").append(f.getDsc()).append("_qw_'");
 			html.append("}");
 		}
@@ -3067,11 +3067,11 @@ public class Webix3_3 implements ViewAdapter {
 					continue;
 				html.append(",\n{name:'");
 				html.append(f.getDsc()).append("'");
-				if (f.getFieldTip() > 2)
+				if (f.getFieldType() > 2)
 					html.append(",type:'")
-							.append(FrameworkSetting.sortMap[f.getFieldTip()])
+							.append(FrameworkSetting.sortMap[f.getFieldType()])
 							.append("'");
-				if (f.getFieldTip() == 2)
+				if (f.getFieldType() == 2)
 					html.append(",type:'date',dateFormat:'d/m/Y h:i:s'");
 				if (f.getDefaultLookupTableId() > 0)
 					html.append("},{name:'").append(f.getDsc()).append("_qw_'");
@@ -3083,9 +3083,9 @@ public class Webix3_3 implements ViewAdapter {
 				
 				if(f.getDsc().equals(FieldDefinitions.queryFieldName_Comment) && FrameworkCache.getAppSettingIntValue(scd, "make_comment_summary_flag")!=0)
 					html.append(",{name:'").append(FieldDefinitions.queryFieldName_CommentExtra).append("'}");
-				if (f.getPostProcessTip() > 0)
+				if (f.getPostProcessType() > 0)
 					html.append(",{name:'").append(f.getDsc()).append("_qw_'}");
-				if (f.getPostProcessTip() == 49)
+				if (f.getPostProcessType() == 49)
 					html.append(",{name:'pkpkpk_arf_id',type:'int'},{name:'app_role_ids_qw_'},{name:'app_user_ids_qw_'}");
 			}
 		switch (processTip) {
@@ -3195,7 +3195,7 @@ public class Webix3_3 implements ViewAdapter {
 					.append(qds)
 					.append("'")
 					.append(", sortable: ")
-					.append(c.getSortableFlag() != 0 && c.get_queryField().getPostProcessTip() <90); // post
+					.append(c.getSortableFlag() != 0 && c.get_queryField().getPostProcessType() <90); // post
 																				// sql
 																				// select
 																				// tip==101
@@ -3294,7 +3294,7 @@ columns:[
 			for (W5QueryField f : grid.get_postProcessQueryFields()) {
 				if(!f.getDsc().equals("ar_version_no")){
 					if (viewTable != null)
-						switch (f.getFieldTip()) {
+						switch (f.getFieldType()) {
 						case 2:// file attachment
 						case 7:// picture attachment
 							if (!FrameworkCache.roleAccessControl(
@@ -3310,10 +3310,10 @@ columns:[
 					W5GridColumn c = new W5GridColumn();
 					c.set_queryField(f);
 					c.setWidth((short)40);//f.getTabOrder()
-					c.setAlignTip((short) 0);
+					c.setAlignType((short) 0);
 					c.setLocaleMsgKey("");//:("<span class=\"webix_icon fa-"+ FrameworkSetting.postQueryGridImgMap4Webix[f.getFieldTip()]+ "\"></span>")
 					c.setVisibleFlag((short) 1);
-					String renderer = postQueryMap[f.getFieldTip()];
+					String renderer = postQueryMap[f.getFieldType()];
 					c.setRenderer(renderer);
 					if(f.getDsc().equals(FieldDefinitions.queryFieldName_Comment) && FrameworkCache.getAppSettingIntValue(customizationId, "make_comment_summary_flag")!=0){
 						c.setWidth((short) (f.getTabOrder() + 10));
@@ -3321,7 +3321,7 @@ columns:[
 					}
 					if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {// approval_record_flag
 						c.setWidth((short) (f.getTabOrder() + 100));
-						c.setAlignTip((short) 1);
+						c.setAlignType((short) 1);
 						c.setLocaleMsgKey("approval_status");
 						newColumns.add(x, c);
 						x++;
@@ -3352,7 +3352,7 @@ columns:[
 			W5GridColumn c_dttm = new W5GridColumn();
 			c_dttm.set_queryField(qf_dttm);
 			c_dttm.setWidth((short) 120);
-			c_dttm.setAlignTip((short) 1);
+			c_dttm.setAlignType((short) 1);
 			c_dttm.setLocaleMsgKey("log_dttm");
 			c_dttm.setVisibleFlag((short) 1);
 			c_dttm.setRenderer("fmtDateTime");
@@ -3363,7 +3363,7 @@ columns:[
 			W5GridColumn c_user = new W5GridColumn();
 			c_user.set_queryField(qf_user);
 			c_user.setWidth((short) 80);
-			c_user.setAlignTip((short) 1);
+			c_user.setAlignType((short) 1);
 			c_user.setLocaleMsgKey("log_user");
 			c_user.setVisibleFlag((short) 1);
 			c_user.setRenderer("gridQwRenderer('log5_user_id')");
@@ -3461,7 +3461,7 @@ columns:[
 					.getQueryFieldId());
 			
 			buf.append("{header:");
-			if(c.getFilterFlag()==0 || c.get_queryField()==null || c.get_queryField().getFieldTip()==0 || c.get_queryField().getFieldTip()==5){
+			if(c.getFilterFlag()==0 || c.get_queryField()==null || c.get_queryField().getFieldType()==0 || c.get_queryField().getFieldType()==5){
 				buf.append("'");
 				if (!editableFlag) {
 					buf.append(
@@ -3484,7 +3484,7 @@ columns:[
 									c.getLocaleMsgKey())).append("</b>");
 				}
 				buf.append("'");
-				switch(c.get_queryField().getPostProcessTip()){
+				switch(c.get_queryField().getPostProcessType()){
 				case	10://static lookup
 				case	11://lov-static lookup
 					if(c.get_queryField().getLookupQueryId()!=0){
@@ -3511,7 +3511,7 @@ columns:[
 					}
 					break;
 				default:
-					buf.append(",{content:'").append(filterMap[c.get_queryField().getFieldTip()]).append("'}");
+					buf.append(",{content:'").append(filterMap[c.get_queryField().getFieldType()]).append("'}");
 					
 				}
 				buf.append("]");
@@ -3522,12 +3522,12 @@ columns:[
 			buf.append(", id: '")
 					.append(qds)
 					.append("'");
-			if(c.getSortableFlag() != 0 && c.get_queryField().getPostProcessTip() < 90)
-					buf.append(", sort: '").append(grid.getDefaultPageRecordNumber()==0 ? new String[]{"","string","date","int","int","",""}[c.get_queryField().getFieldTip()] : "server").append("'");
+			if(c.getSortableFlag() != 0 && c.get_queryField().getPostProcessType() < 90)
+					buf.append(", sort: '").append(grid.getDefaultPageRecordNumber()==0 ? new String[]{"","string","date","int","int","",""}[c.get_queryField().getFieldType()] : "server").append("'");
 			
-			if (c.getAlignTip() != 1)
+			if (c.getAlignType() != 1)
 				buf.append(", css:{'text-align':'")
-						.append(FrameworkSetting.alignMap[c.getAlignTip()])
+						.append(FrameworkSetting.alignMap[c.getAlignType()])
 						.append("'}");// left'ten farkli ise
 			if(grid.getAutoExpandFieldId()!=0 && grid.getAutoExpandFieldId()==c.getQueryFieldId())buf.append(", fillspace:!0").append(", minWidth: ").append((4*c.getWidth())/3);//.append(c.getWidth());
 			else buf.append(", width: ").append((4*c.getWidth())/3);//.append(c.getWidth());
@@ -3553,12 +3553,12 @@ columns:[
 			} else if(grid.getTreeMasterFieldId()>0 && c.getQueryFieldId()==grid.getTreeMasterFieldId()){
 				W5QueryField qf = grid.get_queryFieldMap().get(grid.getTreeMasterFieldId());
 				if(qf!=null)buf.append(", template:\"{common.treetable()} #").append(qf.getDsc()).append("#\"");				
-			} else if (c.get_queryField().getPostProcessTip() >= 10
-					&& c.get_queryField().getPostProcessTip() <90) {
+			} else if (c.get_queryField().getPostProcessType() >= 10
+					&& c.get_queryField().getPostProcessType() <90) {
 				if (c.get_formCell() == null || !editableFlag) {
-					if (FrameworkSetting.chat && (c.get_queryField().getPostProcessTip() == 20 || c.get_queryField().getPostProcessTip() == 53)) // user lookup ise
+					if (FrameworkSetting.chat && (c.get_queryField().getPostProcessType() == 20 || c.get_queryField().getPostProcessType() == 53)) // user lookup ise
 						buf.append(", template:gridUserRenderer('").append(qds).append("')");// browser renderer ise
-					else if (c.get_queryField().getPostProcessTip() == 12) // table lookup ise
+					else if (c.get_queryField().getPostProcessType() == 12) // table lookup ise
 						buf.append(", template:gridQwRendererWithLink('").append(qds).append("',").append(c.get_queryField().getLookupQueryId()).append(")");// browser renderer ise
 					else 
 						buf.append(", template:function(ax){return ax.").append(qds).append("_qw_;}");// browser renderer ise
@@ -3628,16 +3628,16 @@ columns:[
 							else
 								b = true;
 							Object obj = o[f.getTabOrder() - 1];
-							if (f.getPostProcessTip() == 9)
+							if (f.getPostProcessType() == 9)
 								buf.append("_");
-							if (f.getFieldTip() == 5) {
+							if (f.getFieldType() == 5) {
 								buf.append(f.getDsc()).append(":")
 										.append(GenericUtil.uInt(obj) != 0);
 								continue;
 							}
-							buf.append(f.getPostProcessTip() == 6 ? f.getDsc().substring(1):f.getDsc()).append(":'");
+							buf.append(f.getPostProcessType() == 6 ? f.getDsc().substring(1):f.getDsc()).append(":'");
 							if (obj != null) {
-								switch (f.getPostProcessTip()) { // queryField
+								switch (f.getPostProcessType()) { // queryField
 																	// PostProcessTip
 								case 8:
 									buf.append(GenericUtil.stringToHtml(obj));
@@ -3714,7 +3714,7 @@ columns:[
 										break;
 									buf.append("',").append(f.getDsc())
 											.append("_qw_:'");
-									String[] objs = f.getPostProcessTip() == 11 ? ((String) obj)
+									String[] objs = f.getPostProcessType() == 11 ? ((String) obj)
 											.split(",") : new String[] { obj
 											.toString() };
 									boolean bz = false;
@@ -3904,22 +3904,22 @@ columns:[
 							else
 								b = true;
 							buf2.append("\"");
-							if (f.getPostProcessTip() == 9)
+							if (f.getPostProcessType() == 9)
 								buf2.append("_");
-							if (f.getFieldTip() == 5) {
+							if (f.getFieldType() == 5) {
 								buf2.append(f.getDsc()).append("\":")
 										.append(GenericUtil.uInt(obj) != 0);
 								continue;
 							}
 							if(f.getDsc().equals("xtext") || f.getDsc().equals("text"))buf2.append("value\":");//hack for webix
-							else buf2.append(f.getPostProcessTip() == 6 ? f.getDsc().substring(1):f.getDsc()).append("\":");
-							if (f.getFieldTip() != 8)
+							else buf2.append(f.getPostProcessType() == 6 ? f.getDsc().substring(1):f.getDsc()).append("\":");
+							if (f.getFieldType() != 8)
 								buf2.append("\"");
 							else {
 								buf2.append("{");
 							} // JSON ise başka
 							if (obj != null) {
-								switch (f.getPostProcessTip()) { // queryField
+								switch (f.getPostProcessType()) { // queryField
 																	// PostProcessTip
 								case 8:
 									buf2.append(GenericUtil.stringToHtml(obj));
@@ -3992,7 +3992,7 @@ columns:[
 										break;
 									buf2.append("\",\"").append(f.getDsc())
 											.append("_qw_\":\"");
-									String[] objs = f.getPostProcessTip() == 11 ? ((String) obj)
+									String[] objs = f.getPostProcessType() == 11 ? ((String) obj)
 											.split(",") : new String[] { obj
 											.toString() };
 									boolean bz = false;
@@ -4041,7 +4041,7 @@ columns:[
 											.toString()));
 								}
 							}
-							if (f.getFieldTip() != 8)
+							if (f.getFieldType() != 8)
 								buf2.append("\"");
 							else {
 								buf2.append("}");
@@ -4100,9 +4100,9 @@ columns:[
 	}
 
 	public StringBuilder serializeQueryData(W5QueryResult queryResult) {
-		if (queryResult.getQuery().getQueryTip() == 10 || (queryResult.getRequestParams()!=null && GenericUtil.uInt(queryResult.getRequestParams(), "_tqd")!=0) )
+		if (queryResult.getQuery().getQueryType() == 10 || (queryResult.getRequestParams()!=null && GenericUtil.uInt(queryResult.getRequestParams(), "_tqd")!=0) )
 			return serializeTreeQueryData(queryResult);
-		if (queryResult.getQuery().getQueryTip() == 14)
+		if (queryResult.getQuery().getQueryType() == 14)
 			return serializeTreeQueryRemoteData(queryResult);
 		int customizationId = (Integer) queryResult.getScd().get("customizationId");
 		String xlocale = (String) queryResult.getScd().get("locale");
@@ -4134,20 +4134,20 @@ columns:[
 							buf.append(",");
 						else
 							b = true;
-						if (f.getPostProcessTip() == 9)
+						if (f.getPostProcessType() == 9)
 							buf.append("\"_");
 						else
 							buf.append("\"");
-						if(queryResult.getQuery().getQueryTip()==3 && f.getDsc().equals("dsc"))
+						if(queryResult.getQuery().getQueryType()==3 && f.getDsc().equals("dsc"))
 							buf.append("value");
 						else 
-							buf.append(f.getPostProcessTip() == 6 ? f.getDsc()
+							buf.append(f.getPostProcessType() == 6 ? f.getDsc()
 								.substring(1) : f.getDsc());
-						if (f.getFieldTip() == 5) {// boolean
+						if (f.getFieldType() == 5) {// boolean
 							buf.append("\":").append(GenericUtil.uInt(obj) != 0);
 							continue;
 						}
-						if (f.getFieldTip() == 6) {// auto
+						if (f.getFieldType() == 6) {// auto
 							buf.append("\":");
 							if (obj == null || obj.toString().equals("0"))
 								buf.append("null");
@@ -4156,20 +4156,20 @@ columns:[
 							else
 								buf.append("\"").append(obj).append("\"");
 							continue;
-						} else if(f.getFieldTip() == 8) {
+						} else if(f.getFieldType() == 8) {
 							buf.append("\":");
 							if (obj == null)buf.append("null");
 							else if(obj instanceof Map)buf.append(GenericUtil.fromMapToJsonString2Recursive((Map)obj));
 							else if(obj instanceof List)buf.append(GenericUtil.fromListToJsonString2Recursive((List)obj));
 							else buf.append(obj);
 							continue;
-						} else if (convertDateToStr && f.getFieldTip() == 2 && obj!=null && (obj instanceof java.sql.Timestamp || obj instanceof java.util.Date)) {// date 
+						} else if (convertDateToStr && f.getFieldType() == 2 && obj!=null && (obj instanceof java.sql.Timestamp || obj instanceof java.util.Date)) {// date 
 							buf.append("\":\"").append(obj instanceof java.sql.Timestamp ? GenericUtil.uFormatDateTime((java.sql.Timestamp)obj) : GenericUtil.uFormatDateTime((java.util.Date)obj)).append("\"");
 							continue;
 						}
 						buf.append("\":\"");
 						if (obj != null)
-							switch (f.getPostProcessTip()) { // queryField
+							switch (f.getPostProcessType()) { // queryField
 																// PostProcessTip
 							case	15://convert to []
 								buf.setLength(buf.length()-1);
@@ -4253,7 +4253,7 @@ columns:[
 									break;
 								buf.append("\",\"").append(f.getDsc())
 										.append("_qw_\":\"");
-								String[] objs = f.getPostProcessTip() == 11 ? ((String) obj)
+								String[] objs = f.getPostProcessType() == 11 ? ((String) obj)
 										.split(",") : new String[] { obj
 										.toString() };
 								boolean bz = false;
@@ -4418,7 +4418,7 @@ columns:[
 		int customizationId = (Integer) pr.getScd().get(
 				"customizationId");
 		String xlocale = (String) pr.getScd().get("locale");
-		if (page.getTemplateTip() != 0) { // html degilse
+		if (page.getPageType() != 0) { // html degilse
 			// notification Control
 			// masterRecord Control
 			if (pr.getMasterRecordList() != null
@@ -4440,7 +4440,7 @@ columns:[
 						.append(GenericUtil.getNextId("tpi")).append("';\n");
 			}
 
-			if (page.getTemplateTip() != 8) { // wizard degilse
+			if (page.getPageType() != 8) { // wizard degilse
 				int customObjectCount = 1, tabOrder = 1;
 				for (Object i : pr.getPageObjectList()) {
 					if (i instanceof W5GridResult) { // objectTip=1
@@ -4477,7 +4477,7 @@ columns:[
 						}
 					} else if (i instanceof W5FormResult) {// objectTip=3
 						W5FormResult fr = (W5FormResult) i;
-						if (Math.abs(fr.getObjectTip()) == 3) { // form
+						if (Math.abs(fr.getObjectType()) == 3) { // form
 							buf.append("\nvar ").append(fr.getForm().getDsc())
 									.append("=").append(serializeGetForm(fr));
 						}
@@ -4518,7 +4518,7 @@ columns:[
 						buf.append(",\n");
 					else
 						b = true;
-					buf.append("{\"objTip\":").append(o.getObjectTip())
+					buf.append("{\"objTip\":").append(o.getObjectType())
 							.append(",\"objId\":").append(o.getObjectId());
 					if (!GenericUtil.isEmpty(o.getPostJsCode()))
 						buf.append(",").append(o.getPostJsCode()); // ornek
@@ -4640,8 +4640,8 @@ columns:[
 							.append("{background-color:")
 							.append(d.getVal()).append(";}\n");
 				}
-				FrameworkCache.addPageResource(pr.getScd(), "css-"+page.getTemplateId(), buf4.toString());
-				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"/app/dyn-res/css-"+page.getTemplateId()+".css?.x="+page.getVersionNo()+"\" />");
+				FrameworkCache.addPageResource(pr.getScd(), "css-"+page.getPageId(), buf4.toString());
+				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"/app/dyn-res/css-"+page.getPageId()+".css?.x="+page.getVersionNo()+"\" />");
 
 			}
 			
@@ -4653,7 +4653,7 @@ columns:[
 
 //		short ttip= templateResult.getPage().getTemplateTip();
 //		if((ttip==2 || ttip==4) && !GenericUtil.isEmpty(templateResult.getPageObjectList()))buf.append("\n").append(renderTemplateObject(templateResult));
-		if(!GenericUtil.isEmpty(pr.getPageObjectList()))switch(pr.getPage().getTemplateTip()){
+		if(!GenericUtil.isEmpty(pr.getPageObjectList()))switch(pr.getPage().getPageType()){
 		case	2:case	4://page, pop up
 			buf.append("\n").append(renderTemplateObject(pr));
 			break;
@@ -5078,7 +5078,7 @@ columns:[
 		int customizationId = (Integer) scd.get("customizationId");
 		boolean b = false;
 		for (W5Conversion fsm : l)
-			if (GenericUtil.hasPartInside2(fsm.getActionTips(), 0)) { // manuel
+			if (GenericUtil.hasPartInside2(fsm.getActionTypes(), 0)) { // manuel
 																		// icin
 																		// var
 																		// mi

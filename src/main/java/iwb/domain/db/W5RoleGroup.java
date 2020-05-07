@@ -21,8 +21,8 @@ public class W5RoleGroup implements java.io.Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 333319124324231L;
-	private int userTip;	
-	private short webFrontendTip;	
+	private int roleGroupId;	
+	private short webFrontendType;	
 	private short activeFlag;	
 	private int defaultMainTemplateId;
 	
@@ -41,21 +41,21 @@ public class W5RoleGroup implements java.io.Serializable {
 	
 	@Id
 	@Column(name="user_tip")
-	public int getUserTip() {
-		return userTip;
+	public int getRoleGroupId() {
+		return roleGroupId;
 	}
 
-	public void setUserTip(int userTip) {
-		this.userTip = userTip;
+	public void setRoleGroupId(int roleGroupId) {
+		this.roleGroupId = roleGroupId;
 	}
 
 	@Column(name="web_frontend_tip")
-	public short getWebFrontendTip() {
-		return webFrontendTip;
+	public short getWebFrontendType() {
+		return webFrontendType;
 	}
 
-	public void setWebFrontendTip(short webFrontendTip) {
-		this.webFrontendTip = webFrontendTip;
+	public void setWebFrontendType(short webFrontendType) {
+		this.webFrontendType = webFrontendType;
 	}
 
 	@Column(name="default_main_template_id")
@@ -94,11 +94,11 @@ public class W5RoleGroup implements java.io.Serializable {
 	public boolean equals(Object o) {
 		if(o==null || !(o instanceof W5RoleGroup))return false;
 		W5RoleGroup c = (W5RoleGroup)o;
-		return c!=null && c.getUserTip()==getUserTip() && c.getProjectUuid().equals(projectUuid);
+		return c!=null && c.getRoleGroupId()==getRoleGroupId() && c.getProjectUuid().equals(projectUuid);
 	}
 	
 	public int hashCode() {
-		return projectUuid.hashCode() + 100*getUserTip();
+		return projectUuid.hashCode() + 100*getRoleGroupId();
 	}
 
 	public boolean safeEquals(W5Base q) {

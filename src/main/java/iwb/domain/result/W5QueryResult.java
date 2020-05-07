@@ -206,7 +206,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	
 	    	if(!GenericUtil.isEmpty(getQuery().get_queryParams()))for(W5QueryParam p1 : getQuery().get_queryParams())if(p1.getTabOrder()>=tabOrderCount && p1.getTabOrder()<tabOrderCount+1000){
 				String pexpressionDsc = p1.getExpressionDsc();
-	    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
+	    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceType()==1){
 	    			String value = requestParams2.get(p1.getDsc()); 
 	    			if(value!=null && value.length()>0){
 		    			String[] pvalues = requestParams2.get(p1.getDsc()).split(",");
@@ -217,7 +217,7 @@ public class W5QueryResult implements W5MetaResult{
 							.append(" ( ");
 							for(int	q1=0;q1<pvalues.length;q1++){
 								sqlWhere.append(q1==0 ? "?": " ,?");
-								sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamTip()));
+								sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamType()));
 							}
 							sqlWhere.append(" ) ) ");
 		    			}
@@ -333,7 +333,7 @@ public class W5QueryResult implements W5MetaResult{
 			sqlParams.addAll(sqlJoinOnParams);
 			sqlParams.addAll(sqlRecrParams);
 		}
-		if(mainTable!=null && FrameworkSetting.vcs && mainTable.getVcsFlag()!=0 && query.getQueryTip()==9)postProcessQueryFields = new ArrayList();
+		if(mainTable!=null && FrameworkSetting.vcs && mainTable.getVcsFlag()!=0 && query.getQueryType()==9)postProcessQueryFields = new ArrayList();
 	//	PromisUtil.replaceSql(sql.toString(), sqlParams)
 		
 
@@ -386,7 +386,7 @@ public class W5QueryResult implements W5MetaResult{
 	    	
 	    	for(W5QueryParam p1 : getQuery().get_queryParams())if(p1.getTabOrder()>=tabOrderCount && p1.getTabOrder()<tabOrderCount+1000){
 				String pexpressionDsc = p1.getExpressionDsc();
-	    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
+	    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceType()==1){
 	    			String value = requestParams2.get(p1.getDsc()); 
 	    			if(value!=null && value.length()>0){
 		    			String[] pvalues = requestParams2.get(p1.getDsc()).split(",");
@@ -397,7 +397,7 @@ public class W5QueryResult implements W5MetaResult{
 							.append(" ( ");
 							for(int	q1=0;q1<pvalues.length;q1++){
 								sqlWhere.append(q1==0 ? "?": " ,?");
-								sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamTip()));
+								sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamType()));
 							}
 							sqlWhere.append(" ) ) ");
 		    			}
@@ -512,7 +512,7 @@ public class W5QueryResult implements W5MetaResult{
 			sqlParams.addAll(sqlJoinOnParams);
 			sqlParams.addAll(sqlRecrParams);
 		}
-		if(mainTable!=null && FrameworkSetting.vcs && mainTable.getVcsFlag()!=0 && query.getQueryTip()==9)postProcessQueryFields = new ArrayList();
+		if(mainTable!=null && FrameworkSetting.vcs && mainTable.getVcsFlag()!=0 && query.getQueryType()==9)postProcessQueryFields = new ArrayList();
 	//	PromisUtil.replaceSql(sql.toString(), sqlParams)
 		
 
@@ -548,7 +548,7 @@ public class W5QueryResult implements W5MetaResult{
     }
 
     public boolean	prepareQuery(Map<String, String> extraParams){
-    	if(query.getQuerySourceTip()!=4658)switch(FrameworkSetting.rdbmsTip){
+    	if(query.getQuerySourceType()!=4658)switch(FrameworkSetting.rdbmsTip){
     	case	0:return prepareQuery4Postgre(extraParams);
     	case	1:return prepareQuery4SqlServer(extraParams);
     	} else {
@@ -595,7 +595,7 @@ public class W5QueryResult implements W5MetaResult{
 		pqs=getQuery().get_queryParams();
     	if(!GenericUtil.isEmpty(pqs))for(W5QueryParam p1 : pqs){
 			String pexpressionDsc = p1.getExpressionDsc();
-    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
+    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceType()==1){
     			String value = requestParams2.get(p1.getDsc()); 
     			if(value!=null && value.length()>0){
 	    			String[] pvalues = requestParams2.get(p1.getDsc()).split(",");
@@ -606,7 +606,7 @@ public class W5QueryResult implements W5MetaResult{
 						.append(" ( ");
 						for(int	q1=0;q1<pvalues.length;q1++){
 							sqlWhere.append(q1==0 ? "?": " ,?");
-							sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamTip()));
+							sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamType()));
 						}
 						sqlWhere.append(" ) ) ");
 	    			}
@@ -669,11 +669,11 @@ public class W5QueryResult implements W5MetaResult{
     		Object paramValue = requestParams2.get(k);
     		if(paramValue==null || paramValue.toString().length()==0)continue;
     		String paramName = k.substring("filter[".length(), k.length()-1);
-    		for(W5QueryField qf:query.get_queryFields())if(qf.getDsc().equals(paramName))switch(qf.getFieldTip()){
+    		for(W5QueryField qf:query.get_queryFields())if(qf.getDsc().equals(paramName))switch(qf.getFieldType()){
     		case	3:case	4://integer, double
     			sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ");
     			sqlWhere.append(paramName).append("= ? ) ");
-    			sqlParams.add(qf.getFieldTip()==3 ? GenericUtil.uInt(paramValue) : GenericUtil.uDouble(paramValue.toString()) );
+    			sqlParams.add(qf.getFieldType()==3 ? GenericUtil.uInt(paramValue) : GenericUtil.uDouble(paramValue.toString()) );
     			break;
     		case	2://date:TODO
     			break;
@@ -681,7 +681,7 @@ public class W5QueryResult implements W5MetaResult{
     			break;
     		case	1://string
     			sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ");
-    			if(qf.getPostProcessTip()!=11 && qf.getPostProcessTip()!=13){//multi degilse
+    			if(qf.getPostProcessType()!=11 && qf.getPostProcessType()!=13){//multi degilse
     				sqlWhere.append(FrameworkCache.getAppSettingStringValue(getScd(), "db_lower_fnc","lower")).append("(").append(paramName).append(") like ? ) ");
     				sqlParams.add((paramValue.toString()).toLowerCase(xlocale) + "%");
     			} else {
@@ -824,9 +824,9 @@ public class W5QueryResult implements W5MetaResult{
 			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.project_uuid=? AND cx.table_pk=x.").append(pkField)
+					.append(query.getSourceObjectId()).append(" AND cx.project_uuid=? AND cx.table_pk=x.").append(pkField)
 					.append(") OR exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.project_uuid=? AND cx.table_pk=x.").append(pkField)
+					.append(query.getSourceObjectId()).append(" AND cx.project_uuid=? AND cx.table_pk=x.").append(pkField)
 					.append(" AND (cx.access_view_tip=0 OR (position(','||?||',' in ','||coalesce(cx.access_view_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_view_users,'-')||',')>0 )))) ");
 				
 				sqlParams.add(scd.get("projectId"));
@@ -845,7 +845,7 @@ public class W5QueryResult implements W5MetaResult{
 					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.project_uuid=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir::integer=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
 					sqlParams.add(scd.get("projectId"));
-					sqlParams.add(query.getMainTableId());
+					sqlParams.add(query.getSourceObjectId());
 				}
 			}
 			
@@ -893,7 +893,7 @@ public class W5QueryResult implements W5MetaResult{
 
 
    		//grid, tree querylerde sadece
-   		if((query.getQueryTip()==1 || query.getQueryTip()==9 || query.getQueryTip()==10)&& query.getSqlGroupby()==null && mainTable!=null){
+   		if((query.getQueryType()==1 || query.getQueryType()==9 || query.getQueryType()==10)&& query.getSqlGroupby()==null && mainTable!=null){
    			postProcessQueryFields = new ArrayList();
    			if(viewLogModeTip!=0){//log olarak gosterilecek
    				W5QueryField field = new W5QueryField();
@@ -903,7 +903,7 @@ public class W5QueryResult implements W5MetaResult{
    				field.setDsc("log5_dttm");
    				postProcessQueryFields.add(field);
    				field = new W5QueryField();
-   				field.setDsc("log5_user_id");field.setPostProcessTip((short)20);
+   				field.setDsc("log5_user_id");field.setPostProcessType((short)20);
    				postProcessQueryFields.add(field);
    			} else 
    				s.append(", x.").append(mainTable.get_tableFieldList().get(0).getDsc()).append(" pkpkpk_id");
@@ -984,7 +984,7 @@ public class W5QueryResult implements W5MetaResult{
 		pqs=getQuery().get_queryParams();
     	for(W5QueryParam p1 : pqs){
 			String pexpressionDsc = p1.getExpressionDsc();
-    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
+    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceType()==1){
     			String value = requestParams2.get(p1.getDsc()); 
     			if(value!=null && value.length()>0){
 	    			String[] pvalues = requestParams2.get(p1.getDsc()).split(",");
@@ -995,7 +995,7 @@ public class W5QueryResult implements W5MetaResult{
 						.append(" ( ");
 						for(int	q1=0;q1<pvalues.length;q1++){
 							sqlWhere.append(q1==0 ? "?": " ,?");
-							sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamTip()));
+							sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamType()));
 						}
 						sqlWhere.append(" ) ) ");
 	    			}
@@ -1179,9 +1179,9 @@ public class W5QueryResult implements W5MetaResult{
 			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
+					.append(query.getSourceObjectId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(") OR exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
+					.append(query.getSourceObjectId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(" AND (cx.access_view_tip=0 OR (charindex(','||str(?)||',' , ','||coalesce(cx.access_view_roles,'-')||',')>0 OR charindex(','||str(?)||',' , ','||coalesce(cx.access_view_users,'-')||',')>0 )))) ");
 				
 				sqlParams.add(scd.get("customizationId"));
@@ -1200,7 +1200,7 @@ public class W5QueryResult implements W5MetaResult{
 					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from dbo.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir::integer=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
 					sqlParams.add(scd.get("customizationId"));
-					sqlParams.add(query.getMainTableId());
+					sqlParams.add(query.getSourceObjectId());
 				}
 			}
 			
@@ -1248,7 +1248,7 @@ public class W5QueryResult implements W5MetaResult{
 
 
    		//grid, tree querylerde sadece
-   		if((query.getQueryTip()==1 || query.getQueryTip()==9 || query.getQueryTip()==10)&& query.getSqlGroupby()==null && mainTable!=null){
+   		if((query.getQueryType()==1 || query.getQueryType()==9 || query.getQueryType()==10)&& query.getSqlGroupby()==null && mainTable!=null){
    			postProcessQueryFields = new ArrayList();
    			if(viewLogModeTip!=0){//log olarak gosterilecek
    				W5QueryField field = new W5QueryField();
@@ -1258,7 +1258,7 @@ public class W5QueryResult implements W5MetaResult{
    				field.setDsc("log5_dttm");
    				postProcessQueryFields.add(field);
    				field = new W5QueryField();
-   				field.setDsc("log5_user_id");field.setPostProcessTip((short)20);
+   				field.setDsc("log5_user_id");field.setPostProcessType((short)20);
    				postProcessQueryFields.add(field);
    			} else 
    				s.append(", x.").append(mainTable.get_tableFieldList().get(0).getDsc()).append(" pkpkpk_id");
@@ -1443,7 +1443,7 @@ public class W5QueryResult implements W5MetaResult{
 		List<W5QueryParam> pqs = getQuery().get_queryParams();
     	for(W5QueryParam p1 : pqs){
 			String pexpressionDsc = p1.getExpressionDsc();
-    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
+    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceType()==1){
     			String value = requestParams2.get(p1.getDsc()); 
     			if(value!=null && value.length()>0){
 	    			String[] pvalues = requestParams2.get(p1.getDsc()).split(",");
@@ -1454,7 +1454,7 @@ public class W5QueryResult implements W5MetaResult{
 						.append(" ( ");
 						for(int	q1=0;q1<pvalues.length;q1++){
 							sqlWhere.append(q1==0 ? "?": " ,?");
-							sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamTip()));
+							sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamType()));
 						}
 						sqlWhere.append(" ) ) ");
 	    			}
@@ -1537,9 +1537,9 @@ public class W5QueryResult implements W5MetaResult{
 			if(accessControlSelfFlag && FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
 				if(sqlWhere.length()>0)sqlWhere.append(" AND");
 				sqlWhere.append(" (not exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
+					.append(query.getSourceObjectId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(") OR exists(select 1 from iwb.w5_approval_record cx where cx.finished_flag=0 AND cx.table_id=")
-					.append(query.getMainTableId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
+					.append(query.getSourceObjectId()).append(" AND cx.customization_id=? AND cx.table_pk=x.").append(pkField)
 					.append(" AND (cx.access_view_tip=0 OR (position(','||?||',' in ','||coalesce(cx.access_view_roles,'-')||',')>0 OR position(','||?||',' in ','||coalesce(cx.access_view_users,'-')||',')>0 )))) ");
 				
 				sqlParams.add(scd.get("customizationId"));
@@ -1558,7 +1558,7 @@ public class W5QueryResult implements W5MetaResult{
 					sqlWhere.append(" exists(select 1 from iwb.w5_approval_record rz, (select * from iwb.tool_parse_numbers(?,',')) t where rz.customization_id=? AND rz.table_id=? AND rz.table_pk=x."+query.get_queryFields().get(0).getDsc()+" AND t.satir::integer=rz.approval_step_id) ");
 					sqlParams.add(approvalStepIds);
 					sqlParams.add(scd.get("customizationId"));
-					sqlParams.add(query.getMainTableId());
+					sqlParams.add(query.getSourceObjectId());
 				}
 			}
 		
@@ -1696,7 +1696,7 @@ public class W5QueryResult implements W5MetaResult{
 				List<W5QueryParam> pqs =  getQuery().get_queryParams();
 		    	for(W5QueryParam p1 : pqs){
 					String pexpressionDsc = p1.getExpressionDsc();
-		    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
+		    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceType()==1){
 		    			String value = requestParams2.get(p1.getDsc()); 
 		    			if(value!=null && value.length()>0){
 			    			String[] pvalues = requestParams2.get(p1.getDsc()).split(",");
@@ -1707,7 +1707,7 @@ public class W5QueryResult implements W5MetaResult{
 								.append(" ( ");
 								for(int	q1=0;q1<pvalues.length;q1++){
 									sqlWhere.append(q1==0 ? "?": " ,?");
-									sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamTip()));
+									sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamType()));
 								}
 								sqlWhere.append(" ) ) ");
 			    			}
@@ -1864,7 +1864,7 @@ public class W5QueryResult implements W5MetaResult{
 		pqs=getQuery().get_queryParams();
     	if(!GenericUtil.isEmpty(pqs))for(W5QueryParam p1 : pqs){
 			String pexpressionDsc = p1.getExpressionDsc();
-    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceTip()==1){
+    		if((p1.getOperatorTip()==8 || p1.getOperatorTip()==9) && p1.getSourceType()==1){
     			String value = requestParams2.get(p1.getDsc()); 
     			if(value!=null && value.length()>0){
 	    			String[] pvalues = requestParams2.get(p1.getDsc()).split(",");
@@ -1875,7 +1875,7 @@ public class W5QueryResult implements W5MetaResult{
 						.append(" ( ");
 						for(int	q1=0;q1<pvalues.length;q1++){
 							sqlWhere.append(q1==0 ? "?": " ,?");
-							sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamTip()));
+							sqlParams.add(GenericUtil.getObjectByTip(pvalues[q1], p1.getParamType()));
 						}
 						sqlWhere.append(" ) ) ");
 	    			}
@@ -1934,11 +1934,11 @@ public class W5QueryResult implements W5MetaResult{
     		Object paramValue = requestParams2.get(k);
     		if(paramValue==null || paramValue.toString().length()==0)continue;
     		String paramName = k.substring("filter[".length(), k.length()-1);
-    		for(W5QueryField qf:query.get_queryFields())if(qf.getDsc().equals(paramName))switch(qf.getFieldTip()){
+    		for(W5QueryField qf:query.get_queryFields())if(qf.getDsc().equals(paramName))switch(qf.getFieldType()){
     		case	3:case	4://integer, double
     			sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ");
     			sqlWhere.append(paramName).append("= ? ) ");
-    			sqlParams.add(qf.getFieldTip()==3 ? GenericUtil.uInt(paramValue) : GenericUtil.uDouble(paramValue.toString()) );
+    			sqlParams.add(qf.getFieldType()==3 ? GenericUtil.uInt(paramValue) : GenericUtil.uDouble(paramValue.toString()) );
     			break;
     		case	2://date:TODO
     			break;
@@ -1946,7 +1946,7 @@ public class W5QueryResult implements W5MetaResult{
     			break;
     		case	1://string
     			sqlWhere.append(sqlWhere.length()>0 ? " AND ( " : " ( ");
-    			if(qf.getPostProcessTip()!=11 && qf.getPostProcessTip()!=13){//multi degilse
+    			if(qf.getPostProcessType()!=11 && qf.getPostProcessType()!=13){//multi degilse
     				sqlWhere.append(FrameworkCache.getAppSettingStringValue(getScd(), "db_lower_fnc","lower")).append("(").append(paramName).append(") like ? ) ");
     				sqlParams.add((paramValue.toString()).toLowerCase(xlocale) + "%");
     			} else {

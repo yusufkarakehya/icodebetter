@@ -22,8 +22,8 @@ public class W5FormModule implements java.io.Serializable, W5Base {
 	private int formId;
 	private String localeMsgKey;
 	private short tabOrder;
-	private short moduleTip;
-	private short moduleViewTip;
+	private short moduleType;
+	private short moduleViewType;
 	private int objectId;
 	private int minRow;
 	private int maxRow;
@@ -64,11 +64,11 @@ public class W5FormModule implements java.io.Serializable, W5Base {
 		this.tabOrder = tabOrder;
 	}
 	@Column(name="module_tip")
-	public short getModuleTip() {
-		return moduleTip;
+	public short getModuleType() {
+		return moduleType;
 	}
-	public void setModuleTip(short moduleTip) {
-		this.moduleTip = moduleTip;
+	public void setModuleType(short moduleType) {
+		this.moduleType = moduleType;
 	}
 
 	
@@ -89,11 +89,11 @@ public class W5FormModule implements java.io.Serializable, W5Base {
 		_sourceFormResult = sourceFormResult;
 	}*/
 	@Column(name="module_view_tip")
-	public short getModuleViewTip() {
-		return moduleViewTip;
+	public short getModuleViewType() {
+		return moduleViewType;
 	}
-	public void setModuleViewTip(short moduleViewTip) {
-		this.moduleViewTip = moduleViewTip;
+	public void setModuleViewType(short moduleViewType) {
+		this.moduleViewType = moduleViewType;
 	}
 	
 	@Transient
@@ -106,8 +106,8 @@ public class W5FormModule implements java.io.Serializable, W5Base {
 		private String dsc;
 		private String localeMsgKey;
 		private short tabOrder;
-		private short moduleTip;
-		private short moduleViewTip;
+		private short moduleType;
+		private short moduleViewType;
 		private int objectId;
 		private short accessViewTip;
 		private String accessViewRoles;

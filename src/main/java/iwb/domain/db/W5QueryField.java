@@ -23,11 +23,11 @@ public class W5QueryField implements java.io.Serializable, W5Param, W5Base {
 
 	private String dsc;
 
-	private short fieldTip;
+	private short fieldType;
 
 	private short tabOrder;
 
-	private short postProcessTip;
+	private short postProcessType;
 	private int lookupQueryId;
 	
 	private int mainTableFieldId;
@@ -53,8 +53,8 @@ public class W5QueryField implements java.io.Serializable, W5Param, W5Base {
 	}
 
 	@Column(name="field_tip")
-	public short getFieldTip() {
-		return fieldTip;
+	public short getFieldType() {
+		return fieldType;
 	}
 
 	@Column(name="tab_order")
@@ -77,8 +77,8 @@ public class W5QueryField implements java.io.Serializable, W5Param, W5Base {
 		this.dsc = dsc;
 	}
 
-	public void setFieldTip(short fieldTip) {
-		this.fieldTip = fieldTip;
+	public void setFieldType(short fieldType) {
+		this.fieldType = fieldType;
 	}
 
 	public void setTabOrder(short tabOrder) {
@@ -87,12 +87,12 @@ public class W5QueryField implements java.io.Serializable, W5Param, W5Base {
 
 
 	@Column(name="post_process_tip")
-	public short getPostProcessTip() {
-		return postProcessTip;
+	public short getPostProcessType() {
+		return postProcessType;
 	}
 
-	public void setPostProcessTip(short postProcessTip) {
-		this.postProcessTip = postProcessTip;
+	public void setPostProcessType(short postProcessType) {
+		this.postProcessType = postProcessType;
 	}
 
 	@Column(name="lookup_query_id")
@@ -114,8 +114,8 @@ public class W5QueryField implements java.io.Serializable, W5Param, W5Base {
 	}
 	
 	@Transient
-	public short getParamTip(){
-		return fieldTip;
+	public short getParamType(){
+		return fieldType;
 	}
 	
 	@Transient
@@ -125,7 +125,7 @@ public class W5QueryField implements java.io.Serializable, W5Param, W5Base {
 
 	
 	@Transient
-	public short getSourceTip(){
+	public short getSourceType(){
 		return 0;
 	}
 

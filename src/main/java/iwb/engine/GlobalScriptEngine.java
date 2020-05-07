@@ -205,7 +205,7 @@ public class GlobalScriptEngine {
 				for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
 					if (p1.getOutFlag() == 0) {
 						Object o = GenericUtil.prepareParam(p1, r.getScd(), r.getRequestParams(), (short) -1, null,
-								(short) 0, p1.getSourceTip() == 1 ? p1.getDsc() : null, null, r.getErrorMap());
+								(short) 0, p1.getSourceType() == 1 ? p1.getDsc() : null, null, r.getErrorMap());
 						if (o == null)
 							params.add(null);
 						else if ((o instanceof Integer) || (o instanceof Double) || (o instanceof BigDecimal)
@@ -232,7 +232,7 @@ public class GlobalScriptEngine {
 								Object em = resultMap.get(p1.getDsc());
 								if (em != null) {
 									String v = em.toString();
-									if (p1.getParamTip() == 4 && v.endsWith(".0"))
+									if (p1.getParamType() == 4 && v.endsWith(".0"))
 										v = v.substring(0, v.length() - 2);
 									res.put(p1.getDsc(), v);
 								}
@@ -702,7 +702,7 @@ public class GlobalScriptEngine {
 
 			for (W5QueryParam p1 : q.get_queryParams()) {
 				String s = qr.getRequestParams().get(p1.getDsc());
-				Object o = GenericUtil.isEmpty(s) ? null : GenericUtil.getObjectByTip(s, p1.getParamTip());
+				Object o = GenericUtil.isEmpty(s) ? null : GenericUtil.getObjectByTip(s, p1.getParamType());
 				if (o == null) {
 					if (p1.getNotNullFlag() != 0)
 						qr.getErrorMap().put(p1.getDsc(),
@@ -748,7 +748,7 @@ public class GlobalScriptEngine {
 						qr.getNewQueryFields().add(qf);
 					}
 					for (W5QueryField qf : q.get_queryFields())
-						if ((qf.getPostProcessTip() == 16 || qf.getPostProcessTip() == 17)
+						if ((qf.getPostProcessType() == 16 || qf.getPostProcessType() == 17)
 								&& qf.getLookupQueryId() != 0) {
 							W5QueryResult queryFieldLookupQueryResult = metadataLoader.getQueryResult(qr.getScd(),
 									qf.getLookupQueryId());
@@ -759,7 +759,7 @@ public class GlobalScriptEngine {
 								maxTabOrder++;
 								field.setTabOrder((short) maxTabOrder);
 								qr.getNewQueryFields().add(field);
-								if (qf.getPostProcessTip() == 16
+								if (qf.getPostProcessType() == 16
 										&& queryFieldLookupQueryResult.getQuery().get_queryFields().size() > 2)
 									for (int qi = 2; qi < queryFieldLookupQueryResult.getQuery().get_queryFields()
 											.size(); qi++) {
@@ -784,7 +784,7 @@ public class GlobalScriptEngine {
 							if (no.containsKey(qf.getDsc())) {
 								Object o2 = no.get(qf.getDsc());
 								if (o2 != null) {
-									switch (qf.getFieldTip()) {
+									switch (qf.getFieldType()) {
 									case 4: // integer
 										o[qf.getTabOrder() - 1] = GenericUtil.uInt(o2);
 										break;
@@ -985,12 +985,12 @@ public class GlobalScriptEngine {
 
 	public Map executeQuery4StatWS(W5QueryResult queryResult) {
 
-		W5WsMethod wsm = FrameworkCache.getWsMethod(queryResult.getScd(), queryResult.getQuery().getMainTableId());
+		W5WsMethod wsm = FrameworkCache.getWsMethod(queryResult.getScd(), queryResult.getQuery().getSourceObjectId());
 		Map<String, Object> scd = queryResult.getScd();
 
 		W5WsMethodParam parentParam = null;
 		for (W5WsMethodParam px : wsm.get_params())
-			if (px.getOutFlag() != 0 && px.getParamTip() == 10) {
+			if (px.getOutFlag() != 0 && px.getParamType() == 10) {
 				parentParam = px;
 				break;
 			}
@@ -1031,7 +1031,7 @@ public class GlobalScriptEngine {
 			for (W5QueryField qf : queryResult.getQuery().get_queryFields())
 				if (qf.getQueryFieldId() == queryFieldId) {
 					statQF = qf;
-					if (qf.getPostProcessTip() == 10)
+					if (qf.getPostProcessType() == 10)
 						statLU = FrameworkCache.getLookUp(scd, qf.getLookupQueryId());
 					break;
 				}
@@ -1183,7 +1183,7 @@ public class GlobalScriptEngine {
 				for (W5GlobalFuncParam p1 : r.getGlobalFunc().get_dbFuncParamList())
 					if (p1.getOutFlag() == 0) {
 						Object o = GenericUtil.prepareParam(p1, r.getScd(), r.getRequestParams(), (short) -1, null,
-								(short) 0, p1.getSourceTip() == 1 ? p1.getDsc() : null, null, r.getErrorMap());
+								(short) 0, p1.getSourceType() == 1 ? p1.getDsc() : null, null, r.getErrorMap());
 						if (o == null)
 							params.add(null);
 						else if ((o instanceof Integer) || (o instanceof Double) || (o instanceof BigDecimal)
@@ -1221,7 +1221,7 @@ public class GlobalScriptEngine {
 									Object em = resultMap.get(p1.getDsc());
 									if (em != null) {
 										String v = em.toString();
-										if (p1.getParamTip() == 4 && v.endsWith(".0"))
+										if (p1.getParamType() == 4 && v.endsWith(".0"))
 											v = v.substring(0, v.length() - 2);
 										res.put(p1.getDsc(), v);
 									}
@@ -1393,7 +1393,7 @@ public class GlobalScriptEngine {
 
 			for (W5QueryParam p1 : q.get_queryParams()) {
 				String s = qr.getRequestParams().get(p1.getDsc());
-				Object o = GenericUtil.isEmpty(s) ? null : GenericUtil.getObjectByTip(s, p1.getParamTip());
+				Object o = GenericUtil.isEmpty(s) ? null : GenericUtil.getObjectByTip(s, p1.getParamType());
 				if (o == null) {
 					if (p1.getNotNullFlag() != 0)
 						qr.getErrorMap().put(p1.getDsc(),
@@ -1476,7 +1476,7 @@ public class GlobalScriptEngine {
 					for (W5QueryField qf : q.get_queryFields()) {
 						Map d = new HashMap();
 						d.put("name", qf.getDsc());
-						switch (qf.getFieldTip()) {
+						switch (qf.getFieldType()) {
 						case 3:
 							d.put("type", "int");
 							break;

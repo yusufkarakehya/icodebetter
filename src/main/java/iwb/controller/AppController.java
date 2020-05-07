@@ -366,7 +366,7 @@ public class AppController implements InitializingBean {
 				scd = UserUtil.getScd(request, "scd-dev", false);
 				W5QueryResult qr = new W5QueryResult(142);
 				W5Query q = new W5Query();
-				q.setQueryTip((short) 0);
+				q.setQueryType((short) 0);
 				qr.setQuery(q);
 				qr.setScd(scd);
 				qr.setErrorMap(new HashMap());
@@ -1274,7 +1274,7 @@ public class AppController implements InitializingBean {
 		Locale blocale = request.getLocale();
 		scd.put("locale", FrameworkCache.getAppSettingStringValue(0, "locale", "en"));
 
-		int templateId = 1; // Login Page Template
+		int pageId = 1; // Login Page Template
 		if (FrameworkCache.getAppSettingIntValue(0, "mobile_flag") != 0) {
 			String requestHeaderUserAgent = request.getHeader("User-Agent");
 			// iphone -> Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1_3 like Mac OS
@@ -1288,13 +1288,13 @@ public class AppController implements InitializingBean {
 				if (requestHeaderUserAgent.contains("symbian") || requestHeaderUserAgent.contains("iphone")
 						|| requestHeaderUserAgent.contains("ipad") || request.getParameter("iphone") != null
 						|| requestHeaderUserAgent.contains("android") || request.getParameter("android") != null) {
-					// templateId = 564; //TODO : sencha ile ilgili kısımda
+					// pageId = 564; //TODO : sencha ile ilgili kısımda
 					// hatalar olduğundan burası geçici olarak kapatıldı.
 				}
 			}
 		}
 
-		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1315,9 +1315,9 @@ public class AppController implements InitializingBean {
 		scd.put("locale", GenericUtil.getParameterMap(request).get("locale") != null
 				? GenericUtil.getParameterMap(request).get("locale") : getDefaultLanguage(scd, blocale.getLanguage()));
 
-		int templateId = 7; // Page Template
+		int pageId = 7; // Page Template
 
-		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1362,13 +1362,13 @@ public class AppController implements InitializingBean {
 		if (scd.get("mobile") != null)
 			scd.remove("mobile");
 
-		int templateId = GenericUtil.uInt(scd.get("mainTemplateId")); // Login
+		int pageId = GenericUtil.uInt(scd.get("mainTemplateId")); // Login
 		
 	
 		
 																		// Page
 																		// Template
-		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -1392,20 +1392,20 @@ public class AppController implements InitializingBean {
 	public void hndShowPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		int templateId = GenericUtil.uInt(request, "_tid");
-		logger.info("hndShowPage(" + templateId + ")");
+		int pageId = GenericUtil.uInt(request, "_tid");
+		logger.info("hndShowPage(" + pageId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
-		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
-		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
-		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
+		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
+		// if(pageResult.getTemplate().getTemplateTip()!=2 && pageId!=218 &&
+		// pageId!=611 && pageId!=551 && pageId!=566){ //TODO:cok
 		// amele
 		// throw new PromisException("security","Template",0,null, "Wrong
 		// Template Tip (must be page)", null);
 		// }
 
-		if(pageResult.getPage().getTemplateTip()!=0)
+		if(pageResult.getPage().getPageType()!=0)
 			response.setContentType("application/json");
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
@@ -1423,8 +1423,8 @@ public class AppController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
 		M5ListResult listResult = service.getMListResult(scd, listId, GenericUtil.getParameterMap(request));
-		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
-		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
+		// if(pageResult.getTemplate().getTemplateTip()!=2 && pageId!=218 &&
+		// pageId!=611 && pageId!=551 && pageId!=566){ //TODO:cok
 		// amele
 		// throw new PromisException("security","Template",0,null, "Wrong
 		// Template Tip (must be page)", null);
@@ -1440,15 +1440,15 @@ public class AppController implements InitializingBean {
 	public void hndShowMPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		int templateId = GenericUtil.uInt(request, "_tid");
-		logger.info("hndShowMPage(" + templateId + ")");
+		int pageId = GenericUtil.uInt(request, "_tid");
+		logger.info("hndShowMPage(" + pageId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
-		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
 
 
-		if(pageResult.getPage().getTemplateTip()!=0)
+		if(pageResult.getPage().getPageType()!=0)
 			response.setContentType("application/json");
 
 		response.getWriter().write(f7.serializePage(pageResult).toString());

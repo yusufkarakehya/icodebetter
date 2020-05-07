@@ -33,9 +33,9 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 
 	private String dsc;
 	
-	private short sourceTip;
+	private short sourceType;
 	
-	private short fieldTip;
+	private short fieldType;
 
 	private short notNullFlag;
 
@@ -118,12 +118,12 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 	}
 
 	@Column(name="field_tip")
-	public short getFieldTip() {
-		return this.fieldTip;
+	public short getFieldType() {
+		return this.fieldType;
 	}
 
-	public void setFieldTip(short fieldTip) {
-		this.fieldTip = fieldTip;
+	public void setFieldType(short fieldType) {
+		this.fieldType = fieldType;
 	}
 
 	@Column(name="min_length")
@@ -211,16 +211,16 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 	}
 
 	@Column(name="source_tip")
-	public short getSourceTip() {
-		return this.sourceTip; //always request
+	public short getSourceType() {
+		return this.sourceType; //always request
 	}
 	@Transient
-	public short getParamTip() {
-		return this.fieldTip;
+	public short getParamType() {
+		return this.fieldType;
 	}
 
-	public void setSourceTip(short sourceTip) {
-		this.sourceTip = sourceTip;
+	public void setSourceType(short sourceType) {
+		this.sourceType = sourceType;
 	}
 	
 	
@@ -353,9 +353,9 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 
 			GenericUtil.safeEquals(this.dsc,t.getDsc()) &&
 			
-			this.sourceTip==t.getSourceTip() &&
+			this.sourceType==t.getSourceType() &&
 			
-			this.fieldTip==t.getFieldTip() &&
+			this.fieldType==t.getFieldType() &&
 	
 			this.notNullFlag==t.getNotNullFlag() &&
 	

@@ -23,7 +23,7 @@ public class W5QueryFieldCreation implements java.io.Serializable {
 
 	private String dsc;
 
-	private short fieldTip;
+	private short fieldType;
 
 	private short tabOrder;
 	
@@ -32,7 +32,7 @@ public class W5QueryFieldCreation implements java.io.Serializable {
 	private	int versionUserId;
 	private	java.sql.Timestamp versionDttm;
 	
-	private short postProcessTip;
+	private short postProcessType;
 	private int customizationId;
 	private String projectUuid;
 	private String oprojectUuid;
@@ -93,8 +93,8 @@ public class W5QueryFieldCreation implements java.io.Serializable {
 	}
 
 	@Column(name="field_tip")
-	public short getFieldTip() {
-		return fieldTip;
+	public short getFieldType() {
+		return fieldType;
 	}
 
 	@Column(name="tab_order")
@@ -115,20 +115,20 @@ public class W5QueryFieldCreation implements java.io.Serializable {
 		this.dsc = dsc;
 	}
 
-	public void setFieldTip(short fieldTip) {
-		this.fieldTip = fieldTip;
+	public void setFieldType(short fieldType) {
+		this.fieldType = fieldType;
 	}
 
 	public void setTabOrder(short tabOrder) {
 		this.tabOrder = tabOrder;
 	}
 	@Column(name="post_process_tip")
-	public short getPostProcessTip() {
-		return postProcessTip;
+	public short getPostProcessType() {
+		return postProcessType;
 	}
 
-	public void setPostProcessTip(short postProcessTip) {
-		this.postProcessTip = postProcessTip;
+	public void setPostProcessType(short postProcessType) {
+		this.postProcessType = postProcessType;
 	}
 
 	@Column(name="main_table_field_id")

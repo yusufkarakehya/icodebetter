@@ -230,7 +230,7 @@ public class PreviewController implements InitializingBean {
 				scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 				W5QueryResult qr = new W5QueryResult(142);
 				W5Query q = new W5Query();
-				q.setQueryTip((short) 0);
+				q.setQueryType((short) 0);
 				qr.setQuery(q);
 				qr.setScd(scd);
 				qr.setErrorMap(new HashMap());
@@ -619,7 +619,7 @@ public class PreviewController implements InitializingBean {
 			scd.put("userName", "Demo User");
 			scd.put("email", "demo@icodebetter.com");scd.put("locale", "en");
 			scd.put("chat", 1);scd.put("chatStatusTip", 1);
-			scd.put("userTip",po.get_defaultUserTip());
+			scd.put("userTip",po.get_defaultRoleGroupId());
 			scd.put("path", "../");
 			accessType = (short) 6;
 		}
@@ -953,7 +953,7 @@ public class PreviewController implements InitializingBean {
 			return;
 		}
 
-		int templateId = GenericUtil.uInt(scd.get("mainTemplateId")); // Login
+		int pageId = GenericUtil.uInt(scd.get("mainTemplateId")); // Login
 		
 		//if it exists then create new session
 		
@@ -961,7 +961,7 @@ public class PreviewController implements InitializingBean {
 		
 																		// Page
 																		// Template
-		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
 		response.setContentType("text/html; charset=UTF-8");
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();
@@ -972,20 +972,20 @@ public class PreviewController implements InitializingBean {
 	@RequestMapping("/*/showPage")
 	public void hndShowPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		int templateId = GenericUtil.uInt(request, "_tid");
-		logger.info("hndShowPage(" + templateId + ")");
+		int pageId = GenericUtil.uInt(request, "_tid");
+		logger.info("hndShowPage(" + pageId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
-		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
-		// if(pageResult.getTemplate().getTemplateTip()!=2 && templateId!=218 &&
-		// templateId!=611 && templateId!=551 && templateId!=566){ //TODO:cok
+		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
+		// if(pageResult.getTemplate().getTemplateTip()!=2 && pageId!=218 &&
+		// pageId!=611 && pageId!=551 && pageId!=566){ //TODO:cok
 		// amele
 		// throw new PromisException("security","Template",0,null, "Wrong
 		// Template Tip (must be page)", null);
 		// }
 
-		if(pageResult.getPage().getTemplateTip()!=0)
+		if(pageResult.getPage().getPageType()!=0)
 			response.setContentType("application/json");
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
@@ -1015,15 +1015,15 @@ public class PreviewController implements InitializingBean {
 	public void hndShowMPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		int templateId = GenericUtil.uInt(request, "_tid");
-		logger.info("hndShowMPage(" + templateId + ")");
+		int pageId = GenericUtil.uInt(request, "_tid");
+		logger.info("hndShowMPage(" + pageId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
-		W5PageResult pageResult = service.getPageResult(scd, templateId, GenericUtil.getParameterMap(request));
+		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
 
 
-		if(pageResult.getPage().getTemplateTip()!=0)
+		if(pageResult.getPage().getPageType()!=0)
 			response.setContentType("application/json");
 
 		response.getWriter().write(f7.serializePage(pageResult).toString());

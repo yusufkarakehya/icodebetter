@@ -30,7 +30,7 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base 
 
 	private String dsc;
 
-	private short paramTip;
+	private short paramType;
 
 	private short tabOrder;
 
@@ -46,7 +46,7 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base 
 
 	private BigDecimal maxValue;
 	
-	private short sourceTip;
+	private short sourceType;
 
 	private short outFlag;
 	
@@ -93,13 +93,13 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base 
 	}
 
 	@Column(name="param_tip")
-	public short getParamTip() {
-		return this.paramTip;
+	public short getParamType() {
+		return this.paramType;
 	}
 	
 
-	public void setParamTip(short paramTip) {
-		this.paramTip = paramTip;
+	public void setParamType(short paramType) {
+		this.paramType = paramType;
 	}
 
 	@Column(name="tab_order")
@@ -158,12 +158,12 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base 
 
 
 	@Column(name="source_tip")
-	public short getSourceTip() {
-		return sourceTip;
+	public short getSourceType() {
+		return sourceType;
 	}
 
-	public void setSourceTip(short sourceTip) {
-		this.sourceTip = sourceTip;
+	public void setSourceType(short sourceType) {
+		this.sourceType = sourceType;
 	}
 
 	@Column(name="not_null_flag")

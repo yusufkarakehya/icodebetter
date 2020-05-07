@@ -23,13 +23,13 @@ public class W5WsMethodParam  implements java.io.Serializable, W5Param, W5Base {
 	private int wsMethodId;
 	private int parentWsMethodParamId;
 	private String dsc;
-	private short paramTip;
+	private short paramType;
 	private String uid;
 	private short outFlag;
 	private short credentialsFlag;
 	private short notNullFlag;
 	private short tabOrder;
-	private short sourceTip;
+	private short sourceType;
 
 	private String defaultValue;
 	private	BigDecimal	minValue;
@@ -47,11 +47,11 @@ public class W5WsMethodParam  implements java.io.Serializable, W5Param, W5Base {
 		this.wsMethodParamId = wsMethodParamId;
 	}
 	@Column(name="param_tip")
-	public short getParamTip() {
-		return paramTip;
+	public short getParamType() {
+		return paramType;
 	}
-	public void setParamTip(short paramTip) {
-		this.paramTip = paramTip;
+	public void setParamType(short paramType) {
+		this.paramType = paramType;
 	}
 	@Column(name="ws_method_id")
 	public int getWsMethodId() {
@@ -138,12 +138,12 @@ public class W5WsMethodParam  implements java.io.Serializable, W5Param, W5Base {
 		this.maxLength = maxLength;
 	}
 	@Column(name="source_tip")
-	public short getSourceTip() {
-		return sourceTip;
+	public short getSourceType() {
+		return sourceType;
 	}
 
-	public void setSourceTip(short sourceTip) {
-		this.sourceTip = sourceTip;
+	public void setSourceType(short sourceType) {
+		this.sourceType = sourceType;
 	}
 
 	

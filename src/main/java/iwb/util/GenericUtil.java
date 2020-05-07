@@ -1159,29 +1159,29 @@ public class GenericUtil {
 			if (o == null)
 				html.append("\"").append(q).append("\":\"\"");
 			else if (o instanceof JSONObject) {
-				if(p.getParamTip()==8 || p.getParamTip()==9)
+				if(p.getParamType()==8 || p.getParamType()==9)
 					html.append("\"").append(q).append("\":").append(((JSONObject) o).toString());
 				else 
 					html.append("\"").append(q).append("\":null");
 			} else if (o instanceof JSONArray) {
-				if(p.getParamTip()==10)
+				if(p.getParamType()==10)
 					html.append("\"").append(q).append("\":").append(((JSONArray) o).toString());
 				else 
 					html.append("\"").append(q).append("\":null");
 			} else if (o instanceof Map) {
-				if(p.getParamTip()==8 || p.getParamTip()==9)
+				if(p.getParamType()==8 || p.getParamType()==9)
 					html.append("\"").append(q).append("\":")
 						.append(fromMapToJsonString2Recursive((Map<String, Object>) o, params, p.getWsMethodParamId()));
 				else 
 					html.append("\"").append(q).append("\":null");
 			} else if (o instanceof List) {
-				if(p.getParamTip()==10)
+				if(p.getParamType()==10)
 					html.append("\"").append(q).append("\":").append(fromListToJsonString2Recursive((List<Object>) o));
 				else 
 					html.append("\"").append(q).append("\":null");
 			} else {
 				html.append("\"").append(q).append("\":");
-				switch(p.getParamTip()) {
+				switch(p.getParamType()) {
 				case	4://integer
 					html.append(GenericUtil.uInt(o));break;
 				case	3://float
@@ -1565,18 +1565,18 @@ public class GenericUtil {
 	}
 
 	public static Object prepareParam(W5Param param, Map<String, Object> scd, Map<String, String> requestParams,
-			short sourceTip, Map<String, String> extraParams, short notNullFlag, String dsc, String defaultValue,
+			short sourceType, Map<String, String> extraParams, short notNullFlag, String dsc, String defaultValue,
 			Map<String, String> errorMap, PostgreSQL dao) {
 		String pvalue = null;
 		boolean hasError = false;
-		if (sourceTip < 0)
-			sourceTip = param.getSourceTip();
+		if (sourceType < 0)
+			sourceType = param.getSourceType();
 		if (notNullFlag == 0)
 			notNullFlag = param.getNotNullFlag();
-		if (sourceTip == param.getSourceTip() && (defaultValue == null || defaultValue.length() == 0))
+		if (sourceType == param.getSourceType() && (defaultValue == null || defaultValue.length() == 0))
 			defaultValue = param.getDefaultValue();
 
-		switch (sourceTip) {
+		switch (sourceType) {
 		case 0: // non-interaktif
 			pvalue = defaultValue;
 			break;
@@ -1593,7 +1593,7 @@ public class GenericUtil {
 			}
 			if (pvalue == null) {
 				String xdsc = dsc != null ? dsc : param.getDsc();
-				if (param.getParamTip() == 10 && xdsc.contains("-")) { // ardarda
+				if (param.getParamType() == 10 && xdsc.contains("-")) { // ardarda
 																		// birkactane,
 																		// sadece
 																		// custom
@@ -1604,12 +1604,12 @@ public class GenericUtil {
 					Object[] pvalues = new Object[xdscs.length];
 					for (int q7 = 0; q7 < xdscs.length; q7++) {
 						pvalues[q7] = GenericUtil.getObjectByTip(requestParams.get(xdscs[q7].trim()),
-								param.getParamTip());
+								param.getParamType());
 					}
 					return pvalues;
 				}
 				Object oo = requestParams.get(xdsc);
-				if (oo == null && param.getParamTip() == 5)
+				if (oo == null && param.getParamType() == 5)
 					oo = requestParams.get(xdsc + "[]");
 				pvalue = oo == null ? null : oo.toString();
 			}
@@ -1656,21 +1656,21 @@ public class GenericUtil {
 			pvalue = defaultValue;
 
 		Object psonuc = null;
-		switch(param.getParamTip()) {
+		switch(param.getParamType()) {
 		case 2: if(scd!=null && pvalue!=null) {
 			psonuc = GenericUtil.uDate(pvalue, uInt(scd.get("date_format")));
 			break;
 		}
 		default:
-			psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamTip());
+			psonuc = GenericUtil.getObjectByTip(pvalue, param.getParamType());
 		}
 		if (notNullFlag != 0 && psonuc == null) { // not null
 			hasError = true;
 			errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_not_null")); 
-		} else if ((param.getParamTip() == 5 || param.getParamTip() == 2) && (param instanceof W5TableField)) {
+		} else if ((param.getParamType() == 5 || param.getParamType() == 2) && (param instanceof W5TableField)) {
 			W5TableField tf = (W5TableField) param;
-			if (tf.getDefaultControlTip() == param.getParamTip() && tf.getDefaultLookupTableId() > 0) {
-				if (param.getParamTip() == 5) {
+			if (tf.getDefaultControlTip() == param.getParamType() && tf.getDefaultLookupTableId() > 0) {
+				if (param.getParamType() == 5) {
 					psonuc = GenericUtil.uInt(psonuc) != 0;
 				} else {
 					psonuc = GenericUtil.uDateTm(pvalue, scd!=null ? uInt(scd.get("date_format")): 0);
@@ -1713,9 +1713,9 @@ public class GenericUtil {
 	}
 
 	public static Object prepareParam(W5Param param, Map<String, Object> scd, Map<String, String> requestParams,
-			short sourceTip, Map<String, String> extraParams, short notNullFlag, String dsc, String defaultValue,
+			short sourceType, Map<String, String> extraParams, short notNullFlag, String dsc, String defaultValue,
 			Map<String, String> errorMap) {
-		return prepareParam(param, scd, requestParams, sourceTip, extraParams, notNullFlag, dsc, defaultValue, errorMap,
+		return prepareParam(param, scd, requestParams, sourceType, extraParams, notNullFlag, dsc, defaultValue, errorMap,
 				null);
 	}
 
@@ -1881,10 +1881,10 @@ public class GenericUtil {
 		W5FormCell cell = new W5FormCell();
 		cell.setDsc((String) d[0]);
 		cell.setLocaleMsgKey((String) d[1]);
-		cell.setControlTip((short) GenericUtil.uInt(d[2]));
+		cell.setControlType((short) GenericUtil.uInt(d[2]));
 		cell.setControlWidth((short) GenericUtil.uInt(d[3]));
 		cell.setLookupQueryId(GenericUtil.uInt(d[4]));
-		if (cell.getControlTip() != 5)
+		if (cell.getControlType() != 5)
 			cell.setNotNullFlag((short) GenericUtil.uInt(d[5]));
 		cell.setFormModuleId(GenericUtil.uInt(d[7]));
 		W5FormCellHelper result = new W5FormCellHelper(cell);

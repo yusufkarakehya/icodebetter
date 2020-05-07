@@ -43,7 +43,7 @@ public class W5Table implements java.io.Serializable, W5Base {
 	private String accessViewUsers;
 	private String accessViewUserFields;
 	
-	private short accessInsertTip; //0:kisitlama yok, 1:var
+	private short accessInsertTip; //0:no restriction, 1; has restriction
 	private String accessInsertRoles;
 	private String accessInsertUsers;
 	

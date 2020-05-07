@@ -106,8 +106,8 @@ public class MetadataImport {
 
 		List<W5RoleGroup> roleGroups = jsonArray2java(j, ("roleGroups"), W5RoleGroup.class);
 		FrameworkCache.addRoleGroups2Cache(projectId, roleGroups);
-		if(roleGroups!=null)for(W5RoleGroup rg:roleGroups)if(rg.getActiveFlag()!=0 && rg.getUserTip()!=122) {
-			po.set_defaultUserTip(rg.getUserTip());
+		if(roleGroups!=null)for(W5RoleGroup rg:roleGroups)if(rg.getActiveFlag()!=0 && rg.getRoleGroupId()!=122) {
+			po.set_defaultRoleGroupId(rg.getRoleGroupId());
 			break;
 		}
 		FrameworkCache.addProject(po);

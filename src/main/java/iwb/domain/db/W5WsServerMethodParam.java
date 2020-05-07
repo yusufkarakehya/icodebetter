@@ -18,11 +18,11 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param, W5
 	private int wsServerMethodParamId;
 	private int wsServerMethodId;
 	private String dsc;
-	private short paramTip;
+	private short paramType;
 	private short outFlag;
 	private short notNullFlag;
 	private short tabOrder;
-	private short sourceTip;
+	private short sourceType;
 	private int objectDetailId;
 
 	private String defaultValue;
@@ -40,9 +40,9 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param, W5
 	public W5WsServerMethodParam(W5Param p, short outFlag, int parentWsMethodParamId) {
 		super();
 		this.dsc = p.getDsc();
-		this.paramTip = p.getParamTip();
+		this.paramType = p.getParamType();
 		this.outFlag = outFlag;
-		this.sourceTip = p.getSourceTip();
+		this.sourceType = p.getSourceType();
 		this.notNullFlag = p.getNotNullFlag();
 		this.minValue = p.getMinValue();
 		this.maxValue = p.getMaxValue();
@@ -50,11 +50,11 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param, W5
 		this.parentWsMethodParamId = parentWsMethodParamId;
 	}
 	
-	public W5WsServerMethodParam(int wsServerMethodParamId, String dsc, short paramTip) {
+	public W5WsServerMethodParam(int wsServerMethodParamId, String dsc, short paramType) {
 		super();
 		this.wsServerMethodParamId = wsServerMethodParamId;
 		this.dsc = dsc;
-		this.paramTip = paramTip;
+		this.paramType = paramType;
 		this.outFlag = (short)1;
 	}
 	
@@ -67,11 +67,11 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param, W5
 		this.wsServerMethodParamId = wsServerMethodParamId;
 	}
 	@Column(name="param_tip")
-	public short getParamTip() {
-		return paramTip;
+	public short getParamType() {
+		return paramType;
 	}
-	public void setParamTip(short paramTip) {
-		this.paramTip = paramTip;
+	public void setParamType(short paramType) {
+		this.paramType = paramType;
 	}
 	@Column(name="ws_server_method_id")
 	public int getWsServerMethodId() {
@@ -150,12 +150,12 @@ public class W5WsServerMethodParam  implements java.io.Serializable, W5Param, W5
 		this.maxLength = maxLength;
 	}
 	@Column(name="source_tip")
-	public short getSourceTip() {
-		return sourceTip;
+	public short getSourceType() {
+		return sourceType;
 	}
 
-	public void setSourceTip(short sourceTip) {
-		this.sourceTip = sourceTip;
+	public void setSourceType(short sourceType) {
+		this.sourceType = sourceType;
 	}
 
 	

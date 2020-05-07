@@ -20,8 +20,8 @@ public class W5ObjectMenuItem implements java.io.Serializable, W5Base {
 	private static final long serialVersionUID = 1918273645132L;
 	private int menuItemId;
 	private short tabOrder;
-	private short objectTip; // hangi tablodan geldigi: 2:table_id, 1:gridId, 3:dbFunc
-	private int objectId; //gelen table'in PK'si
+	private short objectType; //  2:table_id, 1:gridId, 3:dbFunc
+	private int objectId; //object's Primary Key
 
 	
 	private String imgIcon;
@@ -72,11 +72,11 @@ public class W5ObjectMenuItem implements java.io.Serializable, W5Base {
 		this.code = url;
 	}
 	@Column(name="object_tip")
-	public short getObjectTip() {
-		return objectTip;
+	public short getObjectType() {
+		return objectType;
 	}
-	public void setObjectTip(short objectTip) {
-		this.objectTip = objectTip;
+	public void setObjectType(short objectType) {
+		this.objectType = objectType;
 	}
 	@Column(name="object_id")
 	public int getObjectId() {

@@ -895,7 +895,7 @@ public class CRUDEngine {
 				 */
 
 				boolean bc = false; // boolean copy
-				if (realAction == 5 && formResult.getForm().getObjectTip() == 2
+				if (realAction == 5 && formResult.getForm().getObjectType() == 2
 						&& /* formResult.getForm().get_sourceTable() */ FrameworkCache
 								.getTable(scd, formResult.getForm().getObjectId()).get_tableChildList() != null) { // copy
 																													// ise
@@ -1032,7 +1032,7 @@ public class CRUDEngine {
 			metadataWriter.afterPostForm(formResult, paramSuffix);
 
 			if (FrameworkSetting.liveSyncRecord && formResult.getErrorMap().isEmpty() && formResult.getForm() != null
-					&& formResult.getForm().getObjectTip() == 2) {
+					&& formResult.getForm().getObjectType() == 2) {
 				int userId = (Integer) formResult.getScd().get("userId");
 				// int customizationId =
 				// (Integer)formResult.getScd().get("customizationId");
@@ -1224,9 +1224,9 @@ public class CRUDEngine {
 		// değerler bir kez daha gönderiliyordu.
 		if (mainFormResult.getForm().get_moduleList() != null) {
 			for (W5FormModule m : mainFormResult.getForm().get_moduleList())
-				if (m.getModuleTip() == 4) { // form
-					if (m.getModuleViewTip() == 0 || (m.getModuleViewTip() == 1 && action == 1)
-							|| (m.getModuleViewTip() == 2 && action == 2)) {
+				if (m.getModuleType() == 4) { // form
+					if (m.getModuleViewType() == 0 || (m.getModuleViewType() == 1 && action == 1)
+							|| (m.getModuleViewType() == 2 && action == 2)) {
 						int newAction = GenericUtil.uInt(requestParams.get("a" + m.getTabOrder()));
 						if (newAction == 0)
 							newAction = action;

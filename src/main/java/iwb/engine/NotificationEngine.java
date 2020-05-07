@@ -88,9 +88,9 @@ public class NotificationEngine {
 				String almStr = requestParams.get("_almStr");
 				if (GenericUtil.isEmpty(almStr)) {
 					for (W5FormSmsMail fsm : formResult.getForm().get_formSmsMailList())
-						if (fsm.getAlarmFlag() != 0 && GenericUtil.hasPartInside2(fsm.getActionTips(), action)
+						if (fsm.getAlarmFlag() != 0 && GenericUtil.hasPartInside2(fsm.getActionTypes(), action)
 								&& GenericUtil.hasPartInside2(fsm.getWebMobileTips(), mobile ? "2" : "1")
-								&& (fsm.getSmsMailSentTip() == 0 || fsm.getSmsMailSentTip() == 3)) {
+								&& (fsm.getSmsMailSentType() == 0 || fsm.getSmsMailSentType() == 3)) {
 							if (GenericUtil.isEmpty(almStr))
 								almStr = "" + fsm.getFormSmsMailId();
 							else
@@ -110,7 +110,7 @@ public class NotificationEngine {
 							ass = ass.substring(0, ass.indexOf('-'));
 						}
 						W5FormSmsMail fsm = formResult.getForm().get_formSmsMailMap().get(GenericUtil.uInt(ass));
-						if (fsm == null || !GenericUtil.hasPartInside2(fsm.getActionTips(), action)
+						if (fsm == null || !GenericUtil.hasPartInside2(fsm.getActionTypes(), action)
 								|| !GenericUtil.hasPartInside2(fsm.getWebMobileTips(), mobile ? "2" : "1"))
 							continue;
 						Date alarmDttm = null;
@@ -204,8 +204,8 @@ public class NotificationEngine {
 			Set<Integer> tplSet = new HashSet();
 			for (W5FormSmsMail m : formResult.getForm().get_formSmsMailList()) {
 				if (m.getAlarmFlag() == 0 && m.getActiveFlag() == 1
-						&& (m.getSmsMailSentTip() == 0 || m.getSmsMailSentTip() == 3)
-						&& GenericUtil.hasPartInside2(m.getActionTips(), action)) {
+						&& (m.getSmsMailSentType() == 0 || m.getSmsMailSentType() == 3)
+						&& GenericUtil.hasPartInside2(m.getActionTypes(), action)) {
 					tplSet.add(m.getFormSmsMailId());
 				}
 			}
@@ -225,7 +225,7 @@ public class NotificationEngine {
 					try {
 						W5FormSmsMail fsm = formResult.getForm().get_formSmsMailMap().get(fsmId);
 						if (fsm == null || fsm.getAlarmFlag() != 0
-								|| !GenericUtil.hasPartInside2(fsm.getActionTips(), action)
+								|| !GenericUtil.hasPartInside2(fsm.getActionTypes(), action)
 								|| !GenericUtil.hasPartInside2(fsm.getWebMobileTips(), mobile ? "2" : "1"))
 							continue;
 						if (!GenericUtil.isEmpty(fsm.getConditionSqlCode())) {
@@ -243,7 +243,7 @@ public class NotificationEngine {
 																	// geri
 																	// donecek
 							m.put("_fsmId", "" + fsm.getFormSmsMailId());
-							m.put("_fsmTip", "" + fsm.getSmsMailTip());
+							m.put("_fsmTip", "" + fsm.getSmsMailType());
 							if (previewMapList == null) {
 								previewMapList = new ArrayList();
 								formResult.setPreviewMapList(previewMapList);
@@ -251,7 +251,7 @@ public class NotificationEngine {
 							previewMapList.add(m);
 							continue;
 						}
-						switch (fsm.getSmsMailTip()) {
+						switch (fsm.getSmsMailType()) {
 						case 0: // sms
 							// parameterMap.get("phone"),parameterMap.get("body")
 							// m.putAll(dao.interprateSmsTemplate(fsm, scd,
@@ -440,7 +440,7 @@ public class NotificationEngine {
 		}
 
 		Map r = new HashMap();
-		if (fsm.getSmsMailTip() == 0) { // sms
+		if (fsm.getSmsMailType() == 0) { // sms
 			r.put("success", false);
 			r.put("error", "SMS Adapter Not Defined");
 			return r;

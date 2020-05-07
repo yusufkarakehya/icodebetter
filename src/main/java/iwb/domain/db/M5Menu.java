@@ -23,8 +23,8 @@ public class M5Menu implements java.io.Serializable {
 	private static final long serialVersionUID = 33331924324231L;
 	private int menuId;	
 	private int parentMenuId;	
-	private int userTip;
-	private int nodeTip;
+	private int roleGroupId;
+	private int nodeType;
 	
 	private String localeMsgKey;
 	private int tabOrder;
@@ -59,21 +59,21 @@ public class M5Menu implements java.io.Serializable {
 	}
 
 	@Column(name="user_tip")
-	public int getUserTip() {
-		return userTip;
+	public int getRoleGroupId() {
+		return roleGroupId;
 	}
 
-	public void setUserTip(int userTip) {
-		this.userTip = userTip;
+	public void setRoleGroupId(int roleGroupId) {
+		this.roleGroupId = roleGroupId;
 	}
 
 	@Column(name="node_tip")
-	public int getNodeTip() {
-		return nodeTip;
+	public int getNodeType() {
+		return nodeType;
 	}
 
-	public void setNodeTip(int nodeTip) {
-		this.nodeTip = nodeTip;
+	public void setNodeType(int nodeType) {
+		this.nodeType = nodeType;
 	}
 
 	@Column(name="locale_msg_key")

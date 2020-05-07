@@ -16,9 +16,11 @@ import iwb.cache.LocaleMsgCache;
 import iwb.dao.metadata.MetadataLoader;
 import iwb.dao.rdbms_impl.ExternalDBSql;
 import iwb.dao.rdbms_impl.PostgreSQL;
+import iwb.domain.db.W5ExternalDb;
 import iwb.domain.db.W5GridColumn;
 import iwb.domain.db.W5LookUp;
 import iwb.domain.db.W5LookUpDetay;
+import iwb.domain.db.W5Query;
 import iwb.domain.db.W5QueryField;
 import iwb.domain.db.W5QueryParam;
 import iwb.domain.db.W5Table;
@@ -68,19 +70,19 @@ public class QueryEngine {
 		W5QueryResult queryResult = metadataLoader.getQueryResult(scd, queryId);
 		if (queryId != 1 && queryId != 824 && queryResult.getMainTable() != null
 				&& (!FrameworkSetting.debug || developer)) {
-			switch (queryResult.getQuery().getQuerySourceTip()) {
+			switch (queryResult.getQuery().getQuerySourceType()) {
 			case 0:
 			case 15:
 			case 8: // rhino, rdb table, group of query
 				W5Table t = queryResult.getMainTable();
 				if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 					throw new IWBException("security", "Module", 0, null,
-							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_module_control"), null);
 				}
 				if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 						t.getAccessViewRoles(), t.getAccessViewUsers())) {
 					throw new IWBException("security", "Query", queryId, null,
-							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"),
+							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_table_control_view"),
 							null);
 				}
 
@@ -96,12 +98,32 @@ public class QueryEngine {
 		dao.checkTenant(scd);
 		queryResult.setErrorMap(new HashMap());
 		queryResult.setRequestParams(requestParams);
-		switch (queryResult.getQuery().getQuerySourceTip()) {
+		W5Query query = queryResult.getQuery(); 
+		switch (query.getQuerySourceType()) {
+		case 2709://google sheet
+			if(!query.getSqlFrom().startsWith("/*")) {
+				StringBuilder gc = new StringBuilder();
+				W5ExternalDb source = FrameworkCache.getExternalDb(scd, query.getSourceObjectId());
+				
+				gc.append("/*!*/function _xx_(row, ix){\nreturn {_row_no_:ix");
+				//.append(query.getSqlSelect())
+				for(W5QueryField f:query.get_queryFields())if(f.getTabOrder()>0)
+					gc.append(",").append(f.getDsc()).append(":row[").append(f.getTabOrder()-1).append("]");
+				gc.append("\n}}\nvar result=[], q=$.REST('GoogleSheetAPI.values_get',{majorDimension:'ROWS',range:\"'")
+						.append(query.getSqlWhere()).append("'!").append(query.getSqlSelect())
+						.append("\",spreadsheetId:'").append(query.getSqlFrom())
+						.append("',access_token:'").append(source.getDbPassword())
+						.append("'});\nif(q && q.values){var q2=q.values;for(var i=1;i<q2.length;i++)result.push(_xx_(q2[i], i));} else if (q.error)throw new Error(q.error.message)");
+				query.setSqlFrom(gc.toString());
+				
+			}
+			scriptEngine.executeQueryAsScript(queryResult, null);
+			break;
 		case 1376: // WS Method
-			W5WsMethod wsm = FrameworkCache.getWsMethod(scd, queryResult.getQuery().getMainTableId());
+			W5WsMethod wsm = FrameworkCache.getWsMethod(scd, query.getSourceObjectId());
 			W5WsMethodParam parentParam = null;
 			for (W5WsMethodParam px : wsm.get_params())
-				if (px.getOutFlag() != 0 && px.getParamTip() == 10) {
+				if (px.getOutFlag() != 0 && px.getParamType() == 10) {
 					parentParam = px;
 					break;
 				}
@@ -110,12 +132,12 @@ public class QueryEngine {
 				requestParams.put("xdsc", requestParams.get("filter[value]"));
 				requestParams.remove("filter[value]");
 			}
-			for (W5QueryParam qp : queryResult.getQuery().get_queryParams())
+			for (W5QueryParam qp : query.get_queryParams())
 				if (!GenericUtil.isEmpty(requestParams.get(qp.getDsc()))) {
 					m2.put(qp.getExpressionDsc(), requestParams.get(qp.getDsc()));
 				}
 			StringBuilder rc = new StringBuilder();
-			rc.append("function _x_(x){\nreturn {").append(queryResult.getQuery().getSqlSelect())
+			rc.append("function _x_(x){\nreturn {").append(query.getSqlSelect())
 					.append("\n}}\nvar result=[], q=$.REST('").append(wsm.get_ws().getDsc() + "." + wsm.getDsc())
 					.append("',").append(GenericUtil.fromMapToJsonString2(m2))
 					.append(");\nif(q && q.get('success')){var q2=q.get('").append(parentParam.getDsc())
@@ -128,18 +150,14 @@ public class QueryEngine {
 			break;
 		default:
 			queryResult.setViewLogModeTip((short) GenericUtil.uInt(requestParams, "_vlm"));
-			if (!GenericUtil.isEmpty(requestParams.get("sort"))) {
+			if (!GenericUtil.isEmpty(requestParams.get("sort"))) {//sql injection check
 				if (requestParams.get("sort").equals(FieldDefinitions.queryFieldName_Comment)) {
-					queryResult.setOrderBy(FieldDefinitions.queryFieldName_Comment); // +
-																						// "
-																						// "
-																						// +
-																						// requestParams.get("dir")
+					queryResult.setOrderBy(FieldDefinitions.queryFieldName_Comment); 
 				} else if (!requestParams.get("sort").contains("_qw_")) {
 					queryResult.setOrderBy(requestParams.get("sort"));
 					if (requestParams.get("dir") != null) {
 						if (queryResult.getMainTable() != null)
-							for (W5QueryField f : queryResult.getQuery().get_queryFields())
+							for (W5QueryField f : query.get_queryFields())
 								if (queryResult.getOrderBy().equals(f.getDsc())) {
 									if (f.getMainTableFieldId() != 0 && queryResult.getMainTable().get_tableFieldMap()
 											.containsKey(f.getMainTableFieldId())) {
@@ -147,21 +165,21 @@ public class QueryEngine {
 									}
 									break;
 								}
-						// queryResult.setOrderBy(((!queryResult.getQuery().getSqlFrom().contains(",")
+						// queryResult.setOrderBy(((!query.getSqlFrom().contains(",")
 						// &&
-						// !queryResult.getQuery().getSqlFrom().contains("join")
+						// !query.getSqlFrom().contains("join")
 						// &&
-						// queryResult.getQuery().getSqlFrom().contains(" x")) ?
+						// query.getSqlFrom().contains(" x")) ?
 						// "x." : "") +
 						// queryResult.getOrderBy() + " " +
 						// requestParams.get("dir"));
 						queryResult.setOrderBy(queryResult.getOrderBy() + " " + requestParams.get("dir"));
 					}
 				} else
-					queryResult.setOrderBy(queryResult.getQuery().getSqlOrderby());
+					queryResult.setOrderBy(query.getSqlOrderby());
 			} else
-				queryResult.setOrderBy(queryResult.getQuery().getSqlOrderby());
-			switch (queryResult.getQuery().getQueryTip()) {
+				queryResult.setOrderBy(query.getSqlOrderby());
+			switch (query.getQueryType()) {
 			case 9:
 			case 10:
 			case 12:
@@ -177,12 +195,12 @@ public class QueryEngine {
 			if (queryResult.getErrorMap().isEmpty()) {
 				queryResult.setFetchRowCount(GenericUtil.uIntNvl(requestParams, "limit", GenericUtil.uInt(requestParams, "firstLimit")));
 				queryResult.setStartRowNumber(GenericUtil.uInt(requestParams, "start"));
-				if(queryResult.getQuery().getQuerySourceTip()!=4658) {
+				if(query.getQuerySourceType()!=4658) {
 					dao.runQuery(queryResult);
-					if (queryResult.getQuery().getShowParentRecordFlag() != 0 && queryResult.getData() != null) {
+					if (query.getShowParentRecordFlag() != 0 && queryResult.getData() != null) {
 						for (Object[] oz : queryResult.getData()) {
-							int tableId = GenericUtil.uInt(oz[queryResult.getQuery().get_tableIdTabOrder() - 1]);
-							int tablePk = GenericUtil.uInt(oz[queryResult.getQuery().get_tablePkTabOrder() - 1]);
+							int tableId = GenericUtil.uInt(oz[query.get_tableIdTabOrder() - 1]);
+							int tablePk = GenericUtil.uInt(oz[query.get_tablePkTabOrder() - 1]);
 							if (tableId != 0 && tablePk != 0)
 								oz[oz.length - 1] = dao.findRecordParentRecords(scd, tableId, tablePk, 0, true);
 						}
@@ -199,7 +217,7 @@ public class QueryEngine {
 				&& !GenericUtil.isEmpty(queryResult.getData())) {
 			Map<Integer, W5QueryResult> qrm = new HashMap(); // cache
 			for (W5QueryField qf : queryResult.getNewQueryFields())
-				if ((qf.getPostProcessTip() == 16 || qf.getPostProcessTip() == 17) && qf.getLookupQueryId() != 0) { // LookupQuery
+				if ((qf.getPostProcessType() == 16 || qf.getPostProcessType() == 17) && qf.getLookupQueryId() != 0) { // LookupQuery
 																													// den
 																													// alinacak
 					W5QueryResult lookupQueryResult = qrm.get(qf.getLookupQueryId());
@@ -208,13 +226,13 @@ public class QueryEngine {
 						lookupQueryResult.setErrorMap(new HashMap());
 						lookupQueryResult.setRequestParams(new HashMap());
 						lookupQueryResult.setOrderBy(lookupQueryResult.getQuery().getSqlOrderby());
-						switch (lookupQueryResult.getQuery().getQuerySourceTip()) {
+						switch (lookupQueryResult.getQuery().getQuerySourceType()) {
 						case 1376: // WS Method
 							W5WsMethod wsm = FrameworkCache.getWsMethod(scd,
-									lookupQueryResult.getQuery().getMainTableId());
+									lookupQueryResult.getQuery().getSourceObjectId());
 							W5WsMethodParam parentParam = null;
 							for (W5WsMethodParam px : wsm.get_params())
-								if (px.getOutFlag() != 0 && px.getParamTip() == 10) {
+								if (px.getOutFlag() != 0 && px.getParamType() == 10) {
 									parentParam = px;
 									break;
 								}
@@ -233,7 +251,7 @@ public class QueryEngine {
 							scriptEngine.executeQueryAsScript(lookupQueryResult, rc2.toString());
 							break;
 						case 15: // table
-							switch (lookupQueryResult.getQuery().getQueryTip()) {
+							switch (lookupQueryResult.getQuery().getQueryType()) {
 							case 12:
 								lookupQueryResult.prepareTreeQuery(new HashMap());
 								break; // lookup tree query
@@ -260,7 +278,7 @@ public class QueryEngine {
 								for (Object[] oo : queryResult.getData()) {
 									Object so = oo[qf.getTabOrder() - 1];
 									if (so != null) {
-										if (qf.getPostProcessTip() == 16) {
+										if (qf.getPostProcessType() == 16) {
 											Object[] loo = rmap.get(so.toString()); // single
 											if (loo != null) {
 												oo[nqfi] = loo[0].toString();
@@ -374,12 +392,12 @@ public class QueryEngine {
 						c = new W5GridColumn();
 						c.setLocaleMsgKey(
 								LocaleMsgCache.get2((Integer) scd.get("customizationId"), xlocale, "approval_status"));
-						c.setAlignTip((short) 1);
+						c.setAlignType((short) 1);
 					}
 					if (c != null) {
 						list.add(new W5ReportCellHelper(startRow, (startCol + 1),
 								LocaleMsgCache.get2((Integer) scd.get("customizationId"), xlocale, c.getLocaleMsgKey()),
-								(short) 2, (short) GenericUtil.uInt(cs[1]), c.getAlignTip(), "")); // column:
+								(short) 2, (short) GenericUtil.uInt(cs[1]), c.getAlignType(), "")); // column:
 																									// id,
 																									// font_size,
 																									// dsc,
@@ -423,7 +441,7 @@ public class QueryEngine {
 							if (f.getDsc().contains("_flag")) {
 								res = GenericUtil.uInt(res) != 0 ? "x" : "o";
 							} else {
-								switch (f.getPostProcessTip()) {
+								switch (f.getPostProcessType()) {
 								case 20:
 									res = UserUtil.getUserName(GenericUtil.uInt(obj));
 									break;
@@ -477,7 +495,7 @@ public class QueryEngine {
 									break;
 
 								default:
-									if (f.getFieldTip() == 3 || f.getFieldTip() == 4) {
+									if (f.getFieldType() == 3 || f.getFieldType() == 4) {
 										dataType = "T:1";
 									}
 									;
@@ -506,12 +524,12 @@ public class QueryEngine {
 		W5Table t = FrameworkCache.getTable(scd, tableId);
 		if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 			throw new IWBException("security", "Module", 0, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_module_control"), null);
 		}
 		if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 				t.getAccessViewRoles(), t.getAccessViewUsers())) {
 			throw new IWBException("security", "Table", tableId, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_table_control_view"), null);
 		}
 		dao.checkTenant(scd);
 		return dao.executeQuery4DataList(scd, t, requestParams);
@@ -522,12 +540,12 @@ public class QueryEngine {
 
 		if (t.getAccessViewTip() == 0 && !FrameworkCache.roleAccessControl(scd, 0)) {
 			throw new IWBException("security", "Module", 0, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_modul_kontrol"), null);
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_module_control"), null);
 		}
 		if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 				t.getAccessViewRoles(), t.getAccessViewUsers())) {
 			throw new IWBException("security", "Table", tableId, null,
-					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"), null);
+					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_table_control_view"), null);
 		}
 		dao.checkTenant(scd);
 		return dao.executeQuery4Pivot(scd, t, requestParams);
@@ -581,7 +599,7 @@ public class QueryEngine {
 																							// icin
 							c = new W5GridColumn();
 							c.setLocaleMsgKey("approval_status");
-							c.setAlignTip((short) 1);
+							c.setAlignType((short) 1);
 						} else 
 							c = c.clone();
 						c.setLocaleMsgKey(LocaleMsgCache.get2(scd, c.getLocaleMsgKey()));
@@ -631,7 +649,7 @@ public class QueryEngine {
 							if (f.getDsc().contains("_flag")) {
 								res = GenericUtil.uInt(res) != 0 ? "x" : "o";
 							} else {
-								switch (f.getPostProcessTip()) {
+								switch (f.getPostProcessType()) {
 								case 20:
 									res = UserUtil.getUserName(GenericUtil.uInt(obj));
 									break;
@@ -685,7 +703,7 @@ public class QueryEngine {
 									break;
 
 								default:
-									if (f.getFieldTip() == 3 || f.getFieldTip() == 4) {
+									if (f.getFieldType() == 3 || f.getFieldType() == 4) {
 										row.put(f.getDsc(), obj);
 										continue;
 									}

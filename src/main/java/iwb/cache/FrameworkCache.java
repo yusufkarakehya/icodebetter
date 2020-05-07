@@ -446,7 +446,7 @@ public class FrameworkCache {
 	}
 	
 	public static void addPage(Object o, W5Page page){
-		int pageId = page.getTemplateId();
+		int pageId = page.getPageId();
 		String projectId = getProjectId(o, "63."+pageId);
 		//addX((Map)wTemplates, projectId, pageId, page);
 		if(wTemplates.get(projectId)==null){
@@ -935,7 +935,7 @@ public class FrameworkCache {
 			if(m!=null) {
 				m.get_queryFields().add(d);
 			}
-			if (d.getPostProcessTip() == 31 && (d.getFieldTip() == 3 || d.getFieldTip() == 4)) {
+			if (d.getPostProcessType() == 31 && (d.getFieldType() == 3 || d.getFieldType() == 4)) {
 				if (m.get_aggQueryFields() == null)
 					m.set_aggQueryFields(new ArrayList());
 				m.get_aggQueryFields().add(d);
@@ -994,7 +994,7 @@ public class FrameworkCache {
 		
 		if(formModules!=null)for(W5FormModule d:formModules) {
 			W5Form m = mm.get(d.getFormId());
-			if(m!=null && m.getRenderTip() != 0) {
+			if(m!=null && m.getRenderType() != 0) {
 				m.get_moduleList().add(d);
 			}			
 		}
@@ -1005,7 +1005,7 @@ public class FrameworkCache {
 				m.get_formHintList().add(d);
 			}			
 		}
-		if(toolbarItems!=null)for(W5ObjectToolbarItem d:toolbarItems) if(d.getObjectTip()==40){
+		if(toolbarItems!=null)for(W5ObjectToolbarItem d:toolbarItems) if(d.getObjectType()==40){
 			W5Form m = mm.get(d.getObjectId());
 			if(m!=null) {
 				m.get_toolbarItemList().add(d);
@@ -1014,12 +1014,12 @@ public class FrameworkCache {
 		
 		if(forms!=null)for(W5Form form:forms) { //final makeup
 
-			if (form.getObjectTip() != 1 && form.getRenderTemplateId() > 0) { // if not grid(seachForm)
+			if (form.getObjectType() != 1 && form.getRenderTemplateId() > 0) { // if not grid(seachForm)
 				form.set_renderTemplate(getPage(projectId, form.getRenderTemplateId()));
 			}
 			Map<Short, W5Workflow> mam = null;
 			W5Table mt = null;
-			switch (form.getObjectTip()) {
+			switch (form.getObjectType()) {
 			case 6: // conversion icin
 				W5Conversion c = getConversion(projectId, form.getObjectId());
 				if(c!=null && c.get_conversionColMap()!=null)for (W5FormCell fc : form.get_formCells())
@@ -1072,9 +1072,9 @@ public class FrameworkCache {
 				}
 				W5Query query = getQuery(projectId, grid.getQueryId());
 				int queryId = grid.getQueryId();
-				int mainTableId = query.getMainTableId();
-				if (mainTableId > 0)
-					mt = FrameworkCache.getTable(projectId, mainTableId); // f.getForm().set_sourceTable()
+				int sourceObjectId = query.getSourceObjectId();
+				if (sourceObjectId > 0)
+					mt = FrameworkCache.getTable(projectId, sourceObjectId); // f.getForm().set_sourceTable()
 				form.set_sourceQuery(query);
 				Map<Integer, W5QueryParam> fieldMap2 = new HashMap();
 				for (W5QueryParam tf : form.get_sourceQuery().get_queryParams()) {
@@ -1120,12 +1120,12 @@ public class FrameworkCache {
 					W5FormCell approvalCell = new W5FormCell();
 					approvalCell.setTabOrder((short) (-actionTip));
 					approvalCell.setDsc("_approval_step_ids" + actionTip);
-					approvalCell.setControlTip((short) 15); // low-combo query
+					approvalCell.setControlType((short) 15); // low-combo query
 					approvalCell.setLookupQueryId(606); // approval steps
 					approvalCell.setLookupIncludedParams("xapproval_id=" + mam.get(actionTip).getApprovalId());
 					approvalCell.setControlWidth((short) 250);
 					approvalCell.setLocaleMsgKey("approval_status"); // mam.get(actionTip).getDsc()
-					approvalCell.setInitialSourceTip((short) 10); // approvalStates
+					approvalCell.setInitialSourceType((short) 10); // approvalStates
 					// approvalCell.setInitialValue(""+mam.get(actionTip).getApprovalId());//approvalId
 					approvalCell.setActiveFlag((short) 1);
 					form.get_formCells().add(0, /* maxFirstColumnTabOrder, */ approvalCell);
@@ -1160,13 +1160,13 @@ public class FrameworkCache {
 				m.get_gridColumnList().add(d);
 			}
 		}
-		if(menuItems!=null)for(W5ObjectMenuItem d:menuItems) if(d.getObjectTip()==5){
+		if(menuItems!=null)for(W5ObjectMenuItem d:menuItems) if(d.getObjectType()==5){
 			W5Grid m = mm.get(d.getObjectId());
 			if(m!=null) {
 				m.get_menuItemList().add(d);
 			}			
 		}
-		if(toolbarItems!=null)for(W5ObjectToolbarItem d:toolbarItems) if(d.getObjectTip()==5){
+		if(toolbarItems!=null)for(W5ObjectToolbarItem d:toolbarItems) if(d.getObjectType()==5){
 			W5Grid m = mm.get(d.getObjectId());
 			if(m!=null) {
 				m.get_toolbarItemList().add(d);
@@ -1203,7 +1203,7 @@ public class FrameworkCache {
 			
 			grid.set_query(query);
 	
-			grid.set_viewTable(FrameworkCache.getTable(projectId, query.getMainTableId()));
+			grid.set_viewTable(FrameworkCache.getTable(projectId, query.getSourceObjectId()));
 	
 			Map<Integer, W5QueryField> fieldMap = new HashMap<Integer, W5QueryField>();
 			Map<String, W5QueryField> fieldMapDsc = new HashMap<String, W5QueryField>();
@@ -1242,7 +1242,7 @@ public class FrameworkCache {
 					}
 				} else if (column.getFormCellId() < 0) { // control
 					W5FormCell cell = new W5FormCell(-formCellCounter++);
-					cell.setControlTip((short) -column.getFormCellId());
+					cell.setControlType((short) -column.getFormCellId());
 					cell.setDsc(column.get_queryField().getDsc());
 					cell.setFormCellId(column.getQueryFieldId());
 					column.set_formCell(cell);
@@ -1251,7 +1251,7 @@ public class FrameworkCache {
 	
 			if (grid.get_toolbarItemList() != null)
 				for (W5ObjectToolbarItem c : grid.get_toolbarItemList())
-					switch (c.getItemTip()) { // TODO:toolbar icine bisey
+					switch (c.getControlType()) { // TODO:toolbar icine bisey
 												// konulacaksa
 					case 10:
 					case 7:
@@ -1269,7 +1269,7 @@ public class FrameworkCache {
 				W5Form defaultCrudForm = getForm(projectId, grid.getDefaultCrudFormId());
 				grid.set_defaultCrudForm(defaultCrudForm);
 	
-				if (defaultCrudForm != null && defaultCrudForm.getObjectTip() == 2) {
+				if (defaultCrudForm != null && defaultCrudForm.getObjectType() == 2) {
 					// defaultCrudForm.set_sourceTable(PromisCache.getTable(customizationId,
 					// defaultCrudForm.getObjectId()));
 					W5Table t = FrameworkCache.getTable(projectId, defaultCrudForm.getObjectId()); // PromisCache.getTable(f.getScd(),
@@ -1280,7 +1280,7 @@ public class FrameworkCache {
 					if (xcrudFormSmsList != null) {
 						List<W5FormSmsMail> crudFormSmsList = new ArrayList();
 						for (W5FormSmsMail x : xcrudFormSmsList)
-							if (GenericUtil.hasPartInside2(x.getActionTips(), 0)) {
+							if (GenericUtil.hasPartInside2(x.getActionTypes(), 0)) {
 								crudFormSmsList.add(x);
 							}
 						grid.set_crudFormSmsMailList(crudFormSmsList);
@@ -1290,7 +1290,7 @@ public class FrameworkCache {
 					if (xcrudFormConversionList != null) {
 						List<W5Conversion> crudFormConversionList = new ArrayList();
 						for (W5Conversion x : xcrudFormConversionList)
-							if (GenericUtil.hasPartInside2(x.getActionTips(), 0)) {
+							if (GenericUtil.hasPartInside2(x.getActionTypes(), 0)) {
 								crudFormConversionList.add(x);
 							}
 						grid.set_crudFormConversionList(crudFormConversionList);
@@ -1356,12 +1356,12 @@ public class FrameworkCache {
 		Map<Integer, W5Page> mm = new HashMap();
 		
 		if(pages!=null)for(W5Page m:pages) {
-			mm.put(m.getTemplateId(), m);
+			mm.put(m.getPageId(), m);
 			m.set_pageObjectList(new ArrayList());
 		}
 		
 		if(pageObjects!=null)for(W5PageObject d:pageObjects) {
-			W5Page m = mm.get(d.getTemplateId());
+			W5Page m = mm.get(d.getPageId());
 			if(m!=null) {
 				m.get_pageObjectList().add(d);
 			}
@@ -1381,7 +1381,7 @@ public class FrameworkCache {
 			m.set_menuItemList(new ArrayList());
 			m.set_toolbarItemList(new ArrayList());
 			
-			m.set_crudTable(FrameworkCache.getTable(projectId, m.get_query().getMainTableId()));
+			m.set_crudTable(FrameworkCache.getTable(projectId, m.get_query().getSourceObjectId()));
 
 			Map<Integer, W5QueryField> fieldMap = new HashMap<Integer, W5QueryField>();
 			Map<String, W5QueryField> fieldMapDsc = new HashMap<String, W5QueryField>();
@@ -1418,13 +1418,13 @@ public class FrameworkCache {
 			}
 			
 		}
-		if(menuItems!=null)for(W5ObjectMenuItem d:menuItems) if(d.getObjectTip()==8){
+		if(menuItems!=null)for(W5ObjectMenuItem d:menuItems) if(d.getObjectType()==8){
 			W5Card m = mm.get(d.getObjectId());
 			if(m!=null) {
 				m.get_menuItemList().add(d);
 			}			
 		}
-		if(toolbarItems!=null)for(W5ObjectToolbarItem d:toolbarItems) if(d.getObjectTip()==8){
+		if(toolbarItems!=null)for(W5ObjectToolbarItem d:toolbarItems) if(d.getObjectType()==8){
 			W5Card m = mm.get(d.getObjectId());
 			if(m!=null) {
 				m.get_toolbarItemList().add(d);
@@ -1470,11 +1470,11 @@ public class FrameworkCache {
 			
 			if(roleGroups!=null) {
 				for(W5RoleGroup rg:roleGroups) {
-					mm.put(rg.getUserTip(), new ArrayList());
+					mm.put(rg.getRoleGroupId(), new ArrayList());
 				}
 			}
 			for(W5Menu m : menus) {
-				List lm = mm.get(m.getUserTip());
+				List lm = mm.get(m.getRoleGroupId());
 				if(lm!=null) {
 					lm.add(m);
 				/*	if(m.getParentMenuId()==0)
@@ -1509,9 +1509,9 @@ public class FrameworkCache {
 		qr.setQuery(q); qr.setErrorMap(new HashMap());qr.setRequestParams(new HashMap());
 		qr.setScd(scd);
 		qr.setData(new ArrayList());
-		List<W5Menu> menus = wMenus.get(po.getProjectUuid()).get(po.get_defaultUserTip());
+		List<W5Menu> menus = wMenus.get(po.getProjectUuid()).get(po.get_defaultRoleGroupId());
 		if(menus!=null)for(W5Menu m:menus) {
-			qr.getData().add(new Object[] {"mnu_"+m.getMenuId(), m.getLocaleMsgKey(), m.getNodeTip()==4?m.getUrl():"", "", m.getImgIcon(), m.getTabOrder(), m.getMenuId(), "mnu_"+m.getParentMenuId()});
+			qr.getData().add(new Object[] {"mnu_"+m.getMenuId(), m.getLocaleMsgKey(), m.getNodeType()==4?m.getUrl():"", "", m.getImgIcon(), m.getTabOrder(), m.getMenuId(), "mnu_"+m.getParentMenuId()});
 		}
 		return qr;
 	}

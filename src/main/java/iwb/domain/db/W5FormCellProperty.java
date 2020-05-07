@@ -21,8 +21,8 @@ public class W5FormCellProperty implements java.io.Serializable, W5Base {
 	private int formCellId;
 	private int relatedFormCellId;
 	private String val;
-	private short lkpPropertyTip;
-	private short lkpOperatorTip;
+	private short lkpPropertyType;
+	private short lkpOperatorType;
 	private short otherSetValueFlag;
 	private String otherValue;
 
@@ -57,21 +57,21 @@ public class W5FormCellProperty implements java.io.Serializable, W5Base {
 	}
 
 	@Column(name = "LKP_PROPERTY_TIP")
-	public short getLkpPropertyTip() {
-		return lkpPropertyTip;
+	public short getLkpPropertyType() {
+		return lkpPropertyType;
 	}
 
-	public void setLkpPropertyTip(short lkpPropertyTip) {
-		this.lkpPropertyTip = lkpPropertyTip;
+	public void setLkpPropertyType(short lkpPropertyType) {
+		this.lkpPropertyType = lkpPropertyType;
 	}
 
 	@Column(name = "LKP_OPERATOR_TIP")
-	public short getLkpOperatorTip() {
-		return lkpOperatorTip;
+	public short getLkpOperatorType() {
+		return lkpOperatorType;
 	}
 
-	public void setLkpOperatorTip(short lkpOperatorTip) {
-		this.lkpOperatorTip = lkpOperatorTip;
+	public void setLkpOperatorType(short lkpOperatorType) {
+		this.lkpOperatorType = lkpOperatorType;
 	}
 
 	@Id

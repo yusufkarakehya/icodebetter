@@ -188,7 +188,7 @@ public class PostgreSQLWriter extends BaseDAO {
 						s.append(f.getDsc()).append("=?,");
 						try {
 							if (o.has(f.getDsc())) {
-								p.add(GenericUtil.getObjectByControl((String) o.get(f.getDsc()), f.getParamTip()));
+								p.add(GenericUtil.getObjectByControl((String) o.get(f.getDsc()), f.getParamType()));
 							} else
 								p.add(null);
 						} catch (JSONException e) {
@@ -218,7 +218,7 @@ public class PostgreSQLWriter extends BaseDAO {
 								try {
 									if (o.has(f.getDsc())) {
 										p.add(GenericUtil.getObjectByControl((String) o.get(f.getDsc()),
-												f.getParamTip()));
+												f.getParamType()));
 									} else
 										p.add(null);
 								} catch (JSONException e) {
@@ -271,7 +271,7 @@ public class PostgreSQLWriter extends BaseDAO {
 			List<W5QueryFieldCreation> insertList) {
 //		String projectId = (String) scd.get("projectId");
 		int userId = (Integer) scd.get("userId");
-		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, query.getMainTableId());//wExternalDbs.get(projectId).get(query.getMainTableId());
+		W5ExternalDb edb = FrameworkCache.getExternalDb(scd, query.getSourceObjectId());//wExternalDbs.get(projectId).get(query.getMainTableId());
 		if(edb.getLkpDbType()==11) {
 			String[] chunks = query.getSqlSelect().split(",");
 			int i = 1, j = 0;
@@ -283,10 +283,10 @@ public class PostgreSQLWriter extends BaseDAO {
 					field.setDsc(columnName);
 					field.setCustomizationId((Integer) scd.get("customizationId"));
 					if (columnName.equals("insert_user_id") || columnName.equals("version_user_id"))
-						field.setPostProcessTip((short) 53);
+						field.setPostProcessType((short) 53);
 					field.setTabOrder((short) (i));
 					field.setQueryId(query.getQueryId());
-					field.setFieldTip((short) 1);
+					field.setFieldType((short) 1);
 					field.setInsertUserId(userId);
 					field.setVersionUserId(userId);
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
@@ -331,15 +331,15 @@ public class PostgreSQLWriter extends BaseDAO {
 					field.setDsc(columnName);
 					field.setCustomizationId((Integer) scd.get("customizationId"));
 					if (columnName.equals("insert_user_id") || columnName.equals("version_user_id"))
-						field.setPostProcessTip((short) 53);
+						field.setPostProcessType((short) 53);
 					field.setTabOrder((short) (i));
 					field.setQueryId(query.getQueryId());
-					field.setFieldTip((short) DBUtil.java2iwbType(meta.getColumnType(i)));
-					if (field.getFieldTip() == 4) {
+					field.setFieldType((short) DBUtil.java2iwbType(meta.getColumnType(i)));
+					if (field.getFieldType() == 4) {
 						// numeric değerde ondalık varsa tipi 3 yap
 						int sc = meta.getScale(i);
 						if (sc > 0)
-							field.setFieldTip((short) 3);
+							field.setFieldType((short) 3);
 					}
 					field.setInsertUserId(userId);
 					field.setVersionUserId(userId);
@@ -384,7 +384,7 @@ public class PostgreSQLWriter extends BaseDAO {
 		for (final W5Query query : (List<W5Query>) find("from W5Query t where t.queryId=?0 AND t.projectUuid=?1",
 				queryId, po.getProjectUuid())) {
 
-			if (query.getQuerySourceTip() == 1376) {
+			if (query.getQuerySourceType() == 1376) {
 				organizeQueryFields4WSMethod(scd, query, insertFlag);
 				continue;
 			}
@@ -397,7 +397,7 @@ public class PostgreSQLWriter extends BaseDAO {
 				existField.put(field.getDsc().toLowerCase(FrameworkSetting.appLocale), field);
 			}
 
-			if (query.getQuerySourceTip() == 0) {
+			if (query.getQuerySourceType() == 0) {
 				String[] fieldNames = query.getSqlSelect().split(",");
 				int i = 1;
 				for(String columnName:fieldNames) if(existField.get(columnName.toLowerCase(FrameworkSetting.appLocale)) == null){
@@ -405,10 +405,10 @@ public class PostgreSQLWriter extends BaseDAO {
 					field.setDsc(columnName);
 					field.setCustomizationId((Integer) scd.get("customizationId"));
 					if (columnName.equals("insert_user_id") || columnName.equals("version_user_id"))
-						field.setPostProcessTip((short) 53);
+						field.setPostProcessType((short) 53);
 					field.setTabOrder((short) (i));
 					field.setQueryId(query.getQueryId());
-					field.setFieldTip((short)1);
+					field.setFieldType((short)1);
 					field.setInsertUserId(userId);
 					field.setVersionUserId(userId);
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
@@ -428,7 +428,7 @@ public class PostgreSQLWriter extends BaseDAO {
 //				if (query.getSqlWhere() != null && query.getSqlWhere().trim().length() > 0)sql.append(" where ").append(query.getSqlWhere().trim());
 				sql.append(" where 1=2");// .append(query.getSqlWhere().trim());
 				if (query.getSqlGroupby() != null && query.getSqlGroupby().trim().length() > 0
-						&& query.getQueryTip() != 9) // group
+						&& query.getQueryType() != 9) // group
 														// by
 														// connect
 														// olmayacak
@@ -445,7 +445,7 @@ public class PostgreSQLWriter extends BaseDAO {
 							sqlParams.add(null);
 	
 				try {
-					if (query.getQuerySourceTip() == 4658) { // externalDB
+					if (query.getQuerySourceType() == 4658) { // externalDB
 						organizeQueryFields(scd, query, sqlStr, sqlParams, existField, updateList, insertList);
 	
 					} else
@@ -460,7 +460,7 @@ public class PostgreSQLWriter extends BaseDAO {
 								rs = stmt.executeQuery();
 								ResultSetMetaData meta = rs.getMetaData();
 								Map<String, W5TableField> fieldMap = new HashMap<String, W5TableField>();
-								W5Table t = FrameworkCache.getTable(scd, query.getMainTableId());
+								W5Table t = FrameworkCache.getTable(scd, query.getSourceObjectId());
 								if (t != null)
 									for (W5TableField f : t.get_tableFieldList()) {
 										fieldMap.put(f.getDsc().toLowerCase(), f);
@@ -481,15 +481,15 @@ public class PostgreSQLWriter extends BaseDAO {
 										field.setDsc(columnName);
 										field.setCustomizationId((Integer) scd.get("customizationId"));
 										if (columnName.equals("insert_user_id") || columnName.equals("version_user_id"))
-											field.setPostProcessTip((short) 53);
+											field.setPostProcessType((short) 53);
 										field.setTabOrder((short) (i));
 										field.setQueryId(query.getQueryId());
-										field.setFieldTip((short) DBUtil.java2iwbType(meta.getColumnType(i)));
-										if (field.getFieldTip() == 4) {
+										field.setFieldType((short) DBUtil.java2iwbType(meta.getColumnType(i)));
+										if (field.getFieldType() == 4) {
 											// numeric değerde ondalık varsa tipi 3 yap
 											int sc = meta.getScale(i);
 											if (sc > 0)
-												field.setFieldTip((short) 3);
+												field.setFieldType((short) 3);
 										}
 										field.setInsertUserId(userId);
 										field.setVersionUserId(userId);
@@ -500,27 +500,27 @@ public class PostgreSQLWriter extends BaseDAO {
 											W5TableField tf = fieldMap.get(columnName.toLowerCase());
 											field.setMainTableFieldId(tf.getTableFieldId());
 											if (tf.getDefaultControlTip() == 71) {
-												field.setPostProcessTip(tf.getDefaultControlTip());
+												field.setPostProcessType(tf.getDefaultControlTip());
 											} else if (tf.getDefaultLookupTableId() > 0) {
 												switch (tf.getDefaultControlTip()) {
 												case 6:
-													field.setPostProcessTip((short) 10);
+													field.setPostProcessType((short) 10);
 													break; // combo static
 												case 8:
 												case 58:
-													field.setPostProcessTip((short) 11);
+													field.setPostProcessType((short) 11);
 													break; // lov-combo static
 												case 7:
 												case 10:
-													field.setPostProcessTip((short) 12);
+													field.setPostProcessType((short) 12);
 													break; // combo query
 												case 15:
 												case 59:
-													field.setPostProcessTip((short) 13);
+													field.setPostProcessType((short) 13);
 													break; // lov-combo query
 												case 51:
 												case 52:
-													field.setPostProcessTip(tf.getDefaultControlTip());
+													field.setPostProcessType(tf.getDefaultControlTip());
 													break; // combo static
 												}
 												if (tf.getDefaultControlTip() != 0)
@@ -558,7 +558,7 @@ public class PostgreSQLWriter extends BaseDAO {
 	
 					for (W5QueryFieldCreation field : existField.values()) { // icinde bulunmayanlari negatif olarak koy
 						field.setTabOrder((short) -Math.abs(field.getTabOrder()));
-						field.setPostProcessTip((short) 99);
+						field.setPostProcessType((short) 99);
 						field.setVersionUserId(userId);
 						field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
 						updateList.add(field);
@@ -600,11 +600,11 @@ public class PostgreSQLWriter extends BaseDAO {
 		}
 		if (q.getSqlSelect().equals("*")) {
 			W5WsMethodParam parentParam = (W5WsMethodParam) metadataLoader.getMetadataObject(
-					"W5WsMethodParam","outFlag=1 AND t.paramTip=10 AND t.wsMethodId",
-					q.getMainTableId(), projectId, "Parent WSMethodParam");
+					"W5WsMethodParam","outFlag=1 AND t.paramType=10 AND t.wsMethodId",
+					q.getSourceObjectId(), projectId, "Parent WSMethodParam");
 			List<W5WsMethodParam> outParams = find(
 					"from W5WsMethodParam p where p.outFlag=1 AND p.wsMethodId=?0 AND p.parentWsMethodParamId=?1 AND p.projectUuid=?2 order by p.tabOrder",
-					q.getMainTableId(), parentParam.getWsMethodParamId(), projectId);
+					q.getSourceObjectId(), parentParam.getWsMethodParamId(), projectId);
 			int j = 0;
 			for (W5WsMethodParam wsmp : outParams) {
 				String columnName = wsmp.getDsc().toLowerCase(FrameworkSetting.appLocale);
@@ -613,7 +613,7 @@ public class PostgreSQLWriter extends BaseDAO {
 					field.setDsc(columnName);
 					field.setTabOrder((short) (j + 1));
 					field.setQueryId(q.getQueryId());
-					field.setFieldTip(wsmp.getParamTip());
+					field.setFieldType(wsmp.getParamType());
 					field.setInsertUserId((Integer) scd.get("userId"));
 					field.setVersionUserId((Integer) scd.get("userId"));
 					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
@@ -638,7 +638,7 @@ public class PostgreSQLWriter extends BaseDAO {
 						field.setDsc(columnName);
 						field.setTabOrder((short) (j + 1));
 						field.setQueryId(q.getQueryId());
-						field.setFieldTip((short) 1);
+						field.setFieldType((short) 1);
 						field.setInsertUserId((Integer) scd.get("userId"));
 						field.setVersionUserId((Integer) scd.get("userId"));
 						field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
@@ -1297,10 +1297,10 @@ public class PostgreSQLWriter extends BaseDAO {
 		}
 
 		// if(pmaster_flag=1)then
-		int templateId = 0, menuId = 0;
+		int pageId = 0, menuId = 0;
 		if (parentTableId == 0) {
 			// XTEMPLATE_ID := nextval('seq_template');
-			templateId = GenericUtil.getGlobalNextval("iwb.seq_template", projectUuid, userId, customizationId); // 1000000+GenericUtil.uInt(executeSQLQuery("select
+			pageId = GenericUtil.getGlobalNextval("iwb.seq_template", projectUuid, userId, customizationId); // 1000000+GenericUtil.uInt(executeSQLQuery("select
 			// nextval('seq_template')").get(0));
 			executeUpdateSQLQuery(
 					"INSERT INTO iwb.w5_template(" + "template_id, customization_id, template_tip, dsc, object_id,"
@@ -1308,9 +1308,9 @@ public class PostgreSQLWriter extends BaseDAO {
 							+ "version_dttm, locale_msg_flag, project_uuid, oproject_uuid)"
 							+ "VALUES (?, ?, 2, 'pg_'||?||'1', 0, " + "0, null, 1, ?, current_timestamp, ?,"
 							+ "current_timestamp, 1, ?, ?)",
-					templateId, customizationId, tableName, userId, userId, projectUuid, projectUuid);
+					pageId, customizationId, tableName, userId, userId, projectUuid, projectUuid);
 			if (vcs)
-				saveObject(new W5VcsObject(scd, 63, templateId));
+				saveObject(new W5VcsObject(scd, 63, pageId));
 
 			int templateObjectId = GenericUtil.getGlobalNextval("iwb.seq_template_object", projectUuid, userId,
 					customizationId); // 1000000+GenericUtil.uInt(executeSQLQuery("select
@@ -1322,7 +1322,7 @@ public class PostgreSQLWriter extends BaseDAO {
 					+ "parent_object_id, src_query_field_id, dst_query_param_id,"
 					+ "dst_static_query_param_val, dst_static_query_param_id, active_flag, project_uuid, oproject_uuid)"
 					+ "VALUES (?, ?, ?, ?, 1, 1," + "1, ?, current_timestamp, ?, current_timestamp,"
-					+ "null, null, 0, null," + "0, null, null,null, null, 1, ?, ?)", templateObjectId, templateId,
+					+ "null, null, 0, null," + "0, null, null,null, null, 1, ?, ?)", templateObjectId, pageId,
 					customizationId, gridId, userId, userId, projectUuid, projectUuid);
 			if (vcs)
 				saveObject(new W5VcsObject(scd, 64, templateObjectId));
@@ -1336,7 +1336,7 @@ public class PostgreSQLWriter extends BaseDAO {
 					+ "VALUES (?, 0, ?, 4, ?, "
 					+ "coalesce((select max(q.tab_order) from iwb.w5_menu q where q.customization_id=? AND q.user_tip=?),0)+10, ?, 'showPage?_tid='||?::text, 1, ?, current_timestamp, "
 					+ "?, current_timestamp, ?, 0, ?, ?)", menuId, userTip, gridName, customizationId, userTip, iconName,
-					templateId, userId, userId, customizationId, projectUuid, projectUuid);
+					pageId, userId, userId, customizationId, projectUuid, projectUuid);
 			if (vcs)
 				saveObject(new W5VcsObject(scd, 65, menuId));
 		} else {
@@ -1425,7 +1425,7 @@ public class PostgreSQLWriter extends BaseDAO {
 				+ "where tf.query_id=? AND tf.customization_id=?", tableId, tableId, tableId, queryId, customizationId);
 
 		if (parentTableId == 0) { // main Template
-			return templateId;
+			return pageId;
 		} else {
 			return gridId;
 		}
