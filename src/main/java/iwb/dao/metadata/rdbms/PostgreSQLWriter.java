@@ -60,7 +60,7 @@ public class PostgreSQLWriter extends BaseDAO {
 	
 	public void deleteProjectMetadata(String delProjectId) {
 		String[] tables = new String[] { "w5_access_delegation", "w5_form_cell_property", 
-				"w5_ws_look_up_detay", "w5_ws_look_up","w5_ws_model","w5_ws_model_param",
+				"w5_ws_model","w5_ws_model_param",
 				"m5_list_template", "w5_ws_server_token", "w5_ws_server_method_param", "w5_ws_server_method",
 				"w5_ws_server", "w5_ws_method_param", "w5_ws_method", "w5_ws", "m5_list", 
 				"w5_table_trigger", "w5_form_hint",
@@ -397,12 +397,33 @@ public class PostgreSQLWriter extends BaseDAO {
 				existField.put(field.getDsc().toLowerCase(FrameworkSetting.appLocale), field);
 			}
 
-			StringBuilder sql = new StringBuilder();
-			sql.append("select ").append(query.getSqlSelect());
-			sql.append(" from ");
-			if (query.getQuerySourceTip() == 0) { // JavaScript
-				sql.append("iwb.w5_table limit 1");
+			if (query.getQuerySourceTip() == 0) {
+				String[] fieldNames = query.getSqlSelect().split(",");
+				int i = 1;
+				for(String columnName:fieldNames) if(existField.get(columnName.toLowerCase(FrameworkSetting.appLocale)) == null){
+					W5QueryFieldCreation field = new W5QueryFieldCreation();
+					field.setDsc(columnName);
+					field.setCustomizationId((Integer) scd.get("customizationId"));
+					if (columnName.equals("insert_user_id") || columnName.equals("version_user_id"))
+						field.setPostProcessTip((short) 53);
+					field.setTabOrder((short) (i));
+					field.setQueryId(query.getQueryId());
+					field.setFieldTip((short)1);
+					field.setInsertUserId(userId);
+					field.setVersionUserId(userId);
+					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+					field.setProjectUuid((String) scd.get("projectId"));
+					field.setOprojectUuid((String) scd.get("projectId"));
+					field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field",
+							(String) scd.get("projectId"), (Integer) scd.get("userId"),
+							(Integer) scd.get("customizationId")));
+					insertList.add(field);
+					i++;
+				}
 			} else {
+				StringBuilder sql = new StringBuilder();
+				sql.append("select ").append(query.getSqlSelect());
+				sql.append(" from ");
 				sql.append(query.getSqlFrom());
 //				if (query.getSqlWhere() != null && query.getSqlWhere().trim().length() > 0)sql.append(" where ").append(query.getSqlWhere().trim());
 				sql.append(" where 1=2");// .append(query.getSqlWhere().trim());
@@ -413,140 +434,141 @@ public class PostgreSQLWriter extends BaseDAO {
 														// olmayacak
 					sql.append(" group by ").append(query.getSqlGroupby().trim());
 
-			}
-			Object[] oz = DBUtil.filterExt4SQL(sql.toString(), scd, null, null);
-			final String sqlStr = ((StringBuilder) oz[0]).toString();
-			if (oz[1] != null)
-				sqlParams.addAll((List) oz[1]);
-			else
-				for (int qi = 0; qi < sqlStr.length(); qi++)
-					if (sqlStr.charAt(qi) == '?')
-						sqlParams.add(null);
-
-			try {
-				if (query.getQuerySourceTip() == 4658) { // externalDB
-					organizeQueryFields(scd, query, sqlStr, sqlParams, existField, updateList, insertList);
-
-				} else
-					getCurrentSession().doWork(new Work() {
-
-						public void execute(Connection conn) throws SQLException {
-							PreparedStatement stmt = null;
-							ResultSet rs = null;
-							stmt = conn.prepareStatement(sqlStr);
-							if (sqlParams.size() > 0)
-								applyParameters(stmt, sqlParams);
-							rs = stmt.executeQuery();
-							ResultSetMetaData meta = rs.getMetaData();
-							Map<String, W5TableField> fieldMap = new HashMap<String, W5TableField>();
-							W5Table t = FrameworkCache.getTable(scd, query.getMainTableId());
-							if (t != null)
-								for (W5TableField f : t.get_tableFieldList()) {
-									fieldMap.put(f.getDsc().toLowerCase(), f);
-								}
-
-							int columnNumber = meta.getColumnCount();
-							for (int i = 1, j = 0; i <= columnNumber; i++) {
-								String columnName = meta.getColumnName(i).toLowerCase(FrameworkSetting.appLocale);
-								if (insertFlag != 0 && existField.get(columnName) == null) { // eger
-																								// daha
-																								// onceden
-																								// boyle
-																								// tanimlanmis
-																								// bir
-																								// field
-																								// yoksa
-									W5QueryFieldCreation field = new W5QueryFieldCreation();
-									field.setDsc(columnName);
-									field.setCustomizationId((Integer) scd.get("customizationId"));
-									if (columnName.equals("insert_user_id") || columnName.equals("version_user_id"))
-										field.setPostProcessTip((short) 53);
-									field.setTabOrder((short) (i));
-									field.setQueryId(query.getQueryId());
-									field.setFieldTip((short) DBUtil.java2iwbType(meta.getColumnType(i)));
-									if (field.getFieldTip() == 4) {
-										// numeric değerde ondalık varsa tipi 3 yap
-										int sc = meta.getScale(i);
-										if (sc > 0)
-											field.setFieldTip((short) 3);
+	
+				Object[] oz = DBUtil.filterExt4SQL(sql.toString(), scd, null, null);
+				final String sqlStr = ((StringBuilder) oz[0]).toString();
+				if (oz[1] != null)
+					sqlParams.addAll((List) oz[1]);
+				else
+					for (int qi = 0; qi < sqlStr.length(); qi++)
+						if (sqlStr.charAt(qi) == '?')
+							sqlParams.add(null);
+	
+				try {
+					if (query.getQuerySourceTip() == 4658) { // externalDB
+						organizeQueryFields(scd, query, sqlStr, sqlParams, existField, updateList, insertList);
+	
+					} else
+						getCurrentSession().doWork(new Work() {
+	
+							public void execute(Connection conn) throws SQLException {
+								PreparedStatement stmt = null;
+								ResultSet rs = null;
+								stmt = conn.prepareStatement(sqlStr);
+								if (sqlParams.size() > 0)
+									applyParameters(stmt, sqlParams);
+								rs = stmt.executeQuery();
+								ResultSetMetaData meta = rs.getMetaData();
+								Map<String, W5TableField> fieldMap = new HashMap<String, W5TableField>();
+								W5Table t = FrameworkCache.getTable(scd, query.getMainTableId());
+								if (t != null)
+									for (W5TableField f : t.get_tableFieldList()) {
+										fieldMap.put(f.getDsc().toLowerCase(), f);
 									}
-									field.setInsertUserId(userId);
-									field.setVersionUserId(userId);
-									field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
-									field.setProjectUuid((String) scd.get("projectId"));
-									field.setOprojectUuid((String) scd.get("projectId"));
-									if (fieldMap.containsKey(columnName.toLowerCase())) {
-										W5TableField tf = fieldMap.get(columnName.toLowerCase());
-										field.setMainTableFieldId(tf.getTableFieldId());
-										if (tf.getDefaultControlTip() == 71) {
-											field.setPostProcessTip(tf.getDefaultControlTip());
-										} else if (tf.getDefaultLookupTableId() > 0) {
-											switch (tf.getDefaultControlTip()) {
-											case 6:
-												field.setPostProcessTip((short) 10);
-												break; // combo static
-											case 8:
-											case 58:
-												field.setPostProcessTip((short) 11);
-												break; // lov-combo static
-											case 7:
-											case 10:
-												field.setPostProcessTip((short) 12);
-												break; // combo query
-											case 15:
-											case 59:
-												field.setPostProcessTip((short) 13);
-												break; // lov-combo query
-											case 51:
-											case 52:
-												field.setPostProcessTip(tf.getDefaultControlTip());
-												break; // combo static
-											}
-											if (tf.getDefaultControlTip() != 0)
-												field.setLookupQueryId(tf.getDefaultLookupTableId());
+	
+								int columnNumber = meta.getColumnCount();
+								for (int i = 1, j = 0; i <= columnNumber; i++) {
+									String columnName = meta.getColumnName(i).toLowerCase(FrameworkSetting.appLocale);
+									if (insertFlag != 0 && existField.get(columnName) == null) { // eger
+																									// daha
+																									// onceden
+																									// boyle
+																									// tanimlanmis
+																									// bir
+																									// field
+																									// yoksa
+										W5QueryFieldCreation field = new W5QueryFieldCreation();
+										field.setDsc(columnName);
+										field.setCustomizationId((Integer) scd.get("customizationId"));
+										if (columnName.equals("insert_user_id") || columnName.equals("version_user_id"))
+											field.setPostProcessTip((short) 53);
+										field.setTabOrder((short) (i));
+										field.setQueryId(query.getQueryId());
+										field.setFieldTip((short) DBUtil.java2iwbType(meta.getColumnType(i)));
+										if (field.getFieldTip() == 4) {
+											// numeric değerde ondalık varsa tipi 3 yap
+											int sc = meta.getScale(i);
+											if (sc > 0)
+												field.setFieldTip((short) 3);
 										}
+										field.setInsertUserId(userId);
+										field.setVersionUserId(userId);
+										field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+										field.setProjectUuid((String) scd.get("projectId"));
+										field.setOprojectUuid((String) scd.get("projectId"));
+										if (fieldMap.containsKey(columnName.toLowerCase())) {
+											W5TableField tf = fieldMap.get(columnName.toLowerCase());
+											field.setMainTableFieldId(tf.getTableFieldId());
+											if (tf.getDefaultControlTip() == 71) {
+												field.setPostProcessTip(tf.getDefaultControlTip());
+											} else if (tf.getDefaultLookupTableId() > 0) {
+												switch (tf.getDefaultControlTip()) {
+												case 6:
+													field.setPostProcessTip((short) 10);
+													break; // combo static
+												case 8:
+												case 58:
+													field.setPostProcessTip((short) 11);
+													break; // lov-combo static
+												case 7:
+												case 10:
+													field.setPostProcessTip((short) 12);
+													break; // combo query
+												case 15:
+												case 59:
+													field.setPostProcessTip((short) 13);
+													break; // lov-combo query
+												case 51:
+												case 52:
+													field.setPostProcessTip(tf.getDefaultControlTip());
+													break; // combo static
+												}
+												if (tf.getDefaultControlTip() != 0)
+													field.setLookupQueryId(tf.getDefaultLookupTableId());
+											}
+										}
+										field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field",
+												(String) scd.get("projectId"), (Integer) scd.get("userId"),
+												(Integer) scd.get("customizationId")));
+										insertList.add(field);
+										j++;
+									} else if (existField.get(columnName) != null
+											&& (existField.get(columnName).getTabOrder() != i
+													|| (existField.get(columnName).getMainTableFieldId() == 0
+															&& fieldMap.containsKey(columnName.toLowerCase())))) {
+										W5QueryFieldCreation field = existField.get(columnName);
+										field.setTabOrder((short) (i));
+										field.setVersionUserId(userId);
+										field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+										if (field.getMainTableFieldId() == 0
+												&& fieldMap.containsKey(columnName.toLowerCase())) {
+											field.setMainTableFieldId(
+													fieldMap.get(columnName.toLowerCase()).getTableFieldId());
+										}
+										updateList.add(field);
 									}
-									field.setQueryFieldId(GenericUtil.getGlobalNextval("iwb.seq_query_field",
-											(String) scd.get("projectId"), (Integer) scd.get("userId"),
-											(Integer) scd.get("customizationId")));
-									insertList.add(field);
-									j++;
-								} else if (existField.get(columnName) != null
-										&& (existField.get(columnName).getTabOrder() != i
-												|| (existField.get(columnName).getMainTableFieldId() == 0
-														&& fieldMap.containsKey(columnName.toLowerCase())))) {
-									W5QueryFieldCreation field = existField.get(columnName);
-									field.setTabOrder((short) (i));
-									field.setVersionUserId(userId);
-									field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
-									if (field.getMainTableFieldId() == 0
-											&& fieldMap.containsKey(columnName.toLowerCase())) {
-										field.setMainTableFieldId(
-												fieldMap.get(columnName.toLowerCase()).getTableFieldId());
-									}
-									updateList.add(field);
+									existField.remove(columnName);
 								}
-								existField.remove(columnName);
+								rs.close();
+								stmt.close();
+								if (FrameworkSetting.hibernateCloseAfterWork)
+									conn.close();
 							}
-							rs.close();
-							stmt.close();
-							if (FrameworkSetting.hibernateCloseAfterWork)
-								conn.close();
-						}
-					});
-
-				for (W5QueryFieldCreation field : existField.values()) { // icinde bulunmayanlari negatif olarak koy
-					field.setTabOrder((short) -Math.abs(field.getTabOrder()));
-					field.setPostProcessTip((short) 99);
-					field.setVersionUserId(userId);
-					field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
-					updateList.add(field);
+						});
+	
+					for (W5QueryFieldCreation field : existField.values()) { // icinde bulunmayanlari negatif olarak koy
+						field.setTabOrder((short) -Math.abs(field.getTabOrder()));
+						field.setPostProcessTip((short) 99);
+						field.setVersionUserId(userId);
+						field.setVersionDttm(new java.sql.Timestamp(new java.util.Date().getTime()));
+						updateList.add(field);
+					}
+				} catch (Exception e) {
+					if (FrameworkSetting.debug)
+						e.printStackTrace();
+					if (queryId != -1)
+						throw new IWBException("sql", "QueryField.Creation", queryId, sql.toString(), "Error Creating", e);
 				}
-			} catch (Exception e) {
-				if (FrameworkSetting.debug)
-					e.printStackTrace();
-				if (queryId != -1)
-					throw new IWBException("sql", "QueryField.Creation", queryId, sql.toString(), "Error Creating", e);
 			}
 		}
 		boolean vcs = FrameworkSetting.vcs;
