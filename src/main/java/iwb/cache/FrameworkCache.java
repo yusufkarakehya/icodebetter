@@ -1515,6 +1515,7 @@ public class FrameworkCache {
 	
 
 	public static String getExceptionMessage(Object o, String exceptionMessage) {
+		if(exceptionMessage==null)return null;
 		String projectId = o == null ? FrameworkSetting.devUuid : getProjectId(o, "-");
 		List<W5Exception> l = wExceptions.get(projectId);
 		if(l!=null) {
@@ -1525,6 +1526,13 @@ public class FrameworkCache {
 				return e.getUserMessage();
 		}
 		return exceptionMessage;
+	}
+
+	public static List<W5Table> getVcsTables() {
+		List<W5Table> l = new ArrayList(150);
+		Map<Integer, W5Table> m = wTables.get(FrameworkSetting.devUuid);
+		for(W5Table t:m.values())if(t.getVcsFlag()!=0)l.add(t);
+		return l;
 	}
 
 }

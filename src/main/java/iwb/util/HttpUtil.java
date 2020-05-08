@@ -31,7 +31,7 @@ public class HttpUtil {
 			connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod(method);
 			if(GenericUtil.isEmpty(reqPropMap)){
-//				connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
+				connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
 				connection.setRequestProperty("Content-Language", "en-EN");
 			} else for(String key:reqPropMap.keySet()){
 				connection.setRequestProperty(key,reqPropMap.get(key));

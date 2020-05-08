@@ -102,7 +102,7 @@ public class FrameworkApplication {
 		        timer.scheduleAtFixedRate(timerTask, 0, 60*1000); //every minute
 			}
 			
-			if(FrameworkSetting.projectId!=null) {
+			if(FrameworkSetting.projectId!=null && GenericUtil.uInt(FrameworkSetting.argMap.get("noupdate"))==0) {
 				vcsService.icbVCSUpdateSqlAndFields();
 				boolean b = vcsService.projectVCSUpdate(FrameworkSetting.devUuid);
 				if(b && FrameworkSetting.projectId!=null) {

@@ -1118,46 +1118,45 @@ public class VcsService {
 		qr.setErrorMap(new HashMap());qr.setNewQueryFields(new ArrayList(qr.getQuery().get_queryFields().size()));qr.getNewQueryFields().addAll(qr.getQuery().get_queryFields());
 		List<Object[]> data = new ArrayList();qr.setData(data);
 		int id = 0;
-		List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where ((q.customization_id=? AND q.project_uuid=?) OR (q.customization_id=0 AND q.project_uuid = '" + FrameworkSetting.devUuid + "')) AND q.vcs_flag=1 order by q.table_id", customizationId, projectUuid); //sadece master tablolar
-		if(ps!=null)for(Integer tid:ps){
-			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
-			if(mt!=null && !GenericUtil.isEmpty(mt.get_tableParamList())){
-				List params = new ArrayList();
-				StringBuilder sql = new StringBuilder();
-				sql.append("select count(1) from iwb.w5_vcs_object v where v.project_uuid=? AND v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,2,9) AND not exists(select 1 from  ").append(mt.getDsc()).append(" m where m.project_uuid=? AND v.table_pk=m.")//m.customization_id=? AND 
-					.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(")");
-				params.add(projectUuid);params.add(customizationId);params.add(tid);params.add(projectUuid);//params.add(customizationId);
-				int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
-				
-				if(cnt>0){
-					Object[] o= new Object[5];
-					o[0] = ++id;
-					o[1] = tid;
-					o[2] = mt.getDsc();
-					o[3] = cnt;
-					o[4] = 1;
-					data.add(o);
-				}
-			}
+//		List<Integer> ps = dao.executeSQLQuery("select q.table_id from iwb.w5_table q where ((q.customization_id=? AND q.project_uuid=?) OR (q.customization_id=0 AND q.project_uuid = '" + FrameworkSetting.devUuid + "')) AND q.vcs_flag=1 order by q.table_id", customizationId, projectUuid); //sadece master tablolar
+		List<W5Table> vcsTables = FrameworkCache.getVcsTables();
+		
+		//zombie check (+VCS Object, -Record) 
+		for(W5Table mt:vcsTables){
+			if(mt==null || GenericUtil.isEmpty(mt.get_tableParamList()))continue;
+			List params = new ArrayList();
+			StringBuilder sql = new StringBuilder();
+			sql.append("select count(1) from iwb.w5_vcs_object v where v.project_uuid=? AND v.customization_id=? AND v.table_id=? AND v.vcs_object_status_tip in (1,2,9) AND not exists(select 1 from  ").append(mt.getDsc()).append(" m where m.project_uuid=? AND v.table_pk=m.")//m.customization_id=? AND 
+				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(")");
+			params.add(projectUuid);params.add(customizationId);params.add(mt.getTableId());params.add(projectUuid);//params.add(customizationId);
+			int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
 			
+			if(cnt>0){
+				Object[] o= new Object[6];
+				o[0] = ++id;
+				o[1] = mt.getTableId();
+				o[2] = mt.getDsc();
+				o[3] = cnt;
+				o[4] = 1;
+				data.add(o);
+			}
 		}
 		
-		if(ps!=null)for(Integer tid:ps){
-			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
+		for(W5Table mt:vcsTables){
 			if(mt==null || GenericUtil.isEmpty(mt.get_tableParamList()))continue;
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
 			sql.append("select count(1) from ").append(mt.getDsc())
 				.append(" m where m.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.project_uuid!=? AND v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
 				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(")");
-			params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(tid);
+			params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(mt.getTableId());
 		
 			int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
 			
 			if(cnt>0){
-				Object[] o= new Object[5];
+				Object[] o= new Object[6];
 				o[0] = ++id;
-				o[1] = tid;
+				o[1] = mt.getTableId();
 				o[2] = mt.getDsc();
 				o[3] = cnt;
 				o[4] = 2;
@@ -1166,32 +1165,32 @@ public class VcsService {
 			
 		}
 		
-		if(ps!=null)for(Integer tid:ps){
-			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
+		for(W5Table mt:vcsTables){
 			if(mt==null || GenericUtil.isEmpty(mt.get_tableParamList()))continue;
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
-			sql.append("select count(1) from ").append(mt.getDsc())
-				.append(" m where m.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.project_uuid!=? AND v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
-				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(")");
-			params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(tid);
-		
-			int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
+			sql.append("select x.").append(mt.get_tableFieldList().get(0).getDsc()).append(" id,(").append(mt.getSummaryRecordSql()).append(") dsc from ").append(mt.getDsc())
+				.append(" x where x.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.project_uuid!=x.project_uuid AND v.vcs_object_status_tip in (1,9) AND v.table_id=? AND v.table_pk=x.")
+				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(") AND not exists(select 1 from iwb.w5_vcs_object v where v.project_uuid=x.project_uuid AND v.vcs_object_status_tip in (1,9) AND v.table_id=? AND v.table_pk=x.")
+				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(") limit 10");
+			params.add(projectUuid);params.add(mt.getTableId());params.add(mt.getTableId());
+			List ll = dao.executeSQLQuery2Map(sql.toString(), params);
+//			int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
 			
-			if(cnt>0){
-				Object[] o= new Object[5];
+			if(ll!=null){
+				Object[] o= new Object[6];
 				o[0] = ++id;
-				o[1] = tid;
+				o[1] = mt.getTableId();
 				o[2] = mt.getDsc();
-				o[3] = cnt;
+				o[3] = ll.size();
 				o[4] = 3;
+				o[5] = GenericUtil.fromListToJsonString2Recursive(ll);
 				data.add(o);
 			}
 			
 		}
 		
-		if(ps!=null)for(Integer tid:ps){
-			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
+		for(W5Table mt:vcsTables){
 			if(mt==null || mt.get_tableFieldMap()==null || mt.getTableTip()!=0)continue;
 			if(GenericUtil.isEmpty(mt.get_tableParamList()) || GenericUtil.isEmpty(mt.get_tableFieldList()))continue;
 			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList())try{
@@ -1222,9 +1221,9 @@ public class VcsService {
 				int cnt = GenericUtil.uInt(dao.executeSQLQuery2("select count(1) from "+dt.getDsc()+" d " + sql.toString(), params).get(0));
 				
 				if(cnt>0){
-					Object[] o= new Object[5];
+					Object[] o= new Object[6];
 					o[0] = ++id;
-					o[1] = tid;
+					o[1] = mt.getTableId();
 					o[2] = mt.getDsc() + " -> " + dt.getDsc();
 					o[3] = cnt;
 					o[4] = 4;
@@ -1236,8 +1235,7 @@ public class VcsService {
 			
 		}
 
-		if(ps!=null)for(Integer tid:ps){
-			W5Table mt = FrameworkCache.getTable(projectUuid, tid);
+		for(W5Table mt:vcsTables){
 			if(mt.getTableTip()!=0)continue;
 			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList())try{
 				W5Table dt = FrameworkCache.getTable(projectUuid, tc.getRelatedTableId());
@@ -1268,9 +1266,9 @@ public class VcsService {
 				int cnt = GenericUtil.uInt(dao.executeSQLQuery2("select count(1) from "+dt.getDsc()+" d " + sql.toString(), params).get(0));
 				
 				if(cnt>0){
-					Object[] o= new Object[5];
+					Object[] o= new Object[6];
 					o[0] = ++id;
-					o[1] = tid;
+					o[1] = mt.getTableId();
 					o[2] = mt.getDsc() + " -> " + dt.getDsc();
 					o[3] = cnt;
 					o[4] = 5;
