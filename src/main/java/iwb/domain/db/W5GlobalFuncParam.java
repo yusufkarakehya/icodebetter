@@ -18,15 +18,14 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_db_func_param",schema="iwb")
 public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base {
+/*TABLE_ID: 21*/
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 193784239632947L;
 
-	private int dbFuncParamId;
+	private int globalFuncParamId;
 
-	private int dbFuncId;
+	private int globalFuncId;
 
 	private String dsc;
 
@@ -66,21 +65,21 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base 
 
 	@Id
 	@Column(name="db_func_param_id")
-	public int getDbFuncParamId() {
-		return this.dbFuncParamId;
+	public int getGlobalFuncParamId() {
+		return this.globalFuncParamId;
 	}
 
-	public void setDbFuncParamId(int dbFuncParamId) {
-		this.dbFuncParamId = dbFuncParamId;
+	public void setGlobalFuncParamId(int globalFuncParamId) {
+		this.globalFuncParamId = globalFuncParamId;
 	}
 
 	@Column(name="db_func_id")
-	public int getDbFuncId() {
-		return this.dbFuncId;
+	public int getGlobalFuncId() {
+		return this.globalFuncId;
 	}
 
-	public void setDbFuncId(int dbFuncId) {
-		this.dbFuncId = dbFuncId;
+	public void setGlobalFuncId(int globalFuncId) {
+		this.globalFuncId = globalFuncId;
 	}
 
 	@Column(name="dsc")
@@ -196,11 +195,11 @@ public class W5GlobalFuncParam implements java.io.Serializable, W5Param, W5Base 
 	public boolean equals(Object o) {
 		if(o==null || !(o instanceof W5GlobalFuncParam))return false;
 		W5GlobalFuncParam c = (W5GlobalFuncParam)o;
-		return c!=null && c.getDbFuncParamId()==getDbFuncParamId() && c.getProjectUuid().equals(projectUuid);
+		return c!=null && c.getGlobalFuncParamId()==getGlobalFuncParamId() && c.getProjectUuid().equals(projectUuid);
 	}
 	
 	public int hashCode() {
-		return projectUuid.hashCode() + 100*getDbFuncParamId();
+		return projectUuid.hashCode() + 100*getGlobalFuncParamId();
 	}
 	
 	

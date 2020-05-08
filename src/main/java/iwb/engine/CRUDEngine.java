@@ -213,7 +213,7 @@ public class CRUDEngine {
 								}
 								if (workflowStep != null) { // step hazir
 									workflowRecord = new W5WorkflowRecord(scd, workflowStep.getApprovalStepId(),
-											workflow.getApprovalId(), formResult.getForm().getObjectId(), (short) 0,
+											workflow.getWorkflowId(), formResult.getForm().getObjectId(), (short) 0,
 											workflowStep.getReturnFlag());
 									boolean bau = advancedStepSqlResult != null
 											&& advancedStepSqlResult.get("approval_users") != null;
@@ -248,7 +248,7 @@ public class CRUDEngine {
 												? workflowRecord.getAccessViewUsers() + "," + scd.get("userId")
 												: scd.get("userId").toString());
 								} else {
-									throw new IWBException("framework", "Workflow", workflow.getApprovalId(), null,
+									throw new IWBException("framework", "Workflow", workflow.getWorkflowId(), null,
 											LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_wrong_approval_definition"),
 											null);
 								}
@@ -292,7 +292,7 @@ public class CRUDEngine {
 										workflowStep.setApprovalStepId(901);
 									}
 									if (advancedStepSqlResult.get("error_msg") != null)
-										throw new IWBException("security", "Workflow", workflow.getApprovalId(), null,
+										throw new IWBException("security", "Workflow", workflow.getWorkflowId(), null,
 												(String) advancedStepSqlResult.get("error_msg"), null);
 								}
 							} else {
@@ -308,7 +308,7 @@ public class CRUDEngine {
 
 							if (workflowStep != null) { // step hazir
 								workflowRecord = new W5WorkflowRecord(scd, workflowStep.getApprovalStepId(),
-										workflow.getApprovalId(), formResult.getForm().getObjectId(), (short) 0,
+										workflow.getWorkflowId(), formResult.getForm().getObjectId(), (short) 0,
 										workflowStep.getReturnFlag());
 								workflowRecord.setApprovalUsers(advancedStepSqlResult != null
 										&& advancedStepSqlResult.get("approval_users") != null
@@ -437,7 +437,7 @@ public class CRUDEngine {
 							if (workflow.getAdvancedBeginSql() != null
 									&& workflow.getAdvancedBeginSql().trim().length() > 2) { // calisacak
 								
-								Object oz = scriptEngine.executeScript(scd, requestParams, workflow.getAdvancedBeginSql(), null, "wf_"+workflow.getApprovalId()+"_abs");
+								Object oz = scriptEngine.executeScript(scd, requestParams, workflow.getAdvancedBeginSql(), null, "wf_"+workflow.getWorkflowId()+"_abs");
 								if(oz!=null) {
 									if(oz instanceof Boolean) {
 										if(!((Boolean)oz))workflow=null;
@@ -505,7 +505,7 @@ public class CRUDEngine {
 								// FrameworkCache.getAppSettingStringValue(scd,
 								// "approval_schema");
 								workflowRecord = new W5WorkflowRecord((String) scd.get("projectId"));
-								workflowRecord.setApprovalId(workflow.getApprovalId());
+								workflowRecord.setApprovalId(workflow.getWorkflowId());
 								workflowRecord.setApprovalStepId(workflowStep.getApprovalStepId());
 								workflowRecord.setApprovalActionTip((short) 0); // start,approve,return,reject,time_limit_exceed
 								workflowRecord.setTableId(formResult.getForm().getObjectId());
@@ -703,7 +703,7 @@ public class CRUDEngine {
 											workflow = null; // approval
 																// olmayacak
 										if (advancedStepSqlResult.get("error_msg") != null) // girmeyecek
-											throw new IWBException("security", "Workflow", workflow.getApprovalId(),
+											throw new IWBException("security", "Workflow", workflow.getWorkflowId(),
 													null, (String) advancedStepSqlResult.get("error_msg"), null);
 									}
 								}
@@ -728,7 +728,7 @@ public class CRUDEngine {
 
 							if (workflowStep != null) { // step hazir
 								workflowRecord = new W5WorkflowRecord();
-								workflowRecord.setApprovalId(workflow.getApprovalId());
+								workflowRecord.setApprovalId(workflow.getWorkflowId());
 								workflowRecord.setApprovalStepId(workflowStep.getApprovalStepId());
 								workflowRecord.setApprovalActionTip((short) 0); // start,approve,return,reject,time_limit_exceed
 								workflowRecord.setTableId(formResult.getForm().getObjectId());

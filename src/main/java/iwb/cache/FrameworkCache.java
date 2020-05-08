@@ -1,8 +1,6 @@
 package iwb.cache;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,7 +59,6 @@ import iwb.domain.db.W5Ws;
 import iwb.domain.db.W5WsMethod;
 import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.db.W5WsServer;
-import iwb.domain.result.W5GridResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
 import iwb.util.GenericUtil;
@@ -206,7 +203,7 @@ public class FrameworkCache {
 			return wCards.get(projectId).get(dataViewId);
 	}
 	public static void addCard(Object o, W5Card d){
-		int dataViewId = d.getDataViewId();
+		int dataViewId = d.getCardId();
 		String projectId = getProjectId(o, "930."+dataViewId);
 		//addX((Map)wDataViews, projectId, dataViewId, d);
 		if(wCards.get(projectId)==null){
@@ -240,11 +237,11 @@ public class FrameworkCache {
 	}
 
 	public static void addWorkflow(Object o, W5Workflow w) {
-		String projectId = getProjectId(o, "389."+w.getApprovalId());
+		String projectId = getProjectId(o, "389."+w.getWorkflowId());
 		if(!wWorkflows.containsKey(projectId)){
 			wWorkflows.put(projectId, new HashMap());
 		} else
-		wWorkflows.get(projectId).put(w.getApprovalId(), w);
+		wWorkflows.get(projectId).put(w.getWorkflowId(), w);
 	}
 	
 
@@ -280,7 +277,7 @@ public class FrameworkCache {
 			return wGlobalFuncs.get(projectId).get(funcId);
 	}
 	public static void addGlobalFunc(Object o, W5GlobalFunc func){
-		int funcId = func.getDbFuncId();
+		int funcId = func.getGlobalFuncId();
 		String projectId = getProjectId(o, "20."+funcId);
 		if(wGlobalFuncs.get(projectId)==null){
 			wGlobalFuncs.put(projectId, new HashMap());
@@ -908,11 +905,11 @@ public class FrameworkCache {
 		Map<Integer, W5GlobalFunc> mm = new HashMap();
 		
 		if(funcs!=null)for(W5GlobalFunc m:funcs) {
-			mm.put(m.getDbFuncId(), m);
+			mm.put(m.getGlobalFuncId(), m);
 			m.set_dbFuncParamList(new ArrayList());
 		}
 		if(funcParams!=null)for(W5GlobalFuncParam d:funcParams) {
-			W5GlobalFunc m = mm.get(d.getDbFuncId());
+			W5GlobalFunc m = mm.get(d.getGlobalFuncId());
 			if(m!=null) {
 				m.get_dbFuncParamList().add(d);
 			}			
@@ -1101,7 +1098,7 @@ public class FrameworkCache {
 				}
 				Map<Integer, W5GlobalFuncParam> fieldMap3 = new HashMap();
 				for (W5GlobalFuncParam tf : dbf.get_dbFuncParamList()) {
-					fieldMap3.put(tf.getDbFuncParamId(), tf);
+					fieldMap3.put(tf.getGlobalFuncParamId(), tf);
 				}
 				for (W5FormCell fc : form.get_formCells())
 					if (fc.getObjectDetailId() != 0) {
@@ -1122,7 +1119,7 @@ public class FrameworkCache {
 					approvalCell.setDsc("_approval_step_ids" + actionTip);
 					approvalCell.setControlType((short) 15); // low-combo query
 					approvalCell.setLookupQueryId(606); // approval steps
-					approvalCell.setLookupIncludedParams("xapproval_id=" + mam.get(actionTip).getApprovalId());
+					approvalCell.setLookupIncludedParams("xapproval_id=" + mam.get(actionTip).getWorkflowId());
 					approvalCell.setControlWidth((short) 250);
 					approvalCell.setLocaleMsgKey("approval_status"); // mam.get(actionTip).getDsc()
 					approvalCell.setInitialSourceType((short) 10); // approvalStates
@@ -1175,7 +1172,7 @@ public class FrameworkCache {
 		
 		if(gridColumnCustomRenderers!=null)for(W5CustomGridColumnRenderer d:gridColumnCustomRenderers){
 			W5Grid m = mm.get(d.getGridId());
-			if(m!=null && m.getRowColorFxTip()==1 && m.getRowColorFxQueryFieldId()!=0) {
+			if(m!=null && m.getRowColorFxType()==1 && m.getRowColorFxQueryFieldId()!=0) {
 				if(m.get_listCustomGridColumnRenderer()==null)m.set_listCustomGridColumnRenderer(new ArrayList());
 				m.get_listCustomGridColumnRenderer().add(d);
 			}			
@@ -1184,7 +1181,7 @@ public class FrameworkCache {
 		
 		if(gridColumnCustomConditions!=null)for(W5CustomGridColumnCondition d:gridColumnCustomConditions){
 			W5Grid m = mm.get(d.getGridId());
-			if(m!=null && (m.getRowColorFxTip()==3 || (m.getRowColorFxTip()==2 && m.getRowColorFxQueryFieldId()!=0))) {
+			if(m!=null && (m.getRowColorFxType()==3 || (m.getRowColorFxType()==2 && m.getRowColorFxQueryFieldId()!=0))) {
 				if(m.get_listCustomGridColumnCondition()==null)m.set_listCustomGridColumnCondition(new ArrayList());
 				m.get_listCustomGridColumnCondition().add(d);
 			}			
@@ -1313,13 +1310,13 @@ public class FrameworkCache {
 		Map<Integer, W5Workflow> mm = new HashMap();
 		
 		if(workflows!=null)for(W5Workflow m:workflows) {
-			mm.put(m.getApprovalId(), m);
+			mm.put(m.getWorkflowId(), m);
 			m.set_approvalStepList(new ArrayList());
 			m.set_approvalStepMap(new HashMap());
 		}
 		
 		if(workflowSteps!=null)for(W5WorkflowStep d:workflowSteps) {
-			W5Workflow m = mm.get(d.getApprovalId());
+			W5Workflow m = mm.get(d.getWorkflowId());
 			if(m!=null) {
 				m.get_approvalStepList().add(d);
 				m.get_approvalStepMap().put(d.getApprovalStepId(), d);
@@ -1377,7 +1374,7 @@ public class FrameworkCache {
 		if(cards!=null)for(W5Card m:cards) {
 			m.set_query(getQuery(projectId, m.getQueryId()));
 			if(m.get_query()==null)continue;
-			mm.put(m.getDataViewId(), m);
+			mm.put(m.getCardId(), m);
 			m.set_menuItemList(new ArrayList());
 			m.set_toolbarItemList(new ArrayList());
 			

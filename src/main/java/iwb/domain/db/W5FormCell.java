@@ -17,7 +17,10 @@ import iwb.util.GenericUtil;
 @Immutable
 @Table(name = "W5_FORM_CELL",schema="iwb")
 public class W5FormCell implements java.io.Serializable, W5Base, W5Param {
+/*TABLE_ID: 41*/
 
+	private static final long serialVersionUID = 1834732724234L;
+	
 	private int formCellId;
 	private int formId;
 	private String dsc;

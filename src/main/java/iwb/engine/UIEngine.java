@@ -922,7 +922,7 @@ public class UIEngine {
 					W5CardResult cardResult = metadataLoader.getCardResult(scd, o.getObjectId(), requestParams,
 							objectCount != 0);
 					if (o.getObjectType() < 0)
-						cardResult.setDataViewId(-cardResult.getDataViewId());
+						cardResult.setCardId(-cardResult.getCardId());
 					mainTable = cardResult.getCard() != null && cardResult.getCard().get_query() != null
 							? FrameworkCache.getTable(scd, cardResult.getCard().get_query().getSourceObjectId())
 							: null;

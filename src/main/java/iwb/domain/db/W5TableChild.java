@@ -18,12 +18,13 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_table_child",schema="iwb")
 public class W5TableChild implements java.io.Serializable, W5Base {
-
+/*TABLE_ID: 657*/
 
 	private static final long serialVersionUID = 8385485198231L;
 	private int tableChildId;
-	private short relationTip;
 	private int tableId;
+	
+	private short relationType;
 	private int tableFieldId;
 	private int relatedTableId;
 	private int relatedTableFieldId;
@@ -44,11 +45,11 @@ public class W5TableChild implements java.io.Serializable, W5Base {
 
 
 	@Column(name="relation_tip")
-	public short getRelationTip() {
-		return relationTip;
+	public short getRelationType() {
+		return relationType;
 	}
-	public void setRelationTip(short relationTip) {
-		this.relationTip = relationTip;
+	public void setRelationType(short relationType) {
+		this.relationType = relationType;
 	}
 	@Column(name="table_id")
 	public int getTableId() {

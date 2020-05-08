@@ -23,7 +23,6 @@ import iwb.domain.db.W5Email;
 import iwb.domain.db.W5Form;
 import iwb.domain.db.W5FormSmsMail;
 import iwb.domain.db.W5FormSmsMailAlarm;
-import iwb.domain.db.W5ObjectMailSetting;
 import iwb.domain.db.W5Table;
 import iwb.domain.db.W5TableField;
 import iwb.domain.helper.W5AccessControlHelper;

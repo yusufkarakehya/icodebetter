@@ -385,7 +385,7 @@ public class QueryEngine {
 				W5QueryField f = m1.get(cs[0]);
 				if (f != null) {
 					W5GridColumn c = m2.get(f.getQueryFieldId());
-					if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) { // onay
+					if (f.getDsc().equals(FieldDefinitions.queryFieldName_Workflow)) { // onay
 																						// varsa,raporda
 																						// gorunmesi
 																						// icin
@@ -417,14 +417,10 @@ public class QueryEngine {
 					if (f.getTabOrder() > 0) {
 						String dataType = "";
 						Object obj = queryResult.getData().get(i)[f.getTabOrder() - 1];
-						if (obj != null && f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {
+						if (obj != null && f.getDsc().equals(FieldDefinitions.queryFieldName_Workflow)) {
 							String[] ozs = ((String) queryResult.getData().get(i)[f.getTabOrder() - 1]).split(";");
-							int appId = GenericUtil.uInt(ozs[1]); // approvalId:
-																	// kendisi
-																	// yetkili
-																	// ise + ,
-																	// aksi
-																	// halde -
+							int appId = GenericUtil.uInt(ozs[1]); // workflowId:
+																	
 							int appStepId = GenericUtil.uInt(ozs[2]); // approvalStepId
 							W5Workflow appr = FrameworkCache.getWorkflow(scd, appId);
 							String appStepDsc = "";
@@ -593,7 +589,7 @@ public class QueryEngine {
 				if (f != null) {
 					W5GridColumn c = m2.get(f.getQueryFieldId());
 					if(c!=null) {
-						if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) { // onay
+						if (f.getDsc().equals(FieldDefinitions.queryFieldName_Workflow)) { // onay
 																							// varsa,raporda
 																							// gorunmesi
 																							// icin
@@ -625,14 +621,10 @@ public class QueryEngine {
 					W5QueryField f =  gc.get_queryField();
 					if (f.getTabOrder() > 0) {
 						Object obj = queryResult.getData().get(i)[f.getTabOrder() - 1];
-						if (obj != null && f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {
+						if (obj != null && f.getDsc().equals(FieldDefinitions.queryFieldName_Workflow)) {
 							String[] ozs = ((String) queryResult.getData().get(i)[f.getTabOrder() - 1]).split(";");
-							int appId = GenericUtil.uInt(ozs[1]); // approvalId:
-																	// kendisi
-																	// yetkili
-																	// ise + ,
-																	// aksi
-																	// halde -
+							int appId = GenericUtil.uInt(ozs[1]); // workflowId:
+																
 							int appStepId = GenericUtil.uInt(ozs[2]); // approvalStepId
 							W5Workflow appr = FrameworkCache.getWorkflow(scd, appId);
 							String appStepDsc = "";

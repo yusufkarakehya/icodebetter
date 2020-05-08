@@ -23,7 +23,7 @@ public class W5CustomGridColumnCondition implements java.io.Serializable, W5Base
 	private int gridId;
 	private int queryFieldId;
 	private short tabOrder;
-	private short operatorTip;
+	private short operatorType;
 	private String conditionVal;
 	private String cssVal;	
 	
@@ -52,11 +52,11 @@ public class W5CustomGridColumnCondition implements java.io.Serializable, W5Base
 		this.tabOrder = tabOrder;
 	}
 	@Column(name="operator_tip")
-	public short getOperatorTip() {
-		return operatorTip;
+	public short getOperatorType() {
+		return operatorType;
 	}
-	public void setOperatorTip(short operatorTip) {
-		this.operatorTip = operatorTip;
+	public void setOperatorType(short operatorType) {
+		this.operatorType = operatorType;
 	}
 	@Column(name="condition_val")
 	public String getConditionVal() {

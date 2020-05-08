@@ -13,10 +13,8 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_form_module",schema="iwb")
 public class W5FormModule implements java.io.Serializable, W5Base {
-
-	/**
-	 * 
-	 */
+/*TABLE_ID: 230*/
+	
 	private static final long serialVersionUID = 100231238127L;
 	private int formModuleId;
 	private int formId;

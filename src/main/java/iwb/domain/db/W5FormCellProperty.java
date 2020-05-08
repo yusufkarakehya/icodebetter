@@ -12,10 +12,8 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name = "W5_FORM_CELL_PROPERTY",schema="iwb")
 public class W5FormCellProperty implements java.io.Serializable, W5Base {
-
-	/**
-	 * 
-	 */
+/*TABLE_ID: 5621*/
+	
 	private static final long serialVersionUID = 129834567825321L;
 	private int formCellProperyId;
 	private int formCellId;

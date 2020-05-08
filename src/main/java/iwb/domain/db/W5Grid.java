@@ -47,12 +47,11 @@ public class W5Grid implements java.io.Serializable, W5Base, W5ListBase {
 
 	private int defaultCrudFormId;// burdan edit, insert vs olaylari incelenecek
 	 
-	private short columnRenderTip;
 	private int groupingFieldId;
 	private int treeMasterFieldId;
 	private short insertEditModeFlag;
 
-	private short rowColorFxTip;
+	private short rowColorFxType;
 	private int rowColorFxQueryFieldId;
 	
 	private	String jsCode;	
@@ -229,15 +228,6 @@ public class W5Grid implements java.io.Serializable, W5Base, W5ListBase {
 	}
 
 	
-	
-	@Column(name="column_render_tip")
-	public short getColumnRenderTip() {
-		return columnRenderTip;
-	}
-	public void setColumnRenderTip(short columnRenderTip) {
-		this.columnRenderTip = columnRenderTip;
-	}
-	
 	@Column(name="grouping_field_id")
 	public int getGroupingFieldId() {
 		return groupingFieldId;
@@ -325,12 +315,12 @@ public class W5Grid implements java.io.Serializable, W5Base, W5ListBase {
 		_listCustomGridColumnRenderer = listCustomGridColumnRenderer;
 	}
 	@Column(name="row_color_fx_tip")
-	public short getRowColorFxTip() {
-		return rowColorFxTip;
+	public short getRowColorFxType() {
+		return rowColorFxType;
 	}
 
-	public void setRowColorFxTip(short rowColorFxTip) {
-		this.rowColorFxTip = rowColorFxTip;
+	public void setRowColorFxType(short rowColorFxType) {
+		this.rowColorFxType = rowColorFxType;
 	}
 
 	@Column(name="row_color_fx_query_field_id")
@@ -408,7 +398,6 @@ public class W5Grid implements java.io.Serializable, W5Base, W5ListBase {
 
 		this.defaultCrudFormId == g.getDefaultCrudFormId() &&// burdan edit, insert vs olaylari incelenecek
 		 
-		this.columnRenderTip == g.getColumnRenderTip() &&
 		this.groupingFieldId == g.getGroupingFieldId() &&
 		this.treeMasterFieldId == g.getTreeMasterFieldId() &&
 		this.insertEditModeFlag == g.getInsertEditModeFlag() &&

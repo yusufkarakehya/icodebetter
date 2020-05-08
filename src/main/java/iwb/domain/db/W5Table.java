@@ -22,10 +22,9 @@ import iwb.util.GenericUtil;
 @Immutable
 @Table(name="w5_table",schema="iwb")
 public class W5Table implements java.io.Serializable, W5Base {
+/*TABLE_ID: 15*/
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 132324122L;
 	private int tableId;
 	private int customizationId;

@@ -17,10 +17,8 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_query",schema="iwb")
 public class W5Query implements java.io.Serializable, W5Base {
-
-	/**
-	 * 
-	 */
+/*TABLE_ID: 8*/
+	
 	private static final long serialVersionUID = 1123543123L;
 
 	private int queryId;

@@ -133,7 +133,7 @@ public class GlobalScriptEngine {
 
 		boolean hasOutParam = false;
 		Object requestJson = r.getRequestParams().get("_json");
-		String script = r.getGlobalFunc().getRhinoScriptCode();
+		String script = r.getGlobalFunc().getCode();
 		if (script.length() > 0 && script.charAt(0) == '!')
 			script = script.substring(1);
 		List<Object> params = new ArrayList();
@@ -1119,10 +1119,10 @@ public class GlobalScriptEngine {
 		return "";
 	}
 
-	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int dbFuncId,
+	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int globalFuncId,
 			Map<String, String> parameterMap) {
-		W5GlobalFuncResult r = dbFuncId == -1 ? new W5GlobalFuncResult(-1)
-				: metadataLoader.getGlobalFuncResult(scd, dbFuncId);
+		W5GlobalFuncResult r = globalFuncId == -1 ? new W5GlobalFuncResult(-1)
+				: metadataLoader.getGlobalFuncResult(scd, globalFuncId);
 		r.setScd(scd);
 		dao.checkTenant(scd);
 		r.setErrorMap(new HashMap());
@@ -1138,7 +1138,7 @@ public class GlobalScriptEngine {
 			try {
 				fncName = "dfnc_" + (r.getScd() != null && r.getScd().get("projectId") != null
 						? r.getScd().get("projectId").toString().replace('-', '_')
-						: "xxx") + "_" + Math.abs(dbFuncId);
+						: "xxx") + "_" + Math.abs(globalFuncId);
 				StringBuilder sb = new StringBuilder();
 				StringBuilder sbPost1 = new StringBuilder(), sbPost2 = new StringBuilder();
 				sb.append("function ").append(fncName).append("($, _scd, _request");

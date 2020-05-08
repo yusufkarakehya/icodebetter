@@ -13,10 +13,8 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_object_toolbar_item",schema="iwb")
 public class W5ObjectToolbarItem implements java.io.Serializable, W5Base {
+/*TABLE_ID: 229*/
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 9159238375651L;
 	private int toolbarItemId;
 	private short objectType; // 2:table_id, 1:gridId, 3:dbFunc

@@ -8,7 +8,6 @@ import iwb.domain.db.W5LookUpDetay;
 import iwb.domain.db.W5ObjectMailSetting;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5TableFieldCalculated;
-import iwb.domain.db.W5WsMethodParam;
 import iwb.domain.result.M5ListResult;
 import iwb.domain.result.W5CardResult;
 import iwb.domain.result.W5FormResult;

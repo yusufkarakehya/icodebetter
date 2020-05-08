@@ -14,19 +14,18 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_ws_method_param",schema="iwb")
 public class W5WsMethodParam  implements java.io.Serializable, W5Param, W5Base {
+/*TABLE_ID: 1377*/
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 18172625342L;
+	
 	private int wsMethodParamId;
 	private int wsMethodId;
 	private int parentWsMethodParamId;
 	private String dsc;
-	private short paramType;
-	private String uid;
+	private short paramType;//integer, string etc
 	private short outFlag;
-	private short credentialsFlag;
+	private short paramSendType;
 	private short notNullFlag;
 	private short tabOrder;
 	private short sourceType;
@@ -67,14 +66,6 @@ public class W5WsMethodParam  implements java.io.Serializable, W5Param, W5Base {
 	}
 	public void setDsc(String dsc) {
 		this.dsc = dsc;
-	}
-	
-	@Column(name="uid")
-	public String getUid() {
-		return uid;
-	}
-	public void setUid(String uid) {
-		this.uid = uid;
 	}
 	
 	@Column(name="out_flag")
@@ -174,11 +165,11 @@ public class W5WsMethodParam  implements java.io.Serializable, W5Param, W5Base {
 		this.projectUuid = projectUuid;
 	}
 	@Column(name="credentials_flag")
-	public short getCredentialsFlag() {
-		return credentialsFlag;
+	public short getParamSendType() {
+		return paramSendType;
 	}
-	public void setCredentialsFlag(short credentialsFlag) {
-		this.credentialsFlag = credentialsFlag;
+	public void setParamSendType(short paramSendType) {
+		this.paramSendType = paramSendType;
 	}
 
 	

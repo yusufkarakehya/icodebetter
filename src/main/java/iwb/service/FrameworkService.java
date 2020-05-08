@@ -10,10 +10,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
@@ -35,19 +33,9 @@ import iwb.domain.db.Log5Feed;
 import iwb.domain.db.Log5GlobalNextval;
 import iwb.domain.db.Log5JobAction;
 import iwb.domain.db.Log5Transaction;
-import iwb.domain.db.W5BIGraphDashboard;
-import iwb.domain.db.W5Customization;
-import iwb.domain.db.W5ExcelImport;
-import iwb.domain.db.W5ExcelImportSheet;
-import iwb.domain.db.W5ExcelImportSheetData;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5JobSchedule;
 import iwb.domain.db.W5Project;
-import iwb.domain.db.W5Query;
-import iwb.domain.db.W5Table;
-import iwb.domain.db.W5TableChild;
-import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5VcsObject;
 import iwb.domain.db.W5WorkflowRecord;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5WsServer;
@@ -195,17 +183,17 @@ public class FrameworkService {
 	}
 
 
-	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int dbFuncId, Map<String, String> parameterMap,
+	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int globalFuncId, Map<String, String> parameterMap,
 			short accessSourceType) {
-		return scriptEngine.executeGlobalFunc(scd, dbFuncId, parameterMap, accessSourceType);
+		return scriptEngine.executeGlobalFunc(scd, globalFuncId, parameterMap, accessSourceType);
 
 	}
 	
 
 	@Transactional(propagation=Propagation.NEVER)
-	public W5GlobalFuncResult executeFuncNT(Map<String, Object> scd, int dbFuncId, Map<String, String> parameterMap,
+	public W5GlobalFuncResult executeFuncNT(Map<String, Object> scd, int globalFuncId, Map<String, String> parameterMap,
 			short accessSourceType) {
-		return scriptEngine.executeGlobalFunc(scd, dbFuncId, parameterMap, accessSourceType);
+		return scriptEngine.executeGlobalFunc(scd, globalFuncId, parameterMap, accessSourceType);
 
 	}
 
@@ -307,9 +295,9 @@ public class FrameworkService {
 
 	}
 
-	public W5GlobalFuncResult postEditGridGlobalFunc(Map<String, Object> scd, int dbFuncId, int dirtyCount,
+	public W5GlobalFuncResult postEditGridGlobalFunc(Map<String, Object> scd, int globalFuncId, int dirtyCount,
 			Map<String, String> requestParams, String prefix) {
-		return scriptEngine.postEditGridGlobalFunc(scd, dbFuncId, dirtyCount, requestParams, prefix);
+		return scriptEngine.postEditGridGlobalFunc(scd, globalFuncId, dirtyCount, requestParams, prefix);
 	}
 
 	public Map<String, Object> userRoleSelect(int userId, int userRoleId, int customizationId, String projectId,
@@ -648,9 +636,9 @@ public class FrameworkService {
 		return queryEngine.executeQuery4Pivot(scd, tableId, requestParams);
 	}
 
-	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int dbFuncId,
+	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int globalFuncId,
 			Map<String, String> parameterMap) {
-		return debugEngine.executeGlobalFunc4Debug(scd, dbFuncId, parameterMap);
+		return debugEngine.executeGlobalFunc4Debug(scd, globalFuncId, parameterMap);
 	}
 
 	public Map<String, Object> getWsServerMethodObjects(W5WsServer wss) {

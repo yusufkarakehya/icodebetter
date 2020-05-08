@@ -4500,7 +4500,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		buf.append("var ")
 				.append(c.getDsc())
 				.append("={dataViewId:")
-				.append(c.getDataViewId())
+				.append(c.getCardId())
 				.append(",name:'")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						c.getLocaleMsgKey()))
@@ -4515,7 +4515,7 @@ public class ExtJs3_4 implements ViewAdapter {
 		}		
 		buf.append(",store: new Ext.data.JsonStore({url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
 				.append(c.getQueryId()).append("&_dvid=")
-				.append(c.getDataViewId());
+				.append(c.getCardId());
 
 		if (c.getDefaultPageRecordNumber() != 0)
 			buf.append("&firstLimit=").append(c.getDefaultPageRecordNumber())
@@ -5019,7 +5019,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			buf.append("\n").append(g.getDsc()).append(".plugins.push(")
 					.append(g.getDsc()).append("_dv)");
 
-		switch (g.getRowColorFxTip()) {
+		switch (g.getRowColorFxType()) {
 		case 1:
 			if (!GenericUtil.isEmpty(g.get_listCustomGridColumnRenderer())
 					&& g.get_fxRowField() != null) {// lookup eslesme
@@ -5067,9 +5067,9 @@ public class ExtJs3_4 implements ViewAdapter {
 					buf.append("\nif(rec.data.")
 							.append(g.get_fxRowField().getDsc())
 							.append((FrameworkSetting.operatorMap[ix
-									.getOperatorTip()]).equals("=") ? "=="
+									.getOperatorType()]).equals("=") ? "=="
 									: FrameworkSetting.operatorMap[ix
-											.getOperatorTip()]);
+											.getOperatorType()]);
 					if (g.get_fxRowField().getFieldType() == 1)
 						buf.append("'");
 					buf.append(ix.getConditionVal());
@@ -5440,7 +5440,7 @@ public class ExtJs3_4 implements ViewAdapter {
 						newColumns.add(x, c);
 						x++;
 						continue;
-					} else if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {// approval_record_flag
+					} else if (f.getDsc().equals(FieldDefinitions.queryFieldName_Workflow)) {// approval_record_flag
 						c.setWidth((short) (f.getTabOrder() + 100));
 						c.setAlignType((short) 1);
 						c.setLocaleMsgKey("approval_status");
@@ -6693,7 +6693,7 @@ public class ExtJs3_4 implements ViewAdapter {
 					} else if (i instanceof W5CardResult) {// objectType=2
 						W5CardResult dr = (W5CardResult) i;
 						buf.append(serializeCard(dr));
-						if (dr.getDataViewId() < 0) {
+						if (dr.getCardId() < 0) {
 							buf.append("\nvar _dataView")
 									.append(customObjectCount++).append("=")
 									.append(dr.getCard().getDsc())
@@ -7678,7 +7678,7 @@ public class ExtJs3_4 implements ViewAdapter {
 			} else if(o instanceof W5CardResult){
 				W5CardResult cr = (W5CardResult)o;
 				rbuf.append("{card:").append(cr.getCard().getDsc());
-				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==cr.getDataViewId()){
+				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==cr.getCardId()){
 					po = po2;
 					break;
 				}

@@ -1148,7 +1148,7 @@ public class GenericUtil {
 		StringBuilder html = new StringBuilder();
 		boolean b = false;
 		html.append("{");
-		for (W5WsMethodParam p:params)if(p.getOutFlag()==0 && p.getParentId()==parentId && s.containsKey(p.getDsc()) && p.getCredentialsFlag()>=3) {
+		for (W5WsMethodParam p:params)if(p.getOutFlag()==0 && p.getParentId()==parentId && s.containsKey(p.getDsc()) && p.getParamSendType()>=3) {
 			String q = p.getDsc();			
 			if (b)
 				html.append(",");//\n
@@ -1669,7 +1669,7 @@ public class GenericUtil {
 			errorMap.put(param.getDsc(), LocaleMsgCache.get2(scd, "validation_error_not_null")); 
 		} else if ((param.getParamType() == 5 || param.getParamType() == 2) && (param instanceof W5TableField)) {
 			W5TableField tf = (W5TableField) param;
-			if (tf.getDefaultControlTip() == param.getParamType() && tf.getDefaultLookupTableId() > 0) {
+			if (tf.getDefaultControlType() == param.getParamType() && tf.getDefaultLookupTableId() > 0) {
 				if (param.getParamType() == 5) {
 					psonuc = GenericUtil.uInt(psonuc) != 0;
 				} else {

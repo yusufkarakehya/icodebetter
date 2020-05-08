@@ -136,8 +136,8 @@ public class DebugEngine {
 		return queryResult;
 	}
 
-	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int dbFuncId,
+	public W5GlobalFuncResult executeGlobalFunc4Debug(Map<String, Object> scd, int globalFuncId,
 			Map<String, String> parameterMap) {
-		return scriptEngine.executeGlobalFunc4Debug(scd, dbFuncId, parameterMap);
+		return scriptEngine.executeGlobalFunc4Debug(scd, globalFuncId, parameterMap);
 	}
 }

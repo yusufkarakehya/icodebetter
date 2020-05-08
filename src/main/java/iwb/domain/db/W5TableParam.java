@@ -19,7 +19,8 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_table_param",schema="iwb")
 public class W5TableParam  implements java.io.Serializable, W5Param, W5Base {
-
+/*TABLE_ID: 42*/
+	
 	private static final long serialVersionUID = 1343434342L;
 	private int tableParamId;
 	private int tableId;
@@ -33,8 +34,6 @@ public class W5TableParam  implements java.io.Serializable, W5Param, W5Base {
 	private short tabOrder;
 	
 	private short paramType;
-
-	private short operatorTip;
 
 	private short notNullFlag;
 
@@ -92,13 +91,9 @@ public class W5TableParam  implements java.io.Serializable, W5Param, W5Base {
 		this.paramType = paramType;
 	}
 
-	@Column(name="operator_tip")
-	public short getOperatorTip() {
-		return operatorTip;
-	}
-
-	public void setOperatorTip(short operatorTip) {
-		this.operatorTip = operatorTip;
+	@Transient
+	public short getOperatorType() {
+		return 0;
 	}
 
 	@Column(name="source_tip")

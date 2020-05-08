@@ -13,10 +13,9 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_object_menu_item",schema="iwb")
 public class W5ObjectMenuItem implements java.io.Serializable, W5Base {
+/*TABLE_ID: 254*/
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1918273645132L;
 	private int menuItemId;
 	private short tabOrder;

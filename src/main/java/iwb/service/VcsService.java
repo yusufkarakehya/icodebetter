@@ -3722,7 +3722,7 @@ public class VcsService {
 							o[0]=k;
 							o[1] = lcl;
 							o[2] = rmt;
-							o[3] = tf.getDefaultControlTip();
+							o[3] = tf.getDefaultControlType();
 							qr.getData().add(o);
 						}
 					}

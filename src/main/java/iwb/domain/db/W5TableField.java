@@ -21,10 +21,9 @@ import iwb.util.GenericUtil;
 @Immutable
 @Table(name="w5_table_field",schema="iwb")
 public class W5TableField implements java.io.Serializable, W5Param, W5Base {
+/*TABLE_ID: 16*/
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 133333233L;
 
 	private int tableFieldId;
@@ -53,8 +52,8 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 	private short copySourceTip;
 
 	private short canInsertFlag;
-
 	private short canUpdateFlag;
+	
 	private short accessViewTip; //0:kisitlama yok, 1:var
 	private String accessViewRoles;
 	private String accessViewUsers;
@@ -75,7 +74,7 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 	private String accessMaskUserFields;
 	
 	private int defaultLookupTableId;
-	private short defaultControlTip;
+	private short defaultControlType;
 	private String relatedSessionField;
 	
 	private short lkpEncryptionType;
@@ -333,12 +332,12 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 		this.defaultLookupTableId = defaultLookupTableId;
 	}
 	@Column(name="default_control_tip")
-	public short getDefaultControlTip() {
-		return defaultControlTip;
+	public short getDefaultControlType() {
+		return defaultControlType;
 	}
 
-	public void setDefaultControlTip(short defaultControlTip) {
-		this.defaultControlTip = defaultControlTip;
+	public void setDefaultControlType(short defaultControlType) {
+		this.defaultControlType = defaultControlType;
 	}
 	
 	
@@ -392,7 +391,7 @@ public class W5TableField implements java.io.Serializable, W5Param, W5Base {
 			
 		
 			this.defaultLookupTableId==t.getDefaultLookupTableId() &&
-			this.defaultControlTip==t.getDefaultControlTip();
+			this.defaultControlType==t.getDefaultControlType();
 	}
 	private String projectUuid;
 	

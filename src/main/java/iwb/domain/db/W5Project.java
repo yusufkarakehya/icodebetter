@@ -13,7 +13,7 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_project",schema="iwb")
 public class W5Project  implements java.io.Serializable {
-
+/*TABLE_ID: 1407*/
 
 	private static final long serialVersionUID = 98981231241231L;
 	private String projectUuid;

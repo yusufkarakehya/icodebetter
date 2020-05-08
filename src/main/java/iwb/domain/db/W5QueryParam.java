@@ -15,6 +15,7 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_query_param",schema="iwb")
 public class W5QueryParam implements java.io.Serializable, W5Param, W5Base {
+/*TABLE_ID: 10*/
 
 	private static final long serialVersionUID = 12226666333L;
 
@@ -32,7 +33,7 @@ public class W5QueryParam implements java.io.Serializable, W5Param, W5Base {
 	
 	private short paramType;
 
-	private short operatorTip;
+	private short operatorType;
 
 	private short notNullFlag;
 
@@ -84,8 +85,8 @@ public class W5QueryParam implements java.io.Serializable, W5Param, W5Base {
 	}
 
 	@Column(name="operator_tip")
-	public short getOperatorTip() {
-		return operatorTip;
+	public short getOperatorType() {
+		return operatorType;
 	}
 
 	@Column(name="source_tip")
@@ -148,8 +149,8 @@ public class W5QueryParam implements java.io.Serializable, W5Param, W5Base {
 		this.paramType = paramType;
 	}
 
-	public void setOperatorTip(short operatorTip) {
-		this.operatorTip = operatorTip;
+	public void setOperatorType(short operatorType) {
+		this.operatorType = operatorType;
 	}
 
 	public void setNotNullFlag(short notNullFlag) {

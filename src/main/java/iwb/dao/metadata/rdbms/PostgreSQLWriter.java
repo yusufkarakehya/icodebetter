@@ -499,10 +499,10 @@ public class PostgreSQLWriter extends BaseDAO {
 										if (fieldMap.containsKey(columnName.toLowerCase())) {
 											W5TableField tf = fieldMap.get(columnName.toLowerCase());
 											field.setMainTableFieldId(tf.getTableFieldId());
-											if (tf.getDefaultControlTip() == 71) {
-												field.setPostProcessType(tf.getDefaultControlTip());
+											if (tf.getDefaultControlType() == 71) {
+												field.setPostProcessType(tf.getDefaultControlType());
 											} else if (tf.getDefaultLookupTableId() > 0) {
-												switch (tf.getDefaultControlTip()) {
+												switch (tf.getDefaultControlType()) {
 												case 6:
 													field.setPostProcessType((short) 10);
 													break; // combo static
@@ -520,10 +520,10 @@ public class PostgreSQLWriter extends BaseDAO {
 													break; // lov-combo query
 												case 51:
 												case 52:
-													field.setPostProcessType(tf.getDefaultControlTip());
+													field.setPostProcessType(tf.getDefaultControlType());
 													break; // combo static
 												}
-												if (tf.getDefaultControlTip() != 0)
+												if (tf.getDefaultControlType() != 0)
 													field.setLookupQueryId(tf.getDefaultLookupTableId());
 											}
 										}

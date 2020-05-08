@@ -15,7 +15,7 @@ import iwb.util.GenericUtil;
 @Immutable
 @Table(name="w5_template_object",schema="iwb")
 public class W5PageObject implements java.io.Serializable, W5Base {
-
+/*TABLE_ID: 64*/
 
 	private static final long serialVersionUID = 77712365423231L;
 	private int pageObjectId;

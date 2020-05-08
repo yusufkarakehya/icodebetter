@@ -49,7 +49,6 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.domain.db.Log5UserAction;
-import iwb.domain.db.W5BIGraphDashboard;
 import iwb.domain.db.W5FileAttachment;
 import iwb.domain.db.W5Project;
 import iwb.domain.db.W5Query;
@@ -552,8 +551,8 @@ public class PreviewController implements InitializingBean {
 				
 			}
 
-		} else if (formId < 0) { // negatifse direk -dbFuncId
-			// int dbFuncId= GenericUtil.uInt(request, "_did");
+		} else if (formId < 0) { // negatifse direk -globalFuncId
+			// int globalFuncId= GenericUtil.uInt(request, "_did");
 			W5GlobalFuncResult dbFuncResult = service.postEditGridGlobalFunc(scd, -formId, dirtyCount,
 					requestMap, "");
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
@@ -624,15 +623,15 @@ public class PreviewController implements InitializingBean {
 			accessType = (short) 6;
 		}
 
-		int dbFuncId = GenericUtil.uInt(request, "_did"); // +:dbFuncId,
+		int globalFuncId = GenericUtil.uInt(request, "_did"); // +:globalFuncId,
 															// -:formId
-		if (dbFuncId == 0) {
-			dbFuncId = -GenericUtil.uInt(request, "_fid"); // +:dbFuncId,
+		if (globalFuncId == 0) {
+			globalFuncId = -GenericUtil.uInt(request, "_fid"); // +:globalFuncId,
 															// -:formId
 		}
-		W5GlobalFuncResult dbFuncResult = GenericUtil.uInt(request, "_notran")==0 ? service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request),
+		W5GlobalFuncResult dbFuncResult = GenericUtil.uInt(request, "_notran")==0 ? service.executeFunc(scd, globalFuncId, GenericUtil.getParameterMap(request),
 				accessType): 
-					service.executeFuncNT(scd, dbFuncId, GenericUtil.getParameterMap(request),
+					service.executeFuncNT(scd, globalFuncId, GenericUtil.getParameterMap(request),
 							accessType);
 
 		response.setContentType("application/json");

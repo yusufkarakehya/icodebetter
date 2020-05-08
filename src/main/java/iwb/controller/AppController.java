@@ -1008,8 +1008,8 @@ public class AppController implements InitializingBean {
 				
 			}
 
-		} else if (formId < 0) { // negatifse direk -dbFuncId
-			// int dbFuncId= GenericUtil.uInt(request, "_did");
+		} else if (formId < 0) { // negatifse direk -globalFuncId
+			// int globalFuncId= GenericUtil.uInt(request, "_did");
 			W5GlobalFuncResult dbFuncResult = service.postEditGridGlobalFunc(scd, -formId, dirtyCount,
 					GenericUtil.getParameterMap(request), "");
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
@@ -1062,23 +1062,23 @@ public class AppController implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
 
-		int dbFuncId = GenericUtil.uInt(request, "_did"); // +:dbFuncId,
+		int globalFuncId = GenericUtil.uInt(request, "_did"); // +:globalFuncId,
 															// -:formId
-		if (dbFuncId == 0) {
-			dbFuncId = -GenericUtil.uInt(request, "_fid"); // +:dbFuncId,
+		if (globalFuncId == 0) {
+			globalFuncId = -GenericUtil.uInt(request, "_fid"); // +:globalFuncId,
 															// -:formId
 		}
 		
 		response.setContentType("application/json");
-		if(dbFuncId==-1){
+		if(globalFuncId==-1){
 			if((Integer)scd.get("roleId")!=0)
-				throw new IWBException("security","System DbProc", dbFuncId, null, "Only for developers", null);
+				throw new IWBException("security","System DbProc", globalFuncId, null, "Only for developers", null);
 			service.organizeQueryFields(scd, GenericUtil.uInt(request,("queryId")), (short)GenericUtil.uInt(request,("insertFlag")));
 			response.getWriter().write("{\"success\":true}");
 		} else {
 			W5GlobalFuncResult dbFuncResult = GenericUtil.uInt(request, "_notran")==0 ? 
-					service.executeFunc(scd, dbFuncId, GenericUtil.getParameterMap(request), (short) 1) 
-					: service.executeFuncNT(scd, dbFuncId, GenericUtil.getParameterMap(request),
+					service.executeFunc(scd, globalFuncId, GenericUtil.getParameterMap(request), (short) 1) 
+					: service.executeFuncNT(scd, globalFuncId, GenericUtil.getParameterMap(request),
 							(short) 1);; //request
 			response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());
 		}
@@ -2254,9 +2254,9 @@ public class AppController implements InitializingBean {
 			throw new IWBException("security","Developer",0,null, "You Have to Be Developer TO Run this", null);
 		}
 
-		int dbFuncId= GenericUtil.uInt(request, "_did"); // +:dbFuncId, -:formId
+		int globalFuncId= GenericUtil.uInt(request, "_did"); // +:globalFuncId, -:formId
 
-		W5GlobalFuncResult dbFuncResult = service.executeGlobalFunc4Debug(scd, dbFuncId, GenericUtil.getParameterMap(request));
+		W5GlobalFuncResult dbFuncResult = service.executeGlobalFunc4Debug(scd, globalFuncId, GenericUtil.getParameterMap(request));
 
 		response.setContentType("application/json");
 		response.getWriter().write(getViewAdapter(scd, request).serializeGlobalFunc(dbFuncResult).toString());

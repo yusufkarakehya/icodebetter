@@ -13,10 +13,8 @@ import javax.persistence.Transient;
 @Entity
 @Table(name="w5_excel_import", schema="iwb")
 public class W5ExcelImport implements java.io.Serializable {
+/*TABLE_ID: 666*/
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3333124324231L;
 	private int excelImportId;	
 	private String dsc;

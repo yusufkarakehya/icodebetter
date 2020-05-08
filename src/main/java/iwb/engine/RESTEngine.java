@@ -261,8 +261,8 @@ public class RESTEngine {
 			if (url.indexOf("${") > -1) {// has special char
 				url = GenericUtil.filterExt(url, scd, requestParams, null).toString();
 			}
-			if(!GenericUtil.safeEquals(wsm.getRealDsc(),".")) {//if . dont add it
-				String methodUrl = GenericUtil.isEmpty(wsm.getRealDsc()) ? wsm.getDsc() : wsm.getRealDsc();
+			if(!GenericUtil.safeEquals(wsm.getPath(),".")) {//if . dont add it
+				String methodUrl = GenericUtil.isEmpty(wsm.getPath()) ? wsm.getDsc() : wsm.getPath();
 				if (!url.endsWith("/") && !methodUrl.startsWith("/"))
 					url += "/";
 				url += methodUrl;
@@ -280,7 +280,7 @@ public class RESTEngine {
 				reqPropMap.put("Accept", new String[] { "text/plain", "application/json", "application/xml", "application/octet-stream" }[wsm
 						.getHeaderAcceptTip()]);
 			}
-			if (ws.getWssTip() == 1 && !GenericUtil.isEmpty(ws.getWssCredentials())) { // credentials
+			if (ws.getWsSecurityType() == 1 && !GenericUtil.isEmpty(ws.getWssCredentials())) { // credentials
 				String cr = ws.getWssCredentials();
 				if (cr.indexOf("${") > -1) {// has special char
 					cr = GenericUtil.filterExt(cr, scd, requestParams, null).toString();
@@ -305,7 +305,7 @@ public class RESTEngine {
 					throw new IWBException("validation", "WS Method Call", wsm.getWsId(), null,
 							"Wrong Parameters: + " + GenericUtil.fromMapToJsonString2(errorMap), null);
 				}
-				for(W5WsMethodParam px:wsm.get_params()) if(px.getOutFlag()==0 && px.getParentWsMethodParamId()==0 && m.containsKey(px.getDsc()))switch(px.getCredentialsFlag()){// clean
+				for(W5WsMethodParam px:wsm.get_params()) if(px.getOutFlag()==0 && px.getParentWsMethodParamId()==0 && m.containsKey(px.getDsc()))switch(px.getParamSendType()){// clean
 				case	0://query
 					if(!GenericUtil.isEmpty(m.get(px.getDsc()))) {
 						if(!url.contains("?"))url+="?";
@@ -325,7 +325,7 @@ public class RESTEngine {
 					
 				}
 				
-				switch (wsm.getParamSendTip()) {
+				switch (wsm.getContentType()) {
 				case 3: // form as post_url : deprecated, use form(1) instead
 					params = GenericUtil.fromMapToURI(m);
 					if (!GenericUtil.isEmpty(params)) {
@@ -357,14 +357,14 @@ public class RESTEngine {
 				byte[] x = url.startsWith("ftp")?
 						FtpUtil.send4bin(url):
 							HttpUtil.send4bin(url, params,
-						new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodTip()], reqPropMap);
+						new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodType()], reqPropMap);
 				result.put("data", x);
 
 			} else {				
 				String x = url.startsWith("ftp")?
 						FtpUtil.send(url):
 						HttpUtil.send(url, params,
-						new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodTip()], reqPropMap);
+						new String[] { "GET", "POST", "PUT", "PATCH", "DELETE" }[wsm.getCallMethodType()], reqPropMap);
 				if (!GenericUtil.isEmpty(x))
 					try {// System.out.println(x);
 						if(wsm.getLogLevelTip()>0) {

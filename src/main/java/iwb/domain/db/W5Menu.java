@@ -4,10 +4,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -18,10 +15,8 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_menu", schema="iwb")
 public class W5Menu implements java.io.Serializable {
-
-	/**
-	 * 
-	 */
+/*TABLE_ID: 65*/
+	
 	private static final long serialVersionUID = 33331924324231L;
 	private int menuId;	
 	private int parentMenuId;	

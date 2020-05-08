@@ -13,10 +13,9 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_exception",schema="iwb")
 public class W5Exception implements java.io.Serializable, W5Base {
+/*TABLE_ID: 203*/
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1004491283746L;
 	private int exceptionId;
 	
@@ -28,6 +27,7 @@ public class W5Exception implements java.io.Serializable, W5Base {
 
 	private short tabOrder;
 
+	private String projectUuid;
 	
 
 	@Id
@@ -75,7 +75,6 @@ public class W5Exception implements java.io.Serializable, W5Base {
 		return false;
 	}
 	
-	private String projectUuid;
 	@Id
 	@Column(name="project_uuid")
 	public String getProjectUuid() {

@@ -18,7 +18,9 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Table(name="w5_table_trigger",schema="iwb")
 public class W5TableEvent implements java.io.Serializable, W5Base {
+/*TABLE_ID: 1209*/
 
+	
 	private static final long serialVersionUID = 1444443444L;
 	private int tableTriggerId;
 	private int tableId;

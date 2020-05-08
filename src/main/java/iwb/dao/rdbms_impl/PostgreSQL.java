@@ -65,7 +65,6 @@ import iwb.domain.db.W5Workflow;
 import iwb.domain.db.W5WorkflowStep;
 import iwb.domain.db.W5WsMethod;
 import iwb.domain.db.W5WsMethodParam;
-import iwb.domain.helper.W5AccessControlHelper;
 import iwb.domain.helper.W5FormCellHelper;
 import iwb.domain.helper.W5TableChildHelper;
 import iwb.domain.helper.W5TableRecordHelper;
@@ -1007,10 +1006,10 @@ public class PostgreSQL extends BaseDAO {
 	}
 
 	public void logGlobalFuncAction(Log5GlobalFuncAction action, W5GlobalFuncResult fr, String error) {
-		if (!FrameworkSetting.log2tsdb && (fr.getGlobalFunc().getLogLevelTip() == 0 || FrameworkCache.getAppSettingIntValue(fr.getScd(), "log_db_func_action") == 0))
+		if (!FrameworkSetting.log2tsdb && (fr.getGlobalFunc().getLogLevelType() == 0 || FrameworkCache.getAppSettingIntValue(fr.getScd(), "log_db_func_action") == 0))
 			return;
 		action.calcProcessTime();
-		if (FrameworkSetting.log2tsdb  || (fr.getGlobalFunc().getLogLevelTip() == 1) || (fr.getGlobalFunc().getLogLevelTip() == 2
+		if (FrameworkSetting.log2tsdb  || (fr.getGlobalFunc().getLogLevelType() == 1) || (fr.getGlobalFunc().getLogLevelType() == 2
 				&& FrameworkCache.getAppSettingIntValue(fr.getScd(), "log_db_func_action") != 0 && FrameworkCache
 						.getAppSettingIntValue(fr.getScd(), "log_db_func_action_mintime") <= action.getProcessTime())) {
 			action.setDsc(GenericUtil.replaceSql(fr.getExecutedSql(), fr.getSqlParams()));
@@ -2395,7 +2394,7 @@ public class PostgreSQL extends BaseDAO {
 																								// degilse
 				W5TableField tf = (W5TableField) x.get_sourceObjectDetail();
 				if (tf == null)
-					continue; // error. aslinda olmamasi lazim
+					continue; // error. actually olmamasi lazim
 				if (tf.getCanInsertFlag() == 0)
 					continue; // x.getCanInsert()!=0
 
@@ -3221,7 +3220,7 @@ public class PostgreSQL extends BaseDAO {
 					if (tfc.getDsc().equals(newSubStr)) {
 						String sqlCode = tfc.getSqlCode();
 						W5TableField ntf = new W5TableField(tfc.getTableFieldCalculatedId());
-						ntf.setDefaultControlTip((short) -1);
+						ntf.setDefaultControlType((short) -1);
 						if (sqlCode.contains("${")) {
 							Object[] oz = DBUtil.filterExt4SQL(sqlCode, scd, requestParams, null);
 							sqlCode = (String) oz[0];
@@ -3262,8 +3261,8 @@ public class PostgreSQL extends BaseDAO {
 						for (W5TableField tf : newT.get_tableFieldList())
 							if (tf.getDsc().equals(sss[isss])) {
 								foundSt = false;
-								if (tf.getDefaultControlTip() == 7 || tf.getDefaultControlTip() == 9
-										|| tf.getDefaultControlTip() == 10 /*
+								if (tf.getDefaultControlType() == 7 || tf.getDefaultControlType() == 9
+										|| tf.getDefaultControlType() == 10 /*
 																			 * || tf. getDefaultControlTip ()== 15
 																			 */) { // sub
 																					// table
@@ -3397,7 +3396,7 @@ public class PostgreSQL extends BaseDAO {
 				String newSubStr = subStr.substring(4);
 				for (W5TableField tf : t.get_tableFieldList())
 					if (tf.getDsc().equals(newSubStr)) {
-						if (tf.getDefaultControlTip() == 15) {
+						if (tf.getDefaultControlType() == 15) {
 							W5Table st = FrameworkCache.getTable(scd, tf.getDefaultLookupTableId());
 							if (st != null && smsMailReplaceTip != 0 && smsMailTableIds.contains(st.getTableId())) { // eger
 																														// sms/mail
@@ -3440,7 +3439,7 @@ public class PostgreSQL extends BaseDAO {
 						String sqlCode = tfc.getSqlCode();
 						res.put(subStr, fieldPrefix + field_cnt);
 						W5TableField ntf = new W5TableField(tfc.getTableFieldCalculatedId());
-						ntf.setDefaultControlTip((short) -1);
+						ntf.setDefaultControlType((short) -1);
 						resField.put(subStr, ntf);
 						if (sqlCode.contains("${")) {
 							Object[] oz = DBUtil.filterExt4SQL(sqlCode, scd, requestParams, null);
@@ -3475,8 +3474,8 @@ public class PostgreSQL extends BaseDAO {
 						}
 						for (W5TableField tf : newT.get_tableFieldList())
 							if (tf.getDsc().equals(sss[isss])) {
-								if (tf.getDefaultControlTip() == 7 || tf.getDefaultControlTip() == 9
-										|| tf.getDefaultControlTip() == 10 /*
+								if (tf.getDefaultControlType() == 7 || tf.getDefaultControlType() == 9
+										|| tf.getDefaultControlType() == 10 /*
 																			 * || tf. getDefaultControlTip ()== 15
 																			 */) { // sub
 																					// table
@@ -3490,9 +3489,9 @@ public class PostgreSQL extends BaseDAO {
 									for (W5TableField stf : st.get_tableFieldList())
 										if (stf.getDsc().equals(sss[isss + 1])) {
 											summaryMust = (conversionTip == 0)
-													&& (stf.getDefaultControlTip() == 7
-															|| stf.getDefaultControlTip() == 9
-															|| stf.getDefaultControlTip() == 10)
+													&& (stf.getDefaultControlType() == 7
+															|| stf.getDefaultControlType() == 9
+															|| stf.getDefaultControlType() == 10)
 													&& stf.getDefaultLookupTableId() != 0;
 											dltId = stf.getDefaultLookupTableId();
 											foundSt = true;
@@ -3564,8 +3563,8 @@ public class PostgreSQL extends BaseDAO {
 												//  icin
 					for (W5TableField tf : t.get_tableFieldList())
 						if (tf.getDsc().equals(sss[0])) {
-							if ((conversionTip == 0) && (tf.getDefaultControlTip() == 7
-									|| tf.getDefaultControlTip() == 9 || tf.getDefaultControlTip() == 10)
+							if ((conversionTip == 0) && (tf.getDefaultControlType() == 7
+									|| tf.getDefaultControlType() == 9 || tf.getDefaultControlType() == 10)
 									&& tf.getDefaultLookupTableId() != 0) { // sub
 																			// table
 								W5Table st = FrameworkCache.getTable(scd, tf.getDefaultLookupTableId());
@@ -3648,7 +3647,7 @@ public class PostgreSQL extends BaseDAO {
 													// var ise
 					W5TableField tf = resField.get(subStr);
 					if (tf != null)
-						switch (tf.getDefaultControlTip()) {
+						switch (tf.getDefaultControlType()) {
 						case 6: // combo static
 							if (tf.getDefaultLookupTableId() != 0) {
 								W5LookUp lu = FrameworkCache.getLookUp(scd, tf.getDefaultLookupTableId());
@@ -3688,7 +3687,7 @@ public class PostgreSQL extends BaseDAO {
 														// gerek
 				W5TableField tf = resField.get(subStr);
 				if (tf != null)
-					switch (tf.getDefaultControlTip()) {
+					switch (tf.getDefaultControlType()) {
 					case 6: // combo static
 						if (tf.getDefaultLookupTableId() != 0) {
 							W5LookUp lu = FrameworkCache.getLookUp(scd, tf.getDefaultLookupTableId());
@@ -3875,15 +3874,15 @@ public class PostgreSQL extends BaseDAO {
 		if (FrameworkSetting.workflow
 				&& mainTable.get_approvalMap() != null && !mainTable.get_approvalMap().isEmpty()
 				&& (queryResult.getQueryColMap() == null
-						|| queryResult.getQueryColMap().containsKey(FieldDefinitions.queryFieldName_Approval))) { // approval
+						|| queryResult.getQueryColMap().containsKey(FieldDefinitions.queryFieldName_Workflow))) { // approval
 																													// Record
 			sql2.append(
 					",(select cx.approval_record_id||';'||cx.approval_id||';'||cx.approval_step_id||';'||coalesce(cx.approval_roles,'')||';'||coalesce(cx.approval_users,'') from iwb.w5_approval_record cx where cx.table_id=")
 					.append(query.getSourceObjectId()).append(" AND cx.project_uuid='").append(projectId)
 					.append("' AND cx.table_pk=z.").append(pkFieldName).append(" limit 1) ")
-					.append(FieldDefinitions.queryFieldName_Approval).append(" ");
+					.append(FieldDefinitions.queryFieldName_Workflow).append(" ");
 			W5QueryField field = new W5QueryField();
-			field.setDsc(FieldDefinitions.queryFieldName_Approval);
+			field.setDsc(FieldDefinitions.queryFieldName_Workflow);
 			field.setPostProcessType((short) 49); // approvalPostProcessTip2
 			queryResult.getPostProcessQueryFields().add(field);
 			if (FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "toplu_onay") != 0) {
@@ -4368,7 +4367,7 @@ public class PostgreSQL extends BaseDAO {
 								for (W5TableField f : t.get_tableFieldList())
 									if (f.getDsc().equals(columnName)) {
 										if (f.getDefaultLookupTableId() != 0)
-											switch (f.getDefaultControlTip()) {
+											switch (f.getDefaultControlType()) {
 											case 6:
 											case 8:
 												W5LookUp lu = FrameworkCache.getLookUp(scd,
@@ -4378,7 +4377,7 @@ public class PostgreSQL extends BaseDAO {
 													for (W5LookUpDetay d : lu.get_detayList()) {
 														m3.put(d.getVal(), LocaleMsgCache.get2(scd, d.getDsc()));
 													}
-													m2.put(f.getDefaultControlTip() == 6 ? "map" : "map2", m3);
+													m2.put(f.getDefaultControlType() == 6 ? "map" : "map2", m3);
 												}
 												break;
 											case 7:
@@ -4568,7 +4567,7 @@ public class PostgreSQL extends BaseDAO {
 		switch (queryResult.getQuery().getQueryType()) {
 		case 9:
 		case 10:
-		case 15: // TODO: aslinda hata. olmamasi lazim
+		case 15: // TODO: actually hata. olmamasi lazim
 			throw new IWBException("framework", "Query", queryId, null,
 					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_grid_stat_query_error"), null);
 		default:
@@ -4832,8 +4831,8 @@ public class PostgreSQL extends BaseDAO {
 					for (W5TableField tf : newT.get_tableFieldList())
 						if (tf.getDsc().equals(sss[isss])) {
 							foundSt = false;
-							if (tf.getDefaultControlTip() == 7 || tf.getDefaultControlTip() == 9
-									|| tf.getDefaultControlTip() == 10 /*
+							if (tf.getDefaultControlType() == 7 || tf.getDefaultControlType() == 9
+									|| tf.getDefaultControlType() == 10 /*
 																		 * || tf. getDefaultControlTip ()==15
 																		 */) { // sub
 																				// table
@@ -4900,8 +4899,8 @@ public class PostgreSQL extends BaseDAO {
 		// queryResult.getQuery().getSqlOrderby()));
 		// queryResult.setOrderBy(queryResult.getQuery().getSqlOrderby());
 
-		if (tableField.getParamType() == 2 || tableField.getDefaultControlTip() == 2
-				|| tableField.getDefaultControlTip() == 18) {
+		if (tableField.getParamType() == 2 || tableField.getDefaultControlType() == 2
+				|| tableField.getDefaultControlType() == 18) {
 			tableFieldSQL = "to_char(" + tableFieldSQL + ", '"
 					+ (new String[] { "yyyy", "yyyy/Q", "yyyy/mm", "yyyy/WW", "yyyy/mm/dd" }[GenericUtil
 							.uInt(requestParams, "_dtt")])
@@ -4912,7 +4911,7 @@ public class PostgreSQL extends BaseDAO {
 		switch (queryResult.getQuery().getQueryType()) {
 		case 9:
 		case 10:
-		case 15: // TODO: aslinda hata. olmamasi lazim
+		case 15: // TODO: actually hata. olmamasi lazim
 			throw new IWBException("framework", "Query", queryId, null,
 					LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_grid_stat_query_error"), null);
 		default:
@@ -5028,8 +5027,8 @@ public class PostgreSQL extends BaseDAO {
 					}
 					result.put("lookUp", lm);
 				} else {
-					int maxLegend = (tableField.getParamType() == 2 || tableField.getDefaultControlTip() == 2
-							|| tableField.getDefaultControlTip() == 18) ? 360 : 10;
+					int maxLegend = (tableField.getParamType() == 2 || tableField.getDefaultControlType() == 2
+							|| tableField.getDefaultControlType() == 18) ? 360 : 10;
 					if (l.size() > maxLegend) { // TODO: temizlik
 						BigDecimal total = new BigDecimal(0);
 						String ids = "";
@@ -5048,7 +5047,7 @@ public class PostgreSQL extends BaseDAO {
 						l.add(nm);
 					}
 				}
-				switch (tableField.getDefaultControlTip()) {
+				switch (tableField.getDefaultControlType()) {
 				case 6: // lookup static
 					W5LookUp ld2 = FrameworkCache.getLookUp(projectId, tableField.getDefaultLookupTableId());
 					if (ld2 != null)
@@ -5263,8 +5262,8 @@ public class PostgreSQL extends BaseDAO {
 							foundSt = false;
 							if (mtableField == null)
 								mtableField = tf;
-							if (tf.getDefaultControlTip() == 7 || tf.getDefaultControlTip() == 9
-									|| tf.getDefaultControlTip() == 10 /*
+							if (tf.getDefaultControlType() == 7 || tf.getDefaultControlType() == 9
+									|| tf.getDefaultControlType() == 10 /*
 																		 * || tf. getDefaultControlTip ()==15
 																		 */) { // sub
 																				// table
@@ -5282,7 +5281,7 @@ public class PostgreSQL extends BaseDAO {
 									break; // HATA: bir sonraki field bulunamadi
 								newSub.append("(select ");
 								if (isss == sss.length - 2)
-									switch (tableField.getDefaultControlTip()) {
+									switch (tableField.getDefaultControlType()) {
 									case 2: // date
 										newSub.append("to_char(y.").append(isss).append(".").append(sss[isss + 1])
 												.append(",'").append(dateFormat).append("')");
@@ -5345,7 +5344,7 @@ public class PostgreSQL extends BaseDAO {
 				iwfField++;
 				fieldName = clcFieldPrefix + iwfField;
 				iwbFieldMap.put(c, fieldName);
-				if (tableField != null && tableField.getDefaultControlTip() == 6) {
+				if (tableField != null && tableField.getDefaultControlType() == 6) {
 					W5LookUp lu = FrameworkCache.getLookUp(scd, tableField.getDefaultLookupTableId());
 					if (lu != null)
 						staticLookups.put(fieldName, lu);
@@ -5358,12 +5357,12 @@ public class PostgreSQL extends BaseDAO {
 				}
 				for (W5TableField f : t.get_tableFieldList())
 					if (f.getDsc().equals(c)) {
-						if (f.getDefaultControlTip() == 6 && f.getDefaultLookupTableId() > 0) {
+						if (f.getDefaultControlType() == 6 && f.getDefaultLookupTableId() > 0) {
 							W5LookUp lu = FrameworkCache.getLookUp(scd, f.getDefaultLookupTableId());
 							if (lu != null)
 								staticLookups.put(f.getDsc(), lu);
 						}
-						if ((f.getDefaultControlTip() == 7 || f.getDefaultControlTip() == 10)
+						if ((f.getDefaultControlType() == 7 || f.getDefaultControlType() == 10)
 								&& f.getDefaultLookupTableId() > 0) {
 							W5Table dt = FrameworkCache.getTable(scd, f.getDefaultLookupTableId());
 							if (dt != null && !GenericUtil.isEmpty(dt.getSummaryRecordSql())) {
@@ -5608,8 +5607,8 @@ public class PostgreSQL extends BaseDAO {
 							foundSt = false;
 							if (mtableField == null)
 								mtableField = tf;
-							if (tf.getDefaultControlTip() == 7 || tf.getDefaultControlTip() == 9
-									|| tf.getDefaultControlTip() == 10 /*
+							if (tf.getDefaultControlType() == 7 || tf.getDefaultControlType() == 9
+									|| tf.getDefaultControlType() == 10 /*
 																		 * || tf. getDefaultControlTip ()==15
 																		 */) { // sub
 																				// table
@@ -5627,7 +5626,7 @@ public class PostgreSQL extends BaseDAO {
 									break; // HATA: bir sonraki field bulunamadi
 								newSub.append("(select ");
 								if (isss == sss.length - 2)
-									switch (tableField.getDefaultControlTip()) {
+									switch (tableField.getDefaultControlType()) {
 									case 2: // date
 										newSub.append("to_char(y.").append(isss).append(".").append(sss[isss + 1])
 												.append(",'").append(dateFormat).append("')");
@@ -5690,7 +5689,7 @@ public class PostgreSQL extends BaseDAO {
 				iwfField++;
 				fieldName = clcFieldPrefix + iwfField;
 				iwbFieldMap.put(c, fieldName);
-				if (tableField != null && tableField.getDefaultControlTip() == 6) {
+				if (tableField != null && tableField.getDefaultControlType() == 6) {
 					W5LookUp lu = FrameworkCache.getLookUp(scd, tableField.getDefaultLookupTableId());
 					if (lu != null)
 						staticLookups.put(fieldName, lu);
@@ -5703,12 +5702,12 @@ public class PostgreSQL extends BaseDAO {
 				}
 				for (W5TableField f : t.get_tableFieldList())
 					if (f.getDsc().equals(c)) {
-						if (f.getDefaultControlTip() == 6 && f.getDefaultLookupTableId() > 0) {
+						if (f.getDefaultControlType() == 6 && f.getDefaultLookupTableId() > 0) {
 							W5LookUp lu = FrameworkCache.getLookUp(scd, f.getDefaultLookupTableId());
 							if (lu != null)
 								staticLookups.put(f.getDsc(), lu);
 						}
-						if ((f.getDefaultControlTip() == 7 || f.getDefaultControlTip() == 10)
+						if ((f.getDefaultControlType() == 7 || f.getDefaultControlType() == 10)
 								&& f.getDefaultLookupTableId() > 0) {
 							W5Table dt = FrameworkCache.getTable(scd, f.getDefaultLookupTableId());
 							if (dt != null && !GenericUtil.isEmpty(dt.getSummaryRecordSql())) {
@@ -6188,8 +6187,14 @@ public class PostgreSQL extends BaseDAO {
 		q.setSqlWhere(sqlWhere.toString());
 		Map<String, String> requestParams = new HashMap();
 		requestParams.put("id", "" + tablePk);
-
-		q.set_queryFields(find("from W5QueryField f where f.queryId=15 AND f.projectUuid='"+FrameworkSetting.devUuid+"' order by f.tabOrder")); // queryField'in
+		
+		List<W5QueryField> lf = new ArrayList();
+		W5QueryField f1 = new W5QueryField(); f1.setTabOrder((short)1);f1.setDsc("dsc");f1.setFieldType((short)1);
+		lf.add(f1);
+		W5QueryField f2 = new W5QueryField(); f2.setTabOrder((short)2);f1.setDsc("id");f1.setFieldType((short)4);
+		lf.add(f2);
+		
+		q.set_queryFields(lf); // queryField'in
 		// lookUp'i
 		q.set_queryParams(new ArrayList());
 

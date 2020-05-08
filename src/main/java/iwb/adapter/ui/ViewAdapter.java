@@ -11,7 +11,6 @@ import iwb.domain.result.W5ListViewResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
-import iwb.exception.IWBException;
 
 public interface ViewAdapter {
 	public	StringBuilder serializeShowForm(W5FormResult formResult);

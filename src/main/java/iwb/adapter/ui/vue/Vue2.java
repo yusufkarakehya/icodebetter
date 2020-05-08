@@ -2295,14 +2295,14 @@ public class Vue2 implements ViewAdapter {
 		buf.append("var ")
 				.append(d.getDsc())
 				.append("={cardId:")
-				.append(d.getDataViewId())
+				.append(d.getCardId())
 				.append(",name:'")
 				.append(LocaleMsgCache.get2(customizationId, xlocale,
 						d.getLocaleMsgKey()))
 				.append("'")
 				.append(",_url:'ajaxQueryData?.w='+_webPageId+'&_qid=")
 				.append(d.getQueryId()).append("&_dvid=")
-				.append(d.getDataViewId());
+				.append(d.getCardId());
 
 		if (d.getDefaultPageRecordNumber() != 0)
 			buf.append("&firstLimit=").append(d.getDefaultPageRecordNumber());
@@ -2912,26 +2912,23 @@ columns:[
 		
 
 		List<W5GridColumn> newColumns = new ArrayList();
-		StringBuilder bufGrdColumnGroups = new StringBuilder();
-		if (grid.getColumnRenderTip() == 1) { // column grouping olacak
-		} else { // duz rendering
-			for (W5GridColumn c : oldColumns)
-				if (c.get_queryField() != null) {
-					W5QueryField f = c.get_queryField();
-					W5TableField tf = f.getMainTableFieldId() > 0 ? viewTable
-							.get_tableFieldMap().get(f.getMainTableFieldId())
-							: null;
-					if (tf != null) {
-					
-						if (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
-								tf.getAccessViewTip(), tf.getAccessViewRoles(),
-								tf.getAccessViewUsers()))
-							continue;// access control
-					
-					}
-					newColumns.add(c);
-				}			
-		}
+
+		for (W5GridColumn c : oldColumns)
+			if (c.get_queryField() != null) {
+				W5QueryField f = c.get_queryField();
+				W5TableField tf = f.getMainTableFieldId() > 0 ? viewTable
+						.get_tableFieldMap().get(f.getMainTableFieldId())
+						: null;
+				if (tf != null) {
+				
+					if (tf.getAccessViewUserFields()==null && !GenericUtil.accessControl(gridResult.getScd(),
+							tf.getAccessViewTip(), tf.getAccessViewRoles(),
+							tf.getAccessViewUsers()))
+						continue;// access control
+				
+				}
+				newColumns.add(c);
+			}			
 		if (!gridResult.isViewLogMode() && grid.get_postProcessQueryFields() != null && (gridResult.getRequestParams()==null || GenericUtil.uInt(gridResult.getRequestParams(), "_no_post_process_fields")==0)) {
 			boolean gridPostProcessColumnFirst = FrameworkCache.getAppSettingIntValue(customizationId,"grid_post_process_column_first")!=0;
 			boolean gridPostProcessCommentFirst = FrameworkCache.getAppSettingIntValue(customizationId,"grid_post_process_comment_first")!=0;
@@ -2964,7 +2961,7 @@ columns:[
 						c.setWidth((short) (f.getTabOrder() + 10));
 						c.setSortableFlag((short)1);
 					}
-					if (f.getDsc().equals(FieldDefinitions.queryFieldName_Approval)) {// approval_record_flag
+					if (f.getDsc().equals(FieldDefinitions.queryFieldName_Workflow)) {// approval_record_flag
 						c.setWidth((short) (f.getTabOrder() + 100));
 						c.setAlignType((short) 1);
 						c.setLocaleMsgKey("approval_status");
@@ -4064,7 +4061,7 @@ columns:[
 					} else if (i instanceof W5CardResult) {// objectTip=2
 						W5CardResult dr = (W5CardResult) i;
 						buf.append(serializeCard(dr));
-						if (dr.getDataViewId() < 0) {
+						if (dr.getCardId() < 0) {
 							buf.append("\nvar _card")
 									.append(customObjectCount++).append("=")
 									.append(dr.getCard().getDsc())
@@ -4757,7 +4754,7 @@ columns:[
 			} else if(o instanceof W5CardResult){
 				W5CardResult cr = (W5CardResult)o;
 				rbuf.append("{card:").append(cr.getCard().getDsc());
-				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==cr.getDataViewId()){
+				for(W5PageObject po2:pr.getPage().get_pageObjectList())if(po2.getObjectId()==cr.getCardId()){
 					po = po2;
 					break;
 				}

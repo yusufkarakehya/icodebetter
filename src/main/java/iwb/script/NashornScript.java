@@ -593,8 +593,8 @@ public class NashornScript {
 		if(FrameworkSetting.log2tsdb)LogUtil.logObject(new Log5Console(scd, s, level, (String)requestParams.get("_trid_")), true);
 	}
 
-	public Object execFunc(int dbFuncId, ScriptObjectMirror jsRequestParams) {
-		return execFunc(dbFuncId, jsRequestParams, true, null);
+	public Object execFunc(int globalFuncId, ScriptObjectMirror jsRequestParams) {
+		return execFunc(globalFuncId, jsRequestParams, true, null);
 	}
 
 	public int getAppSettingInt(String key) {
@@ -609,10 +609,10 @@ public class NashornScript {
 		return FrameworkCache.getAppSettingStringValue(scd, key);
 	}
 
-	public Object execFunc(int dbFuncId, ScriptObjectMirror jsRequestParams, boolean throwOnError, String throwMessage) {
-		W5GlobalFuncResult result = scriptEngine.executeGlobalFunc(scd, dbFuncId, fromScriptObject2Map(jsRequestParams), (short) 5);
+	public Object execFunc(int globalFuncId, ScriptObjectMirror jsRequestParams, boolean throwOnError, String throwMessage) {
+		W5GlobalFuncResult result = scriptEngine.executeGlobalFunc(scd, globalFuncId, fromScriptObject2Map(jsRequestParams), (short) 5);
 		if (throwOnError && !result.getErrorMap().isEmpty()) {
-			throw new IWBException("rhino", "GlobalFunc", dbFuncId, null,
+			throw new IWBException("rhino", "GlobalFunc", globalFuncId, null,
 					throwMessage != null ? LocaleMsgCache.get2(scd, throwMessage)
 							: "Validation Error: " + GenericUtil.fromMapToJsonString2(result.getErrorMap()),
 					null);

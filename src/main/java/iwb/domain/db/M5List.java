@@ -9,7 +9,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Immutable;
-import org.json.JSONObject;
 
 // Generated Feb 5, 2007 3:58:07 PM by Hibernate Tools 3.2.0.b9
 
