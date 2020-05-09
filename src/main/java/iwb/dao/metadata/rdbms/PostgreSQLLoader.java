@@ -1971,7 +1971,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		W5Project po = (W5Project)lpo.get(0);
 		Map<String, Object> m = new HashMap();
 		m.put("project", po);
-		m.put("roleGroups", dao.find("from W5RoleGroup t where t.projectUuid=?0 order by t.userTip", projectId));
+		m.put("roleGroups", dao.find("from W5RoleGroup t where t.projectUuid=?0 order by t.roleGroupId", projectId));
 		
 		
 		List<Object[]> appSettingList = (List<Object[]>) executeSQLQuery("select dsc, val from iwb.w5_app_setting where customization_id=?", po.getCustomizationId());

@@ -1142,38 +1142,46 @@ public class VcsService {
 			}
 		}
 		
-		for(W5Table mt:vcsTables){
+		//rec.uuid != vcs.uuid for insert:deprecated
+		if(false)for(W5Table mt:vcsTables){
 			if(mt==null || GenericUtil.isEmpty(mt.get_tableParamList()))continue;
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
-			sql.append("select count(1) from ").append(mt.getDsc())
-				.append(" m where m.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.project_uuid!=? AND v.vcs_object_status_tip=2 AND v.customization_id=? AND v.table_id=? AND v.table_pk=m.")
-				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(")");
-			params.add(projectUuid);params.add(projectUuid);params.add(customizationId);params.add(mt.getTableId());
+			sql.append("select x.").append(mt.get_tableFieldList().get(0).getDsc()).append(" id,(").append(mt.getSummaryRecordSql()).append(") dsc, (select coalesce((select p.dsc from iwb.w5_project p where p.project_uuid=v.project_uuid),v.project_uuid) from iwb.w5_vcs_object v where v.project_uuid!=x.project_uuid AND v.vcs_object_status_tip in (1,9) AND v.table_id=? AND v.table_pk=x.")
+					.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(" limit 1) xproject from ").append(mt.getDsc())
+				.append(" x where x.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.project_uuid!=x.project_uuid AND v.vcs_object_status_tip=2 AND v.table_id=? AND v.table_pk=x.")
+				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(") AND not exists(select 1 from iwb.w5_vcs_object v where v.project_uuid=x.project_uuid AND v.vcs_object_status_tip in (1,9) AND v.table_id=? AND v.table_pk=x.")
+						.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(") limit 10");
+			params.add(mt.getTableId());params.add(projectUuid);params.add(mt.getTableId());
 		
-			int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
 			
-			if(cnt>0){
+			List ll = dao.executeSQLQuery2Map(sql.toString(), params);
+//			int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
+			
+			if(ll!=null){
 				Object[] o= new Object[6];
 				o[0] = ++id;
 				o[1] = mt.getTableId();
 				o[2] = mt.getDsc();
-				o[3] = cnt;
+				o[3] = ll.size();
 				o[4] = 2;
+				o[5] = GenericUtil.fromListToJsonString2Recursive(ll);
 				data.add(o);
 			}
 			
 		}
 		
+		//rec.uuid != vcs.uuid 
 		for(W5Table mt:vcsTables){
 			if(mt==null || GenericUtil.isEmpty(mt.get_tableParamList()))continue;
 			List params = new ArrayList();
 			StringBuilder sql = new StringBuilder();
-			sql.append("select x.").append(mt.get_tableFieldList().get(0).getDsc()).append(" id,(").append(mt.getSummaryRecordSql()).append(") dsc from ").append(mt.getDsc())
-				.append(" x where x.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.project_uuid!=x.project_uuid AND v.vcs_object_status_tip in (1,9) AND v.table_id=? AND v.table_pk=x.")
-				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(") AND not exists(select 1 from iwb.w5_vcs_object v where v.project_uuid=x.project_uuid AND v.vcs_object_status_tip in (1,9) AND v.table_id=? AND v.table_pk=x.")
+			sql.append("select x.").append(mt.get_tableFieldList().get(0).getDsc()).append(" id,(").append(mt.getSummaryRecordSql()).append(") dsc, (select coalesce((select p.dsc from iwb.w5_project p where p.project_uuid=v.project_uuid),v.project_uuid) from iwb.w5_vcs_object v where v.project_uuid!=x.project_uuid AND v.vcs_object_status_tip in (1,9) AND v.table_id=? AND v.table_pk=x.")
+					.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(" limit 1) xproject from ").append(mt.getDsc())
+				.append(" x where x.project_uuid=? AND exists(select 1 from iwb.w5_vcs_object v where v.project_uuid!=x.project_uuid AND v.vcs_object_status_tip in (0,1,2,9) AND v.table_id=? AND v.table_pk=x.")
+				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(") AND not exists(select 1 from iwb.w5_vcs_object v where v.project_uuid=x.project_uuid AND v.vcs_object_status_tip in (0,1,2,9) AND v.table_id=? AND v.table_pk=x.")
 				.append(mt.get_tableParamList().get(0).getExpressionDsc()).append(") limit 10");
-			params.add(projectUuid);params.add(mt.getTableId());params.add(mt.getTableId());
+			params.add(mt.getTableId());params.add(projectUuid);params.add(mt.getTableId());params.add(mt.getTableId());
 			List ll = dao.executeSQLQuery2Map(sql.toString(), params);
 //			int cnt = GenericUtil.uInt(dao.executeSQLQuery2(sql.toString(), params).get(0));
 			
@@ -1190,7 +1198,7 @@ public class VcsService {
 			
 		}
 		
-		for(W5Table mt:vcsTables){
+		if(false)for(W5Table mt:vcsTables){//deprecated
 			if(mt==null || mt.get_tableFieldMap()==null || mt.getTableTip()!=0)continue;
 			if(GenericUtil.isEmpty(mt.get_tableParamList()) || GenericUtil.isEmpty(mt.get_tableFieldList()))continue;
 			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList())try{
@@ -1235,9 +1243,9 @@ public class VcsService {
 			
 		}
 
-		for(W5Table mt:vcsTables){
-			if(mt.getTableTip()!=0)continue;
-			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList())try{
+		if(false)for(W5Table mt:vcsTables){//deprecated
+			if(mt==null || mt.get_tableFieldMap()==null || mt.getTableTip()!=0)continue;
+			if(!GenericUtil.isEmpty(mt.get_tableChildList()))for(W5TableChild tc:mt.get_tableChildList()){
 				W5Table dt = FrameworkCache.getTable(projectUuid, tc.getRelatedTableId());
 				if(dt==null || dt.getTableTip()==0 || dt.getVcsFlag()==0)continue;
 				if(mt.get_tableFieldMap().get(tc.getTableFieldId())==null || dt.get_tableFieldMap().get(tc.getRelatedTableFieldId())==null 
@@ -1245,38 +1253,32 @@ public class VcsService {
 
 				List params = new ArrayList();
 				StringBuilder sql = new StringBuilder();
-				sql.append("where d.project_uuid!=? AND exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip in (1,9) AND v.customization_id=? AND v.table_id=? AND v.table_pk=d.")
+				sql.append("select x.").append(dt.get_tableFieldList().get(0).getDsc()).append(" id,(").append(dt.getSummaryRecordSql()).append(") dsc, x.project_uuid xproject from ").append(dt.getDsc()).append(" x where x.project_uuid!=? AND exists(select 1 from iwb.w5_vcs_object v where v.vcs_object_status_tip in (1,9) AND v.table_id=? AND v.table_pk=x.")
 					.append(dt.get_tableParamList().get(0).getExpressionDsc()).append(") AND exists(select 1 from ").append(mt.getDsc())
-					.append(" m where m.project_uuid=? AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=d.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc());
-				params.add(projectUuid);params.add(customizationId);params.add(tc.getRelatedTableId());params.add(projectUuid);
-				if(mt.get_tableParamList().size()>1 && mt.get_tableParamList().get(1).getDsc().startsWith("custo")){
-					sql.append(" AND m.customization_id=?");
-					params.add(customizationId);
-				}
-				sql.append(")");
+					.append(" m where m.project_uuid=? AND m.").append(mt.get_tableFieldMap().get(tc.getTableFieldId()).getDsc()).append("=x.").append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc()).append(")");
+				params.add(projectUuid);params.add(tc.getRelatedTableId());params.add(projectUuid);
+
 				if(tc.getRelatedStaticTableFieldId()!=0){
-					sql.append(" AND d.").append(dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal());
+					sql.append(" AND x.").append(dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal());
 					
 				}
-				if(dt.get_tableParamList().size()>1 && dt.get_tableParamList().get(1).getDsc().startsWith("custo")){
-					sql.append(" AND d.customization_id=?");
-					params.add(customizationId);
-				}
+				sql.append(" limit 10");
 			
-				int cnt = GenericUtil.uInt(dao.executeSQLQuery2("select count(1) from "+dt.getDsc()+" d " + sql.toString(), params).get(0));
-				
-				if(cnt>0){
+				List ll = dao.executeSQLQuery2Map(sql.toString(), params);
+			
+				if(ll!=null){
 					Object[] o= new Object[6];
 					o[0] = ++id;
 					o[1] = mt.getTableId();
 					o[2] = mt.getDsc() + " -> " + dt.getDsc();
-					o[3] = cnt;
+					o[3] = ll.size();
 					o[4] = 5;
+					o[5] = GenericUtil.fromListToJsonString2Recursive(ll);
 					data.add(o);
 				}
-			}catch(Exception e) {
+			}/*catch(Exception e) {
 				if(FrameworkSetting.debug)e.printStackTrace();
-			}
+			}*/
 			
 		}
 
