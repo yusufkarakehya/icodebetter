@@ -1707,12 +1707,12 @@ public class VcsService {
 		JSONArray jlo = new JSONArray();
 		for(String k:arTablePks){
 			int tablePk = GenericUtil.uInt(k);
-			List<W5VcsObject> lvo = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?3", tableId, tablePk, projectUuid);
+			List<W5VcsObject> lvo = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2", tableId, tablePk, projectUuid);
 			if(lvo.isEmpty())continue;
 			W5VcsObject vo = lvo.get(0);
 			int action= vo.getVcsObjectStatusType();
 			if(vo.getVcsObjectStatusType()==9 || vo.getVcsObjectStatusType()==8 || vo.getVcsObjectStatusType()==0){//synch durumdaysa Push'a gerek yok
-				if(onSynchErrorThrow)//throw new IWBException("vcs","vcsClientObjectPushMulti", vo.getVcsObjectId(), null, "Object Already Synched2", null);
+				if(!force)//throw new IWBException("vcs","vcsClientObjectPushMulti", vo.getVcsObjectId(), null, "Object Already Synched2", null);
 					return -1;
 				else if(vo.getVcsObjectStatusType()==0)continue;//dismiss
 				if(action==8)action = 3;//if status=synch deleted -> delete
@@ -2078,16 +2078,17 @@ public class VcsService {
 		for(String k:arTableKeys){
 			String[] tableKey = k.replace('.', ',').split(",");
 			int tableId=GenericUtil.uInt(tableKey[0]);
-			if(FrameworkCache.getTable(projectUuid, tableId).getVcsFlag()==0){
-				if(onSynchErrorThrow)
-					throw new IWBException("vcs","vcsClientObjectPushAll", 0, projectUuid, "Not VCS Table", null);
+			W5Table t= FrameworkCache.getTable(projectUuid, tableId);
+			if(t==null || t.getVcsFlag()==0){
 				continue;
 			}
 			int tablePk=GenericUtil.uInt(tableKey[1]);
-			W5VcsObject vo = (W5VcsObject)dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", tableId, tablePk, customizationId, projectUuid).get(0);
+			List<W5VcsObject> lvo = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2", tableId, tablePk, projectUuid);
+			if(lvo.isEmpty())continue;
+			W5VcsObject vo = lvo.get(0);
 			int action= vo.getVcsObjectStatusType();
 			if(action==9 || action==8 || vo.getVcsObjectStatusType()==0){//synch durumdaysa Push'a gerek yok
-				if(onSynchErrorThrow)//throw new IWBException("vcs","vcsClientObjectPushAll", vo.getVcsObjectId(), null, "Object Already Synched4", null);
+				if(!force)//throw new IWBException("vcs","vcsClientObjectPushAll", vo.getVcsObjectId(), null, "Object Already Synched4", null);
 					return -1;
 				else if(vo.getVcsObjectStatusType()==0)continue;//dismiss
 				if(action==8)action = 3;//if status=synch deleted -> delete
