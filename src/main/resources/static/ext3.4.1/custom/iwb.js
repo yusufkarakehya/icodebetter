@@ -6720,8 +6720,9 @@ function vcsPush(xgrid, tid, tpk) {
   });
 }
 
-function vcsPushMulti(xgrid, tid, tpk) {
+function vcsPushMulti(xgrid, tid, tpk, force) {
   var xparams = { t: tid, k: tpk };
+  if(force)xparams.f=1;
   var xgrd = xgrid;
   promisRequest({
     url: "ajaxVCSObjectPushMulti",
@@ -6739,7 +6740,7 @@ function vcsPushMulti(xgrid, tid, tpk) {
                   url: "ajaxVCSObjectPushMulti",
                   params: xparams,
                   successCallback: function(j) {
-                    Ext.infoMsg.msg("success", "VCS Objects Pushed");
+                    Ext.infoMsg.msg("success", "["+j.commitCount+"] VCS Objects Pushed");
                     iwb.reload(xxgrd);
                   }
                 });
@@ -6747,17 +6748,18 @@ function vcsPushMulti(xgrid, tid, tpk) {
             );
             break;
           default:
-            Ext.infoMsg.alert("Error", "unknown error: " + j.error, "error");
+            Ext.infoMsg.alert("Error", j.error, "error");
         }
         return;
       }
-      Ext.infoMsg.msg("success", "VCS Objects Pushed");
+      Ext.infoMsg.msg("success", "["+j.commitCount+"] VCS Objects Pushed");
       iwb.reload(xgrd);
     }
   });
 }
-function vcsPushAll(xgrid, keyz) {
+function vcsPushAll(xgrid, keyz, force) {
   var xparams = { k: keyz };
+  if(force)xparams.f=1;
   var xgrd = xgrid;
   promisRequest({
     url: "ajaxVCSObjectPushAll",
@@ -6768,7 +6770,7 @@ function vcsPushAll(xgrid, keyz) {
         switch (j.error) {
           case "force":
             Ext.infoMsg.confirm(
-              "There is conflicts. Do you STILL want to Overwrite?",
+              "There is conflicts. Do you want to Force PUSH?",
               () => {
                 xparams.f = 1;
                 var xxgrd = xgrd;
@@ -6776,7 +6778,7 @@ function vcsPushAll(xgrid, keyz) {
                   url: "ajaxVCSObjectPushAll",
                   params: xparams,
                   successCallback: function(j) {
-                    Ext.infoMsg.msg("success", "VCS Objects Pushed");
+                    Ext.infoMsg.msg("success", "["+j.commitCount+"] VCS Objects Pushed");
                     iwb.reload(xxgrd);
                   }
                 });
@@ -6784,11 +6786,11 @@ function vcsPushAll(xgrid, keyz) {
             );
             break;
           default:
-            Ext.infoMsg.alert("Error", "unknown error: " + j.error, "error");
+            Ext.infoMsg.alert("Error", j.error, "error");
         }
         return;
       }
-      Ext.infoMsg.msg("success", "VCS Objects Pushed");
+      Ext.infoMsg.msg("success", "["+j.commitCount+"] VCS Objects Pushed");
       iwb.reload(xgrd);
     }
   });

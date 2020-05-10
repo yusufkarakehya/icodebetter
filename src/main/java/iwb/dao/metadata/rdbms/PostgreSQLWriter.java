@@ -74,7 +74,7 @@ public class PostgreSQLWriter extends BaseDAO {
 				// ,"w5_user"
 				, "w5_user_role", "w5_jasper_object", "w5_jasper",
 				"w5_comment", "w5_form_value_cell", "w5_form_value", "w5_object_menu_item", 
-				"w5_form_module", "w5_object_toolbar_item", "w5_exception_filter", "w5_xform_builder_detail",
+				"w5_form_module", "w5_object_toolbar_item", "w5_exception", "w5_xform_builder_detail",
 				"w5_xform_builder", "w5_component", "m5_menu", "w5_menu", "w5_template_object", "w5_template", "w5_sms",
 				"w5_table_param", "w5_form_cell", "w5_form", "w5_db_func_param", "w5_db_func", "w5_table_field",
 				"w5_table", "w5_look_up_detay", "w5_look_up", "w5_locale_msg", "w5_query_param", "w5_query_field",
@@ -125,25 +125,25 @@ public class PostgreSQLWriter extends BaseDAO {
 			W5VcsObject vo = (W5VcsObject) l.get(0);
 			vo.setVersionDttm(new Timestamp(new Date().getTime()));
 			vo.setVersionUserId((Integer) scd.get("userId"));
-			switch (vo.getVcsObjectStatusTip()) { // zaten insert ise
+			switch (vo.getVcsObjectStatusType()) { // zaten insert ise
 			case 0:// ignored
 			case 2: // insert: direk sil
 			case 3: // zaten silinmisse boyle birsey olmamali
 				if (action == 3) {
 					removeObject(vo);
 				}
-				if (vo.getVcsObjectStatusTip() == 3)
+				if (vo.getVcsObjectStatusType() == 3)
 					formResult.getOutputMessages().add("VCS WARNING: Already Deleted VCS Object????");
 				break;
 
 			case 1:
 			case 9: // synched ve/veya edit durumunda ise
 				if (action == 3) { // delete edilidliyse
-					vo.setVcsObjectStatusTip((short) 3);
+					vo.setVcsObjectStatusType((short) 3);
 					vo.setVcsCommitRecordHash(requestParams.get("_iwb_vcs_dsc").toString());
 				} else { // update edildise simdi
 					String newHash = getObjectVcsHash(scd, t.getTableId(), tablePk);
-					vo.setVcsObjectStatusTip((short) (vo.getVcsCommitRecordHash().equals(newHash) ? 9 : 1));
+					vo.setVcsObjectStatusType((short) (vo.getVcsCommitRecordHash().equals(newHash) ? 9 : 1));
 				}
 				updateObject(vo);
 				break;
@@ -256,9 +256,9 @@ public class PostgreSQLWriter extends BaseDAO {
 				scd.get("projectId"));
 		if (!l.isEmpty()) {
 			W5VcsObject o = (W5VcsObject) l.get(0);
-			if (o.getVcsObjectStatusTip() == 9) { // 1, 2, 3, 8 durumunda
+			if (o.getVcsObjectStatusType() == 9) { // 1, 2, 3, 8 durumunda
 													// hicbirsey degismiyor
-				o.setVcsObjectStatusTip((short) 1);
+				o.setVcsObjectStatusType((short) 1);
 				updateObject(o);
 			}
 		} else
@@ -1940,7 +1940,7 @@ public class PostgreSQLWriter extends BaseDAO {
 				newScd.put("customizationId", cusId);
 				newScd.put("userId", userId);
 				W5VcsObject vo = new W5VcsObject(newScd, 369, userTip);
-				vo.setVcsObjectStatusTip((short) 9);
+				vo.setVcsObjectStatusType((short) 9);
 				saveObject(vo);
 				if (GenericUtil.isEmpty(executeSQLQuery(
 						"select 1 from iwb.w5_role p where p.role_id=0 AND customization_id=?", cusId))) {
