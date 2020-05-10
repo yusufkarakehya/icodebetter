@@ -2491,14 +2491,15 @@ public class VcsService {
 						dao.saveObject(new W5VcsCommit(o));
 					}
 				} else
-					throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
+					throw new IWBException("vcs","vcsClientSqlCommitsFirstSkip:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
 			} catch (IWBException e){
 				throw e;
 			} catch (JSONException e){
-				throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun:JSONException", 0, s, "Error", e);
+				throw new IWBException("vcs","vcsClientSqlCommitsFirstSkip:JSONException", 0, s, "Error", e);
 			}
 		}
-		return result;	}
+		return result;	
+	}
 
 	synchronized public int vcsClientSqlCommitsFetchAndRun(Map<String, Object> scd, int maxCount) {
 		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
@@ -2545,6 +2546,63 @@ public class VcsService {
 				throw e;
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun:JSONException", 0, s, "Error", e);
+			}
+		}
+		return result;
+	}
+	
+
+	@Transactional(propagation=Propagation.NEVER)
+	synchronized public int vcsClientSqlCommitsFetchAndRunUntilError(Map<String, Object> scd) {
+		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
+			throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRun",0,null, "VCS Server not allowed to vcsClientSqlCommitsFetchAndRun", null);
+		int customizationId = (Integer)scd.get("customizationId");
+		String projectUuid = (String)scd.get("projectId");
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		if(po==null) po = metadataLoader.loadProject(projectUuid);
+
+		List lm = dao.find("select max(t.vcsCommitId) from W5VcsCommit t where t.projectUuid=?0", projectUuid);
+		int lastCommitId = 0;
+		if(lm.isEmpty() || lm.get(0)==null)lastCommitId = 0;
+		else lastCommitId = (Integer)lm.get(0);
+		
+		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid()+"&q=2770&l="+lastCommitId;
+		String url=po.getVcsUrl();
+		if(!url.endsWith("/"))url+="/";
+		url+="serverVCSQueryResult";
+		String s = HttpUtil.send(url, urlParameters);
+		
+		int result = 0;
+		
+		if(!GenericUtil.isEmpty(s)){
+			JSONObject json;
+			try {
+				json = new JSONObject(s);
+				if(json.get("success").toString().equals("true")){
+					JSONArray ar = json.getJSONArray("data");
+					for(int qi=0;qi<ar.length();qi++){
+						JSONObject o = ar.getJSONObject(ar.length()-1-qi);
+						if(o.has("extra_sql")){
+							String extraSql = o.getString("extra_sql");
+							if(!GenericUtil.isEmpty(extraSql)){
+								dao.executeUpdateSQLQuery("set search_path="+po.getRdbmsSchema());
+								if(FrameworkSetting.debug)System.out.println("Executing SQL: " +o.getInt("vcs_commit_id") + " : " + extraSql);
+								result+=dao.executeUpdateSQLQuery(extraSql);
+							}
+						}
+//						dao.saveObject(new W5VcsCommit(o));
+						W5VcsCommit vo = new W5VcsCommit(o);
+						dao.executeUpdateSQLQuery("insert into iwb.w5_vcs_commit(vcs_commit_id, project_uuid, comment, commit_user_id, extra_sql, commit_tip, oproject_uuid)" + 
+								"values(?, ?, ?, ?, ?, ?, ?)", 
+								vo.getVcsCommitId(), vo.getProjectUuid(), vo.getComment(), vo.getCommitUserId(), vo.getExtraSql(), vo.getCommitTip(), vo.getProjectUuid());
+
+					}
+				} else
+					throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRunUntilError:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
+			} catch (IWBException e){
+				return result;
+			} catch (JSONException e){
+				throw new IWBException("vcs","vcsClientSqlCommitsFetchAndRunUntilError:JSONException", 0, s, "Error", e);
 			}
 		}
 		return result;

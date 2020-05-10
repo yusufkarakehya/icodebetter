@@ -610,7 +610,9 @@ public class VcsController implements InitializingBean {
     
 		logger.info("hndAjaxVVCSClientSQLCommitsFetchAndRun"); 
 		int maxCount = GenericUtil.uInt(request, "maxCount");
-    	int cnt = vcsEngine.vcsClientSqlCommitsFetchAndRun(scd, maxCount);
+    	int cnt = maxCount==-1?
+    			vcsEngine.vcsClientSqlCommitsFetchAndRunUntilError(scd):
+    			vcsEngine.vcsClientSqlCommitsFetchAndRun(scd, maxCount);
 
     	response.getWriter().write("{\"success\":true, \"cnt\":"+cnt+"}");
 		response.getWriter().close();	
