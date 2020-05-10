@@ -4074,7 +4074,7 @@ function ajaxErrorHandler(obj) {
     });
     var wndx = new Ext.Window({
       modal: true,
-      title: obj.errorType.toUpperCase() + " Error",
+      title: obj.errorType.toUpperCase() + " Error" + (obj.objectType ? (' - ' + obj.objectType):''),
       cls: "xerror",
       width: obj.sql ? 900 : 650,
       autoHeight: !0,
@@ -6726,19 +6726,20 @@ function vcsPushMulti(xgrid, tid, tpk, force) {
   var xgrd = xgrid;
   promisRequest({
     url: "ajaxVCSObjectPushMulti",
-    params: xparams,
+    params: xparams,requestWaitMsg: true,
     successCallback: function(j) {
       if (j.error) {
         switch (j.error) {
           case "force":
             Ext.infoMsg.confirm(
-              "There is conflicts. Do you STILL want to Overwrite?",
+              "There is conflicts. Do you want to Force PUSH?",
               () => {
+//            	  if(prompt('Then type [force]')!=='force')return;
                 xparams.f = 1;
                 var xxgrd = xgrd;
                 promisRequest({
                   url: "ajaxVCSObjectPushMulti",
-                  params: xparams,
+                  params: xparams,requestWaitMsg: true,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "["+j.commitCount+"] VCS Objects Pushed");
                     iwb.reload(xxgrd);
@@ -6772,11 +6773,12 @@ function vcsPushAll(xgrid, keyz, force) {
             Ext.infoMsg.confirm(
               "There is conflicts. Do you want to Force PUSH?",
               () => {
+//            	  if(prompt('Then type [force]')!=='force')return;
                 xparams.f = 1;
                 var xxgrd = xgrd;
                 promisRequest({
                   url: "ajaxVCSObjectPushAll",
-                  params: xparams,
+                  params: xparams,requestWaitMsg: true,
                   successCallback: function(j) {
                     Ext.infoMsg.msg("success", "["+j.commitCount+"] VCS Objects Pushed");
                     iwb.reload(xxgrd);

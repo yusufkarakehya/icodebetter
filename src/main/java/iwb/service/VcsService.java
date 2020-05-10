@@ -254,6 +254,13 @@ public class VcsService {
 						}
 						successCount++;
 					} catch (Exception e){
+						if(!force) {
+							W5Table t = FrameworkCache.getTable(scd, tableId);
+							result.put("success", true);
+							result.put("error", "force");
+							result.put("error_msg", t.getDsc() + " Error: [" + tableId+","+tablePk+"] " + e.getMessage());
+							return result;
+						}
 						System.out.println("Error: [" + tableId+","+tablePk+"] " + e.getMessage());
 						errors.add("[" + tableId+","+tablePk+"] " + e.getMessage());
 					}
@@ -270,13 +277,139 @@ public class VcsService {
 					}
 
 				} else {
-					result.put("success", false);
+					result.put("success", true);
 					result.put("error", s);
 					return result;
 					
 				}
 			} catch (JSONException e){
 				throw new IWBException("vcs","vcsClientObjectPullMulti:JSONException", 0, s, "Error", e);
+			}
+		}
+		result.put("successCount", successCount);
+		if(!errors.isEmpty())result.put("errors", errors);
+		return result;
+	}
+	
+	@Transactional(propagation=Propagation.NEVER)
+	synchronized public Map vcsClientObjectPullMultiNT(Map<String, Object> scd, String tableKeys) {
+		if(FrameworkSetting.vcsServer && !FrameworkSetting.vcsServerClient)
+			throw new IWBException("vcs","vcsClientObjectPullMulti",0,null, "VCS Server not allowed to vcsClientObjectPullMulti", null);
+		int customizationId = (Integer)scd.get("customizationId");
+		String projectUuid = (String)scd.get("projectId");
+		
+		W5Project po = FrameworkCache.getProject(projectUuid);
+		
+		String[] arTableKeys = tableKeys.split(",");
+		
+		
+//		List lo = new ArrayList();
+		JSONArray jlo = new JSONArray();
+		Map<String, W5VcsObject> voMap = new HashMap();
+		Map result = new HashMap();
+		result.put("success", true);
+		StringBuilder keyz = new StringBuilder();// + "&k="+tableKeys
+		int counter=0;
+		for(String k:arTableKeys){
+			String[] tableKey = k.replace('.', ',').split(",");
+			int tableId=GenericUtil.uInt(tableKey[0]);
+			W5Table t = FrameworkCache.getTable(projectUuid, tableId);
+			if(t.getVcsFlag()==0){
+				continue;
+			}
+			keyz.append(",").append(k);
+			int tablePk = GenericUtil.uInt(tableKey[1]);
+			List lv = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.customizationId=?2 AND t.projectUuid=?3", tableId, tablePk, customizationId, projectUuid);
+			W5VcsObject vo = null;
+			if(!lv.isEmpty()){
+				vo = (W5VcsObject)lv.get(0);
+				keyz.append(".").append(vo.getVcsCommitId());
+				vo.setVersionDttm(new Timestamp(new Date().getTime() + counter++));
+			} else {
+			
+				vo = new W5VcsObject(scd, tableId, tablePk);
+				vo.setTableId(tableId);
+				vo.setTablePk(tablePk);
+				vo.setCustomizationId(customizationId);
+			}
+			voMap.put(vo.getTableId()+"." + vo.getTablePk(), vo);
+			
+		}
+		
+		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid()+"&k="+keyz.substring(1);
+
+		String url=po.getVcsUrl();
+		if(!url.endsWith("/"))url+="/";
+		url+="serverVCSObjectPullMulti";
+		String s = HttpUtil.send(url, urlParameters);
+		
+		List errors = new ArrayList();
+		int successCount = 0 ;
+
+		if(!GenericUtil.isEmpty(s)){
+			JSONObject json;
+			try {
+				json = new JSONObject(s);
+				if(json.get("success").toString().equals("true")){
+					JSONArray ja = json.getJSONArray("data");
+					int tableId = 0, tablePk = 0;
+					for(int qi=0;qi<ja.length();qi++)try{
+						JSONObject o = ja.getJSONObject(qi);
+						
+						int action = o.getInt("action");
+						JSONObject jo =action == 3 ? null:o.getJSONObject("object");
+						int srvVcsCommitId = o.getInt("commit_id");
+						int srvCommitUserId = o.getInt("user_id");
+						tableId = o.getInt("table_id");
+						tablePk = o.getInt("table_pk");
+
+						metadataWriter.saveVcsObject(scd, tableId, tablePk, action, jo);
+						W5VcsObject vo = voMap.get(tableId + "." + tablePk);
+						vo.setVcsObjectStatusType((short)9);
+						vo.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, tableId, tablePk));
+						
+						if(vo.getVcsObjectId()==0){
+							vo.setVcsCommitId(srvVcsCommitId);
+							vo.setInsertUserId(srvCommitUserId);
+							//dao.saveObject(vo);
+							dao.executeUpdateSQLQuery("insert into iwb.w5_vcs_object(vcs_object_id, table_id, table_pk, customization_id, project_uuid, vcs_commit_id, vcs_commit_record_hash, vcs_object_status_tip, insert_user_id)" + 
+									"values(nextval('iwb.seq_vcs_object'), ?, ?, ?, ?, ?, ?, ?, ?)", 
+									vo.getTableId(), vo.getTablePk(), vo.getCustomizationId(), vo.getProjectUuid(), vo.getVcsCommitId(), vo.getVcsCommitRecordHash(), vo.getVcsObjectStatusType(), vo.getInsertUserId());
+						} else {
+							vo.setVersionNo((short)(vo.getVersionNo()+1));
+							vo.setVersionUserId(srvCommitUserId);
+							vo.setVcsCommitId(srvVcsCommitId);
+//							dao.updateObject(vo);
+							dao.executeUpdateSQLQuery("update iwb.w5_vcs_object set vcs_commit_id=?, vcs_commit_record_hash=?, vcs_object_status_tip=?, version_user_id=?, version_no=version_no+1, version_dttm=current_timestamp " + 
+									"where project_uuid=? AND vcs_object_id=?", 
+									vo.getVcsCommitId(), vo.getVcsCommitRecordHash(), vo.getVcsObjectStatusType(), vo.getVersionUserId(), vo.getProjectUuid(), vo.getVcsObjectId());
+							
+						}
+						successCount++;
+					} catch (Exception e){
+						System.out.println("Error: [" + tableId+","+tablePk+"] " + e.getMessage());
+						errors.add("[" + tableId+","+tablePk+"] " + e.getMessage());
+					}
+					if(FrameworkSetting.log2tsdb)for(int qi=0;qi<ja.length();qi++){
+						JSONObject o = ja.getJSONObject(qi);
+						
+						int action = o.getInt("action");
+						JSONObject jo =action == 3 ? null:o.getJSONObject("object");
+						int srvVcsCommitId = o.getInt("commit_id");
+						tableId = o.getInt("table_id");
+						tablePk = o.getInt("table_pk");
+						W5Table t= FrameworkCache.getTable(scd, tableId);
+						Log4Crud(po.getRdbmsSchema(), t, action, srvVcsCommitId, tablePk, jo);
+					}
+
+				} else {
+					result.put("success", true);
+					result.put("error", s);
+					return result;
+					
+				}
+			} catch (JSONException e){
+				throw new IWBException("vcs","vcsClientObjectPullMultiNT:JSONException", 0, s, "Error", e);
 			}
 		}
 		result.put("successCount", successCount);

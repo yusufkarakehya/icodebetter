@@ -147,7 +147,8 @@ public class VcsController implements InitializingBean {
 		logger.info("hndAjaxVCSObjectPullMulti(1)"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	Map m = vcsEngine.vcsClientObjectPullMulti(scd, request.getParameter("k"), GenericUtil.uInt(request, "f")!=0);
+    	Map m = GenericUtil.uInt(request, "f")==0 ? vcsEngine.vcsClientObjectPullMulti(scd, request.getParameter("k"), false):
+    		vcsEngine.vcsClientObjectPullMultiNT(scd, request.getParameter("k"));
     	response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
 		response.getWriter().close();
 	}
