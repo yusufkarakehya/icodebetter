@@ -6191,7 +6191,7 @@ public class PostgreSQL extends BaseDAO {
 		List<W5QueryField> lf = new ArrayList();
 		W5QueryField f1 = new W5QueryField(); f1.setTabOrder((short)1);f1.setDsc("dsc");f1.setFieldType((short)1);
 		lf.add(f1);
-		W5QueryField f2 = new W5QueryField(); f2.setTabOrder((short)2);f1.setDsc("id");f1.setFieldType((short)4);
+		W5QueryField f2 = new W5QueryField(); f2.setTabOrder((short)2);f2.setDsc("id");f2.setFieldType((short)4);
 		lf.add(f2);
 		
 		q.set_queryFields(lf); // queryField'in

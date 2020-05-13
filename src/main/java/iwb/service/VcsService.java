@@ -1657,15 +1657,16 @@ public class VcsService {
 		return m;		
 	}
 
+	@Transactional(propagation=Propagation.NEVER)
 	public void vcsCheck4VCSLogSchema(){
 		System.out.println("vcsCheck4VCSLogSchema");
 		dao.executeUpdateSQLQuery("CREATE SCHEMA IF NOT EXISTS vcs_log AUTHORIZATION iwb");
-		List<String> tableNames = dao.executeSQLQuery("select t.dsc from iwb.w5_table t where t.project_uuid=? AND t.vcs_flag!=0 AND exists(select 1 from iwb.w5_table_field tf where tf.table_id=t.table_id AND tf.project_uuid=t.project_uuid)"
-				, FrameworkSetting.devUuid);
+		List<W5Table> tables = FrameworkCache.getVcsTables();
 		StringBuilder s = new StringBuilder();
 		s.append("select table_name from information_schema.tables where table_schema='vcs_log' and table_name in (");
 		Set<String> tableSet = new HashSet();
-		for(String dsc:tableNames) {
+		for(W5Table t:tables) {
+			String dsc = t.getDsc();
 			dsc = dsc.substring(dsc.indexOf('.')+1);
 			tableSet.add(dsc);
 			s.append("'").append(dsc).append("',");
@@ -1687,10 +1688,8 @@ public class VcsService {
 			
 		}
 		if(!vcsObjectFound) {
-			dao.executeUpdateSQLQuery("CREATE TABLE vcs_log.w5_vcs_object(table_id integer NOT NULL, table_pk integer NOT NULL,project_uuid character varying(36) NOT NULL,\r\n" + 
-					"	vcs_commit_id integer NOT NULL DEFAULT 0,vcs_object_status_tip smallint NOT NULL,\r\n" + 
-					"    CONSTRAINT uq_log_vcs_obj_key1 UNIQUE (vcs_commit_id,table_id, table_pk, project_uuid));\r\n" + 
-					"\r\n" + 
+			dao.executeUpdateSQLQuery("CREATE TABLE vcs_log.w5_vcs_object(table_id integer NOT NULL, table_pk integer NOT NULL,project_uuid character varying(36) NOT NULL,\n" + 
+					"	vcs_commit_id integer NOT NULL DEFAULT 0,vcs_object_status_tip smallint NOT NULL, CONSTRAINT uq_log_vcs_obj_key1 UNIQUE (vcs_commit_id,table_id, table_pk, project_uuid));\n" + 
 					"CREATE INDEX ndx_log_vcs_object1 ON vcs_log.w5_vcs_object USING btree (project_uuid);");
 		}
 	}
@@ -1768,7 +1767,7 @@ public class VcsService {
 					"values(?, ?, ?, ?, ?)",vo.getVcsCommitId(), vo.getTableId(), vo.getTablePk(), vo.getProjectUuid(), vo.getVcsObjectStatusType());
 		 
 		if(vo.getVcsObjectStatusType()!=8 && vo.getVcsObjectStatusType()!=3) {//deleted
-			dao.executeUpdateSQLQuery("insert into vcs_log."+dsc+" select ?,x.* from iwb."+t.getDsc() + " x where x."+t.get_tableFieldList().get(0).getDsc()+"=? AND x.project_uuid=?", 
+			dao.executeUpdateSQLQuery("insert into vcs_log."+dsc+" select ?,x.* from "+t.getDsc() + " x where x."+t.get_tableFieldList().get(0).getDsc()+"=? AND x.project_uuid=?", 
 					vo.getVcsCommitId(), vo.getTablePk(), vo.getProjectUuid());			
 		}		
 	}
