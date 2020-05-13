@@ -1314,13 +1314,13 @@ public class PostgreSQL extends BaseDAO {
 				} else
 					b = true;
 				sql.append("t.").append(x.getExpressionDsc()).append(" = ? ");
-				Object psonuc = GenericUtil.prepareParam((W5Param) x, formResult.getScd(),
+				Object presult = GenericUtil.prepareParam((W5Param) x, formResult.getScd(),
 						formResult.getRequestParams(), (short) -1, null, (short) 1, null, null,
 						formResult.getErrorMap());
 				if (pkField == null)
-					pkField = psonuc;
-				realParams.add(psonuc);
-				formResult.getPkFields().put(x.getDsc(), psonuc);
+					pkField = presult;
+				realParams.add(presult);
+				formResult.getPkFields().put(x.getDsc(), presult);
 			}
 		}
 
@@ -1799,7 +1799,7 @@ public class PostgreSQL extends BaseDAO {
 				if (!GenericUtil.accessControl4SessionField(formResult.getScd(), tf.getRelatedSessionField()))
 					continue;
 
-				if (paramSuffix.length() > 0 && formResult.getRequestParams().get(x.getDsc() + paramSuffix) == null)
+				if (paramSuffix.length() > 0 && !formResult.getRequestParams().containsKey(x.getDsc() + paramSuffix))
 					continue;
 				if (x.getControlType() == 31 && GenericUtil.uInt(x.getLookupIncludedValues()) == 1
 						&& !GenericUtil.hasPartInside(x.getLookupIncludedParams(), "" + scd.get("userId")))
@@ -1898,22 +1898,22 @@ public class PostgreSQL extends BaseDAO {
 					updateParams.add(GenericUtil.isEmpty(res) ? null : res.get(0));
 					break;
 				case 2: // session
-					Object psonuc = GenericUtil.prepareParam(p1, scd, formResult.getRequestParams(), (short) -1, null,
+					Object presult = GenericUtil.prepareParam(p1, scd, formResult.getRequestParams(), (short) -1, null,
 							(short) 0, null, null, formResult.getErrorMap());
-					if (psonuc != null) {
+					if (presult != null) {
 						if (b) {
 							sql.append(" , ");
 						} else
 							b = true;
 						usedFields.add(p1.getDsc());
 						sql.append(p1.getDsc()).append(" = ? ");
-						updateParams.add(psonuc);
+						updateParams.add(presult);
 						usedFields.add(p1.getDsc());
 					}
 
 					break;
 				}
-		if (usedFields.isEmpty()) { // sorun var
+		if (usedFields.isEmpty()) { // problems exists
 			throw new IWBException("validation", "Form Update", formResult.getFormId(), null, "No Used Fields", null);
 		}
 		if (f.get_versioningFlag()) { // eger versionin varsa, version'lari
@@ -1933,10 +1933,10 @@ public class PostgreSQL extends BaseDAO {
 				else
 					b = true;
 				sql.append(x.getExpressionDsc()).append(" = ? ");
-				Object psonuc = GenericUtil.prepareParam(x, scd, formResult.getRequestParams(), (short) -1, null,
+				Object presult = GenericUtil.prepareParam(x, scd, formResult.getRequestParams(), (short) -1, null,
 						(short) 0, x.getDsc() + paramSuffix, null, formResult.getErrorMap());
-				whereParams.add(psonuc);
-				formResult.getPkFields().put(x.getDsc(), psonuc);
+				whereParams.add(presult);
+				formResult.getPkFields().put(x.getDsc(), presult);
 			}
 
 		updateParams.addAll(whereParams);
@@ -2017,7 +2017,7 @@ public class PostgreSQL extends BaseDAO {
 					continue; // access control
 
 
-				Object psonuc = null;
+				Object presult = null;
 				switch (p1.getCopySourceTip()) {
 				case 7: // object_source (readonly)
 				case 6: // object_source
@@ -2033,7 +2033,7 @@ public class PostgreSQL extends BaseDAO {
 						continue;
 					}
 				case 1: // request
-					psonuc = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
+					presult = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
 							x.getSourceType(), null, x.getNotNullFlag(), x.getDsc() + paramSuffix, x.getDefaultValue(),
 							formResult.getErrorMap());
 					break;
@@ -2054,10 +2054,10 @@ public class PostgreSQL extends BaseDAO {
 						if (x.getSourceType() == 4) { // calculated, sql
 														// calisacak sonra deger
 														// verilecek
-							calculatedParams.put(paramCount, (String) psonuc);
+							calculatedParams.put(paramCount, (String) presult);
 							calculatedParamNames.put(paramCount, x.getDsc());
 						} else {
-							formResult.getOutputFields().put(x.getDsc(), psonuc);
+							formResult.getOutputFields().put(x.getDsc(), presult);
 						}
 						postSql.append(" ? ");
 						copyParams.add(null);
@@ -2066,10 +2066,10 @@ public class PostgreSQL extends BaseDAO {
 						if (x.getSourceType() == 4) { // calculated, sql
 														// calisacak sonra deger
 														// verilecek
-							postSql.append(" ( ").append(psonuc).append(" ) ");
+							postSql.append(" ( ").append(presult).append(" ) ");
 						} else {
 							postSql.append(" ? ");
-							copyParams.add(psonuc);
+							copyParams.add(presult);
 							paramCount++;
 						}
 					}
@@ -2099,9 +2099,9 @@ public class PostgreSQL extends BaseDAO {
 					paramCount++;
 					break;
 				case 2: // session
-					Object psonuc = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
+					Object presult = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
 							(short) -1, null, (short) 0, null, null, formResult.getErrorMap());
-					if (psonuc != null) {
+					if (presult != null) {
 						if (b) {
 							sql.append(" , ");
 							postSql.append(" , ");
@@ -2110,15 +2110,15 @@ public class PostgreSQL extends BaseDAO {
 						usedFields.add(p1.getDsc());
 						sql.append(p1.getDsc());
 						postSql.append(" ? ");
-						copyParams.add(psonuc);
+						copyParams.add(presult);
 						paramCount++;
 					}
 
 					break;
 				case 9: // UUID
-					Object psonuc2 = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
+					Object presult2 = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
 							(short) -1, null, (short) 0, null, null, formResult.getErrorMap());
-					if (psonuc2 != null) {
+					if (presult2 != null) {
 						if (b) {
 							sql.append(" , ");
 							postSql.append(" , ");
@@ -2127,17 +2127,17 @@ public class PostgreSQL extends BaseDAO {
 						usedFields.add(p1.getDsc());
 						sql.append(p1.getDsc());
 						postSql.append(" ? ");
-						copyParams.add(psonuc2);
+						copyParams.add(presult2);
 						paramCount++;
 
-						formResult.getOutputFields().put(p1.getDsc(), psonuc2);
+						formResult.getOutputFields().put(p1.getDsc(), presult2);
 					}
 
 					break;
 				case 8: // Global Nextval
-					Object psonuc3 = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
+					Object presult3 = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
 							(short) -1, null, (short) 0, null, null, formResult.getErrorMap());
-					if (psonuc3 != null) {
+					if (presult3 != null) {
 						if (b) {
 							sql.append(" , ");
 							postSql.append(" , ");
@@ -2146,10 +2146,10 @@ public class PostgreSQL extends BaseDAO {
 						usedFields.add(p1.getDsc());
 						sql.append(p1.getDsc());
 						postSql.append(" ? ");
-						copyParams.add(psonuc3);
+						copyParams.add(presult3);
 						paramCount++;
 
-						formResult.getOutputFields().put(p1.getDsc(), psonuc3);
+						formResult.getOutputFields().put(p1.getDsc(), presult3);
 					}
 
 					break;
@@ -2158,7 +2158,7 @@ public class PostgreSQL extends BaseDAO {
 		if (!formResult.getErrorMap().isEmpty())
 			return 0;
 
-		if (usedFields.isEmpty()) { // sorun var
+		if (usedFields.isEmpty()) { // problems exists
 			throw new IWBException("validation", "Form Copy", formResult.getFormId(), null, "No Used Fields", null);
 		}
 
@@ -2187,10 +2187,10 @@ public class PostgreSQL extends BaseDAO {
 				else
 					b = true;
 				sql.append(x.getExpressionDsc()).append(" = ? ");
-				Object psonuc = GenericUtil.prepareParam(x, formResult.getScd(), formResult.getRequestParams(),
+				Object presult = GenericUtil.prepareParam(x, formResult.getScd(), formResult.getRequestParams(),
 						(short) -1, null, (short) 0, x.getDsc() + paramSuffix, null, formResult.getErrorMap());
-				copyParams.add(psonuc);
-				formResult.getPkFields().put(x.getDsc(), psonuc);
+				copyParams.add(presult);
+				formResult.getPkFields().put(x.getDsc(), presult);
 			}
 
 		b = false;
@@ -2448,13 +2448,13 @@ public class PostgreSQL extends BaseDAO {
 						}
 					}
 				}
-				Object psonuc = GenericUtil.prepareParam(tf, formResult.getScd(), formResult.getRequestParams(),
+				Object presult = GenericUtil.prepareParam(tf, formResult.getScd(), formResult.getRequestParams(),
 						x.getSourceType(), null, notNullFlag, x.getDsc() + paramSuffix, x.getDefaultValue(),
 						formResult.getErrorMap());
 
 				if (formResult.getErrorMap().isEmpty()) {
-					if(psonuc!=null && x.getVtype()!=null) {
-						if(!GenericUtil.validateVtype(psonuc.toString(), x.getVtype())) {
+					if(presult!=null && x.getVtype()!=null) {
+						if(!GenericUtil.validateVtype(presult.toString(), x.getVtype())) {
 							formResult.getErrorMap().put(x.getDsc(), LocaleMsgCache.get2(formResult.getScd(), "invalid_"+x.getVtype()));
 							continue;
 						}
@@ -2471,10 +2471,10 @@ public class PostgreSQL extends BaseDAO {
 						if (x.getSourceType() == 4) { // calculated, sql
 														// calisacak sonra deger
 														// verilecek
-							calculatedParams.put(paramCount, (String) psonuc);
+							calculatedParams.put(paramCount, (String) presult);
 							calculatedParamNames.put(paramCount, x.getDsc());
 						} else {
-							formResult.getOutputFields().put(x.getDsc(), psonuc);
+							formResult.getOutputFields().put(x.getDsc(), presult);
 						}
 						postSql.append(" ? ");
 						insertParams.add(null);
@@ -2483,12 +2483,12 @@ public class PostgreSQL extends BaseDAO {
 						if (x.getSourceType() == 4) { // calculated, sql
 														// calisacak sonra deger
 														// verilecek
-							postSql.append(" ( ").append(psonuc).append(" ) ");
+							postSql.append(" ( ").append(presult).append(" ) ");
 						} else {
 							postSql.append(" ? ");
-							//insertParams.add(psonuc);
-							if(psonuc==null || tf.getLkpEncryptionType()==0)insertParams.add(psonuc);
-							else insertParams.add(EncryptionUtil.encrypt(psonuc.toString(), tf.getLkpEncryptionType()));
+							//insertParams.add(presult);
+							if(presult==null || tf.getLkpEncryptionType()==0)insertParams.add(presult);
+							else insertParams.add(EncryptionUtil.encrypt(presult.toString(), tf.getLkpEncryptionType()));
 							paramCount++;
 						}
 					}
@@ -2517,9 +2517,9 @@ public class PostgreSQL extends BaseDAO {
 					break;
 				case 5:// javascript
 				case 2: // session
-					Object psonuc = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
+					Object presult = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
 							(short) -1, null, (short) 0, null, null, formResult.getErrorMap());
-					if (psonuc != null) {
+					if (presult != null) {
 						if (b) {
 							sql.append(" , ");
 							postSql.append(" , ");
@@ -2528,15 +2528,15 @@ public class PostgreSQL extends BaseDAO {
 						usedFields.add(p1.getDsc());
 						sql.append(p1.getDsc());
 						postSql.append(" ? ");
-						insertParams.add(psonuc);
+						insertParams.add(presult);
 						paramCount++;
 					}
 
 					break;
 				case 9: // UUID
-					Object psonuc2 = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
+					Object presult2 = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
 							(short) -1, null, (short) 0, null, null, formResult.getErrorMap());
-					if (psonuc2 != null) {
+					if (presult2 != null) {
 						if (b) {
 							sql.append(" , ");
 							postSql.append(" , ");
@@ -2545,17 +2545,17 @@ public class PostgreSQL extends BaseDAO {
 						usedFields.add(p1.getDsc());
 						sql.append(p1.getDsc());
 						postSql.append(" ? ");
-						insertParams.add(psonuc2);
+						insertParams.add(presult2);
 						paramCount++;
 
-						formResult.getOutputFields().put(p1.getDsc(), psonuc2);
+						formResult.getOutputFields().put(p1.getDsc(), presult2);
 					}
 
 					break;
 				case 8: // Global Nextval
-					Object psonuc3 = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
+					Object presult3 = GenericUtil.prepareParam(p1, formResult.getScd(), formResult.getRequestParams(),
 							(short) -1, null, (short) 0, null, null, formResult.getErrorMap());
-					if (psonuc3 != null) {
+					if (presult3 != null) {
 						if (b) {
 							sql.append(" , ");
 							postSql.append(" , ");
@@ -2564,10 +2564,10 @@ public class PostgreSQL extends BaseDAO {
 						usedFields.add(p1.getDsc());
 						sql.append(p1.getDsc());
 						postSql.append(" ? ");
-						insertParams.add(psonuc3);
+						insertParams.add(presult3);
 						paramCount++;
 
-						formResult.getOutputFields().put(p1.getDsc(), psonuc3);
+						formResult.getOutputFields().put(p1.getDsc(), presult3);
 					}
 
 					break;
@@ -2576,7 +2576,7 @@ public class PostgreSQL extends BaseDAO {
 		if (!formResult.getErrorMap().isEmpty())
 			return 0;
 
-		if (usedFields.isEmpty()) { // sorun var
+		if (usedFields.isEmpty()) { // problems exists
 			throw new IWBException("validation", "Form Insert", formResult.getFormId(), null, "No Used Fields", null);
 		}
 
@@ -2700,11 +2700,11 @@ public class PostgreSQL extends BaseDAO {
 		 * if(formResult.getForm().get_sourceTable() != null &&
 		 * formResult.getForm().get_sourceTable().getDoInsertLogFlag()!=0){ Bunun
 		 * yapılabilmesi için önce logTableRecord'un değişmesi lazım. for(W5TableParam
-		 * x: t.get_tableParamList()){ if(x.getNotNullFlag()!=0){ Object psonuc =
+		 * x: t.get_tableParamList()){ if(x.getNotNullFlag()!=0){ Object presult =
 		 * PromisUtil.prepareParam(x, formResult.getScd(),
 		 * formResult.getRequestParams(), (short)-1, null, (short)0, x.getDsc() +
 		 * paramSuffix, null, formResult.getErrorMap());
-		 * formResult.getPkFields().put(x.getDsc(), psonuc); } }
+		 * formResult.getPkFields().put(x.getDsc(), presult); } }
 		 * logTableRecord(formResult); }
 		 */
 	}
@@ -2726,10 +2726,10 @@ public class PostgreSQL extends BaseDAO {
 				else
 					b = true;
 				sql.append(x.getExpressionDsc()).append(" = ? ");
-				Object psonuc = GenericUtil.prepareParam(x, formResult.getScd(), formResult.getRequestParams(),
+				Object presult = GenericUtil.prepareParam(x, formResult.getScd(), formResult.getRequestParams(),
 						(short) -1, null, (short) 0, x.getDsc() + paramSuffix, null, formResult.getErrorMap());
-				realParams.add(psonuc);
-				formResult.getPkFields().put(x.getDsc(), psonuc);
+				realParams.add(presult);
+				formResult.getPkFields().put(x.getDsc(), presult);
 			}
 
 		if (t.getDoDeleteLogFlag() != 0)
@@ -2775,10 +2775,10 @@ public class PostgreSQL extends BaseDAO {
 					sqlParams.add(null);
 					hasOutParam = true;
 				} else {
-					Object psonuc = GenericUtil.prepareParam(p1, r.getScd(), r.getRequestParams(), (short) -1, null,
+					Object presult = GenericUtil.prepareParam(p1, r.getScd(), r.getRequestParams(), (short) -1, null,
 							(short) 0, p1.getSourceType() == 1 ? p1.getDsc() + paramSuffix : null, null,
 							r.getErrorMap());
-					sqlParams.add(psonuc);
+					sqlParams.add(presult);
 					sqlNames.add(null);
 				}
 			}
@@ -3153,7 +3153,7 @@ public class PostgreSQL extends BaseDAO {
 								t = FrameworkCache.getTable(scd, tableId);
 								break;
 							}
-						if (tableId == -1) { // sorun, parent bulamamis
+						if (tableId == -1) { // problems, parent bulamamis
 							W5TableRecordHelper trhError = new W5TableRecordHelper();
 							trhError.setRecordDsc("ERROR: parent not found");
 							l.add(trhError);
@@ -3644,7 +3644,7 @@ public class PostgreSQL extends BaseDAO {
 					} else
 						resStr = "";
 				} else if (conversionTip == 0) { // eger sadece serbest donusum
-													// var ise
+													// exists ise
 					W5TableField tf = resField.get(subStr);
 					if (tf != null)
 						switch (tf.getDefaultControlType()) {
@@ -3771,9 +3771,9 @@ public class PostgreSQL extends BaseDAO {
 		Map errorMap = new HashMap();
 		for (W5TableParam x : t.get_tableParamList()) {
 			sql.append("AND t.").append(x.getExpressionDsc()).append(" = ? ");
-			Object psonuc = GenericUtil.prepareParam((W5Param) x, scd, requestParams, (short) -1, null, (short) 1,
+			Object presult = GenericUtil.prepareParam((W5Param) x, scd, requestParams, (short) -1, null, (short) 1,
 					x.getDsc() + paramSuffix, null, errorMap);
-			params.add(psonuc);
+			params.add(presult);
 		}
 		if (!errorMap.isEmpty())
 			return true; // baska yerde yapsin error
@@ -4154,9 +4154,9 @@ public class PostgreSQL extends BaseDAO {
 			} else
 				b = true;
 			sql.append("t.").append(x.getExpressionDsc()).append(" = ? ");
-			Object psonuc = GenericUtil.prepareParam((W5Param) x, scd, requestParams, (short) -1, null, (short) 1, null,
+			Object presult = GenericUtil.prepareParam((W5Param) x, scd, requestParams, (short) -1, null, (short) 1, null,
 					null, m);
-			params.add(psonuc);
+			params.add(presult);
 		}
 
 		return runSQLQuery2Map(sql.toString(), params, null) != null;
@@ -5976,7 +5976,7 @@ public class PostgreSQL extends BaseDAO {
 		for (W5TableField p1 : t.get_tableFieldList()) {
 			if(!requestParams.containsKey(p1.getDsc()) && p1.getSourceType()==1)continue;
 			if(requestParams.containsKey(p1.getDsc())) {
-				Object psonuc = requestParams.get(p1.getDsc());
+				Object presult = requestParams.get(p1.getDsc());
 				if (b) {
 					sql.append(" , ");
 					postSql.append(" , ");
@@ -5986,19 +5986,19 @@ public class PostgreSQL extends BaseDAO {
 				sql.append(p1.getDsc());
 				
 				postSql.append(" ? ");
-				//insertParams.add(psonuc);
-				if(psonuc==null || p1.getLkpEncryptionType()==0) {
-					if(psonuc!=null)switch(p1.getFieldType()) {
-					case 2: if(scd!=null && psonuc!=null) {
-						psonuc = GenericUtil.uDate(psonuc.toString(), GenericUtil.uInt(scd.get("date_format")));
+				//insertParams.add(presult);
+				if(presult==null || p1.getLkpEncryptionType()==0) {
+					if(presult!=null)switch(p1.getFieldType()) {
+					case 2: if(scd!=null && presult!=null) {
+						presult = GenericUtil.uDate(presult.toString(), GenericUtil.uInt(scd.get("date_format")));
 						break;
 					}
 					default:
-						psonuc = GenericUtil.getObjectByTip(psonuc.toString(), p1.getFieldType());
+						presult = GenericUtil.getObjectByTip(presult.toString(), p1.getFieldType());
 					}
-					insertParams.add(psonuc);
+					insertParams.add(presult);
 				} else 
-					insertParams.add(EncryptionUtil.encrypt(psonuc.toString(), p1.getLkpEncryptionType()));
+					insertParams.add(EncryptionUtil.encrypt(presult.toString(), p1.getLkpEncryptionType()));
 				paramCount++;
 				
 			} else switch (p1.getSourceType()) {
@@ -6020,9 +6020,9 @@ public class PostgreSQL extends BaseDAO {
 				break;
 			case 5:// javascript
 			case 2: // session
-				Object psonuc = GenericUtil.prepareParam(p1, scd, requestParams,
+				Object presult = GenericUtil.prepareParam(p1, scd, requestParams,
 						(short) -1, null, (short) 0, null, null, errorMap);
-				if (psonuc != null) {
+				if (presult != null) {
 					if (b) {
 						sql.append(" , ");
 						postSql.append(" , ");
@@ -6031,15 +6031,15 @@ public class PostgreSQL extends BaseDAO {
 					usedFields.add(p1.getDsc());
 					sql.append(p1.getDsc());
 					postSql.append(" ? ");
-					insertParams.add(psonuc);
+					insertParams.add(presult);
 					paramCount++;
 				}
 
 				break;
 			case 9: // UUID
-				Object psonuc2 = GenericUtil.prepareParam(p1, scd, requestParams,
+				Object presult2 = GenericUtil.prepareParam(p1, scd, requestParams,
 						(short) -1, null, (short) 0, null, null, errorMap);
-				if (psonuc2 != null) {
+				if (presult2 != null) {
 					if (b) {
 						sql.append(" , ");
 						postSql.append(" , ");
@@ -6048,17 +6048,17 @@ public class PostgreSQL extends BaseDAO {
 					usedFields.add(p1.getDsc());
 					sql.append(p1.getDsc());
 					postSql.append(" ? ");
-					insertParams.add(psonuc2);
+					insertParams.add(presult2);
 					paramCount++;
 
-					outMap.put(p1.getDsc(), psonuc2);
+					outMap.put(p1.getDsc(), presult2);
 				}
 
 				break;
 			case 8: // Global Nextval
-				Object psonuc3 = GenericUtil.prepareParam(p1, scd, requestParams,
+				Object presult3 = GenericUtil.prepareParam(p1, scd, requestParams,
 						(short) -1, null, (short) 0, null, null, errorMap);
-				if (psonuc3 != null) {
+				if (presult3 != null) {
 					if (b) {
 						sql.append(" , ");
 						postSql.append(" , ");
@@ -6067,10 +6067,10 @@ public class PostgreSQL extends BaseDAO {
 					usedFields.add(p1.getDsc());
 					sql.append(p1.getDsc());
 					postSql.append(" ? ");
-					insertParams.add(psonuc3);
+					insertParams.add(presult3);
 					paramCount++;
 
-					outMap.put(p1.getDsc(), psonuc3);
+					outMap.put(p1.getDsc(), presult3);
 				}
 
 				break;
@@ -6079,7 +6079,7 @@ public class PostgreSQL extends BaseDAO {
 
 
 
-		if (usedFields.isEmpty()) { // sorun var
+		if (usedFields.isEmpty()) { // problems exists
 			throw new IWBException("validation", "Table Insert", tableId, null, "No Used Fields", null);
 		}
 

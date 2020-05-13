@@ -149,5 +149,6 @@ public class FrameworkSetting {
 	public static boolean reactLabelRequired = true;
 	public static boolean metadata = false;
 	public static Object defaultPasswordMask = "**********";
+	public static boolean logVcs = false;
 
 }

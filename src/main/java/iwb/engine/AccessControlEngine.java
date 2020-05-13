@@ -137,10 +137,10 @@ public class AccessControlEngine {
 						t.getAccessUpdateRoles(), t.getAccessUpdateUsers())) {
 					// throw new PromisException("security","Form", formId,
 					// null,
-					// PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_access_tablo_control_update"),
+					// PromisLocaleMsg.get2(0,(String)scd.get("locale"),"fw_access_table_control_update"),
 					// null);
 					formResult.getOutputMessages().add(
-							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_access_tablo_control_update"));
+							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_access_table_control_update"));
 					formResult.setViewMode(true);
 				}
 
@@ -152,7 +152,7 @@ public class AccessControlEngine {
 			if (!GenericUtil.accessControl(scd, t.getAccessInsertTip(), t.getAccessInsertRoles(),
 					t.getAccessInsertUsers())) { // Table access insert control
 				throw new IWBException("security", "Form", formId, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_access_tablo_control_record_insert"),
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_access_table_control_record_insert"),
 						null);
 			}
 
@@ -194,14 +194,14 @@ public class AccessControlEngine {
 				if (!deletableUserFieldFlag && !GenericUtil.accessControl(scd, t.getAccessDeleteTip(),
 						t.getAccessDeleteRoles(), t.getAccessDeleteUsers())) {
 					throw new IWBException("security", "Form", formId, null,
-							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_access_tablo_control_delete"),
+							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_access_table_control_delete"),
 							null);
 				} /*
 					 * if(!PromisUtil.accessControl(scd, t.getAccessDeleteTip(),
 					 * t.getAccessDeleteRoles(), t.getAccessDeleteUsers())){
 					 * throw new PromisException("security","Form", formId,
 					 * null, PromisLocaleMsg.get2(0,(String)scd.get("locale"),
-					 * "fw_access_tablo_control_delete"), null); }
+					 * "fw_access_table_control_delete"), null); }
 					 */
 
 

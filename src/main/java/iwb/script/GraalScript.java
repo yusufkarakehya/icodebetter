@@ -314,19 +314,19 @@ public class GraalScript {
 			if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
 					t.getAccessViewRoles(), t.getAccessViewUsers())) {
 				throw new IWBException("security", "Table", tableId, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_goruntuleme"),
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_table_kontrol_goruntuleme"),
 						null);
 			}
 			if (forAction == 1 && t.getAccessUpdateUserFields() == null && !GenericUtil.accessControl(scd,
 					t.getAccessUpdateTip(), t.getAccessUpdateRoles(), t.getAccessUpdateUsers())) {
 				throw new IWBException("security", "Table", tableId, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_guncelleme"),
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_table_kontrol_guncelleme"),
 						null);
 			}
 			if (forAction == 3 && t.getAccessDeleteUserFields() == null && !GenericUtil.accessControl(scd,
 					t.getAccessDeleteTip(), t.getAccessDeleteRoles(), t.getAccessDeleteUsers())) {
 				throw new IWBException("security", "Table", tableId, null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_tablo_kontrol_silme"), null);
+						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_guvenlik_table_kontrol_silme"), null);
 			}
 		}
 

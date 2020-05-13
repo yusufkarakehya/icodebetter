@@ -1652,6 +1652,11 @@ public class VcsService {
 		return m;		
 	}
 
+	@Transactional(propagation=Propagation.NEVER)
+	public void vcsCheck4VCSLogSchema(){
+		
+		
+	}
 
 	public int vcsClientObjectPush(Map<String, Object> scd, int tableId, int tablePk, boolean force, boolean recursive) throws JSONException {
 		if(FrameworkSetting.vcsServer)

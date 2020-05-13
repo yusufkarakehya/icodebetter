@@ -1214,7 +1214,7 @@ public class PreviewController implements InitializingBean {
 				e.printStackTrace();
 			// bus.logException(e.getMessage(),GenericUtil.uInt(scd.get("customizationId")),GenericUtil.uInt(scd.get("userRoleId")));
 			throw new IWBException("generic", "File Attacment", fileAttachmentId, "Unknown Exception",
-					e.getMessage(), e.getCause());
+					e.getMessage(), e);
 		} finally {
 			out.close();
 			stream.close();

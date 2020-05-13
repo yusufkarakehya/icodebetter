@@ -4014,6 +4014,55 @@ columns:[
 
 		return buf.append("}");
 	}
+	
+
+	private StringBuilder serializeLookUp(W5PageResult pr) {
+		StringBuilder buf2 = new StringBuilder();
+		boolean b = false;
+		if(!GenericUtil.isEmpty(pr.getPage().get_pageObjectList()))for(W5PageObject po :pr.getPage().get_pageObjectList()) if(po.getObjectType()==6){
+			b = true;
+			break;			
+		}
+		if(b) {
+			Set<Integer> ls = new HashSet();
+			
+			if(!GenericUtil.isEmpty(pr.getPage().get_pageObjectList()))for(W5PageObject po :pr.getPage().get_pageObjectList()) if(po.getObjectType()==6){
+				ls.add(po.getObjectId());
+			}
+			if(!ls.isEmpty()) {
+				buf2.append("var _lookUps={");
+				boolean b2 = false;
+				for (Integer lookUpId : ls) {
+					W5LookUp lu = FrameworkCache.getLookUp(
+							pr.getScd(), lookUpId);
+					if(lu==null)continue;
+					if (b2)
+						buf2.append(",\n");
+					else
+						b2 = true;
+					buf2.append(lu.getDsc()).append(":[");
+					Map<String, String> tempMap = new HashMap<String, String>();
+					boolean b3=false;
+					for (W5LookUpDetay lud : lu.get_detayList()) if(lud.getActiveFlag()!=0){
+						if (b3)
+							buf2.append(", ");
+						else
+							b3 = true;
+						buf2.append("{\"").append(lud.getVal()).append("\":\"").append(LocaleMsgCache
+										.get2(pr.getScd(),lud.getDsc())).append("\"");
+						if(!GenericUtil.isEmpty(lud.getParentVal()))
+							buf2.append(",\"extra\":\"").append(lud.getParentVal()).append("\"");
+						buf2.append("}");
+						
+					}
+					buf2.append("]");
+				}
+				buf2.append("};\n");
+			}
+			
+		}
+		return buf2;
+	}
 
 	public StringBuilder serializeTemplate(W5PageResult pr) {
 		boolean replacePostJsCode = false;
@@ -4048,6 +4097,8 @@ columns:[
 					buf.append("var _page_tab_id='")
 							.append(GenericUtil.getNextId("tpi")).append("';\n");
 				}
+				
+				buf.append(serializeLookUp(pr));
 				
 				if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
 					buf.append("iwb.addCssString(\"")
@@ -4215,6 +4266,8 @@ columns:[
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))
 					.append(";\n");
 
+			buf.append(serializeLookUp(pr));
+
 			int customObjectCount=1;
 			for (Object i : pr.getPageObjectList()) {
 				if (i instanceof W5GridResult) {
@@ -4281,13 +4334,13 @@ columns:[
 				if(!GenericUtil.isEmpty(page.getCssCode()) && page.getCssCode().trim().length()>3){
 					buf4.append(page.getCssCode()).append("\n");
 				}
-				W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
+				/*W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
 				if(c!=null)for (W5LookUpDetay d : c.get_detayList()) {
 					buf4.append(".bgColor")
 							.append(d.getVal().replace("#", ""))
 							.append("{background-color:")
 							.append(d.getVal()).append(";}\n");
-				}
+				}*/
 				FrameworkCache.addPageResource(pr.getScd(), "css-"+page.getPageId(), buf4.toString());
 				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"dyn-res/css-"+page.getPageId()+".css?.x="+page.getVersionNo()+"\" />");
 

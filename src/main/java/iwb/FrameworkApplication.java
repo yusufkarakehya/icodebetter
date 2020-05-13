@@ -118,6 +118,7 @@ public class FrameworkApplication {
 		}
 		if(FrameworkSetting.log2tsdb)LogUtil.activateInflux4Log();
 		if(FrameworkSetting.logType==2)LogUtil.activateMQ4Log();
+		if(FrameworkSetting.logVcs)vcsService.vcsCheck4VCSLogSchema();
 		
 
 	}
