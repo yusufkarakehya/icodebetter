@@ -399,6 +399,22 @@ function fncMnuVcs(xgrid) {
             });
         }
       },'-',
+      {text: "History", menu:[
+    	  {text:'Local History', _grid: xgrid, handler:(aq)=>{
+              mainPanel.loadTab({
+                  attributes: {
+//                    _title_: "Search Form",
+                    modalWindow: true,
+                    href: "showPage?_tid=259&_gid1=835",
+                    baseParams: {
+                      xtable_id:aq._grid.crudTableId, 
+                      xtable_pk: getSels(aq._grid)[0].id
+                    }
+                  }
+                });
+    	  }}
+    	  , {text:'VCS Server History', _grid: xgrid, handler:()=>alert('TODO')}
+      ]},'-',
       {
           text: "Copy to Another Project",
           _grid: xgrid,
