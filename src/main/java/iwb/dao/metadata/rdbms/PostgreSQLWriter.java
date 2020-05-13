@@ -1912,7 +1912,7 @@ public class PostgreSQLWriter extends BaseDAO {
 						"insert into iwb.w5_project(project_uuid, customization_id, dsc, access_users,  rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid)"
 								+ " values (?,?,?, ?, ?,?,?,?, ?)",
 						projectId, cusId, p.get("dsc"), "" + userId, schema, vcsUrl, nickName, "1", oprojectId);
-				executeUpdateSQLQuery("create schema " + schema + " AUTHORIZATION iwb");
+				executeUpdateSQLQuery("create schema IF NOT EXISTS " + schema + " AUTHORIZATION iwb");
 			}
 
 			metadataLoader.addProject2Cache(projectId);

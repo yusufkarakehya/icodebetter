@@ -252,7 +252,7 @@ public class PostgreSQL extends BaseDAO {
 				try {
 					if (schemaCount == 0) {
 						PreparedStatement s = conn
-								.prepareStatement("CREATE SCHEMA " + po.getRdbmsSchema() + "_log AUTHORIZATION iwb");
+								.prepareStatement("CREATE SCHEMA IF NOT EXISTS " + po.getRdbmsSchema() + "_log AUTHORIZATION iwb");
 						s.execute();
 						s.close();
 					}
