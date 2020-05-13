@@ -294,7 +294,7 @@ public class VcsController implements InitializingBean {
 		logger.info("ajaxVCSObjectPush("+tableId+")"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	int commitId = vcsEngine.vcsClientObjectPush(scd, tableId, tablePk, GenericUtil.uInt(request, "f")!=0, false);
+    	int commitId = vcsEngine.vcsClientObjectPush(scd, tableId, tablePk, GenericUtil.uInt(request, "f")!=0, request.getParameter("comment"));
     	response.getWriter().write("{\"success\":true, \"commit_id\":"+commitId+"}");
 		response.getWriter().close();
 	}
@@ -324,7 +324,7 @@ public class VcsController implements InitializingBean {
 		logger.info("ajaxVCSObjectPushMulti("+tableId+")"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	int commitCount = vcsEngine.vcsClientObjectPushMulti(scd, tableId, tablePks, GenericUtil.uInt(request, "f")!=0, false, true);
+    	int commitCount = vcsEngine.vcsClientObjectPushMulti(scd, tableId, tablePks, GenericUtil.uInt(request, "f")!=0, request.getParameter("comment"));
     	switch(commitCount) {
     	case	-1://onSynchErrorThrow
         	response.getWriter().write("{\"success\":true, \"error\":\"force\"}");
@@ -345,7 +345,7 @@ public class VcsController implements InitializingBean {
 		logger.info("hndAjaxVCSObjectPushAll("+tableKeys+")"); 
 		
     	Map<String, Object> scd = UserUtil.getScd(request, "scd-dev", true);
-    	int commitCount = vcsEngine.vcsClientObjectPushAll(scd,  tableKeys, GenericUtil.uInt(request, "f")!=0, false, true);
+    	int commitCount = vcsEngine.vcsClientObjectPushAll(scd,  tableKeys, GenericUtil.uInt(request, "f")!=0, request.getParameter("comment"));
     	switch(commitCount) {
     	case	-1://onSynchErrorThrow
         	response.getWriter().write("{\"success\":true, \"error\":\"force\"}");

@@ -1694,7 +1694,7 @@ public class VcsService {
 		}
 	}
 
-	public int vcsClientObjectPush(Map<String, Object> scd, int tableId, int tablePk, boolean force, boolean recursive) throws JSONException {
+	public int vcsClientObjectPush(Map<String, Object> scd, int tableId, int tablePk, boolean force, String comment) throws JSONException {
 		if(FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsClientObjectPush",0,null, "VCS Server not allowed to vcsClientObjectPush", null);
 		int customizationId = (Integer)scd.get("customizationId");
@@ -1727,6 +1727,7 @@ public class VcsService {
 		params.put("r", vo.getProjectUuid());params.put("o", vo.getVcsCommitId());params.put("a", action);
 //		if(force)urlParameters+="&f=1";
 		if(force)params.put("f", 1);
+		if(comment!=null)params.put("comment", comment);
 		if(action!=3){
 //			urlParameters+="&object="+GenericUtil.uUrlEncode(GenericUtil.fromMapToJsonString2(o));
 			params.put("object", GenericUtil.fromMapToJSONObject(o));
@@ -1747,6 +1748,7 @@ public class VcsService {
 					vo.setVcsObjectStatusType((short)(vo.getVcsObjectStatusType()==3 ? 8:9));//8:synched deleted, 9:synched updated/inserted
 					vo.setVcsCommitRecordHash(metadataWriter.getObjectVcsHash(scd, t.getTableId(), vo.getTablePk()));
 					dao.updateObject(vo);
+					dao.saveObject(new W5VcsCommit(vo, comment));
 					if(FrameworkSetting.logVcs)logVcsRecord(t, vo);
 					return srvVcsCommitId; 
 				} else
@@ -1869,7 +1871,7 @@ public class VcsService {
 		return false;
 	}
 
-	public int vcsClientObjectPushMulti(Map<String, Object> scd, int tableId, String tablePks, boolean force, boolean recursive, boolean onSynchErrorThrow) throws JSONException {
+	public int vcsClientObjectPushMulti(Map<String, Object> scd, int tableId, String tablePks, boolean force, String comment) throws JSONException {
 		if(FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsClientObjectPushMulti",0,null, "VCS Server not allowed to vcsClientObjectPushMulti", null);
 		int customizationId = (Integer)scd.get("customizationId");
@@ -1888,6 +1890,7 @@ public class VcsService {
 
 //		if(force)urlParameters.append("&f=1");
 		if(force)params.put("f", 1);
+		if(comment!=null)params.put("comment", comment);
 
 		String[] arTablePks = tablePks.split(",");
 		
@@ -1933,8 +1936,9 @@ public class VcsService {
 				json = new JSONObject(s);
 				if(json.get("success").toString().equals("true")){
 					int srvVcsCommitId =json.getInt("commit_id");
+					W5VcsObject vo = null;
 					for(Integer k:mv.keySet()){
-						W5VcsObject vo = mv.get(k);
+						vo = mv.get(k);
 						vo.setVersionNo((short)(vo.getVersionNo()+1));
 						vo.setVersionUserId((Integer)scd.get("userId"));
 						vo.setVcsCommitId(srvVcsCommitId);					
@@ -1943,6 +1947,7 @@ public class VcsService {
 						dao.updateObject(vo);	
 						if(FrameworkSetting.logVcs)logVcsRecord(FrameworkCache.getTable(vo.getProjectUuid(), vo.getTableId()), vo);
 					}
+					if(vo!=null)dao.saveObject(new W5VcsCommit(vo, comment));
 					return jlo.length();
 				} else
 					throw new IWBException("vcs","vcsClientObjectPushMulti:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
@@ -2244,7 +2249,7 @@ public class VcsService {
 		return count;
 	}
 
-	public int vcsClientObjectPushAll(Map<String, Object> scd, String tableKeys, boolean force, boolean recursive, boolean onSynchErrorThrow) throws JSONException {
+	public int vcsClientObjectPushAll(Map<String, Object> scd, String tableKeys, boolean force, String comment) throws JSONException {
 		if(FrameworkSetting.vcsServer)
 			throw new IWBException("vcs","vcsClientObjectPushAll",0,null, "VCS Server not allowed to vcsClientObjectPushAll", null);
 		int customizationId = (Integer)scd.get("customizationId");
@@ -2260,6 +2265,7 @@ public class VcsService {
 
 //		if(force)urlParameters.append("&f=1");
 		if(force)params.put("f", 1);
+		if(comment!=null)params.put("comment", comment);
 		String[] arTableKeys = tableKeys.split(",");
 		
 		
@@ -2309,8 +2315,9 @@ public class VcsService {
 				json = new JSONObject(s);
 				if(json.get("success").toString().equals("true")){
 					int srvVcsCommitId =json.getInt("commit_id");
+					W5VcsObject vo = null;
 					for(String k:mv.keySet()){
-						W5VcsObject vo = mv.get(k);
+						vo = mv.get(k);
 						vo.setVersionNo((short)(vo.getVersionNo()+1));
 						vo.setVersionUserId((Integer)scd.get("userId"));
 						vo.setVcsCommitId(srvVcsCommitId);					
@@ -2319,6 +2326,7 @@ public class VcsService {
 						dao.updateObject(vo);	
 						if(FrameworkSetting.logVcs)logVcsRecord(FrameworkCache.getTable(vo.getProjectUuid(), vo.getTableId()), vo);
 					}
+					if(vo!=null)dao.saveObject(new W5VcsCommit(vo, comment));
 					return srvVcsCommitId;
 				} else
 					throw new IWBException("vcs","vcsClientObjectPushAll:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
@@ -2351,9 +2359,7 @@ public class VcsService {
 					
 					List ps=new ArrayList();ps.add(po.getRdbmsSchema());
 					List<Map> ltables = dao.executeSQLQuery2Map("select x.table_name dsc, iwb.md5hash((select string_agg(y.column_name||'.'||y.is_nullable||'.'||y.data_type||'.'||coalesce(y.character_maximum_length,0)::text,',' order by ordinal_position) src_md5hash from information_schema.columns y "
-					+ " where y.table_schema=x.table_schema "
-					+ " AND y.table_name=x.table_name "
-					+ ")) src_md5hash from information_schema.tables x "
+					+ " where y.table_schema=x.table_schema  AND y.table_name=x.table_name )) src_md5hash from information_schema.tables x "
 					+ " where x.table_schema=? order by table_name", ps);
 			
 					List<Map> ldb_funcs = dao.executeSQLQuery2Map("select x.proname||replace(replace(coalesce(x.proargnames::text,''),'{','('),'}',')') dsc, iwb.md5hash(coalesce(x.proargnames::text,'')||coalesce(x.proargtypes::text,'') ||x.prosrc) src_md5hash from pg_proc x where x.pronamespace=(select q.oid from pg_namespace q where q.nspname=?) order by dsc"
