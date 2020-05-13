@@ -1657,15 +1657,15 @@ public class VcsService {
 		return m;		
 	}
 
-	@Transactional(propagation=Propagation.NEVER)
 	public void vcsCheck4VCSLogSchema(){
+		System.out.println("vcsCheck4VCSLogSchema");
 		dao.executeUpdateSQLQuery("CREATE SCHEMA IF NOT EXISTS vcs_log AUTHORIZATION iwb");
-		List<W5Table> l = FrameworkCache.getVcsTables();
+		List<String> tableNames = dao.executeSQLQuery("select t.dsc from iwb.w5_table t where t.project_uuid=? AND t.vcs_flag!=0 AND exists(select 1 from iwb.w5_table_field tf where tf.table_id=t.table_id AND tf.project_uuid=t.project_uuid)"
+				, FrameworkSetting.devUuid);
 		StringBuilder s = new StringBuilder();
 		s.append("select table_name from information_schema.tables where table_schema='vcs_log' and table_name in (");
 		Set<String> tableSet = new HashSet();
-		for(W5Table t:l) {
-			String dsc = t.getDsc();
+		for(String dsc:tableNames) {
 			dsc = dsc.substring(dsc.indexOf('.')+1);
 			tableSet.add(dsc);
 			s.append("'").append(dsc).append("',");
@@ -1762,10 +1762,12 @@ public class VcsService {
 	private void logVcsRecord(W5Table t, W5VcsObject vo) {
 		String dsc = t.getDsc();
 		dsc = dsc.substring(dsc.indexOf('.')+1);
-		if(vo.getVcsObjectStatusType()==8 || vo.getVcsObjectStatusType()==3) {//deleted
-			dao.executeUpdateSQLQuery("insert into vcs_log."+dsc+"(vcs_commit_id, "+t.get_tableFieldList().get(0).getDsc()+",project_uuid)values(?,?,?)", 
-					vo.getVcsCommitId(), vo.getTablePk(), vo.getProjectUuid());
-		} else {
+		if(dao.executeSQLQuery("select 1 from vcs_log.w5_vcs_object t where t.vcs_commit_id=? AND t.table_id=? AND t.table_pk=? AND t.project_uuid=?"
+				, vo.getVcsCommitId(), vo.getTableId(), vo.getTablePk(), vo.getProjectUuid())!=null)return;
+		dao.executeUpdateSQLQuery("insert into vcs_log.w5_vcs_object(vcs_commit_id, table_id, table_pk, project_uuid, vcs_object_status_tip)"+
+					"values(?, ?, ?, ?, ?)",vo.getVcsCommitId(), vo.getTableId(), vo.getTablePk(), vo.getProjectUuid(), vo.getVcsObjectStatusType());
+		 
+		if(vo.getVcsObjectStatusType()!=8 && vo.getVcsObjectStatusType()!=3) {//deleted
 			dao.executeUpdateSQLQuery("insert into vcs_log."+dsc+" select ?,x.* from iwb."+t.getDsc() + " x where x."+t.get_tableFieldList().get(0).getDsc()+"=? AND x.project_uuid=?", 
 					vo.getVcsCommitId(), vo.getTablePk(), vo.getProjectUuid());			
 		}		

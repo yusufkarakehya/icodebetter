@@ -86,7 +86,7 @@ public class FrameworkApplication {
 		
 		FrameworkService service = (FrameworkService)appContext.getBean("frameworkService");
 		VcsService vcsService = (VcsService)appContext.getBean("vcsService");
-		
+
 		if(GenericUtil.uInt(FrameworkSetting.argMap.get("metadata"))!=0) {
 			FrameworkSetting.systemStatus=0;
 			if(FrameworkSetting.projectId == null) FrameworkSetting.projectId = FrameworkSetting.devUuid;
@@ -94,16 +94,13 @@ public class FrameworkApplication {
 			FrameworkSetting.projectSystemStatus.put(FrameworkSetting.projectId, 0);
 			FrameworkSetting.metadata = true;
 		} else {
-			if(FrameworkSetting.localTimer) {
-				TimerTask timerTask = new GenericTimer((TaskExecutor)appContext.getBean("taskExecutor")
-						, service);
-		        //running timer task as daemon thread
-		        Timer timer = new Timer(true);
-		        timer.scheduleAtFixedRate(timerTask, 0, 60*1000); //every minute
-			}
-			
 			if(FrameworkSetting.projectId!=null && GenericUtil.uInt(FrameworkSetting.argMap.get("noupdate"))==0) {
+				boolean oldLogVcs = FrameworkSetting.logVcs;
+				FrameworkSetting.logVcs = false;
 				vcsService.icbVCSUpdateSqlAndFields();
+				FrameworkSetting.logVcs = oldLogVcs;
+				if(FrameworkSetting.logVcs)vcsService.vcsCheck4VCSLogSchema();
+
 				boolean b = vcsService.projectVCSUpdate(FrameworkSetting.devUuid);
 				if(b && FrameworkSetting.projectId!=null) {
 	//				W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
@@ -114,11 +111,22 @@ public class FrameworkApplication {
 					}
 				}
 			}
+			else
+				if(FrameworkSetting.logVcs)vcsService.vcsCheck4VCSLogSchema();
+
 			service.reloadCache(-1);
 		}
+		
+		if(FrameworkSetting.localTimer) {
+			TimerTask timerTask = new GenericTimer((TaskExecutor)appContext.getBean("taskExecutor")
+					, service);
+	        //running timer task as daemon thread
+	        Timer timer = new Timer(true);
+	        timer.scheduleAtFixedRate(timerTask, 0, 60*1000); //every minute
+		}
+		
 		if(FrameworkSetting.log2tsdb)LogUtil.activateInflux4Log();
 		if(FrameworkSetting.logType==2)LogUtil.activateMQ4Log();
-		if(FrameworkSetting.logVcs)vcsService.vcsCheck4VCSLogSchema();
 		
 
 	}
