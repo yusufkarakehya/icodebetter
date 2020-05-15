@@ -869,21 +869,22 @@ public class PreviewController implements InitializingBean {
 				if (FrameworkSetting.debug)logger.info("empty scd");
 				response.getWriter().write("{\"success\":false"); // error
 			} else {
-				if(GenericUtil.uInt(scd.get("renderer"))>1)scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
 				HttpSession session = request.getSession(true);
 //				session.removeAttribute(scdKey);
 				if(deviceType!=0) {
 					scd.put("mobile", deviceType);
 					scd.put("mobileDeviceId", request.getParameter("_mobile_device_id"));
-				} else {
+				} else if(GenericUtil.uInt(scd.get("renderer"))>1)
+					scd.put("_renderer",GenericUtil.getRenderer(scd.get("renderer")));
+				else{
 					scd.put("renderer", po.getUiWebFrontendTip());
 					scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 				}
-				scd.put("locale", xlocale);
+				if(!scd.containsKey("mainTemplateId"))scd.put("mainTemplateId", po.getUiMainTemplateId());
+				if(!scd.containsKey("locale"))scd.put("locale", xlocale);
 				scd.put("customizationId", po.getCustomizationId());
 				scd.put("ocustomizationId", po.getCustomizationId());
 				scd.put("projectId", po.getProjectUuid());scd.put("projectName", po.getDsc());
-				scd.put("mainTemplateId", po.getUiMainTemplateId());
 				scd.put("sessionId", session.getId());
 				scd.put("path", "../");
 				if(!scd.containsKey("date_format"))scd.put("date_format", po.getLkpDateFormat());
