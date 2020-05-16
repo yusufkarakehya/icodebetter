@@ -313,6 +313,10 @@ public class RestController implements InitializingBean {
 				continue;
 			}else switch(wsm.getObjectType()){
 			case	0:case 1:case 2:case 3://TODO
+				if(GenericUtil.isEmpty(wsm.getAccessSourceTypes()) || GenericUtil.hasPartInside(wsm.getAccessSourceTypes(), "1")) {
+					W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, "tokenKey", (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
+					lwsmp.add(tokenKey);
+				}
 				W5FormResult fr=(W5FormResult)o;
 				lwsmp.add(new W5WsServerMethodParam(-999, "result", (short)9));
 				t = FrameworkCache.getTable(ws.getProjectUuid(), fr.getForm().getObjectId());
@@ -339,8 +343,13 @@ public class RestController implements InitializingBean {
 					
 					break;
 				}
+				if(GenericUtil.isEmpty(wsm.getAccessSourceTypes()) || GenericUtil.hasPartInside(wsm.getAccessSourceTypes(), "1")) {
+					W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, "tokenKey", (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
+					lwsmp.add(tokenKey);
+				}
+
 				for(W5GlobalFuncParam dfp:dfr.getGlobalFunc().get_dbFuncParamList())if(dfp.getSourceType()==1 && dfp.getOutFlag()==0){
-					lwsmp.add(new W5WsServerMethodParam(dfp, dfp.getOutFlag(), dfp.getOutFlag()==0 ? 0:-999));
+					lwsmp.add(new W5WsServerMethodParam(dfp, dfp.getOutFlag(), 0));
 				}
 				break;
 			case	19:

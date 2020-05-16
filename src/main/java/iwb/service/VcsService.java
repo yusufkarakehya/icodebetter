@@ -2274,8 +2274,8 @@ public class VcsService {
 			if(t.getVcsFlag()==0){
 				throw new IWBException("vcs","vcsClientCleanVCSObjects", t.getTableId(), t.getDsc(), "Not VCS Table2", null);
 			}
-			String sql ="from iwb.w5_vcs_object where vcs_object_status_tip in (1,2,9) "
-					+ "and table_id=? and project_uuid=? AND table_pk not in (select q."+t.get_tableParamList().get(0).getExpressionDsc()+" from "+t.getDsc()+" q where q.project_uuid=v.project_uuid)";
+			String sql ="from iwb.w5_vcs_object v where v.vcs_object_status_tip in (1,2,9) "
+					+ "and v.table_id=? and v.project_uuid=? AND v.table_pk not in (select q."+t.get_tableParamList().get(0).getExpressionDsc()+" from "+t.getDsc()+" q where q.project_uuid=v.project_uuid)";
 			count = GenericUtil.uInt(dao.executeSQLQuery("select count(1) " +sql, tableId, projectUuid).get(0));
 			if(count>0)dao.executeUpdateSQLQuery("delete " + sql, tableId, projectUuid);
 
