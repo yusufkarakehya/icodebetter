@@ -1,6 +1,7 @@
 package iwb.filter;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -27,7 +28,7 @@ import iwb.util.GenericUtil;
 import iwb.util.LogUtil;
 
 @Component
-@WebFilter(urlPatterns = {"/app","/preview"})
+@WebFilter(urlPatterns = {"/app","/preview","/rest"})
 public class AppFilter implements Filter {
 //	public static int	transactionCount = 0;
 	
@@ -57,8 +58,9 @@ public class AppFilter implements Filter {
 				request.setAttribute("_trid_", transactionId);
 				HttpSession session = ((HttpServletRequest)request).getSession(false);
 				scd = session!=null ? (Map)session.getAttribute("scd-dev"): null;
-				if(FrameworkSetting.logType>0 && (uri.contains("/app/") || uri.contains("/preview/"))){
-					if(scd!=null) {
+				if(FrameworkSetting.logType>0){
+					
+					if(scd!=null && (uri.contains("/app/") || uri.contains("/preview/"))) {
 						String[] uuri = uri.split("/");
 						
 						if(uuri.length>1) {
@@ -79,6 +81,10 @@ public class AppFilter implements Filter {
 								
 							}
 						}
+					} else if(uri.contains("/rest/")) {
+						if(scd==null)scd = new HashMap();
+						scd.put("projectId", uri.split("/")[2]);
+						lvp = new Log5VisitedPage(scd, uri, 0, request.getRemoteAddr(), transactionId);
 					}
 				}
 				filterChain.doFilter( request, response );
