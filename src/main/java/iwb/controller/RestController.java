@@ -396,9 +396,9 @@ public class RestController implements InitializingBean {
 					else if(wsmp.getDsc().equals("result") && wsmp.getParamType()==9 ) 
 						buf.append("\"$ref\":\"#/definitions/").append(wsm.getDsc()).append("Result\"");
 				} 
-				buf.append("}}");
 				break;
 			}
+			buf.append("}}");
 //			if(buf.charAt(buf.length()-1)==',')buf.setLength(buf.length()-1);
 			buf.append("}}}");
 		}

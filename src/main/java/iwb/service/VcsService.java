@@ -738,13 +738,13 @@ public class VcsService {
 	}
 	
 	@Transactional(propagation=Propagation.NEVER)
-	public W5QueryResult vcsClientObjectsAllTree(Map<String, Object> scd, String schema, int userId, String dtStart, String dtEnd) {
+	public W5QueryResult vcsClientObjectsAllTree(Map<String, Object> scd, int action/*0:all, 1:pull, 2:push, 3:conflict*/
+			, int userId, String dtStart, String dtEnd) {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid();
-		if(!GenericUtil.isEmpty(schema))urlParameters+="&s="+schema;
 		if(userId>0)urlParameters+="&_u="+userId;
 		if(!GenericUtil.isEmpty(dtStart) && dtStart.length()==10)urlParameters+="&_ds="+dtStart;
 		if(!GenericUtil.isEmpty(dtEnd) && dtEnd.length()==10)urlParameters+="&_de="+dtEnd;
@@ -760,12 +760,7 @@ public class VcsService {
 				if(json.get("success").toString().equals("true")){
 					JSONObject srvTables =json.getJSONObject("list");
 					List<W5VcsObject> lclObjects = null;
-					if(GenericUtil.isEmpty(schema)){
-						lclObjects = dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 order by t.tableId, t.tablePk", projectUuid, customizationId) ;
-					} else {
-						if(!schema.endsWith("%"))schema+="%";
-						lclObjects = dao.find("from W5VcsObject t where t.projectUuid=?0 AND t.customizationId=?1 and exists(select 1 from W5Table q where q.projectUuid=t.projectUuid AND q.tableId=t.tableId AND q.dsc like ?) order by t.tableId, t.tablePk", projectUuid, customizationId,schema) ;
-					}
+					lclObjects = dao.find("from W5VcsObject t where t.projectUuid=?0 order by t.tableId, t.tablePk", projectUuid) ;
 					Map<String, W5VcsObject> srcMap = new HashMap();
 					for(W5VcsObject ox:lclObjects){
 						srcMap.put(ox.getTableId()+"."+ox.getTablePk(), ox);
@@ -783,7 +778,7 @@ public class VcsService {
 						int srvTableId = GenericUtil.uInt(keyz.next());
 						if(t==null || t.getTableId()!=srvTableId){
 							t = FrameworkCache.getTable(projectUuid, srvTableId);
-							if(t==null)continue;
+							if(t==null || t.getVcsFlag()==0)continue;
 							sql = new StringBuilder();
 							sql.append("select (").append(t.getSummaryRecordSql()).append(") qqq from ").append(t.getDsc()).append(" x where x.").append(t.get_tableParamList().get(0).getExpressionDsc()).append("=?");
 							sql.append(DBUtil.includeTenantProjectPostSQL(scd, t, "x"));
@@ -856,14 +851,15 @@ public class VcsService {
 									od[6]="Error: Probably ID Conflicts";//recordSummary
 									od[7]=3;//conflict	
 								}
-							} else { //server'da var, localde yok
-								if(srvCommitId<0){ //localde hic yokmus, atla
+							} else { //+server, -local
+								if(srvCommitId<0){ //local never exists, skip
 									srcMap.remove(pk);
 									continue;
 								}
 								od[5]=0;//local vcsCommitId: burda karsiligi yok, eklenmesi lazim (+,0)
 								od[7]=1;//pull				
 							}
+							if(action!=0 && (Integer)od[7]!=action)continue;//if only push
 							
 							data.add(od);
 							srcMap.remove(pk);
@@ -887,6 +883,7 @@ public class VcsService {
 								//summaryParams.set(summaryParams.size()-1, k);
 								od[6]=dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0);
 								od[7]=2;//push
+								if(action!=0 && (Integer)od[7]!=action)continue;//if only push
 								data.add(od);
 							}							
 						}
@@ -2278,7 +2275,7 @@ public class VcsService {
 				throw new IWBException("vcs","vcsClientCleanVCSObjects", t.getTableId(), t.getDsc(), "Not VCS Table2", null);
 			}
 			String sql ="from iwb.w5_vcs_object where vcs_object_status_tip in (1,2,9) "
-					+ "and table_id=? and project_uuid=? AND table_pk not in (select q."+t.get_tableParamList().get(0).getExpressionDsc()+" from "+t.getDsc()+" q where q.project_uuid=?)";
+					+ "and table_id=? and project_uuid=? AND table_pk not in (select q."+t.get_tableParamList().get(0).getExpressionDsc()+" from "+t.getDsc()+" q where q.project_uuid=v.project_uuid)";
 			count = GenericUtil.uInt(dao.executeSQLQuery("select count(1) " +sql, tableId, projectUuid).get(0));
 			if(count>0)dao.executeUpdateSQLQuery("delete " + sql, tableId, projectUuid);
 
