@@ -1842,6 +1842,7 @@ public class VcsService {
 			dao.saveObject(o);
 		else
 			dao.updateObject(o);
+		if(FrameworkSetting.logVcs)logVcsRecord(t, o);
 		if(false && FrameworkSetting.log2tsdb)try {Log4Crud(po.getRdbmsSchema(), t, action, commit.getVcsCommitId(), tablePk, jo);
 		} catch (JSONException e) {			}
 
@@ -1988,7 +1989,7 @@ public class VcsService {
 		W5Project po = FrameworkCache.getProject(projectId);
 
 		W5Table t = FrameworkCache.getTable(projectId, tableId);
-		if(t.getVcsFlag()==0){
+		if(t==null || t.getVcsFlag()==0){
 			throw new IWBException("vcs","vcsServerObjectPushMulti", t.getTableId(), null, "Not VCS Table2", null);
 		}
 		
@@ -2048,6 +2049,7 @@ public class VcsService {
 					dao.saveObject(o);
 				else
 					dao.updateObject(o);
+				if(FrameworkSetting.logVcs)logVcsRecord(t, o);
 
 			}
 			if(false && FrameworkSetting.log2tsdb)for(int qi=0;qi<ja.length();qi++){
@@ -2077,7 +2079,7 @@ public class VcsService {
 		else commit.setVcsCommitId((Integer)lm.get(0)+1);
 		commit.setProjectUuid(projectId);commit.setComment(comment);
 		dao.saveObject(commit);
-
+		W5Table t = null;
 		try {
 			for(int qi=0;qi<ja.length();qi++){
 				JSONObject jo = ja.getJSONObject(qi);
@@ -2087,6 +2089,9 @@ public class VcsService {
 
 				int tablePk = jo.getInt("k");
 				int tableId = jo.getInt("t");
+				if(t==null || t.getTableId()!=tableId)
+					t = FrameworkCache.getTable(scd, tableId);
+				if(t==null || t.getVcsFlag()==0)continue;
 				List l = dao.find("from W5VcsObject t where t.tableId=?0 AND t.tablePk=?1 AND t.projectUuid=?2", 
 						tableId, tablePk, projectId);
 				if(action != 2 && GenericUtil.isEmpty(l)) {//edit, update AND no vcs object?
@@ -2129,6 +2134,7 @@ public class VcsService {
 				else
 					dao.updateObject(o);
 
+				if(FrameworkSetting.logVcs)logVcsRecord(t, o);
 			}
 			
 			if(false && FrameworkSetting.log2tsdb && po!=null)for(int qi=0;qi<ja.length();qi++){
@@ -2137,7 +2143,7 @@ public class VcsService {
 				int tableId = o.getInt("t");
 				int tablePk = o.getInt("k");
 				JSONObject jo =action == 3 ? null:o.getJSONObject("o");
-				W5Table t= FrameworkCache.getTable(scd, tableId);
+				t= FrameworkCache.getTable(scd, tableId);
 				Log4Crud(po.getRdbmsSchema(), t, action, commit.getVcsCommitId(), tablePk, jo);
 			}
 

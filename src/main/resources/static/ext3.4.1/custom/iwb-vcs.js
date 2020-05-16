@@ -515,3 +515,10 @@ function fncMnuVcs(xgrid) {
         }
   ];
 }
+
+iwb.fnTblRecColumnVCSUpdate2 = (tbid, tbpk, fieldName, vcsid, xgrid_id)=>{
+	if(confirm('You are about to pull old value of ['+fieldName+']. Are you sure?'))iwb.ajax.execFunc(647,{xtable_id:tbid, xtable_pk:tbpk, xfield_name:fieldName, xvcs_commit_id:vcsid},(jj)=>{
+		Ext.infoMsg.msg('success','['+fieldName+'] field pulled from Local VCS');
+		Ext.getCmp(xgrid_id).store.reload();
+	});
+}

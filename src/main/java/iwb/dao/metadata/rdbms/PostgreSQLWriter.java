@@ -1550,7 +1550,7 @@ public class PostgreSQLWriter extends BaseDAO {
 						break;
 					}
 				}
-			} else if(false){//insert
+			} else if(true){//insert
 				String tableFieldName = formResult.getRequestParams().get("dsc"+prefix);
 				if(!GenericUtil.isEmpty(tableFieldName)){
 					List<Object> ll =  executeSQLQuery("select lower(t.dsc) tdsc from iwb.w5_table t where t.table_id=? AND t.project_uuid=?"

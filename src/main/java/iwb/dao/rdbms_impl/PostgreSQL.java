@@ -5873,7 +5873,7 @@ public class PostgreSQL extends BaseDAO {
 
 	public void reloadUsersCache(int customizationId) { // customizationID ??
 		List<Object[]> l = null;
-		if(FrameworkSetting.projectId==null || FrameworkSetting.projectId.equals(FrameworkSetting.devUuid)) {
+		if(FrameworkSetting.projectId==null || FrameworkSetting.projectId.length()==1 || FrameworkSetting.projectId.equals(FrameworkSetting.devUuid)) {
 			l = (List<Object[]>) executeSQLQuery(
 					"select x.customization_id, x.user_id, x.user_name, x.dsc, 1 allow_multi_login_flag, x.profile_picture_id from iwb.w5_user x "
 							+ (customizationId >= 0 ? (" where x.customization_id=" + customizationId + "") : ""));
