@@ -157,7 +157,7 @@ public class RestController implements InitializingBean {
 			
 			Map<String, Object> scd = null;
 			if(GenericUtil.isEmpty(wsm.getAccessSourceTypes()) || GenericUtil.hasPartInside2(wsm.getAccessSourceTypes(), "1")){
-				if(GenericUtil.isEmpty(token)) {
+				if(!GenericUtil.isEmpty(token)) {
 					token = EncryptionUtil.decryptAES(token);
 					if(!GenericUtil.isEmpty(token)) try{
 						scd = GenericUtil.fromJSONObjectToMap(new JSONObject(token));
