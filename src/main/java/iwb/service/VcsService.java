@@ -1714,7 +1714,18 @@ public class VcsService {
 			dao.executeUpdateSQLQuery("CREATE TABLE vcs_log.w5_vcs_object(table_id integer NOT NULL, table_pk integer NOT NULL,project_uuid character varying(36) NOT NULL,\n" + 
 					"	vcs_commit_id integer NOT NULL DEFAULT 0,vcs_object_status_tip smallint NOT NULL, CONSTRAINT uq_log_vcs_obj_key1 UNIQUE (vcs_commit_id,table_id, table_pk, project_uuid));\n" + 
 					"CREATE INDEX ndx_log_vcs_object1 ON vcs_log.w5_vcs_object USING btree (project_uuid);");
+			dao.executeUpdateSQLQuery("insert into vcs_log.w5_vcs_object(table_id, table_pk,project_uuid, vcs_commit_id,vcs_object_status_tip)select table_id, table_pk,project_uuid, vcs_commit_id, 9 from iwb.w5_vcs_object x where x.vcs_object_status_tip not in (2,3,8) AND not exists(select 1 from vcs_log.w5_vcs_object o where o.table_id=x.table_id AND o.table_pk=x.table_pk AND o.project_uuid=x.project_uuid)");
+			for(W5Table t:tables) {
+				String dsc = t.getDsc();
+				dsc = dsc.substring(dsc.indexOf('.')+1);
+				String pkFieldName = t.get_tableFieldList().get(0).getDsc();
+				dao.executeUpdateSQLQuery("insert into vcs_log."+dsc+" select 9,x.* from "+t.getDsc() + " x where exists(select 1 from iwb.w5_vcs_object v where v.table_id="
+				+t.getTableId()+ " AND v.table_pk=x."+pkFieldName+" AND v.project_uuid=x.project_uuid AND v.vcs_object_status_tip not in (2,3,8)) AND not exists(select 1 from vcs_log."+
+						dsc+" y where y.project_uuid=x.project_uuid AND y."+pkFieldName+"=x."+pkFieldName+")");			
+
+			}
 		}
+
 	}
 
 	public int vcsClientObjectPush(Map<String, Object> scd, int tableId, int tablePk, boolean force, String comment) throws JSONException {
