@@ -91,7 +91,7 @@ public class RestController implements InitializingBean {
 				requestParams.put("_remote_ip", request.getRemoteAddr());
 				String transactionId =  GenericUtil.getTransactionId();
 				requestParams.put("_trid_", transactionId);
-				if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(po.getProjectUuid(), "rest", transactionId), true);
+				if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(po.getProjectUuid(), "rest("+serviceName+".login)", transactionId), true);
 				String xlocale = GenericUtil.uStrNvl(request.getParameter("locale"),FrameworkCache.getAppSettingStringValue(0, "locale"));
 				Map scd = new HashMap();
 				scd.put("customizationId", po.getCustomizationId());
@@ -183,7 +183,7 @@ public class RestController implements InitializingBean {
 				requestParams = GenericUtil.getParameterMap(request);
 			String transactionId =  GenericUtil.getTransactionId();
 			requestParams.put("_trid_", transactionId);
-			if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(po.getProjectUuid(), "rest", transactionId), true);
+			if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(po.getProjectUuid(), "rest("+serviceName+"."+methodName+")", transactionId), true);
 
 			W5FormResult fr=null; 
 			switch(wsm.getObjectType()){
@@ -278,7 +278,8 @@ public class RestController implements InitializingBean {
 		String[] elementTypes = new String[]{"string","string","string","float","integer","boolean","string","number","object","object","array"};
 
 		StringBuilder buf = new StringBuilder();
-		buf.append("{\"swagger\": \"2.0\",\"paths\": {");
+		buf.append("{\"swagger\": \"2.0\",\"basePath\":\"/rest/").append(ws.getProjectUuid())
+		.append("/").append(ws.getDsc()).append("\",\"paths\": {");
 		StringBuilder definitions = new StringBuilder();
 		boolean b = false;
 		for(W5WsServerMethod wsm:ws.get_methods()){
@@ -298,7 +299,7 @@ public class RestController implements InitializingBean {
 //			case	2:consumes = "application/json";
 			case	6:consumes = "application/x-yaml";break;
 			}
-			buf.append("\n\"").append(wsm.getDsc()).append("\":{ \"").append(methodType).append("\":{\"produces\": [\"application/json\"],\"consumes\":[\"")
+			buf.append("\n\"/").append(wsm.getDsc()).append("\":{ \"").append(methodType).append("\":{\"produces\": [\"application/json\"],\"consumes\":[\"")
 				.append(consumes).append("\"],\"parameters\": [");
 //			buf.append("\n<method name=\"").append(wsm.getObjectTip()<19 ? "POST":"GET").append("\" id=\"").append(wsm.getDsc()).append("\">");
 			

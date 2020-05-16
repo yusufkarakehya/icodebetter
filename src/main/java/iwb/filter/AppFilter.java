@@ -64,7 +64,6 @@ public class AppFilter implements Filter {
 						if(uuri.length>1) {
 							String newUri = uuri[uuri.length-1];
 							if(!newUri.equals("ajaxLiveSync")) {
-								LogUtil.logObject(new Log5Transaction((String)scd.get("projectId"), newUri, transactionId), true);
 
 								int pageId = 0;
 								if(newUri.equals("ajaxQueryData"))pageId=GenericUtil.uInt((HttpServletRequest) request, "_qid");
@@ -75,6 +74,7 @@ public class AppFilter implements Filter {
 									pageId=GenericUtil.uInt(newUri.substring(3,newUri.length()-4));
 									newUri = "showPic";
 								}
+								LogUtil.logObject(new Log5Transaction((String)scd.get("projectId"), newUri+(pageId>0?"("+pageId+")":""), transactionId), true);
 								lvp = new Log5VisitedPage(scd, newUri, pageId, request.getRemoteAddr(), transactionId);
 								
 							}
