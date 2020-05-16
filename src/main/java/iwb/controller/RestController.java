@@ -181,7 +181,8 @@ public class RestController implements InitializingBean {
 					requestParams.putAll(GenericUtil.fromJSONObjectToMap(jo));
 			} else 
 				requestParams = GenericUtil.getParameterMap(request);
-			String transactionId =  GenericUtil.getTransactionId();
+			String transactionId =  (String)request.getAttribute("_trid_");
+			if(transactionId==null) transactionId = GenericUtil.getTransactionId();
 			requestParams.put("_trid_", transactionId);
 			if(FrameworkSetting.logType>0)LogUtil.logObject(new Log5Transaction(po.getProjectUuid(), "rest("+serviceName+"."+methodName+")", transactionId), true);
 
@@ -343,7 +344,7 @@ public class RestController implements InitializingBean {
 					
 					break;
 				}
-				if(GenericUtil.isEmpty(wsm.getAccessSourceTypes()) || GenericUtil.hasPartInside(wsm.getAccessSourceTypes(), "1")) {
+				if(dfr.getGlobalFunc().getGlobalFuncId()!=3 && (GenericUtil.isEmpty(wsm.getAccessSourceTypes()) || GenericUtil.hasPartInside(wsm.getAccessSourceTypes(), "1"))) {
 					W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, "tokenKey", (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
 					lwsmp.add(tokenKey);
 				}
