@@ -148,6 +148,7 @@ public class RestController implements InitializingBean {
 			if(wss==null)
 				throw new IWBException("framework","WrongService",0,null, "Wrong Service: Should Be [ServiceName].[MethodName]", null);
 			W5WsServerMethod wsm = null;
+			wsm.get_params();
 			for(W5WsServerMethod wsmx:wss.get_methods())if(wsmx.getDsc().equals(methodName)){
 				wsm = wsmx;
 				break;
@@ -231,8 +232,8 @@ public class RestController implements InitializingBean {
 			}
 		} catch (Exception e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
-			response.getWriter().write("{\"error\":\""+GenericUtil.stringToJS(e.getMessage())+"\"}");
-//			response.getWriter().write(new IWBException("framework","REST Def",0,null, "Error", e).toJsonString(request.getRequestURI()));
+//			response.getWriter().write("{\"error\":\""+GenericUtil.stringToJS(e.getMessage())+"\"}");
+			response.getWriter().write(new IWBException("framework","REST Def",0,null, "Error", e).toJsonString(request.getRequestURI(), null));
 		}
 	}
 	
