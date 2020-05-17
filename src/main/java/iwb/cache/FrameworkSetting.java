@@ -124,23 +124,7 @@ public class FrameworkSetting {
 
 	public static boolean localTimer = true;
 	
-	/**
-     * This is your auth0 domain (tenant you have created when registering with auth0 - account name)
-     */
-    //@Value(value = "${com.auth0.domain}")
-	public static  String domain = "iwb.auth0.com";
-
-    /**
-     * This is the client id of your auth0 application (see Settings page on auth0 dashboard)
-     */
-    //@Value(value = "${com.auth0.clientId}")
-	public static  String clientId = "eucJR6BM7WzoG336tT5MYCew6YpxJMyv";
-
-    /**
-     * This is the client secret of your auth0 application (see Settings page on auth0 dashboard)
-     */
-    //@Value(value = "${com.auth0.clientSecret}")
-	public static  String clientSecret = "U5qMXxnQ9jr2Hm7AGg7COwikaWGcOhl28fLpVfUEqe6_bVjJ1A2FnWCbmjNN8BzR";
+		
 	public static boolean showOnlineStatus = true;
 	
 	public static boolean redisCache = false;
