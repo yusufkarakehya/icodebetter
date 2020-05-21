@@ -712,7 +712,7 @@ iwb = {
                 case "session":
                     return iwb.showLoginDialog();
                 case "validation":
-                    toastr.error(obj.errors.join("<br/>"), "Validation Error",{ timeOut: 7000 });
+                    toastr.error(obj.errors.map(o=>(o.dsc||o.id)+': <b>'+o.msg+'</b>').join("<br/>"), "Validation Error",{ timeOut: 7000 });
                     break;
                 case "sql":
                 case "rhino":

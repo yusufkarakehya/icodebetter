@@ -657,8 +657,8 @@ public class FrameworkService {
 	public Map generateScdFromAuth(int socialCon, String token) {
 		List<Object[]> list = dao.executeSQLQuery(
 				"select u.user_id, u.customization_id from iwb.w5_user u"
-						+ " where u.lkp_auth_external_source=? AND u.user_status=1 AND u.auth_external_id=?",
-				socialCon, token);
+						+ " where  u.user_status=1 AND u.auth_external_id=?",
+				 token);
 		if (!GenericUtil.isEmpty(list)) {
 			Object[] oz = list.get(0);
 			Map<String, Object> scd = userSession4Auth(GenericUtil.uInt(oz[0]), GenericUtil.uInt(oz[1]));

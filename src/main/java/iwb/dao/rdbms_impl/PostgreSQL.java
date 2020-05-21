@@ -2834,7 +2834,7 @@ public class PostgreSQL extends BaseDAO {
 
 					if (hasOutParam2) {
 						// JSONObject jo=new JSONObject();
-						Map<String, String> res = new HashMap<String, String>();
+						Map<String, Object> res = new HashMap<String, Object>();
 						for (int ixx = 0; ixx < sqlNames.size(); ixx++)
 							if (sqlNames.get(ixx) != null) {
 								Object o = s.getObject(ixx + 1);
@@ -2842,7 +2842,7 @@ public class PostgreSQL extends BaseDAO {
 									if (o instanceof java.sql.Date) {
 										o = GenericUtil.uFormatDate((java.sql.Date) o);
 									}
-									res.put(sqlNames.get(ixx), o.toString());
+									res.put(sqlNames.get(ixx), o);
 								}
 							}
 						r.setResultMap(res);
@@ -5872,19 +5872,23 @@ public class PostgreSQL extends BaseDAO {
 	}
 
 	public void reloadUsersCache(int customizationId) { // customizationID ??
-		List<Object[]> l = null;
-		if(FrameworkSetting.projectId==null || FrameworkSetting.projectId.length()==1 || FrameworkSetting.projectId.equals(FrameworkSetting.devUuid)) {
-			l = (List<Object[]>) executeSQLQuery(
-					"select x.customization_id, x.user_id, x.user_name, x.dsc, 1 allow_multi_login_flag, x.profile_picture_id from iwb.w5_user x "
-							+ (customizationId >= 0 ? (" where x.customization_id=" + customizationId + "") : ""));
-		} else {
+		UserUtil.addUserWithProfilePicutre(0, "code2", "code2", true, 1);
+		List<Object[]> l = (List<Object[]>) executeSQLQuery(
+				"select x.customization_id, x.user_id, x.user_name, x.dsc, 1 allow_multi_login_flag, x.profile_picture_id from iwb.w5_user x "
+						+ (customizationId >= 0 ? (" where x.customization_id=" + customizationId + "") : ""));
+		if(FrameworkSetting.projectId!=null && FrameworkSetting.projectId.length()!=1 && !FrameworkSetting.projectId.equals(FrameworkSetting.devUuid)) {
 			W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
-			if(FrameworkCache.getTable(FrameworkSetting.projectId, 3107)!=null)l = (List<Object[]>) executeSQLQuery(
+			if(FrameworkCache.getTable(FrameworkSetting.projectId, 3107)!=null) {
+				List l2 = (List<Object[]>) executeSQLQuery(
 					"select 0 customization_id, x.user_id, x.user_name, x.full_name dsc, 1 allow_multi_login_flag, 1 profile_picture_id from "
 					+ po.getRdbmsSchema() + ".x_user x");
+				if(l2!=null) {
+					if(l==null) l = l2;
+					else l.addAll(l2);
+				}
+			}
 			
 		}
-		UserUtil.addUserWithProfilePicutre(0, "code2", "code2", true, 1);
 		if (l != null)for (Object[] m : l) {
 			UserUtil.addUserWithProfilePicutre(GenericUtil.uInt(m[1]), (String) m[2], (String) m[3],
 					GenericUtil.uInt(m[4]) != 0, GenericUtil.uInt(m[5]));

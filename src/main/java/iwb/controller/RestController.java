@@ -107,7 +107,7 @@ public class RestController implements InitializingBean {
 				boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
 				boolean expireFlag = GenericUtil.uInt(result.getResultMap().get("expireFlag")) != 0;
 				if (!success || expireFlag){
-					String errorMsg = LocaleMsgCache.get2(0, xlocale, expireFlag ? "pass_expired":result.getResultMap().get("errorMsg"));
+					String errorMsg = LocaleMsgCache.get2(0, xlocale, expireFlag ? "pass_expired":(String)result.getResultMap().get("errorMsg"));
 					response.getWriter().write("{\"success\":false,\"error\":\"" + GenericUtil.stringToJS2(errorMsg) + "\"}");
 					return;
 				}

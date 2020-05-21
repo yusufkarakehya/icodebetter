@@ -812,7 +812,7 @@ public class PreviewController implements InitializingBean {
 		logger.info("hndAjaxAuthenticateUser(" + request.getParameter("userName") + ")");
 		String projectId = UserUtil.getProjectId(request,"preview/");
 		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
-		if(po.getSessionQueryId()==0)try{
+		if(po.getAuthenticationFuncId()==0)try{
 			Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 			if(scd!=null)
 				response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun
@@ -854,7 +854,7 @@ public class PreviewController implements InitializingBean {
 		 * 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
 		 */
 		boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
-		String errorMsg = result.getResultMap().get("errorMsg");
+		String errorMsg = (String)result.getResultMap().get("errorMsg");
 		int userId = GenericUtil.uInt(result.getResultMap().get("userId"));
 
 		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
@@ -863,7 +863,10 @@ public class PreviewController implements InitializingBean {
 		response.setContentType("application/json");
 		scd = null;
 		if (success) { // basarili simdi sira diger islerde
-			scd = service.userRoleSelect4App2(po, userId, userRoleId, result.getResultMap());
+			if(po.getSessionQueryId()!=0 || (result.getResultMap()!=null && GenericUtil.uInt(result.getResultMap().get("sessionQueryId"))!=0))
+				scd = service.userRoleSelect4App2(po, userId, userRoleId, result.getResultMap());
+			else
+				scd = result.getResultMap();
 
 			if (scd == null) {
 				if (FrameworkSetting.debug)logger.info("empty scd");
@@ -908,7 +911,7 @@ public class PreviewController implements InitializingBean {
 		logger.info("hndLoginPage");
 		String projectId = UserUtil.getProjectId(request,"preview/");
 		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
-		if(po.getSessionQueryId()==0)
+		if(po.getAuthenticationFuncId()==0)
 			response.sendRedirect("main.htm");
 			
 		HttpSession session = request.getSession(false);
