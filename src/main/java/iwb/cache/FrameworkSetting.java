@@ -24,7 +24,13 @@ public class FrameworkSetting {
 	public static final Map<String, Integer> projectSystemStatus = new HashMap<String, Integer>();//
 	public final static Locale appLocale = new Locale("en");
 	public final static String instanceUuid=UUID.randomUUID().toString();
+	
 	public final static String devUuid="067e6162-3b6f-4ae2-a221-2470b63dff00";
+	public final static String rbacUuid="4147a129-06ad-4983-9b1c-8e88826454ac";
+	public final static String fileUuid="59b0b784-6dbb-48bb-8e61-0948dee1817f";
+	public final static String commentUuid="4094b109-bcc8-470a-b794-93a4b6b932b5";
+	public final static String workflowUuid="10c3db7e-1045-4359-854b-a939fc9ae872";
+	
 	public static boolean mq=true;
 	public static boolean cloud=false;
 	public static boolean debug=true;
@@ -132,7 +138,10 @@ public class FrameworkSetting {
 	
 	public static boolean reactLabelRequired = true;
 	public static boolean metadata = false;
-	public static Object defaultPasswordMask = "**********";
+	final public static String defaultPasswordMask = "**********";
 	public static boolean logVcs = true;
+	final public static int customFileTableId = 6973;
+	final public static int customCommentTableId = 6975;
+	final public static int customWorkflowTableId = 6976;
 
 }

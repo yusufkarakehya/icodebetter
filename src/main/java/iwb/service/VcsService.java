@@ -739,13 +739,14 @@ public class VcsService {
 	
 	@Transactional(propagation=Propagation.NEVER)
 	public W5QueryResult vcsClientObjectsAllTree(Map<String, Object> scd, int action/*0:all, 1:pull, 2:push, 3:conflict*/
-			, int userId, String dtStart, String dtEnd) {
+			, int userId4Filter, String dtStart, String dtEnd) {
 		int customizationId = (Integer)scd.get("customizationId");
 		String projectUuid = (String)scd.get("projectId");
+		int userId = (Integer)scd.get("userId");
 		W5Project po = FrameworkCache.getProject(projectUuid);
 		
 		String urlParameters = "u="+po.getVcsUserName()+"&p="+po.getVcsPassword()+"&c="+customizationId+"&r="+po.getProjectUuid();
-		if(userId>0)urlParameters+="&_u="+userId;
+		if(userId4Filter>0)urlParameters+="&_u="+userId4Filter;
 		if(!GenericUtil.isEmpty(dtStart) && dtStart.length()==10)urlParameters+="&_ds="+dtStart;
 		if(!GenericUtil.isEmpty(dtEnd) && dtEnd.length()==10)urlParameters+="&_de="+dtEnd;
 		
@@ -828,6 +829,10 @@ public class VcsService {
 									od[5]=-lclObj.getVcsCommitId();//local vcsCommitId
 									od[6]=lclObj.getVcsCommitRecordHash();//recordSummary: cheat
 									od[7]=lclObj.getVcsCommitId()==srvCommitId ? 2:3;//push:conflict
+									if(lclObj.getVersionUserId()!=userId) {
+										od[11] = lclObj.getVersionUserId();
+										od[12] = UserUtil.getUserDsc(lclObj.getVersionUserId());
+									}
 									
 								} else if(lclObj.getVcsObjectStatusType()==1){ //localde edit edilmis
 									od[4]=-srvCommitId;
@@ -836,6 +841,10 @@ public class VcsService {
 									List ll = dao.executeSQLQuery2(ssql, summaryParams);
 									od[6]=GenericUtil.isEmpty(ll) ? "Record Not Found!!" : ll.get(0);//recordSummary
 									od[7]=lclObj.getVcsCommitId()==srvCommitId ? 2:3;//push:conflict
+									if(lclObj.getVcsCommitId()==srvCommitId && lclObj.getVersionUserId()!=userId) {
+										od[11] = lclObj.getVersionUserId();
+										od[12] = UserUtil.getUserDsc(lclObj.getVersionUserId());
+									}
 								} else if(lclObj.getVcsObjectStatusType()==9){ //localde synched, serverda edit edilmis
 									if(srvCommitId==lclObj.getVcsCommitId()){
 										srcMap.remove(pk);
@@ -883,6 +892,11 @@ public class VcsService {
 								//summaryParams.set(summaryParams.size()-1, k);
 								od[6]=dao.getTableRecordSummary(scd, tableId, (Integer)od[3], 0);
 								od[7]=2;//push
+								if(lclObj.getVersionUserId()!=userId) {
+									od[11] = lclObj.getVersionUserId();
+									od[12] = UserUtil.getUserDsc(lclObj.getVersionUserId());
+								}
+							
 								if(action!=0 && (Integer)od[7]!=action)continue;//if only push
 								data.add(od);
 							}							
@@ -894,7 +908,7 @@ public class VcsService {
 					qr.setResultRowCount(data.size());
 					
 					
-					return convertFromStraight2Tree(po, qr, userId, dtStart, dtEnd);
+					return convertFromStraight2Tree(po, qr, userId4Filter, dtStart, dtEnd);
 //					return qr;
 				} else
 					throw new IWBException("vcs","vcsClientObjectsAll:server Error Response", 0, s, json.has("error") ? json.getString("error"): json.toString(), null);
@@ -908,6 +922,7 @@ public class VcsService {
 	}
 
 	
+	@Transactional(propagation=Propagation.NEVER)
 	private W5QueryResult convertFromStraight2Tree(W5Project po, W5QueryResult qr, int userId, String dtStart, String dtEnd) {
 		JSONArray ar = new JSONArray();
 		Map<String, List> pm = new HashMap<String, List>();
@@ -919,12 +934,32 @@ public class VcsService {
 		for(Object[] od:qr.getData()){
 			wpm.put(od[0].toString(), od);
 			int tableId = (Integer)od[1];
-			W5Table t = FrameworkCache.getTable(0, tableId);
+			W5Table t = FrameworkCache.getTable(FrameworkSetting.devUuid, tableId);
 			od[8]=od[0];
 			od[10]=1;
 			if(t!=null && t.getTableTip()!=0 && !GenericUtil.isEmpty(t.get_tableParentList())){ // detail ise
-				List<W5TableRecordHelper> pr = dao.findRecordParentRecords(qr.getScd(), tableId, GenericUtil.uInt(od[3]), 2, false);
-//				if(tableId==64){
+				boolean isDeleted = (Integer)od[7]== 2 && (Integer)od[5]<0 && (Integer)od[4]>0;
+				List<W5TableRecordHelper> pr = !isDeleted ? dao.findRecordParentRecords(qr.getScd(), tableId, GenericUtil.uInt(od[3]), 2, false): new ArrayList();
+				if(isDeleted && !GenericUtil.isEmpty(od[6])) {
+					String dsc =  od[6].toString();
+					int ix = dsc.indexOf(':');
+					if(ix>2) {
+						String[] key = dsc.substring(0, ix).replace('.', ',').split(",");
+						if(key.length==2) {
+							int tid = GenericUtil.uInt(key[0]);
+							int tpk = GenericUtil.uInt(key[1]);
+							if(tid>0 && tpk>0) {
+								W5TableRecordHelper th = new W5TableRecordHelper();
+								th.setTableId(tid);th.setTablePk(tpk);
+								pr.add(null);
+								pr.add(th);
+								od[6]=dsc.substring(ix+1);
+							}
+							
+						}
+					}
+				}
+				//				if(tableId==64){
 //					tableId = 8*8;
 //				}
 				if(!GenericUtil.isEmpty(pr) && pr.size()>1){
@@ -3837,7 +3872,7 @@ public class VcsService {
 		newScd.putAll(scd);newScd.put("projectId", importedProjectId);
 		boolean b = metadataWriter.copyProject(newScd, projectId, (Integer)newScd.get("customizationId"));
 		if(b){
-			if(importedProjectId.equals("4147a129-06ad-4983-9b1c-8e88826454ac")){
+			if(importedProjectId.equals(FrameworkSetting.rbacUuid)){
 				dao.executeUpdateSQLQuery("update iwb.w5_project set ui_login_template_id=2590, session_query_id=4514,authentication_func_id=1252 where project_uuid=?", projectId);
 				metadataLoader.addProject2Cache(projectId);
 				metadataLoader.reloadProjectCaches(projectId);
@@ -3849,7 +3884,29 @@ public class VcsService {
 
 				}
 
-			}			
+			} else if(importedProjectId.equals(FrameworkSetting.fileUuid)){
+				List l = dao.executeSQLQuery("select max(file_attachment_id) from iwb.w5_file_attachment x where x.table_id!=336 AND x.project_uuid=?", projectId);
+				if(!GenericUtil.isEmpty(l)) {
+					dao.executeUpdateSQLQuery("insert into x_file(file_id, table_id, table_pk, dsc, system_path, upload_dttm, upload_user_id, file_size, lkp_file_type) "+
+							" select file_attachment_id, table_id, table_pk::integer, original_file_name, system_file_name, upload_dttm, upload_user_id, file_size, case when file_type_id>0 then file_type_id else null end from iwb.w5_file_attachment x where x.table_id!=336 AND x.project_uuid=?", projectId);
+					dao.executeUpdateSQLQuery("SELECT setval('seq_file', ?, true);", l.get(0));
+				}				
+				l = dao.executeSQLQuery("select count(1) xx from iwb.gen_file_type x where x.project_uuid=?", projectId);
+				if(GenericUtil.uInt(l.get(0))>0) {//import to lookUps TODO
+					//dao.executeUpdateSQLQuery("SELECT setval('seq_file', ?, true);", l.get(0));
+				}				
+				metadataLoader.reloadProjectCaches(projectId);
+			} else if(importedProjectId.equals(FrameworkSetting.commentUuid)){
+				List l = dao.executeSQLQuery("select max(comment_id) from iwb.w5_comment x where x.project_uuid=?", projectId);
+				if(!GenericUtil.isEmpty(l)) {
+					dao.executeUpdateSQLQuery("insert into x_comment(comment_id, table_id, table_pk, dsc, comment_dttm, comment_user_id) "+
+							" select comment_id, table_id, table_pk, dsc, comment_dttm, comment_user_id from iwb.w5_comment x where x.project_uuid=?", projectId);
+					dao.executeUpdateSQLQuery("SELECT setval('seq_comment', ?, true);", l.get(0));
+				}				
+				
+			} else if(importedProjectId.equals(FrameworkSetting.workflowUuid)){ //TODO
+			}
+		
 		}
 		return b;
 	}
@@ -3859,7 +3916,7 @@ public class VcsService {
 		newScd.putAll(scd);newScd.put("projectId", projectId);
 		String b = dao.deleteSubProject(newScd, subProjectId);
 		if(b==null){
-			if(subProjectId.equals("4147a129-06ad-4983-9b1c-8e88826454ac")){
+			if(subProjectId.equals(FrameworkSetting.rbacUuid)){
 				dao.executeUpdateSQLQuery("update iwb.w5_project set ui_login_template_id=0, session_query_id=0,authentication_func_id=0 where project_uuid=?", projectId);
 				metadataLoader.addProject2Cache(projectId);
 				metadataLoader.reloadProjectCaches(projectId);				

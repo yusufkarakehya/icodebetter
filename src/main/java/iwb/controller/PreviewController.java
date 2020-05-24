@@ -865,12 +865,13 @@ public class PreviewController implements InitializingBean {
 		if (success) { // basarili simdi sira diger islerde
 			if(po.getSessionQueryId()!=0 || (result.getResultMap()!=null && GenericUtil.uInt(result.getResultMap().get("sessionQueryId"))!=0))
 				scd = service.userRoleSelect4App2(po, userId, userRoleId, result.getResultMap());
-			else
+			else {
 				scd = result.getResultMap();
+			}
 
 			if (scd == null) {
 				if (FrameworkSetting.debug)logger.info("empty scd");
-				response.getWriter().write("{\"success\":false"); // error
+				response.getWriter().write("{\"success\":false, \"errorMsg\":\"Session not created\""); // error
 			} else {
 				HttpSession session = request.getSession(true);
 //				session.removeAttribute(scdKey);
@@ -883,6 +884,7 @@ public class PreviewController implements InitializingBean {
 					scd.put("renderer", po.getUiWebFrontendTip());
 					scd.put("_renderer", GenericUtil.getRenderer(po.getUiWebFrontendTip()));
 				}
+				if(!scd.containsKey("userName"))scd.put("userName", request.getParameter("userName"));
 				if(!scd.containsKey("mainTemplateId"))scd.put("mainTemplateId", po.getUiMainTemplateId());
 				if(!scd.containsKey("locale"))scd.put("locale", xlocale);
 				scd.put("customizationId", po.getCustomizationId());
@@ -891,6 +893,9 @@ public class PreviewController implements InitializingBean {
 				scd.put("sessionId", session.getId());
 				scd.put("path", "../");
 				if(!scd.containsKey("date_format"))scd.put("date_format", po.getLkpDateFormat());
+				if(FrameworkCache.getTable(scd, FrameworkSetting.customFileTableId)!=null)scd.put("customFile", 1);
+				if (FrameworkCache.getTable(scd, FrameworkSetting.customCommentTableId)!=null)scd.put("customComment", 1);
+
 				session.setAttribute(scdKey, scd);
 
 //				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) 0, request.getParameter(".w"));
@@ -1171,13 +1176,13 @@ public class PreviewController implements InitializingBean {
 		if (fileAttachmentId == 1 || fileAttachmentId == 2) { // male or female
 			filePath = fileAttachmentId == 2 ? AppController.womanPicPath : AppController.manPicPath;
 		} else {
+			if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 			W5FileAttachment fa = fileAttachmentId>0?service.loadFile(scd, fileAttachmentId):null;
 			if (fa == null) { // not found TODO
 				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
 						"Wrong Id: " + fileAttachmentId, null);
 			}
 
-			if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 			
 			
 			String customizationId = String.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
@@ -1189,8 +1194,13 @@ public class PreviewController implements InitializingBean {
 				filePath = fa.getSystemFileName();
 			
 		}
-		if (request.getParameter("_ct") == null)
+		String lfilePath = filePath.toLowerCase(FrameworkSetting.appLocale);
+		if (lfilePath.endsWith(".jpg") || lfilePath.endsWith(".png") || lfilePath.endsWith(".gif"))
 			response.setContentType("image/jpeg");
+		else  if (lfilePath.endsWith(".txt") || lfilePath.endsWith(".csv")) {
+			response.setContentType("text/plain; charset=UTF-8");
+		} else  if (lfilePath.endsWith(".pdf"))
+			response.setContentType("application/pdf");
 		ServletOutputStream out = response.getOutputStream();
 		try {
 			/*
@@ -1295,9 +1305,23 @@ public class PreviewController implements InitializingBean {
 					fa.setFileSize(totalBytesRead);
 					fa.setActiveFlag((short) 1);
 					lfa.add(fa);
-					service.saveObject(fa);
+					if(FrameworkCache.getTable(fa.getProjectUuid(), FrameworkSetting.customFileTableId)!=null) {//custom file attachment (table_id:6973)
+						Map<String,String> requestMap = GenericUtil.getParameterMap(request);
+						requestMap.put("table_id", ""+fa.getTableId());
+						requestMap.put("table_pk", fa.getTablePk());
+						requestMap.put("dsc", fa.getOrijinalFileName());
+						requestMap.put("system_path", path + File.separator + fa.getSystemFileName());
+						requestMap.put("file_size", ""+fa.getFileSize());
+						requestMap.put("upload_user_id", ""+fa.getUploadUserId());
+						Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+						W5FormResult fr = service.postForm4Table(scd, 10230, 2, requestMap, "");
+						if(fr.getErrorMap().isEmpty())
+							fa.setFileAttachmentId(GenericUtil.uInt(fr.getOutputFields().get("file_id")));
+						//else return getViewAdapter(scd, request).serializePostForm(fr).toString();
+					} else
+						service.saveObject(fa);
 					String webPageId = request.getParameter(".w");
-					if (!GenericUtil.isEmpty(webPageId))
+					if (false && !GenericUtil.isEmpty(webPageId))
 						try {
 							Map m = new HashMap();
 							m.put(".w", webPageId);
@@ -1401,9 +1425,22 @@ public class PreviewController implements InitializingBean {
 			} catch (Exception e) {
 
 			}
-			service.saveObject(fa);
+			if(FrameworkCache.getTable(fa.getProjectUuid(), FrameworkSetting.customFileTableId)!=null) {//custom file attachment (table_id:6973)
+				Map<String,String> requestMap = GenericUtil.getParameterMap(request);
+				requestMap.put("table_id", ""+fa.getTableId());
+				requestMap.put("table_pk", fa.getTablePk());
+				requestMap.put("dsc", fa.getOrijinalFileName());
+				requestMap.put("system_path", path + File.separator + fa.getSystemFileName());
+				requestMap.put("file_size", ""+fa.getFileSize());
+				requestMap.put("upload_user_id", ""+fa.getUploadUserId());
+				W5FormResult fr = service.postForm4Table(scd, 10230, 2, requestMap, "");
+				if(fr.getErrorMap().isEmpty())
+					fa.setFileAttachmentId(GenericUtil.uInt(fr.getOutputFields().get("file_id")));
+				else return getViewAdapter(scd, request).serializePostForm(fr).toString();
+			} else
+				service.saveObject(fa);
 			String webPageId = request.getParameter(".w");
-			if (!GenericUtil.isEmpty(webPageId)) {
+			if (false && !GenericUtil.isEmpty(webPageId)) {
 				Map m = new HashMap();
 				m.put(".w", webPageId);
 				m.put(".pk", table_id + "-" + table_pk);

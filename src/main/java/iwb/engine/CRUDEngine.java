@@ -647,8 +647,15 @@ public class CRUDEngine {
 			case 3: // delete
 				ptablePk = requestParams.get(t.get_tableParamList().get(0).getDsc() + paramSuffix);
 				if (FrameworkSetting.vcs && t.getVcsFlag() != 0) {
-					requestParams.put("_iwb_vcs_dsc",
-							dao.getTableRecordSummary(scd, t.getTableId(), GenericUtil.uInt(ptablePk), 32));
+					String summary = dao.getTableRecordSummary(scd, t.getTableId(), GenericUtil.uInt(ptablePk), 32);
+					if(t.getTableTip()==1) {
+						List<W5TableRecordHelper> ll = dao.findRecordParentRecords(scd, t.getTableId(), GenericUtil.uInt(ptablePk), 2, true);
+						if(ll.size()>1) {
+							summary = ll.get(1).getTableId()+"."+ll.get(1).getTablePk()+":"+summary;
+							if(summary.length()>32)summary = summary.substring(0,32);
+						}
+					}
+					requestParams.put("_iwb_vcs_dsc", summary);
 				}
 				if (FrameworkSetting.workflow && accessControlSelfFlag) {
 					if (workflowRecord != null) { // eger bir approval sureci

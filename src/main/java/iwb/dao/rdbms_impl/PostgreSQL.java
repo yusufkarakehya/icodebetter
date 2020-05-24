@@ -447,11 +447,13 @@ public class PostgreSQL extends BaseDAO {
 							}
 						for (W5QueryField qf : queryResult.getQuery().get_queryFields())
 							if (qf.getPostProcessType() == 71) { // fileAttach
-								sql2.append(
+								if(GenericUtil.isEmpty(queryResult.getScd()) || FrameworkCache.getTable(queryResult.getScd(), FrameworkSetting.customFileTableId)==null)sql2.append(
 										",(select q.original_file_name from iwb.w5_file_attachment q where q.project_uuid='")
 										.append(queryResult.getScd().get("projectId"))
 										.append("' AND q.file_attachment_id=z.").append(qf.getDsc())
 										.append("::integer) ").append(qf.getDsc()).append("_qw_ ");
+								else sql2.append(
+										",(select q.dsc from x_file q where q.file_id=z.").append(qf.getDsc()).append("::integer) ").append(qf.getDsc()).append("_qw_ ");
 								W5QueryField field = new W5QueryField();
 								field.setDsc(qf.getDsc() + "_qw_");
 								field.setFieldType((short) 10);
@@ -1044,11 +1046,15 @@ public class PostgreSQL extends BaseDAO {
 					int fileId = GenericUtil.uInt(rc.getValue());
 					if (fileId != 0) {
 						List params = new ArrayList();
-						params.add(scd.get("projectId"));
 						params.add(fileId);
-						rc.setExtraValuesMap(runSQLQuery2Map(
-								"select x.file_attachment_id id, x.original_file_name dsc, x.file_size fsize from iwb.w5_file_attachment x where x.project_uuid=? AND x.file_attachment_id=?",
-								params, null));
+						if(FrameworkCache.getTable(scd, FrameworkSetting.customFileTableId)==null) {
+							params.add(scd.get("projectId"));
+							rc.setExtraValuesMap(runSQLQuery2Map(
+									"select x.file_attachment_id id, x.original_file_name dsc, x.file_size fsize from iwb.w5_file_attachment x where x.file_attachment_id=? AND x.project_uuid=?",
+									params, null));
+						} else rc.setExtraValuesMap(runSQLQuery2Map(
+								"select x.file_id id, x.dsc, x.file_size fsize from x_file x where x.file_id=?", params, null));
+ 
 					}
 					break;
 				case 60: // remote superboxselect
@@ -1447,27 +1453,28 @@ public class PostgreSQL extends BaseDAO {
 						Set<String> extrInfoSet = new HashSet();
 						if (FrameworkCache.getAppSettingIntValue(formResult.getScd(), "file_attachment_flag") != 0
 								&& t.getFileAttachmentFlag() != 0) {
-							extraSql.append(
-									"(select count(1) cnt from iwb.w5_file_attachment x where x.project_uuid=?::text AND x.table_id=?::integer AND x.table_pk=?::text) file_attach_count");
-							extrInfoSet.add("file_attach_count");
+							if(FrameworkCache.getTable(formResult.getScd(), FrameworkSetting.customFileTableId)==null) 
+								extraSql.append(
+										"(select count(1) cnt from iwb.w5_file_attachment x where x.project_uuid=?::text AND x.table_id=?::integer AND x.table_pk=?::text) file_attach_count");
+							else 
+								extraSql.append(
+										"(select count(1) cnt from x_file x where ?::text is not null AND x.table_id=?::integer AND x.table_pk=?::integer) file_attach_count");
 							extraSqlCount++;
+							extrInfoSet.add("file_attach_count");
 						}
 						if (FrameworkCache.getAppSettingIntValue(formResult.getScd(), "make_comment_flag") != 0
 								&& t.getMakeCommentFlag() != 0) {
 							if (extraSql.length() > 10)
 								extraSql.append(",");
-							if (false && FrameworkCache.getAppSettingIntValue(formResult.getScd(),
-									"make_comment_summary_flag") != 0) {
-								extraSql.append(
-										"(select cx.comment_count||';'||cxx.comment_user_id||';'||to_char(cxx.comment_dttm,'dd/mm/yyyy hh24:mi:ss')||';'||cx.view_user_ids||'-'||cxx.dsc from iwb.w5_comment_summary cx, iwb.w5_comment cxx where cx.customization_id=? AND cx.table_id=? AND cx.table_pk=?::text AND cxx.customization_id=cx.customization_id AND cxx.comment_id=cx.last_comment_id) comment_extra");
-								extrInfoSet.add("comment_extra");
-								extraSqlCount++;
-							} else {
+							if (FrameworkCache.getTable(formResult.getScd(), FrameworkSetting.customCommentTableId)==null) {
 								extraSql.append(
 										"(select count(1) cnt from iwb.w5_comment x where x.project_uuid=?::text AND x.table_id=?::integer AND x.table_pk=?::integer) comment_count");
-								extrInfoSet.add("comment_count");
-								extraSqlCount++;
+							} else {
+								extraSql.append(
+										"(select count(1) cnt from x_comment x where ?::text is not null AND x.table_id=?::integer AND x.table_pk=?::integer) comment_count");
 							}
+							extrInfoSet.add("comment_count");
+							extraSqlCount++;
 						}
 						/*
 						 * if(FrameworkCache.getAppSettingIntValue(formResult. getScd(),
@@ -2660,7 +2667,10 @@ public class PostgreSQL extends BaseDAO {
 							&& FrameworkCache.getAppSettingIntValue(customizationId, "file_attachment_flag") != 0
 							&& t.getFileAttachmentFlag() != 0) {
 						PreparedStatement s2 = conn.prepareStatement(
-								"update iwb.w5_file_attachment set table_pk=?::text where project_uuid=? AND table_id=?::integer AND table_pk=?::text");
+								FrameworkCache.getTable(formResult.getScd(), FrameworkSetting.customFileTableId)==null ? 
+									"update iwb.w5_file_attachment set table_pk=?::text where project_uuid=? AND table_id=?::integer AND table_pk=?::text" :
+									"update x_file set table_pk=?::integer where ? is not null AND table_id=?::integer AND table_pk=?::integer"
+								);
 						applyParameters(s2,
 								formResult.getOutputFields().get(t.get_tableParamList().get(0).getExpressionDsc()),
 								projectId, t.getTableId(),
@@ -3104,10 +3114,16 @@ public class PostgreSQL extends BaseDAO {
 
 				} else
 					ptCount = 0;
-				if (t.getMakeCommentFlag() != 0)
-					sql.append(", (select count(1) from iwb.w5_comment cx where cx.table_id=").append(t.getTableId())
+				if (t.getMakeCommentFlag() != 0) {
+					if (FrameworkCache.getTable(scd, FrameworkSetting.customCommentTableId)==null)
+						sql.append(", (select count(1) from iwb.w5_comment cx where cx.table_id=").append(t.getTableId())
 							.append(" AND cx.project_uuid='${scd.projectId}' AND cx.table_pk=x.")
 							.append(t.get_tableParamList().get(0).getExpressionDsc()).append(") pcomment_count ");
+					else 
+						sql.append(", (select count(1) from x_comment cx where cx.table_id=").append(t.getTableId())
+						.append(" AND cx.table_pk=x.")
+						.append(t.get_tableParamList().get(0).getExpressionDsc()).append(") pcomment_count ");
+				}
 
 				sql.append(" from ").append(t.getDsc()).append(" x");
 
@@ -3836,10 +3852,15 @@ public class PostgreSQL extends BaseDAO {
 			// cx.table_id=").append(query.getMainTableId()).append(" AND
 			// cx.customization_id=").append(customizationId).append(" AND
 			// cx.table_pk=to_char(z.pkpkpk_id)) pkpkpk_faf ");
-			sql2.append(",(select count(1) from iwb.w5_file_attachment cx where cx.table_id=")
-					.append(query.getSourceObjectId()).append(" AND cx.customization_id=").append(customizationId)
-					.append(" AND cx.table_pk=(z.").append(pkFieldName).append(")::text limit 10) ")
-					.append(FieldDefinitions.queryFieldName_FileAttachment).append(" ");
+			if(FrameworkCache.getTable(queryResult.getScd(), FrameworkSetting.customFileTableId)==null)
+				sql2.append(",(select count(1) from iwb.w5_file_attachment cx where cx.table_id=")
+					.append(query.getSourceObjectId()).append(" AND cx.project_uuid='").append(projectId)
+					.append("' AND cx.table_pk=z.").append(pkFieldName).append("::text) ");
+			else 
+				sql2.append(",(select count(1) from x_file cx where cx.table_id=")
+				.append(query.getSourceObjectId()).append(" AND cx.table_pk=z.").append(pkFieldName).append(") ");
+			
+			sql2.append(FieldDefinitions.queryFieldName_FileAttachment).append(" ");
 			W5QueryField field = new W5QueryField();
 			field.setDsc(FieldDefinitions.queryFieldName_FileAttachment);
 			queryResult.getPostProcessQueryFields().add(field);
@@ -3853,20 +3874,16 @@ public class PostgreSQL extends BaseDAO {
 			// cx.table_pk=z.").append(pkFieldName).append(") pkpkpk_cf ");
 			W5QueryField field = new W5QueryField();
 			field.setDsc(FieldDefinitions.queryFieldName_Comment);
-			if (false && FrameworkCache.getAppSettingIntValue(queryResult.getScd(), "make_comment_summary_flag") != 0) {
-				sql2.append(
-						",(select cx.comment_count||';'||cxx.comment_user_id||';'||to_char(cxx.comment_dttm,'dd/mm/yyyy hh24:mi:ss')||';'||cx.view_user_ids||'-'||cxx.dsc from iwb.w5_comment_summary cx, iwb.w5_comment cxx where cx.table_id=")
-						.append(query.getSourceObjectId()).append(" AND cx.project_uuid='")
-						.append(projectId).append("'  AND cx.table_pk::int=z.")
-						.append(pkFieldName)
-						.append(" AND cxx.customization_id=cx.customization_id AND cxx.comment_id=cx.last_comment_id) pkpkpk_cf ");
-				field.setPostProcessType((short) 48); // extra code :
-														// commentCount-commentUserId-lastCommentDttm-viewUserIds-msg
-			} else {
+			if (FrameworkCache.getTable(queryResult.getScd(), FrameworkSetting.customCommentTableId)==null) {
 				sql2.append(",(select count(1) from iwb.w5_comment cx where cx.table_id=")
-						.append(query.getSourceObjectId()).append(" AND cx.project_uuid='")
-						.append(projectId).append("'  AND cx.table_pk::int=z.")
-						.append(pkFieldName).append(" limit 10) ").append(FieldDefinitions.queryFieldName_Comment)
+				.append(query.getSourceObjectId()).append(" AND cx.project_uuid='")
+				.append(projectId).append("'  AND cx.table_pk::int=z.")
+				.append(pkFieldName).append(") ").append(FieldDefinitions.queryFieldName_Comment)
+				.append(" ");
+			} else {
+				sql2.append(",(select count(1) from x_comment cx where cx.table_id=")
+						.append(query.getSourceObjectId()).append(" AND cx.table_pk=z.")
+						.append(pkFieldName).append(") ").append(FieldDefinitions.queryFieldName_Comment)
 						.append(" ");
 			}
 			queryResult.getPostProcessQueryFields().add(field);
@@ -3924,16 +3941,26 @@ public class PostgreSQL extends BaseDAO {
 			StringBuilder sql = new StringBuilder();
 			sql.append("select count(1) xcount");
 			if (ct.getMakeCommentFlag() != 0) {
-				sql.append(",sum((select count(1) from iwb.w5_comment c where c.project_uuid='")
+				if (FrameworkCache.getTable(scd, FrameworkSetting.customCommentTableId)==null)
+					sql.append(",sum((select count(1) from iwb.w5_comment c where c.project_uuid='")
 						.append(scd.get("projectId")).append("' AND c.table_id=").append(ct.getTableId())
 						.append(" AND c.table_pk=x.").append(ct.get_tableParamList().get(0).getExpressionDsc())
 						.append(")) xcomment_count");
+				else 
+					sql.append(",sum((select count(1) from x_comment c where c.table_id=").append(ct.getTableId())
+					.append(" AND c.table_pk=x.").append(ct.get_tableParamList().get(0).getExpressionDsc())
+					.append(")) xcomment_count");
 			}
 			if (ct.getFileAttachmentFlag() != 0) {
-				sql.append(",sum((select count(1) from iwb.w5_file_attachment c where c.customization_id=")
-						.append(scd.get("customizationId")).append(" AND c.table_id=").append(ct.getTableId())
+				if(FrameworkCache.getTable(scd, FrameworkSetting.customFileTableId)==null)
+					sql.append(",sum((select count(1) from iwb.w5_file_attachment c where c.project_uuid='")
+						.append(scd.get("projectId")).append("' AND c.table_id=").append(ct.getTableId())
 						.append(" AND c.table_pk=x.").append(ct.get_tableParamList().get(0).getExpressionDsc())
 						.append("::text)) xfile_count");
+				else 
+					sql.append(",sum((select count(1) from x_file c where c.table_id=").append(ct.getTableId())
+					.append(" AND c.table_pk=x.").append(ct.get_tableParamList().get(0).getExpressionDsc())
+					.append(")) xfile_count");
 			}
 			sql.append(" from ").append(ct.getDsc()).append(" x where x.")
 					.append(ct.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc()).append("=")
@@ -4060,8 +4087,12 @@ public class PostgreSQL extends BaseDAO {
 		if (FrameworkCache.getAppSettingIntValue(scd, "make_comment_flag") != 0 && t.getMakeCommentFlag() != 0) {
 			if (extraSql.length() > 0)
 				extraSql.append(",");
-			extraSql.append(
+			if (FrameworkCache.getTable(scd, FrameworkSetting.customCommentTableId)==null)
+				extraSql.append(
 					"(select count(1) cnt from iwb.w5_comment x where x.project_uuid=? AND x.table_id=? AND x.table_pk=?::integer) comment_count");
+			else 
+				extraSql.append(
+						"(select count(1) cnt from x_comment x where ? is not null AND x.table_id=? AND x.table_pk=?::integer) comment_count");
 			extraSqlCount++;
 		} else
 			result.setCommentCount(-1);

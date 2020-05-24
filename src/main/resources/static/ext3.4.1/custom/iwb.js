@@ -218,7 +218,7 @@ function fileAttachmentRenderer(a) {
     return ax
       ? '<div style="background-position-x:center" border=0 onclick="mainPanel.loadTab({attributes:{modalWindow:true, _title_:\'' +
           a.name +
-          "',href:'showPage?_tid=9&_gid458_a=1',_pk:{tfile_attachment_id:'file_attachment_id'},baseParams:{xtable_id:" +
+          "',href:'showPage?_tid="+(_scd.customFile ? 6813:9)+"&_gid458_a=1',baseParams:{xtable_id:" +
           a.crudTableId +
           ", xtable_pk:" +
           cx.id +
@@ -1691,8 +1691,7 @@ function fnFileAttachmentList(a) {
   var cfg = {
     attributes: {
       modalWindow: true,
-      href: "showPage?_tid=9&_gid458_a=1",
-      _pk: { tfile_attachment_id: "file_attachment_id" },
+      href: "showPage?_tid="+ (_scd.customFile ? 6813:9) + "&_gid458_a=1",
       baseParams: {
         xtable_id: a._grid.crudTableId,
         xtable_pk: table_pk.substring(1)
@@ -2335,10 +2334,7 @@ function addDefaultSpecialButtons(xbuttons, xgrid) {
                 var cfg = {
                   attributes: {
                     modalWindow: true,
-                    href: "showPage?_tid=9",
-                    _pk: {
-                      tfile_attachment_id: "file_attachment_id"
-                    },
+                    href: "showPage?_tid="+ (_scd.customFile ? 6813:9),
                     baseParams: {
                       xtable_id: xgrid.crudTableId,
                       xtable_pk: sel.id
@@ -4159,8 +4155,8 @@ function ajaxAuthenticateUser() {
 
 function showLoginDialog(xobj) {
   if (1 * _scd.customizationId > 0) {
-//    document.location = "login.htm?.r="+Math.random();
-    document.location = "/index.html?.r="+Math.random();
+    if(document.location.href.indexOf('/preview/')>-1)document.location = "login.htm?.r="+Math.random();
+    else document.location = "/index.html?.r="+Math.random();
     return;
   }
   if (lw && lw.isVisible()) return;
@@ -6186,118 +6182,24 @@ function timeDifDt(cd, timeTip, timeDif) {
 }
 
 function fileNameRender(a, b, c) {
-  var externalUrl = c.data.external_url ? c.data.external_url : "";
-  if (
-    _app.file_attach_view_access_flag &&
-    1 * _app.file_attach_view_access_flag &&
-    _app.file_attach_view_file_tips &&
-    _app.file_attach_view_roles &&
-    c.data.file_type_id &&
-    ("," + _app.file_attach_view_file_tips + ",").indexOf(
-      "," + c.data.file_type_id + ","
-    ) > -1 &&
-    ("," + _app.file_attach_view_roles + ",").indexOf("," + _scd.roleId + ",") >
-      -1
-  ) {
-    if (externalUrl.length > 5)
       return (
-        "<a target=_blank href=" +
-        externalUrl +
-        " onclick=\"return openPopup('" +
-        externalUrl +
-        "','1',800,600,1);\"><b style=\"color:green\">" +
-        a +
-        "</b></a>"
-      );
-    else
-      return (
-        "<a target=_blank href=# onclick=\"return openPopup('showPage?_tid=975&_fai=" +
-        c.data.file_attachment_id +
-        "','1',800,600,1);\"><b style=\"color:#F00\">" +
-        a +
-        "</b></a>"
-      );
-  } else {
-    if (externalUrl.length > 5)
-      return (
-        "<a target=_blank href=" +
-        externalUrl +
-        " onclick=\"return openPopup('" +
-        externalUrl +
-        "','1',800,600,1);\"><b style=\"color:green\">" +
-        a +
-        "</b></a>"
-      );
-    else
-      return (
-        '<a target=_blank href="dl/' +
+        '<a style="font-weight:bold" target=_blank href="dl/' +
         encodeURIComponent(a) +
         "?_fai=" +
-        c.data.file_attachment_id +
-        '"><b>' +
-        a +
-        "</b></a>"
+        (c.get('file_id') || c.get('file_attachment_id')) +
+        '">' + a + "</a>"
       );
-  }
 }
 
 function fileNameRenderWithParent(a, b, c) {
-  var externalUrl = c.data.external_url ? c.data.external_url : "";
-  if (
-    _app.file_attach_view_access_flag &&
-    1 * _app.file_attach_view_access_flag &&
-    _app.file_attach_view_file_tips &&
-    _app.file_attach_view_roles &&
-    c.data.file_type_id &&
-    ("," + _app.file_attach_view_file_tips + ",").indexOf(
-      "," + c.data.file_type_id + ","
-    ) > -1 &&
-    ("," + _app.file_attach_view_roles + ",").indexOf("," + _scd.roleId + ",") >
-      -1
-  ) {
-    if (externalUrl.length > 5)
-      return (
-        "<a target=_blank href=" +
-        externalUrl +
-        " onclick=\"return openPopup('" +
-        externalUrl +
-        "','1',800,600,1);\"><b style=\"color:green\">" +
-        a +
-        "</b></a>" +
-        (c.data._record ? renderParentRecords(c.data._record) : "")
-      );
-    else
-      return (
-        "<a target=_blank href=# onclick=\"return openPopup('showPage?_tid=975&_fai=" +
-        c.data.file_attachment_id +
-        "','1',800,600,1);\"><b style=\"color:#F00\">" +
-        a +
-        "</b></a>"
-      );
-  } else {
-    if (externalUrl.length > 5)
-      return (
-        "<a target=_blank href=" +
-        externalUrl +
-        " onclick=\"return openPopup('" +
-        externalUrl +
-        "','1',800,600,1);\"><b style=\"color:green\">" +
-        a +
-        "</b></a>" +
-        (c.data._record ? renderParentRecords(c.data._record) : "")
-      );
-    else
-      return (
-        '<a target=_blank href="dl/' +
-        encodeURIComponent(a) +
-        "?_fai=" +
-        c.data.file_attachment_id +
-        '"><b>' +
-        a +
-        "</b></a>" +
-        (c.data._record ? renderParentRecords(c.data._record) : "")
-      );
-  }
+  return (
+    '<a style="font-weight:bold" target=_blank href="dl/' +
+    encodeURIComponent(a) +
+    "?_fai=" +
+    (c.get('file_id') || c.get('file_attachment_id')) +
+    '">' + a +"</a>" +
+    (c.data._record ? renderParentRecords(c.data._record) : "")
+  );
 }
 
 var usersBorderChat = ["#37cc00", "#5fcbff", "pink"];
@@ -7271,10 +7173,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             var cfg = {
               attributes: {
                 modalWindow: true,
-                href: "showPage?_tid=9",
-                _pk: {
-                  tfile_attachment_id: "file_attachment_id"
-                },
+                href: "showPage?_tid="+ (_scd.customFile ? 6813:9),
                 baseParams: {
                   xtable_id: getForm.crudTableId,
                   xtable_pk: table_pk.substring(1)

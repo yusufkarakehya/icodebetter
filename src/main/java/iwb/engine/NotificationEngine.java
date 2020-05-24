@@ -444,8 +444,11 @@ public class NotificationEngine {
 			r.put("error", "SMS Adapter Not Defined");
 			return r;
 		} else { // email
-			int tablePk = GenericUtil.uInt(requestParams.get(t.get_tableFieldList().get(0).getDsc()));
-			if(tablePk==0)tablePk = GenericUtil.uInt(requestParams.get("table_pk"));
+			int tablePk = 0;
+			if(t!=null) {
+				tablePk = GenericUtil.uInt(requestParams.get(t.get_tableFieldList().get(0).getDsc()));
+				if(tablePk==0)tablePk = GenericUtil.uInt(requestParams.get("table_pk"));
+			}
 			W5Email email = dao.interprateMailTemplate(fsm, scd, requestParams, tableId,tablePk);
 
 			email.set_oms(metadataLoader.findObjectMailSetting(scd, email.getMailSettingId()));

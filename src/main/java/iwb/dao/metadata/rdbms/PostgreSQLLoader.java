@@ -1206,6 +1206,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 				"from W5TableChild t where t.projectUuid=?0 order by t.tableId", projectId);
 
 		FrameworkCache.addTables2Cache(projectId, tables, tableFields, tableParams, tableEvents, null, tableChilds);
+//		if(FrameworkCache.getTable(projectId, 6973)!=null)FrameworkCache.getProject(projectId).set_customFile((short)1);
 
 	}
 

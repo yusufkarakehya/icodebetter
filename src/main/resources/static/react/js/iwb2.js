@@ -2213,7 +2213,7 @@ XLazyScriptLoader.propTypes = {
 const XPreviewFile = ({ file }) => {
     let type = file ? file.type : null;
     let style = {
-        fontSize: "12em"
+        fontSize: "6em"
     };
     if(type == "image/png" || type == "image/jpeg" || type == "image/jpg" || type == "image/gif" ){
     	return _("img", {
@@ -2250,7 +2250,7 @@ const XPreviewFile = ({ file }) => {
             _("i", { className: "far fa-file", style }) :
             _("i", { className: "fas fa-upload", style }),
             _("br", null),
-            getLocMsg(file ? "undefined_type" : "choose_file_or_drag_it_here")
+            getLocMsg(file ? "undefined_type" : "choose_file")
         );
 };
 class XListFiles extends React.Component {
@@ -8270,6 +8270,9 @@ class FileInput extends React.Component {
         formData.append("table_id", this.props.cfg.crudTableId);
         formData.append("file", this.state.file);
         formData.append("profilePictureFlag", this.props.profilePictureFlag || 0);
+        if(this.props.params)for(var k in this.props)if(this.props[k]){
+            formData.append(k, this.props[k]);
+        }
         fetch("upload.form", {
                 method: "POST",
                 body: formData,
@@ -8322,18 +8325,20 @@ class FileInput extends React.Component {
             top: "0",
             left: "0"
         };
+        let inputProps = {
+                className: "d-none",
+                type: "file",
+                onChange: this.onchange,
+                ref: input => (this.inpuRef = input)
+            };
+        if(this.props.accept)inputProps.accept=this.props.accept;
         return _(
             React.Fragment, {},
             _(
                 "div",
                 null,
                 // this.state.file ? getLocMsg(this.state.file.name) : getLocMsg('File Upload'),
-                _("input", {
-                    className: "d-none",
-                    type: "file",
-                    onChange: this.onchange,
-                    ref: input => (this.inpuRef = input)
-                }),
+                _("input", inputProps),
                 this.props.extraButtons && this.props.extraButtons
             ),
             _(
@@ -8342,12 +8347,12 @@ class FileInput extends React.Component {
                     "div", {
                         className: "mx-auto",
                         style: {
-                            height: "200px",
-                            width: "200px",
+                            height: "120px",
+                            width: "120px",
                             position: "relative",
                             border: this.state.dragOver ?
-                                "3px dashed #20a8d8" :
-                                "3px dashed #a4b7c1"
+                                "2px dashed #20a8d8" :
+                                "2px dashed #a4b7c1"
                         }
                     },
                     _("div", {

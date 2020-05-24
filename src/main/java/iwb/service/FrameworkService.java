@@ -242,10 +242,7 @@ public class FrameworkService {
 
 	public W5FileAttachment loadFile(Map<String, Object> scd, int fileAttachmentId) { // +:fileId,
 																						// -:userId
-																						// :
-																						// Map<String,
-																						// Object>
-																						// scd,
+																						
 		if (fileAttachmentId < 0) {
 			int newFileAttachmentId = UserUtil.getUserProfilePicture(-fileAttachmentId);
 			if (newFileAttachmentId == 0) {
@@ -264,24 +261,22 @@ public class FrameworkService {
 		}
 		if (fileAttachmentId <= 0)
 			return null;
-		List<W5FileAttachment> fal = dao.find("from W5FileAttachment t where t.fileAttachmentId=?0", fileAttachmentId);
+		List<W5FileAttachment> fal = null;
+		if(FrameworkCache.getTable(scd, FrameworkSetting.customFileTableId)==null)
+			fal = dao.find("from W5FileAttachment t where t.fileAttachmentId=?0", fileAttachmentId);
+		else {
+			dao.checkTenant(scd);
+			List l = dao.executeSQLQuery("select x.system_path from x_file x where x.file_id=?", fileAttachmentId);
+			if(l==null)return null;
+			W5FileAttachment fa2 = new W5FileAttachment();
+			fa2.setFileAttachmentId(fileAttachmentId);
+			fa2.setSystemFileName(l.get(0).toString());
+			return fa2;
+			
+		}
 		if (GenericUtil.isEmpty(fal))
 			return null;
-		W5FileAttachment fa = fal.get(0);
-		// if(scd==null){
-		scd = new HashMap();
-		scd.put("customizationId", fa.getCustomizationId());
-		// } else
-		// if((Integer)scd.get("customizationId")!=fa.getCustomizationId()){
-		// return null;
-		// }
-		if (fa != null) { // bununla ilgili islemler
-			if (fa.getCustomizationId() != GenericUtil.uInt(scd.get("customizationId"))) {
-				throw new IWBException("security", "File Attachment", fa.getFileAttachmentId(), null,
-						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_security_file_authorization"), null);
-			}
-		}
-		return fa;
+		return fal.get(0);
 	}
 
 	public W5FormResult postBulkConversion(Map<String, Object> scd, int conversionId, int dirtyCount,
