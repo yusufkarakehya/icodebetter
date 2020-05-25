@@ -818,12 +818,14 @@ public class VcsService {
 									List ll=dao.executeSQLQuery2(ssql, summaryParams);
 									if(GenericUtil.isEmpty(ll)){//boyle birsey olmamasi lazim normalde ama varsa, duzeltmek lazim
 										lclObj.setVcsObjectStatusType((short)8);
-										dao.updateObject(lclObj);
+										//dao.updateObject(lclObj);
+										dao.executeUpdateSQLQuery("update iwb.w5_vcs_object x set vcs_object_status_tip=8 where vcs_object_id=?", lclObj.getVcsObjectId());
 										srcMap.remove(pk);
 										continue;
 									}
 									od[6]=ll.get(0);//recordSummary
-									od[7]=lclObj.getVcsObjectStatusType()==1 ? 3:1;//edit edildiyse, conflict, aksi halde pull(delete)				
+									od[7]=-srvCommitId<=lclObj.getVcsCommitId() ? 2:1;//edit edildiyse, conflict, aksi halde pull(delete)
+									if(-srvCommitId<=lclObj.getVcsCommitId())od[4]=-srvCommitId;
 								} else if(lclObj.getVcsObjectStatusType()==3){ //localde silinmis, server'da var
 //									od[1]=srvCommitId;//server vcsCommitId (+,-)
 									od[5]=-lclObj.getVcsCommitId();//local vcsCommitId

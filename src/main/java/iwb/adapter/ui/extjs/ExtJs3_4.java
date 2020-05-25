@@ -4147,10 +4147,7 @@ public class ExtJs3_4 implements ViewAdapter {
 
 
 		if (controlType == 41 && fc.getLookupQueryId()>0 && fc.getLookupQueryId()<6) {//codemirror
-			if(FrameworkSetting.monaco)
-				buf.append(",value:'',language:'").append(new String[]{"javascript","html","xml","sql","css"}[fc.getLookupQueryId()-1]).append("'");
-			else 
-				buf.append(",value:'',listeners:{},mode:'").append(new String[]{"javascript","htmlmixed","xml","sql"}[fc.getLookupQueryId()-1]).append("'");
+			buf.append(",value:'',language:'").append(new String[]{"javascript","html","xml","sql","css"}[fc.getLookupQueryId()-1]).append("'");
 		}
 
 		if (fc.get_sourceObjectDetail() != null)
@@ -6288,7 +6285,7 @@ public class ExtJs3_4 implements ViewAdapter {
 						buf.append(f.getPostProcessType() == 6 ? f.getDsc()
 								.substring(1) : f.getDsc());
 						if (f.getFieldType() == 5) {// boolean
-							buf.append("\":").append(GenericUtil.uInt(obj) != 0);
+							buf.append("\":").append(GenericUtil.uBoolean(obj));
 							continue;
 						}
 						if (f.getFieldType() == 6) {// auto

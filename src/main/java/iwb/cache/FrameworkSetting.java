@@ -30,6 +30,8 @@ public class FrameworkSetting {
 	public final static String fileUuid="59b0b784-6dbb-48bb-8e61-0948dee1817f";
 	public final static String commentUuid="4094b109-bcc8-470a-b794-93a4b6b932b5";
 	public final static String workflowUuid="10c3db7e-1045-4359-854b-a939fc9ae872";
+	public final static String emailUuid="04fc4100-d464-41b8-bb78-e3672e761e3d";
+	
 	
 	public static boolean mq=true;
 	public static boolean cloud=false;
@@ -143,5 +145,6 @@ public class FrameworkSetting {
 	final public static int customFileTableId = 6973;
 	final public static int customCommentTableId = 6975;
 	final public static int customWorkflowTableId = 6976;
+	final public static int customEmailTableId = 6977;
 
 }

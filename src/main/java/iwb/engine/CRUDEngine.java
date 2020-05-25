@@ -543,8 +543,6 @@ public class CRUDEngine {
 											: scd.get("userId").toString());
 								workflowRecord.setInsertUserId((Integer) scd.get("userId"));
 								workflowRecord.setVersionUserId((Integer) scd.get("userId"));
-								// appRecord.setCustomizationId((Integer)scd.get("customizationId"));
-								workflowRecord.setHierarchicalLevel(0);
 							} else {
 								throw new IWBException("framework", "Workflow", formId, null,
 										LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_error_workflow_definition"),
