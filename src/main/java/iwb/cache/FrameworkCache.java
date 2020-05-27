@@ -535,6 +535,7 @@ public class FrameworkCache {
 	}*/
 	
 	public static boolean roleAccessControl(Map scd,  int action){
+		if(action==0)return true;
 		if(FrameworkSetting.projectId==null || FrameworkSetting.projectId.equals("1"))return true;
 		if(scd==null)return false;
 		int roleId = GenericUtil.uInt(scd.get("roleId"));
