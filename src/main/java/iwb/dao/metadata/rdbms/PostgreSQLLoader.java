@@ -1337,6 +1337,12 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			FrameworkCache.wCustomizationMap.put(c.getCustomizationId(), c);
 
 		dao.reloadUsersCache(customizationId);
+
+
+		for (W5Project p : lp) {
+			FrameworkCache.clearPreloadCache(p.getProjectUuid());
+			reloadProjectCaches(p.getProjectUuid());
+		}
 		if(FrameworkSetting.projectId!=null && FrameworkSetting.projectId.length()!=1 
 				&& !FrameworkSetting.projectId.equals(FrameworkSetting.devUuid)
 				&& FrameworkCache.getTable(FrameworkSetting.projectId, 3108)!=null) {//role
@@ -1359,12 +1365,6 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 				}
 			
 		}
-
-		for (W5Project p : lp) {
-			FrameworkCache.clearPreloadCache(p.getProjectUuid());
-			reloadProjectCaches(p.getProjectUuid());
-		}
-
 		List<Object[]> ll = executeSQLQuery(
 				"select x.related_project_uuid, string_agg(x.user_id::text,',') from iwb.w5_user_related_project x group by x.related_project_uuid");
 		if (ll != null)
