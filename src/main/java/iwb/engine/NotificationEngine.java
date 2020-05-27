@@ -45,6 +45,13 @@ public class NotificationEngine {
 	@Autowired
 	private MetadataLoader metadataLoader;
 	
+
+
+	@Lazy
+	@Autowired
+	private CRUDEngine crudEngine;
+	
+	
 	public void sendSms(int customizationId, int userId, String phoneNumber, String message, int tableId, int tablePk) {
 		Map<String, String> smsMap = new HashMap<String, String>();
 		smsMap.put("customizationId", customizationId + "");
@@ -453,6 +460,12 @@ public class NotificationEngine {
 
 			email.set_oms(metadataLoader.findObjectMailSetting(scd, email.getMailSettingId()));
 			String error = MailUtil.sendMail(scd, email);
+			if(FrameworkCache.getTable(scd, FrameworkSetting.customEmailTableId)!=null) {
+				Map newRequestMap = new HashMap();
+				newRequestMap.putAll(requestParams);
+				newRequestMap.putAll(email.get_asHashMap());
+				crudEngine.postForm4Table(scd, 10235, 1, newRequestMap, "");
+			}
 			if (GenericUtil.isEmpty(error)) {
 				r.put("success", true);
 			} else {

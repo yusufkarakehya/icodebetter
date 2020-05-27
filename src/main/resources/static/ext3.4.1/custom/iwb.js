@@ -659,7 +659,7 @@ function grid2grid(gridMaster, gridDetail, params, tp) {
       gridDetail.initialConfig.editMode
     )
       gridDetail.btnEditMode.toggle(); 
-    if (a.hasSelection ?  a.hasSelection() : a.getSelectionCount()) { //
+    if (a.getSelections ? a.getSelections().length==1: a.hasSelection ?  a.hasSelection() : (a.getSelectionCount()==1)) { //
       if (params || gridDetail._baseParams) {
         gridDetail.store.baseParams = Ext.apply(
           gridDetail._baseParams || {},
@@ -7557,7 +7557,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         menu: toolButtons
       });
     } else {
-      btn.push({
+      if(_scd.customizationId==0)btn.push({
     	tooltip: "Record Info",
         iconAlign: "top",
         scale: "medium",
