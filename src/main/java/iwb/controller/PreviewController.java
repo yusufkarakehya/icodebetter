@@ -810,6 +810,7 @@ public class PreviewController implements InitializingBean {
 	public void hndAjaxAuthenticateUser(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxAuthenticateUser(" + request.getParameter("userName") + ")");
+		response.setContentType("application/json");
 		String projectId = UserUtil.getProjectId(request,"preview/");
 		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
 		if(po.getAuthenticationFuncId()==0)try{
@@ -860,7 +861,6 @@ public class PreviewController implements InitializingBean {
 		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
 		int userRoleId = GenericUtil.uInt(requestParams, "userRoleId");
-		response.setContentType("application/json");
 		scd = null;
 		if (success) { // basarili simdi sira diger islerde
 			if(po.getSessionQueryId()!=0 || (result.getResultMap()!=null && GenericUtil.uInt(result.getResultMap().get("sessionQueryId"))!=0))

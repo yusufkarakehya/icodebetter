@@ -4215,7 +4215,7 @@ function showLoginDialog(xobj) {
 function formSubmit(submitConfig) {
   var cfg = {
 // waitMsg: getLocMsg("js_please_wait"),
-    clientValidation: typeof iwb.submitClientValidation != 'undefined' ? iwb.submitClientValidation:true,
+    clientValidation: false,//typeof iwb.submitClientValidation != 'undefined' ? iwb.submitClientValidation:true,
     success: function(form, action) {
       iwb.mask();
       var myJson = JSON.parse(action.response.responseText);// eval("(" +
@@ -4353,7 +4353,7 @@ function formSubmit(submitConfig) {
         case Ext.form.Action.CLIENT_INVALID:
           Ext.infoMsg.msg(
             "error",
-            getLocMsg("js_form_alan_veri_dogrulama_hatasi")
+            getLocMsg("js_form_field_validation_error")
           );
           break;
         case Ext.form.Action.CONNECT_FAILURE:
@@ -4908,7 +4908,7 @@ function approveTableRecords(aa, a) {
     if (aa != 901 && step_id == 901) {
       Ext.Msg.show({
         title: getLocMsg("error"),
-        msg: getLocMsg("approval_hatali_islem"),
+        msg: getLocMsg("workflow_wrong_action"),
         icon: Ext.MessageBox.ERROR
       });
       return;
@@ -6740,7 +6740,8 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         id: "sb_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-// style: {margin: "0px 5px 0px 5px"},
+        //style:"margin-left:5px",
+        cls:"isave-toolbar",
         iconCls: "ikaydet",
         handler: function(a, b, c) {
           if (
@@ -6781,7 +6782,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
                       var r = null;
                       var bm = false;
                       if (extDef.componentWillPost || bm) {
-                        if (getForm._cfg.formPanel.getForm().isValid()) {
+                        if (getForm._cfg.formPanel.getForm().findInvalid()) {
                           var vals = getForm._cfg.formPanel
                             .getForm()
                             .getValues();
@@ -6790,12 +6791,12 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
                             if (!r) return;
                           }
                         } else {
-                          getForm._cfg.formPanel.getForm().findInvalid();
+                          //getForm._cfg.formPanel.getForm().findInvalid();
                           return;
                         }
                       }
-                      if (!getForm._cfg.formPanel.getForm().isValid()) {
-                        getForm._cfg.formPanel.getForm().findInvalid();
+                      if (!getForm._cfg.formPanel.getForm().findInvalid()) {
+                        //getForm._cfg.formPanel.getForm().findInvalid();
                         return null;
                       }
                       getForm._cfg.dontClose = 0;
@@ -6829,19 +6830,19 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           var bm = false;
 
           if (extDef.componentWillPost || bm) {
-            if (getForm._cfg.formPanel.getForm().isValid()) {
+            if (getForm._cfg.formPanel.getForm().findInvalid()) {
               var vals = getForm._cfg.formPanel.getForm().getValues();
               if (extDef.componentWillPost) {
                 r = extDef.componentWillPost(vals);
                 if (!r) return;
               }
             } else {
-              getForm._cfg.formPanel.getForm().findInvalid();
+              //getForm._cfg.formPanel.getForm().findInvalid();
               return;
             }
           }
-          if (!getForm._cfg.formPanel.getForm().isValid()) {
-            getForm._cfg.formPanel.getForm().findInvalid();
+          if (!getForm._cfg.formPanel.getForm().findInvalid()) {
+            //getForm._cfg.formPanel.getForm().findInvalid();
             return null;
           }
           getForm._cfg.dontClose = 0;
@@ -6859,11 +6860,12 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     // post & continue
     if (getForm.contFlag && 1 * getForm.contFlag == 1 && realAction == 2) {
       btn.push({
-        text: "Save&Continue".toUpperCase(),
+        text: getLocMsg("save_continue"),
         id: "cc_" + getForm.id,
         iconAlign: "top",
         scale: "medium",
-//        iconCls: "isave_cont",
+        style:"margin-left:15px",
+        iconCls: "isave_cont",
         handler: function(a, b, c) {
           if (
             !getForm._cfg.formPanel.getForm().isDirty() &&
@@ -6872,18 +6874,18 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
             return;
           var r = null;
           if (extDef.componentWillPost) {
-            if (getForm._cfg.formPanel.getForm().isValid()) {
+            if (getForm._cfg.formPanel.getForm().findInvalid()) {
               r = extDef.componentWillPost(
                 getForm._cfg.formPanel.getForm().getValues()
               );
               if (!r) return;
             } else {
-              getForm._cfg.formPanel.getForm().findInvalid();
+              //getForm._cfg.formPanel.getForm().findInvalid();
               return;
             }
           }
-          if (!getForm._cfg.formPanel.getForm().isValid()) {
-            getForm._cfg.formPanel.getForm().findInvalid();
+          if (!getForm._cfg.formPanel.getForm().findInvalid()) {
+            //getForm._cfg.formPanel.getForm().findInvalid();
             return null;
           }
           if (!getForm._cfg.callback)
@@ -6899,7 +6901,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         }
       });
 
-      btn.push({
+      if(false)btn.push({
         text: "Save&New".toUpperCase(),
         id: "cn_" + getForm.id,
         iconAlign: "top",
@@ -6909,18 +6911,18 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
         handler: function(a, b, c) {
           var r = null;
           if (extDef.componentWillPost) {
-            if (getForm._cfg.formPanel.getForm().isValid()) {
+            if (getForm._cfg.formPanel.getForm().findInvalid()) {
               r = extDef.componentWillPost(
                 getForm._cfg.formPanel.getForm().getValues()
               );
               if (!r) return;
             } else {
-              getForm._cfg.formPanel.getForm().findInvalid();
+              //getForm._cfg.formPanel.getForm().findInvalid();
               return;
             }
           }
-          if (!getForm._cfg.formPanel.getForm().isValid()) {
-            getForm._cfg.formPanel.getForm().findInvalid();
+          if (!getForm._cfg.formPanel.getForm().findInvalid()) {
+            //getForm._cfg.formPanel.getForm().findInvalid();
             return null;
           }
           if (!getForm._cfg.callback)
@@ -6965,81 +6967,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
     }
   });
 
-  if (1 * getForm.a == 2 && getForm.manualStartDemand) {
-    btn.push({
-      text: "${kaydet_onay_baslatma_talebi}",
-      id: "sapp_" + getForm.id,
-      iconAlign: "top",
-      scale: "medium",
-
-      iconCls: "app_req",
-      handler: function(a, b, c) {
-        var r = null;
-        if (extDef.componentWillPost) {
-          if (getForm._cfg.formPanel.getForm().isValid()) {
-            r = extDef.componentWillPost(
-              getForm._cfg.formPanel.getForm().getValues()
-            );
-            if (!r) return;
-          } else {
-            getForm._cfg.formPanel.getForm().findInvalid();
-            return;
-          }
-        }
-        if (!getForm._cfg.formPanel.getForm().isValid()) {
-          getForm._cfg.formPanel.getForm().findInvalid();
-          return null;
-        }
-        getForm._cfg.extraParams = {};
-        if (typeof r == "object") getForm._cfg.extraParams = r;
-        submitAndApproveTableRecord(
-          -1,
-          getForm,
-          getForm.approval && getForm.approval.dynamic
-            ? getForm.approval.dynamic
-            : null
-        );
-      }
-    });
-  }
-  if (1 * getForm.a == 1 && getForm.manualStartDemand) {
-    btn.push({
-      text: "${guncelle_onay_baslatma_talebi}",
-      id: "uapp_" + getForm.id,
-      iconAlign: "top",
-      scale: "medium",
-
-      iconCls: "app_req",
-      handler: function(a, b, c) {
-        var r = null;
-        if (extDef.componentWillPost) {
-          if (getForm._cfg.formPanel.getForm().isValid()) {
-            r = extDef.componentWillPost(
-              getForm._cfg.formPanel.getForm().getValues()
-            );
-            if (!r) return;
-          } else {
-            getForm._cfg.formPanel.getForm().findInvalid();
-            return;
-          }
-        }
-        if (!getForm._cfg.formPanel.getForm().isValid()) {
-          getForm._cfg.formPanel.getForm().findInvalid();
-          return null;
-        }
-        getForm._cfg.extraParams = {};
-        if (typeof r == "object") getForm._cfg.extraParams = r;
-        submitAndApproveTableRecord(
-          -1,
-          getForm,
-          getForm.approval && getForm.approval.dynamic
-            ? getForm.approval.dynamic
-            : null
-        );
-      }
-    });
-  }
-
+ 
   // approval
   if (1 * getForm.a == 1 && getForm.approval) {
     btn.push("-");
@@ -7069,18 +6997,18 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           if (!getForm.viewMode) {
             var r = null;
             if (extDef.componentWillPost) {
-              if (getForm._cfg.formPanel.getForm().isValid()) {
+              if (getForm._cfg.formPanel.getForm().findInvalid()) {
                 r = extDef.componentWillPost(
                   getForm._cfg.formPanel.getForm().getValues()
                 );
                 if (!r) return;
               } else {
-                getForm._cfg.formPanel.getForm().findInvalid();
+                //getForm._cfg.formPanel.getForm().findInvalid();
                 return;
               }
             }
-            if (!getForm._cfg.formPanel.getForm().isValid()) {
-              getForm._cfg.formPanel.getForm().findInvalid();
+            if (!getForm._cfg.formPanel.getForm().findInvalid()) {
+              //getForm._cfg.formPanel.getForm().findInvalid();
               return null;
             }
             getForm._cfg.dontClose = 0;
@@ -7294,7 +7222,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
   btn.push("->");
 
 
-  if(!getForm.viewMode)btn.push({
+  if(!getForm.viewMode && _app.form_template && 1*_app.form_template)btn.push({
 	tooltip: getLocMsg("templates"),
     id: "ttemp_" + getForm.id,
     iconAlign: "top",

@@ -8414,8 +8414,8 @@ function fmtDecimal(value, digit,precision) {
     var x = result.split('.');
     var x1 = x[0],
         x2 = x[1];
-    for (var i = x1.length - 3; i > s; i -= 3) x1 = x1.substr(0, i) + ('.') + x1.substr(i);
-    if (x2 && x2 > 0) return x1 + (',') + x2;
+    for (var i = x1.length - 3; i > s; i -= 3) x1 = x1.substr(0, i) + (',') + x1.substr(i);
+    if (x2 && precision) return x1 + ('.') + x2;
     return x1;
 }
 
