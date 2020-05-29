@@ -1615,7 +1615,7 @@ function fnNewFileAttachment(a) {
   for (var key in a._grid._pk) table_pk += "|" + sel.data[a._grid._pk[key]];
 
    var href =
-      "showForm?a=2&_fid=43&table_id=" +
+      (_scd.customFile ? "showPage?_tid=6827":"showForm?a=2&_fid=43")+"&table_id=" +
       a._grid.crudTableId +
       "&table_pk=" +
       table_pk.substring(1) +
@@ -1667,7 +1667,7 @@ function fnNewFileAttachment4Form(tid, tpk, not_image_flag) {
   }
 
     var href =
-      "showForm?a=2&_fid=43&table_id=" + tid + "&table_pk=" + tpk + image_param;
+      (_scd.customFile ? "showPage?_tid=6827":"showForm?a=2&_fid=43")+"&table_id=" + tid + "&table_pk=" + tpk + image_param;
   mainPanel.loadTab({
     attributes: {
       modalWindow: true,
