@@ -3442,7 +3442,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
 													// searchFormu olamaz.
 													// Patlıyor.
 
-      var xmxm = addTab4GridWSearchFormWithDetailGrids(obj.detailGrids[i], 1);
+      var xmxm = addTab4GridWSearchFormWithDetailGrids(Ext.apply({t:obj.t&&obj.detailGrids[i].grid?obj.t+'-'+obj.detailGrids[i].grid.gridId:null}, obj.detailGrids[i]), 1);
       obj.detailGrids[i].grid._masterGrid = mainGrid;
       if (xmxm.items.items[0].xtype == "form") {
         // ilk sıradaki gridin ,detail gridi varsa Search Formunu yok ediyor
@@ -5685,7 +5685,7 @@ function addTab4DetailGridsWSearchForm(obj) {
 	if (obj.detailGrids[i].detailGrids) {
       // master/detail olacak
       obj.detailGrids[0].grid.searchForm = undefined;
-      var xmxm = addTab4GridWSearchFormWithDetailGrids(obj.detailGrids[i]);
+      var xmxm = addTab4GridWSearchFormWithDetailGrids(Ext.apply({t:obj.t&&obj.detailGrids[i].grid?obj.t+'-'+obj.detailGrids[i].grid.gridId:null},obj.detailGrids[i]));
       if (xmxm.items.items[0].xtype == "form") {
         // ilk sıradaki gridin ,detail gridi varsa Search Formunu yok ediyor
         xmxm.items.items[0].destroy();
