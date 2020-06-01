@@ -258,6 +258,7 @@ public class W5Email implements java.io.Serializable, Log5Base {
 	@Transient
 	public Map get_asHashMap() {
 		Map r = new HashMap();
+		r.put("mail_setting_id", mailSettingId);
 		r.put("table_id", tableId);
 		r.put("table_pk", tablePk);
 		r.put("mail_to", mailTo);
@@ -265,6 +266,7 @@ public class W5Email implements java.io.Serializable, Log5Base {
 		r.put("mail_bcc", mailBcc);
 		r.put("mail_subject", mailSubject);
 		r.put("mail_body", mailBody);
+		r.put("lkp_send_status", status);
 		return r;
 	}
 	

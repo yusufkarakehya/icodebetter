@@ -8093,6 +8093,7 @@ class XForm extends React.Component {
                     successCallback: (json, xcfg) => {
                         iwb.loadingDeactive();
                         this.setState({errors:{}});
+                        if (xcfg.self.componentDidPost && xcfg.self.componentDidPost(json, xcfg)===false)return;
                         if (cfg.callback) cfg.callback(json, xcfg);
                     }
                 }

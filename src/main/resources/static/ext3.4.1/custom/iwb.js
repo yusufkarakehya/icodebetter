@@ -3649,7 +3649,7 @@ function addTab4GridWSearchFormWithDetailGrids(obj, master_flag) {
   var subTab = {
     region: "center",
     enableTabScroll: true,
-    activeTab: _posId2, cls:'iwb-detail-tab',
+    activeTab: 0/*_posId2*/, cls:'iwb-detail-tab',
     border: false,
     visible: false,
     items: detailGridPanels, 
@@ -6890,7 +6890,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           }
           if (!getForm._cfg.callback)
             getForm._cfg.callback = function(js, conf) {
-              if (js.success) Ext.infoMsg.msg("info", "${operation_successful}");
+              if (js.success) Ext.infoMsg.msg("info", getLocMsg("operation_successful"));
               if(extDef._tab_order.getValue)extDef._tab_order.setValue(extDef._tab_order.getValue()+1)
             };
           getForm._cfg.dontClose = 1;
@@ -6927,7 +6927,7 @@ iwb.ui.buildCRUDForm = function(getForm, callAttributes, _page_tab_id) {
           }
           if (!getForm._cfg.callback)
             getForm._cfg.callback = function(js, conf) {
-              if (js.success) Ext.infoMsg.msg("info", "${operation_successful}");
+              if (js.success) Ext.infoMsg.msg("info", getLocMsg("operation_successful"));
               if(extDef._tab_order.getValue)extDef._tab_order.setValue(extDef._tab_order.getValue()+1)
             };
           getForm._cfg.dontClose = 1;

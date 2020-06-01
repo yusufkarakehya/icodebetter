@@ -4279,11 +4279,10 @@ columns:[
 					buf2.append(serializeListView(lr));
 				} else if (i instanceof W5FormResult) {
 					W5FormResult fr = (W5FormResult) i;
-					buf2.append("\nvar ").append(fr.getForm().getDsc())
-								.append("=").append(serializeGetForm(fr));
-					buf2.append("\nvar _form")
-					.append(customObjectCount++).append("=")
-					.append(fr.getForm().getDsc()).append(";\n");
+					if (Math.abs(fr.getObjectType()) == 3) { // form
+						buf2.append("\nclass ").append(fr.getForm().getDsc())
+								.append(" extends XForm").append(serializeGetForm(fr));
+					}
 				} else if (i instanceof W5GlobalFuncResult) {
 					buf2.append("\nvar ")
 							.append(((W5GlobalFuncResult) i).getGlobalFunc()

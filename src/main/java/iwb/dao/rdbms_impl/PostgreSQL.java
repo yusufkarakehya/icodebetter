@@ -1595,6 +1595,7 @@ public class PostgreSQL extends BaseDAO {
 
 		W5Email email = new W5Email();
 		email.setMailSettingId(fsm.getMailSettingId());
+		email.setTableId(fsmTableId);email.setTablePk(fsmTablePk);
 		String mailTo = fsm.getSmsMailTo();
 		if (mailTo != null && mailTo.contains("${")) {
 			StringBuilder tmp1 = new StringBuilder(mailTo);
@@ -3114,7 +3115,7 @@ public class PostgreSQL extends BaseDAO {
 
 				} else
 					ptCount = 0;
-				if (t.getMakeCommentFlag() != 0) {
+				/*if (t.getMakeCommentFlag() != 0) {
 					if (FrameworkCache.getTable(scd, FrameworkSetting.customCommentTableId)==null)
 						sql.append(", (select count(1) from iwb.w5_comment cx where cx.table_id=").append(t.getTableId())
 							.append(" AND cx.project_uuid='${scd.projectId}' AND cx.table_pk=x.")
@@ -3123,7 +3124,7 @@ public class PostgreSQL extends BaseDAO {
 						sql.append(", (select count(1) from x_comment cx where cx.table_id=").append(t.getTableId())
 						.append(" AND cx.table_pk=x.")
 						.append(t.get_tableParamList().get(0).getExpressionDsc()).append(") pcomment_count ");
-				}
+				}*/
 
 				sql.append(" from ").append(t.getDsc()).append(" x");
 
