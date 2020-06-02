@@ -2636,7 +2636,7 @@ public class GenericUtil {
 					o = ss.substring(1,ss.length()-1);
 				}
 				html.append(q).append("=").append(URLEncoder.encode(o.toString(),"UTF-8"));
-			}
+			} else html.append(q).append("=");
 		} catch(Exception ee) {}
 		return html.toString();
 	}
