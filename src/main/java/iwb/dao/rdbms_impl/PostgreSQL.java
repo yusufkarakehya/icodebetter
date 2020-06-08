@@ -86,6 +86,7 @@ import iwb.util.UserUtil;
 @SuppressWarnings({ "unchecked", "unused" })
 @Repository
 public class PostgreSQL extends BaseDAO {
+	final public static String[] dateFormatMulti = new String[] {"dd/mm/yyyy","mm/dd/yyyy","yyyy/mm/dd"};
 
 	@Lazy
 	@Autowired
@@ -3436,7 +3437,9 @@ public class PostgreSQL extends BaseDAO {
 							res.put(subStr, fieldPrefix + field_cnt);
 							resField.put(subStr, tf);
 							if (tf.getFieldType() == 2)
-								sql.append("to_char(x.").append(newSubStr).append(",'dd/mm/yyyy')");
+								sql.append("to_char(x.").append(newSubStr).append(",'").
+								append(dateFormatMulti[scd!=null ? GenericUtil.uInt(scd.get("date_format")):0])
+								.append("')");
 							else
 								sql.append("x.").append(newSubStr);
 							sql.append(" ").append(fieldPrefix).append(field_cnt).append(",");
@@ -3465,7 +3468,9 @@ public class PostgreSQL extends BaseDAO {
 								params.addAll((List) oz[1]);
 						}
 						if (tfc.getFieldType() == 2)
-							sql.append("to_char((").append(sqlCode).append("),'dd/mm/yyyy')");
+							sql.append("to_char((").append(sqlCode).append("),'")
+							.append(dateFormatMulti[scd!=null ? GenericUtil.uInt(scd.get("date_format")):0])
+							.append("')");
 						else
 							sql.append("(").append(sqlCode).append(")");
 						sql.append(" ").append(fieldPrefix).append(field_cnt).append(",");
@@ -3474,8 +3479,7 @@ public class PostgreSQL extends BaseDAO {
 					}
 				if (!res.containsKey(subStr))
 					invalidKeys.add(subStr);
-			} else if (subStr.startsWith("lnk.")) { // burda bu field ile olan
-													// baglantiyi cozmek lazim
+			} else if (subStr.startsWith("lnk.")) { // this is a link, tels resolve
 				String newSubStr = subStr.substring(4);
 
 				String[] sss = newSubStr.replace(".", "&").split("&");
