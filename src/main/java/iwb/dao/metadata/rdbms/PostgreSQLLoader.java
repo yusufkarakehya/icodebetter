@@ -1338,11 +1338,33 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 
 		dao.reloadUsersCache(customizationId);
 
+
 		for (W5Project p : lp) {
 			FrameworkCache.clearPreloadCache(p.getProjectUuid());
 			reloadProjectCaches(p.getProjectUuid());
 		}
+		if(FrameworkSetting.projectId!=null && FrameworkSetting.projectId.length()!=1 
+				&& !FrameworkSetting.projectId.equals(FrameworkSetting.devUuid)
+				&& FrameworkCache.getTable(FrameworkSetting.projectId, 3108)!=null) {//role
+			FrameworkCache.xRoleACL.clear();
+			W5Project po = FrameworkCache.getProject(FrameworkSetting.projectId);
+				List<Map> l2 = dao.executeSQLQuery2Map("select x.* from " + po.getRdbmsSchema() + ".x_role x"
+						, new ArrayList());
+				if(l2!=null)for(Map m2 : l2) {
+					Set<Integer> ss = new HashSet();
+					FrameworkCache.xRoleACL.put(GenericUtil.uInt(m2.get("role_id")), ss);
+					if(GenericUtil.uInt(m2.get("grid_report_flag"))!=0)ss.add(105);
+					if(GenericUtil.uInt(m2.get("view_log_flag"))!=0)ss.add(109);
+					if(GenericUtil.uInt(m2.get("crud_delete_flag"))!=0)ss.add(3);
+					if(GenericUtil.uInt(m2.get("crud_update_flag"))!=0)ss.add(2);
+					if(GenericUtil.uInt(m2.get("crud_insert_flag"))!=0)ss.add(1);
+					if(GenericUtil.uInt(m2.get("file_attachment_flag"))!=0)ss.add(101);
+					if(GenericUtil.uInt(m2.get("make_comment_flag"))!=0)ss.add(103);					
+					//101:fileViewFlag; 103:commentMakeFlag; 105:gridReportViewFlag;108:logViewFlag;
 
+				}
+			
+		}
 		List<Object[]> ll = executeSQLQuery(
 				"select x.related_project_uuid, string_agg(x.user_id::text,',') from iwb.w5_user_related_project x group by x.related_project_uuid");
 		if (ll != null)

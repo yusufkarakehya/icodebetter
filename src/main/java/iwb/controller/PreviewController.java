@@ -810,6 +810,7 @@ public class PreviewController implements InitializingBean {
 	public void hndAjaxAuthenticateUser(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxAuthenticateUser(" + request.getParameter("userName") + ")");
+		response.setContentType("application/json");
 		String projectId = UserUtil.getProjectId(request,"preview/");
 		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
 		if(po.getAuthenticationFuncId()==0)try{
@@ -860,7 +861,6 @@ public class PreviewController implements InitializingBean {
 		int deviceType = GenericUtil.uInt(request.getParameter("_mobile"));
 		if (!success)errorMsg = LocaleMsgCache.get2(0, xlocale, errorMsg);
 		int userRoleId = GenericUtil.uInt(requestParams, "userRoleId");
-		response.setContentType("application/json");
 		scd = null;
 		if (success) { // basarili simdi sira diger islerde
 			if(po.getSessionQueryId()!=0 || (result.getResultMap()!=null && GenericUtil.uInt(result.getResultMap().get("sessionQueryId"))!=0))
@@ -1370,7 +1370,7 @@ public class PreviewController implements InitializingBean {
 	@RequestMapping(value = "/*/upload.form", method = RequestMethod.POST)
 	@ResponseBody
 	public String singleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("table_pk") String table_pk,
-			@RequestParam("table_id") Integer table_id, @RequestParam("profilePictureFlag") Integer profilePictureFlag,
+			@RequestParam("table_id") Integer table_id, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.info("singleFileUpload");
 
@@ -1390,17 +1390,9 @@ public class PreviewController implements InitializingBean {
 		int totalBytesRead = (int) file.getSize();
 
 		W5FileAttachment fa = new W5FileAttachment(scd);
-		boolean ppicture = (GenericUtil.uInt(scd.get("customizationId")) == 0 || FrameworkCache
-						.getAppSettingIntValue(scd.get("customizationId"), "profile_picture_flag") != 0)
-				&& profilePictureFlag != null && profilePictureFlag != 0;
+
 		try {
-			if (ppicture) {
-				int maxFileSize = FrameworkCache.getAppSettingIntValue(0, "profile_picture_max_file_size", 51200);
-				if (maxFileSize < totalBytesRead)
-					return "{ \"success\": false , \"msg\":\"" + LocaleMsgCache.get2(scd, "max_file_size") + " = "
-							+ Math.round(maxFileSize / 1024) + " KB\"}";
-				fa.setFileTypeId(-999);// profile picture upload etti
-			} else if (table_id == 338) {
+			if (table_id == 338) {
 				int maxFileSize = FrameworkCache.getAppSettingIntValue(0, "company_picture_max_file_size", 512000);
 				if (maxFileSize < totalBytesRead)
 					return "{ \"success\": false , \"msg\":\"" + LocaleMsgCache.get2(scd, "max_file_size") + " = "
@@ -1416,9 +1408,6 @@ public class PreviewController implements InitializingBean {
 			fa.setFileSize(totalBytesRead);
 			fa.setActiveFlag((short) 1);
 			try {
-				if(!ppicture)if (GenericUtil.uStrNvl(requestParams.get("file_type_id"), "") != null) {
-					fa.setFileTypeId(Integer.parseInt(GenericUtil.uStrNvl(requestParams.get("file_type_id"), "")));
-				}
 				if (GenericUtil.uStrNvl(requestParams.get("file_comment"), "") != null) {
 					fa.setFileComment(GenericUtil.uStrNvl(requestParams.get("file_comment"), ""));
 				}
@@ -1453,7 +1442,7 @@ public class PreviewController implements InitializingBean {
 			}
 			return "{ \"success\": true, \"fileId\": " + fa.getFileAttachmentId() + ", \"fileName\": \""
 					+ GenericUtil.stringToJS(file.getOriginalFilename()) + "\", \"fileUrl\": \"" + "sf/"
-					+ fa.getSystemFileName() + "?_fai=" + fa.getFileAttachmentId() + "\"}";
+					+ GenericUtil.stringToJS(file.getOriginalFilename()) + "?_fai=" + fa.getFileAttachmentId() + "\"}";
 		} catch (Exception e) {
 			if (true || FrameworkSetting.debug)
 				e.printStackTrace();

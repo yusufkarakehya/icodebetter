@@ -258,8 +258,7 @@ public class CRUDEngine {
 						if (workflow == null) {
 							workflow = t.get_approvalMap().get((short) 2); // action=2 insert
 																			
-							if (workflow != null && workflow.getApprovalRequestTip() == 2
-									&& workflow.getManualDemandStartAppFlag() == 0)
+							if (workflow != null && workflow.getApprovalRequestTip() == 2)
 								workflow = null;
 						}
 
@@ -465,38 +464,26 @@ public class CRUDEngine {
 
 							break;
 						case 2: // manual after action
-							if (workflow.getManualDemandStartAppFlag() == 0
-									|| (workflow.getManualDemandStartAppFlag() == 1
-											&& GenericUtil.uInt(formResult.getRequestParams().get("_aa")) == -1)) { // Eğer
-																													// onay
-																													// mekanizması
-																													// elle
-																													// başlatılmayacaksa
-																													// burada
-																													// 901'e
-						
-								if(workflowStep==null) {
-									workflowStep = new W5WorkflowStep();
-									// if(approval.getDynamicStepFlag()!=0))
-									workflowStep.setApprovalRoles(workflow.getManualAppRoleIds());
-									workflowStep.setApprovalUsers(workflow.getManualAppUserIds());
-									if (workflow.getManualAppTableFieldIds() != null) { // TODO:
-																						
-									} else if (workflowStep.getApprovalUsers() == null) // TODO:
-																						// yanlis
-										workflowStep.setApprovalUsers("" + (Integer) scd.get("userId"));
+							if(workflowStep==null) {
+								workflowStep = new W5WorkflowStep();
+								// if(approval.getDynamicStepFlag()!=0))
+								workflowStep.setApprovalRoles(workflow.getManualAppRoleIds());
+								workflowStep.setApprovalUsers(workflow.getManualAppUserIds());
+								if (workflow.getManualAppTableFieldIds() != null) { // TODO:
+																					
+								} else if (workflowStep.getApprovalUsers() == null) // TODO:
+																					// yanlis
+									workflowStep.setApprovalUsers("" + (Integer) scd.get("userId"));
 
-									workflowStep.setApprovalStepId(901); // wait
-																			// for
-																			// starting
-																			// approval
-								}
+								workflowStep.setApprovalStepId(901); // wait
+																		// for
+																		// starting
+																		// approval
 							}
+
 							break;
 						}
-						if (workflow != null && (workflow.getManualDemandStartAppFlag() == 0
-								|| (workflow.getManualDemandStartAppFlag() == 1
-										&& GenericUtil.uInt(formResult.getRequestParams().get("_aa")) == -1))) { // Onay
+						if (workflow != null) { // Onay
 																													// Mek
 																													// Başlat
 							if (workflowStep != null) { // step hazir

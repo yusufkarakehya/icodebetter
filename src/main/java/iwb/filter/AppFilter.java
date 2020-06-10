@@ -65,9 +65,9 @@ public class AppFilter implements Filter {
 					
 					if(scd!=null && (uri.contains("/app/") || uri.contains("/preview/"))) {
 						String[] uuri = uri.split("/");
-						if(uri.contains("/dl/")) {
+						if(FrameworkSetting.logType>0 && uri.contains("/preview/") && uri.contains("/dl/")) {
 							int pageId = GenericUtil.uInt((HttpServletRequest) request, "_fai");
-							if(scd!=null && pageId>0) {
+							if(pageId>0) {
 								lvp = new Log5VisitedPage(scd, "download", pageId, request.getRemoteAddr(), transactionId);
 							}
 						} else {

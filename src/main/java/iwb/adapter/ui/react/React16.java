@@ -645,17 +645,6 @@ public class React16 implements ViewAdapter {
 					if(wfs.getAccessDeleteTip()!=0 && GenericUtil.isEmpty(wfs.getAccessDeleteUserFields()) && !GenericUtil.accessControl(scd, wfs.getAccessDeleteTip(), wfs.getAccessDeleteRoles(), wfs.getAccessDeleteUsers()))s.append(", deletable:false");
 
 				}
-			} else { // Onay mekanizması başlamamış ama acaba başlatma isteği manual
-						// yapılabilir mi ? Formun bağlı olduğu tablonun onay
-						// mekanizması manualStart + Elle Başlatma İsteği aktif mi
-//				W5Table t = FrameworkCache.getTable(customizationId, f.getObjectId());
-				if (t != null && t.get_approvalMap() != null
-						&& t.get_approvalMap().get((short) 2) != null) {
-					W5Workflow a = t.get_approvalMap().get((short) 2);
-					if (a.getManualDemandStartAppFlag() != 0
-							&& a.getApprovalRequestTip() == 2)
-						s.append(",\n manualStartDemand:true");
-				}
 			}
 		}
 		boolean b = false;
@@ -4290,11 +4279,10 @@ columns:[
 					buf2.append(serializeListView(lr));
 				} else if (i instanceof W5FormResult) {
 					W5FormResult fr = (W5FormResult) i;
-					buf2.append("\nvar ").append(fr.getForm().getDsc())
-								.append("=").append(serializeGetForm(fr));
-					buf2.append("\nvar _form")
-					.append(customObjectCount++).append("=")
-					.append(fr.getForm().getDsc()).append(";\n");
+					if (Math.abs(fr.getObjectType()) == 3) { // form
+						buf2.append("\nclass ").append(fr.getForm().getDsc())
+								.append(" extends XForm").append(serializeGetForm(fr));
+					}
 				} else if (i instanceof W5GlobalFuncResult) {
 					buf2.append("\nvar ")
 							.append(((W5GlobalFuncResult) i).getGlobalFunc()

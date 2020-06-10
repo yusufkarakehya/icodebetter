@@ -101,6 +101,7 @@ public class FrameworkCache {
 	final public static List<String> publishAppSettings= new ArrayList<String>();
 //	final public static Map<String, List<Integer>> publishLookUps= new HashMap<String, List<Integer>>();
 	final public static Map<Integer, Map<Integer, String>> wRoles = new HashMap<Integer, Map<Integer, String>>();
+	final public static Map<Integer, Set<Integer>> xRoleACL = new HashMap<Integer, Set<Integer>>();//RoleId, ACLType
 	final public static Map<String, List<Log5Feed>> wFeeds = new HashMap<String, List<Log5Feed>>();
 	final public static Map<String, Map<Integer, W5JobSchedule>> wJobs= new HashMap<String, Map<Integer, W5JobSchedule>>();
 	final private static Map<String, Map<String, Long>> wQueuedReloadCache = new HashMap<String, Map<String, Long>>();
@@ -533,8 +534,15 @@ public class FrameworkCache {
 		return map.get(lookUpId);
 	}*/
 	
-	public static boolean roleAccessControl(Map scd,  int action){ 
-		return true;
+	public static boolean roleAccessControl(Map scd,  int action){
+		if(action==0)return true;
+		if(FrameworkSetting.projectId==null || FrameworkSetting.projectId.equals("1"))return true;
+		if(scd==null)return false;
+		int roleId = GenericUtil.uInt(scd.get("roleId"));
+		if(roleId==0)return true;
+		Set<Integer> ss = xRoleACL.get(roleId);
+		if(ss==null)return false;
+		return ss.contains(action);
 		//0:view, 1:edit, 2:insert, 3:delete, 11:bulkUpdateFlag; 
 		//101:fileViewFlag;102:fileUploadFlag;103:commentMakeFlag;104:bulkEmailFlag; 105:gridReportViewFlag;106:showRelatedEmailFlag;107:lookupManageFlag;108:logViewFlag;109:smsEmailTemplateCrudFlag
 
@@ -1517,13 +1525,20 @@ public class FrameworkCache {
 	public static String getExceptionMessage(Object o, String exceptionMessage) {
 		if(exceptionMessage==null)return null;
 		String projectId = o == null ? FrameworkSetting.devUuid : getProjectId(o, "-");
+		String locale = null;
+		if(o!=null && o instanceof Map)locale = (String)(((Map)o).get("locale"));
+		if(locale==null)locale =  "en";
 		List<W5Exception> l = wExceptions.get(projectId);
 		if(l!=null) {
-			String locale = null;
-			if(o!=null && o instanceof Map)locale = (String)(((Map)o).get("locale"));
-			if(locale==null)locale =  "en";
 			for(W5Exception e:l)if(e.getLocale().equals(locale) && exceptionMessage.contains(e.getExceptionMessage()))
 				return e.getUserMessage();
+		}
+		if(!projectId.equals(FrameworkSetting.devUuid)) {
+			l = wExceptions.get(FrameworkSetting.devUuid);
+			if(l!=null) {
+				for(W5Exception e:l)if(e.getLocale().equals(locale) && exceptionMessage.contains(e.getExceptionMessage()))
+					return e.getUserMessage();
+			}
 		}
 		return exceptionMessage;
 	}
