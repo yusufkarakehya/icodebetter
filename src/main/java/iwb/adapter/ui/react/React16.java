@@ -4261,7 +4261,7 @@ columns:[
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))
 					.append(";\n");
 
-			buf.append(serializeLookUp(pr));
+			buf2.append(serializeLookUp(pr));
 
 			int customObjectCount=1;
 			for (Object i : pr.getPageObjectList()) {
