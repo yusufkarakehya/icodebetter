@@ -225,57 +225,7 @@ public class PreviewController implements InitializingBean {
 				scd.put("mobile", session.getAttribute("mobile"));
 			scd.put("customizationId", session.getAttribute("customizationId"));
 		} else {
-			if (queryId == 142) { // online users
-				scd = UserUtil.getScd4Preview(request, "scd-dev", false);
-				W5QueryResult qr = new W5QueryResult(142);
-				W5Query q = new W5Query();
-				q.setQueryType((short) 0);
-				qr.setQuery(q);
-				qr.setScd(scd);
-				qr.setErrorMap(new HashMap());
-				qr.setNewQueryFields(FrameworkCache.cachedOnlineQueryFields);
-				List<Object[]> lou = UserUtil.listOnlineUsers(scd);
-				if (FrameworkSetting.chatShowAllUsers) {
-					Map<Integer, Object[]> slou = new HashMap();
-					slou.put((Integer) scd.get("userId"), new Object[] { scd.get("userId") });
-					for (Object[] o : lou)
-						slou.put(GenericUtil.uInt(o[0]), o);
-					W5QueryResult allUsers = service.executeQuery(scd, queryId, requestMap);
-					for (Object[] o : allUsers.getData()) {
-						String msg = (String) o[6];
-						if (msg != null && msg.length() > 18) {
-							o[3] = msg.substring(0, 19); // last_msg_date_time
-							if (msg.length() > 19)
-								o[6] = msg.substring(20);// msg
-							else
-								o[6] = null;
-						} else {
-							o[6] = null;
-							o[3] = null;
-						}
-
-						int u = GenericUtil.uInt(o[0]);
-
-						Object[] o2 = slou.get(u);
-						if (o2 == null)
-							lou.add(o);
-						else if (u != (Integer) scd.get("userId")) {
-							if (o2.length > 3)
-								o2[3] = o[3];
-							if (o2.length > 6)
-								o2[6] = o[6];
-							if (o2.length > 7)
-								o2[7] = o[7];
-						}
-					}
-				}
-				qr.setData(lou);
-				response.setContentType("application/json");
-				response.getWriter().write(getViewAdapter(scd, request).serializeQueryData(qr).toString());
-				response.getWriter().close();
-				return;
-			} else
-				scd = UserUtil.getScd4Preview(request, "scd-dev", true);// TODO not auto
+			scd = UserUtil.getScd4Preview(request, "scd-dev", true);// TODO not auto
 		}
 
 		ViewAdapter va = getViewAdapter(scd, request);
@@ -290,7 +240,10 @@ public class PreviewController implements InitializingBean {
 		W5QueryResult queryResult = service.executeQuery(scd, queryId, requestMap);
 
 		response.setContentType("application/json");
-		response.getWriter().write(va.serializeQueryData(queryResult).toString());
+		if(queryResult.getErrorMap().isEmpty() && queryResult.getQuery().getQuerySourceType()==1376 && queryResult.getQuery().getSqlFrom().equals("!"))
+			response.getWriter().write((String)queryResult.getExtraOutMap().get("_raw"));
+		else
+			response.getWriter().write(va.serializeQueryData(queryResult).toString());
 		response.getWriter().close();
 
 	}
