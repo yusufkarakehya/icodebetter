@@ -2265,47 +2265,71 @@ class XListFiles extends React.Component {
         }
         /** run query to get data based on pk and id */
     getFileList() {
-        iwb.request({
-            url: "ajaxQueryData?_qid=61&xtable_id=" +
-                this.props.cfg.crudTableId +
-                "&xtable_pk=" +
-                (this.props.cfg.tmpId ?
-                    this.props.cfg.tmpId :
-                    json2pk(this.props.cfg.pk)) +
-                "&.r=" +
-                Math.random(),
-            successCallback: ({ data }) => {
-                this.setState({
-                    files: data
-                });
-            }
-        });
+        if(_scd.customFile && 1*_scd.customFile)iwb.request({
+            url: "ajaxQueryData?_qid=10250&xtable_id=" +
+            this.props.cfg.crudTableId +
+            "&xtable_pk=" +
+            (this.props.cfg.tmpId ?
+                this.props.cfg.tmpId :
+                json2pk(this.props.cfg.pk)) +
+            "&.r=" +
+            Math.random(),
+	        successCallback: ({ data }) => {
+	            this.setState({
+	                files: data
+	            });
+	        }
+		    }); else iwb.request({
+		        url: "ajaxQueryData?_qid=61&xtable_id=" +
+		        this.props.cfg.crudTableId +
+		        "&xtable_pk=" +
+		        (this.props.cfg.tmpId ?
+		            this.props.cfg.tmpId :
+		            json2pk(this.props.cfg.pk)) +
+		        "&.r=" +
+		        Math.random(),
+			    successCallback: ({ data }) => {
+			        this.setState({
+			            files: data
+			        });
+			    }
+			});
     }
     deleteItem(fileItem) {
             return event => {
                 event.preventDefault();
                 event.stopPropagation();
                 /** deleteRequest */
-                iwb.request({
-                    url: "ajaxPostForm?a=3&_fid=1383&tfile_attachment_id=" +
-                        fileItem.file_attachment_id,
+                if(_scd.customFile && 1*_scd.customFile)iwb.request({
+                    url: "ajaxPostForm?a=3&_fid=10230&tfile_id=" +
+                        fileItem.file_id,
                     successCallback: res => {
                         this.setState({
                             files: this.state.files.filter(
-                                file => file.file_attachment_id != fileItem.file_attachment_id
+                                file => file.file_id != fileItem.file_id
                             )
                         });
                     }
-                });
+                }); else iwb.request({
+                    url: "ajaxPostForm?a=3&_fid=1383&tfile_attachment_id=" +
+                    fileItem.file_attachment_id,
+	                successCallback: res => {
+	                    this.setState({
+	                        files: this.state.files.filter(
+	                            file => file.file_attachment_id != fileItem.file_attachment_id
+	                        )
+	                    });
+	                }
+	            });
             };
         }
         /** test */
     downladLink(fileItem) {
         let url =
             "dl/" +
-            fileItem.original_file_name +
+            (fileItem.dsc || fileItem.original_file_name) +
             "?_fai=" +
-            fileItem.file_attachment_id +
+            (fileItem.file_id || fileItem.file_attachment_id) +
             "&.r=" +
             Math.random();
         return event => {
@@ -2330,10 +2354,10 @@ class XListFiles extends React.Component {
                     null,
                     _(
                         "a", { onClick: this.downladLink(fileItem), href: "#" },
-                        fileItem.original_file_name
+                        fileItem.dsc || fileItem.original_file_name
                     ),
                     _("i", {
-                        key: fileItem.file_attachment_id,
+                        key: fileItem.file_id || fileItem.file_attachment_id,
                         onClick: this.deleteItem(fileItem),
                         style: { cursor: "pointer" },
                         className: "icon-trash float-right text-danger"
@@ -6904,8 +6928,10 @@ class XPage extends React.PureComponent {
         if (iwb.debugConstructor && iwb.debug)
             console.log("XPage.constructor", props);
         super(props);
-        var breed = document.getElementById("id-breed");
-        if (breed) breed.innerHTML = this.props.grid.name;
+        if(!iwb.headerLogo){
+	        var breed = document.getElementById("id-breed");
+	        if (breed) breed.innerHTML = this.props.grid.name;
+        }
         iwb.killGlobalSearch();
         this.state = { activeTab: "x", activeTab2: "x" };
         this.tabs = iwb.tabs[this.props.grid.id] ?
@@ -7123,7 +7149,9 @@ class XPage4Card extends React.PureComponent {
             if (iwb.debugConstructor && iwb.debug)
                 console.log("XPage4Card.constructor", props);
             super(props);
-            document.getElementById("id-breed").innerHTML = this.props.card.name;
+            if(!iwb.headerLogo){
+            	document.getElementById("id-breed").innerHTML = this.props.card.name;
+            }
             iwb.killGlobalSearch();
             this.state = { activeTab: "x" };
             this.tabs = iwb.tabs[this.props.card.cardId] ?
@@ -7730,9 +7758,11 @@ class XMainPanel extends React.PureComponent {
                     if (visitedItems) visitedItems.visitCnt++;
                     return iwb["t-" + templateID];
                 } else {
-                    var pageName = document.getElementById("id-breed");
-                    if (pageName) {
-                        pageName.innerHTML = node.name || "Home";
+                    if(!iwb.headerLogo){
+	                    var pageName = document.getElementById("id-breed");
+	                    if (pageName) {
+	                        pageName.innerHTML = node.name || "Home";
+	                    }
                     }
                     this.loading = node;
                     return _(iwb.XMainNav || XMainNav, { path, node });
