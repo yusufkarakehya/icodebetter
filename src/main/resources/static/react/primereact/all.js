@@ -1183,7 +1183,7 @@ class Button extends React.Component {
     let icon = this.renderIcon();
     let label = this.renderLabel();
     let buttonProps = ObjectUtils.findDiffKeys(this.props, Button.defaultProps);
-    return /*#__PURE__*/React.createElement("button", _extends({
+    return /*#__PURE__*/React.createElement("button", Object.assign({
       ref: el => this.element = el
     }, buttonProps, {
       className: className
@@ -6724,7 +6724,7 @@ class InputSwitch extends React.Component {
       'p-inputswitch-focus': this.state.focused
     });
     let inputSwitchProps = ObjectUtils.findDiffKeys(this.props, InputSwitch.defaultProps);
-    return /*#__PURE__*/React.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", Object.assign({
       ref: el => this.container = el,
       id: this.props.id,
       className: className,
@@ -6854,7 +6854,7 @@ class InputText extends React.Component {
       'p-filled': this.props.value != null && this.props.value.toString().length > 0 || this.props.defaultValue != null && this.props.defaultValue.toString().length > 0
     });
     let inputProps = ObjectUtils.findDiffKeys(this.props, InputText.defaultProps);
-    return /*#__PURE__*/React.createElement("input", _extends({
+    return /*#__PURE__*/React.createElement("input", Object.assign({
       ref: el => this.element = el
     }, inputProps, {
       className: className,
@@ -7002,7 +7002,7 @@ class InputTextarea extends React.Component {
       'p-inputtextarea-resizable': this.props.autoResize
     });
     let textareaProps = ObjectUtils.findDiffKeys(this.props, InputTextarea.defaultProps);
-    return /*#__PURE__*/React.createElement("textarea", _extends({}, textareaProps, {
+    return /*#__PURE__*/React.createElement("textarea", Object.assign({}, textareaProps, {
       className: className,
       ref: input => this.element = input,
       onFocus: this.onFocus,
