@@ -1789,7 +1789,7 @@ public class PostgreSQLWriter extends BaseDAO {
 			doneSet.add(co);
 		List<W5VcsCommit> sqlCommits = find(
 				"from W5VcsCommit t where t.commitTip=2 AND t.projectUuid=?0 order by abs(t.vcsCommitId)", srcProjectId);
-		for (W5VcsCommit o : sqlCommits) {
+		for (W5VcsCommit o : sqlCommits)if(o.getVcsCommitId()>0) {
 			if (!GenericUtil.isEmpty(o.getExtraSql()) && !doneSet.contains(o.getExtraSql())) {
 				W5VcsCommit no = o.newInstance(dstProjectId);
 				if (o.getVcsCommitId() > 0)
