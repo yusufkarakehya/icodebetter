@@ -42,6 +42,7 @@ import iwb.adapter.ui.ViewMobileAdapter;
 import iwb.adapter.ui.extjs.ExtJs3_4;
 import iwb.adapter.ui.f7.F7_4;
 import iwb.adapter.ui.react.GReact16;
+import iwb.adapter.ui.react.PrimeReact16;
 import iwb.adapter.ui.react.React16;
 import iwb.adapter.ui.vue.Vue2;
 import iwb.adapter.ui.webix.Webix3_3;
@@ -86,6 +87,7 @@ public class PreviewController implements InitializingBean {
 	private ViewAdapter ext3_4;
 	private	ViewAdapter	webix3_3;
 	private	ViewAdapter	react16;
+	private	ViewAdapter	preact16;
 	private	ViewAdapter	greact16;
 	private	ViewAdapter	vue2;
 	private ViewMobileAdapter f7;
@@ -96,6 +98,7 @@ public class PreviewController implements InitializingBean {
 		webix3_3 = new Webix3_3();
 		f7 = new F7_4();
 		react16 = new React16();
+		preact16 = new PrimeReact16();
 		greact16 = new GReact16();
 		vue2 = new Vue2();
 	}
@@ -109,6 +112,7 @@ public class PreviewController implements InitializingBean {
 			if(renderer!=null && renderer.startsWith("webix"))return webix3_3;
 			if(renderer!=null && renderer.equals("react16"))return react16;
 			if(renderer!=null && renderer.equals("greact16"))return greact16;
+			if(renderer!=null && renderer.equals("preact16"))return preact16;
 			if(renderer!=null && renderer.equals("vue2"))return vue2;
 		}
 		if(scd!=null){
@@ -117,6 +121,7 @@ public class PreviewController implements InitializingBean {
 			if(renderer!=null && renderer.startsWith("webix"))return webix3_3;			
 			if(renderer!=null && renderer.equals("react16"))return react16;
 			if(renderer!=null && renderer.equals("greact16"))return greact16;
+			if(renderer!=null && renderer.equals("preact16"))return preact16;
 			if(renderer!=null && renderer.equals("vue2"))return vue2;
 		}
 		return defaultRenderer;
