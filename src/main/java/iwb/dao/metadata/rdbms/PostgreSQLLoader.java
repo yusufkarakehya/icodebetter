@@ -462,7 +462,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 				"from W5PageObject t where t.activeFlag=1 AND t.pageId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 				pr.getPageId(), projectId));
 
-		if(page.getObjectId()==2)page.setCode(NashornUtil.babelTranspileJSX(page.getCode()));
+		if(page.getPageType()==2 && page.getObjectId()==2)page.setCode(NashornUtil.babelTranspileJSX(page.getCode()));
 		
 		for (W5PageObject to : page.get_pageObjectList())
 			if (to.getSrcQueryFieldId() != null && to.getDstQueryParamId() != null) {
