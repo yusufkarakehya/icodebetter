@@ -952,7 +952,7 @@ public class PreviewController implements InitializingBean {
 		// }
 
 		if(pageResult.getPage().getPageType()!=0)
-			response.setContentType("application/json");
+			response.setContentType("application/javascript");
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
 		response.getWriter().close();

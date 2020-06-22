@@ -78,6 +78,7 @@ import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
 import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
+import iwb.util.NashornUtil;
 import iwb.util.UserUtil;
 
 @Repository
@@ -452,15 +453,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 	private void loadPage(W5PageResult pr) {
 
 		String projectId = FrameworkCache.getProjectId(pr.getScd(), "63." + pr.getPageId());
-			/*
-			 * try { page = (W5Page) (redisGlobalMap.get(projectId + ":page:" +
-			 * pr.getTemplateId()));//
-			 * FrameworkCache.getRedissonClient().getMap(String.format("icb-cache4:%s:page",
-			 * // projectId)); if (page != null && page.get_pageObjectList() == null) {
-			 * page.set_pageObjectList(new ArrayList()); } } catch (Exception e) { throw new
-			 * IWBException("framework", "Redis.Page", pr.getTemplateId(), null,
-			 * "Loading Page from Redis", e); }
-			 */
+
 
 		W5Page page = (W5Page) getMetadataObject("W5Page","pageId",
 					pr.getPageId(), projectId, "Page"); 
@@ -469,6 +462,8 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 				"from W5PageObject t where t.activeFlag=1 AND t.pageId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 				pr.getPageId(), projectId));
 
+		if(page.getObjectId()==2)page.setCode(NashornUtil.babelTranspileJSX(page.getCode()));
+		
 		for (W5PageObject to : page.get_pageObjectList())
 			if (to.getSrcQueryFieldId() != null && to.getDstQueryParamId() != null) {
 				List p = new ArrayList();

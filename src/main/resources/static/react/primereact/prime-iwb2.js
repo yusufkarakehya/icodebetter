@@ -962,807 +962,326 @@ function buildParams2(params, map) {
  * @description Grids common methods are located in this class
  */
 class GridCommon extends React.PureComponent {
-        constructor(props) {
-            super(props);
-            this.state = {};
-            this.lastQuery;
-            /**
-             * @description Used to set State of Grid with pagination number
-             * @param {Number}
-             *            currentPage - current page number
-             */
-            this.onCurrentPageChange = currentPage => this.setState({ currentPage });
-            /**
-             * @description Used to Set State of grid with Column width
-             * @param {String}
-             *            columnWidths[].columnName - name of the column
-             * @param {Number}
-             *            columnWidths[].width - width of the column
-             */
-            this.onColumnWidthsChange = columnWidths => this.setState({ columnWidths });
-            /**
-             * @description Used to Set State of Grid with column order
-             * @param {Array}
-             *            order - ["ColName1","ColName2",...]
-             */
-            this.onOrderChange = order => this.setState({ order });
-            /**
-             * @description Used to set Pagination row Nummber
-             * @param {Number}
-             *            pageSize - sets size of the number for
-             */
-            this.onPageSizeChange = pageSize => {
-                var { currentPage, totalCount } = this.state;
-                currentPage = Math.min(currentPage, Math.ceil(totalCount / pageSize) - 1);
-                this.setState({ pageSize, currentPage });
-            };
-            /**
-             * @description get selected array from grid
-             */
-            this.getSelected = () =>
-                this.state.rows.reduce((accumulator, row) => {
-                    this.state.selection.includes(row[props.keyField]) ?
+    constructor(props) {
+        super(props);
+        this.state = {};
+        this.lastQuery;
+        /**
+         * @description Used to set State of Grid with pagination number
+         * @param {Number}
+         *            currentPage - current page number
+         */
+        this.onCurrentPageChange = currentPage => this.setState({ currentPage });
+        /**
+         * @description Used to Set State of grid with Column width
+         * @param {String}
+         *            columnWidths[].columnName - name of the column
+         * @param {Number}
+         *            columnWidths[].width - width of the column
+         */
+        this.onColumnWidthsChange = columnWidths => this.setState({ columnWidths });
+        /**
+         * @description Used to Set State of Grid with column order
+         * @param {Array}
+         *            order - ["ColName1","ColName2",...]
+         */
+        this.onOrderChange = order => this.setState({ order });
+        /**
+         * @description Used to set Pagination row Nummber
+         * @param {Number}
+         *            pageSize - sets size of the number for
+         */
+        this.onPageSizeChange = pageSize => {
+            var { currentPage, totalCount } = this.state;
+            currentPage = Math.min(currentPage, Math.ceil(totalCount / pageSize) - 1);
+            this.setState({ pageSize, currentPage });
+        };
+        /**
+         * @description get selected array from grid
+         */
+        this.getSelected = () =>
+            this.state.rows.reduce((accumulator, row) => {
+                this.state.selection.includes(row[props.keyField]) ?
+                    accumulator.push(row) :
+                    "";
+                return accumulator;
+            }, []);
+        // //////////////////////////////////////////------2-----////////////////////////////////////////
+        /**
+         * @description Used to Set Sorting state of Grid with column name
+         * @example Used only in XMainGrid and XGrid
+         * @param {String}
+         *            sorting
+         */
+        this.onSortingChange = sorting => this.setState({ sorting });
+        /**
+         * @description
+         *
+         * You can access every row data Also Used to Map Doulble click action to
+         * the row
+         * @example Used Only in XMainGrid and XGrid
+         * @param {Object}
+         *            tableRowData -
+         * @param {Symbol}
+         *            tableRowData.childeren -React.Components
+         * @param {Object}
+         *            tableRowData.row - Row Data
+         * @param {Object}
+         *            tableRowData.TableRow - {Current RowData,key,type,rowId}
+         */
+        this.rowComponent = tableRowData => {
+            var { openTab, crudFlags, pk, crudFormId } = this.props;
+            return _(
+                _dxgrb.Table.Row,
+                openTab && crudFlags && crudFlags.edit && pk && crudFormId ?
+                Object.assign({},tableRowData,
+                    {
+                        onDoubleClick: event =>
+                            this.onEditClick({
+                                event,
+                                rowData: tableRowData.row,
+                                openEditable: !!this.props.openEditable
+                            }),
+                        style: Object.assign({},tableRowData.style, {cursor: "pointer" })
+                    }
+                ) :
+                tableRowData
+            );
+        };
+        /**
+         * @description will open new page with
+         * @example Used in XMainGrid and XGrid
+         * @param {event}
+         *            event - Event from of the clicked buttuon
+         * @param {state/props}
+         *            grid -state of the grid
+         * @param {Array}
+         *            row - row data to pass into _postInsert
+         */
+        this.onOnNewRecord = (event, grid, row) => {
+            if (!grid) grid = this.props;
+            if (grid.crudFlags && grid.crudFlags.insert && this.props.openTab) {
+                var url = "showForm?a=2&_fid=" + grid.crudFormId;
+                if (grid._postInsert) {
+                    url = grid._postInsert(row || {}, url, grid);
+                    if (!url) return;
+                }
+                var modal = !!event.ctrlKey;
+                this.props.openTab(
+                    "2-" + grid.gridId,
+                    url + (modal ? "&_modal=1" : ""), {}, { modal: modal }
+                );
+            }
+        };
+        /**
+         * @description prerpares url with query
+         * @example Used in XMainGrid and XGrid to make query inside loadData
+         * @returns {String}
+         */
+        this.queryString = () => {
+            const { sorting, pageSize, currentPage } = this.state;
+            let queryString =
+                this.props._url +
+                "&limit=" +
+                pageSize +
+                "&start=" +
+                pageSize * currentPage;
+            const columnSorting = sorting[0];
+            if (columnSorting) {
+                const sortingDirectionString =
+                    columnSorting.direction === "desc" ? " desc" : "";
+                queryString +=
+                    "&sort=" + columnSorting.columnName + sortingDirectionString;
+            }
+            return queryString;
+        };
+        /**
+         * @description Used to Edit and double click on the row
+         * @param {
+         *            Object } param0 - consist of two data evet and Rowdata
+         * @param {
+         *            Event } param0.event - Click event from the Edit button and
+         *            double click on the row
+         * @param {
+         *            rowData } param0.rowData - Data of the row where the Edit
+         *            button or double click clicked
+         */
+        this.onEditClick = ( extraProps ) => {
+            var { event, rowData, openEditable} = extraProps;
+            var { props } = this;
+            var pkz = buildParams2(props.pk, rowData);
+            var url = "showForm?a=1&_fid=" + props.crudFormId + pkz;
+            if (props._postUpdate) {
+                var url = this.props._postUpdate(rowData, url, props);
+                if (!url) return;
+            }
+            var modal = event.ctrlKey && !!event.ctrlKey;
+            props.openTab(
+                "1-" + pkz,
+                url + (modal ? "&_modal=1" : ""), {}, Object.assign({},{ modal, openEditable, rowData}, props, extraProps )
+            );
+        };
+        /**
+         * todo
+         *
+         * @param {Object}
+         *            param0 - event from delete button
+         * @param {Event}
+         *            param0.event - event from delete button
+         * @param {Array}
+         *            param0.rowData - data for the deleted Row
+         */
+        this.onDeleteClick = ({ event, rowData }) => {
+            var { pk, crudFormId } = this.props;
+            var pkz = buildParams2(pk, rowData);
+            var url = "ajaxPostForm?a=3&_fid=" + crudFormId + pkz;
+            yesNoDialog({
+                text: getLocMsg("are_you_sure"),
+                callback: success => {
+                    if (success) {
+                        iwb.request({ url, successCallback: () => this.loadData(true) });
+                    }
+                }
+            });
+        };
+        /**
+         * @description used to make request and fill the grid
+         * @param {boolean}
+         *            force - to fill with up to date data
+         */
+        this.loadData = force => {
+            if (this.props.rows || this.state.loading) return;
+            const queryString = this.queryString();
+            if (!force && queryString === this.lastQuery) {
+                return;
+            }
+            this.setState({ rows: [], loading: true });
+            iwb.request({
+                url: queryString,
+                self: this,
+                params: this.props.searchForm &&
+                    iwb.getFormValues(document.getElementById(this.props.searchForm.id)),
+                successCallback: (result, cfg) => {
+                    cfg.self.setState({
+                        rows: result.data,
+                        totalCount: result.total_count,
+                        loading: false
+                    });
+                },
+                errorCallback: (error, cfg) => {
+                    cfg.self.setState({
+                        rows: [],
+                        totalCount: 0,
+                        loading: false
+                    });
+                }
+            });
+            this.lastQuery = queryString;
+        };
+        // ####################################EDit Grid Common
+        // ############################################
+        /**
+         * @param {Array}
+         *            editingRowIds - IDs of the Editing rows
+         */
+        this.onEditingRowIdsChange = editingRowIds =>
+            this.setState({ editingRowIds });
+        /**
+         * @description A function that returns a row change object depending on row
+         *              editor values. This function is called each time the row
+         *              editor’s value changes.
+         * @param {object}
+         *            addedRows - (row: any, columnName: string, value: string |
+         *            number)
+         */
+        this.onAddedRowsChange = addedRows => {
+            var newRecord = Object.assign({}, this.props.newRecord || {});
+            var pk = this.state.pkInsert;
+            --pk;
+            newRecord[this.props.keyField] = pk;
+            this.setState({
+                pk4Insert: pk,
+                addedRows: addedRows.map(
+                    row => (Object.keys(row).length ? row : newRecord)
+                )
+            });
+        };
+        /**
+         * @description Handles adding or removing a row changes to/from the
+         *              rowChanges array.
+         * @param {Array}
+         *            rowChanges -(rowChanges: { [key: string]: any }) => void
+         */
+        this.onRowChangesChange = rowChanges => {
+            this.setState({ rowChanges });
+        };
+        /**
+         * @description Handles selection changes.
+         * @param {Array}
+         *            selection - (selection: Array<number | string>) => void
+         */
+        this.onSelectionChange = (selection,aqq) => {
+
+            this.setState({ selection });
+            if(this.props.onSelectionChange){
+                var sels = this.state.rows.reduce((accumulator, row) => {
+                    selection.includes(row[this.props.keyField]) ?
                         accumulator.push(row) :
                         "";
                     return accumulator;
                 }, []);
-            // //////////////////////////////////////////------2-----////////////////////////////////////////
-            /**
-             * @description Used to Set Sorting state of Grid with column name
-             * @example Used only in XMainGrid and XGrid
-             * @param {String}
-             *            sorting
-             */
-            this.onSortingChange = sorting => this.setState({ sorting });
-            /**
-             * @description
-             *
-             * You can access every row data Also Used to Map Doulble click action to
-             * the row
-             * @example Used Only in XMainGrid and XGrid
-             * @param {Object}
-             *            tableRowData -
-             * @param {Symbol}
-             *            tableRowData.childeren -React.Components
-             * @param {Object}
-             *            tableRowData.row - Row Data
-             * @param {Object}
-             *            tableRowData.TableRow - {Current RowData,key,type,rowId}
-             */
-            this.rowComponent = tableRowData => {
-                var { openTab, crudFlags, pk, crudFormId } = this.props;
-                return _(
-                    _dxgrb.Table.Row,
-                    openTab && crudFlags && crudFlags.edit && pk && crudFormId ?
-                    Object.assign({},tableRowData,
-                        {
-                            onDoubleClick: event =>
-                                this.onEditClick({
-                                    event,
-                                    rowData: tableRowData.row,
-                                    openEditable: !!this.props.openEditable
-                                }),
-                            style: Object.assign({},tableRowData.style, {cursor: "pointer" })
-                        }
-                    ) :
-                    tableRowData
-                );
-            };
-            /**
-             * @description will open new page with
-             * @example Used in XMainGrid and XGrid
-             * @param {event}
-             *            event - Event from of the clicked buttuon
-             * @param {state/props}
-             *            grid -state of the grid
-             * @param {Array}
-             *            row - row data to pass into _postInsert
-             */
-            this.onOnNewRecord = (event, grid, row) => {
-                if (!grid) grid = this.props;
-                if (grid.crudFlags && grid.crudFlags.insert && this.props.openTab) {
-                    var url = "showForm?a=2&_fid=" + grid.crudFormId;
-                    if (grid._postInsert) {
-                        url = grid._postInsert(row || {}, url, grid);
-                        if (!url) return;
-                    }
-                    var modal = !!event.ctrlKey;
-                    this.props.openTab(
-                        "2-" + grid.gridId,
-                        url + (modal ? "&_modal=1" : ""), {}, { modal: modal }
-                    );
-                }
-            };
-            /**
-             * @description prerpares url with query
-             * @example Used in XMainGrid and XGrid to make query inside loadData
-             * @returns {String}
-             */
-            this.queryString = () => {
-                const { sorting, pageSize, currentPage } = this.state;
-                let queryString =
-                    this.props._url +
-                    "&limit=" +
-                    pageSize +
-                    "&start=" +
-                    pageSize * currentPage;
-                const columnSorting = sorting[0];
-                if (columnSorting) {
-                    const sortingDirectionString =
-                        columnSorting.direction === "desc" ? " desc" : "";
-                    queryString +=
-                        "&sort=" + columnSorting.columnName + sortingDirectionString;
-                }
-                return queryString;
-            };
-            /**
-             * @description Used to Edit and double click on the row
-             * @param {
-             *            Object } param0 - consist of two data evet and Rowdata
-             * @param {
-             *            Event } param0.event - Click event from the Edit button and
-             *            double click on the row
-             * @param {
-             *            rowData } param0.rowData - Data of the row where the Edit
-             *            button or double click clicked
-             */
-            this.onEditClick = ( extraProps ) => {
-            	var { event, rowData, openEditable} = extraProps;
-                var { props } = this;
-                var pkz = buildParams2(props.pk, rowData);
-                var url = "showForm?a=1&_fid=" + props.crudFormId + pkz;
-                if (props._postUpdate) {
-                    var url = this.props._postUpdate(rowData, url, props);
-                    if (!url) return;
-                }
-                var modal = event.ctrlKey && !!event.ctrlKey;
-                props.openTab(
-                    "1-" + pkz,
-                    url + (modal ? "&_modal=1" : ""), {}, Object.assign({},{ modal, openEditable, rowData}, props, extraProps )
-                );
-            };
-            /**
-             * todo
-             *
-             * @param {Object}
-             *            param0 - event from delete button
-             * @param {Event}
-             *            param0.event - event from delete button
-             * @param {Array}
-             *            param0.rowData - data for the deleted Row
-             */
-            this.onDeleteClick = ({ event, rowData }) => {
-                var { pk, crudFormId } = this.props;
-                var pkz = buildParams2(pk, rowData);
-                var url = "ajaxPostForm?a=3&_fid=" + crudFormId + pkz;
+                this.props.onSelectionChange(sels);
+            }
+        };
+        /**
+         * Used to delete from the frontend
+         *
+         * @param {Array}
+         *            param0
+         * @param {Array}
+         *            param0.deleted
+         */
+        this.onCommitChanges = ({ deleted }) => {
+            let { rows, deletedRows } = this.state;
+            if (deleted && deleted.length) {
                 yesNoDialog({
                     text: getLocMsg("are_you_sure"),
                     callback: success => {
                         if (success) {
-                            iwb.request({ url, successCallback: () => this.loadData(true) });
-                        }
-                    }
-                });
-            };
-            /**
-             * @description used to make request and fill the grid
-             * @param {boolean}
-             *            force - to fill with up to date data
-             */
-            this.loadData = force => {
-                if (this.props.rows || this.state.loading) return;
-                const queryString = this.queryString();
-                if (!force && queryString === this.lastQuery) {
-                    return;
-                }
-                this.setState({ rows: [], loading: true });
-                iwb.request({
-                    url: queryString,
-                    self: this,
-                    params: this.props.searchForm &&
-                        iwb.getFormValues(document.getElementById(this.props.searchForm.id)),
-                    successCallback: (result, cfg) => {
-                        cfg.self.setState({
-                            rows: result.data,
-                            totalCount: result.total_count,
-                            loading: false
-                        });
-                    },
-                    errorCallback: (error, cfg) => {
-                        cfg.self.setState({
-                            rows: [],
-                            totalCount: 0,
-                            loading: false
-                        });
-                    }
-                });
-                this.lastQuery = queryString;
-            };
-            // ####################################EDit Grid Common
-            // ############################################
-            /**
-             * @param {Array}
-             *            editingRowIds - IDs of the Editing rows
-             */
-            this.onEditingRowIdsChange = editingRowIds =>
-                this.setState({ editingRowIds });
-            /**
-             * @description A function that returns a row change object depending on row
-             *              editor values. This function is called each time the row
-             *              editor’s value changes.
-             * @param {object}
-             *            addedRows - (row: any, columnName: string, value: string |
-             *            number)
-             */
-            this.onAddedRowsChange = addedRows => {
-                var newRecord = Object.assign({}, this.props.newRecord || {});
-                var pk = this.state.pkInsert;
-                --pk;
-                newRecord[this.props.keyField] = pk;
-                this.setState({
-                    pk4Insert: pk,
-                    addedRows: addedRows.map(
-                        row => (Object.keys(row).length ? row : newRecord)
-                    )
-                });
-            };
-            /**
-             * @description Handles adding or removing a row changes to/from the
-             *              rowChanges array.
-             * @param {Array}
-             *            rowChanges -(rowChanges: { [key: string]: any }) => void
-             */
-            this.onRowChangesChange = rowChanges => {
-                this.setState({ rowChanges });
-            };
-            /**
-             * @description Handles selection changes.
-             * @param {Array}
-             *            selection - (selection: Array<number | string>) => void
-             */
-            this.onSelectionChange = (selection,aqq) => {
-
-                this.setState({ selection });
-            	if(this.props.onSelectionChange){
-            		var sels = this.state.rows.reduce((accumulator, row) => {
-            			selection.includes(row[this.props.keyField]) ?
-                            accumulator.push(row) :
-                            "";
-                        return accumulator;
-                    }, []);
-            		this.props.onSelectionChange(sels);
-            	}
-            };
-            /**
-             * Used to delete from the frontend
-             *
-             * @param {Array}
-             *            param0
-             * @param {Array}
-             *            param0.deleted
-             */
-            this.onCommitChanges = ({ deleted }) => {
-                let { rows, deletedRows } = this.state;
-                if (deleted && deleted.length) {
-                    yesNoDialog({
-                        text: getLocMsg("are_you_sure"),
-                        callback: success => {
-                            if (success) {
-                                rows = rows.slice();
-                                deleted.forEach(rowId => {
-                                    const index = rows.findIndex(
-                                        row => row[this.props.keyField] === rowId
-                                    );
-                                    if (index > -1) {
-                                        if (rowId > 0) {
-                                            deletedRows.push(Object.assign({}, rows[index]));
-                                        }
-                                        rows.splice(index, 1);
+                            rows = rows.slice();
+                            deleted.forEach(rowId => {
+                                const index = rows.findIndex(
+                                    row => row[this.props.keyField] === rowId
+                                );
+                                if (index > -1) {
+                                    if (rowId > 0) {
+                                        deletedRows.push(Object.assign({}, rows[index]));
                                     }
-                                });
-                                this.setState({ rows, deletingRows: [], deletedRows });
-                            }
+                                    rows.splice(index, 1);
+                                }
+                            });
+                            this.setState({ rows, deletingRows: [], deletedRows });
                         }
-                    });
-                }
-            };
-            /**
-             * @example push id to this.state.deletingRows then this.deleteRows();
-             */
-            this.deleteRows = () => {
-                const rows = this.state.rows.slice();
-                this.state.deletingRows.forEach(rowId => {
-                    const index = rows.findIndex(row => row.id === rowId);
-                    if (index > -1) {
-                        rows.splice(index, 1);
                     }
                 });
-                this.setState({ rows, deletingRows: [] });
-            };
-        }
-    }
-    /**
-     * helper componet for MapInput
-     */
-class XMap extends React.PureComponent {
-    constructor(props) {
-            super(props);
-            /**
-             * there is no state since if we provide state it will start rerendering
-             * itself
-             */
-            this.map;
-            this.script;
-            this.marker;
-            this.geocoder;
-            this.inputNode;
-            this.infoWindow;
-            this.autoComplete;
-            this.elementsWithListeners = [];
-            this.defPosition = { lat: 41.0082, lng: 28.9784 };
-            !props.apiKey && alert("GoogleMaps:::::::this.props.apiKey not provided");
-            this.id = "GoogleMaps" + Math.floor(Math.random() * 1000 + 1);
-            /*
-             * runs on ofter scrip is loaded
-             */
-            this.onScriptLoad = () => {
-                this.map = this.createMap(this.props.mapOpt || {});
-                this.marker = this.createMarker(this.props.markerOpt || {});
-                this.geocoder = this.createGeocoder(this.props.geocoderOpt || {});
-                this.infoWindow = this.createInfoWindow(Object.assign({},{
-                    maxWidth: 300},
-                    this.props.infoWindowOpt
-                ));
-                this.autoComplete = this.createAutocomplete(
-                    this.props.autocompleteOpt || undefined
-                );
-                this.props.onMapLoad && this.props.onMapLoad(this);
-                /** after all the map listeners is set */
-                this.elementsWithListeners.push(this.map);
-                this.elementsWithListeners.push(this.marker);
-                this.elementsWithListeners.push(this.script);
-                this.elementsWithListeners.push(this.geocoder);
-                this.elementsWithListeners.push(this.inputNode);
-                this.elementsWithListeners.push(this.infoWindow);
-                this.elementsWithListeners.push(this.autoComplete);
-            };
-            /**
-             * locate me on the map and used as if stetement for displaying button
-             * of geolocation
-             */
-            this.findMe = () => {
-                if (window.navigator.geolocation) {
-                    window.navigator.geolocation.getCurrentPosition(this.findMeOuter);
-                    return true;
-                } else {
-                    return false;
-                }
-            };
-            /**
-             * A function to create Google Map object
-             *
-             * @param {Object}
-             *            opt
-             */
-            this.createMap = opt => {
-                let opt1 = {
-                    center: this.defPosition,
-                    zoom: 8
-                };
-                return new window.google.maps.Map(document.getElementById(this.id), Object.assign({},opt1,opt));
-            };
-            /**
-             * A function return GMarker
-             */
-            this.createMarker = opt => {
-                let opt1 = {
-                    position: this.defPosition,
-                    draggable: true,
-                    map: this.map,
-                    title: "default title"
-                };
-                return new window.google.maps.Marker(Object.assign({},opt1, opt ));
-            };
-            /**
-             * a function used to init geolocation
-             *
-             * @param {Object}
-             *            opt
-             */
-            this.createGeocoder = opt => {
-                let opt1 = {};
-                return new window.google.maps.Geocoder(Object.assign({},opt1, opt ));
-            };
-            /**
-             * a function to create InfoWindow
-             *
-             * @param {Object}
-             *            opt
-             */
-            this.createInfoWindow = opt => {
-                let opt1 = {
-                    content: `<div id="infoWindow" />`,
-                    position: this.defPosition
-                };
-                return new window.google.maps.InfoWindow(Object.assign({},opt1, opt ));
-            };
-            /**
-             * A function return Autocomplete
-             *
-             * @param {HTMLElement}
-             *            inputNode
-             */
-            this.createAutocomplete = (
-                inputNode = document.getElementById("pac-input")
-            ) => {
-                this.inputNode = inputNode;
-                return new window.google.maps.places.Autocomplete(inputNode);
-            };
-            /**
-             * function to remove listeners from the dom element
-             *
-             * @param {HTMLElement}
-             *            element
-             */
-            this.removeAllEventListenersFromElement = element => {
-                /**
-                 * to find out if it is a dom object
-                 */
-                if (element && element.cloneNode) {
-                    let clone = element.cloneNode();
-                    // move all child elements from the original to the clone
-                    while (element.firstChild) {
-                        clone.appendChild(element.lastChild);
-                    }
-                    element.parentNode.replaceChild(clone, element);
-                }
-            };
-            /**
-             * A function to remove listeners from the array of obj
-             *
-             * @param {Array}
-             *            elements
-             */
-            this.removeAllEventListenersFromElements = (elements = []) => {
-                /** cheks if it is array */
-                elements &&
-                    typeof elements.length === "number" &&
-                    elements.length > 0 &&
-                    elements.map(this.removeAllEventListenersFromElement);
-            };
-        }
-        /**
-         * Used to load script to the body
-         */
-    componentDidMount() {
-            if (!window.google) {
-                this.script = document.createElement("script");
-                this.script.id = "script-" + this.id;
-                this.script.type = "text/javascript";
-                this.script.async = false;
-                this.script.src = `https://maps.googleapis.com/maps/api/js?key=${
-        this.props.apiKey
-      }&libraries=places`;
-                var xscript = document.getElementsByTagName("script")[0];
-                xscript.parentNode.insertBefore(this.script, xscript);
-                // Below is important.
-                // We cannot access google.maps until it's finished loading
-                this.script.addEventListener("load", e => {
-                    this.onScriptLoad();
-                });
-            } else {
-                this.onScriptLoad();
             }
-        }
+        };
         /**
-         * Used to delete all listeners and delete script from the body but all
-         * the google func will work
+         * @example push id to this.state.deletingRows then this.deleteRows();
          */
-    componentWillUnmount() {
-        this.removeAllEventListenersFromElements(this.elementsWithListeners);
-    }
-    render() {
-        return React.createElement(
-            React.Fragment,
-            null,
-            React.createElement(
-                PopoverHeader,
-                null,
-                React.createElement(
-                    FormGroup,
-                    null,
-                    React.createElement(Label, { for: "exampleEmail" }, "Address"),
-                    React.createElement(
-                        "div", {
-                            style: { cursor: "pointer" },
-                            className: "float-right",
-                            onClick: () => {
-                                this.props.onClick(false);
-                            }
-                        },
-                        React.createElement("i", { className: "icon-close" })
-                    ),
-                    React.createElement(
-                        InputGroup, { type: "text", name: "name" },
-                        React.createElement(
-                            InputGroupAddon, { hidden: !!this.findMe, addonType: "prepend" },
-                            React.createElement(
-                                Button, {
-                                    disabled: !!this.findMe,
-                                    type: "submit",
-                                    onClick: this.findMe
-                                },
-                                React.createElement("i", { className: "icon-location-pin" })
-                            )
-                        ),
-                        React.createElement(Input, {
-                            id: "pac-input",
-                            type: "text",
-                            placeholder: "Enter a location"
-                        }),
-                        React.createElement(
-                            InputGroupAddon, { addonType: "append" },
-                            React.createElement(
-                                Button, {
-                                    type: "submit",
-                                    onClick: this.props.onClick,
-                                    className: "btn btn-success"
-                                },
-                                _("i", { className: "icon-pin" })
-                            )
-                        )
-                    )
-                )
-            ),
-            React.createElement(
-                PopoverBody,
-                null,
-                React.createElement("div", {
-                    style: {
-                        width: this.props.width || 400,
-                        height: this.props.height || 400
-                    },
-                    id: this.id
-                })
-            )
-        );
+        this.deleteRows = () => {
+            const rows = this.state.rows.slice();
+            this.state.deletingRows.forEach(rowId => {
+                const index = rows.findIndex(row => row.id === rowId);
+                if (index > -1) {
+                    rows.splice(index, 1);
+                }
+            });
+            this.setState({ rows, deletingRows: [] });
+        };
     }
 }
-class MapInput extends React.PureComponent {
-        constructor(props) {
-            super(props);
-            let st =
-                props.stringifyResult && props.value ?
-                JSON.parse(props.value) :
-                props.value;
-            this.state = {
-                zoom: st.zoom || 8,
-                maptype: st.maptype || "roadmap",
-                formatted_address: st.formatted_address || "",
-                place_id: st.place_id || "",
-                place_lat: st.place_lat || "",
-                place_lng: st.place_lng || "",
-                mapOpen: false
-            };
-            this.popoverId = this.props.id ?
-                "popoverId" + this.props.id :
-                "popoverId" + Math.floor(Math.random() * 1000 + 1);
-            /**
-             * a function used to hide and open the map on the DOM
-             */
-            this.toggle = () => {
-                this.setState(prevState => ({
-                    mapOpen: !prevState.mapOpen
-                }));
-            };
-            /**
-             * a function used to render info window content
-             */
-            this.getInfoWindowContent = () => {
-                return `
-	            <div class="">
-	                <div class="card-body">
-	                    <h5 class="card-title text-center">
-	                    		<i class="navbar-brand icon-globe"></i>
-	                    ${this.state.formatted_address}</h5>
-	                </div>
-	            </div>
-	            `;
-            };
-            /**
-             * it is a callback function which will work after imporing the google
-             * script
-             *
-             * @param {object}
-             *            innerScope - state of the internal component
-             */
-            this.onMapLoad = innerScope => {
-                innerScope.geocoder.geocode(
-                    this.state.place_id ?
-                    { placeId: this.state.place_id } :
-                    { latLng: innerScope.defPosition || undefined },
-                    (result, status) => {
-                        if (
-                            status === window.google.maps.GeocoderStatus.OK &&
-                            result.length > 0
-                        ) {
-                            let {
-                                place_id,
-                                formatted_address,
-                                geometry: { location }
-                            } = result[0];
-                            this.setState({
-                                place_id,
-                                formatted_address,
-                                place_lat: location.lat(),
-                                place_lng: location.lng()
-                            });
-                            innerScope.map.setCenter(location);
-                            innerScope.marker.setPosition(location);
-                            innerScope.infoWindow.setPosition(location);
-                            innerScope.inputNode.value = formatted_address;
-                            innerScope.infoWindow.setContent(`${formatted_address}`);
-                            innerScope.infoWindow.open(innerScope.map);
-                        }
-                    }
-                );
-                /** when the marker is clicked */
-                innerScope.marker.addListener("click", event => {
-                    let location = innerScope.marker.getPosition();
-                    innerScope.inputNode.value = this.state.formatted_address;
-                    innerScope.infoWindow.setPosition(location);
-                    innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
-                    innerScope.infoWindow.open(innerScope.map);
-                });
-                /** after marker is left */
-                innerScope.marker.addListener("dragend", event => {
-                    let dragedPoint = innerScope.marker.getPosition();
-                    innerScope.map.panTo(dragedPoint);
 
-                    innerScope.geocoder.geocode({ latLng: dragedPoint },
-                        (result, status) => {
-                            if (
-                                status === window.google.maps.GeocoderStatus.OK &&
-                                result.length > 0
-                            ) {
-                                let {
-                                    place_id,
-                                    formatted_address,
-                                    geometry: { location }
-                                } = result[0];
-                                this.setState({
-                                    place_id,
-                                    formatted_address,
-                                    place_lat: location.lat(),
-                                    place_lng: location.lng()
-                                });
-                                innerScope.map.setCenter(location);
-                                innerScope.marker.setPosition(location);
-                                innerScope.inputNode.value = formatted_address;
-                                innerScope.infoWindow.setPosition(location);
-                                innerScope.infoWindow.setContent(
-                                    `${this.getInfoWindowContent()}`
-                                );
-                                innerScope.infoWindow.open(innerScope.map);
-                            }
-                        }
-                    );
-                });
-                /** lisens for the place change */
-                innerScope.autoComplete.addListener("place_changed", () => {
-                    let place = innerScope.autoComplete.getPlace();
-                    // return if the auto compleate is not selected from the drop down
-                    if (!place.geometry) return;
-                    let {
-                        place_id,
-                        formatted_address,
-                        geometry: { location }
-                    } = place;
-                    this.setState({
-                        place_id,
-                        formatted_address,
-                        place_lat: location.lat(),
-                        place_lng: location.lng()
-                    });
-                    // bring the selected place in view on the innerScope.map
-                    // innerScope.map.fitBounds(place.geometry.viewport);
-                    innerScope.map.setCenter(location);
-                    innerScope.marker.setPosition(location);
-                    innerScope.infoWindow.setPosition(location);
-                    innerScope.infoWindow.setContent(`${this.getInfoWindowContent()}`);
-                    innerScope.infoWindow.open(innerScope.map);
-                });
-
-                innerScope.findMeOuter = position => {
-                    let pos = new window.google.maps.LatLng(
-                        position.coords.latitude,
-                        position.coords.longitude
-                    );
-                    innerScope.geocoder.geocode({ latLng: pos }, (result, status) => {
-                        if (
-                            status === window.google.maps.GeocoderStatus.OK &&
-                            result.length > 0
-                        ) {
-                            let {
-                                place_id,
-                                formatted_address,
-                                geometry: { location }
-                            } = result[0];
-                            this.setState({
-                                place_id,
-                                formatted_address,
-                                place_lat: location.lat(),
-                                place_lng: location.lng()
-                            });
-                            innerScope.map.setCenter(location);
-                            innerScope.marker.setPosition(location);
-                            innerScope.infoWindow.setPosition(location);
-                            innerScope.inputNode.value = formatted_address;
-                            innerScope.infoWindow.setContent(`${formatted_address}`);
-                            innerScope.infoWindow.open(innerScope.map);
-                        }
-                    });
-                };
-            };
-            /**
-             * a function used to give id of the table Row in db
-             *
-             * @param {event}
-             *            event
-             */
-            this.onClick = event => {
-                this.toggle();
-                if (!event) return;
-                event.preventDefault();
-                event.target = Object.assign({},this.props,
-                    {value: this.state,
-                    stringValue: JSON.stringify(this.state)}
-                );
-                this.props.onChange && this.props.onChange(event);
-            };
-        }
-        render() {
-            return React.createElement(
-                React.Fragment,
-                null,
-                React.createElement(
-                    InputGroup, { type: "text", name: "name", id: this.popoverId },
-                    React.createElement(Input, {
-                        type: "text",
-                        value: this.state.formatted_address,
-                        readOnly: true,
-                        disabled: !!this.props.disabled
-                    }),
-                    React.createElement(
-                        InputGroupAddon, { addonType: "append" },
-                        React.createElement(
-                            Button, {
-                                className: "mr-1 btn-success",
-                                onClick: this.toggle,
-                                color: "success",
-                                disabled: !!this.props.disabled
-                            },
-                            React.createElement("i", { className: "icon-map" })
-                        )
-                    )
-                ),
-                React.createElement(
-                    Popover, {
-                        className: "gMapPopover",
-                        placement: "bottom-end",
-                        isOpen: this.state.mapOpen,
-                        target: this.popoverId,
-                        toggle: this.toggle
-                    },
-                    React.createElement(XMap, {
-                        apiKey: _app.map_api,
-                        onMapLoad: this.onMapLoad,
-                        onClick: this.onClick
-                    })
-                )
-            );
-        }
-    }
     /**
      * A component to render Masonry layout
      *
@@ -7633,364 +7152,364 @@ class XLoadingSpinner extends React.Component {
      *              will come from the server side
      */
 class XForm extends React.Component {
-        constructor(props) {
-            super(props);
-            // methods
-            /**
-             * sets the state with value of input
-             *
-             * @param {event}
-             *            param0
-             */
-            this.onChange = ({ target }) => {
-                var { values } = this.state;
-                if (target) {
-                	var oldVal = values[target.name];
-                    values[target.name] =
-                        target.type == "checkbox" ? target.checked : target.value;
-                    this.setState({ values });
-                    if(target._onChange)target._onChange(values[target.name], oldVal, values);
-                }
-            };
-            /**
-             * file uploader function
-             */
-            this.onFileChange = () => (name, result, context) => {
-                var values = this.state.values;
-                var errors = this.state.errors;
-                if (result.success) {
-                    values[name] = result.fileId;
-                    errors[name] = undefined;
-                } else {
-                    errors[name] = result.error;
-                }
-                this.setState({
-                    errors,
-                    values
-                });
-            };
-            /**
-             * sets state for combo change else sets oprions of it after the request
-             *
-             * @param {String}
-             *            inputName
-             */
-            this.onComboChange = inputName => selectedOption => {
-                var { values } = this.state;
-                var selectedOptionId = selectedOption && selectedOption.id;
-                values[inputName] = selectedOptionId;
-                var triggers = this.triggerz4ComboRemotes;
-                // used for remote @depricated
-                if (triggers[inputName]) {
-                    triggers[inputName].map(trigger => {
-                        var nv = trigger.f(selectedOptionId, null, values);
-                        var { options } = this.state;
-                        if (nv) {
-                            iwb.request({
-                                url: "ajaxQueryData?" + iwb.JSON2URI(nv) + ".r=" + Math.random(),
-                                successCallback: ({ data }) => {
-                                    options[trigger.n] = data;
-                                    this.setState({ options });
-                                }
-                            });
-                        } else {
-                            options[trigger.n] = [];
-                            this.setState({ options });
-                        }
-                    });
-                }
+    constructor(props) {
+        super(props);
+        // methods
+        /**
+         * sets the state with value of input
+         *
+         * @param {event}
+         *            param0
+         */
+        this.onChange = ({ target }) => {
+            var { values } = this.state;
+            if (target) {
+                var oldVal = values[target.name];
+                values[target.name] =
+                    target.type == "checkbox" ? target.checked : target.value;
                 this.setState({ values });
+                if(target._onChange)target._onChange(values[target.name], oldVal, values);
+            }
+        };
+        /**
+         * file uploader function
+         */
+        this.onFileChange = () => (name, result, context) => {
+            var values = this.state.values;
+            var errors = this.state.errors;
+            if (result.success) {
+                values[name] = result.fileId;
+                errors[name] = undefined;
+            } else {
+                errors[name] = result.error;
+            }
+            this.setState({
+                errors,
+                values
+            });
+        };
+        /**
+         * sets state for combo change else sets oprions of it after the request
+         *
+         * @param {String}
+         *            inputName
+         */
+        this.onComboChange = inputName => selectedOption => {
+            var { values } = this.state;
+            var selectedOptionId = selectedOption && selectedOption.id;
+            values[inputName] = selectedOptionId;
+            var triggers = this.triggerz4ComboRemotes;
+            // used for remote @depricated
+            if (triggers[inputName]) {
+                triggers[inputName].map(trigger => {
+                    var nv = trigger.f(selectedOptionId, null, values);
+                    var { options } = this.state;
+                    if (nv) {
+                        iwb.request({
+                            url: "ajaxQueryData?" + iwb.JSON2URI(nv) + ".r=" + Math.random(),
+                            successCallback: ({ data }) => {
+                                options[trigger.n] = data;
+                                this.setState({ options });
+                            }
+                        });
+                    } else {
+                        options[trigger.n] = [];
+                        this.setState({ options });
+                    }
+                });
+            }
+            this.setState({ values });
 //                if(target._onChange)target._onChange(values[target.name], oldVal, values);
 
-            };
+        };
 
-            /**
-             * sets state when low combo is entered
-             *
-             * @param {String}
-             *            inputName
-             */
-            this.onLovComboChange = inputName => selectedOptions => {
-                var { values } = this.state;
-                var selectedOptionIds = [];
-                if (selectedOptions) {
-                    selectedOptions.map(selectedOption => {
-                    	selectedOptionIds.push(selectedOption.id);
-                    });
-                }
-                values[inputName] = selectedOptionIds.join(",");
-                this.setState({ values });
-            };
+        /**
+         * sets state when low combo is entered
+         *
+         * @param {String}
+         *            inputName
+         */
+        this.onLovComboChange = inputName => selectedOptions => {
+            var { values } = this.state;
+            var selectedOptionIds = [];
+            if (selectedOptions) {
+                selectedOptions.map(selectedOption => {
+                    selectedOptionIds.push(selectedOption.id);
+                });
+            }
+            values[inputName] = selectedOptionIds.join(",");
+            this.setState({ values });
+        };
 
-            this.onCheckboxGroupChange = inputName => actionOption => {
-                var { values } = this.state;
-                var selectedOptionIds = values[inputName] ? values[inputName].split(','):[];
-                if (actionOption.checked) {//add
-                	selectedOptionIds.push(actionOption.id);
-                } else { //remove
-                	var ar = []
-                	selectedOptionIds.map(o=>{
-                		if(o!=actionOption.id)ar.push(o);
-                	});
-                	selectedOptionIds = ar;
-                	
+        this.onCheckboxGroupChange = inputName => actionOption => {
+            var { values } = this.state;
+            var selectedOptionIds = values[inputName] ? values[inputName].split(','):[];
+            if (actionOption.checked) {//add
+                selectedOptionIds.push(actionOption.id);
+            } else { //remove
+                var ar = []
+                selectedOptionIds.map(o=>{
+                    if(o!=actionOption.id)ar.push(o);
+                });
+                selectedOptionIds = ar;
+                
+            }
+            values[inputName] = selectedOptionIds.join(",");
+            this.setState({ values });
+        };
+        /**
+         * sets state when number entered
+         *
+         * @param {String}
+         *            dsc
+         */
+        this.onNumberChange = inputName => inputEvent => {
+            var { values } = this.state;
+            var inputValue = inputEvent && inputEvent.value;
+            values[inputName] = inputValue;
+            this.setState({ values });
+        };
+        /**
+         * sets state when html entered
+         */
+        this.onHtmlChange = inputName => value => {
+            var { values } = this.state;
+            values[inputName] = value;
+            this.setState({ values });
+        };
+        /** acts very simmilar */
+        this.onTreeSelectChange = this.onHtmlChange;
+        /**
+         * sends post to the server
+         *
+         * @param {Object} cfg
+         */
+        this.submit = cfg => {
+            var baseValues = iwb.formBaseValues(cfg.id);
+            var values = Object.assign({}, baseValues, this.state.values );
+            if (this.componentWillPost) {
+                /**
+                 * componentWillPostResult = true || fase || {field_name : 'custom
+                 * value'}
+                 */
+                var componentWillPostResult = this.componentWillPost(values, cfg || {});
+                if (!componentWillPostResult){
+                    iwb.loadingDeactive();
+                    return false;
                 }
-                values[inputName] = selectedOptionIds.join(",");
-                this.setState({ values });
-            };
-            /**
-             * sets state when number entered
-             *
-             * @param {String}
-             *            dsc
-             */
-            this.onNumberChange = inputName => inputEvent => {
-                var { values } = this.state;
-                var inputValue = inputEvent && inputEvent.value;
-                values[inputName] = inputValue;
-                this.setState({ values });
-            };
-            /**
-             * sets state when html entered
-             */
-            this.onHtmlChange = inputName => value => {
-                var { values } = this.state;
-                values[inputName] = value;
-                this.setState({ values });
-            };
-            /** acts very simmilar */
-            this.onTreeSelectChange = this.onHtmlChange;
-            /**
-             * sends post to the server
-             *
-             * @param {Object} cfg
-             */
-            this.submit = cfg => {
-                var baseValues = iwb.formBaseValues(cfg.id);
-                var values = Object.assign({}, baseValues, this.state.values );
-                if (this.componentWillPost) {
-                    /**
-                     * componentWillPostResult = true || fase || {field_name : 'custom
-                     * value'}
-                     */
-                    var componentWillPostResult = this.componentWillPost(values, cfg || {});
-                    if (!componentWillPostResult){
-                    	iwb.loadingDeactive();
-                    	return false;
-                    }
-                    values = Object.assign({}, values, componentWillPostResult );
-                }
-                var requestConfig={
-                    url: this.url +
-                        "?" +
-                        iwb.JSON2URI(this.params) +
-                        "_renderer=react16&.r=" +
-                        Math.random(),
-                    params: values,
-                    self: this,
-                    errorCallback: json => {
-                        iwb.loadingDeactive();
-                        var errors = {};
-                        if (json.errorType)
-                            switch (json.errorType) {
-                            	case	"confirm":
-                            		yesNoDialog({
-                                        text: json.error,
-                                        callback: success => {
-                                            if (success) {
-                                            	requestConfig.params['_confirmId_'+json.objectId]=1;
-                                    			iwb.request(requestConfig);
-                                            }
+                values = Object.assign({}, values, componentWillPostResult );
+            }
+            var requestConfig={
+                url: this.url +
+                    "?" +
+                    iwb.JSON2URI(this.params) +
+                    "_renderer=react16&.r=" +
+                    Math.random(),
+                params: values,
+                self: this,
+                errorCallback: json => {
+                    iwb.loadingDeactive();
+                    var errors = {};
+                    if (json.errorType)
+                        switch (json.errorType) {
+                            case	"confirm":
+                                yesNoDialog({
+                                    text: json.error,
+                                    callback: success => {
+                                        if (success) {
+                                            requestConfig.params['_confirmId_'+json.objectId]=1;
+                                            iwb.request(requestConfig);
                                         }
+                                    }
+                                });
+                                break;
+                            case "validation":
+                                var errMsg = getLocMsg("validation_errors");
+                                if (json.errors && json.errors.length) {
+                                    json.errors.map(oneError => {
+                                        errors[oneError.id] = oneError.msg;
+                                        errMsg+='<li>'+(oneError.dsc||oneError.id)+ ': ' + oneError.msg+'</li>';
                                     });
-                            		break;
-                                case "validation":
-                                	var errMsg = getLocMsg("validation_errors");
-                                    if (json.errors && json.errors.length) {
-                                        json.errors.map(oneError => {
-                                            errors[oneError.id] = oneError.msg;
-                                            errMsg+='<li>'+(oneError.dsc||oneError.id)+ ': ' + oneError.msg+'</li>';
-                                        });
-                                        
-                                    }
-                                    toastr.error(errMsg,{ timeOut: 7000 });
-                                    	
-                                    if (json.error) {
-                                        iwb.showModal({
-                                            title: "ERROR",
-                                            footer: false,
-                                            color: "danger",
-                                            size: "sm",
-                                            body: json.error
-                                        });
-                                    }
-                                    break;
-                                case "framework":
-                                case "security":
-                                case "sql":
-                                case "rhino":
-                                    if (json.error) {
-                                        iwb.showModal({
-                                            title: json.error,
-                                            footer: false,
-                                            color: "danger",
-                                            size: "lg",
-                                            body: _(
+                                    
+                                }
+                                toastr.error(errMsg,{ timeOut: 7000 });
+                                    
+                                if (json.error) {
+                                    iwb.showModal({
+                                        title: "ERROR",
+                                        footer: false,
+                                        color: "danger",
+                                        size: "sm",
+                                        body: json.error
+                                    });
+                                }
+                                break;
+                            case "framework":
+                            case "security":
+                            case "sql":
+                            case "rhino":
+                                if (json.error) {
+                                    iwb.showModal({
+                                        title: json.error,
+                                        footer: false,
+                                        color: "danger",
+                                        size: "lg",
+                                        body: _(
+                                            Media, {
+                                                body: true
+                                            },
+                                            json.objectType &&
+                                            _(
                                                 Media, {
-                                                    body: true
+                                                    heading: true
                                                 },
-                                                json.objectType &&
-                                                _(
-                                                    Media, {
-                                                        heading: true
-                                                    },
-                                                    json.objectType
-                                                ),
+                                                json.objectType
+                                            ),
 
-                                                _(
-                                                    ListGroup, {},
-                                                    json.icodebetter &&
-                                                    json.icodebetter.map((item, index) => {
-                                                        return _(
-                                                            ListGroupItem, {},
+                                            _(
+                                                ListGroup, {},
+                                                json.icodebetter &&
+                                                json.icodebetter.map((item, index) => {
+                                                    return _(
+                                                        ListGroupItem, {},
+                                                        _(
+                                                            ListGroupItemHeading, {},
+                                                            item.errorType,
+                                                            item &&
                                                             _(
-                                                                ListGroupItemHeading, {},
-                                                                item.errorType,
-                                                                item &&
+                                                                Button, {
+                                                                    className: "float-right btn btn-xs",
+                                                                    color: "info",
+                                                                    onClick: e => {
+                                                                        e.preventDefault();
+                                                                        iwb.copyToClipboard(item);
+                                                                    }
+                                                                },
                                                                 _(
-                                                                    Button, {
-                                                                        className: "float-right btn btn-xs",
-                                                                        color: "info",
-                                                                        onClick: e => {
-                                                                            e.preventDefault();
-                                                                            iwb.copyToClipboard(item);
-                                                                        }
+                                                                    "i", {
+                                                                        className: "icon-docs"
                                                                     },
-                                                                    _(
-                                                                        "i", {
-                                                                            className: "icon-docs"
-                                                                        },
-                                                                        ""
-                                                                    )
-                                                                ),
-                                                                item &&
-                                                                _(
-                                                                    Button, {
-                                                                        className: "float-right btn btn-xs",
-                                                                        color: "primary",
-                                                                        onClick: e => {
-                                                                            e.preventDefault();
-                                                                            iwb.log(item);
-                                                                            toastr.success(
-                                                                                "Use CTR + SHIFT + I to see the log content!",
-                                                                                "Console Log", { timeOut: 3000 }
-                                                                            );
-                                                                        }
-                                                                    },
-                                                                    _(
-                                                                        "i", {
-                                                                            className: "icon-target"
-                                                                        },
-                                                                        ""
-                                                                    )
+                                                                    ""
                                                                 )
                                                             ),
+                                                            item &&
                                                             _(
-                                                                ListGroupItemText, {},
-                                                                item &&
+                                                                Button, {
+                                                                    className: "float-right btn btn-xs",
+                                                                    color: "primary",
+                                                                    onClick: e => {
+                                                                        e.preventDefault();
+                                                                        iwb.log(item);
+                                                                        toastr.success(
+                                                                            "Use CTR + SHIFT + I to see the log content!",
+                                                                            "Console Log", { timeOut: 3000 }
+                                                                        );
+                                                                    }
+                                                                },
                                                                 _(
-                                                                    "pre", {},
-                                                                    window.JSON.stringify(item, null, 2)
+                                                                    "i", {
+                                                                        className: "icon-target"
+                                                                    },
+                                                                    ""
                                                                 )
                                                             )
-                                                        );
-                                                    })
-                                                )
+                                                        ),
+                                                        _(
+                                                            ListGroupItemText, {},
+                                                            item &&
+                                                            _(
+                                                                "pre", {},
+                                                                window.JSON.stringify(item, null, 2)
+                                                            )
+                                                        )
+                                                    );
+                                                })
                                             )
-                                        });
-                                    }
-                                    break;
-                                default:
-                                    alert(json.errorType);
-                            }
-                        else alert(json);
-                        this.setState({ errors });
-                        return false;
-                    },
-                    successCallback: (json, xcfg) => {
-                        iwb.loadingDeactive();
-                        this.setState({errors:{}});
-                        if (xcfg.self.componentDidPost && xcfg.self.componentDidPost(json, xcfg)===false)return;
-                        if (cfg.callback) cfg.callback(json, xcfg);
-                    }
-                }
-                iwb.request(requestConfig);
-            };
-            /**
-             * used to make form active tab and visible on the page
-             *
-             * @param {object}
-             *            tab
-             */
-            this.toggleTab = tab => {
-                if (this.state.activeTab !== tab) {
-                    this.setState({ activeTab: tab });
-                }
-            };
-            /**
-             * returns form data from state
-             */
-            this.getValues = () => Object.assign({}, this.state.values );
-            /**
-             * used for date inputs
-             *
-             * @param {String} inputName
-             * @param {Boolean} isItDTTM
-             */
-            this.onDateChange = (inputName, isItDTTM) => selectedDate => {
-                var values = this.state.values;
-                var dateValue = selectedDate && selectedDate._d;
-                values[inputName] = isItDTTM ?
-                    fmtDateTime(dateValue) :
-                    fmtShortDate(dateValue);
-                this.setState({ values });
-            };
-            this.onTimeChange = (inputName) => momentObject => {
-            	var time = momentObject;
-            	if(typeof(momentObject) !== "string"){
-            		time = momentObject.format("hh:mm a");
-            	}
-            	var values = this.state.values;
-            	values[inputName] = time;
-            	this.setState({values});
-            }
-            
-        }
-        componentDidMount() {
-           /* debugger
-            var triggers = this.triggerz4ComboRemotes;
-            var { values } = this.state;
-            for (var trigger in triggers) {
-                if (values[trigger]) {
-                    triggers[trigger].map(zzz => {
-                        var nv = zzz.f(values[trigger], null, values);
-                        if (nv)
-                            iwb.request({
-                                url: "ajaxQueryData?" + iwb.JSON2URI(nv) + ".r=" + Math.random(),
-                                successCallback: ({ data }) => {
-                                    var { options } = this.state;
-                                    options[zzz.n] = data;
-                                    this.setState({ options });
+                                        )
+                                    });
                                 }
-                            });
-                    });
+                                break;
+                            default:
+                                alert(json.errorType);
+                        }
+                    else alert(json);
+                    this.setState({ errors });
+                    return false;
+                },
+                successCallback: (json, xcfg) => {
+                    iwb.loadingDeactive();
+                    this.setState({errors:{}});
+                    if (xcfg.self.componentDidPost && xcfg.self.componentDidPost(json, xcfg)===false)return;
+                    if (cfg.callback) cfg.callback(json, xcfg);
                 }
-            } */
+            }
+            iwb.request(requestConfig);
+        };
+        /**
+         * used to make form active tab and visible on the page
+         *
+         * @param {object}
+         *            tab
+         */
+        this.toggleTab = tab => {
+            if (this.state.activeTab !== tab) {
+                this.setState({ activeTab: tab });
+            }
+        };
+        /**
+         * returns form data from state
+         */
+        this.getValues = () => Object.assign({}, this.state.values );
+        /**
+         * used for date inputs
+         *
+         * @param {String} inputName
+         * @param {Boolean} isItDTTM
+         */
+        this.onDateChange = (inputName, isItDTTM) => selectedDate => {
+            var values = this.state.values;
+            var dateValue = selectedDate && selectedDate._d;
+            values[inputName] = isItDTTM ?
+                fmtDateTime(dateValue) :
+                fmtShortDate(dateValue);
+            this.setState({ values });
+        };
+        this.onTimeChange = (inputName) => momentObject => {
+            var time = momentObject;
+            if(typeof(momentObject) !== "string"){
+                time = momentObject.format("hh:mm a");
+            }
+            var values = this.state.values;
+            values[inputName] = time;
+            this.setState({values});
         }
-        componentWillUnmount() {
-            iwb.forms[this._id] = Object.assign({}, this.state );
-        }
+        
     }
+    componentDidMount() {
+        /* debugger
+        var triggers = this.triggerz4ComboRemotes;
+        var { values } = this.state;
+        for (var trigger in triggers) {
+            if (values[trigger]) {
+                triggers[trigger].map(zzz => {
+                    var nv = zzz.f(values[trigger], null, values);
+                    if (nv)
+                        iwb.request({
+                            url: "ajaxQueryData?" + iwb.JSON2URI(nv) + ".r=" + Math.random(),
+                            successCallback: ({ data }) => {
+                                var { options } = this.state;
+                                options[zzz.n] = data;
+                                this.setState({ options });
+                            }
+                        });
+                });
+            }
+        } */
+    }
+    componentWillUnmount() {
+        iwb.forms[this._id] = Object.assign({}, this.state );
+    }
+}
     /**
      * File Input Component to upload file into system
      */
