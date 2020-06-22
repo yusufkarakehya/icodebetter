@@ -154,7 +154,7 @@ public class NashornUtil {
 		}
 		Object o;
 		try {
-			o = babelEngine.eval("Babel.transform(\""+GenericUtil.stringToJS2(jsx)+"\", { presets: [\"react\"] }).code", babelBindings);
+			o = babelEngine.eval("Babel.transform(\""+GenericUtil.stringToJS2(jsx)+"\", {presets: [\"react\"] }).code", babelBindings);
 		} catch (ScriptException e) {
 			if(FrameworkSetting.debug)e.printStackTrace();
 			throw new IWBException("rhino", "BabelTranspile", 0, jsx,
