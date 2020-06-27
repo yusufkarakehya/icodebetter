@@ -5597,6 +5597,9 @@ public class ExtJs3_4 implements ViewAdapter {
 						.append(LocaleMsgCache.get2(scd,
 								c.getLocaleMsgKey())).append("</span>");
 			}
+			if(grid.getDefaultPageRecordNumber()==0 && c.getFilterFlag()!=0) {
+				buf.append("<i class=\"icon-column-filter\"></i>");
+			}
 			if (!qds.contains("pkpkpk"))
 				buf.append("',tooltip: '")
 						.append(LocaleMsgCache.get2(scd,
