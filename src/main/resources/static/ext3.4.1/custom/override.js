@@ -1962,6 +1962,7 @@ Ext.extend(Ext.ux.NumericField, Ext.form.NumberField,
      */
     onFocus: function(){
 		this.setRawValue(this.removeFormat(this.getRawValue()));
+		if(this.selectOnFocus)this.selectText();
     }
 });
 Ext.reg('numericfield', Ext.ux.NumericField);
